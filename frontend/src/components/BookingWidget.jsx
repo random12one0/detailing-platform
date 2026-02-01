@@ -120,28 +120,6 @@ const BookingWidget = () => {
     }
   };
 
-  const calculateBooking = async () => {
-    if (!formData.interiorPackageId && !formData.exteriorPackageId) {
-      setBookingDetails(null);
-      return;
-    }
-
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/bookings/calculate`, {
-        interior_package_id: formData.interiorPackageId,
-        exterior_package_id: formData.exteriorPackageId,
-        vehicle_size: formData.vehicleSize,
-        booking_date: formData.bookingDate?.toISOString().split('T')[0]
-      });
-
-      if (response.data.success) {
-        setBookingDetails(response.data);
-      }
-    } catch (error) {
-      console.error('Error calculating booking:', error);
-    }
-  };
-
   const getPackageByTier = (category, tier) => {
     return packages[category].find(p => p.tier === tier);
   };
