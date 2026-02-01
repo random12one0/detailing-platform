@@ -64,15 +64,15 @@ export const Header = () => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl"
+        className="fixed top-4 left-0 right-0 z-50 px-4"
       >
-        <div className={`rounded-full transition-all duration-300 ${
+        <div className={`max-w-6xl mx-auto rounded-full transition-all duration-300 ${
           isScrolled 
             ? 'bg-slate-900/95 backdrop-blur-xl shadow-2xl border border-white/10' 
             : 'bg-slate-900/80 backdrop-blur-md shadow-lg border border-white/5'
         }`}>
-          <div className="px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16 lg:h-18">
+          <div className="px-4 lg:px-8">
+            <div className="flex items-center justify-between h-14 lg:h-16">
 
               {/* Logo */}
               <motion.div
@@ -80,7 +80,7 @@ export const Header = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <span className="font-semibold text-base lg:text-lg tracking-tight text-white whitespace-nowrap">
+                <span className="font-semibold text-sm lg:text-base tracking-tight text-white whitespace-nowrap">
                   Andrew's Auto Detail & Car Wash
                 </span>
               </motion.div>
@@ -91,7 +91,7 @@ export const Header = () => {
                   <button
                     key={link.id}
                     onClick={() => scrollToSection(link.id)}
-                    className="px-4 py-2 text-sm font-medium rounded-full transition-colors duration-200 text-white/80 hover:text-white hover:bg-white/10"
+                    className="px-3 py-2 text-sm font-medium rounded-full transition-colors duration-200 text-white/80 hover:text-white hover:bg-white/10"
                   >
                     {link.label}
                   </button>
@@ -105,7 +105,7 @@ export const Header = () => {
                   variant="outline"
                   size="sm"
                   onClick={openYelp}
-                  className="flex items-center gap-1 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all"
+                  className="flex items-center gap-1 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all h-9 px-3"
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
@@ -120,7 +120,7 @@ export const Header = () => {
                   variant="outline"
                   size="sm"
                   onClick={openGoogle}
-                  className="flex items-center gap-1 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all"
+                  className="flex items-center gap-1 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all h-9 px-3"
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
@@ -134,7 +134,7 @@ export const Header = () => {
                 <Button
                   size="sm"
                   onClick={scrollToBooking}
-                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/50"
+                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/50 h-9 px-4"
                   data-testid="book-now-button"
                 >
                   Book Now
