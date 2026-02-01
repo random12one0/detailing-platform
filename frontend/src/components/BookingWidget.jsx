@@ -513,45 +513,64 @@ const BookingWidget = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-4"
               >
-                <h3 className="text-xl font-semibold text-white text-center mb-6">
-                  Choose your preferred date and time
+                <h3 className="text-lg font-semibold text-white text-center mb-4">
+                  Choose your date and time
                 </h3>
 
-                {/* Date Picker */}
-                <div>
-                  <Label className="text-white mb-3 block text-base font-semibold">Select Date</Label>
-                  <div className="bg-slate-800 rounded-xl p-4 border-2 border-slate-700">
-                    <DatePicker
-                      selected={formData.bookingDate}
-                      onChange={(date) => setFormData({...formData, bookingDate: date, startTime: ''})}
-                      minDate={new Date()}
-                      filterDate={filterDate}
-                      dateFormat="EEEE, MMMM d, yyyy"
-                      className="w-full bg-transparent text-white"
-                      placeholderText="Click to select a date"
-                      inline
-                    />
-                  </div>
-                  {errors.bookingDate && (
-                    <p className="text-sm text-red-400 mt-2 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.bookingDate}
-                    </p>
-                  )}
-                </div>
-
-                {/* Time Selector Dropdown */}
-                {formData.bookingDate && (
+                <div className="grid lg:grid-cols-2 gap-4">
+                  {/* Date Picker */}
                   <div>
-                    <Label className="text-white mb-3 block text-base font-semibold">Select Time</Label>
-                    {availableSlots.length > 0 ? (
-                      <>
+                    <Label className="text-white mb-2 block text-sm font-semibold">Select Date</Label>
+                    <div className="bg-slate-800 rounded-xl p-3 border-2 border-slate-700">
+                      <DatePicker
+                        selected={formData.bookingDate}
+                        onChange={(date) => {
+                          console.log('Date selected:', date);
+                          setFormData({...formData, bookingDate: date, startTime: ''});
+                        }}
+                        minDate={new Date()}
+                        filterDate={filterDate}
+                        dateFormat="EEEE, MMMM d, yyyy"
+                        className="w-full bg-transparent text-white text-sm"
+                        placeholderText="Click to select a date"
+                        inline
+                      />
+                    </div>
+                    {errors.bookingDate && (
+                      <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.bookingDate}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Time Selector */}
+                  <div className="flex flex-col">
+                    <Label className="text-white mb-2 block text-sm font-semibold">Select Time</Label>
+                    {!formData.bookingDate ? (
+                      <div className="flex-1 p-4 bg-slate-800 border-2 border-slate-700 rounded-xl flex items-center justify-center">
+                        <p className="text-slate-400 text-sm text-center">
+                          Please select a date first
+                        </p>
+                      </div>
+                    ) : !bookingDetails ? (
+                      <div className="flex-1 p-4 bg-slate-800 border-2 border-slate-700 rounded-xl flex items-center justify-center">
+                        <p className="text-slate-400 text-sm flex items-center gap-2">
+                          <Clock className="w-4 h-4 animate-spin" />
+                          Calculating duration...
+                        </p>
+                      </div>
+                    ) : availableSlots.length > 0 ? (
+                      <div className="flex-1 flex flex-col">
                         <select
                           value={formData.startTime}
-                          onChange={(e) => setFormData({...formData, startTime: e.target.value})}
-                          className="w-full px-4 py-3 bg-slate-800 border-2 border-slate-700 rounded-xl text-white focus:outline-none focus:border-cyan-500 text-base"
+                          onChange={(e) => {
+                            console.log('Time selected:', e.target.value);
+                            setFormData({...formData, startTime: e.target.value});
+                          }}
+                          className="flex-1 px-4 py-3 bg-slate-800 border-2 border-slate-700 rounded-xl text-white focus:outline-none focus:border-cyan-500 text-sm"
                         >
                           <option value="">Select a time slot</option>
                           {availableSlots.map((slot) => (
@@ -561,43 +580,28 @@ const BookingWidget = () => {
                           ))}
                         </select>
                         {formData.startTime && (
-                          <p className="text-sm text-cyan-400 mt-2 flex items-center gap-1">
-                            <CheckCircle2 className="w-4 h-4" />
-                            Time slot selected: {formData.startTime}
+                          <p className="text-xs text-cyan-400 mt-2 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Selected: {formData.startTime}
                           </p>
                         )}
                         {errors.startTime && (
-                          <p className="text-sm text-red-400 mt-2 flex items-center gap-1">
-                            <AlertCircle className="w-4 h-4" />
+                          <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
                             {errors.startTime}
                           </p>
                         )}
-                      </>
-                    ) : bookingDetails ? (
-                      <div className="p-4 bg-yellow-500/10 border-2 border-yellow-500/50 rounded-xl">
-                        <p className="text-yellow-100 text-sm flex items-center gap-2">
-                          <AlertCircle className="w-5 h-5" />
-                          No available time slots for this date. Please select another date.
-                        </p>
                       </div>
                     ) : (
-                      <div className="p-4 bg-slate-800 border-2 border-slate-700 rounded-xl">
-                        <p className="text-slate-400 text-sm flex items-center gap-2">
-                          <Clock className="w-5 h-5" />
-                          Loading available time slots...
+                      <div className="flex-1 p-4 bg-yellow-500/10 border-2 border-yellow-500/50 rounded-xl flex items-center justify-center">
+                        <p className="text-yellow-100 text-sm text-center flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          No slots available for this date
                         </p>
                       </div>
                     )}
                   </div>
-                )}
-
-                {!formData.bookingDate && (
-                  <div className="p-4 bg-cyan-500/10 border-2 border-cyan-500/50 rounded-xl">
-                    <p className="text-cyan-100 text-sm">
-                      Please select a date first to see available time slots.
-                    </p>
-                  </div>
-                )}
+                </div>
               </motion.div>
             )}
 
