@@ -164,16 +164,6 @@ body {
 }
 
 /* Override to show short day names */
-.booking-calendar .react-datepicker__day-name {
-    font-size: 0 !important;
-}
-
-.booking-calendar .react-datepicker__day-name::first-letter {
-    font-size: 0.7rem !important;
-    color: hsl(var(--muted-foreground)) !important;
-}
-
-/* Hide the full text and show only initials via content */
 .booking-calendar .react-datepicker__day-names {
     display: flex !important;
     justify-content: space-around !important;
@@ -184,10 +174,8 @@ body {
     line-height: 2rem !important;
     margin: 0.15rem !important;
     font-size: 0.7rem !important;
-    text-overflow: ellipsis !important;
-    overflow: hidden !important;
-    white-space: nowrap !important;
-    max-width: 40px !important;
+    color: hsl(var(--muted-foreground)) !important;
+    font-weight: 600 !important;
 }
 
 .booking-calendar .react-datepicker__day {
