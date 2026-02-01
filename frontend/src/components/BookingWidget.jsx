@@ -480,9 +480,9 @@ const BookingWidget = () => {
                           : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
                       }`}
                     >
-                      <Truck className="w-6 h-6 text-cyan-400 mb-2" />
-                      <h4 className="text-white font-semibold text-sm mb-1">Mobile Service</h4>
-                      <p className="text-xs text-slate-400">We come to you</p>
+                      <Truck className="w-6 h-6 text-cyan-400 mb-2 mx-auto" />
+                      <h4 className="text-white font-semibold text-base mb-1">Mobile Service</h4>
+                      <p className="text-sm text-slate-400">We come to you</p>
                     </button>
 
                     <button
@@ -493,9 +493,9 @@ const BookingWidget = () => {
                           : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
                       }`}
                     >
-                      <Home className="w-6 h-6 text-cyan-400 mb-2" />
-                      <h4 className="text-white font-semibold text-sm mb-1">Drop-Off</h4>
-                      <p className="text-xs text-slate-400">Bring to us</p>
+                      <Home className="w-6 h-6 text-cyan-400 mb-2 mx-auto" />
+                      <h4 className="text-white font-semibold text-base mb-1">Drop-Off</h4>
+                      <p className="text-sm text-slate-400">Bring to us</p>
                     </button>
                   </div>
                 </div>
