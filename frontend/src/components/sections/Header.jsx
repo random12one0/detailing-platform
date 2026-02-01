@@ -80,8 +80,9 @@ export const Header = () => {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <span className="font-semibold text-sm lg:text-base tracking-tight text-white whitespace-nowrap">
-                  Andrew's Auto Detail & Car Wash
+                <span className="font-semibold text-sm lg:text-base tracking-tight text-white">
+                  <span className="hidden sm:inline">Andrew's Auto Detail & Car Wash</span>
+                  <span className="sm:hidden">Andrew's Auto</span>
                 </span>
               </motion.div>
 
