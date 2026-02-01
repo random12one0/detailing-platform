@@ -527,13 +527,13 @@ const BookingWidget = () => {
                         onClick={() => setFormData({...formData, vehicleSize: size.value})}
                         className={`p-3 rounded-xl border-2 transition-all ${
                           formData.vehicleSize === size.value
-                            ? 'border-cyan-500 bg-cyan-500/10'
-                            : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                            ? 'border-accent bg-accent/10'
+                            : 'border-border bg-primary hover:border-muted-foreground'
                         }`}
                       >
-                        <Car className="w-5 h-5 text-cyan-400 mb-1 mx-auto" />
-                        <h4 className="text-white font-semibold text-sm mb-0.5">{size.label}</h4>
-                        <p className="text-cyan-400 font-bold text-xs">
+                        <Car className="w-5 h-5 text-accent mb-1 mx-auto" />
+                        <h4 className="text-foreground font-semibold text-sm mb-0.5">{size.label}</h4>
+                        <p className="text-accent font-bold text-xs">
                           {size.fee === 0 ? 'Free' : `+$${size.fee}`}
                         </p>
                       </button>
