@@ -3,6 +3,7 @@ import { FadeUp, StaggerContainer, StaggerItem } from '@/components/animations/A
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const BookCTA = () => {
   const paymentMethods = [
