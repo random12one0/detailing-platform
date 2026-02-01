@@ -223,7 +223,14 @@ const BookingPage = () => {
 
   const filterDate = (date) => {
     const day = date.getDay();
-    return day >= 1 && day <= 0; // Allow Mon-Sun (1-6, 0)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Don't allow past dates
+    if (date < today) return false;
+    
+    // Allow all days Mon-Sun
+    return day >= 0 && day <= 6;
   };
 
   return (
