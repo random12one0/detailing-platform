@@ -7,10 +7,17 @@ Handles all booking-related operations including:
 - Email notifications
 """
 
+from dotenv import load_dotenv
+from pathlib import Path
+import os
+
+# Load environment variables first
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
 from supabase import create_client, Client
 from datetime import datetime, time, timedelta, date
 from typing import List, Dict, Optional, Tuple
-import os
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
