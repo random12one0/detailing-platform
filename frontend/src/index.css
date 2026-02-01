@@ -152,6 +152,37 @@ body {
     justify-content: space-around;
 }
 
+/* Mobile Calendar Fixes for Booking Widget */
+.booking-calendar {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+.booking-calendar .react-datepicker__month-container {
+    width: 100% !important;
+}
+
+.booking-calendar .react-datepicker__day-name,
+.booking-calendar .react-datepicker__day {
+    width: 2rem !important;
+    line-height: 2rem !important;
+    margin: 0.15rem !important;
+}
+
+@media (max-width: 360px) {
+    .booking-calendar .react-datepicker__day-name,
+    .booking-calendar .react-datepicker__day {
+        width: 1.75rem !important;
+        line-height: 1.75rem !important;
+        font-size: 0.75rem !important;
+        margin: 0.1rem !important;
+    }
+    
+    .booking-calendar .react-datepicker__current-month {
+        font-size: 0.875rem !important;
+    }
+}
+
 
 /* Design System: Andrew's Auto Cleaning
    Theme: Apple-inspired minimal, clean, professional
