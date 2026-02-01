@@ -146,7 +146,6 @@ const BookingWidget = () => {
       newErrors.customerAddress = 'Address is required for mobile service';
     }
     if (!formData.bookingDate) newErrors.bookingDate = 'Please select a date';
-    if (!formData.startTime) newErrors.startTime = 'Please select a time';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -157,6 +156,9 @@ const BookingWidget = () => {
     setSubmitStatus(null);
 
     try {
+      // Set default time to 3 PM (15:00) as placeholder
+      const defaultTime = '15:00';
+      
       const bookingData = {
         customer_name: formData.customerName,
         customer_phone: formData.customerPhone,
@@ -169,7 +171,7 @@ const BookingWidget = () => {
         has_water_electric: formData.hasWaterElectric,
         customer_notes: formData.customerNotes,
         booking_date: formData.bookingDate.toISOString().split('T')[0],
-        start_time: `${formData.bookingDate.toISOString().split('T')[0]}T${formData.startTime}:00`
+        start_time: `${formData.bookingDate.toISOString().split('T')[0]}T${defaultTime}:00`
       };
 
       const response = await axios.post(`${BACKEND_URL}/api/bookings/create`, bookingData);
