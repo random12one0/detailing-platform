@@ -76,6 +76,37 @@ const BookingWidget = () => {
     calculateBooking();
   }, [calculateBooking]);
 
+  // Fetch available slots when date changes and we have booking details
+  const fetchAvailableSlots = useCallback(async () => {
+    if (!formData.bookingDate || !bookingDetails) {
+      setAvailableSlots([]);
+      return;
+    }
+
+    setSlotsLoading(true);
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/bookings/available-slots`, {
+        booking_date: formData.bookingDate.toISOString().split('T')[0],
+        duration_minutes: bookingDetails.total_duration
+      });
+
+      if (response.data.success) {
+        setAvailableSlots(response.data.slots || []);
+      } else {
+        setAvailableSlots([]);
+      }
+    } catch (error) {
+      console.error('Error fetching slots:', error);
+      setAvailableSlots([]);
+    } finally {
+      setSlotsLoading(false);
+    }
+  }, [formData.bookingDate, bookingDetails]);
+
+  useEffect(() => {
+    fetchAvailableSlots();
+  }, [fetchAvailableSlots]);
+
   const fetchPackages = async () => {
     try {
       const response = await axios.get(`${BACKEND_URL}/api/packages`);
