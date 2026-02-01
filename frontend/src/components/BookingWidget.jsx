@@ -319,7 +319,7 @@ const BookingWidget = () => {
                               className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500"
                               style={{ backgroundSize: '200% 100%' }}
                               animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
-                              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
                             />
                           </div>
                         )}
