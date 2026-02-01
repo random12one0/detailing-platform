@@ -300,7 +300,7 @@ const BookingWidget = () => {
                 )}
 
                 {/* Interior Packages */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {['standard', 'deluxe', 'ultimate'].map((tier) => {
                     const pkg = getPackageByTier('interior', tier);
                     if (!pkg) return null;
@@ -310,32 +310,54 @@ const BookingWidget = () => {
                     
                     return (
                       <motion.div key={pkg.id} className="relative">
+                        {/* Tier 2 - Animated Blue border */}
+                        {tierLevel === 2 && !isSelected && (
+                          <div className="absolute -inset-[1px] rounded-xl overflow-hidden">
+                            <motion.div
+                              className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500"
+                              style={{ backgroundSize: '200% 100%' }}
+                              animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+                              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                            />
+                          </div>
+                        )}
+
+                        {/* Tier 3 - Animated Amber/Purple border */}
+                        {tierLevel === 3 && !isSelected && (
+                          <div className="absolute -inset-[1px] rounded-xl overflow-hidden">
+                            <motion.div
+                              className="absolute inset-0 bg-gradient-to-r from-amber-500 via-purple-500 to-blue-500"
+                              style={{ backgroundSize: '200% 100%' }}
+                              animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                            />
+                          </div>
+                        )}
+
                         <button
                           onClick={() => setFormData({...formData, interiorPackageId: isSelected ? null : pkg.id})}
-                          className={`relative w-full p-5 rounded-xl text-left transition-all border-2 ${
-                            tierLevel === 1 ? 'border-slate-700' : 
-                            tierLevel === 2 ? 'border-blue-500' : 
-                            'border-amber-500'
+                          className={`relative w-full p-4 rounded-xl text-left transition-all ${
+                            tierLevel === 1 ? 'border-2 border-slate-700' : ''
                           } ${
                             isSelected 
-                              ? 'bg-cyan-500/10 border-cyan-500' 
+                              ? 'bg-cyan-500/10 border-2 border-cyan-500' 
                               : 'bg-slate-800/50 hover:bg-slate-800'
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <div className="flex items-start gap-4">
-                              <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                                <Sparkles className="w-5 h-5 text-cyan-400" />
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                                <Sparkles className="w-4 h-4 text-cyan-400" />
                               </div>
                               <div>
-                                <h4 className="text-white font-semibold mb-1">{pkg.name}</h4>
-                                <p className="text-sm text-slate-400">{pkg.description}</p>
+                                <h4 className="text-white font-semibold text-sm mb-0.5">{pkg.name}</h4>
+                                <p className="text-xs text-slate-400 line-clamp-1">{pkg.description}</p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-bold text-white">${pkg.base_price}</p>
+                            <div className="text-right flex items-center gap-2">
+                              <p className="text-xl font-bold text-white">${pkg.base_price}</p>
                               {isSelected && (
-                                <CheckCircle2 className="w-6 h-6 text-cyan-400 ml-auto mt-1" />
+                                <CheckCircle2 className="w-5 h-5 text-cyan-400" />
                               )}
                             </div>
                           </div>
@@ -346,7 +368,7 @@ const BookingWidget = () => {
                 </div>
 
                 {/* Exterior Packages */}
-                <div className="space-y-4 mt-8">
+                <div className="space-y-3 mt-6">
                   {['standard', 'deluxe', 'ultimate'].map((tier) => {
                     const pkg = getPackageByTier('exterior', tier);
                     if (!pkg) return null;
@@ -356,32 +378,52 @@ const BookingWidget = () => {
                     
                     return (
                       <motion.div key={pkg.id} className="relative">
+                        {tierLevel === 2 && !isSelected && (
+                          <div className="absolute -inset-[1px] rounded-xl overflow-hidden">
+                            <motion.div
+                              className="absolute inset-0 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500"
+                              style={{ backgroundSize: '200% 100%' }}
+                              animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+                              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                            />
+                          </div>
+                        )}
+
+                        {tierLevel === 3 && !isSelected && (
+                          <div className="absolute -inset-[1px] rounded-xl overflow-hidden">
+                            <motion.div
+                              className="absolute inset-0 bg-gradient-to-r from-amber-500 via-purple-500 to-blue-500"
+                              style={{ backgroundSize: '200% 100%' }}
+                              animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                            />
+                          </div>
+                        )}
+
                         <button
                           onClick={() => setFormData({...formData, exteriorPackageId: isSelected ? null : pkg.id})}
-                          className={`relative w-full p-5 rounded-xl text-left transition-all border-2 ${
-                            tierLevel === 1 ? 'border-slate-700' : 
-                            tierLevel === 2 ? 'border-blue-500' : 
-                            'border-amber-500'
+                          className={`relative w-full p-4 rounded-xl text-left transition-all ${
+                            tierLevel === 1 ? 'border-2 border-slate-700' : ''
                           } ${
                             isSelected 
-                              ? 'bg-cyan-500/10 border-cyan-500' 
+                              ? 'bg-cyan-500/10 border-2 border-cyan-500' 
                               : 'bg-slate-800/50 hover:bg-slate-800'
                           }`}
                         >
                           <div className="flex justify-between items-center">
-                            <div className="flex items-start gap-4">
-                              <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                                <Sparkles className="w-5 h-5 text-cyan-400" />
+                            <div className="flex items-start gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                                <Sparkles className="w-4 h-4 text-cyan-400" />
                               </div>
                               <div>
-                                <h4 className="text-white font-semibold mb-1">{pkg.name}</h4>
-                                <p className="text-sm text-slate-400">{pkg.description}</p>
+                                <h4 className="text-white font-semibold text-sm mb-0.5">{pkg.name}</h4>
+                                <p className="text-xs text-slate-400 line-clamp-1">{pkg.description}</p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-2xl font-bold text-white">${pkg.base_price}</p>
+                            <div className="text-right flex items-center gap-2">
+                              <p className="text-xl font-bold text-white">${pkg.base_price}</p>
                               {isSelected && (
-                                <CheckCircle2 className="w-6 h-6 text-cyan-400 ml-auto mt-1" />
+                                <CheckCircle2 className="w-5 h-5 text-cyan-400" />
                               )}
                             </div>
                           </div>
