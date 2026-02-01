@@ -708,12 +708,12 @@ const BookingWidget = () => {
           </AnimatePresence>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-700">
+          <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-700">
             {step > 1 && (
               <Button
                 onClick={prevStep}
                 variant="outline"
-                className="border-slate-700 text-white hover:bg-slate-800"
+                className="border-slate-700 text-white hover:bg-slate-800 h-9 px-4 text-sm"
                 disabled={loading}
               >
                 Back
@@ -724,20 +724,20 @@ const BookingWidget = () => {
               {step < 4 ? (
                 <Button
                   onClick={nextStep}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-8"
+                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-6 h-9 text-sm"
                   disabled={loading}
                 >
                   Continue
-                  <ChevronRight className="w-5 h-5 ml-2" />
+                  <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-8"
+                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-6 h-9 text-sm"
                   disabled={loading}
                 >
-                  {loading ? 'Creating Booking...' : 'Confirm Booking'}
-                  <CheckCircle2 className="w-5 h-5 ml-2" />
+                  {loading ? 'Creating...' : 'Confirm Booking'}
+                  <CheckCircle2 className="w-4 h-4 ml-1" />
                 </Button>
               )}
             </div>
@@ -745,16 +745,16 @@ const BookingWidget = () => {
 
           {/* Pricing Display */}
           {bookingDetails && (
-            <div className="mt-6 p-6 bg-slate-800/50 rounded-xl border border-cyan-500/30">
+            <div className="mt-4 p-4 bg-slate-800/50 rounded-xl border border-cyan-500/30">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-slate-400 text-sm">Estimated Total</p>
-                  <p className="text-sm text-slate-400 mt-1">
-                    <Clock className="w-4 h-4 inline mr-1" />
-                    ~{bookingDetails.total_duration} minutes
+                  <p className="text-slate-400 text-xs">Estimated Total</p>
+                  <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    ~{bookingDetails.total_duration} min
                   </p>
                 </div>
-                <p className="text-4xl font-bold text-cyan-400">
+                <p className="text-3xl font-bold text-cyan-400">
                   ${bookingDetails.total_price.toFixed(2)}
                 </p>
               </div>
