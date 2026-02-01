@@ -13,9 +13,6 @@ import FAQ from "@/components/sections/FAQ";
 import BookCTA from "@/components/sections/BookCTA";
 import Footer from "@/components/sections/Footer";
 
-// Pages
-import BookingPage from "@/pages/BookingPage";
-
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -41,7 +38,6 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/book" element={<BookingPage />} />
         </Routes>
       </BrowserRouter>
     </div>
