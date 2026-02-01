@@ -381,53 +381,155 @@ const BookingPage = () => {
                       if (!pkg) return null;
                       
                       const isSelected = formData.interiorPackageId === pkg.id;
+                      const tierLevel = tier === 'standard' ? 1 : tier === 'deluxe' ? 2 : 3;
                       
                       return (
-                        <motion.button
-                          key={pkg.id}
-                          type="button"
-                          onClick={() => setFormData({...formData, interiorPackageId: isSelected ? null : pkg.id})}
-                          whileHover={{ scale: 1.02, y: -4 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={`relative p-5 rounded-xl border-2 transition-all duration-200 text-left overflow-hidden ${
-                            isSelected
-                              ? 'border-accent bg-accent/10 shadow-lg shadow-accent/20'
-                              : 'border-border hover:border-accent/50 bg-card'
-                          }`}
-                          data-testid={`interior-${tier}-button`}
-                        >
-                          {/* Gradient overlay for selected */}
-                          {isSelected && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent"></div>
+                        <motion.div key={pkg.id} className="relative h-full">
+                          {/* Tier 2 - Blue animated border */}
+                          {tierLevel === 2 && (
+                            <div className="absolute -inset-[1px] rounded-xl overflow-hidden">
+                              <motion.div
+                                className="absolute inset-0"
+                                style={{
+                                  background: 'linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6, #60a5fa)',
+                                  backgroundSize: '200% 100%',
+                                }}
+                                animate={{
+                                  backgroundPosition: ['0% 0%', '200% 0%'],
+                                }}
+                                transition={{
+                                  duration: 3,
+                                  repeat: Infinity,
+                                  ease: 'linear',
+                                }}
+                              />
+                            </div>
                           )}
-                          
-                          <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-3">
-                              <span className={`text-xs font-bold uppercase tracking-wider ${
-                                isSelected ? 'text-accent' : 'text-muted-foreground'
-                              }`}>
-                                {tier}
-                              </span>
-                              {isSelected && (
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  className="w-6 h-6 rounded-full bg-accent flex items-center justify-center"
-                                >
-                                  <CheckCircle2 className="w-4 h-4 text-white" />
-                                </motion.div>
-                              )}
+
+                          {/* Tier 3 - Gold/purple animated border */}
+                          {tierLevel === 3 && (
+                            <div className="absolute -inset-[2px] rounded-xl overflow-hidden">
+                              <motion.div
+                                className="absolute inset-0"
+                                style={{
+                                  background: 'linear-gradient(90deg, #f59e0b, #8b5cf6, #3b82f6, #8b5cf6, #f59e0b)',
+                                  backgroundSize: '200% 100%',
+                                }}
+                                animate={{
+                                  backgroundPosition: ['0% 0%', '200% 0%'],
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  ease: 'linear',
+                                }}
+                              />
                             </div>
-                            <h4 className="font-semibold text-base mb-2">{pkg.name.replace('Interior ', '')}</h4>
-                            <div className="flex items-baseline gap-1 mb-2">
-                              <span className="text-3xl font-bold text-accent">${pkg.base_price}</span>
+                          )}
+
+                          <motion.button
+                            type="button"
+                            onClick={() => setFormData({...formData, interiorPackageId: isSelected ? null : pkg.id})}
+                            whileHover={{ scale: 1.02, y: -4 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`relative p-5 rounded-xl transition-all duration-200 text-left overflow-hidden h-full w-full ${
+                              tierLevel === 1 ? 'border-2' : 'border-0'
+                            } ${
+                              isSelected
+                                ? tierLevel === 1 ? 'border-gray-400 bg-gray-50' : 'bg-card'
+                                : tierLevel === 1 ? 'border-border bg-card' : 'bg-card'
+                            }`}
+                            data-testid={`interior-${tier}-button`}
+                          >
+                            {/* Tier 3 - Minecraft enchantment shine */}
+                            {tierLevel === 3 && (
+                              <>
+                                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                                  <motion.div
+                                    className="absolute w-[200%] h-[200%] -top-1/2 -left-1/2"
+                                    style={{
+                                      background: `repeating-linear-gradient(
+                                        -45deg,
+                                        transparent,
+                                        transparent 10px,
+                                        rgba(255,255,255,0.03) 10px,
+                                        rgba(255,255,255,0.03) 20px
+                                      )`,
+                                    }}
+                                    animate={{
+                                      x: ['-50%', '0%'],
+                                      y: ['-50%', '0%'],
+                                    }}
+                                    transition={{
+                                      duration: 3,
+                                      repeat: Infinity,
+                                      ease: 'linear',
+                                    }}
+                                  />
+                                </div>
+                                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                                  <motion.div
+                                    className="absolute h-full w-32"
+                                    style={{
+                                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+                                    }}
+                                    animate={{
+                                      x: ['-128px', '400px'],
+                                    }}
+                                    transition={{
+                                      duration: 2,
+                                      repeat: Infinity,
+                                      ease: 'linear',
+                                      repeatDelay: 0.5,
+                                    }}
+                                  />
+                                </div>
+                              </>
+                            )}
+                            
+                            <div className="relative z-10">
+                              <div className="flex items-center justify-between mb-3">
+                                <span className={`text-xs font-bold uppercase tracking-wider ${
+                                  tierLevel === 3 ? 'text-amber-500' : tierLevel === 2 ? 'text-blue-500' : 'text-gray-500'
+                                }`}>
+                                  {tier}
+                                </span>
+                                {isSelected && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                                      tierLevel === 3 ? 'bg-amber-500' : tierLevel === 2 ? 'bg-blue-500' : 'bg-gray-500'
+                                    }`}
+                                  >
+                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                  </motion.div>
+                                )}
+                                {tierLevel === 3 && (
+                                  <motion.div
+                                    animate={{ 
+                                      opacity: [0.6, 1, 0.6],
+                                      scale: [1, 1.1, 1],
+                                    }}
+                                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                                  >
+                                    <Sparkles className="w-4 h-4 text-amber-500" />
+                                  </motion.div>
+                                )}
+                              </div>
+                              <h4 className="font-semibold text-base mb-2">{pkg.name.replace('Interior ', '')}</h4>
+                              <div className="flex items-baseline gap-1 mb-2">
+                                <span className={`text-3xl font-bold ${
+                                  tierLevel === 3 ? 'text-amber-500' : tierLevel === 2 ? 'text-blue-500' : 'text-gray-600'
+                                }`}>${pkg.base_price}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Clock className="w-3 h-3" />
+                                <span>{pkg.duration_minutes} minutes</span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              <span>{pkg.duration_minutes} minutes</span>
-                            </div>
-                          </div>
-                        </motion.button>
+                          </motion.button>
+                        </motion.div>
                       );
                     })}
                   </div>
@@ -445,53 +547,155 @@ const BookingPage = () => {
                       if (!pkg) return null;
                       
                       const isSelected = formData.exteriorPackageId === pkg.id;
+                      const tierLevel = tier === 'standard' ? 1 : tier === 'deluxe' ? 2 : 3;
                       
                       return (
-                        <motion.button
-                          key={pkg.id}
-                          type="button"
-                          onClick={() => setFormData({...formData, exteriorPackageId: isSelected ? null : pkg.id})}
-                          whileHover={{ scale: 1.02, y: -4 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={`relative p-5 rounded-xl border-2 transition-all duration-200 text-left overflow-hidden ${
-                            isSelected
-                              ? 'border-accent bg-accent/10 shadow-lg shadow-accent/20'
-                              : 'border-border hover:border-accent/50 bg-card'
-                          }`}
-                          data-testid={`exterior-${tier}-button`}
-                        >
-                          {/* Gradient overlay for selected */}
-                          {isSelected && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent"></div>
+                        <motion.div key={pkg.id} className="relative h-full">
+                          {/* Tier 2 - Blue animated border */}
+                          {tierLevel === 2 && (
+                            <div className="absolute -inset-[1px] rounded-xl overflow-hidden">
+                              <motion.div
+                                className="absolute inset-0"
+                                style={{
+                                  background: 'linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6, #60a5fa)',
+                                  backgroundSize: '200% 100%',
+                                }}
+                                animate={{
+                                  backgroundPosition: ['0% 0%', '200% 0%'],
+                                }}
+                                transition={{
+                                  duration: 3,
+                                  repeat: Infinity,
+                                  ease: 'linear',
+                                }}
+                              />
+                            </div>
                           )}
-                          
-                          <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-3">
-                              <span className={`text-xs font-bold uppercase tracking-wider ${
-                                isSelected ? 'text-accent' : 'text-muted-foreground'
-                              }`}>
-                                {tier}
-                              </span>
-                              {isSelected && (
-                                <motion.div
-                                  initial={{ scale: 0 }}
-                                  animate={{ scale: 1 }}
-                                  className="w-6 h-6 rounded-full bg-accent flex items-center justify-center"
-                                >
-                                  <CheckCircle2 className="w-4 h-4 text-white" />
-                                </motion.div>
-                              )}
+
+                          {/* Tier 3 - Gold/purple animated border */}
+                          {tierLevel === 3 && (
+                            <div className="absolute -inset-[2px] rounded-xl overflow-hidden">
+                              <motion.div
+                                className="absolute inset-0"
+                                style={{
+                                  background: 'linear-gradient(90deg, #f59e0b, #8b5cf6, #3b82f6, #8b5cf6, #f59e0b)',
+                                  backgroundSize: '200% 100%',
+                                }}
+                                animate={{
+                                  backgroundPosition: ['0% 0%', '200% 0%'],
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  ease: 'linear',
+                                }}
+                              />
                             </div>
-                            <h4 className="font-semibold text-base mb-2">{pkg.name.replace('Exterior ', '')}</h4>
-                            <div className="flex items-baseline gap-1 mb-2">
-                              <span className="text-3xl font-bold text-accent">${pkg.base_price}</span>
+                          )}
+
+                          <motion.button
+                            type="button"
+                            onClick={() => setFormData({...formData, exteriorPackageId: isSelected ? null : pkg.id})}
+                            whileHover={{ scale: 1.02, y: -4 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`relative p-5 rounded-xl transition-all duration-200 text-left overflow-hidden h-full w-full ${
+                              tierLevel === 1 ? 'border-2' : 'border-0'
+                            } ${
+                              isSelected
+                                ? tierLevel === 1 ? 'border-gray-400 bg-gray-50' : 'bg-card'
+                                : tierLevel === 1 ? 'border-border bg-card' : 'bg-card'
+                            }`}
+                            data-testid={`exterior-${tier}-button`}
+                          >
+                            {/* Tier 3 - Minecraft enchantment shine */}
+                            {tierLevel === 3 && (
+                              <>
+                                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                                  <motion.div
+                                    className="absolute w-[200%] h-[200%] -top-1/2 -left-1/2"
+                                    style={{
+                                      background: `repeating-linear-gradient(
+                                        -45deg,
+                                        transparent,
+                                        transparent 10px,
+                                        rgba(255,255,255,0.03) 10px,
+                                        rgba(255,255,255,0.03) 20px
+                                      )`,
+                                    }}
+                                    animate={{
+                                      x: ['-50%', '0%'],
+                                      y: ['-50%', '0%'],
+                                    }}
+                                    transition={{
+                                      duration: 3,
+                                      repeat: Infinity,
+                                      ease: 'linear',
+                                    }}
+                                  />
+                                </div>
+                                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                                  <motion.div
+                                    className="absolute h-full w-32"
+                                    style={{
+                                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+                                    }}
+                                    animate={{
+                                      x: ['-128px', '400px'],
+                                    }}
+                                    transition={{
+                                      duration: 2,
+                                      repeat: Infinity,
+                                      ease: 'linear',
+                                      repeatDelay: 0.5,
+                                    }}
+                                  />
+                                </div>
+                              </>
+                            )}
+                            
+                            <div className="relative z-10">
+                              <div className="flex items-center justify-between mb-3">
+                                <span className={`text-xs font-bold uppercase tracking-wider ${
+                                  tierLevel === 3 ? 'text-amber-500' : tierLevel === 2 ? 'text-blue-500' : 'text-gray-500'
+                                }`}>
+                                  {tier}
+                                </span>
+                                {isSelected && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                                      tierLevel === 3 ? 'bg-amber-500' : tierLevel === 2 ? 'bg-blue-500' : 'bg-gray-500'
+                                    }`}
+                                  >
+                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                  </motion.div>
+                                )}
+                                {tierLevel === 3 && (
+                                  <motion.div
+                                    animate={{ 
+                                      opacity: [0.6, 1, 0.6],
+                                      scale: [1, 1.1, 1],
+                                    }}
+                                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                                  >
+                                    <Sparkles className="w-4 h-4 text-amber-500" />
+                                  </motion.div>
+                                )}
+                              </div>
+                              <h4 className="font-semibold text-base mb-2">{pkg.name.replace('Exterior ', '')}</h4>
+                              <div className="flex items-baseline gap-1 mb-2">
+                                <span className={`text-3xl font-bold ${
+                                  tierLevel === 3 ? 'text-amber-500' : tierLevel === 2 ? 'text-blue-500' : 'text-gray-600'
+                                }`}>${pkg.base_price}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Clock className="w-3 h-3" />
+                                <span>{pkg.duration_minutes} minutes</span>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <Clock className="w-3 h-3" />
-                              <span>{pkg.duration_minutes} minutes</span>
-                            </div>
-                          </div>
-                        </motion.button>
+                          </motion.button>
+                        </motion.div>
                       );
                     })}
                   </div>
