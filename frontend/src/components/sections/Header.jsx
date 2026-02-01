@@ -174,48 +174,6 @@ export const Header = () => {
                   {link.label}
                 </button>
               ))}
-
-              <div className="pt-2 flex flex-col gap-2">
-                {/* Mobile Yelp */}
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full rounded-xl border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white"
-                  onClick={openYelp}
-                >
-                  <img
-                    src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
-                    alt="Yelp"
-                    className="w-4 h-4 mr-2"
-                  />
-                  Yelp
-                </Button>
-
-                {/* Mobile Google */}
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full rounded-xl border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white"
-                  onClick={openGoogle}
-                >
-                  <img
-                    src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
-                    alt="Google"
-                    className="w-4 h-4 mr-2"
-                  />
-                  Google
-                </Button>
-
-                {/* Mobile Book Now */}
-                <Button
-                  size="lg"
-                  className="w-full rounded-xl bg-cyan-500 hover:bg-cyan-400 text-white font-semibold"
-                  onClick={scrollToBooking}
-                  data-testid="mobile-book-now-button"
-                >
-                  Book Now
-                </Button>
-              </div>
             </nav>
           </motion.div>
         )}
