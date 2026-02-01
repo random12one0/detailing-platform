@@ -100,20 +100,20 @@ export const Header = () => {
               </nav>
 
               {/* CTA Buttons - Always Visible */}
-              <div className="flex items-center gap-1.5 lg:gap-2">
+              <div className="flex items-center gap-1 lg:gap-2">
                 {/* Yelp Button */}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={openYelp}
-                  className="flex items-center gap-1 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all h-8 px-2 lg:px-3 text-xs lg:text-sm"
+                  className="flex items-center gap-1 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all h-7 lg:h-8 px-1.5 lg:px-3 text-[10px] lg:text-sm min-w-[32px] lg:min-w-auto"
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
                     alt="Yelp"
-                    className="w-3.5 h-3.5 lg:w-4 lg:h-4"
+                    className="w-3 h-3 lg:w-4 lg:h-4"
                   />
-                  <span className="hidden sm:inline">Yelp</span>
+                  <span className="hidden lg:inline">Yelp</span>
                 </Button>
 
                 {/* Google Button */}
@@ -121,21 +121,21 @@ export const Header = () => {
                   variant="outline"
                   size="sm"
                   onClick={openGoogle}
-                  className="flex items-center gap-1 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all h-8 px-2 lg:px-3 text-xs lg:text-sm"
+                  className="flex items-center gap-1 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all h-7 lg:h-8 px-1.5 lg:px-3 text-[10px] lg:text-sm min-w-[32px] lg:min-w-auto"
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
                     alt="Google"
-                    className="w-3.5 h-3.5 lg:w-4 lg:h-4"
+                    className="w-3 h-3 lg:w-4 lg:h-4"
                   />
-                  <span className="hidden sm:inline">Google</span>
+                  <span className="hidden lg:inline">Google</span>
                 </Button>
 
                 {/* Book Now Button */}
                 <Button
                   size="sm"
                   onClick={scrollToBooking}
-                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/50 h-8 px-3 lg:px-4 text-xs lg:text-sm"
+                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/50 h-7 lg:h-8 px-2 lg:px-4 text-[10px] lg:text-sm"
                   data-testid="book-now-button"
                 >
                   Book
@@ -144,10 +144,10 @@ export const Header = () => {
                 {/* Mobile Menu Button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-2 rounded-full text-white hover:bg-white/10 transition-colors ml-1"
+                  className="lg:hidden p-1.5 rounded-full text-white hover:bg-white/10 transition-colors ml-1"
                   aria-label="Toggle navigation menu"
                 >
-                  {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                  {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
                 </button>
               </div>
             </div>
