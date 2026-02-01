@@ -777,30 +777,14 @@ const BookingWidget = () => {
             )}
           </AnimatePresence>
 
-          {/* Navigation Buttons & Pricing - All on same line */}
-          <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-700 gap-3">
-            {/* Back Button */}
-            {step > 1 ? (
-              <Button
-                onClick={prevStep}
-                variant="ghost"
-                className="text-slate-300 hover:text-white hover:bg-slate-700 h-8 px-3 text-sm"
-                disabled={loading}
-                data-testid="back-btn"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Back
-              </Button>
-            ) : (
-              <div></div>
-            )}
-            
-            {/* Price & Duration Display (middle) */}
+          {/* Navigation Buttons & Pricing - Stack on mobile */}
+          <div className="mt-5 pt-4 border-t border-border">
+            {/* Price & Duration Display - Show above buttons on mobile */}
             {bookingDetails && (
-              <div className="flex items-center gap-3 text-sm">
-                <span className="text-cyan-400 font-bold">${bookingDetails.total_price.toFixed(2)}</span>
-                <span className="text-slate-500">•</span>
-                <span className="text-slate-400 flex items-center gap-1">
+              <div className="flex items-center justify-center gap-3 text-sm mb-3 sm:hidden">
+                <span className="text-accent font-bold text-base">${bookingDetails.total_price.toFixed(2)}</span>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-muted-foreground flex items-center gap-1">
                   <Clock className="w-3 h-3" />
                   {(() => {
                     const totalMinutes = bookingDetails.total_duration;
@@ -818,26 +802,66 @@ const BookingWidget = () => {
               </div>
             )}
             
-            {/* Continue/Confirm Button */}
-            <div>
-              {step < 4 ? (
+            <div className="flex items-center justify-between gap-2">
+              {/* Back Button */}
+              {step > 1 ? (
                 <Button
-                  onClick={nextStep}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-4 h-8 text-sm"
+                  onClick={prevStep}
+                  variant="outline"
+                  className="border-border text-muted-foreground hover:text-foreground hover:bg-muted h-9 px-3 text-sm"
                   disabled={loading}
-                  data-testid="continue-btn"
+                  data-testid="back-btn"
                 >
-                  Continue
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Back
                 </Button>
               ) : (
-                <Button
-                  onClick={handleSubmit}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-4 h-8 text-sm"
-                  disabled={loading}
-                  data-testid="confirm-booking-btn"
-                >
-                  {loading ? 'Creating...' : 'Confirm'}
+                <div></div>
+              )}
+              
+              {/* Price & Duration Display - Desktop only (middle) */}
+              {bookingDetails && (
+                <div className="hidden sm:flex items-center gap-3 text-sm">
+                  <span className="text-accent font-bold">${bookingDetails.total_price.toFixed(2)}</span>
+                  <span className="text-muted-foreground">•</span>
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {(() => {
+                      const totalMinutes = bookingDetails.total_duration;
+                      const hours = Math.floor(totalMinutes / 60);
+                      const minutes = totalMinutes % 60;
+                      if (hours > 0 && minutes > 0) {
+                        return `${hours}h ${minutes}m`;
+                      } else if (hours > 0) {
+                        return `${hours}h`;
+                      } else {
+                        return `${minutes}m`;
+                      }
+                    })()}
+                  </span>
+                </div>
+              )}
+              
+              {/* Continue/Confirm Button - Narrower */}
+              <div>
+                {step < 4 ? (
+                  <Button
+                    onClick={nextStep}
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-4 h-9 text-sm"
+                    disabled={loading}
+                    data-testid="continue-btn"
+                  >
+                    Continue
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleSubmit}
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-4 h-9 text-sm"
+                    disabled={loading}
+                    data-testid="confirm-booking-btn"
+                  >
+                    {loading ? 'Creating...' : 'Confirm'}
                   <CheckCircle2 className="w-4 h-4 ml-1" />
                 </Button>
               )}
