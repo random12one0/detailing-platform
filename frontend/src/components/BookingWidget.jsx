@@ -485,7 +485,7 @@ const BookingWidget = () => {
               </motion.div>
             )}
 
-            {/* Step 3: Date Selection Only */}
+            {/* Step 3: Date and Time Selection */}
             {step === 3 && (
               <motion.div
                 key="step3"
@@ -494,27 +494,30 @@ const BookingWidget = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-4"
               >
-                <h3 className="text-lg font-semibold text-white text-center mb-4">
-                  Choose your preferred date
+                <h3 className="text-base font-semibold text-white text-center mb-3">
+                  Choose date & time
                 </h3>
 
-                {/* Date Picker */}
+                {/* Date Picker - Fixed for mobile */}
                 <div>
                   <Label className="text-white mb-2 block text-sm font-semibold">Select Date</Label>
-                  <div className="bg-slate-800 rounded-xl p-3 border-2 border-slate-700">
-                    <DatePicker
-                      selected={formData.bookingDate}
-                      onChange={(date) => {
-                        console.log('Date selected:', date);
-                        setFormData({...formData, bookingDate: date});
-                      }}
-                      minDate={new Date()}
-                      filterDate={filterDate}
-                      dateFormat="EEEE, MMMM d, yyyy"
-                      className="w-full bg-transparent text-white text-sm"
-                      placeholderText="Click to select a date"
-                      inline
-                    />
+                  <div className="bg-slate-800 rounded-xl p-2 border-2 border-slate-700 overflow-x-auto">
+                    <div className="min-w-[280px] max-w-full">
+                      <DatePicker
+                        selected={formData.bookingDate}
+                        onChange={(date) => {
+                          setFormData({...formData, bookingDate: date, startTime: ''});
+                          setAvailableSlots([]);
+                        }}
+                        minDate={new Date()}
+                        filterDate={filterDate}
+                        dateFormat="EEEE, MMMM d, yyyy"
+                        className="w-full bg-transparent text-white text-sm"
+                        placeholderText="Click to select a date"
+                        inline
+                        calendarClassName="booking-calendar"
+                      />
+                    </div>
                   </div>
                   {errors.bookingDate && (
                     <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
@@ -524,30 +527,89 @@ const BookingWidget = () => {
                   )}
                 </div>
 
-                {/* Business Hours Display */}
+                {/* Time Slots Selection */}
                 {formData.bookingDate && (
-                  <div className="p-4 bg-cyan-500/10 border-2 border-cyan-500/50 rounded-xl">
-                    <div className="flex items-start gap-3">
-                      <Clock className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-white font-semibold text-sm mb-1">Business Hours</p>
-                        <p className="text-cyan-100 text-sm">
-                          {(() => {
-                            const day = formData.bookingDate.getDay();
-                            if (day >= 1 && day <= 5) {
-                              return 'Monday - Friday: 3:00 PM - 6:00 PM';
-                            } else if (day === 6) {
-                              return 'Saturday: 10:00 AM - 6:00 PM';
-                            } else if (day === 0) {
-                              return 'Sunday: 1:00 PM - 6:00 PM';
-                            }
-                          })()}
-                        </p>
-                        <p className="text-cyan-200 text-xs mt-1">
-                          We'll contact you to confirm your exact time slot
-                        </p>
+                  <div className="mt-4">
+                    <Label className="text-white mb-2 block text-sm font-semibold">Select Time</Label>
+                    
+                    {/* Business Hours Info */}
+                    <div className="p-3 bg-cyan-500/10 border border-cyan-500/50 rounded-lg mb-3">
+                      <div className="flex items-start gap-2">
+                        <Clock className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-cyan-100 text-xs">
+                            {(() => {
+                              const day = formData.bookingDate.getDay();
+                              if (day >= 1 && day <= 5) {
+                                return 'Mon-Fri: 3:00 PM - 6:00 PM';
+                              } else if (day === 6) {
+                                return 'Saturday: 10:00 AM - 6:00 PM';
+                              } else if (day === 0) {
+                                return 'Sunday: 1:00 PM - 6:00 PM';
+                              }
+                            })()}
+                          </p>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Loading State */}
+                    {slotsLoading && (
+                      <div className="flex items-center justify-center py-6">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
+                        <span className="ml-2 text-slate-400 text-sm">Loading available times...</span>
+                      </div>
+                    )}
+
+                    {/* Time Slots Grid */}
+                    {!slotsLoading && availableSlots.length > 0 && (
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        {availableSlots.map((slot) => {
+                          const isSelected = formData.startTime === slot;
+                          // Convert 24h to 12h format
+                          const [hours, minutes] = slot.split(':');
+                          const hour = parseInt(hours);
+                          const ampm = hour >= 12 ? 'PM' : 'AM';
+                          const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                          const displayTime = `${displayHour}:${minutes} ${ampm}`;
+                          
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              onClick={() => setFormData({...formData, startTime: slot})}
+                              data-testid={`time-slot-${slot}`}
+                              className={`py-2 px-2 rounded-lg text-xs font-medium transition-all ${
+                                isSelected
+                                  ? 'bg-cyan-500 text-white'
+                                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                              }`}
+                            >
+                              {displayTime}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* No Slots Available */}
+                    {!slotsLoading && availableSlots.length === 0 && bookingDetails && (
+                      <div className="p-3 bg-amber-500/10 border border-amber-500/50 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                          <p className="text-amber-100 text-xs">
+                            No available slots for this date. Please choose another date.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {errors.startTime && (
+                      <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {errors.startTime}
+                      </p>
+                    )}
                   </div>
                 )}
               </motion.div>
