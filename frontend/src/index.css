@@ -168,7 +168,8 @@ body {
 .booking-calendar .react-datepicker__header {
     background: transparent !important;
     border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
-    padding: 0.5rem 0 !important;
+    padding: 0.75rem 0 0.5rem !important;
+    position: relative !important;
 }
 
 .booking-calendar .react-datepicker__current-month {
@@ -176,49 +177,66 @@ body {
     font-size: 0.875rem !important;
     font-weight: 600 !important;
     margin-bottom: 0.5rem !important;
+    text-align: center !important;
 }
 
-/* Navigation buttons */
+/* Navigation buttons - positioned absolutely */
 .booking-calendar .react-datepicker__navigation {
-    top: 0.5rem !important;
+    top: 0.75rem !important;
     width: 1.75rem !important;
     height: 1.75rem !important;
     border-radius: 0.5rem !important;
-    background: rgba(148, 163, 184, 0.1) !important;
+    background: rgba(148, 163, 184, 0.15) !important;
+    position: absolute !important;
+    z-index: 10 !important;
 }
 
 .booking-calendar .react-datepicker__navigation:hover {
-    background: rgba(148, 163, 184, 0.2) !important;
+    background: rgba(148, 163, 184, 0.3) !important;
 }
 
 .booking-calendar .react-datepicker__navigation--previous {
-    left: 0.75rem !important;
+    left: 1rem !important;
 }
 
 .booking-calendar .react-datepicker__navigation--next {
-    right: 0.75rem !important;
+    right: 1rem !important;
 }
 
-/* Hide the sr-only text that's somehow showing */
+/* Completely hide the aria-label text */
+.booking-calendar .react-datepicker__navigation span.react-datepicker__navigation-icon {
+    overflow: hidden !important;
+    text-indent: -9999px !important;
+}
+
 .booking-calendar .react-datepicker__navigation span {
-    font-size: 0 !important;
-    visibility: hidden !important;
+    overflow: hidden !important;
+    text-indent: -9999px !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .booking-calendar .react-datepicker__navigation-icon::before {
     border-color: white !important;
     border-width: 2px 2px 0 0 !important;
-    width: 6px !important;
-    height: 6px !important;
-    top: 8px !important;
+    width: 7px !important;
+    height: 7px !important;
+    top: 50% !important;
+    transform: translateY(-50%) rotate(45deg) !important;
+    position: absolute !important;
 }
 
 .booking-calendar .react-datepicker__navigation-icon--previous::before {
-    right: 2px !important;
+    transform: translateY(-50%) rotate(-135deg) !important;
+    right: 6px !important;
+    left: auto !important;
 }
 
 .booking-calendar .react-datepicker__navigation-icon--next::before {
-    left: 2px !important;
+    transform: translateY(-50%) rotate(45deg) !important;
+    left: 6px !important;
+    right: auto !important;
 }
 
 /* Day names row */
