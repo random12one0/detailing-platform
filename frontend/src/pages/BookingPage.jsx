@@ -328,6 +328,34 @@ const BookingPage = () => {
             </Card>
           </FadeUp>
 
+          {/* Quick Price Estimate - Sticky at top after selection */}
+          {(formData.interiorPackageId || formData.exteriorPackageId) && bookingDetails && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="sticky top-20 z-20 mb-6"
+            >
+              <div className="bg-gradient-to-r from-accent via-accent/90 to-accent text-white rounded-2xl shadow-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-grid-white/10"></div>
+                <div className="relative px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium opacity-90">Your Estimated Total</p>
+                      <p className="text-3xl font-bold">${bookingDetails.total_price.toFixed(2)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right hidden md:block">
+                    <p className="text-sm opacity-90">{bookingDetails.packages.length} service(s) selected</p>
+                    <p className="text-sm font-medium">~{bookingDetails.total_duration} minutes</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           {/* Package Selection */}
           <FadeUp delay={0.15}>
             <Card data-testid="package-selection-card">
