@@ -38,6 +38,31 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Booking Models
+class BookingCreate(BaseModel):
+    customer_name: str
+    customer_phone: str
+    customer_email: EmailStr
+    customer_address: Optional[str] = None
+    booking_date: str  # ISO format date string
+    start_time: str  # ISO format time string
+    service_type: str  # 'mobile' or 'dropoff'
+    vehicle_size: str  # 'small', 'medium', 'large'
+    interior_package_id: Optional[str] = None
+    exterior_package_id: Optional[str] = None
+    has_water_electric: bool = False
+    customer_notes: Optional[str] = None
+
+class AvailabilityCheck(BaseModel):
+    booking_date: str  # ISO format date string
+    interior_package_id: Optional[str] = None
+    exterior_package_id: Optional[str] = None
+    vehicle_size: str
+
+class TimeSlotRequest(BaseModel):
+    booking_date: str
+    duration_minutes: int
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
