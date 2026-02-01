@@ -293,13 +293,13 @@ const BookingWidget = () => {
                 className="space-y-4"
               >
                 {errors.packages && (
-                  <p className="text-sm text-red-400 text-center mb-2">{errors.packages}</p>
+                  <p className="text-sm text-red-500 text-center mb-2">{errors.packages}</p>
                 )}
 
                 {/* Interior Section Header */}
                 <div className="mb-2">
-                  <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                    <div className="w-1 h-4 bg-cyan-400 rounded-full" />
+                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <div className="w-1 h-4 bg-accent rounded-full" />
                     Interior Detailing
                   </h4>
                 </div>
