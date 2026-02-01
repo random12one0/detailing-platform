@@ -98,21 +98,21 @@ export const Header = () => {
                 ))}
               </nav>
 
-              {/* Desktop CTA Buttons */}
-              <div className="hidden lg:flex items-center gap-2">
+              {/* CTA Buttons - Always Visible */}
+              <div className="flex items-center gap-1.5 lg:gap-2">
                 {/* Yelp Button */}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={openYelp}
-                  className="flex items-center gap-1 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all h-9 px-3"
+                  className="flex items-center gap-1 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all h-8 px-2 lg:px-3 text-xs lg:text-sm"
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
                     alt="Yelp"
-                    className="w-4 h-4"
+                    className="w-3.5 h-3.5 lg:w-4 lg:h-4"
                   />
-                  Yelp
+                  <span className="hidden sm:inline">Yelp</span>
                 </Button>
 
                 {/* Google Button */}
@@ -120,35 +120,35 @@ export const Header = () => {
                   variant="outline"
                   size="sm"
                   onClick={openGoogle}
-                  className="flex items-center gap-1 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all h-9 px-3"
+                  className="flex items-center gap-1 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all h-8 px-2 lg:px-3 text-xs lg:text-sm"
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
                     alt="Google"
-                    className="w-4 h-4"
+                    className="w-3.5 h-3.5 lg:w-4 lg:h-4"
                   />
-                  Google
+                  <span className="hidden sm:inline">Google</span>
                 </Button>
 
                 {/* Book Now Button */}
                 <Button
                   size="sm"
                   onClick={scrollToBooking}
-                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/50 h-9 px-4"
+                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/50 h-8 px-3 lg:px-4 text-xs lg:text-sm"
                   data-testid="book-now-button"
                 >
-                  Book Now
+                  Book
                 </Button>
-              </div>
 
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-full text-white hover:bg-white/10 transition-colors"
-                aria-label="Toggle navigation menu"
-              >
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
+                {/* Mobile Menu Button */}
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="lg:hidden p-2 rounded-full text-white hover:bg-white/10 transition-colors ml-1"
+                  aria-label="Toggle navigation menu"
+                >
+                  {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
