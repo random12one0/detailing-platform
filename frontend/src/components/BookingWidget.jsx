@@ -315,61 +315,65 @@ const BookingWidget = () => {
                     
                     return (
                       <div key={pkg.id} className="relative">
-                        {/* Animated outline for Deluxe (blue) */}
+                        {/* Animated OUTLINE ONLY for Deluxe (blue) */}
                         {tierLevel === 2 && !isSelected && (
-                          <div className="absolute -inset-[2px] rounded-xl overflow-hidden">
-                            <motion.div
-                              className="absolute inset-0"
-                              style={{
-                                background: 'linear-gradient(90deg, transparent 0%, #3b82f6 25%, #60a5fa 50%, #3b82f6 75%, transparent 100%)',
-                                backgroundSize: '200% 100%'
-                              }}
-                              animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
-                              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                            />
-                          </div>
+                          <motion.div
+                            className="absolute -inset-[2px] rounded-xl pointer-events-none"
+                            style={{
+                              background: 'linear-gradient(90deg, transparent, #3b82f6, #60a5fa, #3b82f6, transparent)',
+                              backgroundSize: '200% 100%',
+                              padding: '2px',
+                              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                              WebkitMaskComposite: 'xor',
+                              maskComposite: 'exclude',
+                            }}
+                            animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                          />
                         )}
                         
-                        {/* Animated outline for Ultimate (amber/purple) */}
+                        {/* Animated OUTLINE ONLY for Ultimate (amber/purple) */}
                         {tierLevel === 3 && !isSelected && (
-                          <div className="absolute -inset-[2px] rounded-xl overflow-hidden">
-                            <motion.div
-                              className="absolute inset-0"
-                              style={{
-                                background: 'linear-gradient(90deg, transparent 0%, #f59e0b 20%, #8b5cf6 50%, #f59e0b 80%, transparent 100%)',
-                                backgroundSize: '200% 100%'
-                              }}
-                              animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
-                              transition={{ duration: 2.5, repeat: Infinity, ease: 'linear' }}
-                            />
-                          </div>
+                          <motion.div
+                            className="absolute -inset-[2px] rounded-xl pointer-events-none"
+                            style={{
+                              background: 'linear-gradient(90deg, transparent, #f59e0b, #8b5cf6, #f59e0b, transparent)',
+                              backgroundSize: '200% 100%',
+                              padding: '2px',
+                              WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                              WebkitMaskComposite: 'xor',
+                              maskComposite: 'exclude',
+                            }}
+                            animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+                            transition={{ duration: 2.5, repeat: Infinity, ease: 'linear' }}
+                          />
                         )}
                         
                         <button
                           onClick={() => setFormData({...formData, interiorPackageId: isSelected ? null : pkg.id})}
                           data-testid={`interior-${tier}-btn`}
-                          className={`relative w-full p-3 rounded-xl text-left transition-all ${
-                            tierLevel === 1 ? 'border-2 border-slate-700' : ''
-                          } ${
+                          className={`relative w-full p-3 rounded-xl text-left transition-all border-2 ${
                             isSelected 
-                              ? 'bg-cyan-500/10 border-2 border-cyan-500' 
-                              : 'bg-slate-800/80 hover:bg-slate-800'
+                              ? 'bg-accent/10 border-accent' 
+                              : tierLevel === 1 
+                                ? 'bg-primary border-border hover:bg-primary/80'
+                                : 'bg-primary border-transparent hover:bg-primary/80'
                           }`}
                         >
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                              <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
+                                <Sparkles className="w-3.5 h-3.5 text-accent" />
                               </div>
                               <div>
-                                <h4 className="text-white font-semibold text-sm">{pkg.name}</h4>
-                                <p className="text-xs text-slate-400 line-clamp-1">{pkg.description}</p>
+                                <h4 className="text-primary-foreground font-semibold text-sm">{pkg.name}</h4>
+                                <p className="text-xs text-muted-foreground line-clamp-1">{pkg.description}</p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <p className="text-lg font-bold text-white">${pkg.base_price}</p>
+                              <p className="text-lg font-bold text-primary-foreground">${pkg.base_price}</p>
                               {isSelected && (
-                                <CheckCircle2 className="w-5 h-5 text-cyan-400" />
+                                <CheckCircle2 className="w-5 h-5 text-accent" />
                               )}
                             </div>
                           </div>
