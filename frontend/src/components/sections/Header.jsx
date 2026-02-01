@@ -165,7 +165,7 @@ export const Header = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-20 sm:top-24 left-4 right-4 z-40 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl xl:hidden"
+            className="fixed top-20 sm:top-24 left-4 right-4 z-40 bg-primary/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl xl:hidden"
           >
             <nav className="flex flex-col p-4 space-y-1">
               {navLinks.map((link) => (
