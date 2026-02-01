@@ -373,37 +373,61 @@ const BookingPage = () => {
                 <div>
                   <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-accent rounded-full" />
-                    Interior Detailing
+                    Interior Detailing <span className="text-sm font-normal text-muted-foreground ml-2">(Choose one)</span>
                   </h3>
                   <div className="grid md:grid-cols-3 gap-4">
                     {['standard', 'deluxe', 'ultimate'].map((tier) => {
                       const pkg = getPackageByTier('interior', tier);
                       if (!pkg) return null;
                       
+                      const isSelected = formData.interiorPackageId === pkg.id;
+                      
                       return (
-                        <button
+                        <motion.button
                           key={pkg.id}
                           type="button"
-                          onClick={() => setFormData({...formData, interiorPackageId: formData.interiorPackageId === pkg.id ? null : pkg.id})}
-                          className={`p-4 rounded-xl border-2 transition-all duration-200 text-left ${
-                            formData.interiorPackageId === pkg.id
-                              ? 'border-accent bg-accent/5'
-                              : 'border-border hover:border-accent/50'
+                          onClick={() => setFormData({...formData, interiorPackageId: isSelected ? null : pkg.id})}
+                          whileHover={{ scale: 1.02, y: -4 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`relative p-5 rounded-xl border-2 transition-all duration-200 text-left overflow-hidden ${
+                            isSelected
+                              ? 'border-accent bg-accent/10 shadow-lg shadow-accent/20'
+                              : 'border-border hover:border-accent/50 bg-card'
                           }`}
                           data-testid={`interior-${tier}-button`}
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium uppercase tracking-wider text-accent">
-                              {tier}
-                            </span>
-                            {formData.interiorPackageId === pkg.id && (
-                              <CheckCircle2 className="w-5 h-5 text-accent" />
-                            )}
+                          {/* Gradient overlay for selected */}
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent"></div>
+                          )}
+                          
+                          <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className={`text-xs font-bold uppercase tracking-wider ${
+                                isSelected ? 'text-accent' : 'text-muted-foreground'
+                              }`}>
+                                {tier}
+                              </span>
+                              {isSelected && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="w-6 h-6 rounded-full bg-accent flex items-center justify-center"
+                                >
+                                  <CheckCircle2 className="w-4 h-4 text-white" />
+                                </motion.div>
+                              )}
+                            </div>
+                            <h4 className="font-semibold text-base mb-2">{pkg.name.replace('Interior ', '')}</h4>
+                            <div className="flex items-baseline gap-1 mb-2">
+                              <span className="text-3xl font-bold text-accent">${pkg.base_price}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              <span>{pkg.duration_minutes} minutes</span>
+                            </div>
                           </div>
-                          <h4 className="font-semibold mb-1">{pkg.name}</h4>
-                          <p className="text-2xl font-bold text-accent mb-2">${pkg.base_price}</p>
-                          <p className="text-xs text-muted-foreground">{pkg.duration_minutes} min</p>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -413,37 +437,61 @@ const BookingPage = () => {
                 <div>
                   <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
                     <div className="w-1 h-6 bg-accent rounded-full" />
-                    Exterior Detailing
+                    Exterior Detailing <span className="text-sm font-normal text-muted-foreground ml-2">(Choose one)</span>
                   </h3>
                   <div className="grid md:grid-cols-3 gap-4">
                     {['standard', 'deluxe', 'ultimate'].map((tier) => {
                       const pkg = getPackageByTier('exterior', tier);
                       if (!pkg) return null;
                       
+                      const isSelected = formData.exteriorPackageId === pkg.id;
+                      
                       return (
-                        <button
+                        <motion.button
                           key={pkg.id}
                           type="button"
-                          onClick={() => setFormData({...formData, exteriorPackageId: formData.exteriorPackageId === pkg.id ? null : pkg.id})}
-                          className={`p-4 rounded-xl border-2 transition-all duration-200 text-left ${
-                            formData.exteriorPackageId === pkg.id
-                              ? 'border-accent bg-accent/5'
-                              : 'border-border hover:border-accent/50'
+                          onClick={() => setFormData({...formData, exteriorPackageId: isSelected ? null : pkg.id})}
+                          whileHover={{ scale: 1.02, y: -4 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`relative p-5 rounded-xl border-2 transition-all duration-200 text-left overflow-hidden ${
+                            isSelected
+                              ? 'border-accent bg-accent/10 shadow-lg shadow-accent/20'
+                              : 'border-border hover:border-accent/50 bg-card'
                           }`}
                           data-testid={`exterior-${tier}-button`}
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-medium uppercase tracking-wider text-accent">
-                              {tier}
-                            </span>
-                            {formData.exteriorPackageId === pkg.id && (
-                              <CheckCircle2 className="w-5 h-5 text-accent" />
-                            )}
+                          {/* Gradient overlay for selected */}
+                          {isSelected && (
+                            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent"></div>
+                          )}
+                          
+                          <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className={`text-xs font-bold uppercase tracking-wider ${
+                                isSelected ? 'text-accent' : 'text-muted-foreground'
+                              }`}>
+                                {tier}
+                              </span>
+                              {isSelected && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="w-6 h-6 rounded-full bg-accent flex items-center justify-center"
+                                >
+                                  <CheckCircle2 className="w-4 h-4 text-white" />
+                                </motion.div>
+                              )}
+                            </div>
+                            <h4 className="font-semibold text-base mb-2">{pkg.name.replace('Exterior ', '')}</h4>
+                            <div className="flex items-baseline gap-1 mb-2">
+                              <span className="text-3xl font-bold text-accent">${pkg.base_price}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              <span>{pkg.duration_minutes} minutes</span>
+                            </div>
                           </div>
-                          <h4 className="font-semibold mb-1">{pkg.name}</h4>
-                          <p className="text-2xl font-bold text-accent mb-2">${pkg.base_price}</p>
-                          <p className="text-xs text-muted-foreground">{pkg.duration_minutes} min</p>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
