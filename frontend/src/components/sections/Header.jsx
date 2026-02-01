@@ -33,7 +33,7 @@ export const Header = () => {
   const navLinks = [
     { label: 'Services', id: 'services' },
     { label: 'Gallery', id: 'gallery' },
-    { label: 'Why Us', id: 'why-us' },
+    { label: 'Meet Owner', id: 'meet-owner' },
     { label: 'FAQ', id: 'faq' },
   ];
 
