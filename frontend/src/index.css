@@ -299,7 +299,7 @@ body {
     border-radius: 50% !important;
     font-size: 0.8rem !important;
     font-weight: 500 !important;
-    color: white !important;
+    color: hsl(var(--foreground)) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -307,26 +307,26 @@ body {
 }
 
 .booking-calendar .react-datepicker__day:hover {
-    background: rgba(34, 211, 238, 0.2) !important;
+    background: hsl(var(--accent) / 0.2) !important;
 }
 
 .booking-calendar .react-datepicker__day--selected {
-    background: #22d3ee !important;
-    color: #0f172a !important;
+    background: hsl(var(--accent)) !important;
+    color: hsl(var(--accent-foreground)) !important;
     font-weight: 700 !important;
 }
 
 .booking-calendar .react-datepicker__day--selected:hover {
-    background: #06b6d4 !important;
+    background: hsl(var(--accent) / 0.8) !important;
 }
 
 .booking-calendar .react-datepicker__day--today {
-    border: 2px solid #22d3ee !important;
+    border: 2px solid hsl(var(--accent)) !important;
     font-weight: 600 !important;
 }
 
 .booking-calendar .react-datepicker__day--disabled {
-    color: rgba(148, 163, 184, 0.3) !important;
+    color: hsl(var(--muted-foreground) / 0.3) !important;
     cursor: not-allowed !important;
 }
 
@@ -335,7 +335,7 @@ body {
 }
 
 .booking-calendar .react-datepicker__day--outside-month {
-    color: rgba(148, 163, 184, 0.3) !important;
+    color: hsl(var(--muted-foreground) / 0.3) !important;
 }
 
 @media (max-width: 360px) {
