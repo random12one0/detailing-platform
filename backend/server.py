@@ -193,6 +193,8 @@ async def create_booking(booking_data: BookingCreate):
             "message": "Booking created successfully!",
             "booking": booking
         }
+    except HTTPException:
+        raise  # Re-raise HTTPExceptions as-is
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
