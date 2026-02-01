@@ -216,7 +216,7 @@ body {
 
 /* Arrow icons using ::before */
 .booking-calendar .react-datepicker__navigation-icon::before {
-    border-color: white !important;
+    border-color: hsl(var(--foreground)) !important;
     border-style: solid !important;
     border-width: 2px 2px 0 0 !important;
     width: 8px !important;
