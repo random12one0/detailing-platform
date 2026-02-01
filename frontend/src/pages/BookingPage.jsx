@@ -1078,9 +1078,9 @@ const BookingPage = () => {
                       className="mt-1"
                     />
                     <Label htmlFor="water-electric" className="cursor-pointer flex-1">
-                      <span className="font-medium">Water & Electrical Access Available</span>
+                      <span className="font-medium">Water & Electrical Access Confirmation</span>
                       <p className="text-sm text-muted-foreground mt-1">
-                        I confirm that water and electrical access will be available at the service location.
+                        I confirm that access to a working water hose and an electrical outlet will be available at the service location.
                       </p>
                     </Label>
                   </div>
