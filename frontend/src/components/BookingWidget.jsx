@@ -514,7 +514,8 @@ const BookingWidget = () => {
                         placeholderText="Click to select a date"
                         inline
                         calendarClassName="booking-calendar"
-                        formatWeekDay={nameOfDay => nameOfDay.substring(0, 2)}
+                        formatWeekDay={nameOfDay => nameOfDay.slice(0, 2).toUpperCase()}
+                        useWeekdaysShort={true}
                       />
                     </div>
                   </div>
