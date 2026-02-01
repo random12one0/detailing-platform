@@ -163,7 +163,7 @@ body {
     width: 100% !important;
 }
 
-/* Override to show short day names */
+/* Override to show short day names - hide concatenated text */
 .booking-calendar .react-datepicker__day-names {
     display: flex !important;
     justify-content: space-around !important;
@@ -173,10 +173,28 @@ body {
     width: 2.5rem !important;
     line-height: 2rem !important;
     margin: 0.15rem !important;
-    font-size: 0.7rem !important;
+    font-size: 0 !important;
     color: hsl(var(--muted-foreground)) !important;
     font-weight: 600 !important;
+    position: relative !important;
 }
+
+.booking-calendar .react-datepicker__day-name::after {
+    font-size: 0.7rem !important;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Day abbreviations */
+.booking-calendar .react-datepicker__day-name:nth-child(1)::after { content: 'SU'; }
+.booking-calendar .react-datepicker__day-name:nth-child(2)::after { content: 'MO'; }
+.booking-calendar .react-datepicker__day-name:nth-child(3)::after { content: 'TU'; }
+.booking-calendar .react-datepicker__day-name:nth-child(4)::after { content: 'WE'; }
+.booking-calendar .react-datepicker__day-name:nth-child(5)::after { content: 'TH'; }
+.booking-calendar .react-datepicker__day-name:nth-child(6)::after { content: 'FR'; }
+.booking-calendar .react-datepicker__day-name:nth-child(7)::after { content: 'SA'; }
 
 .booking-calendar .react-datepicker__day {
     width: 2.5rem !important;
