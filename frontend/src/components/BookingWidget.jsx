@@ -328,10 +328,13 @@ const BookingWidget = () => {
                         {tierLevel === 3 && !isSelected && (
                           <div className="absolute -inset-[1px] rounded-xl overflow-hidden">
                             <motion.div
-                              className="absolute inset-0 bg-gradient-to-r from-amber-500 via-purple-500 to-blue-500"
-                              style={{ backgroundSize: '200% 100%' }}
-                              animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
-                              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                              className="absolute inset-0"
+                              style={{
+                                background: 'linear-gradient(90deg, #f59e0b 0%, #d97706 25%, #8b5cf6 50%, #7c3aed 65%, #f59e0b 100%)',
+                                backgroundSize: '300% 100%'
+                              }}
+                              animate={{ backgroundPosition: ['0% 0%', '300% 0%'] }}
+                              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
                             />
                           </div>
                         )}
