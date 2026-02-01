@@ -11,6 +11,72 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* React DatePicker Custom Styling */
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker {
+    font-family: 'Inter', sans-serif !important;
+    border: 1px solid hsl(var(--border)) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+}
+
+.react-datepicker__header {
+    background-color: hsl(var(--secondary)) !important;
+    border-bottom: 1px solid hsl(var(--border)) !important;
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+    padding-top: 0.75rem !important;
+}
+
+.react-datepicker__current-month {
+    color: hsl(var(--foreground)) !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+}
+
+.react-datepicker__day-name {
+    color: hsl(var(--muted-foreground)) !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+}
+
+.react-datepicker__day {
+    color: hsl(var(--foreground)) !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.2s !important;
+}
+
+.react-datepicker__day:hover {
+    background-color: hsl(var(--accent) / 0.1) !important;
+}
+
+.react-datepicker__day--selected {
+    background-color: hsl(var(--accent)) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+    background-color: hsl(var(--accent) / 0.2) !important;
+}
+
+.react-datepicker__day--disabled {
+    color: hsl(var(--muted-foreground)) !important;
+    opacity: 0.4 !important;
+}
+
+.react-datepicker__navigation {
+    top: 0.75rem !important;
+}
+
+.react-datepicker__navigation-icon::before {
+    border-color: hsl(var(--foreground)) !important;
+}
+
+
 /* Design System: Andrew's Auto Cleaning
    Theme: Apple-inspired minimal, clean, professional
    Primary: Sophisticated dark gray-blue (slate)
