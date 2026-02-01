@@ -552,14 +552,14 @@ const BookingWidget = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-4"
               >
-                <h3 className="text-base font-semibold text-white text-center mb-3">
+                <h3 className="text-base font-semibold text-foreground text-center mb-3">
                   Choose date & time
                 </h3>
 
                 {/* Date Picker - Fixed for mobile */}
                 <div>
-                  <Label className="text-white mb-2 block text-sm font-semibold">Select Date</Label>
-                  <div className="bg-slate-800 rounded-xl p-2 border-2 border-slate-700 overflow-x-auto">
+                  <Label className="text-foreground mb-2 block text-sm font-semibold">Select Date</Label>
+                  <div className="bg-primary rounded-xl p-2 border-2 border-border overflow-x-auto">
                     <div className="min-w-[280px] max-w-full">
                       <DatePicker
                         selected={formData.bookingDate}
@@ -570,7 +570,7 @@ const BookingWidget = () => {
                         minDate={new Date()}
                         filterDate={filterDate}
                         dateFormat="EEEE, MMMM d, yyyy"
-                        className="w-full bg-transparent text-white text-sm"
+                        className="w-full bg-transparent text-foreground text-sm"
                         placeholderText="Click to select a date"
                         inline
                         calendarClassName="booking-calendar"
@@ -580,7 +580,7 @@ const BookingWidget = () => {
                     </div>
                   </div>
                   {errors.bookingDate && (
-                    <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                    <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
                       <AlertCircle className="w-3 h-3" />
                       {errors.bookingDate}
                     </p>
@@ -590,14 +590,14 @@ const BookingWidget = () => {
                 {/* Time Slots Selection */}
                 {formData.bookingDate && (
                   <div className="mt-4">
-                    <Label className="text-white mb-2 block text-sm font-semibold">Select Time</Label>
+                    <Label className="text-foreground mb-2 block text-sm font-semibold">Select Time</Label>
                     
                     {/* Business Hours Info */}
-                    <div className="p-3 bg-cyan-500/10 border border-cyan-500/50 rounded-lg mb-3">
+                    <div className="p-3 bg-accent/10 border border-accent/50 rounded-lg mb-3">
                       <div className="flex items-start gap-2">
-                        <Clock className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+                        <Clock className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-cyan-100 text-xs">
+                          <p className="text-foreground text-xs">
                             {(() => {
                               const day = formData.bookingDate.getDay();
                               if (day >= 1 && day <= 5) {
@@ -616,8 +616,8 @@ const BookingWidget = () => {
                     {/* Loading State */}
                     {slotsLoading && (
                       <div className="flex items-center justify-center py-6">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
-                        <span className="ml-2 text-slate-400 text-sm">Loading available times...</span>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent"></div>
+                        <span className="ml-2 text-muted-foreground text-sm">Loading available times...</span>
                       </div>
                     )}
 
