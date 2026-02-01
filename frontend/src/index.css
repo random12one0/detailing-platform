@@ -163,26 +163,6 @@ body {
     width: 100% !important;
 }
 
-.booking-calendar .react-datepicker__day-names {
-    display: flex !important;
-    justify-content: space-around !important;
-}
-
-.booking-calendar .react-datepicker__day-name {
-    width: 2.5rem !important;
-    line-height: 2rem !important;
-    margin: 0.15rem !important;
-    font-size: 0 !important;
-}
-
-.booking-calendar .react-datepicker__day-name::first-letter {
-    font-size: 0.75rem !important;
-}
-
-.booking-calendar .react-datepicker__day-name::after {
-    font-size: 0.75rem !important;
-}
-
 /* Override to show short day names */
 .booking-calendar .react-datepicker__day-name {
     font-size: 0 !important;
