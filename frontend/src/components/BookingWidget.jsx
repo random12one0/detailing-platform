@@ -717,25 +717,55 @@ const BookingWidget = () => {
             )}
           </AnimatePresence>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-700">
-            {step > 1 && (
+          {/* Navigation Buttons & Pricing - All on same line */}
+          <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-700 gap-3">
+            {/* Back Button */}
+            {step > 1 ? (
               <Button
                 onClick={prevStep}
-                variant="outline"
-                className="border-slate-700 text-white hover:bg-slate-800 h-9 px-4 text-sm"
+                variant="ghost"
+                className="text-slate-300 hover:text-white hover:bg-slate-700 h-8 px-3 text-sm"
                 disabled={loading}
+                data-testid="back-btn"
               >
+                <ChevronLeft className="w-4 h-4 mr-1" />
                 Back
               </Button>
+            ) : (
+              <div></div>
             )}
             
-            <div className="ml-auto">
+            {/* Price & Duration Display (middle) */}
+            {bookingDetails && (
+              <div className="flex items-center gap-3 text-sm">
+                <span className="text-cyan-400 font-bold">${bookingDetails.total_price.toFixed(2)}</span>
+                <span className="text-slate-500">•</span>
+                <span className="text-slate-400 flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {(() => {
+                    const totalMinutes = bookingDetails.total_duration;
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    if (hours > 0 && minutes > 0) {
+                      return `${hours}h ${minutes}m`;
+                    } else if (hours > 0) {
+                      return `${hours}h`;
+                    } else {
+                      return `${minutes}m`;
+                    }
+                  })()}
+                </span>
+              </div>
+            )}
+            
+            {/* Continue/Confirm Button */}
+            <div>
               {step < 4 ? (
                 <Button
                   onClick={nextStep}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-6 h-9 text-sm"
+                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-4 h-8 text-sm"
                   disabled={loading}
+                  data-testid="continue-btn"
                 >
                   Continue
                   <ChevronRight className="w-4 h-4 ml-1" />
@@ -743,44 +773,16 @@ const BookingWidget = () => {
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-6 h-9 text-sm"
+                  className="bg-cyan-500 hover:bg-cyan-400 text-white font-semibold px-4 h-8 text-sm"
                   disabled={loading}
+                  data-testid="confirm-booking-btn"
                 >
-                  {loading ? 'Creating...' : 'Confirm Booking'}
+                  {loading ? 'Creating...' : 'Confirm'}
                   <CheckCircle2 className="w-4 h-4 ml-1" />
                 </Button>
               )}
             </div>
           </div>
-
-          {/* Pricing Display */}
-          {bookingDetails && (
-            <div className="mt-4 p-4 bg-slate-800/50 rounded-xl border border-cyan-500/30">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-slate-400 text-xs">Estimated Total</p>
-                  <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {(() => {
-                      const totalMinutes = bookingDetails.total_duration;
-                      const hours = Math.floor(totalMinutes / 60);
-                      const minutes = totalMinutes % 60;
-                      if (hours > 0 && minutes > 0) {
-                        return `~${hours} hr ${minutes} min`;
-                      } else if (hours > 0) {
-                        return `~${hours} hr`;
-                      } else {
-                        return `~${minutes} min`;
-                      }
-                    })()}
-                  </p>
-                </div>
-                <p className="text-3xl font-bold text-cyan-400">
-                  ${bookingDetails.total_price.toFixed(2)}
-                </p>
-              </div>
-            </div>
-          )}
         </motion.div>
       </div>
     </section>
