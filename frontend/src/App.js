@@ -23,6 +23,7 @@ const HomePage = () => {
       <main>
         <Hero />
         <Services />
+        <BookingWidget />
         <ServiceOptions />
         <Gallery />
         <MeetTheOwner />
