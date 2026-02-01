@@ -70,9 +70,12 @@ body {
 .react-datepicker__day-name {
     color: hsl(var(--muted-foreground)) !important;
     font-weight: 600 !important;
-    font-size: 0.875rem !important;
+    font-size: 0.75rem !important;
     width: 2.5rem !important;
     line-height: 2.5rem !important;
+    text-overflow: clip !important;
+    overflow: hidden !important;
+    max-width: 2.5rem !important;
 }
 
 .react-datepicker__day {
