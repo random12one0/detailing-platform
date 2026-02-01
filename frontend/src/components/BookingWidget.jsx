@@ -290,16 +290,24 @@ const BookingWidget = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-6"
               >
-                <h3 className="text-xl font-semibold text-white text-center mb-6">
+                <h3 className="text-lg font-semibold text-white text-center mb-4">
                   What service are you interested in?
                 </h3>
-                <p className="text-sm text-slate-400 text-center mb-8">
-                  Select one to get your personalized quote
+                <p className="text-sm text-slate-400 text-center mb-6">
+                  Select one or both to get your personalized quote
                 </p>
 
                 {errors.packages && (
                   <p className="text-sm text-red-400 text-center mb-4">{errors.packages}</p>
                 )}
+
+                {/* Interior Section Header */}
+                <div className="mb-3">
+                  <h4 className="text-base font-semibold text-white flex items-center gap-2">
+                    <div className="w-1 h-5 bg-cyan-400 rounded-full" />
+                    Interior Detailing
+                  </h4>
+                </div>
 
                 {/* Interior Packages */}
                 <div className="space-y-3">
