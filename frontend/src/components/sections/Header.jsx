@@ -4,13 +4,21 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Internal booking navigation
+  const goToBooking = () => {
+    navigate('/book');
+    setIsMobileMenuOpen(false);
+  };
 
   // External links
-  const openBooking = () => window.open('https://andrewsauto.setmore.com/book', '_blank');
   const openYelp = () => window.open('https://www.yelp.com/biz/andrews-car-washing-lakewood-3', '_blank');
   const openGoogle = () => window.open('https://g.page/r/CY27nt5XVIuBEAI/review', '_blank');
 
