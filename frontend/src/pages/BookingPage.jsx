@@ -468,41 +468,115 @@ const BookingPage = () => {
             </Card>
           </FadeUp>
 
-          {/* Pricing Summary */}
+          {/* Pricing Summary - Enhanced */}
           {bookingDetails && (
             <FadeUp delay={0.25}>
-              <Card className="border-accent/50 bg-accent/5" data-testid="pricing-summary">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
-                      <DollarSign className="w-6 h-6 text-accent" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-4">Booking Summary</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Services Subtotal</span>
-                          <span className="font-medium">${bookingDetails.subtotal.toFixed(2)}</span>
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="relative"
+              >
+                {/* Animated gradient background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-accent/10 to-transparent rounded-2xl blur-xl"></div>
+                
+                <Card className="relative border-2 border-accent/50 bg-gradient-to-br from-accent/5 via-background to-background overflow-hidden" data-testid="pricing-summary">
+                  {/* Shine effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                    animate={{
+                      x: ['-100%', '200%']
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      repeatDelay: 2,
+                      ease: 'linear'
+                    }}
+                  />
+                  
+                  <CardContent className="p-8 relative z-10">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Icon and Title */}
+                      <div className="flex items-center gap-4 md:flex-col md:items-center md:justify-center md:border-r md:border-border md:pr-6">
+                        <motion.div 
+                          className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center flex-shrink-0 shadow-lg"
+                          animate={{ 
+                            boxShadow: [
+                              '0 10px 25px -5px rgba(59, 130, 246, 0.3)',
+                              '0 10px 35px -5px rgba(59, 130, 246, 0.5)',
+                              '0 10px 25px -5px rgba(59, 130, 246, 0.3)'
+                            ]
+                          }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          <DollarSign className="w-8 h-8 text-white" />
+                        </motion.div>
+                        <div className="md:text-center">
+                          <h3 className="font-semibold text-xl text-foreground">Price Estimate</h3>
+                          <p className="text-sm text-muted-foreground">Your booking summary</p>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Vehicle Size Fee</span>
-                          <span className="font-medium">${bookingDetails.vehicle_size_fee.toFixed(2)}</span>
+                      </div>
+                      
+                      {/* Details */}
+                      <div className="flex-1 space-y-4">
+                        {/* Service details */}
+                        <div className="space-y-3">
+                          {bookingDetails.packages.map((pkg, idx) => (
+                            <div key={idx} className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg">
+                              <div>
+                                <p className="font-medium text-foreground">{pkg.name}</p>
+                                <p className="text-xs text-muted-foreground">{pkg.duration_minutes} minutes</p>
+                              </div>
+                              <span className="font-semibold text-lg text-accent">${pkg.base_price}</span>
+                            </div>
+                          ))}
+                          
+                          <div className="flex justify-between items-center p-3 bg-secondary/50 rounded-lg">
+                            <div>
+                              <p className="font-medium text-foreground">Vehicle Size</p>
+                              <p className="text-xs text-muted-foreground capitalize">{formData.vehicleSize}</p>
+                            </div>
+                            <span className="font-semibold text-lg text-accent">
+                              {bookingDetails.vehicle_size_fee === 0 ? 'Free' : `+$${bookingDetails.vehicle_size_fee}`}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Estimated Duration</span>
-                          <span className="font-medium">{bookingDetails.base_duration} min + {bookingDetails.buffer_minutes} min buffer</span>
+                        
+                        {/* Duration info */}
+                        <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          <p className="text-sm text-blue-900 dark:text-blue-100">
+                            <strong>Total Duration:</strong> {bookingDetails.base_duration} min service + {bookingDetails.buffer_minutes} min buffer = {bookingDetails.total_duration} min
+                          </p>
                         </div>
-                        <div className="pt-2 border-t border-border flex justify-between items-center">
-                          <span className="font-semibold text-lg">Total Price</span>
-                          <span className="font-bold text-2xl text-accent" data-testid="total-price">
-                            ${bookingDetails.total_price.toFixed(2)}
-                          </span>
+                        
+                        {/* Total */}
+                        <div className="pt-4 border-t-2 border-accent/30">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Total Amount</p>
+                              <p className="text-xs text-muted-foreground">Due upon service completion</p>
+                            </div>
+                            <motion.div
+                              animate={{ 
+                                scale: [1, 1.05, 1]
+                              }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                            >
+                              <div className="text-right">
+                                <p className="text-4xl font-bold text-accent" data-testid="total-price">
+                                  ${bookingDetails.total_price.toFixed(2)}
+                                </p>
+                                <p className="text-xs text-muted-foreground mt-1">Estimated total</p>
+                              </div>
+                            </motion.div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </FadeUp>
           )}
 
