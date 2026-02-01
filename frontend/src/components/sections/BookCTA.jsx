@@ -6,6 +6,8 @@ import { Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const BookCTA = () => {
+  const navigate = useNavigate();
+  
   const paymentMethods = [
     { name: 'Cash', icon: '💵' },
     { name: 'Zelle', icon: '💳' },
@@ -15,7 +17,7 @@ export const BookCTA = () => {
   ];
 
   const openBooking = () => {
-    window.open('https://andrewsauto.setmore.com/book', '_blank');
+    navigate('/book');
   };
 
   return (
