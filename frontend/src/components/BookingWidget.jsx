@@ -483,39 +483,39 @@ const BookingWidget = () => {
               >
                 {/* Service Type */}
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Service Type</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">Service Type</h3>
                   <div className="grid md:grid-cols-2 gap-3">
                     <button
                       onClick={() => setFormData({...formData, serviceType: 'mobile'})}
                       className={`p-4 rounded-xl border-2 transition-all ${
                         formData.serviceType === 'mobile'
-                          ? 'border-cyan-500 bg-cyan-500/10'
-                          : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                          ? 'border-accent bg-accent/10'
+                          : 'border-border bg-primary hover:border-muted-foreground'
                       }`}
                     >
-                      <Truck className="w-6 h-6 text-cyan-400 mb-2 mx-auto" />
-                      <h4 className="text-white font-semibold text-base mb-1">Mobile Service</h4>
-                      <p className="text-sm text-slate-400">We come to you</p>
+                      <Truck className="w-6 h-6 text-accent mb-2 mx-auto" />
+                      <h4 className="text-foreground font-semibold text-base mb-1">Mobile Service</h4>
+                      <p className="text-sm text-muted-foreground">We come to you</p>
                     </button>
 
                     <button
                       onClick={() => setFormData({...formData, serviceType: 'dropoff'})}
                       className={`p-4 rounded-xl border-2 transition-all ${
                         formData.serviceType === 'dropoff'
-                          ? 'border-cyan-500 bg-cyan-500/10'
-                          : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+                          ? 'border-accent bg-accent/10'
+                          : 'border-border bg-primary hover:border-muted-foreground'
                       }`}
                     >
-                      <Home className="w-6 h-6 text-cyan-400 mb-2 mx-auto" />
-                      <h4 className="text-white font-semibold text-base mb-1">Drop-Off</h4>
-                      <p className="text-sm text-slate-400">Bring to us</p>
+                      <Home className="w-6 h-6 text-accent mb-2 mx-auto" />
+                      <h4 className="text-foreground font-semibold text-base mb-1">Drop-Off</h4>
+                      <p className="text-sm text-muted-foreground">Bring to us</p>
                     </button>
                   </div>
                 </div>
 
                 {/* Vehicle Size */}
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Vehicle Size</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">Vehicle Size</h3>
                   <div className="grid grid-cols-3 gap-3">
                     {[
                       { value: 'small', label: 'Small', fee: 0 },
