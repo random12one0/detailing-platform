@@ -12,9 +12,12 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Internal booking navigation
-  const goToBooking = () => {
-    navigate('/book');
+  // Scroll to booking widget
+  const scrollToBooking = () => {
+    const element = document.getElementById('booking-widget');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
     setIsMobileMenuOpen(false);
   };
 
@@ -56,93 +59,97 @@ export const Header = () => {
 
   return (
     <>
+      {/* Floating Island Header */}
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-primary shadow-lg' : 'bg-transparent'
-        }`}
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className={`rounded-full transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-slate-900/95 backdrop-blur-xl shadow-2xl border border-white/10' 
+            : 'bg-slate-900/80 backdrop-blur-md shadow-lg border border-white/5'
+        }`}>
+          <div className="px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16 lg:h-18">
 
-            {/* Logo */}
-            <motion.div
-              className="flex items-center gap-2"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
-              <span className="font-semibold text-lg tracking-tight text-white">
-                Andrew&apos;s Auto Detail &amp; Car Wash
-              </span>
-            </motion.div>
+              {/* Logo */}
+              <motion.div
+                className="flex items-center gap-2"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2 }}
+              >
+                <span className="font-semibold text-base lg:text-lg tracking-tight text-white whitespace-nowrap">
+                  Andrew's Auto Detail & Car Wash
+                </span>
+              </motion.div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
-                  className="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 text-white/80 hover:text-white hover:bg-white/10"
+              {/* Desktop Navigation */}
+              <nav className="hidden lg:flex items-center gap-1">
+                {navLinks.map((link) => (
+                  <button
+                    key={link.id}
+                    onClick={() => scrollToSection(link.id)}
+                    className="px-4 py-2 text-sm font-medium rounded-full transition-colors duration-200 text-white/80 hover:text-white hover:bg-white/10"
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </nav>
+
+              {/* Desktop CTA Buttons */}
+              <div className="hidden lg:flex items-center gap-2">
+                {/* Yelp Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={openYelp}
+                  className="flex items-center gap-1 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all"
                 >
-                  {link.label}
-                </button>
-              ))}
-            </nav>
+                  <img
+                    src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
+                    alt="Yelp"
+                    className="w-4 h-4"
+                  />
+                  Yelp
+                </Button>
 
-            {/* Desktop CTA Buttons */}
-            <div className="hidden md:flex items-center gap-3">
-              {/* Yelp Button - frosted */}
-              <Button
-                variant="outline"
-                size="default"
-                onClick={openYelp}
-                className="flex items-center gap-1 border-red-500 text-red-500 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-red-500 hover:text-white transition-colors duration-200"
-              >
-                <img
-                  src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
-                  alt="Yelp Logo"
-                  className="w-4 h-4"
-                />
-                Yelp
-              </Button>
+                {/* Google Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={openGoogle}
+                  className="flex items-center gap-1 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all"
+                >
+                  <img
+                    src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
+                    alt="Google"
+                    className="w-4 h-4"
+                  />
+                  Google
+                </Button>
 
-              {/* Google Button - frosted */}
-              <Button
-                variant="outline"
-                size="default"
-                onClick={openGoogle}
-                className="flex items-center gap-1 border-blue-500 text-blue-500 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-blue-500 hover:text-white transition-colors duration-200"
-              >
-                <img
-                  src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
-                  alt="Google Logo"
-                  className="w-4 h-4"
-                />
-                Google
-              </Button>
+                {/* Book Now Button */}
+                <Button
+                  size="sm"
+                  onClick={scrollToBooking}
+                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/50"
+                  data-testid="book-now-button"
+                >
+                  Book Now
+                </Button>
+              </div>
 
-              {/* Book Now Button */}
-              <Button
-                variant={isScrolled ? "accent" : "hero"}
-                size="default"
-                onClick={goToBooking}
-                data-testid="book-now-button"
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 rounded-full text-white hover:bg-white/10 transition-colors"
+                aria-label="Toggle navigation menu"
               >
-                Book Now
-              </Button>
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
             </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-white hover:bg-white/10 transition-colors duration-200"
-              aria-label="Toggle navigation menu"
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
         </div>
       </motion.header>
@@ -155,14 +162,14 @@ export const Header = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-16 z-40 bg-primary border-b border-white/10 shadow-lg md:hidden"
+            className="fixed top-24 left-4 right-4 z-40 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl lg:hidden"
           >
             <nav className="flex flex-col p-4 space-y-1">
               {navLinks.map((link) => (
                 <button
                   key={link.id}
                   onClick={() => scrollToSection(link.id)}
-                  className="px-4 py-3 text-left text-sm font-medium text-white/90 hover:bg-white/10 rounded-lg transition-colors duration-200"
+                  className="px-4 py-3 text-left text-sm font-medium text-white/90 hover:bg-white/10 rounded-xl transition-colors"
                 >
                   {link.label}
                 </button>
@@ -173,12 +180,12 @@ export const Header = () => {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white bg-transparent"
+                  className="w-full rounded-xl border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white"
                   onClick={openYelp}
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
-                    alt="Yelp Logo"
+                    alt="Yelp"
                     className="w-4 h-4 mr-2"
                   />
                   Yelp
@@ -188,12 +195,12 @@ export const Header = () => {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="w-full border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white bg-transparent"
+                  className="w-full rounded-xl border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white"
                   onClick={openGoogle}
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
-                    alt="Google Logo"
+                    alt="Google"
                     className="w-4 h-4 mr-2"
                   />
                   Google
@@ -201,10 +208,9 @@ export const Header = () => {
 
                 {/* Mobile Book Now */}
                 <Button
-                  variant="accent"
                   size="lg"
-                  className="w-full"
-                  onClick={goToBooking}
+                  className="w-full rounded-xl bg-cyan-500 hover:bg-cyan-400 text-white font-semibold"
+                  onClick={scrollToBooking}
                   data-testid="mobile-book-now-button"
                 >
                   Book Now
