@@ -580,7 +580,7 @@ const BookingPage = () => {
             </FadeUp>
           )}
 
-          {/* Date and Time Selection */}
+          {/* Date and Time Selection - Improved */}
           <FadeUp delay={0.3}>
             <Card data-testid="datetime-card">
               <CardHeader>
@@ -588,70 +588,123 @@ const BookingPage = () => {
                   <Clock className="w-5 h-5 text-accent" />
                   Select Date & Time
                 </CardTitle>
+                <p className="text-sm text-muted-foreground mt-2">Choose when you'd like us to service your vehicle</p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <div>
-                  <Label htmlFor="booking-date">Date</Label>
+                  <Label htmlFor="booking-date" className="text-base font-semibold mb-3 block">Pick a Date</Label>
                   <DatePicker
                     selected={formData.bookingDate}
                     onChange={(date) => setFormData({...formData, bookingDate: date, startTime: ''})}
                     minDate={new Date()}
                     filterDate={filterDate}
-                    dateFormat="MMMM d, yyyy"
-                    className="w-full mt-1 px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                    placeholderText="Select a date"
+                    dateFormat="EEEE, MMMM d, yyyy"
+                    className="w-full mt-1 px-4 py-3 border-2 border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent text-base"
+                    placeholderText="Click to select a date"
                     data-testid="booking-date-picker"
+                    inline={false}
                   />
                   {errors.bookingDate && (
-                    <p className="text-sm text-red-500 mt-1">{errors.bookingDate}</p>
+                    <p className="text-sm text-red-500 mt-2 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.bookingDate}
+                    </p>
                   )}
                   
                   {/* Business Hours Info */}
                   {formData.bookingDate && (
-                    <div className="mt-3 p-3 bg-secondary/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground">
-                        <strong>Business Hours:</strong>{' '}
-                        {isWeekdayAfternoon(formData.bookingDate) && '3:00 PM - 6:00 PM'}
-                        {isSaturday(formData.bookingDate) && '10:00 AM - 6:00 PM'}
-                        {isSunday(formData.bookingDate) && '1:00 PM - 6:00 PM'}
-                      </p>
-                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+                          <Clock className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground mb-1">Business Hours</p>
+                          <p className="text-sm text-muted-foreground">
+                            {isWeekdayAfternoon(formData.bookingDate) && (
+                              <>
+                                <strong className="text-foreground">Monday - Friday:</strong> 3:00 PM - 6:00 PM
+                              </>
+                            )}
+                            {isSaturday(formData.bookingDate) && (
+                              <>
+                                <strong className="text-foreground">Saturday:</strong> 10:00 AM - 6:00 PM
+                              </>
+                            )}
+                            {isSunday(formData.bookingDate) && (
+                              <>
+                                <strong className="text-foreground">Sunday:</strong> 1:00 PM - 6:00 PM
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
                   )}
                 </div>
 
                 {/* Available Time Slots */}
                 {formData.bookingDate && availableSlots.length > 0 && (
-                  <div>
-                    <Label>Available Time Slots</Label>
-                    <div className="grid grid-cols-4 md:grid-cols-6 gap-2 mt-2">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <Label className="text-base font-semibold mb-3 block">Available Time Slots</Label>
+                    <p className="text-sm text-muted-foreground mb-3">Select your preferred start time</p>
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                       {availableSlots.map((slot) => (
-                        <button
+                        <motion.button
                           key={slot}
                           type="button"
                           onClick={() => setFormData({...formData, startTime: slot})}
-                          className={`py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`relative py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
                             formData.startTime === slot
-                              ? 'bg-accent text-white'
-                              : 'bg-secondary hover:bg-secondary/80'
+                              ? 'bg-accent text-white shadow-lg shadow-accent/50'
+                              : 'bg-secondary hover:bg-secondary/80 border-2 border-transparent hover:border-accent/30'
                           }`}
                           data-testid={`time-slot-${slot}`}
                         >
                           {slot}
-                        </button>
+                          {formData.startTime === slot && (
+                            <motion.div
+                              layoutId="selected-time"
+                              className="absolute inset-0 border-2 border-accent rounded-xl"
+                            />
+                          )}
+                        </motion.button>
                       ))}
                     </div>
                     {errors.startTime && (
-                      <p className="text-sm text-red-500 mt-1">{errors.startTime}</p>
+                      <p className="text-sm text-red-500 mt-2 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.startTime}
+                      </p>
                     )}
-                  </div>
+                  </motion.div>
                 )}
 
                 {formData.bookingDate && availableSlots.length === 0 && bookingDetails && (
-                  <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                      No available slots for this date. Please select another date.
-                    </p>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="p-6 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl"
+                  >
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">No Available Slots</p>
+                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                          All time slots are booked for this date. Please select another date.
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
                 )}
               </CardContent>
             </Card>
