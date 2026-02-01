@@ -442,64 +442,63 @@ const BookingWidget = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-8"
+                className="space-y-6"
               >
                 {/* Service Type */}
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Service Type</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Service Type</h3>
+                  <div className="grid md:grid-cols-2 gap-3">
                     <button
                       onClick={() => setFormData({...formData, serviceType: 'mobile'})}
-                      className={`p-6 rounded-xl border-2 transition-all ${
+                      className={`p-4 rounded-xl border-2 transition-all ${
                         formData.serviceType === 'mobile'
                           ? 'border-cyan-500 bg-cyan-500/10'
                           : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
                       }`}
                     >
-                      <Truck className="w-8 h-8 text-cyan-400 mb-3" />
-                      <h4 className="text-white font-semibold mb-2">Mobile Service</h4>
-                      <p className="text-sm text-slate-400">We come to your location</p>
+                      <Truck className="w-6 h-6 text-cyan-400 mb-2" />
+                      <h4 className="text-white font-semibold text-sm mb-1">Mobile Service</h4>
+                      <p className="text-xs text-slate-400">We come to you</p>
                     </button>
 
                     <button
                       onClick={() => setFormData({...formData, serviceType: 'dropoff'})}
-                      className={`p-6 rounded-xl border-2 transition-all ${
+                      className={`p-4 rounded-xl border-2 transition-all ${
                         formData.serviceType === 'dropoff'
                           ? 'border-cyan-500 bg-cyan-500/10'
                           : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
                       }`}
                     >
-                      <Home className="w-8 h-8 text-cyan-400 mb-3" />
-                      <h4 className="text-white font-semibold mb-2">Drop-Off</h4>
-                      <p className="text-sm text-slate-400">Bring your vehicle to us</p>
+                      <Home className="w-6 h-6 text-cyan-400 mb-2" />
+                      <h4 className="text-white font-semibold text-sm mb-1">Drop-Off</h4>
+                      <p className="text-xs text-slate-400">Bring to us</p>
                     </button>
                   </div>
                 </div>
 
                 {/* Vehicle Size */}
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Vehicle Size</h3>
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <h3 className="text-lg font-semibold text-white mb-3">Vehicle Size</h3>
+                  <div className="grid grid-cols-3 gap-3">
                     {[
-                      { value: 'small', label: 'Small', fee: 0, examples: 'Sedan, Compact' },
-                      { value: 'medium', label: 'Medium', fee: 5, examples: 'SUV, Crossover' },
-                      { value: 'large', label: 'Large', fee: 10, examples: 'Truck, Large SUV' }
+                      { value: 'small', label: 'Small', fee: 0 },
+                      { value: 'medium', label: 'Medium', fee: 5 },
+                      { value: 'large', label: 'Large', fee: 10 }
                     ].map((size) => (
                       <button
                         key={size.value}
                         onClick={() => setFormData({...formData, vehicleSize: size.value})}
-                        className={`p-5 rounded-xl border-2 transition-all ${
+                        className={`p-3 rounded-xl border-2 transition-all ${
                           formData.vehicleSize === size.value
                             ? 'border-cyan-500 bg-cyan-500/10'
                             : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
                         }`}
                       >
-                        <Car className="w-6 h-6 text-cyan-400 mb-2" />
-                        <h4 className="text-white font-semibold mb-1">{size.label}</h4>
-                        <p className="text-cyan-400 font-bold mb-1">
-                          {size.fee === 0 ? 'No fee' : `+$${size.fee}`}
+                        <Car className="w-5 h-5 text-cyan-400 mb-1 mx-auto" />
+                        <h4 className="text-white font-semibold text-sm mb-0.5">{size.label}</h4>
+                        <p className="text-cyan-400 font-bold text-xs">
+                          {size.fee === 0 ? 'Free' : `+$${size.fee}`}
                         </p>
-                        <p className="text-xs text-slate-400">{size.examples}</p>
                       </button>
                     ))}
                   </div>
