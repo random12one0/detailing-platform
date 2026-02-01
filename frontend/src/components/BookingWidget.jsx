@@ -862,9 +862,10 @@ const BookingWidget = () => {
                     data-testid="confirm-booking-btn"
                   >
                     {loading ? 'Creating...' : 'Confirm'}
-                  <CheckCircle2 className="w-4 h-4 ml-1" />
-                </Button>
-              )}
+                    <CheckCircle2 className="w-4 h-4 ml-1" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </motion.div>
