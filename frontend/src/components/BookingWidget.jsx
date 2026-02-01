@@ -722,33 +722,33 @@ const BookingWidget = () => {
                     type="email"
                     value={formData.customerEmail}
                     onChange={(e) => setFormData({...formData, customerEmail: e.target.value})}
-                    className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 h-10 text-sm"
+                    className="bg-primary border-border text-primary-foreground focus:border-accent h-10 text-sm"
                     placeholder="john@example.com"
                   />
                   {errors.customerEmail && (
-                    <p className="text-xs text-red-400 mt-1">{errors.customerEmail}</p>
+                    <p className="text-xs text-red-500 mt-1">{errors.customerEmail}</p>
                   )}
                 </div>
 
                 {formData.serviceType === 'mobile' && (
                   <>
                     <div>
-                      <Label className="text-white mb-1 block text-sm flex items-center gap-1">
+                      <Label className="text-foreground mb-1 block text-sm flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
                         Service Address *
                       </Label>
                       <Input
                         value={formData.customerAddress}
                         onChange={(e) => setFormData({...formData, customerAddress: e.target.value})}
-                        className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 h-10 text-sm"
+                        className="bg-primary border-border text-primary-foreground focus:border-accent h-10 text-sm"
                         placeholder="123 Main St, Lakewood, CA"
                       />
                       {errors.customerAddress && (
-                        <p className="text-xs text-red-400 mt-1">{errors.customerAddress}</p>
+                        <p className="text-xs text-red-500 mt-1">{errors.customerAddress}</p>
                       )}
                     </div>
 
-                    <div className="flex items-start gap-2 p-3 bg-slate-800/50 rounded-lg">
+                    <div className="flex items-start gap-2 p-3 bg-primary/50 rounded-lg border border-border">
                       <input
                         type="checkbox"
                         id="water-electric"
@@ -756,7 +756,7 @@ const BookingWidget = () => {
                         onChange={(e) => setFormData({...formData, hasWaterElectric: e.target.checked})}
                         className="mt-0.5"
                       />
-                      <Label htmlFor="water-electric" className="cursor-pointer flex-1 text-white text-xs">
+                      <Label htmlFor="water-electric" className="cursor-pointer flex-1 text-foreground text-xs">
                         I confirm that access to a working water hose and an electrical outlet will be available at the service location.
                       </Label>
                     </div>
@@ -764,11 +764,11 @@ const BookingWidget = () => {
                 )}
 
                 <div>
-                  <Label className="text-white mb-1 block text-sm">Additional Notes</Label>
+                  <Label className="text-foreground mb-1 block text-sm">Additional Notes</Label>
                   <Textarea
                     value={formData.customerNotes}
                     onChange={(e) => setFormData({...formData, customerNotes: e.target.value})}
-                    className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 text-sm"
+                    className="bg-primary border-border text-primary-foreground focus:border-accent text-sm"
                     placeholder="Any special requests..."
                     rows={3}
                   />
