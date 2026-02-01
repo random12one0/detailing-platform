@@ -226,30 +226,30 @@ const BookingWidget = () => {
   };
 
   return (
-    <section id="booking-widget" className="py-12 lg:py-16 bg-slate-950">
+    <section id="booking-widget" className="py-12 lg:py-16 bg-background">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-slate-800/95 rounded-3xl p-5 lg:p-6 border border-cyan-500/20 shadow-2xl"
+          className="bg-card rounded-3xl p-5 lg:p-6 border border-border shadow-xl"
         >
-          {/* Header */}
+          {/* Header - Bigger */}
           <div className="text-center mb-4">
-            <h2 className="text-xl lg:text-2xl font-bold text-white">
-              CREATE <span className="text-cyan-400">BOOKING</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
+              CREATE <span className="text-accent">BOOKING</span>
             </h2>
           </div>
 
           {/* Progress Bar - Condensed with step indicator on same line */}
           <div className="mb-5 flex items-center gap-3">
-            <span className="text-xs text-cyan-400 font-medium whitespace-nowrap">Step {step}/4</span>
+            <span className="text-xs text-accent font-medium whitespace-nowrap">Step {step}/4</span>
             <div className="flex gap-1 flex-1">
               {[1, 2, 3, 4].map((s) => (
                 <div
                   key={s}
                   className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                    s <= step ? 'bg-cyan-500' : 'bg-slate-700'
+                    s <= step ? 'bg-accent' : 'bg-muted'
                   }`}
                 />
               ))}
