@@ -36,7 +36,6 @@ export const Header = () => {
   }, []);
 
   const scrollToSection = (sectionId) => {
-    // If not on home page, navigate to home first
     if (location.pathname !== '/') {
       navigate('/');
       setTimeout(() => {
@@ -68,26 +67,27 @@ export const Header = () => {
       >
         <div className={`max-w-6xl mx-auto rounded-full transition-all duration-300 ${
           isScrolled 
-            ? 'bg-primary/95 backdrop-blur-xl shadow-2xl border border-white/10' 
-            : 'bg-primary/80 backdrop-blur-md shadow-lg border border-white/5'
+            ? 'bg-slate-900/95 backdrop-blur-xl shadow-2xl border border-white/10' 
+            : 'bg-slate-900/80 backdrop-blur-md shadow-lg border border-white/5'
         }`}>
-          <div className="px-4 lg:px-8">
-            <div className="flex items-center justify-between h-14 lg:h-16">
+          <div className="px-3 sm:px-4 lg:px-8">
+            <div className="flex items-center justify-between h-12 sm:h-14 lg:h-16">
 
               {/* Logo */}
               <motion.div
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 flex-shrink-0"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
-                <span className="font-semibold text-sm lg:text-base tracking-tight text-white">
-                  <span className="hidden sm:inline">Andrew's Auto Detail & Car Wash</span>
+                <span className="font-semibold text-xs sm:text-sm lg:text-base tracking-tight text-white whitespace-nowrap">
+                  <span className="hidden md:inline">Andrew's Auto Detail & Car Wash</span>
+                  <span className="hidden sm:inline md:hidden">Andrew's Auto Detail</span>
                   <span className="sm:hidden">Andrew's Auto</span>
                 </span>
               </motion.div>
 
-              {/* Desktop Navigation */}
-              <nav className="hidden lg:flex items-center gap-1">
+              {/* Desktop Navigation - Only on large screens */}
+              <nav className="hidden xl:flex items-center gap-1">
                 {navLinks.map((link) => (
                   <button
                     key={link.id}
@@ -99,21 +99,22 @@ export const Header = () => {
                 ))}
               </nav>
 
-              {/* CTA Buttons - Always Visible */}
-              <div className="flex items-center gap-1 lg:gap-2">
+              {/* CTA Buttons - 3 responsive stages */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {/* Yelp Button */}
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={openYelp}
-                  className="flex items-center gap-1 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all h-7 lg:h-8 px-1.5 lg:px-3 text-[10px] lg:text-sm min-w-[32px] lg:min-w-auto"
+                  className="flex items-center gap-1.5 rounded-full border-red-500/50 text-red-400 bg-red-500/10 hover:bg-red-500 hover:text-white transition-all h-8 sm:h-9 lg:h-10 px-2 sm:px-3 lg:px-4"
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
                     alt="Yelp"
-                    className="w-3 h-3 lg:w-4 lg:h-4"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
                   />
-                  <span className="hidden lg:inline">Yelp</span>
+                  {/* Show text on medium screens and up */}
+                  <span className="hidden md:inline text-xs lg:text-sm font-medium">Yelp</span>
                 </Button>
 
                 {/* Google Button */}
@@ -121,33 +122,34 @@ export const Header = () => {
                   variant="outline"
                   size="sm"
                   onClick={openGoogle}
-                  className="flex items-center gap-1 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all h-7 lg:h-8 px-1.5 lg:px-3 text-[10px] lg:text-sm min-w-[32px] lg:min-w-auto"
+                  className="flex items-center gap-1.5 rounded-full border-blue-500/50 text-blue-400 bg-blue-500/10 hover:bg-blue-500 hover:text-white transition-all h-8 sm:h-9 lg:h-10 px-2 sm:px-3 lg:px-4"
                 >
                   <img
                     src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
                     alt="Google"
-                    className="w-3 h-3 lg:w-4 lg:h-4"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
                   />
-                  <span className="hidden lg:inline">Google</span>
+                  {/* Show text on medium screens and up */}
+                  <span className="hidden md:inline text-xs lg:text-sm font-medium">Google</span>
                 </Button>
 
                 {/* Book Now Button */}
                 <Button
                   size="sm"
                   onClick={scrollToBooking}
-                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/50 h-7 lg:h-8 px-2 lg:px-4 text-[10px] lg:text-sm"
+                  className="rounded-full bg-cyan-500 hover:bg-cyan-400 text-white font-semibold shadow-lg shadow-cyan-500/30 h-8 sm:h-9 lg:h-10 px-3 sm:px-4 lg:px-5 text-xs sm:text-sm"
                   data-testid="book-now-button"
                 >
-                  Book
+                  Book Now
                 </Button>
 
-                {/* Mobile Menu Button */}
+                {/* Mobile Menu Button - Only show when nav links are hidden */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-1.5 rounded-full text-white hover:bg-white/10 transition-colors ml-1"
+                  className="xl:hidden p-2 rounded-full text-white hover:bg-white/10 transition-colors"
                   aria-label="Toggle navigation menu"
                 >
-                  {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                  {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>
               </div>
             </div>
@@ -155,7 +157,7 @@ export const Header = () => {
         </div>
       </motion.header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Slides in below header */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -163,7 +165,7 @@ export const Header = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-24 left-4 right-4 z-40 bg-primary/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl lg:hidden"
+            className="fixed top-20 sm:top-24 left-4 right-4 z-40 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl xl:hidden"
           >
             <nav className="flex flex-col p-4 space-y-1">
               {navLinks.map((link) => (
