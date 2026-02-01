@@ -641,8 +641,8 @@ const BookingWidget = () => {
                               data-testid={`time-slot-${slot}`}
                               className={`py-2 px-2 rounded-lg text-xs font-medium transition-all ${
                                 isSelected
-                                  ? 'bg-cyan-500 text-white'
-                                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                  ? 'bg-accent text-accent-foreground'
+                                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
                               }`}
                             >
                               {displayTime}
@@ -656,8 +656,8 @@ const BookingWidget = () => {
                     {!slotsLoading && availableSlots.length === 0 && bookingDetails && (
                       <div className="p-3 bg-amber-500/10 border border-amber-500/50 rounded-lg">
                         <div className="flex items-start gap-2">
-                          <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-                          <p className="text-amber-100 text-xs">
+                          <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                          <p className="text-foreground text-xs">
                             No available slots for this date. Please choose another date.
                           </p>
                         </div>
@@ -665,7 +665,7 @@ const BookingWidget = () => {
                     )}
 
                     {errors.startTime && (
-                      <p className="text-xs text-red-400 mt-2 flex items-center gap-1">
+                      <p className="text-xs text-red-500 mt-2 flex items-center gap-1">
                         <AlertCircle className="w-3 h-3" />
                         {errors.startTime}
                       </p>
