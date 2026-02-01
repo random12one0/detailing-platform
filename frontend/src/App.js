@@ -7,6 +7,7 @@ import Hero from "@/components/sections/Hero";
 import Services from "@/components/sections/Services";
 import ServiceOptions from "@/components/sections/ServiceOptions";
 import Gallery from "@/components/sections/Gallery";
+import MeetTheOwner from "@/components/sections/MeetTheOwner";
 import FAQ from "@/components/sections/FAQ";
 import BookCTA from "@/components/sections/BookCTA";
 import Footer from "@/components/sections/Footer";
