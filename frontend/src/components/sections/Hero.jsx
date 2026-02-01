@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, MapPin, Clock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 export const Hero = () => {
   const [isMobile, setIsMobile] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -21,14 +19,10 @@ export const Hero = () => {
     if (element) element.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const scrollToBook = () => {
-    navigate('/book');
+  const scrollToBooking = () => {
+    const element = document.getElementById('booking-widget');
+    if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
-
-  const openYelp = () =>
-    window.open('https://www.yelp.com/biz/andrews-car-washing-lakewood-3', '_blank');
-  const openGoogle = () =>
-    window.open('https://g.page/r/CY27nt5XVIuBEAI/review', '_blank');
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -47,9 +41,9 @@ export const Hero = () => {
       {/* Content */}
       <motion.div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-32 lg:py-40">
         <div className="max-w-3xl">
-          {/* Location + Reviews */}
+          {/* Location Badge */}
           <motion.div
-            className="flex items-center gap-3 mb-8 flex-wrap sm:flex-nowrap"
+            className="flex items-center gap-3 mb-8"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -58,32 +52,6 @@ export const Hero = () => {
               <MapPin className="w-4 h-4 text-accent" />
               <span className="text-sm text-white/90 font-medium">Lakewood, California</span>
             </div>
-
-            {/* Yelp + Google buttons always visible on mobile */}
-            {isMobile && (
-              <div className="flex gap-2">
-                <button
-                  onClick={openYelp}
-                  className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center transition-transform duration-200 hover:scale-105"
-                >
-                  <img
-                    src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583720/qc1on8u4i9ocjxkr10ke.png"
-                    alt="Yelp"
-                    className="w-6 h-6 object-contain filter brightness-125"
-                  />
-                </button>
-                <button
-                  onClick={openGoogle}
-                  className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center transition-transform duration-200 hover:scale-105"
-                >
-                  <img
-                    src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769583651/llra5ue5osfindmvrce2.png"
-                    alt="Google"
-                    className="w-6 h-6 object-contain"
-                  />
-                </button>
-              </div>
-            )}
           </motion.div>
 
           {/* Main Headline */}
@@ -125,7 +93,8 @@ export const Hero = () => {
               variant="hero"
               size="xl"
               className="w-full sm:w-auto"
-              onClick={scrollToBook}
+              onClick={scrollToBooking}
+              data-testid="hero-book-btn"
             >
               Book Appointment
             </Button>
