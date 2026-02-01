@@ -219,28 +219,28 @@ const BookingWidget = () => {
   };
 
   return (
-    <section id="booking-widget" className="py-16 lg:py-24 bg-slate-950">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="booking-widget" className="py-12 lg:py-16 bg-slate-950">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 lg:p-12 border border-cyan-500/20 shadow-2xl"
+          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 lg:p-8 border border-cyan-500/20 shadow-2xl"
         >
           {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-2">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl lg:text-3xl font-bold text-white mb-1">
               GET YOUR FREE <span className="text-cyan-400">QUOTE</span>
             </h2>
-            <p className="text-slate-400">No obligation, instant estimate</p>
+            <p className="text-slate-400 text-sm">No obligation, instant estimate</p>
           </div>
 
           {/* Progress Bar */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-cyan-400 font-medium">Step {step} of 4</span>
+              <span className="text-xs text-cyan-400 font-medium">Step {step} of 4</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5">
               {[1, 2, 3, 4].map((s) => (
                 <div
                   key={s}
