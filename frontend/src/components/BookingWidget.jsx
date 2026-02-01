@@ -612,98 +612,95 @@ const BookingWidget = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-4"
               >
-                <h3 className="text-xl font-semibold text-white text-center mb-6">
+                <h3 className="text-lg font-semibold text-white text-center mb-4">
                   Your Information
                 </h3>
 
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-white mb-2 block">Full Name *</Label>
+                    <Label className="text-white mb-1 block text-sm">Full Name *</Label>
                     <Input
                       value={formData.customerName}
                       onChange={(e) => setFormData({...formData, customerName: e.target.value})}
-                      className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500"
+                      className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 h-10 text-sm"
                       placeholder="John Doe"
                     />
                     {errors.customerName && (
-                      <p className="text-sm text-red-400 mt-1">{errors.customerName}</p>
+                      <p className="text-xs text-red-400 mt-1">{errors.customerName}</p>
                     )}
                   </div>
 
                   <div>
-                    <Label className="text-white mb-2 block">Phone *</Label>
+                    <Label className="text-white mb-1 block text-sm">Phone *</Label>
                     <Input
                       value={formData.customerPhone}
                       onChange={(e) => setFormData({...formData, customerPhone: e.target.value})}
-                      className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500"
+                      className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 h-10 text-sm"
                       placeholder="(555) 123-4567"
                     />
                     {errors.customerPhone && (
-                      <p className="text-sm text-red-400 mt-1">{errors.customerPhone}</p>
+                      <p className="text-xs text-red-400 mt-1">{errors.customerPhone}</p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-white mb-2 block">Email *</Label>
+                  <Label className="text-white mb-1 block text-sm">Email *</Label>
                   <Input
                     type="email"
                     value={formData.customerEmail}
                     onChange={(e) => setFormData({...formData, customerEmail: e.target.value})}
-                    className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500"
+                    className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 h-10 text-sm"
                     placeholder="john@example.com"
                   />
                   {errors.customerEmail && (
-                    <p className="text-sm text-red-400 mt-1">{errors.customerEmail}</p>
+                    <p className="text-xs text-red-400 mt-1">{errors.customerEmail}</p>
                   )}
                 </div>
 
                 {formData.serviceType === 'mobile' && (
                   <>
                     <div>
-                      <Label className="text-white mb-2 block flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
+                      <Label className="text-white mb-1 block text-sm flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
                         Service Address *
                       </Label>
                       <Input
                         value={formData.customerAddress}
                         onChange={(e) => setFormData({...formData, customerAddress: e.target.value})}
-                        className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500"
-                        placeholder="123 Main St, Lakewood, CA 90712"
+                        className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 h-10 text-sm"
+                        placeholder="123 Main St, Lakewood, CA"
                       />
                       {errors.customerAddress && (
-                        <p className="text-sm text-red-400 mt-1">{errors.customerAddress}</p>
+                        <p className="text-xs text-red-400 mt-1">{errors.customerAddress}</p>
                       )}
                     </div>
 
-                    <div className="flex items-start gap-3 p-4 bg-slate-800/50 rounded-xl">
+                    <div className="flex items-start gap-2 p-3 bg-slate-800/50 rounded-lg">
                       <input
                         type="checkbox"
                         id="water-electric"
                         checked={formData.hasWaterElectric}
                         onChange={(e) => setFormData({...formData, hasWaterElectric: e.target.checked})}
-                        className="mt-1"
+                        className="mt-0.5"
                       />
-                      <Label htmlFor="water-electric" className="cursor-pointer flex-1 text-white">
-                        <span className="font-medium">Water & Electrical Access Confirmation</span>
-                        <p className="text-sm text-slate-400 mt-1">
-                          I confirm that access to a working water hose and an electrical outlet will be available at the service location.
-                        </p>
+                      <Label htmlFor="water-electric" className="cursor-pointer flex-1 text-white text-xs">
+                        I confirm that access to a working water hose and an electrical outlet will be available at the service location.
                       </Label>
                     </div>
                   </>
                 )}
 
                 <div>
-                  <Label className="text-white mb-2 block">Additional Notes (Optional)</Label>
+                  <Label className="text-white mb-1 block text-sm">Additional Notes</Label>
                   <Textarea
                     value={formData.customerNotes}
                     onChange={(e) => setFormData({...formData, customerNotes: e.target.value})}
-                    className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500"
-                    placeholder="Any special requests or information..."
-                    rows={4}
+                    className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 text-sm"
+                    placeholder="Any special requests..."
+                    rows={3}
                   />
                 </div>
               </motion.div>
