@@ -204,7 +204,8 @@ export const Header = () => {
                   variant="accent"
                   size="lg"
                   className="w-full"
-                  onClick={openBooking}
+                  onClick={goToBooking}
+                  data-testid="mobile-book-now-button"
                 >
                   Book Now
                 </Button>
