@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "@/components/sections/Header";
 import Hero from "@/components/sections/Hero";
 import Services from "@/components/sections/Services";
+import BookingWidget from "@/components/BookingWidget";
 import ServiceOptions from "@/components/sections/ServiceOptions";
 import Gallery from "@/components/sections/Gallery";
 import MeetTheOwner from "@/components/sections/MeetTheOwner";
