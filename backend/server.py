@@ -54,7 +54,7 @@ class BookingCreate(BaseModel):
     customer_notes: Optional[str] = None
 
 class AvailabilityCheck(BaseModel):
-    booking_date: str  # ISO format date string
+    booking_date: Optional[str] = None  # ISO format date string (optional for calculate)
     interior_package_id: Optional[str] = None
     exterior_package_id: Optional[str] = None
     vehicle_size: str
