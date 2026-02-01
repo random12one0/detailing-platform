@@ -68,8 +68,8 @@ export const Header = () => {
       >
         <div className={`max-w-6xl mx-auto rounded-full transition-all duration-300 ${
           isScrolled 
-            ? 'bg-slate-900/95 backdrop-blur-xl shadow-2xl border border-white/10' 
-            : 'bg-slate-900/80 backdrop-blur-md shadow-lg border border-white/5'
+            ? 'bg-primary/95 backdrop-blur-xl shadow-2xl border border-white/10' 
+            : 'bg-primary/80 backdrop-blur-md shadow-lg border border-white/5'
         }`}>
           <div className="px-4 lg:px-8">
             <div className="flex items-center justify-between h-14 lg:h-16">
