@@ -381,14 +381,6 @@ const BookingWidget = () => {
                 </div>
 
                 {/* Exterior Section Header */}
-                <div className="mb-3 mt-6">
-                  <h4 className="text-base font-semibold text-white flex items-center gap-2">
-                    <div className="w-1 h-5 bg-cyan-400 rounded-full" />
-                    Exterior Detailing
-                  </h4>
-                </div>
-
-                {/* Exterior Section Header */}
                 <div className="mb-3 mt-8">
                   <h4 className="text-base font-semibold text-white flex items-center gap-2">
                     <div className="w-1 h-5 bg-cyan-400 rounded-full" />
