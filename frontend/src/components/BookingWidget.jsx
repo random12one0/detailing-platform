@@ -50,42 +50,31 @@ const BookingWidget = () => {
     fetchPackages();
   }, []);
 
-  useEffect(() => {
-    if (formData.interiorPackageId || formData.exteriorPackageId) {
-      calculateBooking();
-    }
-  }, [formData.interiorPackageId, formData.exteriorPackageId, formData.vehicleSize]);
-
-  // Fetch available slots when date changes and we have booking details
-  const fetchAvailableSlots = useCallback(async () => {
-    if (!formData.bookingDate || !bookingDetails) {
-      setAvailableSlots([]);
+  const calculateBooking = useCallback(async () => {
+    if (!formData.interiorPackageId && !formData.exteriorPackageId) {
+      setBookingDetails(null);
       return;
     }
 
-    setSlotsLoading(true);
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/bookings/available-slots`, {
-        booking_date: formData.bookingDate.toISOString().split('T')[0],
-        duration_minutes: bookingDetails.total_duration
+      const response = await axios.post(`${BACKEND_URL}/api/bookings/calculate`, {
+        interior_package_id: formData.interiorPackageId,
+        exterior_package_id: formData.exteriorPackageId,
+        vehicle_size: formData.vehicleSize,
+        booking_date: formData.bookingDate?.toISOString().split('T')[0]
       });
 
       if (response.data.success) {
-        setAvailableSlots(response.data.slots || []);
-      } else {
-        setAvailableSlots([]);
+        setBookingDetails(response.data);
       }
     } catch (error) {
-      console.error('Error fetching slots:', error);
-      setAvailableSlots([]);
-    } finally {
-      setSlotsLoading(false);
+      console.error('Error calculating booking:', error);
     }
-  }, [formData.bookingDate, bookingDetails]);
+  }, [formData.interiorPackageId, formData.exteriorPackageId, formData.vehicleSize, formData.bookingDate]);
 
   useEffect(() => {
-    fetchAvailableSlots();
-  }, [fetchAvailableSlots]);
+    calculateBooking();
+  }, [calculateBooking]);
 
   const fetchPackages = async () => {
     try {
