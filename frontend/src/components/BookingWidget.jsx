@@ -722,7 +722,18 @@ const BookingWidget = () => {
                   <p className="text-slate-400 text-xs">Estimated Total</p>
                   <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    ~{bookingDetails.total_duration} min
+                    {(() => {
+                      const totalMinutes = bookingDetails.total_duration;
+                      const hours = Math.floor(totalMinutes / 60);
+                      const minutes = totalMinutes % 60;
+                      if (hours > 0 && minutes > 0) {
+                        return `~${hours} hr ${minutes} min`;
+                      } else if (hours > 0) {
+                        return `~${hours} hr`;
+                      } else {
+                        return `~${minutes} min`;
+                      }
+                    })()}
                   </p>
                 </div>
                 <p className="text-3xl font-bold text-cyan-400">
