@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   ChevronRight,
+  ChevronLeft,
   CheckCircle2, 
   AlertCircle,
   Clock,
@@ -40,6 +41,7 @@ const BookingWidget = () => {
   const [packages, setPackages] = useState({ interior: [], exterior: [] });
   const [bookingDetails, setBookingDetails] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null);
@@ -54,11 +56,36 @@ const BookingWidget = () => {
     }
   }, [formData.interiorPackageId, formData.exteriorPackageId, formData.vehicleSize]);
 
-  useEffect(() => {
-    if (formData.bookingDate && bookingDetails) {
-      fetchAvailableSlots();
+  // Fetch available slots when date changes and we have booking details
+  const fetchAvailableSlots = useCallback(async () => {
+    if (!formData.bookingDate || !bookingDetails) {
+      setAvailableSlots([]);
+      return;
+    }
+
+    setSlotsLoading(true);
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/bookings/available-slots`, {
+        booking_date: formData.bookingDate.toISOString().split('T')[0],
+        duration_minutes: bookingDetails.total_duration
+      });
+
+      if (response.data.success) {
+        setAvailableSlots(response.data.slots || []);
+      } else {
+        setAvailableSlots([]);
+      }
+    } catch (error) {
+      console.error('Error fetching slots:', error);
+      setAvailableSlots([]);
+    } finally {
+      setSlotsLoading(false);
     }
   }, [formData.bookingDate, bookingDetails]);
+
+  useEffect(() => {
+    fetchAvailableSlots();
+  }, [fetchAvailableSlots]);
 
   const fetchPackages = async () => {
     try {
@@ -95,24 +122,6 @@ const BookingWidget = () => {
     }
   };
 
-  const fetchAvailableSlots = async () => {
-    if (!formData.bookingDate || !bookingDetails) return;
-
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/bookings/available-slots`, {
-        booking_date: formData.bookingDate.toISOString().split('T')[0],
-        duration_minutes: bookingDetails.total_duration
-      });
-
-      if (response.data.success) {
-        setAvailableSlots(response.data.slots);
-      }
-    } catch (error) {
-      console.error('Error fetching slots:', error);
-      setAvailableSlots([]);
-    }
-  };
-
   const getPackageByTier = (category, tier) => {
     return packages[category].find(p => p.tier === tier);
   };
@@ -146,6 +155,7 @@ const BookingWidget = () => {
       newErrors.customerAddress = 'Address is required for mobile service';
     }
     if (!formData.bookingDate) newErrors.bookingDate = 'Please select a date';
+    if (!formData.startTime) newErrors.startTime = 'Please select a time slot';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -156,9 +166,6 @@ const BookingWidget = () => {
     setSubmitStatus(null);
 
     try {
-      // Set default time to 3 PM (15:00) as placeholder
-      const defaultTime = '15:00';
-      
       const bookingData = {
         customer_name: formData.customerName,
         customer_phone: formData.customerPhone,
@@ -171,7 +178,7 @@ const BookingWidget = () => {
         has_water_electric: formData.hasWaterElectric,
         customer_notes: formData.customerNotes,
         booking_date: formData.bookingDate.toISOString().split('T')[0],
-        start_time: `${formData.bookingDate.toISOString().split('T')[0]}T${defaultTime}:00`
+        start_time: `${formData.bookingDate.toISOString().split('T')[0]}T${formData.startTime}:00`
       };
 
       const response = await axios.post(`${BACKEND_URL}/api/bookings/create`, bookingData);
