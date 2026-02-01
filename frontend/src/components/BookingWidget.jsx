@@ -480,46 +480,80 @@ const BookingWidget = () => {
 
                 {/* Date Picker */}
                 <div>
-                  <Label className="text-white mb-2 block">Select Date</Label>
-                  <DatePicker
-                    selected={formData.bookingDate}
-                    onChange={(date) => setFormData({...formData, bookingDate: date, startTime: ''})}
-                    minDate={new Date()}
-                    filterDate={filterDate}
-                    dateFormat="EEEE, MMMM d, yyyy"
-                    className="w-full px-4 py-3 bg-slate-800 border-2 border-slate-700 rounded-xl text-white focus:outline-none focus:border-cyan-500"
-                    placeholderText="Click to select a date"
-                    inline
-                  />
+                  <Label className="text-white mb-3 block text-base font-semibold">Select Date</Label>
+                  <div className="bg-slate-800 rounded-xl p-4 border-2 border-slate-700">
+                    <DatePicker
+                      selected={formData.bookingDate}
+                      onChange={(date) => setFormData({...formData, bookingDate: date, startTime: ''})}
+                      minDate={new Date()}
+                      filterDate={filterDate}
+                      dateFormat="EEEE, MMMM d, yyyy"
+                      className="w-full bg-transparent text-white"
+                      placeholderText="Click to select a date"
+                      inline
+                    />
+                  </div>
                   {errors.bookingDate && (
-                    <p className="text-sm text-red-400 mt-2">{errors.bookingDate}</p>
+                    <p className="text-sm text-red-400 mt-2 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.bookingDate}
+                    </p>
                   )}
                 </div>
 
                 {/* Time Selector Dropdown */}
-                {formData.bookingDate && availableSlots.length > 0 && (
+                {formData.bookingDate && (
                   <div>
-                    <Label className="text-white mb-2 block">Select Time</Label>
-                    <select
-                      value={formData.startTime}
-                      onChange={(e) => setFormData({...formData, startTime: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-800 border-2 border-slate-700 rounded-xl text-white focus:outline-none focus:border-cyan-500"
-                    >
-                      <option value="">Select a time slot</option>
-                      {availableSlots.map((slot) => (
-                        <option key={slot} value={slot}>{slot}</option>
-                      ))}
-                    </select>
-                    {errors.startTime && (
-                      <p className="text-sm text-red-400 mt-2">{errors.startTime}</p>
+                    <Label className="text-white mb-3 block text-base font-semibold">Select Time</Label>
+                    {availableSlots.length > 0 ? (
+                      <>
+                        <select
+                          value={formData.startTime}
+                          onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                          className="w-full px-4 py-3 bg-slate-800 border-2 border-slate-700 rounded-xl text-white focus:outline-none focus:border-cyan-500 text-base"
+                        >
+                          <option value="">Select a time slot</option>
+                          {availableSlots.map((slot) => (
+                            <option key={slot} value={slot} className="bg-slate-800 text-white">
+                              {slot}
+                            </option>
+                          ))}
+                        </select>
+                        {formData.startTime && (
+                          <p className="text-sm text-cyan-400 mt-2 flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Time slot selected: {formData.startTime}
+                          </p>
+                        )}
+                        {errors.startTime && (
+                          <p className="text-sm text-red-400 mt-2 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            {errors.startTime}
+                          </p>
+                        )}
+                      </>
+                    ) : bookingDetails ? (
+                      <div className="p-4 bg-yellow-500/10 border-2 border-yellow-500/50 rounded-xl">
+                        <p className="text-yellow-100 text-sm flex items-center gap-2">
+                          <AlertCircle className="w-5 h-5" />
+                          No available time slots for this date. Please select another date.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-slate-800 border-2 border-slate-700 rounded-xl">
+                        <p className="text-slate-400 text-sm flex items-center gap-2">
+                          <Clock className="w-5 h-5" />
+                          Loading available time slots...
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}
 
-                {formData.bookingDate && availableSlots.length === 0 && bookingDetails && (
-                  <div className="p-4 bg-yellow-500/10 border-2 border-yellow-500/50 rounded-xl">
-                    <p className="text-yellow-100 text-sm">
-                      No available slots for this date. Please select another date.
+                {!formData.bookingDate && (
+                  <div className="p-4 bg-cyan-500/10 border-2 border-cyan-500/50 rounded-xl">
+                    <p className="text-cyan-100 text-sm">
+                      Please select a date first to see available time slots.
                     </p>
                   </div>
                 )}
