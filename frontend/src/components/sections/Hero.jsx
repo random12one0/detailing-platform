@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 export const Hero = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -21,8 +22,7 @@ export const Hero = () => {
   };
 
   const scrollToBook = () => {
-    const element = document.getElementById('book');
-    if (element) element.scrollIntoView({ behavior: 'smooth' });
+    navigate('/book');
   };
 
   const openYelp = () =>
