@@ -199,6 +199,12 @@ body {
     right: 0.75rem !important;
 }
 
+/* Hide the sr-only text that's somehow showing */
+.booking-calendar .react-datepicker__navigation span {
+    font-size: 0 !important;
+    visibility: hidden !important;
+}
+
 .booking-calendar .react-datepicker__navigation-icon::before {
     border-color: white !important;
     border-width: 2px 2px 0 0 !important;
