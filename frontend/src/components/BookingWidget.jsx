@@ -234,22 +234,19 @@ const BookingWidget = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-6 lg:p-8 border border-cyan-500/20 shadow-2xl"
+          className="bg-slate-800/95 rounded-3xl p-5 lg:p-6 border border-cyan-500/20 shadow-2xl"
         >
           {/* Header */}
-          <div className="text-center mb-6">
-            <h2 className="text-2xl lg:text-3xl font-bold text-white mb-1">
-              GET YOUR FREE <span className="text-cyan-400">QUOTE</span>
+          <div className="text-center mb-4">
+            <h2 className="text-xl lg:text-2xl font-bold text-white">
+              CREATE <span className="text-cyan-400">BOOKING</span>
             </h2>
-            <p className="text-slate-400 text-sm">No obligation, instant estimate</p>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-cyan-400 font-medium">Step {step} of 4</span>
-            </div>
-            <div className="flex gap-1.5">
+          {/* Progress Bar - Condensed with step indicator on same line */}
+          <div className="mb-5 flex items-center gap-3">
+            <span className="text-xs text-cyan-400 font-medium whitespace-nowrap">Step {step}/4</span>
+            <div className="flex gap-1 flex-1">
               {[1, 2, 3, 4].map((s) => (
                 <div
                   key={s}
