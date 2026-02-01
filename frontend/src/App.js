@@ -21,6 +21,7 @@ const HomePage = () => {
         <Services />
         <ServiceOptions />
         <Gallery />
+        <MeetTheOwner />
         <FAQ />
         <BookCTA />
       </main>
