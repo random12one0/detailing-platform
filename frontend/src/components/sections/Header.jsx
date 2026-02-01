@@ -127,7 +127,8 @@ export const Header = () => {
               <Button
                 variant={isScrolled ? "accent" : "hero"}
                 size="default"
-                onClick={openBooking}
+                onClick={goToBooking}
+                data-testid="book-now-button"
               >
                 Book Now
               </Button>
