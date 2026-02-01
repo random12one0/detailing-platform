@@ -683,9 +683,7 @@ const BookingPage = () => {
                               </div>
                               <h4 className="font-semibold text-base mb-2">{pkg.name.replace('Exterior ', '')}</h4>
                               <div className="flex items-baseline gap-1 mb-2">
-                                <span className={`text-3xl font-bold ${
-                                  tierLevel === 3 ? 'text-amber-500' : tierLevel === 2 ? 'text-blue-500' : 'text-gray-600'
-                                }`}>${pkg.base_price}</span>
+                                <span className="text-3xl font-bold text-foreground">${pkg.base_price}</span>
                               </div>
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <Clock className="w-3 h-3" />
