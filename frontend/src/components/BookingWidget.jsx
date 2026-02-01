@@ -684,40 +684,40 @@ const BookingWidget = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-4"
               >
-                <h3 className="text-lg font-semibold text-white text-center mb-4">
+                <h3 className="text-lg font-semibold text-foreground text-center mb-4">
                   Your Information
                 </h3>
 
                 <div className="grid md:grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-white mb-1 block text-sm">Full Name *</Label>
+                    <Label className="text-foreground mb-1 block text-sm">Full Name *</Label>
                     <Input
                       value={formData.customerName}
                       onChange={(e) => setFormData({...formData, customerName: e.target.value})}
-                      className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 h-10 text-sm"
+                      className="bg-primary border-border text-primary-foreground focus:border-accent h-10 text-sm"
                       placeholder="John Doe"
                     />
                     {errors.customerName && (
-                      <p className="text-xs text-red-400 mt-1">{errors.customerName}</p>
+                      <p className="text-xs text-red-500 mt-1">{errors.customerName}</p>
                     )}
                   </div>
 
                   <div>
-                    <Label className="text-white mb-1 block text-sm">Phone *</Label>
+                    <Label className="text-foreground mb-1 block text-sm">Phone *</Label>
                     <Input
                       value={formData.customerPhone}
                       onChange={(e) => setFormData({...formData, customerPhone: e.target.value})}
-                      className="bg-slate-800 border-slate-700 text-white focus:border-cyan-500 h-10 text-sm"
+                      className="bg-primary border-border text-primary-foreground focus:border-accent h-10 text-sm"
                       placeholder="(555) 123-4567"
                     />
                     {errors.customerPhone && (
-                      <p className="text-xs text-red-400 mt-1">{errors.customerPhone}</p>
+                      <p className="text-xs text-red-500 mt-1">{errors.customerPhone}</p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-white mb-1 block text-sm">Email *</Label>
+                  <Label className="text-foreground mb-1 block text-sm">Email *</Label>
                   <Input
                     type="email"
                     value={formData.customerEmail}
