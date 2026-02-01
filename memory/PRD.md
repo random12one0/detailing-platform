@@ -71,11 +71,14 @@ A full-stack booking system for Andrew's Auto Detail & Car Wash, allowing custom
 
 ### December 2025
 - [x] Full booking widget with 4-step flow
-- [x] Service package selection with colored borders
+- [x] Service package selection with animated colored borders (blue for Deluxe, amber/purple for Ultimate)
 - [x] Live price calculation
 - [x] Time slot selection (fixed - now working)
-- [x] Mobile responsive calendar
-- [x] Floating island header
+- [x] Mobile responsive calendar with centered highlights
+- [x] Floating island header with 3 responsive stages:
+  - Desktop: Full nav links + Yelp/Google with text
+  - Tablet: Yelp/Google with text, hamburger menu
+  - Mobile: Yelp/Google icons only, hamburger menu
 - [x] Removed /booking page (widget only)
 - [x] Backend APIs for packages, calculate, slots, create
 - [x] Supabase integration
