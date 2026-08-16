@@ -16,7 +16,7 @@
 //    via footer buttons → a proper status picker covering every status, with an
 //    optimistic local update so the badge reflects the change immediately.
 //  • duration/promo rows rendered even when null → guarded.
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Phone,
   MessageSquare,
@@ -178,12 +178,14 @@ export default function BookingDetailModal({
     ? `https://maps.apple.com/?daddr=${addressQuery}`
     : null;
 
-  // "Add to Contacts" — a data: URI vCard. Tapping this in iOS Safari opens the
-  // same native "Add Contact" sheet as tapping a .vcf email attachment, so the
-  // owner doesn't have to dig up the confirmation email just to save a number.
+  // "Add to Contacts" — a real .vcf file download via a Blob object URL.
+  // A raw `data:` URI href gets silently blocked by Chrome/Safari's top-frame
+  // navigation protections (looks like the tap does nothing), so we hand the
+  // browser an actual downloadable file instead — iOS recognizes the .vcf and
+  // opens the native "Add Contact" sheet the same way a .vcf email attachment does.
   const vcardEscape = (s) =>
     String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
-  const vcardHref = (() => {
+  const vcardBlobUrl = useMemo(() => {
     const lines = [
       "BEGIN:VCARD",
       "VERSION:3.0",
@@ -195,8 +197,15 @@ export default function BookingDetailModal({
       "ORG:Andrew's Auto Detail Customer",
       "END:VCARD",
     ].filter(Boolean);
-    return `data:text/vcard;charset=utf-8,${encodeURIComponent(lines.join("\r\n"))}`;
-  })();
+    const blob = new Blob([lines.join("\r\n")], { type: "text/vcard;charset=utf-8" });
+    return URL.createObjectURL(blob);
+  }, [booking.customer_name, booking.customer_phone, booking.customer_email, booking.customer_address]);
+
+  useEffect(() => {
+    return () => URL.revokeObjectURL(vcardBlobUrl);
+  }, [vcardBlobUrl]);
+
+  const vcardFileName = `${(booking.customer_name || "Contact").replace(/[^\w\s-]/g, "").trim() || "Contact"}.vcf`;
 
   // Manually (re)send the owner-facing recap email for this one booking — the
   // same email a background sweep sends automatically ~24h before the job, but
@@ -604,7 +613,8 @@ export default function BookingDetailModal({
           <div className="flex items-center justify-between border-b border-border pb-2">
             <h3 className="text-base font-semibold text-foreground">Contact</h3>
             <a
-              href={vcardHref}
+              href={vcardBlobUrl}
+              download={vcardFileName}
               className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent/10 px-2.5 text-xs font-semibold text-accent hover:bg-accent/20"
             >
               <UserPlus className="size-3.5" />
