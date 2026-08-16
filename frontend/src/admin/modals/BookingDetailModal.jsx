@@ -26,10 +26,13 @@ import {
   Trash2,
   Zap,
   CheckCircle2,
+  UserPlus,
+  BellRing,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
 import { money, formatTime, formatDate, getStatusDot } from "@/lib/format";
 import { buildConfirmationText, buildReminderText, smsHref } from "@/lib/messages";
+import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import {
   Modal,
@@ -98,12 +101,14 @@ export default function BookingDetailModal({
     end_time: booking.end_time || "",
     service_type: booking.service_type || "",
     vehicle_size: booking.vehicle_size || "",
+    vehicle_model: booking.vehicle_model || "",
     add_ons: (booking.add_ons || []).map((a) => a.add_on_id),
   });
 
   const [allAddOns, setAllAddOns] = useState([]);
   const [loadingAddOns, setLoadingAddOns] = useState(false);
   const [addOnsError, setAddOnsError] = useState(null);
+  const [resendingReminder, setResendingReminder] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -173,6 +178,53 @@ export default function BookingDetailModal({
     ? `https://maps.apple.com/?daddr=${addressQuery}`
     : null;
 
+  // "Add to Contacts" — a data: URI vCard. Tapping this in iOS Safari opens the
+  // same native "Add Contact" sheet as tapping a .vcf email attachment, so the
+  // owner doesn't have to dig up the confirmation email just to save a number.
+  const vcardEscape = (s) =>
+    String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+  const vcardHref = (() => {
+    const lines = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      `FN:${vcardEscape(booking.customer_name)}`,
+      `N:${vcardEscape(booking.customer_name)};;;;`,
+      booking.customer_phone ? `TEL;TYPE=CELL:${vcardEscape(booking.customer_phone)}` : "",
+      booking.customer_email ? `EMAIL;TYPE=INTERNET:${vcardEscape(booking.customer_email)}` : "",
+      booking.customer_address ? `ADR;TYPE=HOME:;;${vcardEscape(booking.customer_address)};;;;` : "",
+      "ORG:Andrew's Auto Detail Customer",
+      "END:VCARD",
+    ].filter(Boolean);
+    return `data:text/vcard;charset=utf-8,${encodeURIComponent(lines.join("\r\n"))}`;
+  })();
+
+  // Manually (re)send the owner-facing recap email for this one booking — the
+  // same email a background sweep sends automatically ~24h before the job, but
+  // triggerable on demand (e.g. right after editing details) so it's never stale.
+  const handleResendReminder = async () => {
+    setResendingReminder(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        toast({ title: "Not signed in", description: "Please sign in again.", variant: "destructive" });
+        return;
+      }
+      const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/send-owner-reminders`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ booking_id: booking.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === false) throw new Error(data.error || "Failed to send recap email");
+      toast({ title: "Recap email sent", description: "Check your inbox.", variant: "success" });
+    } catch (err) {
+      toast({ title: "Failed to send recap", description: err.message, variant: "destructive" });
+    } finally {
+      setResendingReminder(false);
+    }
+  };
+
   return (
     <Modal
       open
@@ -238,6 +290,20 @@ export default function BookingDetailModal({
             </a>
           </Button>
         </div>
+
+        {/* Owner recap email — the same email a background job sends you
+            automatically ~24h before this job (with the final price, vehicle,
+            and timing), but resendable on demand so it's never out of date. */}
+        <Button
+          variant="secondary"
+          size="sm"
+          fullWidth
+          disabled={resendingReminder}
+          onClick={handleResendReminder}
+        >
+          <BellRing />
+          {resendingReminder ? "Sending…" : "Email me a recap of this job"}
+        </Button>
 
         {/* Route strip — top need for mobile jobs */}
         {isMobileJob && (
@@ -341,6 +407,12 @@ export default function BookingDetailModal({
                 value={editFields.vehicle_size}
                 onChange={(v) => setEdit("vehicle_size", v)}
                 options={VEHICLE_OPTIONS}
+              />
+              <TextInput
+                label="Vehicle model"
+                placeholder="e.g. 2020 Honda Civic"
+                value={editFields.vehicle_model}
+                onChange={(e) => setEdit("vehicle_model", e.target.value)}
               />
             </div>
 
@@ -464,6 +536,11 @@ export default function BookingDetailModal({
           <div className="grid grid-cols-2 gap-3 pt-1 text-sm">
             <Spec label="Vehicle">
               <span className="capitalize">{booking.vehicle_size}</span>
+              {booking.vehicle_model && (
+                <span className="block text-sm font-normal text-muted-foreground">
+                  {booking.vehicle_model}
+                </span>
+              )}
             </Spec>
             <Spec label="Service">
               <span className="capitalize">{booking.service_type}</span>
@@ -524,9 +601,16 @@ export default function BookingDetailModal({
 
         {/* Contact */}
         <div className="space-y-2 rounded-xl border border-border bg-muted/40 p-4 text-sm">
-          <h3 className="border-b border-border pb-2 text-base font-semibold text-foreground">
-            Contact
-          </h3>
+          <div className="flex items-center justify-between border-b border-border pb-2">
+            <h3 className="text-base font-semibold text-foreground">Contact</h3>
+            <a
+              href={vcardHref}
+              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent/10 px-2.5 text-xs font-semibold text-accent hover:bg-accent/20"
+            >
+              <UserPlus className="size-3.5" />
+              Add to Contacts
+            </a>
+          </div>
           <div className="flex justify-between gap-3">
             <span className="text-muted-foreground">Phone</span>
             <a
