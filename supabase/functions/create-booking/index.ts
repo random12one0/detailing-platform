@@ -871,11 +871,21 @@ Deno.serve(async (req) => {
     // and create a fully pre-filled contact (name, phone, email, address) in one tap.
     const vcardEscape = (s: string) =>
       String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+    // N is "Family;Given;Additional;Prefix;Suffix" — split on the last space so
+    // the contact's first/last name fields come out right instead of dumping the
+    // whole name into "last name".
+    const vcardSplitName = (full: string) => {
+      const parts = String(full || "").trim().split(/\s+/).filter(Boolean);
+      if (parts.length === 0) return { first: "", last: "" };
+      if (parts.length === 1) return { first: parts[0], last: "" };
+      return { first: parts.slice(0, -1).join(" "), last: parts[parts.length - 1] };
+    };
+    const { first: vcardFirst, last: vcardLast } = vcardSplitName(data.customer_name);
     const vcardLines = [
       "BEGIN:VCARD",
       "VERSION:3.0",
       `FN:${vcardEscape(data.customer_name)}`,
-      `N:${vcardEscape(data.customer_name)};;;;`,
+      `N:${vcardEscape(vcardLast)};${vcardEscape(vcardFirst)};;;`,
       data.customer_phone ? `TEL;TYPE=CELL:${vcardEscape(data.customer_phone)}` : "",
       data.customer_email ? `EMAIL;TYPE=INTERNET:${vcardEscape(data.customer_email)}` : "",
       data.customer_address ? `ADR;TYPE=HOME:;;${vcardEscape(data.customer_address)};;;;` : "",

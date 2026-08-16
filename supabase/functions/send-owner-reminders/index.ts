@@ -42,11 +42,11 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const bookingId: string | undefined = body?.booking_id;
 
-    let bookings: any[] = [];
-
     if (bookingId) {
       // Manual single-booking (re)send, triggered from the admin UI — admin-gated,
       // since anyone able to call this could otherwise spam the owner's inbox.
+      // Owner-only: the "Email me a recap" button is an owner convenience, not a
+      // way to re-notify the customer.
       const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
       if (!token) return json({ error: "Unauthorized" }, 401);
       const { data: userData, error: userErr } = await supabase.auth.getUser(token);
@@ -62,43 +62,61 @@ Deno.serve(async (req) => {
 
       const { data: b, error } = await supabase.from("bookings").select("*").eq("id", bookingId).maybeSingle();
       if (error || !b) return json({ error: "Booking not found" }, 404);
-      bookings = [b];
-    } else {
-      // Scheduled sweep — called by pg_cron every 15 minutes with no auth (this
-      // function is verify_jwt:false, same posture as available-slots/create-booking).
-      // Safe to expose publicly: it only ever sends a reminder ONCE per booking
-      // (owner_reminder_sent_at gates it), so a stray or repeated call is a no-op.
-      const hoursBefore = Number(body?.hours_before) || 24;
-      const { data, error } = await supabase.rpc("get_bookings_due_for_owner_reminder", {
-        hours_before: hoursBefore,
-      });
-      if (error) throw error;
-      bookings = data || [];
-    }
 
-    const results: { id: string; sent: boolean; error?: string }[] = [];
-    for (const b of bookings) {
       try {
-        await sendReminderFor(b);
-        await supabase
-          .from("bookings")
-          .update({ owner_reminder_sent_at: new Date().toISOString() })
-          .eq("id", b.id);
-        results.push({ id: b.id, sent: true });
+        await sendOwnerReminderFor(b);
+        await supabase.from("bookings").update({ owner_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
+        return json({ success: true, count: 1, results: [{ id: b.id, target: "owner", sent: true }] });
       } catch (err) {
-        console.error("Failed to send owner reminder for booking", b.id, err);
-        results.push({ id: b.id, sent: false, error: err instanceof Error ? err.message : String(err) });
+        return json({ success: false, count: 1, results: [{ id: b.id, target: "owner", sent: false, error: err instanceof Error ? err.message : String(err) }] });
       }
     }
 
-    return json({ success: true, count: bookings.length, results });
+    // Scheduled sweep — called by pg_cron every 15 minutes with no auth (this
+    // function is verify_jwt:false, same posture as available-slots/create-booking).
+    // Due-ness (per booking) is computed in SQL by get_bookings_due_for_reminder:
+    // a 9-10 AM job is due at 7 PM the evening before; anything else is due
+    // exactly 2 hours before its start. Owner and customer are tracked with
+    // separate sent-markers so each only ever gets their reminder once.
+    const [ownerDue, customerDue] = await Promise.all([
+      supabase.rpc("get_bookings_due_for_reminder", { target: "owner" }),
+      supabase.rpc("get_bookings_due_for_reminder", { target: "customer" }),
+    ]);
+    if (ownerDue.error) throw ownerDue.error;
+    if (customerDue.error) throw customerDue.error;
+
+    const results: { id: string; target: string; sent: boolean; error?: string }[] = [];
+
+    for (const b of ownerDue.data || []) {
+      try {
+        await sendOwnerReminderFor(b);
+        await supabase.from("bookings").update({ owner_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
+        results.push({ id: b.id, target: "owner", sent: true });
+      } catch (err) {
+        console.error("Failed to send owner reminder for booking", b.id, err);
+        results.push({ id: b.id, target: "owner", sent: false, error: err instanceof Error ? err.message : String(err) });
+      }
+    }
+
+    for (const b of customerDue.data || []) {
+      try {
+        await sendCustomerReminderFor(b);
+        await supabase.from("bookings").update({ customer_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
+        results.push({ id: b.id, target: "customer", sent: true });
+      } catch (err) {
+        console.error("Failed to send customer reminder for booking", b.id, err);
+        results.push({ id: b.id, target: "customer", sent: false, error: err instanceof Error ? err.message : String(err) });
+      }
+    }
+
+    return json({ success: true, count: results.length, results });
   } catch (err) {
     console.error("Error in send-owner-reminders:", err);
     return json({ error: err instanceof Error ? err.message : "Unknown error" }, 500);
   }
 });
 
-async function sendReminderFor(b: any) {
+async function sendOwnerReminderFor(b: any) {
   const [interiorRes, exteriorRes, addOnsRes] = await Promise.all([
     b.interior_package_id
       ? supabase.from("packages").select("name").eq("id", b.interior_package_id).maybeSingle()
@@ -253,6 +271,152 @@ async function sendReminderFor(b: any) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ to: OWNER_EMAIL, subject, body: html }),
+  });
+  if (!res.ok) {
+    throw new Error(`send-email failed: ${await res.text()}`);
+  }
+}
+
+// Customer-facing reminder — friendly recap, no admin/internal notes.
+async function sendCustomerReminderFor(b: any) {
+  if (!b.customer_email) return;
+
+  const [interiorRes, exteriorRes, addOnsRes] = await Promise.all([
+    b.interior_package_id
+      ? supabase.from("packages").select("name").eq("id", b.interior_package_id).maybeSingle()
+      : Promise.resolve({ data: null } as any),
+    b.exterior_package_id
+      ? supabase.from("packages").select("name").eq("id", b.exterior_package_id).maybeSingle()
+      : Promise.resolve({ data: null } as any),
+    supabase.from("booking_add_ons").select("add_on:add_ons(name)").eq("booking_id", b.id),
+  ]);
+
+  const interiorName = interiorRes.data?.name || null;
+  const exteriorName = exteriorRes.data?.name || null;
+  const addOnNames: string[] = (addOnsRes.data || [])
+    .map((r: any) => r.add_on?.name)
+    .filter(Boolean);
+
+  const isMobile = String(b.service_type || "").toLowerCase().includes("mobile");
+  const address = isMobile ? (b.customer_address && b.customer_address.trim() ? b.customer_address : OWNER_ADDRESS) : OWNER_ADDRESS;
+
+  const displayPrice = b.final_amount ?? b.total_price;
+
+  const dateLongStr = dateLong(b.booking_date);
+  const startStr = formatTime12hr(b.start_time);
+  const endStr = b.end_time ? formatTime12hr(b.end_time) : null;
+
+  const subject = `Reminder: your appointment is coming up — ${dateLongStr} at ${startStr}`;
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointment Reminder</title>
+</head>
+<body style="margin:0; padding:0; background-color:#eef2f6; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#eef2f6;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 6px 24px rgba(10,47,82,0.10);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#0A2F52; padding:28px 32px 24px 32px;">
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold; color:#ffffff;">Andrew's Auto Detail &amp; Car Wash</div>
+              <div style="height:3px; width:44px; background-color:#0EA5E9; margin:14px 0 16px 0; border-radius:2px;"></div>
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#cfe3f2;">Just a reminder</div>
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:24px; font-weight:bold; color:#ffffff; margin-top:4px;">See you soon, ${b.customer_name}!</div>
+            </td>
+          </tr>
+
+          <!-- Appointment card -->
+          <tr>
+            <td style="padding:24px 32px 4px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px;">
+                <tr>
+                  <td style="padding:18px 20px; font-family:Arial,Helvetica,sans-serif;">
+                    <div style="font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#0EA5E9; font-weight:bold; margin-bottom:12px;">Appointment</div>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#0f172a;">
+                      <tr>
+                        <td style="padding:5px 0; color:#64748b; width:120px; vertical-align:top;">Date</td>
+                        <td style="padding:5px 0; vertical-align:top; font-weight:bold;">${dateLongStr}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:5px 0; color:#64748b; vertical-align:top;">Time</td>
+                        <td style="padding:5px 0; vertical-align:top; font-weight:bold;">${startStr}${endStr ? ` &ndash; ${endStr}` : ""}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:5px 0; color:#64748b; vertical-align:top;">Service type</td>
+                        <td style="padding:5px 0; vertical-align:top;">${isMobile ? "Mobile (we come to you)" : "Drop-off"}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:5px 0; color:#64748b; vertical-align:top;">Vehicle</td>
+                        <td style="padding:5px 0; vertical-align:top;">${carSizeDisplay(b.vehicle_size)}${b.vehicle_model ? ` &middot; ${b.vehicle_model}` : ""}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:5px 0; color:#64748b; vertical-align:top;">${isMobile ? "Address" : "Drop-off"}</td>
+                        <td style="padding:5px 0; vertical-align:top;">${address}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Services -->
+          <tr>
+            <td style="padding:20px 32px 4px 32px; font-family:Arial,Helvetica,sans-serif;">
+              <div style="font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#0EA5E9; font-weight:bold; margin-bottom:12px;">Services</div>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; color:#0f172a;">
+                ${interiorName ? `<tr><td style="padding:6px 0; border-bottom:1px solid #eef2f6;">Interior: ${interiorName}</td></tr>` : ""}
+                ${exteriorName ? `<tr><td style="padding:6px 0; border-bottom:1px solid #eef2f6;">Exterior: ${exteriorName}</td></tr>` : ""}
+                ${addOnNames.map((n) => `<tr><td style="padding:6px 0; border-bottom:1px solid #eef2f6;">Add-on: ${n}</td></tr>`).join("")}
+              </table>
+            </td>
+          </tr>
+
+          <!-- Total banner -->
+          <tr>
+            <td style="padding:20px 32px 4px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px;">
+                <tr>
+                  <td style="padding:14px 18px; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#64748b;">Total</td>
+                  <td style="padding:14px 18px; font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:#0A2F52; text-align:right;">$${Number(displayPrice || 0).toFixed(2)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px 32px 32px 32px; font-family:Arial,Helvetica,sans-serif; text-align:center;">
+              <div style="border-top:1px solid #eef2f6; padding-top:20px;">
+                <p style="margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#0A2F52;">Andrew's Auto Detail &amp; Car Wash</p>
+                <p style="margin:0 0 10px 0; font-size:13px; color:#64748b;"><a href="https://andrewsdetail.com" style="color:#0EA5E9; text-decoration:none;">andrewsdetail.com</a></p>
+                <p style="margin:0; font-size:11px; color:#a8b4c0;">This is an automated reminder. Please do not reply.</p>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ to: b.customer_email, subject, body: html }),
   });
   if (!res.ok) {
     throw new Error(`send-email failed: ${await res.text()}`);

@@ -185,12 +185,22 @@ export default function BookingDetailModal({
   // opens the native "Add Contact" sheet the same way a .vcf email attachment does.
   const vcardEscape = (s) =>
     String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+  // N is the structured "Family;Given;Additional;Prefix;Suffix" field that iOS
+  // uses to populate the separate First/Last name fields (FN is just the display
+  // name) — splitting on the last space so "Jane Doe" -> Given=Jane, Family=Doe.
+  const splitName = (full) => {
+    const parts = String(full || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return { first: "", last: "" };
+    if (parts.length === 1) return { first: parts[0], last: "" };
+    return { first: parts.slice(0, -1).join(" "), last: parts[parts.length - 1] };
+  };
   const vcardBlobUrl = useMemo(() => {
+    const { first, last } = splitName(booking.customer_name);
     const lines = [
       "BEGIN:VCARD",
       "VERSION:3.0",
       `FN:${vcardEscape(booking.customer_name)}`,
-      `N:${vcardEscape(booking.customer_name)};;;;`,
+      `N:${vcardEscape(last)};${vcardEscape(first)};;;`,
       booking.customer_phone ? `TEL;TYPE=CELL:${vcardEscape(booking.customer_phone)}` : "",
       booking.customer_email ? `EMAIL;TYPE=INTERNET:${vcardEscape(booking.customer_email)}` : "",
       booking.customer_address ? `ADR;TYPE=HOME:;;${vcardEscape(booking.customer_address)};;;;` : "",
