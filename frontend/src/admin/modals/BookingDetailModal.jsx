@@ -30,7 +30,7 @@ import {
   BellRing,
 } from "lucide-react";
 import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
-import { money, formatTime, formatDate, getStatusDot } from "@/lib/format";
+import { money, formatTime, formatDate, formatDuration, getStatusDot } from "@/lib/format";
 import { buildConfirmationText, buildReminderText, smsHref } from "@/lib/messages";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -569,7 +569,7 @@ export default function BookingDetailModal({
               {formatTime(booking.start_time)} – {formatTime(booking.end_time)}
             </Spec>
             {booking.total_duration_minutes != null && (
-              <Spec label="Duration">{booking.total_duration_minutes} min</Spec>
+              <Spec label="Duration">{formatDuration(booking.total_duration_minutes)}</Spec>
             )}
             {(booking.promo_code ||
               booking.applied_promo_code ||

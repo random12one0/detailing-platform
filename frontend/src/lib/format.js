@@ -14,6 +14,16 @@ export const formatTime = (time) => {
   return `${displayHour}:${minutes} ${ampm}`;
 };
 
+// Format a minute count as "Xh Ym", e.g. 120 -> "2h", 260 -> "4h 20m", 45 -> "45m".
+export const formatDuration = (totalMinutes) => {
+  const mins = Number(totalMinutes) || 0;
+  const hours = Math.floor(mins / 60);
+  const minutes = mins % 60;
+  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h`;
+  return `${minutes}m`;
+};
+
 // Parse a "YYYY-MM-DD" string as a LOCAL date (not UTC). Returns null if empty.
 export const parseLocalDate = (dateString) => {
   if (!dateString) return null;

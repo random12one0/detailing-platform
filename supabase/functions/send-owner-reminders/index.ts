@@ -30,6 +30,14 @@ const dateLong = (dateStr: string) =>
   `${dayOfWeek(dateStr)}, ${new Date(dateStr).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`;
 const carSizeDisplay = (size: string) =>
   !size ? "Unknown" : size.charAt(0).toUpperCase() + size.toLowerCase().slice(1);
+const formatDuration = (totalMinutes: number) => {
+  const mins = Number(totalMinutes) || 0;
+  const hours = Math.floor(mins / 60);
+  const minutes = mins % 60;
+  if (hours > 0 && minutes > 0) return `${hours}h ${minutes}m`;
+  if (hours > 0) return `${hours}h`;
+  return `${minutes}m`;
+};
 
 const OWNER_ADDRESS = "3538 del amo blvd lakewood ca";
 
@@ -187,7 +195,7 @@ async function sendOwnerReminderFor(b: any) {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:15px; color:#0f172a;">
                 <tr><td style="padding:5px 0; color:#64748b; width:110px;">Start</td><td style="padding:5px 0; font-weight:bold;">${startStr}</td></tr>
                 ${endStr ? `<tr><td style="padding:5px 0; color:#64748b;">End (est.)</td><td style="padding:5px 0; font-weight:bold;">${endStr}</td></tr>` : ""}
-                ${b.total_duration_minutes ? `<tr><td style="padding:5px 0; color:#64748b;">Duration</td><td style="padding:5px 0;">${b.total_duration_minutes} min</td></tr>` : ""}
+                ${b.total_duration_minutes ? `<tr><td style="padding:5px 0; color:#64748b;">Duration</td><td style="padding:5px 0;">${formatDuration(b.total_duration_minutes)}</td></tr>` : ""}
               </table>
             </td>
           </tr>
