@@ -157,6 +157,29 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Push-only moment: a "job wrapping up" nudge as a booking approaches its
+    // estimated end time — shows the price so the owner can remind the
+    // customer to pay while they're still there, instead of finding out 2
+    // hours later (the finalize nudge below) that it never got collected.
+    const { data: wrapupDue, error: wrapupErr } = await supabase.rpc("get_bookings_due_for_wrapup_nudge");
+    if (wrapupErr) console.error("get_bookings_due_for_wrapup_nudge failed:", wrapupErr);
+    for (const b of wrapupDue || []) {
+      try {
+        const amount = b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "";
+        await sendOwnerPush({
+          title: "Wrapping up",
+          body: `${b.customer_name}${amount ? ` — ${amount}` : ""}. Don't forget to collect payment.`,
+          url: `/admin/job/${b.id}`,
+          tag: `booking-${b.id}-wrapup`,
+        });
+        await supabase.from("bookings").update({ owner_wrapup_nudge_sent_at: new Date().toISOString() }).eq("id", b.id);
+        results.push({ id: b.id, target: "owner_wrapup_nudge", sent: true });
+      } catch (err) {
+        console.error("Failed to push wrapup nudge for booking", b.id, err);
+        results.push({ id: b.id, target: "owner_wrapup_nudge", sent: false, error: err instanceof Error ? err.message : String(err) });
+      }
+    }
+
     // Push-only moment: a "don't forget to finalize payment" nudge, for jobs
     // that finished 2+ hours ago and are still not finalized.
     const { data: finalizeDue, error: finalizeErr } = await supabase.rpc("get_bookings_due_for_finalize_nudge");
