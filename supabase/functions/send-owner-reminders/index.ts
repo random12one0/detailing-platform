@@ -1,5 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { sendOwnerPush } from "../_shared/ownerPush.ts";
+import { pacificDateStr, pacificHour } from "../_shared/timezone.ts";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -110,6 +112,18 @@ Deno.serve(async (req) => {
         console.error("Failed to send owner reminder for booking", b.id, err);
         results.push({ id: b.id, target: "owner", sent: false, error: err instanceof Error ? err.message : String(err) });
       }
+      // Same due-ness as the email above — also push, so the owner gets this
+      // on their device even before they check their inbox. Best-effort.
+      try {
+        await sendOwnerPush({
+          title: "Upcoming job reminder",
+          body: `${b.customer_name} — ${formatTime12hr(b.start_time)}`,
+          url: `/admin/job/${b.id}`,
+          tag: `booking-${b.id}`,
+        });
+      } catch (err) {
+        console.error("Failed to push owner reminder for booking", b.id, err);
+      }
     }
 
     for (const b of customerDue.data || []) {
@@ -121,6 +135,80 @@ Deno.serve(async (req) => {
         console.error("Failed to send customer reminder for booking", b.id, err);
         results.push({ id: b.id, target: "customer", sent: false, error: err instanceof Error ? err.message : String(err) });
       }
+    }
+
+    // Push-only moment: a closer "starting soon" nudge, ~30 minutes before the
+    // job (in addition to the existing 2-hour/evening-before owner reminder).
+    const { data: nudgeDue, error: nudgeErr } = await supabase.rpc("get_bookings_due_for_nudge");
+    if (nudgeErr) console.error("get_bookings_due_for_nudge failed:", nudgeErr);
+    for (const b of nudgeDue || []) {
+      try {
+        await sendOwnerPush({
+          title: "Starting soon",
+          body: `${b.customer_name} — ${formatTime12hr(b.start_time)}`,
+          url: `/admin/job/${b.id}`,
+          tag: `booking-${b.id}-nudge`,
+        });
+        await supabase.from("bookings").update({ owner_nudge_sent_at: new Date().toISOString() }).eq("id", b.id);
+        results.push({ id: b.id, target: "owner_nudge", sent: true });
+      } catch (err) {
+        console.error("Failed to push nudge for booking", b.id, err);
+        results.push({ id: b.id, target: "owner_nudge", sent: false, error: err instanceof Error ? err.message : String(err) });
+      }
+    }
+
+    // Push-only moment: a "don't forget to finalize payment" nudge, for jobs
+    // that finished 2+ hours ago and are still not finalized.
+    const { data: finalizeDue, error: finalizeErr } = await supabase.rpc("get_bookings_due_for_finalize_nudge");
+    if (finalizeErr) console.error("get_bookings_due_for_finalize_nudge failed:", finalizeErr);
+    for (const b of finalizeDue || []) {
+      try {
+        const amount = b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "";
+        await sendOwnerPush({
+          title: "Don't forget to finalize payment",
+          body: `${b.customer_name}${amount ? ` — ${amount}` : ""}`,
+          url: `/admin/job/${b.id}`,
+          tag: `booking-${b.id}-finalize`,
+        });
+        await supabase.from("bookings").update({ owner_finalize_nudge_sent_at: new Date().toISOString() }).eq("id", b.id);
+        results.push({ id: b.id, target: "owner_finalize_nudge", sent: true });
+      } catch (err) {
+        console.error("Failed to push finalize nudge for booking", b.id, err);
+        results.push({ id: b.id, target: "owner_finalize_nudge", sent: false, error: err instanceof Error ? err.message : String(err) });
+      }
+    }
+
+    // Push-only moment: once a day (from 7am Pacific on), "You have N booking(s)
+    // today". Tracked in owner_daily_digest_state so it only ever fires once
+    // per Pacific calendar day, regardless of how often this sweep runs.
+    try {
+      const today = pacificDateStr();
+      if (pacificHour() >= 7) {
+        const { data: digestRow } = await supabase
+          .from("owner_daily_digest_state")
+          .select("sent_at")
+          .eq("digest_date", today)
+          .maybeSingle();
+        if (!digestRow) {
+          const { count } = await supabase
+            .from("bookings")
+            .select("id", { count: "exact", head: true })
+            .eq("booking_date", today)
+            .neq("status", "cancelled");
+          if ((count || 0) > 0) {
+            await sendOwnerPush({
+              title: "Today's schedule",
+              body: `You have ${count} booking${count === 1 ? "" : "s"} today.`,
+              url: "/admin",
+              tag: `daily-digest-${today}`,
+            });
+          }
+          await supabase.from("owner_daily_digest_state").upsert({ digest_date: today, sent_at: new Date().toISOString() });
+          results.push({ id: today, target: "owner_digest", sent: true });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to send daily digest push:", err);
     }
 
     return json({ success: true, count: results.length, results });

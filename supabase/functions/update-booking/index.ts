@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { sendOwnerPush } from "../_shared/ownerPush.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -79,6 +80,18 @@ Deno.serve(async (req) => {
     // Note: the post-service "thank you" / review-request email used to send
     // here on status === "completed". It now fires from send-invoice instead,
     // alongside the invoice, at Finalize-payment time — see send-invoice.
+
+    // Push notification — best-effort, never fails the update response.
+    try {
+      await sendOwnerPush({
+        title: "Booking updated",
+        body: `${data.customer_name}${status ? ` — status: ${status}` : ""}`,
+        url: `/admin/job/${booking_id}`,
+        tag: `booking-${booking_id}`,
+      });
+    } catch (pushError) {
+      console.error("Owner push send error:", pushError);
+    }
 
     return json({ success: true, booking: data, message: "Booking updated successfully" }, 200);
   } catch (error: any) {

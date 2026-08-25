@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { getFollowupEmailHtml } from "../_shared/followupEmail.ts";
+import { sendOwnerPush } from "../_shared/ownerPush.ts";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -398,6 +399,18 @@ Deno.serve(async (req) => {
       if (!thankYouResponse.ok) console.error("Failed to send thank-you email:", await thankYouResponse.text());
     } catch (e) {
       console.error("Error sending thank-you email:", e);
+    }
+
+    // Push notification — best-effort, never fails the invoice response.
+    try {
+      await sendOwnerPush({
+        title: "Payment finalized",
+        body: `${booking.customer_name} — ${money(totalPaid)} (invoice + thank-you sent)`,
+        url: `/admin/job/${booking.id}`,
+        tag: `booking-${booking.id}`,
+      });
+    } catch (pushError) {
+      console.error("Owner push send error:", pushError);
     }
 
     return new Response(JSON.stringify({ success: true, thank_you_sent: thankYouSent }), {

@@ -10,6 +10,7 @@ import {
   vehicleSizeDuration,
 } from "../_shared/pricing.ts";
 import { pacificDateStr, pacificToDate } from "../_shared/timezone.ts";
+import { sendOwnerPush } from "../_shared/ownerPush.ts";
 
 // Must match available-slots' own BUFFER_MINUTES — both enforce the same rule
 // (minimum gap on EITHER side of every existing booking); available-slots only
@@ -1008,6 +1009,23 @@ Deno.serve(async (req) => {
       }
     } catch (calendarError) {
       console.error("Calendar creation error:", calendarError);
+    }
+
+    // Push notification (optional; skipped for owner previews — no point
+    // notifying the owner about their own test). Best-effort, mirrors the
+    // owner email above — never fails the booking response.
+    if (!isOwnerTest) try {
+      const [hh, mm] = String(data.start_time || "").split(":");
+      const hour12 = ((Number(hh) + 11) % 12) + 1;
+      const ampm = Number(hh) >= 12 ? "PM" : "AM";
+      await sendOwnerPush({
+        title: "New booking",
+        body: `${data.customer_name} — ${data.booking_date} at ${hour12}:${mm} ${ampm} ($${Number(data.total_price || 0).toFixed(2)})`,
+        url: `/admin/job/${data.id}`,
+        tag: `booking-${data.id}`,
+      });
+    } catch (pushError) {
+      console.error("Owner push send error:", pushError);
     }
 
     return new Response(JSON.stringify({

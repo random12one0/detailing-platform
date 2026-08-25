@@ -47,3 +47,9 @@ export function pacificDateStr(d: Date = new Date()): string {
   const p = partsOf(d, { year: "numeric", month: "2-digit", day: "2-digit" });
   return `${p.year}-${p.month}-${p.day}`;
 }
+
+// Current Pacific hour (0-23) for a given instant (default: right now).
+export function pacificHour(d: Date = new Date()): number {
+  const p = partsOf(d, { hour: "2-digit", hour12: false });
+  return p.hour === "24" ? 0 : Number(p.hour);
+}

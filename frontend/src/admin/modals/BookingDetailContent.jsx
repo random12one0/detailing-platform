@@ -1,0 +1,808 @@
+// BookingDetailContent — the actual booking-detail UI, extracted from
+// BookingDetailModal so it can be reused bare (no Modal chrome) on the
+// dedicated owner booking page (OwnerBookingDetailPage) that a push
+// notification tap opens, as well as inside the modal on the main dashboard.
+// SAME props and SAME write callbacks as before:
+//   { booking, onClose, onUpdateStatus, onUpdateNotes, onUpdateBooking, onDelete, onEditPayment }
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Phone,
+  MessageSquare,
+  Navigation,
+  Mail,
+  Pencil,
+  Trash2,
+  Zap,
+  CheckCircle2,
+  UserPlus,
+  BellRing,
+  CalendarPlus,
+} from "lucide-react";
+import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
+import { money, formatTime, formatDate, formatDuration, getStatusDot } from "@/lib/format";
+import { buildConfirmationText, buildReminderText, smsHref } from "@/lib/messages";
+import { downloadBookingIcs } from "@/lib/ics";
+import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import {
+  Button,
+  StatusBadge,
+  Chip,
+  Field,
+  TextInput,
+  TimeInput,
+  Textarea,
+  Select,
+  controlBase,
+} from "@/admin/ui";
+
+const STATUS_OPTIONS = [
+  { value: "pending", label: "Pending" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+  { value: "no_show", label: "No show" },
+];
+
+const SERVICE_OPTIONS = [
+  { value: "mobile", label: "Mobile" },
+  { value: "dropoff", label: "Drop-off" },
+];
+
+const VEHICLE_OPTIONS = [
+  { value: "small", label: "Small" },
+  { value: "medium", label: "Medium" },
+  { value: "large", label: "Large" },
+];
+
+// A labelled spec cell in the details grid.
+function Spec({ label, children }) {
+  if (!children && children !== 0) return null;
+  return (
+    <div>
+      <span className="block text-xs text-muted-foreground">{label}</span>
+      <span className="font-medium text-foreground">{children}</span>
+    </div>
+  );
+}
+
+export default function BookingDetailContent({
+  booking,
+  onClose,
+  onUpdateStatus,
+  onUpdateNotes,
+  onDelete,
+  onUpdateBooking,
+  onEditPayment,
+}) {
+  // Optimistic status so the badge/CTA reflect a change before the parent refetches.
+  const [status, setStatus] = useState(booking.status);
+  const [adminNotes, setAdminNotes] = useState(booking.admin_notes || "");
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFields, setEditFields] = useState({
+    customer_name: booking.customer_name || "",
+    customer_phone: booking.customer_phone || "",
+    customer_email: booking.customer_email || "",
+    customer_address: booking.customer_address || "",
+    booking_date: booking.booking_date || "",
+    start_time: booking.start_time || "",
+    end_time: booking.end_time || "",
+    service_type: booking.service_type || "",
+    vehicle_size: booking.vehicle_size || "",
+    vehicle_model: booking.vehicle_model || "",
+    add_ons: (booking.add_ons || []).map((a) => a.add_on_id),
+  });
+
+  const [allAddOns, setAllAddOns] = useState([]);
+  const [loadingAddOns, setLoadingAddOns] = useState(false);
+  const [addOnsError, setAddOnsError] = useState(null);
+  const [resendingReminder, setResendingReminder] = useState(false);
+  const [sendingCustomerUpdate, setSendingCustomerUpdate] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    async function fetchAddOns() {
+      setLoadingAddOns(true);
+      setAddOnsError(null);
+      try {
+        const { data, error } = await supabase
+          .from("add_ons")
+          .select("*")
+          .eq("is_active", true);
+        if (error) throw error;
+        if (active) setAllAddOns(data || []);
+      } catch (err) {
+        if (active) {
+          setAddOnsError("Failed to load add-ons");
+          setAllAddOns([]);
+        }
+      } finally {
+        if (active) setLoadingAddOns(false);
+      }
+    }
+    fetchAddOns();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const setEdit = (key, value) =>
+    setEditFields((prev) => ({ ...prev, [key]: value }));
+
+  const handleChangeStatus = (next) => {
+    if (next === status) return;
+    setStatus(next); // optimistic
+    onUpdateStatus(booking.id, next);
+  };
+
+  const handleSaveNotes = () => {
+    onUpdateNotes(booking.id, adminNotes);
+    setIsEditingNotes(false);
+  };
+
+  const handleSaveEdit = () => {
+    onUpdateBooking(booking.id, editFields);
+    setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    if (
+      window.confirm(
+        `Are you sure you want to permanently delete this booking for ${booking.customer_name}? This action cannot be undone.`
+      )
+    ) {
+      onDelete(booking.id);
+      onClose();
+    }
+  };
+
+  const isMobileJob = booking.service_type === "mobile";
+  const displayPrice = booking.final_amount ?? booking.total_price;
+  // Apple Maps (owner is on iOS): `?q=` shows the location, `?daddr=` starts turn-by-turn.
+  const addressQuery = booking.customer_address
+    ? encodeURIComponent(booking.customer_address)
+    : null;
+  const mapUrl = addressQuery ? `https://maps.apple.com/?q=${addressQuery}` : null;
+  const directionsUrl = addressQuery
+    ? `https://maps.apple.com/?daddr=${addressQuery}`
+    : null;
+
+  // "Add to Contacts" — a real .vcf file download via a Blob object URL.
+  // A raw `data:` URI href gets silently blocked by Chrome/Safari's top-frame
+  // navigation protections (looks like the tap does nothing), so we hand the
+  // browser an actual downloadable file instead — iOS recognizes the .vcf and
+  // opens the native "Add Contact" sheet the same way a .vcf email attachment does.
+  const vcardEscape = (s) =>
+    String(s || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+  // N is the structured "Family;Given;Additional;Prefix;Suffix" field that iOS
+  // uses to populate the separate First/Last name fields (FN is just the display
+  // name) — splitting on the last space so "Jane Doe" -> Given=Jane, Family=Doe.
+  const splitName = (full) => {
+    const parts = String(full || "").trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return { first: "", last: "" };
+    if (parts.length === 1) return { first: parts[0], last: "" };
+    return { first: parts.slice(0, -1).join(" "), last: parts[parts.length - 1] };
+  };
+  const vcardBlobUrl = useMemo(() => {
+    const { first, last } = splitName(booking.customer_name);
+    const lines = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      `FN:${vcardEscape(booking.customer_name)}`,
+      `N:${vcardEscape(last)};${vcardEscape(first)};;;`,
+      booking.customer_phone ? `TEL;TYPE=CELL:${vcardEscape(booking.customer_phone)}` : "",
+      booking.customer_email ? `EMAIL;TYPE=INTERNET:${vcardEscape(booking.customer_email)}` : "",
+      booking.customer_address ? `ADR;TYPE=HOME:;;${vcardEscape(booking.customer_address)};;;;` : "",
+      "ORG:Andrew's Auto Detail Customer",
+      "END:VCARD",
+    ].filter(Boolean);
+    const blob = new Blob([lines.join("\r\n")], { type: "text/vcard;charset=utf-8" });
+    return URL.createObjectURL(blob);
+  }, [booking.customer_name, booking.customer_phone, booking.customer_email, booking.customer_address]);
+
+  useEffect(() => {
+    return () => URL.revokeObjectURL(vcardBlobUrl);
+  }, [vcardBlobUrl]);
+
+  const vcardFileName = `${(booking.customer_name || "Contact").replace(/[^\w\s-]/g, "").trim() || "Contact"}.vcf`;
+
+  // Owner's own "Add to Apple Calendar" — same client-side .ics download the
+  // customer gets on their receipt page, built from this booking's own job
+  // details instead of the customer-facing summary.
+  const handleAddToCalendar = () => {
+    const jobAddress = isMobileJob ? booking.customer_address : null;
+    downloadBookingIcs(booking, {
+      summary: `Job: ${booking.customer_name}${booking.vehicle_model ? ` — ${booking.vehicle_model}` : ""}`,
+      location: jobAddress || undefined,
+      description: `${isMobileJob ? "Mobile job" : "Drop-off"} for ${booking.customer_name} (${booking.customer_phone}). ${money(displayPrice)}.`,
+      uidSuffix: "-owner",
+    });
+  };
+
+  // Manually (re)send the owner-facing recap email for this one booking — the
+  // same email a background sweep sends automatically ~24h before the job, but
+  // triggerable on demand (e.g. right after editing details) so it's never stale.
+  const handleResendReminder = async () => {
+    setResendingReminder(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        toast({ title: "Not signed in", description: "Please sign in again.", variant: "destructive" });
+        return;
+      }
+      const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/send-owner-reminders`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ booking_id: booking.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === false) throw new Error(data.error || "Failed to send recap email");
+      toast({ title: "Recap email sent", description: "Check your inbox.", variant: "success" });
+    } catch (err) {
+      toast({ title: "Failed to send recap", description: err.message, variant: "destructive" });
+    } finally {
+      setResendingReminder(false);
+    }
+  };
+
+  // Manually notify the CUSTOMER of the current booking details — e.g. after
+  // rescheduling them. Uses the same admin-gated endpoint as the owner recap,
+  // just aimed at the customer with "updated" framing instead of "reminder."
+  // Sends whatever is currently saved, so make sure edits are saved first.
+  const handleEmailCustomerUpdate = async () => {
+    setSendingCustomerUpdate(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        toast({ title: "Not signed in", description: "Please sign in again.", variant: "destructive" });
+        return;
+      }
+      const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/send-owner-reminders`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ booking_id: booking.id, target: "customer" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === false) throw new Error(data.error || "Failed to email the customer");
+      toast({ title: "Customer emailed", description: "They now have the current appointment details.", variant: "success" });
+    } catch (err) {
+      toast({ title: "Failed to email customer", description: err.message, variant: "destructive" });
+    } finally {
+      setSendingCustomerUpdate(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Top action row — Edit lives up here so it's reachable without scrolling,
+          and there's no floating bar to fat-finger. The state-changing actions
+          (Mark complete / Done) sit at the very bottom of the content instead. */}
+      <div className="flex justify-end">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setIsEditing((v) => !v)}
+        >
+          <Pencil />
+          {isEditing ? "Close edit" : "Edit"}
+        </Button>
+      </div>
+
+      {/* Status control */}
+      <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <span
+            className={cn("size-2.5 rounded-full", getStatusDot(status))}
+            aria-hidden
+          />
+          <StatusBadge status={status} />
+        </div>
+        <div className="sm:w-48">
+          <Select
+            aria-label="Change status"
+            value={status}
+            onChange={handleChangeStatus}
+            options={STATUS_OPTIONS}
+          />
+        </div>
+      </div>
+
+      {/* Quick contact actions — each opens the phone's messaging app with the
+          message already prefilled (no copy/paste needed). "Text confirm" is the
+          warm intro for a new booking; "Text reminder" is the short day-of nudge. */}
+      <div className="grid grid-cols-3 gap-2">
+        <Button variant="secondary" size="sm" asChild>
+          <a href={`tel:${booking.customer_phone}`}>
+            <Phone />
+            Call
+          </a>
+        </Button>
+        <Button variant="secondary" size="sm" asChild>
+          <a href={smsHref(booking.customer_phone, buildConfirmationText(booking))}>
+            <MessageSquare />
+            Text confirm
+          </a>
+        </Button>
+        <Button variant="secondary" size="sm" asChild>
+          <a href={smsHref(booking.customer_phone, buildReminderText(booking))}>
+            <MessageSquare />
+            Text reminder
+          </a>
+        </Button>
+      </div>
+
+      {/* Owner recap email — the same email a background job sends you
+          automatically ~24h before this job (with the final price, vehicle,
+          and timing), but resendable on demand so it's never out of date. */}
+      <Button
+        variant="secondary"
+        size="sm"
+        fullWidth
+        disabled={resendingReminder}
+        onClick={handleResendReminder}
+      >
+        <BellRing />
+        {resendingReminder ? "Sending…" : "Email me a recap of this job"}
+      </Button>
+
+      {/* Manual customer notification — for reschedules or any other change
+          the customer should hear about. Sends whatever is currently saved,
+          so save edits first, then send this. */}
+      {booking.customer_email && (
+        <Button
+          variant="secondary"
+          size="sm"
+          fullWidth
+          disabled={sendingCustomerUpdate}
+          onClick={handleEmailCustomerUpdate}
+        >
+          <Mail />
+          {sendingCustomerUpdate ? "Sending…" : "Email customer an update"}
+        </Button>
+      )}
+
+      {/* Owner's own calendar export — same .ics pattern as the customer's
+          "Add to calendar" button on their receipt page. */}
+      <Button variant="secondary" size="sm" fullWidth onClick={handleAddToCalendar}>
+        <CalendarPlus />
+        Add to Apple Calendar
+      </Button>
+
+      {/* Route strip — top need for mobile jobs */}
+      {isMobileJob && (
+        <div className="rounded-xl border border-accent/40 bg-accent/10 p-3.5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-accent">
+                <Navigation className="size-4" />
+                On-site job
+              </div>
+              <div className="mt-1 break-words font-medium text-foreground">
+                {booking.customer_address || "No address on file"}
+              </div>
+            </div>
+            {directionsUrl && (
+              <Button size="sm" asChild className="shrink-0">
+                <a href={directionsUrl} target="_blank" rel="noopener noreferrer">
+                  <Navigation />
+                  Navigate
+                </a>
+              </Button>
+            )}
+          </div>
+          {booking.has_water_electric !== null &&
+            booking.has_water_electric !== undefined && (
+              <div
+                className={cn(
+                  "mt-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium",
+                  booking.has_water_electric
+                    ? "border-success/30 bg-success/10 text-success"
+                    : "border-warning/30 bg-warning/10 text-warning"
+                )}
+              >
+                <Zap className="size-4 shrink-0" />
+                Water / Electric on-site:{" "}
+                {booking.has_water_electric
+                  ? "Available"
+                  : "NOT available — bring supply"}
+              </div>
+            )}
+        </div>
+      )}
+
+      {/* Edit form (toggled) */}
+      {isEditing && (
+        <div className="rounded-xl border border-border bg-muted/40 p-4">
+          <h3 className="mb-3 border-b border-border pb-2 text-base font-semibold text-foreground">
+            Edit job
+          </h3>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <TextInput
+              label="Name"
+              value={editFields.customer_name}
+              onChange={(e) => setEdit("customer_name", e.target.value)}
+            />
+            <TextInput
+              label="Phone"
+              value={editFields.customer_phone}
+              onChange={(e) => setEdit("customer_phone", e.target.value)}
+            />
+            <TextInput
+              label="Email"
+              value={editFields.customer_email}
+              onChange={(e) => setEdit("customer_email", e.target.value)}
+            />
+            <TextInput
+              label="Address"
+              value={editFields.customer_address}
+              onChange={(e) => setEdit("customer_address", e.target.value)}
+            />
+            <Field label="Date">
+              <input
+                type="date"
+                value={editFields.booking_date}
+                onChange={(e) => setEdit("booking_date", e.target.value)}
+                className={cn(controlBase, "[color-scheme:dark]")}
+              />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <TimeInput
+                label="Start"
+                value={editFields.start_time}
+                onChange={(e) => setEdit("start_time", e.target.value)}
+                className="[color-scheme:dark]"
+              />
+              <TimeInput
+                label="End"
+                value={editFields.end_time}
+                onChange={(e) => setEdit("end_time", e.target.value)}
+                className="[color-scheme:dark]"
+              />
+            </div>
+            <Select
+              label="Service type"
+              value={editFields.service_type}
+              onChange={(v) => setEdit("service_type", v)}
+              options={SERVICE_OPTIONS}
+            />
+            <Select
+              label="Vehicle size"
+              value={editFields.vehicle_size}
+              onChange={(v) => setEdit("vehicle_size", v)}
+              options={VEHICLE_OPTIONS}
+            />
+            <TextInput
+              label="Vehicle model"
+              placeholder="e.g. 2020 Honda Civic"
+              value={editFields.vehicle_model}
+              onChange={(e) => setEdit("vehicle_model", e.target.value)}
+            />
+          </div>
+
+          {/* Add-ons editor */}
+          <div className="mt-4">
+            <span className="text-sm font-medium text-foreground">Add-ons</span>
+            {loadingAddOns && (
+              <div className="mt-1 text-sm text-muted-foreground">
+                Loading add-ons…
+              </div>
+            )}
+            {addOnsError && (
+              <div className="mt-1 text-sm text-destructive">{addOnsError}</div>
+            )}
+            {!loadingAddOns && !addOnsError && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {allAddOns.map((addon) => {
+                  const isSelected = editFields.add_ons.includes(addon.id);
+                  return (
+                    <Chip
+                      key={addon.id}
+                      active={isSelected}
+                      onClick={() =>
+                        setEditFields((prev) => ({
+                          ...prev,
+                          add_ons: isSelected
+                            ? prev.add_ons.filter((id) => id !== addon.id)
+                            : [...prev.add_ons, addon.id],
+                        }))
+                      }
+                    >
+                      {addon.name} ({money(addon.price)})
+                    </Chip>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 flex gap-2">
+            <Button size="sm" className="flex-1" onClick={handleSaveEdit}>
+              Save changes
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="flex-1"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* The job */}
+      <div className="space-y-3 rounded-xl border border-border bg-muted/40 p-4">
+        <h3 className="border-b border-border pb-2 text-base font-semibold text-foreground">
+          The job
+        </h3>
+
+        {booking.interior_package && (
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="font-medium text-foreground">
+                {booking.interior_package.name}
+              </div>
+              <div className="text-xs capitalize text-muted-foreground">
+                {booking.interior_package.tier} Interior
+              </div>
+            </div>
+            <div className="whitespace-nowrap font-semibold text-foreground">
+              {money(booking.interior_package.base_price)}
+            </div>
+          </div>
+        )}
+        {booking.exterior_package && (
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="font-medium text-foreground">
+                {booking.exterior_package.name}
+              </div>
+              <div className="text-xs capitalize text-muted-foreground">
+                {booking.exterior_package.tier} Exterior
+              </div>
+            </div>
+            <div className="whitespace-nowrap font-semibold text-foreground">
+              {money(booking.exterior_package.base_price)}
+            </div>
+          </div>
+        )}
+        {booking.monthly_plan_name && (
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="font-medium text-foreground">
+                Monthly Plan: {booking.monthly_plan_name}
+              </div>
+              {booking.monthly_plan_discount != null && (
+                <div className="text-xs text-success">
+                  Discount: -{money(booking.monthly_plan_discount)}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {booking.add_ons && booking.add_ons.length > 0 && (
+          <div>
+            <span className="text-xs text-muted-foreground">Add-ons</span>
+            <ul className="ml-5 mt-1 list-disc space-y-0.5">
+              {booking.add_ons.map((a) => (
+                <li key={a.add_on_id} className="text-sm text-foreground">
+                  {a.add_on?.name}{" "}
+                  {a.add_on?.price != null ? `(${money(a.add_on.price)})` : ""}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Spec grid */}
+        <div className="grid grid-cols-2 gap-3 pt-1 text-sm">
+          <Spec label="Vehicle">
+            <span className="capitalize">{booking.vehicle_size}</span>
+            {booking.vehicle_model && (
+              <span className="block text-sm font-normal text-muted-foreground">
+                {booking.vehicle_model}
+              </span>
+            )}
+          </Spec>
+          <Spec label="Service">
+            <span className="capitalize">{booking.service_type}</span>
+          </Spec>
+          <Spec label="Date">{formatDate(booking.booking_date)}</Spec>
+          <Spec label="Time">
+            {formatTime(booking.start_time)} – {formatTime(booking.end_time)}
+          </Spec>
+          {booking.total_duration_minutes != null && (
+            <Spec label="Duration">{formatDuration(booking.total_duration_minutes)}</Spec>
+          )}
+          {(booking.promo_code ||
+            booking.applied_promo_code ||
+            booking.discount_code) && (
+            <div>
+              <span className="block text-xs text-muted-foreground">Promo</span>
+              <span className="font-medium text-success">
+                {booking.promo_code ||
+                  booking.applied_promo_code ||
+                  booking.discount_code}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Price */}
+        <div className="mt-1 space-y-1 border-t border-border pt-3">
+          {booking.subtotal != null && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-foreground">{money(booking.subtotal)}</span>
+            </div>
+          )}
+          <div className="flex items-baseline justify-between">
+            <span className="font-semibold text-foreground">Total</span>
+            <span className="text-2xl font-bold text-accent">
+              {money(displayPrice)}
+            </span>
+          </div>
+          {booking.finalized_at && (
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <div className="text-xs text-success">
+                Payment finalized: {money(booking.final_amount ?? booking.total_price)}
+              </div>
+              {onEditPayment && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => onEditPayment(booking)}
+                >
+                  Edit payment
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Contact */}
+      <div className="space-y-2 rounded-xl border border-border bg-muted/40 p-4 text-sm">
+        <div className="flex items-center justify-between border-b border-border pb-2">
+          <h3 className="text-base font-semibold text-foreground">Contact</h3>
+          <a
+            href={vcardBlobUrl}
+            download={vcardFileName}
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent/10 px-2.5 text-xs font-semibold text-accent hover:bg-accent/20"
+          >
+            <UserPlus className="size-3.5" />
+            Add to Contacts
+          </a>
+        </div>
+        <div className="flex justify-between gap-3">
+          <span className="text-muted-foreground">Phone</span>
+          <a
+            href={`tel:${booking.customer_phone}`}
+            className="font-medium text-accent"
+          >
+            {booking.customer_phone}
+          </a>
+        </div>
+        {booking.customer_email && (
+          <div className="flex justify-between gap-3">
+            <span className="text-muted-foreground">Email</span>
+            <a
+              href={`mailto:${booking.customer_email}`}
+              className="flex items-center gap-1 break-all text-right font-medium text-accent"
+            >
+              <Mail className="size-3.5 shrink-0" />
+              {booking.customer_email}
+            </a>
+          </div>
+        )}
+        {!isMobileJob && booking.customer_address && (
+          <div className="flex justify-between gap-3">
+            <span className="text-muted-foreground">Address</span>
+            {mapUrl ? (
+              <a
+                href={mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-right font-medium text-accent"
+              >
+                {booking.customer_address}
+              </a>
+            ) : (
+              <span className="text-right font-medium text-foreground">
+                {booking.customer_address}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Customer notes */}
+      {booking.customer_notes && (
+        <div className="rounded-xl border border-border bg-muted/40 p-4">
+          <h3 className="mb-2 border-b border-border pb-2 text-base font-semibold text-foreground">
+            Customer notes
+          </h3>
+          <p className="text-sm text-muted-foreground">{booking.customer_notes}</p>
+        </div>
+      )}
+
+      {/* Admin notes */}
+      <div className="rounded-xl border border-border bg-muted/40 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-base font-semibold text-foreground">Admin notes</h3>
+          {!isEditingNotes && (
+            <button
+              type="button"
+              onClick={() => setIsEditingNotes(true)}
+              className="min-h-[44px] px-2 text-sm font-medium text-accent"
+            >
+              {adminNotes ? "Edit" : "Add note"}
+            </button>
+          )}
+        </div>
+        {isEditingNotes ? (
+          <div className="space-y-2">
+            <Textarea
+              value={adminNotes}
+              onChange={(e) => setAdminNotes(e.target.value)}
+              placeholder="Add internal notes (not visible to customer)…"
+              rows={4}
+            />
+            <div className="flex gap-2">
+              <Button size="sm" className="flex-1" onClick={handleSaveNotes}>
+                Save
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="flex-1"
+                onClick={() => {
+                  setAdminNotes(booking.admin_notes || "");
+                  setIsEditingNotes(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            {adminNotes || "No admin notes yet"}
+          </p>
+        )}
+      </div>
+
+      {/* Timestamps */}
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        {booking.created_at && (
+          <div>Created: {new Date(booking.created_at).toLocaleString()}</div>
+        )}
+        {booking.updated_at && (
+          <div>Updated: {new Date(booking.updated_at).toLocaleString()}</div>
+        )}
+      </div>
+
+      {/* Primary action — at the bottom of the content (no sticky bar). */}
+      {status === "confirmed" ? (
+        <Button fullWidth onClick={() => handleChangeStatus("completed")}>
+          <CheckCircle2 />
+          Mark complete
+        </Button>
+      ) : (
+        <Button fullWidth variant="secondary" onClick={onClose}>
+          Done
+        </Button>
+      )}
+
+      {/* Delete */}
+      <Button variant="danger" fullWidth onClick={handleDelete}>
+        <Trash2 />
+        Delete booking permanently
+      </Button>
+    </div>
+  );
+}

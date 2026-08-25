@@ -14,9 +14,13 @@ import {
   Settings,
   LogOut,
   Link2,
+  Bell,
+  BellOff,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Card, Button, SectionHeader } from "@/admin/ui";
+import { toast } from "@/hooks/use-toast";
+import usePushNotifications from "@/admin/hooks/usePushNotifications";
 import ServicesAndAddOnsSection from "@/components/ServicesAndAddOnsSection";
 import PromoCodesSection from "@/components/PromoCodesSection";
 import BusinessSettingsSection from "@/components/BusinessSettingsSection";
@@ -107,6 +111,68 @@ function MenuRow({ icon: Icon, title, subtitle, onClick }) {
   );
 }
 
+// Push-notification opt-in card — lets the owner enable/disable notifications
+// on this device (booking, updates, reminders) so they don't have to rely on
+// email once the admin dashboard is saved to the home screen.
+function NotificationsCard() {
+  const { status, busy, enable, disable } = usePushNotifications();
+
+  if (status === "unsupported") return null;
+
+  const handleToggle = async () => {
+    const result = status === "on" ? await disable() : await enable();
+    if (!result.success) {
+      toast({
+        title: status === "on" ? "Couldn't disable notifications" : "Couldn't enable notifications",
+        description: result.error,
+        variant: "destructive",
+      });
+      return;
+    }
+    toast({
+      title: status === "on" ? "Notifications disabled" : "Notifications enabled",
+      description:
+        status === "on"
+          ? "You won't get push notifications on this device anymore."
+          : "You'll get a push notification for new bookings, updates, and reminders on this device.",
+      variant: "success",
+    });
+  };
+
+  return (
+    <Card className="border-accent/30">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-accent">
+            {status === "on" ? <Bell className="size-5" /> : <BellOff className="size-5" />}
+          </span>
+          <div>
+            <p className="font-semibold text-foreground">Push notifications</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {status === "denied"
+                ? "Blocked in your browser settings — re-enable them there to turn this on."
+                : status === "on"
+                ? "Enabled on this device — new bookings, updates & reminders."
+                : "Get bookings, updates & reminders on this device instead of email."}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="mt-3">
+        <Button
+          variant={status === "on" ? "secondary" : "primary"}
+          size="sm"
+          fullWidth
+          disabled={busy || status === "denied" || status === "checking"}
+          onClick={handleToggle}
+        >
+          {busy ? "Working…" : status === "on" ? "Disable on this device" : "Enable on this device"}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 export default function MoreScreen() {
   const [view, setView] = useState("menu");
   const [loggingOut, setLoggingOut] = useState(false);
@@ -151,6 +217,8 @@ export default function MoreScreen() {
   return (
     <div className="space-y-6">
       <SectionHeader title="More" subtitle="Manage your catalog, promos & settings" />
+
+      <NotificationsCard />
 
       <div className="space-y-3">
         {MENU_ITEMS.map((item) => (

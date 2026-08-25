@@ -31,6 +31,7 @@ import { trackVisit } from "@/lib/campaign";
 // New admin — ground-up rebuild, now the primary /admin, gated by RequireAdmin.
 import RequireAdmin from "@/admin/RequireAdmin";
 import AdminShell from "@/admin/AdminShell";
+import OwnerBookingDetailPage from "@/admin/OwnerBookingDetailPage";
 import Toaster from "@/components/Toaster";
 
 
@@ -91,6 +92,18 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          {/* Dedicated single-booking owner page — what a push notification tap
+              opens, so it lands on one clean job page instead of the crowded
+              dashboard. Registered before the /admin/* catch-all so this specific
+              path wins the match. */}
+          <Route
+            path="/admin/job/:id"
+            element={
+              <RequireAdmin>
+                <OwnerBookingDetailPage />
+              </RequireAdmin>
+            }
+          />
           {/* Primary admin — single URL. AdminShell renders every tab via internal
               state (no per-tab routes), so navigating never changes the URL. The `/*`
               keeps old /admin/<tab> bookmarks rendering the shell instead of 404ing. */}
