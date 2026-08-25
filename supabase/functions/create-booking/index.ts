@@ -9,6 +9,13 @@ import {
   vehicleSizeAdd,
   vehicleSizeDuration,
 } from "../_shared/pricing.ts";
+import { pacificDateStr, pacificToDate } from "../_shared/timezone.ts";
+
+// Must match available-slots' own BUFFER_MINUTES — both enforce the same rule
+// (minimum gap on EITHER side of every existing booking); available-slots only
+// gates what's OFFERED to a browsing customer, this is the actual accept gate.
+const BUFFER_MINUTES = 60;
+const ADVANCE_MS = 2 * 60 * 60 * 1000;
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -330,6 +337,61 @@ Deno.serve(async (req) => {
           JSON.stringify({ error: `That service would run until ${hmv(endTime)}, past our ${closeTime} close that day. Please choose an earlier time or a shorter service.` }),
           { status: 409, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
         );
+      }
+    }
+
+    // SERVER-SIDE 2-hour advance guard, only for same-day (Pacific) bookings.
+    // available-slots already filters this out of what's OFFERED, but a client
+    // can hold a stale slot list open past the cutoff, so this is the real gate.
+    if (bookingRequest.booking_date === pacificDateStr()) {
+      const [sy, sm, sd] = bookingRequest.booking_date.split("-").map(Number);
+      const [sh, smin] = startTime.split(":").map(Number);
+      const slotInstant = pacificToDate(sy, sm, sd, sh, smin);
+      if (slotInstant.getTime() - Date.now() < ADVANCE_MS) {
+        return new Response(
+          JSON.stringify({ error: "That time is too soon — bookings need at least 2 hours' notice. Please choose a later time." }),
+          { status: 409, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
+    // SERVER-SIDE booking-conflict guard: a minimum BUFFER_MINUTES gap is
+    // required on BOTH sides of every existing (non-cancelled) booking that
+    // day — mirrors available-slots' own conflict check, since that function
+    // only gates what's shown, not what's ultimately accepted here.
+    {
+      const { data: sameDayBookings, error: conflictErr } = await supabase
+        .from("bookings")
+        .select("start_time, end_time")
+        .eq("booking_date", bookingRequest.booking_date)
+        .neq("status", "cancelled");
+      if (conflictErr) {
+        console.error("Booking-conflict check failed:", conflictErr);
+      } else {
+        const hm2 = (t: string) => String(t).slice(0, 5);
+        const jobStart = hm2(startTime);
+        const jobEnd = hm2(endTime);
+        const toMin2 = (t: string) => {
+          const [h, m] = t.split(":").map(Number);
+          return h * 60 + m;
+        };
+        const fromMin2 = (mins: number) => {
+          const h = Math.floor(mins / 60);
+          const m = mins % 60;
+          return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+        };
+        const overlaps2 = (aS: string, aE: string, bS: string, bE: string) => !(aE <= bS || aS >= bE);
+        const hasConflict = (sameDayBookings || []).some((b: any) => {
+          const bufferedStart = fromMin2(Math.max(0, toMin2(hm2(b.start_time)) - BUFFER_MINUTES));
+          const bufferedEnd = fromMin2(toMin2(hm2(b.end_time)) + BUFFER_MINUTES);
+          return overlaps2(jobStart, jobEnd, bufferedStart, bufferedEnd);
+        });
+        if (hasConflict) {
+          return new Response(
+            JSON.stringify({ error: "That time is too close to another booking — please leave at least an hour on either side, or choose a different time." }),
+            { status: 409, headers: { ...CORS_HEADERS, "Content-Type": "application/json" } },
+          );
+        }
       }
     }
 

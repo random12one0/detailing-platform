@@ -57,6 +57,8 @@ const RevenueCalendar = ({ bookings }) => {
   const [range, setRange] = useState('3m');
   const [lineItems, setLineItems] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  // Hourly-wage card: 0 = current month, -1 = last month, etc.
+  const [wageMonthOffset, setWageMonthOffset] = useState(0);
 
   // Fetch structured line items + expenses (net profit) once.
   useEffect(() => {
@@ -280,18 +282,16 @@ const RevenueCalendar = ({ bookings }) => {
     return { topCount: byCount[0], topRevenue: byRevenue[0], any: dayStats.some((x) => x.count > 0) };
   }, [completedInRange]);
 
-  // ---- hourly wage this month (independent of range selector) ----
-  const hourlyThisMonth = useMemo(() => {
-    const now = new Date();
-    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    let rev = 0;
-    let hours = 0;
+  // ---- hourly wage, grouped by every month that has completed+finalized jobs
+  // (independent of the range selector above) so the card can be browsed
+  // month-to-month instead of always showing "this month" only. ----
+  const hoursByMonth = useMemo(() => {
+    const m = {};
     (bookings || []).forEach((b) => {
       if (b?.status !== 'completed' || !b?.finalized_at) return;
       const d = new Date(b.booking_date);
       if (isNaN(d)) return;
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (key !== currentMonthKey) return;
       let duration = 0;
       if (b.start_time && b.end_time) {
         const [sh, sm] = b.start_time.split(':').map(Number);
@@ -303,13 +303,38 @@ const RevenueCalendar = ({ bookings }) => {
       } else if (b.duration_minutes) {
         duration = b.duration_minutes / 60;
       }
-      if (duration > 0) {
-        hours += duration;
-        rev += amt(b);
-      }
+      if (duration <= 0) return;
+      if (!m[key]) m[key] = { key, hours: 0, rev: 0 };
+      m[key].hours += duration;
+      m[key].rev += amt(b);
     });
-    return { hourly: hours > 0 ? rev / hours : 0, hours, rev };
+    return m;
   }, [bookings]);
+
+  const wageMonthKeys = useMemo(() => Object.keys(hoursByMonth).sort(), [hoursByMonth]);
+
+  const wageSelectedDate = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + wageMonthOffset, 1);
+  }, [wageMonthOffset]);
+  const wageSelectedKey = `${wageSelectedDate.getFullYear()}-${String(wageSelectedDate.getMonth() + 1).padStart(2, '0')}`;
+  const wageSelectedLabel = wageSelectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+  const hourlySelectedMonth = useMemo(() => {
+    const entry = hoursByMonth[wageSelectedKey] || { hours: 0, rev: 0 };
+    return { hourly: entry.hours > 0 ? entry.rev / entry.hours : 0, hours: entry.hours, rev: entry.rev };
+  }, [hoursByMonth, wageSelectedKey]);
+
+  // Average hours worked per month, across every month with at least one
+  // completed+finalized job (not just months since the site launched empty).
+  const avgHoursPerMonth = useMemo(() => {
+    if (wageMonthKeys.length === 0) return 0;
+    const total = wageMonthKeys.reduce((s, k) => s + hoursByMonth[k].hours, 0);
+    return total / wageMonthKeys.length;
+  }, [wageMonthKeys, hoursByMonth]);
+
+  const wageCanGoPrev = wageMonthKeys.length > 0 && wageSelectedKey > wageMonthKeys[0];
+  const wageCanGoNext = wageMonthOffset < 0;
 
   const maxUpsellCat = Math.max(1, ...UPSELL_KEYS.map((k) => stats.upsellByCat[k] || 0));
   const upsellCatsPresent = UPSELL_CATS.filter((c) => (stats.upsellByCat[c.key] || 0) > 0);
@@ -564,15 +589,50 @@ const RevenueCalendar = ({ bookings }) => {
         </div>
 
         <div className="bg-black/30 backdrop-blur-md rounded-xl p-4 md:p-6 border border-white/10 shadow-xl">
-          <h3 className="text-lg md:text-xl font-bold text-white mb-4">Hourly Wage This Month</h3>
-          {hourlyThisMonth.hours > 0 ? (
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <h3 className="text-lg md:text-xl font-bold text-white">Hourly Wage</h3>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setWageMonthOffset((o) => o - 1)}
+                disabled={!wageCanGoPrev}
+                aria-label="Previous month"
+                className="flex size-8 items-center justify-center rounded-lg bg-white/5 text-gray-300 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              </button>
+              <span className="min-w-[9.5rem] text-center text-sm font-medium text-gray-200">{wageSelectedLabel}</span>
+              <button
+                type="button"
+                onClick={() => setWageMonthOffset((o) => o + 1)}
+                disabled={!wageCanGoNext}
+                aria-label="Next month"
+                className="flex size-8 items-center justify-center rounded-lg bg-white/5 text-gray-300 hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-white/5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+          </div>
+          {hourlySelectedMonth.hours > 0 ? (
             <div className="flex flex-col gap-1">
-              <span className="text-green-400 font-bold text-xl md:text-2xl">{money(hourlyThisMonth.hourly)} / hr</span>
-              <span className="text-gray-400 text-xs">{hourlyThisMonth.hours.toFixed(1)} hrs worked</span>
-              <span className="text-gray-400 text-xs">{money(hourlyThisMonth.rev)} total this month</span>
+              <span className="text-green-400 font-bold text-xl md:text-2xl">{money(hourlySelectedMonth.hourly)} / hr</span>
+              <span className="text-gray-400 text-xs">{hourlySelectedMonth.hours.toFixed(1)} hrs worked</span>
+              <span className="text-gray-400 text-xs">{money(hourlySelectedMonth.rev)} total this month</span>
+              {avgHoursPerMonth > 0 && (
+                <span className="text-gray-500 text-xs mt-2 pt-2 border-t border-white/10">
+                  Avg {avgHoursPerMonth.toFixed(1)} hrs/month across {wageMonthKeys.length} month{wageMonthKeys.length !== 1 ? 's' : ''}
+                </span>
+              )}
             </div>
           ) : (
-            <p className="text-gray-400 text-sm">No completed jobs this month yet.</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-gray-400 text-sm">No completed jobs that month.</p>
+              {avgHoursPerMonth > 0 && (
+                <span className="text-gray-500 text-xs mt-2 pt-2 border-t border-white/10">
+                  Avg {avgHoursPerMonth.toFixed(1)} hrs/month across {wageMonthKeys.length} month{wageMonthKeys.length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
           )}
         </div>
       </div>

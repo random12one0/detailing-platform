@@ -181,7 +181,11 @@ const FinalizePaymentModal = ({ booking, onClose, onSave }) => {
           ? parseFloat(booking.final_amount)
           : computeTotal(base, existing, "")
       );
-      setPaymentStatus(booking.payment_status || "paid");
+      // A booking's payment_status is 'pending' by default from creation, so
+      // this must NOT fall through to it on a first-time finalize — only an
+      // already-finalized booking (being re-edited) should keep whatever
+      // status the owner previously set here.
+      setPaymentStatus(alreadyFinalized ? booking.payment_status || "paid" : "paid");
       setNotes(booking.payment_notes || "");
       setStartTime(booking.start_time ? booking.start_time.slice(0, 5) : booking.predicted_start_time || "");
       setEndTime(booking.end_time ? booking.end_time.slice(0, 5) : booking.predicted_end_time || "");
@@ -191,7 +195,7 @@ const FinalizePaymentModal = ({ booking, onClose, onSave }) => {
     return () => {
       cancelled = true;
     };
-  }, [booking, computeTotal]);
+  }, [booking, computeTotal, alreadyFinalized]);
 
   // Load the owner's real inventory of add-ons and packages to pick from.
   useEffect(() => {

@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { pacificDateStr, pacificToDate } from "../_shared/timezone.ts";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -26,7 +27,7 @@ const BUSINESS_HOURS: Record<number, { start: string; end: string } | null> = {
   6: { start: "10:00", end: "18:00" }, // Saturday
 };
 
-const BUFFER_MINUTES = 30; // gap kept after each existing booking
+const BUFFER_MINUTES = 60; // minimum gap kept on EITHER side of each existing booking
 const ADVANCE_MS = 2 * 60 * 60 * 1000; // earliest bookable = now + 2h (for "today")
 
 const toMin = (t: string) => {
@@ -116,29 +117,36 @@ function computeDay(dateStr: string, durationMinutes: number, inp: DayInputs): D
 
   const displayHours = effectiveHours(hours, inp.blockouts);
 
-  const now = new Date();
+  // Pacific "today", computed via the timezone-aware helper — the runtime's own
+  // clock is UTC, so this is NOT the same as `new Date().toDateString()` for
+  // roughly the back half of every business day (see _shared/timezone.ts).
+  const isPacificToday = dateStr === pacificDateStr();
+  const nowMs = Date.now();
+  const [y, mo, d] = dateStr.split("-").map(Number);
+
   const allSlots = generateTimeSlots(hours, durationMinutes);
   const slots: string[] = [];
   const dropoffSlots: string[] = [];
 
   for (const slot of allSlots) {
-    // 2-hour advance rule when the date is today
-    const [y, mo, d] = dateStr.split("-").map(Number);
-    const slotDate = new Date(y, mo - 1, d, ...(slot.split(":").map(Number) as [number, number]));
-    if (
-      now.toDateString() === slotDate.toDateString() &&
-      slotDate.getTime() - now.getTime() < ADVANCE_MS
-    ) {
-      continue;
+    // 2-hour advance rule when the date is today (Pacific).
+    if (isPacificToday) {
+      const [slotH, slotM] = slot.split(":").map(Number);
+      const slotInstant = pacificToDate(y, mo, d, slotH, slotM);
+      if (slotInstant.getTime() - nowMs < ADVANCE_MS) continue;
     }
 
     const slotStart = slot;
     const slotEnd = fromMin(toMin(slot) + durationMinutes);
 
-    // Existing-booking conflict (with buffer after each booking)
+    // Existing-booking conflict — a minimum BUFFER_MINUTES gap is required on
+    // BOTH sides of every existing booking (not just after it), so a new job
+    // can't be scheduled to end right as another one starts, or start right as
+    // another one ends.
     const bookingConflict = inp.bookings.some((b) => {
+      const bufferedStart = fromMin(Math.max(0, toMin(b.start_time) - BUFFER_MINUTES));
       const bufferedEnd = fromMin(toMin(b.end_time) + BUFFER_MINUTES);
-      return overlaps(slotStart, slotEnd, b.start_time, bufferedEnd);
+      return overlaps(slotStart, slotEnd, bufferedStart, bufferedEnd);
     });
     if (bookingConflict) continue;
 
