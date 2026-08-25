@@ -378,10 +378,12 @@ const FinalizePaymentModal = ({ booking, onClose, onSave }) => {
         if (insError) throw insError;
       }
 
-      // Best-effort: email the customer a finalized invoice/receipt. The DB writes
-      // above already succeeded, so an email failure must NOT fail the finalize.
+      // Best-effort: email the customer a finalized invoice/receipt, plus a
+      // separate thank-you/review-request note (send-invoice sends both). The
+      // DB writes above already succeeded, so an email failure must NOT fail
+      // the finalize.
       try {
-        await axios.post(
+        const invoiceRes = await axios.post(
           `${SUPABASE_FUNCTIONS_URL}/send-invoice`,
           { id: booking.id },
           {
@@ -391,11 +393,21 @@ const FinalizePaymentModal = ({ booking, onClose, onSave }) => {
             },
           }
         );
+        const thankYouSent = invoiceRes?.data?.thank_you_sent;
+        toast({
+          title: "Payment finalized",
+          description:
+            thankYouSent === false
+              ? "Invoice emailed, but the thank-you email failed to send."
+              : "Invoice and thank-you email sent to the customer.",
+          variant: thankYouSent === false ? "destructive" : "success",
+        });
       } catch (invoiceErr) {
         console.warn("Invoice email failed to send (finalize still saved):", invoiceErr);
         toast({
           title: "Payment finalized",
           description: "Saved, but the invoice email could not be sent.",
+          variant: "destructive",
         });
       }
 

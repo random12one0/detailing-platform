@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import { getFollowupEmailHtml } from "./followup-customer.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -77,25 +76,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Post-service thank-you email — sent through the locked send-email relay
-    // (same path create-booking uses), never a direct Resend call from here.
-    if (status === "completed" && data?.customer_email) {
-      try {
-        const firstName = data.customer_name ? String(data.customer_name).split(" ")[0] || "Customer" : "Customer";
-        const { subject, html } = getFollowupEmailHtml(firstName);
-        const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${supabaseServiceKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ to: data.customer_email, subject, body: html }),
-        });
-        if (!emailRes.ok) console.error("Failed to send thank-you email:", await emailRes.text());
-      } catch (e) {
-        console.error("Error sending thank-you email:", e);
-      }
-    }
+    // Note: the post-service "thank you" / review-request email used to send
+    // here on status === "completed". It now fires from send-invoice instead,
+    // alongside the invoice, at Finalize-payment time — see send-invoice.
 
     return json({ success: true, booking: data, message: "Booking updated successfully" }, 200);
   } catch (error: any) {

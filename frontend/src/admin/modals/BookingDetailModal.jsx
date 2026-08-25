@@ -109,6 +109,7 @@ export default function BookingDetailModal({
   const [loadingAddOns, setLoadingAddOns] = useState(false);
   const [addOnsError, setAddOnsError] = useState(null);
   const [resendingReminder, setResendingReminder] = useState(false);
+  const [sendingCustomerUpdate, setSendingCustomerUpdate] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -244,6 +245,34 @@ export default function BookingDetailModal({
     }
   };
 
+  // Manually notify the CUSTOMER of the current booking details — e.g. after
+  // rescheduling them. Uses the same admin-gated endpoint as the owner recap,
+  // just aimed at the customer with "updated" framing instead of "reminder."
+  // Sends whatever is currently saved, so make sure edits are saved first.
+  const handleEmailCustomerUpdate = async () => {
+    setSendingCustomerUpdate(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        toast({ title: "Not signed in", description: "Please sign in again.", variant: "destructive" });
+        return;
+      }
+      const res = await fetch(`${SUPABASE_FUNCTIONS_URL}/send-owner-reminders`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ booking_id: booking.id, target: "customer" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.success === false) throw new Error(data.error || "Failed to email the customer");
+      toast({ title: "Customer emailed", description: "They now have the current appointment details.", variant: "success" });
+    } catch (err) {
+      toast({ title: "Failed to email customer", description: err.message, variant: "destructive" });
+    } finally {
+      setSendingCustomerUpdate(false);
+    }
+  };
+
   return (
     <Modal
       open
@@ -323,6 +352,22 @@ export default function BookingDetailModal({
           <BellRing />
           {resendingReminder ? "Sending…" : "Email me a recap of this job"}
         </Button>
+
+        {/* Manual customer notification — for reschedules or any other change
+            the customer should hear about. Sends whatever is currently saved,
+            so save edits first, then send this. */}
+        {booking.customer_email && (
+          <Button
+            variant="secondary"
+            size="sm"
+            fullWidth
+            disabled={sendingCustomerUpdate}
+            onClick={handleEmailCustomerUpdate}
+          >
+            <Mail />
+            {sendingCustomerUpdate ? "Sending…" : "Email customer an update"}
+          </Button>
+        )}
 
         {/* Route strip — top need for mobile jobs */}
         {isMobileJob && (

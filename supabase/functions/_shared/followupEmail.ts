@@ -1,5 +1,6 @@
-// followup-customer.ts
-// Generates the post-service thank-you email HTML for Andrew’s Auto Detail & Car Wash
+// Post-service "thank you" / review-request email — Google & Yelp links plus
+// the referral/loyalty program blurb. Sent by send-invoice, alongside (but as
+// a separate message from) the invoice email, at Finalize-payment time.
 
 export function getFollowupEmailHtml(firstName: string): { subject: string; html: string } {
   const subject = "Thank you for choosing Andrew’s Auto Detail & Car Wash";

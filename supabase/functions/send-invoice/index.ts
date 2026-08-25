@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { getFollowupEmailHtml } from "../_shared/followupEmail.ts";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -372,7 +373,34 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    // Second, SEPARATE email — the post-service "thank you" / review-request
+    // note (Google/Yelp links, referral program). Distinct message from the
+    // invoice above, just triggered by the same Finalize-payment action so
+    // both land together. Best-effort: its failure must not fail the invoice
+    // response, but the outcome IS reported so the caller can surface it.
+    let thankYouSent = false;
+    try {
+      const firstName = booking.customer_name ? String(booking.customer_name).split(" ")[0] || "Customer" : "Customer";
+      const { subject: thankYouSubject, html: thankYouHtml } = getFollowupEmailHtml(firstName);
+      const thankYouResponse = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: booking.customer_email,
+          subject: thankYouSubject,
+          body: thankYouHtml,
+        }),
+      });
+      thankYouSent = thankYouResponse.ok;
+      if (!thankYouResponse.ok) console.error("Failed to send thank-you email:", await thankYouResponse.text());
+    } catch (e) {
+      console.error("Error sending thank-you email:", e);
+    }
+
+    return new Response(JSON.stringify({ success: true, thank_you_sent: thankYouSent }), {
       status: 200,
       headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
     });

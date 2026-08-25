@@ -49,12 +49,13 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const bookingId: string | undefined = body?.booking_id;
+    // "owner" (default) = the existing "Email me a recap" convenience.
+    // "customer" = a manual "notify the customer" send (e.g. after a
+    // reschedule) — admin-gated the same way, since this is a real email to
+    // a real customer, not something to leave open to anonymous callers.
+    const manualTarget: "owner" | "customer" = body?.target === "customer" ? "customer" : "owner";
 
     if (bookingId) {
-      // Manual single-booking (re)send, triggered from the admin UI — admin-gated,
-      // since anyone able to call this could otherwise spam the owner's inbox.
-      // Owner-only: the "Email me a recap" button is an owner convenience, not a
-      // way to re-notify the customer.
       const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
       if (!token) return json({ error: "Unauthorized" }, 401);
       const { data: userData, error: userErr } = await supabase.auth.getUser(token);
@@ -72,11 +73,16 @@ Deno.serve(async (req) => {
       if (error || !b) return json({ error: "Booking not found" }, 404);
 
       try {
+        if (manualTarget === "customer") {
+          if (!b.customer_email) return json({ error: "This booking has no customer email on file." }, 400);
+          await sendCustomerUpdateFor(b);
+          return json({ success: true, count: 1, results: [{ id: b.id, target: "customer", sent: true }] });
+        }
         await sendOwnerReminderFor(b);
         await supabase.from("bookings").update({ owner_reminder_sent_at: new Date().toISOString() }).eq("id", b.id);
         return json({ success: true, count: 1, results: [{ id: b.id, target: "owner", sent: true }] });
       } catch (err) {
-        return json({ success: false, count: 1, results: [{ id: b.id, target: "owner", sent: false, error: err instanceof Error ? err.message : String(err) }] });
+        return json({ success: false, count: 1, results: [{ id: b.id, target: manualTarget, sent: false, error: err instanceof Error ? err.message : String(err) }] });
       }
     }
 
@@ -285,10 +291,42 @@ async function sendOwnerReminderFor(b: any) {
   }
 }
 
+// Shared HTML/subject builder for both the automated reminder and the manual
+// "notify the customer" send — same layout, different header/subject framing
+// so a reschedule notice doesn't read as "just a reminder" and vice versa.
+function buildCustomerEmail(b: any, mode: "reminder" | "update") {
+  const isMobile = String(b.service_type || "").toLowerCase().includes("mobile");
+  const address = isMobile ? (b.customer_address && b.customer_address.trim() ? b.customer_address : OWNER_ADDRESS) : OWNER_ADDRESS;
+
+  const displayPrice = b.final_amount ?? b.total_price;
+
+  const dateLongStr = dateLong(b.booking_date);
+  const startStr = formatTime12hr(b.start_time);
+  const endStr = b.end_time ? formatTime12hr(b.end_time) : null;
+
+  const subject =
+    mode === "update"
+      ? `Your appointment details have been updated — ${dateLongStr} at ${startStr}`
+      : `Reminder: your appointment is coming up — ${dateLongStr} at ${startStr}`;
+  const eyebrow = mode === "update" ? "Updated appointment details" : "Just a reminder";
+  const heading = mode === "update" ? `Here's your updated info, ${b.customer_name}` : `See you soon, ${b.customer_name}!`;
+
+  return { subject, dateLongStr, startStr, endStr, isMobile, address, displayPrice, eyebrow, heading };
+}
+
 // Customer-facing reminder — friendly recap, no admin/internal notes.
 async function sendCustomerReminderFor(b: any) {
   if (!b.customer_email) return;
+  await sendCustomerEmailFor(b, "reminder");
+}
 
+// Manual "notify the customer" send — same recap, framed as an update rather
+// than a reminder. Triggered from the admin UI (e.g. after a reschedule).
+async function sendCustomerUpdateFor(b: any) {
+  await sendCustomerEmailFor(b, "update");
+}
+
+async function sendCustomerEmailFor(b: any, mode: "reminder" | "update") {
   const [interiorRes, exteriorRes, addOnsRes] = await Promise.all([
     b.interior_package_id
       ? supabase.from("packages").select("name").eq("id", b.interior_package_id).maybeSingle()
@@ -305,16 +343,8 @@ async function sendCustomerReminderFor(b: any) {
     .map((r: any) => r.add_on?.name)
     .filter(Boolean);
 
-  const isMobile = String(b.service_type || "").toLowerCase().includes("mobile");
-  const address = isMobile ? (b.customer_address && b.customer_address.trim() ? b.customer_address : OWNER_ADDRESS) : OWNER_ADDRESS;
-
-  const displayPrice = b.final_amount ?? b.total_price;
-
-  const dateLongStr = dateLong(b.booking_date);
-  const startStr = formatTime12hr(b.start_time);
-  const endStr = b.end_time ? formatTime12hr(b.end_time) : null;
-
-  const subject = `Reminder: your appointment is coming up — ${dateLongStr} at ${startStr}`;
+  const { subject, dateLongStr, startStr, endStr, isMobile, address, displayPrice, eyebrow, heading } =
+    buildCustomerEmail(b, mode);
 
   const html = `
 <!DOCTYPE html>
@@ -322,7 +352,7 @@ async function sendCustomerReminderFor(b: any) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Appointment Reminder</title>
+  <title>${mode === "update" ? "Appointment Updated" : "Appointment Reminder"}</title>
 </head>
 <body style="margin:0; padding:0; background-color:#eef2f6; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#eef2f6;">
@@ -335,8 +365,8 @@ async function sendCustomerReminderFor(b: any) {
             <td style="background-color:#0A2F52; padding:28px 32px 24px 32px;">
               <div style="font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold; color:#ffffff;">Andrew's Auto Detail &amp; Car Wash</div>
               <div style="height:3px; width:44px; background-color:#0EA5E9; margin:14px 0 16px 0; border-radius:2px;"></div>
-              <div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#cfe3f2;">Just a reminder</div>
-              <div style="font-family:Arial,Helvetica,sans-serif; font-size:24px; font-weight:bold; color:#ffffff; margin-top:4px;">See you soon, ${b.customer_name}!</div>
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#cfe3f2;">${eyebrow}</div>
+              <div style="font-family:Arial,Helvetica,sans-serif; font-size:24px; font-weight:bold; color:#ffffff; margin-top:4px;">${heading}</div>
             </td>
           </tr>
 
@@ -405,7 +435,7 @@ async function sendCustomerReminderFor(b: any) {
               <div style="border-top:1px solid #eef2f6; padding-top:20px;">
                 <p style="margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#0A2F52;">Andrew's Auto Detail &amp; Car Wash</p>
                 <p style="margin:0 0 10px 0; font-size:13px; color:#64748b;"><a href="https://andrewsdetail.com" style="color:#0EA5E9; text-decoration:none;">andrewsdetail.com</a></p>
-                <p style="margin:0; font-size:11px; color:#a8b4c0;">This is an automated reminder. Please do not reply.</p>
+                <p style="margin:0; font-size:11px; color:#a8b4c0;">${mode === "update" ? "This is an automated notification. Please do not reply." : "This is an automated reminder. Please do not reply."}</p>
               </div>
             </td>
           </tr>
