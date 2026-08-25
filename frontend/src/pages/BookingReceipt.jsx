@@ -188,7 +188,7 @@ const BookingReceipt = () => {
       `DTSTAMP:${dtStamp}`,
       dtStart ? `DTSTART:${dtStart}` : '',
       dtEnd ? `DTEND:${dtEnd}` : '',
-      `SUMMARY:${escapeICS(brandName)}`,
+      `SUMMARY:${escapeICS(`${brandName} — ${hasFinal ? money(grandTotal) : `Est. ${money(grandTotal)}`}`)}`,
       serviceAddress ? `LOCATION:${escapeICS(serviceAddress)}` : '',
       `DESCRIPTION:${escapeICS(
         `${isMobile ? 'Mobile service' : 'Drop-off'} — ${services.map((s) => s.label).join(', ') || 'Car detail'}`,

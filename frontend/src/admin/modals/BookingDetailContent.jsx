@@ -213,7 +213,7 @@ export default function BookingDetailContent({
   const handleAddToCalendar = () => {
     const jobAddress = isMobileJob ? booking.customer_address : null;
     downloadBookingIcs(booking, {
-      summary: `Job: ${booking.customer_name}${booking.vehicle_model ? ` — ${booking.vehicle_model}` : ""}`,
+      summary: `Job: ${booking.customer_name} — ${booking.finalized_at ? money(displayPrice) : `Est. ${money(displayPrice)}`}`,
       location: jobAddress || undefined,
       description: `${isMobileJob ? "Mobile job" : "Drop-off"} for ${booking.customer_name} (${booking.customer_phone}). ${money(displayPrice)}.`,
       uidSuffix: "-owner",
