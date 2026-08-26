@@ -1,0 +1,430 @@
+// Phase 2 booking-engine test suite — exercises the DEPLOYED edge functions
+// against the live platform project. Run after every engine or schema change:
+//
+//   node tests/booking-engine.test.mjs
+//
+// Covers the Phase 2 brief's required tests:
+//   * two businesses' settings are independent (buffer change on one never
+//     affects the other's availability — verified through the live engine)
+//   * emails route to the correct business's owner with the correct
+//     Reply-To and never reference the other business
+//   * a booking created through the dashboard (member JWT) is subject to
+//     the same validation as a customer booking
+//   * uploaded photos are scoped to the correct business
+// plus: pricing double-validation, promo scoping, cancel/reschedule windows.
+
+const URL_ = process.env.SUPABASE_URL;
+const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+let ANON = process.env.SUPABASE_ANON_KEY;
+
+if (!URL_ || !SERVICE) {
+  console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+  process.exit(1);
+}
+if (!ANON) {
+  const res = await fetch(
+    `https://api.supabase.com/v1/projects/${process.env.SUPABASE_PROJECT_REF}/api-keys?reveal=true`,
+    { headers: { Authorization: `Bearer ${process.env.SUPABASE_ACCESS_TOKEN}` } },
+  );
+  const keys = await res.json();
+  ANON = keys.find((k) => k.name === "anon")?.api_key ?? keys.find((k) => k.type === "publishable")?.api_key;
+}
+
+let passed = 0, failed = 0;
+function check(name, cond, detail = "") {
+  if (cond) { passed++; console.log(`  ok    ${name}`); }
+  else { failed++; console.error(`  FAIL  ${name} ${detail}`); }
+}
+
+async function rest(method, pathname, { key = SERVICE, jwt, body, headers = {} } = {}) {
+  const res = await fetch(`${URL_}${pathname}`, {
+    method,
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${jwt ?? key}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+      ...headers,
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const text = await res.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  return { status: res.status, data };
+}
+const svc = {
+  get: (p) => rest("GET", p),
+  post: (p, b) => rest("POST", p, { body: b }),
+  patch: (p, b) => rest("PATCH", p, { body: b }),
+  del: (p) => rest("DELETE", p),
+};
+
+// Edge function caller (anon apikey, like the public site).
+async function fn(name, body, jwt) {
+  const res = await fetch(`${URL_}/functions/v1/${name}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: ANON,
+      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  return { status: res.status, data };
+}
+
+async function ensureUser(email, password) {
+  await rest("POST", "/auth/v1/admin/users", { body: { email, password, email_confirm: true } });
+  const signin = await fetch(`${URL_}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey: ANON, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const session = await signin.json();
+  if (!session.access_token) throw new Error(`sign-in failed for ${email}: ${JSON.stringify(session)}`);
+  return { id: session.user.id, jwt: session.access_token };
+}
+
+// A date guaranteed far in the future but inside any test horizon: N days out.
+const daysOut = (n) => {
+  const d = new Date(Date.now() + n * 86400_000);
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+};
+
+// ---------------------------------------------------------------------------
+// Fixtures
+// ---------------------------------------------------------------------------
+
+console.log("setup: two businesses with services, hours, promos");
+
+const PASSWORD = "Phase2-engine-test-pw!";
+const userA = await ensureUser("phase2-owner-a@engine.test", PASSWORD);
+const userB = await ensureUser("phase2-owner-b@engine.test", PASSWORD);
+
+await svc.del("/rest/v1/businesses?slug=in.(engine-a,engine-b)");
+const bizRes = await svc.post("/rest/v1/businesses", [
+  {
+    slug: "engine-a", name: "Engine Test Detailing A", timezone: "America/Los_Angeles",
+    contact_email: "owner-a@engine.test", contact_phone: "555-0001", dropoff_address: "1 A St, Los Angeles, CA",
+  },
+  {
+    slug: "engine-b", name: "Engine Test Detailing B", timezone: "America/New_York",
+    contact_email: "owner-b@engine.test", contact_phone: "555-0002", dropoff_address: "2 B Ave, New York, NY",
+  },
+]);
+const A = bizRes.data.find((b) => b.slug === "engine-a");
+const B = bizRes.data.find((b) => b.slug === "engine-b");
+await svc.post("/rest/v1/business_users", [
+  { business_id: A.id, user_id: userA.id, role: "owner" },
+  { business_id: B.id, user_id: userB.id, role: "owner" },
+]);
+await svc.post("/rest/v1/business_settings", [
+  { business_id: A.id, slot_interval_minutes: 30, buffer_minutes: 60 },
+  { business_id: B.id, slot_interval_minutes: 60, buffer_minutes: 60 },
+]);
+// Open every day 08:00-18:00 for both.
+await svc.post(
+  "/rest/v1/business_hours",
+  [0, 1, 2, 3, 4, 5, 6].flatMap((wd) => [
+    { business_id: A.id, weekday: wd, open_time: "08:00", close_time: "18:00" },
+    { business_id: B.id, weekday: wd, open_time: "08:00", close_time: "18:00" },
+  ]),
+);
+const svcRes = await svc.post("/rest/v1/services", [
+  { business_id: A.id, name: "Full Detail A", price: 150, duration_minutes: 120 },
+  { business_id: B.id, name: "Full Detail B", price: 150, duration_minutes: 120 },
+]);
+const serviceA = svcRes.data.find((s) => s.business_id === A.id);
+const serviceB = svcRes.data.find((s) => s.business_id === B.id);
+const addOnRes = await svc.post("/rest/v1/add_ons", [
+  { business_id: A.id, name: "Wax A", price: 25, duration_minutes: 0 },
+]);
+const addOnA = addOnRes.data[0];
+await svc.post("/rest/v1/promo_codes", [
+  { business_id: A.id, code: "SUMMER10", type: "percentage", value: 10 },
+  { business_id: B.id, code: "SUMMER10", type: "percentage", value: 20 },
+]);
+
+const D1 = daysOut(20); // clear day
+const D2 = daysOut(21); // booking-conflict day
+const D3 = daysOut(22); // cancel/reschedule day
+
+// ---------------------------------------------------------------------------
+console.log("test 1: per-business slot grid (interval 30 vs 60)");
+{
+  const a = await fn("available-slots", { business_slug: "engine-a", booking_date: D1, duration_minutes: 120 });
+  const b = await fn("available-slots", { business_slug: "engine-b", booking_date: D1, duration_minutes: 120 });
+  // 08:00..16:00 inclusive: 17 starts at 30-min steps, 9 at 60-min steps.
+  check("A has 30-min grid (17 slots)", a.data?.slots?.length === 17, JSON.stringify(a.data));
+  check("B has 60-min grid (9 slots)", b.data?.slots?.length === 9, JSON.stringify(b.data));
+  check("unknown business → 404", (await fn("available-slots", { business_slug: "nope", booking_date: D1, duration_minutes: 60 })).status === 404);
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 2: customer booking — server-side pricing, client prices ignored");
+let bookingA1;
+{
+  const r = await fn("create-booking", {
+    business_slug: "engine-a",
+    customer_name: "Cust One", customer_phone: "555-1001", customer_email: "cust1@engine.test",
+    customer_address: "9 Elm St", service_type: "mobile", vehicle_size: "medium", vehicle_model: "Civic",
+    service_ids: [serviceA.id], add_ons: [addOnA.id],
+    booking_date: D1, start_time: "10:00",
+    applied_promo_code: "SUMMER10",
+    total_price: 1, subtotal: 1, promo_discount: 999, // forged client prices — must be ignored
+  });
+  bookingA1 = r.data?.booking;
+  check("booking created", r.status === 200 && !!bookingA1?.id, JSON.stringify(r.data));
+  // 150 + 15 (medium) + 25 add-on = 190 → 10% promo = 19 → 171 → round $5 → 170
+  check("server-computed price (170, forged prices ignored)", bookingA1?.total_price === 170, String(bookingA1?.total_price));
+  const row = await svc.get(`/rest/v1/bookings?id=eq.${bookingA1.id}&select=total_price,promo_discount,vehicle_size_fee,business_id`);
+  check("stored promo discount is server's (19)", Number(row.data?.[0]?.promo_discount) === 19, JSON.stringify(row.data));
+  check("stored size fee from service adjustments (15)", Number(row.data?.[0]?.vehicle_size_fee) === 15);
+  const snap = await svc.get(`/rest/v1/booking_services?booking_id=eq.${bookingA1.id}&select=name_at_booking,price_at_booking`);
+  check("service snapshot stored", snap.data?.[0]?.name_at_booking === "Full Detail A" && Number(snap.data?.[0]?.price_at_booking) === 165, JSON.stringify(snap.data));
+}
+
+console.log("test 3: same promo code, different business → different discount");
+{
+  const r = await fn("create-booking", {
+    business_slug: "engine-b",
+    customer_name: "Cust Two", customer_phone: "555-1002", customer_email: "cust2@engine.test",
+    service_type: "dropoff", vehicle_size: "medium",
+    service_ids: [serviceB.id], booking_date: D1, start_time: "10:00",
+    applied_promo_code: "SUMMER10",
+  });
+  // 150 + 15 = 165 → 20% = 33 → 132 → round $5 → 130
+  check("B's SUMMER10 gives 20% (total 130)", r.data?.booking?.total_price === 130, JSON.stringify(r.data));
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 4: double validation — submit re-checks what display hid");
+{
+  const outsideHours = await fn("create-booking", {
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1003", customer_email: "x@engine.test",
+    service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
+    booking_date: D1, start_time: "19:00",
+  });
+  check("outside hours → 409", outsideHours.status === 409, `${outsideHours.status} ${JSON.stringify(outsideHours.data)}`);
+
+  const runsPastClose = await fn("create-booking", {
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1003", customer_email: "x@engine.test",
+    service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
+    booking_date: D1, start_time: "17:00", // 120min service ends 19:00 > 18:00 close
+  });
+  check("runs past close → 409", runsPastClose.status === 409, `${runsPastClose.status}`);
+
+  const inBuffer = await fn("create-booking", {
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1004", customer_email: "x2@engine.test",
+    service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
+    booking_date: D1, start_time: "12:30", // A1 runs 10:00-12:15 (135min); buffer 60 → blocked until 13:15
+  });
+  check("inside buffer → 409", inBuffer.status === 409, `${inBuffer.status} ${JSON.stringify(inBuffer.data)}`);
+
+  const badService = await fn("create-booking", {
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1005", customer_email: "x3@engine.test",
+    service_type: "mobile", vehicle_size: "small", service_ids: [serviceB.id], // B's service on A's site
+    booking_date: D1, start_time: "15:00",
+  });
+  check("another business's service id → 400", badService.status === 400, `${badService.status}`);
+}
+
+console.log("test 5: dashboard booking passes the SAME validation");
+{
+  const adminOutsideHours = await fn(
+    "create-booking",
+    {
+      business_slug: "engine-a", customer_name: "Via Dashboard", customer_phone: "555-1006",
+      service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
+      booking_date: D2, start_time: "19:00", admin_notes: "phone booking",
+    },
+    userA.jwt,
+  );
+  check("admin outside hours → same 409", adminOutsideHours.status === 409, `${adminOutsideHours.status}`);
+
+  const adminOk = await fn(
+    "create-booking",
+    {
+      business_slug: "engine-a", customer_name: "Via Dashboard", customer_phone: "555-1006",
+      service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
+      booking_date: D2, start_time: "09:00", admin_notes: "phone booking",
+    },
+    userA.jwt,
+  );
+  check("admin in-hours booking (no email needed) → ok", adminOk.status === 200, JSON.stringify(adminOk.data));
+  const row = await svc.get(`/rest/v1/bookings?id=eq.${adminOk.data?.booking?.id}&select=admin_notes`);
+  check("admin_notes stored for member call", row.data?.[0]?.admin_notes === "phone booking");
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 6: buffer independence through the live engine");
+{
+  // Both businesses booked D2 10:00-12:00 local. (A already has 09:00-11:00
+  // from test 5 — use B for the clean comparison and A for the change.)
+  await fn("create-booking", {
+    business_slug: "engine-b", customer_name: "Buf B", customer_phone: "555-1007", customer_email: "bufb@engine.test",
+    service_type: "dropoff", vehicle_size: "small", service_ids: [serviceB.id],
+    booking_date: D2, start_time: "13:00",
+  });
+  const bBefore = await fn("available-slots", { business_slug: "engine-b", booking_date: D2, duration_minutes: 60 });
+
+  // Drop A's buffer to 0 (as A's owner, through RLS).
+  const patch = await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${A.id}`, {
+    key: ANON, jwt: userA.jwt, body: { buffer_minutes: 0 },
+  });
+  check("A owner can change A buffer", patch.status === 200 && patch.data?.length === 1, `${patch.status}`);
+
+  const aAfter = await fn("available-slots", { business_slug: "engine-a", booking_date: D2, duration_minutes: 60 });
+  // A booked 09:00-11:00; buffer 0 closed-bounds → 11:30 is free.
+  check("A: slot just after booking now offered (11:30)", aAfter.data?.slots?.includes("11:30"), JSON.stringify(aAfter.data?.slots));
+
+  const bAfter = await fn("available-slots", { business_slug: "engine-b", booking_date: D2, duration_minutes: 60 });
+  check(
+    "B's availability unchanged by A's buffer change",
+    JSON.stringify(bBefore.data?.slots) === JSON.stringify(bAfter.data?.slots),
+    `${JSON.stringify(bBefore.data?.slots)} vs ${JSON.stringify(bAfter.data?.slots)}`,
+  );
+  // B booked 13:00-15:00 EST with buffer 60 → 14:00 blocked for B.
+  check("B: buffered slot still hidden (14:00)", !bAfter.data?.slots?.includes("14:00"), JSON.stringify(bAfter.data?.slots));
+
+  await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${A.id}`, { key: ANON, jwt: userA.jwt, body: { buffer_minutes: 60 } });
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 7: min/max advance from settings");
+{
+  await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${A.id}`, {
+    key: ANON, jwt: userA.jwt, body: { min_advance_minutes: 40 * 24 * 60 }, // 40 days
+  });
+  const tooSoon = await fn("create-booking", {
+    business_slug: "engine-a", customer_name: "X", customer_phone: "555-1008", customer_email: "x4@engine.test",
+    service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
+    booking_date: daysOut(30), start_time: "09:00",
+  });
+  check("30 days out rejected under a 40-day minimum", tooSoon.status === 409, `${tooSoon.status}`);
+  await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${A.id}`, { key: ANON, jwt: userA.jwt, body: { min_advance_minutes: 120 } });
+
+  await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${B.id}`, {
+    key: ANON, jwt: userB.jwt, body: { max_advance_days: 5 },
+  });
+  const tooFar = await fn("create-booking", {
+    business_slug: "engine-b", customer_name: "X", customer_phone: "555-1009", customer_email: "x5@engine.test",
+    service_type: "dropoff", vehicle_size: "small", service_ids: [serviceB.id],
+    booking_date: daysOut(30), start_time: "09:00",
+  });
+  check("30 days out rejected under a 5-day maximum", tooFar.status === 409, `${tooFar.status}`);
+  const range = await fn("available-slots", { business_slug: "engine-b", booking_date: daysOut(30), duration_minutes: 60 });
+  check("display agrees (day shows zero slots)", range.data?.slots?.length === 0, JSON.stringify(range.data));
+  await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${B.id}`, { key: ANON, jwt: userB.jwt, body: { max_advance_days: null } });
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 8: cancel & reschedule honor the cancellation window");
+let bookingA3;
+{
+  const r = await fn("create-booking", {
+    business_slug: "engine-a", customer_name: "Mover", customer_phone: "555-1010", customer_email: "mover@engine.test",
+    service_type: "mobile", vehicle_size: "small", service_ids: [serviceA.id],
+    booking_date: D3, start_time: "10:00",
+  });
+  bookingA3 = r.data?.booking;
+  check("fixture booking created", !!bookingA3?.id, JSON.stringify(r.data));
+
+  // Window bigger than the lead time → cancellation must be refused.
+  await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${A.id}`, {
+    key: ANON, jwt: userA.jwt, body: { cancellation_window_hours: 24 * 60 }, // 60 days
+  });
+  const refused = await fn("cancel-booking", { booking_id: bookingA3.id });
+  check("cancel inside window → 409 with call-us message", refused.status === 409 && /call|contact/i.test(refused.data?.error || ""), JSON.stringify(refused.data));
+  const refusedMove = await fn("reschedule-booking", { booking_id: bookingA3.id, booking_date: D3, start_time: "15:00" });
+  check("reschedule inside window → 409", refusedMove.status === 409, `${refusedMove.status}`);
+
+  await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${A.id}`, {
+    key: ANON, jwt: userA.jwt, body: { cancellation_window_hours: 24 },
+  });
+  const moved = await fn("reschedule-booking", { booking_id: bookingA3.id, booking_date: D3, start_time: "15:00" });
+  check("reschedule outside window → ok", moved.status === 200 && moved.data?.booking?.start_time === "15:00", JSON.stringify(moved.data));
+  const movedBad = await fn("reschedule-booking", { booking_id: bookingA3.id, booking_date: D3, start_time: "19:00" });
+  check("reschedule to invalid slot → 409", movedBad.status === 409, `${movedBad.status}`);
+  const cancelled = await fn("cancel-booking", { booking_id: bookingA3.id });
+  check("cancel outside window → ok", cancelled.status === 200 && cancelled.data?.booking?.status === "cancelled", JSON.stringify(cancelled.data));
+  const freed = await fn("available-slots", { business_slug: "engine-a", booking_date: D3, duration_minutes: 120 });
+  check("cancelled slot frees up", freed.data?.slots?.includes("15:00"), JSON.stringify(freed.data?.slots));
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 9: email addressing routes per business, never cross-tenant");
+{
+  const m = await import("../supabase/functions/_shared/emailTemplates.ts");
+  const brandOf = (biz) => ({
+    businessId: biz.id, slug: biz.slug, brandName: biz.name,
+    contactEmail: biz.contact_email, contactPhone: biz.contact_phone,
+    dropoffAddress: biz.dropoff_address, siteUrl: `https://detailplatform.com/${biz.slug}`,
+    primaryColor: "#111827", accentColor: "#0ea5e9",
+    googleReviewUrl: null, yelpReviewUrl: null, paymentMethodsLine: null,
+  });
+  const aAddr = m.buildAddressing(brandOf(A), "bookings@detailplatform.com");
+  const bAddr = m.buildAddressing(brandOf(B), "bookings@detailplatform.com");
+  check("A mail replies to A's owner", aAddr.replyTo === "owner-a@engine.test" && aAddr.ownerTo === "owner-a@engine.test");
+  check("B mail replies to B's owner", bAddr.replyTo === "owner-b@engine.test");
+  check("display names carry each brand", aAddr.from.includes("Engine Test Detailing A") && bAddr.from.includes("Engine Test Detailing B"));
+
+  const data = {
+    id: "x", customerName: "C", customerPhone: "5", customerEmail: "c@x.com", customerAddress: null,
+    dateStr: D1, startTime: "10:00", endTime: "12:00", serviceType: "dropoff", vehicleSize: "small",
+    vehicleModel: null, customerNotes: null, serviceNames: ["S"], addOnNames: [], subtotal: 1,
+    siteDiscount: 0, siteDiscountPercent: 0, promoCode: null, promoDiscount: 0, total: 1,
+    receiptUrl: "https://detailplatform.com/engine-a/booking/x",
+  };
+  const aMail = m.customerConfirmationEmail(brandOf(A), data).html;
+  check("A's email never mentions B", !aMail.includes("Engine Test Detailing B") && !aMail.includes("owner-b@engine.test") && !aMail.includes("2 B Ave"));
+  check("A's email shows A's drop-off address", aMail.includes("1 A St, Los Angeles, CA"));
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 10: photo uploads are scoped to the correct business");
+{
+  const png = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+    "base64",
+  );
+  const upload = (jwt, key) =>
+    fetch(`${URL_}/storage/v1/object/business-media/${key}`, {
+      method: "POST",
+      headers: { apikey: ANON, Authorization: `Bearer ${jwt}`, "Content-Type": "image/png" },
+      body: png,
+    });
+
+  const own = await upload(userA.jwt, `${A.id}/gallery/test.png`);
+  check("A can upload into A's folder", own.status === 200, `${own.status} ${await own.text().catch(() => "")}`);
+  const cross = await upload(userA.jwt, `${B.id}/gallery/sneaky.png`);
+  check("A cannot upload into B's folder", cross.status === 403 || cross.status === 400, `${cross.status}`);
+  const anonUp = await fetch(`${URL_}/storage/v1/object/business-media/${A.id}/gallery/anon.png`, {
+    method: "POST", headers: { apikey: ANON, Authorization: `Bearer ${ANON}`, "Content-Type": "image/png" }, body: png,
+  });
+  check("anon cannot upload at all", anonUp.status === 403 || anonUp.status === 400, `${anonUp.status}`);
+  const pub = await fetch(`${URL_}/storage/v1/object/public/business-media/${A.id}/gallery/test.png`);
+  check("uploaded photo is publicly viewable", pub.status === 200, `${pub.status}`);
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 11: member gates on admin functions");
+{
+  const noAuth = await fn("update-booking", { booking_id: bookingA1.id, admin_notes: "hax" });
+  check("update-booking without JWT → 401", noAuth.status === 401, `${noAuth.status}`);
+  const crossTenant = await fn("update-booking", { booking_id: bookingA1.id, admin_notes: "hax" }, userB.jwt);
+  check("B's owner cannot edit A's booking", crossTenant.status === 404 || crossTenant.status === 401, `${crossTenant.status} ${JSON.stringify(crossTenant.data)}`);
+  const ok = await fn("update-booking", { booking_id: bookingA1.id, admin_notes: "legit note" }, userA.jwt);
+  check("A's owner can edit A's booking", ok.status === 200 && ok.data?.booking?.admin_notes === "legit note", JSON.stringify(ok.data));
+  const softDel = await fn("update-booking", { booking_id: bookingA1.id, soft_delete: true }, userA.jwt);
+  check("soft delete sets deleted_at", softDel.status === 200 && !!softDel.data?.booking?.deleted_at);
+  const still = await svc.get(`/rest/v1/bookings?id=eq.${bookingA1.id}&select=id,deleted_at`);
+  check("soft-deleted row still exists", still.data?.length === 1 && !!still.data[0].deleted_at);
+}
+
+console.log(`\n${passed} passed, ${failed} failed`);
+process.exit(failed === 0 ? 0 : 1);

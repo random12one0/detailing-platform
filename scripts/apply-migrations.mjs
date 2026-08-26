@@ -18,8 +18,12 @@ if (!SUPABASE_ACCESS_TOKEN || !SUPABASE_PROJECT_REF) {
   process.exit(1);
 }
 
+// With file arguments, apply only those (for incremental migrations on an
+// already-migrated database); with none, apply the whole folder in order.
 const dir = new URL("../supabase/migrations/", import.meta.url).pathname;
-const files = (await readdir(dir)).filter((f) => f.endsWith(".sql")).sort();
+const files = process.argv.length > 2
+  ? process.argv.slice(2).map((f) => path.basename(f))
+  : (await readdir(dir)).filter((f) => f.endsWith(".sql")).sort();
 
 for (const f of files) {
   const sql = await readFile(path.join(dir, f), "utf8");
