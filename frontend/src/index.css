@@ -1,8 +1,35 @@
+/* Opt-in blue glow utility for text and elements (uses accent color).
+   Previously applied globally to all headings/buttons/cards; now scoped
+   to this explicit .glow-accent class only. */
+.glow-accent {
+    text-shadow: 0 0 8px hsl(var(--accent) / 0.18), 0 0 2px hsl(var(--accent) / 0.12);
+    box-shadow: 0 0 12px 0 hsl(var(--accent) / 0.12);
+}
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Extra small breakpoint for showing text */
+  @media (min-width: 375px) {
+    .xs\:inline {
+      display: inline;
+    }
+  }
+}
 
 body {
     margin: 0;
@@ -48,11 +75,11 @@ body {
     border: 2px solid hsl(var(--border)) !important;
     border-radius: 1rem !important;
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2) !important;
-    background: hsl(var(--background)) !important;
+    background: #e5e7eb !important;
 }
 
 .react-datepicker__header {
-    background: linear-gradient(to bottom, hsl(var(--secondary)), hsl(var(--background))) !important;
+    background: #e5e7eb !important;
     border-bottom: 2px solid hsl(var(--border)) !important;
     border-top-left-radius: 1rem !important;
     border-top-right-radius: 1rem !important;
@@ -61,14 +88,14 @@ body {
 }
 
 .react-datepicker__current-month {
-    color: hsl(var(--foreground)) !important;
+    color: #1f2937 !important;
     font-weight: 700 !important;
     font-size: 1.125rem !important;
     margin-bottom: 0.75rem !important;
 }
 
 .react-datepicker__day-name {
-    color: hsl(var(--muted-foreground)) !important;
+    color: #374151 !important;
     font-weight: 600 !important;
     font-size: 0.7rem !important;
     width: 2.5rem !important;
@@ -77,7 +104,7 @@ body {
 }
 
 .react-datepicker__day {
-    color: hsl(var(--foreground)) !important;
+    color: #1f2937 !important;
     border-radius: 0.75rem !important;
     transition: all 0.2s !important;
     width: 2.5rem !important;
@@ -105,7 +132,7 @@ body {
 
 .react-datepicker__day--keyboard-selected {
     background: hsl(var(--accent) / 0.2) !important;
-    color: hsl(var(--foreground)) !important;
+    color: #1f2937 !important;
 }
 
 .react-datepicker__day--today {
@@ -126,15 +153,7 @@ body {
 }
 
 .react-datepicker__navigation {
-    top: 1rem !important;
-    width: 2rem !important;
-    height: 2rem !important;
-    border-radius: 0.5rem !important;
-    transition: all 0.2s !important;
-}
-
-.react-datepicker__navigation:hover {
-    background: hsl(var(--secondary)) !important;
+    display: none !important;
 }
 
 .react-datepicker__navigation-icon::before {
@@ -174,12 +193,13 @@ body {
 
 /* Hide duplicate month text that appears outside */
 .booking-calendar .react-datepicker__current-month {
-    color: hsl(var(--foreground)) !important;
+    color: #1f2937 !important;
     font-size: 0.875rem !important;
     font-weight: 600 !important;
     margin-bottom: 0.5rem !important;
     text-align: center !important;
     padding: 0 2.5rem !important;
+    display: none !important;
 }
 
 /* Navigation buttons with visible arrows */
@@ -188,13 +208,14 @@ body {
     width: 2rem !important;
     height: 2rem !important;
     border-radius: 0.375rem !important;
-    background: hsl(var(--muted)) !important;
+    background: #374151 !important; /* gray-700 */
     border: none !important;
     cursor: pointer !important;
+    display: none !important;
 }
 
 .booking-calendar .react-datepicker__navigation:hover {
-    background: hsl(var(--muted) / 0.8) !important;
+    background: #4b5563 !important; /* gray-600 */
 }
 
 .booking-calendar .react-datepicker__navigation--previous {
@@ -216,7 +237,7 @@ body {
 
 /* Arrow icons using ::before */
 .booking-calendar .react-datepicker__navigation-icon::before {
-    border-color: hsl(var(--foreground)) !important;
+    border-color: white !important;
     border-style: solid !important;
     border-width: 2px 2px 0 0 !important;
     width: 8px !important;
@@ -267,7 +288,7 @@ body {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    color: hsl(var(--muted-foreground)) !important;
+    color: #d1d5db !important; /* gray-300 */
 }
 
 /* Day abbreviations */
@@ -299,7 +320,7 @@ body {
     border-radius: 50% !important;
     font-size: 0.8rem !important;
     font-weight: 500 !important;
-    color: hsl(var(--foreground)) !important;
+    color: #1f2937 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -369,100 +390,95 @@ body {
 
 @layer base {
     :root {
-        /* Core Colors - Even darker theme */
-        --background: 220 10% 85%;
-        --foreground: 220 14% 5%;
-        
-        /* Card surfaces - darker */
-        --card: 210 12% 82%;
-        --card-foreground: 220 14% 5%;
-        
-        /* Popover */
-        --popover: 220 10% 88%;
-        --popover-foreground: 220 14% 5%;
-        
-        /* Primary - Dark slate */
-        --primary: 220 18% 8%;
-        --primary-foreground: 0 0% 98%;
-        
-        /* Secondary - Darker neutral gray */
-        --secondary: 220 10% 75%;
-        --secondary-foreground: 220 14% 10%;
-        
-        /* Muted - For subtle backgrounds */
-        --muted: 220 10% 75%;
-        --muted-foreground: 220 10% 28%;
-        
-        /* Accent - Soft blue for CTAs and highlights */
-        --accent: 213 94% 48%;
+        /* Brand core — Andrew Navy + Detail Cyan + cool-gray neutrals (light) */
+        --background: 210 40% 98%;        /* #F8FAFC genuinely light */
+        --foreground: 212 42% 12%;        /* #121F2B */
+        --card: 0 0% 100%;
+        --card-foreground: 212 42% 12%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 212 42% 12%;
+        --primary: 209 78% 18%;           /* #0A2F52 Andrew Navy */
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 24% 94%;
+        --secondary-foreground: 209 55% 20%;
+        --muted: 210 24% 94%;
+        --muted-foreground: 214 16% 42%;  /* #5A697C Steel */
+        --accent: 199 89% 48%;            /* #0EA5E9 Detail Cyan */
         --accent-foreground: 0 0% 100%;
-        
-        /* Destructive */
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 98%;
-        
-        /* Success */
-        --success: 142 76% 36%;
+        --success: 142 71% 45%;
         --success-foreground: 0 0% 100%;
-        
-        /* Borders & Input */
-        --border: 220 10% 70%;
-        --input: 220 10% 70%;
-        --ring: 213 94% 48%;
-        
-        /* Chart colors */
-        --chart-1: 213 94% 48%;
-        --chart-2: 142 76% 36%;
-        --chart-3: 220 14% 46%;
-        --chart-4: 38 92% 50%;
-        --chart-5: 0 84% 60%;
-        
-        /* Radius */
+        --warning: 32 95% 44%;
+        --warning-foreground: 0 0% 100%;
+        --destructive: 0 72% 51%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 214 20% 88%;
+        --input: 214 20% 88%;
+        --ring: 199 89% 48%;
         --radius: 0.75rem;
-        
-        /* Custom Design Tokens */
-        
-        /* Gradients - Subtle and professional */
-        --gradient-hero: linear-gradient(180deg, hsl(220 20% 10% / 0.85) 0%, hsl(220 20% 10% / 0.6) 100%);
-        --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(210 20% 96%) 100%);
-        --gradient-accent: linear-gradient(135deg, hsl(213 94% 52%) 0%, hsl(213 94% 44%) 100%);
-        --gradient-subtle: linear-gradient(180deg, hsl(220 20% 99%) 0%, hsl(220 14% 96%) 100%);
-        
-        /* Shadows - Elegant and subtle */
-        --shadow-sm: 0 1px 2px hsl(220 14% 10% / 0.04);
-        --shadow-md: 0 4px 6px -1px hsl(220 14% 10% / 0.05), 0 2px 4px -2px hsl(220 14% 10% / 0.05);
-        --shadow-lg: 0 10px 15px -3px hsl(220 14% 10% / 0.06), 0 4px 6px -4px hsl(220 14% 10% / 0.06);
-        --shadow-xl: 0 20px 25px -5px hsl(220 14% 10% / 0.08), 0 8px 10px -6px hsl(220 14% 10% / 0.08);
-        --shadow-glow: 0 0 40px hsl(213 94% 48% / 0.15);
-        --shadow-card: 0 1px 3px hsl(220 14% 10% / 0.04), 0 6px 16px hsl(220 14% 10% / 0.04);
-        
+
+        /* Status palette — single source of truth */
+        --status-confirmed: 199 89% 48%;
+        --status-completed: 142 71% 45%;
+        --status-cancelled: 0 72% 51%;
+        --status-noshow: 32 95% 44%;
+        --status-pending: 215 16% 47%;
+
+        /* Chart colors — remapped onto brand family */
+        --chart-1: 199 89% 48%;
+        --chart-2: 142 71% 45%;
+        --chart-3: 214 16% 42%;
+        --chart-4: 32 95% 44%;
+        --chart-5: 0 72% 51%;
+
+        /* Gradients */
+        --gradient-hero: linear-gradient(180deg, hsl(209 42% 8% / 0.82) 0%, hsl(209 42% 8% / 0.55) 100%);
+        --gradient-accent: linear-gradient(135deg, hsl(199 89% 52%) 0%, hsl(199 89% 42%) 100%);
+        --gradient-brand: linear-gradient(135deg, hsl(209 78% 18%) 0%, hsl(199 89% 40%) 100%);
+        --gradient-ultimate: linear-gradient(90deg,#0EA5E9,#38BDF8,#CBD5E1,#38BDF8,#0EA5E9);
+        --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(210 24% 96%) 100%);
+        --gradient-subtle: linear-gradient(180deg, hsl(210 40% 99%) 0%, hsl(210 24% 96%) 100%);
+
+        /* Shadows */
+        --shadow-sm: 0 1px 2px hsl(209 42% 10% / 0.04);
+        --shadow-md: 0 4px 6px -1px hsl(209 42% 10% / 0.06), 0 2px 4px -2px hsl(209 42% 10% / 0.06);
+        --shadow-lg: 0 12px 24px -8px hsl(209 42% 10% / 0.12);
+        --shadow-xl: 0 20px 25px -5px hsl(209 42% 10% / 0.10), 0 8px 10px -6px hsl(209 42% 10% / 0.10);
+        --shadow-glow: 0 0 32px hsl(199 89% 48% / 0.28);
+        --shadow-card: 0 1px 3px hsl(209 42% 10% / 0.05), 0 6px 16px hsl(209 42% 10% / 0.05);
+
         /* Transitions - Apple-like smooth */
         --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
         --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
         --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
         --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    
+
     .dark {
-        --background: 220 15% 8%;
-        --foreground: 0 0% 98%;
-        --card: 220 15% 12%;
-        --card-foreground: 0 0% 98%;
-        --popover: 220 15% 10%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 98%;
-        --primary-foreground: 220 15% 10%;
-        --secondary: 220 15% 18%;
-        --secondary-foreground: 0 0% 98%;
-        --muted: 220 15% 18%;
-        --muted-foreground: 220 10% 60%;
-        --accent: 213 94% 52%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 62% 50%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 220 15% 20%;
-        --input: 220 15% 20%;
-        --ring: 213 94% 52%;
+        --background: 209 42% 8%;          /* #0C151D Deep Hull */
+        --foreground: 210 30% 96%;
+        --card: 209 38% 12%;
+        --card-foreground: 210 30% 96%;
+        --popover: 209 40% 10%;
+        --popover-foreground: 210 30% 96%;
+        --primary: 210 30% 96%;
+        --primary-foreground: 209 78% 14%;
+        --secondary: 209 30% 18%;
+        --secondary-foreground: 210 30% 96%;
+        --muted: 209 30% 18%;
+        --muted-foreground: 213 18% 65%;
+        --accent: 199 90% 54%;
+        --accent-foreground: 209 60% 8%;
+        --success: 142 60% 48%;
+        --warning: 36 92% 55%;
+        --destructive: 0 74% 58%;
+        --border: 209 28% 22%;
+        --input: 209 28% 22%;
+        --ring: 199 90% 54%;
+        --status-confirmed: 199 90% 56%;
+        --status-completed: 142 60% 50%;
+        --status-cancelled: 0 74% 60%;
+        --status-noshow: 36 92% 56%;
+        --status-pending: 214 15% 60%;
     }
 }
 
@@ -554,6 +570,39 @@ body {
         background: hsl(220 15% 10% / 0.9);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+    }
+}
+
+/* Tier shine (tokenized) — the one premium flourish. */
+@layer utilities {
+    .shine-ultimate {
+        background: var(--gradient-ultimate);
+        background-size: 200% 100%;
+        animation: shine 3s linear infinite;
+    }
+    .shine-premium {
+        background: linear-gradient(90deg, #0EA5E9, #38BDF8, #0EA5E9);
+        background-size: 200% 100%;
+        animation: shine 3.5s linear infinite;
+    }
+    .shine-gold {
+        background: linear-gradient(90deg, #0EA5E9, #CBD5E1, #F5B301, #CBD5E1, #0EA5E9);
+        background-size: 200% 100%;
+        animation: shine 3s linear infinite;
+    }
+}
+
+@keyframes shine {
+    from { background-position: 0% 0; }
+    to   { background-position: 200% 0; }
+}
+
+/* Respect reduced-motion: keep the gradient, drop the animation. */
+@media (prefers-reduced-motion: reduce) {
+    .shine-ultimate,
+    .shine-premium,
+    .shine-gold {
+        animation: none;
     }
 }
 

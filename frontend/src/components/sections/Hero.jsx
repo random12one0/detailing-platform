@@ -4,15 +4,34 @@ import { Button } from '@/components/ui/button';
 import { ArrowDown, MapPin, Clock } from 'lucide-react';
 
 export const Hero = () => {
-  const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
+    useEffect(() => {
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    // Parallax effect for mobile background overlay
+    useEffect(() => {
+      if (!isMobile) return;
+      const bgDiv = document.getElementById('hero-mobile-bg');
+      if (!bgDiv) return;
+      let ticking = false;
+      const onScroll = () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const offset = window.scrollY * 0.4; // Parallax speed
+            bgDiv.style.backgroundPosition = `center ${offset}px`;
+            ticking = false;
+          });
+          ticking = true;
+        }
+      };
+      window.addEventListener('scroll', onScroll);
+      return () => window.removeEventListener('scroll', onScroll);
+    }, [isMobile]);
 
   const scrollToServices = () => {
     const element = document.getElementById('services');
@@ -25,19 +44,39 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-black">
-        <motion.img
-          src="https://res.cloudinary.com/dxxs3qvdn/image/upload/v1769136375/hpsyzavwc78ydhdjkgoy.jpg"
-          alt="Professional car detailing"
-          className="w-full h-full object-cover"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.35 }}
-          transition={{ duration: 1.2 }}
-        />
-      </div>
-
+    <section
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      style={{
+        backgroundImage:
+          "url('https://res.cloudinary.com/dxxs3qvdn/image/upload/v1770857093/exbw5spy1d0rbb8rjgab.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundColor: '#000',
+      }}
+    >
+      {/* Mobile-only background image overlay (absolutely positioned, only on mobile) */}
+      <div
+        id="hero-mobile-bg"
+        className="absolute inset-0 z-0 block sm:hidden"
+        style={{
+          backgroundImage: "url('https://res.cloudinary.com/dxxs3qvdn/image/upload/v1770857093/exbw5spy1d0rbb8rjgab.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 0px',
+          backgroundAttachment: 'scroll',
+          backgroundColor: '#000',
+        }}
+        aria-hidden="true"
+      />
+      {/* Full dark overlay */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background: 'rgba(0,0,0,0.6)',
+          width: '100%',
+          height: '100%',
+        }}
+      />
       {/* Content */}
       <motion.div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-32 lg:py-40">
         <div className="max-w-3xl">

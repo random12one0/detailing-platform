@@ -1,0 +1,14 @@
+.aspect-w-16 {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-h-9 {
+  aspect-ratio: 16 / 9;
+}
+
+@media (max-width: 640px) {
+  .aspect-w-16 {
+    aspect-ratio: 16 / 9;
+    min-height: 180px;
+  }
+}

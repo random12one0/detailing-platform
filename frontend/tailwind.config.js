@@ -53,6 +53,17 @@ module.exports = {
                     DEFAULT: 'hsl(var(--success))',
                     foreground: 'hsl(var(--success-foreground))'
                 },
+                warning: {
+                    DEFAULT: 'hsl(var(--warning))',
+                    foreground: 'hsl(var(--warning-foreground))'
+                },
+                status: {
+                    confirmed: 'hsl(var(--status-confirmed))',
+                    completed: 'hsl(var(--status-completed))',
+                    cancelled: 'hsl(var(--status-cancelled))',
+                    noshow: 'hsl(var(--status-noshow))',
+                    pending: 'hsl(var(--status-pending))'
+                },
                 border: 'hsl(var(--border))',
                 input: 'hsl(var(--input))',
                 ring: 'hsl(var(--ring))',
@@ -63,6 +74,11 @@ module.exports = {
                     '4': 'hsl(var(--chart-4))',
                     '5': 'hsl(var(--chart-5))'
                 }
+            },
+            backgroundImage: {
+                'gradient-accent': 'var(--gradient-accent)',
+                'gradient-brand': 'var(--gradient-brand)',
+                'gradient-hero': 'var(--gradient-hero)',
             },
             boxShadow: {
                 'elegant': 'var(--shadow-lg)',

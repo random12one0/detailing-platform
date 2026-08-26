@@ -11,15 +11,15 @@ export const FAQ = () => {
   const faqs = [
     {
       question: "Do you come to my location?",
-      answer: "Yes! I offer mobile services throughout Lakewood. I'll come to your home, office, or wherever is convenient for you. Travel outside of Lakewood may include an additional fee."
+      answer: "Yes! I offer mobile services throughout Lakewood. I'll come to your home, office, or wherever is convenient for you."
     },
     {
       question: "How long does a service take?",
-      answer: "Service times vary based on the package. Basic services typically take 1-1.5 hours, while premium deep cleaning services take 1.5-2.5 hours. I never rush—your car gets the time it needs."
+      answer: "Service times vary based on the package. Basic services typically take 1–2.5 hours, while deep cleaning services take 2.5–4 hours. I never rush—your car gets the time it needs."
     },
     {
       question: "How do I pay?",
-      answer: "I accept multiple payment methods for your convenience: Cash, Zelle, Cash App, Venmo, and PayPal. Payment is due upon completion of service."
+      answer: "I accept multiple payment methods for your convenience: Cash, Zelle, Cash App, Venmo, PayPal, and Apple Pay. Payment is due upon completion of service."
     },
     {
       question: "Do you provide your own water and electricity?",
@@ -31,7 +31,7 @@ export const FAQ = () => {
     },
     {
       question: "Do you only operate during certain times?",
-      answer: "I offer flexible scheduling to accommodate your needs. Contact me to discuss availability and find a time that works best for you."
+      answer: "Yes. On weekdays, appointments are only available after 3:30 PM. Weekend scheduling is more flexible. Contact me to discuss availability and find a time that works best for you."
     }
   ];
 

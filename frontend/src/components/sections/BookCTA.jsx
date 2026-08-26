@@ -3,11 +3,9 @@ import { FadeUp, StaggerContainer, StaggerItem } from '@/components/animations/A
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 export const BookCTA = () => {
-  const navigate = useNavigate();
-  
+
   const paymentMethods = [
     { name: 'Cash', icon: '💵' },
     { name: 'Zelle', icon: '💳' },
@@ -17,7 +15,10 @@ export const BookCTA = () => {
   ];
 
   const openBooking = () => {
-    navigate('/book');
+    const widget = document.getElementById('booking-widget');
+    if (widget) {
+      widget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   return (

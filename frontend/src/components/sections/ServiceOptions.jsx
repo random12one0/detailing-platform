@@ -18,14 +18,14 @@ export const ServiceOptions = () => {
   ];
 
   return (
-    <section className="py-20 lg:py-28 bg-background">
+    <section className="py-16 lg:py-20 bg-primary text-primary-foreground">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeUp>
           <div className="text-center mb-12">
-            <h2 className="font-display text-3xl sm:text-4xl font-semibold text-foreground mb-4">
+            <h2 className="font-display text-3xl sm:text-4xl font-semibold text-white mb-4">
               Service Options
             </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+            <p className="text-primary-foreground/80 text-lg max-w-xl mx-auto">
               Flexible scheduling to fit your lifestyle
             </p>
           </div>
@@ -34,15 +34,15 @@ export const ServiceOptions = () => {
         <StaggerContainer className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto" staggerDelay={0.15}>
           {options.map((option, index) => (
             <StaggerItem key={index}>
-              <Card className="relative h-full bg-card border border-border hover:border-accent/30 transition-all duration-300 hover:shadow-elegant">
+              <Card className="relative h-full bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-elegant backdrop-blur-sm">
                 <CardContent className="p-8">
-                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
-                    <option.icon className="w-6 h-6 text-accent" />
+                  <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6">
+                    <option.icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">
+                  <h3 className="text-xl font-semibold text-white mb-3">
                     {option.title}
                   </h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <p className="text-primary-foreground/70 leading-relaxed">
                     {option.description}
                   </p>
                 </CardContent>

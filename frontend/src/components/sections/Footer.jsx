@@ -22,7 +22,7 @@ export const Footer = () => {
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <span className="font-semibold text-lg tracking-tight">
-                Andrew&apos;s Auto Cleaning
+                Andrew&apos;s Auto Detail & Car Wash
               </span>
             </div>
             <p className="text-primary-foreground/70 text-sm leading-relaxed">
@@ -38,7 +38,8 @@ export const Footer = () => {
               {[
                 { label: 'Services', id: 'services' },
                 { label: 'Gallery', id: 'gallery' },
-                { label: 'Why Choose Us', id: 'why-us' },
+                { label: 'Why Choose Detail', id: 'why-choose-detail' },
+                { label: 'Videos', id: 'youtube-videos' },
                 { label: 'FAQ', id: 'faq' },
                 { label: 'Book Now', id: 'book' },
               ].map((link) => (
@@ -80,6 +81,24 @@ export const Footer = () => {
                 <ExternalLink className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm">View on Yelp</span>
               </a>
+              <a 
+                href="https://g.page/r/CY27nt5XVIuBEAI/review"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-primary-foreground/70 hover:text-white transition-colors duration-200"
+              >
+                <ExternalLink className="w-5 h-5 flex-shrink-0" />
+                <span className="text-sm">View on Google</span>
+              </a>
+              <a
+                href="https://www.instagram.com/andrews.auto_?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-primary-foreground/70 hover:text-pink-400 transition-colors duration-200"
+              >
+                <ExternalLink className="w-5 h-5 flex-shrink-0" />
+                <span className="text-sm">View on Instagram</span>
+              </a>
               <div className="flex items-start gap-3 pt-2">
                 <MapPin className="w-5 h-5 text-primary-foreground/70 mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-primary-foreground/70">
@@ -94,7 +113,7 @@ export const Footer = () => {
         <div className="border-t border-white/10 mt-12 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-primary-foreground/50">
-              © {currentYear} Andrew&apos;s Auto Cleaning. All rights reserved.
+              © {currentYear} Andrew&apos;s Auto Detail & Car Wash. All rights reserved.
             </p>
           </div>
         </div>

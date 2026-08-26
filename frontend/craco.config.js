@@ -103,4 +103,15 @@ webpackConfig.devServer = (devServerConfig) => {
   return devServerConfig;
 };
 
+// Set dev server port
+webpackConfig.devServer = ((originalDevServer) => {
+  return (devServerConfig) => {
+    devServerConfig.port = 5174;
+    if (typeof originalDevServer === 'function') {
+      return originalDevServer(devServerConfig);
+    }
+    return devServerConfig;
+  };
+})(webpackConfig.devServer);
+
 module.exports = webpackConfig;

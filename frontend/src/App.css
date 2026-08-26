@@ -1,1 +1,17 @@
+/* Blur animation for refresh */
+.refresh-blur::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	backdrop-filter: blur(6px);
+	background: rgba(0,0,0,0.15);
+	pointer-events: none;
+	animation: refreshBlurFade 0.7s;
+}
+
+@keyframes refreshBlurFade {
+	0% { opacity: 1; }
+	100% { opacity: 0; }
+}
 /* App-specific styles - minimal, relies on design system */
