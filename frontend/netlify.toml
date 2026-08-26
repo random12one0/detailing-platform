@@ -1,5 +1,8 @@
+# Fallback build config, used only if Netlify reads the config from inside the
+# base directory instead of the repo root. Deliberately does NOT set `base` —
+# the root netlify.toml owns that, and re-declaring it here could resolve to
+# frontend/frontend. Keep the rest in sync with the root file.
 [build]
-  base = "frontend"
   command = "npm run build"
   publish = "build"
 
