@@ -10,7 +10,7 @@ import axios from "axios";
 import { Minus, Plus, X } from "lucide-react";
 import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
-import { roundToNearest5 } from "@/lib/pricing";
+import { roundToNearest5, vehicleSizeAdd } from "@/lib/pricing";
 import { money } from "@/lib/format";
 import { Modal } from "@/admin/ui/Modal";
 import { Button } from "@/admin/ui/Button";
@@ -50,10 +50,9 @@ const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY;
 // where each value is a package row from inventory.
 const buildBaseItems = (booking, overrides = {}) => {
   const items = [];
-  const vehicleSize = (booking.vehicle_size || "").toLowerCase();
-  let sizeAdd = 0;
-  if (vehicleSize === "medium" || vehicleSize === "med") sizeAdd = 15;
-  if (vehicleSize === "large") sizeAdd = 30;
+  // Surcharge comes from the shared pricing table — never re-inline the numbers,
+  // or this invoice will drift from what the customer was quoted.
+  const sizeAdd = vehicleSizeAdd(booking.vehicle_size);
 
   const interiorPkg = overrides.interior || booking.interior_package;
   const exteriorPkg = overrides.exterior || booking.exterior_package;

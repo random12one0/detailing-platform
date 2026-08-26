@@ -200,47 +200,14 @@ function RunSheetCard({ booking, onOpen, onFinalize, onStatusChange, showDate })
 }
 
 export default function TodayScreen() {
-  const { bookings, loading, updateStatus, refetch } = useBookings();
+  const { bookings, loading, updateStatus, updateNotes, updateBooking, deleteBooking, refetch } = useBookings();
   const [finalizeBooking, setFinalizeBooking] = useState(null);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
   const today = todayStr();
 
-  // BookingDetailModal write handlers (straight to supabase + refetch), matching
-  // the ones CalendarScreen wires so tapping a card opens the same full editor.
-  const handleUpdateNotes = async (id, adminNotes) => {
-    const { error } = await supabase
-      .from("bookings")
-      .update({ admin_notes: adminNotes })
-      .eq("id", id);
-    if (error)
-      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Notes saved", variant: "success" });
-      await refetch();
-    }
-  };
-  const handleUpdateBooking = async (id, fields) => {
-    const { add_ons, ...scalar } = fields;
-    const { error } = await supabase.from("bookings").update(scalar).eq("id", id);
-    if (error)
-      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Booking updated", variant: "success" });
-      await refetch();
-      setSelectedBooking(null);
-    }
-  };
-  const handleDelete = async (id) => {
-    const { error } = await supabase.from("bookings").delete().eq("id", id);
-    if (error)
-      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Booking deleted", variant: "success" });
-      await refetch();
-      setSelectedBooking(null);
-    }
-  };
+  // Booking writes come from useBookings (routed through the update-booking
+  // edge function) — never write to the table directly from a screen.
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
@@ -466,9 +433,9 @@ export default function TodayScreen() {
           booking={selectedBooking}
           onClose={() => setSelectedBooking(null)}
           onUpdateStatus={updateStatus}
-          onUpdateNotes={handleUpdateNotes}
-          onUpdateBooking={handleUpdateBooking}
-          onDelete={handleDelete}
+          onUpdateNotes={updateNotes}
+          onUpdateBooking={updateBooking}
+          onDelete={deleteBooking}
           onEditPayment={(b) => {
             setSelectedBooking(null);
             setFinalizeBooking(b);

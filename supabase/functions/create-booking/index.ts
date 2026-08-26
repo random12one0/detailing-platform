@@ -12,9 +12,9 @@ import {
 import { pacificDateStr, pacificToDate } from "../_shared/timezone.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 
-// Must match available-slots' own BUFFER_MINUTES — both enforce the same rule
-// (minimum gap on EITHER side of every existing booking); available-slots only
-// gates what's OFFERED to a browsing customer, this is the actual accept gate.
+// Minimum gap kept on EITHER side of each existing booking (travel time).
+// MUST match the identical constant in available-slots/index.ts. Deliberately local
+// rather than shared — see the note in _shared/pricing.ts for why.
 const BUFFER_MINUTES = 60;
 const ADVANCE_MS = 2 * 60 * 60 * 1000;
 

@@ -45,7 +45,7 @@ const serviceSummary = (b) => {
 const amountFor = (b) => b.final_amount ?? b.total_price ?? 0;
 
 export default function BookingsListScreen() {
-  const { bookings, loading, updateStatus, refetch } = useBookings();
+  const { bookings, loading, updateStatus, updateNotes, updateBooking, deleteBooking, refetch } = useBookings();
 
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
@@ -82,40 +82,6 @@ export default function BookingsListScreen() {
   }, [bookings, query, status, serviceType, dateRange]);
 
   // BookingDetailModal handlers — straight to supabase + refetch (mirrors CalendarScreen).
-  const handleUpdateNotes = async (id, adminNotes) => {
-    const { error } = await supabase
-      .from("bookings")
-      .update({ admin_notes: adminNotes })
-      .eq("id", id);
-    if (error)
-      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Notes saved", variant: "success" });
-      await refetch();
-    }
-  };
-  const handleUpdateBooking = async (id, fields) => {
-    const { add_ons, ...scalar } = fields;
-    const { error } = await supabase.from("bookings").update(scalar).eq("id", id);
-    if (error)
-      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Booking updated", variant: "success" });
-      await refetch();
-      setSelected(null);
-    }
-  };
-  const handleDelete = async (id) => {
-    await supabase.from("booking_add_ons").delete().eq("booking_id", id);
-    const { error } = await supabase.from("bookings").delete().eq("id", id);
-    if (error)
-      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Booking deleted", variant: "success" });
-      await refetch();
-      setSelected(null);
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -216,9 +182,9 @@ export default function BookingsListScreen() {
           booking={selected}
           onClose={() => setSelected(null)}
           onUpdateStatus={updateStatus}
-          onUpdateNotes={handleUpdateNotes}
-          onUpdateBooking={handleUpdateBooking}
-          onDelete={handleDelete}
+          onUpdateNotes={updateNotes}
+          onUpdateBooking={updateBooking}
+          onDelete={deleteBooking}
         />
       )}
     </div>

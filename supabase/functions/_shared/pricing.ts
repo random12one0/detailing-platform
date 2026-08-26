@@ -5,10 +5,17 @@
 export const VEHICLE_SIZE_ADDS: Record<string, number> = {
   small: 0,
   medium: 15,
+  med: 15, // older booking rows store the abbreviated form
   large: 30,
 };
 
-export const BUFFER_MINUTES = 30;
+// NOTE: this module deliberately does NOT export BUFFER_MINUTES.
+// It used to, with a stale value of 30, while the only two things that
+// actually enforce a buffer (available-slots and create-booking) each used a
+// local 60. Nothing imported the 30 — it just sat here waiting to be picked up
+// by mistake and silently halve the gap between jobs. The authoritative value
+// lives next to the code that enforces it, in those two functions, and they
+// carry matching comments telling you to change both together.
 
 // Extra service TIME (minutes) a bigger vehicle needs, on top of the base package
 // duration. Larger vehicles take longer to detail; small is the baseline.

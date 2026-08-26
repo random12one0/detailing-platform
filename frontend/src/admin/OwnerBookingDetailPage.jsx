@@ -8,8 +8,6 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Sparkles } from "lucide-react";
 import { useBookings } from "@/admin/data/useBookings";
-import { supabase } from "@/lib/supabase";
-import { toast } from "@/hooks/use-toast";
 import { Button, EmptyState } from "@/admin/ui";
 import BookingDetailContent from "@/admin/modals/BookingDetailContent";
 import PaymentFinalizationModal from "@/admin/modals/FinalizePaymentModal";
@@ -17,39 +15,17 @@ import PaymentFinalizationModal from "@/admin/modals/FinalizePaymentModal";
 export default function OwnerBookingDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { bookings, loading, updateStatus, refetch } = useBookings();
+  const { bookings, loading, updateStatus, updateNotes, updateBooking, deleteBooking, refetch } = useBookings();
   const [finalizeBooking, setFinalizeBooking] = useState(null);
 
   const booking = bookings.find((b) => b.id === id) || null;
 
-  // Same write handlers TodayScreen/CalendarScreen wire into BookingDetailModal —
-  // straight to supabase + refetch, so this page behaves identically to opening
-  // the same booking from the dashboard.
-  const handleUpdateNotes = async (bookingId, adminNotes) => {
-    const { error } = await supabase.from("bookings").update({ admin_notes: adminNotes }).eq("id", bookingId);
-    if (error) toast({ title: "Update Failed", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Notes saved", variant: "success" });
-      await refetch();
-    }
-  };
-  const handleUpdateBooking = async (bookingId, fields) => {
-    const { add_ons, ...scalar } = fields;
-    const { error } = await supabase.from("bookings").update(scalar).eq("id", bookingId);
-    if (error) toast({ title: "Update Failed", description: error.message, variant: "destructive" });
-    else {
-      toast({ title: "Booking updated", variant: "success" });
-      await refetch();
-    }
-  };
+  // All writes go through useBookings, which routes them to the update-booking
+  // edge function (validation + add-on handling + soft delete). This page used
+  // to write to Supabase directly, which skipped all of that.
   const handleDelete = async (bookingId) => {
-    const { error } = await supabase.from("bookings").delete().eq("id", bookingId);
-    if (error) {
-      toast({ title: "Delete Failed", description: error.message, variant: "destructive" });
-      return;
-    }
-    toast({ title: "Booking deleted", variant: "success" });
-    navigate("/admin");
+    const ok = await deleteBooking(bookingId);
+    if (ok) navigate("/admin");
   };
 
   return (
@@ -87,8 +63,8 @@ export default function OwnerBookingDetailPage() {
               booking={booking}
               onClose={() => navigate("/admin")}
               onUpdateStatus={updateStatus}
-              onUpdateNotes={handleUpdateNotes}
-              onUpdateBooking={handleUpdateBooking}
+              onUpdateNotes={updateNotes}
+              onUpdateBooking={updateBooking}
               onDelete={handleDelete}
               onEditPayment={(b) => setFinalizeBooking(b)}
             />

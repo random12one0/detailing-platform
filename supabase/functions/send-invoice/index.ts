@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { getFollowupEmailHtml } from "../_shared/followupEmail.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
+import { vehicleSizeAdd } from "../_shared/pricing.ts";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -138,10 +139,9 @@ Deno.serve(async (req) => {
       baseSubtotal += amt;
       rows.push({ label: `Exterior: ${booking.exterior_package.name}`, qty: 1, lineTotal: amt, kind: "charge" });
     }
-    const vehicleSize = (booking.vehicle_size || "").toLowerCase();
-    let sizeAdd = 0;
-    if (vehicleSize === "medium" || vehicleSize === "med") sizeAdd = 15;
-    if (vehicleSize === "large") sizeAdd = 30;
+    // Surcharge comes from the shared pricing table — never re-inline the
+    // numbers, or the invoice drifts from what the customer was quoted.
+    const sizeAdd = vehicleSizeAdd(booking.vehicle_size);
     if (sizeAdd !== 0 && baseSubtotal > 0) {
       rows.push({
         label: `Vehicle size (${carSizeDisplay(booking.vehicle_size)}, +${money(sizeAdd)})`,

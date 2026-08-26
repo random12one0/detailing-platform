@@ -1,7 +1,13 @@
-// useBookings — the new admin's single source of booking data.
-// Fetches the SAME shape AdminDashboard uses (bookings + interior/exterior packages
-// + booking_add_ons -> add_ons), exposes a refetch + status mutation, and keeps the
-// list live via a realtime subscription on the bookings table.
+// useBookings — the admin's single source of booking data AND the single place
+// bookings get written.
+//
+// Every mutation here goes through the `update-booking` edge function rather
+// than writing to the table directly. That function is the only thing that
+// re-validates a rescheduled job against the rest of the day, applies the
+// editable-field allowlist, and replaces add-ons. Four screens used to carry
+// their own copy of these handlers writing straight to Supabase, which meant
+// admin edits skipped all of that — and silently discarded add-on changes.
+// Don't reintroduce a direct write; add it here instead.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase, SUPABASE_FUNCTIONS_URL } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
@@ -32,6 +38,34 @@ const BOOKINGS_SELECT = `
   )
 `;
 
+// Shared POST to update-booking with the signed-in admin's token. Returns the
+// parsed body on success, or throws with a usable message.
+async function callUpdateBooking(payload) {
+  const functionsUrl =
+    SUPABASE_FUNCTIONS_URL || process.env.REACT_APP_SUPABASE_FUNCTIONS_URL;
+
+  const { data: { session } } = await supabase.auth.getSession();
+  const accessToken = session?.access_token;
+  if (!accessToken) {
+    throw new Error("Your admin session expired. Please sign in again.");
+  }
+
+  const response = await fetch(`${functionsUrl}/update-booking`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok || result.error) {
+    throw new Error(result.error || "Failed to update booking.");
+  }
+  return result;
+}
+
 export function useBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +81,7 @@ export function useBookings() {
       const { data, error: fetchError } = await supabase
         .from("bookings")
         .select(BOOKINGS_SELECT)
+        .is("deleted_at", null)
         .order("booking_date", { ascending: true })
         .order("start_time", { ascending: true });
 
@@ -61,47 +96,11 @@ export function useBookings() {
 
   fetchRef.current = refetch;
 
-  // updateStatus — mirrors AdminDashboard.updateBookingStatus: POST to the
-  // update-booking edge function, toast the result, then refetch.
+  // updateStatus — change just the status field.
   const updateStatus = useCallback(
     async (bookingId, status) => {
       try {
-        const functionsUrl =
-          SUPABASE_FUNCTIONS_URL ||
-          process.env.REACT_APP_SUPABASE_FUNCTIONS_URL;
-
-        // update-booking is admin-gated: send the signed-in admin's session
-        // token (not the public anon key) so the function can verify the caller.
-        const { data: { session } } = await supabase.auth.getSession();
-        const accessToken = session?.access_token;
-        if (!accessToken) {
-          toast({
-            title: "Update Failed",
-            description: "Your admin session expired. Please sign in again.",
-            variant: "destructive",
-          });
-          return false;
-        }
-
-        const response = await fetch(`${functionsUrl}/update-booking`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({ booking_id: bookingId, status }),
-        });
-        const result = await response.json();
-
-        if (!response.ok || result.error) {
-          toast({
-            title: "Update Failed",
-            description: result.error || "Failed to update booking.",
-            variant: "destructive",
-          });
-          return false;
-        }
-
+        await callUpdateBooking({ booking_id: bookingId, status });
         toast({
           title: "Booking Updated",
           description: "Booking status updated successfully.",
@@ -113,6 +112,81 @@ export function useBookings() {
         toast({
           title: "Update Failed",
           description: err?.message || "Failed to update booking.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    },
+    [refetch]
+  );
+
+  // updateNotes — save the admin-only note.
+  const updateNotes = useCallback(
+    async (bookingId, adminNotes) => {
+      try {
+        await callUpdateBooking({ booking_id: bookingId, admin_notes: adminNotes });
+        toast({ title: "Notes saved", variant: "success" });
+        await refetch();
+        return true;
+      } catch (err) {
+        toast({
+          title: "Update Failed",
+          description: err?.message || "Failed to save notes.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    },
+    [refetch]
+  );
+
+  // updateBooking — full edit, including add-ons. `fields` is the shape
+  // BookingDetailContent's edit form produces.
+  const updateBooking = useCallback(
+    async (bookingId, fields) => {
+      try {
+        const result = await callUpdateBooking({ booking_id: bookingId, ...fields });
+        // The function allows an overlapping reschedule but reports it, since
+        // double-booking is sometimes deliberate. Surface it rather than
+        // letting the owner discover it on the day.
+        if (result.conflict) {
+          toast({
+            title: "Saved — but this now overlaps",
+            description: `Overlaps ${result.conflict.customer_name} (${String(
+              result.conflict.start_time
+            ).slice(0, 5)}–${String(result.conflict.end_time).slice(0, 5)}).`,
+            variant: "destructive",
+          });
+        } else {
+          toast({ title: "Booking updated", variant: "success" });
+        }
+        await refetch();
+        return true;
+      } catch (err) {
+        toast({
+          title: "Update Failed",
+          description: err?.message || "Failed to update booking.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    },
+    [refetch]
+  );
+
+  // deleteBooking — soft delete. The row is hidden everywhere but retained, so
+  // revenue history and invoices stay intact and it can be restored.
+  const deleteBooking = useCallback(
+    async (bookingId) => {
+      try {
+        await callUpdateBooking({ booking_id: bookingId, soft_delete: true });
+        toast({ title: "Booking deleted", variant: "success" });
+        await refetch();
+        return true;
+      } catch (err) {
+        toast({
+          title: "Delete Failed",
+          description: err?.message || "Failed to delete booking.",
           variant: "destructive",
         });
         return false;
@@ -141,7 +215,16 @@ export function useBookings() {
     };
   }, []);
 
-  return { bookings, loading, error, refetch, updateStatus };
+  return {
+    bookings,
+    loading,
+    error,
+    refetch,
+    updateStatus,
+    updateNotes,
+    updateBooking,
+    deleteBooking,
+  };
 }
 
 export default useBookings;

@@ -27,7 +27,10 @@ const BUSINESS_HOURS: Record<number, { start: string; end: string } | null> = {
   6: { start: "10:00", end: "18:00" }, // Saturday
 };
 
-const BUFFER_MINUTES = 60; // minimum gap kept on EITHER side of each existing booking
+// Minimum gap kept on EITHER side of each existing booking (travel time).
+// MUST match the identical constant in create-booking/index.ts. Deliberately local
+// rather than shared — see the note in _shared/pricing.ts for why.
+const BUFFER_MINUTES = 60;
 const ADVANCE_MS = 2 * 60 * 60 * 1000; // earliest bookable = now + 2h (for "today")
 
 const toMin = (t: string) => {
