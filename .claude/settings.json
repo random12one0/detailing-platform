@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "mcp__Supabase",
+      "mcp__Netlify",
+      "mcp__Resend",
+      "mcp__github",
+      "Bash(psql:*)",
+      "Bash(curl:*)",
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(jq:*)"
+    ]
+  }
+}
