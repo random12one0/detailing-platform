@@ -1,0 +1,8 @@
+# Belt and braces alongside netlify.toml.
+#
+# netlify.toml's redirects apply when Netlify BUILDS the site; this file is
+# copied into dist/ by Vite and so travels with a direct folder deploy too.
+# Without one of the two, /book/<slug> and /booking/<id> 404 — and those are
+# the URLs that arrive cold from a text message or a confirmation email,
+# where a 404 is a lost booking rather than a refresh annoyance.
+/*    /index.html   200

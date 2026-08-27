@@ -7,8 +7,11 @@
   command = "npm run build"
   publish = "dist"
 
-# Single-page app: every path must serve index.html, or refreshing on
-# /job/<id> or /invite/<token> 404s.
+# Single-page app: every path must serve index.html, or the router never
+# sees the URL. This now covers the CUSTOMER-facing routes too — /book/<slug>
+# and /booking/<id> — which are the ones arriving cold from a text message or
+# a confirmation email, where a 404 is not a refresh annoyance but a lost
+# booking.
 [[redirects]]
   from = "/*"
   to = "/index.html"
