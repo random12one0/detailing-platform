@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { money } from "../../lib/format.js";
+import Sheet from "../../components/Sheet.jsx";
 
 const EMPTY_SVC = {
   name: "", description: "", price: "", duration_minutes: "60", group_label: "",
@@ -134,12 +135,8 @@ export default function Catalog() {
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
 
       {editing && (
-        <div className="modal-backdrop" onClick={() => setEditing(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="row between" style={{ marginBottom: 10 }}>
-              <h2>{editing.id ? "Edit" : "New"} {editing.kind === "service" ? "service" : "add-on"}</h2>
-              <button className="x" onClick={() => setEditing(null)} aria-label="Close"><X size={18} strokeWidth={2} /></button>
-            </div>
+        <Sheet onClose={() => setEditing(null)}
+          title={`${editing.id ? "Edit" : "New"} ${editing.kind === "service" ? "service" : "add-on"}`}>
             <label className="field"><span>Name</span>
               <input value={editing.form.name} onChange={(e) => setEditing({ ...editing, form: { ...editing.form, name: e.target.value } })} /></label>
             <label className="field"><span>Description</span>
@@ -168,8 +165,7 @@ export default function Catalog() {
               </>
             )}
             <button className="btn primary" onClick={editing.kind === "service" ? saveService : saveAddOn}>Save</button>
-          </div>
-        </div>
+        </Sheet>
       )}
     </div>
   );

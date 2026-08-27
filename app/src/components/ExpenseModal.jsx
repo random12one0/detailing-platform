@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { todayLocal } from "../lib/format.js";
+import Sheet from "./Sheet.jsx";
 
 const CATEGORIES = ["product", "gas", "equipment", "supplies", "other"];
 
@@ -47,9 +48,7 @@ export default function ExpenseModal({ onClose, onSaved }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ marginBottom: 14 }}>Add expense</h2>
+    <Sheet onClose={onClose} title="Add expense" peek={62}>
 
         <label className="field">
           <span>Amount</span>
@@ -97,7 +96,6 @@ export default function ExpenseModal({ onClose, onSaved }) {
           disabled={busy || !Number(amount) || !category} onClick={save}>
           {busy ? "Saving" : "Save expense"}
         </button>
-      </div>
-    </div>
+    </Sheet>
   );
 }

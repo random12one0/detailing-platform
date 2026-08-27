@@ -15,15 +15,15 @@
    background. */
 
 .bk {
-  --bk-bg: #e5eaf2;
-  --bk-surface: #ffffff;
-  --bk-sunken: #dbe2ed;
-  --bk-border: transparent;
-  --bk-hairline: #e6eaf1;
-  --bk-text: #101720;
-  --bk-text-2: #3b4756;
-  --bk-muted: #55616e;
-  --bk-accent: #6d3fd4;
+  --bk-bg: #e8eaee;
+  --bk-surface: #f8f9fb;
+  --bk-sunken: #dfe2e8;
+  --bk-border: #96a0b0;       /* 2.51:1 against the panel — a visible edge */
+  --bk-hairline: #d5d9e0;
+  --bk-text: #191d24;
+  --bk-text-2: #444b57;
+  --bk-muted: #59616e;
+  --bk-accent: #0e8a5f;
   --bk-accent-ink: #ffffff;
   --bk-accent-quiet: color-mix(in srgb, var(--bk-accent) 10%, #ffffff);
   --bk-accent-line: color-mix(in srgb, var(--bk-accent) 45%, transparent);
@@ -32,27 +32,29 @@
 
   /* Two-layer elevation: a tight contact shadow at the edge does what a
      border would, and survives daylight; the wide one does the floating. */
-  --bk-sh: 0 1px 1px rgba(16, 23, 32, 0.11),
-           0 1px 3px rgba(16, 23, 32, 0.06),
-           0 14px 28px -18px rgba(16, 23, 32, 0.28);
-  --bk-sh-btn: 0 1px 1px rgba(16, 23, 32, 0.10), 0 1px 2px rgba(16, 23, 32, 0.06);
-  --bk-sh-inset: inset 0 2px 3px rgba(16, 23, 32, 0.10);
+  /* Raised things carry an inner top highlight and a soft shadow; recessed
+     things carry an inset one. Same vocabulary as the dashboard. */
+  --bk-sh: 0 1px 0 rgba(255, 255, 255, 0.9) inset,
+           0 1px 2px rgba(28, 33, 40, 0.07),
+           0 8px 20px -14px rgba(28, 33, 40, 0.3);
+  --bk-sh-btn: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(28, 33, 40, 0.11);
+  --bk-sh-inset: inset 0 2px 3px rgba(28, 33, 40, 0.1);
 
-  --bk-r-sm: 999px;
-  --bk-r-md: 14px;
-  --bk-r-lg: 18px;
+  --bk-r-sm: 6px;
+  --bk-r-md: 10px;
+  --bk-r-lg: 12px;
 
-  --bk-sp-1: 6px;
-  --bk-sp-2: 12px;
-  --bk-sp-3: 18px;
-  --bk-sp-4: 22px;
-  --bk-sp-5: 34px;
-  --bk-sp-6: 48px;
+  --bk-sp-1: 4px;
+  --bk-sp-2: 8px;
+  --bk-sp-3: 12px;
+  --bk-sp-4: 16px;
+  --bk-sp-5: 26px;
+  --bk-sp-6: 40px;
 
   --bk-t-label: 0.6875rem;
-  --bk-t-meta: 0.84375rem;
+  --bk-t-meta: 0.8125rem;
   --bk-t-body: 0.9375rem;
-  --bk-t-strong: 1.0625rem;
+  --bk-t-strong: 1rem;
   --bk-t-title: 1.375rem;
   --bk-t-figure: 1.875rem;
   --bk-t-display: 2.125rem;
@@ -106,7 +108,7 @@
 .bk-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70dvh; gap: var(--bk-sp-3); padding: var(--bk-sp-4); text-align: center; }
 
 .bk-header {
-  background: var(--bk-surface); border-bottom: 1px solid var(--bk-hairline);
+  background: var(--bk-surface); border-bottom: 1px solid var(--bk-border);
   padding: calc(var(--bk-sp-3) + env(safe-area-inset-top)) var(--bk-sp-4) var(--bk-sp-3);
 }
 .bk-header .inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; gap: var(--bk-sp-3); }
@@ -126,7 +128,7 @@
 
 /* ---------------------------------------------------------- SURFACES */
 .bk-card {
-  background: var(--bk-surface); border: 0;
+  background: var(--bk-surface); border: 1px solid var(--bk-border);
   border-radius: var(--bk-r-lg); padding: var(--bk-sp-3);
   box-shadow: var(--bk-sh);
 }
@@ -135,21 +137,16 @@
   transition: border-color var(--bk-dur-fast) var(--bk-ease), background var(--bk-dur-fast) var(--bk-ease);
 }
 .bk-card.selectable:active { transform: scale(0.995); }
-.bk-card.selected {
-  background: var(--bk-accent-quiet);
-  box-shadow: 0 1px 1px color-mix(in srgb, var(--bk-accent) 25%, transparent),
-              0 1px 3px color-mix(in srgb, var(--bk-accent) 15%, transparent),
-              var(--bk-sh);
-}
+.bk-card.selected { border-color: var(--bk-accent); background: var(--bk-accent-quiet); }
 .bk-sunken { background: var(--bk-sunken); border-radius: var(--bk-r-lg); padding: var(--bk-sp-3); box-shadow: inset 0 2px 4px rgba(16, 23, 32, 0.07); }
 .bk-rule { height: 1px; background: var(--bk-hairline); border: 0; margin: var(--bk-sp-3) 0; }
 .bk-note {
-  border: 0; background: var(--bk-sunken);
+  border: 1px solid var(--bk-border); background: var(--bk-sunken);
   border-radius: var(--bk-r-lg); padding: var(--bk-sp-3) var(--bk-sp-4);
   font-size: var(--bk-t-body); color: var(--bk-text-2);
 }
 .bk-dashed {
-  border: 1px dashed var(--bk-hairline); border-radius: var(--bk-r-lg);
+  border: 1px dashed var(--bk-border); border-radius: var(--bk-r-lg);
   padding: var(--bk-sp-5) var(--bk-sp-4); text-align: center;
   color: var(--bk-muted); font-size: var(--bk-t-meta);
 }
@@ -164,7 +161,7 @@
 .bk-btn {
   min-height: 48px; padding: 0 var(--bk-sp-4);
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  border-radius: var(--bk-r-md); border: 0;
+  border-radius: var(--bk-r-md); border: 1px solid var(--bk-border);
   background: var(--bk-surface); color: var(--bk-text);
   font-size: var(--bk-t-body); font-weight: 600; font-family: var(--bk-f-body);
   cursor: pointer; width: 100%; text-decoration: none; box-shadow: var(--bk-sh-btn);
@@ -172,7 +169,7 @@
 }
 .bk-btn svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
 .bk-btn:active:not(:disabled) { transform: scale(0.98); }
-.bk-btn.primary { background: var(--bk-accent); color: var(--bk-accent-ink); }
+.bk-btn.primary { background: var(--bk-accent); border-color: var(--bk-accent); color: var(--bk-accent-ink); }
 .bk-btn.ghost { background: transparent; box-shadow: none; }
 .bk-btn.inline { width: auto; }
 .bk-btn:disabled { opacity: 0.45; cursor: default; }
@@ -180,13 +177,13 @@
 .bk-chip {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 44px; padding: 0 var(--bk-sp-3);
-  border-radius: var(--bk-r-md); border: 0;
+  border-radius: var(--bk-r-md); border: 1px solid var(--bk-border);
   background: var(--bk-surface); color: var(--bk-text);
   font-size: var(--bk-t-body); font-weight: 500; font-family: var(--bk-f-body); cursor: pointer;
   box-shadow: var(--bk-sh-btn);
   transition: background var(--bk-dur-fast) var(--bk-ease);
 }
-.bk-chip.selected { background: var(--bk-accent); color: var(--bk-accent-ink); font-weight: 600; }
+.bk-chip.selected { background: var(--bk-accent); border-color: var(--bk-accent); color: var(--bk-accent-ink); font-weight: 600; }
 .bk-chip:disabled { opacity: 0.35; cursor: default; }
 .bk-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 6px; }
 
@@ -199,12 +196,12 @@
 .bk input, .bk select, .bk textarea {
   width: 100%; min-height: 48px; padding: 12px 14px;
   background: var(--bk-sunken); color: var(--bk-text);
-  border: 0; border-radius: var(--bk-r-md);
+  border: 1px solid var(--bk-border); border-radius: var(--bk-r-md);
   font-size: 1rem; font-family: var(--bk-f-body); box-shadow: var(--bk-sh-inset);
   transition: border-color var(--bk-dur-fast) var(--bk-ease);
 }
 .bk input:focus-visible, .bk select:focus-visible, .bk textarea:focus-visible {
-  outline: none; box-shadow: var(--bk-sh-inset), 0 0 0 2px var(--bk-accent);
+  outline: none; border-color: var(--bk-accent); box-shadow: var(--bk-sh-inset), 0 0 0 2px var(--bk-accent-line);
 }
 .bk textarea { min-height: 88px; resize: vertical; line-height: 1.5; }
 .bk input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--bk-accent); flex-shrink: 0; }
@@ -222,7 +219,7 @@
    the way forward are the two things that must always be reachable. */
 .bk-bar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
-  background: var(--bk-surface); border-top: 1px solid var(--bk-hairline);
+  background: var(--bk-surface); border-top: 1px solid var(--bk-border);
   padding: var(--bk-sp-3) var(--bk-sp-4) calc(var(--bk-sp-3) + env(safe-area-inset-bottom));
 }
 .bk-bar .inner {
@@ -254,17 +251,17 @@
 .bk-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .bk-cal .cell {
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  border-radius: var(--bk-r-md); border: 0; box-shadow: var(--bk-sh-btn);
+  border-radius: var(--bk-r-md); border: 1px solid var(--bk-border); box-shadow: var(--bk-sh-btn);
   background: var(--bk-surface); color: var(--bk-text);
   font-family: var(--bk-f-num);
   font-size: var(--bk-t-body); font-weight: 500; font-variant-numeric: tabular-nums;
   cursor: pointer; user-select: none;
   transition: background var(--bk-dur-fast) var(--bk-ease), border-color var(--bk-dur-fast) var(--bk-ease);
 }
-.bk-cal .cell.empty { background: transparent; box-shadow: none; cursor: default; }
+.bk-cal .cell.empty { background: transparent; border-color: transparent; box-shadow: none; cursor: default; }
 .bk-cal .cell.closed {
-  background: transparent; box-shadow: none;
+  background: transparent; border-color: transparent; box-shadow: none;
   color: var(--bk-muted); opacity: 0.45; cursor: default;
 }
-.bk-cal .cell.selected { background: var(--bk-accent); color: var(--bk-accent-ink); font-weight: 600; }
-.bk-cal .cell.today:not(.selected) { box-shadow: var(--bk-sh-btn), 0 0 0 2px var(--bk-accent) inset; }
+.bk-cal .cell.selected { background: var(--bk-accent); border-color: var(--bk-accent); color: var(--bk-accent-ink); font-weight: 600; }
+.bk-cal .cell.today:not(.selected) { border-color: var(--bk-accent); }

@@ -1,48 +1,37 @@
 /* ONE theme system for the whole dashboard.
    ------------------------------------------------------------------
-   A deliberate combination of three of the five directions, each taken for
-   the thing it was actually best at:
+   DIRECTION: "Slate" — surfaces behave like physical things. Inputs are
+   wells you press into; actions are raised and catch light. You learn what
+   is pressable by hand rather than by reading, which is what you want from
+   something operated while your attention is on a car.
 
-     COLOUR from LEDGER      cool blue-grey neutrals, crisp rather than warm.
-                             A cream ground fights a tenant whose brand is
-                             blue or violet, and the brand colour is not ours
-                             to argue with. Cool neutrals stay out of the way
-                             of every hue equally. Figures are monospaced,
-                             which is Ledger's other signature: in an app
-                             about what you earned, giving the numbers their
-                             own face is the cheapest way to say they matter.
+   WHY NOT BORDERLESS. The previous build was Studio: no borders, grouping by
+   a surface step and a shadow. On the marketing-style pages it read well; in
+   the working UI it did not — panels, sheets and the ground all sat at
+   nearly the same value and ran together, and a modal stopped reading as a
+   separate thing at all. The numbers say why: the surface step is 1.14:1,
+   and a soft shadow is a low-contrast gradient. Neither is a boundary.
 
-     SEAMLESSNESS from       there are NO borders anywhere. Grouping is a
-     STUDIO                  surface step, a shadow and a lot of room; radii
-                             are large and nothing has a hard edge; the
-                             spacing scale is the loosest of the five.
+   So Slate separates TWICE, deliberately:
+     1. a real border at ~2.5:1 against its own panel — an edge you can see,
+        well short of the black cage that 18:1 would be;
+     2. the elevation model — raised things carry an inner top highlight and
+        an outer shadow, recessed things carry an inset shadow.
+   Either alone is ambiguous. Together, nothing blends.
 
-     DESIGN from SLATE       surfaces behave like physical things. Inputs are
-                             wells pressed into the ground, actions are raised
-                             and catch light, and the ground is DARKER than
-                             the panels so a panel sits on something rather
-                             than being cut out of it. Bricolage Grotesque
-                             gives it a display face with real character —
-                             replacing the system stack was the single change
-                             that moved the product most.
+   GRAFT FROM LEDGER: every figure is monospaced. In an app about what you
+   earned, giving the numbers their own face is the cheapest way to say the
+   numbers matter, and columns of money align down a screen whether or not
+   they are in a table.
 
-   THE HARD PART, and what is done about it. Borderless plus a soft shadow is
-   the combination that fails in sunlight, because a shadow is a low-contrast
-   gradient and gradients vanish in glare. Measured, the cool surface step
-   tops out around 1.21:1 — real, but not a boundary on its own. So elevation
-   is TWO layers: a tight contact shadow sitting right at the edge, which is
-   high-contrast and adjacent and therefore survives daylight, plus a wide
-   ambient shadow that does the floating. A border made of shadow rather than
-   a line. In dark mode a shadow cannot separate anything at all, so there the
-   surface step is widened to 1.29:1 and does the work itself.
-
-   Three rules carry over from the audit and still hold:
+   Three rules carry over from the audit:
 
      TYPE     seven steps, three weights. 700 appears once per screen, on the
               screen title. Consecutive steps differ by 25% or more.
 
-     SPACE    six steps. Related things get 6 or 12px, unrelated get 22 or
-              34px. 18 is reserved for inside-a-card structure.
+     SPACE    six steps. Related things get 4 or 8px, unrelated get 26 or
+              40px. 12 and 16 are reserved for inside-a-card structure and
+              card padding — never for separating two groups.
 
      COLOR    ~90% of any screen is neutral, and the accent appears at most
               three times: the active tab, the primary action, and one
@@ -56,89 +45,84 @@
 
 :root,
 :root[data-theme="dark"] {
-  --bg: #0b0f16;
-  --surface: #1e2837;         /* 1.29:1 above the ground — in dark, the STEP
-                                 is the boundary, because a shadow is not. */
-  --surface-sunken: #111823;
-  --border: transparent;      /* there are no borders. Kept as a token so
-                                 nothing has to special-case its absence. */
-  --hairline: #2a3646;        /* a rule INSIDE a panel is the one line that
-                                 exists — it separates without boxing. */
-  --text: #e9eef6;
-  --text-2: #b3c0d0;
-  --text-muted: #8b98a8;      /* 5.06:1 on --surface, 6.07:1 on sunken,
-                                 6.54:1 on the ground. Muted carries labels
-                                 and metadata, not decoration, so it takes
-                                 the normal-text minimum on every surface it
-                                 can land on — including the bare ground,
-                                 where section labels sit. */
-  --accent: #a78bfa;          /* runtime-overridden by the brand color */
-  --accent-ink: #16092e;      /* text on accent surfaces, derived at runtime */
+  --bg: #14171c;              /* the ground */
+  --surface: #1e232a;         /* raised: panels sit ON the ground */
+  --surface-sunken: #171b21;  /* recessed: wells and context */
+  --border: #5b6575;          /* 2.68:1 against --surface. An edge you see. */
+  --hairline: #2c323b;        /* a rule INSIDE a panel — much quieter, so the
+                                 panel edge stays the strongest line. */
+  --text: #eaeef4;
+  --text-2: #aab3c0;
+  --text-muted: #8f99a8;      /* 5.49:1 on --surface, 6.00 sunken, 6.24 ground */
+  --accent: #33c58c;          /* runtime-overridden by the brand color */
+  --accent-ink: #042014;      /* text on accent surfaces, derived at runtime */
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;
-  --overlay: rgba(4, 7, 12, 0.74);
-  --tab-surface: #111823;
+  --overlay: rgba(6, 8, 11, 0.66);
+  --tab-surface: #1a1e25;
 
-  /* Two layers. The first is the CONTACT shadow — tight, high-contrast,
-     right at the edge. It is what replaces the border. The second is
-     ambient, and does the floating. */
-  --sh-raised: 0 1px 1px rgba(0, 0, 0, 0.5),
-               0 1px 3px rgba(0, 0, 0, 0.3),
-               0 16px 32px -20px rgba(0, 0, 0, 0.9);
-  --sh-btn: 0 1px 1px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.28);
-  --sh-inset: inset 0 2px 4px rgba(0, 0, 0, 0.45);
-  --sh-sunken: inset 0 2px 5px rgba(0, 0, 0, 0.38);
+  /* Two levels, and only two. A third makes it look like 2010. */
+  --sh-raised: 0 1px 0 rgba(255, 255, 255, 0.045) inset,
+               0 1px 2px rgba(0, 0, 0, 0.4),
+               0 8px 20px -14px rgba(0, 0, 0, 0.85);
+  --sh-btn: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 1px 2px rgba(0, 0, 0, 0.45);
+  --sh-inset: inset 0 2px 4px rgba(0, 0, 0, 0.42);
+  --sh-sunken: inset 0 2px 5px rgba(0, 0, 0, 0.32);
+  --sh-sheet: 0 -1px 0 rgba(255, 255, 255, 0.05) inset, 0 -20px 50px -12px rgba(0, 0, 0, 0.8);
 }
 
 :root[data-theme="light"] {
-  --bg: #e5eaf2;              /* cool, and darker than the panels */
-  --surface: #ffffff;
-  --surface-sunken: #dbe2ed;
-  --border: transparent;
-  --hairline: #e6eaf1;
-  --text: #101720;
-  --text-2: #3b4756;
-  --text-muted: #55616e;      /* 6.32:1 / 4.85:1 / 5.23:1 — see the dark block */
-  --accent: #6d3fd4;
+  /* The ground is DARKER than the panels — panels sit on something rather
+     than being cut out of it. */
+  --bg: #e8eaee;
+  --surface: #f8f9fb;
+  --surface-sunken: #dfe2e8;
+  --border: #96a0b0;          /* 2.51:1 against --surface */
+  --hairline: #d5d9e0;
+  --text: #191d24;
+  --text-2: #444b57;
+  --text-muted: #59616e;      /* clears 4.5:1 on all three surfaces */
+  --accent: #0e8a5f;
   --accent-ink: #ffffff;
   --success: #0e9f6e;
   --warning: #b45309;
   --danger: #dc2626;
-  --overlay: rgba(16, 23, 32, 0.45);
-  --tab-surface: #ffffff;
+  --overlay: rgba(25, 29, 36, 0.42);
+  --tab-surface: #f8f9fb;
 
-  --sh-raised: 0 1px 1px rgba(16, 23, 32, 0.11),
-               0 1px 3px rgba(16, 23, 32, 0.06),
-               0 14px 28px -18px rgba(16, 23, 32, 0.28);
-  --sh-btn: 0 1px 1px rgba(16, 23, 32, 0.10), 0 1px 2px rgba(16, 23, 32, 0.06);
-  --sh-inset: inset 0 2px 3px rgba(16, 23, 32, 0.10);
-  --sh-sunken: inset 0 2px 4px rgba(16, 23, 32, 0.07);
+  --sh-raised: 0 1px 0 rgba(255, 255, 255, 0.9) inset,
+               0 1px 2px rgba(28, 33, 40, 0.07),
+               0 8px 20px -14px rgba(28, 33, 40, 0.3);
+  --sh-btn: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(28, 33, 40, 0.11);
+  --sh-inset: inset 0 2px 3px rgba(28, 33, 40, 0.1);
+  --sh-sunken: inset 0 2px 4px rgba(28, 33, 40, 0.07);
+  --sh-sheet: 0 -1px 0 rgba(255, 255, 255, 0.9) inset, 0 -20px 50px -12px rgba(28, 33, 40, 0.35);
 }
 
 :root {
-  --accent-quiet: color-mix(in srgb, var(--accent) 11%, var(--surface));
-  --accent-line: color-mix(in srgb, var(--accent) 50%, transparent);
+  --accent-quiet: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  --accent-line: color-mix(in srgb, var(--accent) 55%, transparent);
 
-  /* SHAPE — nothing has a hard edge (Studio). */
+  /* SHAPE — a manufactured radius: neither square nor soft. */
   --r-pill: 999px;
-  --r-sm: 999px;
-  --r-md: 14px;
-  --r-lg: 18px;
+  --r-sm: 6px;    /* a category tag */
+  --r-md: 10px;   /* tappable */
+  --r-lg: 12px;   /* one record */
 
-  /* SPACE — the loosest of the five (Studio). Related <= 12, unrelated >= 22. */
-  --sp-1: 6px;
-  --sp-2: 12px;
-  --sp-3: 18px;
-  --sp-4: 22px;
-  --sp-5: 34px;
-  --sp-6: 48px;
+  /* SPACE — related <= 8, unrelated >= 26. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 26px;
+  --sp-6: 40px;
 
   /* TYPE */
-  --t-label: 0.6875rem;    /* 11 — 600, +.08em, uppercase */
+  --t-label: 0.6875rem;    /* 11 — 600, +.06em, uppercase */
   --t-meta: 0.8125rem;     /* 13 — 400 */
   --t-body: 0.9375rem;     /* 15 — 400 */
-  --t-strong: 1.03125rem;  /* 16.5 — 600, the row's headline */
+  --t-strong: 1rem;        /* 16 — 600, the row's headline */
   --t-title: 1.3125rem;    /* 21 — 600, display face */
   --t-figure: 1.8125rem;   /* 29 — 500, mono, tabular */
   --t-display: 2rem;       /* 32 — 700, display face, once per screen */
@@ -152,7 +136,7 @@
   --dur-fast: 160ms;
   --dur: 200ms;
 
-  --tap: 48px;
+  --tap: 46px;
 }
 
 * { box-sizing: border-box; }
@@ -219,30 +203,27 @@ a { color: var(--accent); text-decoration: none; }
 
 /* ------------------------------------------------------------ SURFACES */
 .card {
-  background: var(--surface); border: 0;
-  border-radius: var(--r-lg); padding: var(--sp-3);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: var(--sp-4);
   box-shadow: var(--sh-raised);
 }
 /* The one card that needs attention. A tint, not a new component. */
 /* The one card that needs attention. A tint plus a slightly deeper lift —
    no outline, because introducing one here would make every other card look
    like it was missing something. */
-.card.attend {
-  background: var(--accent-quiet);
-  box-shadow: 0 1px 1px color-mix(in srgb, var(--accent) 22%, transparent),
-              0 1px 3px color-mix(in srgb, var(--accent) 14%, transparent),
-              var(--sh-raised);
-}
+.card.attend { border-color: var(--accent); background: var(--accent-quiet); }
 .card.tappable { cursor: pointer; transition: background var(--dur-fast) var(--ease); }
 .card.tappable:active { background: color-mix(in srgb, var(--text) 5%, var(--surface)); }
 /* Context, not content: no border, so it is one fewer box on the screen. */
 /* Recessed: a well pressed into the ground. No border — the inset shadow
    IS the edge, and giving it one too would read as a floating box. */
+/* Recessed: a well pressed into the ground. No border — the inset shadow IS
+   the edge, and adding one too would read as a floating box. */
 .sunken {
-  background: var(--surface-sunken); border-radius: var(--r-lg); padding: var(--sp-3);
+  background: var(--surface-sunken); border-radius: var(--r-lg); padding: var(--sp-4);
   box-shadow: var(--sh-sunken);
 }
-.sunken.flush { padding: var(--sp-2) var(--sp-3); }
+.sunken.flush { padding: var(--sp-3) var(--sp-4); }
 
 /* A boundary INSIDE a group — the device that replaces a second box. */
 .rule { height: 1px; background: var(--hairline); border: 0; margin: var(--sp-3) 0; }
@@ -252,7 +233,7 @@ a { color: var(--accent); text-decoration: none; }
 /* "Nothing here yet" — the one dashed line in a system with no solid ones,
    which is exactly why it reads as a placeholder rather than a container. */
 .dashed {
-  border: 1px dashed var(--hairline); border-radius: var(--r-lg);
+  border: 1px dashed var(--border); border-radius: var(--r-lg);
   padding: var(--sp-5) var(--sp-4); text-align: center;
   color: var(--text-muted); font-size: var(--t-meta);
 }
@@ -276,7 +257,7 @@ a { color: var(--accent); text-decoration: none; }
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   display: flex; justify-content: space-around;
   background: var(--tab-surface);
-  border-top: 1px solid var(--hairline);
+  border-top: 1px solid var(--border);
   padding: var(--sp-1) var(--sp-1) calc(var(--sp-1) + env(safe-area-inset-bottom));
 }
 .tabbar button {
@@ -292,7 +273,7 @@ a { color: var(--accent); text-decoration: none; }
 .topbar {
   position: sticky; top: 0; z-index: 30;
   background: var(--bg);
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--border);
   padding: calc(var(--sp-2) + env(safe-area-inset-top)) var(--sp-4) var(--sp-2);
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
 }
@@ -305,7 +286,7 @@ a { color: var(--accent); text-decoration: none; }
 .btn {
   min-height: var(--tap); padding: 0 var(--sp-4);
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  border-radius: var(--r-md); border: 0;
+  border-radius: var(--r-md); border: 1px solid var(--border);
   background: var(--surface); color: var(--text);
   font-size: var(--t-body); font-weight: 600; cursor: pointer; width: 100%;
   font-family: var(--f-body);
@@ -318,9 +299,12 @@ a { color: var(--accent); text-decoration: none; }
 .btn:active:not(:disabled) { transform: scale(0.985); }
 /* A SOLID fill, not a glow. The glow was Studio's one flourish and the one
    place its identity depended on a colour the customer picks. */
-.btn.primary { background: var(--accent); color: var(--accent-ink); box-shadow: var(--sh-btn); }
+.btn.primary {
+  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.18);
+}
 .btn.filled { background: var(--surface-sunken); box-shadow: var(--sh-sunken); }
-.btn.danger { background: var(--surface); color: var(--danger); }
+.btn.danger { background: var(--surface); border-color: var(--danger); color: var(--danger); }
 .btn.ghost { border-color: transparent; background: transparent; box-shadow: none; }
 .btn.inline { width: auto; }
 .btn.sm { min-height: 38px; font-size: var(--t-meta); padding: 0 var(--sp-3); }
@@ -330,14 +314,14 @@ a { color: var(--accent); text-decoration: none; }
 
 .chip {
   display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 0 var(--sp-3);
-  border-radius: var(--r-pill); border: 0;
+  border-radius: var(--r-pill); border: 1px solid var(--border);
   background: var(--surface); color: var(--text-2);
   font-size: var(--t-meta); font-weight: 500; cursor: pointer; font-family: var(--f-body);
   box-shadow: var(--sh-btn);
   transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 .chip svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
-.chip.active { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
 .chip:disabled { opacity: 0.4; cursor: default; }
 .chiprow {
   display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
@@ -360,15 +344,15 @@ a { color: var(--accent); text-decoration: none; }
   display: inline-flex; align-items: center; padding: 2px 9px;
   border-radius: var(--r-pill); font-size: var(--t-label); font-weight: 600;
   letter-spacing: 0.04em; color: var(--text-muted);
-  background: var(--surface-sunken); white-space: nowrap;
+  border: 1px solid var(--border); white-space: nowrap;
 }
 /* In a borderless system a pill reads by its FILL, not its outline. Each is
    a wash of its own signal colour at a weight that keeps the label legible. */
-.pill.completed, .pill.paid { background: color-mix(in srgb, var(--success) 15%, var(--surface)); color: var(--success); }
-.pill.cancelled { background: color-mix(in srgb, var(--danger) 15%, var(--surface)); color: var(--danger); }
-.pill.no_show, .pill.pending, .pill.partial { background: color-mix(in srgb, var(--warning) 18%, var(--surface)); color: var(--warning); }
-.pill.confirmed { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent); }
-.pill.waived { background: var(--surface-sunken); color: var(--text-muted); }
+.pill.completed, .pill.paid { border-color: color-mix(in srgb, var(--success) 45%, transparent); background: color-mix(in srgb, var(--success) 12%, var(--surface)); color: var(--success); }
+.pill.cancelled { border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); color: var(--danger); }
+.pill.no_show, .pill.pending, .pill.partial { border-color: color-mix(in srgb, var(--warning) 50%, transparent); background: color-mix(in srgb, var(--warning) 12%, var(--surface)); color: var(--warning); }
+.pill.confirmed { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); }
+.pill.waived { border-color: var(--border); color: var(--text-muted); }
 
 /* A second indicator meaning with no second hue: hollow ring vs solid dot. */
 .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
@@ -392,7 +376,7 @@ label.field > span {
 input, select, textarea {
   width: 100%; min-height: var(--tap); padding: 11px 13px;
   background: var(--surface-sunken); color: var(--text);
-  border: 0; border-radius: var(--r-md);
+  border: 1px solid var(--border); border-radius: var(--r-md);
   font-size: var(--t-body); font-family: var(--f-body);
   box-shadow: var(--sh-inset);
   transition: border-color var(--dur-fast) var(--ease);
@@ -404,7 +388,7 @@ input[type="time"], input[type="date"], input[type="number"] {
 /* With no border there is nothing to recolour on focus, so focus is a ring
    — which is clearer than a border change was anyway. */
 input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: none; box-shadow: var(--sh-inset), 0 0 0 2px var(--accent);
+  outline: none; border-color: var(--accent); box-shadow: var(--sh-inset), 0 0 0 2px var(--accent-line);
 }
 textarea { min-height: 92px; resize: vertical; line-height: 1.5; }
 input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--accent); }
@@ -429,36 +413,6 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
   color: var(--text); padding: var(--sp-3) var(--sp-4); font-size: var(--t-body); line-height: 1.45;
 }
 
-/* ---------------------------------------------------------------- SHEET */
-.modal-backdrop {
-  position: fixed; inset: 0; z-index: 50;
-  background: var(--overlay);
-  display: flex; align-items: flex-end; justify-content: center;
-  animation: backdrop-in var(--dur-fast) var(--ease);
-}
-.modal {
-  background: var(--surface); border: 0;
-  border-radius: 22px 22px 0 0; width: 100%; max-width: 640px;
-  max-height: 92dvh; overflow-y: auto;
-  padding: var(--sp-4) var(--sp-4) calc(var(--sp-4) + env(safe-area-inset-bottom));
-  animation: sheet-in var(--dur) var(--ease);
-}
-@keyframes backdrop-in { from { opacity: 0; } }
-@keyframes sheet-in { from { opacity: 0; transform: translateY(12px); } }
-@media (min-width: 700px) {
-  .modal-backdrop { align-items: center; }
-  .modal { border-radius: 18px; }
-}
-.sheet-head {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  gap: var(--sp-3); margin-bottom: var(--sp-4);
-}
-.sheet-head .x {
-  min-height: 38px; width: 38px; flex-shrink: 0; display: flex; align-items: center;
-  justify-content: center; border-radius: var(--r-pill); border: 0;
-  background: var(--surface-sunken); color: var(--text-muted); cursor: pointer;
-}
-
 /* ------------------------------------------------------------- CALENDAR */
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--sp-1); }
 .cal-head {
@@ -470,7 +424,7 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
   letter-spacing: 0.06em; color: var(--text-muted);
 }
 .cal-cell {
-  min-height: 54px; border-radius: var(--r-md); border: 0;
+  min-height: 54px; border-radius: var(--r-md); border: 1px solid var(--border);
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   padding: 5px 2px; background: var(--surface); cursor: pointer;
   font-size: var(--t-meta); color: var(--text); position: relative;
@@ -486,13 +440,13 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
   font-variant-numeric: tabular-nums;
 }
 .cal-cell.today .n { background: var(--accent); color: var(--accent-ink); }
-.cal-cell.selected { background: var(--accent-quiet); box-shadow: var(--sh-btn); }
+.cal-cell.selected { border-color: var(--accent); background: var(--accent-quiet); }
 .cal-cell .marks { margin-top: auto; display: flex; align-items: center; gap: 2px; min-height: 7px; }
 
 /* --------------------------------------------------------------- MISC */
 .swatch-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
-.swatch { width: 46px; height: 46px; border-radius: var(--r-pill); cursor: pointer; border: 0; box-shadow: var(--sh-btn); }
-.swatch.selected { box-shadow: var(--sh-btn), 0 0 0 3px var(--surface), 0 0 0 5px var(--text); }
+.swatch { width: 46px; height: 46px; border-radius: var(--r-md); cursor: pointer; border: 1px solid var(--border); box-shadow: var(--sh-btn); }
+.swatch.selected { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text); }
 .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-md); }
 
@@ -540,7 +494,7 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
   display: inline-flex; align-items: center; padding: 2px 9px;
   border-radius: var(--r-pill); font-size: var(--t-label); font-weight: 600;
   letter-spacing: 0.04em; color: var(--text-muted);
-  background: var(--surface-sunken); white-space: nowrap;
+  border: 1px solid var(--border); white-space: nowrap;
 }
 .badge.completed, .badge.paid { background: color-mix(in srgb, var(--success) 15%, var(--surface)); color: var(--success); }
 .badge.cancelled { background: color-mix(in srgb, var(--danger) 15%, var(--surface)); color: var(--danger); }
@@ -550,3 +504,85 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 
 /* An icon never squashes into an oval before its text wraps. */
 .row svg, .btn svg, .chip svg, .tag svg, .label svg { flex-shrink: 0; }
+
+/* ------------------------------------------------------------------ SHEET
+   Every panel in the app opens as a bottom sheet rather than a full page.
+   See components/Sheet.jsx for the interaction; this is only its skin.
+   It is a raised surface like any other — border plus elevation — so it
+   reads as a separate object sitting over the page rather than a region
+   the page happened to turn into. */
+.sheet-backdrop {
+  position: fixed; inset: 0; z-index: 50;
+  background: var(--overlay);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: backdrop-in var(--dur-fast) var(--ease);
+}
+.sheet-backdrop.leaving { animation: backdrop-out 180ms var(--ease) forwards; }
+
+.sheet {
+  width: 100%; max-width: 640px;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border); border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  box-shadow: var(--sh-sheet);
+  animation: sheet-in var(--dur) var(--ease);
+  /* Height is animated EXCEPT while a finger is on it — during a drag the
+     sheet must track the thumb exactly, or it feels like syrup. */
+  transition: height var(--dur-fast) var(--ease);
+}
+.sheet.dragging { transition: none; }
+.sheet.leaving { animation: sheet-out 180ms var(--ease) forwards; }
+
+/* The whole header is the drag surface. touch-action:none is scoped HERE so
+   the sheet body still scrolls with a finger normally. */
+.sheet-grab {
+  flex-shrink: 0; cursor: grab; touch-action: none; user-select: none;
+  padding: 8px var(--sp-4) var(--sp-3);
+  border-bottom: 1px solid var(--hairline);
+}
+.sheet-grab:active { cursor: grabbing; }
+.sheet-grab .grabber {
+  display: block; width: 40px; height: 4px; border-radius: 999px;
+  background: var(--border); margin: 0 auto var(--sp-3);
+}
+/* The sheet's close button. Standalone rather than scoped to a header —
+   it lives directly inside .sheet-grab, and an earlier scoped selector left
+   it falling back to the browser default (a white box) in dark mode. */
+.x {
+  min-height: 36px; width: 36px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); cursor: pointer; box-shadow: var(--sh-btn);
+  transition: color var(--dur-tap) var(--ease);
+}
+.x:active { transform: scale(0.94); }
+
+.sheet-body {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--sp-4) var(--sp-4) var(--sp-5);
+}
+.sheet-foot {
+  flex-shrink: 0; border-top: 1px solid var(--hairline);
+  padding: var(--sp-3) var(--sp-4) calc(var(--sp-3) + env(safe-area-inset-bottom));
+  background: var(--surface);
+}
+
+@keyframes backdrop-out { to { opacity: 0; } }
+@keyframes sheet-out { to { transform: translateY(100%); opacity: 0.6; } }
+
+@media (min-width: 700px) {
+  /* On a wide screen the sheet stops being a sheet and becomes a panel —
+     dragging a thing up from the bottom edge is a thumb gesture, not a
+     mouse one. */
+  .sheet-backdrop { align-items: center; padding: var(--sp-5); }
+  .sheet {
+    border-radius: 14px; border-bottom: 1px solid var(--border);
+    height: auto !important; max-height: 86vh;
+    box-shadow: var(--sh-raised), 0 24px 60px -20px rgba(0, 0, 0, 0.45);
+  }
+  .sheet-grab { cursor: default; }
+  .sheet-grab .grabber { display: none; }
+}

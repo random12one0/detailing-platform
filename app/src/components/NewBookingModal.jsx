@@ -9,6 +9,7 @@ import { api } from "../lib/api.js";
 import { supabase } from "../lib/supabase.js";
 import { money, time12, todayLocal } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
+import Sheet from "./Sheet.jsx";
 
 export default function NewBookingModal({ onClose, onCreated, initialDate }) {
   const { business } = useBusiness();
@@ -110,12 +111,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="row between" style={{ marginBottom: 10 }}>
-          <h2>New booking</h2>
-          <button className="x" onClick={onClose} aria-label="Close"><X size={18} strokeWidth={2} /></button>
-        </div>
+    <Sheet onClose={onClose} title="New booking">
 
         <label className="field"><span>Customer name</span>
           <input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} /></label>
@@ -197,7 +193,6 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
           onClick={create}>
           {busy ? "Booking…" : "Create booking"}
         </button>
-      </div>
-    </div>
+    </Sheet>
   );
 }

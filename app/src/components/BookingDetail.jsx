@@ -10,6 +10,7 @@ import { fillTemplate } from "../lib/templates.js";
 import { dateLong, mapsUrl, money, time12 } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
+import Sheet from "./Sheet.jsx";
 
 export default function BookingDetail({ booking, onClose, onChanged }) {
   const { business } = useBusiness();
@@ -94,19 +95,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     });
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="row between" style={{ marginBottom: 10 }}>
-          <h2>{booking.customer_name}</h2>
-          <button className="x" onClick={onClose} aria-label="Close"><X size={18} strokeWidth={2} /></button>
+    <Sheet onClose={onClose} title={booking.customer_name}
+      subtitle={`${dateLong(booking.booking_date)} · ${time12(booking.start_time)} – ${time12(booking.end_time)}`}>
+        {/* The date and time live in the sheet's own header now, so they are
+            not repeated here. */}
+        <div className="row wrap" style={{ gap: 6 }}>
+          <span className={`pill ${booking.status}`}>{booking.status.replace("_", " ")}</span>
+          <span className={`pill ${booking.payment_status}`}>{booking.payment_status}</span>
         </div>
-        <p className="muted">
-          {dateLong(booking.booking_date)} · {time12(booking.start_time)} – {time12(booking.end_time)}
-        </p>
-        <p style={{ margin: "6px 0" }}>
-          <span className={`badge ${booking.status}`}>{booking.status.replace("_", " ")}</span>{" "}
-          <span className={`badge ${booking.payment_status}`}>{booking.payment_status}</span>
-        </p>
 
         {error && <div className="error-box">{error}</div>}
         {notice && <div className="ok-box">{notice}</div>}
@@ -221,27 +217,21 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
         )}
 
         {pickingText && (
-          <div className="modal-backdrop" onClick={() => setPickingText(false)}>
-            <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <div className="row between" style={{ marginBottom: 10 }}>
-                <h2>Send a text</h2>
-                <button className="btn ghost inline" onClick={() => setPickingText(false)} aria-label="Close">
-                  <X size={20} strokeWidth={1.75} />
-                </button>
-              </div>
+          <Sheet onClose={() => setPickingText(false)} title="Send a text" peek={48}>
+            <div className="tight">
               {templates.length === 0 && (
-                <p className="muted">No templates yet. Add them in More, under Message templates.</p>
+                <div className="dashed">No templates yet. Add them in More, under Message templates.</div>
               )}
               {templates.map((t) => (
                 <a key={t.id} className="card tappable" href={smsHref(filled(t.body))}
                    style={{ display: "block", color: "inherit" }}>
-                  <strong>{t.label}</strong>
-                  <div className="muted">{filled(t.body)}</div>
+                  <div className="strong">{t.label}</div>
+                  <div className="quiet" style={{ marginTop: 4 }}>{filled(t.body)}</div>
                 </a>
               ))}
               <a className="btn" href={`sms:${booking.customer_phone}`}>Write my own</a>
             </div>
-          </div>
+          </Sheet>
         )}
 
         {finalizing && (
@@ -254,7 +244,6 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             }}
           />
         )}
-      </div>
-    </div>
+    </Sheet>
   );
 }

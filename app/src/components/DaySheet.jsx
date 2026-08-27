@@ -15,6 +15,7 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { dateLong } from "../lib/format.js";
 import BookingCard from "./BookingCard.jsx";
+import Sheet from "./Sheet.jsx";
 
 const hhmm = (t) => (t ? t.slice(0, 5) : "");
 
@@ -99,17 +100,11 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
   const canEdit = role === "owner";
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-head">
-          <div>
-            <h2>{dateLong(date)}</h2>
-            <p className="quiet" style={{ marginTop: 2 }}>
-              {active.length === 0 ? "No jobs" : `${active.length} job${active.length > 1 ? "s" : ""}`}
-            </p>
-          </div>
-          <button className="x" onClick={onClose} aria-label="Close"><X size={18} strokeWidth={2} /></button>
-        </div>
+    <Sheet
+      onClose={onClose}
+      title={dateLong(date)}
+      subtitle={active.length === 0 ? "No jobs" : `${active.length} job${active.length > 1 ? "s" : ""}`}
+    >
 
         <div className="group">
           <div className="tight">
@@ -273,7 +268,6 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
 
           {error && <div className="error-box">{error}</div>}
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }

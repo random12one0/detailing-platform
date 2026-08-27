@@ -7,13 +7,12 @@
 // during onboarding), this never renders and the change is silent.
 
 import { time12 } from "../lib/format.js";
+import Sheet from "./Sheet.jsx";
 
 export default function TimezoneChangeGuard({ from, to, sample, count, onCancel, onConfirm }) {
   const dayName = new Date(`${sample.date}T12:00:00`).toLocaleDateString("en-US", { weekday: "long" });
   return (
-    <div className="modal-backdrop" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ marginBottom: 10 }}>Check your booked jobs</h2>
+    <Sheet onClose={onCancel} title="Check your booked jobs" peek={52}>
         <p className="muted" style={{ marginBottom: 12 }}>
           You have {count} booked job{count === 1 ? "" : "s"} coming up. Moving from{" "}
           {from.replace(/_/g, " ")} to {to.replace(/_/g, " ")} does not move any appointment —
@@ -42,7 +41,6 @@ export default function TimezoneChangeGuard({ from, to, sample, count, onCancel,
           <button className="btn" onClick={onCancel}>Keep {from.split("/").pop().replace(/_/g, " ")}</button>
           <button className="btn primary" onClick={onConfirm}>Change timezone</button>
         </div>
-      </div>
-    </div>
+    </Sheet>
   );
 }

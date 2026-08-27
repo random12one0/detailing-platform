@@ -6,6 +6,7 @@ import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { dateLong, money } from "../lib/format.js";
 import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail from "../components/BookingDetail.jsx";
+import Sheet from "../components/Sheet.jsx";
 
 export default function Clients() {
   const { business, role } = useBusiness();
@@ -70,12 +71,7 @@ export default function Clients() {
       ))}
 
       {open && (
-        <div className="modal-backdrop" onClick={() => setOpen(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="row between" style={{ marginBottom: 8 }}>
-              <h2>{open.name}</h2>
-              <button className="x" onClick={() => setOpen(null)} aria-label="Close"><X size={18} strokeWidth={2} /></button>
-            </div>
+        <Sheet onClose={() => setOpen(null)} title={open.name} subtitle={open.phone}>
             <div className="stack" style={{ gap: 8, marginBottom: 12 }}>
               <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={2} /> {open.phone}</a>
               {open.email && <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={2} /> {open.email}</a>}
@@ -96,8 +92,7 @@ export default function Clients() {
                 placeholder="Gate code, dog's name, preferences…" /></label>
             <div className="section-title">History</div>
             {history.map((b) => <BookingCard key={b.id} booking={b} showDate onClick={() => setSelected(b)} />)}
-          </div>
-        </div>
+        </Sheet>
       )}
       {selected && (
         <BookingDetail booking={selected} onClose={() => setSelected(null)}

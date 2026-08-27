@@ -9,6 +9,7 @@ import { api } from "../lib/api.js";
 import { supabase } from "../lib/supabase.js";
 import { money } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
+import Sheet from "./Sheet.jsx";
 
 const PAYMENT_LABELS = {
   paid: "paid",
@@ -85,13 +86,8 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="row between" style={{ marginBottom: 10 }}>
-          <h2>Finalize payment</h2>
-          <button className="x" onClick={onClose} aria-label="Close"><X size={18} strokeWidth={2} /></button>
-        </div>
-        <p className="muted">Estimated total {money(booking.total_price)}</p>
+    <Sheet onClose={onClose} title="Finalize payment"
+      subtitle={`Estimated total ${money(booking.total_price)}`}>
 
         <div className="section-title">Extra items</div>
         {items.map((it, i) => (
@@ -154,7 +150,6 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
             Complete job — {money(finalAmount)}
           </button>
         )}
-      </div>
-    </div>
+    </Sheet>
   );
 }
