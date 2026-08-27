@@ -39,7 +39,7 @@ export default function More() {
         <div key={key}>
           <div className="card tappable row between" onClick={() => setOpen(open === key ? null : key)}>
             <strong>{label}</strong>
-            {open === key ? <ChevronDown size={18} strokeWidth={1.75} color="var(--text-muted)" /> : <ChevronRight size={18} strokeWidth={1.75} color="var(--text-muted)" />}
+            {open === key ? <ChevronDown size={18} strokeWidth={2} color="var(--text-muted)" /> : <ChevronRight size={18} strokeWidth={2} color="var(--text-muted)" />}
           </div>
           {open === key && (
             <div style={{ padding: "0 2px 8px" }}>

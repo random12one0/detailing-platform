@@ -1,35 +1,63 @@
-/* ONE theme system for the whole dashboard. Every color in the app is a
-   token defined here and switched at the root via data-theme — components
-   never hardcode colors. The brand accent (--accent / --accent-ink) is set
-   at runtime from business_branding.primary_color, contrast-corrected
-   against the active theme (see lib/theme.js), and applies only to accents:
-   primary buttons, active tab, links, selected states. */
+/* ONE theme system for the whole dashboard.
+   ------------------------------------------------------------------
+   The design analysis in docs/design-system-analysis.md found that the
+   problem was never the palette — it is the same five hue families the
+   reference admin uses. It was that nothing was allowed to be different
+   enough from anything else. So three rules are enforced here:
+
+     TYPE     seven steps, three weights. Weight 700 appears ONCE per
+              screen (the screen title). Everything else earns emphasis
+              from 600 and a size jump. Consecutive steps differ by 25%+.
+
+     SPACE    six steps. Things that belong together get 4 or 8px.
+              Things that don't get 24 or 40px. 12 and 16 are RESERVED
+              for inside-a-card structure and card padding — never for
+              separating two groups. Two elements 12–20px apart that are
+              not in the same card is a bug.
+
+     COLOR    ~90% of any screen is neutral. The accent may appear at
+              most three times: the active tab, the primary action, and
+              one "look here" mark. Signal colour only where the state
+              IS the message.
+
+   Grouping is not only a box. There are five devices: the card, a
+   hairline rule inside a card, a dashed border for "nothing here yet",
+   a hollow ring for a second indicator meaning, and an accent tint for
+   the one thing that needs attention.
+
+   The brand accent (--accent / --accent-ink) is set at runtime from
+   business_branding.primary_color, contrast-corrected against the
+   active theme (see lib/theme.js). Everything accent-derived below is
+   a color-mix off that token, so it follows the brand automatically. */
 
 :root,
 :root[data-theme="dark"] {
   --bg: #0b1220;
   --surface: #131c2e;
-  --surface-2: #1b2740;
+  --surface-sunken: #0d1524;
   --border: #263452;
+  --hairline: #1e2a44;
   --text: #e8eef7;
-  --text-muted: #93a3bc;
+  --text-2: #b6c3d6;
+  --text-muted: #8b9bb5;
   --accent: #38bdf8;       /* runtime-overridden by the brand color */
   --accent-ink: #06232f;   /* text on accent surfaces, derived at runtime */
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;
-  --overlay: rgba(3, 8, 18, 0.7);
+  --overlay: rgba(3, 8, 18, 0.72);
   --tab-surface: #101828;
-  --radius: 14px;
-  --tap: 48px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
 }
 
 :root[data-theme="light"] {
   --bg: #f4f6fa;
   --surface: #ffffff;
-  --surface-2: #eef2f7;
+  --surface-sunken: #eef1f6;
   --border: #d9e1ec;
+  --hairline: #e4e9f0;
   --text: #16202e;
+  --text-2: #3d4b5c;
   --text-muted: #5b6b80;
   --accent: #0284c7;
   --accent-ink: #ffffff;
@@ -38,6 +66,44 @@
   --danger: #dc2626;
   --overlay: rgba(23, 32, 46, 0.45);
   --tab-surface: #ffffff;
+  --shadow: 0 1px 2px rgba(22, 32, 46, 0.05);
+}
+
+:root {
+  /* Derived from whatever --accent currently is, so a brand colour change
+     carries through tints and rings without a second runtime write. */
+  --accent-quiet: color-mix(in srgb, var(--accent) 13%, var(--surface));
+  --accent-line: color-mix(in srgb, var(--accent) 55%, transparent);
+
+  /* SHAPE — four radii. Each says something: pill = a state that can
+     change, tag = a category that can't, md = tappable, lg = one record. */
+  --r-pill: 999px;
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+
+  /* SPACE — related <= 8, unrelated >= 24. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 40px;
+
+  /* TYPE */
+  --t-label: 0.6875rem;   /* 11 — 600, +.06em, uppercase */
+  --t-meta: 0.8125rem;    /* 13 — 400 */
+  --t-body: 0.9375rem;    /* 15 — 400 */
+  --t-strong: 1rem;       /* 16 — 600, the row's headline */
+  --t-title: 1.25rem;     /* 20 — 600 */
+  --t-figure: 1.75rem;    /* 28 — 600, tabular */
+  --t-display: 2rem;      /* 32 — 700, once per screen */
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 140ms;
+  --dur: 220ms;
+
+  --tap: 44px;
 }
 
 * { box-sizing: border-box; }
@@ -48,162 +114,352 @@ body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { margin: 0; font-weight: 700; }
-h1 { font-size: 1.35rem; }
-h2 { font-size: 1.1rem; }
-h3 { font-size: 0.95rem; }
+/* ---------------------------------------------------------------- TYPE */
+/* Only .display is 700. If a second 700 appears on a screen, that's the bug. */
+.display {
+  font-size: var(--t-display); font-weight: 700; letter-spacing: -0.022em;
+  line-height: 1.08; margin: 0;
+}
+.title {
+  font-size: var(--t-title); font-weight: 600; letter-spacing: -0.01em;
+  line-height: 1.2; margin: 0;
+}
+.strong { font-size: var(--t-strong); font-weight: 600; line-height: 1.3; }
+.body { font-size: var(--t-body); font-weight: 400; }
+.quiet { font-size: var(--t-meta); font-weight: 400; color: var(--text-muted); }
+.figure {
+  font-size: var(--t-figure); font-weight: 600; letter-spacing: -0.012em;
+  line-height: 1.12; font-variant-numeric: tabular-nums;
+}
+.figure.lead { font-size: 2.5rem; letter-spacing: -0.026em; line-height: 1.04; }
+.label {
+  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-muted); display: block;
+}
+/* Headings map onto the scale so raw h1/h2/h3 can never drift off it. */
+h1, h2, h3 { margin: 0; }
+h1 { font-size: var(--t-display); font-weight: 700; letter-spacing: -0.022em; line-height: 1.08; }
+h2 { font-size: var(--t-title); font-weight: 600; letter-spacing: -0.01em; }
+h3 { font-size: var(--t-strong); font-weight: 600; }
 p { margin: 0; }
 a { color: var(--accent); text-decoration: none; }
+.num { font-variant-numeric: tabular-nums; }
 
+/* --------------------------------------------------------------- SPACE */
+/* Flow containers, not per-element margins. Pick by relationship. */
+.tight    { display: flex; flex-direction: column; gap: var(--sp-2); }  /* one thought */
+.thoughts { display: flex; flex-direction: column; gap: var(--sp-3); }  /* inside a card */
+.group    { display: flex; flex-direction: column; gap: var(--sp-5); }  /* between groups */
+.sections { display: flex; flex-direction: column; gap: var(--sp-6); }  /* between screens-worth */
+.row { display: flex; align-items: center; gap: var(--sp-2); }
+.row.top { align-items: flex-start; }
+.row.between { justify-content: space-between; }
+.row.wrap { flex-wrap: wrap; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
+.grid2.wide { gap: var(--sp-3); }
+
+/* ------------------------------------------------------------ SURFACES */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: var(--sp-4);
+}
+/* The one card that needs attention. A tint, not a new component. */
+.card.attend { border-color: var(--accent); background: var(--accent-quiet); }
+.card.tappable { cursor: pointer; transition: background var(--dur-fast) var(--ease); }
+.card.tappable:active { background: color-mix(in srgb, var(--text) 5%, var(--surface)); }
+/* Context, not content: no border, so it is one fewer box on the screen. */
+.sunken { background: var(--surface-sunken); border-radius: var(--r-lg); padding: var(--sp-4); }
+.sunken.flush { padding: var(--sp-3) var(--sp-4); }
+
+/* A boundary INSIDE a group — the device that replaces a second box. */
+.rule { height: 1px; background: var(--hairline); border: 0; margin: var(--sp-3) 0; }
+.rule.tight { margin: var(--sp-2) 0; }
+
+/* "Nothing here yet" without a colour and without an icon. */
+.dashed {
+  border: 1px dashed var(--border); border-radius: var(--r-lg);
+  padding: var(--sp-5) var(--sp-4); text-align: center;
+  color: var(--text-muted); font-size: var(--t-meta);
+}
+
+/* Status reads before any word does, in a list of eight. */
+.stripe { border-left: 3px solid var(--text-muted); padding-left: var(--sp-3); }
+.stripe.confirmed { border-left-color: var(--accent); }
+.stripe.completed { border-left-color: var(--success); }
+.stripe.cancelled { border-left-color: var(--danger); }
+.stripe.no_show   { border-left-color: var(--warning); }
+.stripe.pending   { border-left-color: var(--text-muted); }
+
+/* --------------------------------------------------------------- SHELL */
 .app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
-.app-main { flex: 1; padding: 16px 16px calc(84px + env(safe-area-inset-bottom)); max-width: 760px; margin: 0 auto; width: 100%; }
+.app-main {
+  flex: 1; padding: var(--sp-4) var(--sp-4) calc(76px + env(safe-area-inset-bottom));
+  max-width: 760px; margin: 0 auto; width: 100%;
+}
 
-/* Bottom tab bar — one URL, five tabs, thumb-reachable. */
 .tabbar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   display: flex; justify-content: space-around;
   background: var(--tab-surface);
   border-top: 1px solid var(--border);
-  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  padding: var(--sp-1) var(--sp-1) calc(var(--sp-1) + env(safe-area-inset-bottom));
 }
 .tabbar button {
   flex: 1; min-height: var(--tap);
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   background: none; border: none; color: var(--text-muted);
-  font-size: 0.7rem; font-weight: 600; cursor: pointer; border-radius: 10px;
+  font-size: var(--t-label); font-weight: 600; cursor: pointer; border-radius: var(--r-md);
+  transition: color var(--dur-fast) var(--ease);
 }
+.tabbar button svg { flex-shrink: 0; }
 .tabbar button.active { color: var(--accent); }
 
 .topbar {
   position: sticky; top: 0; z-index: 30;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
-  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: calc(var(--sp-2) + env(safe-area-inset-top)) var(--sp-4) var(--sp-2);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
 }
-.topbar .brand { font-weight: 800; font-size: 1.05rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-.card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px;
+.topbar .brand {
+  font-size: var(--t-body); font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.card.tappable { cursor: pointer; }
-.card.tappable:active { background: var(--surface-2); }
 
-.row { display: flex; align-items: center; gap: 10px; }
-.row.between { justify-content: space-between; }
-.stack { display: flex; flex-direction: column; gap: 12px; }
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-.muted { color: var(--text-muted); font-size: 0.875rem; }
-.big { font-size: 1.5rem; font-weight: 800; }
-.section-title { margin: 20px 0 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem; font-weight: 700; }
-
+/* ------------------------------------------------------------- CONTROLS */
 .btn {
-  min-height: var(--tap); padding: 0 18px;
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  border-radius: 12px; border: 1px solid var(--border);
-  background: var(--surface-2); color: var(--text);
-  font-size: 0.95rem; font-weight: 700; cursor: pointer; width: 100%;
+  min-height: var(--tap); padding: 0 var(--sp-4);
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: var(--r-md); border: 1px solid var(--border);
+  background: transparent; color: var(--text);
+  font-size: var(--t-body); font-weight: 600; cursor: pointer; width: 100%;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
 }
+.btn svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
+.btn:active:not(:disabled) { transform: scale(0.98); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.btn.danger { background: transparent; border-color: var(--danger); color: var(--danger); }
-.btn.ghost { background: transparent; }
+.btn.filled { background: var(--surface-sunken); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn.ghost { border-color: transparent; }
 .btn.inline { width: auto; }
-.btn:disabled { opacity: 0.5; cursor: default; }
+.btn.sm { min-height: 38px; font-size: var(--t-meta); padding: 0 var(--sp-3); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btnrow { display: flex; gap: var(--sp-2); }
+.btnrow .btn { flex: 1; }
 
 .chip {
-  display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px;
-  border-radius: 999px; border: 1px solid var(--border);
-  background: var(--surface-2); color: var(--text); font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 0 var(--sp-3);
+  border-radius: var(--r-pill); border: 1px solid var(--border);
+  background: transparent; color: var(--text-2);
+  font-size: var(--t-meta); font-weight: 500; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-.chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.chip svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
+.chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.chip:disabled { opacity: 0.4; cursor: default; }
+.chiprow {
+  display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.chiprow::-webkit-scrollbar { display: none; }
+.chiprow > * { flex-shrink: 0; }
 
-/* Status colors carry meaning (paid, cancelled, overdue) — never decoration. */
-.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; border: 1px solid transparent; }
-.badge.confirmed { border-color: var(--border); color: var(--text-muted); }
-.badge.completed { border-color: color-mix(in srgb, var(--success) 50%, transparent); color: var(--success); }
-.badge.cancelled { border-color: color-mix(in srgb, var(--danger) 50%, transparent); color: var(--danger); }
-.badge.no_show { border-color: color-mix(in srgb, var(--warning) 55%, transparent); color: var(--warning); }
-.badge.pending { border-color: color-mix(in srgb, var(--warning) 55%, transparent); color: var(--warning); }
-.badge.partial { border-color: color-mix(in srgb, var(--warning) 55%, transparent); color: var(--warning); }
-.badge.paid { border-color: color-mix(in srgb, var(--success) 50%, transparent); color: var(--success); }
-.badge.waived { border-color: var(--border); color: var(--text-muted); }
+/* A category that cannot change — square-ish, quiet, never coloured. */
+.tag {
+  display: inline-flex; align-items: center; padding: 2px 7px;
+  border-radius: var(--r-sm); background: var(--surface-sunken);
+  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.card .tag, .sunken .tag { background: color-mix(in srgb, var(--text) 8%, transparent); }
 
-label.field { display: block; margin-bottom: 12px; }
-label.field > span { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+/* A state that CAN change — pill, and the colour is the message. */
+.pill {
+  display: inline-flex; align-items: center; padding: 2px 9px;
+  border-radius: var(--r-pill); font-size: var(--t-label); font-weight: 600;
+  letter-spacing: 0.04em; border: 1px solid var(--border); color: var(--text-muted);
+  white-space: nowrap;
+}
+.pill.completed, .pill.paid { border-color: color-mix(in srgb, var(--success) 45%, transparent); color: var(--success); }
+.pill.cancelled { border-color: color-mix(in srgb, var(--danger) 45%, transparent); color: var(--danger); }
+.pill.no_show, .pill.pending, .pill.partial { border-color: color-mix(in srgb, var(--warning) 50%, transparent); color: var(--warning); }
+.pill.confirmed { border-color: var(--accent-line); color: var(--accent); }
+.pill.waived { border-color: var(--border); color: var(--text-muted); }
+
+/* A second indicator meaning with no second hue: hollow ring vs solid dot. */
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
+.dot.confirmed { background: var(--accent); }
+.dot.completed { background: var(--success); }
+.dot.cancelled { background: var(--danger); }
+.dot.no_show, .dot.pending { background: var(--warning); }
+.ring {
+  width: 7px; height: 7px; border-radius: 50%; background: transparent;
+  box-shadow: inset 0 0 0 2px var(--accent); flex-shrink: 0;
+}
+.dot.block { background: var(--warning); }
+
+/* ----------------------------------------------------------------- FORM */
+label.field { display: block; }
+label.field > span {
+  display: block; font-size: var(--t-label); font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: var(--sp-1);
+}
+.fields { display: flex; flex-direction: column; gap: var(--sp-3); }
 input, select, textarea {
   width: 100%; min-height: var(--tap); padding: 10px 12px;
-  background: var(--surface-2); color: var(--text);
-  border: 1px solid var(--border); border-radius: 10px; font-size: 1rem;
+  background: var(--surface-sunken); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  font-size: var(--t-body); font-family: inherit;
+  transition: border-color var(--dur-fast) var(--ease);
 }
-textarea { min-height: 80px; resize: vertical; }
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none; border-color: var(--accent);
+}
+textarea { min-height: 92px; resize: vertical; line-height: 1.5; }
 input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.warn-box {
-  border: 1px solid color-mix(in srgb, var(--warning) 55%, transparent);
-  background: color-mix(in srgb, var(--warning) 8%, transparent);
-  color: var(--warning); border-radius: 10px; padding: 10px 12px;
-  font-size: 0.85rem; margin: 8px 0; display: flex; gap: 8px; align-items: flex-start;
+/* --------------------------------------------------------------- STATES */
+.warn-box, .error-box, .ok-box, .confirm-box {
+  border-radius: var(--r-md); padding: 10px 12px; font-size: var(--t-meta);
+  display: flex; gap: var(--sp-2); align-items: flex-start;
 }
-.warn-box svg { flex-shrink: 0; margin-top: 1px; }
-.warn-box .actions { margin-left: auto; display: flex; gap: 4px; }
-.warn-box .actions button { background: none; border: none; color: var(--warning); font-weight: 700; cursor: pointer; white-space: nowrap; }
+.warn-box svg, .error-box svg, .ok-box svg { flex-shrink: 0; width: 1.15em; height: 1.15em; margin-top: 1px; }
+.warn-box {
+  border: 1px solid color-mix(in srgb, var(--warning) 50%, transparent);
+  background: color-mix(in srgb, var(--warning) 8%, transparent); color: var(--warning);
+}
+.warn-box .actions { margin-left: auto; display: flex; gap: var(--sp-1); }
+.warn-box .actions button { background: none; border: none; color: var(--warning); font-weight: 600; cursor: pointer; white-space: nowrap; font-size: var(--t-meta); }
+.error-box { border: 1px solid var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); color: var(--danger); }
+.ok-box { border: 1px solid var(--success); background: color-mix(in srgb, var(--success) 8%, transparent); color: var(--success); }
+.confirm-box {
+  display: block; border: 1px solid var(--accent); background: var(--accent-quiet);
+  color: var(--text); padding: var(--sp-3) var(--sp-4); font-size: var(--t-body); line-height: 1.45;
+}
 
-.error-box { border: 1px solid var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); color: var(--danger); border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin: 8px 0; }
-.ok-box { border: 1px solid var(--success); background: color-mix(in srgb, var(--success) 8%, transparent); color: var(--success); border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin: 8px 0; }
-
+/* ---------------------------------------------------------------- SHEET */
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 50;
   background: var(--overlay);
   display: flex; align-items: flex-end; justify-content: center;
+  animation: backdrop-in var(--dur-fast) var(--ease);
 }
 .modal {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 18px 18px 0 0; width: 100%; max-width: 640px;
-  max-height: 92dvh; overflow-y: auto; padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+  max-height: 92dvh; overflow-y: auto;
+  padding: var(--sp-4) var(--sp-4) calc(var(--sp-4) + env(safe-area-inset-bottom));
+  animation: sheet-in var(--dur) var(--ease);
 }
+@keyframes backdrop-in { from { opacity: 0; } }
+@keyframes sheet-in { from { opacity: 0; transform: translateY(12px); } }
 @media (min-width: 700px) {
   .modal-backdrop { align-items: center; }
   .modal { border-radius: 18px; }
 }
+.sheet-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--sp-3); margin-bottom: var(--sp-4);
+}
+.sheet-head .x {
+  min-height: 36px; width: 36px; flex-shrink: 0; display: flex; align-items: center;
+  justify-content: center; border-radius: var(--r-md); border: 1px solid var(--border);
+  background: transparent; color: var(--text-muted); cursor: pointer;
+}
 
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+/* ------------------------------------------------------------- CALENDAR */
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--sp-1); }
+.cal-head {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--sp-1);
+  margin-bottom: var(--sp-1);
+}
+.cal-head span {
+  text-align: center; font-size: var(--t-label); font-weight: 600;
+  letter-spacing: 0.06em; color: var(--text-muted);
+}
 .cal-cell {
-  aspect-ratio: 1; border-radius: 10px; border: 1px solid transparent;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  background: var(--surface); cursor: pointer; font-size: 0.9rem; color: var(--text); position: relative;
+  min-height: 54px; border-radius: var(--r-md); border: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 2px; background: var(--surface); cursor: pointer;
+  font-size: var(--t-meta); color: var(--text); position: relative;
+  transition: background var(--dur-fast) var(--ease);
 }
-.cal-cell.other { opacity: 0.32; }
-.cal-cell.today { border-color: var(--accent); }
-.cal-cell.selected { background: var(--accent); color: var(--accent-ink); font-weight: 800; }
-.cal-cell .dots { display: flex; gap: 2px; position: absolute; bottom: 6px; }
-.cal-cell .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-.cal-cell.selected .dot { background: var(--accent-ink); }
+.cal-cell:active { background: var(--surface-sunken); }
+.cal-cell.other { opacity: 0.3; }
+/* "Today" is marked by SHAPE — a filled circle behind the number — so the
+   accent budget isn't spent on a day that is merely today. */
+.cal-cell .n {
+  width: 24px; height: 24px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.cal-cell.today .n { background: var(--accent); color: var(--accent-ink); }
+.cal-cell.selected { border-color: var(--accent); background: var(--accent-quiet); }
+.cal-cell .marks { margin-top: auto; display: flex; align-items: center; gap: 2px; min-height: 7px; }
 
-.swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.swatch {
-  width: 44px; height: 44px; border-radius: 12px; cursor: pointer;
-  border: 2px solid var(--border);
-}
+/* --------------------------------------------------------------- MISC */
+.swatch-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.swatch { width: 44px; height: 44px; border-radius: var(--r-md); cursor: pointer; border: 2px solid var(--border); }
 .swatch.selected { border-color: var(--text); }
+.gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-md); }
 
-.gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }
-
-.center { display: flex; align-items: center; justify-content: center; min-height: 40vh; flex-direction: column; gap: 12px; }
-.spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.center { display: flex; align-items: center; justify-content: center; min-height: 40vh; flex-direction: column; gap: var(--sp-3); }
+.spinner {
+  width: 26px; height: 26px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Confirmation step for an action that closes a job and takes money.
-   Deliberately not a native confirm(): it has to name the amount and the
-   payment status, which a browser dialog cannot. */
-.confirm-box {
-  border: 1px solid var(--accent);
-  background: color-mix(in srgb, var(--accent) 8%, transparent);
-  border-radius: 12px; padding: 12px 14px; margin: 8px 0;
+/* Bars for the revenue chart — the accent marks the current period only. */
+.bars { display: flex; align-items: flex-end; gap: 5px; height: 56px; }
+.bars i { flex: 1; background: var(--hairline); border-radius: 2px 2px 0 0; min-height: 2px; transition: height var(--dur) var(--ease); }
+.bars i.on { background: var(--accent); }
+.barlabels { display: flex; gap: 5px; margin-top: 5px; }
+.barlabels span { flex: 1; text-align: center; font-size: var(--t-label); color: var(--text-muted); letter-spacing: 0; text-transform: none; font-weight: 500; }
+
+.delta { font-size: var(--t-meta); font-weight: 600; }
+.delta.up { color: var(--success); }
+.delta.down { color: var(--danger); }
+
+/* On a tool someone opens forty times a day, motion that draws attention
+   to itself is what starts to feel gimmicky. Two durations, one curve. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
-.confirm-box p { font-size: 0.95rem; line-height: 1.45; }
+
+/* ---------------------------------------------------------------------
+   Older class names, redefined ON the new scale rather than removed.
+   These were the actual carriers of the hierarchy bug — .big was weight
+   800, .section-title and .badge were 700 — so redefining them here
+   corrects every screen that still uses them, in one place, without a
+   rename sweep. New code should prefer .figure / .label / .pill. */
+.big { font-size: var(--t-figure); font-weight: 600; letter-spacing: -0.012em; line-height: 1.12; font-variant-numeric: tabular-nums; }
+.muted { font-size: var(--t-meta); font-weight: 400; color: var(--text-muted); }
+.stack { display: flex; flex-direction: column; gap: var(--sp-3); }
+/* Carries the 24-above / 8-below rule itself, so a screen that only uses
+   section titles to separate groups gets the right ratio for free. */
+.section-title {
+  display: block; margin: var(--sp-5) 0 var(--sp-2);
+  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.badge {
+  display: inline-flex; align-items: center; padding: 2px 9px;
+  border-radius: var(--r-pill); font-size: var(--t-label); font-weight: 600;
+  letter-spacing: 0.04em; border: 1px solid var(--border); color: var(--text-muted);
+  white-space: nowrap;
+}
+.badge.completed, .badge.paid { border-color: color-mix(in srgb, var(--success) 45%, transparent); color: var(--success); }
+.badge.cancelled { border-color: color-mix(in srgb, var(--danger) 45%, transparent); color: var(--danger); }
+.badge.no_show, .badge.pending, .badge.partial { border-color: color-mix(in srgb, var(--warning) 50%, transparent); color: var(--warning); }
+.badge.confirmed { border-color: var(--accent-line); color: var(--accent); }
+.badge.waived { border-color: var(--border); color: var(--text-muted); }
+
+/* An icon never squashes into an oval before its text wraps. */
+.row svg, .btn svg, .chip svg, .tag svg, .label svg { flex-shrink: 0; }

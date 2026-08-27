@@ -138,7 +138,7 @@ export default function Catalog() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="row between" style={{ marginBottom: 10 }}>
               <h2>{editing.id ? "Edit" : "New"} {editing.kind === "service" ? "service" : "add-on"}</h2>
-              <button className="btn ghost inline" onClick={() => setEditing(null)} aria-label="Close"><X size={20} strokeWidth={1.75} /></button>
+              <button className="x" onClick={() => setEditing(null)} aria-label="Close"><X size={18} strokeWidth={2} /></button>
             </div>
             <label className="field"><span>Name</span>
               <input value={editing.form.name} onChange={(e) => setEditing({ ...editing, form: { ...editing.form, name: e.target.value } })} /></label>

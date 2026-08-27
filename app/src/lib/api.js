@@ -43,4 +43,16 @@ export const api = {
   sendReminder: (businessId, bookingId, target) =>
     callFn("send-owner-reminders", { business_id: businessId, booking_id: bookingId, target }),
   inviteUser: (businessId, email, role) => callFn("invite-user", { business_id: businessId, email, role }),
+
+  // --- Public, customer-facing. No session; the unguessable booking UUID is
+  // the credential, the same access model the receipt endpoint already used.
+  validatePromo: (businessSlug, code, customerEmail, customerPhone) =>
+    callFn("validate-promo-code", {
+      business_slug: businessSlug, code,
+      customer_email: customerEmail || null, customer_phone: customerPhone || null,
+    }),
+  bookingReceipt: (bookingId) => callFn("get-booking-receipt", { id: bookingId }),
+  cancelBooking: (bookingId) => callFn("cancel-booking", { booking_id: bookingId }),
+  rescheduleBooking: (bookingId, bookingDate, startTime) =>
+    callFn("reschedule-booking", { booking_id: bookingId, booking_date: bookingDate, start_time: startTime }),
 };

@@ -197,18 +197,18 @@ function ManageInner({ booking, onChanged }) {
         ) : (
           <>
             <a className="bk-btn" href={icsUrl(booking.id, "customer")}>
-              <Check size={18} strokeWidth={1.75} /> Add to my calendar
+              <Check size={18} strokeWidth={2} /> Add to my calendar
             </a>
             <button className="bk-btn" style={{ marginTop: 10 }} disabled={busy} onClick={loadSlots}>
-              <CalendarClock size={18} strokeWidth={1.75} /> {busy ? "Loading…" : "Change the time"}
+              <CalendarClock size={18} strokeWidth={2} /> {busy ? "Loading…" : "Change the time"}
             </button>
             <button className="bk-btn" style={{ marginTop: 10, borderColor: "var(--bk-danger)", color: "var(--bk-danger)" }}
               disabled={busy} onClick={doCancel}>
-              <X size={18} strokeWidth={1.75} /> Cancel this booking
+              <X size={18} strokeWidth={2} /> Cancel this booking
             </button>
             {business.phone && (
               <a className="bk-btn ghost" style={{ marginTop: 10 }} href={`tel:${business.phone}`}>
-                <Phone size={18} strokeWidth={1.75} /> Call {business.phone}
+                <Phone size={18} strokeWidth={2} /> Call {business.phone}
               </a>
             )}
           </>

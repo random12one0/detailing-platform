@@ -138,7 +138,7 @@ export default function Team() {
               disabled={m.role === "owner" && ownerCount === 1}
               onClick={() => removeMember(m)}
             >
-              <X size={18} strokeWidth={1.75} />
+              <X size={18} strokeWidth={2} />
             </button>
           </div>
         </div>
@@ -167,7 +167,7 @@ export default function Team() {
           <span className="muted" style={{ wordBreak: "break-all" }}>{lastLink}</span>
           <button className="btn ghost inline" aria-label="Copy link"
             onClick={() => navigator.clipboard?.writeText(lastLink)}>
-            <Copy size={18} strokeWidth={1.75} />
+            <Copy size={18} strokeWidth={2} />
           </button>
         </div>
       )}

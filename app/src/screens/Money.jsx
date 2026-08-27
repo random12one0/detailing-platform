@@ -1,16 +1,27 @@
-// Money answers two questions: am I making money, and is this month better
-// than last? Four numbers with a month-over-month delta, one bar chart,
-// average job value, and the two lists (waiting to be paid, recent
-// expenses). No margins, percentages, year-over-year or hourly figures.
+// Money — one lead figure, then everything else demoted to a row.
+//
+// The numbers ported from the reference admin (which was better on
+// information and worse on treatment, so the treatment was left behind):
+//
+//   NET AFTER EXPENSES as the lead figure, not "money in". Revenue is a
+//     vanity number when you buy your own supplies.
+//   QUOTED vs ADDED ON SITE — the split between what was sold through the
+//     booking page and what was sold standing in the driveway. Read off
+//     booking_line_items, which is exactly what the old screen did. This is
+//     the one number that changes how someone works.
+//   TIPS — total, average, and what share of jobs tipped.
+//
+// Left behind: the four decorative metric colours (green/emerald/purple/blue
+// for four metrics, where purple was not in the token set at all), and the
+// md:-scaled layout that made the phone view a squeezed desktop.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { Plus } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
 import { money, todayLocal } from "../lib/format.js";
 import { api } from "../lib/api.js";
-import MonthlyRevenueChart from "../components/MonthlyRevenueChart.jsx";
 import ExpenseModal from "../components/ExpenseModal.jsx";
 import BookingDetail from "../components/BookingDetail.jsx";
 
@@ -19,65 +30,90 @@ const monthLabel = (key) => {
   const [y, m] = key.split("-").map(Number);
   return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "short" });
 };
-// The month key N months before the given one.
 const shiftMonth = (key, n) => {
   const [y, m] = key.split("-").map(Number);
   const d = new Date(y, m - 1 + n, 1);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
 
+// Line-item categories that represent money sold at the job rather than
+// through the booking page. A discount is negative and belongs on the same
+// side of the ledger, so it nets against the upsell rather than hiding.
+const ON_SITE = new Set(["upgrade", "add_on", "custom", "travel_fee", "discount"]);
+
 export default function Money() {
   const { business } = useBusiness();
   const today = todayLocal(business.timezone);
   const thisMonth = monthKey(today);
-  // Six months of history, starting at the first of the earliest month.
   const from = `${shiftMonth(thisMonth, -5)}-01`;
   const { bookings, loading, reload } = useBookings(from, today);
   const [expenses, setExpenses] = useState([]);
+  const [lineItems, setLineItems] = useState([]);
   const [adding, setAdding] = useState(false);
   const [selected, setSelected] = useState(null);
   const [markingPaid, setMarkingPaid] = useState(null);
 
-  const loadExpenses = useCallback(async () => {
-    const { data } = await supabase
-      .from("expenses").select("*").eq("business_id", business.id)
-      .gte("date", from).lte("date", today).order("date", { ascending: false });
-    setExpenses(data ?? []);
+  const loadExtras = useCallback(async () => {
+    const [e, li] = await Promise.all([
+      supabase.from("expenses").select("*").eq("business_id", business.id)
+        .gte("date", from).lte("date", today).order("date", { ascending: false }),
+      supabase.from("booking_line_items").select("booking_id, category, amount, quantity")
+        .eq("business_id", business.id),
+    ]);
+    setExpenses(e.data ?? []);
+    setLineItems(li.data ?? []);
   }, [business.id, from, today]);
 
-  useEffect(() => { loadExpenses(); }, [loadExpenses]);
+  useEffect(() => { loadExtras(); }, [loadExtras]);
 
   const stats = useMemo(() => {
     const lastMonth = shiftMonth(thisMonth, -1);
     const done = bookings.filter((b) => b.status === "completed");
-    const revenueIn = (mk) => done.filter((b) => monthKey(b.booking_date) === mk)
-      .reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
-    const jobsIn = (mk) => done.filter((b) => monthKey(b.booking_date) === mk).length;
+    const inMonth = (mk) => done.filter((b) => monthKey(b.booking_date) === mk);
+
+    const revenueIn = (mk) => inMonth(mk).reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
     const spentIn = (mk) => expenses.filter((e) => monthKey(e.date) === mk)
       .reduce((s, e) => s + Number(e.amount), 0);
 
+    // Line items joined back to the bookings of the month in question.
+    const itemsFor = (mk) => {
+      const ids = new Set(inMonth(mk).map((b) => b.id));
+      return lineItems.filter((li) => ids.has(li.booking_id));
+    };
+    const sumItems = (items, pred) => items
+      .filter(pred)
+      .reduce((s, li) => s + Number(li.amount) * Number(li.quantity ?? 1), 0);
+
+    const items = itemsFor(thisMonth);
+    const onSite = sumItems(items, (li) => ON_SITE.has(li.category));
+    const tipTotal = sumItems(items, (li) => li.category === "tip");
+    const tippedJobs = new Set(items.filter((li) => li.category === "tip").map((li) => li.booking_id)).size;
+
     const inNow = revenueIn(thisMonth), inPrev = revenueIn(lastMonth);
     const outNow = spentIn(thisMonth), outPrev = spentIn(lastMonth);
-    const jobsNow = jobsIn(thisMonth), jobsPrev = jobsIn(lastMonth);
+    const jobsNow = inMonth(thisMonth).length, jobsPrev = inMonth(lastMonth).length;
+
+    // Everything that wasn't sold on site was quoted up front. Tips are not
+    // sales, so they sit outside the split rather than inflating it.
+    const quoted = Math.max(0, inNow - onSite - tipTotal);
 
     const chart = Array.from({ length: 6 }, (_, i) => {
       const k = shiftMonth(thisMonth, -(5 - i));
-      return { label: monthLabel(k), value: revenueIn(k) };
+      return { key: k, label: monthLabel(k), value: revenueIn(k) - spentIn(k) };
     });
 
     return {
-      inNow, inPrev, outNow, outPrev, jobsNow, jobsPrev,
-      leftNow: inNow - outNow, leftPrev: inPrev - outPrev,
+      inNow, outNow, jobsNow,
+      netNow: inNow - outNow, netPrev: inPrev - outPrev,
       avgJob: jobsNow > 0 ? inNow / jobsNow : 0,
       avgJobPrev: jobsPrev > 0 ? inPrev / jobsPrev : 0,
+      quoted, onSite, tipTotal, tippedJobs,
+      avgTip: tippedJobs > 0 ? tipTotal / tippedJobs : 0,
       chart,
       unpaid: done.filter((b) => b.payment_status === "pending" || b.payment_status === "partial"),
     };
-  }, [bookings, expenses, thisMonth]);
+  }, [bookings, expenses, lineItems, thisMonth]);
 
-  // One tap to settle an outstanding job: the amount is already known, so
-  // this only records that it was paid. Goes through the edge function like
-  // every other booking write.
   const markPaid = async (b) => {
     setMarkingPaid(b.id);
     try {
@@ -95,101 +131,167 @@ export default function Money() {
 
   if (loading) return <div className="center"><div className="spinner" /></div>;
 
+  const peak = Math.max(1, ...stats.chart.map((c) => Math.abs(c.value)));
+  const unpaidTotal = stats.unpaid.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
+  const thisMonthExpenses = expenses.filter((e) => monthKey(e.date) === thisMonth);
+
   return (
-    <>
-      <div className="section-title" style={{ marginTop: 0 }}>This month</div>
-      <div className="grid2">
-        <Stat label="Money in" value={money(stats.inNow)} now={stats.inNow} prev={stats.inPrev} />
-        <Stat label="Money out" value={money(stats.outNow)} now={stats.outNow} prev={stats.outPrev} lowerIsBetter />
-        <Stat label="What's left" value={money(stats.leftNow)} now={stats.leftNow} prev={stats.leftPrev} />
-        <Stat label="Jobs done" value={String(stats.jobsNow)} now={stats.jobsNow} prev={stats.jobsPrev} plain />
+    <div className="group">
+      <div>
+        <h1 className="display">Money</h1>
+        <p className="quiet" style={{ marginTop: 2 }}>
+          {new Date(`${today}T12:00:00`).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+        </p>
       </div>
 
-      <div className="card">
-        <MonthlyRevenueChart data={stats.chart} />
+      {/* One lead figure. Net, not revenue — revenue is a vanity number when
+          you buy your own supplies. */}
+      <div>
+        <span className="label">Net this month</span>
+        <div className="figure lead" style={{ marginTop: 4 }}>{money(stats.netNow)}</div>
+        <Delta now={stats.netNow} prev={stats.netPrev} />
+        <div className="bars" style={{ marginTop: 14 }}>
+          {stats.chart.map((c) => (
+            <i key={c.key} className={c.key === thisMonth ? "on" : ""}
+              style={{ height: `${Math.max(2, (Math.abs(c.value) / peak) * 100)}%` }} />
+          ))}
+        </div>
+        <div className="barlabels">
+          {stats.chart.map((c) => <span key={c.key}>{c.label}</span>)}
+        </div>
       </div>
 
-      {/* One number, given room — it changes how a detailer sells. */}
-      <div className="card">
-        <div className="muted">Average job value</div>
-        <div className="big" style={{ fontSize: "2rem" }}>{money(stats.avgJob)}</div>
-        <Delta now={stats.avgJob} prev={stats.avgJobPrev} suffix="vs last month" />
-      </div>
+      {/* Context, not content: one sunken block instead of eight cards. */}
+      <div className="sunken">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 8px" }}>
+          <Cell label="Collected" value={money(stats.inNow)} />
+          <Cell label="Expenses" value={money(stats.outNow)} />
+          <Cell label="Avg job" value={money(stats.avgJob)} />
+          <Cell label="Jobs done" value={String(stats.jobsNow)} />
+        </div>
 
-      <div className="section-title">Waiting to be paid</div>
-      {stats.unpaid.length === 0 && <p className="muted">Nothing outstanding.</p>}
-      {stats.unpaid.map((b) => (
-        <div className="card" key={b.id}>
-          <div className="row between tappable" onClick={() => setSelected(b)}>
-            <div>
-              <strong>{b.customer_name}</strong>
-              <div className="muted">{b.booking_date}</div>
+        <hr className="rule" />
+
+        {/* The split the old screen had and this one didn't. */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          <Cell label="Quoted up front" value={money(stats.quoted)} />
+          <Cell label="Added on site"
+            value={`${stats.onSite >= 0 ? "+" : "−"}${money(Math.abs(stats.onSite))}`}
+            tone={stats.onSite > 0 ? "good" : undefined} />
+        </div>
+        {stats.inNow > 0 && stats.onSite > 0 && (
+          <p className="quiet" style={{ marginTop: 8 }}>
+            {Math.round((stats.onSite / stats.inNow) * 100)}% of what you collected was sold at the job.
+          </p>
+        )}
+
+        {stats.tipTotal > 0 && (
+          <>
+            <hr className="rule" />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              <Cell label="Tips" value={money(stats.tipTotal)} />
+              <Cell label="Avg tip" value={money(stats.avgTip)} />
+              <Cell label="Tipped"
+                value={stats.jobsNow ? `${Math.round((stats.tippedJobs / stats.jobsNow) * 100)}%` : "—"} />
             </div>
-            <div className="row" style={{ gap: 8 }}>
-              <strong>{money(b.final_amount ?? b.total_price)}</strong>
-              <span className={`badge ${b.payment_status}`}>{b.payment_status}</span>
+          </>
+        )}
+      </div>
+
+      <div className="tight">
+        <span className="label">
+          Waiting on payment{unpaidTotal > 0 ? ` · ${money(unpaidTotal)}` : ""}
+        </span>
+        {stats.unpaid.length === 0
+          ? <div className="dashed">Nothing outstanding.</div>
+          : stats.unpaid.map((b) => (
+            <div className="card" key={b.id}>
+              <div className={`stripe ${b.status}`} role="button" tabIndex={0}
+                onClick={() => setSelected(b)} style={{ cursor: "pointer" }}
+                onKeyDown={(e) => { if (e.key === "Enter") setSelected(b); }}>
+                <div className="row top between">
+                  <div>
+                    <div className="strong">{b.customer_name}</div>
+                    <div className="quiet" style={{ marginTop: 2 }}>
+                      {new Date(`${b.booking_date}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {(b.services ?? []).length ? ` · ${b.services.map((s) => s.name_at_booking).join(", ")}` : ""}
+                    </div>
+                  </div>
+                  <div className="strong num">{money(b.final_amount ?? b.total_price)}</div>
+                </div>
+              </div>
+              <hr className="rule" />
+              <button className="btn primary" disabled={markingPaid === b.id} onClick={() => markPaid(b)}>
+                {markingPaid === b.id ? "Marking paid…" : "Mark paid"}
+              </button>
             </div>
-          </div>
-          <button className="btn" style={{ marginTop: 10 }} disabled={markingPaid === b.id}
-            onClick={() => markPaid(b)}>
-            {markingPaid === b.id ? "Marking paid" : `Mark paid — ${money(b.final_amount ?? b.total_price)}`}
+          ))}
+      </div>
+
+      <div className="tight">
+        <div className="row between">
+          <span className="label">Expenses · this month</span>
+          <button className="btn sm inline filled" onClick={() => setAdding(true)}>
+            <Plus strokeWidth={2} /> Add
           </button>
         </div>
-      ))}
-
-      <div className="row between" style={{ marginTop: 20 }}>
-        <h2>Recent expenses</h2>
-        <button className="btn inline primary" onClick={() => setAdding(true)}>+ Add</button>
+        {thisMonthExpenses.length === 0
+          ? <div className="dashed">Nothing logged this month.</div>
+          : (
+            <div className="sunken">
+              {thisMonthExpenses.slice(0, 12).map((e, i) => (
+                <div key={e.id}>
+                  {i > 0 && <hr className="rule tight" />}
+                  <div className="row top between">
+                    <div>
+                      <div className="body">{e.description}</div>
+                      <div className="quiet" style={{ marginTop: 2 }}>
+                        {new Date(`${e.date}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" })} · {e.category}
+                      </div>
+                    </div>
+                    <div className="body num">{money(e.amount)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
       </div>
-      {expenses.length === 0 && <p className="muted" style={{ marginTop: 8 }}>No expenses recorded.</p>}
-      {expenses.slice(0, 15).map((e) => (
-        <div className="card row between" key={e.id}>
-          <div>
-            <strong>{e.description}</strong>
-            <div className="muted">{e.date} · {e.category}</div>
-          </div>
-          <strong>{money(e.amount)}</strong>
-        </div>
-      ))}
 
       {adding && (
-        <ExpenseModal
-          onClose={() => setAdding(false)}
-          onSaved={() => { setAdding(false); loadExpenses(); }}
-        />
+        <ExpenseModal onClose={() => setAdding(false)}
+          onSaved={() => { setAdding(false); loadExtras(); }} />
       )}
       {selected && (
         <BookingDetail booking={selected} onClose={() => setSelected(null)}
-          onChanged={() => { setSelected(null); reload(); loadExpenses(); }} />
+          onChanged={() => { setSelected(null); reload(); loadExtras(); }} />
       )}
-    </>
-  );
-}
-
-function Stat({ label, value, now, prev, lowerIsBetter = false, plain = false }) {
-  return (
-    <div className="card">
-      <div className="muted">{label}</div>
-      <div className="big">{value}</div>
-      <Delta now={now} prev={prev} lowerIsBetter={lowerIsBetter} plain={plain} />
     </div>
   );
 }
 
-// Change vs last month. Up is green and down is red, except for money out,
-// where spending less is the good direction.
-function Delta({ now, prev, lowerIsBetter = false, plain = false, suffix = "vs last month" }) {
-  if (!prev) return <div className="muted" style={{ fontSize: "0.75rem" }}>No comparison yet</div>;
-  const diff = now - prev;
-  if (Math.abs(diff) < 0.005) return <div className="muted" style={{ fontSize: "0.75rem" }}>Same as last month</div>;
-  const up = diff > 0;
-  const good = lowerIsBetter ? !up : up;
-  const Icon = up ? TrendingUp : TrendingDown;
-  const shown = plain ? Math.abs(diff) : `$${Math.abs(diff).toFixed(0)}`;
+function Cell({ label, value, tone }) {
   return (
-    <div className="row" style={{ gap: 4, fontSize: "0.75rem", color: good ? "var(--success)" : "var(--danger)" }}>
-      <Icon size={14} strokeWidth={2} />
-      <span>{shown} {suffix}</span>
+    <div>
+      <span className="label">{label}</span>
+      <div className="strong num" style={{ marginTop: 4, color: tone === "good" ? "var(--success)" : undefined }}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
+// Change vs last month. Colour here IS the message, so it is one of the few
+// places signal colour is spent.
+function Delta({ now, prev }) {
+  if (!prev) return <p className="quiet" style={{ marginTop: 6 }}>No comparison yet</p>;
+  const diff = now - prev;
+  if (Math.abs(diff) < 0.005) return <p className="quiet" style={{ marginTop: 6 }}>Same as last month</p>;
+  const up = diff > 0;
+  const pct = Math.round(Math.abs(diff / prev) * 100);
+  return (
+    <div className="row" style={{ gap: 8, marginTop: 6 }}>
+      <span className={`delta ${up ? "up" : "down"}`}>{up ? "▲" : "▼"} {pct}%</span>
+      <span className="quiet">vs {money(prev)} last month</span>
     </div>
   );
 }

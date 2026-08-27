@@ -156,7 +156,7 @@ export default function BookingRules() {
 
       {warnings.map((w) => (
         <div className="warn-box" key={w.key}>
-          <TriangleAlert size={16} strokeWidth={1.75} /> {w.text}
+          <TriangleAlert size={16} strokeWidth={2} /> {w.text}
           <span className="actions">
             <button onClick={() => dismiss(w.key, false)}>Dismiss</button>
             <button onClick={() => dismiss(w.key, true)}>Never</button>

@@ -1,160 +1,204 @@
-// Weekly hours, one-off date overrides, and blockout dates. Direct DB writes
-// through RLS (settings-style data — deliberately not over-engineered).
+// Weekly hours, with the bulk editor from the reference admin.
+//
+// Setting seven days one at a time is not how a detailer sets hours — they
+// work Tuesday to Saturday, ten to six, and want to say that once. Ported
+// from BusinessSettingsSection.jsx: day chips, three presets, one open and
+// one close time, "Apply to N days" (the button counts the selection so you
+// can see what you are about to do), and "Mark closed" for the same
+// selection. Per-day rows stay underneath for fine-tuning.
+//
+// One detail kept verbatim from the old implementation because it is right:
+// a closed day is a row with NULL open and close, not a missing row. Closed
+// is then a decision rather than an absence, and the slot engine can tell
+// the difference between "we don't work Sundays" and "hours never set up".
+//
+// One-off dates and blockouts moved OUT of this screen: they belong on the
+// day you tap in the calendar, not in a form where you type the date in by
+// hand. This screen is now only the weekly pattern.
 
 import { useCallback, useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { todayLocal } from "../../lib/format.js";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const PRESETS = [
+  ["All days", [0, 1, 2, 3, 4, 5, 6]],
+  ["Weekdays", [1, 2, 3, 4, 5]],
+  ["Weekends", [0, 6]],
+];
+const hhmm = (t) => (t ? t.slice(0, 5) : "");
 
 export default function Hours() {
   const { business } = useBusiness();
-  const [week, setWeek] = useState(null); // {0..6: {open_time, close_time} | null}
-  const [overrides, setOverrides] = useState([]);
-  const [blockouts, setBlockouts] = useState([]);
-  const [ovForm, setOvForm] = useState({ date: todayLocal(business.timezone), open_time: "", close_time: "", notes: "" });
-  const [blForm, setBlForm] = useState({ event_name: "", start_date: todayLocal(business.timezone), end_date: todayLocal(business.timezone), all_day: true, start_time: "", end_time: "" });
+  const [week, setWeek] = useState(null);      // {0..6: {open,close}} — "" means closed
+  const [dirty, setDirty] = useState(false);
+  const [picked, setPicked] = useState([1, 2, 3, 4, 5]);
+  const [bulk, setBulk] = useState({ open: "09:00", close: "17:00" });
+  const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState(null);
 
   const load = useCallback(async () => {
-    const [h, o, b] = await Promise.all([
-      supabase.from("business_hours").select("*").eq("business_id", business.id),
-      supabase.from("booking_hours_overrides").select("*").eq("business_id", business.id).gte("date", todayLocal(business.timezone)).order("date"),
-      supabase.from("blockout_dates").select("*").eq("business_id", business.id).gte("end_date", todayLocal(business.timezone)).order("start_date"),
-    ]);
+    const { data } = await supabase.from("business_hours").select("*").eq("business_id", business.id);
     const map = {};
-    for (let i = 0; i < 7; i++) map[i] = null;
-    for (const row of h.data ?? []) map[row.weekday] = row;
+    for (let i = 0; i < 7; i++) map[i] = { open: "", close: "" };
+    for (const r of data ?? []) map[r.weekday] = { open: hhmm(r.open_time), close: hhmm(r.close_time) };
     setWeek(map);
-    setOverrides(o.data ?? []);
-    setBlockouts(b.data ?? []);
-  }, [business.id, business.timezone]);
+    setDirty(false);
+  }, [business.id]);
 
   useEffect(() => { load(); }, [load]);
 
-  const saveDay = async (wd, open_time, close_time) => {
-    setMsg(null);
-    const { error } = await supabase.from("business_hours").upsert({
-      business_id: business.id,
-      weekday: wd,
-      open_time: open_time || null,
-      close_time: close_time || null,
+  const toggleDay = (d) =>
+    setPicked((p) => (p.includes(d) ? p.filter((x) => x !== d) : [...p, d].sort()));
+
+  const applyTimes = () => {
+    setWeek((w) => {
+      const next = { ...w };
+      for (const d of picked) next[d] = { open: bulk.open, close: bulk.close };
+      return next;
     });
+    setDirty(true);
+    setMsg(null);
+  };
+
+  const applyClosed = () => {
+    setWeek((w) => {
+      const next = { ...w };
+      for (const d of picked) next[d] = { open: "", close: "" };
+      return next;
+    });
+    setDirty(true);
+    setMsg(null);
+  };
+
+  const setDay = (d, field, value) => {
+    setWeek((w) => ({ ...w, [d]: { ...w[d], [field]: value } }));
+    setDirty(true);
+    setMsg(null);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    setMsg(null);
+    // A row per weekday, always. Closed is null open/close on a present row.
+    const rows = Object.entries(week).map(([d, v]) => ({
+      business_id: business.id,
+      weekday: Number(d),
+      open_time: v.open || null,
+      close_time: v.close || null,
+    }));
+    const bad = rows.find((r) => (r.open_time && !r.close_time) || (!r.open_time && r.close_time));
+    if (bad) {
+      setMsg({ ok: false, text: `${DAYS[bad.weekday]} needs both an open and a close time, or neither.` });
+      setSaving(false);
+      return;
+    }
+    const { error } = await supabase.from("business_hours")
+      .upsert(rows, { onConflict: "business_id,weekday" });
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Hours saved." });
-    load();
+    if (!error) setDirty(false);
+    setSaving(false);
   };
 
-  const addOverride = async () => {
-    setMsg(null);
-    const { error } = await supabase.from("booking_hours_overrides").upsert({
-      business_id: business.id,
-      date: ovForm.date,
-      open_time: ovForm.open_time || null,
-      close_time: ovForm.close_time || null,
-      notes: ovForm.notes || null,
-    }, { onConflict: "business_id,date" });
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Special hours saved." });
-    load();
-  };
+  if (!week) return <div className="center"><div className="spinner" /></div>;
 
-  const addBlockout = async () => {
-    if (!blForm.event_name.trim()) return;
-    setMsg(null);
-    const { error } = await supabase.from("blockout_dates").insert({
-      business_id: business.id,
-      event_name: blForm.event_name.trim(),
-      start_date: blForm.start_date,
-      end_date: blForm.end_date,
-      all_day: blForm.all_day,
-      start_time: blForm.all_day ? null : blForm.start_time || null,
-      end_time: blForm.all_day ? null : blForm.end_time || null,
-    });
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Blockout added." });
-    setBlForm({ ...blForm, event_name: "" });
-    load();
-  };
-
-  if (!week) return <div className="spinner" />;
+  const openCount = Object.values(week).filter((v) => v.open).length;
 
   return (
-    <div className="card">
-      <div className="section-title">Weekly hours (blank = closed)</div>
-      {DAYS.map((label, wd) => (
-        <DayRow key={wd} label={label} row={week[wd]} onSave={(o, c) => saveDay(wd, o, c)} />
-      ))}
+    <div className="group">
+      <div className="tight">
+        <span className="label">Set several days at once</span>
+        <div className="card">
+          <div className="thoughts">
+            <div className="row wrap" style={{ gap: 6 }}>
+              {DAYS.map((name, i) => (
+                <button key={i} type="button" aria-pressed={picked.includes(i)}
+                  className={`chip ${picked.includes(i) ? "active" : ""}`}
+                  onClick={() => toggleDay(i)}>
+                  {name.slice(0, 3)}
+                </button>
+              ))}
+            </div>
+            <div className="row wrap" style={{ gap: 6 }}>
+              {PRESETS.map(([label, days]) => (
+                <button key={label} type="button" className="btn sm inline"
+                  onClick={() => setPicked(days)}>{label}</button>
+              ))}
+            </div>
 
-      <div className="section-title">Special hours for one date</div>
-      <div className="grid2">
-        <label className="field"><span>Date</span>
-          <input type="date" value={ovForm.date} onChange={(e) => setOvForm({ ...ovForm, date: e.target.value })} /></label>
-        <label className="field"><span>Note</span>
-          <input value={ovForm.notes} onChange={(e) => setOvForm({ ...ovForm, notes: e.target.value })} /></label>
-      </div>
-      <div className="grid2">
-        <label className="field"><span>Open (blank = closed)</span>
-          <input type="time" value={ovForm.open_time} onChange={(e) => setOvForm({ ...ovForm, open_time: e.target.value })} /></label>
-        <label className="field"><span>Close</span>
-          <input type="time" value={ovForm.close_time} onChange={(e) => setOvForm({ ...ovForm, close_time: e.target.value })} /></label>
-      </div>
-      <button className="btn" onClick={addOverride}>Save special hours</button>
-      {overrides.map((o) => (
-        <div className="card row between" key={o.id}>
-          <span>{o.date} · {o.open_time ? `${o.open_time.slice(0, 5)}–${o.close_time?.slice(0, 5)}` : "closed"}{o.notes ? ` · ${o.notes}` : ""}</span>
-          <button className="btn ghost inline" onClick={async () => {
-            await supabase.from("booking_hours_overrides").delete().eq("id", o.id).eq("business_id", business.id);
-            load();
-          }} aria-label="Remove"><X size={16} strokeWidth={1.75} /></button>
-        </div>
-      ))}
+            <hr className="rule" style={{ margin: 0 }} />
 
-      <div className="section-title">Blockouts (vacations, appointments)</div>
-      <label className="field"><span>Name</span>
-        <input value={blForm.event_name} onChange={(e) => setBlForm({ ...blForm, event_name: e.target.value })} placeholder="e.g. Vacation" /></label>
-      <div className="grid2">
-        <label className="field"><span>From</span>
-          <input type="date" value={blForm.start_date} onChange={(e) => setBlForm({ ...blForm, start_date: e.target.value })} /></label>
-        <label className="field"><span>To</span>
-          <input type="date" value={blForm.end_date} onChange={(e) => setBlForm({ ...blForm, end_date: e.target.value })} /></label>
+            <div className="grid2 wide">
+              <label className="field"><span>Open</span>
+                <input type="time" value={bulk.open}
+                  onChange={(e) => setBulk({ ...bulk, open: e.target.value })} /></label>
+              <label className="field"><span>Close</span>
+                <input type="time" value={bulk.close}
+                  onChange={(e) => setBulk({ ...bulk, close: e.target.value })} /></label>
+            </div>
+            <div className="btnrow">
+              <button className="btn" disabled={picked.length === 0} onClick={applyClosed}>
+                Mark closed
+              </button>
+              <button className="btn primary" disabled={picked.length === 0} onClick={applyTimes}>
+                Apply to {picked.length} day{picked.length === 1 ? "" : "s"}
+              </button>
+            </div>
+            <p className="quiet">
+              Pick the days, set the times, then apply. Adjust any single day below.
+              Nothing saves until you press Save hours.
+            </p>
+          </div>
+        </div>
       </div>
-      <label className="field row" style={{ alignItems: "center", gap: 10 }}>
-        <input type="checkbox" checked={blForm.all_day} onChange={(e) => setBlForm({ ...blForm, all_day: e.target.checked })} style={{ width: 22 }} />
-        <span style={{ margin: 0 }}>All day</span>
-      </label>
-      {!blForm.all_day && (
-        <div className="grid2">
-          <label className="field"><span>From time</span>
-            <input type="time" value={blForm.start_time} onChange={(e) => setBlForm({ ...blForm, start_time: e.target.value })} /></label>
-          <label className="field"><span>To time</span>
-            <input type="time" value={blForm.end_time} onChange={(e) => setBlForm({ ...blForm, end_time: e.target.value })} /></label>
+
+      <div className="tight">
+        <span className="label">Your week · {openCount} day{openCount === 1 ? "" : "s"} open</span>
+        <div className="card">
+          {DAYS.map((label, d) => (
+            <div key={d}>
+              {d > 0 && <hr className="rule tight" />}
+              <div className="row" style={{ gap: 8 }}>
+                <span className="body" style={{ width: 46, flexShrink: 0 }}>{label.slice(0, 3)}</span>
+                {week[d].open ? (
+                  <>
+                    <input type="time" value={week[d].open} aria-label={`${label} open`}
+                      onChange={(e) => setDay(d, "open", e.target.value)} style={{ minHeight: 38 }} />
+                    <span className="quiet">to</span>
+                    <input type="time" value={week[d].close} aria-label={`${label} close`}
+                      onChange={(e) => setDay(d, "close", e.target.value)} style={{ minHeight: 38 }} />
+                    <button className="btn sm inline ghost" aria-label={`Close ${label}`}
+                      onClick={() => { setDay(d, "open", ""); setDay(d, "close", ""); }}>Close</button>
+                  </>
+                ) : (
+                  <>
+                    <span className="quiet" style={{ flex: 1 }}>Closed</span>
+                    <button className="btn sm inline"
+                      onClick={() => { setDay(d, "open", bulk.open); setDay(d, "close", bulk.close); }}>
+                      Open
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-      )}
-      <button className="btn" onClick={addBlockout}>Add blockout</button>
-      {blockouts.map((b) => (
-        <div className="card row between" key={b.id}>
-          <span>{b.event_name} · {b.start_date}{b.end_date !== b.start_date ? ` to ${b.end_date}` : ""}{!b.all_day && b.start_time ? ` · ${b.start_time.slice(0, 5)}–${b.end_time?.slice(0, 5)}` : ""}</span>
-          <button className="btn ghost inline" onClick={async () => {
-            await supabase.from("blockout_dates").delete().eq("id", b.id).eq("business_id", business.id);
-            load();
-          }} aria-label="Remove"><X size={16} strokeWidth={1.75} /></button>
-        </div>
-      ))}
+      </div>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
-    </div>
-  );
-}
 
-function DayRow({ label, row, onSave }) {
-  const [open, setOpen] = useState(row?.open_time?.slice(0, 5) || "");
-  const [close, setClose] = useState(row?.close_time?.slice(0, 5) || "");
-  return (
-    <div className="row" style={{ gap: 8, marginBottom: 8 }}>
-      <span style={{ width: 86, fontSize: "0.85rem" }}>{label}</span>
-      <input type="time" value={open} onChange={(e) => setOpen(e.target.value)} style={{ minHeight: 40 }} />
-      <input type="time" value={close} onChange={(e) => setClose(e.target.value)} style={{ minHeight: 40 }} />
-      <button className="btn ghost inline" onClick={() => onSave(open, close)}>Save</button>
+      <button className="btn primary" disabled={saving || !dirty} onClick={save}>
+        {saving ? "Saving…" : dirty ? "Save hours" : "Saved"}
+      </button>
+
+      <div className="row" style={{ gap: 8, alignItems: "flex-start" }}>
+        <CalendarDays size={17} strokeWidth={2} style={{ flexShrink: 0, color: "var(--text-muted)", marginTop: 2 }} />
+        <p className="quiet">
+          One-off changes — a day off, different hours for a single date, or a
+          drop-off-only stretch — are set by tapping that date on the Calendar.
+        </p>
+      </div>
     </div>
   );
 }

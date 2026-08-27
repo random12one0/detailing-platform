@@ -89,7 +89,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="row between" style={{ marginBottom: 10 }}>
           <h2>Finalize payment</h2>
-          <button className="btn ghost inline" onClick={onClose} aria-label="Close"><X size={20} strokeWidth={1.75} /></button>
+          <button className="x" onClick={onClose} aria-label="Close"><X size={18} strokeWidth={2} /></button>
         </div>
         <p className="muted">Estimated total {money(booking.total_price)}</p>
 
@@ -99,7 +99,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
             <span>{CATEGORIES.find(([k]) => k === it.category)?.[1]}: {it.label}</span>
             <span className="row" style={{ gap: 8 }}>
               {it.category === "discount" ? `-${money(it.amount)}` : money(it.amount)}
-              <button className="btn ghost inline" onClick={() => setItems(items.filter((_, j) => j !== i))} aria-label="Remove"><X size={16} strokeWidth={1.75} /></button>
+              <button className="btn ghost inline" onClick={() => setItems(items.filter((_, j) => j !== i))} aria-label="Remove"><X size={16} strokeWidth={2} /></button>
             </span>
           </div>
         ))}

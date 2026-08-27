@@ -65,7 +65,7 @@ export default function Clients() {
             <strong>{c.name}</strong>
             <div className="muted">{c.phone}{c.email ? ` · ${c.email}` : ""}</div>
           </div>
-          <ChevronRight size={18} strokeWidth={1.75} color="var(--text-muted)" />
+          <ChevronRight size={18} strokeWidth={2} color="var(--text-muted)" />
         </div>
       ))}
 
@@ -74,11 +74,11 @@ export default function Clients() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="row between" style={{ marginBottom: 8 }}>
               <h2>{open.name}</h2>
-              <button className="btn ghost inline" onClick={() => setOpen(null)} aria-label="Close"><X size={20} strokeWidth={1.75} /></button>
+              <button className="x" onClick={() => setOpen(null)} aria-label="Close"><X size={18} strokeWidth={2} /></button>
             </div>
             <div className="stack" style={{ gap: 8, marginBottom: 12 }}>
-              <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={1.75} /> {open.phone}</a>
-              {open.email && <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={1.75} /> {open.email}</a>}
+              <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={2} /> {open.phone}</a>
+              {open.email && <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={2} /> {open.email}</a>}
             </div>
             {/* Lifetime spend is owner-only; staff see visit counts. */}
             <div className={role === "owner" ? "grid2" : ""}>

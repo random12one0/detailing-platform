@@ -114,7 +114,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="row between" style={{ marginBottom: 10 }}>
           <h2>New booking</h2>
-          <button className="btn ghost inline" onClick={onClose} aria-label="Close"><X size={20} strokeWidth={1.75} /></button>
+          <button className="x" onClick={onClose} aria-label="Close"><X size={18} strokeWidth={2} /></button>
         </div>
 
         <label className="field"><span>Customer name</span>

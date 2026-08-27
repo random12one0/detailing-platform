@@ -79,7 +79,7 @@ export default function Notifications() {
           <span>{e}</span>
           <button className="btn ghost inline" aria-label="Remove"
             onClick={() => setRecipients(recipients.filter((x) => x !== e))}>
-            <X size={16} strokeWidth={1.75} />
+            <X size={16} strokeWidth={2} />
           </button>
         </div>
       ))}

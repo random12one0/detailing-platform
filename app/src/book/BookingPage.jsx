@@ -273,7 +273,7 @@ function BookingFlow() {
 
         {step > 0 && (
           <button className="bk-btn ghost" style={{ marginTop: 14 }} onClick={() => go(-1)}>
-            <ArrowLeft size={18} strokeWidth={1.75} /> Back
+            <ArrowLeft size={18} strokeWidth={2} /> Back
           </button>
         )}
       </div>
