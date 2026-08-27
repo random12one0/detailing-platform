@@ -1,20 +1,43 @@
-/* ONE theme system for the whole dashboard — every screen (Money included)
-   uses these tokens. Mobile-first: big tap targets, generous spacing. */
+/* ONE theme system for the whole dashboard. Every color in the app is a
+   token defined here and switched at the root via data-theme — components
+   never hardcode colors. The brand accent (--accent / --accent-ink) is set
+   at runtime from business_branding.primary_color, contrast-corrected
+   against the active theme (see lib/theme.js), and applies only to accents:
+   primary buttons, active tab, links, selected states. */
 
-:root {
-  --bg: #0b1220;          /* app background */
-  --surface: #131c2e;     /* cards */
-  --surface-2: #1b2740;   /* raised cards, inputs */
+:root,
+:root[data-theme="dark"] {
+  --bg: #0b1220;
+  --surface: #131c2e;
+  --surface-2: #1b2740;
   --border: #263452;
   --text: #e8eef7;
   --text-muted: #93a3bc;
-  --accent: #38bdf8;
-  --accent-ink: #06232f;
+  --accent: #38bdf8;       /* runtime-overridden by the brand color */
+  --accent-ink: #06232f;   /* text on accent surfaces, derived at runtime */
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;
+  --overlay: rgba(3, 8, 18, 0.7);
+  --tab-surface: #101828;
   --radius: 14px;
-  --tap: 48px;            /* minimum touch target */
+  --tap: 48px;
+}
+
+:root[data-theme="light"] {
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --surface-2: #eef2f7;
+  --border: #d9e1ec;
+  --text: #16202e;
+  --text-muted: #5b6b80;
+  --accent: #0284c7;
+  --accent-ink: #ffffff;
+  --success: #0e9f6e;
+  --warning: #b45309;
+  --danger: #dc2626;
+  --overlay: rgba(23, 32, 46, 0.45);
+  --tab-surface: #ffffff;
 }
 
 * { box-sizing: border-box; }
@@ -42,23 +65,21 @@ a { color: var(--accent); text-decoration: none; }
 .tabbar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
   display: flex; justify-content: space-around;
-  background: color-mix(in srgb, var(--surface) 92%, black);
+  background: var(--tab-surface);
   border-top: 1px solid var(--border);
   padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
 }
 .tabbar button {
   flex: 1; min-height: var(--tap);
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
   background: none; border: none; color: var(--text-muted);
-  font-size: 0.72rem; font-weight: 600; cursor: pointer; border-radius: 10px;
+  font-size: 0.7rem; font-weight: 600; cursor: pointer; border-radius: 10px;
 }
-.tabbar button .ico { font-size: 1.25rem; line-height: 1; }
 .tabbar button.active { color: var(--accent); }
 
 .topbar {
   position: sticky; top: 0; z-index: 30;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(8px);
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
   padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -101,13 +122,16 @@ a { color: var(--accent); text-decoration: none; }
 }
 .chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
-.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; }
-.badge.confirmed { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
-.badge.completed { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
-.badge.cancelled { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
-.badge.no_show { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
-.badge.pending { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
-.badge.paid { background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+/* Status colors carry meaning (paid, cancelled, overdue) — never decoration. */
+.badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; border: 1px solid transparent; }
+.badge.confirmed { border-color: var(--border); color: var(--text-muted); }
+.badge.completed { border-color: color-mix(in srgb, var(--success) 50%, transparent); color: var(--success); }
+.badge.cancelled { border-color: color-mix(in srgb, var(--danger) 50%, transparent); color: var(--danger); }
+.badge.no_show { border-color: color-mix(in srgb, var(--warning) 55%, transparent); color: var(--warning); }
+.badge.pending { border-color: color-mix(in srgb, var(--warning) 55%, transparent); color: var(--warning); }
+.badge.partial { border-color: color-mix(in srgb, var(--warning) 55%, transparent); color: var(--warning); }
+.badge.paid { border-color: color-mix(in srgb, var(--success) 50%, transparent); color: var(--success); }
+.badge.waived { border-color: var(--border); color: var(--text-muted); }
 
 label.field { display: block; margin-bottom: 12px; }
 label.field > span { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
@@ -121,18 +145,20 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 
 .warn-box {
   border: 1px solid color-mix(in srgb, var(--warning) 55%, transparent);
-  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  background: color-mix(in srgb, var(--warning) 8%, transparent);
   color: var(--warning); border-radius: 10px; padding: 10px 12px;
   font-size: 0.85rem; margin: 8px 0; display: flex; gap: 8px; align-items: flex-start;
 }
-.warn-box button { background: none; border: none; color: var(--warning); font-weight: 700; cursor: pointer; margin-left: auto; }
+.warn-box svg { flex-shrink: 0; margin-top: 1px; }
+.warn-box .actions { margin-left: auto; display: flex; gap: 4px; }
+.warn-box .actions button { background: none; border: none; color: var(--warning); font-weight: 700; cursor: pointer; white-space: nowrap; }
 
-.error-box { border: 1px solid var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); color: var(--danger); border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin: 8px 0; }
-.ok-box { border: 1px solid var(--success); background: color-mix(in srgb, var(--success) 10%, transparent); color: var(--success); border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin: 8px 0; }
+.error-box { border: 1px solid var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); color: var(--danger); border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin: 8px 0; }
+.ok-box { border: 1px solid var(--success); background: color-mix(in srgb, var(--success) 8%, transparent); color: var(--success); border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin: 8px 0; }
 
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 50;
-  background: rgba(3, 8, 18, 0.7);
+  background: var(--overlay);
   display: flex; align-items: flex-end; justify-content: center;
 }
 .modal {
@@ -157,6 +183,13 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 .cal-cell .dots { display: flex; gap: 2px; position: absolute; bottom: 6px; }
 .cal-cell .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
 .cal-cell.selected .dot { background: var(--accent-ink); }
+
+.swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatch {
+  width: 44px; height: 44px; border-radius: 12px; cursor: pointer;
+  border: 2px solid var(--border);
+}
+.swatch.selected { border-color: var(--text); }
 
 .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; }

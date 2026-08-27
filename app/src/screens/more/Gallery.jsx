@@ -3,6 +3,7 @@
 // gallery made the admin paste a Cloudinary URL into a text box.)
 
 import { useCallback, useEffect, useState } from "react";
+import { Camera, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { uploadBusinessPhoto } from "../../lib/upload.js";
@@ -62,7 +63,7 @@ export default function Gallery() {
   return (
     <div className="card">
       <label className="btn primary" style={{ cursor: "pointer" }}>
-        {busy ? "Uploading…" : "📷 Add photos"}
+        {busy ? "Uploading…" : <><Camera size={18} strokeWidth={1.75} /> Add photos</>}
         <input type="file" accept="image/*" multiple hidden onChange={addPhotos} disabled={busy} />
       </label>
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
@@ -71,7 +72,7 @@ export default function Gallery() {
           <div key={img.id} style={{ position: "relative", opacity: img.is_active ? 1 : 0.4 }}>
             <img src={img.image_url || img.after_url} alt={img.caption || ""} onClick={() => toggle(img)} />
             <button className="btn ghost inline" style={{ position: "absolute", top: 2, right: 2, minHeight: 32, padding: "0 8px" }}
-              onClick={() => remove(img)}>✕</button>
+              onClick={() => remove(img)} aria-label="Remove"><X size={16} strokeWidth={1.75} /></button>
           </div>
         ))}
       </div>

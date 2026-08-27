@@ -2,6 +2,7 @@
 // screen (the old Money screens were dark while the rest wasn't).
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { TriangleAlert } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
@@ -81,7 +82,7 @@ export default function Money() {
       </div>
 
       {stats.unpaid.length > 0 && (
-        <div className="warn-box">⚠️ {stats.unpaid.length} completed job{stats.unpaid.length > 1 ? "s" : ""} not fully paid.</div>
+        <div className="warn-box"><TriangleAlert size={16} strokeWidth={1.75} /> {stats.unpaid.length} completed job{stats.unpaid.length > 1 ? "s" : ""} not fully paid.</div>
       )}
 
       <div className="row between" style={{ marginTop: 12 }}>

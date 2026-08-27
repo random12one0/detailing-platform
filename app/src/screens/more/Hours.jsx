@@ -2,6 +2,7 @@
 // through RLS (settings-style data — deliberately not over-engineered).
 
 import { useCallback, useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { todayLocal } from "../../lib/format.js";
@@ -104,7 +105,7 @@ export default function Hours() {
           <button className="btn ghost inline" onClick={async () => {
             await supabase.from("booking_hours_overrides").delete().eq("id", o.id).eq("business_id", business.id);
             load();
-          }}>✕</button>
+          }} aria-label="Remove"><X size={16} strokeWidth={1.75} /></button>
         </div>
       ))}
 
@@ -132,11 +133,11 @@ export default function Hours() {
       <button className="btn" onClick={addBlockout}>Add blockout</button>
       {blockouts.map((b) => (
         <div className="card row between" key={b.id}>
-          <span>{b.event_name} · {b.start_date}{b.end_date !== b.start_date ? `→${b.end_date}` : ""}{!b.all_day && b.start_time ? ` · ${b.start_time.slice(0, 5)}–${b.end_time?.slice(0, 5)}` : ""}</span>
+          <span>{b.event_name} · {b.start_date}{b.end_date !== b.start_date ? ` to ${b.end_date}` : ""}{!b.all_day && b.start_time ? ` · ${b.start_time.slice(0, 5)}–${b.end_time?.slice(0, 5)}` : ""}</span>
           <button className="btn ghost inline" onClick={async () => {
             await supabase.from("blockout_dates").delete().eq("id", b.id).eq("business_id", business.id);
             load();
-          }}>✕</button>
+          }} aria-label="Remove"><X size={16} strokeWidth={1.75} /></button>
         </div>
       ))}
 

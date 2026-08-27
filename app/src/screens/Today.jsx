@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TriangleAlert } from "lucide-react";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
 import { addDays, money, todayLocal } from "../lib/format.js";
@@ -35,7 +36,7 @@ export default function Today() {
       {todays.map((b) => <BookingCard key={b.id} booking={b} onClick={() => setSelected(b)} />)}
 
       {needFinalize.length > 0 && (
-        <div className="warn-box">⚠️ {needFinalize.length} job{needFinalize.length > 1 ? "s" : ""} today still need{needFinalize.length === 1 ? "s" : ""} payment finalized when done.</div>
+        <div className="warn-box"><TriangleAlert size={16} strokeWidth={1.75} /> {needFinalize.length} job{needFinalize.length > 1 ? "s" : ""} today still need{needFinalize.length === 1 ? "s" : ""} payment finalized when done.</div>
       )}
 
       <div className="section-title">Tomorrow</div>

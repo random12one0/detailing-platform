@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { ChevronRight, Mail, Phone, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
@@ -7,7 +8,7 @@ import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail from "../components/BookingDetail.jsx";
 
 export default function Clients() {
-  const { business } = useBusiness();
+  const { business, role } = useBusiness();
   const [search, setSearch] = useState("");
   const [customers, setCustomers] = useState([]);
   const [open, setOpen] = useState(null); // customer
@@ -63,7 +64,7 @@ export default function Clients() {
             <strong>{c.name}</strong>
             <div className="muted">{c.phone}{c.email ? ` · ${c.email}` : ""}</div>
           </div>
-          <span className="muted">›</span>
+          <ChevronRight size={18} strokeWidth={1.75} color="var(--text-muted)" />
         </div>
       ))}
 
@@ -72,15 +73,18 @@ export default function Clients() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="row between" style={{ marginBottom: 8 }}>
               <h2>{open.name}</h2>
-              <button className="btn ghost inline" onClick={() => setOpen(null)}>✕</button>
+              <button className="btn ghost inline" onClick={() => setOpen(null)} aria-label="Close"><X size={20} strokeWidth={1.75} /></button>
             </div>
             <div className="stack" style={{ gap: 8, marginBottom: 12 }}>
-              <a className="btn" href={`tel:${open.phone}`}>📞 {open.phone}</a>
-              {open.email && <a className="btn" href={`mailto:${open.email}`}>✉️ {open.email}</a>}
+              <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={1.75} /> {open.phone}</a>
+              {open.email && <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={1.75} /> {open.email}</a>}
             </div>
-            <div className="grid2">
+            {/* Lifetime spend is owner-only; staff see visit counts. */}
+            <div className={role === "owner" ? "grid2" : ""}>
               <div className="card"><div className="muted">Visits</div><div className="big">{history.filter((b) => b.status === "completed").length}</div></div>
-              <div className="card"><div className="muted">Total spent</div><div className="big">{money(totalSpent)}</div></div>
+              {role === "owner" && (
+                <div className="card"><div className="muted">Total spent</div><div className="big">{money(totalSpent)}</div></div>
+              )}
             </div>
             <label className="field"><span>Notes</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}

@@ -4,6 +4,7 @@
 // advance rules and pricing all apply, and slots come from available-slots.
 
 import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { api } from "../lib/api.js";
 import { supabase } from "../lib/supabase.js";
 import { money, time12, todayLocal } from "../lib/format.js";
@@ -113,7 +114,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="row between" style={{ marginBottom: 10 }}>
           <h2>New booking</h2>
-          <button className="btn ghost inline" onClick={onClose}>✕</button>
+          <button className="btn ghost inline" onClick={onClose} aria-label="Close"><X size={20} strokeWidth={1.75} /></button>
         </div>
 
         <label className="field"><span>Customer name</span>
@@ -150,7 +151,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
               {s.name} · {money(s.price)}
             </button>
           ))}
-          {catalog.services.length === 0 && <p className="muted">No active services yet — add them in More → Services.</p>}
+          {catalog.services.length === 0 && <p className="muted">No active services yet. Add them in the More tab under Services.</p>}
         </div>
         {catalog.addOns.length > 0 && (
           <>

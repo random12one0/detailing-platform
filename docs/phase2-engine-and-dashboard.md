@@ -108,6 +108,65 @@ platform project's URL + anon key) `&& npm install && npm run dev`.
   the live backend (login → all five tabs → booking rules with live slot
   count), zero page errors.
 
+## Follow-up work (visual direction, theming, staff accounts)
+
+**Visual direction.** Every emoji is gone from the interface, replaced with
+`lucide-react` line icons at a consistent 1.75 stroke weight. Status colors
+carry meaning only (paid, cancelled, overdue); badges are outlined rather
+than filled, and there are no streaks, progress rings or celebration states.
+System copy is plain and declarative.
+
+**Light and dark themes.** Both live in `app/src/theme.css` as one set of
+CSS variables switched at the root (`data-theme`). No component contains a
+hardcoded color — the app is styled entirely through tokens, so switching
+themes touches one file. The choice is saved per user (browser storage) and
+defaults to dark.
+
+**Brand color.** The dashboard reads `business_branding.primary_color` — the
+same value the public booking page uses — and applies it ONLY to accents:
+primary buttons, the active tab, links, selected states. Page backgrounds,
+card backgrounds and body text always come from the theme.
+`app/src/lib/theme.js` enforces readability:
+
+- The accent must clear a 3:1 contrast ratio against the active theme's
+  background. If the chosen color fails, its lightness (not its hue) is
+  stepped until it passes.
+- The text drawn on accent surfaces is chosen by contrast — black or white,
+  whichever actually reads — and must clear 4.5:1.
+- Eight curated presets sit alongside the custom picker.
+
+Verified in all four combinations with a real browser:
+
+| Theme | Brand color | Rendered accent | vs background | text on accent |
+|---|---|---|---|---|
+| Dark | `#facc15` yellow | `#facc15` (unchanged) | 12.23:1 | 12.23:1 |
+| Dark | `#1e3a8a` navy | `#315bd2` (lightened) | 3.17:1 | 5.90:1 |
+| Light | `#facc15` yellow | `#a58504` (darkened) | 3.26:1 | 5.31:1 |
+| Light | `#1e3a8a` navy | `#1e3a8a` (unchanged) | 9.57:1 | 10.36:1 |
+
+**Staff accounts.** Owners invite people by email and role. The invite link
+expires after 7 days, can be revoked, and cannot be reused. Removing someone
+revokes access immediately, and the last owner of a business can never be
+removed or demoted — enforced by a database trigger, so even the service
+role cannot do it.
+
+Roles are enforced in the database policies, not just hidden in the UI:
+
+- **Owner** — everything.
+- **Staff** — bookings, calendar, customers (contact details and visit
+  history, but not lifetime spend). A staff session authenticated directly
+  against the database gets **zero rows** from `expenses`,
+  `business_settings`, `promo_codes`, `campaigns` and `campaign_visits`,
+  and its writes to those tables are refused.
+
+`node tests/staff-roles.test.mjs` proves this with a real staff JWT (35
+assertions): the same queries return rows for the owner and nothing for
+staff, invites behave correctly at every stage, removal is immediate, the
+last owner is protected, and staff cannot promote themselves.
+
+Per-employee job assignment and per-employee availability are deliberately
+deferred — see DECISIONS.md.
+
 ## Going live checklist (not part of this phase)
 
 1. Schedule `send-owner-reminders` every 15 minutes (Supabase Cron).

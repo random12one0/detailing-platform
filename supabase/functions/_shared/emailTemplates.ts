@@ -370,3 +370,24 @@ export function rescheduleEmail(brand: TenantBrand, b: BookingEmailData, oldDate
     html: shell(brand, header, body, `Rescheduled to ${dateLong}`),
   };
 }
+
+// Team invite — sent when an owner adds someone to their business.
+export function inviteEmail(
+  brand: TenantBrand,
+  opts: { role: string; link: string; expiresAt: string },
+): { subject: string; html: string } {
+  const roleWord = opts.role === "owner" ? "an owner" : "a staff member";
+  const expires = formatDateLong(String(opts.expiresAt).slice(0, 10));
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:#ffffff;">You've been added to the team</div>`;
+  const body = `
+    <tr><td style="padding:28px 32px 16px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:1.7; color:#0f172a;">
+      <p style="margin:0 0 12px 0;">${esc(brand.brandName)} has invited you to join their booking dashboard as ${esc(roleWord)}.</p>
+      <p style="margin:0 0 20px 0;">Use the button below to set your password and sign in. This link works until ${esc(expires)}.</p>
+      <p style="margin:0 0 20px 0;"><a href="${opts.link}" style="display:inline-block; padding:14px 32px; font-size:15px; font-weight:bold; color:${brand.accentColor === "#ffffff" ? "#000000" : "#ffffff"}; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">Set up your account</a></p>
+      <p style="margin:0; font-size:12px; color:#94a3b8;">Or open: ${esc(opts.link)}</p>
+    </td></tr>`;
+  return {
+    subject: `Join ${brand.brandName} on the booking dashboard`,
+    html: shell(brand, header, body, `${brand.brandName} invited you to their dashboard.`),
+  };
+}

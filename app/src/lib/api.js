@@ -37,4 +37,5 @@ export const api = {
   sendInvoice: (businessId, bookingId) => callFn("send-invoice", { business_id: businessId, booking_id: bookingId }),
   sendReminder: (businessId, bookingId, target) =>
     callFn("send-owner-reminders", { business_id: businessId, booking_id: bookingId, target }),
+  inviteUser: (businessId, email, role) => callFn("invite-user", { business_id: businessId, email, role }),
 };

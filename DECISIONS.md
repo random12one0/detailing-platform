@@ -76,6 +76,54 @@ each picked as the option easiest to change later.
   currently uses the first membership. A business switcher is a later,
   additive feature.
 
+## Phase 2 follow-ups (visual direction, theming, staff accounts)
+
+- **`docs/dashboard-spec.md` still isn't in the repo.** It was said to exist
+  now, but it is not on this branch, not on `main`, not on any other remote
+  branch, and not anywhere on disk. The gap report was therefore not
+  possible; ask for the file (or paste its contents) and it can be done
+  immediately.
+
+- **Per-employee job assignment and per-employee availability are
+  deliberately deferred.** The availability engine answers "is the BUSINESS
+  free," not "is a specific person free," and changing that is a significant
+  piece of work not needed for launch. The schema does not foreclose it: a
+  later `bookings.assigned_user_id` (nullable, FK to business_users) plus a
+  per-user hours/blockout table can be added additively, and
+  `_shared/slotValidation.ts` takes its inputs from settings rather than
+  hardcoding a single calendar, so a per-person branch slots in there.
+
+- **Staff can read `services` and `add_ons`.** They need the catalog to
+  create a booking. They cannot WRITE it (catalog edits sit behind the
+  owner-only Services screen and, at the database, the tenant policy plus
+  the owner-only More section). If read access to pricing should also be
+  owner-only, that is a one-line policy change — but staff then cannot book
+  for a walk-in.
+
+- **`business_settings` is owner-only to READ, not just write.** The brief
+  said staff cannot see business settings; the strict reading (zero rows,
+  not just a hidden screen) is what is enforced. Consequence: a staff
+  session cannot see the booking rules, so any future staff-facing screen
+  needing e.g. the slot interval must get it from an edge function rather
+  than a direct query.
+
+- **Theme choice is stored per user in the browser (localStorage), not in
+  the database.** It is a personal display preference, and keeping it
+  client-side avoids a write on every toggle. It therefore does not follow a
+  user to a different device. Moving it to a `business_users.theme_mode`
+  column later is additive.
+
+- **Brand color is stored raw; correction happens at render time.** What is
+  saved in `business_branding.primary_color` is exactly what the owner
+  picked (so the booking page and the dashboard agree on one value), and
+  `app/src/lib/theme.js` adjusts its lightness per theme only when it fails
+  contrast. Nothing is silently rewritten in the database.
+
+- **The last-owner trigger needed a cascade exception.** As first written it
+  also blocked deleting a whole business (the cascade into `business_users`
+  tripped the guard). Fixed in `20260827003100_last_owner_cascade_fix.sql`:
+  the check is skipped when the parent business row is already gone.
+
 ## Removed on purpose (per the brief — don't be surprised they're gone)
 
 - **Monthly plans** — permanent discount with no billing behind it. Table

@@ -3,6 +3,7 @@
 // and had a broken Edit-payment button).
 
 import { useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
 import { addDays, todayLocal } from "../lib/format.js";
@@ -71,9 +72,9 @@ export default function Calendar() {
       {mode === "month" && (
         <>
           <div className="row between" style={{ marginBottom: 8 }}>
-            <button className="btn ghost inline" onClick={() => moveMonth(-1)}>←</button>
+            <button className="btn ghost inline" onClick={() => moveMonth(-1)} aria-label="Previous month"><ChevronLeft size={20} strokeWidth={1.75} /></button>
             <h2>{new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h2>
-            <button className="btn ghost inline" onClick={() => moveMonth(1)}>→</button>
+            <button className="btn ghost inline" onClick={() => moveMonth(1)} aria-label="Next month"><ChevronRight size={20} strokeWidth={1.75} /></button>
           </div>
           <div className="cal-grid" style={{ marginBottom: 4 }}>
             {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (

@@ -6,6 +6,7 @@
 // 7 days makes the effect of any change visible immediately.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { TriangleAlert } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
@@ -155,9 +156,11 @@ export default function BookingRules() {
 
       {warnings.map((w) => (
         <div className="warn-box" key={w.key}>
-          ⚠️ {w.text}
-          <button onClick={() => dismiss(w.key, false)}>Dismiss</button>
-          <button onClick={() => dismiss(w.key, true)}>Never</button>
+          <TriangleAlert size={16} strokeWidth={1.75} /> {w.text}
+          <span className="actions">
+            <button onClick={() => dismiss(w.key, false)}>Dismiss</button>
+            <button onClick={() => dismiss(w.key, true)}>Never</button>
+          </span>
         </div>
       ))}
 

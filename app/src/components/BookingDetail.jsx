@@ -3,6 +3,7 @@
 // update-booking edge function (validation + conflict checks server-side).
 
 import { useState } from "react";
+import { MessageSquare, Navigation, Phone, X } from "lucide-react";
 import { api } from "../lib/api.js";
 import { dateLong, mapsUrl, money, time12 } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -74,7 +75,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="row between" style={{ marginBottom: 10 }}>
           <h2>{booking.customer_name}</h2>
-          <button className="btn ghost inline" onClick={onClose}>✕</button>
+          <button className="btn ghost inline" onClick={onClose} aria-label="Close"><X size={20} strokeWidth={1.75} /></button>
         </div>
         <p className="muted">
           {dateLong(booking.booking_date)} · {time12(booking.start_time)} – {time12(booking.end_time)}
@@ -109,10 +110,10 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
 
             <div className="section-title">Contact</div>
             <div className="card stack" style={{ gap: 8 }}>
-              <a className="btn" href={`tel:${booking.customer_phone}`}>📞 Call {booking.customer_phone}</a>
-              <a className="btn" href={`sms:${booking.customer_phone}`}>💬 Text</a>
+              <a className="btn" href={`tel:${booking.customer_phone}`}><Phone size={18} strokeWidth={1.75} /> Call {booking.customer_phone}</a>
+              <a className="btn" href={`sms:${booking.customer_phone}`}><MessageSquare size={18} strokeWidth={1.75} /> Text</a>
               {/* Works on Android AND iOS (the old app was Apple-Maps-only). */}
-              {address && <a className="btn" href={mapsUrl(address)} target="_blank" rel="noreferrer">🗺️ Navigate — {address}</a>}
+              {address && <a className="btn" href={mapsUrl(address)} target="_blank" rel="noreferrer"><Navigation size={18} strokeWidth={1.75} /> Navigate — {address}</a>}
             </div>
 
             {(booking.customer_notes || booking.admin_notes) && (
