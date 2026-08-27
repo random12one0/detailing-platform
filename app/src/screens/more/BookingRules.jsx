@@ -1,9 +1,21 @@
 // Booking rules — every value that used to be a hardcoded constant.
 //
-// Out-of-range values WARN but never block: a detailer who genuinely needs a
-// week of notice can set it. Warnings can be dismissed for the session or
-// permanently (stored per-browser). A live count of open slots over the next
-// 7 days makes the effect of any change visible immediately.
+// This screen was the worst offender in the app for asking a detailer to do
+// arithmetic. To say "I need a day's notice" you typed 1440, because the
+// field wanted minutes. Buffer was minutes, cancellation was hours, the
+// booking window was days: four units for one idea, all in bare number
+// boxes. Nothing has changed in the database — only what you touch.
+//
+// Three other changes:
+//   - "What you offer" was two independent checkboxes that could both be
+//     off, which broke booking entirely and only warned afterwards. It is
+//     one three-way choice now, so the broken state cannot be expressed.
+//   - Every setting says what it DOES underneath, not just what it is called.
+//   - The live slot count sits at the top rather than the bottom, because it
+//     is the answer to "did that change do what I wanted".
+//
+// Out-of-range values still warn and still never block: a detailer who
+// genuinely needs a week of notice can set it.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { TriangleAlert } from "lucide-react";
@@ -11,37 +23,50 @@ import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { addDays, todayLocal } from "../../lib/format.js";
+import { DurationChoice, Group, MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
 
-const FIELDS = [
-  { key: "buffer_minutes", label: "Buffer between jobs (minutes)", type: "number", sensible: [0, 120],
-    warn: (v) => `A ${Math.round(v / 60 * 10) / 10}-hour buffer means very few slots will be available each day.` },
-  { key: "min_advance_minutes", label: "Minimum advance notice (minutes)", type: "number", sensible: [0, 2880],
-    warn: (v) => `Customers won't be able to book anything sooner than ${Math.round(v / 1440 * 10) / 10} days out.` },
-  { key: "max_advance_days", label: "How far ahead customers can book (days, blank = no limit)", type: "number", nullable: true, sensible: [7, 365],
-    warn: (v) => v < 7 ? "A very short window — customers can only book a few days ahead." : "A very long window — your calendar will be bookable years out." },
-  { key: "slot_interval_minutes", label: "Slot interval (minutes)", type: "number", sensible: [15, 120],
-    warn: (v) => v < 15 ? "Very fine slot grid — the time picker will be crowded." : "Very coarse slot grid — few start times will be offered." },
-  { key: "max_bookings_per_day", label: "Max bookings per day (blank = unlimited)", type: "number", nullable: true, sensible: [1, 20],
-    warn: () => "That cap is unusual — double-check it's what you want." },
-  { key: "cancellation_window_hours", label: "Customers can cancel/reschedule online until (hours before)", type: "number", sensible: [0, 168],
-    warn: (v) => `Customers can only self-cancel more than ${Math.round(v / 24)} days ahead — everything closer needs a phone call.` },
-  { key: "customer_reminder_lead_minutes", label: "Customer reminder (minutes before)", type: "number", sensible: [30, 2880],
-    warn: () => "An unusual reminder lead time." },
-];
+// Presets are phrased the way someone says them out loud. The stored value
+// is still the raw number in the unit the column expects.
+const BUFFER = [[0, "None"], [15, "15 min"], [30, "30 min"], [45, "45 min"], [60, "1 hour"]];
+const NOTICE = [[0, "Any time"], [120, "2 hours"], [240, "4 hours"], [1440, "1 day"], [2880, "2 days"]];
+const WINDOW = [[30, "1 month"], [60, "2 months"], [90, "3 months"], [180, "6 months"], [365, "1 year"]];
+const SLOT = [[15, "15 min"], [20, "20 min"], [30, "30 min"], [60, "1 hour"]];
+const CANCEL = [[0, "Any time"], [2, "2 hours"], [12, "12 hours"], [24, "1 day"], [48, "2 days"]];
+const REMIND = [[60, "1 hour"], [180, "3 hours"], [720, "12 hours"], [1440, "1 day"], [2880, "2 days"]];
+
+// Warnings live on the same values as before, but read as sentences.
+const WARN = {
+  buffer_minutes: (v) => v > 120 &&
+    `A ${Math.round(v / 60 * 10) / 10}-hour gap between jobs means very few slots each day.`,
+  min_advance_minutes: (v) => v > 2880 &&
+    `Nobody will be able to book sooner than ${Math.round(v / 1440 * 10) / 10} days out.`,
+  max_advance_days: (v) => v != null && v < 7 &&
+    "Customers can only book a few days ahead.",
+  slot_interval_minutes: (v) => (v < 15 && "Very fine slot grid — the time picker will be crowded.")
+    || (v > 120 && "Very coarse slot grid — few start times will be offered."),
+  max_bookings_per_day: (v) => v != null && v > 20 &&
+    "That cap is unusual — double-check it's what you want.",
+  cancellation_window_hours: (v) => v > 168 &&
+    `Anything inside ${Math.round(v / 24)} days needs a phone call to change.`,
+};
 
 export default function BookingRules() {
   const { business, settings, reload } = useBusiness();
-  const [form, setForm] = useState(() => {
-    const f = {};
-    for (const { key } of FIELDS) f[key] = settings?.[key] ?? "";
-    f.mobile_enabled = settings?.mobile_enabled ?? true;
-    f.dropoff_enabled = settings?.dropoff_enabled ?? true;
-    f.ask_water_electric = settings?.ask_water_electric ?? true;
-    f.travel_fee = settings?.travel_fee ?? "";
-    f.travel_radius_miles = settings?.travel_radius_miles ?? "";
-    f.evening_before_enabled = settings?.evening_before_enabled ?? true;
-    return f;
-  });
+  const [form, setForm] = useState(() => ({
+    buffer_minutes: settings?.buffer_minutes ?? 0,
+    min_advance_minutes: settings?.min_advance_minutes ?? 0,
+    max_advance_days: settings?.max_advance_days ?? null,
+    slot_interval_minutes: settings?.slot_interval_minutes ?? 30,
+    max_bookings_per_day: settings?.max_bookings_per_day ?? null,
+    cancellation_window_hours: settings?.cancellation_window_hours ?? 0,
+    customer_reminder_lead_minutes: settings?.customer_reminder_lead_minutes ?? 1440,
+    mobile_enabled: settings?.mobile_enabled ?? true,
+    dropoff_enabled: settings?.dropoff_enabled ?? true,
+    ask_water_electric: settings?.ask_water_electric ?? true,
+    evening_before_enabled: settings?.evening_before_enabled ?? true,
+    travel_fee: settings?.travel_fee ?? "",
+    travel_radius_miles: settings?.travel_radius_miles ?? "",
+  }));
   const [dismissed, setDismissed] = useState(() => {
     try { return JSON.parse(localStorage.getItem("rule-warnings-dismissed") || "{}"); } catch { return {}; }
   });
@@ -49,59 +74,56 @@ export default function BookingRules() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
 
+  const set = (k, v) => { setForm((f) => ({ ...f, [k]: v })); setMsg(null); };
+
   const dismiss = (key, forever) => {
     const next = { ...dismissed, [key]: true };
     setDismissed(next);
     if (forever) localStorage.setItem("rule-warnings-dismissed", JSON.stringify(next));
   };
 
+  // "What you offer" as one value, so both-off is unrepresentable.
+  const mode = form.mobile_enabled && form.dropoff_enabled ? "both"
+    : form.mobile_enabled ? "mobile" : "dropoff";
+  const setMode = (m) => setForm((f) => ({
+    ...f,
+    mobile_enabled: m === "mobile" || m === "both",
+    dropoff_enabled: m === "dropoff" || m === "both",
+    ...(m === "dropoff" ? { ask_water_electric: false } : {}),
+  }));
+
   const warnings = useMemo(() => {
     const out = [];
-    for (const f of FIELDS) {
-      const raw = form[f.key];
-      if (raw === "" || raw === null || dismissed[f.key]) continue;
-      const v = Number(raw);
-      if (!Number.isFinite(v)) continue;
-      if (v < f.sensible[0] || v > f.sensible[1]) out.push({ key: f.key, text: f.warn(v) });
+    for (const [key, fn] of Object.entries(WARN)) {
+      if (dismissed[key]) continue;
+      const raw = form[key];
+      if (raw === "" || raw === undefined) continue;
+      const text = fn(raw === null ? null : Number(raw));
+      if (text) out.push({ key, text });
     }
-    if (!form.mobile_enabled && !form.dropoff_enabled && !dismissed.no_service_type) {
-      out.push({ key: "no_service_type", text: "Both mobile and drop-off are off — customers can't book anything at all." });
-    }
-    // Found by walking the customer's own manage page end to end: if you take
-    // bookings closer in than you allow changes, then every booking a
-    // customer can make is locked the moment they make it. They get a page
-    // that can only tell them to phone you. Not wrong, just rarely intended.
-    const noticeHours = Number(form.min_advance_minutes) / 60;
-    const changeHours = Number(form.cancellation_window_hours);
-    if (
-      Number.isFinite(noticeHours) && Number.isFinite(changeHours) &&
-      changeHours > 0 && noticeHours > 0 && changeHours > noticeHours &&
-      !dismissed.window_exceeds_notice
-    ) {
+    // Found by walking the customer's manage page end to end: if you take
+    // bookings closer in than you allow changes, every booking is locked the
+    // moment it is made and the customer can only phone you.
+    const notice = Number(form.min_advance_minutes) / 60;
+    const change = Number(form.cancellation_window_hours);
+    if (change > 0 && notice > 0 && change > notice && !dismissed.window_exceeds_notice) {
       out.push({
         key: "window_exceeds_notice",
-        text: `You take bookings ${noticeHours} hours ahead but close changes ${changeHours} hours ahead, `
-          + "so every new booking is locked as soon as it's made and customers have to call you to move it.",
+        text: `You take bookings ${notice} hours ahead but close changes ${change} hours ahead, `
+          + "so every new booking is locked as soon as it's made.",
       });
     }
     return out;
   }, [form, dismissed]);
 
-  // Live effect preview: total open slots over the next 7 days, straight
-  // from the real availability engine, refreshed after every save.
   const refreshSlotCount = useCallback(async () => {
     try {
       const today = todayLocal(business.timezone);
       const r = await api.availableSlots(business.slug, {
-        start_date: today,
-        end_date: addDays(today, 6),
-        duration_minutes: 120,
+        start_date: today, end_date: addDays(today, 6), duration_minutes: 120,
       });
-      const total = Object.values(r.days || {}).reduce((s, d) => s + (d.slots?.length || 0), 0);
-      setSlotCount(total);
-    } catch {
-      setSlotCount(null);
-    }
+      setSlotCount(Object.values(r.days || {}).reduce((s, d) => s + (d.slots?.length || 0), 0));
+    } catch { setSlotCount(null); }
   }, [business]);
 
   useEffect(() => { refreshSlotCount(); }, [refreshSlotCount]);
@@ -125,55 +147,110 @@ export default function BookingRules() {
       travel_fee: num(form.travel_fee),
       travel_radius_miles: num(form.travel_radius_miles),
     }).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved — slot preview updated below." });
-    if (!error) {
-      reload();
-      refreshSlotCount();
-    }
+    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
+    if (!error) { reload(); refreshSlotCount(); }
     setBusy(false);
   };
 
-  const toggles = [
-    ["mobile_enabled", "Offer mobile service (you go to them)"],
-    ["dropoff_enabled", "Offer drop-off (they come to you)"],
-    ["ask_water_electric", "Ask mobile customers about water & electric access"],
-    ["evening_before_enabled", "Remind the evening before for early-morning jobs"],
-  ];
-
   return (
-    <div className="card">
-      <div className="card row between" style={{ background: "var(--surface-2)" }}>
-        <span className="muted">Open slots, next 7 days (2-hour job)</span>
-        <span className="big">{slotCount === null ? "…" : slotCount}</span>
+    <>
+      {/* The consequence, before the controls: this is the number that
+          answers "did that do what I wanted". */}
+      <div className="sunken flush row between" style={{ marginBottom: "var(--sp-5)" }}>
+        <span className="quiet">Open slots in the next 7 days</span>
+        <span className="strong num">{slotCount === null ? "—" : slotCount}</span>
       </div>
 
-      {FIELDS.map((f) => (
-        <label className="field" key={f.key}>
-          <span>{f.label}</span>
-          <input type="number" inputMode="numeric" value={form[f.key] ?? ""}
-            onChange={(e) => setForm({ ...form, [f.key]: e.target.value })} />
-        </label>
-      ))}
+      <Group title="What you offer"
+        blurb="Customers only ever see the options you turn on here.">
+        <Setting label="Where you work"
+          help={mode === "both" ? "Customers choose which they'd prefer."
+            : mode === "mobile" ? "Every job happens at the customer's address."
+              : "Every job happens at your place."}
+          stacked>
+          <Segmented value={mode} onChange={setMode} options={[
+            ["mobile", "I go to them"], ["dropoff", "They come to me"], ["both", "Both"],
+          ]} />
+        </Setting>
 
-      <div className="grid2">
-        <label className="field"><span>Travel fee ($, optional)</span>
-          <input type="number" inputMode="decimal" value={form.travel_fee ?? ""}
-            onChange={(e) => setForm({ ...form, travel_fee: e.target.value })} /></label>
-        <label className="field"><span>Travel radius (miles, optional)</span>
-          <input type="number" inputMode="decimal" value={form.travel_radius_miles ?? ""}
-            onChange={(e) => setForm({ ...form, travel_radius_miles: e.target.value })} /></label>
-      </div>
+        {form.mobile_enabled && (
+          <>
+            <Setting label="Travel fee"
+              help="Added to every mobile booking. Leave blank for none.">
+              <MoneyField value={form.travel_fee} onChange={(v) => set("travel_fee", v)} />
+            </Setting>
+            <Switch label="Ask about water and power"
+              help="Adds one question to the booking page so you know what to bring."
+              checked={form.ask_water_electric}
+              onChange={(v) => set("ask_water_electric", v)} />
+          </>
+        )}
+      </Group>
 
-      {toggles.map(([key, label]) => (
-        <label className="field row" key={key} style={{ alignItems: "center", gap: 10 }}>
-          <input type="checkbox" checked={!!form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.checked })} style={{ width: 22 }} />
-          <span style={{ margin: 0 }}>{label}</span>
-        </label>
-      ))}
+      <Group title="When you can be booked"
+        blurb="These decide which times show up on your booking page.">
+        <Setting label="Gap between jobs"
+          help="Time to pack up, drive and set up again. It is held after every booking."
+          stacked>
+          <DurationChoice value={form.buffer_minutes} presets={BUFFER}
+            onChange={(v) => set("buffer_minutes", v)} unit="minutes" customMax={480} />
+        </Setting>
+
+        <Setting label="How much notice you need"
+          help="The soonest a customer can book from right now."
+          stacked>
+          <DurationChoice value={form.min_advance_minutes} presets={NOTICE}
+            onChange={(v) => set("min_advance_minutes", v)} unit="minutes" customMax={20160} />
+        </Setting>
+
+        <Setting label="How far ahead they can book"
+          help="Anything past this is not offered yet."
+          stacked>
+          <DurationChoice value={form.max_advance_days} presets={WINDOW}
+            onChange={(v) => set("max_advance_days", v)} unit="days" customMax={1095} />
+        </Setting>
+
+        <Setting label="Start times you offer"
+          help="On the hour only, or every fifteen minutes — how the time picker is spaced."
+          stacked>
+          <DurationChoice value={form.slot_interval_minutes} presets={SLOT}
+            onChange={(v) => set("slot_interval_minutes", v)} unit="minutes"
+            allowCustom={false} />
+        </Setting>
+
+        <Setting label="Most jobs in a day"
+          help="Once you hit this, the rest of that day stops being offered.">
+          <Stepper value={form.max_bookings_per_day} min={1} max={30} suffix="jobs"
+            unlimitedLabel="No limit" onChange={(v) => set("max_bookings_per_day", v)} />
+        </Setting>
+      </Group>
+
+      <Group title="Changes and reminders"
+        blurb="What a customer can do on their own, and when they hear from you.">
+        <Setting label="They can change or cancel until"
+          help="Closer than this and they have to call you. Your booking page says so rather than failing."
+          stacked>
+          <DurationChoice value={form.cancellation_window_hours} presets={CANCEL}
+            onChange={(v) => set("cancellation_window_hours", v)} unit="hours" customMax={720} />
+        </Setting>
+
+        <Setting label="Remind them before the job"
+          help="One email, this far ahead of the appointment."
+          stacked>
+          <DurationChoice value={form.customer_reminder_lead_minutes} presets={REMIND}
+            onChange={(v) => set("customer_reminder_lead_minutes", v)} unit="minutes" customMax={10080} />
+        </Setting>
+
+        <Switch label="Remind the night before for early jobs"
+          help="A 7am reminder for a 8am job is no use. This sends it the evening before instead."
+          checked={form.evening_before_enabled}
+          onChange={(v) => set("evening_before_enabled", v)} />
+      </Group>
 
       {warnings.map((w) => (
         <div className="warn-box" key={w.key}>
-          <TriangleAlert size={16} strokeWidth={2} /> {w.text}
+          <TriangleAlert strokeWidth={2} />
+          <span>{w.text}</span>
           <span className="actions">
             <button onClick={() => dismiss(w.key, false)}>Dismiss</button>
             <button onClick={() => dismiss(w.key, true)}>Never</button>
@@ -183,7 +260,9 @@ export default function BookingRules() {
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       {/* Warnings never block: Save is always available. */}
-      <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save rules"}</button>
-    </div>
+      <button className="btn primary" disabled={busy} onClick={save}>
+        {busy ? "Saving…" : "Save booking rules"}
+      </button>
+    </>
   );
 }

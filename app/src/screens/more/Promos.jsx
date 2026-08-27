@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { money } from "../../lib/format.js";
+import { DurationChoice, Group, Setting, Switch } from "../../components/controls.jsx";
 
 export default function Promos() {
   const { business, settings, reload } = useBusiness();
@@ -57,21 +58,34 @@ export default function Promos() {
   };
 
   return (
-    <div className="card">
-      <div className="section-title">Site-wide sale</div>
-      <label className="field row" style={{ alignItems: "center", gap: 10 }}>
-        <input type="checkbox" checked={sale.active} onChange={(e) => setSale({ ...sale, active: e.target.checked })} style={{ width: 22 }} />
-        <span style={{ margin: 0 }}>Sale on</span>
-      </label>
-      <div className="grid2">
-        <label className="field"><span>Percent off</span>
-          <input type="number" inputMode="numeric" value={sale.percent} onChange={(e) => setSale({ ...sale, percent: e.target.value })} /></label>
-        <label className="field"><span>Label (optional)</span>
-          <input value={sale.label} onChange={(e) => setSale({ ...sale, label: e.target.value })} placeholder="e.g. Spring Sale" /></label>
-      </div>
-      <button className="btn" onClick={saveSale}>Save sale</button>
+    <>
+      <Group title="Site-wide sale"
+        blurb="Comes off every booking automatically — no code for the customer to enter.">
+        <Switch label="Sale is running" checked={sale.active}
+          help={sale.active
+            ? `Every booking is ${sale.percent || 0}% cheaper right now.`
+            : "Turn on to discount everything at once."}
+          onChange={(v) => setSale({ ...sale, active: v })} />
+        {sale.active && (
+          <>
+            <Setting label="How much off" stacked
+              help="Applied before any promo code the customer enters.">
+              <DurationChoice value={Number(sale.percent) || 0} unit="percent" customMax={90}
+                presets={[[5, "5%"], [10, "10%"], [15, "15%"], [20, "20%"], [25, "25%"]]}
+                onChange={(v) => setSale({ ...sale, percent: v })} />
+            </Setting>
+            <Setting label="What to call it" stacked
+              help="Shown on the booking page beside the discount. Leave blank for just the percentage.">
+              <input value={sale.label} placeholder="e.g. Spring Sale"
+                onChange={(e) => setSale({ ...sale, label: e.target.value })} />
+            </Setting>
+          </>
+        )}
+      </Group>
+      <button className="btn" onClick={saveSale} style={{ marginBottom: "var(--sp-5)" }}>Save sale</button>
 
-      <div className="section-title">Promo codes</div>
+      <div className="card">
+      <div className="section-title" style={{ marginTop: 0 }}>Promo codes</div>
       <div className="grid2">
         <label className="field"><span>Code</span>
           <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="SUMMER10" /></label>
@@ -109,5 +123,6 @@ export default function Promos() {
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
     </div>
+    </>
   );
 }
