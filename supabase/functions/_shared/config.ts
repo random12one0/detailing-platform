@@ -35,7 +35,12 @@ export function receiptUrl(_slug: string, bookingId: string): string {
 
 // All tenant mail is sent from the platform's own domain (one verified
 // sending domain), with the tenant's brand as the display name and the
-// tenant's contact address as Reply-To. The sending domain is deliberately
-// NOT derived from PLATFORM_URL: a preview deployment must not change which
-// domain mail claims to come from.
-export const PLATFORM_FROM_ADDRESS = "bookings@detailplatform.com";
+// tenant's contact address as Reply-To.
+//
+// Overridable by environment because the placeholder domain is not a real
+// verified sender, so nothing would leave the building. It is deliberately
+// NOT derived from PLATFORM_URL: a preview deployment must not silently
+// change which domain mail claims to come from — that is a deliverability
+// decision, not a URL one.
+export const PLATFORM_FROM_ADDRESS =
+  Deno.env.get("PLATFORM_FROM_ADDRESS") || "bookings@detailplatform.com";
