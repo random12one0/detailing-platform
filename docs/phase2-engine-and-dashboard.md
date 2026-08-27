@@ -167,6 +167,25 @@ last owner is protected, and staff cannot promote themselves.
 Per-employee job assignment and per-employee availability are deliberately
 deferred — see DECISIONS.md.
 
+## Test deployment (private)
+
+The dashboard is deployed for device testing at
+**https://detailplatform-admin-test.netlify.app** — a private test site, not
+for real customers.
+
+- Built from `app/`, with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+  set as Netlify environment variables (the anon key is a public client key;
+  RLS is what protects the data).
+- `app/netlify.toml` plus a `_redirects` catch-all send every path to
+  `index.html`, so refreshing on `/job/<id>` or `/invite/<token>` works.
+- The site URL is in Supabase's auth redirect allowlist, so login and invite
+  links resolve.
+- Re-deploy after changes by running, from `app/`:
+  `npx -y @netlify/mcp@latest --site-id <site-id> --proxy-path <proxy>`
+  (the site is not yet connected to the GitHub repo for automatic deploys).
+
+Seed or re-seed the demo business with `node scripts/seed-demo.mjs`.
+
 ## Going live checklist (not part of this phase)
 
 1. Schedule `send-owner-reminders` every 15 minutes (Supabase Cron).

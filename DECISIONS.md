@@ -135,6 +135,38 @@ each picked as the option easiest to change later.
   tripped the guard). Fixed in `20260827003100_last_owner_cascade_fix.sql`:
   the check is skipped when the parent business row is already gone.
 
+## Test deployment and later fixes
+
+- **A private test deployment exists on Netlify**
+  (`detailplatform-admin-test.netlify.app`), built from the working branch,
+  with a seeded demo business. It is for device testing only — not for real
+  customers, and the demo credentials are shared in chat, so treat anything
+  in that business as public.
+
+- **The Netlify site is deployed from an uploaded build of `app/`, not wired
+  to the GitHub repo.** Re-deploying is a manual step (the deploy command in
+  `docs/phase2-engine-and-dashboard.md`). Connecting the repo for automatic
+  branch deploys is worth doing before this is used regularly.
+
+- **`.env.production` must not be committed in `app/`.** Vite loads it after
+  `.env.local`, so its presence silently overrides local development config.
+  Netlify supplies the build env from its own dashboard variables instead.
+
+- **The old `.ics` emitted floating times** (no `TZID`), which a calendar
+  client interprets in the VIEWER's zone — a 10am Los Angeles job showed as
+  10am wherever the customer was. The port fixes this rather than
+  reproducing it.
+
+- **`expenses.payment_method` is written as "unspecified"** by the three-tap
+  flow. The column is from the old schema and the spec's flow doesn't ask
+  for it; drop the column or start collecting it, but it shouldn't stay
+  half-used forever.
+
+- **Signup has an edge function but no UI.** `create-business` enforces the
+  timezone requirement; there is no sign-up screen yet, so businesses are
+  still created by script for now. The screen belongs with the public site
+  work.
+
 ## Removed on purpose (per the brief — don't be surprised they're gone)
 
 - **Monthly plans** — permanent discount with no billing behind it. Table

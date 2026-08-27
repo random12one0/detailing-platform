@@ -1,97 +1,71 @@
 # Dashboard spec — gap report
 
-What was built against `docs/dashboard-spec.md`, as of this branch. No fixes
-applied; this is the list.
+Status against `docs/dashboard-spec.md`, updated after the ICS / Money /
+notifications / templates round.
 
-## Matches the spec
+## Now closed (was a gap, now built)
 
-**Navigation** — five bottom tabs (Today · Calendar · Money · Clients ·
-More) at one URL, mobile-first, large tap targets.
+- **Add to calendar** — one `.ics` implementation (`_shared/ics.ts` served by
+  the `booking-ics` function) for both the owner's button and the customer's
+  copy, stamped `DTSTART;TZID=` with the business's own zone.
+- **Money: change vs last month** on all four numbers, green up / red down
+  (with "money out" inverted, since spending less is the good direction).
+- **Money: the 6-month bar chart.** Bars only, one series, brand accent.
+- **Money: average job value**, given its own card.
+- **Three-tap expense entry** with the spec's five fixed categories
+  (product, gas, equipment, supplies, other). Amount → category chip → Save;
+  note and date sit behind a disclosure.
+- **Notifications settings page** — which emails send, reminder timings,
+  push on/off, and multiple owner-alert recipients.
+- **Message templates page** — editable prefilled texts with placeholders,
+  seeded on first open. Staff can send them; only owners can edit.
 
-**Today** — jobs in time order with name, service, time; today's expected
-earnings; unpaid jobs surfaced; tap a job for its detail sheet. Job detail
-has call, text, directions, mark complete, collect payment, and email the
-customer an update.
+## Still open
 
-**Calendar** — month view with job markers, tap a day for its jobs, add a
-booking manually, block dates, block hours, special hours for one date.
-Built as small files (`Calendar.jsx` ~150 lines) rather than the old
-monolith.
+Ranked by whether I think they should be built.
 
-**Money** — money in / money out / what's left / jobs done; unpaid list;
-recent expenses with an add button. No margins, percentages, year-over-year
-or hourly-wage figures, per the "do not include" list.
+### Worth building
 
-**Clients** — searchable list, contact info, past bookings, total spent,
-last visit, call/text/email, notes. Customers are linked to bookings by a
-real `customer_id` foreign key, not phone-number text matching.
+1. **Greeting with their name** (Today). Needs a `first_name` on
+   `business_users`; small, and it's the first thing on the first screen.
+2. **Next job highlighted** (Today). Currently a plain time-ordered list.
+   Cheap, and it is the screen's stated job ("what am I doing now" in under
+   two seconds).
+3. **Clients: last visit.** Visit count and total spend are shown; the date
+   of the last visit is not. One line of work.
+4. **Unpaid jobs tappable-to-mark-paid.** They are listed and tappable to
+   open the job, but marking paid still goes through Finalize. A one-tap
+   "mark paid" on the Money list is what the spec asks for.
 
-**More** — business info, branding, services (flat list with vehicle-size
-pricing, on/off, sort order), add-ons, booking rules (all nine settings,
-each with a dismissable warning that never blocks, plus the live slot
-count), hours, promo codes and the site-wide sale, gallery, review links.
+### I'd leave open for now
 
-**Rules that apply everywhere** — nothing is hard deleted (bookings
-soft-delete, services deactivate); every booking write goes through one
-server function with one set of validation; every setting is scoped to its
-business, proven by the isolation suite.
-
-**Day one** — a new detailer needs name, phone, email, one service and
-hours; everything else has defaults.
-
-## Gaps — in the spec, not built
-
-1. **Greeting with their name** (Today). The header shows the business
-   name, not "Morning, Andrew". No `first_name` is stored for a user.
-2. **Next job highlighted** (Today). Jobs are listed in order with no
-   emphasis on the next one.
-3. **Unpaid jobs are not tappable-to-mark-paid** (Today and Money). They are
-   listed as a warning; marking paid goes through the job's Finalize flow.
-4. **Add to contacts** button (job detail). The old app attached a vCard to
-   the owner email; neither that nor a button was ported.
-5. **Add to calendar** button (job detail). No `.ics` generation exists in
-   the new build.
-6. **Money — change vs last month** on each of the four numbers, green up /
-   red down. Current numbers have no comparison.
-7. **Money — the 6-month bar chart.** Not built.
-8. **Money — average job value.** Not built. (The spec calls this the number
-   that drives behavior most.)
-9. **Money — three-tap expense entry with fixed categories.** Entry works
-   but takes more than three taps, and the categories are
-   supplies/fuel/equipment/marketing/insurance/other rather than the spec's
-   product/gas/equipment/supplies/other.
-10. **Clients — last visit** is not shown (visit count and total spent are).
-11. **Notifications settings page.** Which emails send, reminder timing,
-    where owner alerts go, push on/off. The underlying settings columns all
-    exist; there is no screen for them.
-12. **Message templates page.** Prefilled, editable customer texts. Not
-    built; the text button opens an empty SMS.
-13. **Website-only tabs** (page content, reviews/testimonials) and the
-    website-vs-booking-only package distinction. Gallery exists but is shown
-    to every business; there is no package flag.
-14. **Business info fields**: description and website are not on the form
-    (name, tagline, phone, email, service area, drop-off address, socials
-    are).
-15. **Owner photo and owner bio** (branding). Logo, hero, colors, tagline
-    and about copy exist; a separate owner photo/bio pair does not.
+5. **Add to contacts** (job detail). The old app attached a vCard to owner
+   emails. On a phone, the call/text buttons already give the OS an easy
+   path to save the number, so this is low value until someone asks.
+6. **Business info: description and website fields.** Nothing consumes them
+   yet — the public booking site does not exist. Build them with the site.
+7. **Owner photo and owner bio as separate fields.** `about_copy` covers the
+   bio today; a distinct owner photo only matters once there's a public page
+   to show it on.
+8. **Website-only tabs and the package flag** — explicitly deferred by you;
+   no website customers exist.
+9. **Section order (drag to reorder)** — the spec itself says not in the
+   first version.
 
 ## Divergences — built differently on purpose
 
-- **Branding colors: the spec says "a curated set of palettes, not a free
-  color picker."** Both are offered — eight curated presets *and* a custom
-  picker, with automatic contrast correction so no custom choice can render
-  unreadably. If the intent was to forbid custom colors entirely, remove the
-  picker; the contrast machinery makes it safe either way.
+- **Branding colors: both presets and a custom picker.** The spec says
+  presets "not a free color picker"; you decided to keep both because the
+  contrast correction removes the risk the line was guarding against.
 - **"All Bookings" is folded into Calendar** as a List mode with status
-  filters, rather than existing as its own screen. This was an explicit
-  instruction in the Phase 2 brief and matches the spec's "keep this
-  simple".
-- **Appearance & theme** (light/dark toggle) is a More section the spec
-  doesn't mention — added per a later instruction.
-- **Team & access** (staff invites and roles) is a More section the spec
-  doesn't mention — added per a later instruction.
-- **Services are deactivated always, not only "if bookings exist."** The
-  spec allows deletion when no bookings reference a service; the build never
-  deletes. Simpler, and consistent with the never-hard-delete rule.
-- **Money's date range is selectable (7/30/90/365 days)** rather than fixed
-  to "this month". The month comparison in gap 6 would still need building.
+  filters rather than a separate screen.
+- **Appearance & theme** and **Team & access** are More sections the spec
+  doesn't mention, added on later instruction.
+- **Services are always deactivated, never deleted**, even when no booking
+  references them. The spec allows deletion in that case; never deleting is
+  simpler and matches the never-hard-delete rule.
+- **Money's ranges are 7/30/90/365-day selectable** in addition to the
+  month-over-month "this month" block at the top.
+- **Expense `payment_method` is recorded as "unspecified".** The column
+  exists from the old schema; the spec's three-tap flow doesn't ask for it,
+  so the flow doesn't.
