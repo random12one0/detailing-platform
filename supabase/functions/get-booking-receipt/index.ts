@@ -6,7 +6,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
-import { businessById } from "../_shared/tenant.ts";
+import { businessById, getSettings } from "../_shared/tenant.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
 
 const BOOKING_SELECT = `
@@ -39,6 +39,11 @@ Deno.serve(async (req) => {
 
     const business = await businessById(booking.business_id);
     const tz = business?.timezone || "UTC";
+    // The customer's page needs to know how close to the appointment online
+    // cancellation closes, so it can say so BEFORE they tap rather than
+    // after the server refuses. Only this one setting is exposed; the rest
+    // of business_settings stays private.
+    const settings = business ? await getSettings(business.id) : null;
 
     return json({
       booking: {
@@ -54,6 +59,7 @@ Deno.serve(async (req) => {
           phone: business.contact_phone,
           dropoff_address: business.dropoff_address,
           timezone: business.timezone,
+          cancellation_window_hours: settings?.cancellation_window_hours ?? 0,
         }
         : null,
     });

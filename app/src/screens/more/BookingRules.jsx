@@ -67,6 +67,23 @@ export default function BookingRules() {
     if (!form.mobile_enabled && !form.dropoff_enabled && !dismissed.no_service_type) {
       out.push({ key: "no_service_type", text: "Both mobile and drop-off are off — customers can't book anything at all." });
     }
+    // Found by walking the customer's own manage page end to end: if you take
+    // bookings closer in than you allow changes, then every booking a
+    // customer can make is locked the moment they make it. They get a page
+    // that can only tell them to phone you. Not wrong, just rarely intended.
+    const noticeHours = Number(form.min_advance_minutes) / 60;
+    const changeHours = Number(form.cancellation_window_hours);
+    if (
+      Number.isFinite(noticeHours) && Number.isFinite(changeHours) &&
+      changeHours > 0 && noticeHours > 0 && changeHours > noticeHours &&
+      !dismissed.window_exceeds_notice
+    ) {
+      out.push({
+        key: "window_exceeds_notice",
+        text: `You take bookings ${noticeHours} hours ahead but close changes ${changeHours} hours ahead, `
+          + "so every new booking is locked as soon as it's made and customers have to call you to move it.",
+      });
+    }
     return out;
   }, [form, dismissed]);
 

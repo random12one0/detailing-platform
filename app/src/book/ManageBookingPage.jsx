@@ -3,9 +3,12 @@
 // phone ringing for "can I move my Tuesday?".
 //
 // Access model matches the receipt endpoint: the unguessable booking UUID
-// is the credential. The cancellation window is enforced server-side; when
-// it has closed the page says so and offers the phone number instead of
-// pretending the button will work.
+// is the credential.
+//
+// The cancellation window is enforced server-side, and this page now checks
+// it too so the customer is told BEFORE they tap rather than after a refusal.
+// That is a display convenience only — cancel-booking re-checks the window
+// itself, so a stale page cannot cancel late.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -49,18 +52,27 @@ export default function ManageBookingPage() {
   // page carries the same branding as the booking page.
   return (
     <BookingBusinessProvider slug={state.business.slug}>
-      <ManageInner booking={state.booking} onChanged={load} />
+      <ManageInner booking={state.booking} receiptBusiness={state.business} onChanged={load} />
     </BookingBusinessProvider>
   );
 }
 
-function ManageInner({ booking, onChanged }) {
+// receiptBusiness comes from get-booking-receipt, NOT from the public
+// profile RPC. The RPC deliberately returns only name/slug/phone/timezone/
+// service_area/dropoff_address, so cancellation_window_hours is not on it —
+// reading the window off the context business silently yielded 0, which made
+// the whole closed-window branch dead code. It is read from the receipt.
+function ManageInner({ booking, receiptBusiness, onChanged }) {
   const { business, branding, brandVars, slug, status } = useBookingBusiness();
   const [mode, setMode] = useState(null); // null | "reschedule" | "cancelled"
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [days, setDays] = useState(null);
   const [pick, setPick] = useState({ date: "", time: "" });
+  // Cancelling frees the slot for someone else and cannot be undone from
+  // here, so it asks first — inline, naming the appointment, which a native
+  // confirm() cannot do.
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
   const durationMinutes = useMemo(
     () => Math.round((new Date(booking.end_at) - new Date(booking.start_at)) / 60000),
@@ -68,6 +80,13 @@ function ManageInner({ booking, onChanged }) {
   );
   const isCancelled = booking.status === "cancelled" || mode === "cancelled";
   const isPast = new Date(booking.start_at) < new Date();
+
+  // Online changes close this many hours before the appointment.
+  const windowHours = Number(receiptBusiness?.cancellation_window_hours ?? 0);
+  const cutoff = new Date(booking.start_at).getTime() - windowHours * 3600_000;
+  const windowClosed = windowHours > 0 && Date.now() > cutoff;
+
+  const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
 
   const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric",
@@ -105,7 +124,6 @@ function ManageInner({ booking, onChanged }) {
   };
 
   const doCancel = async () => {
-    if (!confirm("Cancel this booking?")) return;
     setBusy(true);
     setError("");
     try {
@@ -142,6 +160,9 @@ function ManageInner({ booking, onChanged }) {
           <div className="bk-step-label">{isCancelled ? "Cancelled" : "Confirmed"}</div>
           <h3 style={{ textDecoration: isCancelled ? "line-through" : "none" }}>{dateLabel}</h3>
           <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
+          {services.length > 0 && (
+            <p className="bk-body" style={{ marginTop: 8 }}>{services.join(" · ")}</p>
+          )}
           <p className="bk-muted" style={{ marginTop: 6 }}>
             {booking.service_type === "mobile"
               ? `We come to ${booking.customer_address || "you"}`
@@ -194,18 +215,48 @@ function ManageInner({ booking, onChanged }) {
               Never mind
             </button>
           </>
+        ) : confirmCancel ? (
+          <div className="bk-note">
+            <p className="bk-body">
+              Cancel your appointment on <strong>{dateLabel}</strong> at{" "}
+              <strong>{time12(booking.start_time)}</strong>? The time goes back to
+              whoever wants it, so we may not be able to give it back.
+            </p>
+            <button className="bk-btn" style={{ marginTop: 12, borderColor: "var(--bk-danger)", color: "var(--bk-danger)" }}
+              disabled={busy} onClick={doCancel}>
+              {busy ? "Cancelling…" : "Yes, cancel it"}
+            </button>
+            <button className="bk-btn ghost" style={{ marginTop: 8 }} disabled={busy}
+              onClick={() => setConfirmCancel(false)}>
+              Keep my booking
+            </button>
+          </div>
         ) : (
           <>
             <a className="bk-btn" href={icsUrl(booking.id, "customer")}>
               <Check size={18} strokeWidth={2} /> Add to my calendar
             </a>
-            <button className="bk-btn" style={{ marginTop: 10 }} disabled={busy} onClick={loadSlots}>
-              <CalendarClock size={18} strokeWidth={2} /> {busy ? "Loading…" : "Change the time"}
-            </button>
-            <button className="bk-btn" style={{ marginTop: 10, borderColor: "var(--bk-danger)", color: "var(--bk-danger)" }}
-              disabled={busy} onClick={doCancel}>
-              <X size={18} strokeWidth={2} /> Cancel this booking
-            </button>
+
+            {windowClosed ? (
+              // The button would be refused by the server, so it isn't drawn.
+              // The phone number is the thing that actually helps now.
+              <div className="bk-note" style={{ marginTop: 10 }}>
+                Changes and cancellations close {windowHours} hours before your
+                appointment, so this one is now locked in.
+                {business.phone ? " Give us a call and we'll sort it out." : " Please get in touch and we'll sort it out."}
+              </div>
+            ) : (
+              <>
+                <button className="bk-btn" style={{ marginTop: 10 }} disabled={busy} onClick={loadSlots}>
+                  <CalendarClock size={18} strokeWidth={2} /> {busy ? "Loading…" : "Change the time"}
+                </button>
+                <button className="bk-btn" style={{ marginTop: 10, borderColor: "var(--bk-danger)", color: "var(--bk-danger)" }}
+                  disabled={busy} onClick={() => setConfirmCancel(true)}>
+                  <X size={18} strokeWidth={2} /> Cancel this booking
+                </button>
+              </>
+            )}
+
             {business.phone && (
               <a className="bk-btn ghost" style={{ marginTop: 10 }} href={`tel:${business.phone}`}>
                 <Phone size={18} strokeWidth={2} /> Call {business.phone}
