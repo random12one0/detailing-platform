@@ -9,8 +9,10 @@
 //     adjusted until it passes, and the text drawn on accent surfaces
 //     (--accent-ink) is picked black or white by contrast, never assumed.
 
-const THEME_BG = { dark: "#0b1220", light: "#f4f6fa" };
-const DEFAULT_ACCENT = { dark: "#38bdf8", light: "#0284c7" };
+// Must match --bg in theme.css. The accent is corrected against the
+// GROUND, which is what the eye compares a coloured control to.
+const THEME_BG = { dark: "#161512", light: "#eae7e0" };
+const DEFAULT_ACCENT = { dark: "#d9a68f", light: "#b0184a" };
 
 // Accent-vs-background must clear WCAG's non-text component minimum (3:1);
 // text ON the accent must clear the normal-text minimum (4.5:1).
