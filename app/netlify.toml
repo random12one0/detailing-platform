@@ -7,6 +7,18 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # Repeated from the repo-root config on purpose. When `base` sends Netlify
+  # here, this file's build settings take precedence, and a deploy launched
+  # from inside app/ never reads the root file at all — so the exemption has
+  # to exist in both or it silently depends on where the deploy was started.
+  #
+  # The Supabase URL and anon key are PUBLIC by design: the anon key is what
+  # the browser presents, and every table it can reach is behind RLS. They
+  # necessarily appear in the built bundle. The service-role key is
+  # deliberately NOT listed — it must never reach a build.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY"
+
 # Single-page app: every path must serve index.html, or the router never
 # sees the URL. This now covers the CUSTOMER-facing routes too — /book/<slug>
 # and /booking/<id> — which are the ones arriving cold from a text message or
