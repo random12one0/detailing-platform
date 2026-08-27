@@ -1,14 +1,25 @@
+# Repo-root Netlify config.
+#
+# This file used to be the ORIGINAL single-business site's config, pointing at
+# base = "frontend" — a directory that does not exist in this repo (the old
+# code lives under reference/frontend, and is read-only reference material
+# that must never be deployed). Any deploy that uploaded the whole repo failed
+# before it started with:
+#
+#   Failed during stage 'Reading and parsing configuration files':
+#   Base directory does not exist: /opt/build/repo/frontend
+#
+# It now points at the platform dashboard, which is what this repo builds.
+# Build settings, redirects and headers live in app/netlify.toml; Netlify
+# reads the base directory's own config once `base` sends it there.
+
 [build]
-  base = "frontend"
-  command = "npm run build"
-  publish = "build"
+  base = "app"
 
 [build.environment]
-  CI = "false"
-  SECRETS_SCAN_OMIT_KEYS = "REACT_APP_SUPABASE_ANON_KEY,REACT_APP_SUPABASE_URL,REACT_APP_SUPABASE_FUNCTIONS_URL"
-
-# SPA routing — every path serves index.html so react-router handles it.
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  # The Supabase URL and anon key are PUBLIC by design — the anon key is
+  # what the browser presents, and every table it can reach is behind RLS.
+  # They necessarily appear in the built bundle, so the secrets scanner has
+  # to be told they are not secrets. The service-role key is deliberately
+  # NOT listed: it must never reach a build.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL,VITE_SUPABASE_ANON_KEY"
