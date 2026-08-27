@@ -206,7 +206,9 @@ if (!bookingB) {
 
 console.log("test 1: both businesses can own promo code SUMMER10");
 {
-  const r = await svc.get("/rest/v1/promo_codes?code=eq.SUMMER10&select=business_id,value");
+  const r = await svc.get(
+    `/rest/v1/promo_codes?code=eq.SUMMER10&business_id=in.(${A.id},${B.id})&select=business_id,value`,
+  );
   check("two SUMMER10 rows exist", r.data?.length === 2, JSON.stringify(r.data));
   check(
     "they belong to different businesses",
@@ -216,13 +218,13 @@ console.log("test 1: both businesses can own promo code SUMMER10");
 
 console.log("test 2: both businesses can own campaign slug golf");
 {
-  const r = await svc.get("/rest/v1/campaigns?slug=eq.golf&select=business_id");
+  const r = await svc.get(`/rest/v1/campaigns?slug=eq.golf&business_id=in.(${A.id},${B.id})&select=business_id`);
   check("two golf campaigns exist", r.data?.length === 2, JSON.stringify(r.data));
 }
 
 console.log("test 3: different weekly hours per business");
 {
-  const r = await svc.get("/rest/v1/business_hours?weekday=eq.1&select=business_id,open_time");
+  const r = await svc.get(`/rest/v1/business_hours?weekday=eq.1&business_id=in.(${A.id},${B.id})&select=business_id,open_time`);
   const a = r.data?.find((h) => h.business_id === A.id);
   const b = r.data?.find((h) => h.business_id === B.id);
   check("both have Monday rows", !!a && !!b);
@@ -231,7 +233,7 @@ console.log("test 3: different weekly hours per business");
 
 console.log("test 4: special hours on the same calendar date");
 {
-  const r = await svc.get("/rest/v1/booking_hours_overrides?date=eq.2026-09-15&select=business_id");
+  const r = await svc.get(`/rest/v1/booking_hours_overrides?date=eq.2026-09-15&business_id=in.(${A.id},${B.id})&select=business_id`);
   check("both overrides for 2026-09-15 exist", r.data?.length === 2, JSON.stringify(r.data));
 }
 

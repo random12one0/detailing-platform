@@ -1,0 +1,55 @@
+import { useState } from "react";
+import { useBusiness } from "../context/BusinessContext.jsx";
+import { useBookings } from "../hooks/useBookings.js";
+import { addDays, money, todayLocal } from "../lib/format.js";
+import BookingCard from "../components/BookingCard.jsx";
+import BookingDetail from "../components/BookingDetail.jsx";
+import NewBookingModal from "../components/NewBookingModal.jsx";
+
+export default function Today() {
+  const { business } = useBusiness();
+  const today = todayLocal(business.timezone);
+  const tomorrow = addDays(today, 1);
+  const { bookings, loading, reload } = useBookings(today, tomorrow);
+  const [selected, setSelected] = useState(null);
+  const [creating, setCreating] = useState(false);
+
+  const todays = bookings.filter((b) => b.booking_date === today && b.status !== "cancelled");
+  const tomorrows = bookings.filter((b) => b.booking_date === tomorrow && b.status !== "cancelled");
+  const expected = todays.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
+  const needFinalize = todays.filter((b) => b.status === "confirmed" && b.finalized_at == null);
+
+  if (loading) return <div className="center"><div className="spinner" /></div>;
+
+  return (
+    <>
+      <div className="grid2">
+        <div className="card"><div className="muted">Jobs today</div><div className="big">{todays.length}</div></div>
+        <div className="card"><div className="muted">Expected</div><div className="big">{money(expected)}</div></div>
+      </div>
+
+      <button className="btn primary" onClick={() => setCreating(true)}>+ New booking</button>
+
+      <div className="section-title">Today</div>
+      {todays.length === 0 && <p className="muted">No jobs today.</p>}
+      {todays.map((b) => <BookingCard key={b.id} booking={b} onClick={() => setSelected(b)} />)}
+
+      {needFinalize.length > 0 && (
+        <div className="warn-box">⚠️ {needFinalize.length} job{needFinalize.length > 1 ? "s" : ""} today still need{needFinalize.length === 1 ? "s" : ""} payment finalized when done.</div>
+      )}
+
+      <div className="section-title">Tomorrow</div>
+      {tomorrows.length === 0 && <p className="muted">Nothing yet.</p>}
+      {tomorrows.map((b) => <BookingCard key={b.id} booking={b} onClick={() => setSelected(b)} />)}
+
+      {selected && (
+        <BookingDetail booking={selected} onClose={() => setSelected(null)}
+          onChanged={() => { reload(); setSelected(null); }} />
+      )}
+      {creating && (
+        <NewBookingModal onClose={() => setCreating(false)}
+          onCreated={() => { setCreating(false); reload(); }} />
+      )}
+    </>
+  );
+}
