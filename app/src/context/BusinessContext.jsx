@@ -17,6 +17,7 @@ export function BusinessProvider({ children }) {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [themeMode, setThemeModeState] = useState("dark");
+  const [firstName, setFirstName] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session ?? null));
@@ -33,7 +34,7 @@ export function BusinessProvider({ children }) {
     setLoading(true);
     const { data: memberships } = await supabase
       .from("business_users")
-      .select("business_id, role")
+      .select("business_id, role, first_name")
       .eq("user_id", session.user.id);
     const membership = memberships?.[0] ?? null; // multi-business switching comes later
     if (!membership) {
@@ -42,6 +43,7 @@ export function BusinessProvider({ children }) {
       return;
     }
     setRole(membership.role);
+    setFirstName(membership.first_name || null);
     const [bizRes, setRes, brandRes] = await Promise.all([
       supabase.from("businesses").select("*").eq("id", membership.business_id).single(),
       supabase.from("business_settings").select("*").eq("business_id", membership.business_id).maybeSingle(),
@@ -80,6 +82,7 @@ export function BusinessProvider({ children }) {
     settings,
     branding,
     role,
+    firstName,
     loading: session === undefined || loading,
     reload,
     themeMode,

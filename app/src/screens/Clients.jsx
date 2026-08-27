@@ -3,7 +3,7 @@ import { ChevronRight, Mail, Phone, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
-import { money } from "../lib/format.js";
+import { dateLong, money } from "../lib/format.js";
 import BookingCard from "../components/BookingCard.jsx";
 import BookingDetail from "../components/BookingDetail.jsx";
 
@@ -49,9 +49,10 @@ export default function Clients() {
     load();
   };
 
-  const totalSpent = history
-    .filter((b) => b.status === "completed")
-    .reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
+  const completed = history.filter((b) => b.status === "completed");
+  const totalSpent = completed.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
+  // history is ordered newest-first, so the first completed job is the last visit.
+  const lastVisit = completed[0]?.booking_date ?? null;
 
   return (
     <>
@@ -81,10 +82,14 @@ export default function Clients() {
             </div>
             {/* Lifetime spend is owner-only; staff see visit counts. */}
             <div className={role === "owner" ? "grid2" : ""}>
-              <div className="card"><div className="muted">Visits</div><div className="big">{history.filter((b) => b.status === "completed").length}</div></div>
+              <div className="card"><div className="muted">Visits</div><div className="big">{completed.length}</div></div>
               {role === "owner" && (
                 <div className="card"><div className="muted">Total spent</div><div className="big">{money(totalSpent)}</div></div>
               )}
+            </div>
+            <div className="card">
+              <div className="muted">Last visit</div>
+              <strong>{lastVisit ? dateLong(lastVisit) : "No completed visits yet"}</strong>
             </div>
             <label className="field"><span>Notes</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}

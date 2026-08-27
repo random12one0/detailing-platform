@@ -1,0 +1,123 @@
+/* Public booking page styles. Scoped under .bk so the dashboard's dark
+   theme tokens never apply here and vice versa. Brand color arrives as
+   --bk-accent / --bk-accent-ink, injected per business and already
+   contrast-corrected — components only ever reference the variables. */
+
+.bk {
+  --bk-surface: #ffffff;
+  --bk-surface-2: #eef2f7;
+  --bk-border: #d9e1ec;
+  --bk-text: #16202e;
+  --bk-muted: #5b6b80;
+  --bk-danger: #dc2626;
+  --bk-success: #0e9f6e;
+  --bk-radius: 14px;
+  --bk-tap: 48px;
+
+  min-height: 100dvh;
+  background: var(--bk-bg);
+  color: var(--bk-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.bk * { box-sizing: border-box; }
+.bk h1 { font-size: 1.5rem; margin: 0; font-weight: 800; }
+.bk h2 { font-size: 1.15rem; margin: 0; font-weight: 700; }
+.bk h3 { font-size: 0.95rem; margin: 0; font-weight: 700; }
+.bk p { margin: 0; }
+
+.bk-wrap { max-width: 640px; margin: 0 auto; padding: 0 16px 120px; }
+
+.bk-header {
+  background: var(--bk-accent);
+  color: var(--bk-accent-ink);
+  padding: 22px 16px 26px;
+}
+.bk-header .inner { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.bk-header img { height: 44px; width: 44px; object-fit: cover; border-radius: 10px; background: rgba(255,255,255,0.2); }
+.bk-header .tagline { opacity: 0.9; font-size: 0.9rem; margin-top: 2px; }
+
+/* Step rail — dots only, no numbers-as-badges. */
+.bk-rail { display: flex; gap: 6px; margin: 16px 0 20px; }
+.bk-rail span { flex: 1; height: 4px; border-radius: 2px; background: var(--bk-border); }
+.bk-rail span.done { background: var(--bk-accent); }
+.bk-rail span.current { background: var(--bk-accent); opacity: 0.55; }
+
+.bk-step-label { color: var(--bk-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 6px; }
+
+.bk-card {
+  background: var(--bk-surface); border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius); padding: 14px 16px; margin-bottom: 12px;
+}
+.bk-card.selectable { cursor: pointer; }
+.bk-card.selectable:hover { border-color: var(--bk-accent); }
+.bk-card.selected { border-color: var(--bk-accent); border-width: 2px; padding: 13px 15px; }
+
+.bk-row { display: flex; align-items: center; gap: 10px; }
+.bk-row.between { justify-content: space-between; }
+.bk-muted { color: var(--bk-muted); font-size: 0.875rem; }
+.bk-price { font-weight: 800; white-space: nowrap; }
+
+.bk-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 420px) { .bk-grid2 { grid-template-columns: 1fr; } }
+
+.bk-btn {
+  min-height: var(--bk-tap); padding: 0 18px; width: 100%;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 12px; border: 1px solid var(--bk-border);
+  background: var(--bk-surface); color: var(--bk-text);
+  font-size: 0.98rem; font-weight: 700; cursor: pointer;
+}
+.bk-btn.primary { background: var(--bk-accent); border-color: var(--bk-accent); color: var(--bk-accent-ink); }
+.bk-btn.ghost { background: transparent; border-color: transparent; }
+.bk-btn.inline { width: auto; }
+.bk-btn:disabled { opacity: 0.45; cursor: default; }
+
+.bk-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 16px; border-radius: 999px;
+  border: 1px solid var(--bk-border); background: var(--bk-surface);
+  color: var(--bk-text); font-size: 0.9rem; font-weight: 600; cursor: pointer;
+}
+.bk-chip.selected { background: var(--bk-accent); border-color: var(--bk-accent); color: var(--bk-accent-ink); }
+.bk-chip:disabled { opacity: 0.4; cursor: default; }
+
+.bk-field { display: block; margin-bottom: 12px; }
+.bk-field > span { display: block; font-size: 0.8rem; font-weight: 700; color: var(--bk-muted); margin-bottom: 6px; }
+.bk input, .bk select, .bk textarea {
+  width: 100%; min-height: var(--bk-tap); padding: 10px 12px;
+  background: var(--bk-surface); color: var(--bk-text);
+  border: 1px solid var(--bk-border); border-radius: 10px; font-size: 1rem;
+}
+.bk textarea { min-height: 84px; resize: vertical; }
+.bk input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--bk-accent); }
+
+.bk-error { border: 1px solid var(--bk-danger); background: rgba(220,38,38,0.06); color: var(--bk-danger); border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin: 10px 0; }
+.bk-note { border: 1px solid var(--bk-border); background: var(--bk-surface-2); border-radius: 10px; padding: 10px 12px; font-size: 0.86rem; color: var(--bk-muted); margin: 10px 0; }
+
+.bk-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+
+.bk-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.bk-cal .cell {
+  aspect-ratio: 1; border-radius: 10px; border: 1px solid transparent;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bk-surface-2); cursor: pointer; font-size: 0.9rem;
+}
+.bk-cal .cell.closed { opacity: 0.3; cursor: default; }
+.bk-cal .cell.selected { background: var(--bk-accent); color: var(--bk-accent-ink); font-weight: 800; }
+.bk-cal .cell.empty { background: none; cursor: default; }
+
+/* Sticky summary bar: the running total, always visible. */
+.bk-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  background: var(--bk-surface); border-top: 1px solid var(--bk-border);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+}
+.bk-bar .inner { max-width: 640px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.bk-bar .total { flex: 1; }
+.bk-bar .total strong { font-size: 1.25rem; }
+.bk-bar .bk-btn { width: auto; min-width: 150px; }
+
+.bk-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70dvh; gap: 12px; padding: 24px; text-align: center; }
+.bk-spinner { width: 28px; height: 28px; border: 3px solid var(--bk-border); border-top-color: var(--bk-accent); border-radius: 50%; animation: bkspin 0.8s linear infinite; }
+@keyframes bkspin { to { transform: rotate(360deg); } }

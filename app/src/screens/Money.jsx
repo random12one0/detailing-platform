@@ -9,6 +9,7 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
 import { money, todayLocal } from "../lib/format.js";
+import { api } from "../lib/api.js";
 import MonthlyRevenueChart from "../components/MonthlyRevenueChart.jsx";
 import ExpenseModal from "../components/ExpenseModal.jsx";
 import BookingDetail from "../components/BookingDetail.jsx";
@@ -35,6 +36,7 @@ export default function Money() {
   const [expenses, setExpenses] = useState([]);
   const [adding, setAdding] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [markingPaid, setMarkingPaid] = useState(null);
 
   const loadExpenses = useCallback(async () => {
     const { data } = await supabase
@@ -73,6 +75,24 @@ export default function Money() {
     };
   }, [bookings, expenses, thisMonth]);
 
+  // One tap to settle an outstanding job: the amount is already known, so
+  // this only records that it was paid. Goes through the edge function like
+  // every other booking write.
+  const markPaid = async (b) => {
+    setMarkingPaid(b.id);
+    try {
+      await api.updateBooking(business.id, {
+        booking_id: b.id,
+        payment_status: "paid",
+        final_amount: Number(b.final_amount ?? b.total_price),
+        finalized_at: b.finalized_at ?? new Date().toISOString(),
+      });
+      reload();
+    } finally {
+      setMarkingPaid(null);
+    }
+  };
+
   if (loading) return <div className="center"><div className="spinner" /></div>;
 
   return (
@@ -99,15 +119,21 @@ export default function Money() {
       <div className="section-title">Waiting to be paid</div>
       {stats.unpaid.length === 0 && <p className="muted">Nothing outstanding.</p>}
       {stats.unpaid.map((b) => (
-        <div className="card tappable row between" key={b.id} onClick={() => setSelected(b)}>
-          <div>
-            <strong>{b.customer_name}</strong>
-            <div className="muted">{b.booking_date}</div>
+        <div className="card" key={b.id}>
+          <div className="row between tappable" onClick={() => setSelected(b)}>
+            <div>
+              <strong>{b.customer_name}</strong>
+              <div className="muted">{b.booking_date}</div>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <strong>{money(b.final_amount ?? b.total_price)}</strong>
+              <span className={`badge ${b.payment_status}`}>{b.payment_status}</span>
+            </div>
           </div>
-          <div className="row" style={{ gap: 8 }}>
-            <strong>{money(b.final_amount ?? b.total_price)}</strong>
-            <span className={`badge ${b.payment_status}`}>{b.payment_status}</span>
-          </div>
+          <button className="btn" style={{ marginTop: 10 }} disabled={markingPaid === b.id}
+            onClick={() => markPaid(b)}>
+            {markingPaid === b.id ? "Marking paid" : `Mark paid — ${money(b.final_amount ?? b.total_price)}`}
+          </button>
         </div>
       ))}
 

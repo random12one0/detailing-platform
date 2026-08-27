@@ -1,0 +1,219 @@
+// Customer-facing manage page — /booking/:id. Linked from the confirmation
+// email and the confirmation screen. This is what stops the detailer's
+// phone ringing for "can I move my Tuesday?".
+//
+// Access model matches the receipt endpoint: the unguessable booking UUID
+// is the credential. The cancellation window is enforced server-side; when
+// it has closed the page says so and offers the phone number instead of
+// pretending the button will work.
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import { CalendarClock, Check, Phone, X } from "lucide-react";
+import { api, icsUrl } from "../lib/api.js";
+import { money, time12 } from "../lib/format.js";
+import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
+import "./booking.css";
+
+export default function ManageBookingPage() {
+  const { id } = useParams();
+  const [state, setState] = useState({ status: "loading", booking: null, business: null });
+
+  const load = useCallback(async () => {
+    try {
+      const r = await api.bookingReceipt(id);
+      if (!r?.booking) throw new Error("not_found");
+      setState({ status: "ready", booking: r.booking, business: r.business });
+    } catch {
+      setState({ status: "not_found", booking: null, business: null });
+    }
+  }, [id]);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (state.status === "loading") {
+    return <div className="bk"><div className="bk-center"><div className="bk-spinner" /></div></div>;
+  }
+  if (state.status === "not_found") {
+    return (
+      <div className="bk">
+        <div className="bk-center">
+          <h1>Booking not found</h1>
+          <p className="bk-muted">This link may be out of date, or the booking was removed.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Hydrate the business context from the slug the receipt gave us, so the
+  // page carries the same branding as the booking page.
+  return (
+    <BookingBusinessProvider slug={state.business.slug}>
+      <ManageInner booking={state.booking} onChanged={load} />
+    </BookingBusinessProvider>
+  );
+}
+
+function ManageInner({ booking, onChanged }) {
+  const { business, branding, brandVars, slug, status } = useBookingBusiness();
+  const [mode, setMode] = useState(null); // null | "reschedule" | "cancelled"
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [days, setDays] = useState(null);
+  const [pick, setPick] = useState({ date: "", time: "" });
+
+  const durationMinutes = useMemo(
+    () => Math.round((new Date(booking.end_at) - new Date(booking.start_at)) / 60000),
+    [booking],
+  );
+  const isCancelled = booking.status === "cancelled" || mode === "cancelled";
+  const isPast = new Date(booking.start_at) < new Date();
+
+  const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString("en-US", {
+    weekday: "long", month: "long", day: "numeric",
+  });
+
+  const loadSlots = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const end = new Date(Date.now() + 45 * 86400_000).toISOString().slice(0, 10);
+      const r = await api.availableSlots(slug, {
+        start_date: today, end_date: end, duration_minutes: durationMinutes,
+      });
+      setDays(r.days ?? {});
+      setMode("reschedule");
+    } catch (e) {
+      setError(e.message || "Could not load available times.");
+    }
+    setBusy(false);
+  };
+
+  const doReschedule = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await api.rescheduleBooking(booking.id, pick.date, pick.time);
+      setMode(null);
+      setPick({ date: "", time: "" });
+      onChanged();
+    } catch (e) {
+      setError(e.message);
+    }
+    setBusy(false);
+  };
+
+  const doCancel = async () => {
+    if (!confirm("Cancel this booking?")) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api.cancelBooking(booking.id);
+      setMode("cancelled");
+    } catch (e) {
+      setError(e.message);
+    }
+    setBusy(false);
+  };
+
+  if (status !== "ready") {
+    return <div className="bk"><div className="bk-center"><div className="bk-spinner" /></div></div>;
+  }
+
+  const openDates = Object.entries(days ?? {})
+    .filter(([, d]) => (d.slots ?? []).length > 0)
+    .map(([date]) => date);
+
+  return (
+    <div className="bk" style={brandVars}>
+      <header className="bk-header">
+        <div className="inner">
+          {branding?.logo_url && <img src={branding.logo_url} alt="" />}
+          <div>
+            <h1>{business.name}</h1>
+            <div className="tagline">Your booking</div>
+          </div>
+        </div>
+      </header>
+
+      <div className="bk-wrap" style={{ paddingBottom: 40 }}>
+        <div className="bk-card" style={{ marginTop: 18 }}>
+          <div className="bk-step-label">{isCancelled ? "Cancelled" : "Confirmed"}</div>
+          <h3 style={{ textDecoration: isCancelled ? "line-through" : "none" }}>{dateLabel}</h3>
+          <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
+          <p className="bk-muted" style={{ marginTop: 6 }}>
+            {booking.service_type === "mobile"
+              ? `We come to ${booking.customer_address || "you"}`
+              : `Drop-off${business.dropoff_address ? ` at ${business.dropoff_address}` : ""}`}
+          </p>
+          <div className="bk-row between" style={{ marginTop: 10 }}>
+            <span>Estimated total</span>
+            <strong>{money(booking.final_amount ?? booking.total_price)}</strong>
+          </div>
+        </div>
+
+        {error && <div className="bk-error">{error}</div>}
+
+        {isCancelled ? (
+          <div className="bk-note">
+            This booking is cancelled. You’re welcome to book again any time.
+            <div style={{ marginTop: 10 }}>
+              <a className="bk-btn primary" href={`/book/${slug}`}>Book again</a>
+            </div>
+          </div>
+        ) : isPast ? (
+          <div className="bk-note">This appointment has already happened.</div>
+        ) : mode === "reschedule" ? (
+          <>
+            <div className="bk-step-label" style={{ marginTop: 18 }}>Pick a new time</div>
+            {openDates.length === 0 && <p className="bk-muted">No open times in the next few weeks.</p>}
+            <div className="bk-slots" style={{ marginBottom: 12 }}>
+              {openDates.slice(0, 14).map((d) => (
+                <button key={d} className={`bk-chip ${pick.date === d ? "selected" : ""}`}
+                  onClick={() => setPick({ date: d, time: "" })}>
+                  {new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                </button>
+              ))}
+            </div>
+            {pick.date && (
+              <div className="bk-slots">
+                {(days[pick.date]?.slots ?? []).map((t) => (
+                  <button key={t} className={`bk-chip ${pick.time === t ? "selected" : ""}`}
+                    onClick={() => setPick((p) => ({ ...p, time: t }))}>
+                    {time12(t)}
+                  </button>
+                ))}
+              </div>
+            )}
+            <button className="bk-btn primary" style={{ marginTop: 14 }}
+              disabled={busy || !pick.date || !pick.time} onClick={doReschedule}>
+              {busy ? "Moving…" : "Move my booking"}
+            </button>
+            <button className="bk-btn ghost" style={{ marginTop: 8 }} onClick={() => setMode(null)}>
+              Never mind
+            </button>
+          </>
+        ) : (
+          <>
+            <a className="bk-btn" href={icsUrl(booking.id, "customer")}>
+              <Check size={18} strokeWidth={1.75} /> Add to my calendar
+            </a>
+            <button className="bk-btn" style={{ marginTop: 10 }} disabled={busy} onClick={loadSlots}>
+              <CalendarClock size={18} strokeWidth={1.75} /> {busy ? "Loading…" : "Change the time"}
+            </button>
+            <button className="bk-btn" style={{ marginTop: 10, borderColor: "var(--bk-danger)", color: "var(--bk-danger)" }}
+              disabled={busy} onClick={doCancel}>
+              <X size={18} strokeWidth={1.75} /> Cancel this booking
+            </button>
+            {business.phone && (
+              <a className="bk-btn ghost" style={{ marginTop: 10 }} href={`tel:${business.phone}`}>
+                <Phone size={18} strokeWidth={1.75} /> Call {business.phone}
+              </a>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

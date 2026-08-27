@@ -14,6 +14,7 @@ export default function Team() {
   const [members, setMembers] = useState([]);
   const [invites, setInvites] = useState([]);
   const [form, setForm] = useState({ email: "", role: "staff" });
+  const [nameDraft, setNameDraft] = useState("");
   const [lastLink, setLastLink] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
@@ -89,10 +90,29 @@ export default function Team() {
   };
 
   const ownerCount = members.filter((m) => m.role === "owner").length;
+  const me = members.find((m) => m.user_id === session?.user?.id);
+
+  const saveMyName = async () => {
+    await supabase
+      .from("business_users")
+      .update({ first_name: nameDraft.trim() || null })
+      .eq("business_id", business.id)
+      .eq("user_id", session.user.id);
+    setMsg({ ok: true, text: "Name saved." });
+    load();
+  };
 
   return (
     <div className="card">
-      <div className="section-title" style={{ marginTop: 0 }}>Team</div>
+      <div className="section-title" style={{ marginTop: 0 }}>Your name</div>
+      <p className="muted" style={{ marginBottom: 8 }}>Used to greet you on the Today screen.</p>
+      <div className="row" style={{ gap: 8 }}>
+        <input placeholder={me?.first_name || "First name"} value={nameDraft}
+          onChange={(e) => setNameDraft(e.target.value)} />
+        <button className="btn inline" onClick={saveMyName}>Save</button>
+      </div>
+
+      <div className="section-title">Team</div>
       {members.map((m) => (
         <div className="card row between" key={m.user_id}>
           <div>

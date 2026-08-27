@@ -1,9 +1,15 @@
 import { money, time12 } from "../lib/format.js";
 
-export default function BookingCard({ booking, onClick, showDate = false }) {
+export default function BookingCard({ booking, onClick, showDate = false, isNext = false }) {
   const services = (booking.services ?? []).map((s) => s.name_at_booking).join(", ");
   return (
-    <div className="card tappable" onClick={onClick}>
+    <div className="card tappable" onClick={onClick}
+      style={isNext ? { borderColor: "var(--accent)", borderWidth: 2 } : undefined}>
+      {isNext && (
+        <div style={{ color: "var(--accent)", fontSize: "0.7rem", fontWeight: 800, letterSpacing: "0.08em", marginBottom: 4 }}>
+          NEXT UP
+        </div>
+      )}
       <div className="row between">
         <div>
           <strong>{booking.customer_name}</strong>

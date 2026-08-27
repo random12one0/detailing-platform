@@ -10,6 +10,13 @@ import { supabase } from "../lib/supabase.js";
 import { money } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 
+const PAYMENT_LABELS = {
+  paid: "paid",
+  partial: "partially paid",
+  pending: "not paid yet",
+  waived: "waived",
+};
+
 const CATEGORIES = [
   ["upgrade", "Upgrade"],
   ["add_on", "Add-on"],
@@ -27,6 +34,12 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
   const [paymentNotes, setPaymentNotes] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // Finalizing is the one irreversible-feeling action in the app: it closes
+  // the job, writes the line items and stamps finalized_at. It ran straight
+  // off the button before, so a mis-tap on a phone completed the job at
+  // whatever number happened to be on screen. Now it states the amount and
+  // the payment status and waits.
+  const [confirming, setConfirming] = useState(false);
 
   const extras = items.reduce(
     (s, it) => s + (it.category === "discount" ? -Math.abs(Number(it.amount)) : Number(it.amount)),
@@ -119,9 +132,28 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
           <input value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} placeholder="e.g. Zelle" /></label>
 
         {error && <div className="error-box">{error}</div>}
-        <button className="btn primary" disabled={busy} onClick={save}>
-          {busy ? "Saving…" : `Complete job — ${money(finalAmount)}`}
-        </button>
+
+        {confirming ? (
+          <div className="confirm-box">
+            <p>
+              Mark this job complete and record <strong>{money(finalAmount)}</strong> as{" "}
+              <strong>{PAYMENT_LABELS[paymentStatus]}</strong>
+              {items.length > 0 && <> , including {items.length} extra item{items.length > 1 ? "s" : ""}</>}?
+            </p>
+            <div className="row" style={{ gap: 8, marginTop: 10 }}>
+              <button className="btn ghost inline" disabled={busy} onClick={() => setConfirming(false)}>
+                Go back
+              </button>
+              <button className="btn primary inline" disabled={busy} onClick={save}>
+                {busy ? "Saving…" : "Yes, finalize"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button className="btn primary" onClick={() => setConfirming(true)}>
+            Complete job — {money(finalAmount)}
+          </button>
+        )}
       </div>
     </div>
   );

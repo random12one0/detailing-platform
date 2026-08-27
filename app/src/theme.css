@@ -197,3 +197,13 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 .center { display: flex; align-items: center; justify-content: center; min-height: 40vh; flex-direction: column; gap: 12px; }
 .spinner { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Confirmation step for an action that closes a job and takes money.
+   Deliberately not a native confirm(): it has to name the amount and the
+   payment status, which a browser dialog cannot. */
+.confirm-box {
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: 12px; padding: 12px 14px; margin: 8px 0;
+}
+.confirm-box p { font-size: 0.95rem; line-height: 1.45; }
