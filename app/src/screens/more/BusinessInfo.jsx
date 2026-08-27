@@ -7,6 +7,8 @@ import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { uploadBusinessPhoto } from "../../lib/upload.js";
 import TimezonePicker from "../../components/TimezonePicker.jsx";
+import TimezoneChangeGuard from "../../components/TimezoneChangeGuard.jsx";
+import { localTime } from "../../lib/format.js";
 
 export default function BusinessInfo() {
   const { business, branding, settings, reload } = useBusiness();
@@ -35,8 +37,43 @@ export default function BusinessInfo() {
   });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null); // {ok, text}
+  const [tzGuard, setTzGuard] = useState(null); // {from,to,sample,count} when confirmation is needed
 
+  // Changing timezone is silent unless there are future bookings whose
+  // displayed times would move; then we show exactly what will change,
+  // using a real job from their calendar.
   const save = async () => {
+    if (biz.timezone !== business.timezone) {
+      const { data: upcoming } = await supabase
+        .from("bookings")
+        .select("customer_name, start_at")
+        .eq("business_id", business.id)
+        .is("deleted_at", null)
+        .neq("status", "cancelled")
+        .gte("start_at", new Date().toISOString())
+        .order("start_at", { ascending: true })
+        .limit(50);
+      if (upcoming?.length) {
+        const first = upcoming[0];
+        setTzGuard({
+          from: business.timezone,
+          to: biz.timezone,
+          count: upcoming.length,
+          sample: {
+            customerName: first.customer_name,
+            date: new Intl.DateTimeFormat("en-CA", { timeZone: biz.timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(first.start_at)),
+            oldTime: localTime(first.start_at, business.timezone),
+            newTime: localTime(first.start_at, biz.timezone),
+          },
+        });
+        return;
+      }
+    }
+    await persist();
+  };
+
+  const persist = async () => {
+    setTzGuard(null);
     setBusy(true);
     setMsg(null);
     const nn = (v) => (v.trim() === "" ? null : v.trim());
@@ -140,7 +177,15 @@ export default function BusinessInfo() {
       </div>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
-      <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving…" : "Save"}</button>
+      <button className="btn primary" disabled={busy} onClick={save}>{busy ? "Saving" : "Save"}</button>
+
+      {tzGuard && (
+        <TimezoneChangeGuard
+          {...tzGuard}
+          onCancel={() => { setBiz({ ...biz, timezone: business.timezone }); setTzGuard(null); }}
+          onConfirm={persist}
+        />
+      )}
     </div>
   );
 }

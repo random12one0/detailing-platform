@@ -33,6 +33,14 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
   };
 }
 
+// Where owner alerts go: the configured list, or the business contact
+// address when the list is empty, so notifications never silently stop.
+export function ownerRecipients(business: Business, settings: BusinessSettings): string[] {
+  const list = (settings.notification_emails ?? []).map((e) => String(e).trim()).filter(Boolean);
+  if (list.length) return [...new Set(list)];
+  return business.contact_email ? [business.contact_email] : [];
+}
+
 export interface Attachment {
   filename: string;
   content: string; // base64

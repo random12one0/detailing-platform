@@ -1,0 +1,28 @@
+# Netlify config for the admin dashboard (app/).
+#
+# The base directory is set on the site itself, so paths here are relative
+# to app/.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Single-page app: every path must serve index.html, or refreshing on
+# /job/<id> or /invite/<token> 404s.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Hashed build assets are immutable.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

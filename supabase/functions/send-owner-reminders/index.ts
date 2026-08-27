@@ -13,7 +13,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
-import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { customerReminderEmail, formatTime12hr, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -58,6 +58,7 @@ function emailDataFor(business: Business, b: BookingRow) {
 async function sendCustomerReminder(b: BookingRow) {
   const business = await biz(b.business_id);
   const settings = await getSettings(business.id);
+  if (!settings.email_customer_reminder) return;
   const brand = await buildBrand(business, settings);
   const msg = customerReminderEmail(brand, emailDataFor(business, b));
   await sendTenantEmail({ businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html });
@@ -71,15 +72,17 @@ async function sendOwnerReminder(b: BookingRow) {
   // The owner reminder reuses the owner notification layout — same info, new
   // subject line.
   const msg = ownerNewBookingEmail(brand, data);
-  if (brand.contactEmail) {
-    await sendTenantEmail({
-      businessId: business.id,
-      to: brand.contactEmail,
-      subject: `Upcoming job - ${data.customerName} - ${data.dateStr} at ${formatTime12hr(data.startTime)}`,
-      html: msg.html,
-    });
+  if (settings.email_owner_reminder) {
+    for (const to of ownerRecipients(business, settings)) {
+      await sendTenantEmail({
+        businessId: business.id,
+        to,
+        subject: `Upcoming job - ${data.customerName} - ${data.dateStr} at ${formatTime12hr(data.startTime)}`,
+        html: msg.html,
+      });
+    }
   }
-  await sendOwnerPush(business.id, {
+  if (settings.push_enabled) await sendOwnerPush(business.id, {
     title: "Upcoming job reminder",
     body: `${b.customer_name} — ${formatTime12hr(data.startTime)}`,
     url: `/admin/job/${b.id}`,

@@ -9,6 +9,8 @@ import Promos from "./more/Promos.jsx";
 import Gallery from "./more/Gallery.jsx";
 import Appearance from "./more/Appearance.jsx";
 import Team from "./more/Team.jsx";
+import Notifications from "./more/Notifications.jsx";
+import MessageTemplates from "./more/MessageTemplates.jsx";
 
 // ownerOnly mirrors the database policies: a staff session cannot read
 // business_settings, promo_codes or team data even if it reached these
@@ -18,7 +20,9 @@ const SECTIONS = [
   ["rules", "Booking rules", BookingRules, true],
   ["hours", "Hours & days off", Hours, true],
   ["catalog", "Services & add-ons", Catalog, true],
-  ["promos", "Promo codes", Promos, true],
+  ["promos", "Promo codes & sale", Promos, true],
+  ["notifications", "Notifications", Notifications, true],
+  ["templates", "Message templates", MessageTemplates, true],
   ["gallery", "Photo gallery", Gallery, true],
   ["team", "Team & access", Team, true],
   ["appearance", "Appearance & theme", Appearance, false],

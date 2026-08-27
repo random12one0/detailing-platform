@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
 
     // Separate thank-you / review-request email — best-effort.
     let thankYouSent = false;
-    try {
+    if (settings.email_customer_followup) try {
       const firstName = String(booking.customer_name || "Customer").split(" ")[0] || "Customer";
       const followup = followupEmail(brand, firstName);
       thankYouSent = await sendTenantEmail({
@@ -145,7 +145,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-      await sendOwnerPush(business.id, {
+      if (settings.push_enabled) await sendOwnerPush(business.id, {
         title: "Payment finalized",
         body: `${booking.customer_name} — $${totalPaid.toFixed(2)} (invoice + thank-you sent)`,
         url: `/admin/job/${booking.id}`,

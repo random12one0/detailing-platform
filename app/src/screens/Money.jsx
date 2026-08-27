@@ -1,96 +1,122 @@
-// Money: revenue summary, expenses, net — same theme tokens as every other
-// screen (the old Money screens were dark while the rest wasn't).
+// Money answers two questions: am I making money, and is this month better
+// than last? Four numbers with a month-over-month delta, one bar chart,
+// average job value, and the two lists (waiting to be paid, recent
+// expenses). No margins, percentages, year-over-year or hourly figures.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { TriangleAlert } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
-import { addDays, money, todayLocal } from "../lib/format.js";
+import { money, todayLocal } from "../lib/format.js";
+import MonthlyRevenueChart from "../components/MonthlyRevenueChart.jsx";
+import ExpenseModal from "../components/ExpenseModal.jsx";
+import BookingDetail from "../components/BookingDetail.jsx";
 
-const RANGES = [
-  ["7d", "7 days", 7],
-  ["30d", "30 days", 30],
-  ["90d", "90 days", 90],
-  ["365d", "Year", 365],
-];
+const monthKey = (dateStr) => dateStr.slice(0, 7);
+const monthLabel = (key) => {
+  const [y, m] = key.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "short" });
+};
+// The month key N months before the given one.
+const shiftMonth = (key, n) => {
+  const [y, m] = key.split("-").map(Number);
+  const d = new Date(y, m - 1 + n, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+};
 
 export default function Money() {
   const { business } = useBusiness();
   const today = todayLocal(business.timezone);
-  const [range, setRange] = useState("30d");
-  const days = RANGES.find(([k]) => k === range)[2];
-  const from = addDays(today, -days);
-  const { bookings, loading } = useBookings(from, today);
+  const thisMonth = monthKey(today);
+  // Six months of history, starting at the first of the earliest month.
+  const from = `${shiftMonth(thisMonth, -5)}-01`;
+  const { bookings, loading, reload } = useBookings(from, today);
   const [expenses, setExpenses] = useState([]);
-  const [addingExpense, setAddingExpense] = useState(false);
-  const [expForm, setExpForm] = useState({ date: today, category: "supplies", description: "", amount: "", payment_method: "card" });
+  const [adding, setAdding] = useState(false);
+  const [selected, setSelected] = useState(null);
 
   const loadExpenses = useCallback(async () => {
     const { data } = await supabase
-      .from("expenses")
-      .select("*")
-      .eq("business_id", business.id)
-      .gte("date", from)
-      .lte("date", today)
-      .order("date", { ascending: false });
+      .from("expenses").select("*").eq("business_id", business.id)
+      .gte("date", from).lte("date", today).order("date", { ascending: false });
     setExpenses(data ?? []);
   }, [business.id, from, today]);
 
   useEffect(() => { loadExpenses(); }, [loadExpenses]);
 
   const stats = useMemo(() => {
+    const lastMonth = shiftMonth(thisMonth, -1);
     const done = bookings.filter((b) => b.status === "completed");
-    const revenue = done.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
-    const upcoming = bookings.filter((b) => b.status === "confirmed")
-      .reduce((s, b) => s + Number(b.total_price), 0);
-    const spent = expenses.reduce((s, e) => s + Number(e.amount), 0);
-    const unpaid = done.filter((b) => b.payment_status === "pending" || b.payment_status === "partial");
-    return { revenue, upcoming, spent, net: revenue - spent, jobs: done.length, unpaid };
-  }, [bookings, expenses]);
+    const revenueIn = (mk) => done.filter((b) => monthKey(b.booking_date) === mk)
+      .reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
+    const jobsIn = (mk) => done.filter((b) => monthKey(b.booking_date) === mk).length;
+    const spentIn = (mk) => expenses.filter((e) => monthKey(e.date) === mk)
+      .reduce((s, e) => s + Number(e.amount), 0);
 
-  const saveExpense = async () => {
-    if (!expForm.description.trim() || !Number(expForm.amount)) return;
-    await supabase.from("expenses").insert({
-      business_id: business.id,
-      date: expForm.date,
-      category: expForm.category,
-      description: expForm.description.trim(),
-      amount: Number(expForm.amount),
-      payment_method: expForm.payment_method,
+    const inNow = revenueIn(thisMonth), inPrev = revenueIn(lastMonth);
+    const outNow = spentIn(thisMonth), outPrev = spentIn(lastMonth);
+    const jobsNow = jobsIn(thisMonth), jobsPrev = jobsIn(lastMonth);
+
+    const chart = Array.from({ length: 6 }, (_, i) => {
+      const k = shiftMonth(thisMonth, -(5 - i));
+      return { label: monthLabel(k), value: revenueIn(k) };
     });
-    setAddingExpense(false);
-    setExpForm({ ...expForm, description: "", amount: "" });
-    loadExpenses();
-  };
+
+    return {
+      inNow, inPrev, outNow, outPrev, jobsNow, jobsPrev,
+      leftNow: inNow - outNow, leftPrev: inPrev - outPrev,
+      avgJob: jobsNow > 0 ? inNow / jobsNow : 0,
+      avgJobPrev: jobsPrev > 0 ? inPrev / jobsPrev : 0,
+      chart,
+      unpaid: done.filter((b) => b.payment_status === "pending" || b.payment_status === "partial"),
+    };
+  }, [bookings, expenses, thisMonth]);
 
   if (loading) return <div className="center"><div className="spinner" /></div>;
 
   return (
     <>
-      <div className="row" style={{ gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-        {RANGES.map(([k, label]) => (
-          <button key={k} className={`chip ${range === k ? "active" : ""}`} onClick={() => setRange(k)}>{label}</button>
-        ))}
-      </div>
-
+      <div className="section-title" style={{ marginTop: 0 }}>This month</div>
       <div className="grid2">
-        <div className="card"><div className="muted">Revenue ({stats.jobs} jobs)</div><div className="big">{money(stats.revenue)}</div></div>
-        <div className="card"><div className="muted">Booked upcoming</div><div className="big">{money(stats.upcoming)}</div></div>
-        <div className="card"><div className="muted">Expenses</div><div className="big">{money(stats.spent)}</div></div>
-        <div className="card"><div className="muted">Net</div><div className="big" style={{ color: stats.net >= 0 ? "var(--success)" : "var(--danger)" }}>{money(stats.net)}</div></div>
+        <Stat label="Money in" value={money(stats.inNow)} now={stats.inNow} prev={stats.inPrev} />
+        <Stat label="Money out" value={money(stats.outNow)} now={stats.outNow} prev={stats.outPrev} lowerIsBetter />
+        <Stat label="What's left" value={money(stats.leftNow)} now={stats.leftNow} prev={stats.leftPrev} />
+        <Stat label="Jobs done" value={String(stats.jobsNow)} now={stats.jobsNow} prev={stats.jobsPrev} plain />
       </div>
 
-      {stats.unpaid.length > 0 && (
-        <div className="warn-box"><TriangleAlert size={16} strokeWidth={1.75} /> {stats.unpaid.length} completed job{stats.unpaid.length > 1 ? "s" : ""} not fully paid.</div>
-      )}
-
-      <div className="row between" style={{ marginTop: 12 }}>
-        <h2>Expenses</h2>
-        <button className="btn inline" onClick={() => setAddingExpense(true)}>+ Add</button>
+      <div className="card">
+        <MonthlyRevenueChart data={stats.chart} />
       </div>
-      {expenses.length === 0 && <p className="muted" style={{ marginTop: 8 }}>No expenses in this range.</p>}
-      {expenses.map((e) => (
+
+      {/* One number, given room — it changes how a detailer sells. */}
+      <div className="card">
+        <div className="muted">Average job value</div>
+        <div className="big" style={{ fontSize: "2rem" }}>{money(stats.avgJob)}</div>
+        <Delta now={stats.avgJob} prev={stats.avgJobPrev} suffix="vs last month" />
+      </div>
+
+      <div className="section-title">Waiting to be paid</div>
+      {stats.unpaid.length === 0 && <p className="muted">Nothing outstanding.</p>}
+      {stats.unpaid.map((b) => (
+        <div className="card tappable row between" key={b.id} onClick={() => setSelected(b)}>
+          <div>
+            <strong>{b.customer_name}</strong>
+            <div className="muted">{b.booking_date}</div>
+          </div>
+          <div className="row" style={{ gap: 8 }}>
+            <strong>{money(b.final_amount ?? b.total_price)}</strong>
+            <span className={`badge ${b.payment_status}`}>{b.payment_status}</span>
+          </div>
+        </div>
+      ))}
+
+      <div className="row between" style={{ marginTop: 20 }}>
+        <h2>Recent expenses</h2>
+        <button className="btn inline primary" onClick={() => setAdding(true)}>+ Add</button>
+      </div>
+      {expenses.length === 0 && <p className="muted" style={{ marginTop: 8 }}>No expenses recorded.</p>}
+      {expenses.slice(0, 15).map((e) => (
         <div className="card row between" key={e.id}>
           <div>
             <strong>{e.description}</strong>
@@ -100,32 +126,44 @@ export default function Money() {
         </div>
       ))}
 
-      {addingExpense && (
-        <div className="modal-backdrop" onClick={() => setAddingExpense(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h2 style={{ marginBottom: 12 }}>Add expense</h2>
-            <div className="grid2">
-              <label className="field"><span>Date</span>
-                <input type="date" value={expForm.date} onChange={(e) => setExpForm({ ...expForm, date: e.target.value })} /></label>
-              <label className="field"><span>Amount</span>
-                <input type="number" inputMode="decimal" value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: e.target.value })} /></label>
-            </div>
-            <label className="field"><span>Description</span>
-              <input value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })} /></label>
-            <div className="grid2">
-              <label className="field"><span>Category</span>
-                <select value={expForm.category} onChange={(e) => setExpForm({ ...expForm, category: e.target.value })}>
-                  {["supplies", "fuel", "equipment", "marketing", "insurance", "other"].map((c) => <option key={c}>{c}</option>)}
-                </select></label>
-              <label className="field"><span>Paid with</span>
-                <select value={expForm.payment_method} onChange={(e) => setExpForm({ ...expForm, payment_method: e.target.value })}>
-                  {["card", "cash", "bank", "other"].map((c) => <option key={c}>{c}</option>)}
-                </select></label>
-            </div>
-            <button className="btn primary" onClick={saveExpense}>Save expense</button>
-          </div>
-        </div>
+      {adding && (
+        <ExpenseModal
+          onClose={() => setAdding(false)}
+          onSaved={() => { setAdding(false); loadExpenses(); }}
+        />
+      )}
+      {selected && (
+        <BookingDetail booking={selected} onClose={() => setSelected(null)}
+          onChanged={() => { setSelected(null); reload(); loadExpenses(); }} />
       )}
     </>
+  );
+}
+
+function Stat({ label, value, now, prev, lowerIsBetter = false, plain = false }) {
+  return (
+    <div className="card">
+      <div className="muted">{label}</div>
+      <div className="big">{value}</div>
+      <Delta now={now} prev={prev} lowerIsBetter={lowerIsBetter} plain={plain} />
+    </div>
+  );
+}
+
+// Change vs last month. Up is green and down is red, except for money out,
+// where spending less is the good direction.
+function Delta({ now, prev, lowerIsBetter = false, plain = false, suffix = "vs last month" }) {
+  if (!prev) return <div className="muted" style={{ fontSize: "0.75rem" }}>No comparison yet</div>;
+  const diff = now - prev;
+  if (Math.abs(diff) < 0.005) return <div className="muted" style={{ fontSize: "0.75rem" }}>Same as last month</div>;
+  const up = diff > 0;
+  const good = lowerIsBetter ? !up : up;
+  const Icon = up ? TrendingUp : TrendingDown;
+  const shown = plain ? Math.abs(diff) : `$${Math.abs(diff).toFixed(0)}`;
+  return (
+    <div className="row" style={{ gap: 4, fontSize: "0.75rem", color: good ? "var(--success)" : "var(--danger)" }}>
+      <Icon size={14} strokeWidth={2} />
+      <span>{shown} {suffix}</span>
+    </div>
   );
 }

@@ -32,6 +32,7 @@ const PUBLIC_FUNCTIONS = new Set([
   "send-owner-reminders", // scheduled sweep; manual mode still checks membership itself
   "send-email",           // internal relay; gates itself on the service-role key
   "accept-invite",        // invite landing page — the invitee has no session yet
+  "booking-ics",          // customers add their own booking to a calendar from email
 ]);
 
 const fnRoot = new URL("../supabase/functions/", import.meta.url).pathname;

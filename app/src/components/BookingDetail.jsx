@@ -3,14 +3,18 @@
 // update-booking edge function (validation + conflict checks server-side).
 
 import { useState } from "react";
-import { MessageSquare, Navigation, Phone, X } from "lucide-react";
-import { api } from "../lib/api.js";
+import { CalendarPlus, MessageSquare, Navigation, Phone, X } from "lucide-react";
+import { api, icsUrl } from "../lib/api.js";
+import { supabase } from "../lib/supabase.js";
+import { fillTemplate } from "../lib/templates.js";
 import { dateLong, mapsUrl, money, time12 } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
 
 export default function BookingDetail({ booking, onClose, onChanged }) {
   const { business } = useBusiness();
+  const [templates, setTemplates] = useState([]);
+  const [pickingText, setPickingText] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -70,6 +74,25 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       ? booking.customer_address
       : business.dropoff_address;
 
+  // Prefilled texts, loaded only when the owner opens the picker.
+  const openTextPicker = async () => {
+    const { data } = await supabase
+      .from("message_templates").select("*")
+      .eq("business_id", business.id).order("sort_order");
+    setTemplates(data ?? []);
+    setPickingText(true);
+  };
+  const smsHref = (body) =>
+    `sms:${booking.customer_phone}${/iPhone|iPad|Mac/.test(navigator.userAgent) ? "&" : "?"}body=${encodeURIComponent(body)}`;
+  const filled = (body) =>
+    fillTemplate(body, {
+      booking, business,
+      dateLabel: dateLong(booking.booking_date),
+      timeLabel: time12(booking.start_time),
+      address: address || "",
+      total: money(booking.final_amount ?? booking.total_price),
+    });
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -111,9 +134,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             <div className="section-title">Contact</div>
             <div className="card stack" style={{ gap: 8 }}>
               <a className="btn" href={`tel:${booking.customer_phone}`}><Phone size={18} strokeWidth={1.75} /> Call {booking.customer_phone}</a>
-              <a className="btn" href={`sms:${booking.customer_phone}`}><MessageSquare size={18} strokeWidth={1.75} /> Text</a>
+              <button className="btn" onClick={openTextPicker}><MessageSquare size={18} strokeWidth={1.75} /> Text</button>
               {/* Works on Android AND iOS (the old app was Apple-Maps-only). */}
               {address && <a className="btn" href={mapsUrl(address)} target="_blank" rel="noreferrer"><Navigation size={18} strokeWidth={1.75} /> Navigate — {address}</a>}
+              {/* One .ics implementation, served with the business's own
+                  timezone stamped on it. */}
+              <a className="btn" href={icsUrl(booking.id, "owner")}>
+                <CalendarPlus size={18} strokeWidth={1.75} /> Add to calendar
+              </a>
             </div>
 
             {(booking.customer_notes || booking.admin_notes) && (
@@ -190,6 +218,30 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               <button className="btn primary" disabled={busy} onClick={saveEdit}>Save</button>
             </div>
           </>
+        )}
+
+        {pickingText && (
+          <div className="modal-backdrop" onClick={() => setPickingText(false)}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="row between" style={{ marginBottom: 10 }}>
+                <h2>Send a text</h2>
+                <button className="btn ghost inline" onClick={() => setPickingText(false)} aria-label="Close">
+                  <X size={20} strokeWidth={1.75} />
+                </button>
+              </div>
+              {templates.length === 0 && (
+                <p className="muted">No templates yet. Add them in More, under Message templates.</p>
+              )}
+              {templates.map((t) => (
+                <a key={t.id} className="card tappable" href={smsHref(filled(t.body))}
+                   style={{ display: "block", color: "inherit" }}>
+                  <strong>{t.label}</strong>
+                  <div className="muted">{filled(t.body)}</div>
+                </a>
+              ))}
+              <a className="btn" href={`sms:${booking.customer_phone}`}>Write my own</a>
+            </div>
+          </div>
         )}
 
         {finalizing && (

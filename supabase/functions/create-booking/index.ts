@@ -20,7 +20,7 @@ import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings, requireMember } from "../_shared/tenant.ts";
 import { computeQuote, resolveAddOns, resolvePromo, resolveServices, sizeAdjustmentFor } from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
-import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
@@ -239,16 +239,19 @@ Deno.serve(async (req) => {
       receiptUrl: receiptUrl(business.slug, booking.id),
     };
 
-    if (booking.customer_email) {
+    if (booking.customer_email && settings.email_customer_confirmation) {
       const msg = customerConfirmationEmail(brand, emailData);
       await sendTenantEmail({ businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html });
     }
-    if (brand.contactEmail) {
+    if (settings.email_owner_new_booking) {
       const msg = ownerNewBookingEmail(brand, emailData);
-      await sendTenantEmail({ businessId: business.id, to: brand.contactEmail, subject: msg.subject, html: msg.html });
+      // Every configured recipient, not just one address.
+      for (const to of ownerRecipients(business, settings)) {
+        await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html });
+      }
     }
     try {
-      await sendOwnerPush(business.id, {
+      if (settings.push_enabled) await sendOwnerPush(business.id, {
         title: "New booking",
         body: `${booking.customer_name} — ${emailData.dateStr} at ${emailData.startTime} ($${Number(quote.total).toFixed(2)})`,
         url: `/admin/job/${booking.id}`,

@@ -48,6 +48,13 @@ export interface BusinessSettings {
   site_discount_label: string | null;
   google_review_url: string | null;
   yelp_review_url: string | null;
+  notification_emails: string[];
+  email_customer_confirmation: boolean;
+  email_customer_reminder: boolean;
+  email_customer_followup: boolean;
+  email_owner_new_booking: boolean;
+  email_owner_reminder: boolean;
+  push_enabled: boolean;
 }
 
 // Missing settings row → every default the schema declares. Fetched fresh per
@@ -86,6 +93,13 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     site_discount_label: null,
     google_review_url: null,
     yelp_review_url: null,
+    notification_emails: [],
+    email_customer_confirmation: true,
+    email_customer_reminder: true,
+    email_customer_followup: true,
+    email_owner_new_booking: true,
+    email_owner_reminder: true,
+    push_enabled: true,
   };
 }
 

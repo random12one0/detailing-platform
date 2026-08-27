@@ -25,6 +25,11 @@ async function callFn(name, body) {
   return data;
 }
 
+// The .ics endpoint is a plain GET the browser can open directly, so the
+// button behaves like a download rather than a fetch.
+export const icsUrl = (bookingId, audience = "owner") =>
+  `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/booking-ics?id=${bookingId}&audience=${audience}&apikey=${import.meta.env.VITE_SUPABASE_ANON_KEY}`;
+
 export const api = {
   // Booking writes — the one write path.
   createBooking: (businessSlug, payload) => callFn("create-booking", { business_slug: businessSlug, ...payload }),
