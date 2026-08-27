@@ -78,11 +78,22 @@ each picked as the option easiest to change later.
 
 ## Phase 2 follow-ups (visual direction, theming, staff accounts)
 
-- **`docs/dashboard-spec.md` still isn't in the repo.** It was said to exist
-  now, but it is not on this branch, not on `main`, not on any other remote
-  branch, and not anywhere on disk. The gap report was therefore not
-  possible; ask for the file (or paste its contents) and it can be done
-  immediately.
+- **`docs/dashboard-spec.md` is now in the repo** (supplied directly and
+  committed). The gap report against it is in
+  `docs/dashboard-spec-gap-report.md`.
+
+- **No `.ics` / add-to-calendar file exists in the new build.** The old app
+  had one (`reference/frontend/src/lib/ics.js`); it was not ported, and the
+  spec asks for an "add to calendar" button on the job detail page. It is
+  listed as a gap, not a timezone defect — there is no wrong timezone in it
+  because there is no file. When it is built it must stamp times with the
+  business's IANA zone (`DTSTART;TZID=`), not a UTC offset.
+
+- **`businesses.timezone` defaults to `America/Los_Angeles`.** It is the one
+  remaining hardcoded zone in non-test code, and only as a column default
+  for a business created without one. Signup should always set it
+  explicitly; changing the default to something neutral is a one-line
+  migration if preferred.
 
 - **Per-employee job assignment and per-employee availability are
   deliberately deferred.** The availability engine answers "is the BUSINESS

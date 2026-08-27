@@ -6,6 +6,7 @@ import { useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { uploadBusinessPhoto } from "../../lib/upload.js";
+import TimezonePicker from "../../components/TimezonePicker.jsx";
 
 export default function BusinessInfo() {
   const { business, branding, settings, reload } = useBusiness();
@@ -98,12 +99,14 @@ export default function BusinessInfo() {
       </div>
       <label className="field"><span>Drop-off address</span>
         <input value={biz.dropoff_address} onChange={(e) => setBiz({ ...biz, dropoff_address: e.target.value })} /></label>
-      <div className="grid2">
-        <label className="field"><span>Service area (shown on your site)</span>
-          <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })} placeholder="e.g. Lakewood, California" /></label>
-        <label className="field"><span>Timezone</span>
-          <input value={biz.timezone} onChange={(e) => setBiz({ ...biz, timezone: e.target.value })} placeholder="America/Los_Angeles" /></label>
-      </div>
+      <label className="field"><span>Service area (shown on your site)</span>
+        <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })} placeholder="e.g. Lakewood, California" /></label>
+      <label className="field">
+        <span>Timezone</span>
+        {/* Every booking time, reminder and calendar date is computed in this
+            zone. Picked from the real IANA list — never typed free-hand. */}
+        <TimezonePicker value={biz.timezone} onChange={(tz) => setBiz({ ...biz, timezone: tz })} />
+      </label>
 
       <div className="section-title">Branding</div>
       <div className="grid2">
