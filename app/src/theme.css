@@ -1,47 +1,48 @@
 /* ONE theme system for the whole dashboard.
    ------------------------------------------------------------------
-   DIRECTION: "Studio" — the detailer sells craft and charges accordingly,
-   so the tool they run the business on should look like it was made by
-   someone with taste. It matters commercially too: this screen gets turned
-   around at the point of sale, with the customer standing next to it.
+   A deliberate combination of three of the five directions, each taken for
+   the thing it was actually best at:
 
-   Its defining departure is that THERE ARE NO BORDERS. Grouping is done by
-   a surface step, a shadow, and a lot of room. Two grafts and one deletion,
-   all deliberate:
+     COLOUR from LEDGER      cool blue-grey neutrals, crisp rather than warm.
+                             A cream ground fights a tenant whose brand is
+                             blue or violet, and the brand colour is not ours
+                             to argue with. Cool neutrals stay out of the way
+                             of every hue equally. Figures are monospaced,
+                             which is Ledger's other signature: in an app
+                             about what you earned, giving the numbers their
+                             own face is the cheapest way to say they matter.
 
-     FROM LEDGER   every figure is set in a monospaced face. In an app about
-                   what you earned, giving the numbers their own typeface is
-                   the cheapest way to say the numbers matter — and columns
-                   of money align down a screen whether or not they are in a
-                   table. Mono under a serif is the financial-press pairing.
+     SEAMLESSNESS from       there are NO borders anywhere. Grouping is a
+     STUDIO                  surface step, a shadow and a lot of room; radii
+                             are large and nothing has a hard edge; the
+                             spacing scale is the loosest of the five.
 
-     FROM SLATE    inputs are wells pressed into the surface. A recessed
-                   field needs no outline to read as a field, so it is the
-                   one tactile device that survives a borderless system.
+     DESIGN from SLATE       surfaces behave like physical things. Inputs are
+                             wells pressed into the ground, actions are raised
+                             and catch light, and the ground is DARKER than
+                             the panels so a panel sits on something rather
+                             than being cut out of it. Bricolage Grotesque
+                             gives it a display face with real character —
+                             replacing the system stack was the single change
+                             that moved the product most.
 
-     DELETED       Studio's accent glow. A coloured shadow means the tenant's
-                   brand colour becomes a coloured shadow, and a rose glow is
-                   elegant where someone's chosen lime is not. Identity has
-                   to live in type, spacing and structure — never in a colour
-                   the customer picks — so the primary action is a solid fill.
+   THE HARD PART, and what is done about it. Borderless plus a soft shadow is
+   the combination that fails in sunlight, because a shadow is a low-contrast
+   gradient and gradients vanish in glare. Measured, the cool surface step
+   tops out around 1.21:1 — real, but not a boundary on its own. So elevation
+   is TWO layers: a tight contact shadow sitting right at the edge, which is
+   high-contrast and adjacent and therefore survives daylight, plus a wide
+   ambient shadow that does the floating. A border made of shadow rather than
+   a line. In dark mode a shadow cannot separate anything at all, so there the
+   surface step is widened to 1.29:1 and does the work itself.
 
-   THE ONE HONEST WEAKNESS, and what is done about it. Borderless was ranked
-   last on the brief because a soft shadow is a low-contrast gradient and
-   low-contrast gradients disappear outdoors. Measured, the warm surface step
-   tops out around 1.25:1 — nowhere near enough to carry a boundary alone. So
-   the elevation is TWO layers, not one: a tight contact shadow sitting right
-   at the edge, which is high-contrast and adjacent and therefore survives
-   glare, plus a wide ambient shadow that does the floating. A border made of
-   shadow rather than a line.
+   Three rules carry over from the audit and still hold:
 
-   The three rules that carry over from the audit still hold:
+     TYPE     seven steps, three weights. 700 appears once per screen, on the
+              screen title. Consecutive steps differ by 25% or more.
 
-     TYPE     seven steps, three weights. The serif carries emphasis, so
-              nothing is ever bolder than 600. Consecutive steps differ 25%+.
-
-     SPACE    six steps, the loosest scale of the five directions. Things
-              that belong together get 6 or 12px. Things that don't get 22
-              or 34px. 18 is reserved for inside-a-card structure.
+     SPACE    six steps. Related things get 6 or 12px, unrelated get 22 or
+              34px. 18 is reserved for inside-a-card structure.
 
      COLOR    ~90% of any screen is neutral, and the accent appears at most
               three times: the active tab, the primary action, and one
@@ -55,88 +56,77 @@
 
 :root,
 :root[data-theme="dark"] {
-  /* Warm dark: browned rather than blued, so it reads as ink on stock
-     rather than as a screen that has been dimmed — but only GENTLY warm.
-     A strongly cream ground fights a tenant whose brand is blue or violet,
-     and the brand colour is not ours to argue with. Warmth here is R−B ≈ 9
-     rather than the 14 a true cream would use.
-     The surface step also has to be bigger than in light mode: a shadow
-     cannot separate anything on a dark ground, so the step IS the boundary.
-     1.28:1 rather than the 1.13:1 it started at. */
-  --bg: #161512;
-  --surface: #2b2823;
-  --surface-sunken: #1d1b17;
+  --bg: #0b0f16;
+  --surface: #1e2837;         /* 1.29:1 above the ground — in dark, the STEP
+                                 is the boundary, because a shadow is not. */
+  --surface-sunken: #111823;
   --border: transparent;      /* there are no borders. Kept as a token so
                                  nothing has to special-case its absence. */
-  --hairline: #3a3630;        /* a rule INSIDE a panel is the one line that
-                                 does exist — it separates without boxing. */
-  --text: #f2efe9;
-  --text-2: #c0b9ae;
-  --text-muted: #9a9389;    /* 4.83:1 on --surface, 5.66:1 on --surface-sunken.
-                               Muted still has to clear the normal-text
-                               minimum: it carries labels and metadata, not
-                               decoration. */
-  --accent: #d9a68f;          /* runtime-overridden by the brand color */
-  --accent-ink: #2a1509;      /* text on accent surfaces, derived at runtime */
-  --success: #6cc492;
-  --warning: #e0b055;
-  --danger: #eb8b83;
-  --overlay: rgba(9, 8, 6, 0.74);
-  --tab-surface: #1d1b17;
+  --hairline: #2a3646;        /* a rule INSIDE a panel is the one line that
+                                 exists — it separates without boxing. */
+  --text: #e9eef6;
+  --text-2: #b3c0d0;
+  --text-muted: #8b98a8;      /* 5.06:1 on --surface, 6.07:1 on sunken,
+                                 6.54:1 on the ground. Muted carries labels
+                                 and metadata, not decoration, so it takes
+                                 the normal-text minimum on every surface it
+                                 can land on — including the bare ground,
+                                 where section labels sit. */
+  --accent: #a78bfa;          /* runtime-overridden by the brand color */
+  --accent-ink: #16092e;      /* text on accent surfaces, derived at runtime */
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --overlay: rgba(4, 7, 12, 0.74);
+  --tab-surface: #111823;
 
   /* Two layers. The first is the CONTACT shadow — tight, high-contrast,
-     right at the edge. It is what replaces the border and what survives
-     daylight. The second is ambient, and does the floating. */
+     right at the edge. It is what replaces the border. The second is
+     ambient, and does the floating. */
   --sh-raised: 0 1px 1px rgba(0, 0, 0, 0.5),
                0 1px 3px rgba(0, 0, 0, 0.3),
                0 16px 32px -20px rgba(0, 0, 0, 0.9);
-  --sh-btn: 0 1px 1px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sh-btn: 0 1px 1px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.28);
   --sh-inset: inset 0 2px 4px rgba(0, 0, 0, 0.45);
   --sh-sunken: inset 0 2px 5px rgba(0, 0, 0, 0.38);
 }
 
 :root[data-theme="light"] {
-  /* The ground is warm paper and DARKER than the panels — panels sit on
-     something rather than being cut out of it. Measured at 1.25:1, which is
-     a real step but not a boundary on its own; the contact shadow is. */
-  --bg: #eae7e0;              /* warm paper, R−B ≈ 10 — see the dark block */
-  --surface: #fefdfb;
-  --surface-sunken: #f0ede7;
+  --bg: #e5eaf2;              /* cool, and darker than the panels */
+  --surface: #ffffff;
+  --surface-sunken: #dbe2ed;
   --border: transparent;
-  --hairline: #e6e2d9;
-  --text: #1c1a17;
-  --text-2: #56514a;
-  --text-muted: #6b6459;    /* 4.73:1 on the ground, 5.75:1 on --surface,
-                               5.00:1 on --surface-sunken. Section labels sit
-                               directly on the ground, so it has to clear the
-                               minimum there too, not just on a card. */
-  --accent: #b0184a;
+  --hairline: #e6eaf1;
+  --text: #101720;
+  --text-2: #3b4756;
+  --text-muted: #55616e;      /* 6.32:1 / 4.85:1 / 5.23:1 — see the dark block */
+  --accent: #6d3fd4;
   --accent-ink: #ffffff;
-  --success: #2f7d55;
-  --warning: #9a6a22;
-  --danger: #b3382f;
-  --overlay: rgba(29, 24, 21, 0.42);
-  --tab-surface: #fffdfa;
+  --success: #0e9f6e;
+  --warning: #b45309;
+  --danger: #dc2626;
+  --overlay: rgba(16, 23, 32, 0.45);
+  --tab-surface: #ffffff;
 
-  --sh-raised: 0 1px 1px rgba(64, 52, 38, 0.13),
-               0 1px 3px rgba(64, 52, 38, 0.07),
-               0 14px 28px -18px rgba(64, 52, 38, 0.30);
-  --sh-btn: 0 1px 1px rgba(64, 52, 38, 0.11), 0 1px 2px rgba(64, 52, 38, 0.07);
-  --sh-inset: inset 0 2px 3px rgba(64, 52, 38, 0.11);
-  --sh-sunken: inset 0 2px 4px rgba(64, 52, 38, 0.08);
+  --sh-raised: 0 1px 1px rgba(16, 23, 32, 0.11),
+               0 1px 3px rgba(16, 23, 32, 0.06),
+               0 14px 28px -18px rgba(16, 23, 32, 0.28);
+  --sh-btn: 0 1px 1px rgba(16, 23, 32, 0.10), 0 1px 2px rgba(16, 23, 32, 0.06);
+  --sh-inset: inset 0 2px 3px rgba(16, 23, 32, 0.10);
+  --sh-sunken: inset 0 2px 4px rgba(16, 23, 32, 0.07);
 }
 
 :root {
   --accent-quiet: color-mix(in srgb, var(--accent) 11%, var(--surface));
   --accent-line: color-mix(in srgb, var(--accent) 50%, transparent);
 
-  /* SHAPE — nothing has a hard edge. */
+  /* SHAPE — nothing has a hard edge (Studio). */
   --r-pill: 999px;
-  --r-sm: 999px;   /* tags are pills too; there are no squared corners */
-  --r-md: 14px;    /* tappable */
-  --r-lg: 18px;    /* one record */
+  --r-sm: 999px;
+  --r-md: 14px;
+  --r-lg: 18px;
 
-  /* SPACE — the loosest of the five. Related <= 12, unrelated >= 22. */
+  /* SPACE — the loosest of the five (Studio). Related <= 12, unrelated >= 22. */
   --sp-1: 6px;
   --sp-2: 12px;
   --sp-3: 18px;
@@ -145,18 +135,16 @@
   --sp-6: 48px;
 
   /* TYPE */
-  --t-label: 0.6875rem;    /* 11 — 600, +.12em, uppercase */
-  --t-meta: 0.84375rem;    /* 13.5 — 400 */
+  --t-label: 0.6875rem;    /* 11 — 600, +.08em, uppercase */
+  --t-meta: 0.8125rem;     /* 13 — 400 */
   --t-body: 0.9375rem;     /* 15 — 400 */
-  --t-strong: 1.0625rem;   /* 17 — 600, the row's headline */
-  --t-title: 1.375rem;     /* 22 — 600, serif */
-  --t-figure: 1.875rem;    /* 30 — 500, mono, tabular */
-  --t-display: 2.125rem;   /* 34 — 600, serif, once per screen */
+  --t-strong: 1.03125rem;  /* 16.5 — 600, the row's headline */
+  --t-title: 1.3125rem;    /* 21 — 600, display face */
+  --t-figure: 1.8125rem;   /* 29 — 500, mono, tabular */
+  --t-display: 2rem;       /* 32 — 700, display face, once per screen */
 
-  /* Three faces, three jobs. The display face is the single change that
-     shifts the product's character most. */
-  --f-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
-  --f-body: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-display: "Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --f-body: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --f-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
@@ -183,14 +171,14 @@ body {
 /* Only .display is 700. If a second 700 appears on a screen, that's the bug. */
 .display {
   font-family: var(--f-display); font-optical-sizing: auto;
-  font-size: var(--t-display); font-weight: 600; letter-spacing: -0.014em;
-  line-height: 1.1; margin: 0;
+  font-size: var(--t-display); font-weight: 700; letter-spacing: -0.028em;
+  line-height: 1.06; margin: 0;
 }
 .title {
   font-family: var(--f-display);
   font-optical-sizing: auto;
-  font-size: var(--t-title); font-weight: 600; letter-spacing: -0.01em;
-  line-height: 1.25; margin: 0;
+  font-size: var(--t-title); font-weight: 600; letter-spacing: -0.022em;
+  line-height: 1.22; margin: 0;
 }
 .strong { font-size: var(--t-strong); font-weight: 600; line-height: 1.3; }
 .body { font-size: var(--t-body); font-weight: 400; }
@@ -209,8 +197,8 @@ body {
 }
 /* Headings map onto the scale so raw h1/h2/h3 can never drift off it. */
 h1, h2, h3 { margin: 0; }
-h1 { font-family: var(--f-display); font-optical-sizing: auto; font-size: var(--t-display); font-weight: 600; letter-spacing: -0.014em; line-height: 1.1; }
-h2 { font-family: var(--f-display); font-optical-sizing: auto; font-size: var(--t-title); font-weight: 600; letter-spacing: -0.01em; }
+h1 { font-family: var(--f-display); font-optical-sizing: auto; font-size: var(--t-display); font-weight: 700; letter-spacing: -0.028em; line-height: 1.06; }
+h2 { font-family: var(--f-display); font-optical-sizing: auto; font-size: var(--t-title); font-weight: 600; letter-spacing: -0.022em; }
 h3 { font-size: var(--t-strong); font-weight: 600; }
 p { margin: 0; }
 a { color: var(--accent); text-decoration: none; }
@@ -398,7 +386,7 @@ a { color: var(--accent); text-decoration: none; }
 label.field { display: block; }
 label.field > span {
   display: block; font-size: var(--t-label); font-weight: 600; letter-spacing: 0.06em;
-  text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: var(--sp-1);
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: var(--sp-1);
 }
 .fields { display: flex; flex-direction: column; gap: var(--sp-3); }
 input, select, textarea {
