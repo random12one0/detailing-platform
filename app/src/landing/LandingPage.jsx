@@ -10,6 +10,7 @@
 // job card the dashboard uses, shown as a booking arriving on its own.
 
 import { CalendarCheck2, Smartphone, Wallet } from "lucide-react";
+import { PRICING } from "./pricing.js";
 import "./landing.css";
 
 export default function LandingPage() {
@@ -20,7 +21,7 @@ export default function LandingPage() {
           <a className="ld-mark" href="/">DETAILING PLATFORM</a>
           <div className="links">
             <a href="/app">Sign in</a>
-            <a className="ld-cta quiet" href="/app">Start free</a>
+            <a className="ld-cta quiet" href="/app">Get started</a>
           </div>
         </nav>
 
@@ -37,7 +38,9 @@ export default function LandingPage() {
             </p>
             <div className="ctas">
               <a className="ld-cta big" href="/app">See it with your name on it</a>
-              <span className="fine">Free for your first 30 days. No card.</span>
+              <span className="fine">
+                From ${PRICING.bookingOnly.monthly}/month. No commission, ever.
+              </span>
             </div>
           </div>
 
@@ -147,18 +150,70 @@ export default function LandingPage() {
         </section>
 
         <section aria-labelledby="price">
-          <div className="ld-price">
-            <span className="lab">One price</span>
-            <div className="amount" style={{ marginTop: 12 }}>
-              $29<small>/month</small>
+          <h2 className="disp" id="price">Pricing</h2>
+          <p className="lede">Two ways in. Both run the same booking engine.</p>
+
+          <div className="ld-plans">
+            <div className="plan">
+              <span className="lab">Website + booking</span>
+              <div className="amount">
+                ${PRICING.website.setup}<small> setup</small>
+              </div>
+              <div className="then mono">then ${PRICING.website.monthly}/month</div>
+              <p>
+                A complete site under your own name — services, prices, photos,
+                service area — with booking built in. The setup fee covers
+                building it with you.
+              </p>
+              <p className="alt">
+                Or ${PRICING.annual}/year paid once — $
+                {PRICING.website.monthly * 12 - PRICING.annual} less than paying
+                monthly.
+              </p>
             </div>
+            <div className="plan">
+              <span className="lab">Booking page only</span>
+              <div className="amount">
+                ${PRICING.bookingOnly.monthly}<small>/month</small>
+              </div>
+              <div className="then mono">no setup fee</div>
+              <p>
+                Just the booking page, at a link that's yours. Keep the website
+                you have — or run from your bio until you want one.
+              </p>
+            </div>
+          </div>
+
+          {/* A real limit, not urgency theater: the count lives in
+              pricing.js, and at 0 this block is gone entirely. */}
+          {PRICING.founding && PRICING.founding.spotsLeft > 0 && (
+            <div className="ld-founding">
+              <span className="lab" style={{ color: "var(--ac)" }}>
+                Founding customers · {PRICING.founding.spotsLeft} of {PRICING.founding.total} left
+              </span>
+              <p style={{ margin: "8px 0 0" }}>
+                The first {PRICING.founding.total} accounts get the website plan
+                for <span className="mono">${PRICING.founding.setup}</span> setup
+                and <span className="mono">${PRICING.founding.monthly}/month</span>,
+                locked for the life of the account. The price never rises while
+                the account stays open.
+              </p>
+            </div>
+          )}
+
+          <div className="ld-price">
+            <span className="lab">Every plan</span>
             <ul>
               <li>No commission — a fully booked month costs the same as a slow one</li>
               <li>Your customers and their numbers are yours, always</li>
               <li>Unlimited services, bookings and photos</li>
               <li>Cancel any time; your data leaves with you</li>
             </ul>
-            <a className="ld-cta big" href="/app">Start your 30 free days</a>
+            <a className="ld-cta big" href="/app">
+              {PRICING.founding && PRICING.founding.spotsLeft > 0
+                ? "Take a founding spot"
+                : "Get started"}
+            </a>
           </div>
         </section>
 

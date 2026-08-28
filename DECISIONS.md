@@ -185,8 +185,19 @@ each picked as the option easiest to change later.
   catch-all kept for bookmarks), booking `/book/:slug`, receipts
   `/booking/:id`. tests/route-contract.test.mjs ties these to the email
   builders in config.ts, whose fallback is now detailingplatform.com.
-- **The landing page's $29/month is a placeholder** the user has not
-  priced; change it before any real customer sees the page.
+- **Landing pricing lives in `app/src/landing/pricing.js`,** not in the
+  JSX: website + booking $900 setup / $60 month (or $600/year), booking
+  page only $35/month, and a founding offer of $499 setup / $40 month for
+  the first 3 accounts, locked for the life of the account. The founding
+  count is a real limit — set `spotsLeft` to 0 as they fill and the whole
+  section, including its call to action, disappears rather than going
+  stale. `tests/landing-pricing.test.mjs` enforces both (no hardcoded
+  prices, no unguarded founding copy) and bans urgency theater.
+
+- **The "30 free days" copy is gone.** It was written beside the
+  placeholder price and no such trial was ever offered; with setup fees it
+  would have been a false claim. Billing is still not implemented — nothing
+  charges anyone yet.
 
 ## Removed on purpose (per the brief — don't be surprised they're gone)
 

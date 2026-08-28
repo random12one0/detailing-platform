@@ -159,12 +159,39 @@
   .ld-rail3 li::after { top: 0; left: 0; }
 }
 
-/* pricing */
-.ld-price {
-  max-width: 460px; margin: 0 auto; text-align: center;
+/* pricing — two ruled columns (a choice, not decoration), then the
+   founding offer as the section's one lit object, then the shared list. */
+.ld-plans { display: grid; grid-template-columns: 1fr; }
+.ld-plans .plan { padding: 24px 0; border-top: 1px solid var(--edge); }
+.ld-plans .plan:last-child { border-bottom: 1px solid var(--edge); }
+@media (min-width: 720px) {
+  .ld-plans { grid-template-columns: 1fr 1fr; gap: 0 44px; }
+  .ld-plans .plan:last-child { border-bottom: 0; }
+  .ld-plans .plan + .plan { border-left: 1px solid var(--edge); padding-left: 44px; }
 }
-.ld-price .amount { font-family: "DM Mono", monospace; font-size: 3.25rem; letter-spacing: -0.02em; line-height: 1; }
-.ld-price .amount small { font-size: 1.125rem; color: var(--i2); letter-spacing: 0; }
+.ld-plans .amount { font-family: "DM Mono", monospace; font-size: 2.5rem; letter-spacing: -0.02em; line-height: 1; margin-top: 12px; }
+.ld-plans .amount small { font-size: 1rem; color: var(--i2); letter-spacing: 0; }
+.ld-plans .then { color: var(--i2); font-size: 0.9375rem; margin-top: 6px; }
+.ld-plans .plan p { color: var(--i2); font-size: 0.9375rem; margin: 12px 0 0; max-width: 26rem; }
+.ld-plans .plan p.alt { color: var(--i3); font-size: 0.875rem; }
+
+.ld-founding {
+  position: relative; margin-top: 28px; padding: 18px 20px;
+  background: var(--lit); border: 1px solid color-mix(in srgb, var(--ac) 40%, var(--edge));
+  border-radius: 12px;
+  box-shadow: 0 -5px 24px -10px color-mix(in srgb, var(--ac) 30%, transparent);
+}
+.ld-founding::before {
+  content: ""; position: absolute; top: -1px; left: 14px; right: 14px;
+  height: 3px; border-radius: 0 0 4px 4px; background: var(--ac);
+  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--ac) 60%, transparent);
+}
+.ld-founding p { color: var(--i2); font-size: 0.9375rem; max-width: 44rem; }
+.ld-founding .mono { color: var(--i); }
+
+.ld-price {
+  max-width: 460px; margin: 40px auto 0; text-align: center;
+}
 .ld-price ul { list-style: none; padding: 0; margin: 22px 0 26px; display: grid; gap: 10px; text-align: left; }
 .ld-price li { display: flex; gap: 10px; color: var(--i2); font-size: 0.9375rem; }
 .ld-price li::before { content: "—"; color: var(--ac); flex-shrink: 0; }
