@@ -45,6 +45,10 @@ export default function LandingPage() {
   const getLede = useReveal();
   const howLede = useReveal();
   const priceLede = useReveal();
+  const seeHead = useReveal();
+  const seeLede = useReveal();
+  const seeList = useReveal();
+  const seeShot = useReveal();
   const foot = useReveal();
   const heroCta = usePointerGlow();
   const priceCta = usePointerGlow();
@@ -171,6 +175,37 @@ export default function LandingPage() {
               </dd>
             </div>
           </dl>
+        </section>
+
+        {/* SHOW THE THING. The page described a booking page in words and
+            never showed one — on a product sold to a trade whose whole
+            business is how something looks. This is a real screenshot of a
+            real booking page at phone size, not a mockup and not stock. */}
+        <section aria-labelledby="see" className="ld-see">
+          <div className="copy">
+            <h2 className="disp" id="see" data-reveal="mask" ref={seeHead}>
+              <span className="ld-line"><span>What your customers see</span></span>
+            </h2>
+            <p className="lede" data-reveal ref={seeLede}>
+              Your name at the top, your services, your prices. No marketplace
+              branding, no other detailers, nobody else’s advert. They pick a
+              service, pick a time you’re actually free, and it’s booked.
+            </p>
+            <ul className="ld-ticks" data-reveal ref={seeList}>
+              <li style={{ "--i": 0 }}>Works on any phone, no app to download</li>
+              <li style={{ "--i": 1 }}>Only shows times you can actually work</li>
+              <li style={{ "--i": 2 }}>They can move or cancel it themselves</li>
+            </ul>
+          </div>
+          <figure className="ld-shot" data-reveal="soft" ref={seeShot}>
+            <img
+              src="/img/booking-page-example.png"
+              width="784" height="1200" loading="lazy" decoding="async"
+              alt="A booking page on a phone: the business name and tagline at the
+                   top, a progress rail, the heading “What can we do for you?”,
+                   and two services with prices and durations."
+            />
+          </figure>
         </section>
 
         <section aria-labelledby="how">

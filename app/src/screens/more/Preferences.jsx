@@ -9,7 +9,8 @@ import { useEffect, useState } from "react";
 import { Group, Setting } from "../../components/controls.jsx";
 import { Segmented } from "../../components/controls.jsx";
 import {
-  PLATFORMS, defaultPrefs, detectPlatform, loadPrefs, savePrefs, saveContact,
+  PLATFORMS, calendarUrlFor, defaultPrefs, detectPlatform, loadPrefs,
+  savePrefs, saveContact,
 } from "../../lib/platform.js";
 
 const PLATFORM_NAME = {
@@ -68,11 +69,9 @@ export default function Preferences() {
                 start_at: now.toISOString(), end_at: end.toISOString(),
                 customer_address: "", customer_phone: "",
               };
-              // Reuse the same builder the booking screens use.
-              import("../../lib/platform.js").then(({ calendarUrlFor }) => {
-                const href = calendarUrlFor(sample, "", prefs.calendar);
-                if (href) window.open(href, "_blank", "noopener");
-              });
+              // The same builder the booking screens use.
+              const href = calendarUrlFor(sample, "", prefs.calendar);
+              if (href) window.open(href, "_blank", "noopener");
             }}
           >
             Test

@@ -544,3 +544,45 @@
   .ld-sweep::after, .ld-card .ld-pass, .ld-card .ld-shine { display: none !important; }
   .ld-progress { display: none !important; }
 }
+
+/* ------------------------------------------------------- THE PRODUCT */
+/* A real screenshot, given room. The page talked about a booking page
+   without ever showing one, which on a product sold to a visual trade is
+   the one thing a stranger most wants to see. No lit treatment here — the
+   hero already holds the light for its part of the page. */
+.ld-see {
+  display: grid; grid-template-columns: 1fr; gap: 34px; align-items: center;
+}
+@media (min-width: 880px) {
+  .ld-see { grid-template-columns: 1fr 0.78fr; gap: 64px; }
+}
+.ld-see .copy { min-width: 0; }
+.ld-see .lede { margin-bottom: 22px; }
+
+.ld-ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.ld-ticks li {
+  display: flex; gap: 12px; align-items: baseline;
+  color: var(--i2); font-size: 0.9375rem;
+  transition-delay: calc(var(--i, 0) * 80ms);
+}
+.ld-ticks li::before {
+  content: ""; flex: none; width: 7px; height: 7px; margin-top: 6px;
+  border-radius: 50%; background: var(--ac);
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--ac) 55%, transparent);
+}
+
+/* The phone sits on the ground with a soft floor shadow rather than a
+   drawn bezel — a fake device frame is exactly the stock-looking move
+   this page is trying to avoid. */
+.ld-shot { margin: 0; display: flex; justify-content: center; }
+.ld-shot img {
+  display: block; width: 100%; max-width: 300px; height: auto;
+  border-radius: 18px;
+  border: 1px solid var(--edge);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.5),
+    0 40px 80px -40px rgba(0, 0, 0, 0.95);
+}
+@media (min-width: 880px) {
+  .ld-shot img { max-width: 330px; }
+}
