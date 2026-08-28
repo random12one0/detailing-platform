@@ -9,16 +9,23 @@ analogies; define any technical term the first time it appears. Technical
 detail belongs in files — chat messages must be understandable to a
 non-programmer.
 
-**Every decision that needs the owner goes in `OWNER.md`, in plain English,
-before the session ends.** Chat is a whiteboard and gets wiped; that file is
-the filing cabinet. Each entry states what the thing actually is (analogy
-first), what happens either way, an explicit recommendation, and what would
-change the answer. `DECISIONS.md` keeps the technical reasoning — never send
-the owner there for an answer. When a decision is settled, move it to
-`OWNER.md`'s "already made" list in one line.
+**Never hand the owner a decision without also handing them what they need
+to make it.** If you catch yourself writing "your call", "owner decision" or
+"flagged for you", the sentence is not finished. Before asking, say in plain
+words:
 
-Also keep `OWNER.md`'s glossary current: any term used with the owner more
-than once belongs in that table.
+- **what the thing actually is** — by analogy, assuming zero knowledge
+- **what happens if they do it, and if they don't** — including what breaks
+- **your own recommendation**, and the reason for it
+- **what would change your answer**, so they know when to revisit
+
+Naming a risk is not explaining it. If the owner still has to ask "so should
+I?", the explanation failed and you write it again — you do not make them
+research it.
+
+Assume nothing is obvious. Any term the owner has not clearly used themselves
+gets defined in the same breath, every time, however basic. They have said
+directly that they would rather have it over-explained than guess.
 
 ## Ground rules
 
@@ -72,7 +79,6 @@ than once belongs in that table.
   to be told rather than guess. Say it only once the work is committed, the
   tests have been run, and anything learned is written to a file — never
   mid-task. If something is still unwritten, write it first, then say it.
-  The rules the owner reads are in `OWNER.md` under "When to clear the chat".
 - Plan before building anything large; stop for approval.
 - Smallest possible diff; no unrequested refactors, deps, files, renames.
 - Stuck twice on one bug: stop editing, write hypothesis + evidence +
@@ -80,9 +86,8 @@ than once belongs in that table.
 
 ## Context (read these, in this order, when new)
 
-1. `OWNER.md` — the owner's own file: open decisions, plain English
-2. `PROJECT-STATE.md` — full state briefing
-3. `docs/HANDOFF.md` — architecture + open threads
-4. `DECISIONS.md` — every judgment call and why
-5. `docs/ux-audit.md` — the dashboard audit and its status
-6. `docs/design-knowledge.md` — design/process research transfer
+1. `PROJECT-STATE.md` — full state briefing
+2. `docs/HANDOFF.md` — architecture + open threads
+3. `DECISIONS.md` — every judgment call and why
+4. `docs/ux-audit.md` — the dashboard audit and its status
+5. `docs/design-knowledge.md` — design/process research transfer
