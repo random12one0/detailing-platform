@@ -151,6 +151,37 @@ export function useScrollProgress() {
   }, []);
 }
 
+// Depth: an element drifts a little slower than the page it sits on. Kept
+// to a dozen pixels — enough to feel like the card is nearer than the
+// ground, not enough to read as an effect.
+export function useParallax(strength = 14) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || prefersReduced()) return;
+    let frame = 0;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        // -1 above the fold to +1 below it.
+        const centre = (r.top + r.height / 2) / window.innerHeight;
+        const offset = (0.5 - centre) * 2 * strength;
+        el.style.setProperty("--py", `${offset.toFixed(1)}px`);
+      });
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [strength]);
+  return ref;
+}
+
 // A figure that counts up when it arrives. The final string is rendered
 // first and its width reserved in `ch`, so the count never nudges the
 // layout — the numbers are mono and tabular for the same reason.

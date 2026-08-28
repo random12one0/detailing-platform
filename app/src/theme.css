@@ -746,3 +746,20 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .nav-row .chev { flex-shrink: 0; color: var(--text-muted); display: flex; }
+
+/* Third-party sign-in. The marque keeps its own colours, so the button is
+   a neutral surface rather than the accent — an accent-filled button with
+   Google's four colours inside it looks like a mistake. */
+.btn.oauth {
+  width: 100%; gap: 10px;
+  background: var(--surface-lit); border: 1px solid var(--border); color: var(--text);
+  font-weight: 600;
+}
+.btn.oauth:hover { border-color: var(--text-muted); }
+/* "or" as a rule with a gap, not a floating word. */
+.or {
+  display: flex; align-items: center; gap: 12px;
+  margin: var(--sp-3) 0; color: var(--text-muted);
+  font-size: var(--t-label); letter-spacing: 0.12em; text-transform: uppercase;
+}
+.or::before, .or::after { content: ""; height: 1px; flex: 1; background: var(--hairline); }

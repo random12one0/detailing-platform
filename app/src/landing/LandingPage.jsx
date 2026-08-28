@@ -14,7 +14,8 @@ import { CalendarCheck2, Smartphone, Wallet } from "lucide-react";
 import { api } from "../lib/api.js";
 import { PRICING } from "./pricing.js";
 import {
-  CountUp, useIntro, usePointerGlow, useReveal, useScrollProgress, useTilt,
+  CountUp, useIntro, useParallax, usePointerGlow, useReveal, useScrollProgress,
+  useTilt,
 } from "./motion.jsx";
 import "./landing.css";
 
@@ -40,6 +41,11 @@ export default function LandingPage() {
   const founding = offer && offer.left > 0;
 
   const demo = useTilt();
+  const demoDepth = useParallax(16);
+  const getLede = useReveal();
+  const howLede = useReveal();
+  const priceLede = useReveal();
+  const foot = useReveal();
   const heroCta = usePointerGlow();
   const priceCta = usePointerGlow();
   const specs = useReveal();
@@ -87,7 +93,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="ld-demo" aria-hidden="true">
+          <div className="ld-demo" aria-hidden="true" ref={demoDepth}>
             <div className="ld-card" ref={demo}>
               <span className="ld-shine" />
               <span className="ld-pass" />
@@ -120,8 +126,10 @@ export default function LandingPage() {
         </header>
 
         <section aria-labelledby="get">
-          <h2 className="disp" id="get" data-reveal ref={getHead}>What you get</h2>
-          <p className="lede">
+          <h2 className="disp" id="get" data-reveal="mask" ref={getHead}>
+            <span className="ld-line"><span>What you get</span></span>
+          </h2>
+          <p className="lede" data-reveal ref={getLede}>
             Not a page builder. Not a directory listing. The whole front door of
             your business, run from your phone.
           </p>
@@ -166,8 +174,10 @@ export default function LandingPage() {
         </section>
 
         <section aria-labelledby="how">
-          <h2 className="disp" id="how" data-reveal ref={howHead}>Live before your next job</h2>
-          <p className="lede">No setup wizard, no migration, no designer.</p>
+          <h2 className="disp" id="how" data-reveal="mask" ref={howHead}>
+            <span className="ld-line"><span>Live before your next job</span></span>
+          </h2>
+          <p className="lede" data-reveal ref={howLede}>No setup wizard, no migration, no designer.</p>
           {/* The same progress rail a customer sees while booking — the
               product's own motif doing the explaining. No boxes. */}
           <ol className="ld-rail3" ref={rail}>
@@ -197,8 +207,10 @@ export default function LandingPage() {
         </section>
 
         <section aria-labelledby="price">
-          <h2 className="disp" id="price" data-reveal ref={priceHead}>Pricing</h2>
-          <p className="lede">Two ways in. Both run the same booking engine.</p>
+          <h2 className="disp" id="price" data-reveal="mask" ref={priceHead}>
+            <span className="ld-line"><span>Pricing</span></span>
+          </h2>
+          <p className="lede" data-reveal ref={priceLede}>Two ways in. Both run the same booking engine.</p>
 
           <div className="ld-plans" ref={plans}>
             {/* The website plan is the section's one lit object: the bar,
@@ -207,7 +219,7 @@ export default function LandingPage() {
                 so it stays a proper card — just an unlit one. */}
             <article
               className={`ld-plan featured${founding ? " has-offer" : ""}`}
-              data-reveal
+              data-reveal="soft"
               style={{ "--i": 0 }}
             >
               {founding && (
@@ -263,7 +275,7 @@ export default function LandingPage() {
               </div>
             </article>
 
-            <article className="ld-plan" data-reveal style={{ "--i": 1 }}>
+            <article className="ld-plan" data-reveal="soft" style={{ "--i": 1 }}>
               <span className="lab">Booking page only</span>
               <div className="amount">
                 <CountUp value={PRICING.bookingOnly.monthly} prefix="$" />
@@ -293,7 +305,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <footer className="ld-foot">
+        <footer className="ld-foot" data-reveal ref={foot}>
           <span className="ld-mark" style={{ fontSize: 13 }}>DETAILING PLATFORM</span>
           <span>Built for the people who never rush a car.</span>
         </footer>
