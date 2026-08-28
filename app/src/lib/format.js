@@ -1,3 +1,4 @@
+import { mapsUrlFor } from "./platform.js";
 export const money = (n) => `$${(Math.round(Number(n || 0) * 100) / 100).toFixed(2)}`;
 
 export const time12 = (hhmm) => {
@@ -37,8 +38,8 @@ export const addDays = (dateStr, n) => {
   return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
 };
 
-// A maps link that works on iOS AND Android (the old app hardcoded Apple
-// Maps). Google Maps URLs open the native app on both platforms and fall
-// back to the browser everywhere else.
-export const mapsUrl = (address) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || "")}`;
+// A maps link that honours the owner's choice of app (Preferences → Maps).
+// It used to always be Google, which is a fine default and the wrong answer
+// for anyone who actually uses Apple Maps or Waze. The decision itself lives
+// in lib/platform.js so there is one place that knows about platforms.
+export const mapsUrl = (address) => mapsUrlFor(address);

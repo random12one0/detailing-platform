@@ -11,17 +11,16 @@
 // itself. Everything else on the card is neutral.
 
 import { CheckCircle2, CreditCard, MessageSquare, Navigation, Phone } from "lucide-react";
-import { money, time12 } from "../lib/format.js";
+import { mapsUrl, money, time12 } from "../lib/format.js";
 
 const STATUS_LABEL = {
   confirmed: "Confirmed", completed: "Completed",
   cancelled: "Cancelled", no_show: "No show", pending: "Pending",
 };
 
-// Android-compatible: a geo: URI opens Google Maps on Android and Apple Maps
-// on iOS. A maps.apple.com link does not work on Android at all.
-const directionsUrl = (address) =>
-  `https://maps.google.com/maps?q=${encodeURIComponent(address)}`;
+// The card had its own hardcoded Google Maps link while the detail sheet
+// used the shared helper, so the same job navigated differently depending on
+// which button you pressed. One helper, which honours Preferences → Maps.
 
 export default function BookingCard({
   booking, onClick, showDate = false, isNext = false,
@@ -87,7 +86,7 @@ export default function BookingCard({
           {(isMobile && booking.customer_address) || booking.customer_phone ? (
             <div className="btnrow">
               {isMobile && booking.customer_address && (
-                <a className="btn sm" href={directionsUrl(booking.customer_address)}
+                <a className="btn sm" href={mapsUrl(booking.customer_address)}
                   target="_blank" rel="noopener noreferrer">
                   <Navigation strokeWidth={2} /> Navigate
                 </a>

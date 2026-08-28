@@ -18,7 +18,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Bell, CalendarClock, ChevronRight, Images, LogOut, MessageSquare,
-  Palette, Store, Tag, Users, Wrench,
+  Palette, Smartphone, Store, Tag, Users, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -33,6 +33,8 @@ import Appearance from "./more/Appearance.jsx";
 import Team from "./more/Team.jsx";
 import Notifications from "./more/Notifications.jsx";
 import MessageTemplates from "./more/MessageTemplates.jsx";
+import Preferences from "./more/Preferences.jsx";
+import { detectPlatform, loadPrefs, PLATFORMS } from "../lib/platform.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const time12 = (t) => {
@@ -56,6 +58,16 @@ function describeHours(rows) {
   return same
     ? `${label} · ${time12(open[0].open_time)} – ${time12(open[0].close_time)}`
     : `${label} · hours vary`;
+}
+
+// The device row answers itself like every other row: what it will open.
+const MAPS_NAME = { apple: "Apple Maps", google: "Google Maps", waze: "Waze" };
+const CAL_NAME = { ics: "calendar file", google: "Google Calendar" };
+function describeDevice() {
+  const p = loadPrefs();
+  const where = detectPlatform() === PLATFORMS.IOS ? "iPhone"
+    : detectPlatform() === PLATFORMS.ANDROID ? "Android" : "this computer";
+  return `${where} · ${MAPS_NAME[p.maps] ?? "Maps"} · ${CAL_NAME[p.calendar] ?? "Calendar"}`;
 }
 
 const humanNotice = (mins) => {
@@ -135,6 +147,9 @@ export default function More() {
     ["Access", [
       ["team", "Team", Users, counts ? n(counts.team, "person", "people") : "…", true],
     ]],
+    ["This device", [
+      ["preferences", "Maps, calendar & contacts", Smartphone, describeDevice(), false],
+    ]],
   ];
 
   const SCREENS = {
@@ -148,6 +163,7 @@ export default function More() {
     notifications: [Notifications, "Notifications"],
     templates: [MessageTemplates, "Message templates"],
     team: [Team, "Team"],
+    preferences: [Preferences, "This device"],
   };
 
   const Active = open ? SCREENS[open][0] : null;

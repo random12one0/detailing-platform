@@ -3,8 +3,9 @@
 // update-booking edge function (validation + conflict checks server-side).
 
 import { useState } from "react";
-import { CalendarPlus, MessageSquare, Navigation, Phone, X } from "lucide-react";
+import { CalendarPlus, MessageSquare, Navigation, Phone, UserPlus, X } from "lucide-react";
 import { api, icsUrl } from "../lib/api.js";
+import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
 import { fillTemplate } from "../lib/templates.js";
 import { dateLong, mapsUrl, money, time12 } from "../lib/format.js";
@@ -134,10 +135,35 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               {/* Works on Android AND iOS (the old app was Apple-Maps-only). */}
               {address && <a className="btn" href={mapsUrl(address)} target="_blank" rel="noreferrer"><Navigation size={18} strokeWidth={2} /> Navigate — {address}</a>}
               {/* One .ics implementation, served with the business's own
-                  timezone stamped on it. */}
-              <a className="btn" href={icsUrl(booking.id, "owner")}>
+                  timezone stamped on it — or a pre-filled Google Calendar
+                  event, per Preferences → Calendar. */}
+              <a
+                className="btn"
+                href={calendarUrlFor(
+                  { ...booking, service_name: (booking.services ?? [])[0]?.name_at_booking },
+                  icsUrl(booking.id, "owner"),
+                )}
+                {...(loadPrefs().calendar === "google"
+                  ? { target: "_blank", rel: "noreferrer" }
+                  : {})}
+              >
                 <CalendarPlus size={18} strokeWidth={2} /> Add to calendar
               </a>
+              {/* There was no way to keep a customer's number. A contact card
+                  is the only route a web app has to the address book. */}
+              {loadPrefs().contacts !== "off" && booking.customer_phone && (
+                <button
+                  className="btn"
+                  onClick={() => saveContact({
+                    name: booking.customer_name,
+                    phone: booking.customer_phone,
+                    email: booking.customer_email,
+                    address: booking.customer_address,
+                  })}
+                >
+                  <UserPlus size={18} strokeWidth={2} /> Add to contacts
+                </button>
+              )}
             </div>
 
             {(booking.customer_notes || booking.admin_notes) && (
