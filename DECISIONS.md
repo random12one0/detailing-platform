@@ -167,6 +167,27 @@ each picked as the option easiest to change later.
   still created by script for now. The screen belongs with the public site
   work.
 
+## Design system (August 2026)
+
+- **docs/design-system.md is law for UI work.** "Raking Light": matte dark
+  ground where one thing per screen is lit (accent bar + bloom + lifted
+  surface). Three voices — Anybody (wide titles / narrow tracked labels),
+  Public Sans prose, DM Mono for every figure. Dark is the home theme;
+  light is the disciplined daytime mode with a tinted bar and no bloom.
+- **Composition varies with content, the theme doesn't.** Cards are for
+  objects, not sections; enumerations are ruled lists, money is a receipt,
+  sequences are rails, headline stats are bare mono figures. Two adjacent
+  blocks with the same treatment should be the same kind of thing.
+- **Accent correction is two-tier.** Fills correct to 3:1 (--accent);
+  accent-as-text corrects to 4.5:1 (--accent-text). Small text colored with
+  --accent is a bug. tests/design-contrast.test.mjs measures the promises.
+- **Routes:** marketing at `/`, dashboard at `/app/*` (legacy `/*`
+  catch-all kept for bookmarks), booking `/book/:slug`, receipts
+  `/booking/:id`. tests/route-contract.test.mjs ties these to the email
+  builders in config.ts, whose fallback is now detailingplatform.com.
+- **The landing page's $29/month is a placeholder** the user has not
+  priced; change it before any real customer sees the page.
+
 ## Removed on purpose (per the brief — don't be surprised they're gone)
 
 - **Monthly plans** — permanent discount with no billing behind it. Table
