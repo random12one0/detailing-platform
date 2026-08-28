@@ -99,3 +99,6 @@ frontend/node_modules/.cache/default-development/3.pack
 
 # Claude Code local machine settings (permission allowlist, not shared)
 .claude/settings.local.json
+
+# Emergent build-tool metadata (pre-conversion tooling, deleted in roadmap 0.1)
+.emergent/
