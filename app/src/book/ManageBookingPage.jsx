@@ -243,7 +243,25 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
               <div className="bk-note" style={{ marginTop: 10 }}>
                 Changes and cancellations close {windowHours} hours before your
                 appointment, so this one is now locked in.
-                {business.phone ? " Give us a call and we'll sort it out." : " Please get in touch and we'll sort it out."}
+                {(receiptBusiness?.phone || receiptBusiness?.email)
+                  ? " Get in touch and we'll sort it out:"
+                  : " Please get in touch and we'll sort it out."}
+                {/* Telling someone to make contact without giving them a way
+                    to do it is not help. Whatever the business has, show it. */}
+                {(receiptBusiness?.phone || receiptBusiness?.email) && (
+                  <div className="bk-row" style={{ marginTop: 8, gap: 12, flexWrap: "wrap" }}>
+                    {receiptBusiness.phone && (
+                      <a className="bk-btn inline" href={`tel:${receiptBusiness.phone.replace(/[^+\d]/g, "")}`}>
+                        {receiptBusiness.phone}
+                      </a>
+                    )}
+                    {receiptBusiness.email && (
+                      <a className="bk-btn inline" href={`mailto:${receiptBusiness.email}`}>
+                        {receiptBusiness.email}
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <>

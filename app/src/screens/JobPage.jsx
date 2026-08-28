@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
-import Login from "./Login.jsx";
+import Auth from "./Auth.jsx";
 import BookingDetail from "../components/BookingDetail.jsx";
 
 export default function JobPage() {
@@ -26,7 +26,7 @@ export default function JobPage() {
   }, [business, id]);
 
   if (loading) return <div className="center"><div className="spinner" /></div>;
-  if (!session) return <Login />;
+  if (!session) return <Auth />;
   if (booking === undefined) return <div className="center"><div className="spinner" /></div>;
   if (booking === null) {
     return (

@@ -57,6 +57,10 @@ Deno.serve(async (req) => {
           slug: business.slug,
           brand_name: business.name,
           phone: business.contact_phone,
+          // Needed by the receipt: when the change window has closed we tell
+          // the customer to get in touch, and telling someone to get in
+          // touch without giving them any way to do it is not help.
+          email: business.contact_email,
           dropoff_address: business.dropoff_address,
           timezone: business.timezone,
           cancellation_window_hours: settings?.cancellation_window_hours ?? 0,

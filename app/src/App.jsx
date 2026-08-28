@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { CalendarDays, CircleDollarSign, Settings, Sun, Users } from "lucide-react";
 import { useBusiness } from "./context/BusinessContext.jsx";
-import Login from "./screens/Login.jsx";
+import Auth from "./screens/Auth.jsx";
+import CreateBusiness from "./screens/CreateBusiness.jsx";
 import Today from "./screens/Today.jsx";
 import Calendar from "./screens/Calendar.jsx";
 import Money from "./screens/Money.jsx";
@@ -27,16 +28,10 @@ export default function App() {
       </div>
     );
   }
-  if (!session) return <Login />;
-  if (!business) {
-    return (
-      <div className="center">
-        <p>This login isn't linked to a business yet.</p>
-        <p className="muted">Ask the platform to finish your account setup.</p>
-        <button className="btn inline" onClick={signOut}>Sign out</button>
-      </div>
-    );
-  }
+  if (!session) return <Auth />;
+  // Signed in with no business: a brand new account (or a Google sign-in)
+  // belongs in business creation, not at a dead end.
+  if (!business) return <CreateBusiness />;
 
   // Staff never see Money. This mirrors the database policies (which are
   // the real enforcement) so the UI doesn't offer what the session can't read.

@@ -39,6 +39,7 @@ export const api = {
   // Reads / utilities.
   availableSlots: (businessSlug, payload) => callFn("available-slots", { business_slug: businessSlug, ...payload }),
   calculateBooking: (businessSlug, payload) => callFn("calculate-booking", { business_slug: businessSlug, ...payload }),
+  createBusiness: (payload) => callFn("create-business", payload),
   sendInvoice: (businessId, bookingId) => callFn("send-invoice", { business_id: businessId, booking_id: bookingId }),
   sendReminder: (businessId, bookingId, target) =>
     callFn("send-owner-reminders", { business_id: businessId, booking_id: bookingId, target }),

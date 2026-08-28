@@ -222,6 +222,30 @@ each picked as the option easiest to change later.
   would have been a false claim. Billing is still not implemented — nothing
   charges anyone yet.
 
+## Signup (August 2026)
+
+- **Signup is two screens, not a wizard:** email + password, then business
+  name, booking link and timezone. `create-business` seeds settings,
+  branding and a Mon–Fri 9–5 week, so a new booking page has open days
+  from the moment it exists. Services are left empty — that is the first
+  thing the owner does.
+
+- **Email confirmation is OFF** (`mailer_autoconfirm = true`). "Straight
+  into the dashboard" is incompatible with a confirmation round trip, and
+  the project has no custom SMTP — Supabase's built-in mailer is rate
+  limited to a handful an hour. The cost is that email addresses are
+  unverified; revisit when a real sending domain exists.
+
+- **Founding pricing is granted by the database, never by the client.**
+  `?offer=founding` is a REQUEST; `claim_founding_spot()` takes a lock on
+  the settings row, counts what is taken and only then marks the business,
+  so the query string cannot mint founding accounts and two simultaneous
+  signups cannot both take the last spot.
+
+- **A user with no business lands in business creation,** not on the old
+  "This login isn't linked to a business yet" dead end. That is also where
+  a Google sign-in for a new account arrives.
+
 ## Removed on purpose (per the brief — don't be surprised they're gone)
 
 - **Monthly plans** — permanent discount with no billing behind it. Table

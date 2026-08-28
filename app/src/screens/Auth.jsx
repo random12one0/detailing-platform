@@ -37,18 +37,27 @@ function GoogleMark() {
   );
 }
 
-export default function Login() {
+export default function Auth() {
+  // Arriving from a pricing button means you came to start, not to sign in.
+  const params = new URLSearchParams(window.location.search);
+  const [mode, setMode] = useState(params.has("plan") || params.has("offer") ? "up" : "in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const providers = useEnabledProviders();
+  const creating = mode === "up";
 
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
     setError("");
-    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: err } = creating
+      ? await supabase.auth.signUp({ email, password })
+      : await supabase.auth.signInWithPassword({ email, password });
+    // On success the session arrives through onAuthStateChange and App
+    // moves on by itself — a brand new account has no business yet, so it
+    // lands in business creation rather than an empty dashboard.
     if (err) setError(err.message);
     setBusy(false);
   };
@@ -68,7 +77,12 @@ export default function Login() {
   return (
     <div className="center" style={{ minHeight: "100dvh", padding: 16 }}>
       <form onSubmit={submit} style={{ width: "100%", maxWidth: 380 }} className="card">
-        <h1 style={{ marginBottom: 16 }}>Sign in</h1>
+        <h1 style={{ marginBottom: 4 }}>{creating ? "Create your account" : "Sign in"}</h1>
+        <p className="quiet" style={{ marginBottom: 16 }}>
+          {creating
+            ? "Two fields now, your business details next."
+            : "Welcome back."}
+        </p>
 
         {providers.google && (
           <>
@@ -86,10 +100,22 @@ export default function Login() {
         </label>
         <label className="field">
           <span>Password</span>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
+          <input
+            type="password" value={password} minLength={creating ? 8 : undefined}
+            onChange={(e) => setPassword(e.target.value)} required
+            autoComplete={creating ? "new-password" : "current-password"}
+          />
         </label>
         {error && <div className="error-box">{error}</div>}
-        <button className="btn primary" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
+        <button className="btn primary" disabled={busy}>
+          {busy ? (creating ? "Creating…" : "Signing in…") : (creating ? "Create account" : "Sign in")}
+        </button>
+        <button
+          type="button" className="btn ghost" style={{ marginTop: 10 }}
+          onClick={() => { setMode(creating ? "in" : "up"); setError(""); }}
+        >
+          {creating ? "I already have an account" : "Create an account"}
+        </button>
       </form>
     </div>
   );
