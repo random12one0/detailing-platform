@@ -52,6 +52,16 @@ export const api = {
       customer_email: customerEmail || null, customer_phone: customerPhone || null,
     }),
   bookingReceipt: (bookingId) => callFn("get-booking-receipt", { id: bookingId }),
+
+  // The founding offer's cap and how many spots are actually left, counted
+  // from the accounts themselves (see the 20260828001000/001100 migrations).
+  // Returns two integers and nothing else — safe to call from the public
+  // marketing page, which has no session.
+  foundingOffer: async () => {
+    const { data, error } = await supabase.rpc("founding_offer");
+    if (error) throw error;
+    return { total: Number(data?.total ?? 0), left: Number(data?.left ?? 0) };
+  },
   cancelBooking: (bookingId) => callFn("cancel-booking", { booking_id: bookingId }),
   rescheduleBooking: (bookingId, bookingDate, startTime) =>
     callFn("reschedule-booking", { booking_id: bookingId, booking_date: bookingDate, start_time: startTime }),

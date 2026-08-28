@@ -1,12 +1,13 @@
-// The landing page quotes real money, so the things that could quietly go
-// wrong are worth pinning:
+// The landing page quotes real money and makes a scarcity claim, so the
+// things that could quietly become untrue are worth pinning:
 //
 //   1. A price hardcoded in the JSX drifts from pricing.js the first time a
 //      number changes, and the page then contradicts itself.
-//   2. The founding offer is a REAL limit. When it fills, the section has to
-//      disappear — not sit there saying "0 spots left" or leave a heading
-//      with nothing under it.
-//   3. No urgency theater and no crossed-out fake original prices.
+//   2. "3 of 3 left" must be COUNTED, not declared. A number typed into a
+//      config file keeps advertising spots after they are taken.
+//   3. A struck-through price must be a real price we actually charge —
+//      never an anchor invented to make another number look smaller.
+//   4. No urgency theater, and no free trial we never offered.
 //
 //   node tests/landing-pricing.test.mjs
 
@@ -19,17 +20,19 @@ const check = (name, cond, detail = "") => {
 };
 
 const jsx = await readFile("app/src/landing/LandingPage.jsx", "utf8");
+const cfg = await readFile("app/src/landing/pricing.js", "utf8");
+const api = await readFile("app/src/lib/api.js", "utf8");
+const sql = await readFile(
+  "supabase/migrations/20260828001100_founding_offer_shape.sql", "utf8");
+const { PRICING } = await import("../app/src/landing/pricing.js");
+
 // What a visitor actually reads: source comments are not copy, and the
 // hero's demo card quotes a fictional customer's job prices, not ours.
 const copy = jsx.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\/\/.*$/gm, "");
 const pricingSection = copy.slice(copy.indexOf('aria-labelledby="price"'));
-const cfg = await readFile("app/src/landing/pricing.js", "utf8");
-const { PRICING } = await import("../app/src/landing/pricing.js");
 
 console.log("test 1: every number comes from the config");
 {
-  // Any "$" followed by digits in the JSX is a literal price. The only
-  // dollar signs allowed are the ones immediately followed by {PRICING...}.
   const literals = [...pricingSection.matchAll(/\$(\d[\d,]*)/g)].map((m) => m[0]);
   check("no hardcoded prices in the pricing section", literals.length === 0, literals.join(" "));
   check("the page imports the config", /import \{ PRICING \} from ".\/pricing.js"/.test(jsx));
@@ -37,40 +40,58 @@ console.log("test 1: every number comes from the config");
     /PRICING\.website\.monthly \* 12 - PRICING\.annual/.test(jsx));
 }
 
-console.log("\ntest 2: the founding offer is a real, removable limit");
+console.log("\ntest 2: the founding offer is counted, not declared");
 {
-  check("the block is guarded on a positive count",
-    /PRICING\.founding && PRICING\.founding\.spotsLeft > 0/.test(jsx));
-  check("the count is a plain config value", Number.isInteger(PRICING.founding?.spotsLeft));
-  check("the config says how to retire it", /spotsLeft/.test(cfg) && /0 hides the offer/.test(cfg));
-  // Nothing outside the guarded block may mention the offer, or removing it
-  // would leave an orphan.
-  // Every line a visitor could READ about the offer must sit inside a
-  // `spotsLeft > 0` guard. (`PRICING.founding` identifier references are not
-  // copy.) There are two such guarded regions — the offer block and the call
-  // to action — so check proximity to a guard rather than one span.
-  const guards = [...copy.matchAll(/spotsLeft > 0/g)].map((m) => m.index);
-  const visible = [...copy.matchAll(/founding/gi)]
-    .map((m) => m.index)
-    .filter((i) => copy.slice(i - 8, i) !== "PRICING.");
-  const unguarded = visible.filter((i) => !guards.some((g) => g < i && i - g < 600));
-  check("every visitor-facing founding line sits inside a guard",
-    guards.length > 0 && unguarded.length === 0,
-    unguarded.map((i) => copy.slice(i - 40, i + 40).replace(/\s+/g, " ")).join(" | "));
+  // The cap and the remaining count must NOT live in the front end.
+  check("pricing.js carries no spot count",
+    !/spotsLeft|left\s*:/.test(cfg) && !/total\s*:\s*\d/.test(cfg));
+  check("the page asks the server for the offer", /api\.foundingOffer\(\)/.test(jsx));
+  check("the API calls the counting function", /rpc\("founding_offer"\)/.test(api));
 
-  check("the call to action degrades when it is filled",
-    /spotsLeft > 0\s*\?\s*"Take a founding spot"\s*:\s*"Get started"/.test(jsx.replace(/\s+/g, " ")));
+  // Fail CLOSED: a failed lookup must show standard pricing, never a spot
+  // we cannot prove is free.
+  check("a failed lookup closes the offer",
+    /catch\([^)]*\)\s*=>\s*\{[^}]*setOffer\(\{ total: 0, left: 0 \}\)/.test(jsx),
+    "expected the catch to set left to 0");
+  check("the guard requires a positive remaining count",
+    /const founding = offer && offer\.left > 0;/.test(jsx));
+
+  // Nothing a visitor can READ about the offer may sit outside that guard.
+  const guards = [...copy.matchAll(/founding \?|founding &&/g)].map((m) => m.index);
+  const visible = [...copy.matchAll(/founding (price|spot|pricing)/gi)].map((m) => m.index);
+  const unguarded = visible.filter((i) => !guards.some((g) => g < i && i - g < 700));
+  check("every visitor-facing founding line sits inside the guard",
+    visible.length > 0 && unguarded.length === 0,
+    unguarded.map((i) => copy.slice(i - 40, i + 40).replace(/\s+/g, " ")).join(" | "));
 }
 
-console.log("\ntest 3: the copy stays plain");
+console.log("\ntest 3: the count is safe to expose");
+{
+  check("the function is security definer", /security definer/i.test(sql));
+  check("it returns counts, not rows",
+    /jsonb_build_object/.test(sql) && !/select \*/i.test(sql));
+  check("anonymous visitors may call it", /grant execute on function public\.founding_offer\(\) to anon/i.test(sql));
+  check("the underlying settings table is not granted", !/grant .*on table.*platform_settings/i.test(sql));
+}
+
+console.log("\ntest 4: the copy stays plain and true");
 {
   const banned = ["unlock", "supercharge", "streamline", "hurry", "act now",
                   "limited time", "don't miss", "revolutioni"];
   const hits = banned.filter((w) => new RegExp(w, "i").test(copy));
   check("no urgency theater or SaaS-speak", hits.length === 0, hits.join(", "));
-  check("no crossed-out original prices", !/line-through|<s>|<del>/.test(copy));
-  // The free-trial claim was placeholder copy written beside a placeholder
-  // price; with setup fees on the table it is not true.
+
+  // A struck price is allowed ONLY when it is the real list price being
+  // replaced by a real discount — never a literal typed in to look big.
+  const struck = [...copy.matchAll(/<s className="was">([^<]*)<\/s>/g)].map((m) => m[1].trim());
+  check("any struck price is the real list price, from config",
+    struck.every((t) => t === "${PRICING.website.setup}"), struck.join(" | "));
+  // `<s` alone also matches <span>; anchor on the real element.
+  check("no struck literal numbers anywhere",
+    !/<s(\s[^>]*)?>\s*\$?\d/.test(copy) && !/<del|line-through/.test(copy));
+  check("the struck price only renders under the offer guard",
+    struck.length === 0 || /founding && <s className="was">/.test(copy));
+
   check("no unearned free-trial promise", !/free days|free trial|no card/i.test(copy));
 }
 

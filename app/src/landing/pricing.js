@@ -1,18 +1,25 @@
-// Pricing shown on the landing page. Plain numbers, edited here only.
+// What the landing page charges. Prices only — edited here.
 //
-// THE FOUNDING OFFER IS A REAL LIMIT. `foundingSpotsLeft` is the count of
-// unclaimed founding accounts — update it by hand as they fill. When it
-// reaches 0 (or you set `founding: null`), the section disappears entirely;
-// nothing else references it, so there is no stale "2 spots left" to forget.
+// The founding offer's CAP and REMAINING COUNT are deliberately NOT here.
+// They are counted in the database from the accounts themselves
+// (public.founding_offer(), added in the 20260828001000/001100
+// migrations), because a number typed into this file goes stale the
+// moment somebody signs up: the page would keep advertising spots that
+// were already taken. Raise or lower the cap with:
+//
+//   update platform_settings set founding_total = <n>;
+//
+// and mark an account as founding with:
+//
+//   update businesses set plan_tier = 'founding' where slug = '<slug>';
+//
+// A churned account releases its spot; the price stays locked for the
+// life of an account that stays open.
 export const PRICING = {
   website: { setup: 900, monthly: 60 },
   bookingOnly: { monthly: 35 },
   annual: 600, // per year, instead of website.monthly × 12
 
-  founding: {
-    total: 3,
-    spotsLeft: 3, // ← update as founding accounts are claimed; 0 hides the offer
-    setup: 499,
-    monthly: 40,
-  },
+  // Founding pricing for the website plan.
+  founding: { setup: 499, monthly: 40 },
 };

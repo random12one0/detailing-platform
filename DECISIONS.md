@@ -185,14 +185,37 @@ each picked as the option easiest to change later.
   catch-all kept for bookmarks), booking `/book/:slug`, receipts
   `/booking/:id`. tests/route-contract.test.mjs ties these to the email
   builders in config.ts, whose fallback is now detailingplatform.com.
-- **Landing pricing lives in `app/src/landing/pricing.js`,** not in the
-  JSX: website + booking $900 setup / $60 month (or $600/year), booking
-  page only $35/month, and a founding offer of $499 setup / $40 month for
-  the first 3 accounts, locked for the life of the account. The founding
-  count is a real limit — set `spotsLeft` to 0 as they fill and the whole
-  section, including its call to action, disappears rather than going
-  stale. `tests/landing-pricing.test.mjs` enforces both (no hardcoded
-  prices, no unguarded founding copy) and bans urgency theater.
+- **Landing prices live in `app/src/landing/pricing.js`,** not in the JSX:
+  website + booking $900 setup / $60 month (or $600/year), booking page
+  only $35/month, founding $499 setup / $40 month.
+
+- **The founding offer is COUNTED, not declared.** `platform_settings`
+  holds the cap and `businesses.plan_tier = 'founding'` marks an account;
+  `public.founding_offer()` (SECURITY DEFINER, granted to anon) returns
+  `{total, left}` and nothing else — a visitor can read the number without
+  reading a row. Mark a founding customer with
+  `update businesses set plan_tier = 'founding' where slug = '<slug>';`
+  and change the cap with `update platform_settings set founding_total = n;`.
+  A churned account releases its spot. The page **fails closed**: if the
+  count cannot be read, it shows standard pricing and makes no scarcity
+  claim at all.
+
+- **The struck $900 is honest.** It is the real, current list price,
+  rendered only while a real founding discount is live and only from
+  config — never a literal typed in to make another number look smaller.
+  `tests/landing-pricing.test.mjs` enforces exactly that, plus: no
+  hardcoded prices, no founding copy outside the guard, no urgency
+  theater, and no free-trial claim.
+
+- **Landing motion** lives in `app/src/landing/motion.jsx`: the opening
+  sequence waits on the display font (no typeface swap mid-headline), a
+  specular sweep crosses the headline, Anybody's width axis opens as
+  headings arrive, figures count up, the demo card holds the cursor, and
+  the rail draws. All transform/opacity; `prefers-reduced-motion` lands
+  every element on its final state immediately; a failsafe reveals content
+  if an observer never fires. The ambient glow is capped at 0.35 opacity
+  because it tints the ground behind text and therefore enters the
+  contrast maths.
 
 - **The "30 free days" copy is gone.** It was written beside the
   placeholder price and no such trial was ever offered; with setup fees it
