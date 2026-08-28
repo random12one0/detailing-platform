@@ -48,8 +48,8 @@ Better than typical for this stage — there is a real, enforced design system:
 
 ## 5. HEALTH
 
-- **Dead component:** `components/MonthlyRevenueChart.jsx` is imported by nothing (grep over `app/src`). Delete or wire in.
-- **Root-level junk from the pre-conversion era, all pointing at a DIFFERENT Supabase project (`adtlnvihwrcqcasqcjwd`):** `create_sample_bookings.js` (with a hardcoded anon JWT committed), `update_packages.js`, `temp_enable_inserts.sql` (**a script that opens anonymous inserts on bookings** — never run this), `deploy.sh`, `deploy-admin.sh`, `.emergent/`, `# Code Citations.md`, `test_result.md`, `FEATURES_VERIFICATION.md`, `PRODUCTION_BOOKING_SYSTEM.md`, `ADVANCED_FEATURES.md`, `ADMIN_SETUP.md`. None referenced by the live app; all deletable clutter, but confirm before deleting.
+- ~~**Dead component:** `components/MonthlyRevenueChart.jsx`~~ — deleted 2026-08-28 (roadmap 0.1).
+- **Root-level junk from the pre-conversion era, all pointing at a DIFFERENT Supabase project (`adtlnvihwrcqcasqcjwd`):** `create_sample_bookings.js` (with a hardcoded anon JWT committed), `update_packages.js`, `temp_enable_inserts.sql` (**a script that opens anonymous inserts on bookings** — never run this), `deploy.sh`, `deploy-admin.sh`, `.emergent/`, `# Code Citations.md`, `test_result.md`, `FEATURES_VERIFICATION.md`, `PRODUCTION_BOOKING_SYSTEM.md`, `ADVANCED_FEATURES.md`, `ADMIN_SETUP.md`. None referenced by the live app. **All deleted 2026-08-28 (roadmap 0.1)**, along with the stray `.gitconfig`; a read-only check proved the anonymous-inserts policy was never applied to the live project. The one thing still open is the owner's: the anon key remains recoverable from git history. See DECISIONS.md.
 - **Broken:** email. `RESEND_API_KEY` is set as a Supabase secret but two real bookings produced *nothing* in Resend — no send, no bounce, no log. Root cause unfound (HANDOFF.md §"unfinished", thread #1).
 - **Never proven:** the reminder sweep. `send-owner-reminders` works when called by hand; pg_cron was never installed, so nothing fires it (HANDOFF #2, DECISIONS).
 - **Unverified:** Android vCard export — only tested in Chromium (HANDOFF #4).
@@ -72,6 +72,6 @@ Better than typical for this stage — there is a real, enforced design system:
 
 1. **Fix email.** Highest-value open thread. Start by reading `supabase/functions/send-email` + `_shared` config, then `query_logs` on the function for a real booking — the total silence smells like the send being skipped before the API call (env var name mismatch or a guard), not a Resend failure.
 2. **Wire the reminder scheduler.** The function is idempotent and deployed; it needs one Supabase Dashboard cron entry (every 15 min). Minutes of work, closes HANDOFF thread #2.
-3. **Delete the pre-conversion junk** (root scripts/SQL/docs listed in §5, plus `MonthlyRevenueChart.jsx`). Includes removing a committed anon key and a policy script that would open anonymous writes. Low effort, removes real hazards.
+3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.
 4. **Resolve the deploy question** — confirm whether Netlify auto-publishes `main`; if it's still manual uploads, connect the repo. One config change; prevents a stale-production surprise.
 5. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.
