@@ -37,6 +37,14 @@ export function BookingBusinessProvider({ slug, children }) {
 
   const profile = state.profile;
 
+  // A customer booking with Riverside should see Riverside in the tab, not
+  // the platform's name. index.html can only carry one static title, so the
+  // public pages set their own.
+  useEffect(() => {
+    const name = profile?.business?.name;
+    if (name) document.title = name;
+  }, [profile]);
+
   // Derived brand tokens — ONE policy, owned by lib/theme.js.
   const brandVars = useMemo(
     () => brandVarsFor(profile?.branding?.primary_color, "light"),
