@@ -16,6 +16,7 @@ it is not built and not deployed.
 
 | Read this | For |
 |---|---|
+| [`OWNER.md`](OWNER.md) | **Start here if you're not a programmer** — open decisions in plain English, and when to clear the chat |
 | [`CLAUDE.md`](CLAUDE.md) | The session rules — read before changing anything |
 | [`docs/HANDOFF.md`](docs/HANDOFF.md) | Architecture and open threads |
 | [`PROJECT-STATE.md`](PROJECT-STATE.md) | Full state briefing |
