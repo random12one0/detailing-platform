@@ -1,9 +1,8 @@
 // Platform-wide configuration.
 //
 // PLATFORM_URL is read from the environment so a deployment can point at
-// wherever it actually lives; detailplatform.com is the PLACEHOLDER default
-// for when the real domain exists. Without the override every confirmation
-// email links to a domain that does not resolve.
+// wherever it actually lives. detailingplatform.com is the real, purchased
+// domain (2026-08-27).
 //
 // THESE PATHS MUST MATCH app/src/main.jsx. They did not: this file emitted
 // /{slug} and /{slug}/booking/{id} while the router serves /book/:slug and
@@ -12,7 +11,7 @@
 // and showed them the STAFF SIGN-IN screen. Caught end-to-end in a browser,
 // not by any unit test — nothing had ever followed the link.
 
-const DEFAULT_PLATFORM_URL = "https://detailplatform.com";
+const DEFAULT_PLATFORM_URL = "https://detailingplatform.com";
 
 // Normalised once: no trailing slash, so joins below are unambiguous.
 export const PLATFORM_URL =
@@ -43,4 +42,4 @@ export function receiptUrl(_slug: string, bookingId: string): string {
 // change which domain mail claims to come from — that is a deliverability
 // decision, not a URL one.
 export const PLATFORM_FROM_ADDRESS =
-  Deno.env.get("PLATFORM_FROM_ADDRESS") || "bookings@detailplatform.com";
+  Deno.env.get("PLATFORM_FROM_ADDRESS") || "bookings@detailingplatform.com";

@@ -9,6 +9,7 @@ import { uploadBusinessPhoto } from "../../lib/upload.js";
 import TimezonePicker from "../../components/TimezonePicker.jsx";
 import TimezoneChangeGuard from "../../components/TimezoneChangeGuard.jsx";
 import { localTime } from "../../lib/format.js";
+import { DEFAULT_ACCENT } from "../../lib/theme.js";
 
 export default function BusinessInfo() {
   const { business, branding, settings, reload } = useBusiness();
@@ -21,8 +22,8 @@ export default function BusinessInfo() {
     timezone: business.timezone,
   });
   const [brand, setBrand] = useState({
-    primary_color: branding?.primary_color || "#0f172a",
-    secondary_color: branding?.secondary_color || "#0ea5e9",
+    primary_color: branding?.primary_color || DEFAULT_ACCENT.dark,
+    secondary_color: branding?.secondary_color || DEFAULT_ACCENT.light,
     tagline: branding?.tagline || "",
     about_copy: branding?.about_copy || "",
     logo_url: branding?.logo_url || "",

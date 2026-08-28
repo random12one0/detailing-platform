@@ -18,7 +18,9 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
 
   return (
     <>
-      <div className="bk-card">
+      {/* The appointment is the one lit object on this screen — it is the
+          thing being created. Everything else is paper. */}
+      <div className="bk-card selected">
         <div className="bk-step-label">When</div>
         <h3>{dateLabel}</h3>
         <p className="bk-muted">
@@ -32,30 +34,63 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         </p>
       </div>
 
-      <div className="bk-card">
-        <div className="bk-step-label">What</div>
+      {/* The money is a receipt — ruled rows, mono figures, a dashed rule
+          before the total — not another card. */}
+      <div className="bk-receipt">
         {services.map((s) => (
-          <div className="bk-row between" key={s.id} style={{ marginBottom: 4 }}>
+          <div className="line" key={s.id}>
             <span>{s.name}</span>
-            <span className="bk-muted">{money(s.price)}</span>
+            <span className="bk-price">{money(s.price)}</span>
           </div>
         ))}
         {addOns.map((a) => (
-          <div className="bk-row between" key={a.id} style={{ marginBottom: 4 }}>
+          <div className="line" key={a.id}>
             <span>{a.name}</span>
-            <span className="bk-muted">{money(a.price)}</span>
+            <span className="bk-price">{money(a.price)}</span>
           </div>
         ))}
         {quote?.vehicle_size_fee > 0 && (
-          <div className="bk-row between" style={{ marginBottom: 4 }}>
-            <span className="bk-muted">Vehicle size</span>
-            <span className="bk-muted">{money(quote.vehicle_size_fee)}</span>
+          <div className="line muted">
+            <span>Vehicle size</span>
+            <span className="bk-price">{money(quote.vehicle_size_fee)}</span>
           </div>
         )}
+        {quote?.site_discount > 0 && (
+          <div className="line muted">
+            <span>{settings.site_discount_label || `${quote.site_discount_percent}% off`}</span>
+            <span className="bk-price">-{money(quote.site_discount)}</span>
+          </div>
+        )}
+        {quote?.promo_discount > 0 && (
+          <div className="line muted">
+            <span>Promo {quote.promo_code}</span>
+            <span className="bk-price">-{money(quote.promo_discount)}</span>
+          </div>
+        )}
+        {/* The engine rounds to the business's nearest-dollar setting. Without
+            this line, a customer doing the arithmetic watches $1 vanish. */}
+        {quote && quote.total !== quote.subtotal - (quote.promo_discount || 0) && (
+          <div className="line muted">
+            <span>Rounding</span>
+            <span className="bk-price">
+              {quote.total > quote.subtotal - (quote.promo_discount || 0) ? "+" : "-"}
+              {money(Math.abs(quote.total - (quote.subtotal - (quote.promo_discount || 0))))}
+            </span>
+          </div>
+        )}
+        <div className="line total">
+          <strong>Estimated total</strong>
+          <strong className="bk-price" style={{ fontSize: "1.3rem" }}>{money(quote?.total ?? 0)}</strong>
+        </div>
+        <p className="bk-muted" style={{ marginTop: 10 }}>
+          An estimate based on what you told us. If your vehicle needs more work,
+          we’ll talk to you before doing anything extra.
+        </p>
       </div>
 
-      <div className="bk-card">
-        <div className="bk-step-label">Promo code</div>
+      {/* Promo entry rides under the receipt as a plain row, not a box. */}
+      <div>
+        <div className="bk-step-label" style={{ marginBottom: 8 }}>Promo code</div>
         <div className="bk-row" style={{ gap: 8 }}>
           <input
             value={form.promoCode}
@@ -66,38 +101,12 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             {promoState.checking ? "Checking" : "Apply"}
           </button>
         </div>
-        {promoState.error && <div className="bk-error" style={{ marginBottom: 0 }}>{promoState.error}</div>}
+        {promoState.error && <div className="bk-error" style={{ marginBottom: 0, marginTop: 8 }}>{promoState.error}</div>}
         {promoState.applied && (
           <p className="bk-muted" style={{ marginTop: 8, color: "var(--bk-success)" }}>
             {promoState.applied} applied.
           </p>
         )}
-      </div>
-
-      <div className="bk-card">
-        <div className="bk-step-label">Total</div>
-        {quote?.site_discount > 0 && (
-          <div className="bk-row between" style={{ marginBottom: 4 }}>
-            <span className="bk-muted">
-              {settings.site_discount_label || `${quote.site_discount_percent}% off`}
-            </span>
-            <span className="bk-muted">-{money(quote.site_discount)}</span>
-          </div>
-        )}
-        {quote?.promo_discount > 0 && (
-          <div className="bk-row between" style={{ marginBottom: 4 }}>
-            <span className="bk-muted">Promo {quote.promo_code}</span>
-            <span className="bk-muted">-{money(quote.promo_discount)}</span>
-          </div>
-        )}
-        <div className="bk-row between" style={{ marginTop: 6 }}>
-          <strong>Estimated total</strong>
-          <strong style={{ fontSize: "1.3rem" }}>{money(quote?.total ?? 0)}</strong>
-        </div>
-        <p className="bk-muted" style={{ marginTop: 8 }}>
-          An estimate based on what you told us. If your vehicle needs more work,
-          we’ll talk to you before doing anything extra.
-        </p>
       </div>
     </>
   );

@@ -6,11 +6,11 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { PRESET_COLORS, applyTheme, correctAccent } from "../../lib/theme.js";
+import { PRESET_COLORS, applyTheme, correctAccent, DEFAULT_ACCENT } from "../../lib/theme.js";
 
 export default function Appearance() {
   const { business, branding, themeMode, setThemeMode, reload } = useBusiness();
-  const [custom, setCustom] = useState(branding?.primary_color || "#0ea5e9");
+  const [custom, setCustom] = useState(branding?.primary_color || DEFAULT_ACCENT.dark);
   const [msg, setMsg] = useState(null);
 
   const saveBrandColor = async (hex) => {

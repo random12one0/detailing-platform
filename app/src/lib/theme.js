@@ -11,8 +11,9 @@
 
 // Must match --bg in theme.css. The accent is corrected against the
 // GROUND, which is what the eye compares a coloured control to.
-const THEME_BG = { dark: "#0b0f16", light: "#e5eaf2" };
-const DEFAULT_ACCENT = { dark: "#a78bfa", light: "#6d3fd4" };
+// Must match --bg in theme.css (docs/design-system.md is law).
+const THEME_BG = { dark: "#0F1012", light: "#E7E7E5" };
+const DEFAULT_ACCENT = { dark: "#57B2E8", light: "#0D689D" };
 
 // Accent-vs-background must clear WCAG's non-text component minimum (3:1);
 // text ON the accent must clear the normal-text minimum (4.5:1).
@@ -98,10 +99,10 @@ export function inkFor(accentHex) {
 }
 
 // Nudge lightness (hue and saturation untouched) away from the background
-// until the accent clears MIN_ACCENT_CONTRAST — a light brand color gets
+// until the accent clears the given minimum — a light brand color gets
 // darkened on a light theme, lightened on a dark theme. Falls back to the
 // theme default if the color is so extreme no step passes.
-export function correctAccent(brandHex, mode) {
+function correctToward(brandHex, mode, min) {
   const bg = THEME_BG[mode];
   let hex;
   try {
@@ -109,7 +110,7 @@ export function correctAccent(brandHex, mode) {
   } catch {
     return DEFAULT_ACCENT[mode];
   }
-  if (contrastRatio(hex, bg) >= MIN_ACCENT_CONTRAST) return hex;
+  if (contrastRatio(hex, bg) >= min) return hex;
 
   const darkBg = luminance(hexToRgb(bg)) < 0.5;
   const [h, s, l] = rgbToHsl(hexToRgb(hex));
@@ -117,10 +118,37 @@ export function correctAccent(brandHex, mode) {
   for (let i = 1; i <= 40; i++) {
     const nl = darkBg ? Math.min(0.95, l + i * 0.02) : Math.max(0.08, l - i * 0.02);
     const candidate = rgbToHex(hslToRgb([h, s, nl]));
-    if (contrastRatio(candidate, bg) >= MIN_ACCENT_CONTRAST) return candidate;
+    if (contrastRatio(candidate, bg) >= min) return candidate;
   }
   return DEFAULT_ACCENT[mode];
 }
+
+// Fills and large marks: WCAG non-text contrast (3:1) keeps the brand color
+// as close to the owner's choice as legibility allows.
+export function correctAccent(brandHex, mode) {
+  return correctToward(brandHex, mode, MIN_ACCENT_CONTRAST);
+}
+
+// Accent used AS TEXT (tab labels, links, status pills) is small text and
+// must clear 4.5:1 — pushed further from the brand where needed.
+export function accentTextFor(brandHex, mode) {
+  return correctToward(brandHex, mode, MIN_INK_CONTRAST);
+}
+
+// The booking page's accent, as CSS custom properties. This is the ONE
+// policy for public pages — mode comes from the page, the default comes
+// from here, and the ink fallback matches applyTheme's. The booking context
+// used to re-implement this sequence inline, which forked the policy.
+export function brandVarsFor(brandHex, mode = "light") {
+  const accent = correctAccent(brandHex || DEFAULT_ACCENT[mode], mode);
+  let ink = inkFor(accent);
+  if (contrastRatio(accent, ink) < MIN_INK_CONTRAST) {
+    ink = contrastRatio(accent, "#ffffff") > contrastRatio(accent, "#000000") ? "#ffffff" : "#000000";
+  }
+  return { "--bk-accent": accent, "--bk-accent-ink": ink, "--bk-bg": THEME_BG[mode] };
+}
+
+export { DEFAULT_ACCENT };
 
 // --- Application -----------------------------------------------------------
 
@@ -139,6 +167,7 @@ export function applyTheme(mode, brandHex) {
   const root = document.documentElement.style;
   root.setProperty("--accent", accent);
   root.setProperty("--accent-ink", ink);
+  root.setProperty("--accent-text", accentTextFor(brandHex || DEFAULT_ACCENT[m], m));
 }
 
 // Saved per user (per browser); defaults to dark.

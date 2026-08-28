@@ -34,6 +34,8 @@ console.log("\ntest 1: the routes the emails point at exist");
   check("router serves /book/:slug", routes.includes("/book/:slug"), routes.join(","));
   check("router serves /booking/:id", routes.includes("/booking/:id"), routes.join(","));
   check("router still has a catch-all", routes.includes("/*"));
+  check("the landing page owns /", routes.includes("/"));
+  check("the dashboard lives at /app/*", routes.includes("/app/*"));
 }
 
 console.log("\ntest 2: config.ts builds those exact paths");
@@ -62,8 +64,12 @@ console.log("\ntest 3: the platform URL is overridable per deployment");
   check("a trailing slash cannot double up", /replace\(\/\\\/\+\$\/, ""\)/.test(config), "expected trailing-slash strip");
   // The sending domain must NOT follow a preview deployment, or preview mail
   // would claim to come from a domain that isn't the verified sender.
+  // It reads its own env var, with a literal domain as the fallback — never
+  // a template over PLATFORM_URL/PLATFORM_DOMAIN.
+  const fromExpr = config.match(/PLATFORM_FROM_ADDRESS =\n?([\s\S]*?);/)?.[1] ?? "";
   check("the from-address is not derived from PLATFORM_URL",
-    /PLATFORM_FROM_ADDRESS = "bookings@/.test(config));
+    /"bookings@[a-z.]+"/.test(fromExpr) && !/PLATFORM_URL|PLATFORM_DOMAIN/.test(fromExpr),
+    fromExpr.trim());
 }
 
 console.log("\ntest 4: the public routes sit outside the owner's session context");
@@ -77,8 +83,14 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
     !/Wrapped|BusinessProvider/.test(bookLine), bookLine.trim());
   check("/booking/:id is not wrapped in the session provider",
     !/Wrapped|BusinessProvider/.test(manageLine), manageLine.trim());
-  const appLine = main.split("\n").find((l) => l.includes('path="/*"')) ?? "";
-  check("the dashboard catch-all IS wrapped", /Wrapped|BusinessProvider/.test(appLine), appLine.trim());
+  const appLine = main.split("\n").find((l) => l.includes('path="/app/*"')) ?? "";
+  check("the dashboard at /app/* IS wrapped", /Wrapped|BusinessProvider/.test(appLine), appLine.trim());
+  const legacyLine = main.split("\n").find((l) => l.includes('path="/*"')) ?? "";
+  check("the legacy catch-all IS wrapped", /Wrapped|BusinessProvider/.test(legacyLine), legacyLine.trim());
+  // A customer landing on / is a visitor, not staff: no session round trip.
+  const rootLine = main.split("\n").find((l) => l.includes('path="/"')) ?? "";
+  check("the landing page is not wrapped in the session provider",
+    !/Wrapped|BusinessProvider/.test(rootLine), rootLine.trim());
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

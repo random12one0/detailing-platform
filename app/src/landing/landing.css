@@ -1,0 +1,176 @@
+/* The landing page — the showroom (docs/design-system.md).
+   ------------------------------------------------------------------
+   Dark ONLY, by design: this is the one surface that commits to a single
+   visual world — the inspection bay at night — so it paints every colour
+   explicitly and never consults the theme. It is also the surface allowed
+   the richest glow: it is looked at once, indoors, while deciding to buy.
+   The dashboard and booking page stay theme-aware; this does not.
+
+   Scoped under .ld so nothing leaks into /app or /book. */
+
+.ld {
+  --g: #0F1012;
+  --p: #18191C;
+  --lit: #1E2024;
+  --edge: #26282C;
+  --i: #F0F1F2;
+  --i2: #A3A7AC;
+  --i3: #8B9095;
+  --ac: #57B2E8;          /* the platform's own accent — no tenant here */
+  --acink: #04131D;
+  --ok: #4FC08D;
+
+  background: var(--g); color: var(--i);
+  font-family: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px; line-height: 1.55;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+.ld * { box-sizing: border-box; }
+.ld ::selection { background: color-mix(in srgb, var(--ac) 30%, transparent); }
+.ld :focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+
+.ld .wrap { max-width: 1060px; margin: 0 auto; padding: 0 20px; }
+
+.ld .disp {
+  font-family: "Anybody", ui-sans-serif, sans-serif;
+  font-variation-settings: "wdth" 114;
+  font-weight: 700; letter-spacing: -0.015em; line-height: 1.04;
+}
+.ld .lab {
+  font-family: "Anybody", ui-sans-serif, sans-serif;
+  font-variation-settings: "wdth" 88;
+  font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--i3);
+}
+.ld .mono { font-family: "DM Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+/* nav */
+.ld-nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+.ld-mark {
+  font-family: "Anybody", sans-serif; font-variation-settings: "wdth" 106;
+  font-weight: 700; font-size: 15px; letter-spacing: 0.02em; color: var(--i);
+  text-decoration: none;
+}
+.ld-nav .links { display: flex; align-items: center; gap: 18px; }
+.ld-nav a { color: var(--i2); text-decoration: none; font-size: 14px; font-weight: 500; }
+.ld-nav a:hover { color: var(--i); }
+
+.ld-cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 46px; padding: 0 22px; border-radius: 9px;
+  background: var(--ac); color: var(--acink) !important;
+  font-weight: 600; font-size: 14px; text-decoration: none; border: 0; cursor: pointer;
+  box-shadow: 0 0 24px -4px color-mix(in srgb, var(--ac) 55%, transparent);
+  transition: transform 90ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.ld-cta:active { transform: scale(0.98); }
+/* One light per screen: the nav button shares the fold with the hero CTA,
+   so it keeps the accent but not the halo. */
+.ld-cta.quiet { box-shadow: none; }
+.ld-cta.big { min-height: 52px; padding: 0 28px; font-size: 15px; }
+.ld-ghost {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 46px; padding: 0 20px; border-radius: 9px;
+  background: transparent; color: var(--i); border: 1px solid var(--edge);
+  font-weight: 600; font-size: 14px; text-decoration: none; cursor: pointer;
+}
+
+/* hero */
+.ld-hero { display: grid; grid-template-columns: 1fr; gap: 40px; padding: 56px 0 40px; align-items: center; }
+@media (min-width: 880px) { .ld-hero { grid-template-columns: 1.15fr 1fr; padding: 84px 0 64px; } }
+.ld-hero h1 { font-size: clamp(2.5rem, 7vw, 3.9rem); margin: 0; text-wrap: balance; }
+.ld-hero .sub { color: var(--i2); font-size: 1.0625rem; margin: 18px 0 26px; max-width: 34rem; text-wrap: pretty; }
+.ld-hero .ctas { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ld-hero .fine { color: var(--i3); font-size: 0.875rem; }
+
+/* the demo — a live-looking booking card under the light */
+.ld-demo { position: relative; }
+.ld-card {
+  position: relative; background: var(--lit);
+  border: 1px solid color-mix(in srgb, var(--ac) 45%, var(--edge));
+  border-radius: 12px; padding: 20px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ac) 18%, transparent),
+              0 -6px 32px -8px color-mix(in srgb, var(--ac) 40%, transparent),
+              0 14px 40px -18px rgba(0, 0, 0, 0.9);
+}
+.ld-card::before {
+  content: ""; position: absolute; top: -1px; left: 14px; right: 14px;
+  height: 3px; border-radius: 0 0 4px 4px; background: var(--ac);
+  box-shadow: 0 0 16px 1px color-mix(in srgb, var(--ac) 75%, transparent);
+}
+.ld-card::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 64px;
+  border-radius: 12px 12px 0 0; pointer-events: none;
+  background: linear-gradient(color-mix(in srgb, var(--ac) 12%, transparent), transparent);
+}
+.ld-plain { background: var(--p); border: 1px solid var(--edge); border-radius: 12px; padding: 16px 20px; }
+.ld-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+
+/* sections */
+.ld section { padding: 44px 0; }
+.ld section + section { border-top: 1px solid var(--edge); }
+.ld h2.disp { font-size: clamp(1.6rem, 4.5vw, 2.2rem); margin: 0 0 10px; text-wrap: balance; }
+.ld .lede { color: var(--i2); max-width: 38rem; margin: 0 0 26px; text-wrap: pretty; }
+
+/* the spec sheet: full-width ruled rows straight on the ground.
+   Boxes on this page belong to the demo cards alone. */
+.ld-specs { margin: 0; display: block; }
+.ld-specs .row {
+  display: grid; grid-template-columns: 1fr; gap: 8px;
+  padding: 24px 0; border-top: 1px solid var(--edge);
+}
+.ld-specs .row:last-child { border-bottom: 1px solid var(--edge); }
+@media (min-width: 720px) {
+  .ld-specs .row { grid-template-columns: 0.9fr 1.3fr; gap: 32px; padding: 30px 0; }
+}
+.ld-specs dt { display: block; }
+.ld-specs dt svg { color: var(--ac); display: block; margin-bottom: 10px; }
+.ld-specs dt .lab { display: block; margin-bottom: 4px; }
+.ld-specs h3.disp { font-size: 1.375rem; margin: 0; line-height: 1.15; }
+.ld-specs dd { margin: 0; color: var(--i2); font-size: 0.9375rem; max-width: 34rem; align-self: center; }
+
+/* how-it-works: the booking page's own progress rail, blown up.
+   A hairline runs through all three mono numerals; no boxes. */
+.ld-rail3 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; }
+.ld-rail3 li { position: relative; padding: 0 0 26px 26px; }
+.ld-rail3 li::before {
+  content: ""; position: absolute; left: 4px; top: 6px; bottom: -6px;
+  width: 2px; background: var(--edge);
+}
+.ld-rail3 li:last-child::before { display: none; }
+.ld-rail3 li::after {
+  content: ""; position: absolute; left: 0; top: 6px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--g); border: 2px solid var(--i3);
+}
+.ld-rail3 li:first-child::after { border-color: var(--ac); background: var(--ac); }
+.ld-rail3 .n { font-family: "DM Mono", monospace; font-size: 0.8125rem; color: var(--i3); display: block; margin-bottom: 6px; }
+.ld-rail3 li:first-child .n { color: var(--ac); }
+.ld-rail3 h3 { font-size: 1.0625rem; font-weight: 600; margin: 0 0 6px; }
+.ld-rail3 p { color: var(--i2); font-size: 0.9375rem; margin: 0; max-width: 34rem; }
+@media (min-width: 720px) {
+  .ld-rail3 { grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .ld-rail3 li { padding: 22px 0 0; }
+  .ld-rail3 li::before {
+    left: 18px; right: -28px; top: 4px; bottom: auto; width: auto; height: 2px;
+  }
+  .ld-rail3 li:last-child::before { display: block; right: 0; }
+  .ld-rail3 li::after { top: 0; left: 0; }
+}
+
+/* pricing */
+.ld-price {
+  max-width: 460px; margin: 0 auto; text-align: center;
+}
+.ld-price .amount { font-family: "DM Mono", monospace; font-size: 3.25rem; letter-spacing: -0.02em; line-height: 1; }
+.ld-price .amount small { font-size: 1.125rem; color: var(--i2); letter-spacing: 0; }
+.ld-price ul { list-style: none; padding: 0; margin: 22px 0 26px; display: grid; gap: 10px; text-align: left; }
+.ld-price li { display: flex; gap: 10px; color: var(--i2); font-size: 0.9375rem; }
+.ld-price li::before { content: "—"; color: var(--ac); flex-shrink: 0; }
+
+.ld-foot { border-top: 1px solid var(--edge); padding: 26px 0 40px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; color: var(--i3); font-size: 0.8125rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ld *, .ld *::before, .ld *::after { animation: none !important; transition: none !important; }
+}

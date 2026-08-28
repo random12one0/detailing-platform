@@ -97,7 +97,13 @@ console.log("\ntest 1: the .ics file stamps the business's timezone");
     vevent.includes("DTSTART;TZID=America/New_York:") && !/DTSTART:\d/.test(vevent), vevent.slice(0, 200));
   check("local wall clock is 10:00", text.includes(`DTSTART;TZID=America/New_York:${day.replace(/-/g, "")}T100000`), text.match(/DTSTART[^\r\n]*/)?.[0]);
   check("VTIMEZONE block present", text.includes("BEGIN:VTIMEZONE") && text.includes("TZID:America/New_York"));
-  check("PRODID is the platform, not a business name", text.includes("PRODID:-//detailplatform.com//Booking//EN"));
+  // The domain half follows the deployment's PLATFORM_URL (the test site
+  // until detailingplatform.com is linked), so assert the shape and the
+  // absence of any business name rather than one hardcoded host.
+  const prodid = text.match(/PRODID:[^\r\n]*/)?.[0] ?? "";
+  check("PRODID is the platform, not a business name",
+    /^PRODID:-\/\/[a-z0-9.-]+\/\/Booking\/\/EN$/.test(prodid) && !/coastline|riverside|ironclad/i.test(prodid),
+    prodid);
   check("CRLF line endings", text.includes("\r\n"));
   check("owner copy carries the customer's contact", text.includes("555-7100"));
   check("location is the customer address for a mobile job", text.includes("22 Elm St"));

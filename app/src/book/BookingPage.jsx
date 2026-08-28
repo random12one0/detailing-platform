@@ -223,13 +223,17 @@ function BookingFlow() {
       </header>
 
       <div className="bk-wrap">
-        <div className="bk-rail" aria-hidden="true">
-          {STEPS.map((s, i) => (
-            <span key={s} className={i < step ? "done" : i === step ? "current" : ""} />
-          ))}
+        {/* One header unit: without the wrapper, bk-wrap's flex gap opens
+            28px voids between rail, label and heading. */}
+        <div className="bk-step-head">
+          <div className="bk-rail" aria-hidden="true">
+            {STEPS.map((s, i) => (
+              <span key={s} className={i < step ? "done" : i === step ? "current" : ""} />
+            ))}
+          </div>
+          <div className="bk-step-label">Step {step + 1} of {STEPS.length}</div>
+          <h2>{headingFor(stepName, bothModes, settings)}</h2>
         </div>
-        <div className="bk-step-label">Step {step + 1} of {STEPS.length}</div>
-        <h2 style={{ marginBottom: 14 }}>{headingFor(stepName, bothModes, settings)}</h2>
 
         {stepName === "Services" && (
           <StepServices

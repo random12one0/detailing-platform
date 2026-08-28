@@ -9,15 +9,14 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase.js";
-import { contrastRatio, correctAccent, inkFor } from "../lib/theme.js";
+import { brandVarsFor } from "../lib/theme.js";
 
 const Ctx = createContext(null);
 export const useBookingBusiness = () => useContext(Ctx);
 
-// The booking page is always light — it's a public marketing surface, and a
-// customer arriving from a text message shouldn't get whatever theme the
-// last dashboard user picked.
-const PAGE_BG = "#f4f6fa";
+// The booking page is light-first — a customer arriving from a text message
+// shouldn't inherit whatever theme the last dashboard user picked. The
+// ground value comes from lib/theme.js so it can never drift from the CSS.
 
 export function BookingBusinessProvider({ slug, children }) {
   const [state, setState] = useState({ status: "loading", profile: null, error: null });
@@ -38,16 +37,11 @@ export function BookingBusinessProvider({ slug, children }) {
 
   const profile = state.profile;
 
-  // Derived brand tokens — computed once per profile, contrast-corrected.
-  const brandVars = useMemo(() => {
-    const raw = profile?.branding?.primary_color || "#0ea5e9";
-    const accent = correctAccent(raw, "light");
-    let ink = inkFor(accent);
-    if (contrastRatio(accent, ink) < 4.5) {
-      ink = contrastRatio(accent, "#ffffff") > contrastRatio(accent, "#000000") ? "#ffffff" : "#000000";
-    }
-    return { "--bk-accent": accent, "--bk-accent-ink": ink, "--bk-bg": PAGE_BG };
-  }, [profile]);
+  // Derived brand tokens — ONE policy, owned by lib/theme.js.
+  const brandVars = useMemo(
+    () => brandVarsFor(profile?.branding?.primary_color, "light"),
+    [profile],
+  );
 
   const value = useMemo(() => {
     const settings = profile?.settings ?? {};

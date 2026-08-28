@@ -77,27 +77,27 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
       {addOns.length > 0 && (
         <>
           <div className="bk-step-label" style={{ marginTop: 20 }}>Add extras</div>
-          {addOns.map((a) => {
-            const on = form.addOns.includes(a.id);
-            return (
-              <div
-                key={a.id}
-                role="button"
-                tabIndex={0}
-                className={`bk-card selectable ${on ? "selected" : ""}`}
-                onClick={() => toggleAddOn(a.id)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleAddOn(a.id); } }}
-              >
-                <div className="bk-row between">
-                  <div>
-                    <h3>{a.name}</h3>
-                    {a.description && <p className="bk-muted">{a.description}</p>}
-                  </div>
+          {/* Extras are a ruled checklist, not more boxes: the boxes on this
+              step are the vehicle sizes you choose BETWEEN; extras stack. */}
+          <div className="bk-list" role="group" aria-label="Add extras">
+            {addOns.map((a) => {
+              const on = form.addOns.includes(a.id);
+              return (
+                <label key={a.id} className={`bk-list-row${on ? " on" : ""}`}>
+                  <input
+                    type="checkbox"
+                    checked={on}
+                    onChange={() => toggleAddOn(a.id)}
+                  />
+                  <span className="grow">
+                    <span className="bk-body" style={{ fontWeight: on ? 600 : 500 }}>{a.name}</span>
+                    {a.description && <span className="bk-muted" style={{ display: "block" }}>{a.description}</span>}
+                  </span>
                   <span className="bk-price">+{money(a.price)}</span>
-                </div>
-              </div>
-            );
-          })}
+                </label>
+              );
+            })}
+          </div>
         </>
       )}
     </>

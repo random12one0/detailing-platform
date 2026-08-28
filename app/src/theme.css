@@ -1,140 +1,141 @@
 /* ONE theme system for the whole dashboard.
    ------------------------------------------------------------------
-   DIRECTION: "Slate" — surfaces behave like physical things. Inputs are
-   wells you press into; actions are raised and catch light. You learn what
-   is pressable by hand rather than by reading, which is what you want from
-   something operated while your attention is on a car.
+   DIRECTION: "Raking Light" — see docs/design-system.md, which is LAW.
+   Read it before changing anything here.
 
-   WHY NOT BORDERLESS. The previous build was Studio: no borders, grouping by
-   a surface step and a shadow. On the marketing-style pages it read well; in
-   the working UI it did not — panels, sheets and the ground all sat at
-   nearly the same value and ran together, and a modal stopped reading as a
-   separate thing at all. The numbers say why: the surface step is 1.14:1,
-   and a soft shadow is a low-contrast gradient. Neither is a boundary.
+   The product borrows the detailer's own instrument: a matte, near-black
+   surface where ONE thing is lit — the next job, the current step, the
+   unsaved change. The reference object is an instrument cluster: wide
+   luminous type (Anybody) on matte black, figures in mono (DM Mono).
 
-   So Slate separates TWICE, deliberately:
-     1. a real border at ~2.5:1 against its own panel — an edge you can see,
-        well short of the black cage that 18:1 would be;
-     2. the elevation model — raised things carry an inner top highlight and
-        an outer shadow, recessed things carry an inset shadow.
-   Either alone is ambiguous. Together, nothing blends.
+   The two laws this file enforces:
 
-   GRAFT FROM LEDGER: every figure is monospaced. In an app about what you
-   earned, giving the numbers their own face is the cheapest way to say the
-   numbers matter, and columns of money align down a screen whether or not
-   they are in a table.
+     ONE LIGHT PER SCREEN   .lit (and .card.attend, its alias) is the bar +
+                            bloom + lifted surface. It marks the screen's
+                            single primary object. Selection is a QUIETER
+                            state (tinted border, no bloom). If two things
+                            glow, one of them is wrong.
 
-   Three rules carry over from the audit:
+     GLOW IS ADDITIVE       every lit element also lifts its surface value
+                            and warms its border, so when sunlight deletes
+                            the bloom, the hierarchy survives. Text >=4.5:1
+                            on every surface it sits on, both themes,
+                            measured in docs/design-system.md.
 
-     TYPE     seven steps, three weights. 700 appears once per screen, on the
-              screen title. Consecutive steps differ by 25% or more.
-
-     SPACE    six steps. Related things get 4 or 8px, unrelated get 26 or
-              40px. 12 and 16 are reserved for inside-a-card structure and
-              card padding — never for separating two groups.
-
-     COLOR    ~90% of any screen is neutral, and the accent appears at most
-              three times: the active tab, the primary action, and one
-              "look here" mark. Signal colour only where the state IS the
-              message.
-
-   The brand accent (--accent / --accent-ink) is set at runtime from
-   business_branding.primary_color, contrast-corrected against the active
-   theme's GROUND (see lib/theme.js). Everything accent-derived below is a
-   color-mix off that token, so a brand change carries through by itself. */
+   Dark is the HOME theme; light is the disciplined daytime mode — same
+   structure, tinted bar, no bloom (a halo on white reads as a printing
+   error). The tenant accent is injected by lib/theme.js (the only JS that
+   writes colour) and contrast-corrected against the active ground. */
 
 :root,
 :root[data-theme="dark"] {
-  --bg: #14171c;              /* the ground */
-  --surface: #1e232a;         /* raised: panels sit ON the ground */
-  --surface-sunken: #171b21;  /* recessed: wells and context */
-  --border: #5b6575;          /* 2.68:1 against --surface. An edge you see. */
-  --hairline: #2c323b;        /* a rule INSIDE a panel — much quieter, so the
-                                 panel edge stays the strongest line. */
-  --text: #eaeef4;
-  --text-2: #aab3c0;
-  --text-muted: #8f99a8;      /* 5.49:1 on --surface, 6.00 sunken, 6.24 ground */
-  --accent: #33c58c;          /* runtime-overridden by the brand color */
-  --accent-ink: #042014;      /* text on accent surfaces, derived at runtime */
-  --success: #34d399;
-  --warning: #fbbf24;
-  --danger: #f87171;
-  --overlay: rgba(6, 8, 11, 0.66);
-  --tab-surface: #1a1e25;
+  --bg: #0F1012;              /* the matte ground */
+  --surface: #18191C;         /* a panel */
+  --surface-lit: #1E2024;     /* the lit panel — pairs with the bar */
+  --surface-sunken: #131416;  /* wells, inputs, recessed context */
+  --border: #26282C;
+  --hairline: #1E2023;
+  --text: #F0F1F2;
+  --text-2: #A3A7AC;
+  --text-muted: #8B9095;      /* 4.6:1 on --surface, 5.0:1 on the ground */
+  --accent: #57B2E8;          /* runtime-overridden by the tenant colour */
+  --accent-text: #57B2E8;     /* accent-as-text tier, corrected to 4.5:1 at runtime */
+  --accent-ink: #04131D;      /* derived at runtime */
+  --success: #4FC08D;
+  --warning: #DCA84E;
+  --danger: #E2705F;
+  --overlay: rgba(5, 6, 8, 0.72);
+  --tab-surface: #131416;
 
-  /* Two levels, and only two. A third makes it look like 2010. */
-  --sh-raised: 0 1px 0 rgba(255, 255, 255, 0.045) inset,
-               0 1px 2px rgba(0, 0, 0, 0.4),
-               0 8px 20px -14px rgba(0, 0, 0, 0.85);
-  --sh-btn: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 1px 2px rgba(0, 0, 0, 0.45);
-  --sh-inset: inset 0 2px 4px rgba(0, 0, 0, 0.42);
+  /* THE LIGHT — dark theme carries the real bloom. */
+  --lit-border: color-mix(in srgb, var(--accent) 45%, var(--border));
+  --lit-glow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent),
+              0 -6px 28px -8px color-mix(in srgb, var(--accent) 38%, transparent),
+              0 10px 34px -18px rgba(0, 0, 0, 0.85);
+  --bar-glow: 0 0 14px 1px color-mix(in srgb, var(--accent) 75%, transparent);
+  --pri-glow: 0 0 22px -4px color-mix(in srgb, var(--accent) 55%, transparent);
+  --chip-glow: 0 0 16px -2px color-mix(in srgb, var(--accent) 50%, transparent);
+
+  --sh-raised: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -20px rgba(0, 0, 0, 0.85);
+  --sh-btn: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh-inset: inset 0 2px 4px rgba(0, 0, 0, 0.4);
   --sh-sunken: inset 0 2px 5px rgba(0, 0, 0, 0.32);
-  --sh-sheet: 0 -1px 0 rgba(255, 255, 255, 0.05) inset, 0 -20px 50px -12px rgba(0, 0, 0, 0.8);
+  --sh-sheet: 0 -24px 60px -18px rgba(0, 0, 0, 0.85);
 }
 
 :root[data-theme="light"] {
-  /* The ground is DARKER than the panels — panels sit on something rather
-     than being cut out of it. */
-  --bg: #e8eaee;
-  --surface: #f8f9fb;
-  --surface-sunken: #dfe2e8;
-  --border: #96a0b0;          /* 2.51:1 against --surface */
-  --hairline: #d5d9e0;
-  --text: #191d24;
-  --text-2: #444b57;
-  --text-muted: #59616e;      /* clears 4.5:1 on all three surfaces */
-  --accent: #0e8a5f;
-  --accent-ink: #ffffff;
-  --success: #0e9f6e;
-  --warning: #b45309;
-  --danger: #dc2626;
-  --overlay: rgba(25, 29, 36, 0.42);
-  --tab-surface: #f8f9fb;
+  /* Daytime mode: matte greys, no bloom anywhere. */
+  --bg: #E7E7E5;
+  --surface: #F3F3F1;
+  --surface-lit: #FCFCFB;
+  --surface-sunken: #DEDEDB;
+  --border: #C6C6C2;
+  --hairline: #E0E0DD;
+  --text: #151515;
+  --text-2: #4A4D49;
+  --text-muted: #5D605C;
+  --accent: #0D689D;
+  --accent-text: #0D689D;
+  --accent-ink: #FFFFFF;
+  --success: #1E7A4E;
+  --warning: #8A5A14;
+  --danger: #A83A2C;
+  --overlay: rgba(18, 18, 18, 0.42);
+  --tab-surface: #F3F3F1;
 
-  --sh-raised: 0 1px 0 rgba(255, 255, 255, 0.9) inset,
-               0 1px 2px rgba(28, 33, 40, 0.07),
-               0 8px 20px -14px rgba(28, 33, 40, 0.3);
-  --sh-btn: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 1px 2px rgba(28, 33, 40, 0.11);
-  --sh-inset: inset 0 2px 3px rgba(28, 33, 40, 0.1);
-  --sh-sunken: inset 0 2px 4px rgba(28, 33, 40, 0.07);
-  --sh-sheet: 0 -1px 0 rgba(255, 255, 255, 0.9) inset, 0 -20px 50px -12px rgba(28, 33, 40, 0.35);
+  --lit-border: color-mix(in srgb, var(--accent) 55%, var(--border));
+  --lit-glow: 0 -4px 18px -8px color-mix(in srgb, var(--accent) 25%, transparent);
+  --bar-glow: none;
+  --pri-glow: none;
+  --chip-glow: none;
+
+  --sh-raised: 0 1px 2px rgba(21, 21, 21, 0.07), 0 8px 22px -16px rgba(21, 21, 21, 0.28);
+  --sh-btn: 0 1px 2px rgba(21, 21, 21, 0.09);
+  --sh-inset: inset 0 2px 3px rgba(21, 21, 21, 0.09);
+  --sh-sunken: inset 0 2px 4px rgba(21, 21, 21, 0.07);
+  --sh-sheet: 0 -24px 60px -18px rgba(21, 21, 21, 0.3);
 }
 
 :root {
-  --accent-quiet: color-mix(in srgb, var(--accent) 12%, var(--surface));
-  --accent-line: color-mix(in srgb, var(--accent) 55%, transparent);
+  --accent-quiet: color-mix(in srgb, var(--accent) 11%, var(--surface));
+  --accent-line: color-mix(in srgb, var(--accent) 50%, transparent);
 
-  /* SHAPE — a manufactured radius: neither square nor soft. */
+  /* SHAPE */
   --r-pill: 999px;
-  --r-sm: 6px;    /* a category tag */
-  --r-md: 10px;   /* tappable */
-  --r-lg: 12px;   /* one record */
+  --r-sm: 6px;
+  --r-md: 9px;    /* tappable */
+  --r-lg: 10px;   /* one panel */
 
-  /* SPACE — related <= 8, unrelated >= 26. */
+  /* SPACE — related <= 8, unrelated >= 28. 12/18 are reserved for
+     inside-a-panel structure and panel padding. */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
-  --sp-4: 16px;
-  --sp-5: 26px;
-  --sp-6: 40px;
+  --sp-4: 18px;
+  --sp-5: 28px;
+  --sp-6: 44px;
 
-  /* TYPE */
-  --t-label: 0.6875rem;    /* 11 — 600, +.06em, uppercase */
-  --t-meta: 0.8125rem;     /* 13 — 400 */
-  --t-body: 0.9375rem;     /* 15 — 400 */
-  --t-strong: 1rem;        /* 16 — 600, the row's headline */
-  --t-title: 1.3125rem;    /* 21 — 600, display face */
-  --t-figure: 1.8125rem;   /* 29 — 500, mono, tabular */
-  --t-display: 2rem;       /* 32 — 700, display face, once per screen */
+  /* TYPE — see the three voices below. */
+  --t-label: 0.6875rem;   /* 11 — Anybody narrow, 600, +.16em, caps */
+  --t-meta: 0.8125rem;    /* 13 */
+  --t-body: 0.9375rem;    /* 15 */
+  --t-strong: 1.0625rem;  /* 17 — 600, the row's headline */
+  --t-title: 1.375rem;    /* 22 — Anybody wide, 700 */
+  --t-figure: 1.875rem;   /* 30 — DM Mono, tabular */
+  --t-display: 2.25rem;   /* 36 — Anybody wide, 700, once per screen */
 
-  --f-display: "Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* Three voices, one product. A price set in --f-body is a bug. */
+  --f-display: "Anybody", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --f-body: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --f-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --f-num: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --wdth-wide: 114;
+  --wdth-narrow: 88;
 
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
   --dur-tap: 90ms;
   --dur-fast: 160ms;
   --dur: 200ms;
+  --dur-travel: 300ms;   /* the light moving to a new primary object */
 
   --tap: 46px;
 }
@@ -154,15 +155,16 @@ body {
 /* ---------------------------------------------------------------- TYPE */
 /* Only .display is 700. If a second 700 appears on a screen, that's the bug. */
 .display {
-  font-family: var(--f-display); font-optical-sizing: auto;
-  font-size: var(--t-display); font-weight: 700; letter-spacing: -0.028em;
+  font-family: var(--f-display);
+  font-variation-settings: "wdth" var(--wdth-wide);
+  font-size: var(--t-display); font-weight: 700; letter-spacing: -0.015em;
   line-height: 1.06; margin: 0;
 }
 .title {
   font-family: var(--f-display);
-  font-optical-sizing: auto;
-  font-size: var(--t-title); font-weight: 600; letter-spacing: -0.022em;
-  line-height: 1.22; margin: 0;
+  font-variation-settings: "wdth" var(--wdth-wide);
+  font-size: var(--t-title); font-weight: 700; letter-spacing: -0.012em;
+  line-height: 1.2; margin: 0;
 }
 .strong { font-size: var(--t-strong); font-weight: 600; line-height: 1.3; }
 .body { font-size: var(--t-body); font-weight: 400; }
@@ -171,7 +173,7 @@ body {
    not they are in a table, and the numbers stop looking like sentences. */
 .figure {
   font-family: var(--f-num);
-  font-size: var(--t-figure); font-weight: 500; letter-spacing: -0.02em;
+  font-size: var(--t-figure); font-weight: 500; letter-spacing: -0.015em;
   line-height: 1.12; font-variant-numeric: tabular-nums;
 }
 .figure.lead { font-size: 2.5rem; letter-spacing: -0.026em; line-height: 1.04; }
@@ -181,11 +183,11 @@ body {
 }
 /* Headings map onto the scale so raw h1/h2/h3 can never drift off it. */
 h1, h2, h3 { margin: 0; }
-h1 { font-family: var(--f-display); font-optical-sizing: auto; font-size: var(--t-display); font-weight: 700; letter-spacing: -0.028em; line-height: 1.06; }
-h2 { font-family: var(--f-display); font-optical-sizing: auto; font-size: var(--t-title); font-weight: 600; letter-spacing: -0.022em; }
+h1 { font-family: var(--f-display); font-variation-settings: "wdth" var(--wdth-wide); font-size: var(--t-display); font-weight: 700; letter-spacing: -0.015em; line-height: 1.06; }
+h2 { font-family: var(--f-display); font-variation-settings: "wdth" var(--wdth-wide); font-size: var(--t-title); font-weight: 700; letter-spacing: -0.012em; }
 h3 { font-size: var(--t-strong); font-weight: 600; }
 p { margin: 0; }
-a { color: var(--accent); text-decoration: none; }
+a { color: var(--accent-text); text-decoration: none; }
 .num { font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.015em; }
 
 /* --------------------------------------------------------------- SPACE */
@@ -207,11 +209,29 @@ a { color: var(--accent); text-decoration: none; }
   border-radius: var(--r-lg); padding: var(--sp-4);
   box-shadow: var(--sh-raised);
 }
+/* THE LIGHT. One per screen — the primary object. .card.attend is kept as
+   an alias so existing screens light their "next up" without renaming. */
+.lit, .card.attend {
+  position: relative;
+  background: var(--surface-lit);
+  border-color: var(--lit-border);
+  box-shadow: var(--lit-glow);
+}
+.lit::before, .card.attend::before {
+  content: ""; position: absolute; top: -1px; left: 12px; right: 12px;
+  height: 3px; border-radius: 0 0 4px 4px; background: var(--accent);
+  box-shadow: var(--bar-glow);
+}
+.lit::after, .card.attend::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 56px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0; pointer-events: none;
+  background: linear-gradient(color-mix(in srgb, var(--accent) 12%, transparent), transparent);
+}
 /* The one card that needs attention. A tint, not a new component. */
 /* The one card that needs attention. A tint plus a slightly deeper lift —
    no outline, because introducing one here would make every other card look
    like it was missing something. */
-.card.attend { border-color: var(--accent); background: var(--accent-quiet); }
+
 .card.tappable { cursor: pointer; transition: background var(--dur-fast) var(--ease); }
 .card.tappable:active { background: color-mix(in srgb, var(--text) 5%, var(--surface)); }
 /* Context, not content: no border, so it is one fewer box on the screen. */
@@ -268,7 +288,9 @@ a { color: var(--accent); text-decoration: none; }
   transition: color var(--dur-fast) var(--ease);
 }
 .tabbar button svg { flex-shrink: 0; }
-.tabbar button.active { color: var(--accent); }
+.tabbar button.active { color: var(--accent-text); }
+.tabbar button.active svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent)); }
+:root[data-theme="light"] .tabbar button.active svg { filter: none; }
 
 .topbar {
   position: sticky; top: 0; z-index: 30;
@@ -278,7 +300,9 @@ a { color: var(--accent); text-decoration: none; }
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
 }
 .topbar .brand {
-  font-size: var(--t-body); font-weight: 600;
+  font-family: var(--f-display);
+  font-variation-settings: "wdth" 104;
+  font-size: var(--t-body); font-weight: 700; letter-spacing: 0.01em;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
@@ -301,7 +325,7 @@ a { color: var(--accent); text-decoration: none; }
    place its identity depended on a colour the customer picks. */
 .btn.primary {
   background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--pri-glow);
 }
 .btn.filled { background: var(--surface-sunken); box-shadow: var(--sh-sunken); }
 .btn.danger { background: var(--surface); border-color: var(--danger); color: var(--danger); }
@@ -321,7 +345,7 @@ a { color: var(--accent); text-decoration: none; }
   transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 .chip svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
-.chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; box-shadow: var(--chip-glow); }
 .chip:disabled { opacity: 0.4; cursor: default; }
 .chiprow {
   display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
@@ -332,9 +356,11 @@ a { color: var(--accent); text-decoration: none; }
 
 /* A category that cannot change — square-ish, quiet, never coloured. */
 .tag {
-  display: inline-flex; align-items: center; padding: 2px 7px;
+  display: inline-flex; align-items: center; padding: 2px 8px;
   border-radius: var(--r-sm); background: var(--surface-sunken);
-  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.06em;
+  font-family: var(--f-display);
+  font-variation-settings: "wdth" var(--wdth-narrow);
+  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.14em;
   text-transform: uppercase; color: var(--text-muted);
 }
 .card .tag, .sunken .tag { background: color-mix(in srgb, var(--text) 8%, transparent); }
@@ -351,7 +377,7 @@ a { color: var(--accent); text-decoration: none; }
 .pill.completed, .pill.paid { border-color: color-mix(in srgb, var(--success) 45%, transparent); background: color-mix(in srgb, var(--success) 12%, var(--surface)); color: var(--success); }
 .pill.cancelled { border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); color: var(--danger); }
 .pill.no_show, .pill.pending, .pill.partial { border-color: color-mix(in srgb, var(--warning) 50%, transparent); background: color-mix(in srgb, var(--warning) 12%, var(--surface)); color: var(--warning); }
-.pill.confirmed { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); }
+.pill.confirmed { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent-text); }
 .pill.waived { border-color: var(--border); color: var(--text-muted); }
 
 /* A second indicator meaning with no second hue: hollow ring vs solid dot. */
@@ -369,8 +395,10 @@ a { color: var(--accent); text-decoration: none; }
 /* ----------------------------------------------------------------- FORM */
 label.field { display: block; }
 label.field > span {
-  display: block; font-size: var(--t-label); font-weight: 600; letter-spacing: 0.06em;
-  text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: var(--sp-1);
+  display: block; font-family: var(--f-display);
+  font-variation-settings: "wdth" var(--wdth-narrow);
+  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: var(--sp-1);
 }
 .fields { display: flex; flex-direction: column; gap: var(--sp-3); }
 input, select, textarea {
@@ -459,7 +487,7 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 
 /* Bars for the revenue chart — the accent marks the current period only. */
 .bars { display: flex; align-items: flex-end; gap: 5px; height: 56px; }
-.bars i { flex: 1; background: var(--hairline); border-radius: 2px 2px 0 0; min-height: 2px; transition: height var(--dur) var(--ease); }
+.bars i { flex: 1; background: color-mix(in srgb, var(--text-muted) 30%, transparent); border-radius: 2px 2px 0 0; min-height: 2px; transition: height var(--dur) var(--ease); }
 .bars i.on { background: var(--accent); }
 .barlabels { display: flex; gap: 5px; margin-top: 5px; }
 .barlabels span { flex: 1; text-align: center; font-size: var(--t-label); color: var(--text-muted); letter-spacing: 0; text-transform: none; font-weight: 500; }
@@ -487,7 +515,9 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
    section titles to separate groups gets the right ratio for free. */
 .section-title {
   display: block; margin: var(--sp-5) 0 var(--sp-2);
-  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.06em;
+  font-family: var(--f-display);
+  font-variation-settings: "wdth" var(--wdth-narrow);
+  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.16em;
   text-transform: uppercase; color: var(--text-muted);
 }
 .badge {
@@ -499,7 +529,7 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 .badge.completed, .badge.paid { background: color-mix(in srgb, var(--success) 15%, var(--surface)); color: var(--success); }
 .badge.cancelled { background: color-mix(in srgb, var(--danger) 15%, var(--surface)); color: var(--danger); }
 .badge.no_show, .badge.pending, .badge.partial { background: color-mix(in srgb, var(--warning) 18%, var(--surface)); color: var(--warning); }
-.badge.confirmed { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent); }
+.badge.confirmed { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent-text); }
 .badge.waived { background: var(--surface-sunken); color: var(--text-muted); }
 
 /* An icon never squashes into an oval before its text wraps. */
