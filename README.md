@@ -1,3 +1,9 @@
+> **This README is stale.** It describes *Andrew's Auto Detail* — the original
+> single-business site, now kept read-only under `reference/`. This repository
+> builds **Detailing Platform**, the multi-tenant product sold to detailers.
+> Start at **[`docs/HANDOFF.md`](docs/HANDOFF.md)** for what this repo is and
+> how to run it, then `docs/design-system.md` and `DECISIONS.md`.
+
 # Andrew's Auto Detail & Car Wash 🚗✨
 
 Professional mobile car detailing and wash services booking platform built with React, Supabase, and modern web technologies.
