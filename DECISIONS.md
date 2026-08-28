@@ -262,3 +262,26 @@ each picked as the option easiest to change later.
 - **vCard attachment on owner emails** — small nicety from the old owner
   notification, dropped in the port; easy to re-add to the templates module
   if missed.
+
+## Owner decisions (2026-08-28)
+
+- **Everything "Removed on purpose" above comes back.** The owner wants
+  full parity with the old business: monthly plans, referral/loyalty,
+  Google Calendar sync, the owner test-booking preview, and the vCard
+  attachment are to be re-added — but redesigned as per-tenant,
+  configurable platform features ("in a way that will be best for
+  detailers in the future"), not ports of the single-business versions.
+  Before building, audit `reference/` for anything else dropped silently.
+- **Andrew's Auto Detail becomes tenant #1.** Migrate a copy of its data
+  from the old project (`adtlnvihwrcqcasqcjwd` — the owner has authorized
+  reads), run both sites in parallel, and cut the domain over only when
+  the owner trusts the platform. Nothing on the old site is decommissioned
+  until then. This doubles as the feature-parity test.
+- **Tenant URL tiers.** Booking-only customers live at
+  `detailingplatform.com/book/:slug`. Website-package customers get their
+  own custom domain (Netlify domain alias + a `custom_domain` →
+  business lookup, to be built before the first website customer).
+- **Tenants need full websites, not just booking pages** — home, services,
+  gallery, about, reviews, FAQ, contact — built entirely from tenant
+  configuration. This is the largest remaining build and a prerequisite
+  for the demo business.
