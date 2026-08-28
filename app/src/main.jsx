@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./theme.css";
 import { BusinessProvider } from "./context/BusinessContext.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import App from "./App.jsx";
 import JobPage from "./screens/JobPage.jsx";
 import AcceptInvite from "./screens/AcceptInvite.jsx";
@@ -19,6 +20,7 @@ import LandingPage from "./landing/LandingPage.jsx";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
+      <ErrorBoundary>
       <Routes>
         {/* --- Public. No session. ------------------------------------- */}
         {/* detailingplatform.com/ is the marketing site: someone typing the
@@ -38,6 +40,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/app/*" element={<Wrapped><App /></Wrapped>} />
         <Route path="/*" element={<Wrapped><App /></Wrapped>} />
       </Routes>
+      </ErrorBoundary>
     </BrowserRouter>
   </React.StrictMode>,
 );
