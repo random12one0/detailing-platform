@@ -2,6 +2,13 @@
 
 Read before working. These rules survive every `/clear`; chat instructions don't.
 
+## Talking to the owner
+
+The owner is not a coder. Explain things in plain language with everyday
+analogies; define any technical term the first time it appears. Technical
+detail belongs in files — chat messages must be understandable to a
+non-programmer.
+
 ## Ground rules
 
 - Work on branch `claude/superbase-access-anj1h7`. NEVER commit or merge to
@@ -17,13 +24,19 @@ Read before working. These rules survive every `/clear`; chat instructions don't
 
 ## Design
 
-- `docs/design-system.md` ("Raking Light") is law. Apply it; never propose
-  a new direction. `DESIGN.md` points here for tools.
-- Skill collisions: the aesthetic is settled. Never run system-GENERATING
-  design skills (ui-ux-pro-max, tastemaker, Claude Design, great-design's
-  direction phases). Auditors and appliers (impeccable, animate,
-  review-animations, ship-check; scrollcraft for structure/motion only) are
-  fine. Where a skill's structure meets the identity, the identity wins.
+- VISUAL REDESIGN IN PROGRESS (owner decision 2026-08-28, see `DESIGN.md`).
+  The old system `docs/design-system.md` ("Raking Light") is deprecated as
+  identity — evidence and anti-reference only. Do not apply it or polish
+  toward it. Backend, content, copy facts, and accessibility floors are
+  kept; only the visual world is being replaced.
+- During the redesign phase, direction-generating design skills ARE
+  allowed — that phase is their job. Once the new direction is chosen and
+  written into a rewritten `docs/design-system.md` (with rewritten design
+  tests), the skill-collision rule locks back in: auditors and appliers
+  only, no more direction-inventing.
+- The old design tests (composition, design-contrast) encode the OLD
+  system; expect them to be rewritten with the new one. Don't contort new
+  work to pass old-look tests.
 - Never-defaults (in addition to the design system): Inter/Roboto/Arial/
   system-ui/Space Grotesk as design choices; purple-blue gradients on
   white; three evenly spaced cards; numbered markers on non-sequences;

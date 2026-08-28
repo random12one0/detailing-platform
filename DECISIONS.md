@@ -285,3 +285,11 @@ each picked as the option easiest to change later.
   gallery, about, reviews, FAQ, contact — built entirely from tenant
   configuration. This is the largest remaining build and a prerequisite
   for the demo business.
+- **The visual design restarts from scratch (2026-08-28).** "Raking
+  Light" was picked from a handful of renders before the owner's design
+  research existed; the owner has un-settled it. The backend is kept;
+  every surface gets a new visual world chosen in a proper direction
+  round (references → distinct rendered directions → owner pick →
+  documented system → rewritten design tests). Until the new system is
+  written, docs/design-system.md is evidence of the old look, not a
+  contract — see DESIGN.md and docs/roadmap.md Phase 1.
