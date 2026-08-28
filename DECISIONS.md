@@ -293,3 +293,39 @@ each picked as the option easiest to change later.
   documented system → rewritten design tests). Until the new system is
   written, docs/design-system.md is evidence of the old look, not a
   contract — see DESIGN.md and docs/roadmap.md Phase 1.
+
+## Roadmap 0.1 cleanup (2026-08-28)
+
+- **The old project was never opened to anonymous writes — proven, not
+  assumed.** `temp_enable_inserts.sql` sat in the repo root offering to
+  create `"Allow anonymous inserts for testing"` on `bookings`
+  (`TO anon WITH CHECK (true)`), and nobody knew whether it had ever been
+  run. Three read-only queries against `adtlnvihwrcqcasqcjwd` settle it:
+  no `INSERT` policy exists for `anon` on any table in `public`; no policy
+  by that name exists; `bookings` carries exactly one policy,
+  `bookings_admin_all` (`{authenticated}`, `ALL`, guarded by
+  `is_active_admin()`); RLS is enabled on all 22 public tables. The broad
+  `anon` table grants visible in `information_schema` are the Supabase
+  default and grant nothing without a permitting policy. **No fix was
+  needed on the live project, and the question is closed.**
+- **`.gitconfig` was deleted although roadmap 0.1 does not name it.** Same
+  Emergent provenance as `.emergent/`; it set the commit author to
+  `emergent-agent-e1 <github@emergent.sh>`. Removing it changes no
+  behaviour — git reads `.git/config`, and the effective author was
+  already the owner's.
+- **README.md was rewritten rather than left or deleted (owner's call).**
+  It was 24 KB describing the old single-business site, carried its own
+  "this README is stale" banner, and was the only file outside the
+  deletion set linking to `ADMIN_SETUP.md`. Now 41 lines: what the repo
+  is, and a pointer table into the docs that are actually maintained.
+- **`PROJECT-STATE.md` and `PRODUCT.md` are now tracked (owner's call).**
+  Both existed only on the owner's machine, yet `CLAUDE.md` orders every
+  new session to read `PROJECT-STATE.md` first — a fresh clone would not
+  have had it. Neither contains a credential.
+- **OPEN — owner only: rotate the old project's anon key.** Deleting
+  `create_sample_bookings.js` removed the committed JWT from HEAD but not
+  from git history, where it stays recoverable (ref
+  `adtlnvihwrcqcasqcjwd`, expires 2036). Rotating is a write against a
+  live money-taking system, so it is the owner's action. Severity is low:
+  an anon key is designed to be public-facing, and the check above proves
+  it grants no write access to any table.

@@ -7,12 +7,15 @@ is kept; the entire visual design restarts from scratch.
 
 ## Phase 0 — Fix the plumbing (nothing here depends on the design)
 
-- [ ] 0.1 Cleanup: delete the pre-conversion junk files in the repo root
+- [x] 0.1 Cleanup: delete the pre-conversion junk files in the repo root
       (old seed/update scripts with the committed key, the dangerous
       `temp_enable_inserts.sql`, stale deploy scripts and docs,
       `.emergent/`, the dead `MonthlyRevenueChart.jsx`), and run the
       read-only check on the old project for the anonymous-inserts policy.
-      **OWNER: one-word go.**
+      **Done 2026-08-28** — 15 files removed; the check proved the
+      anonymous-inserts policy was never applied (see DECISIONS.md).
+      Open owner item: rotate the old project's anon key, still in git
+      history.
 - [ ] 0.2 Fix email — bookings currently produce nothing in Resend at all.
       Investigate the send-email function line by line, check its secrets,
       read its logs, find the root cause WITH evidence, fix, prove with a
