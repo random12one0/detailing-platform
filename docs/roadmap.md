@@ -121,3 +121,21 @@ is kept; the entire visual design restarts from scratch.
 - Test on your real phone regularly; what stutters for you stutters for
   detailers.
 - Never start sales calls until Phase 7 is checked off (your own rule).
+
+## Which skills each phase uses
+
+The end-of-session handoff prompt reads this table. `ponytail` is always on.
+Whenever anything visual is produced, the anti-slop floor in
+`docs/design-knowledge.md` §1 and the never-defaults in `CLAUDE.md` apply —
+those are not negotiable by any skill.
+
+| Phase | Use | Never |
+|---|---|---|
+| 0 — plumbing | `cleanup-code` for deletions; `security-review` before anything touching RLS, keys or edge functions | any design skill — nothing here is visual |
+| 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
+| 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
+| 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
+| 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |
+| 5 — Andrew's migration | `security-review`, `code-review`. Real customer data — no shortcuts | anything that writes to the old project without an explicit go-ahead |
+| 6 — demo business | `ship-check` | gray placeholder boxes; the owner's rule is real photography or ask |
+| 7 — launch readiness | `ship-check`, `security-review`, `code-review` at high effort | shipping anything the owner has not seen at 392px |

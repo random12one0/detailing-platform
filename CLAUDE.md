@@ -9,23 +9,14 @@ analogies; define any technical term the first time it appears. Technical
 detail belongs in files — chat messages must be understandable to a
 non-programmer.
 
-**Never hand the owner a decision without also handing them what they need
-to make it.** If you catch yourself writing "your call", "owner decision" or
-"flagged for you", the sentence is not finished. Before asking, say in plain
-words:
-
-- **what the thing actually is** — by analogy, assuming zero knowledge
-- **what happens if they do it, and if they don't** — including what breaks
-- **your own recommendation**, and the reason for it
-- **what would change your answer**, so they know when to revisit
-
-Naming a risk is not explaining it. If the owner still has to ask "so should
-I?", the explanation failed and you write it again — you do not make them
-research it.
-
-Assume nothing is obvious. Any term the owner has not clearly used themselves
-gets defined in the same breath, every time, however basic. They have said
-directly that they would rather have it over-explained than guess.
+**Never hand the owner a decision without what they need to make it — in
+about one paragraph.** "Your call", "owner decision" and "flagged for you"
+are unfinished sentences. In a few plain sentences: what the thing actually
+is (assume zero knowledge, use an analogy), what happens if they do it and
+what happens if they don't, and your own recommendation with the reason.
+Then stop. If it runs past a paragraph or two you are explaining the whole
+system instead of the one choice — cut it back. Naming a risk is not
+explaining it; if they still have to ask "so should I?", it failed.
 
 ## Ground rules
 
@@ -75,10 +66,26 @@ directly that they would rather have it over-explained than guess.
 
 - One queue prompt per session; commit before the next; `/clear` and
   restart a session that goes sideways.
-- **End every finished job by telling the owner "Safe to clear."** They asked
-  to be told rather than guess. Say it only once the work is committed, the
-  tests have been run, and anything learned is written to a file — never
-  mid-task. If something is still unwritten, write it first, then say it.
+- **End every finished job with "Safe to clear." plus a handoff prompt.**
+  The owner asked to be told rather than guess. Say it only once the work is
+  committed, the tests have been run, and anything learned is in a file —
+  never mid-task. If something is still unwritten, write it first.
+  Then give them a short prompt to paste into the next session, in a plain
+  fenced block (no language tag — it is not a shell command). Fill it from
+  `docs/roadmap.md`: the next unchecked item, and its row in that file's
+  "Which skills each phase uses" table.
+
+  ```
+  Next: roadmap <N.N> — <one line, plain words>.
+  Read CLAUDE.md, then PROJECT-STATE.md and docs/roadmap.md.
+  Skills: <from the roadmap table>. <"No design skills — not visual." or,
+  if it is visual, "Anti-slop floor: docs/design-knowledge.md §1 and the
+  never-defaults in CLAUDE.md.">
+  Watch out: <the one thing that isn't obvious from the files, or omit>.
+  ```
+
+  Keep it four lines or fewer. It is a pointer at the files, not a summary
+  of them — the files are what survive the clear.
 - Plan before building anything large; stop for approval.
 - Smallest possible diff; no unrequested refactors, deps, files, renames.
 - Stuck twice on one bug: stop editing, write hypothesis + evidence +
