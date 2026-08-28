@@ -105,13 +105,13 @@ export default function BookingCard({
           ) : null}
 
           {onMarkComplete && booking.status === "confirmed" && (
-            <button className="btn primary" style={{ marginTop: "var(--sp-2)" }}
+            <button className={`btn${isNext ? " primary" : ""}`} style={{ marginTop: "var(--sp-2)" }}
               onClick={() => onMarkComplete(booking)}>
               <CheckCircle2 strokeWidth={2} /> Mark complete
             </button>
           )}
           {onFinalize && booking.status === "completed" && !booking.finalized_at && (
-            <button className="btn primary" style={{ marginTop: "var(--sp-2)" }}
+            <button className={`btn${isNext ? " primary" : ""}`} style={{ marginTop: "var(--sp-2)" }}
               onClick={() => onFinalize(booking)}>
               <CreditCard strokeWidth={2} /> Finalize payment
             </button>

@@ -19,7 +19,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MessageSquare, RotateCcw } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { DEFAULT_TEMPLATES, PLACEHOLDERS, fillTemplate } from "../../lib/templates.js";
+import { DEFAULT_TEMPLATES, PLACEHOLDERS, fillTemplate, findBadTokens } from "../../lib/templates.js";
 
 // What the preview stands in for. Concrete enough to read as a real message.
 const SAMPLE = {
@@ -56,11 +56,20 @@ export default function MessageTemplates() {
 
   const saveOne = async (row, body) => {
     setMsg(null);
+    // Refuse a template that would send with a broken detail in it. The
+    // editor shows raw braces, so a typo is easy to make and invisible
+    // once saved — the message just goes out with "{{custmer_name}}" in it.
+    const problems = findBadTokens(body);
+    if (problems.length > 0) {
+      setMsg({ ok: false, text: `“${row.label}” not saved. ${problems.join(" ")}` });
+      return { ok: false };
+    }
     const { error } = await supabase
       .from("message_templates").update({ body })
       .eq("id", row.id).eq("business_id", business.id);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: `“${row.label}” saved.` });
     if (!error) await load();
+    return { ok: !error };
   };
 
   if (!rows) return <div className="center"><div className="spinner" /></div>;

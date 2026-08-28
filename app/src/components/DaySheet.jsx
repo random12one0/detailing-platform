@@ -16,6 +16,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { dateLong } from "../lib/format.js";
 import BookingCard from "./BookingCard.jsx";
 import Sheet from "./Sheet.jsx";
+import { Switch } from "./controls.jsx";
 
 const hhmm = (t) => (t ? t.slice(0, 5) : "");
 
@@ -128,7 +129,11 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
                   <div className="row" style={{ gap: 8 }}>
                     <Ban size={18} strokeWidth={2} style={{ flexShrink: 0, color: "var(--text-muted)" }} />
                     <div>
-                      <div className="strong">Blocked out</div>
+                      {/* The heading used to name a state the day was not in
+                          ("Blocked out") while the line under it named the
+                          opposite, with a button to the side. It is one
+                          thing with two states, so it is a switch. */}
+                      <div className="strong">Block this day</div>
                       <div className="quiet" style={{ marginTop: 2 }}>
                         {state.blockout
                           ? `${state.blockout.event_name}${state.blockout.all_day ? "" : ` · ${hhmm(state.blockout.start_time)}–${hhmm(state.blockout.end_time)}`}`
@@ -137,10 +142,15 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
                     </div>
                   </div>
                   {canEdit && (
-                    <button className="btn sm inline" disabled={busy}
-                      onClick={() => (state.blockout ? clearBlockout() : setEditing(editing === "blockout" ? null : "blockout"))}>
-                      {state.blockout ? "Remove" : "Block"}
-                    </button>
+                    <Switch
+                      bare
+                      checked={!!state.blockout}
+                      disabled={busy}
+                      onChange={() => (state.blockout
+                        ? clearBlockout()
+                        : setEditing(editing === "blockout" ? null : "blockout"))}
+                      label="Block this day"
+                    />
                   )}
                 </div>
                 {editing === "blockout" && !state.blockout && (

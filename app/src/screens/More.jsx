@@ -23,6 +23,7 @@ import {
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "../components/Sheet.jsx";
+import BookingLink from "../components/BookingLink.jsx";
 import BusinessInfo from "./more/BusinessInfo.jsx";
 import BookingRules from "./more/BookingRules.jsx";
 import Hours from "./more/Hours.jsx";
@@ -121,8 +122,10 @@ export default function More() {
   const GROUPS = [
     ["Your business", [
       ["info", "Business info", Store, business.name, true],
-      ["appearance", "Appearance", Palette,
-        `${branding?.primary_color ?? "Default"} · light and dark`, false],
+      // A hex code as the summary reads like something a developer forgot
+      // to finish. The colour itself says it in one glance.
+      ["appearance", "Appearance", Palette, "Colour and theme", false,
+        branding?.primary_color ?? null],
     ]],
     ["What you sell", [
       ["catalog", "Services & add-ons", Wrench,
@@ -182,9 +185,13 @@ export default function More() {
           <div className="tight" key={title}>
             <span className="label">{title}</span>
             <div className="card setting-card">
-              {visible.map(([key, name, Icon, now]) => (
+              {visible.map(([key, name, Icon, now, , swatch]) => (
                 <button className="nav-row" key={key} onClick={() => setOpen(key)}>
-                  <span className="ico"><Icon size={19} strokeWidth={2} /></span>
+                  <span className="ico">
+                    {swatch
+                      ? <span className="swatch" style={{ background: swatch }} />
+                      : <Icon size={19} strokeWidth={2} />}
+                  </span>
                   <span className="txt">
                     <span className="name">{name}</span>
                     <span className="now">{now}</span>
@@ -197,6 +204,8 @@ export default function More() {
         );
       })}
 
+      {role === "owner" && <BookingLink slug={business.slug} />}
+
       <div className="tight">
         <span className="label">Account</span>
         <div className="card">
@@ -205,11 +214,7 @@ export default function More() {
               <div className="body">
                 Signed in as {role === "owner" ? "an owner" : "staff"}.
               </div>
-              {role === "owner" && (
-                <div className="quiet" style={{ marginTop: 4 }}>
-                  Your booking page: /book/{business.slug}
-                </div>
-              )}
+
             </div>
             <button className="btn" onClick={signOut}>
               <LogOut strokeWidth={2} /> Sign out

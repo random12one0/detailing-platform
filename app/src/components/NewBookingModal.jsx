@@ -10,6 +10,7 @@ import { supabase } from "../lib/supabase.js";
 import { money, time12, todayLocal } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
+import { Segmented } from "./controls.jsx";
 
 export default function NewBookingModal({ onClose, onCreated, initialDate }) {
   const { business } = useBusiness();
@@ -123,16 +124,15 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
         </div>
         <div className="grid2">
           <label className="field"><span>Type</span>
-            <select value={form.service_type} onChange={(e) => setForm({ ...form, service_type: e.target.value })}>
-              <option value="mobile">Mobile</option>
-              <option value="dropoff">Drop-off</option>
-            </select></label>
+            {/* Two options do not need an OS wheel; the app already solves
+                this with Segmented in Booking rules. */}
+            <Segmented value={form.service_type}
+              onChange={(v) => setForm({ ...form, service_type: v })}
+              options={[["mobile", "Mobile"], ["dropoff", "Drop-off"]]} /></label>
           <label className="field"><span>Vehicle size</span>
-            <select value={form.vehicle_size} onChange={(e) => setForm({ ...form, vehicle_size: e.target.value })}>
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-            </select></label>
+            <Segmented value={form.vehicle_size}
+              onChange={(v) => setForm({ ...form, vehicle_size: v })}
+              options={[["small", "Small"], ["medium", "Medium"], ["large", "Large"]]} /></label>
         </div>
         {form.service_type === "mobile" && (
           <label className="field"><span>Address</span>

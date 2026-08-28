@@ -13,6 +13,18 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
 import Sheet from "./Sheet.jsx";
 
+// One vocabulary for the values a person reads, so the same booking does
+// not say "completed" in the sheet and "Completed" on the card, or show the
+// database's own word for a vehicle size.
+const STATUS_LABELS = {
+  confirmed: "Confirmed", completed: "Completed",
+  cancelled: "Cancelled", no_show: "No-show", pending: "Pending",
+};
+const PAY_LABELS = {
+  paid: "Paid", pending: "Unpaid", partial: "Part paid", waived: "Waived",
+};
+const SIZE_LABELS = { small: "Small", medium: "Medium", large: "Large" };
+
 export default function BookingDetail({ booking, onClose, onChanged }) {
   const { business } = useBusiness();
   const [templates, setTemplates] = useState([]);
@@ -101,8 +113,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
         {/* The date and time live in the sheet's own header now, so they are
             not repeated here. */}
         <div className="row wrap" style={{ gap: 6 }}>
-          <span className={`pill ${booking.status}`}>{booking.status.replace("_", " ")}</span>
-          <span className={`pill ${booking.payment_status}`}>{booking.payment_status}</span>
+          {/* These read as raw enum values — lowercase here, title case on
+              the card for the same booking. One vocabulary, one casing. */}
+          <span className={`pill ${booking.status}`}>{STATUS_LABELS[booking.status] ?? booking.status}</span>
+          <span className={`pill ${booking.payment_status}`}>
+            {PAY_LABELS[booking.payment_status] ?? booking.payment_status}
+          </span>
         </div>
 
         {error && <div className="error-box">{error}</div>}
@@ -119,7 +135,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   ` + ${(booking.booking_add_ons ?? []).map((a) => a.add_on?.name).filter(Boolean).join(", ")}`}
               </p>
               <p className="muted">
-                {booking.vehicle_size}
+                {SIZE_LABELS[booking.vehicle_size] ?? booking.vehicle_size}
                 {booking.vehicle_model ? ` · ${booking.vehicle_model}` : ""}
               </p>
               <p style={{ marginTop: 6 }}>
@@ -129,16 +145,27 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             </div>
 
             <div className="section-title">Contact</div>
-            <div className="card stack" style={{ gap: 8 }}>
-              <a className="btn" href={`tel:${booking.customer_phone}`}><Phone size={18} strokeWidth={2} /> Call {booking.customer_phone}</a>
-              <button className="btn" onClick={openTextPicker}><MessageSquare size={18} strokeWidth={2} /> Text</button>
-              {/* Works on Android AND iOS (the old app was Apple-Maps-only). */}
-              {address && <a className="btn" href={mapsUrl(address)} target="_blank" rel="noreferrer"><Navigation size={18} strokeWidth={2} /> Navigate — {address}</a>}
-              {/* One .ics implementation, served with the business's own
-                  timezone stamped on it — or a pre-filled Google Calendar
-                  event, per Preferences → Calendar. */}
+            {/* Four stacked full-width buttons took about 290px to do what
+                the job card does in one 46px row — and Navigate wrapped onto
+                two lines because the address was inside the label. The
+                address is a line of text; the actions are a row. */}
+            {address && <p className="quiet" style={{ marginBottom: 8 }}>{address}</p>}
+            <div className="actions-row">
+              <a className="btn sm" href={`tel:${booking.customer_phone}`}>
+                <Phone size={18} strokeWidth={2} /> Call
+              </a>
+              <button className="btn sm" onClick={openTextPicker}>
+                <MessageSquare size={18} strokeWidth={2} /> Text
+              </button>
+              {address && (
+                <a className="btn sm" href={mapsUrl(address)} target="_blank" rel="noreferrer">
+                  <Navigation size={18} strokeWidth={2} /> Navigate
+                </a>
+              )}
+            </div>
+            <div className="actions-row" style={{ marginTop: 8 }}>
               <a
-                className="btn"
+                className="btn sm"
                 href={calendarUrlFor(
                   { ...booking, service_name: (booking.services ?? [])[0]?.name_at_booking },
                   icsUrl(booking.id, "owner"),
@@ -147,13 +174,11 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   ? { target: "_blank", rel: "noreferrer" }
                   : {})}
               >
-                <CalendarPlus size={18} strokeWidth={2} /> Add to calendar
+                <CalendarPlus size={18} strokeWidth={2} /> Calendar
               </a>
-              {/* There was no way to keep a customer's number. A contact card
-                  is the only route a web app has to the address book. */}
               {loadPrefs().contacts !== "off" && booking.customer_phone && (
                 <button
-                  className="btn"
+                  className="btn sm"
                   onClick={() => saveContact({
                     name: booking.customer_name,
                     phone: booking.customer_phone,
@@ -161,7 +186,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                     address: booking.customer_address,
                   })}
                 >
-                  <UserPlus size={18} strokeWidth={2} /> Add to contacts
+                  <UserPlus size={18} strokeWidth={2} /> Contacts
                 </button>
               )}
             </div>
@@ -195,22 +220,37 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   Send customer reminder
                 </button>
               )}
-              <button className="btn" disabled={busy} onClick={() => setEditing(true)}>Edit details / reschedule</button>
+              <button className="btn" disabled={busy} onClick={() => setEditing(true)}>Change time or details</button>
               <div className="grid2">
                 {booking.status !== "completed" && (
                   <button className="btn" disabled={busy} onClick={() => setStatus("completed")}>Mark completed</button>
                 )}
                 {booking.status !== "no_show" && (
-                  <button className="btn" disabled={busy} onClick={() => setStatus("no_show")}>No-show</button>
+                  <button className="btn" disabled={busy} onClick={() => setStatus("no_show")}>Didn’t show up</button>
                 )}
                 {booking.status !== "cancelled" && (
-                  <button className="btn" disabled={busy} onClick={() => setStatus("cancelled")}>Cancel</button>
+                  <button className="btn" disabled={busy} onClick={() => setStatus("cancelled")}>Cancel the job</button>
                 )}
                 {booking.status === "cancelled" && (
                   <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>Un-cancel</button>
                 )}
               </div>
-              <button className="btn danger" disabled={busy} onClick={softDelete}>Delete booking</button>
+              {/* Delete used to be the biggest, reddest thing in the sheet —
+                  the rarest action given the most weight, sitting beside two
+                  others with no stated difference. Cancelling is what a
+                  detailer nearly always means, so deleting hides behind it
+                  and says what it does that cancelling doesn't. */}
+              <details className="disclose">
+                <summary>Remove this from my records too</summary>
+                <p className="quiet" style={{ margin: "0 0 10px" }}>
+                  Cancelling frees the slot and keeps the job in your history.
+                  Removing takes it out of your records and your totals as well.
+                  It cannot be undone.
+                </p>
+                <button className="btn danger" disabled={busy} onClick={softDelete}>
+                  Remove from records
+                </button>
+              </details>
             </div>
           </>
         ) : (

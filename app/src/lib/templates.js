@@ -11,6 +11,44 @@ export const PLACEHOLDERS = [
   ["{{total}}", "the job's total"],
 ];
 
+// What a template can go wrong in, checked on save.
+//
+// The editor shows raw {{tokens}}, so a slipped brace or a typo'd name is
+// easy to make and invisible afterwards: the message just sends with
+// "{{custmer_name}}" in it, or with a stray "{{" hanging off the end. The
+// full fix is an editor that never shows braces at all; this is the cheap
+// one — refuse to save and say exactly which token is wrong.
+const KNOWN = new Set(PLACEHOLDERS.map(([t]) => t.slice(2, -2)));
+
+export function findBadTokens(body) {
+  const problems = [];
+  const text = String(body || "");
+
+  // A name in well-formed braces that we do not know how to fill.
+  for (const m of text.matchAll(/\{\{\s*([^{}]*?)\s*\}\}/g)) {
+    const name = m[1];
+    if (!KNOWN.has(name)) {
+      problems.push(
+        name.trim() === ""
+          ? "There is an empty {{ }} with nothing in it."
+          : `“{{${name}}}” isn’t one of the details we can fill in.`,
+      );
+    }
+  }
+
+  // Braces that never close, or close without opening. Strip the valid
+  // pairs first so only the broken ones are left to count.
+  const rest = text.replace(/\{\{\s*[^{}]*?\s*\}\}/g, "");
+  if (rest.includes("{{") || /(^|[^{])\{[^{]/.test(rest)) {
+    problems.push("There is a “{{” that never closes with a “}}”.");
+  }
+  if (rest.includes("}}") || /[^}]\}([^}]|$)/.test(rest)) {
+    problems.push("There is a “}}” with no “{{” before it.");
+  }
+
+  return [...new Set(problems)];
+}
+
 export const DEFAULT_TEMPLATES = [
   {
     key: "on_my_way",

@@ -23,7 +23,7 @@ import NewBookingModal from "../components/NewBookingModal.jsx";
 import FinalizeModal from "../components/FinalizeModal.jsx";
 
 export default function Today() {
-  const { business, firstName, session } = useBusiness();
+  const { business, firstName } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
   const { bookings, loading, reload } = useBookings(today, tomorrow);
@@ -42,11 +42,19 @@ export default function Today() {
   const done = todays.filter((b) => b.status === "completed").length;
 
   const nowIso = new Date().toISOString();
-  const nextJob = todays.find((b) => b.end_at > nowIso && b.status === "confirmed");
-  const later = todays.filter((b) => b.id !== nextJob?.id);
   const needFinalize = todays.filter((b) => b.status === "completed" && !b.finalized_at);
-
-  const greetingName = firstName || (session?.user?.email || "").split("@")[0];
+  // The ONE lit card is the next thing to do, and money owed outranks a job
+  // that has not started: a finished job with no payment recorded is the
+  // action the day is actually waiting on.
+  const nextJob = needFinalize[0]
+    ?? todays.find((b) => b.end_at > nowIso && b.status === "confirmed");
+  // Finished-and-paid jobs collapse; they are history by lunchtime.
+  const settled = todays.filter(
+    (b) => b.id !== nextJob?.id && b.status === "completed" && b.finalized_at,
+  );
+  const later = todays.filter(
+    (b) => b.id !== nextJob?.id && !settled.some((d) => d.id === b.id),
+  );
   const hour = Number(
     new Intl.DateTimeFormat("en-US", { timeZone: business.timezone, hour12: false, hour: "2-digit" })
       .format(new Date()),
@@ -70,9 +78,16 @@ export default function Today() {
 
   return (
     <div className="group">
+      {/* The greeting used to be display-sized and used the email local
+          part as a name, which pushed the first job of the day below the
+          fold to say "Evening, demo". The day is the headline now. */}
       <div>
-        <h1 className="display">{partOfDay}{greetingName ? `, ${greetingName}` : ""}</h1>
-        <p className="quiet" style={{ marginTop: 2 }}>{longDate}</p>
+        <h1 className="title">{longDate}</h1>
+        <p className="quiet" style={{ marginTop: 2 }}>
+          {partOfDay}{firstName ? `, ${firstName}` : ""} · {todays.length === 0
+            ? "nothing booked"
+            : `${todays.length - done} of ${todays.length} still to do`}
+        </p>
       </div>
 
       <div className="grid2">
@@ -115,16 +130,32 @@ export default function Today() {
         </div>
       )}
 
+      {settled.length > 0 && (
+        <div className="tight">
+          <span className="label">Done and paid</span>
+          {settled.map((b) => (
+            <button className="settled-row" key={b.id} onClick={() => setSelected(b)}>
+              <span className="nm">{b.customer_name}</span>
+              <span className="figure sm">{money(b.final_amount ?? b.total_price)}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {todays.length === 0 && <div className="dashed">No jobs booked for today.</div>}
 
-      {needFinalize.length > 0 && (
-        <div className="warn-box">
+      {/* This used to repeat, in a box that did nothing, what the card above
+          it already said with a button. It now only speaks for the jobs the
+          lit card is NOT already covering, and pressing it goes there. */}
+      {needFinalize.length > 1 && (
+        <button className="warn-box" onClick={() => setFinalizing(needFinalize[1])}>
           <TriangleAlert strokeWidth={2} />
           <span>
-            {needFinalize.length} finished job{needFinalize.length > 1 ? "s" : ""} still need
-            {needFinalize.length === 1 ? "s" : ""} payment recorded.
+            {needFinalize.length - 1} more finished job
+            {needFinalize.length > 2 ? "s" : ""} still need
+            {needFinalize.length === 2 ? "s" : ""} payment recorded.
           </span>
-        </div>
+        </button>
       )}
 
       <div className="tight">

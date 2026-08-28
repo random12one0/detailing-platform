@@ -23,7 +23,19 @@ export function Setting({ label, help, children, stacked = false }) {
 
 // A real switch rather than a checkbox: the whole row is the target, and the
 // thumb makes the state readable across the room.
-export function Switch({ checked, onChange, label, help }) {
+export function Switch({ checked, onChange, label, help, bare = false, disabled = false }) {
+  // `bare` is the switch on its own, for rows that already carry their own
+  // heading and description (the day sheet). Without it the component
+  // renders a second label beside the one already there.
+  if (bare) {
+    return (
+      <label className={`switch${checked ? " on" : ""}`} aria-label={label}>
+        <input type="checkbox" checked={!!checked} disabled={disabled}
+          onChange={(e) => onChange(e.target.checked)} />
+        <span className="knob" />
+      </label>
+    );
+  }
   return (
     <label className="setting switch-row">
       <div className="setting-text">
@@ -41,11 +53,12 @@ export function Switch({ checked, onChange, label, help }) {
 // Two to four mutually exclusive options. Used where the old UI had separate
 // checkboxes that could contradict each other — a segmented control cannot
 // represent the invalid state at all.
-export function Segmented({ value, onChange, options }) {
+export function Segmented({ value, onChange, options, disabled = false }) {
   return (
-    <div className="segmented" role="radiogroup">
+    <div className={`segmented${disabled ? " is-disabled" : ""}`} role="radiogroup">
       {options.map(([v, label]) => (
         <button key={v} type="button" role="radio" aria-checked={value === v}
+          disabled={disabled}
           className={value === v ? "on" : ""} onClick={() => onChange(v)}>
           {label}
         </button>

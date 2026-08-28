@@ -10,6 +10,11 @@ import { supabase } from "../lib/supabase.js";
 import { money } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
+import { Segmented } from "./controls.jsx";
+
+// The ways a detailer actually gets paid. "Other" keeps the free field
+// useful without making it the default path.
+const METHODS = ["Cash", "Card", "Zelle", "Venmo", "Cash App", "Cheque"];
 
 const PAYMENT_LABELS = {
   paid: "paid",
@@ -89,43 +94,81 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
     <Sheet onClose={onClose} title="Finalize payment"
       subtitle={`Estimated total ${money(booking.total_price)}`}>
 
-        <div className="section-title">Extra items</div>
-        {items.map((it, i) => (
-          <div className="card row between" key={i}>
-            <span>{CATEGORIES.find(([k]) => k === it.category)?.[1]}: {it.label}</span>
-            <span className="row" style={{ gap: 8 }}>
-              {it.category === "discount" ? `-${money(it.amount)}` : money(it.amount)}
-              <button className="btn ghost inline" onClick={() => setItems(items.filter((_, j) => j !== i))} aria-label="Remove"><X size={16} strokeWidth={2} /></button>
-            </span>
-          </div>
-        ))}
-        <div className="grid2">
-          <label className="field"><span>Type</span>
-            <select value={draft.category} onChange={(e) => setDraft({ ...draft, category: e.target.value })}>
-              {CATEGORIES.map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-            </select></label>
-          <label className="field"><span>Amount</span>
-            <input type="number" inputMode="decimal" value={draft.amount}
-              onChange={(e) => setDraft({ ...draft, amount: e.target.value })} /></label>
-        </div>
-        <label className="field"><span>Label</span>
-          <input value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} placeholder="e.g. Pet hair removal" /></label>
-        <button className="btn" onClick={addItem}>Add item</button>
-
-        <div className="section-title">Payment</div>
+        {/* THE COMMON CASE FIRST. This sheet used to open on the extra-items
+            form, so the answer needed on nearly every job — the total, how
+            they paid, and the button that ends it — sat below the fold. */}
         <div className="card row between">
           <strong>Final total</strong>
           <span className="big">{money(finalAmount)}</span>
         </div>
-        <label className="field"><span>Payment status</span>
-          <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
-            <option value="paid">Paid</option>
-            <option value="partial">Partially paid</option>
-            <option value="pending">Not paid yet</option>
-            <option value="waived">Waived</option>
-          </select></label>
-        <label className="field"><span>Payment notes</span>
-          <input value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)} placeholder="e.g. Zelle" /></label>
+
+        <div className="section-title">How they paid</div>
+        <Segmented
+          value={paymentStatus}
+          onChange={setPaymentStatus}
+          options={[["paid", "Paid"], ["partial", "Part paid"], ["pending", "Not yet"], ["waived", "Waived"]]}
+        />
+
+        {/* A detailer takes payment the same three or four ways for years.
+            Typing it every time is slower AND leaves text nobody can total. */}
+        {paymentStatus !== "pending" && paymentStatus !== "waived" && (
+          <>
+            <div className="chips" style={{ marginTop: "var(--sp-3)" }}>
+              {METHODS.map((m) => (
+                <button
+                  key={m} type="button"
+                  className={`chip${paymentNotes === m ? " active" : ""}`}
+                  onClick={() => setPaymentNotes(paymentNotes === m ? "" : m)}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+            <label className="field"><span>Anything to note</span>
+              <input value={paymentNotes} onChange={(e) => setPaymentNotes(e.target.value)}
+                placeholder="Optional — cheque number, split payment…" /></label>
+          </>
+        )}
+
+        {/* Extras are the minority of jobs, so they fold away. */}
+        <details className="disclose" open={items.length > 0}>
+          <summary>Add an extra charge or discount</summary>
+          {/* Added charges are a running list of amounts — a receipt, which
+              is ruled rows, not a stack of cards. */}
+          {items.length > 0 && (
+            <div className="rows">
+              {items.map((it, i) => (
+                <div className="row-item" key={i} style={{ cursor: "default" }}>
+                  <span className="txt">
+                    <span className="nm">{it.label}</span>
+                    <span className="sub">{CATEGORIES.find(([k]) => k === it.category)?.[1]}</span>
+                  </span>
+                  <span className="figure sm">
+                    {it.category === "discount" ? `-${money(it.amount)}` : money(it.amount)}
+                  </span>
+                  <button className="btn ghost inline" onClick={() => setItems(items.filter((_, j) => j !== i))} aria-label="Remove">
+                    <X size={16} strokeWidth={2} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <label className="field"><span>What kind</span>
+            <Segmented
+              value={draft.category}
+              onChange={(v) => setDraft({ ...draft, category: v })}
+              options={CATEGORIES}
+            />
+          </label>
+          <div className="grid2">
+            <label className="field"><span>Amount</span>
+              <input type="number" inputMode="decimal" value={draft.amount}
+                onChange={(e) => setDraft({ ...draft, amount: e.target.value })} /></label>
+            <label className="field"><span>Label</span>
+              <input value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} placeholder="e.g. Pet hair" /></label>
+          </div>
+          <button className="btn" onClick={addItem}>Add item</button>
+        </details>
 
         {error && <div className="error-box">{error}</div>}
 

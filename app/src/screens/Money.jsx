@@ -16,7 +16,7 @@
 // md:-scaled layout that made the phone view a squeezed desktop.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
@@ -44,9 +44,18 @@ const ON_SITE = new Set(["upgrade", "add_on", "custom", "travel_fee", "discount"
 export default function Money() {
   const { business } = useBusiness();
   const today = todayLocal(business.timezone);
-  const thisMonth = monthKey(today);
+  const currentMonth = monthKey(today);
+  // The month being LOOKED AT, which is not always the current one: doing
+  // last month's books at the start of a month had nowhere to go before.
+  const [thisMonth, setThisMonth] = useState(currentMonth);
   const from = `${shiftMonth(thisMonth, -5)}-01`;
-  const { bookings, loading, reload } = useBookings(from, today);
+  // Load to the end of the viewed month, or today if that month is running.
+  const lastOfMonth = (mk) => {
+    const [y, m] = mk.split("-").map(Number);
+    return `${mk}-${String(new Date(y, m, 0).getDate()).padStart(2, "0")}`;
+  };
+  const to = thisMonth === currentMonth ? today : lastOfMonth(thisMonth);
+  const { bookings, loading, reload } = useBookings(from, to);
   const [expenses, setExpenses] = useState([]);
   const [lineItems, setLineItems] = useState([]);
   const [adding, setAdding] = useState(false);
@@ -56,13 +65,13 @@ export default function Money() {
   const loadExtras = useCallback(async () => {
     const [e, li] = await Promise.all([
       supabase.from("expenses").select("*").eq("business_id", business.id)
-        .gte("date", from).lte("date", today).order("date", { ascending: false }),
+        .gte("date", from).lte("date", to).order("date", { ascending: false }),
       supabase.from("booking_line_items").select("booking_id, category, amount, quantity")
         .eq("business_id", business.id),
     ]);
     setExpenses(e.data ?? []);
     setLineItems(li.data ?? []);
-  }, [business.id, from, today]);
+  }, [business.id, from, to]);
 
   useEffect(() => { loadExtras(); }, [loadExtras]);
 
@@ -139,20 +148,36 @@ export default function Money() {
     <div className="group">
       <div>
         <h1 className="display">Money</h1>
-        <p className="quiet" style={{ marginTop: 2 }}>
-          {new Date(`${today}T12:00:00`).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-        </p>
+        {/* The month was a fixed label, so last month's books were
+            unreachable from the screen that keeps them. */}
+        <div className="row between" style={{ marginTop: 4 }}>
+          <button className="btn ghost inline" aria-label="Previous month"
+            onClick={() => setThisMonth(shiftMonth(thisMonth, -1))}>
+            <ChevronLeft size={18} strokeWidth={2} />
+          </button>
+          <span className="strong">
+            {new Date(`${thisMonth}-15T12:00:00`).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+          </span>
+          <button className="btn ghost inline" aria-label="Next month"
+            disabled={thisMonth >= currentMonth}
+            onClick={() => setThisMonth(shiftMonth(thisMonth, 1))}>
+            <ChevronRight size={18} strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
       {/* One lead figure. Net, not revenue — revenue is a vanity number when
           you buy your own supplies. */}
       <div>
-        <span className="label">Net this month</span>
+        <span className="label">{thisMonth === currentMonth ? "Net this month" : "Net that month"}</span>
         <div className="figure lead" style={{ marginTop: 4 }}>{money(stats.netNow)}</div>
         <Delta now={stats.netNow} prev={stats.netPrev} />
         <div className="bars" style={{ marginTop: 14 }}>
+          {/* The bars looked tappable and were not; now they pick the month. */}
           {stats.chart.map((c) => (
-            <i key={c.key} className={c.key === thisMonth ? "on" : ""}
+            <button key={c.key} type="button" className={c.key === thisMonth ? "on" : ""}
+              aria-label={`Show ${c.label}`}
+              onClick={() => setThisMonth(c.key)}
               style={{ height: `${Math.max(2, (Math.abs(c.value) / peak) * 100)}%` }} />
           ))}
         </div>

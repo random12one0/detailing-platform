@@ -60,15 +60,21 @@ export default function Clients() {
       <input placeholder="Search name or phone…" value={search} onChange={(e) => setSearch(e.target.value)}
         style={{ marginBottom: 12 }} />
       {customers.length === 0 && <p className="muted">No customers yet — they appear automatically when bookings come in.</p>}
-      {customers.map((c) => (
-        <div key={c.id} className="card tappable row between" onClick={() => openCustomer(c)}>
-          <div>
-            <strong>{c.name}</strong>
-            <div className="muted">{c.phone}{c.email ? ` · ${c.email}` : ""}</div>
-          </div>
-          <ChevronRight size={18} strokeWidth={2} color="var(--text-muted)" />
-        </div>
-      ))}
+      {/* A ruled list, not a stack of cards. Cards are for objects you pick
+          BETWEEN; a customer list is an enumeration, and eight bordered
+          cards filled a phone screen where rows fit three times as many
+          (docs/design-system.md, Composition). */}
+      <div className="rows">
+        {customers.map((c) => (
+          <button key={c.id} className="row-item" onClick={() => openCustomer(c)}>
+            <span className="txt">
+              <span className="nm">{c.name}</span>
+              <span className="sub">{c.phone}{c.email ? ` · ${c.email}` : ""}</span>
+            </span>
+            <ChevronRight size={18} strokeWidth={2} />
+          </button>
+        ))}
+      </div>
 
       {open && (
         <Sheet onClose={() => setOpen(null)} title={open.name} subtitle={open.phone}>

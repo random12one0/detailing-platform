@@ -204,6 +204,44 @@ ground at two strengths, and both are written as custom properties:
 
 Never color small text with `--accent`; use `--accent-text`.
 
+## Which light wins
+
+"One light per screen" says how many, not which. Today had two jobs that
+both wanted action and lit both, which is how the rule got broken on the
+most-used screen in the product.
+
+**The light marks the NEXT action, not every available one.** When more
+than one object is actionable, rank them and light exactly one:
+
+1. Money already earned but not recorded — a finished job with no payment.
+2. The job happening now or next.
+3. The unsaved change on a settings screen.
+
+Everything else that could be acted on stays a quiet card. If two things
+tie, the earlier one wins. A screen where nothing qualifies has no lit
+element at all, and that is correct — not every screen has a next action.
+
+## Controls — what to use for a choice
+
+| Choice | Control |
+| --- | --- |
+| Two to four options | **Segmented.** Never a native `<select>`. |
+| Five or more, unordered | Chips that wrap |
+| On or off | Switch, with the label saying what "on" means |
+| A number with natural steps | Stepper or preset chips, not a free text field |
+| A value with no sensible presets | Text field |
+
+A native dropdown costs two taps and an OS wheel to answer a question that
+segmented answers in one, and it looks like the platform rather than like
+this product. Three of them had slipped into the app — vehicle size,
+service type, payment status — while an unused `Segmented` sat in
+`components/controls.jsx`.
+
+The same rule applies to values a person picks over and over: payment
+method is chips (Cash, Card, Zelle…), not a text field, because a detailer
+takes payment the same three ways for years and typing it each time is
+both slower and produces data nobody can total.
+
 ## Composition — not everything is a card
 
 The fastest way to look machine-generated is to put every piece of content
@@ -229,3 +267,9 @@ Rule of thumb: two adjacent blocks should not use the same treatment unless
 they are literally the same kind of thing. If a screen reads as a stack of
 identical rectangles, recompose it — vary between list, receipt, rail and
 bare figures before reaching for another card.
+
+**This rule is tested.** `tests/composition.test.mjs` fails the build when a
+screen maps a list of records straight onto `.card` — which is exactly how
+the Clients screen ended up as eight bordered boxes filling a phone while
+the rule sat written down and ignored. A rule with no test is a rule that
+gets broken again.

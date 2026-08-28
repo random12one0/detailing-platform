@@ -90,10 +90,9 @@ export default function Promos() {
         <label className="field"><span>Code</span>
           <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="SUMMER10" /></label>
         <label className="field"><span>Type</span>
-          <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-            <option value="percentage">% off</option>
-            <option value="amount">$ off</option>
-          </select></label>
+          <Segmented value={form.type}
+            onChange={(v) => setForm({ ...form, type: v })}
+            options={[["percentage", "% off"], ["amount", "$ off"]]} /></label>
       </div>
       <div className="grid2">
         <label className="field"><span>Value</span>

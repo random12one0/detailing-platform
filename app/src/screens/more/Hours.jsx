@@ -44,6 +44,17 @@ export default function Hours() {
     for (let i = 0; i < 7; i++) map[i] = { open: "", close: "" };
     for (const r of data ?? []) map[r.weekday] = { open: hhmm(r.open_time), close: hhmm(r.close_time) };
     setWeek(map);
+    // Seed the bulk panel FROM the week that was just loaded. It used to
+    // sit at a fixed 09:00–17:00 with Mon–Fri picked, so it could read
+    // "Mon–Fri, 9 to 5" while the week underneath said Monday closed —
+    // a staging area wearing the clothes of a status display.
+    const openDays = Object.entries(map)
+      .filter(([, v]) => v.open)
+      .map(([d]) => Number(d));
+    if (openDays.length > 0) {
+      setPicked(openDays);
+      setBulk({ open: map[openDays[0]].open, close: map[openDays[0]].close });
+    }
     setDirty(false);
   }, [business.id]);
 
@@ -108,7 +119,9 @@ export default function Hours() {
   return (
     <div className="group">
       <div className="tight">
-        <span className="label">Set several days at once</span>
+        {/* Named as the instruction it is, so it never reads as a statement
+            of the current hours. */}
+        <span className="label">Change several days at once</span>
         <div className="card">
           <div className="thoughts">
             <div className="row wrap" style={{ gap: 6 }}>

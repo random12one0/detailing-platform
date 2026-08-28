@@ -1,3 +1,4 @@
+import { Segmented } from "../../components/controls.jsx";
 // Owner-only: invite people, revoke pending invites, remove members,
 // change roles. The database enforces all of this too — the last owner
 // cannot be removed or demoted, and staff sessions simply can't read the
@@ -123,15 +124,15 @@ export default function Team() {
             </div>
           </div>
           <div className="row" style={{ gap: 6 }}>
-            <select
+            {/* Two roles, so a segmented control — and it shows which one
+                this person has without opening anything. Disabled for the
+                last owner, who cannot demote themselves. */}
+            <Segmented
               value={m.role}
-              onChange={(e) => changeRole(m, e.target.value)}
+              onChange={(v) => changeRole(m, v)}
               disabled={m.role === "owner" && ownerCount === 1}
-              style={{ minHeight: 40, width: "auto" }}
-            >
-              <option value="owner">Owner</option>
-              <option value="staff">Staff</option>
-            </select>
+              options={[["owner", "Owner"], ["staff", "Staff"]]}
+            />
             <button
               className="btn ghost inline"
               aria-label="Remove"
@@ -149,10 +150,9 @@ export default function Team() {
         <label className="field"><span>Email</span>
           <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
         <label className="field"><span>Role</span>
-          <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
-            <option value="staff">Staff</option>
-            <option value="owner">Owner</option>
-          </select></label>
+          <Segmented value={form.role}
+            onChange={(v) => setForm({ ...form, role: v })}
+            options={[["staff", "Staff"], ["owner", "Owner"]]} /></label>
       </div>
       <p className="muted" style={{ marginBottom: 10 }}>
         Staff can see bookings, the calendar and customer contact details.
