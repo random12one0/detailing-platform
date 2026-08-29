@@ -664,3 +664,17 @@ tested before it is needed rather than during:
   the old look" can be answered against a picture instead of memory. They are
   scratch files, not committed — the old look is already recorded in
   `docs/design-system.md`.
+
+### Sign-off rule tightened (2026-08-29, owner correction)
+
+The 1.1/1.2 handover gave the owner a next-session prompt *and* told them the
+session was not safe to clear. They caught the contradiction: a prompt in the
+chat reads as "you are done, go clear", so pairing it with "don't clear yet"
+issues two opposite instructions. CLAUDE.md now states that the prompt and
+"Safe to clear." are one signal that never appears by halves, and that a
+session blocked on the owner ends with the ask alone — the sign-off comes
+after their answer has been written into a file, not before.
+
+Worth naming the real hazard: had the owner acted on the prompt instead of
+the sentence, they would have cleared with the brief still blank and the next
+session would have opened on 1.3 with nothing to design from.

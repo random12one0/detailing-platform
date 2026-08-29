@@ -113,6 +113,22 @@ explaining it; if they still have to ask "so should I?", it failed.
   boilerplate: the owner clears BETWEEN roadmap items, so a session that
   signs off with loose ends buries them — the next session starts on a new
   item and never picks them up.
+
+  **The prompt IS the sign-off. It only ever appears together with "Safe to
+  clear."** Never hand over a next-session prompt and then say the session
+  is not finished — a prompt in the chat reads as "you are done here, go
+  clear", so pairing it with "don't clear yet" gives two opposite
+  instructions and the owner acts on the wrong one. If either half is
+  missing, both are.
+
+  **When the session is blocked on the owner** — a question asked, a
+  decision handed over, an OWNER roadmap item — finish everything that
+  does not depend on the answer, write it all to files, commit, and end
+  with the ask ALONE. No prompt, no sign-off. The session stays open. When
+  the owner answers, write their answer into the file it belongs in, finish
+  the item, and only then give "Safe to clear." and the prompt together.
+  An answer that exists only in the chat has not been captured yet, and
+  that is exactly the thread the clear would destroy.
 - Plan before building anything large; stop for approval.
 - Smallest possible diff; no unrequested refactors, deps, files, renames.
 - Stuck twice on one bug: stop editing, write hypothesis + evidence +
