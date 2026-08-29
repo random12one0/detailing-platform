@@ -181,25 +181,31 @@ is kept; the entire visual design restarts from scratch.
       deck he has since approved supersedes it — flagged so a later session
       does not try to cut it back on the strength of the older note.
 
-      **FOUR THINGS ONLY HE CAN CLOSE, and the item stays unchecked until
+      **HIS FOUR INSTRUCTIONS ON THE REWRITE ARE APPLIED — 2026-08-29**
+      (README "Round nine"): the $520 section removed; all competitor pricing
+      removed, which CLOSES the pre-ship blocker by deletion; the owner
+      section reformatted as an about; and scroll motion added to the new
+      sections — the comparison table wipes in, the answers slide open on
+      `::details-content` with no script, the closing glow gathers on
+      approach, and the about statement grew a reading rule that fills with
+      the words. Page is 12.39 screens at 1440.
+
+      **THREE THINGS ONLY HE CAN CLOSE, and the item stays unchecked until
       they are:**
-      1. **A photo of him working**, for the "who built it" section. It cannot
-         be faked — a stock stranger under a first-person paragraph naming his
+      1. **A photo of him working**, for the about section. It cannot be
+         faked — a stock stranger under a first-person paragraph naming his
          real business would be a picture of someone who is not him. The
          section ships as type until he sends one; the two-column CSS is
          written and waiting.
       2. **That section's words are his.** The deck's own note: it is "the
          only section on the page where your voice matters more than the copy
          being good." What is there is the deck's placeholder.
-      3. **The four competitor price ranges are unverified**, and the deck
-         itself demands they be checked against each source's own pricing page
-         before shipping. **Recorded as a PRE-SHIP BLOCKER in DECISIONS.md** —
-         it reverses an earlier decision in that file not to print competitor
-         prices at all.
-      4. **The $520 strip is kept and the deck never mentions it.** Keep or
-         cut is his call; it is the payoff of the section above it and carries
-         a mechanic nothing else does, which is why it was not deleted
-         quietly.
+      3. **Where the about section lives** — he is thinking about removing it
+         or giving it its own page. Nothing was moved, because thinking is
+         not deciding. Recommendation and reasoning in `DECISIONS.md`.
+
+      Also flagged, one line either way: **the "A Facebook page" row in the
+      comparison table is mine, not the deck's.**
 
       Also recorded and NOT acted on: he finds the 1.4 hero slightly worse than
       the old rotating "DMs" line. The deck replaced that hero anyway, so the

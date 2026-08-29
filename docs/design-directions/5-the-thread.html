@@ -42,14 +42,21 @@
    section a different skeleton over it. Eight sections, eight skeletons:
      1 hero .............. left-heavy asymmetric, one floating object
      2 the thread ........ two columns, pinned, animated transfer
-     3 the day ........... full-bleed single strip, one huge figure
+     3 your own website ... LIGHT ground, the WEBSITE breaking the section edge
      4 what you get ...... full-width ruled list, no boxes at all
-     5 customers see ..... LIGHT ground, the WEBSITE breaking the section edge
-     6 live before ....... horizontal travel on a sticky rail
-     7 pricing ........... asymmetric pair + a ruled terms list
-     8 footer ............ mono facts
-   The split-column comparison is sections 2–3 ONLY — "a couple sections",
-   which is exactly the limit he set.
+     5 who built this .... one paragraph, nothing else, words that brighten
+     6 what you're using . LIGHT ground, the page's only table
+     7 live before ....... horizontal travel on a sticky rail
+     8 pricing ........... asymmetric pair + a ruled terms list
+     9 questions ......... two columns of native disclosures
+    10 the last word ..... accent ground, centred, once
+    11 footer ............ mono facts
+   Eleven sections, eleven skeletons, no two alike — the grammar he set in
+   1.3 still holds at the longer length.
+
+   The full-bleed strip that carried one huge figure was CUT on his
+   instruction, 2026-08-29, after the marketing deck omitted it. Its
+   count-up mechanic survives on the pricing figures.
 
    THE SIGNATURE MOVE: the messages become the schedule. Each bubble in the
    thread flies to the position of its own row in the dashboard and dissolves
@@ -550,15 +557,6 @@ section{position:relative}
      go with it. */
 }
 
-/* ═══ 3. THE DAY — full-bleed strip, one huge figure ══════════════════ */
-.strip{padding:clamp(70px,11vh,130px) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.016),transparent)}
-.strip .duo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(22px,5vw,64px);align-items:end}
-.strip .big{font-family:"JetBrains Mono",monospace;font-size:clamp(56px,11vw,138px);line-height:.84;letter-spacing:-.055em}
-.strip .rt{padding-bottom:6px}
-.strip .rt p{color:var(--fog);max-width:46ch;margin-top:12px}
-.strip .rt .tag{font-size:11px;letter-spacing:.02em;color:var(--fog-2);margin-top:14px}
-@media (max-width:760px){.strip .duo{grid-template-columns:1fr;align-items:start;gap:18px}}
-
 /* ═══ 4. WHAT YOU GET — full-width ruled list, zero boxes ═════════════
    An enumeration is a ruled list; a card is for an object you pick between
    or act on. Three evenly spaced cards is a named tell in
@@ -790,6 +788,20 @@ section{position:relative}
   font-variation-settings:"wdth" 102,"wght" 480;
 }
 .who .say.cut{margin-top:clamp(20px,3vh,30px);font-size:clamp(17px,1.75vw,21px);max-width:30em}
+/* A rule down the side of the statement that fills as the words brighten —
+   the same one number driving both, so the page is visibly reading along
+   with you. Only on the main paragraph; two of them would be a pattern. */
+.who .say:not(.cut){padding-left:clamp(16px,2.2vw,28px)}
+.who .say:not(.cut)::before,
+.who .say:not(.cut)::after{content:"";position:absolute;left:0;top:.26em;width:2px;border-radius:2px}
+.who .say:not(.cut)::before{bottom:.22em;background:var(--line-2)}
+.who .say:not(.cut)::after{height:calc(var(--wp,1) * (100% - .48em));background:var(--ac);opacity:.8}
+.who .say{position:relative}
+/* The signature. This is what makes it read as an about section rather than
+   another sales section, which is the shape he asked for. */
+.who .sig{margin-top:clamp(26px,4vh,40px);display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.who .who-n{font-variation-settings:"wdth" 104,"wght" 700;font-size:17px;letter-spacing:-.015em}
+.who .who-d{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.02em;color:var(--fog-2)}
 .who .say .w{
   color:rgba(242,241,236,calc(.55 + .45 * max(0, min(1, var(--wp,1) * var(--tot,1) - var(--n)))));
   transition:color 260ms linear;
@@ -821,34 +833,53 @@ section{position:relative}
 .vs{background:var(--paper);color:var(--paper-ink);padding:clamp(76px,12vh,140px) 0}
 .vs .lab{color:var(--paper-fog)}
 .vs .disp{color:var(--paper-ink)}
+/* Two columns now, not three: the cost column went with the competitor
+   prices. No header row either — with the thing on the left and what it
+   leaves you with on the right, a header would be labelling the obvious.
+
+   THE MOTION HERE IS A WIPE, and it is a wipe because nothing else on the
+   page wipes. Each row's rule draws left to right as the row arrives and its
+   text slides in behind it; the lit row is clipped from the left, so the
+   dark panel and everything on it arrive together as one shutter opening.
+   One scrub writes one number per row and the CSS does the rest. */
 .vstable{margin-top:clamp(30px,5vh,52px)}
 .vsrow{
-  display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,.9fr) minmax(0,1.24fr);
-  gap:clamp(14px,3vw,40px);align-items:baseline;
-  padding:20px 0;border-bottom:1px solid var(--paper-line);
+  --rp:1;position:relative;
+  display:grid;grid-template-columns:minmax(0,.6fr) minmax(0,1.4fr);
+  gap:clamp(14px,3.4vw,52px);align-items:baseline;
+  padding:22px 0;
 }
-.vsrow.head{padding:0 0 10px;border-bottom:1px solid var(--paper-line)}
-.vsrow.head span{font-variation-settings:"wdth" 72,"wght" 620;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper-fog)}
-.vsrow .nm{font-variation-settings:"wdth" 104,"wght" 680;font-size:clamp(17px,1.8vw,21px);letter-spacing:-.018em}
-.vsrow .ct{font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.45;color:var(--paper-fog)}
-.vsrow .gt{font-size:15.5px;line-height:1.45;color:var(--paper-fog)}
-.vsrow .k{display:none}
+.vsrow::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:var(--paper-line);
+  transform:scaleX(var(--rp,1));transform-origin:left center;
+}
+.vsrow .nm{
+  font-variation-settings:"wdth" 104,"wght" 680;font-size:clamp(17px,1.8vw,21px);letter-spacing:-.018em;
+  opacity:calc(.12 + .88 * var(--rp,1));transform:translate3d(calc((1 - var(--rp,1)) * -16px),0,0);
+}
+.vsrow .gt{
+  font-size:15.5px;line-height:1.45;color:var(--paper-fog);
+  opacity:calc(.12 + .88 * var(--rp,1));transform:translate3d(calc((1 - var(--rp,1)) * -22px),0,0);
+}
 /* The one lit row, and it is lit rather than merely bolded because it is the
-   answer the other three rows are the question for. */
+   answer the four rows above are the question for. The clip is its whole
+   entrance, so its contents do not also slide — two mechanics on one element
+   is how an effect starts looking like a glitch. */
 .vsrow.mine{
-  background:var(--paper-ink);color:var(--paper);border-bottom-color:transparent;
-  border-radius:13px;margin-top:10px;
-  padding:22px clamp(14px,2vw,22px);
-  margin-left:calc(-1 * clamp(14px,2vw,22px));margin-right:calc(-1 * clamp(14px,2vw,22px));
+  background:var(--paper-ink);color:var(--paper);
+  border-radius:13px;margin-top:12px;
+  padding:24px clamp(16px,2.2vw,24px);
+  margin-left:calc(-1 * clamp(16px,2.2vw,24px));margin-right:calc(-1 * clamp(16px,2.2vw,24px));
+  clip-path:inset(0 calc((1 - var(--rp,1)) * 100%) 0 0 round 13px);
 }
+.vsrow.mine::after{display:none}
 .vsrow.mine .nm{color:var(--paper)}
-.vsrow.mine .ct{color:var(--ac)}
-.vsrow.mine .gt{color:rgba(239,238,231,.88)}
+.vsrow.mine .gt{color:rgba(239,238,231,.9)}
+.vsrow.mine .nm,.vsrow.mine .gt{opacity:1;transform:none}
 @media (max-width:780px){
-  .vsrow.head{display:none}
-  .vsrow{grid-template-columns:1fr;gap:10px;padding:20px 0}
-  .vsrow .k{display:block;font-variation-settings:"wdth" 72,"wght" 620;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper-fog);margin-bottom:3px}
-  .vsrow.mine .k{color:rgba(239,238,231,.66)}
+  .vsrow{grid-template-columns:1fr;gap:8px;padding:20px 0}
+  .vsrow .gt{font-size:15px}
 }
 
 /* ═══ 10. QUESTIONS — the browser's own disclosure element ════════════
@@ -879,6 +910,20 @@ section{position:relative}
 .qs details[open] summary::after{transform:rotate(45deg);color:var(--ac)}
 @media (hover:hover){.qs summary:hover{color:var(--bone)}.qs summary:hover::after{color:var(--bone-2)}}
 .qs details p{margin:0;padding:0 34px 20px 0;color:var(--fog);font-size:15.5px;line-height:1.55;max-width:42ch}
+/* An answer that POPS is the thing every accordion gets wrong, and it is
+   avoidable now without a line of script: ::details-content is the element
+   the browser was already creating, and interpolate-size makes an auto
+   height animatable. Guarded by @supports, so a browser without it keeps
+   the instant open it has today — the content is never hidden or broken,
+   it just arrives without the slide. That is the right way round. */
+@supports selector(::details-content){
+  :root{interpolate-size:allow-keywords}
+  .qs details::details-content{
+    block-size:0;overflow:hidden;
+    transition:block-size 380ms var(--e-out),content-visibility 380ms allow-discrete;
+  }
+  .qs details[open]::details-content{block-size:auto}
+}
 @media (max-width:760px){.qs{grid-template-columns:1fr}}
 
 /* ═══ 11. THE LAST WORD — the page's third ground ═════════════════════
@@ -896,10 +941,16 @@ section{position:relative}
   background:linear-gradient(180deg,rgba(56,224,139,.07),rgba(56,224,139,.025) 44%,rgba(56,224,139,0)),var(--ink-1);
   border-top:1px solid var(--line);
 }
+/* The glow gathers as you arrive rather than sitting there at full strength
+   — one scrubbed number, one transform, no repaint. It is the only place on
+   the page where the accent does anything at scale, so it should feel like
+   it is happening rather than like it was already done. */
 .end::before{
   content:"";position:absolute;left:50%;top:-38%;width:min(120vw,1100px);aspect-ratio:1;
-  transform:translateX(-50%);pointer-events:none;
-  background:radial-gradient(circle,rgba(56,224,139,.11),rgba(56,224,139,0) 62%);
+  transform:translateX(-50%) scale(calc(.68 + .42 * var(--ep,1)));
+  opacity:calc(.2 + .8 * var(--ep,1));
+  pointer-events:none;will-change:transform,opacity;
+  background:radial-gradient(circle,rgba(56,224,139,.13),rgba(56,224,139,0) 62%);
 }
 .end .wrap{position:relative}
 .end .disp{font-size:clamp(32px,5.4vw,70px)}
@@ -936,6 +987,8 @@ section{position:relative}
 .lite .railbar{display:none}
 /* The brightening paragraph has one end state like everything else. */
 .lite .who .say .w{color:var(--bone)}
+.lite .vsrow{--rp:1}
+.lite .end::before{transform:translateX(-50%);opacity:1}
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
@@ -1109,54 +1162,7 @@ section{position:relative}
     </div>
   </div>
 
-  <!-- ══ 3 · THE DAY ═══════════════════════════════════════════════════
-       Skeleton: full-bleed strip, one huge figure. The figure is SUMMED
-       from the same array above — nothing on this page is a typed-in
-       statistic.
-
-       KEPT DELIBERATELY, AND IT IS AN OPEN QUESTION FOR THE OWNER. The
-       marketing deck runs 1 hero, 2 thread, 3 website — it does not mention
-       this section at all, in either direction. It was in the text inventory
-       the deck was written from, so it was seen and dropped rather than
-       missed.
-
-       It is kept rather than deleted for two reasons. It is the PAYOFF of
-       section 2, which the deck marks "Unchanged" — the four texts becoming
-       a day is what the transfer above was for, and without it the beat ends
-       on a mechanism rather than on a result. And it carries a skeleton and
-       a mechanic (full-bleed strip, one huge rolling figure) that nothing
-       else on the page has, which the owner's standing rule says may not be
-       spent silently: "if a recommended section genuinely has nowhere for a
-       mechanic to live, that is a question for him, not a silent deletion."
-
-       So: ASK HIM. Cutting it is one deletion away and the page reads fine
-       either way. -->
-  <section class="strip">
-    <div class="wrap duo">
-      <!-- Rolls up when it arrives. The target is written from the JOBS
-           array on load, so the figure that counts is the figure the rows
-           add up to — it cannot drift from them. -->
-      <div class="big" data-rv id="dayTotal" data-prefix="$">$0</div>
-      <!-- Rewritten. He read this section and said "what is that actually
-           about? I don't get that section." Fair: "Demo Saturday, before
-           6 am" is a caption for someone who already knows what they are
-           looking at, and "nothing was retyped" answers a question the page
-           never asked. It now says what the number IS in the first line,
-           and points back at the thread the four jobs came from. -->
-      <div class="rt" data-rv style="--i:1">
-        <span class="lab">Saturday's four jobs, already booked</span>
-        <p>
-          That is the same four texts from up the page, turned into a day.
-          Sorted into the order you will actually drive them, priced off your
-          own list, sitting there before you have had coffee. You did not
-          type a word of it.
-        </p>
-        <p class="tag mono">An example day — the figure adds up the four jobs above</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ 4 · YOUR OWN WEBSITE ═════════════════════════════════════════
+  <!-- ══ 3 · YOUR OWN WEBSITE ═════════════════════════════════════════
        Skeleton: the ground changes to light, and the object breaks the top
        edge of the band.
 
@@ -1268,7 +1274,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 5 · WHAT YOU GET ══════════════════════════════════════════════
+  <!-- ══ 4 · WHAT YOU GET ══════════════════════════════════════════════
        Skeleton: full-width ruled list, unchanged — an enumeration is a ruled
        list, and four parallel capabilities are not four objects you pick
        between.
@@ -1336,7 +1342,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 6 · WHO BUILT IT ══════════════════════════════════════════════
+  <!-- ══ 5 · WHO BUILT IT ══════════════════════════════════════════════
        NEW SECTION, and a new skeleton: narrow measure, first person, no
        object, no rules, no columns. Everything above it is the product
        talking about itself; this is one person talking, so it gets the one
@@ -1377,10 +1383,17 @@ section{position:relative}
       </h2>
       <p class="say" id="whoSay">I run Andrew's Auto Detail in Tacoma. I built this because I was quoting Tahoes at 6am and losing jobs to people who never texted back. It ran my own business before it ran anyone else's. It still does.</p>
       <p class="say cut" id="whoSay2">That's also why there's no commission. I'm not taking a cut of a job I didn't do.</p>
+      <!-- The signature is what turns this from a sales section into an about
+           section, which is the shape he asked for. It is also the honest
+           place for the photograph to sit when he sends one. -->
+      <p class="sig" data-rv>
+        <span class="who-n">Andrew</span>
+        <span class="who-d">Andrew's Auto Detail · Tacoma, WA</span>
+      </p>
     </div>
   </section>
 
-  <!-- ══ 7 · WHAT YOU'RE USING NOW ═════════════════════════════════════
+  <!-- ══ 6 · WHAT YOU'RE USING NOW ═════════════════════════════════════
        NEW SECTION. Skeleton: the ground goes LIGHT for the second and last
        time, and it is a table — the only one on the page. That is not
        decoration: a comparison of four options across two axes is genuinely
@@ -1393,15 +1406,21 @@ section{position:relative}
        bolded because it is the answer the other three rows are the question
        for.
 
-       ⚠ THE FOUR PRICE RANGES ARE THE DECK'S AND ARE NOT VERIFIED. The deck
-       says so itself: "Verify all four price ranges against their own
-       pricing pages before this ships. Understate rather than overstate."
-       Two of them are not fixed prices at all — Yelp and Thumbtack sell
-       per-lead at auction — which is why that row states a MODEL rather than
-       a number. Nothing here may go out on the real landing page until each
-       row has been checked against the source's own pricing page. Recorded
-       as a pre-ship blocker in DECISIONS.md; this is a direction file, not
-       the shipping page.
+       NO COMPETITOR PRICES, on his instruction 2026-08-29: "let's not like
+       directly say competitor pricing but just have it be like an our thing
+       is an improvement from all of these services." So the cost column is
+       gone entirely and every row now says what the thing LEAVES YOU WITH.
+
+       That is not only a tone decision, it closes a real hazard. The deck's
+       four ranges were unverified and it demanded they be checked against
+       each source's own pricing page before shipping; two of them were not
+       fixed prices at all, because Yelp and Thumbtack sell leads at auction.
+       A wrong competitor price is the one claim on this page a THIRD PARTY
+       would object to, rather than a customer. With no figures there is
+       nothing to verify and nothing to get wrong. The pre-ship blocker in
+       DECISIONS.md is closed by this change.
+
+       Our own price stays in the last row: it is ours to state.
 
        Row three is aimed at a detailer who already HAS a site and knows it
        is bad. The deck: it "should feel like recognition, not an insult —
@@ -1415,35 +1434,32 @@ section{position:relative}
         <span class="mask" style="--i:1"><span>for something.</span></span>
       </h2>
 
-      <div class="vstable" role="table" aria-label="What you are paying for now, against this">
-        <div class="vsrow head" role="row" aria-hidden="true">
-          <span></span><span>What it costs</span><span>What you get</span>
-        </div>
-        <div class="vsrow" role="row" data-rv>
+      <div class="vstable" id="vstable" role="table" aria-label="What you are using now, against this">
+        <div class="vsrow" role="row">
           <span class="nm" role="cell">Yelp, Thumbtack</span>
-          <span class="ct" role="cell"><b class="k">What it costs</b>Per lead, booked or not</span>
-          <span class="gt" role="cell"><b class="k">What you get</b>Their name on top. Their customer, not yours.</span>
+          <span class="gt" role="cell">You pay for the lead whether it books or not, and the customer stays theirs.</span>
         </div>
-        <div class="vsrow" role="row" data-rv style="--i:1">
-          <span class="nm" role="cell">Detailing software</span>
-          <span class="ct" role="cell"><b class="k">What it costs</b>$70–$250 a month</span>
-          <span class="gt" role="cell"><b class="k">What you get</b>Booking and invoices. Still no website.</span>
+        <div class="vsrow" role="row">
+          <span class="nm" role="cell">Booking software</span>
+          <span class="gt" role="cell">It takes the booking. It still gives you nowhere to send anyone.</span>
         </div>
-        <div class="vsrow" role="row" data-rv style="--i:2">
+        <div class="vsrow" role="row">
           <span class="nm" role="cell">A site you paid for once</span>
-          <span class="ct" role="cell"><b class="k">What it costs</b>$2,000–$5,000, then again for changes</span>
-          <span class="gt" role="cell"><b class="k">What you get</b>Looks its age on a phone. Nothing behind it.</span>
+          <span class="gt" role="cell">Right for the year you bought it. Changing a price means finding whoever built it.</span>
         </div>
-        <div class="vsrow mine" role="row" data-rv style="--i:3">
+        <div class="vsrow" role="row">
+          <span class="nm" role="cell">A Facebook page</span>
+          <span class="gt" role="cell">Free, and it is the first thing they find when they look you up.</span>
+        </div>
+        <div class="vsrow mine" role="row">
           <span class="nm" role="cell">This</span>
-          <span class="ct" role="cell"><b class="k">What it costs</b>$499 once, then $40 a month</span>
-          <span class="gt" role="cell"><b class="k">What you get</b>Both, and you change it yourself.</span>
+          <span class="gt" role="cell">The site, the booking and the screen you run both from — one thing, and you change it yourself.</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══ 8 · LIVE BEFORE YOUR NEXT JOB ═════════════════════════════════
+  <!-- ══ 7 · LIVE BEFORE YOUR NEXT JOB ═════════════════════════════════
        Skeleton: horizontal travel. Three steps genuinely are a sequence, so
        the numbering is a fact rather than the decoration the never-defaults
        list bans. -->
@@ -1480,7 +1496,7 @@ section{position:relative}
     </div>
   </div>
 
-  <!-- ══ 9 · PRICING ═══════════════════════════════════════════════════
+  <!-- ══ 8 · PRICING ═══════════════════════════════════════════════════
        Skeleton: asymmetric pair, then a ruled terms list. Two plans of very
        different weight, not two matching cards — and the terms are a list,
        because they are an enumeration.
@@ -1495,11 +1511,10 @@ section{position:relative}
       <span class="mask"><span>Two ways in.</span></span>
     </h2>
     <p class="lede" data-rv style="--i:1">Both run the same booking engine.</p>
-    <!-- The deck puts the comparison back one more time, right where the
-         number is. Same unverified-figure caveat as section 7. -->
+    <!-- The deck put a competitor price here too. Same instruction, same
+         removal: the comparison stays, the figure goes. -->
     <p class="lede" data-rv style="--i:2">
-      Detailing software runs $70 to $250 a month and doesn't include a
-      website. This does.
+      Booking software doesn't come with a website. This does.
     </p>
 
     <div class="plans">
@@ -1553,7 +1568,7 @@ section{position:relative}
     </ul>
   </section>
 
-  <!-- ══ 10 · QUESTIONS ═══════════════════════════════════════════════
+  <!-- ══ 9 · QUESTIONS ═══════════════════════════════════════════════
        NEW SECTION. Skeleton: two columns of disclosures, which is a shape
        nothing else on the page uses.
 
@@ -1615,7 +1630,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 11 · THE LAST WORD ════════════════════════════════════════════
+  <!-- ══ 10 · THE LAST WORD ════════════════════════════════════════════
        NEW SECTION, and the page's third ground state — neither the graphite
        nor the light band, but the accent brought up for the only time it
        carries a whole section. Everything else uses it on money and on
@@ -1640,7 +1655,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 12 · FOOTER ═══════════════════════════════════════════════════ -->
+  <!-- ══ 11 · FOOTER ═══════════════════════════════════════════════════ -->
   <footer class="wrap foot" data-rv>
     <span class="mk">Detailing Platform</span>
     <span>Built for the people who never rush a car.</span>
@@ -1675,7 +1690,7 @@ section{position:relative}
   /* ── The one source of truth ────────────────────────────────────────
      The thread and the dashboard are rendered from THIS, and the money
      totals are summed from it — the honesty rule from BUILD-BRIEF §5.
-     Change a price here and the tiles, the strip and the rows all move. */
+     Change a price here and the tiles and the rows all move. */
   var JOBS = [
     { at: "9:00",  who: "Marcus Hill", svc: "Wash & Wax",     amt: 95,  msg: "u free sat?",            when: "11:42 PM" },
     { at: "11:30", who: "Dana Ruiz",   svc: "Full Detail",    amt: 240, msg: "how much for a Tahoe",   when: "6:08 AM"  },
@@ -1709,13 +1724,6 @@ section{position:relative}
     jobsEl.appendChild(r);
     rows.push(r);
   });
-
-  /* The strip's figure is the JOBS total, written from the array rather
-     than typed into the markup, so the big number and the rows can never
-     disagree. */
-  var dayTotal = document.getElementById("dayTotal");
-  dayTotal.setAttribute("data-count", String(TOTAL));
-  dayTotal.textContent = usd(TOTAL);
 
   /* Figures roll up when they arrive instead of being there already — the
      old landing page's CountUp, and finseo's `number-flow`, at about ten
@@ -1968,10 +1976,46 @@ section{position:relative}
      element after the FAQ would be measured against where it used to be and
      could sit visible-but-hidden, or reveal early, for the rest of the
      session. <details> fires `toggle` for exactly this; re-cache and run a
-     frame. The same trap waits for any future collapsible on this page. */
+     frame. The same trap waits for any future collapsible on this page.
+
+     Twice, because the answer now SLIDES open over 380ms: the positions at
+     the moment of the toggle are the positions mid-slide, and the ones that
+     matter are the ones after it settles. */
   Array.prototype.forEach.call(document.querySelectorAll(".qs details"), function (d) {
-    d.addEventListener("toggle", function () { cacheReveals(); onScroll(); });
+    d.addEventListener("toggle", function () {
+      cacheReveals(); onScroll();
+      setTimeout(function () { cacheReveals(); onScroll(); }, 430);
+    });
   });
+
+  /* ── The comparison table wipes itself in ───────────────────────────
+     Each row gets its own 0..1 as it crosses the lower part of the screen:
+     the rule draws left to right, the text slides in behind it, and the lit
+     row is clipped from the left so its whole panel arrives like a shutter.
+     Five rows measured per frame, one property written each. */
+  var vstable = document.getElementById("vstable");
+  if (vstable) {
+    var vrows = Array.prototype.slice.call(vstable.children);
+    addScrub(vstable, function (el, vh) {
+      for (var i = 0; i < vrows.length; i++) {
+        var b = vrows[i].getBoundingClientRect();
+        vrows[i].style.setProperty("--rp",
+          clamp((vh * 0.88 - b.top) / (b.height + vh * 0.14)).toFixed(3));
+      }
+    });
+  }
+
+  /* ── The closing glow gathers ───────────────────────────────────────
+     Runs over the section's own approach rather than over the whole page,
+     so it is the same on a long page and a short one. */
+  var endSec = document.querySelector(".end");
+  if (endSec) {
+    addScrub(endSec, function (el, vh) {
+      var r = el.getBoundingClientRect();
+      el.style.setProperty("--ep",
+        clamp((vh - r.top) / (r.height * 0.62 + vh * 0.38)).toFixed(3));
+    });
+  }
 
   /* Depth: an element drifts a little slower than the page it sits on.
      A dozen pixels — enough to feel nearer than the ground, not enough to

@@ -1296,6 +1296,38 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## His four instructions on the rewrite, and the one still open (2026-08-29)
+
+- **The $520 section was removed** on his instruction. Its count-up mechanic
+  survives on the pricing figures, so the motion inventory did not shrink.
+
+- **All competitor pricing removed** — see the closed blocker below.
+
+- **One table row is mine, not the deck's**: "A Facebook page". The table
+  stopped being about what you PAY and became about what you're USING, and a
+  Facebook page is what most of this audience is actually using — the FAQ's
+  own first answer says so. Flagged rather than slipped in; one line to
+  remove if he disagrees.
+
+- **The owner section was reformatted, not moved.** He said he is *thinking*
+  of removing it or giving it its own page, which is not a decision, so
+  nothing was moved or deleted. What was done is the part he did decide —
+  "reformatting it like an about me or about the owner type thing" — which
+  is a signature block at the end, the thing that separates an about section
+  from a sales section written in first person.
+
+  **STILL OPEN, and it is a real fork.** My recommendation if asked: keep a
+  SHORT version on the landing page and put the long one on an About page
+  later. The reason is that "built by a detailer, for his own shop" is the
+  single claim on this page no competitor can copy — a booking startup cannot
+  say it — so removing it entirely spends the strongest differentiator to
+  save one screen. But a full about section does belong on its own page, and
+  a separate page is a Phase 3 shape anyway: this direction file is one page
+  with no routing, so a second page is not something to invent here.
+
+  Note that the photograph and the placeholder copy are blockers on that
+  section wherever it ends up, so answering this does not remove them.
+
 ## Building the marketing rewrite: what was mine, and one pre-ship blocker (2026-08-29)
 
 The copy is the owner's approved deck and is used verbatim. These are the
@@ -1340,8 +1372,20 @@ calls that were not in it.
   ships as type until he supplies the image, and the two-column CSS is written
   and waiting.
 
-### ⚠ PRE-SHIP BLOCKER: four competitor price ranges are on the page and none
-### of them are verified
+### ~~⚠ PRE-SHIP BLOCKER: four competitor price ranges~~ — CLOSED SAME DAY
+### by his instruction to remove them; kept below as the reasoning
+
+**RESOLVED 2026-08-29.** He instructed: *"let's not like directly say
+competitor pricing but just have it be like an our thing is an improvement
+from all of these services."* Every competitor figure is off the page — the
+table's cost column is gone and the pricing section's line was reworded. Our
+own price stays, because that one is ours to state. Nothing left to verify.
+The original entry follows because the reasoning is worth keeping: it is the
+argument for why a competitor's price is a different KIND of claim from
+everything else on a marketing page.
+
+### ⚠ PRE-SHIP BLOCKER (now closed): four competitor price ranges are on the
+### page and none of them are verified
 
 Section 7's comparison table prints, from the deck: "Per lead, booked or not"
 (Yelp, Thumbtack), "$70–$250 a month" (detailing software), "$2,000–$5,000,

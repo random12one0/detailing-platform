@@ -839,6 +839,91 @@ future collapsible on this page.
    nothing else has. His own rule says a mechanic may not be spent silently.
    **Keep or cut: his call, and cutting it is one deletion.**
 
+## Round nine — his four instructions on the rewrite (2026-08-29)
+
+### 1. The $520 section is gone
+
+His call, so it went — markup, CSS and script. **That closes the open
+question from round eight.** The count-up mechanic it carried survives on the
+pricing figures, so nothing was lost from the motion inventory. Eleven
+sections now, eleven skeletons, still no two alike.
+
+### 2. No competitor prices anywhere — and that closes the pre-ship blocker
+
+> "let's not like directly say competitor pricing but just have it be like an
+> our thing is an improvement from all of these services"
+
+The cost column is gone entirely. The table is two columns now: the thing on
+the left, **what it leaves you with** on the right. Our own price stays in the
+lit row, because that one is ours to state. The competitor figure in the
+pricing section went the same way — "Booking software doesn't come with a
+website. This does."
+
+This is worth more than a tone change. Round eight logged a **pre-ship
+blocker**: four unverified competitor price ranges, which the deck itself
+demanded be checked against each source's own pricing page, and two of which
+were not fixed prices at all because Yelp and Thumbtack sell leads at auction.
+A wrong competitor price is the one claim on this page that a THIRD PARTY
+rather than a customer would object to. **With no figures there is nothing to
+verify and nothing to get wrong. The blocker is closed by deletion, which is
+the best way to close one.**
+
+**One row is new and it is not the deck's**: "A Facebook page — free, and it
+is the first thing they find when they look you up." Added because the table
+is now about what you're using rather than what you're paying, and a Facebook
+page is what most of this audience is actually using — the FAQ says so in its
+own first answer. It is still an addition to approved copy, so it is flagged
+rather than slipped in. One line to remove.
+
+### 3. The owner section reads as an About now
+
+He is undecided about where it belongs — *"removing the owner sections or just
+putting it on a new page... reformatting it like an about me or about the
+owner type thing"* — so nothing was moved or deleted. What changed is its
+shape: it now ends with a signature block (name, business, town) instead of
+running straight into the next section, which is the difference between a
+sales section written in first person and an about section. **Where it lives
+is still his to decide** — see the open list below.
+
+### 4. Scroll motion on the new sections, and a look pass
+
+Three mechanics added, each one only in the place it belongs:
+
+- **The comparison table wipes.** Each row's rule draws left to right as it
+  arrives and its text slides in behind it; the lit row is clipped from the
+  left, so the dark panel and everything on it arrive together like a shutter
+  opening. Nothing else on the page wipes, which is the point. One scrub
+  writes one number per row.
+- **The answers slide open instead of popping.** A popping accordion is the
+  thing every FAQ gets wrong and it no longer needs script to fix:
+  `::details-content` is an element the browser was already making, and
+  `interpolate-size` makes an auto height animatable. Guarded by `@supports`,
+  so a browser without it keeps the instant open it has today — the content is
+  never hidden or broken, it just arrives without the slide.
+- **The closing glow gathers on approach** rather than sitting at full
+  strength. It is the only place the accent works at the scale of a whole
+  section, so it should feel like it is happening. Measured: `--ep` reaches
+  0.978 at maximum scroll.
+- **The About statement grew a reading rule** down its left side that fills in
+  step with the words brightening — the same single number driving both, so
+  the page is visibly reading along with you.
+
+### Verified
+
+- Console clean at 1440/768/392 in the normal path AND `?lite=1`.
+- **Reveal sweep: 61 positions, down and back up, three viewports — 0
+  stranded.** The table rows fade on `--rp` rather than on the reveal class,
+  so they are invisible to that sweep; they were given their own check, and
+  **no row is ever readable-on-screen and faded out** at any of those 183
+  readings.
+- The accordion still strands nothing with all eight questions open at 392.
+- Contrast measured on every changed element, lowest 5.16:1.
+- Both new scrubs reach full progress rather than stalling part-way: every
+  row's wipe hits 1.000 and the lit row's clip fully opens.
+- Four credential-free tests pass.
+- **The page is 12.39 screens at 1440**, down from 12.72 — the removed
+  section, partly offset by the fifth table row.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so
