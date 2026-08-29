@@ -272,3 +272,226 @@ high — the capabilities screen alone delivers six services with descriptions i
 one viewport (`221727`). This is the site in the set that best satisfies "every
 scroll beat must advance something", and it does it by *not* using the
 expensive technique rather than by using it well.
+
+---
+
+## 2. sharplink.com
+
+A Nasdaq-listed Ethereum treasury company. The site he had the most mixed
+reaction to: he liked the font and the hero transition, disliked the flat,
+blocky sections. Both halves are visible in his three screenshots, and the
+transition he could not name turns out to be the most directly stealable
+technique in the whole set.
+
+### The stack, from the code
+
+Nuxt/Vue. 24 JS modules (2.3 MB uncompressed), 8 CSS files.
+
+| Library | Present | Evidence |
+|---|---|---|
+| **Lenis** | yes | `<div class="lenis">` wrapper and `data-lenis-prevent` on the mobile menu, in the shipped HTML; the `VirtualScroll` class and Lenis constructor are in the bundle |
+| GSAP | yes | 2 chunks |
+| ScrollTrigger | yes | 3 chunks |
+| **Three.js** | **configured but switched off** | `three: { enabled: false, options: { alpha: false, antialias: false, stencil: false, depth: false, powerPreference: "high…" } }` |
+| Locomotive / Framer / Swiper | no | zero matches |
+
+Type: **Archivo** and **Archivo Narrow**.
+
+> **The strongest single signal in this whole document.** riangle.com sets
+> `--font-display: "Archivo"`. sharplink.com sets `font-family: Archivo` and
+> `Archivo Narrow`. The owner said "I like the font" about riangle and "font is
+> also good" about sharplink — **independently, about the same typeface**,
+> without knowing they matched. Archivo is a free Google font with a
+> variable-width sibling (Archivo Expanded/Narrow), which gives the
+> weight-and-width extremes `design-knowledge.md` §1 calls for from one family.
+
+### Smooth-scroll config — partly found, partly not
+
+Lenis is present and active. The **library defaults** in the shipped bundle:
+
+```js
+constructor({ wrapper: i = window, content: e = document.documentElement,
+  eventsTarget: t = i, smoothWheel: s = !0, syncTouch: n = !1,
+  syncTouchLerp: r = .075, touchInertiaExponent: o = 1.7,
+  duration: a, easing: l, lerp: u = .1, … })
+```
+
+**I could not find the site's own options object.** Lenis is constructed with a
+variable rather than an inline literal, and the only numeric `lerp:` values in
+the bundle are the library's own defaults. So: `lerp: 0.1` and
+`smoothWheel: true` are what ship *unless* overridden somewhere I did not
+locate. Stating that rather than presenting the default as a decision.
+
+One thing the default does tell us: **`syncTouch: false`**. Lenis leaves touch
+scrolling native unless asked otherwise. Same practical outcome as riangle's
+`(pointer: fine)` gate — the weighted scroll is a desktop experience.
+
+### "It turns into a rectangle and then completely forms into another part of the website"
+
+His words, and he apologised for them ("that's the best I could describe it").
+They are actually an accurate description of an uncommon technique.
+
+**Real name: a pinned, scrubbed `clip-path` hero-to-card transition.** The hero
+does not shrink. The *window onto it* closes down to the size and position of a
+card in the next section, while that section assembles behind it on the same
+timeline.
+
+The trigger:
+
+```js
+ScrollTrigger.create({
+  trigger: o.value,
+  start: "top top",
+  end: () => `+=${o.value.offsetHeight * 1.5}`,
+  pin: !0,
+  scrub: !0,
+  invalidateOnRefresh: !0,
+  animation: d
+})
+```
+
+Pinned for **1.5 × the hero's height**, scrub linked to scroll.
+
+The morph itself — the crop, not a scale:
+
+```js
+d.fromTo(P.value,
+  { clipPath: () =>
+      `rect(0px ${window.innerWidth * 1.02}px ${window.innerHeight}px 0px)` },
+  { clipPath: () =>
+      `rect(160px ${(window.innerWidth * 1.02 + v.value.offsetWidth) / 2}px `
+    + `${v.value.offsetHeight + 160}px `
+    + `${(window.innerWidth * 1.02 - v.value.offsetWidth) / 2}px)`,
+    ease: "none", duration: 1 }, 0)
+```
+
+Read plainly: the clip rectangle starts at the full viewport and ends centred,
+inset 160 px from the top, exactly as wide as `v.value` — the element it is
+becoming. Every value is a function, so it recomputes on resize
+(`invalidateOnRefresh: true`).
+
+Alongside it, on the same timeline and starting at the same instant:
+
+```js
+d.to($.value.$el, { width:  () => `${v.value.offsetWidth  * 1.1}px`,
+                    height: () => `${v.value.offsetHeight * 1.3}px`,
+                    duration: 1.3 }, 0)
+d.fromTo(".home-productivity .line", {autoAlpha:0},{autoAlpha:1, ease:"none", duration:.2}, 0)
+d.fromTo(".home-productivity .line, .home-productivity .heading-wrapper",
+         {y:300},{duration:1.8, y:0, ease:"none"}, 0)
+d.fromTo(".chart-wrapper .chart-image…", {autoAlpha:0},{autoAlpha:1, duration:.4}, .8)
+d.fromTo(".chart-wrapper .label", {autoAlpha:0},{autoAlpha:1, duration:.4, stagger:.15}, .95)
+d.fromTo(".chart-wrapper .value-inner", {yPercent:100},{yPercent:0, duration:.4, stagger:.15}, 1.1)
+d.fromTo(".card-productivity", {autoAlpha:0, x:100},
+         {duration:.5, autoAlpha:1, x:0, y:0, stagger:.2, ease:"power2.out"}, .8)
+```
+
+**That is why it reads as one event rather than two.** The hero closing and the
+"Pioneering Productivity" section assembling are the same timeline, offset by
+fractions of a second — the chart labels stagger in at 0.95, the figures roll up
+from `yPercent: 100` at 1.1. Screenshot `221759` is the finished state: the
+former hero is now the dark chart card in the middle of a light section.
+
+Screenshot `221754` caught it **mid-transition** — the dark rectangle part-way
+closed, the light section already visible behind it. That single frame is the
+best evidence in the whole set of what he was describing.
+
+**Desktop and mobile differ, they are not switched off:**
+
+```js
+gsap.matchMedia({ isDesktop: `(min-width: ${mobile}px)` }, (ctx) => {
+  const { isMobile: n } = ctx.conditions;
+  …
+  ScrollTrigger.create({ trigger: B.value,
+    start: n ? "top 100px"    : "top 160px",
+    end:   n ? "bottom 320px" : "bottom 280px",
+    scrub: !0, pin: !0, pinSpacing: !1, pinSpacer: !1, anticipatePin: 1, … })
+})
+```
+
+A second pinned trigger uses `pinSpacing: false` — pinning without reserving
+layout space, so the pinned element floats over content that keeps scrolling.
+That is the mechanism behind the overlapping feel.
+
+### What he disliked, matched to evidence
+
+| His words | Screenshot | What is actually there |
+|---|---|---|
+| "how blocky it is" | `221759` | Hard-edged rectangular panels butted together, no radius, no shadow, no overlap between the three right-hand cards |
+| "some of the fonts are hard to read… don't have a lot of depth" | `221759` | Body copy is mid-grey on a near-white panel; the "01 / 02 / 03" cards carry pale dotted line-art at very low contrast |
+| "black font, white background… with vertical lines" | `221754`, `221759` | A dotted grid ruling the whole light section — verticals at the column edges and horizontals across. Visible clearly in `221754` where the light layer is exposed mid-transition |
+
+His three complaints are one complaint: **the light sections have no depth
+budget.** The dark hero has gradient, glow and photographic material; the light
+sections have flat white, hairline dots, and grey text. Nothing is lit, nothing
+overlaps, nothing casts.
+
+This is `design-knowledge.md` §1 almost verbatim — "flat solid backgrounds with
+no atmosphere or depth" — plus numbered markers (`01/02/03`) on three items that
+are not a sequence, plus three evenly spaced cards. **It is worth telling him
+that his instinct here matched the written anti-slop list exactly**, because it
+means his eye and the file agree and we can trust both.
+
+### Striking things he did not mention
+
+- **The news ticker card** bottom-right of `221744` — a dated "COMPANY NEWS"
+  item pinned over the hero. A live, dated fact as a hero element. Our
+  equivalent is a real recent booking, which we have.
+- **The hero is a product photograph treated as a technical drawing** —
+  dashed leader lines and small registration squares over a rendered object.
+  Cheap to imitate over a car photo, and it reads as engineering rather than
+  decoration.
+- **Two-tier CTA** — a solid white primary with an arrow chip, a transparent
+  secondary. Simple and worth copying.
+- **`backdrop-filter` appears 4 times in the CSS** — the nav bar over the hero.
+
+### Behaviour under `prefers-reduced-motion`
+
+**None.** Zero matches for `prefers-reduced-motion` across all 24 JS modules, all
+8 CSS files, and the inlined critical CSS. A visitor who has asked their
+operating system to reduce motion still gets the full pinned, scrubbed,
+clip-path hero.
+
+That is a genuine accessibility defect, and the contrast with riangle — which
+gates *everything* behind `(prefers-reduced-motion: no-preference)` — is the
+sharpest quality difference between any two sites here.
+
+### Cost to us
+
+| Item | Weight | Effort | Android risk |
+|---|---|---|---|
+| Lenis | ~3 KB gzipped, MIT | trivial | low — touch stays native by default |
+| GSAP + ScrollTrigger | ~50 KB gzipped, free tier | low | low |
+| The clip-path hero morph | no extra weight | **high — 1–2 days to get right** | **medium.** `clip-path` animation is compositor-friendly, but pinning plus a scrubbed timeline on a 1.5-viewport range forces layout work on every frame. Must be measured on a throttled CPU. |
+| Archivo / Archivo Narrow | ~2 × 25 KB subset | trivial | none |
+
+### Conflict with what binds us, and how to reconcile
+
+1. **The hero morph versus the dashboard rule.** The owner banned scroll
+   animation on the dashboard. No conflict — this belongs on the marketing page
+   only, which is precisely the surface he said should be the most ambitious.
+2. **The morph versus mid-range Android.** Real tension. Reconcile the way
+   sharplink already does — `gsap.matchMedia` with different start/end values
+   per breakpoint — but add what sharplink lacks: a `prefers-reduced-motion`
+   branch that jumps to the end state, and riangle's device-tier check to skip
+   the pin entirely on a weak device. Both hero treatments must produce the same
+   final layout so the fallback is never a broken page.
+3. **What he disliked is a warning, not just a preference.** Flat light panels,
+   numbered non-sequences and three even cards are on the never-defaults list.
+   The reconciliation is not "avoid light sections" — it is that a light section
+   needs its own depth budget: layered tints, a real shadow scale, overlap,
+   photography that bleeds across an edge.
+
+### Scroll payoff
+
+**Positive, and instructive about where the line is.** The hero pins for 1.5
+viewport heights — long enough to be the "stuck" feeling he hates — but it does
+not feel stuck, because the entire next section is being *built* during those
+frames: lines draw, a chart appears, labels stagger, figures roll up. The user
+is paying scroll and receiving content.
+
+**This is the operative distinction for our own work, and it is worth writing
+into the design system:** pinning is not the problem, pinning without delivery
+is. A pin must be spending the scroll on assembling something the visitor then
+gets to read. momentolegal (site 6) is the same technique with nothing on the
+other side, and he named it as a hard no.
