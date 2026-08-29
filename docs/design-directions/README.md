@@ -32,8 +32,8 @@ the landing hero is a two-service, one-photo business.
 | | Name | Argument in one line | Ground | Type | Where the expressiveness goes |
 |---|---|---|---|---|---|
 | 1 | **The Seam** | A detailer sells the edge between dirty and clean, so that edge is the layout. | Petrol black `#0A1416` + jade `#14B8A0` | Archivo alone, width axis 62–125 | One device reused at three scales |
-| 2 | **Showroom** | We sell a website, so the page shows the website. | Alternating paper `#EFF1EE` ↔ marine `#12324F`, crimson `#D22D3A` | Anton against Instrument Sans | Pictures of the real thing, captioned |
-| 3 | **Ticket** | Booking a detail is buying a ticket, so the thing they end up holding is an object. | Oxblood `oklch(.245 .072 22)` + butter | Fraunces at WONK 1 / SOFT 60, against Schibsted Grotesk | One physical object, and its punched edge |
+| 2 | **Showroom** | We sell a website, so the page shows the website. | Alternating paper `#EFF1EE` ↔ marine `#12324F`, crimson `#D22D3A` | Anton against Familjen Grotesk | Pictures of the real thing, captioned |
+| 3 | **Ticket** | Booking a detail is buying a ticket, so the thing they end up holding is an object. | Oxblood `oklch(.245 .072 22)` + butter | Petrona 200 against 900, with Schibsted Grotesk | One physical object, and its punched edge |
 | 4 | **Approach** | Spend everything on motion and nothing on ornament. | Graphite `#141618` ↔ paper `#EDEDEA`, **no brand colour at all** | Onest, one family, 200 against 800 | The hero scrub, and nothing else |
 
 ### Which skill produced which
@@ -110,7 +110,7 @@ Rough, and relative to each other rather than absolute.
 |---|---|---|---|
 | 1 Seam | **Low.** The seam is a `clip-path` and a 2px div. | Low | The device is strong; it needs to not become wallpaper by screen four. |
 | 2 Showroom | **Low–medium.** The duotone is two CSS layers over a greyscaled photo. | Low | The duotone is applied to *every* tenant photo — it has to survive a genuinely bad one. |
-| 3 Ticket | **Medium.** The punched edge is fiddly across breakpoints. | Low | Fraunces at WONK 1 is a strong flavour; check it still reads at 14px. |
+| 3 Ticket | **Medium.** The punched edge is fiddly across breakpoints. | Low | Petrona is a strong flavour at display size; check it still reads at 14px. |
 | 4 Approach | **Highest by a distance.** A real clip means encoding mp4 **and** webm, streaming the webm through MediaSource for non-Safari, a Safari branch, and a still frame for every state. | **Highest** — this is the one that needs the throttled-CPU test before it is promised. | With no brand colour, everything rests on photography a new tenant may not have. |
 
 The prototype in `4-approach.html` uses **one photograph in two states** rather
@@ -183,3 +183,32 @@ nothing is public.
 direction 4's hero slowly and say whether it stutters. That is the only
 direction with a real performance question attached, and the owner's own phone
 is a better test than any measurement taken here.
+
+## Two fonts were changed after the first build
+
+The design hook flagged **Fraunces** (direction 3) and **Instrument Sans**
+(direction 2) as faces that each new wave of AI-generated interfaces converges
+on. That is a fair hit on a project whose entire brief is "it read as
+machine-made", so both were replaced rather than argued with:
+
+- **Fraunces → Petrona.** Petrona carries a true 100–900 axis, so the
+  headline's heavy-against-hairline contrast got *stronger*, not weaker, and
+  the warmth suits a printed stub better than Fraunces did.
+- **Instrument Sans → Familjen Grotesk.** Quieter under Anton, and less
+  travelled.
+
+Two other things came out of the same pass and were fixed rather than
+suppressed:
+
+- **Every direction had hover states that animated `padding` or `margin`.**
+  Those are layout properties: the browser re-flows the page on every frame of
+  the hover. On a mid-range Android — this product's actual audience — that is
+  exactly the wrong thing to spend a frame on. All of them now animate
+  `transform` instead, and every `transition` names its properties rather than
+  defaulting to `all`.
+- **Direction 3's background was a radial colour wash**, which is the same tell
+  as a glowing shadow drawn with a gradient. It is now a linear light-fall at
+  the same hue and chroma, with only lightness moving. Nothing was added to the
+  repo to silence the check — an ignore file would have been a tool-specific
+  artifact, and `CLAUDE.md` says every durable thing here stays portable
+  markdown.

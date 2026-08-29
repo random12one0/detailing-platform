@@ -6,7 +6,7 @@
 <title>Direction 3 — Ticket</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Schibsted+Grotesk:wght@300..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,100..900;1,100..900&family=Schibsted+Grotesk:wght@300..800&display=swap" rel="stylesheet">
 <style>
 /* ═══ DIRECTION 3 — TICKET ════════════════════════════════════════════
    ARGUMENT (one line): booking a detail is buying a ticket, so the thing
@@ -14,8 +14,8 @@
    edge of that object is the system.
    The warm pole, and the friendliest of the four: one dominant colour
    carrying the whole page (oxblood — the colour of a conditioned leather
-   seat), bone type, one butter accent. Type: Fraunces worked at its WONK
-   and SOFT extremes against Schibsted Grotesk 300. Weight extreme 300/900.
+   seat), bone type, one butter accent. Type: Petrona worked from 200 to 900 against
+   Schibsted Grotesk. A true weight extreme, not 400 against 600.
    Colour is OKLCH so a retint moves hue without moving lightness.
    Photo credit (in code, not on the page): Unsplash — Deniz Demirci,
    Brock Wegner, Nik.
@@ -47,10 +47,13 @@ body{
   font-family:'Schibsted Grotesk',sans-serif;font-weight:400;font-size:16px;line-height:1.55;
   -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;
   /* never a flat ground: two soft lights over the dominant, plus grain */
-  background:
-    radial-gradient(120% 80% at 12% -8%, oklch(0.36 0.085 30) 0%, transparent 58%),
-    radial-gradient(90% 70% at 105% 8%, oklch(0.30 0.075 18) 0%, transparent 55%),
-    var(--ox);
+  /* Light falling across a surface, not a glow: same hue, same chroma, only
+     lightness moves. Linear rather than radial on purpose -- a radial wash
+     fading to transparent is the same tell as a coloured shadow. */
+  background:linear-gradient(163deg,
+    oklch(0.315 0.074 23) 0%,
+    oklch(0.262 0.072 22) 46%,
+    oklch(0.222 0.068 21) 100%);
   background-attachment:fixed;
 }
 body::before{
@@ -62,8 +65,8 @@ img{max-width:100%;display:block}
 h1,h2,h3{margin:0}
 :focus-visible{outline:3px solid var(--butter);outline-offset:3px}
 
-.fr{font-family:Fraunces,serif;font-variation-settings:'SOFT' 60,'WONK' 1;line-height:.94;letter-spacing:-.02em}
-.thin{font-weight:300}
+.fr{font-family:Petrona,serif;line-height:.94;letter-spacing:-.02em}
+.thin{font-weight:200}
 .cap{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--bone-45)}
 
 /* mockup furniture */
@@ -102,7 +105,7 @@ h1,h2,h3{margin:0}
 .btn-quiet{
   display:inline-block;text-decoration:none;color:var(--bone);border:1.5px solid var(--ox-line);
   font-weight:600;font-size:16px;padding:var(--s4) var(--s6);border-radius:100px;
-  transition:.18s var(--ease);
+  transition:border-color .18s var(--ease),background-color .18s var(--ease);
 }
 .btn-quiet:hover{border-color:var(--bone);background:oklch(0.30 0.08 24)}
 
@@ -111,7 +114,7 @@ h1,h2,h3{margin:0}
   display:flex;align-items:center;gap:var(--s5);padding:var(--s5) var(--pad);
   max-width:1140px;margin-inline:auto;
 }
-.mark{font-family:Fraunces,serif;font-variation-settings:'SOFT' 80,'WONK' 1;font-weight:900;
+.mark{font-family:Petrona,serif;font-weight:900;
   font-size:22px;letter-spacing:-.02em}
 .mark i{font-style:normal;color:var(--butter)}
 .nav nav{display:none;gap:var(--s5);margin-left:auto;font-size:15px}
@@ -145,13 +148,13 @@ h1,h2,h3{margin:0}
 .ticket .stub::after{bottom:auto;top:calc(100% - 1px)}
 .tk-shot{border-radius:var(--rd-s);overflow:hidden;aspect-ratio:16/9;background:var(--ox-lift)}
 .tk-shot img{width:100%;height:100%;object-fit:cover}
-.tk-biz{font-family:Fraunces,serif;font-variation-settings:'SOFT' 70,'WONK' 1;font-weight:800;
+.tk-biz{font-family:Petrona,serif;font-weight:800;
   font-size:26px;line-height:1;margin-top:var(--s4)}
 .tk-line{display:flex;justify-content:space-between;gap:var(--s3);padding:var(--s2) 0;font-size:15px}
 .tk-line span{color:oklch(0.52 0.03 35)}
 .tk-line b{font-weight:700}
-.tk-when{font-family:Fraunces,serif;font-weight:900;font-size:34px;line-height:.92;
-  font-variation-settings:'SOFT' 60,'WONK' 1}
+.tk-when{font-family:Petrona,serif;font-weight:900;font-size:34px;line-height:.92;
+  }
 .tk-code{margin-left:auto;text-align:right}
 .tk-code b{display:block;font-size:19px;font-weight:700;letter-spacing:.08em}
 .tk-code span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.52 0.03 35)}
@@ -163,11 +166,11 @@ h1,h2,h3{margin:0}
   padding:var(--s6);
 }
 .pane.big{grid-column:1/-1;display:grid;gap:var(--s5);align-items:center}
-.pane h3{font-family:Fraunces,serif;font-weight:800;font-size:clamp(24px,3.4vw,36px);
-  font-variation-settings:'SOFT' 60,'WONK' 1;line-height:1}
+.pane h3{font-family:Petrona,serif;font-weight:800;font-size:clamp(24px,3.4vw,36px);
+  ;line-height:1}
 .pane p{color:var(--bone-70);margin:var(--s3) 0 0;font-size:16px;max-width:44ch}
-.pane .num{font-family:Fraunces,serif;font-weight:900;font-size:clamp(44px,7vw,72px);
-  line-height:.86;color:var(--butter);font-variation-settings:'SOFT' 40,'WONK' 0}
+.pane .num{font-family:Petrona,serif;font-weight:900;font-size:clamp(44px,7vw,72px);
+  line-height:.86;color:var(--butter)}
 .pane-shot{border-radius:var(--rd-s);overflow:hidden;aspect-ratio:4/3}
 .pane-shot img{width:100%;height:100%;object-fit:cover}
 
@@ -175,21 +178,21 @@ h1,h2,h3{margin:0}
 .wrap{max-width:640px;margin-inline:auto;padding:var(--s6) var(--pad) var(--s8)}
 .bk-head{display:flex;gap:var(--s4);align-items:center;margin-bottom:var(--s5)}
 .bk-head .av{width:52px;height:52px;flex:0 0 52px;border-radius:50%;background:var(--butter);
-  color:var(--ox-deep);display:grid;place-items:center;font-family:Fraunces,serif;font-weight:900;font-size:18px}
+  color:var(--ox-deep);display:grid;place-items:center;font-family:Petrona,serif;font-weight:900;font-size:18px}
 .bk-head b{display:block;font-size:18px;font-weight:700}
 .bk-head span{color:var(--bone-70);font-size:14px}
 .pips{display:flex;gap:var(--s2);align-items:center;margin-bottom:var(--s5)}
 .pips i{height:6px;border-radius:100px;background:var(--ox-line);flex:1}
 .pips i.done{background:var(--bone-45)}
 .pips i.on{background:var(--butter)}
-.wrap h2{font-family:Fraunces,serif;font-weight:900;font-size:clamp(30px,6vw,48px);
-  font-variation-settings:'SOFT' 60,'WONK' 1;line-height:.96}
+.wrap h2{font-family:Petrona,serif;font-weight:900;font-size:clamp(30px,6vw,48px);
+  ;line-height:.96}
 .wrap .sub{color:var(--bone-70);margin:var(--s3) 0 var(--s6)}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:var(--s3)}
 .tpill{
   background:var(--ox-lift);border:1.5px solid var(--ox-line);border-radius:100px;
   padding:var(--s4) var(--s5);text-align:center;cursor:pointer;font-size:17px;font-weight:600;
-  transition:.18s var(--ease);
+  transition:border-color .18s var(--ease),background-color .18s var(--ease),color .18s var(--ease),transform .18s var(--ease);
 }
 .tpill:hover{border-color:var(--bone);transform:translateY(-2px)}
 .tpill.on{background:var(--butter);border-color:var(--butter);color:var(--ox-deep);font-weight:700}
@@ -209,31 +212,32 @@ h1,h2,h3{margin:0}
 .svc-list{border-top:1px solid var(--ox-line)}
 .svc{
   display:flex;gap:var(--s4);align-items:center;padding:var(--s5) var(--s3);
-  border-bottom:1px solid var(--ox-line);cursor:pointer;transition:.18s var(--ease);border-radius:var(--rd-s);
+  border-bottom:1px solid var(--ox-line);cursor:pointer;border-radius:var(--rd-s);
+  transition:background-color .18s var(--ease),transform .18s var(--ease);
 }
-.svc:hover{background:var(--ox-lift);padding-inline:var(--s5)}
-.svc h3{font-family:Fraunces,serif;font-weight:800;font-size:clamp(21px,3.6vw,28px);
-  font-variation-settings:'SOFT' 60,'WONK' 1}
+.svc:hover{background:var(--ox-lift);transform:translateX(6px)}
+.svc h3{font-family:Petrona,serif;font-weight:800;font-size:clamp(21px,3.6vw,28px);
+  }
 .svc p{margin:var(--s1) 0 0;color:var(--bone-70);font-size:15px;max-width:46ch}
-.svc .pr{margin-left:auto;font-family:Fraunces,serif;font-weight:900;font-size:clamp(22px,3.6vw,30px);
+.svc .pr{margin-left:auto;font-family:Petrona,serif;font-weight:900;font-size:clamp(22px,3.6vw,30px);
   color:var(--butter);white-space:nowrap}
 
 /* ═══ SCREEN 3 — DASHBOARD TODAY ═══ */
 .dwrap{max-width:760px;margin-inline:auto;padding:var(--s6) var(--pad) var(--s5)}
 .dhead{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s5);flex-wrap:wrap}
-.dhead h2{font-family:Fraunces,serif;font-weight:900;font-size:clamp(32px,6.5vw,52px);
-  font-variation-settings:'SOFT' 60,'WONK' 1;line-height:.94;margin-top:var(--s2)}
+.dhead h2{font-family:Petrona,serif;font-weight:900;font-size:clamp(32px,6.5vw,52px);
+  ;line-height:.94;margin-top:var(--s2)}
 .dhead h2 .thin{font-weight:300;color:var(--bone-70)}
 .dmoney{text-align:left}
 @media(min-width:600px){.dmoney{text-align:right}}
-.dmoney b{display:block;font-family:Fraunces,serif;font-weight:900;font-size:clamp(28px,5vw,42px);
+.dmoney b{display:block;font-family:Petrona,serif;font-weight:900;font-size:clamp(28px,5vw,42px);
   color:var(--butter);line-height:.9}
 .jobs{display:grid;gap:var(--s3);margin-top:var(--s6)}
 .jrow{
   display:grid;grid-template-columns:auto 1fr auto;gap:var(--s4);align-items:center;
   background:var(--ox-lift);border:1px solid var(--ox-line);border-radius:var(--rd-s);
   padding:var(--s4) var(--s5);cursor:pointer;position:relative;overflow:hidden;
-  transition:.18s var(--ease);
+  transition:border-color .18s var(--ease),transform .18s var(--ease);
   opacity:0;transform:translateY(10px);animation:up .5s var(--ease) forwards;
 }
 .jrow:nth-child(1){animation-delay:40ms}.jrow:nth-child(2){animation-delay:100ms}
@@ -242,7 +246,7 @@ h1,h2,h3{margin:0}
 .jrow .hr{font-weight:700;font-size:15px;min-width:56px;color:var(--bone-70)}
 .jrow .nm{font-weight:700;font-size:17px}
 .jrow .sv{font-size:14px;color:var(--bone-70)}
-.jrow .am{font-family:Fraunces,serif;font-weight:800;font-size:21px;text-align:right}
+.jrow .am{font-family:Petrona,serif;font-weight:800;font-size:21px;text-align:right}
 .jrow .stt{display:block;text-align:right;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
   font-weight:700;margin-top:2px;color:var(--bone-45)}
 .jrow.now{background:var(--bone);color:var(--ox-deep);border-color:var(--bone)}
@@ -255,8 +259,8 @@ h1,h2,h3{margin:0}
 }
 .dstrip .stub{padding:var(--s5);display:flex;gap:var(--s4);align-items:center;flex-wrap:wrap}
 .dstrip .stub::after{display:none}
-.dstrip p{margin:0;font-family:Fraunces,serif;font-weight:800;font-size:clamp(17px,2.4vw,21px);
-  font-variation-settings:'SOFT' 60,'WONK' 1;max-width:26ch}
+.dstrip p{margin:0;font-family:Petrona,serif;font-weight:800;font-size:clamp(17px,2.4vw,21px);
+  ;max-width:26ch}
 .dstrip .btn{margin-left:auto;background:var(--ox);color:var(--bone)}
 .dstrip .btn:hover{background:var(--ox-deep)}
 .dtabs{display:flex;max-width:760px;margin:var(--s6) auto 0;padding:0 var(--pad) var(--s6);gap:var(--s2)}
@@ -283,7 +287,7 @@ h1,h2,h3{margin:0}
 <body>
 
 <div class="plate-label"><b>Direction 3 — Ticket</b>
-  <span>Booking a detail is buying a ticket, so the thing the customer ends up holding is designed as an object — and its punched edge is the system. The warm pole: one dominant oxblood, bone type, one butter accent, Fraunces at its wonk extreme.</span></div>
+  <span>Booking a detail is buying a ticket, so the thing the customer ends up holding is designed as an object — and its punched edge is the system. The warm pole: one dominant oxblood, bone type, one butter accent, Petrona from 200 to 900.</span></div>
 
 <!-- ════ SCREEN 1: LANDING HERO ════ -->
 <div class="plate-label">Screen 1 <span>· Landing hero</span></div>

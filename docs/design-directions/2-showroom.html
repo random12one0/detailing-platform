@@ -6,14 +6,14 @@
 <title>Direction 2 — Showroom</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Familjen+Grotesk:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
 <style>
 /* ═══ DIRECTION 2 — SHOWROOM ══════════════════════════════════════════
    ARGUMENT (one line): we sell a website, so the page shows the website —
    every claim is a picture of the thing, and text is only the caption.
    Grounds ALTERNATE, paper ↔ marine, which is the #1-ranked finding in
    DESIGN-BRIEF.md. Photos are duotoned + grained so a tenant's phone
-   snapshot looks deliberate. Type: Anton against Instrument Sans — a real
+   snapshot looks deliberate. Type: Anton against Familjen Grotesk — a real
    weight extreme, not 400 against 600.
    Photo credit (in code, never on the page): Unsplash — Brad Starkey,
    Nik, Deniz Demirci, Zulfahmi Khani, Jonathan Gallegos.
@@ -34,7 +34,7 @@
 *,*::before,*::after{box-sizing:border-box}
 body{
   margin:0;background:var(--paper);color:var(--ink);
-  font-family:'Instrument Sans',sans-serif;font-size:16px;line-height:1.55;
+  font-family:'Familjen Grotesk',sans-serif;font-size:16px;line-height:1.55;
   -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;
 }
 img{max-width:100%;display:block}
@@ -67,7 +67,7 @@ h1,h2,h3{margin:0}
 .btn:hover{background:#B01F2C;transform:translateY(-2px)}
 .btn-line{
   display:inline-block;text-decoration:none;color:inherit;font-weight:600;font-size:15px;
-  padding:13px 24px;border:1.5px solid currentColor;transition:.16s var(--ease);
+  padding:13px 24px;border:1.5px solid currentColor;transition:background-color .16s var(--ease),color .16s var(--ease);
 }
 .btn-line:hover{background:var(--ink);color:var(--paper)}
 .dark .btn-line:hover{background:var(--chalk);color:var(--marine)}
@@ -80,7 +80,7 @@ h1,h2,h3{margin:0}
 .mark{font-family:Anton,sans-serif;font-size:19px;letter-spacing:.01em;text-transform:uppercase}
 .mark i{font-style:normal;color:var(--signal)}
 .nav nav{display:none;gap:24px;margin-left:auto;font-size:15px}
-.nav nav a{color:var(--ink-60);text-decoration:none;transition:.15s var(--ease)}
+.nav nav a{color:var(--ink-60);text-decoration:none;transition:color .15s var(--ease)}
 .nav nav a:hover{color:var(--ink)}
 .nav .btn{margin-left:auto;padding:9px 18px;font-size:14px}
 .nav nav+.btn{margin-left:0}
@@ -156,7 +156,7 @@ h1,h2,h3{margin:0}
 .receipt .r{display:flex;justify-content:space-between;gap:12px;font-size:15px;padding:3px 0}
 .receipt .r b{font-weight:600}
 .receipt .tot{font-family:Anton,sans-serif;font-size:30px;text-transform:uppercase}
-.receipt .tot span{font-size:14px;font-family:'Instrument Sans',sans-serif;color:var(--ink-40);
+.receipt .tot span{font-size:14px;font-family:'Familjen Grotesk',sans-serif;color:var(--ink-40);
   text-transform:none;letter-spacing:0}
 
 /* reveal on approach — Apple's play-keyframe, borrowed: fires 65vh early */
@@ -176,7 +176,7 @@ h1,h2,h3{margin:0}
 .steps div.on{color:var(--signal);border-top-color:var(--signal)}
 .slotgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px;background:var(--paper-2);border:1px solid var(--paper-2)}
 .slot{
-  background:var(--paper);padding:18px 16px;cursor:pointer;transition:.15s var(--ease);
+  background:var(--paper);padding:18px 16px;cursor:pointer;transition:background-color .15s var(--ease);
   display:flex;justify-content:space-between;align-items:baseline;gap:8px;
 }
 .slot:hover{background:var(--chalk)}
@@ -201,9 +201,10 @@ h1,h2,h3{margin:0}
 .rows{margin-top:2px}
 .row{
   display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
-  padding:17px 4px;border-bottom:1px solid #1F4A6E;cursor:pointer;transition:.15s var(--ease);
+  padding:17px 12px;margin-inline:-12px;border-bottom:1px solid #1F4A6E;cursor:pointer;
+  transition:background-color .15s var(--ease);
 }
-.row:hover{background:#173D5E;padding-left:12px;padding-right:12px;margin-inline:-12px}
+.row:hover{background:#173D5E}
 .row .t{font-weight:600;font-size:15px;min-width:60px;color:#9FBCD1}
 .row .who{font-weight:600;font-size:17px}
 .row .what{font-size:14px;color:#8FAEC4}
@@ -237,7 +238,7 @@ h1,h2,h3{margin:0}
 <body>
 
 <div class="plate-label"><b>Direction 2 — Showroom</b>
-  <span>We sell a website, so the page shows the website. Grounds alternate paper ↔ marine. Photos duotoned and grained so a tenant's phone snapshot looks deliberate. Anton against Instrument Sans.</span></div>
+  <span>We sell a website, so the page shows the website. Grounds alternate paper ↔ marine. Photos duotoned and grained so a tenant's phone snapshot looks deliberate. Anton against Familjen Grotesk.</span></div>
 
 <!-- ════ SCREEN 1: LANDING HERO ════ -->
 <div class="plate-label">Screen 1 <span>· Landing hero</span></div>

@@ -58,6 +58,7 @@ img{max-width:100%;display:block}
 h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:.92}
 :focus-visible{outline:2px solid currentColor;outline-offset:4px}
 
+.screen-1{position:relative}
 .hair{font-weight:200}
 .cap{font-size:12px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;opacity:.55}
 .wrap{max-width:1120px;margin-inline:auto;padding-inline:var(--pad)}
@@ -86,7 +87,7 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:.92}
 .btn-q{
   display:inline-block;text-decoration:none;color:inherit;font-weight:600;font-size:15px;
   padding:13px 26px;border-radius:100px;border:1px solid currentColor;opacity:.75;
-  transition:.16s var(--ease);
+  transition:opacity .16s var(--ease);
 }
 .btn-q:hover{opacity:1}
 
@@ -195,9 +196,9 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:.92}
 .svcs{border-top:1px solid var(--line-l)}
 .svc{
   display:flex;gap:18px;align-items:baseline;padding:24px 0;border-bottom:1px solid var(--line-l);
-  cursor:pointer;transition:.18s var(--ease);
+  cursor:pointer;transition:transform .18s var(--ease);
 }
-.svc:hover{padding-left:10px}
+.svc:hover{transform:translateX(8px)}
 .svc h3{font-size:clamp(22px,4vw,34px)}
 .svc p{margin:8px 0 0;color:var(--dim-l);font-size:15px;max-width:48ch}
 .svc .p{margin-left:auto;font-size:clamp(20px,3.4vw,30px);font-weight:800;letter-spacing:-.03em;white-space:nowrap}
@@ -214,10 +215,10 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:.92}
 .list{margin-top:28px;border-top:1px solid var(--line-d)}
 .it{
   display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
-  padding:18px 0;border-bottom:1px solid var(--line-d);cursor:pointer;
-  transition:background .15s var(--ease),padding .15s var(--ease);
+  padding:18px 14px;margin-inline:-14px;border-bottom:1px solid var(--line-d);cursor:pointer;
+  transition:background-color .15s var(--ease);
 }
-.it:hover{background:var(--graphite-2);padding-inline:14px;margin-inline:-14px}
+.it:hover{background:var(--graphite-2)}
 .it .h{font-weight:600;font-size:15px;min-width:56px;color:var(--dim-d)}
 .it .n{font-weight:700;font-size:17px}
 .it .w{font-size:14px;color:var(--dim-d)}
@@ -251,6 +252,7 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:.92}
 <!-- ════ SCREEN 1: THE SCRUB ════ -->
 <div class="plate-label">Screen 1 <span>· Landing hero — scroll it; the car goes from dull to corrected. The hold is 1.4 screens and the hero says so.</span></div>
 
+<div class="screen-1">
 <header class="nav">
   <div class="mk">detail<span>platform</span></div>
   <ul><li><a href="#">What you get</a></li><li><a href="#">Pricing</a></li><li><a href="#">A real one</a></li></ul>
@@ -294,6 +296,7 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:.92}
     </div>
   </div>
 </section>
+</div>
 
 <!-- ════ SCREEN 2: BOOKING STEP ════ -->
 <div class="plate-label">Screen 2 <span>· Booking — pick a time</span></div>
@@ -396,7 +399,9 @@ h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:.92}
   },{rootMargin:'0px 0px -30% 0px'});
   [].forEach.call(document.querySelectorAll('[data-in]'),function(e){io.observe(e)});
 
-  /* The scrub. Progress maps onto ordinary scroll position — no pin.
+  /* The scrub. Progress maps onto how far through its own section you are.
+     The section holds for 1.4 screens and says so on the hero; Apple's own
+     scrub holds for none, because theirs is never the hero.
      Two straight segments with a slow tail, the way Apple splits
      progress [0, .87] then [.87, 1] instead of easing a single range. */
   var sec=document.getElementById('scrub'), pct=document.getElementById('pct'), b=document.getElementById('frame-b');

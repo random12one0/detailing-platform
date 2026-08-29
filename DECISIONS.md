@@ -1042,3 +1042,29 @@ a near-zero decoration budget. All four glows removed; the seam is a hard edge.
 amber accent was drafted for direction 1 and dropped for that reason. Direction
 3's butter yellow is deliberately a yellow, not an orange; if it reads as
 orange to the owner, that is a reason to reject direction 3 and worth saying.
+
+### The design hook's font findings were taken, not argued with (2026-08-29)
+
+Fraunces (direction 3) and Instrument Sans (direction 2) were flagged as faces
+each new wave of AI-generated interfaces converges on. On this project that is
+pass/fail rather than advisory — `design-brief.md` B3 records that the *only*
+thing wrong with the old look was that it read as machine-made — so both were
+replaced. Fraunces → **Petrona**, which carries a true 100–900 axis and so made
+the headline's weight extreme stronger, not weaker; Instrument Sans →
+**Familjen Grotesk**.
+
+Two more findings from the same pass, both fixed rather than suppressed:
+
+- **All four directions animated `padding` or `margin` on hover**, several via a
+  bare `transition: .18s ease` that silently means `all`. Those are layout
+  properties and they re-flow the page every frame, on the mid-range Android
+  this product's audience actually holds. Every transition now names its
+  properties and moves `transform` instead.
+- **Direction 3's ground was a radial colour wash**, which is the glowing-shadow
+  tell drawn as a gradient. It is now a linear light-fall at identical hue and
+  chroma with only lightness moving.
+
+**Nothing was added to the repo to silence the checker.** An `ignore-value`
+entry would have created `.impeccable/config.json`, and `CLAUDE.md`'s
+portability rule says the only tool-specific file in this repo is
+`.claude/settings.json`. Fixing kept that true.
