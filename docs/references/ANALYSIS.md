@@ -974,3 +974,180 @@ complained about being stuck here — and he also never got excited.
 That is the honest trade this site represents: **native scroll and strong
 composition buy you "good" but not "cool".** finseo is proof that our floor is
 reachable with no motion library at all. It is not proof that the ceiling is.
+
+---
+
+## 5. gustavobatista.dev
+
+A developer's personal portfolio. The owner's verdict — *"this is one I
+wouldn't really take into account as much"* — is right, and this section is
+proportionate to that. But it contains the single most alarming performance
+finding in the set, and it clears up what he actually meant by "texture."
+
+### The stack, from the code
+
+An unusual mix: a modern Vite bundle sitting on top of jQuery.
+
+```html
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.ripples/0.5.3/jquery.ripples.min.js">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">
+<script src="/assets/index-BmbqlTyk.js">   <!-- 903 KB -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+```
+
+| Library | Present | Evidence |
+|---|---|---|
+| **Three.js** | yes, bundled | `THREE` ×14, `WebGLRenderer` ×4, `PerspectiveCamera` ×2 |
+| GSAP + ScrollTrigger | yes | `scrub`, `ScrollTrigger.defaults` |
+| **jquery.ripples** | yes | WebGL water-ripple plugin, applied to the loader and nav |
+| jQuery 3.6.0 | yes | CDN |
+| Lenis / Locomotive | no | zero matches |
+
+Type: **Bitter, Lato, Nanum Myeongjo, Roboto**. Two of those — Lato and Roboto
+— are on the never-defaults list; the wide-tracked hero serif in `221946` is
+`Nanum Myeongjo`.
+
+### The finding that matters: it disables itself on Samsung Internet
+
+```js
+function ZR() {
+  const s = navigator.userAgent,
+        e = /SamsungBrowser/i.test(s),
+        t = /OPR\/|Opera Mobi|Opera Mini/i.test(s) && /Mobile|Android|iPhone|iPad|iPod/i.test(s);
+  return e || t
+}
+…
+if (!ZR()) {
+  let s = gsap.timeline();
+  s.to(".name-container", 6, { opacity: 0, scrollTrigger: {…} })
+  …
+}
+```
+
+The entire hero scroll sequence is switched off for **Samsung Internet** and
+mobile Opera. Samsung Internet is the default browser on Samsung Android
+phones — a large share of exactly the mid-range Android audience
+`design-knowledge.md` §4 names as ours.
+
+The ripple effect is gated the same way, with a hand-rolled UA sniff and a
+lower resolution for phones, and Firefox excluded entirely:
+
+```js
+isMobile()
+  ? $("#loading-screen-start").ripples({ resolution: 250, dropRadius: 10, perturbance: 1 })
+  : isFirefox() || (
+      $(".nav-list").ripples({ resolution: 500, dropRadius: 10, perturbance: 1 }),
+      $("#loading-screen-start").ripples({ resolution: 500, dropRadius: 10, perturbance: 1 })
+    )
+```
+
+**The lesson is not "avoid WebGL."** It is that when the effect is the page,
+the fallback has to be hand-maintained per browser, forever, by user-agent
+string — the least reliable mechanism available. riangle answered the same
+problem with capability detection and an FPS governor, which needs no
+maintenance and cannot be defeated by a browser changing its UA. Same risk,
+two engineering answers, and this is the bad one.
+
+### Scroll config
+
+```js
+ScrollTrigger.defaults({
+  scrub: 2, ease: "power1.inOut",
+  start: "top 60%", end: "top",
+  stagger: { amount: .1 }
+})
+```
+
+`scrub: 2` is heavy — the animation trails the scroll by two seconds. Combined
+with a full-viewport 3D scene, that is what produces the *"as you scroll it's
+all these cool switches"* feeling, and also what makes it feel detached from
+the input.
+
+### "The texture… it reminds me of Vox" — what he wants is not what this site does
+
+Screenshot `221946` shows a dark, heavily grained field with a wireframe
+terrain and a glow. The grain is not an overlay. It is the WebGL scene:
+
+| Signature in the bundle | Count | What it is |
+|---|---|---|
+| `Points` / `PointsMaterial` / `BufferGeometry` | 7 / 3 / 5 | the particle starfield |
+| `fog` | 55 | depth fog — why the terrain fades out |
+| `ShaderMaterial` | 5 | custom shading |
+| `images/height.png` | — | heightmap that displaces the terrain mesh |
+| `images/smoke3.png`, `images/alpha.png` | — | smoke sprites |
+
+**So the answer to his request is: this site is the wrong model for it.** He
+described wanting *"different kinds of textures that they put on top of their
+images so it doesn't just look so plain"* — Vox-style grain, halftone and
+duotone laid over photographs. That is a flat, cheap, 2D technique:
+
+- a tiling noise PNG (2–8 KB) or an inline SVG `feTurbulence`, at 4–10%
+  opacity, with `mix-blend-mode: overlay` or `soft-light` over the photo;
+- optionally a duotone via `background-blend-mode` or an SVG `feColorMatrix`.
+
+Zero JavaScript, no WebGL, negligible cost, works on every phone. **It is one
+of the highest value-per-effort items in this entire document, and it has
+nothing to do with the site he found it on.** Note also that this site uses
+`mix-blend-mode` zero times — the technique he is reaching for is genuinely
+absent here.
+
+One thing could not be checked: he mentions *"how they have this green"*. The
+single screenshot of this site (`221946`) is monochrome, so the green section
+he refers to is not in evidence and no claim is made about it.
+
+### Striking things he did not mention
+
+- **A gated entry.** `221946` shows "Clique Para Ativar o Som" — the page has
+  audio behind a click, plus a loading screen with its own ripple effect. Two
+  interstitials before content. For a portfolio that is a statement; for a
+  business selling appointments it would be a conversion leak.
+- **A dot-navigation rail** on the right — five section dots. A whole-page
+  scroll-snap structure.
+- **`opacity: .4` and near-invisible contrast** on the sub-title and the
+  "Entre em Contato" button. Text over a busy WebGL field, unreadable in the
+  screenshot, and directly the failure mode he named elsewhere — overlay that
+  hurts legibility.
+
+### Behaviour under `prefers-reduced-motion`
+
+**None.** Zero matches across the 903 KB bundle, the CSS and the HTML. The site
+gates on user agent and device type but never on the user's stated preference —
+which is the one signal that is actually about the person rather than guessed
+from their hardware.
+
+### Cost to us
+
+| Item | Weight | Effort | Android risk |
+|---|---|---|---|
+| Full-page Three.js scene | **~150 KB+ library, plus a 903 KB bundle here** | very high | **very high — the authors gave up and blacklisted browsers** |
+| jquery.ripples | jQuery + plugin | medium | high, and needs jQuery for nothing else |
+| Global `scrub: 2` | zero | trivial | none, but it feels detached — 0.5–1.0 is the useful range |
+| **Grain / duotone overlay on photos** | **2–8 KB, or zero with SVG** | **trivial** | **none** |
+
+### Conflict with what binds us, and how to reconcile
+
+1. **The 3D takeover is a hard no by the owner's own words**, and independently
+   fails our performance target. Nothing to reconcile — do not take it.
+2. **Roboto and Lato are named never-defaults.** Nothing to take here either.
+3. **The texture idea does not conflict with anything** and is additive to any
+   direction we choose. Reconcile by lifting it out of this site entirely: it
+   belongs in the design system as a surface treatment applied to tenant
+   photography, not as an effect borrowed from a portfolio.
+4. **UA-sniffing versus capability detection.** If any direction we ship needs
+   a fallback, it must be riangle's model. Writing that down as a rule now,
+   while there is a live example of the alternative failing.
+
+### Scroll payoff
+
+**Poor, by our standards — and he said so.** The page is one continuous 3D
+sequence; scrolling changes the scene rather than delivering information, and
+with `scrub: 2` the response trails the input. Add a loading screen and an
+audio prompt before any of it.
+
+For a portfolio whose product *is* the demonstration, that trade is defensible.
+For a page whose job is to convince a detailer to spend $499, or to let their
+customer book a wash in four taps, it is the exact failure he named on
+momentolegal — scroll that does not take you anywhere. **The most useful thing
+this site contributes is a clear picture of the ceiling we should not go
+near.**
