@@ -495,3 +495,279 @@ into the design system:** pinning is not the problem, pinning without delivery
 is. A pin must be spending the scroll on assembling something the visitor then
 gets to read. momentolegal (site 6) is the same technique with nothing on the
 other side, and he named it as a hard no.
+
+---
+
+## 3. subscrr.app
+
+A subscription-tracking iOS app. The simplest site in the set technically, and
+the one that most usefully contradicts the owner's own stated priorities. Its
+source is **unminified and commented** (in Russian), so this is the only site
+here where the authors' reasoning can be read directly rather than inferred.
+
+### The stack, from the code
+
+No framework, no build step. Three CDN scripts at pinned versions, plus the
+site's own two files:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js">
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js">
+<link rel="stylesheet" href="styles.css">   <!-- 66 KB -->
+<script src="script.js">                    <!-- 68 KB, unminified -->
+```
+
+No Three.js (the two "three" matches in the HTML are the word *three* in body
+copy). No Locomotive, Framer Motion or Swiper. The WebGL is **raw WebGL1**,
+hand-written, about 60 lines.
+
+Type: `--font: "Inter", -apple-system, …` and `--display: "Inter Tight"`.
+
+### The finding that matters most: smooth scroll is deliberately switched off
+
+```js
+/* ---------- Smooth scroll ----------
+   Lenis отключён: нативный скролл, как на блоге — быстрее и без «вязкости».
+   Все вызовы ниже имеют нативные фолбэки (scrollIntoView / window.scrollTo). */
+const SMOOTH_SCROLL = false;
+let lenis = null;
+if (SMOOTH_SCROLL && hasLenis && !reduce) {
+  lenis = new Lenis({ lerp: 0.16, smoothWheel: true, wheelMultiplier: 1.3 });
+  …
+}
+```
+
+Translated, the comment reads: *"Lenis disabled: native scroll, like on the
+blog — faster and without 'viscosity'. All calls below have native fallbacks."*
+
+So the config exists and is real — `lerp: 0.16`, `wheelMultiplier: 1.3` — but
+it is dead code behind a `false`. They built inertial scrolling, shipped it,
+judged it worse than the browser's own, and turned it off. The Lenis bundle is
+still fetched from the CDN on every visit and never used.
+
+**Why this is the most useful single fact for our decision.** Smooth, weighted
+scroll is the owner's #1 stated preference, named first and unprompted. About
+this site he said: *"it's less in-your-face with the scrolling, but it's just
+formatted and nice"* and *"this kind of has that Apple kind of look to it."*
+
+He noticed the absence — and still rated the site as the Apple-like one. **The
+site he compared to his one confident brand anchor is the one with no smooth
+scroll at all.** That does not mean he is wrong to want it; it means weighted
+scroll is not what produces the quality he is reaching for. Spacing, type
+scale, restraint and one excellent detail did that here.
+
+### "A sticky top bar that's not attached to the very top… liquid glass"
+
+Precise observation, and the CSS is worth quoting almost in full because it is
+the single most copyable component in the entire reference set.
+
+**The floating pill:**
+
+```css
+.nav {
+  position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 100; width: calc(100% - 28px); max-width: var(--wrap);
+  display: flex; align-items: center; gap: 24px;
+  padding: 12px 12px 12px 22px;
+  border-radius: 100px;
+  transition: transform .5s var(--ease), background .4s, box-shadow .4s, top .45s var(--ease);
+}
+.nav.is-hidden { transform: translateX(-50%) translateY(-140%); }
+```
+
+`top: 14px` and `width: calc(100% - 28px)` are the entire "not attached to the
+very top" effect — a 14 px gutter on all sides. `border-radius: 100px` makes it
+a pill. `is-hidden` slides it away on scroll-down.
+
+**The glass, and the performance reasoning behind it.** The authors' comment
+(translated): *"the fisheye zoom samples only inside the pill, so the layer
+barely extends beyond it — that makes the filter many times cheaper on every
+scroll frame."*
+
+```css
+.nav__glass   { position: absolute; inset: 0; border-radius: inherit;
+                overflow: hidden; z-index: -1; }
+.nav__glass i { position: absolute; inset: -2%;
+                backdrop-filter: blur(7px) saturate(175%); }
+```
+
+Screenshot `221838` is the proof — a tight crop of the bar with the headline
+and phone mockup visibly smeared and desaturated-then-resaturated behind it.
+
+**The light rim**, a 1 px gradient border done with mask compositing rather
+than a border property, so it can be a gradient:
+
+```css
+.nav::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--nav-edge-a),
+    rgba(255,255,255,.08) 38%, rgba(255,255,255,.03) 62%, var(--nav-edge-b));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+```
+
+**The sheen**, a diagonal highlight plus a tint that changes once the page has
+scrolled:
+
+```css
+.nav::before {
+  background: linear-gradient(115deg, var(--nav-sheen-a) 0%,
+    rgba(255,255,255,0) 34%, rgba(255,255,255,0) 66%, var(--nav-sheen-b) 100%),
+    var(--nav-tint);
+  transition: background .4s;
+}
+.nav.is-scrolled::before { …, var(--nav-tint-scrolled); }
+```
+
+Their own comment says the external shadow was removed deliberately: *"there is
+no outer shadow — the glass is held by its rim and its sheen."* That is a
+better lesson than the code: depth from a lit edge, not from a drop shadow.
+
+**And then a second, much more expensive layer.** The CSS credits a port of
+`rdev/liquid-glass-react`, and `script.js` builds an SVG filter chain at
+runtime — `feImage` displacement maps, `feGaussianBlur` to remove 8-bit
+quantisation stepping, then **per-channel displacement at three different
+scales blended with `screen`**, i.e. real chromatic aberration:
+
+```js
+channels.forEach(([name, scale, matrix]) => {
+  filter.appendChild(el("feDisplacementMap", {
+    in: "SourceGraphic", in2: "KMAP_S", scale,
+    xChannelSelector: "R", yChannelSelector: "B", result: name + "_D" }));
+  filter.appendChild(el("feColorMatrix", {
+    in: name + "_D", type: "matrix", values: matrix, result: name + "_C" }));
+});
+filter.appendChild(el("feBlend", { in: "G_C", in2: "B_C", mode: "screen", result: "GB" }));
+filter.appendChild(el("feBlend", { in: "R_C", in2: "GB",  mode: "screen" }));
+```
+
+Real name: **refraction via SVG displacement mapping with chromatic
+aberration** — genuine lensing, not a blur. This is the expensive half and is
+applied to the theme-toggle knob, not the whole bar.
+
+### The atmosphere he did not mention
+
+```js
+function initGL() {
+  const canvas = document.getElementById("gl");
+  if (!canvas || reduce) { if (canvas) canvas.style.display = "none"; return; }
+  const gl = canvas.getContext("webgl", { antialias: false, alpha: true });
+  if (!gl) { canvas.style.display = "none"; return; }
+  …
+  uniform vec2 u_res; uniform float u_t; uniform vec2 u_mouse; uniform float u_dark;
+  …
+  vec2 warp = vec2(fbm(p + t + u_mouse * 0.4), fbm(p + vec2(4.7,2.1) - t));
+```
+
+A fractal-noise **mesh gradient** rendered on a full-page canvas, warped slowly
+over time and pushed by the cursor (`u_mouse * 0.4`). It is the reason the
+off-white ground in `221832` does not read as flat paint. About 60 lines of
+raw WebGL, no library — and it is exactly the "atmosphere and depth rather than
+solid colours" that `design-knowledge.md` §1 asks for.
+
+### Other things he did not mention
+
+- **Magnetic buttons** — cursor-proportional translation at 0.3, reset on
+  leave, gated on `!reduce && hover`.
+- **Hero mouse parallax** — floating elements lerped toward the cursor at
+  `0.06` per frame via `--px`/`--py` custom properties.
+- **A custom cursor was built and then deliberately disabled** — the comment
+  reads *"Custom cursor disabled: normal system cursor"*. Two of the seven
+  sites had a cursor-follow element; this one had one and removed it.
+- **A working light/dark toggle** that also rewrites `<meta name="theme-color">`
+  (`#0A0A0A` / `#f4f2ec`) so the phone's browser chrome matches. Cheap, and
+  directly applicable to tenant sites viewed on phones.
+- **The hero's real content is a screenshot of the product doing its job** —
+  and beneath it, a card translating the total into "2× Return flight to
+  Europe, 3× Weekend city trip, 4× PlayStation 5". Our equivalent would be
+  translating a detailer's month into something they feel.
+
+### Behaviour under `prefers-reduced-motion`
+
+**Good, and structural.** One flag, read once, gating everything:
+
+```js
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+```
+
+Used at eight separate points — loader timeline, smooth scroll, anchor
+scrolling (`behavior: reduce ? "auto" : "smooth"`), magnetic buttons, mouse
+parallax, staggered reveals, the FAQ accordion, and the WebGL canvas (hidden
+outright). Plus **five** `@media (prefers-reduced-motion: reduce)` blocks in the
+CSS that force `opacity: 1; filter: none; transform: none`.
+
+That is the pattern to copy: one boolean, read once, and every reveal has a
+CSS end-state that is correct without motion.
+
+### The problem he half-spotted: the typeface
+
+He said "this kind of has that Apple kind of look to it" and rated it as nicely
+formatted. The type is **Inter and Inter Tight**.
+
+Inter is the first font named on the never-defaults list in `CLAUDE.md` and the
+first tell in `design-knowledge.md` §1.
+
+**This is worth telling him plainly rather than smoothing over.** The site he
+picked as the Apple-like one is set in the font our own rules ban. The
+resolution is that the Apple quality here is not coming from the typeface — it
+is coming from the pill nav, the 14 px gutter, the warm off-white
+(`#f4f2ec`, not white), the mesh-gradient atmosphere, the size jump between the
+headline and everything else, and the restraint. Inter is doing the least
+distinctive work on the page. We can take all of the former and none of the
+latter, and the result will read *more* considered, not less.
+
+### And the colour he disliked
+
+"I don't really like the orange." The accent is a saturated red-orange on the
+"Get the app" pill, the primary CTA and the in-app arrow (`221832`). Noted for
+the palette shortlist as a rule-out, alongside his caveat that his lean toward
+blue is a preference he himself flagged as "kind of typical AI".
+
+### Cost to us
+
+| Item | Weight | Effort | Android risk |
+|---|---|---|---|
+| Floating glass pill nav (CSS only) | zero | **half a day** | **low** — `backdrop-filter` is GPU-accelerated and the blur area is deliberately confined to the pill |
+| The 1 px gradient rim (mask-composite) | zero | trivial | none |
+| SVG displacement refraction | ~40 lines JS | high | **high** — SVG filter chains with `feImage` + `feDisplacementMap` are among the most expensive things on a mobile GPU. **Skip.** The `backdrop-filter` layer alone gives 90% of the look |
+| WebGL mesh gradient | ~60 lines, no library | medium | medium — one full-screen fragment shader per frame; needs riangle's tier check, or a static gradient fallback |
+| Magnetic / mouse parallax | ~20 lines | trivial | none (already gated on `hover`) |
+| Inter / Inter Tight | — | — | **do not use** |
+
+### Conflict with what binds us, and how to reconcile
+
+1. **Inter is banned by name.** Reconcile: take the layout, spacing and glass;
+   set them in a face with actual character. Archivo — which the owner praised
+   twice, on the two other sites — has the width and weight range to do the same
+   job with more identity.
+2. **The floating nav versus the dashboard.** No conflict, and this is the one
+   effect here that belongs on *all three* surfaces. A pill nav that hides on
+   scroll-down and returns on scroll-up is a phone-first pattern; it gives
+   screen back to the content, which is the dashboard's governing value.
+3. **The mesh gradient versus the empty-state rule.** This is the strongest
+   answer in the whole reference set to "a detailer with two services and no
+   photos". Atmosphere that costs the tenant nothing to supply, retints from one
+   accent value, and never looks like a grey placeholder box. Pair it with
+   riangle's tier check.
+4. **The disabled smooth scroll is a warning, not a prohibition.** Reconcile by
+   testing rather than assuming: build the marketing page with Lenis behind a
+   single flag, the way subscrr did, and have the owner feel it on his own
+   phone before committing.
+
+### Scroll payoff
+
+**High per unit of scroll, low ambition.** He called it "pretty basic" and he is
+right — nothing pins, nothing scrubs, sections simply arrive with staggered
+reveals. But every screen delivers a complete idea and the page is short.
+
+The lesson is uncomfortable and worth stating: **this site achieves his stated
+goal — looking expensive and Apple-like — with none of his stated techniques.**
+No smooth scroll, no morphing hero, no cursor element, no 3D. It buys the whole
+impression with one immaculate component, a warm ground, real product imagery
+and generous space. If effort has to be spent somewhere, this is the cheapest
+route to "looks expensive" of any site here.
