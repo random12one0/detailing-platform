@@ -51,8 +51,17 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 1.1 **OWNER: collect 3–5 reference websites or screenshots you
       like** — any industry. The research rule: a reference beats a
       description every time. The advisor chat can help you hunt.
+      **ASKED 2026-08-29 — waiting on the owner.** Questions and the
+      how-to are in `docs/design-brief.md` Part A; images go in
+      `docs/design-references/`. It also carries a ready-made prompt for the
+      advisor chat that returns 15–20 candidate references to react to.
 - [ ] 1.2 Short design brief interview: audience, the feeling it should
       give, what felt wrong about the old look, what to keep (if anything).
+      **ASKED 2026-08-29 — waiting on the owner.** Six questions in
+      `docs/design-brief.md` Part B. Answers get typed into that file (a
+      chat answer dies at the next `/clear`). 1.3 does not start until A and
+      B are filled in — producing directions first would anchor the
+      owner's choice to a guess.
 - [ ] 1.3 Produce 3–5 GENUINELY different design directions, each rendered
       as real mockups of the same three screens (landing hero, one booking
       step, dashboard Today) at phone + desktop. **OWNER picks one.**

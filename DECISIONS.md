@@ -605,3 +605,62 @@ expression already running 1,255 times on the live site.
   `send-owner-reminders-sweep` at `*/15 * * * *`. All 11 test suites pass —
   the four credential-free ones and the seven that hit the real project,
   which is what clears the new bookings trigger of breaking anything.
+
+## Phase 1 — 1.1/1.2 the design brief (2026-08-29)
+
+Both items are OWNER-gated, so this session built the instrument and asked
+the questions rather than producing anything visual. `docs/design-brief.md`
+holds them; `docs/design-references/` is where reference images go. No
+direction was invented, sketched or hinted at — roadmap 1.3 explicitly comes
+after the answers, and a direction proposed before the references exist would
+anchor the owner's choice to my guess.
+
+Judgment calls in how the brief is written:
+
+- **The "feeling" question is asked with real-world anchors, not
+  adjectives.** B2 offers Snap-on/Milwaukee, a high-end independent garage, a
+  banking app, a barbershop/tattoo studio, Apple. `docs/design-knowledge.md`
+  §1 is explicit that "modern and clean" *is* the slop — an adjective answer
+  would produce five directions that are secretly the same one. Five named
+  brands produce five genuinely different starting points, which is what 1.3
+  requires.
+- **An anti-reference is requested, not optional.** Costs the owner ten
+  seconds and rules out a whole region of the space. Cheapest signal in the
+  brief.
+- **B1 forces a ranking of the three audiences.** Marketing page, dashboard
+  and booking page want opposite things (bold vs. fast vs. warm); refusing to
+  rank them is how a design lands bland. `design-knowledge.md` §4 already
+  holds an OPINION that the booking page carries the most weight — the owner
+  gets to overrule it, but only if asked directly.
+- **B5 asks about sunlight and customer age** because they are facts only the
+  owner has and they constrain the design harder than taste does. Direct sun
+  on a phone is the strongest argument against a dark ground, and the old
+  system was matte near-black. Guessing this wrong wastes all of Phase 2.
+- **B6 confirms per-tenant accent colour survives.** Every visual decision
+  has to remain legible after a stranger recolours it (neon green, near
+  black). If the owner wants that taken away the design space widens a lot,
+  so it is worth confirming before, not after.
+- **B4 offers to keep parts of the old look.** The owner called for a
+  complete restart, but "restart" and "hate every part of it" are not the
+  same statement, and the three fonts / dark ground / one-lit-element rule
+  are separable. Default if unanswered: throw it all out.
+- **No screenshots of the old look were produced.** They would only be
+  evidence for B3, which the owner has already formed an opinion on — they
+  use the product. Offered rather than assumed.
+
+### Tooling checked while 1.1/1.2 wait (2026-08-29)
+
+1.3 has to render mockups and be verified by looking at them, so the path was
+tested before it is needed rather than during:
+
+- **Playwright had no browser binary on this machine** — `chromium.launch()`
+  failed with "Executable doesn't exist". Fixed with
+  `npx playwright install chromium` (114 MB, machine-local, no repo change —
+  `playwright` was already a devDep). Re-tested: launches and screenshots.
+- **`npm run dev` works** — Vite 5.4.21 on `localhost:5173`, `/` returns 200.
+  `app/.env.local` supplies the config; there is no `app/.env`.
+- Two screenshots of the CURRENT landing page (392 px and 1440x900) were
+  taken and sent to the owner as evidence for B3, so "what bothered you about
+  the old look" can be answered against a picture instead of memory. They are
+  scratch files, not committed — the old look is already recorded in
+  `docs/design-system.md`.
