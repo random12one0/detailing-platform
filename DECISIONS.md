@@ -1178,3 +1178,64 @@ Found by looking, not by reading. The layout class is now `.duo`. Worth
 recording as a rule for whoever builds this for real: **a state class and a
 layout class must never share a name**, because the bug only appears after the
 animation runs and never in the markup.
+
+### Round two and three: what his review changed (2026-08-29)
+
+He reviewed the built page — "so much better" — and then tested it on an
+iPhone. Five corrections plus two mobile bugs. The reasoning worth keeping:
+
+**A blanket reveal failsafe was deleting the animation it was meant to
+protect.** He said elements below the fold "aren't just kinda there, it kind of
+animates in" — they were not animating at all. A 4-second timer revealed every
+element on the page whether or not it had been reached, so four seconds after
+load the whole document was in its end state. The IntersectionObserver AND the
+failsafe are both gone, replaced by one pending list checked in the scroll
+frame that already runs: an element reveals when its top crosses 82% of the
+screen and at no other time, and because it is a comparison rather than an
+event it cannot be skipped by fast scrolling or an anchor jump. **General rule:
+a safety net that fires on a timer will eventually fire during normal use. Make
+the net a property of the same check that does the work, not a race against
+it.**
+
+**The scroll weight had two knobs and he was describing both.** "It slowed down
+slower... if you scroll it kinda went down a little more" is distance per
+gesture AND length of tail. Distance 1.0 → 1.22; lerp 0.11 → 0.055 (webtactics'
+territory, and webtactics is the site he liked most). The floor is real:
+`ANALYSIS.md` records gustavobatista's `scrub: 2` as "detached from the input".
+
+**The pin was the wrong mechanism for a phone, and the fix was to drop it
+rather than patch it.** He reported the pinned section "just doesn't work on
+iPhone. It glitches out." The two iOS Safari failure classes were both present:
+a sticky element sized in viewport units, and scroll progress measured against
+a viewport height that changes as the URL bar hides and returns — which also
+fired `resize` on nearly every gesture, re-measuring the flight paths
+mid-flight. The phone now does not pin at all; progress comes from the block's
+own pass through the viewport, which is riangle's `SCRUB_TRIGGER` and which
+`ANALYSIS.md` already called the safe form (`pin:!0` appears zero times in that
+site's code). Supporting changes: `svh` for any surviving viewport unit, resize
+gated on WIDTH only, an `orientationchange` branch.
+
+**This is disclosed as unverified.** There is no iPhone here. Removing sticky
+and viewport-unit arithmetic removes the known failure classes and the
+replacement is the mechanism his own favourite site uses — but that is
+reasoning, not observation, and `CLAUDE.md` says report what was observed.
+
+**Hover-only states are a piece of the design half the audience cannot see.**
+His fix, and it is the right one: on a device that cannot hover, the row
+nearest the middle of the screen lights itself as you scroll. Gated on
+`!(hover: hover)` so a desktop keeps hover and the two never fight. Worth
+generalising in 1.5: **any hover treatment needs a scroll-position equivalent,
+or it does not exist on a phone.**
+
+**The founding offer is real data, not a mockup number.** `founding_total
+integer not null default 3` in migration `20260828001000` matches his "first
+three people get $499", so "3 of 3 left" is the true launch state. The live
+page reads the remaining count from the database and fails CLOSED; a static
+file has no database, which is why it states the starting figure rather than an
+invented midpoint.
+
+**Copy is provisional by agreement.** "I think in the future we'll kind of
+critique the actual text on the page. For now, this is a good layout." Recorded
+so nobody treats the current wording as approved — it is mostly carried from
+`app/src/landing/LandingPage.jsx` and only "Stop booking jobs in your DMs" has
+his explicit approval.

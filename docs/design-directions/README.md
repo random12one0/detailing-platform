@@ -9,7 +9,9 @@ especially) before this file.**
 
 **Built 2026-08-29 after the owner rejected all four. `5-the-thread.html`.
 One page, built properly, rather than four more guesses on a corrected brief.
-The owner has not seen it yet — that is the open item.**
+He has since reviewed it — "so much better" — and two further rounds of his
+corrections are in, including an iPhone test. See "Round two" and
+"Round three" below; they supersede any detail above them.**
 
 ## What it is
 
@@ -58,7 +60,7 @@ two read as the same layout with different words, one of them is wrong.
 | # | Section | Skeleton |
 |---|---|---|
 | 1 | Hero | left-heavy asymmetric, one floating object |
-| 2 | The thread | two columns, pinned, animated transfer |
+| 2 | The thread | two columns, animated transfer — pinned on desktop, scrubbed without a pin on phones (see Round three) |
 | 3 | The day | full-bleed strip, one huge figure |
 | 4 | What you get | full-width ruled list, no boxes at all |
 | 5 | What customers see | LIGHT ground, object breaking the section edge |
@@ -86,7 +88,9 @@ two read as the same layout with different words, one of them is wrong.
 |---|---|---|
 | Weighted scroll | riangle's `smooth: 1.1`, his #1 stated preference | ~30 lines, moves the REAL scroll position so `position:sticky` keeps working. Fine-pointer only, the same gate riangle uses. `?smooth=0` turns it off. |
 | Rotating-tail typewriter | webtactics, values and all | `70 + random*40` ms per character, 2200 ms hold, faster delete. **This is the always-looping animation he asked for by description.** |
-| A light that never stops | his "some glowing animation that's constantly looping" | Two soft lights drifting over the ground on a 22 s and 29 s loop. Lightness only — a drifting *coloured* wash is the tell that got flagged on direction 3. |
+| A light that never stops | his "some glowing animation that's constantly looping" | Two soft lights drifting over the ground on a 15 s and 19 s loop, plus a lattice of dots drifting diagonally forever. Lightness only — a drifting *coloured* wash is the tell that got flagged on direction 3. |
+| A light that follows the pointer | subscrr's hero parallax, lerped at 0.06 | One composited layer chasing the cursor at 0.09 across the WHOLE page, not just the buttons. Fine pointers only. |
+| Figures that roll up on arrival | finseo's `number-flow`, and the old landing page's own CountUp | About ten lines. Width reserved in `ch` first, so counting never nudges the layout. |
 | Line-masked headline reveal | riangle's SplitText, hand-rolled | CSS `clip-path: inset(-.3em 0)`, so descenders are never clipped. No Club plugin. |
 | Hero that becomes another part of the site | sharplink, the thing he liked most and could not name | The messages becoming the schedule. |
 | One timeline, not two | sharplink's hero closing WHILE the next section assembles | A bubble leaving and its row arriving share one window, which is why it reads as one event. |
@@ -104,7 +108,8 @@ two read as the same layout with different words, one of them is wrong.
 
 | | Length | What it delivers |
 |---|---|---|
-| Section 2 | **1.9 screens**, and it says so on screen | An entire dashboard assembles inside it |
+| Section 2, desktop | **1.9 screens**, and it says so on screen | An entire dashboard assembles inside it |
+| Section 2, phone | **no pin at all** — ~1.4 screens of ordinary travel | The same transfer, and the page never stops advancing |
 | Section 6 | **~1.5 screens**, derived in script from how far the track actually travels | Three steps pan past |
 | momentolegal, the one he called stuck | 18.3 screens | Pans one list |
 | sharplink, which he liked | 1.5 screens | Assembles a section |
@@ -159,18 +164,169 @@ leverage technique and this is the evidence for it.
 - `composition`, `design-contrast`, `landing-pricing`, `route-contract` all
   pass. Nothing in `app/` was touched.
 
+## Round two — his review of the built page, 2026-08-29
+
+He opened it and said *"so much better"*, then gave five corrections. All five
+are in. Recorded because the reasoning behind each one is the useful part.
+
+### 1. The weighted scroll was not weighted enough
+
+> "More velocity when you scroll... this is kind of normal, like when I'm
+> scrolling on a web page, this kinda feels like how it stops. But that one
+> kinda had a more, not velocity, but it slowed down slower. If you scroll it
+> kinda went down a little more."
+
+Two knobs, and he was describing both. Distance per gesture went from 1.0 to
+**1.22**; the lerp — how much of the remaining gap closes per frame, so a
+smaller number is a longer tail — went from **0.11 to 0.055**, which is
+webtactics' territory (`lerp: 0.065`) and webtactics is the site he was most
+enthusiastic about. There is a floor: gustavobatista runs `scrub: 2` and
+`ANALYSIS.md` records that it "feels detached from the input".
+
+### 2. Things below the fold were not animating in — and the cause was a bug
+
+> "The five twenty demo Saturday, or the whole front door — I want, when I
+> scroll down, those aren't just kinda there. It kind of animates in."
+
+He was right and the cause was not the animation, it was a **4-second blanket
+failsafe** that revealed every element on the page whether or not it had been
+reached. Four seconds after load the whole document was already in its end
+state, so nothing below the fold ever moved. The failsafe meant to stop content
+being stranded hidden was silently deleting the animation instead.
+
+The IntersectionObserver and the failsafe are both gone, replaced by one
+mechanism: a pending list checked in the scroll frame that already runs. An
+element reveals when its top crosses 82% of the screen height and at no other
+time, and because it is a comparison rather than an event, nothing can be
+skipped by scrolling fast or jumping to an anchor. Elements drop out of the
+list as they fire, so the cost falls to zero.
+
+Reveals are also stronger now (38px of travel against 22px, 950ms against
+820ms), figures **roll up** when they arrive rather than being there already,
+and the ticks stagger one at a time instead of as a block.
+
+### 3. The pointer light, across the whole page
+
+> "When I hover over this new booking just now, my mouse kinda creates a
+> gradient. If I could go through the whole site, when I moved around the
+> entire website, the background kind of has a little glow onto where my
+> mouse is."
+
+One composited layer that **lerps** toward the cursor at 0.09 rather than
+tracking it exactly — the lag is the difference between a lit surface and a
+torch taped to the mouse, and it is subscrr's trick. Fine pointers only. It
+sits under the content, so the light band hides it automatically.
+
+### 4. The background had to actually move
+
+> "Right now it's kinda just this gradient black or white, but maybe we have
+> something that's kind of moving... maybe some orbs moving around, or dots."
+> And after testing: "if we do do dots in the background, the background needs
+> to be moving. That's what I meant."
+
+A lattice of dots drifting diagonally, forever — one repeating background and
+one transform, travelling exactly one tile per cycle so the loop is seamless.
+The two existing lights were sped up from 22s/29s to 15s/19s: the movement was
+real at 22s but too slow to read as movement, which was the whole point of it.
+No canvas, no renderer.
+
+### 5. The founding offer
+
+> "Don't forget that we're gonna have, like, a first three people get four
+> ninety nine, nine hundred."
+
+In. `founding_total integer not null default 3` in migration
+`20260828001000`, so "3 of 3 left" is the real launch state rather than a
+number invented for a mockup. $900 and $60 are the real list prices, struck
+only because a genuine discount is live. The live page reads the remaining
+count from the database and fails CLOSED so a taken spot is never advertised;
+a static file has no database, which is why this one states the starting
+figure.
+
+---
+
+## Round three — the iPhone, and the two things it broke
+
+He then tested on an actual iPhone. Both findings are ones a desktop browser
+cannot produce.
+
+### The pinned section did not work on mobile at all
+
+> "The first kind of scroll stop where it shows the before and after, it just
+> doesn't work on iPhone. It glitches out. Maybe we replace it with a
+> different one for mobile, but still has a cool scrolling effect."
+
+The two things that break a pin on iOS Safari were exactly what it was built
+on: **a sticky element sized in viewport units**, and **scroll progress
+measured against a viewport height that changes as the URL bar hides and
+returns**. Every frame of the transfer was doing arithmetic against a moving
+number, and a `resize` fired on nearly every gesture, re-measuring the flight
+paths mid-flight.
+
+**The phone no longer pins at all.** The section scrolls normally and the
+transfer is driven by the block's own pass through the viewport — riangle's
+`SCRUB_TRIGGER`, which `ANALYSIS.md` calls the safe form of scroll animation
+and which that site uses for everything (`pin:!0` appears zero times in its
+code). Nothing is sticky, nothing is measured in `vh`, and the page never stops
+advancing. The animation is not weaker for it: the same messages fly into the
+same rows, over about 1.4 screens of travel.
+
+Supporting fixes: `svh` instead of `vh` wherever a viewport unit survives,
+resize handling gated on **width** changes only, and an `orientationchange`
+branch. The vertical half of the collapse was deleted rather than tuned — it
+existed to close dead space at the end of the *pinned* phone layout, and with
+no pin it just opened a gap underneath the dashboard instead.
+
+**Still unverified: I have no iPhone here.** Removing sticky and viewport-unit
+arithmetic removes the two known iOS failure classes, and the mechanism that
+replaces them is the one his own favourite site uses — but that is reasoning,
+not observation, and it needs his phone to confirm.
+
+### Hover-only states are invisible to half the audience
+
+> "On mobile, most of the time when you scroll you're not always having your
+> mouse on the page... maybe we should have it highlight automatically the one
+> that's in the middle. So there's still some animation when you scroll."
+
+Exactly right, and it applied to the whole ruled list — a piece of the design
+nobody on a phone could ever see. Whichever row is nearest the middle of the
+screen now lights itself as you scroll past, using the same treatment the
+cursor triggers. Registered only when the device cannot hover, so a desktop
+keeps hover and the two never fight. Verified at 392: the highlight tracks from
+row to row and clears when the list leaves the screen.
+
 ## Still open on direction 5
 
-1. **The owner has not seen it.** Two questions are put to him on `index.html`:
-   whether the two-column beat reads as a before/after of a car again, and
-   whether the weighted scroll is better or worse on his own phone.
-2. **Only his phone can settle the performance question.** Nothing here uses
-   WebGL, so the risk is much lower than direction 4's — but the pinned
-   transfer moves a dozen nodes per frame and a mid-range Android is the
-   target. The measurement worth having is his thumb, not a number from here.
-3. **The dashboard's empty state** (a detailer with no jobs today) is still
+**Settled by his review** (so do not re-ask): he likes the direction — "so
+much better", "the layout is good, I like it". The two-column beat did NOT
+read as a before/after of a car; he asked only that it stay short, and it is
+two sections. The weighted scroll was wanted heavier, not removed.
+
+1. **THE ONE BLOCKER: the iPhone fix is unverified.** The pinned section broke
+   on his phone and the mechanism has been replaced with one that cannot fail
+   the same way — nothing sticky, no viewport-unit arithmetic. Verified at
+   392, 768 and 1440 in a desktop browser with touch emulation, which is not
+   the same thing as iOS Safari. **He needs to open it on the iPhone again and
+   say whether that section now works.** Everything else in 1.4 can proceed
+   whatever the answer; this cannot.
+2. **The copy has not been reviewed and he knows it.** *"I think in the future
+   we'll kind of critique the actual text on the page. For now, this is a good
+   layout."* So the wording is provisional by agreement — it is mostly carried
+   over from `app/src/landing/LandingPage.jsx`, which is the substance
+   `DESIGN.md` says to keep, but no line here has been through him except
+   "Stop booking jobs in your DMs". **This is a named 1.4 task, not a
+   loose end.**
+3. **The founding offer is in the page but not in the plan.** $499 / $900 for
+   the first three is now rendered, and `founding_total` defaults to 3 in the
+   migration — but whether the real launch runs it at 3, and whether the
+   struck-price treatment survives his eye, is a 1.4 decision.
+4. **Mid-range Android is still unmeasured.** Nothing here uses WebGL so the
+   risk is far lower than direction 4's, and the phone no longer pins at all,
+   which removes the most expensive path. Still worth his thumb on a cheap
+   Android before Phase 2 commits to it.
+5. **The dashboard's empty state** (a detailer with no jobs today) is still
    undrawn. Carried from the first round; it belongs in 1.4.
-4. **The device-tier question** (`APPLE-READ.md`) is untouched and stays a 1.5
+6. **The device-tier question** (`APPLE-READ.md`) is untouched and stays a 1.5
    decision. With no WebGL on the page there is nothing for a tier check to
    switch off yet; the `.lite` net plus reduced-motion is the whole defence.
 

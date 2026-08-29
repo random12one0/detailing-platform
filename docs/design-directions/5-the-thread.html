@@ -121,7 +121,7 @@
      animation to REVEAL_TRIGGER or SCRUB_TRIGGER. Ad-hoc durations are how
      a page ends up feeling like a pile of effects instead of one system. */
   --e-out:cubic-bezier(.16,.84,.34,1);
-  --t-reveal:820ms;
+  --t-reveal:950ms;
   --t-hover:180ms;
 }
 
@@ -156,17 +156,52 @@ a{color:inherit;text-decoration:none}
   filter:blur(14px);
   will-change:transform,opacity;
 }
-.ground b:nth-of-type(1){width:76vmax;height:76vmax;left:-20vmax;top:-26vmax;animation:drift-a 22s ease-in-out infinite alternate}
-.ground b:nth-of-type(2){width:54vmax;height:54vmax;right:-16vmax;top:36vh;animation:drift-b 29s ease-in-out infinite alternate}
+/* Sped up from 22s/29s. At 22s the movement was real but too slow to
+   read as movement, which was the whole point of it. */
+.ground b:nth-of-type(1){width:76vmax;height:76vmax;left:-20vmax;top:-26vmax;animation:drift-a 15s ease-in-out infinite alternate}
+.ground b:nth-of-type(2){width:54vmax;height:54vmax;right:-16vmax;top:36vh;animation:drift-b 19s ease-in-out infinite alternate}
 @keyframes drift-a{
-  0%  {transform:translate3d(0,0,0) scale(1);opacity:.85}
+  0%  {transform:translate3d(0,0,0) scale(1);opacity:.8}
   50% {opacity:1}
-  100%{transform:translate3d(7vw,5vh,0) scale(1.1);opacity:.68}
+  100%{transform:translate3d(11vw,8vh,0) scale(1.14);opacity:.6}
 }
 @keyframes drift-b{
-  0%  {transform:translate3d(0,0,0) scale(1.06);opacity:.5}
-  100%{transform:translate3d(-6vw,-7vh,0) scale(.94);opacity:.8}
+  0%  {transform:translate3d(0,0,0) scale(1.08);opacity:.45}
+  100%{transform:translate3d(-10vw,-11vh,0) scale(.9);opacity:.85}
 }
+
+/* A lattice of dots drifting diagonally, forever. The ground was "just a
+   gradient" and this is the cheapest thing that makes it a surface instead
+   of a colour: one repeating background, one transform, no canvas and no
+   renderer. It travels exactly one tile (46px) per cycle, so the loop is
+   seamless and there is no jump. Kept at 5% so it reads as texture from
+   the corner of the eye and never as content. */
+.ground .dots{
+  position:absolute;inset:-8%;
+  background-image:radial-gradient(circle at center,rgba(226,234,238,.6) 1px,rgba(226,234,238,0) 1.7px);
+  background-size:46px 46px;
+  opacity:.05;
+  animation:dots 26s linear infinite;
+  will-change:transform;
+}
+@keyframes dots{from{transform:translate3d(0,0,0)}to{transform:translate3d(46px,46px,0)}}
+
+/* The light follows the pointer across the WHOLE page, not just the
+   buttons. It lerps toward the cursor rather than tracking it exactly —
+   the small lag is what reads as a lit surface instead of a cursor
+   attachment, and it is the same trick subscrr uses on its hero at 0.06
+   per frame. Fine pointers only: a phone has no cursor to follow.
+   Lightness only, no hue — a coloured wash is the tell that got flagged on
+   direction 3. It sits under `main`, so a section with its own opaque
+   ground (the light band) hides it automatically. */
+.ground .cursor{
+  position:absolute;top:0;left:0;width:820px;height:820px;margin:-410px 0 0 -410px;
+  background:radial-gradient(circle,rgba(226,234,238,.14),rgba(226,234,238,0) 62%);
+  transform:translate3d(var(--gx,-999px),var(--gy,-999px),0);
+  opacity:0;transition:opacity 600ms linear;
+  will-change:transform;
+}
+.ground.awake .cursor{opacity:1}
 /* Grain. The Vox texture he asked for, for the cost of one data URI and no
    JavaScript — the highest value-per-effort item in all of ANALYSIS.md. */
 .ground i{
@@ -206,8 +241,18 @@ section{position:relative}
    as one class, so `.lite` on <html> turns the whole page static without a
    second code path — webtactics' .wt-lite, which cannot rot because it is
    the same CSS the animation targets.                                    */
-[data-rv]{opacity:0;transform:translate3d(0,22px,0);transition:opacity var(--t-reveal) var(--e-out),transform var(--t-reveal) var(--e-out);transition-delay:calc(var(--i,0) * 90ms)}
+/* Raised from 22px/820ms. At 22px, and firing as soon as 12% of the
+   element had crossed the viewport edge, things had finished moving before
+   they were anywhere near the reading position — so they read as already
+   there rather than as arriving. The travel is longer, the curve is
+   longer, and the observer fires much later down the screen (see the JS).
+   Still transform and opacity only: nothing here reflows. */
+[data-rv]{opacity:0;transform:translate3d(0,38px,0);transition:opacity var(--t-reveal) var(--e-out),transform var(--t-reveal) var(--e-out);transition-delay:calc(var(--i,0) * 110ms)}
 [data-rv].in{opacity:1;transform:none}
+/* A variant for objects rather than text: it also comes forward slightly,
+   which text cannot do without looking soft mid-transition. */
+[data-rv="lift"]{transform:translate3d(0,48px,0) scale(.965)}
+[data-rv="lift"].in{transform:none}
 /* Line-masked headline: each line rides up from behind its own edge.
    inset(-.3em 0) is riangle's own value — it lets descenders overflow
    vertically so the mask never clips a letter, while still cropping
@@ -326,8 +371,12 @@ section{position:relative}
    liked it; momentolegal pins for 18.3 to pan one list and he said he felt
    stuck. touch-action stays pan-y so a phone's vertical swipe is never
    captured — the failure mode that traps a touch user.                   */
-.thread-wrap{height:290vh;position:relative}
-.stage{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;touch-action:pan-y}
+.thread-wrap{height:290vh;height:290svh;position:relative}
+/* svh, not vh. On iOS Safari `100vh` is the height WITHOUT the browser
+   chrome, so a sticky element sized in vh is taller than the screen and
+   changes size every time the URL bar hides or returns mid-scroll. `svh`
+   is the small viewport height and does not move. */
+.stage{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;overflow:hidden;touch-action:pan-y}
 /* No width here: `.wrap` already sets it, and a `width:100%` at this
    specificity silently beat it and ran the whole stage edge to edge. */
 .stage .cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,4vw,56px);align-items:center}
@@ -340,7 +389,7 @@ section{position:relative}
    measured in JS, so it is right at every width and 0 when the columns
    have already stacked. */
 .side.lft{opacity:calc(1 - var(--c,0));transform:translate3d(calc(var(--c,0) * -60px),0,0);will-change:opacity,transform}
-.side.rgt{transform:translate3d(calc(var(--c,0) * var(--shift,0px)),calc(var(--c,0) * var(--shiftY,0px)),0) scale(calc(1 + (.05 * var(--c,0))));will-change:transform}
+.side.rgt{transform:translate3d(calc(var(--c,0) * var(--shift,0px)),0,0) scale(calc(1 + (.05 * var(--c,0))));will-change:transform}
 .sidelab{display:flex;align-items:center;gap:9px;margin-bottom:14px;min-height:18px}
 .sidelab .dot{width:5px;height:5px;border-radius:50%;background:var(--fog-2);flex:none;transition:background 300ms linear,box-shadow 300ms linear}
 .sidelab.on .dot{background:var(--ac);box-shadow:0 0 0 4px rgba(56,224,139,.14)}
@@ -387,9 +436,31 @@ section{position:relative}
 .divider{position:absolute;left:50%;top:8%;bottom:8%;width:1px;background:linear-gradient(180deg,transparent,var(--line-2) 14%,var(--line-2) 86%,transparent);pointer-events:none;opacity:calc(1 - (var(--c,0) * 2.4))}
 .divider i{position:absolute;left:-1px;top:0;width:3px;height:calc(var(--p,0) * 100%);background:linear-gradient(180deg,rgba(56,224,139,0),var(--ac));border-radius:3px;opacity:.6}
 .cost{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--fog-2);white-space:nowrap;opacity:calc(1 - (var(--c,0) * 2.4))}
+/* ── The phone gets a different mechanism, not a shrunken one ──────────
+   He tested on an iPhone: "the first kind of scroll stop... it just doesn't
+   work on iPhone. It glitches out."
+
+   The two things that break a pin on iOS Safari are exactly what this was
+   built on: a sticky element sized in viewport units, and a scroll position
+   measured against a viewport whose height changes as the URL bar hides and
+   returns. Every frame of the transfer was doing arithmetic against a
+   number that moves while you scroll.
+
+   So the phone does not pin at all. The section scrolls normally and the
+   transfer is driven by the block's own pass through the viewport — riangle's
+   SCRUB_TRIGGER, `top bottom` to `bottom top`, which ANALYSIS.md calls the
+   SAFE form of scroll animation and which that site uses for everything
+   (`pin:!0` appears zero times in its code). Nothing is sticky, nothing is
+   measured in vh, and the page never stops advancing.
+
+   The animation is not weaker for it — the same messages fly into the same
+   rows, and the flight distances are recomputed per frame because both ends
+   are moving now. Four elements per frame; nothing else changed. */
 @media (max-width:820px){
+  .thread-wrap{height:auto}
+  .stage{position:static;height:auto;overflow:visible;padding:clamp(30px,7vh,70px) 0 clamp(20px,4vh,44px)}
   .stage .cols{grid-template-columns:1fr;gap:14px;align-content:center}
-  .divider{display:none}
+  .divider,.cost{display:none}
   .thread{gap:7px}
   .bub{font-size:13.5px;padding:9px 13px;max-width:82%}
   /* The inline actions STAY on the phone. Navigate / Call / Text on the
@@ -434,6 +505,15 @@ section{position:relative}
   .r:hover h3{transform:translateX(8px)}
   .r:hover p{color:var(--bone-2)}
 }
+/* On a touch screen there is no pointer resting on anything, so a
+   hover-only treatment is a piece of the design nobody on a phone ever
+   sees. His fix, and it is the right one: whichever row is nearest the
+   middle of the screen lights itself as you scroll past. Same treatment,
+   driven by position instead of by a cursor. */
+.r.near{background:rgba(255,255,255,.018)}
+.r.near::before{transform:scaleY(1)}
+.r.near h3{transform:translateX(8px)}
+.r.near p{color:var(--bone-2)}
 @media (max-width:760px){.r{grid-template-columns:34px 1fr;gap:10px}.r p{grid-column:2;margin-top:10px}}
 
 /* ═══ 5. WHAT CUSTOMERS SEE — the light band ══════════════════════════
@@ -492,7 +572,7 @@ section{position:relative}
    that doesn't really take you anywhere", which is his one hard no,
    reproduced exactly. */
 .rail-wrap{height:170vh;position:relative}
-.rail-stage{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;touch-action:pan-y}
+.rail-stage{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;touch-action:pan-y}
 .rail-head{margin-bottom:clamp(22px,4vh,44px)}
 .rail-track{display:flex;gap:clamp(18px,4vw,48px);padding-left:var(--gut);will-change:transform;transform:translate3d(calc(var(--x,0) * -1px),0,0)}
 .step{
@@ -520,6 +600,27 @@ section{position:relative}
 .plan .amount small{font-family:"Archivo",sans-serif;font-size:15px;letter-spacing:0;color:var(--fog);font-variation-settings:"wght" 400}
 .plan .then{color:var(--fog);font-size:14px;margin-top:8px}
 .plan p{color:var(--fog);margin-top:16px;font-size:15.5px;max-width:44ch}
+/* The founding offer. $499 setup / $40 a month for the first three
+   accounts — the cap is `founding_total integer not null default 3` in
+   migration 20260828001000, so "3 of 3" is the real launch state and not a
+   number invented for a mockup. The LIVE page reads the remaining count
+   from the database and fails CLOSED, so a spot already taken is never
+   advertised; a static file has no database, which is why this one states
+   the starting figure rather than a made-up midpoint. $900 and $60 are the
+   real list prices, struck only because a genuine discount is live — never
+   an anchor invented to make a number look smaller. */
+.plan.has-offer{position:relative}
+.plan .flag{
+  /* align-self, because .plan is a flex column and a flex child stretches
+     by default — the pill ran the full width of the card. */
+  align-self:flex-start;margin-bottom:14px;padding:5px 12px;border-radius:100px;
+  background:rgba(56,224,139,.12);color:var(--ac);
+  box-shadow:inset 0 0 0 1px rgba(56,224,139,.3);
+  font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.04em;
+}
+.plan .was{color:var(--fog-2);text-decoration:line-through;text-decoration-thickness:1px;margin-right:.28em;font-size:.62em}
+.plan .then .was{font-size:1em;margin-left:.3em;margin-right:0}
+.plan .lock{color:var(--fog-2);font-size:13.5px;margin-top:12px}
 .plan .pfoot{margin-top:auto;padding-top:26px}
 .plan .alt{font-size:13px;color:var(--fog-2);margin-top:12px}
 .terms{margin:clamp(34px,6vh,64px) 0 0;padding:0;list-style:none;border-top:1px solid var(--line)}
@@ -540,6 +641,8 @@ section{position:relative}
 .lite [data-rv]{opacity:1!important;transform:none!important;transition:none!important}
 .lite .mask > span{transform:none!important;transition:none!important}
 .lite .ground b{animation:none!important;opacity:.8!important}
+.lite .ground .dots{animation:none!important}
+.lite .ground .cursor{display:none}
 .lite .caret{display:none}
 .lite .bub{transform:none!important;opacity:1!important}
 .lite .job{opacity:1!important;transform:none!important}
@@ -563,7 +666,12 @@ section{position:relative}
 <!-- One continuous ground under the whole document. Two slow lights and a
      grain layer. This is the always-on motion he asked for, in its cheap
      form: transform and opacity only, no renderer, no canvas. -->
-<div class="ground" aria-hidden="true"><b></b><b></b><i></i></div>
+<div class="ground" id="ground" aria-hidden="true">
+  <b></b><b></b>
+  <span class="dots"></span>
+  <span class="cursor" id="cursorGlow"></span>
+  <i></i>
+</div>
 
 <nav class="nav" id="nav" aria-label="Main">
   <span class="nav__g"><i></i></span>
@@ -603,7 +711,11 @@ section{position:relative}
       </div>
 
       <!-- The product doing its own selling: the same lit job card the real
-           dashboard uses, shown as a booking that arrived on its own. -->
+           dashboard uses, shown as a booking that arrived on its own.
+           The reveal lives on a WRAPPER, not on .float — .float owns its own
+           transform for the parallax and the two would overwrite each
+           other. -->
+      <div data-rv="lift" style="--i:2">
       <div class="float" data-parallax="18" aria-hidden="true">
         <div class="lit" data-tilt>
           <span class="lab ac">New booking · just now</span>
@@ -625,6 +737,7 @@ section{position:relative}
             <span class="mono" style="font-size:15px">$65</span>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </section>
@@ -682,7 +795,10 @@ section{position:relative}
        statistic. -->
   <section class="strip">
     <div class="wrap duo">
-      <div class="big" data-rv id="dayTotal">$0</div>
+      <!-- Rolls up when it arrives. The target is written from the JOBS
+           array on load, so the figure that counts is the figure the rows
+           add up to — it cannot drift from them. -->
+      <div class="big" data-rv id="dayTotal" data-prefix="$">$0</div>
       <div class="rt" data-rv style="--i:1">
         <span class="lab">Demo Saturday, before 6 am</span>
         <p>
@@ -758,16 +874,19 @@ section{position:relative}
           other detailers. They pick a service, pick a time you are actually
           free, and it is booked.
         </p>
-        <ul class="ticks" data-rv style="--i:3">
-          <li>Works on any phone, no app to download</li>
-          <li>Only shows times you can actually work</li>
-          <li>They can move or cancel it themselves</li>
+        <!-- Staggered per item rather than the whole list at once: three
+             lines arriving one after another is the difference between a
+             block appearing and a list being written. -->
+        <ul class="ticks">
+          <li data-rv style="--i:3">Works on any phone, no app to download</li>
+          <li data-rv style="--i:4">Only shows times you can actually work</li>
+          <li data-rv style="--i:5">They can move or cancel it themselves</li>
         </ul>
       </div>
 
       <div>
         <div class="widget-hold" data-parallax="14">
-          <div class="widget" data-rv>
+          <div class="widget" data-rv="lift">
             <div class="scr">
               <div class="top">
                 <div class="biz">Andrew's Auto Detail</div>
@@ -845,24 +964,31 @@ section{position:relative}
     <p class="lede" data-rv style="--i:1">Both run the same booking engine.</p>
 
     <div class="plans">
-      <article class="plan lead" data-rv>
+      <article class="plan lead has-offer" data-rv="lift">
+        <span class="flag">Founding price · 3 of 3 left</span>
         <span class="lab">Website + booking</span>
-        <div class="amount">$900<small> setup</small></div>
-        <div class="then mono">then $60/month</div>
+        <div class="amount">
+          <s class="was">$900</s><span data-count="499" data-prefix="$">$499</span><small> setup</small>
+        </div>
+        <div class="then mono">then $40/month <s class="was">$60</s></div>
         <p>
           A complete site under your own name — services, prices, photos,
           service area — with booking built in. The setup fee covers building
           it with you.
         </p>
+        <p class="lock">
+          Founding pricing is locked for the life of the account. It never
+          rises while the account stays open.
+        </p>
         <div class="pfoot">
-          <a class="btn block" href="#top" data-glow>Start the website plan<span class="ar">→</span></a>
+          <a class="btn block" href="#top" data-glow>Take a founding spot<span class="ar">→</span></a>
           <p class="alt">Or $600/year paid once — $120 less than paying monthly.</p>
         </div>
       </article>
 
-      <article class="plan" data-rv style="--i:1">
+      <article class="plan" data-rv="lift" style="--i:1">
         <span class="lab">Booking page only</span>
-        <div class="amount">$35<small>/month</small></div>
+        <div class="amount"><span data-count="35" data-prefix="$">$35</span><small>/month</small></div>
         <div class="then mono">no setup fee</div>
         <p>
           Just the booking page, at a link that's yours. Keep the website you
@@ -952,7 +1078,34 @@ section{position:relative}
     rows.push(r);
   });
 
-  document.getElementById("dayTotal").textContent = usd(TOTAL);
+  /* The strip's figure is the JOBS total, written from the array rather
+     than typed into the markup, so the big number and the rows can never
+     disagree. */
+  var dayTotal = document.getElementById("dayTotal");
+  dayTotal.setAttribute("data-count", String(TOTAL));
+  dayTotal.textContent = usd(TOTAL);
+
+  /* Figures roll up when they arrive instead of being there already — the
+     old landing page's CountUp, and finseo's `number-flow`, at about ten
+     lines. The final string is measured first and its width reserved in
+     `ch`, so counting never nudges the layout; the figures are mono and
+     tabular for the same reason. */
+  function roll(el) {
+    var to = +el.getAttribute("data-count");
+    var pre = el.getAttribute("data-prefix") || "";
+    var final = pre + to.toLocaleString("en-US");
+    el.style.display = "inline-block";
+    el.style.minWidth = final.length + "ch";
+    if (LITE) { el.textContent = final; return; }
+    var t0 = 0;
+    requestAnimationFrame(function tick(t) {
+      if (!t0) t0 = t;
+      var p = Math.min(1, (t - t0) / 900);
+      var e2 = 1 - Math.pow(1 - p, 3);              // decelerate into place
+      el.textContent = pre + Math.round(to * e2).toLocaleString("en-US");
+      if (p < 1) requestAnimationFrame(tick);
+    });
+  }
 
   /* ── Where each bubble is flying to ─────────────────────────────────
      Measured off the real DOM rather than guessed, so it is correct at
@@ -970,18 +1123,15 @@ section{position:relative}
     /* How far the dashboard has to travel to sit in the middle of the
        screen once the thread's column has emptied. Zero once the columns
        have stacked on a phone, because it is already centred there. */
+    /* Only the horizontal shift now, and only the pinned layout ever has a
+       non-zero one. The vertical version existed to close the dead space at
+       the end of the PINNED phone layout; there is no pin on a phone any
+       more, so sliding the dashboard upward just opened a gap underneath it
+       instead. Deleted rather than tuned — the problem it solved no longer
+       exists. */
     rgt.style.setProperty("--shift", "0px");
-    rgt.style.setProperty("--shiftY", "0px");
-    var d = rgt.getBoundingClientRect(), l = lft.getBoundingClientRect();
+    var d = rgt.getBoundingClientRect();
     rgt.style.setProperty("--shift", (window.innerWidth / 2 - (d.left + d.width / 2)).toFixed(1) + "px");
-    /* When the columns have stacked — every phone and most tablets — the
-       thread sits ABOVE the dashboard, so fading it out would leave a
-       screen-third of nothing at the end of the pin. Same rule as the
-       desktop case: no scroll is spent on an empty screen. The dashboard
-       rises into the space the thread vacates instead, which also reads
-       better: the thread does not vanish, it is replaced. */
-    var stacked = Math.abs(l.left - d.left) < 4;
-    rgt.style.setProperty("--shiftY", stacked ? (-(d.top - l.top) / 2).toFixed(1) + "px" : "0px");
     sizeRail();
   }
 
@@ -1005,9 +1155,40 @@ section{position:relative}
   var lft = document.getElementById("lft");
   var cost = document.getElementById("cost");
 
+  /* Two ways of measuring the same beat.
+
+     PINNED (desktop): the wrapper is 2.9 screens tall and the stage sticks
+     to the top, so progress is how far into that extra height you have
+     scrolled.
+
+     SCRUBBED (phone): nothing sticks. Progress is the block's own pass
+     through the viewport — riangle's SCRUB_TRIGGER — tightened so the last
+     message lands while the whole section is still on screen rather than
+     after it has left. No viewport-unit arithmetic anywhere in this branch,
+     which is the point: it cannot be thrown off by the iOS URL bar.
+
+     The flight distances are static in BOTH modes, and that is not luck:
+     the bubbles and the rows are in the same block, so scrolling moves them
+     together and the offset between a message and its row never changes. */
+  var PHONE = window.matchMedia("(max-width: 820px)");
+  var stage = document.querySelector(".stage");
+
   addScrub(threadWrap, function (el, vh) {
-    var r = el.getBoundingClientRect();
-    var p = clamp(-r.top / (r.height - vh));
+    var p;
+    if (PHONE.matches) {
+      /* The window is deliberately long — about 1.4 screens of travel for
+         the whole beat. A first attempt ran it out in roughly a third of
+         that and the messages were gone before you could read them.
+         Staggered across that window, the early bubbles leave while the
+         thread is still high on screen and the last rows arrive while the
+         dashboard is, which is the right order to watch it in: they go,
+         then they land. */
+      var s = stage.getBoundingClientRect();
+      p = clamp((vh * 0.72 - s.top) / (vh * 0.45 + s.height * 0.85));
+    } else {
+      var r = el.getBoundingClientRect();
+      p = clamp(-r.top / Math.max(1, r.height - vh));
+    }
     divider.style.setProperty("--p", p.toFixed(4));
     /* The collapse runs after the last message has landed (0.83), so no
        scroll is spent on a half-empty screen. */
@@ -1083,6 +1264,26 @@ section{position:relative}
     }
   });
 
+  /* The ruled rows light themselves on a touch screen, where there is no
+     cursor to do it. Only registered when the device cannot hover, so a
+     desktop keeps the hover behaviour and never fights it. */
+  if (!FINE) {
+    var ruled = Array.prototype.slice.call(document.querySelectorAll(".r"));
+    addScrub(document.querySelector(".rows"), function (el, vh) {
+      var best = null, bestD = Infinity;
+      for (var i = 0; i < ruled.length; i++) {
+        var b = ruled[i].getBoundingClientRect();
+        var d = Math.abs(b.top + b.height / 2 - vh * 0.5);
+        if (d < bestD) { bestD = d; best = ruled[i]; }
+      }
+      for (var j = 0; j < ruled.length; j++) {
+        /* Only while the list is actually on screen — otherwise a row stays
+           lit off-screen and is lit before you ever reach it. */
+        ruled[j].classList.toggle("near", ruled[j] === best && bestD < vh * 0.3);
+      }
+    });
+  }
+
   /* Depth: an element drifts a little slower than the page it sits on.
      A dozen pixels — enough to feel nearer than the ground, not enough to
      read as an effect. */
@@ -1103,6 +1304,7 @@ section{position:relative}
   function frame() {
     ticking = false;
     var vh = window.innerHeight, y = window.scrollY;
+    if (pending.length) sweep(vh);
     for (var i = 0; i < scrubs.length; i++) scrubs[i].fn(scrubs[i].el, vh);
     nav.classList.toggle("scr", y > 40);
     nav.classList.toggle("hid", y > 220 && y > lastY);
@@ -1112,27 +1314,65 @@ section{position:relative}
 
   if (!LITE) {
     addEventListener("scroll", onScroll, { passive: true });
-    addEventListener("resize", function () { measure(); onScroll(); });
+    /* WIDTH only. On iOS Safari the URL bar hiding and returning fires a
+       resize on almost every scroll gesture, and re-measuring the flight
+       paths in the middle of the flight is a visible jump. Nothing that is
+       measured here depends on height. */
+    var lastW = window.innerWidth;
+    addEventListener("resize", function () {
+      if (window.innerWidth === lastW) { onScroll(); return; }
+      lastW = window.innerWidth;
+      measure();
+      onScroll();
+    });
+    addEventListener("orientationchange", function () {
+      lastW = 0;
+      setTimeout(function () { lastW = window.innerWidth; measure(); onScroll(); }, 250);
+    });
   }
 
   /* ── Reveal on approach ─────────────────────────────────────────────
      Observer plus a hard failsafe: if it never fires — bfcache, an old
      browser, a headless renderer — the content is revealed anyway. */
-  var revealables = document.querySelectorAll("[data-rv], .mask");
-  if (LITE || !("IntersectionObserver" in window)) {
-    Array.prototype.forEach.call(revealables, function (n) { n.classList.add("in"); });
-  } else {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        en.target.classList.add("in");
-        io.unobserve(en.target);
-      });
-    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-    Array.prototype.forEach.call(revealables, function (n) { io.observe(n); });
-    setTimeout(function () {
-      Array.prototype.forEach.call(revealables, function (n) { n.classList.add("in"); });
-    }, 4000);
+  var revealables = document.querySelectorAll("[data-rv], .mask, [data-count]");
+  var counted = [];
+  function reveal(n) {
+    n.classList.add("in");
+    /* A figure inside something that reveals starts counting with it. */
+    var f = n.hasAttribute("data-count") ? [n] : n.querySelectorAll("[data-count]");
+    Array.prototype.forEach.call(f, function (c) {
+      if (counted.indexOf(c) > -1) return;
+      counted.push(c);
+      roll(c);
+    });
+  }
+  /* ONE mechanism, driven by the scroll frame that already runs.
+
+     THIS IS THE FIX FOR "those aren't just kinda there". The previous
+     version had an IntersectionObserver AND a 4-second blanket failsafe
+     that revealed every element on the page whether it had been reached or
+     not — so four seconds after load the entire document was already in its
+     end state and nothing below the fold ever animated in. The failsafe
+     meant to stop content being stranded hidden was quietly deleting the
+     animation instead.
+
+     A pending list checked in the scroll frame cannot do that: an element
+     reveals when its top crosses 82% of the screen height and at no other
+     time, and because the check is a plain comparison rather than an event,
+     nothing can be skipped by scrolling fast or jumping to an anchor.
+     Elements drop out of the list as they fire, so the cost falls to zero. */
+  var pending = Array.prototype.slice.call(revealables);
+  function sweep(vh) {
+    for (var i = pending.length - 1; i >= 0; i--) {
+      if (pending[i].getBoundingClientRect().top < vh * 0.82) {
+        reveal(pending[i]);
+        pending.splice(i, 1);
+      }
+    }
+  }
+  if (LITE) {
+    Array.prototype.forEach.call(revealables, reveal);
+    pending.length = 0;
   }
 
   /* ── The rotating tail ──────────────────────────────────────────────
@@ -1164,6 +1404,30 @@ section{position:relative}
      A cursor tilt on a phone just fights the scroll, and there is no
      cursor to follow anyway. Same split webtactics makes explicitly. */
   if (FINE && !LITE) {
+    /* The light follows the pointer across the whole page, not just the
+       buttons. It LERPS toward the cursor rather than tracking it exactly:
+       the small lag is the difference between a lit surface and a torch
+       taped to the mouse, and it is subscrr's trick (0.06 per frame on
+       their hero) at 0.09. One composited layer moved by transform, so it
+       costs a frame of compositing and nothing else. */
+    var ground = document.getElementById("ground");
+    var glow = document.getElementById("cursorGlow");
+    var gx = window.innerWidth / 2, gy = window.innerHeight / 2;
+    var tx = gx, ty = gy, graf = 0;
+    function gstep() {
+      gx += (tx - gx) * 0.09;
+      gy += (ty - gy) * 0.09;
+      glow.style.setProperty("--gx", gx.toFixed(1) + "px");
+      glow.style.setProperty("--gy", gy.toFixed(1) + "px");
+      graf = (Math.abs(tx - gx) < 0.5 && Math.abs(ty - gy) < 0.5)
+        ? 0 : requestAnimationFrame(gstep);
+    }
+    addEventListener("pointermove", function (e) {
+      tx = e.clientX; ty = e.clientY;
+      ground.classList.add("awake");
+      if (!graf) graf = requestAnimationFrame(gstep);
+    }, { passive: true });
+
     Array.prototype.forEach.call(document.querySelectorAll("[data-glow]"), function (el) {
       el.addEventListener("pointermove", function (e) {
         var r = el.getBoundingClientRect();
@@ -1206,18 +1470,33 @@ section{position:relative}
      said he felt stuck. ?smooth=0 turns it off so both can be felt on the
      same machine in one sitting. */
   if (FINE && !LITE && qs.get("smooth") !== "0") {
+    /* Tuned up after he felt the first version and said it stopped like an
+       ordinary page: "it slowed down slower... if you scroll it kinda went
+       down a little more." Two separate knobs, and he was describing both.
+
+       WHEEL is distance per notch — how far one gesture carries you.
+       LERP is how much of the remaining gap is closed each frame, so a
+       SMALLER number is a longer, slower tail. It was 0.11, which settles in
+       about a fifth of a second and is why it read as normal. 0.055 is
+       webtactics' territory (Lenis `lerp: 0.065`), and webtactics is the
+       site he was most enthusiastic about.
+
+       The floor is real: gustavobatista runs `scrub: 2` and ANALYSIS.md
+       records that it "feels detached from the input". Below about 0.04 this
+       stops feeling weighted and starts feeling broken. */
+    var WHEEL = 1.22, LERP = 0.055;
     var target = window.scrollY, cur = target, raf = 0;
     var maxY = function () { return document.documentElement.scrollHeight - window.innerHeight; };
     addEventListener("wheel", function (e) {
       if (e.ctrlKey) return;                       // leave browser zoom alone
       e.preventDefault();
-      var d = e.deltaY * (e.deltaMode === 1 ? 18 : 1);
+      var d = e.deltaY * (e.deltaMode === 1 ? 18 : 1) * WHEEL;
       target = Math.max(0, Math.min(maxY(), target + d));
       if (!raf) raf = requestAnimationFrame(step);
     }, { passive: false });
     function step() {
-      cur += (target - cur) * 0.11;                // the weight he felt
-      if (Math.abs(target - cur) < 0.4) { cur = target; raf = 0; }
+      cur += (target - cur) * LERP;
+      if (Math.abs(target - cur) < 0.25) { cur = target; raf = 0; }
       else raf = requestAnimationFrame(step);
       window.scrollTo(0, cur);
     }

@@ -121,6 +121,26 @@ is kept; the entire visual design restarts from scratch.
       pass. Nine defects were found by looking and fixed, including the
       rail costing 2.6 screens of scroll to move 34 pixels — his one hard
       no, reproduced exactly. Full write-up in `README.md` part one.
+
+      **REVIEWED by the owner 2026-08-29 — "so much better", direction
+      APPROVED.** Two further rounds of his corrections are in and verified
+      (`README.md` "Round two" and "Round three"): heavier weighted scroll,
+      reveals fixed (a 4-second blanket failsafe had been switching the
+      whole page to its end state, so nothing below the fold ever animated),
+      a pointer light across the whole page, a drifting dot lattice and
+      faster ground lights, figures that roll up, and the founding offer
+      ($499/$900, first three — `founding_total` defaults to 3 in migration
+      20260828001000). Then he tested on an iPhone: the pinned section
+      "glitches out", so **phones no longer pin at all** — the transfer is
+      scrubbed through the viewport instead (riangle's safe form), with
+      `svh` units and width-gated resize. Hover-only states now have a
+      scroll-position equivalent on touch.
+      **ONE BLOCKER LEFT: the iPhone fix is unverified — there is no iPhone
+      here. He must reopen that section on his phone and confirm.** Nothing
+      else in 1.4 depends on the answer.
+      Also settled: the two-column beat did NOT read as a before/after, and
+      copy is provisional by agreement — "in the future we'll critique the
+      actual text on the page" — so a copy pass is a NAMED 1.4 task.
 - [ ] 1.4 Refine the winner once. **OWNER approves.** Carry in from 1.3:
       settle smooth scroll empirically on the owner's own phone (one flag,
       3 KB); consider adding the typewriter headline; draw the dashboard's

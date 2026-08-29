@@ -42,10 +42,12 @@ Better than typical for this stage — there is a real, enforced design system:
 
 - **System: BEING REPLACED.** `DESIGN.md` (owner decision 2026-08-28)
   deprecates the system below as identity — it is evidence and anti-reference
-  only, and nothing new should be polished toward it. Four replacement
-  directions were built 2026-08-29 (`docs/design-directions/`, reasoning in
-  its README) and **the owner's pick is the open item**; the new system gets
-  written in roadmap 1.5. The description that follows is the OLD look.
+  only, and nothing new should be polished toward it. Four directions were
+  built and rejected 2026-08-29 (`docs/design-directions/VERDICT.md`), and
+  the rebuilt one — **`5-the-thread.html`, reviewed and approved by the owner
+  the same day** — is the direction. See §6b for the one thing still
+  unverified. The new system gets written in roadmap 1.5. The description
+  that follows is the OLD look.
 - **Old system:** `docs/design-system.md` ("Raking Light") was explicit law: matte near-black ground, exactly one "lit" element per screen, tokens defined once in `theme.css` (`:root` dark + `[data-theme="light"]` + `--bk-*` booking mirror). Enforced by tests: `composition.test.mjs`, `design-contrast.test.mjs` — all passing when I ran them.
 - **Fonts:** exactly three, loaded from Google Fonts in `app/index.html`: Anybody (variable width — titles/labels), Public Sans (prose), DM Mono (every figure, tabular-nums).
 - **Tokens vs hardcoded:** discipline is real. The only hex colors in JS live in `lib/theme.js` (the designated color-math file) and Google-logo colors in Auth **(guess for exact location of the Google hexes — I found the file set, didn't trace each)**. CSS uses `var(--…)` throughout.
@@ -106,19 +108,30 @@ are kept; only the visual world is being replaced.
   - Grammar: one continuous ground, eight structurally different sections.
     The two-column comparison is two of them, which is the cap he set.
   - Nothing in `app/` was touched. Phase 1 picks a look; phase 2 applies it.
-- **What the next session needs from him:** whether the two-column beat reads
-  as a before/after of a car again, and whether the weighted scroll is better
-  or worse on his own phone (`?smooth=0` turns it off). Both questions are on
-  `docs/design-directions/index.html`.
+- **REVIEWED and APPROVED by the owner 2026-08-29** — "so much better",
+  "the layout is good, I like it". The two-column beat did NOT read as a
+  before/after of a car. Three rounds of his corrections are in and verified;
+  see `README.md` "Round two" and "Round three".
+- **The one blocker: the iPhone fix is unverified.** The pinned section broke
+  on his iPhone ("it glitches out"). Phones no longer pin at all — the
+  transfer is scrubbed through the viewport, with `svh` units and width-gated
+  resize, which removes both known iOS Safari failure classes. Verified at
+  392/768/1440 with touch emulation, which is NOT iOS Safari. He has to
+  reopen it on the phone and confirm. Nothing else in 1.4 depends on it.
+- **Copy is provisional by agreement**, not an oversight: "in the future we'll
+  kind of critique the actual text on the page. For now, this is a good
+  layout." A copy pass is a named 1.4 task. Only "Stop booking jobs in your
+  DMs" has his explicit approval; the rest is carried over from
+  `app/src/landing/LandingPage.jsx`, which `DESIGN.md` says to keep.
 - **Carried into 1.4 regardless:** the dashboard's empty state is still
   undrawn, and the device-tier question (`APPLE-READ.md`) is still a 1.5
   decision.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
-0. **The owner looks at `docs/design-directions/index.html`.** Everything in
-   phase 1 is blocked on it and nothing else in the redesign can be settled
-   first. See §6b.
+0. **The owner reopens `5-the-thread.html` on his iPhone** and says whether
+   the pinned-section fix works. It is the only unverified thing in phase 1.
+   See §6b.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.
