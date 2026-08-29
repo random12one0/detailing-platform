@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en" data-dir="seam">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Direction 1 — The Seam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&display=swap" rel="stylesheet">
+<style>
+/* ═══ DIRECTION 1 — THE SEAM ══════════════════════════════════════════
+   ARGUMENT (one line): a detailer sells the edge between dirty and clean,
+   so that edge is the layout — one seam, used at three scales.
+   Ground: petrol black. Accent: jade, blue pushed off centre. Type: Archivo
+   alone, worked across its width axis. Decoration budget: near zero.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#0A1416;          /* petrol black — blue-green-black, never neutral */
+  --ink-2:#0F1E20;        /* raised surface */
+  --ink-3:#16292B;        /* hairline / divider */
+  --rinse:#E9EEEB;        /* the light band */
+  --rinse-2:#DCE4E0;
+  --steel:#8FA5A2;        /* neutral, biased to the accent hue */
+  --steel-dk:#5C6E6C;
+  --jade:#14B8A0;         /* the one accent */
+  --jade-dim:#0E7F6E;
+  --flare:#F2FFFB;
+
+  --seam:2px;
+  --pad:clamp(20px,5vw,72px);
+  --r:3px;                /* almost no radius — the seam is straight */
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ink);color:var(--rinse);
+  font-family:Archivo,sans-serif;font-variation-settings:'wdth' 100;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;
+}
+img{max-width:100%;display:block}
+:focus-visible{outline:2px solid var(--jade);outline-offset:3px}
+
+/* ── type scale: big jumps, width axis doing the talking ── */
+.eyebrow{
+  font-variation-settings:'wdth' 70,'wght' 600;
+  font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--steel);
+  margin:0 0 14px;
+}
+.display{
+  font-variation-settings:'wdth' 112,'wght' 800;
+  font-size:clamp(44px,6.6vw,96px);line-height:.9;letter-spacing:-.035em;
+  margin:0;text-wrap:balance;
+}
+.display em{font-style:normal;color:var(--steel-dk);font-variation-settings:'wdth' 112,'wght' 300}
+.lede{
+  font-size:clamp(16px,1.25vw,19px);line-height:1.5;color:var(--steel);
+  max-width:44ch;margin:22px 0 0;font-variation-settings:'wdth' 96,'wght' 400;
+}
+.fig{font-variation-settings:'wdth' 80,'wght' 500;font-variant-numeric:tabular-nums}
+
+/* ── the seam, as a reusable device ── */
+.seam-rule{
+  background:linear-gradient(180deg,transparent,var(--jade) 12%,var(--jade) 88%,transparent);
+  width:var(--seam);align-self:stretch;flex:0 0 var(--seam);
+}
+
+/* ── screen chrome (mockup furniture, not part of the design) ── */
+.plate{border-top:1px solid var(--ink-3)}
+.plate-label{
+  display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;
+  padding:14px var(--pad);background:#060D0E;color:var(--steel-dk);
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  font-variation-settings:'wdth' 70,'wght' 600;
+}
+.plate-label b{color:var(--jade);font-variation-settings:'wdth' 70,'wght' 700}
+.plate-label span{text-transform:none;letter-spacing:.02em;color:#4A5A58;font-variation-settings:'wdth' 100,'wght' 400}
+
+/* ═══ SCREEN 1 — LANDING HERO ═══════════════════════════════════════ */
+.nav{
+  position:sticky;top:14px;z-index:40;margin:14px auto 0;width:min(100%,1120px);
+  display:flex;align-items:center;gap:18px;padding:9px 10px 9px 20px;
+  border-radius:100px;background:color-mix(in srgb,var(--ink-2) 72%,transparent);
+  backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border:1px solid color-mix(in srgb,var(--steel) 18%,transparent);
+}
+.nav-mark{font-variation-settings:'wdth' 62,'wght' 800;letter-spacing:.02em;font-size:15px}
+.nav-mark i{font-style:normal;color:var(--jade)}
+.nav-links{display:none;gap:22px;margin-left:auto;font-size:14px;color:var(--steel)}
+.nav-links a{color:inherit;text-decoration:none;padding:4px 0;border-bottom:1px solid transparent;transition:.18s var(--ease)}
+.nav-links a:hover{color:var(--flare);border-bottom-color:var(--jade)}
+.btn{
+  font:inherit;font-size:14px;font-variation-settings:'wdth' 85,'wght' 650;
+  background:var(--jade);color:#04120F;border:0;border-radius:100px;
+  padding:10px 18px;cursor:pointer;text-decoration:none;display:inline-block;
+  transition:transform .16s var(--ease),background .16s var(--ease);
+  margin-left:auto;
+}
+.nav-links + .btn{margin-left:0}
+.btn:hover{background:var(--flare);transform:translateY(-1px)}
+
+.hero{position:relative;padding:0 var(--pad) 0}
+.hero-grid{padding-top:clamp(40px,8vh,88px)}
+.hero-grid{display:grid;gap:34px;max-width:1120px;margin:0 auto}
+.hero-copy>*{opacity:0;transform:translateY(18px);animation:rise .8s var(--ease) forwards}
+.hero-copy>*:nth-child(1){animation-delay:.05s}
+.hero-copy>*:nth-child(2){animation-delay:.14s}
+.hero-copy>*:nth-child(3){animation-delay:.23s}
+.hero-copy>*:nth-child(4){animation-delay:.32s}
+@keyframes rise{to{opacity:1;transform:none}}
+.hero-actions{display:flex;gap:12px;align-items:center;margin-top:30px;flex-wrap:wrap}
+.btn-ghost{
+  background:transparent;color:var(--rinse);border:1px solid var(--ink-3);
+  padding:10px 18px;border-radius:100px;font-size:14px;text-decoration:none;
+  font-variation-settings:'wdth' 85,'wght' 500;transition:.18s var(--ease);margin-left:0;
+}
+.btn-ghost:hover{border-color:var(--jade);color:var(--flare);transform:none}
+
+/* the signature: one photo, split by the seam */
+.split{
+  position:relative;aspect-ratio:16/11;border-radius:var(--r);overflow:hidden;
+  background:#07100F;isolation:isolate;
+}
+.split img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.split .before{filter:grayscale(.85) brightness(.52) contrast(.9)}
+.split .after{clip-path:inset(0 0 0 var(--x,58%));}
+.split::after{ /* the texture layer — grain over photography, at 5% */
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:3;opacity:.5;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.35'/></svg>");
+  mix-blend-mode:overlay;
+}
+.split-seam{
+  position:absolute;top:0;bottom:0;left:var(--x,58%);width:var(--seam);z-index:4;
+  background:var(--jade);
+}
+.split-seam b{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--jade);
+  background:color-mix(in srgb,var(--ink) 70%,transparent);backdrop-filter:blur(6px);
+}
+.split-seam b::before,.split-seam b::after{
+  content:"";position:absolute;top:50%;width:5px;height:5px;border-top:1.5px solid var(--jade);
+  border-right:1.5px solid var(--jade);
+}
+.split-seam b::before{left:11px;transform:translateY(-50%) rotate(-135deg)}
+.split-seam b::after{right:11px;transform:translateY(-50%) rotate(45deg)}
+.split-tag{
+  position:absolute;bottom:14px;z-index:4;font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;font-variation-settings:'wdth' 70,'wght' 600;
+  padding:5px 10px;border-radius:2px;background:rgba(4,12,12,.72);backdrop-filter:blur(4px);
+}
+.split-tag.l{left:14px;color:var(--steel-dk)}
+.split-tag.r{right:14px;color:var(--jade)}
+
+/* the overlapping card — depth kit: overlap + scrim, never floating bare */
+.slot-card{
+  position:relative;z-index:5;margin:-56px 0 0 auto;width:min(100%,352px);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ink-2) 96%,transparent),var(--ink-2));
+  border:1px solid var(--ink-3);border-radius:var(--r);padding:18px 20px;
+  box-shadow:0 24px 48px -18px rgba(0,0,0,.85),0 2px 0 0 rgba(255,255,255,.03) inset;
+}
+.slot-card .eyebrow{margin-bottom:10px}
+.slot-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+.slot-when{font-size:24px;font-variation-settings:'wdth' 88,'wght' 700;letter-spacing:-.01em}
+.slot-price{font-size:24px;color:var(--jade);font-variation-settings:'wdth' 80,'wght' 600}
+.slot-meta{margin:8px 0 0;font-size:13px;color:var(--steel-dk)}
+
+/* proof strip — the alternating ground begins here */
+.proof{
+  margin-top:clamp(48px,8vh,96px);background:var(--rinse);color:#0A1416;
+  padding:clamp(28px,5vw,44px) var(--pad);
+}
+.proof-in{max-width:1120px;margin:0 auto;display:grid;gap:26px}
+.proof h3{
+  margin:0;font-size:clamp(22px,3.2vw,34px);line-height:1.06;letter-spacing:-.025em;
+  font-variation-settings:'wdth' 108,'wght' 700;max-width:20ch;
+}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:22px 18px}
+.stat b{display:block;font-size:clamp(28px,4.6vw,44px);line-height:1;letter-spacing:-.03em;
+  font-variation-settings:'wdth' 92,'wght' 700}
+.stat span{display:block;margin-top:6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:#5C6E6C;font-variation-settings:'wdth' 70,'wght' 600}
+
+/* ═══ SCREEN 2 — BOOKING STEP ═══════════════════════════════════════ */
+.book{padding:clamp(28px,5vw,56px) var(--pad) clamp(40px,7vw,80px);background:var(--ink)}
+.book-in{max-width:820px;margin:0 auto}
+.book-head{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.biz-mark{
+  width:42px;height:42px;border-radius:var(--r);flex:0 0 42px;display:grid;place-items:center;
+  background:var(--ink-2);border:1px solid var(--ink-3);
+  font-variation-settings:'wdth' 62,'wght' 800;font-size:15px;color:var(--jade)
+}
+.biz-name{font-size:17px;font-variation-settings:'wdth' 90,'wght' 650;letter-spacing:-.01em}
+.biz-sub{font-size:13px;color:var(--steel-dk)}
+/* the seam as progress — a wipe, not a dot row */
+.wipe{margin:22px 0 6px;height:3px;background:var(--ink-3);position:relative;border-radius:2px;overflow:hidden}
+.wipe i{position:absolute;inset:0 auto 0 0;width:60%;background:var(--jade);
+}
+.wipe-labels{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--steel-dk);font-variation-settings:'wdth' 70,'wght' 600}
+.wipe-labels b{color:var(--jade);font-variation-settings:'wdth' 70,'wght' 700}
+.book h2{margin:26px 0 4px;font-size:clamp(26px,4.4vw,40px);line-height:1.02;letter-spacing:-.03em;
+  font-variation-settings:'wdth' 106,'wght' 750}
+.book .sub{margin:0 0 20px;color:var(--steel);font-size:15px}
+.day-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.day-strip::-webkit-scrollbar{display:none}
+.day{
+  flex:0 0 auto;min-width:62px;text-align:center;padding:10px 8px;border-radius:var(--r);
+  background:var(--ink-2);border:1px solid var(--ink-3);cursor:pointer;
+  transition:.16s var(--ease);
+}
+.day:hover{border-color:var(--steel-dk);transform:translateY(-2px)}
+.day.on{background:var(--rinse);border-color:var(--rinse);color:#0A1416}
+.day span{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--steel-dk);
+  font-variation-settings:'wdth' 70,'wght' 600}
+.day.on span{color:#5C6E6C}
+.day b{display:block;font-size:19px;margin-top:3px;font-variation-settings:'wdth' 85,'wght' 700}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px;margin-top:20px}
+.time{
+  padding:14px 10px;text-align:center;border-radius:var(--r);background:var(--ink-2);
+  border:1px solid var(--ink-3);cursor:pointer;font-size:15px;
+  font-variation-settings:'wdth' 88,'wght' 600;transition:.16s var(--ease);position:relative;
+}
+.time:hover{border-color:var(--jade);color:var(--flare);transform:translateY(-2px)}
+.time.on{background:var(--jade);border-color:var(--jade);color:#04120F}
+.time.off{color:#33403F;cursor:not-allowed;background:transparent;border-style:dashed}
+.time.off:hover{transform:none;border-color:var(--ink-3);color:#33403F}
+.book-foot{
+  display:flex;align-items:center;gap:16px;margin-top:26px;padding-top:20px;
+  border-top:1px solid var(--ink-3);flex-wrap:wrap;
+}
+.book-total{font-size:15px;color:var(--steel)}
+.book-total b{color:var(--rinse);font-size:19px;font-variation-settings:'wdth' 85,'wght' 700}
+.book-foot .btn{margin-left:auto;padding:13px 26px;font-size:15px}
+
+/* empty proof — two services, no photos */
+.empty-note{
+  background:#060D0E;border-top:1px solid var(--ink-3);padding:12px var(--pad);
+  font-size:12px;color:var(--steel-dk);letter-spacing:.02em
+}
+.empty-note b{color:var(--jade);font-variation-settings:'wdth' 80,'wght' 700;letter-spacing:.1em;text-transform:uppercase;font-size:11px}
+.svc{
+  display:flex;align-items:baseline;gap:16px;padding:20px 0;border-bottom:1px solid var(--ink-3);
+  cursor:pointer;transition:.18s var(--ease);
+}
+.svc:hover{padding-left:10px}
+.svc:hover .svc-name{color:var(--flare)}
+.svc-name{font-size:clamp(22px,3.6vw,32px);letter-spacing:-.025em;
+  font-variation-settings:'wdth' 104,'wght' 700;transition:.18s var(--ease)}
+.svc-dur{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel-dk);
+  font-variation-settings:'wdth' 70,'wght' 600}
+.svc-price{margin-left:auto;font-size:clamp(20px,3vw,28px);color:var(--jade);
+  font-variation-settings:'wdth' 80,'wght' 600}
+.svc-desc{flex-basis:100%;margin:6px 0 0;font-size:14px;color:var(--steel-dk);max-width:52ch}
+
+/* ═══ SCREEN 3 — DASHBOARD TODAY ════════════════════════════════════ */
+.dash{background:var(--ink);padding:0 0 84px}
+.dash-in{max-width:1120px;margin:0 auto;padding:0 var(--pad)}
+.dash-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
+  padding:clamp(22px,4vw,36px) 0 18px;flex-wrap:wrap}
+.dash-date{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--steel-dk);
+  font-variation-settings:'wdth' 70,'wght' 600}
+.dash-h{margin:6px 0 0;font-size:clamp(30px,5.5vw,46px);line-height:.98;letter-spacing:-.035em;
+  font-variation-settings:'wdth' 108,'wght' 750}
+.dash-h em{font-style:normal;color:var(--steel-dk);font-variation-settings:'wdth' 108,'wght' 300}
+.tally{display:flex;gap:26px}
+.tally div b{display:block;font-size:26px;line-height:1;font-variation-settings:'wdth' 85,'wght' 700}
+.tally div span{display:block;margin-top:5px;font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--steel-dk);font-variation-settings:'wdth' 70,'wght' 600}
+.tally .paid b{color:var(--jade)}
+
+.jobs{display:grid;gap:10px;margin-top:6px}
+.job{
+  position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+  padding:16px 18px;background:var(--ink-2);border:1px solid var(--ink-3);border-radius:var(--r);
+  overflow:hidden;cursor:pointer;transition:.18s var(--ease);
+  opacity:0;transform:translateY(10px);animation:rise .55s var(--ease) forwards;
+}
+.job:nth-child(1){animation-delay:.04s}
+.job:nth-child(2){animation-delay:.10s}
+.job:nth-child(3){animation-delay:.16s}
+.job:nth-child(4){animation-delay:.22s}
+.job:hover{border-color:var(--steel-dk);background:#122426}
+.job::before{ /* the seam again: how far through this job is */
+  content:"";position:absolute;left:0;top:0;bottom:0;width:var(--seam);background:var(--ink-3);
+}
+.job.doing::before{background:var(--jade);width:3px}
+.job.done::before{background:var(--steel-dk)}
+.job-time{font-size:15px;min-width:66px;font-variation-settings:'wdth' 78,'wght' 650;color:var(--rinse)}
+.job.done .job-time,.job.done .job-who{color:var(--steel-dk)}
+.job-who{font-size:17px;letter-spacing:-.01em;font-variation-settings:'wdth' 96,'wght' 650}
+.job-what{font-size:13px;color:var(--steel-dk);margin-top:2px}
+.job-money{font-size:17px;font-variation-settings:'wdth' 80,'wght' 650;text-align:right}
+.job.done .job-money{color:var(--steel-dk)}
+.job-state{
+  display:block;margin-top:3px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  font-variation-settings:'wdth' 70,'wght' 700;text-align:right
+}
+.job.doing .job-state{color:var(--jade)}
+.job.done .job-state{color:var(--steel-dk)}
+.job.next .job-state{color:var(--steel)}
+
+.dash-band{background:var(--rinse);color:#0A1416;margin-top:34px;padding:26px var(--pad)}
+.dash-band-in{max-width:1120px;margin:0 auto;display:grid;gap:18px}
+.dash-band h4{margin:0;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#5C6E6C;
+  font-variation-settings:'wdth' 70,'wght' 700}
+.ask{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.ask p{margin:0;font-size:clamp(18px,2.6vw,24px);letter-spacing:-.02em;max-width:30ch;
+  font-variation-settings:'wdth' 104,'wght' 650}
+.ask .btn{background:#0A1416;color:var(--rinse);margin-left:0}
+.ask .btn:hover{background:var(--jade-dim);color:var(--flare)}
+
+.tabbar{
+  display:flex;background:#060D0E;
+  backdrop-filter:blur(14px);border-top:1px solid var(--ink-3);
+}
+.tabbar a{
+  flex:1;text-align:center;padding:12px 4px 16px;text-decoration:none;color:var(--steel-dk);
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  font-variation-settings:'wdth' 70,'wght' 650;border-top:2px solid transparent;transition:.16s var(--ease)
+}
+.tabbar a.on{color:var(--jade);border-top-color:var(--jade)}
+.tabbar a:hover{color:var(--rinse)}
+
+/* ── responsive: phone first, then the desktop composition ── */
+@media (min-width:760px){
+  .nav-links{display:flex}
+  .hero-grid{grid-template-columns:minmax(300px,1fr) minmax(0,1.15fr);align-items:center;gap:48px}
+  .split{aspect-ratio:5/4}
+  .slot-card{margin:-70px -22px 0 auto}
+  .proof-in{grid-template-columns:1fr 1fr;align-items:center;gap:48px}
+  .stats{grid-template-columns:1fr 1fr}
+  .dash-band-in{grid-template-columns:auto 1fr;align-items:center;gap:34px}
+  .ask{flex-wrap:nowrap}
+}
+@media (min-width:1100px){
+  .hero{padding-top:clamp(64px,12vh,132px)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
+  .hero-copy>*,.job{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="plate-label"><b>Direction 1 — The Seam</b>
+  <span>A detailer sells the edge between dirty and clean, so that edge is the layout. One seam, three scales. Petrol black, jade, Archivo alone.</span></div>
+
+<!-- ════ SCREEN 1: LANDING HERO ════ -->
+<div class="plate-label">Screen 1 <span>· Landing hero</span></div>
+
+
+<section class="hero">
+<header class="nav">
+  <div class="nav-mark">DETAIL<i>/</i>PLATFORM</div>
+  <nav class="nav-links"><a href="#">What you get</a><a href="#">Pricing</a><a href="#">A real one</a></nav>
+  <a class="btn" href="#">Start free</a>
+</header>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">Websites &amp; booking for detailers</p>
+      <h1 class="display">Stop booking<br>jobs in your<br><em>DMs.</em></h1>
+      <p class="lede">Your prices, your hours and your calendar on one page. Customers pick a slot; you get a text. No back-and-forth, no double-bookings, no "still there?"</p>
+      <div class="hero-actions">
+        <a class="btn" href="#" style="margin-left:0;padding:13px 24px;font-size:15px">See a real one</a>
+        <a class="btn-ghost" href="#">$499 setup · $40/mo</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="split" id="split">
+        <img class="before" src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=1400&q=70" alt="">
+        <img class="after" src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=1400&q=70" alt="A detailer rinsing a black coupé">
+        <span class="split-tag l">Before you had a site</span>
+        <span class="split-tag r">After</span>
+        <div class="split-seam"><b></b></div>
+      </div>
+      <aside class="slot-card">
+        <p class="eyebrow">Next free slot</p>
+        <div class="slot-row">
+          <span class="slot-when fig">Sat 9:00 AM</span>
+          <span class="slot-price fig">$220</span>
+        </div>
+        <p class="slot-meta">Full Detail · 3 hrs · deposit taken at booking</p>
+      </aside>
+    </div>
+  </div>
+
+  <div class="proof">
+    <div class="proof-in">
+      <h3>The site does the asking. You do the detailing.</h3>
+      <div class="stats">
+        <div class="stat"><b class="fig">4 min</b><span>To set up a service</span></div>
+        <div class="stat"><b class="fig">0</b><span>Double bookings possible</span></div>
+        <div class="stat"><b class="fig">24/7</b><span>Booking, while you sleep</span></div>
+        <div class="stat"><b class="fig">Your name</b><span>On the domain</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 2: BOOKING STEP ════ -->
+<div class="plate-label">Screen 2 <span>· Booking — pick a time (a configured business)</span></div>
+<section class="book">
+  <div class="book-in">
+    <div class="book-head">
+      <div class="biz-mark">AA</div>
+      <div><div class="biz-name">Andrew's Auto Detail</div><div class="biz-sub">Mobile · comes to your driveway</div></div>
+    </div>
+    <div class="wipe"><i></i></div>
+    <div class="wipe-labels"><span>Service</span><b>Time</b><span>Your details</span></div>
+
+    <h2>When suits you?</h2>
+    <p class="sub">Full Detail · 3 hrs · $220. Pick any open slot — it's yours the second you confirm.</p>
+
+    <div class="day-strip">
+      <div class="day"><span>Thu</span><b class="fig">28</b></div>
+      <div class="day"><span>Fri</span><b class="fig">29</b></div>
+      <div class="day on"><span>Sat</span><b class="fig">30</b></div>
+      <div class="day"><span>Sun</span><b class="fig">31</b></div>
+      <div class="day"><span>Mon</span><b class="fig">01</b></div>
+      <div class="day"><span>Tue</span><b class="fig">02</b></div>
+      <div class="day"><span>Wed</span><b class="fig">03</b></div>
+    </div>
+
+    <div class="times">
+      <div class="time on fig">9:00 AM</div>
+      <div class="time fig">10:30 AM</div>
+      <div class="time off fig">12:00 PM</div>
+      <div class="time fig">1:30 PM</div>
+      <div class="time fig">3:00 PM</div>
+      <div class="time off fig">4:30 PM</div>
+    </div>
+
+    <div class="book-foot">
+      <div class="book-total">Saturday 30th, 9:00 AM · <b class="fig">$220</b></div>
+      <a class="btn" href="#">Take this slot</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 2b: THE EMPTY PROOF ════ -->
+<div class="empty-note"><b>The empty proof</b> · the same direction for a business that signed up an hour ago: two services, no photos, no gallery, no reviews. Nothing here is a placeholder — the type and the seam carry it.</div>
+<section class="book" style="padding-top:clamp(24px,4vw,40px)">
+  <div class="book-in">
+    <div class="book-head">
+      <div class="biz-mark">GV</div>
+      <div><div class="biz-name">Gulf View Detailing</div><div class="biz-sub">Mobile · Clearwater, FL</div></div>
+    </div>
+    <div class="wipe"><i style="width:22%"></i></div>
+    <div class="wipe-labels"><b>Service</b><span>Time</span><span>Your details</span></div>
+
+    <h2>What are we doing?</h2>
+    <p class="sub">Two things, done properly. Pick one.</p>
+
+    <div class="svc">
+      <div><div class="svc-name">Wash &amp; Wax</div><div class="svc-dur">90 minutes</div></div>
+      <div class="svc-price fig">$95</div>
+      <p class="svc-desc">Two-bucket hand wash, wheels and arches, hand-applied wax.</p>
+    </div>
+    <div class="svc">
+      <div><div class="svc-name">Full Detail</div><div class="svc-dur">3 hours</div></div>
+      <div class="svc-price fig">$220</div>
+      <p class="svc-desc">Everything in the wash, plus interior, glass and a machine polish.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 3: DASHBOARD TODAY ════ -->
+<div class="plate-label">Screen 3 <span>· Dashboard — Today (phone-first; convenience sets the shape)</span></div>
+<section class="dash">
+  <div class="dash-in">
+    <div class="dash-top">
+      <div>
+        <div class="dash-date">Saturday 30 August</div>
+        <h1 class="dash-h">Four jobs.<br><em>Two done.</em></h1>
+      </div>
+      <div class="tally">
+        <div class="paid"><b class="fig">$465</b><span>Taken today</span></div>
+        <div><b class="fig">$220</b><span>Still to come</span></div>
+      </div>
+    </div>
+
+    <div class="jobs">
+      <article class="job done">
+        <div class="job-time fig">8:00</div>
+        <div><div class="job-who">Marcus Hill</div><div class="job-what">Wash &amp; Wax · Silver Civic</div></div>
+        <div><div class="job-money fig">$95</div><span class="job-state">Paid</span></div>
+      </article>
+      <article class="job done">
+        <div class="job-time fig">10:00</div>
+        <div><div class="job-who">Dana Reyes</div><div class="job-what">Interior Deep Clean · Blue CR-V</div></div>
+        <div><div class="job-money fig">$150</div><span class="job-state">Paid</span></div>
+      </article>
+      <article class="job doing">
+        <div class="job-time fig">13:00</div>
+        <div><div class="job-who">Tom Whitaker</div><div class="job-what">Full Detail · Black F-150</div></div>
+        <div><div class="job-money fig">$220</div><span class="job-state">On it now</span></div>
+      </article>
+      <article class="job next">
+        <div class="job-time fig">16:30</div>
+        <div><div class="job-who">Priya Anand</div><div class="job-what">Wash &amp; Wax · White Model 3</div></div>
+        <div><div class="job-money fig">$95</div><span class="job-state">Deposit paid</span></div>
+      </article>
+    </div>
+  </div>
+
+  <div class="dash-band">
+    <div class="dash-band-in">
+      <h4>One thing waiting</h4>
+      <div class="ask">
+        <p>Tom's truck is bigger than booked. Charge the difference?</p>
+        <a class="btn" href="#">Add $40</a>
+      </div>
+    </div>
+  </div>
+</section>
+<nav class="tabbar">
+  <a class="on" href="#">Today</a><a href="#">Calendar</a><a href="#">Money</a><a href="#">Clients</a><a href="#">More</a>
+</nav>
+
+<script>
+/* The seam travels once, on load, then follows the pointer on desktop.
+   Nothing pins, nothing captures the scroll. Reduced motion → it starts home. */
+(function(){
+  var el = document.getElementById('split');
+  if(!el) return;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ el.style.setProperty('--x','58%'); return; }
+  var t0 = null, from = 100, to = 58, dur = 1100;
+  function step(t){
+    if(t0===null) t0=t;
+    var p = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-p,4);   /* exit-fast easing */
+    el.style.setProperty('--x',(from+(to-from)*e).toFixed(2)+'%');
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+  if(matchMedia('(pointer:fine)').matches){
+    el.addEventListener('pointermove',function(ev){
+      var r = el.getBoundingClientRect();
+      var x = Math.max(6,Math.min(94,((ev.clientX-r.left)/r.width)*100));
+      el.style.setProperty('--x',x.toFixed(2)+'%');
+    });
+  }
+})();
+</script>
+</body>
+</html>

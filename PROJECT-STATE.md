@@ -40,7 +40,13 @@ Routes (`app/src/main.jsx`, verified by `tests/route-contract.test.mjs`):
 
 Better than typical for this stage — there is a real, enforced design system:
 
-- **System:** `docs/design-system.md` ("Raking Light") is explicit law: matte near-black ground, exactly one "lit" element per screen, tokens defined once in `theme.css` (`:root` dark + `[data-theme="light"]` + `--bk-*` booking mirror). Enforced by tests: `composition.test.mjs`, `design-contrast.test.mjs` — all passing when I ran them.
+- **System: BEING REPLACED.** `DESIGN.md` (owner decision 2026-08-28)
+  deprecates the system below as identity — it is evidence and anti-reference
+  only, and nothing new should be polished toward it. Four replacement
+  directions were built 2026-08-29 (`docs/design-directions/`, reasoning in
+  its README) and **the owner's pick is the open item**; the new system gets
+  written in roadmap 1.5. The description that follows is the OLD look.
+- **Old system:** `docs/design-system.md` ("Raking Light") was explicit law: matte near-black ground, exactly one "lit" element per screen, tokens defined once in `theme.css` (`:root` dark + `[data-theme="light"]` + `--bk-*` booking mirror). Enforced by tests: `composition.test.mjs`, `design-contrast.test.mjs` — all passing when I ran them.
 - **Fonts:** exactly three, loaded from Google Fonts in `app/index.html`: Anybody (variable width — titles/labels), Public Sans (prose), DM Mono (every figure, tabular-nums).
 - **Tokens vs hardcoded:** discipline is real. The only hex colors in JS live in `lib/theme.js` (the designated color-math file) and Google-logo colors in Auth **(guess for exact location of the Google hexes — I found the file set, didn't trace each)**. CSS uses `var(--…)` throughout.
 - **Inline styles exist but are modest:** heaviest are LandingPage (28 `style={{`), ManageBookingPage (18), Money (15) — mostly layout one-offs, not colors, judging by spot checks.

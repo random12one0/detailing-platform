@@ -68,20 +68,31 @@ is kept; the entire visual design restarts from scratch.
       `docs/references/DESIGN-BRIEF.md` — three things to build first,
       three to drop, and the four places the owner's own preferences fight
       each other. 1.3 starts from that file.
-- [ ] 1.3 Produce 3–5 GENUINELY different design directions, each rendered
-      as real mockups of the same three screens (landing hero, one booking
-      step, dashboard Today) at phone + desktop. **OWNER picks one.**
-      Start from `docs/references/DESIGN-BRIEF.md` — ranked, costed, with
-      the three to build first and three to drop.
-      **First task before designing anything: read an Apple product-launch
-      page at the code level**, the way the seven references were read. The
-      owner corrected the framing on 2026-08-29 — those pages are heavily
-      scroll-choreographed, not restrained, and the middle ground he wants
-      is *maximum choreography, minimum decoration*. That reframe is in
-      DESIGN-BRIEF Conflict 1 and is currently reasoned from description,
-      not from code. The idea it points at: a hero that scrubs a car from
-      filthy to finished as you scroll.
-- [ ] 1.4 Refine the winner once. **OWNER approves.**
+- [x] 1.3 Four genuinely different directions, built — **DONE 2026-08-29.
+      AWAITING THE OWNER'S PICK.** Open `docs/design-directions/index.html`;
+      the reasoning is `docs/design-directions/README.md`. Each is one
+      self-contained HTML file carrying the landing hero, a booking step, the
+      SAME booking step empty (two services, no photos), and dashboard Today,
+      responsive from 392px to 1440px. One skill each for 1–3
+      (`frontend-design`, `tastemaker`, `great-design`); direction 4 is built
+      from the Apple read rather than a skill.
+      **The Apple page was read at the code level first**, as this item
+      required — `docs/references/APPLE-READ.md`. It changed the plan: Apple's
+      house technique is play-on-approach (8 of 8 pages), not scroll-scrubbing
+      (3 of 8, and absent from the flagship page); their scrub is never pinned
+      and never the hero; and they do zero device tiering. "Maximum
+      choreography, minimum decoration" is confirmed as a ratio — 82 tweens
+      against 17 box-shadows in the same stylesheet.
+      Left open on purpose, and listed in that README: smooth scroll (#8) and
+      the typewriter headline (#5) are add-ons for the winner, not reasons to
+      prefer one; scroll-scrub feasibility on a mid-range Android is still
+      unmeasured and becomes the first task of 1.4 **only if direction 4 wins**;
+      the dashboard's own empty state is undrawn.
+- [ ] 1.4 Refine the winner once. **OWNER approves.** Carry in from 1.3:
+      settle smooth scroll empirically on the owner's own phone (one flag,
+      3 KB); consider adding the typewriter headline; draw the dashboard's
+      empty state; and if direction 4 won, measure scroll-scrub on a
+      throttled CPU BEFORE anything depends on it.
 - [ ] 1.5 Write the new `docs/design-system.md` (replacing "Raking Light"),
       and rewrite the design tests to enforce the NEW rules. From this
       point the new system is law and direction-inventing skills are

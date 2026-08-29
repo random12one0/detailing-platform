@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en" data-dir="ticket">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Direction 3 — Ticket</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,0..100,0..1&family=Schibsted+Grotesk:wght@300..800&display=swap" rel="stylesheet">
+<style>
+/* ═══ DIRECTION 3 — TICKET ════════════════════════════════════════════
+   ARGUMENT (one line): booking a detail is buying a ticket, so the thing
+   the customer ends up holding is designed as an object — and the punched
+   edge of that object is the system.
+   The warm pole, and the friendliest of the four: one dominant colour
+   carrying the whole page (oxblood — the colour of a conditioned leather
+   seat), bone type, one butter accent. Type: Fraunces worked at its WONK
+   and SOFT extremes against Schibsted Grotesk 300. Weight extreme 300/900.
+   Colour is OKLCH so a retint moves hue without moving lightness.
+   Photo credit (in code, not on the page): Unsplash — Deniz Demirci,
+   Brock Wegner, Nik.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  /* dominant, carries the page */
+  --ox:      oklch(0.245 0.072 22);
+  --ox-lift: oklch(0.305 0.080 24);
+  --ox-line: oklch(0.375 0.070 26);
+  --ox-deep: oklch(0.185 0.058 20);
+  /* foreground */
+  --bone:    oklch(0.955 0.018 85);
+  --bone-70: oklch(0.800 0.028 55);
+  --bone-45: oklch(0.640 0.035 40);
+  /* one accent, used sparingly */
+  --butter:  oklch(0.875 0.155 92);
+  --butter-d:oklch(0.780 0.150 88);
+
+  /* 4px grid */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px;
+  --s6:32px; --s7:48px; --s8:64px; --s9:96px;
+  --pad:clamp(20px,5vw,64px);
+  --rd:20px;  --rd-s:12px;
+  --ease:cubic-bezier(.2,.9,.25,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;color:var(--bone);
+  font-family:'Schibsted Grotesk',sans-serif;font-weight:400;font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;
+  /* never a flat ground: two soft lights over the dominant, plus grain */
+  background:
+    radial-gradient(120% 80% at 12% -8%, oklch(0.36 0.085 30) 0%, transparent 58%),
+    radial-gradient(90% 70% at 105% 8%, oklch(0.30 0.075 18) 0%, transparent 55%),
+    var(--ox);
+  background-attachment:fixed;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.22;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+main,section,header,div,nav{position:relative;z-index:1}
+img{max-width:100%;display:block}
+h1,h2,h3{margin:0}
+:focus-visible{outline:3px solid var(--butter);outline-offset:3px}
+
+.fr{font-family:Fraunces,serif;font-variation-settings:'SOFT' 60,'WONK' 1;line-height:.94;letter-spacing:-.02em}
+.thin{font-weight:300}
+.cap{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--bone-45)}
+
+/* mockup furniture */
+.plate-label{
+  padding:var(--s3) var(--pad);background:var(--ox-deep);color:var(--bone-45);
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  display:flex;gap:var(--s3);align-items:baseline;flex-wrap:wrap;
+}
+.plate-label b{color:var(--butter)}
+.plate-label span{text-transform:none;letter-spacing:.01em;font-weight:400;color:var(--bone-45);opacity:.85}
+
+/* ── the signature: a punched edge ── */
+.stub{
+  position:relative;background:var(--bone);color:var(--ox-deep);border-radius:var(--rd);
+  box-shadow:0 var(--s6) var(--s8) -40px oklch(0.12 0.05 20 / .9);
+}
+.stub::after{ /* the perforation — a real tear line, not a divider rule */
+  content:"";position:absolute;left:0;right:0;height:2px;
+  background:radial-gradient(circle at 4px 1px, var(--ox) 1.6px, transparent 1.8px) repeat-x;
+  background-size:12px 2px;
+}
+.stub-notch::before,.stub-notch::after{
+  content:"";position:absolute;width:26px;height:26px;border-radius:50%;
+  background:var(--ox);z-index:2;
+}
+.stub-notch::before{left:-13px}
+.stub-notch::after{right:-13px}
+
+/* buttons */
+.btn{
+  display:inline-block;background:var(--butter);color:var(--ox-deep);text-decoration:none;
+  font-weight:700;font-size:16px;padding:var(--s4) var(--s6);border:0;border-radius:100px;
+  cursor:pointer;transition:transform .18s var(--ease),background .18s var(--ease);
+}
+.btn:hover{background:var(--bone);transform:translateY(-2px)}
+.btn-quiet{
+  display:inline-block;text-decoration:none;color:var(--bone);border:1.5px solid var(--ox-line);
+  font-weight:600;font-size:16px;padding:var(--s4) var(--s6);border-radius:100px;
+  transition:.18s var(--ease);
+}
+.btn-quiet:hover{border-color:var(--bone);background:oklch(0.30 0.08 24)}
+
+/* ── nav ── */
+.nav{
+  display:flex;align-items:center;gap:var(--s5);padding:var(--s5) var(--pad);
+  max-width:1140px;margin-inline:auto;
+}
+.mark{font-family:Fraunces,serif;font-variation-settings:'SOFT' 80,'WONK' 1;font-weight:900;
+  font-size:22px;letter-spacing:-.02em}
+.mark i{font-style:normal;color:var(--butter)}
+.nav nav{display:none;gap:var(--s5);margin-left:auto;font-size:15px}
+.nav nav a{color:var(--bone-70);text-decoration:none}
+.nav nav a:hover{color:var(--bone)}
+.nav .btn{margin-left:auto;padding:var(--s3) var(--s5);font-size:15px}
+.nav nav+.btn{margin-left:0}
+
+/* ═══ SCREEN 1 — LANDING HERO ═══ */
+.hero{max-width:1140px;margin-inline:auto;padding:var(--s6) var(--pad) var(--s9)}
+.hero-in{display:grid;gap:var(--s7)}
+.hero h1{font-size:clamp(46px,10vw,104px);font-weight:900}
+.hero h1 .thin{display:block;font-weight:300;color:var(--bone-70)}
+.hero p.lede{font-size:clamp(17px,1.5vw,20px);color:var(--bone-70);max-width:40ch;margin:var(--s5) 0 0}
+.hero-act{display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap;margin-top:var(--s6)}
+
+/* page-load sequence — one orchestrated beat, staggered */
+.seq>*{opacity:0;transform:translateY(14px);animation:up .7s var(--ease) forwards}
+.seq>*:nth-child(1){animation-delay:60ms}
+.seq>*:nth-child(2){animation-delay:150ms}
+.seq>*:nth-child(3){animation-delay:240ms}
+.seq>*:nth-child(4){animation-delay:330ms}
+@keyframes up{to{opacity:1;transform:none}}
+.tick-in{opacity:0;transform:translateY(28px) rotate(-1.5deg);animation:tick .85s var(--ease) .38s forwards}
+@keyframes tick{to{opacity:1;transform:translateY(0) rotate(-1.5deg)}}
+
+/* the hero object: the thing the customer ends up holding */
+.ticket{width:min(100%,400px);margin-inline:auto}
+.ticket .top{padding:var(--s5) var(--s5) var(--s6)}
+.ticket .bot{padding:var(--s6) var(--s5) var(--s5);display:flex;align-items:center;gap:var(--s4)}
+.ticket .stub::after{bottom:auto;top:calc(100% - 1px)}
+.tk-shot{border-radius:var(--rd-s);overflow:hidden;aspect-ratio:16/9;background:var(--ox-lift)}
+.tk-shot img{width:100%;height:100%;object-fit:cover}
+.tk-biz{font-family:Fraunces,serif;font-variation-settings:'SOFT' 70,'WONK' 1;font-weight:800;
+  font-size:26px;line-height:1;margin-top:var(--s4)}
+.tk-line{display:flex;justify-content:space-between;gap:var(--s3);padding:var(--s2) 0;font-size:15px}
+.tk-line span{color:oklch(0.52 0.03 35)}
+.tk-line b{font-weight:700}
+.tk-when{font-family:Fraunces,serif;font-weight:900;font-size:34px;line-height:.92;
+  font-variation-settings:'SOFT' 60,'WONK' 1}
+.tk-code{margin-left:auto;text-align:right}
+.tk-code b{display:block;font-size:19px;font-weight:700;letter-spacing:.08em}
+.tk-code span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.52 0.03 35)}
+
+/* half-and-half proof row — not three cards */
+.pair{max-width:1140px;margin:0 auto;padding:0 var(--pad) var(--s9);display:grid;gap:var(--s5)}
+.pane{
+  background:var(--ox-lift);border:1px solid var(--ox-line);border-radius:var(--rd);
+  padding:var(--s6);
+}
+.pane.big{grid-column:1/-1;display:grid;gap:var(--s5);align-items:center}
+.pane h3{font-family:Fraunces,serif;font-weight:800;font-size:clamp(24px,3.4vw,36px);
+  font-variation-settings:'SOFT' 60,'WONK' 1;line-height:1}
+.pane p{color:var(--bone-70);margin:var(--s3) 0 0;font-size:16px;max-width:44ch}
+.pane .num{font-family:Fraunces,serif;font-weight:900;font-size:clamp(44px,7vw,72px);
+  line-height:.86;color:var(--butter);font-variation-settings:'SOFT' 40,'WONK' 0}
+.pane-shot{border-radius:var(--rd-s);overflow:hidden;aspect-ratio:4/3}
+.pane-shot img{width:100%;height:100%;object-fit:cover}
+
+/* ═══ SCREEN 2 — BOOKING STEP ═══ */
+.wrap{max-width:640px;margin-inline:auto;padding:var(--s6) var(--pad) var(--s8)}
+.bk-head{display:flex;gap:var(--s4);align-items:center;margin-bottom:var(--s5)}
+.bk-head .av{width:52px;height:52px;flex:0 0 52px;border-radius:50%;background:var(--butter);
+  color:var(--ox-deep);display:grid;place-items:center;font-family:Fraunces,serif;font-weight:900;font-size:18px}
+.bk-head b{display:block;font-size:18px;font-weight:700}
+.bk-head span{color:var(--bone-70);font-size:14px}
+.pips{display:flex;gap:var(--s2);align-items:center;margin-bottom:var(--s5)}
+.pips i{height:6px;border-radius:100px;background:var(--ox-line);flex:1}
+.pips i.done{background:var(--bone-45)}
+.pips i.on{background:var(--butter)}
+.wrap h2{font-family:Fraunces,serif;font-weight:900;font-size:clamp(30px,6vw,48px);
+  font-variation-settings:'SOFT' 60,'WONK' 1;line-height:.96}
+.wrap .sub{color:var(--bone-70);margin:var(--s3) 0 var(--s6)}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:var(--s3)}
+.tpill{
+  background:var(--ox-lift);border:1.5px solid var(--ox-line);border-radius:100px;
+  padding:var(--s4) var(--s5);text-align:center;cursor:pointer;font-size:17px;font-weight:600;
+  transition:.18s var(--ease);
+}
+.tpill:hover{border-color:var(--bone);transform:translateY(-2px)}
+.tpill.on{background:var(--butter);border-color:var(--butter);color:var(--ox-deep);font-weight:700}
+.tpill.gone{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+.tpill.gone:hover{transform:none;border-color:var(--ox-line)}
+.bk-sum{
+  margin-top:var(--s6);background:var(--ox-lift);border:1px solid var(--ox-line);
+  border-radius:var(--rd);padding:var(--s5);display:flex;gap:var(--s4);align-items:center;flex-wrap:wrap;
+}
+.bk-sum .l{font-size:15px;color:var(--bone-70)}
+.bk-sum .l b{display:block;color:var(--bone);font-size:19px;font-weight:700}
+.bk-sum .btn{margin-left:auto}
+
+/* empty proof */
+.empty-note{background:var(--ox-deep);padding:var(--s3) var(--pad);font-size:13px;color:var(--bone-70)}
+.empty-note b{color:var(--butter);text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:700}
+.svc-list{border-top:1px solid var(--ox-line)}
+.svc{
+  display:flex;gap:var(--s4);align-items:center;padding:var(--s5) var(--s3);
+  border-bottom:1px solid var(--ox-line);cursor:pointer;transition:.18s var(--ease);border-radius:var(--rd-s);
+}
+.svc:hover{background:var(--ox-lift);padding-inline:var(--s5)}
+.svc h3{font-family:Fraunces,serif;font-weight:800;font-size:clamp(21px,3.6vw,28px);
+  font-variation-settings:'SOFT' 60,'WONK' 1}
+.svc p{margin:var(--s1) 0 0;color:var(--bone-70);font-size:15px;max-width:46ch}
+.svc .pr{margin-left:auto;font-family:Fraunces,serif;font-weight:900;font-size:clamp(22px,3.6vw,30px);
+  color:var(--butter);white-space:nowrap}
+
+/* ═══ SCREEN 3 — DASHBOARD TODAY ═══ */
+.dwrap{max-width:760px;margin-inline:auto;padding:var(--s6) var(--pad) var(--s5)}
+.dhead{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s5);flex-wrap:wrap}
+.dhead h2{font-family:Fraunces,serif;font-weight:900;font-size:clamp(32px,6.5vw,52px);
+  font-variation-settings:'SOFT' 60,'WONK' 1;line-height:.94;margin-top:var(--s2)}
+.dhead h2 .thin{font-weight:300;color:var(--bone-70)}
+.dmoney{text-align:left}
+@media(min-width:600px){.dmoney{text-align:right}}
+.dmoney b{display:block;font-family:Fraunces,serif;font-weight:900;font-size:clamp(28px,5vw,42px);
+  color:var(--butter);line-height:.9}
+.jobs{display:grid;gap:var(--s3);margin-top:var(--s6)}
+.jrow{
+  display:grid;grid-template-columns:auto 1fr auto;gap:var(--s4);align-items:center;
+  background:var(--ox-lift);border:1px solid var(--ox-line);border-radius:var(--rd-s);
+  padding:var(--s4) var(--s5);cursor:pointer;position:relative;overflow:hidden;
+  transition:.18s var(--ease);
+  opacity:0;transform:translateY(10px);animation:up .5s var(--ease) forwards;
+}
+.jrow:nth-child(1){animation-delay:40ms}.jrow:nth-child(2){animation-delay:100ms}
+.jrow:nth-child(3){animation-delay:160ms}.jrow:nth-child(4){animation-delay:220ms}
+.jrow:hover{border-color:var(--bone-45);transform:translateY(-2px)}
+.jrow .hr{font-weight:700;font-size:15px;min-width:56px;color:var(--bone-70)}
+.jrow .nm{font-weight:700;font-size:17px}
+.jrow .sv{font-size:14px;color:var(--bone-70)}
+.jrow .am{font-family:Fraunces,serif;font-weight:800;font-size:21px;text-align:right}
+.jrow .stt{display:block;text-align:right;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;margin-top:2px;color:var(--bone-45)}
+.jrow.now{background:var(--bone);color:var(--ox-deep);border-color:var(--bone)}
+.jrow.now .hr,.jrow.now .sv{color:oklch(0.52 0.03 35)}
+.jrow.now .stt{color:oklch(0.45 0.14 42)}
+.jrow.done{opacity:.52}
+.jrow.done .am{color:var(--bone-70)}
+.dstrip{
+  max-width:760px;margin:var(--s5) auto 0;padding:0 var(--pad);
+}
+.dstrip .stub{padding:var(--s5);display:flex;gap:var(--s4);align-items:center;flex-wrap:wrap}
+.dstrip .stub::after{display:none}
+.dstrip p{margin:0;font-family:Fraunces,serif;font-weight:800;font-size:clamp(17px,2.4vw,21px);
+  font-variation-settings:'SOFT' 60,'WONK' 1;max-width:26ch}
+.dstrip .btn{margin-left:auto;background:var(--ox);color:var(--bone)}
+.dstrip .btn:hover{background:var(--ox-deep)}
+.dtabs{display:flex;max-width:760px;margin:var(--s6) auto 0;padding:0 var(--pad) var(--s6);gap:var(--s2)}
+.dtabs a{
+  flex:1;text-align:center;padding:var(--s3) 0;border-radius:100px;text-decoration:none;
+  color:var(--bone-45);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;
+}
+.dtabs a.on{background:var(--ox-lift);color:var(--butter)}
+.dtabs a:hover{color:var(--bone)}
+
+@media (min-width:860px){
+  .nav nav{display:flex}
+  .hero-in{grid-template-columns:1.05fr .95fr;align-items:center}
+  .pair{grid-template-columns:1fr 1fr}
+  .pane.big{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
+  .seq>*,.jrow{opacity:1;transform:none}
+  .tick-in{opacity:1;transform:rotate(-1.5deg)}
+}
+</style>
+</head>
+<body>
+
+<div class="plate-label"><b>Direction 3 — Ticket</b>
+  <span>Booking a detail is buying a ticket, so the thing the customer ends up holding is designed as an object — and its punched edge is the system. The warm pole: one dominant oxblood, bone type, one butter accent, Fraunces at its wonk extreme.</span></div>
+
+<!-- ════ SCREEN 1: LANDING HERO ════ -->
+<div class="plate-label">Screen 1 <span>· Landing hero</span></div>
+<header class="nav">
+  <div class="mark">Detail<i>·</i>Platform</div>
+  <nav><a href="#">What you get</a><a href="#">Pricing</a><a href="#">A real one</a></nav>
+  <a class="btn" href="#">Start free</a>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <div class="seq">
+      <p class="cap">Websites &amp; booking for detailers</p>
+      <h1 class="fr">Hand them<br>something<span class="thin">worth keeping.</span></h1>
+      <p class="lede">Every booking ends with a real confirmation — the time, the price, the deposit, and a code they can show you. Not a text that says "yep, see you Saturday".</p>
+      <div class="hero-act">
+        <a class="btn" href="#">Build mine</a>
+        <a class="btn-quiet" href="#">$499 + $40/mo</a>
+      </div>
+    </div>
+
+    <div class="ticket tick-in">
+      <div class="stub">
+        <div class="top">
+          <div class="tk-shot">
+            <img src="https://images.unsplash.com/photo-1610647752706-3bb12232b3ab?auto=format&fit=crop&w=900&q=70" alt="A freshly detailed car interior">
+          </div>
+          <div class="tk-biz">Gulf View Detailing</div>
+          <div class="tk-line"><span>Full Detail</span><b>3 hrs</b></div>
+          <div class="tk-line"><span>2014 Silverado · white</span><b>$220</b></div>
+          <div class="tk-line"><span>Deposit paid</span><b>$50</b></div>
+        </div>
+        <div class="bot stub-notch">
+          <div><div class="cap" style="color:oklch(0.52 0.03 35)">Saturday</div>
+            <div class="tk-when">9:00 AM</div></div>
+          <div class="tk-code"><b>GV-4471</b><span>Show this</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pair">
+  <div class="pane">
+    <div class="num">$50</div>
+    <h3>held before they hang up</h3>
+    <p>The deposit is taken at the moment of booking. A no-show costs them, not you.</p>
+  </div>
+  <div class="pane">
+    <div class="num">0</div>
+    <h3>double bookings, ever</h3>
+    <p>Two people cannot take the same slot. The calendar refuses it — not you, later, apologising.</p>
+  </div>
+  <div class="pane big">
+    <div>
+      <h3>The stub is the receipt, the reminder, and the reschedule.</h3>
+      <p>One link does all three. They keep it in their messages, tap it two days later, and move the time themselves without ever calling you.</p>
+    </div>
+    <div class="pane-shot">
+      <img src="https://images.unsplash.com/photo-1694678505383-676d78ea3b96?auto=format&fit=crop&w=900&q=70" alt="A detailer washing a car panel by hand">
+    </div>
+  </div>
+</div>
+
+<!-- ════ SCREEN 2: BOOKING STEP ════ -->
+<div class="plate-label">Screen 2 <span>· Booking — pick a time</span></div>
+<section class="wrap">
+  <div class="bk-head">
+    <div class="av">GV</div>
+    <div><b>Gulf View Detailing</b><span>Mobile · Clearwater, FL</span></div>
+  </div>
+  <div class="pips"><i class="done"></i><i class="on"></i><i></i></div>
+  <h2>Saturday<br>the 30th</h2>
+  <p class="sub">Full Detail · 3 hrs · $220. Tap a start time.</p>
+  <div class="tgrid">
+    <div class="tpill">8:00 AM</div>
+    <div class="tpill on">9:00 AM</div>
+    <div class="tpill gone">10:30 AM</div>
+    <div class="tpill">1:30 PM</div>
+    <div class="tpill">3:00 PM</div>
+    <div class="tpill gone">4:30 PM</div>
+  </div>
+  <div class="bk-sum">
+    <div class="l">9:00 AM – 12:00 PM<b>$220 · $50 now</b></div>
+    <a class="btn" href="#">Hold this slot</a>
+  </div>
+</section>
+
+<!-- ════ SCREEN 2b: EMPTY ════ -->
+<div class="empty-note"><b>The empty proof</b> — the same direction for a business that signed up an hour ago: two services, no photos, no reviews. The object and the type carry it; nothing is a placeholder.</div>
+<section class="wrap" style="padding-top:var(--s6)">
+  <div class="bk-head">
+    <div class="av">RB</div>
+    <div><b>Ridgeback Detail Co.</b><span>Mobile · signed up today</span></div>
+  </div>
+  <div class="pips"><i class="on"></i><i></i><i></i></div>
+  <h2>What are<br>we doing?</h2>
+  <p class="sub">Two things, done properly.</p>
+  <div class="svc-list">
+    <div class="svc">
+      <div><h3 class="fr">Wash &amp; Wax</h3><p>Two-bucket hand wash, wheels and arches, hand-applied wax. 90 minutes.</p></div>
+      <div class="pr">$95</div>
+    </div>
+    <div class="svc">
+      <div><h3 class="fr">Full Detail</h3><p>Everything in the wash, plus interior, glass and a machine polish. 3 hours.</p></div>
+      <div class="pr">$220</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 3: DASHBOARD TODAY ════ -->
+<div class="plate-label">Screen 3 <span>· Dashboard — Today</span></div>
+<section class="dwrap">
+  <div class="dhead">
+    <div>
+      <div class="cap">Saturday 30 August</div>
+      <h2 class="fr">Four jobs.<br><span class="thin">Two done.</span></h2>
+    </div>
+    <div class="dmoney"><b>$465</b><span class="cap">taken · $220 to come</span></div>
+  </div>
+  <div class="jobs">
+    <div class="jrow done"><div class="hr">8:00</div>
+      <div><div class="nm">Marcus Hill</div><div class="sv">Wash &amp; Wax · Silver Civic</div></div>
+      <div><div class="am">$95</div><span class="stt">Paid</span></div></div>
+    <div class="jrow done"><div class="hr">10:00</div>
+      <div><div class="nm">Dana Reyes</div><div class="sv">Interior Deep Clean · Blue CR-V</div></div>
+      <div><div class="am">$150</div><span class="stt">Paid</span></div></div>
+    <div class="jrow now"><div class="hr">13:00</div>
+      <div><div class="nm">Tom Whitaker</div><div class="sv">Full Detail · Black F-150</div></div>
+      <div><div class="am">$220</div><span class="stt">On it now</span></div></div>
+    <div class="jrow"><div class="hr">16:30</div>
+      <div><div class="nm">Priya Anand</div><div class="sv">Wash &amp; Wax · White Model 3</div></div>
+      <div><div class="am">$95</div><span class="stt">Deposit paid</span></div></div>
+  </div>
+</section>
+<div class="dstrip">
+  <div class="stub">
+    <p>Tom's truck is bigger than booked.</p>
+    <a class="btn" href="#">Charge $40 more</a>
+  </div>
+</div>
+<nav class="dtabs">
+  <a class="on" href="#">Today</a><a href="#">Calendar</a><a href="#">Money</a><a href="#">Clients</a><a href="#">More</a>
+</nav>
+
+</body>
+</html>

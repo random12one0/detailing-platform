@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en" data-dir="approach">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Direction 4 — Approach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap" rel="stylesheet">
+<style>
+/* ═══ DIRECTION 4 — APPROACH ══════════════════════════════════════════
+   Not from a design skill. Built from docs/references/APPLE-READ.md — the
+   code-level read of Apple's product pages done at the top of 1.3.
+   ARGUMENT (one line): spend everything on motion and nothing on ornament —
+   the only colour on the page comes out of the photographs.
+   What is borrowed, and it is verified, not guessed:
+     · play-on-approach (the technique on 8 of 8 Apple pages) — a thing
+       starts moving while it is still below the fold
+     · Apple's own scrub is NOT pinned and is NOT the hero — it is a
+       mid-page section whose progress maps onto ordinary scroll. This
+       hero does pin, because the owner's lead idea is a HERO that
+       transforms, and at scroll 0 there is no approach to map onto.
+       So it follows the DESIGN-BRIEF pin rule instead: the pin declares
+       its length (1.4 screens, on screen, in the readout), delivers a
+       whole beat inside it, stays under the 2-screen ceiling, and never
+       captures vertical touch. Compare momentolegal's 18.3 screens.
+     · progress split into two straight segments with a slow tail, rather
+       than an easing curve (Apple: 0→0.87, then 0.87→1.0)
+     · a still frame that IS the design — shown for reduced motion, for no
+       JS, and on a 3-second load timeout
+   Decoration budget, matching what was counted on apple.com/iphone-17-pro:
+     0 brand colours · 1 typeface · 2 shadows · 0 glows · 0 gradients on type
+   Photo credit (in code, never on the page): Unsplash — Zulfahmi Khani,
+   Brad Starkey, Jonathan Gallegos, Nik.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --graphite:#141618;
+  --graphite-2:#1D2023;
+  --line-d:#2C3033;
+  --paper:#EDEDEA;
+  --paper-2:#DEDEDA;
+  --line-l:#CBCBC6;
+  --dim-d:#8A9095;
+  --dim-l:#6C7075;
+  --pad:clamp(20px,5vw,72px);
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ground:var(--graphite);
+  --fg:var(--paper);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;background:var(--ground);color:var(--fg);
+  font-family:Onest,sans-serif;font-size:16px;line-height:1.55;font-weight:400;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;
+  transition:background-color .35s linear,color .35s linear;
+}
+img{max-width:100%;display:block}
+h1,h2,h3{margin:0;font-weight:800;letter-spacing:-.035em;line-height:.92}
+:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+
+.hair{font-weight:200}
+.cap{font-size:12px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;opacity:.55}
+.wrap{max-width:1120px;margin-inline:auto;padding-inline:var(--pad)}
+
+/* mockup furniture */
+.plate-label{
+  padding:13px var(--pad);background:#0A0C0D;color:#7E858A;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;
+}
+.plate-label b{color:var(--paper)}
+.plate-label span{text-transform:none;letter-spacing:.01em;font-weight:400;color:#6A7176}
+
+/* the only two shadows in the file */
+.lift{box-shadow:0 24px 60px -34px rgba(0,0,0,.9)}
+.lift-l{box-shadow:0 20px 44px -30px rgba(20,22,24,.5)}
+
+/* buttons: no brand colour anywhere — foreground and ground, inverted */
+.btn{
+  display:inline-block;text-decoration:none;border:0;cursor:pointer;font:inherit;
+  font-weight:600;font-size:15px;padding:13px 26px;border-radius:100px;white-space:nowrap;
+  background:var(--fg);color:var(--ground);
+  transition:transform .16s var(--ease),opacity .16s var(--ease);
+}
+.btn:hover{transform:translateY(-2px);opacity:.88}
+.btn-q{
+  display:inline-block;text-decoration:none;color:inherit;font-weight:600;font-size:15px;
+  padding:13px 26px;border-radius:100px;border:1px solid currentColor;opacity:.75;
+  transition:.16s var(--ease);
+}
+.btn-q:hover{opacity:1}
+
+/* ── nav: the floating pill, from subscrr, one of the four asks ── */
+.nav{
+  position:sticky;top:12px;z-index:40;width:min(100% - 24px,1120px);margin:12px auto 0;
+  display:flex;align-items:center;gap:20px;padding:8px 8px 8px 20px;border-radius:100px;
+  background:rgba(20,22,24,.55);backdrop-filter:blur(16px) saturate(1.5);
+  -webkit-backdrop-filter:blur(16px) saturate(1.5);border:1px solid rgba(237,237,234,.14);
+}
+.nav .mk{font-weight:800;font-size:15px;letter-spacing:-.02em;color:var(--paper)}
+.nav .mk span{font-weight:200}
+.nav ul{display:none;list-style:none;margin:0 0 0 auto;padding:0;gap:24px;font-size:14px}
+.nav a{color:rgba(237,237,234,.7);text-decoration:none}
+.nav a:hover{color:var(--paper)}
+.nav .btn{margin-left:auto;background:var(--paper);color:var(--graphite);padding:9px 18px;font-size:14px}
+.nav ul+.btn{margin-left:0}
+
+/* ═══ SCREEN 1 — THE SCRUB ═══════════════════════════════════════════
+   ONE real photograph in two states — dull and corrected — cross-dissolved
+   on scroll position. In a real build this is one short clip; the cost is
+   measured in APPLE-READ.md at 666 KB phone-sized. One image in two states
+   is the honest stand-in here, and it is also what a tenant who has photos
+   but no video actually gets, so it is a shipping fallback, not a mock. */
+.scrub{position:relative;height:240vh;margin-top:-64px;touch-action:pan-y}
+.scrub-stage{
+  position:sticky;top:0;height:100svh;overflow:hidden;
+  display:grid;place-items:center;
+}
+.scrub-stage figure{position:absolute;inset:0;margin:0}
+.scrub-stage img{width:100%;height:100%;object-fit:cover}
+#frame-a{filter:grayscale(.92) brightness(.5) contrast(.82) saturate(.4)}
+#frame-b{opacity:var(--p,0)}
+.scrub-stage::after{ /* the scrim — legibility floor, never optional */
+  content:"";position:absolute;inset:0;z-index:3;
+  background:
+    radial-gradient(70% 52% at 50% 46%, rgba(20,22,24,.78) 0%, rgba(20,22,24,0) 100%),
+    linear-gradient(180deg,rgba(20,22,24,.74) 0%,rgba(20,22,24,.34) 44%,rgba(20,22,24,.9) 100%);
+}
+.scrub-copy{
+  position:relative;z-index:4;text-align:center;padding:0 var(--pad);max-width:min(92vw,760px);
+  color:var(--paper);
+}
+.scrub-copy h1{font-size:clamp(44px,10.5vw,116px)}
+.scrub-copy h1 span{display:block}
+.scrub-copy p{margin:20px auto 0;max-width:34ch;font-size:clamp(15px,1.3vw,18px);opacity:.9;line-height:1.45;text-wrap:balance}
+.scrub-copy .btn{margin-top:28px}
+.scrub-read{
+  position:absolute;left:0;right:0;bottom:22px;z-index:4;text-align:center;color:var(--paper);
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;
+}
+.scrub-read b{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ── the light half: same page, ground swaps under you ── */
+.turn{background:var(--paper);color:var(--graphite);padding:clamp(56px,9vw,120px) 0}
+.turn h2{font-size:clamp(30px,5.6vw,60px);max-width:16ch}
+.turn .lede{font-size:clamp(17px,1.5vw,20px);color:var(--dim-l);max-width:44ch;margin:20px 0 0}
+.turn .btn{background:var(--graphite);color:var(--paper);margin-top:28px}
+.tiles{display:grid;gap:2px;margin-top:clamp(40px,6vw,72px);background:var(--line-l)}
+.tile{background:var(--paper);padding:clamp(24px,3.4vw,40px)}
+.tile b{display:block;font-size:clamp(30px,4.6vw,48px);font-weight:800;letter-spacing:-.04em;line-height:.9}
+.tile span{display:block;margin-top:10px;color:var(--dim-l);font-size:15px;max-width:26ch}
+
+/* play-on-approach: fires while still below the fold */
+[data-in]{opacity:0;transform:translateY(20px);transition:opacity .75s var(--ease),transform .75s var(--ease)}
+[data-in].on{opacity:1;transform:none}
+.lite [data-in]{opacity:1!important;transform:none!important}
+.lite #frame-b{opacity:1}
+.lite .scrub{height:auto;margin-top:0}
+.lite .scrub-stage{position:static;height:78svh}
+.lite .scrub-read{display:none}
+
+/* ═══ SCREEN 2 — BOOKING STEP ═══ */
+.bk{background:var(--paper);color:var(--graphite);padding:clamp(28px,4vw,52px) 0}
+.bk-in{max-width:700px;margin-inline:auto;padding-inline:var(--pad)}
+.bk-top{display:flex;gap:14px;align-items:center}
+.bk-top .av{
+  width:48px;height:48px;flex:0 0 48px;border-radius:50%;overflow:hidden;background:var(--line-l);
+}
+.bk-top .av img{width:100%;height:100%;object-fit:cover}
+.bk-top b{display:block;font-size:17px;font-weight:700}
+.bk-top span{font-size:14px;color:var(--dim-l)}
+.rail{display:flex;gap:0;margin:26px 0 0;font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:600}
+.rail div{flex:1;padding-bottom:9px;border-bottom:2px solid var(--line-l);color:var(--dim-l)}
+.rail div.done{border-bottom-color:var(--dim-l)}
+.rail div.on{border-bottom-color:var(--graphite);color:var(--graphite)}
+.bk h2{margin-top:26px;font-size:clamp(28px,5.4vw,46px)}
+.bk .sub{color:var(--dim-l);margin:12px 0 26px}
+.hours{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:1px;background:var(--line-l);border:1px solid var(--line-l)}
+.hr{
+  background:var(--paper);padding:18px 14px;cursor:pointer;font-size:17px;font-weight:600;
+  transition:background .14s var(--ease),color .14s var(--ease);
+}
+.hr:hover{background:var(--paper-2)}
+.hr.on{background:var(--graphite);color:var(--paper)}
+.hr.no{color:var(--line-l);cursor:not-allowed}
+.hr.no:hover{background:var(--paper)}
+.bk-foot{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:26px}
+.bk-foot .s{font-size:15px}
+.bk-foot .s b{font-weight:700;font-size:18px;display:block}
+.bk-foot .btn{margin-left:auto;background:var(--graphite);color:var(--paper)}
+
+/* empty proof */
+.empty-note{background:#0A0C0D;color:#9AA1A6;padding:12px var(--pad);font-size:13px}
+.empty-note b{color:var(--paper);text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:700}
+.svcs{border-top:1px solid var(--line-l)}
+.svc{
+  display:flex;gap:18px;align-items:baseline;padding:24px 0;border-bottom:1px solid var(--line-l);
+  cursor:pointer;transition:.18s var(--ease);
+}
+.svc:hover{padding-left:10px}
+.svc h3{font-size:clamp(22px,4vw,34px)}
+.svc p{margin:8px 0 0;color:var(--dim-l);font-size:15px;max-width:48ch}
+.svc .p{margin-left:auto;font-size:clamp(20px,3.4vw,30px);font-weight:800;letter-spacing:-.03em;white-space:nowrap}
+.svc .d{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim-l);font-weight:600;margin-top:6px}
+
+/* ═══ SCREEN 3 — DASHBOARD TODAY ═══ */
+.dash{background:var(--graphite);color:var(--paper);padding:clamp(26px,4vw,44px) 0 0}
+.dash-in{max-width:820px;margin-inline:auto;padding-inline:var(--pad)}
+.dash-h{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.dash-h h2{font-size:clamp(32px,6vw,52px)}
+.dash-h h2 .hair{color:var(--dim-d)}
+.dash-h .m{text-align:left}
+.dash-h .m b{display:block;font-size:clamp(26px,4.4vw,38px);font-weight:800;letter-spacing:-.035em;line-height:.95}
+.list{margin-top:28px;border-top:1px solid var(--line-d)}
+.it{
+  display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+  padding:18px 0;border-bottom:1px solid var(--line-d);cursor:pointer;
+  transition:background .15s var(--ease),padding .15s var(--ease);
+}
+.it:hover{background:var(--graphite-2);padding-inline:14px;margin-inline:-14px}
+.it .h{font-weight:600;font-size:15px;min-width:56px;color:var(--dim-d)}
+.it .n{font-weight:700;font-size:17px}
+.it .w{font-size:14px;color:var(--dim-d)}
+.it .a{font-size:19px;font-weight:700;text-align:right;letter-spacing:-.02em}
+.it .st{display:block;text-align:right;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-top:3px;color:var(--dim-d)}
+.it.now{background:var(--paper);color:var(--graphite);padding-inline:14px;margin-inline:-14px;border-radius:2px}
+.it.now .h,.it.now .w,.it.now .st{color:var(--dim-l)}
+.it.past{opacity:.45}
+.dtab{display:flex;max-width:820px;margin:22px auto 0;padding:0 var(--pad);border-top:1px solid var(--line-d)}
+.dtab a{flex:1;text-align:center;padding:14px 0 18px;text-decoration:none;color:var(--dim-d);
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;
+  border-top:2px solid transparent;margin-top:-1px}
+.dtab a.on{color:var(--paper);border-top-color:var(--paper)}
+
+@media (min-width:820px){
+  .nav ul{display:flex}
+  .turn .split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .tiles{grid-template-columns:repeat(3,1fr)}
+  .dash-h .m{text-align:right}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="plate-label"><b>Direction 4 — Approach</b>
+  <span>Not from a design skill — built from the code-level Apple read. Everything is spent on motion and nothing on ornament: no brand colour at all, one typeface, two shadows. The only colour on the page comes out of the photographs.</span></div>
+
+<!-- ════ SCREEN 1: THE SCRUB ════ -->
+<div class="plate-label">Screen 1 <span>· Landing hero — scroll it; the car goes from dull to corrected. The hold is 1.4 screens and the hero says so.</span></div>
+
+<header class="nav">
+  <div class="mk">detail<span>platform</span></div>
+  <ul><li><a href="#">What you get</a></li><li><a href="#">Pricing</a></li><li><a href="#">A real one</a></li></ul>
+  <a class="btn" href="#">Start free</a>
+</header>
+
+<section class="scrub" id="scrub">
+  <div class="scrub-stage">
+    <figure><img id="frame-a" src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=1600&q=68" alt="A car part-way through a detail, paint still dull"></figure>
+    <figure><img id="frame-b" src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=1600&q=68" alt="The same car finished, the paint corrected"></figure>
+    <div class="scrub-copy">
+      <h1>Sell the<span class="hair">difference.</span></h1>
+      <p>A website that opens the way your work ends.</p>
+      <a class="btn" href="#">See a real one</a>
+    </div>
+    <div class="scrub-read">Progress <b id="pct">0%</b> · held for 1.4 screens, then it lets go</div>
+  </div>
+</section>
+
+<section class="turn">
+  <div class="wrap">
+    <div class="split">
+      <div data-in>
+        <p class="cap">Why it moves at all</p>
+        <h2>Motion is the only thing here that is decorated.</h2>
+        <p class="lede">There is no brand colour on this page. No gradient, no glow, no second typeface. Everything that could be spent on ornament was spent on the one moment worth looking at — and the rest of the product stays out of the way.</p>
+        <a class="btn" href="#">Build mine</a>
+      </div>
+      <div data-in>
+        <div class="tiles" style="grid-template-columns:1fr">
+          <div class="tile"><b>666 KB</b><span>What one scrubbed clip costs at phone size — measured off Apple's own iPhone Air page, not estimated.</span></div>
+          <div class="tile"><b>1.4 screens</b><span>Exactly how long the hero holds you, declared on the hero itself. The site he called stuck held him for 18.3.</span></div>
+          <div class="tile"><b>3 sec</b><span>If the clip has not arrived by then, the still frame wins and nobody waits.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tiles" data-in>
+      <div class="tile"><b>Your hours</b><span>Only the times you can actually work are ever shown.</span></div>
+      <div class="tile"><b>Your prices</b><span>Quoted up front, deposit taken at the booking.</span></div>
+      <div class="tile"><b>Your name</b><span>On the domain, on the emails, on the receipt.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 2: BOOKING STEP ════ -->
+<div class="plate-label">Screen 2 <span>· Booking — pick a time</span></div>
+<section class="bk">
+  <div class="bk-in">
+    <div class="bk-top">
+      <div class="av"><img src="https://images.unsplash.com/photo-1622329821376-a19fd6002562?auto=format&fit=crop&w=200&q=70" alt=""></div>
+      <div><b>Gulf View Detailing</b><span>Mobile · Clearwater, FL</span></div>
+    </div>
+    <div class="rail"><div class="done">Service</div><div class="on">Time</div><div>Details</div></div>
+    <h2>Saturday 30 August</h2>
+    <p class="sub">Full Detail · 3 hrs · $220. Tap a start time.</p>
+    <div class="hours">
+      <div class="hr">8:00 AM</div>
+      <div class="hr on">9:00 AM</div>
+      <div class="hr no">10:30 AM</div>
+      <div class="hr">1:30 PM</div>
+      <div class="hr">3:00 PM</div>
+      <div class="hr no">4:30 PM</div>
+    </div>
+    <div class="bk-foot">
+      <div class="s">9:00 AM – 12:00 PM<b>$220 · $50 now</b></div>
+      <a class="btn" href="#">Hold this slot</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 2b: EMPTY ════ -->
+<div class="empty-note"><b>The empty proof</b> — this is the direction with the most to lose when there are no photographs, so here it is with none: a business that signed up an hour ago, two services, no gallery, no reviews.</div>
+<section class="bk">
+  <div class="bk-in">
+    <div class="bk-top">
+      <div class="av" style="display:grid;place-items:center;background:var(--graphite);color:var(--paper);font-weight:800;font-size:16px">RB</div>
+      <div><b>Ridgeback Detail Co.</b><span>Mobile · signed up today</span></div>
+    </div>
+    <div class="rail"><div class="on">Service</div><div>Time</div><div>Details</div></div>
+    <h2>What are we doing?</h2>
+    <p class="sub">Two things, done properly.</p>
+    <div class="svcs">
+      <div class="svc">
+        <div><h3>Wash &amp; Wax</h3><div class="d">90 minutes</div>
+          <p>Two-bucket hand wash, wheels and arches, hand-applied wax.</p></div>
+        <div class="p">$95</div>
+      </div>
+      <div class="svc">
+        <div><h3>Full Detail</h3><div class="d">3 hours</div>
+          <p>Everything in the wash, plus interior, glass and a machine polish.</p></div>
+        <div class="p">$220</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 3: DASHBOARD TODAY ════ -->
+<div class="plate-label">Screen 3 <span>· Dashboard — Today. Things load in; nothing animates on scroll.</span></div>
+<section class="dash">
+  <div class="dash-in">
+    <div class="dash-h">
+      <div>
+        <p class="cap">Saturday 30 August</p>
+        <h2>Four jobs. <span class="hair">Two done.</span></h2>
+      </div>
+      <div class="m"><b>$465</b><span class="cap">taken · $220 to come</span></div>
+    </div>
+    <div class="list">
+      <div class="it past"><div class="h">8:00</div>
+        <div><div class="n">Marcus Hill</div><div class="w">Wash &amp; Wax · Silver Civic</div></div>
+        <div><div class="a">$95</div><span class="st">Paid</span></div></div>
+      <div class="it past"><div class="h">10:00</div>
+        <div><div class="n">Dana Reyes</div><div class="w">Interior Deep Clean · Blue CR-V</div></div>
+        <div><div class="a">$150</div><span class="st">Paid</span></div></div>
+      <div class="it now"><div class="h">13:00</div>
+        <div><div class="n">Tom Whitaker</div><div class="w">Full Detail · Black F-150</div></div>
+        <div><div class="a">$220</div><span class="st">On it now</span></div></div>
+      <div class="it"><div class="h">16:30</div>
+        <div><div class="n">Priya Anand</div><div class="w">Wash &amp; Wax · White Model 3</div></div>
+        <div><div class="a">$95</div><span class="st">Deposit paid</span></div></div>
+    </div>
+  </div>
+  <nav class="dtab"><a class="on" href="#">Today</a><a href="#">Calendar</a><a href="#">Money</a><a href="#">Clients</a><a href="#">More</a></nav>
+</section>
+
+<script>
+(function(){
+  var html=document.documentElement;
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* .lite — webtactics' idea, Apple's timeout. One class turns every bit of
+     motion into its finished state, because the finished state is real CSS. */
+  function lite(why){ html.classList.add('lite'); html.dataset.liteReason=why; }
+  if(reduce || /[?&]lite=1/.test(location.search)) lite(reduce?'reduced-motion':'query');
+  var t=setTimeout(function(){ if(!html.classList.contains('lite')) lite('load-timeout'); },3000);
+  var imgs=[document.getElementById('frame-a'),document.getElementById('frame-b')];
+  Promise.all(imgs.map(function(i){return i.complete?1:new Promise(function(r){i.onload=i.onerror=r})}))
+    .then(function(){ clearTimeout(t); });
+
+  /* Play-on-approach. Apple: data-inline-media-play-keyframe start "t - 65vh". */
+  var io=new IntersectionObserver(function(rows){
+    rows.forEach(function(r){ if(r.isIntersecting){ r.target.classList.add('on'); io.unobserve(r.target); }});
+  },{rootMargin:'0px 0px -30% 0px'});
+  [].forEach.call(document.querySelectorAll('[data-in]'),function(e){io.observe(e)});
+
+  /* The scrub. Progress maps onto ordinary scroll position — no pin.
+     Two straight segments with a slow tail, the way Apple splits
+     progress [0, .87] then [.87, 1] instead of easing a single range. */
+  var sec=document.getElementById('scrub'), pct=document.getElementById('pct'), b=document.getElementById('frame-b');
+  var queued=false;
+  function seg(x){ return x<.72 ? (x/.72)*.87 : .87 + ((x-.72)/.28)*.13; }
+  function draw(){
+    queued=false;
+    if(html.classList.contains('lite')) return;
+    var r=sec.getBoundingClientRect(), travel=sec.offsetHeight-innerHeight;
+    var x=Math.max(0,Math.min(1,(-r.top)/(travel||1)));
+    var p=seg(x);
+    b.style.setProperty('--p',p.toFixed(3));
+    pct.textContent=Math.round(p*100)+'%';
+  }
+  addEventListener('scroll',function(){ if(!queued){queued=true;requestAnimationFrame(draw)} },{passive:true});
+  addEventListener('resize',draw,{passive:true});
+  draw();
+})();
+</script>
+</body>
+</html>

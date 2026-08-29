@@ -976,3 +976,69 @@ Do not commit them. `screenshots/` added to `.gitignore` rather than merely
 left untracked, because sessions here routinely use `git add -A` and one of
 them would eventually have swept 21 MB into a public repo's permanent history.
 The comment in `.gitignore` records why. Closes the open item above.
+
+## Phase 1.3 — four directions (2026-08-29)
+
+### Apple was read at the code level first, and it changed the plan
+
+The roadmap made this the mandatory first task of 1.3 and it earned its place.
+Eight product pages read, the iPhone 17 Pro page in full, assets probed by byte
+range. Written up in `docs/references/APPLE-READ.md`. Three findings changed
+what got built:
+
+- **Apple's dominant technique is play-on-approach, not scroll-scrubbing.**
+  Play-on-approach: 8 of 8 pages. Scrub: 3 of 8, once or twice each, and
+  absent entirely from the flagship iPhone 17 Pro page. `DESIGN-BRIEF.md`
+  Conflict 1 assumed the reverse. So the scrub was demoted from "the
+  direction" to "one budgeted sequence in one direction", and the cheap
+  technique got used in two.
+- **Apple's scrub is never pinned and is never the hero.** Progress maps onto
+  ordinary scroll. That dissolves Conflict 3 ("a hero that transforms" versus
+  "scrolling that doesn't take you anywhere") — they are not the same
+  mechanism after all.
+- **Apple does no device tiering whatsoever** — zero `saveData`,
+  `deviceMemory`, `hardwareConcurrency`, `effectiveType`. Their whole
+  degradation strategy is a per-element load timeout plus a designed still
+  frame. This directly contradicts `DESIGN-BRIEF.md`'s recommendation to adopt
+  riangle's tier system. Not settled here; recorded for 1.5, with the
+  recommendation being Apple's approach plus riangle's fps governor only.
+
+### Four, not five
+
+Five variations on one idea would reproduce the exact complaint that started
+the redesign (`design-brief.md` B3: it read as machine-made). Four with
+genuinely separate arguments beat five with overlapping ones, and the roadmap
+allows three to five. One skill each for three of them, per the roadmap's own
+rule; the fourth is built from the Apple read rather than a skill, because at
+that point the evidence had more to say than another skill would.
+
+### The empty state is in all four, not one
+
+The prompt asked for any dense direction to be shown empty. All four are,
+because all four are photograph-dependent to some degree and the brief calls
+the empty state the real product. Direction 2 goes further and makes the empty
+case its hero.
+
+### Direction 4 pins, and says so on screen
+
+`APPLE-READ.md` proves Apple does not pin its scrubs. Direction 4 does, because
+the owner's lead idea is specifically a *hero* that transforms, and at scroll 0
+there is no approach to map progress onto. Rather than hide that, it follows
+the `DESIGN-BRIEF.md` pin rule: it declares its length in the hero itself
+("held for 1.4 screens"), stays under the 2-screen ceiling, delivers a whole
+beat inside the hold, and sets `touch-action: pan-y`. An earlier draft printed
+"nothing is pinned", which was simply false; the claim was corrected, not the
+build.
+
+### A glow was cut from direction 1 on its own argument
+
+The design hook flagged a jade glow on the seam as the AI-default "cool" look.
+It was right, and more to the point it contradicted direction 1's own claim to
+a near-zero decoration budget. All four glows removed; the seam is a hard edge.
+
+### Orange stayed out
+
+`design-brief.md` records the owner ruling out orange on subscrr. A sodium-
+amber accent was drafted for direction 1 and dropped for that reason. Direction
+3's butter yellow is deliberately a yellow, not an orange; if it reads as
+orange to the owner, that is a reason to reject direction 3 and worth saying.

@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en" data-dir="showroom">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Direction 2 — Showroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+/* ═══ DIRECTION 2 — SHOWROOM ══════════════════════════════════════════
+   ARGUMENT (one line): we sell a website, so the page shows the website —
+   every claim is a picture of the thing, and text is only the caption.
+   Grounds ALTERNATE, paper ↔ marine, which is the #1-ranked finding in
+   DESIGN-BRIEF.md. Photos are duotoned + grained so a tenant's phone
+   snapshot looks deliberate. Type: Anton against Instrument Sans — a real
+   weight extreme, not 400 against 600.
+   Photo credit (in code, never on the page): Unsplash — Brad Starkey,
+   Nik, Deniz Demirci, Zulfahmi Khani, Jonathan Gallegos.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root{
+  --paper:#EFF1EE;        /* cool paper — green-grey, deliberately not cream */
+  --paper-2:#E1E5E0;
+  --marine:#12324F;       /* the alternate ground: deep, blue, never black */
+  --marine-2:#0C2540;
+  --ink:#0F1714;          /* near-black with a green cast */
+  --ink-60:#5A6560;
+  --ink-40:#8B948F;
+  --signal:#D22D3A;       /* one accent. appears only on things you can act on */
+  --chalk:#F7F9F6;
+  --pad:clamp(20px,5vw,72px);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Instrument Sans',sans-serif;font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;
+}
+img{max-width:100%;display:block}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+h1,h2,h3{margin:0}
+
+.anton{font-family:Anton,sans-serif;font-weight:400;text-transform:uppercase;letter-spacing:-.005em;line-height:.86}
+.cap{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink-40)}
+.band{padding:clamp(44px,7vw,104px) var(--pad)}
+.band-in{max-width:1160px;margin:0 auto}
+.dark{background:var(--marine);color:var(--chalk)}
+.dark .cap{color:#7E9BB4}
+.dark a{color:var(--chalk)}
+
+/* mockup furniture */
+.plate-label{
+  padding:13px var(--pad);background:var(--ink);color:#7E8B85;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;
+  display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;
+}
+.plate-label b{color:var(--signal)}
+.plate-label span{text-transform:none;letter-spacing:.01em;color:#66736E;font-weight:400}
+
+/* buttons */
+.btn{
+  display:inline-block;background:var(--signal);color:var(--chalk);text-decoration:none;
+  font-weight:600;font-size:15px;padding:13px 24px;border:0;cursor:pointer;
+  transition:transform .16s var(--ease),background .16s var(--ease);
+}
+.btn:hover{background:#B01F2C;transform:translateY(-2px)}
+.btn-line{
+  display:inline-block;text-decoration:none;color:inherit;font-weight:600;font-size:15px;
+  padding:13px 24px;border:1.5px solid currentColor;transition:.16s var(--ease);
+}
+.btn-line:hover{background:var(--ink);color:var(--paper)}
+.dark .btn-line:hover{background:var(--chalk);color:var(--marine)}
+
+/* ── nav ── */
+.nav{
+  display:flex;align-items:center;gap:20px;padding:16px var(--pad);
+  border-bottom:1px solid var(--paper-2);background:var(--paper);
+}
+.mark{font-family:Anton,sans-serif;font-size:19px;letter-spacing:.01em;text-transform:uppercase}
+.mark i{font-style:normal;color:var(--signal)}
+.nav nav{display:none;gap:24px;margin-left:auto;font-size:15px}
+.nav nav a{color:var(--ink-60);text-decoration:none;transition:.15s var(--ease)}
+.nav nav a:hover{color:var(--ink)}
+.nav .btn{margin-left:auto;padding:9px 18px;font-size:14px}
+.nav nav+.btn{margin-left:0}
+
+/* ═══ SCREEN 1 — LANDING HERO ═══ show the product, caption it ═══ */
+.hero{padding:clamp(34px,5vw,64px) var(--pad) 0}
+.hero-in{max-width:1160px;margin:0 auto;display:grid;gap:32px}
+.hero h1{font-size:clamp(52px,13.5vw,132px)}
+.hero h1 em{font-style:normal;display:block;color:var(--signal)}
+.hero-sub{font-size:clamp(17px,1.5vw,21px);color:var(--ink-60);max-width:38ch;margin:20px 0 0}
+.hero-act{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:28px}
+.hero-price{font-size:14px;color:var(--ink-40)}
+.hero-price b{color:var(--ink);font-weight:600}
+
+/* the phone: this IS the product, and it is deliberately a two-service,
+   one-photo business — the empty case, shown as the hero. */
+.phone{
+  width:min(100%,300px);margin-inline:auto;background:var(--ink);border-radius:34px;
+  padding:9px;box-shadow:0 40px 70px -30px rgba(15,23,20,.55),0 3px 10px rgba(15,23,20,.14);
+}
+.phone-screen{background:var(--chalk);border-radius:26px;overflow:hidden}
+.ph-hero{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--marine)}
+.ph-hero img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.06)}
+.ph-hero::before{ /* duotone: marine shadows, paper highlights */
+  content:"";position:absolute;inset:0;z-index:2;mix-blend-mode:screen;
+  background:linear-gradient(155deg,#12324F,#4E7EA0 55%,#DCE6E2);
+}
+.ph-hero::after{ /* grain — the "Vox thing", 6% */
+  content:"";position:absolute;inset:0;z-index:3;opacity:.34;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>");
+}
+.ph-name{
+  position:absolute;left:14px;right:14px;bottom:12px;z-index:4;color:var(--chalk);
+  font-family:Anton,sans-serif;font-size:23px;line-height:.94;text-transform:uppercase;
+  text-shadow:0 1px 14px rgba(9,22,34,.6);
+}
+.ph-body{padding:14px}
+.ph-row{
+  display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:11px 0;border-bottom:1px solid var(--paper-2);
+}
+.ph-row:last-of-type{border-bottom:0}
+.ph-row b{font-weight:600;font-size:15px}
+.ph-row span{font-size:12px;color:var(--ink-40);display:block;font-weight:400}
+.ph-row i{font-style:normal;font-weight:600;font-size:15px}
+.ph-cta{
+  display:block;text-align:center;background:var(--signal);color:var(--chalk);
+  padding:12px;font-weight:600;font-size:15px;margin-top:8px;text-decoration:none;
+}
+.phone-cap{text-align:center;margin:16px auto 0;max-width:300px}
+
+/* ── the alternating proof bands: each is a picture with a caption ── */
+.shot{position:relative;overflow:hidden;background:var(--marine-2)}
+.shot img{width:100%;display:block;filter:grayscale(1) contrast(1.05)}
+.shot::before{content:"";position:absolute;inset:0;z-index:2;mix-blend-mode:screen;
+  background:linear-gradient(155deg,#12324F,#4E7EA0 55%,#DCE6E2)}
+.shot::after{content:"";position:absolute;inset:0;z-index:3;opacity:.32;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)'/></svg>")}
+.shot.plain::before,.shot.plain::after{display:none}
+.shot.plain img{filter:none}
+
+.duo{display:grid;gap:26px;align-items:center}
+.duo h2{font-size:clamp(30px,5.4vw,58px);max-width:14ch}
+.duo p{font-size:17px;max-width:40ch;color:var(--ink-60);margin:14px 0 0}
+.dark .duo p{color:#A9C0D2}
+
+/* the receipt: a real thing, not a stat card */
+.receipt{
+  background:var(--chalk);color:var(--ink);padding:22px;max-width:400px;
+  box-shadow:0 30px 60px -28px rgba(9,22,34,.7);
+}
+.receipt hr{border:0;border-top:1px dashed var(--paper-2);margin:14px 0}
+.receipt .r{display:flex;justify-content:space-between;gap:12px;font-size:15px;padding:3px 0}
+.receipt .r b{font-weight:600}
+.receipt .tot{font-family:Anton,sans-serif;font-size:30px;text-transform:uppercase}
+.receipt .tot span{font-size:14px;font-family:'Instrument Sans',sans-serif;color:var(--ink-40);
+  text-transform:none;letter-spacing:0}
+
+/* reveal on approach — Apple's play-keyframe, borrowed: fires 65vh early */
+[data-rise]{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+[data-rise].in{opacity:1;transform:none}
+
+/* ═══ SCREEN 2 — BOOKING STEP ═══ */
+.book-head{display:flex;gap:14px;align-items:center;margin-bottom:22px}
+.book-head .m{width:46px;height:46px;background:var(--marine);color:var(--chalk);display:grid;
+  place-items:center;font-family:Anton,sans-serif;font-size:17px;flex:0 0 46px}
+.book-head b{display:block;font-weight:600;font-size:17px}
+.book-head span{font-size:14px;color:var(--ink-60)}
+.steps{display:flex;gap:0;margin:0 0 30px;border-top:2px solid var(--paper-2)}
+.steps div{flex:1;padding:10px 0 0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  font-weight:600;color:var(--ink-40);margin-top:-2px;border-top:2px solid transparent}
+.steps div.done{color:var(--ink-60);border-top-color:var(--ink-40)}
+.steps div.on{color:var(--signal);border-top-color:var(--signal)}
+.slotgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px;background:var(--paper-2);border:1px solid var(--paper-2)}
+.slot{
+  background:var(--paper);padding:18px 16px;cursor:pointer;transition:.15s var(--ease);
+  display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+}
+.slot:hover{background:var(--chalk)}
+.slot b{font-size:18px;font-weight:600}
+.slot span{font-size:12px;color:var(--ink-40);letter-spacing:.1em;text-transform:uppercase}
+.slot.on{background:var(--signal);color:var(--chalk)}
+.slot.on span{color:#F6C9CC}
+.slot.gone{background:var(--paper-2);color:var(--ink-40);cursor:not-allowed}
+.slot.gone:hover{background:var(--paper-2)}
+.book-foot{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:26px}
+.book-foot .sum{font-size:16px}
+.book-foot .sum b{font-weight:600}
+.book-foot .btn{margin-left:auto}
+
+/* ═══ SCREEN 3 — DASHBOARD TODAY ═══ */
+.dash-top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;
+  padding-bottom:22px;border-bottom:2px solid var(--marine-2)}
+.dark .dash-top{border-bottom-color:#1F4A6E}
+.dash-top h2{font-size:clamp(34px,6.5vw,58px)}
+.dash-money{text-align:right}
+.dash-money b{font-family:Anton,sans-serif;font-size:clamp(30px,5vw,46px);display:block;line-height:.9}
+.rows{margin-top:2px}
+.row{
+  display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+  padding:17px 4px;border-bottom:1px solid #1F4A6E;cursor:pointer;transition:.15s var(--ease);
+}
+.row:hover{background:#173D5E;padding-left:12px;padding-right:12px;margin-inline:-12px}
+.row .t{font-weight:600;font-size:15px;min-width:60px;color:#9FBCD1}
+.row .who{font-weight:600;font-size:17px}
+.row .what{font-size:14px;color:#8FAEC4}
+.row .amt{font-family:Anton,sans-serif;font-size:22px}
+.row .st{display:block;text-align:right;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:600;margin-top:2px}
+.row.now{background:#173D5E;margin-inline:-12px;padding-inline:12px}
+.row.now .st{color:var(--signal)}
+.row.now .t{color:var(--chalk)}
+.row.was{opacity:.55}
+.row.was .st{color:#8FAEC4}
+.row.next .st{color:#9FBCD1}
+.tab{display:flex;border-top:1px solid #1F4A6E;margin-top:30px}
+.tab a{flex:1;text-align:center;padding:14px 4px;color:#8FAEC4;text-decoration:none;font-size:11px;
+  letter-spacing:.12em;text-transform:uppercase;font-weight:600;border-top:2px solid transparent;margin-top:-1px}
+.tab a.on{color:var(--chalk);border-top-color:var(--signal)}
+
+@media (min-width:820px){
+  .nav nav{display:flex}
+  .hero-in{grid-template-columns:1.15fr .85fr;align-items:center;gap:56px}
+  .duo{grid-template-columns:1fr 1fr;gap:48px}
+  .duo.flip>*:first-child{order:2}
+  .phone{width:300px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important}
+  [data-rise]{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="plate-label"><b>Direction 2 — Showroom</b>
+  <span>We sell a website, so the page shows the website. Grounds alternate paper ↔ marine. Photos duotoned and grained so a tenant's phone snapshot looks deliberate. Anton against Instrument Sans.</span></div>
+
+<!-- ════ SCREEN 1: LANDING HERO ════ -->
+<div class="plate-label">Screen 1 <span>· Landing hero</span></div>
+<header class="nav">
+  <div class="mark">Detail<i>·</i>Platform</div>
+  <nav><a href="#">What you get</a><a href="#">Pricing</a><a href="#">A real one</a></nav>
+  <a class="btn" href="#">Start free</a>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <div>
+      <h1 class="anton">Your shop.<br><em>On a phone.</em></h1>
+      <p class="hero-sub">This is a real customer's site — built from what its owner typed in, in one afternoon. Yours works the same way.</p>
+      <div class="hero-act">
+        <a class="btn" href="#">Build mine</a>
+        <a class="btn-line" href="#">See it live</a>
+      </div>
+      <p class="hero-price"><b>$499</b> to set up · <b>$40</b> a month · cancel any time</p>
+    </div>
+
+    <div>
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="ph-hero">
+            <img src="https://images.unsplash.com/photo-1632823469850-2f77dd9c7f93?auto=format&fit=crop&w=800&q=70" alt="A detailer hand-waxing the hood of a car">
+            <div class="ph-name">Gulf View<br>Detailing</div>
+          </div>
+          <div class="ph-body">
+            <div class="ph-row"><div><b>Wash &amp; Wax</b><span>90 min</span></div><i>$95</i></div>
+            <div class="ph-row"><div><b>Full Detail</b><span>3 hrs</span></div><i>$220</i></div>
+            <a class="ph-cta" href="#">Book a time</a>
+          </div>
+        </div>
+      </div>
+      <p class="cap phone-cap">Two services. One photo. No reviews yet. Nothing else.</p>
+    </div>
+  </div>
+</section>
+
+<!-- band 2: marine -->
+<section class="band dark">
+  <div class="band-in duo" data-rise>
+    <div>
+      <h2 class="anton">They book it. You just turn up.</h2>
+      <p>Open hours, service times and travel gaps are already in there, so the only times a customer can see are times you can actually work.</p>
+    </div>
+    <div class="receipt">
+      <div class="cap">Booking confirmed</div>
+      <div class="r" style="margin-top:10px"><span>Full Detail</span><b>$220</b></div>
+      <div class="r"><span>Saturday 30 Aug, 9:00 AM</span><b>3 hrs</b></div>
+      <div class="r"><span>Deposit taken</span><b>$50</b></div>
+      <hr>
+      <div class="r"><span class="tot">Due<span> on the day</span></span><span class="tot">$170</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- band 3: paper, full-bleed picture -->
+<section class="band">
+  <div class="band-in duo flip" data-rise>
+    <div class="shot"><img src="https://images.unsplash.com/photo-1605164598708-25701594473e?auto=format&fit=crop&w=1000&q=70" alt="A car under snow foam in a wash bay"></div>
+    <div>
+      <h2 class="anton">Your photos, made to look intentional.</h2>
+      <p>Every picture a customer uploads gets the same treatment — one tone, one grain. A phone snapshot in a driveway ends up looking like it was art-directed.</p>
+      <p class="cap" style="margin-top:18px">Same photo, untreated →</p>
+      <div class="shot plain" style="margin-top:10px;max-width:230px">
+        <img src="https://images.unsplash.com/photo-1605164598708-25701594473e?auto=format&fit=crop&w=500&q=70" alt="The same photo without the tone and grain treatment">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 2: BOOKING STEP ════ -->
+<div class="plate-label">Screen 2 <span>· Booking — pick a time</span></div>
+<section class="band" style="padding-block:clamp(30px,4vw,56px)">
+  <div class="band-in" style="max-width:760px">
+    <div class="book-head">
+      <div class="m">GV</div>
+      <div><b>Gulf View Detailing</b><span>Mobile · Clearwater, FL</span></div>
+    </div>
+    <div class="steps"><div class="done">Service</div><div class="on">Time</div><div>Details</div></div>
+    <h2 class="anton" style="font-size:clamp(30px,5.4vw,52px)">Saturday<br>30 August</h2>
+    <p style="color:var(--ink-60);margin:12px 0 24px">Full Detail · 3 hrs · $220. Tap a start time.</p>
+    <div class="slotgrid">
+      <div class="slot"><b>8:00</b><span>AM</span></div>
+      <div class="slot on"><b>9:00</b><span>AM</span></div>
+      <div class="slot gone"><b>10:30</b><span>Taken</span></div>
+      <div class="slot"><b>1:30</b><span>PM</span></div>
+      <div class="slot"><b>3:00</b><span>PM</span></div>
+      <div class="slot gone"><b>4:30</b><span>Taken</span></div>
+    </div>
+    <div class="book-foot">
+      <div class="sum">9:00 AM–12:00 PM · <b>$220</b>, $50 now</div>
+      <a class="btn" href="#">Hold this slot</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════ SCREEN 3: DASHBOARD TODAY ════ -->
+<div class="plate-label">Screen 3 <span>· Dashboard — Today (the dark band is the working surface)</span></div>
+<section class="band dark" style="padding-block:clamp(28px,4vw,52px)">
+  <div class="band-in" style="max-width:860px">
+    <div class="dash-top">
+      <div>
+        <div class="cap">Saturday 30 August</div>
+        <h2 class="anton" style="margin-top:8px">Four jobs</h2>
+      </div>
+      <div class="dash-money">
+        <b>$465</b><span class="cap">taken · $220 to come</span>
+      </div>
+    </div>
+    <div class="rows">
+      <div class="row was"><div class="t">8:00</div>
+        <div><div class="who">Marcus Hill</div><div class="what">Wash &amp; Wax · Silver Civic</div></div>
+        <div><div class="amt">$95</div><span class="st">Paid</span></div></div>
+      <div class="row was"><div class="t">10:00</div>
+        <div><div class="who">Dana Reyes</div><div class="what">Interior Deep Clean · Blue CR-V</div></div>
+        <div><div class="amt">$150</div><span class="st">Paid</span></div></div>
+      <div class="row now"><div class="t">13:00</div>
+        <div><div class="who">Tom Whitaker</div><div class="what">Full Detail · Black F-150</div></div>
+        <div><div class="amt">$220</div><span class="st">On it now</span></div></div>
+      <div class="row next"><div class="t">16:30</div>
+        <div><div class="who">Priya Anand</div><div class="what">Wash &amp; Wax · White Model 3</div></div>
+        <div><div class="amt">$95</div><span class="st">Deposit paid</span></div></div>
+    </div>
+    <div class="tab"><a class="on" href="#">Today</a><a href="#">Calendar</a><a href="#">Money</a><a href="#">Clients</a><a href="#">More</a></div>
+  </div>
+</section>
+
+<script>
+/* Play-on-approach, borrowed from Apple's data-inline-media-play-keyframe:
+   the band starts moving while it is still 65vh below the fold, so by the
+   time it arrives it has already finished. Nothing pins; scroll never stalls. */
+(function(){
+  var els=[].slice.call(document.querySelectorAll('[data-rise]'));
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    els.forEach(function(e){e.classList.add('in')}); return;
+  }
+  var io=new IntersectionObserver(function(rows){
+    rows.forEach(function(r){ if(r.isIntersecting){ r.target.classList.add('in'); io.unobserve(r.target); } });
+  },{rootMargin:'0px 0px -35% 0px'});
+  els.forEach(function(e){io.observe(e)});
+})();
+</script>
+</body>
+</html>
