@@ -1296,6 +1296,79 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## Building the marketing rewrite: what was mine, and one pre-ship blocker (2026-08-29)
+
+The copy is the owner's approved deck and is used verbatim. These are the
+calls that were not in it.
+
+- **The page grew from 9.47 screens to 12.72 at 1440.** "The page must not get
+  longer" was his instruction twice during 1.4; the deck he has since approved
+  adds three sections, and "whatever it comes back with, we have to adapt to
+  it" is the later instruction. So the growth is sanctioned, not overlooked.
+  Recorded because a later session reading only the 1.4 note would try to cut
+  it back.
+
+- **His motion rule was met by addition, not by preservation alone.** Thirteen
+  mechanics went in and sixteen came out; skeletons went from eight to twelve
+  and no two sections share one. The three new sections each got a mechanic of
+  their own rather than inheriting one, because a new section carrying no
+  motion is how a page quietly flattens across a rewrite even when nothing was
+  explicitly deleted.
+
+- **A second light ground was added, which the deck did not ask for.** With
+  three sections appended to the back half, one light band left eight dark
+  screens in a row. The comparison table takes it. Ground rhythm is structure,
+  which his rule assigns to me; if he dislikes it, it is one property.
+
+- **The FAQ uses `<details>`, not a hand-rolled accordion.** No JavaScript, no
+  ARIA to get wrong, keyboard and screen-reader behaviour for free, and it
+  works if every script on the page fails.
+
+- **"Questions." as a heading is mine.** The deck gives that section an
+  eyebrow and eight pairs and no title, and a section with no heading is a
+  hole in the document outline. It is a label, not a claim.
+
+- **The $520 strip was KEPT although the deck omits it.** See the roadmap and
+  README; it is an open question for him, not a decision I took. Kept rather
+  than cut because his rule is that a mechanic is not spent silently, and
+  because it is the payoff of the section the deck marks "unchanged".
+
+- **No photograph of the owner was invented.** The deck asks for one of him
+  working. A stock photo of a stranger under a first-person paragraph naming
+  his real business would be a picture of someone who is not him, presented as
+  him, on a page selling that business. Nothing was substituted; the section
+  ships as type until he supplies the image, and the two-column CSS is written
+  and waiting.
+
+### ⚠ PRE-SHIP BLOCKER: four competitor price ranges are on the page and none
+### of them are verified
+
+Section 7's comparison table prints, from the deck: "Per lead, booked or not"
+(Yelp, Thumbtack), "$70–$250 a month" (detailing software), "$2,000–$5,000,
+then again for changes" (a site you paid for once). The pricing section
+repeats the software range.
+
+**This reverses an earlier decision in this same file.** During 1.4 the call
+was recorded as "No competitor price is printed on the page — the $2,000–8,000
+range is research, not a number this page can stand behind." The deck
+overrides it, and the owner approved the deck, so it is built. But the deck
+imposes its own condition and that condition is not yet met:
+
+> "Verify all four price ranges against their own pricing pages before this
+> ships. Understate rather than overstate."
+
+Two of the four are not fixed prices at all — Yelp and Thumbtack sell leads at
+auction — which is why that row states a MODEL rather than a figure, and that
+is the safe form for it. The other two are checkable and have not been
+checked.
+
+**Nothing here may reach the real landing page until each row is verified
+against the source's own pricing page.** This is a direction file, so the
+claims are not public yet; roadmap 2.2 is where they become public, and 7.3 is
+the final pass that must catch it if 2.2 does not. Printing a competitor's
+price wrongly is the one claim on this page that a third party, rather than a
+customer, would object to.
+
 ## The owner's review of the repointed page, and the rule it sets (2026-08-29)
 
 He reviewed the 1.4 page on his iPhone and answered the three questions that

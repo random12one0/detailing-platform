@@ -160,20 +160,51 @@ is kept; the entire visual design restarts from scratch.
       approved, and the bottom-of-page glitch he reported is reproduced and
       fixed.**
 
-      **THE ITEM STAYS UNCHECKED, AND WHAT IS LEFT IS NOT A LOOSE END — it is
-      a decision he has taken and a deliverable he is producing.** He is
-      running the page's full text through a separate marketing AI and will
-      paste back its recommendations on layout, running order and wording:
-      *"whatever it comes back with, we have to adapt to it."* That rework is
-      the remainder of 1.4. He also set the constraint on it, and it is not
-      negotiable by whoever does the work: *"I don't want us to lose any of
-      that cool animations and scrolling effects that we have. We just might
-      have to change them up... switch them, the order, maybe completely...
-      redo some of them."* **Copy and section order are the marketing pass's
-      to change; the motion is not spendable.** Full reasoning, including his
-      view that the new hero is slightly worse than the old one and why it
-      was NOT reverted, is in `DECISIONS.md` under "The owner's review of the
-      repointed page".
+      **THE MARKETING REWRITE IS BUILT — 2026-08-29.** He ran the page's text
+      through a separate marketing AI, approved what came back and handed it
+      over as a finished copy deck ("Approved by the owner. Build this."). It
+      is built, verbatim, and verified: eleven deck sections plus the kept
+      strip, three of them new. Write-up in
+      `docs/design-directions/README.md` "Round eight"; the calls that were
+      mine rather than the deck's are in `DECISIONS.md`.
+
+      His constraint was met by addition: **thirteen motion mechanics went in
+      and sixteen came out**, skeletons went from eight to twelve, and no two
+      sections share one. That constraint stands for any future rework of
+      this page — *"I don't want us to lose any of that cool animations and
+      scrolling effects... we might have to change them up, switch them, the
+      order, maybe completely redo some of them."* Copy and order are the
+      marketing pass's to change; the motion is not spendable.
+
+      **The page is now 12.72 screens at 1440, against 9.47.** Three new
+      sections. "The page must not get longer" was his 1.4 instruction and the
+      deck he has since approved supersedes it — flagged so a later session
+      does not try to cut it back on the strength of the older note.
+
+      **FOUR THINGS ONLY HE CAN CLOSE, and the item stays unchecked until
+      they are:**
+      1. **A photo of him working**, for the "who built it" section. It cannot
+         be faked — a stock stranger under a first-person paragraph naming his
+         real business would be a picture of someone who is not him. The
+         section ships as type until he sends one; the two-column CSS is
+         written and waiting.
+      2. **That section's words are his.** The deck's own note: it is "the
+         only section on the page where your voice matters more than the copy
+         being good." What is there is the deck's placeholder.
+      3. **The four competitor price ranges are unverified**, and the deck
+         itself demands they be checked against each source's own pricing page
+         before shipping. **Recorded as a PRE-SHIP BLOCKER in DECISIONS.md** —
+         it reverses an earlier decision in that file not to print competitor
+         prices at all.
+      4. **The $520 strip is kept and the deck never mentions it.** Keep or
+         cut is his call; it is the payoff of the section above it and carries
+         a mechanic nothing else does, which is why it was not deleted
+         quietly.
+
+      Also recorded and NOT acted on: he finds the 1.4 hero slightly worse than
+      the old rotating "DMs" line. The deck replaced that hero anyway, so the
+      conflict is moot unless he still dislikes the new one. See `DECISIONS.md`
+      under "The owner's review of the repointed page".
 
       Done and verified: hero headline and rotating tail; hero lede carrying
       both halves; "Stop booking jobs in your DMs" moved down to head the

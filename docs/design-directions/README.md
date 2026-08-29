@@ -685,6 +685,160 @@ re-order them, rebuild them; do not quietly end up with fewer because a new
 copy deck was easier to lay out flat. Read "Eight sections, eight skeletons"
 above before re-laying-out the page, so the rework knows what it is carrying.
 
+## Round eight — the marketing rewrite, built (2026-08-29)
+
+The owner ran the page's full text through a separate marketing AI, approved
+what came back, and handed it over as a finished copy deck: *"Approved by the
+owner. Build this."* This is that build. The deck's copy is used verbatim
+everywhere; where a decision was mine rather than the deck's, it says so
+below.
+
+His standing rule governed the whole pass: **copy and section order belong to
+the marketing deck; the motion does not.** So the first thing to report is the
+motion audit.
+
+### The motion audit — nothing was spent, three things were added
+
+| mechanic | before | after |
+|---|---|---|
+| rotating typewriter | on what they lack | **kept**, re-pointed to five benefits |
+| messages become the schedule | pinned two-column transfer | **kept, untouched** |
+| rolling count-up figures | strip + pricing | **kept** |
+| ruled rows lighting on approach | hover, and by position on touch | **kept** |
+| light ground + object breaking the edge | one band | **kept**, and a second light ground added |
+| horizontal sticky rail | three steps | **kept** |
+| always-on ground: two drifting lights, dot lattice, grain, pointer light | | **kept** |
+| weighted scroll | | **kept** |
+| reversible position-driven reveals | | **kept** |
+| line-masked headlines | | **kept** |
+| dashboard empty state fading on the first job | | **kept** |
+| glass nav giving screen back | | **kept** |
+| pointer tilt and glow | | **kept** |
+| **words brightening as they cross the reading line** | — | **NEW** |
+| **native disclosure open/close** | — | **NEW** |
+| **an accent-lit closing ground** | — | **NEW** |
+
+Thirteen mechanics in, sixteen out. Skeletons went from eight to twelve, and
+no two sections share one — the grammar he set in 1.3 ("no one scroll area,
+one page looked the same") still holds at the longer length.
+
+### What the deck changed
+
+- **Hero.** New headline, fixed and permanent: *"A real website for your
+  detailing business."* The typewriter moved off it onto a line of its own
+  below, rotating five benefits instead of four absences — the deck's phrase
+  is "the benefit instead of the insult". The price left the hero for the
+  pricing section, and the button gained *"Built by a detailer who got tired
+  of booking jobs at 11pm."*
+- **The website section moved up**, from after "what you get" to before it,
+  and got a new heading, a new lede and a fourth tick. The deck cut the "LIVE
+  MARKUP, NOT A SCREENSHOT" caption.
+- **All four "what you get" items are new**, and the order is the argument:
+  getting booked leads, and "fewer people forget" — which was not in the old
+  four at all — is third. The money summary was demoted out of the four and
+  is now a caption on the dashboard it belongs to, which is what the deck
+  asked for.
+- **Three new sections**: who built it, what you're using now, and the
+  questions. Plus a closing CTA.
+- **Rail and pricing copy** tightened; the founding flag is now "3 founding
+  spots".
+
+### The three new sections, and why each has the shape it has
+
+**Who built it** gets the only layout on the page with no object, no rule, no
+column and no figure — everything above it is the product describing itself,
+and this is one person talking. Its mechanic is new: the words brighten as
+they cross the reading line, so the statement is taken at the pace it would be
+spoken. One custom property is written per scroll frame onto the paragraph and
+each word resolves its own colour from its index in CSS, so a forty-word
+paragraph costs exactly what a four-word one costs. The dim end is 55% of the
+bone, **measured at 5.65:1** — a word that has not brightened yet is still on
+screen and still has to clear the contrast floor, and 55% clears the strict
+body floor, not just the large-text one.
+
+**What you're using now** is the only table on the page, and it is a table
+because a comparison of four options across two axes genuinely is one. It gets
+the second light ground — that is rhythm work as much as emphasis, because the
+deck adds three sections to the back half and one light band would have left
+eight dark screens in a row. The last row is the only lit one, inverted to
+near-black inside the light band with the price in the accent, because it is
+the answer the other three rows are the question for. On a phone the columns
+collapse to stacked blocks and the per-cell labels come back, so no cell ever
+sits on the page without saying what it is.
+
+**Questions** is built on `<details>`/`<summary>` — the browser's own
+disclosure element. No JavaScript, no ARIA to get wrong, keyboard and
+screen-reader behaviour for free, and it survives every script on the page
+failing. The first two are open on load so the section never reads as eight
+closed doors, and the second is open deliberately: the deck calls it the most
+important question on the page now that the audience includes detailers who
+already have a bad website, because it lets that reader say yes without
+admitting it.
+
+**The last word** is the page's third ground — not the graphite, not the light
+band, but the accent brought up for the only time it carries a whole section.
+Centred exactly once, at the very end, against eleven sections that are not.
+
+### One defect, and it was one I introduced
+
+Adding an accordion to a page whose reveal system caches element positions is
+a trap, and I walked into it before catching it. Opening a question pushes
+everything below it down the document, while the reveal rule keeps comparing
+against the positions cached at load — so every element after the FAQ would
+have been measured against where it used to be for the rest of the session,
+some of them visible but permanently hidden. `<details>` fires a `toggle`
+event for exactly this; positions are re-cached on it. **Verified: all eight
+questions opened at 392px, nothing stranded.** The same trap waits for any
+future collapsible on this page.
+
+### Verified, by looking and by measuring
+
+- Screenshots at **1440x900, 768x1024 and 392x844**, thirteen scroll positions
+  each, in the normal path AND `?lite=1`. **Console clean at every viewport in
+  both paths.**
+- **Reveal sweep: 61 scroll positions, down and back up, at all three
+  viewports — 0 stranded readings**, while 60 of 61 positions still had
+  something hidden below the fold, which proves the reveal still exists rather
+  than having been switched off to make the number zero.
+- **Contrast measured on all fifteen new text elements**, lowest 5.16:1
+  against a 4.5 floor; the brightening paragraph's dim end measured separately
+  in the live path at 5.65:1.
+- The four credential-free tests pass.
+- **The page is now 12.72 screens at 1440**, against 9.47 before. Three new
+  sections is where it went. Worth saying plainly because "the page must not
+  get longer" was his instruction twice over in 1.4 — the deck he has since
+  approved supersedes it, but he should see the number rather than discover
+  it.
+
+### FOUR THINGS ONLY HE CAN CLOSE
+
+1. **The photograph in "who built it" is missing and cannot be faked.** The
+   deck asks for "one photo of you working — not a headshot". A stock photo of
+   a stranger under a first-person paragraph saying "I run Andrew's Auto
+   Detail" would be a picture of someone who is not him, presented as him, on
+   a page selling a real business. That is a truthfulness problem, not a
+   placeholder problem, so there is no photo rather than a wrong one. The CSS
+   is written and waiting: drop an `<img class="whoshot">` in as the first
+   child of that section and it becomes two columns.
+2. **The words in that section are his to write.** The deck's own note: *"Mine
+   is a placeholder with the right shape. It's the only section on the page
+   where your voice matters more than the copy being good."* What is on the
+   page is the deck's placeholder, unaltered.
+3. **The four competitor price ranges are unverified.** The deck says so
+   itself and asks for them to be checked against each source's own pricing
+   page, understating rather than overstating. Two of them are not fixed
+   prices at all — Yelp and Thumbtack sell per lead at auction — which is why
+   that row states a model rather than a number. **This is a pre-ship
+   blocker, recorded in DECISIONS.md.** It is not urgent for a direction file;
+   it is absolute before the real landing page carries these claims.
+4. **The $520 strip is still on the page and the deck never mentions it.** It
+   was in the text inventory the deck was written from, so it was seen and
+   dropped rather than missed. It is kept rather than deleted because it is
+   the payoff of the section above it — the four texts becoming a day is what
+   that transfer was for — and because it carries a skeleton and a mechanic
+   nothing else has. His own rule says a mechanic may not be spent silently.
+   **Keep or cut: his call, and cutting it is one deletion.**
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so

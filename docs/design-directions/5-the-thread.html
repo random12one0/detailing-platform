@@ -374,17 +374,27 @@ section{position:relative}
 .hero{padding:clamp(124px,17vh,186px) 0 clamp(70px,10vh,120px)}
 .hero .grid{display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,.68fr);gap:clamp(30px,4vw,56px);align-items:center}
 .hero h1{margin:16px 0 0}
-.hero .tail{display:block;font-variation-settings:"wdth" 118,"wght" 760}
-/* On a narrow phone the longest tail does not fit at any size that keeps the
-   headline looking like a headline, so the WIDTH axis absorbs it instead of
-   the size — that is what a variable font is for. Only the rotating line
-   condenses; the two fixed lines above it are unchanged, and at 92 the
-   difference is invisible unless the two are measured side by side. */
-@media (max-width:470px){.hero .tail{font-variation-settings:"wdth" 92,"wght" 760}}
+/* The rotating line is now a line of its OWN, below the headline, because
+   the deck fixes line one on screen permanently and rotates a second line
+   under it. It also has to be smaller: the longest phrase went from 16
+   characters to 38, and at headline size that is roughly twice the width of
+   the hero's column.
+
+   ITS HEIGHT IS RESERVED. Below ~420px the longest phrase wraps to two
+   lines, and a line that wraps and unwraps every few seconds would shove the
+   entire page down and up forever. So two lines of height are held open on
+   narrow screens whatever the current phrase is, and one line above that,
+   where every phrase fits. Measured across seven widths, not guessed. */
+.hero .tail{
+  margin:18px 0 0;min-height:1.15em;
+  font-size:clamp(21px,2.55vw,34px);line-height:1.15;letter-spacing:-.02em;
+  font-variation-settings:"wdth" 104,"wght" 620;color:var(--bone-2);
+}
+@media (max-width:470px){.hero .tail{min-height:calc(1.15em * 2)}}
 /* Below ~340px even the condensed tail runs out of column. One old-iPhone-SE
    width, one line. */
 @media (max-width:340px){.disp.xl{font-size:34px}}
-.caret{display:inline-block;width:.05em;height:.74em;margin-left:.05em;background:var(--ac);vertical-align:-.04em;animation:blink 1.05s steps(1) infinite}
+.caret{display:inline-block;width:.07em;height:.78em;margin-left:.05em;background:var(--ac);vertical-align:-.04em;animation:blink 1.05s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 .hero .lede{margin-top:26px}
 .hero .ctas{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:34px}
@@ -480,6 +490,9 @@ section{position:relative}
 .job .acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .job .acts span{font-size:11px;padding:5px 10px;border-radius:100px;background:rgba(255,255,255,.05);color:var(--bone-2)}
 .dash .lab{margin-top:16px;margin-bottom:6px}
+/* The money summary, demoted from a "what you get" slot to a caption on the
+   thing it is actually a feature of. */
+.dash .dashnote{margin-top:13px;font-size:11.5px;line-height:1.45;color:var(--fog-2)}
 /* The empty state sits ON the space the job rows reserve, so it costs no
    height and cannot be mistaken for a fifth row. --f0 is the first job's own
    progress, set in the scroll frame. */
@@ -670,7 +683,6 @@ section{position:relative}
 .site .svc .p{font-family:"JetBrains Mono",monospace;font-size:13.5px}
 .site .go{margin-top:12px;text-align:center;background:var(--paper-ink);color:var(--paper);border-radius:100px;padding:10px;font-variation-settings:"wght" 620;font-size:13.5px}
 .site .sitefoot{padding:12px 18px;border-top:1px solid var(--paper-line);font-size:11px;color:var(--paper-fog)}
-.band .note{margin-top:20px;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-fog);text-align:center}
 @media (max-width:840px){
   .band .duo{grid-template-columns:1fr;gap:0}
   .widget-hold{margin-top:34px}
@@ -750,6 +762,154 @@ section{position:relative}
 .foot{padding:clamp(40px,7vh,80px) 0 46px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:baseline;color:var(--fog-2);font-size:13px}
 .foot .mk{font-variation-settings:"wdth" 76,"wght" 700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--fog)}
 
+/* ═══ 6. WHO BUILT IT — one paragraph, and nothing else ══════════════
+   The one layout on the page with no object, no rule, no column and no
+   figure in it. Everything above is the product describing itself; this is
+   a person talking, and it gets a shape that cannot be mistaken for the
+   others.
+
+   THE WORDS BRIGHTEN AS THEY CROSS THE READING LINE. One custom property is
+   written per scroll frame onto the paragraph; every word then works out its
+   own colour from its index, in CSS. So the cost per frame is a single
+   setProperty however long the paragraph gets, and the paint stays on the
+   compositor.
+
+   The dim end is 55% of the bone, not zero: a word that has not brightened
+   yet is still on screen and still has to be readable. That measures about
+   the same as the rail's own floor, which was set for the same reason. */
+/* Top padding is deliberately much smaller than the bottom: the ruled list
+   above already ends on its own generous padding, and the two were stacking
+   into about 300px of empty ground. Spacing between two sections is the SUM
+   of what they each ask for, which is easy to forget when they are written
+   in different places. */
+.who{padding:clamp(34px,6vh,80px) 0 clamp(84px,14vh,160px)}
+.who .wrap{max-width:960px}
+.who .say{
+  margin-top:clamp(26px,4vh,44px);max-width:21em;
+  font-size:clamp(21px,2.5vw,32px);line-height:1.4;letter-spacing:-.016em;
+  font-variation-settings:"wdth" 102,"wght" 480;
+}
+.who .say.cut{margin-top:clamp(20px,3vh,30px);font-size:clamp(17px,1.75vw,21px);max-width:30em}
+.who .say .w{
+  color:rgba(242,241,236,calc(.55 + .45 * max(0, min(1, var(--wp,1) * var(--tot,1) - var(--n)))));
+  transition:color 260ms linear;
+}
+/* When he supplies the photograph the deck asks for, add
+   <img class="whoshot" src="..." alt="..."> as the FIRST child of .who .wrap
+   and these two rules turn the section into two columns. Nothing else has to
+   change. :has() is doing the switch, so the markup stays declarative; where
+   it is unsupported the image simply sits above the text, which is also
+   fine. */
+.who .wrap:has(.whoshot){display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:clamp(28px,5vw,64px);align-items:start;max-width:var(--wrap)}
+.whoshot{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:14px;box-shadow:0 30px 60px -34px rgba(0,0,0,.9)}
+@media (max-width:820px){.who .wrap:has(.whoshot){grid-template-columns:1fr}}
+
+/* ═══ 7. WHAT YOU'RE USING NOW — the second light ground, and a table ═══
+   A comparison of four options across two axes IS tabular; every other way
+   of drawing it would be a worse table. It is also the only table on the
+   page, which is what keeps it a distinct skeleton.
+
+   The light ground is doing rhythm work as well as emphasis: the deck adds
+   three sections to the back half, and with only one light band the page
+   would run eight dark screens without a break.
+
+   On a phone the columns collapse into stacked blocks and the per-cell
+   labels — hidden on desktop, where the header row does that job — come
+   back, so a cell never sits on the page without saying what it is. */
+/* No margin-top: unlike the light band above, nothing here breaks the
+   section's top edge, so its own padding is the whole gap. */
+.vs{background:var(--paper);color:var(--paper-ink);padding:clamp(76px,12vh,140px) 0}
+.vs .lab{color:var(--paper-fog)}
+.vs .disp{color:var(--paper-ink)}
+.vstable{margin-top:clamp(30px,5vh,52px)}
+.vsrow{
+  display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,.9fr) minmax(0,1.24fr);
+  gap:clamp(14px,3vw,40px);align-items:baseline;
+  padding:20px 0;border-bottom:1px solid var(--paper-line);
+}
+.vsrow.head{padding:0 0 10px;border-bottom:1px solid var(--paper-line)}
+.vsrow.head span{font-variation-settings:"wdth" 72,"wght" 620;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper-fog)}
+.vsrow .nm{font-variation-settings:"wdth" 104,"wght" 680;font-size:clamp(17px,1.8vw,21px);letter-spacing:-.018em}
+.vsrow .ct{font-family:"JetBrains Mono",monospace;font-size:13.5px;line-height:1.45;color:var(--paper-fog)}
+.vsrow .gt{font-size:15.5px;line-height:1.45;color:var(--paper-fog)}
+.vsrow .k{display:none}
+/* The one lit row, and it is lit rather than merely bolded because it is the
+   answer the other three rows are the question for. */
+.vsrow.mine{
+  background:var(--paper-ink);color:var(--paper);border-bottom-color:transparent;
+  border-radius:13px;margin-top:10px;
+  padding:22px clamp(14px,2vw,22px);
+  margin-left:calc(-1 * clamp(14px,2vw,22px));margin-right:calc(-1 * clamp(14px,2vw,22px));
+}
+.vsrow.mine .nm{color:var(--paper)}
+.vsrow.mine .ct{color:var(--ac)}
+.vsrow.mine .gt{color:rgba(239,238,231,.88)}
+@media (max-width:780px){
+  .vsrow.head{display:none}
+  .vsrow{grid-template-columns:1fr;gap:10px;padding:20px 0}
+  .vsrow .k{display:block;font-variation-settings:"wdth" 72,"wght" 620;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--paper-fog);margin-bottom:3px}
+  .vsrow.mine .k{color:rgba(239,238,231,.66)}
+}
+
+/* ═══ 10. QUESTIONS — the browser's own disclosure element ════════════
+   <details>/<summary>: no JavaScript, no ARIA to get wrong, keyboard and
+   screen-reader behaviour for free, and it still works if every script on
+   the page fails. Two columns of them is a shape nothing else here uses.
+
+   align-self:start so each question is its own height and its rule sits
+   under its own answer — otherwise a grid row is as tall as its tallest
+   item and half the rules float in space. */
+.faq{padding:clamp(76px,12vh,140px) 0}
+.qs{margin-top:clamp(28px,5vh,50px);display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(30px,5vw,68px)}
+.qs details{align-self:start;border-top:1px solid var(--line)}
+.qs summary{
+  list-style:none;cursor:pointer;display:flex;gap:16px;align-items:baseline;
+  padding:17px 0;color:var(--bone-2);
+  font-variation-settings:"wdth" 104,"wght" 620;
+  font-size:clamp(16px,1.65vw,19px);line-height:1.3;letter-spacing:-.014em;
+  transition:color var(--t-hover) linear;
+}
+.qs summary::-webkit-details-marker{display:none}
+.qs summary::after{
+  content:"+";margin-left:auto;flex:none;
+  font-family:"JetBrains Mono",monospace;font-size:17px;line-height:1;color:var(--fog-2);
+  transition:transform 260ms var(--e-out),color var(--t-hover) linear;
+}
+.qs details[open] summary{color:var(--bone)}
+.qs details[open] summary::after{transform:rotate(45deg);color:var(--ac)}
+@media (hover:hover){.qs summary:hover{color:var(--bone)}.qs summary:hover::after{color:var(--bone-2)}}
+.qs details p{margin:0;padding:0 34px 20px 0;color:var(--fog);font-size:15.5px;line-height:1.55;max-width:42ch}
+@media (max-width:760px){.qs{grid-template-columns:1fr}}
+
+/* ═══ 11. THE LAST WORD — the page's third ground ═════════════════════
+   Neither the graphite nor the light band: the accent, brought up for the
+   only time it carries a whole section rather than a figure. Ending on it is
+   what makes it an ending.
+
+   Centred exactly once, at the very end. Centred everywhere is the tell in
+   design-knowledge.md §1; centred once, against ten sections that are not,
+   is a full stop. */
+.end{
+  position:relative;overflow:hidden;text-align:center;
+  margin-top:clamp(80px,13vh,160px);
+  padding:clamp(88px,15vh,180px) 0 clamp(76px,12vh,140px);
+  background:linear-gradient(180deg,rgba(56,224,139,.07),rgba(56,224,139,.025) 44%,rgba(56,224,139,0)),var(--ink-1);
+  border-top:1px solid var(--line);
+}
+.end::before{
+  content:"";position:absolute;left:50%;top:-38%;width:min(120vw,1100px);aspect-ratio:1;
+  transform:translateX(-50%);pointer-events:none;
+  background:radial-gradient(circle,rgba(56,224,139,.11),rgba(56,224,139,0) 62%);
+}
+.end .wrap{position:relative}
+.end .disp{font-size:clamp(32px,5.4vw,70px)}
+.end .lede{margin-inline:auto;margin-top:22px;color:var(--bone-2)}
+.end .ctas{display:flex;flex-wrap:wrap;gap:18px 26px;justify-content:center;align-items:center;margin-top:clamp(30px,5vh,44px)}
+.quiet{color:var(--fog);font-size:15px;display:inline-flex;align-items:center;gap:8px;transition:color var(--t-hover) linear}
+.quiet:hover{color:var(--bone)}
+.quiet .ar{transition:transform var(--t-hover) var(--e-out)}
+.quiet:hover .ar{transform:translateX(3px)}
+
 /* ═══ THE LITE PATH ═══════════════════════════════════════════════════
    One class on <html>, set by prefers-reduced-motion, by ?lite=1, and
    automatically if the page has not become ready in time. It puts every
@@ -774,6 +934,8 @@ section{position:relative}
 .lite .divider,.lite .cost{display:none}
 .lite .float,.lite .widget-hold{transform:none!important}
 .lite .railbar{display:none}
+/* The brightening paragraph has one end state like everything else. */
+.lite .who .say .w{color:var(--bone)}
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
@@ -805,35 +967,44 @@ section{position:relative}
   <!-- ══ 1 · HERO ═══════════════════════════════════════════════════════
        Skeleton: left-heavy asymmetric, one floating object on the right.
 
-       1.4 REPOINT. The headline used to be "Stop booking jobs in your DMs"
-       with the tail rotating four names for the same DM. That sold the
-       booking engine, which is the commodity half — DECISIONS.md
-       "Positioning: what we sell is the pair". So the mechanic he loves is
-       kept and pointed at the gap instead: the fixed part names the WEBSITE,
-       the tail rotates what they have instead of one. The line beneath
-       carries both halves in one sentence, because his correction was that
-       the dashboard must not read as an accessory.
+       MARKETING REWRITE. The copy is the owner's approved deck, verbatim.
+       The mechanic is unchanged and that is the whole point of the rule he
+       set: the words and the running order belong to the marketing pass,
+       the motion does not. So the typewriter still runs — it has simply
+       stopped naming what the reader HASN'T got and started naming what
+       they'd get, which the deck calls "the benefit instead of the insult".
 
-       "Stop booking jobs in your DMs" is not deleted — it is the only line
-       he has ever praised. It moves down to head the thread section, which
-       is literally what that section shows. -->
+       Two structural consequences of the new copy, both deliberate:
+
+       · Line one is now FIXED and never leaves the screen ("that's the
+         promise; the second line is the proof stacking up behind it"), so
+         the rotating line is a separate, smaller line rather than the last
+         line of the headline. It has to be smaller anyway — the longest
+         phrase is 38 characters against the old 16, and at headline size it
+         would be about twice the width of the column.
+       · Its height is RESERVED for two lines at narrow widths, because a
+         phrase that wraps mid-rotation would otherwise shove the whole page
+         down and up every few seconds. Measured, not guessed.
+
+       No price in the hero — the deck moves it to the pricing section. -->
   <section class="hero">
     <div class="wrap grid">
       <div>
         <span class="lab" data-rv>For detailers</span>
         <h1 class="disp xl">
-          <span class="mask" id="h1a"><span>Your website</span></span>
-          <span class="mask" id="h1b"><span>is currently</span></span>
-          <span class="tail"><span id="tw"></span><i class="caret" aria-hidden="true"></i></span>
+          <span class="mask" id="h1a"><span>A real website</span></span>
+          <span class="mask" id="h1b"><span>for your detailing</span></span>
+          <span class="mask" id="h1c"><span>business.</span></span>
         </h1>
-        <p class="lede" data-rv style="--i:1">
-          We build you a website and the dashboard that runs it — one build,
-          not a site with software bolted on. Your services, your prices,
-          your hours, your rules.
+        <p class="tail" data-rv style="--i:1"><span id="tw"></span><i class="caret" aria-hidden="true"></i></p>
+        <p class="lede" data-rv style="--i:2">
+          One build: the site your customers land on, the booking page inside
+          it, and the dashboard you run it from. Your services, your prices,
+          your hours.
         </p>
-        <div class="ctas" data-rv style="--i:2">
+        <div class="ctas" data-rv style="--i:3">
           <a class="btn" href="#price" data-glow>See it with your name on it<span class="ar">→</span></a>
-          <span class="fine">From $35/month.<br>No commission, ever.</span>
+          <span class="fine">Built by a detailer who got tired<br>of booking jobs at 11pm.</span>
         </div>
       </div>
 
@@ -923,6 +1094,13 @@ section{position:relative}
               <div class="jobs" id="jobs"></div>
               <div class="nojobs" aria-hidden="true">Nothing yet.<br>Your Saturday is still in your phone.</div>
             </div>
+            <!-- The money summary used to be one of the four "what you get"
+                 rows. The deck moved it here on the grounds that it is a
+                 DASHBOARD feature and that section has to argue for getting
+                 booked — "move it into the dashboard visual as a caption
+                 instead of spending one of four slots on it". This is that
+                 caption. -->
+            <p class="dashnote">Same screen: what you collected, what you spent, what's still owed.</p>
           </div>
         </div>
       </div>
@@ -934,7 +1112,25 @@ section{position:relative}
   <!-- ══ 3 · THE DAY ═══════════════════════════════════════════════════
        Skeleton: full-bleed strip, one huge figure. The figure is SUMMED
        from the same array above — nothing on this page is a typed-in
-       statistic. -->
+       statistic.
+
+       KEPT DELIBERATELY, AND IT IS AN OPEN QUESTION FOR THE OWNER. The
+       marketing deck runs 1 hero, 2 thread, 3 website — it does not mention
+       this section at all, in either direction. It was in the text inventory
+       the deck was written from, so it was seen and dropped rather than
+       missed.
+
+       It is kept rather than deleted for two reasons. It is the PAYOFF of
+       section 2, which the deck marks "Unchanged" — the four texts becoming
+       a day is what the transfer above was for, and without it the beat ends
+       on a mechanism rather than on a result. And it carries a skeleton and
+       a mechanic (full-bleed strip, one huge rolling figure) that nothing
+       else on the page has, which the owner's standing rule says may not be
+       spent silently: "if a recommended section genuinely has nowhere for a
+       mechanic to live, that is a question for him, not a silent deletion."
+
+       So: ASK HIM. Cutting it is one deletion away and the page reads fine
+       either way. -->
   <section class="strip">
     <div class="wrap duo">
       <!-- Rolls up when it arrives. The target is written from the JOBS
@@ -960,66 +1156,15 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 4 · WHAT YOU GET ══════════════════════════════════════════════
-       Skeleton: full-width ruled list. Copy carried over from the existing
-       app/src/landing/LandingPage.jsx, which DESIGN.md says is kept — he
-       likes its wording better than anything in the four rejected
-       directions, and "Guards your day" is the line new copy has to beat. -->
-  <section class="sheet wrap" id="get" aria-labelledby="geth">
-    <span class="lab" data-rv>What you get</span>
-    <h2 class="disp" id="geth" style="margin-top:14px">
-      <span class="mask"><span>Not a page builder.</span></span>
-      <span class="mask" style="--i:1"><span>The whole front door.</span></span>
-    </h2>
-    <p class="lede" data-rv style="--i:2">
-      Not a directory listing either. Your business's front door and the room
-      behind it, both run from your phone.
-    </p>
-
-    <div class="rows">
-      <div class="r" data-rv>
-        <div class="ix">01</div>
-        <h3>Guards your day</h3>
-        <p>
-          Your hours, your travel buffer, your notice period. Double bookings
-          are impossible — the calendar refuses them, not you at 9 PM by text.
-        </p>
-      </div>
-      <!-- 1.4: the new row, placed second on purpose. It is the answer to
-           why an agency site rots — you pay them again every time a price
-           changes — and it is deliberately NOT the headline, which was his
-           explicit instruction. -->
-      <div class="r" data-rv style="--i:1">
-        <div class="ix">02</div>
-        <h3>Changes when you do</h3>
-        <p>
-          Raise a price, add a service, block off a week — the site your
-          customers see changes the moment you save it. No emailing a web
-          guy and waiting until Thursday.
-        </p>
-      </div>
-      <div class="r" data-rv style="--i:2">
-        <div class="ix">03</div>
-        <h3>Runs from the driveway</h3>
-        <p>
-          Today's jobs with Navigate, Call and Text on every card. Mark a job
-          done and record the money with wet hands, one thumb.
-        </p>
-      </div>
-      <div class="r" data-rv style="--i:3">
-        <div class="ix">04</div>
-        <h3>Your money, plainly</h3>
-        <p>
-          What you collected, what you spent, what's still owed — and how much
-          you sold standing in the driveway versus up front.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══ 5 · WHAT CUSTOMERS SEE ════════════════════════════════════════
+  <!-- ══ 4 · YOUR OWN WEBSITE ═════════════════════════════════════════
        Skeleton: the ground changes to light, and the object breaks the top
        edge of the band.
+
+       MOVED UP by the marketing deck, from after "what you get" to before
+       it. The order now argues: here is the problem (2), here is the day it
+       becomes (3), here is the thing you actually get (4), here is what it
+       does for you (5). The website is named before its features are
+       listed, which is the whole point of the repositioning.
 
        1.4 REPOINT, and this is the section the positioning change is really
        about. It used to show a phone-shaped booking widget floating on its
@@ -1043,22 +1188,22 @@ section{position:relative}
       <div class="cp">
         <span class="lab" data-rv>What your customers see</span>
         <h2 class="disp sm" id="seeh" style="margin-top:14px">
-          <span class="mask"><span>Your name at the top.</span></span>
-          <span class="mask" style="--i:1"><span>Nobody else's advert.</span></span>
+          <span class="mask"><span>Your own website,</span></span>
+          <span class="mask" style="--i:1"><span>at your own address.</span></span>
         </h2>
         <p class="lede" data-rv style="--i:2">
-          A real site at your own address — what you do, what it costs, where
-          you work, your photos. Not a listing on someone else's marketplace,
-          and not a booking link with nothing around it: the booking lives
-          inside the page.
+          What you do, what it costs, where you work, your photos. The
+          booking is part of the page, so nobody gets sent off to a different
+          website to pick a time.
         </p>
-        <!-- Staggered per item rather than the whole list at once: three
+        <!-- Staggered per item rather than the whole list at once: four
              lines arriving one after another is the difference between a
              block appearing and a list being written. -->
         <ul class="ticks">
-          <li data-rv style="--i:3">Works on any phone, no app to download</li>
-          <li data-rv style="--i:4">Only shows times you can actually work</li>
-          <li data-rv style="--i:5">They can move or cancel it themselves</li>
+          <li data-rv style="--i:3">Your own address on Google, not somebody else's listing</li>
+          <li data-rv style="--i:4">Built for a phone, because that's where they'll open it</li>
+          <li data-rv style="--i:5">Only shows times you can actually work</li>
+          <li data-rv style="--i:6">They move or cancel it themselves</li>
         </ul>
       </div>
 
@@ -1119,12 +1264,186 @@ section{position:relative}
             </div>
           </div>
         </div>
-        <p class="note">Live markup, not a screenshot</p>
       </div>
     </div>
   </section>
 
-  <!-- ══ 6 · LIVE BEFORE YOUR NEXT JOB ═════════════════════════════════
+  <!-- ══ 5 · WHAT YOU GET ══════════════════════════════════════════════
+       Skeleton: full-width ruled list, unchanged — an enumeration is a ruled
+       list, and four parallel capabilities are not four objects you pick
+       between.
+
+       All four items are new, and the ORDER is the argument. The deck picked
+       them from research rather than from taste and led with getting booked
+       rather than with "guards your day", on the grounds that booking demand
+       is the stronger opener and that "fewer people forget" was the most
+       defensible claim available and was missing entirely. The research is
+       in the deck's appendix and NONE OF ITS NUMBERS APPEAR HERE — the deck
+       is explicit that they come from marketing aggregators rather than
+       primary studies and are not solid enough to print. Do not add them
+       later as proof points.
+
+       The money summary that used to be item 04 has moved to a caption on
+       the dashboard in section 2. -->
+  <section class="sheet wrap" id="get" aria-labelledby="geth">
+    <span class="lab" data-rv>What you get</span>
+    <h2 class="disp" id="geth" style="margin-top:14px">
+      <span class="mask"><span>Not a page builder.</span></span>
+      <span class="mask" style="--i:1"><span>The whole front door.</span></span>
+    </h2>
+    <p class="lede" data-rv style="--i:2">
+      The site out front and the room behind it, both run from your phone.
+    </p>
+
+    <div class="rows">
+      <div class="r" data-rv>
+        <div class="ix">01</div>
+        <h3>They book while you're under a car</h3>
+        <p>
+          No phone tag, no "still there?" at 7am. They pick a service and a
+          time on your site, and it's on your calendar before you've dried
+          your hands. Most of it happens at night, after you've stopped
+          answering.
+        </p>
+      </div>
+      <div class="r" data-rv style="--i:1">
+        <div class="ix">02</div>
+        <h3>The calendar refuses double bookings</h3>
+        <p>
+          Your hours, your drive time, your notice period. It won't sell a
+          slot you can't work — so nobody has to be told at 9pm that
+          Saturday's gone.
+        </p>
+      </div>
+      <div class="r" data-rv style="--i:2">
+        <div class="ix">03</div>
+        <h3>Fewer people forget</h3>
+        <p>
+          Confirmation when they book, reminder before you drive out, and a
+          link to move it themselves. A booking on a screen gets kept. A
+          booking in a text thread gets forgotten.
+        </p>
+      </div>
+      <div class="r" data-rv style="--i:3">
+        <div class="ix">04</div>
+        <h3>Change a price, it's changed</h3>
+        <p>
+          Raise a price, add a service, block off a week. What your customers
+          see changes the second you save it. No emailing a web guy and
+          waiting until Thursday.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 6 · WHO BUILT IT ══════════════════════════════════════════════
+       NEW SECTION, and a new skeleton: narrow measure, first person, no
+       object, no rules, no columns. Everything above it is the product
+       talking about itself; this is one person talking, so it gets the one
+       layout on the page that has nothing in it but a paragraph.
+
+       NEW MECHANIC to go with it — the words brighten as they cross the
+       reading line, one after another, so the statement is read at the pace
+       it would be spoken rather than arriving as a block. It is driven by a
+       SINGLE custom property written once per scroll frame; each word works
+       out its own colour from its index in CSS, so the per-frame cost is one
+       setProperty no matter how long the paragraph is. Floored at 55% of the
+       bone rather than at zero, because a word that has not brightened yet
+       is still on screen and still has to clear the contrast floor — the
+       same reasoning as the rail steps.
+
+       TWO THINGS THE OWNER HAS TO DO HERE, both flagged in the handover:
+
+       1. THE PHOTOGRAPH IS MISSING AND CANNOT BE FAKED. The deck asks for
+          "one photo of you working — not a headshot". A stock photograph of
+          a stranger under a first-person paragraph saying "I run Andrew's
+          Auto Detail" would be a picture of someone who is not him,
+          presented as him, on a page selling a real business. That is not a
+          placeholder problem, it is a truthfulness problem, so there is no
+          photo here rather than a wrong one. When he supplies it: add
+          <img class="whoshot" src="..." alt="..."> as the first child of
+          .who .wrap and the CSS below turns this into a two-column section.
+       2. THE WORDS ARE HIS TO WRITE. The deck's own note: "Andrew: write
+          this section in your own words before it ships. Mine is a
+          placeholder with the right shape. It's the only section on the page
+          where your voice matters more than the copy being good." What is
+          here is the deck's placeholder, unaltered. -->
+  <section class="who" aria-labelledby="whoh">
+    <div class="wrap">
+      <span class="lab" data-rv>Who built this</span>
+      <h2 class="disp sm" id="whoh" style="margin-top:14px">
+        <span class="mask"><span>I detail cars. I built this</span></span>
+        <span class="mask" style="--i:1"><span>for my own shop first.</span></span>
+      </h2>
+      <p class="say" id="whoSay">I run Andrew's Auto Detail in Tacoma. I built this because I was quoting Tahoes at 6am and losing jobs to people who never texted back. It ran my own business before it ran anyone else's. It still does.</p>
+      <p class="say cut" id="whoSay2">That's also why there's no commission. I'm not taking a cut of a job I didn't do.</p>
+    </div>
+  </section>
+
+  <!-- ══ 7 · WHAT YOU'RE USING NOW ═════════════════════════════════════
+       NEW SECTION. Skeleton: the ground goes LIGHT for the second and last
+       time, and it is a table — the only one on the page. That is not
+       decoration: a comparison of four options across two axes is genuinely
+       tabular, and every other way of drawing it would be a worse table.
+       The light ground is also doing rhythm work; the deck adds three
+       sections to the back half and without a second light band the page
+       runs eight dark screens in a row.
+
+       The last row is the only lit one, and it is lit rather than merely
+       bolded because it is the answer the other three rows are the question
+       for.
+
+       ⚠ THE FOUR PRICE RANGES ARE THE DECK'S AND ARE NOT VERIFIED. The deck
+       says so itself: "Verify all four price ranges against their own
+       pricing pages before this ships. Understate rather than overstate."
+       Two of them are not fixed prices at all — Yelp and Thumbtack sell
+       per-lead at auction — which is why that row states a MODEL rather than
+       a number. Nothing here may go out on the real landing page until each
+       row has been checked against the source's own pricing page. Recorded
+       as a pre-ship blocker in DECISIONS.md; this is a direction file, not
+       the shipping page.
+
+       Row three is aimed at a detailer who already HAS a site and knows it
+       is bad. The deck: it "should feel like recognition, not an insult —
+       that reader paid real money for that site." So it names the site's
+       age, not the reader's judgement. -->
+  <section class="vs" aria-labelledby="vsh">
+    <div class="wrap">
+      <span class="lab" data-rv>Honestly</span>
+      <h2 class="disp" id="vsh" style="margin-top:14px">
+        <span class="mask"><span>You already pay</span></span>
+        <span class="mask" style="--i:1"><span>for something.</span></span>
+      </h2>
+
+      <div class="vstable" role="table" aria-label="What you are paying for now, against this">
+        <div class="vsrow head" role="row" aria-hidden="true">
+          <span></span><span>What it costs</span><span>What you get</span>
+        </div>
+        <div class="vsrow" role="row" data-rv>
+          <span class="nm" role="cell">Yelp, Thumbtack</span>
+          <span class="ct" role="cell"><b class="k">What it costs</b>Per lead, booked or not</span>
+          <span class="gt" role="cell"><b class="k">What you get</b>Their name on top. Their customer, not yours.</span>
+        </div>
+        <div class="vsrow" role="row" data-rv style="--i:1">
+          <span class="nm" role="cell">Detailing software</span>
+          <span class="ct" role="cell"><b class="k">What it costs</b>$70–$250 a month</span>
+          <span class="gt" role="cell"><b class="k">What you get</b>Booking and invoices. Still no website.</span>
+        </div>
+        <div class="vsrow" role="row" data-rv style="--i:2">
+          <span class="nm" role="cell">A site you paid for once</span>
+          <span class="ct" role="cell"><b class="k">What it costs</b>$2,000–$5,000, then again for changes</span>
+          <span class="gt" role="cell"><b class="k">What you get</b>Looks its age on a phone. Nothing behind it.</span>
+        </div>
+        <div class="vsrow mine" role="row" data-rv style="--i:3">
+          <span class="nm" role="cell">This</span>
+          <span class="ct" role="cell"><b class="k">What it costs</b>$499 once, then $40 a month</span>
+          <span class="gt" role="cell"><b class="k">What you get</b>Both, and you change it yourself.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 8 · LIVE BEFORE YOUR NEXT JOB ═════════════════════════════════
        Skeleton: horizontal travel. Three steps genuinely are a sequence, so
        the numbering is a fact rather than the decoration the never-defaults
        list bans. -->
@@ -1136,32 +1455,32 @@ section{position:relative}
           <span class="mask"><span>Live before your next job.</span></span>
         </h2>
         <p class="lede" data-rv style="--i:1">
-          No setup wizard and no migration. You are bookable the same day; the
-          site is built with you from there.
+          No setup wizard, no migration, no onboarding call. You're bookable
+          the same day and the site gets built out with you from there.
         </p>
       </div>
       <div class="rail-track" id="railTrack">
         <div class="step">
           <div class="n">01</div>
           <h3>Name, hours, one service</h3>
-          <p>That's enough to be bookable. Add the rest whenever you like.</p>
+          <p>Enough to take a booking. The rest can wait.</p>
         </div>
         <div class="step">
           <div class="n">02</div>
           <h3>Send one link</h3>
-          <p>Your page lives at an address that is yours. Put it in your bio, on your cards, on the van.</p>
+          <p>Your address, on your cards, in your bio, on the van.</p>
         </div>
         <div class="step">
           <div class="n">03</div>
-          <h3>Watch bookings arrive</h3>
-          <p>Confirmations, reminders and receipts go out on their own. Customers reschedule themselves — your phone stays in your pocket.</p>
+          <h3>Bookings arrive on their own</h3>
+          <p>Confirmations, reminders and receipts go out without you. Your phone stays in your pocket.</p>
         </div>
       </div>
       <div class="wrap"><div class="railbar" id="railbar"><i></i></div></div>
     </div>
   </div>
 
-  <!-- ══ 7 · PRICING ═══════════════════════════════════════════════════
+  <!-- ══ 9 · PRICING ═══════════════════════════════════════════════════
        Skeleton: asymmetric pair, then a ruled terms list. Two plans of very
        different weight, not two matching cards — and the terms are a list,
        because they are an enumeration.
@@ -1176,10 +1495,16 @@ section{position:relative}
       <span class="mask"><span>Two ways in.</span></span>
     </h2>
     <p class="lede" data-rv style="--i:1">Both run the same booking engine.</p>
+    <!-- The deck puts the comparison back one more time, right where the
+         number is. Same unverified-figure caveat as section 7. -->
+    <p class="lede" data-rv style="--i:2">
+      Detailing software runs $70 to $250 a month and doesn't include a
+      website. This does.
+    </p>
 
     <div class="plans">
       <article class="plan lead has-offer" data-rv="lift">
-        <span class="flag">Founding price · 3 of 3 left</span>
+        <span class="flag">3 founding spots</span>
         <span class="lab">Website + dashboard</span>
         <div class="amount">
           <s class="was">$900</s><span data-count="499" data-prefix="$">$499</span><small> to build it</small>
@@ -1228,7 +1553,94 @@ section{position:relative}
     </ul>
   </section>
 
-  <!-- ══ 8 · FOOTER ════════════════════════════════════════════════════ -->
+  <!-- ══ 10 · QUESTIONS ═══════════════════════════════════════════════
+       NEW SECTION. Skeleton: two columns of disclosures, which is a shape
+       nothing else on the page uses.
+
+       Built on <details>/<summary> — the browser's own disclosure element.
+       No JavaScript, no ARIA to get wrong, keyboard and screen-reader
+       behaviour for free, and it still works if every script on the page
+       fails. That is the whole reason to use it over a hand-rolled
+       accordion; eight questions is also exactly the length at which a flat
+       list becomes a wall.
+
+       The first two are open on load, so the section never reads as eight
+       closed doors — and the second one is open on purpose. The deck: it is
+       "the most important one on the page now that the audience includes
+       detailers with bad websites. It gives that reader a way to say yes
+       without admitting their site is bad."
+
+       The "Questions." heading is mine, not the deck's — the deck gives the
+       section an eyebrow and eight pairs and no title, and a section with no
+       heading is a hole in the document outline. It is a label, not a
+       claim. -->
+  <section class="faq wrap" aria-labelledby="faqh">
+    <span class="lab" data-rv>Before you ask</span>
+    <h2 class="disp" id="faqh" style="margin-top:14px">
+      <span class="mask"><span>Questions.</span></span>
+    </h2>
+    <div class="qs">
+      <details data-rv open>
+        <summary>Do I need to already have a website?</summary>
+        <p>No. A Facebook page and a phone number is the normal starting point.</p>
+      </details>
+      <details data-rv style="--i:1" open>
+        <summary>I have a website, it's just old. Can you use it?</summary>
+        <p>No, and you don't want me to. You get a new one — same business, same name, built for a phone. Send me the old one and I'll pull the photos and wording worth keeping.</p>
+      </details>
+      <details data-rv style="--i:2">
+        <summary>Who owns the domain?</summary>
+        <p>You do. It's in your name and it leaves with you.</p>
+      </details>
+      <details data-rv style="--i:3">
+        <summary>How long until I'm taking bookings?</summary>
+        <p>Same day. Name, hours, one service is enough.</p>
+      </details>
+      <details data-rv style="--i:4">
+        <summary>What happens to my customers if I cancel?</summary>
+        <p>You export them and go. The list was always yours.</p>
+      </details>
+      <details data-rv style="--i:5">
+        <summary>Do you take a cut of my jobs?</summary>
+        <p>No. A $600 coating costs you the same as a $65 wash.</p>
+      </details>
+      <details data-rv style="--i:6">
+        <summary>Can I change my prices myself?</summary>
+        <p>Yes, from your phone, and the site updates the second you save.</p>
+      </details>
+      <details data-rv style="--i:7">
+        <summary>What if I have staff?</summary>
+        <p>They get their own login and see only their jobs, not your money.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ══ 11 · THE LAST WORD ════════════════════════════════════════════
+       NEW SECTION, and the page's third ground state — neither the graphite
+       nor the light band, but the accent brought up for the only time it
+       carries a whole section. Everything else uses it on money and on
+       confirmed state; ending on it is what makes an ending.
+
+       Skeleton: full-bleed, centred, one sentence at the largest size on the
+       page. Centred exactly once, at the end, is a contrast. Centred
+       everywhere is the tell. -->
+  <section class="end" aria-labelledby="endh">
+    <div class="wrap">
+      <h2 class="disp" id="endh">
+        <span class="mask"><span>Your next customer is</span></span>
+        <span class="mask" style="--i:1"><span>looking you up right now.</span></span>
+      </h2>
+      <p class="lede" data-rv style="--i:2">
+        Whatever they find is your website. Might as well be a good one.
+      </p>
+      <div class="ctas" data-rv style="--i:3">
+        <a class="btn" href="#price" data-glow>Take a founding spot<span class="ar">→</span></a>
+        <a class="quiet" href="#price">Or just the booking page<span class="ar">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 12 · FOOTER ═══════════════════════════════════════════════════ -->
   <footer class="wrap foot" data-rv>
     <span class="mk">Detailing Platform</span>
     <span>Built for the people who never rush a car.</span>
@@ -1514,6 +1926,53 @@ section{position:relative}
     });
   }
 
+  /* ── The paragraph that reads itself ────────────────────────────────
+     Section 6's statement brightens word by word as it crosses the reading
+     line, so it is taken at the pace it would be spoken instead of arriving
+     as a block. It is the one piece of first-person copy on the page and it
+     is the only place this mechanic appears.
+
+     ONE custom property is written per scroll frame, onto the paragraph.
+     Every word then resolves its own colour in CSS from its index against
+     that value, so a forty-word paragraph costs exactly the same per frame
+     as a four-word one and the paint never leaves the compositor. Splitting
+     into spans happens once, here, rather than being written by hand into
+     the markup — the copy stays a readable sentence in the HTML, which
+     matters because the owner has to be able to rewrite it in his own words.
+
+     `--wp` deliberately defaults to 1 in the CSS: if this never runs, every
+     word is at full brightness rather than at the dim end. Content first. */
+  Array.prototype.forEach.call(document.querySelectorAll(".who .say"), function (el) {
+    var words = el.textContent.trim().split(/\s+/);
+    el.textContent = "";
+    words.forEach(function (w, i) {
+      var sp = document.createElement("span");
+      sp.className = "w";
+      sp.style.setProperty("--n", i);
+      sp.textContent = w;
+      el.appendChild(sp);
+      if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+    });
+    el.style.setProperty("--tot", words.length);
+    addScrub(el, function (e, vh) {
+      var r = e.getBoundingClientRect();
+      /* The ramp is spread over the paragraph's own height plus a third of a
+         screen, so a long paragraph takes longer to light than a short one
+         and both finish at about the same place on screen. */
+      e.style.setProperty("--wp", clamp((vh * 0.78 - r.top) / (r.height + vh * 0.32)).toFixed(4));
+    });
+  });
+
+  /* Opening a question moves everything below it down the document, and the
+     reveal rule compares against CACHED positions — so without this, every
+     element after the FAQ would be measured against where it used to be and
+     could sit visible-but-hidden, or reveal early, for the rest of the
+     session. <details> fires `toggle` for exactly this; re-cache and run a
+     frame. The same trap waits for any future collapsible on this page. */
+  Array.prototype.forEach.call(document.querySelectorAll(".qs details"), function (d) {
+    d.addEventListener("toggle", function () { cacheReveals(); onScroll(); });
+  });
+
   /* Depth: an element drifts a little slower than the page it sits on.
      A dozen pixels — enough to feel nearer than the ground, not enough to
      read as an effect. */
@@ -1708,11 +2167,19 @@ section{position:relative}
      Under reduced motion it prints the first phrase and stops — their own
      comment says a looping <h1> is the single most disruptive thing on a
      page for that visitor, and they are right. */
-  /* 1.4: the tail now rotates what a detailer has INSTEAD of a website,
-     rather than four names for the same DM. Same mechanic, pointed at the
-     gap the offer closes. Kept short enough that the longest still sits on
-     one line in the hero column at every width. */
-  var TAILS = ["a Facebook page.", "a Yelp listing.", "a link in your bio.", "nothing at all."];
+  /* MARKETING REWRITE. The deck's five phrases, in the deck's order. The
+     mechanic has not changed at all — it has stopped naming what the reader
+     hasn't got and started naming what they'd get, which the deck calls
+     "the benefit instead of the insult". Line one of the headline no longer
+     rotates and never leaves the screen; this is the proof stacking up
+     under it. */
+  var TAILS = [
+    "Booking built in.",
+    "Prices you change yourself.",
+    "A calendar that can't double-book you.",
+    "Nobody else's name on it.",
+    "No commission, ever."
+  ];
   var tw = document.getElementById("tw");
   if (LITE) {
     tw.textContent = TAILS[0];
