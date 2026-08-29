@@ -924,6 +924,69 @@ Three mechanics added, each one only in the place it belongs:
 - **The page is 12.39 screens at 1440**, down from 12.72 — the removed
   section, partly offset by the fifth table row.
 
+## Round ten — the owner section is gone (2026-08-29)
+
+His call, after being given the fork and a recommendation against it. It was
+removed cleanly: markup, CSS, script and the lite-path rule. **Ten sections,
+ten skeletons, no two alike.** The page is 11.60 screens at 1440, down from
+12.39.
+
+**Two of the three things still blocking 1.4 went with it** — the photograph
+of him working, and his own words for that section. Neither is needed now.
+
+### The word-brightening mechanic went too, and was NOT re-homed
+
+That section carried the only place on the page where the words brightened as
+they crossed the reading line, plus the rule down its side that filled in step
+with them. Both are gone.
+
+His standing rule is that motion is not spendable, so this is worth being
+explicit about rather than quiet: **the mechanic was not moved somewhere
+else, and that is a judgement, not an oversight.** It suits a person talking,
+read at the pace it would be spoken. Applied to a marketing lede it becomes an
+effect looking for a home — which is exactly the "structure as decoration"
+tell in `design-knowledge.md` §1. Forcing it into the hero or the closing
+line to keep a count would have been the worse outcome.
+
+The count did not fall anyway. Before the marketing rewrite began the page ran
+thirteen mechanics; it now runs seventeen — the thirteen originals plus the
+table wipe, the animated disclosures, the accent closing ground and the glow
+that gathers on approach.
+
+**Recoverable in full** — markup, CSS and script — from commit `6c6f412`,
+which matters if that section ever becomes its own About page. Noted in the
+file header too, so it is findable without this document.
+
+**The claim it carried is not lost.** "Built by a detailer, for his own shop"
+is the one thing on this page a software company cannot say, and it still
+survives in the hero's sub-line: *"Built by a detailer who got tired of
+booking jobs at 11pm."*
+
+### Housekeeping done while in there
+
+The stylesheet's section numbers had drifted out of sync with the document
+across three rounds of adding and removing sections — the CSS block for the
+website section still said "5. WHAT CUSTOMERS SEE" when it had been section 3
+for two rounds. All ten are corrected. The blocks remain in the order they
+were *written* rather than in page order, with a note at the top of the file
+saying so: reordering a stylesheet to match the document is churn that risks
+the cascade for no change in behaviour.
+
+### Verified after the removal
+
+- Console clean at 1440/768/392 in the normal path and `?lite=1`; eleven
+  top-level blocks at every viewport, which is the ten sections plus the
+  thread's own wrapper.
+- **Reveal sweep: 61 positions, down and back up, three viewports — 0
+  stranded**, and the table rows checked separately on their own `--rp`, never
+  readable-but-faded.
+- Accordion still strands nothing with all eight questions open at 392.
+- The junction the removal created — the ruled list running straight into the
+  light band where that section used to buffer them — was looked at and
+  measured: 108px at 1440, 101px at 392. It reads as a section change, not as
+  a collision.
+- Four credential-free tests pass.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so

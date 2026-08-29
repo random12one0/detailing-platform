@@ -44,19 +44,33 @@
      2 the thread ........ two columns, pinned, animated transfer
      3 your own website ... LIGHT ground, the WEBSITE breaking the section edge
      4 what you get ...... full-width ruled list, no boxes at all
-     5 who built this .... one paragraph, nothing else, words that brighten
-     6 what you're using . LIGHT ground, the page's only table
-     7 live before ....... horizontal travel on a sticky rail
-     8 pricing ........... asymmetric pair + a ruled terms list
-     9 questions ......... two columns of native disclosures
-    10 the last word ..... accent ground, centred, once
-    11 footer ............ mono facts
-   Eleven sections, eleven skeletons, no two alike — the grammar he set in
-   1.3 still holds at the longer length.
+     5 what you're using . LIGHT ground, the page's only table
+     6 live before ....... horizontal travel on a sticky rail
+     7 pricing ........... asymmetric pair + a ruled terms list
+     8 questions ......... two columns of native disclosures
+     9 the last word ..... accent ground, centred, once
+    10 footer ............ mono facts
+   Ten sections, ten skeletons, no two alike — the grammar he set in 1.3
+   still holds.
 
-   The full-bleed strip that carried one huge figure was CUT on his
-   instruction, 2026-08-29, after the marketing deck omitted it. Its
-   count-up mechanic survives on the pricing figures.
+   NOTE: the CSS blocks below are in the order they were WRITTEN, not in
+   page order — sections 5, 8 and 9 were added later and sit after the
+   footer's block. The numbers in their headings are the page order. Left
+   as it is deliberately: reordering a stylesheet to match the document is
+   churn that risks the cascade for no behaviour change.
+
+   TWO SECTIONS WERE CUT ON HIS INSTRUCTION, both 2026-08-29:
+   · the full-bleed strip carrying one huge figure, after the marketing deck
+     omitted it. Its count-up mechanic survives on the pricing figures.
+   · "Who built this" — the owner's own story, one paragraph on an otherwise
+     empty ground, with the words brightening as they crossed the reading
+     line. THE WORD-BRIGHTENING MECHANIC WENT WITH IT and was not re-homed:
+     it suits a person talking and becomes decoration anywhere else on this
+     page, which is the exact tell design-knowledge.md §1 warns about. It is
+     recoverable in full — markup, CSS and script — from commit 6c6f412,
+     which is worth knowing if that section ever becomes its own About page.
+     The claim it carried is not lost: the hero's sub-line still says "Built
+     by a detailer who got tired of booking jobs at 11pm."
 
    THE SIGNATURE MOVE: the messages become the schedule. Each bubble in the
    thread flies to the position of its own row in the dashboard and dissolves
@@ -593,7 +607,7 @@ section{position:relative}
 .r.near p{color:var(--bone-2)}
 @media (max-width:760px){.r{grid-template-columns:34px 1fr;gap:10px}.r p{grid-column:2;margin-top:10px}}
 
-/* ═══ 5. WHAT CUSTOMERS SEE — the light band ══════════════════════════
+/* ═══ 3. YOUR OWN WEBSITE — the light band ══════════════════════════
    The ground changes. He asked for this twice, about riangle and about
    finseo: "they have some darker sections and some lighter sections, so the
    whole website isn't the same exact background color." The object breaks
@@ -756,67 +770,11 @@ section{position:relative}
 .terms li .k{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--fog-2)}
 @media (max-width:800px){.plans{grid-template-columns:1fr}}
 
-/* ═══ 8. FOOTER ═══════════════════════════════════════════════════════ */
+/* ═══ 10. FOOTER ═══════════════════════════════════════════════════════ */
 .foot{padding:clamp(40px,7vh,80px) 0 46px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:baseline;color:var(--fog-2);font-size:13px}
 .foot .mk{font-variation-settings:"wdth" 76,"wght" 700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--fog)}
 
-/* ═══ 6. WHO BUILT IT — one paragraph, and nothing else ══════════════
-   The one layout on the page with no object, no rule, no column and no
-   figure in it. Everything above is the product describing itself; this is
-   a person talking, and it gets a shape that cannot be mistaken for the
-   others.
-
-   THE WORDS BRIGHTEN AS THEY CROSS THE READING LINE. One custom property is
-   written per scroll frame onto the paragraph; every word then works out its
-   own colour from its index, in CSS. So the cost per frame is a single
-   setProperty however long the paragraph gets, and the paint stays on the
-   compositor.
-
-   The dim end is 55% of the bone, not zero: a word that has not brightened
-   yet is still on screen and still has to be readable. That measures about
-   the same as the rail's own floor, which was set for the same reason. */
-/* Top padding is deliberately much smaller than the bottom: the ruled list
-   above already ends on its own generous padding, and the two were stacking
-   into about 300px of empty ground. Spacing between two sections is the SUM
-   of what they each ask for, which is easy to forget when they are written
-   in different places. */
-.who{padding:clamp(34px,6vh,80px) 0 clamp(84px,14vh,160px)}
-.who .wrap{max-width:960px}
-.who .say{
-  margin-top:clamp(26px,4vh,44px);max-width:21em;
-  font-size:clamp(21px,2.5vw,32px);line-height:1.4;letter-spacing:-.016em;
-  font-variation-settings:"wdth" 102,"wght" 480;
-}
-.who .say.cut{margin-top:clamp(20px,3vh,30px);font-size:clamp(17px,1.75vw,21px);max-width:30em}
-/* A rule down the side of the statement that fills as the words brighten —
-   the same one number driving both, so the page is visibly reading along
-   with you. Only on the main paragraph; two of them would be a pattern. */
-.who .say:not(.cut){padding-left:clamp(16px,2.2vw,28px)}
-.who .say:not(.cut)::before,
-.who .say:not(.cut)::after{content:"";position:absolute;left:0;top:.26em;width:2px;border-radius:2px}
-.who .say:not(.cut)::before{bottom:.22em;background:var(--line-2)}
-.who .say:not(.cut)::after{height:calc(var(--wp,1) * (100% - .48em));background:var(--ac);opacity:.8}
-.who .say{position:relative}
-/* The signature. This is what makes it read as an about section rather than
-   another sales section, which is the shape he asked for. */
-.who .sig{margin-top:clamp(26px,4vh,40px);display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
-.who .who-n{font-variation-settings:"wdth" 104,"wght" 700;font-size:17px;letter-spacing:-.015em}
-.who .who-d{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.02em;color:var(--fog-2)}
-.who .say .w{
-  color:rgba(242,241,236,calc(.55 + .45 * max(0, min(1, var(--wp,1) * var(--tot,1) - var(--n)))));
-  transition:color 260ms linear;
-}
-/* When he supplies the photograph the deck asks for, add
-   <img class="whoshot" src="..." alt="..."> as the FIRST child of .who .wrap
-   and these two rules turn the section into two columns. Nothing else has to
-   change. :has() is doing the switch, so the markup stays declarative; where
-   it is unsupported the image simply sits above the text, which is also
-   fine. */
-.who .wrap:has(.whoshot){display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:clamp(28px,5vw,64px);align-items:start;max-width:var(--wrap)}
-.whoshot{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:14px;box-shadow:0 30px 60px -34px rgba(0,0,0,.9)}
-@media (max-width:820px){.who .wrap:has(.whoshot){grid-template-columns:1fr}}
-
-/* ═══ 7. WHAT YOU'RE USING NOW — the second light ground, and a table ═══
+/* ═══ 5. WHAT YOU'RE USING NOW — the second light ground, and a table ═══
    A comparison of four options across two axes IS tabular; every other way
    of drawing it would be a worse table. It is also the only table on the
    page, which is what keeps it a distinct skeleton.
@@ -882,7 +840,7 @@ section{position:relative}
   .vsrow .gt{font-size:15px}
 }
 
-/* ═══ 10. QUESTIONS — the browser's own disclosure element ════════════
+/* ═══ 8. QUESTIONS — the browser's own disclosure element ════════════
    <details>/<summary>: no JavaScript, no ARIA to get wrong, keyboard and
    screen-reader behaviour for free, and it still works if every script on
    the page fails. Two columns of them is a shape nothing else here uses.
@@ -926,7 +884,7 @@ section{position:relative}
 }
 @media (max-width:760px){.qs{grid-template-columns:1fr}}
 
-/* ═══ 11. THE LAST WORD — the page's third ground ═════════════════════
+/* ═══ 9. THE LAST WORD — the page's third ground ═════════════════════
    Neither the graphite nor the light band: the accent, brought up for the
    only time it carries a whole section rather than a figure. Ending on it is
    what makes it an ending.
@@ -986,7 +944,6 @@ section{position:relative}
 .lite .float,.lite .widget-hold{transform:none!important}
 .lite .railbar{display:none}
 /* The brightening paragraph has one end state like everything else. */
-.lite .who .say .w{color:var(--bone)}
 .lite .vsrow{--rp:1}
 .lite .end::before{transform:translateX(-50%);opacity:1}
 @media (prefers-reduced-motion:reduce){
@@ -1342,58 +1299,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 5 · WHO BUILT IT ══════════════════════════════════════════════
-       NEW SECTION, and a new skeleton: narrow measure, first person, no
-       object, no rules, no columns. Everything above it is the product
-       talking about itself; this is one person talking, so it gets the one
-       layout on the page that has nothing in it but a paragraph.
-
-       NEW MECHANIC to go with it — the words brighten as they cross the
-       reading line, one after another, so the statement is read at the pace
-       it would be spoken rather than arriving as a block. It is driven by a
-       SINGLE custom property written once per scroll frame; each word works
-       out its own colour from its index in CSS, so the per-frame cost is one
-       setProperty no matter how long the paragraph is. Floored at 55% of the
-       bone rather than at zero, because a word that has not brightened yet
-       is still on screen and still has to clear the contrast floor — the
-       same reasoning as the rail steps.
-
-       TWO THINGS THE OWNER HAS TO DO HERE, both flagged in the handover:
-
-       1. THE PHOTOGRAPH IS MISSING AND CANNOT BE FAKED. The deck asks for
-          "one photo of you working — not a headshot". A stock photograph of
-          a stranger under a first-person paragraph saying "I run Andrew's
-          Auto Detail" would be a picture of someone who is not him,
-          presented as him, on a page selling a real business. That is not a
-          placeholder problem, it is a truthfulness problem, so there is no
-          photo here rather than a wrong one. When he supplies it: add
-          <img class="whoshot" src="..." alt="..."> as the first child of
-          .who .wrap and the CSS below turns this into a two-column section.
-       2. THE WORDS ARE HIS TO WRITE. The deck's own note: "Andrew: write
-          this section in your own words before it ships. Mine is a
-          placeholder with the right shape. It's the only section on the page
-          where your voice matters more than the copy being good." What is
-          here is the deck's placeholder, unaltered. -->
-  <section class="who" aria-labelledby="whoh">
-    <div class="wrap">
-      <span class="lab" data-rv>Who built this</span>
-      <h2 class="disp sm" id="whoh" style="margin-top:14px">
-        <span class="mask"><span>I detail cars. I built this</span></span>
-        <span class="mask" style="--i:1"><span>for my own shop first.</span></span>
-      </h2>
-      <p class="say" id="whoSay">I run Andrew's Auto Detail in Tacoma. I built this because I was quoting Tahoes at 6am and losing jobs to people who never texted back. It ran my own business before it ran anyone else's. It still does.</p>
-      <p class="say cut" id="whoSay2">That's also why there's no commission. I'm not taking a cut of a job I didn't do.</p>
-      <!-- The signature is what turns this from a sales section into an about
-           section, which is the shape he asked for. It is also the honest
-           place for the photograph to sit when he sends one. -->
-      <p class="sig" data-rv>
-        <span class="who-n">Andrew</span>
-        <span class="who-d">Andrew's Auto Detail · Tacoma, WA</span>
-      </p>
-    </div>
-  </section>
-
-  <!-- ══ 6 · WHAT YOU'RE USING NOW ═════════════════════════════════════
+  <!-- ══ 5 · WHAT YOU'RE USING NOW ═════════════════════════════════════
        NEW SECTION. Skeleton: the ground goes LIGHT for the second and last
        time, and it is a table — the only one on the page. That is not
        decoration: a comparison of four options across two axes is genuinely
@@ -1459,7 +1365,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 7 · LIVE BEFORE YOUR NEXT JOB ═════════════════════════════════
+  <!-- ══ 6 · LIVE BEFORE YOUR NEXT JOB ═════════════════════════════════
        Skeleton: horizontal travel. Three steps genuinely are a sequence, so
        the numbering is a fact rather than the decoration the never-defaults
        list bans. -->
@@ -1496,7 +1402,7 @@ section{position:relative}
     </div>
   </div>
 
-  <!-- ══ 8 · PRICING ═══════════════════════════════════════════════════
+  <!-- ══ 7 · PRICING ═══════════════════════════════════════════════════
        Skeleton: asymmetric pair, then a ruled terms list. Two plans of very
        different weight, not two matching cards — and the terms are a list,
        because they are an enumeration.
@@ -1568,7 +1474,7 @@ section{position:relative}
     </ul>
   </section>
 
-  <!-- ══ 9 · QUESTIONS ═══════════════════════════════════════════════
+  <!-- ══ 8 · QUESTIONS ═══════════════════════════════════════════════
        NEW SECTION. Skeleton: two columns of disclosures, which is a shape
        nothing else on the page uses.
 
@@ -1630,7 +1536,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 10 · THE LAST WORD ════════════════════════════════════════════
+  <!-- ══ 9 · THE LAST WORD ════════════════════════════════════════════
        NEW SECTION, and the page's third ground state — neither the graphite
        nor the light band, but the accent brought up for the only time it
        carries a whole section. Everything else uses it on money and on
@@ -1655,7 +1561,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 11 · FOOTER ═══════════════════════════════════════════════════ -->
+  <!-- ══ 10 · FOOTER ═══════════════════════════════════════════════════ -->
   <footer class="wrap foot" data-rv>
     <span class="mk">Detailing Platform</span>
     <span>Built for the people who never rush a car.</span>
@@ -1933,43 +1839,6 @@ section{position:relative}
       }
     });
   }
-
-  /* ── The paragraph that reads itself ────────────────────────────────
-     Section 6's statement brightens word by word as it crosses the reading
-     line, so it is taken at the pace it would be spoken instead of arriving
-     as a block. It is the one piece of first-person copy on the page and it
-     is the only place this mechanic appears.
-
-     ONE custom property is written per scroll frame, onto the paragraph.
-     Every word then resolves its own colour in CSS from its index against
-     that value, so a forty-word paragraph costs exactly the same per frame
-     as a four-word one and the paint never leaves the compositor. Splitting
-     into spans happens once, here, rather than being written by hand into
-     the markup — the copy stays a readable sentence in the HTML, which
-     matters because the owner has to be able to rewrite it in his own words.
-
-     `--wp` deliberately defaults to 1 in the CSS: if this never runs, every
-     word is at full brightness rather than at the dim end. Content first. */
-  Array.prototype.forEach.call(document.querySelectorAll(".who .say"), function (el) {
-    var words = el.textContent.trim().split(/\s+/);
-    el.textContent = "";
-    words.forEach(function (w, i) {
-      var sp = document.createElement("span");
-      sp.className = "w";
-      sp.style.setProperty("--n", i);
-      sp.textContent = w;
-      el.appendChild(sp);
-      if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
-    });
-    el.style.setProperty("--tot", words.length);
-    addScrub(el, function (e, vh) {
-      var r = e.getBoundingClientRect();
-      /* The ramp is spread over the paragraph's own height plus a third of a
-         screen, so a long paragraph takes longer to light than a short one
-         and both finish at about the same place on screen. */
-      e.style.setProperty("--wp", clamp((vh * 0.78 - r.top) / (r.height + vh * 0.32)).toFixed(4));
-    });
-  });
 
   /* Opening a question moves everything below it down the document, and the
      reveal rule compares against CACHED positions — so without this, every

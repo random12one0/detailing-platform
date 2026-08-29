@@ -190,22 +190,19 @@ is kept; the entire visual design restarts from scratch.
       approach, and the about statement grew a reading rule that fills with
       the words. Page is 12.39 screens at 1440.
 
-      **THREE THINGS ONLY HE CAN CLOSE, and the item stays unchecked until
-      they are:**
-      1. **A photo of him working**, for the about section. It cannot be
-         faked — a stock stranger under a first-person paragraph naming his
-         real business would be a picture of someone who is not him. The
-         section ships as type until he sends one; the two-column CSS is
-         written and waiting.
-      2. **That section's words are his.** The deck's own note: it is "the
-         only section on the page where your voice matters more than the copy
-         being good." What is there is the deck's placeholder.
-      3. **Where the about section lives** — he is thinking about removing it
-         or giving it its own page. Nothing was moved, because thinking is
-         not deciding. Recommendation and reasoning in `DECISIONS.md`.
+      **THE OWNER SECTION WAS REMOVED on his instruction, 2026-08-29** — and
+      that closed the two blockers attached to it, the photograph of him and
+      his own words for it. Neither is needed. Ten sections now. The
+      word-brightening mechanic went with the section and was deliberately
+      NOT re-homed; the reasoning is in `DECISIONS.md`, and the section is
+      recoverable in full from commit `6c6f412` if it ever becomes its own
+      About page.
 
-      Also flagged, one line either way: **the "A Facebook page" row in the
-      comparison table is mine, not the deck's.**
+      **NOTHING IS LEFT THAT DOES NOT NEED HIM.** What remains is the OWNER
+      checkpoint this item always ended on: he looks at the page and approves
+      it, or sends the next round of changes. One small thing to raise when
+      he does: **the "A Facebook page" row in the comparison table is mine,
+      not the deck's** — one line either way.
 
       Also recorded and NOT acted on: he finds the 1.4 hero slightly worse than
       the old rotating "DMs" line. The deck replaced that hero anyway, so the

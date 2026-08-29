@@ -1296,6 +1296,35 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## Removing the owner section, and why its mechanic was not re-homed (2026-08-29)
+
+He decided the fork: *"Remove the owner section."* Removed in full.
+
+**The word-brightening mechanic went with it and was deliberately not moved
+elsewhere.** This is the one place a standing rule of his and a design
+principle point in opposite directions, so the reasoning is recorded rather
+than left to be re-litigated:
+
+- His rule says motion is not spendable, and a mechanic that has nowhere to
+  live is a question for him rather than a silent deletion.
+- But that rule exists to stop a page quietly flattening across a rewrite.
+  The failure it guards against is losing motion by ACCIDENT. Re-homing a
+  mechanic into a section that does not want it fails the same goal by a
+  different route: an effect with no reason to be there is decoration, which
+  `docs/design-knowledge.md` §1 names as a tell.
+- Word-brightening suits a person talking, read at speaking pace. There is no
+  first-person copy left on the page. The hero has a typewriter already; the
+  closing line is eleven centred words.
+
+So it was cut, and the count still went UP over the rewrite as a whole:
+thirteen mechanics before the marketing deck, seventeen after. If he wants it
+back, the honest way is to give it something to say, not somewhere to sit.
+
+Recoverable in full from commit `6c6f412`, which is what matters if the
+section becomes its own About page later. The claim it carried survives in
+the hero's sub-line, so removing the section did not remove the
+differentiator.
+
 ## His four instructions on the rewrite, and the one still open (2026-08-29)
 
 - **The $520 section was removed** on his instruction. Its count-up mechanic
@@ -1316,7 +1345,11 @@ I looking at" before it answers anything else.
   is a signature block at the end, the thing that separates an about section
   from a sales section written in first person.
 
-  **STILL OPEN, and it is a real fork.** My recommendation if asked: keep a
+  **DECIDED SAME DAY: "Remove the owner section." It is gone.** He was given
+  the fork and a recommendation against removing it; he chose removal, which
+  is his call to make and is now the record. Do not re-propose it.
+
+  The recommendation that was weighed, kept only as the reasoning: keep a
   SHORT version on the landing page and put the long one on an About page
   later. The reason is that "built by a detailer, for his own shop" is the
   single claim on this page no competitor can copy — a booking startup cannot
