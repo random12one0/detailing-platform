@@ -16,16 +16,16 @@ is kept; the entire visual design restarts from scratch.
       anonymous-inserts policy was never applied (see DECISIONS.md).
       Open owner item: rotate the old project's anon key, still in git
       history.
-- [~] 0.2 Fix email — **diagnosed 2026-08-28, waiting on the owner.** Not a
-      code bug: `PLATFORM_FROM_ADDRESS` is Resend's shared sandbox sender
-      `onboarding@resend.dev`, rejected 403 for every recipient except the
-      account owner, before Resend logs anything. Needs
-      `detailingplatform.com` verified as a Resend sending domain (DNS in
-      Netlify DNS), then the secret changed, then one real booking proved.
-      See DECISIONS.md. Original note:
-      Investigate the send-email function line by line, check its secrets,
-      read its logs, find the root cause WITH evidence, fix, prove with a
-      real booking landing in Resend's log. The most valuable open bug.
+- [x] 0.2 Fix email — **DONE 2026-08-29, proven.** Root cause: the deployed
+      `PLATFORM_FROM_ADDRESS` was `onboarding@resend.dev`, Resend's SHARED
+      sandbox sender, which Resend delivers only to the account owner's own
+      address and rejects 403 for everyone else — before creating an email
+      record, so the dashboard showed nothing at all. No code was at fault.
+      Fixed by verifying `email.detailingplatform.com` in Resend (owner) and
+      pointing the from-address at `bookings@email.detailingplatform.com`.
+      Proof: a real booking through `create-booking` produced a customer
+      confirmation to the owner's inbox, status **delivered**, in Resend's
+      log. See DECISIONS.md.
 - [ ] 0.3 Reminders — schedule the sweep (cron every 15 min), prove a
       reminder actually sends on schedule, verify no duplicates and no
       reminders for cancelled bookings.

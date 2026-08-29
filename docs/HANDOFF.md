@@ -63,19 +63,21 @@ repo.
 >   is a production release.
 >
 > **What's unfinished — don't rediscover these:**
-> 1. **Email does not send — ROOT CAUSE FOUND 2026-08-28. Owner action.**
->    The cause was the second secret named here:
+> 1. ~~**Email does not send.**~~ **CLOSED 2026-08-29 — fixed and proven.**
+>    The cause was the second secret this thread used to name:
 >    `PLATFORM_FROM_ADDRESS=onboarding@resend.dev` is Resend's *shared*
->    sandbox sender, which Resend restricts to the account owner's own
->    address no matter what domains the account has verified. Every send is
->    rejected 403 `validation_error` at Resend's validation step, which is
->    before an email record is created — hence *nothing in the log*. It had
->    been printing in `function_logs` the whole time (2026-08-28 07:01Z,
->    ~20 occurrences); nobody had read them. **No code is at fault.**
->    Blocked on the owner: the Resend account's only verified domain is
->    `andrewsdetail.com` (the live business's), so `detailingplatform.com`
->    must be verified before the from-address can change. Full evidence in
->    DECISIONS.md §"Phase 0 — 0.2 email".
+>    sandbox sender, delivered only to the account owner's own address and
+>    rejected 403 for everyone else — before an email record is created,
+>    which is why the dashboard showed nothing rather than a failure. It had
+>    been printing in `function_logs` all along; nobody had read them. **No
+>    code was at fault.** Mail now sends from
+>    `bookings@email.detailingplatform.com` (subdomain verified in Resend
+>    2026-08-29 — the bare domain is NOT a verified sender). Proven by a real
+>    booking whose confirmation shows **delivered** in Resend.
+>    Two things this turned up, both still open: the local `.env`
+>    service-role key is stale (it is not the value the functions hold, so
+>    direct `send-email` calls from scripts 401), and the platform shares the
+>    live business's Resend account.
 > 2. **pg_cron was never installed** and the reminder sweep
 >    (`send-owner-reminders`) has never been proven to fire on its own. The
 >    function works when called by hand.

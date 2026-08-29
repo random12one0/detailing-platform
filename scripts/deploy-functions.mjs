@@ -11,6 +11,7 @@
 
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const { SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF } = process.env;
 if (!SUPABASE_ACCESS_TOKEN || !SUPABASE_PROJECT_REF) {
@@ -35,7 +36,9 @@ const PUBLIC_FUNCTIONS = new Set([
   "booking-ics",          // customers add their own booking to a calendar from email
 ]);
 
-const fnRoot = new URL("../supabase/functions/", import.meta.url).pathname;
+// fileURLToPath, not .pathname: on Windows .pathname yields "/D:/..." which
+// readdir then resolves against the drive as "D:\D:\...".
+const fnRoot = fileURLToPath(new URL("../supabase/functions/", import.meta.url));
 const all = (await readdir(fnRoot, { withFileTypes: true }))
   .filter((d) => d.isDirectory() && d.name !== "_shared")
   .map((d) => d.name)

@@ -379,3 +379,37 @@ each picked as the option easiest to change later.
 - **Both domains use Netlify DNS** (`nsone.net` nameservers), so adding
   Resend's verification records is done in the Netlify DNS panel, not at a
   registrar. Read-only `nslookup` check, 2026-08-28.
+
+- **Fixed and proven 2026-08-29.** Owner verified the subdomain
+  `email.detailingplatform.com` in Resend (DKIM + two SPF CNAMEs, all
+  verified); `PLATFORM_FROM_ADDRESS` now reads
+  `bookings@email.detailingplatform.com`, and the default in
+  `_shared/config.ts` was corrected to match — it previously named the
+  **bare** domain `detailingplatform.com`, which is not a verified sender,
+  so deleting the secret would have re-broken mail. Seven functions
+  redeployed. Proof: a booking created through `create-booking` exactly as
+  the public widget does it produced a customer confirmation to the owner's
+  inbox, status **delivered** in Resend's log, plus the owner-notification
+  to the demo tenant's contact address. The proof booking was then deleted
+  from the demo tenant.
+
+- **The existing Resend API key was kept; no new key was needed.** The 403
+  had always been about the sender, never the key, so the key already had
+  the access required. An owner-pasted key was declined rather than written
+  into infrastructure, and flagged for revocation because pasting put it in
+  a chat transcript.
+
+- **`scripts/deploy-functions.mjs` did not run on Windows.** It built its
+  root path with `new URL(...).pathname`, which yields `/D:/...`; `readdir`
+  then resolved that against the drive as `D:\D:\...` and the script died
+  before deploying anything. Now `fileURLToPath`. This is a
+  moved-to-a-local-machine bug — the script had only ever run in the Linux
+  sandbox.
+
+- **OPEN — the local `.env` service-role key is stale.** It is not the value
+  the edge functions hold: calling `send-email` directly from a script
+  returns the relay's own 401. It still authenticates to PostgREST, so the
+  mismatch hides until something calls a function that gates on the key.
+  Function-to-function calls are unaffected (they read their own env), which
+  is why production works. Refresh it from the Supabase dashboard before
+  trusting the 7 credentialed test suites.

@@ -36,10 +36,21 @@ export function receiptUrl(_slug: string, bookingId: string): string {
 // sending domain), with the tenant's brand as the display name and the
 // tenant's contact address as Reply-To.
 //
-// Overridable by environment because the placeholder domain is not a real
-// verified sender, so nothing would leave the building. It is deliberately
-// NOT derived from PLATFORM_URL: a preview deployment must not silently
-// change which domain mail claims to come from — that is a deliverability
-// decision, not a URL one.
+// The sending domain is the SUBDOMAIN email.detailingplatform.com, verified
+// in Resend 2026-08-29. The bare domain detailingplatform.com is NOT a
+// verified sender and never was — sending from it fails. Keeping mail on a
+// subdomain is deliberate: the platform's sending reputation stays separate
+// from the root domain that serves the site.
+//
+// This default cost a week once already: it used to read
+// bookings@detailingplatform.com while the deployed secret was Resend's
+// SHARED sandbox sender onboarding@resend.dev, which Resend delivers only to
+// the account owner's own address and rejects (403) for everyone else —
+// before creating an email record, so the Resend dashboard showed nothing at
+// all. If mail ever goes silent again, read the edge function logs first.
+//
+// It is deliberately NOT derived from PLATFORM_URL: a preview deployment
+// must not silently change which domain mail claims to come from — that is a
+// deliverability decision, not a URL one.
 export const PLATFORM_FROM_ADDRESS =
-  Deno.env.get("PLATFORM_FROM_ADDRESS") || "bookings@detailingplatform.com";
+  Deno.env.get("PLATFORM_FROM_ADDRESS") || "bookings@email.detailingplatform.com";
