@@ -57,8 +57,13 @@ is kept; the entire visual design restarts from scratch.
       advisor chat that returns 15–20 candidate references to react to.
 - [ ] 1.2 Short design brief interview: audience, the feeling it should
       give, what felt wrong about the old look, what to keep (if anything).
-      **ASKED 2026-08-29 — waiting on the owner.** Six questions in
-      `docs/design-brief.md` Part B. Answers get typed into that file (a
+      **ANSWERED 2026-08-29 (five of six).** Recorded in
+      `docs/design-brief.md` Part B; the headline is that nothing specific
+      was wrong with the old look — it just read as AI-made, so
+      competence is the failure mode for 1.3. Two returned to the owner in
+      Part C: B1b (which of the three screens wins when they conflict —
+      the original question was asked badly) and B6b (does each tenant keep
+      picking their own accent colour). Both carry a recommendation. Answers get typed into that file (a
       chat answer dies at the next `/clear`). 1.3 does not start until A and
       B are filled in — producing directions first would anchor the
       owner's choice to a guess.

@@ -678,3 +678,56 @@ after their answer has been written into a file, not before.
 Worth naming the real hazard: had the owner acted on the prompt instead of
 the sentence, they would have cleared with the brief still blank and the next
 session would have opened on 1.3 with nothing to design from.
+
+## Phase 1 — 1.2 answered (2026-08-29)
+
+Owner answered Part B by voice; recorded in `docs/design-brief.md`. Five of
+six landed, and two of them change the shape of 1.3 more than expected.
+
+- **B3 reframes the whole brief.** Every specific defect offered — too dark,
+  too cold, too plain, hard to read, didn't look worth the money — was
+  declined. The old look was "one of the better looks I've seen it create."
+  The single complaint is that it "still kinda looked like it was made by
+  AI", and the ask is "a fresh start with more thinking behind it."
+  **Consequence: competence is the failure mode, not the target.** A
+  direction that is merely well-executed reproduces the exact thing being
+  rejected. `docs/design-knowledge.md` §1 is promoted from background reading
+  to the pass/fail test, and each direction in 1.3 has to carry a stated
+  argument for why it looks the way it does — the owner asked for visible
+  thinking, so the reasoning ships with the mockups.
+- **B2's "no"s are weak, its "yes" is strong.** Apple was the only anchor
+  named without hesitation. Snap-on/Milwaukee and barbershop/tattoo were
+  declined, but the owner also said they could not picture those looks — so
+  those are "I don't know what that is" as much as "I don't want it", and
+  they are not treated as hard exclusions. High-end independent garage was
+  never resolved either way; it stays live and gets settled with images in
+  1.3 rather than with another question the owner cannot answer from words.
+  This is why 1.3 shows pictures: the question format itself was the limit.
+- **The Apple answer carries a trap worth naming now.** That look is carried
+  by world-class photography and large empty space; our hardest tenant is a
+  new detailer with two services and no photos, which §4 of design-knowledge
+  calls the real product. An honest Apple direction is the most likely to
+  collapse into a blank page there. Kept, with the requirement that at least
+  one direction is proven EMPTY rather than fully configured.
+- **B5 removes the strongest argument against dark.** Sunlight is not a
+  constraint — the dashboard is used before and after a job, not out in the
+  sun mid-detail. Dark is therefore judged on merit, not ruled out by
+  conditions. Customer age is genuinely spread (18 to old, no skew), so
+  neither youth-app conventions nor senior-optimised oversizing apply;
+  hierarchy and honest contrast have to do that work.
+- **B4: nothing is kept.** `docs/design-system.md` is anti-reference only.
+- **B6: no existing brand at all**, so a wordmark is in scope rather than a
+  constraint to work around.
+
+Two questions returned to the owner rather than assumed:
+
+- **B1 was a badly-asked question and is my error, not theirs.** "Whose
+  experience wins" assumed the owner would picture three screens competing
+  for effort. Re-asked as B1b with a shop analogy (front window / back office
+  / counter) and a recommendation: favour the booking page, because it runs
+  the customers' money AND doubles as the thing shown in a sales call.
+- **B6b, the per-tenant accent colour, was not answered** and is not safe to
+  assume — it decides whether every visual choice must survive a stranger
+  picking neon green. Recommendation given: keep it but narrow it to a
+  curated set, which preserves the "your site, your colour" selling line and
+  removes the failure mode. Nothing is designed around either answer yet.
