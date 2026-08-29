@@ -122,6 +122,7 @@
      a page ends up feeling like a pile of effects instead of one system. */
   --e-out:cubic-bezier(.16,.84,.34,1);
   --t-reveal:950ms;
+  --t-exit:420ms;
   --t-hover:180ms;
 }
 
@@ -178,13 +179,18 @@ a{color:inherit;text-decoration:none}
    the corner of the eye and never as content. */
 .ground .dots{
   position:absolute;inset:-8%;
-  background-image:radial-gradient(circle at center,rgba(226,234,238,.6) 1px,rgba(226,234,238,0) 1.7px);
+  background-image:radial-gradient(circle at center,rgba(226,234,238,.75) 1.2px,rgba(226,234,238,0) 2px);
   background-size:46px 46px;
-  opacity:.05;
-  animation:dots 26s linear infinite;
+  opacity:.075;
+  /* Was 46px over 26s — 1.8px a second, which is real movement and far too
+     slow to read as any. He could not tell it moved at all, and he was
+     right. Two tiles over 8s is ~16px a second: visible from the corner of
+     the eye, still nowhere near fast enough to pull the eye off the copy.
+     The travel must stay an exact multiple of the tile or the loop jumps. */
+  animation:dots 8s linear infinite;
   will-change:transform;
 }
-@keyframes dots{from{transform:translate3d(0,0,0)}to{transform:translate3d(46px,46px,0)}}
+@keyframes dots{from{transform:translate3d(0,0,0)}to{transform:translate3d(92px,92px,0)}}
 
 /* The light follows the pointer across the WHOLE page, not just the
    buttons. It lerps toward the cursor rather than tracking it exactly —
@@ -195,8 +201,10 @@ a{color:inherit;text-decoration:none}
    direction 3. It sits under `main`, so a section with its own opaque
    ground (the light band) hides it automatically. */
 .ground .cursor{
-  position:absolute;top:0;left:0;width:820px;height:820px;margin:-410px 0 0 -410px;
-  background:radial-gradient(circle,rgba(226,234,238,.14),rgba(226,234,238,0) 62%);
+  /* Halved from 820px on his note that it was too big. Smaller pool, so
+     the alpha comes up a little to keep it as present as it was. */
+  position:absolute;top:0;left:0;width:420px;height:420px;margin:-210px 0 0 -210px;
+  background:radial-gradient(circle,rgba(226,234,238,.17),rgba(226,234,238,0) 66%);
   transform:translate3d(var(--gx,-999px),var(--gy,-999px),0);
   opacity:0;transition:opacity 600ms linear;
   will-change:transform;
@@ -249,6 +257,12 @@ section{position:relative}
    Still transform and opacity only: nothing here reflows. */
 [data-rv]{opacity:0;transform:translate3d(0,38px,0);transition:opacity var(--t-reveal) var(--e-out),transform var(--t-reveal) var(--e-out);transition-delay:calc(var(--i,0) * 110ms)}
 [data-rv].in{opacity:1;transform:none}
+/* Going OUT is faster than coming in, and without the stagger. A CSS
+   transition uses the timing of the state it is moving TO, so putting these
+   on the un-revealed state gives the reverse its own speed for free.
+   Exits faster than entrances is the rule in design-knowledge.md §1. */
+[data-rv]:not(.in){transition-duration:var(--t-exit);transition-delay:0s}
+.mask:not(.in) > span{transition-duration:var(--t-exit);transition-delay:0s}
 /* A variant for objects rather than text: it also comes forward slightly,
    which text cannot do without looking soft mid-transition. */
 [data-rv="lift"]{transform:translate3d(0,48px,0) scale(.965)}
@@ -469,7 +483,12 @@ section{position:relative}
      viewport that claim is about. They wrap; they do not disappear. */
   .job .acts span{font-size:10.5px;padding:4px 9px}
   .dash{padding:12px}
-  .thread-wrap{height:280vh}
+  /* NOTE: there was a `.thread-wrap{height:280vh}` here, left over from the
+     version that pinned on phones. It sat AFTER the `height:auto` above and
+     quietly won, so the wrapper stayed 2,363px tall around a 984px section —
+     1,379px of nothing, about 1.6 phone screens, which is exactly the gap he
+     reported. When a layout stops pinning, the reserved scroll height has to
+     go with it. */
 }
 
 /* ═══ 3. THE DAY — full-bleed strip, one huge figure ══════════════════ */
@@ -477,7 +496,8 @@ section{position:relative}
 .strip .duo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(22px,5vw,64px);align-items:end}
 .strip .big{font-family:"JetBrains Mono",monospace;font-size:clamp(56px,11vw,138px);line-height:.84;letter-spacing:-.055em}
 .strip .rt{padding-bottom:6px}
-.strip .rt p{color:var(--fog);max-width:44ch;margin-top:12px}
+.strip .rt p{color:var(--fog);max-width:46ch;margin-top:12px}
+.strip .rt .tag{font-size:11px;letter-spacing:.02em;color:var(--fog-2);margin-top:14px}
 @media (max-width:760px){.strip .duo{grid-template-columns:1fr;align-items:start;gap:18px}}
 
 /* ═══ 4. WHAT YOU GET — full-width ruled list, zero boxes ═════════════
@@ -799,13 +819,21 @@ section{position:relative}
            array on load, so the figure that counts is the figure the rows
            add up to — it cannot drift from them. -->
       <div class="big" data-rv id="dayTotal" data-prefix="$">$0</div>
+      <!-- Rewritten. He read this section and said "what is that actually
+           about? I don't get that section." Fair: "Demo Saturday, before
+           6 am" is a caption for someone who already knows what they are
+           looking at, and "nothing was retyped" answers a question the page
+           never asked. It now says what the number IS in the first line,
+           and points back at the thread the four jobs came from. -->
       <div class="rt" data-rv style="--i:1">
-        <span class="lab">Demo Saturday, before 6 am</span>
+        <span class="lab">Saturday's four jobs, already booked</span>
         <p>
-          Nothing was retyped. The same four jobs, priced off your own list,
-          in the order you will actually drive them — and the first one is
-          already lit, because it is the one the day is waiting on.
+          That is the same four texts from up the page, turned into a day.
+          Sorted into the order you will actually drive them, priced off your
+          own list, sitting there before you have had coffee. You did not
+          type a word of it.
         </p>
+        <p class="tag mono">An example day — the figure adds up the four jobs above</p>
       </div>
     </div>
   </section>
@@ -1097,8 +1125,13 @@ section{position:relative}
     el.style.display = "inline-block";
     el.style.minWidth = final.length + "ch";
     if (LITE) { el.textContent = final; return; }
+    /* A generation token, because the figure can now be re-entered while a
+       previous count is still running — scroll up and down quickly and two
+       loops would otherwise write to the same element and fight. */
+    var gen = (el._gen = (el._gen || 0) + 1);
     var t0 = 0;
     requestAnimationFrame(function tick(t) {
+      if (el._gen !== gen) return;
       if (!t0) t0 = t;
       var p = Math.min(1, (t - t0) / 900);
       var e2 = 1 - Math.pow(1 - p, 3);              // decelerate into place
@@ -1132,7 +1165,10 @@ section{position:relative}
     rgt.style.setProperty("--shift", "0px");
     var d = rgt.getBoundingClientRect();
     rgt.style.setProperty("--shift", (window.innerWidth / 2 - (d.left + d.width / 2)).toFixed(1) + "px");
+    /* sizeRail BEFORE caching reveal positions: it sets the rail wrapper's
+       height, which moves everything below it down the document. */
     sizeRail();
+    cacheReveals();
   }
 
   /* ── Two scroll presets and nothing else ────────────────────────────
@@ -1304,7 +1340,7 @@ section{position:relative}
   function frame() {
     ticking = false;
     var vh = window.innerHeight, y = window.scrollY;
-    if (pending.length) sweep(vh);
+    if (!LITE) sweep(vh);
     for (var i = 0; i < scrubs.length; i++) scrubs[i].fn(scrubs[i].el, vh);
     nav.classList.toggle("scr", y > 40);
     nav.classList.toggle("hid", y > 220 && y > lastY);
@@ -1361,19 +1397,60 @@ section{position:relative}
      time, and because the check is a plain comparison rather than an event,
      nothing can be skipped by scrolling fast or jumping to an anchor.
      Elements drop out of the list as they fire, so the cost falls to zero. */
-  var pending = Array.prototype.slice.call(revealables);
+  /* REVERSIBLE, and tied to where you are on the page rather than to
+     whether you have ever been there. Scroll up and things fold back down;
+     scroll down and they play again. That is what he asked for.
+
+     The rule is a single comparison, and it is the rule that makes this
+     safe: an element is hidden ONLY while its top is still below 82% of
+     the screen height — that is, only while it is in the strip at the very
+     bottom that you have not read yet. Everything at or above that line is
+     shown, including everything scrolled off the top.
+
+     He spotted the trap himself: "I don't want someone to be like, wait,
+     why is there no text there, just because it wasn't loaded in from the
+     screen they were at." This cannot do that. Land anywhere, reload
+     anywhere, follow a link to the middle of the page — every element you
+     can actually read is already in its end state, because being above the
+     line is the whole condition. Nothing depends on having witnessed it.
+
+     Positions are cached rather than measured per frame: 42 elements ×
+     getBoundingClientRect on every scroll frame is a layout read the phone
+     does not need to do. They are re-cached whenever the layout can
+     actually have changed — fonts arriving, a width change, an orientation
+     change — which is what measure() is for. */
+  var rvPos = [];
+  function cacheReveals() {
+    rvPos.length = 0;
+    for (var i = 0; i < revealables.length; i++) {
+      rvPos.push(revealables[i].getBoundingClientRect().top + window.scrollY);
+    }
+  }
   function sweep(vh) {
-    for (var i = pending.length - 1; i >= 0; i--) {
-      if (pending[i].getBoundingClientRect().top < vh * 0.82) {
-        reveal(pending[i]);
-        pending.splice(i, 1);
+    /* If a scroll frame beats the first measure, cache now rather than
+       compare against nothing — an undefined position would read as "below
+       the line" and hide the whole page. */
+    if (rvPos.length !== revealables.length) cacheReveals();
+    var line = window.scrollY + vh * 0.82;
+    for (var i = 0; i < revealables.length; i++) {
+      var el = revealables[i];
+      var shown = rvPos[i] < line;
+      if (el.classList.contains("in") === shown) continue;   // nothing to do
+      if (shown) {
+        reveal(el);
+      } else {
+        el.classList.remove("in");
+        /* Let its figures count again next time it comes back. */
+        Array.prototype.forEach.call(
+          el.hasAttribute("data-count") ? [el] : el.querySelectorAll("[data-count]"),
+          function (c) {
+            var k = counted.indexOf(c);
+            if (k > -1) counted.splice(k, 1);
+          });
       }
     }
   }
-  if (LITE) {
-    Array.prototype.forEach.call(revealables, reveal);
-    pending.length = 0;
-  }
+  if (LITE) Array.prototype.forEach.call(revealables, reveal);
 
   /* ── The rotating tail ──────────────────────────────────────────────
      webtactics' typewriter, values and all: 70 + random*40 ms per

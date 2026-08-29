@@ -141,6 +141,17 @@ is kept; the entire visual design restarts from scratch.
       Also settled: the two-column beat did NOT read as a before/after, and
       copy is provisional by agreement — "in the future we'll critique the
       actual text on the page" — so a copy pass is a NAMED 1.4 task.
+
+      **Round four applied 2026-08-29** (`README.md` "Round four"): reveals
+      now run BOTH ways and are tied to scroll position, under one rule that
+      also answers the trap he spotted himself — an element is hidden only
+      while its top is below 82% of the screen, so landing anywhere renders
+      everything readable. The phone's blank gap was a leftover
+      `.thread-wrap{height:280vh}` from the pinned version sitting after the
+      `height:auto` that replaced it: 1,379px of nothing, now gone, and the
+      page is 1.6 screens shorter on a phone. The `$520` section was
+      rewritten because he could not tell what it was for. Cursor light
+      halved; the dots now move at ~16px/s instead of 1.8px/s.
 - [ ] 1.4 Refine the winner once. **OWNER approves.** Carry in from 1.3:
       settle smooth scroll empirically on the owner's own phone (one flag,
       3 KB); consider adding the typewriter headline; draw the dashboard's

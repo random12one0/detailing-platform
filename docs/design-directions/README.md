@@ -295,6 +295,98 @@ cursor triggers. Registered only when the device cannot hover, so a desktop
 keeps hover and the two never fight. Verified at 392: the highlight tracks from
 row to row and clears when the list leaves the screen.
 
+## Round four — his second pass, 2026-08-29
+
+### Reveals now run both ways, without the trap he spotted
+
+> "If we scroll up and then scroll back down, they happen again... I want it
+> linked to the part of the page that you're on, like how the other scroll
+> effects are."
+
+And then, unprompted, the objection to his own idea:
+
+> "I get why the animations aren't linked with the scroll — because if someone
+> scrolls down halfway, not everything will be showing... I don't want someone
+> to be like, wait, why is there no text there just because it wasn't loaded in
+> from the screen they were at."
+
+Both are satisfied by one rule, and it is worth stating precisely because it is
+the whole answer: **an element is hidden only while its top is still below 82%
+of the screen height.** Nothing else is consulted — not whether it has been
+seen, not which way you are scrolling.
+
+- Scroll down: it crosses the line and plays.
+- Scroll up: it goes back below the line and reverses.
+- Scroll down again: it plays again.
+- **Land anywhere — a reload, a `#price` link, a restored scroll position —
+  and everything you can read is already in its end state**, because being
+  above the line is the entire condition. There is no "has this been
+  witnessed" flag to get stranded on.
+
+Verified by both tests: the ruled rows toggle `in → out → in` across a
+700px up-and-back, and loading straight to `#price` two-thirds down the page
+leaves nothing readable hidden.
+
+Exits use `--t-exit` (420ms) against the 950ms entrance and drop the stagger,
+because a CSS transition takes the timing of the state it moves *to* — so
+putting the short duration on `:not(.in)` gives the reverse its own speed for
+free. Exits faster than entrances is `design-knowledge.md` §1.
+
+Positions are cached at measure time rather than read per frame: 42 elements
+× `getBoundingClientRect` on every scroll frame is a layout read a mid-range
+Android does not need. They re-cache when the layout can actually have moved
+— fonts arriving, a width change, an orientation change — and `sizeRail()`
+runs first, because it changes the height of a wrapper everything below sits
+under.
+
+### The mobile gap — a leftover rule, and a lesson
+
+> "There's like this whole almost phone-length area of blank space... I could
+> screenshot and there's literally nothing on the entire page."
+
+Measured rather than guessed: `#threadWrap` was **2,363px tall around a 984px
+section — 1,379px of nothing**, about 1.6 phone screens. The cause was a
+`.thread-wrap{height:280vh}` left at the bottom of the mobile media block from
+the version that still pinned on phones. It sat *after* the `height:auto` that
+replaced it and quietly won.
+
+**The lesson, and it is general: when a layout stops pinning, the reserved
+scroll height has to go with it.** A pin is two things — the sticky element and
+the tall wrapper that pays for it — and removing only the first leaves an empty
+room behind.
+
+The page is 1.6 screens shorter on a phone as a result.
+
+### "What is that $520 section actually about? I don't get it."
+
+A fair hit, and a copy failure rather than a layout one. It read *"Demo
+Saturday, before 6 am / Nothing was retyped"* — a caption written for someone
+who already knew what they were looking at, answering a question the page had
+never asked. He also misread "6 am" as "six PM", which is its own evidence.
+
+It now says what the number is in its first line and points back at the thread
+the four jobs came from:
+
+> **$520** — Saturday's four jobs, already booked
+> That is the same four texts from up the page, turned into a day. Sorted into
+> the order you will actually drive them, priced off your own list, sitting
+> there before you have had coffee. You did not type a word of it.
+> *An example day — the figure adds up the four jobs above*
+
+The sample-data label survives, as the honesty rule requires, but as a quiet
+mono line rather than as the section's headline.
+
+### Two dials
+
+- **Cursor light halved**, 820px → 420px, with the alpha lifted from .14 to
+  .17 so a smaller pool stays as present.
+- **The dots were moving and he could not tell** — 46px over 26s is 1.8px a
+  second, which is real movement and far too slow to read as any. Now two
+  tiles (92px) over 8s, about 16px a second, at .075 opacity instead of .05.
+  Measured in the browser: the layer moved 90px → 9.6px across one second, so
+  it is genuinely travelling and the loop wraps seamlessly. The travel has to
+  stay an exact multiple of the tile or the loop visibly jumps.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so

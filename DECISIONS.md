@@ -1239,3 +1239,59 @@ critique the actual text on the page. For now, this is a good layout." Recorded
 so nobody treats the current wording as approved — it is mostly carried from
 `app/src/landing/LandingPage.jsx` and only "Stop booking jobs in your DMs" has
 his explicit approval.
+
+### Round four: reversible reveals, and the rule that makes them safe (2026-08-29)
+
+He asked for entrance animations to replay when you scroll back down, and
+then raised the objection to his own request before I could: someone landing
+halfway down the page must not find text missing because they never scrolled
+past it.
+
+**One rule satisfies both, and it is the only thing consulted: an element is
+hidden only while its top is still below 82% of the screen height.** Not
+whether it has ever been seen, not scroll direction, not a "played" flag. Every
+element at or above that line is in its end state, including everything
+scrolled off the top — so a reload, a `#hash` link or a restored scroll
+position all render correctly by construction rather than by a fallback.
+
+That is the general principle worth keeping: **a reveal system that stores
+"has this been shown" has to be rescued when the assumption breaks; one that
+derives visibility from position alone has nothing to rescue.** The earlier
+version stored it and needed a 4-second blanket timer as the rescue — which
+then broke the animation instead (see round two).
+
+Positions are cached at measure time, not read per frame. 42 elements ×
+`getBoundingClientRect` per scroll frame is a layout read the mid-range Android
+target does not need to pay. `sizeRail()` runs before the cache, because it
+sets a wrapper height that moves everything below it.
+
+### When a layout stops pinning, delete the scroll height with it
+
+The mobile blank space he reported was `#threadWrap` at 2,363px around a 984px
+section — 1,379px of nothing, about 1.6 phone screens. Cause: a
+`.thread-wrap{height:280vh}` left at the end of the mobile media block from the
+version that still pinned on phones, sitting after the `height:auto` that was
+meant to replace it.
+
+**A pin is two things — the sticky element and the tall wrapper that pays for
+it.** Removing the first and leaving the second leaves an empty room behind,
+and it is invisible in the diff because both lines look deliberate. Worth a
+check in 1.5 when this is rebuilt for real.
+
+### A caption is not an explanation
+
+He read the `$520` section and asked "what is that actually about? I don't get
+that section" — and misread "before 6 am" as "six PM", which is its own
+evidence. The copy was *"Demo Saturday, before 6 am / Nothing was retyped"*: a
+caption for someone who already knew what they were looking at, answering a
+question the page had never asked.
+
+Rewritten to name the figure in its first line and point back at the thread the
+four jobs came from. The sample-data label the honesty rule requires survives,
+but as a quiet mono line rather than as the section's headline — labelling
+something as a demo is not the same as explaining what it is.
+
+**This is the first concrete instance of the copy pass he has already
+scheduled** ("in the future we'll critique the actual text on the page"), and
+it suggests the right test for that pass: every section has to answer "what am
+I looking at" before it answers anything else.
