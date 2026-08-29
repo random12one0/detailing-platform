@@ -1345,3 +1345,325 @@ sentences of content per screen elsewhere.
 Every one of those is a number we can set differently. **This site is the most
 useful negative control we have** — it is the only one that establishes, with
 evidence, where the line is that his taste draws.
+
+---
+
+## 7. webtactics.org
+
+A Dubai digital studio, and the site he was most enthusiastic about: *"very
+cool just in the fact that it's really interactive… this site has a lot of
+depth to it. It's just very enticing on whatever they're selling."*
+
+It is also — unexpectedly — **the best-engineered site in the set**, and its
+source is extensively commented by a developer who clearly measured what they
+built. Several comments are quoted below because they are better evidence than
+anything that could be inferred.
+
+### The stack, from the code
+
+A single hand-written HTML page (398 KB) with everything inline. No framework,
+no bundler.
+
+```html
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+</script>
+<script src="Assets/lenis-1.1.18.min.js"></script>
+```
+
+| Library | Present | Notes |
+|---|---|---|
+| **Three.js 0.160.0** | yes | from unpkg via importmap |
+| Three postprocessing | yes | `EffectComposer`, `RenderPass`, `ShaderPass`, `UnrealBloomPass` |
+| **Lenis 1.1.18** | yes | self-hosted |
+| GSAP / ScrollTrigger | **no** | zero matches — all scroll work is hand-rolled or CSS |
+| Framer / Swiper / Locomotive | **no** | zero matches |
+
+Type: **Orbitron, Rajdhani, Syncopate** (Google Fonts), mapped to
+`--font-head`, `--font-body`, `--font-num`. All three are wide geometric
+"technical" faces — the reason the page reads as sci-fi. He praised the
+colouring and the animation here, never the type.
+
+### Smooth-scroll config — the heaviest weighting of all seven, and he loved it
+
+```js
+new Lenis({ lerp: 0.065, smoothWheel: true, wheelMultiplier: 0.75, prevent: _preventNative })
+```
+
+`lerp: 0.065` against Lenis's default of `0.1` — the page catches up to your
+scroll *more slowly* than default. `wheelMultiplier: 0.75` — a wheel notch
+travels a quarter less than normal. And the code comment states:
+
+> *"Lenis smooth scroll — Runs on desktop AND touch now."*
+
+**This settles a question the other six sites left open.** momentolegal also
+weights scroll heavily (`duration: 1.8`, `wheelMultiplier: 0.9`, `syncTouch`)
+and he called it stuck. webtactics weights it *more* — and he called it
+enticing.
+
+**So heavy smooth scroll is not what made momentolegal feel stuck.** The
+difference is what the scroll buys: momentolegal pins for 18.3 viewport heights
+to pan one list; webtactics never spends more than 5. Recorded because it
+changes the recommendation — the variable to control is pin length and content
+delivered, not scroll weight.
+
+### "The 3D clip that warps around your mouse"
+
+Real name: a **full-screen post-processing pass** — the whole rendered scene is
+drawn to a texture and then distorted per pixel by a fragment shader. The
+shipped GLSL:
+
+```glsl
+uniform sampler2D tDiffuse; uniform float uTime;
+uniform float uScrollVelocity; uniform vec2 uMouse; uniform float uWarp;
+varying vec2 vUv;
+void main() {
+  vec2 uv = vUv;
+  float d = distance(uv, uMouse);
+  float ripple = sin(d * 30.0 - uTime * 4.0) * exp(-d * 6.0) * 0.04 * uWarp;
+  uv += normalize(uv - uMouse) * ripple;          // ripple centred on cursor
+  vec2 dd = uv - 0.5; float r = dot(dd, dd);
+  uv += dd * r * (uScrollVelocity * 0.003);       // barrel warp from scroll speed
+  float shift = abs(uScrollVelocity) * 0.0005;    // chromatic split from scroll speed
+  …
+```
+
+Three separate effects in one pass:
+
+1. **A cursor ripple** — a sine wave radiating from `uMouse`, decayed by
+   `exp(-d * 6.0)` so it dies off away from the pointer. That is the "warps
+   around your mouse."
+2. **Barrel distortion proportional to scroll velocity** — the image bulges
+   while you are moving. This is a second, hidden source of the "velocity" he
+   liked on riangle.
+3. **Chromatic aberration proportional to scroll velocity** — colour channels
+   split while scrolling.
+
+The developer's own comment on that third one is a lesson in itself:
+
+> *"Three fetches only while the chromatic split is wide enough to show. This
+> is the last pass in the chain, so it runs once per output pixel (3.0M on a
+> DPR-3 phone) and it took three samples on every frame of the page's life,
+> including the usual case of nobody scrolling. The branch is on a UNIFORM, so
+> it is dynamically uniform — one path per draw, no divergence cost."*
+
+And on the bloom:
+
+> *"…at HALF resolution. Bloom is a low-frequency glow, so half-res looks
+> identical but cuts the bloom blur-chain fragment work to ~25% (a big
+> scroll-smoothness win at 1440p+). …except it did NOT run at half resolution,
+> on any frame, until the first resize."*
+
+Mouse tracking is skipped entirely below 1024 px (`_isMobileAnim =
+window.innerWidth < 1024`), and `uWarp` exists specifically to duck the ripple
+on mobile touch-follow where it would sit over a large heading.
+
+### "The first title kind of types itself in and retypes off of different things"
+
+Real name: a **typewriter / type-on effect with rotating phrases**. The code is
+unminified:
+
+```js
+const words = ['WEB SOLUTIONS', 'IMMERSIVE EXPERIENCES', 'SMART AUTOMATION', 'BRAND SYSTEMS'];
+…
+setTimeout(tick, 70 + Math.random() * 40);   // typing: 70–110ms per character
+… charIdx === current.length → setTimeout(…, 2200)   // hold the full phrase
+… charIdx === 0 → setTimeout(tick, 400)              // pause before the next
+```
+
+**The craft detail is `Math.random() * 40`.** Constant-interval typing reads as
+a machine; jittering each character between 70 ms and 110 ms is what makes it
+read as typed. Deleting runs faster than typing, which matches the rule in
+`design-knowledge.md` §1 that exits should be faster than entrances.
+
+Screenshot `222036` catches the cursor bar right after "SOLUTIONS|", and
+`222043` catches it mid-rotation on "IMMERSIVE EXPERIENCES" — the two frames
+together are direct evidence of the whole cycle.
+
+And the reduced-motion handling, with the reasoning left in place:
+
+> *"An infinitely looping typewriter inside an `<h1>` is the single most
+> disruptive thing on this page for a reduced-motion visitor, and it never
+> stops. Print the first phrase and leave it alone."*
+
+```js
+if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  el.textContent = words[0];
+  return;
+}
+```
+
+### "Each section really blends into each other nicely… they overlay a lot of stuff"
+
+Two different mechanisms, both visible in his screenshots.
+
+**Overlap.** `222043` shows the next section's quote scrolling up *over* the
+still-visible hero scene, and `222055` shows "CRAFTING DIGITAL / REALITIES"
+layered over video thumbnails, over the 3D W, with a ghosted serif "With Us"
+behind it — four depth layers in one screen. The page uses `backdrop-filter`
+**28 times** and `mix-blend-mode` 4 times.
+
+**Continuity of the 3D object.** The glowing W appears in `222036` (hero),
+`222055` (behind the headline), `222104` (inside a services card) and `222126`
+(beside the FAQ). It is **one persistent WebGL canvas behind the entire
+document**, with the camera and the DOM moving over it — not four separate
+animations. That single decision is what produces "each section really blends
+into each other."
+
+### The horizontal rail — 5 viewport heights, in CSS, not JavaScript
+
+Screenshot `222115`, "SELECTED ARCHIVES / SCROLL TO EXPLORE. CLICK TO EXPAND."
+
+```css
+#work-wrapper { height: 500vh; position: relative; margin-top: 10vh; }
+.work-sticky  { position: sticky; top: 0; height: 100vh; width: 100%;
+                overflow: hidden; display: flex; align-items: center;
+                touch-action: pan-y; }
+.work-track   { display: flex; gap: 8vw; … }
+```
+
+No pinning library at all — a 500vh tall wrapper with a `position: sticky`
+child. The same effect as momentolegal's pinned rail, achieved with two CSS
+properties, **at 5 viewport heights instead of 18.3**, and with
+`touch-action: pan-y` so a phone's vertical swipe is never captured.
+
+This is the reconciliation of his contradiction — he liked a horizontal rail
+here and hated one on momentolegal. Same technique, a quarter of the length,
+and no scroll-jacking on touch.
+
+### The lite mode — the safety net worth copying
+
+The whole hero is one ES module importing Three.js from a third-party CDN. The
+developer defends against that:
+
+```js
+window.__WT_LITE = new URLSearchParams(location.search).get('lite') === '1';
+if (window.__WT_LITE) document.documentElement.classList.add('wt-lite');
+…
+setTimeout(function () {
+  if (window._heroReady) return;
+  document.documentElement.classList.add('wt-lite');
+  // hide the preloader and reveal the content so the page is usable
+}, 10000);
+```
+
+```css
+.wt-lite .fade-up, .wt-lite .decode-text, .wt-lite .hero-center-label,
+.wt-lite .h-project, .wt-lite .h-project-inner { opacity: 1 !important; transform: none !important; }
+```
+
+If the CDN is blocked or slow, the page gives up after 10 seconds, drops every
+entrance animation to its end state, and shows the content anyway. `?lite=1`
+previews it. There is also an opt-in `?adaptive=1` dynamic-resolution mode.
+
+**The `.wt-lite` rule is the pattern we should copy verbatim in principle:**
+every reveal animation has an end state expressible as one CSS class, so
+"turn all animation off" is a single class on `<html>` rather than a code path.
+That is how you get a reduced-motion mode that cannot rot.
+
+### Behaviour under `prefers-reduced-motion`
+
+**The most thorough of the seven — 10 occurrences**, site-authored rather than
+inherited from a library, and applied where it actually matters (the looping
+`<h1>` typewriter). Combined with `.wt-lite`, the capability split below, and
+the CDN timeout, this site has four independent fallback paths.
+
+Capabilities are split explicitly by input type:
+
+```js
+// desktop only
+setupParallax(); setupCursorLabel(); setupMagneticButtons(); setupCardTilt();
+setupHeadingGravity(); setupCursorMorphing(); setupUISounds(); setupCursorTrailGlow();
+// touch only
+if (isMobile) { setupTouchSwipe(); setupHapticFeedback(); }
+```
+
+### Striking things he did not mention
+
+- **24 named `setup*` functions.** The full inventory:
+  `BentoStagger, CardEntrance, CardTilt, CinematicEntry, CrossPageWipe,
+  CursorLabel, CursorMorphing, CursorTrailGlow, DOMInteractions, DubaiClock,
+  HapticFeedback, HeadingGravity, LazyBackgrounds, MagneticButtons,
+  ManifestoReveal, Parallax, ReelVideoAutoplay, RetroFooter, SoundToggle,
+  StatsRecount, TextSplitKickers, TouchSwipe, TypedText, UISounds`.
+  The "depth" he felt is not one effect — it is two dozen small ones, each
+  gated by input type.
+- **A text-scramble/decode effect.** `<h2 class="decode-text"
+  data-text="Selected Archives">` with a 30 ms interval and `it += 1/3` —
+  characters resolve from random glyphs at a third of a character per tick.
+- **The cursor becomes a label.** `222115` shows a filled circle reading
+  "VIEW →" where the pointer sits. `setupCursorMorphing` + `setupCursorLabel`.
+  This is the second of his two cursor-follow mentions, and unlike riangle's
+  triangle its code is fully readable here.
+- **A bento grid, not three even cards.** `222104` — one tall card plus three
+  smaller ones. It is the direct answer to the never-default that finseo and
+  sharplink both trip over.
+- **A live Dubai clock** in the header (`setupDubaiClock`) — same device as
+  riangle's studio time.
+- **Two marquee rows running in opposite directions** (`222055`) — client names
+  as texture rather than a logo grid.
+- **UI sounds with a toggle** (`setupUISounds`, `setupSoundToggle`, the `SFX`
+  button bottom-right of `222036`). Off by default, opt-in.
+
+### The one place his own rule is broken
+
+He said: *"I don't want to overlay to the point where it's hard to read stuff."*
+
+In `222104`, the body copy on the "02 // MARKETING & STRATEGY" card sits over
+busy chart imagery and is genuinely hard to read; the `.card-entrance` imagery
+bleeds through at an opacity that wins against the text. Same again in `222043`
+where the manifesto quote crosses the bright 3D W.
+
+**Worth telling him**: the site he praised for depth is also the site that most
+often crosses his own legibility line. The fix is not less overlap — it is that
+text sitting over imagery needs a scrim (a local gradient or tint under the
+text block), which costs nothing and preserves the overlap.
+
+### Cost to us
+
+| Item | Weight | Effort | Android risk |
+|---|---|---|---|
+| Typewriter with rotating phrases | ~25 lines | trivial | **none** |
+| Text scramble / decode | ~15 lines | trivial | none |
+| Sticky horizontal rail (CSS) | zero | low | **low** — `position: sticky` + `touch-action: pan-y` |
+| `backdrop-filter` layering | zero | low | low-medium — 28 uses is a lot; each blurred layer costs |
+| Lenis at `lerp: 0.065` | ~3 KB | trivial | low |
+| Cursor label / magnetic / tilt | ~60 lines | low | none — desktop-gated by construction |
+| **Three.js + EffectComposer + UnrealBloom** | **~150 KB + addons, over a CDN waterfall** | **very high** | **high** — a full-screen shader pass every frame |
+| `.wt-lite` fallback class | zero | **low** | **negative — it removes risk** |
+
+### Conflict with what binds us, and how to reconcile
+
+1. **The full-screen shader is out of budget**, and it is also the thing he
+   himself said we probably would not do. Reconcile by taking the *idea* of
+   cursor-reactive depth at a hundredth of the cost: subscrr's mesh gradient,
+   or a CSS radial-gradient spotlight following the pointer, both desktop-only.
+2. **28 `backdrop-filter` uses versus mid-range Android.** Real cost. Reconcile
+   by budgeting: one glass element per screen (the nav), not a glass system.
+3. **Overlay versus legibility — his own stated rule.** Reconcile with a
+   mandatory scrim behind any text over imagery, and a contrast check as part
+   of the visual verification pass we already run at three viewports.
+4. **Orbitron / Rajdhani / Syncopate are wrong for us.** They read as sci-fi;
+   we sell to detailers. Nothing to reconcile — take the structure, not the
+   type. Note he never praised the type here, only the colouring and motion.
+5. **The persistent single canvas is a structural idea worth keeping even
+   without WebGL.** One continuous background element that the sections scroll
+   over — a gradient field, a photograph, a video — produces the same "sections
+   blend into each other" without a renderer.
+
+### Scroll payoff
+
+**The best in the set.** Every screen in his six screenshots delivers
+something: hero + typed headline, manifesto, client marquee + reel, bento
+services, horizontal archive rail, FAQ. The longest pin is 5 viewport heights
+and it pans a real portfolio. Nothing stalls.
+
+And the deeper lesson, which is the opposite of what the site looks like:
+**this is the most ambitious page here and also the most carefully degraded.**
+Reduced motion, input-type splits, a resolution cap, a CDN timeout, a
+half-resolution bloom pass, a branch to avoid three texture fetches per pixel
+when nobody is scrolling. gustavobatista attempted less and defended it by
+blacklisting Samsung Internet. The difference between the two is not ambition —
+it is that one of them measured.
