@@ -126,11 +126,19 @@ are kept; only the visual world is being replaced.
   `docs/tenant-websites.md` (written because it existed only in a chat); the
   marketing reasoning is `DECISIONS.md` → "Positioning: the website is the
   product"; the concrete page changes are roadmap **1.4**.
-  Two things to carry: the tenant website **does not exist yet** (Phase 3), so
-  the page is ahead of the product and the first client's site is built by
-  hand; and the one rule that keeps "custom for everyone" affordable —
-  **fork the presentation, never the engine** — is my recommendation and he
-  has not reviewed it.
+  Two things settled the same day, both by him:
+  **(1)** It is ONE build, not a website with extras — "it's combined... we're
+  building this website and admin dashboard for you kinda thing... I don't
+  want that to be lost." The website half leads because it is the half that is
+  not a commodity; the dashboard is deliberately standard for everyone and
+  belongs in the same sentence, never in a later section.
+  **(2)** "Fork the presentation, never the engine" is CONFIRMED — the back
+  end (Supabase, Resend, booking logic, dashboard) is identical for every
+  client, the front end is custom, and a site must still implement whatever
+  the dashboard's features need to work.
+  A flag I raised and he correctly dismissed: nothing is sold until everything
+  is finished, so the page being ahead of Phase 3 is not a problem, and the
+  first client site is built by the kit, not by hand.
 - **Copy is provisional by agreement**, not an oversight: "in the future we'll
   kind of critique the actual text on the page. For now, this is a good
   layout." A copy pass is a named 1.4 task. Only "Stop booking jobs in your

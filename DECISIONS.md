@@ -1296,7 +1296,10 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
-## Positioning: the website is the product (2026-08-29)
+## Positioning: what we sell is the pair (2026-08-29)
+
+**Read the correction at the end of this section first — the owner amended the
+framing the same day, and the amendment is the operative version.**
 
 The owner asked me to do the marketing thinking rather than hand it back —
 "I'm not a marketer, so actually I want you to do the thinking of what would
@@ -1361,14 +1364,43 @@ promise and becomes the pain, which is the job it was always doing.
 **Must not:** get longer (his instruction), make live-editing the headline (his
 instruction), or add a feature list for a site that Phase 3 has not built yet.
 
-### The honesty problem, stated plainly
+### CORRECTION, same day: it is ONE build, not a website with extras
 
-**The tenant website does not exist.** Phase 3 builds it. The landing page
-already promises "a complete site under your own name", so the page is ahead of
-the product — normal pre-launch, but it means the first customer's site is
-built by hand before the promise is true. Recorded in
-`docs/tenant-websites.md` §6 so it is a known cost rather than a surprise.
+The owner amended the framing above, and this is the operative version:
 
-Everything else on the page is real today: the dashboard, the booking engine,
-the price, the founding count. Nothing invented was added to support the new
-positioning and nothing should be.
+> "The website with the admin dashboard is kind of the seller. Like, it's
+> combined. It's not like, here's a custom website with you, also comes with
+> the admin dashboard. No. So we're building this website and admin dashboard
+> for you kinda thing. Obviously the admin dashboard's cookie cutter, but I
+> don't want that to be lost."
+
+The ordering above is right; the *grammar* was wrong. "A custom website — and
+it comes with a dashboard" makes the dashboard an accessory, and he does not
+want it demoted, even though it is the standardised half. **The sentence is
+"we build you a website and the dashboard that runs it", as one purchase.**
+
+Practically, on the page: the hero names both. The website is what makes the
+offer uncommon and so it leads the sentence; the dashboard is in the same
+sentence, not in a later section that reads as a bonus. Only the live-editing
+*feature* stays out of the headline — that was his earlier instruction and it
+still holds. Do not fix the under-selling of the website by creating the same
+problem for the dashboard in the other direction.
+
+### The honesty flag I raised, and why he was right to dismiss it
+
+I flagged that the page sells a tenant website Phase 3 has not built, and that
+the first customer's site would have to be hand-built. He answered:
+
+> "We're not selling to customers until literally every single thing is
+> completely finished. So that's not a flag. Phase 3, we will build it, and
+> then the first customer site will be built by our bot."
+
+He is right and the flag is withdrawn. There is no window in which the page
+promises something that does not exist, because nothing is sold before Phase 3
+ships — and the first client site is produced by the build kit (3.4), which is
+the entire point of building the kit. Recorded because a later session reading
+only the paragraph above would otherwise re-raise it.
+
+Everything on the page is real today or will be before anything is sold: the
+dashboard, the booking engine, the price, the founding count. Nothing invented
+was added to support the new positioning and nothing should be.

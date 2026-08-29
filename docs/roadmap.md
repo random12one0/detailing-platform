@@ -154,19 +154,35 @@ is kept; the entire visual design restarts from scratch.
       halved; the dots now move at ~16px/s instead of 1.8px/s.
 - [ ] 1.4 Refine the winner once. **OWNER approves.**
 
-      **THE MAIN JOB: re-point the page at the website.** The owner changed
-      the positioning on 2026-08-29, from the market rather than from taste:
-      "there's already a lot of those out there [booking engines], so my main
-      advertisement should be a custom website." Full reasoning in
-      `DECISIONS.md` → "Positioning: the website is the product"; the delivery
-      model behind it is `docs/tenant-websites.md`. Order to sell in: the
-      website → custom, not a template → the dashboard keeps it current →
-      booking as a feature → the terms.
+      **THE MAIN JOB: re-point the page at the website — WITHOUT demoting the
+      dashboard.** The owner changed the positioning on 2026-08-29, from the
+      market rather than from taste: "there's already a lot of those out there
+      [booking engines], so my main advertisement should be a custom website."
+      Then he corrected the framing the same day, and the correction is the
+      operative version: "it's combined. It's not like, here's a custom website
+      with you, also comes with the admin dashboard. No. So we're building this
+      website and admin dashboard for you kinda thing... I don't want that to
+      be lost."
+
+      **So the sentence is "we build you a website and the dashboard that runs
+      it", as one purchase.** The website half leads because it is the half
+      that is not a commodity; the dashboard belongs in the same sentence,
+      never in a later section that reads as a bonus. Only the live-editing
+      FEATURE stays out of the headline. Do not fix the under-selling of the
+      website by creating the same problem for the dashboard in reverse.
+
+      Full reasoning in `DECISIONS.md` → "Positioning: what we sell is the
+      pair" (read its correction section); the delivery model behind it is
+      `docs/tenant-websites.md`. Order: the pair → the website half is custom,
+      not a template → the dashboard keeps it current → booking as a feature →
+      the terms.
 
       Concrete changes, all inside `docs/design-directions/5-the-thread.html`:
-      - **Hero leads with the website.** Keep the rotating-tail mechanic he
-        loves, but rotate what they have NOW: "a Facebook page." / "a Yelp
-        listing." / "a link in your bio." / "nothing at all."
+      - **Hero names both, website first.** Keep the rotating-tail mechanic he
+        loves, rotating what they have NOW: "a Facebook page." / "a Yelp
+        listing." / "a link in your bio." / "nothing at all." The line beneath
+        it has to carry the dashboard in the same breath — one build, not a
+        website with software attached.
       - **Move "Stop booking jobs in your DMs"** down to head the thread
         section — it is literally what that section shows. It stops being the
         promise and becomes the pain, which is the job it was doing anyway.
@@ -181,7 +197,10 @@ is kept; the entire visual design restarts from scratch.
       - **Reframe the $900** as what it costs to have a site built for you,
         against the two real alternatives (do it yourself badly, or pay an
         agency thousands), instead of as a fee to get started.
-      - Do NOT add a feature list for a site Phase 3 has not built.
+      - Do NOT add a feature list for a site Phase 3 has not built. (A scope
+        rule, not an honesty one: the owner has confirmed nothing is sold until
+        everything is finished, so the page being ahead of Phase 3 is not a
+        problem to solve — see `docs/tenant-websites.md` §6.1.)
 
       Also carried in from 1.3:
       - **The iPhone check is still unverified** — the pinned section was
@@ -218,9 +237,15 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 3.1 Plan: which pages every tenant gets (home, services, gallery,
       about, reviews, FAQ, contact, booking) and which settings drive each.
       **OWNER approves the plan.**
-- [ ] 3.2 Build them, entirely from tenant configuration — zero hardcoded
-      content. Anything impossible from settings gets reported, not
-      hand-built.
+- [ ] 3.2 Build them. **NOTE: this wording predates the owner's 2026-08-29
+      decision** — "entirely from tenant configuration, zero hardcoded
+      content" describes the shared-system answer he rejected. Under the
+      confirmed model the front end is custom per client and the ENGINE is
+      shared, so what 3.2 must produce is the standard back-end wiring plus
+      the list of things a site is REQUIRED to implement for the dashboard's
+      features to work — his constraint: "a lot of the features of the admin
+      dashboard need some features on the website to work." Rewording this is
+      a 3.1 job. See `docs/tenant-websites.md` §3.
 - [ ] 3.3 Custom domains: hostname→business lookup + the Netlify alias
       process, so website-package customers can use their own domain.
       Booking-only customers stay on `detailingplatform.com/book/name`.
@@ -293,6 +318,12 @@ is kept; the entire visual design restarts from scratch.
       Also from the same conversation, not scheduled: **an intake form** the
       detailer fills in about their website, with examples to choose from,
       "because most of them will not know what they want in the abstract".
+
+      **The kit builds the FIRST client site, not just later ones.** The owner,
+      2026-08-29: "Phase 3, we will build it, and then the first customer site
+      will be built by our bot." Nothing is sold before Phase 3 ships, so there
+      is no hand-built site and no gap between what the page promises and what
+      exists. Do not re-raise that as a risk.
 
 ## Phase 4 — Feature restoration + platform admin
 

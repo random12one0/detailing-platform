@@ -25,15 +25,21 @@ my main advertisement should be a custom website."
 
 The concrete promise, in order of what to say first:
 
-1. **A website built for you — custom, not a template.** This is the product.
-   It is the tangible thing, and it is the only part of the offer that is not
-   a commodity. Every detailer gets their own; see `docs/tenant-websites.md`.
-2. **The dashboard behind it keeps it alive.** Change a price in your pocket
-   and the site changes — no code, no waiting on a developer. This is the
-   answer to what makes an agency site rot. **Not the headline** — the owner
-   was explicit about that.
-3. **Booking is a feature of the website**, not the product.
-4. **The terms close it:** no commission ever, your customers are yours,
+1. **A website and the dashboard that runs it, built for you.** One build, one
+   purchase, one sentence. The owner was explicit that these are not sold
+   separately: "it's combined... we're building this website and admin
+   dashboard for you kinda thing" — NOT "a custom website, and it also comes
+   with a dashboard", which demotes the dashboard to an accessory.
+2. **The website half is custom, not a template.** This is the part that is not
+   a commodity and the reason the price makes sense; every detailer gets their
+   own. The dashboard half is deliberately standard for everyone. See
+   `docs/tenant-websites.md`.
+3. **The dashboard keeps the site current.** Change a price in your pocket and
+   the site changes — no code, no waiting on a developer. **This feature is
+   not the headline** — the owner was explicit about that — but it is the
+   answer to what makes an agency-built site rot.
+4. **Booking is a feature of the website**, not the product.
+5. **The terms close it:** no commission ever, your customers are yours,
    cancel any time and your data leaves with you.
 
 Never "streamline your workflow" or generic SaaS-speak. The audience's own

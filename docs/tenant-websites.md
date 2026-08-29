@@ -58,7 +58,7 @@ superseded and 3.4's open decision is closed.
 
 ---
 
-## 3. The one architectural rule that makes it affordable — MY judgment, not his
+## 3. The one architectural rule that makes it affordable — CONFIRMED
 
 The roadmap's warning against bespoke was real and it has not gone away: ten
 clients could mean ten codebases to host, update and fix, alone, forever, and
@@ -84,7 +84,40 @@ If that rule is kept, "custom for every client" costs a per-client design pass
 and nothing else. If it is broken — if one client's site grows its own booking
 logic — the maintenance ceiling the roadmap warned about arrives immediately.
 
-**This is a recommendation, not a decision. The owner has not seen it.**
+**CONFIRMED by the owner, 2026-08-29: "Fork the presentation over the engine
+— yeah, that's what I meant. Custom for everyone. That's confirmed."** It is
+now the rule, not a proposal.
+
+His own description of where the line falls, which is more specific than the
+rule above and should be read with it:
+
+> "The back-end basic part of the websites are all gonna stay the same. That's
+> cookie cutter — basically in the prompt that kinda tells it how to set up the
+> back end to work with, you know, the Supabase and the Resend and all the
+> stuff that we've already set up. But the front end is what gets fully
+> customised for each detailer."
+
+And the constraint that stops "custom front end" meaning "anything at all":
+
+> "Obviously you still gotta have, like, a lot of the features of the admin
+> dashboard need some features on the website to work."
+
+So the contract is two-way and it is not optional. The dashboard exposes
+things — services, prices, hours, gallery, availability, bookings — and a
+tenant site is only finished when it implements the pieces those features need
+in order to function. A site may look like anything; it may not omit the parts
+the dashboard drives. That list is what roadmap 3.1 has to enumerate.
+
+On the starting point:
+
+> "When we first start, it's still gonna have that kind of information of a
+> good website design, to kinda default off of — the research we've been doing
+> for the landing pages. It could be the same kind of default for the website
+> for the client."
+
+So the kit ships a **default** built from `docs/references/` and the finished
+design system, and per-client work diverges from it. A client site is not
+designed from nothing each time.
 
 ---
 
@@ -132,11 +165,23 @@ He connected the two himself:
 > main advertisement should be a custom website."
 
 The marketing consequence is worked through in `DECISIONS.md` under
-"Positioning: the website is the product" and the concrete page changes are
-roadmap **1.4**. In short: the website leads, "custom, not a template" is the
-line that separates us from the builders a detailer would otherwise compare us
-to, and the dashboard becomes the reason the site stays current rather than the
-headline.
+"Positioning: what we sell is the pair" and the concrete page changes are
+roadmap **1.4**.
+
+**And he corrected me on it the same day, which matters more than the original
+framing:**
+
+> "The website with the admin dashboard is kind of the seller. Like, it's
+> combined. It's not like, here's a custom website with you, also comes with
+> the admin dashboard. No. So we're building this website and admin dashboard
+> for you kinda thing. Obviously the admin dashboard's cookie cutter, but I
+> don't want that to be lost."
+
+So it is **one build, sold as one thing** — not a website with the software
+thrown in. "We build you a website and the dashboard that runs it" rather than
+"a custom website, and it comes with a dashboard". The custom half and the
+standard half are both part of the promise; only the custom half is what
+distinguishes it from the booking tools he is trying not to be compared to.
 
 **What it does not change:** he was explicit that the live-editing feature
 should not become the main point, and that the page must not get long.
@@ -145,13 +190,17 @@ should not become the main point, and that the page must not get long.
 
 ## 6. Open, and honest about it
 
-1. **The tenant website does not exist yet.** Phase 3 builds it. The landing
-   page already sells "a complete site under your own name", so the page is
-   ahead of the product — which is normal pre-launch, but it means **the first
-   customer's site has to be built by hand, by him, before the promise is
-   true.** Worth him knowing plainly rather than discovering at signup.
-2. **§3's fork-the-presentation rule is unreviewed.** It is the difference
-   between "custom for everyone" being affordable and being a trap.
+1. ~~The page is ahead of the product.~~ **RAISED AND DISMISSED by the owner,
+   2026-08-29, correctly.** I flagged that the landing page sells a website
+   Phase 3 has not built, and that the first client's site would therefore be
+   hand-built. He answered: *"We're not selling to customers until literally
+   every single thing is completely finished. So that's not a flag. Phase 3, we
+   will build it, and then the first customer site will be built by our bot."*
+   Nothing is sold before Phase 3 ships, so there is no window in which the
+   page promises something that does not exist, and no hand-built first site.
+   Kept here only so the concern is not re-raised by a later session.
+2. ~~§3's fork-the-presentation rule is unreviewed.~~ **Confirmed by the owner
+   the same day.** See §3.
 3. **The intake form is a Phase 3+ idea**, not scheduled.
 4. **Pricing for bespoke work is unset.** The current $900 setup covers
    "building it with you". If every site is genuinely custom, that number is a
