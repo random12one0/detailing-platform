@@ -66,28 +66,32 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - One queue prompt per session; commit before the next; `/clear` and
   restart a session that goes sideways.
-- **"Safe to clear." is measured, not guessed.** Run
-  `node scripts/context-check.mjs` — it reads the live session transcript and
-  prints real context usage against the owner's 300k ceiling. Do not estimate
-  this; the number is routinely far higher than it feels.
+- **Ping the owner's phone when the work is done.** Send a PushNotification
+  at the end of every session — whenever you hand over, ask for a decision,
+  or stop needing them to look. They are often away from the screen while a
+  session runs. Harmless when they are not on a remote session; do it
+  anyway rather than guessing.
+- **Clear at the work boundary, not at a token count.** A session covers ONE
+  roadmap item. When that item is finished AND nothing is left hanging — no
+  unanswered question, no decision handed to the owner they have not
+  answered, no "I'll look at that next" — say "Safe to clear." and hand
+  over. Never start a second item in the same session: that is what the
+  clear is for. Finishing a *sub-part* is not a boundary, and neither is
+  "the code works" — chase the loose ends first.
 
-  Two independent triggers, and either one is enough:
+  If a decision is pending, the session is not over. Keep working on
+  everything that does not depend on it.
 
-  1. **Work boundary.** A whole roadmap item is finished AND nothing is left
-     hanging — no unanswered question, no decision handed to the owner that
-     they have not answered, no "I'll look at that next". Finishing a
-     *sub-part* is not a boundary. If a decision is pending, the session is
-     not over: keep working on anything that does not depend on it.
-  2. **Context pressure.** Over ~240k (80%), wrap up at the next safe stopping
-     point even mid-item; over 300k, clear regardless. When context forces the
-     clear rather than the work finishing, say so plainly and make the handoff
-     prompt carry every unresolved thread, because the next session starts
-     cold on whatever the prompt names.
+  **Context size is advisory, not a trigger.** `node scripts/context-check.mjs`
+  reads the live transcript and prints real usage; quality is reported to
+  degrade somewhere past ~300k. Treat that as a reason to be economical and
+  to avoid picking up anything new — never as a reason to abandon the item
+  mid-flight. If you are far past it and the item genuinely cannot finish,
+  say so plainly and make the handoff carry every unresolved thread,
+  because the next session starts cold on whatever the prompt names.
 
-  Below ~240k with the work unfinished, keep going and offer the next piece
-  of work instead of a handoff. Never mid-task. If something is still
-  unwritten, write it first — a thread that exists only in chat dies at the
-  clear.
+  Before clearing, write anything that exists only in this chat into a
+  file — a thread that lives only in the conversation dies at the clear.
   Then give them a short prompt to paste into the next session, in a plain
   fenced block (no language tag — it is not a shell command). Fill it from
   `docs/roadmap.md`: the next unchecked item, and its row in that file's

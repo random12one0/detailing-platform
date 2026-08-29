@@ -11,6 +11,7 @@
 
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const { SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_REF } = process.env;
 if (!SUPABASE_ACCESS_TOKEN || !SUPABASE_PROJECT_REF) {
@@ -20,7 +21,10 @@ if (!SUPABASE_ACCESS_TOKEN || !SUPABASE_PROJECT_REF) {
 
 // With file arguments, apply only those (for incremental migrations on an
 // already-migrated database); with none, apply the whole folder in order.
-const dir = new URL("../supabase/migrations/", import.meta.url).pathname;
+// fileURLToPath, not .pathname: on Windows .pathname yields "/D:/..." which
+// readdir then resolves against the drive as "D:\D:\...". Same bug that
+// stopped deploy-functions.mjs running locally.
+const dir = fileURLToPath(new URL("../supabase/migrations/", import.meta.url));
 const files = process.argv.length > 2
   ? process.argv.slice(2).map((f) => path.basename(f))
   : (await readdir(dir)).filter((f) => f.endsWith(".sql")).sort();

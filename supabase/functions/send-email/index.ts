@@ -33,6 +33,16 @@ Deno.serve(async (req) => {
       return json({ error: "business_id, to, subject and body are required" }, 400);
     }
 
+    // Reserved and non-existent domains (RFC 2606 / 6761) can never receive
+    // mail: sending anyway produces a hard bounce, and bounces damage the
+    // sending domain's reputation. Seeded demo tenants use these addresses,
+    // and a real detailer typo'd into one is equally undeliverable.
+    const domain = String(to).split("@").pop()?.toLowerCase() ?? "";
+    if (/(^|\.)(test|invalid|localhost|example)$/.test(domain) || /^example\.(com|net|org)$/.test(domain)) {
+      console.warn("undeliverable domain - email not sent:", { to, subject });
+      return json({ success: true, skipped: "undeliverable_domain" });
+    }
+
     const { data: business } = await supabase
       .from("businesses")
       .select("name, contact_email")

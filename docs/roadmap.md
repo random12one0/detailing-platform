@@ -26,9 +26,15 @@ is kept; the entire visual design restarts from scratch.
       Proof: a real booking through `create-booking` produced a customer
       confirmation to the owner's inbox, status **delivered**, in Resend's
       log. See DECISIONS.md.
-- [ ] 0.3 Reminders — schedule the sweep (cron every 15 min), prove a
-      reminder actually sends on schedule, verify no duplicates and no
-      reminders for cancelled bookings.
+- [x] 0.3 Reminders — **DONE 2026-08-29, proven.** pg_cron + pg_net now run
+      `send-owner-reminders-sweep` every 15 minutes (migration
+      `20260829000000`). A scheduled run sent a real reminder (delivered in
+      Resend, 01:27 UTC), the next tick sent nothing (no duplicates), and a
+      cancelled booking was never mailed. Two defects fixed on the way: the
+      sweep was returning booking UUIDs to unauthenticated callers (a UUID is
+      the credential for cancel/reschedule), and reminders never re-armed
+      after an edit, so a rescheduled customer was never reminded of the new
+      time. See DECISIONS.md. Left open: a failed tick is silent.
 - [x] 0.4 Deployment sanity — **DONE 2026-08-29.** `detailingplatform.com`
       is served by the Netlify project `detailplatform-admin-test`, linked to
       the GitHub repo and building from `main` (`context=production`,

@@ -491,3 +491,117 @@ each picked as the option easiest to change later.
   `main` deploys to production.** The working directory's
   `.netlify/state.json` pinning the production site remains a separate
   hazard for anyone running a manual deploy command here.
+
+## Abuse check on the live project (2026-08-29, read-only)
+
+Question asked by the owner: **was the exposed service-role key ever
+actually used?** Answered without ever presenting the leaked key to
+anything — every check below runs through the owner's own legitimate
+Supabase access.
+
+- **The key is still valid today, and that is now proven rather than
+  assumed.** The anon key sitting in the public git history is
+  byte-for-byte identical to the project's *current* anon key
+  (`get_publishable_keys`, 2026-08-29). Both tokens carry
+  `iat=1769922897` — 2026-02-01 05:14:57Z, the moment the project was
+  created — and both are signed by the same JWT secret. Rotating that
+  secret reissues both keys with a new `iat`; it has not happened. So the
+  leaked `service_role` token (`exp=2085498897` → 2036-02-01) is live.
+
+- **No evidence it has been used by anyone but the owner's own apps.**
+  Findings, each with the source that supports it:
+  - `pg_stat_statements` covers the **entire** exposure window and has not
+    lost a single entry: `stats_reset = 2026-02-01 05:15:31Z` (project
+    birth), `pg_postmaster_start_time = 2026-02-01 05:17Z` (never
+    restarted since), and 3075 of a possible 5000 entries used, so nothing
+    has been evicted. Every distinct SQL statement ever run on this
+    database is still listed.
+  - Of those, the 168 executed as `service_role` are all PostgREST-shaped
+    application queries against the booking tables (plus `forge_*` and
+    storage — see below). **No** reconnaissance or exfiltration
+    fingerprint: no `information_schema` sweep, no `pg_read_file`, no
+    `COPY`, no DDL, no bulk `SELECT customers.*` dump.
+  - `auth.audit_log_entries` runs back to 2026-02-05 (1340 rows) and
+    contains exactly **one** action ever taken as `service_role`:
+    `user_signedup` at 2026-02-05 01:54:53Z, which is the creation of the
+    owner's own `andrewswashing@gmail.com` account during setup.
+  - `auth.users` holds two accounts, both the owner's, both from
+    2026-02-05. No planted user, none banned, none deleted.
+  - `pg_roles` is stock Supabase — no attacker-created role.
+  - No foreign tables, and no planted `SECURITY DEFINER` function: the 11
+    functions in `public` are all the app's own.
+  - The public-facing RLS policies are still read-only SELECTs. The
+    anonymous-INSERT policy from `temp_enable_inserts.sql` is still absent,
+    confirming the 0.1 check.
+  - One `cron.job` exists — the legitimate `send-owner-reminders-sweep`.
+    Nothing else is scheduled.
+  - Storage holds 2 buckets and 2 objects, all from the owner's own
+    unrelated `forge` project.
+  - API/edge logs corroborate the visible window (traffic is real visitors,
+    Googlebot/AhrefsBot, and the Supabase edge runtime) but retention only
+    reaches back to roughly June 2026 — 2026-08-01 returns rows,
+    2026-03-01 returns none — so logs cannot speak for Feb–May.
+
+- **What this evidence cannot prove.** `pg_stat_statements` records
+  statement *shapes*, not rows or arguments: a read that happens to use the
+  same query shape the app already uses is invisible in it. A pure
+  data-read through PostgREST that mimicked the app's own calls would
+  therefore leave no distinguishable trace, and the API logs that would
+  have shown it are gone for the first four months of exposure. The honest
+  verdict is **no sign of misuse, not a guarantee of none** — every
+  durable, tamper-relevant surface (users, roles, schema, functions,
+  policies, cron, storage) is clean, and every destructive or
+  privilege-escalating use of the key would have shown up in one of them.
+
+- **Side finding, unrelated to the leak:** this live business database was
+  also used for the owner's personal `forge` fitness app (its `forge_*`
+  tables have since been dropped; two storage buckets remain). Anything
+  reachable with the leaked key covered that data too.
+
+### 0.3 — the proof
+
+Proven 2026-08-29 on the demo tenant (`demo-detail`), mailing only Resend's
+`delivered@resend.dev` simulator, never a real address.
+
+Method: the real job runs `*/15`, so a second job with the identical body was
+scheduled at `* * * * *` to exercise the same mechanism on a one-minute
+cadence, then removed. What was unproven was pg_cron → pg_net → edge function
+firing unattended, not the parsing of a cron expression — and `*/15` is the
+expression already running 1,255 times on the live site.
+
+| Tick (UTC) | Function response | What it means |
+|---|---|---|
+| 01:25:00 | **500** `{"error":"JWT issued at future"}` | first call after deploy — see below |
+| 01:26:00 | 200 `count:0, summary:{}` | nothing due, nothing sent |
+| 01:27:00 | 200 `count:2, {owner_reminder_sent:1, customer_reminder_sent:1}` | **the scheduled run sent a real reminder** |
+| 01:28:00 | 200 `count:0, summary:{}` | **no duplicate** — same booking, next tick, silent |
+
+- **A reminder really sends, on schedule, untouched by hand.** Booking "ZZ
+  Cron Proof C" was stamped `owner_reminder_sent_at 01:27:00.792` /
+  `customer_reminder_sent_at 01:27:01.23` by the scheduler. Both emails show
+  **delivered** in the Resend log at 01:27:00.881 and 01:27:01.325
+  ("Upcoming job — ZZ Cron Proof C" and "Reminder: your appointment").
+- **No duplicates.** The 01:28 tick returned `count:0` and C's stamps were
+  unchanged. The marker guard holds.
+- **No reminders for cancelled bookings.** "ZZ Cron Proof B", cancelled but
+  timed to be due, kept both stamps `null` across all four runs and produced
+  no mail. It is also absent from `get_bookings_due_for_reminder` while a
+  confirmed booking at the same offset is present.
+- **The response body carries no booking ids**, confirming the security fix
+  is live in the deployed function, not just in source.
+
+- **OPEN — the sweep can fail silently, and did once.** The 01:25 run
+  returned 500 `JWT issued at future` from inside the function and sent
+  nothing; the three following runs succeeded unchanged, and the keys in use
+  have `iat` 2026-08-26 (comfortably past), so this reads as clock skew on a
+  cold container on the first invocation after a deploy rather than a bad
+  credential. Impact is bounded by the design: the sweep is idempotent and
+  due-ness is recomputed every run, so a failed tick delays reminders by up
+  to 15 minutes and never loses them. Nothing alerts anyone when a tick
+  fails, though — worth an alert before real tenants depend on it.
+
+- Cleanup: the one-minute job was unscheduled, both proof bookings deleted,
+  and `cron.job` now holds exactly one active job,
+  `send-owner-reminders-sweep` at `*/15 * * * *`. All 11 test suites pass —
+  the four credential-free ones and the seven that hit the real project,
+  which is what clears the new bookings trigger of breaking anything.

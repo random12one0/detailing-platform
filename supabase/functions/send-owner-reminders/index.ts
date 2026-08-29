@@ -249,7 +249,19 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({ success: true, count: results.length, results });
+    // Aggregate counts only. This endpoint is unauthenticated by necessity —
+    // the scheduler cannot carry the service-role key without that key being
+    // committed in a migration — and in this system a booking's UUID IS the
+    // credential for its receipt, cancel and reschedule pages. Returning ids
+    // here would let anyone poll the sweep and harvest them. Per-booking
+    // detail, including errors, goes to the function log instead.
+    console.log("sweep results", JSON.stringify(results));
+    const summary: Record<string, number> = {};
+    for (const r of results) {
+      const key = `${r.kind}_${r.sent ? "sent" : "failed"}`;
+      summary[key] = (summary[key] ?? 0) + 1;
+    }
+    return json({ success: true, count: results.length, summary });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);
   }
