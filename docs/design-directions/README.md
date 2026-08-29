@@ -160,3 +160,26 @@ survive a `/clear`.
 - **The dashboard is shown fully populated in all four.** Its empty state
   (a detailer with no bookings today) is not drawn. That is a gap; it belongs
   in 1.4 with the winner.
+
+## Looking at these on a phone
+
+Three of the four behave differently on a phone, and it is the device most of
+this product's users hold, so the phone look is not optional.
+
+Double-clicking the files works on the laptop. To get them onto a phone, run
+this from the repo root and leave the window open:
+
+```
+python -m http.server 8080 --directory docs/design-directions
+```
+
+Then on a phone **on the same wifi**, open `http://<this machine's IP>:8080/`.
+On 2026-08-29 that address was `http://192.168.0.126:8080/` — the IP can change
+when the router reassigns it, so check it with `ipconfig` if the page does not
+load. Closing the window stops the server; nothing is deployed anywhere and
+nothing is public.
+
+**The one thing worth doing on the phone rather than the laptop:** scroll
+direction 4's hero slowly and say whether it stutters. That is the only
+direction with a real performance question attached, and the owner's own phone
+is a better test than any measurement taken here.

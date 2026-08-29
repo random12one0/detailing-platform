@@ -38,6 +38,7 @@ h2 a:hover{text-decoration:underline;text-underline-offset:4px}
 .risk{margin:12px 0 0;font-size:14px;color:#C9A227}
 .swatches{display:flex;gap:6px;margin:16px 0 0}
 .swatches i{width:34px;height:22px;border-radius:2px;border:1px solid rgba(255,255,255,.12)}
+code{font-size:13px;background:#0C0F0E;padding:2px 6px;border-radius:3px;color:#E8ECE9;word-break:break-all}
 .foot{margin-top:36px;color:var(--dim);font-size:14px;border-top:1px solid var(--line);padding-top:20px}
 </style>
 </head>
@@ -106,6 +107,10 @@ h2 a:hover{text-decoration:underline;text-underline-offset:4px}
     </li>
   </ol>
 
+  <div class="how" style="margin-top:30px">
+    <p><b>To see these on your phone</b> — run <code>python -m http.server 8080 --directory docs/design-directions</code> from the repo folder, leave the window open, then on your phone (same wifi) open <b>http://192.168.0.126:8080/</b>. Closing the window stops it. Nothing is published anywhere.</p>
+    <p>While you are there: scroll <b>direction 4's</b> hero slowly and tell me whether it stutters. That is the only one with a real speed question, and your phone answers it better than anything I can measure.</p>
+  </div>
   <p class="foot">Written up in full — what each one is doing, what it borrows from which of your seven reference sites, and what it would cost to build — in <b>docs/design-directions/README.md</b>.</p>
 </div>
 </body>
