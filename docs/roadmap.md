@@ -48,25 +48,26 @@ is kept; the entire visual design restarts from scratch.
 
 ## Phase 1 — Choose the new look (the visual restart)
 
-- [ ] 1.1 **OWNER: collect 3–5 reference websites or screenshots you
-      like** — any industry. The research rule: a reference beats a
-      description every time. The advisor chat can help you hunt.
-      **ASKED 2026-08-29 — waiting on the owner.** Questions and the
-      how-to are in `docs/design-brief.md` Part A; images go in
-      `docs/design-references/`. It also carries a ready-made prompt for the
-      advisor chat that returns 15–20 candidate references to react to.
-- [ ] 1.2 Short design brief interview: audience, the feeling it should
-      give, what felt wrong about the old look, what to keep (if anything).
-      **ANSWERED 2026-08-29 (five of six).** Recorded in
-      `docs/design-brief.md` Part B; the headline is that nothing specific
-      was wrong with the old look — it just read as AI-made, so
-      competence is the failure mode for 1.3. Two returned to the owner in
-      Part C: B1b (which of the three screens wins when they conflict —
-      the original question was asked badly) and B6b (does each tenant keep
-      picking their own accent colour). Both carry a recommendation. Answers get typed into that file (a
-      chat answer dies at the next `/clear`). 1.3 does not start until A and
-      B are filled in — producing directions first would anchor the
-      owner's choice to a guess.
+- [x] 1.1 **OWNER: collect 3–5 reference websites** — **DONE
+      2026-08-29.** Seven delivered, plus one anti-reference (Kōpiko, an
+      artisan bakery page). Crucially the owner scrolled each himself and
+      recorded how they MOVE — `docs/references/TASTE-NOTES.md`, primary
+      evidence, since screenshots are stills. Twenty screenshots in
+      `screenshots/` (flat, timestamp-named; the mapping to sites is the
+      table at the top of `ANALYSIS.md`).
+- [x] 1.2 Short design brief interview — **DONE 2026-08-29.** All of
+      `docs/design-brief.md` answered. Headline: nothing specific was wrong
+      with the old look, it just read as AI-made, so competence is the
+      failure mode for 1.3. Sunlight is not a constraint. Tenant accent
+      colour is customer-facing only, from a curated four to six, so the
+      dashboard keeps one fixed house palette.
+
+      **Analysis done on top of 1.1, not asked for but load-bearing:** all
+      seven codebases read and quoted in `docs/references/ANALYSIS.md`, then
+      turned into a ranked, costed build list in
+      `docs/references/DESIGN-BRIEF.md` — three things to build first,
+      three to drop, and the four places the owner's own preferences fight
+      each other. 1.3 starts from that file.
 - [ ] 1.3 Produce 3–5 GENUINELY different design directions, each rendered
       as real mockups of the same three screens (landing hero, one booking
       step, dashboard Today) at phone + desktop. **OWNER picks one.**

@@ -1,10 +1,10 @@
 # Design brief — roadmap 1.1 and 1.2
 
 This file is the input to the visual restart. Nothing in Phase 1 moves until
-Parts A and B below are filled in by the owner. **Status: Part B and Part C fully answered
-2026-08-29. Part A: the anti-reference is in; the 3–5 liked references are
-still open — the owner is hunting them. 1.3 does not start until those
-land.**
+Parts A and B below are filled in by the owner. **Status: COMPLETE 2026-08-29.** Parts A, B and C all
+answered. Roadmap 1.1 and 1.2 are done and 1.3 is unblocked. Read this file
+first, then `docs/references/DESIGN-BRIEF.md`, which turns the answers into a
+ranked and costed build list.
 
 Why a file and not a chat message: chats get cleared, files don't. Answers
 typed here survive; answers typed in chat die at the next `/clear`.
@@ -43,12 +43,37 @@ For each, one line on what specifically grabbed you is enough — "the big
 type", "the photos", "the colour", "it looks expensive", "it looks tough".
 If you can't say why, list it anyway; I can read the image.
 
-### Liked
-1.
-2.
-3.
-4.
-5.
+### Liked — DELIVERED 2026-08-29 (seven, not five)
+
+The owner scrolled each one himself and recorded what the motion felt like.
+Those words are the primary evidence for this whole phase and live in
+`docs/references/TASTE-NOTES.md`; twenty screenshots are in `screenshots/`;
+the technique-by-technique analysis of all seven codebases is in
+`docs/references/ANALYSIS.md`; the ranked, costed conclusions are in
+`docs/references/DESIGN-BRIEF.md`.
+
+1. **riangle.com** — the font, the weighted scroll, the cursor-tracked
+   triangle, hover effects, sections that each look different, the footer
+   animation.
+2. **sharplink.com** — the font again, and the hero that "turns into a
+   rectangle and then completely forms into another part of the website".
+   Disliked its blocky, low-depth light sections.
+3. **subscrr.app** — "that Apple kind of look", the floating liquid-glass
+   top bar, hover states. Disliked the orange.
+4. **finseo.ai** — the opening screen, the moving dot visualisation, and
+   darker and lighter sections rather than one uniform ground.
+5. **gustavobatista.dev** — taken only for the idea of texture over
+   imagery (the Vox reference). Explicitly not the aesthetic.
+6. **momentolegal.com** — elegant, but the source of his one hard no:
+   scrolling that "doesn't really take you anywhere".
+7. **webtactics.org** — the most enthusiasm: the cursor-warped 3D, the
+   self-typing headline, the layering and depth, sections blending together.
+
+**Two things fell out of this that were not asked for and matter more than the
+list.** He praised the typeface on riangle and sharplink independently, without
+knowing both set **Archivo**. And the two sites he called "basic but good" have
+no smooth scroll at all, which pressure-tests the first thing he asked for. See
+`DESIGN-BRIEF.md`.
 
 ### Disliked (at least one)
 

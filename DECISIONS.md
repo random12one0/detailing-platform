@@ -781,3 +781,80 @@ Two questions returned to the owner rather than assumed:
   customisable per client. They deferred it themselves. Filed against 3.1
   rather than as its own item, since it cannot be specified before the tenant
   pages and settings are.
+
+## Phase 1 — reference analysis (2026-08-29)
+
+Seven sites, twenty screenshots looked at one by one, seven codebases fetched
+and read. Written to `docs/references/`: `TASTE-NOTES.md` (the owner's verbatim
+words, pasted in chat and put on disk because they were the only record of how
+the pages MOVE), `ANALYSIS.md` (per-site, 1,669 lines), `DESIGN-BRIEF.md` (the
+ranked conclusions). No app code was touched and nothing was implemented.
+
+Method notes worth keeping:
+
+- **Screenshots are not where the brief said they were.** They are flat in
+  `screenshots/` with timestamp filenames, not `docs/references/<domain>/`. The
+  site mapping was established by looking at all twenty in order and is the
+  table at the top of `ANALYSIS.md`. They are cited by filename throughout.
+  **Left untracked deliberately — 21 MB of other people's sites in a PUBLIC
+  repo is a one-way door.** Owner decision below.
+- **Two greps would have produced wrong answers and are recorded as such.**
+  `framer-motion` returns zero on finseo because the package renamed to
+  `motion`; it is identifiable only by internals like `motionComponentSymbol`.
+  And riangle's smooth scroll is not Lenis, which a library-name grep would
+  have implied — it is GSAP's paid ScrollSmoother.
+- **One thing was not found and is recorded as not found:** riangle's
+  cursor-following triangle. Three.js is confirmed present and draws it, but
+  the pointer→rotation code could not be isolated in the minified bundle —
+  every `lerp` hit resolved to Three's own `Vector2.lerp`, every pointer event
+  to GSAP's Observer. No implementation was guessed.
+
+Findings that change what we build:
+
+- **The owner praised the typeface on riangle and sharplink independently,
+  and both set Archivo.** He did not know they matched. That is the strongest
+  convergent signal in the exercise and Archivo goes into 1.3 as the working
+  display face.
+- **His #1 stated preference is contradicted by his own choices.** subscrr
+  built smooth scroll, shipped it, and turned it off behind
+  `const SMOOTH_SCROLL = false` with a comment saying native is faster and less
+  viscous; finseo never had it; he called both good. riangle gates it behind
+  `(pointer: fine)` so it never runs on a phone. `DESIGN-BRIEF.md` recommends
+  dropping it as a priority and settling it empirically at the end, because it
+  is a question about feel that cannot be answered from evidence alone.
+- **His one hard no now has a number.** momentolegal pins for `end: "+=1830%"`
+  — 18.3 viewport heights — to pan one horizontal list. sharplink pins for 1.5
+  and assembles an entire section. webtactics' rail is 5 viewport heights of
+  plain CSS `position: sticky`. That bracket produces a testable rule for the
+  new design system: a pin declares its length and must deliver a section's
+  worth of content; ceiling 2 viewport heights, or 5 for a rail; never capture
+  vertical touch.
+- **Scroll weight was never the problem.** webtactics has the heaviest smooth
+  scroll of all seven (`lerp: 0.065`, `wheelMultiplier: 0.75`, and it runs on
+  touch) and he loved it. Pin length is the variable, not viscosity.
+- **Two engineering patterns outrank every visual idea here.** riangle's
+  device tier (`poster`/`still`/`full` from WebGL2, `saveData`, `deviceMemory`,
+  `hardwareConcurrency`, plus a runtime FPS governor) is a shipped answer to
+  our mid-range Android constraint in about fifteen lines. webtactics'
+  `.wt-lite` class gives every entrance animation a CSS end state, so "all
+  motion off" is one class on `<html>` rather than a code path. The
+  counter-example is in the same set: gustavobatista switches its hero off by
+  user-agent sniff for Samsung Internet, the default browser on Samsung
+  Androids — our audience.
+- **The texture he asked for is not on the site he found it on.**
+  gustavobatista's grain is a Three.js particle-and-fog scene and it uses
+  `mix-blend-mode` zero times. What he described is a tiling noise PNG or SVG
+  turbulence at low opacity with a blend mode — a few kilobytes, no JS. It is
+  ranked #2 precisely because no reference does it.
+- **The central conflict is named rather than averaged.** He named Apple as
+  his confident anchor in B2 and reacted most strongly to webtactics here.
+  Those are opposite aesthetics — four effects versus twenty-four, and a 5–10×
+  cost difference. `DESIGN-BRIEF.md` refuses to split it and instead requires
+  1.3 to build both, with the quiet one carrying one extraordinary detail and
+  the dense one shown EMPTY, because that is where density fails.
+
+**OPEN — owner decision: commit the screenshots or not.** They are the evidence
+`ANALYSIS.md` cites by filename, they are 21 MB, and the repo is public. Once
+committed they are in the history permanently. Recommendation: leave them out
+and keep a local copy; the analysis quotes what matters and the sites are all
+still live. Nothing depends on the answer.
