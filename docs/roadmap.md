@@ -132,6 +132,34 @@ is kept; the entire visual design restarts from scratch.
       - It cannot be written before 1.5, because the design system it
         must encode does not exist yet. Sequenced here on purpose.
 
+      **OPEN — OWNER DECISION, and 3.1 cannot be planned without it.**
+      What does the kit actually produce? Two possible answers, and the
+      roadmap currently contains both:
+
+      - **A theme + settings for the one shared system** (what 3.2 says:
+        "entirely from tenant configuration — zero hardcoded content").
+        One codebase serves every client. A fix or a new feature reaches
+        all of them at once. Costs nothing per client after the first.
+        Ceiling: every site has the same bones, and a client who wants a
+        page the system cannot express does not get it.
+      - **A bespoke site built per client** (what the owner described:
+        an agent that "creates me a website for the client"). Each one
+        can be anything. But each is then its own codebase to host,
+        update and fix, forever, and an improvement to one reaches none
+        of the others. Ten clients means ten sites to maintain alone.
+
+      **Recommendation: the kit's DEFAULT output is a theme plus settings
+      for the shared system, and bespoke code is the priced exception.**
+      That keeps one codebase and keeps every client receiving
+      improvements, while still letting sites look genuinely different —
+      the retint work, the curated palette and the alternating-ground
+      system already give a lot of visual range without forking. The
+      existing website-package / booking-only split (3.3) is the natural
+      place to price the exception.
+
+      Deciding this changes 3.1's plan and what 3.2 has to expose as
+      settings, so it wants answering before 3.1 starts — not now.
+
 ## Phase 4 — Feature restoration + platform admin
 
 - [ ] 4.1 Audit `reference/` (the old site's code) for anything dropped

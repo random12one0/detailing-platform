@@ -939,3 +939,40 @@ into `CLAUDE.md` as a standing rule: nothing that matters may live in a
 tool-specific mechanism — no skills, no hooks, no assistant-side memory. This
 also retroactively justifies the habit already in force of writing every thread
 to a file before clearing.
+
+### The build-kit question the owner asked, actually answered (2026-08-29)
+
+He asked whether his "open an agent and have it build a client's website" idea
+had been answered. It had been *filed* (roadmap 3.4) and not answered — filing
+is not answering, and the item hid a fork that the roadmap currently straddles.
+
+**The fork:** 3.2 says tenant sites are built "entirely from tenant
+configuration — zero hardcoded content", i.e. one shared codebase filled with
+each client's data. His description is an agent that *builds a website* per
+client, i.e. a separate site each time. Those are different products with
+different economics, and only one of them scales for a solo operator:
+
+- Shared system + theme: one codebase, improvements reach every client at once,
+  near-zero cost per client after the first. Ceiling is that every site shares
+  its bones.
+- Bespoke per client: unlimited freedom, but every site is its own thing to
+  host, update and fix forever, and nothing propagates. Ten clients is ten
+  codebases maintained by one person.
+
+**Recommendation recorded in 3.4:** the kit's default output is a **theme plus
+settings for the shared system**; bespoke code is the priced exception, sold
+through the website-package tier that 3.3 already assumes. The retint work, the
+curated four-to-six palette and the alternating-ground system give real visual
+range without forking the codebase — which is exactly why those rank where they
+do in `docs/references/DESIGN-BRIEF.md`.
+
+Not asked as a blocking question: it changes 3.1's plan and what 3.2 must
+expose as settings, and neither starts for a long time. Flagged in the roadmap
+at the point where it will actually bite.
+
+### Screenshots: owner decided (2026-08-29)
+
+Do not commit them. `screenshots/` added to `.gitignore` rather than merely
+left untracked, because sessions here routinely use `git add -A` and one of
+them would eventually have swept 21 MB into a public repo's permanent history.
+The comment in `.gitignore` records why. Closes the open item above.
