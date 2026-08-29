@@ -469,3 +469,25 @@ each picked as the option easiest to change later.
   `netlify deploy --prod` run in this folder publishes to
   detailingplatform.com regardless of branch. Worth knowing before anyone
   runs a deploy command casually.
+
+- **The local `.env` service-role key is deliberate, not a leak (owner,
+  2026-08-29).** The owner put it there so sessions can drive Supabase
+  directly — migrations, edge functions, queries — instead of handing them
+  back dashboard steps. It is for the PLATFORM project
+  `kguqylyzgyzfktkfnhjb`, the file is gitignored, and it has never been
+  committed (verified). Do not flag it. It is unrelated to the exposed key.
+
+- **The two service-role keys are not the same key.** Decoded side by side
+  2026-08-29: local `.env` → `ref=kguqylyzgyzfktkfnhjb` (the platform beta);
+  public git history `backend/.env` → `ref=adtlnvihwrcqcasqcjwd` (the live
+  business, andrewsdetail.com). Different projects, different keys. The
+  owner's intent covers the first; the second is an Emergent-era accident
+  and the exposure stands.
+
+- **Netlify auto-publishes on push (owner-confirmed, 2026-08-29).** The
+  owner states Netlify is linked to git and every publish to git updates the
+  site — which matches the git-linked production deploy observed on the
+  Netlify side. Roadmap 0.4's central question is answered: **pushing to
+  `main` deploys to production.** The working directory's
+  `.netlify/state.json` pinning the production site remains a separate
+  hazard for anyone running a manual deploy command here.

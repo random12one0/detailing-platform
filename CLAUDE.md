@@ -89,10 +89,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   if it is visual, "Anti-slop floor: docs/design-knowledge.md §1 and the
   never-defaults in CLAUDE.md.">
   Watch out: <the one thing that isn't obvious from the files, or omit>.
+  Don't wrap up when the code works — surface what's still unanswered, chase
+  it down, and only say "Safe to clear." once nothing is left hanging.
   ```
 
-  Keep it four lines or fewer. It is a pointer at the files, not a summary
-  of them — the files are what survive the clear.
+  Keep it five lines or fewer. It is a pointer at the files, not a summary
+  of them — the files are what survive the clear. The last line is not
+  boilerplate: the owner clears BETWEEN roadmap items, so a session that
+  signs off with loose ends buries them — the next session starts on a new
+  item and never picks them up.
 - Plan before building anything large; stop for approval.
 - Smallest possible diff; no unrequested refactors, deps, files, renames.
 - Stuck twice on one bug: stop editing, write hypothesis + evidence +

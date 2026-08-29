@@ -29,9 +29,16 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 0.3 Reminders — schedule the sweep (cron every 15 min), prove a
       reminder actually sends on schedule, verify no duplicates and no
       reminders for cancelled bookings.
-- [ ] 0.4 Deployment sanity — determine (not from docs) what deploys
-      where, whether main truly auto-publishes to production, and whether
-      anything could accidentally deploy work-in-progress.
+- [x] 0.4 Deployment sanity — **DONE 2026-08-29.** `detailingplatform.com`
+      is served by the Netlify project `detailplatform-admin-test`, linked to
+      the GitHub repo and building from `main` (`context=production`,
+      `manual_deploy=false`, real commit ref) — owner confirms every publish
+      to git updates the site. So **`main` = production, automatically.**
+      Two hazards recorded rather than fixed: the repo is PUBLIC and carries
+      a live-business service-role key in its history (see DECISIONS.md,
+      owner action), and `.netlify/state.json` in the working directory pins
+      the production site, so a manual `netlify deploy --prod` run there
+      publishes to the live domain from any branch.
 
 ## Phase 1 — Choose the new look (the visual restart)
 
