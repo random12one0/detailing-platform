@@ -570,6 +570,121 @@ do. If the phone shows the old headline ("Stop booking jobs in your DMs" at
 the top), that is what happened: open it from the artifacts gallery instead,
 or move the share pin.
 
+## Round seven — his review of the repoint (2026-08-29)
+
+He looked at it on the iPhone and answered the three questions. His decisions
+are recorded in `DECISIONS.md` under "The owner's review of the repointed
+page"; this is what changed in the file.
+
+### The iPhone passes, and the bottom glitch was real
+
+> "iPhone check everything looks good... there's still some slight little
+> glitch when you scroll all the way down to the bottom, but very minor."
+
+**The 1.3 blocker is closed.** The remaining glitch was reproduced before it
+was touched, at 392x844: scroll to the very bottom, then nudge back up about
+120px, and the footer folded itself away and came back.
+
+The cause is in round five's own fix. Over the last stretch of the page the
+reveal line eases from 82% of the screen down to 100%, so that elements which
+can never reach the 82% line still arrive. But an eased line moves at roughly
+**twice** the scroll delta in that stretch — scrolling up 120px dropped it
+about 240px, back past elements it had only just revealed. Nothing was
+stranded; it was oscillating.
+
+The fix is hysteresis: **the line an element arrives on and the line it leaves
+on are no longer the same line.** It arrives at 82% as before; it does not
+leave until it is past the bottom edge of the screen — a band exactly as wide
+as the easing can travel, so the two can never cross. Everywhere else on the
+page this is the better rule anyway: something you can still see never folds
+itself away while you are looking at it.
+
+Verified by sweeping 25 scroll positions **down and then back up** at 1440,
+768 and 392: **0 stranded readings** (an element readable on screen but
+invisible), while 48 of 49 positions still had something hidden below the
+fold — which proves the reveal still exists rather than having been disabled
+to make the number zero.
+
+### There is a photograph on the page now
+
+> "I'm definitely not against it... a lot of the websites that I was really
+> kinda referencing off of have tons of photos... it just needs to elevate
+> the website."
+
+One photo, in the tenant-site mock, as the hero of that mini-site with the
+business name over it. That is the place it is unambiguously right:
+`VERDICT.md` bans car photography as the LANDING PAGE's subject because we
+sell software, and that still holds — but this is inside a picture of a
+CLIENT's website, and photographs of their own work are what a detailer's
+site is made of. The distinction is written into the markup so a later
+session does not "fix" it by deleting the photo.
+
+It is **embedded as a data URI**, not linked. The artifact host's CSP blocks
+every external image origin, and the artifact is how he reads this page on his
+phone — a linked photo would simply be missing there. 840x270 at q68 is 41 KB.
+Unsplash, Deniz Demirci, photo `dlJelFmdpOc`.
+
+**The text sits ON the image, so the mock gains the photo's height and not a
+line more.** The page grew 0% at 1440 (9.47 screens, unchanged), 0.7% at 768
+and 1.0% at 392.
+
+### Text on a photograph has to be measured, and the first attempt failed
+
+CSS values cannot tell you the contrast of white type over a picture — the
+background is whatever the photo happens to be under each letter. So the check
+**screenshots the box the text occupies with the text hidden, hands that PNG
+back into the page as a data URI, reads it through a canvas, and takes the
+lightest pixel painted.** No image library, and it models nothing, so it
+cannot drift out of sync with the CSS the way a re-implementation of the
+gradients would.
+
+The first attempt — one gradient over the whole photo — **measured 1.96:1
+behind the headline at 392px.** The crop puts a bright panel of car body
+exactly where the business name goes. It looked fine.
+
+The fix splits the job in two: a light tonal scrim over the whole picture to
+pull it into the page's graphite range, and a second gradient bound to the
+**text block**, which is the one doing the accessibility work. That way the
+guarantee is bounded to the strip the words occupy, instead of being bought by
+darkening the entire photograph until it stops being a photograph. A phone
+also gets the image height back (208px), because at ~350px wide the headline
+wraps to two lines and the text block had grown to cover three quarters of the
+picture — it had stopped reading as a photo and started reading as a dark bar
+with words on it.
+
+After: **8.82:1 minimum behind the headline** (floor 3:1 for large bold) and
+**10.2:1 minimum behind the sub-line** (floor 4.5:1), at all three viewports.
+
+### The hero is provisional, and he says so
+
+> "it's a little bit worse than what I liked before. I kinda liked the...
+> 'stop booking jobs in your DMs' or whatever, that would change through."
+
+Not reverted, and deliberately so — he did not ask for a revert, he asked to
+wait for the marketing pass below. The conflict is real and is recorded rather
+than smoothed over: roadmap 1.4 requires the hero to lead with the website,
+which comes from his own positioning change; his taste prefers the line that
+requirement displaced. Both are his. See `DECISIONS.md` for the question to
+put to him if the marketing pass does not settle it.
+
+### What 1.4 is waiting on, and the one rule over it
+
+He is running the page's full text through a separate marketing AI and will
+paste back its recommendations on layout, order and wording. *"Whatever it
+comes back with, we have to adapt to it."* And, in the same breath:
+
+> "I don't want us to lose any of that cool animations and scrolling effects
+> that we have. We just might have to change them up... switch them, the
+> order, maybe completely... redo some of them."
+
+**Copy and section order are the marketing pass's to change, freely. The
+motion is not spendable.** Every mechanic survives in some form — the messages
+becoming the schedule, the weighted scroll, the reveals, the horizontal rail,
+the light band, the always-on ground, the rotating tail. Re-point them,
+re-order them, rebuild them; do not quietly end up with fewer because a new
+copy deck was easier to lay out flat. Read "Eight sections, eight skeletons"
+above before re-laying-out the page, so the rework knows what it is carrying.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so
@@ -577,7 +692,10 @@ much better", "the layout is good, I like it". The two-column beat did NOT
 read as a before/after of a car; he asked only that it stay short, and it is
 two sections. The weighted scroll was wanted heavier, not removed.
 
-1. **THE ONE BLOCKER: the iPhone fix is unverified.** The pinned section broke
+1. ~~**THE ONE BLOCKER: the iPhone fix is unverified.**~~ **CLOSED
+   2026-08-29 — he checked and it passes. Do not re-open.** Original text
+   kept below for the reasoning only.
+   **THE ONE BLOCKER: the iPhone fix is unverified.** The pinned section broke
    on his phone and the mechanism has been replaced with one that cannot fail
    the same way — nothing sticky, no viewport-unit arithmetic. Verified at
    392, 768 and 1440 in a desktop browser with touch emulation, which is not

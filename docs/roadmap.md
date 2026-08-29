@@ -155,12 +155,25 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 1.4 Refine the winner once. **OWNER approves.**
 
       **BUILT 2026-08-29 — every concrete change below is applied and verified
-      by looking; the full write-up is `docs/design-directions/README.md`
-      "Round six". The item stays UNCHECKED because it needs two things only
-      the owner can give: his approval of the repointed page, and the iPhone
-      check carried in from 1.3.** Three questions are waiting on him at the
-      end of that session; they are listed under "Still open on direction 5"
-      in the same README. Nothing else in this item is outstanding.
+      by looking; the write-up is `docs/design-directions/README.md` rounds
+      six and seven. He reviewed it: the iPhone passes, photography is
+      approved, and the bottom-of-page glitch he reported is reproduced and
+      fixed.**
+
+      **THE ITEM STAYS UNCHECKED, AND WHAT IS LEFT IS NOT A LOOSE END — it is
+      a decision he has taken and a deliverable he is producing.** He is
+      running the page's full text through a separate marketing AI and will
+      paste back its recommendations on layout, running order and wording:
+      *"whatever it comes back with, we have to adapt to it."* That rework is
+      the remainder of 1.4. He also set the constraint on it, and it is not
+      negotiable by whoever does the work: *"I don't want us to lose any of
+      that cool animations and scrolling effects that we have. We just might
+      have to change them up... switch them, the order, maybe completely...
+      redo some of them."* **Copy and section order are the marketing pass's
+      to change; the motion is not spendable.** Full reasoning, including his
+      view that the new hero is slightly worse than the old one and why it
+      was NOT reverted, is in `DECISIONS.md` under "The owner's review of the
+      repointed page".
 
       Done and verified: hero headline and rotating tail; hero lede carrying
       both halves; "Stop booking jobs in your DMs" moved down to head the
@@ -224,14 +237,14 @@ is kept; the entire visual design restarts from scratch.
         problem to solve — see `docs/tenant-websites.md` §6.1.)
 
       Also carried in from 1.3:
-      - **The iPhone check is still unverified** — the pinned section was
-        rebuilt so phones never pin, but there is no iPhone here. He last
-        looked in an emulator. **STILL OPEN — the one thing in 1.4 that
-        cannot be closed from this machine.** The artifact carrying the page
-        was republished with the 1.4 version, but people opening the SHARED
-        link keep seeing the previously pinned version until he moves the
-        share pin from the page's share menu; if the phone still shows "Stop
-        booking jobs in your DMs" as the headline, that is why.
+      - ~~**The iPhone check is still unverified.**~~ **PASSED 2026-08-29 —
+        "iPhone check everything looks good."** The 1.3 blocker is closed; do
+        not re-open it. One defect came with it — *"still some slight little
+        glitch when you scroll all the way down to the bottom"* — which was
+        reproduced at 392x844 and fixed: the reveal line is eased over the
+        last stretch of the page and therefore moves at about twice the
+        scroll delta there, so scrolling up un-revealed the footer it had
+        just revealed. Arrival and departure now use different lines.
       - ~~Draw the dashboard's empty state (a detailer with no jobs today).~~
         **DONE 2026-08-29** — a dashed panel over the space the job rows
         reserve, fading on the first job's own progress value.

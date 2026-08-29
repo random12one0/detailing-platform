@@ -1296,6 +1296,88 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## The owner's review of the repointed page, and the rule it sets (2026-08-29)
+
+He reviewed the 1.4 page on his iPhone and answered the three questions that
+were put to him. All four items below are HIS decisions, not proposals.
+
+### 1. The iPhone works. The 1.3 blocker is closed.
+
+> "iPhone check everything looks good."
+
+The pinned section was rebuilt in 1.3 so phones never pin, and that could not
+be proved without an iPhone. It is proved. **Do not re-open it.** He added one
+defect: *"there's still some slight little glitch when you scroll all the way
+down to the bottom, but very minor."* Reproduced at 392x844 and fixed — see
+`docs/design-directions/README.md` "Round seven".
+
+### 2. Photography is approved, in principle and not only for the mock
+
+> "I'm definitely not against it... a lot of the websites that I was really
+> kinda referencing off of have tons of photos... it just needs to elevate
+> the website."
+
+So the page's no-photography rule was a **means, not an end**. VERDICT.md §3
+banned car photography because the four rejected directions used it to sell
+car detailing, and we sell software — that reasoning still holds for the
+landing page's own subject. It never meant the product must be sold on type
+alone. One photograph is now in the tenant-site mock, which is the place it is
+unambiguously correct: photos of their own work are what a detailer's site is
+made of. **Whether photography appears anywhere ELSE on the page is deferred
+to the marketing rework in §4, not settled here** — that pass may move or
+delete the sections it would go in.
+
+### 3. The new hero is WORSE than the old one, in his judgment
+
+> "it's a little bit worse than what I liked before. I kinda liked the...
+> 'stop booking jobs in your DMs' or whatever, that would change through."
+
+This is a straight conflict, and it should be recorded as one rather than
+resolved quietly. Roadmap 1.4 REQUIRES the hero to lead with the website —
+that requirement comes from his own positioning change, argued from the
+market. His taste prefers the line the positioning displaced. Both are his.
+
+**Nothing was reverted.** He did not ask for a revert; he asked to wait for
+§4, which is the arbiter he chose. So "Your website is currently a Facebook
+page." stands as PROVISIONAL. If the marketing pass does not resolve it, the
+question to put to him is whether the old line can head the page while the
+website still leads the offer — which is roughly what the current thread
+section already does one screen lower.
+
+### 4. THE STANDING RULE: the marketing research decides the words and the
+### running order; it does not get to spend the motion
+
+He is running the page's full text through a separate marketing AI and will
+paste its recommendations back.
+
+> "whatever it comes back with, we have to adapt to it."
+
+and, in the same breath:
+
+> "I don't want us to lose any of that cool animations and scrolling effects
+> that we have. We just might have to change them up, you know, switch them,
+> the order, maybe completely, you know, redo some of them."
+
+**So the constraint on that rework is: copy and section order are the
+marketing pass's to change, freely and including completely. The motion is
+not spendable. Every mechanic on the page survives in some form — the
+messages becoming the schedule, the weighted scroll, the reveals, the
+horizontal rail, the light band, the always-on ground, the rotating tail.**
+They may be re-pointed at different content, re-ordered, re-timed or rebuilt,
+but the count must not go down because a new copy deck was easier to lay out
+flat. If a recommended section genuinely has nowhere for a mechanic to live,
+that is a question for him, not a silent deletion.
+
+Two practical notes for whoever picks this up:
+
+- The text he pasted into the marketing tool is every visible string on the
+  page, in reading order. It can be regenerated at any time by walking the
+  rendered DOM — it is not a file that has to be kept in sync.
+- The mechanics are documented section by section at the top of
+  `docs/design-directions/5-the-thread.html` and in README.md "Eight
+  sections, eight skeletons". Read that BEFORE re-laying-out the page, so
+  the rework knows what it is carrying.
+
 ## Building 1.4: the judgment calls made while repointing the page (2026-08-29)
 
 The positioning itself is the section below this one. These are the calls made
