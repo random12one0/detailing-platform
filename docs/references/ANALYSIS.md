@@ -1151,3 +1151,197 @@ customer book a wash in four taps, it is the exact failure he named on
 momentolegal — scroll that does not take you anywhere. **The most useful thing
 this site contributes is a clear picture of the ceiling we should not go
 near.**
+
+---
+
+## 6. momentolegal.com
+
+A legal advisory firm. The owner's reaction was split in a useful way: *"this
+website is more elegant… they have a cool kind of scrolling animation"*,
+immediately followed by *"I feel like this isn't really helpful at all"* and
+the only hard no he stated as a rule — *"a lot of scrolling that doesn't really
+take you anywhere, so it feels kind of like you're stuck, and I don't want to
+have that."*
+
+**His instinct was right, and the code puts a number on it.**
+
+### The stack, from the code
+
+Next.js (Turbopack), 17 chunks (908 KB uncompressed), Tailwind.
+
+| Library | Present | Where |
+|---|---|---|
+| GSAP | yes | 7 chunks |
+| ScrollTrigger | yes | 6 chunks |
+| **Lenis** | yes | 3 chunks, with a full options object |
+| Three.js / WebGL | **no** | zero matches |
+| Motion / Framer | **no** | zero matches |
+| Locomotive / Swiper | **no** | zero matches |
+
+Type: `--font-forum: "Forum", serif` — Forum, a free Google serif. That is the
+wide-tracked display face in `222009` ("THE MOMENT OF PRECISION") and `222024`
+("ABOUT MOMENTO"). He pre-empted this: *"that's not the exact font so I wouldn't
+take this font into consideration."*
+
+### Smooth-scroll config — the heaviest in the set, and quoted in full
+
+```js
+options: {
+  duration: 1.8,
+  easing: t => 1 - Math.pow(1 - t, 5),
+  orientation: "vertical",
+  gestureOrientation: "vertical",
+  smoothWheel: !0,
+  syncTouch: !0,
+  wheelMultiplier: .9,
+  touchMultiplier: 1.2,
+  autoResize: !0,
+  autoRaf: !1
+}
+```
+
+Three of those values are unusual and they compound:
+
+- **`duration: 1.8`** — Lenis's own default is 1.2. Every scroll gesture takes
+  nearly two seconds to settle.
+- **`easing: t => 1 - Math.pow(1 - t, 5)`** — a quintic ease-out. It moves fast
+  at the start and then crawls through a long tail. Combined with a 1.8 s
+  duration, the last part of every gesture is very slow.
+- **`wheelMultiplier: 0.9`** — one notch of the wheel travels *less* than it
+  normally would. The page is deliberately made harder to move.
+- **`syncTouch: true`** — and unlike every other site here, this one overrides
+  touch scrolling too. On a phone, the finger no longer moves the page
+  one-to-one.
+
+This is the "elegant" he felt. It is also half of the "stuck".
+
+### "Scrolling that doesn't really take you anywhere" — the other half
+
+```js
+ScrollTrigger.create({
+  trigger: e, start: "top top",
+  end: "+=1830%",
+  pin: !0, invalidateOnRefresh: !0
+});
+ScrollTrigger.create({
+  trigger: e, start: "top top",
+  end: "+=2030%",
+  scrub: 1, invalidateOnRefresh: !0,
+  onUpdate: e => F(e.progress), …
+});
+```
+
+**`end: "+=1830%"` means the section is pinned for 18.3 times the viewport
+height.** The companion scrubbed trigger runs to `+=2030%` — 20.3 viewport
+heights. On a 900 px-tall screen that is roughly **16,500 pixels of scrolling
+during which the page does not advance to the next section.**
+
+These are the only two large pins on the site, and they are the section he
+reacted to.
+
+**What those 18 screens actually buy.** From the same `onUpdate` handler:
+
+```js
+let et = 100 + (-Y - 100) * (1 - (1 - ee) * (1 - ee));
+gsap.set(H.current, { x: `${et}vw` });
+gsap.set(U.current, { x: `${et}vw` });
+g.forEach((e, t) => {
+  let r = W.current[t];
+  let a = clamp(1 - Math.abs(34 * t + 16 + et - 50) / 34);
+  r.style.transform = `scale(${.92 + .23 * a})`;
+  r.style.color = `rgba(255, 255, 255, ${.59 + .41 * a})`;
+});
+// travel: Y = 32 * g.length + (g.length - 1) * 2 - 100   (in vw)
+```
+
+Real name: a **pinned horizontal scroll rail** (often called scroll-jacking).
+Vertical scroll is converted into horizontal travel — `x` in `vw` — across a
+row of items 32 vw wide with 2 vw gaps. Each item scales from `0.92` to `1.15`
+and brightens from 59 % to 100 % white as it passes the centre of the screen.
+
+So it is not doing *nothing*. It is panning a list sideways. **The problem is
+the exchange rate**: eighteen screen-heights of vertical input to move one
+horizontal list, while every gesture is also being slowed by `duration: 1.8`
+and `wheelMultiplier: 0.9`. Two independent decisions to make scrolling slower,
+stacked on the longest pin in the reference set.
+
+That is the mechanism behind his complaint, and it is worth stating as a rule
+we can actually test against rather than a feeling:
+
+> **A pin must return more than it costs.** sharplink pins for 1.5 viewport
+> heights and assembles an entire section during it. This pins for 18.3 and
+> pans a list. Same technique, twelve times the cost, less delivered.
+
+### Behaviour under `prefers-reduced-motion`
+
+**Partial, and it misses the thing that matters.** The site does gate some
+motion properly, using GSAP's matchMedia with breakpoint variants:
+
+```js
+mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => r("16vh", .55, !1));
+mm.add("(max-width: 767px) and (prefers-reduced-motion: no-preference)", () => r(48, .85, !0));
+…
+mm.add("(prefers-reduced-motion: no-preference)", () =>
+  gsap.fromTo(o.current, { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: .5, ease: "power2.out" }))
+```
+
+But `chunk3.js` — the file containing the 18.3-viewport pin and the horizontal
+rail — contains **zero** occurrences of `prefers-reduced-motion`. The small
+fades are gated; the largest piece of scroll-jacking on the site is not. A
+visitor who asked for reduced motion still gets eighteen screens of pinned
+horizontal panning.
+
+### Striking things he did not mention
+
+- **The contrast is genuinely poor, not just "elegant".** In `222009` the body
+  paragraph is low-opacity light grey over a photograph of a building, and in
+  `222024` the two paragraphs are grey-blue on dark navy. Several of these
+  would not pass a 4.5:1 check. `CLAUDE.md` keeps accessibility floors through
+  the redesign, so this is a thing to admire the mood of and not the execution.
+- **Extreme letter-spacing on the display type** — "THE MOMENT OF PRECISION"
+  is tracked out to nearly fill 1440 px. It reads as expensive at desktop
+  width; it is the first thing that breaks at 392 px.
+- **The information density is very low.** `222024` spends an entire viewport
+  on two sentences with the left half empty. Independent of the pin, the page
+  simply has little to say per screen — which is the other reason it feels like
+  scrolling gets you nowhere.
+- **A duplicated nav.** `222009` shows a horizontal nav row across the bottom
+  of the hero, and `222024` shows the same row at the top. Elegant, but there
+  are effectively two navigations plus a hamburger.
+
+### Cost to us
+
+| Item | Weight | Effort | Android risk |
+|---|---|---|---|
+| Lenis at `duration: 1.8`, `syncTouch: true` | ~3 KB | trivial | **the risk is not performance, it is feel** — `syncTouch` takes over the one interaction phones get exactly right |
+| Pinned horizontal rail | zero extra | high | **high** — continuous `transform` on many items plus a long pin; also the pattern most likely to trap a touch user |
+| Forum (display serif) | ~20 KB | trivial | none |
+
+### Conflict with what binds us, and how to reconcile
+
+1. **Direct conflict with the owner's only stated hard no.** Not reconcilable
+   as built — this is the anti-pattern. Reconcile by extracting the *limit*
+   instead of the technique: any pin we ship states its cost in viewport
+   heights, and must deliver a section's worth of content within it. A ceiling
+   of about 2 viewport heights matches sharplink, which he liked.
+2. **`syncTouch: true` versus the phone-first dashboard.** Hard conflict. If we
+   use Lenis at all, `syncTouch` stays `false` (its default) so touch scrolling
+   remains native — the choice riangle, sharplink and subscrr all make.
+3. **Low contrast versus the accessibility floor.** No reconciliation; take the
+   restraint, not the values. If a direction wants this mood, the tint has to
+   be lightened until it passes, which usually improves it anyway.
+4. **Horizontal rails are not banned by anything** — webtactics (site 7) uses
+   one that he liked. The difference is length and whether the items are worth
+   panning to. A four-item rail over one viewport height is a different object
+   from an eighteen-screen one.
+
+### Scroll payoff
+
+**The worst in the set, and the reason this reference is valuable.** He could
+not say why beyond "you feel stuck"; the answer is 18.3 viewport heights of pin,
+a 1.8-second scroll duration, a sub-unity wheel multiplier, and about two
+sentences of content per screen elsewhere.
+
+Every one of those is a number we can set differently. **This site is the most
+useful negative control we have** — it is the only one that establishes, with
+evidence, where the line is that his taste draws.
