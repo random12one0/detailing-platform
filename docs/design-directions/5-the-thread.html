@@ -1431,7 +1431,26 @@ section{position:relative}
        compare against nothing — an undefined position would read as "below
        the line" and hide the whole page. */
     if (rvPos.length !== revealables.length) cacheReveals();
-    var line = window.scrollY + vh * 0.82;
+
+    /* THE BOTTOM OF THE PAGE NEEDS THE LINE TO MOVE, and this was a real
+       bug he caught: at maximum scroll, anything sitting in the last 18% of
+       the screen is below the reveal line AND there is no scroll left to
+       bring it above — so the second pricing card, three of the terms and
+       the whole footer were on screen and permanently invisible.
+
+       Over the final stretch the line eases from 82% down to the full
+       viewport height, so everything can always finish arriving. Easing it
+       rather than snapping at the last pixel means no jump: the last few
+       elements come in as you run out of page, which is the same rhythm as
+       everywhere else.
+
+       General rule for any position-driven reveal: the trigger line has to
+       be reachable for EVERY element, and near the end of a scroll
+       container it stops being reachable unless you move it. */
+    var maxY = Math.max(0, document.documentElement.scrollHeight - vh);
+    var tail = vh * 0.18;
+    var slack = tail > 0 ? clamp((window.scrollY - (maxY - tail)) / tail) : 1;
+    var line = window.scrollY + vh * (0.82 + 0.18 * slack);
     for (var i = 0; i < revealables.length; i++) {
       var el = revealables[i];
       var shown = rvPos[i] < line;

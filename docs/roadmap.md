@@ -68,7 +68,7 @@ is kept; the entire visual design restarts from scratch.
       `docs/references/DESIGN-BRIEF.md` — three things to build first,
       three to drop, and the four places the owner's own preferences fight
       each other. 1.3 starts from that file.
-- [ ] 1.3 **REOPENED 2026-08-29 — the owner rejected all four.** The first
+- [x] 1.3 **DONE 2026-08-29 — direction 5 built and APPROVED.** (Reopened earlier the same day when the owner rejected all four.) The first
       four are kept as evidence in `docs/design-directions/` (index.html,
       README.md), and the review that killed them is
       **`docs/design-directions/VERDICT.md` — read that before anything
@@ -152,11 +152,50 @@ is kept; the entire visual design restarts from scratch.
       page is 1.6 screens shorter on a phone. The `$520` section was
       rewritten because he could not tell what it was for. Cursor light
       halved; the dots now move at ~16px/s instead of 1.8px/s.
-- [ ] 1.4 Refine the winner once. **OWNER approves.** Carry in from 1.3:
-      settle smooth scroll empirically on the owner's own phone (one flag,
-      3 KB); consider adding the typewriter headline; draw the dashboard's
-      empty state; and if direction 4 won, measure scroll-scrub on a
-      throttled CPU BEFORE anything depends on it.
+- [ ] 1.4 Refine the winner once. **OWNER approves.**
+
+      **THE MAIN JOB: re-point the page at the website.** The owner changed
+      the positioning on 2026-08-29, from the market rather than from taste:
+      "there's already a lot of those out there [booking engines], so my main
+      advertisement should be a custom website." Full reasoning in
+      `DECISIONS.md` → "Positioning: the website is the product"; the delivery
+      model behind it is `docs/tenant-websites.md`. Order to sell in: the
+      website → custom, not a template → the dashboard keeps it current →
+      booking as a feature → the terms.
+
+      Concrete changes, all inside `docs/design-directions/5-the-thread.html`:
+      - **Hero leads with the website.** Keep the rotating-tail mechanic he
+        loves, but rotate what they have NOW: "a Facebook page." / "a Yelp
+        listing." / "a link in your bio." / "nothing at all."
+      - **Move "Stop booking jobs in your DMs"** down to head the thread
+        section — it is literally what that section shows. It stops being the
+        promise and becomes the pain, which is the job it was doing anyway.
+        Do not delete it: it is the only line he has ever praised.
+      - **"What your customers see" becomes the website itself**, not only the
+        booking widget. The widget becomes part of the page it lives on. This
+        REPLACES that section rather than adding one — the page must not get
+        longer, and he said so twice.
+      - **One new ruled row**, placed second: changing a price in the
+        dashboard changes the live site. NOT the headline — his explicit
+        instruction — but it is the answer to why an agency site rots.
+      - **Reframe the $900** as what it costs to have a site built for you,
+        against the two real alternatives (do it yourself badly, or pay an
+        agency thousands), instead of as a fee to get started.
+      - Do NOT add a feature list for a site Phase 3 has not built.
+
+      Also carried in from 1.3:
+      - **The iPhone check is still unverified** — the pinned section was
+        rebuilt so phones never pin, but there is no iPhone here. He last
+        looked in an emulator.
+      - Draw the dashboard's empty state (a detailer with no jobs today).
+      - The weighted scroll is in and tuned to his feel; `?smooth=0` still
+        toggles it if he wants to compare again on a real phone.
+      - **A copy pass is a named task, agreed with him**: "in the future we'll
+        kind of critique the actual text on the page." Only "Stop booking jobs
+        in your DMs" has his explicit approval; the rest is carried from
+        `app/src/landing/LandingPage.jsx`. The `$520` rewrite in round four is
+        the worked example of what that pass looks like — every section has to
+        answer "what am I looking at" before it answers anything else.
 - [ ] 1.5 Write the new `docs/design-system.md` (replacing "Raking Light"),
       and rewrite the design tests to enforce the NEW rules. From this
       point the new system is law and direction-inventing skills are
@@ -207,9 +246,22 @@ is kept; the entire visual design restarts from scratch.
       - It cannot be written before 1.5, because the design system it
         must encode does not exist yet. Sequenced here on purpose.
 
-      **OPEN — OWNER DECISION, and 3.1 cannot be planned without it.**
-      What does the kit actually produce? Two possible answers, and the
-      roadmap currently contains both:
+      **ANSWERED 2026-08-29 — the owner chose bespoke per client.** "For
+      every single person, I wanna make a custom website for them", and
+      explicitly not "some cookie-cutter website". His full description,
+      quoted, is `docs/tenant-websites.md`. The recommendation below is
+      therefore SUPERSEDED and is kept only as the reasoning that was
+      weighed. The maintenance ceiling it warns about is real and does not
+      go away — what removes most of it is one rule, proposed in
+      `docs/tenant-websites.md` §3 and NOT yet reviewed by him: **fork the
+      presentation, never the engine.** Booking logic, database, edge
+      functions, dashboard and email stay central and shared; only layout,
+      wording, imagery and palette diverge per client. Under that rule the
+      kit's real deliverable is a documented contract between a site and the
+      platform, and "custom for everyone" costs a design pass per client and
+      nothing else.
+
+      The two answers that were weighed, kept for the reasoning:
 
       - **A theme + settings for the one shared system** (what 3.2 says:
         "entirely from tenant configuration — zero hardcoded content").
@@ -223,8 +275,9 @@ is kept; the entire visual design restarts from scratch.
         update and fix, forever, and an improvement to one reaches none
         of the others. Ten clients means ten sites to maintain alone.
 
-      **Recommendation: the kit's DEFAULT output is a theme plus settings
-      for the shared system, and bespoke code is the priced exception.**
+      **Former recommendation, now SUPERSEDED by the owner's answer above:
+      the kit's default output is a theme plus settings for the shared
+      system, and bespoke code is the priced exception.**
       That keeps one codebase and keeps every client receiving
       improvements, while still letting sites look genuinely different —
       the retint work, the curated palette and the alternating-ground
@@ -232,8 +285,14 @@ is kept; the entire visual design restarts from scratch.
       existing website-package / booking-only split (3.3) is the natural
       place to price the exception.
 
-      Deciding this changes 3.1's plan and what 3.2 has to expose as
-      settings, so it wants answering before 3.1 starts — not now.
+      This decided 3.1's plan and what 3.2 has to expose as settings. Note
+      that 3.2 as written ("entirely from tenant configuration — zero
+      hardcoded content") describes the SHARED-system answer and now needs
+      rewording against the owner's choice; that is a 3.1 job.
+
+      Also from the same conversation, not scheduled: **an intake form** the
+      detailer fills in about their website, with examples to choose from,
+      "because most of them will not know what they want in the abstract".
 
 ## Phase 4 — Feature restoration + platform admin
 

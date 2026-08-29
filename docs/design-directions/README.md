@@ -387,6 +387,38 @@ mono line rather than as the section's headline.
   it is genuinely travelling and the loop wraps seamlessly. The travel has to
   stay an exact multiple of the tile or the loop visibly jumps.
 
+## Round five — the bottom-of-page bug, and where to view it
+
+### Elements at the very bottom could never appear
+
+He saw "glitchy stuff" at the bottom on a phone and wondered if it was the
+emulator. It was not. Measured at maximum scroll: **six elements were on
+screen and invisible** — the second pricing card, three of the four terms and
+the whole footer — because the reveal line sits at 82% of the screen height and
+at the end of the document there is no scroll left to bring anything above it.
+
+Over the final stretch the line now eases from 82% down to the full viewport
+height, so everything can always finish arriving. Verified: 0 stranded elements
+at maximum scroll, where there were 6.
+
+**General rule for any position-driven reveal: the trigger line has to be
+reachable for every element, and near the end of a scroll container it stops
+being reachable unless you move it.**
+
+### A permanent URL
+
+The local `python -m http.server` dies when the session ends, which is why the
+link stopped working on his phone. The page is now also published as a private
+Artifact, which survives the session and opens anywhere:
+
+**https://claude.ai/code/artifact/e678cecb-94c3-4be8-9b4f-d3066b15b15e**
+
+It is the same file, transformed only to drop the `<!doctype>`/`<html>`/`<head>`
+wrapper the artifact host supplies itself. `?lite=1` and `?smooth=0` still work
+on it. Deliberately NOT a Netlify deploy: `.netlify/state.json` in this working
+directory pins the production site, and roadmap 0.4 records that as a live
+hazard — a stray publish from here reaches detailingplatform.com.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so

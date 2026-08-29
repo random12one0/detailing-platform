@@ -1295,3 +1295,80 @@ something as a demo is not the same as explaining what it is.
 scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
+
+## Positioning: the website is the product (2026-08-29)
+
+The owner asked me to do the marketing thinking rather than hand it back —
+"I'm not a marketer, so actually I want you to do the thinking of what would
+be best advertised." This is that, with the reasoning exposed so it can be
+argued with.
+
+### The observation he made, and why it is correct
+
+> "At first I was like, I'm just gonna sell this booking engine. But I'm
+> realizing there's already a lot of those out there. So my main advertisement
+> should be a custom website."
+
+He is right, and the reason is pricing power. Booking software is a commodity
+category with free entrants — Square Appointments, Setmore, Calendly, Acuity,
+Booksy. **Lead with booking and the buyer files us next to free.** $900 setup
+plus $60 a month reads as expensive for "a booking tool" and cheap for "a
+website built for me". Same product, same price, opposite reaction, decided
+entirely by which noun goes first.
+
+### Where the offer actually sits
+
+A detailer who wants a website has three real options today:
+
+| | What it costs | What it costs them |
+|---|---|---|
+| Wix / Squarespace | ~$20–30/mo | **They do the work**, and the result looks like they did |
+| An agency or freelancer | $2,000–8,000 | Good result, slow, and every price change is an email and a wait |
+| A Facebook page, a Yelp listing, nothing | free | It is what most of them have |
+
+Our offer is in the gap: **an agency-quality outcome, none of the DIY labour,
+and it stays editable afterwards.** That last clause is the part neither
+alternative has — the DIY site is editable but bad, the agency site is good but
+frozen.
+
+### The ordering, and why
+
+1. **The website.** Tangible, picturable, high perceived value. It is what
+   they would have to spend thousands on otherwise.
+2. **"Custom, not a template."** This one line decides which category the buyer
+   mentally files us in. Without it we are compared to Wix and lose on price;
+   with it we are compared to an agency and win on every axis. It has to be
+   explicit, not implied.
+3. **The dashboard is why it stays current** — not the headline. He was
+   explicit: "don't make that the main point." It is the answer to the agency's
+   weakness, so it belongs immediately after the custom-build claim and
+   nowhere near the top.
+4. **Booking**, as a feature of the site rather than the product.
+5. **The terms** — no commission, your customers are yours, cancel any time.
+
+### What this changes on the page, and what it must not
+
+**Must change:** the hero leads with the website, not with booking; the section
+currently titled "What your customers see" becomes the tenant website itself
+rather than only the booking widget; one ruled row is added for editing from
+the dashboard; and the $900 is reframed as *what it costs to have a site built
+for you* rather than as a fee to get started.
+
+**"Stop booking jobs in your DMs" survives**, but moves down to head the thread
+section — which is literally what that section shows. It stops being the
+promise and becomes the pain, which is the job it was always doing.
+
+**Must not:** get longer (his instruction), make live-editing the headline (his
+instruction), or add a feature list for a site that Phase 3 has not built yet.
+
+### The honesty problem, stated plainly
+
+**The tenant website does not exist.** Phase 3 builds it. The landing page
+already promises "a complete site under your own name", so the page is ahead of
+the product — normal pre-launch, but it means the first customer's site is
+built by hand before the promise is true. Recorded in
+`docs/tenant-websites.md` §6 so it is a known cost rather than a surprise.
+
+Everything else on the page is real today: the dashboard, the booking engine,
+the price, the founding count. Nothing invented was added to support the new
+positioning and nothing should be.

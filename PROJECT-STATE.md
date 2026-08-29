@@ -118,6 +118,19 @@ are kept; only the visual world is being replaced.
   resize, which removes both known iOS Safari failure classes. Verified at
   392/768/1440 with touch emulation, which is NOT iOS Safari. He has to
   reopen it on the phone and confirm. Nothing else in 1.4 depends on it.
+- **POSITIONING CHANGED 2026-08-29, and it is the biggest open thread in the
+  project.** The owner: "there's already a lot of those out there [booking
+  engines], so my main advertisement should be a custom website." Every
+  detailer gets a bespoke site, not a template — his words, and it closes the
+  open decision that was sitting in roadmap 3.4. His full description is
+  `docs/tenant-websites.md` (written because it existed only in a chat); the
+  marketing reasoning is `DECISIONS.md` → "Positioning: the website is the
+  product"; the concrete page changes are roadmap **1.4**.
+  Two things to carry: the tenant website **does not exist yet** (Phase 3), so
+  the page is ahead of the product and the first client's site is built by
+  hand; and the one rule that keeps "custom for everyone" affordable —
+  **fork the presentation, never the engine** — is my recommendation and he
+  has not reviewed it.
 - **Copy is provisional by agreement**, not an oversight: "in the future we'll
   kind of critique the actual text on the page. For now, this is a good
   layout." A copy pass is a named 1.4 task. Only "Stop booking jobs in your

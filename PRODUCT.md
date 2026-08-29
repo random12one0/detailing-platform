@@ -18,7 +18,32 @@ Multi-tenant SaaS that gives an independent detailer a professional website with
 
 ## Positioning
 
-The concrete promise: **a professional website with booking built in** — for detailers with a bad website or none. Never "streamline your workflow" or generic SaaS-speak. The audience's own register is canon (from the old site): "A tunnel wash gets the surface wet and calls it a day. A proper detail actually protects your car."
+**Updated 2026-08-29 by the owner. The website leads.** He reached it from the
+market rather than from taste: "At first I was like, I'm just gonna sell this
+booking engine. But I'm realizing there's already a lot of those out there. So
+my main advertisement should be a custom website."
+
+The concrete promise, in order of what to say first:
+
+1. **A website built for you — custom, not a template.** This is the product.
+   It is the tangible thing, and it is the only part of the offer that is not
+   a commodity. Every detailer gets their own; see `docs/tenant-websites.md`.
+2. **The dashboard behind it keeps it alive.** Change a price in your pocket
+   and the site changes — no code, no waiting on a developer. This is the
+   answer to what makes an agency site rot. **Not the headline** — the owner
+   was explicit about that.
+3. **Booking is a feature of the website**, not the product.
+4. **The terms close it:** no commission ever, your customers are yours,
+   cancel any time and your data leaves with you.
+
+Never "streamline your workflow" or generic SaaS-speak. The audience's own
+register is canon (from the old site): "A tunnel wash gets the surface wet and
+calls it a day. A proper detail actually protects your car."
+
+**Superseded:** `docs/design-directions/VERDICT.md` §3 records an earlier
+answer — "the main thing we're selling is the admin dashboard with the
+website". That was right about not selling car detailing and is still the
+correction that matters most; the ordering within it has since moved."
 
 ## Operating Context
 
