@@ -66,17 +66,28 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - One queue prompt per session; commit before the next; `/clear` and
   restart a session that goes sideways.
-- **"Safe to clear." is a judgment call, not a sign-off you tack onto every
-  finished job.** Clearing costs the owner the thread; say it only when
-  BOTH are true: (a) the open questions raised in this session are actually
-  resolved — not merely written down, and a decision you handed the owner
-  that they have not answered is still open, and (b) the work is committed,
-  the tests have been run, and anything learned is in a file. Otherwise
-  keep going — finishing one roadmap item does not by itself end a session.
-  The other reason to clear is context pressure — the owner's threshold is
-  around 300k tokens; below roughly 200k there is room to keep working, so
-  offer the next piece of work instead of a handoff prompt. Never mid-task,
-  and if something is still unwritten, write it first.
+- **"Safe to clear." is measured, not guessed.** Run
+  `node scripts/context-check.mjs` — it reads the live session transcript and
+  prints real context usage against the owner's 300k ceiling. Do not estimate
+  this; the number is routinely far higher than it feels.
+
+  Two independent triggers, and either one is enough:
+
+  1. **Work boundary.** A whole roadmap item is finished AND nothing is left
+     hanging — no unanswered question, no decision handed to the owner that
+     they have not answered, no "I'll look at that next". Finishing a
+     *sub-part* is not a boundary. If a decision is pending, the session is
+     not over: keep working on anything that does not depend on it.
+  2. **Context pressure.** Over ~240k (80%), wrap up at the next safe stopping
+     point even mid-item; over 300k, clear regardless. When context forces the
+     clear rather than the work finishing, say so plainly and make the handoff
+     prompt carry every unresolved thread, because the next session starts
+     cold on whatever the prompt names.
+
+  Below ~240k with the work unfinished, keep going and offer the next piece
+  of work instead of a handoff. Never mid-task. If something is still
+  unwritten, write it first — a thread that exists only in chat dies at the
+  clear.
   Then give them a short prompt to paste into the next session, in a plain
   fenced block (no language tag — it is not a shell command). Fill it from
   `docs/roadmap.md`: the next unchecked item, and its row in that file's
