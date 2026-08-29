@@ -413,3 +413,59 @@ each picked as the option easiest to change later.
   Function-to-function calls are unaffected (they read their own env), which
   is why production works. Refresh it from the Supabase dashboard before
   trusting the 7 credentialed test suites.
+
+## Phase 0 — 0.4 deployment sanity (partial) + a security finding
+
+- **The GitHub repo `random12one0/detailing-platform` is PUBLIC**
+  (`"visibility": "public"`, unauthenticated API check 2026-08-29). Nothing
+  in the docs said so, and the 0.1 write-up's severity reasoning assumed
+  "recoverable from git history" meant *locally* recoverable. It does not:
+  it means readable by anyone.
+
+- **`backend/.env` was committed on 2026-02-01 and is still in the public
+  history** (4 commits, reachable from `main`; deleted from HEAD only).
+  It carried, in plaintext:
+  `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY` (both for the LIVE
+  business project `adtlnvihwrcqcasqcjwd`), `RESEND_API_KEY`,
+  `GOOGLE_CLIENT_SECRET`, `GOOGLE_CLIENT_ID`, `MONGO_URL`, `OWNER_EMAIL`.
+  Emergent-era file; predates the platform conversion.
+
+- **The serious one is the service-role key.** Decoded header/payload:
+  `ref=adtlnvihwrcqcasqcjwd`, `role=service_role`, `exp=2036-02-01`. A
+  service-role key bypasses RLS entirely — it is full read/write on the
+  database that takes the live business's real customer bookings and money.
+  Every prior note in this repo discussed only the **anon** key, which is
+  publishable by design and was proven harmless by the 0.1 policy check.
+  That reasoning does not transfer to this key. **Not verified as still
+  live** — attempting to exercise a leaked credential was correctly blocked,
+  and was not worked around. Treat as compromised until rotated.
+
+- **The leaked Resend key appears already rotated.** Its commit is
+  2026-02-01 07:25Z; the oldest API key now in the Resend account
+  (`CarWash`) was created the same day at 21:06Z, ~14 hours *later*, and the
+  leaked value matches none of the three current keys. Most likely replaced
+  the same day. Low priority, but confirm rather than assume.
+
+- **`GOOGLE_CLIENT_SECRET` should be treated as compromised** — cannot be
+  validated read-only, and OAuth client secrets do not expire on their own.
+
+- **OPEN — owner, and it needs care, not a click.** Rotating the live
+  project's JWT secret invalidates BOTH the anon and service-role keys at
+  once, which breaks the live booking site until the new anon key is rebuilt
+  into its frontend and redeployed. That is a coordinated change on a
+  money-taking system, so it is the owner's call and their sequencing.
+
+- **Deployment (roadmap 0.4, partially answered).** `detailingplatform.com`
+  is served by the Netlify project **`detailplatform-admin-test`** (site id
+  `12ee8817-…`). Its current production deploy is git-linked: `branch=main`,
+  `context=production`, `manual_deploy=false`, with a real
+  `commit_ref`/`commit_url` into the GitHub repo. So HANDOFF was right and
+  the older DECISIONS note about manual uploads is stale: **`main` builds to
+  production.** Caveat: that deploy's `deploy_source` is `"api"`, so it was
+  triggered through the API rather than observed firing from a bare `git
+  push` — the repo linkage is proven, the push trigger is not yet.
+- **A stray deploy from this working directory would hit production.**
+  `.netlify/state.json` here pins `siteId` to the production site, so
+  `netlify deploy --prod` run in this folder publishes to
+  detailingplatform.com regardless of branch. Worth knowing before anyone
+  runs a deploy command casually.

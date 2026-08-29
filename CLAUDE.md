@@ -66,10 +66,17 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - One queue prompt per session; commit before the next; `/clear` and
   restart a session that goes sideways.
-- **End every finished job with "Safe to clear." plus a handoff prompt.**
-  The owner asked to be told rather than guess. Say it only once the work is
-  committed, the tests have been run, and anything learned is in a file —
-  never mid-task. If something is still unwritten, write it first.
+- **"Safe to clear." is a judgment call, not a sign-off you tack onto every
+  finished job.** Clearing costs the owner the thread; say it only when
+  BOTH are true: (a) the open questions raised in this session are actually
+  resolved — not merely written down, and a decision you handed the owner
+  that they have not answered is still open, and (b) the work is committed,
+  the tests have been run, and anything learned is in a file. Otherwise
+  keep going — finishing one roadmap item does not by itself end a session.
+  The other reason to clear is context pressure — the owner's threshold is
+  around 300k tokens; below roughly 200k there is room to keep working, so
+  offer the next piece of work instead of a handoff prompt. Never mid-task,
+  and if something is still unwritten, write it first.
   Then give them a short prompt to paste into the next session, in a plain
   fenced block (no language tag — it is not a shell command). Fill it from
   `docs/roadmap.md`: the next unchecked item, and its row in that file's

@@ -67,6 +67,7 @@ Better than typical for this stage — there is a real, enforced design system:
 - **`app/.env.production` must never be committed** — Vite would silently override local config (DECISIONS.md).
 - **`lib/theme.js` is the only file allowed to compute color in JS** — tenant accents get contrast-corrected there; adding color math elsewhere breaks the system's contract.
 - **The dashboard's 5 tabs are state, not URLs** — deep-linking a tab doesn't exist; adding router-based tabs would break the home-screen-app behavior comments in `main.jsx`.
+- **PUBLIC REPO + a leaked service-role key (found 2026-08-29).** The GitHub repo is public, and `backend/.env` sits in its history (committed 2026-02-01, 4 commits, reachable from `main`) carrying the LIVE business project's `SUPABASE_SERVICE_ROLE_KEY` — full read/write, bypasses RLS — plus `GOOGLE_CLIENT_SECRET`, an older Resend key and a Mongo URL. Earlier notes discussed only the **anon** key and concluded "low severity"; that reasoning does not cover this. Not verified as live (exercising it was blocked, deliberately). **OPEN — owner.** See DECISIONS.md.
 - **The platform sends through the live business's Resend account.** Same account (`andrewswashing@gmail.com`) that mails Andrew's Auto Detail's real customers. Platform sends accumulate against its reputation and suppression list. Flagged 2026-08-28, not decided.
 - **What I don't understand:** whether Netlify auto-publish is actually connected (HANDOFF vs DECISIONS disagree). ~~Why email produces nothing in Resend~~ — answered 2026-08-28, see above.
 
