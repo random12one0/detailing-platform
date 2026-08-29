@@ -16,7 +16,13 @@ is kept; the entire visual design restarts from scratch.
       anonymous-inserts policy was never applied (see DECISIONS.md).
       Open owner item: rotate the old project's anon key, still in git
       history.
-- [ ] 0.2 Fix email — bookings currently produce nothing in Resend at all.
+- [~] 0.2 Fix email — **diagnosed 2026-08-28, waiting on the owner.** Not a
+      code bug: `PLATFORM_FROM_ADDRESS` is Resend's shared sandbox sender
+      `onboarding@resend.dev`, rejected 403 for every recipient except the
+      account owner, before Resend logs anything. Needs
+      `detailingplatform.com` verified as a Resend sending domain (DNS in
+      Netlify DNS), then the secret changed, then one real booking proved.
+      See DECISIONS.md. Original note:
       Investigate the send-email function line by line, check its secrets,
       read its logs, find the root cause WITH evidence, fix, prove with a
       real booking landing in Resend's log. The most valuable open bug.

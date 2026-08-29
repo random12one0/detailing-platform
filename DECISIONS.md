@@ -329,3 +329,53 @@ each picked as the option easiest to change later.
   live money-taking system, so it is the owner's action. Severity is low:
   an anon key is designed to be public-facing, and the check above proves
   it grants no write access to any table.
+
+## Phase 0 — 0.2 email
+
+- **Email's root cause found: `PLATFORM_FROM_ADDRESS` is Resend's shared
+  sandbox sender.** The secret is set to `onboarding@resend.dev`. Resend
+  restricts that address — it is shared by every account on the platform —
+  to the account owner's *own* address, whatever domains the account has
+  verified. Every send to any other recipient is rejected at validation
+  with HTTP 403 `validation_error`, verbatim:
+
+  > "You can only send testing emails to your own email address
+  > (andrewswashing@gmail.com). To send emails to other recipients, please
+  > verify a domain at resend.com/domains, and change the `from` address to
+  > an email using this domain."
+
+  Evidence: Supabase `function_logs` for project `kguqylyzgyzfktkfnhjb`,
+  2026-08-28 07:01Z, ~20 occurrences across the booking test runs, each
+  paired with the relay's own `send-email relay failed:` line. The
+  rejection happens *before* Resend creates an email record, which is
+  exactly why the Resend dashboard showed nothing at all — not a bounce,
+  not a failed send. Nobody had read the function logs; the error had been
+  printing all along.
+
+- **No code is at fault, and nothing was edited.** The logs prove the whole
+  chain is healthy up to Resend's validation: the relay's service-role auth
+  passes, the business lookup resolves, the payload builds, and the API key
+  authenticates (an invalid key returns `401`/`API key is invalid`, which
+  is not what we see). The `email_customer_confirmation` and
+  `email_owner_new_booking` gates are `true` for all 14 businesses, so the
+  send is attempted, not skipped. One value is wrong; the code around it is
+  correct.
+
+- **The blocker is that `detailingplatform.com` is not a verified sender.**
+  The Resend account (`andrewswashing@gmail.com`) has exactly one verified
+  domain: `andrewsdetail.com`, verified 2026-03-02, sending enabled — the
+  live business's domain. So `PLATFORM_FROM_ADDRESS` cannot simply be
+  flipped to `bookings@detailingplatform.com` today; that would fail with a
+  domain-not-verified error instead. Verifying the platform domain is DNS
+  work on a production domain and is the owner's call. **OPEN — owner.**
+
+- **Noted, not acted on: the platform shares the live business's Resend
+  account.** The same account sends Andrew's Auto Detail's real customer
+  mail. Platform test sends, seed runs and future tenants' mail would
+  accumulate against that account's reputation and suppression list. Worth
+  a separate account for the platform before real tenants exist; flagged,
+  not decided.
+
+- **Both domains use Netlify DNS** (`nsone.net` nameservers), so adding
+  Resend's verification records is done in the Netlify DNS panel, not at a
+  registrar. Read-only `nslookup` check, 2026-08-28.

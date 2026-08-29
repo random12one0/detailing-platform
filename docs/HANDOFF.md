@@ -63,11 +63,19 @@ repo.
 >   is a production release.
 >
 > **What's unfinished — don't rediscover these:**
-> 1. **Email does not send.** `RESEND_API_KEY` and
->    `PLATFORM_FROM_ADDRESS=onboarding@resend.dev` are set as Supabase
->    secrets, but two real bookings produced *no email in Resend at all* —
->    not a bounce, not a failed send, nothing in the log. Root cause never
->    found. This is the oldest open thread and the most valuable one.
+> 1. **Email does not send — ROOT CAUSE FOUND 2026-08-28. Owner action.**
+>    The cause was the second secret named here:
+>    `PLATFORM_FROM_ADDRESS=onboarding@resend.dev` is Resend's *shared*
+>    sandbox sender, which Resend restricts to the account owner's own
+>    address no matter what domains the account has verified. Every send is
+>    rejected 403 `validation_error` at Resend's validation step, which is
+>    before an email record is created — hence *nothing in the log*. It had
+>    been printing in `function_logs` the whole time (2026-08-28 07:01Z,
+>    ~20 occurrences); nobody had read them. **No code is at fault.**
+>    Blocked on the owner: the Resend account's only verified domain is
+>    `andrewsdetail.com` (the live business's), so `detailingplatform.com`
+>    must be verified before the from-address can change. Full evidence in
+>    DECISIONS.md §"Phase 0 — 0.2 email".
 > 2. **pg_cron was never installed** and the reminder sweep
 >    (`send-owner-reminders`) has never been proven to fire on its own. The
 >    function works when called by hand.

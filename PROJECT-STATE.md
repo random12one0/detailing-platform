@@ -6,7 +6,7 @@ Investigated 2026-08-28 by reading the files cited below. Claims not backed by a
 
 Multi-tenant SaaS giving independent car detailers a professional website with online booking built in. Converted from a single-business site ("Andrew's Auto Detail" — the old code is kept read-only in `reference/`, 2.5 MB, never deployed). Three audiences from one React bundle: prospects on the marketing page (`/`), detailer-owners in a phone-first dashboard (`/app`), and their customers on a public booking page (`/book/:slug`).
 
-**State: late beta, pre-revenue.** The engine works end to end (real bookings have been made), 11 test suites exist, a private Netlify test deploy exists — but transactional email silently doesn't send (root cause never found), the reminder scheduler was never wired up, billing is not implemented ("nothing charges anyone" — DECISIONS.md), and signup is brand new. Sources: `docs/HANDOFF.md`, `DECISIONS.md`, git log.
+**State: late beta, pre-revenue.** The engine works end to end (real bookings have been made), 11 test suites exist, a private Netlify test deploy exists — but transactional email doesn't send (root cause found 2026-08-28: a sandbox from-address; needs the owner to verify a sending domain), the reminder scheduler was never wired up, billing is not implemented ("nothing charges anyone" — DECISIONS.md), and signup is brand new. Sources: `docs/HANDOFF.md`, `DECISIONS.md`, git log.
 
 ## 2. STACK
 
@@ -50,7 +50,7 @@ Better than typical for this stage — there is a real, enforced design system:
 
 - ~~**Dead component:** `components/MonthlyRevenueChart.jsx`~~ — deleted 2026-08-28 (roadmap 0.1).
 - **Root-level junk from the pre-conversion era, all pointing at a DIFFERENT Supabase project (`adtlnvihwrcqcasqcjwd`):** `create_sample_bookings.js` (with a hardcoded anon JWT committed), `update_packages.js`, `temp_enable_inserts.sql` (**a script that opens anonymous inserts on bookings** — never run this), `deploy.sh`, `deploy-admin.sh`, `.emergent/`, `# Code Citations.md`, `test_result.md`, `FEATURES_VERIFICATION.md`, `PRODUCTION_BOOKING_SYSTEM.md`, `ADVANCED_FEATURES.md`, `ADMIN_SETUP.md`. None referenced by the live app. **All deleted 2026-08-28 (roadmap 0.1)**, along with the stray `.gitconfig`; a read-only check proved the anonymous-inserts policy was never applied to the live project. The one thing still open is the owner's: the anon key remains recoverable from git history. See DECISIONS.md.
-- **Broken:** email. `RESEND_API_KEY` is set as a Supabase secret but two real bookings produced *nothing* in Resend — no send, no bounce, no log. Root cause unfound (HANDOFF.md §"unfinished", thread #1).
+- **Broken: email — ROOT CAUSE FOUND 2026-08-28 (roadmap 0.2), fix is an owner action.** `PLATFORM_FROM_ADDRESS` is set to `onboarding@resend.dev`, Resend's *shared sandbox sender*, which Resend only lets you send to your own account address — so every send is rejected 403 at validation, before Resend creates a record, which is why the dashboard showed nothing. Evidence: `function_logs`, 2026-08-28 07:01Z, ~20 identical 403s. **No code is at fault**; the relay, auth, gates and API key all work. Blocked because the Resend account's only verified domain is `andrewsdetail.com` (the live business's), not `detailingplatform.com`. See DECISIONS.md §"Phase 0 — 0.2 email".
 - **Never proven:** the reminder sweep. `send-owner-reminders` works when called by hand; pg_cron was never installed, so nothing fires it (HANDOFF #2, DECISIONS).
 - **Unverified:** Android vCard export — only tested in Chromium (HANDOFF #4).
 - **Deps:** clean — 5 runtime deps, all used. `playwright` is a devDep for screenshot scripts.
@@ -66,11 +66,12 @@ Better than typical for this stage — there is a real, enforced design system:
 - **`app/.env.production` must never be committed** — Vite would silently override local config (DECISIONS.md).
 - **`lib/theme.js` is the only file allowed to compute color in JS** — tenant accents get contrast-corrected there; adding color math elsewhere breaks the system's contract.
 - **The dashboard's 5 tabs are state, not URLs** — deep-linking a tab doesn't exist; adding router-based tabs would break the home-screen-app behavior comments in `main.jsx`.
-- **What I don't understand:** why email produces literally nothing in Resend (the logged secrets suggest the function should at least attempt a send); and whether Netlify auto-publish is actually connected (HANDOFF vs DECISIONS disagree).
+- **The platform sends through the live business's Resend account.** Same account (`andrewswashing@gmail.com`) that mails Andrew's Auto Detail's real customers. Platform sends accumulate against its reputation and suppression list. Flagged 2026-08-28, not decided.
+- **What I don't understand:** whether Netlify auto-publish is actually connected (HANDOFF vs DECISIONS disagree). ~~Why email produces nothing in Resend~~ — answered 2026-08-28, see above.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
-1. **Fix email.** Highest-value open thread. Start by reading `supabase/functions/send-email` + `_shared` config, then `query_logs` on the function for a real booking — the total silence smells like the send being skipped before the API call (env var name mismatch or a guard), not a Resend failure.
+1. **Fix email — diagnosed 2026-08-28, now waiting on the owner.** Not a code bug: `PLATFORM_FROM_ADDRESS=onboarding@resend.dev` is Resend's shared sandbox sender and is rejected 403 for every recipient but the account owner. Needs `detailingplatform.com` verified in Resend (DNS records in Netlify DNS), then the secret set to an address on it — or deleted, since `_shared/config.ts` already defaults to `bookings@detailingplatform.com`. Then prove with one real booking.
 2. **Wire the reminder scheduler.** The function is idempotent and deployed; it needs one Supabase Dashboard cron entry (every 15 min). Minutes of work, closes HANDOFF thread #2.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.
 4. **Resolve the deploy question** — confirm whether Netlify auto-publishes `main`; if it's still manual uploads, connect the repo. One config change; prevents a stale-production surprise.
