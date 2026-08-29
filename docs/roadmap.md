@@ -100,6 +100,27 @@ is kept; the entire visual design restarts from scratch.
       the signature move is **the text messages becoming the schedule**.
       Build ONE page properly, not four. Two things need the owner's nod
       first and are named at the top of that file.
+
+      **REBUILT 2026-08-29 — `docs/design-directions/5-the-thread.html`,
+      "The Thread". Waiting on the owner to look at it; that is the only
+      thing left in this item.** The two open questions were asked before
+      any code and his answers are written into `BUILD-BRIEF.md` §7, which
+      OVERRIDES §2 of that file: split stage is demoted from the page's
+      grammar to a two-section beat, because he said no two scroll areas
+      should look the same, and he capped the column layout at "a couple
+      sections". He also added a requirement nobody had recorded — something
+      must be animating at all times — and declined to give a non-web
+      reference, so that question is closed rather than deferred.
+      What shipped: one continuous ground with eight structurally different
+      sections; the messages-become-the-schedule move; a rotating-tail
+      typewriter and a never-stopping light; weighted scroll, a sticky
+      horizontal rail, a glass pill nav, grain, and a `.lite` path — all
+      hand-rolled, with **zero third-party JavaScript**, which also closes
+      the GSAP Club licence question by not having it. Verified by looking
+      at 392/768/1440, console clean, and the four credential-free tests
+      pass. Nine defects were found by looking and fixed, including the
+      rail costing 2.6 screens of scroll to move 34 pixels — his one hard
+      no, reproduced exactly. Full write-up in `README.md` part one.
 - [ ] 1.4 Refine the winner once. **OWNER approves.** Carry in from 1.3:
       settle smooth scroll empirically on the owner's own phone (one flag,
       3 KB); consider adding the typewriter headline; draw the dashboard's

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Four directions — pick one</title>
+<title>Direction 5 — the rebuild</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
@@ -44,14 +44,32 @@ code{font-size:13px;background:#0C0F0E;padding:2px 6px;border-radius:3px;color:#
 </head>
 <body>
 <div class="wrap">
-  <h1>Four directions.<br>Pick one.</h1>
-  <p class="sub">Same three screens in each: the landing hero, one step of the booking page, and the dashboard's Today tab. Every one also shows the booking page for a business that signed up an hour ago, with two services and no photos, because that is the case a design is most likely to fail.</p>
+  <h1>The rebuild.<br>One page.</h1>
+  <p class="sub">You rejected all four of the first attempt and you were right to — they sold car detailing, and what we sell is the dashboard and the website. This is the rebuild, made from what you actually said. The four are still below, kept as evidence of what not to do.</p>
 
   <div class="how">
-    <p><b>How to look at these.</b> Open one, scroll the whole way down, then open the next. Do it on your phone as well as the laptop. Three of the four behave differently there.</p>
-    <p>You are not picking a colour. You are picking <b>which argument you want to make to a detailer</b>. The colours all move in 1.4; the argument doesn't.</p>
-    <p>Don't try to be fair to them. The one you keep going back to is the answer.</p>
+    <p><b>How to look at this.</b> Scroll it slowly, the whole way down, on the laptop and then on your phone. It is one page, not a set of screens — everything on it is live, including the dashboard, which adds its own numbers up.</p>
+    <p>Two questions I actually need answered: <b>does the two-column bit read as a before/after of a car again</b> (it is meant to read as your buyer's mess against the product), and <b>does the weighted scroll feel good or annoying on your phone</b> — add <code>?smooth=0</code> to the address to feel it without.</p>
+    <p>Don't try to be fair to it. Tell me what you keep looking at and what you keep skipping.</p>
   </div>
+
+  <ol class="cards">
+    <li style="border-color:#3D6B55">
+      <div class="n" style="color:#38E08B">Direction 5 · the rebuild</div>
+      <h2><a href="5-the-thread.html">The Thread</a></h2>
+      <p class="arg">Your Saturday already exists — it is just scattered across a text thread. As you scroll, each message detaches from the phone and lands as a row in the dashboard: <i>"u free sat?"</i> becomes <i>9:00 — Marcus Hill, Wash &amp; Wax, $95</i>. Nothing is deleted and replaced; it is sorted. Then the thread's side leaves and the dashboard takes the screen.</p>
+      <div class="swatches"><i style="background:#0B0D0E"></i><i style="background:#1E2327"></i><i style="background:#38E08B"></i><i style="background:#EFEEE7"></i></div>
+      <div class="meta">
+        <span><b>Feels like</b> near-black and quiet, with one green. Closest to direction 4, which you liked best on looks.</span>
+        <span><b>Type</b> Archivo — the one typeface you praised twice without knowing two of your sites both used it — with JetBrains Mono on every number.</span>
+        <span><b>Motion</b> the headline retypes itself forever, a slow light never stops moving, the messages fly, one section travels sideways, and the scroll has weight.</span>
+        <span><b>No cars anywhere.</b> No before/after of a car, no deposits, and the booking widget is one section instead of the co-star.</span>
+      </div>
+      <p class="risk">Risk: two columns is structurally a comparison, and you said "this before and after — there's no need for that completely". The difference is that it compares your buyer's current mess to the product, not a dirty car to a clean one — but you should judge that on screen, not on my say-so. It is only two sections either way.</p>
+    </li>
+  </ol>
+
+  <p class="sub" style="margin-top:38px"><b>Below: the four you rejected on 2026-08-29.</b> Kept because knowing what was wrong is worth as much as knowing what is right. Nothing here is being proposed again.</p>
 
   <ol class="cards">
     <li>
@@ -108,8 +126,8 @@ code{font-size:13px;background:#0C0F0E;padding:2px 6px;border-radius:3px;color:#
   </ol>
 
   <div class="how" style="margin-top:30px">
-    <p><b>To see these on your phone</b> — run <code>python -m http.server 8080 --directory docs/design-directions</code> from the repo folder, leave the window open, then on your phone (same wifi) open <b>http://192.168.0.126:8080/</b>. Closing the window stops it. Nothing is published anywhere.</p>
-    <p>While you are there: scroll <b>direction 4's</b> hero slowly and tell me whether it stutters. That is the only one with a real speed question, and your phone answers it better than anything I can measure.</p>
+    <p><b>To see these on your phone</b> — run <code>python -m http.server 8080 --directory docs/design-directions</code> from the repo folder, leave the window open, then on your phone (same wifi) open <b>http://192.168.0.126:8080/</b>. The IP can change when the router reassigns it; <code>ipconfig</code> tells you the current one. Closing the window stops it. Nothing is published anywhere.</p>
+    <p>The phone is the test that matters for direction 5. Two things only your phone can answer: whether the pinned section where the messages fly feels smooth or stuttery, and whether the weighted scroll is nicer than the normal one — <code>?smooth=0</code> turns it off so you can feel both in one sitting. <code>?lite=1</code> shows the page with every animation switched off, which is what someone who has asked their phone to reduce motion sees.</p>
   </div>
   <p class="foot">Written up in full in <b>docs/design-directions/README.md</b>: what each one is doing, what it borrows from which of your seven reference sites, and what it would cost to build.</p>
 </div>

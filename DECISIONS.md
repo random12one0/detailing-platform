@@ -1068,3 +1068,113 @@ Two more findings from the same pass, both fixed rather than suppressed:
 entry would have created `.impeccable/config.json`, and `CLAUDE.md`'s
 portability rule says the only tool-specific file in this repo is
 `.claude/settings.json`. Fixing kept that true.
+
+## Roadmap 1.3, the rebuild — direction 5, "The Thread" (2026-08-29)
+
+### Split stage was demoted from the page's grammar to a two-section beat
+
+`BUILD-BRIEF.md` §2 chose split stage — two columns held in tension for the
+whole page. The owner's answer killed it: *"throughout the entire website no
+one scroll area, one page looked the same — as you scroll everything morphs
+into different layouts and different stuff, and that's what I liked about it,
+so use that."* Two columns top to bottom is one layout repeated, which is the
+opposite of that. He also capped the comparison himself at *"only like a couple
+sections"*.
+
+He did NOT reject the comparison — the risk flagged in §2 ("there is a real
+chance he reads it as before/after again") resolved as: he reads it as
+before/after, and he is fine with that for about two sections. So the grammar
+is what §1 Q7 had already derived from his two favourite sites — one continuous
+ground, every section a different structure over it — and the split is two of
+those structures. Written up in `BUILD-BRIEF.md` §7, which overrides §2 of the
+same file.
+
+### No third-party JavaScript at all, which is how the GSAP licence question closed
+
+`ANALYSIS.md` left an open question: ScrollSmoother and SplitText are GSAP Club
+plugins and must not ship unaudited in a product we sell. Rather than read the
+licence, the page ships none of it — no GSAP, no ScrollTrigger, no
+ScrollSmoother, no SplitText, no Lenis, no Three.js. The weighted scroll is
+~30 lines, the line mask is CSS `clip-path`, the sticky rail is
+`position: sticky` the way webtactics does it. All the script on the page is
+smaller than Lenis alone. Nothing to license, nothing to audit, and one fewer
+thing for the next agent to inherit.
+
+The weighted scroll moves the REAL scroll position rather than translating a
+wrapper. That matters here specifically: two sections are built on
+`position: sticky`, and a translated wrapper breaks sticky.
+
+### Archivo, on the strongest single piece of evidence in the reference set
+
+The owner said "I like the font" about riangle.com and "font is also good"
+about sharplink.com, independently, not knowing both set **Archivo**
+(`ANALYSIS.md` §2). It carries wdth 62–125 and wght 100–900 in one family,
+which is the weight-and-width extreme `design-knowledge.md` §1 asks for.
+JetBrains Mono carries every figure — riangle's mono-numerals-as-a-system idea,
+which suits a product full of prices, times and counts. Their nav numbering was
+NOT copied: four links are not a sequence.
+
+### Near-monochrome with one green, and the reasoning is by elimination
+
+Direction 4 was *"the one that I like visually the most"* and had no brand
+colour at all, so the ground is near-black graphite with bone as the dominant.
+The single accent is a signal green: orange was ruled out by name on subscrr,
+and he flagged his own lean toward blue as *"kind of typical AI"*. Green is
+also semantically true here — it marks confirmed and money, nothing else. The
+neutral ramp is biased cool so a pure mid-grey never appears.
+
+**`ui-ux-pro-max`'s palette and type output stay rejected**, as disclosed in
+`BUILD-BRIEF.md` §5: it returned a light "calendar blue + available green"
+system with Fira Code / Fira Sans, and Outfit / Inter / Roboto from its
+typography domain. Those are the on-distribution answers this project bans.
+What was taken is its structural guidance, not its taste.
+
+### The always-on animation is a requirement, not a flourish
+
+The owner raised it unprompted and it was not in any brief: *"I don't want it
+to look like a static page, and also I want some consistent animation, an
+animation that's constantly looping itself."* Two loops ship — the rotating
+tail on the headline (webtactics' mechanic, values quoted from its source) and
+a slow light on the ground.
+
+The risk is real and worth naming: an always-running animation is the fastest
+way to make a page feel cheap. The constraints that keep it from being that —
+both loops are slow, neither sits under body copy, and both stop dead under
+`prefers-reduced-motion`, per webtactics' own comment that a looping `<h1>` is
+the single most disruptive thing on a page for that visitor.
+
+### Deposits: verified rather than assumed
+
+`VERDICT.md` said to remove every mention and to confirm what the engine
+actually does. `grep -rni deposit` over `app/src` and `supabase` returns zero
+matches — the booking engine has no deposit concept at all. Not a copy problem;
+there is nothing to reconcile in Phase 2 either.
+
+### A static file cannot know the founding count, so it does not pretend to
+
+The live landing page reads the founding-spot count from the database and fails
+CLOSED, so a spot already taken is never advertised. A standalone direction file
+has no database. Inventing "3 of 10 left" would be an invented statistic, which
+is on the never-defaults list, so direction 5 shows standard pricing only and
+says why in a code comment.
+
+### The rail's scroll cost is derived, not chosen
+
+Written first at a fixed 260vh, the horizontal rail cost 2.6 screens of scroll
+at 1440 and moved the track **34 pixels** — a reproduction of the owner's one
+stated hard no (*"a lot of scrolling that doesn't really take you anywhere"*).
+The fix was not a better guess: the wrapper's height is computed from the
+track's actual travel, so the exchange rate holds at every viewport instead of
+being correct only at the width it was eyeballed on. Same principle applied to
+the collapse at the end of the pinned section — the dashboard moves into the
+space the thread vacates, measured in script, so no scroll is ever spent on a
+half-empty screen.
+
+### The `.in` class collided with itself
+
+The reveal state class and the layout classes `.strip .in` / `.band .in` were
+the same string, so an element became a two-column grid the moment it revealed.
+Found by looking, not by reading. The layout class is now `.duo`. Worth
+recording as a rule for whoever builds this for real: **a state class and a
+layout class must never share a name**, because the bug only appears after the
+animation runs and never in the markup.

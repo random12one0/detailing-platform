@@ -309,3 +309,125 @@ tables, which agree with the floors already in this repo.
    SplitText are Club plugins. Free alternatives are Lenis (MIT) and a
    hand-rolled line mask. Do not ship a paid plugin in a product we sell
    without checking the terms.
+
+---
+
+## 7. The owner's answers, 2026-08-29 — this section overrides §2 and §4 above
+
+Asked at the top of the rebuild session, before any code. His words are
+quoted; everything else is my reading of them and is marked as such.
+**Where this section and §2 disagree, this section wins.**
+
+### 7.1 The split stage is DEMOTED from page grammar to a two-section beat
+
+He did not reject the comparison. He limited it:
+
+> "Maybe a column style would be cool to kinda have a before and after of like
+> hey this is how your life was before and now — but I don't wanna drag it on
+> too much so maybe only like a couple sections."
+
+So the answer to §2's stated risk ("there is a real chance he reads it as
+before/after again") is: **he reads it as before/after, and he is fine with
+that, for about two sections.** Not for the page.
+
+### 7.2 The thing that replaces it as the grammar, in his own words
+
+This is the most important sentence he gave in the whole exchange, and it is
+the one the four rejected directions failed hardest:
+
+> "The thing about all these websites that I liked is throughout the entire
+> website no one scroll area, one page looked the same — as you scroll
+> everything morphs into different layouts and different stuff, and that's what
+> I liked about it, so use that."
+
+That is `ANALYSIS.md`'s riangle finding ("each section looks different… they
+all don't look the same" — hero is a full-bleed dark WebGL scene, capabilities
+is a plain bordered list, *same ground, different structure*) plus webtactics'
+persistent single canvas that makes the sections blend anyway.
+
+**A split stage held for the whole page is structurally the opposite of this** —
+two columns in tension top to bottom is one layout repeated. So split stage
+cannot be the grammar. §1 Q7's answer was already right and is now the whole
+answer: **one continuous ground, and every section a different structure over
+it.** The split is one of those structures, used for two sections.
+
+**The test the page now has to pass:** no two sections share a skeleton.
+Screenshot them side by side; if two read as the same layout with different
+words, one of them is wrong.
+
+### 7.3 Build the whole thing, not a rough draft
+
+He was offered a single throwaway screen of the signature move first. He
+declined:
+
+> "I do want to just build out a full thing kind of what I've said right now,
+> not a rough job but the full thing with everything kind of planned out
+> accordingly, at the same time do implement some really cool scrolling
+> techniques."
+
+> "Analyze the code and use maybe some of the skill."
+
+### 7.4 NEW REQUIREMENT — something must be animating at all times
+
+Not previously in this brief, not in `TASTE-NOTES.md` as a separate item, and
+he raised it unprompted:
+
+> "I don't want it to look like a static page, and also I want some consistent
+> animation — an animation that's constantly looping itself. One example of
+> this is the title page on that one website I really like, the last one:
+> basically it was the beginning of the name, and then underneath it, it was
+> like 'designed with', and the name kept changing — one part stayed, but
+> something after it kept changing text. Now we don't need to do the exact
+> thing, but there's maybe some glowing animation that's constantly looping, or
+> some animation in there that's animated looping."
+
+"The last one" is **webtactics.org**, and the mechanic he is describing is the
+rotating-phrase typewriter quoted in `ANALYSIS.md` §7: a fixed stem, a rotating
+tail, `70 + Math.random() * 40` ms per character, 2200 ms hold, faster delete,
+and under `prefers-reduced-motion` print the first phrase and stop.
+
+**This retires the open question in `docs/design-directions/README.md`** ("nobody
+built the typewriter headline… a good candidate to add to whichever direction
+wins, in 1.4"). It is not a 1.4 candidate any more. He asked for it by
+description, so it is a 1.3 requirement.
+
+Two things satisfy it, and the build ships both because he named both forms
+("a glowing animation that's constantly looping, **or** some animation"):
+
+1. **The rotating tail on the hero headline.** It also solves a copy problem —
+   "Stop booking jobs in your DMs" is the only line he liked, and the rotating
+   tail lets that line name four versions of the same behaviour instead of one.
+2. **A slow ambient light that never stops**, on the continuous ground. CSS
+   keyframes on `transform`/`opacity` only, so it costs nothing on a phone and
+   needs no renderer.
+
+**The constraint that keeps this from becoming slop:** an always-running
+animation is the fastest way to make a page feel cheap. Both loops are slow
+(the light breathes over ~18 s), neither sits under body copy, and both stop
+dead under `prefers-reduced-motion` — the headline printing its first phrase,
+per webtactics' own comment that a looping `<h1>` is the single most disruptive
+thing on a page for a reduced-motion visitor.
+
+### 7.5 No non-web reference exists
+
+He was asked for one thing outside the internet — a film, a car, a tool, a
+watch — and answered **"Nothing comes to mind."** §6 item 2 is therefore
+CLOSED, not deferred: do not ask again. The seven sites are the only reference
+frame, which makes `ANALYSIS.md` load-bearing rather than supporting.
+
+### 7.6 The rest of §6, settled without him
+
+- **Item 3, how many directions.** ONE, per his "build out a full thing".
+- **Item 4, deposits.** Verified in code, not assumed: `grep -rni deposit` over
+  `app/src` and `supabase` returns **zero matches**. The booking engine has no
+  deposit concept at all, so the copy cannot mention one and Phase 2 has
+  nothing to reconcile. Closed.
+- **Item 6, the GSAP licence.** Avoided rather than researched, which is
+  cheaper than reading a licence: the build ships **no GSAP, no ScrollTrigger,
+  no ScrollSmoother, no SplitText, and no Lenis** — no third-party JavaScript
+  of any kind. Every technique borrowed from `ANALYSIS.md` is hand-rolled in
+  well under the weight of the libraries it replaces (the scroll weighting is
+  ~25 lines, the line mask is CSS, the sticky rail is `position: sticky` the
+  way webtactics does it, in CSS, with no pinning library). Nothing to license,
+  nothing to audit before selling the product. Closed.
+- **Item 5, the dashboard's empty state.** Still undrawn, still carried to 1.4.

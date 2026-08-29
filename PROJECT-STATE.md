@@ -77,8 +77,48 @@ Better than typical for this stage — there is a real, enforced design system:
 - **The platform sends through the live business's Resend account.** Same account (`andrewswashing@gmail.com`) that mails Andrew's Auto Detail's real customers. Platform sends accumulate against its reputation and suppression list. Flagged 2026-08-28, not decided.
 - **What I don't understand:** whether Netlify auto-publish is actually connected (HANDOFF vs DECISIONS disagree). ~~Why email produces nothing in Resend~~ — answered 2026-08-28, see above.
 
+## 6b. THE VISUAL REDESIGN, AS AT 2026-08-29
+
+The one live thread. `DESIGN.md` and `CLAUDE.md` both say the old system
+("Raking Light", `docs/design-system.md`) is deprecated as identity — evidence
+and anti-reference only. Backend, content, copy facts and accessibility floors
+are kept; only the visual world is being replaced.
+
+- **Roadmap 1.1/1.2 are done.** Seven reference sites read at the code level
+  (`docs/references/ANALYSIS.md`, 1,669 lines — the frame for everything
+  visual), the owner's own words on how they move
+  (`docs/references/TASTE-NOTES.md` — primary evidence), and the brief
+  interview (`docs/design-brief.md`). Apple was read too
+  (`docs/references/APPLE-READ.md`) but is **one input among eight, not the
+  frame** — the owner said so explicitly.
+- **Roadmap 1.3, first attempt: all four directions rejected**, 2026-08-29.
+  `docs/design-directions/VERDICT.md` is the review, in his words. The brief
+  was wrong, not the execution: they sold car detailing, and the product is a
+  dashboard plus a website sold to a detailer who books through DMs, Yelp and
+  Google.
+- **Roadmap 1.3, rebuild: `docs/design-directions/5-the-thread.html`,
+  "The Thread". Built 2026-08-29, verified, committed — and NOT yet seen by
+  the owner.** That is the only thing outstanding in phase 1.
+  - The plan is `docs/design-directions/BUILD-BRIEF.md`; **§7 carries the
+    owner's answers and overrides §2 of the same file.**
+  - One HTML file, no build step, **zero third-party JavaScript** — which is
+    also how the GSAP Club licence question got closed.
+  - Grammar: one continuous ground, eight structurally different sections.
+    The two-column comparison is two of them, which is the cap he set.
+  - Nothing in `app/` was touched. Phase 1 picks a look; phase 2 applies it.
+- **What the next session needs from him:** whether the two-column beat reads
+  as a before/after of a car again, and whether the weighted scroll is better
+  or worse on his own phone (`?smooth=0` turns it off). Both questions are on
+  `docs/design-directions/index.html`.
+- **Carried into 1.4 regardless:** the dashboard's empty state is still
+  undrawn, and the device-tier question (`APPLE-READ.md`) is still a 1.5
+  decision.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
+0. **The owner looks at `docs/design-directions/index.html`.** Everything in
+   phase 1 is blocked on it and nothing else in the redesign can be settled
+   first. See §6b.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

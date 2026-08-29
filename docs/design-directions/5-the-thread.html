@@ -1,0 +1,1249 @@
+<!doctype html>
+<html lang="en" data-dir="thread">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0B0D0E">
+<title>Direction 5 — The Thread</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ DIRECTION 5 — THE THREAD ════════════════════════════════════════
+   The 1.3 REBUILD. Read docs/design-directions/VERDICT.md (why the first
+   four died) and BUILD-BRIEF.md (the plan) — §7 of the brief especially,
+   which carries the owner's answers of 2026-08-29 and overrides its own §2.
+
+   ARGUMENT IN ONE LINE: a detailer's Saturday already exists — it is just
+   scattered across a text thread. The product does not add work; it sorts
+   what is already there.
+
+   WHAT IS BEING SOLD (VERDICT §3): the admin dashboard plus the website, to
+   a detailer who currently books through DMs, Yelp and Google. NOT car
+   detailing. So: zero photographs of cars, zero before/after of a car, zero
+   deposits (a grep over app/src and supabase proved the booking engine has
+   no deposit concept at all), and the booking widget is one section rather
+   than the co-star.
+
+   THE GRAMMAR (BUILD-BRIEF §7.2, his words): "throughout the entire website
+   no one scroll area, one page looked the same — as you scroll everything
+   morphs into different layouts." So: ONE CONTINUOUS GROUND, and every
+   section a different skeleton over it. Eight sections, eight skeletons:
+     1 hero .............. left-heavy asymmetric, one floating object
+     2 the thread ........ two columns, pinned, animated transfer
+     3 the day ........... full-bleed single strip, one huge figure
+     4 what you get ...... full-width ruled list, no boxes at all
+     5 customers see ..... LIGHT ground, object breaking the section edge
+     6 live before ....... horizontal travel on a sticky rail
+     7 pricing ........... asymmetric pair + a ruled terms list
+     8 footer ............ mono facts
+   The split-column comparison is sections 2–3 ONLY — "a couple sections",
+   which is exactly the limit he set.
+
+   THE SIGNATURE MOVE: the messages become the schedule. Each bubble in the
+   thread flies to the position of its own row in the dashboard and dissolves
+   as that row solidifies. Same content, same pixels, sorted. Distances are
+   measured off the real DOM, so it is correct at every width and re-measures
+   on resize. It is his sharplink favourite ("that first main page turns into
+   a rectangle and then completely forms into another part of the website")
+   pointed at the one argument this page makes.
+
+   ALWAYS-ON MOTION (BUILD-BRIEF §7.4, which he raised unprompted): two loops
+   that never stop — the rotating tail on the headline (webtactics' mechanic,
+   70 + random*40 ms per character, 2200 ms hold, faster delete) and a slow
+   light that breathes across the ground over ~22 s. Both stop dead under
+   prefers-reduced-motion, per webtactics' own note that a looping <h1> is
+   the single most disruptive thing on a page for that visitor.
+
+   THE HONESTY RULE (BUILD-BRIEF §5): every product surface here is real
+   markup, not a picture of a UI. The dashboard's totals SUM from the same
+   JOBS array its rows render from — change a price in that array and the
+   tiles change. The booking widget is live DOM. There is no screenshot on
+   this page and no stock photography of any kind. The dashboard mirrors the
+   real app/src/screens/Today.jsx: long date as the headline, "Morning, name
+   · 2 of 4 still to do", two sunken tiles, one lit next-up card carrying
+   Navigate / Call / Text inline, later jobs below.
+
+   TYPE: Archivo alone, worked across both axes (wdth 62–125, wght 100–900),
+   with JetBrains Mono for every figure. Archivo is the ONE face the owner
+   praised twice, independently, not knowing riangle.com and sharplink.com
+   had set the same typeface (ANALYSIS.md §2 — the strongest single signal in
+   that document). Mono numerals as a system is riangle's idea; their nav
+   numbering is not copied, because four links are not a sequence.
+
+   COLOUR: near-monochrome graphite, which is what he ranked highest visually
+   ("direction 4 — the one that I like visually the most... no brand colour
+   at all"). One dominant (bone #F2F1EC on graphite) and one sharp accent
+   used sparingly, for money and confirmed state only. Signal green, because
+   orange was ruled out by name and he flagged his own lean toward blue as
+   "kind of typical AI". The neutral ramp is biased cool so a pure mid-grey
+   never appears.
+
+   NO THIRD-PARTY JAVASCRIPT AT ALL. No GSAP, no ScrollTrigger, no
+   ScrollSmoother, no SplitText, no Lenis, no Three.js. That closes the GSAP
+   Club licence question (BUILD-BRIEF §6) by not having it: nothing here
+   needs a licence audit before we sell the product. The scroll weighting is
+   ~30 lines, the line mask is CSS, the sticky rail is position:sticky the
+   way webtactics does it — in CSS, with no pinning library. All of the
+   JavaScript on this page together is smaller than Lenis alone.
+
+   FLAGS: ?lite=1 shows the everything-off state · ?smooth=0 turns the
+   weighted scroll off, so both can be felt on the same phone in one sitting.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* Ground. Cool-biased so no pure mid-grey ever appears. */
+  --ink-0:#0B0D0E;
+  --ink-1:#111417;
+  --ink-2:#171B1E;
+  --ink-3:#1E2327;
+  --line:#272D31;
+  --line-2:#333B40;
+  --fog:#939CA1;
+  /* Lifted from #6B757A, which measured 4.22:1 on the ground — under the
+     4.5:1 floor, and this is the ramp every 10–13px label uses. */
+  --fog-2:#7B858A;
+  --bone:#F2F1EC;          /* the dominant: warm, never #fff */
+  --bone-2:#CFD2CE;
+  /* The one sharp accent. */
+  --ac:#38E08B;
+  --ac-deep:#0E5C36;
+  /* The light band. Warm off-white — subscrr's lesson, never paper white. */
+  --paper:#EFEEE7;
+  --paper-ink:#12161A;
+  --paper-fog:#565F64;
+  --paper-line:#D2D1C9;
+
+  --wrap:1180px;
+  --gut:clamp(20px,5vw,48px);
+
+  /* Two motion presets and nothing else, the way riangle resolves every
+     animation to REVEAL_TRIGGER or SCRUB_TRIGGER. Ad-hoc durations are how
+     a page ends up feeling like a pile of effects instead of one system. */
+  --e-out:cubic-bezier(.16,.84,.34,1);
+  --t-reveal:820ms;
+  --t-hover:180ms;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--ink-0);
+  color:var(--bone);
+  font-family:"Archivo",ui-sans-serif,sans-serif;
+  font-variation-settings:"wdth" 100,"wght" 400;
+  font-size:17px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--ac);color:#04150C}
+:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+
+/* ── The continuous ground ────────────────────────────────────────────
+   One fixed layer under the whole document, the way webtactics keeps one
+   persistent canvas behind everything. It is what makes the sections blend
+   into each other instead of stacking — his complaint #10. Lightness moves;
+   hue and chroma do not. A drifting coloured wash is the same tell as a glow
+   drawn with a gradient, and that got flagged on direction 3.            */
+.ground{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.ground b{
+  position:absolute;display:block;border-radius:50%;
+  background:radial-gradient(circle,rgba(226,234,238,.09),rgba(226,234,238,0) 68%);
+  filter:blur(14px);
+  will-change:transform,opacity;
+}
+.ground b:nth-of-type(1){width:76vmax;height:76vmax;left:-20vmax;top:-26vmax;animation:drift-a 22s ease-in-out infinite alternate}
+.ground b:nth-of-type(2){width:54vmax;height:54vmax;right:-16vmax;top:36vh;animation:drift-b 29s ease-in-out infinite alternate}
+@keyframes drift-a{
+  0%  {transform:translate3d(0,0,0) scale(1);opacity:.85}
+  50% {opacity:1}
+  100%{transform:translate3d(7vw,5vh,0) scale(1.1);opacity:.68}
+}
+@keyframes drift-b{
+  0%  {transform:translate3d(0,0,0) scale(1.06);opacity:.5}
+  100%{transform:translate3d(-6vw,-7vh,0) scale(.94);opacity:.8}
+}
+/* Grain. The Vox texture he asked for, for the cost of one data URI and no
+   JavaScript — the highest value-per-effort item in all of ANALYSIS.md. */
+.ground i{
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+  opacity:.055;mix-blend-mode:overlay;
+}
+main{position:relative;z-index:1}
+
+/* ── Type scale. Size jumps of 3x+, and the width axis worked hard. ──── */
+.disp{
+  font-family:"Archivo",sans-serif;
+  font-variation-settings:"wdth" 112,"wght" 700;
+  line-height:.94;letter-spacing:-.028em;margin:0;
+  font-size:clamp(38px,6.4vw,86px);
+}
+/* Sized so the LONGEST rotating tail still sits on one line in the hero's
+   own column — a masked line that wraps mid-rotation is the one way this
+   headline can look broken, and the tail changes every few seconds. */
+.disp.xl{font-size:clamp(40px,5.3vw,76px);font-variation-settings:"wdth" 116,"wght" 760}
+.disp.sm{font-size:clamp(26px,3.4vw,42px);font-variation-settings:"wdth" 108,"wght" 640}
+.lab{
+  font-family:"Archivo",sans-serif;
+  font-variation-settings:"wdth" 72,"wght" 620;
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--fog);
+  display:inline-block;
+}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.lede{font-size:clamp(17px,1.7vw,21px);line-height:1.55;color:var(--fog);max-width:56ch;margin:18px 0 0}
+p{margin:0}
+h1,h2,h3{margin:0}
+
+.wrap{width:min(100% - (var(--gut) * 2),var(--wrap));margin-inline:auto}
+section{position:relative}
+
+/* ── Reveal. One preset. Every animated element's end state is expressible
+   as one class, so `.lite` on <html> turns the whole page static without a
+   second code path — webtactics' .wt-lite, which cannot rot because it is
+   the same CSS the animation targets.                                    */
+[data-rv]{opacity:0;transform:translate3d(0,22px,0);transition:opacity var(--t-reveal) var(--e-out),transform var(--t-reveal) var(--e-out);transition-delay:calc(var(--i,0) * 90ms)}
+[data-rv].in{opacity:1;transform:none}
+/* Line-masked headline: each line rides up from behind its own edge.
+   inset(-.3em 0) is riangle's own value — it lets descenders overflow
+   vertically so the mask never clips a letter, while still cropping
+   horizontally. */
+.mask{display:block;overflow:hidden;clip-path:inset(-.3em 0 -.3em 0)}
+.mask > span{display:block;transform:translate3d(0,110%,0);transition:transform 900ms var(--e-out);transition-delay:calc(var(--i,0) * 80ms)}
+.mask.in > span,.in .mask > span{transform:none}
+
+/* ── Chrome: the floating glass pill ─────────────────────────────────
+   subscrr's exact construction — a 14 px gutter on every side, the
+   backdrop-filter confined INSIDE the pill so the filter stays cheap on
+   every scroll frame, a 1 px gradient rim by mask compositing, and
+   deliberately NO outer shadow: their own note is that the glass is held by
+   its rim and its sheen. ONE backdrop-filter on the page, not a glass
+   system — 28 of them is what makes a page expensive on a mid-range phone. */
+.nav{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:60;
+  width:calc(100% - 28px);max-width:var(--wrap);
+  display:flex;align-items:center;gap:20px;
+  padding:11px 11px 11px 20px;border-radius:100px;
+  transition:transform 480ms var(--e-out);
+}
+.nav.hid{transform:translateX(-50%) translateY(-170%)}
+.nav__g{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:-1}
+.nav__g i{position:absolute;inset:-2%;backdrop-filter:blur(9px) saturate(165%);-webkit-backdrop-filter:blur(9px) saturate(165%)}
+.nav::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;
+  background:linear-gradient(115deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,0) 34%,rgba(255,255,255,0) 66%,rgba(255,255,255,.04) 100%),rgba(12,15,17,.46);
+  transition:background 400ms linear;
+}
+.nav.scr::before{background:linear-gradient(115deg,rgba(255,255,255,.1) 0%,rgba(255,255,255,0) 34%,rgba(255,255,255,0) 66%,rgba(255,255,255,.05) 100%),rgba(10,13,15,.78)}
+.nav::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.26),rgba(255,255,255,.06) 38%,rgba(255,255,255,.03) 62%,rgba(255,255,255,.16));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+.nav .mk{font-variation-settings:"wdth" 76,"wght" 700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin-right:auto;white-space:nowrap}
+.nav .lk{font-size:14px;color:var(--fog);transition:color var(--t-hover) linear;white-space:nowrap}
+.nav .lk:hover{color:var(--bone)}
+.nav .btn{white-space:nowrap;flex:none}
+@media (max-width:620px){.nav .lk.hide-s{display:none}.nav{gap:12px;padding-left:16px}}
+/* On a real phone the pill had wrapped to two lines — the mark broke across
+   "DETAILING / PLATFORM" and "Sign in" broke in half. Below 470 the pill
+   carries the mark and the one action, and nothing else. */
+@media (max-width:470px){
+  .nav .lk{display:none}
+  .nav .mk{font-size:11px;letter-spacing:.16em}
+  .nav{padding:9px 9px 9px 15px}
+  .nav .btn.sm{padding:9px 15px;font-size:13px}
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+.btn{
+  position:relative;display:inline-flex;align-items:center;gap:10px;overflow:hidden;
+  padding:14px 24px;border-radius:100px;border:0;cursor:pointer;
+  background:var(--bone);color:#0A0D0F;
+  font-family:"Archivo",sans-serif;font-variation-settings:"wdth" 96,"wght" 640;
+  font-size:15px;letter-spacing:-.005em;
+  transition:transform var(--t-hover) var(--e-out);
+}
+.btn > *{position:relative}
+.btn::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(160px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.9),transparent 62%);
+  transition:opacity var(--t-hover) linear;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn:hover::after{opacity:.55}
+.btn.gh{background:transparent;color:var(--bone);box-shadow:inset 0 0 0 1px var(--line-2)}
+.btn.gh:hover{box-shadow:inset 0 0 0 1px var(--fog-2)}
+.btn.gh::after{background:radial-gradient(160px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.09),transparent 62%)}
+.btn .ar{transition:transform var(--t-hover) var(--e-out)}
+.btn:hover .ar{transform:translateX(3px)}
+.btn.block{display:flex;justify-content:center;width:100%}
+.fine{font-size:13px;color:var(--fog-2);line-height:1.45}
+
+/* ═══ 1. HERO — left-heavy asymmetric, one floating object ════════════ */
+.hero{padding:clamp(124px,17vh,186px) 0 clamp(70px,10vh,120px)}
+.hero .grid{display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,.68fr);gap:clamp(30px,4vw,56px);align-items:center}
+.hero h1{margin:16px 0 0}
+.hero .tail{display:block;font-variation-settings:"wdth" 118,"wght" 760}
+.caret{display:inline-block;width:.05em;height:.74em;margin-left:.05em;background:var(--ac);vertical-align:-.04em;animation:blink 1.05s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.hero .lede{margin-top:26px}
+.hero .ctas{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:34px}
+
+/* The floating object. Pointer parallax on a fine pointer only: on a phone
+   there is no cursor and a touch-driven tilt just fights the scroll. */
+.float{will-change:transform;transform:translate3d(0,var(--py,0px),0)}
+.lit{
+  position:relative;border-radius:16px;padding:20px;
+  background:linear-gradient(168deg,var(--ink-3),var(--ink-1));
+  box-shadow:inset 0 0 0 1px var(--line-2),0 30px 60px -30px rgba(0,0,0,.92),0 1px 0 rgba(255,255,255,.035);
+  transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transition:transform 240ms var(--e-out);
+}
+.lit::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.55;
+  background:radial-gradient(340px circle at var(--lx,60%) var(--ly,8%),rgba(255,255,255,.1),transparent 60%);
+}
+.lit > *{position:relative}
+.rowline{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+.hero .stack{display:grid;gap:10px;margin-top:10px}
+.plain{border-radius:13px;padding:14px 16px;background:rgba(255,255,255,.022);box-shadow:inset 0 0 0 1px var(--line)}
+.ac{color:var(--ac)}
+@media (max-width:900px){
+  .hero .grid{grid-template-columns:1fr;gap:44px}
+  .hero{padding-top:116px}
+}
+
+/* ═══ 2. THE THREAD — two columns, pinned, animated transfer ══════════
+   The one pin on the page, and it declares its own cost on screen. 290vh of
+   wrapper against a 100vh stage means it holds you for 1.9 screens and
+   assembles a whole dashboard inside them. sharplink pins for 1.5 and he
+   liked it; momentolegal pins for 18.3 to pan one list and he said he felt
+   stuck. touch-action stays pan-y so a phone's vertical swipe is never
+   captured — the failure mode that traps a touch user.                   */
+.thread-wrap{height:290vh;position:relative}
+.stage{position:sticky;top:0;height:100vh;display:flex;align-items:center;overflow:hidden;touch-action:pan-y}
+/* No width here: `.wrap` already sets it, and a `width:100%` at this
+   specificity silently beat it and ran the whole stage edge to edge. */
+.stage .cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,4vw,56px);align-items:center}
+.stage .side{position:relative}
+/* The collapse. Once the last message has landed there is nothing left in
+   the left column, and a dead half-screen for the last third of a pin is
+   exactly the "scrolling that doesn't take you anywhere" he named as his
+   one hard no. So the thread's side leaves and the dashboard takes the
+   middle — BUILD-BRIEF's close, at the scale of one beat. --shift is
+   measured in JS, so it is right at every width and 0 when the columns
+   have already stacked. */
+.side.lft{opacity:calc(1 - var(--c,0));transform:translate3d(calc(var(--c,0) * -60px),0,0);will-change:opacity,transform}
+.side.rgt{transform:translate3d(calc(var(--c,0) * var(--shift,0px)),calc(var(--c,0) * var(--shiftY,0px)),0) scale(calc(1 + (.05 * var(--c,0))));will-change:transform}
+.sidelab{display:flex;align-items:center;gap:9px;margin-bottom:14px;min-height:18px}
+.sidelab .dot{width:5px;height:5px;border-radius:50%;background:var(--fog-2);flex:none;transition:background 300ms linear,box-shadow 300ms linear}
+.sidelab.on .dot{background:var(--ac);box-shadow:0 0 0 4px rgba(56,224,139,.14)}
+
+/* left: the phone thread */
+.thread{display:grid;gap:11px;justify-items:start}
+.bub{
+  position:relative;max-width:min(300px,92%);
+  padding:11px 15px;border-radius:16px 16px 16px 5px;
+  background:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);
+  font-size:15px;line-height:1.35;
+  will-change:transform,opacity;
+  transform:translate3d(calc(var(--dx,0px) * var(--f,0)),calc(var(--dy,0px) * var(--f,0)),0) scale(calc(1 - (.24 * var(--f,0))));
+  opacity:calc(1 - var(--f,0));
+}
+.bub .t{display:block;margin-top:5px;font-size:11px;color:var(--fog-2)}
+
+/* right: the dashboard, rendered from the same array the thread is */
+.dash{border-radius:18px;padding:clamp(14px,2vw,20px);background:linear-gradient(178deg,var(--ink-2),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line)}
+.dash .hd{font-variation-settings:"wdth" 106,"wght" 680;font-size:clamp(17px,2vw,23px);letter-spacing:-.02em;line-height:1.1}
+.dash .hq{color:var(--fog);font-size:13px;margin-top:3px}
+.dash .tiles{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.sunken{border-radius:11px;padding:11px 13px;background:rgba(0,0,0,.3)}
+.sunken .figure{font-family:"JetBrains Mono",monospace;font-size:clamp(18px,2.2vw,24px);margin-top:5px;font-variant-numeric:tabular-nums}
+.sunken .q{color:var(--fog-2);font-size:11.5px;margin-top:2px}
+.jobs{display:grid;gap:8px;margin-top:14px}
+.job{
+  border-radius:11px;padding:11px 13px;background:rgba(255,255,255,.024);
+  box-shadow:inset 0 0 0 1px var(--line);
+  will-change:transform,opacity;
+  opacity:var(--f,0);
+  transform:translate3d(calc(-26px * (1 - var(--f,0))),0,0);
+}
+.job.next{background:linear-gradient(160deg,rgba(56,224,139,.11),rgba(56,224,139,.02));box-shadow:inset 0 0 0 1px rgba(56,224,139,.32)}
+.job .l1{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.job .nm{font-variation-settings:"wght" 600;font-size:15px}
+.job .sv{color:var(--fog);font-size:12.5px;margin-top:2px}
+.job .amt{font-family:"JetBrains Mono",monospace;font-size:15px}
+.job .acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.job .acts span{font-size:11px;padding:5px 10px;border-radius:100px;background:rgba(255,255,255,.05);color:var(--bone-2)}
+.dash .lab{margin-top:16px;margin-bottom:6px}
+
+/* the divider is the chrome for this beat, and it reports its own cost */
+.divider{position:absolute;left:50%;top:8%;bottom:8%;width:1px;background:linear-gradient(180deg,transparent,var(--line-2) 14%,var(--line-2) 86%,transparent);pointer-events:none;opacity:calc(1 - (var(--c,0) * 2.4))}
+.divider i{position:absolute;left:-1px;top:0;width:3px;height:calc(var(--p,0) * 100%);background:linear-gradient(180deg,rgba(56,224,139,0),var(--ac));border-radius:3px;opacity:.6}
+.cost{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--fog-2);white-space:nowrap;opacity:calc(1 - (var(--c,0) * 2.4))}
+@media (max-width:820px){
+  .stage .cols{grid-template-columns:1fr;gap:14px;align-content:center}
+  .divider{display:none}
+  .thread{gap:7px}
+  .bub{font-size:13.5px;padding:9px 13px;max-width:82%}
+  /* The inline actions STAY on the phone. Navigate / Call / Text on the
+     card is the single most product-specific thing the dashboard does —
+     "mark a job done with wet hands, one thumb" — and the phone is the
+     viewport that claim is about. They wrap; they do not disappear. */
+  .job .acts span{font-size:10.5px;padding:4px 9px}
+  .dash{padding:12px}
+  .thread-wrap{height:280vh}
+}
+
+/* ═══ 3. THE DAY — full-bleed strip, one huge figure ══════════════════ */
+.strip{padding:clamp(70px,11vh,130px) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.016),transparent)}
+.strip .duo{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(22px,5vw,64px);align-items:end}
+.strip .big{font-family:"JetBrains Mono",monospace;font-size:clamp(56px,11vw,138px);line-height:.84;letter-spacing:-.055em}
+.strip .rt{padding-bottom:6px}
+.strip .rt p{color:var(--fog);max-width:44ch;margin-top:12px}
+@media (max-width:760px){.strip .duo{grid-template-columns:1fr;align-items:start;gap:18px}}
+
+/* ═══ 4. WHAT YOU GET — full-width ruled list, zero boxes ═════════════
+   An enumeration is a ruled list; a card is for an object you pick between
+   or act on. Three evenly spaced cards is a named tell in
+   design-knowledge.md §1, and this content is three parallel capabilities,
+   not three objects. Hover moves the whole row the way riangle's capability
+   rows do — and it moves transform, never padding, so no frame of the hover
+   costs a reflow on a mid-range Android.                                 */
+.sheet{padding:clamp(76px,12vh,140px) 0}
+.rows{margin:44px 0 0;padding:0;border-top:1px solid var(--line)}
+.r{
+  display:grid;grid-template-columns:56px minmax(0,.92fr) minmax(0,1.08fr);
+  gap:clamp(14px,3vw,40px);align-items:start;
+  padding:26px 0;border-bottom:1px solid var(--line);
+  position:relative;transition:background var(--t-hover) linear;
+}
+.r::before{content:"";position:absolute;left:-14px;top:0;bottom:0;width:2px;background:var(--ac);transform:scaleY(0);transform-origin:top;transition:transform 300ms var(--e-out)}
+.r .ix{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--fog-2);padding-top:10px}
+.r h3{font-variation-settings:"wdth" 108,"wght" 680;font-size:clamp(24px,3.1vw,38px);line-height:1.02;letter-spacing:-.025em;transition:transform 300ms var(--e-out)}
+.r p{color:var(--fog);max-width:46ch;transition:color var(--t-hover) linear}
+@media (hover:hover){
+  .r:hover{background:rgba(255,255,255,.018)}
+  .r:hover::before{transform:scaleY(1)}
+  .r:hover h3{transform:translateX(8px)}
+  .r:hover p{color:var(--bone-2)}
+}
+@media (max-width:760px){.r{grid-template-columns:34px 1fr;gap:10px}.r p{grid-column:2;margin-top:10px}}
+
+/* ═══ 5. WHAT CUSTOMERS SEE — the light band ══════════════════════════
+   The ground changes. He asked for this twice, about riangle and about
+   finseo: "they have some darker sections and some lighter sections, so the
+   whole website isn't the same exact background color." The object breaks
+   the top edge of the band, and that overlap is where the depth comes from
+   — his single strongest signal, positive and negative.                  */
+.band{position:relative;background:var(--paper);color:var(--paper-ink);margin-top:clamp(90px,15vh,180px);padding:0 0 clamp(70px,10vh,120px)}
+.band .duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.74fr);gap:clamp(28px,5vw,72px);align-items:start}
+.band .cp{padding-top:clamp(70px,10vh,120px)}
+.band .lab,.band .lede{color:var(--paper-fog)}
+.band .disp{color:var(--paper-ink)}
+.ticks{list-style:none;margin:30px 0 0;padding:0;border-top:1px solid var(--paper-line)}
+.ticks li{padding:13px 0;border-bottom:1px solid var(--paper-line);display:flex;gap:12px;align-items:baseline;font-size:16px}
+.ticks li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ac-deep);flex:none;transform:translateY(-2px)}
+/* the widget rides UP out of the band — real overlap, not a gap */
+.widget-hold{margin-top:calc(-1 * clamp(46px,7vw,92px));will-change:transform;transform:translate3d(0,var(--py,0px),0)}
+.widget{
+  border-radius:26px;padding:9px;background:#0E1114;
+  box-shadow:0 40px 80px -34px rgba(10,14,12,.6),inset 0 0 0 1px rgba(255,255,255,.08);
+  max-width:326px;margin-inline:auto;
+}
+.widget .scr{border-radius:19px;background:var(--paper);color:var(--paper-ink);overflow:hidden;box-shadow:inset 0 0 0 1px var(--paper-line)}
+.widget .top{padding:16px 16px 12px;border-bottom:1px solid var(--paper-line)}
+.widget .biz{font-variation-settings:"wdth" 104,"wght" 700;font-size:17px;letter-spacing:-.02em}
+.widget .tg{font-size:11.5px;color:var(--paper-fog);margin-top:2px}
+.widget .rail{display:flex;gap:4px;margin-top:12px}
+.widget .rail i{height:2px;flex:1;background:var(--paper-line);border-radius:2px}
+.widget .rail i.on{background:var(--paper-ink)}
+.widget .bd{padding:14px 16px 18px}
+.widget .q{font-variation-settings:"wght" 640;font-size:15px}
+.widget .svc{margin-top:11px;border:1px solid var(--paper-line);border-radius:12px;padding:11px 13px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;transition:border-color var(--t-hover) linear,transform var(--t-hover) var(--e-out)}
+.widget .svc:hover{border-color:var(--paper-ink);transform:translateY(-1px)}
+.widget .svc .n{font-variation-settings:"wght" 600;font-size:14px}
+.widget .svc .d{font-size:11.5px;color:var(--paper-fog);margin-top:1px}
+.widget .svc .p{font-family:"JetBrains Mono",monospace;font-size:14px}
+.widget .go{margin-top:14px;text-align:center;background:var(--paper-ink);color:var(--paper);border-radius:100px;padding:11px;font-variation-settings:"wght" 620;font-size:14px}
+.band .note{margin-top:16px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-fog);text-align:center}
+@media (max-width:840px){
+  .band .duo{grid-template-columns:1fr;gap:0}
+  .widget-hold{margin-top:34px}
+}
+
+/* ═══ 6. LIVE BEFORE YOUR NEXT JOB — horizontal travel ════════════════
+   webtactics' rail: a tall wrapper with a position:sticky child, done in
+   CSS with no pinning library at all, and touch-action:pan-y so a phone's
+   vertical swipe is never captured. Theirs is 5 screens for a portfolio;
+   this is 2.6 for three steps. These ARE a sequence, so 01/02/03 is a fact
+   about the content rather than the decoration design-knowledge.md bans. */
+/* The wrapper's height is SET IN SCRIPT from how far the track actually
+   has to travel, so a screen of scroll always buys about a screen of
+   movement. Written as a fallback here for the no-JS case. The bug this
+   fixes was real and it was the worst kind: at 1440 the rail cost 2.6
+   screens of scroll and moved the track 34 pixels — "a lot of scrolling
+   that doesn't really take you anywhere", which is his one hard no,
+   reproduced exactly. */
+.rail-wrap{height:170vh;position:relative}
+.rail-stage{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;touch-action:pan-y}
+.rail-head{margin-bottom:clamp(22px,4vh,44px)}
+.rail-track{display:flex;gap:clamp(18px,4vw,48px);padding-left:var(--gut);will-change:transform;transform:translate3d(calc(var(--x,0) * -1px),0,0)}
+.step{
+  flex:none;width:min(80vw,560px);
+  border-left:1px solid var(--line);padding-left:clamp(18px,2.4vw,30px);
+  transform:scale(calc(.95 + (.05 * var(--near,0))));
+  transform-origin:left center;
+  transition:transform 220ms linear;
+}
+.step .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--fog-2)}
+/* The dim end of this ramp is a contrast floor, not a taste call: .5 of the
+   bone over the ground measures ~4.4:1, so a step that has not arrived yet
+   is still readable rather than decorative grey. */
+.step h3{margin-top:12px;font-variation-settings:"wdth" 110,"wght" 660;font-size:clamp(25px,3.4vw,40px);line-height:1.02;letter-spacing:-.025em;color:rgba(242,241,236,calc(.5 + (.5 * var(--near,0))))}
+.step p{margin-top:12px;color:var(--fog);font-size:16px;max-width:38ch}
+.railbar{margin-top:clamp(26px,5vh,52px);height:1px;background:var(--line);position:relative}
+.railbar i{position:absolute;left:0;top:-1px;height:3px;width:calc(var(--p,0) * 100%);background:var(--bone);border-radius:3px}
+
+/* ═══ 7. PRICING — asymmetric pair + ruled terms ══════════════════════ */
+.price{padding:clamp(80px,13vh,150px) 0 clamp(50px,7vh,80px)}
+.plans{display:grid;grid-template-columns:minmax(0,1.34fr) minmax(0,.66fr);gap:clamp(16px,2.6vw,30px);margin-top:44px;align-items:stretch}
+.plan{display:flex;flex-direction:column;border-radius:18px;padding:clamp(22px,3vw,34px);background:rgba(255,255,255,.02);box-shadow:inset 0 0 0 1px var(--line)}
+.plan.lead{background:linear-gradient(166deg,var(--ink-3),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line-2),0 40px 70px -40px rgba(0,0,0,.92)}
+.plan .amount{font-family:"JetBrains Mono",monospace;font-size:clamp(38px,5.6vw,64px);line-height:1;letter-spacing:-.05em;margin-top:14px}
+.plan .amount small{font-family:"Archivo",sans-serif;font-size:15px;letter-spacing:0;color:var(--fog);font-variation-settings:"wght" 400}
+.plan .then{color:var(--fog);font-size:14px;margin-top:8px}
+.plan p{color:var(--fog);margin-top:16px;font-size:15.5px;max-width:44ch}
+.plan .pfoot{margin-top:auto;padding-top:26px}
+.plan .alt{font-size:13px;color:var(--fog-2);margin-top:12px}
+.terms{margin:clamp(34px,6vh,64px) 0 0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.terms li{padding:14px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:baseline;color:var(--bone-2);font-size:16px}
+.terms li .k{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--fog-2)}
+@media (max-width:800px){.plans{grid-template-columns:1fr}}
+
+/* ═══ 8. FOOTER ═══════════════════════════════════════════════════════ */
+.foot{padding:clamp(40px,7vh,80px) 0 46px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:baseline;color:var(--fog-2);font-size:13px}
+.foot .mk{font-variation-settings:"wdth" 76,"wght" 700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--fog)}
+
+/* ═══ THE LITE PATH ═══════════════════════════════════════════════════
+   One class on <html>, set by prefers-reduced-motion, by ?lite=1, and
+   automatically if the page has not become ready in time. It puts every
+   entrance into its end state using the SAME CSS the animation targets, so
+   it cannot drift out of sync with the animation it replaces. A landing
+   page that hides its own copy is worse than one that does not animate. */
+.lite [data-rv]{opacity:1!important;transform:none!important;transition:none!important}
+.lite .mask > span{transform:none!important;transition:none!important}
+.lite .ground b{animation:none!important;opacity:.8!important}
+.lite .caret{display:none}
+.lite .bub{transform:none!important;opacity:1!important}
+.lite .job{opacity:1!important;transform:none!important}
+.lite .thread-wrap,.lite .rail-wrap{height:auto}
+.lite .stage,.lite .rail-stage{position:static;height:auto;padding:clamp(60px,9vh,110px) 0;overflow:visible}
+/* Without the width the steps ran to the window edge, outside the gutter
+   every other section keeps. */
+.lite .rail-track{transform:none!important;flex-wrap:wrap;padding-left:0;gap:34px;width:min(100% - (var(--gut) * 2),var(--wrap));margin-inline:auto}
+.lite .step{width:100%;transform:none!important}
+.lite .step h3{color:var(--bone)}
+.lite .divider,.lite .cost{display:none}
+.lite .float,.lite .widget-hold{transform:none!important}
+.lite .railbar{display:none}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- One continuous ground under the whole document. Two slow lights and a
+     grain layer. This is the always-on motion he asked for, in its cheap
+     form: transform and opacity only, no renderer, no canvas. -->
+<div class="ground" aria-hidden="true"><b></b><b></b><i></i></div>
+
+<nav class="nav" id="nav" aria-label="Main">
+  <span class="nav__g"><i></i></span>
+  <a class="mk" href="#top">Detailing Platform</a>
+  <a class="lk hide-s" href="#get">What you get</a>
+  <a class="lk hide-s" href="#price">Pricing</a>
+  <a class="lk" href="#price">Sign in</a>
+  <a class="btn sm" href="#price">Start free<span class="ar">→</span></a>
+</nav>
+
+<main id="top">
+
+  <!-- ══ 1 · HERO ═══════════════════════════════════════════════════════
+       Skeleton: left-heavy asymmetric, one floating object on the right.
+       The headline keeps the only line he liked — "Stop booking jobs in
+       your DMs" — and the rotating tail lets that one line name four
+       versions of the same behaviour instead of one. It is also the
+       always-on animation he asked for by description. -->
+  <section class="hero">
+    <div class="wrap grid">
+      <div>
+        <span class="lab" data-rv>For detailers</span>
+        <h1 class="disp xl">
+          <span class="mask" id="h1a"><span>Stop booking</span></span>
+          <span class="mask" id="h1b"><span>jobs in</span></span>
+          <span class="tail"><span id="tw"></span><i class="caret" aria-hidden="true"></i></span>
+        </h1>
+        <p class="lede" data-rv style="--i:1">
+          A real website under your own name, with booking built in — and one
+          dashboard behind it that runs the whole business from the driveway.
+          Your services, your prices, your hours, your rules.
+        </p>
+        <div class="ctas" data-rv style="--i:2">
+          <a class="btn" href="#price" data-glow>See it with your name on it<span class="ar">→</span></a>
+          <span class="fine">From $35/month.<br>No commission, ever.</span>
+        </div>
+      </div>
+
+      <!-- The product doing its own selling: the same lit job card the real
+           dashboard uses, shown as a booking that arrived on its own. -->
+      <div class="float" data-parallax="18" aria-hidden="true">
+        <div class="lit" data-tilt>
+          <span class="lab ac">New booking · just now</span>
+          <div class="rowline" style="margin-top:10px">
+            <div>
+              <div style="font-variation-settings:'wght' 620;font-size:17px">Saturday, 9:00 AM — Full Detail</div>
+              <div style="color:var(--fog);font-size:13px;margin-top:3px">Marcus Hill · booked himself at 9:41 last night</div>
+            </div>
+            <div class="mono" style="font-size:24px">$240</div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="plain rowline">
+            <span style="color:var(--fog);font-size:14px">Sunday, 10:30 AM — Interior Reset</span>
+            <span class="mono" style="font-size:15px">$120</span>
+          </div>
+          <div class="plain rowline">
+            <span style="color:var(--fog);font-size:14px">Monday, 8:00 AM — Express Wash</span>
+            <span class="mono" style="font-size:15px">$65</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 2 · THE THREAD ════════════════════════════════════════════════
+       Skeleton: two columns, pinned, animated transfer. THE signature.
+       This is one of the two column sections he allowed, and the divider
+       reports its own cost in screens so the pin is never a mystery. -->
+  <section class="wrap" style="padding:clamp(20px,5vh,60px) 0 0" aria-labelledby="thr">
+    <span class="lab" data-rv>Right now</span>
+    <h2 class="disp" id="thr" style="margin-top:14px">
+      <span class="mask"><span>Four jobs came in.</span></span>
+      <span class="mask" style="--i:1"><span>None of them are</span></span>
+      <span class="mask" style="--i:2"><span>in a calendar.</span></span>
+    </h2>
+  </section>
+
+  <div class="thread-wrap" id="threadWrap">
+    <div class="stage">
+      <div class="wrap cols">
+        <div class="side lft" id="lft">
+          <div class="sidelab"><i class="dot"></i><span class="lab">In your phone</span></div>
+          <div class="thread" id="thread"></div>
+        </div>
+        <div class="side rgt" id="rgt">
+          <div class="sidelab" id="dashLab"><i class="dot"></i><span class="lab">In the dashboard</span></div>
+          <div class="dash">
+            <div class="hd">Saturday, March 14</div>
+            <div class="hq" id="dashQ">Morning, Andrew · nothing booked</div>
+            <div class="tiles">
+              <div class="sunken">
+                <span class="lab">Jobs today</span>
+                <div class="figure" id="tCount">0</div>
+                <div class="q" id="tCountQ">Nothing booked</div>
+              </div>
+              <div class="sunken">
+                <span class="lab">Expected</span>
+                <div class="figure" id="tMoney">$0</div>
+                <div class="q" id="tMoneyQ">Nothing collected yet</div>
+              </div>
+            </div>
+            <span class="lab" style="display:block">Next up</span>
+            <div class="jobs" id="jobs"></div>
+          </div>
+        </div>
+      </div>
+      <div class="divider" id="divider" aria-hidden="true"><i></i></div>
+      <div class="cost" id="cost" aria-hidden="true">holds for 1.9 screens · then releases</div>
+    </div>
+  </div>
+
+  <!-- ══ 3 · THE DAY ═══════════════════════════════════════════════════
+       Skeleton: full-bleed strip, one huge figure. The figure is SUMMED
+       from the same array above — nothing on this page is a typed-in
+       statistic. -->
+  <section class="strip">
+    <div class="wrap duo">
+      <div class="big" data-rv id="dayTotal">$0</div>
+      <div class="rt" data-rv style="--i:1">
+        <span class="lab">Demo Saturday, before 6 am</span>
+        <p>
+          Nothing was retyped. The same four jobs, priced off your own list,
+          in the order you will actually drive them — and the first one is
+          already lit, because it is the one the day is waiting on.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 4 · WHAT YOU GET ══════════════════════════════════════════════
+       Skeleton: full-width ruled list. Copy carried over from the existing
+       app/src/landing/LandingPage.jsx, which DESIGN.md says is kept — he
+       likes its wording better than anything in the four rejected
+       directions, and "Guards your day" is the line new copy has to beat. -->
+  <section class="sheet wrap" id="get" aria-labelledby="geth">
+    <span class="lab" data-rv>What you get</span>
+    <h2 class="disp" id="geth" style="margin-top:14px">
+      <span class="mask"><span>Not a page builder.</span></span>
+      <span class="mask" style="--i:1"><span>The whole front door.</span></span>
+    </h2>
+    <p class="lede" data-rv style="--i:2">
+      Not a directory listing either. Your business's front door and the room
+      behind it, both run from your phone.
+    </p>
+
+    <div class="rows">
+      <div class="r" data-rv>
+        <div class="ix">01</div>
+        <h3>Guards your day</h3>
+        <p>
+          Your hours, your travel buffer, your notice period. Double bookings
+          are impossible — the calendar refuses them, not you at 9 PM by text.
+        </p>
+      </div>
+      <div class="r" data-rv style="--i:1">
+        <div class="ix">02</div>
+        <h3>Runs from the driveway</h3>
+        <p>
+          Today's jobs with Navigate, Call and Text on every card. Mark a job
+          done and record the money with wet hands, one thumb.
+        </p>
+      </div>
+      <div class="r" data-rv style="--i:2">
+        <div class="ix">03</div>
+        <h3>Your money, plainly</h3>
+        <p>
+          What you collected, what you spent, what's still owed — and how much
+          you sold standing in the driveway versus up front.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 5 · WHAT CUSTOMERS SEE ════════════════════════════════════════
+       Skeleton: the ground changes to light, and the object breaks the top
+       edge of the band. The booking widget lives here and ONLY here — he
+       said it "shouldn't really be as big of an advertisement", so it is one
+       feature among several rather than the co-star it was in all four
+       rejected directions. It is live DOM in this design, not a screenshot
+       of the old one. -->
+  <section class="band" aria-labelledby="seeh">
+    <div class="wrap duo">
+      <div class="cp">
+        <span class="lab" data-rv>What your customers see</span>
+        <h2 class="disp sm" id="seeh" style="margin-top:14px">
+          <span class="mask"><span>Your name at the top.</span></span>
+          <span class="mask" style="--i:1"><span>Nobody else's advert.</span></span>
+        </h2>
+        <p class="lede" data-rv style="--i:2">
+          Your services, your prices, your photos. No marketplace branding, no
+          other detailers. They pick a service, pick a time you are actually
+          free, and it is booked.
+        </p>
+        <ul class="ticks" data-rv style="--i:3">
+          <li>Works on any phone, no app to download</li>
+          <li>Only shows times you can actually work</li>
+          <li>They can move or cancel it themselves</li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="widget-hold" data-parallax="14">
+          <div class="widget" data-rv>
+            <div class="scr">
+              <div class="top">
+                <div class="biz">Andrew's Auto Detail</div>
+                <div class="tg">Mobile detailing · Tacoma and south</div>
+                <div class="rail"><i class="on"></i><i></i><i></i><i></i></div>
+              </div>
+              <div class="bd">
+                <div class="q">What can we do for you?</div>
+                <div class="svc">
+                  <div><div class="n">Full Detail</div><div class="d">3 hr 30 min · inside and out</div></div>
+                  <div class="p">$240</div>
+                </div>
+                <div class="svc">
+                  <div><div class="n">Wash &amp; Wax</div><div class="d">1 hr 30 min</div></div>
+                  <div class="p">$95</div>
+                </div>
+                <div class="go">Pick a time</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="note">Live markup, not a screenshot</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 6 · LIVE BEFORE YOUR NEXT JOB ═════════════════════════════════
+       Skeleton: horizontal travel. Three steps genuinely are a sequence, so
+       the numbering is a fact rather than the decoration the never-defaults
+       list bans. -->
+  <div class="rail-wrap" id="railWrap">
+    <div class="rail-stage">
+      <div class="wrap rail-head">
+        <span class="lab" data-rv>Setup</span>
+        <h2 class="disp sm" style="margin-top:12px">
+          <span class="mask"><span>Live before your next job.</span></span>
+        </h2>
+        <p class="lede" data-rv style="--i:1">No setup wizard, no migration, no designer.</p>
+      </div>
+      <div class="rail-track" id="railTrack">
+        <div class="step">
+          <div class="n">01</div>
+          <h3>Name, hours, one service</h3>
+          <p>That's enough to be bookable. Add the rest whenever you like.</p>
+        </div>
+        <div class="step">
+          <div class="n">02</div>
+          <h3>Send one link</h3>
+          <p>Your page lives at your own address. Put it in your bio, on your cards, on the van.</p>
+        </div>
+        <div class="step">
+          <div class="n">03</div>
+          <h3>Watch bookings arrive</h3>
+          <p>Confirmations, reminders and receipts go out on their own. Customers reschedule themselves — your phone stays in your pocket.</p>
+        </div>
+      </div>
+      <div class="wrap"><div class="railbar" id="railbar"><i></i></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 7 · PRICING ═══════════════════════════════════════════════════
+       Skeleton: asymmetric pair, then a ruled terms list. Two plans of very
+       different weight, not two matching cards — and the terms are a list,
+       because they are an enumeration.
+       NOTE for whoever builds this for real: the live page reads the
+       founding-spot count from the database and fails CLOSED, so a spot that
+       is already taken is never advertised. A static direction file cannot
+       know that number, and inventing one would be an invented statistic, so
+       this shows standard pricing only. -->
+  <section class="price wrap" id="price" aria-labelledby="prh">
+    <span class="lab" data-rv>Pricing</span>
+    <h2 class="disp" id="prh" style="margin-top:14px">
+      <span class="mask"><span>Two ways in.</span></span>
+    </h2>
+    <p class="lede" data-rv style="--i:1">Both run the same booking engine.</p>
+
+    <div class="plans">
+      <article class="plan lead" data-rv>
+        <span class="lab">Website + booking</span>
+        <div class="amount">$900<small> setup</small></div>
+        <div class="then mono">then $60/month</div>
+        <p>
+          A complete site under your own name — services, prices, photos,
+          service area — with booking built in. The setup fee covers building
+          it with you.
+        </p>
+        <div class="pfoot">
+          <a class="btn block" href="#top" data-glow>Start the website plan<span class="ar">→</span></a>
+          <p class="alt">Or $600/year paid once — $120 less than paying monthly.</p>
+        </div>
+      </article>
+
+      <article class="plan" data-rv style="--i:1">
+        <span class="lab">Booking page only</span>
+        <div class="amount">$35<small>/month</small></div>
+        <div class="then mono">no setup fee</div>
+        <p>
+          Just the booking page, at a link that's yours. Keep the website you
+          have — or run from your bio until you want one.
+        </p>
+        <div class="pfoot">
+          <a class="btn gh block" href="#top" data-glow>Start with booking</a>
+        </div>
+      </article>
+    </div>
+
+    <ul class="terms">
+      <li data-rv><span class="k">01</span><span>No commission — a fully booked month costs the same as a slow one</span></li>
+      <li data-rv style="--i:1"><span class="k">02</span><span>Your customers and their numbers are yours, always</span></li>
+      <li data-rv style="--i:2"><span class="k">03</span><span>Unlimited services, bookings and photos</span></li>
+      <li data-rv style="--i:3"><span class="k">04</span><span>Cancel any time; your data leaves with you</span></li>
+    </ul>
+  </section>
+
+  <!-- ══ 8 · FOOTER ════════════════════════════════════════════════════ -->
+  <footer class="wrap foot" data-rv>
+    <span class="mk">Detailing Platform</span>
+    <span>Built for the people who never rush a car.</span>
+  </footer>
+</main>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   All of the JavaScript on this page. No library, no CDN, no licence to
+   audit. Every technique here is quoted from docs/references/ANALYSIS.md
+   and hand-rolled at a fraction of the weight of the library it replaces.
+   ══════════════════════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+  var html = document.documentElement;
+  var qs = new URLSearchParams(location.search);
+  var mm = function (q) { return window.matchMedia && window.matchMedia(q).matches; };
+  var REDUCE = mm("(prefers-reduced-motion: reduce)");
+  var LITE = REDUCE || qs.get("lite") === "1";
+  var FINE = mm("(hover: hover) and (pointer: fine)");
+  if (LITE) html.classList.add("lite");
+
+  /* The safety net. If anything below throws, or the fonts never arrive,
+     the page still shows all of its content. A landing page that hides its
+     own copy is worse than one that does not animate. */
+  var netted = false;
+  var net = function () { if (!netted) { netted = true; html.classList.add("lite"); } };
+  var netTimer = setTimeout(net, 6000);
+
+  try {
+
+  /* ── The one source of truth ────────────────────────────────────────
+     The thread and the dashboard are rendered from THIS, and the money
+     totals are summed from it — the honesty rule from BUILD-BRIEF §5.
+     Change a price here and the tiles, the strip and the rows all move. */
+  var JOBS = [
+    { at: "9:00",  who: "Marcus Hill", svc: "Wash & Wax",     amt: 95,  msg: "u free sat?",            when: "11:42 PM" },
+    { at: "11:30", who: "Dana Ruiz",   svc: "Full Detail",    amt: 240, msg: "how much for a Tahoe",   when: "6:08 AM"  },
+    { at: "1:30",  who: "Ali Nasser",  svc: "Interior Reset", amt: 120, msg: "still there?",           when: "7:15 AM"  },
+    { at: "4:00",  who: "Priya Shah",  svc: "Express Wash",   amt: 65,  msg: "can we do 9 instead",    when: "8:31 AM"  }
+  ];
+  var TOTAL = JOBS.reduce(function (s, j) { return s + j.amt; }, 0);
+  var usd = function (n) { return "$" + n.toLocaleString("en-US"); };
+
+  var thread = document.getElementById("thread");
+  var jobsEl = document.getElementById("jobs");
+  var bubs = [], rows = [];
+
+  JOBS.forEach(function (j, i) {
+    var b = document.createElement("div");
+    b.className = "bub";
+    b.innerHTML = '<span></span><span class="t"></span>';
+    b.firstChild.textContent = j.msg;
+    b.lastChild.textContent = j.when;
+    thread.appendChild(b);
+    bubs.push(b);
+
+    var r = document.createElement("div");
+    r.className = "job" + (i === 0 ? " next" : "");
+    r.innerHTML =
+      '<div class="l1"><div><span class="nm"></span><div class="sv"></div></div><span class="amt"></span></div>' +
+      (i === 0 ? '<div class="acts"><span>Navigate</span><span>Call</span><span>Text</span><span>Mark complete</span></div>' : "");
+    r.querySelector(".nm").textContent = j.at + " — " + j.who;
+    r.querySelector(".sv").textContent = j.svc;
+    r.querySelector(".amt").textContent = usd(j.amt);
+    jobsEl.appendChild(r);
+    rows.push(r);
+  });
+
+  document.getElementById("dayTotal").textContent = usd(TOTAL);
+
+  /* ── Where each bubble is flying to ─────────────────────────────────
+     Measured off the real DOM rather than guessed, so it is correct at
+     every width, and re-measured on resize the way sharplink recomputes
+     its clip-path with invalidateOnRefresh. */
+  var rgt = document.getElementById("rgt");
+  function measure() {
+    bubs.forEach(function (b, i) {
+      b.style.setProperty("--dx", "0px");
+      b.style.setProperty("--dy", "0px");
+      var a = b.getBoundingClientRect(), z = rows[i].getBoundingClientRect();
+      b.style.setProperty("--dx", (z.left + z.width / 2 - (a.left + a.width / 2)).toFixed(1) + "px");
+      b.style.setProperty("--dy", (z.top + z.height / 2 - (a.top + a.height / 2)).toFixed(1) + "px");
+    });
+    /* How far the dashboard has to travel to sit in the middle of the
+       screen once the thread's column has emptied. Zero once the columns
+       have stacked on a phone, because it is already centred there. */
+    rgt.style.setProperty("--shift", "0px");
+    rgt.style.setProperty("--shiftY", "0px");
+    var d = rgt.getBoundingClientRect(), l = lft.getBoundingClientRect();
+    rgt.style.setProperty("--shift", (window.innerWidth / 2 - (d.left + d.width / 2)).toFixed(1) + "px");
+    /* When the columns have stacked — every phone and most tablets — the
+       thread sits ABOVE the dashboard, so fading it out would leave a
+       screen-third of nothing at the end of the pin. Same rule as the
+       desktop case: no scroll is spent on an empty screen. The dashboard
+       rises into the space the thread vacates instead, which also reads
+       better: the thread does not vanish, it is replaced. */
+    var stacked = Math.abs(l.left - d.left) < 4;
+    rgt.style.setProperty("--shiftY", stacked ? (-(d.top - l.top) / 2).toFixed(1) + "px" : "0px");
+    sizeRail();
+  }
+
+  /* ── Two scroll presets and nothing else ────────────────────────────
+     riangle resolves every animation on its site to REVEAL_TRIGGER or
+     SCRUB_TRIGGER. Same idea: one shared rAF-throttled listener, and a
+     progress value 0..1 written to a CSS variable so the paint stays on
+     the compositor. Nothing here reads layout during a scroll frame
+     except these getBoundingClientRect calls, which are cheap and few. */
+  var clamp = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+  var scrubs = [];
+  var addScrub = function (el, fn) { scrubs.push({ el: el, fn: fn }); };
+
+  var threadWrap = document.getElementById("threadWrap");
+  var divider = document.getElementById("divider");
+  var dashLab = document.getElementById("dashLab");
+  var dashQ = document.getElementById("dashQ");
+  var tCount = document.getElementById("tCount");
+  var tCountQ = document.getElementById("tCountQ");
+  var tMoney = document.getElementById("tMoney");
+  var lft = document.getElementById("lft");
+  var cost = document.getElementById("cost");
+
+  addScrub(threadWrap, function (el, vh) {
+    var r = el.getBoundingClientRect();
+    var p = clamp(-r.top / (r.height - vh));
+    divider.style.setProperty("--p", p.toFixed(4));
+    /* The collapse runs after the last message has landed (0.83), so no
+       scroll is spent on a half-empty screen. */
+    var c = clamp((p - 0.83) / 0.15).toFixed(3);
+    lft.style.setProperty("--c", c);
+    rgt.style.setProperty("--c", c);
+    divider.style.setProperty("--c", c);
+    cost.style.setProperty("--c", c);
+
+    /* Each bubble's own window. Staggered, so the four land one after the
+       other rather than all at once — and the bubble leaving and the row
+       arriving share a window, which is what makes it read as ONE event
+       instead of two. That timing trick is sharplink's, from the timeline
+       where the hero closes while the next section assembles behind it. */
+    var landed = 0, money = 0;
+    for (var i = 0; i < bubs.length; i++) {
+      var s = 0.12 + i * 0.17, e = s + 0.20;
+      var f = clamp((p - s) / (e - s));
+      bubs[i].style.setProperty("--f", f.toFixed(3));
+      rows[i].style.setProperty("--f", f.toFixed(3));
+      if (f > 0.5) { landed++; money += JOBS[i].amt; }
+    }
+    setSummary(landed, money);
+  });
+
+  /* The header and the two tiles always describe the rows that are actually
+     showing. Pulled out because the lite path never runs a scroll frame,
+     and without this it rendered "0 jobs · $0" above four visible jobs —
+     the dashboard contradicting itself in the one mode a reduced-motion
+     visitor ever sees. */
+  function setSummary(landed, money) {
+    dashLab.classList.toggle("on", landed > 0);
+    tCount.textContent = String(landed);
+    tCountQ.textContent = landed === 0 ? "Nothing booked" : landed + " to go";
+    tMoney.textContent = usd(money);
+    dashQ.textContent = landed === 0
+      ? "Morning, Andrew · nothing booked"
+      : "Morning, Andrew · " + landed + " of " + landed + " still to do";
+  }
+  if (LITE) setSummary(JOBS.length, TOTAL);
+
+  /* The horizontal rail. webtactics does this with position:sticky and two
+     CSS properties instead of a pinning library; the travel is the only
+     part that needs script. */
+  var railWrap = document.getElementById("railWrap");
+  var railTrack = document.getElementById("railTrack");
+  var railbar = document.getElementById("railbar");
+  var steps = Array.prototype.slice.call(railTrack.children);
+
+  /* How far the track has to move, and therefore how much scroll it is
+     allowed to charge for. A pin must return more than it costs: sharplink
+     pins 1.5 screens and assembles a section; momentolegal pins 18.3 to pan
+     one list and he said he felt stuck. Deriving the height from the travel
+     means the exchange rate stays honest at every width instead of being a
+     number I guessed once at 1440. */
+  var railTravel = 0;
+  function sizeRail() {
+    railTravel = Math.max(0, railTrack.scrollWidth - window.innerWidth + 40);
+    if (!LITE) railWrap.style.height = (window.innerHeight + railTravel * 1.15) + "px";
+  }
+
+  addScrub(railWrap, function (el, vh) {
+    var r = el.getBoundingClientRect();
+    var p = clamp(-r.top / Math.max(1, r.height - vh));
+    railTrack.style.setProperty("--x", (p * railTravel).toFixed(1));
+    railbar.style.setProperty("--p", p.toFixed(4));
+    /* Each step brightens and grows as it crosses the reading position —
+       momentolegal's mechanic at a quarter of its length. */
+    for (var i = 0; i < steps.length; i++) {
+      var b = steps[i].getBoundingClientRect();
+      var d = Math.abs(b.left - window.innerWidth * 0.12) / (window.innerWidth * 0.55);
+      steps[i].style.setProperty("--near", clamp(1 - d).toFixed(3));
+    }
+  });
+
+  /* Depth: an element drifts a little slower than the page it sits on.
+     A dozen pixels — enough to feel nearer than the ground, not enough to
+     read as an effect. */
+  Array.prototype.forEach.call(document.querySelectorAll("[data-parallax]"), function (el) {
+    var k = parseFloat(el.getAttribute("data-parallax")) || 14;
+    addScrub(el, function (e, vh) {
+      var r = e.getBoundingClientRect();
+      e.style.setProperty("--py", (((0.5 - (r.top + r.height / 2) / vh) * 2 * k)).toFixed(1) + "px");
+    });
+  });
+
+  /* The nav gives screen back on the way down and returns on the way up.
+     A phone-first pattern; the dashboard's governing value is screen. */
+  var nav = document.getElementById("nav");
+  var lastY = window.scrollY;
+
+  var ticking = false;
+  function frame() {
+    ticking = false;
+    var vh = window.innerHeight, y = window.scrollY;
+    for (var i = 0; i < scrubs.length; i++) scrubs[i].fn(scrubs[i].el, vh);
+    nav.classList.toggle("scr", y > 40);
+    nav.classList.toggle("hid", y > 220 && y > lastY);
+    lastY = y;
+  }
+  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
+
+  if (!LITE) {
+    addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("resize", function () { measure(); onScroll(); });
+  }
+
+  /* ── Reveal on approach ─────────────────────────────────────────────
+     Observer plus a hard failsafe: if it never fires — bfcache, an old
+     browser, a headless renderer — the content is revealed anyway. */
+  var revealables = document.querySelectorAll("[data-rv], .mask");
+  if (LITE || !("IntersectionObserver" in window)) {
+    Array.prototype.forEach.call(revealables, function (n) { n.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add("in");
+        io.unobserve(en.target);
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    Array.prototype.forEach.call(revealables, function (n) { io.observe(n); });
+    setTimeout(function () {
+      Array.prototype.forEach.call(revealables, function (n) { n.classList.add("in"); });
+    }, 4000);
+  }
+
+  /* ── The rotating tail ──────────────────────────────────────────────
+     webtactics' typewriter, values and all: 70 + random*40 ms per
+     character so it never reads as a machine, 2200 ms holding the full
+     phrase, and deleting faster than typing (exits faster than entrances).
+     Under reduced motion it prints the first phrase and stops — their own
+     comment says a looping <h1> is the single most disruptive thing on a
+     page for that visitor, and they are right. */
+  var TAILS = ["your DMs.", "your Yelp inbox.", "a text at 11 pm.", "your notes app."];
+  var tw = document.getElementById("tw");
+  if (LITE) {
+    tw.textContent = TAILS[0];
+  } else {
+    var wi = 0, ci = 0, del = false;
+    (function tick() {
+      var w = TAILS[wi];
+      ci += del ? -1 : 1;
+      tw.textContent = w.slice(0, ci);
+      var wait = 70 + Math.random() * 40;
+      if (!del && ci === w.length) { del = true; wait = 2200; }
+      else if (del && ci === 0) { del = false; wi = (wi + 1) % TAILS.length; wait = 400; }
+      else if (del) { wait = 34; }
+      setTimeout(tick, wait);
+    })();
+  }
+
+  /* ── Fine-pointer only, by construction ─────────────────────────────
+     A cursor tilt on a phone just fights the scroll, and there is no
+     cursor to follow anyway. Same split webtactics makes explicitly. */
+  if (FINE && !LITE) {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-glow]"), function (el) {
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect();
+        el.style.setProperty("--mx", (e.clientX - r.left) + "px");
+        el.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-tilt]"), function (el) {
+      var f = 0;
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+        cancelAnimationFrame(f);
+        f = requestAnimationFrame(function () {
+          el.style.setProperty("--rx", (-py * 5).toFixed(2) + "deg");
+          el.style.setProperty("--ry", (px * 5).toFixed(2) + "deg");
+          el.style.setProperty("--lx", ((px + 0.5) * 100).toFixed(1) + "%");
+          el.style.setProperty("--ly", ((py + 0.5) * 100).toFixed(1) + "%");
+        });
+      });
+      el.addEventListener("pointerleave", function () {
+        cancelAnimationFrame(f);
+        el.style.setProperty("--rx", "0deg");
+        el.style.setProperty("--ry", "0deg");
+      });
+    });
+  }
+
+  /* ── The weighted scroll ────────────────────────────────────────────
+     His #1 stated preference, named first and unprompted: "there's a
+     velocity to the scroll". Thirty lines instead of Lenis's 3 KB, and it
+     moves the REAL scroll position rather than translating a wrapper, so
+     position:sticky keeps working — which matters, because two sections
+     here are built on it.
+
+     Desktop and fine-pointer only, which is the same gate riangle uses
+     (`(pointer: fine)`) and the same outcome as Lenis's syncTouch:false.
+     A phone's one-to-one finger scroll is the interaction phones get
+     exactly right; momentolegal overrode it and that is half of why he
+     said he felt stuck. ?smooth=0 turns it off so both can be felt on the
+     same machine in one sitting. */
+  if (FINE && !LITE && qs.get("smooth") !== "0") {
+    var target = window.scrollY, cur = target, raf = 0;
+    var maxY = function () { return document.documentElement.scrollHeight - window.innerHeight; };
+    addEventListener("wheel", function (e) {
+      if (e.ctrlKey) return;                       // leave browser zoom alone
+      e.preventDefault();
+      var d = e.deltaY * (e.deltaMode === 1 ? 18 : 1);
+      target = Math.max(0, Math.min(maxY(), target + d));
+      if (!raf) raf = requestAnimationFrame(step);
+    }, { passive: false });
+    function step() {
+      cur += (target - cur) * 0.11;                // the weight he felt
+      if (Math.abs(target - cur) < 0.4) { cur = target; raf = 0; }
+      else raf = requestAnimationFrame(step);
+      window.scrollTo(0, cur);
+    }
+    /* Any scroll from somewhere else — keyboard, scrollbar, an anchor —
+       resyncs, so the two never fight each other. */
+    addEventListener("scroll", function () {
+      if (!raf) { cur = target = window.scrollY; }
+    }, { passive: true });
+  }
+
+  /* Measure once the display face has actually arrived, so the flight
+     paths are computed against the real text metrics rather than the
+     fallback's. Capped, because a font CDN can hang. */
+  var ready = function () { clearTimeout(netTimer); netted = true; measure(); onScroll(); };
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { requestAnimationFrame(ready); }).catch(ready);
+    setTimeout(ready, 2500);
+  } else {
+    ready();
+  }
+
+  } catch (err) {
+    net();
+    if (window.console) console.error("direction 5:", err);
+  }
+})();
+</script>
+</body>
+</html>

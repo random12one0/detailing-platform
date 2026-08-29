@@ -1,6 +1,186 @@
-# Roadmap 1.3 — four directions
+# Roadmap 1.3 — the rebuild, and the four that were rejected
 
-**Built 2026-08-29. The owner picks one; that pick is roadmap 1.4.**
+**Read `VERDICT.md` (why the four died) and `BUILD-BRIEF.md` (the plan, §7
+especially) before this file.**
+
+---
+
+# Part one — Direction 5, "The Thread" (the rebuild)
+
+**Built 2026-08-29 after the owner rejected all four. `5-the-thread.html`.
+One page, built properly, rather than four more guesses on a corrected brief.
+The owner has not seen it yet — that is the open item.**
+
+## What it is
+
+One self-contained HTML file. No build step, no framework, and — unlike every
+site in `ANALYSIS.md` — **no third-party JavaScript at all.** No GSAP, no
+ScrollTrigger, no ScrollSmoother, no SplitText, no Lenis, no Three.js. Every
+technique is quoted from the code reads in `ANALYSIS.md` and hand-rolled. All
+the script on the page together is smaller than Lenis alone. That is also how
+the GSAP Club licence question in `BUILD-BRIEF.md` §6 got closed: there is
+nothing to license.
+
+**The argument, in one line:** a detailer's Saturday already exists — it is
+just scattered across a text thread. The product does not add work, it sorts
+what is already there.
+
+**The signature move:** as you scroll, each message bubble detaches from the
+phone thread and flies to the position of its own row in the dashboard, and
+dissolves as that row solidifies. *"u free sat?"* becomes
+`9:00 — Marcus Hill, Wash & Wax, $95`. Then the thread's column leaves and the
+dashboard takes the middle of the screen. Distances are measured off the real
+DOM, so it is correct at every width and re-measures on resize.
+
+## What changed from the plan, and why
+
+`BUILD-BRIEF.md` §2 chose **split stage** as the grammar — two columns held in
+tension for the whole page. The owner killed that when he answered:
+
+> "Throughout the entire website no one scroll area, one page looked the same —
+> as you scroll everything morphs into different layouts and different stuff,
+> and that's what I liked about it, so use that."
+
+Two columns top to bottom is one layout repeated, which is the opposite. He
+also capped the comparison himself: *"I don't wanna drag it on too much so
+maybe only like a couple sections."*
+
+So the grammar is what `BUILD-BRIEF.md` §1 Q7 had already worked out from his
+two favourite sites: **one continuous ground, and every section a different
+structure over it.** The split is two of those sections, not the page. Full
+detail in `BUILD-BRIEF.md` §7.
+
+## Eight sections, eight skeletons
+
+The test: no two sections share a skeleton. Screenshot them side by side; if
+two read as the same layout with different words, one of them is wrong.
+
+| # | Section | Skeleton |
+|---|---|---|
+| 1 | Hero | left-heavy asymmetric, one floating object |
+| 2 | The thread | two columns, pinned, animated transfer |
+| 3 | The day | full-bleed strip, one huge figure |
+| 4 | What you get | full-width ruled list, no boxes at all |
+| 5 | What customers see | LIGHT ground, object breaking the section edge |
+| 6 | Live before your next job | horizontal travel on a sticky rail |
+| 7 | Pricing | asymmetric pair + a ruled terms list |
+| 8 | Footer | mono facts |
+
+## Every rule from VERDICT.md, and where it landed
+
+| His correction | What the page does |
+|---|---|
+| Sell the dashboard + website, not detailing | The whole page is the dashboard being assembled. Zero photographs of cars. |
+| Previews of our own product, real ones | Every product surface is **live markup**. The dashboard's tiles SUM from the same array its rows render from — change a price and the tiles change. No screenshot anywhere. |
+| No before/after | No car appears in any state. The comparison is his buyer's mess against the product, and it is two sections. |
+| No deposits | Verified rather than assumed: `grep -rni deposit` over `app/src` and `supabase` returns **zero**. The engine has no deposit concept. |
+| Booking widget demoted | One section (5), and it is not the hero. |
+| Start from the old landing page's copy | "Guards your day", "Runs from the driveway", "Your money, plainly", "no marketplace branding, no other detailers", the terms, and "Built for the people who never rush a car" are all carried over. |
+| Keep "Stop booking jobs in your DMs" | It is the headline — and the rotating tail lets that one line name four versions of the same behaviour. |
+| Far more scroll choreography | Below. |
+| One screen per file | Nothing is a stacked mockup; there is no tab bar to mistake for page furniture. |
+
+## The motion, and which site each piece comes from
+
+| Technique | Source in `ANALYSIS.md` | How it ships here |
+|---|---|---|
+| Weighted scroll | riangle's `smooth: 1.1`, his #1 stated preference | ~30 lines, moves the REAL scroll position so `position:sticky` keeps working. Fine-pointer only, the same gate riangle uses. `?smooth=0` turns it off. |
+| Rotating-tail typewriter | webtactics, values and all | `70 + random*40` ms per character, 2200 ms hold, faster delete. **This is the always-looping animation he asked for by description.** |
+| A light that never stops | his "some glowing animation that's constantly looping" | Two soft lights drifting over the ground on a 22 s and 29 s loop. Lightness only — a drifting *coloured* wash is the tell that got flagged on direction 3. |
+| Line-masked headline reveal | riangle's SplitText, hand-rolled | CSS `clip-path: inset(-.3em 0)`, so descenders are never clipped. No Club plugin. |
+| Hero that becomes another part of the site | sharplink, the thing he liked most and could not name | The messages becoming the schedule. |
+| One timeline, not two | sharplink's hero closing WHILE the next section assembles | A bubble leaving and its row arriving share one window, which is why it reads as one event. |
+| Sticky horizontal rail | webtactics, `position:sticky` in CSS with no pinning library | Section 6. |
+| Floating glass pill nav | subscrr, quoted almost verbatim | 14 px gutter, `backdrop-filter` confined inside the pill, 1 px gradient rim by mask compositing, **no outer shadow**. One `backdrop-filter` on the page, not a glass system. |
+| Grain over the ground | the Vox texture he asked for | One data URI, no JavaScript. |
+| Alternating grounds | finseo, riangle | Section 5 is a warm light band. |
+| Two motion presets, not ad-hoc values | riangle | One reveal preset, one scrub preset. |
+| The `.lite` safety net | webtactics' `.wt-lite` | One class on `<html>` from `prefers-reduced-motion`, `?lite=1`, or a 6 s failsafe — using the same CSS the animation targets, so it cannot rot. |
+
+## The pin budget, which is his one hard no
+
+> "A lot of scrolling that doesn't really take you anywhere, so it feels kind
+> of like you're stuck, and I don't want to have that."
+
+| | Length | What it delivers |
+|---|---|---|
+| Section 2 | **1.9 screens**, and it says so on screen | An entire dashboard assembles inside it |
+| Section 6 | **~1.5 screens**, derived in script from how far the track actually travels | Three steps pan past |
+| momentolegal, the one he called stuck | 18.3 screens | Pans one list |
+| sharplink, which he liked | 1.5 screens | Assembles a section |
+
+**A bug worth recording, because it was the exact failure mode he named.** The
+rail was first written at a fixed 260vh. At 1440 that cost 2.6 screens of
+scroll and moved the track **34 pixels** — scrolling that genuinely takes you
+nowhere. The fix was not a better guess: the wrapper's height is now computed
+from the track's real travel, so the exchange rate stays honest at every width.
+
+## What was found by looking, not by reasoning
+
+Every one of these was invisible in the code and obvious on screen. Recorded
+because `design-knowledge.md` §2 ranks "give the agent eyes" as the highest-
+leverage technique and this is the evidence for it.
+
+1. **`.in` collided with itself.** The reveal state class and the layout class
+   `.strip .in` / `.band .in` were the same string, so any element turned into
+   a two-column grid the moment it revealed. Layout class renamed to `.duo`.
+2. **`width:100%` on `.stage .cols`** silently beat `.wrap` on specificity and
+   ran the pinned section edge to edge.
+3. **The hero headline wrapped** — 116 px type in a 609 px column. The scale is
+   now sized so the *longest* rotating tail still sits on one line, because the
+   tail changes every few seconds.
+4. **The rail's exchange rate**, above.
+5. **The nav wrapped to two lines at 392 px** — the mark broke across
+   "DETAILING / PLATFORM" and "Sign in" broke in half.
+6. **The phone hid the inline actions.** Navigate / Call / Text / Mark complete
+   were being suppressed under 820 px — on the viewport that claim is actually
+   about. They now wrap instead of disappearing.
+7. **The lite path contradicted itself**: the dashboard read "0 jobs · $0"
+   above four visible jobs, because the tiles were only ever updated by a
+   scroll frame and the lite path never runs one. That is the only view a
+   reduced-motion visitor ever sees.
+8. **Dead space at the end of the pin.** Once the last message had landed there
+   was half an empty screen left to scroll — the hard no again, in miniature.
+   The dashboard now moves into the space the thread vacates (sideways on
+   desktop, upward on a phone), measured in script so it is right at both.
+9. **A contrast floor miss.** `--fog-2` measured 4.22:1 on the ground, under
+   the 4.5:1 minimum, and it is the ramp every 10–13 px label uses. Lifted.
+
+## Verified, at 2026-08-29
+
+- Looked at 1440×900, 768×1024 and 392×844; hero, the pinned transfer, the
+  strip, the ruled list, the light band, the rail, pricing and footer at each.
+- **Console: no messages at any viewport**, normal and `?lite=1`.
+- No horizontal overflow at 392 (`scrollWidth === innerWidth`).
+- All 26 reveal targets reach their end state; none can be stranded hidden.
+- `?lite=1` verified at 392 and 1440: everything visible, headline prints one
+  phrase and stops, both sticky stages fall back to static, tiles agree with
+  the rows.
+- `composition`, `design-contrast`, `landing-pricing`, `route-contract` all
+  pass. Nothing in `app/` was touched.
+
+## Still open on direction 5
+
+1. **The owner has not seen it.** Two questions are put to him on `index.html`:
+   whether the two-column beat reads as a before/after of a car again, and
+   whether the weighted scroll is better or worse on his own phone.
+2. **Only his phone can settle the performance question.** Nothing here uses
+   WebGL, so the risk is much lower than direction 4's — but the pinned
+   transfer moves a dozen nodes per frame and a mid-range Android is the
+   target. The measurement worth having is his thumb, not a number from here.
+3. **The dashboard's empty state** (a detailer with no jobs today) is still
+   undrawn. Carried from the first round; it belongs in 1.4.
+4. **The device-tier question** (`APPLE-READ.md`) is untouched and stays a 1.5
+   decision. With no WebGL on the page there is nothing for a tier check to
+   switch off yet; the `.lite` net plus reduced-motion is the whole defence.
+
+---
+
+# Part two — the four directions that were rejected
+
+**Built 2026-08-29 and rejected the same day (`VERDICT.md`). Kept as evidence
+of what not to do, exactly like the Kōpiko anti-reference. Nothing below is
+being proposed again — read it for the reasoning, not the recommendation.**
 
 Open `index.html` in a browser and work through the four. Everything below is
 the reasoning behind them, for whoever builds 1.4 and 1.5 — including a coding
