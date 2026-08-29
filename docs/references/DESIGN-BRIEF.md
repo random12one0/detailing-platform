@@ -131,38 +131,78 @@ the difference; it is the only way to answer a question about feel.
 
 ## Where his preferences fight each other
 
-### Conflict 1 — "Apple" versus webtactics. This is the real decision for 1.3.
+### Conflict 1 — "Apple" versus webtactics, and the owner's correction
 
-In the brief interview he named **Apple** as the one anchor he was confident
-about. In these notes his most enthusiastic reaction by a distance is
-**webtactics** — "very cool… a lot of depth… very enticing."
+**Corrected 2026-08-29 by the owner, and the correction dissolves the
+conflict rather than settling it.** His words:
 
-**Those are opposite aesthetics and only one can be the direction.**
+> "Apple does have some really cool scrolling effects, especially when they
+> release new products and new phones and you go on the page … there's some
+> middle ground that we could find. I don't want super plain."
 
-| | Apple / subscrr | webtactics |
+And on webtactics:
+
+> "I know that was completely overdone, and I know I didn't want that. I just
+> really enjoyed that website, and I still wanted some characteristics from
+> it."
+
+**This analysis had the axis wrong.** It treated Apple as the restrained pole
+and webtactics as the maximal one, and asked him to pick. He is right that
+Apple's *product-launch* pages are not restrained at all in motion — they
+are among the most scroll-choreographed pages on the web: video scrubbed frame
+by frame under the wheel, pinned sequences, elements assembling as you
+descend. What they are restrained in is **decoration**.
+
+So the real axis is not quiet versus loud. It is **where the expressiveness is
+spent**:
+
+| | Apple product page | webtactics |
 |---|---|---|
-| Method | one immaculate component, warm ground, huge empty space, restraint | two dozen layered effects, persistent 3D, overlap everywhere |
-| Effects on the page | ~4 | 24 named `setup*` functions |
-| Cost to build | low | **5–10×** |
-| Mid-range Android | safe | needs four independent fallback paths, which webtactics actually wrote |
-| Empty-state (two services, no photos) | **strong** — atmosphere is generated, not supplied | **weak** — the density needs content to be dense *with* |
-| Risk of reading as AI-made | **higher** — restraint is closer to the population average | **lower** — nobody generates this by accident |
+| Motion | **heavy** — scrubbed sequences, pinned assembly | heavy |
+| Decoration | **near zero** — one typeface, near-monochrome, no glow, no particles, no cursor tricks, no sound | ~24 effects: bloom, 3D, cursor morphing, UI sounds, marquees |
+| What the motion is *about* | **the product** | the studio's own skill |
+| Cost | high, and concentrated in one sequence | high, and spread across two dozen features |
 
-**The tradeoff, stated plainly.** Apple-quiet is cheaper, safer on phones, and
-much better for a brand-new tenant with nothing to show — but it is closer to
-the generic centre, which is the exact failure he described ("it still kinda
-looked like it was made by AI"). webtactics-dense is far harder to mistake for
-generated work and is what actually excited him — but it costs five to ten
-times as much, it needs real content to look full, and it is the direction most
-likely to hurt a detailer's phone.
+**That is the middle ground he is asking for, and it has a name: maximum
+choreography, minimum decoration.** Not fewer effects than webtactics spread
+thinner — the same amount of motion, spent entirely on one thing worth
+looking at, with the ornament stripped out.
 
-**Recommendation: build both as directions in 1.3 and let him choose against
-real screens**, because this is precisely the choice that cannot be made from
-words — he has now given confident answers pointing in both directions. But
-build them honestly: the quiet one must earn its restraint with one
-extraordinary detail (subscrr's glass nav is the proof that this works), and
-the dense one must be shown **empty**, with two services and no photos, because
-that is where it fails.
+**And it maps onto this product better than either pole.** Apple scroll-scrubs
+a phone rotating in space. **A car is a product too.** A hero that scrubs a car
+from filthy to finished as you scroll is the same technique pointed at the
+thing our customers are actually buying — it is the strongest single idea to
+come out of this whole exercise, it is content a detailer already generates
+every working day, and it cannot possibly read as AI slop because no generator
+produces it by accident.
+
+**Consequences for 1.3, which change the plan:**
+
+1. **The three-to-drop list still stands, with one adjustment.** The pinned
+   morphing hero (#10) was dropped on cost. If the direction becomes
+   choreography-led, a pinned hero sequence is no longer an expensive extra —
+   it is the centre of the design, and the cost moves from "optional" to
+   "budgeted". Everything in the analysis about pin discipline applies to it:
+   declare its length, deliver a section's worth within it, ceiling ~2 viewport
+   heights, `touch-action: pan-y`, and a `.wt-lite`-style end state for
+   reduced motion and weak devices.
+2. **Scroll-scrubbed video needs its own feasibility check before it is
+   promised.** Frame-scrubbing is the technique most likely to hurt a
+   mid-range Android; it usually needs an image sequence rather than a video
+   element, which is a real asset pipeline. Prototype it in isolation, on a
+   throttled CPU, before any direction depends on it.
+3. **Decoration gets a budget, and it is small.** From webtactics, take the
+   layering, the typed headline, the sticky rail and the depth — not the
+   bloom, the sound, the cursor morphing or the 3D. He called it overdone
+   himself.
+
+**Still unverified, and it should be the first task of 1.3.** The seven
+reference sites were read at the code level; **Apple's product pages were
+not**. Before building a choreography-led direction, read one the same way —
+what pins, what scrubs, how the image sequence is loaded, what happens under
+`prefers-reduced-motion`, and what it costs on a phone. Everything above about
+Apple is reasoning from his description and from what those pages visibly do,
+not from code that was read, and it is marked as such deliberately.
 
 ### Conflict 2 — "overlay a lot of stuff" versus "not to the point where it's hard to read"
 

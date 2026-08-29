@@ -71,6 +71,16 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 1.3 Produce 3–5 GENUINELY different design directions, each rendered
       as real mockups of the same three screens (landing hero, one booking
       step, dashboard Today) at phone + desktop. **OWNER picks one.**
+      Start from `docs/references/DESIGN-BRIEF.md` — ranked, costed, with
+      the three to build first and three to drop.
+      **First task before designing anything: read an Apple product-launch
+      page at the code level**, the way the seven references were read. The
+      owner corrected the framing on 2026-08-29 — those pages are heavily
+      scroll-choreographed, not restrained, and the middle ground he wants
+      is *maximum choreography, minimum decoration*. That reframe is in
+      DESIGN-BRIEF Conflict 1 and is currently reasoned from description,
+      not from code. The idea it points at: a hero that scrubs a car from
+      filthy to finished as you scroll.
 - [ ] 1.4 Refine the winner once. **OWNER approves.**
 - [ ] 1.5 Write the new `docs/design-system.md` (replacing "Raking Light"),
       and rewrite the design tests to enforce the NEW rules. From this
@@ -101,15 +111,26 @@ is kept; the entire visual design restarts from scratch.
       process, so website-package customers can use their own domain.
       Booking-only customers stay on `detailingplatform.com/book/name`.
 
-      *Owner idea parked here 2026-08-29, deliberately not started:* a
-      reusable instruction set — "a plan of an agent or something I can
-      use" — carrying everything needed to build a tenant's website, wired
-      to the admin dashboard but "super customizable to what my client
-      wants". The owner explicitly deferred it ("later me's tackle"). Written
-      down so it survives the clear. It belongs in 3.1's plan rather than as
-      its own item, because what such an agent can be told to do is decided
-      by what the tenant pages and settings actually are. Raise it when 3.1
-      starts.
+- [ ] 3.4 **The tenant-site build kit** — promoted 2026-08-29 from a
+      parked note to a real item, on the owner's description. What they
+      asked for: open an agent pointed at this repo and have it already
+      know everything needed to build a client's website properly — the
+      reference research and why each site was liked
+      (`docs/references/`), the anti-slop floor
+      (`docs/design-knowledge.md` §1), the finished design system, and
+      the landing page as the worked example. The platform's own landing
+      page is the DEFAULT that tenant sites inherit; the owner then adds
+      what a specific client wants on top.
+
+      Design constraints that follow from the rest of this file:
+      - It is a **markdown brief in the repo**, not a tool-specific skill
+        or agent definition — see the portability rule in `CLAUDE.md`.
+        The kit must work from whichever coding agent the owner is using.
+      - It carries no client content. Everything specific to a business
+        comes from tenant settings (3.2) or from the owner's per-client
+        instructions.
+      - It cannot be written before 1.5, because the design system it
+        must encode does not exist yet. Sequenced here on purpose.
 
 ## Phase 4 — Feature restoration + platform admin
 

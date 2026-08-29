@@ -53,6 +53,13 @@ explaining it; if they still have to ask "so should I?", it failed.
 - Visual work is verified by LOOKING: screenshot 392px / 768px / 1440x900,
   both themes, console read, compared against the design system. Retints
   are checked per tenant accent, including extremes.
+- **Imagery: never a grey placeholder box.** An Unsplash connector is
+  wired up and confirmed working 2026-08-29 (`search_photos`; "car
+  detailing" returns ~4,800 real photos). Use it for mockups, the demo
+  business, and anything a tenant has not supplied. If it cannot find the
+  right shot, ASK THE OWNER — they have said plainly they will go and
+  source images rather than have work limited by what is to hand. Asking
+  is cheaper than settling.
 
 ## Verification
 
@@ -133,6 +140,14 @@ explaining it; if they still have to ask "so should I?", it failed.
 - Smallest possible diff; no unrequested refactors, deps, files, renames.
 - Stuck twice on one bug: stop editing, write hypothesis + evidence +
   unchecked assumptions, list three causes.
+- **Write for a coding agent that is not Claude.** The owner expects to
+  move to OpenAI's coding agent in roughly a month (stated 2026-08-29).
+  Every durable decision therefore lives in plain markdown in the repo,
+  never in a tool-specific mechanism — no skills, no hooks, no
+  assistant-side memory holding anything that matters. Audited 2026-08-29:
+  the ONLY tool-specific file in the repo is `.claude/settings.json`
+  (permissions), and all 20+ knowledge files are portable markdown. Keep
+  it that way and the migration stays close to free. See DECISIONS.md.
 
 ## Context (read these, in this order, when new)
 

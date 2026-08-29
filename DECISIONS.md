@@ -858,3 +858,84 @@ Findings that change what we build:
 committed they are in the history permanently. Recommendation: leave them out
 and keep a local copy; the analysis quotes what matters and the sites are all
 still live. Nothing depends on the answer.
+
+## Four threads from the owner before clearing (2026-08-29)
+
+### 1. The Apple framing was wrong, and the correction is load-bearing
+
+`DESIGN-BRIEF.md` had posed Apple (restrained) against webtactics (maximal) and
+asked the owner to choose. He rejected the axis: "Apple does have some really
+cool scrolling effects, especially when they release new products… there's some
+middle ground that we could find. I don't want super plain." And on webtactics:
+"I know that was completely overdone… I just really enjoyed that website, and I
+still wanted some characteristics from it."
+
+He is right. Apple's product-launch pages are among the most scroll-
+choreographed on the web — scrubbed sequences, pinned assembly. What they are
+restrained in is **decoration**, not motion. So the axis is not quiet-vs-loud,
+it is **where the expressiveness is spent**: Apple spends all of it on the
+product; webtactics spends it on the studio's own skill, across two dozen
+effects. The middle ground he is describing has a name — **maximum
+choreography, minimum decoration** — and Conflict 1 was rewritten around it.
+
+**The idea this produces, which is the best to come out of the whole
+exercise:** a car is a product too. A hero that scrubs a car from filthy to
+finished as the visitor scrolls is Apple's technique aimed at the thing our
+customers actually buy, it is footage a detailer already generates every
+working day, and no generator produces it by accident — which is the
+"it looked AI-made" complaint answered directly.
+
+Two consequences recorded rather than assumed: the pinned hero moves from
+"dropped on cost" to "budgeted, because it is the centre of the design", still
+bound by the pin discipline the analysis derived; and scroll-scrubbed video
+needs an isolated feasibility test on a throttled CPU before anything depends
+on it, since it usually needs an image sequence rather than a video element.
+
+**Flagged honestly: Apple's pages have NOT been read at the code level**, unlike
+the seven references. The reframe is reasoned from his description and from what
+those pages visibly do. Reading one properly is now the first task of 1.3.
+
+### 2. Imagery — the Unsplash connector works, and the owner is a resource
+
+He mentioned the connector and added: "I don't want you to be limited to what
+you have. Obviously, I'm a person that could go online and do whatever."
+
+Verified rather than assumed: `search_photos` for "car detailing" returns 4,832
+results including real photos of cars being washed. Recorded as a standing rule
+in `CLAUDE.md` alongside the existing never-a-grey-box rule, with the part that
+matters — **ask him** when the connector cannot find the right shot. His offer
+is more valuable than the connector and would otherwise be forgotten at the next
+clear.
+
+### 3. The tenant-site build kit is now a real roadmap item (3.4)
+
+Previously a parked note. He described it properly: open an agent pointed at
+this repo and have it already carry the reference research and why each site was
+liked, the anti-slop floor, the finished design system, and the landing page as
+the worked example — with the platform's own landing page as the DEFAULT that
+tenant sites inherit, and per-client instructions layered on top.
+
+Three constraints follow from things already decided, and are written into the
+item: it is a **markdown brief in the repo**, not a skill or agent definition,
+because of the portability rule below; it carries no client content, since 3.2
+requires tenant sites to be built from configuration; and it cannot be written
+before 1.5, because the design system it must encode does not exist yet.
+
+### 4. Portability — the migration is close to free today, and the rule is to keep it that way
+
+He expects to move to OpenAI's coding agent in roughly a month.
+
+Audited rather than speculated about. **The only tool-specific file in the
+entire repo is `.claude/settings.json`**, which contains nothing but a
+permissions allowlist and is trivially replaceable. Every durable decision —
+all 20-plus knowledge files including `CLAUDE.md`, `DECISIONS.md`,
+`PROJECT-STATE.md`, the roadmap and everything in `docs/` — is plain markdown
+that any coding agent can read. The only naming friction is that OpenAI's agent
+looks for `AGENTS.md` where Claude looks for `CLAUDE.md`; that is a copy or a
+symlink on the day, not a project.
+
+So the migration is not a task to plan, it is a property to preserve. Written
+into `CLAUDE.md` as a standing rule: nothing that matters may live in a
+tool-specific mechanism — no skills, no hooks, no assistant-side memory. This
+also retroactively justifies the habit already in force of writing every thread
+to a file before clearing.
