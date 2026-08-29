@@ -91,6 +91,15 @@ is kept; the entire visual design restarts from scratch.
       Skills for the retry: **`ui-ux-pro-max`** (owner asked for it by name)
       and **`scrollcraft`** for structure and motion. Not `tastemaker` —
       it collides with ui-ux-pro-max over the palette. One screen per file.
+      **The plan for the rebuild is written and ready to build from:
+      `docs/design-directions/BUILD-BRIEF.md`.** ANALYSIS.md has now been read
+      and its techniques are quoted in it; both skills have been run
+      (ui-ux-pro-max's palette and type output is deliberately rejected and
+      that rejection is disclosed in the brief); the grammar is **split
+      stage** — what a detailer has now against what they would have — and
+      the signature move is **the text messages becoming the schedule**.
+      Build ONE page properly, not four. Two things need the owner's nod
+      first and are named at the top of that file.
 - [ ] 1.4 Refine the winner once. **OWNER approves.** Carry in from 1.3:
       settle smooth scroll empirically on the owner's own phone (one flag,
       3 KB); consider adding the typewriter headline; draw the dashboard's
