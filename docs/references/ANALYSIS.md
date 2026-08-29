@@ -771,3 +771,206 @@ No smooth scroll, no morphing hero, no cursor element, no 3D. It buys the whole
 impression with one immaculate component, a warm ground, real product imagery
 and generous space. If effort has to be spent somewhere, this is the cheapest
 route to "looks expensive" of any site here.
+
+---
+
+## 4. finseo.ai
+
+An AI-search-visibility SaaS. The closest thing in the set to *our* product —
+a subscription tool with a marketing page in front of it — and the second site
+he rated "good" that has no smooth scroll whatsoever.
+
+### The stack, from the code
+
+Next.js App Router, Tailwind v4, 23 chunks (1.3 MB uncompressed).
+
+| Library | Present | Evidence |
+|---|---|---|
+| **Motion** (the library formerly published as framer-motion) | yes | `motionValue`, `motionComponentSymbol`, `framerAppearId` in chunk `4649` |
+| **COBE** | yes | `mapSamples`, `mapBrightness`, `markerColor`, `glowColor`, `onRender`, `destroy` — COBE's exact API |
+| `number-flow` | yes | animated rolling numerals |
+| GSAP / ScrollTrigger | **no** | zero matches |
+| Lenis / Locomotive | **no** | zero matches |
+| Three.js / `WebGLRenderer` | **no** | the one "three" match is the word in body copy |
+| Swiper | **no** | zero matches |
+
+> **Correction worth recording:** a first grep for the string `framer-motion`
+> returned zero and would have produced the wrong answer. The package renamed
+> to `motion`; it is identifiable only by internals like `motionComponentSymbol`.
+
+Type: `--font-geist-sans` and `--font-geist-mono` — **Geist**, Vercel's own
+typeface.
+
+### Smooth-scroll config
+
+**There is none.** No Lenis, no ScrollSmoother, no `scroll-behavior: smooth`
+machinery. Native browser scrolling throughout.
+
+He said: *"this one is also kind of basic and isn't one of my favorites, but
+it's still good."* Combined with subscrr — same finding, same verdict —
+**two of the three sites he called basic-but-good have no weighted scroll.**
+Recorded because it is now a pattern, not a coincidence: see the tension in
+`DESIGN-BRIEF.md`.
+
+### "That main screen I kinda like a lot… a nice feel when you first open it up"
+
+Screenshot `221859`. What is actually there is a **full-bleed ambient video
+hero**, and the interesting part is how carefully it is shipped:
+
+```
+/hero-ambient-desktop.mp4     /hero-poster-desktop.jpg
+/hero-ambient-mobile.mp4      /hero-poster-mobile.jpg
+```
+
+Separate encodes *and* separate posters per breakpoint. No `<video>` element in
+the server-rendered HTML at all — the poster is what arrives, and the video is
+injected client-side. A phone therefore downloads a mobile-sized still first and
+a mobile-sized video second, or none if it never mounts.
+
+The rest of the "feel" is composition, not code:
+
+- The footage is a **real person in a real room** — warm practical lamp light,
+  a lit city behind. Not an illustration, not a 3D render, not a UI mockup.
+- The nav sits transparently over it; no bar, no panel.
+- The headline is **two-tone**: "Your next customer asks AI first." in solid
+  white, "Be the one it recommends." in translucent white beneath.
+- Trust logos sit in a band across the bottom of the same viewport.
+
+**This is the most directly transferable hero in the set for us.** A detailer's
+real asset is footage of a car being worked on under good light. Everything
+here — per-breakpoint encodes, poster-first, a real human, a two-tone headline,
+proof in the same screen — can be rebuilt without a single library.
+
+### "A cool visualization in the middle that's moving, and when you let go the dots kind of move"
+
+Screenshot `221910`. Real name: **COBE** — a ~5 KB WebGL dotted-globe library
+(Shu Ding). Not a generic particle sphere; the dots are a landmass map sampled
+into points. The full shipped config:
+
+```js
+createGlobe(canvasRef.current, {
+  devicePixelRatio: 2,
+  width: 2 * e, height: 2 * e,
+  phi: 0, theta: .28,
+  dark: 0, diffuse: 1.1,
+  mapSamples: 22e3,
+  mapBrightness: 2,
+  baseColor:   [.984, .984, .984],
+  markerColor: [14/255, 202/255, 123/255],
+  glowColor:   [.984, .984, .984],
+  markers: a.map(e => ({ location: [e.lat, e.lng], size: .06 })),
+  onRender: a => {
+    if (p.current === null) x.current += n;   // auto-spin only when not held
+    let t = x.current + m.current;            // auto angle + dragged offset
+    a.phi = t; a.width = 2*e; a.height = 2*e; f(t)
+  }
+})
+```
+
+`markerColor: [14/255, 202/255, 123/255]` is `rgb(14, 202, 123)` — the green in
+the screenshot.
+
+**"When you let go the dots kind of move" is `onRender`.** While the pointer is
+down, `p.current` is set and the auto-rotation term stops accumulating; the
+globe only follows the drag offset `m.current`. On release, `p.current` returns
+to null and `x.current += n` resumes — so the spin picks up again from wherever
+it was left. Real name: **drag-to-spin with auto-rotation resume**.
+
+Elsewhere in the same chunk there is great-circle interpolation between marker
+pairs — `Math.acos(clamp(dot(a, b)))` then `sin` interpolation — the standard
+**slerp** used to draw an arc that follows the curve of the sphere rather than
+cutting across it. (riangle's footer globe in `221716` draws the same kind of
+arc.)
+
+### "They don't make the whole site the same… some darker sections and some lighter sections"
+
+Confirmed and it is the site's main structural device. `221859` and `221910` are
+near-black; `221928` is near-white. The dark sections carry the video, the globe
+and the emotional claims; the light section carries proof, logos and product
+screenshots.
+
+**Worth naming as a principle for us:** the ground change is doing the work
+that a section heading would otherwise do. Alternating bands are free — no
+library, no risk on a slow phone — and they are one of the four things
+`TASTE-NOTES.md` identifies as where the perceived quality actually comes from.
+
+### Striking things he did not mention
+
+- **The two-tone headline is used three times** (`221859`, `221910`, `221928`) —
+  a solid first line and a muted second line, always a claim followed by its
+  consequence. It is the cheapest device in this entire document: one opacity
+  value, no JavaScript, and it manufactures hierarchy inside a single sentence.
+- **A floating pill CTA bar** at the bottom of `221910` — logos, "Get started",
+  and three overlapping face avatars with "Book a demo". Same floating-pill
+  family as subscrr's nav, applied to a call to action.
+- **`number-flow`** — figures animate digit by digit when they change.
+- **Labelled connector lines** radiating from the globe to boxed labels
+  (`221910`). This is how you make one visual asset explain a list, and it is
+  a pattern our "how booking works" section could use directly.
+- **Three evenly spaced cards** in `221928`, and step labels reading
+  "Step 1 · Know where you stand". The cards are a named tell in
+  `design-knowledge.md` §1. The step numbering is *not* — that section is a
+  genuine sequence, which is exactly the distinction our own rule draws.
+
+### Behaviour under `prefers-reduced-motion`
+
+**Present, but inherited rather than authored.** The two matches are both inside
+libraries:
+
+```js
+let t = window.matchMedia("(prefers-reduced-motion)");
+let e = () => n.O.current = t.matches;
+t.addListener(e); e()
+```
+
+— that is Motion's own internal check, which makes its animations instant. And
+`number-flow` checks `matchMedia("(prefers-reduced-motion: reduce)")` for
+itself.
+
+**Nothing site-authored.** In particular the COBE globe has no reduced-motion
+branch found: a visitor who asked for reduced motion still gets a continuously
+spinning WebGL globe. Better than sharplink's nothing, worse than riangle's
+deliberate tiering, and a useful illustration that "we use a library that
+handles it" is not the same as handling it.
+
+### Cost to us
+
+| Item | Weight | Effort | Android risk |
+|---|---|---|---|
+| Alternating dark/light section grounds | zero | trivial | none |
+| Two-tone headline | zero | trivial | none |
+| Video hero, per-breakpoint encodes + posters | the video itself; **the pattern saves weight** | medium — encoding pipeline, not code | **low, and lower than an image-heavy hero done carelessly** |
+| COBE globe | ~5 KB + WebGL context | low | medium — continuous rAF on the GPU; needs a visibility check and a reduced-motion branch |
+| Motion library | ~30 KB gzipped | low | low |
+| `number-flow` | ~8 KB | trivial | low |
+| Geist Sans / Mono | ~2 × 30 KB | trivial | none |
+
+### Conflict with what binds us, and how to reconcile
+
+1. **Geist is a soft version of the Inter problem.** It is not on the
+   never-defaults list by name, but it is the default typeface of the framework
+   this site is built with — a choice made by not choosing. Reconcile the same
+   way as subscrr: take the structure, pick our own face.
+2. **Three evenly spaced cards** appear here and are a named never-default.
+   Reconcile: the content is three genuinely parallel capabilities, so the fix
+   is not "never three" but never three *identical* boxes — vary weight, size
+   or media so the row has a subject. webtactics' bento (site 7) shows the
+   alternative.
+3. **A spinning globe versus our empty-state rule.** A globe is wrong for us
+   specifically — a mobile detailer serves one town, and a rotating planet would
+   be a lie about the business. But the *pattern* is right: one interactive
+   object that explains a list via labelled connectors. Our version is a
+   service area, a day's schedule, or a car with callouts.
+4. **The video hero versus mid-range Android.** No conflict if it is built the
+   way finseo builds it — poster first, per-breakpoint encodes, video attached
+   client-side. That is strictly cheaper than what most sites do.
+
+### Scroll payoff
+
+**Good, unremarkable, and instructive.** Nothing pins and nothing scrubs; the
+page just alternates grounds and delivers a complete idea per screen. He never
+complained about being stuck here — and he also never got excited.
+
+That is the honest trade this site represents: **native scroll and strong
+composition buy you "good" but not "cool".** finseo is proof that our floor is
+reachable with no motion library at all. It is not proof that the ceiling is.
