@@ -18,12 +18,23 @@
    scattered across a text thread. The product does not add work; it sorts
    what is already there.
 
-   WHAT IS BEING SOLD (VERDICT §3): the admin dashboard plus the website, to
-   a detailer who currently books through DMs, Yelp and Google. NOT car
-   detailing. So: zero photographs of cars, zero before/after of a car, zero
-   deposits (a grep over app/src and supabase proved the booking engine has
-   no deposit concept at all), and the booking widget is one section rather
-   than the co-star.
+   WHAT IS BEING SOLD — 1.4, and this replaces the earlier wording. Read
+   DECISIONS.md "Positioning: what we sell is the pair", INCLUDING its
+   correction section, which is the operative version. The sentence is
+   "we build you a website and the dashboard that runs it", as ONE purchase.
+   The website half leads because it is the half that is not a commodity —
+   booking software is a category with free entrants and leading with it
+   files us next to Calendly. The dashboard is in the SAME sentence, never
+   in a later section that reads as a bonus: he corrected that explicitly.
+   Only the live-editing FEATURE stays out of the headline, also his
+   instruction. The buyer is a detailer who currently books through DMs,
+   Yelp and Google. NOT car detailing: zero photographs of cars, zero
+   before/after of a car, zero deposits (a grep over app/src and supabase
+   proved the booking engine has no deposit concept at all).
+
+   ORDER, from that decision: the pair → the website half is custom, not a
+   template → the dashboard keeps it current → booking as a feature of the
+   site → the terms.
 
    THE GRAMMAR (BUILD-BRIEF §7.2, his words): "throughout the entire website
    no one scroll area, one page looked the same — as you scroll everything
@@ -33,7 +44,7 @@
      2 the thread ........ two columns, pinned, animated transfer
      3 the day ........... full-bleed single strip, one huge figure
      4 what you get ...... full-width ruled list, no boxes at all
-     5 customers see ..... LIGHT ground, object breaking the section edge
+     5 customers see ..... LIGHT ground, the WEBSITE breaking the section edge
      6 live before ....... horizontal travel on a sticky rail
      7 pricing ........... asymmetric pair + a ruled terms list
      8 footer ............ mono facts
@@ -54,6 +65,17 @@
    light that breathes across the ground over ~22 s. Both stop dead under
    prefers-reduced-motion, per webtactics' own note that a looping <h1> is
    the single most disruptive thing on a page for that visitor.
+
+   1.4 CHANGES, in one place so the next reader does not have to diff:
+   hero headline and tail (the website, and what they have instead of one);
+   hero lede (both halves, one sentence); "Stop booking jobs in your DMs"
+   moved down to head section 2; a new ruled row 02 in section 4 (change a
+   price, the site changes); section 5 REPLACED — a phone-shaped booking
+   widget became the tenant's website with the booking panel inside it; the
+   $900 reframed as a build price; the lead plan renamed "Website +
+   dashboard"; "Start free" removed from the nav (there is no free tier);
+   section 6's "no designer" removed (there is one now — us); the
+   dashboard's empty state drawn. The page did not get longer.
 
    THE HONESTY RULE (BUILD-BRIEF §5): every product surface here is real
    markup, not a picture of a UI. The dashboard's totals SUM from the same
@@ -228,8 +250,12 @@ main{position:relative;z-index:1}
 }
 /* Sized so the LONGEST rotating tail still sits on one line in the hero's
    own column — a masked line that wraps mid-rotation is the one way this
-   headline can look broken, and the tail changes every few seconds. */
-.disp.xl{font-size:clamp(40px,5.3vw,76px);font-variation-settings:"wdth" 116,"wght" 760}
+   headline can look broken, and the tail changes every few seconds.
+   1.4: the tails got longer ("a Facebook page." against "your DMs."), and
+   at the old 76px the longest measured 741px inside a 742px column, so the
+   caret was already wrapping to a line of its own at 1440. Measured, not
+   guessed — see the widths in README.md. */
+.disp.xl{font-size:clamp(38px,5.15vw,74px);font-variation-settings:"wdth" 116,"wght" 760}
 .disp.sm{font-size:clamp(26px,3.4vw,42px);font-variation-settings:"wdth" 108,"wght" 640}
 .lab{
   font-family:"Archivo",sans-serif;
@@ -349,6 +375,15 @@ section{position:relative}
 .hero .grid{display:grid;grid-template-columns:minmax(0,1.32fr) minmax(0,.68fr);gap:clamp(30px,4vw,56px);align-items:center}
 .hero h1{margin:16px 0 0}
 .hero .tail{display:block;font-variation-settings:"wdth" 118,"wght" 760}
+/* On a narrow phone the longest tail does not fit at any size that keeps the
+   headline looking like a headline, so the WIDTH axis absorbs it instead of
+   the size — that is what a variable font is for. Only the rotating line
+   condenses; the two fixed lines above it are unchanged, and at 92 the
+   difference is invisible unless the two are measured side by side. */
+@media (max-width:470px){.hero .tail{font-variation-settings:"wdth" 92,"wght" 760}}
+/* Below ~340px even the condensed tail runs out of column. One old-iPhone-SE
+   width, one line. */
+@media (max-width:340px){.disp.xl{font-size:34px}}
 .caret{display:inline-block;width:.05em;height:.74em;margin-left:.05em;background:var(--ac);vertical-align:-.04em;animation:blink 1.05s steps(1) infinite}
 @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
 .hero .lede{margin-top:26px}
@@ -445,6 +480,17 @@ section{position:relative}
 .job .acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .job .acts span{font-size:11px;padding:5px 10px;border-radius:100px;background:rgba(255,255,255,.05);color:var(--bone-2)}
 .dash .lab{margin-top:16px;margin-bottom:6px}
+/* The empty state sits ON the space the job rows reserve, so it costs no
+   height and cannot be mistaken for a fifth row. --f0 is the first job's own
+   progress, set in the scroll frame. */
+.jobshold{position:relative}
+.nojobs{
+  position:absolute;inset:0;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  border-radius:11px;border:1px dashed var(--line-2);
+  color:var(--fog-2);font-size:13.5px;line-height:1.45;padding:0 18px;
+  opacity:calc(1 - var(--f0,0));transition:opacity 160ms linear;
+}
 
 /* the divider is the chrome for this beat, and it reports its own cost */
 .divider{position:absolute;left:50%;top:8%;bottom:8%;width:1px;background:linear-gradient(180deg,transparent,var(--line-2) 14%,var(--line-2) 86%,transparent);pointer-events:none;opacity:calc(1 - (var(--c,0) * 2.4))}
@@ -543,36 +589,56 @@ section{position:relative}
    the top edge of the band, and that overlap is where the depth comes from
    — his single strongest signal, positive and negative.                  */
 .band{position:relative;background:var(--paper);color:var(--paper-ink);margin-top:clamp(90px,15vh,180px);padding:0 0 clamp(70px,10vh,120px)}
-.band .duo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.74fr);gap:clamp(28px,5vw,72px);align-items:start}
+/* 1.4: the object half is now the WIDER one. It was .74fr when it held a
+   phone-shaped widget; it holds the website now, and a website that has to
+   be squeezed narrower than the paragraph describing it is arguing against
+   itself. The section does not get taller for it — a window is landscape
+   where the phone panel was portrait. */
+.band .duo{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(28px,5vw,72px);align-items:start}
 .band .cp{padding-top:clamp(70px,10vh,120px)}
 .band .lab,.band .lede{color:var(--paper-fog)}
 .band .disp{color:var(--paper-ink)}
 .ticks{list-style:none;margin:30px 0 0;padding:0;border-top:1px solid var(--paper-line)}
 .ticks li{padding:13px 0;border-bottom:1px solid var(--paper-line);display:flex;gap:12px;align-items:baseline;font-size:16px}
 .ticks li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ac-deep);flex:none;transform:translateY(-2px)}
-/* the widget rides UP out of the band — real overlap, not a gap */
+/* the site rides UP out of the band — real overlap, not a gap */
 .widget-hold{margin-top:calc(-1 * clamp(46px,7vw,92px));will-change:transform;transform:translate3d(0,var(--py,0px),0)}
-.widget{
-  border-radius:26px;padding:9px;background:#0E1114;
+.site{
+  border-radius:16px;background:#0E1114;overflow:hidden;
   box-shadow:0 40px 80px -34px rgba(10,14,12,.6),inset 0 0 0 1px rgba(255,255,255,.08);
-  max-width:326px;margin-inline:auto;
+  max-width:560px;margin-inline:auto;
 }
-.widget .scr{border-radius:19px;background:var(--paper);color:var(--paper-ink);overflow:hidden;box-shadow:inset 0 0 0 1px var(--paper-line)}
-.widget .top{padding:16px 16px 12px;border-bottom:1px solid var(--paper-line)}
-.widget .biz{font-variation-settings:"wdth" 104,"wght" 700;font-size:17px;letter-spacing:-.02em}
-.widget .tg{font-size:11.5px;color:var(--paper-fog);margin-top:2px}
-.widget .rail{display:flex;gap:4px;margin-top:12px}
-.widget .rail i{height:2px;flex:1;background:var(--paper-line);border-radius:2px}
-.widget .rail i.on{background:var(--paper-ink)}
-.widget .bd{padding:14px 16px 18px}
-.widget .q{font-variation-settings:"wght" 640;font-size:15px}
-.widget .svc{margin-top:11px;border:1px solid var(--paper-line);border-radius:12px;padding:11px 13px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;transition:border-color var(--t-hover) linear,transform var(--t-hover) var(--e-out)}
-.widget .svc:hover{border-color:var(--paper-ink);transform:translateY(-1px)}
-.widget .svc .n{font-variation-settings:"wght" 600;font-size:14px}
-.widget .svc .d{font-size:11.5px;color:var(--paper-fog);margin-top:1px}
-.widget .svc .p{font-family:"JetBrains Mono",monospace;font-size:14px}
-.widget .go{margin-top:14px;text-align:center;background:var(--paper-ink);color:var(--paper);border-radius:100px;padding:11px;font-variation-settings:"wght" 620;font-size:14px}
-.band .note{margin-top:16px;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-fog);text-align:center}
+/* The frame. Dark chrome around a light page, so the window reads as a
+   window and the site inside it reads as the light band's own material. */
+.site .chrome{display:flex;align-items:center;gap:6px;padding:10px 13px}
+.site .chrome i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.13);flex:none}
+.site .chrome .url{
+  flex:1;margin-left:8px;text-align:center;border-radius:100px;padding:4px 10px;
+  background:rgba(255,255,255,.05);color:var(--fog);
+  font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:-.01em;
+}
+.site .scr{background:var(--paper);color:var(--paper-ink);overflow:hidden}
+.site .sitenav{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid var(--paper-line)}
+.site .biz{font-variation-settings:"wdth" 104,"wght" 700;font-size:15px;letter-spacing:-.02em}
+.site .lks{display:flex;gap:13px;flex:none}
+.site .lks i{font-style:normal;font-size:11.5px;color:var(--paper-fog)}
+.site .sitehero{padding:20px 18px 14px}
+.site .sitehero h3{font-variation-settings:"wdth" 108,"wght" 700;font-size:clamp(20px,2.3vw,26px);line-height:1.06;letter-spacing:-.026em}
+.site .sitehero p{margin-top:8px;font-size:12.5px;color:var(--paper-fog);max-width:34ch}
+/* The booking panel is a bordered block INSIDE the page's own column. That
+   containment is the claim — "built into the page, not a link to somewhere
+   else" — made as a shape rather than as a sentence. */
+.site .bd{margin:0 18px 16px;border:1px solid var(--paper-line);border-radius:12px;padding:13px 14px 14px}
+.site .bl{display:block;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--paper-fog)}
+.site .q{font-variation-settings:"wght" 640;font-size:14px;margin-top:8px}
+.site .svc{margin-top:10px;border:1px solid var(--paper-line);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;background:rgba(255,255,255,.5);transition:border-color var(--t-hover) linear,transform var(--t-hover) var(--e-out)}
+.site .svc:hover{border-color:var(--paper-ink);transform:translateY(-1px)}
+.site .svc .n{font-variation-settings:"wght" 600;font-size:13.5px}
+.site .svc .d{font-size:11.5px;color:var(--paper-fog);margin-top:1px}
+.site .svc .p{font-family:"JetBrains Mono",monospace;font-size:13.5px}
+.site .go{margin-top:12px;text-align:center;background:var(--paper-ink);color:var(--paper);border-radius:100px;padding:10px;font-variation-settings:"wght" 620;font-size:13.5px}
+.site .sitefoot{padding:12px 18px;border-top:1px solid var(--paper-line);font-size:11px;color:var(--paper-fog)}
+.band .note{margin-top:20px;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-fog);text-align:center}
 @media (max-width:840px){
   .band .duo{grid-template-columns:1fr;gap:0}
   .widget-hold{margin-top:34px}
@@ -699,30 +765,39 @@ section{position:relative}
   <a class="lk hide-s" href="#get">What you get</a>
   <a class="lk hide-s" href="#price">Pricing</a>
   <a class="lk" href="#price">Sign in</a>
-  <a class="btn sm" href="#price">Start free<span class="ar">→</span></a>
+  <a class="btn sm" href="#price">Get started<span class="ar">→</span></a>
 </nav>
 
 <main id="top">
 
   <!-- ══ 1 · HERO ═══════════════════════════════════════════════════════
        Skeleton: left-heavy asymmetric, one floating object on the right.
-       The headline keeps the only line he liked — "Stop booking jobs in
-       your DMs" — and the rotating tail lets that one line name four
-       versions of the same behaviour instead of one. It is also the
-       always-on animation he asked for by description. -->
+
+       1.4 REPOINT. The headline used to be "Stop booking jobs in your DMs"
+       with the tail rotating four names for the same DM. That sold the
+       booking engine, which is the commodity half — DECISIONS.md
+       "Positioning: what we sell is the pair". So the mechanic he loves is
+       kept and pointed at the gap instead: the fixed part names the WEBSITE,
+       the tail rotates what they have instead of one. The line beneath
+       carries both halves in one sentence, because his correction was that
+       the dashboard must not read as an accessory.
+
+       "Stop booking jobs in your DMs" is not deleted — it is the only line
+       he has ever praised. It moves down to head the thread section, which
+       is literally what that section shows. -->
   <section class="hero">
     <div class="wrap grid">
       <div>
         <span class="lab" data-rv>For detailers</span>
         <h1 class="disp xl">
-          <span class="mask" id="h1a"><span>Stop booking</span></span>
-          <span class="mask" id="h1b"><span>jobs in</span></span>
+          <span class="mask" id="h1a"><span>Your website</span></span>
+          <span class="mask" id="h1b"><span>is currently</span></span>
           <span class="tail"><span id="tw"></span><i class="caret" aria-hidden="true"></i></span>
         </h1>
         <p class="lede" data-rv style="--i:1">
-          A real website under your own name, with booking built in — and one
-          dashboard behind it that runs the whole business from the driveway.
-          Your services, your prices, your hours, your rules.
+          We build you a website and the dashboard that runs it — one build,
+          not a site with software bolted on. Your services, your prices,
+          your hours, your rules.
         </p>
         <div class="ctas" data-rv style="--i:2">
           <a class="btn" href="#price" data-glow>See it with your name on it<span class="ar">→</span></a>
@@ -768,11 +843,17 @@ section{position:relative}
        reports its own cost in screens so the pin is never a mystery. -->
   <section class="wrap" style="padding:clamp(20px,5vh,60px) 0 0" aria-labelledby="thr">
     <span class="lab" data-rv>Right now</span>
+    <!-- 1.4: this is where "Stop booking jobs in your DMs" now lives. It was
+         the hero's promise; it is the pain, and this section is the picture
+         of it. The setup line it replaced is kept as the lede rather than
+         thrown away — it is what tells you what you are about to watch. -->
     <h2 class="disp" id="thr" style="margin-top:14px">
-      <span class="mask"><span>Four jobs came in.</span></span>
-      <span class="mask" style="--i:1"><span>None of them are</span></span>
-      <span class="mask" style="--i:2"><span>in a calendar.</span></span>
+      <span class="mask"><span>Stop booking jobs</span></span>
+      <span class="mask" style="--i:1"><span>in your DMs.</span></span>
     </h2>
+    <p class="lede" data-rv style="--i:2">
+      Four jobs came in this morning. None of them are in a calendar.
+    </p>
   </section>
 
   <div class="thread-wrap" id="threadWrap">
@@ -800,7 +881,16 @@ section{position:relative}
               </div>
             </div>
             <span class="lab" style="display:block">Next up</span>
-            <div class="jobs" id="jobs"></div>
+            <!-- The empty state, DRAWN rather than left as a hole. The job
+                 rows are always in the DOM at opacity 0 so the card never
+                 changes height, which meant the start of the transfer was a
+                 titled void. This sits over exactly that reserved space and
+                 fades on the FIRST job's own progress value, so the empty
+                 state leaves as the day arrives rather than on a timer. -->
+            <div class="jobshold">
+              <div class="jobs" id="jobs"></div>
+              <div class="nojobs" aria-hidden="true">Nothing yet.<br>Your Saturday is still in your phone.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -863,16 +953,29 @@ section{position:relative}
           are impossible — the calendar refuses them, not you at 9 PM by text.
         </p>
       </div>
+      <!-- 1.4: the new row, placed second on purpose. It is the answer to
+           why an agency site rots — you pay them again every time a price
+           changes — and it is deliberately NOT the headline, which was his
+           explicit instruction. -->
       <div class="r" data-rv style="--i:1">
         <div class="ix">02</div>
+        <h3>Changes when you do</h3>
+        <p>
+          Raise a price, add a service, block off a week — the site your
+          customers see changes the moment you save it. No emailing a web
+          guy and waiting until Thursday.
+        </p>
+      </div>
+      <div class="r" data-rv style="--i:2">
+        <div class="ix">03</div>
         <h3>Runs from the driveway</h3>
         <p>
           Today's jobs with Navigate, Call and Text on every card. Mark a job
           done and record the money with wet hands, one thumb.
         </p>
       </div>
-      <div class="r" data-rv style="--i:2">
-        <div class="ix">03</div>
+      <div class="r" data-rv style="--i:3">
+        <div class="ix">04</div>
         <h3>Your money, plainly</h3>
         <p>
           What you collected, what you spent, what's still owed — and how much
@@ -884,11 +987,25 @@ section{position:relative}
 
   <!-- ══ 5 · WHAT CUSTOMERS SEE ════════════════════════════════════════
        Skeleton: the ground changes to light, and the object breaks the top
-       edge of the band. The booking widget lives here and ONLY here — he
-       said it "shouldn't really be as big of an advertisement", so it is one
-       feature among several rather than the co-star it was in all four
-       rejected directions. It is live DOM in this design, not a screenshot
-       of the old one. -->
+       edge of the band.
+
+       1.4 REPOINT, and this is the section the positioning change is really
+       about. It used to show a phone-shaped booking widget floating on its
+       own, which is a picture of a booking tool — the commodity we are
+       trying not to be filed next to. It now shows the WEBSITE, in a window
+       with the detailer's own address in it, and the booking panel sits
+       INSIDE that page. Same section, same place, roughly the same height:
+       this REPLACES the old one rather than adding to the page, because his
+       instruction twice over was that the page must not get longer.
+
+       The booking widget is still not the co-star — he said it "shouldn't
+       really be as big of an advertisement" — but it is no longer the whole
+       exhibit either. It is one panel on a page that has a name at the top.
+
+       No photography, deliberately: the whole page is type and rules and has
+       no image on it anywhere, and a grey placeholder box is banned outright
+       by CLAUDE.md. Whether a tenant site mock should carry a real photo is
+       an open question for the owner, recorded in README.md. -->
   <section class="band" aria-labelledby="seeh">
     <div class="wrap duo">
       <div class="cp">
@@ -898,9 +1015,10 @@ section{position:relative}
           <span class="mask" style="--i:1"><span>Nobody else's advert.</span></span>
         </h2>
         <p class="lede" data-rv style="--i:2">
-          Your services, your prices, your photos. No marketplace branding, no
-          other detailers. They pick a service, pick a time you are actually
-          free, and it is booked.
+          A real site at your own address — what you do, what it costs, where
+          you work, your photos. Not a listing on someone else's marketplace,
+          and not a booking link with nothing around it: the booking lives
+          inside the page.
         </p>
         <!-- Staggered per item rather than the whole list at once: three
              lines arriving one after another is the difference between a
@@ -914,14 +1032,29 @@ section{position:relative}
 
       <div>
         <div class="widget-hold" data-parallax="14">
-          <div class="widget" data-rv="lift">
+          <!-- A window with an address bar, not a phone. That frame is the
+               whole argument of the section in one shape: a phone-sized
+               panel reads as an app, a window with andrewsdetail.com in it
+               reads as their website. Three dots and the URL is enough — a
+               full fake toolbar would be a drawing of a browser rather than
+               a frame around a site. -->
+          <div class="site" data-rv="lift">
+            <div class="chrome" aria-hidden="true">
+              <i></i><i></i><i></i><span class="url">andrewsdetail.com</span>
+            </div>
             <div class="scr">
-              <div class="top">
-                <div class="biz">Andrew's Auto Detail</div>
-                <div class="tg">Mobile detailing · Tacoma and south</div>
-                <div class="rail"><i class="on"></i><i></i><i></i><i></i></div>
+              <div class="sitenav">
+                <span class="biz">Andrew's Auto Detail</span>
+                <span class="lks"><i>Services</i><i>Gallery</i><i>Book</i></span>
               </div>
+              <div class="sitehero">
+                <h3>Mobile detailing, Tacoma and south.</h3>
+                <p>We come to your driveway. Most cars, about three hours.</p>
+              </div>
+              <!-- The booking panel, bordered, sitting in the page's own
+                   column — the visible form of "built in, not linked to". -->
               <div class="bd">
+                <span class="bl">Booking · on this page</span>
                 <div class="q">What can we do for you?</div>
                 <div class="svc">
                   <div><div class="n">Full Detail</div><div class="d">3 hr 30 min · inside and out</div></div>
@@ -933,6 +1066,7 @@ section{position:relative}
                 </div>
                 <div class="go">Pick a time</div>
               </div>
+              <div class="sitefoot">Andrew's Auto Detail · Tacoma, WA · Mon–Sat, 8–6</div>
             </div>
           </div>
         </div>
@@ -952,7 +1086,10 @@ section{position:relative}
         <h2 class="disp sm" style="margin-top:12px">
           <span class="mask"><span>Live before your next job.</span></span>
         </h2>
-        <p class="lede" data-rv style="--i:1">No setup wizard, no migration, no designer.</p>
+        <p class="lede" data-rv style="--i:1">
+          No setup wizard and no migration. You are bookable the same day; the
+          site is built with you from there.
+        </p>
       </div>
       <div class="rail-track" id="railTrack">
         <div class="step">
@@ -963,7 +1100,7 @@ section{position:relative}
         <div class="step">
           <div class="n">02</div>
           <h3>Send one link</h3>
-          <p>Your page lives at your own address. Put it in your bio, on your cards, on the van.</p>
+          <p>Your page lives at an address that is yours. Put it in your bio, on your cards, on the van.</p>
         </div>
         <div class="step">
           <div class="n">03</div>
@@ -994,15 +1131,21 @@ section{position:relative}
     <div class="plans">
       <article class="plan lead has-offer" data-rv="lift">
         <span class="flag">Founding price · 3 of 3 left</span>
-        <span class="lab">Website + booking</span>
+        <span class="lab">Website + dashboard</span>
         <div class="amount">
-          <s class="was">$900</s><span data-count="499" data-prefix="$">$499</span><small> setup</small>
+          <s class="was">$900</s><span data-count="499" data-prefix="$">$499</span><small> to build it</small>
         </div>
         <div class="then mono">then $40/month <s class="was">$60</s></div>
+        <!-- 1.4: reframed from a fee to get started into what it costs to
+             have a site built for you, against the two things a detailer
+             would otherwise do. No competitor price is quoted as a figure —
+             the range in DECISIONS.md is research, not something this page
+             can stand behind as a number. -->
         <p>
-          A complete site under your own name — services, prices, photos,
-          service area — with booking built in. The setup fee covers building
-          it with you.
+          A site built for you under your own name, and the dashboard that
+          runs it. Not a template you fill in yourself at midnight, and not
+          the thousands an agency charges — then charges again every time a
+          price changes.
         </p>
         <p class="lock">
           Founding pricing is locked for the life of the account. It never
@@ -1190,6 +1333,7 @@ section{position:relative}
   var tMoney = document.getElementById("tMoney");
   var lft = document.getElementById("lft");
   var cost = document.getElementById("cost");
+  var dash = document.querySelector(".dash");
 
   /* Two ways of measuring the same beat.
 
@@ -1245,6 +1389,7 @@ section{position:relative}
       var f = clamp((p - s) / (e - s));
       bubs[i].style.setProperty("--f", f.toFixed(3));
       rows[i].style.setProperty("--f", f.toFixed(3));
+      if (i === 0) dash.style.setProperty("--f0", f.toFixed(3));
       if (f > 0.5) { landed++; money += JOBS[i].amt; }
     }
     setSummary(landed, money);
@@ -1264,7 +1409,7 @@ section{position:relative}
       ? "Morning, Andrew · nothing booked"
       : "Morning, Andrew · " + landed + " of " + landed + " still to do";
   }
-  if (LITE) setSummary(JOBS.length, TOTAL);
+  if (LITE) { setSummary(JOBS.length, TOTAL); dash.style.setProperty("--f0", "1"); }
 
   /* The horizontal rail. webtactics does this with position:sticky and two
      CSS properties instead of a pinning library; the travel is the only
@@ -1340,8 +1485,20 @@ section{position:relative}
   function frame() {
     ticking = false;
     var vh = window.innerHeight, y = window.scrollY;
-    if (!LITE) sweep(vh);
-    for (var i = 0; i < scrubs.length; i++) scrubs[i].fn(scrubs[i].el, vh);
+    /* The scrubs are skipped in LITE, not just the reveal sweep. This was a
+       real defect, and it predates 1.4: the scroll LISTENER is only attached
+       when !LITE, but ready() calls onScroll() once unconditionally — so a
+       reduced-motion visitor got exactly one scrub frame, at progress 0,
+       which wrote "0 jobs · $0 · nothing booked" over four fully visible job
+       rows. The dashboard contradicting itself, in the one mode that visitor
+       ever sees. The setSummary(JOBS.length, TOTAL) call further up was meant
+       to prevent that and was simply being overwritten a moment later.
+       Nothing else needs them either: every scrub target is overridden by
+       .lite CSS. */
+    if (!LITE) {
+      sweep(vh);
+      for (var i = 0; i < scrubs.length; i++) scrubs[i].fn(scrubs[i].el, vh);
+    }
     nav.classList.toggle("scr", y > 40);
     nav.classList.toggle("hid", y > 220 && y > lastY);
     lastY = y;
@@ -1478,7 +1635,11 @@ section{position:relative}
      Under reduced motion it prints the first phrase and stops — their own
      comment says a looping <h1> is the single most disruptive thing on a
      page for that visitor, and they are right. */
-  var TAILS = ["your DMs.", "your Yelp inbox.", "a text at 11 pm.", "your notes app."];
+  /* 1.4: the tail now rotates what a detailer has INSTEAD of a website,
+     rather than four names for the same DM. Same mechanic, pointed at the
+     gap the offer closes. Kept short enough that the longest still sits on
+     one line in the hero column at every width. */
+  var TAILS = ["a Facebook page.", "a Yelp listing.", "a link in your bio.", "nothing at all."];
   var tw = document.getElementById("tw");
   if (LITE) {
     tw.textContent = TAILS[0];

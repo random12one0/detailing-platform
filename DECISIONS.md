@@ -1296,6 +1296,82 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## Building 1.4: the judgment calls made while repointing the page (2026-08-29)
+
+The positioning itself is the section below this one. These are the calls made
+while turning it into a page, recorded because none of them were spelled out in
+the roadmap and a later session would otherwise have to re-decide them.
+
+- **The hero names both halves by DIVIDING them between the headline and the
+  object, not by cramming both into one sentence of display type.** The
+  headline is the website ("Your website is currently a Facebook page."); the
+  floating card beside it is, and always was, the dashboard's own job card; the
+  lede states the pair explicitly. The roadmap's named trap was fixing the
+  under-selling of the website by demoting the dashboard, and a headline that
+  tried to carry both nouns would have subordinated one of them by word order
+  alone. Splitting them across the two halves of the hero makes them equal by
+  construction rather than by phrasing.
+
+- **The rotating tail was kept and re-aimed rather than replaced.** It is a
+  mechanic he named as liked. What rotates is now what a detailer has instead
+  of a website, which is the gap the offer closes — the same device doing the
+  new job.
+
+- **The headline's type size is now derived from a measurement, not a taste
+  call.** The new tails are longer than the old, and the old size overflowed
+  the column at both ends of the range. The widths were measured at seven
+  viewport widths before anything was changed, and the fix is split: the size
+  clamp handles the desktop end, and the FONT'S WIDTH AXIS handles the phone
+  end so the headline keeps its size there. Recorded because "make the text
+  smaller" was the obvious move and it was the wrong one — a variable font has
+  a second dial and this is exactly what it is for.
+
+- **Section 5 was REPLACED, not extended.** He said twice that the page must
+  not get longer. A phone-shaped booking widget became a browser window
+  containing a website with the booking panel inside it; the window is
+  landscape where the panel was portrait, so the section costs the same height.
+  This is also why no "here is your website" section was ADDED — the page has
+  the same eight sections it had.
+
+- **No competitor price is printed on the page.** The reframed $900 sets the
+  offer against "a template you fill in yourself" and "an agency that charges
+  again every time a price changes", with no figure attached to the agency.
+  The $2,000–8,000 range recorded in the positioning section is research we
+  did, not a number this page can stand behind if a detailer challenges it.
+
+- **The tenant-site mock carries NO photograph, and that is a question for the
+  owner rather than a decision.** The page has no image on it anywhere, and
+  CLAUDE.md bans grey placeholder boxes, so a photo-shaped hole was never an
+  option; adding real stock photography would change a look he has already
+  approved and was not on the 1.4 list. Not done unilaterally in either
+  direction. The risk if it stays as it is: the page now leads with "we build
+  you a website" and shows a website with no pictures, and pictures of their
+  own work are what a detailer thinks a website IS.
+
+- **A pre-existing bug was fixed at its root rather than patched at the
+  symptom.** In the reduced-motion path the dashboard rendered "0 jobs · $0 ·
+  nothing booked" above four fully visible job rows. Reproduced on the
+  committed file before any 1.4 edit. The `setSummary(JOBS.length, TOTAL)`
+  call that exists to prevent exactly this was being overwritten a moment
+  later, because the scroll LISTENER is attached only when `!LITE` but
+  `ready()` calls `onScroll()` once unconditionally — one scrub frame at
+  progress 0. The fix skips the entire scrub loop in LITE rather than
+  re-ordering the two calls, because every other scrub was also running once
+  and writing values that `.lite` CSS then had to override.
+
+- **"Start free" was removed from the nav because it was untrue.** There is no
+  free tier. `tests/landing-pricing.test.mjs` already enforces "no unearned
+  free-trial promise" — but it scans `app/src/landing/LandingPage.jsx`, and
+  this is a static direction file, so nothing was watching it. Worth knowing
+  for 1.5: the design tests being rewritten there cover the app, and the
+  direction files are outside their reach.
+
+- **Section 6's "no designer" was removed because it contradicted the pricing
+  card.** The card now says the fee is what it costs to have the site built for
+  you. Both claims cannot stand. The honest version is that the booking-only
+  tier is self-serve and the website tier is built with them, which is what
+  the lede now says.
+
 ## Positioning: what we sell is the pair (2026-08-29)
 
 **Read the correction at the end of this section first — the owner amended the

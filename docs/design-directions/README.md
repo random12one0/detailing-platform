@@ -419,6 +419,157 @@ on it. Deliberately NOT a Netlify deploy: `.netlify/state.json` in this working
 directory pins the production site, and roadmap 0.4 records that as a live
 hazard — a stray publish from here reaches detailingplatform.com.
 
+## Round six — roadmap 1.4, the repoint (2026-08-29)
+
+**What changed and why, in one line: the page was selling the booking engine,
+and the booking engine is the commodity half.** The owner's positioning change
+is in `DECISIONS.md` under "Positioning: what we sell is the pair" — read its
+CORRECTION section, which is the operative version. The sentence the page now
+has to say is **"we build you a website and the dashboard that runs it"**, as
+ONE purchase. The website half leads because it is the half nobody else is
+selling; the dashboard is in the same sentence, never in a later section that
+reads as a bonus. Only the live-editing *feature* stays out of the headline.
+
+### The hero: same mechanic, pointed at the gap
+
+The rotating tail is the thing he liked, so it was kept and re-aimed. It used
+to name four versions of the same DM ("your DMs." / "your Yelp inbox." / "a
+text at 11 pm." / "your notes app."). It now names what a detailer has
+INSTEAD of a website:
+
+> **Your website is currently** *a Facebook page. / a Yelp listing. / a link
+> in your bio. / nothing at all.*
+
+The line beneath it carries both halves in one breath — *"We build you a
+website and the dashboard that runs it — one build, not a site with software
+bolted on."* — and the floating object beside it is still the dashboard's own
+job card. So the headline is the website, the object is the dashboard, and
+neither is demoted to the other's accessory. That was the specific trap named
+in the roadmap, and it is avoided by construction rather than by wording.
+
+**The headline had to be resized, and the number was measured, not guessed.**
+The new tails are longer than the old ones. At the previous
+`clamp(40px,5.3vw,76px)`, "a Facebook page." rendered **741px wide inside a
+742px column** at 1440 — the caret was already wrapping onto a line of its
+own — and **390px inside a 352px column** at 392, where the words themselves
+wrapped. That is the one way this headline can look broken, and it was broken.
+Two changes, both measured across seven widths:
+
+- the clamp is now `clamp(38px,5.15vw,74px)` — longest tail 722px in 742px;
+- below 470px the **width axis** absorbs it instead of the size (`wdth` 118 to
+  92, on the tail only), so the phone keeps a 38px headline and the longest
+  tail measures 287px in a 352px column. Only the rotating line condenses; the
+  two fixed lines above it are untouched, and the difference is invisible
+  unless the two are measured against each other;
+- one guard below 340px, for the original iPhone SE width.
+
+### "Stop booking jobs in your DMs" moved, and did not die
+
+It is the only line he has ever explicitly praised, so it was not deleted — it
+moved down to head the thread section, which is literally the picture of it.
+It stops being the promise and becomes the pain. Its old setup line ("Four
+jobs came in. None of them are in a calendar.") is kept underneath as the
+lede, because that is the line that tells you what you are about to watch.
+
+### Section 5 was replaced, not added to
+
+This is where the positioning actually lived. The section used to show a
+**phone-shaped booking widget floating on its own** — which is a picture of a
+booking tool, the exact category we are trying not to be filed in. It now
+shows the **website**, in a window with `andrewsdetail.com` in the address
+bar, with the booking panel bordered INSIDE the page. That containment is the
+claim made as a shape rather than as a sentence: *built into the page, not a
+link to somewhere else.*
+
+The object half of the section also grew from `.74fr` to `1.1fr` — a website
+squeezed narrower than the paragraph describing it argues against itself.
+**The section did not get taller**: a window is landscape where the phone
+panel was portrait. His instruction that the page must not get longer was
+honoured by REPLACING, and the page is the same length it was.
+
+### The rest of the concrete list
+
+- **New ruled row 02** in "What you get": *"Changes when you do"* — raise a
+  price and the live site changes. Placed second, deliberately not the
+  headline (his instruction), because it is the answer to why an agency site
+  rots. The rows renumbered 01 to 04.
+- **The $900 is a build price, not a joining fee.** `$499 to build it` against
+  `$900`, and the lead plan is now labelled **"Website + dashboard"** — it
+  said "Website + booking", which left the dashboard out of the offer
+  entirely. The copy sets it against the two real alternatives (a template you
+  fill in yourself, or an agency that charges again every time a price
+  changes). **No competitor figure is quoted**: the $2,000–8,000 range in
+  DECISIONS.md is research, not a number this page can stand behind.
+- **The dashboard's empty state is drawn** — the carried-over 1.3 item. The
+  job rows are always in the DOM at opacity 0 so the card never changes
+  height, which meant the start of the transfer was a titled void under "Next
+  up". A dashed panel now sits on exactly that reserved space — *"Nothing yet.
+  Your Saturday is still in your phone."* — and fades on the FIRST job's own
+  progress value, so it leaves as the day arrives rather than on a timer of
+  its own.
+
+### Three defects found by looking, two of them pre-existing
+
+1. **"Start free" in the nav was a promise the product does not make.** There
+   is no free tier — the cheapest plan is $35/month — and `LandingPage.jsx`
+   says "Get started". `tests/landing-pricing.test.mjs` has a test named *"no
+   unearned free-trial promise"*; it scans the real landing page, not this
+   file, which is exactly how the claim survived here. Now "Get started".
+2. **The reduced-motion path showed "0 jobs · $0 · nothing booked" above four
+   fully visible job rows.** Reproduced on the COMMITTED version before any
+   1.4 edit, so it predates this item. Cause: the scroll listener is only
+   attached when `!LITE`, but `ready()` calls `onScroll()` once
+   unconditionally — so a reduced-motion visitor got exactly one scrub frame,
+   at progress 0, which overwrote the `setSummary(JOBS.length, TOTAL)` call
+   that exists specifically to prevent this. Fixed at the root: the whole
+   scrub loop is skipped in LITE, not just the reveal sweep. Nothing else
+   needed it — every scrub target is already overridden by `.lite` CSS.
+3. **Section 6 said "no designer"** while the pricing card says the fee covers
+   having the site built for you. Both cannot be true. The lede is now *"No
+   setup wizard and no migration. You are bookable the same day; the site is
+   built with you from there"*, which is what actually happens: the
+   booking-only tier is self-serve, the website tier is built with them.
+
+### Verified, by looking
+
+Screenshotted at **1440x900, 768x1024 and 392x844**, nine scroll positions
+each, in the normal path AND in `?lite=1`. **Console clean at every viewport
+in both paths.** Page length unchanged (9.47 screens at 1440, against 9.47
+before). The four credential-free tests pass (composition, design-contrast,
+landing-pricing, route-contract). Every new small-text element was measured
+for contrast rather than eyeballed:
+
+| element | ratio |
+|---|---|
+| address bar, 11px mono | 6.06:1 |
+| site nav links, 11.5px | 5.61:1 |
+| "Booking · on this page" label, 10.5px | 5.61:1 |
+| service duration, 11.5px | 6.06:1 |
+| site footer, 11px | 5.61:1 |
+| dashboard empty state, 13.5px | 5.16:1 |
+| band caption, 10.5px | 5.61:1 |
+
+All above the 4.5:1 floor.
+
+### One thing NOT done, on purpose, and it is a question for him
+
+**The tenant-site mock has no photograph on it.** The whole page is type and
+rules with no image anywhere, and `CLAUDE.md` bans grey placeholder boxes
+outright — so a photo-shaped hole was never an option. But a real detailer's
+site sells on pictures of their work, and a site mock with none may undersell
+the thing the page now leads with. Adding stock photography is a change to a
+look he has already approved and it was not on the 1.4 list, so it was not
+done unilaterally. **His call.**
+
+### The artifact was republished, and there is a catch
+
+The permanent URL below now carries the 1.4 page. **But the artifact reports
+that people opening the SHARED link keep seeing the previously pinned version
+until the share pin is moved from the page's share menu** — which only he can
+do. If the phone shows the old headline ("Stop booking jobs in your DMs" at
+the top), that is what happened: open it from the artifacts gallery instead,
+or move the share pin.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so
@@ -439,7 +590,12 @@ two sections. The weighted scroll was wanted heavier, not removed.
    over from `app/src/landing/LandingPage.jsx`, which is the substance
    `DESIGN.md` says to keep, but no line here has been through him except
    "Stop booking jobs in your DMs". **This is a named 1.4 task, not a
-   loose end.**
+   loose end.** **Round six ran that pass over everything the repoint
+   touched** (hero, thread heading, section 5, the new row, pricing, section
+   6) and killed two claims that were not true: "Start free" and "no
+   designer". The sections it did NOT touch — the $520 strip, "What you get"
+   rows 01/03/04, the rail steps, the terms, the footer — still carry their
+   `LandingPage.jsx` wording and still have not been through him.
 3. **The founding offer is in the page but not in the plan.** $499 / $900 for
    the first three is now rendered, and `founding_total` defaults to 3 in the
    migration — but whether the real launch runs it at 3, and whether the
@@ -448,8 +604,9 @@ two sections. The weighted scroll was wanted heavier, not removed.
    risk is far lower than direction 4's, and the phone no longer pins at all,
    which removes the most expensive path. Still worth his thumb on a cheap
    Android before Phase 2 commits to it.
-5. **The dashboard's empty state** (a detailer with no jobs today) is still
-   undrawn. Carried from the first round; it belongs in 1.4.
+5. ~~**The dashboard's empty state** is still undrawn.~~ **DONE in round six**
+   — a dashed panel over the reserved job-row space, fading on the first job's
+   progress value. See above.
 6. **The device-tier question** (`APPLE-READ.md`) is untouched and stays a 1.5
    decision. With no WebGL on the page there is nothing for a tier check to
    switch off yet; the `.lite` net plus reduced-motion is the whole defence.

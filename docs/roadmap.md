@@ -154,6 +154,27 @@ is kept; the entire visual design restarts from scratch.
       halved; the dots now move at ~16px/s instead of 1.8px/s.
 - [ ] 1.4 Refine the winner once. **OWNER approves.**
 
+      **BUILT 2026-08-29 — every concrete change below is applied and verified
+      by looking; the full write-up is `docs/design-directions/README.md`
+      "Round six". The item stays UNCHECKED because it needs two things only
+      the owner can give: his approval of the repointed page, and the iPhone
+      check carried in from 1.3.** Three questions are waiting on him at the
+      end of that session; they are listed under "Still open on direction 5"
+      in the same README. Nothing else in this item is outstanding.
+
+      Done and verified: hero headline and rotating tail; hero lede carrying
+      both halves; "Stop booking jobs in your DMs" moved down to head the
+      thread section; new ruled row 02 ("Changes when you do"); section 5
+      replaced with the tenant WEBSITE and the booking panel inside it; the
+      $900 reframed as a build price and the lead plan renamed "Website +
+      dashboard"; the dashboard's empty state drawn; a copy pass over
+      everything the repoint touched. Three defects found by looking and
+      fixed, two of them pre-existing: "Start free" in the nav (there is no
+      free tier), the reduced-motion path rendering "0 jobs · $0" above four
+      visible jobs, and section 6's "no designer" contradicting the pricing
+      card. The headline was resized against measured text widths — the new
+      tails overflowed the column at 1440 AND at 392.
+
       **THE MAIN JOB: re-point the page at the website — WITHOUT demoting the
       dashboard.** The owner changed the positioning on 2026-08-29, from the
       market rather than from taste: "there's already a lot of those out there
@@ -205,8 +226,15 @@ is kept; the entire visual design restarts from scratch.
       Also carried in from 1.3:
       - **The iPhone check is still unverified** — the pinned section was
         rebuilt so phones never pin, but there is no iPhone here. He last
-        looked in an emulator.
-      - Draw the dashboard's empty state (a detailer with no jobs today).
+        looked in an emulator. **STILL OPEN — the one thing in 1.4 that
+        cannot be closed from this machine.** The artifact carrying the page
+        was republished with the 1.4 version, but people opening the SHARED
+        link keep seeing the previously pinned version until he moves the
+        share pin from the page's share menu; if the phone still shows "Stop
+        booking jobs in your DMs" as the headline, that is why.
+      - ~~Draw the dashboard's empty state (a detailer with no jobs today).~~
+        **DONE 2026-08-29** — a dashed panel over the space the job rows
+        reserve, fading on the first job's own progress value.
       - The weighted scroll is in and tuned to his feel; `?smooth=0` still
         toggles it if he wants to compare again on a real phone.
       - **A copy pass is a named task, agreed with him**: "in the future we'll
@@ -215,6 +243,11 @@ is kept; the entire visual design restarts from scratch.
         `app/src/landing/LandingPage.jsx`. The `$520` rewrite in round four is
         the worked example of what that pass looks like — every section has to
         answer "what am I looking at" before it answers anything else.
+        **PARTLY DONE 2026-08-29**: the pass ran over every section the
+        repoint touched and killed two untrue claims. The sections it did not
+        touch — the $520 strip, "What you get" rows 01/03/04, the rail steps,
+        the terms, the footer — still carry the old wording and still have not
+        been through him.
 - [ ] 1.5 Write the new `docs/design-system.md` (replacing "Raking Light"),
       and rewrite the design tests to enforce the NEW rules. From this
       point the new system is law and direction-inventing skills are
