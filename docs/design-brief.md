@@ -1,10 +1,10 @@
 # Design brief — roadmap 1.1 and 1.2
 
 This file is the input to the visual restart. Nothing in Phase 1 moves until
-Parts A and B below are filled in by the owner. **Status: Part B answered
-2026-08-29 (five of six — B1 re-asked, B6 half-answered). Part A still
-open — the owner is hunting references. 1.3 does not start until Part A
-lands.**
+Parts A and B below are filled in by the owner. **Status: Part B and Part C fully answered
+2026-08-29. Part A: the anti-reference is in; the 3–5 liked references are
+still open — the owner is hunting them. 1.3 does not start until those
+land.**
 
 Why a file and not a chat message: chats get cleared, files don't. Answers
 typed here survive; answers typed in chat die at the next `/clear`.
@@ -51,7 +51,38 @@ If you can't say why, list it anyway; I can read the image.
 5.
 
 ### Disliked (at least one)
-1.
+
+1. **Kōpiko** — an artisan sourdough bakery's subscription page, given
+   2026-08-29. Pasted as an image in chat and not saved to disk, so it is
+   recorded here by description; owner, if you still have the file, drop it
+   in `docs/design-references/` and this note can point at it instead.
+
+   What is actually on that page, so 1.3 can steer away from it deliberately
+   rather than from memory:
+   - A single enormous cream wordmark ("Kōpiko") filling the entire top
+     third of the screen — the brand name AS the hero, no headline, no
+     sentence, no offer.
+   - Flat dark-brown ground, cream type, one product photograph. Two colours
+     in the whole design, no third accent, nothing lit.
+   - The buying form sits in a narrow left column at roughly a quarter the
+     size of the wordmark: hairline rules, small caps labels, radio dots,
+     prices right-aligned. Editorial, not interactive — it reads as a
+     printed order form.
+   - Numbered steps — "1. SELECT YOUR LOAF / 2. SELECT FREQUENCY /
+     3. SELECT QUANTITY" — exactly the numbered-marker pattern
+     `docs/design-knowledge.md` §1 names as a tell.
+   - Enormous type against tiny type with nothing in between: no middle of
+     the hierarchy at all.
+
+   **Reason not given** — the owner said only "i dont like this one". The
+   traits above are observations, not their stated objection, and must not be
+   quoted back as if they were. If a direction in 1.3 wants to use any of
+   them, it is worth asking which part they disliked first.
+
+   **Useful because it overlaps our own candidates.** This page is close in
+   spirit to a boutique/craft direction and shares the huge-display-type move
+   that an editorial treatment would reach for. It draws a line under a
+   region we might otherwise have walked into.
 
 ---
 
@@ -298,7 +329,41 @@ detailer when you say "this is what your customers will see" — so it
 quietly does the front window's job as well. The dashboard is the room you
 personally live in, which is exactly why it is the safest to make plain.
 
-**Answer:**
+**Answer (2026-08-29) — the ranking was refused, and replaced with a
+better one.** "I do want all of them." The owner declined to trade quality
+away on any screen, and specifically pushed back on the framing: a screen
+being out of the way "doesn't mean that we shouldn't actually think about
+making it look good."
+
+What they gave instead is a ranking of **how expressive each screen gets** and
+**what governs it when it is forced to choose** — which is more useful than
+the question I asked:
+
+| Screen | Governing value | Motion budget |
+|---|---|---|
+| **Landing page** | Impact. "Invest a lot of time" — the most visually ambitious surface. | The largest: scroll effects, "cool animations". This is where the expressive work goes. |
+| **Booking page** (customer) | Visual appeal, second only to the landing page. "Definitely needs to be more visually appealing" than the dashboard. | Real: step-to-step transitions through the wizard are explicitly wanted. |
+| **Dashboard** (detailer) | **Convenience first — then made as pretty as possible around it.** Not "plain": still has to look good, but ease of doing the job sets the shape and beauty fits itself to that. | The smallest, but not zero: screens and cards should "load in nicely", "pop in". Explicitly NOT scroll animations — "could get annoying". "Don't overdo it." |
+
+Two things the owner said that are worth keeping as written, because they
+are the actual design instruction:
+
+- **"The design that is visually appealing needs to be convenient."** On the
+  dashboard, convenience is not a constraint on beauty — it is the thing
+  beauty is built around. Any dashboard mockup that looks good and is
+  fiddlier to use has failed, regardless of how it photographs.
+- **Visual appeal does not cost the customer anything on the booking page.**
+  The owner does not accept the usual trade-off there — they expect a
+  better-looking booking page to also be a better experience, not a slower
+  one.
+
+**Consequence for 1.3:** the three mockup screens are not equals. The landing
+hero is where a direction proves it has a point of view; the dashboard Today
+screen is where it proves the point of view survives contact with real work.
+A direction that only sings on the landing page has failed half the test, and
+that is the failure mode to watch for — it is also the easiest one to
+mistake for success.
+
 
 ### B6b. Does each detailer still get to pick their own colour?
 
@@ -324,7 +389,33 @@ ownership, still looks different from the shop down the road — and I never
 have to defend against neon green. This is the only option that keeps both
 halves. Say the word and I will design around a curated set.
 
-**Answer:**
+**Answer (2026-08-29): curated set, and keep it small.** "We could just
+keep it to, like, a few or a couple." Narrower than the eight-to-twelve I
+proposed — read as roughly **four to six**, to be settled when the
+direction exists, since the right number depends on what the palette is doing.
+Free-form colour picking is gone; neon green is no longer a case any design
+has to survive.
+
+**And a second, larger point the owner made unprompted:** the detailer
+"probably doesn't really care about the admin dashboard colour scheme." The
+accent is about the surfaces their *customers* see — the booking page and
+their own website. **So the dashboard can be designed in one fixed house
+palette** rather than being built to survive retinting.
+
+That is the single biggest constraint removed in this whole brief. The old
+system had to make every dashboard token withstand an arbitrary tenant
+colour; `docs/design-knowledge.md` §4 calls per-tenant retinting the
+hardest visual problem in the product and the highest-risk code. Confining
+retint to the public surfaces means the dashboard's palette can be a
+deliberate composition, and the retint problem shrinks to a handful of known
+colours on two screen types — small enough to actually test exhaustively.
+
+**Assumption flagged, not decided:** this reading treats "a few colours,
+customer-facing only" as the rule. The tenant's own branding is presumably
+still theirs on their public site. If the intent was that the dashboard also
+carries a light touch of their colour (a header, an active tab) that is a
+small change, but say so before 2.3 — it is expensive to retrofit.
+
 
 ---
 

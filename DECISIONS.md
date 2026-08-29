@@ -731,3 +731,53 @@ Two questions returned to the owner rather than assumed:
   picking neon green. Recommendation given: keep it but narrow it to a
   curated set, which preserves the "your site, your colour" selling line and
   removes the failure mode. Nothing is designed around either answer yet.
+
+## Phase 1 — Part C answered, and one constraint removed (2026-08-29)
+
+- **B1b: the owner refused the ranking and gave a better one.** "I do want
+  all of them", and specifically pushed back on the premise that a screen
+  being out of the way excuses not making it good. What they gave instead is
+  an expressiveness budget: landing page gets the most ambitious visual and
+  scroll work, booking page gets real step-to-step motion and is "definitely
+  more visually appealing" than the dashboard, dashboard gets things loading
+  and popping in but **no scroll animation** ("could get annoying") and
+  "don't overdo it". The governing sentence for the dashboard is theirs:
+  **"the design that is visually appealing needs to be convenient"** —
+  convenience sets the shape and beauty is built around it, which is not the
+  same as making it plain. Recorded in the brief as a table because it is a
+  per-surface contract that Phase 2 will be held to.
+- **The failure mode this creates for 1.3, named now:** a direction that
+  sings on the landing hero and dies on the dashboard Today screen has failed
+  half the test, and it is the easiest failure to mistake for success,
+  because the landing hero is what gets looked at first.
+- **B6b: curated colours, and smaller than proposed.** "A few or a couple" —
+  narrower than my eight-to-twelve; read as roughly four to six, settled once
+  a direction exists. Free-form picking is gone.
+- **The big one — retinting is now confined to customer-facing surfaces.**
+  Unprompted, the owner said the detailer "probably doesn't really care about
+  the admin dashboard colour scheme"; the accent is about what their
+  customers see. **So the dashboard gets one fixed house palette and does not
+  have to survive retinting at all.** `docs/design-knowledge.md` §4 called
+  per-tenant retinting the hardest visual problem here and the highest-risk
+  code, precisely because failures stay invisible until a specific customer
+  signs up. This removes it from the largest and most token-dense surface and
+  reduces it to a handful of known colours on two screen types — small enough
+  to test exhaustively rather than hope about. Biggest single constraint
+  lifted in the whole brief. Flagged as an assumption in the brief rather
+  than treated as settled: if the dashboard is meant to carry a light touch
+  of tenant colour after all, that must be said before 2.3.
+- **Anti-reference recorded: Kōpiko**, an artisan bakery subscription page.
+  Pasted as an image, not saved to disk (checked — the paste is not written
+  anywhere findable), so it is recorded by a detailed description of what is
+  actually on the page: one enormous cream wordmark as the entire hero, flat
+  dark-brown ground, two colours total, the buying form as a small editorial
+  order form, numbered steps, and no middle of the type hierarchy. **The
+  owner gave no reason** — "i dont like this one" — so those traits are
+  recorded as observations and explicitly must not be quoted back as their
+  objection. Valuable because it sits close to a boutique/editorial direction
+  we might otherwise have proposed, and shares the huge-display-type move.
+- **Owner idea parked in the roadmap under Phase 3**, not started: a reusable
+  instruction set / agent for building tenant websites, dashboard-wired and
+  customisable per client. They deferred it themselves. Filed against 3.1
+  rather than as its own item, since it cannot be specified before the tenant
+  pages and settings are.

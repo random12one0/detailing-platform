@@ -100,6 +100,16 @@ is kept; the entire visual design restarts from scratch.
       process, so website-package customers can use their own domain.
       Booking-only customers stay on `detailingplatform.com/book/name`.
 
+      *Owner idea parked here 2026-08-29, deliberately not started:* a
+      reusable instruction set — "a plan of an agent or something I can
+      use" — carrying everything needed to build a tenant's website, wired
+      to the admin dashboard but "super customizable to what my client
+      wants". The owner explicitly deferred it ("later me's tackle"). Written
+      down so it survives the clear. It belongs in 3.1's plan rather than as
+      its own item, because what such an agent can be told to do is decided
+      by what the tenant pages and settings actually are. Raise it when 3.1
+      starts.
+
 ## Phase 4 — Feature restoration + platform admin
 
 - [ ] 4.1 Audit `reference/` (the old site's code) for anything dropped
