@@ -69,7 +69,8 @@ correction that matters most; the ordering within it has since moved."
 
 ## Brand Commitments
 
-- **docs/design-system.md ("Raking Light") is law** for anything a person looks at. Matte near-black ground, one lit element per screen, three type voices (Anybody wide/narrow, Public Sans, DM Mono for every figure). Changes contradicting it require updating that file first — never silent drift.
+- **`docs/design-system.md` ("The Thread") is law** for anything a person looks at, from 2026-08-30. One continuous cool-biased near-black ground, every section a different skeleton over it, one sharp accent (signal green `#38E08B`), two type faces — **Archivo** worked across both variable axes and **JetBrains Mono** for every figure. The reference rendering is `docs/design-directions/5-the-thread.html`, and where the document and that page disagree the page is right. Changes contradicting the system require updating that file first — never silent drift. Enforced by `tests/composition.test.mjs` and `tests/design-contrast.test.mjs`. **Not applied to `app/` yet — that is Phase 2.**
+  - Replaced "Raking Light" (matte near-black, one lit element per screen, Anybody + Public Sans + DM Mono), scrapped by the owner 2026-08-28 and finished 2026-08-30. It is anti-reference only; what survived it is listed in the new file under "§11".
 - Copy rules: sentence case, plain verbs, name what people control (reminders, never cron), errors say what to fix, empty states invite action.
 - Tenant accent colors pass through `app/src/lib/theme.js` (the only file computing color in JS); the identity lives in the ground, the light, and the type — untouchable by the accent.
 

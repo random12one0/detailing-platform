@@ -156,6 +156,12 @@ identity. It is not: the owner scrapped it on 2026-08-28 (`DESIGN.md`), and on
 2026-08-29 answered brief question B4 "Nah. Throw it out." — nothing is kept,
 not the dark ground, not the fonts, not the one-lit-element rule.
 
+**Second correction, 2026-08-30:** `docs/design-system.md` is law again, but
+it is a different document now — it holds "The Thread", written in roadmap
+1.5 from the direction the owner approved. Nothing above should be read as
+referring to it. The old content is gone; what survived is listed in the new
+file under "§11".
+
 So "conflict with the design system" cannot be assessed against that file as
 law. Throughout `ANALYSIS.md` it is assessed against what actually still binds:
 

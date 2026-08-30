@@ -56,7 +56,7 @@ Better than typical for this stage — there is a real, enforced design system:
   across both axes (`wdth` 62–125, `wght` 100–900), and **JetBrains Mono**
   for every figure. Down from three.
 - **Old system:** `docs/design-system.md` ("Raking Light") was explicit law: matte near-black ground, exactly one "lit" element per screen, tokens defined once in `theme.css` (`:root` dark + `[data-theme="light"]` + `--bk-*` booking mirror). Enforced by tests: `composition.test.mjs`, `design-contrast.test.mjs` — all passing when I ran them.
-- **Fonts:** exactly three, loaded from Google Fonts in `app/index.html`: Anybody (variable width — titles/labels), Public Sans (prose), DM Mono (every figure, tabular-nums).
+- **Fonts (old system, still what `app/` ships):** exactly three, loaded from Google Fonts in `app/index.html`: Anybody (variable width — titles/labels), Public Sans (prose), DM Mono (every figure, tabular-nums). Phase 2 replaces these with the two above.
 - **Tokens vs hardcoded:** discipline is real. The only hex colors in JS live in `lib/theme.js` (the designated color-math file) and Google-logo colors in Auth **(guess for exact location of the Google hexes — I found the file set, didn't trace each)**. CSS uses `var(--…)` throughout.
 - **Inline styles exist but are modest:** heaviest are LandingPage (28 `style={{`), ManageBookingPage (18), Money (15) — mostly layout one-offs, not colors, judging by spot checks.
 - **Worst pages (guess — I did not screenshot):** the dashboard-spec gap report and HANDOFF list the known weak spots: Calendar (no week view, cell weight), Clients (no sort/filter, was the screen that previously violated the composition rule), Hours (multi-glow deferred). Money's quoted-vs-on-site metric is flagged for demotion.
