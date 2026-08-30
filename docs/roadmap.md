@@ -198,6 +198,20 @@ is kept; the entire visual design restarts from scratch.
       recoverable in full from commit `6c6f412` if it ever becomes its own
       About page.
 
+      **ROUND THIRTEEN — 2026-08-29.** The thread now pins at EVERY width for
+      a fixed 1.90-screen run, on his instruction ("you scroll until it fits
+      the center of the page, and then it happens, and then you start going
+      down again", "it shouldn't be dynamic to the page size"). One formula,
+      no `window.innerHeight` anywhere in it, which is what makes pinning
+      safe on iOS. The beat finishes at 0.85 of the hold so the last half
+      screen is a still shot instead of cutting off. The rail's three steps
+      now land dead centre at every width (within 2px), and its heading
+      arrives with the lock rather than a screen early. The drift that made
+      step three land 232px off was `getBoundingClientRect()` reporting a
+      SCALED step — the measurement lesson is in `DECISIONS.md`. **The page
+      is now 13.94 screens at 1440 and 14.91 on a phone**; pins reserve the
+      height they hold, and he should see that number.
+
       **ROUND TWELVE — 2026-08-29. The 01/02/03 rail was never a pinning
       bug.** Measured at 1920, which is his monitor and the one width never
       being tested: the track was exactly one screen wide, so the section had

@@ -566,9 +566,22 @@ section{position:relative}
    The animation is not weaker for it — the same messages fly into the same
    rows, and the flight distances are recomputed per frame because both ends
    are moving now. Four elements per frame; nothing else changed. */
+/* THE PHONE PINS HERE TOO, on his instruction: "you scroll until it fits the
+   entire... it's the center of the page. And then then it happens, and then
+   you start going down again."
+
+   It was unpinned in round three because the pin genuinely broke on his
+   iPhone. The cause was never the pin itself — it was that progress was
+   measured against `window.innerHeight`, which iOS changes every time the
+   URL bar hides. That number is gone from this section now (the scrub
+   measures against the STAGE's own height, which is `svh` and does not
+   move), so the pin can come back safely.
+
+   The run is a FIXED length at every width — his instruction, "it shouldn't
+   be dynamic to the page size... it should be the same." Measured in `svh`
+   rather than pixels so it is the same number of flicks on a phone and on a
+   monitor, which is the thing that actually feels consistent. */
 @media (max-width:820px){
-  .thread-wrap{height:auto}
-  .stage{position:static;height:auto;overflow:visible;padding:clamp(30px,7vh,70px) 0 clamp(20px,4vh,44px)}
   .stage .cols{grid-template-columns:1fr;gap:14px;align-content:center}
   .divider,.cost{display:none}
   .thread{gap:7px}
@@ -765,7 +778,23 @@ section{position:relative}
 .rail-wrap{height:calc(100vh + var(--travel,70vh));height:calc(100svh + var(--travel,70vh));position:relative}
 .rail-stage{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;touch-action:pan-y}
 .rail-head{margin-bottom:clamp(22px,4vh,44px)}
-.rail-track{display:flex;gap:clamp(18px,4vw,48px);padding-left:var(--gut);will-change:transform;transform:translate3d(calc(var(--x,0) * -1px),0,0)}
+/* THE TRACK IS CENTRE-ALIGNED, which is the whole of his complaint: "number
+   one is all the way on the left side of the screen... and number three is,
+   like, not even centered." Measured before the change — at the end of the
+   pan the three step centres sat at -1294, -180 and 952 against a viewport
+   centre of 720. Step three finished 232px right of centre and the other two
+   were off-screen entirely.
+
+   The lead-in is half the leftover width, so step one STARTS centred; the
+   travel is exactly two step-advances, so step three ENDS centred and step
+   two is centred halfway. Three steps, three stops, no arithmetic left to
+   drift. */
+.rail-track{
+  --stepw:min(74vw,1180px);
+  display:flex;gap:clamp(18px,4vw,48px);
+  padding-left:calc((100% - var(--stepw)) / 2);
+  will-change:transform;transform:translate3d(calc(var(--x,0) * -1px),0,0);
+}
 .step{
   /* THE ACTUAL BUG HE HAS BEEN SEEING SINCE THE FIRST BUILD, and it was
      never about pinning. At 560px a step is small enough that three of them
@@ -781,7 +810,7 @@ section{position:relative}
      times the viewport whatever the width, and there is genuinely one step
      in front of you with the next one arriving. The cap only stops a step
      from becoming absurd on a very wide monitor. */
-  flex:none;width:min(74vw,1180px);
+  flex:none;width:var(--stepw,74vw);
   border-left:1px solid var(--line);padding-left:clamp(18px,2.4vw,30px);
   transform:scale(calc(.95 + (.05 * var(--near,0))));
   transform-origin:left center;
@@ -801,7 +830,7 @@ section{position:relative}
    three screens wide, and the hold is about one full screen: long enough to
    read a step before the next arrives, and still an honest exchange, one
    pixel sideways for a little over one pixel down. */
-@media (max-width:560px){.step{width:88vw}}
+@media (max-width:560px){.rail-track{--stepw:88vw}}
 
 /* THE PHONE PINS AGAIN. Un-pinning it was the wrong fix for the right
    complaint: he said the section that "kinda stopped your scroll doesn't
@@ -1827,55 +1856,37 @@ section{position:relative}
   var cost = document.getElementById("cost");
   var dash = document.querySelector(".dash");
 
-  /* Two ways of measuring the same beat.
+  /* ONE way of measuring the beat, at every width.
 
-     PINNED (desktop): the wrapper is 2.9 screens tall and the stage sticks
-     to the top, so progress is how far into that extra height you have
-     scrolled.
+     The stage sticks to the top for a fixed run and progress is how far into
+     that run you have scrolled. There is no second branch any more: the
+     phone used to scrub the section's pass through the viewport instead,
+     which is what made the switches happen at the bottom edge and made the
+     beat finish at a different point depending on how tall the section
+     happened to be.
 
-     SCRUBBED (phone): nothing sticks. Progress is the block's own pass
-     through the viewport — riangle's SCRUB_TRIGGER — tightened so the last
-     message lands while the whole section is still on screen rather than
-     after it has left. No viewport-unit arithmetic anywhere in this branch,
-     which is the point: it cannot be thrown off by the iOS URL bar.
+     `window.innerHeight` DOES NOT APPEAR HERE, and that is the iOS fix. The
+     denominator is the wrapper's height minus the STAGE's height — both
+     `svh`-based, both still while you scroll. iOS moves `innerHeight` every
+     time the URL bar hides; it cannot move either of these.
 
-     The flight distances are static in BOTH modes, and that is not luck:
-     the bubbles and the rows are in the same block, so scrolling moves them
-     together and the offset between a message and its row never changes. */
+     The flight distances are static: the bubbles and the rows are in the
+     same block, so scrolling moves them together and the offset between a
+     message and its row never changes. */
   var PHONE = window.matchMedia("(max-width: 820px)");
   var stage = document.querySelector(".stage");
 
-  addScrub(threadWrap, function (el, vh) {
-    var p;
-    if (PHONE.matches) {
-      /* The window is deliberately long — about 1.4 screens of travel for
-         the whole beat. A first attempt ran it out in roughly a third of
-         that and the messages were gone before you could read them.
-         Staggered across that window, the early bubbles leave while the
-         thread is still high on screen and the last rows arrive while the
-         dashboard is, which is the right order to watch it in: they go,
-         then they land. */
-      /* Driven by the JOB ROWS, not by the top of the whole section. His
-         report: "the first one happens basically right as it enters the
-         bottom of the screen... you can't even tell that it happens because
-         it's so far at the bottom." He is right, and the reason is that the
-         old window was measured from the stage's top — which is the heading
-         and the card's header, several hundred pixels above the rows that
-         actually change. By the time a row was on screen its message had
-         already gone.
-
-         Measuring the space the rows occupy instead puts every switch in the
-         middle of the screen, where he is looking. */
-      var hb = jobsHold.getBoundingClientRect();
-      p = clamp((vh * 0.78 - hb.top) / (hb.height + vh * 0.34));
-    } else {
-      var r = el.getBoundingClientRect();
-      p = clamp(-r.top / Math.max(1, r.height - vh));
-    }
+  addScrub(threadWrap, function (el) {
+    var r = el.getBoundingClientRect();
+    var stageH = stage.getBoundingClientRect().height;
+    var p = clamp(-r.top / Math.max(1, r.height - stageH));
     divider.style.setProperty("--p", p.toFixed(4));
-    /* The collapse runs after the last message has landed (0.83), so no
-       scroll is spent on a half-empty screen. */
-    var c = clamp((p - 0.83) / 0.15).toFixed(3);
+    /* The beat is finished by 0.85 rather than 0.98. His note: "when you
+       get to the last part, you start scrolling away, like, instantly as
+       soon as it's done. And also it kinda cuts off some of it." So the last
+       15% of the hold is deliberately still — the finished day sits there
+       for about half a screen of scrolling before the section lets go. */
+    var c = clamp((p - 0.73) / 0.12).toFixed(3);
     lft.style.setProperty("--c", c);
     rgt.style.setProperty("--c", c);
     divider.style.setProperty("--c", c);
@@ -1888,7 +1899,7 @@ section{position:relative}
        where the hero closes while the next section assembles behind it. */
     var landed = 0, money = 0;
     for (var i = 0; i < bubs.length; i++) {
-      var s = 0.12 + i * 0.17, e = s + 0.20;
+      var s = 0.10 + i * 0.15, e = s + 0.18;
       var f = clamp((p - s) / (e - s));
       bubs[i].style.setProperty("--f", f.toFixed(3));
       rows[i].style.setProperty("--f", f.toFixed(3));
@@ -1918,6 +1929,17 @@ section{position:relative}
      CSS properties instead of a pinning library; the travel is the only
      part that needs script. */
   var railWrap = document.getElementById("railWrap");
+  /* His note: the heading and the line under it are "already, like, for some
+     reason there" by the time the section takes over. Measured: they finish
+     revealing while the wrapper's top is still 300px above the fold, and the
+     section then holds for another two and a half screens — so the entrance
+     is over long before the moment it belongs to.
+
+     They come out of the page-wide reveal and are driven by the pin instead,
+     so they arrive as the section locks. Everything else still reveals on
+     approach; this section earns the exception because it is the only one
+     that then holds still. */
+  var railHeadEls = document.querySelectorAll(".rail-head [data-rv], .rail-head .mask");
   var railTrack = document.getElementById("railTrack");
   var railbar = document.getElementById("railbar");
   var steps = Array.prototype.slice.call(railTrack.children);
@@ -1931,8 +1953,22 @@ section{position:relative}
   var railStage = document.querySelector(".rail-stage");
   var railTravel = 0;
   function sizeRail() {
-    /* clientWidth, not window.innerWidth: the scrollbar is not track. */
-    railTravel = Math.max(0, railTrack.scrollWidth - railTrack.clientWidth);
+    /* The travel is EXACTLY two step-advances — the distance from step one
+       centred to step three centred.
+
+       MEASURED WITH offsetLeft, NOT getBoundingClientRect. A step carries
+       `transform:scale(.95 + ...)` so that the one in the middle grows, and
+       getBoundingClientRect reports the SCALED box: an inactive step
+       measured 1012px instead of 1064, the travel came out 107px short, and
+       every step after the first landed progressively further right of
+       centre — 50px out on the second, 104px on the third. offsetLeft is a
+       layout position and no transform touches it, so the pitch it gives is
+       the real one.
+
+       General rule: if an element can be transformed, do not measure it with
+       a method that includes the transform. */
+    var pitch = steps.length > 1 ? steps[1].offsetLeft - steps[0].offsetLeft : 0;
+    railTravel = Math.max(0, pitch * (steps.length - 1));
     /* The script measures the TRACK and hands the number to CSS; it never
        writes a height built from window.innerHeight again. That is the whole
        iOS fix — see the .rail-wrap rule. */
@@ -1948,11 +1984,18 @@ section{position:relative}
     var p = clamp(-r.top / Math.max(1, r.height - stageH));
     railTrack.style.setProperty("--x", (p * railTravel).toFixed(1));
     railbar.style.setProperty("--p", p.toFixed(4));
-    /* Each step brightens and grows as it crosses the reading position —
-       momentolegal's mechanic at a quarter of its length. */
+    /* The heading arrives with the lock, not a screen before it. */
+    for (var h = 0; h < railHeadEls.length; h++) {
+      railHeadEls[h].classList.toggle("in", p > 0.012);
+    }
+    /* Whichever step is nearest the CENTRE is the lit one. It used to be
+       measured against a point 12% in from the left, which was right when
+       the steps were small and three were on screen, and wrong now that one
+       step IS the screen. */
+    var mid = window.innerWidth / 2;
     for (var i = 0; i < steps.length; i++) {
       var b = steps[i].getBoundingClientRect();
-      var d = Math.abs(b.left - window.innerWidth * 0.12) / (window.innerWidth * 0.55);
+      var d = Math.abs(b.left + b.width / 2 - mid) / (window.innerWidth * 0.62);
       steps[i].style.setProperty("--near", clamp(1 - d).toFixed(3));
     }
   });
@@ -2141,6 +2184,14 @@ section{position:relative}
      does not need to do. They are re-cached whenever the layout can
      actually have changed — fonts arriving, a width change, an orientation
      change — which is what measure() is for. */
+  /* Worked out once: which revealables belong to the rail's head and are
+     therefore driven by the pin rather than by approach. A closest() call
+     per element per scroll frame would be the lazy way and the wrong one. */
+  var inRailHead = [];
+  for (var q = 0; q < revealables.length; q++) {
+    inRailHead.push(!!revealables[q].closest(".rail-head"));
+  }
+
   var rvPos = [];
   function cacheReveals() {
     rvPos.length = 0;
@@ -2198,6 +2249,7 @@ section{position:relative}
        the arrival line. */
     for (var i = 0; i < revealables.length; i++) {
       var el = revealables[i];
+      if (inRailHead[i]) continue;        // driven by the pin, not by approach
       var isIn = el.classList.contains("in");
       var shown = rvPos[i] < (isIn ? line + vh * 0.18 : line);
       if (isIn === shown) continue;                          // nothing to do

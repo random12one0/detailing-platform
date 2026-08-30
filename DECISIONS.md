@@ -1296,6 +1296,29 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## Never measure a transformed element with getBoundingClientRect (2026-08-29)
+
+A rail step carries `transform:scale(.95 + .05 * var(--near))` so the one in
+the middle grows. The pan distance was computed from
+`steps[0].getBoundingClientRect().width`, which returns the **transformed**
+box — so an inactive step measured 1012px instead of its real 1064, every
+step-advance came out 5% short, and the error compounded: step two landed 50px
+right of centre, step three 104px.
+
+`offsetLeft` and `offsetWidth` are layout values and no transform touches
+them. The pitch is now `steps[1].offsetLeft - steps[0].offsetLeft`, which is
+also immune to however `gap` happens to resolve.
+
+**The rule: if an element can be transformed, do not measure it with a method
+that includes the transform.** This page animates by transform almost
+exclusively, so the trap is everywhere in it — the bubbles, the rows, the
+steps, the floating cards. Anything that measures one of them for layout
+purposes wants `offsetLeft` / `offsetWidth`, not a bounding rect.
+
+The one deliberate exception: the message-to-row flight distances DO use
+bounding rects, and correctly — they need where things are on screen right
+now, not where the layout says they belong.
+
 ## Test at HIS screen size, not yours (2026-08-29)
 
 A process lesson worth more than the fix it came from.

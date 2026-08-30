@@ -1220,6 +1220,112 @@ paths. Reveal sweep of 61 positions, down and back up, three viewports: 0
 stranded, 0 table rows faded while readable. The track reaches its full travel
 at all four widths. Four credential-free tests pass.
 
+## Round thirteen — the thread pins everywhere, the rail centres (2026-08-29)
+
+### The thread holds the screen now, at every width, for a fixed run
+
+> "you scroll to where the dashboard example fills the screen, then stop...
+> your screen kinda freezes, and then it changes the DMs into the bookings.
+> And then when you scroll again, obviously, the things come in."
+
+It now does exactly that on a phone as well as a desktop. **There is one
+formula instead of two.** The phone used to scrub the section's pass through
+the viewport rather than pin — which is what made the switches land at the
+bottom edge, and what made the beat finish at a different point depending on
+how tall the section happened to be. He asked for the opposite: *"it shouldn't
+be dynamic to the page size... it should be a set amount of scroll."*
+
+The run is now **1.90 screens of hold at every width** — 1920, 1440, 768 and
+392 all measured identically. It is expressed in `svh` rather than pixels, so
+it is the same number of flicks on a phone as on a monitor, which is the thing
+that actually feels consistent.
+
+**Pinning on a phone is safe now for a reason, not by hope.** It was removed in
+round three because it genuinely broke on his iPhone, and the cause was always
+the same one thing: progress was measured against `window.innerHeight`, which
+iOS changes every time the URL bar hides. That value no longer appears in this
+section — the denominator is the wrapper's height minus the stage's own
+height, both `svh`-based, both still while you scroll.
+
+**And the ending holds.** His note: *"when you get to the last part, you start
+scrolling away, like, instantly as soon as it's done. And also it kinda cuts
+off some of it."* The beat used to run to 0.98 of the hold. It now finishes at
+0.85, so the last 15% — about half a screen of scrolling — is a still shot of
+the finished day before the section lets go. Verified: all four rows are done
+by 75% of the hold and stay done.
+
+### Every rail step lands dead centre
+
+> "number one is all the way on the left side of the screen... and number
+> three is, like, not even centered. and it just looks really weird."
+
+Measured before: at the end of the pan the three centres sat at −1294, −180
+and **952** against a viewport centre of 720. Step three finished 232px right
+of where it should be.
+
+The track now has a lead-in of half the leftover width, so step one *starts*
+centred, and the travel is exactly two step-advances, so step three *ends*
+centred with step two centred halfway. Three steps, three stops.
+
+| | step 1 | step 2 | step 3 |
+|---|---|---|---|
+| 1920 (target 960) | 960 | 958 | 959 |
+| 1440 (target 720) | 720 | 716 | 718 |
+| 392 (target 196) | 196 | 196 | 198 |
+
+Within a couple of pixels of dead centre at every stop and every width.
+
+### The bug that caused the drift, and it is worth remembering
+
+The first attempt at this was still 50px out on step two and 104px on step
+three — a constant error compounding once per step, which meant the travel
+per step was short.
+
+**`getBoundingClientRect()` returns the TRANSFORMED box.** A step carries
+`transform:scale(.95 + …)` so the centred one grows, and an inactive step
+therefore measured 1012px wide instead of its real 1064. Every advance was
+5% short. Switched to `offsetLeft`, which is a layout position that no
+transform touches.
+
+General rule, now written into the file: **if an element can be transformed,
+do not measure it with a method that includes the transform.**
+
+### The rail's heading arrives with the lock
+
+> "the text below it kinda fades in as you scroll, but this is already, like,
+> for some reason there."
+
+Measured: the heading and its line finished revealing while the wrapper's top
+was still 300px above the fold — and the section then held for another two and
+a half screens, so the entrance was long over by the moment it belonged to.
+
+Those two elements are now taken out of the page-wide reveal and driven by the
+pin instead, so they arrive as the section locks. Verified at all three
+widths: opacity 0 just before the lock, 0.99 just after. Everything else on
+the page still reveals on approach — this section earns the exception because
+it is the only one that then holds still.
+
+### The page is longer, and that is what he asked for
+
+| | before | now |
+|---|---|---|
+| 1440 | 13.46 screens | **13.94** |
+| 392 | 12.83 screens | **14.91** |
+
+A pin reserves the height it holds. The thread now holds 1.9 screens on a
+phone where it previously held none, and the rail's travel grew. **The phone
+page is close to fifteen screens**, which is worth him seeing as a number
+rather than discovering by thumb — every screen of it now buys either a
+message becoming a row or a step crossing the view, but it is a long page.
+
+### Verified
+
+Console clean at **1920, 1440, 768 and 392** in both the normal and lite
+paths. Reveal sweep of 61 positions down and back up at three viewports: 0
+stranded, 0 table rows faded while readable. The thread's content fits inside
+its pinned stage at all four widths with nothing clipped. Four credential-free
+tests pass.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so
