@@ -86,67 +86,65 @@ Better than typical for this stage — there is a real, enforced design system:
 - **The platform sends through the live business's Resend account.** Same account (`andrewswashing@gmail.com`) that mails Andrew's Auto Detail's real customers. Platform sends accumulate against its reputation and suppression list. Flagged 2026-08-28, not decided.
 - **What I don't understand:** whether Netlify auto-publish is actually connected (HANDOFF vs DECISIONS disagree). ~~Why email produces nothing in Resend~~ — answered 2026-08-28, see above.
 
-## 6b. THE VISUAL REDESIGN, AS AT 2026-08-30
+## 6b. THE VISUAL REDESIGN — PHASE 1 IS CLOSED (2026-08-30)
 
-**Phase 1 is finished except for one look from the owner.** The direction is
-chosen, refined over fifteen rounds of his corrections, written up as a
-system, and enforced by rewritten tests.
+**Direction chosen, refined over fifteen rounds of his corrections, written
+up as a system, enforced by rewritten tests, and APPROVED.** Nothing in
+phase 1 is outstanding.
 
-- **Roadmap 1.1/1.2/1.3 done.** Seven reference sites read at code level
-  (`docs/references/ANALYSIS.md`), the owner's own words on how they MOVE
+- **1.1/1.2/1.3 done.** Seven reference sites read at code level
+  (`docs/references/ANALYSIS.md`), his own words on how they MOVE
   (`docs/references/TASTE-NOTES.md` — primary evidence), the brief
   (`docs/design-brief.md`), four directions built and rejected
   (`VERDICT.md`), and the rebuild — `docs/design-directions/5-the-thread.html`,
-  "The Thread" — approved by him 2026-08-29.
-- **Roadmap 1.5 done 2026-08-30.** `docs/design-system.md` is "The Thread"
-  and is law; `DESIGN.md` and `CLAUDE.md` say so; both design tests enforce
-  the new rules. **Direction-inventing skills are banned again from here.**
-  The device-tier question that was parked for 1.5 is closed inside that
-  file: Apple's strategy, never ask what the device is.
-- **Roadmap 1.4 is the ONE thing still open, and it needs only his eyes.**
-  Everything he has asked for is applied and verified. On 2026-08-29 he was
-  asked to approve and answered "cut a section — it's too long"; measurement
-  showed the two named candidates would have bought 5%, and the real cost was
-  the 01/02/03 rail at 4.07 screens of his 14.44. It was cut on his
-  instruction (README "Round fifteen"). **He has not yet seen the result:
-  10.41 screens at 1920, 11.26 at 1440, 14.14 on a phone.** He also kept the
-  "A Facebook page" row, which closes that question.
-- **The artifact is republished** and carries round fifteen:
-  https://claude.ai/code/artifact/e678cecb-94c3-4be8-9b4f-d3066b15b15e —
-  but **anyone opening the SHARED link still sees a pinned earlier version
-  until he moves the share pin from the page's share menu.** Only he can do
-  that. If the page looks like an older round, that is why; open it from the
-  artifacts gallery instead.
-- **POSITIONING, settled 2026-08-29 and unchanged:** we sell "a website and
-  the dashboard that runs it" as ONE purchase. The website half leads because
-  it is the half that is not a commodity; the dashboard is in the same
-  sentence, never a later section that reads as a bonus. His description of
-  the delivery model is `docs/tenant-websites.md`; the reasoning is
-  `DECISIONS.md` → "Positioning: what we sell is the pair", including its
-  correction section, which is the operative version.
+  "The Thread".
+- **1.4 approved 2026-08-30** — *"i approve it for now"*. The last change was
+  his: cut the 01/02/03 rail, after measurement showed the two sections the
+  README had nominated would have bought 5% while the rail cost 4.07 of his
+  14.44 screens. The page is **10.41 screens at 1920**, 11.26 at 1440, 14.14
+  on a phone. He also kept the "A Facebook page" row and moved the artifact's
+  share pin, so both of those are closed.
+- **1.5 done 2026-08-30.** `docs/design-system.md` is "The Thread" and is law;
+  `DESIGN.md`, `CLAUDE.md`, `PRODUCT.md` all say so. **Direction-inventing
+  skills are banned again from here — appliers and auditors only.** The
+  device-tier question parked for 1.5 is closed inside that file: Apple's
+  strategy, never ask what the device is. Both design tests rewritten;
+  `composition` is 22 checks, including a token-drift check that forces the
+  page, the document and the test to agree on all sixteen values.
+- **A coverage hole was found and fixed while rewriting the tests:** the
+  landing page had NO contrast coverage at all — the checks looked for
+  `--bg`/`--panel` where `landing.css` defines `--g`/`--p`, and each was
+  guarded by `if (token)`, so all five passed by doing nothing. Ten pairs
+  now, all passing. It was a hole, not a live defect.
+- **NO LIGHT THEME**, his decision 2026-08-30. The dashboard's light/dark
+  switch goes — **in roadmap 2.3, not before**; `app/` still ships the old
+  system where it works, and the four places it touches are scoped at the end
+  of `docs/design-system.md`.
+- **The one thing his answer did NOT settle, and it must not be inferred:
+  whether the customer booking page is dark or light.** It is light-first
+  today, deliberately, and that is a different surface from the dashboard
+  toggle. It is the first question of 2.1 and it is his. See `DECISIONS.md` →
+  "The owner's answers of 2026-08-30".
+- **POSITIONING, unchanged:** we sell "a website and the dashboard that runs
+  it" as ONE purchase. The website half leads because it is the half that is
+  not a commodity; the dashboard is in the same sentence, never a later
+  section that reads as a bonus. `docs/tenant-websites.md`, and `DECISIONS.md`
+  → "Positioning: what we sell is the pair", **including its correction
+  section**, which is the operative version.
 - **Copy is provisional by agreement.** The marketing deck he approved is
   built verbatim; the sections it did not touch — "What you get" rows, the
   terms, the footer — still carry their `LandingPage.jsx` wording and have
-  not been through him.
-- **Three things the new system deliberately does not settle**, and the first
-  is the first question of Phase 2: **whether there is a light theme at all**
-  (the evidence says drop it; it is a visible takeaway, so it is his call);
-  the tenant's curated four-to-six accent colours, which nobody has picked
-  and 2.4 needs; and the dashboard's own section skeletons, which are the
-  body of 2.3.
-- **Still unmeasured:** mid-range Android. Nothing uses WebGL so the risk is
-  low, but nobody has put a thumb on a cheap one.
+  never been through him. "For now" in his approval is pointing at this.
+- **Still open, not blocking:** the tenant's curated four-to-six accent
+  colours (2.4 needs them, nobody has picked them), the dashboard's own
+  section skeletons (the body of 2.3), and mid-range Android, which nobody
+  has put a thumb on. Nothing uses WebGL, so that risk is low.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
-0. **The owner looks at the shortened page and approves 1.4, or sends the
-   next round.** It is the only thing left in phase 1 and it is the only
-   thing that cannot be done without him. The rail is cut on his
-   instruction; he has not seen the result. See §6b. (~~The iPhone check~~
-   passed 2026-08-29 — closed, do not re-open.)
-0b. **He answers the light-theme question**, which is the first decision of
-   Phase 2 and blocks 2.3 and 2.4 rather than 2.1. See the end of
-   `docs/design-system.md`.
+0. **Start Phase 2.1 — the public booking page** — but ASK FIRST whether
+   it is dark or light. His "no light theme" of 2026-08-30 was about the
+   dashboard toggle and does not cover this surface. See §6b.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

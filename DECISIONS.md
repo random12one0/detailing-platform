@@ -1980,3 +1980,48 @@ is luck and not vindication.
 skipping turns a hole into a green tick, and a green tick is worse than no
 test because it stops anyone looking. Any guard of the form "only assert if
 the value was found" needs an `else` that prints or fails.
+
+## The owner's answers of 2026-08-30: 1.4 approved, no light theme
+
+Three things closed in one message: *"changed the pin, i approve it for now
+and yea no light theme needed."*
+
+**1.4 is approved.** "For now" is his own qualifier and it is recorded as
+written — the page is approved as the direction and the build, with copy
+still provisional by prior agreement (the sections the marketing deck did not
+touch have never been through him). Roadmap 1.4 is ticked; phase 1 is closed.
+
+**The artifact's share pin is moved**, so the shared link now serves the
+current page rather than a frozen earlier round. That had been silently
+serving stale versions to him on his phone since round six.
+
+**There is no light theme.** The dashboard's light/dark switch goes. The
+reasoning was put to him and is on the record: sunlight is not a constraint
+(`design-brief.md` §B5), a second theme doubles every contrast check and
+every tenant-accent retint test for as long as the product exists, and the
+identity is the dark ground. The cost — anyone who prefers a light UI loses
+it — was stated before he answered.
+
+**Nothing was ripped out today, and that is deliberate.** `app/` still ships
+"Raking Light", where light mode works correctly. Deleting it before the new
+dashboard exists would take a working feature away from a product that has
+not yet gained its replacement, for no benefit — the saving is in *future*
+work not done, not in code removed now. **The removal belongs to roadmap
+2.3**, and the four places it touches are scoped in `docs/design-system.md`
+so the session that does it does not have to rediscover them.
+
+### The trap in this answer, and why it is not being treated as settled
+
+His answer is about the DASHBOARD's toggle, because that is what he was
+shown. **It does not decide the customer booking page**, which is a
+separate surface and is deliberately light-first today:
+`app/src/book/BookingBusinessContext.jsx` says *"a customer arriving from a
+text message shouldn't inherit whatever theme the last dashboard user
+picked"*, and `booking.css` grounds it on `--bk-bg: #E7E7E5`.
+
+That comment is an argument about not inheriting a stranger's preference. It
+survives whichever ground wins and it does not choose one. Reading "no light
+theme" as "the booking page is now dark" would be **taking a decision he was
+never asked**, on the single highest-traffic customer-facing screen in the
+product — exactly the failure mode the "ask, do not infer" rule in this file
+exists for. It is the first question of roadmap 2.1 and it is his.

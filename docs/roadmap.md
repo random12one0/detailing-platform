@@ -152,7 +152,12 @@ is kept; the entire visual design restarts from scratch.
       page is 1.6 screens shorter on a phone. The `$520` section was
       rewritten because he could not tell what it was for. Cursor light
       halved; the dots now move at ~16px/s instead of 1.8px/s.
-- [ ] 1.4 Refine the winner once. **OWNER approves.**
+- [x] 1.4 Refine the winner once. **APPROVED BY THE OWNER 2026-08-30** —
+      *"i approve it for now"*, his qualifier, recorded as written: approved
+      as the direction and the build, with copy still provisional by the
+      earlier agreement. **Phase 1 is closed.** He also moved the artifact's
+      share pin, so the shared link finally serves the current page instead
+      of a frozen earlier round.
 
       **BUILT 2026-08-29 — every concrete change below is applied and verified
       by looking; the write-up is `docs/design-directions/README.md` rounds
@@ -427,6 +432,20 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 2.1 Public booking page `/book/:slug` (heaviest weight: customers
       use it and prospects judge it) — including the empty-state rule: a
       business with two services and no photos must look intentional.
+
+      **FIRST QUESTION, AND IT IS THE OWNER’S: is this page dark or light?**
+      He settled the DASHBOARD’s light/dark switch on 2026-08-30 ("no light
+      theme needed"), but this is a different surface and it is light-first
+      today on purpose — `BookingBusinessContext.jsx`: *"a customer arriving
+      from a text message shouldn’t inherit whatever theme the last dashboard
+      user picked"*, grounded on `--bk-bg: #E7E7E5`. That reasoning is about
+      not inheriting a stranger’s preference and survives either ground; it
+      does not choose one. Dark is what the system says and what the
+      reference page shows; light is defensible because this is the one
+      screen a stranger opens once, on a phone, possibly outdoors, with no
+      idea what the brand is. **Ask before building — do not read his
+      dashboard answer as covering this.** See `DECISIONS.md` → "The owner’s
+      answers of 2026-08-30".
 - [ ] 2.2 Marketing/landing page.
 - [ ] 2.3 Dashboard — all five tabs and every settings screen.
 - [ ] 2.4 Per-tenant recoloring — test extreme accents (neon, near-black),

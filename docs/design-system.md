@@ -160,6 +160,14 @@ Not suggestions. Where a test enforces one, it is named.
     licence question by not having it, which matters for something we sell.
     *Enforced by `tests/composition.test.mjs`.*
 
+14. **One ground. There is no light theme.** Owner decision 2026-08-30 —
+    *"no light theme needed"* — and it is a decision about the dashboard's
+    light/dark switch, which goes. The light band (`--paper`) is the only
+    light surface in the product, and it is a change of ground inside a dark
+    page, not a second palette. The removal itself happens in roadmap 2.3
+    and is scoped at the end of this file; do not rip it out of the shipped
+    app before the new dashboard exists.
+
 ---
 
 ## Tokens
@@ -409,25 +417,52 @@ The look did not. These did, and they are contracts rather than style:
 Named rather than invented. Direction-inventing is banned from here on, so
 these go to the owner rather than being decided by a skill.
 
-1. **There is no light theme.** The direction is one dark ground with light
-   *bands*; the old system had a full `[data-theme="light"]` for the
-   dashboard, and `theme.css` still does. Phase 2.3 and 2.4 need an answer.
-   **The evidence points at dropping it**: sunlight is not a constraint
-   (`design-brief.md` §B5), a second theme doubles every contrast check and
-   every retint test, and the identity is the dark ground. **Recommendation:
-   drop the light theme; keep the light band as the only light surface.**
-   The counter-argument is that some people simply prefer light UI and a
-   toggle already exists, so removing it is a visible takeaway. His call —
-   this is the first question of Phase 2.
-2. **The tenant's curated accent set has no colours in it yet.** He decided
+1. ~~**There is no light theme.**~~ **SETTLED 2026-08-30 by the owner: "no
+   light theme needed."** The dashboard's light/dark switch goes. One ground,
+   with the light band as the only light surface.
+   - **This is about the DASHBOARD's toggle**, which is the thing he was
+     asked about. It does not by itself decide the customer booking page,
+     which is a separate surface — see item 2.
+   - **Nothing is ripped out yet, deliberately.** `app/` still ships the OLD
+     system, where light mode works; deleting it before the new dashboard
+     exists would degrade a working product for no gain. **The removal
+     happens in roadmap 2.3**, and it touches exactly four places:
+     `app/src/theme.css` (three `[data-theme]` blocks),
+     `app/src/lib/theme.js` (`THEME_BG`, `DEFAULT_ACCENT`, `brandVarsFor`'s
+     mode argument, and the stored preference), `app/src/screens/more/
+     Appearance.jsx` (the Light/Dark chips), and the per-user preference key.
+     `tests/design-contrast.test.mjs`'s "outgoing: dashboard light" block goes
+     with it.
+   - The reasoning, on the record: sunlight is not a constraint
+     (`design-brief.md` §B5), a second theme doubles every contrast check and
+     every tenant-accent retint test forever, and the identity is the dark
+     ground. The cost is that anyone who prefers light UI loses it; he
+     accepted that.
+
+2. **The customer booking page is light-first, and that is NOT decided by
+   item 1.** `app/src/book/BookingBusinessContext.jsx` sets it deliberately —
+   *"a customer arriving from a text message shouldn't inherit whatever theme
+   the last dashboard user picked"* — and `booking.css` grounds it on
+   `--bk-bg: #E7E7E5`. That reasoning is about not inheriting a stranger's
+   preference, and it survives whichever ground wins; what it does not do is
+   choose the ground. **This is the first question of roadmap 2.1** and it is
+   a direction question, so it is his. The system's own ground is dark and
+   the reference page shows the booking panel on a dark site, which is the
+   argument for dark; the argument for light is that this is the one screen a
+   stranger opens once, on a phone, possibly outdoors, with no idea what the
+   brand is.
+
+3. **The tenant's curated accent set has no colours in it yet.** He decided
    "a curated four to six, customer-facing only"; nobody has picked the four
    to six. Needed before 2.4.
-3. **The dashboard's own skeletons are undrawn.** Law 1 says every section
+
+4. **The dashboard's own skeletons are undrawn.** Law 1 says every section
    gets a different one, and the landing page has nine worked examples; the
    five dashboard tabs and eleven settings screens have none. That is the
    body of 2.3, and it is where this system will actually be tested — a
    marketing page is a much easier thing to be beautiful on.
-4. **Mid-range Android is still unmeasured** (`README.md` "Still open" #4).
+
+5. **Mid-range Android is still unmeasured** (`README.md` "Still open" #4).
    Nothing uses WebGL so the risk is low, but nobody has put a thumb on a
    cheap Android.
 
