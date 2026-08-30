@@ -33,19 +33,25 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 ## Design
 
-- VISUAL REDESIGN IN PROGRESS (owner decision 2026-08-28, see `DESIGN.md`).
-  The old system `docs/design-system.md` ("Raking Light") is deprecated as
-  identity — evidence and anti-reference only. Do not apply it or polish
-  toward it. Backend, content, copy facts, and accessibility floors are
-  kept; only the visual world is being replaced.
-- During the redesign phase, direction-generating design skills ARE
-  allowed — that phase is their job. Once the new direction is chosen and
-  written into a rewritten `docs/design-system.md` (with rewritten design
-  tests), the skill-collision rule locks back in: auditors and appliers
-  only, no more direction-inventing.
-- The old design tests (composition, design-contrast) encode the OLD
-  system; expect them to be rewritten with the new one. Don't contort new
-  work to pass old-look tests.
+- **The system is `docs/design-system.md` — "The Thread"** (written
+  2026-08-30, roadmap 1.5). Read it before touching anything a person looks
+  at. The reference rendering is `docs/design-directions/5-the-thread.html`,
+  the page the owner approved; **where the document and that page disagree,
+  the page is right.** See `DESIGN.md`.
+- **The skill-collision rule is BACK ON.** Appliers and auditors only —
+  `impeccable`, `animate`, `ship-check`. No direction-generating skill
+  (`frontend-design`, `tastemaker`, `great-design`, `scrollcraft`) runs
+  against this product again unless the owner reopens the direction. The
+  design system outranks any skill's opinion.
+- "Raking Light" is finished as an identity and its file is gone. What
+  survived it — the accessibility floors, the `lib/theme.js` colour rule,
+  define-tokens-once, the composition rule, the content and copy facts — is
+  listed in the new file under "§11". Backend, content, copy facts and
+  accessibility floors were always kept; only the visual world changed.
+- The design tests enforce the NEW rules: `tests/composition.test.mjs`
+  (22 checks) and `tests/design-contrast.test.mjs`. Don't contort work to
+  pass them — if a test and a real design decision collide, the system file
+  gets updated first, never silently.
 - Never-defaults (in addition to the design system): Inter/Roboto/Arial/
   system-ui/Space Grotesk as design choices; purple-blue gradients on
   white; three evenly spaced cards; numbered markers on non-sequences;

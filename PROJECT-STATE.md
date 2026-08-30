@@ -1,6 +1,6 @@
 # PROJECT-STATE.md
 
-Investigated 2026-08-28 by reading the files cited below. Claims not backed by a read are marked **(guess)**.
+Investigated 2026-08-28, updated through 2026-08-30, by reading the files cited below. Claims not backed by a read are marked **(guess)**.
 
 ## 1. WHAT IT IS
 
@@ -40,14 +40,21 @@ Routes (`app/src/main.jsx`, verified by `tests/route-contract.test.mjs`):
 
 Better than typical for this stage — there is a real, enforced design system:
 
-- **System: BEING REPLACED.** `DESIGN.md` (owner decision 2026-08-28)
-  deprecates the system below as identity — it is evidence and anti-reference
-  only, and nothing new should be polished toward it. Four directions were
-  built and rejected 2026-08-29 (`docs/design-directions/VERDICT.md`), and
-  the rebuilt one — **`5-the-thread.html`, reviewed and approved by the owner
-  the same day** — is the direction. See §6b for the one thing still
-  unverified. The new system gets written in roadmap 1.5. The description
-  that follows is the OLD look.
+- **System: WRITTEN AND LAW AGAIN, 2026-08-30 (roadmap 1.5).**
+  `docs/design-system.md` is now **"The Thread"** — thirteen laws, sixteen
+  tokens, a two-face type scale, the composition grammar, the verification
+  routine, the never-defaults, and what survived the old system. The
+  reference rendering is `docs/design-directions/5-the-thread.html`, the page
+  the owner approved, and **where the document and that page disagree the
+  page is right.** The skill-collision rule is back on: appliers and auditors
+  only. Both design tests were rewritten to enforce the new rules —
+  `composition` is 22 checks now, including a token-drift check that makes
+  the page, the document and the test agree on all sixteen values.
+  **Not yet applied to `app/` — that is the whole of Phase 2.** The
+  description that follows is the OLD look, which is still what ships.
+- **Fonts (new system):** exactly two — **Archivo**, one variable face worked
+  across both axes (`wdth` 62–125, `wght` 100–900), and **JetBrains Mono**
+  for every figure. Down from three.
 - **Old system:** `docs/design-system.md` ("Raking Light") was explicit law: matte near-black ground, exactly one "lit" element per screen, tokens defined once in `theme.css` (`:root` dark + `[data-theme="light"]` + `--bk-*` booking mirror). Enforced by tests: `composition.test.mjs`, `design-contrast.test.mjs` — all passing when I ran them.
 - **Fonts:** exactly three, loaded from Google Fonts in `app/index.html`: Anybody (variable width — titles/labels), Public Sans (prose), DM Mono (every figure, tabular-nums).
 - **Tokens vs hardcoded:** discipline is real. The only hex colors in JS live in `lib/theme.js` (the designated color-math file) and Google-logo colors in Auth **(guess for exact location of the Google hexes — I found the file set, didn't trace each)**. CSS uses `var(--…)` throughout.
@@ -79,80 +86,67 @@ Better than typical for this stage — there is a real, enforced design system:
 - **The platform sends through the live business's Resend account.** Same account (`andrewswashing@gmail.com`) that mails Andrew's Auto Detail's real customers. Platform sends accumulate against its reputation and suppression list. Flagged 2026-08-28, not decided.
 - **What I don't understand:** whether Netlify auto-publish is actually connected (HANDOFF vs DECISIONS disagree). ~~Why email produces nothing in Resend~~ — answered 2026-08-28, see above.
 
-## 6b. THE VISUAL REDESIGN, AS AT 2026-08-29
+## 6b. THE VISUAL REDESIGN, AS AT 2026-08-30
 
-The one live thread. `DESIGN.md` and `CLAUDE.md` both say the old system
-("Raking Light", `docs/design-system.md`) is deprecated as identity — evidence
-and anti-reference only. Backend, content, copy facts and accessibility floors
-are kept; only the visual world is being replaced.
+**Phase 1 is finished except for one look from the owner.** The direction is
+chosen, refined over fifteen rounds of his corrections, written up as a
+system, and enforced by rewritten tests.
 
-- **Roadmap 1.1/1.2 are done.** Seven reference sites read at the code level
-  (`docs/references/ANALYSIS.md`, 1,669 lines — the frame for everything
-  visual), the owner's own words on how they move
-  (`docs/references/TASTE-NOTES.md` — primary evidence), and the brief
-  interview (`docs/design-brief.md`). Apple was read too
-  (`docs/references/APPLE-READ.md`) but is **one input among eight, not the
-  frame** — the owner said so explicitly.
-- **Roadmap 1.3, first attempt: all four directions rejected**, 2026-08-29.
-  `docs/design-directions/VERDICT.md` is the review, in his words. The brief
-  was wrong, not the execution: they sold car detailing, and the product is a
-  dashboard plus a website sold to a detailer who books through DMs, Yelp and
-  Google.
-- **Roadmap 1.3, rebuild: `docs/design-directions/5-the-thread.html`,
-  "The Thread". Built 2026-08-29, verified, committed — and NOT yet seen by
-  the owner.** That is the only thing outstanding in phase 1.
-  - The plan is `docs/design-directions/BUILD-BRIEF.md`; **§7 carries the
-    owner's answers and overrides §2 of the same file.**
-  - One HTML file, no build step, **zero third-party JavaScript** — which is
-    also how the GSAP Club licence question got closed.
-  - Grammar: one continuous ground, eight structurally different sections.
-    The two-column comparison is two of them, which is the cap he set.
-  - Nothing in `app/` was touched. Phase 1 picks a look; phase 2 applies it.
-- **REVIEWED and APPROVED by the owner 2026-08-29** — "so much better",
-  "the layout is good, I like it". The two-column beat did NOT read as a
-  before/after of a car. Three rounds of his corrections are in and verified;
-  see `README.md` "Round two" and "Round three".
-- **The one blocker: the iPhone fix is unverified.** The pinned section broke
-  on his iPhone ("it glitches out"). Phones no longer pin at all — the
-  transfer is scrubbed through the viewport, with `svh` units and width-gated
-  resize, which removes both known iOS Safari failure classes. Verified at
-  392/768/1440 with touch emulation, which is NOT iOS Safari. He has to
-  reopen it on the phone and confirm. Nothing else in 1.4 depends on it.
-- **POSITIONING CHANGED 2026-08-29, and it is the biggest open thread in the
-  project.** The owner: "there's already a lot of those out there [booking
-  engines], so my main advertisement should be a custom website." Every
-  detailer gets a bespoke site, not a template — his words, and it closes the
-  open decision that was sitting in roadmap 3.4. His full description is
-  `docs/tenant-websites.md` (written because it existed only in a chat); the
-  marketing reasoning is `DECISIONS.md` → "Positioning: the website is the
-  product"; the concrete page changes are roadmap **1.4**.
-  Two things settled the same day, both by him:
-  **(1)** It is ONE build, not a website with extras — "it's combined... we're
-  building this website and admin dashboard for you kinda thing... I don't
-  want that to be lost." The website half leads because it is the half that is
-  not a commodity; the dashboard is deliberately standard for everyone and
-  belongs in the same sentence, never in a later section.
-  **(2)** "Fork the presentation, never the engine" is CONFIRMED — the back
-  end (Supabase, Resend, booking logic, dashboard) is identical for every
-  client, the front end is custom, and a site must still implement whatever
-  the dashboard's features need to work.
-  A flag I raised and he correctly dismissed: nothing is sold until everything
-  is finished, so the page being ahead of Phase 3 is not a problem, and the
-  first client site is built by the kit, not by hand.
-- **Copy is provisional by agreement**, not an oversight: "in the future we'll
-  kind of critique the actual text on the page. For now, this is a good
-  layout." A copy pass is a named 1.4 task. Only "Stop booking jobs in your
-  DMs" has his explicit approval; the rest is carried over from
-  `app/src/landing/LandingPage.jsx`, which `DESIGN.md` says to keep.
-- **Carried into 1.4 regardless:** the dashboard's empty state is still
-  undrawn, and the device-tier question (`APPLE-READ.md`) is still a 1.5
-  decision.
+- **Roadmap 1.1/1.2/1.3 done.** Seven reference sites read at code level
+  (`docs/references/ANALYSIS.md`), the owner's own words on how they MOVE
+  (`docs/references/TASTE-NOTES.md` — primary evidence), the brief
+  (`docs/design-brief.md`), four directions built and rejected
+  (`VERDICT.md`), and the rebuild — `docs/design-directions/5-the-thread.html`,
+  "The Thread" — approved by him 2026-08-29.
+- **Roadmap 1.5 done 2026-08-30.** `docs/design-system.md` is "The Thread"
+  and is law; `DESIGN.md` and `CLAUDE.md` say so; both design tests enforce
+  the new rules. **Direction-inventing skills are banned again from here.**
+  The device-tier question that was parked for 1.5 is closed inside that
+  file: Apple's strategy, never ask what the device is.
+- **Roadmap 1.4 is the ONE thing still open, and it needs only his eyes.**
+  Everything he has asked for is applied and verified. On 2026-08-29 he was
+  asked to approve and answered "cut a section — it's too long"; measurement
+  showed the two named candidates would have bought 5%, and the real cost was
+  the 01/02/03 rail at 4.07 screens of his 14.44. It was cut on his
+  instruction (README "Round fifteen"). **He has not yet seen the result:
+  10.41 screens at 1920, 11.26 at 1440, 14.14 on a phone.** He also kept the
+  "A Facebook page" row, which closes that question.
+- **The artifact is republished** and carries round fifteen:
+  https://claude.ai/code/artifact/e678cecb-94c3-4be8-9b4f-d3066b15b15e —
+  but **anyone opening the SHARED link still sees a pinned earlier version
+  until he moves the share pin from the page's share menu.** Only he can do
+  that. If the page looks like an older round, that is why; open it from the
+  artifacts gallery instead.
+- **POSITIONING, settled 2026-08-29 and unchanged:** we sell "a website and
+  the dashboard that runs it" as ONE purchase. The website half leads because
+  it is the half that is not a commodity; the dashboard is in the same
+  sentence, never a later section that reads as a bonus. His description of
+  the delivery model is `docs/tenant-websites.md`; the reasoning is
+  `DECISIONS.md` → "Positioning: what we sell is the pair", including its
+  correction section, which is the operative version.
+- **Copy is provisional by agreement.** The marketing deck he approved is
+  built verbatim; the sections it did not touch — "What you get" rows, the
+  terms, the footer — still carry their `LandingPage.jsx` wording and have
+  not been through him.
+- **Three things the new system deliberately does not settle**, and the first
+  is the first question of Phase 2: **whether there is a light theme at all**
+  (the evidence says drop it; it is a visible takeaway, so it is his call);
+  the tenant's curated four-to-six accent colours, which nobody has picked
+  and 2.4 needs; and the dashboard's own section skeletons, which are the
+  body of 2.3.
+- **Still unmeasured:** mid-range Android. Nothing uses WebGL so the risk is
+  low, but nobody has put a thumb on a cheap one.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
-0. **The owner reopens `5-the-thread.html` on his iPhone** and says whether
-   the pinned-section fix works. It is the only unverified thing in phase 1.
-   See §6b.
+0. **The owner looks at the shortened page and approves 1.4, or sends the
+   next round.** It is the only thing left in phase 1 and it is the only
+   thing that cannot be done without him. The rail is cut on his
+   instruction; he has not seen the result. See §6b. (~~The iPhone check~~
+   passed 2026-08-29 — closed, do not re-open.)
+0b. **He answers the light-theme question**, which is the first decision of
+   Phase 2 and blocks 2.3 and 2.4 rather than 2.1. See the end of
+   `docs/design-system.md`.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

@@ -374,10 +374,53 @@ is kept; the entire visual design restarts from scratch.
         touch — the $520 strip, "What you get" rows 01/03/04, the rail steps,
         the terms, the footer — still carry the old wording and still have not
         been through him.
-- [ ] 1.5 Write the new `docs/design-system.md` (replacing "Raking Light"),
+- [x] 1.5 Write the new `docs/design-system.md` (replacing "Raking Light"),
       and rewrite the design tests to enforce the NEW rules. From this
       point the new system is law and direction-inventing skills are
       banned again.
+
+      **DONE 2026-08-30.** `docs/design-system.md` is now **"The Thread"**:
+      thirteen laws, the sixteen tokens, the two-face type scale, the
+      composition grammar, the verification routine (four widths, 1920
+      included), the never-defaults, and what survived Raking Light. The
+      reference rendering is `docs/design-directions/5-the-thread.html` and
+      the file says plainly that where the two disagree, **the page wins** —
+      it is the thing he approved. `DESIGN.md` and `CLAUDE.md` are updated:
+      **the skill-collision rule is back on from here — appliers and auditors
+      only.**
+
+      **Both design tests rewritten.** `composition` went from 5 checks to
+      22: the two rules that carried over word for word (records are lists, a
+      two-to-four choice is not a dropdown), plus no third-party animation
+      library, exactly two type faces, no never-default font as a first
+      family, one easing curve, exits faster than entrances, and — the one
+      that actually prevents drift — **all sixteen tokens must agree across
+      the page, the document and the test.** `design-contrast` measures every
+      pair the document promises; the tightest is `--fog-2` on `--ink-2` at
+      4.59:1, which is why that token may not be darkened.
+
+      **A hole was found while rewriting: the landing page has had NO contrast
+      coverage since the check was written.** Every landing row looked for
+      `--bg` and `--panel`; `landing.css` calls them `--g` and `--p`, and each
+      row was guarded by `if (token)`, so all five silently passed by doing
+      nothing. Now checked properly — ten pairs, all passing, so it was a
+      coverage hole and not a live defect. The lesson is in `DECISIONS.md`.
+
+      **The device-tier question is CLOSED here**, which is where the roadmap
+      put it: Apple's strategy, not riangle's — never ask what the device is,
+      ask whether the thing arrived. No `deviceMemory`, no user-agent tiering.
+      `.lite` plus reduced-motion plus "nothing is hidden behind an animation"
+      is the whole defence. An fps governor is the one piece worth borrowing
+      later, when something measured drops frames.
+
+      **Three things this file deliberately does NOT settle**, listed at its
+      end rather than invented, because direction-inventing is banned from
+      here: **the light theme** (the evidence says drop it — sunlight is not a
+      constraint and a second theme doubles every contrast and retint check —
+      but it is a visible takeaway and it is his call, and it is the first
+      question of Phase 2); the tenant's curated four-to-six accents, which
+      nobody has picked; and the dashboard's own skeletons, which are the body
+      of 2.3 and where this system will actually be tested.
 
 ## Phase 2 — Apply the new look everywhere
 

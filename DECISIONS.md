@@ -1912,3 +1912,71 @@ between 82% and the bottom edge is correctly still hidden.
 
 **Rule: before believing a new measurement about a change, run it against the
 version before the change.** Two numbers are diagnosable; one is not.
+
+## The new design system, and what it deliberately leaves open (2026-08-30)
+
+Roadmap 1.5. `docs/design-system.md` is now **"The Thread"**, replacing
+"Raking Light". Three choices inside it are worth recording as choices rather
+than as facts.
+
+**The reference page outranks the document.** The file says plainly that
+where `docs/design-system.md` and `docs/design-directions/5-the-thread.html`
+disagree, the page is right and the document is stale. That is unusual — a
+system file normally outranks an implementation — and it is deliberate: the
+page is the artefact the owner reviewed and approved through fifteen rounds,
+and the document is a description of it written afterwards. A description
+that can overrule the thing it describes is how a system quietly stops
+matching what shipped.
+
+**The tests measure the reference page, not `app/src`.** `app/` has not been
+restyled — that is the whole of Phase 2 — so a test asserting the new tokens
+against `theme.css` would fail for months, and CLAUDE.md requires the four
+credential-free tests to pass at the end of every session. A test suite that
+is expected to fail is a test suite nobody reads. `design-contrast` therefore
+reads `theme.css` **if it defines `--ink-0`** and the reference page
+otherwise, so the switch happens by itself the moment Phase 2 lands the
+tokens, with no edit. The outgoing palettes stay checked in the meantime,
+because they are what actually ships today and a floor that stops being
+enforced during a long migration fails silently.
+
+**The device-tier question is closed, not deferred.** The roadmap parked it
+for 1.5. The answer is Apple's, per `docs/references/APPLE-READ.md`: never
+ask what the device is, ask whether the thing arrived. No `deviceMemory`, no
+`hardwareConcurrency`, no user-agent tiering — guessing quality from hardware
+buys less than a load timeout, and its failure mode is blacklisting a browser
+by name. The defence is `.lite` (one code path, the same CSS the animation
+targets), `prefers-reduced-motion` routed into it, and the rule that nothing
+is ever hidden behind an animation. An fps governor is the one piece worth
+borrowing from riangle later, when something measured drops frames — not now,
+with no WebGL anywhere on the page.
+
+**What it does NOT settle, and why that is not a gap.** Direction-inventing
+is banned from 1.5 onward, so three things are named at the end of the file
+instead of being decided by a session: whether a light theme exists at all,
+which colours the tenant's curated four-to-six are, and the dashboard's own
+section skeletons. The light theme is the interesting one — the evidence
+points at dropping it (sunlight is not a constraint per `design-brief.md`
+§B5, a second theme doubles every contrast check and every retint test, and
+the identity is the dark ground), but a toggle exists today and removing it
+is a visible takeaway. **Recommendation on the record: drop it, keep the
+light band as the only light surface.** His call, and it is the first
+question of Phase 2 rather than a blocker for 2.1.
+
+## A skipped check reads exactly like a passing one (2026-08-30)
+
+`tests/design-contrast.test.mjs` had five rows for the landing page, each
+guarded by `if (Ld.i && Ld.bg)`. `landing.css` has never defined `--bg` or
+`--panel` — it calls them `--g` and `--p` — so every one of those guards was
+false and **all five rows silently did nothing.** The landing page has had no
+contrast coverage at all for as long as the check has existed, and the suite
+reported "all pairs pass" the whole time.
+
+Found only because the rewrite made a skipped row print `skip (token
+missing)` instead of vanishing. Corrected to the real token names: ten pairs
+now, all passing — so it was a coverage hole rather than a live defect, which
+is luck and not vindication.
+
+**Rule: a check that cannot find its input must say so out loud.** Silently
+skipping turns a hole into a green tick, and a green tick is worse than no
+test because it stops anyone looking. Any guard of the form "only assert if
+the value was found" needs an `else` that prints or fails.

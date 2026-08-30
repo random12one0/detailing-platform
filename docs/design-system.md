@@ -1,275 +1,456 @@
-# Design system — "Raking Light"
+# Design system — "The Thread"
 
-**Read this before touching anything a person looks at.** Every visual decision
-in the product derives from this file. If a change contradicts it, either the
-change is wrong or this file gets updated first — never silent drift. Drift back
-to generic-SaaS defaults is the failure mode this document exists to prevent.
+**Read this before touching anything a person looks at.** Every visual
+decision in the product derives from this file. If a change contradicts it,
+either the change is wrong or this file gets updated first — never silent
+drift. Drift back to generic-SaaS defaults is the failure mode this document
+exists to prevent.
 
-Chosen by the owner from four rendered directions (2026-08-27), refined once:
-Syne replaced by Anybody, glow made real. Reference renders:
+**This file outranks any skill's opinion.** From roadmap 1.5 onward the
+skill-collision rule is back on: auditors and appliers only
+(`impeccable`, `animate`, `ship-check`). No direction-inventing skill runs
+against this product again unless the owner reopens the direction.
 
-- Refined direction: https://claude.ai/code/artifact/14fd0857-9f21-4b98-938c-0cea97775dda
-- The four-direction round: https://claude.ai/code/artifact/6b9b0fe2-2f5c-400b-9585-3ec0398e5287
+## Where it came from
+
+Replaces **"Raking Light"** (chosen 2026-08-27, deprecated as identity
+2026-08-28 by the owner's decision in `DESIGN.md`). His answer when asked
+what was worth keeping was *"Nah. Throw it out. It's all fine."* — so
+nothing carries over from it as a look. The old file is anti-reference; its
+useful residue is listed in **§11**.
+
+The direction is **`docs/design-directions/5-the-thread.html`**, built
+2026-08-29 and approved by the owner the same day — *"so much better", "the
+layout is good, I like it"* — then taken through fifteen rounds of his
+corrections. That file is the reference rendering and the tie-breaker: where
+this document and that page disagree, **the page is right and this document
+is stale**, because the page is what he approved.
+
+The evidence underneath it, in the order it should be read:
+
+| file | what it is |
+|---|---|
+| `docs/design-directions/README.md` | every round, what was found by looking, what it cost |
+| `docs/design-directions/BUILD-BRIEF.md` | the plan — **§7 carries his answers and overrides §2** |
+| `docs/design-directions/VERDICT.md` | why the first four directions were killed |
+| `docs/references/ANALYSIS.md` | his seven reference sites read at code level — the frame |
+| `docs/references/TASTE-NOTES.md` | his own words on how those sites MOVE (primary evidence) |
+| `docs/design-brief.md` | the interview; §B4 and §B5 are the load-bearing answers |
+| `docs/references/APPLE-READ.md` | one input among eight, not the frame — his instruction |
+| `docs/design-knowledge.md` | the anti-slop floor; §1 is not negotiable by any skill |
+
+---
 
 ## The idea
 
-The product borrows the detailer's own instrument. A detailer judges work under
-an inspection light — a hard beam over a matte panel that reveals what ambient
-light hides. So the interface is a **matte, near-black surface where one thing
-is lit**: the next job, the current step, the unsaved change. The reference
-object is an **instrument cluster**: wide luminous type on matte black.
+A detailer's Saturday already exists. It is just scattered across a text
+thread, a Yelp inbox and a note on a phone. **The product does not add work;
+it sorts what is already there.** So the interface is one continuous dark
+ground that the reader travels down, and the work of the design is
+*gathering* — scattered things resolving into ordered ones as you go.
 
-Dark is the home theme — the glow lives there. Light is the disciplined daytime
-working mode: same structure, tinted bar instead of bloom, because a halo on
-white reads as a printing error.
+That is why the signature move is four text messages becoming four rows of a
+schedule, and why there is exactly one accent: the page is mostly the ground
+and the type, and the green is what marks the thing that has landed.
+
+Dark is not a mood choice and it is not a default. It was tested against the
+one condition that would have killed it — *"Sunlight is NOT a constraint"*
+(`design-brief.md` §B5): the dashboard is read before and after a job, not
+out in the sun mid-detail. Dark stays on its merits.
+
+---
 
 ## The laws
 
-These are the rules that keep the direction alive. They are not suggestions.
+Not suggestions. Where a test enforces one, it is named.
 
-1. **One light per screen.** The bar + bloom marks the screen's single primary
-   object. On Today that is the next job; on a booking step, the current step's
-   card; on a settings screen, the block with unsaved changes (or nothing).
-   *Selection is a different, quieter state*: tinted border, no bloom. A button
-   halos only when it is the primary action. If two things glow, one of them is
-   wrong. Glow-on-everything is how this direction dies.
+1. **One continuous ground, and every section a different skeleton over
+   it.** His words: *"throughout the entire website no one scroll area, one
+   page looked the same — as you scroll everything morphs into different
+   layouts."* Two sections that share a skeleton is the failure. The landing
+   page runs nine sections and nine skeletons; a dashboard screen is not
+   exempt, it just has fewer.
+   *Enforced by `tests/composition.test.mjs`.*
 
-2. **Glow is additive, never the only signal.** Every lit element also lifts its
-   surface (`--surface-lit`) and warms its border toward the accent. In direct
-   sun the bloom disappears; the value and edge shift must still carry the
-   hierarchy. You may lose the beauty in glare — never the information.
+2. **Something is always animating.** His requirement, recorded in
+   `BUILD-BRIEF.md` §7 and easy to lose in a refactor. The ground carries
+   drifting lights, a dot lattice and grain that never stop. A screen where
+   all motion is triggered is a screen that is dead while you read it.
 
-3. **Three voices, one product.**
-   - *Titles and the wordmark*: Anybody, wide (`wdth` 112–116), 700.
-   - *Labels/eyebrows*: Anybody, narrow (`wdth` 88), 600, letter-spacing .16em,
-     uppercase.
-   - *Prose and controls*: Public Sans 400/600.
-   - *Every figure* — money, time, counts: DM Mono 400/500,
-     `font-variant-numeric: tabular-nums`. No exceptions; a price set in the
-     body face is a bug.
+3. **Motion is not spendable.** *"I don't want us to lose any of that cool
+   animations and scrolling effects... we might have to change them up,
+   switch them, the order, maybe completely redo some of them."* Re-point a
+   mechanic, re-order it, rebuild it — do not quietly end up with fewer
+   because a new layout was easier to lay out flat. If a mechanic is
+   deliberately dropped, say so and say why, the way round ten did.
+   *Enforced by `tests/composition.test.mjs`.*
 
-4. **The tenant's accent is not the identity.** Tenants pick any colour; it
-   passes through `app/src/lib/theme.js` (`correctAccent` → `inkFor`) against
-   the active theme's ground. The identity lives in the matte ground, the one
-   light, and the type voices — all untouchable by the accent. `lib/theme.js`
-   is the ONLY file that computes or writes colour from JS.
+4. **Two motion presets and nothing else: reveal, and scrub.** One rAF
+   listener, one ease, transform and opacity only. Ad-hoc durations are how
+   a page ends up feeling like a pile of effects instead of one system.
+   Exits are faster than entrances (`--t-exit` against `--t-reveal`).
+   *Enforced by `tests/composition.test.mjs`.*
 
-5. **Legibility beats style.** Text ≥ 4.5:1 on every surface it sits on, both
-   themes, measured — including muted text on the bare ground, where section
-   labels sit. Non-text interactive edges ≥ 3:1.
+5. **Reveals are position-driven and reversible, and the arrival line is
+   not the departure line.** An element arrives when its top crosses 82% of
+   the screen; it does not leave until it is past the bottom edge. The band
+   between them is exactly as wide as the easing at the end of a scroll
+   container can travel, so the two lines can never cross and nothing
+   oscillates. Two consequences that were both real bugs: the trigger line
+   must stay reachable at maximum scroll, and **anything that changes the
+   document's height must re-cache positions** — a `<details>` toggle, a
+   font arriving, a width change.
+
+6. **A pin must return more than it costs, and it declares its cost.** A
+   locked section's floor is about **1.8 screens** before any beat happens —
+   one screen of sticky stage plus the stillness budgeted at each end — so
+   the question is never "should this pin" but "does it buy two screens".
+   The thread holds 3.0 screens for four beats and prints *"holds for 3.0
+   screens · then releases"* on itself. Nothing else on the product pins.
+
+7. **Distribute the beats linearly across a hold; ease each beat
+   individually.** Easing the whole hold crushes every beat into its middle
+   — measured, and worse than the problem it was fixing. Inside a lock the
+   page also gets heavier: a wheel notch carries half as far and the
+   smoothing may not bank more than 0.55 of a screen. See DECISIONS.md,
+   "Ease the beat, not the hold".
+
+8. **Two faces, and every figure is monospaced.** Archivo worked across
+   both axes, JetBrains Mono for money, time and counts, with
+   `font-variant-numeric: tabular-nums`. A price set in the body face is a
+   bug. See §5.
+   *Enforced by `tests/composition.test.mjs`.*
+
+9. **Legibility beats style, and it is measured, not eyeballed.** Text
+   ≥ 4.5:1 on every surface it sits on; large bold ≥ 3:1; non-text
+   interactive edges ≥ 3:1. A ramp's dim end is a contrast floor, not a
+   taste call — `--fog-2` exists at `#7B858A` because `#6B757A` measured
+   4.22:1 and that ramp carries every 10–13px label. **Text on a photograph
+   cannot be checked from CSS**: screenshot the box with the text hidden,
+   read the lightest pixel, and bind the scrim to the text block rather than
+   darkening the whole picture until it stops being one.
+   *Enforced by `tests/design-contrast.test.mjs`.*
+
+10. **Never a grey placeholder box.** The Unsplash connector is wired and
+    confirmed working. If it cannot find the right shot, **ask the owner** —
+    he has said plainly he will go and source images rather than have work
+    limited by what is to hand. And one distinction written into the markup
+    so a later session does not "fix" it: **no photograph of a car is ever
+    the platform's own subject** (we sell software), but photographs of
+    their own work are what a *tenant's* site is made of.
+
+11. **The house accent is fixed; the tenant's accent is customer-facing
+    only.** His decision, `design-brief.md`: tenant colour comes from a
+    curated four to six and appears on their site and their booking page.
+    **The dashboard keeps one fixed house palette.** `app/src/lib/theme.js`
+    remains the ONLY file allowed to compute or write colour from JS.
+
+12. **Measure with layout values, not with transformed boxes.** This design
+    animates by transform almost exclusively, so `getBoundingClientRect()`
+    returns a scaled box for most of it. Anything measured *for layout*
+    wants `offsetLeft` / `offsetWidth`; a rect is correct only when you
+    genuinely need where a thing is on screen right now. And `offsetTop` is
+    a document coordinate only when the offset parent is the body — inside a
+    positioned section it is not. Both of these have already caused real
+    bugs; see DECISIONS.md.
+
+13. **No third-party JavaScript.** No GSAP, no ScrollTrigger, no Lenis, no
+    Three.js. The whole of the direction's motion is hand-rolled and smaller
+    than Lenis alone. This is not asceticism: it closed the GSAP Club
+    licence question by not having it, which matters for something we sell.
+    *Enforced by `tests/composition.test.mjs`.*
+
+---
 
 ## Tokens
 
-Defined once in `app/src/theme.css` (`:root` = dark home theme;
-`[data-theme="light"]` overrides; booking page mirrors under `--bk-*`).
+Defined once. The direction file holds them in its own `:root`; Phase 2
+moves them into `app/src/theme.css` unchanged.
 
-### Colour — dark (home)
+### The ground — cool-biased, so no pure mid-grey ever appears
 
 | Token | Value | Job |
 |---|---|---|
-| `--bg` | `#0F1012` | the matte ground |
-| `--surface` | `#18191C` | a panel |
-| `--surface-lit` | `#1E2024` | the lit panel (paired with the bar) |
-| `--surface-sunken` | `#131416` | wells, inputs, recessed context |
-| `--border` | `#26282C` | panel edge |
-| `--hairline` | `#1E2023` | a rule inside a panel |
-| `--text` | `#F0F1F2` | primary |
-| `--text-2` | `#A3A7AC` | secondary |
-| `--text-muted` | `#8B9095` | labels, metadata (4.6:1 on `--surface`) |
-| `--accent` | tenant (default `#57B2E8`) | the light's own colour |
-| `--accent-ink` | derived | text on accent |
-| `--success` | `#4FC08D` | done, paid |
-| `--warning` | `#DCA84E` | pending, blockout |
-| `--danger` | `#E2705F` | cancelled, destructive |
-| `--overlay` | `rgba(5,6,8,.72)` | behind sheets |
+| `--ink-0` | `#0B0D0E` | the ground everything sits on |
+| `--ink-1` | `#111417` | a surface lifted off it |
+| `--ink-2` | `#171B1E` | the top of a panel gradient |
+| `--ink-3` | `#1E2327` | the highest surface |
+| `--line` | `#272D31` | every hairline and inset ring |
+| `--line-2` | `#333B40` | a line that has to be seen |
+| `--fog` | `#939CA1` | secondary prose |
+| `--fog-2` | `#7B858A` | 10–13px labels — **the floor, do not darken** |
+| `--bone` | `#F2F1EC` | the dominant: warm, **never `#fff`** |
+| `--bone-2` | `#CFD2CE` | bone stepped back |
 
-### Colour — light (daytime mode)
+### The one sharp accent
+
+| Token | Value | Job |
+|---|---|---|
+| `--ac` | `#38E08B` | signal green — the thing that has landed |
+| `--ac-deep` | `#0E5C36` | the accent at rest, on light |
+
+Signal green because orange was ruled out by name and he flagged his own
+lean toward blue as *"kind of typical AI"*. One dominant plus one sharp
+accent, never a timid even palette — `design-knowledge.md` §1.
+
+### The light band
+
+A light section is a **change of ground**, not a card. Warm off-white, never
+paper white.
 
 | Token | Value |
 |---|---|
-| `--bg` | `#E7E7E5` |
-| `--surface` | `#F3F3F1` |
-| `--surface-lit` | `#FCFCFB` |
-| `--surface-sunken` | `#DEDEDB` |
-| `--border` | `#C6C6C2` |
-| `--hairline` | `#E0E0DD` |
-| `--text` | `#151515` |
-| `--text-2` | `#4A4D49` |
-| `--text-muted` | `#5D605C` |
-| `--accent` default | `#0D689D` |
-| `--success` / `--warning` / `--danger` | `#1E7A4E` / `#8A5A14` / `#A83A2C` |
+| `--paper` | `#EFEEE7` |
+| `--paper-ink` | `#12161A` |
+| `--paper-fog` | `#565F64` |
+| `--paper-line` | `#D2D1C9` |
 
-### The light (the signature)
+Two light bands on the landing page, and they are rhythm work as much as
+emphasis: three added sections in a row without one leaves eight dark
+screens together.
 
-```css
-/* dark */
-.lit {
-  background: var(--surface-lit);
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent),
-              0 -6px 28px -8px color-mix(in srgb, var(--accent) 38%, transparent),
-              0 10px 34px -18px rgba(0,0,0,.85);
-}
-.lit::before {           /* the bar */
-  top: -1px; left: 12px; right: 12px; height: 3px;
-  border-radius: 0 0 4px 4px; background: var(--accent);
-  box-shadow: 0 0 14px 1px color-mix(in srgb, var(--accent) 75%, transparent);
-}
-.lit::after {            /* the wash falling from it */
-  height: 56px; background:
-    linear-gradient(color-mix(in srgb, var(--accent) 12%, transparent), transparent);
-}
-/* light theme: same bar, NO bloom shadows; border at 55% accent mix. */
-```
+### Layout
 
-Primary button in dark: `box-shadow: 0 0 22px -4px color-mix(in srgb,
-var(--accent) 55%, transparent)`. Selected chip in dark: 16px halo at 50%.
-Neither in light.
+| Token | Value |
+|---|---|
+| `--wrap` | `1180px` |
+| `--gut` | `clamp(20px,5vw,48px)` |
 
-### Type scale
+Radii are a small set, used by role and not by habit: `100px` for pills
+(nav, buttons, small state chips), `16–18px` for panels, `11–13px` for
+sunken and inset blocks, `50%` for dots. `rounded-lg on everything` is a
+named tell.
 
-`11 / 13 / 15 / 17 / 22 / 30 / 36` px → tokens `--t-label … --t-display`.
-Weights **400 / 600 / 700**; 700 belongs to Anybody-wide titles only — once per
-screen. Consecutive steps differ ≥ 25%.
+### Motion
 
-### Space, shape, motion
-
-- Spacing scale `4 / 8 / 12 / 18 / 28 / 44`. Related ≤ 8, unrelated ≥ 28;
-  12/18 are reserved for inside-a-panel structure and panel padding.
-- Radius `2 / 9 / 10` (chip inner / control / panel). Pills 999.
-- Tap targets ≥ 46px.
-- Motion: `--ease: cubic-bezier(.32,.72,0,1)`; 90ms press, 160ms state,
-  200ms sheet. **The one orchestrated moment:** when the primary object
-  changes, the light *travels* — the bar slides/cross-fades to the new element
-  (≤ 300ms). Under `prefers-reduced-motion` it simply appears. No staggered
-  reveals, no count-ups, no shimmer.
-
-### Fonts (index.html)
-
-```
-https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@75..125,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap
-```
-
-Fallbacks: Anybody → ui-sans-serif; DM Mono → ui-monospace; Public Sans →
-system-ui. **Screenshot verification in this sandbox must use the downloaded
-woff2 set** (Chromium here cannot reach Google Fonts) and assert via
-`document.fonts` that all three families loaded — an earlier round was
-invalidated by silent fallbacks.
-
-## Surfaces
-
-Three of them, one identity, two intensities:
-
-| Surface | Theme posture | The light marks |
+| Token | Value | Job |
 |---|---|---|
-| Landing (`/`) | dark only — the showroom | the live booking-card demo |
-| Dashboard (`/app`) | dark home, light optional | the next job / current sheet focus |
-| Booking (`/book/:slug`) | light-first (customers, daytime), dark honours OS | the current step / selected service |
+| `--e-out` | `cubic-bezier(.16,.84,.34,1)` | the only curve |
+| `--t-reveal` | `950ms` | an entrance |
+| `--t-exit` | `420ms` | a departure — faster, and unstaggered |
+| `--t-hover` | `180ms` | pointer feedback |
 
-The landing page is permitted the richest glow; the dashboard is the working
-instrument; the booking page is the tenant's storefront and must look right
-with *their* accent, not ours.
+There is deliberately **no second curve for pinned beats.** A message
+leaving while a row arrives is an exit and an entrance, which takes the
+ease-out above; the gentleness at the ends of a lock comes from budgeted
+stillness, not from bending the curve.
 
-## Copy rules
+### Atmosphere
 
-- Name what people control, not how it's built: *reminders*, never cron.
-- Buttons say what happens and keep their name through the flow: "Save booking
-  rules" → "Saved."
-- Errors say what went wrong and how to fix it. No apologies, no vagueness.
-- Empty states invite the next action, never shrug.
-- Sentence case. Plain verbs. No filler.
-- Landing page sells the concrete thing: **a professional website with booking
-  built in** — for detailers with a bad website or none. Never "streamline your
-  workflow". The audience's own register (from the old site, kept as canon):
-  *"A tunnel wash gets the surface wet and calls it a day. A proper detail
-  actually protects your car."*
+Never a flat solid background. The ground carries, in this order of cost:
+an SVG `feTurbulence` grain as a data URI at `opacity:.055` with
+`mix-blend-mode:overlay`; two slow drifting radial lights; a drifting dot
+lattice; and a pointer light on fine-pointer devices only. All four are
+CSS-driven and none of them stops — that is law 2.
 
-## Quality floor (unannounced, always)
+---
 
-Responsive 320→1440; visible keyboard focus (2px accent ring, offset 2);
-`prefers-reduced-motion` collapses all animation; wide content scrolls in its
-own container; `tabular-nums` wherever digits align.
+## Type
 
-## Accent correction, two tiers
+Two faces. Loaded from Google Fonts, both variable where it matters.
 
-`lib/theme.js` corrects the tenant's brand color against the active theme
-ground at two strengths, and both are written as custom properties:
+```
+Archivo        wdth 62..125, wght 100..900   — everything that is words
+JetBrains Mono wght 400;500                  — everything that is a figure
+```
 
-- `--accent` — fills and large marks (buttons, bars, selected chips):
-  corrected to >= 3:1 (WCAG non-text), staying as close to the brand as
-  legibility allows.
-- `--accent-text` — accent used AS text (tab labels, links, status pills):
-  corrected to >= 4.5:1. A saturated red brand keeps its red buttons while
-  its tab labels get a deeper red that actually reads.
+**Archivo alone, worked hard across both axes**, is the high-contrast
+pairing `design-knowledge.md` §1 asks for — one variable font at its
+extremes beats two safe families. The width axis carries as much of the
+hierarchy as the weight axis does, which is the part that is easy to lose:
 
-Never color small text with `--accent`; use `--accent-text`.
+| Role | Class | Size | Axes |
+|---|---|---|---|
+| Display | `.disp` | `clamp(38px,6.4vw,86px)` | `wdth 112, wght 700` |
+| Display, hero | `.disp.xl` | `clamp(38px,5.15vw,74px)` | `wdth 116, wght 760` |
+| Display, small | `.disp.sm` | `clamp(26px,3.4vw,42px)` | `wdth 108, wght 640` |
+| Eyebrow / label | `.lab` | `11px`, `.22em`, uppercase | `wdth 72, wght 620` |
+| Lede | `.lede` | `clamp(17px,1.7vw,21px)`, `56ch` | inherits |
+| Body | — | `17px / 1.5` | `wdth 100, wght 400` |
+| Every figure | `.mono` | by context | tabular-nums |
 
-## Which light wins
+Size jumps are 3x or more, not 1.5x. Display line-height is `.94` with
+`-.028em` tracking; at that size the default leading is a hole.
 
-"One light per screen" says how many, not which. Today had two jobs that
-both wanted action and lit both, which is how the rule got broken on the
-most-used screen in the product.
+**A display size is derived from a measurement, not from taste.** The hero
+clamp is what it is because the longest rotating tail measured 741px inside
+a 742px column at 1440 and was wrapping. Below 470px the *width* axis
+absorbs it rather than the size, so a phone keeps a 38px headline. Any
+change to a display string re-measures the longest one at 392, 1440 and
+1920.
 
-**The light marks the NEXT action, not every available one.** When more
-than one object is actionable, rank them and light exactly one:
+---
 
-1. Money already earned but not recorded — a finished job with no payment.
-2. The job happening now or next.
-3. The unsaved change on a settings screen.
+## Composition
 
-Everything else that could be acted on stays a quiet card. If two things
-tie, the earlier one wins. A screen where nothing qualifies has no lit
-element at all, and that is correct — not every screen has a next action.
+- **A collection of records is a ruled list.** A card is for an object you
+  pick between or act on one at a time. Mapping records onto cards is the
+  specific shape that keeps coming back and it has its own test.
+- **Two to four choices is a segmented control, never a native `<select>`.**
+- **Numbers only on sequences.** `01 / 02 / 03` on content that is not a
+  sequence is the "structure as decoration" tell. The pricing terms are
+  numbered because they are an enumeration; the comparison table's rows are
+  not.
+- **A table when it genuinely is one** — a comparison across two axes. The
+  landing page has exactly one and nothing else on the page is tabular.
+- **Native elements before hand-rolled ones.** The FAQ is
+  `<details>`/`<summary>` with `::details-content` and `interpolate-size`
+  behind an `@supports` guard: no script, no ARIA to get wrong, keyboard and
+  screen-reader behaviour free, and it survives every script on the page
+  failing.
+- **Centred exactly once, at the end.** Centred everywhere is the tell.
 
-## Controls — what to use for a choice
+---
 
-| Choice | Control |
-| --- | --- |
-| Two to four options | **Segmented.** Never a native `<select>`. |
-| Five or more, unordered | Chips that wrap |
-| On or off | Switch, with the label saying what "on" means |
-| A number with natural steps | Stepper or preset chips, not a free text field |
-| A value with no sensible presets | Text field |
+## Verification
 
-A native dropdown costs two taps and an OS wheel to answer a question that
-segmented answers in one, and it looks like the platform rather than like
-this product. Three of them had slipped into the app — vehicle size,
-service type, payment status — while an unused `Segmented` sat in
-`components/controls.jsx`.
+Visual work is verified by **looking**, and the report says what was
+observed — never "this should work".
 
-The same rule applies to values a person picks over and over: payment
-method is chips (Cash, Card, Zelle…), not a text field, because a detailer
-takes payment the same three ways for years and typing it each time is
-both slower and produces data nobody can total.
+- Screenshot at **1920, 1440x900, 768x1024 and 392x844.** The three small
+  ones are a floor, not the whole check. **1920 is the owner's own monitor**
+  and it is where "there is not enough content to fill the viewport" bugs
+  live; they get *better* on a phone. The 01/02/03 rail was broken at 1920
+  from the day it was built and three checks missed it.
+- Read the console at every width, in the normal path **and `?lite=1`.**
+- Sweep the reveals down **and back up** — an element above the arrival line
+  and still hidden is a defect; some element still hidden below the fold at
+  almost every position is the proof the reveal was not simply switched off.
+- **Baseline a new check against the last known-good version before
+  believing what it says about your change.** A checker that fails a page
+  that was already verified is measuring the wrong thing. Two numbers are
+  diagnosable; one is not.
+- **When he reports something, reproduce it at his conditions before forming
+  a theory.** And when a report is ambiguous between "X is broken" and "X is
+  gone", ask — do not delete X.
+- Before cutting for length, **measure every section's scroll cost.** A note
+  in a previous round's write-up is not evidence.
 
-## Composition — not everything is a card
+---
 
-The fastest way to look machine-generated is to put every piece of content
-in the same rounded box. The theme stays constant; the *composition* changes
-with the content's nature. The vocabulary:
+## Degradation
 
-- **Lit card** — the screen's one primary object (next job, current step,
-  the appointment being created). At most one per screen.
-- **Quiet card** — a thing you pick between or act on (a service option,
-  a job in a list). Cards mean "objects", never "sections".
-- **Ruled list** — enumerations: hairline-separated rows straight on the
-  ground (settings rows, add-on checklist, landing spec sheet). No border,
-  no fill.
-- **Receipt** — any money breakdown: ruled rows, mono figures, a dashed
-  rule before the total. Money looks like the paper it becomes.
-- **Rail** — sequence/progress: a hairline through mono numerals (booking
-  progress, landing how-it-works). The product's own progress motif.
-- **Bare figures** — headline stats sit directly on the ground in DM Mono
-  (Money's net, landing's price). A number that matters needs no box.
-- **Sunken panel** — dense stat clusters set INTO the surface, not raised.
+Apple's strategy, with one thing borrowed from riangle — the conclusion of
+`docs/references/APPLE-READ.md`, and **this is the answer to the
+device-tier question the roadmap left open for 1.5**.
 
-Rule of thumb: two adjacent blocks should not use the same treatment unless
-they are literally the same kind of thing. If a screen reads as a stack of
-identical rectangles, recompose it — vary between list, receipt, rail and
-bare figures before reaching for another card.
+**Never ask what the device is; ask whether the thing arrived.** No
+`deviceMemory`, no `hardwareConcurrency`, no `saveData`, no user-agent
+tiering. Guessing quality from hardware buys less than a load timeout does,
+and its failure mode is blacklisting a browser by name.
 
-**This rule is tested.** `tests/composition.test.mjs` fails the build when a
-screen maps a list of records straight onto `.card` — which is exactly how
-the Clients screen ended up as eight bordered boxes filling a phone while
-the rule sat written down and ignored. A rule with no test is a rule that
-gets broken again.
+The whole defence is three layers:
+
+1. **`.lite`** on the root element turns every animation off by rendering
+   the same end state the animation targets — one code path, so it cannot
+   rot. Reachable as `?lite=1`.
+2. **`prefers-reduced-motion`** routes into that same `.lite` path. Not a
+   second implementation.
+3. **Nothing is hidden behind an animation.** Every scrub target has a
+   `.lite` end state and every revealable ends at `.in`. If the script never
+   runs, the page reads.
+
+The one piece worth borrowing from riangle is an **fps governor**, because a
+page can load fast and still animate badly. It is not built yet and nothing
+on the page needs it — there is no WebGL anywhere. Add it when something
+measured is dropping frames, not before.
+
+`?smooth=0` disables the weighted scroll, so the two can be compared on the
+same phone in one sitting.
+
+---
+
+## Never-defaults
+
+In addition to everything above. From `CLAUDE.md` and
+`docs/design-knowledge.md` §1, and they are not negotiable by any skill.
+
+- **Fonts:** Inter, Roboto, Open Sans, Lato, Arial, system-ui as a *design
+  choice* — and Space Grotesk, the "trying to be original" default.
+- **Colour:** purple-to-blue gradients on white; timid evenly-distributed
+  palettes; a pure mid-grey.
+- **Layout:** three evenly spaced cards; everything centred; five identical
+  full-width stacked sections; `rounded-lg` on everything; an accent bar on
+  a rounded card.
+- **Surface:** a flat solid background with no atmosphere.
+- **Structure as decoration:** numbered markers on a non-sequence; emoji as
+  section markers.
+- **Copy:** "modern and clean", "seamless", "elevate", feature triplets,
+  Lorem ipsum, "Feature One / Feature Two / Feature Three".
+- **Claims:** nothing the product does not do. "Start free" shipped on the
+  direction page when there is no free tier; `landing-pricing.test.mjs`
+  exists because of that class of bug. No invented testimonials, customer
+  counts, logos or statistics — the marketing deck ruled them out itself,
+  and there are no customers yet to count.
+
+---
+
+## §11 — what survived from "Raking Light"
+
+The look did not. These did, and they are contracts rather than style:
+
+- **The accessibility floors** — 4.5:1 body, 3:1 large and non-text, both
+  measured. They were right and they are unchanged.
+- **`app/src/lib/theme.js` is the only place colour is computed in JS.**
+  Tenant accents are contrast-corrected there against the active ground.
+- **Tokens are defined once** and everything reads `var(--…)`. The old
+  system's real achievement was that discipline, not the palette.
+- **Content and copy facts**, per `DESIGN.md`: `app/src/landing/
+  LandingPage.jsx` is the substance the marketing pass edits, not a file to
+  throw away.
+- **The composition rule** — records are lists, cards are objects — which
+  was written down, ignored, and then given teeth by a test. It carries over
+  word for word.
+
+---
+
+## What this file does NOT settle
+
+Named rather than invented. Direction-inventing is banned from here on, so
+these go to the owner rather than being decided by a skill.
+
+1. **There is no light theme.** The direction is one dark ground with light
+   *bands*; the old system had a full `[data-theme="light"]` for the
+   dashboard, and `theme.css` still does. Phase 2.3 and 2.4 need an answer.
+   **The evidence points at dropping it**: sunlight is not a constraint
+   (`design-brief.md` §B5), a second theme doubles every contrast check and
+   every retint test, and the identity is the dark ground. **Recommendation:
+   drop the light theme; keep the light band as the only light surface.**
+   The counter-argument is that some people simply prefer light UI and a
+   toggle already exists, so removing it is a visible takeaway. His call —
+   this is the first question of Phase 2.
+2. **The tenant's curated accent set has no colours in it yet.** He decided
+   "a curated four to six, customer-facing only"; nobody has picked the four
+   to six. Needed before 2.4.
+3. **The dashboard's own skeletons are undrawn.** Law 1 says every section
+   gets a different one, and the landing page has nine worked examples; the
+   five dashboard tabs and eleven settings screens have none. That is the
+   body of 2.3, and it is where this system will actually be tested — a
+   marketing page is a much easier thing to be beautiful on.
+4. **Mid-range Android is still unmeasured** (`README.md` "Still open" #4).
+   Nothing uses WebGL so the risk is low, but nobody has put a thumb on a
+   cheap Android.
+
+---
+
+## What the tests enforce
+
+Both suites are credential-free and run from the repo root.
+
+```bash
+node tests/composition.test.mjs
+```
+
+```bash
+node tests/design-contrast.test.mjs
+```
+
+`composition` checks the rules that keep getting broken by hand: records
+mapped onto cards, a hand-written `<select>` with two to four options, the
+two-face type rule, third-party animation libraries, motion presets, and
+that the laws above are actually still written in this file. `design-contrast`
+reads the shipped token values and prints a WCAG ratio for every pair this
+file promises.
+
+Neither can check whether it looks good. That is what the screenshots at
+four widths are for.
