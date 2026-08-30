@@ -1326,6 +1326,114 @@ stranded, 0 table rows faded while readable. The thread's content fits inside
 its pinned stage at all four widths with nothing clipped. Four credential-free
 tests pass.
 
+## Round fourteen — pacing the locked beats (2026-08-29)
+
+Built through the `animate` skill, on his instruction to use it rather than
+guess. Its sequence put the section in the **explanation** tier (marketing,
+rare), which is where a longer, deliberate animation is allowed; the tool
+stayed what it already was (one rAF loop, transform and opacity only); and
+the decision that mattered was where the easing belongs.
+
+### The three things he described
+
+> "I could go through all of them with a single scroll... each one should be,
+> like, a scroll or half a scroll."
+
+> "there should be, like, more time, like, paused at the beginning and the
+> end. So that way you don't accidentally, like, kinda blaze through it."
+
+> "a scroll kind of moves the page less... it kinda ramps up, or else it feels
+> very snappy and like it stops the screen and then boom, you're zooming
+> past."
+
+Four changes, and they are separate mechanisms rather than one knob:
+
+1. **Both holds are longer and budgeted per beat.** The thread holds 3.0
+   screens; the rail holds 3.28 on a desktop and 2.04 on a phone.
+2. **Stillness at each end of every hold.** You arrive, the section locks, and
+   for four tenths of a screen nothing happens at all. Same at the far end
+   after it finishes. That stillness is also what absorbs a flick that arrives
+   carrying momentum — the scroll is spent on nothing rather than on the beat.
+3. **Each beat eases itself.** A message leaving and a row arriving is an exit
+   and an entrance, which takes an ease-out — so it uses the page's own
+   `--e-out`, evaluated in script because CSS cannot ease something driven by
+   scroll position.
+4. **The page gets heavier inside a lock.** One notch of wheel carries half as
+   far as it does on open page, and the smoothing may not bank more than 0.55
+   of a screen ahead of where you actually are. That is his "a scroll kind of
+   moves the page less", and it is the direct fix for one flick clearing the
+   beat.
+
+### The mistake the measurement caught, which is the interesting part
+
+The first attempt eased the **whole hold** with a strong ease-in-out and then
+carved the four messages out of the eased value. It measured like this:
+
+| | first attempt | after |
+|---|---|---|
+| scroll per message | 0.17, 0.10, 0.13 screens | **0.45, 0.45, 0.42** |
+| pause at the start | 0.95 screens | 0.52 |
+| pause at the end | 1.23 screens | 0.75 |
+
+A strong ease-in-out is nearly flat at both ends, so **everything between its
+ends happens at once** — a screen of dead air, then all four messages in a
+third of a screen, then another screen of dead air. Exactly the complaint,
+made worse.
+
+**The easing belongs on each beat, not on the hold.** The hold distributes the
+beats evenly; each beat eases itself. Written into the file so it is not
+re-discovered.
+
+### The flick test
+
+Twelve wheel events of 240px fired in a burst — a hard trackpad flick — from
+the top of the locked thread:
+
+| | before | after |
+|---|---|---|
+| distance moved | 1,782px (1.98 screens) | **1,166px (1.30)** |
+| messages cleared | **4 of 4** | **1 of 4** |
+
+### The rail's scroll cost now has a floor
+
+How far the track MOVES is geometry — two step-advances — and on a phone that
+is only 682px, which gave each step 0.40 of a screen. How much scroll that
+COSTS is pacing, and it now has a minimum of 0.62 screens per step. The track
+still moves exactly as far; it takes longer to get there. On a desktop the
+travel already exceeds the floor and nothing changed.
+
+Measured after: 1.62 and 1.23 screens per step at 1440; 1.01 and 0.62 on a
+phone. Stillness of 0.41–0.42 screens at the start of both.
+
+### ⚠ THE PAGE IS NOW VERY LONG, and he should decide about it
+
+| | round 13 | now |
+|---|---|---|
+| 1920 | — | 14.44 screens |
+| 1440 | 13.94 | **15.47** |
+| 392 | 14.91 | **17.07** |
+
+Seventeen screens on a phone. Every screen of it now buys something — a
+message becoming a row, a step crossing the view, or deliberate stillness at
+the edge of a lock — and the pacing is what he asked for twice. But two
+sections between them hold the screen for 5.3 screens of the total.
+
+**The honest lever is cutting a section, not shortening the animations.** If
+it feels long, the candidates are the comparison table (section 5, the newest
+and the most easily argued away) or folding the questions into fewer entries.
+Shortening the beats would put back exactly the complaint this round fixed.
+
+### Verified
+
+Console clean at **1920, 1440, 768 and 392** in both the normal and lite
+paths. Reveal sweep of 61 positions down and back up: 0 stranded, 0 table rows
+faded while readable. Pacing measured beat by beat at two viewports. The flick
+test above. Four credential-free tests pass.
+
+**What cannot be checked from here:** whether the weight inside a lock feels
+right rather than sticky. It is a feel judgement and it needs his hand on a
+trackpad — that is the one thing in this round a measurement cannot settle.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so

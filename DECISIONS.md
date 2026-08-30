@@ -1296,6 +1296,53 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## Ease the beat, not the hold (2026-08-29)
+
+A scroll-pinned section that plays several beats has two separate timing
+questions, and collapsing them into one is a trap worth naming.
+
+- **How the beats are DISTRIBUTED across the hold** — this must be linear.
+  Each beat gets an equal share of the scroll.
+- **How each beat PLAYS** — this is where the easing goes.
+
+The first attempt at pacing the thread eased the whole hold with a strong
+ease-in-out and then carved each message out of the eased value. A strong
+ease-in-out is nearly flat at both ends, so everything between its ends
+happens at once: measured, four messages landed 0.10–0.18 of a screen apart
+inside a three-screen hold, with about a screen of dead air at either end.
+That is worse than the problem it was meant to fix.
+
+**Rule: distribute linearly, ease individually.**
+
+Related, from the same round and from the `animate` skill's own table: a
+message leaving while a row arrives is an **exit and an entrance**, which
+takes an ease-out — not the ease-in-out that "movement on screen" suggests.
+The rail's pan is the other case: constant motion, which takes **linear**, and
+gets its gentleness from the stillness budgeted at each end of the hold rather
+than from a curve.
+
+### And a locked section needs the page to get heavier
+
+Weighted scrolling banks a whole gesture and eases toward it, so one trackpad
+flick can bank more than an entire pinned beat and deliver the user to the far
+side having seen none of it. Measured: a 2,880px flick cleared all four
+messages.
+
+Two mechanisms fixed it, and both are needed:
+
+- inside a pinned range, a wheel notch carries **half** as far;
+- the smoothing may not run more than **0.55 of a screen** ahead of the real
+  position.
+
+The range starts a third of a screen BEFORE the pin, so you decelerate into
+the lock rather than arriving at full speed. After: the same flick moves 1.30
+screens and clears one message of four.
+
+**This only helps a desktop.** The weighted scroll is fine-pointer only, and
+native touch momentum cannot be capped without hijacking the gesture, which
+would be worse. On a phone the defence is pacing alone — which is why the
+holds are budgeted in screens rather than pixels.
+
 ## Never measure a transformed element with getBoundingClientRect (2026-08-29)
 
 A rail step carries `transform:scale(.95 + .05 * var(--near))` so the one in

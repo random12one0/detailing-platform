@@ -164,6 +164,10 @@
      animation to REVEAL_TRIGGER or SCRUB_TRIGGER. Ad-hoc durations are how
      a page ends up feeling like a pile of effects instead of one system. */
   --e-out:cubic-bezier(.16,.84,.34,1);
+  /* No separate curve for the pinned beats: a message leaving and a row
+     arriving is an exit and an entrance, which takes the ease-out above.
+     The gentleness at the ends of a locked section comes from the stillness
+     budgeted at each end of the hold, not from bending the curve. */
   --t-reveal:950ms;
   --t-exit:420ms;
   --t-hover:180ms;
@@ -461,7 +465,14 @@ section{position:relative}
    liked it; momentolegal pins for 18.3 to pan one list and he said he felt
    stuck. touch-action stays pan-y so a phone's vertical swipe is never
    captured — the failure mode that traps a touch user.                   */
-.thread-wrap{height:290vh;height:290svh;position:relative}
+/* 400svh — a 3.0-screen hold, up from 1.9. His note: "I could go through all
+   of them with a single scroll... each one should be, like, a scroll or half
+   a scroll." Budgeted deliberately: 0.4 screens locked before anything
+   starts, ~0.55 screens per message across the four, and 0.4 screens locked
+   after it has finished. The two still stretches are the "pause at the
+   beginning and the end" he asked for — they are what stop a flick that
+   arrives with momentum from carrying straight through the beat. */
+.thread-wrap{height:400vh;height:400svh;position:relative}
 /* svh, not vh. On iOS Safari `100vh` is the height WITHOUT the browser
    chrome, so a sticky element sized in vh is taller than the screen and
    changes size every time the URL bar hides or returns mid-scroll. `svh`
@@ -775,7 +786,14 @@ section{position:relative}
    screen of scrolling buys a little less than a screen of sideways travel —
    deliberately a fraction slower than the finger, never faster. The fallback
    covers the no-JS case. */
-.rail-wrap{height:calc(100vh + var(--travel,70vh));height:calc(100svh + var(--travel,70vh));position:relative}
+/* The travel, plus 0.8 of a screen of stillness split between the two ends.
+   Same reasoning as the thread: a locked section needs a moment before it
+   starts and a moment after it stops, or a single flick clears it. */
+.rail-wrap{
+  height:calc(100vh + var(--travel,70vh) + 80vh);
+  height:calc(100svh + var(--travel,70vh) + 80svh);
+  position:relative;
+}
 .rail-stage{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;touch-action:pan-y}
 .rail-head{margin-bottom:clamp(22px,4vh,44px)}
 /* THE TRACK IS CENTRE-ALIGNED, which is the whole of his complaint: "number
@@ -1780,6 +1798,28 @@ section{position:relative}
      are measured off wherever they actually are. Runs at the top of measure()
      so the distances are computed after the move, never before it. */
   var jobsHold = document.querySelector(".jobshold");
+
+  /* Where the page holds still, in document coordinates. Recomputed whenever
+     the layout can have changed; used by the weighted scroll to refuse to
+     bank more than one screen of momentum inside a beat. */
+  var pinZones = [];
+  function computePinZones() {
+    pinZones.length = 0;
+    [threadWrap, railWrap].forEach(function (el) {
+      if (!el) return;
+      var r = el.getBoundingClientRect();
+      var top = r.top + window.scrollY;
+      /* Starts a third of a screen EARLY, so you decelerate into the lock
+         instead of arriving at full speed. */
+      pinZones.push([top - window.innerHeight * 0.33, top + r.height]);
+    });
+  }
+  function insidePin(y) {
+    for (var i = 0; i < pinZones.length; i++) {
+      if (y > pinZones[i][0] && y < pinZones[i][1]) return true;
+    }
+    return false;
+  }
   function placeThread() {
     var host = PHONE.matches ? jobsHold : threadHome;
     if (thread.parentNode !== host) host.appendChild(thread);
@@ -1833,6 +1873,7 @@ section{position:relative}
        height, which moves everything below it down the document. */
     sizeRail();
     cacheReveals();
+    computePinZones();
   }
 
   /* ── Two scroll presets and nothing else ────────────────────────────
@@ -1842,6 +1883,62 @@ section{position:relative}
      the compositor. Nothing here reads layout during a scroll frame
      except these getBoundingClientRect calls, which are cheap and few. */
   var clamp = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+
+  /* ── The curve, solved rather than approximated ──────────────────────
+     A scrubbed beat needs the SAME easing a CSS transition would use, but
+     CSS cannot ease something driven by scroll position — so the curve has
+     to be evaluated here. Binary subdivision, twelve steps, which lands well
+     inside a pixel and costs nothing once per frame.
+
+     `--e-inout` is the token this mirrors; if one changes the other has to. */
+  function bezier(x1, y1, x2, y2) {
+    var cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+    var cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+    var sx = function (t) { return ((ax * t + bx) * t + cx) * t; };
+    var sy = function (t) { return ((ay * t + by) * t + cy) * t; };
+    return function (x) {
+      if (x <= 0) return 0;
+      if (x >= 1) return 1;
+      var lo = 0, hi = 1, t = x;
+      for (var i = 0; i < 12; i++) {
+        var v = sx(t);
+        if (v < x) lo = t; else hi = t;
+        t = (lo + hi) / 2;
+      }
+      return sy(t);
+    };
+  }
+  /* The page's own entrance curve, evaluated here because CSS cannot ease
+     something driven by scroll position. Mirrors `--e-out`; if one changes
+     so does the other. */
+  var easeOut = bezier(0.16, 0.84, 0.34, 1);
+
+  /* ── How a pinned beat reads its own progress ────────────────────────
+     Every pinned section on the page runs through this, so they cannot
+     drift apart.
+
+     `pause` is a stretch at each end of the hold where the section is locked
+     and NOTHING happens — you arrive, it stops, and for four tenths of a
+     screen it just sits there before it begins. The same at the far end
+     after it finishes. That is the "more time paused at the beginning and
+     the end" he asked for, and it is also what absorbs a flick that arrives
+     with momentum: the scroll is spent on stillness rather than on the beat.
+
+     WHAT THIS RETURNS IS LINEAR, and that was a real mistake the first time
+     round. Easing the WHOLE hold and then carving each message out of the
+     eased value crushes them together: measured, the four messages ended up
+     0.10 to 0.18 of a screen apart inside a 3-screen hold, with a screen of
+     dead air at each end. A strong ease-in-out is nearly flat at both ends,
+     so everything that happens between its ends happens at once.
+
+     The easing belongs on each BEAT, not on the hold. The hold distributes
+     the beats evenly; each beat eases itself. */
+  function pinProgress(el, stageH) {
+    var r = el.getBoundingClientRect();
+    var run = Math.max(1, r.height - stageH);
+    var pause = stageH * 0.40;
+    return clamp((-r.top - pause) / Math.max(1, run - pause * 2));
+  }
   var scrubs = [];
   var addScrub = function (el, fn) { scrubs.push({ el: el, fn: fn }); };
 
@@ -1877,16 +1974,14 @@ section{position:relative}
   var stage = document.querySelector(".stage");
 
   addScrub(threadWrap, function (el) {
-    var r = el.getBoundingClientRect();
-    var stageH = stage.getBoundingClientRect().height;
-    var p = clamp(-r.top / Math.max(1, r.height - stageH));
+    var p = pinProgress(el, stage.getBoundingClientRect().height);
     divider.style.setProperty("--p", p.toFixed(4));
     /* The beat is finished by 0.85 rather than 0.98. His note: "when you
        get to the last part, you start scrolling away, like, instantly as
        soon as it's done. And also it kinda cuts off some of it." So the last
        15% of the hold is deliberately still — the finished day sits there
        for about half a screen of scrolling before the section lets go. */
-    var c = clamp((p - 0.73) / 0.12).toFixed(3);
+    var c = easeOut(clamp((p - 0.87) / 0.11)).toFixed(3);
     lft.style.setProperty("--c", c);
     rgt.style.setProperty("--c", c);
     divider.style.setProperty("--c", c);
@@ -1899,8 +1994,11 @@ section{position:relative}
        where the hero closes while the next section assembles behind it. */
     var landed = 0, money = 0;
     for (var i = 0; i < bubs.length; i++) {
-      var s = 0.10 + i * 0.15, e = s + 0.18;
-      var f = clamp((p - s) / (e - s));
+      /* Evenly spread across the hold — 0.20 of the animated middle each,
+         which is about 0.44 of a screen per message — and each one eases
+         itself on the way through. */
+      var s = 0.05 + i * 0.20, e = s + 0.22;
+      var f = easeOut(clamp((p - s) / (e - s)));
       bubs[i].style.setProperty("--f", f.toFixed(3));
       rows[i].style.setProperty("--f", f.toFixed(3));
       if (i === 0) dash.style.setProperty("--f0", f.toFixed(3));
@@ -1972,16 +2070,26 @@ section{position:relative}
     /* The script measures the TRACK and hands the number to CSS; it never
        writes a height built from window.innerHeight again. That is the whole
        iOS fix — see the .rail-wrap rule. */
-    railWrap.style.setProperty("--travel", LITE ? "0px" : (railTravel * 1.15).toFixed(0) + "px");
+    /* Two different numbers, and they are allowed to differ: how far the
+       track MOVES is geometry, and how much scroll that COSTS is pacing.
+
+       On a phone the whole pan is only 682px, which at 1:1 gave each step
+       0.40 of a screen — under the half-a-screen-per-beat floor he asked
+       for, and measured as such. So the scroll cost has a minimum of 0.62 of
+       a screen per step advance; the track still moves exactly as far, it
+       just takes longer to get there. On a desktop the travel is already
+       larger than that floor and nothing changes. */
+    var minScroll = railStage.getBoundingClientRect().height * 0.62 * (steps.length - 1);
+    var railScroll = Math.max(railTravel, minScroll);
+    railWrap.style.setProperty("--travel", LITE ? "0px" : railScroll.toFixed(0) + "px");
   }
 
   addScrub(railWrap, function (el) {
-    /* Progress is measured against the STAGE's own height rather than
-       window.innerHeight. They are the same thing on a desktop, but on iOS
+    /* Same shared rule as the thread: still at both ends, eased through the
+       middle. Measured against the STAGE's height rather than
+       window.innerHeight — they are the same thing on a desktop, but on iOS
        only one of them holds still while you scroll. */
-    var r = el.getBoundingClientRect();
-    var stageH = railStage.getBoundingClientRect().height;
-    var p = clamp(-r.top / Math.max(1, r.height - stageH));
+    var p = pinProgress(el, railStage.getBoundingClientRect().height);
     railTrack.style.setProperty("--x", (p * railTravel).toFixed(1));
     railbar.style.setProperty("--p", p.toFixed(4));
     /* The heading arrives with the lock, not a screen before it. */
@@ -2396,8 +2504,33 @@ section{position:relative}
     addEventListener("wheel", function (e) {
       if (e.ctrlKey) return;                       // leave browser zoom alone
       e.preventDefault();
-      var d = e.deltaY * (e.deltaMode === 1 ? 18 : 1) * WHEEL;
+      /* HIS WORDS: "a scroll kind of moves the page less." Inside a locked
+         beat one notch of wheel carries a little over half as far as it does
+         on open page. That is the ramp — the page gets heavier as you enter
+         the section and light again when you leave it — and it is what stops
+         a single trackpad flick from spending the whole beat. */
+      var heavy = insidePin(cur);
+      var d = e.deltaY * (e.deltaMode === 1 ? 18 : 1) * WHEEL * (heavy ? 0.5 : 1);
       target = Math.max(0, Math.min(maxY(), target + d));
+
+      /* ── A FLICK CANNOT CLEAR A LOCKED BEAT ──────────────────────────
+         This is the fix for "I could go through all of them with a single
+         scroll". The weighted scroll banks the whole gesture into `target`
+         and then eases toward it, so one hard flick on a trackpad can bank
+         two thousand pixels — more than the entire beat — and you arrive at
+         the far side having seen none of it.
+
+         Inside a pinned section the target may not run more than about four
+         fifths of a screen ahead of where you actually are. It is a speed
+         limit, not a barrier: keep scrolling and you keep moving, at roughly
+         one message or one step per gesture, which is what he asked for.
+         Outside a pin nothing is capped and the scroll feels exactly as it
+         did. */
+      if (heavy) {
+        var cap = window.innerHeight * 0.55;
+        if (target - cur > cap) target = cur + cap;
+        else if (cur - target > cap) target = cur - cap;
+      }
       if (!raf) raf = requestAnimationFrame(step);
     }, { passive: false });
     function step() {

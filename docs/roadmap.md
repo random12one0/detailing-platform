@@ -198,6 +198,23 @@ is kept; the entire visual design restarts from scratch.
       recoverable in full from commit `6c6f412` if it ever becomes its own
       About page.
 
+      **ROUND FOURTEEN — 2026-08-29, built through the `animate` skill on his
+      instruction.** The locked beats are paced: each message now takes
+      0.42–0.45 of a screen (was 0.10–0.18), each rail step 0.62–1.62, with
+      ~0.4 screens of stillness at each end of both holds. Inside a lock a
+      wheel notch carries half as far and the smoothing cannot bank more than
+      0.55 of a screen — a hard flick used to clear all four messages and now
+      clears one. **The key lesson, in `DECISIONS.md`: distribute the beats
+      linearly across the hold and ease each beat individually. Easing the
+      whole hold crushes every beat into its middle** — measured, and it was
+      worse than the problem it was fixing.
+
+      **⚠ THE PAGE IS NOW 15.47 SCREENS AT 1440 AND 17.07 ON A PHONE.** That
+      is the cost of the pacing he asked for and every screen buys something,
+      but it is long. **The lever is cutting a section, not shortening the
+      beats** — shortening them puts back the complaint this round fixed.
+      Candidates named in README "Round fourteen". His call.
+
       **ROUND THIRTEEN — 2026-08-29.** The thread now pins at EVERY width for
       a fixed 1.90-screen run, on his instruction ("you scroll until it fits
       the center of the page, and then it happens, and then you start going
