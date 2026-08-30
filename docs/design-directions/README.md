@@ -987,6 +987,128 @@ the cascade for no change in behaviour.
   a collision.
 - Four credential-free tests pass.
 
+## Round eleven — the title, the phone, and a bug he found (2026-08-29)
+
+### The rotating line is part of the title again
+
+> "I feel like I still want it to be part of the title somehow. So if you
+> could figure out how to do that. but still, like, make it, you know,
+> actually good."
+
+It had drifted into being a caption, and **four separate things were doing
+that**: a dimmer colour, a lighter weight (620 against the headline's 760), a
+narrower width axis (104 against 116), and 18px of air under the headline.
+All four are now the headline's own values and the gap is 8px. What is left is
+a size step — the last line of the title is smaller than the three above it —
+which is hierarchy inside one block rather than demotion out of it.
+
+**The size decided the copy, not the other way round.** At 0.66 of the
+headline the hero's column takes about 25 characters on one line. Four of the
+five phrases already fitted; "A calendar that can't double-book you." at 38
+would have run half again past the column edge, so it became **"It can't
+double-book you."** Same claim, same voice, one line. Measured at nine widths
+before and after, because a title line that wraps mid-rotation is the one way
+this hero can look broken. It now clears the column with 48px to spare at
+1440, where the first attempt had 13.
+
+Below 420px it wraps to two lines and the height is still reserved for two,
+so nothing shoves the page up and down as the phrases change.
+
+### The 01/02/03 section: he was right, and it is an iPhone bug
+
+> "The page where it says there's, like, one, two, and three, and it kinda,
+> like, stopped your scroll doesn't work anymore. I don't know why."
+
+**It works perfectly in a desktop browser** — measured at 1440, 768 and 392,
+the track travelled its full distance at every one. So the mechanism was not
+broken, which meant it had to be iOS Safari, and it is **the same fault that
+broke the thread section in round three**: a `position:sticky` stage sized in
+viewport units, in a wrapper whose height was computed once from
+`window.innerHeight`. On iOS that number changes every time the URL bar hides
+or returns, so the stage and the wrapper disagree by the height of the URL bar
+and the progress the scrub reads jumps around mid-scroll.
+
+The thread's fix was to stop pinning on phones and scrub the block's own pass
+through the viewport instead — and he confirmed that one works. **This is the
+same fix applied to the last pinned section on the page.** Nothing is sticky
+on a phone now and no reserved height comes from a viewport height that moves.
+The rail still travels sideways as you scroll; it just no longer holds the
+screen still to do it.
+
+Side effect worth knowing: that block was **1,567px on a phone and is now
+519px** — about a screen of dead scroll removed, because a pin has to reserve
+the height it holds and a scrub does not.
+
+### The phone's before-and-after happens in one place now
+
+> "on mobile, that, like, kinda before and after, it's just really hard to
+> visualize and it's kinda confusing."
+
+Measured before changing anything: stacked, **the first message sat 540px
+above the row it becomes** — most of a screen. You could never see both ends
+of the move at once, so it read as two unrelated screens, texts and then a
+dashboard, with a flicker somewhere in between.
+
+So on a phone the messages are now **inside the dashboard**, in exactly the
+space the job rows reserve, and each message changes into its row where it
+stands. **The flight dropped from 540px to 23–76px.** The card's own header
+still says "nothing booked" while the texts float in the space the day should
+occupy, which states the argument twice over.
+
+Two defects found and fixed while building it:
+
+- **Evenly stacked messages drift off their rows.** The rows are not the same
+  height — the first carries Navigate / Call / Text — so by the third message
+  it was sitting over the SECOND row, which is what actually made it look like
+  a jumble. Each message is now read onto its own row's position. Verified: 0px
+  offset for all four.
+- **A straight crossfade puts both at half opacity in the middle**, which on
+  a phone, where they now sit on top of each other, is a pile of two texts
+  rather than one becoming the other. The message clears out over the first
+  half and the row arrives over the second. Measured across the whole beat:
+  there is now **no frame where both are mid-range**.
+
+### One more found by measuring rather than looking
+
+The comparison table's wipe ran too late on a phone: a row could enter the
+part of the screen you read from while still at 39% opacity, which computes to
+**1.80:1** — that is not an animation, it is unreadable text. Retimed to run
+from the moment a row's top touches the bottom edge until it is about half way
+up. Still a real entrance, over before it matters. The sweep now reports zero
+such readings at all three viewports, where it had reported two.
+
+### The FAQ already does what he asked
+
+> "when something's open, you could click anywhere in the empty space... to
+> close it."
+
+Checked rather than assumed: a click in the blank part of the row, away from
+both the question text and the marker, toggles it. That is what `<summary>`
+gives you when it spans the row, and it does.
+
+### Verified
+
+Console clean at 1440/768/392 in both the normal and lite paths. Reveal sweep
+of 61 positions, down and back up, at three viewports: **0 stranded**, and the
+table rows checked separately on their own progress value: **0
+faded-while-readable**. Four credential-free tests pass.
+
+Page length moved a lot, all of it downward, and all of it from unpinning the
+rail plus compacting the phone thread: **1440 unchanged at 11.60 screens, 768
+from 10.62 to 8.66, 392 from 13.11 to 11.52.**
+
+### The effects question, answered
+
+> "you mentioned something that you removed in effect. I don't think we need
+> to remove any effects, but if you think that it wasn't beneficial, then I
+> guess it could stay."
+
+Taken as deferring to the call, so the word-brightening stays out. The
+reasoning is in `DECISIONS.md`: it suits a person talking at speaking pace,
+there is no first-person copy left on the page, and an effect with no reason
+to be somewhere is decoration. The page runs seventeen mechanics either way,
+against thirteen before the marketing rewrite began.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so

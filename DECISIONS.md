@@ -1296,6 +1296,44 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## "Something feels a little missing" — the likely answer (2026-08-29)
+
+He ended his round-eleven review with: *"Something feels a little missing, but
+I think it's... I don't know. I think I'm kind of overthinking it."* He was not
+overthinking it, and it is worth naming so it can be decided deliberately
+rather than nagging at him.
+
+**The page has no proof on it.** Not by accident — the marketing deck ruled it
+out explicitly in its own header: "Not on this page: invented testimonials,
+customer counts, logos, statistics, or a money-back guarantee." That is the
+right call, because every one of those would have to be invented today; there
+are no customers yet.
+
+The page carried ONE piece of proof that did not have to be invented — the
+owner's own story, "I detail cars, I built this for my own shop first" — and
+that section was removed the same day, on his instruction. What survives is a
+single line under the hero button.
+
+So the shape of the answer is: **the page argues well and proves nothing.**
+Every other section is a claim about what the product does. Nothing on it says
+anyone has ever used it, because nobody has.
+
+Three honest ways to close it when he wants to, in order of how soon they are
+possible:
+
+1. **His own business as the proof.** Andrew's Auto Detail runs on this. That
+   is a real, checkable claim available today and it needs no customer — it is
+   the section that was just cut, in some form.
+2. **The demo business** (roadmap Phase 6) — a working site and dashboard a
+   prospect can open and click, which is proof by demonstration rather than by
+   assertion.
+3. **Real testimonials** after Phase 5, when there are real tenants. Not
+   available and not to be faked.
+
+Recorded rather than acted on: he did not ask for a change, and option 1 means
+reversing a decision he made hours earlier. Do not re-propose it unprompted —
+raise it if he mentions the feeling again.
+
 ## Removing the owner section, and why its mechanic was not re-homed (2026-08-29)
 
 He decided the fork: *"Remove the owner section."* Removed in full.

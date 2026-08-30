@@ -198,11 +198,22 @@ is kept; the entire visual design restarts from scratch.
       recoverable in full from commit `6c6f412` if it ever becomes its own
       About page.
 
+      **HIS ROUND-ELEVEN NOTES ARE APPLIED — 2026-08-29** (README "Round
+      eleven"): the rotating line is part of the title again; the 01/02/03
+      rail no longer pins on phones, which is the iOS bug he reported and the
+      same fault the thread had in round three; and the phone's
+      before-and-after now happens INSIDE the dashboard, with the flight cut
+      from 540px to under 80px. A table row could enter the reading zone at
+      1.80:1 during its wipe — found by measuring, retimed. The FAQ click he
+      described already worked; verified rather than assumed.
+
       **NOTHING IS LEFT THAT DOES NOT NEED HIM.** What remains is the OWNER
       checkpoint this item always ended on: he looks at the page and approves
-      it, or sends the next round of changes. One small thing to raise when
-      he does: **the "A Facebook page" row in the comparison table is mine,
-      not the deck's** — one line either way.
+      it, or sends the next round. One small thing to raise: **the "A Facebook
+      page" row in the comparison table is mine, not the deck's** — one line
+      either way. He also said "something feels a little missing" without
+      being able to name it; the most likely answer is on the record in
+      `DECISIONS.md`.
 
       Also recorded and NOT acted on: he finds the 1.4 hero slightly worse than
       the old rotating "DMs" line. The deck replaced that hero anyway, so the
