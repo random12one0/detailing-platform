@@ -1296,6 +1296,39 @@ scheduled** ("in the future we'll critique the actual text on the page"), and
 it suggests the right test for that pass: every section has to answer "what am
 I looking at" before it answers anything else.
 
+## Test at HIS screen size, not yours (2026-08-29)
+
+A process lesson worth more than the fix it came from.
+
+The horizontal rail had a step width capped at 560px. On a 1920 monitor —
+which is what the owner uses — three steps plus their gaps came to exactly one
+screen, so the section had **40 pixels** of travel and pinned for 0.04 of a
+screen. It had been like that since the day it was built.
+
+Every check run against it had used 1440, 768 and 392, because those are the
+three viewports `CLAUDE.md` names. At 1440 the fault was present but mild
+enough to look intentional (396px of travel), and at 392 it looked fine. **The
+one width where it was obviously broken was the only width never tested, and
+it is the width he actually looks at the page on.**
+
+Two things follow, and both are general:
+
+1. **The three named viewports are a floor, not a ceiling.** Add the owner's
+   own screen to any check where the failure mode is "there is not enough
+   content to fill the viewport" — those bugs get BETTER on small screens and
+   worse on large ones, so a phone-first check will never find them.
+2. **When he reports something, take the measurement at his conditions before
+   forming a theory.** I diagnosed this as an iOS pinning fault twice and
+   removed the pin on phones to fix it. The pin was never the problem. One
+   measurement at 1920 would have shown it immediately.
+
+Related and worth keeping: his report *"the page where it says one, two, and
+three, and it kinda, like, stopped your scroll doesn't work anymore"* means
+*the section that used to stop your scroll has stopped doing so* — a report
+that a feature was MISSING. It was read as *the pinning is broken, remove it*,
+and the pin was removed. **When a report is ambiguous between "X is broken" and
+"X is gone", ask, or check whether X still happens at all before deleting X.**
+
 ## "Something feels a little missing" — the likely answer (2026-08-29)
 
 He ended his round-eleven review with: *"Something feels a little missing, but

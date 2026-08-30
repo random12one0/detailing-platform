@@ -1109,6 +1109,117 @@ there is no first-person copy left on the page, and an effect with no reason
 to be somewhere is decoration. The page runs seventeen mechanics either way,
 against thirteen before the marketing rewrite began.
 
+## Round twelve — the rail was never a pinning bug (2026-08-29)
+
+### What he actually described, and what it turned out to be
+
+> "It was always broken on the desktop... all three of them are kind of
+> equally spaced out. Like, there's not one in the center. And then when I get
+> to a certain area, the white bar... it could fill out really quickly, and it
+> all kinda shifts over by, like, a few pixels, and it looks, like, kinda
+> glitchy... It never stops me from scrolling down or anything."
+
+Measured before changing anything, at four widths:
+
+| viewport | step | track | travel | pin |
+|---|---|---|---|---|
+| **1920×1080** | 555 | 1920 | **40px** | **0.04 screens** |
+| 1440×900 | 556 | 1796 | 396px | 0.51 screens |
+| 392×844 | 288 | 912 | 560px | none (unpinned last round) |
+
+**At 1920 the whole track already fitted on the screen.** The rail had forty
+pixels to travel and held the screen for four hundredths of a screen. Every
+single thing he described falls straight out of that: three steps all visible
+at once so none is in the centre, a progress bar that fills in the length of
+one flick, a track that "shifts over by a few pixels", and no sense of being
+held. It was not broken. It had nothing to do.
+
+**The cause was one value: `width:min(80vw,560px)` on a step.** The 560px cap
+meant that on any wide monitor three steps plus their gaps came to roughly one
+screen. This has been true since the section was first built, which is exactly
+what he said — "it was always broken on the desktop".
+
+### And I had his earlier report backwards
+
+Last round he wrote: *"the page where it says there's, like, one, two, and
+three, and it kinda, like, stopped your scroll doesn't work anymore."* I read
+that as "the pinning is broken, take it out", and took it out on phones. He
+meant the opposite — **the section that used to stop your scroll has stopped
+doing it** — and confirmed it this round: *"it never stops me from going down
+on the page. never, like, locks me in."*
+
+Recorded as a process note, not just a fix: it was the wrong fix for the right
+complaint, and the give-away was available at the time. The measurement above
+would have shown a 0.04-screen pin on the first pass if I had taken it at his
+screen size rather than only at mine.
+
+### Fixed, and it pins on phones again
+
+- **A step is now 74vw** (88vw below 560px, so a phone shows one at a time),
+  capped only to stop it becoming absurd on a very wide monitor. The track is
+  now about 2.3× the viewport at every width.
+- **The pin is back on phones**, which is what he asked for, and it is now
+  safe on iOS for a reason rather than by hope. The wrapper's height used to
+  be written by script as `window.innerHeight + travel` — and
+  `window.innerHeight` is the number iOS changes every time the URL bar hides.
+  It is now pure CSS: `calc(100svh + var(--travel))`, where `svh` is the small
+  viewport height and does not move, and `--travel` is a pixel measurement of
+  the track that has nothing to do with the viewport at all. Progress is
+  measured against the **stage's own height** instead of `window.innerHeight`
+  for the same reason. **Nothing in this section is now measured against a
+  number iOS moves mid-scroll.**
+
+After:
+
+| viewport | travel | holds | you see |
+|---|---|---|---|
+| 1920×1080 | **1,705px** | 1.82 screens | 53% of the track |
+| 1440×900 | 1,848px | 2.36 screens | 44% |
+| 768×1024 | 1,008px | 1.13 screens | 43% |
+| 392×844 | 682px | 0.93 screens | 36% — one step at a time |
+
+The exchange rate is one pixel sideways for a little over one pixel down, at
+every width. A pin has to return more than it costs, and this one now does.
+
+### The phone's switch happens where he is looking
+
+> "The first one, like, happens, like, basically, like, right as it enters the
+> bottom of the screen... you can't even tell that it happens because it's so
+> far at the bottom. So I feel like that switch over should happen more closer
+> to the middle where your eyes are actually looking."
+
+The window was measured from the top of the whole section — the heading and
+the card's header — which sits several hundred pixels above the rows that
+actually change. By the time a row was on screen, its message had already
+gone.
+
+It is now measured from **the space the job rows occupy**. Walked the whole
+beat and recorded where each message sits on screen at the moment it becomes
+its row:
+
+| message | where it changes |
+|---|---|
+| 1 | 67% down the screen |
+| 2 | 66% |
+| 3 | 61% |
+| 4 | 58% |
+
+All four in the reading zone, none at an edge.
+
+### The page got longer, and that is the pin
+
+**1440 went from 11.60 screens to 13.46.** That is not drift — a pin has to
+reserve the height it holds, and this one now holds 2.36 screens instead of
+0.51. The scrolling buys 1,848px of sideways travel, so it takes you
+somewhere; that was always the test.
+
+### Verified
+
+Console clean at **1920, 1440, 768 and 392** in both the normal and lite
+paths. Reveal sweep of 61 positions, down and back up, three viewports: 0
+stranded, 0 table rows faded while readable. The track reaches its full travel
+at all four widths. Four credential-free tests pass.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so

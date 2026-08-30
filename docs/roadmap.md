@@ -198,6 +198,25 @@ is kept; the entire visual design restarts from scratch.
       recoverable in full from commit `6c6f412` if it ever becomes its own
       About page.
 
+      **ROUND TWELVE — 2026-08-29. The 01/02/03 rail was never a pinning
+      bug.** Measured at 1920, which is his monitor and the one width never
+      being tested: the track was exactly one screen wide, so the section had
+      FORTY PIXELS of travel and pinned for 0.04 of a screen. A step's width
+      was capped at 560px and had been since it was built — "it was always
+      broken on the desktop", exactly as he said. Steps are now 74vw (88vw on
+      a phone) and the travel is 1,705px at 1920. The pin is back on phones
+      and is iOS-safe by construction: the height is `calc(100svh +
+      var(--travel))` in CSS instead of `window.innerHeight + travel` in
+      script, and progress is measured against the stage's own height, so
+      nothing in the section depends on a number iOS moves mid-scroll. The
+      page is 13.46 screens at 1440, up from 11.60 — that is the pin
+      reserving the height it holds, and it buys 1,848px of sideways travel.
+      Also: the phone's message-to-row switch now happens 58–67% down the
+      screen instead of at the bottom edge, because it is driven by the rows
+      rather than by the top of the section. **The process lesson — test at
+      his screen size, and do not delete a feature when the report might mean
+      it is missing — is in `DECISIONS.md`.**
+
       **HIS ROUND-ELEVEN NOTES ARE APPLIED — 2026-08-29** (README "Round
       eleven"): the rotating line is part of the title again; the 01/02/03
       rail no longer pins on phones, which is the iOS bug he reported and the
