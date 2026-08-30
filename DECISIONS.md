@@ -1853,3 +1853,62 @@ only the paragraph above would otherwise re-raise it.
 Everything on the page is real today or will be before anything is sold: the
 dashboard, the booking engine, the price, the founding count. Nothing invented
 was added to support the new positioning and nothing should be.
+
+## Cutting a section: measure what the length is made of first (2026-08-29)
+
+The owner said the page was too long and chose "cut a section". The candidates
+this repo had already written down — the comparison table, or folding the
+questions — came from round fourteen's own closing note, which was written
+without ever measuring what each section costs.
+
+Measured (`offsetTop`/`offsetHeight`, screens, at 1920/1440/392): the two
+LOCKED sections were **8.07 of the 14.44 screens at his monitor width — 56% of
+the page**. Everything a reader reads came to 6.4 screens. The two named
+candidates were 0.84 and 0.73 screens: cutting either buys **5%**, which he
+would not have felt, and it would have spent a section for nothing.
+
+The 01/02/03 rail was the outlier at **4.07 screens to advance three cards
+sideways twice** — about 2 screens per beat, against the thread's 0.75 for
+four messages. Most of that was fixed cost rather than earned: a full screen
+of sticky stage plus 0.8 of budgeted stillness before any travel happens at
+all. **A locked section's floor is ~1.8 screens whatever it contains**, which
+is the number to check before adding another one.
+
+**Rule: before cutting for length, measure every section's scroll cost at the
+owner's own width. The advice in a previous round's write-up is not evidence.**
+This is round twelve's lesson ("test at HIS screen size") reappearing as a
+documentation problem rather than a CSS one — a stale note in a file is as
+capable of sending a session the wrong way as a stale measurement is.
+
+### Carrying the sentence, not just deleting the section
+
+The rail's lede was doing two jobs, and both had to survive the cut: it
+answered "is this going to be a project", and its second half is what stops
+the pricing card ("we build it for you") contradicting section 4 — a
+contradiction found and fixed in round six. It is now term 01 of the pricing
+list. **When deleting a section, check what its copy is load-bearing FOR, not
+just whether it reads well where it is.**
+
+### What the cut bought beyond the screens
+
+The rail's heading and lede were the only elements on the page revealed by a
+pin rather than by approach, which forced an `inRailHead` exception into the
+reveal sweep. With the section gone the page is uniformly reveal-driven with
+no exceptions. A rule with no exceptions is worth more than the mechanic that
+required one.
+
+## Baseline a new check against the last known-good version (2026-08-29)
+
+The reveal-sweep checker written for the cut reported 136 stranded elements,
+which read as "the cut broke the reveals". It had not. Run against the
+COMMITTED page — which round fourteen had verified as clean — the same checker
+reported 110.
+
+**A checker that fails a known-good version is measuring the wrong thing, and
+that is cheaper to discover than to debug.** The fault was the definition: it
+counted any element merely overlapping the viewport, when the page's own rule
+is that an element arrives once its top crosses 82% of the screen. Everything
+between 82% and the bottom edge is correctly still hidden.
+
+**Rule: before believing a new measurement about a change, run it against the
+version before the change.** Two numbers are diagnosable; one is not.

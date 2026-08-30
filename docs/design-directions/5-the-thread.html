@@ -39,19 +39,28 @@
    THE GRAMMAR (BUILD-BRIEF §7.2, his words): "throughout the entire website
    no one scroll area, one page looked the same — as you scroll everything
    morphs into different layouts." So: ONE CONTINUOUS GROUND, and every
-   section a different skeleton over it. Eight sections, eight skeletons:
+   section a different skeleton over it. Nine sections, nine skeletons:
      1 hero .............. left-heavy asymmetric, one floating object
      2 the thread ........ two columns, pinned, animated transfer
      3 your own website ... LIGHT ground, the WEBSITE breaking the section edge
      4 what you get ...... full-width ruled list, no boxes at all
      5 what you're using . LIGHT ground, the page's only table
-     6 live before ....... horizontal travel on a sticky rail
-     7 pricing ........... asymmetric pair + a ruled terms list
-     8 questions ......... two columns of native disclosures
-     9 the last word ..... accent ground, centred, once
-    10 footer ............ mono facts
-   Ten sections, ten skeletons, no two alike — the grammar he set in 1.3
+     6 pricing ........... asymmetric pair + a ruled terms list
+     7 questions ......... two columns of native disclosures
+     8 the last word ..... accent ground, centred, once
+     9 footer ............ mono facts
+   Nine sections, nine skeletons, no two alike — the grammar he set in 1.3
    still holds.
+
+   CUT 2026-08-29 (round fifteen), on his instruction: "live before your next
+   job", a horizontal pan on a sticky rail. It was the most expensive section
+   on the page — 4.07 screens at 1920, 4.28 at 1440, 3.04 on a phone — to
+   move three cards sideways twice, about 2 screens per beat against the
+   thread's 0.75. Its one load-bearing claim survives as term 01 of the
+   pricing list. It is recoverable in full — markup, CSS and script — from
+   commit 371e92c, and it is the ONLY horizontal mechanic the page ever had,
+   so anything that re-adds sideways travel should start from there rather
+   than from scratch.
 
    NOTE: the CSS blocks below are in the order they were WRITTEN, not in
    page order — sections 5, 8 and 9 were added later and sit after the
@@ -126,8 +135,8 @@
    ScrollSmoother, no SplitText, no Lenis, no Three.js. That closes the GSAP
    Club licence question (BUILD-BRIEF §6) by not having it: nothing here
    needs a licence audit before we sell the product. The scroll weighting is
-   ~30 lines, the line mask is CSS, the sticky rail is position:sticky the
-   way webtactics does it — in CSS, with no pinning library. All of the
+   ~30 lines, the line mask is CSS, the pinned thread is position:sticky
+   the way webtactics does it — in CSS, with no pinning library. All of the
    JavaScript on this page together is smaller than Lenis alone.
 
    FLAGS: ?lite=1 shows the everything-off state · ?smooth=0 turns the
@@ -459,8 +468,8 @@ section{position:relative}
 }
 
 /* ═══ 2. THE THREAD — two columns, pinned, animated transfer ══════════
-   The one pin on the page, and it declares its own cost on screen. 290vh of
-   wrapper against a 100vh stage means it holds you for 1.9 screens and
+   The one pin on the page, and it declares its own cost on screen. 400vh of
+   wrapper against a 100vh stage means it holds you for 3.0 screens and
    assembles a whole dashboard inside them. sharplink pins for 1.5 and he
    liked it; momentolegal pins for 18.3 to pan one list and he said he felt
    stuck. touch-action stays pan-y so a phone's vertical swipe is never
@@ -763,103 +772,7 @@ section{position:relative}
   .widget-hold{margin-top:34px}
 }
 
-/* ═══ 6. LIVE BEFORE YOUR NEXT JOB — horizontal travel ════════════════
-   webtactics' rail: a tall wrapper with a position:sticky child, done in
-   CSS with no pinning library at all, and touch-action:pan-y so a phone's
-   vertical swipe is never captured. Theirs is 5 screens for a portfolio;
-   this is 2.6 for three steps. These ARE a sequence, so 01/02/03 is a fact
-   about the content rather than the decoration design-knowledge.md bans. */
-/* ── THE HEIGHT IS CSS NOW, AND THAT IS THE iOS FIX ───────────────────
-   It used to be set in script as `window.innerHeight + travel`. On iOS
-   Safari `window.innerHeight` changes every time the URL bar hides or
-   returns, so the reserved height and the sticky stage disagreed by the
-   height of the URL bar and the progress read during a scroll jumped. That
-   is the same fault that broke the thread section in round three.
-
-   Here the two halves are separated: the viewport half is `svh`, which is
-   the SMALL viewport height and does not move when the URL bar does, and the
-   travel half is a pure pixel measurement of the track that has nothing to
-   do with the viewport at all. Nothing in this height can move mid-scroll,
-   so the section can pin on a phone again.
-
-   `--travel` carries the pan distance already multiplied by 1.15, so a
-   screen of scrolling buys a little less than a screen of sideways travel —
-   deliberately a fraction slower than the finger, never faster. The fallback
-   covers the no-JS case. */
-/* The travel, plus 0.8 of a screen of stillness split between the two ends.
-   Same reasoning as the thread: a locked section needs a moment before it
-   starts and a moment after it stops, or a single flick clears it. */
-.rail-wrap{
-  height:calc(100vh + var(--travel,70vh) + 80vh);
-  height:calc(100svh + var(--travel,70vh) + 80svh);
-  position:relative;
-}
-.rail-stage{position:sticky;top:0;height:100vh;height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;touch-action:pan-y}
-.rail-head{margin-bottom:clamp(22px,4vh,44px)}
-/* THE TRACK IS CENTRE-ALIGNED, which is the whole of his complaint: "number
-   one is all the way on the left side of the screen... and number three is,
-   like, not even centered." Measured before the change — at the end of the
-   pan the three step centres sat at -1294, -180 and 952 against a viewport
-   centre of 720. Step three finished 232px right of centre and the other two
-   were off-screen entirely.
-
-   The lead-in is half the leftover width, so step one STARTS centred; the
-   travel is exactly two step-advances, so step three ENDS centred and step
-   two is centred halfway. Three steps, three stops, no arithmetic left to
-   drift. */
-.rail-track{
-  --stepw:min(74vw,1180px);
-  display:flex;gap:clamp(18px,4vw,48px);
-  padding-left:calc((100% - var(--stepw)) / 2);
-  will-change:transform;transform:translate3d(calc(var(--x,0) * -1px),0,0);
-}
-.step{
-  /* THE ACTUAL BUG HE HAS BEEN SEEING SINCE THE FIRST BUILD, and it was
-     never about pinning. At 560px a step is small enough that three of them
-     plus the gaps fit inside a wide monitor: measured at 1920, the track was
-     1920px wide against a 1920px viewport, so the rail had FORTY PIXELS of
-     travel and held the screen for 0.04 of a screen. His words — "all three
-     of them are kind of equally spaced out, there's not one in the center",
-     "it all kinda shifts over by, like, a few pixels, and it looks kinda
-     glitchy", "it never stops me from scrolling". Every one of those is what
-     a rail with nothing to pan looks like.
-
-     At 74vw a step is most of the screen, the track is always about 2.3
-     times the viewport whatever the width, and there is genuinely one step
-     in front of you with the next one arriving. The cap only stops a step
-     from becoming absurd on a very wide monitor. */
-  flex:none;width:var(--stepw,74vw);
-  border-left:1px solid var(--line);padding-left:clamp(18px,2.4vw,30px);
-  transform:scale(calc(.95 + (.05 * var(--near,0))));
-  transform-origin:left center;
-  transition:transform 220ms linear;
-}
-.step .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--fog-2)}
-/* The dim end of this ramp is a contrast floor, not a taste call: .5 of the
-   bone over the ground measures ~4.4:1, so a step that has not arrived yet
-   is still readable rather than decorative grey. */
-.step h3{margin-top:12px;font-variation-settings:"wdth" 110,"wght" 660;font-size:clamp(25px,3.4vw,40px);line-height:1.02;letter-spacing:-.025em;color:rgba(242,241,236,calc(.5 + (.5 * var(--near,0))))}
-.step p{margin-top:12px;color:var(--fog);font-size:16px;max-width:38ch}
-.railbar{margin-top:clamp(26px,5vh,52px);height:1px;background:var(--line);position:relative}
-.railbar i{position:absolute;left:0;top:-1px;height:3px;width:calc(var(--p,0) * 100%);background:var(--bone);border-radius:3px}
-/* One step at a time on a phone. At 74vw the track was only 2.3 screens
-   wide, so the hold lasted 0.71 of a screen — a real lock, but over almost
-   before you notice it. At 88vw a step is the screen, the track is nearly
-   three screens wide, and the hold is about one full screen: long enough to
-   read a step before the next arrives, and still an honest exchange, one
-   pixel sideways for a little over one pixel down. */
-@media (max-width:560px){.rail-track{--stepw:88vw}}
-
-/* THE PHONE PINS AGAIN. Un-pinning it was the wrong fix for the right
-   complaint: he said the section that "kinda stopped your scroll doesn't
-   work anymore", which was a report that the PIN had stopped working, not a
-   request to remove it — and he confirmed it after, "it never stops me...
-   never, like, locks me in." The real fault was the 560px step cap above,
-   at every width. With the height now built from `svh` plus a pixel travel,
-   nothing in this section is measured against a number iOS moves, so it can
-   hold the screen on a phone without the round-three failure. */
-
-/* ═══ 7. PRICING — asymmetric pair + ruled terms ══════════════════════ */
+/* ═══ 6. PRICING — asymmetric pair + ruled terms ══════════════════════ */
 .price{padding:clamp(80px,13vh,150px) 0 clamp(50px,7vh,80px)}
 .plans{display:grid;grid-template-columns:minmax(0,1.34fr) minmax(0,.66fr);gap:clamp(16px,2.6vw,30px);margin-top:44px;align-items:stretch}
 .plan{display:flex;flex-direction:column;border-radius:18px;padding:clamp(22px,3vw,34px);background:rgba(255,255,255,.02);box-shadow:inset 0 0 0 1px var(--line)}
@@ -896,7 +809,7 @@ section{position:relative}
 .terms li .k{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--fog-2)}
 @media (max-width:800px){.plans{grid-template-columns:1fr}}
 
-/* ═══ 10. FOOTER ═══════════════════════════════════════════════════════ */
+/* ═══ 9. FOOTER ═══════════════════════════════════════════════════════ */
 .foot{padding:clamp(40px,7vh,80px) 0 46px;display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:baseline;color:var(--fog-2);font-size:13px}
 .foot .mk{font-variation-settings:"wdth" 76,"wght" 700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--fog)}
 
@@ -966,7 +879,7 @@ section{position:relative}
   .vsrow .gt{font-size:15px}
 }
 
-/* ═══ 8. QUESTIONS — the browser's own disclosure element ════════════
+/* ═══ 7. QUESTIONS — the browser's own disclosure element ════════════
    <details>/<summary>: no JavaScript, no ARIA to get wrong, keyboard and
    screen-reader behaviour for free, and it still works if every script on
    the page fails. Two columns of them is a shape nothing else here uses.
@@ -1010,7 +923,7 @@ section{position:relative}
 }
 @media (max-width:760px){.qs{grid-template-columns:1fr}}
 
-/* ═══ 9. THE LAST WORD — the page's third ground ═════════════════════
+/* ═══ 8. THE LAST WORD — the page's third ground ═════════════════════
    Neither the graphite nor the light band: the accent, brought up for the
    only time it carries a whole section rather than a figure. Ending on it is
    what makes it an ending.
@@ -1059,16 +972,10 @@ section{position:relative}
 .lite .caret{display:none}
 .lite .bub{transform:none!important;opacity:1!important}
 .lite .job{opacity:1!important;transform:none!important}
-.lite .thread-wrap,.lite .rail-wrap{height:auto}
-.lite .stage,.lite .rail-stage{position:static;height:auto;padding:clamp(60px,9vh,110px) 0;overflow:visible}
-/* Without the width the steps ran to the window edge, outside the gutter
-   every other section keeps. */
-.lite .rail-track{transform:none!important;flex-wrap:wrap;padding-left:0;gap:34px;width:min(100% - (var(--gut) * 2),var(--wrap));margin-inline:auto}
-.lite .step{width:100%;transform:none!important}
-.lite .step h3{color:var(--bone)}
+.lite .thread-wrap{height:auto}
+.lite .stage{position:static;height:auto;padding:clamp(60px,9vh,110px) 0;overflow:visible}
 .lite .divider,.lite .cost{display:none}
 .lite .float,.lite .widget-hold{transform:none!important}
-.lite .railbar{display:none}
 /* The brightening paragraph has one end state like everything else. */
 .lite .vsrow{--rp:1}
 .lite .end::before{transform:translateX(-50%);opacity:1}
@@ -1241,7 +1148,11 @@ section{position:relative}
         </div>
       </div>
       <div class="divider" id="divider" aria-hidden="true"><i></i></div>
-      <div class="cost" id="cost" aria-hidden="true">holds for 1.9 screens · then releases</div>
+      <!-- This label is the pin’s honesty: it tells you what the section is
+           about to charge you. It said 1.9 for two rounds after round
+           fourteen made the hold 3.0 — a number on screen that contradicts
+           the page it is on. If .thread-wrap’s height changes, change this. -->
+      <div class="cost" id="cost" aria-hidden="true">holds for 3.0 screens · then releases</div>
     </div>
   </div>
 
@@ -1491,44 +1402,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 6 · LIVE BEFORE YOUR NEXT JOB ═════════════════════════════════
-       Skeleton: horizontal travel. Three steps genuinely are a sequence, so
-       the numbering is a fact rather than the decoration the never-defaults
-       list bans. -->
-  <div class="rail-wrap" id="railWrap">
-    <div class="rail-stage">
-      <div class="wrap rail-head">
-        <span class="lab" data-rv>Setup</span>
-        <h2 class="disp sm" style="margin-top:12px">
-          <span class="mask"><span>Live before your next job.</span></span>
-        </h2>
-        <p class="lede" data-rv style="--i:1">
-          No setup wizard, no migration, no onboarding call. You're bookable
-          the same day and the site gets built out with you from there.
-        </p>
-      </div>
-      <div class="rail-track" id="railTrack">
-        <div class="step">
-          <div class="n">01</div>
-          <h3>Name, hours, one service</h3>
-          <p>Enough to take a booking. The rest can wait.</p>
-        </div>
-        <div class="step">
-          <div class="n">02</div>
-          <h3>Send one link</h3>
-          <p>Your address, on your cards, in your bio, on the van.</p>
-        </div>
-        <div class="step">
-          <div class="n">03</div>
-          <h3>Bookings arrive on their own</h3>
-          <p>Confirmations, reminders and receipts go out without you. Your phone stays in your pocket.</p>
-        </div>
-      </div>
-      <div class="wrap"><div class="railbar" id="railbar"><i></i></div></div>
-    </div>
-  </div>
-
-  <!-- ══ 7 · PRICING ═══════════════════════════════════════════════════
+  <!-- ══ 6 · PRICING ═══════════════════════════════════════════════════
        Skeleton: asymmetric pair, then a ruled terms list. Two plans of very
        different weight, not two matching cards — and the terms are a list,
        because they are an enumeration.
@@ -1592,15 +1466,24 @@ section{position:relative}
       </article>
     </div>
 
+    <!-- Term 01 is the claim rescued from the 01/02/03 rail, which was cut
+         2026-08-29 on his instruction because it cost 4.07 screens at 1920 —
+         28% of the page — to pan three cards sideways twice. The rail's
+         heading was "Live before your next job" and its lede was the one
+         thing in it that had to survive: it is the answer to "is this going
+         to be a project", and its second half is also what stops the pricing
+         card ("we build it for you") from contradicting section 4. Both
+         halves are here. See README "Round fifteen". -->
     <ul class="terms">
-      <li data-rv><span class="k">01</span><span>No commission — a fully booked month costs the same as a slow one</span></li>
-      <li data-rv style="--i:1"><span class="k">02</span><span>Your customers and their numbers are yours, always</span></li>
-      <li data-rv style="--i:2"><span class="k">03</span><span>Unlimited services, bookings and photos</span></li>
-      <li data-rv style="--i:3"><span class="k">04</span><span>Cancel any time; your data leaves with you</span></li>
+      <li data-rv><span class="k">01</span><span>No setup wizard and no migration — you are bookable the same day, and the site is built out with you from there</span></li>
+      <li data-rv style="--i:1"><span class="k">02</span><span>No commission — a fully booked month costs the same as a slow one</span></li>
+      <li data-rv style="--i:2"><span class="k">03</span><span>Your customers and their numbers are yours, always</span></li>
+      <li data-rv style="--i:3"><span class="k">04</span><span>Unlimited services, bookings and photos</span></li>
+      <li data-rv style="--i:4"><span class="k">05</span><span>Cancel any time; your data leaves with you</span></li>
     </ul>
   </section>
 
-  <!-- ══ 8 · QUESTIONS ═══════════════════════════════════════════════
+  <!-- ══ 7 · QUESTIONS ═══════════════════════════════════════════════
        NEW SECTION. Skeleton: two columns of disclosures, which is a shape
        nothing else on the page uses.
 
@@ -1662,7 +1545,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 9 · THE LAST WORD ════════════════════════════════════════════
+  <!-- ══ 8 · THE LAST WORD ════════════════════════════════════════════
        NEW SECTION, and the page's third ground state — neither the graphite
        nor the light band, but the accent brought up for the only time it
        carries a whole section. Everything else uses it on money and on
@@ -1687,7 +1570,7 @@ section{position:relative}
     </div>
   </section>
 
-  <!-- ══ 10 · FOOTER ═══════════════════════════════════════════════════ -->
+  <!-- ══ 9 · FOOTER ═══════════════════════════════════════════════════ -->
   <footer class="wrap foot" data-rv>
     <span class="mk">Detailing Platform</span>
     <span>Built for the people who never rush a car.</span>
@@ -1805,7 +1688,7 @@ section{position:relative}
   var pinZones = [];
   function computePinZones() {
     pinZones.length = 0;
-    [threadWrap, railWrap].forEach(function (el) {
+    [threadWrap].forEach(function (el) {
       if (!el) return;
       var r = el.getBoundingClientRect();
       var top = r.top + window.scrollY;
@@ -1869,9 +1752,6 @@ section{position:relative}
     rgt.style.setProperty("--shift", "0px");
     var d = rgt.getBoundingClientRect();
     rgt.style.setProperty("--shift", (window.innerWidth / 2 - (d.left + d.width / 2)).toFixed(1) + "px");
-    /* sizeRail BEFORE caching reveal positions: it sets the rail wrapper's
-       height, which moves everything below it down the document. */
-    sizeRail();
     cacheReveals();
     computePinZones();
   }
@@ -2022,91 +1902,6 @@ section{position:relative}
       : "Morning, Andrew · " + landed + " of " + landed + " still to do";
   }
   if (LITE) { setSummary(JOBS.length, TOTAL); dash.style.setProperty("--f0", "1"); }
-
-  /* The horizontal rail. webtactics does this with position:sticky and two
-     CSS properties instead of a pinning library; the travel is the only
-     part that needs script. */
-  var railWrap = document.getElementById("railWrap");
-  /* His note: the heading and the line under it are "already, like, for some
-     reason there" by the time the section takes over. Measured: they finish
-     revealing while the wrapper's top is still 300px above the fold, and the
-     section then holds for another two and a half screens — so the entrance
-     is over long before the moment it belongs to.
-
-     They come out of the page-wide reveal and are driven by the pin instead,
-     so they arrive as the section locks. Everything else still reveals on
-     approach; this section earns the exception because it is the only one
-     that then holds still. */
-  var railHeadEls = document.querySelectorAll(".rail-head [data-rv], .rail-head .mask");
-  var railTrack = document.getElementById("railTrack");
-  var railbar = document.getElementById("railbar");
-  var steps = Array.prototype.slice.call(railTrack.children);
-
-  /* How far the track has to move, and therefore how much scroll it is
-     allowed to charge for. A pin must return more than it costs: sharplink
-     pins 1.5 screens and assembles a section; momentolegal pins 18.3 to pan
-     one list and he said he felt stuck. Deriving the height from the travel
-     means the exchange rate stays honest at every width instead of being a
-     number I guessed once at 1440. */
-  var railStage = document.querySelector(".rail-stage");
-  var railTravel = 0;
-  function sizeRail() {
-    /* The travel is EXACTLY two step-advances — the distance from step one
-       centred to step three centred.
-
-       MEASURED WITH offsetLeft, NOT getBoundingClientRect. A step carries
-       `transform:scale(.95 + ...)` so that the one in the middle grows, and
-       getBoundingClientRect reports the SCALED box: an inactive step
-       measured 1012px instead of 1064, the travel came out 107px short, and
-       every step after the first landed progressively further right of
-       centre — 50px out on the second, 104px on the third. offsetLeft is a
-       layout position and no transform touches it, so the pitch it gives is
-       the real one.
-
-       General rule: if an element can be transformed, do not measure it with
-       a method that includes the transform. */
-    var pitch = steps.length > 1 ? steps[1].offsetLeft - steps[0].offsetLeft : 0;
-    railTravel = Math.max(0, pitch * (steps.length - 1));
-    /* The script measures the TRACK and hands the number to CSS; it never
-       writes a height built from window.innerHeight again. That is the whole
-       iOS fix — see the .rail-wrap rule. */
-    /* Two different numbers, and they are allowed to differ: how far the
-       track MOVES is geometry, and how much scroll that COSTS is pacing.
-
-       On a phone the whole pan is only 682px, which at 1:1 gave each step
-       0.40 of a screen — under the half-a-screen-per-beat floor he asked
-       for, and measured as such. So the scroll cost has a minimum of 0.62 of
-       a screen per step advance; the track still moves exactly as far, it
-       just takes longer to get there. On a desktop the travel is already
-       larger than that floor and nothing changes. */
-    var minScroll = railStage.getBoundingClientRect().height * 0.62 * (steps.length - 1);
-    var railScroll = Math.max(railTravel, minScroll);
-    railWrap.style.setProperty("--travel", LITE ? "0px" : railScroll.toFixed(0) + "px");
-  }
-
-  addScrub(railWrap, function (el) {
-    /* Same shared rule as the thread: still at both ends, eased through the
-       middle. Measured against the STAGE's height rather than
-       window.innerHeight — they are the same thing on a desktop, but on iOS
-       only one of them holds still while you scroll. */
-    var p = pinProgress(el, railStage.getBoundingClientRect().height);
-    railTrack.style.setProperty("--x", (p * railTravel).toFixed(1));
-    railbar.style.setProperty("--p", p.toFixed(4));
-    /* The heading arrives with the lock, not a screen before it. */
-    for (var h = 0; h < railHeadEls.length; h++) {
-      railHeadEls[h].classList.toggle("in", p > 0.012);
-    }
-    /* Whichever step is nearest the CENTRE is the lit one. It used to be
-       measured against a point 12% in from the left, which was right when
-       the steps were small and three were on screen, and wrong now that one
-       step IS the screen. */
-    var mid = window.innerWidth / 2;
-    for (var i = 0; i < steps.length; i++) {
-      var b = steps[i].getBoundingClientRect();
-      var d = Math.abs(b.left + b.width / 2 - mid) / (window.innerWidth * 0.62);
-      steps[i].style.setProperty("--near", clamp(1 - d).toFixed(3));
-    }
-  });
 
   /* The ruled rows light themselves on a touch screen, where there is no
      cursor to do it. Only registered when the device cannot hover, so a
@@ -2292,13 +2087,6 @@ section{position:relative}
      does not need to do. They are re-cached whenever the layout can
      actually have changed — fonts arriving, a width change, an orientation
      change — which is what measure() is for. */
-  /* Worked out once: which revealables belong to the rail's head and are
-     therefore driven by the pin rather than by approach. A closest() call
-     per element per scroll frame would be the lazy way and the wrong one. */
-  var inRailHead = [];
-  for (var q = 0; q < revealables.length; q++) {
-    inRailHead.push(!!revealables[q].closest(".rail-head"));
-  }
 
   var rvPos = [];
   function cacheReveals() {
@@ -2357,7 +2145,6 @@ section{position:relative}
        the arrival line. */
     for (var i = 0; i < revealables.length; i++) {
       var el = revealables[i];
-      if (inRailHead[i]) continue;        // driven by the pin, not by approach
       var isIn = el.classList.contains("in");
       var shown = rvPos[i] < (isIn ? line + vh * 0.18 : line);
       if (isIn === shown) continue;                          // nothing to do

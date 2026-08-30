@@ -1434,6 +1434,127 @@ test above. Four credential-free tests pass.
 right rather than sticky. It is a feel judgement and it needs his hand on a
 trackpad — that is the one thing in this round a measurement cannot settle.
 
+## Round fifteen — the 01/02/03 rail is cut (2026-08-29)
+
+His instruction, after being shown what the page's length is actually made
+of. **The measurement is the whole story of this round, and it contradicted
+the advice this file was giving.**
+
+### What the page's length was actually made of
+
+Every top-level section measured at three widths, in screens
+(`offsetTop`/`offsetHeight` — layout values, never bounding rects, because
+this page animates by transform almost exclusively):
+
+| section | 1920 | 1440 | 392 |
+|---|---|---|---|
+| hero | 0.72 | 0.80 | 1.21 |
+| thread heading | 0.28 | 0.33 | 0.27 |
+| **the thread (locked)** | **4.00** | **4.00** | **4.00** |
+| your own website | 0.63 | 0.72 | 1.59 |
+| what you get | 1.02 | 1.18 | 1.72 |
+| what you're using now | 0.84 | 0.95 | 1.14 |
+| **the 01/02/03 rail (locked)** | **4.07** | **4.28** | **3.04** |
+| pricing | 1.17 | 1.35 | 1.81 |
+| questions | 0.73 | 0.82 | 1.15 |
+| the last word | 0.53 | 0.58 | 0.62 |
+| footer | 0.13 | 0.14 | 0.19 |
+| **whole page** | **14.44** | **15.47** | **17.07** |
+
+**The two locked sections were 8.07 of his 14.44 screens — 56% of the page.
+Everything a reader actually reads came to 6.4.**
+
+Round fourteen's own note said "the honest lever is cutting a section, not
+shortening the beats" and named the comparison table and the questions as
+the candidates. That note was written without this table. Cutting either of
+them buys **5%** — 14.44 becomes 13.7, which he would not feel. Offering
+those as the options would have spent a section for nothing.
+
+The rail was the outlier: **4.07 screens to advance three cards sideways
+twice — about 2 screens per beat, against the thread's 0.75 for four
+messages.** It was the most expensive section on the page and the one buying
+the least, and its cost was mostly fixed rather than earned: 1.0 screen of
+sticky stage plus 0.8 of budgeted stillness before any travel at all.
+
+**Process note, and it is the same lesson as round twelve in a new
+costume: the README's own advice was stale, and a measurement that took five
+minutes overturned it.** Take the measurement before repeating a note, even
+your own.
+
+### What was removed and what survived
+
+Markup, CSS, script and the `.lite` rules, all of it. Also gone with it:
+
+- `sizeRail()` and its call in `measure()`;
+- the rail's half of `computePinZones()` — the weighted scroll now has one
+  locked range instead of two;
+- **the `inRailHead` exception in the reveal sweep.** The rail's heading and
+  lede were the only elements on the page driven by the pin rather than by
+  approach, and the sweep had to skip them. With them gone the page is
+  **uniformly reveal-driven, with no exceptions to the rule** — which is
+  worth more than the mechanic was.
+
+**Its one load-bearing claim survives as term 01 of the pricing list:** *"No
+setup wizard and no migration — you are bookable the same day, and the site
+is built out with you from there."* That sentence is doing two jobs and both
+had to be kept — it answers "is this going to be a project", and its second
+half is what stops the pricing card ("we build it for you") from
+contradicting section 4. That contradiction was found and fixed in round six;
+deleting the section without carrying the sentence would have put it back.
+
+Nine sections now, nine skeletons, still no two alike. Every section comment
+and CSS block renumbered.
+
+### The stale label, found by reading
+
+`<div class="cost">` sits under the thread and exists to declare what the pin
+is about to charge you — the file's own words, "the divider reports its own
+cost in screens so the pin is never a mystery". It still said **"holds for
+1.9 screens"**. Round thirteen made the hold 1.90, then round fourteen made
+it 3.0 and did not update the label, so for two rounds a number on the page
+contradicted the page it was printed on. Now 3.0, with a note next to it
+tying it to `.thread-wrap`'s height. The comment above the CSS said 290vh
+against a 400vh rule; corrected too.
+
+### The result
+
+| | before | after |
+|---|---|---|
+| 1920 (his monitor) | 14.44 | **10.41** |
+| 1440 | 15.47 | **11.26** |
+| 392 | 17.07 | **14.14** |
+
+28% off at his width. Pricing grew 0.05 of a screen for the fifth term.
+
+### Verified
+
+- **Console clean at 1920, 1440, 768 and 392**, normal path and `?lite=1`.
+- **Reveal sweep, 61 positions down and back up at all four widths: 0
+  stranded** (an element above the 82% arrival line and still not revealed),
+  while 60 of 61 positions still had something hidden below the fold — which
+  proves the reveal still exists rather than having been switched off to make
+  the number zero. Table rows checked separately on their own `--rp`: never
+  faded while readable.
+- **The checker was wrong first, and the baseline is what caught it.** Its
+  first definition counted any element merely overlapping the viewport, which
+  flagged 136 — so it was run against the COMMITTED page, which round
+  fourteen had verified as clean, and that scored 110. A checker that fails a
+  known-good page is measuring the wrong thing. Rewritten to the page's own
+  rule. Worth keeping as a habit: **baseline a new check against the last
+  known-good version before believing what it says about your change.**
+- **The junction the cut created was looked at**, not just measured: the
+  light band now hands straight to the pricing section's dark ground. The
+  ground change carries it on its own — it reads as a section change, not a
+  collision, at 1920, 1440 and 392.
+- The four credential-free tests pass.
+
+### Recoverable
+
+Commit `371e92c` carries the rail in full — markup, CSS and script. It was
+**the only horizontal mechanic the page ever had**, so anything that wants
+sideways travel later should start from there rather than from scratch. Noted
+in the file header too, so it is findable without this document.
+
 ## Still open on direction 5
 
 **Settled by his review** (so do not re-ask): he likes the direction — "so

@@ -257,6 +257,24 @@ is kept; the entire visual design restarts from scratch.
       1.80:1 during its wipe — found by measuring, retimed. The FAQ click he
       described already worked; verified rather than assumed.
 
+      **ROUND FIFTEEN — 2026-08-29. THE 01/02/03 RAIL IS CUT, on his
+      instruction, and the page is 10.41 screens at 1920 against 14.44.** He
+      was asked to approve 1.4 and chose "cut a section". The candidates this
+      file named were wrong: measured per section at his own width, the two
+      LOCKED sections were 56% of the page and the two named candidates were
+      0.84 and 0.73 screens each — a 5% cut he would not have felt. The rail
+      cost 4.07 screens to move three cards sideways twice. Its one
+      load-bearing sentence survives as term 01 of the pricing list. Verified
+      at 1920/1440/768/392 in both paths: console clean, 0 stranded down and
+      back up, junction looked at. Also fixed: the thread’s on-screen cost
+      label still said "holds for 1.9 screens" two rounds after the hold
+      became 3.0. Full write-up in README "Round fifteen"; the two process
+      lessons are in DECISIONS.md.
+
+      **He also KEPT the "A Facebook page" row** (the one line in the
+      comparison table that was mine rather than the marketing deck’s), so
+      that question is closed and the table stays five rows.
+
       **NOTHING IS LEFT THAT DOES NOT NEED HIM.** What remains is the OWNER
       checkpoint this item always ended on: he looks at the page and approves
       it, or sends the next round. One small thing to raise: **the "A Facebook
