@@ -439,18 +439,16 @@ these go to the owner rather than being decided by a skill.
      ground. The cost is that anyone who prefers light UI loses it; he
      accepted that.
 
-2. **The customer booking page is light-first, and that is NOT decided by
-   item 1.** `app/src/book/BookingBusinessContext.jsx` sets it deliberately —
-   *"a customer arriving from a text message shouldn't inherit whatever theme
-   the last dashboard user picked"* — and `booking.css` grounds it on
-   `--bk-bg: #E7E7E5`. That reasoning is about not inheriting a stranger's
-   preference, and it survives whichever ground wins; what it does not do is
-   choose the ground. **This is the first question of roadmap 2.1** and it is
-   a direction question, so it is his. The system's own ground is dark and
-   the reference page shows the booking panel on a dark site, which is the
-   argument for dark; the argument for light is that this is the one screen a
-   stranger opens once, on a phone, possibly outdoors, with no idea what the
-   brand is.
+2. ~~**The customer booking page is light-first.**~~ **SETTLED 2026-08-30
+   by the owner: dark, like everything else.** The deciding argument was the
+   positioning, not taste — the page claims the booking form is built INTO
+   the detailer's site, and a light form inside a dark site breaks that on
+   sight. **What survives:** the page keeps its own fixed ground independent
+   of any dashboard state, which is what `BookingBusinessContext.jsx`'s
+   comment was always actually arguing for — re-point that comment, do not
+   delete it. **Reopen in Phase 3**, when bespoke tenant sites exist and one
+   of them is light; "follow the tenant's own ground" was offered and
+   declined only because there is nothing to follow yet.
 
 3. **The tenant's curated accent set has no colours in it yet.** He decided
    "a curated four to six, customer-facing only"; nobody has picked the four

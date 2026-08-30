@@ -433,19 +433,18 @@ is kept; the entire visual design restarts from scratch.
       use it and prospects judge it) — including the empty-state rule: a
       business with two services and no photos must look intentional.
 
-      **FIRST QUESTION, AND IT IS THE OWNER’S: is this page dark or light?**
-      He settled the DASHBOARD’s light/dark switch on 2026-08-30 ("no light
-      theme needed"), but this is a different surface and it is light-first
-      today on purpose — `BookingBusinessContext.jsx`: *"a customer arriving
-      from a text message shouldn’t inherit whatever theme the last dashboard
-      user picked"*, grounded on `--bk-bg: #E7E7E5`. That reasoning is about
-      not inheriting a stranger’s preference and survives either ground; it
-      does not choose one. Dark is what the system says and what the
-      reference page shows; light is defensible because this is the one
-      screen a stranger opens once, on a phone, possibly outdoors, with no
-      idea what the brand is. **Ask before building — do not read his
-      dashboard answer as covering this.** See `DECISIONS.md` → "The owner’s
-      answers of 2026-08-30".
+      **ANSWERED 2026-08-30, before the item starts: DARK.** He was asked
+      separately rather than having it inferred from his dashboard answer,
+      because this is a different surface — it is light-first today on
+      purpose (`BookingBusinessContext.jsx`, grounded on
+      `--bk-bg: #E7E7E5`). The deciding argument was the positioning: the
+      page claims the booking form is built INTO the detailer's site, and a
+      light form sitting inside a dark site breaks that on sight.
+      **Keep the page's ground independent of dashboard state** — that is
+      what the light-first comment is actually for, so re-point it rather
+      than deleting it. Reopen in Phase 3 if a bespoke tenant site turns out
+      light. See `DECISIONS.md` → "The customer booking page is dark".
+
 - [ ] 2.2 Marketing/landing page.
 - [ ] 2.3 Dashboard — all five tabs and every settings screen.
 - [ ] 2.4 Per-tenant recoloring — test extreme accents (neon, near-black),

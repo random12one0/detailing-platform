@@ -120,11 +120,12 @@ phase 1 is outstanding.
   switch goes — **in roadmap 2.3, not before**; `app/` still ships the old
   system where it works, and the four places it touches are scoped at the end
   of `docs/design-system.md`.
-- **The one thing his answer did NOT settle, and it must not be inferred:
-  whether the customer booking page is dark or light.** It is light-first
-  today, deliberately, and that is a different surface from the dashboard
-  toggle. It is the first question of 2.1 and it is his. See `DECISIONS.md` →
-  "The owner's answers of 2026-08-30".
+- **The booking page is DARK**, asked separately on 2026-08-30 rather than
+  inferred from the dashboard answer, because it is a different surface. The
+  deciding argument was the positioning: the page claims the booking form is
+  built into the detailer's site. Its ground stays independent of dashboard
+  state, which is what the light-first comment was always for. See
+  `DECISIONS.md` → "The customer booking page is dark".
 - **POSITIONING, unchanged:** we sell "a website and the dashboard that runs
   it" as ONE purchase. The website half leads because it is the half that is
   not a commodity; the dashboard is in the same sentence, never a later
@@ -142,9 +143,10 @@ phase 1 is outstanding.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
-0. **Start Phase 2.1 — the public booking page** — but ASK FIRST whether
-   it is dark or light. His "no light theme" of 2026-08-30 was about the
-   dashboard toggle and does not cover this surface. See §6b.
+0. **Start Phase 2.1 — the public booking page.** Nothing blocks it: the
+   system is written, the direction is approved, and the one question it
+   would have opened with — dark or light — was answered on 2026-08-30:
+   **dark**. See §6b.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

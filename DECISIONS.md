@@ -2025,3 +2025,42 @@ theme" as "the booking page is now dark" would be **taking a decision he was
 never asked**, on the single highest-traffic customer-facing screen in the
 product — exactly the failure mode the "ask, do not infer" rule in this file
 exists for. It is the first question of roadmap 2.1 and it is his.
+
+## The customer booking page is dark (2026-08-30)
+
+Asked separately from the dashboard toggle, because his "no light theme"
+answer did not cover it and inferring it would have been taking a decision he
+was never put. **His answer: dark, like everything else.**
+
+The argument that decided it is the positioning rather than taste: the page
+claims the booking form is built INTO the detailer's website, not a link off
+to somewhere else — that containment is made as a shape in section 3 of the
+reference page, not as a sentence. A light form sitting inside a dark site
+breaks the claim on sight.
+
+**What survives from the old light-first decision.** The comment in
+`app/src/book/BookingBusinessContext.jsx` — *"a customer arriving from a text
+message shouldn't inherit whatever theme the last dashboard user picked"* —
+is still correct and still binding. It was never an argument for light; it is
+an argument against inheriting a stranger's preference. The page keeps its
+own fixed ground, independent of any dashboard state. Only the colour of that
+ground changed. **Do not delete that comment while restyling; re-point it.**
+
+**Revisit in Phase 3, and only then.** The third option offered and declined
+for now was "follow the detailer's own site" — dark for a dark site, light
+for a light one — which is the truest reading of "a custom website for every
+detailer". It was declined because Phase 3 has not built any tenant sites, so
+there is nothing to follow yet and it would be building a mechanism against
+an imaginary input. When the first bespoke sites exist and one of them is
+light, this is the decision to reopen.
+
+### Consequence for 2.1
+
+`app/src/book/booking.css` grounds on `--bk-bg: #E7E7E5` and mirrors the old
+system under `--bk-*`. That mirror is now the new tokens, dark. The tenant
+accent still passes through `app/src/lib/theme.js` — which stays the only
+file computing colour in JS — but `brandVarsFor(..., "light")` at
+`BookingBusinessContext.jsx` becomes the dark mode, and `THEME_BG` /
+`DEFAULT_ACCENT` in `theme.js` collapse to single values along with the
+dashboard toggle in 2.3. The contrast test's "outgoing: booking (light-first)"
+block goes when the tokens do.
