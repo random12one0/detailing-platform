@@ -301,15 +301,34 @@
   font-size: var(--bk-t-title); font-variation-settings: "wdth" 106, "wght" 680;
   letter-spacing: -.018em;
 }
-/* THE TAGLINE IS DESKTOP-ONLY, and this is the masthead's existing
-   phone/desktop split doing one more thing rather than a new idea: the block
-   below already gives the header a different scale where there is room for
-   one. On a phone the tagline is 23px of marketing copy on a form the
-   customer has already decided to fill in — and it is 23px on ALL SEVEN
-   steps, which is what makes it the wrong 23px to keep under W16. The
-   business NAME is what answers "whose page is this"; the tagline is the
-   part that only pays where the screen is not the constraint. */
-.bk-header .tagline { display: none; }
+/* THE TAGLINE IS DESKTOP-ONLY — the phone loses it, and nothing else does.
+   This is the masthead's existing phone/desktop split doing one more thing
+   rather than a new idea: the block below already gives the header a
+   different scale where there is room for one.
+
+   On a phone the tagline is 23px of marketing copy on a form the customer has
+   already decided to fill in, and it is 23px on ALL SEVEN steps — which is
+   what makes it the wrong 23px to keep under W16, where step 1 had 18px to
+   spare. The business NAME is what answers "whose page is this".
+
+   IT STAYS ON EVERY DESKTOP, INCLUDING THE SHORT ONE, and that was measured
+   rather than assumed. Hiding it at 1440x900 as well was tried first, on the
+   theory that the short screen needed both savings; it does not. The
+   height-gated masthead padding below is worth 38px there on its own and step
+   1 fits without touching the tagline. It fits by ONE PIXEL, which is worth
+   knowing — but suppressing a tenant's own line on every laptop to buy margin
+   against a limit the detailer's FIFTH SERVICE breaks anyway is the worse
+   trade. See the step-1 ceiling note in DECISIONS.md → "Roadmap 2.7". */
+.bk-header .tagline {
+  font-size: var(--bk-t-meta); color: var(--bk-muted); margin-top: 3px;
+}
+/* `.brand` and not `.tagline`, because the manage page reuses this class for
+   "Your booking" — a page label, not marketing — and hiding THAT on a phone
+   would have left the customer's receipt with a bare business name where its
+   subtitle was. Caught by grepping the class before trusting the rule. */
+.bk-header .tagline.brand { display: none; }
+@media (min-width: 1000px) { .bk-header .tagline.brand { display: block; } }
+
 /* AND THE GATE IS ON HEIGHT AS WELL AS WIDTH, because the reason written
    below is about height: "a 60px bar above a centred column leaves the top
    third of a 1920 screen empty." A 1440x900 laptop is not that screen — it
@@ -319,9 +338,7 @@
 @media (min-width: 1000px) and (min-height: 950px) {
   .bk-header { padding-top: 54px; padding-bottom: 26px; }
   .bk-header h1 { font-size: clamp(25px, 2.6vw, 34px); }
-  .bk-header .tagline {
-    display: block; font-size: var(--bk-t-meta); color: var(--bk-muted); margin-top: 3px;
-  }
+  .bk-header .tagline.brand { display: block; }
 }
 
 /* Progress: six marks, the ones behind you filled. Shape and fill, not

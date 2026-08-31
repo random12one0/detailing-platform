@@ -381,8 +381,11 @@ team's good."* Gallery: *"looks pretty normal."*
     that belong to one menu.
   - **W5's cell cap** took 174px off the month block on a wide column.
   - The step head's rail and words share a line (15px), a heading stopped being
-    a section peer of what it heads (10px), and the tagline and the tall
-    masthead are now gated on there being room for them (23px and 38px).
+    a section peer of what it heads (10px), the tall masthead is gated on
+    HEIGHT as well as width (38px on a short desktop), and the tenant's tagline
+    is hidden on a PHONE only (23px). Hiding the tagline on a laptop too was
+    tried and rejected: it is not needed there, and margin bought by
+    suppressing a tenant's own line is spent the moment they add a service.
 
   **THE HONEST CEILING, and it is worth knowing before the next session
   re-measures.** Steps 2–7 are ours and have 90–500px to spare. **Step 1 is

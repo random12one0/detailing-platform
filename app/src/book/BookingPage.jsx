@@ -1,8 +1,8 @@
 // Public booking page — /book/:slug. One page, every business, driven
 // entirely by that business's configuration.
 //
-// The six steps live in ./steps; this file owns the flow, the server quote,
-// and submission.
+// The steps live in ./steps; this file owns the flow, the server quote, and
+// submission. HOW MANY there are is not fixed — see stepsFor() below.
 //
 // THE OLD CRASH: the previous widget called calculate-booking, swallowed any
 // failure with a console.error, and left its price state stale or null. The
@@ -229,7 +229,7 @@ function BookingFlow() {
           {branding?.logo_url && <img src={branding.logo_url} alt="" />}
           <div>
             <h1>{business.name}</h1>
-            {branding?.tagline && <div className="tagline">{branding.tagline}</div>}
+            {branding?.tagline && <div className="tagline brand">{branding.tagline}</div>}
           </div>
         </div>
       </header>

@@ -3995,6 +3995,25 @@ five waiting on 2.8's research, which is a good reason it is sequenced there.
 Recorded here so a later session does not rediscover the 18px and go hunting for
 gaps to shave.
 
+**The headroom by size, so nobody has to re-measure to know where they stand:
+1920 has 125px, 768x1024 has 158px, a phone has 18px, and 1440x900 has ONE.**
+
+**That 1px is a decision, and the alternative was tried and rejected.** The
+tenant's tagline is 23px, and hiding it on a laptop as well as on a phone would
+have bought comfortable room at 1440x900. It is not worth it: the tagline is the
+tenant's own line on the tenant's own page, the height-gated masthead padding
+already buys 38px there on its own, and margin bought this way is spent the
+moment the detailer adds a fifth service. **Suppressing tenant identity to
+protect a limit the tenant's own catalogue controls is the wrong trade** — the
+phone is the one screen where the tagline genuinely does not fit, and that is
+the only place it is hidden. Both halves were measured, not reasoned.
+
+**And the class was nearly the wrong one.** `.tagline` is reused by the manage
+page for "Your booking", a page LABEL rather than marketing, so the first
+version of the phone rule hid the customer's receipt subtitle too. It is
+`.tagline.brand` now. Grep a class before writing a rule against it — the same
+lesson `landing.css`'s header has been carrying for two roadmap items.
+
 ### W20 was ours to call, and his own doubt is why
 
 He asked for Back beside Continue, stuck to the page, and then immediately

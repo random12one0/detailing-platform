@@ -455,8 +455,10 @@ Full record: DECISIONS.md → "Roadmap 2.4".
    worst 222px. All fit now, both paths. **(b) THE CEILING IS STEP 1 AND IT
    IS THE TENANT'S.** Steps 2–7 have 90–500px spare; step 1's height is the
    detailer's catalogue, and with the demo's four services it has 18px of
-   room on a phone — a fifth service breaks it. Do not shave gaps to buy
-   room; the lever is W21, which waits on 2.8. **(c) 1440x900 was the only
+   room on a phone and ONE PIXEL at 1440x900 — a fifth service breaks both.
+   Do not shave gaps to buy room, and do not buy it by hiding tenant content
+   either (that was tried with the tagline and rejected); the lever is W21,
+   which waits on 2.8. **(c) 1440x900 was the only
    size that failed once both of HIS were clean** — the short screen, 180px
    less height than 1920 carrying the same desktop masthead. The four
    verification widths are four SIZES. **(d) W1 was not where the roadmap
