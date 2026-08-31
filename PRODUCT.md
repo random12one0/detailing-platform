@@ -14,7 +14,7 @@ web
 
 ## Product Purpose
 
-Multi-tenant SaaS that gives an independent detailer a professional website with online booking built in. Converted from a single-business site (Andrew's Auto Detail), which still operates and is off-limits. Success right now means **launch-ready polish**: closing the open threads (transactional email does not send; the reminder sweep has no scheduler) before seeking users — not growth metrics yet. Billing is not implemented; nothing charges anyone.
+Multi-tenant SaaS that gives an independent detailer a professional website with online booking built in. Converted from a single-business site (Andrew's Auto Detail), which still operates and is off-limits. Success right now means **launch-ready polish**: closing the open threads before seeking users, not growth metrics yet. (The two threads named here until 2026-08-31 — "transactional email does not send" and "the reminder sweep has no scheduler" — were both closed and proven in roadmap 0.2 and 0.3 on 2026-08-29. `PROJECT-STATE.md` §5 is the live list.) Billing is not implemented; nothing charges anyone.
 
 ## Positioning
 

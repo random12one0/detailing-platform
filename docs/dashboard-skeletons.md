@@ -129,7 +129,16 @@ failed is worth keeping.
 | paid | solid **circle** | `--ac` **fixed** | money in — never the tenant's colour, law 11b |
 | cancelled / no-show | **bar** | `--fog` | a job that did not happen |
 | blocked day | solid **square** | `--fog` | a day you closed |
-| drop-off only | hollow **square** | `--accent` | a day with a constraint |
+| one type only | hollow **square** | `--accent` | a day with a constraint |
+
+**The hollow square carries BOTH restrictions, and the tooltip says which**
+(roadmap 2.7, W4). It read "drop-off only" until a detailer could also close a
+day to drop-offs, at which point a fixed label on the mark would have been a
+plain lie on half of them. A sixth FORM was the obvious move and it is the
+wrong one: the rule below is that no two marks which can share a cell share a
+shape, and the two restrictions cannot share a cell — a day is one or the
+other. The distinction is a tooltip and one tap into the day sheet, which
+spells it out in a sentence; the mark's job is "this day is not normal".
 
 **Circles are jobs, squares are the day, a bar is a job that did not happen.**
 No two marks that can appear in the same cell share a form, so the grid reads
