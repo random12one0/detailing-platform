@@ -448,6 +448,17 @@ every service. Reading prefers `group_id` and falls back to `group_label`.
 
 ### What this costs step 1, MEASURED — and it is the biggest finding of the day
 
+> **BUILT 2026-08-31 (roadmap 2.8b), and the prediction held — but the screen
+> to watch changed.** The card came out at 74px on a phone exactly as measured
+> here, and this menu fits step 1 with 47px spare at 392x844. **The tightest
+> screen is 1440x900, not the phone:** a card is 84px there (`.bk-card`’s
+> padding clamps up) and 900px is the shortest screen we verify, so this menu
+> was 19px OVER there while the phone had room. Dropping the step’s intro
+> line — redundant once every category prints "choose one" — fixed it, and
+> 1440x900 now has 10px spare. **A seventh service breaks the laptop before it
+> breaks the phone.**
+
+
 Roadmap 2.7 said W16 "cannot be true in the absolute for a list the detailer
 controls" and left it there. **His answer makes that concrete, so it was
 measured** at 392x844 against the running dev server and the seeded demo:
@@ -477,6 +488,18 @@ the control he asked for. Nothing else in the step needs to move, and no gap
 needs shaving.
 
 ### Vehicle sizes have the same ceiling, and it is six
+
+> **CORRECTED 2026-08-31 WHEN IT WAS BUILT (roadmap 2.8b): THE CEILING IS
+> FOUR.** The 238px below was measured before W27’s condition question landed
+> on this same step, and that question costs 120px of it. Re-measured with it
+> in: four sizes fit with 39px spare (392x844) and 23px (1440x900); five are
+> over by 40px and 66px. `StepVehicle` draws a drop-down past four, so a longer
+> list is supported and simply stops being boxes — and four is exactly where
+> the design system already draws the segmented-vs-list line, so the
+> measurement and the law agreed without being made to. **A ceiling measured
+> before a sibling feature lands has an expiry date; quote the feature set with
+> the number.**
+
 
 His answer to decision 2 makes the vehicle step tenant-controlled too, so the
 same measurement was taken there. Step 3 has **238px spare** with three sizes,

@@ -40,7 +40,10 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         {services.map((s) => (
           <div className="line" key={s.id}>
             <span>{s.name}</span>
-            <span className="bk-price">{money(s.price)}</span>
+            <span className="bk-price">
+              {s.price_is_from && <span className="bk-from">from </span>}
+              {money(s.price)}
+            </span>
           </div>
         ))}
         {addOns.map((a) => (
@@ -83,8 +86,14 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
           <strong className="bk-price" style={{ fontSize: "1.3rem" }}>{money(quote?.total ?? 0)}</strong>
         </div>
         <p className="bk-muted" style={{ marginTop: 10 }}>
-          An estimate based on what you told us. If your vehicle needs more work,
-          we’ll talk to you before doing anything extra.
+          {/* W9 — a from-price is only honest if the page says what it is. The
+              arithmetic is identical either way; this sentence is the whole of
+              what "from" costs, and it replaces rather than joins the general
+              one, because two paragraphs saying the same thing is worse than
+              one saying the sharper version. */}
+          {services.some((s) => s.price_is_from)
+            ? "A starting price for the work you picked. Some of these are priced from — we’ll confirm the final figure once we’ve seen the vehicle, and we’ll talk to you before doing anything extra."
+            : "An estimate based on what you told us. If your vehicle needs more work, we’ll talk to you before doing anything extra."}
         </p>
       </div>
 

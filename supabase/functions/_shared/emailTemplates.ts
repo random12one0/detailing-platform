@@ -58,8 +58,15 @@ export const formatDateLong = (dateStr: string): string => {
 
 export const money = (n: number) => `$${(Math.round(Number(n) * 100) / 100).toFixed(2)}`;
 
-const sizeDisplay = (size: string) =>
-  !size ? "Unknown" : size.charAt(0).toUpperCase() + size.toLowerCase().slice(1);
+// Callers pass bookings.vehicle_size_label where it exists — the label the
+// detailer had at booking time. This is the fallback for rows taken before
+// that column existed, and for a detailer whose size keys are slugs of their
+// own words ("pickup-truck" reads as "Pickup truck", not "Pickup-truck").
+const sizeDisplay = (size: string) => {
+  if (!size) return "Unknown";
+  const words = size.replace(/[-_]+/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
 
 // Shared shell: header band in the tenant's primary color, white card, footer
 // with the tenant's name and site link.

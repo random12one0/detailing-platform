@@ -2,7 +2,27 @@
 //
 // Entirely settings-driven: a mobile-only business never sees drop-off, a
 // drop-off-only business never sees the address field, and the water and
-// electric question appears only when the business asks for it.
+// power questions appear only where the business asks for them.
+//
+// W22 (roadmap 2.8b) SPLIT ONE BOOLEAN INTO TWO SETTINGS WITH THREE STATES.
+// The owner asked for "optional per detailer, an electricity-only mode, and
+// an option that blocks the booking if the customer can't supply what that
+// detailer needs" — and the research found his premise was backwards: most
+// working detailers DO use the customer's tap and outlet, so asking is the
+// norm and what varies is which resource and what "no" means.
+//
+//   not_needed  they bring their own — the customer is never asked
+//   ask         ask and record it, so they know what to load in the van
+//   required    ask, and the booking is BLOCKED on "no"
+//
+// Water and power vary independently: the coating specialist needs power and
+// brings water; the rinseless detailer needs neither. One boolean could never
+// say that.
+//
+// THE CONSEQUENCE IS STATED BEFORE THEY ANSWER, and the block itself is on
+// the server (`_shared/slotValidation.ts`). Roadmap 2.7's W4 found a live hole
+// of exactly this shape — a restriction printed on the page that nothing on
+// the way in ever read.
 
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 import { money } from "../../lib/format.js";
@@ -67,23 +87,46 @@ export default function StepLocation({ form, setForm }) {
             />
           </label>
 
-          {settings.ask_water_electric && (
-            <label className="bk-row" style={{ gap: 10, alignItems: "flex-start", marginTop: 4 }}>
-              <input
-                type="checkbox"
-                checked={form.hasWaterElectric}
-                onChange={(e) => setForm((f) => ({ ...f, hasWaterElectric: e.target.checked }))}
-              />
-              <span>
-                I can provide access to water and an outlet
-                <span className="bk-muted" style={{ display: "block" }}>
-                  Let us know either way — it just changes what we bring.
-                </span>
-              </span>
-            </label>
-          )}
+          <Resource
+            need={settings.water_requirement}
+            checked={form.hasWater}
+            onChange={(v) => setForm((f) => ({ ...f, hasWater: v }))}
+            label="I can provide access to a water tap"
+            required="Without it we can't do this job at your address."
+            // The "either way" line is the same sentence for both resources,
+            // so it is printed under the FIRST one that is merely asked about
+            // and not repeated. A `required` line is specific to its own
+            // resource and always shows.
+            optional={settings.water_requirement === "ask" ? ASK_HELP : null}
+          />
+          <Resource
+            need={settings.power_requirement}
+            checked={form.hasPower}
+            onChange={(v) => setForm((f) => ({ ...f, hasPower: v }))}
+            label="I can provide access to a power outlet"
+            required="Without it we can't do this job at your address."
+            optional={settings.water_requirement === "ask" ? null : ASK_HELP}
+          />
         </>
       )}
     </>
+  );
+}
+
+const ASK_HELP = "Let us know either way — it just changes what we bring.";
+
+// One resource, one question. 'not_needed' draws nothing at all — a question
+// whose answer changes nothing is a question that should not be asked.
+function Resource({ need, checked, onChange, label, required, optional }) {
+  if (need === "not_needed") return null;
+  const help = need === "required" ? required : optional;
+  return (
+    <label className="bk-row" style={{ gap: 10, alignItems: "flex-start", marginTop: 4 }}>
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <span>
+        {label}
+        {help && <span className="bk-muted" style={{ display: "block" }}>{help}</span>}
+      </span>
+    </label>
   );
 }

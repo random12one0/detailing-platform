@@ -51,8 +51,8 @@ were made more than once.
 | About to touch | Sections to read |
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
-| **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.4, the last piece |
-| **The dashboard `/app`** | Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Phase 2 · Phase 2 follow-ups |
+| **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
+| **The dashboard `/app`** | Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
 | **Spacing, layout, or anything at phone width** | Roadmap 2.6 · Test at HIS screen size, not yours |
@@ -128,6 +128,7 @@ were made more than once.
 - **DECISIONS.md got an index** — why this file has a map, why the hooks are hand-written, and why nothing was deleted.
 - **Roadmap 2.7** — the features half of the walkthrough. W16 got an instrument, W1 was not where the roadmap pointed, and W4 turned out to be a live hole rather than a feature.
 - **Roadmap 2.8** — how other detailers actually work. **Two of the five open items needed no migration at all, and the owner's W22 premise turned out backwards.**
+- **Roadmap 2.8b** — building the five. **Step 1’s tightest screen is 1440x900, not the phone, and the vehicle-size ceiling is four rather than six.**
 - **The owner's answers to 2.8, and the one that overruled the research** — he was the sixth menu shape. **Five menus rule shapes IN; they cannot rule the rest OUT.** Carries the measured step-1 ceiling: his own menu overflows by 119px.
 
 <!-- INDEX:END -->
@@ -4499,3 +4500,191 @@ number measured against the demo business is a fact about the demo business.
 Step 1's 18px, and now step 3's 238px, are the tenant's budget rather than
 ours, and the honest question is never "does it fit" but "how much of it does
 the detailer get to spend".
+
+
+## Roadmap 2.8b — building the five, and three numbers that moved
+
+The research (`docs/detailer-research-2026-08-31.md`) and the owner's four
+answers left nothing to decide about *shape*. What follows is the calls made
+while building it, and — more useful — the three measured numbers this project
+had written down that turned out to be wrong once the code existed.
+
+### The order was not a preference and it held
+
+W21's disclosure shipped first, before the `features` editor, because
+`StepServices.jsx` rendered that column inline and an editor without a
+disclosure arms a step-1 overflow for every tenant who fills it in. Built in
+that order, and the prediction was exact: a service card is **74px** on a
+phone with its description folded away, against 97px with it. The owner's own
+menu — two categories of three, which the demo seed now is — fits step 1 with
+**47px spare at 392x844**.
+
+### Step 1's binding screen is 1440x900, not the phone
+
+This is the correction that matters most, and it was found only by running
+`sweep-booking-steps.mjs` at **all four** verification sizes rather than at
+the one every note about this item talked about.
+
+A service card is **84px** at 1440x900 and 74px at 392x844 — `.bk-card`'s
+padding is `clamp(15px, 3.6vw, 20px)`, so a desktop card is 10px taller — and
+900px is the shortest screen we verify. Six services in two categories was
+**19px OVER** there while the phone had 28px spare.
+
+The fix was copy, not layout. With every category label printing "· choose
+one", the step's intro sentence ("Choose one from each category you want…")
+said what the screen already said three times, and it cost 19px on a desktop
+and 38px on a phone because it wrapped. It is dropped wherever the categories
+carry the rule and kept wherever they do not — a business with no categories
+still needs to be told how many it may take. 1440x900 now has **10px spare**.
+
+**So the next thing to break step 1 is a seventh service, and it breaks on a
+laptop before it breaks on a phone.** Every previous note in this repo says
+the phone is the constraint. It is not, any more.
+
+### The vehicle-size ceiling is FOUR, and the research's six was not wrong when it was taken
+
+2.8 measured step 3 at 238px spare, 79px per size card, and concluded six.
+That measurement was taken before W27's condition question existed — and W27
+lands on the same step, costing 120px. Re-measured with it in:
+
+| sizes | 392x844 | 1440x900 |
+|---|---|---|
+| 4 | fits, 39px spare | fits, 23px spare |
+| 5 | **over by 40px** | **over by 66px** |
+
+So four cards, and a drop-down from five. Two things worth keeping from this:
+
+- **The ceiling landed on the line the design system had already drawn.** A
+  choice of two to four is a segmented control; anything longer is a list
+  (`composition.test.mjs` test 2). The measurement and the law agreed without
+  being made to, which is the only reason a `<select>` appears on this page at
+  all.
+- **A ceiling measured before a sibling feature lands is a ceiling with an
+  expiry date.** Both numbers in this repo were honestly measured; the later
+  one is real. Any note quoting a spare-room figure should say what was on the
+  step when it was taken.
+
+### The category rule swaps rather than refuses
+
+`max_select = 1` could have disabled the other cards in the category. It
+doesn't: tapping a second service in a "choose one" category swaps the first
+out. A control that does nothing when pressed reads as broken, and the owner's
+original W25 complaint was about being *confused* by step 1 — an unexpected
+swap would have been the same complaint in a new costume. So the label states
+the rule ("EXTERIOR · choose one") **before** anything is tapped, and the swap
+is then the behaviour it promised.
+
+Written as a cap, not a boolean, throughout — `siblings.length - cap` — so
+"up to two" is already implemented if a detailer ever wants it.
+
+### Both server guards were built as guards, not as validation
+
+W4 in roadmap 2.7 found a rule the customer could read on the booking page and
+book straight past, because nothing on the way in ever read the table. Both of
+2.8b's new rules had the same shape available to them, so both are enforced in
+the edge function and both have a test:
+
+- **The category cap** is in `create-booking`, which is the only path that ever
+  writes `service_ids`. `resolveServices` now selects `group_id` — in
+  `_shared/pricing.ts`, so calculate- and create-booking still resolve services
+  through exactly one implementation.
+- **The water/power block** is in `_shared/slotValidation.ts` beside W4's, as
+  the research directed.
+
+`tests/booking-engine.test.mjs` tests 13 and 14 prove both, and test 14
+deliberately proves the negatives too: "just ask" must NOT block (a detailer
+who turns asking on would otherwise start refusing half their customers), and
+a drop-off job is never blocked because the customer supplies nothing there.
+
+**One deliberate narrowing, recorded because the research's wording is wider.**
+The resource guard reads two OPTIONAL parameters, and reschedule-booking and
+update-booking pass neither. It is genuinely at the junction — but unlike W4's
+rule, which varies by DATE and so has to be re-checked every time a booking
+moves, a resource answer does not change when a date does. Re-checking it on
+reschedule would mean that a detailer switching to "must have" locks every
+existing customer out of moving their own appointment, which punishes the
+customer for a change made after they booked. The parameter is there; the two
+callers that are not setting the answer do not pass it, and the guard skips.
+
+### Deactivate moved off the Catalog row, and measurement is why
+
+The reorder arrows (W10) need two 38px controls per row. A 392px row cannot
+also hold "Deactivate". Rather than shrink anything, activate/deactivate moved
+into the editor sheet, where it also belongs on its own merits: reordering is
+something you do to the LIST; active is a property of the thing, and the sheet
+is what edits properties. It costs one extra tap on a rare action, and it made
+a previously impossible action possible.
+
+### `group_label` is still written, and that is not an oversight
+
+Every service save writes `group_id` **and** `group_label` (the chosen
+category's name). The migration is append-only, the old column is what the
+public-profile RPC's fallback reads, and `StepServices` prefers `group_id` and
+falls back to the label so a service written before the migration still
+appears under its heading. Same pattern for `has_water_electric`, which is
+written as `has_water && has_power` alongside the two new columns: everything
+deployed before 2.8b still reads the old one. Neither is retired until nothing
+reads it.
+
+### The disclosure is a real button, so the card stopped being one
+
+`.bk-card` on the services step was a `<div role="button">`. Putting a second
+control inside it would have been interactive content nested in interactive
+content — the one thing `role="button"` must not contain, and some screen
+readers never reach it. So the service card is a plain box now, holding two
+real `<button>`s: the face (which carries `aria-pressed` and the service name
+as its label) and the eye (`aria-expanded` + `aria-controls`). The padding
+moved off the card and onto the controls, or half the card would have stopped
+being a target.
+
+Two consequences worth knowing before touching it:
+
+- **The name is a `<span>`, not an `<h3>`.** A heading is flow content and a
+  `<button>` may only contain phrasing content, so `<button><h3>` is invalid
+  HTML. `.bk-h3` carries the h3's own type rules. It reads better anyway: an
+  `aria-pressed` button labelled with the service name says more than a heading
+  sitting beside a click target.
+- **Only `.bk-svc` did this.** The extras, the vehicle sizes and the two
+  location cards are still single-action cards and were left alone — there is
+  no second control in them to nest.
+
+The panel opens as a zero-height grid row (`grid-template-rows: 0fr → 1fr`)
+rather than unmounting, so it opens and closes on one easing with no JS
+measuring, and `visibility` rides along so the words are out of the
+accessibility tree while they are out of sight. Clipped text a screen reader
+still announces is worse than no disclosure at all. The inner `<div>` is
+load-bearing: a grid item's own padding sits outside the row height, so
+padding on the animated element leaves the card 40px taller while shut.
+
+### Two defects were found underneath this item, and neither was ours
+
+**Saving ANY settings screen threw you out of it, and had done since the
+dashboard was built.** `BusinessContext.reload()` set `loading = true`, and
+`App.jsx` renders a full-screen spinner while that is true — which unmounts
+every screen, including whatever sheet you were standing in. Six callers do
+this; Booking rules, Appearance and Business info all bounced the detailer
+back to the More list on Save. It was invisible enough to survive the owner’s
+whole walkthrough because it happens at the END of those flows. The vehicle
+size editor writes on every arrow press, so it turned a wart into something
+unusable, which is how it was found.
+
+Fixed at the root rather than in six callers: `loading` now means "we do not
+know who the tenant is yet", not "a refetch is in flight". It is keyed on the
+user id, not on a bare boolean, because a DIFFERENT user signing in genuinely
+has to show the spinner or the new tenant briefly wears the old one’s data.
+Verified both ways: Booking rules Save now keeps its sheet open; sign-out and
+sign-in still show the spinner.
+
+**`scripts/e2e-booking.mjs` cannot run on this machine and has not been able
+to for some time.** It hardcodes `/opt/pw-browsers/chromium-1194/...` and a
+`/tmp/claude-0/-home-user-detailing-platform/...` scratch path — a Linux
+container that no longer exists. It is NOT in CLAUDE.md’s verification list
+and nothing depends on it, so it was left alone rather than fixed blind in an
+item it has nothing to do with. **Roadmap 2.5 is the smoke test, and this is
+the script it will reach for**, so the note is there too.
+
+**The general form, and it is now the fourth time this project has met it:** a
+number measured against one screen is a fact about that screen. 2.6 learned it
+about widths, 2.7 about the demo's four services, 2.8 about the tenant's
+catalogue — and 2.8b about which of the four verification sizes is actually
+the tightest, which turned out not to be the one anybody was watching.

@@ -11,7 +11,8 @@
 // Input: { business_slug, customer_name, customer_phone, customer_email?,
 //          customer_address?, service_type, vehicle_size, vehicle_model?,
 //          service_ids[], add_ons[], booking_date, start_time,
-//          has_water_electric?, customer_notes?, applied_promo_code?,
+//          has_water_electric?, has_water?, has_power?, vehicle_condition?,
+//          customer_notes?, applied_promo_code?,
 //          visitor_id?, campaign_slug?, admin_notes? (members only) }
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -63,11 +64,46 @@ Deno.serve(async (req) => {
       return json({ error: "Invalid service or add-on selection" }, 400);
     }
 
+    // W25 — THE CATEGORY CAP, ENFORCED HERE. The booking page applies the same
+    // rule as a courtesy (picking a second service in a "choose one" category
+    // swaps the first out), but this is the copy that holds: a stale tab, a
+    // second window or a hand-made request all arrive here, and roadmap 2.7's
+    // W4 found a live hole of exactly that shape — a restriction the customer
+    // could read on the page and book straight past.
+    const groupIds = [...new Set(services.map((s) => s.group_id).filter(Boolean))] as string[];
+    if (groupIds.length) {
+      const { data: groups } = await supabase
+        .from("service_groups")
+        .select("id, name, max_select")
+        .eq("business_id", business.id)
+        .in("id", groupIds);
+      for (const g of groups ?? []) {
+        if (!g.max_select) continue;
+        const chosen = services.filter((s) => s.group_id === g.id).length;
+        if (chosen > g.max_select) {
+          return json({
+            error: g.max_select === 1
+              ? `Please choose just one service from ${g.name}.`
+              : `Please choose no more than ${g.max_select} services from ${g.name}.`,
+          }, 409);
+        }
+      }
+    }
+
     const promoCode = body.applied_promo_code || null;
     const promo = await resolvePromo(supabase, business.id, promoCode);
     if (promoCode && !promo) return json({ error: "That promo code is not valid." }, 409);
 
-    const vehicleSize = String(body.vehicle_size || "small").toLowerCase();
+    // W9 — the size is whatever key the tenant's own list uses, so it is no
+    // longer checked against small/medium/large. It still has to BE one of
+    // their sizes: an unknown key would price at zero adjustment and print a
+    // label nobody recognises on the invoice.
+    const sizes = Array.isArray(settings.vehicle_sizes) && settings.vehicle_sizes.length
+      ? settings.vehicle_sizes
+      : [{ key: "small", label: "Small" }];
+    const requested = String(body.vehicle_size || "").toLowerCase();
+    const size = sizes.find((v) => String(v.key).toLowerCase() === requested) ?? sizes[0];
+    const vehicleSize = String(size.key);
     const quote = computeQuote({
       services,
       addOns,
@@ -85,6 +121,13 @@ Deno.serve(async (req) => {
       startTime: String(body.start_time),
       durationMinutes: quote.totalDurationMinutes,
       serviceType,
+      // W22 — the resource answers travel with the request, so the block that
+      // depends on them lives at the same junction as every other slot rule.
+      // `undefined` when the field is absent, which the guard reads as "this
+      // caller is not answering" and skips; an explicit false blocks where the
+      // detailer has marked the resource required.
+      hasWater: body.has_water === undefined ? undefined : body.has_water === true,
+      hasPower: body.has_power === undefined ? undefined : body.has_power === true,
     });
     if (!check.ok) return json({ error: check.error }, check.status ?? 409);
 
@@ -162,10 +205,26 @@ Deno.serve(async (req) => {
         start_at: check.startAt!.toISOString(),
         end_at: check.endAt!.toISOString(),
         service_type: serviceType,
-        vehicle_size: ["small", "medium", "large"].includes(vehicleSize) ? vehicleSize : "small",
+        vehicle_size: vehicleSize,
+        // The SNAPSHOT. A detailer who renames or deletes a size must not
+        // corrupt the record of jobs already done — vehicle_size_fee is
+        // snapshotted here for the same reason, and booking_services snapshots
+        // name, price and duration. Without it, last month's invoice starts
+        // printing a key that no longer resolves.
+        vehicle_size_label: String(size.label ?? size.key),
         vehicle_size_fee: quote.sizeAdd,
         vehicle_model: body.vehicle_model?.trim() || null,
-        has_water_electric: body.has_water_electric === true,
+        // W27 — information, never arithmetic. The trade prices condition
+        // after inspection, so this must not reach computeQuote.
+        vehicle_condition: ["light", "moderate", "heavy", "extreme"]
+          .includes(String(body.vehicle_condition)) ? String(body.vehicle_condition) : null,
+        // W22 — two answers where there was one. Null is "not asked", which is
+        // a different fact from "asked and told no". The old single column is
+        // still written, because everything already deployed reads it.
+        has_water: body.has_water === undefined ? null : body.has_water === true,
+        has_power: body.has_power === undefined ? null : body.has_power === true,
+        has_water_electric: body.has_water_electric === true
+          || (body.has_water === true && body.has_power === true),
         customer_notes: body.customer_notes?.trim() || null,
         admin_notes: member ? body.admin_notes?.trim() || null : null,
         subtotal: quote.subtotalAfterSite,
@@ -225,7 +284,7 @@ Deno.serve(async (req) => {
       startTime: timeStrIn(tz, check.startAt!),
       endTime: timeStrIn(tz, check.endAt!),
       serviceType,
-      vehicleSize,
+      vehicleSize: booking.vehicle_size_label || vehicleSize,
       vehicleModel: booking.vehicle_model,
       customerNotes: booking.customer_notes,
       serviceNames: services.map((s) => s.name),

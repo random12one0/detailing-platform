@@ -1015,7 +1015,7 @@ is kept; the entire visual design restarts from scratch.
       needs, what the contact step must collect, which on-site constraints
       exist). Do this BEFORE the parts of 2.7 that depend on it, not after.
 
-- [ ] 2.8b **Build the five items 2.8 unblocked.** Added 2026-08-31 as
+- [x] 2.8b **Build the five items 2.8 unblocked.** Added 2026-08-31 as
       bookkeeping, not as a new plan: 2.7 lists W9, W10, W21, W22 and W25 as
       deliberately unbuilt, and 2.8's own text says to do them once the
       research answers them. It has, and the owner has answered the four
@@ -1044,6 +1044,44 @@ is kept; the entire visual design restarts from scratch.
         arrangement every measurement was taken against.
       - Verify with `node scripts/sweep-booking-steps.mjs` and read the SPARE
         ROOM, not the pass. Step 1 and step 3 are both the tenant's budget now.
+
+      **DONE 2026-08-31. All five built, in the order that file gave, and the
+      one migration applied.** Item-by-item outcomes with the measurements are
+      in `docs/owner-walkthrough-2026-08-30.md` (W9, W10, W21, W22, W25, W27);
+      the judgment calls are in DECISIONS.md → "Roadmap 2.8b". The headlines,
+      and three of them are corrections to numbers this item quoted:
+
+      - **W21 landed exactly on its prediction.** A service card is 74px on a
+        phone with the description folded away, as measured. The owner’s own
+        menu — two categories of three, which the demo seed now IS — fits with
+        47px spare at 392x844.
+      - **STEP 1’S BINDING SCREEN IS NO LONGER THE PHONE. It is 1440x900**,
+        and that was found by running the sweep at all four sizes rather than
+        at the one this item talked about. A card is 84px there (the card
+        padding clamps up) against 74px on a phone, and 900px is the shortest
+        screen we verify. It was 19px OVER until the step’s intro line came
+        out — redundant once every category prints "choose one" — and it now
+        has **10px spare**. A seventh service breaks 1440x900 first.
+      - **THE VEHICLE-SIZE CEILING IS FOUR, NOT SIX.** 2.8 measured six before
+        W27’s condition question existed; that question costs 120px of the same
+        step. Measured after: four sizes fit with 39px (392) and 23px (1440),
+        five are over by 40px and 66px. So four cards and a drop-down from
+        five — which is where the design system already draws the segmented/
+        list line, so the measurement and the law agree. A longer list is fully
+        supported; it just stops being boxes.
+      - **Both server-side guards have tests on the way in**, because W4 in 2.7
+        was a rule that only existed on the page:
+        `tests/booking-engine.test.mjs` test 13 (a category’s `max_select`)
+        and test 14 (a REQUIRED resource — including that "just ask" must NOT
+        block, and that drop-off never does). 63 checks pass, up from 52.
+      - **One thing moved that nobody asked for, and measurement forced it:**
+        activate/deactivate left the Catalog rows for the editor sheet. A 392px
+        row cannot hold a worded button and two reorder arrows.
+      - All 11 test suites pass; `sweep-widths` clean at 392 and 360;
+        `sweep-booking-steps` clean at all four sizes in the normal path AND
+        `?lite=1`; `accent-sweep` clean; and a real booking put through the UI
+        stores `vehicle_size_label`, `vehicle_condition`, `has_water` and
+        `has_power` correctly.
 
 - [ ] 2.9 **The 320px floor — measured 2026-08-31, deferred on purpose.**
       PRODUCT.md promises "responsive 320→1440" and the product does not keep
@@ -1074,6 +1112,16 @@ is kept; the entire visual design restarts from scratch.
 
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
+
+      **Before reaching for `scripts/e2e-booking.mjs`, know that it does not
+      run** — noticed while doing 2.8b, 2026-08-31. It hardcodes a Linux
+      Playwright path (`/opt/pw-browsers/...`) and a scratch directory from a
+      container that no longer exists, so it has been dead for a while and
+      nothing noticed, because it is not in CLAUDE.md’s verification list.
+      Either repair it here or write the smoke test fresh; do not assume it is
+      a working baseline. What DOES run today and covers most of this:
+      `node tests/booking-engine.test.mjs` (63 checks, real bookings through
+      the deployed functions) and `node scripts/sweep-booking-steps.mjs`.
 
 ## Phase 3 — Tenant websites (the biggest new build)
 

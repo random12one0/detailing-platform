@@ -126,23 +126,23 @@ explaining it; if they still have to ask "so should I?", it failed.
   owner's rule that a customer should never scroll inside a step — and the
   script exits 1 while anything overflows, so it is the definition of done.
   `--lite` runs the `?lite=1` path; `--shots=DIR` saves the PNGs.
-  **Read the spare room, not just the pass.** Step 1's height is the TENANT'S
-  catalogue: with the demo's four services it has 18px of headroom on a phone,
-  so a fifth service breaks W16 again. The fix for that is W21, not shaving
-  gaps. **W21 is DESIGNED but NOT BUILT as of 2026-08-31** — roadmap 2.8
-  answered it (`docs/detailer-research-2026-08-31.md`) and it needs no
-  migration, because `services.features` already exists. **The one hard rule
-  that came out of it: the W21 disclosure ships before or with any editor for
-  `services.features`.** `StepServices.jsx` renders that field inline today, so
-  an editor without a disclosure arms this exact overflow for every tenant who
-  fills it in.
-  **And the disclosure holds the DESCRIPTION too — measured 2026-08-31.** The
-  owner's own menu (two categories, three services each, his answer to 2.8's
-  decision 1) overflows step 1 by 119px; a card is 97px, and folding the
-  description off its face makes it 74px and the same menu 18px spare. The face
-  of a service card is its name, its price and its length. **Step 3 is
-  tenant-controlled now too** — sizes are per-detailer — and its measured
-  ceiling is SIX at 79px each against 238px spare.
+  **Read the spare room, not just the pass.** Both step 1 and step 3 are the
+  TENANT’S budget, not ours, and both were re-measured in roadmap 2.8b against
+  the demo reshaped into the owner’s own menu — two categories of three.
+  **W21, W25, W9, W10, W22 and W27 are all BUILT as of 2026-08-31**; what
+  follows are the numbers that replaced the ones this file used to quote.
+  **STEP 1’S TIGHTEST SCREEN IS 1440x900, NOT THE PHONE**, and every older note
+  in this repo says otherwise. A service card is 84px there against 74px at
+  392, because `.bk-card`’s padding clamps up, and 900px is the shortest screen
+  we verify. Six services in two categories: **10px spare at 1440x900**, 47px
+  at 392x844. A seventh breaks the laptop first. **STEP 3’S VEHICLE-SIZE
+  CEILING IS FOUR, not the six roadmap 2.8 measured** — that figure was taken
+  before W27’s condition question landed on the same step, and it costs 120px.
+  Four sizes: 39px spare at 392, 23px at 1440. Five: over by 40px and 66px.
+  Past four, `StepVehicle` draws a drop-down instead of cards, so a longer list
+  is supported and simply stops being boxes.
+  **The lesson under all of it: a spare-room figure is only true of the screen
+  AND the feature set it was taken with.** Quote both, or the number rots.
 
 - **Before changing any colour, know law 11b (`docs/design-system.md`): the
   accent is IDENTITY, never MEANING.** Paid / money-up / "it worked" are the

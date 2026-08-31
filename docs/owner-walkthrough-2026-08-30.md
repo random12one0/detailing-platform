@@ -308,7 +308,17 @@ grow to cover whatever list replaces them.
 Overall: *"on the more page, everything looks pretty good."* Team: *"the
 team's good."* Gallery: *"looks pretty normal."*
 
-- **W9 — Services may need more per-service settings.** He listed what exists
+- **W9 — Services may need more per-service settings.**
+  **BUILT 2026-08-31, roadmap 2.8b.** From-prices are a switch per service in
+  Catalog and print "from $650" on the booking card and the review receipt;
+  vehicle sizes are the detailer’s own ordered list, edited in the same screen,
+  and every service prices each of them. `bookings.vehicle_size_label` holds
+  the snapshot. **The measured ceiling below moved from six to FOUR** — the
+  research took it before W27’s condition question landed on the same step,
+  and that question costs 120px. Sizes 4: fits with 39px (392x844) and 23px
+  (1440x900). Sizes 5: over by 40px and 66px. So four cards, and a drop-down
+  from five — which is exactly where the design system already draws the line
+  between a segmented control and a list, so nothing had to be argued. He listed what exists
   (name, description, price, duration, protection, bigger vehicles, add-on) and
   was unsure rather than dissatisfied: *"I don't know how detailers usually use
   it."* **This is a research item, not a build item** — pair it with W17.
@@ -332,7 +342,13 @@ team's good."* Gallery: *"looks pretty normal."*
   costs 79px, so six sizes fit a phone and the seventh does not** — past six it
   needs a denser control than cards, and a dropdown is permitted above four
   options.
-- **W10 — Add-ons need grouping and/or reordering.** *"if they could add, like,
+- **W10 — Add-ons need grouping and/or reordering.**
+  **BUILT 2026-08-31, roadmap 2.8b.** Up/down arrows on every category, service
+  and add-on row in Catalog, writing `sort_order`; the whole list is renumbered
+  on each move rather than two values swapped, because every row a detailer has
+  ever added carries the column default of 0 and a swap on that list does
+  nothing. Activate/deactivate moved into the editor sheet to make room — a
+  392px row cannot hold a worded button and two arrows, measured. *"if they could add, like,
   groups maybe, so that way not everything is kinda just thrown in there at the
   same time. Or maybe you could reorder stuff."*
   **ANSWERED 2026-08-31: reordering, not groups, and no migration.** Real
@@ -485,7 +501,21 @@ team's good."* Gallery: *"looks pretty normal."*
   bottom of a scroll — but he immediately doubted it against W17: *"I might
   [be wrong] if we do an estimated time. Figure out what it looks best."*
   **His doubt is on the record; the call is ours.**
-- **W21 — A way to see a service's FULL details.** This is his own business
+- **W21 — A way to see a service's FULL details.**
+  **BUILT 2026-08-31, roadmap 2.8b, and it shipped FIRST as the research
+  demanded.** His eye sits on the name row, so the control itself costs no
+  height; the description and the inclusion list open under it as a zero-height
+  grid row that animates both ways and is out of the accessibility tree while
+  shut. The inline five-item cap is gone. MEASURED against the reshaped demo
+  (two categories of three, his own shape): card 74px on a phone exactly as
+  predicted, step 1 at **47px spare on 392x844** and **10px spare on 1440x900**.
+  Redundant copy came out with it — where every category says "choose one",
+  the step’s intro line was repeating them for 19px on a desktop and 38px on a
+  phone, and without it 1440x900 went from 19px OVER to 10px spare.
+  **The binding screen for step 1 is no longer the phone. It is 1440x900**, the
+  short desktop, where a card costs 84px rather than 74px because the card
+  padding clamps up. Seven services in two categories is the next thing to
+  break, and it breaks there first. This is his own business
   practice: he lists everything included in a package. He does not want that as
   a giant description block — he wants a small control on the service box (*"a
   little eye"* or similar) that opens the full contents. **This is the item
@@ -512,7 +542,15 @@ team's good."* Gallery: *"looks pretty normal."*
   its price and its length, and nothing else in the step has to move. W21 also
   stops being a sibling of the categories work and becomes its prerequisite —
   it is the only item that takes height OFF step 1, and every other one adds.
-- **W22 — Water and electricity must be per-detailer.** The *"I can provide
+- **W22 — Water and electricity must be per-detailer.**
+  **BUILT 2026-08-31, roadmap 2.8b.** Two settings, three states each, in
+  Booking rules: "I bring it" / "Just ask" / "Must have". The booking page
+  draws nothing for the first, one question for the second, and for the third
+  states the consequence BEFORE the answer and disables Continue.
+  **The block itself is in `_shared/slotValidation.ts`** next to W4’s, and
+  `tests/booking-engine.test.mjs` test 14 proves it on the way in: required +
+  no = 409, required + yes = 200, merely asked + no = 200, and drop-off is
+  never blocked because the customer supplies nothing there. The *"I can provide
   access to water and an outlet"* question was added **for him specifically**,
   because he does not carry a water tank or generator; he says most detailers
   do. He wants: the question to be optional per detailer, an option to ask
@@ -567,7 +605,19 @@ team's good."* Gallery: *"looks pretty normal."*
   opposite of kinda what you'd want for something selected."* **A selected
   element's hover must move in the same direction as its selected state, not
   against it.** He also said the accent-driven selection colour itself is good.
-- **W25 — Step 1 lets you pick overlapping packages.** He could select "Full
+- **W25 — Step 1 lets you pick overlapping packages.**
+  **BUILT 2026-08-31, roadmap 2.8b.** `service_groups` with `max_select`, a
+  Categories section at the top of Catalog, a category picker on the service
+  editor, and step 1 grouping by `group_id` with `group_label` as the fallback
+  for a service written before the migration. Picking a second service in a
+  "choose one" category SWAPS the first out rather than refusing the tap — a
+  control that does nothing when pressed reads as broken — and the category
+  label says "choose one" before anything is tapped, because an unexpected swap
+  is the same complaint he made here.
+  **The enforcement that counts is in create-booking**, not React, and
+  `tests/booking-engine.test.mjs` test 13 proves it: two from a pick-one
+  category is a 409 that names the category, two from a pick-any category is
+  fine, and one from each — his own shape — is fine. He could select "Full
   Detail" and "Interior" together and found it confusing. **He flagged the
   content as placeholder** (*"obviously those are just example things"*), so
   the question is whether packages should be mutually exclusive, not whether
@@ -591,7 +641,15 @@ team's good."* Gallery: *"looks pretty normal."*
   Step 5 with a day picked has 119px of room on a phone now; it had 16px of
   overflow, and 45px before a day was picked.
 - **W26 — Time slots on mobile do not all fit.** Instance of W16.
-- **W27 — "How do I reach you" is essentially complete** — but research whether
+- **W27 — "How do I reach you" is essentially complete**
+  **BUILT 2026-08-31, roadmap 2.8b — the condition question only, as decided.**
+  Four chips on the vehicle step (light / moderate / heavy / extreme), one row,
+  switchable off per detailer in Booking rules. It never touches the quote and
+  the step says so. **It is not free and the cost landed on someone else’s
+  budget:** 120px of step 3, which took the vehicle-size card ceiling from the
+  six the research measured down to four. That is the right trade — a detailer
+  with five sizes gets a drop-down, a detailer with none loses nothing — but it
+  is why two measured numbers in this file disagree, and the later one is real. — but research whether
   other detailers need fields he does not.
   **ANSWERED 2026-08-31, and he was right that it is nearly complete.** Of the
   four things real booking forms collect that we do not, two are already

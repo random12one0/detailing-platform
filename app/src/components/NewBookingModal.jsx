@@ -12,8 +12,16 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import Sheet from "./Sheet.jsx";
 import { Segmented } from "./controls.jsx";
 
+// W9 — the sizes are the detailer's own list now. The fallback is the three
+// this product shipped with, for a settings row that predates the column.
+const FALLBACK_SIZES = [
+  { key: "small", label: "Small" }, { key: "medium", label: "Medium" }, { key: "large", label: "Large" },
+];
+
 export default function NewBookingModal({ onClose, onCreated, initialDate }) {
-  const { business } = useBusiness();
+  const { business, settings } = useBusiness();
+  const sizes = Array.isArray(settings?.vehicle_sizes) && settings.vehicle_sizes.length
+    ? settings.vehicle_sizes : FALLBACK_SIZES;
   const [catalog, setCatalog] = useState({ services: [], addOns: [] });
   const [form, setForm] = useState({
     customer_name: "",
@@ -21,7 +29,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
     customer_email: "",
     customer_address: "",
     service_type: "mobile",
-    vehicle_size: "small",
+    vehicle_size: "",
     vehicle_model: "",
     service_ids: [],
     add_ons: [],
@@ -33,6 +41,12 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
   const [slots, setSlots] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  // The detailer's FIRST size is the base, whatever they called it.
+  useEffect(() => {
+    if (form.vehicle_size) return;
+    setForm((f) => ({ ...f, vehicle_size: sizes[0].key }));
+  }, [sizes, form.vehicle_size]);
 
   useEffect(() => {
     (async () => {
@@ -133,9 +147,19 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
               onChange={(v) => setForm({ ...form, service_type: v })}
               options={[["mobile", "Mobile"], ["dropoff", "Drop-off"]]} /></label>
           <label className="field"><span>Vehicle size</span>
-            <Segmented value={form.vehicle_size}
-              onChange={(v) => setForm({ ...form, vehicle_size: v })}
-              options={[["small", "Small"], ["medium", "Medium"], ["large", "Large"]]} /></label>
+            {/* Segmented up to four, a drop-down past it. Same rule as the
+                customer's booking page and the same reason: a segmented
+                control is for a choice you can see all of at once, and a
+                detailer with twelve vehicle classes has a list. */}
+            {sizes.length <= 4 ? (
+              <Segmented value={form.vehicle_size}
+                onChange={(v) => setForm({ ...form, vehicle_size: v })}
+                options={sizes.map((z) => [z.key, z.label])} />
+            ) : (
+              <select value={form.vehicle_size} onChange={(e) => setForm({ ...form, vehicle_size: e.target.value })}>
+                {sizes.map((z) => <option key={z.key} value={z.key}>{z.label}</option>)}
+              </select>
+            )}</label>
         </div>
         {form.service_type === "mobile" && (
           <label className="field"><span>Address</span>

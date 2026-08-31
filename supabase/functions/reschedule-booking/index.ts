@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       startTime: timeStrIn(tz, check.startAt!),
       endTime: timeStrIn(tz, check.endAt!),
       serviceType: booking.service_type,
-      vehicleSize: booking.vehicle_size,
+      vehicleSize: booking.vehicle_size_label || booking.vehicle_size,
       vehicleModel: booking.vehicle_model,
       customerNotes: booking.customer_notes,
       serviceNames: [],

@@ -24,8 +24,11 @@ const EDITABLE_FIELDS = [
   "service_type",
   "vehicle_size",
   "vehicle_model",
+  "vehicle_condition",
   "customer_notes",
   "has_water_electric",
+  "has_water",
+  "has_power",
   "final_amount",
   "payment_status",
   "payment_notes",
@@ -68,6 +71,25 @@ Deno.serve(async (req) => {
     const updateData: Record<string, unknown> = {};
     for (const field of EDITABLE_FIELDS) {
       if (body[field] !== undefined) updateData[field] = body[field];
+    }
+
+    // W9 — MOVING THE SIZE MOVES ITS SNAPSHOT WITH IT. `vehicle_size_label`
+    // is the human label frozen at booking time so a detailer who renames or
+    // deletes a size cannot rewrite the record of jobs already done; a size
+    // changed here without it would leave the invoice printing the OLD name
+    // for the NEW size, which is worse than either. No screen sends
+    // vehicle_size today — this exists so that the day one does, the pair
+    // cannot come apart.
+    if (updateData.vehicle_size !== undefined) {
+      const settings = await getSettings(member.businessId);
+      const sizes = Array.isArray(settings.vehicle_sizes) && settings.vehicle_sizes.length
+        ? settings.vehicle_sizes
+        : [{ key: "small", label: "Small" }];
+      const want = String(updateData.vehicle_size).toLowerCase();
+      const size = sizes.find((v) => String(v.key).toLowerCase() === want);
+      if (!size) return json({ error: "That is not one of your vehicle sizes." }, 400);
+      updateData.vehicle_size = size.key;
+      updateData.vehicle_size_label = String(size.label ?? size.key);
     }
 
     // A date/time move is re-validated like any customer booking (excluding

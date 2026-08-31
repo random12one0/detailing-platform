@@ -24,6 +24,12 @@ export interface ServiceRow {
   price: number;
   duration_minutes: number;
   vehicle_size_adjustments: Record<string, SizeAdjustment> | null;
+  // W25 — which category this service belongs to, so create-booking can
+  // enforce that category's max_select. It is fetched here rather than in a
+  // second query because this is already the one place both endpoints resolve
+  // services identically, and drift between them is the bug this module was
+  // written to prevent.
+  group_id?: string | null;
 }
 
 export interface AddOnRow {
@@ -120,7 +126,7 @@ export async function resolveServices(db: DB, businessId: string, serviceIds: st
   if (!serviceIds.length) return [];
   const { data, error } = await db
     .from("services")
-    .select("id, name, price, duration_minutes, vehicle_size_adjustments")
+    .select("id, name, price, duration_minutes, vehicle_size_adjustments, group_id")
     .eq("business_id", businessId)
     .eq("is_active", true)
     .in("id", serviceIds);

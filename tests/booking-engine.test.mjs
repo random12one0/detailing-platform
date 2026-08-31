@@ -153,6 +153,7 @@ const D1 = daysOut(20); // clear day
 const D2 = daysOut(21); // booking-conflict day
 const D3 = daysOut(22); // cancel/reschedule day
 const D4 = daysOut(23); // W4 restricted-day tests
+const D5 = daysOut(24); // 2.8b category-cap and resource tests
 
 // ---------------------------------------------------------------------------
 console.log("test 1: per-business slot grid (interval 30 vs 60)");
@@ -473,6 +474,106 @@ console.log("test 12: a day restricted to one service type refuses the other");
   await restrict(null);
   const free = await book("mobile"); await clear();
   check("unrestricted day still takes a mobile booking", free.status === 200, `${free.status}`);
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 13: a category's max_select is enforced on the server");
+// Roadmap 2.8b, W25. The booking page applies the same rule as a courtesy —
+// picking a second service in a "choose one" category swaps the first out —
+// but a rule that lives only in React is a rule a stale tab, a second window
+// or a hand-made request walks past. W4 (test 12) found a live hole of exactly
+// that shape, which is why this one has a test on the way in.
+{
+  const [pickOne] = (await svc.post("/rest/v1/service_groups",
+    [{ business_id: A.id, name: "Exclusive A", sort_order: 0, max_select: 1 }])).data;
+  const [pickAny] = (await svc.post("/rest/v1/service_groups",
+    [{ business_id: A.id, name: "Open A", sort_order: 1, max_select: null }])).data;
+  const made = (await svc.post("/rest/v1/services", [
+    { business_id: A.id, name: "Excl One", price: 40, duration_minutes: 30, group_id: pickOne.id },
+    { business_id: A.id, name: "Excl Two", price: 50, duration_minutes: 30, group_id: pickOne.id },
+    { business_id: A.id, name: "Open One", price: 20, duration_minutes: 30, group_id: pickAny.id },
+    { business_id: A.id, name: "Open Two", price: 20, duration_minutes: 30, group_id: pickAny.id },
+  ])).data;
+  const id = (n) => made.find((x) => x.name === n).id;
+  const book = (ids) => fn("create-booking", {
+    business_slug: "engine-a", customer_name: "Cap Check", customer_phone: "555-0901",
+    customer_email: "cap@engine.test", customer_address: "9 Test St", service_type: "mobile",
+    vehicle_size: "small", service_ids: ids, add_ons: [], booking_date: D5, start_time: "10:00",
+  });
+  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0901`);
+
+  const two = await book([id("Excl One"), id("Excl Two")]); await clear();
+  check("two from a pick-one category -> 409", two.status === 409, `${two.status} ${JSON.stringify(two.data)}`);
+  check("the refusal names the category", /Exclusive A/.test(two.data?.error ?? ""), two.data?.error);
+
+  const one = await book([id("Excl One")]); await clear();
+  check("one from a pick-one category -> 200", one.status === 200, `${one.status} ${JSON.stringify(one.data)}`);
+
+  const many = await book([id("Open One"), id("Open Two")]); await clear();
+  check("two from a pick-any category -> 200", many.status === 200, `${many.status} ${JSON.stringify(many.data)}`);
+
+  // One from each is the owner's own menu shape, and the whole reason the rule
+  // lives on the category rather than on the business.
+  const each = await book([id("Excl One"), id("Open One")]); await clear();
+  check("one from each category -> 200", each.status === 200, `${each.status} ${JSON.stringify(each.data)}`);
+
+  for (const n of ["Excl One", "Excl Two", "Open One", "Open Two"]) {
+    await svc.del(`/rest/v1/services?id=eq.${id(n)}`);
+  }
+  await svc.del(`/rest/v1/service_groups?business_id=eq.${A.id}`);
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 14: a REQUIRED resource blocks the booking on the server");
+// Roadmap 2.8b, W22 — his own ask: "an option that blocks the booking if the
+// customer can't supply what that detailer needs." The guard is in
+// _shared/slotValidation.ts beside W4's, because that is where create-,
+// reschedule- and update-booking meet. 'ask' must NOT block: knowing what to
+// load in the van is the point, and a detailer who turns asking on would
+// otherwise start refusing half their customers.
+{
+  const setNeed = (water, power) => svc.patch(
+    `/rest/v1/business_settings?business_id=eq.${A.id}`,
+    { water_requirement: water, power_requirement: power },
+  );
+  const book = (extra) => fn("create-booking", {
+    business_slug: "engine-a", customer_name: "Tap Check", customer_phone: "555-0902",
+    customer_email: "tap@engine.test", customer_address: "9 Test St", service_type: "mobile",
+    vehicle_size: "small", service_ids: [serviceA.id], add_ons: [],
+    booking_date: D5, start_time: "14:00", ...extra,
+  });
+  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0902`);
+
+  await setNeed("required", "ask");
+  const noWater = await book({ has_water: false, has_power: true }); await clear();
+  check("required water, answered no -> 409", noWater.status === 409, `${noWater.status} ${JSON.stringify(noWater.data)}`);
+
+  const yesWater = await book({ has_water: true, has_power: false }); await clear();
+  check("required water, answered yes -> 200 (power only asked)", yesWater.status === 200, `${yesWater.status} ${JSON.stringify(yesWater.data)}`);
+
+  await setNeed("ask", "ask");
+  const asked = await book({ has_water: false, has_power: false }); await clear();
+  check("merely asked, answered no -> 200", asked.status === 200, `${asked.status} ${JSON.stringify(asked.data)}`);
+
+  // Drop-off is never blocked: the customer supplies nothing, the detailer is
+  // standing in their own shop.
+  await setNeed("required", "required");
+  const drop = await book({ service_type: "dropoff", has_water: false, has_power: false }); await clear();
+  check("drop-off ignores the resource rule -> 200", drop.status === 200, `${drop.status} ${JSON.stringify(drop.data)}`);
+
+  // And the answers are stored as two facts, not one — which is the whole
+  // point of splitting has_water_electric.
+  await setNeed("ask", "ask");
+  const stored = await book({ has_water: true, has_power: false });
+  const row = await svc.get(`/rest/v1/bookings?id=eq.${stored.data?.booking?.id}&select=has_water,has_power,vehicle_size_label`);
+  check("has_water and has_power stored separately",
+    row.data?.[0]?.has_water === true && row.data?.[0]?.has_power === false, JSON.stringify(row.data));
+  // W9's snapshot: a detailer who renames a size must not corrupt the record
+  // of jobs already done.
+  check("the vehicle size LABEL is snapshotted",
+    typeof row.data?.[0]?.vehicle_size_label === "string" && row.data[0].vehicle_size_label.length > 0,
+    JSON.stringify(row.data));
+  await clear();
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

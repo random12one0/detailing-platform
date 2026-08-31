@@ -42,6 +42,12 @@ export async function validateSlot(opts: {
   durationMinutes: number;
   serviceType: string;   // "mobile" | "dropoff"
   excludeBookingId?: string;
+  // W22. UNDEFINED means "this caller is not setting the answer" and the
+  // resource guard is skipped; null means "asked, and they did not say yes".
+  // The distinction is the whole of why reschedule and update do not pass
+  // these — see the guard below.
+  hasWater?: boolean | null;
+  hasPower?: boolean | null;
 }): Promise<SlotCheck> {
   const { business, settings, bookingDate, startTime, durationMinutes, serviceType, excludeBookingId } = opts;
   const tz = business.timezone;
@@ -58,6 +64,36 @@ export async function validateSlot(opts: {
   }
   if (serviceType === "dropoff" && !settings.dropoff_enabled) {
     return { ok: false, status: 409, error: "Drop-off is not available. Please choose mobile service." };
+  }
+
+  // WATER AND POWER GUARD. Roadmap 2.8b, W22 — and it is here for exactly the
+  // reason W4's drop-off guard is: a rule the customer can READ on the page
+  // and book straight past is not a rule. A `required` resource that only
+  // greys out a Continue button in React is that bug again.
+  //
+  // Only 'required' blocks. 'ask' records the answer and lets it through —
+  // knowing what to load in the van is the point — and 'not_needed' never asks
+  // at all. A drop-off job is never blocked: the customer is not supplying
+  // anything, the detailer is standing in their own shop.
+  if (serviceType === "mobile") {
+    const missing = (need: string, answer: boolean | null | undefined) =>
+      need === "required" && answer !== undefined && answer !== true;
+    if (missing(settings.water_requirement, opts.hasWater)) {
+      return {
+        ok: false,
+        status: 409,
+        error: "We need access to a water tap at the address to do this job. "
+          + "Please choose a different address, or call us to arrange it.",
+      };
+    }
+    if (missing(settings.power_requirement, opts.hasPower)) {
+      return {
+        ok: false,
+        status: 409,
+        error: "We need access to a power outlet at the address to do this job. "
+          + "Please choose a different address, or call us to arrange it.",
+      };
+    }
   }
 
   const jobStart = hm(startTime);

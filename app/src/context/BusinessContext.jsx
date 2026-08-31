@@ -2,7 +2,7 @@
 // user's business comes from their business_users membership — everything on
 // screen (brand name included) is that business's own data, never hardcoded.
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { applyDashboardAccent } from "../lib/theme.js";
 
@@ -39,13 +39,27 @@ export function BusinessProvider({ children }) {
     setFirstName(null);
   };
 
+  // WHICH USER WE HAVE ALREADY LOADED. `loading` means "we do not know who
+  // the tenant is yet" — it does NOT mean "a refetch is in flight", and the
+  // difference is visible: App.jsx renders a full-screen spinner while it is
+  // true, which unmounts every screen underneath. So every settings screen
+  // that called reload() after a save threw the detailer out of the sheet they
+  // were in and back to the More list. Found in roadmap 2.8b while building
+  // the vehicle-size editor, which writes on every arrow press and made a
+  // pre-existing wart unusable; fixed here rather than in each caller, because
+  // there are six of them and they all have the same bug.
+  // Keyed on the user id, not a bare boolean: a DIFFERENT user signing in has
+  // to show the spinner, or the new tenant briefly wears the old one's data.
+  const loadedFor = useRef(null);
+
   const reload = useCallback(async () => {
     if (!session?.user) {
       clearTenant();
+      loadedFor.current = null;
       setLoading(false);
       return;
     }
-    setLoading(true);
+    if (loadedFor.current !== session.user.id) setLoading(true);
     const { data: memberships } = await supabase
       .from("business_users")
       .select("business_id, role, first_name")
@@ -66,6 +80,7 @@ export function BusinessProvider({ children }) {
     setBusiness(bizRes.data ?? null);
     setSettings(setRes.data ?? null);
     setBranding(brandRes.data ?? null);
+    loadedFor.current = session.user.id;
     setLoading(false);
   }, [session]);
 

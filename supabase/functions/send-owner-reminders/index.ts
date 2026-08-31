@@ -40,7 +40,7 @@ function emailDataFor(business: Business, b: BookingRow) {
     startTime: timeStrIn(tz, new Date(b.start_at)),
     endTime: timeStrIn(tz, new Date(b.end_at)),
     serviceType: b.service_type,
-    vehicleSize: b.vehicle_size,
+    vehicleSize: b.vehicle_size_label || b.vehicle_size,
     vehicleModel: b.vehicle_model,
     customerNotes: b.customer_notes,
     serviceNames: [],

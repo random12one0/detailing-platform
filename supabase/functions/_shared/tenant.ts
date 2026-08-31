@@ -33,6 +33,14 @@ export interface BusinessSettings {
   travel_radius_miles: number | null;
   travel_fee: number | null;
   ask_water_electric: boolean;
+  // W22 — 'not_needed' | 'ask' | 'required'. The old single boolean is kept
+  // beside them: every deployed function and every existing row still reads
+  // it, and this schema is append-only.
+  water_requirement: string;
+  power_requirement: string;
+  ask_vehicle_condition: boolean;
+  // W9 — the detailer's own ordered list of [{key,label,examples}].
+  vehicle_sizes: { key: string; label: string; examples?: string }[];
   customer_reminder_lead_minutes: number;
   evening_before_enabled: boolean;
   evening_before_latest_start: string;
@@ -78,6 +86,14 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     travel_radius_miles: null,
     travel_fee: null,
     ask_water_electric: true,
+    water_requirement: "ask",
+    power_requirement: "ask",
+    ask_vehicle_condition: true,
+    vehicle_sizes: [
+      { key: "small", label: "Small", examples: "Coupe, sedan, hatchback" },
+      { key: "medium", label: "Medium", examples: "Small SUV, crossover, wagon" },
+      { key: "large", label: "Large", examples: "Truck, large SUV, van" },
+    ],
     customer_reminder_lead_minutes: 120,
     evening_before_enabled: true,
     evening_before_latest_start: "10:00:00",

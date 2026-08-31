@@ -50,18 +50,23 @@ export default function BookingPage() {
 
 function BookingFlow() {
   const ctx = useBookingBusiness();
-  const { status, business, branding, settings, services, addOns, brandVars, slug } = ctx;
+  const { status, business, branding, settings, services, serviceGroups, addOns, brandVars, slug } = ctx;
   const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     serviceIds: [],
     addOns: [],
-    vehicleSize: "small",
+    vehicleSize: "",
     vehicleModel: "",
+    vehicleCondition: "",
     serviceType: "",
     customerAddress: "",
-    hasWaterElectric: false,
+    // W22 — two answers where there was one, because water and power vary
+    // independently. False is a real answer here, not a missing one: the
+    // question is only ever drawn where the detailer asks it.
+    hasWater: false,
+    hasPower: false,
     bookingDate: "",
     startTime: "",
     customerName: "",
@@ -85,6 +90,14 @@ function BookingFlow() {
     if (status !== "ready" || form.serviceType) return;
     setForm((f) => ({ ...f, serviceType: settings.mobile_enabled ? "mobile" : "dropoff" }));
   }, [status, settings, form.serviceType]);
+
+  // W9 — the sizes are the tenant's own list, so the default is THEIR first
+  // one. Hardcoding "small" was safe while every business had our three; it is
+  // a broken quote the moment a detailer names their base size anything else.
+  useEffect(() => {
+    if (status !== "ready" || form.vehicleSize) return;
+    setForm((f) => ({ ...f, vehicleSize: settings.vehicle_sizes[0]?.key ?? "small" }));
+  }, [status, settings, form.vehicleSize]);
 
   const selectedServices = useMemo(
     () => services.filter((s) => form.serviceIds.includes(s.id)),
@@ -144,6 +157,14 @@ function BookingFlow() {
       case "Vehicle": return !!quote && !quoting;
       case "Location":
         if (form.serviceType === "mobile" && !form.customerAddress.trim()) return false;
+        // W22 — where a resource is REQUIRED, the customer cannot walk past
+        // the question. This is the courteous half: it stops them filling in
+        // four more steps before being told no. The half that holds is in
+        // _shared/slotValidation.ts, on the server.
+        if (form.serviceType === "mobile") {
+          if (settings.water_requirement === "required" && !form.hasWater) return false;
+          if (settings.power_requirement === "required" && !form.hasPower) return false;
+        }
         return true;
       case "When": return !!form.bookingDate && !!form.startTime;
       case "Details":
@@ -151,6 +172,34 @@ function BookingFlow() {
       default: return true;
     }
   })();
+
+  // W25 — THE CATEGORY'S RULE, APPLIED. A category with max_select 1 is
+  // "pick one from this category": choosing a second one swaps the first out
+  // rather than refusing the tap, because a control that does nothing when
+  // pressed reads as broken. Written as a cap rather than as a boolean so
+  // "up to two" needs no second implementation.
+  //
+  // THIS IS THE COURTESY COPY OF THE RULE, NOT THE ENFORCEMENT. The real one
+  // is in create-booking, for the reason W4 found the hard way in roadmap 2.7:
+  // a restriction that only exists in React is a restriction a stale page, a
+  // second tab or a crafted request walks straight past.
+  const toggleService = (id) => setForm((f) => {
+    if (f.serviceIds.includes(id)) return { ...f, serviceIds: f.serviceIds.filter((x) => x !== id) };
+    const groupOf = (sid) => services.find((s) => s.id === sid)?.group_id ?? null;
+    const gid = groupOf(id);
+    const cap = gid ? (serviceGroups.find((g) => g.id === gid)?.max_select ?? null) : null;
+    let ids = [...f.serviceIds, id];
+    if (cap) {
+      const siblings = ids.filter((x) => groupOf(x) === gid);
+      const over = siblings.length - cap;
+      // Oldest out first, so the one just tapped always survives.
+      if (over > 0) {
+        const drop = new Set(siblings.slice(0, over));
+        ids = ids.filter((x) => !drop.has(x));
+      }
+    }
+    return { ...f, serviceIds: ids };
+  });
 
   const go = (delta) => {
     setStep((s) => Math.max(0, Math.min(STEPS.length - 1, s + delta)));
@@ -174,11 +223,18 @@ function BookingFlow() {
         service_type: form.serviceType,
         vehicle_size: form.vehicleSize,
         vehicle_model: form.vehicleModel.trim() || null,
+        vehicle_condition: form.vehicleCondition || null,
         service_ids: form.serviceIds,
         add_ons: form.addOns,
         booking_date: form.bookingDate,
         start_time: form.startTime,
-        has_water_electric: form.hasWaterElectric,
+        // Both new columns and the old one. The old pair is what every
+        // already-deployed function still reads; the migration is append-only
+        // and this is the pass that writes alongside it, not the one that
+        // retires it.
+        has_water: form.hasWater,
+        has_power: form.hasPower,
+        has_water_electric: form.hasWater && form.hasPower,
         customer_notes: form.customerNotes.trim() || null,
         applied_promo_code: promoState.applied || null,
       });
@@ -260,15 +316,7 @@ function BookingFlow() {
             layout: its children stay direct flex items of .bk-wrap. */}
         <div className="bk-step" key={`step-${step}`}>
         {stepName === "Services" && (
-          <StepServices
-            selected={form.serviceIds}
-            onToggle={(id) => setForm((f) => ({
-              ...f,
-              serviceIds: f.serviceIds.includes(id)
-                ? f.serviceIds.filter((x) => x !== id)
-                : [...f.serviceIds, id],
-            }))}
-          />
+          <StepServices selected={form.serviceIds} onToggle={toggleService} />
         )}
         {stepName === "Extras" && (
           <StepExtras

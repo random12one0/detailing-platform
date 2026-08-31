@@ -470,6 +470,51 @@ because each one would have frozen a guess into an append-only migration.
 The four decisions, the full migration written out as a specification, and the
 build order are all in that file. Judgment calls: DECISIONS.md → "Roadmap 2.8".
 
+## 6e. ROADMAP 2.8b — THE FIVE ARE BUILT (2026-08-31)
+
+**All five shipped in the order 2.8 specified, plus W27, plus the one
+migration.** Item-by-item outcomes with measurements:
+`docs/owner-walkthrough-2026-08-30.md` (W9, W10, W21, W22, W25, W27).
+Judgment calls: DECISIONS.md → "Roadmap 2.8b".
+
+**What a detailer can now do that they could not on 2026-08-30:** create
+CATEGORIES and say whether a customer picks one from each or as many as they
+like; REORDER their categories, services and add-ons; write a what’s-included
+list per service that customers open behind a little eye on the booking page;
+mark a price as "from"; define their OWN vehicle sizes instead of our
+small/medium/large; say per-resource whether they bring their own water and
+power, just ask, or cannot work without it; and ask how dirty the inside is.
+
+**Three numbers in this repo changed, and they are the part a new session gets
+wrong:**
+
+1. **Step 1’s tightest screen is 1440x900, not the phone.** Every older note
+   says the phone. A service card is 84px at 1440x900 and 74px at 392x844
+   (`.bk-card`’s padding clamps up), and 900px is the shortest screen we
+   verify. The owner’s own menu — two categories of three, which the demo seed
+   now IS — has **10px spare at 1440x900** and 47px at 392x844. A seventh
+   service breaks the laptop first.
+2. **The vehicle-size ceiling is FOUR, not the six 2.8 measured.** That figure
+   predates W27’s condition question, which lands on the same step and costs
+   120px. Past four, `StepVehicle` draws a drop-down instead of cards, so a
+   longer list still works — it just stops being boxes.
+3. **The demo business is a different shape.** Six services in two pick-one
+   categories (Exterior, Interior), every one carrying a what’s-included list,
+   two of them "from" prices. `Full Detail` was renamed `Full Interior Detail`.
+   Every measurement above was taken against it.
+
+**Two guards are on the server and have tests on the way in**, because roadmap
+2.7’s W4 was a rule that only existed on the page: a category’s `max_select`
+(in `create-booking`) and a REQUIRED water/power resource (in
+`_shared/slotValidation.ts`). `tests/booking-engine.test.mjs` tests 13 and 14;
+63 checks pass, up from 52.
+
+**Kept on purpose, not overlooked:** `services.group_label`,
+`business_settings.ask_water_electric` and `bookings.has_water_electric` are
+all still written alongside the new columns. Everything deployed before 2.8b
+reads them, and the migration rule is append-only. They are retired in a later
+pass, once nothing reads them.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
@@ -574,4 +619,7 @@ build order are all in that file. Judgment calls: DECISIONS.md → "Roadmap 2.8"
    order in `docs/detailer-research-2026-08-31.md`. **Start with W21's
    disclosure** — it is the only item that takes height OFF step 1, and his own
    menu overflows it by 119px until that is done.
+   ~~**Start with W21.**~~ **ALL FIVE ARE BUILT — 2026-08-31, roadmap 2.8b.
+   See §6e**, and read the three corrected numbers there before quoting any
+   spare-room figure from §6d.
 6. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.

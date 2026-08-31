@@ -23,7 +23,19 @@ const STATUS_LABELS = {
 const PAY_LABELS = {
   paid: "Paid", pending: "Unpaid", partial: "Part paid", waived: "Waived",
 };
+// W9 — sizes are the detailer's own list now, so a booking carries the LABEL
+// it was taken at (bookings.vehicle_size_label). This map is the fallback for
+// rows taken before that column existed; a key we do not know is de-slugged
+// rather than printed raw.
 const SIZE_LABELS = { small: "Small", medium: "Medium", large: "Large" };
+const sizeLabel = (b) => b.vehicle_size_label
+  || SIZE_LABELS[b.vehicle_size]
+  || String(b.vehicle_size || "").replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase());
+// W27. Shown only when it was asked — null means "not asked", which is a
+// different fact from a clean car.
+const CONDITION_LABELS = {
+  light: "Light dirt", moderate: "Moderately dirty", heavy: "Heavily soiled", extreme: "Extreme",
+};
 
 export default function BookingDetail({ booking, onClose, onChanged }) {
   const { business } = useBusiness();
@@ -135,9 +147,22 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   ` + ${(booking.booking_add_ons ?? []).map((a) => a.add_on?.name).filter(Boolean).join(", ")}`}
               </p>
               <p className="muted">
-                {SIZE_LABELS[booking.vehicle_size] ?? booking.vehicle_size}
+                {sizeLabel(booking)}
                 {booking.vehicle_model ? ` · ${booking.vehicle_model}` : ""}
+                {CONDITION_LABELS[booking.vehicle_condition]
+                  ? ` · ${CONDITION_LABELS[booking.vehicle_condition]}` : ""}
               </p>
+              {/* W22 — what they can supply at the address, and only for a
+                  mobile job. Written as what you have to BRING, because that
+                  is the decision this answer feeds. */}
+              {booking.service_type === "mobile" && (booking.has_water === false || booking.has_power === false) && (
+                <p className="muted">
+                  Bring your own {[
+                    booking.has_water === false ? "water" : null,
+                    booking.has_power === false ? "power" : null,
+                  ].filter(Boolean).join(" and ")}
+                </p>
+              )}
               <p style={{ marginTop: 6 }}>
                 Estimated {money(booking.total_price)}
                 {booking.final_amount != null && <> · Final <strong>{money(booking.final_amount)}</strong></>}

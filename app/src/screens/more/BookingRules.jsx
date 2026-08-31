@@ -33,6 +33,13 @@ const WINDOW = [[30, "1 month"], [60, "2 months"], [90, "3 months"], [180, "6 mo
 const SLOT = [[15, "15 min"], [20, "20 min"], [30, "30 min"], [60, "1 hour"]];
 const CANCEL = [[0, "Any time"], [2, "2 hours"], [12, "12 hours"], [24, "1 day"], [48, "2 days"]];
 const REMIND = [[60, "1 hour"], [180, "3 hours"], [720, "12 hours"], [1440, "1 day"], [2880, "2 days"]];
+// W22. Three states, phrased as the detailer would say them out loud.
+const RESOURCE = [["not_needed", "I bring it"], ["ask", "Just ask"], ["required", "Must have"]];
+const HELP = {
+  not_needed: (what) => `You carry your own — the customer is never asked about ${what}.`,
+  ask: (what) => `The booking page asks about ${what} and records the answer, so you know what to load.`,
+  required: (what) => `The booking page asks about ${what}, and a customer who can't provide it is blocked from booking.`,
+};
 
 // Warnings live on the same values as before, but read as sentences.
 const WARN = {
@@ -63,6 +70,9 @@ export default function BookingRules() {
     mobile_enabled: settings?.mobile_enabled ?? true,
     dropoff_enabled: settings?.dropoff_enabled ?? true,
     ask_water_electric: settings?.ask_water_electric ?? true,
+    water_requirement: settings?.water_requirement ?? "ask",
+    power_requirement: settings?.power_requirement ?? "ask",
+    ask_vehicle_condition: settings?.ask_vehicle_condition ?? true,
     evening_before_enabled: settings?.evening_before_enabled ?? true,
     travel_fee: settings?.travel_fee ?? "",
     travel_radius_miles: settings?.travel_radius_miles ?? "",
@@ -89,7 +99,9 @@ export default function BookingRules() {
     ...f,
     mobile_enabled: m === "mobile" || m === "both",
     dropoff_enabled: m === "dropoff" || m === "both",
-    ...(m === "dropoff" ? { ask_water_electric: false } : {}),
+    ...(m === "dropoff"
+      ? { ask_water_electric: false, water_requirement: "not_needed", power_requirement: "not_needed" }
+      : {}),
   }));
 
   const warnings = useMemo(() => {
@@ -142,7 +154,14 @@ export default function BookingRules() {
       customer_reminder_lead_minutes: Number(form.customer_reminder_lead_minutes) || 0,
       mobile_enabled: form.mobile_enabled,
       dropoff_enabled: form.dropoff_enabled,
-      ask_water_electric: form.ask_water_electric,
+      // The old boolean is kept in step with the two new settings rather than
+      // left to rot: the migration is append-only, so it is still on the row
+      // and still read by everything deployed before 2.8b. True when either
+      // resource is asked about at all.
+      ask_water_electric: form.water_requirement !== "not_needed" || form.power_requirement !== "not_needed",
+      water_requirement: form.water_requirement,
+      power_requirement: form.power_requirement,
+      ask_vehicle_condition: form.ask_vehicle_condition,
       evening_before_enabled: form.evening_before_enabled,
       travel_fee: num(form.travel_fee),
       travel_radius_miles: num(form.travel_radius_miles),
@@ -179,10 +198,24 @@ export default function BookingRules() {
               help="Added to every mobile booking. Leave blank for none.">
               <MoneyField value={form.travel_fee} onChange={(v) => set("travel_fee", v)} />
             </Setting>
-            <Switch label="Ask about water and power"
-              help="Adds one question to the booking page so you know what to bring."
-              checked={form.ask_water_electric}
-              onChange={(v) => set("ask_water_electric", v)} />
+            {/* W22 — two settings, three states each, because water and power
+                vary independently: the coating specialist needs power and
+                brings water, the rinseless detailer needs neither. "Must have"
+                is the one the owner asked for by name — it blocks a booking
+                the detailer cannot service, and the block is on the server
+                (`_shared/slotValidation.ts`), not just on the page. */}
+            <Setting label="Water at the customer's address"
+              help={HELP[form.water_requirement]("water")} stacked>
+              <Segmented value={form.water_requirement}
+                onChange={(v) => set("water_requirement", v)}
+                options={RESOURCE} />
+            </Setting>
+            <Setting label="Power at the customer's address"
+              help={HELP[form.power_requirement]("a power outlet")} stacked>
+              <Segmented value={form.power_requirement}
+                onChange={(v) => set("power_requirement", v)}
+                options={RESOURCE} />
+            </Setting>
           </>
         )}
       </Group>
@@ -240,6 +273,11 @@ export default function BookingRules() {
           <DurationChoice value={form.customer_reminder_lead_minutes} presets={REMIND}
             onChange={(v) => set("customer_reminder_lead_minutes", v)} unit="minutes" customMax={10080} />
         </Setting>
+
+        <Switch label="Ask how dirty the vehicle is"
+          help="Four choices — light, moderate, heavy or extreme — on the booking page. It never changes the price; it tells you what you are driving to."
+          checked={form.ask_vehicle_condition}
+          onChange={(v) => set("ask_vehicle_condition", v)} />
 
         <Switch label="Remind the night before for early jobs"
           help="A 7am reminder for a 8am job is no use. This sends it the evening before instead."

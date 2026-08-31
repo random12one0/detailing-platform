@@ -118,11 +118,69 @@ await post("/rest/v1/business_hours", [0, 1, 2, 3, 4, 5, 6].map((wd) => ({
   close_time: wd === 0 || wd === 1 ? null : "18:00",
 })));
 
+// TWO CATEGORIES OF THREE, EACH PICK-ONE — reshaped in roadmap 2.8b, and the
+// arrangement is not decoration. It is the owner's own menu shape ("Interior,
+// Exterior… they could click one from each category"), it is what every
+// measurement in docs/detailer-research-2026-08-31.md was taken against, and
+// it is what `scripts/sweep-booking-steps.mjs` therefore keeps measuring.
+//
+// The old seed had FOUR services with FOUR distinct group_labels, so the
+// migration's backfill produced four categories of one — which exercises none
+// of the new rule and reads as a mistake on the booking page.
+//
+// Every service carries `features` now, because W21's disclosure is the thing
+// that has to be looked at, and a demo with nothing behind the eye proves
+// nothing. Two carry price_is_from, which is the other half of the same
+// honesty: a coating quoted blind is a promise nobody can keep.
+const groups = await post("/rest/v1/service_groups", [
+  { business_id: business.id, name: "Exterior", sort_order: 0, max_select: 1 },
+  { business_id: business.id, name: "Interior", sort_order: 1, max_select: 1 },
+]);
+const grp = (name) => groups.find((g) => g.name === name);
+
 const services = await post("/rest/v1/services", [
-  { business_id: business.id, name: "Express Wash", description: "Exterior hand wash, wheels, tyre dressing.", price: 65, duration_minutes: 60, group_label: "Exterior", sort_order: 0 },
-  { business_id: business.id, name: "Full Detail", description: "Interior and exterior, clay bar, wax.", price: 220, duration_minutes: 180, group_label: "Complete", sort_order: 1 },
-  { business_id: business.id, name: "Interior Deep Clean", description: "Shampoo, steam, leather conditioning.", price: 150, duration_minutes: 150, group_label: "Interior", sort_order: 2 },
-  { business_id: business.id, name: "Ceramic Coating", description: "Two-year protective coating.", price: 650, duration_minutes: 300, group_label: "Protection", sort_order: 3 },
+  {
+    business_id: business.id, name: "Express Wash", price: 65, duration_minutes: 60,
+    description: "Our quickest outside clean — in and out in an hour.",
+    price_is_from: false,
+    features: ["Two-bucket hand wash", "Wheels, arches and tyres", "Bug and tar removal", "Hand dry and tyre dressing"],
+    group_id: grp("Exterior").id, group_label: "Exterior", sort_order: 0,
+  },
+  {
+    business_id: business.id, name: "Wash & Wax", price: 140, duration_minutes: 120,
+    description: "Everything in the Express Wash, plus protection that lasts the season.",
+    price_is_from: false,
+    features: ["Everything in the Express Wash", "Clay bar decontamination", "Machine-applied carnauba wax", "Glass polished inside and out", "Three-month protection"],
+    group_id: grp("Exterior").id, group_label: "Exterior", sort_order: 1,
+  },
+  {
+    business_id: business.id, name: "Ceramic Coating", price: 650, duration_minutes: 300,
+    description: "A two-year coating, applied over a full paint decontamination.",
+    price_is_from: true,
+    features: ["Full decontamination and paint prep", "Single-stage machine polish", "Two-year ceramic coating", "Wheels and glass coated", "Aftercare kit included"],
+    group_id: grp("Exterior").id, group_label: "Exterior", sort_order: 2,
+  },
+  {
+    business_id: business.id, name: "Interior Refresh", price: 95, duration_minutes: 90,
+    description: "A tidy-up for a car that is used every day.",
+    price_is_from: false,
+    features: ["Vacuum throughout, including the boot", "Dashboard, console and door cards wiped", "Interior glass", "Mats cleaned and dressed"],
+    group_id: grp("Interior").id, group_label: "Interior", sort_order: 3,
+  },
+  {
+    business_id: business.id, name: "Interior Deep Clean", price: 150, duration_minutes: 150,
+    description: "For carpets and seats that need more than a vacuum.",
+    price_is_from: true,
+    features: ["Everything in the Interior Refresh", "Carpets and cloth seats shampooed", "Steam clean on vents and seams", "Leather cleaned and conditioned", "Odour treatment"],
+    group_id: grp("Interior").id, group_label: "Interior", sort_order: 4,
+  },
+  {
+    business_id: business.id, name: "Full Interior Detail", price: 220, duration_minutes: 180,
+    description: "The whole cabin taken back to as-new, panel by panel.",
+    price_is_from: false,
+    features: ["Everything in the Interior Deep Clean", "Seats removed where possible", "Headliner spot-cleaned", "Every vent, seam and switch by hand", "Ceramic protection on plastics", "Sealant on leather"],
+    group_id: grp("Interior").id, group_label: "Interior", sort_order: 5,
+  },
 ]);
 const addOns = await post("/rest/v1/add_ons", [
   { business_id: business.id, name: "Pet hair removal", price: 40, duration_minutes: 30, sort_order: 0 },
@@ -191,24 +249,24 @@ const day4 = after(day3, 3);
 // Today (or the next open day): two done, two still to come.
 // Then upcoming across the next couple of weeks, plus history for the chart.
 const PLAN = [
-  { day: day0, time: "08:30", who: "Marcus Webb", service: "Full Detail", size: "large", status: "completed", paid: 260, addOn: "Engine bay clean" },
+  { day: day0, time: "08:30", who: "Marcus Webb", service: "Full Interior Detail", size: "large", status: "completed", paid: 260, addOn: "Engine bay clean" },
   { day: day0, time: "13:00", who: "Dana Ruiz", service: "Express Wash", size: "medium", status: "completed", paid: 80 },
   { day: day0, time: "15:30", who: "Priya Anand", service: "Interior Deep Clean", size: "medium", status: "confirmed", addOn: "Pet hair removal" },
-  { day: day1, time: "09:00", who: "Tom Okafor", service: "Full Detail", size: "medium", status: "confirmed" },
+  { day: day1, time: "09:00", who: "Tom Okafor", service: "Full Interior Detail", size: "medium", status: "confirmed" },
   { day: day1, time: "14:00", who: "Elena Marsh", service: "Express Wash", size: "small", status: "confirmed" },
   { day: day2, time: "10:00", who: "Sam Delgado", service: "Ceramic Coating", size: "large", status: "confirmed" },
   { day: day3, time: "11:00", who: "Aisha Rahman", service: "Interior Deep Clean", size: "small", status: "confirmed" },
-  { day: day4, time: "13:30", who: "Chris Vogel", service: "Full Detail", size: "medium", status: "confirmed" },
+  { day: day4, time: "13:30", who: "Chris Vogel", service: "Full Interior Detail", size: "medium", status: "confirmed" },
   // History — completed, spread over previous months so the chart has shape.
-  { day: openDay(-9, -1), time: "09:00", who: "Elena Marsh", service: "Full Detail", size: "medium", status: "completed", paid: 235 },
+  { day: openDay(-9, -1), time: "09:00", who: "Elena Marsh", service: "Full Interior Detail", size: "medium", status: "completed", paid: 235 },
   { day: openDay(-16, -1), time: "13:00", who: "Chris Vogel", service: "Express Wash", size: "small", status: "completed", paid: 65 },
   { day: openDay(-24, -1), time: "10:30", who: "Marcus Webb", service: "Interior Deep Clean", size: "large", status: "completed", paid: 195 },
   { day: openDay(-38, -1), time: "09:30", who: "Tom Okafor", service: "Ceramic Coating", size: "large", status: "completed", paid: 700 },
-  { day: openDay(-45, -1), time: "14:00", who: "Dana Ruiz", service: "Full Detail", size: "medium", status: "completed", paid: 240 },
+  { day: openDay(-45, -1), time: "14:00", who: "Dana Ruiz", service: "Full Interior Detail", size: "medium", status: "completed", paid: 240 },
   { day: openDay(-52, -1), time: "11:00", who: "Aisha Rahman", service: "Express Wash", size: "medium", status: "completed", paid: 80 },
-  { day: openDay(-70, -1), time: "10:00", who: "Sam Delgado", service: "Full Detail", size: "large", status: "completed", paid: 265 },
+  { day: openDay(-70, -1), time: "10:00", who: "Sam Delgado", service: "Full Interior Detail", size: "large", status: "completed", paid: 265 },
   { day: openDay(-78, -1), time: "15:00", who: "Priya Anand", service: "Interior Deep Clean", size: "small", status: "completed", paid: 150 },
-  { day: openDay(-100, -1), time: "09:00", who: "Marcus Webb", service: "Full Detail", size: "medium", status: "completed", paid: 220 },
+  { day: openDay(-100, -1), time: "09:00", who: "Marcus Webb", service: "Full Interior Detail", size: "medium", status: "completed", paid: 220 },
   { day: openDay(-108, -1), time: "13:00", who: "Elena Marsh", service: "Express Wash", size: "small", status: "completed", paid: 65 },
   { day: openDay(-132, -1), time: "10:00", who: "Chris Vogel", service: "Ceramic Coating", size: "medium", status: "completed", paid: 650 },
   { day: openDay(-140, -1), time: "14:30", who: "Tom Okafor", service: "Express Wash", size: "large", status: "completed", paid: 95 },
@@ -220,7 +278,7 @@ const PLAN = [
   // show. Both are in the recent past so they land in the History list and
   // the no-show reaches the month grid. Keep them: a status with no seed row
   // is a status nobody ever looks at.
-  { day: openDay(-4, -1), time: "11:30", who: "Aisha Rahman", service: "Full Detail", size: "medium", status: "cancelled" },
+  { day: openDay(-4, -1), time: "11:30", who: "Aisha Rahman", service: "Full Interior Detail", size: "medium", status: "cancelled" },
   { day: openDay(-6, -1), time: "16:00", who: "Sam Delgado", service: "Express Wash", size: "small", status: "no_show" },
 ];
 
@@ -298,7 +356,7 @@ console.log(`
 Demo business ready.
   Business : ${business.name} (slug: ${SLUG}, ${TZ})
   Bookings : ${counts.length} (${made} seeded)
-  Customers: ${customers.length}   Services: ${services.length}   Expenses: ${EXPENSES.length}
+  Customers: ${customers.length}   Categories: ${groups.length}   Services: ${services.length}   Expenses: ${EXPENSES.length}
   Owner    : ${OWNER.email} / ${OWNER.password}
   Staff    : ${STAFF.email} / ${STAFF.password}
 `);

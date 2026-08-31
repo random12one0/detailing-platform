@@ -598,6 +598,12 @@ a { color: var(--accent-text); text-decoration: none; }
 .btn.ghost:hover:not(:disabled) { background: var(--surface); border-color: transparent; }
 .btn.inline { width: auto; }
 .btn.sm { min-height: 38px; font-size: var(--t-meta); padding: 0 var(--sp-4); }
+/* Square, for a button whose whole label is its icon — the reorder arrows in
+   Catalog (W10). A pill with a chevron in it and .btn's 26px side padding is
+   64px wide for a 17px mark, and three of those plus a worded button do not
+   fit a 392px row. */
+.btn.icon { width: var(--tap); padding: 0; }
+.btn.sm.icon { width: 38px; }
 .btn:disabled { opacity: 0.42; cursor: default; }
 /* Except the primary: 42% of the signal green on this ground is a muddy dark
    green that reads as a different colour, not as an unavailable one. A

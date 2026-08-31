@@ -74,6 +74,23 @@ export function BookingBusinessProvider({ slug, children }) {
         mobile_enabled: settings.mobile_enabled ?? true,
         dropoff_enabled: settings.dropoff_enabled ?? true,
         ask_water_electric: settings.ask_water_electric ?? true,
+        // W22 — two resources, three states each. The fallback is the old
+        // boolean's meaning, so a business whose settings row predates the
+        // migration still gets the page it had.
+        water_requirement: settings.water_requirement
+          ?? ((settings.ask_water_electric ?? true) ? "ask" : "not_needed"),
+        power_requirement: settings.power_requirement
+          ?? ((settings.ask_water_electric ?? true) ? "ask" : "not_needed"),
+        ask_vehicle_condition: settings.ask_vehicle_condition ?? true,
+        // W9 — the detailer's own list. Falling back to our three keeps a
+        // half-configured business bookable.
+        vehicle_sizes: Array.isArray(settings.vehicle_sizes) && settings.vehicle_sizes.length
+          ? settings.vehicle_sizes
+          : [
+            { key: "small", label: "Small", examples: "Coupe, sedan, hatchback" },
+            { key: "medium", label: "Medium", examples: "Small SUV, crossover, wagon" },
+            { key: "large", label: "Large", examples: "Truck, large SUV, van" },
+          ],
         slot_interval_minutes: settings.slot_interval_minutes ?? 30,
         travel_fee: settings.travel_fee ?? null,
         min_advance_minutes: settings.min_advance_minutes ?? 120,
@@ -81,6 +98,10 @@ export function BookingBusinessProvider({ slug, children }) {
         yelp_review_url: settings.yelp_review_url ?? null,
       },
       services: profile?.services ?? [],
+      // W25 — the categories, each with its own max_select. The booking page
+      // groups by these; group_label is the fallback for a service that has
+      // no group_id yet.
+      serviceGroups: profile?.service_groups ?? [],
       addOns: profile?.add_ons ?? [],
       hours: profile?.hours ?? [],
       testimonials: profile?.testimonials ?? [],

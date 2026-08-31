@@ -394,6 +394,95 @@
   box-shadow: inset 0 0 0 2px var(--bk-accent),
               0 46px 78px -40px rgba(0, 0, 0, .96);
 }
+
+/* ── THE SERVICE CARD, AND ITS DISCLOSURE (W21) ────────────────────────
+   The face is the name, the price and the length. The description and the
+   what's-included list are behind the eye, because step 1's height is the
+   TENANT'S catalogue and a card that carries everything the detailer wrote
+   is a card whose height they set. Measured: 97px with the description on
+   the face, 74px without, and the owner's own two-category, six-service
+   menu goes from 119px past the bottom of a phone to 18px spare on that
+   difference (docs/detailer-research-2026-08-31.md).
+
+   THE PADDING MOVES OFF THE CARD AND ONTO THE CONTROLS. The card used to be
+   one padded div with role="button"; it is a plain box now holding two real
+   buttons, so the padding has to live on the thing you press or half of the
+   card stops being a target. Only .bk-svc does this — the extras, the
+   vehicle sizes and the two location cards are still single-action cards and
+   are untouched. */
+.bk-svc { padding: 0; cursor: default; }
+.bk-svc-face { display: flex; align-items: stretch; }
+.bk-pick {
+  flex: 1 1 auto; min-width: 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--bk-sp-2); padding: clamp(15px, 3.6vw, 20px);
+  background: none; border: 0; color: inherit; font: inherit;
+  text-align: left; cursor: pointer;
+}
+/* The name is a <span>, not an <h3>: a heading is flow content and a button
+   may only contain phrasing content, so the valid version of "the whole face
+   selects the service" is a span carrying the h3's own type rules. It reads
+   better to a screen reader too — an aria-pressed button labelled with the
+   service name says more than a heading beside a click target does. */
+.bk-h3 {
+  font-variation-settings: "wdth" 102, "wght" 620; font-size: var(--bk-t-strong);
+  font-weight: 400; line-height: 1.3;
+}
+.bk-svc-money { text-align: right; flex-shrink: 0; }
+.bk-svc-money .bk-muted { display: block; }
+/* His "little eye". Icon-only and on the name's own row, which is the whole
+   point: a worded control would be a row of its own and give back the height
+   this item exists to win. 46px of target, which clears the 44px floor. */
+.bk-peek {
+  flex: 0 0 auto; width: 46px; align-self: stretch;
+  display: grid; place-items: center;
+  background: none; border: 0; padding: 0; cursor: pointer;
+  color: var(--bk-muted);
+  transition: color var(--bk-t-hover) var(--bk-e);
+}
+.bk-peek:hover, .bk-peek.on { color: var(--bk-accent-text); }
+/* Where a card HAS an eye, the eye's box is the card's right padding — two
+   paddings side by side would push the price 20px in from where it sits on
+   every card that has nothing to disclose. */
+.bk-svc-face:has(.bk-peek) .bk-pick { padding-right: 0; }
+/* Collapsed to a zero-height grid row rather than unmounted, so it opens and
+   closes with one easing. The inner div is load-bearing: a grid item's own
+   padding sits OUTSIDE the row height, so padding on this element would
+   leave the card 2 x 20px taller while shut. */
+.bk-svc-more {
+  display: grid; grid-template-rows: 0fr; visibility: hidden;
+  transition: grid-template-rows var(--bk-t-hover) var(--bk-e),
+              visibility var(--bk-t-hover) var(--bk-e);
+}
+.bk-svc-more.on { grid-template-rows: 1fr; visibility: visible; }
+.bk-svc-more > div { overflow: hidden; min-height: 0; }
+.bk-svc-body {
+  display: flex; flex-direction: column; gap: var(--bk-sp-2);
+  padding: 0 clamp(15px, 3.6vw, 20px) clamp(15px, 3.6vw, 20px);
+}
+/* The inclusion list is an ENUMERATION, so it is a list on the ground and
+   not a set of boxes — the composition rule, one level in. */
+.bk-svc-list {
+  margin: 0; padding-left: 18px;
+  font-size: var(--bk-t-meta); color: var(--bk-muted); line-height: 1.45;
+}
+.bk-svc-list li { margin-top: 2px; }
+/* The category's rule, stated on the category. Not tracked and not uppercase
+   like the label it rides on — it is a sentence about the group, not a second
+   label, and running it in the eyebrow's 0.22em tracking would make two
+   headings out of one line. */
+.bk-group-rule {
+  letter-spacing: 0; text-transform: none;
+  font-variation-settings: "wdth" 92, "wght" 500;
+}
+/* "from $220" — the qualifier is in the BODY face, not the mono one. Every
+   figure on this page is monospaced (law 8) and the word is not a figure;
+   setting it in JetBrains Mono makes "from" read as part of the number. */
+.bk-from {
+  font-family: var(--bk-f-body); font-size: var(--bk-t-meta);
+  font-variation-settings: "wdth" 92, "wght" 500;
+  color: var(--bk-muted); letter-spacing: 0;
+}
 /* Ruled checklist — hairline rows on the ground, no boxes. Composition
    rule (docs/design-system.md): boxes are for things you pick between or
    act on; enumerations are lists. */
@@ -502,6 +591,20 @@
 .bk-chip.selected { background: var(--bk-accent); color: var(--bk-accent-ink); box-shadow: none; font-weight: 500; }
 .bk-chip:disabled { opacity: .35; cursor: default; }
 .bk-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(94px, 1fr)); gap: 7px; }
+/* A chip whose label is a WORD, not a figure. .bk-chip is set in the mono
+   face because every chip on this page until W27 held a time; "Moderate" in
+   JetBrains Mono reads as data rather than as an answer. Law 8 asks for the
+   mono face on figures, which is what makes this the exception and not a
+   drift. */
+.bk-chip.word {
+  font-family: var(--bk-f-body); letter-spacing: 0;
+  font-variation-settings: "wdth" 96, "wght" 520;
+  padding: 0 var(--bk-sp-4);
+}
+/* Wraps rather than scrolls: four short words fit one row on a phone and two
+   rows on a 320, and either is readable. A sideways scroller with no
+   scrollbar is the exact complaint sweep-widths.mjs exists to catch. */
+.bk-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 
 .bk-field { display: block; }
 .bk-field > span {
