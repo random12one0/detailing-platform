@@ -88,7 +88,8 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - Finish every session: `node tests/composition.test.mjs`,
   `design-contrast`, `landing-pricing`, `route-contract` from repo root —
-  credential-free, all must pass. The other 7 tests need env vars from
+  credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
+  to that list if you touched `DECISIONS.md`.** The other 7 tests need env vars from
   root `.env`.
 - **Also credential-free, and it must exit 0 after anything touching accent
   colour or the ground tokens: `node scripts/accent-sweep.mjs`.** It measures
@@ -128,6 +129,15 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - One queue prompt per session; commit before the next; `/clear` and
   restart a session that goes sideways.
+- **Appending to `DECISIONS.md` means adding your section to its index too,
+  in the same edit.** `node scripts/decisions-index.mjs` exits 1 if you
+  forget, and it is the check that keeps that file usable — an index that has
+  gone stale is worse than none, because a session that trusts it and finds
+  nothing concludes the decision was never made and re-decides it. Write the
+  one-line hook yourself; generating hooks was tried and produced entries like
+  "four" and "40 pixels". **Mark superseded entries, never delete them** — the
+  reversal is usually the load-bearing part ("Removed on purpose" only makes
+  sense next to the owner decision that put it all back).
 - **Ping the owner's phone when the work is done.** Send a PushNotification
   at the end of every session — whenever you hand over, ask for a decision,
   or stop needing them to look. They are often away from the screen while a
@@ -208,6 +218,11 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 1. `PROJECT-STATE.md` — full state briefing
 2. `docs/HANDOFF.md` — architecture + open threads
-3. `DECISIONS.md` — every judgment call and why
+3. `DECISIONS.md` — every judgment call and why. **START AT ITS INDEX, not
+   at the top of the file.** It is ~3,900 lines and reading it end to end is
+   not a thing anyone does; the index block names the five mistakes that have
+   actually cost sessions, and maps "about to touch X" to the two or three
+   sections that matter. A decision you did not find is worse than one nobody
+   wrote down, because it looks like diligence.
 4. `docs/ux-audit.md` — the dashboard audit and its status
 5. `docs/design-knowledge.md` — design/process research transfer

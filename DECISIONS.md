@@ -3,6 +3,132 @@
 Judgment calls made while working autonomously, per the Phase 2 brief —
 each picked as the option easiest to change later.
 
+<!-- INDEX:START — checked by `node scripts/decisions-index.mjs`. Add a section
+     to this file and add its line here, or that check fails the build. Find
+     things by HEADING TEXT, not by line number: headings are stable, line
+     numbers move every time anyone appends. -->
+
+## Read this before you go digging
+
+**This file is over 3,600 lines and nobody reads it end to end — including the
+agent that wrote most of it.** That is the problem this index exists to fix.
+Do not read the whole file. Find the two or three sections that touch what you
+are about to change, read *those* in full, and move on. A decision you did not
+find is worse than one that was never written down, because it looks like
+diligence.
+
+### The five that have actually cost sessions
+
+Each one is a mistake this project has already paid for, and the first three
+were made more than once.
+
+1. **A tint of the accent is a ground.** The tenant's colour has been
+   corrected against the wrong background *three separate times* — roadmap
+   2.3, 2.4 and 2.6 — and the error is identical every time: the ground was
+   named from the stylesheet's surface tokens, while the value was actually
+   landing on something built out of the accent. Before touching any colour
+   read *Roadmap 2.4*, *Roadmap 2.3, reopened* and *Roadmap 2.6*, then run
+   `node scripts/accent-sweep.mjs`.
+2. **Verify by looking, in a real browser, at his widths.** Two sections exist
+   only because a bug survived code review and screenshots taken at the wrong
+   size — *Test at HIS screen size, not yours* and *He asked whether we
+   actually look at the screens*. 1920 is his monitor, 392 is his phone, and
+   `node scripts/sweep-widths.mjs` is the automated half.
+3. **A skipped check reads exactly like a passing one.** Five contrast rows
+   guarded by an always-false `if` "passed" for weeks by doing nothing. See
+   *A skipped check reads exactly like a passing one* and *Baseline a new
+   check against the last known-good version*.
+4. **Never measure a transformed element with `getBoundingClientRect`.** This
+   design animates by transform almost everywhere, so a rect is a scaled box,
+   not a layout box. Design-system law 12, and it came from a real bug.
+5. **The owner has already decided a great deal — do not re-propose it.** See
+   *Owner decisions*, *The owner's answers of 2026-08-30* and *The owner
+   walked the whole product*. Re-opening a settled call wastes his time and
+   reads as not having done the reading.
+
+### If you are about to touch this, read these
+
+| About to touch | Sections to read |
+|---|---|
+| **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
+| **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.4, the last piece |
+| **The dashboard `/app`** | Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Phase 2 · Phase 2 follow-ups |
+| **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
+| **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
+| **Spacing, layout, or anything at phone width** | Roadmap 2.6 · Test at HIS screen size, not yours |
+| **A test, a check, or a measuring script** | A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
+| **`main`, deploying or publishing** | The owner put the redesign on `main` and published it · ANSWERED: Netlify does auto-publish `main` |
+| **Keys, RLS, the public repo, or the live business** | Phase 0 — 0.4 deployment sanity · Abuse check on the live project · Roadmap 0.1 cleanup · A guessable demo login |
+| **Email or reminders** | Phase 0 — 0.2 email · Test deployment and later fixes |
+| **Signup or a new tenant's first run** | Signup · Phase 2 follow-ups |
+| **The design system itself** | The new design system · Roadmap 1.3, the rebuild · Phase 1 — reference analysis · Design system (August 2026), for history only |
+| **Anything he may already have ruled on** | Owner decisions · The owner's answers of 2026-08-30 · The owner walked the whole product · Removed on purpose · Four threads from the owner before clearing |
+
+### Everything in here, oldest first
+
+**Phase 2 and earlier — the original build**
+
+- **Phase 2** — the first batch: no dashboard spec existed, overlap edits became hard rejections, vehicle pricing moved per-service.
+- **Phase 2 follow-ups** — the spec turned up; the missing `.ics` file, theming, staff accounts.
+- **Test deployment and later fixes** — the private Netlify test site, and what it is and is not for.
+- **Design system (August 2026)** — the OLD system, "Raking Light". Anti-reference only; it was replaced in 1.5. Read *The new design system* instead unless you want the history.
+- **Signup (August 2026)** — two screens, not a wizard, and what `create-business` seeds so a new booking page works immediately.
+- **Removed on purpose** — features cut from the old site. **Superseded by the next entry**: he wants them all back.
+- **Owner decisions (2026-08-28)** — he reversed those removals. Full parity with the old business, rebuilt as per-tenant features.
+
+**Phase 0 — plumbing, security, email**
+
+- **Roadmap 0.1 cleanup** — the old project was never opened to anonymous writes; proven with read-only queries, not assumed.
+- **Phase 0 — 0.2 email** — root cause: the from-address was Resend's shared sandbox sender, deliverable only to the account owner. No code was at fault.
+- **Phase 0 — 0.4 deployment sanity + a security finding** — **the repo is PUBLIC and a live service-role key sits in its history.** Still open; he will rotate when the build work settles.
+- **Abuse check on the live project** — was that key ever used? No sign of it, proven read-only without ever presenting the key to anything.
+
+**Phase 1 — choosing the look**
+
+- **Phase 1 — 1.1/1.2 the design brief** — built the instrument and asked the questions; nothing visual was invented ahead of him.
+- **Phase 1 — 1.2 answered** — he declined every defect offered. B3 reframed the whole brief.
+- **Phase 1 — Part C answered** — he refused to rank the screens ("I do want all of them") and gave an expressiveness budget instead.
+- **Phase 1 — reference analysis** — seven sites read at code level. `TASTE-NOTES.md` is his own words on how pages MOVE and is the primary evidence.
+- **Four threads from the owner before clearing** — the Apple framing was wrong, and the correction is load-bearing.
+- **Phase 1.3 — four directions** — Apple read at code level first; four directions built, all rejected.
+- **Roadmap 1.3, the rebuild — direction 5, "The Thread"** — the direction that won, and why split-stage was killed.
+- **Ease the beat, not the hold** — distribution across a scroll must be linear; the easing belongs inside each beat.
+- **Never measure a transformed element with getBoundingClientRect** — design-system law 12, from a real bug.
+- **Test at HIS screen size, not yours** — a rail with 40px of travel on his 1920 monitor. A process lesson worth more than its fix.
+- **"Something feels a little missing" — the likely answer** — he was right: the page has no proof on it, and there is none to invent.
+- **Removing the owner section** — and why its word-brightening mechanic was deliberately not re-homed.
+- **His four instructions on the rewrite** — including which table row is ours rather than the deck's.
+- **Building the marketing rewrite** — what was mine versus his approved deck, and one pre-ship blocker.
+- **The owner's review of the repointed page** — the iPhone check passed; four decisions, all his.
+- **Building 1.4** — the judgment calls made while turning the positioning into a page.
+- **Positioning: what we sell is the pair** — **read the correction at the end of that section first;** he amended the framing the same day.
+- **Cutting a section** — measure what the length is actually made of before choosing what to cut.
+- **Baseline a new check against the last known-good version** — a checker that fails a known-good build is measuring the wrong thing.
+- **The new design system** — roadmap 1.5. "The Thread" is law, and the reference page outranks the document.
+- **A skipped check reads exactly like a passing one** — five contrast rows silently did nothing for weeks.
+- **The owner's answers of 2026-08-30** — 1.4 approved, and no light theme.
+
+**Phase 2 — applying the look**
+
+- **The customer booking page is dark** — asked separately from the dashboard, and decided on positioning rather than taste.
+- **Roadmap 2.1** — the booking page restyled. The first surface in `app/` to carry the system.
+- **Roadmap 2.2** — the landing page ported. A transplant of the approved rendering, not an interpretation.
+- **The owner put the redesign on `main` and published it** — his instruction, overriding the standing rule for that one action.
+- **ANSWERED: Netlify does auto-publish `main`** — settled by pushing it and watching the live site change. **A push to `main` IS a publish.**
+- **Roadmap 2.3** — the dashboard restyled, and the four things it deleted. The one surface with no reference page to copy.
+- **ANSWERED: the dashboard DOES take the tenant's colour** — the opposite of the way 2.3 had built it.
+- **The load-in animation is too slow** — a precise report from him: the ground was fine, the panels were not.
+- **A guessable demo login, on purpose and temporarily** — and why removing the sign-in page would achieve nothing.
+- **He asked whether we actually look at the screens** — yes, and it is a standing expectation, not a one-off question.
+- **Roadmap 2.3, reopened** — three things he sent back. The three defects found on the way are the part worth reading.
+- **The owner walked the whole product** — twenty-seven items and two decisions; his verdict on the design was positive.
+- **Roadmap 2.4** — making almost any colour work everywhere. **Law 11b was born here: the accent is identity, never meaning.**
+- **Roadmap 2.4, the last piece** — the manage page drew four identical pills and had no first thing.
+- **Roadmap 2.6** — the clipping and spacing half of the walkthrough, plus design-system law 15 and a third accent-ground fix.
+- **DECISIONS.md got an index** — why this file has a map, why the hooks are hand-written, and why nothing was deleted.
+
+<!-- INDEX:END -->
+
 ## Phase 2
 
 - **`docs/dashboard-spec.md` does not exist in the repo.** The brief said to
@@ -3752,3 +3878,56 @@ the judgment behind them.
   is published. Filed as roadmap 7.5 rather than fixed here, because the copy
   is a positioning decision and the OG image needs the owner — there is no
   logo, by design.
+
+---
+
+## DECISIONS.md got an index, because nobody was reading it (2026-08-31)
+
+The owner's ask, after 2.6: *"maybe there's information in there that we don't
+need anymore, or we could just have, like, kind of a thing at the top that
+every agent reads at the start… so that way it doesn't have to go digging
+through the entire file."* He also set the priority explicitly — *"time's not
+that big of an issue. My main concern is just the accuracy"* — and told me to
+make the call rather than hand it back.
+
+- **The problem is real and measurable.** This file was 218KB, about 54,000
+  tokens. A cold session's whole mandatory reading is roughly 20–25k tokens, so
+  reading this file would have been more than doubling it. Nothing did. **The
+  2.6 session searched it and appended to it without ever reading the body**,
+  which is the honest description of what "too long" had turned into: a file
+  where knowledge goes to be safely forgotten. It looks like diligence and
+  performs like a cleared chat, only slower.
+- **Clearing between items STAYS, and this is what makes it work.** Compacting
+  was considered and rejected: the summary is lossy, *I* pick what survives,
+  and nobody can audit what I dropped. Files can be checked. The decider is
+  portability — the owner expects to move to OpenAI's coding agent in about a
+  month, so a compacted conversation ports as nothing while markdown ports for
+  free. See the portability rule in `CLAUDE.md`.
+- **The index is written by hand, and that is deliberate.** Generating it was
+  tried first: pull each section's first bold run as its hook. It produced
+  entries like "four", "40 pixels" and "`docs/dashboard-spec.md` is now in the
+  repo". **A wrong hook is worse than no index** — it is a lie in the one place
+  a session trusts — so the hooks are written by someone who read the section.
+- **What the script does instead is refuse to let it rot.**
+  `scripts/decisions-index.mjs` checks two things and nothing else: every `##`
+  section appears in the index, and no index entry names a section that is
+  gone. It exits 1 either way. Proven both directions: it passes on 48
+  sections, and appending an unindexed section makes it fail. Matching is on
+  the heading's opening clause, so the index can keep listing the short form of
+  a long heading; it errs toward passing on purpose, because its job is to
+  catch a forgotten section, not to police wording.
+- **Nothing was deleted, and superseded entries were MARKED instead.** He
+  floated deleting what is no longer needed and it is the wrong move here: the
+  value of a decisions log is largely in its reversals. "Removed on purpose"
+  reads as dead weight until you notice the next entry is the owner putting all
+  of it back — delete the first and the second stops making sense. The index
+  labels it superseded and points forward. That rule is now in `CLAUDE.md`.
+- **The index leads with the five mistakes that have actually cost sessions**,
+  not with a table of contents. Three of them have been made more than once —
+  the accent-ground error alone in 2.3, 2.4 and 2.6 — so the highest-value
+  thing at the top of this file is not "what is in here" but "what you are
+  about to get wrong".
+- **Watched, not fixed: `docs/roadmap.md` is 73KB and heading the same way.**
+  It is not acute yet, because sessions arrive knowing which item they want and
+  items are findable by number. If a session ever starts guessing which phase a
+  thing lives in, it needs the same treatment.
