@@ -6,6 +6,17 @@ Investigated 2026-08-28, updated through 2026-08-30, by reading the files cited 
 
 Multi-tenant SaaS giving independent car detailers a professional website with online booking built in. Converted from a single-business site ("Andrew's Auto Detail" — the old code is kept read-only in `reference/`, 2.5 MB, never deployed). Three audiences from one React bundle: prospects on the marketing page (`/`), detailer-owners in a phone-first dashboard (`/app`), and their customers on a public booking page (`/book/:slug`).
 
+**Two things to know before anything else (2026-08-30).** **(1) `main` does
+NOT have the 2.3 dashboard.** It is on branch `claude/superbase-access-anj1h7`,
+two commits ahead and unpushed, so detailingplatform.com still serves the OLD
+dashboard behind its sign-in page — the owner hit exactly that when he tried
+to look on his phone. He has not been asked whether to publish. **(2) There is
+a simple demo login now**, so the dashboard can actually be looked at:
+`demo@detailplatform.com` / `demo123` (owner) and
+`demo-staff@detailplatform.com` / `staff123` (staff). Guessable on purpose and
+temporary — they reach the demo business only, and they must change before
+there is a real customer. See DECISIONS.md, "A guessable demo login".
+
 **State: late beta, pre-revenue — and PUBLIC as of 2026-08-30.** detailingplatform.com serves the redesigned marketing page (roadmap 2.2), on the owner's explicit instruction and against the recommendation to wait. **One of the two consequences of publishing mid-phase is now closed: the dashboard behind it was restyled in roadmap 2.3 (2026-08-30), so a visitor who presses "Get started" no longer meets the old look.** The other stands — billing still charges nobody. Note that 2.3 is on the branch and NOT on `main` at the time of writing, so the live site still shows the old dashboard until someone merges. See DECISIONS.md.
 
  The engine works end to end (real bookings have been made), 11 test suites exist, a private Netlify test deploy exists — but transactional email now works (fixed and proven delivered 2026-08-29), the reminder scheduler is now wired and proven (2026-08-29), billing is not implemented ("nothing charges anyone" — DECISIONS.md), and signup is brand new. Sources: `docs/HANDOFF.md`, `DECISIONS.md`, git log.
@@ -169,11 +180,14 @@ phase 1 is outstanding.
   `docs/dashboard-skeletons.md`: Today the only rail, Calendar the only grid,
   Money the only chart, Clients the only screen with no panel on it, More the
   only screen made of panels.
-- **OPEN, and it is the one question 2.3 handed the owner: does the dashboard
-  carry ANY of the detailer's own colour?** It does not now — law 11 and his
-  own words in `docs/design-brief.md` §B6b — but that brief flagged it as an
-  assumption and asked for confirmation "before 2.3", which never happened.
-  Asked at the end of the 2.3 session. Small to change back.
+- ~~**Does the dashboard carry ANY of the detailer's own colour?**~~
+  **ANSWERED 2026-08-30: YES, all of it.** The owner: *"we should have them be
+  able to customize their admin dashboard accent color… almost anything goes
+  with black."* `docs/design-system.md` law 11 is rewritten. **The CODE is not
+  written** — 2.3 shipped the opposite and is reopened for it; the steps are
+  in `docs/roadmap.md` under 2.3 (b). The consequence, stated because it is
+  the constraint the old law existed to avoid: every dashboard screen now has
+  to survive an arbitrary tenant colour, and the extremes have to be swept.
 - ~~**New, out of 2.1: `?lite=1` is not implemented anywhere in `app/`.**~~
   **BUILT 2026-08-30 in roadmap 2.2**, at the app root in `app/src/main.jsx`:
   `?lite=1` and `prefers-reduced-motion` both add `.lite` to `<html>` before
@@ -204,12 +218,15 @@ phase 1 is outstanding.
    ~~**2.2, the marketing/landing page.**~~ **DONE 2026-08-30** — ported from
    the approved reference rendering, `?lite=1` built at the app root, and the
    contrast/composition tests grown to cover the shipped stylesheets.
-   ~~**2.3, the dashboard.**~~ **DONE 2026-08-30** — five tabs, eleven settings
-   screens, the light-theme removal, all three remaining font families and the
-   theme-color meta, plus four deletions the system forced (`.stripe`,
-   `--success`, `--warning`, the tap-duration token). Next is **2.4,
-   per-tenant recolouring**, which is still blocked on the curated four-to-six
-   accent set that nobody has picked.
+   **2.3, the dashboard — BUILT AND THEN REOPENED, 2026-08-30.** The restyle
+   is done and committed (five tabs, eleven settings screens, the light-theme
+   removal, five font families down to two, the theme-color meta, and four
+   deletions the system forced). **Then the owner looked at it and sent three
+   things back, none of them started** — the load-in animation is too slow,
+   the dashboard must take the tenant's accent colour after all, and a
+   confirmation that every screen really is screenshotted and looked at (it
+   is). All three are written out under 2.3 in `docs/roadmap.md`. Do those
+   before 2.4.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

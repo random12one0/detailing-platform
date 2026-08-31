@@ -151,11 +151,35 @@ Not suggestions. Where a test enforces one, it is named.
     the platform's own subject** (we sell software), but photographs of
     their own work are what a *tenant's* site is made of.
 
-11. **The house accent is fixed; the tenant's accent is customer-facing
-    only.** His decision, `design-brief.md`: tenant colour comes from a
-    curated four to six and appears on their site and their booking page.
-    **The dashboard keeps one fixed house palette.** `app/src/lib/theme.js`
-    remains the ONLY file allowed to compute or write colour from JS.
+11. **The tenant's accent applies EVERYWHERE, including their dashboard.**
+    **CHANGED BY THE OWNER 2026-08-30**, after roadmap 2.3 shipped the
+    previous version of this law and asked him to confirm it. He said no:
+    *"I think that we should have them be able to customize their admin
+    dashboard accent color, because I think that the majority of accent
+    colors will work… it's just with black, so almost anything goes with
+    black or a darker colour."* So a detailer picks one colour and it paints
+    their booking page, their site AND their own dashboard.
+
+    What this replaces: *"the house accent is fixed; the tenant's accent is
+    customer-facing only… the dashboard keeps one fixed house palette."* That
+    reading came from his own earlier remark that a detailer "probably doesn't
+    really care about the admin dashboard colour scheme"
+    (`docs/design-brief.md` §B6b), which was flagged there as an assumption
+    and never confirmed. It is now answered, the other way.
+
+    **What does NOT change.** `#38E08B` stays the HOUSE default — what a
+    business that has picked nothing gets, and what the marketing page uses.
+    `app/src/lib/theme.js` remains the ONLY file allowed to compute or write
+    colour from JS. And the two-value rule below still holds on every
+    surface: a fill clears 3:1, the same colour as words clears 4.5:1, and
+    the ground both are corrected against is `--ink-0`.
+
+    **What this costs, stated plainly because it is the reason the old
+    reading existed:** every dashboard screen now has to survive an arbitrary
+    tenant colour, which `docs/design-knowledge.md` §4 calls the hardest
+    visual problem in the product. It is bounded by the curated set (item 3
+    under "What this file does NOT settle") and by the correction in
+    `lib/theme.js`, and it has to be swept at the extremes — see roadmap 2.4.
 
 12. **Measure with layout values, not with transformed boxes.** This design
     animates by transform almost exclusively, so `getBoundingClientRect()`
@@ -538,8 +562,10 @@ these go to the owner rather than being decided by a skill.
    declined only because there is nothing to follow yet.
 
 3. **The tenant's curated accent set has no colours in it yet.** He decided
-   "a curated four to six, customer-facing only"; nobody has picked the four
-   to six. Needed before 2.4.
+   "a curated four to six"; nobody has picked the four to six. Needed before
+   2.4. **"Customer-facing only" is no longer part of it** — see law 11, which
+   he changed on 2026-08-30: the colour reaches the dashboard too, so the set
+   has to work on every surface in the product, not two.
 
 4. ~~**The dashboard's own skeletons are undrawn.**~~ **DRAWN 2026-08-30 in
    roadmap 2.3, and written up in `docs/dashboard-skeletons.md`** — read that

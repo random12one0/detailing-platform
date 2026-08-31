@@ -506,9 +506,83 @@ is kept; the entire visual design restarts from scratch.
          reasoning is written into that file so the next session does not
          re-derive it.
 
-- [x] 2.3 Dashboard — all five tabs and every settings screen.
+- [ ] 2.3 Dashboard — all five tabs and every settings screen.
 
-      **DONE 2026-08-30.** `app/src/theme.css` rewritten onto "The Thread":
+      **REOPENED 2026-08-30 by the owner, after he looked at it. The restyle
+      below is built, verified and committed; three things came back and NONE
+      of them is started.** Do these first, in this order.
+
+      **(a) The load-in animation is too slow.** His words: *"when the page
+      loads, the page animations and loading, it's perfect, but the GUIs just
+      take a little too much time to go up and do the load-in animation. So if
+      you can make that just a little speedier."* So the ARRIVAL of the screen's
+      elements, not the ground and not the page as a whole. What he is feeling
+      is `app/src/theme.css`'s `@keyframes arrive`, which runs for
+      `--t-reveal` (950ms) with a 55ms stagger up to 210ms — the last element
+      on a screen settles about 1.16 seconds after it appears. `bar-rise` (the
+      Money chart) and `sheet-in` (every settings panel) also run at 950ms and
+      are worth feeling at the same time.
+      Roughly 380–450ms with a ~40ms stagger is the target; the system's own
+      `--t-exit` is 420ms and the argument for reusing that number is that a
+      tool opened forty times a day should not have its entrance be the
+      slowest thing on it. **Law 4 says two presets and no ad-hoc durations,
+      so whatever value is chosen goes into `docs/design-system.md` §
+      Motion with its reason — not into the stylesheet quietly.**
+
+      **(b) The dashboard takes the tenant's accent colour after all — and
+      this ANSWERS the question 2.3 handed him.** His words: *"I think that we
+      should have them be able to customize their admin dashboard accent
+      color, because I think that the majority of accent colors will work…
+      it's just with black, so almost anything goes with black or a darker
+      colour."* **`docs/design-system.md` law 11 has already been rewritten to
+      say so** — read it before starting. The code has not. What it takes:
+      - `app/src/lib/theme.js`: `applyTheme` was DELETED in 2.3. Bring back an
+        equivalent that writes `--accent`, `--accent-text` and `--accent-ink`
+        on the document root, corrected against `--ink-0` (`#0B0D0E`). The
+        two correction functions it needs are still there and still exported
+        (`correctAccent`, `accentTextFor`), and `inkFor` picks the ink by
+        measurement. There is no mode argument any more — one ground.
+      - `app/src/context/BusinessContext.jsx`: it must call that on load and
+        whenever `branding.primary_color` changes. The 2.3 comment in it says
+        why the effect was removed; replace the comment, do not leave it.
+      - **`app/src/theme.css` is the real work.** It writes `var(--ac)`
+        directly in roughly thirty places — the tab bar's active tint, the
+        primary button, `.chip.active`, `.choice.on`, `.cal-cell.today .n`,
+        the switch, the day-rail's landed node, `.pill.completed`, `.ok-box`,
+        `.confirm-box`, `--accent-quiet`, `--accent-line`, the spinner, focus
+        rings. Every one of those has to become `var(--accent)` (a FILL) or
+        `var(--accent-text)` (the colour used AS WORDS) — that distinction is
+        law and it is why there are two values. `--ac` stays defined as the
+        HOUSE default that `--accent` falls back to; the marketing page keeps
+        using `--ac` and must not be touched.
+      - `screens/more/Appearance.jsx` currently says in plain words that the
+        dashboard keeps its own colours on purpose, and previews the colour on
+        the booking page's ground only. Both are now wrong. Its More row
+        summary ("Shown on your booking page") is wrong too.
+      - **Then sweep the extremes.** Crimson `#DC2626` passes as a fill and
+        fails as text on this ground — that is a real preset. Screenshot the
+        dashboard under at least crimson, violet, gold and slate and read the
+        contrast, because this is exactly the retint work the old law existed
+        to avoid and it now lands here rather than in 2.4.
+
+      **(c) Confirmed to him, and it is a standing expectation, not a
+      one-off:** every screen IS opened in a real browser and looked at, at
+      1920 / 1440x900 / 768x1024 / 392x844, with the console read — that is
+      what `scripts/shoot-dashboard.mjs` is for, and it is how the Promos
+      crash and the `.thread` leak were both found. Keep doing it; he asked
+      because it is what he values about the process.
+
+      **Also open, from the same conversation:** he tried to look at the new
+      dashboard on the live site and on his phone and got a sign-in page, then
+      the OLD dashboard behind it. **2.3 is on the branch and NOT on `main`**,
+      and `main` is what detailingplatform.com serves. He has not been asked
+      whether to publish. A simple demo login now exists so he can look —
+      `demo@detailplatform.com` / `demo123` — see DECISIONS.md, "A guessable
+      demo login".
+
+      ---
+
+      **What is already built and committed (commits `1fd6a32`, `c261e69`):** `app/src/theme.css` rewritten onto "The Thread":
       the sixteen tokens on `:root` under the system's own names (so it is now
       the system's home in the app and `design-contrast` reads it there),
       Archivo + JetBrains Mono, radii by role, one curve, and an atmospheric

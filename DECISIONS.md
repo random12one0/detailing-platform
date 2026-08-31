@@ -2806,3 +2806,131 @@ which deletes and recreates `demo-detail` on the PLATFORM project only), and
 three of its bookings were shifted onto the current date so Today had a real
 day on it rather than an empty state. The empty state was looked at too,
 before the re-seed, and reads as calm rather than unfinished.
+
+## ANSWERED: the dashboard DOES take the tenant's colour (2026-08-30)
+
+The question roadmap 2.3 handed the owner, answered the same day, the
+opposite way to how 2.3 built it.
+
+**His words:** *"I think that we should have them be able to customize their
+admin dashboard accent color, because I think that the majority of accent
+colors will work. You know, I mean, it's just with black, so almost anything
+goes with black or a darker colour."*
+
+So a detailer picks one colour and it paints their booking page, their site
+**and their own dashboard**. `docs/design-system.md` law 11 has been rewritten
+to say so — the system file is updated first, never silent drift.
+
+**Why the old reading existed, and why it was still right to ask.** It came
+from his own earlier remark that a detailer *"probably doesn't really care
+about the admin dashboard colour scheme"* (`docs/design-brief.md` §B6b),
+which that file flagged as an assumption and told a later session to confirm
+**before** 2.3. Nobody did. 2.3 implemented the written law, said plainly in
+the handover that it had never been confirmed, and asked. That is the process
+working: the assumption surfaced, got a real answer, and the answer cost one
+conversation instead of a retrofit.
+
+**His reasoning is sound and worth keeping.** A near-black ground is
+forgiving: almost any hue clears contrast against `#0B0D0E` once
+`lib/theme.js` has nudged its lightness. The old law's real argument was never
+"it will look bad" — it was cost: every dashboard screen now has to survive an
+arbitrary tenant colour, which `docs/design-knowledge.md` §4 calls the hardest
+visual problem in the product, because the failures stay invisible until a
+specific customer signs up. That cost is now accepted, and it is bounded by
+two things that already exist: the curated four-to-six set (still unpicked),
+and the correction in `lib/theme.js`.
+
+**What has to be built is written out step by step in `docs/roadmap.md` under
+2.3 (b)** — it is not started. The short version: `applyTheme` was deleted in
+2.3 and needs an equivalent back; `BusinessContext` has to call it; and
+`theme.css` writes `var(--ac)` directly in about thirty places that must
+become `var(--accent)` or `var(--accent-text)` depending on whether the colour
+is a FILL or is used AS WORDS. That distinction is law and it is the whole
+reason there are two values — crimson `#DC2626` is a real preset and it passes
+as a fill while failing as text on this ground.
+
+**One thing that does NOT change:** `#38E08B` stays the house default — what a
+business that has picked nothing gets, and what the marketing page uses. The
+marketing page keeps reading `--ac` and must not be retinted.
+
+## The load-in animation is too slow (2026-08-30)
+
+**His words:** *"When the page loads, the page animations and loading, it's
+perfect, but the GUIs just take a little too much time to, like, you know, go
+up and do the load-in animation. So if you can make that just a little
+speedier."*
+
+Read carefully, because it is a precise report: **the ground and the page as a
+whole are right; the ARRIVAL of the screen's elements is not.** So this is not
+"turn the motion down" — law 3 says motion is not spendable — it is one
+duration being wrong for this surface.
+
+What he is feeling is `app/src/theme.css`'s `@keyframes arrive`: it runs for
+`--t-reveal`, which is **950ms**, with a 55ms stagger up to 210ms, so the last
+element on a screen settles roughly **1.16 seconds** after the screen appears.
+`bar-rise` (the Money chart) and `sheet-in` (every settings panel) run at the
+same 950ms.
+
+950ms is the system's value and it was right where it came from: the marketing
+page, where a reveal is tied to scrolling and the reader is travelling. A
+dashboard screen is not travelled, it is opened — forty times a day — and
+there the entrance should not be the slowest thing on it.
+
+Not fixed yet. Roughly 380–450ms with a ~40ms stagger is the target, and the
+system's own `--t-exit` is already 420ms. **Whatever value is chosen goes into
+`docs/design-system.md` § Motion with its reason**, because law 4 forbids
+ad-hoc durations and a number changed quietly in a stylesheet is exactly that.
+
+## A guessable demo login, on purpose and temporarily (2026-08-30)
+
+The owner tried to look at the dashboard on the live site and on his phone and
+met a sign-in page. He asked either to remove the sign-in page for now, or for
+a simple login he could type.
+
+**Removing it is not an option that does anything**, and the reason is worth
+writing down so it is not re-proposed: the dashboard shows one business's real
+rows, and the database — not the app — decides who may read them. RLS is
+FORCEd on every table. With no session there is no identity, so every query
+returns zero rows; a dashboard with the sign-in page taken off is not an open
+dashboard, it is an empty one. The sign-in page is not a gate in front of the
+data, it is what makes the data exist.
+
+**So: a simple login instead.** The seeded demo owner's password was changed
+from `DemoDetail2026!` to **`demo123`**, and the staff account to
+`staff123`. `scripts/seed-demo.mjs` was updated to match, so re-running the
+seed no longer silently restores the long ones. Proven by signing in through
+the real form at 392px.
+
+    demo@detailplatform.com / demo123     (owner — sees everything)
+    demo-staff@detailplatform.com / staff123   (staff — no Money tab)
+
+**The blast radius, measured rather than assumed:** these reach the DEMO
+business only. Tenant isolation is enforced in the database and
+`tests/tenant-isolation.test.mjs` proves it, so the worst a stranger who
+guesses one can do is scribble on fake data in `demo-detail`. That is
+acceptable for a temporary testing login on a pre-revenue product and it is
+not acceptable once there is a single real customer. **Change them before
+then.** The note is also in `scripts/seed-demo.mjs` beside the values.
+
+## He asked whether we actually look at the screens, and the answer is yes (2026-08-30)
+
+*"You are screenshotting every single page and looking back on it, right?
+Because that's a major thing — you guys are able to visualise it instead of
+just looking at the code, that way you could fix any errors."*
+
+Confirmed to him, and recorded here because it is a standing expectation
+rather than something 2.3 happened to do. Every screen is opened in a real
+browser and looked at, at **1920 / 1440x900 / 768x1024 / 392x844**, in the
+normal path and `?lite=1`, with the console read at each width. 2.3 did that
+for all five tabs and all eleven settings screens — 44 screenshots for the
+settings sheets alone, then the whole set again in `.lite`.
+
+It is not ceremony, and 2.3 is the evidence: **two real defects were found
+that way and neither was findable by reading code.** The Promos screen crashed
+the whole app on open — a missing import that had survived because nobody had
+ever walked all eleven settings screens in a browser. And the day rail leaked
+onto the LIVE marketing page, because the class name it was given belonged to
+that page already.
+
+`scripts/shoot-dashboard.mjs` exists so this is repeatable rather than
+re-invented each time; it is documented in `docs/HANDOFF.md` §4b.

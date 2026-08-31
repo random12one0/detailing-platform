@@ -441,20 +441,27 @@ still theirs on their public site. If the intent was that the dashboard also
 carries a light touch of their colour (a header, an active tab) that is a
 small change, but say so before 2.3 — it is expensive to retrofit.
 
-**STILL NOT ANSWERED, and 2.3 has now been built (2026-08-30).** Nobody put
-the question to him, so 2.3 implemented the reading above, which is what
-`docs/design-system.md` law 11 says: `lib/theme.js` no longer writes the
-detailer's colour over the dashboard's `--accent`, and the dashboard runs on
-one fixed house palette. The Appearance screen — now called "Your colour" —
-carries the consequence in plain words and previews the colour on the booking
-page's own ground, so picking one and seeing the dashboard not change reads
-as intended rather than broken.
+**ANSWERED 2026-08-30, and the assumption above was WRONG.** The question was
+finally put to him at the end of roadmap 2.3, which had built the
+customer-facing-only reading. His answer: *"I think that we should have them
+be able to customize their admin dashboard accent color, because I think that
+the majority of accent colors will work… it's just with black, so almost
+anything goes with black or a darker colour."*
 
-**The question was asked at the end of that session and is open.** It is not
-expensive to retrofit in the direction of "yes, a light touch": the accent is
-one token and `lib/theme.js` still holds both correction functions. Reverting
-the other way — after tenant colour had been let back into the dashboard —
-would be. So the cheap moment to answer it is now, not later.
+So the tenant's colour reaches their dashboard too. `docs/design-system.md`
+law 11 is rewritten; the code to do it is scoped in `docs/roadmap.md` under
+2.3 (b) and is not started. The consequence this file warned about is now
+real and accepted: **every dashboard screen has to survive an arbitrary tenant
+colour**, which is the constraint the paragraph above was so pleased to have
+removed. What bounds it is the curated four-to-six set — still unpicked — and
+the correction in `lib/theme.js`.
+
+**The process lesson, since this file is where the assumption was flagged:**
+it said "say so before 2.3 — it is expensive to retrofit", and nobody said,
+and 2.3 was built on the guess. It cost one conversation to fix because the
+handover named it as an unconfirmed assumption instead of presenting it as
+settled. A flagged assumption is only worth flagging if somebody actually asks
+the question at the checkpoint it names.
 
 
 ---

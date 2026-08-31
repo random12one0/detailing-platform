@@ -20,8 +20,16 @@ if (!ANON) {
 
 const SLUG = "demo-detail";
 const TZ = "America/Los_Angeles";
-const OWNER = { email: "demo@detailplatform.com", password: "DemoDetail2026!" };
-const STAFF = { email: "demo-staff@detailplatform.com", password: "DemoStaff2026!" };
+// SHORT PASSWORDS ON PURPOSE, and this is a temporary state.
+// The owner asked for a login simple enough to type on a phone (2026-08-30)
+// so he can look at the dashboard on his own device. They reach the DEMO
+// business only — RLS enforces tenant isolation in the database and
+// tests/tenant-isolation.test.mjs proves it — so the worst a stranger who
+// guesses one can do is scribble on fake data.
+// **Change these before there is a single real customer.** See DECISIONS.md,
+// "A guessable demo login, on purpose and temporarily".
+const OWNER = { email: "demo@detailplatform.com", password: "demo123" };
+const STAFF = { email: "demo-staff@detailplatform.com", password: "staff123" };
 
 const H = {
   apikey: SERVICE, Authorization: `Bearer ${SERVICE}`,
