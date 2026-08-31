@@ -3485,7 +3485,15 @@ Verified live: `/book/demo-detail` under Violet now injects
   booking fix above is entirely in `lib/theme.js`, which is the only file
   allowed to compute colour.
 - **`a { color: var(--accent-text); text-decoration: none; }`** in `theme.css`
-  is a latent 1.4.1 hazard: a link identified by colour alone. Harmless today —
-  the dashboard has exactly one bare `<a>` and it is a card — but Phase 3's
-  tenant sites will have prose links, and a silver or near-white accent makes
-  them indistinguishable from body text. Flagged, not fixed.
+  is a latent 1.4.1 hazard: a link identified by colour alone. Chasing it found
+  **one LIVE instance and it is fixed** — the booking confirmation page's
+  *"Questions? Call &lt;number&gt;"*, a prose link inside a `<p>` marked only by
+  the tenant's accent. `booking.css` now underlines links inside `.bk-muted`
+  and `.bk-body` prose and explicitly exempts `.bk-btn`, which reads as a
+  button already. It matters most for the accents nearest the prose around
+  them: a Silver accent `#D4D7DA` against `--bk-muted` `#939CA1` is 1.9:1,
+  under the 3:1 a colour-only link would need.
+  **What is still flagged and NOT fixed is the DASHBOARD's `a` rule.** Every
+  anchor there is classed as a button except one, `BookingDetail.jsx:292`,
+  which is a card — underlining a card would be wrong, so there is nothing to
+  fix yet. It becomes real in Phase 3, when tenant sites have prose.

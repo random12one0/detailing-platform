@@ -188,6 +188,17 @@
 .bk p { margin: 0; }
 .bk-muted { font-size: var(--bk-t-meta); color: var(--bk-muted); line-height: 1.45; }
 .bk-body { font-size: var(--bk-t-body); }
+/* A LINK INSIDE PROSE IS UNDERLINED. Every other link on this page is a
+   button and reads as one; this covers the ones that sit in a sentence —
+   today just "Questions? Call <number>" on the confirmation screen, which
+   was marked only by the tenant's accent colour. That is WCAG 1.4.1 (colour
+   must not be the only visual means) and it gets worse the closer the accent
+   sits to the prose around it: a Silver accent `#D4D7DA` against `--bk-muted`
+   `#939CA1` is 1.9:1, under the 3:1 a colour-only link would need. Found in
+   roadmap 2.4 while checking whether "almost any colour works" held on the
+   customer's side. Buttons keep `text-decoration: none` from `.bk-btn`. */
+.bk-muted a, .bk-body a { text-decoration: underline; text-underline-offset: 3px; }
+.bk-muted a.bk-btn, .bk-body a.bk-btn { text-decoration: none; }
 /* The eyebrow: 11px, wide-tracked, narrow-cut. Same shape everywhere it
    appears, which is what makes it read as one voice. */
 .bk-step-label {
