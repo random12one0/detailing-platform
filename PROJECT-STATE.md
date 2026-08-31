@@ -229,9 +229,61 @@ phase 1 is outstanding.
 
 ## 6c. ROADMAP 2.4 — ANY COLOUR WORKS EVERYWHERE (2026-08-30)
 
-**Item 3 (a/b/c) is done. What remains of 2.4 is the cancel/reschedule page's
-COMPOSITION and nothing else** — its three stacked full-width buttons carry no
-hierarchy. That page's *colour* was checked and is fine.
+**2.4 IS CLOSED.** Item 3 (a/b/c) finished first; the cancel/reschedule page's
+composition — the last piece — finished 2026-08-30 and is summarised directly
+below. That page's *colour* was checked before and after and is fine.
+
+### The manage page's composition (the last piece of 2.4)
+
+`/booking/:id` had **four** identical full-width pills in a column — add to
+calendar, change the time, cancel, call — each one a direct child of a flex
+container whose gap is the page's 26px SECTION gap. So they were not four
+buttons, they were four page sections, evenly spaced, all one weight: the
+"five identical full-width stacked sections" tell, with a destructive action
+carrying exactly as much weight as "Add to my calendar".
+
+**They are one group with three weights now.** Filled (the tenant's accent) =
+"Change the time", which is the reason the page exists — the file's own header
+says it is what stops the detailer's phone ringing for "can I move my
+Tuesday?". Ringed = "Add to my calendar". Ringless, sharing a row under a
+hairline = "Cancel this booking" and "Call …", the two ways *out*. New in
+`booking.css`: `.bk-actions`, `.bk-exits`, and `.bk-btn.danger` (+ `.bare`),
+which also replaced the same inline danger style copied into the JSX twice.
+The rule is now in `docs/design-system.md` § Composition.
+
+**One live defect fixed on the way:** when the cancellation window is closed,
+the note already prints the business's phone, and a "Call <same number>"
+button was drawn directly beneath it. Verified at the source rather than
+assumed — `receiptBusiness.phone` (get-booking-receipt) and `business.phone`
+(the public-profile RPC) are both `businesses.contact_phone`, so there is no
+shape of the data where the note is empty and that button is not.
+
+**The red-on-red question was measured, not eyeballed, and the answer is that
+it is fine.** A red-branded tenant now gets an accent-filled button in the
+same view as the red destructive control, which is the exact adjacency law 11b
+exists to prevent. Measured as CIE76 ΔE against `--bad` `#E2705F`: Crimson
+**31.9**, Rose **30.8**, Ember **35.9** — against the ΔE **8.5** and **17.1**
+that item 3c judged to be real collisions. Same hue family, 2–4x the distance,
+and the two differ in form as well (solid fill vs bare text, separated by a
+rule). A red `.bk-btn.primary` already ships on this same page in the
+reschedule and cancelled states. **No colour was changed.**
+
+**Verified by looking**, 1920 / 1440x900 / 768x1024 / 392x844, console clean
+at every width, normal path and `?lite=1`: the default state, mid-reschedule,
+the cancel confirmation, cancelled, and the locked-window state (reached by
+temporarily widening the demo tenant's window to 200h and restoring it to 24).
+Retinted through the tenant's real branding row at three extremes — Crimson,
+Silver (near-white fill) and near-black (mid-grey fill) — and restored to
+`#eab308`. The keyboard focus ring on the now-ringless cancel button was
+screenshotted, not assumed: `.bk :focus-visible` paints a 2px accent outline.
+`scripts/shoot-manage.mjs` is new and is the only thing that reaches this page.
+
+**One observation recorded, deliberately not fixed:** the page ends around
+y=570 on a 1920x1080 screen, so the lower half is bare ground — and this
+change made it ~100px shorter, not longer. It is a phone page reached from a
+text message, its approved sibling (the booking page) has the same shape, and
+the fix for "not enough content" would be filler. Flagged for the owner rather
+than solved.
 
 **THE RULE TO KNOW BEFORE TOUCHING ANY COLOUR: the accent is IDENTITY, never
 MEANING** — `docs/design-system.md` **law 11b**, the owner's own words on

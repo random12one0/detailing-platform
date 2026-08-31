@@ -561,6 +561,17 @@ change to a display string re-measures the longest one at 392, 1440 and
   screen-reader behaviour free, and it survives every script on the page
   failing.
 - **Centred exactly once, at the end.** Centred everywhere is the tell.
+- **A column of identical full-width buttons is a column of identical
+  sections** — the same tell as "five identical full-width stacked sections"
+  (`docs/design-knowledge.md` §1), and it arrives by accident rather than by
+  choice: buttons dropped straight into a flex column inherit its SECTION gap,
+  so each one lands as a page-level block. Two rules follow. **Actions are a
+  GROUP with its own tighter rhythm**, not siblings of the content above them.
+  And **three or more actions take three weights** — filled, ringed, ringless
+  — because a set where everything is equally loud has no first thing, and a
+  destructive action weighted the same as a convenience is a hazard, not a
+  neutral choice. Where the tiers collapse to a stack on a phone, the weights
+  are what still carry the order. Roadmap 2.4, the customer manage page.
 
 ---
 

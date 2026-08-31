@@ -3497,3 +3497,117 @@ Verified live: `/book/demo-detail` under Violet now injects
   anchor there is classed as a button except one, `BookingDetail.jsx:292`,
   which is a card — underlining a card would be wrong, so there is nothing to
   fix yet. It becomes real in Phase 3, when tenant sites have prose.
+
+## Roadmap 2.4, the last piece — the manage page had no first thing (2026-08-30)
+
+`/booking/:id` — the page a customer reaches from the confirmation email to
+move or cancel an appointment — drew **four** identical full-width pills in a
+column: *Add to my calendar*, *Change the time*, *Cancel this booking*, *Call
+&lt;number&gt;*. The roadmap said three; it was one short, because the last one
+only draws when the business has a phone number on file, which the demo tenant
+does.
+
+**The root cause was structural, not stylistic, and it is worth naming because
+it will recur.** The buttons were direct children of `.bk-wrap`, which is
+`display: flex; flex-direction: column; gap: 26px` — the page's SECTION gap.
+Every button therefore inherited a section's worth of space above it *and*
+carried its own `marginTop: 10`, so the four of them read as four page-level
+blocks rather than as one set of choices. That is the "five identical
+full-width stacked sections" tell (`docs/design-knowledge.md` §1) arriving by
+accident: nobody chose it, the container did.
+
+**What it is now: one group, three weights.**
+
+| Weight | Control | Why |
+|---|---|---|
+| Filled, the tenant's accent | Change the time | The page's own header says it exists to stop the detailer's phone ringing for "can I move my Tuesday?". That is the primary, and it is an *action*, which law 11b puts on the accent side. |
+| Ringed | Add to my calendar | Useful, not the reason you came. |
+| Ringless, sharing a row under a hairline | Cancel this booking · Call … | The two ways *out* — one destructive, one human. The rule is the line between doing something WITH the booking and doing something INSTEAD of it. |
+
+New in `booking.css`: `.bk-actions` (the group and its tighter internal
+rhythm), `.bk-exits` (the row, which stacks below 440px because a phone number
+and "Cancel this booking" cannot share a line that narrow), and
+`.bk-btn.danger` with a `.bare` variant. `.danger` also replaced the same
+inline `boxShadow + color` style that had been copied into the JSX twice.
+
+**The destructive control lost its ring, and that was the point.** The trigger
+that OPENS the question and the button that ANSWERS it are not the same act:
+the confirmation step keeps the full red ring, the trigger is bare and takes
+the ring back on hover. Its red stays — law 11b fixes `--bad` to destructive,
+and it is the one colour on this page the tenant does not own. Colour is not
+carrying it alone either: it keeps its `<X>` icon, and `.bk :focus-visible`
+paints a 2px accent outline, which was screenshotted rather than assumed.
+
+### The red-on-red adjacency: measured, and left alone
+
+Making "Change the time" an accent fill puts a red-branded tenant's identity
+colour in the same view as the red destructive control — the exact adjacency
+law 11b exists to prevent, and the reason item 3c pulled `--bad` out of the
+calendar. So it was measured before it was accepted. CIE76 ΔE against `--bad`
+`#E2705F`, on the corrected fill each preset actually paints:
+
+| | ΔE | | ΔE |
+|---|---|---|---|
+| Crimson `#dc2626` | **31.9** | Gold | 45.9 |
+| Rose `#e11d48` | **30.8** | Slate | 64.9 |
+| Ember `#ea580c` | **35.9** | Silver | 59.6 |
+| Sunflower | 61.1 | Ocean | 105.6 |
+
+The collisions item 3c judged real were **ΔE 8.5** (a Silver accent against the
+"booked" ring) and **17.1** (near-black against the blocked-day grey). The
+worst case here is 1.8x the larger of those and 3.7x the smaller. `hueFamily()`
+does put Crimson, Rose and `--bad` in the same band — but they differ in form
+as well as distance (a solid 48px fill against bare text, with a rule between
+them), and a red `.bk-btn.primary` already ships on this same page in the
+reschedule and cancelled states. **No colour was changed.** If the owner looks
+at a crimson tenant and disagrees, the one-line answer is to drop `--bad` from
+the trigger and leave it on the confirmation button, which is what 3c did to
+the calendar.
+
+### A live defect fixed on the way
+
+With the cancellation window closed, the note explaining that changes are
+locked already prints whatever contact the business has — and a "Call
+&lt;same number&gt;" button was drawn directly beneath it. The same number,
+twice, in a row. **Checked at the source rather than assumed:**
+`receiptBusiness.phone` comes from `get-booking-receipt` and `business.phone`
+from the public-profile RPC, and both read `businesses.contact_phone`, so
+there is no shape of the data where the note is empty and that button is not.
+The whole exits row now goes when the window closes.
+
+### What was looked at, and how
+
+`scripts/shoot-manage.mjs` is new — `shoot-dashboard.mjs` signs in and walks
+the owner's side, and nothing reached the page the CUSTOMER lands on. Its
+states are branches on data, not clicks, so it takes a booking id per state.
+
+Walked at **1920 / 1440x900 / 768x1024 / 392x844**, console clean at every
+width, normal path and `?lite=1`: the default state, mid-reschedule, the
+cancel confirmation, cancelled, and the locked window — that last one reached
+by temporarily setting the demo tenant's `cancellation_window_hours` to 200
+and putting it back to 24. Retinted through the tenant's real
+`business_branding` row at three extremes and restored to `#eab308`: Crimson
+(a saturated red fill), Silver (a near-white fill with dark ink) and
+near-black (which corrects to a mid-grey fill — bright enough not to read as
+the disabled treatment, which is darker and has muted text). The booking page,
+which shares the same stylesheet, was re-shot at two widths and is unchanged.
+All four credential-free tests and `scripts/accent-sweep.mjs` pass.
+
+### One thing observed and deliberately not fixed
+
+The page ends around y=570 on a 1920x1080 screen, so the lower half is bare
+ground — and this change made it about 100px *shorter*, because three weights
+take less room than four equal ones. It is left alone: this is a phone page
+reached from a text message, its approved sibling the booking page has the
+same shape, the ground's drifting light means it is not a dead screen (law 2),
+and the only way to "fill" it would be filler. Flagged to the owner rather
+than solved, because "not enough content at 1920" is a named hazard in this
+repo and silently ignoring it is how it gets ignored twice.
+
+### What was NOT done, and why
+
+No test was added for "a column of identical full-width buttons". The check
+would have to count sibling elements across JSX to mean anything, which is
+brittle in a way the existing 26 checks are not — they read stylesheets and
+markup for facts, not for shapes. The rule went into
+`docs/design-system.md` § Composition instead, where the never-defaults live.

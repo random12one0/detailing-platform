@@ -85,6 +85,7 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
   const windowHours = Number(receiptBusiness?.cancellation_window_hours ?? 0);
   const cutoff = new Date(booking.start_at).getTime() - windowHours * 3600_000;
   const windowClosed = windowHours > 0 && Date.now() > cutoff;
+  const noteCarriesContact = Boolean(receiptBusiness?.phone || receiptBusiness?.email);
 
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
 
@@ -207,13 +208,15 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
                 ))}
               </div>
             )}
-            <button className="bk-btn primary" style={{ marginTop: 14 }}
-              disabled={busy || !pick.date || !pick.time} onClick={doReschedule}>
-              {busy ? "Moving…" : "Move my booking"}
-            </button>
-            <button className="bk-btn ghost" style={{ marginTop: 8 }} onClick={() => setMode(null)}>
-              Never mind
-            </button>
+            <div className="bk-actions">
+              <button className="bk-btn primary"
+                disabled={busy || !pick.date || !pick.time} onClick={doReschedule}>
+                {busy ? "Moving…" : "Move my booking"}
+              </button>
+              <button className="bk-btn ghost" onClick={() => setMode(null)}>
+                Never mind
+              </button>
+            </div>
           </>
         ) : confirmCancel ? (
           <div className="bk-note">
@@ -222,7 +225,8 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
               <strong>{time12(booking.start_time)}</strong>? The time goes back to
               whoever wants it, so we may not be able to give it back.
             </p>
-            <button className="bk-btn" style={{ marginTop: 12, boxShadow: "inset 0 0 0 1px var(--bk-danger)", color: "var(--bk-danger)" }}
+            {/* Ringed, not bare: this is the button that actually does it. */}
+            <button className="bk-btn danger" style={{ marginTop: 12 }}
               disabled={busy} onClick={doCancel}>
               {busy ? "Cancelling…" : "Yes, cancel it"}
             </button>
@@ -232,23 +236,22 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
             </button>
           </div>
         ) : (
-          <>
-            <a className="bk-btn" href={icsUrl(booking.id, "customer")}>
-              <Check size={18} strokeWidth={2} /> Add to my calendar
-            </a>
-
+          // ONE block with three weights, not four peers. Filled = the thing
+          // this page exists for; ringed = the useful extra; ringless, below a
+          // rule = the ways out. See booking.css, ".bk-actions".
+          <div className="bk-actions">
             {windowClosed ? (
               // The button would be refused by the server, so it isn't drawn.
               // The phone number is the thing that actually helps now.
-              <div className="bk-note" style={{ marginTop: 10 }}>
+              <div className="bk-note">
                 Changes and cancellations close {windowHours} hours before your
                 appointment, so this one is now locked in.
-                {(receiptBusiness?.phone || receiptBusiness?.email)
+                {noteCarriesContact
                   ? " Get in touch and we'll sort it out:"
                   : " Please get in touch and we'll sort it out."}
                 {/* Telling someone to make contact without giving them a way
                     to do it is not help. Whatever the business has, show it. */}
-                {(receiptBusiness?.phone || receiptBusiness?.email) && (
+                {noteCarriesContact && (
                   <div className="bk-row" style={{ marginTop: 8, gap: 12, flexWrap: "wrap" }}>
                     {receiptBusiness.phone && (
                       <a className="bk-btn inline" href={`tel:${receiptBusiness.phone.replace(/[^+\d]/g, "")}`}>
@@ -264,23 +267,38 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
                 )}
               </div>
             ) : (
-              <>
-                <button className="bk-btn" style={{ marginTop: 10 }} disabled={busy} onClick={loadSlots}>
-                  <CalendarClock size={18} strokeWidth={2} /> {busy ? "Loading…" : "Change the time"}
-                </button>
-                <button className="bk-btn" style={{ marginTop: 10, boxShadow: "inset 0 0 0 1px var(--bk-danger)", color: "var(--bk-danger)" }}
-                  disabled={busy} onClick={() => setConfirmCancel(true)}>
-                  <X size={18} strokeWidth={2} /> Cancel this booking
-                </button>
-              </>
+              // The one filled thing on the screen, and it is the reason the
+              // page exists: moving an appointment without ringing anybody.
+              <button className="bk-btn primary" disabled={busy} onClick={loadSlots}>
+                <CalendarClock size={18} strokeWidth={2} /> {busy ? "Loading…" : "Change the time"}
+              </button>
             )}
 
-            {business.phone && (
-              <a className="bk-btn ghost" style={{ marginTop: 10 }} href={`tel:${business.phone}`}>
-                <Phone size={18} strokeWidth={2} /> Call {business.phone}
-              </a>
+            <a className="bk-btn" href={icsUrl(booking.id, "customer")}>
+              <Check size={18} strokeWidth={2} /> Add to my calendar
+            </a>
+
+            {/* The whole row goes when the window is closed, and the "Call"
+                button goes with it — the note above is already printing that
+                number, so it was the same number twice in a row. Checked
+                rather than assumed: receiptBusiness.phone (the receipt) and
+                business.phone (the public-profile RPC) are both
+                businesses.contact_phone, so there is no shape of the data
+                where the note is empty and this button is not. */}
+            {!windowClosed && (
+              <div className="bk-exits">
+                <button className="bk-btn danger bare" disabled={busy}
+                  onClick={() => setConfirmCancel(true)}>
+                  <X size={18} strokeWidth={2} /> Cancel this booking
+                </button>
+                {business.phone && (
+                  <a className="bk-btn ghost" href={`tel:${business.phone}`}>
+                    <Phone size={18} strokeWidth={2} /> Call {business.phone}
+                  </a>
+                )}
+              </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

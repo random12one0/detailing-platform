@@ -715,12 +715,36 @@ is kept; the entire visual design restarts from scratch.
       (law 8 now says why), and the tenant accent has a fill value and a
       separate TEXT value — though the dashboard keeps the fixed house
       palette, so only its `--accent-text` path is affected.
-- [~] 2.4 Per-tenant recoloring. **ITEM 3 (a/b/c) IS DONE — 2026-08-30.**
-      **What is LEFT of 2.4 is the cancel/reschedule page's COMPOSITION**, and
-      nothing else: its three stacked full-width buttons carry no hierarchy.
+- [x] 2.4 Per-tenant recoloring. **DONE — 2026-08-30.** Item 3 (a/b/c) closed
+      first; the cancel/reschedule page's COMPOSITION closed last.
+
+      **The composition piece.** `/booking/:id` had FOUR identical full-width
+      pills in a column — the count in the old note said three and was one
+      short, because "Call …" only draws when the business has a phone. They
+      were direct children of `.bk-wrap`, so its 26px SECTION gap fell between
+      every one: four buttons rendering as four page sections, all one weight,
+      with the destructive action as loud as "Add to my calendar". Now one
+      group, three weights: filled (the tenant's accent) "Change the time",
+      which is the reason the page exists; ringed "Add to my calendar";
+      ringless under a hairline, sharing a row, "Cancel this booking" and
+      "Call …". New in `booking.css`: `.bk-actions`, `.bk-exits`,
+      `.bk-btn.danger` / `.bare`. The rule is now in `docs/design-system.md`
+      § Composition, and `scripts/shoot-manage.mjs` is the first thing that
+      reaches this page at all.
+
+      **A live defect fixed with it:** with the cancellation window closed the
+      note already prints the business's phone, and a "Call <same number>"
+      button sat directly beneath it. Both come from
+      `businesses.contact_phone`, checked at the source.
+
+      **The red-on-red adjacency was measured and left alone.** ΔE vs `--bad`:
+      Crimson 31.9, Rose 30.8, Ember 35.9 — against the 8.5 and 17.1 that item
+      3c treated as real collisions. No colour changed. Numbers and the full
+      verification walk: PROJECT-STATE.md §6c.
+
       Its colour was checked and is fine — the cancelled state there is carried
       by the word "Cancelled" plus a line-through on the date, so it has no
-      colour-alone dependence. `booking.css` was not touched.
+      colour-alone dependence.
 
       **Everything else this item listed is closed.** The extremes (neon,
       near-black, near-white, pure black) are swept on EVERY run of
