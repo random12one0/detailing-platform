@@ -2439,3 +2439,105 @@ v7 future-flag warnings); the booking page re-checked at 392 and 1440 to
 confirm 2.1's surface was not disturbed; the dashboard loaded, with and
 without `?lite=1`. `composition` 24/24, `design-contrast` all pairs,
 `landing-pricing` 18/18, `route-contract` 18/18.
+
+## The owner put the redesign on `main` and published it (2026-08-30)
+
+**His instruction, in full: "put it on main and git."** Said immediately after
+being shown what each half meant and being recommended to do only the first.
+He chose both. This overrides the standing ground rule in `CLAUDE.md` — "NEVER
+commit or merge to `main`" — for this action; that rule is his, and so is the
+override.
+
+### What he was told before he decided
+
+He asked why detailingplatform.com and GitHub did not look like the page on
+`localhost:5173`. The answer was three copies at three different dates:
+
+| Where | State before this |
+|---|---|
+| this machine | everything, through roadmap 2.2 |
+| GitHub, branch `claude/superbase-access-anj1h7` | last pushed **2026-08-28** — 62 commits behind |
+| GitHub `main` → detailingplatform.com | `30ae438`, also 2026-08-28 — the OLD landing page |
+
+Confirmed by loading the live site, not inferred: it served the pre-redesign
+page, blue accent and all ("Not a page builder. Not a directory listing.").
+
+Two separate things were put to him, with a different recommendation on each:
+
+1. **Push the branch** — a backup, invisible to the public. Recommended,
+   because five sessions of work existed on one computer only and a disk
+   failure would have taken all of it. The 62 commits were scanned for
+   credentials first; the only matches were old audit documents *describing* a
+   vulnerability, and those were being deleted rather than added.
+2. **Merge to `main`** — publishes to the public site. **Recommended
+   against, for now**, on two grounds he has therefore accepted by
+   proceeding:
+   - **The dashboard is still the old look.** Roadmap 2.3 has not run. A
+     visitor meets the new marketing page, presses "Get started", and lands in
+     an app that looks like a different product.
+   - **Billing charges nobody.** "Take a founding spot" leads to a signup that
+     cannot take money.
+
+   Neither is a defect in what shipped; both are consequences of publishing
+   mid-phase, which is his call to make.
+
+### What was done
+
+Branch pushed first, then `main` fast-forwarded to it (63 commits, no merge
+commit — `main` had nothing the branch did not) and pushed. All four
+credential-free suites were re-run immediately before: composition 24/24,
+design-contrast all pairs, landing-pricing 18/18, route-contract 18/18. The
+session then switched back to the working branch, so `main` is not where the
+next item is built.
+
+### The rule, as it now stands
+
+`main` is still production and the default is still to work on the branch and
+leave it alone. What has changed is only that it is no longer 63 commits
+behind: `main`, the branch and this machine are the same commit. **Do not
+merge to `main` on your own initiative — ask.** He can say yes, as he did
+here, and that is the whole mechanism.
+
+### This also answered the deploy question the roadmap has carried since 0.1
+
+`docs/HANDOFF.md` said Netlify auto-publishes `main`; an older DECISIONS note
+said deploys were manual uploads, and PROJECT-STATE listed the disagreement as
+unresolved. Pushing `main` settled it by observation — see the note recorded
+immediately below this section.
+
+## ANSWERED: Netlify does auto-publish `main` (2026-08-30)
+
+Open since roadmap 0.1 and listed in PROJECT-STATE §6 under "what I don't
+understand": `docs/HANDOFF.md` said Netlify auto-publishes `main`, an older
+DECISIONS note said deploys were manual uploads, and nobody had tested it.
+
+**Settled by observation.** `main` was pushed to GitHub and nothing else was
+done — no upload, no dashboard visit, no CLI. The live site rebuilt and
+republished on its own within a few minutes. HANDOFF was right; the manual-
+upload note is history.
+
+**So the operational fact is: a push to `main` is a publish.** There is no
+second step to forget and no second step to protect you. That is why the
+default stays "work on the branch and ask before merging".
+
+### The live site was then verified, not assumed
+
+Checked against the deployed production build, which is minified and does not
+run React's development double-mount, so it is not the same artifact that was
+tested locally:
+
+- **1920, 1440, 768 and 392**: page heights 11243 / 10130 / 11809 / 11938 —
+  identical to the local build and to the approved reference page.
+- Four message bubbles, four job rows, one thread at every width — the
+  script's mount is correct without StrictMode to shake it out.
+- Archivo resolving as the display face; prices settling on `$499` and `$35`
+  from `pricing.js`; the founding badge reading `3 of 3 left` from the
+  database.
+- **No console errors and no HTTP response >= 400 at any width.**
+- `?lite=1` on the live site: class set, tiles read `4/$520`, nothing hidden.
+- **The tenant-site photograph loads: 200, `image/jpeg`, 41,478 bytes,
+  natural size 840x270.** Worth recording how this looked wrong first: at
+  scroll 0 it reports `naturalWidth 0`, because it is `loading="lazy"` and
+  sits six screens down. That is the attribute working, not a broken path —
+  scroll to it and it fetches. Do not "fix" a 0x0 lazy image that has never
+  been scrolled to.

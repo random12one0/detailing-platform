@@ -20,8 +20,17 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 ## Ground rules
 
-- Work on branch `claude/superbase-access-anj1h7`. NEVER commit or merge to
-  `main` — main auto-deploys to production (detailingplatform.com).
+- Work on branch `claude/superbase-access-anj1h7`. **Never merge to `main` on
+  your own initiative — ask.** `main` auto-deploys to production
+  (detailingplatform.com), and that is now confirmed by observation rather
+  than inherited from a note: a push to `main` on 2026-08-30 republished the
+  live site by itself, with no upload and no dashboard visit. **A push to
+  `main` IS a publish** — there is no second step to forget.
+  The owner can say yes, and did on 2026-08-30: the redesign through roadmap
+  2.2 is live, and `main`, the branch and this machine are the same commit.
+  So "main is months behind" is no longer true, and a session that finds them
+  apart should say so rather than assume it is normal. See DECISIONS.md, "The
+  owner put the redesign on `main` and published it".
 - The owner's live business site (repo `carwashweb`, Supabase project
   `adtlnvihwrcqcasqcjwd`, Netlify, Resend domain andrewsdetail.com) takes
   real customers' money. Reads are allowed; writes only with the owner's
