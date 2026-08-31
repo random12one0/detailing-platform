@@ -123,6 +123,13 @@ $0/0 min so nothing changes for a detailer who does not use them. See the
 decisions section — this is his call because it adds setup work to every
 tenant's catalogue.
 
+> **SUPERSEDED 2026-08-31: he said customisable by the detailer, not five.**
+> See "Tenant-defined vehicle sizes" above. The finding that the CHECK
+> constraint is the blocker still stands and is the whole reason this was the
+> schema-blocking part; only the answer changed. His answer is better evidenced
+> than the recommendation was — twelve classes at one of the five menus and
+> five at another is a range, not a norm.
+
 ### 3. The "what's included" list already exists in the schema and nothing edits it.
 
 `services.features` is a jsonb array, present since the foundation migration.
@@ -270,6 +277,15 @@ a Continue button in React is that bug again.
 
 ## W25 — should packages be mutually exclusive?
 
+> **SUPERSEDED 2026-08-31 by the owner's own menu.** The one-boolean answer
+> below is kept because its reasoning is the record of what five menus showed,
+> and because the reason it failed is the useful part: **his business was a
+> sixth shape the sample did not contain.** What is being built is
+> "The category system" above — a rule per category, not one per business.
+> Five real menus were enough to rule shapes IN and not enough to rule the
+> remaining ones OUT, which is exactly the limit this file's second paragraph
+> warned about.
+
 *His words: he selected "Full Detail" and "Interior" together and found it
 confusing. He flagged the demo content as placeholder, so the question is about
 the rule, not the data.*
@@ -336,6 +352,186 @@ only two are worth arguing about.
 W27 was folded into this item rather than given its own.
 
 ---
+
+## THE OWNER ANSWERED, 2026-08-31 — read this before the four decisions below
+
+He answered all four the same day. **Two of them came back different from the
+recommendation, and one of those replaced the answer this file had reached**,
+so the sections below are kept as written (the reasoning is still the record of
+what the evidence said) and this section is what is actually being built.
+
+**1. Categories, with the selection rule per category — NOT one setting for the
+whole business.** His own menu is Interior, Exterior and add-ons, and *"they
+could click one from each category."* His instruction, in his words:
+*"a lot of detailers do things very different. So we have to figure out a system
+that works for every detailer. Maybe each detailer can click categories and
+then what's in the category. So a person booking can click one per category."*
+He asked for the research rather than a fixed answer — see
+"The category system" below, which is the answer and is decided.
+
+**2. Vehicle sizes: customisable by the detailer.** Not three, and not the five
+this file recommended — the detailer defines their own list. See "Tenant-defined
+vehicle sizes" below.
+
+**3. From-prices: yes.**
+
+**4. Ask how dirty the car is: yes.**
+
+---
+
+## The category system (his answer to decision 1, researched and decided)
+
+### Why the one-boolean answer below was wrong
+
+The section further down recommends a single `services_single_select` on the
+business, on the evidence of five menus: four pick-one, one wholly à la carte.
+**His own business is a sixth shape none of the five showed**, and he is the one
+detailer whose menu we can actually interrogate: Interior packages (pick one),
+Exterior packages (pick one), add-ons (pick several). One business-level boolean
+cannot express it — pick-one would stop him selling an interior AND an exterior,
+pick-any brings back the exact overlap he complained about in W25.
+
+**The trade's own menu-building advice says the same thing.** The guidance for
+detailers is to build a menu out of interior services, exterior services,
+value/bundle packages, and an à la carte set — and explicitly not to force
+customers into one strict pattern: bundle what makes sense and let them pick
+individual services where they need to. A menu with four sections whose rules
+differ is not an edge case; it is the recommended shape.
+
+So the rule cannot live on the business. **It lives on the category.**
+
+### The shape, and it is a solved problem elsewhere
+
+"A group of choices with a limit on how many you may take" is the oldest solved
+problem in online ordering: restaurant point-of-sale calls it a **modifier
+group**, and every major system (Toast, Lightspeed, and the delivery platforms
+that sync to them) models it as a group with a **minimum and maximum number of
+selections**. "Choose one" is max 1. "Choose any" is max unlimited. "Choose up
+to two" is max 2. We are not inventing a mechanism; we are using theirs.
+
+**Decided: a real `service_groups` table, one `max_select` per group.**
+
+```
+service_groups
+  id, business_id, name, sort_order, max_select integer null
+services
+  + group_id uuid null references service_groups(id)
+```
+
+- `max_select = 1` → pick one from this category. His Interior and Exterior.
+- `max_select = null` → pick as many as you like. An à la carte menu, or a
+  single "Packages" category for a shop that only has one.
+- The existing global rule — a booking needs at least one service — stays where
+  it is and does the work of a minimum, so **no `min_select` is being built.**
+  Nothing in the evidence needs "you must pick at least two", and the POS
+  systems only need a minimum because a burrito has no equivalent of "the order
+  must contain something".
+
+`max_select` is an integer rather than a two-way switch for one reason: the
+storage is identical, the editor is a two-way switch either way, and an integer
+never needs a second migration if a detailer ever wants "up to two". Migrations
+here are append-only, so the cheap generality is worth taking.
+
+**Why a table and not a `group_label` plus a settings blob.** `group_label` is
+free text typed per service today, so the cheaper shape — an ordered list of
+`{name, max_select}` on `business_settings`, matched to services by name — makes
+the category's identity a string. Retyping a label in one service silently
+creates a second category, and the new one has no rule, so it falls back to
+pick-any. That is a live booking page quietly reverting to the behaviour W25
+exists to remove, on a money path, with nothing to notice it. A category is a
+thing the detailer creates and names; it gets a row.
+
+`group_label` is **kept, not dropped** — append-only — and the migration
+backfills: one `service_groups` row per distinct `group_label` per business,
+`max_select` null so nothing changes on migration day, and `group_id` set on
+every service. Reading prefers `group_id` and falls back to `group_label`.
+
+### What this costs step 1, MEASURED — and it is the biggest finding of the day
+
+Roadmap 2.7 said W16 "cannot be true in the absolute for a list the detailer
+controls" and left it there. **His answer makes that concrete, so it was
+measured** at 392x844 against the running dev server and the seeded demo:
+
+| | |
+|---|---|
+| today: 4 services, 4 category headings | **fits, 18px spare** |
+| one service card | **97px** |
+| one category heading | **17px** |
+| gap inside a category / between categories | 8px / 26px |
+| **his own menu: 2 categories, 3 services each** | **119px OVER** |
+
+That last row is not arithmetic — step 1's DOM was restructured into his shape
+in the live page, same CSS and same box model, and re-measured. **The owner's
+own real menu does not fit step 1 on a phone today.**
+
+**And the fix is measured too, which is the useful half.** Folding the
+description off the face of the card takes the card from 97px to 74px, and the
+same six-service, two-category menu from 119px over to **18px spare** — exactly
+the headroom the four-service demo has now.
+
+**So W21's disclosure must hold the DESCRIPTION as well as the inclusion list.**
+That is a change to what this file said above, where W21 was only about
+`features`. The face of a service card is its name, its price and its length;
+everything else — the description and the what's-included list — lives behind
+the control he asked for. Nothing else in the step needs to move, and no gap
+needs shaving.
+
+### Vehicle sizes have the same ceiling, and it is six
+
+His answer to decision 2 makes the vehicle step tenant-controlled too, so the
+same measurement was taken there. Step 3 has **238px spare** with three sizes,
+and one size card costs **79px** including its gap. **Six sizes is the phone
+ceiling; the seventh overflows.**
+
+That matters because one of the five researched menus uses twelve vehicle
+classes. A detailer who wants twelve can have them in the data, but the vehicle
+step cannot draw twelve cards on a phone — past six it needs a denser control.
+A dropdown is allowed there: `composition.test.mjs` test 2 forbids a
+hand-written `<select>` only for **2–4** options, which is the segmented-control
+rule, and a twelve-item list is exactly the case a dropdown is for.
+
+---
+
+## Tenant-defined vehicle sizes (his answer to decision 2)
+
+Not three, and not the fixed five recommended below — the detailer defines the
+list. This is better evidenced than the five-class recommendation: of the menus
+studied, one uses twelve classes, one uses five, one prices in ranges with no
+explicit classes at all, and a detailer who charges one price for every vehicle
+is already supported (`StepVehicle` hides the whole block when no size carries
+an adjustment).
+
+**Most of this is already flexible and that is why it is affordable.**
+`services.vehicle_size_adjustments` is jsonb keyed by size name, and
+`_shared/pricing.ts` looks the key up rather than switching on it. What pins us
+to three is one thing: **`bookings.vehicle_size` is a CHECK constraint** listing
+`('small','medium','large')`.
+
+```
+business_settings
+  + vehicle_sizes jsonb   -- ordered [{key, label, examples}], defaults to
+                          -- today's three so nothing changes on migration day
+bookings
+  ~ vehicle_size: drop the three-value CHECK, keep a sane length check
+  + vehicle_size_label text   -- SNAPSHOT, see below
+```
+
+Dropping a constraint is not editing a migration — it is a new migration file,
+which is what append-only means.
+
+**The snapshot is not optional.** A detailer who renames or deletes a size must
+not corrupt the record of jobs already done. `vehicle_size_fee` is already
+snapshotted on the booking for exactly this reason, and `booking_services`
+snapshots price and duration; the size's human label needs the same treatment or
+last month's invoice starts printing a key that no longer resolves.
+
+## Interior condition (his answer to decision 4)
+
+`bookings.vehicle_condition text`, nullable, with a per-detailer switch to ask
+or not. Four values — light / moderate / heavy / extreme — matching the scale
+the real forms use. **It is information, not arithmetic**: the trade prices
+condition after inspection, so it must not touch the quote. It is what makes
+the from-price honest, which is why he approved both together.
 
 ## Four decisions for the owner
 
@@ -406,23 +602,56 @@ gets weaker, because then the only thing it changes is what you know in advance.
 **One migration, appended, when the owner has answered the four decisions
 below.** Listed here so the next session does not have to re-derive it:
 
+**Updated 2026-08-31 to the owner's answers.** All four are answered, so this is
+now a specification rather than a proposal. One migration, appended.
+
 ```
-business_settings
-  + water_requirement  text not null default 'ask'
-      check in ('not_needed','ask','required')           -- W22
-  + power_requirement  text not null default 'ask'
-      check in ('not_needed','ask','required')           -- W22
-  + services_single_select boolean not null default true -- W25
+-- NEW TABLE — W25, his "one per category". Standard business-scoped RLS;
+-- the event trigger enables RLS on creation (see the foundation migration).
+service_groups
+    id           uuid pk
+    business_id  uuid not null references businesses(id) on delete cascade
+    name         text not null
+    sort_order   integer not null default 0
+    max_select   integer null      -- 1 = pick one, null = pick any
+    created_at / updated_at
+  unique (business_id, name)
 
 services
-  + price_is_from boolean not null default false         -- W9
+  + group_id      uuid null references service_groups(id)  -- W25
+  + price_is_from boolean not null default false           -- W9
+
+business_settings
+  + water_requirement text not null default 'ask'
+      check in ('not_needed','ask','required')             -- W22
+  + power_requirement text not null default 'ask'
+      check in ('not_needed','ask','required')             -- W22
+  + vehicle_sizes     jsonb                                -- W9, tenant-defined
+      -- ordered [{key,label,examples}], defaults to today's small/medium/large
+  + ask_vehicle_condition boolean not null default true    -- W27
 
 bookings
-  + has_water boolean                                    -- W22 (nullable: "not asked")
-  + has_power boolean                                    -- W22
-  ~ vehicle_size: new CHECK allowing five classes        -- W9, IF he says yes
-  + vehicle_condition text                               -- W27, IF he says yes
+  + has_water          boolean       -- W22, nullable: null is "not asked"
+  + has_power          boolean       -- W22
+  + vehicle_condition  text          -- W27, null = not asked
+  + vehicle_size_label text          -- W9, SNAPSHOT of the label at booking time
+  ~ vehicle_size: drop the ('small','medium','large') CHECK, keep a length
+                  check -- W9. Dropping it in a NEW file is not editing an old
+                  one; that is what append-only governs.
+
+-- BACKFILL, same migration:
+--   one service_groups row per distinct services.group_label per business,
+--   max_select null so no booking page changes behaviour on migration day,
+--   then services.group_id set to match. group_label is KEPT.
 ```
+
+**Not being built, and each for a stated reason:** `min_select` on a group (the
+existing "a booking needs at least one service" rule already does that work, and
+nothing in the evidence needs a per-category minimum); `services_single_select`
+on the business (superseded — the rule belongs on the category); a fixed
+five-class vehicle enum (superseded — he wants the detailer to define the list);
+per-service mobile eligibility, cure/hold time and deposits (real gaps, no owner
+item names them, and two of the three are blocked on other work).
 
 `ask_water_electric` and `has_water_electric` stay. They are not dropped —
 they are what every existing row and every deployed edge function still reads,
@@ -438,20 +667,37 @@ to be schema work.
 ## The build order that follows
 
 Not a new roadmap item — this is how 2.7's five remaining items should be
-sequenced when they are built, and the first line is a real constraint rather
-than a preference:
+sequenced. **Updated 2026-08-31 for the owner's answers, and step 1 is now a
+hard prerequisite rather than a preference**, because his own menu overflows
+step 1 by 119px until it is done.
 
-1. **W21 disclosure BEFORE any `features` editor.** Shipping the editor first
-   arms a W16 break for every tenant who uses it.
+1. **W21's disclosure FIRST, and it holds the description as well as the
+   inclusion list.** Measured: card 97px → 74px, and his own six-service,
+   two-category menu goes from 119px over to 18px spare. Everything else on
+   this list adds height to step 1; this is the only thing that takes it away.
+   It is also what stops a `features` editor arming an overflow for every
+   tenant who uses it.
 2. **W10 reordering** — no migration, no dependency, smallest diff of the five.
-3. **The migration**, once the four decisions below are answered, then W25 and
-   W22 on top of it. W22's block belongs in `_shared/slotValidation.ts`, not
-   in the React step.
-4. **W9's from-price and (if approved) the five vehicle classes** last, because
-   the class change touches the pricing engine, the booking page, the Catalog
-   editor and every existing booking's stored size.
-5. **Re-run `node scripts/sweep-booking-steps.mjs` after each**, and read the
-   spare room rather than the pass — step 1's ceiling is the point of W21.
+   Group ordering comes later with the groups themselves.
+3. **The migration** above, in one file, with the backfill.
+4. **W25's categories** on top of it: a Catalog screen to create categories and
+   set each one's rule, a category picker on the service editor, and
+   `StepServices` grouping by `group_id` and enforcing `max_select`. **The
+   enforcement is not only the React step** — see W22 below for why.
+5. **W22**, with the block in `_shared/slotValidation.ts` where create-,
+   reschedule- and update-booking all meet. W4 in 2.7 found this exact hole:
+   a rule the customer could read on the page and book straight past.
+6. **W9's from-price, then the tenant-defined vehicle sizes** last, because the
+   size change touches the pricing engine, the booking page, the Catalog
+   editor, `business_settings` and every existing booking's stored size.
+   **Past six sizes the vehicle step needs a denser control than cards** — six
+   is the measured phone ceiling, and a dropdown is permitted above four.
+7. **W27's condition question** with it, since it shares the booking step and
+   the same migration.
+8. **Re-run `node scripts/sweep-booking-steps.mjs` after each**, and read the
+   spare room rather than the pass. Both tenant-controlled steps now have a
+   measured ceiling — step 1 at 18px with the description folded away, step 3
+   at six sizes — and those are the numbers to watch, not the word "fits".
 
 ## Sources
 
@@ -473,6 +719,14 @@ What the trade's software exposes:
 - [fieldd — where do mobile detailers get water](https://fieldd.co/where-do-mobile-detailers-get-water)
 - [Urable — vehicle care CRM](https://urable.com/vehicle-care/)
 - [Mobile Tech RX — plans](https://www.mobiletechrx.com/plans/)
+
+Added 2026-08-31 for the category question, after the owner's answer:
+
+- [Fortador — how to build your perfect auto detailing menu](https://www.fortador-usa.com/blog/how-to-build-your-perfect-auto-detailing-menu)
+- [Professional Carwashing & Detailing — outline of a service menu for a detail shop](https://www.carwash.com/outline-of-service-menu-for-successful-detail-shop/)
+- [Toast — adding modifier groups and modifiers](https://support.toasttab.com/en/article/Adding-Modifier-Groups-and-Modifiers-in-the-Menu-Builder)
+- [Toast — limited and free modifiers (min/max selections)](https://support.toasttab.com/en/article/Setting-up-limited-and-free-modifiers-for-an-item)
+- [Lightspeed Restaurant — advanced menu settings](https://o-series-support.lightspeedhq.com/hc/en-us/articles/31329329756315-Advanced-Deliverect-menu-settings)
 
 Trade pricing and practice:
 

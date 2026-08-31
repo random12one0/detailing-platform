@@ -947,16 +947,41 @@ is kept; the entire visual design restarts from scratch.
         and the ability to block a booking the detailer cannot service.
 
 - [x] 2.8 **OWNER-ADJACENT: research how other detailers actually work.**
-      **RESEARCH DONE 2026-08-31 — `docs/detailer-research-2026-08-31.md`.
-      FOUR OWNER DECISIONS ARE OUTSTANDING AND THE BUILD IS BLOCKED ON THEM**
-      (they are the last section before the schema list in that file: single-
-      select services, three vehicle sizes or five, from-prices, and the
-      condition question). The item is checked because the research is
-      finished, not because the five 2.7 items are built — they are not, and
-      they must not start before he answers, because three of the four change
-      the migration.
+      **DONE 2026-08-31, AND THE OWNER ANSWERED ALL FOUR DECISIONS THE SAME
+      DAY — `docs/detailer-research-2026-08-31.md`.** The item is checked
+      because the research and the design are finished; the five 2.7 items are
+      NOT built, and that file's "build order" section is how they should be,
+      with the migration written out in full.
 
-      **What it found, in one paragraph each.** *W10 and W21 need NO
+      **Two of his four answers came back different from the recommendation,
+      and one replaced this research's own conclusion.** (1) **Categories, with
+      the rule per category** — not one setting for the business. His menu is
+      Interior / Exterior / add-ons and *"they could click one from each
+      category"*, which is a sixth menu shape the five studied did not contain.
+      He asked for research rather than giving a fixed answer, and the answer
+      is a `service_groups` table with `max_select` per group — the restaurant
+      POS "modifier group" pattern, which is the same problem solved decades
+      ago. (2) **Vehicle sizes customisable by the detailer**, not the fixed
+      five recommended. (3) From-prices: yes. (4) The condition question: yes.
+
+      **AND THE BIGGEST FINDING CAME OUT OF ANSWER 1, MEASURED AT 392x844
+      AGAINST THE RUNNING APP.** 2.7 said W16 "cannot be true in the absolute
+      for a list the detailer controls" and left it there; his answer made it
+      concrete enough to measure. **His own real menu — two categories, three
+      services each — overflows step 1 by 119px.** Today's four-service demo
+      has 18px spare, a service card is 97px, a category heading is 17px.
+      **And the fix is measured too: folding the DESCRIPTION off the face of
+      the card takes it 97px → 74px and that same menu from 119px over to 18px
+      spare.** So W21's disclosure holds the description as well as the
+      inclusion list, and it is a prerequisite for categories rather than a
+      sibling. The vehicle step has the same shape now that sizes are
+      tenant-defined: 238px spare, 79px per size, **six is the phone ceiling.**
+
+      **What it found, in one paragraph each** (W25's and W9's conclusions were
+      then superseded by his answers above; kept because the reasoning is the
+      record of what the evidence showed, and because the reason W25's failed
+      is the useful part — five menus rule shapes IN, they do not rule the
+      remaining ones OUT). *W10 and W21 need NO
       migration* — `add_ons.sort_order` and `services.features` already exist
       and nothing writes either, so both were UI work misfiled as schema work.
       *W10 is reordering, not groups*: real add-on lists run 3–9 items and not

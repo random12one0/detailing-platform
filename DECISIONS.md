@@ -128,6 +128,7 @@ were made more than once.
 - **DECISIONS.md got an index** — why this file has a map, why the hooks are hand-written, and why nothing was deleted.
 - **Roadmap 2.7** — the features half of the walkthrough. W16 got an instrument, W1 was not where the roadmap pointed, and W4 turned out to be a live hole rather than a feature.
 - **Roadmap 2.8** — how other detailers actually work. **Two of the five open items needed no migration at all, and the owner's W22 premise turned out backwards.**
+- **The owner's answers to 2.8, and the one that overruled the research** — he was the sixth menu shape. **Five menus rule shapes IN; they cannot rule the rest OUT.** Carries the measured step-1 ceiling: his own menu overflows by 119px.
 
 <!-- INDEX:END -->
 
@@ -4363,3 +4364,138 @@ writing one before he answers would have meant guessing — which is the exact
 failure this item exists to prevent. What was written instead is the migration
 in full as a specification, plus a build order, so the next session does not
 re-derive either.
+
+## The owner's answers to 2.8, and the one that overruled the research
+
+He answered all four decisions on 2026-08-31, the same day they were asked.
+Two came back different from the recommendation, and **one of those replaced a
+conclusion this project's own research had reached** — which makes it the most
+useful entry in the item.
+
+### He was the sixth menu, and five was not enough to find that out
+
+The research studied five real detailing menus and concluded W25 was one
+boolean on the business: four of the five let a customer pick exactly one
+service, the fifth was wholly a la carte, so the split looked like a per-BUSINESS
+property. That reasoning is sound and it is still in
+`docs/detailer-research-2026-08-31.md`, marked superseded rather than deleted.
+
+**It was wrong because his own business is a shape the five did not contain.**
+Interior packages, exterior packages, and add-ons — *"they could click one from
+each category."* One business-level boolean cannot express that: pick-one stops
+him selling an interior AND an exterior, and pick-any restores the exact overlap
+W25 exists to remove.
+
+**The lesson is about the sample, not about the answer.** The research file
+opens by saying five menus is not a survey; what that warning did NOT say
+clearly enough is the specific failure mode. **Five real menus are enough to
+rule shapes IN — "this is normal, this is possible" — and are not enough to
+rule the remaining ones OUT.** Every conclusion of the form "so the rule can
+live at level X" was quietly an exhaustiveness claim the sample could not carry.
+The one detailer whose menu we can interrogate properly is the owner, and he
+was not in the sample.
+
+Worth carrying into Phase 3: when research narrows a shape, state which
+direction the evidence runs. "Four of five did X" supports "X must be
+possible"; it does not support "nothing else happens".
+
+### The rule lives on the category, and the pattern is borrowed, not invented
+
+Decided: a `service_groups` table — `name`, `sort_order`, and **`max_select`**
+— with `services.group_id` pointing into it. `max_select = 1` is pick one,
+`null` is pick any.
+
+This is the restaurant point-of-sale **modifier group**, which has solved
+exactly this problem for decades: a group of choices with a minimum and a
+maximum number of selections, where "choose one" is min 1 max 1 and "choose
+any" is an unbounded max. Toast, Lightspeed and the delivery platforms that
+sync to them all model it that way. The trade's own menu-building advice
+independently describes the same architecture for detailers — interior
+services, exterior services, bundled packages, a la carte — and says explicitly
+not to force customers into one pattern.
+
+**`min_select` is deliberately NOT built.** The POS systems need a minimum
+because a burrito has no equivalent of "the order must contain something"; we
+already have that rule globally — a booking needs at least one service — and
+nothing in the evidence needs a per-category minimum. It can be added later
+without disturbing anything.
+
+**`max_select` is an integer rather than a two-way switch** even though the
+editor is a two-way switch today. Same storage, same UI, and an integer never
+needs a second migration if "up to two" ever appears. Migrations here are
+append-only, so cheap generality in a column type is worth taking where cheap
+generality in code would not be.
+
+### Why a table, when a jsonb blob would have been smaller
+
+The cheaper shape was an ordered `[{name, max_select}]` on `business_settings`,
+matched to the existing `services.group_label` text by name. It was rejected on
+one failure mode: `group_label` is free text typed per service, so **retyping a
+label creates a second category with no rule attached, which falls back to
+pick-any.** That is a live customer-facing booking page silently reverting to
+the behaviour W25 exists to remove, on a money path, with nothing to notice it.
+
+A category is a thing the detailer creates, names and orders. It gets a row.
+`group_label` is kept — append-only — and the migration backfills one group per
+distinct label per business with `max_select` null, so no booking page changes
+behaviour on the day it runs.
+
+### Vehicle sizes: he chose customisable, and he was better evidenced than we were
+
+The research recommended five fixed classes. He said the detailer should define
+their own list, and **his answer is better supported by our own evidence than
+the recommendation was**: of the menus studied, one uses twelve vehicle classes
+and one uses five. Twelve and five is a range, not a norm, and "five" was the
+median of a sample of two dressed up as a standard.
+
+The blocker is unchanged and is the reason this was the schema-blocking part of
+W9: `bookings.vehicle_size` is a CHECK constraint listing three values.
+`services.vehicle_size_adjustments` is jsonb keyed by size name and
+`_shared/pricing.ts` looks the key up rather than switching on it, so the
+pricing engine never cared.
+
+**One thing that is not optional: snapshot the label on the booking.**
+`vehicle_size_fee` is already snapshotted and `booking_services` snapshots price
+and duration, for the same reason — a detailer who renames or deletes a size
+must not rewrite the record of jobs already done. Without
+`bookings.vehicle_size_label`, last month's invoice starts printing a key that
+no longer resolves.
+
+### The measurement his answer forced, and it is the biggest finding of 2.8
+
+Roadmap 2.7 wrote that W16 "cannot be true in the absolute for a list the
+detailer controls" and left it as a principle. His answer on categories made it
+concrete enough to measure, so it was measured — at 392x844, against the
+running dev server and the seeded demo, by restructuring step 1's DOM into his
+menu shape in the live page. Same CSS, same box model, no data changed.
+
+| | |
+|---|---|
+| today: 4 services, 4 category headings | fits, **18px spare** |
+| one service card | **97px** |
+| one category heading | **17px** |
+| **his menu: 2 categories, 3 services each** | **119px OVER** |
+| the same, with the description folded off the card | **18px spare** (card 74px) |
+
+**The owner's own real menu does not fit step 1 on a phone today**, and the
+thing that fixes it is one change: the face of a service card becomes its name,
+its price and its length, and the description joins the inclusion list behind
+W21's control.
+
+That is a change to what the research file originally said — W21 was written up
+as being about `features` alone. **It is also a change in sequencing**: W21
+stops being a sibling of the categories work and becomes its prerequisite,
+because it is the only one of the five items that takes height OFF step 1 and
+every other one adds.
+
+The vehicle step has the same shape now that sizes are tenant-defined: 238px
+spare, 79px per size card, so **six sizes fit a phone and the seventh does
+not.** Past six it needs something denser than cards — a dropdown, which
+`composition.test.mjs` permits above four options, the 2-to-4 range being the
+segmented-control rule.
+
+**The general form, and it is the third time this project has met it:** a
+number measured against the demo business is a fact about the demo business.
+Step 1's 18px, and now step 3's 238px, are the tenant's budget rather than
+ours, and the honest question is never "does it fit" but "how much of it does
+the detailer get to spend".

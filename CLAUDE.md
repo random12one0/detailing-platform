@@ -136,6 +136,13 @@ explaining it; if they still have to ask "so should I?", it failed.
   `services.features`.** `StepServices.jsx` renders that field inline today, so
   an editor without a disclosure arms this exact overflow for every tenant who
   fills it in.
+  **And the disclosure holds the DESCRIPTION too — measured 2026-08-31.** The
+  owner's own menu (two categories, three services each, his answer to 2.8's
+  decision 1) overflows step 1 by 119px; a card is 97px, and folding the
+  description off its face makes it 74px and the same menu 18px spare. The face
+  of a service card is its name, its price and its length. **Step 3 is
+  tenant-controlled now too** — sizes are per-detailer — and its measured
+  ceiling is SIX at 79px each against 238px spare.
 
 - **Before changing any colour, know law 11b (`docs/design-system.md`): the
   accent is IDENTITY, never MEANING.** Paid / money-up / "it worked" are the

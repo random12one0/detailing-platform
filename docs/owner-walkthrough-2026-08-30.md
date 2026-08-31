@@ -322,6 +322,16 @@ team's good."* Gallery: *"looks pretty normal."*
   service that cannot be done mobile (coatings need a garage — we model
   mobile-vs-drop-off per business and per date, never per service), and
   cure/hold time, which the single `duration_minutes` cannot express.
+  **HE ANSWERED both, 2026-08-31: from-prices yes; vehicle sizes CUSTOMISABLE
+  BY THE DETAILER**, not the fixed five recommended — better evidenced than the
+  recommendation was, since the five menus showed twelve classes at one and
+  five at another, a range rather than a norm. `business_settings.vehicle_sizes`
+  jsonb, and **the size's LABEL must be snapshot on the booking**, as
+  `vehicle_size_fee` already is, or a renamed size rewrites the record of jobs
+  already done. **Measured ceiling: step 3 has 238px spare and a size card
+  costs 79px, so six sizes fit a phone and the seventh does not** — past six it
+  needs a denser control than cards, and a dropdown is permitted above four
+  options.
 - **W10 — Add-ons need grouping and/or reordering.** *"if they could add, like,
   groups maybe, so that way not everything is kinda just thrown in there at the
   same time. Or maybe you could reorder stuff."*
@@ -491,6 +501,17 @@ team's good."* Gallery: *"looks pretty normal."*
   of phone headroom into several screens. This is why W21 is the lever named
   for step 1's ceiling: it is the only item that makes a card's height
   independent of how much the detailer wrote.
+  **MEASURED 2026-08-31, after his answer on categories, and it changes what
+  the disclosure holds.** At 392x844 against the running app: a service card is
+  97px, a category heading 17px, the gap inside a category 8px and between
+  categories 26px — and **his own menu, two categories with three services
+  each, overflows step 1 by 119px** (the demo's four services have 18px spare).
+  **Folding the DESCRIPTION off the face of the card takes it to 74px, and that
+  same menu from 119px over to 18px spare.** So the disclosure holds the
+  description as well as the inclusion list; the face of a card is its name,
+  its price and its length, and nothing else in the step has to move. W21 also
+  stops being a sibling of the categories work and becomes its prerequisite —
+  it is the only item that takes height OFF step 1, and every other one adds.
 - **W22 — Water and electricity must be per-detailer.** The *"I can provide
   access to water and an outlet"* question was added **for him specifically**,
   because he does not carry a water tank or generator; he says most detailers
@@ -551,13 +572,21 @@ team's good."* Gallery: *"looks pretty normal."*
   content as placeholder** (*"obviously those are just example things"*), so
   the question is whether packages should be mutually exclusive, not whether
   the demo data is wrong.
-  **ANSWERED 2026-08-31: one boolean, `business_settings.services_single_select`,
-  and it is owner decision 1.** Four of the five real menus are pick-one; the
-  fifth is a shop whose whole menu is à la carte, where combining is the point.
-  So the split is per BUSINESS, not per service and not per group — which is
-  what keeps it to one column instead of a groups table. The
-  `services` / `add_ons` split we already have IS the trade's split: a package
-  plus extras. Recommended default is on.
+  **ANSWERED 2026-08-31 — and HE answered it, overriding the research.** The
+  research reached "one boolean on the business": four of the five real menus
+  are pick-one, the fifth is wholly à la carte. **His own business is a sixth
+  shape the five did not contain** — Interior, Exterior and add-ons, *"they
+  could click one from each category"* — and one business-level boolean cannot
+  express it, because pick-one would stop him selling an interior AND an
+  exterior while pick-any brings back the overlap he complained about here.
+  **So the rule lives on the CATEGORY**: a `service_groups` table with
+  `max_select` per group (1 = pick one, null = pick any). That is the
+  restaurant point-of-sale "modifier group", the same problem solved decades
+  ago, and the trade's own menu-building advice describes the same four-section
+  shape with different rules per section. **`min_select` is not being built** —
+  the existing "a booking needs at least one service" rule already does it.
+  **The lesson, and it is worth more than the item:** five real menus were
+  enough to rule shapes IN, and not enough to rule the remaining ones OUT.
 - **W26 — DONE 2026-08-31**, as an instance of W16 exactly as this note says.
   Step 5 with a day picked has 119px of room on a phone now; it had 16px of
   overflow, and 45px before a day was picked.

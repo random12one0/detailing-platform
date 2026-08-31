@@ -384,7 +384,43 @@ Full record: DECISIONS.md → "Roadmap 2.4".
 
 ## 6d. ROADMAP 2.8 — HOW OTHER DETAILERS ACTUALLY WORK (2026-08-31)
 
-**Research done, nothing built, four owner decisions outstanding.** The record
+**THE OWNER ANSWERED ALL FOUR DECISIONS ON 2026-08-31 AND TWO CAME BACK
+DIFFERENT.** Read this block before the research summary below it, because two
+of that summary's conclusions are superseded.
+
+- **Categories, with the selection rule PER CATEGORY** — not one setting for
+  the business, which is what the research had concluded. His own menu is
+  Interior / Exterior / add-ons, *"one from each category"*, a sixth shape the
+  five menus studied did not contain. Decided: a `service_groups` table with
+  `max_select` per group (1 = pick one, null = pick any) — the restaurant-POS
+  "modifier group" pattern. No `min_select`: the existing "a booking needs at
+  least one service" rule already does that work.
+- **Vehicle sizes customisable by the detailer**, not the fixed five
+  recommended. `business_settings.vehicle_sizes` jsonb; the blocker was and
+  still is that `bookings.vehicle_size` is a CHECK constraint. The size's
+  label must be SNAPSHOT on the booking, like `vehicle_size_fee` already is.
+- **From-prices: yes. The condition question: yes.**
+
+**AND THE BIGGEST FINDING OF THE ITEM CAME OUT OF THAT FIRST ANSWER, MEASURED
+AT 392x844 AGAINST THE RUNNING APP.** Roadmap 2.7 said W16 "cannot be true in
+the absolute for a list the detailer controls"; his answer made it measurable.
+**His own real menu — two categories, three services each — overflows step 1 by
+119px.** Today's four-service demo has 18px spare; a service card is 97px, a
+category heading 17px, the gap inside a category 8px and between categories
+26px. **The fix is measured too: folding the description off the face of the
+card takes it 97px → 74px, and that same menu from 119px over to 18px spare.**
+So **W21's disclosure holds the description as well as the inclusion list, and
+it is a prerequisite for categories, not a sibling.** The vehicle step is the
+same shape now that sizes are tenant-defined: 238px spare, 79px per size,
+**six sizes is the phone ceiling** — past that it needs a denser control than
+cards, and a dropdown is permitted above four options.
+
+The full migration is written out as a specification in the research file, with
+a build order. **Nothing is built.**
+
+---
+
+**The research underneath, done the same day.** The record
 is `docs/detailer-research-2026-08-31.md` — five real detailing businesses'
 published menus and booking flows, one long thread of working detailers, three
 trade software vendors, the trade's pricing guides. It answers W9, W10, W21,
@@ -414,13 +450,17 @@ because each one would have frozen a guess into an append-only migration.
   the standard one. What varies is WHICH resource and what happens on "no", and
   **water and power are independent** — one boolean cannot express a coating
   specialist (power, no hose) or a rinseless operator (neither).
-- **W25 is one boolean.** Four of five real menus are pick-one; the fifth is
-  wholly à la carte. The exception is a whole-menu shape, not a mixed one, so
-  it splits per business — `services_single_select` — not per service or group.
+- ~~**W25 is one boolean.**~~ **SUPERSEDED by the owner, above** — the rule is
+  per category. Kept because the reason it failed is the lesson: four of five
+  real menus are pick-one and the fifth is wholly à la carte, so the sample
+  ruled shapes IN and could not rule the remaining ones OUT — and his own
+  business was the shape it missed. **Five menus is enough to answer "is this
+  normal"; it is not enough to answer "is this all there is."**
 - **The only schema-BLOCKING part of W9 is the vehicle classes**, because
   `bookings.vehicle_size` is a CHECK constraint pinned to
   `('small','medium','large')`. `vehicle_size_adjustments` is jsonb and would
-  not have cared. Three is below the trade norm of five.
+  not have cared. ~~Three is below the trade norm of five.~~ The owner's
+  answer is a tenant-defined list, which the jsonb already supports.
 - **Found and deliberately left:** a service that cannot be done mobile
   (coatings need a garage — we model mobile-vs-drop-off per business and per
   date, never per service), cure/hold time (a single `duration_minutes` and one
@@ -529,9 +569,9 @@ build order are all in that file. Judgment calls: DECISIONS.md → "Roadmap 2.8"
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.
 4. ~~**Resolve the deploy question.**~~ **DONE 2026-08-30** — Netlify auto-publishes `main` on push; proven by pushing it and watching the live site change with nothing else done. See DECISIONS.md.
 5. ~~**Roadmap 2.8 is now the gate on five walkthrough items, not three.**~~
-   **RESEARCH DONE 2026-08-31 — see §6d. The gate is now FOUR OWNER
-   DECISIONS**, listed at the end of `docs/detailer-research-2026-08-31.md`.
-   Three of the four change the migration, so the five builds cannot start
-   until he answers. Two of the five (W10, W21) turned out to need no
-   migration at all.
+   **DONE 2026-08-31, AND THE OWNER ANSWERED — see §6d.** The five builds are
+   unblocked and specified: one migration, written out in full, plus a build
+   order in `docs/detailer-research-2026-08-31.md`. **Start with W21's
+   disclosure** — it is the only item that takes height OFF step 1, and his own
+   menu overflows it by 119px until that is done.
 6. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.
