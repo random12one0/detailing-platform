@@ -584,7 +584,7 @@ export default function LandingPage() {
                 {founding ? "Take a founding spot" : "Start the website plan"}
                 <span className="ar">→</span>
               </a>
-              <a className="quiet" href="/app?plan=booking">Or just the booking page<span className="ar">→</span></a>
+              <a className="softlink" href="/app?plan=booking">Or just the booking page<span className="ar">→</span></a>
             </div>
           </div>
         </section>

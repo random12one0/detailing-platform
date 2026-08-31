@@ -26,8 +26,39 @@
    by lib/theme.js; nothing is injected here — the house accent is fixed
    (law 11).
 
-   TWO DIFFERENCES FROM THE REFERENCE FILE, both forced by living inside an
-   app rather than in a standalone document, and neither of them visual:
+   EIGHT CLASS NAMES DIFFER FROM THE REFERENCE, and this is the one thing
+   about the port that is not guessable. `theme.css` is global and loads
+   first, and it applies inside `.ld` for every property a rule here does not
+   itself declare. Nine of the reference's names collided with it and two
+   were live bugs on the first render: its `.btn` carries `width:100%` for
+   the phone-first dashboard, which stretched the nav's pill across the whole
+   bar, and its `.lit` carries an `::after` gradient and a 3px accent bar
+   that were drawn over the hero card. So:
+
+       .btn → .cta        .lit    → .litcard    .sheet → .getsheet
+       .rows → .ruled     .sunken → .tile       .figure → .fig
+       .dot  → .pip       .stack  → .substack   .quiet → .softlink
+
+   A block of "un-declare what leaked" rules was the alternative and was
+   rejected: it can only ever list the leaks somebody thought of, and
+   `theme.css` still has `[data-theme="light"]` blocks that could redefine
+   any of those names later — a landing page whose card lightens because of
+   a dashboard preference is exactly what this scope exists to prevent.
+
+   **The rule to keep: no selector in `theme.css` may be able to match an
+   element on this page.** Seven names are still shared — `sm`, `wrap`,
+   `block`, `on`, `nm`, `n`, `lead` — and every one of them is safe because
+   `theme.css` only ever uses them in a compound anchored on something it
+   owns (`.btn.sm`, `.dot.block`, `.figure.lead`, `.cal-cell .n`,
+   `.settled-row .nm`). Check a new name before using it:
+
+       grep -nE "(^|[ ,>+~{])\.NAME([ ,:.{>+~]|$)" app/src/theme.css
+
+   A hit means a bare rule that would reach in here. All of this goes away
+   in roadmap 2.3, when theme.css stops being the outgoing system.
+
+   TWO OTHER DIFFERENCES FROM THE REFERENCE FILE, both forced by living
+   inside an app rather than in a standalone document, and neither visual:
 
    1. `overflow-x` is `clip`, not `hidden`. The reference puts it on
       <body>, where the viewport is the scroll container and `position:
@@ -755,10 +786,10 @@
 .ld .end .disp { font-size: clamp(32px,5.4vw,70px); }
 .ld .end .lede { margin-inline: auto; margin-top: 22px; color: var(--bone-2); }
 .ld .end .ctas { display: flex; flex-wrap: wrap; gap: 18px 26px; justify-content: center; align-items: center; margin-top: clamp(30px,5vh,44px); }
-.ld .quiet { color: var(--fog); font-size: 15px; display: inline-flex; align-items: center; gap: 8px; transition: color var(--t-hover) linear; }
-.ld .quiet:hover { color: var(--bone); }
-.ld .quiet .ar { transition: transform var(--t-hover) var(--e-out); }
-.ld .quiet:hover .ar { transform: translateX(3px); }
+.ld .softlink { color: var(--fog); font-size: 15px; display: inline-flex; align-items: center; gap: 8px; transition: color var(--t-hover) linear; }
+.ld .softlink:hover { color: var(--bone); }
+.ld .softlink .ar { transition: transform var(--t-hover) var(--e-out); }
+.ld .softlink:hover .ar { transform: translateX(3px); }
 
 /* ═══ THE LITE PATH ═══════════════════════════════════════════════════
    One class on <html>, set in app/src/main.jsx by ?lite=1, by
