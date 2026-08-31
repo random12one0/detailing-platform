@@ -804,6 +804,15 @@ is kept; the entire visual design restarts from scratch.
         A selected element's hover must move the same direction as its selected
         state, not against it. Affects `.choice.on` and `.chip.active` in
         `theme.css` and their booking-page equivalents.
+      - **Asked and unanswered, from the 2.3 session:** `.row-item` in
+        `theme.css` animates `transition: padding-left` on hover, which the
+        design hook flags as layout thrash. It was left alone because the
+        obvious rewrite (`transform: translateX`) is NOT equivalent — padding
+        nudges only the left edge and lets the row re-flow, while a transform
+        slides the whole row including the right-hand chevron. Pre-existing,
+        never complained about. **Decide it while doing W24** — both are hover
+        behaviour on list rows, so they are one pass, and either fix it
+        properly or record that it is intentional.
 
 - [ ] 2.7 **The owner's walkthrough — the features half.** Bigger work,
       several pieces need a decision first. Same source file.
