@@ -16,11 +16,19 @@
          for everything that is words, and JetBrains Mono for every figure.
 
          TRANSITIONAL, and the only reason five families are requested here:
-         the outgoing three (Anybody / Public Sans / DM Mono) are still what
-         the dashboard and the landing page ship. They go when those two are
-         restyled — the landing page in roadmap 2.2, the dashboard in 2.3 —
-         and this list drops back to two. The booking page, restyled in 2.1,
-         already uses only the first two.
+         the outgoing three (Anybody / Public Sans / DM Mono) are what the
+         DASHBOARD ships, in app/src/theme.css's --f-display / --f-body /
+         --f-num. It is the only thing left that uses any of them.
+
+         ROADMAP 2.2 EXPECTED TO DROP SOME OF THEM AND CORRECTLY DROPPED
+         NONE. That item's note assumed the landing page and the dashboard
+         each owned a share of the three; they do not — theme.css uses all
+         three on its own, so restyling the landing page (2.2, done) freed
+         nothing here. All three go together in 2.3, with theme.css, and
+         this list drops from five families to two in one edit. Removing
+         any of them before then would leave the dashboard rendering in a
+         fallback face. The booking page (2.1) and the landing page (2.2)
+         already use only the first two.
          Preconnected so the first paint is not a flash of system font. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

@@ -11,6 +11,30 @@ import BookingPage from "./book/BookingPage.jsx";
 import ManageBookingPage from "./book/ManageBookingPage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
 
+// DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
+// "Degradation"). `.lite` on <html> makes every animation render the end
+// state it was travelling to, using the same CSS the animation targets, so
+// it cannot drift out of sync with the thing it replaces.
+//
+// Both ways in route into that one class, and this is why it lives here
+// rather than in a stylesheet: prefers-reduced-motion handled as its own
+// @media block would be a SECOND implementation, and the second one is the
+// one that rots. `?lite=1` is the everything-off state, reachable by hand on
+// any page — it is how a slow phone gets checked without a slow phone.
+//
+// Read once, at load: a visitor who changes the system setting mid-session
+// gets it on the next navigation, which is also how the OS itself behaves
+// for most apps. Nothing is hidden behind an animation either way — every
+// revealable ends at `.in`, so if this file never ran at all the page would
+// still read.
+{
+  const params = new URLSearchParams(window.location.search);
+  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  if (params.get("lite") === "1" || reduce) {
+    document.documentElement.classList.add("lite");
+  }
+}
+
 // The router is outermost so the PUBLIC routes sit outside BusinessProvider.
 // A customer arriving from a text message has no session, no membership and
 // no business of their own; wrapping them in the owner's context would make

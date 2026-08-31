@@ -11,7 +11,7 @@ Multi-tenant SaaS giving independent car detailers a professional website with o
 ## 2. STACK
 
 - **Frontend:** React 18 + Vite 5, `react-router-dom` 6, `lucide-react` icons, `@supabase/supabase-js`. That is the *entire* dependency list (`app/package.json`) — no UI library, no CSS framework, no state library.
-- **Styling:** three hand-written plain-CSS files (`app/src/theme.css` 848 lines, `landing/landing.css` 588, `book/booking.css` 306) driven by CSS custom properties; ~290 `var(--…)` usages in theme.css alone.
+- **Styling:** three hand-written plain-CSS files (`app/src/theme.css` 848 lines — the OUTGOING system, restyled in 2.3; `landing/landing.css` 783 and `book/booking.css` 527 — both now "The Thread") driven by CSS custom properties. Each restyled sheet carries the tokens in its OWN scope (`.ld`, `.bk`) rather than on `:root`, because `:root` still flips with the dashboard's light/dark switch until 2.3; see `docs/design-system.md` § Tokens.
 - **Database:** Supabase Postgres, 16 migrations in `supabase/migrations/` applied in filename order. RLS is FORCEd; tenant isolation and double-booking prevention are enforced in the database (exclusion constraint), not the app.
 - **Backend:** 18 Deno edge functions in `supabase/functions/` (booking CRUD, slots, pricing, email, invites, push, promo, founding offer). All consequential writes go through them; the browser client does reads and settings-writes behind RLS (`app/src/lib/api.js` header comment).
 - **Auth:** Supabase Auth — email/password plus Google sign-in (`git log: "Google sign-in that switches itself on"`); email confirmation deliberately off (DECISIONS.md).
@@ -24,7 +24,7 @@ Routes (`app/src/main.jsx`, verified by `tests/route-contract.test.mjs`):
 
 | Route | What | Session context |
 |---|---|---|
-| `/` | Marketing landing (`landing/LandingPage.jsx`, 350 lines) | none |
+| `/` | Marketing landing (`landing/LandingPage.jsx` 597 lines + `landing/thread.js` 682, restyled in 2.2) | none |
 | `/book/:slug` | Customer booking wizard (`book/BookingPage.jsx` + 6 step components) | none — own `BookingBusinessContext` from slug |
 | `/booking/:id` | Receipt / cancel / reschedule (`book/ManageBookingPage.jsx`); UUID is the credential | none |
 | `/invite/:token` | Staff invite acceptance | `BusinessProvider` |
@@ -48,21 +48,26 @@ Better than typical for this stage — there is a real, enforced design system:
   the owner approved, and **where the document and that page disagree the
   page is right.** The skill-collision rule is back on: appliers and auditors
   only. Both design tests were rewritten to enforce the new rules —
-  `composition` is 22 checks now, including a token-drift check that makes
+  `composition` is 24 checks now (22 at 1.5, plus the two-face rule against the
+  two restyled stylesheets, added in 2.2), including a token-drift check that makes
   the page, the document and the test agree on all sixteen values.
-  **Applied to the PUBLIC BOOKING PAGE, and only there, 2026-08-30
-  (roadmap 2.1).** `/book/:slug` and the receipt/manage page `/booking/:id`
-  (they share `app/src/book/booking.css`) now carry the new system, dark. The
-  landing page (2.2) and the dashboard (2.3) still ship the OLD look, and the
-  description that follows is that old look.
+  **Applied to the BOOKING PAGE (2.1) and the MARKETING PAGE (2.2), both
+  2026-08-30.** `/book/:slug` and the receipt/manage page `/booking/:id` share
+  `app/src/book/booking.css`; `/` is `app/src/landing/landing.css` +
+  `landing/thread.js`, a port of the approved reference rendering that lands
+  on the same measured lengths (10.41 screens at 1920, 11.26 at 1440, 14.14 on
+  a phone). **Only the DASHBOARD still ships the old look**, and the
+  description that follows is that old look. `?lite=1` and
+  `prefers-reduced-motion` now route into one `.lite` class set in
+  `app/src/main.jsx`, for the whole app.
 - **Fonts (new system):** exactly two — **Archivo**, one variable face worked
   across both axes (`wdth` 62–125, `wght` 100–900), and **JetBrains Mono**
   for every figure. Down from three.
 - **Old system:** `docs/design-system.md` ("Raking Light") was explicit law: matte near-black ground, exactly one "lit" element per screen, tokens defined once in `theme.css` (`:root` dark + `[data-theme="light"]` + `--bk-*` booking mirror). Enforced by tests: `composition.test.mjs`, `design-contrast.test.mjs` — all passing when I ran them.
-- **Fonts:** `app/index.html` currently requests FIVE families, transitionally and deliberately — Archivo + JetBrains Mono, which the restyled booking page uses, plus Anybody / Public Sans / DM Mono, which the landing page and dashboard still ship. It drops back to two when 2.2 and 2.3 land; the reason is written in the file so it is not mistaken for the intended state.
+- **Fonts:** `app/index.html` requests FIVE families, transitionally and deliberately — Archivo + JetBrains Mono for the restyled booking and landing pages, plus Anybody / Public Sans / DM Mono, which `theme.css` uses for the dashboard. **Roadmap 2.2 expected to drop some of the three and correctly dropped none:** theme.css uses all three on its own, so they leave together in 2.3 and the list goes from five to two in one edit. Written into the file so it is not re-derived.
 - **`app/src/lib/theme.js` now holds three grounds, on purpose:** `THEME_BG` (the dashboard's two, outgoing) and `BOOKING_BG` = `#0B0D0E`, the booking page's own. `brandVarsFor` corrects the tenant accent against `BOOKING_BG` and returns FOUR values, including `--bk-accent-text` — the accent corrected to the 4.5:1 text floor rather than the 3:1 fill floor. `design-contrast` asserts `BOOKING_BG` and `--bk-bg` are the same colour.
 - **Tokens vs hardcoded:** discipline is real. The only hex colors in JS live in `lib/theme.js` (the designated color-math file) and Google-logo colors in Auth **(guess for exact location of the Google hexes — I found the file set, didn't trace each)**. CSS uses `var(--…)` throughout.
-- **Inline styles exist but are modest:** heaviest are LandingPage (28 `style={{`), ManageBookingPage (18), Money (15) — mostly layout one-offs, not colors, judging by spot checks.
+- **Inline styles exist but are modest:** heaviest are ManageBookingPage (18) and Money (15) — mostly layout one-offs, not colors, judging by spot checks. LandingPage carries the reference page's own inline one-offs, values only, no colours outside `var(--…)`.
 - **Worst pages (guess — I did not screenshot):** the dashboard-spec gap report and HANDOFF list the known weak spots: Calendar (no week view, cell weight), Clients (no sort/filter, was the screen that previously violated the composition rule), Hours (multi-glow deferred). Money's quoted-vs-on-site metric is flagged for demotion.
 
 ## 5. HEALTH
@@ -113,7 +118,7 @@ phase 1 is outstanding.
   skills are banned again from here — appliers and auditors only.** The
   device-tier question parked for 1.5 is closed inside that file: Apple's
   strategy, never ask what the device is. Both design tests rewritten;
-  `composition` is 22 checks, including a token-drift check that forces the
+  `composition` is 24 checks, including a token-drift check that forces the
   page, the document and the test to agree on all sixteen values.
 - **A coverage hole was found and fixed while rewriting the tests:** the
   landing page had NO contrast coverage at all — the checks looked for
@@ -144,25 +149,36 @@ phase 1 is outstanding.
   colours (2.4 needs them, nobody has picked them), the dashboard's own
   section skeletons (the body of 2.3), and mid-range Android, which nobody
   has put a thumb on. Nothing uses WebGL, so that risk is low.
-- **New, out of 2.1 (2026-08-30):** **`?lite=1` is not implemented anywhere
-  in `app/`** (`prefers-reduced-motion` is, and was
-  verified on the booking page) — raise it in 2.2; and the Review step prints
-  "Estimated total" twice, once in the receipt and once in the price bar
-  below it — looked at and deliberately kept, with the reasoning recorded so a
-  later pass does not delete the wrong one. Both are written up in
-  DECISIONS.md → "Roadmap 2.1", along with the error-colour hole that item
-  found and closed.
+- ~~**New, out of 2.1: `?lite=1` is not implemented anywhere in `app/`.**~~
+  **BUILT 2026-08-30 in roadmap 2.2**, at the app root in `app/src/main.jsx`:
+  `?lite=1` and `prefers-reduced-motion` both add `.lite` to `<html>` before
+  React renders. `booking.css`'s own reduced-motion media query was swapped
+  for `.lite` in the same session — otherwise the app would have carried the
+  two implementations the system forbids, and `?lite=1` would still do nothing
+  on the booking page. Also from 2.1 and still true: the Review step prints
+  "Estimated total" twice, once in the receipt and once in the price bar below
+  it — looked at and deliberately kept, with the reasoning recorded so a later
+  pass does not delete the wrong one. Both are written up in DECISIONS.md →
+  "Roadmap 2.1", along with the error-colour hole that item found and closed.
+- **New, out of 2.2 (2026-08-30):** the landing page renames eight class names
+  away from `theme.css`'s (`.cta`, `.litcard`, `.getsheet`, `.ruled`, `.tile`,
+  `.fig`, `.pip`, `.substack`) because that global sheet leaks every property
+  a scoped rule does not itself declare — two of the collisions were live bugs
+  on the first render. It is the one thing about the port a reader will not
+  guess; DECISIONS.md → "Roadmap 2.2" says why renaming beat a block of
+  un-declare rules.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
-   Next is **2.2, the marketing/landing page** — which is the page the
-   reference rendering was actually built as, so it is the closest port in
-   Phase 2 and the one place `?lite=1` should finally be implemented in
-   `app/` (it exists on the reference page and on no shipped page).
-   Nothing blocks it. The error-colour hole that 2.1 found was closed in the
-   same session — `--bad: #E2705F` is in the system file and enforced — so
-   2.3 will not walk into it.
+   ~~**2.2, the marketing/landing page.**~~ **DONE 2026-08-30** — ported from
+   the approved reference rendering, `?lite=1` built at the app root, and the
+   contrast/composition tests grown to cover the shipped stylesheets.
+   Next is **2.3, the dashboard**: five tabs and eleven settings screens, the
+   light-theme removal, all three remaining font families, and
+   `<meta name="theme-color">`. It is the biggest item in Phase 2 and the one
+   place the system has no worked examples yet — a marketing page is a much
+   easier thing to be beautiful on. Nothing blocks it.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

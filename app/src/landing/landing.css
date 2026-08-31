@@ -1,588 +1,783 @@
-/* The landing page — the showroom (docs/design-system.md).
-   ------------------------------------------------------------------
-   Dark ONLY, by design: this is the one surface that commits to a single
-   visual world — the inspection bay at night — so it paints every colour
-   explicitly and never consults the theme. It is also the surface allowed
-   the richest glow: it is looked at once, indoors, while deciding to buy.
-   The dashboard and booking page stay theme-aware; this does not.
+/* detailingplatform.com — the marketing page.
+   ==================================================================
+   "The Thread" (docs/design-system.md) applied. Roadmap 2.2.
 
-   Scoped under .ld so nothing leaks into /app or /book. */
+   THIS IS A PORT, NOT AN INTERPRETATION. The reference rendering
+   docs/design-directions/5-the-thread.html *is* this page — the owner
+   approved it as this page — so everything below is that stylesheet moved
+   into the app, with the comments that carry the reasoning kept. Where the
+   document and that page disagree, the page is right (DESIGN.md). If you
+   are about to change a number here, check the reference first: most of
+   them were measured, and the comment says against what.
+
+   THE .ld SCOPE IS LOAD-BEARING, for the same reason .bk is on the booking
+   page. The dashboard's tokens live on :root in theme.css and, until
+   roadmap 2.3 removes the switch, still flip with the owner's chosen
+   theme. A prospect arriving at detailingplatform.com must not inherit
+   whatever the last dashboard user picked on that device, so this page
+   carries its own ground, fixed. Nothing here reads a token that is not
+   defined in the .ld block, and nothing in the dashboard reads one of
+   these at all.
+
+   The tokens keep the SYSTEM's own names (--ink-0, --fog, --ac …) rather
+   than a --ld-* prefix: the scope already isolates them, and identical
+   names are what makes a diff against the reference page readable. The
+   booking page prefixes because its accent values are injected per tenant
+   by lib/theme.js; nothing is injected here — the house accent is fixed
+   (law 11).
+
+   TWO DIFFERENCES FROM THE REFERENCE FILE, both forced by living inside an
+   app rather than in a standalone document, and neither of them visual:
+
+   1. `overflow-x` is `clip`, not `hidden`. The reference puts it on
+      <body>, where the viewport is the scroll container and `position:
+      sticky` keeps working. On a scoped div, `hidden` would make .ld its
+      own scroll container and the pinned thread section would stop
+      sticking. `clip` cuts the overhang — the lit comparison row's
+      negative margins, mainly — without creating one.
+   2. There is no `@media (prefers-reduced-motion: reduce)` block. The
+      system's Degradation section makes `.lite` the single code path and
+      routes reduced-motion into it in JS, at the app root
+      (app/src/main.jsx). A media query here would be the second
+      implementation that section exists to forbid. */
 
 .ld {
-  --g: #0F1012;
-  --p: #18191C;
-  --lit: #1E2024;
-  --edge: #26282C;
-  --i: #F0F1F2;
-  --i2: #A3A7AC;
-  --i3: #8B9095;
-  --ac: #57B2E8;          /* the platform's own accent — no tenant here */
-  --acink: #04131D;
-  --ok: #4FC08D;
+  /* ── The ground. Cool-biased so no pure mid-grey ever appears. ─────── */
+  --ink-0: #0B0D0E;        /* the ground everything sits on */
+  --ink-1: #111417;        /* a surface lifted off it */
+  --ink-2: #171B1E;        /* the top of a panel gradient */
+  --ink-3: #1E2327;        /* the highest surface */
+  --line: #272D31;         /* every hairline and inset ring */
+  --line-2: #333B40;       /* a line that has to be seen */
+  --fog: #939CA1;          /* secondary prose */
+  /* Lifted from #6B757A, which measured 4.22:1 on the ground — under the
+     4.5:1 floor, and this is the ramp every 10–13px label uses. */
+  --fog-2: #7B858A;
+  --bone: #F2F1EC;         /* the dominant: warm, never #fff */
+  --bone-2: #CFD2CE;
 
-  background: var(--g); color: var(--i);
-  font-family: "Public Sans", ui-sans-serif, system-ui, sans-serif;
-  font-size: 16px; line-height: 1.55;
+  /* ── The one sharp accent ──────────────────────────────────────────── */
+  --ac: #38E08B;           /* signal green — the thing that has landed */
+  --ac-deep: #0E5C36;      /* the accent at rest, on light */
+
+  /* ── The light band. Warm off-white, never paper white. ────────────── */
+  --paper: #EFEEE7;
+  --paper-ink: #12161A;
+  --paper-fog: #565F64;
+  --paper-line: #D2D1C9;
+
+  --wrap: 1180px;
+  --gut: clamp(20px, 5vw, 48px);
+
+  /* Two motion presets and nothing else (law 4). Ad-hoc durations are how
+     a page ends up feeling like a pile of effects instead of one system.
+     No separate curve for the pinned beats: a message leaving and a row
+     arriving is an exit and an entrance, which takes the ease-out below.
+     The gentleness at the ends of a locked section comes from the
+     stillness budgeted at each end of the hold, not from bending it. */
+  --e-out: cubic-bezier(.16, .84, .34, 1);
+  --t-reveal: 950ms;
+  --t-exit: 420ms;
+  --t-hover: 180ms;
+
+  position: relative;
   min-height: 100dvh;
+  background: var(--ink-0);
+  color: var(--bone);
+  font-family: "Archivo", ui-sans-serif, sans-serif;
+  font-variation-settings: "wdth" 100, "wght" 400;
+  font-size: 17px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
-.ld * { box-sizing: border-box; }
-.ld ::selection { background: color-mix(in srgb, var(--ac) 30%, transparent); }
-.ld :focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+.ld img { max-width: 100%; display: block; }
+/* theme.css paints every <a> in the dashboard's accent; this page's links
+   are type, and the ones that are not are buttons. */
+.ld a { color: inherit; text-decoration: none; }
+.ld ::selection { background: var(--ac); color: #04150C; }
+.ld :focus-visible { outline: 2px solid var(--ac); outline-offset: 3px; }
+.ld h1, .ld h2, .ld h3 { margin: 0; }
+.ld p { margin: 0; }
 
-.ld .wrap { max-width: 1060px; margin: 0 auto; padding: 0 20px; }
+/* ── The continuous ground ────────────────────────────────────────────
+   One fixed layer under the whole page. It is what makes the sections
+   blend into each other instead of stacking. Lightness moves; hue and
+   chroma do not — a drifting coloured wash is the same tell as a glow
+   drawn with a gradient. */
+.ld .ground { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.ld .ground b {
+  position: absolute; display: block; border-radius: 50%;
+  background: radial-gradient(circle, rgba(226,234,238,.09), rgba(226,234,238,0) 68%);
+  filter: blur(14px);
+  will-change: transform, opacity;
+}
+/* At 22s/29s the movement was real but too slow to read as movement,
+   which was the whole point of it. */
+.ld .ground b:nth-of-type(1) { width: 76vmax; height: 76vmax; left: -20vmax; top: -26vmax; animation: ld-drift-a 15s ease-in-out infinite alternate; }
+.ld .ground b:nth-of-type(2) { width: 54vmax; height: 54vmax; right: -16vmax; top: 36vh; animation: ld-drift-b 19s ease-in-out infinite alternate; }
+@keyframes ld-drift-a {
+  0%   { transform: translate3d(0,0,0) scale(1); opacity: .8; }
+  50%  { opacity: 1; }
+  100% { transform: translate3d(11vw,8vh,0) scale(1.14); opacity: .6; }
+}
+@keyframes ld-drift-b {
+  0%   { transform: translate3d(0,0,0) scale(1.08); opacity: .45; }
+  100% { transform: translate3d(-10vw,-11vh,0) scale(.9); opacity: .85; }
+}
 
+/* A lattice of dots drifting diagonally, forever — the cheapest thing that
+   makes the ground a surface instead of a colour. It travels exactly two
+   tiles (92px) per cycle, so the loop is seamless; the travel must stay an
+   exact multiple of the tile or it jumps. Kept at 7.5% so it reads as
+   texture from the corner of the eye and never as content. */
+.ld .ground .dots {
+  position: absolute; inset: -8%;
+  background-image: radial-gradient(circle at center, rgba(226,234,238,.75) 1.2px, rgba(226,234,238,0) 2px);
+  background-size: 46px 46px;
+  opacity: .075;
+  animation: ld-dots 8s linear infinite;
+  will-change: transform;
+}
+@keyframes ld-dots { from { transform: translate3d(0,0,0); } to { transform: translate3d(92px,92px,0); } }
+
+/* The light follows the pointer across the WHOLE page, not just the
+   buttons. It lerps toward the cursor rather than tracking it exactly —
+   the small lag is what reads as a lit surface instead of a cursor
+   attachment. Fine pointers only: a phone has no cursor to follow.
+   Lightness only, no hue. It sits under <main>, so a section with its own
+   opaque ground (the light band) hides it automatically. */
+.ld .ground .cursor {
+  position: absolute; top: 0; left: 0; width: 420px; height: 420px; margin: -210px 0 0 -210px;
+  background: radial-gradient(circle, rgba(226,234,238,.17), rgba(226,234,238,0) 66%);
+  transform: translate3d(var(--gx,-999px), var(--gy,-999px), 0);
+  opacity: 0; transition: opacity 600ms linear;
+  will-change: transform;
+}
+.ld .ground.awake .cursor { opacity: 1; }
+/* Grain, for the cost of one data URI and no JavaScript. */
+.ld .ground i {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+  opacity: .055; mix-blend-mode: overlay;
+}
+.ld main { position: relative; z-index: 1; }
+
+/* ── Type scale. Size jumps of 3x+, and the width axis worked hard. ──── */
 .ld .disp {
-  font-family: "Anybody", ui-sans-serif, sans-serif;
-  font-variation-settings: "wdth" 114;
-  font-weight: 700; letter-spacing: -0.015em; line-height: 1.04;
+  font-family: "Archivo", sans-serif;
+  font-variation-settings: "wdth" 112, "wght" 700;
+  line-height: .94; letter-spacing: -.028em; margin: 0;
+  font-size: clamp(38px, 6.4vw, 86px);
 }
+/* Sized so the LONGEST rotating tail still sits on one line in the hero's
+   own column — a masked line that wraps mid-rotation is the one way this
+   headline can look broken, and the tail changes every few seconds. At
+   76px the longest measured 741px inside a 742px column at 1440. */
+.ld .disp.xl { font-size: clamp(38px, 5.15vw, 74px); font-variation-settings: "wdth" 116, "wght" 760; }
+.ld .disp.sm { font-size: clamp(26px, 3.4vw, 42px); font-variation-settings: "wdth" 108, "wght" 640; }
 .ld .lab {
-  font-family: "Anybody", ui-sans-serif, sans-serif;
-  font-variation-settings: "wdth" 88;
-  font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--i3);
+  font-family: "Archivo", sans-serif;
+  font-variation-settings: "wdth" 72, "wght" 620;
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--fog);
+  display: inline-block;
 }
-.ld .mono { font-family: "DM Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.ld .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.ld .lede { font-size: clamp(17px, 1.7vw, 21px); line-height: 1.55; color: var(--fog); max-width: 56ch; margin: 18px 0 0; }
 
-/* nav */
-.ld-nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
-.ld-mark {
-  font-family: "Anybody", sans-serif; font-variation-settings: "wdth" 106;
-  font-weight: 700; font-size: 15px; letter-spacing: 0.02em; color: var(--i);
-  text-decoration: none;
-}
-.ld-nav .links { display: flex; align-items: center; gap: 18px; }
-.ld-nav a { color: var(--i2); text-decoration: none; font-size: 14px; font-weight: 500; }
-.ld-nav a:hover { color: var(--i); }
+.ld .wrap { width: min(100% - (var(--gut) * 2), var(--wrap)); margin-inline: auto; }
+.ld section { position: relative; }
 
-.ld-cta {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 46px; padding: 0 22px; border-radius: 9px;
-  background: var(--ac); color: var(--acink) !important;
-  font-weight: 600; font-size: 14px; text-decoration: none; border: 0; cursor: pointer;
-  box-shadow: 0 0 24px -4px color-mix(in srgb, var(--ac) 55%, transparent);
-  transition: transform 90ms cubic-bezier(0.32, 0.72, 0, 1);
-}
-.ld-cta:active { transform: scale(0.98); }
-/* One light per screen: the nav button shares the fold with the hero CTA,
-   so it keeps the accent but not the halo. */
-.ld-cta.quiet { box-shadow: none; }
-.ld-cta.big { min-height: 52px; padding: 0 28px; font-size: 15px; }
-.ld-ghost {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 46px; padding: 0 20px; border-radius: 9px;
-  background: transparent; color: var(--i); border: 1px solid var(--edge);
-  font-weight: 600; font-size: 14px; text-decoration: none; cursor: pointer;
-}
+/* ── Reveal. One preset. Every animated element's end state is expressible
+   as one class, so `.lite` on <html> turns the whole page static without a
+   second code path — it cannot rot, because it is the same CSS the
+   animation targets.
 
-/* hero */
-.ld-hero { display: grid; grid-template-columns: 1fr; gap: 40px; padding: 56px 0 40px; align-items: center; }
-@media (min-width: 880px) { .ld-hero { grid-template-columns: 1.15fr 1fr; padding: 84px 0 64px; } }
-.ld-hero h1 { font-size: clamp(2.5rem, 7vw, 3.9rem); margin: 0; text-wrap: balance; }
-.ld-hero .sub { color: var(--i2); font-size: 1.0625rem; margin: 18px 0 26px; max-width: 34rem; text-wrap: pretty; }
-.ld-hero .ctas { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.ld-hero .fine { color: var(--i3); font-size: 0.875rem; }
+   The travel and the curve are long, and the observer fires late down the
+   screen (see thread.js): at 22px and firing near the viewport edge,
+   things had finished moving before they were anywhere near the reading
+   position, so they read as already there rather than as arriving. Still
+   transform and opacity only: nothing here reflows. */
+.ld [data-rv] { opacity: 0; transform: translate3d(0,38px,0); transition: opacity var(--t-reveal) var(--e-out), transform var(--t-reveal) var(--e-out); transition-delay: calc(var(--i,0) * 110ms); }
+.ld [data-rv].in { opacity: 1; transform: none; }
+/* Going OUT is faster than coming in, and without the stagger. A CSS
+   transition uses the timing of the state it is moving TO, so putting
+   these on the un-revealed state gives the reverse its own speed for
+   free. Exits faster than entrances is the rule (design-knowledge.md §1). */
+.ld [data-rv]:not(.in) { transition-duration: var(--t-exit); transition-delay: 0s; }
+.ld .mask:not(.in) > span { transition-duration: var(--t-exit); transition-delay: 0s; }
+/* A variant for objects rather than text: it also comes forward slightly,
+   which text cannot do without looking soft mid-transition. */
+.ld [data-rv="lift"] { transform: translate3d(0,48px,0) scale(.965); }
+.ld [data-rv="lift"].in { transform: none; }
+/* Line-masked headline: each line rides up from behind its own edge.
+   inset(-.3em 0) lets descenders overflow vertically so the mask never
+   clips a letter, while still cropping horizontally. */
+.ld .mask { display: block; overflow: hidden; clip-path: inset(-.3em 0 -.3em 0); }
+.ld .mask > span { display: block; transform: translate3d(0,110%,0); transition: transform 900ms var(--e-out); transition-delay: calc(var(--i,0) * 80ms); }
+.ld .mask.in > span, .ld .in .mask > span { transform: none; }
 
-/* the demo — a live-looking booking card under the light */
-.ld-demo { position: relative; }
-.ld-card {
-  position: relative; background: var(--lit);
-  border: 1px solid color-mix(in srgb, var(--ac) 45%, var(--edge));
-  border-radius: 12px; padding: 20px;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ac) 18%, transparent),
-              0 -6px 32px -8px color-mix(in srgb, var(--ac) 40%, transparent),
-              0 14px 40px -18px rgba(0, 0, 0, 0.9);
+/* ── Chrome: the floating glass pill ─────────────────────────────────
+   A 14px gutter on every side, the backdrop-filter confined INSIDE the
+   pill so the filter stays cheap on every scroll frame, a 1px gradient rim
+   by mask compositing, and deliberately NO outer shadow: the glass is held
+   by its rim and its sheen. ONE backdrop-filter on the page, not a glass
+   system — 28 of them is what makes a page expensive on a mid-range
+   phone. */
+.ld .nav {
+  position: fixed; top: 14px; left: 50%; transform: translateX(-50%); z-index: 60;
+  width: calc(100% - 28px); max-width: var(--wrap);
+  display: flex; align-items: center; gap: 20px;
+  padding: 11px 11px 11px 20px; border-radius: 100px;
+  transition: transform 480ms var(--e-out);
 }
-.ld-card::before {
-  content: ""; position: absolute; top: -1px; left: 14px; right: 14px;
-  height: 3px; border-radius: 0 0 4px 4px; background: var(--ac);
-  box-shadow: 0 0 16px 1px color-mix(in srgb, var(--ac) 75%, transparent);
+.ld .nav.hid { transform: translateX(-50%) translateY(-170%); }
+.ld .nav__g { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; z-index: -1; }
+.ld .nav__g i { position: absolute; inset: -2%; backdrop-filter: blur(9px) saturate(165%); -webkit-backdrop-filter: blur(9px) saturate(165%); }
+.ld .nav::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  background: linear-gradient(115deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 66%, rgba(255,255,255,.04) 100%), rgba(12,15,17,.46);
+  transition: background 400ms linear;
 }
-.ld-card::after {
-  content: ""; position: absolute; inset: 0 0 auto 0; height: 64px;
-  border-radius: 12px 12px 0 0; pointer-events: none;
-  background: linear-gradient(color-mix(in srgb, var(--ac) 12%, transparent), transparent);
+.ld .nav.scr::before { background: linear-gradient(115deg, rgba(255,255,255,.1) 0%, rgba(255,255,255,0) 34%, rgba(255,255,255,0) 66%, rgba(255,255,255,.05) 100%), rgba(10,13,15,.78); }
+.ld .nav::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.26), rgba(255,255,255,.06) 38%, rgba(255,255,255,.03) 62%, rgba(255,255,255,.16));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
 }
-.ld-plain { background: var(--p); border: 1px solid var(--edge); border-radius: 12px; padding: 16px 20px; }
-.ld-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-
-/* sections */
-.ld section { padding: 44px 0; }
-.ld section + section { border-top: 1px solid var(--edge); }
-.ld h2.disp { font-size: clamp(1.6rem, 4.5vw, 2.2rem); margin: 0 0 10px; text-wrap: balance; }
-.ld .lede { color: var(--i2); max-width: 38rem; margin: 0 0 26px; text-wrap: pretty; }
-
-/* the spec sheet: full-width ruled rows straight on the ground.
-   Boxes on this page belong to the demo cards alone. */
-.ld-specs { margin: 0; display: block; }
-.ld-specs .row {
-  display: grid; grid-template-columns: 1fr; gap: 8px;
-  padding: 24px 0; border-top: 1px solid var(--edge);
-}
-.ld-specs .row:last-child { border-bottom: 1px solid var(--edge); }
-@media (min-width: 720px) {
-  .ld-specs .row { grid-template-columns: 0.9fr 1.3fr; gap: 32px; padding: 30px 0; }
-}
-.ld-specs dt { display: block; }
-.ld-specs dt svg { color: var(--ac); display: block; margin-bottom: 10px; }
-.ld-specs dt .lab { display: block; margin-bottom: 4px; }
-.ld-specs h3.disp { font-size: 1.375rem; margin: 0; line-height: 1.15; }
-.ld-specs dd { margin: 0; color: var(--i2); font-size: 0.9375rem; max-width: 34rem; align-self: center; }
-
-/* how-it-works: the booking page's own progress rail, blown up.
-   A hairline runs through all three mono numerals; no boxes. */
-.ld-rail3 { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr; }
-.ld-rail3 li { position: relative; padding: 0 0 26px 26px; }
-.ld-rail3 li::before {
-  content: ""; position: absolute; left: 4px; top: 6px; bottom: -6px;
-  width: 2px; background: var(--edge);
-}
-.ld-rail3 li:last-child::before { display: none; }
-.ld-rail3 li::after {
-  content: ""; position: absolute; left: 0; top: 6px;
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--g); border: 2px solid var(--i3);
-}
-.ld-rail3 li:first-child::after { border-color: var(--ac); background: var(--ac); }
-.ld-rail3 .n { font-family: "DM Mono", monospace; font-size: 0.8125rem; color: var(--i3); display: block; margin-bottom: 6px; }
-.ld-rail3 li:first-child .n { color: var(--ac); }
-.ld-rail3 h3 { font-size: 1.0625rem; font-weight: 600; margin: 0 0 6px; }
-.ld-rail3 p { color: var(--i2); font-size: 0.9375rem; margin: 0; max-width: 34rem; }
-@media (min-width: 720px) {
-  .ld-rail3 { grid-template-columns: repeat(3, 1fr); gap: 28px; }
-  .ld-rail3 li { padding: 22px 0 0; }
-  .ld-rail3 li::before {
-    left: 18px; right: -28px; top: 4px; bottom: auto; width: auto; height: 2px;
-  }
-  .ld-rail3 li:last-child::before { display: block; right: 0; }
-  .ld-rail3 li::after { top: 0; left: 0; }
+.ld .nav .mk { font-variation-settings: "wdth" 76, "wght" 700; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; margin-right: auto; white-space: nowrap; }
+.ld .nav .lk { font-size: 14px; color: var(--fog); transition: color var(--t-hover) linear; white-space: nowrap; }
+.ld .nav .lk:hover { color: var(--bone); }
+.ld .nav .cta { white-space: nowrap; flex: none; }
+@media (max-width: 620px) { .ld .nav .lk.hide-s { display: none; } .ld .nav { gap: 12px; padding-left: 16px; } }
+/* On a real phone the pill wrapped to two lines — the mark broke across
+   "DETAILING / PLATFORM" and "Sign in" broke in half. Below 470 the pill
+   carries the mark and the one action, and nothing else. */
+@media (max-width: 470px) {
+  .ld .nav .lk { display: none; }
+  .ld .nav .mk { font-size: 11px; letter-spacing: .16em; }
+  .ld .nav { padding: 9px 9px 9px 15px; }
+  .ld .nav .cta.sm { padding: 9px 15px; font-size: 13px; }
 }
 
-/* pricing — two cards, one of them lit.
-   ------------------------------------------------------------------
-   Plans are things you choose BETWEEN, so here the card is the right
-   container (docs/design-system.md, "Composition"). The website plan is
-   the section's single light: bar, wash, lift, bloom — the same
-   construction the dashboard uses to mark the next job, so the page
-   teaches its own vocabulary. The second plan is a genuine option, not a
-   decoy, so it is a full card too; it simply isn't lit. */
-.ld-plans { display: grid; grid-template-columns: 1fr; gap: 16px; align-items: stretch; }
-@media (min-width: 860px) {
-  .ld-plans { grid-template-columns: 1.12fr 1fr; gap: 20px; }
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+.ld .cta {
+  position: relative; display: inline-flex; align-items: center; gap: 10px; overflow: hidden;
+  padding: 14px 24px; border-radius: 100px; border: 0; cursor: pointer;
+  background: var(--bone); color: #0A0D0F;
+  font-family: "Archivo", sans-serif; font-variation-settings: "wdth" 96, "wght" 640;
+  font-size: 15px; letter-spacing: -.005em;
+  transition: transform var(--t-hover) var(--e-out);
+}
+.ld .cta > * { position: relative; }
+.ld .cta::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(160px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.9), transparent 62%);
+  transition: opacity var(--t-hover) linear;
+}
+.ld .cta:hover { transform: translateY(-2px); }
+.ld .cta:hover::after { opacity: .55; }
+.ld .cta.gh { background: transparent; color: var(--bone); box-shadow: inset 0 0 0 1px var(--line-2); }
+.ld .cta.gh:hover { box-shadow: inset 0 0 0 1px var(--fog-2); }
+.ld .cta.gh::after { background: radial-gradient(160px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.09), transparent 62%); }
+.ld .cta .ar { transition: transform var(--t-hover) var(--e-out); }
+.ld .cta:hover .ar { transform: translateX(3px); }
+.ld .cta.block { display: flex; justify-content: center; width: 100%; }
+.ld .fine { font-size: 13px; color: var(--fog-2); line-height: 1.45; }
+
+/* ═══ 1. HERO — left-heavy asymmetric, one floating object ════════════ */
+.ld .hero { padding: clamp(124px,17vh,186px) 0 clamp(70px,10vh,120px); }
+.ld .hero .grid { display: grid; grid-template-columns: minmax(0,1.32fr) minmax(0,.68fr); gap: clamp(30px,4vw,56px); align-items: center; }
+.ld .hero h1 { margin: 16px 0 0; }
+/* THE ROTATING LINE IS PART OF THE TITLE. It had drifted into being a
+   caption — a dimmer colour, a lighter weight, a narrower width axis and
+   18px of air under the headline. All four are the headline's own values
+   now and the gap is closed to 8px. What is left is a size step, which is
+   a hierarchy inside one block rather than a demotion out of it.
+
+   THE SIZE IS THE CONSTRAINT, AND IT DECIDED THE COPY: at 0.66 of the
+   headline the column takes about 25 characters on one line. The height is
+   reserved so nothing shoves the page up and down as the phrases change. */
+.ld .hero .tail {
+  margin: 8px 0 0; min-height: 1.02em;
+  font-size: clamp(25px,3.25vw,47px); line-height: 1.02; letter-spacing: -.026em; text-wrap: balance;
+  font-variation-settings: "wdth" 116, "wght" 760; color: var(--bone);
+}
+@media (max-width: 470px) { .ld .hero .tail { min-height: calc(1.02em * 2); } }
+/* Below ~340px even the condensed tail runs out of column. One
+   old-iPhone-SE width, one line. */
+@media (max-width: 340px) { .ld .disp.xl { font-size: 34px; } }
+.ld .caret { display: inline-block; width: .055em; height: .72em; margin-left: .05em; background: var(--ac); vertical-align: -.04em; animation: ld-blink 1.05s steps(1) infinite; }
+@keyframes ld-blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+.ld .hero .lede { margin-top: 26px; }
+.ld .hero .ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 34px; }
+
+/* The floating object. Pointer parallax on a fine pointer only: on a phone
+   there is no cursor and a touch-driven tilt just fights the scroll. */
+.ld .float { will-change: transform; transform: translate3d(0, var(--py,0px), 0); }
+.ld .litcard {
+  position: relative; border-radius: 16px; padding: 20px;
+  background: linear-gradient(168deg, var(--ink-3), var(--ink-1));
+  box-shadow: inset 0 0 0 1px var(--line-2), 0 30px 60px -30px rgba(0,0,0,.92), 0 1px 0 rgba(255,255,255,.035);
+  transform: perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transition: transform 240ms var(--e-out);
+}
+.ld .litcard::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: .55;
+  background: radial-gradient(340px circle at var(--lx,60%) var(--ly,8%), rgba(255,255,255,.1), transparent 60%);
+}
+.ld .litcard > * { position: relative; }
+.ld .rowline { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+.ld .hero .substack { display: grid; gap: 10px; margin-top: 10px; }
+.ld .plain { border-radius: 13px; padding: 14px 16px; background: rgba(255,255,255,.022); box-shadow: inset 0 0 0 1px var(--line); }
+.ld .ac { color: var(--ac); }
+.ld .wght-620 { font-variation-settings: "wght" 620; }
+@media (max-width: 900px) {
+  .ld .hero .grid { grid-template-columns: 1fr; gap: 44px; }
+  .ld .hero { padding-top: 116px; }
 }
 
-.ld-plan {
-  position: relative; isolation: isolate;
-  background: var(--p); border: 1px solid var(--edge); border-radius: 14px;
-  padding: 24px 22px 22px;
-  display: flex; flex-direction: column; gap: 0;
-}
-.ld-plan .lab { display: block; }
-.ld-plan .amount {
-  font-family: "DM Mono", monospace; font-size: 2.5rem; letter-spacing: -0.02em;
-  line-height: 1; margin-top: 12px;
-  display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px;
-}
-.ld-plan .amount small { font-size: 1rem; color: var(--i2); letter-spacing: 0; }
-.ld-plan .then { color: var(--i2); font-size: 0.9375rem; margin-top: 8px; }
-.ld-plan p { color: var(--i2); font-size: 0.9375rem; margin: 14px 0 0; }
-.ld-plan p.alt { color: var(--i3); font-size: 0.8125rem; margin-top: 12px; text-align: center; }
-.ld-plan p.lock { color: var(--i2); font-size: 0.875rem; }
-/* The button sits at the bottom of the card whatever the copy above does,
-   so two cards of different heights still line up where it counts. */
-.ld-plan .cardfoot { margin-top: auto; padding-top: 22px; }
-.ld-cta.block, .ld-ghost.block { display: flex; width: 100%; }
-.ld-plan .cardfoot .alt { margin-top: 12px; }
+/* ═══ 2. THE THREAD — two columns, pinned, animated transfer ══════════
+   The one pin on the page, and it declares its own cost on screen (law 6).
+   400svh of wrapper against a 100svh stage means it holds you for 3.0
+   screens and assembles a whole dashboard inside them. touch-action stays
+   pan-y so a phone's vertical swipe is never captured — the failure mode
+   that traps a touch user.
 
-/* The struck price is the REAL list price, shown only while a real
-   discount is live — see the guard in LandingPage.jsx. */
-.ld-plan .was {
-  font-size: 1.375rem; color: var(--i3); text-decoration: line-through;
-  text-decoration-thickness: 1px; text-decoration-color: color-mix(in srgb, var(--i3) 70%, transparent);
+   The hold is budgeted deliberately: 0.4 screens locked before anything
+   starts, ~0.55 screens per message across the four, and 0.4 screens
+   locked after it has finished. The two still stretches are what stop a
+   flick that arrives with momentum from carrying straight through.
+
+   svh, not vh. On iOS Safari `100vh` is the height WITHOUT the browser
+   chrome, so a sticky element sized in vh is taller than the screen and
+   changes size every time the URL bar hides or returns mid-scroll. */
+.ld .thread-wrap { height: 400vh; height: 400svh; position: relative; }
+.ld .stage { position: sticky; top: 0; height: 100vh; height: 100svh; display: flex; align-items: center; overflow: hidden; touch-action: pan-y; }
+/* No width here: .wrap already sets it, and a `width:100%` at this
+   specificity silently beat it and ran the whole stage edge to edge. */
+.ld .stage .cols { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(18px,4vw,56px); align-items: center; }
+.ld .stage .side { position: relative; }
+/* The collapse. Once the last message has landed there is nothing left in
+   the left column, and a dead half-screen for the last third of a pin is
+   exactly the "scrolling that doesn't take you anywhere" failure. So the
+   thread's side leaves and the dashboard takes the middle. --shift is
+   measured in JS, so it is right at every width and 0 when the columns
+   have already stacked. */
+.ld .side.lft { opacity: calc(1 - var(--c,0)); transform: translate3d(calc(var(--c,0) * -60px),0,0); will-change: opacity, transform; }
+.ld .side.rgt { transform: translate3d(calc(var(--c,0) * var(--shift,0px)),0,0) scale(calc(1 + (.05 * var(--c,0)))); will-change: transform; }
+.ld .sidelab { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; min-height: 18px; }
+.ld .sidelab .pip { width: 5px; height: 5px; border-radius: 50%; background: var(--fog-2); flex: none; transition: background 300ms linear, box-shadow 300ms linear; }
+.ld .sidelab.on .pip { background: var(--ac); box-shadow: 0 0 0 4px rgba(56,224,139,.14); }
+
+/* left: the phone thread */
+.ld .thread { display: grid; gap: 11px; justify-items: start; }
+.ld .bub {
+  position: relative; max-width: min(300px, 92%);
+  padding: 11px 15px; border-radius: 16px 16px 16px 5px;
+  background: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 15px; line-height: 1.35;
+  will-change: transform, opacity;
+  transform: translate3d(calc(var(--dx,0px) * var(--f,0)), calc(var(--dy,0px) * var(--f,0)), 0) scale(calc(1 - (.24 * var(--f,0))));
+  /* The message is GONE by the time its row is legible. A straight
+     1-minus-f against the row's f puts both at half opacity in the middle,
+     and on a phone — where the two sit on top of each other — that is a
+     pile of two texts rather than one becoming the other. */
+  opacity: max(0, min(1, calc(1 - var(--f,0) * 1.95)));
 }
-.ld-plan .was.inline { font-size: 0.875rem; margin-left: 8px; }
+.ld .bub .t { display: block; margin-top: 5px; font-size: 11px; color: var(--fog-2); }
 
-/* THE LIGHT */
-.ld-plan.featured {
-  background: var(--lit);
-  border-color: color-mix(in srgb, var(--ac) 42%, var(--edge));
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--ac) 16%, transparent),
-    0 -6px 30px -10px color-mix(in srgb, var(--ac) 36%, transparent),
-    0 18px 44px -22px rgba(0, 0, 0, 0.9);
+/* right: the dashboard, rendered from the same array the thread is */
+.ld .dash { border-radius: 18px; padding: clamp(14px,2vw,20px); background: linear-gradient(178deg, var(--ink-2), var(--ink-1)); box-shadow: inset 0 0 0 1px var(--line); }
+.ld .dash .hd { font-variation-settings: "wdth" 106, "wght" 680; font-size: clamp(17px,2vw,23px); letter-spacing: -.02em; line-height: 1.1; }
+.ld .dash .hq { color: var(--fog); font-size: 13px; margin-top: 3px; }
+.ld .dash .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 14px; }
+.ld .tile { border-radius: 11px; padding: 11px 13px; background: rgba(0,0,0,.3); }
+.ld .tile .fig { font-family: "JetBrains Mono", monospace; font-size: clamp(18px,2.2vw,24px); margin-top: 5px; font-variant-numeric: tabular-nums; }
+.ld .tile .q { color: var(--fog-2); font-size: 11.5px; margin-top: 2px; }
+.ld .jobs { display: grid; gap: 8px; margin-top: 14px; }
+.ld .job {
+  border-radius: 11px; padding: 11px 13px; background: rgba(255,255,255,.024);
+  box-shadow: inset 0 0 0 1px var(--line);
+  will-change: transform, opacity;
+  opacity: max(0, min(1, calc((var(--f,0) - .44) * 1.9)));
+  transform: translate3d(calc(-26px * (1 - var(--f,0))),0,0);
 }
-.ld-plan.featured::before {
-  content: ""; position: absolute; top: -1px; left: 16px; right: 16px;
-  height: 3px; border-radius: 0 0 4px 4px; background: var(--ac);
-  box-shadow: 0 0 14px 1px color-mix(in srgb, var(--ac) 70%, transparent);
-}
-.ld-plan.featured::after {
-  content: ""; position: absolute; inset: 0 0 auto 0; height: 96px; z-index: -1;
-  border-radius: 14px 14px 0 0; pointer-events: none;
-  background: linear-gradient(color-mix(in srgb, var(--ac) 11%, transparent), transparent);
-}
-.ld-plan.featured .amount { color: var(--i); }
-
-/* The offer flag rides on the light bar. */
-.ld-plan .flag {
-  align-self: flex-start;
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-bottom: 12px; padding: 5px 10px; border-radius: 999px;
-  background: color-mix(in srgb, var(--ac) 15%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ac) 40%, transparent);
-  color: var(--ac);
-  font-family: "Anybody", sans-serif; font-variation-settings: "wdth" 88;
-  font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
-}
-
-@media (min-width: 860px) {
-  /* The lit plan carries a little more weight than its neighbour. */
-  .ld-plan.featured { padding: 26px 24px 24px; }
-  .ld-plan.featured .amount { font-size: 2.875rem; }
-}
-
-.ld-price {
-  max-width: 460px; margin: 40px auto 0; text-align: center;
-}
-.ld-price ul { list-style: none; padding: 0; margin: 22px 0 26px; display: grid; gap: 10px; text-align: left; }
-.ld-price li { display: flex; gap: 10px; color: var(--i2); font-size: 0.9375rem; }
-.ld-price li::before { content: "—"; color: var(--ac); flex-shrink: 0; }
-
-.ld-foot { border-top: 1px solid var(--edge); padding: 26px 0 40px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; color: var(--i3); font-size: 0.8125rem; }
-
-
-
-/* =====================================================================
-   MOTION — "the lamp passes over the work"
-   ---------------------------------------------------------------------
-   Every effect here is transform/opacity only, so nothing reflows while
-   it runs, and every one has an off switch at the bottom of this file.
-   The vocabulary is deliberately narrow: light arrives, light travels,
-   type opens, surfaces settle. Anything that reads as "web animation"
-   rather than "a lamp moving over paint" does not belong on this page.
-   ===================================================================== */
-
-/* Ambient: one soft overhead source drifting across the bay. Very low
-   opacity — it must never lift text off its measured contrast. */
-.ld { position: relative; isolation: isolate; overflow-x: clip; }
-.ld::before {
-  content: ""; position: fixed; inset: -20% -10%; z-index: 0; pointer-events: none;
-  background:
-    radial-gradient(50% 40% at 22% 12%, color-mix(in srgb, var(--ac) 12%, transparent), transparent 70%),
-    radial-gradient(40% 35% at 82% 62%, color-mix(in srgb, var(--ac) 7%, transparent), transparent 70%);
-  /* 0.35, not higher: the ambient tints the ground BEHIND text, so it
-     enters the contrast maths. At 0.4 the 11px labels on the lit card fall
-     to 4.46:1 if both pools were ever to overlap. Measured, not eyeballed. */
-  opacity: 0.35;
-  animation: ld-drift 34s var(--ld-ease, cubic-bezier(0.45, 0, 0.55, 1)) infinite alternate;
-}
-.ld .wrap { position: relative; z-index: 1; }
-@keyframes ld-drift {
-  from { transform: translate3d(-2%, -1%, 0) scale(1); }
-  to   { transform: translate3d(3%, 2%, 0) scale(1.08); }
-}
-
-/* How far down the page you are, as a filament across the top. */
-.ld-progress {
-  position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 40;
-  transform-origin: 0 50%;
-  transform: scaleX(var(--ld-progress, 0));
-  background: var(--ac);
-  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--ac) 70%, transparent);
-  pointer-events: none;
-}
-
-/* ---------------------------------------------------------- ARRIVALS */
-/* Three arrivals, chosen by what the thing IS — not three effects for
-   variety's sake:
-     default   body content settles up a few pixels as it fades in.
-     "soft"    a card also resolves out of a slight defocus, the way
-               something coming into the light sharpens.
-     "mask"    display type rises out of its own line box, so the heading
-               is revealed rather than moved.
-   Ten to fourteen pixels, never fifty. Nothing flies in from off-stage. */
-[data-reveal] {
-  opacity: 0;
-  transform: translate3d(0, 12px, 0);
-  transition:
-    opacity 620ms cubic-bezier(0.32, 0.72, 0, 1),
-    transform 620ms cubic-bezier(0.32, 0.72, 0, 1),
-    filter 620ms cubic-bezier(0.32, 0.72, 0, 1);
-  transition-delay: calc(var(--i, 0) * 80ms);
-  will-change: opacity, transform;
-}
-[data-reveal="soft"] { filter: blur(6px); transform: translate3d(0, 14px, 0) scale(0.994); }
-[data-reveal="soft"].in, .in [data-reveal="soft"] { filter: blur(0); transform: none; }
-/* The mask does the moving, so the heading itself only fades. */
-[data-reveal="mask"] { transform: none; }
-
-/* A line that reveals itself. The padding protects descenders from the
-   overflow clip, and the negative margin gives the space back. */
-.ld-line { display: block; overflow: hidden; padding-bottom: 0.14em; margin-bottom: -0.14em; }
-.ld-line > span {
-  display: block;
-  transform: translate3d(0, 110%, 0);
-  transition: transform 780ms cubic-bezier(0.32, 0.72, 0, 1);
-  transition-delay: calc(var(--i, 0) * 80ms + 60ms);
-}
-[data-reveal].in .ld-line > span,
-.in [data-reveal] .ld-line > span { transform: none; }
-/* The observer marks the CONTAINER, so descendants reveal with it (each
-   keeping its own --i delay). Without the descendant selector, a staggered
-   group would sit at opacity 0 forever. */
-[data-reveal].in,
-.in [data-reveal] { opacity: 1; transform: none; will-change: auto; }
-
-/* Anybody's width axis opens as a heading arrives — the typeface doing
-   the animating, which no amount of sliding can imitate. */
-.ld .disp {
-  font-variation-settings: "wdth" 96;
-  transition: font-variation-settings 620ms cubic-bezier(0.32, 0.72, 0, 1);
-  transition-delay: calc(var(--i, 0) * 70ms);
-}
-.ld [data-reveal].in .disp,
-.ld .in [data-reveal] .disp,
-.ld .disp[data-reveal].in,
-.ld.ready .ld-hero .disp { font-variation-settings: "wdth" 114; }
-
-/* --------------------------------------------------------- THE SWEEP */
-/* A specular highlight travels across the headline, once, when the page
-   opens — and again on hover. The duplicate text comes from data-text and
-   is clipped to the glyphs, so the base headline underneath is always
-   present and readable even if this layer never paints. */
-.ld-sweep { position: relative; display: inline-block; }
-.ld-sweep::after {
-  content: attr(data-text);
+.ld .job.next { background: linear-gradient(160deg, rgba(56,224,139,.11), rgba(56,224,139,.02)); box-shadow: inset 0 0 0 1px rgba(56,224,139,.32); }
+.ld .job .l1 { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.ld .job .nm { font-variation-settings: "wght" 600; font-size: 15px; }
+.ld .job .sv { color: var(--fog); font-size: 12.5px; margin-top: 2px; }
+.ld .job .amt { font-family: "JetBrains Mono", monospace; font-size: 15px; }
+.ld .job .acts { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.ld .job .acts span { font-size: 11px; padding: 5px 10px; border-radius: 100px; background: rgba(255,255,255,.05); color: var(--bone-2); }
+.ld .dash .lab { margin-top: 16px; margin-bottom: 6px; }
+/* The money summary, demoted from a "what you get" slot to a caption on
+   the thing it is actually a feature of. */
+.ld .dash .dashnote { margin-top: 13px; font-size: 11.5px; line-height: 1.45; color: var(--fog-2); }
+/* The empty state sits ON the space the job rows reserve, so it costs no
+   height and cannot be mistaken for a fifth row. --f0 is the first job's
+   own progress, set in the scroll frame. */
+.ld .jobshold { position: relative; }
+.ld .nojobs {
   position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(
-    100deg,
-    transparent 42%,
-    rgba(255, 255, 255, 0.85) 50%,
-    transparent 58%
-  );
-  background-size: 250% 100%;
-  background-position: 180% 0;
-  -webkit-background-clip: text; background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-}
-.ld.ready .ld-sweep::after { animation: ld-sweep 1100ms 320ms cubic-bezier(0.4, 0, 0.2, 1) 1; }
-.ld-sweep:hover::after { animation: ld-sweep 900ms cubic-bezier(0.4, 0, 0.2, 1) 1; }
-@keyframes ld-sweep {
-  from { background-position: 180% 0; }
-  to   { background-position: -80% 0; }
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  border-radius: 11px; border: 1px dashed var(--line-2);
+  color: var(--fog-2); font-size: 13.5px; line-height: 1.45; padding: 0 18px;
+  opacity: calc(1 - var(--f0,0)); transition: opacity 160ms linear;
 }
 
-/* ----------------------------------------------------- THE HERO OPENS */
-/* The lamp strikes first, then the surface it lights. Order is the whole
-   effect: bar, bloom, then content. */
-.ld-hero > div > *,
-.ld-hero .ld-demo { opacity: 0; transform: translate3d(0, 12px, 0); }
-.ld.ready .ld-hero > div > *,
-.ld.ready .ld-hero .ld-demo {
-  animation: ld-rise 700ms cubic-bezier(0.32, 0.72, 0, 1) both;
-}
-.ld.ready .ld-hero > div > *:nth-child(1) { animation-delay: 40ms; }
-.ld.ready .ld-hero > div > *:nth-child(2) { animation-delay: 110ms; }
-.ld.ready .ld-hero > div > *:nth-child(3) { animation-delay: 200ms; }
-.ld.ready .ld-hero > div > *:nth-child(4) { animation-delay: 280ms; }
-.ld.ready .ld-hero .ld-demo { animation-delay: 240ms; }
-@keyframes ld-rise {
-  from { opacity: 0; transform: translate3d(0, 12px, 0); }
-  to   { opacity: 1; transform: none; }
+/* the divider is the chrome for this beat, and it reports its own cost */
+.ld .divider { position: absolute; left: 50%; top: 8%; bottom: 8%; width: 1px; background: linear-gradient(180deg, transparent, var(--line-2) 14%, var(--line-2) 86%, transparent); pointer-events: none; opacity: calc(1 - (var(--c,0) * 2.4)); }
+.ld .divider i { position: absolute; left: -1px; top: 0; width: 3px; height: calc(var(--p,0) * 100%); background: linear-gradient(180deg, rgba(56,224,139,0), var(--ac)); border-radius: 3px; opacity: .6; }
+/* This label is the pin's honesty: it tells you what the section is about
+   to charge you. If .thread-wrap's height changes, change this. */
+.ld .cost { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--fog-2); white-space: nowrap; opacity: calc(1 - (var(--c,0) * 2.4)); }
+
+/* ── THE MOVE HAPPENS IN ONE PLACE ON A PHONE ────────────────────────
+   Stacked, the first message sat 540px above the row it becomes — most of
+   a screen. You could never see both ends of the move at once, so it read
+   as two unrelated screens, texts and then a dashboard, with a flicker in
+   between.
+
+   So on a phone the messages are moved INSIDE the dashboard, into exactly
+   the space the job rows reserve, and each message changes into its row
+   WHERE IT STANDS. The card's own header still reads "nothing booked"
+   while the texts are floating in the space the day should occupy, which
+   is the argument stated twice over. The left column is not needed for
+   this and is hidden — the thread is re-parented in script first, so
+   nothing is lost.
+
+   The pin STAYS on the phone. It broke on iOS only because progress was
+   measured against `window.innerHeight`, which iOS changes every time the
+   URL bar hides; that number is gone from this section (the scrub measures
+   against the STAGE's own height, which is svh and does not move). */
+@media (max-width: 820px) {
+  .ld .stage .cols { grid-template-columns: 1fr; gap: 14px; align-content: center; }
+  .ld .divider, .ld .cost { display: none; }
+  .ld .thread { gap: 7px; }
+  .ld .bub { font-size: 13.5px; padding: 9px 13px; max-width: 82%; }
+  .ld .side.lft { display: none; }
+  .ld .jobshold > .thread { position: absolute; inset: 0; z-index: 3; gap: 8px; align-content: start; pointer-events: none; }
+  .ld .jobshold > .thread .bub { max-width: 90%; }
+  .ld .nojobs { display: none; }
+  /* The inline actions STAY on the phone. Navigate / Call / Text on the
+     card is the single most product-specific thing the dashboard does, and
+     the phone is the viewport that claim is about. They wrap; they do not
+     disappear. */
+  .ld .job .acts span { font-size: 10.5px; padding: 4px 9px; }
+  .ld .dash { padding: 12px; }
 }
 
-/* The bar lands before the card it lights, and overshoots by a hair. */
-.ld-card::before { transform: scaleX(0); transform-origin: 50% 50%; }
-.ld.ready .ld-card::before {
-  animation: ld-strike 620ms 380ms cubic-bezier(0.22, 1.2, 0.36, 1) both;
+/* ═══ 4. WHAT YOU GET — full-width ruled list, zero boxes ═════════════
+   An enumeration is a ruled list; a card is for an object you pick between
+   or act on. Three evenly spaced cards is a named tell
+   (design-knowledge.md §1), and this content is four parallel
+   capabilities, not four objects. Hover moves the whole row — and it moves
+   transform, never padding, so no frame of the hover costs a reflow on a
+   mid-range Android. */
+.ld .getsheet { padding: clamp(76px,12vh,140px) 0; }
+.ld .ruled { margin: 44px 0 0; padding: 0; border-top: 1px solid var(--line); }
+.ld .r {
+  display: grid; grid-template-columns: 56px minmax(0,.92fr) minmax(0,1.08fr);
+  gap: clamp(14px,3vw,40px); align-items: start;
+  padding: 26px 0; border-bottom: 1px solid var(--line);
+  position: relative; transition: background var(--t-hover) linear;
 }
-@keyframes ld-strike {
-  from { transform: scaleX(0); opacity: 0; }
-  60%  { opacity: 1; }
-  to   { transform: scaleX(1); opacity: 1; }
+.ld .r::before { content: ""; position: absolute; left: -14px; top: 0; bottom: 0; width: 2px; background: var(--ac); transform: scaleY(0); transform-origin: top; transition: transform 300ms var(--e-out); }
+.ld .r .ix { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--fog-2); padding-top: 10px; }
+.ld .r h3 { font-variation-settings: "wdth" 108, "wght" 680; font-size: clamp(24px,3.1vw,38px); line-height: 1.02; letter-spacing: -.025em; transition: transform 300ms var(--e-out); }
+.ld .r p { color: var(--fog); max-width: 46ch; transition: color var(--t-hover) linear; }
+@media (hover: hover) {
+  .ld .r:hover { background: rgba(255,255,255,.018); }
+  .ld .r:hover::before { transform: scaleY(1); }
+  .ld .r:hover h3 { transform: translateX(8px); }
+  .ld .r:hover p { color: var(--bone-2); }
+}
+/* On a touch screen there is no pointer resting on anything, so a
+   hover-only treatment is a piece of the design nobody on a phone ever
+   sees. Whichever row is nearest the middle of the screen lights itself as
+   you scroll past: same treatment, driven by position instead of by a
+   cursor. */
+.ld .r.near { background: rgba(255,255,255,.018); }
+.ld .r.near::before { transform: scaleY(1); }
+.ld .r.near h3 { transform: translateX(8px); }
+.ld .r.near p { color: var(--bone-2); }
+@media (max-width: 760px) { .ld .r { grid-template-columns: 34px 1fr; gap: 10px; } .ld .r p { grid-column: 2; margin-top: 10px; } }
+
+/* ═══ 3. YOUR OWN WEBSITE — the light band ══════════════════════════
+   The ground changes. The object breaks the top edge of the band, and that
+   overlap is where the depth comes from. */
+.ld .band { position: relative; background: var(--paper); color: var(--paper-ink); margin-top: clamp(90px,15vh,180px); padding: 0 0 clamp(70px,10vh,120px); }
+/* The object half is the WIDER one: it holds a website, and a website that
+   has to be squeezed narrower than the paragraph describing it is arguing
+   against itself. The section does not get taller for it — a window is
+   landscape where a phone panel was portrait. */
+.ld .band .duo { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: clamp(28px,5vw,72px); align-items: start; }
+.ld .band .cp { padding-top: clamp(70px,10vh,120px); }
+.ld .band .lab, .ld .band .lede { color: var(--paper-fog); }
+.ld .band .disp { color: var(--paper-ink); }
+.ld .ticks { list-style: none; margin: 30px 0 0; padding: 0; border-top: 1px solid var(--paper-line); }
+.ld .ticks li { padding: 13px 0; border-bottom: 1px solid var(--paper-line); display: flex; gap: 12px; align-items: baseline; font-size: 16px; }
+.ld .ticks li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ac-deep); flex: none; transform: translateY(-2px); }
+/* the site rides UP out of the band — real overlap, not a gap */
+.ld .widget-hold { margin-top: calc(-1 * clamp(46px,7vw,92px)); will-change: transform; transform: translate3d(0, var(--py,0px), 0); }
+.ld .site {
+  border-radius: 16px; background: #0E1114; overflow: hidden;
+  box-shadow: 0 40px 80px -34px rgba(10,14,12,.6), inset 0 0 0 1px rgba(255,255,255,.08);
+  max-width: 560px; margin-inline: auto;
+}
+/* The frame. Dark chrome around a light page, so the window reads as a
+   window and the site inside it reads as the light band's own material. */
+.ld .site .chrome { display: flex; align-items: center; gap: 6px; padding: 10px 13px; }
+.ld .site .chrome i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.13); flex: none; }
+.ld .site .chrome .url {
+  flex: 1; margin-left: 8px; text-align: center; border-radius: 100px; padding: 4px 10px;
+  background: rgba(255,255,255,.05); color: var(--fog);
+  font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: -.01em;
+}
+.ld .site .scr { background: var(--paper); color: var(--paper-ink); overflow: hidden; }
+.ld .site .sitenav { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--paper-line); }
+.ld .site .biz { font-variation-settings: "wdth" 104, "wght" 700; font-size: 15px; letter-spacing: -.02em; }
+.ld .site .lks { display: flex; gap: 13px; flex: none; }
+.ld .site .lks i { font-style: normal; font-size: 11.5px; color: var(--paper-fog); }
+/* The mock's hero is a photograph with the name over it, which is what a
+   detailer's site actually looks like. The text sits ON the image rather
+   than under it, so the section gains the photo's height and not a line
+   more. The scrim is VERTICAL — dark at the bottom, where the words are —
+   because that guarantees the contrast wherever the picture happens to be
+   light, instead of hoping this frame is dark in the right corner. */
+.ld .site .sitehero { position: relative; overflow: hidden; }
+.ld .site .sitehero .shot { width: 100%; height: clamp(150px,13vw,178px); object-fit: cover; object-position: 50% 46%; }
+/* On a phone the mock is ~350px wide, so the headline wraps to two lines
+   and the text block grew to cover three quarters of the picture — it
+   stopped reading as a photo and started reading as a dark bar with words
+   on it. The image gets its height back at that width. */
+@media (max-width: 470px) { .ld .site .sitehero .shot { height: 208px; } }
+/* TWO scrims, and the split is the point. The first is tonal — it pulls
+   the whole picture into the page's graphite range. The second lives on
+   the TEXT BLOCK and is the one doing the accessibility work, so the
+   guarantee is bounded to the strip the words actually occupy instead of
+   being bought by darkening the entire photograph until it is no longer
+   one. These numbers were not chosen by eye: the first attempt was a
+   single full-box gradient and it MEASURED 1.96:1 behind the headline at
+   392px, because the crop puts a bright panel of car body exactly where
+   the name goes. Re-measure after ANY change to this photo, this crop or
+   these stops — screenshot the box with the text hidden and read the
+   lightest pixel (law 9). */
+.ld .site .sitehero::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(8,11,13,.14) 0%, rgba(8,11,13,.3) 52%, rgba(8,11,13,.5) 100%); }
+.ld .site .sitehero-t {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 34px 18px 15px;
+  background: linear-gradient(180deg, rgba(8,11,13,0) 0%, rgba(8,11,13,.72) 26%, rgba(8,11,13,.93) 72%, rgba(8,11,13,.96) 100%);
+}
+.ld .site .sitehero h3 { font-variation-settings: "wdth" 108, "wght" 700; font-size: clamp(20px,2.3vw,26px); line-height: 1.06; letter-spacing: -.026em; color: var(--bone); }
+.ld .site .sitehero p { margin-top: 7px; font-size: 12.5px; color: rgba(242,241,236,.86); max-width: 34ch; }
+/* The booking panel is a bordered block INSIDE the page's own column. That
+   containment is the claim — "built into the page, not a link to somewhere
+   else" — made as a shape rather than as a sentence. */
+.ld .site .bd { margin: 16px 18px; border: 1px solid var(--paper-line); border-radius: 12px; padding: 13px 14px 14px; }
+.ld .site .bl { display: block; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--paper-fog); }
+.ld .site .q { font-variation-settings: "wght" 640; font-size: 14px; margin-top: 8px; }
+.ld .site .svc { margin-top: 10px; border: 1px solid var(--paper-line); border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; background: rgba(255,255,255,.5); transition: border-color var(--t-hover) linear, transform var(--t-hover) var(--e-out); }
+.ld .site .svc:hover { border-color: var(--paper-ink); transform: translateY(-1px); }
+.ld .site .svc .n { font-variation-settings: "wght" 600; font-size: 13.5px; }
+.ld .site .svc .d { font-size: 11.5px; color: var(--paper-fog); margin-top: 1px; }
+.ld .site .svc .p { font-family: "JetBrains Mono", monospace; font-size: 13.5px; }
+.ld .site .go { margin-top: 12px; text-align: center; background: var(--paper-ink); color: var(--paper); border-radius: 100px; padding: 10px; font-variation-settings: "wght" 620; font-size: 13.5px; }
+.ld .site .sitefoot { padding: 12px 18px; border-top: 1px solid var(--paper-line); font-size: 11px; color: var(--paper-fog); }
+@media (max-width: 840px) {
+  .ld .band .duo { grid-template-columns: 1fr; gap: 0; }
+  .ld .widget-hold { margin-top: 34px; }
 }
 
-/* The demo card holds the cursor, and its own specular moves with it.
-   --py is the parallax drift; it sits on the wrapper so the card's own
-   3D tilt transform stays free for the pointer. */
-.ld-demo { perspective: 1000px; transform: translate3d(0, var(--py, 0px), 0); }
-.ld-card {
-  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 260ms cubic-bezier(0.32, 0.72, 0, 1);
-  transform-style: preserve-3d;
+/* ═══ 6. PRICING — asymmetric pair + ruled terms ══════════════════════ */
+.ld .price { padding: clamp(80px,13vh,150px) 0 clamp(50px,7vh,80px); }
+.ld .plans { display: grid; grid-template-columns: minmax(0,1.34fr) minmax(0,.66fr); gap: clamp(16px,2.6vw,30px); margin-top: 44px; align-items: stretch; }
+.ld .plan { display: flex; flex-direction: column; border-radius: 18px; padding: clamp(22px,3vw,34px); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px var(--line); }
+.ld .plan.lead { background: linear-gradient(166deg, var(--ink-3), var(--ink-1)); box-shadow: inset 0 0 0 1px var(--line-2), 0 40px 70px -40px rgba(0,0,0,.92); }
+.ld .plan .amount { font-family: "JetBrains Mono", monospace; font-size: clamp(38px,5.6vw,64px); line-height: 1; letter-spacing: -.05em; margin-top: 14px; }
+.ld .plan .amount small { font-family: "Archivo", sans-serif; font-size: 15px; letter-spacing: 0; color: var(--fog); font-variation-settings: "wght" 400; }
+.ld .plan .then { color: var(--fog); font-size: 14px; margin-top: 8px; }
+.ld .plan p { color: var(--fog); margin-top: 16px; font-size: 15.5px; max-width: 44ch; }
+/* The founding offer. The remaining count is read from the database and
+   fails CLOSED, so a spot already taken is never advertised; the struck
+   figures are the real list prices, struck only because a genuine discount
+   is live — never an anchor invented to make a number look smaller. */
+.ld .plan.has-offer { position: relative; }
+.ld .plan .flag {
+  /* align-self, because .plan is a flex column and a flex child stretches
+     by default — the pill ran the full width of the card. */
+  align-self: flex-start; margin-bottom: 14px; padding: 5px 12px; border-radius: 100px;
+  background: rgba(56,224,139,.12); color: var(--ac);
+  box-shadow: inset 0 0 0 1px rgba(56,224,139,.3);
+  font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .04em;
 }
-.ld-card .ld-shine {
-  position: absolute; inset: 0; border-radius: 12px; pointer-events: none;
-  background: radial-gradient(
-    38% 60% at var(--lx, 50%) var(--ly, 0%),
-    rgba(255, 255, 255, 0.09), transparent 70%
-  );
-  opacity: 0; transition: opacity 240ms ease;
+.ld .plan .was { color: var(--fog-2); text-decoration: line-through; text-decoration-thickness: 1px; margin-right: .28em; font-size: .62em; }
+.ld .plan .then .was { font-size: 1em; margin-left: .3em; margin-right: 0; }
+.ld .plan .lock { color: var(--fog-2); font-size: 13.5px; margin-top: 12px; }
+.ld .plan .pfoot { margin-top: auto; padding-top: 26px; }
+.ld .plan .alt { font-size: 13px; color: var(--fog-2); margin-top: 12px; }
+.ld .terms { margin: clamp(34px,6vh,64px) 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.ld .terms li { padding: 14px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: baseline; color: var(--bone-2); font-size: 16px; }
+.ld .terms li .k { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fog-2); }
+@media (max-width: 800px) { .ld .plans { grid-template-columns: 1fr; } }
+
+/* ═══ 9. FOOTER ═══════════════════════════════════════════════════════ */
+.ld .foot { padding: clamp(40px,7vh,80px) 0 46px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: baseline; color: var(--fog-2); font-size: 13px; }
+.ld .foot .mk { font-variation-settings: "wdth" 76, "wght" 700; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--fog); }
+
+/* ═══ 5. WHAT YOU'RE USING NOW — the second light ground, and a table ═══
+   A comparison of four options across two axes IS tabular; every other way
+   of drawing it would be a worse table. It is also the only table on the
+   page, which is what keeps it a distinct skeleton.
+
+   The light ground is doing rhythm work as well as emphasis: without a
+   second band the page would run eight dark screens without a break.
+
+   THE MOTION HERE IS A WIPE, and it is a wipe because nothing else on the
+   page wipes. Each row's rule draws left to right as the row arrives and
+   its text slides in behind it; the lit row is clipped from the left, so
+   the dark panel and everything on it arrive together as one shutter
+   opening. One scrub writes one number per row and the CSS does the rest. */
+.ld .vs { background: var(--paper); color: var(--paper-ink); padding: clamp(76px,12vh,140px) 0; }
+.ld .vs .lab { color: var(--paper-fog); }
+.ld .vs .disp { color: var(--paper-ink); }
+.ld .vstable { margin-top: clamp(30px,5vh,52px); }
+.ld .vsrow {
+  --rp: 1; position: relative;
+  display: grid; grid-template-columns: minmax(0,.6fr) minmax(0,1.4fr);
+  gap: clamp(14px,3.4vw,52px); align-items: baseline;
+  padding: 22px 0;
 }
-.ld-card:hover .ld-shine { opacity: 1; }
-/* One pass of the raking light over the card after the page settles. */
-.ld-card .ld-pass {
-  position: absolute; inset: 0; border-radius: 12px; pointer-events: none;
-  overflow: hidden;
+.ld .vsrow::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: var(--paper-line);
+  transform: scaleX(var(--rp,1)); transform-origin: left center;
 }
-.ld-card .ld-pass::after {
-  content: ""; position: absolute; top: -30%; bottom: -30%; width: 38%;
-  left: -45%;
-  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.10), transparent);
-  transform: skewX(-12deg);
+.ld .vsrow .nm {
+  font-variation-settings: "wdth" 104, "wght" 680; font-size: clamp(17px,1.8vw,21px); letter-spacing: -.018em;
+  opacity: calc(.12 + .88 * var(--rp,1)); transform: translate3d(calc((1 - var(--rp,1)) * -16px),0,0);
 }
-.ld.ready .ld-card .ld-pass::after {
-  animation: ld-pass 1500ms 1500ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+.ld .vsrow .gt {
+  font-size: 15.5px; line-height: 1.45; color: var(--paper-fog);
+  opacity: calc(.12 + .88 * var(--rp,1)); transform: translate3d(calc((1 - var(--rp,1)) * -22px),0,0);
 }
-.ld-card:hover .ld-pass::after { animation: ld-pass 1100ms cubic-bezier(0.4, 0, 0.2, 1) 1; }
-@keyframes ld-pass {
-  from { left: -45%; } to { left: 115%; }
+/* The one lit row, and it is lit rather than merely bolded because it is
+   the answer the four rows above are the question for. The clip is its
+   whole entrance, so its contents do not also slide — two mechanics on one
+   element is how an effect starts looking like a glitch. */
+.ld .vsrow.mine {
+  background: var(--paper-ink); color: var(--paper);
+  border-radius: 13px; margin-top: 12px;
+  padding: 24px clamp(16px,2.2vw,24px);
+  margin-left: calc(-1 * clamp(16px,2.2vw,24px)); margin-right: calc(-1 * clamp(16px,2.2vw,24px));
+  clip-path: inset(0 calc((1 - var(--rp,1)) * 100%) 0 0 round 13px);
+}
+.ld .vsrow.mine::after { display: none; }
+.ld .vsrow.mine .nm { color: var(--paper); }
+.ld .vsrow.mine .gt { color: rgba(239,238,231,.9); }
+.ld .vsrow.mine .nm, .ld .vsrow.mine .gt { opacity: 1; transform: none; }
+@media (max-width: 780px) {
+  .ld .vsrow { grid-template-columns: 1fr; gap: 8px; padding: 20px 0; }
+  .ld .vsrow .gt { font-size: 15px; }
 }
 
-/* -------------------------------------------------------- THE BUTTON */
-/* The light inside the button follows the cursor. */
-.ld-cta { position: relative; overflow: hidden; }
-.ld-cta::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(
-    70px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.38), transparent 70%
-  );
-  opacity: 0; transition: opacity 200ms ease;
-}
-.ld-cta:hover::after { opacity: 1; }
-.ld-cta {
-  transition:
-    transform 90ms cubic-bezier(0.32, 0.72, 0, 1),
-    box-shadow 220ms cubic-bezier(0.32, 0.72, 0, 1);
-}
-.ld-cta:hover { transform: translateY(-1px); }
-.ld-cta.big:hover {
-  box-shadow: 0 0 34px -2px color-mix(in srgb, var(--ac) 70%, transparent);
-}
-.ld-cta:active { transform: scale(0.985); }
+/* ═══ 7. QUESTIONS — the browser's own disclosure element ════════════
+   <details>/<summary>: no JavaScript, no ARIA to get wrong, keyboard and
+   screen-reader behaviour for free, and it still works if every script on
+   the page fails. Two columns of them is a shape nothing else here uses.
 
-/* --------------------------------------------------------- THE RAIL */
-/* The connector draws, then each node lights in turn — the same "light
-   travels" idea as the bar, at the scale of a whole section. */
-.ld-rail3 li::before { transform: scaleY(0); transform-origin: 50% 0; }
-.ld-rail3.in li::before {
-  animation: ld-draw-y 520ms cubic-bezier(0.32, 0.72, 0, 1) both;
-  animation-delay: calc(var(--i, 0) * 130ms + 120ms);
+   align-self:start so each question is its own height and its rule sits
+   under its own answer — otherwise a grid row is as tall as its tallest
+   item and half the rules float in space. */
+.ld .faq { padding: clamp(76px,12vh,140px) 0; }
+.ld .qs { margin-top: clamp(28px,5vh,50px); display: grid; grid-template-columns: 1fr 1fr; gap: 0 clamp(30px,5vw,68px); }
+.ld .qs details { align-self: start; border-top: 1px solid var(--line); }
+.ld .qs summary {
+  list-style: none; cursor: pointer; display: flex; gap: 16px; align-items: baseline;
+  padding: 17px 0; color: var(--bone-2);
+  font-variation-settings: "wdth" 104, "wght" 620;
+  font-size: clamp(16px,1.65vw,19px); line-height: 1.3; letter-spacing: -.014em;
+  transition: color var(--t-hover) linear;
 }
-@keyframes ld-draw-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-.ld-rail3 li::after { transform: scale(0.4); opacity: 0; }
-.ld-rail3.in li::after {
-  animation: ld-node 420ms cubic-bezier(0.22, 1.2, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 130ms);
+.ld .qs summary::-webkit-details-marker { display: none; }
+.ld .qs summary::after {
+  content: "+"; margin-left: auto; flex: none;
+  font-family: "JetBrains Mono", monospace; font-size: 17px; line-height: 1; color: var(--fog-2);
+  transition: transform 260ms var(--e-out), color var(--t-hover) linear;
 }
-@keyframes ld-node {
-  from { transform: scale(0.4); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-.ld-rail3.in li:first-child::after {
-  box-shadow: 0 0 14px 1px color-mix(in srgb, var(--ac) 65%, transparent);
-}
-@media (min-width: 720px) {
-  .ld-rail3 li::before { transform: scaleX(0); transform-origin: 0 50%; }
-  .ld-rail3.in li::before { animation-name: ld-draw-x; }
-  @keyframes ld-draw-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-}
-
-/* ------------------------------------------------------ SPEC / PLANS */
-/* Hovering a spec row lights its edge, the way the lit card is marked —
-   the same signal, quieter, so hover teaches what "lit" means. */
-.ld-specs .row {
-  transition: box-shadow 200ms var(--ease, cubic-bezier(0.32, 0.72, 0, 1)),
-              background 200ms ease;
-}
-@media (hover: hover) and (pointer: fine) {
-  .ld-specs .row:hover {
-    background: color-mix(in srgb, var(--ac) 4%, transparent);
-    box-shadow: inset 2px 0 0 var(--ac);
+.ld .qs details[open] summary { color: var(--bone); }
+.ld .qs details[open] summary::after { transform: rotate(45deg); color: var(--ac); }
+@media (hover: hover) { .ld .qs summary:hover { color: var(--bone); } .ld .qs summary:hover::after { color: var(--bone-2); } }
+.ld .qs details p { margin: 0; padding: 0 34px 20px 0; color: var(--fog); font-size: 15.5px; line-height: 1.55; max-width: 42ch; }
+/* An answer that POPS is the thing every accordion gets wrong, and it is
+   avoidable without a line of script: ::details-content is the element the
+   browser was already creating, and interpolate-size makes an auto height
+   animatable. Guarded by @supports, so a browser without it keeps the
+   instant open it has today — the content is never hidden or broken, it
+   just arrives without the slide. */
+@supports selector(::details-content) {
+  .ld { interpolate-size: allow-keywords; }
+  .ld .qs details::details-content {
+    block-size: 0; overflow: hidden;
+    transition: block-size 380ms var(--e-out), content-visibility 380ms allow-discrete;
   }
-  /* `translate`, not `transform`: the reveal owns transform on these
-     cards, and two rules animating the same property fight over duration. */
-  .ld-plan { transition: translate 240ms cubic-bezier(0.32, 0.72, 0, 1); }
-  .ld-plan:hover { translate: 0 -2px; }
+  .ld .qs details[open]::details-content { block-size: auto; }
 }
-.ld-plan .amount { transition: text-shadow 240ms ease; }
-.ld-plan.featured:hover .amount {
-  text-shadow: 0 0 22px color-mix(in srgb, var(--ac) 40%, transparent);
-}
+@media (max-width: 760px) { .ld .qs { grid-template-columns: 1fr; } }
 
-/* The featured plan's bar strikes as the card arrives. */
-.ld-plan.featured::before { transform: scaleX(0); }
-.in .ld-plan.featured::before,
-.ld-plan.featured[data-reveal].in::before {
-  animation: ld-strike 620ms 160ms cubic-bezier(0.22, 1.2, 0.36, 1) both;
-}
+/* ═══ 8. THE LAST WORD — the page's third ground ═════════════════════
+   Neither the graphite nor the light band: the accent, brought up for the
+   only time it carries a whole section rather than a figure. Ending on it
+   is what makes it an ending.
 
-/* ================================================== THE OFF SWITCH ==
-   Reduced motion is not "the same thing, faster": every element lands on
-   its final state at once, and the ambient light stops moving. */
-@media (prefers-reduced-motion: reduce) {
-  .ld *, .ld *::before, .ld *::after {
-    animation: none !important;
-    transition: none !important;
-  }
-  .ld::before { animation: none !important; }
-  [data-reveal], [data-reveal].in {
-    opacity: 1 !important; transform: none !important; filter: none !important;
-  }
-  .ld-line { overflow: visible; }
-  .ld-line > span { transform: none !important; }
-  .ld-demo { transform: none !important; }
-  .ld-hero > div > *, .ld-hero .ld-demo { opacity: 1 !important; transform: none !important; }
-  .ld .disp { font-variation-settings: "wdth" 114 !important; }
-  .ld-card::before, .ld-plan.featured::before,
-  .ld-rail3 li::before, .ld-rail3 li::after {
-    transform: none !important; opacity: 1 !important;
-  }
-  .ld-sweep::after, .ld-card .ld-pass, .ld-card .ld-shine { display: none !important; }
-  .ld-progress { display: none !important; }
+   Centred exactly once, at the very end. Centred everywhere is the tell;
+   centred once, against ten sections that are not, is a full stop. */
+.ld .end {
+  position: relative; overflow: hidden; text-align: center;
+  margin-top: clamp(80px,13vh,160px);
+  padding: clamp(88px,15vh,180px) 0 clamp(76px,12vh,140px);
+  background: linear-gradient(180deg, rgba(56,224,139,.07), rgba(56,224,139,.025) 44%, rgba(56,224,139,0)), var(--ink-1);
+  border-top: 1px solid var(--line);
 }
+/* The glow gathers as you arrive rather than sitting there at full
+   strength — one scrubbed number, one transform, no repaint. It is the
+   only place on the page where the accent does anything at scale, so it
+   should feel like it is happening rather than like it was already done. */
+.ld .end::before {
+  content: ""; position: absolute; left: 50%; top: -38%; width: min(120vw,1100px); aspect-ratio: 1;
+  transform: translateX(-50%) scale(calc(.68 + .42 * var(--ep,1)));
+  opacity: calc(.2 + .8 * var(--ep,1));
+  pointer-events: none; will-change: transform, opacity;
+  background: radial-gradient(circle, rgba(56,224,139,.13), rgba(56,224,139,0) 62%);
+}
+.ld .end .wrap { position: relative; }
+.ld .end .disp { font-size: clamp(32px,5.4vw,70px); }
+.ld .end .lede { margin-inline: auto; margin-top: 22px; color: var(--bone-2); }
+.ld .end .ctas { display: flex; flex-wrap: wrap; gap: 18px 26px; justify-content: center; align-items: center; margin-top: clamp(30px,5vh,44px); }
+.ld .quiet { color: var(--fog); font-size: 15px; display: inline-flex; align-items: center; gap: 8px; transition: color var(--t-hover) linear; }
+.ld .quiet:hover { color: var(--bone); }
+.ld .quiet .ar { transition: transform var(--t-hover) var(--e-out); }
+.ld .quiet:hover .ar { transform: translateX(3px); }
 
-/* ------------------------------------------------------- THE PRODUCT */
-/* A real screenshot, given room. The page talked about a booking page
-   without ever showing one, which on a product sold to a visual trade is
-   the one thing a stranger most wants to see. No lit treatment here — the
-   hero already holds the light for its part of the page. */
-.ld-see {
-  display: grid; grid-template-columns: 1fr; gap: 34px; align-items: center;
-}
-@media (min-width: 880px) {
-  .ld-see { grid-template-columns: 1fr 0.78fr; gap: 64px; }
-}
-.ld-see .copy { min-width: 0; }
-.ld-see .lede { margin-bottom: 22px; }
-
-.ld-ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.ld-ticks li {
-  display: flex; gap: 12px; align-items: baseline;
-  color: var(--i2); font-size: 0.9375rem;
-  transition-delay: calc(var(--i, 0) * 80ms);
-}
-.ld-ticks li::before {
-  content: ""; flex: none; width: 7px; height: 7px; margin-top: 6px;
-  border-radius: 50%; background: var(--ac);
-  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--ac) 55%, transparent);
-}
-
-/* The phone sits on the ground with a soft floor shadow rather than a
-   drawn bezel — a fake device frame is exactly the stock-looking move
-   this page is trying to avoid. */
-.ld-shot { margin: 0; display: flex; justify-content: center; }
-.ld-shot img {
-  display: block; width: 100%; max-width: 300px; height: auto;
-  border-radius: 18px;
-  border: 1px solid var(--edge);
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.5),
-    0 40px 80px -40px rgba(0, 0, 0, 0.95);
-}
-@media (min-width: 880px) {
-  .ld-shot img { max-width: 330px; }
-}
+/* ═══ THE LITE PATH ═══════════════════════════════════════════════════
+   One class on <html>, set in app/src/main.jsx by ?lite=1, by
+   prefers-reduced-motion, and by this page's own load-timeout safety net.
+   It puts every entrance into its end state using the SAME CSS the
+   animation targets, so it cannot drift out of sync with the animation it
+   replaces. A landing page that hides its own copy is worse than one that
+   does not animate. */
+.lite .ld [data-rv] { opacity: 1 !important; transform: none !important; transition: none !important; }
+.lite .ld .mask > span { transform: none !important; transition: none !important; }
+.lite .ld .ground b { animation: none !important; opacity: .8 !important; }
+.lite .ld .ground .dots { animation: none !important; }
+.lite .ld .ground .cursor { display: none; }
+.lite .ld .caret { display: none; }
+.lite .ld .bub { transform: none !important; opacity: 1 !important; }
+.lite .ld .job { opacity: 1 !important; transform: none !important; }
+.lite .ld .thread-wrap { height: auto; }
+.lite .ld .stage { position: static; height: auto; padding: clamp(60px,9vh,110px) 0; overflow: visible; }
+.lite .ld .divider, .lite .ld .cost { display: none; }
+.lite .ld .float, .lite .ld .widget-hold { transform: none !important; }
+.lite .ld .vsrow { --rp: 1; }
+.lite .ld .end::before { transform: translateX(-50%); opacity: 1; }

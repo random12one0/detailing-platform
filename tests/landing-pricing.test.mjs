@@ -29,7 +29,18 @@ const { PRICING } = await import("../app/src/landing/pricing.js");
 // What a visitor actually reads: source comments are not copy, and the
 // hero's demo card quotes a fictional customer's job prices, not ours.
 const copy = jsx.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\/\/.*$/gm, "");
-const pricingSection = copy.slice(copy.indexOf('aria-labelledby="price"'));
+// BOUNDED AT THE FAQ, and the bound is the point (added in roadmap 2.2).
+// This slice exists to catch OUR prices typed by hand instead of read from
+// pricing.js. Everything after the pricing section is a different subject:
+// the questions answer "do you take a cut?" with "a $600 coating costs you
+// the same as a $65 wash", which is a DETAILER's job prices — the same kind
+// of illustrative figure the hero's demo card carries, and the same reason
+// the slice starts where it does rather than covering the whole file. An
+// unbounded slice would have forced that answer to be reworded to satisfy a
+// test aimed at something else.
+const pricingStart = copy.indexOf('aria-labelledby="price"');
+const pricingEnd = copy.indexOf('aria-labelledby="faqh"');
+const pricingSection = copy.slice(pricingStart, pricingEnd > pricingStart ? pricingEnd : undefined);
 
 console.log("test 1: every number comes from the config");
 {
@@ -83,9 +94,13 @@ console.log("\ntest 4: the copy stays plain and true");
 
   // A struck price is allowed ONLY when it is the real list price being
   // replaced by a real discount — never a literal typed in to look big.
+  // TWO list prices are struck, not one (roadmap 2.2): the founding offer
+  // discounts the build fee AND the monthly, and the approved page strikes
+  // both. Each must still be a real price out of pricing.js.
   const struck = [...copy.matchAll(/<s className="was">([^<]*)<\/s>/g)].map((m) => m[1].trim());
+  const LIST = ["${PRICING.website.setup}", "${PRICING.website.monthly}"];
   check("any struck price is the real list price, from config",
-    struck.every((t) => t === "${PRICING.website.setup}"), struck.join(" | "));
+    struck.length > 0 && struck.every((t) => LIST.includes(t)), struck.join(" | "));
   // `<s` alone also matches <span>; anchor on the real element.
   check("no struck literal numbers anywhere",
     !/<s(\s[^>]*)?>\s*\$?\d/.test(copy) && !/<del|line-through/.test(copy));

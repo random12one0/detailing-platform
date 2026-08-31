@@ -107,74 +107,117 @@ if (SOURCE !== APP) {
   row("text / surface-lit", L.t, L.lit);
   row("text-2 / surface-lit", L.t2, L.lit);
   row("accent / bg", L.ac, L.bg);
-
-  console.log("== booking page — DARK, restyled to \"The Thread\" in roadmap 2.1 ==");
-  // No longer an outgoing palette: this surface has already been restyled,
-  // and its tokens are the system's, scoped under .bk for the reason the
-  // stylesheet's header explains. The tenant's accent is NOT checked here —
-  // it is injected per business and corrected at runtime by lib/theme.js
-  // against --bk-bg, which is exactly why that ground has to be the value
-  // this file reads. tests for the correction itself live with theme.js.
-  const bk = readFileSync("app/src/book/booking.css", "utf8");
-  const g = (name) => bk.match(new RegExp(`--bk-${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1];
-  const B = {
-    bg: g("bg"), sunken: g("sunken"), card: g("card") || g("surface"), lit: g("lit"),
-    t: g("ink") || g("text"), t2: g("text-2"), mut: g("muted"), bad: g("danger"),
-  };
-  // The ground the CSS paints and the ground lib/theme.js corrects the
-  // tenant accent against must be the same colour, or a brand colour can be
-  // corrected against one background and displayed on another.
-  const themeJs = readFileSync("app/src/lib/theme.js", "utf8");
-  const bookingBg = themeJs.match(/BOOKING_BG\s*=\s*"(#[0-9a-fA-F]{6})"/)?.[1];
-  if (!bookingBg || bookingBg.toUpperCase() !== (B.bg || "").toUpperCase()) {
-    bad++;
-    console.log(`FAIL         --bk-bg is ${B.bg}, lib/theme.js BOOKING_BG is ${bookingBg}`);
-  } else {
-    console.log(`ok           --bk-bg matches lib/theme.js BOOKING_BG (${bookingBg})`);
-  }
-  row("ink / bg", B.t, B.bg);
-  row("ink / card", B.t, B.card);
-  row("ink / lit (the selected card)", B.t, B.lit);
-  row("ink-2 / card", B.t2, B.card);
-  row("muted / bg", B.mut, B.bg);
-  row("muted / sunken (input placeholders)", B.mut, B.sunken);
-  row("muted / card", B.mut, B.card);
-  row("muted / lit", B.mut, B.lit);
-  // --bad is the one token that is not in the reference page (that page has
-  // no error states), so the sixteen-token drift check in composition.test
-  // cannot cover it. It is checked against the DOCUMENT here instead.
-  const docBad = readFileSync("docs/design-system.md", "utf8")
-    .match(/`--bad`\s*\|\s*`(#[0-9a-fA-F]{6})`/)?.[1];
-  if (!docBad || docBad.toUpperCase() !== (B.bad || "").toUpperCase()) {
-    bad++;
-    console.log(`FAIL         --bk-danger is ${B.bad}, docs/design-system.md --bad is ${docBad}`);
-  } else {
-    console.log(`ok           --bk-danger matches docs/design-system.md --bad (${docBad})`);
-  }
-  row("danger / bg", B.bad, B.bg);
-  row("danger / card", B.bad, B.card);
-
-  console.log("== outgoing: landing (dark only) ==");
-  // FOUND 2026-08-30 while rewriting this file: every one of these used to
-  // look for --bg and --panel, which landing.css has never defined — it
-  // calls them --g and --p. The old test guarded each row with `if (token)`,
-  // so all five silently did nothing and the landing page has had NO
-  // contrast coverage since the check was written. A skipped row now says
-  // so out loud, which is how this surfaced. Correct names below.
-  const ld = readFileSync("app/src/landing/landing.css", "utf8");
-  const gl = (name) => ld.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1];
-  const Ld = { g: gl("g"), p: gl("p"), lit: gl("lit"), i: gl("i"), i2: gl("i2"), i3: gl("i3"), ac: gl("ac"), acink: gl("acink"), ok: gl("ok") };
-  row("ink / ground", Ld.i, Ld.g);
-  row("ink-2 / ground", Ld.i2, Ld.g);
-  row("ink-3 / ground (small labels)", Ld.i3, Ld.g, 3);
-  row("ink / panel", Ld.i, Ld.p);
-  row("ink-2 / panel", Ld.i2, Ld.p);
-  row("ink / lit", Ld.i, Ld.lit);
-  row("accent / ground", Ld.ac, Ld.g);
-  row("accent / panel", Ld.ac, Ld.p);
-  row("accent-ink on accent (button face)", Ld.acink, Ld.ac);
-  row("success / panel", Ld.ok, Ld.p);
 }
+
+
+console.log("== booking page — DARK, restyled to \"The Thread\" in roadmap 2.1 ==");
+// No longer an outgoing palette: this surface has already been restyled,
+// and its tokens are the system's, scoped under .bk for the reason the
+// stylesheet's header explains. The tenant's accent is NOT checked here —
+// it is injected per business and corrected at runtime by lib/theme.js
+// against --bk-bg, which is exactly why that ground has to be the value
+// this file reads. tests for the correction itself live with theme.js.
+const bk = readFileSync("app/src/book/booking.css", "utf8");
+const g = (name) => bk.match(new RegExp(`--bk-${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1];
+const B = {
+  bg: g("bg"), sunken: g("sunken"), card: g("card") || g("surface"), lit: g("lit"),
+  t: g("ink") || g("text"), t2: g("text-2"), mut: g("muted"), bad: g("danger"),
+};
+// The ground the CSS paints and the ground lib/theme.js corrects the
+// tenant accent against must be the same colour, or a brand colour can be
+// corrected against one background and displayed on another.
+const themeJs = readFileSync("app/src/lib/theme.js", "utf8");
+const bookingBg = themeJs.match(/BOOKING_BG\s*=\s*"(#[0-9a-fA-F]{6})"/)?.[1];
+if (!bookingBg || bookingBg.toUpperCase() !== (B.bg || "").toUpperCase()) {
+  bad++;
+  console.log(`FAIL         --bk-bg is ${B.bg}, lib/theme.js BOOKING_BG is ${bookingBg}`);
+} else {
+  console.log(`ok           --bk-bg matches lib/theme.js BOOKING_BG (${bookingBg})`);
+}
+row("ink / bg", B.t, B.bg);
+row("ink / card", B.t, B.card);
+row("ink / lit (the selected card)", B.t, B.lit);
+row("ink-2 / card", B.t2, B.card);
+row("muted / bg", B.mut, B.bg);
+row("muted / sunken (input placeholders)", B.mut, B.sunken);
+row("muted / card", B.mut, B.card);
+row("muted / lit", B.mut, B.lit);
+// --bad is the one token that is not in the reference page (that page has
+// no error states), so the sixteen-token drift check in composition.test
+// cannot cover it. It is checked against the DOCUMENT here instead.
+const docBad = readFileSync("docs/design-system.md", "utf8")
+  .match(/`--bad`\s*\|\s*`(#[0-9a-fA-F]{6})`/)?.[1];
+if (!docBad || docBad.toUpperCase() !== (B.bad || "").toUpperCase()) {
+  bad++;
+  console.log(`FAIL         --bk-danger is ${B.bad}, docs/design-system.md --bad is ${docBad}`);
+} else {
+  console.log(`ok           --bk-danger matches docs/design-system.md --bad (${docBad})`);
+}
+row("danger / bg", B.bad, B.bg);
+row("danger / card", B.bad, B.card);
+
+console.log("== landing page — restyled to \"The Thread\" in roadmap 2.2 ==");
+// This surface WAS an outgoing palette (--g / --p / --i, the old blue
+// accent); it now carries the system, scoped under .ld for the reason
+// landing.css's header explains — theme.css's :root still flips with the
+// dashboard's light/dark switch until roadmap 2.3, and a prospect must not
+// inherit whatever the last dashboard user picked on that device.
+//
+// The tokens keep the SYSTEM's names here, so this reads them the same way
+// the reference page is read. The pairs below are the ones the page
+// actually paints, not every combination the tokens allow.
+const ld = readFileSync("app/src/landing/landing.css", "utf8");
+const gl = (name) => ld.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1];
+const Ld = {
+  ink0: gl("ink-0"), ink1: gl("ink-1"), ink2: gl("ink-2"), ink3: gl("ink-3"),
+  fog: gl("fog"), fog2: gl("fog-2"), bone: gl("bone"), bone2: gl("bone-2"),
+  ac: gl("ac"), acDeep: gl("ac-deep"),
+  paper: gl("paper"), paperInk: gl("paper-ink"), paperFog: gl("paper-fog"),
+};
+// ANTI-DRIFT. composition.test.mjs pins the reference page against the
+// document; this pins the shipped stylesheet against both, so a colour
+// cannot quietly become a slightly different colour on the way into the app.
+for (const [name, want] of Object.entries({
+  "ink-0": T.ink0, "ink-1": T.ink1, "ink-2": T.ink2, "ink-3": T.ink3,
+  "fog": T.fog, "fog-2": T.fog2, "bone": T.bone, "bone-2": T.bone2,
+  "ac": T.ac, "ac-deep": T.acDeep,
+  "paper": T.paper, "paper-ink": T.paperInk, "paper-fog": T.paperFog,
+})) {
+  const got = gl(name);
+  if (!want || !got || got.toUpperCase() !== want.toUpperCase()) {
+    bad++;
+    console.log(`FAIL         landing.css --${name} is ${got}, the system says ${want}`);
+  }
+}
+console.log("ok           landing.css tokens match the system's values");
+// The dark ground and the two surfaces on it.
+row("bone / ink-0 (the ground)", Ld.bone, Ld.ink0);
+row("bone / ink-1 (the last word)", Ld.bone, Ld.ink1);
+row("bone / ink-3 (the lit card, the lead plan)", Ld.bone, Ld.ink3);
+row("bone-2 / ink-0 (terms, questions)", Ld.bone2, Ld.ink0);
+row("fog / ink-0 (every lede)", Ld.fog, Ld.ink0);
+row("fog / ink-3 (the lit card's second line)", Ld.fog, Ld.ink3);
+// The 10-13px ramp: .fine, .ix, the terms' numerals, the pin's cost label.
+row("fog-2 / ink-0 (10-13px labels)", Ld.fog2, Ld.ink0);
+row("fog-2 / ink-2 (10-13px labels on a panel)", Ld.fog2, Ld.ink2);
+// The accent is words here — the "new booking" label, the open question's
+// marker — so it takes the body floor, not the 3:1 fill one.
+row("accent / ink-0", Ld.ac, Ld.ink0);
+row("accent / ink-3 (the founding flag)", Ld.ac, Ld.ink3);
+// The button face. #0A0D0F is written into .ld .cta rather than tokenised,
+// exactly as the approved page has it, so it is asserted by hand.
+row("button ink on bone (the primary call to action)", "#0A0D0F", Ld.bone);
+// The light band, and the one lit row inside it.
+row("paper-ink / paper", Ld.paperInk, Ld.paper);
+row("paper-fog / paper", Ld.paperFog, Ld.paper);
+row("paper / paper-ink (the lit comparison row)", Ld.paper, Ld.paperInk);
+row("ac-deep / paper (the tick dots, non-text)", Ld.acDeep, Ld.paper, 3);
+// NOT asserted from CSS, and it cannot be: the tenant-site mock puts its
+// name and tagline ON a photograph. Law 9 — screenshot the text box with
+// the words hidden, read the lightest pixel it is sitting on. Measured in
+// roadmap 2.2 at 1440 and 392; the numbers and the method are in
+// DECISIONS.md, "Roadmap 2.2".
+
 
 console.log(bad ? `\n${bad} FAILURES` : "\nall pairs pass");
 process.exit(bad ? 1 : 0);

@@ -471,36 +471,51 @@ is kept; the entire visual design restarts from scratch.
       than deleting it. Reopen in Phase 3 if a bespoke tenant site turns out
       light. See `DECISIONS.md` → "The customer booking page is dark".
 
-- [ ] 2.2 Marketing/landing page.
+- [x] 2.2 Marketing/landing page.
 
-      **This is the closest port in Phase 2** — the reference rendering
-      `docs/design-directions/5-the-thread.html` *is* this page, so most of
-      it is transplanting rather than interpreting.
+      **DONE 2026-08-30.** The reference rendering
+      `docs/design-directions/5-the-thread.html` *is* this page, so this was
+      a transplant, not an interpretation: its markup became
+      `app/src/landing/LandingPage.jsx`, its stylesheet became
+      `app/src/landing/landing.css` scoped under `.ld`, and its script became
+      `app/src/landing/thread.js` — mountable and, because this is a route in
+      an SPA, unmountable. The old `motion.jsx` is gone. Nine sections, nine
+      skeletons, all nine mechanics.
 
-      **Two things 2.1 deliberately left here rather than doing twice.**
+      **The port is faithful by measurement, not by eye.** The page comes out
+      at **10.41 screens at 1920, 11.26 at 1440 and 14.14 on a phone** — the
+      same three numbers the approved page measured. Full write-up, every
+      judgment call, and the four threads it leaves open: DECISIONS.md →
+      "Roadmap 2.2".
 
-      1. **`?lite=1` does not exist anywhere in `app/`.** The system's
-         Degradation section makes `.lite` the single code path and routes
-         `prefers-reduced-motion` into it; the shipped app has only ever had
-         the media query. The booking page's reduced-motion handling was
-         verified working, and every animation was force-disabled to prove
-         nothing is hidden behind one — but building a `.bk`-only `.lite`
-         would have created exactly the second implementation the system
-         forbids. It belongs at the app root (`main.jsx`), which is this
-         item's territory: read the flag, add the class to
-         `<html>`, and route reduced-motion into the same class in JS rather
-         than duplicating it in CSS.
-      2. **`app/index.html` requests five font families**, not two — Archivo
-         and JetBrains Mono for the booking page, plus Anybody / Public Sans
-         / DM Mono for this page and the dashboard. Drop the three this item
-         stops using; the last of them goes in 2.3.
+      **Both things 2.1 left here are settled, and one of them was wrong.**
+
+      1. **`?lite=1` now exists**, at the app root in `app/src/main.jsx`:
+         `?lite=1` and `prefers-reduced-motion` both add `.lite` to `<html>`,
+         before React renders. `booking.css`'s own
+         `@media (prefers-reduced-motion)` block was swapped for `.lite` in
+         the same session — otherwise the app would have had exactly the two
+         implementations the system forbids, and `?lite=1` would have done
+         nothing on the booking page. It works on both surfaces now.
+      2. **The font claim in this item was wrong and NO family could be
+         dropped.** It assumed the landing page and the dashboard each owned
+         a share of Anybody / Public Sans / DM Mono. They do not:
+         `app/src/theme.css` uses all three on its own, so restyling the
+         landing page freed none of them. All three go together in 2.3, and
+         `app/index.html` goes from five families to two in one edit. The
+         reasoning is written into that file so the next session does not
+         re-derive it.
 
 - [ ] 2.3 Dashboard — all five tabs and every settings screen.
 
       **Carries the light-theme removal** (scoped at the end of
-      `docs/design-system.md`) and the last three font families out of
-      `app/index.html`. Also `<meta name="theme-color">`, still `#0F1012` —
-      the outgoing dashboard ground — where the system's ground is `#0B0D0E`.
+      `docs/design-system.md`) and — corrected in 2.2 — ALL THREE remaining
+      font families out of `app/index.html`, not one or two: `theme.css` is
+      the only thing still using Anybody, Public Sans and DM Mono, so they
+      leave together with it. Also `<meta name="theme-color">`, still
+      `#0F1012` — the outgoing dashboard ground — where the system's ground
+      is `#0B0D0E`; two of the three surfaces already paint `#0B0D0E`, so
+      this is the last one holding it back.
 
       **Two things 2.1 established that this item must follow rather than
       re-derive:** never put `font-variation-settings` on a root element

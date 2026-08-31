@@ -466,11 +466,19 @@
   from { opacity: 0; transform: translate3d(0, 20px, 0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .bk *, .bk *::before, .bk *::after, .bk::before, .bk::after {
-    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-  }
+/* ONE degradation path for the whole app, not one per surface. This was an
+   `@media (prefers-reduced-motion: reduce)` block until roadmap 2.2 built
+   `.lite` at the app root: app/src/main.jsx sets that class on <html> from
+   BOTH ?lite=1 and prefers-reduced-motion, which is the system's
+   single-code-path rule (docs/design-system.md, "Degradation"). Leaving the
+   media query here as well would have been the second implementation that
+   section exists to forbid — and it would have been the one that rots,
+   because ?lite=1 never reached it. Nothing is lost by the swap: this page
+   is React, so a visitor who has no JavaScript has no page either way, and
+   every animation here is `both`-filled and hides nothing. */
+.lite .bk *, .lite .bk *::before, .lite .bk *::after, .lite .bk::before, .lite .bk::after {
+  animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
 }
 
 /* The date grid in step 4. A day that cannot be booked is DIM AND FLAT

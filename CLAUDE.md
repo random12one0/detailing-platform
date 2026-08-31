@@ -49,16 +49,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   listed in the new file under "§11". Backend, content, copy facts and
   accessibility floors were always kept; only the visual world changed.
 - The design tests enforce the NEW rules: `tests/composition.test.mjs`
-  (22 checks) and `tests/design-contrast.test.mjs`. Don't contort work to
+  (24 checks) and `tests/design-contrast.test.mjs`. Don't contort work to
   pass them — if a test and a real design decision collide, the system file
   gets updated first, never silently.
 - Never-defaults (in addition to the design system): Inter/Roboto/Arial/
   system-ui/Space Grotesk as design choices; purple-blue gradients on
   white; three evenly spaced cards; numbered markers on non-sequences;
   "modern and clean"-style copy. See `docs/design-knowledge.md`.
-- Visual work is verified by LOOKING: screenshot 392px / 768px / 1440x900,
-  both themes, console read, compared against the design system. Retints
-  are checked per tenant accent, including extremes.
+- Visual work is verified by LOOKING: screenshot **1920 / 1440x900 /
+  768x1024 / 392x844**, console read at each, in the normal path AND
+  `?lite=1`, compared against the design system. 1920 is the owner's own
+  monitor and it is where "not enough content to fill the viewport" bugs
+  live. Retints are checked per tenant accent, including extremes.
+  ("Both themes" was here until 2026-08-30 and is stale — the owner killed
+  the light theme; there is one ground.)
 - **Imagery: never a grey placeholder box.** An Unsplash connector is
   wired up and confirmed working 2026-08-29 (`search_photos`; "car
   detailing" returns ~4,800 real photos). Use it for mockups, the demo

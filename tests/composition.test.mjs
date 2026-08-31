@@ -178,6 +178,29 @@ console.log("\ntest 4: two faces, and the never-defaults are absent");
     `saw: ${[...firstFamilies].join(", ")}`,
   );
 
+  // The same rule on the RESTYLED surfaces, as Phase 2 lands them. This is
+  // the "REFERENCE grows to include the app's own stylesheet" note at the
+  // top of this file, honoured one surface at a time: the landing page was
+  // ported in roadmap 2.2 and a third face creeping back into it is exactly
+  // the kind of drift that goes unnoticed. The dashboard's theme.css joins
+  // this list in 2.3, when it stops shipping the outgoing three.
+  // A stack can be written inline (landing.css) or held in a token that
+  // font-family then points at (booking.css's --bk-f-body). Both forms
+  // start the same way — a quoted family name — so match on that rather
+  // than on the property, and `font-family: var(…)` falls out for free.
+  for (const sheet of ["app/src/landing/landing.css", "app/src/book/booking.css"]) {
+    const css = await readFile(sheet, "utf8");
+    const fams = new Set(
+      [...css.matchAll(/(?:font-family|--[\w-]+)\s*:\s*"([^"]+)"/gi)].map(m => m[1]),
+    );
+    const over = [...fams].filter(f => !allowed.has(f));
+    check(
+      `${sheet.split("/").pop()} declares exactly Archivo + JetBrains Mono`,
+      over.length === 0 && fams.size === 2,
+      `saw: ${[...fams].join(", ")}`,
+    );
+  }
+
   // The named tells from docs/design-knowledge.md §1, as a DESIGN choice.
   const NEVER = ["Inter", "Roboto", "Open Sans", "Lato", "Arial", "system-ui", "Space Grotesk"];
   const sheets = ["app/src/theme.css", "app/src/landing/landing.css", "app/src/book/booking.css", REFERENCE];

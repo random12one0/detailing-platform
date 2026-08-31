@@ -99,6 +99,11 @@ frontend/node_modules/.cache/default-development/3.pack
 
 # Claude Code local machine settings (permission allowlist, not shared)
 .claude/settings.local.json
+# Local dev-server launch config for the in-editor preview. Tool-specific
+# and machine-local on purpose: the repo's portability rule (CLAUDE.md)
+# keeps every durable decision in plain markdown, so nothing that matters
+# may live in a file only one assistant reads.
+.claude/launch.json
 
 # Emergent build-tool metadata (pre-conversion tooling, deleted in roadmap 0.1)
 .emergent/

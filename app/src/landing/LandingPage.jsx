@@ -1,30 +1,41 @@
-// detailingplatform.com — the showroom.
+// detailingplatform.com — the marketing page.
 //
-// The audience is a detailer with a bad website or none. The pitch is the
-// concrete thing they get — a professional website with booking built in —
-// in their own register (see docs/design-system.md, "Copy rules"). No
-// "streamline your workflow". Dark only: the inspection bay at night, and
-// the one surface allowed the full glow.
+// THIS IS A PORT. The reference rendering
+// docs/design-directions/5-the-thread.html *is* this page: the owner
+// approved it as this page, over fifteen rounds of his corrections. So the
+// markup below is that document's markup, in JSX, and the running order,
+// the copy and the mechanics are not open here. Where this file and that
+// page disagree, the page is right (DESIGN.md, docs/design-system.md).
 //
-// The hero's demo card is the product doing its own selling: the same lit
-// job card the dashboard uses, shown as a booking arriving on its own.
+// WHAT A REAL PAGE HAS THAT A STATIC FILE CANNOT, and the only substantive
+// differences from the reference:
+//   · the founding offer's remaining count is READ FROM THE DATABASE and
+//     fails closed, so a spot already taken is never advertised. A static
+//     file cannot know that number, so it states the starting figure.
+//   · every price comes from ./pricing.js, never from the markup —
+//     tests/landing-pricing.test.mjs pins that.
+//   · the calls to action point at /app, not at #price.
+//
+// The nine sections and their skeletons (law 1 — no two alike):
+//   1 hero .............. left-heavy asymmetric, one floating object
+//   2 the thread ........ two columns, pinned, animated transfer
+//   3 your own website .. LIGHT ground, the website breaking the band edge
+//   4 what you get ...... full-width ruled list, no boxes at all
+//   5 what you're using . LIGHT ground, the page's only table
+//   6 pricing ........... asymmetric pair + a ruled terms list
+//   7 questions ......... two columns of native disclosures
+//   8 the last word ..... accent ground, centred, once
+//   9 footer ............ mono facts
+//
+// All of the motion lives in ./thread.js — one module, no library (law 13).
 
 import { useEffect, useState } from "react";
-import { CalendarCheck2, Smartphone, Wallet } from "lucide-react";
 import { api } from "../lib/api.js";
 import { PRICING } from "./pricing.js";
-import {
-  CountUp, useIntro, useParallax, usePointerGlow, useReveal, useScrollProgress,
-  useTilt,
-} from "./motion.jsx";
+import { initThread } from "./thread.js";
 import "./landing.css";
 
 export default function LandingPage() {
-  // The opening sequence waits on the display face so the headline never
-  // swaps typeface mid-animation (see motion.jsx).
-  const ready = useIntro();
-  useScrollProgress();
-
   // The founding offer is counted in the database, not declared here. Until
   // it answers — and if it ever fails — the page shows standard pricing.
   // Failing CLOSED matters: advertising a spot that is already taken is a
@@ -40,250 +51,412 @@ export default function LandingPage() {
   }, []);
   const founding = offer && offer.left > 0;
 
-  const demo = useTilt();
-  const demoDepth = useParallax(16);
-  const getLede = useReveal();
-  const howLede = useReveal();
-  const priceLede = useReveal();
-  const seeHead = useReveal();
-  const seeLede = useReveal();
-  const seeList = useReveal();
-  const seeShot = useReveal();
-  const foot = useReveal();
-  const heroCta = usePointerGlow();
-  const priceCta = usePointerGlow();
-  const specs = useReveal();
-  const rail = useReveal();
-  const plans = useReveal();
-  const terms = useReveal();
-  const getHead = useReveal();
-  const howHead = useReveal();
-  const priceHead = useReveal();
+  // The page's whole motion system, mounted once and torn down on the way
+  // out — this is a route in an SPA, so every listener and timer it opens
+  // has to close again.
+  useEffect(() => initThread(), []);
+
+  const setup = founding ? PRICING.founding.setup : PRICING.website.setup;
+  const monthly = founding ? PRICING.founding.monthly : PRICING.website.monthly;
 
   return (
-    <div className={`ld${ready ? " ready" : ""}`}>
-      <div className="ld-progress" aria-hidden="true" />
-      <div className="wrap">
-        <nav className="ld-nav" aria-label="Main">
-          <a className="ld-mark" href="/">DETAILING PLATFORM</a>
-          <div className="links">
-            <a href="/app">Sign in</a>
-            <a className="ld-cta quiet" href="/app">Get started</a>
-          </div>
-        </nav>
+    <div className="ld">
+      {/* One continuous ground under the whole page: two slow lights, a dot
+          lattice, the pointer light and grain. This is law 2 — something is
+          always animating — in its cheap form: transform and opacity only,
+          no renderer, no canvas. */}
+      <div className="ground" id="ground" aria-hidden="true">
+        <b></b><b></b>
+        <span className="dots"></span>
+        <span className="cursor" id="cursorGlow"></span>
+        <i></i>
+      </div>
 
-        <header className="ld-hero">
-          <div>
-            <span className="lab">For detailers</span>
-            <h1 className="disp" style={{ marginTop: 14 }}>
-              {/* data-text carries the clipped specular layer; the real
-                  headline underneath is always present and readable. */}
-              <span className="ld-sweep" data-text="Put your work in the light.">
-                Put your work in the&nbsp;light.
-              </span>
-            </h1>
-            <p className="sub">
-              A real website with booking built in. Your services, your prices,
-              your hours, your rules — customers pick an open slot and book
-              themselves while you're still buffing the last car.
-            </p>
-            <div className="ctas">
-              <a className="ld-cta big" href="/app?plan=website" ref={heroCta}>
-                See it with your name on it
-              </a>
-              <span className="fine">
-                From ${PRICING.bookingOnly.monthly}/month. No commission, ever.
-              </span>
+      <nav className="nav" id="nav" aria-label="Main">
+        <span className="nav__g"><i></i></span>
+        <a className="mk" href="#top">Detailing Platform</a>
+        <a className="lk hide-s" href="#get">What you get</a>
+        <a className="lk hide-s" href="#price">Pricing</a>
+        <a className="lk" href="/app">Sign in</a>
+        <a className="cta sm" href="/app?plan=website">Get started<span className="ar">→</span></a>
+      </nav>
+
+      <main id="top">
+
+        {/* ══ 1 · HERO ═══════════════════════════════════════════════════
+            Line one is FIXED and never leaves the screen — that is the
+            promise; the rotating line under it is the proof stacking up
+            behind it. Its height is reserved for two lines at narrow
+            widths, because a phrase that wraps mid-rotation would shove the
+            whole page down and up every few seconds. */}
+        <section className="hero">
+          <div className="wrap grid">
+            <div>
+              <span className="lab" data-rv="">For detailers</span>
+              <h1 className="disp xl">
+                <span className="mask"><span>A real website</span></span>
+                <span className="mask"><span>for your detailing</span></span>
+                <span className="mask"><span>business.</span></span>
+              </h1>
+              <p className="tail" data-rv="" style={{ "--i": 1 }}>
+                <span id="tw"></span><i className="caret" aria-hidden="true"></i>
+              </p>
+              <p className="lede" data-rv="" style={{ "--i": 2 }}>
+                One build: the site your customers land on, the booking page
+                inside it, and the dashboard you run it from. Your services,
+                your prices, your hours.
+              </p>
+              <div className="ctas" data-rv="" style={{ "--i": 3 }}>
+                <a className="cta" href="/app?plan=website" data-glow="">
+                  See it with your name on it<span className="ar">→</span>
+                </a>
+                <span className="fine">
+                  Built by a detailer who got tired<br />of booking jobs at 11pm.
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div className="ld-demo" aria-hidden="true" ref={demoDepth}>
-            <div className="ld-card" ref={demo}>
-              <span className="ld-shine" />
-              <span className="ld-pass" />
-              <span className="lab" style={{ color: "var(--ac)" }}>New booking · just now</span>
-              <div className="ld-row" style={{ marginTop: 8 }}>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 17 }}>Saturday, 9:00 AM — Full Detail</div>
-                  <div style={{ color: "var(--i2)", fontSize: 13, marginTop: 3 }}>
-                    Marcus Webb · booked himself at 9:41 last night
+            {/* The product doing its own selling: the same lit job card the
+                real dashboard uses, shown as a booking that arrived on its
+                own. The reveal lives on a WRAPPER, not on .float — .float
+                owns its own transform for the parallax and the two would
+                overwrite each other. */}
+            <div data-rv="lift" style={{ "--i": 2 }}>
+              <div className="float" data-parallax="18" aria-hidden="true">
+                <div className="litcard" data-tilt="">
+                  <span className="lab ac">New booking · just now</span>
+                  <div className="rowline" style={{ marginTop: 10 }}>
+                    <div>
+                      <div className="wght-620" style={{ fontSize: 17 }}>
+                        Saturday, 9:00 AM — Full Detail
+                      </div>
+                      <div style={{ color: "var(--fog)", fontSize: 13, marginTop: 3 }}>
+                        Marcus Hill · booked himself at 9:41 last night
+                      </div>
+                    </div>
+                    <div className="mono" style={{ fontSize: 24 }}>$240</div>
                   </div>
                 </div>
-                <div className="mono" style={{ fontSize: 24 }}>
-                  <CountUp value={240} prefix="$" />
+                <div className="substack">
+                  <div className="plain rowline">
+                    <span style={{ color: "var(--fog)", fontSize: 14 }}>Sunday, 10:30 AM — Interior Reset</span>
+                    <span className="mono" style={{ fontSize: 15 }}>$120</span>
+                  </div>
+                  <div className="plain rowline">
+                    <span style={{ color: "var(--fog)", fontSize: 14 }}>Monday, 8:00 AM — Express Wash</span>
+                    <span className="mono" style={{ fontSize: 15 }}>$65</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="ld-plain" style={{ marginTop: 12 }}>
-              <div className="ld-row">
-                <span style={{ color: "var(--i2)", fontSize: 14 }}>Sunday, 10:30 AM — Interior Reset</span>
-                <span className="mono" style={{ fontSize: 15 }}>$120</span>
-              </div>
-            </div>
-            <div className="ld-plain" style={{ marginTop: 10 }}>
-              <div className="ld-row">
-                <span style={{ color: "var(--i2)", fontSize: 14 }}>Monday, 8:00 AM — Express Wash</span>
-                <span className="mono" style={{ fontSize: 15 }}>$65</span>
-              </div>
-            </div>
           </div>
-        </header>
+        </section>
 
-        <section aria-labelledby="get">
-          <h2 className="disp" id="get" data-reveal="mask" ref={getHead}>
-            <span className="ld-line"><span>What you get</span></span>
+        {/* ══ 2 · THE THREAD ════════════════════════════════════════════
+            THE signature move: each message flies to the position of its own
+            row in the dashboard and dissolves as that row solidifies. Same
+            content, same pixels, sorted. The bubbles and the rows are both
+            built in thread.js from ONE array, and the tiles SUM from it —
+            change a price there and the whole section moves. */}
+        <section className="wrap" style={{ padding: "clamp(20px,5vh,60px) 0 0" }} aria-labelledby="thr">
+          <span className="lab" data-rv="">Right now</span>
+          <h2 className="disp" id="thr" style={{ marginTop: 14 }}>
+            <span className="mask"><span>Stop booking jobs</span></span>
+            <span className="mask" style={{ "--i": 1 }}><span>in your DMs.</span></span>
           </h2>
-          <p className="lede" data-reveal ref={getLede}>
-            Not a page builder. Not a directory listing. The whole front door of
-            your business, run from your phone.
+          <p className="lede" data-rv="" style={{ "--i": 2 }}>
+            Four jobs came in this morning. None of them are in a calendar.
           </p>
-          {/* A ruled spec sheet, not a card grid: boxes on this page are
-              reserved for the product's own artifacts (the demo cards). */}
-          <dl className="ld-specs" ref={specs}>
-            <div className="row" data-reveal style={{ "--i": 0 }}>
-              <dt>
-                <CalendarCheck2 size={18} strokeWidth={2} aria-hidden="true" />
-                <span className="lab">Booking</span>
-                <h3 className="disp">Guards your day</h3>
-              </dt>
-              <dd>
-                Your hours, your travel buffer, your notice period. Double
-                bookings are impossible — the calendar refuses them, not you at
-                9 PM by text.
-              </dd>
-            </div>
-            <div className="row" data-reveal style={{ "--i": 1 }}>
-              <dt>
-                <Smartphone size={18} strokeWidth={2} aria-hidden="true" />
-                <span className="lab">On the job</span>
-                <h3 className="disp">Runs from the driveway</h3>
-              </dt>
-              <dd>
-                Today's jobs with Navigate, Call and Text on every card. Mark a
-                job done and record the money with wet hands, one thumb.
-              </dd>
-            </div>
-            <div className="row" data-reveal style={{ "--i": 2 }}>
-              <dt>
-                <Wallet size={18} strokeWidth={2} aria-hidden="true" />
-                <span className="lab">The books</span>
-                <h3 className="disp">Your money, plainly</h3>
-              </dt>
-              <dd>
-                What you collected, what you spent, what's still owed — and how
-                much you sold standing in the driveway versus up front.
-              </dd>
-            </div>
-          </dl>
         </section>
 
-        {/* SHOW THE THING. The page described a booking page in words and
-            never showed one — on a product sold to a trade whose whole
-            business is how something looks. This is a real screenshot of a
-            real booking page at phone size, not a mockup and not stock. */}
-        <section aria-labelledby="see" className="ld-see">
-          <div className="copy">
-            <h2 className="disp" id="see" data-reveal="mask" ref={seeHead}>
-              <span className="ld-line"><span>What your customers see</span></span>
-            </h2>
-            <p className="lede" data-reveal ref={seeLede}>
-              Your name at the top, your services, your prices. No marketplace
-              branding, no other detailers, nobody else’s advert. They pick a
-              service, pick a time you’re actually free, and it’s booked.
-            </p>
-            <ul className="ld-ticks" data-reveal ref={seeList}>
-              <li style={{ "--i": 0 }}>Works on any phone, no app to download</li>
-              <li style={{ "--i": 1 }}>Only shows times you can actually work</li>
-              <li style={{ "--i": 2 }}>They can move or cancel it themselves</li>
-            </ul>
+        <div className="thread-wrap" id="threadWrap">
+          <div className="stage">
+            <div className="wrap cols">
+              {/* #thread itself is created by thread.js and moved between
+                  this column and .jobshold as the layout changes. It is
+                  deliberately NOT rendered here: React must never be asked
+                  to remove a node that has been re-parented out from under
+                  it. */}
+              <div className="side lft" id="lft">
+                <div className="sidelab"><i className="pip"></i><span className="lab">In your phone</span></div>
+              </div>
+              <div className="side rgt" id="rgt">
+                <div className="sidelab" id="dashLab"><i className="pip"></i><span className="lab">In the dashboard</span></div>
+                <div className="dash">
+                  <div className="hd">Saturday, March 14</div>
+                  <div className="hq" id="dashQ">Morning, Andrew · nothing booked</div>
+                  <div className="tiles">
+                    <div className="tile">
+                      <span className="lab">Jobs today</span>
+                      <div className="fig" id="tCount">0</div>
+                      <div className="q" id="tCountQ">Nothing booked</div>
+                    </div>
+                    <div className="tile">
+                      <span className="lab">Expected</span>
+                      <div className="fig" id="tMoney">$0</div>
+                      <div className="q" id="tMoneyQ">Nothing collected yet</div>
+                    </div>
+                  </div>
+                  <span className="lab" style={{ display: "block" }}>Next up</span>
+                  {/* The empty state, DRAWN rather than left as a hole. The
+                      job rows are always in the DOM at opacity 0 so the card
+                      never changes height, which meant the start of the
+                      transfer was a titled void. This sits over exactly that
+                      reserved space and fades on the FIRST job's own
+                      progress value, so the empty state leaves as the day
+                      arrives rather than on a timer. */}
+                  <div className="jobshold">
+                    <div className="jobs" id="jobs"></div>
+                    <div className="nojobs" aria-hidden="true">Nothing yet.<br />Your Saturday is still in your phone.</div>
+                  </div>
+                  <p className="dashnote">Same screen: what you collected, what you spent, what's still owed.</p>
+                </div>
+              </div>
+            </div>
+            <div className="divider" id="divider" aria-hidden="true"><i></i></div>
+            {/* This label is the pin's honesty: it tells you what the
+                section is about to charge you. If .thread-wrap's height
+                changes, change this. */}
+            <div className="cost" id="cost" aria-hidden="true">holds for 3.0 screens · then releases</div>
           </div>
-          <figure className="ld-shot" data-reveal="soft" ref={seeShot}>
-            <img
-              src="/img/booking-page-example.png"
-              width="784" height="1200" loading="lazy" decoding="async"
-              alt="A booking page on a phone: the business name and tagline at the
-                   top, a progress rail, the heading “What can we do for you?”,
-                   and two services with prices and durations."
-            />
-          </figure>
+        </div>
+
+        {/* ══ 3 · YOUR OWN WEBSITE ═══════════════════════════════════════
+            The ground goes light and the object breaks the top edge of the
+            band. It shows the WEBSITE, in a window with the detailer's own
+            address in it, with the booking panel INSIDE that page — a
+            phone-shaped widget on its own is a picture of a booking tool,
+            which is the commodity this product is trying not to be filed
+            next to. */}
+        <section className="band" aria-labelledby="seeh">
+          <div className="wrap duo">
+            <div className="cp">
+              <span className="lab" data-rv="">What your customers see</span>
+              <h2 className="disp sm" id="seeh" style={{ marginTop: 14 }}>
+                <span className="mask"><span>Your own website,</span></span>
+                <span className="mask" style={{ "--i": 1 }}><span>at your own address.</span></span>
+              </h2>
+              <p className="lede" data-rv="" style={{ "--i": 2 }}>
+                What you do, what it costs, where you work, your photos. The
+                booking is part of the page, so nobody gets sent off to a
+                different website to pick a time.
+              </p>
+              {/* Staggered per item rather than the whole list at once: four
+                  lines arriving one after another is the difference between
+                  a block appearing and a list being written. */}
+              <ul className="ticks">
+                <li data-rv="" style={{ "--i": 3 }}>Your own address on Google, not somebody else's listing</li>
+                <li data-rv="" style={{ "--i": 4 }}>Built for a phone, because that's where they'll open it</li>
+                <li data-rv="" style={{ "--i": 5 }}>Only shows times you can actually work</li>
+                <li data-rv="" style={{ "--i": 6 }}>They move or cancel it themselves</li>
+              </ul>
+            </div>
+
+            <div>
+              <div className="widget-hold" data-parallax="14">
+                {/* A window with an address bar, not a phone. That frame is
+                    the whole argument of the section in one shape. */}
+                <div className="site" data-rv="lift">
+                  <div className="chrome" aria-hidden="true">
+                    <i></i><i></i><i></i><span className="url">andrewsdetail.com</span>
+                  </div>
+                  <div className="scr">
+                    <div className="sitenav">
+                      <span className="biz">Andrew's Auto Detail</span>
+                      <span className="lks"><i>Services</i><i>Gallery</i><i>Book</i></span>
+                    </div>
+                    {/* The one photograph on the page, and the distinction
+                        matters so a later session does not "fix" it by
+                        deleting it: law 10 bans car photography as the
+                        LANDING PAGE's own subject, because we sell software.
+                        This photo is not the landing page's subject — it is
+                        inside a picture of a CLIENT's website, where
+                        photographs of their own work are the single thing a
+                        detailer's site is actually made of. The owner asked
+                        for it directly: the sites he referenced "have tons
+                        of photos".
+                        Unsplash, Deniz Demirci, photo dlJelFmdpOc, 840x270
+                        at q68 = 41 KB. Shipped as a file rather than the
+                        reference page's data URI — that was forced by the
+                        artifact host's CSP, and a real deploy would rather
+                        cache it than inline it into the bundle. */}
+                    <div className="sitehero">
+                      <img
+                        className="shot"
+                        src="/img/tenant-site-hero.jpg"
+                        width="840" height="270" loading="lazy" decoding="async"
+                        alt="A detailer working along the bonnet of a dark car"
+                      />
+                      <div className="sitehero-t">
+                        <h3>Mobile detailing, Tacoma and south.</h3>
+                        <p>We come to your driveway. Most cars, about three hours.</p>
+                      </div>
+                    </div>
+                    {/* The booking panel, bordered, sitting in the page's own
+                        column — the visible form of "built in, not linked
+                        to". */}
+                    <div className="bd">
+                      <span className="bl">Booking · on this page</span>
+                      <div className="q">What can we do for you?</div>
+                      <div className="svc">
+                        <div><div className="n">Full Detail</div><div className="d">3 hr 30 min · inside and out</div></div>
+                        <div className="p">$240</div>
+                      </div>
+                      <div className="svc">
+                        <div><div className="n">Wash &amp; Wax</div><div className="d">1 hr 30 min</div></div>
+                        <div className="p">$95</div>
+                      </div>
+                      <div className="go">Pick a time</div>
+                    </div>
+                    <div className="sitefoot">Andrew's Auto Detail · Tacoma, WA · Mon–Sat, 8–6</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section aria-labelledby="how">
-          <h2 className="disp" id="how" data-reveal="mask" ref={howHead}>
-            <span className="ld-line"><span>Live before your next job</span></span>
+        {/* ══ 4 · WHAT YOU GET ═══════════════════════════════════════════
+            A full-width ruled list: an enumeration is a ruled list, and four
+            parallel capabilities are not four objects you pick between.
+            The ORDER is the argument — it leads with getting booked. */}
+        <section className="getsheet wrap" id="get" aria-labelledby="geth">
+          <span className="lab" data-rv="">What you get</span>
+          <h2 className="disp" id="geth" style={{ marginTop: 14 }}>
+            <span className="mask"><span>Not a page builder.</span></span>
+            <span className="mask" style={{ "--i": 1 }}><span>The whole front door.</span></span>
           </h2>
-          <p className="lede" data-reveal ref={howLede}>No setup wizard, no migration, no designer.</p>
-          {/* The same progress rail a customer sees while booking — the
-              product's own motif doing the explaining. No boxes. */}
-          <ol className="ld-rail3" ref={rail}>
-            <li style={{ "--i": 0 }}>
-              <span className="n">01</span>
-              <h3>Name, hours, one service</h3>
-              <p>That's enough to be bookable. Add the rest whenever.</p>
-            </li>
-            <li style={{ "--i": 1 }}>
-              <span className="n">02</span>
-              <h3>Send one link</h3>
+          <p className="lede" data-rv="" style={{ "--i": 2 }}>
+            The site out front and the room behind it, both run from your phone.
+          </p>
+
+          <div className="ruled">
+            <div className="r" data-rv="">
+              <div className="ix">01</div>
+              <h3>They book while you're under a car</h3>
               <p>
-                Your page lives at your own address. Put it in your bio, on your
-                cards, on the van.
+                No phone tag, no "still there?" at 7am. They pick a service and
+                a time on your site, and it's on your calendar before you've
+                dried your hands. Most of it happens at night, after you've
+                stopped answering.
               </p>
-            </li>
-            <li style={{ "--i": 2 }}>
-              <span className="n">03</span>
-              <h3>Watch bookings arrive</h3>
+            </div>
+            <div className="r" data-rv="" style={{ "--i": 1 }}>
+              <div className="ix">02</div>
+              <h3>The calendar refuses double bookings</h3>
               <p>
-                Confirmations, reminders and receipts go out on their own.
-                Customers reschedule themselves — your phone stays in your
-                pocket.
+                Your hours, your drive time, your notice period. It won't sell a
+                slot you can't work — so nobody has to be told at 9pm that
+                Saturday's gone.
               </p>
-            </li>
-          </ol>
+            </div>
+            <div className="r" data-rv="" style={{ "--i": 2 }}>
+              <div className="ix">03</div>
+              <h3>Fewer people forget</h3>
+              <p>
+                Confirmation when they book, reminder before you drive out, and
+                a link to move it themselves. A booking on a screen gets kept. A
+                booking in a text thread gets forgotten.
+              </p>
+            </div>
+            <div className="r" data-rv="" style={{ "--i": 3 }}>
+              <div className="ix">04</div>
+              <h3>Change a price, it's changed</h3>
+              <p>
+                Raise a price, add a service, block off a week. What your
+                customers see changes the second you save it. No emailing a web
+                guy and waiting until Thursday.
+              </p>
+            </div>
+          </div>
         </section>
 
-        <section aria-labelledby="price">
-          <h2 className="disp" id="price" data-reveal="mask" ref={priceHead}>
-            <span className="ld-line"><span>Pricing</span></span>
-          </h2>
-          <p className="lede" data-reveal ref={priceLede}>Two ways in. Both run the same booking engine.</p>
+        {/* ══ 5 · WHAT YOU'RE USING NOW ══════════════════════════════════
+            The ground goes light for the second and last time, and it is a
+            table — the only one on the page. A comparison of four options
+            across two axes is genuinely tabular.
 
-          <div className="ld-plans" ref={plans}>
-            {/* The website plan is the section's one lit object: the bar,
-                the wash and the bloom mark it the way the dashboard marks
-                the next job. The other plan is a real choice, not a foil,
-                so it stays a proper card — just an unlit one. */}
-            <article
-              className={`ld-plan featured${founding ? " has-offer" : ""}`}
-              data-reveal="soft"
-              style={{ "--i": 0 }}
-            >
+            NO COMPETITOR PRICES, on the owner's instruction: every row says
+            what the thing LEAVES YOU WITH. That is not only tone — a wrong
+            competitor price is the one claim on this page a THIRD PARTY
+            would object to, and two of the four were auction-priced leads
+            with no fixed figure to quote. */}
+        <section className="vs" aria-labelledby="vsh">
+          <div className="wrap">
+            <span className="lab" data-rv="">Honestly</span>
+            <h2 className="disp" id="vsh" style={{ marginTop: 14 }}>
+              <span className="mask"><span>You already pay</span></span>
+              <span className="mask" style={{ "--i": 1 }}><span>for something.</span></span>
+            </h2>
+
+            <div className="vstable" id="vstable" role="table" aria-label="What you are using now, against this">
+              <div className="vsrow" role="row">
+                <span className="nm" role="cell">Yelp, Thumbtack</span>
+                <span className="gt" role="cell">You pay for the lead whether it books or not, and the customer stays theirs.</span>
+              </div>
+              <div className="vsrow" role="row">
+                <span className="nm" role="cell">Booking software</span>
+                <span className="gt" role="cell">It takes the booking. It still gives you nowhere to send anyone.</span>
+              </div>
+              <div className="vsrow" role="row">
+                <span className="nm" role="cell">A site you paid for once</span>
+                <span className="gt" role="cell">Right for the year you bought it. Changing a price means finding whoever built it.</span>
+              </div>
+              <div className="vsrow" role="row">
+                <span className="nm" role="cell">A Facebook page</span>
+                <span className="gt" role="cell">Free, and it is the first thing they find when they look you up.</span>
+              </div>
+              <div className="vsrow mine" role="row">
+                <span className="nm" role="cell">This</span>
+                <span className="gt" role="cell">The site, the booking and the screen you run both from — one thing, and you change it yourself.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ 6 · PRICING ════════════════════════════════════════════════
+            An asymmetric pair, then a ruled terms list. Two plans of very
+            different weight, not two matching cards. Every figure comes from
+            ./pricing.js; the remaining founding count comes from the
+            database and fails closed. */}
+        <section className="price wrap" id="price" aria-labelledby="prh">
+          <span className="lab" data-rv="">Pricing</span>
+          <h2 className="disp" id="prh" style={{ marginTop: 14 }}>
+            <span className="mask"><span>Two ways in.</span></span>
+          </h2>
+          <p className="lede" data-rv="" style={{ "--i": 1 }}>Both run the same booking engine.</p>
+          <p className="lede" data-rv="" style={{ "--i": 2 }}>
+            Booking software doesn't come with a website. This does.
+          </p>
+
+          <div className="plans">
+            <article className={`plan lead${founding ? " has-offer" : ""}`} data-rv="lift">
               {founding && (
                 <span className="flag">
                   Founding price · {offer.left} of {offer.total} left
                 </span>
               )}
-              <span className="lab">Website + booking</span>
-
+              <span className="lab">Website + dashboard</span>
               <div className="amount">
-                {/* $900 is the real, current list price — struck only while
-                    a genuine founding discount is live, never as an anchor
-                    invented to make a number look smaller. */}
+                {/* The list price is struck ONLY while a genuine founding
+                    discount is live — never an anchor invented to make a
+                    number look smaller. */}
                 {founding && <s className="was">${PRICING.website.setup}</s>}
-                <CountUp
-                  value={founding ? PRICING.founding.setup : PRICING.website.setup}
-                  prefix="$"
-                />
-                <small> setup</small>
+                <span key={setup} data-count={setup} data-prefix="$">${setup}</span>
+                <small> to build it</small>
               </div>
               <div className="then mono">
-                then ${founding ? PRICING.founding.monthly : PRICING.website.monthly}/month
-                {founding && <span className="was inline">${PRICING.website.monthly}</span>}
+                {/* The literal space matters: the reference page has one
+                    here as well as the .28em margin on .was, and without it
+                    the struck price sits noticeably tighter. */}
+                then ${monthly}/month{" "}
+                {founding && <s className="was">${PRICING.website.monthly}</s>}
               </div>
-
               <p>
-                A complete site under your own name — services, prices, photos,
-                service area — with booking built in. The setup fee covers
-                building it with you.
+                A site built for you under your own name, and the dashboard that
+                runs it. Not a template you fill in yourself at midnight, and
+                not the thousands an agency charges — then charges again every
+                time a price changes.
               </p>
               {founding && (
                 <p className="lock">
@@ -291,29 +464,29 @@ export default function LandingPage() {
                   never rises while the account stays open.
                 </p>
               )}
-
-              {/* The footer is pinned to the bottom of the card, so two
-                  cards of different length still line their buttons up. */}
-              <div className="cardfoot">
+              <div className="pfoot">
                 <a
-                  className="ld-cta big block"
+                  className="cta block"
                   href={founding ? "/app?plan=website&offer=founding" : "/app?plan=website"}
-                  ref={priceCta}
+                  data-glow=""
                 >
                   {founding ? "Take a founding spot" : "Start the website plan"}
+                  <span className="ar">→</span>
                 </a>
                 <p className="alt">
                   Or ${PRICING.annual}/year paid once — $
-                  {PRICING.website.monthly * 12 - PRICING.annual} less than paying
-                  monthly.
+                  {PRICING.website.monthly * 12 - PRICING.annual} less than
+                  paying monthly.
                 </p>
               </div>
             </article>
 
-            <article className="ld-plan" data-reveal="soft" style={{ "--i": 1 }}>
+            <article className="plan" data-rv="lift" style={{ "--i": 1 }}>
               <span className="lab">Booking page only</span>
               <div className="amount">
-                <CountUp value={PRICING.bookingOnly.monthly} prefix="$" />
+                <span data-count={PRICING.bookingOnly.monthly} data-prefix="$">
+                  ${PRICING.bookingOnly.monthly}
+                </span>
                 <small>/month</small>
               </div>
               <div className="then mono">no setup fee</div>
@@ -321,30 +494,107 @@ export default function LandingPage() {
                 Just the booking page, at a link that's yours. Keep the website
                 you have — or run from your bio until you want one.
               </p>
-              <div className="cardfoot">
-                <a className="ld-ghost block" href="/app?plan=booking">
-                  Start with booking
-                </a>
+              <div className="pfoot">
+                <a className="cta gh block" href="/app?plan=booking" data-glow="">Start with booking</a>
               </div>
             </article>
           </div>
 
-          <div className="ld-price" ref={terms}>
-            <span className="lab">Every plan</span>
-            <ul>
-              <li data-reveal style={{ "--i": 0 }}>No commission — a fully booked month costs the same as a slow one</li>
-              <li data-reveal style={{ "--i": 1 }}>Your customers and their numbers are yours, always</li>
-              <li data-reveal style={{ "--i": 2 }}>Unlimited services, bookings and photos</li>
-              <li data-reveal style={{ "--i": 3 }}>Cancel any time; your data leaves with you</li>
-            </ul>
+          {/* Term 01 is the claim rescued from the 01/02/03 rail, cut on the
+              owner's instruction because it cost 4.07 screens at 1920 to pan
+              three cards sideways twice. Its second half is also what stops
+              the lead card ("we build it for you") from contradicting
+              section 4. */}
+          <ul className="terms">
+            <li data-rv=""><span className="k">01</span><span>No setup wizard and no migration — you are bookable the same day, and the site is built out with you from there</span></li>
+            <li data-rv="" style={{ "--i": 1 }}><span className="k">02</span><span>No commission — a fully booked month costs the same as a slow one</span></li>
+            <li data-rv="" style={{ "--i": 2 }}><span className="k">03</span><span>Your customers and their numbers are yours, always</span></li>
+            <li data-rv="" style={{ "--i": 3 }}><span className="k">04</span><span>Unlimited services, bookings and photos</span></li>
+            <li data-rv="" style={{ "--i": 4 }}><span className="k">05</span><span>Cancel any time; your data leaves with you</span></li>
+          </ul>
+        </section>
+
+        {/* ══ 7 · QUESTIONS ══════════════════════════════════════════════
+            <details>/<summary> — the browser's own disclosure element. No
+            script, no ARIA to get wrong, keyboard and screen-reader
+            behaviour free, and it survives every script on the page failing.
+            The first two are open on load, so the section never reads as
+            eight closed doors. */}
+        <section className="faq wrap" aria-labelledby="faqh">
+          <span className="lab" data-rv="">Before you ask</span>
+          <h2 className="disp" id="faqh" style={{ marginTop: 14 }}>
+            <span className="mask"><span>Questions.</span></span>
+          </h2>
+          <div className="qs">
+            <details data-rv="" open>
+              <summary>Do I need to already have a website?</summary>
+              <p>No. A Facebook page and a phone number is the normal starting point.</p>
+            </details>
+            <details data-rv="" style={{ "--i": 1 }} open>
+              <summary>I have a website, it's just old. Can you use it?</summary>
+              <p>No, and you don't want me to. You get a new one — same business, same name, built for a phone. Send me the old one and I'll pull the photos and wording worth keeping.</p>
+            </details>
+            <details data-rv="" style={{ "--i": 2 }}>
+              <summary>Who owns the domain?</summary>
+              <p>You do. It's in your name and it leaves with you.</p>
+            </details>
+            <details data-rv="" style={{ "--i": 3 }}>
+              <summary>How long until I'm taking bookings?</summary>
+              <p>Same day. Name, hours, one service is enough.</p>
+            </details>
+            <details data-rv="" style={{ "--i": 4 }}>
+              <summary>What happens to my customers if I cancel?</summary>
+              <p>You export them and go. The list was always yours.</p>
+            </details>
+            <details data-rv="" style={{ "--i": 5 }}>
+              <summary>Do you take a cut of my jobs?</summary>
+              <p>No. A $600 coating costs you the same as a $65 wash.</p>
+            </details>
+            <details data-rv="" style={{ "--i": 6 }}>
+              <summary>Can I change my prices myself?</summary>
+              <p>Yes, from your phone, and the site updates the second you save.</p>
+            </details>
+            <details data-rv="" style={{ "--i": 7 }}>
+              <summary>What if I have staff?</summary>
+              <p>They get their own login and see only their jobs, not your money.</p>
+            </details>
           </div>
         </section>
 
-        <footer className="ld-foot" data-reveal ref={foot}>
-          <span className="ld-mark" style={{ fontSize: 13 }}>DETAILING PLATFORM</span>
+        {/* ══ 8 · THE LAST WORD ══════════════════════════════════════════
+            The page's third ground — the accent, brought up for the only
+            time it carries a whole section. Centred exactly once, at the
+            end: centred everywhere is the tell, centred once against ten
+            sections that are not is a full stop. */}
+        <section className="end" aria-labelledby="endh">
+          <div className="wrap">
+            <h2 className="disp" id="endh">
+              <span className="mask"><span>Your next customer is</span></span>
+              <span className="mask" style={{ "--i": 1 }}><span>looking you up right now.</span></span>
+            </h2>
+            <p className="lede" data-rv="" style={{ "--i": 2 }}>
+              Whatever they find is your website. Might as well be a good one.
+            </p>
+            <div className="ctas" data-rv="" style={{ "--i": 3 }}>
+              <a
+                className="cta"
+                href={founding ? "/app?plan=website&offer=founding" : "/app?plan=website"}
+                data-glow=""
+              >
+                {founding ? "Take a founding spot" : "Start the website plan"}
+                <span className="ar">→</span>
+              </a>
+              <a className="quiet" href="/app?plan=booking">Or just the booking page<span className="ar">→</span></a>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ 9 · FOOTER ════════════════════════════════════════════════ */}
+        <footer className="wrap foot" data-rv="">
+          <span className="mk">Detailing Platform</span>
           <span>Built for the people who never rush a car.</span>
         </footer>
-      </div>
+      </main>
     </div>
   );
 }

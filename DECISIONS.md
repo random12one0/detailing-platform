@@ -2246,3 +2246,182 @@ booking was created end to end and then opened on its own receipt page.
 Console clean at every width apart from two pre-existing React Router v7
 future-flag warnings. `composition` 22/22, `design-contrast` all pairs,
 `landing-pricing` 18/18, `route-contract` 18/18.
+
+## Roadmap 2.2 — the landing page ported, and what the port had to change (2026-08-30)
+
+The reference rendering `docs/design-directions/5-the-thread.html` **is** this
+page — the owner approved it as this page over fifteen rounds of corrections —
+so this was a transplant, not an interpretation. Its markup became
+`app/src/landing/LandingPage.jsx`, its stylesheet became
+`app/src/landing/landing.css` scoped under `.ld`, and its script became
+`app/src/landing/thread.js`. The old `motion.jsx` is gone; so is
+`app/public/img/booking-page-example.png`, which existed only for the section
+the new page replaces.
+
+**The port is faithful by measurement.** The page comes out at **10.41 screens
+at 1920, 11.26 at 1440 and 14.14 on a phone** — the same three numbers the
+approved page measured. Nine sections, nine skeletons, and every mechanic: the
+message-to-row transfer, the pinned hold that prints its own cost, the two
+light bands, the wipe on the comparison table, the count-ups, the rotating
+tail, the weighted scroll, the pointer light, the parallax, the tilt, the
+native disclosures.
+
+### The four things the port had to decide, and why
+
+1. **The tokens live under `.ld`, not on `:root`.** The system file said Phase
+   2 would move them into `theme.css` unchanged. It cannot yet: `theme.css`
+   puts its tokens on `:root` and `:root` still flips with the dashboard's
+   light/dark switch until 2.3 removes it, so a prospect would inherit
+   whatever the last dashboard user picked on that device. Same reason 2.1
+   scoped the booking page under `.bk`. **The system file was corrected rather
+   than the code contorted** — `docs/design-system.md` § Tokens now says where
+   the values actually live and flags the one-`:root` question for 2.3.
+   Unlike the booking page these keep the system's own names (`--ink-0`,
+   `--fog`, `--ac`): nothing is injected per tenant here, so there is nothing
+   to prefix around, and identical names keep a diff against the reference
+   readable.
+
+2. **Eight class names were renamed, and this is the one thing a later reader
+   will not guess.** `theme.css` is global and loads first; its class rules
+   apply inside `.ld` for every property the landing rules do not themselves
+   declare. Nine names collided, and two were live bugs on the first render:
+   `.btn` carries `width:100%` for the phone-first dashboard, which stretched
+   the nav's pill across the whole bar, and `.lit` carries an `::after`
+   gradient and a 3px accent bar that would have been drawn over the hero
+   card. So the landing page uses `.cta`, `.litcard`, `.getsheet`, `.ruled`,
+   `.tile`, `.fig`, `.pip` and `.substack`.
+
+   The alternative was a block of "un-declare what leaked" rules. It was
+   rejected because it can only ever list the leaks somebody thought of, and
+   because `theme.css` still has `[data-theme="light"]` blocks that could
+   redefine any of those names later — a landing page whose card lightens
+   because of a dashboard preference is precisely what the `.ld` scope
+   exists to prevent. Renaming ends the whole class of bug instead of
+   patching today's instances. It costs a slightly less literal diff against
+   the reference, which is why it is written down here.
+
+3. **`overflow-x` is `clip`, not `hidden`.** The reference sets it on `<body>`,
+   where the viewport is the scroll container and `position:sticky` keeps
+   working. On a scoped `<div>`, `hidden` would make `.ld` its own scroll
+   container and the pinned thread section would stop sticking. `clip` cuts
+   the overhang — the lit comparison row's negative margins — without creating
+   one.
+
+4. **The bubble container is built in JavaScript, not rendered by React.** The
+   thread is re-parented between the left column and the dashboard as the
+   layout crosses 820px. React must never be asked to remove a node that has
+   been moved out from under it, so `#thread` is created in `thread.js` and
+   only React-created hosts are ever handed back. The job rows go into a
+   container React renders once and never re-renders. Verified against
+   StrictMode's deliberate double-mount: four bubbles, four rows, one thread.
+
+### `?lite=1` — built, and it took a rule with it
+
+It now lives in `app/src/main.jsx`, at the app root, before React renders, so
+the class is on `<html>` for the first paint. `?lite=1` and
+`prefers-reduced-motion` both route into it — the system's single-code-path
+rule. **`booking.css`'s own `@media (prefers-reduced-motion)` block was
+swapped for `.lite` in the same session**, because leaving it would have been
+exactly the second implementation that rule forbids, and it would have been
+the one that rots: `?lite=1` never reached the booking page before today.
+Nothing is lost by the swap — both pages are React, so a visitor with no
+JavaScript has no page either way. Confirmed: `?lite=1` on `/book/:slug` now
+gives `animation-duration: 1e-05s` and the step still reads.
+
+### The font claim in the roadmap was wrong, and no family could be dropped
+
+Roadmap 2.2 said to "drop the three this item stops using". It assumed the
+landing page and the dashboard each owned a share of Anybody / Public Sans /
+DM Mono. They do not: `app/src/theme.css` uses **all three** on its own, in
+`--f-display` / `--f-body` / `--f-num`. Restyling the landing page therefore
+freed none of them, and removing any would have left the dashboard in a
+fallback face. All three go together in 2.3, and `app/index.html` drops from
+five families to two in one edit. Corrected in the roadmap, in 2.3's own
+entry, and in `index.html`'s comment so it is not re-derived.
+
+### What was measured, not eyeballed
+
+- **Text on the photograph (law 9).** The tenant-site mock puts a name and a
+  tagline on a real photo, so CSS cannot answer it. The text boxes were
+  screenshotted with the words hidden and the lightest painted pixel read
+  back through a canvas: at **1440** the headline sits on `#36383a` and
+  measures **10.41:1**, the sub-line on `#16191b` at **12.74:1**; at **392**
+  they are **9.24:1** and **12.61:1**. The floor for the headline is 3:1
+  (large bold) and for the sub-line 4.5:1.
+  **A wrong first measurement is worth recording**, because the next person
+  will make it: measuring the text BLOCK's box returns 1.34:1, because that
+  box includes 34px of padding above the words where the scrim's gradient is
+  still transparent. Measure the words' own boxes, and hide the words rather
+  than the block — the scrim on the block is the thing doing the work.
+- **The reveal sweep, down and back up**, at 1440 and 392, stopping every
+  viewport height: **nothing readable was ever left hidden**, and 720 (1440)
+  and 891 (392) elements were still hidden below the arrival line across the
+  walk, which is the proof the reveal was not simply switched off. The
+  criterion is "top above 82% of the screen", not "fully on screen" — an
+  element sitting in the bottom 18% has not been reached yet and is supposed
+  to be hidden. Checking it the other way produces false alarms.
+- **The FAQ's height change re-caches positions (law 5).** Every question was
+  toggled, the page grew, and the footer and the last terms still arrived
+  correctly at the bottom.
+- The photo ships as `app/public/img/tenant-site-hero.jpg` (41 KB, 840x270,
+  Unsplash / Deniz Demirci / `dlJelFmdpOc`) rather than the reference's
+  inline data URI. Same bytes; the data URI existed only because the artifact
+  host's CSP blocks external images, and a real deploy would rather cache the
+  file than inline it into the JS bundle.
+
+### The tests that grew, and why each one had to
+
+- **`landing-pricing`**: its "no hardcoded prices" slice ran from the pricing
+  section to the end of the file, which now includes the questions — and one
+  answer says "a $600 coating costs you the same as a $65 wash". Those are a
+  DETAILER's job prices, the same kind of illustrative figure the hero's demo
+  card carries, not ours. The slice is bounded at the FAQ rather than the copy
+  reworded to satisfy a test aimed at something else. It also now allows two
+  struck list prices, because the founding offer discounts the build fee AND
+  the monthly and the approved page strikes both. 18/18.
+- **`design-contrast`**: the "outgoing: landing" block read `--g` / `--p`,
+  which no longer exist, so every row would have printed `skip` and the page
+  would have had no coverage again — the exact hole found in 1.5. Replaced
+  with the real pairs, plus a token-drift check that pins `landing.css`'s
+  thirteen values against the system's. The booking and landing blocks were
+  also lifted OUT of the `if (SOURCE !== APP)` guard they sat inside: that
+  guard is about the OUTGOING dashboard palettes, and when 2.3 makes
+  `theme.css` define `--ink-0` it would have silently switched off the
+  coverage for two restyled surfaces.
+- **`composition`**: the two-face rule now runs against `landing.css` and
+  `booking.css`, not only the reference page — this is the file's own "as
+  Phase 2 lands, REFERENCE grows to include the app's own stylesheet" note,
+  honoured one surface at a time. A stack can be written inline or held in a
+  token, so the check matches on the quoted family name rather than on the
+  property. 24 checks now, all passing.
+
+### What 2.2 leaves open
+
+1. **`<meta name="theme-color">` is still `#0F1012`**, the outgoing dashboard
+   ground, where two of the three surfaces now paint `#0B0D0E`. Four units
+   apart and invisible in practice. It moves in 2.3, which is the item that
+   owns the last surface still using that value.
+2. **Three font families are still requested and still needed.** See above —
+   they leave with `theme.css` in 2.3, together.
+3. **Mid-range Android is still unmeasured.** This page is the heaviest thing
+   the product renders: a pinned scrub, a backdrop-filter, a grain layer and
+   two drifting lights. Nothing uses WebGL and every scrub writes one CSS
+   variable per frame, so the risk is low, but nobody has put a thumb on a
+   cheap Android. The system names an fps governor as the thing to add when
+   something measured drops frames — measured, not assumed.
+4. **The nav's "Sign in" and every call to action are full page loads**, not
+   router navigations: they are plain `<a href="/app">`, as they were before
+   this item. That is deliberate — the dashboard is a different context and
+   the landing page tears its motion down cleanly either way — but it means
+   the SPA-unmount path is defensive rather than exercised. StrictMode's
+   double-mount is what proves it works today.
+
+### What was actually looked at
+
+The whole page walked in viewport-sized steps at **1920, 1440, 768 and 392**,
+in the normal path and at `?lite=1`, down and back up; the console read at
+every width in both paths (clean apart from the two pre-existing React Router
+v7 future-flag warnings); the booking page re-checked at 392 and 1440 to
+confirm 2.1's surface was not disturbed; the dashboard loaded, with and
+without `?lite=1`. `composition` 24/24, `design-contrast` all pairs,
+`landing-pricing` 18/18, `route-contract` 18/18.

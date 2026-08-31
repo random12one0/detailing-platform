@@ -178,8 +178,23 @@ Not suggestions. Where a test enforces one, it is named.
 
 ## Tokens
 
-Defined once. The direction file holds them in its own `:root`; Phase 2
-moves them into `app/src/theme.css` unchanged.
+Defined once. The direction file holds them in its own `:root`.
+
+**Where they live in the app, corrected 2026-08-30 (roadmap 2.2).** This
+line used to say "Phase 2 moves them into `app/src/theme.css` unchanged",
+and Phase 2 did not, twice, for the same reason both times: `theme.css`
+defines its tokens on `:root`, and `:root` still flips with the dashboard's
+light/dark switch until 2.3 removes it. A customer or a prospect must not
+inherit whatever the last dashboard user picked on that device. So each
+restyled surface carries the values in its own scope —
+`app/src/book/booking.css` under `.bk` with `--bk-*` names (2.1, because its
+accent is injected per tenant by `lib/theme.js`), and
+`app/src/landing/landing.css` under `.ld` under the system's own names (2.2,
+because nothing is injected there). `tests/design-contrast.test.mjs` reads
+both and fails if either drifts from the values below. When 2.3 rewrites
+`theme.css` this is the moment to decide whether the three scopes become
+one `:root`; it is a real simplification, and it is not free, because the
+scopes are also what keep the three surfaces independent.
 
 ### The ground — cool-biased, so no pure mid-grey ever appears
 
@@ -394,6 +409,16 @@ The whole defence is three layers:
    rot. Reachable as `?lite=1`.
 2. **`prefers-reduced-motion`** routes into that same `.lite` path. Not a
    second implementation.
+
+**Built 2026-08-30, roadmap 2.2, and it lives in `app/src/main.jsx`** — at
+the app root, before React renders, so the class is on `<html>` for the
+first paint and every surface can answer it. Both triggers are read there
+and nowhere else; a stylesheet that wants to degrade writes `.lite`
+selectors, never its own `@media (prefers-reduced-motion)` block.
+`booking.css` had one from 2.1 and it was swapped for `.lite` in the same
+session, which is also what made `?lite=1` work on the booking page — it
+never had before. It is read once, at load: a visitor who changes the
+system setting mid-session gets it on the next navigation.
 3. **Nothing is hidden behind an animation.** Every scrub target has a
    `.lite` end state and every revealable ends at `.in`. If the script never
    runs, the page reads.
