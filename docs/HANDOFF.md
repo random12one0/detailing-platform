@@ -182,6 +182,24 @@ haven't broken a rule: `composition`, `design-contrast`, `landing-pricing`,
 `route-contract`. The other seven talk to the real Supabase project and need
 the shell variables above.
 
+## 4b. Looking at the dashboard
+
+The design system's verification routine is to **look** — four widths, console
+read at each, normal path and `?lite=1` — and the dashboard is behind a login,
+so until roadmap 2.3 there was no way to do that at all. There is now:
+
+```sh
+node scripts/seed-demo.mjs                       # a demo business with real data
+node scripts/shoot-dashboard.mjs                 # five tabs, four widths
+node scripts/shoot-dashboard.mjs --lite          # the degraded path
+node scripts/shoot-dashboard.mjs --more "Hours,Team"   # settings sheets
+```
+
+It signs in through the real form as the seeded demo owner, saves full-page
+PNGs to `shots/` (gitignored), and prints every console error and warning it
+saw at any width. That last part is the half that matters: a crash in Promo
+codes had survived because nobody had ever opened all eleven settings screens.
+
 ---
 
 # Part C — how the pieces connect

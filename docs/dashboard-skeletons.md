@@ -41,6 +41,12 @@ is the same "scattered becomes ordered" reading the approved page opens with.
 Cost: one wrapper class and two pseudo-elements. It replaces `.stripe`, which
 did the same job in the shape the never-defaults name (see §5).
 
+**The class is `.dayrail`, and it must not be called `.thread`.** That name
+belongs to `landing.css`, for the messages-becoming-a-schedule element. Since
+`theme.css` is global, the first version of this rule reached into the live
+marketing page and gave it a rail it never had. `tests/composition.test.mjs`
+now fails on any bare class in `theme.css` that a scoped sheet also uses.
+
 ## 3. The five tabs, five skeletons (law 1)
 
 Law 1: *"One continuous ground, and every section a different skeleton over
@@ -49,7 +55,7 @@ is not exempt, it just has fewer sections.
 
 | Tab | Skeleton | Nothing else in the app is this |
 |---|---|---|
-| **Today** | the thread — a vertical rail with nodes, jobs hanging off it, under a date masthead and a two-cell ledger strip | the only rail |
+| **Today** | the day rail (`.dayrail`) — a vertical rail with nodes, jobs hanging off it, under a date masthead and a two-cell ledger strip | the only rail |
 | **Calendar** | a seven-column grid; History is a filtered ruled list | the only grid |
 | **Money** | one display-sized lead figure, a six-bar chart, then a paired-cell ledger | the only chart |
 | **Clients** | a full-bleed ruled list, no panels at all | the only screen with no panel on it |
@@ -132,7 +138,37 @@ an error — and it is already a `<button>`. It is drawn as a control now: a
 panel, a `--line-2` edge, `--bone` text, and the accent on its marker.
 `.error-box` keeps `--bad`; `.ok-box` and `.confirm-box` take `--ac`.
 
-## 6. Verification
+## 6. Which one is lit — a rule that nearly got lost
+
+`docs/ux-audit.md` gap **G1** ("which light wins") was written into the OLD
+design system in 2026-08-28 and **did not survive the rewrite to "The
+Thread"** — that file has no section by that name, and the test that used to
+assert it now checks something else. Checked in 2.3 and recorded here, which
+is the right home for it now, because it is a dashboard rule rather than a
+system-wide one. The behaviour itself never broke: it is still encoded in
+`screens/Today.jsx` (`needFinalize[0] ?? the next confirmed job`).
+
+**At most one object on a screen is lit, and this is the order:**
+
+1. **Money not yet recorded** — a finished job with no payment against it.
+   That is what the day is actually waiting on.
+2. **The current or next job.**
+3. **An unsaved setting.**
+
+Ties go to the earlier one. **A screen with no qualifying object has no lit
+element at all** — nothing is promoted just to have something lit.
+
+Under "The Thread" the lit treatment is the highest surface (`--ink-3`), a
+`--line-2` edge and a soft accent bloom behind the card — never an accent bar
+across its top, which is the named never-default the old `.lit` was.
+
+The other two gaps that audit recorded DID survive, as system law rather than
+dashboard rules: **G2**, two-to-four choices are a segmented control and never
+a native `<select>` (`design-system.md` § Composition, and
+`composition.test.mjs` test 2), and **G3**, a collection of records is a ruled
+list and a card is for an object you act on (§ Composition, test 1).
+
+## 7. Verification
 
 Per `docs/design-system.md` § Verification: **1920 / 1440x900 / 768x1024 /
 392x844**, console read at each, in the normal path and `?lite=1`, across all

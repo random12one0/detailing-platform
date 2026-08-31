@@ -21,5 +21,14 @@ concerned. `docs/design-system.md` is now **"The Thread"** and is law again.
   `tests/composition.test.mjs` and `tests/design-contrast.test.mjs`, both
   credential-free.
 
+**Phase 2 is applied everywhere as of 2026-08-30:** the booking page (2.1),
+the marketing page (2.2) and the dashboard (2.3) all carry the system.
+`app/src/theme.css` is now where the sixteen tokens live, and the dashboard's
+own shapes and the reasoning behind them are `docs/dashboard-skeletons.md` —
+read that before changing one.
+
 What is still open is named at the end of the system file under "What this
-file does NOT settle" — the light theme being the first question of Phase 2.
+file does NOT settle". The light theme is no longer among them: the owner
+killed it and it was removed in 2.3, so there is one ground. What remains is
+the tenant's curated four-to-six accent colours, which 2.4 needs and nobody
+has picked, and mid-range Android, which nobody has measured.

@@ -441,6 +441,21 @@ still theirs on their public site. If the intent was that the dashboard also
 carries a light touch of their colour (a header, an active tab) that is a
 small change, but say so before 2.3 — it is expensive to retrofit.
 
+**STILL NOT ANSWERED, and 2.3 has now been built (2026-08-30).** Nobody put
+the question to him, so 2.3 implemented the reading above, which is what
+`docs/design-system.md` law 11 says: `lib/theme.js` no longer writes the
+detailer's colour over the dashboard's `--accent`, and the dashboard runs on
+one fixed house palette. The Appearance screen — now called "Your colour" —
+carries the consequence in plain words and previews the colour on the booking
+page's own ground, so picking one and seeing the dashboard not change reads
+as intended rather than broken.
+
+**The question was asked at the end of that session and is open.** It is not
+expensive to retrofit in the direction of "yes, a light touch": the accent is
+one token and `lib/theme.js` still holds both correction functions. Reverting
+the other way — after tenant colour had been let back into the dashboard —
+would be. So the cheap moment to answer it is now, not later.
+
 
 ---
 

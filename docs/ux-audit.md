@@ -7,12 +7,32 @@ enumerates the work. Items are worded from that record, not from memory.
 Where the record is ambiguous, the item is marked **UNCERTAIN** rather than
 guessed.
 
-**Status, read this first:** every fix below was already implemented in
-commit `1b6dd1a`, the three design-system gaps are closed in
-`docs/design-system.md`, and the composition rule has its test
-(`tests/composition.test.mjs`, passing as of 2026-08-28). A later session
-applying the design system across the dashboard should treat these as
-"verify still true", not "build".
+**Status, read this first — CORRECTED 2026-08-30 in roadmap 2.3.** Every fix
+below was already implemented in commit `1b6dd1a`, and roadmap 2.3 restyled
+every screen they touch without undoing any of them. A later session should
+treat them as "verify still true", not "build".
+
+**But the three design-system gaps no longer live where this file said.** The
+old design system was replaced wholesale by "The Thread" in roadmap 1.5, and
+none of the three section names below exists in it any more; the "(test 3)"
+citation is stale too — that test number is now the third-party-library check.
+Where each one actually lives:
+
+- **G2** (segmented over dropdown) and **G3** (records are lists, cards are
+  objects) survived as system law — `docs/design-system.md` § Composition,
+  enforced by `tests/composition.test.mjs` tests 2 and 1 respectively.
+- **G1** (which light wins) **did not survive the rewrite.** The behaviour was
+  never lost — it is still encoded in `screens/Today.jsx` — but the rule had
+  stopped being written down anywhere. It is written down again in
+  `docs/dashboard-skeletons.md` §6, which is its right home now: it is a
+  dashboard rule, not a system-wide one.
+
+Item 15 below also changed shape in 2.3: Appearance is called **"Your
+colour"** now, it no longer offers a light/dark switch (there is one ground),
+and the colour it sets no longer touches the dashboard at all — law 11 keeps
+the tenant's accent on customer-facing surfaces. It still shows the colour
+rather than a hex code, which is what that item asked for, and it shows the
+CORRECTED colour, which is the one their customers actually see.
 
 ## The 15 dashboard changes
 

@@ -2783,6 +2783,13 @@ sign-in form:
   and the bars' arrival stop.
 - **Console read at every width.** Clean apart from two React Router v7
   future-flag warnings that predate this work and are unrelated to it.
+- **One unexplained thing, recorded rather than swept up:** a single HTTP 409
+  appeared at 1920 during the FIRST settings sweep and never again — not in
+  three later full sweeps, roughly a hundred and fifty more page loads. Every
+  write on those screens is behind a Save button that nothing pressed, so the
+  most likely explanation is a duplicate upsert racing the sheet's close. It
+  is written down because "I saw it once and could not reproduce it" is the
+  honest state, not because it is known to be a defect.
 - **The two PUBLIC pages re-checked afterwards**, because the sheet that was
   rewritten is global and reaches both. The landing page measures
   **11243 / 10130 / 11809 / 11938** at the four widths — byte-for-byte the
