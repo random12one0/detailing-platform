@@ -141,6 +141,12 @@ explaining it; if they still have to ask "so should I?", it failed.
   Four sizes: 39px spare at 392, 23px at 1440. Five: over by 40px and 66px.
   Past four, `StepVehicle` draws a drop-down instead of cards, so a longer list
   is supported and simply stops being boxes.
+  **UPDATED AGAIN BY ROADMAP 2.8c.** Step 4 now carries the travel-area
+  picker and went 6px OVER on a phone when it landed; it is back to **52px
+  spare at 392 and 74px at 1440x900**, won by cutting a line that restated the
+  step’s own heading. Step 1 is unchanged. **Both times height was won back
+  from COPY, not layout — when a step overflows, look first for the sentence
+  that is already on the screen.**
   **The lesson under all of it: a spare-room figure is only true of the screen
   AND the feature set it was taken with.** Quote both, or the number rots.
 
@@ -149,6 +155,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   fixed green `--ac`; cancelled / no-show / error are the fixed red `--bad`.
   Neither follows the tenant. `grep 'var(--ac)'` in `theme.css` finds every
   fixed-meaning site. The owner's rule, 2026-08-30.
+- **A number PRINTED on a screen is not a number that is CHARGED, and this
+  product has already shipped one that was not.** `business_settings.travel_fee`
+  was drawn on the booking page as “+$25” and was never in `computeQuote` — for
+  the whole life of the quote engine, past eleven test suites, because every
+  test asserted that the engine did what the engine did. Fixed in roadmap 2.8c.
+  **When you add anything with a price, follow it all the way to
+  `bookings.total_price` and to the confirmation email**, and check that the
+  itemisation still adds up to the total — `tests/booking-engine.test.mjs`
+  test 17 is the shape of that check.
 - Report what was observed, never "this should work."
 
 ## Process

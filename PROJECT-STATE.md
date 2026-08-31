@@ -515,7 +515,7 @@ all still written alongside the new columns. Everything deployed before 2.8b
 reads them, and the migration rule is append-only. They are retired in a later
 pass, once nothing reads them.
 
-**ONE HOLE IS KNOWN AND OPEN — roadmap 2.8c, waiting on the owner.** He asked,
+**THAT HOLE IS CLOSED — roadmap 2.8c, built 2026-08-31 on his “build everything”. The paragraph below is kept because the reproduction is the record of what was wrong.** He asked,
 the same day, whether the category system was actually researched and whether
 it needs a rule where choosing from one category stops you choosing from
 another. It does. A menu with a Complete Packages category AND standalone
@@ -527,8 +527,45 @@ counts inside one category. The research and the recommended fix (one boolean
 per category, “choosing from this category is the whole booking”) are in
 `docs/detailer-menu-shapes-2026-08-31.md`; the judgment calls are in
 DECISIONS.md → “The owner asked whether the categories were actually
-researched”. **Do not build it before he answers** — it costs every detailer a
-setting and changes what a customer can do.
+researched”. It shipped along with five more settings, and the section below
+says what.
+
+## 6f. ROADMAP 2.8c — SIX MORE SETTINGS, AND A MONEY BUG (2026-08-31)
+
+Built on the owner’s “build everything” after the menu-shapes research. Three
+migrations. Judgment calls: DECISIONS.md → “Roadmap 2.8c”.
+
+**What a detailer can now do on top of 2.8b:** mark a category “booked on its
+own”, so a complete package clears the parts instead of selling them twice;
+give a category a line of description; say which weekdays a single service is
+offered on and whether it can be done at the customer’s address at all; name
+their own travel areas with a fee each; and add surcharges by day and time
+(a weekend rate) or by short notice (a rush fee).
+
+**THE LANDMINE THIS TURNED UP, and it is the most important line here:**
+`business_settings.travel_fee` was PRINTED on the booking page and was never in
+`computeQuote` at all — the customer saw “+$25” on the “We come to you” card and
+the Estimated total underneath it did not contain it. It had been that way
+since the quote engine was written, no test caught it (they all asserted the
+engine did what the engine did), and it was found only by reading the code
+while scoping the distance pricing. It is charged now, and
+`tests/booking-engine.test.mjs` test 17 is the regression test.
+
+**Numbers that moved:** step 4 of the booking page went 6px OVER on a phone
+when the travel-area picker landed on it, and is back to **52px spare at 392**
+and 74px at 1440x900 — won back by cutting a line that restated the step’s own
+heading, which is the second time in two items that height came out of copy
+rather than layout. Step 1 is unchanged at 47px / **10px at 1440x900**, still
+the tightest screen in the product.
+
+**`tests/booking-engine.test.mjs` is 86 checks, up from 63** — tests 15, 16 and
+17, including that the quoted total equals the charged total and that travel,
+the area name and every surcharge are snapshotted on the booking row.
+
+**The emails and the invoice were fixed as part of it**, because the subtotal
+contains travel and surcharges now and neither document itemised them: the
+confirmation email showed “Express Wash $65” above “Subtotal $105”, and
+`send-invoice` dropped both entirely.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

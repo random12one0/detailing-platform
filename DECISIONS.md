@@ -130,6 +130,7 @@ were made more than once.
 - **Roadmap 2.8** — how other detailers actually work. **Two of the five open items needed no migration at all, and the owner's W22 premise turned out backwards.**
 - **Roadmap 2.8b** — building the five. **Step 1’s tightest screen is 1440x900, not the phone, and the vehicle-size ceiling is four rather than six.**
 - **The owner asked whether the categories were actually researched** — they were, and he found a hole: a complete package and its own components in different categories can both be booked. **$1,645 for $625 of work, reproduced.**
+- **Roadmap 2.8c** — building the six he asked for. **The travel fee had been displayed and never charged since the quote engine was written.**
 - **The owner's answers to 2.8, and the one that overruled the research** — he was the sixth menu shape. **Five menus rule shapes IN; they cannot rule the rest OUT.** Carries the measured step-1 ceiling: his own menu overflows by 119px.
 
 <!-- INDEX:END -->
@@ -4778,3 +4779,114 @@ A rule measured against one level of the structure is a fact about that level.
 `max_select` is correct about what it counts. What it could not see was the
 level above it — and nothing in the code was wrong, which is exactly why a
 test would not have found it and a real menu did.
+
+
+## Roadmap 2.8c — building the six, and the money bug underneath the pricing
+
+The owner read the research and said "build everything". Six things, three
+migrations, applied and verified one phase at a time. The design decisions are
+in `docs/detailer-menu-shapes-2026-08-31.md`; what follows is what the building
+turned up.
+
+### The travel fee was displayed and never charged
+
+**`business_settings.travel_fee` printed "+$25" on the booking page's "We come
+to you" card, and `computeQuote` had no travel input at all.** It reached a
+booking only as a hand-added `booking_line_items` row at finalize time. So the
+customer was shown a mobile surcharge that the Estimated total underneath it
+did not contain, on a money path, and had been since the quote engine was
+written.
+
+Found while scoping the distance pricing rather than by any test, because
+every test asserted that the engine did what the engine did. `tests/booking-engine.test.mjs`
+test 17 now asserts the fee is in the total, which is a regression test for a
+bug that shipped.
+
+### Travel areas are named, not measured
+
+Zenbooker prices travel by "service territory". We have no geocoding and no
+distance anywhere in the product, so a faithful copy was never available. The
+built version is the detailer's own list of areas — `[{key, name, fee}]` on
+`business_settings`, the same shape as `vehicle_sizes` — and the customer picks
+theirs on the location step.
+
+That is not a compromise so much as what the trade already does: a small mobile
+business quotes "in town / out past the bypass", not miles. It is also the only
+version that works without asking every customer for an address we can resolve.
+Where a detailer sets no areas, the flat fee applies exactly as before.
+
+### Surcharges join the SUBTOTAL, before the discounts
+
+The order is now: services + size + add-ons + travel + surcharges → site-wide
+sale % → promo → round. Travel and the surcharges go in *before* the discounts
+rather than after, and the reason is worth stating: a weekend rate is part of
+what the job costs, so "10% off" should come off the whole of it. Adding them
+afterwards would mean a promo silently stopped applying to part of the bill,
+which is the kind of thing a customer notices and nobody can explain.
+
+Percentages are taken against everything before any surcharge, so two rules
+that both apply do not compound in whichever order they happen to sit in.
+
+### A rule that cannot be evaluated does not apply
+
+The price bar is on screen from step 1, and the customer does not pick a day
+until step 5. So for most of the flow a time-based rule has nothing to test
+against, and `matchPriceRules` returns nothing for it.
+
+The alternative — guessing, or defaulting to the surcharge — was rejected on
+one argument: a price that goes DOWN when the customer picks a day reads as a
+bait. Going up is a surcharge appearing with the fact that caused it, which is
+what the review step's named line is for. **A rule with no day and no time
+window still applies always**, because that is a flat surcharge and a
+legitimate thing to want.
+
+### Three things went wrong, and each one is a rule
+
+**The travel-area picker put step 4 six pixels past the bottom of a phone.**
+Fixed by cutting a line that restated the step's own heading — "How would you
+like this done?" sitting under "Where should we do it?". That is the identical
+cut, for the identical reason, as step 1's intro line in 2.8b, which is now
+twice that the height was won back from copy rather than from layout. When a
+step overflows, look for the sentence that is already on the screen before
+touching a gap.
+
+**The flat travel fee kept printing "+$25" beside areas charging $0 and $40.**
+A different, wrong price directly above the right one. Adding a feature left
+the thing it superseded on screen — worth checking for, because the sweep
+measures height and nothing measures "is this number still true".
+
+**`composition.test.mjs` test 1 caught cards-in-cards** in the two new settings
+lists. It was right: they sit inside a `Setting`, which is already a card, so
+they are boxes in boxes at one surface value — the same note Catalog's own
+container carries. Both are `.row-item` ruled rows now. The test was not
+contorted around.
+
+### The emails and the invoice stopped adding up, and that had to be fixed too
+
+The subtotal now contains travel and every surcharge, so a confirmation email
+listing "Express Wash $65" above "Subtotal $105" had $40 unexplained between
+them, and `send-invoice` — which builds its rows from `booking_services`,
+`booking_add_ons` and `booking_line_items` — dropped both entirely. The
+invoice's bottom line was still right, because that is `final_amount`, what was
+actually collected; the itemisation above it simply did not reconcile.
+
+Both itemise now. **A total that does not add up to its own lines is worse than
+no itemisation**, because it looks like arithmetic and is not.
+
+### Where each rule is enforced, and why it is the same three places every time
+
+Four rules have now been added to `_shared/slotValidation.ts` — W4's drop-off
+guard, W22's water and power, and 2.8c's per-service weekdays and service type
+— and the argument has not changed since W4 found a restriction the customer
+could read on the page and book straight past. It is where create-, reschedule-
+and update-booking meet.
+
+The per-service rules ARE passed by reschedule and update, unlike W22's
+resource answers, and the difference is the reason: a resource answer does not
+change when a date moves, and a weekday rule is *about* the date. Rescheduling
+a Tuesday-only service to a Thursday has to be refused.
+
+`available-slots` computes the same two rules again, independently, so the
+calendar greys out exactly what the gate would refuse. That is the
+double-validation pattern the file's own header describes: the two agree
+because the rules are the same, not because they share code.

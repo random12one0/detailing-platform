@@ -93,6 +93,10 @@ export function BookingBusinessProvider({ slug, children }) {
           ],
         slot_interval_minutes: settings.slot_interval_minutes ?? 30,
         travel_fee: settings.travel_fee ?? null,
+        // Roadmap 2.8c — the detailer's own travel areas. Empty means the flat
+        // travel fee above still applies to every mobile job, which is every
+        // tenant on migration day.
+        travel_zones: Array.isArray(settings.travel_zones) ? settings.travel_zones : [],
         min_advance_minutes: settings.min_advance_minutes ?? 120,
         google_review_url: settings.google_review_url ?? null,
         yelp_review_url: settings.yelp_review_url ?? null,

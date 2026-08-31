@@ -58,6 +58,26 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             <span className="bk-price">{money(quote.vehicle_size_fee)}</span>
           </div>
         )}
+        {/* ROADMAP 2.8c. Travel was PRINTED on the location step and never
+            charged — computeQuote had no travel input at all — so a customer
+            was shown a mobile surcharge their Estimated total did not contain.
+            It is a real line on the receipt now, named after the area they
+            picked where they picked one. */}
+        {quote?.travel_fee > 0 && (
+          <div className="line dim">
+            <span>{quote.travel_zone ? `Travel — ${quote.travel_zone}` : "Travel"}</span>
+            <span className="bk-price">{money(quote.travel_fee)}</span>
+          </div>
+        )}
+        {/* Each surcharge on its own line under the detailer’s own name for
+            it. A total that moved when the customer picked a Saturday has to
+            say WHY on the page that asks them to confirm it. */}
+        {(quote?.adjustments ?? []).map((a, i) => (
+          <div className="line dim" key={i}>
+            <span>{a.label}</span>
+            <span className="bk-price">{money(a.amount)}</span>
+          </div>
+        ))}
         {quote?.site_discount > 0 && (
           <div className="line dim">
             <span>{settings.site_discount_label || `${quote.site_discount_percent}% off`}</span>

@@ -66,6 +66,21 @@ Deno.serve(async (req) => {
         rows.push({ label: `Add-on: ${a.add_on.name}`, qty: 1, lineTotal: Number(a.add_on.price) || 0, kind: "charge" });
       }
     }
+    // ROADMAP 2.8c — travel and the time-based surcharges live ON the booking
+    // row, not in booking_line_items, so an invoice built only from services,
+    // add-ons and line items silently dropped them. The bottom line was still
+    // right (it is final_amount, what was actually collected) but the
+    // itemisation above it did not add up to anything.
+    if (Number(booking.travel_fee) > 0) {
+      rows.push({
+        label: booking.travel_zone ? `Travel — ${booking.travel_zone}` : "Travel",
+        qty: 1, lineTotal: Number(booking.travel_fee), kind: "charge",
+      });
+    }
+    for (const a of booking.price_adjustments ?? []) {
+      rows.push({ label: String(a.label), qty: 1, lineTotal: Number(a.amount) || 0, kind: "charge" });
+    }
+
     const CATEGORY_LABELS: Record<string, string> = {
       service: "Service",
       upgrade: "Upgrade",

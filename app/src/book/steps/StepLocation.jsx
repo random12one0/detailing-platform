@@ -34,9 +34,13 @@ export default function StepLocation({ form, setForm }) {
 
   return (
     <>
+      {/* THE STEP HEADING ALREADY ASKS THE QUESTION. “Where should we do it?”
+          sat directly above “How would you like this done?”, which is the same
+          sentence twice and 19px plus a 26px gap of a step that overflowed a
+          phone by 6px once the travel areas landed on it. Same cut, same
+          reason, as step 1’s intro in roadmap 2.8b. */}
       {both ? (
         <>
-          <p className="bk-muted" style={{ marginBottom: 12 }}>How would you like this done?</p>
           <div
             role="button" tabIndex={0}
             className={`bk-card selectable ${isMobile ? "selected" : ""}`}
@@ -45,7 +49,13 @@ export default function StepLocation({ form, setForm }) {
           >
             <div className="bk-row between">
               <h3>We come to you</h3>
-              {settings.travel_fee > 0 && <span className="bk-price">+{money(settings.travel_fee)}</span>}
+              {/* ROADMAP 2.8c — ONLY when there are no travel areas. With areas
+                  set, the fee comes from the one the customer picks (0 here, 40
+                  there) and this flat number is simply a different, wrong price
+                  printed above the right one. */}
+              {settings.travel_zones.length === 0 && settings.travel_fee > 0 && (
+                <span className="bk-price">+{money(settings.travel_fee)}</span>
+              )}
             </div>
             <p className="bk-muted">
               We bring everything to your home or work
@@ -68,6 +78,16 @@ export default function StepLocation({ form, setForm }) {
         </>
       ) : (
         <div className="bk-note">
+          {/* When it is the SERVICE that decided, say which one. A choice that
+              silently disappears reads as a broken form, and the same service
+              is what the server names if the rule is ever reached. */}
+          {modeLimit && (
+            <strong style={{ display: "block", marginBottom: 4 }}>
+              {modeLimit.only === "dropoff"
+                ? `${modeLimit.because} has to be done at our place.`
+                : `${modeLimit.because} is only done at your address.`}
+            </strong>
+          )}
           {isMobile
             ? `${business.name} comes to you${business.service_area ? ` — serving ${business.service_area}` : ""}.`
             : business.dropoff_address
@@ -78,6 +98,28 @@ export default function StepLocation({ form, setForm }) {
 
       {isMobile && (
         <>
+          {/* ROADMAP 2.8c — TRAVEL AREAS. The research found the trade’s own
+              software prices travel by territory; we had one flat fee. This is
+              NOT geocoded distance — we have no way to measure one — it is the
+              detailer’s own areas in their own words, which is how a small
+              mobile business actually quotes it. A detailer with no areas set
+              never sees this, and their flat fee applies as before. */}
+          {settings.travel_zones.length > 0 && (
+            <label className="bk-field" style={{ marginTop: 14 }}>
+              <span>Which area are you in?</span>
+              {/* Mapped, so it is a list of unknown length rather than a
+                  two-to-four choice — the case a drop-down is for
+                  (composition.test.mjs test 2). */}
+              <select value={form.travelZone}
+                onChange={(e) => setForm((f) => ({ ...f, travelZone: e.target.value }))}>
+                {settings.travel_zones.map((z) => (
+                  <option key={z.key} value={z.key}>
+                    {z.name}{Number(z.fee) > 0 ? ` — +${money(z.fee)}` : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="bk-field" style={{ marginTop: 14 }}>
             <span>Where should we come?</span>
             <input

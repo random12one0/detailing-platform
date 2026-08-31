@@ -9,6 +9,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { servicesForBooking } from "../_shared/pricing.ts";
 import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
@@ -110,6 +111,9 @@ Deno.serve(async (req) => {
         durationMinutes,
         serviceType: String(body.service_type || current.service_type),
         excludeBookingId: bookingId,
+        // Roadmap 2.8c — same reason as reschedule: this path moves a date,
+        // and two of the new rules are about the date and the service type.
+        services: await servicesForBooking(supabase, member.businessId, bookingId),
       });
       if (!check.ok) return json({ error: check.error }, check.status ?? 409);
       updateData.start_at = check.startAt!.toISOString();

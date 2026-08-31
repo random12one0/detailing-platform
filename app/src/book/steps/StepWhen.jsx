@@ -17,6 +17,11 @@ const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 export default function StepWhen({ form, setForm, durationMinutes }) {
   const { slug, business } = useBookingBusiness();
   const today = todayLocal(business.timezone);
+  // A stable key for the selection, so the calendar reloads when the services
+  // change but not on every render. The ids themselves are a new array each
+  // time the parent renders.
+  const serviceIds = form.serviceIds;
+  const serviceKey = serviceIds.join(",");
   const [month, setMonth] = useState(today.slice(0, 7));
   const [days, setDays] = useState(null);   // { "YYYY-MM-DD": {slots: []} }
   const [loading, setLoading] = useState(true);
@@ -37,6 +42,11 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
         start_date: rangeStart,
         end_date: monthEnd,
         duration_minutes: durationMinutes,
+        // Roadmap 2.8c — two of the rules now live on the SERVICE (which
+        // weekdays it is offered, whether it can be done at an address), so
+        // the calendar has to say which services it is being asked about or it
+        // will offer a day the submit-time gate refuses.
+        service_ids: serviceIds,
       });
       setDays(r.days ?? {});
     } catch (e) {
@@ -44,7 +54,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
       setDays({});
     }
     setLoading(false);
-  }, [slug, rangeStart, monthEnd, durationMinutes]);
+  }, [slug, rangeStart, monthEnd, durationMinutes, serviceKey]);
 
   useEffect(() => { load(); }, [load]);
 

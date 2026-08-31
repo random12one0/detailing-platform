@@ -475,6 +475,9 @@
   letter-spacing: 0; text-transform: none;
   font-variation-settings: "wdth" 92, "wght" 500;
 }
+/* A category's own line of explanation (roadmap 2.8c). It hangs off the
+   eyebrow above it, so it takes the tight gap rather than the group's. */
+.bk-group-blurb { margin-top: -4px; }
 /* "from $220" — the qualifier is in the BODY face, not the mono one. Every
    figure on this page is monospaced (law 8) and the word is not a figure;
    setting it in JetBrains Mono makes "from" read as part of the number. */

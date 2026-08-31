@@ -1083,7 +1083,7 @@ is kept; the entire visual design restarts from scratch.
         stores `vehicle_size_label`, `vehicle_condition`, `has_water` and
         `has_power` correctly.
 
-- [ ] 2.8c **OWNER DECISION: a category that IS the whole booking.** Added
+- [x] 2.8c **The category that IS the whole booking, and four more settings.** Added
       2026-08-31 because the owner asked, the same day 2.8b shipped, whether
       the category system was actually researched and whether it needs a rule
       where choosing from one category stops you choosing from another. It was
@@ -1118,6 +1118,56 @@ is kept; the entire visual design restarts from scratch.
       That file also lists the settings the trade’s own software has and we do
       not, ranked by evidence — time-of-day / rush / distance pricing is the
       biggest, then per-service availability. None of them is this item.
+
+      **HE ANSWERED “BUILD EVERYTHING”, AND IT IS ALL BUILT — 2026-08-31.**
+      Six things, three migrations, applied and verified in order. What
+      shipped:
+
+      - **The exclusive category.** “Booked on its own” per category. The
+        Oregon Detail Co menu that booked **$1,645 for $625 of work now books
+        $625**, refused on the page AND by `create-booking`.
+      - **A description per category**, which Zenbooker’s modifier groups have
+        and ours did not. Optional, because it costs step-1 height.
+      - **Per-service availability:** which weekdays a service is offered, and
+        whether it can be done at the customer’s address at all (a ceramic
+        coating needs a garage). Enforced in `_shared/slotValidation.ts` beside
+        W4’s and W22’s, and computed independently again in `available-slots`
+        so a greyed-out day and a refused booking always agree.
+      - **Travel pricing, and a LIVE MONEY BUG fixed underneath it.**
+        `business_settings.travel_fee` was PRINTED on the booking page and
+        `computeQuote` had no travel input at all — the customer was shown a
+        mobile surcharge their Estimated total never contained. It is charged
+        now, and **travel areas** (the detailer’s own named areas with a fee
+        each) supersede it where they are set. Not geocoded distance: we
+        cannot measure one, and naming your own area is how a small mobile
+        business quotes it anyway.
+      - **Surcharges by day/time and by short notice**, the two kinds the
+        trade’s own software sells. Both are worked out on the server and
+        printed on the receipt under the detailer’s own name for them.
+
+      Three things went wrong on the way and each is worth carrying:
+
+      - **The travel-area picker put step 4 six pixels past the bottom of a
+        phone.** Fixed by cutting a question that restated the step heading
+        (“How would you like this done?” under “Where should we do it?”) — the
+        same cut, for the same reason, as step 1’s intro in 2.8b. 52px spare
+        at 392 now, 74px at 1440x900.
+      - **The flat travel fee kept printing “+$25” beside areas charging $0 and
+        $40.** A different, wrong price above the right one; it only shows
+        where there are no areas now.
+      - **`composition.test.mjs` test 1 caught cards-in-cards** in the new
+        settings lists and was right — both are ruled rows now.
+
+      Also fixed because the numbers stopped adding up: the confirmation email
+      and the invoice both itemise travel and every surcharge, because the
+      subtotal contains them.
+
+      Verified: **86 checks in `tests/booking-engine.test.mjs`** (was 63) —
+      new tests 15, 16 and 17, including that the quoted total equals the
+      charged total and that all three are snapshotted on the row; all 11
+      suites pass; `sweep-booking-steps` clean at four sizes, normal and
+      `?lite=1`; `sweep-widths` clean at 392/360 with the 320 list unchanged;
+      `accent-sweep` clean; console clean at every width.
 
 - [ ] 2.9 **The 320px floor — measured 2026-08-31, deferred on purpose.**
       PRODUCT.md promises "responsive 320→1440" and the product does not keep

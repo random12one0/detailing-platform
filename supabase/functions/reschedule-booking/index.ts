@@ -10,6 +10,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
+import { servicesForBooking } from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
 import { rescheduleEmail } from "../_shared/emailTemplates.ts";
@@ -61,6 +62,10 @@ Deno.serve(async (req) => {
       durationMinutes,
       serviceType: booking.service_type,
       excludeBookingId: booking.id,
+      // Roadmap 2.8c — a MOVE re-checks the rules that depend on the date.
+      // A service offered only on Tuesdays has to refuse a Thursday, and
+      // this is the path a customer reschedules through.
+      services: await servicesForBooking(supabase, business.id, booking.id),
     });
     if (!check.ok) return json({ error: check.error }, check.status ?? 409);
 
@@ -93,6 +98,9 @@ Deno.serve(async (req) => {
       startTime: timeStrIn(tz, check.startAt!),
       endTime: timeStrIn(tz, check.endAt!),
       serviceType: booking.service_type,
+      travelFee: Number(booking.travel_fee) || 0,
+      travelZone: booking.travel_zone,
+      adjustments: booking.price_adjustments ?? [],
       vehicleSize: booking.vehicle_size_label || booking.vehicle_size,
       vehicleModel: booking.vehicle_model,
       customerNotes: booking.customer_notes,

@@ -43,9 +43,14 @@ const SIZE_CARD_CEILING = 4;
 const EMPTY_SVC = {
   name: "", description: "", features: "", price: "", price_is_from: false,
   duration_minutes: "60", group_id: "", is_active: true, adj: {},
+  // Roadmap 2.8c — per-service availability. "either" and null are what every
+  // service has meant since the foundation.
+  where: "either", weekdays: null,
 };
+// 0 = Sunday, matching business_hours.weekday and JavaScript's getDay().
+const DOW = [["S", 0], ["M", 1], ["T", 2], ["W", 3], ["T", 4], ["F", 5], ["S", 6]];
 const EMPTY_ADDON = { name: "", description: "", price: "", duration_minutes: "0", is_active: true };
-const EMPTY_GROUP = { name: "", max_select: "1" };
+const EMPTY_GROUP = { name: "", max_select: "1", is_exclusive: false, description: "" };
 const TITLE = { service: "service", addon: "add-on", group: "category", size: "vehicle size" };
 
 // features is jsonb — an array of strings in the database, one per line in the
@@ -146,6 +151,8 @@ export default function Catalog() {
           duration_minutes: String(svc.duration_minutes),
           group_id: svc.group_id || "", is_active: svc.is_active,
           adj: svc.vehicle_size_adjustments || {},
+          where: svc.allows_mobile === false ? "dropoff" : svc.allows_dropoff === false ? "mobile" : "either",
+          weekdays: Array.isArray(svc.available_weekdays) ? svc.available_weekdays : null,
         }
         : { ...EMPTY_SVC, adj: {} },
     });
@@ -176,6 +183,13 @@ export default function Catalog() {
       group_id: f.group_id || null,
       group_label: group ? group.name : null,
       is_active: f.is_active,
+      // A three-way choice, so "neither" — which would make the service
+      // unbookable — cannot be expressed. The database has the same CHECK.
+      allows_mobile: f.where !== "dropoff",
+      allows_dropoff: f.where !== "mobile",
+      // An empty list means "no days", which is not what anyone means by
+      // ticking nothing; null is "any day the business is open".
+      available_weekdays: Array.isArray(f.weekdays) && f.weekdays.length ? f.weekdays : null,
       vehicle_size_adjustments: adjustments,
     };
     const q = editing.id
@@ -215,6 +229,8 @@ export default function Catalog() {
       // column says unlimited. An integer rather than a boolean so "up to two"
       // never needs a second migration.
       max_select: f.max_select === "any" ? null : 1,
+      is_exclusive: f.is_exclusive,
+      description: f.description.trim() || null,
       sort_order: editing.id ? undefined : groups.length,
     };
     if (payload.sort_order === undefined) delete payload.sort_order;
@@ -291,7 +307,9 @@ export default function Catalog() {
     saveSizes(next);
   };
 
-  const groupRule = (g) => (g.max_select === 1 ? "Customers pick one" : "Customers pick any number");
+  const groupRule = (g) => (g.is_exclusive
+    ? "Booked on its own — nothing else can be added"
+    : g.max_select === 1 ? "Customers pick one" : "Customers pick any number");
 
   return (
     // A plain container, not a .card: the services inside it ARE the cards,
@@ -312,7 +330,7 @@ export default function Catalog() {
       <div className="tight">
         {groups.map((g, i) => (
           <div className="card row between" key={g.id}>
-            <div className="tappable" onClick={() => setEditing({ kind: "group", id: g.id, form: { name: g.name, max_select: g.max_select === 1 ? "1" : "any" } })}
+            <div className="tappable" onClick={() => setEditing({ kind: "group", id: g.id, form: { name: g.name, max_select: g.max_select === 1 ? "1" : "any", is_exclusive: !!g.is_exclusive, description: g.description || "" } })}
               style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
               <strong>{g.name}</strong>
               <div className="muted">{groupRule(g)}</div>
@@ -423,14 +441,35 @@ export default function Catalog() {
               <label className="field"><span>Name</span>
                 <input value={editing.form.name} placeholder="e.g. Interior"
                   onChange={(e) => set({ name: e.target.value })} /></label>
+              <label className="field"><span>Description (optional)</span>
+                <input value={editing.form.description} placeholder="e.g. Everything inside the car"
+                  onChange={(e) => set({ description: e.target.value })} /></label>
+              <p className="muted" style={{ marginTop: 6, marginBottom: "var(--sp-4)" }}>
+                One line under the heading on your booking page. Leave it blank
+                unless it earns its space — that screen is tight on a phone.
+              </p>
+
               <Setting label="How many can they choose?"
                 help={editing.form.max_select === "any"
                   ? "A customer can take several of these in one booking."
                   : "A customer takes one of these — picking another swaps it."}
                 stacked>
                 <Segmented value={editing.form.max_select} onChange={(v) => set({ max_select: v })}
-                  options={[["1", "Just one"], ["any", "Any number"]]} />
+                  options={[["1", "Just one"], ["any", "Any number"]]}
+                  disabled={editing.form.is_exclusive} />
               </Setting>
+
+              {/* ROADMAP 2.8c, and it is the owner's own question answered. A
+                  complete package already contains the standalone interior and
+                  exterior work, and no per-category rule can see that — it is a
+                  relationship BETWEEN categories. Measured on a real shop's
+                  menu: $1,645 booked for work a $625 package included. */}
+              <Switch label="Booked on its own"
+                help={editing.form.is_exclusive
+                  ? "Choosing anything in here clears everything else — for a complete package that already includes your other services."
+                  : "Customers can combine these with services from your other categories."}
+                checked={editing.form.is_exclusive}
+                onChange={(v) => set({ is_exclusive: v })} />
               <button className="btn primary" onClick={saveGroup}>Save</button>
               {editing.id && (
                 <button className="btn danger" style={{ marginTop: "var(--sp-3)" }} onClick={deleteGroup}>
@@ -483,6 +522,45 @@ export default function Catalog() {
                       <option value="">No category</option>
                       {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
                     </select></label>
+
+                  {/* ROADMAP 2.8c — the two rules that belong to a SERVICE and
+                      could only ever be said about a business or a date before.
+                      A ceramic coating needs a garage; a maintenance wash may
+                      only be offered midweek. */}
+                  <Setting label="Where this one can be done"
+                    help={editing.form.where === "either"
+                      ? "Wherever you work — the customer chooses."
+                      : editing.form.where === "dropoff"
+                        ? "Drop-off only. A customer who picks this can't choose mobile."
+                        : "Mobile only. A customer who picks this can't choose drop-off."}
+                    stacked>
+                    <Segmented value={editing.form.where} onChange={(v) => set({ where: v })}
+                      options={[["either", "Either"], ["mobile", "Mobile only"], ["dropoff", "Drop-off only"]]} />
+                  </Setting>
+
+                  <Setting label="Days you offer it"
+                    help={editing.form.weekdays === null
+                      ? "Any day you're open."
+                      : "Only the days you've picked. Other days close on your booking page."}
+                    stacked>
+                    <div className="row wrap" style={{ gap: 6 }}>
+                      {DOW.map(([label, n], i) => {
+                        const on = editing.form.weekdays === null || editing.form.weekdays.includes(n);
+                        return (
+                          <button key={i} className={`chip ${on ? "active" : ""}`} aria-pressed={on}
+                            onClick={() => {
+                              const cur = editing.form.weekdays ?? DOW.map(([, d]) => d);
+                              const next = cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n].sort();
+                              // Back to every day rather than storing all seven,
+                              // so "any day" stays one value and not two.
+                              set({ weekdays: next.length === 7 ? null : next });
+                            }}>
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </Setting>
 
                   <div className="section-title">Bigger vehicles (added on top)</div>
                   {sizes.length < 2 ? (

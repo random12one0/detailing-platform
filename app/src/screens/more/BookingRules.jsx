@@ -18,11 +18,12 @@
 // genuinely needs a week of notice can set it.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { TriangleAlert } from "lucide-react";
+import { TriangleAlert, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { addDays, todayLocal } from "../../lib/format.js";
+import { addDays, money, todayLocal } from "../../lib/format.js";
+import Sheet from "../../components/Sheet.jsx";
 import { DurationChoice, Group, MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
 
 // Presets are phrased the way someone says them out loud. The stored value
@@ -33,6 +34,37 @@ const WINDOW = [[30, "1 month"], [60, "2 months"], [90, "3 months"], [180, "6 mo
 const SLOT = [[15, "15 min"], [20, "20 min"], [30, "30 min"], [60, "1 hour"]];
 const CANCEL = [[0, "Any time"], [2, "2 hours"], [12, "12 hours"], [24, "1 day"], [48, "2 days"]];
 const REMIND = [[60, "1 hour"], [180, "3 hours"], [720, "12 hours"], [1440, "1 day"], [2880, "2 days"]];
+// Roadmap 2.8c — the surcharge editor's own shapes.
+const RULE_DOW = [["S", 0], ["M", 1], ["T", 2], ["W", 3], ["T", 4], ["F", 5], ["S", 6]];
+const EMPTY_RULE = {
+  label: "", kind: "time", weekdays: [], timed: false,
+  start_time: "17:00", end_time: "20:00", within_hours: 24,
+  amount: "", is_percent: false,
+};
+const ruleToForm = (r) => ({
+  label: r.label ?? "",
+  kind: r.kind === "lead_time" ? "lead_time" : "time",
+  weekdays: Array.isArray(r.weekdays) ? r.weekdays : [],
+  timed: !!(r.start_time && r.end_time),
+  start_time: r.start_time ?? "17:00",
+  end_time: r.end_time ?? "20:00",
+  within_hours: r.within_hours ?? 24,
+  amount: String(r.amount ?? ""),
+  is_percent: !!r.is_percent,
+});
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+// The rule read back as a sentence, so the list says what it does rather than
+// what it is made of. Same principle as this screen's presets.
+const ruleSentence = (r) => {
+  const amt = r.is_percent ? `+${r.amount}%` : `+$${Number(r.amount).toFixed(2)}`;
+  if (r.kind === "lead_time") return `${amt} when booked within ${r.within_hours} hours`;
+  const days = Array.isArray(r.weekdays) && r.weekdays.length
+    ? r.weekdays.map((d) => DAY_NAMES[d]).join(", ")
+    : "every day";
+  const hours = r.start_time && r.end_time ? `, ${r.start_time}–${r.end_time}` : "";
+  return `${amt} on ${days}${hours}`;
+};
+
 // W22. Three states, phrased as the detailer would say them out loud.
 const RESOURCE = [["not_needed", "I bring it"], ["ask", "Just ask"], ["required", "Must have"]];
 const HELP = {
@@ -76,7 +108,12 @@ export default function BookingRules() {
     evening_before_enabled: settings?.evening_before_enabled ?? true,
     travel_fee: settings?.travel_fee ?? "",
     travel_radius_miles: settings?.travel_radius_miles ?? "",
+    // Roadmap 2.8c. Both are the detailer's own ordered lists, edited in the
+    // sheets below rather than in this form's fields.
+    travel_zones: Array.isArray(settings?.travel_zones) ? settings.travel_zones : [],
+    price_rules: Array.isArray(settings?.price_rules) ? settings.price_rules : [],
   }));
+  const [editing, setEditing] = useState(null);   // {kind:"zone"|"rule", index?, form}
   const [dismissed, setDismissed] = useState(() => {
     try { return JSON.parse(localStorage.getItem("rule-warnings-dismissed") || "{}"); } catch { return {}; }
   });
@@ -128,6 +165,41 @@ export default function BookingRules() {
     return out;
   }, [form, dismissed]);
 
+  // Both lists are edited in a sheet and saved into the form; the Save button
+  // at the foot of the screen is what writes them, like every other setting
+  // here. A key is generated once and never changes — it is what a customer's
+  // stored booking points at.
+  const saveZone = () => {
+    const f = editing.form;
+    const name = f.name.trim();
+    if (!name) return;
+    const zones = [...form.travel_zones];
+    const key = editing.index != null ? zones[editing.index].key
+      : (name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "area") + "-" + zones.length;
+    const row = { key, name, fee: Number(f.fee) || 0 };
+    if (editing.index != null) zones[editing.index] = row; else zones.push(row);
+    set("travel_zones", zones);
+    setEditing(null);
+  };
+
+  const saveRule = () => {
+    const f = editing.form;
+    const label = f.label.trim();
+    if (!label || !Number(f.amount)) return;
+    const row = f.kind === "lead_time"
+      ? { label, kind: "lead_time", within_hours: Number(f.within_hours) || 24,
+          amount: Number(f.amount), is_percent: !!f.is_percent }
+      : { label, kind: "time",
+          weekdays: f.weekdays.length ? f.weekdays : null,
+          start_time: f.timed ? f.start_time : null,
+          end_time: f.timed ? f.end_time : null,
+          amount: Number(f.amount), is_percent: !!f.is_percent };
+    const rules = [...form.price_rules];
+    if (editing.index != null) rules[editing.index] = row; else rules.push(row);
+    set("price_rules", rules);
+    setEditing(null);
+  };
+
   const refreshSlotCount = useCallback(async () => {
     try {
       const today = todayLocal(business.timezone);
@@ -165,6 +237,8 @@ export default function BookingRules() {
       evening_before_enabled: form.evening_before_enabled,
       travel_fee: num(form.travel_fee),
       travel_radius_miles: num(form.travel_radius_miles),
+      travel_zones: form.travel_zones,
+      price_rules: form.price_rules,
     }).eq("business_id", business.id);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
     if (!error) { reload(); refreshSlotCount(); }
@@ -194,9 +268,50 @@ export default function BookingRules() {
 
         {form.mobile_enabled && (
           <>
+            {/* ROADMAP 2.8c — AND THIS FEE NOW ACTUALLY REACHES THE CUSTOMER'S
+                TOTAL. It was printed on the booking page ("+$25" on the "We
+                come to you" card) and `computeQuote` had no travel input at
+                all, so the Estimated total never contained it. */}
             <Setting label="Travel fee"
-              help="Added to every mobile booking. Leave blank for none.">
+              help={form.travel_zones.length
+                ? "Replaced by your travel areas below — each area sets its own fee."
+                : "Added to every mobile booking, and included in the price the customer is quoted. Leave blank for none."}>
               <MoneyField value={form.travel_fee} onChange={(v) => set("travel_fee", v)} />
+            </Setting>
+
+            {/* Not geocoded distance — we cannot measure one. These are the
+                detailer's own areas in their own words, which is how a small
+                mobile business quotes travel anyway. The customer picks theirs
+                on the booking page. */}
+            <Setting label="Travel areas"
+              help={form.travel_zones.length
+                ? "The customer picks one on your booking page and its fee is added."
+                : "Optional. Add areas if you charge different amounts for different distances."}
+              stacked>
+              {/* RULED ROWS, NOT CARDS. This list already sits inside a
+                  Setting, which is a card — a card holding cards is boxes in
+                  boxes at one surface value, which is the same note Catalog's
+                  own container carries. `tests/composition.test.mjs` test 1
+                  caught it, and it was right. */}
+              <div>
+                {form.travel_zones.map((z, i) => (
+                  <div className="row-item" key={z.key} style={{ cursor: "default" }}>
+                    <button className="txt" style={{ background: "none", border: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" }}
+                      onClick={() => setEditing({ kind: "zone", index: i, form: { name: z.name, fee: String(z.fee ?? 0) } })}>
+                      <span className="nm">{z.name}</span>
+                      <span className="quiet">{Number(z.fee) > 0 ? `+${money(Number(z.fee))}` : "No extra charge"}</span>
+                    </button>
+                    <button className="btn sm inline icon" aria-label={`Remove ${z.name}`}
+                      onClick={() => set("travel_zones", form.travel_zones.filter((_, n) => n !== i))}>
+                      <X strokeWidth={2} />
+                    </button>
+                  </div>
+                ))}
+                <button className="btn inline" style={{ marginTop: "var(--sp-3)" }}
+                  onClick={() => setEditing({ kind: "zone", form: { name: "", fee: "" } })}>
+                  + Add an area
+                </button>
+              </div>
             </Setting>
             {/* W22 — two settings, three states each, because water and power
                 vary independently: the coating specialist needs power and
@@ -285,6 +400,37 @@ export default function BookingRules() {
           onChange={(v) => set("evening_before_enabled", v)} />
       </Group>
 
+      {/* ROADMAP 2.8c — SURCHARGES. The research found the trade's own booking
+          software sells exactly these two: by day and time (a weekend or
+          evening rate) and by how little notice a job was booked with (a rush
+          fee). They are worked out on the server and printed on the customer's
+          receipt under the name written here — never a silent number. */}
+      <Group title="Surcharges"
+        blurb="Optional. Extra charged on top for jobs that cost you more to take.">
+        <div className="card">
+          {form.price_rules.map((r, i) => (
+            <div className="row-item" key={i} style={{ cursor: "default" }}>
+              <button className="txt" style={{ background: "none", border: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" }}
+                onClick={() => setEditing({ kind: "rule", index: i, form: ruleToForm(r) })}>
+                <span className="nm">{r.label}</span>
+                <span className="quiet">{ruleSentence(r)}</span>
+              </button>
+              <button className="btn sm inline icon" aria-label={`Remove ${r.label}`}
+                onClick={() => set("price_rules", form.price_rules.filter((_, n) => n !== i))}>
+                <X strokeWidth={2} />
+              </button>
+            </div>
+          ))}
+          {form.price_rules.length === 0 && (
+            <p className="quiet">None. Every job is priced the same whenever it is booked.</p>
+          )}
+          <button className="btn inline" style={{ marginTop: "var(--sp-3)" }}
+            onClick={() => setEditing({ kind: "rule", form: { ...EMPTY_RULE } })}>
+            + Add a surcharge
+          </button>
+        </div>
+      </Group>
+
       {warnings.map((w) => (
         <div className="warn-box" key={w.key}>
           <TriangleAlert strokeWidth={2} />
@@ -301,6 +447,95 @@ export default function BookingRules() {
       <button className="btn primary" disabled={busy} onClick={save}>
         {busy ? "Saving…" : "Save booking rules"}
       </button>
+
+      {editing && (
+        <Sheet onClose={() => setEditing(null)}
+          title={`${editing.index != null ? "Edit" : "New"} ${editing.kind === "zone" ? "travel area" : "surcharge"}`}>
+          {editing.kind === "zone" ? (
+            <>
+              <label className="field"><span>Area name</span>
+                <input value={editing.form.name} placeholder="e.g. Within 10 miles"
+                  onChange={(e) => setEditing({ ...editing, form: { ...editing.form, name: e.target.value } })} /></label>
+              <Setting label="Extra for this area" help="Added to the customer's total when they pick it.">
+                <MoneyField value={editing.form.fee}
+                  onChange={(v) => setEditing({ ...editing, form: { ...editing.form, fee: v } })} />
+              </Setting>
+              <button className="btn primary" onClick={saveZone}>Save area</button>
+            </>
+          ) : (
+            <>
+              <label className="field"><span>What the customer sees</span>
+                <input value={editing.form.label} placeholder="e.g. Weekend rate"
+                  onChange={(e) => setEditing({ ...editing, form: { ...editing.form, label: e.target.value } })} /></label>
+              <Setting label="When it applies" stacked
+                help={editing.form.kind === "lead_time"
+                  ? "Charged when a job is booked with less notice than you set below."
+                  : "Charged on the days — and, if you set them, the hours — you choose below."}>
+                <Segmented value={editing.form.kind}
+                  onChange={(v) => setEditing({ ...editing, form: { ...editing.form, kind: v } })}
+                  options={[["time", "Certain days"], ["lead_time", "Short notice"]]} />
+              </Setting>
+
+              {editing.form.kind === "time" ? (
+                <>
+                  <Setting label="Days" stacked
+                    help={editing.form.weekdays.length ? "Only the days you pick." : "Every day."}>
+                    <div className="row wrap" style={{ gap: 6 }}>
+                      {RULE_DOW.map(([label, n], i) => {
+                        const on = editing.form.weekdays.includes(n);
+                        return (
+                          <button key={i} className={`chip ${on ? "active" : ""}`} aria-pressed={on}
+                            onClick={() => setEditing({ ...editing, form: { ...editing.form,
+                              weekdays: on ? editing.form.weekdays.filter((x) => x !== n)
+                                : [...editing.form.weekdays, n].sort() } })}>
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </Setting>
+                  <Switch label="Only between certain hours"
+                    help="Leave off to charge it all day on those days."
+                    checked={editing.form.timed}
+                    onChange={(v) => setEditing({ ...editing, form: { ...editing.form, timed: v } })} />
+                  {editing.form.timed && (
+                    <div className="grid2">
+                      <label className="field"><span>From</span>
+                        <input type="time" value={editing.form.start_time}
+                          onChange={(e) => setEditing({ ...editing, form: { ...editing.form, start_time: e.target.value } })} /></label>
+                      <label className="field"><span>Until</span>
+                        <input type="time" value={editing.form.end_time}
+                          onChange={(e) => setEditing({ ...editing, form: { ...editing.form, end_time: e.target.value } })} /></label>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Setting label="Booked with less notice than" stacked
+                  help="A job booked closer than this gets the surcharge.">
+                  <DurationChoice value={Number(editing.form.within_hours) || 0}
+                    presets={[[2, "2 hours"], [6, "6 hours"], [12, "12 hours"], [24, "1 day"], [48, "2 days"]]}
+                    onChange={(v) => setEditing({ ...editing, form: { ...editing.form, within_hours: v } })}
+                    unit="hours" customMax={720} />
+                </Setting>
+              )}
+
+              <Setting label="How much" stacked
+                help={editing.form.is_percent
+                  ? "A percentage of the job's price before any discount."
+                  : "A flat amount added to the job."}>
+                <Segmented value={editing.form.is_percent ? "pct" : "amt"}
+                  onChange={(v) => setEditing({ ...editing, form: { ...editing.form, is_percent: v === "pct" } })}
+                  options={[["amt", "Dollars"], ["pct", "Percent"]]} />
+              </Setting>
+              <label className="field"><span>{editing.form.is_percent ? "Percent (%)" : "Amount ($)"}</span>
+                <input type="number" inputMode="decimal" value={editing.form.amount}
+                  onChange={(e) => setEditing({ ...editing, form: { ...editing.form, amount: e.target.value } })} /></label>
+
+              <button className="btn primary" onClick={saveRule}>Save surcharge</button>
+            </>
+          )}
+        </Sheet>
+      )}
     </>
   );
 }

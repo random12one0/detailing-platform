@@ -119,6 +119,14 @@ setting up their menu would have to think about every combination of their own
 categories, which is the kind of setup work that makes people abandon a
 product at hour one.
 
+> **BUILT 2026-08-31 — the owner read this and said “build everything”.**
+> Roadmap 2.8c: the per-category switch below, plus the category description,
+> per-service availability, travel areas and both surcharge kinds from “The
+> other settings” further down. The Oregon Detail Co menu that booked $1,645
+> for $625 of work now books $625, refused on the page and by
+> `create-booking`. What the building turned up — including a live money bug
+> in the travel fee — is in DECISIONS.md → “Roadmap 2.8c”.
+
 ## What is recommended instead: one switch per category
 
 **"Choosing from this category is the whole booking."** One boolean on
@@ -151,6 +159,12 @@ category editor for every detailer to read past. It changes nothing for any
 existing tenant, because off is today's behaviour.
 
 ## The other settings the trade exposes and we do not
+
+> **Numbers 1, 2 and 3 were BUILT in roadmap 2.8c.** Time-of-day and
+> short-notice surcharges and travel areas (named, not geocoded — we cannot
+> measure a distance); per-service weekdays and mobile/drop-off eligibility;
+> and the category description. **Number 4, a required category, was NOT** —
+> the reasoning below still holds. Number 5 is unchanged.
 
 Answering the second half of his question. Ranked by how much evidence there
 is that a detailer actually needs it, not by how easy it is.

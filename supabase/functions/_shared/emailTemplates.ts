@@ -124,6 +124,14 @@ export interface BookingEmailData {
   customerNotes: string | null;
   serviceNames: string[];
   addOnNames: string[];
+  // Roadmap 2.8c. The subtotal below now CONTAINS the travel charge and every
+  // surcharge, so without these two the money table shows "Express Wash $65"
+  // and "Subtotal $105" with $40 unexplained between them. A total that does
+  // not reconcile with its own itemisation is the kind of thing a customer
+  // rings up about.
+  travelFee?: number;
+  travelZone?: string | null;
+  adjustments?: { label: string; amount: number }[];
   subtotal: number;
   siteDiscount: number;
   siteDiscountPercent: number;
@@ -167,6 +175,8 @@ export function customerConfirmationEmail(brand: TenantBrand, b: BookingEmailDat
     </td></tr>
     <tr><td style="padding:20px 32px 4px 32px;">${infoCard(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; color:#0f172a;">
+        ${Number(b.travelFee) > 0 ? `<tr><td style="padding:4px 0; color:#64748b;">${b.travelZone ? `Travel &mdash; ${esc(b.travelZone)}` : "Travel"}</td><td style="padding:4px 0; text-align:right;">${money(Number(b.travelFee))}</td></tr>` : ""}
+        ${(b.adjustments ?? []).map((a) => `<tr><td style="padding:4px 0; color:#64748b;">${esc(a.label)}</td><td style="padding:4px 0; text-align:right;">${money(Number(a.amount))}</td></tr>`).join("")}
         <tr><td style="padding:4px 0; color:#64748b;">Subtotal</td><td style="padding:4px 0; text-align:right;">${money(b.subtotal)}</td></tr>
         ${b.siteDiscount > 0 ? `<tr><td style="padding:4px 0; color:#64748b;">${b.siteDiscountPercent}% Sale</td><td style="padding:4px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">-${money(b.siteDiscount)}</td></tr>` : ""}
         ${b.promoCode ? `<tr><td style="padding:4px 0; color:#64748b;">Promo (${esc(b.promoCode)})</td><td style="padding:4px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">${b.promoDiscount > 0 ? `-${money(b.promoDiscount)}` : "Applied"}</td></tr>` : ""}

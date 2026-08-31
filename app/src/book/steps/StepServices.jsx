@@ -54,15 +54,19 @@ export default function StepServices({ selected, onToggle }) {
   // label and no id, and it still has to appear. Reading id first and label
   // second is what makes the two coexist.
   const groups = [];
-  const bucket = (key, name, rule) => {
+  const bucket = (key, name, rule, extra) => {
     let g = groups.find((x) => x.key === key);
-    if (!g) groups.push((g = { key, name, rule, items: [] }));
+    if (!g) groups.push((g = { key, name, rule, items: [], ...extra }));
     return g;
   };
   for (const s of services) {
     const cat = s.group_id ? serviceGroups.find((g) => g.id === s.group_id) : null;
-    if (cat) bucket(cat.id, cat.name, cat.max_select ?? null).items.push(s);
-    else bucket(s.group_label || "", s.group_label || "", null).items.push(s);
+    if (cat) {
+      bucket(cat.id, cat.name, cat.max_select ?? null,
+        { exclusive: !!cat.is_exclusive, blurb: cat.description || "" }).items.push(s);
+    } else {
+      bucket(s.group_label || "", s.group_label || "", null, {}).items.push(s);
+    }
   }
   // The detailer's own category order, with anything ungrouped last — an
   // ungrouped service is one they have not filed yet, not the headline.
@@ -78,7 +82,7 @@ export default function StepServices({ selected, onToggle }) {
   // bottom at 1440x900; without it, that screen has 8px to spare. It stays
   // wherever the categories do NOT carry the rule, because there it is the
   // only thing on the page that says how many you may take.
-  const allPickOne = groups.length > 0 && groups.every((g) => g.rule === 1);
+  const allPickOne = groups.length > 0 && groups.every((g) => g.rule === 1 || g.exclusive);
   const intro = allPickOne && showHeadings
     ? null
     : "Choose one or more. You can add extras next.";
@@ -98,14 +102,24 @@ export default function StepServices({ selected, onToggle }) {
       {groups.map((g) => (
         <div key={g.key || "ungrouped"} className="bk-choices">
           {showHeadings && g.name && (
-            <div className="bk-step-label bk-group">
-              {g.name}
-              {/* The rule is stated ON the category, before the customer picks
-                  — not enforced silently afterwards. W25 exists because the
-                  owner ticked two services and found it confusing; a swap he
-                  did not expect would be the same complaint again. */}
-              {g.rule === 1 && <span className="bk-group-rule"> · choose one</span>}
-            </div>
+            <>
+              <div className="bk-step-label bk-group">
+                {g.name}
+                {/* The rule is stated ON the category, before the customer picks
+                    — not enforced silently afterwards. W25 exists because the
+                    owner ticked two services and found it confusing; a swap he
+                    did not expect would be the same complaint again. And 2.8c's
+                    exclusive category swaps HARDER — it clears the whole
+                    basket — so it has the most to say up front. */}
+                {g.exclusive
+                  ? <span className="bk-group-rule"> · complete on its own</span>
+                  : g.rule === 1 && <span className="bk-group-rule"> · choose one</span>}
+              </div>
+              {/* Optional, and empty for every tenant who has not written one:
+                  a line here is 19px off a step whose budget is already the
+                  detailer's to spend. */}
+              {g.blurb && <p className="bk-muted bk-group-blurb">{g.blurb}</p>}
+            </>
           )}
           {g.items.map((s) => {
             const isOn = selected.includes(s.id);

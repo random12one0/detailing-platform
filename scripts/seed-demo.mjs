@@ -103,6 +103,21 @@ await post("/rest/v1/business_settings", [{
   cancellation_window_hours: 24,
   google_review_url: "https://example.com/google-review",
   yelp_review_url: "https://example.com/yelp-review",
+  // ROADMAP 2.8c. The demo carries one of each new pricing shape, because a
+  // feature with no seed row is a feature nobody ever looks at — the same
+  // reason roadmap 2.4 added a cancelled and a no-show booking. The travel fee
+  // is set AND the areas are set, so the areas win: that is the case worth
+  // seeing, and it is the one that costs height on the location step.
+  travel_fee: 25,
+  travel_zones: [
+    { key: "long-beach", name: "Long Beach", fee: 0 },
+    { key: "beyond-15", name: "Beyond 15 miles", fee: 40 },
+  ],
+  price_rules: [
+    { label: "Weekend rate", kind: "time", weekdays: [0, 6], start_time: null, end_time: null,
+      amount: 30, is_percent: false },
+    { label: "Short notice", kind: "lead_time", within_hours: 24, amount: 20, is_percent: false },
+  ],
 }]);
 await post("/rest/v1/business_branding", [{
   business_id: business.id,

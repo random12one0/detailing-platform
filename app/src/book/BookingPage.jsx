@@ -62,6 +62,7 @@ function BookingFlow() {
     vehicleCondition: "",
     serviceType: "",
     customerAddress: "",
+    travelZone: "",
     // W22 — two answers where there was one, because water and power vary
     // independently. False is a real answer here, not a missing one: the
     // question is only ever drawn where the detailer asks it.
@@ -91,6 +92,15 @@ function BookingFlow() {
     setForm((f) => ({ ...f, serviceType: settings.mobile_enabled ? "mobile" : "dropoff" }));
   }, [status, settings, form.serviceType]);
 
+  // The first travel zone is the default, the same way the first vehicle size
+  // is: a detailer’s list is in their own order and the first entry is the
+  // ordinary case.
+  useEffect(() => {
+    if (status !== "ready" || form.travelZone) return;
+    const z = settings.travel_zones?.[0]?.key;
+    if (z) setForm((f) => ({ ...f, travelZone: z }));
+  }, [status, settings, form.travelZone]);
+
   // W9 — the sizes are the tenant's own list, so the default is THEIR first
   // one. Hardcoding "small" was safe while every business had our three; it is
   // a broken quote the moment a detailer names their base size anything else.
@@ -109,7 +119,16 @@ function BookingFlow() {
   );
 
   // --- The server quote. Errors are STATE, not a console line. ------------
-  const quoteKey = JSON.stringify([form.serviceIds, form.addOns, form.vehicleSize, promoState.applied]);
+  // ROADMAP 2.8c WIDENED THIS KEY, and that is the visible half of the whole
+  // pricing change: the total now depends on WHEN the job is (a weekend or
+  // evening rate, a short-notice fee), on WHERE it is (the travel area) and on
+  // whether anybody travels at all. So the quote re-runs when the customer
+  // picks a day, a time, an area or a way of working — not only when they
+  // change what they are buying.
+  const quoteKey = JSON.stringify([
+    form.serviceIds, form.addOns, form.vehicleSize, promoState.applied,
+    form.serviceType, form.travelZone, form.bookingDate, form.startTime,
+  ]);
   const fetchQuote = useCallback(async () => {
     if (form.serviceIds.length === 0) {
       setQuote(null);
@@ -124,6 +143,13 @@ function BookingFlow() {
         add_ons: form.addOns,
         vehicle_size: form.vehicleSize,
         applied_promo_code: promoState.applied || undefined,
+        service_type: form.serviceType || undefined,
+        travel_zone: form.travelZone || undefined,
+        // Undefined until step 5. A time-based rule that cannot be evaluated
+        // does not apply, so the price starts without it and the surcharge
+        // appears with the day it depends on.
+        booking_date: form.bookingDate || undefined,
+        start_time: form.startTime || undefined,
       });
       if (!r?.quote) throw new Error("We couldn't work out a price for that selection.");
       setQuote(r.quote);
@@ -149,8 +175,31 @@ function BookingFlow() {
     }
   };
 
+  // ROADMAP 2.8c — A SERVICE CAN RULE OUT A WAY OF WORKING. A ceramic coating
+  // needs a garage and a controlled environment, so it cannot be done in a
+  // driveway; the reverse exists too. Until now this was only ever a fact
+  // about the business or about a date.
+  //
+  // Every chosen service has to allow the mode, so this is an AND across the
+  // selection, and the service that rules it out is named — "you can't do
+  // that" without saying why is the thing that makes a form feel broken.
+  const blocksMobile = selectedServices.find((s) => s.allows_mobile === false);
+  const blocksDropoff = selectedServices.find((s) => s.allows_dropoff === false);
+  const modeLimit = blocksMobile
+    ? { only: "dropoff", because: blocksMobile.name }
+    : blocksDropoff
+      ? { only: "mobile", because: blocksDropoff.name }
+      : null;
+
+  // If the selection narrows the mode, the form follows it rather than
+  // leaving a choice that is going to be refused at submit.
+  useEffect(() => {
+    if (!modeLimit || form.serviceType === modeLimit.only) return;
+    setForm((f) => ({ ...f, serviceType: modeLimit.only }));
+  }, [modeLimit, form.serviceType]);
+
   // --- Step gating ---------------------------------------------------------
-  const bothModes = settings.mobile_enabled && settings.dropoff_enabled;
+  const bothModes = settings.mobile_enabled && settings.dropoff_enabled && !modeLimit;
   const canAdvance = (() => {
     switch (STEPS[step]) {
       case "Services": return form.serviceIds.length > 0 && !!quote && !quoting;
@@ -186,9 +235,26 @@ function BookingFlow() {
   const toggleService = (id) => setForm((f) => {
     if (f.serviceIds.includes(id)) return { ...f, serviceIds: f.serviceIds.filter((x) => x !== id) };
     const groupOf = (sid) => services.find((s) => s.id === sid)?.group_id ?? null;
+    const catOf = (sid) => { const g = groupOf(sid); return g ? serviceGroups.find((x) => x.id === g) : null; };
     const gid = groupOf(id);
-    const cap = gid ? (serviceGroups.find((g) => g.id === gid)?.max_select ?? null) : null;
-    let ids = [...f.serviceIds, id];
+    const cat = catOf(id);
+
+    // ROADMAP 2.8c — A CATEGORY THAT IS THE WHOLE BOOKING. The owner asked for
+    // this and a real menu proved it: Oregon Detail Co publishes complete
+    // packages AND standalone interior and exterior work as three categories,
+    // and with each obeying its own "pick one" a customer could book $1,645 of
+    // work the $625 package already contained. A complete package supersedes
+    // the parts, and only the CATEGORY knows that.
+    //
+    // Symmetric, and deliberately so: picking the package clears everything,
+    // and picking anything else clears the package. A tap always does what it
+    // looks like it does — the alternative is a control that goes dead, which
+    // reads as broken and is the same complaint (W25) this whole thread began
+    // with.
+    if (cat?.is_exclusive) return { ...f, serviceIds: [id] };
+    let ids = [...f.serviceIds, id].filter((x) => !catOf(x)?.is_exclusive || x === id);
+
+    const cap = cat?.max_select ?? null;
     if (cap) {
       const siblings = ids.filter((x) => groupOf(x) === gid);
       const over = siblings.length - cap;
@@ -221,6 +287,7 @@ function BookingFlow() {
         customer_email: form.customerEmail.trim(),
         customer_address: form.customerAddress.trim() || null,
         service_type: form.serviceType,
+        travel_zone: form.travelZone || null,
         vehicle_size: form.vehicleSize,
         vehicle_model: form.vehicleModel.trim() || null,
         vehicle_condition: form.vehicleCondition || null,
@@ -306,7 +373,7 @@ function BookingFlow() {
             </div>
             <div className="bk-step-label">Step {step + 1} of {STEPS.length}</div>
           </div>
-          <h2>{headingFor(stepName, bothModes, settings)}</h2>
+          <h2>{headingFor(stepName, bothModes, settings, form.serviceType)}</h2>
         </div>
 
         {/* Keyed on the step so React hands back a fresh element and the
@@ -330,7 +397,9 @@ function BookingFlow() {
         {stepName === "Vehicle" && (
           <StepVehicle form={form} setForm={setForm} selectedServices={selectedServices} />
         )}
-        {stepName === "Location" && <StepLocation form={form} setForm={setForm} />}
+        {stepName === "Location" && (
+          <StepLocation form={form} setForm={setForm} modeLimit={modeLimit} />
+        )}
         {stepName === "When" && (
           <StepWhen form={form} setForm={setForm} durationMinutes={quote?.total_duration} />
         )}
@@ -407,12 +476,16 @@ function BookingFlow() {
   );
 }
 
-function headingFor(stepName, bothModes, settings) {
+function headingFor(stepName, bothModes, settings, serviceType) {
   switch (stepName) {
     case "Services": return "What can we do for you?";
     case "Extras": return "Anything to add?";
     case "Vehicle": return "Tell us about the vehicle";
-    case "Location": return bothModes ? "Where should we do it?" : settings.mobile_enabled ? "Where are you?" : "Drop-off details";
+    // Not `settings.mobile_enabled` any more: roadmap 2.8c lets a SERVICE
+    // narrow the mode, and by the time this renders form.serviceType is
+    // already the only one left. Ask the question that matches it.
+    case "Location": return bothModes ? "Where should we do it?"
+      : serviceType === "mobile" ? "Where are you?" : "Drop-off details";
     case "When": return "Pick a time";
     case "Details": return "How do we reach you?";
     default: return "Check everything over";

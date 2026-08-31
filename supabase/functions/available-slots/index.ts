@@ -5,6 +5,14 @@
 // Input (POST JSON):
 //   { business_slug, duration_minutes, booking_date }            — one day
 //   { business_slug, duration_minutes, start_date, end_date }    — a range
+//   + service_ids[]  (optional) — roadmap 2.8c. Two rules now live ON a
+//     service rather than on the business: which weekdays it is offered, and
+//     whether it can be done at the customer's address at all. Passing the
+//     chosen services lets this endpoint grey out exactly what the submit-time
+//     gate would refuse. Computed here INDEPENDENTLY of
+//     _shared/slotValidation.ts, which is the double-validation pattern this
+//     file's header describes — the two agree because the rules are the same,
+//     not because they share code.
 //
 // All rules come from the business's own settings row: slot interval,
 // buffer, minimum/maximum advance, per-day cap. All local-time math uses the
@@ -72,6 +80,33 @@ Deno.serve(async (req) => {
     const tz = business.timezone;
 
     const durationMinutes = Number(body.duration_minutes);
+    // Roadmap 2.8c. Absent or empty = no service-level narrowing, which is
+    // every caller that existed before this.
+    const serviceIds: string[] = Array.isArray(body.service_ids) ? body.service_ids : [];
+    let svcWeekdays: number[] | null = null;   // null = every day
+    let svcAllowsMobile = true;
+    let svcAllowsDropoff = true;
+    if (serviceIds.length) {
+      const { data: svcs } = await supabase
+        .from("services")
+        .select("allows_mobile, allows_dropoff, available_weekdays")
+        .eq("business_id", business.id)
+        .eq("is_active", true)
+        .in("id", serviceIds);
+      for (const sv of svcs ?? []) {
+        if (sv.allows_mobile === false) svcAllowsMobile = false;
+        if (sv.allows_dropoff === false) svcAllowsDropoff = false;
+        // A booking has to satisfy EVERY chosen service, so the offered days
+        // are the intersection. Two services with no day in common leave an
+        // empty list, which correctly closes the whole calendar rather than
+        // offering a day that would be refused at submit.
+        const d = sv.available_weekdays;
+        if (Array.isArray(d) && d.length) {
+          const set = d.map(Number);
+          svcWeekdays = svcWeekdays === null ? set : svcWeekdays.filter((x) => set.includes(x));
+        }
+      }
+    }
     const startDate: string | undefined = body.start_date || body.booking_date;
     const endDate: string | undefined = body.end_date || body.booking_date;
     if (!startDate || !endDate || !durationMinutes) {
@@ -180,6 +215,14 @@ Deno.serve(async (req) => {
         continue;
       }
 
+      // A weekday none of the chosen services is offered on is CLOSED, and it
+      // reads as closed rather than as empty — same as a day the business does
+      // not open, which is what it is for this selection.
+      if (svcWeekdays !== null && !svcWeekdays.includes(weekdayOf(date))) {
+        dayResults[date] = closed;
+        continue;
+      }
+
       const override = (overridesRes.data ?? []).find((o) => o.date === date);
       const hours = override
         ? override.open_time && override.close_time
@@ -246,8 +289,11 @@ Deno.serve(async (req) => {
 
         // Drop-off is the only option when the business does not do mobile at
         // all, or when a 'dropoff' period is closing mobile for these hours.
-        const isDropoff = !settings.mobile_enabled || restricts("dropoff");
-        const isMobile = !settings.dropoff_enabled || restricts("mobile");
+        // ...and now also when a CHOSEN SERVICE cannot be done at the
+        // customer's address. A ceramic coating needs a garage; the trade says
+        // so, and roadmap 2.8 found the gap and left it for here.
+        const isDropoff = !settings.mobile_enabled || restricts("dropoff") || !svcAllowsMobile;
+        const isMobile = !settings.dropoff_enabled || restricts("mobile") || !svcAllowsDropoff;
 
         // Both at once is a detailer who has restricted the same hours two
         // opposite ways. Nothing can be booked then, and saying so by leaving

@@ -48,6 +48,15 @@ export async function validateSlot(opts: {
   // these — see the guard below.
   hasWater?: boolean | null;
   hasPower?: boolean | null;
+  // Roadmap 2.8c. The chosen services, so the two rules that live ON a service
+  // rather than on the business can be checked at the same junction as every
+  // other slot rule. Omitted by callers that are not changing the selection.
+  services?: {
+    name: string;
+    allows_mobile?: boolean;
+    allows_dropoff?: boolean;
+    available_weekdays?: number[] | null;
+  }[];
 }): Promise<SlotCheck> {
   const { business, settings, bookingDate, startTime, durationMinutes, serviceType, excludeBookingId } = opts;
   const tz = business.timezone;
@@ -64,6 +73,45 @@ export async function validateSlot(opts: {
   }
   if (serviceType === "dropoff" && !settings.dropoff_enabled) {
     return { ok: false, status: 409, error: "Drop-off is not available. Please choose mobile service." };
+  }
+
+  // PER-SERVICE AVAILABILITY. Roadmap 2.8c, and it goes here for the third
+  // time for the same reason W4 and W22 did: this is where create-,
+  // reschedule- and update-booking meet, and a rule the customer can read on
+  // the page but nothing reads on the way in is not a rule.
+  //
+  // Two rules, both on the service and neither expressible before:
+  //   * a service that cannot be done at the customer's address (a ceramic
+  //     coating needs a garage), or one that only makes sense mobile
+  //   * a service only offered on some weekdays
+  // available-slots computes the same two independently for DISPLAY — the
+  // double-validation pattern — so a greyed-out day and a refused booking
+  // always agree without sharing code.
+  for (const svc of opts.services ?? []) {
+    if (serviceType === "mobile" && svc.allows_mobile === false) {
+      return {
+        ok: false,
+        status: 409,
+        error: `${svc.name} can't be done at your address — it has to be dropped off. `
+          + "Please choose drop-off, or a different service.",
+      };
+    }
+    if (serviceType === "dropoff" && svc.allows_dropoff === false) {
+      return {
+        ok: false,
+        status: 409,
+        error: `${svc.name} is only done at your address. Please choose mobile service, `
+          + "or a different service.",
+      };
+    }
+    const days = svc.available_weekdays;
+    if (Array.isArray(days) && days.length && !days.includes(weekdayOf(bookingDate))) {
+      return {
+        ok: false,
+        status: 409,
+        error: `${svc.name} isn't offered on that day. Please choose another day.`,
+      };
+    }
   }
 
   // WATER AND POWER GUARD. Roadmap 2.8b, W22 — and it is here for exactly the

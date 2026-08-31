@@ -4,13 +4,24 @@
 // — the buffer now comes from business_settings like everything else.)
 //
 // Input: { business_slug, service_ids[], add_ons[], vehicle_size,
-//          applied_promo_code? }
+//          applied_promo_code?, service_type?, travel_zone?,
+//          booking_date?, start_time? }
+//
+// The last four arrived with roadmap 2.8c and every one of them is optional,
+// because the price bar is on screen from step 1 and the customer has not
+// picked a day, an address or a time yet. A time-based rule that cannot be
+// evaluated does not apply — so the quote starts without it and grows the
+// surcharge when the day is chosen, which is the honest order.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings } from "../_shared/tenant.ts";
-import { computeQuote, resolveAddOns, resolvePromo, resolveServices } from "../_shared/pricing.ts";
+import {
+  computeQuote, matchPriceRules, resolveAddOns, resolvePromo, resolveServices,
+  resolveTravel, whenContextFor,
+} from "../_shared/pricing.ts";
+import { localDateTimeToInstant, weekdayOf } from "../_shared/tz.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -38,6 +49,13 @@ Deno.serve(async (req) => {
     }
 
     const promo = await resolvePromo(supabase, business.id, body.applied_promo_code);
+    const serviceType = body.service_type === "dropoff" ? "dropoff" : "mobile";
+    const travel = resolveTravel(settings, serviceType, body.travel_zone);
+    const when = whenContextFor(
+      business.timezone, body.booking_date, body.start_time,
+      localDateTimeToInstant, weekdayOf,
+    );
+    const adjustments = matchPriceRules(settings.price_rules, when);
     const quote = computeQuote({
       services,
       addOns,
@@ -45,6 +63,8 @@ Deno.serve(async (req) => {
       siteDiscountPercent: settings.site_discount_active ? Number(settings.site_discount_percent) : 0,
       promo: promo ? { type: promo.type, value: promo.value } : null,
       roundingNearest: Number(settings.price_rounding_nearest),
+      travelFee: travel.fee,
+      adjustments,
     });
 
     return json({
@@ -53,6 +73,11 @@ Deno.serve(async (req) => {
         base_price: quote.basePrice,
         vehicle_size_fee: quote.sizeAdd,
         add_ons_total: quote.addOnsTotal,
+        travel_fee: quote.travelFee,
+        travel_zone: travel.zone,
+        // Already resolved to money and already labelled, so the review step
+        // can print "Saturday surcharge  +$25" without knowing the rule.
+        adjustments: quote.adjustmentLines,
         subtotal_before_discounts: quote.subtotalBase,
         site_discount: quote.siteDiscount,
         site_discount_percent: settings.site_discount_active ? Number(settings.site_discount_percent) : 0,

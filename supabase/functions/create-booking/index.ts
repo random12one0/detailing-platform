@@ -19,13 +19,16 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings, requireMember } from "../_shared/tenant.ts";
-import { computeQuote, resolveAddOns, resolvePromo, resolveServices, sizeAdjustmentFor } from "../_shared/pricing.ts";
+import {
+  computeQuote, matchPriceRules, resolveAddOns, resolvePromo, resolveServices,
+  resolveTravel, sizeAdjustmentFor, whenContextFor,
+} from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
-import { timeStrIn } from "../_shared/tz.ts";
+import { localDateTimeToInstant, timeStrIn, weekdayOf } from "../_shared/tz.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -74,10 +77,21 @@ Deno.serve(async (req) => {
     if (groupIds.length) {
       const { data: groups } = await supabase
         .from("service_groups")
-        .select("id, name, max_select")
+        .select("id, name, max_select, is_exclusive")
         .eq("business_id", business.id)
         .in("id", groupIds);
       for (const g of groups ?? []) {
+        // ROADMAP 2.8c — the category that IS the whole booking. This is the
+        // rule `max_select` could not see: it counts inside ONE category, and
+        // a complete package sitting alone in its own category never trips it
+        // while the customer also buys the parts from the next category along.
+        // Measured on a real menu: $1,645 of work a $625 package contained.
+        if (g.is_exclusive && services.some((s) => s.group_id === g.id) && services.length > 1) {
+          return json({
+            error: `${g.name} is booked on its own — it already includes the rest. `
+              + "Please remove the other services, or choose something else.",
+          }, 409);
+        }
         if (!g.max_select) continue;
         const chosen = services.filter((s) => s.group_id === g.id).length;
         if (chosen > g.max_select) {
@@ -104,6 +118,16 @@ Deno.serve(async (req) => {
     const requested = String(body.vehicle_size || "").toLowerCase();
     const size = sizes.find((v) => String(v.key).toLowerCase() === requested) ?? sizes[0];
     const vehicleSize = String(size.key);
+    // ROADMAP 2.8c — travel and the time-based surcharges, resolved through the
+    // SAME shared helpers the quote endpoint uses. The customer's own
+    // travel_zone is a key, never a price: the fee comes off the business's
+    // settings here, exactly like every other number on this path.
+    const travel = resolveTravel(settings, serviceType, body.travel_zone);
+    const when = whenContextFor(
+      business.timezone, body.booking_date, body.start_time,
+      localDateTimeToInstant, weekdayOf,
+    );
+    const adjustments = matchPriceRules(settings.price_rules, when);
     const quote = computeQuote({
       services,
       addOns,
@@ -111,6 +135,8 @@ Deno.serve(async (req) => {
       siteDiscountPercent: settings.site_discount_active ? Number(settings.site_discount_percent) : 0,
       promo: promo ? { type: promo.type, value: promo.value } : null,
       roundingNearest: Number(settings.price_rounding_nearest),
+      travelFee: travel.fee,
+      adjustments,
     });
 
     // --- The authoritative slot gate ---------------------------------------
@@ -128,6 +154,8 @@ Deno.serve(async (req) => {
       // detailer has marked the resource required.
       hasWater: body.has_water === undefined ? undefined : body.has_water === true,
       hasPower: body.has_power === undefined ? undefined : body.has_power === true,
+      // Roadmap 2.8c — the chosen services carry their own availability now.
+      services,
     });
     if (!check.ok) return json({ error: check.error }, check.status ?? 409);
 
@@ -213,6 +241,12 @@ Deno.serve(async (req) => {
         // printing a key that no longer resolves.
         vehicle_size_label: String(size.label ?? size.key),
         vehicle_size_fee: quote.sizeAdd,
+        // SNAPSHOTS, all three. A detailer who edits a travel fee, renames a
+        // zone or deletes a surcharge must not rewrite what a past job was
+        // sold for — the same rule vehicle_size_label follows.
+        travel_fee: quote.travelFee,
+        travel_zone: travel.zone,
+        price_adjustments: quote.adjustmentLines.length ? quote.adjustmentLines : null,
         vehicle_model: body.vehicle_model?.trim() || null,
         // W27 — information, never arithmetic. The trade prices condition
         // after inspection, so this must not reach computeQuote.
@@ -289,6 +323,11 @@ Deno.serve(async (req) => {
       customerNotes: booking.customer_notes,
       serviceNames: services.map((s) => s.name),
       addOnNames: addOns.map((a) => a.name),
+      // Roadmap 2.8c — the subtotal below contains these, so they have to be
+      // itemised or the email shows a number nobody can add up.
+      travelFee: quote.travelFee,
+      travelZone: travel.zone,
+      adjustments: quote.adjustmentLines,
       subtotal: quote.subtotalAfterSite,
       siteDiscount: quote.siteDiscount,
       siteDiscountPercent: settings.site_discount_active ? Number(settings.site_discount_percent) : 0,

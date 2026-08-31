@@ -41,6 +41,10 @@ export interface BusinessSettings {
   ask_vehicle_condition: boolean;
   // W9 — the detailer's own ordered list of [{key,label,examples}].
   vehicle_sizes: { key: string; label: string; examples?: string }[];
+  // Roadmap 2.8c — the detailer's own price rules and travel areas.
+  // deno-lint-ignore no-explicit-any
+  price_rules: any[];
+  travel_zones: { key: string; name: string; fee: number }[];
   customer_reminder_lead_minutes: number;
   evening_before_enabled: boolean;
   evening_before_latest_start: string;
@@ -94,6 +98,8 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
       { key: "medium", label: "Medium", examples: "Small SUV, crossover, wagon" },
       { key: "large", label: "Large", examples: "Truck, large SUV, van" },
     ],
+    price_rules: [],
+    travel_zones: [],
     customer_reminder_lead_minutes: 120,
     evening_before_enabled: true,
     evening_before_latest_start: "10:00:00",
