@@ -620,6 +620,63 @@ they stack; stacked, "to" no longer says which field is which, so each took its
 own word. `Hours.jsx` gained a `.tfield` wrapper that renders identically
 above 360px and exists only to carry those words below it.
 
+## 6h. ROADMAP 2.10 — THE ARCHITECTURE PROPOSAL, AWAITING THE OWNER (2026-08-31)
+
+**Research and a written proposal. NOTHING IN `app/` CHANGED, and nothing
+should until he answers.** The deliverable is
+`docs/dashboard-architecture-2026-08-31.md`; the judgment calls are
+DECISIONS.md → "Roadmap 2.10 — the architecture proposal". **Five decisions
+are waiting for him at §5 of that file.** The build is a separate roadmap
+item, the way 2.8b was for 2.8.
+
+**Four of the five tabs survived a from-scratch derivation unchanged.** A
+detailer's day contains five recurring questions plus one thing that is not a
+question (how the app behaves for me). Questions 1–4 land exactly on Today,
+Calendar, Money and Clients — and Schedule and Customers are top-level in six
+of six trade products. **Saying that plainly was part of the job**; the
+roadmap asked for it, and a proposal that moved everything would have been a
+worse answer rather than a bolder one.
+
+**THE FINDING, AND IT IS A COMPARISON RATHER THAN AN OPINION.** Jobber's
+"More" holds nine things and **not one of them changes what a customer sees**;
+Housecall Pro puts the same class of thing behind a gear. Ours holds the menu,
+the prices, the hours, the promo codes, the photos, the colour and the booking
+link. Separately, **"what you sell" is a top-level destination in five of six
+trade products** — Housecall Pro calls it Price Book and gives it a tab,
+Zenbooker lists Services first — while ours is one row in the second group of
+a screen called Settings, and is the largest file in `app/src` outside the
+landing page (`Catalog.jsx`, 614 lines).
+
+**What is proposed:** keep Today, Calendar, Money, Clients; delete More as a
+tab; the seven customer-facing sheets become a fifth tab, **"Your page"**; the
+four plumbing sheets plus the account go behind a **gear in the header**.
+**No schema, no new skeleton** — "Your page" inherits the panels skeleton More
+gives up (design-system law 1 is why a SIXTH tab was never on the table), and
+the Settings sheet is the "form in a sheet" all eleven sheets already are.
+
+**THREE DEFECTS WERE FOUND WHILE TAKING THE INVENTORY AND NONE IS FIXED,
+because this item changes no code. Do not rediscover them as new:**
+
+1. **The push-notification switch does nothing.** `Notifications.jsx` writes
+   `push_enabled` and `send-owner-reminders` genuinely calls `sendOwnerPush` —
+   but there is **no client code anywhere in `app/`**: no service worker, no
+   `PushManager`, no call to `owner-push-subscribe`, no permission prompt. No
+   device is ever registered. Three edge functions and the whole `/job/:id`
+   route ("what a push-notification tap opens") exist for a feature with no
+   front end.
+2. **Staff are shown "Your colour" and the database refuses the save** — the
+   row is not owner-only in `More.jsx`, `Appearance.jsx` has no role check,
+   and `business_branding` is member-READ / owner-WRITE.
+3. **A staff member's whole More screen is two rows**, one of which is the
+   broken one above.
+
+**And four tables still have no interface at all:** `testimonials`,
+`campaigns` + `campaign_visits`, `monthly_plans`, `business_domains`. Three of
+the four are things he has already said come back or are coming, so the
+proposal names a home for each rather than leaving them to surprise someone.
+`campaigns` is the one exception and is **deliberately left unplaced** — see
+§6 of the proposal.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
@@ -737,4 +794,9 @@ above 360px and exists only to carry those words below it.
    live. It is research-then-approve-then-build, like 2.8 → 2.8b, and his
    words are quoted in full in the roadmap item. Several of the five deferred
    items below are decisions this one would make anyway.
+   **THE RESEARCH AND THE PROPOSAL ARE DONE — 2026-08-31, see §6h.** It is at
+   step 5 of its own five: **five decisions are waiting for him** at §5 of
+   `docs/dashboard-architecture-2026-08-31.md`, and nothing in `app/` changes
+   until he answers. Clients sort/filter (item 7 below) is folded into that
+   proposal and should not be started separately before he replies.
 7. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.

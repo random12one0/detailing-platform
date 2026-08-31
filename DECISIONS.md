@@ -134,6 +134,7 @@ were made more than once.
 - **The owner's answers to 2.8, and the one that overruled the research** — he was the sixth menu shape. **Five menus rule shapes IN; they cannot rule the rest OUT.** Carries the measured step-1 ceiling: his own menu overflows by 119px.
 - **Roadmap 2.9 — the 320px floor** — four failures were one failure, and **two of them were already overflowing their card at 360 where the sweep could not see them.** A clean sweep means nothing is off the SCREEN, not off its box.
 - **The owner reopened the dashboard's architecture** — the five tabs and the More screen are a copy of his own admin page; 2.10 rethinks WHERE things live and explicitly not how they look.
+- **Roadmap 2.10 — the architecture proposal** — four of the five tabs survived a from-scratch derivation; **"what you sell" is top-level in five of six trade products and is a chevron inside our Settings screen.** Also: the push switch has no client and does nothing.
 
 <!-- INDEX:END -->
 
@@ -5008,3 +5009,111 @@ code changes in 2.10 itself. **And the constraint he stated twice is that the
 current dashboard is the anti-reference** — the tabs get derived from what a
 detailer does in a day, then compared with what we have, rather than
 rearranged from it.
+
+## Roadmap 2.10 — the architecture proposal
+
+Research and a written proposal only; **nothing in `app/` changed**, and the
+owner approves before any code. The deliverable is
+`docs/dashboard-architecture-2026-08-31.md`. Judgment calls made while writing
+it:
+
+- **The derivation was run before the comparison, and the result is reported
+  honestly rather than dressed up as a bigger change.** A detailer's day
+  contains five recurring questions plus one thing that is not a question
+  (how the app behaves for me). Questions 1–4 land exactly on Today, Calendar,
+  Money and Clients. **Four of five tabs survive untouched**, and saying so was
+  more useful than manufacturing novelty — the roadmap asked for it explicitly,
+  and a proposal that moved everything would have been a worse answer, not a
+  bolder one.
+
+- **The finding the whole proposal turns on is a comparison, not an opinion.**
+  Jobber's "More" holds nine things and **not one of them changes what a
+  customer sees**; Housecall Pro puts the same class of thing behind a gear.
+  Ours holds the menu, the prices, the hours, the promo codes, the photos, the
+  colour and the booking link. Separately, **"what you sell" is a top-level
+  destination in five of six trade products** — Housecall Pro gives it a tab
+  called Price Book, Zenbooker lists Services first — while ours is one row in
+  the second group of a screen called Settings, and is our largest file
+  (`Catalog.jsx`, 614 lines).
+
+- **The fifth tab is named "Your page" and the name is doing work.**
+  "Business" was the safer word and was rejected: a broad name is how a junk
+  drawer starts, which is the exact failure being fixed. "Your page" buys an
+  admission test for free — *a row belongs here only if it changes what a
+  customer meets on your page* — and that rule is worth more than the
+  re-grouping, because it is what stops More re-forming under a new name.
+
+- **Settings moved to a header gear rather than keeping a sixth tab.** Two
+  reasons, and the second is the binding one: a phone tab bar holds five, and
+  **design-system law 1 gives every screen a different skeleton** — there are
+  exactly five skeletons and a sixth tab would owe the system a sixth. The
+  proposal needs none: "Your page" inherits the panels skeleton More gives up,
+  and the Settings sheet is the "form in a sheet" all eleven sheets already
+  are. The trade is split here (Housecall Pro and Square use an icon, Jobber
+  keeps a More tab), so it is named as a real risk rather than as settled.
+
+- **Booking rules was NOT split, and that is the one place laziness won on
+  purpose.** It is the largest sheet (541 lines, four sections) and it does two
+  unrelated jobs — where you work and what travel costs, versus when you can be
+  booked. Splitting it costs a habit for a payoff its own internal headings
+  already half-deliver, and splitting it later costs exactly the same. Offered
+  to the owner as decision 4 with that reasoning rather than done.
+
+- **Clients was re-conceived rather than removed.** A phone book does not earn
+  a slot in a five-button bar, but Customers is 6 of 6 in the trade, so the
+  answer was to give it a job: sort and filter by last visit, lifetime value
+  and "not seen in three months" — which needs **no schema**, since every
+  figure comes from `bookings`, and which is already the agreed deferred item.
+  **Automated re-book nudges were explicitly refused**: they need a
+  last-contacted column, a scheduler decision and a spam judgment, and that is
+  a feature rather than an architecture.
+
+- **The weak evidence was labelled and confined to ordering.** The day-in-the-
+  life write-ups and the vendor claims about follow-up are marketing-adjacent,
+  so they were used only to ORDER an item that was already agreed, never to
+  justify one. The six-product table carries a source-strength line per column
+  — Jobber STRONG (its own help centre names the bottom bar), fieldd WEAKEST
+  (marketing pages) — because navigation is the part of a product a vendor
+  documents worst, and a table that hid that would read as six equal
+  observations.
+
+- **`campaigns` / `track-visit` was left deliberately unplaced.** It is half an
+  attribution feature with no interface, it is a report rather than a page
+  setting or a Money figure, and inventing a sixth destination for something
+  nobody has asked for is the exact mistake 2.10 exists to undo. Recorded in
+  §6 as unsettled rather than filed somewhere plausible.
+
+- **No inbox, and the slot is not reserved.** Messages is top-level in four of
+  six products and we have none — but two-way texting needs a dedicated
+  number, carrier registration and a per-message cost. That is a business
+  decision and a build, not a tab. Named so it is not rediscovered as an
+  oversight.
+
+**Three defects found while taking the inventory, none of them fixed here
+because this item changes no code:**
+
+1. **The push-notification switch does nothing.** `Notifications.jsx` offers
+   "Push notifications on your phone", it writes `push_enabled`, and
+   `send-owner-reminders` genuinely calls `sendOwnerPush` when it is on — but
+   there is **no client code anywhere in `app/`**: no service worker, no
+   `PushManager`, no call to `owner-push-subscribe`, no permission prompt. No
+   device is ever registered, so nothing is ever delivered. Three edge
+   functions and the whole `/job/:id` route ("what a push-notification tap
+   opens") exist for a feature with no front end. Either the subscription gets
+   written or the switch comes off until it does.
+2. **Staff are shown "Your colour" and the database refuses the save.** The
+   row is flagged not-owner-only in `More.jsx`, `Appearance.jsx` has no role
+   check, and `business_branding` is member-READ / owner-WRITE.
+3. **A staff member's entire More screen is two rows** — "Your colour" (broken,
+   above) and "This device". A tab slot for two rows, one of which lies.
+
+**And four tables have no interface at all:** `testimonials`, `campaigns` +
+`campaign_visits`, `monthly_plans`, `business_domains`. Three of the four are
+things the owner has already said come back or are coming (see *Owner
+decisions* and roadmap 3.3), so the proposal gives each a named home rather
+than leaving them to be rediscovered.
+
+**Nothing was verified in a browser, because nothing was built.** The two
+measurements the proposal defers — the header carrying a business name, a `+`
+and a gear at 320px, and the new tab's scroll depth — belong to the build item
+and are called out there.

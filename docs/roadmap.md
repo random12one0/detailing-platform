@@ -1326,6 +1326,36 @@ is kept; the entire visual design restarts from scratch.
       ten already researched, and the whole reason this item exists is that
       the current layout is a copy of his.
 
+      **STEPS 1–4 ARE DONE, 2026-08-31. THE ITEM IS AT STEP 5 AND WAITING ON
+      HIM.** The proposal is `docs/dashboard-architecture-2026-08-31.md`, the
+      judgment calls are DECISIONS.md → "Roadmap 2.10 — the architecture
+      proposal", and the summary is PROJECT-STATE.md §6h. **Nothing in `app/`
+      changed and nothing should until he answers the five decisions at §5 of
+      that file.** Tick this box when he does; the build is its own item.
+
+      **What it landed on, so a cold session does not re-derive it.** Four of
+      the five tabs survive untouched — Today, Calendar, Money, Clients each
+      answer a question a detailer asks daily or weekly, and Schedule and
+      Customers are top-level in six of six trade products. **The fifth tab is
+      the whole problem:** seven of the eleven sheets behind More are the
+      detailer's shopfront, not settings. Proposed: More is deleted as a tab,
+      those seven become a tab called **"Your page"**, and the four plumbing
+      sheets plus the account go behind a **gear in the header**. No schema,
+      and no new skeleton — law 1 is exactly why a sixth tab was never on the
+      table.
+
+      **The finding is a comparison, not an opinion:** Jobber's own "More"
+      holds nine things and not one changes what a customer sees, while
+      "what you sell" is top-level in five of six products — and in ours it is
+      a chevron inside a screen called Settings.
+
+      **Three defects were found while inventorying and NONE is fixed here**,
+      because this item changes no code: the push-notification switch has no
+      client and delivers nothing; staff are offered "Your colour" and the
+      database refuses the save; a staff member's whole More screen is those
+      two rows. They are written up in PROJECT-STATE §6h — do not rediscover
+      them as new.
+
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
 
