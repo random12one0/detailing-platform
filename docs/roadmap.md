@@ -1218,9 +1218,12 @@ is kept; the entire visual design restarts from scratch.
         284; both overflowed their card by ~19px and ~11px and the card's own
         18px padding swallowed it, so nothing crossed the VIEWPORT edge, which
         is what the sweep measures. **A clean sweep means nothing is off the
-        SCREEN, not that nothing is off its box.** Measuring
-        `scrollWidth` against the parent, per element, is what found it —
-        `scripts/` has no instrument for that and this item did it by hand.
+        SCREEN, not that nothing is off its box.** Comparing each element's
+        right edge with its PARENT's content box is what found it, and **that
+        check is now the sweep's third one** — baselined against the pre-2.9
+        commit, where it reports all four failures at 360 and nothing else, and
+        silent at 392, 360 and 320 on the fixed code. `sweep-widths.mjs` also
+        grew `--lite`, which `sweep-booking-steps.mjs` has had since 2.7.
       - **The lever on the time fields was copy, not layout — the third time
         in three items.** Two native time fields cannot share a 244px line at
         any spacing (Chromium will not draw one under 138px), so they stack;

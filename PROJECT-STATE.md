@@ -589,10 +589,11 @@ identical, and the Hours row still reads `Tue [08:00 AM] to [06:00 PM] Close`.
 the SCREEN, not that nothing is off its box.** Two of the four — the time
 fields and the segmented control — were ALREADY overflowing their card at
 360px, by 19px and 11px, and the card's own 18px of padding swallowed it, so
-nothing ever crossed the viewport edge the sweep watches. They were found by
-measuring each element's `scrollWidth` against its parent, by hand, on the
-running app. There is no script for that; if a layout looks tight, measure the
-box, not the window.
+nothing ever crossed the viewport edge the sweep watches. They were found by comparing each
+element's right edge with its parent's content box — and **that is the sweep's
+third check now**, baselined against the pre-2.9 commit, where it reports all
+four failures at 360 and nothing else. `sweep-widths.mjs --lite` runs the
+`?lite=1` path too, which it could not do before.
 
 **A fifth thing was found by LOOKING and it was the worst of them.** A
 `Setting` with its control on the right kept 96px for its explanation and

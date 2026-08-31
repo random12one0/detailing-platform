@@ -11,12 +11,24 @@
 // TWO CHECKS, one per complaint he actually made:
 //   past-viewport   an element whose right edge is off the screen (W12/W13/
 //                   W14/W15 — "cut off to the right")
+//   past-parent     an element whose right edge is outside its own PARENT's
+//                   content box, even though the screen still contains it.
+//                   ADDED IN ROADMAP 2.9, and it is the check that item wished
+//                   had existed: the time fields and the segmented control had
+//                   been 19px and 11px outside their card at 360 for two
+//                   roadmap items, and the card's own 18px of padding swallowed
+//                   the difference, so nothing ever crossed the viewport edge
+//                   and this script kept saying clean. A CLEAN SWEEP MEANT
+//                   NOTHING WAS OFF THE SCREEN, NOT THAT NOTHING WAS OFF ITS
+//                   BOX. Baselined against the pre-2.9 commit at 360, where it
+//                   reports all four failures and nothing else.
 //   self-clipped    an element that scrolls sideways inside itself, which is
 //                   the same thing wearing a scrollbar nobody can see
 //   touching        two boxes stacked with under 4px between them (W7/W11 —
 //                   "the boxes touch"), because a box with no gap under it
 //                   reads as part of the box below
 //
+//   node scripts/sweep-widths.mjs --lite         # the same, through ?lite=1
 //   node scripts/sweep-widths.mjs                # 392, 360 and 320
 //   node scripts/sweep-widths.mjs 320            # just the PRODUCT.md floor
 //   node scripts/sweep-widths.mjs 392 360 1440   # any list
@@ -38,6 +50,10 @@ import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const WIDTHS = (process.argv.slice(2).filter((a) => /^\d+$/.test(a)).map(Number));
+// ?lite=1 is the reduced-motion path. It has its own stylesheet rules, so a
+// layout that holds in one can fail in the other; sweep-booking-steps.mjs has
+// carried this flag since 2.7 and this script needed a scratch copy without it.
+const LITE = process.argv.includes("--lite") ? "?lite=1" : "";
 const SIZES = WIDTHS.length ? WIDTHS : [392, 360, 320];
 const BASE = "http://localhost:5173";
 const MORE = ["Business info", "Your colour", "Services & add-ons", "Promo codes & sale",
@@ -61,6 +77,22 @@ const CHECK = () => {
     const txt = (el.textContent || "").trim().slice(0, 26);
     const past = Math.round(r.right - vw);
     if (past > 1) out.push(`past-viewport  +${past}px  ${name(el)}  «${txt}»`);
+    // Outside its own parent's content box. Skipped where the answer would be
+    // a lie rather than a defect: a parent that scrolls sideways on purpose, a
+    // parent with no box at all (`display: contents` — .bk-step is one, and it
+    // was this check's only false positive), and anything positioned out of
+    // flow, which is meant to leave its parent.
+    const par = el.parentElement;
+    if (par && par !== document.body) {
+      const pr = par.getBoundingClientRect();
+      const pcs = getComputedStyle(par);
+      const inner = pr.right - parseFloat(pcs.paddingRight) - parseFloat(pcs.borderRightWidth);
+      const overP = Math.round(r.right - inner);
+      if (overP > 1 && pr.width > 0 && !/auto|scroll/.test(pcs.overflowX)
+          && pcs.position === "static" && cs.position === "static") {
+        out.push(`past-parent    +${overP}px  ${name(el)} in ${name(par)}  «${txt}»`);
+      }
+    }
     // An ellipsis is a DESIGNED truncation — it says out loud that there is
     // more, and .nav-row .now is built that way on purpose. A scroller with
     // `scrollbar-width: none` says nothing, which is the actual defect.
@@ -100,11 +132,11 @@ for (const w of SIZES) {
     await page.waitForTimeout(400);
   };
 
-  await page.goto(`${BASE}/book/demo-detail`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/book/demo-detail${LITE}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(3200);
   await say("book · step 1");
 
-  await page.goto(`${BASE}/app`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/app${LITE}`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
   if (await page.locator("input[type=email]").count()) {
     await page.fill("input[type=email]", "demo@detailplatform.com");
@@ -152,5 +184,5 @@ for (const w of SIZES) {
 await browser.close();
 console.log(found
   ? `\n${found} problem${found === 1 ? "" : "s"} — see above`
-  : `\nclean at ${SIZES.join(", ")}: nothing off the edge, no boxes touching`);
+  : `\nclean at ${SIZES.join(", ")}${LITE ? " (?lite=1)" : ""}: nothing off the screen, nothing outside its own box, no boxes touching`);
 process.exit(found ? 1 : 0);

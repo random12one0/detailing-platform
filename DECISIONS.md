@@ -4925,11 +4925,18 @@ overflowing their card at 360px — the time fields by 19px, the segmented
 control by 11px — and the card's own 18px of padding absorbed it, so neither
 ever crossed the viewport edge that `sweep-widths.mjs` watches. 360 has been
 reported clean for two roadmap items with both of these broken inside it. They
-were found by walking each element and comparing its `scrollWidth` with its
-parent's `clientWidth`, by hand, in a throwaway script. No instrument in
-`scripts/` does that, and building one was not in this item's scope — the note
-is the deliverable instead. **If a layout looks tight, measure the box, not
-the window.**
+were found by walking each element and comparing its right edge with its
+parent's content box, in a throwaway script — and the throwaway became the
+sweep's third check, `past-parent`, because it turned out to be quiet. **It was
+baselined against the pre-2.9 commit before being trusted**, per this file's own
+rule about new checkers: at 360 on that commit it reports exactly the four
+failures and nothing else, and on the fixed code it is silent at 392, 360 and
+320 in both paths. Its one false positive was a parent with `display: contents`
+(`.bk-step`), which has no box to be outside of; parents that scroll sideways on
+purpose and elements positioned out of flow are skipped for the same reason.
+`sweep-widths.mjs` also gained `--lite`, which `sweep-booking-steps.mjs` has had
+since 2.7 and whose absence here cost this session a scratch copy of the whole
+script.
 
 **Why each of the five went the way it did:**
 

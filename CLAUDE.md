@@ -115,11 +115,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
   eleven settings sheets, the client sheet and the booking page at 392, 360 and
-  320 and reports anything past the right edge, anything scrolling sideways with
-  no scrollbar, and any two boxes stacked with no gap — the two complaints the
-  owner's whole walkthrough was made of. **320 joined the default in roadmap
-  2.9**, the item that made it pass; it exits 0 at all three today. Pass a width
-  to ask a different question. It needs the dev server and the demo login, like
+  320 and reports anything past the right edge, anything **outside its own
+  parent's box**, anything scrolling sideways with no scrollbar, and any two
+  boxes stacked with no gap. **320 joined the default in roadmap 2.9**, the item
+  that made it pass, and so did the parent-box check — until then a clean sweep
+  meant nothing was off the SCREEN, and two defects sat 19px and 11px outside
+  their card at 360 through two roadmap items because the card's padding hid
+  them. `--lite` runs the whole thing through `?lite=1`. It exits 0 at all three
+  widths in both paths today. Pass a width to ask a different question. It needs
+  the dev server and the demo login, like
   `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
   on Windows has it and headless does not, and that one difference is the
   whole of walkthrough W14.
