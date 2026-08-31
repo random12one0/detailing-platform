@@ -124,7 +124,9 @@ phase 1 is outstanding.
   landing page had NO contrast coverage at all — the checks looked for
   `--bg`/`--panel` where `landing.css` defines `--g`/`--p`, and each was
   guarded by `if (token)`, so all five passed by doing nothing. Ten pairs
-  now, all passing. It was a hole, not a live defect.
+  now, all passing. It was a hole, not a live defect. (`--g` / `--p` are gone
+  as of 2.2 — that block now reads the system's own token names out of
+  `landing.css`, and pins them against the system's values.)
 - **NO LIGHT THEME**, his decision 2026-08-30. The dashboard's light/dark
   switch goes — **in roadmap 2.3, not before**; `app/` still ships the old
   system where it works, and the four places it touches are scoped at the end
@@ -141,10 +143,17 @@ phase 1 is outstanding.
   section that reads as a bonus. `docs/tenant-websites.md`, and `DECISIONS.md`
   → "Positioning: what we sell is the pair", **including its correction
   section**, which is the operative version.
-- **Copy is provisional by agreement.** The marketing deck he approved is
-  built verbatim; the sections it did not touch — "What you get" rows, the
-  terms, the footer — still carry their `LandingPage.jsx` wording and have
-  never been through him. "For now" in his approval is pointing at this.
+- **Copy is provisional by agreement, and after 2.2 there is only one copy
+  to talk about.** The shipped page now carries the approved reference
+  page's words verbatim — 163 lines of rendered text, differing on exactly
+  one line, which is the founding flag reading its count from the database.
+  So the copy question is no longer "the page versus the reference"; it is
+  that "i approve it for now" was said about this wording, and the few
+  pieces the marketing deck did not itself write (the "Questions." heading,
+  for one) have still never been through him line by line. Edits go into
+  `app/src/landing/LandingPage.jsx` and should be mirrored back into the
+  reference page, or the two stop being comparable — which is what made 2.2
+  checkable at all.
 - **Still open, not blocking:** the tenant's curated four-to-six accent
   colours (2.4 needs them, nobody has picked them), the dashboard's own
   section skeletons (the body of 2.3), and mid-range Android, which nobody

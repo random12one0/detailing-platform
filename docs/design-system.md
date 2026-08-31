@@ -135,6 +135,12 @@ Not suggestions. Where a test enforces one, it is named.
    cannot be checked from CSS**: screenshot the box with the text hidden,
    read the lightest pixel, and bind the scrim to the text block rather than
    darkening the whole picture until it stops being one.
+   **Measure the WORDS' own boxes, and hide the words, not the block.**
+   Learned in 2.2 by getting it wrong: the text block's box includes the
+   padding above the words, where the scrim's gradient is still transparent,
+   so measuring it returns the photograph rather than what the words sit on —
+   1.34:1 against a true 10.41:1. The scrim on the block is the thing doing
+   the work, so hiding the block removes the very layer being tested.
    *Enforced by `tests/design-contrast.test.mjs`.*
 
 10. **Never a grey placeholder box.** The Unsplash connector is wired and
@@ -470,7 +476,12 @@ The look did not. These did, and they are contracts rather than style:
   system's real achievement was that discipline, not the palette.
 - **Content and copy facts**, per `DESIGN.md`: `app/src/landing/
   LandingPage.jsx` is the substance the marketing pass edits, not a file to
-  throw away.
+  throw away. **Read this as it was meant after roadmap 2.2**: that file was
+  rewritten as a port of the approved reference page, so its words are now
+  the marketing deck's, in the reference's running order. The rule that
+  survived is the one about not discarding the substance — the claims, the
+  prices, the terms and the register are still edited there, and a change to
+  them belongs in the reference page too.
 - **The composition rule** — records are lists, cards are objects — which
   was written down, ignored, and then given teeth by a test. It carries over
   word for word.
