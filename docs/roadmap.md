@@ -946,7 +946,37 @@ is kept; the entire visual design restarts from scratch.
         detailers do. Needs: optional per detailer, an electricity-only mode,
         and the ability to block a booking the detailer cannot service.
 
-- [ ] 2.8 **OWNER-ADJACENT: research how other detailers actually work.**
+- [x] 2.8 **OWNER-ADJACENT: research how other detailers actually work.**
+      **RESEARCH DONE 2026-08-31 — `docs/detailer-research-2026-08-31.md`.
+      FOUR OWNER DECISIONS ARE OUTSTANDING AND THE BUILD IS BLOCKED ON THEM**
+      (they are the last section before the schema list in that file: single-
+      select services, three vehicle sizes or five, from-prices, and the
+      condition question). The item is checked because the research is
+      finished, not because the five 2.7 items are built — they are not, and
+      they must not start before he answers, because three of the four change
+      the migration.
+
+      **What it found, in one paragraph each.** *W10 and W21 need NO
+      migration* — `add_ons.sort_order` and `services.features` already exist
+      and nothing writes either, so both were UI work misfiled as schema work.
+      *W10 is reordering, not groups*: real add-on lists run 3–9 items and not
+      one of the five menus studied groups them. *W21 is the W16 lever and it
+      is also a live trap* — `StepServices.jsx` renders `features` inline
+      today, so shipping an editor for that field before the disclosure arms a
+      step-1 overflow for every tenant who fills it in; the disclosure ships
+      first, always. *W22's premise was backwards*: he believed he was unusual
+      in having no tank or generator, and most working detailers use the
+      customer's tap and outlet — so the question he added for himself is the
+      standard one, and what varies is WHICH resource and what happens on
+      "no". Two three-state settings, and the block belongs in
+      `_shared/slotValidation.ts` where all three write paths meet, not in the
+      React step — W4 already found that exact hole. *W25 is one boolean*:
+      four of five real menus are pick-one, the fifth is wholly à la carte, so
+      it splits per business rather than per service or per group. *W27 is
+      nearly complete as he said* — the one real gap is the condition
+      question, and structured year/make/model is not worth its height until
+      something reads it.
+
       **NOW CARRIES FIVE OF 2.7's ITEMS, not three.** W9, W10, W21, W22 and
       W25 were all left unbuilt in 2.7 because each one decides a shape the
       research has to fix first: what fields a service needs (W9), whether

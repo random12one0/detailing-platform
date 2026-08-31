@@ -382,6 +382,54 @@ card) but a real problem for Phase 3's tenant sites.
 
 Full record: DECISIONS.md → "Roadmap 2.4".
 
+## 6d. ROADMAP 2.8 — HOW OTHER DETAILERS ACTUALLY WORK (2026-08-31)
+
+**Research done, nothing built, four owner decisions outstanding.** The record
+is `docs/detailer-research-2026-08-31.md` — five real detailing businesses'
+published menus and booking flows, one long thread of working detailers, three
+trade software vendors, the trade's pricing guides. It answers W9, W10, W21,
+W22, W25 and the W27 thread, which roadmap 2.7 deliberately left unbuilt
+because each one would have frozen a guess into an append-only migration.
+
+**Read this much before touching the catalogue:**
+
+- **Two of the five items were misfiled as schema work.** `add_ons.sort_order`
+  and `services.features` have existed since the foundation migration and
+  **nothing writes either one**. W10 (reordering) and W21 (full details) are
+  screens over columns already there — zero migration. The schema was built
+  ahead of the UI in several places; grep the migration before sizing a
+  catalogue item.
+- **W21 is a live trap and its ordering is not a preference.**
+  `StepServices.jsx` renders `features` inline, capped at five. It is harmless
+  only because nothing writes the field. **The disclosure control ships before
+  or with any editor for it, never after** — 2.7 measured step 1 at 18px of
+  phone headroom with four services and no inclusion lists, and real menus run
+  5–10+ bullets per package.
+- **W10 is reordering, not groups.** Real add-on lists are 3, 6, 7 and 9 items
+  and not one of the five menus groups them. Services DO group in the wild,
+  which is why `group_label` is on services and must not be added to add-ons.
+- **W22's premise was backwards.** The owner believed he was unusual in having
+  no water tank or generator; most working mobile detailers use the customer's
+  tap and outlet and ask when booking. So the question he built for himself is
+  the standard one. What varies is WHICH resource and what happens on "no", and
+  **water and power are independent** — one boolean cannot express a coating
+  specialist (power, no hose) or a rinseless operator (neither).
+- **W25 is one boolean.** Four of five real menus are pick-one; the fifth is
+  wholly à la carte. The exception is a whole-menu shape, not a mixed one, so
+  it splits per business — `services_single_select` — not per service or group.
+- **The only schema-BLOCKING part of W9 is the vehicle classes**, because
+  `bookings.vehicle_size` is a CHECK constraint pinned to
+  `('small','medium','large')`. `vehicle_size_adjustments` is jsonb and would
+  not have cared. Three is below the trade norm of five.
+- **Found and deliberately left:** a service that cannot be done mobile
+  (coatings need a garage — we model mobile-vs-drop-off per business and per
+  date, never per service), cure/hold time (a single `duration_minutes` and one
+  contiguous slot cannot express a 24-hour hold), and deposits (the trade's
+  standard no-show answer, blocked on billing).
+
+The four decisions, the full migration written out as a specification, and the
+build order are all in that file. Judgment calls: DECISIONS.md → "Roadmap 2.8".
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
@@ -480,7 +528,10 @@ Full record: DECISIONS.md → "Roadmap 2.4".
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.
 4. ~~**Resolve the deploy question.**~~ **DONE 2026-08-30** — Netlify auto-publishes `main` on push; proven by pushing it and watching the live site change with nothing else done. See DECISIONS.md.
-5. **Roadmap 2.8 is now the gate on five walkthrough items, not three.**
-   W9, W10, W21, W22 and W25 all wait on it. W21 is also what raises the
-   booking page's step-1 height ceiling, so it buys more than its own item.
+5. ~~**Roadmap 2.8 is now the gate on five walkthrough items, not three.**~~
+   **RESEARCH DONE 2026-08-31 — see §6d. The gate is now FOUR OWNER
+   DECISIONS**, listed at the end of `docs/detailer-research-2026-08-31.md`.
+   Three of the four change the migration, so the five builds cannot start
+   until he answers. Two of the five (W10, W21) turned out to need no
+   migration at all.
 6. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.

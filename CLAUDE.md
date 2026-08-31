@@ -128,8 +128,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   `--lite` runs the `?lite=1` path; `--shots=DIR` saves the PNGs.
   **Read the spare room, not just the pass.** Step 1's height is the TENANT'S
   catalogue: with the demo's four services it has 18px of headroom on a phone,
-  so a fifth service breaks W16 again. The fix for that is roadmap 2.8's W21,
-  not shaving gaps.
+  so a fifth service breaks W16 again. The fix for that is W21, not shaving
+  gaps. **W21 is DESIGNED but NOT BUILT as of 2026-08-31** — roadmap 2.8
+  answered it (`docs/detailer-research-2026-08-31.md`) and it needs no
+  migration, because `services.features` already exists. **The one hard rule
+  that came out of it: the W21 disclosure ships before or with any editor for
+  `services.features`.** `StepServices.jsx` renders that field inline today, so
+  an editor without a disclosure arms this exact overflow for every tenant who
+  fills it in.
 
 - **Before changing any colour, know law 11b (`docs/design-system.md`): the
   accent is IDENTITY, never MEANING.** Paid / money-up / "it worked" are the

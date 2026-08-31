@@ -10,12 +10,23 @@ features half is now done too, except the five that wait on research:** W1, W2,
 W3, W4, W5, W6, W16, W17, W18, W19, W20, W23 and W26 are closed in roadmap 2.7,
 and each carries what was measured below.
 
-**W9, W10, W21, W22 and W25 are DELIBERATELY STILL OPEN.** All five are
-questions about what a detailer's catalogue and constraints actually look like
-— what fields a service needs, whether add-ons group, whether packages exclude
-each other, what on-site resources matter — and roadmap 2.8 is the research
-that answers them. Building them first would mean guessing the answer and then
-building the guess into a schema. W27 is the same thread.
+**W9, W10, W21, W22 and W25 are ANSWERED BUT NOT BUILT, as of 2026-08-31.**
+All five were questions about what a detailer's catalogue and constraints
+actually look like — what fields a service needs, whether add-ons group,
+whether packages exclude each other, what on-site resources matter — and
+roadmap 2.8 went and looked. **The answers are in
+`docs/detailer-research-2026-08-31.md`**, item by item, with the five real
+detailers' menus they came from; each item below carries a one-line summary.
+W27 is the same thread and is answered there too.
+
+**The build is blocked on four owner decisions**, listed at the end of that
+file: single-select services, three vehicle sizes or five, from-prices, and
+whether to ask how dirty the car is. Three of the four change the migration, so
+nothing is built until he answers. **One ordering constraint is not optional
+and is not his call: the W21 disclosure ships before or with any editor for
+`services.features`**, because that field renders inline on the booking card
+today and an editor without a disclosure arms a W16 overflow for every tenant
+who uses it.
 
 **And the emulator caveat earned its place.** Every "cut off" item was
 reproduced at 392x844 in a real browser before it was touched, and one of
@@ -301,9 +312,26 @@ team's good."* Gallery: *"looks pretty normal."*
   (name, description, price, duration, protection, bigger vehicles, add-on) and
   was unsure rather than dissatisfied: *"I don't know how detailers usually use
   it."* **This is a research item, not a build item** — pair it with W17.
+  **ANSWERED 2026-08-31.** Five real menus, five findings. All five publish a
+  FROM-price or a range rather than a firm one, because condition decides the
+  hours — that is one boolean, `services.price_is_from`, and it is owner
+  decision 3. Three vehicle classes is below the trade norm of five, and it is
+  the only schema-blocking part because `bookings.vehicle_size` is a CHECK
+  constraint — owner decision 2. The inclusion list already exists as
+  `services.features` and nothing edits it. Two real gaps are NOT ours yet: a
+  service that cannot be done mobile (coatings need a garage — we model
+  mobile-vs-drop-off per business and per date, never per service), and
+  cure/hold time, which the single `duration_minutes` cannot express.
 - **W10 — Add-ons need grouping and/or reordering.** *"if they could add, like,
   groups maybe, so that way not everything is kinda just thrown in there at the
   same time. Or maybe you could reorder stuff."*
+  **ANSWERED 2026-08-31: reordering, not groups, and no migration.** Real
+  add-on lists are 3, 6, 7 and 9 items and not one of the five menus studied
+  groups them. `add_ons.sort_order` exists, the Catalog query already orders by
+  it, and no UI writes it — so this is a Catalog screen job. Services have the
+  same unused column and the same gap. The asymmetry with services is correct
+  rather than an oversight: services DO group in the wild, which is why
+  `group_label` is on services and should not be added to add-ons.
 - **W11 — DONE 2026-08-31.** Same cause as W7 and worse: EVERY child of the
   promo card was a bare sibling — both field rows, the checkbox, the button and
   every existing code — so the whole card was one undivided block. One
@@ -452,6 +480,17 @@ team's good."* Gallery: *"looks pretty normal."*
   a giant description block — he wants a small control on the service box (*"a
   little eye"* or similar) that opens the full contents. **This is the item
   most likely to change the services data model**, so it belongs with W9/W10.
+  **ANSWERED 2026-08-31, and it changes NOTHING in the data model.**
+  `services.features` is already a jsonb array and already the right shape; it
+  just has no editor. His practice is the trade's — all five package menus
+  publish itemised inclusion lists, and they run 5 to 10+ bullets each.
+  **And there is a live trap here.** `StepServices.jsx` renders `features`
+  inline (capped at five), so the field is harmless only because nothing writes
+  it. The disclosure must ship before or with the editor, never after, or a
+  realistic catalogue — 5–9 services at 5–10 inclusions — turns step 1's 18px
+  of phone headroom into several screens. This is why W21 is the lever named
+  for step 1's ceiling: it is the only item that makes a card's height
+  independent of how much the detailer wrote.
 - **W22 — Water and electricity must be per-detailer.** The *"I can provide
   access to water and an outlet"* question was added **for him specifically**,
   because he does not carry a water tank or generator; he says most detailers
@@ -459,6 +498,21 @@ team's good."* Gallery: *"looks pretty normal."*
   about **electricity only**, and an option that **blocks the booking** if the
   customer cannot supply what that detailer needs. *"there should be more
   customization for that because obviously there's a lot of different scenarios."*
+  **ANSWERED 2026-08-31, and HIS PREMISE IS BACKWARDS — worth telling him.**
+  He added the question believing he is the unusual one. Most working mobile
+  detailers use the customer's tap and the customer's outlet and ask about it
+  when booking; carrying a tank and a generator is the minority setup, sold as
+  a premium differentiator by the businesses that have it. So the question he
+  built for himself is the standard question, and the customisation needed is
+  smaller than he feared. **What actually varies is which resource and what
+  happens on "no"** — and water and power are independent, which one boolean
+  cannot express (a coating specialist needs power and no hose; a rinseless
+  operator needs neither). Shape: `water_requirement` and `power_requirement`
+  on `business_settings`, each `not_needed` / `ask` / `required`, defaulting to
+  `ask` so nothing changes on migration day; `bookings.has_water_electric`
+  splits into `has_water` and `has_power`. **The block goes in
+  `_shared/slotValidation.ts`**, where create-, reschedule- and update-booking
+  meet — a `required` resource enforced only in React is W4's hole again.
 - **W23 — DONE 2026-08-31, and the only screen that failed at 1440x900 after
   the phone and the 1920 monitor were both clean was the masthead's fault.** The
   header grows at `min-width: 1000px`, and its own comment says why: "a 60px bar
@@ -497,12 +551,29 @@ team's good."* Gallery: *"looks pretty normal."*
   content as placeholder** (*"obviously those are just example things"*), so
   the question is whether packages should be mutually exclusive, not whether
   the demo data is wrong.
+  **ANSWERED 2026-08-31: one boolean, `business_settings.services_single_select`,
+  and it is owner decision 1.** Four of the five real menus are pick-one; the
+  fifth is a shop whose whole menu is à la carte, where combining is the point.
+  So the split is per BUSINESS, not per service and not per group — which is
+  what keeps it to one column instead of a groups table. The
+  `services` / `add_ons` split we already have IS the trade's split: a package
+  plus extras. Recommended default is on.
 - **W26 — DONE 2026-08-31**, as an instance of W16 exactly as this note says.
   Step 5 with a day picked has 119px of room on a phone now; it had 16px of
   overflow, and 45px before a day was picked.
 - **W26 — Time slots on mobile do not all fit.** Instance of W16.
 - **W27 — "How do I reach you" is essentially complete** — but research whether
   other detailers need fields he does not.
+  **ANSWERED 2026-08-31, and he was right that it is nearly complete.** Of the
+  four things real booking forms collect that we do not, two are already
+  covered and two are judgment calls. Parking/access notes: our "Anything we
+  should know?" box covers it — a placeholder word, not an item. "How did you
+  find us?": we have campaigns, visits and `referral_code_used`, a stronger
+  instrument than a self-reported dropdown. Structured year/make/model: every
+  real form asks for it, but nothing here would read it, and four fields of
+  step height against W16 buys nothing — leave the one free-text box. **The one
+  real gap is interior condition** (light / moderate / heavy / extreme), which
+  is owner decision 4 and pairs with the from-price in W9.
 
 ## The research thread running through this
 
@@ -511,3 +582,14 @@ one detailing business — his — and he knows it.** He asked more than once fo
 research into how other detailers work. That is a distinct piece of work from
 any of the UI items and probably should be its own roadmap entry, because
 several build decisions above depend on its answer.
+
+**It became roadmap 2.8 and it is DONE — `docs/detailer-research-2026-08-31.md`,
+2026-08-31.** Five real detailers' published menus and booking flows, one long
+thread of working detailers talking to each other, three trade software
+vendors. The single most useful thing it found is that **two of the five open
+items were misfiled**: W10 and W21 need no migration at all, because
+`add_ons.sort_order` and `services.features` already exist and nothing writes
+either. The single most surprising thing is that **his W22 premise is
+backwards** — he is the normal case, not the unusual one. Four decisions came
+back out of it for him; they are the last section of that file before the
+schema list, and the build waits on them.
