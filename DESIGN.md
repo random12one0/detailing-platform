@@ -29,6 +29,9 @@ read that before changing one.
 
 What is still open is named at the end of the system file under "What this
 file does NOT settle". The light theme is no longer among them: the owner
-killed it and it was removed in 2.3, so there is one ground. What remains is
-the tenant's curated four-to-six accent colours, which 2.4 needs and nobody
-has picked, and mid-range Android, which nobody has measured.
+killed it and it was removed in 2.3, so there is one ground. The tenant's
+accent set is no longer among them either: 2.4 settled it 2026-08-30 as
+**twelve presets built from a 46-brand sample**, and the question as posed —
+"a curated four to six" — turned out to be the wrong question, because the
+owner wants coverage rather than a narrowed list. **What remains is mid-range
+Android, which nobody has measured.**

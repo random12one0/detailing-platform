@@ -399,13 +399,13 @@ Full record: DECISIONS.md → "Roadmap 2.4".
    booking step should fit without scrolling) and 2.8 (research how other
    detailers work). **None of it is started.**
 
-   **2.4 item 3 — DONE 2026-08-30, see §6c.** Twelve evidence-built presets, a
-   hue-family classifier that explains an arbitrary colour in words, and a
-   form-first status vocabulary that holds for ANY accent. The owner corrected
-   the framing mid-session and that correction is now law 11b: **the accent is
-   identity, never meaning — paid is always green.** **What is left of 2.4 is
-   only the cancel/reschedule page's composition** (three stacked full-width
-   buttons with no hierarchy).
+   **2.4 — DONE 2026-08-30, see §6c. All of it.** Twelve evidence-built
+   presets, a hue-family classifier that explains an arbitrary colour in words,
+   and a form-first status vocabulary that holds for ANY accent. The owner
+   corrected the framing mid-session and that correction is now law 11b: **the
+   accent is identity, never meaning — paid is always green.** The last piece,
+   the customer manage page's composition, closed the same day: four identical
+   full-width pills became one group with three weights.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

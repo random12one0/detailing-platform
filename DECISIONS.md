@@ -3611,3 +3611,25 @@ would have to count sibling elements across JSX to mean anything, which is
 brittle in a way the existing 26 checks are not — they read stylesheets and
 markup for facts, not for shapes. The rule went into
 `docs/design-system.md` § Composition instead, where the never-defaults live.
+
+### Two things checked during the above and found NOT to be findings
+
+Recorded so they are not re-discovered and re-argued.
+
+**`.bk-btn`'s default ring measures 1.71:1 against the ground** (`--line-2`
+`#333B40` on `#0B0D0E`), which is under law 9's 3:1 for non-text interactive
+edges. It is not a finding: the ring is a secondary affordance on a control
+whose own label runs 19.48:1, so the boundary is not what identifies the
+button. It is also pre-existing on every secondary button on the booking page,
+not something this item introduced. The new tiers were measured too and both
+clear the text floor comfortably — the bare destructive label `#E2705F` at
+**6.23:1** and the ghost `#939CA1` at **6.97:1**, with the accent fill at
+10.16:1 as a non-text edge.
+
+**"Keep my booking" appeared bone-coloured rather than muted in the first
+confirmation screenshots.** It is `.bk-btn.ghost:hover`, not a defect:
+Playwright leaves the pointer where it clicked, and the confirmation panel that
+replaces the exits row puts a different button under that exact spot. Measured
+with the pointer parked off-canvas it is `#939CA1`, as designed.
+`scripts/shoot-manage.mjs` now moves the mouse to (2,2) before every shot, so
+the artifact cannot come back.
