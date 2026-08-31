@@ -100,23 +100,39 @@
   --text-muted: var(--fog);
   --danger: var(--bad);
 
-  /* THE ACCENT IS THE HOUSE'S, FIXED — law 11. The tenant's colour is
-     customer-facing only: their booking page and, in phase 3, their site.
-     Until this rewrite lib/theme.js injected the tenant's colour over
-     --accent here at runtime; it no longer does, and that file's comment
-     explains the change. --accent-text exists and equals --accent because
-     the two-value rule is the system's (a fill takes 3:1, the same colour
-     as words takes 4.5:1) and a screen should not have to know that they
-     currently agree. #38E08B measures 11.28:1 on the ground, so it clears
-     both by a distance. */
+  /* THE ACCENT IS THE TENANT'S — law 11, rewritten by the owner 2026-08-30
+     after 2.3 shipped the opposite and asked him to confirm it. A detailer
+     picks one colour and it paints their booking page, their site AND their
+     own dashboard. `applyDashboardAccent` in lib/theme.js writes the first
+     three of these onto <html> at runtime, corrected against --ink-0; the
+     values here are the HOUSE DEFAULT they fall back to when a business has
+     picked nothing, and #38E08B is what the marketing page uses.
+
+     --ac IS NOT THE SAME THING AS --accent, and that is the whole point of
+     this block. --ac is the house green, a fixed system token that the
+     landing page also defines under .ld — it must never be overwritten.
+     --accent is whatever THIS business chose. So below this block there is
+     no `var(--ac)` left: every fill reads --accent, so it retints.
+
+     TWO VALUES, because an accent has two jobs at two floors: as a FILL — a
+     button face, a selected day, a focus ring — it clears 3:1; as WORDS it
+     clears 4.5:1. For the house green they agree (11.28:1, clearing both by
+     a distance). For a tenant's they often do not: crimson #DC2626 is a real
+     preset and measures 3.27:1 on this ground, so it passes as a fill and
+     fails as type. Anything that prints the colour AS WORDS takes
+     --accent-text. Nothing in this file prints the accent as words without
+     it — checked line by line in 2.3's reopening. */
   --accent: var(--ac);
   --accent-text: var(--ac);
-  --accent-ink: #04150C;   /* what is drawn ON an accent fill. A raw value
-                              because it is not a surface — it is the ink for
-                              one specific green, 10.36:1 on it, and the same
-                              value booking.css uses. */
-  --accent-quiet: color-mix(in srgb, var(--ac) 10%, var(--ink-2));
-  --accent-line: color-mix(in srgb, var(--ac) 45%, transparent);
+  --accent-ink: #04150C;   /* what is drawn ON an accent fill. The fallback is
+                              a raw value because it is not a surface — it is
+                              the ink for one specific green, 10.36:1 on it,
+                              and the same value booking.css uses. For a
+                              tenant colour `inkFor()` measures it instead. */
+  /* Derived, so they retint for free. NOT written by lib/theme.js — two
+     places computing the same colour is how they drift apart. */
+  --accent-quiet: color-mix(in srgb, var(--accent) 10%, var(--ink-2));
+  --accent-line: color-mix(in srgb, var(--accent) 45%, transparent);
 
   --overlay: rgba(6, 8, 9, 0.74);
 
@@ -174,10 +190,31 @@
      The old file's 90ms tap token is gone rather than renamed: a press now
      scales with NO transition at all, so contact is instant in both
      directions. That is better feedback than a fast transition was, and it
-     is one less number to keep in step. */
+     is one less number to keep in step.
+
+     A TOOL'S REVEAL IS NOT A PAGE'S — the owner, 2026-08-30, reopening 2.3:
+     "the GUIs just take a little too much time to go up and do the load-in
+     animation… make that just a little speedier." The system's --t-reveal is
+     950ms and that is the LANDING page's number, where you meet each section
+     once on the way past. This is a tool opened forty times a day, and its
+     entrance was the slowest thing on it: 950ms plus a 210ms stagger meant
+     the last card settled 1.16s after it appeared. Documented in
+     docs/design-system.md § Motion, "The dashboard's own reveal".
+
+     BOTH VALUES BELOW ARE NUMBERS THE SYSTEM ALREADY HOLDS, deliberately —
+     420 is the system's --t-exit and 180 its --t-hover — so no fifth number
+     enters the system on this surface. Each surface defines its own copy of
+     these tokens already (landing.css under .ld, booking.css as --bk-*), so
+     this is the same per-surface pattern, not a fork.
+
+     --t-exit drops with it because law 4 says an exit is FASTER than an
+     entrance, and at 420/420 it would no longer be. It also fixes a pair
+     that was already inverted: the sheet backdrop faded IN at --t-hover
+     (180ms) and OUT at --t-exit (420ms), so leaving took longer than
+     arriving. Now it does not. */
   --e-out: cubic-bezier(.16, .84, .34, 1);
-  --t-reveal: 950ms;
-  --t-exit: 420ms;
+  --t-reveal: 420ms;
+  --t-exit: 180ms;
   --t-hover: 180ms;
   /* Old names, same curve — call sites did not have to move. */
   --ease: var(--e-out);
@@ -196,7 +233,7 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
-::selection { background: var(--ac); color: var(--accent-ink); }
+::selection { background: var(--accent); color: var(--accent-ink); }
 
 /* ---------------------------------------------------------------- TYPE */
 /* Both axes explicitly on the roles that need them, never on a root. */
@@ -279,7 +316,7 @@ a { color: var(--accent-text); text-decoration: none; }
 .lit::after, .card.attend::after {
   content: ""; position: absolute; inset: -22% -7%;
   z-index: -1; pointer-events: none; border-radius: 50%;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--ac) 15%, transparent), transparent 74%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 15%, transparent), transparent 74%);
 }
 
 .card.tappable { cursor: pointer; transition: background var(--t-hover) var(--e-out); }
@@ -318,7 +355,7 @@ a { color: var(--accent-text); text-decoration: none; }
   width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
   background: var(--fog);
 }
-.dot.completed, .dot.paid { background: var(--ac); }
+.dot.completed, .dot.paid { background: var(--accent); }
 .dot.cancelled { background: var(--bad); }
 /* Upcoming and not-yet-answered are HOLLOW: nothing has landed. */
 .dot.confirmed { background: transparent; box-shadow: inset 0 0 0 2px var(--bone-2); }
@@ -329,7 +366,7 @@ a { color: var(--accent-text); text-decoration: none; }
 .dot.block { background: var(--fog); }
 .ring {
   width: 7px; height: 7px; border-radius: 50%; background: transparent;
-  box-shadow: inset 0 0 0 2px var(--ac); flex-shrink: 0;
+  box-shadow: inset 0 0 0 2px var(--accent); flex-shrink: 0;
 }
 
 /* ------------------------------------------------------------- THE RAIL
@@ -367,7 +404,7 @@ a { color: var(--accent-text); text-decoration: none; }
 }
 /* It landed. The one place the accent is spent on this screen apart from
    the primary button. */
-.dayrail > .landed::before { background: var(--ac); box-shadow: none; }
+.dayrail > .landed::before { background: var(--accent); box-shadow: none; }
 /* A settled row is a line, not a card, so its node sits on the line's own
    centre rather than a card's first line of text. */
 .dayrail > .settled-row::before { top: 20px; }
@@ -438,7 +475,7 @@ a { color: var(--accent-text); text-decoration: none; }
 .tabbar button svg { flex-shrink: 0; }
 .tabbar button.active {
   color: var(--accent-text);
-  background: color-mix(in srgb, var(--ac) 12%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .topbar {
@@ -477,10 +514,10 @@ a { color: var(--accent-text); text-decoration: none; }
 /* A solid fill. One accent, spent on the single action that moves the
    screen forward. */
 .btn.primary {
-  background: var(--ac); border-color: var(--ac); color: var(--accent-ink);
+  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
   font-weight: 700;
 }
-.btn.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--bone) 12%, var(--ac)); border-color: transparent; }
+.btn.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--bone) 12%, var(--accent)); border-color: transparent; }
 .btn.filled { background: var(--surface-sunken); }
 .btn.danger { background: transparent; border-color: color-mix(in srgb, var(--bad) 55%, transparent); color: var(--bad); }
 .btn.ghost { border-color: transparent; background: transparent; }
@@ -516,8 +553,8 @@ a { color: var(--accent-text); text-decoration: none; }
    button, and Calendar's History view stacks three chiprows, so a solid
    selection would have lit nine things on one screen. */
 .chip.active {
-  background: color-mix(in srgb, var(--ac) 15%, transparent);
-  border-color: var(--ac); color: var(--accent-text); font-weight: 600;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border-color: var(--accent); color: var(--accent-text); font-weight: 600;
 }
 .chip:disabled { opacity: 0.4; cursor: default; }
 .chiprow {
@@ -547,7 +584,7 @@ a { color: var(--accent-text); text-decoration: none; }
   letter-spacing: 0.08em; color: var(--text-muted);
   border: 1px solid var(--hairline); white-space: nowrap;
 }
-.pill.completed, .pill.paid { border-color: var(--accent-line); background: color-mix(in srgb, var(--ac) 11%, transparent); color: var(--accent-text); }
+.pill.completed, .pill.paid { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 11%, transparent); color: var(--accent-text); }
 .pill.confirmed { border-color: var(--line-2); color: var(--text-2); }
 .pill.cancelled, .pill.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); color: var(--bad); }
 .pill.pending, .pill.partial { border-color: var(--line-2); color: var(--text-muted); }
@@ -577,12 +614,12 @@ input[type="time"], input[type="date"], input[type="number"] {
 }
 input:hover, select:hover, textarea:hover { border-color: var(--line-2); }
 input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--accent-line);
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-line);
 }
 textarea { min-height: 92px; resize: vertical; line-height: 1.5; }
-input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--ac); }
+input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--accent); }
 input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
-:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* --------------------------------------------------------------- STATES */
 .warn-box, .error-box, .ok-box, .confirm-box {
@@ -607,7 +644,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   cursor: pointer; white-space: nowrap; font-size: var(--t-meta); font-family: var(--f-body);
 }
 .error-box { border: 1px solid color-mix(in srgb, var(--bad) 55%, transparent); background: color-mix(in srgb, var(--bad) 9%, transparent); color: var(--bad); }
-.ok-box { border: 1px solid var(--accent-line); background: color-mix(in srgb, var(--ac) 9%, transparent); color: var(--accent-text); }
+.ok-box { border: 1px solid var(--accent-line); background: color-mix(in srgb, var(--accent) 9%, transparent); color: var(--accent-text); }
 .confirm-box {
   display: block; border: 1px solid var(--accent-line); background: var(--accent-quiet);
   color: var(--text); padding: var(--sp-3) var(--sp-4); font-size: var(--t-body);
@@ -642,8 +679,8 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   align-items: center; justify-content: center;
   font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums;
 }
-.cal-cell.today .n { background: var(--ac); color: var(--accent-ink); font-weight: 700; }
-.cal-cell.selected { border-color: var(--ac); background: var(--accent-quiet); }
+.cal-cell.today .n { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.cal-cell.selected { border-color: var(--accent); background: var(--accent-quiet); }
 .cal-cell .marks { margin-top: auto; display: flex; align-items: center; gap: 3px; min-height: 7px; }
 /* Once there is room, the grid takes it. At 768 and 1440 a 56px cell left a
    third of the screen empty under the month — the "not enough content to
@@ -668,7 +705,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .center { display: flex; align-items: center; justify-content: center; min-height: 40vh; flex-direction: column; gap: var(--sp-3); }
 .spinner {
   width: 26px; height: 26px; border: 2px solid var(--hairline);
-  border-top-color: var(--ac); border-radius: 50%; animation: spin 0.7s linear infinite;
+  border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -685,11 +722,11 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   border-radius: 3px 3px 0 0; min-height: 3px;
   transform-origin: 50% 100%;
   animation: bar-rise var(--t-reveal) var(--e-out) backwards;
-  animation-delay: calc(var(--i, 0) * 60ms);
+  animation-delay: calc(var(--i, 0) * 40ms);   /* was 60ms — see § MOTION */
 }
-.bars i.on, .bars button.on { background: var(--ac); }
+.bars i.on, .bars button.on { background: var(--accent); }
 .bars button { border: 0; padding: 0; cursor: pointer; align-self: flex-end; }
-.bars button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+.bars button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @keyframes bar-rise { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
 .barlabels { display: flex; gap: 5px; margin-top: 6px; }
 .barlabels span {
@@ -710,16 +747,37 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    well-orchestrated page load with staggered reveals creates more delight
    than scattered micro-interactions". Not a scroll reveal: a dashboard
    screen is read, not travelled. */
-.app-main > .group > *,
+/* :not(.sheet-backdrop) — THE SCREEN'S REVEAL IS FOR THE SCREEN'S CONTENT,
+   never for an overlay drawn OVER it. The sheet backdrop is rendered inside
+   .app-main > .group rather than in a portal, so this selector matched it,
+   and at (0,2,0) it beat `.sheet-backdrop`'s own (0,1,0) `animation:
+   backdrop-in`. A full-screen dark overlay was therefore sliding up 14px and
+   fading in on the staggered delay of whatever child index it landed on
+   (160ms, being last) instead of fading straight in.
+   Found 2026-08-30 by reading the computed animation-name on a live sheet
+   rather than the stylesheet — the cascade is the only place this is visible.
+   Excluding it, rather than raising the backdrop's specificity to (0,2,0),
+   because a tie decided by source order is one reorder away from silently
+   coming back. */
+.app-main > .group > *:not(.sheet-backdrop),
 .app-main > .rows,
 .app-main > .card {
   animation: arrive var(--t-reveal) var(--e-out) backwards;
 }
-.app-main > .group > *:nth-child(1) { animation-delay: 0ms; }
-.app-main > .group > *:nth-child(2) { animation-delay: 55ms; }
-.app-main > .group > *:nth-child(3) { animation-delay: 110ms; }
-.app-main > .group > *:nth-child(4) { animation-delay: 165ms; }
-.app-main > .group > *:nth-child(n+5) { animation-delay: 210ms; }
+/* 40ms, down from 55 — the stagger has to come down with the duration or the
+   tail of the screen still lands late. The last element now settles at
+   420 + 160 = 580ms, against 1160ms before.
+
+   :not(.sheet-backdrop) again, and it is NOT redundant with the rule above:
+   these set animation-delay, which is a separate property with its own
+   cascade. Excluding the backdrop from the animation but not from the delay
+   left it fading in correctly and 160ms late — the stagger slot of whatever
+   child index it happened to land on. Both halves or neither. */
+.app-main > .group > *:not(.sheet-backdrop):nth-child(1) { animation-delay: 0ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(2) { animation-delay: 40ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(3) { animation-delay: 80ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(4) { animation-delay: 120ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(n+5) { animation-delay: 160ms; }
 @keyframes arrive {
   from { opacity: 0; transform: translate3d(0, 14px, 0); }
   to   { opacity: 1; transform: none; }
@@ -767,7 +825,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   letter-spacing: 0.08em; color: var(--text-muted);
   border: 1px solid var(--hairline); white-space: nowrap;
 }
-.badge.completed, .badge.paid { border-color: var(--accent-line); background: color-mix(in srgb, var(--ac) 11%, transparent); color: var(--accent-text); }
+.badge.completed, .badge.paid { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 11%, transparent); color: var(--accent-text); }
 .badge.cancelled, .badge.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); color: var(--bad); }
 .badge.pending, .badge.partial { border-color: var(--line-2); color: var(--text-muted); }
 .badge.confirmed { border-color: var(--line-2); color: var(--text-2); }
@@ -901,9 +959,9 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   background: var(--fog); border: 0;
   transition: transform var(--t-hover) var(--e-out), background var(--t-hover) var(--e-out);
 }
-.switch.on .knob { background: var(--ac); border-color: var(--ac); }
+.switch.on .knob { background: var(--accent); border-color: var(--accent); }
 .switch.on .knob::after { transform: translateX(18px); background: var(--accent-ink); }
-.switch input:focus-visible + .knob { outline: 2px solid var(--ac); outline-offset: 2px; }
+.switch input:focus-visible + .knob { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Segmented — mutually exclusive, and the invalid combination cannot be
    expressed at all. Two to four choices is a segmented control, never a
@@ -937,8 +995,8 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .choice:hover:not(.on) { border-color: var(--line-2); color: var(--text); }
 .choice:active { transform: scale(0.97); }
 .choice.on {
-  background: color-mix(in srgb, var(--ac) 15%, transparent);
-  border-color: var(--ac); color: var(--accent-text);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border-color: var(--accent); color: var(--accent-text);
 }
 
 /* Stepper — nudge a small number instead of typing it. */
@@ -975,7 +1033,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   font-family: var(--f-num); font-variant-numeric: tabular-nums;
 }
 .money-field input:focus-visible { box-shadow: none; outline: none; }
-.money-field:focus-within { border-color: var(--ac); }
+.money-field:focus-within { border-color: var(--accent); }
 
 /* The More hub: a settings row that answers its own question — the only
    screen in the product made of panels (law 1, its own skeleton). */

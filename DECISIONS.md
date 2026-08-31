@@ -2934,3 +2934,150 @@ that page already.
 
 `scripts/shoot-dashboard.mjs` exists so this is repeatable rather than
 re-invented each time; it is documented in `docs/HANDOFF.md` §4b.
+
+---
+
+## Roadmap 2.3, reopened — the three things the owner sent back (2026-08-30)
+
+He looked at the restyled dashboard and returned three items. All three are
+now done. Three defects and one design-system contradiction were found on the
+way, and those are the part worth reading.
+
+### (a) The load-in was too slow — a tool's reveal is not a page's
+
+*"the GUIs just take a little too much time to go up and do the load-in
+animation. So if you can make that just a little speedier."*
+
+`app/src/theme.css` now defines its own `--t-reveal: 420ms` and
+`--t-exit: 180ms`, with the stagger down from 55ms to 40ms. **The last element
+on a screen settles at 580ms, against 1160ms before** — measured in the
+browser, not calculated. Written up in `docs/design-system.md` § Motion, "The
+dashboard's own reveal", because law 4 says a duration choice goes into the
+system with its reason and not into a stylesheet quietly.
+
+**Why this is not a fifth duration.** Both numbers already exist in the
+system — 420 is `--t-exit`, 180 is `--t-hover` — so nothing was invented, and
+every surface already defines its own copy of these tokens (`landing.css`
+under `.ld`, `booking.css` as `--bk-*`). The 950ms reveal is the LANDING
+page's number and it is untouched there; verified by reading the computed
+`--t-reveal` on `/` after the change (still 950ms). The curve is not
+per-surface and never will be.
+
+`--t-exit` had to come down with it, and that also fixed a pair that was
+already inverted: the sheet backdrop faded IN at `--t-hover` (180ms) and OUT
+at `--t-exit` (420ms), so leaving took longer than arriving.
+
+### (b) The dashboard takes the tenant's accent — law 11, in code
+
+`applyDashboardAccent()` is back in `app/src/lib/theme.js` (the old
+`applyTheme` minus the `data-theme` half, which stays dead — there is one
+ground). `BusinessContext` calls it on load, on every change to
+`branding.primary_color`, and **with null on unmount**. Every one of the ~30
+`var(--ac)` uses in `theme.css` became `var(--accent)`; `--ac` stays as the
+house default that `--accent` falls back to, and the marketing page's `--ac`
+was not touched.
+
+**The 30-way fill-vs-text split the roadmap describes turned out to be "all
+fills."** The 2.3 rewrite had already routed every *text* use through
+`--accent-text`. Checked line by line rather than assumed.
+
+**The unmount call is not tidiness.** `theme.css` is a GLOBAL sheet and
+`landing.css` defines no `--accent*` of its own, so a colour left on `<html>`
+would follow a signed-in user out to the public marketing page. Verified in
+the browser: on `/` the inline properties are gone and `--accent` computes
+back to `#38E08B`.
+
+#### The defect this found: the correction ground was the wrong ground
+
+**`lib/theme.js` corrected the accent against `--ink-0`, and that guarantees a
+floor on `--ink-0` and nowhere else.** A dashboard accent does not stay on the
+ground: `.cal-cell.today` sits in a panel, and `.pill` / `.badge` /
+`.chip.active` / `.choice.on` print `--accent-text` on a tinted panel. Those
+surfaces are lighter, so contrast on them is LOWER than the number just
+guaranteed.
+
+Sweeping the eight presets: **six of them under the 4.5:1 text floor on a
+panel, and violet and slate under even the 3:1 FILL floor on `--ink-3`.**
+
+Fixed by correcting against `--ink-3`, the lightest surface an accent can land
+on — every one of these colours is lighter than every ground, so clearing the
+floor there clears it on all the darker ones. One correction, guaranteed
+everywhere. It costs almost nothing: **the house green does not move at all**
+and six of the eight preset fills are unchanged.
+
+`scripts/accent-sweep.mjs` is new, credential-free, imports the same functions
+the app calls, prints all three grounds, and **exits non-zero** if this ever
+comes back.
+
+**The booking page deliberately did NOT follow.** Checked rather than assumed:
+`booking.css` prints `--bk-accent-text` in exactly two places and both are
+borderless rows sitting directly on the ground. Correcting that page against
+`--ink-3` would push every tenant colour further from the owner's pick on the
+surface their customers see, to buy a floor it already clears.
+
+#### A second defect: stale tenant state survived sign-out
+
+`BusinessContext.reload()`'s two "no tenant" exits cleared only `business`,
+leaving `branding`, `settings`, `role` and `firstName` behind. Invisible until
+the dashboard started wearing the tenant's colour — then signing out left the
+last detailer's colour on the sign-in screen, and signing in as a different
+one wore their predecessor's colour until the fetch returned. Fixed at the
+shared point (`clearTenant()`), not in the accent effect. Verified by signing
+out in a real browser: the inline properties clear and `--accent` falls back
+to `#38E08B`.
+
+#### OPEN, and it is the owner's: Crimson reads as the error colour
+
+Law 11 makes one sentence in `docs/design-system.md` false. `--bad` `#E2705F`
+was "the only warm value anywhere in the system, so it can never be confused
+with the accent" — true only while the accent was fixed green. Corrected for
+text, **Crimson lands at `#E55B5B`, ΔE 11.4 from `--bad`**: the same colour to
+a glance. A *paid* pill and a *cancelled* pill on one screen would then be the
+same red meaning opposite things. Ember measures ΔE 35.9 and is fine; Crimson
+is the only one at risk.
+
+**Not fixed in code on purpose.** The fix is to drop Crimson from the presets,
+which is the owner's open "curated four to six" decision (roadmap 2.4). A
+second red invented to dodge it is the exact failure mode
+`design-knowledge.md` §2 names. The system file now records the collision
+instead of the false claim.
+
+### (c) Every screen IS opened and looked at — and the tool was broken
+
+Confirmed, and the standing routine ran again: 1920 / 1440x900 / 768x1024 /
+392x844, console read at each, normal path and `?lite=1`, plus the retint
+sweep under crimson, violet, gold and slate. Console is clean apart from two
+pre-existing React Router v7 future-flag warnings.
+
+**`scripts/shoot-dashboard.mjs` could not sign in.** The demo login was
+simplified to `demo123` in commit `1f3f945` and this script kept
+`DemoDetail2026!`, so the one tool that opens the dashboard at all was dead.
+Fixed, with a comment naming `seed-demo.mjs` as the file it must match. It
+also gained `--accent <PresetName>`, which picks the colour through the REAL
+screen (More > Your colour > the swatch) rather than writing the database, so
+it proves the save and the live retint and not just the stylesheet.
+
+#### A third defect, found only by reading the live cascade
+
+The sheet backdrop is rendered inside `.app-main > .group` rather than in a
+portal, so the screen-reveal rule `.app-main > .group > *` — specificity
+(0,2,0) — beat `.sheet-backdrop`'s own (0,1,0) `animation: backdrop-in`. **The
+full-screen dark overlay was running `arrive`: sliding up 14px and fading in
+on a 160ms staggered delay** instead of fading straight in. Pre-existing; the
+duration change halved it but did not cause or cure it.
+
+Fixed with `:not(.sheet-backdrop)` on the reveal rule **and on the five
+stagger rules** — `animation-delay` is a separate property with its own
+cascade, and excluding it from one but not the other left the overlay fading
+correctly and still 160ms late. Chosen over raising the backdrop's specificity
+to tie at (0,2,0), because a tie decided by source order is one reorder away
+from silently coming back.
+
+**This was invisible in the stylesheet and invisible in a screenshot.** It was
+found by reading `getComputedStyle(...).animationName` on a live open sheet.
+Worth repeating on anything inside `.app-main > .group` that is not content.
+
+### Screens
+
+`shots/23b-final/` — five tabs and three settings sheets at four widths.
+`shots/23b/` — the four retint extremes and the `?lite=1` pass.

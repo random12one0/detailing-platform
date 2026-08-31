@@ -128,7 +128,10 @@ export default function More() {
       // "Appearance / Colour and theme" in roadmap 2.3: there is no theme to
       // choose any more, and the colour is customer-facing only (law 11), so
       // the row now says where it lands.
-      ["appearance", "Your colour", Palette, "Shown on your booking page", false,
+      /* "Everywhere" is literal since law 11 was rewritten (2026-08-30): the
+         colour paints the booking page, the website AND this dashboard. It
+         used to read "Shown on your booking page", which is now a half-truth. */
+      ["appearance", "Your colour", Palette, "Used everywhere, including here", false,
         branding?.primary_color ?? null],
     ]],
     ["What you sell", [

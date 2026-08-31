@@ -3,15 +3,23 @@
 // The Light/Dark chips are gone: the owner killed the light theme on
 // 2026-08-30 and there is one ground now.
 //
-// The larger change is that this colour NO LONGER TOUCHES THIS DASHBOARD.
-// Design system law 11: "The house accent is fixed; the tenant's accent is
-// customer-facing only." That is the owner's own reasoning — a detailer
-// "probably doesn't really care about the admin dashboard colour scheme"
-// (docs/design-brief.md §B6b) — so the colour is spent where their customers
-// see it. That has one consequence this screen has to carry honestly:
-// picking a colour changes nothing on the screen you are looking at. If it
-// did not say so, and show what it DOES change, it would read as broken.
-// Hence the preview.
+// THIS COLOUR PAINTS THIS DASHBOARD TOO — design system law 11, as the owner
+// rewrote it on 2026-08-30: "we should have them be able to customize their
+// admin dashboard accent color… almost anything goes with black." 2.3 shipped
+// the opposite and this screen said so in plain words; both are now corrected.
+//
+// It flips what the screen has to carry honestly. Under the old law, picking
+// a colour changed NOTHING on the screen you were looking at, so the copy had
+// to say so and a preview had to show what it did change. Now picking a
+// colour repaints the screen under your finger the moment it saves — the
+// strongest possible confirmation — so the copy says that instead.
+//
+// THE PREVIEW STAYS, for a reason worth writing down before someone deletes
+// it as redundant: the two grounds are the same colour today (DASHBOARD_BG
+// and BOOKING_BG are both #0B0D0E), so it happens to show the same pairing
+// the dashboard is about to take. What it is really showing is the pairing
+// on the CUSTOMER's screen, which is the one that has to be right, and the
+// two constants exist separately precisely so they can diverge again.
 
 import { useState } from "react";
 import { supabase } from "../../lib/supabase.js";
@@ -34,7 +42,7 @@ export default function Appearance() {
       setMsg({ ok: false, text: error.message });
       return;
     }
-    setMsg({ ok: true, text: "Saved. Your booking page uses it straight away." });
+    setMsg({ ok: true, text: "Saved. This dashboard and your booking page use it straight away." });
     reload();
   };
 
@@ -50,8 +58,8 @@ export default function Appearance() {
           and a heading repeated twelve pixels below itself is noise. */}
       <div className="tight">
         <p className="quiet">
-          It marks the buttons and highlights on your booking page, and on
-          your website. If a colour is too faint to read against that page,
+          It marks the buttons and highlights on your booking page, on your
+          website, and on this dashboard. If a colour is too faint to read,
           it is adjusted just enough to stay legible.
         </p>
       </div>
@@ -104,8 +112,9 @@ export default function Appearance() {
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
 
       <p className="quiet">
-        The dashboard itself keeps its own colours, on purpose — so what you
-        pick here is judged against your customers' screen, not this one.
+        Whatever you pick is checked against the dark background before it is
+        used, so it can never come out too faint to read — which is why a very
+        pale colour may look slightly deeper than the one you chose.
       </p>
     </div>
   );

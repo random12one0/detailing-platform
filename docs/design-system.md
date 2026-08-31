@@ -171,8 +171,12 @@ Not suggestions. Where a test enforces one, it is named.
     business that has picked nothing gets, and what the marketing page uses.
     `app/src/lib/theme.js` remains the ONLY file allowed to compute or write
     colour from JS. And the two-value rule below still holds on every
-    surface: a fill clears 3:1, the same colour as words clears 4.5:1, and
-    the ground both are corrected against is `--ink-0`.
+    surface: a fill clears 3:1, and the same colour as words clears 4.5:1.
+
+    **The ground each is corrected against is per-surface, and it is not
+    always the ground the surface paints.** This sentence read "the ground
+    both are corrected against is `--ink-0`" until it was swept and
+    measured — see § Tokens, "Which ground an accent is corrected against".
 
     **What this costs, stated plainly because it is the reason the old
     reading existed:** every dashboard screen now has to survive an arbitrary
@@ -264,6 +268,31 @@ a *tenant's* accent they are not. Crimson `#DC2626`, a real preset, measures
 colour as words takes the text variant**, and that includes every tenant site
 built in Phase 3. Found and fixed in roadmap 2.1; see DECISIONS.md.
 
+#### Which ground an accent is corrected against
+
+**Not always the one the surface paints — measured 2026-08-30, roadmap 2.3
+reopened.** Correcting against a ground guarantees a floor *on that ground and
+nowhere else*. So the question is not "what colour is this page" but **"what
+is the lightest thing this accent can land on"**, because lighter ground means
+lower contrast for these colours.
+
+| Surface | Corrected against | Why |
+|---|---|---|
+| Dashboard (`--accent*`) | **`--ink-3`** `#1E2327` | The accent does not stay on the ground. `.cal-cell.today` sits in a panel; `.pill`, `.badge`, `.chip.active` and `.choice.on` print `--accent-text` on a tinted panel; `a` can be anywhere. |
+| Booking page (`--bk-accent*`) | `--ink-0` `#0B0D0E` | `booking.css` prints `--bk-accent-text` in exactly two places and both are borderless rows on the ground. Checked, not assumed. |
+
+**This was a real defect, not a precaution.** When law 11 was rewritten and
+the dashboard started taking the tenant's colour, the correction was still
+against `--ink-0`. Sweeping the eight presets showed **six of them under the
+4.5:1 text floor on a panel**, and violet and slate under even the 3:1 *fill*
+floor on `--ink-3`. `scripts/accent-sweep.mjs` is what found it, prints all
+three grounds, and exits non-zero if it ever comes back.
+
+It costs almost nothing: **the house green does not move at all** (`#38E08B`
+clears 9.21:1 on `--ink-3` by itself), and six of the eight preset *fills* are
+unchanged. Only violet and slate shift, slightly. The text variants push
+further, which is the 4.5:1 floor doing its job.
+
 ### The one warm value
 
 | Token | Value | Job |
@@ -277,8 +306,22 @@ later screen would have invented its own hex, which is the named failure mode
 (`design-knowledge.md` §2). `#E2705F` is the value the product *already*
 ships in the outgoing dashboard palette: continuity rather than a new
 decision. It measures **6.23:1 on `--ink-0`** and **5.54:1 on `--ink-2`**,
-both above the body floor, and it is the only warm value anywhere in the
-system, so it can never be confused with the accent.
+both above the body floor.
+
+**"It is the only warm value anywhere in the system, so it can never be
+confused with the accent" — that sentence stood here until 2026-08-30 and law
+11 killed it.** It was true while the accent was fixed at signal green. Now a
+tenant picks the accent, and two of the eight presets are warm reds:
+corrected for text, **Crimson lands at `#E55B5B`, which is ΔE 11.4 from
+`--bad`** — close enough to read as the same colour at a glance. On a screen
+that shows a *paid* pill and a *cancelled* pill together, the same red would
+then mean both "good" and "bad".
+
+Measure it with `node scripts/accent-sweep.mjs`. **This is not fixed in code
+and must not be fixed by inventing a second red** — the fix is to narrow the
+preset list, which is the owner's open decision under "What this file does NOT
+settle" item 3 and roadmap 2.4. Ember (ΔE 35.9) and everything else are clear;
+Crimson is the only one at risk.
 
 It is the one token that is **not** in the reference page, for the reason
 above, so it is exempt from the sixteen-token drift check in
@@ -331,6 +374,49 @@ There is deliberately **no second curve for pinned beats.** A message
 leaving while a row arrives is an exit and an entrance, which takes the
 ease-out above; the gentleness at the ends of a lock comes from budgeted
 stillness, not from bending the curve.
+
+#### The dashboard's own reveal — 420ms, not 950ms
+
+**Set 2026-08-30 by the owner, reopening roadmap 2.3** after he looked at the
+restyled dashboard: *"when the page loads, the page animations and loading,
+it's perfect, but the GUIs just take a little too much time to go up and do
+the load-in animation. So if you can make that just a little speedier."*
+
+The four durations above are the **landing page's**, and 950ms is right
+there: you meet each section once, on the way past, and the reveal is part of
+the argument the page is making. A dashboard is a tool opened forty times a
+day. At 950ms with a 55ms stagger the last card on a screen settled **1.16
+seconds** after it appeared, which made the entrance the slowest thing on the
+product's most-used surface.
+
+`app/src/theme.css` therefore defines its own copy of these tokens:
+
+| Token | Landing / reference page | Dashboard (`theme.css`) |
+|---|---|---|
+| `--t-reveal` | `950ms` | **`420ms`** |
+| `--t-exit` | `420ms` | **`180ms`** |
+| `--t-hover` | `180ms` | `180ms` |
+| `--e-out` | `cubic-bezier(.16,.84,.34,1)` | same — **one curve, always** |
+
+Stagger drops with it: **40ms** on `arrive` (was 55) and on `bar-rise` (was
+60), so the tail of the screen does not land late. The last element now
+settles at **580ms**.
+
+**This is not a fifth duration and not a second system.** Both dashboard
+values are numbers the system already holds — 420 is `--t-exit`, 180 is
+`--t-hover` — so nothing new was invented, and every surface already defines
+its own copy of these tokens (`landing.css` under `.ld`, `booking.css` as
+`--bk-*`). The curve is not per-surface and never will be.
+
+`--t-exit` had to come down with it for two reasons. Law 4 says an exit is
+faster than an entrance, and at 420/420 it would not have been. And it
+corrects a pair that was **already** inverted before this change: the sheet
+backdrop faded in at `--t-hover` (180ms) and out at `--t-exit` (420ms), so
+leaving took longer than arriving.
+
+`tests/composition.test.mjs` test 5 reads the **reference page**, not
+`theme.css`, so it still measures 950/420 and is unaffected — which is
+correct, because it is testing the system's own page.
 
 ### Atmosphere
 

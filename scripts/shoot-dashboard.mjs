@@ -15,6 +15,7 @@
 //   node scripts/shoot-dashboard.mjs --lite                # the .lite path
 //   node scripts/shoot-dashboard.mjs --tab today,money
 //   node scripts/shoot-dashboard.mjs --more "Hours,Team"   # settings sheets
+//   node scripts/shoot-dashboard.mjs --accent Crimson      # retinted, law 11
 //
 // OUT=<dir> chooses where the PNGs go (default ./shots). Prints every console
 // error and warning seen at any width, which is the half that matters.
@@ -30,7 +31,16 @@ const WIDTHS = [[1920, 1080], [1440, 900], [768, 1024], [392, 844]];
 const argOf = (f) => { const i = process.argv.indexOf(f); return i > -1 ? process.argv[i + 1] : null; };
 const TABS = (argOf("--tab") || "today,calendar,money,clients,more").split(",");
 const MORE = argOf("--more");   // comma list of settings keys to open
+// --accent <PresetName> picks a tenant colour through the REAL screen before
+// shooting: More > Your colour > the swatch with that aria-label. Added when
+// law 11 was rewritten (roadmap 2.3 reopened) and the dashboard started
+// taking the tenant's accent, because "sweep the extremes" needs a way to
+// BE each extreme. Going through the UI rather than writing the database
+// direct is deliberate — it proves the save and the live retint, not just
+// the stylesheet.
+const ACCENT = argOf("--accent");
 const LABEL = { today: "Today", calendar: "Calendar", money: "Money", clients: "Clients", more: "More" };
+const suffix = `${ACCENT ? `-${ACCENT.toLowerCase()}` : ""}${LITE ? "-lite" : ""}`;
 
 mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
@@ -49,16 +59,35 @@ for (const [w, h] of WIDTHS) {
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 20000 });
   if (await page.locator("input[type=email]").count()) {
     await page.fill("input[type=email]", "demo@detailplatform.com");
-    await page.fill("input[type=password]", "DemoDetail2026!");
+    // Must match scripts/seed-demo.mjs. It did NOT for a while: the demo
+    // login was simplified to demo123 in commit 1f3f945 and this line kept
+    // the old password, so this script — the one thing that opens the
+    // dashboard at all — could not sign in. Change both or neither.
+    await page.fill("input[type=password]", "demo123");
     await page.click("form button.btn.primary");
   }
   await page.waitForSelector(".tabbar", { timeout: 30000 });
   await page.waitForTimeout(2500);
 
+  if (ACCENT) {
+    await page.getByRole("button", { name: "More", exact: true }).first().click();
+    await page.waitForTimeout(1200);
+    await page.locator(".nav-row", { hasText: "Your colour" }).first().click();
+    await page.waitForTimeout(1200);
+    const sw = page.locator(`.swatch-row button[aria-label="${ACCENT}"]`);
+    if (!(await sw.count())) problems.push(`${w}: no preset swatch named "${ACCENT}"`);
+    else {
+      await sw.first().click();
+      await page.waitForTimeout(1800);   // save + reload() + repaint
+    }
+    const x = page.locator(".sheet .x, .sheet-grab button");
+    if (await x.count()) { await x.first().click(); await page.waitForTimeout(700); }
+  }
+
   for (const t of TABS) {
     await page.getByRole("button", { name: LABEL[t], exact: true }).first().click();
     await page.waitForTimeout(2200);
-    await page.screenshot({ path: `${OUT}/${w}-${t}${LITE ? "-lite" : ""}.png`, fullPage: true });
+    await page.screenshot({ path: `${OUT}/${w}-${t}${suffix}.png`, fullPage: true });
   }
 
   if (MORE) {
@@ -69,7 +98,7 @@ for (const [w, h] of WIDTHS) {
       if (!(await btn.count())) { problems.push(`${w}: no More row matching "${key}"`); continue; }
       await btn.first().click();
       await page.waitForTimeout(1800);
-      await page.screenshot({ path: `${OUT}/${w}-more-${key.replace(/\W+/g, "")}${LITE ? "-lite" : ""}.png` });
+      await page.screenshot({ path: `${OUT}/${w}-more-${key.replace(/\W+/g, "")}${suffix}.png` });
       const x = page.locator(".sheet .x, .sheet-grab button");
       if (await x.count()) { await x.first().click(); await page.waitForTimeout(700); }
     }

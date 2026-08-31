@@ -86,6 +86,12 @@ explaining it; if they still have to ask "so should I?", it failed.
   `design-contrast`, `landing-pricing`, `route-contract` from repo root —
   credential-free, all must pass. The other 7 tests need env vars from
   root `.env`.
+- **Also credential-free, and it must exit 0 after anything touching accent
+  colour or the ground tokens: `node scripts/accent-sweep.mjs`.** It measures
+  every tenant preset as a fill AND as words on all three grounds the
+  dashboard paints. It exists because correcting a colour against one ground
+  buys a floor on that ground and nowhere else — the bug it caught left six
+  of eight presets under the text floor on a panel (2026-08-30).
 - Report what was observed, never "this should work."
 
 ## Process

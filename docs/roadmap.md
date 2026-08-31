@@ -506,11 +506,37 @@ is kept; the entire visual design restarts from scratch.
          reasoning is written into that file so the next session does not
          re-derive it.
 
-- [ ] 2.3 Dashboard — all five tabs and every settings screen.
+- [x] 2.3 Dashboard — all five tabs and every settings screen.
 
-      **REOPENED 2026-08-30 by the owner, after he looked at it. The restyle
-      below is built, verified and committed; three things came back and NONE
-      of them is started.** Do these first, in this order.
+      **REOPENED 2026-08-30 by the owner, after he looked at it — and CLOSED
+      the same day. All three items (a), (b) and (c) below are done, verified
+      in a real browser and committed.** Three defects and one design-system
+      contradiction were found on the way; the full write-up is DECISIONS.md,
+      "Roadmap 2.3, reopened". In short:
+      - (a) The dashboard defines its own `--t-reveal: 420ms` /
+        `--t-exit: 180ms` with a 40ms stagger. The last element settles at
+        **580ms, down from 1160ms**. Documented in `docs/design-system.md`
+        § Motion, "The dashboard's own reveal". The landing page's 950ms is
+        untouched — checked.
+      - (b) `applyDashboardAccent()` is back; all ~30 `var(--ac)` fills are
+        `var(--accent)`. **The correction ground had to move to `--ink-3`** —
+        correcting against `--ink-0` left six of eight presets under the text
+        floor on a panel. `scripts/accent-sweep.mjs` (new) keeps it fixed.
+      - (c) The routine ran at all four widths, normal and `?lite=1`, plus
+        crimson/violet/gold/slate. `scripts/shoot-dashboard.mjs` **could not
+        sign in** (stale password) and is fixed; it gained `--accent`.
+      - Also fixed: stale tenant state surviving sign-out, and the sheet
+        backdrop running the screen-reveal animation instead of its own.
+
+      **ONE THING IS STILL OPEN AND IT IS THE OWNER'S — see 2.4 item 3.**
+      Crimson corrected for text is `#E55B5B`, ΔE 11.4 from `--bad`
+      `#E2705F`: a *paid* pill and a *cancelled* pill would be the same red
+      meaning opposite things. Deliberately not fixed in code — the fix is to
+      drop Crimson when the preset list is narrowed.
+
+      ---
+
+      **The original three items, kept for the record.**
 
       **(a) The load-in animation is too slow.** His words: *"when the page
       loads, the page animations and loading, it's perfect, but the GUIs just
@@ -700,6 +726,25 @@ is kept; the entire visual design restarts from scratch.
       colour as words (4.5:1); an extreme accent can pass one and fail the
       other. Test both. Still blocked on the curated four-to-six accent set,
       which nobody has picked.
+
+      **Much of the dashboard half of this landed early, in 2.3's reopening
+      (2026-08-30).** The eight presets are swept and measured on all three
+      grounds by `scripts/accent-sweep.mjs`, which exits non-zero on a
+      regression, and the dashboard was screenshotted under crimson, violet,
+      gold and slate at four widths. What 2.4 still owns: **neon and
+      near-black**, which are not in the preset list and are the two the
+      correction has to survive without a preset to fall back on, and the
+      whole booking/manage surface.
+
+      **3. THE CURATED FOUR-TO-SIX — OWNER, and there is now a concrete
+      reason to pick.** `PRESET_COLORS` is still the old eight.
+      **Crimson should be one of the ones dropped:** corrected for text it is
+      `#E55B5B`, ΔE 11.4 from `--bad` `#E2705F`, so a *paid* pill and a
+      *cancelled* pill on the same screen would be the same red meaning
+      opposite things. Ember (ΔE 35.9) and the rest are clear. Do not invent
+      a second red to dodge this — narrowing the list is the fix. See
+      `docs/design-system.md` § "The one warm value" and DECISIONS.md,
+      "Roadmap 2.3, reopened".
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
 

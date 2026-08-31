@@ -4,6 +4,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase.js";
+import { applyDashboardAccent } from "../lib/theme.js";
 
 const Ctx = createContext(null);
 export const useBusiness = () => useContext(Ctx);
@@ -23,9 +24,24 @@ export function BusinessProvider({ children }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  // Every "there is no tenant" exit clears ALL of the tenant's state, not just
+  // `business`. Both exits below used to clear only that, leaving branding,
+  // settings, role and firstName from the previous session behind. That was
+  // invisible until the dashboard started wearing the tenant's accent colour
+  // (law 11, 2026-08-30): a stale `branding` meant signing out left the last
+  // detailer's colour painted on the sign-in screen, and signing in as a
+  // different one wore their predecessor's colour until the fetch returned.
+  const clearTenant = () => {
+    setBusiness(null);
+    setSettings(null);
+    setBranding(null);
+    setRole(null);
+    setFirstName(null);
+  };
+
   const reload = useCallback(async () => {
     if (!session?.user) {
-      setBusiness(null);
+      clearTenant();
       setLoading(false);
       return;
     }
@@ -36,7 +52,7 @@ export function BusinessProvider({ children }) {
       .eq("user_id", session.user.id);
     const membership = memberships?.[0] ?? null; // multi-business switching comes later
     if (!membership) {
-      setBusiness(null);
+      clearTenant();
       setLoading(false);
       return;
     }
@@ -57,13 +73,20 @@ export function BusinessProvider({ children }) {
     if (session !== undefined) reload();
   }, [session, reload]);
 
-  // NO THEME EFFECT, AND NO THEME STATE. Until roadmap 2.3 this provider
-  // read a saved light/dark preference, set data-theme on <html>, and wrote
-  // the tenant's brand colour over the dashboard's --accent on every load.
-  // The owner killed the light theme (2026-08-30) and the design system's
-  // law 11 keeps the tenant's colour on customer-facing surfaces only, so
-  // both jobs are gone: the dashboard's ground and accent are fixed tokens
-  // in theme.css and nothing writes colour here. See lib/theme.js.
+  // THE TENANT'S ACCENT, ON THEIR OWN DASHBOARD — design-system law 11, as
+  // the owner rewrote it on 2026-08-30. Half of the old theme effect is still
+  // gone for good: there is no light/dark preference to read and no data-theme
+  // to set, because there is one ground. The colour half is back.
+  //
+  // Runs on mount, on every change to branding.primary_color, and with null
+  // on unmount — the unmount call is not tidiness. theme.css is a GLOBAL
+  // stylesheet, so a colour left on <html> would follow the user out to the
+  // public marketing page, which has no --accent* of its own. This provider
+  // wraps only the signed-in routes, so unmounting IS leaving the dashboard.
+  useEffect(() => {
+    applyDashboardAccent(branding?.primary_color || null);
+    return () => applyDashboardAccent(null);
+  }, [branding?.primary_color]);
 
   const value = {
     session,

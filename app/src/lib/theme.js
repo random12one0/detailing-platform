@@ -3,22 +3,26 @@
 // THE ONLY FILE ALLOWED TO COMPUTE OR WRITE COLOUR FROM JS
 // (docs/design-system.md, law 11 and §11). Everything else reads var(--…).
 //
-// Two changes landed here in roadmap 2.3, and both DELETED code:
+// Two changes landed here in roadmap 2.3. ONE OF THEM WAS REVERSED BY THE
+// OWNER THE SAME DAY:
 //
 //  1. THERE IS NO LIGHT THEME. The owner killed the dashboard's light/dark
 //     switch on 2026-08-30 ("no light theme needed"). One ground, so there is
 //     no mode argument, no THEME_BG map, no stored preference and no
-//     `data-theme` attribute anywhere in the product.
+//     `data-theme` attribute anywhere in the product. STILL TRUE.
 //
-//  2. THE DASHBOARD NO LONGER TAKES THE TENANT'S COLOUR. Law 11: "The house
-//     accent is fixed; the tenant's accent is customer-facing only." This
-//     file used to write the detailer's brand colour over --accent on the
-//     dashboard root at every load. It does not any more — the dashboard is
-//     one fixed house palette (the signal green), and the tenant's colour
-//     appears where their CUSTOMERS see it: their booking page today, their
-//     own site in phase 3. That is the owner's own reasoning, recorded in
-//     docs/design-brief.md §B6b: a detailer "probably doesn't really care
-//     about the admin dashboard colour scheme."
+//  2. ~~THE DASHBOARD NO LONGER TAKES THE TENANT'S COLOUR.~~ **REVERSED
+//     2026-08-30 by the owner**, who was asked to confirm the law 2.3 shipped
+//     and said no: "I think that we should have them be able to customize
+//     their admin dashboard accent color, because I think that the majority
+//     of accent colors will work… it's just with black, so almost anything
+//     goes with black or a darker colour." docs/design-system.md law 11 now
+//     reads "the tenant's accent applies EVERYWHERE, including their
+//     dashboard", and `applyDashboardAccent` at the bottom of this file is
+//     what carries it. The earlier reading came from docs/design-brief.md
+//     §B6b — a detailer "probably doesn't really care about the admin
+//     dashboard colour scheme" — which was flagged there as an ASSUMPTION and
+//     has now been answered the other way. Do not re-derive it from §B6b.
 //
 // What survives unchanged is the contrast correction itself, which is the
 // actual value in this file: a brand colour is nudged in lightness until it
@@ -28,6 +32,31 @@
 // The dashboard's ground. Must match --ink-0 in theme.css, which is the
 // system's own ground and now the value all three surfaces paint.
 const DASHBOARD_BG = "#0B0D0E";        // --ink-0
+
+// THE GROUND THE DASHBOARD'S ACCENT IS CORRECTED AGAINST, and it is NOT the
+// ground the dashboard paints. Found by measurement 2026-08-30 while sweeping
+// the extremes for law 11 (scripts/accent-sweep.mjs, which reproduces it):
+//
+//   Correcting against --ink-0 guarantees a floor ON --ink-0 and nowhere
+//   else. A dashboard accent does not stay on the ground — .cal-cell.today
+//   sits in a panel, .pill/.badge/.chip.active/.choice.on print
+//   --accent-text on a tinted panel, and `a` can be anywhere. Those surfaces
+//   are LIGHTER, so contrast on them is LOWER than the number the correction
+//   just guaranteed. Six of the eight presets failed the 4.5:1 text floor on
+//   a panel, and violet and slate failed even the 3:1 FILL floor on --ink-3.
+//
+// So it is corrected against --ink-3, the LIGHTEST surface an accent can land
+// on. Every one of these colours is lighter than every ground, so clearing
+// the floor on the lightest ground clears it on all the darker ones — one
+// correction, guaranteed everywhere, instead of one guarantee per surface.
+//
+// It costs almost nothing: the house green is untouched (#38E08B clears
+// 9.21:1 on --ink-3 by itself) and six of the eight preset FILLS do not move
+// at all. Only the text variants push further, which is the 4.5:1 floor
+// doing exactly its job.
+//
+// THE BOOKING PAGE DELIBERATELY STAYS ON ITS OWN GROUND — see BOOKING_BG.
+const DASHBOARD_ACCENT_BG = "#1E2327";  // --ink-3, the highest surface
 
 // The house accent — fixed, not a fallback for a tenant colour. --ac.
 export const HOUSE_ACCENT = "#38E08B";
@@ -42,6 +71,15 @@ export const HOUSE_ACCENT_DEEP = "#0E5C36";
 // the tenant's colour is CORRECTED against, and it must track --bk-bg in
 // app/src/book/booking.css, which is a different file with a different
 // scope. design-contrast.test.mjs asserts that pairing.
+// It stays --ink-0 and does NOT follow the dashboard onto --ink-3, because
+// the two pages spend the accent differently and this was checked rather
+// than assumed (2026-08-30): booking.css prints --bk-accent-text in exactly
+// two places, `.bk-list-row .bk-price` and `.bk-receipt .line.total
+// .bk-price`, and both are borderless rows separated by hairlines sitting
+// directly on --bk-bg. Nothing lifts them onto a panel. Correcting this page
+// against --ink-3 would push every tenant colour further from the owner's
+// pick on the surface their CUSTOMERS see, to buy a floor it already clears.
+// If a panel is ever put under a price on this page, this has to change.
 const BOOKING_BG = "#0B0D0E";      // --ink-0
 const BOOKING_ACCENT = HOUSE_ACCENT;
 
@@ -184,18 +222,28 @@ export function accentTextFor(brandHex, bg = BOOKING_BG) {
 // a bespoke tenant site ever turns out light, roadmap phase 3 reopens it and
 // the ground comes back as a parameter.
 export function brandVarsFor(brandHex) {
-  const brand = brandHex || BOOKING_ACCENT;
-  const accent = correctAccent(brand, BOOKING_BG);
-  let ink = inkFor(accent);
+  const t = accentTriple(brandHex || BOOKING_ACCENT, BOOKING_BG);
+  return {
+    "--bk-accent": t.accent,
+    "--bk-accent-ink": t.ink,
+    "--bk-accent-text": t.text,
+    "--bk-bg": BOOKING_BG,
+  };
+}
+
+// The three values a tenant colour turns into on a given ground, and the ONE
+// place that triple is computed. Two surfaces need it now — the booking page
+// (--bk-*) and, since law 11 was rewritten, the dashboard (--accent*) — and
+// the ink guard below is the kind of detail that goes wrong when it is
+// copied. The ground is a parameter because getting it wrong is the exact bug
+// this file exists to prevent; both callers happen to pass #0B0D0E today.
+function accentTriple(brandHex, bg) {
+  const accent = correctAccent(brandHex, bg);      // a FILL — 3:1
+  let ink = inkFor(accent);                        // what is drawn ON that fill
   if (contrastRatio(accent, ink) < MIN_INK_CONTRAST) {
     ink = contrastRatio(accent, "#ffffff") > contrastRatio(accent, "#000000") ? "#ffffff" : "#000000";
   }
-  return {
-    "--bk-accent": accent,
-    "--bk-accent-ink": ink,
-    "--bk-accent-text": accentTextFor(brand, BOOKING_BG),
-    "--bk-bg": BOOKING_BG,
-  };
+  return { accent, ink, text: accentTextFor(brandHex, bg) };  // text — 4.5:1
 }
 
 // The ground a tenant's colour is previewed against in the dashboard's
@@ -206,14 +254,38 @@ export const CUSTOMER_BG = BOOKING_BG;
 
 // --- Application -----------------------------------------------------------
 
-// NOTHING TO APPLY ANY MORE, AND THAT IS THE POINT. This function used to
-// set data-theme on <html> and write three colour custom properties over the
-// dashboard's tokens at every load. There is one ground now (no light theme)
-// and one fixed house accent (law 11), so both jobs are gone and the tokens
-// in theme.css are the whole story. Deleting the call sites rather than
-// leaving an empty function is deliberate: an applyTheme() that does nothing
-// is an invitation to start putting things back in it.
+// THE DASHBOARD TAKES THE TENANT'S COLOUR — law 11, rewritten by the owner
+// 2026-08-30. This replaces the old `applyTheme`, which also set a data-theme
+// attribute; that half is gone for good, because there is one ground.
 //
-// The dashboard's ground is exported for anything that needs to measure
-// against it — nothing does today.
-export { DASHBOARD_BG };
+// Only these three are written. --accent-quiet and --accent-line are
+// color-mix()es OVER --accent in theme.css, so they retint by themselves and
+// must NOT be set here — two places computing the same colour is how they
+// drift apart.
+const DASHBOARD_ACCENT_VARS = ["--accent", "--accent-text", "--accent-ink"];
+
+export function applyDashboardAccent(brandHex) {
+  const root = document.documentElement;
+
+  // No business, no branding, or signed out: take the properties OFF rather
+  // than write the house green back. theme.css's :root already falls back to
+  // --ac, and removing them is what keeps this off the PUBLIC pages —
+  // app/src/landing/landing.css has no --accent* of its own, and theme.css is
+  // a GLOBAL sheet (see its header), so a tenant colour left on the root
+  // would follow a signed-in user out to the marketing page. That is why
+  // BusinessContext calls this with null on unmount.
+  if (!brandHex) {
+    for (const p of DASHBOARD_ACCENT_VARS) root.style.removeProperty(p);
+    return;
+  }
+
+  // DASHBOARD_ACCENT_BG, not DASHBOARD_BG — see that constant for why.
+  const { accent, ink, text } = accentTriple(brandHex, DASHBOARD_ACCENT_BG);
+  root.style.setProperty("--accent", accent);
+  root.style.setProperty("--accent-text", text);
+  root.style.setProperty("--accent-ink", ink);
+}
+
+// Exported for anything that needs to measure against them —
+// scripts/accent-sweep.mjs does.
+export { DASHBOARD_BG, DASHBOARD_ACCENT_BG };
