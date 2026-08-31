@@ -1015,6 +1015,36 @@ is kept; the entire visual design restarts from scratch.
       needs, what the contact step must collect, which on-site constraints
       exist). Do this BEFORE the parts of 2.7 that depend on it, not after.
 
+- [ ] 2.8b **Build the five items 2.8 unblocked.** Added 2026-08-31 as
+      bookkeeping, not as a new plan: 2.7 lists W9, W10, W21, W22 and W25 as
+      deliberately unbuilt, and 2.8's own text says to do them once the
+      research answers them. It has, and the owner has answered the four
+      decisions, so they now need a checkbox of their own rather than living
+      inside a finished item. **This comes before 2.9** — 2.9 is a floor
+      nobody has hit, and one of these five is currently the reason the
+      owner's own menu does not fit step 1 on a phone.
+
+      **Everything needed is written down: the migration in full, the build
+      order, and the measured ceilings** — all in
+      `docs/detailer-research-2026-08-31.md`. Do not re-derive them.
+      Highlights that are easy to get wrong:
+
+      - **W21's disclosure is FIRST and it holds the DESCRIPTION as well as
+        the inclusion list.** It is the only one of the five that takes height
+        off step 1; every other one adds. Card 97px → 74px, and the owner's own
+        menu 119px over → 18px spare.
+      - **One migration, one file, with the backfill.** `service_groups` with
+        `max_select`, `services.group_id` + `price_is_from`, four columns on
+        `business_settings`, four on `bookings`, and the three-value CHECK on
+        `bookings.vehicle_size` dropped. `group_label`, `ask_water_electric`
+        and `has_water_electric` are KEPT — append-only.
+      - **W22's block goes in `_shared/slotValidation.ts`**, not the React
+        step. W4 already found that exact hole in 2.7.
+      - **Reshape the demo seed** to two categories of three, which is the
+        arrangement every measurement was taken against.
+      - Verify with `node scripts/sweep-booking-steps.mjs` and read the SPARE
+        ROOM, not the pass. Step 1 and step 3 are both the tenant's budget now.
+
 - [ ] 2.9 **The 320px floor — measured 2026-08-31, deferred on purpose.**
       PRODUCT.md promises "responsive 320→1440" and the product does not keep
       it, so this item is what makes that claim true. Nothing here is one of

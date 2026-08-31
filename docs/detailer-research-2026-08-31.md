@@ -694,7 +694,14 @@ step 1 by 119px until it is done.
    is the measured phone ceiling, and a dropdown is permitted above four.
 7. **W27's condition question** with it, since it shares the booking step and
    the same migration.
-8. **Re-run `node scripts/sweep-booking-steps.mjs` after each**, and read the
+8. **Reshape the demo seed while doing step 4.** `scripts/seed-demo.mjs` gives
+   the demo four services with four distinct `group_label`s, so the migration's
+   backfill will produce four categories of one — which exercises none of the
+   new rule and looks like a mistake on the booking page. The demo should
+   become the owner's own shape: two categories of three, `max_select` 1 on
+   each. That is also the arrangement every measurement in this file was taken
+   against, so the sweep keeps measuring the thing that was designed.
+9. **Re-run `node scripts/sweep-booking-steps.mjs` after each**, and read the
    spare room rather than the pass. Both tenant-controlled steps now have a
    measured ceiling — step 1 at 18px with the description folded away, step 3
    at six sizes — and those are the numbers to watch, not the word "fits".
