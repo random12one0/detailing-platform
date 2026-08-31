@@ -314,10 +314,19 @@ nowhere else*. So the question is not "what colour is this page" but **"what
 is the lightest thing this accent can land on"**, because lighter ground means
 lower contrast for these colours.
 
-| Surface | Corrected against | Why |
+| Value | Corrected against | Why |
 |---|---|---|
-| Dashboard (`--accent*`) | **`--ink-3`** `#1E2327` | The accent does not stay on the ground. `.cal-cell.today` sits in a panel; `.pill`, `.badge`, `.chip.active` and `.choice.on` print `--accent-text` on a tinted panel; `a` can be anywhere. |
-| Booking page (`--bk-accent*`) | `--ink-0` `#0B0D0E` | `booking.css` prints `--bk-accent-text` in exactly two places and both are borderless rows on the ground. Checked, not assumed. |
+| Dashboard `--accent` and `--accent-text` | **`--ink-3`** `#1E2327` | The accent does not stay on the ground. `.cal-cell.today` sits in a panel; `.pill`, `.badge`, `.chip.active` and `.choice.on` print `--accent-text` on a tinted panel; `a` can be anywhere. |
+| Booking **fill** `--bk-accent` | **`--ink-3`** `#1E2327` | **Corrected in roadmap 2.4 — it was `--ink-0` and that was a LIVE defect.** `.bk-card.selected` draws its accent ring on `linear-gradient(166deg, var(--bk-lit), ...)`, whose top is `--ink-3`, and `.bk-cal .cell.today` rings a lifted cell. On `--ink-0` Violet measured **2.78:1** there, Slate 2.62, a black pick 2.56 and a deep navy 2.51 — all under the 3:1 fill floor, on the ring that is the only thing telling a customer which service they picked. |
+| Booking **text** `--bk-accent-text` | `--ink-0` `#0B0D0E` | Stays. `booking.css` prints it in exactly two places and both are borderless rows on the ground. Checked in 2.3, re-checked in 2.4. Pushing it to `--ink-3` would move every tenant colour further from the owner's pick on the surface their customers see, to buy a floor it already clears. |
+
+**The rule underneath all three rows is one sentence: correct against the
+lightest surface THAT VALUE can land on.** Not the ground the page paints, and
+not one answer per page — the fill and the text of the same accent can need
+different grounds, and on the booking page they do. `accentTriple()` takes both.
+`scripts/accent-sweep.mjs` measures the booking page's values on its own
+surfaces every run, and reverting the fill ground makes it exit 1 with those
+four numbers.
 
 **This was a real defect, not a precaution.** When law 11 was rewritten and
 the dashboard started taking the tenant's colour, the correction was still

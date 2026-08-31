@@ -36,7 +36,7 @@ import Notifications from "./more/Notifications.jsx";
 import MessageTemplates from "./more/MessageTemplates.jsx";
 import Preferences from "./more/Preferences.jsx";
 import { detectPlatform, loadPrefs, PLATFORMS } from "../lib/platform.js";
-import { correctAccent, CUSTOMER_BG } from "../lib/theme.js";
+import { brandVarsFor } from "../lib/theme.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const time12 = (t) => {
@@ -202,7 +202,7 @@ export default function More() {
                         legible. Showing the raw hex would make the row lie
                         about a colour that had to be adjusted. */}
                     {swatch
-                      ? <span className="swatch" style={{ background: correctAccent(swatch, CUSTOMER_BG) }} />
+                      ? <span className="swatch" style={{ background: brandVarsFor(swatch)["--bk-accent"] }} />
                       : <Icon size={19} strokeWidth={2} />}
                   </span>
                   <span className="txt">

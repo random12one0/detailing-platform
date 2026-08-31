@@ -65,23 +65,45 @@ export const HOUSE_ACCENT = "#38E08B";
 // that no longer exists.
 export const HOUSE_ACCENT_DEEP = "#0E5C36";
 
-// The PUBLIC booking page's own ground and fallback accent. It is the same
-// ground as the dashboard's now — every surface in the product paints
-// --ink-0 — but it stays its own named constant on purpose: this one is what
-// the tenant's colour is CORRECTED against, and it must track --bk-bg in
-// app/src/book/booking.css, which is a different file with a different
-// scope. design-contrast.test.mjs asserts that pairing.
-// It stays --ink-0 and does NOT follow the dashboard onto --ink-3, because
-// the two pages spend the accent differently and this was checked rather
-// than assumed (2026-08-30): booking.css prints --bk-accent-text in exactly
-// two places, `.bk-list-row .bk-price` and `.bk-receipt .line.total
-// .bk-price`, and both are borderless rows separated by hairlines sitting
-// directly on --bk-bg. Nothing lifts them onto a panel. Correcting this page
-// against --ink-3 would push every tenant colour further from the owner's
-// pick on the surface their CUSTOMERS see, to buy a floor it already clears.
-// If a panel is ever put under a price on this page, this has to change.
+// The PUBLIC booking page's ground. It is the same colour as the dashboard's
+// — every surface in the product paints --ink-0 — but it stays its own named
+// constant on purpose: it must track --bk-bg in app/src/book/booking.css,
+// which is a different file with a different scope, and
+// design-contrast.test.mjs asserts that pairing.
 const BOOKING_BG = "#0B0D0E";      // --ink-0
 const BOOKING_ACCENT = HOUSE_ACCENT;
+
+// THE BOOKING PAGE CORRECTS ITS TWO VALUES AGAINST TWO DIFFERENT GROUNDS, and
+// it is the same principle as the dashboard's: correct against the LIGHTEST
+// surface the value can land on, because that is the worst case and clearing
+// it there clears it everywhere.
+//
+//   THE FILL/RING lands on panels, so it takes --ink-3.
+//   Found by measurement in roadmap 2.4 (2026-08-30) and it was a LIVE
+//   defect, not a precaution. `.bk-card.selected` draws its accent ring on
+//   `linear-gradient(166deg, var(--bk-lit), var(--bk-sunken))` — the top of
+//   that gradient IS --ink-3 — and `.bk-cal .cell.today` rings a cell painted
+//   rgba(255,255,255,.025) over the ground. Corrected against --ink-0,
+//   Violet measured 2.78:1 on --bk-lit, Slate 2.62, a pure-black pick 2.56
+//   and a deep navy 2.51, all under the 3:1 non-text floor. That ring is the
+//   ONLY thing telling a customer which service they picked.
+//
+//   THE TEXT stays on --ink-0, and this half was checked rather than assumed
+//   (2026-08-30, and re-checked in 2.4): booking.css prints --bk-accent-text
+//   in exactly two places, `.bk-list-row .bk-price` and `.bk-receipt
+//   .line.total .bk-price`, and both are borderless rows separated by
+//   hairlines sitting directly on --bk-bg. Nothing lifts them onto a panel.
+//   Pushing them to --ink-3 would move every tenant colour further from the
+//   owner's pick on the surface their CUSTOMERS see, to buy a floor it
+//   already clears. If a panel is ever put under a price here, change this.
+//
+// A side effect worth knowing: the booking fill and the dashboard fill are
+// now corrected against the same ground, so a tenant's colour paints
+// IDENTICALLY on both surfaces. That is an improvement, not a coincidence to
+// preserve — the two constants stay separate because the grounds are allowed
+// to diverge again.
+const BOOKING_FILL_BG = "#1E2327";   // --bk-lit / --ink-3, the highest surface
+const BOOKING_TEXT_BG = BOOKING_BG;  // --bk-bg / --ink-0, where prices sit
 
 // Accent-vs-background must clear WCAG's non-text component minimum (3:1);
 // the same colour used AS TEXT must clear the normal-text minimum (4.5:1).
@@ -324,7 +346,7 @@ export function accentTextFor(brandHex, bg = BOOKING_BG) {
 // a bespoke tenant site ever turns out light, roadmap phase 3 reopens it and
 // the ground comes back as a parameter.
 export function brandVarsFor(brandHex) {
-  const t = accentTriple(brandHex || BOOKING_ACCENT, BOOKING_BG);
+  const t = accentTriple(brandHex || BOOKING_ACCENT, BOOKING_FILL_BG, BOOKING_TEXT_BG);
   return {
     "--bk-accent": t.accent,
     "--bk-accent-ink": t.ink,
@@ -333,19 +355,24 @@ export function brandVarsFor(brandHex) {
   };
 }
 
-// The three values a tenant colour turns into on a given ground, and the ONE
-// place that triple is computed. Two surfaces need it now — the booking page
-// (--bk-*) and, since law 11 was rewritten, the dashboard (--accent*) — and
-// the ink guard below is the kind of detail that goes wrong when it is
-// copied. The ground is a parameter because getting it wrong is the exact bug
-// this file exists to prevent; both callers happen to pass #0B0D0E today.
-function accentTriple(brandHex, bg) {
+// The three values a tenant colour turns into, and the ONE place that triple
+// is computed. Two surfaces need it — the booking page (--bk-*) and, since law
+// 11 was rewritten, the dashboard (--accent*) — and the ink guard below is the
+// kind of detail that goes wrong when it is copied.
+//
+// TWO GROUNDS, because the fill and the text land on different surfaces and
+// each must be corrected against the LIGHTEST thing IT can land on. `textBg`
+// defaults to `bg` for the dashboard, where both answers are --ink-3; the
+// booking page passes them separately and its constants say why. Getting the
+// ground wrong is the exact bug this file exists to prevent, so neither is
+// allowed to be implicit.
+function accentTriple(brandHex, bg, textBg = bg) {
   const accent = correctAccent(brandHex, bg);      // a FILL — 3:1
   let ink = inkFor(accent);                        // what is drawn ON that fill
   if (contrastRatio(accent, ink) < MIN_INK_CONTRAST) {
     ink = contrastRatio(accent, "#ffffff") > contrastRatio(accent, "#000000") ? "#ffffff" : "#000000";
   }
-  return { accent, ink, text: accentTextFor(brandHex, bg) };  // text — 4.5:1
+  return { accent, ink, text: accentTextFor(brandHex, textBg) };  // text — 4.5:1
 }
 
 // The ground a tenant's colour is previewed against in the dashboard's

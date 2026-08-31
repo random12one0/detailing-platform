@@ -84,7 +84,7 @@ Better than typical for this stage — there is a real, enforced design system:
   for every figure. `app/index.html` requests exactly those two as of 2.3.
 - **Old system, gone:** "Raking Light" — matte near-black ground, one "lit" element per screen, three type faces, a light/dark switch. Its last trace left the codebase when `theme.css` was rewritten in 2.3. The only thing that still names it is `docs/design-system.md` §11, which lists what survived it as contracts rather than style.
 - **Fonts:** `app/index.html` requests exactly TWO families as of 2.3 — Archivo + JetBrains Mono. It carried five transitionally because `theme.css` was the last thing using Anybody / Public Sans / DM Mono; 2.2 expected to drop some of the three and correctly dropped none, because that file used all three on its own, so they left together with it.
-- **`app/src/lib/theme.js` holds ONE ground now** — `#0B0D0E`, named twice (`DASHBOARD_BG` and `BOOKING_BG`) because only the booking one is what a tenant accent is corrected against and it must track `--bk-bg` in `booking.css`. `THEME_BG`, `DEFAULT_ACCENT`, `loadThemeMode` and `saveThemeMode` are all gone — there is no light theme. **`applyTheme` was deleted in 2.3 and came back in 2.3's reopening as `applyDashboardAccent`**, minus the `data-theme` half: law 11 was rewritten and the dashboard takes the tenant's colour after all. It writes `--accent`, `--accent-text` and `--accent-ink` on `<html>`, and **removes them on unmount** — `theme.css` is global and `landing.css` has no `--accent*`, so a colour left behind would follow a signed-in user out to the public marketing page. `brandVarsFor` corrects the tenant accent against `BOOKING_BG` and returns FOUR values including `--bk-accent-text` — the accent at the 4.5:1 text floor rather than the 3:1 fill floor. `design-contrast` asserts `BOOKING_BG` and `--bk-bg` are the same colour. **Added in 2.4: `hueFamily()` and `describeAccent()`** — they classify an arbitrary colour into one of nine families and say so in a sentence on the Appearance screen. They do NOT gate styling; see §6c.
+- **`app/src/lib/theme.js` holds ONE ground now** — `#0B0D0E`, named twice (`DASHBOARD_BG` and `BOOKING_BG`) because only the booking one is what a tenant accent is corrected against and it must track `--bk-bg` in `booking.css`. `THEME_BG`, `DEFAULT_ACCENT`, `loadThemeMode` and `saveThemeMode` are all gone — there is no light theme. **`applyTheme` was deleted in 2.3 and came back in 2.3's reopening as `applyDashboardAccent`**, minus the `data-theme` half: law 11 was rewritten and the dashboard takes the tenant's colour after all. It writes `--accent`, `--accent-text` and `--accent-ink` on `<html>`, and **removes them on unmount** — `theme.css` is global and `landing.css` has no `--accent*`, so a colour left behind would follow a signed-in user out to the public marketing page. `brandVarsFor` corrects the tenant accent against `BOOKING_BG` and returns FOUR values including `--bk-accent-text` — the accent at the 4.5:1 text floor rather than the 3:1 fill floor. `design-contrast` asserts `BOOKING_BG` and `--bk-bg` are the same colour. **Added in 2.4: `hueFamily()` and `describeAccent()`** — they classify an arbitrary colour into one of nine families and say so in a sentence on the Appearance screen. They do NOT gate styling; see §6c. **Also changed in 2.4: `brandVarsFor` corrects the booking FILL against `--ink-3` and the booking TEXT against `--ink-0`** — `accentTriple()` takes both grounds now, because the fill lands on panels and the text does not.
 
 **The two surfaces correct against DIFFERENT grounds, and that is deliberate.** The dashboard uses `DASHBOARD_ACCENT_BG` = `--ink-3` `#1E2327` because its accent lands on panels (`.cal-cell.today`, `.pill`, `.badge`, `.chip.active`); the booking page stays on `BOOKING_BG` = `--ink-0` because its two accent-as-text sites are borderless rows on the ground. Correcting against a ground buys a floor on that ground and nowhere else — see DECISIONS.md, "Roadmap 2.3, reopened".
 - **Tokens vs hardcoded:** discipline is real, and the guess that used to sit here is now CHECKED: the only hex colours in dashboard JS are in `lib/theme.js` (the designated colour-math file) and the four Google marque colours in `screens/Auth.jsx:32-35`, which Google's brand guidelines require be shown as issued. CSS uses `var(--…)` throughout.
@@ -270,10 +270,23 @@ for red accents, because the collision was never red-only: measured, a *silver*
 accent hits the "booked" ring at ΔE 8.5 and a *near-black* accent hits the
 blocked-day grey at ΔE 17.1. Table: `docs/dashboard-skeletons.md` §5b.
 
-**`scripts/accent-sweep.mjs` now sweeps the extremes on every run** — neon
-green/magenta/cyan, pure black, near-black, pure white, alongside the twelve
-presets. All clear both floors on all three grounds. It stays credential-free
-and must exit 0 after anything touching accent colour.
+**A LIVE defect was found on the CUSTOMER-FACING booking page while checking
+this**, and fixed: `.bk-card.selected`'s accent ring — the only thing telling a
+customer which service they picked — is drawn on a lifted gradient whose top is
+`--ink-3`, but the fill was corrected against the ground. Violet measured
+**2.78:1** there, Slate 2.62, a black pick 2.56, a deep navy 2.51, all under
+the 3:1 floor, and Violet and Slate are shipped presets. **The booking page now
+corrects its FILL against `--ink-3` and its TEXT against `--ink-0`** — two
+values, two grounds. The rule is not "one ground per page", it is **correct
+against the lightest surface THAT VALUE can land on**.
+
+**`scripts/accent-sweep.mjs` now sweeps the extremes AND the booking page on
+every run** — neon green/magenta/cyan, pure black, near-black, pure white
+alongside the twelve presets on the three dashboard grounds, then every colour
+again through `brandVarsFor` on the three surfaces the booking page paints.
+Reverting the booking ground makes it exit 1 with those four numbers, so the
+check is real. It stays credential-free and must exit 0 after anything touching
+accent colour.
 
 **Two demo-seed defects were found and fixed** because both blocked LOOKING at
 the product: the demo had no cancelled and no no-show booking at all (so that

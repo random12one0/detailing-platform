@@ -7,7 +7,7 @@
 // the extremes". Screenshots show what it LOOKS like; this shows what it
 // MEASURES, which is the half an eye cannot do.
 //
-//   node scripts/accent-sweep.mjs            # the eight presets
+//   node scripts/accent-sweep.mjs            # 12 presets + the extremes
 //   node scripts/accent-sweep.mjs '#DC2626'  # one arbitrary colour
 //
 // Credential-free — it imports the same functions the app calls, so it cannot
@@ -38,7 +38,7 @@
 //      the only runnable check `hueFamily` has, and it belongs with the sweep
 //      rather than in a twelfth test file nobody runs.
 import {
-  PRESET_COLORS, correctAccent, accentTextFor, contrastRatio, hueFamily,
+  PRESET_COLORS, correctAccent, accentTextFor, contrastRatio, hueFamily, brandVarsFor,
   DASHBOARD_ACCENT_BG,
 } from "../app/src/lib/theme.js";
 
@@ -88,11 +88,45 @@ for (const { name, hex } of colors) {
   console.log("");
 }
 
-console.log(
-  failures === 0
-    ? "every colour clears both floors on all three grounds"
-    : `${failures} ground/floor combinations under the floor — see FAIL above`,
-);
+console.log(failures === 0
+  ? "dashboard: every colour clears both floors on all three grounds"
+  : `dashboard: ${failures} ground/floor combinations under the floor — see FAIL above`);
+
+// --- the booking page, which corrects against its own grounds --------------
+// The sweep above measures the DASHBOARD's values. The public booking page
+// computes its own through brandVarsFor, and until roadmap 2.4 it corrected
+// the fill against the ground — which left `.bk-card.selected`'s accent ring
+// under the 3:1 floor on the panel it is actually drawn on for Violet (2.78),
+// Slate (2.62), a black pick (2.56) and a deep navy (2.51). That ring is the
+// only thing telling a customer which service they picked, so it is measured
+// here every run now, on the two lifted surfaces it can land on.
+if (!argHex) {
+  console.log("\nbooking page — brandVarsFor, on the surfaces it paints\n");
+  const BK = [
+    ["bk-bg", "#0B0D0E", "the ground — where the two prices sit"],
+    ["cal cell", "#111314", ".bk-cal .cell — white at 2.5% over the ground"],
+    ["bk-lit", "#1E2327", ".bk-card.selected's ring — the worst case"],
+  ];
+  for (const { name, hex } of [...PRESET_COLORS, ...EXTREMES]) {
+    const v = brandVarsFor(hex);
+    const fill = v["--bk-accent"], text = v["--bk-accent-text"], ink = v["--bk-accent-ink"];
+    console.log(`${name.padEnd(9)} ${hex}  ->  fill ${fill}   text ${text}   ink ${ink}`);
+    for (const [gname, g, why] of BK) {
+      const f = contrastRatio(fill, g), ok = f >= FILL_MIN;
+      if (!ok) failures++;
+      console.log(`   fill on ${gname.padEnd(8)} ${f.toFixed(2)} ${ok ? "ok " : "FAIL"} (min ${FILL_MIN})   ${why}`);
+    }
+    // The text value is corrected against the ground on purpose — it is only
+    // ever printed on borderless rows there — so it is checked only there.
+    const t = contrastRatio(text, "#0B0D0E"), tok = t >= TEXT_MIN;
+    if (!tok) failures++;
+    console.log(`   text on bk-bg    ${t.toFixed(2)} ${tok ? "ok " : "FAIL"} (min ${TEXT_MIN})   the two prices, on the ground`);
+    // What is drawn ON the fill has to clear the text floor against it.
+    const i = contrastRatio(fill, ink), iok = i >= TEXT_MIN;
+    if (!iok) failures++;
+    console.log(`   ink on the fill  ${i.toFixed(2)} ${iok ? "ok " : "FAIL"} (min ${TEXT_MIN})   button and chip labels\n`);
+  }
+}
 
 // --- the classifier's own check -------------------------------------------
 // hueFamily decides what the dashboard CALLS a colour, so a band edge that
@@ -119,4 +153,11 @@ if (!argHex) {
     : `${wrong.length} hue-family classifications wrong`);
 }
 
+// The only line that speaks for the whole run. Every section above reports its
+// own half, and a per-section "all clear" printed before the next section runs
+// is how a green-looking sweep hides a red one.
+console.log("");
+console.log(failures === 0
+  ? "SWEEP CLEAN — dashboard, booking page and hue families"
+  : `SWEEP FAILED — ${failures} problems, see FAIL above`);
 process.exit(failures === 0 ? 0 : 1);

@@ -15,16 +15,22 @@
 // strongest possible confirmation — so the copy says that instead.
 //
 // THE PREVIEW STAYS, for a reason worth writing down before someone deletes
-// it as redundant: the two grounds are the same colour today (DASHBOARD_BG
-// and BOOKING_BG are both #0B0D0E), so it happens to show the same pairing
-// the dashboard is about to take. What it is really showing is the pairing
-// on the CUSTOMER's screen, which is the one that has to be right, and the
-// two constants exist separately precisely so they can diverge again.
+// it as redundant: what it shows is the pairing on the CUSTOMER's screen,
+// which is the one that has to be right. It happens to match the dashboard
+// today — both grounds are #0B0D0E and, since roadmap 2.4, both FILLS are
+// corrected against #1E2327 — but the constants exist separately precisely
+// so they can diverge again, and the preview is what would show it if they
+// did.
+//
+// EVERY SWATCH ON THIS SCREEN IS PAINTED THROUGH `brandVarsFor`, not through
+// `correctAccent` against the ground. Since 2.4 the booking fill is corrected
+// against --bk-lit (rings land on panels), so correcting against the ground
+// here would paint a colour the page never uses. One function, no drift.
 
 import { useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { PRESET_COLORS, correctAccent, brandVarsFor, describeAccent, CUSTOMER_BG, HOUSE_ACCENT } from "../../lib/theme.js";
+import { PRESET_COLORS, brandVarsFor, describeAccent, CUSTOMER_BG, HOUSE_ACCENT } from "../../lib/theme.js";
 
 export default function Appearance() {
   const { business, branding, reload } = useBusiness();
@@ -70,7 +76,11 @@ export default function Appearance() {
             key={c.hex}
             type="button"
             className={`swatch ${current === c.hex ? "selected" : ""}`}
-            style={{ background: correctAccent(c.hex, CUSTOMER_BG) }}
+            /* brandVarsFor, not correctAccent against the ground: since 2.4 the
+               booking FILL is corrected against --bk-lit because rings land on
+               panels, so painting the swatch from the ground would show a
+               colour the page never paints. One function, no drift. */
+            style={{ background: brandVarsFor(c.hex)["--bk-accent"] }}
             title={c.name}
             aria-label={c.name}
             onClick={() => saveBrandColor(c.hex)}

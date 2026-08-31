@@ -766,6 +766,19 @@ is kept; the entire visual design restarts from scratch.
       figure and `.badge.paid`. Full record: `docs/owner-walkthrough-2026-08-30.md`
       → D3 and DECISIONS.md → "Roadmap 2.4".
 
+      **A LIVE defect on the CUSTOMER-FACING booking page was found while
+      checking this, and fixed.** The sweep measured the dashboard; the booking
+      page corrects its own values and had never been checked. `.bk-card
+      .selected`'s accent ring — the only thing telling a customer which
+      service they picked — sits on a lifted gradient topped by `--ink-3`, but
+      the fill was corrected against the ground: Violet **2.78:1**, Slate 2.62,
+      a black pick 2.56, a deep navy 2.51, all under the 3:1 floor, and Violet
+      and Slate are shipped presets. The booking page now corrects its FILL
+      against `--ink-3` and its TEXT against `--ink-0`. The rule is not "one
+      ground per page" — it is **correct against the lightest surface THAT
+      VALUE can land on**. `accent-sweep` measures the booking page every run
+      now, and reverting the ground makes it exit 1 with those four numbers.
+
       **Two demo-seed defects were found and fixed on the way**, because both
       blocked looking at the product: the demo had NO cancelled and NO no-show
       booking in twenty-one rows (so that whole family of styling could not be

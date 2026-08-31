@@ -3424,13 +3424,66 @@ beside an outlined red "Cancelled" on one screen. Console at every width carries
 only the two pre-existing React Router v7 future-flag warnings, which predate
 this item.
 
+### A LIVE defect on the customer-facing booking page, found while checking
+
+The sweep measures the DASHBOARD's values. The booking page computes its own
+through `brandVarsFor`, against its own ground — so none of the work above had
+actually checked it. Checking it found the 2.3 bug still live on the public
+page, which is the one a paying customer sees.
+
+**`.bk-card.selected` draws its accent ring on
+`linear-gradient(166deg, var(--bk-lit), var(--bk-sunken))`.** The top of that
+gradient is `--ink-3`. `.bk-cal .cell.today` rings a cell painted
+`rgba(255,255,255,.025)` over the ground. Both are LIFTED, and the fill was
+corrected against `--ink-0`. Measured on `--bk-lit`:
+
+| Accent | Ring contrast | Floor |
+|---|---|---|
+| Violet `#7C3AED` | **2.78:1** | 3:1 |
+| Slate `#475569` | **2.62:1** | 3:1 |
+| a black pick | **2.56:1** | 3:1 |
+| a deep navy | **2.51:1** | 3:1 |
+
+**That ring is the only thing telling a customer which service they picked.**
+Violet and Slate are shipped presets, so this was not hypothetical.
+
+**The fix, and the rule it clarifies.** The booking page now corrects its two
+values against two DIFFERENT grounds: the FILL against `--ink-3` because rings
+land on panels, the TEXT against `--ink-0` because the only two places it is
+printed are borderless price rows on the ground (checked in 2.3, re-checked
+here). `accentTriple()` gained an optional `textBg`, defaulting to `bg` so the
+dashboard is unchanged. **The rule is not "one ground per page" — it is
+"correct against the lightest surface THAT VALUE can land on".**
+
+A side effect worth knowing: the booking fill and the dashboard fill are now
+corrected against the same ground, so a tenant's colour paints identically on
+both surfaces. That is an improvement, not a coincidence to preserve.
+
+**`scripts/accent-sweep.mjs` now measures the booking page every run** — fill
+on the ground, on the calendar cell and on `--bk-lit`; text on the ground; and
+the ink ON the fill. The check was proved to work by reverting the ground: it
+exits 1 and prints exactly those four numbers. The script's final line is now
+the only one that speaks for the whole run, because a per-section "all clear"
+printed before the next section runs is how a green sweep hides a red one.
+
+**Both swatch previews were re-pointed at `brandVarsFor`** (Appearance's twelve
+circles and More's nav-row dot). They used `correctAccent(hex, CUSTOMER_BG)`,
+which after this change paints a colour the page never uses. One function, no
+drift — which is the rule that file already stated for the preview card.
+
+Verified live: `/book/demo-detail` under Violet now injects
+`--bk-accent: #8243ee` (3.01:1 on `--bk-lit`) instead of the raw `#7c3aed`
+(2.78:1), with `--bk-accent-text` unchanged at `#955ff0`.
+
 ### Still open in 2.4, NOT done in this session
 
 - **The customer cancel/reschedule page's composition** — its three stacked
   full-width buttons carry no hierarchy. It is the non-colour half of 2.4 and
   it was never started. Its *colour* is fine: the cancelled state there is
   carried by the word "Cancelled" and a line-through on the date, so it has no
-  colour-alone dependence to fix. `booking.css` was not touched.
+  colour-alone dependence to fix. `booking.css` itself was not edited — the
+  booking fix above is entirely in `lib/theme.js`, which is the only file
+  allowed to compute colour.
 - **`a { color: var(--accent-text); text-decoration: none; }`** in `theme.css`
   is a latent 1.4.1 hazard: a link identified by colour alone. Harmless today —
   the dashboard has exactly one bare `<a>` and it is a card — but Phase 3's
