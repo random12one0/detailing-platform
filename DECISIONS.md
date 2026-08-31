@@ -4167,3 +4167,25 @@ The pattern worth keeping: **a column added to a shared table is a change to
 every reader of that table, and the readers do not announce themselves.** The
 grep that found all four was `dropoff_only` across `app/src` and
 `supabase/functions`, and it took a minute.
+
+**And a fifth, from asking the same question about `settings` rather than about
+the table.** W4's card is hidden for a business that only works one way, which
+means it reads `business_settings` — and **staff never see
+`business_settings` at all.** The policy is owner-only to READ and it returns
+staff zero rows rather than an error (PROJECT-STATE §6, "future staff screens
+must use edge functions"). So a staff member's `settings` is null forever, and
+treating the unknown as "both" would have printed *"Mobile and drop-off both
+bookable"* to the one person the app cannot check that claim for — on a
+mobile-only business, simply false.
+
+The split is on where the fact comes from. **An existing restriction always
+shows**, to staff included: it is a row in `dropoff_only_periods`, which they
+can read, and it is worth knowing before they load the van. **The "both
+bookable" resting state only shows to someone who can see the settings behind
+it.** Verified by signing in as each: the owner gets three cards, the staff
+account gets two, and with a mobile-only period set on the day the staff
+account gets all three and reads "Mobile only — no drop-offs".
+
+The general form, and it is worth carrying into Phase 3's tenant sites: **a
+zero-row RLS read is indistinguishable from "the answer is no". Any default
+applied to it is a claim, and the honest default is to say nothing.**

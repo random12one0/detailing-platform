@@ -146,9 +146,21 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
 
   const active = bookings.filter((b) => b.status !== "cancelled");
   // W4 — a restriction only means something where there are two things to
-  // choose between. `settings` is null for a moment on first paint and both
-  // flags default true in the schema, so an unknown is treated as both.
-  const bothModes = (settings?.mobile_enabled ?? true) && (settings?.dropoff_enabled ?? true);
+  // choose between, so the card is not drawn for a business that only works
+  // one way.
+  //
+  // STAFF NEVER SEE `settings` AT ALL: `business_settings` is owner-only to
+  // READ and the policy returns them zero rows, not an error (PROJECT-STATE
+  // §6). So for a staff member `settings` is null forever, and defaulting the
+  // unknown to "both" would print "Mobile and drop-off both bookable" to
+  // someone the app cannot check that claim for — on a mobile-only business
+  // it is simply false. A restriction that IS set is different: it comes from
+  // `dropoff_only_periods`, which staff can read, and it is worth their
+  // knowing before they load the van. So: an existing restriction always
+  // shows; the "both bookable" resting state only shows to someone who can
+  // actually see the settings behind it.
+  const bothModes = !!settings?.mobile_enabled && !!settings?.dropoff_enabled;
+  const showModeCard = !!state.dropoff || bothModes;
   // A card is tappable when it HAS an editor to show. The two that are
   // already set do not: their editor would be a second way to say what the
   // card already says, and the only thing left to do to them is clear them,
@@ -342,7 +354,7 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
                   looked at it, so a customer could read "this day is drop-off
                   only" and book a mobile job anyway. Now the slots function
                   hides the wrong ones and create-booking refuses them. */}
-              {bothModes && (
+              {showModeCard && (
               <div className={`card${state.dropoff ? " attend" : ""}${openable("dropoff") ? " tappable" : ""}`}
                 {...cardProps("dropoff")}>
                 <div className="row top between">
