@@ -736,15 +736,101 @@ is kept; the entire visual design restarts from scratch.
       correction has to survive without a preset to fall back on, and the
       whole booking/manage surface.
 
-      **3. THE CURATED FOUR-TO-SIX — OWNER, and there is now a concrete
-      reason to pick.** `PRESET_COLORS` is still the old eight.
-      **Crimson should be one of the ones dropped:** corrected for text it is
-      `#E55B5B`, ΔE 11.4 from `--bad` `#E2705F`, so a *paid* pill and a
-      *cancelled* pill on the same screen would be the same red meaning
-      opposite things. Ember (ΔE 35.9) and the rest are clear. Do not invent
-      a second red to dodge this — narrowing the list is the fix. See
-      `docs/design-system.md` § "The one warm value" and DECISIONS.md,
-      "Roadmap 2.3, reopened".
+      **3. ~~THE CURATED FOUR-TO-SIX IS DEAD — ANSWERED 2026-08-30, THE OTHER
+      WAY.~~** The owner does not want the list narrowed and does not want red
+      dropped: *"a lot of detailers' color is probably red."* The eight presets
+      carry no authority — *"those eight colors were chosen by AI… I really
+      don't care"* — but the COVERAGE does. So this item stops being "pick four
+      to six" and becomes the three-part job below, which is the real substance
+      of 2.4 now. Full record and his exact words:
+      `docs/owner-walkthrough-2026-08-30.md` → D2.
+
+      **3a. Research which colours real detailers and small businesses use**,
+      and build the list from that rather than from taste. Reds included.
+
+      **3b. A hue-family classifier in `lib/theme.js`**, so a custom colour is
+      understood and not just contrast-corrected. His framing: reds, oranges,
+      yellows, greens, blues, purples, whites — *"even though obviously they're
+      a different color technically, they're that same type of color"* — the
+      goal being that *"almost every single color in the world will work."*
+      `rgbToHsl` is already in that file and it is the only file allowed to
+      compute colour, so the function belongs there and is cheap.
+
+      **3c. Break the status colours' dependence on colour.** When the accent
+      lands in the same hue family as `--bad`, red-on-red means "paid" and
+      "cancelled" at once. **Do NOT invent a second red** — see
+      `docs/design-system.md` § "The one warm value", which now carries this as
+      law. The pills and badges are already safe (they print the words); the
+      exposed surfaces are `.dot.completed` / `.dot.cancelled` and the
+      calendar's `.marks`, which carry no text at all. Those want a FORM
+      difference, and `docs/dashboard-skeletons.md` already uses hollow versus
+      solid for exactly this kind of distinction. **This is a WCAG 1.4.1 fix in
+      its own right** and is worth doing even for a tenant who picks blue.
+
+      **He explicitly removed his own authority from 3c's shape:** *"maybe we
+      switch that color, or maybe you warn the detailer, or make it more
+      obvious that it's cancelled with words or sizing or something. You figure
+      that out. Don't use my word in any way to kind of decide your decision."*
+      Decide it on the merits and record the reasoning.
+> **Order note.** 2.6, 2.7 and 2.8 are listed here, ahead of 2.5, because the
+> file's order is the WORK order and a smoke test belongs at the end of the
+> phase. 2.5 keeps its number so existing references to it stay valid.
+
+- [ ] 2.6 **The owner's walkthrough — the clipping and spacing half.**
+      He went through every screen on a phone and on desktop, 2026-08-30. The
+      full record with his own words is
+      `docs/owner-walkthrough-2026-08-30.md`; item numbers below are its W
+      numbers. This item is the small, checkable defects — do it before 2.7,
+      because it is mostly one class of bug and the screenshot routine already
+      catches it.
+
+      **READ THE EMULATOR CAVEAT FIRST.** He was on a Windows phone emulator,
+      not a real phone, and said so himself. Every "cut off to the right" item
+      must be REPRODUCED at 392x844 before it is fixed —
+      `node scripts/shoot-dashboard.mjs` already shoots that width. If it does
+      not reproduce, close it and say so; do not fix what was never broken.
+
+      - W7/W8 Clients detail on mobile: the boxes touch, and they are oversized
+        for their content. Check against `theme.css` § SPACE (related ≤8,
+        unrelated ≥28) — this one should be provable against the tokens.
+      - W11 Promo codes: boxes touching.
+      - W12 Message templates: the "the date" token chip clipped on the right.
+      - W13 Hours & days off: the time fields clipped on the right.
+      - W14 Your booking page: the "Open" button stretches off screen.
+      - W15 One more clipped thing he saw and could not find again. A full
+        392px sweep of every screen is how to find it, or rule it out.
+      - W24 **The hover bug, and it is the best-argued item he gave.** Hovering
+        an ALREADY-SELECTED option darkens it, which reads as un-selecting.
+        A selected element's hover must move the same direction as its selected
+        state, not against it. Affects `.choice.on` and `.chip.active` in
+        `theme.css` and their booking-page equivalents.
+
+- [ ] 2.7 **The owner's walkthrough — the features half.** Bigger work,
+      several pieces need a decision first. Same source file.
+      - Calendar: W1 whole-box click target; W2 block a RANGE of days;
+        W3 possibly ranged Set hours (confirm the shape first); W4 drop-off /
+        mobile-only per day, driven by the detailer's own settings.
+      - Money: W6 week / month / 6 months / year / lifetime ranges. He asked
+        for the standard convention, not an invention.
+      - Settings: W10 add-on groups and/or reordering.
+      - Booking widget: W16 is the organising rule — **every step fits without
+        scrolling**, on phone AND desktop (W23, W26). Then W17 estimated time,
+        W19 add-ons as their own step, W21 a "full details" control on a
+        service, W25 whether packages are mutually exclusive, W18 the uneven
+        spacing, W20 the sticky back button — which he himself doubted against
+        W17, so it is our call.
+      - W22 **Water and electricity must become per-detailer.** The question
+        exists because HE has no water tank or generator; he says most
+        detailers do. Needs: optional per detailer, an electricity-only mode,
+        and the ability to block a booking the detailer cannot service.
+
+- [ ] 2.8 **OWNER-ADJACENT: research how other detailers actually work.**
+      W9, W22 and W27 are one gap wearing three hats — the product is modelled
+      on his business and he knows it, and he asked for this research more than
+      once. Several 2.7 decisions depend on the answer (what fields a service
+      needs, what the contact step must collect, which on-site constraints
+      exist). Do this BEFORE the parts of 2.7 that depend on it, not after.
+
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
 

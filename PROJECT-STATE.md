@@ -6,12 +6,15 @@ Investigated 2026-08-28, updated through 2026-08-30, by reading the files cited 
 
 Multi-tenant SaaS giving independent car detailers a professional website with online booking built in. Converted from a single-business site ("Andrew's Auto Detail" — the old code is kept read-only in `reference/`, 2.5 MB, never deployed). Three audiences from one React bundle: prospects on the marketing page (`/`), detailer-owners in a phone-first dashboard (`/app`), and their customers on a public booking page (`/book/:slug`).
 
-**Two things to know before anything else (2026-08-30).** **(1) `main` does
-NOT have the 2.3 dashboard.** It is on branch `claude/superbase-access-anj1h7`,
-two commits ahead and unpushed, so detailingplatform.com still serves the OLD
-dashboard behind its sign-in page — the owner hit exactly that when he tried
-to look on his phone. He has not been asked whether to publish. **(2) There is
-a simple demo login now**, so the dashboard can actually be looked at:
+**Two things to know before anything else (2026-08-30).** **(1) ~~`main` does
+NOT have the 2.3 dashboard.~~ IT DOES — published 2026-08-30 on the owner's
+explicit go-ahead**, so detailingplatform.com now serves the new dashboard
+behind its sign-in page. He also stated the stakes, which is the part worth
+carrying forward: **the live site is his private preview, not a launched
+product** — *"no one knows about it, only me. And it's not going out until
+everything's finished."* Still ask before merging to `main`; just know the
+answer is usually yes and why. **(2) There is a simple demo login now**, so
+the dashboard can actually be looked at:
 `demo@detailplatform.com` / `demo123` (owner) and
 `demo-staff@detailplatform.com` / `staff123` (staff). Guessable on purpose and
 temporary — they reach the demo business only, and they must change before
@@ -243,12 +246,23 @@ phase 1 is outstanding.
    inside `.app-main > .group` and lost the cascade. `scripts/shoot-dashboard.mjs`
    also could not sign in at all — it kept the pre-`1f3f945` password.
 
-   **ONE THING IS OPEN AND IT IS THE OWNER'S.** Crimson corrected for text is
-   `#E55B5B`, ΔE 11.4 from the error colour `--bad` `#E2705F` — the same red
-   would mean "paid" and "cancelled" on one screen. Deliberately not fixed in
-   code: the fix is to drop Crimson when the curated four-to-six preset list
-   is picked (roadmap 2.4 item 3). Full write-up: DECISIONS.md, "Roadmap 2.3,
-   reopened".
+   **The one open question was answered the same day, the other way.** Crimson
+   corrected for text is `#E55B5B`, ΔE 11.4 from the error colour `--bad`
+   `#E2705F` — the same red would mean "paid" and "cancelled" on one screen.
+   The recommendation was to drop Crimson; **the owner said no, because a lot
+   of detailers' colour is red.** So the plan inverted: more colour coverage,
+   a hue-family classifier, and a fix that breaks the status signals'
+   dependence on colour instead of pruning the palette. Roadmap 2.4 item 3.
+   The measurement still stands — do not re-propose dropping red on
+   rediscovering it.
+
+   **THEN HE WALKED THE WHOLE PRODUCT** on a phone and on desktop and left
+   about twenty-seven items. Verdict on the design itself was positive
+   (*"I really like the design"*); everything is refinement. It is all in
+   `docs/owner-walkthrough-2026-08-30.md` and split into roadmap 2.6
+   (clipping/spacing), 2.7 (features, organised around his rule that every
+   booking step should fit without scrolling) and 2.8 (research how other
+   detailers work). **None of it is started.**
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

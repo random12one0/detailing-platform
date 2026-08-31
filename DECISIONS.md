@@ -3081,3 +3081,108 @@ Worth repeating on anything inside `.app-main > .group` that is not content.
 
 `shots/23b-final/` — five tabs and three settings sheets at four widths.
 `shots/23b/` — the four retint extremes and the `?lite=1` pass.
+
+---
+
+## The owner walked the whole product, and answered both open questions (2026-08-30)
+
+Full record, in his words: `docs/owner-walkthrough-2026-08-30.md`. Two
+decisions and about twenty-seven feedback items. His overall verdict on the
+design was positive — *"how good it looks so far. I really like the design"* —
+so everything below is refinement, not rejection.
+
+### He published, and told us why the stakes are low
+
+*"Now you could publish this to the website."* Merged and pushed to `main`.
+
+The reasoning is worth keeping because it answers every future publish
+question: *"no one knows about it, only me. And it's not going out until
+everything's finished. So in reality, it's not like something bad should
+happen if we don't publish, but it's nice for me to be able to view it
+anywhere."*
+
+**So detailingplatform.com is his private preview, not a launched product.**
+That is a different thing from what the earlier notes assumed when they
+weighed "publishing mid-phase" as a risk. The rule in CLAUDE.md does not
+change — still ask before merging — but the expected answer, and the reason,
+are now on the record.
+
+### Do NOT drop Crimson — and the curated four-to-six is dead
+
+This reverses the recommendation this session put to him.
+
+*"those eight colors were chosen by AI. They weren't by me, so I really don't
+care about them. But I do want to have a good amount of color choices for
+detailers, because a lot of detailers' color is probably red. So I don't think
+you [should drop it] — maybe find some way around that."*
+
+**The business fact the code did not know: red is a common colour for a
+detailing business.** Pruning reds from the preset list prunes real customers.
+So the plan inverts — MORE coverage, not less:
+
+1. Research which colours real detailers and small businesses actually use.
+2. A hue-family classifier in `lib/theme.js` (reds, oranges, yellows, greens,
+   blues, purples, whites), so *"almost every single color in the world will
+   work."*
+3. Break the status signals' dependence on colour, so a red accent stops
+   colliding with `--bad`.
+
+Now roadmap 2.4 item 3, in three parts.
+
+**The measurement that prompted the original recommendation still stands** —
+Crimson corrected for text is `#E55B5B`, ΔE 11.4 from `--bad` `#E2705F`. The
+number did not change; the response to it did. Do not let a future session
+"rediscover" the number and re-propose dropping red.
+
+### He explicitly removed his own authority from the fix
+
+*"maybe we switch that color, or maybe you warn the detailer, or make it more
+obvious that it's cancelled with words or sizing or something. You figure that
+out. Don't use my word in any way to kind of decide your decision."*
+
+That is an instruction, not modesty, and it is unusual enough to honour
+precisely: he listed three candidate fixes and then said not to weight them
+because he said them. The analysis is already done and is recorded in
+`docs/design-system.md` § "The one warm value" and in the walkthrough file, so
+it does not get re-derived:
+
+- **Pills and badges are already safe.** They print "Paid" and "Cancelled" as
+  words, so colour is reinforcement, not the message.
+- **The exposed surfaces are the ones with no text** — `.dot.completed` /
+  `.dot.cancelled` (7px circles) and the calendar's `.marks`. That is where a
+  fix has to land, and it is a **WCAG 1.4.1** obligation regardless of the
+  accent, so it is worth doing even for a tenant who picks blue.
+- **The system already owns the vocabulary.** `docs/dashboard-skeletons.md`
+  uses hollow versus solid for "ahead" versus "landed"; a third form for
+  "cancelled" is a smaller invention than a new colour.
+- **Rotating `--bad` off red is the option to be most careful with.**
+  Red-for-error is a stronger and more universal convention than any tenant's
+  brand colour. Moving it trades a convention every user knows for one only
+  this product knows.
+- **Never invent a second red.** That is the failure mode
+  `design-knowledge.md` §2 names by name. It is now written into the system
+  file as law.
+
+### The walkthrough itself — 27 items, none started
+
+Split into roadmap **2.6** (clipping and spacing — small, checkable, and the
+screenshot routine already catches this class), **2.7** (features — calendar
+ranges, Money time ranges, and a booking-widget pass organised around his one
+general rule that every step should fit without scrolling), and **2.8**
+(research how other detailers actually work).
+
+**2.8 exists because three separate items are the same gap:** the product is
+modelled on his business and he knows it. The water-and-electricity question
+on the booking page was built for him specifically, because he has no water
+tank or generator, and he says most detailers do. Several 2.7 build decisions
+depend on that research, so it runs first.
+
+**The one caveat that governs half of 2.6:** he was on a Windows phone
+emulator, not a real phone, and flagged it himself. Every "cut off to the
+right" item must be reproduced at 392x844 before it is treated as a bug.
+`scripts/shoot-dashboard.mjs` already shoots that width.
+
+**The best-argued single item he gave** is the hover bug (W24): hovering an
+already-selected option darkens it, which reads as un-selecting it. A selected
+element's hover has to move in the same direction as its selected state, not
+against it. That one needs no research and no decision.

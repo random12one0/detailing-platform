@@ -317,11 +317,30 @@ corrected for text, **Crimson lands at `#E55B5B`, which is ΔE 11.4 from
 that shows a *paid* pill and a *cancelled* pill together, the same red would
 then mean both "good" and "bad".
 
-Measure it with `node scripts/accent-sweep.mjs`. **This is not fixed in code
-and must not be fixed by inventing a second red** — the fix is to narrow the
-preset list, which is the owner's open decision under "What this file does NOT
-settle" item 3 and roadmap 2.4. Ember (ΔE 35.9) and everything else are clear;
-Crimson is the only one at risk.
+Measure it with `node scripts/accent-sweep.mjs`. Ember (ΔE 35.9) and
+everything else are clear; Crimson is the only one at risk.
+
+**The fix is NOT to drop red — decided by the owner 2026-08-30**, against the
+recommendation to prune the presets. His reason is a business fact: *"a lot of
+detailers' color is probably red"*, so a list with no reds in it excludes real
+customers. He wants MORE colour coverage, not less, plus a custom picker that
+classifies any colour into a hue family. See
+`docs/owner-walkthrough-2026-08-30.md` → D2, which also carries his explicit
+instruction that the shape of the fix is an engineering call and not his.
+
+**Two things that follow, and they are law:**
+
+1. **Never invent a second red.** A new error colour to dodge a tenant's red is
+   the failure mode `design-knowledge.md` §2 names, and red-for-error is a
+   stronger convention than any tenant's brand.
+2. **Status must not be carried by colour alone.** The pills and badges are
+   already safe — they print "Paid" and "Cancelled" as words. The exposed
+   surfaces are the ones with no text: `.dot.completed` / `.dot.cancelled` and
+   the calendar's `.marks`. Those need a form difference, not a colour one, and
+   the system already has the vocabulary — `docs/dashboard-skeletons.md` uses
+   hollow versus solid for "ahead" versus "landed". **This is a WCAG 1.4.1
+   obligation on its own**, true even for a tenant who picks blue, so it is
+   worth doing regardless of how the accent question resolves.
 
 It is the one token that is **not** in the reference page, for the reason
 above, so it is exempt from the sixteen-token drift check in
