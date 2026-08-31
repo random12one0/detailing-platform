@@ -51,8 +51,8 @@ were made more than once.
 | About to touch | Sections to read |
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
-| **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.4, the last piece |
-| **The dashboard `/app`** | Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Phase 2 · Phase 2 follow-ups |
+| **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.4, the last piece |
+| **The dashboard `/app`** | Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
 | **Spacing, layout, or anything at phone width** | Roadmap 2.6 · Test at HIS screen size, not yours |
@@ -126,6 +126,7 @@ were made more than once.
 - **Roadmap 2.4, the last piece** — the manage page drew four identical pills and had no first thing.
 - **Roadmap 2.6** — the clipping and spacing half of the walkthrough, plus design-system law 15 and a third accent-ground fix.
 - **DECISIONS.md got an index** — why this file has a map, why the hooks are hand-written, and why nothing was deleted.
+- **Roadmap 2.7** — the features half of the walkthrough. W16 got an instrument, W1 was not where the roadmap pointed, and W4 turned out to be a live hole rather than a feature.
 
 <!-- INDEX:END -->
 
@@ -3931,3 +3932,201 @@ make the call rather than hand it back.
   It is not acute yet, because sessions arrive knowing which item they want and
   items are findable by number. If a session ever starts guessing which phase a
   thing lives in, it needs the same treatment.
+
+
+## Roadmap 2.7 — the owner's walkthrough, the features half
+
+Closed 2026-08-31. W1, W2, W3, W4, W5, W6, W16, W17, W18, W19, W20, W23 and
+W26. W9, W10, W21, W22 and W25 were left for 2.8 on purpose — see the last
+section here. The item-by-item record with the measurements is
+`docs/owner-walkthrough-2026-08-30.md`, which is still the primary source; what
+follows is only the judgment calls.
+
+### W16 got an instrument before it got a fix
+
+*"A good general rule is that everything should be able to fit without having
+to scroll anywhere. Each step, you shouldn't have to scroll down or up."*
+
+A rule with no instrument is a preference. `sweep-widths.mjs`, written in 2.6,
+answers "is anything off the RIGHT edge"; nothing answered "is anything off the
+BOTTOM", and those are different questions with different fixes — the right edge
+is one element too wide, the bottom edge is the whole step's budget.
+
+`scripts/sweep-booking-steps.mjs` walks the flow at all four verification sizes,
+fills it in as a customer would, and reports the overflow per step plus the
+three tallest blocks when it fails. **Baseline: 8 of 12 step-views overflowed,
+worst 222px — 26% of a phone screen.** Without that number the first instinct
+(and the wrong one) is to start shaving gaps at the bottom of whatever screen
+you happen to be looking at.
+
+**Two things about the script are worth keeping.**
+
+- **It reports the SPARE ROOM, not just the failures.** "Fits" is only true of
+  the business that was measured. A detailer with two more services than the
+  demo is a different page, and the headroom is what says how much more the
+  layout can take. That number is what made the ceiling below visible.
+- **It reads the flow rather than assuming it.** W19 made the step list BUILT
+  (add-ons only get a step where a business has any), so a script that assumes
+  six steps silently measures the wrong screen. It reads "STEP n OF m" off the
+  page and drives each step by what that step actually asks for.
+
+**1440x900 was the only size that failed after both of his were clean.** 392x844
+is his phone and 1920x1080 is his monitor, and fixing those two left step 1
+55px past the bottom on a 1440x900 laptop — the SHORT screen, 180px less height
+than 1920 carrying the same desktop masthead. The masthead's own comment says
+why it grows: "a 60px bar above a centred column leaves the top third of a 1920
+screen empty." That reasoning is about height and the gate only checked width.
+It is `(min-width: 1000px) and (min-height: 950px)` now. **The lesson is that
+the four verification widths are four SIZES, and the short one is where a
+height budget breaks.**
+
+### The honest ceiling: step 1 is the tenant's, not ours
+
+Steps 2–7 have 90–500px of room. **Step 1's height is the detailer's
+catalogue**, and with the demo's four services it has 18px of room on a phone —
+a fifth service breaks it. W16 cannot be true in the absolute for a list whose
+length the tenant controls, and pretending otherwise would mean either deleting
+information a customer needs or shaving the layout until the next detailer
+breaks it again.
+
+**The lever that actually raises the ceiling is W21** — his "little eye" control
+that folds a service's full contents out of the card — and W21 is one of the
+five waiting on 2.8's research, which is a good reason it is sequenced there.
+Recorded here so a later session does not rediscover the 18px and go hunting for
+gaps to shave.
+
+### W20 was ours to call, and his own doubt is why
+
+He asked for Back beside Continue, stuck to the page, and then immediately
+doubted it against W17: *"I might [be wrong] if we do an estimated time. Figure
+out what it looks best."*
+
+Measured, it is not close. As a block at the foot of the column, Back cost 48px
+plus the 26px section gap above it — **74px of the budget on every step but the
+first** — and W16, which he stated as the general rule, is what this whole item
+is organised around. It also reaches now: at the bottom of a scroll, Back was
+the one control you had to scroll to find.
+
+His doubt does not survive contact with where W17 actually went. The estimated
+time rides the bar's EYEBROW, beside the words "Estimated total", not beside the
+figure: the figure is the thing being decided on and the one mono number in the
+bar, so a second number next to it would make two leads. The bar is
+`[← icon] [ESTIMATED TOTAL · 3 HRS / $220] [Continue]` and nothing is crowded.
+
+### W1 was not where the roadmap pointed
+
+The roadmap read W1 as the calendar CELL. **The cell has been a whole-box
+`<button>` since the day sheet was built**, so on that reading the item was
+already finished and would have been closed as "does not reproduce" — the same
+failure mode W14 nearly had in 2.6, arrived at from the opposite direction.
+
+His sentence names the panel FIRST — "clicking a date opens a panel with Block
+this day, Set hours and Drop-off only" — and only then says "you should be able
+to click anywhere in that box". The box is one of the three cards INSIDE that
+panel, and "that specific little button" is the Set / switch on its right.
+
+**One thing a whole-card tap deliberately will not do is UNDO.** Clearing a
+blockout, a set of hours or a restriction stays on its own explicit control. A
+300px target that silently unblocks a day is a worse bug than the one W1 is
+about, and the asymmetry is the point rather than an oversight.
+
+### W3's range is N rows, not a second end on the row
+
+`blockout_dates` and `dropoff_only_periods` already had `start_date` and
+`end_date`, so W2 and W4 were fields on a form. `booking_hours_overrides` is
+keyed one row PER DATE (`unique (business_id, date)`), and the temptation is to
+give it a range the way its siblings have one.
+
+It writes N rows instead, and that is the table doing what it was built for: an
+override is a fact about ONE DAY, the weekly schedule is the thing that speaks
+in patterns, and clearing one day later must not disturb the others. The write
+is capped at 366 days because the field is a free `<input type=date>` and a
+mistyped year would otherwise ask for 36,000 upserts.
+
+### W4 was a live hole wearing a feature request
+
+He asked for the drop-off-only control to follow the detailer's own settings.
+Building it meant reading `dropoff_only_periods`, and reading it turned up
+this: **the table reached the customer as a NOTE on the booking page and
+nothing else.** Nothing on the way IN ever looked at it. A customer could read
+"This day is drop-off only" and book a mobile job anyway, and the detailer
+found out on the day.
+
+The guard went into `_shared/slotValidation.ts` rather than into
+`create-booking`, because `reschedule-booking` and `update-booking` move a
+booking's date with exactly the same freedom and had exactly the same hole.
+One guard where all three meet — the same reasoning that put the reminder
+re-arm on a table trigger in phase 0 rather than inside `reschedule-booking`.
+
+The `mode` column is `dropoff` or `mobile`, defaulting to `dropoff` so every
+existing row keeps the meaning it was written with. **The table's name is now
+half wrong and it is staying**: renaming it would touch the dashboard, the
+slots function and the booking page for no behaviour, and migrations here are
+append-only.
+
+**The customer-facing half is that a restricted day stays OPEN in the calendar
+rather than going grey.** Filtering it to nothing would have been simpler and
+says only "closed"; opening it says which way the day is restricted and that
+going back a step fixes it. Either way `validateSlot` is the gate.
+
+### W6: what "the standard online" turned out to mean
+
+He was explicit about not wanting an invention — *"whatever is the standard
+online for the different amount of ranges"* — so `app/src/lib/periods.js` is a
+list of borrowed conventions with the reasoning written next to each:
+
+- **The comparison is the SAME period one step back.** This week vs last week,
+  this year vs last year. Comparing a part-finished week against a whole one is
+  the classic wrong number.
+- **Six months and a year ROLL off the current month**, not calendar halves and
+  not a fiscal year. A detailer has no fiscal year.
+- **The week starts Sunday**, matching both calendars already in the product.
+- **Lifetime does not step**, because there is only one of it, and it charts by
+  YEAR — every other kind charts itself, but "the last six lifetimes" is not a
+  thing.
+
+**Lifetime was anchored to `businesses.created_at` first and read $0.00 with
+three years of takings on the screen behind it.** The row is created when the
+detailer signs up; their HISTORY can be older, because bookings get seeded,
+imported and back-dated. The account's birthday is not the business's. It
+reaches back ten years now, the same as the Calendar's "Everything" filter, so
+the two screens agree about what "all" means.
+
+**Two defects that a month-only screen could never have shown, both found by
+looking at the result rather than by reading the diff:**
+
+- `money()` printed `$-189.00` for a net-negative week. Nothing was wrong with
+  the arithmetic — the minus was inside the amount instead of in front of it,
+  and it reads as a corrupted figure rather than a loss. Fixed in the one
+  formatter, so every caller gets it.
+- **The bar chart plotted `Math.abs(value)`, so a $189 LOSS drew the identical
+  bar to a $189 win.** Survivable while the screen only ever showed months;
+  not once a week is selectable, where "expenses, no completed jobs yet" is a
+  normal Tuesday. Negative bars are the fixed `--bad` red now, carrying
+  selection the same way the positive ones do — dim either side, full strength
+  for the one you are on. That is law 11b rather than a new mechanic: money
+  moving is MEANING, and it is the same red `.delta.down` already used.
+
+### Why five items were left unbuilt
+
+W9, W10, W21, W22 and W25 are not deferred out of time pressure. Each one
+decides a SHAPE that roadmap 2.8's research exists to fix: what fields a
+service needs (W9), whether add-ons group or reorder (W10), how a service shows
+its full contents (W21), which on-site resources a detailer must have (W22),
+and whether packages exclude each other (W25). Every one of them is a schema
+question, and 2.8 is explicitly sequenced before them in the roadmap — "do this
+BEFORE the parts of 2.7 that depend on it, not after."
+
+Building them now would freeze a guess into a migration, and migrations here
+are append-only. W22 is the sharpest case: the water-and-electricity question
+exists in the product *because of his own business*, and he is the one who said
+most detailers are not like him. Guessing a second time is the failure mode
+this ordering was designed to avoid.
+
+### The class-name leak caught one more, and the test earned its keep
+
+W18's group label was called `.bk-step-label.group`, and `tests/composition.test.mjs`
+test 4b failed on it inside a minute: **`theme.css` declares `.group` bare and
+`theme.css` is GLOBAL**, so the name would have reached into the booking page
+and made the label a 26px-gap flex column. It is `.bk-group` now. This is the
+tenth rename in that family and the first one a human did not have to find.

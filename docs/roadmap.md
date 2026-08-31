@@ -889,8 +889,46 @@ is kept; the entire visual design restarts from scratch.
         settings sheet, the client detail and the booking page, for both
         clipping and touching boxes. 320 is not clean; see 2.9.
 
-- [ ] 2.7 **The owner's walkthrough — the features half.** Bigger work,
+- [x] 2.7 **The owner's walkthrough — the features half.** Bigger work,
       several pieces need a decision first. Same source file.
+      **DONE 2026-08-31 except the five that wait on 2.8's research** — W1,
+      W2, W3, W4, W5, W6, W16, W17, W18, W19, W20, W23 and W26 are closed.
+      W9, W10, W21, W22 and W25 are NOT started on purpose: every one of them
+      is a question about what a detailer's catalogue and constraints look
+      like, which is precisely what 2.8 answers, and building them first
+      would mean freezing a guess into a schema. Item-by-item outcomes with
+      the measurements are in `docs/owner-walkthrough-2026-08-30.md`; the
+      judgment calls are in DECISIONS.md → "Roadmap 2.7". The headlines:
+
+      - **W16 needed an instrument before it needed a fix.**
+        `node scripts/sweep-booking-steps.mjs` walks the flow at all four
+        verification sizes, fills it in as a customer would, and reports the
+        overflow AND THE SPARE ROOM per step. Baseline was 8 of 12 step-views
+        overflowing, worst 222px — 26% of a phone screen. All fit now, in the
+        normal path and `?lite=1`.
+      - **THE CEILING IS HONEST AND IT IS STEP 1.** Steps 2–7 are ours and
+        have 90–500px spare. Step 1's height is the TENANT'S CATALOGUE: with
+        the demo's four services it has 18px of room on a phone, so a fifth
+        breaks it. W16 cannot hold in the absolute for a list the detailer
+        controls, and the lever that raises the ceiling is W21 — which is one
+        of the five waiting on 2.8. Do not "fix" this by shaving gaps.
+      - **W1 was not where this item pointed.** It reads as the calendar
+        cell; the cell has been a whole-box `<button>` since the day sheet
+        was built. His sentence names the PANEL first and then says "that
+        box" — the box is one of the three cards inside it.
+      - **W4 closed a live hole underneath itself.** `dropoff_only_periods`
+        reached the customer as a note on the booking page and nothing else;
+        nothing on the way in ever read it, so a customer could read "this
+        day is drop-off only" and book a mobile job anyway. The guard is in
+        `_shared/slotValidation.ts`, where create-, reschedule- and
+        update-booking all meet.
+      - **W6 found two defects by LOOKING** that a month-only screen could
+        never show: a net-negative period printed `$-189.00`, and the bar
+        chart plotted `|value|`, so a $189 loss drew the same bar as a $189
+        win.
+      - **W20 was ours to call and his doubt is on the record.** Back moved
+        into the price bar: 74px on every step but the first, against W16,
+        which he stated as the general rule.
       - Calendar: W1 whole-box click target; W2 block a RANGE of days;
         W3 possibly ranged Set hours (confirm the shape first); W4 drop-off /
         mobile-only per day, driven by the detailer's own settings.
@@ -909,6 +947,13 @@ is kept; the entire visual design restarts from scratch.
         and the ability to block a booking the detailer cannot service.
 
 - [ ] 2.8 **OWNER-ADJACENT: research how other detailers actually work.**
+      **NOW CARRIES FIVE OF 2.7's ITEMS, not three.** W9, W10, W21, W22 and
+      W25 were all left unbuilt in 2.7 because each one decides a shape the
+      research has to fix first: what fields a service needs (W9), whether
+      add-ons group or reorder (W10), how a service shows its full contents
+      (W21 — and this is also the lever that raises step 1's height ceiling,
+      see 2.7), which on-site resources a detailer must have (W22), and
+      whether packages exclude each other (W25). W27 is the same thread.
       W9, W22 and W27 are one gap wearing three hats — the product is modelled
       on his business and he knows it, and he asked for this research more than
       once. Several 2.7 decisions depend on the answer (what fields a service

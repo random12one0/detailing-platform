@@ -1,5 +1,13 @@
 import { mapsUrlFor } from "./platform.js";
-export const money = (n) => `$${(Math.round(Number(n || 0) * 100) / 100).toFixed(2)}`;
+// THE SIGN GOES BEFORE THE SYMBOL. "$-189.00" was what a net-negative week
+// printed the first time roadmap 2.7 gave the Money screen a week to look at
+// (W6), and it reads as a corrupted figure rather than a loss. Nothing was
+// wrong with the arithmetic; the minus was just inside the amount instead of
+// in front of it. Every caller gets the fix because there is one formatter.
+export const money = (n) => {
+  const v = Math.round(Number(n || 0) * 100) / 100;
+  return `${v < 0 ? "-" : ""}$${Math.abs(v).toFixed(2)}`;
+};
 
 export const time12 = (hhmm) => {
   if (!hhmm) return "";

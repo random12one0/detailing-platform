@@ -118,6 +118,19 @@ explaining it; if they still have to ask "so should I?", it failed.
   `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
   on Windows has it and headless does not, and that one difference is the
   whole of walkthrough W14.
+- **The check for anything that changes the BOOKING WIDGET:
+  `node scripts/sweep-booking-steps.mjs`.** Same dev server, no login (the page
+  is public). It walks every step at all four verification sizes, fills the form
+  in as a customer would, and reports how far each step runs past the bottom of
+  the screen AND how much room it has to spare. That is roadmap 2.7's W16 — the
+  owner's rule that a customer should never scroll inside a step — and the
+  script exits 1 while anything overflows, so it is the definition of done.
+  `--lite` runs the `?lite=1` path; `--shots=DIR` saves the PNGs.
+  **Read the spare room, not just the pass.** Step 1's height is the TENANT'S
+  catalogue: with the demo's four services it has 18px of headroom on a phone,
+  so a fifth service breaks W16 again. The fix for that is roadmap 2.8's W21,
+  not shaving gaps.
+
 - **Before changing any colour, know law 11b (`docs/design-system.md`): the
   accent is IDENTITY, never MEANING.** Paid / money-up / "it worked" are the
   fixed green `--ac`; cancelled / no-show / error are the fixed red `--bad`.

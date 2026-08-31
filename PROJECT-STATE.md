@@ -100,6 +100,19 @@ hovered). Worst case after the fix is 4.52:1; six colours do not move at all.
 if they drift apart. **The rule, third time of asking: a tint of the accent is
 a ground.**
 
+**THE BOOKING FLOW IS SEVEN STEPS NOW, AND IT IS BUILT RATHER THAN FIXED
+(2026-08-31, roadmap 2.7).** `stepsFor(addOns)` in `book/BookingPage.jsx`
+inserts an Extras step after Services only where the business has add-ons —
+W19, "add-ons get their own step, in the same format as the services step" —
+because an empty seventh step would make "Step 3 of 7" a lie for every
+detailer without any. Nothing else about the flow is conditional. Back now
+lives in the price bar (W20) rather than at the foot of the column, which is
+74px of every step's budget, and the estimated TIME rides the bar's eyebrow
+beside "Estimated total" rather than beside the figure (W17). `.bk-choices` is
+the flow container that stopped each card being its own page section at the
+26px SECTION gap (W18). The measuring instrument is
+`node scripts/sweep-booking-steps.mjs`.
+
 **The two surfaces correct against DIFFERENT grounds, and that is deliberate.** The dashboard uses `DASHBOARD_ACCENT_BG` = `--ink-3` `#1E2327` because its accent lands on panels (`.cal-cell.today`, `.pill`, `.badge`, `.chip.active`); the booking page stays on `BOOKING_BG` = `--ink-0` because its two accent-as-text sites are borderless rows on the ground. Correcting against a ground buys a floor on that ground and nowhere else — see DECISIONS.md, "Roadmap 2.3, reopened".
 - **Tokens vs hardcoded:** discipline is real, and the guess that used to sit here is now CHECKED: the only hex colours in dashboard JS are in `lib/theme.js` (the designated colour-math file) and the four Google marque colours in `screens/Auth.jsx:32-35`, which Google's brand guidelines require be shown as issued. CSS uses `var(--…)` throughout.
 - **Inline styles exist but are modest:** heaviest are ManageBookingPage (18) and Money (15) — mostly layout one-offs, not colors, judging by spot checks. LandingPage carries the reference page's own inline one-offs, values only, no colours outside `var(--…)`.
@@ -426,7 +439,33 @@ Full record: DECISIONS.md → "Roadmap 2.4".
    swept clean at 392 AND 360 for both clipping and touching boxes. **320 is
    not clean and is now roadmap 2.9**, with the five failures measured; that
    also means PRODUCT.md's "responsive 320→1440" is currently a claim the
-   product does not keep. **2.7 and 2.8 are not started.**
+   product does not keep.
+
+   **2.7 IS DONE — 2026-08-31 — EXCEPT THE FIVE THAT WAIT ON 2.8.** W1, W2,
+   W3, W4, W5, W6, W16, W17, W18, W19, W20, W23 and W26 are closed; W9, W10,
+   W21, W22 and W25 are deliberately unbuilt, because each decides a SCHEMA
+   shape that 2.8's research exists to fix and the roadmap already sequences
+   that research first. Five things to carry forward.
+
+   **(a) W16 got an instrument, and it is the definition of done.**
+   `node scripts/sweep-booking-steps.mjs` walks the booking flow at all four
+   verification sizes, fills it in as a customer would, and reports the
+   overflow AND the spare room per step; `--lite` does `?lite=1`,
+   `--shots=DIR` saves PNGs. Baseline was 8 of 12 step-views overflowing,
+   worst 222px. All fit now, both paths. **(b) THE CEILING IS STEP 1 AND IT
+   IS THE TENANT'S.** Steps 2–7 have 90–500px spare; step 1's height is the
+   detailer's catalogue, and with the demo's four services it has 18px of
+   room on a phone — a fifth service breaks it. Do not shave gaps to buy
+   room; the lever is W21, which waits on 2.8. **(c) 1440x900 was the only
+   size that failed once both of HIS were clean** — the short screen, 180px
+   less height than 1920 carrying the same desktop masthead. The four
+   verification widths are four SIZES. **(d) W1 was not where the roadmap
+   pointed**: the calendar cell has been a whole-box `<button>` all along, and
+   the box he meant was one of the three cards inside the day panel. **(e) W4
+   and W6 each turned up a live defect underneath the feature** — a
+   drop-off-only day was a note the booking gate never read, and the Money
+   chart drew a $189 loss identically to a $189 win. Both are in DECISIONS.md
+   → "Roadmap 2.7".
 
    **2.4 — DONE 2026-08-30, see §6c. All of it.** Twelve evidence-built
    presets, a hue-family classifier that explains an arbitrary colour in words,
@@ -439,4 +478,7 @@ Full record: DECISIONS.md → "Roadmap 2.4".
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.
 4. ~~**Resolve the deploy question.**~~ **DONE 2026-08-30** — Netlify auto-publishes `main` on push; proven by pushing it and watching the live site change with nothing else done. See DECISIONS.md.
-5. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.
+5. **Roadmap 2.8 is now the gate on five walkthrough items, not three.**
+   W9, W10, W21, W22 and W25 all wait on it. W21 is also what raises the
+   booking page's step-1 height ceiling, so it buys more than its own item.
+6. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.

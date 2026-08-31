@@ -44,7 +44,7 @@ export default function StepServices({ selected, onToggle }) {
       <p className="bk-muted">Choose one or more. You can add extras next.</p>
       {groups.map((g) => (
         <div key={g.key || "ungrouped"} className="bk-choices">
-          {showHeadings && g.key && <div className="bk-step-label group">{g.key}</div>}
+          {showHeadings && g.key && <div className="bk-step-label bk-group">{g.key}</div>}
           {g.items.map((s) => {
             const isOn = selected.includes(s.id);
             return (

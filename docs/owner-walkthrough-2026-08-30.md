@@ -4,10 +4,18 @@ The owner went through the whole product himself, on a phone emulator and on
 desktop, and talked through it as he went. This file is his words and what
 they mean. **It is the primary record.**
 
-**STATUS, updated 2026-08-31 (roadmap 2.6).** The clipping-and-spacing half is
-DONE — W7, W8, W11, W12, W13, W14, W15 and W24 are closed, and each one below
-carries what was measured. The features half (W1–W6, W9, W10, W16–W23, W25–W27)
-is roadmap 2.7 and 2.8 and has not been started.
+**STATUS, updated 2026-08-31 (roadmaps 2.6 and 2.7).** The clipping-and-spacing
+half is DONE — W7, W8, W11, W12, W13, W14, W15 and W24 are closed. **The
+features half is now done too, except the five that wait on research:** W1, W2,
+W3, W4, W5, W6, W16, W17, W18, W19, W20, W23 and W26 are closed in roadmap 2.7,
+and each carries what was measured below.
+
+**W9, W10, W21, W22 and W25 are DELIBERATELY STILL OPEN.** All five are
+questions about what a detailer's catalogue and constraints actually look like
+— what fields a service needs, whether add-ons group, whether packages exclude
+each other, what on-site resources matter — and roadmap 2.8 is the research
+that answers them. Building them first would mean guessing the answer and then
+building the guess into a schema. W27 is the same thread.
 
 **And the emulator caveat earned its place.** Every "cut off" item was
 reproduced at 392x844 in a real browser before it was touched, and one of
@@ -175,28 +183,91 @@ grow to cover whatever list replaces them.
 
 ## Calendar
 
+- **W1 — DONE 2026-08-31, and the roadmap pointed at the wrong box.** The
+  roadmap read this as the calendar CELL; the cell has been a whole-box
+  `<button>` since the day sheet was built, so read that way it was already
+  finished. Reading his sentence in order settles it: he names the panel first
+  ("clicking a date opens a panel with Block this day, Set hours and Drop-off
+  only") and only then says "that box". **The box is one of the three cards
+  inside that panel**, and "that specific little button" is the Set / switch on
+  its right. All three now open and close from anywhere on the card.
+  **One thing a whole-card tap deliberately will NOT do is undo** — clearing a
+  blockout or a restriction stays on its own explicit control, because a 300px
+  target that silently unblocks a day is a worse bug than the one this fixes.
 - **W1 — The whole box should be clickable.** Clicking a date opens a panel
   with "Block this day", "Set hours" and "Drop-off only"; he wants to click
   **anywhere in that box** to open it rather than aiming at the small button.
   *"you should be able to click anywhere in that box to open it up instead of
   having to click that specific little button."*
+- **W2 — DONE 2026-08-31.** A "Through (inclusive)" date on the blockout
+  editor, defaulting to the day you opened, so the one-day case costs nobody an
+  extra decision. `blockout_dates` already had `start_date` and `end_date` —
+  the sheet was writing the same value into both.
 - **W2 — Block a RANGE of days, not one.** *"there should be an option to
   block multiple days in a row"* — modelled on the "until" control that
   drop-off only already has.
+- **W3 — DONE 2026-08-31, and the shape he was unsure about is the one the
+  other two cards already had.** The same "Through (inclusive)" field.
+  `booking_hours_overrides` is keyed one row PER DATE (`unique (business_id,
+  date)`), so a range writes N rows rather than growing the table a second end.
+  That is the table doing what it was built for: an override is a fact about
+  one day, and clearing one day later must not disturb the others. The write is
+  capped at 366 days, because the field is a free date input and a mistyped
+  year would otherwise ask for 36,000 upserts.
 - **W3 — Possibly the same for Set hours.** *"the set hours looks good. And
   maybe we [want] to do the same for the set hours as this for just a short
   time."* Reads as: apply hours across a date range too. Lower confidence than
   W2 — confirm the shape before building.
+- **W4 — DONE 2026-08-31, and it closed a LIVE HOLE underneath itself.** Three
+  things came out of his sentence. **(1)** The card disappears when the business
+  only offers one way of working — a mobile-only detailer restricting a day to
+  drop-off is offering something they do not do. **(2)** It goes both ways now:
+  `dropoff_only_periods.mode` is `dropoff` or `mobile`, defaulting to what every
+  existing row already means, because he needs to close mobile when the van is
+  out and a detailer with a unit needs to close DROP-OFF when the yard is.
+  **(3) It actually blocks.** The table reached the customer as a NOTE on the
+  booking page and nothing else — nothing on the way in ever read it, so a
+  customer could read "this day is drop-off only" and book a mobile job anyway,
+  and the detailer found out on the day. The guard went into
+  `_shared/slotValidation.ts`, where create-, reschedule- and update-booking all
+  meet, because all three move a date with the same freedom. Proved in both
+  directions in `tests/booking-engine.test.mjs` test 12.
 - **W4 — Drop-off only should follow what the detailer offers.** Today it is a
   fixed control. He wants a detailer to be able to say a given day is
   drop-off-only **or mobile-only**, and the button to adapt to what they chose
   in settings. *"that button should depend on what customers choose… and that
   button just adapts to what you choose in the setting too."* (He says
   "customers"; from context he means the detailer's own setting.)
+- **W5 — DONE 2026-08-31, and it was one missing line.** The booking page's
+  date cells were `aspect-ratio: 1` with no cap, so on the 600px column they
+  became 81px squares and the month became a 516px block — the tallest screen
+  in the flow. A date cell holds two digits; past ~52px tall it is holding air.
+  `max-height: 52px` only engages where the ratio would exceed it, so a phone is
+  untouched and the cell stays over the 46px tap floor. Step 5 went from 126px
+  past the bottom at 1440x900 to 50px of room to spare.
 - **W5 — Desktop calendar fills the screen and still scrolls.** See W23.
 
 ## Money
 
+- **W6 — DONE 2026-08-31.** Week / month / 6 months / year / lifetime as chips,
+  with the arrows stepping through whichever length is chosen — two questions,
+  two controls. The conventions are borrowed rather than invented, which is what
+  he asked for, and they live in `app/src/lib/periods.js`: the comparison is
+  always the SAME period one step back (this week vs last week), six months and
+  a year ROLL off the current month rather than being calendar halves or a
+  fiscal year, the week starts Sunday like both calendars in the product, and
+  lifetime does not step because there is only one of it.
+  **Two defects were found by looking**, both invisible while the screen could
+  only ever show a month: a net-negative period printed `$-189.00` (fixed in
+  `money()`, so every caller gets it), and the bar chart plotted `|value|`, so a
+  $189 LOSS drew the identical bar to a $189 win. Negative bars are the fixed
+  `--bad` red now — law 11b, money moving is meaning — carrying selection the
+  same way the positive ones do.
+  **One thing lifetime got wrong first, worth not repeating:** it was anchored
+  to `businesses.created_at` and read $0.00 on a business with three years of
+  takings behind it. The row is created when the detailer signs up; their
+  history can be older, because bookings get seeded, imported and back-dated.
+  It reaches back ten years now, the same as the Calendar's "Everything".
 - **W6 — Time ranges.** Only month-by-month today. He wants week, month, six
   months, year and lifetime, probably behind a dropdown, *"whatever is the
   standard online for the different amount of ranges."* No custom invention
@@ -288,6 +359,39 @@ team's good."* Gallery: *"looks pretty normal."*
 
 ## Booking widget (the customer-facing page)
 
+- **W16 — MET 2026-08-31 at all four verification sizes, and it needed an
+  instrument before it needed a fix.** `sweep-widths.mjs` answers "is anything
+  off the RIGHT edge"; nothing answered "is anything off the BOTTOM", which is a
+  different question with a different fix — the right edge is one element too
+  wide, the bottom edge is the whole step's budget.
+  **`node scripts/sweep-booking-steps.mjs`** walks the flow at 1920x1080,
+  1440x900, 768x1024 and 392x844, fills it in as a customer would (a service, a
+  size, an address, a day, a time), and reports the overflow AND THE SPARE ROOM
+  per step. It exits non-zero while anything overflows, so it is the definition
+  of done for this item. `--lite` does the `?lite=1` path, `--shots=DIR` saves
+  the PNGs.
+
+  **Baseline: 8 of 12 step-views overflowed, worst 222px — 26% of a phone
+  screen.** What closed it, biggest first:
+  - **W19 gave add-ons their own step**, taking a 158px ruled checklist off the
+    worst step in the flow.
+  - **W20 moved Back into the price bar**, worth 74px on every step but the
+    first (48px button plus the 26px section gap above it).
+  - **W18's flow container** took the 26px SECTION gap out from between cards
+    that belong to one menu.
+  - **W5's cell cap** took 174px off the month block on a wide column.
+  - The step head's rail and words share a line (15px), a heading stopped being
+    a section peer of what it heads (10px), and the tagline and the tall
+    masthead are now gated on there being room for them (23px and 38px).
+
+  **THE HONEST CEILING, and it is worth knowing before the next session
+  re-measures.** Steps 2–7 are ours and have 90–500px to spare. **Step 1 is
+  not: its height is the tenant's catalogue.** With the demo's four services it
+  has 18px of room on a phone — a FIFTH service breaks it. W16 cannot be true
+  in the absolute for a list whose length the detailer controls, and the lever
+  that raises the ceiling is W21, the "full details" disclosure that folds a
+  service's contents out of the card. That is one of the five waiting on 2.8,
+  which is a good reason it is sequenced there.
 - **W16 — THE GENERAL RULE: every step should fit without scrolling.** *"a good
   general rule is that everything should be able to fit without having to
   scroll anywhere. Each step, you shouldn't have to scroll down or up."* He
@@ -295,14 +399,47 @@ team's good."* Gallery: *"looks pretty normal."*
   again for desktop. **Treat this as the organising principle for the whole
   booking redesign, not as one bug.** Note it will fight W17 (estimated time)
   and W20 (sticky back button) — he anticipated that himself.
+- **W17 — DONE 2026-08-31.** It rides the price bar's EYEBROW — "Estimated
+  total · 3 hrs" — rather than sitting beside the figure. The figure is the
+  thing being decided on and it is the one mono number in the bar; a second
+  number next to it makes two leads. The qualifier line is where a qualifier
+  goes. `duration()` in `lib/format.js` is one implementation now instead of
+  three: the service card said "2h 30m", the review step said "about 2.5
+  hours", and the bar would have invented a fourth. Two and a half hours is
+  never "2.5" out loud.
 - **W17 — Add an estimated TIME next to the estimated total.** He likes the
   estimated total.
+- **W18 — DONE 2026-08-31, and it was a structural bug, not a taste note.**
+  Both halves of what he said were literally true and had ONE cause: each
+  service GROUP was a direct flex child of `.bk-wrap`, so the 26px SECTION gap
+  fell between cards belonging to one menu ("everything else is spread out"),
+  while the group's own label sat hard against its first card with no gap at all
+  ("the titles are really close to it"). Exactly backwards — the loosest space
+  in the step was inside its tightest relationship. Same cause as W7 and W11 in
+  roadmap 2.6, a missing flow container, and the same fix: `.bk-choices`, 8px
+  between cards, and the label gets the air the cards were wasting.
 - **W18 — Step 1 spacing reads uneven.** *"the titles are really close to it,
   but everything else is spread out. So it kinda looks uneven, and you kinda
   have to scroll to look at all of them."* Same note for Small / Medium /
   Large: *"spaced out a good amount."*
+- **W19 — DONE 2026-08-31.** Its own step, in the services step's own card
+  shape, and it only exists where the business has add-ons — otherwise "Step 3
+  of 7" would be a lie for every detailer without any. The ruled-checklist shape
+  it used to have was not wrong: the comment there gave a real reason, that the
+  boxes on the vehicle step were the sizes you choose BETWEEN, so a second set
+  of boxes would have made two competing groups of one shape. That reason
+  belonged to sharing a step. Alone, there is nothing to compete with.
 - **W19 — Add-ons get their own step**, in the same format as the services
   step.
+- **W20 — DONE 2026-08-31, and the call was ours because he removed himself
+  from it.** Back is in the price bar, icon-only, on the far left. Measured, it
+  is not close: as a block at the foot of the column it cost 74px on every step
+  but the first, and W16 — which he stated as the general rule — is what this
+  whole item is organised around. It also reaches, which the old one did not: at
+  the bottom of a scroll, Back was the one control you had to scroll to find.
+  His doubt was that W17 would crowd the bar; it does not, because the estimated
+  time went on the eyebrow rather than beside the figure. Icon-only because a
+  worded Back beside Continue reads as two things to press.
 - **W20 — Back button beside Continue, stuck to the page** rather than at the
   bottom of a scroll — but he immediately doubted it against W17: *"I might
   [be wrong] if we do an estimated time. Figure out what it looks best."*
@@ -319,6 +456,15 @@ team's good."* Gallery: *"looks pretty normal."*
   about **electricity only**, and an option that **blocks the booking** if the
   customer cannot supply what that detailer needs. *"there should be more
   customization for that because obviously there's a lot of different scenarios."*
+- **W23 — DONE 2026-08-31, and the only screen that failed at 1440x900 after
+  the phone and the 1920 monitor were both clean was the masthead's fault.** The
+  header grows at `min-width: 1000px`, and its own comment says why: "a 60px bar
+  above a centred column leaves the top third of a 1920 screen empty." That
+  reasoning is about HEIGHT. A 1440x900 laptop is 180px shorter than the screen
+  the masthead was drawn for, and spending 61 of those px on a bigger bar is
+  what put step 1 55px past the bottom there while 1920 had 125px to spare. The
+  gate is `(min-width: 1000px) and (min-height: 950px)` now — the rule saying
+  what it always meant.
 - **W23 — Desktop scrolls everywhere.** *"a lot of it, you have to scroll for
   most pages"*, including the review step and the calendar. W16 applies to
   desktop too, and 1920 is his own monitor.
@@ -348,6 +494,9 @@ team's good."* Gallery: *"looks pretty normal."*
   content as placeholder** (*"obviously those are just example things"*), so
   the question is whether packages should be mutually exclusive, not whether
   the demo data is wrong.
+- **W26 — DONE 2026-08-31**, as an instance of W16 exactly as this note says.
+  Step 5 with a day picked has 119px of room on a phone now; it had 16px of
+  overflow, and 45px before a day was picked.
 - **W26 — Time slots on mobile do not all fit.** Instance of W16.
 - **W27 — "How do I reach you" is essentially complete** — but research whether
   other detailers need fields he does not.

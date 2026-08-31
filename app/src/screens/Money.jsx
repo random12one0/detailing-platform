@@ -21,40 +21,42 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
 import { money, todayLocal } from "../lib/format.js";
+import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt } from "../lib/periods.js";
 import { api } from "../lib/api.js";
 import ExpenseModal from "../components/ExpenseModal.jsx";
 import BookingDetail from "../components/BookingDetail.jsx";
 
-const monthKey = (dateStr) => dateStr.slice(0, 7);
-const monthLabel = (key) => {
-  const [y, m] = key.split("-").map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "short" });
-};
-const shiftMonth = (key, n) => {
-  const [y, m] = key.split("-").map(Number);
-  const d = new Date(y, m - 1 + n, 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-};
-
 // Line-item categories that represent money sold at the job rather than
 // through the booking page. A discount is negative and belongs on the same
 // side of the ledger, so it nets against the upsell rather than hiding.
+// What to call a period in a sentence: "Net this week", "vs last 6 months".
+const NOUN = { week: "week", month: "month", "6m": "6 months", year: "year", all: "all time" };
+
 const ON_SITE = new Set(["upgrade", "add_on", "custom", "travel_fee", "discount"]);
 
 export default function Money() {
   const { business } = useBusiness();
   const today = todayLocal(business.timezone);
-  const currentMonth = monthKey(today);
-  // The month being LOOKED AT, which is not always the current one: doing
-  // last month's books at the start of a month had nowhere to go before.
-  const [thisMonth, setThisMonth] = useState(currentMonth);
-  const from = `${shiftMonth(thisMonth, -5)}-01`;
-  // Load to the end of the viewed month, or today if that month is running.
-  const lastOfMonth = (mk) => {
-    const [y, m] = mk.split("-").map(Number);
-    return `${mk}-${String(new Date(y, m, 0).getDate()).padStart(2, "0")}`;
-  };
-  const to = thisMonth === currentMonth ? today : lastOfMonth(thisMonth);
+  // W6 — the screen was month-only. He asked for week / month / six months /
+  // year / lifetime, "whatever is the standard online", so the conventions
+  // live in lib/periods.js and nothing on this screen invents its own.
+  const [kind, setKind] = useState("month");
+  // How many periods back we are looking. Doing last month's books at the
+  // start of a month is the reason this exists; the same is true of last
+  // week's on a Monday.
+  const [offset, setOffset] = useState(0);
+  const period = periodAt(kind, today, offset);
+  const previous = periodAt(kind, today, offset - 1);
+  const buckets = useMemo(() => bucketsFor(kind, today, offset), [kind, today, offset]);
+  // Enough range to cover the chart AND the comparison, which is one bucket
+  // further back than the leftmost bar when the chart is only one wide.
+  // ponytail: Lifetime pulls ten years of bookings into the phone in one go.
+  // Fine at a detailer's volume (a few hundred jobs a year) and it is the
+  // same shape the Calendar's "Everything" filter already has; if a busy shop
+  // ever makes this slow, the fix is a server-side monthly rollup, not a
+  // shorter lifetime.
+  const from = [buckets[0]?.start, previous.start].filter(Boolean).sort()[0];
+  const to = period.end > today ? today : period.end;
   const { bookings, loading, reload } = useBookings(from, to);
   const [expenses, setExpenses] = useState([]);
   const [lineItems, setLineItems] = useState([]);
@@ -76,40 +78,41 @@ export default function Money() {
   useEffect(() => { loadExtras(); }, [loadExtras]);
 
   const stats = useMemo(() => {
-    const lastMonth = shiftMonth(thisMonth, -1);
     const done = bookings.filter((b) => b.status === "completed");
-    const inMonth = (mk) => done.filter((b) => monthKey(b.booking_date) === mk);
+    // Every figure below is "money in THIS period", so there is one filter
+    // and nothing on the screen slices the data its own way.
+    const jobsIn = (p) => done.filter((b) => inPeriod(b.booking_date, p));
 
-    const revenueIn = (mk) => inMonth(mk).reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
-    const spentIn = (mk) => expenses.filter((e) => monthKey(e.date) === mk)
+    const revenueIn = (p) => jobsIn(p).reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
+    const spentIn = (p) => expenses.filter((e) => inPeriod(e.date, p))
       .reduce((s, e) => s + Number(e.amount), 0);
 
-    // Line items joined back to the bookings of the month in question.
-    const itemsFor = (mk) => {
-      const ids = new Set(inMonth(mk).map((b) => b.id));
+    // Line items joined back to the bookings of the period in question.
+    const itemsFor = (p) => {
+      const ids = new Set(jobsIn(p).map((b) => b.id));
       return lineItems.filter((li) => ids.has(li.booking_id));
     };
     const sumItems = (items, pred) => items
       .filter(pred)
       .reduce((s, li) => s + Number(li.amount) * Number(li.quantity ?? 1), 0);
 
-    const items = itemsFor(thisMonth);
+    const items = itemsFor(period);
     const onSite = sumItems(items, (li) => ON_SITE.has(li.category));
     const tipTotal = sumItems(items, (li) => li.category === "tip");
     const tippedJobs = new Set(items.filter((li) => li.category === "tip").map((li) => li.booking_id)).size;
 
-    const inNow = revenueIn(thisMonth), inPrev = revenueIn(lastMonth);
-    const outNow = spentIn(thisMonth), outPrev = spentIn(lastMonth);
-    const jobsNow = inMonth(thisMonth).length, jobsPrev = inMonth(lastMonth).length;
+    const inNow = revenueIn(period), inPrev = revenueIn(previous);
+    const outNow = spentIn(period), outPrev = spentIn(previous);
+    const jobsNow = jobsIn(period).length, jobsPrev = jobsIn(previous).length;
 
     // Everything that wasn't sold on site was quoted up front. Tips are not
     // sales, so they sit outside the split rather than inflating it.
     const quoted = Math.max(0, inNow - onSite - tipTotal);
 
-    const chart = Array.from({ length: 6 }, (_, i) => {
-      const k = shiftMonth(thisMonth, -(5 - i));
-      return { key: k, label: monthLabel(k), value: revenueIn(k) - spentIn(k) };
-    });
+    const chart = buckets.map((b) => ({
+      key: b.start, label: b.tick, offset: b.offset,
+      value: revenueIn(b) - spentIn(b),
+    }));
 
     return {
       inNow, outNow, jobsNow,
@@ -121,7 +124,7 @@ export default function Money() {
       chart,
       unpaid: done.filter((b) => b.payment_status === "pending" || b.payment_status === "partial"),
     };
-  }, [bookings, expenses, lineItems, thisMonth]);
+  }, [bookings, expenses, lineItems, period, previous, buckets]);
 
   const markPaid = async (b) => {
     setMarkingPaid(b.id);
@@ -142,42 +145,63 @@ export default function Money() {
 
   const peak = Math.max(1, ...stats.chart.map((c) => Math.abs(c.value)));
   const unpaidTotal = stats.unpaid.reduce((s, b) => s + Number(b.final_amount ?? b.total_price), 0);
-  const thisMonthExpenses = expenses.filter((e) => monthKey(e.date) === thisMonth);
+  const periodExpenses = expenses.filter((e) => inPeriod(e.date, period));
 
   return (
     <div className="group">
-      <div>
+      <div className="tight">
         <h1 className="display">Money</h1>
-        {/* The month was a fixed label, so last month's books were
-            unreachable from the screen that keeps them. */}
-        <div className="row between" style={{ marginTop: 4 }}>
-          <button className="btn ghost inline" aria-label="Previous month"
-            onClick={() => setThisMonth(shiftMonth(thisMonth, -1))}>
-            <ChevronLeft size={18} strokeWidth={2} />
-          </button>
-          <span className="strong">
-            {new Date(`${thisMonth}-15T12:00:00`).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-          </span>
-          <button className="btn ghost inline" aria-label="Next month"
-            disabled={thisMonth >= currentMonth}
-            onClick={() => setThisMonth(shiftMonth(thisMonth, 1))}>
-            <ChevronRight size={18} strokeWidth={2} />
-          </button>
+        {/* W6. The chips choose the LENGTH, the arrows choose WHICH one —
+            two questions, two controls, which is what every dashboard that
+            does this does. Changing the length keeps you on the current one
+            rather than trying to map "three months ago" onto weeks. */}
+        <div className="chiprow wrap" role="group" aria-label="Time range">
+          {PERIOD_KINDS.map(([k, label]) => (
+            <button key={k} className={`chip ${kind === k ? "active" : ""}`}
+              onClick={() => { setKind(k); setOffset(0); }}>{label}</button>
+          ))}
+        </div>
+        {/* Lifetime does not step: there is only one of it. */}
+        <div className="row between" style={{ marginTop: 2, minHeight: 34 }}>
+          {kind === "all" ? <span /> : (
+            <button className="btn ghost inline" aria-label="Previous period"
+              onClick={() => setOffset(offset - 1)}>
+              <ChevronLeft size={18} strokeWidth={2} />
+            </button>
+          )}
+          <span className="strong">{period.label}</span>
+          {kind === "all" ? <span /> : (
+            <button className="btn ghost inline" aria-label="Next period"
+              disabled={offset >= 0}
+              onClick={() => setOffset(offset + 1)}>
+              <ChevronRight size={18} strokeWidth={2} />
+            </button>
+          )}
         </div>
       </div>
 
       {/* One lead figure. Net, not revenue — revenue is a vanity number when
           you buy your own supplies. */}
       <div>
-        <span className="label">{thisMonth === currentMonth ? "Net this month" : "Net that month"}</span>
+        <span className="label">
+          {kind === "all" ? "Net, all time" : offset === 0 ? `Net this ${NOUN[kind]}` : `Net that ${NOUN[kind]}`}
+        </span>
         <div className="figure lead" style={{ marginTop: 4 }}>{money(stats.netNow)}</div>
-        <Delta now={stats.netNow} prev={stats.netPrev} />
+        <Delta now={stats.netNow} prev={stats.netPrev} noun={NOUN[kind]} hide={kind === "all"} />
         <div className="bars" style={{ marginTop: 14 }}>
           {/* The bars looked tappable and were not; now they pick the month. */}
           {stats.chart.map((c, i) => (
-            <button key={c.key} type="button" className={c.key === thisMonth ? "on" : ""}
+            // A LOSS MUST NOT LOOK LIKE A WIN. The bar height is |value|, so
+            // -$189 and +$189 drew the identical bar — survivable while this
+            // screen only ever showed months, and not once W6 added a week,
+            // where "expenses, no completed jobs yet" is a normal Tuesday.
+            // Red, and fixed for every tenant: money down is MEANING, which
+            // is law 11b, and it is the same red .delta.down already uses.
+            <button key={c.key} type="button"
+              className={`${c.value < 0 ? "neg " : ""}${c.key === period.start ? "on" : ""}`}
               aria-label={`Show ${c.label}`}
-              onClick={() => setThisMonth(c.key)}
+              disabled={c.offset === null}
+              onClick={() => c.offset !== null && setOffset(c.offset)}
               style={{ "--i": i, height: `${Math.max(3, (Math.abs(c.value) / peak) * 100)}%` }} />
           ))}
         </div>
@@ -259,16 +283,16 @@ export default function Money() {
 
       <div className="tight">
         <div className="row between">
-          <span className="label">Expenses · this month</span>
+          <span className="label">Expenses · {period.label}</span>
           <button className="btn sm inline filled" onClick={() => setAdding(true)}>
             <Plus strokeWidth={2} /> Add
           </button>
         </div>
-        {thisMonthExpenses.length === 0
-          ? <div className="dashed">Nothing logged this month.</div>
+        {periodExpenses.length === 0
+          ? <div className="dashed">Nothing logged in this period.</div>
           : (
             <div className="sunken">
-              {thisMonthExpenses.slice(0, 12).map((e, i) => (
+              {periodExpenses.slice(0, 12).map((e, i) => (
                 <div key={e.id}>
                   {i > 0 && <hr className="rule tight" />}
                   <div className="row top between">
@@ -312,18 +336,23 @@ function Cell({ label, value, tone }) {
   );
 }
 
-// Change vs last month. The arrow carries it and the colour agrees: green up,
-// red down, fixed for every tenant.
-function Delta({ now, prev }) {
+// Change against the SAME period, one step back — this week vs last week,
+// this year vs last year (W6). The arrow carries it and the colour agrees:
+// green up, red down, fixed for every tenant.
+//
+// Lifetime has nothing to compare against, so it says nothing rather than
+// inventing a previous lifetime.
+function Delta({ now, prev, noun, hide }) {
+  if (hide) return null;
   if (!prev) return <p className="quiet" style={{ marginTop: 6 }}>No comparison yet</p>;
   const diff = now - prev;
-  if (Math.abs(diff) < 0.005) return <p className="quiet" style={{ marginTop: 6 }}>Same as last month</p>;
+  if (Math.abs(diff) < 0.005) return <p className="quiet" style={{ marginTop: 6 }}>Same as last {noun}</p>;
   const up = diff > 0;
   const pct = Math.round(Math.abs(diff / prev) * 100);
   return (
     <div className="row" style={{ gap: 8, marginTop: 6 }}>
       <span className={`delta ${up ? "up" : "down"}`}>{up ? "▲" : "▼"} {pct}%</span>
-      <span className="quiet">vs {money(prev)} last month</span>
+      <span className="quiet">vs {money(prev)} last {noun}</span>
     </div>
   );
 }

@@ -241,9 +241,13 @@
 .bk-choices > .bk-choices { gap: var(--bk-sp-2); }
 .bk-choices > p.bk-muted { margin-bottom: 2px; }
 /* Only where a heading is starting a new group — the first one is already
-   under the step's own heading and needs nothing. */
-.bk-step-label.group { margin-top: var(--bk-sp-3); }
-.bk-choices > .bk-choices:first-of-type > .bk-step-label.group { margin-top: 0; }
+   under the step's own heading and needs nothing.
+   NOT `.group`, which is what this was called for ten minutes: theme.css
+   declares `.group` bare and theme.css is GLOBAL, so the name would have
+   reached in here and made the label a 26px-gap flex column. That is the leak
+   `tests/composition.test.mjs` test 4b exists to catch, and it caught it. */
+.bk-step-label.bk-group { margin-top: var(--bk-sp-3); }
+.bk-choices > .bk-choices:first-of-type > .bk-step-label.bk-group { margin-top: 0; }
 
 .bk-row { display: flex; align-items: center; gap: var(--bk-sp-2); }
 .bk-row.top { align-items: flex-start; }

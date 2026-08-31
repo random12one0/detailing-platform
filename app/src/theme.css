@@ -845,6 +845,13 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   animation-delay: calc(var(--i, 0) * 40ms);   /* was 60ms — see § MOTION */
 }
 .bars i.on, .bars button.on { background: var(--accent); }
+/* A period that lost money. Selection is still carried the same way it is for
+   a positive bar — dim for the ones either side, full strength for the one you
+   are on — so this adds a value to the existing mechanic rather than a second
+   one. --bad is FIXED for every tenant (law 11b: the accent is identity, money
+   moving is meaning) and it is the red .delta.down already uses. */
+.bars button.neg { background: color-mix(in srgb, var(--bad) 34%, transparent); }
+.bars button.neg.on { background: var(--bad); }
 .bars button { border: 0; padding: 0; cursor: pointer; align-self: flex-end; }
 .bars button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @keyframes bar-rise { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
