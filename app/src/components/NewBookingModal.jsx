@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
-import { api } from "../lib/api.js";
+import { api, slotsForType } from "../lib/api.js";
 import { supabase } from "../lib/supabase.js";
 import { money, time12, todayLocal } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -69,7 +69,10 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
           booking_date: form.booking_date,
           duration_minutes: q.quote.total_duration,
         });
-        if (!stale) setSlots(s.slots ?? []);
+        // Only the times this service type can have (W4). The dashboard
+        // books through the same gate a customer does, so offering the rest
+        // would just mean a 409 after the form was filled in.
+        if (!stale) setSlots(slotsForType(s, form.service_type));
       } catch (e) {
         if (!stale) setError(e.message);
       }
@@ -78,7 +81,7 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
       stale = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selKey, business.slug]);
+  }, [selKey, business.slug, form.service_type]);
 
   const toggle = (key, id) =>
     setForm((f) => ({

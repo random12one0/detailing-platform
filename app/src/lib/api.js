@@ -67,3 +67,21 @@ export const api = {
   rescheduleBooking: (bookingId, bookingDate, startTime) =>
     callFn("reschedule-booking", { booking_id: bookingId, booking_date: bookingDate, start_time: startTime }),
 };
+
+// The times on a day that THIS service type can actually have.
+//
+// available-slots returns every time the business has open, plus the subsets
+// that are drop-off-only and mobile-only for that day (roadmap 2.7, W4 — a
+// detailer can close either way, for a day or a stretch of days). Three
+// screens ask the same question of that payload — the customer's step 4, the
+// dashboard's new-booking modal and the customer's reschedule — so it is one
+// function rather than the same three lines copied around.
+//
+// `validateSlot` on the server is the gate either way; this is so the UI does
+// not OFFER a time it is going to refuse. Pass the day object from
+// `days[date]`, or the single-day response, which has the same shape.
+export function slotsForType(day, serviceType) {
+  if (!day) return [];
+  const blocked = serviceType === "mobile" ? day.dropoff_slots : day.mobile_slots;
+  return (day.slots ?? []).filter((t) => !(blocked ?? []).includes(t));
+}

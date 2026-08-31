@@ -380,16 +380,14 @@
 /* Ruled checklist — hairline rows on the ground, no boxes. Composition
    rule (docs/design-system.md): boxes are for things you pick between or
    act on; enumerations are lists. */
-.bk-list { display: flex; flex-direction: column; }
-.bk-list-row {
-  display: flex; align-items: center; gap: var(--bk-sp-3);
-  padding: var(--bk-sp-3) 2px; min-height: 48px; cursor: pointer;
-  border-top: 1px solid var(--bk-hairline);
-}
-.bk-list-row:first-child { border-top: 0; }
-.bk-list-row .grow { flex: 1; min-width: 0; }
-.bk-list-row .bk-price { color: var(--bk-muted); }
-.bk-list-row.on .bk-price { color: var(--bk-accent-text); }
+/* .bk-list / .bk-list-row LIVED HERE and are gone as of roadmap 2.7. They
+   were the extras checklist at the foot of the vehicle step, and the reason
+   given for their shape was real: the boxes on that step were the vehicle
+   sizes you choose BETWEEN, so a second set of boxes would have made two
+   competing groups of one shape. W19 gave add-ons their own step, where there
+   is nothing to compete with, so they take the services step's card shape —
+   which is what he asked for. Nothing else on either surface used the class.
+   Recorded rather than silently deleted, per law 3. */
 
 /* The money. A ruled ledger on the ground rather than a second panel: it is
    a collection of records, and the lit appointment card above it is the

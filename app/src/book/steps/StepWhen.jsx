@@ -7,7 +7,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { api } from "../../lib/api.js";
+import { api, slotsForType } from "../../lib/api.js";
 import { time12, todayLocal } from "../../lib/format.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
@@ -67,12 +67,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
   // type can actually have. Showing the rest and refusing them at submit is
   // the hole this closes: the page used to print "This day is drop-off only"
   // and then let a mobile booking through anyway.
-  const allowed = (date) => {
-    const d = days?.[date];
-    if (!d) return [];
-    const blocked = form.serviceType === "mobile" ? d.dropoff_slots : d.mobile_slots;
-    return (d.slots ?? []).filter((t) => !(blocked ?? []).includes(t));
-  };
+  const allowed = (date) => slotsForType(days?.[date], form.serviceType);
   const daySlots = form.bookingDate ? allowed(form.bookingDate) : [];
   const day = form.bookingDate ? days?.[form.bookingDate] : null;
   // Named for what it is: this day cannot take the service type they picked.

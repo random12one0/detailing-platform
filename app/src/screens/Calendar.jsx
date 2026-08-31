@@ -65,13 +65,13 @@ export default function Calendar() {
 
   // Day marks for the month grid — blockouts and drop-off-only periods, both
   // of which are date RANGES, expanded into the days they cover.
-  const [marks, setMarks] = useState({ blocked: new Set(), dropoff: new Set() });
+  const [marks, setMarks] = useState({ blocked: new Set(), dropoff: new Set(), dropoffLabel: {} });
   const loadMarks = useCallback(async () => {
     if (mode !== "month") return;
     const [bl, dp] = await Promise.all([
       supabase.from("blockout_dates").select("start_date,end_date")
         .eq("business_id", business.id).lte("start_date", monthEnd).gte("end_date", monthStart),
-      supabase.from("dropoff_only_periods").select("start_date,end_date")
+      supabase.from("dropoff_only_periods").select("start_date,end_date,mode")
         .eq("business_id", business.id).lte("start_date", monthEnd).gte("end_date", monthStart),
     ]);
     const expand = (rows) => {
@@ -84,7 +84,22 @@ export default function Calendar() {
       }
       return out;
     };
-    setMarks({ blocked: expand(bl.data), dropoff: expand(dp.data) });
+    // ONE MARK FOR BOTH RESTRICTIONS, and the title says which. Roadmap 2.7
+    // gave dropoff_only_periods a `mode`, so a day can now be closed to
+    // drop-offs as well as to mobile — and the ring, which used to be
+    // hard-labelled "Drop-off only", would have been a plain lie on half of
+    // them. A second FORM is not the answer: docs/dashboard-skeletons.md §5b
+    // makes the marks form-first precisely so no two that share a cell share
+    // a shape, and inventing a sixth to split a distinction the day sheet
+    // spells out one tap away buys nothing. The mark means "this day is not
+    // normal"; the tooltip and the sheet say how.
+    const label = {};
+    for (const r of dp.data ?? []) {
+      for (let d = r.start_date; d <= r.end_date && d <= monthEnd; d = addDays(d, 1)) {
+        if (d >= monthStart) label[d] = r.mode === "mobile" ? "Mobile only" : "Drop-off only";
+      }
+    }
+    setMarks({ blocked: expand(bl.data), dropoff: expand(dp.data), dropoffLabel: label });
   }, [business.id, mode, monthStart, monthEnd]);
   useEffect(() => { loadMarks(); }, [loadMarks]);
 
@@ -171,7 +186,7 @@ export default function Calendar() {
                           <span key={b.id} className={`dot ${b.status}`} />
                         ))}
                         {marks.blocked.has(date) && <span className="dot block" title="Blocked out" />}
-                        {marks.dropoff.has(date) && <span className="ring" title="Drop-off only" />}
+                        {marks.dropoff.has(date) && <span className="ring" title={marks.dropoffLabel?.[date] ?? "Limited"} />}
                       </span>
                     </button>
                   );
@@ -192,7 +207,7 @@ export default function Calendar() {
               <span className="row" style={{ gap: 5 }}><span className="dot completed" /><span className="quiet">Done</span></span>
               <span className="row" style={{ gap: 5 }}><span className="dot no_show" /><span className="quiet">No-show</span></span>
               <span className="row" style={{ gap: 5 }}><span className="dot block" /><span className="quiet">Blocked</span></span>
-              <span className="row" style={{ gap: 5 }}><span className="ring" /><span className="quiet">Drop-off only</span></span>
+              <span className="row" style={{ gap: 5 }}><span className="ring" /><span className="quiet">One type only</span></span>
             </div>
           </div>
 

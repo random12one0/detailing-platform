@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarClock, Check, Phone, X } from "lucide-react";
-import { api, icsUrl } from "../lib/api.js";
+import { api, icsUrl, slotsForType } from "../lib/api.js";
 import { money, time12 } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import "./booking.css";
@@ -141,7 +141,10 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
   }
 
   const openDates = Object.entries(days ?? {})
-    .filter(([, d]) => (d.slots ?? []).length > 0)
+    // The times THIS booking can move to. It keeps its own service type
+    // when it is rescheduled, so a day the detailer has closed to mobile is
+    // not a day a mobile booking can move onto (W4).
+    .filter(([, d]) => slotsForType(d, booking.service_type).length > 0)
     .map(([date]) => date);
 
   return (
@@ -200,7 +203,7 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
             </div>
             {pick.date && (
               <div className="bk-slots">
-                {(days[pick.date]?.slots ?? []).map((t) => (
+                {slotsForType(days[pick.date], booking.service_type).map((t) => (
                   <button key={t} className={`bk-chip ${pick.time === t ? "selected" : ""}`}
                     onClick={() => setPick((p) => ({ ...p, time: t }))}>
                     {time12(t)}

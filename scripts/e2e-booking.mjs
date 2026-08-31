@@ -19,10 +19,24 @@ await page.waitForTimeout(1200);
 check("booking page shows the business", (await page.textContent("h1")).includes("Riverside"));
 await page.locator(".bk-card").first().click(); await page.waitForTimeout(500);
 const cont = async () => { await page.locator("button", { hasText: /continue/i }).first().click(); await page.waitForTimeout(1300); };
-await cont(); // vehicle
-await cont(); // location
-await page.locator("input").first().fill("12 Lakeside Dr, Lakewood");
-await cont(); // when
+// ADVANCE BY HEADING, NOT BY COUNTING. Roadmap 2.7 (W19) made the flow BUILT
+// rather than fixed — add-ons get their own step, and only where a business
+// has any — so this walked one step behind for the whole run and typed a
+// street address into the vehicle-model field. Riverside has an add-on, so it
+// was this script that found out. Ask for the step you want and it survives
+// the next one being inserted too.
+const contTo = async (re, max = 4) => {
+  for (let i = 0; i < max; i++) {
+    await cont();
+    if (re.test(await page.textContent(".bk-step-head h2"))) return true;
+  }
+  check(`reached the ${re} step`, false, await page.textContent(".bk-step-head h2"));
+  return false;
+};
+await contTo(/vehicle|where|anything to add/i);
+await contTo(/where|drop-off/i);
+await page.locator(".bk-field input").first().fill("12 Lakeside Dr, Lakewood");
+await contTo(/pick a time/i);
 // availability loads async; wait out the spinner, then diagnose if empty
 await page.waitForFunction(() => !document.querySelector(".bk-spinner"), { timeout: 20000 }).catch(()=>{});
 let day = page.locator(".bk-cal .cell:not(.closed):not(.empty)").first();
@@ -38,12 +52,11 @@ if (!(await day.count())) {
 }
 await day.click(); await page.waitForTimeout(1400);
 await page.locator(".bk-slots .bk-chip").first().click(); await page.waitForTimeout(400);
-await cont(); // details
-const ins = page.locator("input");
-await ins.nth(0).fill("E2E Tester");
-await ins.nth(1).fill("e2e-tester@example.test");
-await ins.nth(2).fill("555 010 9988");
-await cont(); // review
+await contTo(/reach you/i);
+await page.locator(".bk-field input").nth(0).fill("E2E Tester");
+await page.locator(".bk-field input[type=tel]").fill("555 010 9988");
+await page.locator(".bk-field input[type=email]").fill("e2e-tester@example.test");
+await contTo(/check everything/i);
 check("review shows a receipt", await page.locator(".bk-receipt").count() > 0);
 const totalTxt = await page.locator(".bk-receipt .line.total .bk-price").textContent();
 check("receipt total is mono money", /^\$\d+\.\d\d$/.test(totalTxt.trim()), totalTxt);

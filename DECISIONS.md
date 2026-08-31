@@ -4130,3 +4130,40 @@ test 4b failed on it inside a minute: **`theme.css` declares `.group` bare and
 `theme.css` is GLOBAL**, so the name would have reached into the booking page
 and made the label a 26px-gap flex column. It is `.bk-group` now. This is the
 tenth rename in that family and the first one a human did not have to find.
+
+### What W4 broke elsewhere, and what found it
+
+Giving `dropoff_only_periods` a `mode` changed the meaning of a table four
+other places already read, and three of them were wrong the moment the
+migration landed. None of it showed up in a test; it came from asking "who
+else reads this" after the feature worked.
+
+- **The month grid's ring was hard-labelled "Drop-off only"** in both the cell
+  tooltip and the legend, so a mobile-only day would have been marked with a
+  plain lie. **It is ONE mark for both restrictions now** and the tooltip says
+  which; the legend reads "One type only". A second FORM was the obvious move
+  and it is the wrong one: `docs/dashboard-skeletons.md` §5b makes the marks
+  form-first precisely so no two that can share a cell share a shape, and
+  inventing a sixth form to split a distinction the day sheet spells out one
+  tap away buys nothing.
+- **The dashboard's new-booking modal and the customer's reschedule page both
+  offered every time the business had open**, including the ones
+  `validateSlot` was now going to refuse. Not a data risk — the gate holds —
+  but a form you fill in and then get a 409 from is the same defect W4 fixed,
+  one screen over. Both filter now, through `slotsForType()` in `lib/api.js`:
+  one function beside the call whose payload it interprets, rather than the
+  same three lines in three screens.
+- **`scripts/e2e-booking.mjs` walked the flow by COUNTING Continue clicks**,
+  and W19 inserted a step. Riverside, the tenant it books at, has an add-on —
+  so the script was a step behind for its whole run and typed a street address
+  into the vehicle-model field. It advances by HEADING now, which survives the
+  next inserted step too. Two of its field fills were also targeting `input`
+  by index and had phone and email the wrong way round; they target by type
+  now. **Flagged honestly: that script's chromium path is Linux-only, so this
+  change is reasoned, not run.** The same technique is exercised on every run
+  of `sweep-booking-steps.mjs`.
+
+The pattern worth keeping: **a column added to a shared table is a change to
+every reader of that table, and the readers do not announce themselves.** The
+grep that found all four was `dropoff_only` across `app/src` and
+`supabase/functions`, and it took a minute.
