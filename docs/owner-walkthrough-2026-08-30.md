@@ -318,7 +318,9 @@ team's good."* Gallery: *"looks pretty normal."*
   and that question costs 120px. Sizes 4: fits with 39px (392x844) and 23px
   (1440x900). Sizes 5: over by 40px and 66px. So four cards, and a drop-down
   from five — which is exactly where the design system already draws the line
-  between a segmented control and a list, so nothing had to be argued. He listed what exists
+  between a segmented control and a list, so nothing had to be argued.
+
+  His original note: he listed what exists
   (name, description, price, duration, protection, bigger vehicles, add-on) and
   was unsure rather than dissatisfied: *"I don't know how detailers usually use
   it."* **This is a research item, not a build item** — pair it with W17.
@@ -348,7 +350,9 @@ team's good."* Gallery: *"looks pretty normal."*
   on each move rather than two values swapped, because every row a detailer has
   ever added carries the column default of 0 and a swap on that list does
   nothing. Activate/deactivate moved into the editor sheet to make room — a
-  392px row cannot hold a worded button and two arrows, measured. *"if they could add, like,
+  392px row cannot hold a worded button and two arrows, measured.
+
+  His original words: *"if they could add, like,
   groups maybe, so that way not everything is kinda just thrown in there at the
   same time. Or maybe you could reorder stuff."*
   **ANSWERED 2026-08-31: reordering, not groups, and no migration.** Real
@@ -515,7 +519,16 @@ team's good."* Gallery: *"looks pretty normal."*
   **The binding screen for step 1 is no longer the phone. It is 1440x900**, the
   short desktop, where a card costs 84px rather than 74px because the card
   padding clamps up. Seven services in two categories is the next thing to
-  break, and it breaks there first. This is his own business
+  break, and it breaks there first.
+  **Verified by keyboard and by the accessibility tree, not only by looking:**
+  the face and the eye are consecutive tab stops, Enter works on both, the
+  closed panel’s words are NOT reachable (`visibility: hidden` rides the
+  animation, so clipped text is never announced), the open panel’s words are,
+  and `aria-expanded` follows. That half matters here because the card stopped
+  being one `role="button"` div and became a plain box holding two real
+  buttons — see DECISIONS.md → “Roadmap 2.8b”.
+
+  His original note: this is his own business
   practice: he lists everything included in a package. He does not want that as
   a giant description block — he wants a small control on the service box (*"a
   little eye"* or similar) that opens the full contents. **This is the item
@@ -550,7 +563,9 @@ team's good."* Gallery: *"looks pretty normal."*
   **The block itself is in `_shared/slotValidation.ts`** next to W4’s, and
   `tests/booking-engine.test.mjs` test 14 proves it on the way in: required +
   no = 409, required + yes = 200, merely asked + no = 200, and drop-off is
-  never blocked because the customer supplies nothing there. The *"I can provide
+  never blocked because the customer supplies nothing there.
+
+  His original note. The *"I can provide
   access to water and an outlet"* question was added **for him specifically**,
   because he does not carry a water tank or generator; he says most detailers
   do. He wants: the question to be optional per detailer, an option to ask
@@ -617,7 +632,9 @@ team's good."* Gallery: *"looks pretty normal."*
   **The enforcement that counts is in create-booking**, not React, and
   `tests/booking-engine.test.mjs` test 13 proves it: two from a pick-one
   category is a 409 that names the category, two from a pick-any category is
-  fine, and one from each — his own shape — is fine. He could select "Full
+  fine, and one from each — his own shape — is fine.
+
+  His original note: he could select "Full
   Detail" and "Interior" together and found it confusing. **He flagged the
   content as placeholder** (*"obviously those are just example things"*), so
   the question is whether packages should be mutually exclusive, not whether
@@ -649,7 +666,9 @@ team's good."* Gallery: *"looks pretty normal."*
   budget:** 120px of step 3, which took the vehicle-size card ceiling from the
   six the research measured down to four. That is the right trade — a detailer
   with five sizes gets a drop-down, a detailer with none loses nothing — but it
-  is why two measured numbers in this file disagree, and the later one is real. — but research whether
+  is why two measured numbers in this file disagree, and the later one is real.
+
+  His original note — but research whether
   other detailers need fields he does not.
   **ANSWERED 2026-08-31, and he was right that it is nearly complete.** Of the
   four things real booking forms collect that we do not, two are already
