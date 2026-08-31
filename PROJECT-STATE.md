@@ -169,13 +169,15 @@ phase 1 is outstanding.
   it — looked at and deliberately kept, with the reasoning recorded so a later
   pass does not delete the wrong one. Both are written up in DECISIONS.md →
   "Roadmap 2.1", along with the error-colour hole that item found and closed.
-- **New, out of 2.2 (2026-08-30):** the landing page renames eight class names
+- **New, out of 2.2 (2026-08-30):** the landing page renames nine class names
   away from `theme.css`'s (`.cta`, `.litcard`, `.getsheet`, `.ruled`, `.tile`,
-  `.fig`, `.pip`, `.substack`) because that global sheet leaks every property
-  a scoped rule does not itself declare — two of the collisions were live bugs
-  on the first render. It is the one thing about the port a reader will not
-  guess; DECISIONS.md → "Roadmap 2.2" says why renaming beat a block of
-  un-declare rules.
+  `.fig`, `.pip`, `.substack`, `.softlink`) because that global sheet leaks
+  every property a scoped rule does not itself declare — two of the collisions
+  were live bugs on the first render. It is the one thing about the port a
+  reader will not guess. The rule and the grep that checks a new name are in
+  `landing.css`'s header; DECISIONS.md → "Roadmap 2.2" says why renaming beat
+  a block of un-declare rules. All of it goes away in 2.3, when theme.css
+  stops being the outgoing system.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

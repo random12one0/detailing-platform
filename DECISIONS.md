@@ -2281,7 +2281,7 @@ native disclosures.
    to prefix around, and identical names keep a diff against the reference
    readable.
 
-2. **Eight class names were renamed, and this is the one thing a later reader
+2. **Nine class names were renamed, and this is the one thing a later reader
    will not guess.** `theme.css` is global and loads first; its class rules
    apply inside `.ld` for every property the landing rules do not themselves
    declare. Nine names collided, and two were live bugs on the first render:
@@ -2289,7 +2289,21 @@ native disclosures.
    the nav's pill across the whole bar, and `.lit` carries an `::after`
    gradient and a 3px accent bar that would have been drawn over the hero
    card. So the landing page uses `.cta`, `.litcard`, `.getsheet`, `.ruled`,
-   `.tile`, `.fig`, `.pip` and `.substack`.
+   `.tile`, `.fig`, `.pip`, `.substack` and `.softlink`. The ninth,
+   `.quiet` → `.softlink`, was harmless on specificity today and was renamed
+   anyway: "harmless today" is the reasoning the other eight exist to stop
+   having to do.
+
+   **The rule the renames leave behind, written into `landing.css`'s
+   header:** no selector in `theme.css` may be able to match an element on
+   this page. Seven names are still shared — `sm`, `wrap`, `block`, `on`,
+   `nm`, `n`, `lead` — and each is safe because `theme.css` only ever uses
+   it in a compound anchored on something it owns (`.btn.sm`, `.dot.block`,
+   `.figure.lead`, `.cal-cell .n`, `.settled-row .nm`). The header carries
+   the one-line grep that checks a new name. It is documented rather than
+   tested because the precise invariant is "no theme rule can reach in",
+   and a naive same-name test would fail on all seven of those and be
+   ignored within a week.
 
    The alternative was a block of "un-declare what leaked" rules. It was
    rejected because it can only ever list the leaks somebody thought of, and
