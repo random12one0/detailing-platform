@@ -818,7 +818,8 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    underneath at 1440, which reads as a mistake rather than a palette. Twelve
    is 6x2 exactly at every width the app supports (6 x 44 + 5 x 8 = 304px,
    inside the 392px phone). If the list ever stops being a multiple of six,
-   change this number with it. */
+   change this number with it. Twelve is ALSO 4x3, which is what it becomes
+   below 361px — see § THE 320 FLOOR, where 304px stops fitting. */
 .swatch-row { display: grid; grid-template-columns: repeat(6, 44px); gap: var(--sp-2); justify-content: start; }
 .swatch-row .swatch {
   width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
@@ -1158,7 +1159,12 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .day { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
 .day > .dayname { width: 46px; flex-shrink: 0; }
 .day > .times { order: 3; flex: 1 0 100%; display: flex; align-items: center; gap: var(--sp-2); }
+/* .tfield is a wrapper, not a layout: at this width it behaves exactly as the
+   bare input did, because it shares space the same way. It exists so the
+   times can carry their own words below 361px, where they stop being a row. */
+.day > .times .tfield { display: flex; align-items: center; gap: var(--sp-2); flex: 1; min-width: 0; }
 .day > .times input { flex: 1; min-width: 0; }
+.day > .times .tlab { display: none; }
 .day > .dayact { margin-left: auto; flex-shrink: 0; }
 @media (min-width: 560px) {
   .day > .times { order: 0; flex: 1 1 auto; }
@@ -1352,3 +1358,59 @@ button.warn-box:hover { border-color: var(--fog-2); }
 /* A segmented control that cannot be changed — the last owner's role. */
 .segmented.is-disabled { opacity: 0.55; }
 .segmented.is-disabled button { cursor: not-allowed; }
+
+/* ------------------------------------------------------ THE 320 FLOOR
+   PRODUCT.md promises 320 -> 1440 and until roadmap 2.9 the product did not
+   keep it. Four things broke, and they were one thing: below 361px a sheet
+   gives a control 244px, and two of anything will not share that. So pairs
+   become stacks and a row becomes a full-width column of its own.
+
+   MEASURED, not guessed, on the running app at 320 and at 360:
+     .grid2 two fields          288px wanted / 244 there
+     .day .times two + "to"     303px wanted / 244 there  (and 284 at 360 —
+                                this one was already 19px over on a 360 phone
+                                and only the card's padding hid it)
+     .segmented three labels    295px wanted / 244 there
+     .btnrow three sm buttons   298px wanted / 280 there
+     .swatch-row 6 x 44         304px wanted / 282 there
+   The instrument is `node scripts/sweep-widths.mjs 320`. */
+@media (max-width: 360px) {
+  /* Two fields side by side are 116px each here. No field is usable at 116px.
+     Stacked, the gap between them stops being a column gutter and becomes the
+     rhythm between fields, which is .fields' own --sp-4. */
+  .grid2, .grid2.wide { grid-template-columns: 1fr; gap: var(--sp-4); }
+
+  /* Same rule one level up: a setting whose control is a field keeps 96px for
+     its sentence and prints it five words at a time. Label and help above,
+     control below. A switch is exempt — 46px leaves the sentence its width,
+     and a toggle under its own label reads as a second setting. */
+  .setting:not(.switch-row) { flex-direction: column; align-items: stretch; gap: var(--sp-3); }
+  .setting:not(.switch-row) .setting-control { display: block; }
+
+  /* Chromium will not draw input[type=time] under 138px, so two of them plus
+     "to" cannot share a line however the line is written — the roadmap's
+     "stack, or lose the 12-hour display", and losing the display on the one
+     screen a detailer reads in daylight is the worse trade. Stacked, "to" no
+     longer says which field is which, so each takes its own word instead. */
+  .day > .times { flex-wrap: wrap; }
+  .day > .times .tfield { flex: 1 0 100%; }
+  .day > .times .tsep { display: none; }
+  .day > .times .tlab { display: block; width: 46px; flex-shrink: 0; }
+
+  /* Three sentence-length choices ("I go to them") want 295px of 244. Full
+     width and equal columns, with the label wrapping rather than the control
+     running off the card. Still one tap per choice, still incapable of the
+     invalid state — which is the whole reason this is not a <select>. */
+  .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; width: 100%; }
+  .segmented button { white-space: normal; padding: 8px 6px; line-height: 1.2; text-wrap: balance; }
+
+  /* Three small buttons across carry 108px of side padding between them and
+     are 18px over. The padding is what goes: they are stretched to equal
+     widths anyway, so nothing above this width changes shape. */
+  .btnrow .btn, .actions-row .btn { padding: 0 var(--sp-2); }
+
+  /* 6 x 44 + 5 x 8 = 304 in 282. Four columns keeps the circle at 44px —
+     shrinking it instead would take the tap target under the floor — and
+     twelve is a whole rectangle either way. */
+  .swatch-row { grid-template-columns: repeat(4, 44px); }
+}

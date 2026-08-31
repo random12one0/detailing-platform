@@ -567,6 +567,46 @@ contains travel and surcharges now and neither document itemised them: the
 confirmation email showed “Express Wash $65” above “Subtotal $105”, and
 `send-invoice` dropped both entirely.
 
+## 6g. ROADMAP 2.9 — THE 320px FLOOR IS REAL NOW (2026-08-31)
+
+PRODUCT.md has promised "responsive 320→1440" all along and the product did
+not keep it. It does now: `node scripts/sweep-widths.mjs` exits 0 at 392, 360
+**and 320**, in the normal path and `?lite=1`, and **320 is in that default
+list rather than an argument somebody has to remember.**
+
+**The four failures 2.6 measured turned out to be one failure.** Below 361px a
+settings sheet gives a control 244px of width, and two of anything will not
+share it. So the whole item is one block in `app/src/theme.css`
+(§ THE 320 FLOOR) that says *pairs stack*: paired fields go one column, the
+two time fields take a row each, a segmented control goes full width with
+equal columns and a wrapping label, three small buttons across drop their side
+padding, and the twelve-colour palette becomes 4x3 (four columns keeps the
+circle at 44px; shrinking six would have taken the tap target to 40px).
+**Nothing above 360px changed** — 1920, 1440x900, 768x1024 and 392 are
+identical, and the Hours row still reads `Tue [08:00 AM] to [06:00 PM] Close`.
+
+**THE LINE WORTH KEEPING FROM THIS ITEM: a clean sweep means nothing is off
+the SCREEN, not that nothing is off its box.** Two of the four — the time
+fields and the segmented control — were ALREADY overflowing their card at
+360px, by 19px and 11px, and the card's own 18px of padding swallowed it, so
+nothing ever crossed the viewport edge the sweep watches. They were found by
+measuring each element's `scrollWidth` against its parent, by hand, on the
+running app. There is no script for that; if a layout looks tight, measure the
+box, not the window.
+
+**A fifth thing was found by LOOKING and it was the worst of them.** A
+`Setting` with its control on the right kept 96px for its explanation and
+printed "Replaced by / your travel areas / below — each / area sets its own /
+fee." Settings put the control under the words below 361px now. A switch is
+exempt: 46px costs the sentence nothing, and a toggle under its own label
+reads as a second setting.
+
+**The lever was copy again — third item in a row.** Two native time fields
+cannot share 244px at any spacing (Chromium will not draw one under 138px), so
+they stack; stacked, "to" no longer says which field is which, so each took its
+own word. `Hours.jsx` gained a `.tfield` wrapper that renders identically
+above 360px and exists only to carry those words below it.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
@@ -621,10 +661,10 @@ confirmation email showed “Express Wash $65” above “Subtotal $105”, and
    now design-system law 15. **(c) A live contrast defect was found underneath
    it and fixed at the root** — see §4, "the dashboard's text moved again".
    Every dashboard screen, every settings sheet and the booking page are now
-   swept clean at 392 AND 360 for both clipping and touching boxes. **320 is
-   not clean and is now roadmap 2.9**, with the five failures measured; that
-   also means PRODUCT.md's "responsive 320→1440" is currently a claim the
-   product does not keep.
+   swept clean at 392 AND 360 for both clipping and touching boxes. **320 was
+   not clean and became roadmap 2.9**, with the failures measured; **2.9 is
+   done 2026-08-31 (§6g) and 320 is now part of the default sweep**, so
+   PRODUCT.md's "responsive 320→1440" is a claim the product keeps.
 
    **2.7 IS DONE — 2026-08-31 — EXCEPT THE FIVE THAT WAIT ON 2.8.** W1, W2,
    W3, W4, W5, W6, W16, W17, W18, W19, W20, W23 and W26 are closed; W9, W10,
@@ -674,4 +714,14 @@ confirmation email showed “Express Wash $65” above “Subtotal $105”, and
    ~~**Start with W21.**~~ **ALL FIVE ARE BUILT — 2026-08-31, roadmap 2.8b.
    See §6e**, and read the three corrected numbers there before quoting any
    spare-room figure from §6d.
-6. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.
+6. **THE OWNER OPENED A NEW ONE ON 2026-08-31 AND IT OUTRANKS THE FIVE BELOW:
+   roadmap 2.10, rethinking the dashboard's architecture from scratch.** His
+   point is that the five bottom tabs and the eleven sheets behind More are a
+   copy of the admin page he built for his own business "not with much thought
+   into it", and that the product needs the layout a detailer would want, not
+   the one Andrew happens to have. **The LOOK is not reopened** — the design
+   system and the skill-collision rule stand; what is reopened is where things
+   live. It is research-then-approve-then-build, like 2.8 → 2.8b, and his
+   words are quoted in full in the roadmap item. Several of the five deferred
+   items below are decisions this one would make anyway.
+7. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.

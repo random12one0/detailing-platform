@@ -73,9 +73,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   live. Retints are checked per tenant accent, including extremes.
   ("Both themes" was here until 2026-08-30 and is stale — the owner killed
   the light theme; there is one ground.)
-  **392 is the narrowest VERIFICATION width, not the narrowest supported
-  one.** PRODUCT.md promises 320→1440; at 320 five things still clip, and
-  roadmap 2.9 is the gap between the promise and the product.
+  **392 is the narrowest SCREENSHOT width; 320 is the narrowest SUPPORTED
+  one and is now swept by default.** PRODUCT.md promises 320→1440 and, since
+  roadmap 2.9 on 2026-08-31, the product keeps it — `sweep-widths.mjs` runs
+  392, 360 AND 320 with no argument. **Below 361px the dashboard has a layout
+  of its own** (theme.css § THE 320 FLOOR): paired fields stack, a setting
+  puts its control under its words, a segmented control goes full-width and
+  wraps, and the palette is 4x3. So a change that looks fine at 392 can still
+  break 320 — run the sweep, do not reason about it.
 - **Imagery: never a grey placeholder box.** An Unsplash connector is
   wired up and confirmed working 2026-08-29 (`search_photos`; "car
   detailing" returns ~4,800 real photos). Use it for mockups, the demo
@@ -109,12 +114,12 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  eleven settings sheets, the client sheet and the booking page at 392 and 360
-  and reports anything past the right edge, anything scrolling sideways with no
-  scrollbar, and any two boxes stacked with no gap — the two complaints the
-  owner's whole walkthrough was made of. It exits 0 today; pass a width to ask
-  a different question (`sweep-widths.mjs 320` exits 1, and that list is
-  roadmap 2.9). It needs the dev server and the demo login, like
+  eleven settings sheets, the client sheet and the booking page at 392, 360 and
+  320 and reports anything past the right edge, anything scrolling sideways with
+  no scrollbar, and any two boxes stacked with no gap — the two complaints the
+  owner's whole walkthrough was made of. **320 joined the default in roadmap
+  2.9**, the item that made it pass; it exits 0 at all three today. Pass a width
+  to ask a different question. It needs the dev server and the demo login, like
   `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
   on Windows has it and headless does not, and that one difference is the
   whole of walkthrough W14.

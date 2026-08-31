@@ -887,7 +887,8 @@ is kept; the entire visual design restarts from scratch.
         `scripts/accent-sweep.mjs` now measures all four tinted grounds.
       - **Verified clean at 392 AND 360** — every dashboard screen, every
         settings sheet, the client detail and the booking page, for both
-        clipping and touching boxes. 320 is not clean; see 2.9.
+        clipping and touching boxes. 320 was not clean; 2.9 fixed it and put
+        320 into the sweep's default list.
 
 - [x] 2.7 **The owner's walkthrough — the features half.** Bigger work,
       several pieces need a decision first. Same source file.
@@ -1169,7 +1170,7 @@ is kept; the entire visual design restarts from scratch.
       `?lite=1`; `sweep-widths` clean at 392/360 with the 320 list unchanged;
       `accent-sweep` clean; console clean at every width.
 
-- [ ] 2.9 **The 320px floor — measured 2026-08-31, deferred on purpose.**
+- [x] 2.9 **The 320px floor — measured 2026-08-31, deferred on purpose.**
       PRODUCT.md promises "responsive 320→1440" and the product does not keep
       it, so this item is what makes that claim true. Nothing here is one of
       the owner's items, none of it is visible at any of the four verification
@@ -1195,6 +1196,132 @@ is kept; the entire visual design restarts from scratch.
       and exits 1 while any of it stands, so it is the definition of done for
       this item. `node scripts/sweep-widths.mjs` with no argument does 392 and
       360 and exits 0 today; keep it that way.
+
+      **DONE 2026-08-31. `sweep-widths.mjs 320` exits 0, and 320 is now IN THE
+      DEFAULT LIST** — it was an argument you had to remember while it was
+      failing on purpose, and the promise in PRODUCT.md deserves a gate that
+      runs itself. All three widths, normal path and `?lite=1`, are clean.
+
+      **The four decisions turned out to be one decision.** Below 361px a
+      settings sheet gives a control 244px and two of anything will not share
+      it, so the whole fix is one block in `theme.css` (§ THE 320 FLOOR) that
+      says: pairs stack. Paired fields (`.grid2`) go one column at the field
+      rhythm; the two time fields take a row each; a segmented control goes
+      full width with equal columns and a wrapping label; three small buttons
+      across drop their side padding; the twelve-colour palette goes 4x3.
+      Above 360px nothing changed at all — 1440x900 and 1920 are pixel-identical.
+
+      **Five things worth carrying forward:**
+
+      - **TWO OF THE FOUR WERE ALREADY BROKEN AT 360 and the sweep could not
+        see it.** The time fields wanted 303px of 284 and the segmented 295 of
+        284; both overflowed their card by ~19px and ~11px and the card's own
+        18px padding swallowed it, so nothing crossed the VIEWPORT edge, which
+        is what the sweep measures. **A clean sweep means nothing is off the
+        SCREEN, not that nothing is off its box.** Measuring
+        `scrollWidth` against the parent, per element, is what found it —
+        `scripts/` has no instrument for that and this item did it by hand.
+      - **The lever on the time fields was copy, not layout — the third time
+        in three items.** Two native time fields cannot share a 244px line at
+        any spacing (Chromium will not draw one under 138px), so they stack;
+        stacked, the word "to" no longer says which field is which, so each
+        field took its own word (Opens / Closes). The row got clearer at 320
+        than it is at 392.
+      - **A FIFTH thing was found by LOOKING, not by the sweep**, and it is
+        the one that made 320 unusable rather than merely clipped: a `Setting`
+        with its control on the right left its explanation 96px of width and
+        printed it five words to a line. Settings now put the control under
+        the words below 361px. A switch is exempt — 46px costs the sentence
+        nothing, and a toggle under its own label reads as a second setting.
+      - **The palette went 4x3, not smaller circles.** Shrinking six columns
+        to fit would have taken the tap target from 44px to 40px, under a
+        floor it is already at; twelve is a whole rectangle either way.
+      - **`.day > .times` gained a `.tfield` wrapper** in `Hours.jsx`. It
+        renders identically above 360px — it exists so the fields can carry
+        their own words below it.
+
+      Verified: sweep clean at 392/360/320 in both paths; `composition`,
+      `design-contrast`, `landing-pricing`, `route-contract` and
+      `accent-sweep` all pass; screenshots read at 320 and 360 (Hours, Booking
+      rules, Your colour, Business info, the client sheet, Today) and at
+      1920/1440x900/768x1024/392 to confirm nothing above the breakpoint
+      moved; console clean at every width.
+
+- [ ] 2.10 **Rethink the admin dashboard from first principles — the OWNER
+      asked for this on 2026-08-31, in his own words, and they matter:**
+
+      > "The layout of the admin's booking page is just based off of my admin
+      > page for my business. That was just kind of made, you know, not with
+      > much thought into it. So I kinda wanna go over what should be there and
+      > how it should be laid out. So that's the tabs on the bottom — Today,
+      > Calendar, Money, Clients, and More. Should those be completely
+      > different? Should we have more done there? Or should we have less?
+      > Should things be in different areas, especially in the More area? …I
+      > just want to completely start from the beginning and decide how this
+      > should be laid out to be most effective, look the prettiest, and be the
+      > easiest to use and most convenient, and not just kind of looking
+      > confusing. …When it's getting thought through, we shouldn't be taking
+      > inspiration from it at all — kind of starting from scratch in a way.
+      > And we're not actually starting from scratch, because we can obviously
+      > use some of the stuff that we've learned. …Maybe after our audit it's
+      > gonna be pretty similar, or maybe it'll be completely different and not
+      > even close to where it was before. I don't want you to be limited by
+      > anything. …Figure out what is the best admin page a detailer would
+      > want, and that works for almost every detailer out there."
+
+      **WHAT IS AND IS NOT BEING REOPENED.** The LOOK is not reopened — the
+      design system ("The Thread") and the skill-collision rule stand, and no
+      direction-generating skill runs. What is reopened is the INFORMATION
+      ARCHITECTURE: what the five bottom tabs should be, whether five is the
+      right number, what belongs on each, and how the eleven settings sheets
+      behind More should be grouped, ordered and named. Shapes and components
+      are `docs/dashboard-skeletons.md`; this item can change which screen a
+      thing lives on without changing what it looks like when it gets there.
+
+      **THE CONSTRAINT HE STATED TWICE: do not reason from the current
+      dashboard.** It is the anti-reference for this item, the same way
+      "Raking Light" is for the visual system. Derive the tabs from what a
+      detailer does in a day, not from what our five tabs already are — then
+      compare, and say plainly where the answer landed in the same place.
+
+      **DO IT THE WAY 2.8 WAS DONE, because that is the shape that worked**:
+      research → a written file → the owner answers → a separate build item.
+      Concretely, and IN THIS ORDER:
+
+      1. **Evidence, not taste.** What does a solo detailer actually open in a
+         day, and in what order? Use the ten real menus already gathered in
+         `docs/detailer-menu-shapes-2026-08-31.md` and
+         `docs/detailer-research-2026-08-31.md`, and go wider: what the
+         field-service and booking products in this trade put in a bottom bar
+         (Jobber, Housecall Pro, Zenbooker, Square Appointments, Urable,
+         Mobile Tech RX). Count what appears, not what impresses. A tab that
+         four of six products carry is evidence; one that none carry needs a
+         reason.
+      2. **What our own product already knows.** Every screen and sheet that
+         exists today, listed with what it is FOR — then sorted by how often a
+         detailer would touch it. Daily / weekly / at-setup-only is the axis
+         that decides tab vs More vs buried. This is the part that is allowed
+         to look at the current dashboard, because it is an inventory, not a
+         model.
+      3. **Propose the architecture.** The bottom bar, with the reason for
+         each tab and the reason for its position; what each tab holds; and
+         the More screen laid out as GROUPS with names, in the order a
+         detailer meets them, not the order they were built. Say what moves,
+         what merges, what gets deleted, and what has to be built new.
+      4. **Say what it costs.** Every move that breaks a habit, every screen
+         that has to be written from scratch, and anything that needs schema.
+      5. **STOP. The owner approves the architecture before any code.** Then
+         it gets its own build item, like 2.8b did for 2.8.
+
+      **The deliverable is `docs/dashboard-architecture-<date>.md`**, plus the
+      DECISIONS.md section. Nothing in `app/` changes in this item.
+
+      **Two things a cold session will get wrong.** (a) "More" is not a junk
+      drawer to be defended — eleven sheets behind one row is exactly what he
+      is pointing at. (b) The answer has to work for "almost every detailer
+      out there", not for Andrew's — his business is one data point among the
+      ten already researched, and the whole reason this item exists is that
+      the current layout is a copy of his.
 
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
@@ -1381,6 +1508,7 @@ those are not negotiable by any skill.
 | 0 — plumbing | `cleanup-code` for deletions; `security-review` before anything touching RLS, keys or edge functions | any design skill — nothing here is visual |
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
+| 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |
 | 5 — Andrew's migration | `security-review`, `code-review`. Real customer data — no shortcuts | anything that writes to the old project without an explicit go-ahead |

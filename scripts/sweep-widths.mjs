@@ -17,9 +17,14 @@
 //                   "the boxes touch"), because a box with no gap under it
 //                   reads as part of the box below
 //
-//   node scripts/sweep-widths.mjs                # 392 and 360
-//   node scripts/sweep-widths.mjs 320            # the PRODUCT.md floor
-//   node scripts/sweep-widths.mjs 392 360 320    # any list
+//   node scripts/sweep-widths.mjs                # 392, 360 and 320
+//   node scripts/sweep-widths.mjs 320            # just the PRODUCT.md floor
+//   node scripts/sweep-widths.mjs 392 360 1440   # any list
+//
+// 320 JOINED THE DEFAULT IN ROADMAP 2.9, the item that made it pass. It was an
+// argument you had to remember while it was failing on purpose; PRODUCT.md
+// promises 320 -> 1440, so the floor is now swept every time rather than when
+// somebody thinks to ask for it.
 //
 // EXITS NON-ZERO if it finds anything, so it can gate a change. Needs the dev
 // server on :5173 (npm run dev --prefix app) and the seeded demo business,
@@ -33,7 +38,7 @@ import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const WIDTHS = (process.argv.slice(2).filter((a) => /^\d+$/.test(a)).map(Number));
-const SIZES = WIDTHS.length ? WIDTHS : [392, 360];
+const SIZES = WIDTHS.length ? WIDTHS : [392, 360, 320];
 const BASE = "http://localhost:5173";
 const MORE = ["Business info", "Your colour", "Services & add-ons", "Promo codes & sale",
   "Photo gallery", "Hours & days off", "Booking rules", "Notifications",

@@ -174,17 +174,26 @@ export default function Hours() {
               {d > 0 && <hr className="rule tight" />}
               {/* .day, not .row: the two time fields drop to their own line
                   on a phone and come back up beside the day name at 560px.
-                  See theme.css § .day for the measurement. */}
+                  See theme.css § .day for the measurement. Below 361px they
+                  stop sharing even that line — two native time fields want
+                  276px of 244 on their own — so each takes a row and the
+                  word "to" is replaced by the field's own name. */}
               <div className="day">
                 <span className="body dayname">{label.slice(0, 3)}</span>
                 {week[d].open ? (
                   <>
                     <span className="times">
-                      <input type="time" value={week[d].open} aria-label={`${label} open`}
-                        onChange={(e) => setDay(d, "open", e.target.value)} />
-                      <span className="quiet">to</span>
-                      <input type="time" value={week[d].close} aria-label={`${label} close`}
-                        onChange={(e) => setDay(d, "close", e.target.value)} />
+                      <span className="tfield">
+                        <span className="quiet tlab">Opens</span>
+                        <input type="time" value={week[d].open} aria-label={`${label} open`}
+                          onChange={(e) => setDay(d, "open", e.target.value)} />
+                      </span>
+                      <span className="quiet tsep">to</span>
+                      <span className="tfield">
+                        <span className="quiet tlab">Closes</span>
+                        <input type="time" value={week[d].close} aria-label={`${label} close`}
+                          onChange={(e) => setDay(d, "close", e.target.value)} />
+                      </span>
                     </span>
                     <button className="btn sm inline ghost dayact" aria-label={`Close ${label}`}
                       onClick={() => { setDay(d, "open", ""); setDay(d, "close", ""); }}>Close</button>

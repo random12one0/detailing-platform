@@ -132,6 +132,8 @@ were made more than once.
 - **The owner asked whether the categories were actually researched** — they were, and he found a hole: a complete package and its own components in different categories can both be booked. **$1,645 for $625 of work, reproduced.**
 - **Roadmap 2.8c** — building the six he asked for. **The travel fee had been displayed and never charged since the quote engine was written.**
 - **The owner's answers to 2.8, and the one that overruled the research** — he was the sixth menu shape. **Five menus rule shapes IN; they cannot rule the rest OUT.** Carries the measured step-1 ceiling: his own menu overflows by 119px.
+- **Roadmap 2.9 — the 320px floor** — four failures were one failure, and **two of them were already overflowing their card at 360 where the sweep could not see them.** A clean sweep means nothing is off the SCREEN, not off its box.
+- **The owner reopened the dashboard's architecture** — the five tabs and the More screen are a copy of his own admin page; 2.10 rethinks WHERE things live and explicitly not how they look.
 
 <!-- INDEX:END -->
 
@@ -4890,3 +4892,112 @@ a Tuesday-only service to a Thursday has to be refused.
 calendar greys out exactly what the gate would refuse. That is the
 double-validation pattern the file's own header describes: the two agree
 because the rules are the same, not because they share code.
+
+## Roadmap 2.9 — the 320px floor
+
+PRODUCT.md has said "responsive 320→1440" since it was written and the product
+did not keep it. Roadmap 2.6 measured four failures at 320 and deferred them on
+purpose — none was one of the owner's items, and none is visible at any of the
+four verification sizes. This is that item. `node scripts/sweep-widths.mjs 320`
+exits 0 now, and 320 went into the script's default list.
+
+**Four decisions collapsed into one.** The item was written as "each needs its
+own layout decision", and after measuring all four on the running app they are
+the same decision: below 361px a settings sheet gives a control **244px**, and
+two of anything will not share 244px. So the fix is one media block in
+`app/src/theme.css` (§ THE 320 FLOOR) whose whole content is *pairs stack*.
+Nothing above 360px changed; 1920, 1440x900, 768x1024 and 392 render
+identically, which was checked rather than assumed.
+
+**The measurements, taken on the running app, not reasoned about:**
+
+| what | wanted | had |
+|---|---|---|
+| `.grid2`, two fields | 288px | 244px |
+| `.day > .times`, two time fields and "to" | 303px | 244px (and **284px at 360**) |
+| `.segmented`, three sentence labels | 295px | 244px (and **284px at 360**) |
+| `.btnrow`, three small buttons | 298px | 280px |
+| `.swatch-row`, 6 x 44 | 304px | 282px |
+
+**THE FINDING WORTH MORE THAN THE FIX: a clean sweep means nothing is off the
+SCREEN, not that nothing is off its box.** Two of the four were already
+overflowing their card at 360px — the time fields by 19px, the segmented
+control by 11px — and the card's own 18px of padding absorbed it, so neither
+ever crossed the viewport edge that `sweep-widths.mjs` watches. 360 has been
+reported clean for two roadmap items with both of these broken inside it. They
+were found by walking each element and comparing its `scrollWidth` with its
+parent's `clientWidth`, by hand, in a throwaway script. No instrument in
+`scripts/` does that, and building one was not in this item's scope — the note
+is the deliverable instead. **If a layout looks tight, measure the box, not
+the window.**
+
+**Why each of the five went the way it did:**
+
+- **Time fields stack, and the 12-hour display stays.** The roadmap offered
+  "stack, or lose the 12-hour display". Chromium will not draw
+  `input[type=time]` under 138px, so two of them plus "to" cannot share a
+  244px line at any spacing — and the alternative was to strip the AM/PM from
+  the one screen a detailer reads in daylight. Stacked, "to" stops saying
+  which field is which, so each field took its own word: **Opens / Closes**.
+  Third item running where the lever was COPY rather than layout.
+- **The segmented control goes full width and wraps, it does not become a
+  `<select>`.** The design system's composition rule is explicit that two to
+  four exclusive choices is a segmented control, and the reason is that a
+  segmented control cannot express the invalid state. At 320 the three columns
+  are 77px and "They come to me" sets on three lines; `text-wrap: balance`
+  makes the rag even. Ugly is acceptable, a dropped rule is not. Vertical
+  stacking was rejected because it would have applied to every segmented
+  control in the app, including "Apple / Google / Waze", which fits fine.
+- **Three small buttons lose padding, not labels.** `.btn.sm` carries 18px a
+  side; three of them across is 108px of padding in a 280px row. They are
+  stretched to equal widths by `flex: 1` anyway, so dropping to 8px changes
+  nothing about how they look — it just stops them shoving each other off the
+  card. Icons and words both stay.
+- **The palette is 4x3, not smaller circles.** Six columns fit only by
+  shrinking the swatch from 44px to about 40px, and 44 is already under the
+  46px tap floor the accessibility section names. Twelve is a whole rectangle
+  either way, which is the property the existing comment on `.swatch-row` was
+  protecting.
+- **A FIFTH thing was fixed, and the sweep never saw it.** A `Setting` with
+  its control on the right kept 96px for its explanation and printed
+  "Replaced by / your travel areas / below — each / area sets its own / fee."
+  Nothing clipped, so nothing was reported; it was found in a screenshot. Below
+  361px a setting puts its control under its words. **A switch is exempt** —
+  46px costs the sentence nothing, and a toggle sitting under its own label
+  reads as a second setting rather than as this one's control.
+
+**One structural change, deliberately small.** `Hours.jsx` wraps each time
+field in `.tfield` with a `.tlab` beside it. Above 360px the wrapper shares
+space exactly as the bare input did and the labels are `display: none`, so the
+desktop row is untouched; it exists only so the fields can carry their own
+words below the breakpoint.
+
+**320 joined the default sweep.** While it was failing on purpose it had to be
+an argument somebody remembered to type. A promise in PRODUCT.md deserves a
+gate that runs itself, so `node scripts/sweep-widths.mjs` with no argument is
+now 392, 360 and 320. Pass widths to ask a different question.
+
+## The owner reopened the dashboard's architecture
+
+Asked on 2026-08-31, in the same message that queued roadmap 2.9. His point:
+the five bottom tabs and the eleven settings sheets behind More are a copy of
+the admin page he built for his own business, "made not with much thought into
+it", and the product needs the layout a detailer would want rather than the one
+Andrew happens to have. He asked for it to be put on the list rather than done
+on the spot, and it is **roadmap 2.10**, with his own words quoted in full
+there.
+
+**What is and is not reopened, because this is the part a cold session will get
+wrong.** The LOOK is not reopened: `docs/design-system.md` is still law and the
+skill-collision rule still bars every direction-generating skill. What is
+reopened is the INFORMATION ARCHITECTURE — which tabs exist, whether five is
+the right number, what belongs on each, and how More is grouped, ordered and
+named. A thing can move to a different screen in 2.10 without changing what it
+looks like when it gets there.
+
+**It is sequenced as research → written proposal → owner approves → a separate
+build item**, which is the shape 2.8 → 2.8b already proved on this project. No
+code changes in 2.10 itself. **And the constraint he stated twice is that the
+current dashboard is the anti-reference** — the tabs get derived from what a
+detailer does in a day, then compared with what we have, rather than
+rearranged from it.
