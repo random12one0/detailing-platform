@@ -3740,3 +3740,15 @@ the judgment behind them.
   doing — it clicked `.card button` blind on the Clients tab and may have hit a
   Save twice. Recorded rather than chased further; if it reappears it has a
   note waiting.
+
+- **`ship-check` found one thing the sweeps could not, and it is not a 2.6
+  item.** Focus rings: 215 focusable controls across every changed screen were
+  tabbed through and all 215 show one, including the Promos checkbox whose
+  markup was rewritten. Contrast: every text node on all eleven changed screens
+  was measured against its real composited ground at 392 and all clear AA —
+  which together with `accent-sweep`'s twelve presets and six extremes across
+  seven grounds is the whole surface. What it DID turn up is
+  `app/index.html`: **no meta description, no Open Graph tags**, on a site that
+  is published. Filed as roadmap 7.5 rather than fixed here, because the copy
+  is a positioning decision and the OG image needs the owner — there is no
+  logo, by design.

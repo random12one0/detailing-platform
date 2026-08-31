@@ -1085,6 +1085,18 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 7.4 **OWNER: founding-offer pricing sanity check** ($499 setup /
       $40 mo, counted spots) before the first sales call.
 
+- [ ] 7.5 **`app/index.html` has no meta description and no Open Graph tags.**
+      Noticed 2026-08-31 while running `ship-check` over roadmap 2.6; not
+      fixed there because it is a content decision, not a layout one. The
+      consequence is real and only affects the PUBLIC surfaces: Google writes
+      its own snippet for detailingplatform.com, and a link shared in a text
+      or on Facebook shows a bare URL with no title card. One index.html
+      serves all three surfaces, so whatever is written there describes the
+      marketing page — the copy comes from PRODUCT.md § Positioning, in its
+      order (the website leads, the dashboard is not an accessory), and never
+      generic SaaS-speak. Needs an OG image too, which is the part that needs
+      the owner: there is no logo, by design.
+
 ## Standing owner jobs
 
 - Pick and approve at every **OWNER** checkpoint — the plan stalls without
