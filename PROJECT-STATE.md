@@ -515,6 +515,21 @@ all still written alongside the new columns. Everything deployed before 2.8b
 reads them, and the migration rule is append-only. They are retired in a later
 pass, once nothing reads them.
 
+**ONE HOLE IS KNOWN AND OPEN — roadmap 2.8c, waiting on the owner.** He asked,
+the same day, whether the category system was actually researched and whether
+it needs a rule where choosing from one category stops you choosing from
+another. It does. A menu with a Complete Packages category AND standalone
+Interior and Exterior categories — Oregon Detail Co’s, a real shop — lets a
+customer book the complete package plus both components: **$1,645 for work the
+$625 package already contains, reproduced on the running app and accepted by
+`create-booking`.** Every category obeys its own rule; `max_select` only ever
+counts inside one category. The research and the recommended fix (one boolean
+per category, “choosing from this category is the whole booking”) are in
+`docs/detailer-menu-shapes-2026-08-31.md`; the judgment calls are in
+DECISIONS.md → “The owner asked whether the categories were actually
+researched”. **Do not build it before he answers** — it costs every detailer a
+setting and changes what a customer can do.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**

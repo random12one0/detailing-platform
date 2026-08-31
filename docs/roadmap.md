@@ -1083,6 +1083,42 @@ is kept; the entire visual design restarts from scratch.
         stores `vehicle_size_label`, `vehicle_condition`, `has_water` and
         `has_power` correctly.
 
+- [ ] 2.8c **OWNER DECISION: a category that IS the whole booking.** Added
+      2026-08-31 because the owner asked, the same day 2.8b shipped, whether
+      the category system was actually researched and whether it needs a rule
+      where choosing from one category stops you choosing from another. It was
+      researched — and he found a real hole.
+      `docs/detailer-menu-shapes-2026-08-31.md` is the answer: ten real menus
+      now, plus what four booking/POS products expose as settings.
+
+      **The hole, REPRODUCED on the running app rather than argued:** a menu
+      with a Complete Packages category AND standalone Interior and Exterior
+      categories — Oregon Detail Co’s, a real one — lets a customer book the
+      $625 complete package plus the $320 interior plus the $700 exterior, for
+      **$1,645 of work the first one already contains**. Every category obeys
+      its own “pick one” rule. The booking page allowed it and
+      `create-booking` accepted it. It is roadmap 2.7’s W25 complaint again,
+      one level up.
+
+      **Recommended fix, and it is his idea in a cheaper shape: one switch per
+      category, “Choosing from this category is the whole booking.”** One
+      nullable boolean on `service_groups`; on means selecting anything in it
+      clears everything else. Covers all ten menus, changes nothing for any
+      existing tenant (off is today’s behaviour), and leaves his own
+      Interior-plus-Exterior menu exactly as it is.
+      **Pairwise “category A excludes category B” was rejected** — no product
+      in the space exposes it, and six categories would need thirty decisions
+      to say “one service, please”.
+
+      **BLOCKED ON HIM**, because it costs every detailer one more setting to
+      read past and changes what a customer can do. Enforcement goes in the
+      two places `max_select` already lives: the booking page as a courtesy,
+      `create-booking` as the rule.
+
+      That file also lists the settings the trade’s own software has and we do
+      not, ranked by evidence — time-of-day / rush / distance pricing is the
+      biggest, then per-service availability. None of them is this item.
+
 - [ ] 2.9 **The 320px floor — measured 2026-08-31, deferred on purpose.**
       PRODUCT.md promises "responsive 320→1440" and the product does not keep
       it, so this item is what makes that claim true. Nothing here is one of

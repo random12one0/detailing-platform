@@ -129,6 +129,7 @@ were made more than once.
 - **Roadmap 2.7** — the features half of the walkthrough. W16 got an instrument, W1 was not where the roadmap pointed, and W4 turned out to be a live hole rather than a feature.
 - **Roadmap 2.8** — how other detailers actually work. **Two of the five open items needed no migration at all, and the owner's W22 premise turned out backwards.**
 - **Roadmap 2.8b** — building the five. **Step 1’s tightest screen is 1440x900, not the phone, and the vehicle-size ceiling is four rather than six.**
+- **The owner asked whether the categories were actually researched** — they were, and he found a hole: a complete package and its own components in different categories can both be booked. **$1,645 for $625 of work, reproduced.**
 - **The owner's answers to 2.8, and the one that overruled the research** — he was the sixth menu shape. **Five menus rule shapes IN; they cannot rule the rest OUT.** Carries the measured step-1 ceiling: his own menu overflows by 119px.
 
 <!-- INDEX:END -->
@@ -4688,3 +4689,92 @@ number measured against one screen is a fact about that screen. 2.6 learned it
 about widths, 2.7 about the demo's four services, 2.8 about the tenant's
 catalogue — and 2.8b about which of the four verification sizes is actually
 the tightest, which turned out not to be the one anybody was watching.
+
+
+## The owner asked whether the categories were actually researched, and found a hole
+
+He asked the same day 2.8b shipped: was the category system researched, will
+it work for all detailers, and does it need a rule where choosing from one
+category stops you choosing from another.
+
+**The first answer had to be an admission.** 2.8b did no research of its own —
+it built what roadmap 2.8's research specified, which studied five real menus.
+That file's own second paragraph says five menus can rule shapes IN and cannot
+rule the remaining ones OUT, and that limit had already cost this project once:
+his own business was a sixth shape the sample missed. He was poking at the same
+limit, and he was right to.
+
+The new research is `docs/detailer-menu-shapes-2026-08-31.md` — five more real
+menus (ten now) plus what Zenbooker, Square Appointments, Toast and Thryv
+actually expose as settings.
+
+### The hole is real, and it was reproduced rather than argued
+
+**Oregon Detail Co** — a real shop — publishes *Full Detail Packages*,
+*Interior Detailing* and *Exterior Detailing* as three separate categories.
+Built in our system with each set to "customers pick one", which is the honest
+way to describe each of them alone, a customer can select the $625 complete
+package **and** the $320 interior **and** the $700 exterior: $1,645 for work
+the first one already contains.
+
+That menu was loaded onto the demo and put through the real page and the real
+function on 2026-08-31. The page allowed all three. The price bar read
+**$1,645.00 · 15 hrs**. `create-booking` returned 409 the first time — but for
+*"that service would run until 23:00, past our 18:00 close"*, the hours guard,
+which runs after the category check. With the durations shortened so the day
+fits, the same three services **booked successfully at $1,645**.
+
+Neither half of the enforcement sees it, and neither is broken: `max_select`
+counts inside ONE category and there is exactly one service in each. The
+relation it cannot express lives between categories.
+
+**It is roadmap 2.7's W25 complaint, one level up.** He ticked "Full Detail"
+and "Interior" together and found it confusing; the system built to stop that
+reproduces it as soon as a detailer files their packages tidily.
+
+### Pairwise "category A excludes category B" was rejected, and it is his idea that replaces it
+
+His words were the pairwise shape, and rejecting the mechanism is not rejecting
+the point. Two reasons, both from evidence:
+
+- **Nothing in this market exposes it.** Zenbooker's modifier group has a name,
+  a description, Required and Multi-Select — and nothing else. Square
+  Appointments has one business-wide *"Allow multiple services to be booked
+  online"*, off by default. Toast has min/max per group and *nested* modifiers
+  that drill down, never sideways. Thryv does make services incompatible, but
+  it **derives** that from what they already are (same location, staff,
+  availability) and the business never hand-configures a pair.
+- **It does not scale for the detailer.** Xclusive Detailing Customs runs six
+  categories; saying "one service, please" would take thirty pairwise
+  decisions at setup.
+
+**Recommended instead: one boolean per category — "choosing from this category
+is the whole booking."** Selecting anything inside it clears everything else.
+It covers every shape in the ten menus, including two our current model cannot
+express:
+
+| Menu | Expressed how |
+|---|---|
+| Atlanta, SBL, Felix | one category, pick one — works today |
+| **Oregon Detail Co** | mark *Full Detail Packages*. Interior and Exterior stay combinable, which is what that shop wants |
+| **Xclusive**, one service overall from six categories | mark all six. Six checkboxes, not thirty pairs |
+| **The owner's** | mark nothing — Interior and Exterior stay one-each, exactly as 2.8b built |
+| à la carte | no categories, or pick-any — works today |
+
+A business-level *"can they book more than one service"* switch was the other
+candidate, copying Square. It handles Xclusive and the four one-service menus
+and is simpler — but it is too blunt for Oregon Detail, which wants a
+standalone interior and a standalone exterior combined, just never with the
+complete package. The per-category switch does both; the business-level one
+cannot.
+
+**Not built without him.** It costs every detailer one more setting to read
+past and it changes what a customer can do — the same test the four decisions
+in roadmap 2.8 were handed over on. Roadmap 2.8c holds it.
+
+### The general form, and it is the fifth time
+
+A rule measured against one level of the structure is a fact about that level.
+`max_select` is correct about what it counts. What it could not see was the
+level above it — and nothing in the code was wrong, which is exactly why a
+test would not have found it and a real menu did.
