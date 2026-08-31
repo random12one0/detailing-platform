@@ -39,8 +39,14 @@
 //      rather than in a twelfth test file nobody runs.
 import {
   PRESET_COLORS, correctAccent, accentTextFor, contrastRatio, hueFamily, brandVarsFor,
-  DASHBOARD_ACCENT_BG,
+  DASHBOARD_ACCENT_BG, DASHBOARD_TEXT_TINT, dashboardTextBg,
 } from "../app/src/lib/theme.js";
+
+// A tinted ground, the way color-mix(in srgb, <accent> N%, <ground>) makes it.
+const hex2 = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const tint = (accentHex, groundHex, p) => "#" + hex2(accentHex)
+  .map((v, i) => Math.round(v * p + hex2(groundHex)[i] * (1 - p)))
+  .map((v) => v.toString(16).padStart(2, "0")).join("");
 
 // The colours no curated list can contain, swept as first-class cases.
 // Near-black is the one that actually moves: it has no saturation to keep, so
@@ -57,7 +63,21 @@ const EXTREMES = [
 const GROUNDS = [
   ["ink-0", "#0B0D0E", "the ground — most of the dashboard"],
   ["ink-2", "#171B1E", "a panel — .cal-cell.today, .pill, .badge sit here"],
-  ["ink-3", "#1E2327", "highest surface — the worst case, and what is corrected against"],
+  ["ink-3", "#1E2327", "highest surface — and what the FILL is corrected against"],
+];
+
+// GROWN AGAIN IN ROADMAP 2.6. The three grounds above are all UNTINTED, and
+// --accent-text is almost never printed on one: it lands on a panel that has
+// been tinted with the accent itself, which is lighter than the panel and so
+// gives LESS contrast than the correction just guaranteed. Same shape of hole
+// as the two this script already exists for, one surface further in. Four
+// sites, taken straight out of theme.css — change a percentage there and this
+// fails with the number.
+const TINTED = [
+  [0.12, "#171B1E", ".tabbar button.active — theme.css:539"],
+  [0.11, "#1E2327", ".pill.completed / .badge.completed — theme.css:655, 915"],
+  [0.15, "#1E2327", ".chip.active / .choice.on — theme.css:617, 1088"],
+  [DASHBOARD_TEXT_TINT, "#1E2327", "…and the same two on HOVER — the lightest ground there is"],
 ];
 const FILL_MIN = 3, TEXT_MIN = 4.5;
 
@@ -71,7 +91,7 @@ console.log(`accent sweep — corrected against ${DASHBOARD_ACCENT_BG}\n`);
 
 for (const { name, hex } of colors) {
   const fill = correctAccent(hex, DASHBOARD_ACCENT_BG);
-  const text = accentTextFor(hex, DASHBOARD_ACCENT_BG);
+  const text = accentTextFor(hex, dashboardTextBg(hex));
   const moved = fill.toLowerCase() !== hex.toLowerCase();
   const { label } = hueFamily(hex);
   console.log(`${name.padEnd(9)} ${hex}  ${label.padEnd(14)} ->  fill ${fill}${moved ? " (corrected)" : ""}   text ${text}`);
@@ -85,11 +105,20 @@ for (const { name, hex } of colors) {
       `   text ${t.toFixed(2)} ${tok ? "ok " : "FAIL"} (min ${TEXT_MIN})   ${why}`,
     );
   }
+  for (const [p, g, why] of TINTED) {
+    const ground = tint(fill, g, p);
+    const t = contrastRatio(text, ground), tok = t >= TEXT_MIN;
+    if (!tok) failures++;
+    console.log(
+      `   on ${ground} (${(p * 100).toFixed(0)}% of the accent over ${g})` +
+      `   text ${t.toFixed(2)} ${tok ? "ok " : "FAIL"} (min ${TEXT_MIN})   ${why}`,
+    );
+  }
   console.log("");
 }
 
 console.log(failures === 0
-  ? "dashboard: every colour clears both floors on all three grounds"
+  ? "dashboard: every colour clears both floors on all three grounds and all four tints"
   : `dashboard: ${failures} ground/floor combinations under the floor — see FAIL above`);
 
 // --- the booking page, which corrects against its own grounds --------------

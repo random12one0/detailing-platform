@@ -58,7 +58,7 @@ Routes (`app/src/main.jsx`, verified by `tests/route-contract.test.mjs`):
 Better than typical for this stage — there is a real, enforced design system:
 
 - **System: WRITTEN AND LAW AGAIN, 2026-08-30 (roadmap 1.5).**
-  `docs/design-system.md` is now **"The Thread"** — thirteen laws, sixteen
+  `docs/design-system.md` is now **"The Thread"** — fifteen laws (thirteen at 1.5; law 14 killed the light theme, law 15 is the selected-state hover rule from 2.6), sixteen
   tokens, a two-face type scale, the composition grammar, the verification
   routine, the never-defaults, and what survived the old system. The
   reference rendering is `docs/design-directions/5-the-thread.html`, the page
@@ -85,6 +85,20 @@ Better than typical for this stage — there is a real, enforced design system:
 - **Old system, gone:** "Raking Light" — matte near-black ground, one "lit" element per screen, three type faces, a light/dark switch. Its last trace left the codebase when `theme.css` was rewritten in 2.3. The only thing that still names it is `docs/design-system.md` §11, which lists what survived it as contracts rather than style.
 - **Fonts:** `app/index.html` requests exactly TWO families as of 2.3 — Archivo + JetBrains Mono. It carried five transitionally because `theme.css` was the last thing using Anybody / Public Sans / DM Mono; 2.2 expected to drop some of the three and correctly dropped none, because that file used all three on its own, so they left together with it.
 - **`app/src/lib/theme.js` holds ONE ground now** — `#0B0D0E`, named twice (`DASHBOARD_BG` and `BOOKING_BG`) because only the booking one is what a tenant accent is corrected against and it must track `--bk-bg` in `booking.css`. `THEME_BG`, `DEFAULT_ACCENT`, `loadThemeMode` and `saveThemeMode` are all gone — there is no light theme. **`applyTheme` was deleted in 2.3 and came back in 2.3's reopening as `applyDashboardAccent`**, minus the `data-theme` half: law 11 was rewritten and the dashboard takes the tenant's colour after all. It writes `--accent`, `--accent-text` and `--accent-ink` on `<html>`, and **removes them on unmount** — `theme.css` is global and `landing.css` has no `--accent*`, so a colour left behind would follow a signed-in user out to the public marketing page. `brandVarsFor` corrects the tenant accent against `BOOKING_BG` and returns FOUR values including `--bk-accent-text` — the accent at the 4.5:1 text floor rather than the 3:1 fill floor. `design-contrast` asserts `BOOKING_BG` and `--bk-bg` are the same colour. **Added in 2.4: `hueFamily()` and `describeAccent()`** — they classify an arbitrary colour into one of nine families and say so in a sentence on the Appearance screen. They do NOT gate styling; see §6c. **Also changed in 2.4: `brandVarsFor` corrects the booking FILL against `--ink-3` and the booking TEXT against `--ink-0`** — `accentTriple()` takes both grounds now, because the fill lands on panels and the text does not.
+
+**AND THE DASHBOARD'S TEXT MOVED AGAIN IN 2.6 (2026-08-31).** `--accent-text`
+was corrected against plain `--ink-3`, but it is almost never printed on a plain
+`--ink-3`: it lands on a panel tinted with THE ACCENT ITSELF, which is lighter
+again. Four sites failed the 4.5:1 floor across nine presets plus black and
+near-black — a selected chip and a selected choice at 3.92 worst,
+`.pill/.badge.completed` at 4.13, the selected tab at 4.46. `applyDashboardAccent`
+now passes `dashboardTextBg(hex)` as the text ground: `--ink-3` mixed 20% with
+the corrected fill, which is the tint at its lightest (a selected chip being
+hovered). Worst case after the fix is 4.52:1; six colours do not move at all.
+**That 20% must stay equal to the largest accent tint `theme.css` paints under
+`--accent-text`** — `accent-sweep` measures all four tinted grounds and exits 1
+if they drift apart. **The rule, third time of asking: a tint of the accent is
+a ground.**
 
 **The two surfaces correct against DIFFERENT grounds, and that is deliberate.** The dashboard uses `DASHBOARD_ACCENT_BG` = `--ink-3` `#1E2327` because its accent lands on panels (`.cal-cell.today`, `.pill`, `.badge`, `.chip.active`); the booking page stays on `BOOKING_BG` = `--ink-0` because its two accent-as-text sites are borderless rows on the ground. Correcting against a ground buys a floor on that ground and nowhere else — see DECISIONS.md, "Roadmap 2.3, reopened".
 - **Tokens vs hardcoded:** discipline is real, and the guess that used to sit here is now CHECKED: the only hex colours in dashboard JS are in `lib/theme.js` (the designated colour-math file) and the four Google marque colours in `screens/Auth.jsx:32-35`, which Google's brand guidelines require be shown as issued. CSS uses `var(--…)` throughout.
@@ -397,7 +411,22 @@ Full record: DECISIONS.md → "Roadmap 2.4".
    `docs/owner-walkthrough-2026-08-30.md` and split into roadmap 2.6
    (clipping/spacing), 2.7 (features, organised around his rule that every
    booking step should fit without scrolling) and 2.8 (research how other
-   detailers work). **None of it is started.**
+   detailers work).
+
+   **2.6 IS DONE — 2026-08-31.** All eight clipping-and-spacing items closed,
+   each reproduced at 392x844 in a real browser first. Three things worth
+   carrying forward. **(a) The emulator caveat cuts both ways:** W14 does not
+   reproduce headless because `Share` needs `navigator.share`, which Chrome on
+   Windows has and a headless browser does not — reproduce what HIS browser
+   rendered. **(b) W24 was real but not where 2.6 said to look** — it was
+   `.bk-card.selectable:hover` on the CUSTOMER booking page, and his rule is
+   now design-system law 15. **(c) A live contrast defect was found underneath
+   it and fixed at the root** — see §4, "the dashboard's text moved again".
+   Every dashboard screen, every settings sheet and the booking page are now
+   swept clean at 392 AND 360 for both clipping and touching boxes. **320 is
+   not clean and is now roadmap 2.9**, with the five failures measured; that
+   also means PRODUCT.md's "responsive 320→1440" is currently a claim the
+   product does not keep. **2.7 and 2.8 are not started.**
 
    **2.4 — DONE 2026-08-30, see §6c. All of it.** Twelve evidence-built
    presets, a hue-family classifier that explains an arbitrary colour in words,

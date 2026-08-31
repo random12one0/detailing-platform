@@ -162,7 +162,10 @@ function TemplateCard({ row, business, onSave }) {
             <span className="quiet">Tap to add a detail</span>
             <span className="quiet num">{preview.length} characters</span>
           </div>
-          <div className="chiprow" style={{ marginTop: 6 }}>
+          {/* wrap: these six are a palette you pick from, not a range you
+              scroll along, and three of them were off the right edge on a
+              phone with no scrollbar to say so (W12). */}
+          <div className="chiprow wrap" style={{ marginTop: 6 }}>
             {PLACEHOLDERS.map(([token, meaning]) => (
               <button key={token} type="button" className="chip"
                 title={`Inserts ${meaning}`} onClick={() => insert(token)}>

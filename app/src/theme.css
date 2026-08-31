@@ -348,6 +348,19 @@ a { color: var(--accent-text); text-decoration: none; }
 .card.tappable { cursor: pointer; transition: background var(--t-hover) var(--e-out); }
 .card.tappable:active { background: color-mix(in srgb, var(--bone) 4%, var(--surface-lit)); }
 
+/* AN OBJECT ROW — what a thing is on the left, what you can do to it on the
+   right. Eight call sites share this exact shape (Team, Catalog twice, Promos,
+   Finalize, New booking, an invite, a copied link), and on a phone every one
+   of them pushed its controls off the screen: a flex child will not shrink
+   below its own content unless it is told to, and an email address next to a
+   segmented control is wider than 392px. Measured in roadmap 2.6 — the Team
+   screen's role control sat 60px past the right edge.
+   The description gives, the controls never do, and when even that is not
+   enough the row breaks onto a second line rather than off the screen. */
+.card.row.between { flex-wrap: wrap; }
+.card.row.between > :first-child { min-width: 0; flex: 1 1 auto; }
+.card.row.between > :last-child { flex-shrink: 0; }
+
 /* Recessed: a well pressed into the ground. No border — the inset ring IS
    the edge, and giving it one too would read as a floating box. */
 .sunken {
@@ -617,6 +630,16 @@ a { color: var(--accent-text); text-decoration: none; }
   background: color-mix(in srgb, var(--accent) 15%, transparent);
   border-color: var(--accent); color: var(--accent-text); font-weight: 600;
 }
+/* A SELECTED THING'S HOVER MOVES THE SAME WAY ITS SELECTION DOES. The owner's
+   rule, walkthrough W24, and the best-argued note he gave: hovering something
+   already chosen used to make it darker, "which is the opposite of kinda what
+   you'd want", and it read as un-selecting. Selection here is a tint, so more
+   hover is MORE TINT — never a different colour, never a darker one.
+   20% is not free: it is the ground --accent-text is corrected against, in
+   lib/theme.js. Raising it here without raising it there puts a selected
+   chip's own label under 4.5:1; scripts/accent-sweep.mjs fails if they drift
+   apart. */
+.chip.active:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); }
 .chip:disabled { opacity: 0.4; cursor: default; }
 .chiprow {
   display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
@@ -624,6 +647,14 @@ a { color: var(--accent-text); text-decoration: none; }
 }
 .chiprow::-webkit-scrollbar { display: none; }
 .chiprow > * { flex-shrink: 0; }
+/* A PALETTE, not a filter row. The scroller above is right for Calendar,
+   where the chips are a range you move along and the leftmost one is where
+   you start. It is wrong where the chips are an unordered set you pick FROM:
+   there is no scrollbar to see and nothing suggests more of them, so on a
+   phone three of the six details you can drop into a message simply did not
+   exist. The owner found that one himself — walkthrough W12, "the date is cut
+   off to the right". A palette wraps. */
+.chiprow.wrap { flex-wrap: wrap; overflow-x: visible; padding-bottom: 0; }
 
 /* A category that cannot change — square-ish, quiet, never coloured. */
 .tag {
@@ -757,6 +788,12 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums;
 }
 .cal-cell.today .n { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+/* DEAD, and left alone on purpose. Nothing renders `cal-cell selected` —
+   Calendar.jsx sets only `today`, and tapping a day opens the day sheet
+   instead of marking the cell. Checked in roadmap 2.6 while sweeping the
+   selected-state hovers for W24: a hover for a state that never exists is
+   speculative code, so none was added here. Whoever gives the calendar a
+   selected day owes it one, and the law is in .chip.active's note. */
 .cal-cell.selected { border-color: var(--accent); background: var(--accent-quiet); }
 .cal-cell .marks { margin-top: auto; display: flex; align-items: center; gap: 3px; min-height: 7px; }
 /* Once there is room, the grid takes it. At 768 and 1440 a 56px cell left a
@@ -1068,6 +1105,10 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out);
 }
 .segmented button:hover:not(.on) { color: var(--text); }
+/* W24. Selection here is a LIFT rather than a tint — the chosen segment is
+   raised onto --surface-lit — so its hover lifts further. Same law, expressed
+   in this control's own language. */
+.segmented button.on:hover { background: color-mix(in srgb, var(--bone) 5%, var(--surface-lit)); }
 .segmented button.on { background: var(--surface-lit); color: var(--text); }
 
 /* Duration / choice chips. */
@@ -1087,6 +1128,28 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .choice.on {
   background: color-mix(in srgb, var(--accent) 15%, transparent);
   border-color: var(--accent); color: var(--accent-text);
+}
+/* Same law as .chip.active — see the note there, including why 20%. */
+.choice.on:hover { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+
+/* A DAY IN THE WEEK LIST. Owner walkthrough W13 — "the time fields are cut
+   off to the right" — and it reproduces at 392: a day name, two native time
+   fields and a button want 438px of a 318px card, because Chromium's
+   input[type=time] will not go below 138px with a 12-hour display, a clock
+   icon and the figure face on it. Nothing here shrinks; something has to
+   move.
+   So the times take their own line on a phone, at FULL height rather than
+   squeezed under the tap floor to fit — this is the screen a detailer opens
+   in daylight. From 560px the row fits again and it is one line, which is
+   what desktop already had and what nobody complained about. */
+.day { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+.day > .dayname { width: 46px; flex-shrink: 0; }
+.day > .times { order: 3; flex: 1 0 100%; display: flex; align-items: center; gap: var(--sp-2); }
+.day > .times input { flex: 1; min-width: 0; }
+.day > .dayact { margin-left: auto; flex-shrink: 0; }
+@media (min-width: 560px) {
+  .day > .times { order: 0; flex: 1 1 auto; }
+  .day > .dayact { margin-left: 0; }
 }
 
 /* Stepper — nudge a small number instead of typing it. */
@@ -1219,6 +1282,23 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 button.warn-box { width: 100%; text-align: left; cursor: pointer; font: inherit; }
 button.warn-box:hover { border-color: var(--fog-2); }
 
+/* FACTS ABOUT A THING — a name on the left, the value on the right, one per
+   line. Written for the client sheet's visits / total spent / last visit,
+   which were three separate cards: two side by side and a third under them
+   with nothing at all between, so they touched (owner walkthrough W7) and
+   each spent 18px of padding on a two-line stat (W8). Three related facts
+   are an enumeration, and the composition rule's answer to an enumeration is
+   a ruled list — no boxes, which is also the Clients tab's own skeleton. The
+   hairline IS the separation, so there is no gap to get wrong. */
+.facts { display: flex; flex-direction: column; }
+.facts > div {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--sp-3); padding: 11px 2px;
+  border-top: 1px solid var(--hairline);
+}
+.facts > div:first-child { border-top: 0; }
+.facts .v { text-align: right; min-width: 0; }
+
 /* A ruled list: the treatment for an enumeration, per the composition rule.
    No border, no fill — hairlines and the ground. Clients is nothing but
    this, which is that tab's own skeleton (law 1). */
@@ -1228,17 +1308,27 @@ button.warn-box:hover { border-color: var(--fog-2); }
   width: 100%; min-height: var(--tap); padding: 13px 2px;
   background: transparent; border: 0; border-top: 1px solid var(--hairline);
   color: var(--text); text-align: left; cursor: pointer; font: inherit;
-  transition: padding-left var(--t-hover) var(--e-out);
 }
 .row-item:first-child { border-top: 0; }
-.row-item .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+/* THE HOVER NUDGE, ANSWERED — the question roadmap 2.3 left open and 2.6
+   closed. It used to animate the ROW's padding-left, which the design hook
+   flags as layout thrash, and the obvious rewrite was rejected because it was
+   not equivalent: translating the row slides the chevron too, so the row
+   drifts away from its destination instead of toward it.
+   Translating the TEXT is equivalent — the words move, the chevron holds, and
+   nothing reflows. The 12px gap is twice the travel, so the last of an
+   ellipsised line never reaches the chevron. */
+.row-item .txt {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;
+  transition: transform var(--t-hover) var(--e-out);
+}
+.row-item:hover .txt { transform: translateX(6px); }
 .row-item .nm { font-size: var(--t-body); font-weight: 600; }
 .row-item .sub {
   font-size: var(--t-meta); color: var(--text-muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .row-item svg { color: var(--text-muted); flex-shrink: 0; transition: color var(--t-hover) var(--e-out); }
-.row-item:hover { padding-left: 6px; }
 .row-item:hover svg { color: var(--accent-text); }
 
 /* Actions that belong together, across rather than stacked. */

@@ -305,7 +305,13 @@
               background var(--bk-t-hover) var(--bk-e),
               transform var(--bk-t-hover) var(--bk-e);
 }
-.bk-card.selectable:hover { box-shadow: inset 0 0 0 1px var(--bk-border); }
+/* THE BUG THE OWNER ACTUALLY SAW — walkthrough W24, and it lived here rather
+   than in the dashboard. This rule had no :not(.selected), and it outranks
+   .bk-card.selected below it (three selectors to two), so hovering the
+   service you had ALREADY CHOSEN replaced its accent ring and its lift with
+   a plain grey hairline. His words: "it almost feels like you're unselecting
+   it when you're not". It was, visually. */
+.bk-card.selectable:hover:not(.selected) { box-shadow: inset 0 0 0 1px var(--bk-border); }
 .bk-card.selectable:active { transform: scale(.995); }
 /* THE ONE LIT THING on the screen: what you have chosen. A lifted gradient
    panel, an accent ring, and the deep drop that separates it from the
@@ -317,6 +323,14 @@
      rather than the decorative-hairline exemption. */
   box-shadow: inset 0 0 0 1px var(--bk-accent),
               0 40px 70px -40px rgba(0, 0, 0, .92);
+}
+/* And the other half of his rule: a selected card's hover moves the SAME way
+   its selection does. Selection here is a ring and a lift, so hover is a
+   thicker ring and a deeper lift — never a grey one, never a flatter one.
+   The ring stays the full accent, so the 3:1 non-text floor is untouched. */
+.bk-card.selected:hover {
+  box-shadow: inset 0 0 0 2px var(--bk-accent),
+              0 46px 78px -40px rgba(0, 0, 0, .96);
 }
 /* Ruled checklist — hairline rows on the ground, no boxes. Composition
    rule (docs/design-system.md): boxes are for things you pick between or
@@ -418,6 +432,13 @@
   transition: box-shadow var(--bk-t-hover) var(--bk-e), background var(--bk-t-hover) var(--bk-e);
 }
 .bk-chip:hover:not(:disabled):not(.selected) { box-shadow: inset 0 0 0 1px var(--bk-border); }
+/* W24, and DELIBERATELY LEFT ALONE. A chosen time and a chosen day are solid
+   accent FILLS, and their hover is already scoped away from them, so neither
+   moves against its selection — his rule is not broken here and there is
+   nothing to fix. Brightening a fill was tried and rejected: for a very dark
+   tenant accent the corrected fill is a mid grey carrying WHITE ink, so
+   brightening it drops that label from 4.95:1 to 3.84:1. A card can intensify
+   because its selection is a ring; a fill cannot without moving a floor. */
 .bk-chip.selected { background: var(--bk-accent); color: var(--bk-accent-ink); box-shadow: none; font-weight: 500; }
 .bk-chip:disabled { opacity: .35; cursor: default; }
 .bk-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(94px, 1fr)); gap: 7px; }

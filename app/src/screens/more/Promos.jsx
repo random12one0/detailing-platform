@@ -88,7 +88,13 @@ export default function Promos() {
       <button className="btn" onClick={saveSale} style={{ marginBottom: "var(--sp-5)" }}>Save sale</button>
 
       <div className="card">
-      <div className="section-title" style={{ marginTop: 0 }}>Promo codes</div>
+      {/* .thoughts, because every child of this card was a bare sibling with
+          no gap: the two field rows, the checkbox, the button and every
+          existing code sat directly on top of each other. Owner walkthrough
+          W11, "boxes touching each other". Flow containers, not per-element
+          margins — theme.css § SPACE. */}
+      <div className="thoughts">
+      <div className="section-title" style={{ marginTop: 0, marginBottom: 0 }}>Promo codes</div>
       <div className="grid2">
         <label className="field"><span>Code</span>
           <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="SUMMER10" /></label>
@@ -103,9 +109,13 @@ export default function Promos() {
         <label className="field"><span>Usage limit (blank = unlimited)</span>
           <input type="number" inputMode="numeric" value={form.usage_limit} onChange={(e) => setForm({ ...form, usage_limit: e.target.value })} /></label>
       </div>
-      <label className="field row" style={{ alignItems: "center", gap: 10 }}>
-        <input type="checkbox" checked={form.once_per_customer} onChange={(e) => setForm({ ...form, once_per_customer: e.target.checked })} style={{ width: 22 }} />
-        <span style={{ margin: 0 }}>One use per customer</span>
+      {/* NOT label.field — that rule is `display: block` and it beat the
+          .row next to it, so the box sat on its own line above an uppercase
+          field label instead of beside a sentence. A checkbox and its caption
+          are a row. */}
+      <label className="row" style={{ gap: 10, cursor: "pointer" }}>
+        <input type="checkbox" checked={form.once_per_customer} onChange={(e) => setForm({ ...form, once_per_customer: e.target.checked })} />
+        <span className="body">One use per customer</span>
       </label>
       <button className="btn" onClick={addCode}>Add code</button>
 
@@ -124,6 +134,7 @@ export default function Promos() {
       ))}
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
+      </div>
     </div>
     </>
   );

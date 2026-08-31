@@ -2,7 +2,20 @@
 
 The owner went through the whole product himself, on a phone emulator and on
 desktop, and talked through it as he went. This file is his words and what
-they mean. **It is the primary record — nothing here has been started.**
+they mean. **It is the primary record.**
+
+**STATUS, updated 2026-08-31 (roadmap 2.6).** The clipping-and-spacing half is
+DONE — W7, W8, W11, W12, W13, W14, W15 and W24 are closed, and each one below
+carries what was measured. The features half (W1–W6, W9, W10, W16–W23, W25–W27)
+is roadmap 2.7 and 2.8 and has not been started.
+
+**And the emulator caveat earned its place.** Every "cut off" item was
+reproduced at 392x844 in a real browser before it was touched, and one of
+them did not reproduce the way it was written down: W14's Open button is only
+off-screen when the browser HAS `navigator.share`, which Chrome on Windows
+does and a headless browser does not. Reading the report literally would have
+closed it as "does not reproduce". The right check was not "is it broken at
+392" but "what did HIS browser render".
 
 His headline, first, because it frames the rest: *"right away, I just wanna
 say, like, how good it looks so far. I really like the design."* Everything
@@ -191,10 +204,19 @@ grow to cover whatever list replaces them.
 
 ## Clients
 
+- **W7 — DONE 2026-08-31.** Reproduced and provable against the tokens, exactly
+  as this note predicted: `.grid2` put 8px between Visits and Total spent, and
+  the Last visit card was a bare sibling with **no flow container at all**, so
+  the gap was 0. Fixed at the cause rather than with a margin — the three are
+  an enumeration, so they are now a ruled `.facts` list with no boxes (the
+  composition rule's own answer, and the Clients tab's own skeleton), and the
+  sheet's four blocks flow through `.group` at 28. Closes W8 in the same edit.
 - **W7 — On mobile, a client's detail boxes touch each other.** The history /
   bookings boxes touch; **Visits, Total spent and Last visit all touch.** This
   is a spacing bug against the system's own rule (related ≤8px, unrelated
   ≥28px — `theme.css` § SPACE), so it should be checkable against the tokens.
+- **W8 — DONE 2026-08-31**, by deleting the boxes. Three cards spending 18px of
+  padding each on a two-line stat became three ruled rows; see W7.
 - **W8 — Those boxes are oversized for their content.** *"the boxes that hold
   the content, at least for the visits, total spent and last visit, are a
   little big for the content that's inside of it."*
@@ -211,14 +233,55 @@ team's good."* Gallery: *"looks pretty normal."*
 - **W10 — Add-ons need grouping and/or reordering.** *"if they could add, like,
   groups maybe, so that way not everything is kinda just thrown in there at the
   same time. Or maybe you could reorder stuff."*
+- **W11 — DONE 2026-08-31.** Same cause as W7 and worse: EVERY child of the
+  promo card was a bare sibling — both field rows, the checkbox, the button and
+  every existing code — so the whole card was one undivided block. One
+  `.thoughts` container fixed all of it. **A second defect was found in the
+  same box and fixed:** the "one use per customer" checkbox was
+  `label.field row`, and `label.field { display: block }` beats `.row`, so the
+  box sat on its own line above an uppercase field label instead of beside a
+  sentence.
 - **W11 — Promo codes: boxes touching each other.** Same class as W7.
+- **W12 — DONE 2026-08-31, reproduced.** At 392 three of the six chips —
+  The time, The address, The total — sat 66px, 183px and 278px past the right
+  edge. `.chiprow` is a horizontal scroller with `scrollbar-width: none`, so
+  nothing said they were there. That scroller is RIGHT for Calendar, where the
+  chips are a range you move along; it is wrong here, where they are an
+  unordered palette you pick FROM. A `.chiprow.wrap` modifier; all six visible.
 - **W12 — Message templates: the token chips cut off.** The buttons that insert
   "their name", "your business", "the date" — **"the date" is cut off to the
   right.** Emulator caveat applies.
+- **W13 — DONE 2026-08-31, and it was NOT the emulator.** Measured at 392:
+  the day name, two time fields and the Close button want **438px inside a
+  318px card**, because Chromium will not take `input[type=time]` below 138px
+  with a 12-hour display, a clock icon and the figure face on it. Nothing in
+  that row could shrink. The times now take their own line below the day name
+  on a phone, at FULL height instead of the 38px they had been squeezed to —
+  which also puts them back over the 46px tap floor — and from 560px it is one
+  line again, exactly as desktop already had it.
 - **W13 — Hours & days off: the time fields cut off to the right.** Emulator
   caveat applies; he explicitly wondered if this was a Windows emulator thing.
+- **W14 — DONE 2026-08-31, and this is the one the caveat nearly closed
+  wrongly.** It does not reproduce in a headless browser, because `Share` only
+  renders where `navigator.share` exists — two buttons instead of three. Chrome
+  on Windows HAS it, and so does every real phone. With it stubbed in, Open
+  ended at 416px on a 392px screen: **24px off, exactly as he said.** Three
+  `.btn`s in a `.row` cannot shrink below their own labels. Share is the
+  primary and now takes its own full-width line; Copy and Open share a
+  `.btnrow` below it. Clean at 392, 360 and 320.
 - **W14 — Your booking page: the "Open" button stretches off screen.** The
   Copy / Open pair below the booking URL.
+- **W15 — ANSWERED 2026-08-31 by doing the sweep this note asked for.** Every
+  screen was walked at 392 with a probe reporting any element past the viewport
+  or scrolling inside itself. It found exactly one screen he had not named:
+  **Team** — each member's Owner/Staff control and its remove button sat 60px
+  past the right edge, and the email broke mid-word to make room. That is the
+  best answer available, with one honest caveat: he said *"the team's good"*,
+  so he may never have scrolled to the member rows, or W15 may be something
+  else his emulator alone showed. **After the fixes the sweep is clean at 392
+  AND at 360, on every dashboard screen and on the booking page.** At 320 five
+  things still clip — listed in roadmap 2.9, and none of them is a width he was
+  looking at.
 - **W15 — One more clipped thing he could not find again.** *"There's another
   place where some stuff was cutting off, but I can't find it."* Recorded so it
   is not lost; a 392px sweep of every screen should turn it up if it is real.
@@ -259,6 +322,17 @@ team's good."* Gallery: *"looks pretty normal."*
 - **W23 — Desktop scrolls everywhere.** *"a lot of it, you have to scroll for
   most pages"*, including the review step and the calendar. W16 applies to
   desktop too, and 1920 is his own monitor.
+- **W24 — DONE 2026-08-31, and he was right about a real bug in a place
+  nobody had looked.** It was not the dashboard: `.chip` and `.choice` there
+  were already scoped away from their selected state. It was
+  `.bk-card.selectable:hover` on the CUSTOMER-facing booking page, which had no
+  `:not(.selected)` and outranks `.bk-card.selected` — so hovering the service
+  you had already chosen replaced its accent ring and its lift with a plain
+  grey hairline. Measured before: `rgb(51,59,64) 1px inset`, no lift. After:
+  the ring goes 1px → 2px and the lift deepens.
+  His rule became **law 15** of the design system, and applying it turned up a
+  live contrast defect underneath — see DECISIONS.md, "The accent-text ground,
+  one surface further in".
 - **W24 — Hovering a SELECTED option darkens it, which reads as unselecting.**
   His clearest interaction note, and worth quoting in full: *"when you hover
   over something that's already selected, it kinda goes to like a darker color,

@@ -3633,3 +3633,110 @@ replaces the exits row puts a different button under that exact spot. Measured
 with the pointer parked off-canvas it is `#939CA1`, as designed.
 `scripts/shoot-manage.mjs` now moves the mouse to (2,2) before every shot, so
 the artifact cannot come back.
+
+---
+
+## Roadmap 2.6 — the owner's walkthrough, the clipping and spacing half (2026-08-31)
+
+Eight of his items, every one reproduced at 392x844 in a real browser before
+anything was edited, per the emulator caveat he wrote himself. The outcomes are
+recorded item by item in `docs/owner-walkthrough-2026-08-30.md`; what follows is
+the judgment behind them.
+
+- **The emulator caveat cuts BOTH ways, and one item proves it.** The
+  instruction was "reproduce it or close it", and read literally that would
+  have closed **W14** as a phantom: the Open button does not overflow in a
+  headless browser. It overflows when `navigator.share` exists, which adds a
+  third button — Chrome on Windows has it, every real phone has it, and a
+  headless Chromium does not. With it stubbed in, Open ends 24px off a 392px
+  screen, exactly as he described. **The right question was never "is this
+  broken in my browser" but "what did HIS browser render."** Anything that
+  reads the caveat as licence to dismiss reports is reading it wrong.
+
+- **Seven of eight reproduced; the eighth reproduced somewhere else.** W7, W8,
+  W11, W12, W13, W14 and W15 all reproduced at 392. **W24 did not reproduce
+  where the roadmap said to look** — `.chip.active` and `.choice.on` in
+  `theme.css` were already scoped away from their selected state, so nothing
+  darkened there. The bug was real and on the CUSTOMER-facing booking page:
+  `.bk-card.selectable:hover` had no `:not(.selected)` and carries one more
+  selector than `.bk-card.selected`, so hovering an already-chosen service
+  replaced its accent ring and its lift with a grey hairline. His description
+  was accurate; the location in the roadmap was a guess and it was wrong.
+
+- **The shared cause was fixed once, not eight times.** Both spacing items
+  (W7, W11) and the Team clipping (W15) came from the same habit: children
+  dropped into a container with no flow of its own, and flex children left
+  free to refuse to shrink. So `.card.row.between` — the "what it is on the
+  left, what you can do to it on the right" shape, which has **eight call
+  sites** — now wraps and tells its two halves which one gives; and the two
+  screens got the system's own flow containers instead of margins. Catalog
+  and the two modals were never reported broken and are unchanged on screen:
+  the rule only fires when the content genuinely does not fit.
+
+- **The client's three stats lost their boxes rather than gaining a gap.**
+  W7 asked for spacing and W8 asked for less bulk, and one change answers
+  both: three related facts are an enumeration, and the composition rule's
+  answer to an enumeration is a ruled list. The new `.facts` device has no
+  boxes at all, so there is no gap left to get wrong, and it is the Clients
+  tab's own skeleton besides.
+
+- **`.row-item`'s `padding-left` question, open since 2.3, is ANSWERED — and
+  the 2.3 note was right to reject the obvious rewrite.** Translating the row
+  is genuinely not equivalent, because it slides the chevron too and the row
+  drifts away from its destination instead of toward it. Translating the
+  **text** is equivalent: measured, the words move 6px, the row's box does not
+  move, the chevron does not move, and `.txt` keeps its width — so the ellipsis
+  point no longer shifts either, which the padding version did. Layout
+  animation gone, effect identical or better. The design hook now reports one
+  finding on `theme.css` instead of two, and the survivor (`.sheet`'s height
+  transition) is the one already documented as deliberate.
+
+- **THE ACCENT-TEXT GROUND, ONE SURFACE FURTHER IN — a live defect found
+  while doing W24, and fixed.** Applying law 15 meant raising the tint on a
+  selected chip's hover, which meant measuring what its label sits on. It sits
+  on `--ink-3` **mixed with the accent itself**, and `--accent-text` was
+  corrected against plain `--ink-3`. So the floor bought by the correction did
+  not hold where the value is actually printed. Measured over the twelve
+  presets and the six extremes, four sites failed 4.5:1 — a selected chip and
+  a selected choice at **3.92 worst**, `.pill.completed` / `.badge.completed`
+  at 4.13, the selected tab at 4.46 — with **nine presets plus black and
+  near-black under the floor**. `lib/theme.js` now corrects the text against
+  `dashboardTextBg()`, the ground at its lightest (the selected tint while
+  hovered, 20%); worst case after the fix is 4.52:1 and six colours do not
+  move at all. `scripts/accent-sweep.mjs` measures all four tinted grounds
+  every run and exits 1 if the two numbers drift apart — proven by setting the
+  tint to 0 and watching it fail.
+  **This is the third time the same mistake has been made in this file's
+  history** (2.3 corrected against the ground, 2.4 corrected the booking fill,
+  2.6 this), and the pattern is identical every time: the ground was named
+  from the stylesheet's SURFACE tokens while the value was landing on
+  something built out of the accent. The design system now says it in one
+  line — **a tint of the accent is a ground.**
+
+- **Two things law 15 deliberately does NOT do.** A hover already scoped away
+  from the selected state is not broken — it does not move against the
+  selection — so `.bk-chip.selected` and `.bk-cal .cell.selected` were left
+  alone. Brightening them was tried and rejected on a measurement: those are
+  solid accent FILLS, and for a very dark tenant accent the corrected fill is a
+  mid grey carrying WHITE ink, so brightening it drops that label from 4.95:1
+  to **3.84:1**. A card can intensify because its selection is a ring; a fill
+  cannot without moving a floor. Separately, `.cal-cell.selected` turned out to
+  be **dead CSS** — nothing in the app ever sets it — so it did not get a hover
+  either; a rule for a state that never renders is speculative code. The dead
+  rule is left in place with a comment saying so.
+
+- **The 320px floor is REAL, MEASURED and DEFERRED to roadmap 2.9.** After the
+  fixes the sweep is clean at 392 and 360 on every dashboard screen and on the
+  booking page. At 320 five things still clip. It is deferred rather than
+  fixed because it is not one of his items, not one of the four verification
+  widths, and not the width he was looking at — and because each of the five
+  needs its own layout decision, which is a body of work rather than a
+  follow-through. **PRODUCT.md claims "responsive 320→1440", so that claim is
+  currently false**; 2.9 is what makes it true, and the exact list is in it.
+
+- **A 409 was logged once and never came back.** The first sweep recorded one
+  `409` response with no other detail. Two later walks of the same path with
+  the network logged produced no 4xx or 5xx at all. Most likely the probe's own
+  doing — it clicked `.card button` blind on the Clients tab and may have hit a
+  Save twice. Recorded rather than chased further; if it reappears it has a
+  note waiting.

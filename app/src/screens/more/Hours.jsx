@@ -172,22 +172,27 @@ export default function Hours() {
           {DAYS.map((label, d) => (
             <div key={d}>
               {d > 0 && <hr className="rule tight" />}
-              <div className="row" style={{ gap: 8 }}>
-                <span className="body" style={{ width: 46, flexShrink: 0 }}>{label.slice(0, 3)}</span>
+              {/* .day, not .row: the two time fields drop to their own line
+                  on a phone and come back up beside the day name at 560px.
+                  See theme.css § .day for the measurement. */}
+              <div className="day">
+                <span className="body dayname">{label.slice(0, 3)}</span>
                 {week[d].open ? (
                   <>
-                    <input type="time" value={week[d].open} aria-label={`${label} open`}
-                      onChange={(e) => setDay(d, "open", e.target.value)} style={{ minHeight: 38 }} />
-                    <span className="quiet">to</span>
-                    <input type="time" value={week[d].close} aria-label={`${label} close`}
-                      onChange={(e) => setDay(d, "close", e.target.value)} style={{ minHeight: 38 }} />
-                    <button className="btn sm inline ghost" aria-label={`Close ${label}`}
+                    <span className="times">
+                      <input type="time" value={week[d].open} aria-label={`${label} open`}
+                        onChange={(e) => setDay(d, "open", e.target.value)} />
+                      <span className="quiet">to</span>
+                      <input type="time" value={week[d].close} aria-label={`${label} close`}
+                        onChange={(e) => setDay(d, "close", e.target.value)} />
+                    </span>
+                    <button className="btn sm inline ghost dayact" aria-label={`Close ${label}`}
                       onClick={() => { setDay(d, "open", ""); setDay(d, "close", ""); }}>Close</button>
                   </>
                 ) : (
                   <>
                     <span className="quiet" style={{ flex: 1 }}>Closed</span>
-                    <button className="btn sm inline"
+                    <button className="btn sm inline dayact"
                       onClick={() => { setDay(d, "open", bulk.open); setDay(d, "close", bulk.close); }}>
                       Open
                     </button>

@@ -73,6 +73,9 @@ explaining it; if they still have to ask "so should I?", it failed.
   live. Retints are checked per tenant accent, including extremes.
   ("Both themes" was here until 2026-08-30 and is stale — the owner killed
   the light theme; there is one ground.)
+  **392 is the narrowest VERIFICATION width, not the narrowest supported
+  one.** PRODUCT.md promises 320→1440; at 320 five things still clip, and
+  roadmap 2.9 is the gap between the promise and the product.
 - **Imagery: never a grey placeholder box.** An Unsplash connector is
   wired up and confirmed working 2026-08-29 (`search_photos`; "car
   detailing" returns ~4,800 real photos). Use it for mockups, the demo
@@ -94,7 +97,26 @@ explaining it; if they still have to ask "so should I?", it failed.
   black, near-black, pure white), and it pins `hueFamily()` against sixteen
   colours. It exists because correcting a colour against one ground buys a
   floor on that ground and nowhere else — the bug it caught left six of eight
-  presets under the text floor on a panel (2026-08-30).
+  presets under the text floor on a panel (2026-08-30). **It grew again in 2.6:
+  it now also measures the four grounds that are TINTED WITH THE ACCENT ITSELF
+  — a selected chip, a selected choice, a completed pill/badge, the selected
+  tab — because a tint of the accent is a ground, and correcting against the
+  plain panel underneath it left nine of twelve presets under the text floor
+  on a selected chip (worst 3.92:1). The tint percentages in `theme.css` and
+  the 20% in `lib/theme.js` must move together or this exits 1.**
+- **The check for anything that changes a LAYOUT:
+  `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
+  needs the dev server running and the demo business seeded — it drives a real
+  browser. It walks every dashboard screen, all
+  eleven settings sheets, the client sheet and the booking page at 392 and 360
+  and reports anything past the right edge, anything scrolling sideways with no
+  scrollbar, and any two boxes stacked with no gap — the two complaints the
+  owner's whole walkthrough was made of. It exits 0 today; pass a width to ask
+  a different question (`sweep-widths.mjs 320` exits 1, and that list is
+  roadmap 2.9). It needs the dev server and the demo login, like
+  `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
+  on Windows has it and headless does not, and that one difference is the
+  whole of walkthrough W14.
 - **Before changing any colour, know law 11b (`docs/design-system.md`): the
   accent is IDENTITY, never MEANING.** Paid / money-up / "it worked" are the
   fixed green `--ac`; cancelled / no-show / error are the fixed red `--bad`.

@@ -52,12 +52,19 @@ export default function BookingLink({ slug }) {
         {/* The address itself, selectable, in the figure face — it is a
             value to be read and checked, not a sentence. */}
         <div className="booking-link">{pretty}</div>
-        <div className="row" style={{ gap: 8, marginTop: 12 }}>
-          {canShare && (
-            <button className="btn primary" onClick={share}>
-              <Share2 size={18} strokeWidth={2} /> Share
-            </button>
-          )}
+        {/* Three across does not fit a phone — owner walkthrough W14, "the
+            Open button stretches off screen". It only appeared on his machine
+            because Chrome on Windows HAS navigator.share, so he had three
+            buttons where a headless browser has two: measured at 392, Open
+            ended 24px past the edge. Share is the primary and takes its own
+            full-width line; the two secondary actions share the one below,
+            which fits at every width and never depends on how many there are. */}
+        {canShare && (
+          <button className="btn primary" style={{ marginTop: 12 }} onClick={share}>
+            <Share2 size={18} strokeWidth={2} /> Share
+          </button>
+        )}
+        <div className="btnrow" style={{ marginTop: canShare ? 8 : 12 }}>
           <button className={`btn${canShare ? "" : " primary"}`} onClick={copy}>
             {copied
               ? <><Check size={18} strokeWidth={2} /> Copied</>

@@ -814,11 +814,11 @@ is kept; the entire visual design restarts from scratch.
       *completed* stays on the tenant's accent while *paid* moves to green.
       Reasoning in law 11b.
 
-> **Order note.** 2.6, 2.7 and 2.8 are listed here, ahead of 2.5, because the
-> file's order is the WORK order and a smoke test belongs at the end of the
+> **Order note.** 2.6, 2.7, 2.8 and 2.9 are listed here, ahead of 2.5, because
+> the file's order is the WORK order and a smoke test belongs at the end of the
 > phase. 2.5 keeps its number so existing references to it stay valid.
 
-- [ ] 2.6 **The owner's walkthrough — the clipping and spacing half.**
+- [x] 2.6 **The owner's walkthrough — the clipping and spacing half.**
       He went through every screen on a phone and on desktop, 2026-08-30. The
       full record with his own words is
       `docs/owner-walkthrough-2026-08-30.md`; item numbers below are its W
@@ -856,6 +856,39 @@ is kept; the entire visual design restarts from scratch.
         behaviour on list rows, so they are one pass, and either fix it
         properly or record that it is intentional.
 
+      **DONE 2026-08-31. All eight items closed, every one reproduced at 392
+      before it was touched.** Item-by-item outcomes with the measurements are
+      in `docs/owner-walkthrough-2026-08-30.md`; the judgment calls are in
+      DECISIONS.md → "Roadmap 2.6". The headlines:
+
+      - **The emulator caveat nearly closed a real bug.** W14 does not
+        reproduce headless, because `Share` only renders where
+        `navigator.share` exists — Chrome on Windows has it, a headless
+        browser does not. With it stubbed in, Open ends 24px off a 392px
+        screen exactly as he said. Reproduce what HIS browser rendered, not
+        what yours does.
+      - **W24 was real and was NOT where this item said to look.** `theme.css`
+        was already scoped correctly; the bug was `.bk-card.selectable:hover`
+        on the customer-facing booking page, with no `:not(.selected)` and one
+        selector more than `.bk-card.selected`. His rule is now **law 15** of
+        the design system.
+      - **W15 has an answer: Team**, the one screen the 392 sweep found that he
+        had not named — the role control sat 60px off the edge. Caveat on the
+        record: he said "the team's good", so it may be something else only his
+        emulator showed.
+      - **`.row-item`'s padding-left is ANSWERED**, and the 2.3 note was right
+        that translating the row is not equivalent. Translating the TEXT is:
+        measured, the words move 6px and the row, the chevron and `.txt`'s
+        width all hold still.
+      - **A live contrast defect was found underneath W24 and fixed at the
+        root.** `--accent-text` was corrected against `--ink-3` but is printed
+        on `--ink-3` tinted with the accent itself; nine presets plus black and
+        near-black were under 4.5:1, worst 3.92 on a selected chip.
+        `scripts/accent-sweep.mjs` now measures all four tinted grounds.
+      - **Verified clean at 392 AND 360** — every dashboard screen, every
+        settings sheet, the client detail and the booking page, for both
+        clipping and touching boxes. 320 is not clean; see 2.9.
+
 - [ ] 2.7 **The owner's walkthrough — the features half.** Bigger work,
       several pieces need a decision first. Same source file.
       - Calendar: W1 whole-box click target; W2 block a RANGE of days;
@@ -881,6 +914,33 @@ is kept; the entire visual design restarts from scratch.
       once. Several 2.7 decisions depend on the answer (what fields a service
       needs, what the contact step must collect, which on-site constraints
       exist). Do this BEFORE the parts of 2.7 that depend on it, not after.
+
+- [ ] 2.9 **The 320px floor — measured 2026-08-31, deferred on purpose.**
+      PRODUCT.md promises "responsive 320→1440" and the product does not keep
+      it, so this item is what makes that claim true. Nothing here is one of
+      the owner's items, none of it is visible at any of the four verification
+      widths, and none of it is visible on the device he was using — which is
+      why it is its own item rather than part of 2.6. The exact list, measured
+      at 320x844 with the same sweep 2.6 used:
+
+      - Hours & days off: the two time fields overflow by 21px even on their
+        own line. `input[type=time]` will not go below 138px in Chromium and
+        two of them plus "to" want 287px of a 248px card. They have to stack,
+        or lose the 12-hour display.
+      - Booking rules: the three-way "I go to them / They come to me / Both"
+        `.segmented` overflows by 15px. A segmented control with three long
+        labels cannot hold one line at 320.
+      - Client detail: the Navigate / Call / Text `.actions-row` overflows by
+        16px — three `1fr` columns under their own min-content.
+      - Your colour: a `.swatch` overflows by 3px; the swatch grid does not
+        reflow at that width.
+
+      Each needs its own layout decision, so do them as one pass with the
+      sweep running, not as four patches. **The sweep is
+      `node scripts/sweep-widths.mjs 320`** — it prints exactly the list above
+      and exits 1 while any of it stands, so it is the definition of done for
+      this item. `node scripts/sweep-widths.mjs` with no argument does 392 and
+      360 and exits 0 today; keep it that way.
 
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.

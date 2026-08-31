@@ -92,26 +92,37 @@ export default function Clients() {
 
       {open && (
         <Sheet onClose={() => setOpen(null)} title={open.name} subtitle={open.phone}>
-            <div className="stack" style={{ gap: 8, marginBottom: 12 }}>
+          {/* Flow containers, not per-element margins — theme.css § SPACE.
+              These four blocks are unrelated to each other, so .group (28);
+              the facts inside block three are related and are ruled rows with
+              no gap at all. Owner walkthrough W7/W8: they used to be boxes
+              sitting on each other with nothing between. */}
+          <div className="group">
+            <div className="stack" style={{ gap: 8 }}>
               <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={2} /> {open.phone}</a>
               {open.email && <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={2} /> {open.email}</a>}
             </div>
             {/* Lifetime spend is owner-only; staff see visit counts. */}
-            <div className={role === "owner" ? "grid2" : ""}>
-              <div className="card"><div className="muted">Visits</div><div className="big">{completed.length}</div></div>
+            <div className="facts">
+              <div><span className="quiet">Visits</span><span className="num v">{completed.length}</span></div>
               {role === "owner" && (
-                <div className="card"><div className="muted">Total spent</div><div className="big">{money(totalSpent)}</div></div>
+                <div><span className="quiet">Total spent</span><span className="num v">{money(totalSpent)}</span></div>
               )}
-            </div>
-            <div className="card">
-              <div className="muted">Last visit</div>
-              <strong>{lastVisit ? dateLong(lastVisit) : "No completed visits yet"}</strong>
+              <div>
+                <span className="quiet">Last visit</span>
+                <span className="v">{lastVisit ? dateLong(lastVisit) : "No completed visits yet"}</span>
+              </div>
             </div>
             <label className="field"><span>Notes</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}
                 placeholder="Gate code, dog's name, preferences…" /></label>
-            <div className="section-title">History</div>
-            {history.map((b) => <BookingCard key={b.id} booking={b} showDate onClick={() => setSelected(b)} />)}
+            <div className="tight">
+              <span className="label">History</span>
+              <div className="thoughts">
+                {history.map((b) => <BookingCard key={b.id} booking={b} showDate onClick={() => setSelected(b)} />)}
+              </div>
+            </div>
+          </div>
         </Sheet>
       )}
       {selected && (

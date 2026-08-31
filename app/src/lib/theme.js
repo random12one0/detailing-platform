@@ -58,6 +58,32 @@ const DASHBOARD_BG = "#0B0D0E";        // --ink-0
 // THE BOOKING PAGE DELIBERATELY STAYS ON ITS OWN GROUND — see BOOKING_BG.
 const DASHBOARD_ACCENT_BG = "#1E2327";  // --ink-3, the highest surface
 
+// AND ONE MORE STEP, roadmap 2.6 (2026-08-30). Correcting the TEXT against
+// --ink-3 was still not far enough, and the comment above says why without
+// following it through: ".chip.active/.choice.on print --accent-text on a
+// TINTED panel". A tinted panel is not --ink-3 — it is --ink-3 mixed with
+// the accent itself, which is LIGHTER again, so the floor bought on --ink-3
+// does not hold there either. Measured across the twelve presets and the
+// extremes, four sites failed 4.5:1: a selected chip (3.92 at worst), a
+// selected choice (3.92), .pill/.badge.completed (4.13) and the selected tab
+// (4.46). Nine presets, plus black and near-black, were under the floor.
+//
+// So the text is corrected against the lightest ground it can ever land on:
+// the selected tint AT ITS HOVER VALUE. That is what this fraction is, and
+// it must stay equal to the largest accent tint theme.css paints under
+// --accent-text — .chip.active:hover and .choice.on:hover, both 20%. Change
+// one and scripts/accent-sweep.mjs fails with the numbers.
+const DASHBOARD_TEXT_TINT = 0.20;
+
+// The ground --accent-text actually lands on: --ink-3 with that much of the
+// CORRECTED fill mixed into it, the way color-mix(in srgb, …) does it.
+export function dashboardTextBg(brandHex) {
+  const fill = hexToRgb(correctAccent(brandHex, DASHBOARD_ACCENT_BG));
+  const base = hexToRgb(DASHBOARD_ACCENT_BG);
+  return rgbToHex(fill.map((v, i) =>
+    Math.round(v * DASHBOARD_TEXT_TINT + base[i] * (1 - DASHBOARD_TEXT_TINT))));
+}
+
 // The house accent — fixed, not a fallback for a tenant colour. --ac.
 export const HOUSE_ACCENT = "#38E08B";
 // The accent at rest (--ac-deep). Used as the default SECOND brand colour a
@@ -408,8 +434,10 @@ export function applyDashboardAccent(brandHex) {
     return;
   }
 
-  // DASHBOARD_ACCENT_BG, not DASHBOARD_BG — see that constant for why.
-  const { accent, ink, text } = accentTriple(brandHex, DASHBOARD_ACCENT_BG);
+  // DASHBOARD_ACCENT_BG for the FILL, the tinted ground for the TEXT — see
+  // both constants for why, and note they are different grounds on purpose.
+  const { accent, ink, text } =
+    accentTriple(brandHex, DASHBOARD_ACCENT_BG, dashboardTextBg(brandHex));
   root.style.setProperty("--accent", accent);
   root.style.setProperty("--accent-text", text);
   root.style.setProperty("--accent-ink", ink);
@@ -417,4 +445,4 @@ export function applyDashboardAccent(brandHex) {
 
 // Exported for anything that needs to measure against them —
 // scripts/accent-sweep.mjs does.
-export { DASHBOARD_BG, DASHBOARD_ACCENT_BG };
+export { DASHBOARD_BG, DASHBOARD_ACCENT_BG, DASHBOARD_TEXT_TINT };

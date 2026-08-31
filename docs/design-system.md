@@ -247,6 +247,31 @@ Not suggestions. Where a test enforces one, it is named.
     carries `color-scheme: dark` so native controls follow. The five places
     it touched are listed at the end of this file.
 
+15. **A selected thing's hover moves the SAME WAY its selection does.** The
+    owner's rule, walkthrough W24, 2026-08-30, and the clearest interaction
+    note he has given: *"when you hover over something that's already
+    selected, it kinda goes to like a darker color… it almost feels like
+    you're unselecting it when you're not."* He was right and it was real —
+    `.bk-card.selectable:hover` had no `:not(.selected)` and outranked
+    `.bk-card.selected`, so hovering the service you had chosen replaced its
+    accent ring and its lift with a plain grey hairline.
+    **More hover means more selected, in that control's own language:** a
+    tint gets more tint (`.chip.active`, `.choice.on`, 15% → 20%), a ring gets
+    thicker and lifts further (`.bk-card.selected`), a lift lifts more
+    (`.segmented button.on`). Never a different colour, never a darker one,
+    and never nothing where the unselected version brightens.
+    **Two things this law does NOT ask for.** A hover that is already scoped
+    away from the selected state is not broken — it does not move against the
+    selection, and adding one to a *solid accent fill* costs a floor: for a
+    very dark tenant accent the corrected fill is a mid grey carrying white
+    ink, and brightening it drops that label from 4.95:1 to 3.84:1. So
+    `.bk-chip.selected` and `.bk-cal .cell.selected` were deliberately left
+    alone. And a hover for a state nothing renders is speculative code:
+    `.cal-cell.selected` is dead CSS and did not get one.
+    **Raising a tint is not free** — it is the ground `--accent-text` is
+    corrected against, so it moves `lib/theme.js` too, and
+    `scripts/accent-sweep.mjs` fails if the two drift apart.
+
 ---
 
 ## Tokens
@@ -316,12 +341,19 @@ lower contrast for these colours.
 
 | Value | Corrected against | Why |
 |---|---|---|
-| Dashboard `--accent` and `--accent-text` | **`--ink-3`** `#1E2327` | The accent does not stay on the ground. `.cal-cell.today` sits in a panel; `.pill`, `.badge`, `.chip.active` and `.choice.on` print `--accent-text` on a tinted panel; `a` can be anywhere. |
+| Dashboard **fill** `--accent` | **`--ink-3`** `#1E2327` | The accent does not stay on the ground. `.cal-cell.today` sits in a panel, `.pill` and `.badge` sit on cards, `a` can be anywhere. |
+| Dashboard **text** `--accent-text` | **`--ink-3` mixed 20% with the corrected fill** | **Corrected again in roadmap 2.6 — the row above was still not far enough, and this was a LIVE defect.** A tinted panel is not `--ink-3`: it is `--ink-3` with the accent ITSELF mixed into it, which is lighter again. `.chip.active` and `.choice.on` are 15% of the accent, 20% while hovered; `.pill.completed` and `.badge.completed` are 11%; the selected tab is 12%. Measured across the twelve presets and the extremes, **nine presets plus black and near-black were under 4.5:1**, worst 3.92 on a selected chip. `dashboardTextBg()` in `lib/theme.js` computes the ground; the 20% must stay equal to the largest tint `theme.css` paints under `--accent-text`. |
 | Booking **fill** `--bk-accent` | **`--ink-3`** `#1E2327` | **Corrected in roadmap 2.4 — it was `--ink-0` and that was a LIVE defect.** `.bk-card.selected` draws its accent ring on `linear-gradient(166deg, var(--bk-lit), ...)`, whose top is `--ink-3`, and `.bk-cal .cell.today` rings a lifted cell. On `--ink-0` Violet measured **2.78:1** there, Slate 2.62, a black pick 2.56 and a deep navy 2.51 — all under the 3:1 fill floor, on the ring that is the only thing telling a customer which service they picked. |
 | Booking **text** `--bk-accent-text` | `--ink-0` `#0B0D0E` | Stays. `booking.css` prints it in exactly two places and both are borderless rows on the ground. Checked in 2.3, re-checked in 2.4. Pushing it to `--ink-3` would move every tenant colour further from the owner's pick on the surface their customers see, to buy a floor it already clears. |
 
-**The rule underneath all three rows is one sentence: correct against the
-lightest surface THAT VALUE can land on.** Not the ground the page paints, and
+**The rule underneath all four rows is one sentence: correct against the
+lightest surface THAT VALUE can land on.** Roadmap 2.6 is the third time this
+file has had to be pushed one surface further in, and the pattern in all three
+is the same: the ground was named from the STYLESHEET's surface tokens, and the
+value was actually landing on something built out of the accent. **A tint of
+the accent is a ground.** If a rule paints `color-mix(… var(--accent) N% …)`
+and something prints `--accent-text` on it, that mix is the ground to correct
+against, not the token underneath it. Not the ground the page paints, and
 not one answer per page — the fill and the text of the same accent can need
 different grounds, and on the booking page they do. `accentTriple()` takes both.
 `scripts/accent-sweep.mjs` measures the booking page's values on its own
