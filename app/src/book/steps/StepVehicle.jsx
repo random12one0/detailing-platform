@@ -1,11 +1,15 @@
-// Step 2 — vehicle size and add-ons.
+// The vehicle: its size, and what it is.
 //
 // Sizes are offered only when the chosen services actually price them
 // differently: a business whose services have zero size adjustments never
 // sees a question it has no answer for.
+//
+// ADD-ONS LEFT THIS STEP in roadmap 2.7 (W19) — they are ./StepExtras.jsx
+// now. They were the tallest block on the page: 158px of ruled checklist
+// under three boxes and a text field, which is what made this the worst step
+// in the flow for W16 (222px past the bottom of a phone, 26% of the screen).
 
 import { money } from "../../lib/format.js";
-import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 const SIZES = [
   ["small", "Small", "Coupe, sedan, hatchback"],
@@ -14,8 +18,6 @@ const SIZES = [
 ];
 
 export default function StepVehicle({ form, setForm, selectedServices }) {
-  const { addOns } = useBookingBusiness();
-
   // The extra a size costs across the chosen services (0 when unconfigured).
   const sizeExtra = (size) =>
     selectedServices.reduce(
@@ -24,19 +26,11 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
     );
   const sizesMatter = SIZES.some(([k]) => sizeExtra(k) !== 0);
 
-  const toggleAddOn = (id) =>
-    setForm((f) => ({
-      ...f,
-      addOns: f.addOns.includes(id) ? f.addOns.filter((x) => x !== id) : [...f.addOns, id],
-    }));
-
   return (
     <>
       {sizesMatter ? (
-        <>
-          <p className="bk-muted" style={{ marginBottom: 12 }}>
-            Bigger vehicles take longer, so pricing varies.
-          </p>
+        <div className="bk-choices">
+          <p className="bk-muted">Bigger vehicles take longer, so pricing varies.</p>
           {SIZES.map(([key, label, examples]) => {
             const extra = sizeExtra(key);
             return (
@@ -58,14 +52,12 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
               </div>
             );
           })}
-        </>
+        </div>
       ) : (
-        <p className="bk-muted" style={{ marginBottom: 12 }}>
-          One price for every vehicle.
-        </p>
+        <p className="bk-muted">One price for every vehicle.</p>
       )}
 
-      <label className="bk-field" style={{ marginTop: 14 }}>
+      <label className="bk-field">
         <span>What are you bringing? (optional)</span>
         <input
           value={form.vehicleModel}
@@ -74,32 +66,6 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
         />
       </label>
 
-      {addOns.length > 0 && (
-        <>
-          <div className="bk-step-label" style={{ marginTop: 20 }}>Add extras</div>
-          {/* Extras are a ruled checklist, not more boxes: the boxes on this
-              step are the vehicle sizes you choose BETWEEN; extras stack. */}
-          <div className="bk-list" role="group" aria-label="Add extras">
-            {addOns.map((a) => {
-              const on = form.addOns.includes(a.id);
-              return (
-                <label key={a.id} className={`bk-list-row${on ? " on" : ""}`}>
-                  <input
-                    type="checkbox"
-                    checked={on}
-                    onChange={() => toggleAddOn(a.id)}
-                  />
-                  <span className="grow">
-                    <span className="bk-body" style={{ fontWeight: on ? 600 : 500 }}>{a.name}</span>
-                    {a.description && <span className="bk-muted" style={{ display: "block" }}>{a.description}</span>}
-                  </span>
-                  <span className="bk-price">+{money(a.price)}</span>
-                </label>
-              );
-            })}
-          </div>
-        </>
-      )}
     </>
   );
 }

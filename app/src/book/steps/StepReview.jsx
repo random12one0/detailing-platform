@@ -5,7 +5,7 @@
 // entirely rather than letting the customer submit something we can't
 // price — the failure mode the old widget had.
 
-import { money, time12 } from "../../lib/format.js";
+import { duration, money, time12 } from "../../lib/format.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepReview({ form, setForm, quote, services, addOns, promoState, onApplyPromo }) {
@@ -25,7 +25,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         <h3>{dateLabel}</h3>
         <p className="bk-muted">
           {time12(form.startTime)}
-          {quote?.total_duration ? ` · about ${Math.round(quote.total_duration / 60 * 10) / 10} hours` : ""}
+          {quote?.total_duration ? ` · about ${duration(quote.total_duration)}` : ""}
         </p>
         <p className="bk-muted" style={{ marginTop: 6 }}>
           {form.serviceType === "mobile"

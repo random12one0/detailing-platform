@@ -8,6 +8,20 @@ export const time12 = (hhmm) => {
   return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${ampm}`;
 };
 
+// How long a job takes, in the words a person uses. One implementation
+// because roadmap 2.7 (W17 — "add an estimated TIME next to the estimated
+// total") needed a FOURTH: the service card said "2h 30m", the review step
+// said "about 2.5 hours", and the price bar would have invented its own.
+// Two and a half hours is never "2.5" out loud.
+export const duration = (mins) => {
+  const total = Math.max(0, Math.round(Number(mins) || 0));
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (!h) return `${m} min`;
+  if (!m) return `${h} hr${h > 1 ? "s" : ""}`;
+  return `${h} hr ${m} min`;
+};
+
 export const dateLong = (dateStr) => {
   const [y, m, d] = String(dateStr).split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("en-US", {

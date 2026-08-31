@@ -15,9 +15,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "../lib/api.js";
-import { money } from "../lib/format.js";
+import { duration, money } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import StepServices from "./steps/StepServices.jsx";
+import StepExtras from "./steps/StepExtras.jsx";
 import StepVehicle from "./steps/StepVehicle.jsx";
 import StepLocation from "./steps/StepLocation.jsx";
 import StepWhen from "./steps/StepWhen.jsx";
@@ -26,7 +27,17 @@ import StepReview from "./steps/StepReview.jsx";
 import BookingConfirmed from "./BookingConfirmed.jsx";
 import "./booking.css";
 
-const STEPS = ["Services", "Vehicle", "Location", "When", "Details", "Review"];
+// Roadmap 2.7, W19: "add-ons get their own step, in the same format as the
+// services step." Extras sits directly after Services because the two are the
+// same question asked twice — what do you want, and anything else — and the
+// vehicle is a fact about the car rather than another thing to buy.
+//
+// The list is BUILT, not fixed, and only for the reason W19 forces: a business
+// with no add-ons configured would otherwise get an empty seventh step, and
+// "Step 3 of 7" would be a lie for every one of them. Nothing else about the
+// flow is conditional.
+const stepsFor = (addOns) =>
+  ["Services", ...(addOns.length ? ["Extras"] : []), "Vehicle", "Location", "When", "Details", "Review"];
 
 export default function BookingPage() {
   const { slug } = useParams();
@@ -40,6 +51,7 @@ export default function BookingPage() {
 function BookingFlow() {
   const ctx = useBookingBusiness();
   const { status, business, branding, settings, services, addOns, brandVars, slug } = ctx;
+  const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
@@ -225,13 +237,19 @@ function BookingFlow() {
       <div className="bk-wrap">
         {/* One header unit: without the wrapper, bk-wrap's flex gap opens
             28px voids between rail, label and heading. */}
+        {/* The rail and the words say the same thing, so they share a line
+            rather than stacking — 15px of every step's budget, on all seven
+            of them (W16). The rail keeps most of the width because it is what
+            gets read at a glance; the words are what a screen reader gets. */}
         <div className="bk-step-head" key={`head-${step}`}>
-          <div className="bk-rail" aria-hidden="true">
-            {STEPS.map((s, i) => (
-              <span key={s} className={i < step ? "done" : i === step ? "current" : ""} />
-            ))}
+          <div className="bk-row">
+            <div className="bk-rail" aria-hidden="true">
+              {STEPS.map((s, i) => (
+                <span key={s} className={i < step ? "done" : i === step ? "current" : ""} />
+              ))}
+            </div>
+            <div className="bk-step-label">Step {step + 1} of {STEPS.length}</div>
           </div>
-          <div className="bk-step-label">Step {step + 1} of {STEPS.length}</div>
           <h2>{headingFor(stepName, bothModes, settings)}</h2>
         </div>
 
@@ -249,6 +267,15 @@ function BookingFlow() {
               serviceIds: f.serviceIds.includes(id)
                 ? f.serviceIds.filter((x) => x !== id)
                 : [...f.serviceIds, id],
+            }))}
+          />
+        )}
+        {stepName === "Extras" && (
+          <StepExtras
+            selected={form.addOns}
+            onToggle={(id) => setForm((f) => ({
+              ...f,
+              addOns: f.addOns.includes(id) ? f.addOns.filter((x) => x !== id) : [...f.addOns, id],
             }))}
           />
         )}
@@ -281,23 +308,36 @@ function BookingFlow() {
           </div>
         )}
         {submitError && <div className="bk-error">{submitError}</div>}
-
-        {/* Auto width and left-aligned: a full-bleed ghost button reads as a
-            centred word floating in the column, not as a way back. */}
-        {step > 0 && (
-          <button className="bk-btn ghost" style={{ marginTop: 14, width: "auto", alignSelf: "flex-start", paddingLeft: 0 }}
-            onClick={() => go(-1)}>
-            <ArrowLeft size={18} strokeWidth={2} /> Back
-          </button>
-        )}
       </div>
 
+      {/* W20 — BACK LIVES IN THE BAR NOW, and the call was ours: he asked for
+          it and then doubted it himself against W17 ("figure out what it looks
+          best"). Measured, it is not close. As a block at the foot of the
+          column it cost 48px plus the 26px section gap above it — 74px of the
+          budget on every step but the first — and W16, "every step should fit
+          without having to scroll", is the rule this whole item is organised
+          around. It also reaches: at the bottom of a scroll it was the one
+          control you had to scroll to find.
+          Icon-only, because the arrow beside Continue is unambiguous and a
+          worded Back competes with the thing to press. */}
       <div className="bk-bar">
         <div className="inner">
+          {step > 0 && (
+            <button className="bk-btn ghost back" onClick={() => go(-1)} aria-label="Back a step">
+              <ArrowLeft size={20} strokeWidth={2} />
+            </button>
+          )}
           <div className="total">
             {quote ? (
               <>
-                <div className="bk-muted" style={{ fontSize: "0.75rem" }}>Estimated total</div>
+                {/* W17 — the estimated TIME rides on the eyebrow, not beside
+                    the figure. The figure is the thing being decided on and it
+                    is the one mono number in the bar; putting a second number
+                    next to it makes two leads. The qualifier line is where a
+                    qualifier goes. */}
+                <div className="bk-muted">
+                  Estimated total{quote.total_duration ? ` · ${duration(quote.total_duration)}` : ""}
+                </div>
                 <strong>{money(quote.total)}</strong>
               </>
             ) : (
@@ -322,6 +362,7 @@ function BookingFlow() {
 function headingFor(stepName, bothModes, settings) {
   switch (stepName) {
     case "Services": return "What can we do for you?";
+    case "Extras": return "Anything to add?";
     case "Vehicle": return "Tell us about the vehicle";
     case "Location": return bothModes ? "Where should we do it?" : settings.mobile_enabled ? "Where are you?" : "Drop-off details";
     case "When": return "Pick a time";

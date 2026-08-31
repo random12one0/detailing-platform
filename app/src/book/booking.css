@@ -222,6 +222,29 @@
 }
 .bk-step-head { display: flex; flex-direction: column; gap: var(--bk-sp-3); }
 .bk-step-head h2 { margin-top: 2px; }
+/* A HEADING IS NOT A SECTION PEER OF WHAT IT HEADS. .bk-wrap's gap is the
+   26px SECTION gap and it was falling between the step's heading and the
+   step's content, which is the same mistake W18 named one level down: the
+   loosest space on the screen sitting inside the tightest relationship.
+   16px, and it is 10px off every step's budget (W16). */
+.bk-step-head { margin-bottom: calc(var(--bk-sp-4) - var(--bk-sp-5)); }
+/* A SET OF THINGS YOU CHOOSE BETWEEN IS ONE BLOCK, NOT N PAGE SECTIONS.
+   The third instance of the pattern in this file, after .bk-step-head and
+   .bk-cal-block, and the one the owner actually noticed: "the titles are
+   really close to it, but everything else is spread out. So it kinda looks
+   uneven" (W18). Services, sizes and extras were direct children of
+   .bk-wrap, so its 26px SECTION gap fell between cards that belong to one
+   menu — the loosest space in the step landing inside its tightest
+   relationship. 8px between the cards, and the group label gets the air the
+   cards were wasting. Nests: a grouped menu is choices of choices. */
+.bk-choices { display: flex; flex-direction: column; gap: var(--bk-sp-2); }
+.bk-choices > .bk-choices { gap: var(--bk-sp-2); }
+.bk-choices > p.bk-muted { margin-bottom: 2px; }
+/* Only where a heading is starting a new group — the first one is already
+   under the step's own heading and needs nothing. */
+.bk-step-label.group { margin-top: var(--bk-sp-3); }
+.bk-choices > .bk-choices:first-of-type > .bk-step-label.group { margin-top: 0; }
+
 .bk-row { display: flex; align-items: center; gap: var(--bk-sp-2); }
 .bk-row.top { align-items: flex-start; }
 .bk-row.between { justify-content: space-between; }
@@ -274,15 +297,33 @@
   font-size: var(--bk-t-title); font-variation-settings: "wdth" 106, "wght" 680;
   letter-spacing: -.018em;
 }
-.bk-header .tagline { font-size: var(--bk-t-meta); color: var(--bk-muted); margin-top: 3px; }
-@media (min-width: 1000px) {
+/* THE TAGLINE IS DESKTOP-ONLY, and this is the masthead's existing
+   phone/desktop split doing one more thing rather than a new idea: the block
+   below already gives the header a different scale where there is room for
+   one. On a phone the tagline is 23px of marketing copy on a form the
+   customer has already decided to fill in — and it is 23px on ALL SEVEN
+   steps, which is what makes it the wrong 23px to keep under W16. The
+   business NAME is what answers "whose page is this"; the tagline is the
+   part that only pays where the screen is not the constraint. */
+.bk-header .tagline { display: none; }
+/* AND THE GATE IS ON HEIGHT AS WELL AS WIDTH, because the reason written
+   below is about height: "a 60px bar above a centred column leaves the top
+   third of a 1920 screen empty." A 1440x900 laptop is not that screen — it
+   is 180px shorter than the one the masthead was drawn for, and spending 61
+   of those px on a bigger bar is what put step 1 55px past the bottom there
+   while 1920 had 125px to spare. The rule now says what it always meant. */
+@media (min-width: 1000px) and (min-height: 950px) {
   .bk-header { padding-top: 54px; padding-bottom: 26px; }
   .bk-header h1 { font-size: clamp(25px, 2.6vw, 34px); }
+  .bk-header .tagline {
+    display: block; font-size: var(--bk-t-meta); color: var(--bk-muted); margin-top: 3px;
+  }
 }
 
 /* Progress: six marks, the ones behind you filled. Shape and fill, not
    colour alone, so it still reads for a colour-blind customer. */
-.bk-rail { display: flex; gap: 5px; }
+.bk-rail { display: flex; gap: 5px; flex: 1; min-width: 0; }
+.bk-step-head .bk-step-label { flex-shrink: 0; }
 .bk-rail span {
   height: 3px; flex: 1; border-radius: var(--bk-r-pill); background: var(--bk-hairline);
   transition: background var(--bk-t-hover) var(--bk-e);
@@ -502,11 +543,20 @@
   display: flex; align-items: center; gap: var(--bk-sp-3);
 }
 .bk-bar .total { min-width: 0; flex: 1; }
+/* The eyebrow carries the estimated TIME beside "Estimated total" (W17), so
+   it has to be able to wrap to two lines on a narrow phone rather than push
+   the figure out of the bar. */
+.bk-bar .total > .bk-muted { font-size: var(--bk-t-label); line-height: 1.3; }
 .bk-bar .total strong {
+  display: block;
   font-family: var(--bk-f-num); font-size: var(--bk-t-title); font-weight: 500;
   font-variant-numeric: tabular-nums; letter-spacing: -.03em;
 }
 .bk-bar .bk-btn { width: auto; flex-shrink: 0; }
+/* W20 — Back, in the bar. Square and icon-only: it is the one control here
+   that is not the decision, and a worded button beside Continue reads as two
+   things to press. It keeps the 48px tap target the rest of the page uses. */
+.bk-bar .bk-btn.back { padding: 0; width: 48px; }
 
 .bk-spinner {
   width: 26px; height: 26px; border: 2px solid var(--bk-hairline);
@@ -574,8 +624,17 @@
   font-size: var(--bk-t-label); letter-spacing: .18em; color: var(--bk-muted);
 }
 .bk-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+/* SQUARE UNTIL IT IS SILLY. `aspect-ratio: 1` alone is right on a phone,
+   where the column is 360px and a cell lands at 47px — a thumb. On the 600px
+   column it made an 81px square, so the month became a 516px block and step 5
+   was the tallest screen in the flow: 126px past the bottom at 1440x900, and
+   the whole of W5/W23 ("desktop calendar fills the screen and still
+   scrolls"). A date cell holds two digits; past ~52px tall it is holding air.
+   The cap only ever engages where the ratio would exceed it, so the phone is
+   untouched and the cell stays well over the 46px tap floor. */
 .bk-cal .cell {
-  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 1; max-height: 52px;
+  display: flex; align-items: center; justify-content: center;
   border-radius: var(--bk-r-inset);
   background: rgba(255, 255, 255, .025);
   box-shadow: inset 0 0 0 1px var(--bk-hairline);
