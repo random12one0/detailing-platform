@@ -517,6 +517,25 @@ is kept; the entire visual design restarts from scratch.
       is `#0B0D0E`; two of the three surfaces already paint `#0B0D0E`, so
       this is the last one holding it back.
 
+      **Three findings in `theme.css` handed forward from 2.2**, raised by
+      the design hook against a file that item did not touch. Not fixed and
+      not suppressed: 2.3 rewrites that stylesheet, so the right moment to
+      decide each one is when the screen it belongs to is redrawn. Judge
+      them on their merits, not on the hook's label:
+      - `.stripe` (L262) — a 3px status border down the left of a booking
+        row. Flagged as the "accent bar on a card" tell. It is not on a
+        card, it is on a list row, and it is what stops status being
+        carried by colour alone next to the status word. Probably keep the
+        job it does; the shape is 2.3's call.
+      - `.bars` (L490) — `transition: height` on the revenue chart's bars.
+        A real layout-thrash smell. Twelve bars, once, on opening Money, so
+        it has never been felt; `transform: scaleY` with a bottom origin is
+        the cheap fix if the tab is rebuilt anyway.
+      - `.sheet` (L564) — `transition: height` on the bottom sheet, already
+        commented in place: the height IS the thing being dragged, and the
+        transition is switched off while a finger is on it. Deliberate, and
+        transform cannot express it. Keep unless the sheet itself changes.
+
       **Two things 2.1 established that this item must follow rather than
       re-derive:** never put `font-variation-settings` on a root element
       (law 8 now says why), and the tenant accent has a fill value and a
