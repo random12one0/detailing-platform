@@ -111,8 +111,34 @@
      --ac IS NOT THE SAME THING AS --accent, and that is the whole point of
      this block. --ac is the house green, a fixed system token that the
      landing page also defines under .ld — it must never be overwritten.
-     --accent is whatever THIS business chose. So below this block there is
-     no `var(--ac)` left: every fill reads --accent, so it retints.
+     --accent is whatever THIS business chose.
+
+     THE ACCENT IS IDENTITY, NOT MEANING — the owner's rule, 2026-08-30,
+     roadmap 2.4: "the paid should always be green because that's just kind of
+     paid. Money green is all kind of cohesive… the accent color is more like
+     the mark complete button or the calendar highlight, what day it is, and
+     the outline for month, and the color theming on the money page."
+
+     So there are now exactly two kinds of colour below this block:
+
+       var(--accent*)   IDENTITY. Actions, navigation, selection, focus, the
+                        day it is, chart bars, the "it landed" node. Retints
+                        with the tenant. Most of the file.
+       var(--ac) / var(--bad)
+                        MEANING. Paid, money up, "it worked" are green;
+                        cancelled, no-show, errors are red. FIXED for every
+                        tenant, because these are conventions a customer
+                        already knows and a brand colour does not get to
+                        overwrite. `grep 'var(--ac)'` finds every one.
+
+     This is why a red-branded detailer — 48% of this trade, DECISIONS.md —
+     does not end up with red meaning "paid" and red meaning "cancelled" on
+     the same row. It was previously fixed only by shape; the shapes stay,
+     because they also cover the near-black and silver accents that collide
+     with the neutral marks and have nothing to do with red.
+     Until 2.4 this block said "below here there is no var(--ac) left". That
+     was the old rule and it is exactly inverted now: var(--ac) below here is
+     the deliberate mark of a colour that must NOT follow the tenant.
 
      TWO VALUES, because an accent has two jobs at two floors: as a FILL — a
      button face, a selected day, a focus ring — it clears 3:1; as WORDS it
@@ -345,27 +371,62 @@ a { color: var(--accent-text); text-decoration: none; }
 }
 
 /* ------------------------------------------------------------ THE MARKS
-   FIVE STATUSES, TWO HUES, THREE SHAPES. The system has one accent and one
-   warm value and says so twice, so --success and --warning are gone rather
-   than kept as a third and fourth hue. Cancelled and no-show share --bad
-   because they are the same outcome reached two ways, and the pill beside
-   the mark still says the word, so colour is never alone.
-   See docs/dashboard-skeletons.md §5b for the whole table. */
+   FORM CARRIES THE MEANING; COLOUR ONLY AGREES WITH IT. Rewritten in roadmap
+   2.4 item 3c, 2026-08-30. It used to be seven meanings on TWO shapes — a
+   disc and a ring — with hue doing the rest, and these marks are 7px and
+   carry no text, so hue was doing it alone. That is a WCAG 1.4.1 failure on
+   its own, before any tenant colour is involved.
+
+   IT WAS NEVER A RED-ONLY PROBLEM, and that is why the fix is unconditional
+   rather than switched on when the accent is red. Measured 2026-08-30 on this
+   exact markup (ΔE against the mark it collides with):
+
+     silver accent  #D4D7DA   vs "booked" --bone-2   ΔE  8.5   two hollow rings
+     red accent     #E55B5B   vs --bad                ΔE  8.5–11.4
+     near-black     -> #707070 vs "blocked" --fog     ΔE 17.1   two solid discs
+     slate accent   #5C6E87   vs "blocked" --fog      ΔE 21.8   two solid discs
+
+   A fix that only fired for reds would have left the other three. See
+   docs/design-system.md § "The one warm value" and DECISIONS.md → "Roadmap
+   2.4"; the mark table is docs/dashboard-skeletons.md §5b.
+
+   FOUR FORMS, AND NO TWO MARKS THAT CAN SHARE A CELL SHARE ONE:
+     hollow circle  a job that is ahead        square = a fact about the DAY,
+     solid circle   a job that landed          never about a job, so a day
+     bar            a job that did not happen  mark can never be mistaken
+     square         a fact about the day       for a job at 7px.
+   --bad leaves this component entirely: it had nothing to say here that the
+   bar does not say better, and the day sheet still prints the word in red. */
 .dot {
   width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
   background: var(--fog);
 }
-.dot.completed, .dot.paid { background: var(--accent); }
-.dot.cancelled { background: var(--bad); }
-/* Upcoming and not-yet-answered are HOLLOW: nothing has landed. */
-.dot.confirmed { background: transparent; box-shadow: inset 0 0 0 2px var(--bone-2); }
-.dot.pending   { background: transparent; box-shadow: inset 0 0 0 2px var(--fog); }
-.dot.no_show   { background: transparent; box-shadow: inset 0 0 0 2px var(--bad); }
-/* A day you marked off is not an error — it is a decision, so it is neutral
-   and solid. Drop-off-only keeps the hollow ring it always had. */
-.dot.block { background: var(--fog); }
+/* AHEAD — hollow, nothing has landed. Pending folds in with confirmed: on a
+   month grid both mean "booked, nothing has happened yet", and separating
+   them cost a third ring that differed from this one by hue alone. */
+.dot.confirmed, .dot.pending { background: transparent; box-shadow: inset 0 0 0 2px var(--bone-2); }
+/* LANDED — the one place the tenant's colour is spent in the grid. A finished
+   job is a job, not money, so it stays on the accent; PAID is money and takes
+   the fixed green (the accent-is-identity rule at the top of this file). */
+.dot.completed { background: var(--accent); }
+.dot.paid { background: var(--ac); }
+/* IT DID NOT HAPPEN — a bar, which is a struck-through circle and the one
+   form here that no accent can imitate. Neutral, not --bad: a 7px red dot
+   with no legend entry was never readable as "no-show" anyway. */
+.dot.cancelled, .dot.no_show {
+  width: 7px; height: 3px; border-radius: 1px;
+  background: var(--fog); box-shadow: none;
+}
+/* THE DAY ITSELF — squares. A day you marked off is not an error, it is a
+   decision, so it stays neutral and solid; drop-off-only is the hollow one.
+   The ring KEEPS the accent. Making it a square is what fixes its collision
+   with "booked" (both were hollow circles: ΔE 8.5 under a silver accent), and
+   dropping to --fog on top of that was tried and looked worse — a hollow grey
+   square beside a solid grey square is a 1px hole apart at this size, which is
+   no difference at all. Checked in a browser at 6x, 2026-08-30. */
+.dot.block { border-radius: 1px; background: var(--fog); }
 .ring {
-  width: 7px; height: 7px; border-radius: 50%; background: transparent;
+  width: 7px; height: 7px; border-radius: 1px; background: transparent;
   box-shadow: inset 0 0 0 2px var(--accent); flex-shrink: 0;
 }
 
@@ -584,9 +645,22 @@ a { color: var(--accent-text); text-decoration: none; }
   letter-spacing: 0.08em; color: var(--text-muted);
   border: 1px solid var(--hairline); white-space: nowrap;
 }
-.pill.completed, .pill.paid { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 11%, transparent); color: var(--accent-text); }
+/* FILLED means it happened; OUTLINED means it did not — roadmap 2.4 item 3c.
+   These carry their word, so they were never a 1.4.1 failure, but with a red
+   accent "Paid" measured ΔE 8.5 from "Cancelled" (deep red) and 11.4
+   (Crimson): the same red meaning both outcomes on one row. Red is the most
+   common colour in this trade (48% of a 46-brand sample — DECISIONS.md), so
+   this is the common case, not the edge one. The tint is the difference now,
+   and it is the system's own hollow-versus-solid vocabulary one level up. */
+.pill.completed { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 11%, transparent); color: var(--accent-text); }
+/* PAID IS ALWAYS GREEN and never the tenant's colour — the accent-is-identity
+   rule at the top of this file, in the owner's own words. It is also the pill
+   most likely to sit on the same row as "Cancelled", so pinning it green is
+   what stops that pair blurring for a red-branded business, with the fill and
+   the outline below as the second, colour-blind-safe difference. */
+.pill.paid { border-color: color-mix(in srgb, var(--ac) 45%, transparent); background: color-mix(in srgb, var(--ac) 11%, transparent); color: var(--ac); }
 .pill.confirmed { border-color: var(--line-2); color: var(--text-2); }
-.pill.cancelled, .pill.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); color: var(--bad); }
+.pill.cancelled, .pill.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: none; color: var(--bad); }
 .pill.pending, .pill.partial { border-color: var(--line-2); color: var(--text-muted); }
 .pill.waived { border-color: var(--hairline); color: var(--text-muted); }
 
@@ -644,7 +718,10 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   cursor: pointer; white-space: nowrap; font-size: var(--t-meta); font-family: var(--f-body);
 }
 .error-box { border: 1px solid color-mix(in srgb, var(--bad) 55%, transparent); background: color-mix(in srgb, var(--bad) 9%, transparent); color: var(--bad); }
-.ok-box { border: 1px solid var(--accent-line); background: color-mix(in srgb, var(--accent) 9%, transparent); color: var(--accent-text); }
+/* "It worked" is green and "it failed" is red, for every tenant. On the
+   accent this box was the same colour as .error-box above it whenever the
+   detailer's brand was red — the two states of the same message, identical. */
+.ok-box { border: 1px solid color-mix(in srgb, var(--ac) 45%, transparent); background: color-mix(in srgb, var(--ac) 9%, transparent); color: var(--ac); }
 .confirm-box {
   display: block; border: 1px solid var(--accent-line); background: var(--accent-quiet);
   color: var(--text); padding: var(--sp-3) var(--sp-4); font-size: var(--t-body);
@@ -693,7 +770,13 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 }
 
 /* --------------------------------------------------------------- MISC */
-.swatch-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+/* SIX COLUMNS, not a wrapping flex row — roadmap 2.4, once the preset list
+   went from eight to twelve. Wrapping put eleven on one line and one orphan
+   underneath at 1440, which reads as a mistake rather than a palette. Twelve
+   is 6x2 exactly at every width the app supports (6 x 44 + 5 x 8 = 304px,
+   inside the 392px phone). If the list ever stops being a multiple of six,
+   change this number with it. */
+.swatch-row { display: grid; grid-template-columns: repeat(6, 44px); gap: var(--sp-2); justify-content: start; }
 .swatch-row .swatch {
   width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
   border: 1px solid var(--hairline); padding: 0;
@@ -734,10 +817,14 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   font-size: var(--t-label); color: var(--text-muted); font-weight: 400;
 }
 
-/* Change against last month. Colour IS the message here, which is one of the
-   few places it is spent — and it is the system's two values, not four. */
+/* Change against last month. The ▲ / ▼ carries it — colour only agrees, which
+   is what keeps this readable in greyscale. GREEN UP, RED DOWN, both fixed:
+   money moving is meaning, not identity (the rule at the top of this file).
+   Up used to be --accent-text, which meant a red-branded detailer got a red
+   ▲ beside a red ▼ and the two rows of the Money screen said the same thing
+   in the same colour. */
 .delta { font-size: var(--t-meta); font-weight: 600; font-family: var(--f-num); }
-.delta.up { color: var(--accent-text); }
+.delta.up { color: var(--ac); }
 .delta.down { color: var(--bad); }
 
 /* ------------------------------------------------------- ONE REVEAL
@@ -825,8 +912,11 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   letter-spacing: 0.08em; color: var(--text-muted);
   border: 1px solid var(--hairline); white-space: nowrap;
 }
-.badge.completed, .badge.paid { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 11%, transparent); color: var(--accent-text); }
-.badge.cancelled, .badge.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); color: var(--bad); }
+.badge.completed { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 11%, transparent); color: var(--accent-text); }
+/* Paid is green, always — see .pill.paid. */
+.badge.paid { border-color: color-mix(in srgb, var(--ac) 45%, transparent); background: color-mix(in srgb, var(--ac) 11%, transparent); color: var(--ac); }
+/* Outlined, not tinted — the .pill rule above says why. */
+.badge.cancelled, .badge.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: none; color: var(--bad); }
 .badge.pending, .badge.partial { border-color: var(--line-2); color: var(--text-muted); }
 .badge.confirmed { border-color: var(--line-2); color: var(--text-2); }
 .badge.waived { border-color: var(--hairline); color: var(--text-muted); }

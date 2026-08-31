@@ -118,19 +118,56 @@ anywhere in the system, so it can never be confused with the accent."* A
 second green beside `--ac` and an amber beside it are a four-hue palette. The
 five booking statuses are carried by **two hues and three shapes** instead:
 
-| Status | Mark | Reading |
-|---|---|---|
-| confirmed / upcoming | hollow ring, `--bone-2` | just what is next |
-| completed / paid | solid disc, `--ac` | it landed |
-| pending | hollow ring, `--fog` | not yet answered |
-| cancelled | solid disc, `--bad` | it will not happen |
-| no-show | hollow ring, `--bad` | it did not happen |
+**REWRITTEN IN ROADMAP 2.4 (2026-08-30).** The table below is the current one;
+the version it replaces is at the end of this section, because the reason it
+failed is worth keeping.
 
-Same colour for cancelled and no-show, different shape, because they are the
-same outcome arrived at two ways — and the pill next to the mark still says
-the word, so colour is never alone. On the calendar a blocked day is a solid
-`--fog` disc (a day you marked off is not an error) and drop-off-only stays a
-hollow ring, as it already was.
+| Mark | Form | Colour | Reading |
+|---|---|---|---|
+| confirmed / pending | hollow **circle** | `--bone-2` | a job that is ahead |
+| completed | solid **circle** | `--accent` | a job that landed |
+| paid | solid **circle** | `--ac` **fixed** | money in — never the tenant's colour, law 11b |
+| cancelled / no-show | **bar** | `--fog` | a job that did not happen |
+| blocked day | solid **square** | `--fog` | a day you closed |
+| drop-off only | hollow **square** | `--accent` | a day with a constraint |
+
+**Circles are jobs, squares are the day, a bar is a job that did not happen.**
+No two marks that can appear in the same cell share a form, so the grid reads
+without colour at all. `.dot.confirmed` and `.dot.pending` were merged: on a
+month grid both mean "booked, nothing has happened yet", and keeping them apart
+cost a third hollow ring distinguished from the others by hue alone.
+
+**Why the old table failed, and why the fix is unconditional.** It carried
+seven meanings on two forms — disc and ring — with hue doing the rest, on 7px
+marks that carry no text. That is a WCAG 1.4.1 failure before any tenant colour
+is involved, and once law 11 let the tenant paint the dashboard it became a
+visible one. Measured on the shipped markup (ΔE against the mark it collides
+with):
+
+| Accent | Collides with | ΔE | Both were |
+|---|---|---|---|
+| silver `#D4D7DA` | "booked", `--bone-2` | **8.5** | hollow rings |
+| deep red → `#E26666` | `--bad` | **8.5** | — |
+| Crimson → `#E55B5B` | `--bad` | **11.4** | solid discs |
+| near-black → `#707070` | "blocked", `--fog` | **17.1** | solid discs |
+| Slate → `#5C6E87` | "blocked", `--fog` | **21.8** | solid discs |
+
+Three of the five have nothing to do with red, which is why the fix is a form
+vocabulary that always holds rather than a branch that fires when the accent is
+red. `hueFamily()` exists in `lib/theme.js` to EXPLAIN a colour to the
+detailer, not to gate styling — see its header.
+
+**The legend now decodes all five marks.** It decoded four of seven before,
+which is how a red no-show dot sat on the month grid for months meaning nothing
+to anybody. And the demo seed had neither a cancelled nor a no-show booking in
+twenty-one rows, so none of this could be seen in a browser at all — both were
+added in 2.4 (`scripts/seed-demo.mjs`). A status with no seed row is a status
+nobody ever looks at.
+
+*Replaced 2026-08-30:* confirmed = hollow ring `--bone-2`; completed/paid =
+solid disc `--ac`; pending = hollow ring `--fog`; cancelled = solid disc
+`--bad`; no-show = hollow ring `--bad`; blocked = solid `--fog` disc;
+drop-off-only = hollow `--accent` ring.
 
 **c. `.warn-box` stops being a warning.** Its one real use is *"N more
 finished jobs still need payment recorded"*, which is a **thing to do**, not

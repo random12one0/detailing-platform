@@ -528,11 +528,16 @@ is kept; the entire visual design restarts from scratch.
       - Also fixed: stale tenant state surviving sign-out, and the sheet
         backdrop running the screen-reveal animation instead of its own.
 
-      **ONE THING IS STILL OPEN AND IT IS THE OWNER'S — see 2.4 item 3.**
-      Crimson corrected for text is `#E55B5B`, ΔE 11.4 from `--bad`
-      `#E2705F`: a *paid* pill and a *cancelled* pill would be the same red
-      meaning opposite things. Deliberately not fixed in code — the fix is to
-      drop Crimson when the preset list is narrowed.
+      ~~**ONE THING IS STILL OPEN AND IT IS THE OWNER'S — see 2.4 item 3.**~~
+      **CLOSED 2026-08-30 in 2.4, and the last sentence below was wrong twice
+      over.** Crimson corrected for text is `#E55B5B`, ΔE 11.4 from `--bad`
+      `#E2705F` — that number still stands. But dropping Crimson would not
+      have fixed it: a deep red typed into the custom picker corrects to
+      `#E26666`, ΔE **8.5**, closer still. And the collision was never
+      red-only — a *silver* accent hits the "booked" ring at ΔE 8.5 too. The
+      actual fix is two things, neither of them a shorter preset list: the
+      owner's law 11b (paid is always green, so the pair is not both red) and
+      an unconditional form vocabulary for the marks.
 
       ---
 
@@ -710,68 +715,68 @@ is kept; the entire visual design restarts from scratch.
       (law 8 now says why), and the tenant accent has a fill value and a
       separate TEXT value — though the dashboard keeps the fixed house
       palette, so only its `--accent-text` path is affected.
-- [ ] 2.4 Per-tenant recoloring — test extreme accents (neon, near-black);
-      restyle the customer cancel/reschedule pages.
+- [~] 2.4 Per-tenant recoloring. **ITEM 3 (a/b/c) IS DONE — 2026-08-30.**
+      **What is LEFT of 2.4 is the cancel/reschedule page's COMPOSITION**, and
+      nothing else: its three stacked full-width buttons carry no hierarchy.
+      Its colour was checked and is fine — the cancelled state there is carried
+      by the word "Cancelled" plus a line-through on the date, so it has no
+      colour-alone dependence. `booking.css` was not touched.
 
-      **Two corrections, both from 2026-08-30.** "Both themes" is stale —
-      the owner killed the light theme, so there is one ground to test
-      against. And the cancel/reschedule page (`ManageBookingPage.jsx`)
-      shares `booking.css`, so it already came dark in 2.1 and was walked at
-      all four widths in its confirmed, reschedule and cancel-confirm states;
-      what is left for 2.4 is its own composition, not its palette — chiefly
-      that its three stacked full-width buttons carry no hierarchy.
+      **Everything else this item listed is closed.** The extremes (neon,
+      near-black, near-white, pure black) are swept on EVERY run of
+      `node scripts/accent-sweep.mjs` now rather than only when someone passes
+      a hex, and all clear both floors on all three grounds. The
+      cancel/reschedule page already came dark in 2.1 and was walked at four
+      widths then. "Both themes" was stale — there is one ground.
 
-      **The accent work 2.4 has to test is now two values, not one.**
-      `--bk-accent` is the fill (3:1) and `--bk-accent-text` is the same
-      colour as words (4.5:1); an extreme accent can pass one and fail the
-      other. Test both. Still blocked on the curated four-to-six accent set,
-      which nobody has picked.
+      **3a DONE — the preset list is twelve, built from evidence.** A 46-brand
+      car-care sample plus general logo-colour studies. The headline number:
+      **red is 48% of the trade, twice blue's 24%** — the owner's instinct
+      confirmed, and proof that pruning the reds would have pruned half the
+      market. Green is 0 of 46, which makes the house green a real
+      differentiator. **There is no dark preset and that is a finding:** the
+      correction moves lightness only, so deep navy paints `#4269D6` and deep
+      garnet `#D72727`, each collapsing onto a brighter preset already listed.
 
-      **Much of the dashboard half of this landed early, in 2.3's reopening
-      (2026-08-30).** The eight presets are swept and measured on all three
-      grounds by `scripts/accent-sweep.mjs`, which exits non-zero on a
-      regression, and the dashboard was screenshotted under crimson, violet,
-      gold and slate at four widths. What 2.4 still owns: **neon and
-      near-black**, which are not in the preset list and are the two the
-      correction has to survive without a preset to fall back on, and the
-      whole booking/manage surface.
+      **3b DONE — `hueFamily()` and `describeAccent()` in `lib/theme.js`.**
+      Nine families; saturation below 0.10 is neutral, which is what stops
+      `#0A0A0A` being called "a red". It does NOT gate styling — its job is one
+      live sentence on the Appearance screen. Its own check is sixteen pinned
+      colours at the bottom of `accent-sweep.mjs`, and it caught three
+      mislabelled bands on the first run.
 
-      **3. ~~THE CURATED FOUR-TO-SIX IS DEAD — ANSWERED 2026-08-30, THE OTHER
-      WAY.~~** The owner does not want the list narrowed and does not want red
-      dropped: *"a lot of detailers' color is probably red."* The eight presets
-      carry no authority — *"those eight colors were chosen by AI… I really
-      don't care"* — but the COVERAGE does. So this item stops being "pick four
-      to six" and becomes the three-part job below, which is the real substance
-      of 2.4 now. Full record and his exact words:
-      `docs/owner-walkthrough-2026-08-30.md` → D2.
+      **3c DONE — and the fix is UNCONDITIONAL, not switched on for reds.**
+      The premise was wrong: measured on the shipped markup, a *silver* accent
+      collides with the "booked" ring at ΔE 8.5 — exactly as severe as the red
+      pair — and a near-black accent with the blocked-day grey at ΔE 17.1.
+      Three of five measured collisions have nothing to do with red. So the
+      status marks became a form vocabulary that always holds: circles are
+      jobs, a bar is a job that did not happen, squares are facts about the day.
+      `--bad` left the calendar entirely. Table:
+      `docs/dashboard-skeletons.md` §5b.
 
-      **3a. Research which colours real detailers and small businesses use**,
-      and build the list from that rather than from taste. Reds included.
+      **THE OWNER CHANGED THE FRAME MID-SESSION, and it is now law 11b:
+      the accent is IDENTITY, never MEANING.** *"The paid should always be
+      green because that's just kind of paid… the accent colour is more like
+      the mark complete button or the calendar highlight."* Paid, money-up and
+      "it worked" are fixed green; cancelled, no-show and errors are fixed red;
+      the tenant's colour keeps actions, navigation, selection, focus, today's
+      disc, chart bars and the landed node. Extended on his instruction to four
+      sites he did not name — `.delta.up`, `.ok-box`, Money's `tone="good"`
+      figure and `.badge.paid`. Full record: `docs/owner-walkthrough-2026-08-30.md`
+      → D3 and DECISIONS.md → "Roadmap 2.4".
 
-      **3b. A hue-family classifier in `lib/theme.js`**, so a custom colour is
-      understood and not just contrast-corrected. His framing: reds, oranges,
-      yellows, greens, blues, purples, whites — *"even though obviously they're
-      a different color technically, they're that same type of color"* — the
-      goal being that *"almost every single color in the world will work."*
-      `rgbToHsl` is already in that file and it is the only file allowed to
-      compute colour, so the function belongs there and is cheap.
+      **Two demo-seed defects were found and fixed on the way**, because both
+      blocked looking at the product: the demo had NO cancelled and NO no-show
+      booking in twenty-one rows (so that whole family of styling could not be
+      seen at all), and the seed silently dropped the "tomorrow" bookings every
+      weekend because `openDay(1)` collided with `day0` on a Sunday. 22 of 22
+      seed now; it was 20.
 
-      **3c. Break the status colours' dependence on colour.** When the accent
-      lands in the same hue family as `--bad`, red-on-red means "paid" and
-      "cancelled" at once. **Do NOT invent a second red** — see
-      `docs/design-system.md` § "The one warm value", which now carries this as
-      law. The pills and badges are already safe (they print the words); the
-      exposed surfaces are `.dot.completed` / `.dot.cancelled` and the
-      calendar's `.marks`, which carry no text at all. Those want a FORM
-      difference, and `docs/dashboard-skeletons.md` already uses hollow versus
-      solid for exactly this kind of distinction. **This is a WCAG 1.4.1 fix in
-      its own right** and is worth doing even for a tenant who picks blue.
+      **One judgment call is flippable in one line if the owner disagrees:**
+      *completed* stays on the tenant's accent while *paid* moves to green.
+      Reasoning in law 11b.
 
-      **He explicitly removed his own authority from 3c's shape:** *"maybe we
-      switch that color, or maybe you warn the detailer, or make it more
-      obvious that it's cancelled with words or sizing or something. You figure
-      that out. Don't use my word in any way to kind of decide your decision."*
-      Decide it on the merits and record the reasoning.
 > **Order note.** 2.6, 2.7 and 2.8 are listed here, ahead of 2.5, because the
 > file's order is the WORK order and a smoke test belongs at the end of the
 > phase. 2.5 keeps its number so existing references to it stay valid.

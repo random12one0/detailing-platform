@@ -3186,3 +3186,253 @@ right" item must be reproduced at 392x844 before it is treated as a bug.
 already-selected option darkens it, which reads as un-selecting it. A selected
 element's hover has to move in the same direction as its selected state, not
 against it. That one needs no research and no decision.
+
+## Roadmap 2.4 — making almost any colour work everywhere (2026-08-30)
+
+The item the owner set in D2: stop the tenant's accent colliding with the
+system's status colours, without dropping red from the palette. Three parts —
+research the colours real detailers use (3a), classify an arbitrary colour into
+a hue family (3b), and break the status signals' dependence on colour (3c).
+He removed his own authority from 3c's shape: *"You figure that out. Don't use
+my word in any way to kind of decide your decision."*
+
+**Then he corrected the framing mid-session, and the correction is the most
+important thing in this entry.** See "The owner's rule" below.
+
+### 3a — the preset list, built from evidence instead of taste
+
+**Twelve presets, up from eight.** The eight that were there carried no
+authority — *"those eight colors were chosen by AI… I really don't care about
+them"* — but he was explicit that the COVERAGE matters, and that a curated
+four-to-six is the wrong direction.
+
+The evidence, and it is worth keeping because it settles the argument that
+started this item:
+
+- **A 46-brand car-care sample** (1000logos, "Most Famous Car Detailing Brands
+  and Logos"), counted by hue: **red 22 of 46 (48%)**, black/grey ~43% (almost
+  always as the neutral, not the accent), **blue 11 of 46 (24%)**, yellow/gold
+  6 (13%), orange 4 (9%), purple 2 (4%), **green 0**.
+- **General logo-colour studies** for the small-business baseline: blue
+  37–40%, black/grey 28–31%, red 23–29%, yellow/gold ~15% (Fortune 500 and
+  Fortune Global 500 samples).
+- **Detailing-specific convention:** white, silver and metallic accents, and
+  deep navy or charcoal paired with gold for premium positioning.
+
+**What that changes.** Red is the most common colour in this trade by a
+distance — twice blue. Pruning the reds would have pruned roughly half the
+addressable market, so the owner's business instinct was right, and now it has
+a number behind it. **Green being 0 of 46 also means the house green is a real
+differentiator** rather than an arbitrary pick.
+
+The twelve, hue-ordered so the swatch row reads as a spectrum: Crimson, Rose,
+Ember, Sunflower, Gold, Forest, Teal, Sky, Ocean, Violet, Slate, Silver. Four
+are new (Rose, Sunflower, Teal, Silver); the eight that were there all survived,
+because every one of them clears both floors.
+
+**WHY THERE IS NO DEEP NAVY AND NO DEEP GARNET, though both are real detailing
+brand colours.** `correctToward` moves lightness only. Measured: navy `#1E3A8A`
+paints `#4269D6` and garnet `#9B1C1C` paints `#D72727` — each collapses onto a
+brighter preset already in the list. Two swatches that paint the same colour
+are worse than one. The custom picker plus `describeAccent()` covers those
+detailers instead, in words.
+
+**The swatch row became a 6-column grid** rather than a wrapping flex row:
+twelve wrapped as eleven-plus-one at 1440, which reads as a mistake. 6x2 fits
+every width down to 392.
+
+### 3b — `hueFamily()` and `describeAccent()` in `lib/theme.js`
+
+His framing: *"there's a group of reds and oranges and blues and greens and
+yellows, whites and purples… even though obviously they're a different color
+technically, they're that same type of color… basically make sure that almost
+every single color in the world will work."*
+
+`hueFamily(hex)` returns a family key and a human label. Nine families: red,
+orange, yellow, green, teal, blue, purple, pink, and neutral. Saturation below
+0.10 is neutral, which is what stops `#0A0A0A` being called "a red" because its
+hue rounds to zero. It classifies the colour AS PICKED, which is the same
+answer as the colour as painted, because correction never changes hue.
+
+**It deliberately does NOT gate any styling** — see 3c. Its job is
+`describeAccent()`, one live sentence on the Appearance screen saying what the
+colour is and what was done to it. That replaced a fixed paragraph which said a
+pale colour "may look slightly deeper than the one you chose" — backwards, since
+the ground is dark and it is DARK colours that get lightened. Someone who types
+in their deep navy and gets royal blue now finds out why.
+
+**Its own check lives in `scripts/accent-sweep.mjs`**, which pins sixteen
+colours against their expected family. It earned its keep immediately: the
+first version had three bands mislabelled (`#EA580C` came back "yellow",
+`#EAB308` "lime", `#059669` "teal") and the check caught all three.
+
+**The sweep also grew the extremes 2.4 owns** — neon green, neon magenta, neon
+cyan, pure black, near-black and pure white are swept on every run now, not
+only when someone remembers to pass a hex. All clear both floors. Pure black
+paints `#707070` as a fill and `#8A8A8A` as text.
+
+### 3c — the decision: form, unconditionally
+
+**Three options were on the table, in his words: switch the colour, warn the
+detailer, or "make it more obvious that it's cancelled with words or sizing or
+something."**
+
+**Chosen: a form vocabulary that always holds, for every tenant, plus his own
+rule below. Rejected: switching `--bad`, and warning the detailer.**
+
+Switching `--bad` is already forbidden by law ("never invent a second red") and
+trades a convention every user knows for one only this product knows. Warning
+the detailer moves the problem onto the customer and leaves the product broken
+for anyone who clicks past it.
+
+**The measurement that decided the shape.** The premise everyone had been
+working from — "red accents collide with the error red" — is only a third of
+the problem. Measured on the shipped markup, ΔE against the mark each collides
+with:
+
+| Accent | Collides with | ΔE | Both were |
+|---|---|---|---|
+| silver `#D4D7DA` | "booked" ring, `--bone-2` | **8.5** | hollow rings |
+| deep red -> `#E26666` | `--bad` | **8.5** | — |
+| Crimson -> `#E55B5B` | `--bad` | **11.4** | solid discs |
+| near-black -> `#707070` | "blocked", `--fog` | **17.1** | solid discs |
+| Slate -> `#5C6E87` | "blocked", `--fog` | **21.8** | solid discs |
+
+Three of the five have nothing to do with red. **A silver accent is exactly as
+bad as a red one.** So a fix conditional on `hueFamily() === "red"` would have
+left most of the problem in place, and would have been a code path six tenants
+in seven never exercise. One rule that always holds beats a branch that
+sometimes fires.
+
+**It also disposes of "drop Crimson" for good.** A deep red typed into the
+custom picker corrects to `#E26666`, ΔE 8.5 from `--bad` — *closer* than
+Crimson's 11.4. The preset list was never the lever.
+
+**The vocabulary** (`docs/dashboard-skeletons.md` §5b is the table): circles
+are jobs — hollow ahead, solid landed; a bar is a job that did not happen;
+squares are facts about the DAY. `--bad` left the calendar entirely. Confirmed
+and pending merged into one mark, because on a month grid both mean "booked,
+nothing has happened yet" and keeping them apart cost a third hollow ring
+distinguished by hue alone.
+
+**Two things were found while doing it and are worth carrying forward.**
+
+- **`.dot.cancelled` — the roadmap's flagship collision site — is unreachable.**
+  `Calendar.jsx` filters cancelled out of the month grid and `Today.jsx` filters
+  it out of the rail. The rule was styled for a mark that never renders.
+- **The legend decoded four of seven marks.** Pending and no-show had no legend
+  entry at all, so a red no-show dot sat on the month grid meaning nothing to
+  anybody. It decodes all five now.
+
+**`.ring` kept the accent and did not go neutral.** Making it a square is what
+fixes its collision with "booked"; dropping it to `--fog` on top of that was
+tried and looked worse — a hollow grey square beside a solid grey square is a
+1px hole apart at 7px. Checked in a browser at 6x.
+
+**Pills and badges: filled means it happened, outlined means it did not.** They
+were never a 1.4.1 failure — they print the word — but under a red accent
+"Completed" and "Cancelled" were the same red, and that is the common case, not
+the edge one. The tint is the difference now, which is the system's own
+hollow-versus-solid vocabulary one level up.
+
+### THE OWNER'S RULE: the accent is identity, never meaning
+
+**Said mid-session, and it is the better answer.** Full quote in
+`docs/owner-walkthrough-2026-08-30.md` -> D3. The short version: *"the paid
+should always be green because that's just kind of paid. Money green is all
+kind of cohesive… the accent colour is more like the mark complete button or
+the calendar highlight — what day it is — and the outline for month, and the
+colour theming on the money page."*
+
+It is now `docs/design-system.md` **law 11b**. Two kinds of colour:
+
+- **`--accent*` carries IDENTITY** and follows the tenant: actions,
+  navigation, selection, focus, today's disc, the selected day, chart bars, the
+  "it landed" node.
+- **`--ac` green and `--bad` red carry MEANING** and are fixed for every
+  tenant: paid / money up / it worked, and cancelled / no-show / error /
+  destructive.
+
+**Why this is better than what was being built.** The form work makes a red
+accent *survivable*. His rule makes the collision *not exist* for the pair that
+matters, because "Paid" is no longer red at all. Both shipped: the forms also
+cover the silver and near-black cases, which his rule does not touch.
+
+**He said "there might be other places that that rule applies to also", and
+that was taken as an instruction to extend it.** Four sites he did not name:
+
+- **`.delta.up`** was `--accent-text`, so a red-branded detailer got a red ▲
+  beside a red ▼ — the two directions of the Money screen's headline saying the
+  same thing in the same colour. Now green up, red down.
+- **`.ok-box`** was accent-tinted, so under a red accent it was identical to
+  the `.error-box` above it — the two states of one message, indistinguishable.
+  Now green.
+- **Money's `tone="good"` figure** ("Added on site") — money earned. Now green.
+- **`.badge.paid`**, which mirrors `.pill.paid`.
+
+**The judgment call inside the rule, recorded so it is not re-derived:
+*completed* stays on the accent while *paid* moves to green.** A finished job is
+not money; "mark complete" is his own example of an accent-side control; and
+the Today rail's landed node is the one place the detailer's colour appears on
+the screen they open every morning, so moving it to green would put the house
+colour back on their main screen — exactly what law 11 was rewritten to stop.
+The residual is that under a red accent "Completed" (filled) and "Cancelled"
+(outlined) are both red, carried by the fill difference and the words. It is a
+one-line change in `theme.css` if that reading is rejected.
+
+**`grep 'var(--ac)'` in `theme.css` finds every fixed-meaning site.** That
+file's token block used to say "below here there is no `var(--ac)` left". That
+rule is now exactly inverted and the comment says so.
+
+**A collision the rule could have INTRODUCED was checked, and it does not
+exist.** Moving paid to a fixed green puts two greens side by side for a
+green-branded tenant: Forest's accent-as-text `#05A070` against the money green
+`#38E08B`. Measured ΔE **29.3** — comfortably separable, against the ~8–11 that
+reads as the same colour. Teal is 46.5; every other preset is 46 or more.
+Looked at as well, in the History list under a Forest accent: "Completed" deep
+green and "Paid" mint green are clearly two pills, and both mean compatible
+things anyway, unlike the paid/cancelled pair.
+
+### Two defects found on the way, both in the demo seed
+
+Neither is 2.4's subject; both were fixed because they block LOOKING at the
+product, which is how this project verifies visual work.
+
+- **The demo had no cancelled and no no-show booking** — twenty-one rows, every
+  one confirmed or completed. So the entire "Cancelled" / "No-show" family of
+  styling could not be seen in a browser at all, which is why a red "Paid"
+  beside a red "Cancelled" survived unnoticed. One of each added. *A status
+  with no seed row is a status nobody ever looks at.*
+- **The seed silently dropped bookings on weekends.** `openDay(1)` is the next
+  open day after TODAY, and the demo business is closed Sunday and Monday, so
+  on a Sunday it resolved to the same Tuesday `day0` had already resolved to.
+  Both "tomorrow" rows then overlapped the day0 jobs, the double-booking
+  constraint refused them (23P01), and the script printed "skipped" and carried
+  on — so the Today screen's TOMORROW section read "Nothing booked yet" every
+  weekend. `openDay(3)` had the same bug one day further out. Every upcoming
+  day is now CHAINED off the one before it rather than measured from today,
+  which is what makes them provably distinct. 22 of 22 seed now; it was 20.
+
+### Verified
+
+`composition` 26, `design-contrast`, `landing-pricing` 18, `route-contract` 18,
+and `accent-sweep` (18 colours x 3 grounds x 2 floors, plus 16 hue-family
+pins) all pass. Screenshotted at 1920 / 1440 / 768 / 392 under Crimson, Silver
+and the house default, normal path and `?lite=1`; the marks were also inspected
+at 6x, and the History list was walked under Crimson to see a green "Paid"
+beside an outlined red "Cancelled" on one screen. Console at every width carries
+only the two pre-existing React Router v7 future-flag warnings, which predate
+this item.
+
+### Still open in 2.4, NOT done in this session
+
+- **The customer cancel/reschedule page's composition** — its three stacked
+  full-width buttons carry no hierarchy. It is the non-colour half of 2.4 and
+  it was never started. Its *colour* is fine: the cancelled state there is
+  carried by the word "Cancelled" and a line-through on the date, so it has no
+  colour-alone dependence to fix. `booking.css` was not touched.
+- **`a { color: var(--accent-text); text-decoration: none; }`** in `theme.css`
+  is a latent 1.4.1 hazard: a link identified by colour alone. Harmless today —
+  the dashboard has exactly one bare `<a>` and it is a card — but Phase 3's
+  tenant sites will have prose links, and a silver or near-white accent makes
+  them indistinguishable from body text. Flagged, not fixed.

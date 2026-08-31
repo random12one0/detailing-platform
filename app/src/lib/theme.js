@@ -91,20 +91,44 @@ const MIN_INK_CONTRAST = 4.5;
 // Curated presets. Every one is corrected before it is painted, so a
 // detailer can pick one and move on.
 //
-// STILL THE OLD EIGHT, and that is a known gap rather than a decision:
-// docs/design-system.md "What this file does NOT settle" item 3 says the
-// owner chose "a curated four to six, customer-facing only" and nobody has
-// picked which four to six. Roadmap 2.4 needs them. Left alone here because
-// narrowing the list is his call, not a side effect of a restyle.
+// TWELVE, BUILT FROM EVIDENCE — roadmap 2.4 item 3a, 2026-08-30. The "curated
+// four to six" the old note here was waiting for is dead: the owner does not
+// want the list narrowed, he wants COVERAGE, and the eight that were here
+// carried no authority ("those eight colors were chosen by AI… I really don't
+// care about them"). See docs/owner-walkthrough-2026-08-30.md → D2 and
+// DECISIONS.md → "Roadmap 2.4".
+//
+// The evidence is a 46-brand car-care sample plus general logo-colour studies,
+// written up in DECISIONS.md. The headline: RED is the most common colour in
+// this industry by a distance — 22 of 46 brands, 48% — roughly twice blue's
+// 24%. That is the owner's business instinct confirmed with a number, and it
+// is why pruning the reds was the wrong call. Green is 0 of 46, which is why
+// the HOUSE accent being green is a real differentiator rather than a
+// coincidence. Ordered by hue so the swatch row reads as a spectrum, with
+// the two neutrals last.
+//
+// WHY THERE IS NO DEEP NAVY AND NO DEEP GARNET, though both are real
+// detailing brand colours: `correctToward` moves LIGHTNESS only, so any dark
+// colour is lightened until it clears 3:1 on --ink-3, and a dark preset
+// collapses onto a bright one that is already here. Measured 2026-08-30:
+// navy #1E3A8A paints #4269D6 (all but Ocean) and garnet #9B1C1C paints
+// #D72727 (all but Crimson). Two swatches that paint the same colour are
+// worse than one. A detailer whose brand IS deep navy types it into the
+// custom picker and `describeAccent` tells them plainly what happened —
+// that is the job the classifier does that a longer preset list cannot.
 export const PRESET_COLORS = [
-  { name: "Sky", hex: "#0ea5e9" },
-  { name: "Ocean", hex: "#2563eb" },
-  { name: "Forest", hex: "#059669" },
-  { name: "Ember", hex: "#ea580c" },
-  { name: "Crimson", hex: "#dc2626" },
-  { name: "Violet", hex: "#7c3aed" },
-  { name: "Gold", hex: "#ca8a04" },
-  { name: "Slate", hex: "#475569" },
+  { name: "Crimson", hex: "#dc2626" },    // pure red — 3M, Rupes, Menzerna, Flex
+  { name: "Rose", hex: "#e11d48" },       // the cooler red; where deep/maroon brands land
+  { name: "Ember", hex: "#ea580c" },      // orange — 303, Insta Finish, Detailing Outlaws
+  { name: "Sunflower", hex: "#eab308" },  // yellow — Meguiar's, Farecla, Kestrel
+  { name: "Gold", hex: "#ca8a04" },       // the premium gold pairing — Angelwax, Presta
+  { name: "Forest", hex: "#059669" },     // green — eco / waterless, rare in the trade
+  { name: "Teal", hex: "#0d9488" },       // water and cleanliness
+  { name: "Sky", hex: "#0ea5e9" },        // the common bright blue
+  { name: "Ocean", hex: "#2563eb" },      // royal blue — Sealey, Grit Guard, Flexipads
+  { name: "Violet", hex: "#7c3aed" },     // purple — Scholl Concepts, FurViking
+  { name: "Slate", hex: "#475569" },      // graphite — Koch Chemie, Atomiza, Malco
+  { name: "Silver", hex: "#d4d7da" },     // the metallic/white convention in detailing
 ];
 
 // --- Color math (WCAG relative luminance / contrast) -----------------------
@@ -162,6 +186,84 @@ function hslToRgb([h, s, l]) {
     return p;
   };
   return [f(h + 1 / 3) * 255, f(h) * 255, f(h - 1 / 3) * 255];
+}
+
+// --- Hue families ----------------------------------------------------------
+//
+// WHAT COLOUR IS THIS, IN WORDS — roadmap 2.4 item 3b, the owner's ask:
+// "there's a group of reds and oranges and blues and greens and yellows,
+// whites and purples… even though obviously they're a different color
+// technically, they're that same type of color, and we could… basically make
+// sure that almost every single color in the world will work with the website
+// somehow." (docs/owner-walkthrough-2026-08-30.md → D2.)
+//
+// It belongs here because rgbToHsl is here and this is the only file allowed
+// to compute colour. It classifies the colour AS PICKED, which is the same
+// answer as the colour as painted: correctToward moves lightness and leaves
+// hue and saturation alone, so correction never changes the family.
+//
+// WHAT IT IS FOR, and what it deliberately is NOT for. It exists to EXPLAIN a
+// colour to the detailer — see describeAccent. It does NOT gate any styling.
+// The status marks were made safe by FORM for every tenant instead (item 3c,
+// docs/design-system.md § "The one warm value"), because a fix that only runs
+// for red accents is a code path most tenants never see, and the collision was
+// never red-only: measured 2026-08-30, a near-black accent collides with the
+// blocked-day grey (ΔE 17.1) and a silver accent with the "booked" ring
+// (ΔE 8.5) — the same severity as the red pair (ΔE 8.5–11.4). One rule that
+// always holds beats a branch that sometimes fires.
+// UPPER edges in degrees, each paired with the family that ENDS there. Red is
+// the wrap-around case and appears at both ends. The edges are not evenly
+// spaced because hue is not perceptually even — green owns 95 degrees because
+// the eye splits that span poorly, orange only 26 because it splits it well.
+// The exact numbers were set by running the presets through and checking each
+// answer is the word a person would use: #CA8A04 is a yellow, not an orange
+// (40.6 deg), and #059669 is a green, not a teal (160.7 deg). Both are inside
+// 5 degrees of an edge, so move these carefully — the check at the bottom of
+// scripts/accent-sweep.mjs pins them.
+const HUE_BANDS = [
+  [38, "orange"], [70, "yellow"], [165, "green"], [195, "teal"],
+  [255, "blue"], [290, "purple"], [345, "pink"], [360, "red"],
+];
+// Below this much saturation a colour has no useful hue — it is a neutral,
+// and calling #0A0A0A "a red" because its hue rounds to 0 would be a lie.
+const NEUTRAL_SAT = 0.1;
+
+// -> { family, label }. `family` is a stable key; `label` is what a person
+// would call it, and it is the string the dashboard shows.
+export function hueFamily(hex) {
+  let rgb;
+  try { rgb = hexToRgb(hex); } catch { return { family: "unknown", label: "a colour" }; }
+  const [h, s, l] = rgbToHsl(rgb);
+  if (s < NEUTRAL_SAT) {
+    if (l >= 0.85) return { family: "neutral", label: "a near-white" };
+    if (l <= 0.12) return { family: "neutral", label: "a near-black" };
+    return { family: "neutral", label: "a grey" };
+  }
+  const deg = h * 360;
+  const name = deg < 12 ? "red" : HUE_BANDS.find(([edge]) => deg < edge)[1];
+  // "an orange", not "a orange" — this string is read by a customer.
+  return { family: name, label: `${/^[aeiou]/.test(name) ? "an" : "a"} ${name}` };
+}
+
+// The same colour, in a sentence a detailer can act on. Shown on the
+// Appearance screen, which until now could only offer a generic disclaimer
+// about pale colours — this says what actually happened to THEIR colour.
+//
+// The second half is the honest part: a dark brand colour comes back visibly
+// lighter, and someone who types their deep navy in and sees royal blue needs
+// to be told why rather than left to think it was ignored.
+//
+// Measured against DASHBOARD_ACCENT_BG on purpose — it is the lightest ground
+// in the product, so it is the one a colour has to be lightened MOST to clear.
+// "It was not moved" is then true of every surface, not just the easy one.
+export function describeAccent(hex, bg = DASHBOARD_ACCENT_BG) {
+  const { family, label } = hueFamily(hex);
+  const moved = correctAccent(hex, bg).toLowerCase() !== hex.toLowerCase();
+  if (!moved) return `That reads as ${label}, and it is light enough to use exactly as you picked it.`;
+  if (family === "neutral") {
+    return `That reads as ${label}. It is too close to the dark background to be seen, so it is lightened to a grey wherever it marks a button or a highlight.`;
+  }
+  return `That reads as ${label}. It is dark enough to disappear against the background, so it is lightened until it stays readable — which is why it looks brighter than the colour you picked.`;
 }
 
 // Text color for anything drawn ON the accent: black or white, whichever

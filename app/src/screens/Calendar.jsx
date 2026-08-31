@@ -8,10 +8,17 @@
 //      searchable history: name, phone or service text, a status filter, a
 //      date range, and totals for whatever the filter currently matches.
 //
-// The month grid carries three independent facts per day without reaching
-// for extra colours: status-coloured dots for jobs, a solid warning dot for
-// a blockout, and a HOLLOW ring for drop-off-only. Shape does the work that
-// a fifth hue would otherwise have to.
+// The month grid carries three independent facts per day, and since roadmap
+// 2.4 item 3c it carries them by SHAPE: jobs are circles (hollow = ahead,
+// solid = landed) or a bar (it did not happen), and facts about the DAY —
+// blocked, drop-off-only — are squares. No two marks that can share a cell
+// share a form, so the grid still reads under any tenant accent, including
+// the near-blacks and silvers that used to collide with the neutral marks.
+// The rule and the measurements are in theme.css § THE MARKS.
+//
+// The legend below decodes all five. It used to decode four of seven, which
+// is how a red no-show dot survived here for months meaning nothing to
+// anybody.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
@@ -172,9 +179,18 @@ export default function Calendar() {
               </div>
             </div>
 
-            <div className="row wrap" style={{ gap: 12, paddingTop: 8, borderTop: "1px solid var(--hairline)" }}>
+            {/* A GRID, NOT A WRAPPING ROW. Five entries since 2.4 (it decoded
+                four of seven marks before), and at 392 the fifth wrapped alone
+                onto its own line, which reads as a mistake. auto-fit gives one
+                row on desktop and an even 3+2 on a phone. Inline because it is
+                layout for this one element, like the row above it. */}
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))",
+              gap: 12, paddingTop: 8, borderTop: "1px solid var(--hairline)",
+            }}>
               <span className="row" style={{ gap: 5 }}><span className="dot confirmed" /><span className="quiet">Booked</span></span>
               <span className="row" style={{ gap: 5 }}><span className="dot completed" /><span className="quiet">Done</span></span>
+              <span className="row" style={{ gap: 5 }}><span className="dot no_show" /><span className="quiet">No-show</span></span>
               <span className="row" style={{ gap: 5 }}><span className="dot block" /><span className="quiet">Blocked</span></span>
               <span className="row" style={{ gap: 5 }}><span className="ring" /><span className="quiet">Drop-off only</span></span>
             </div>

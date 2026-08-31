@@ -84,7 +84,7 @@ Better than typical for this stage — there is a real, enforced design system:
   for every figure. `app/index.html` requests exactly those two as of 2.3.
 - **Old system, gone:** "Raking Light" — matte near-black ground, one "lit" element per screen, three type faces, a light/dark switch. Its last trace left the codebase when `theme.css` was rewritten in 2.3. The only thing that still names it is `docs/design-system.md` §11, which lists what survived it as contracts rather than style.
 - **Fonts:** `app/index.html` requests exactly TWO families as of 2.3 — Archivo + JetBrains Mono. It carried five transitionally because `theme.css` was the last thing using Anybody / Public Sans / DM Mono; 2.2 expected to drop some of the three and correctly dropped none, because that file used all three on its own, so they left together with it.
-- **`app/src/lib/theme.js` holds ONE ground now** — `#0B0D0E`, named twice (`DASHBOARD_BG` and `BOOKING_BG`) because only the booking one is what a tenant accent is corrected against and it must track `--bk-bg` in `booking.css`. `THEME_BG`, `DEFAULT_ACCENT`, `loadThemeMode` and `saveThemeMode` are all gone — there is no light theme. **`applyTheme` was deleted in 2.3 and came back in 2.3's reopening as `applyDashboardAccent`**, minus the `data-theme` half: law 11 was rewritten and the dashboard takes the tenant's colour after all. It writes `--accent`, `--accent-text` and `--accent-ink` on `<html>`, and **removes them on unmount** — `theme.css` is global and `landing.css` has no `--accent*`, so a colour left behind would follow a signed-in user out to the public marketing page. `brandVarsFor` corrects the tenant accent against `BOOKING_BG` and returns FOUR values including `--bk-accent-text` — the accent at the 4.5:1 text floor rather than the 3:1 fill floor. `design-contrast` asserts `BOOKING_BG` and `--bk-bg` are the same colour.
+- **`app/src/lib/theme.js` holds ONE ground now** — `#0B0D0E`, named twice (`DASHBOARD_BG` and `BOOKING_BG`) because only the booking one is what a tenant accent is corrected against and it must track `--bk-bg` in `booking.css`. `THEME_BG`, `DEFAULT_ACCENT`, `loadThemeMode` and `saveThemeMode` are all gone — there is no light theme. **`applyTheme` was deleted in 2.3 and came back in 2.3's reopening as `applyDashboardAccent`**, minus the `data-theme` half: law 11 was rewritten and the dashboard takes the tenant's colour after all. It writes `--accent`, `--accent-text` and `--accent-ink` on `<html>`, and **removes them on unmount** — `theme.css` is global and `landing.css` has no `--accent*`, so a colour left behind would follow a signed-in user out to the public marketing page. `brandVarsFor` corrects the tenant accent against `BOOKING_BG` and returns FOUR values including `--bk-accent-text` — the accent at the 4.5:1 text floor rather than the 3:1 fill floor. `design-contrast` asserts `BOOKING_BG` and `--bk-bg` are the same colour. **Added in 2.4: `hueFamily()` and `describeAccent()`** — they classify an arbitrary colour into one of nine families and say so in a sentence on the Appearance screen. They do NOT gate styling; see §6c.
 
 **The two surfaces correct against DIFFERENT grounds, and that is deliberate.** The dashboard uses `DASHBOARD_ACCENT_BG` = `--ink-3` `#1E2327` because its accent lands on panels (`.cal-cell.today`, `.pill`, `.badge`, `.chip.active`); the booking page stays on `BOOKING_BG` = `--ink-0` because its two accent-as-text sites are borderless rows on the ground. Correcting against a ground buys a floor on that ground and nowhere else — see DECISIONS.md, "Roadmap 2.3, reopened".
 - **Tokens vs hardcoded:** discipline is real, and the guess that used to sit here is now CHECKED: the only hex colours in dashboard JS are in `lib/theme.js` (the designated colour-math file) and the four Google marque colours in `screens/Auth.jsx:32-35`, which Google's brand guidelines require be shown as issued. CSS uses `var(--…)` throughout.
@@ -178,9 +178,15 @@ phase 1 is outstanding.
   `app/src/landing/LandingPage.jsx` and should be mirrored back into the
   reference page, or the two stop being comparable — which is what made 2.2
   checkable at all.
-- **Still open, not blocking:** the tenant's curated four-to-six accent
-  colours (2.4 needs them, nobody has picked them) and mid-range Android,
-  which nobody has put a thumb on. Nothing uses WebGL, so that risk is low.
+- ~~**Still open:** the tenant's curated four-to-six accent colours.~~
+  **CLOSED 2026-08-30 in roadmap 2.4, and the question was wrong.** There is
+  no curated four-to-six — the owner wants coverage, not a shorter list. There
+  are **twelve presets built from evidence** (a 46-brand car-care sample:
+  **red 48%**, blue 24%, yellow/gold 13%, orange 9%, purple 4%, **green 0**),
+  plus a hue-family classifier so an arbitrary custom colour is explained to
+  the detailer in words rather than silently corrected. Still open, not
+  blocking: mid-range Android, which nobody has put a thumb on. Nothing uses
+  WebGL, so that risk is low.
   ~~The dashboard's own section skeletons~~ — **drawn in 2.3**, written up in
   `docs/dashboard-skeletons.md`: Today the only rail, Calendar the only grid,
   Money the only chart, Clients the only screen with no panel on it, More the
@@ -221,6 +227,69 @@ phase 1 is outstanding.
   about the leak. The sheet leaks because it is GLOBAL, not because it was
   old. The renames stay; see §6, LANDMINES.
 
+## 6c. ROADMAP 2.4 — ANY COLOUR WORKS EVERYWHERE (2026-08-30)
+
+**Item 3 (a/b/c) is done. What remains of 2.4 is the cancel/reschedule page's
+COMPOSITION and nothing else** — its three stacked full-width buttons carry no
+hierarchy. That page's *colour* was checked and is fine.
+
+**THE RULE TO KNOW BEFORE TOUCHING ANY COLOUR: the accent is IDENTITY, never
+MEANING** — `docs/design-system.md` **law 11b**, the owner's own words on
+2026-08-30: *"the paid should always be green because that's just kind of paid.
+Money green is all kind of cohesive… the accent colour is more like the mark
+complete button or the calendar highlight."*
+
+| | Follows the tenant? | Where |
+|---|---|---|
+| `--accent*` | **yes** | actions, navigation, selection, focus, today's disc, chart bars, the "it landed" node |
+| `--ac` green | **no** | paid, money up, "it worked" |
+| `--bad` red | **no** | cancelled, no-show, error, destructive |
+
+`grep 'var(--ac)'` in `theme.css` finds every fixed-meaning site. That file's
+token block used to say "below here there is no `var(--ac)` left" — that rule
+is now exactly inverted.
+
+**The presets are TWELVE, built from evidence, not taste.** Crimson, Rose,
+Ember, Sunflower, Gold, Forest, Teal, Sky, Ocean, Violet, Slate, Silver —
+hue-ordered so the swatch row reads as a spectrum, in a 6x2 grid. From a
+46-brand car-care sample: red 48%, blue 24%, yellow/gold 13%, orange 9%,
+purple 4%, **green 0** (which is what makes the house green a differentiator).
+**There is deliberately no dark preset** — the correction moves lightness only,
+so deep navy paints `#4269D6` and deep garnet `#D72727`, each collapsing onto a
+brighter preset already in the list. Those detailers use the custom picker.
+
+**`hueFamily()` and `describeAccent()` are in `lib/theme.js`** and do NOT gate
+styling. Their job is one live sentence on the Appearance screen telling the
+detailer what they picked and what was done to it. Sixteen pinned colours check
+the classifier at the bottom of `scripts/accent-sweep.mjs`.
+
+**The status marks are now FORM-first, unconditionally** — circles are jobs
+(hollow ahead, solid landed), a bar is a job that did not happen, squares are
+facts about the day. `--bad` left the calendar entirely. This is NOT switched on
+for red accents, because the collision was never red-only: measured, a *silver*
+accent hits the "booked" ring at ΔE 8.5 and a *near-black* accent hits the
+blocked-day grey at ΔE 17.1. Table: `docs/dashboard-skeletons.md` §5b.
+
+**`scripts/accent-sweep.mjs` now sweeps the extremes on every run** — neon
+green/magenta/cyan, pure black, near-black, pure white, alongside the twelve
+presets. All clear both floors on all three grounds. It stays credential-free
+and must exit 0 after anything touching accent colour.
+
+**Two demo-seed defects were found and fixed** because both blocked LOOKING at
+the product: the demo had no cancelled and no no-show booking at all (so that
+whole family of styling was invisible in a browser), and the seed silently
+dropped the "tomorrow" bookings every weekend (`openDay(1)` collided with
+`day0` on a Sunday; `openDay(3)` had it too). 22 of 22 seed now; it was 20.
+
+**One judgment call is flippable in one line if the owner disagrees:**
+*completed* stays on the tenant's accent while *paid* moves to green.
+Reasoning in law 11b. **One latent hazard flagged, not fixed:**
+`a { color: var(--accent-text); text-decoration: none; }` identifies links by
+colour alone — harmless today (one bare `<a>` in the dashboard, and it is a
+card) but a real problem for Phase 3's tenant sites.
+
+Full record: DECISIONS.md → "Roadmap 2.4".
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
@@ -246,15 +315,16 @@ phase 1 is outstanding.
    inside `.app-main > .group` and lost the cascade. `scripts/shoot-dashboard.mjs`
    also could not sign in at all — it kept the pre-`1f3f945` password.
 
-   **The one open question was answered the same day, the other way.** Crimson
-   corrected for text is `#E55B5B`, ΔE 11.4 from the error colour `--bad`
-   `#E2705F` — the same red would mean "paid" and "cancelled" on one screen.
-   The recommendation was to drop Crimson; **the owner said no, because a lot
-   of detailers' colour is red.** So the plan inverted: more colour coverage,
-   a hue-family classifier, and a fix that breaks the status signals'
-   dependence on colour instead of pruning the palette. Roadmap 2.4 item 3.
-   The measurement still stands — do not re-propose dropping red on
-   rediscovering it.
+   **The one open question was answered the same day, the other way, and
+   then BUILT on 2026-08-30 in roadmap 2.4.** Crimson corrected for text is
+   `#E55B5B`, ΔE 11.4 from the error colour `--bad` `#E2705F`. The
+   recommendation was to drop Crimson; **the owner said no, because a lot of
+   detailers' colour is red** — and he was right for a reason nobody had
+   measured: red is **48% of a 46-brand car-care sample**, twice blue. Dropping
+   Crimson would not have worked anyway (a deep red from the custom picker
+   lands at ΔE 8.5, closer), and the collision was never red-only (a *silver*
+   accent hits the "booked" ring at ΔE 8.5 as well). **Do not re-propose
+   dropping red on rediscovering the 11.4.** What actually fixed it is in §6c.
 
    **THEN HE WALKED THE WHOLE PRODUCT** on a phone and on desktop and left
    about twenty-seven items. Verdict on the design itself was positive
@@ -263,6 +333,14 @@ phase 1 is outstanding.
    (clipping/spacing), 2.7 (features, organised around his rule that every
    booking step should fit without scrolling) and 2.8 (research how other
    detailers work). **None of it is started.**
+
+   **2.4 item 3 — DONE 2026-08-30, see §6c.** Twelve evidence-built presets, a
+   hue-family classifier that explains an arbitrary colour in words, and a
+   form-first status vocabulary that holds for ANY accent. The owner corrected
+   the framing mid-session and that correction is now law 11b: **the accent is
+   identity, never meaning — paid is always green.** **What is left of 2.4 is
+   only the cancel/reschedule page's composition** (three stacked full-width
+   buttons with no hierarchy).
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

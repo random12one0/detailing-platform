@@ -58,7 +58,8 @@ explaining it; if they still have to ask "so should I?", it failed.
   listed in the new file under "§11". Backend, content, copy facts and
   accessibility floors were always kept; only the visual world changed.
 - The design tests enforce the NEW rules: `tests/composition.test.mjs`
-  (24 checks) and `tests/design-contrast.test.mjs`. Don't contort work to
+  (26 checks — it said 24 until 2026-08-30, which was stale) and
+  `tests/design-contrast.test.mjs`. Don't contort work to
   pass them — if a test and a real design decision collide, the system file
   gets updated first, never silently.
 - Never-defaults (in addition to the design system): Inter/Roboto/Arial/
@@ -89,9 +90,16 @@ explaining it; if they still have to ask "so should I?", it failed.
 - **Also credential-free, and it must exit 0 after anything touching accent
   colour or the ground tokens: `node scripts/accent-sweep.mjs`.** It measures
   every tenant preset as a fill AND as words on all three grounds the
-  dashboard paints. It exists because correcting a colour against one ground
-  buys a floor on that ground and nowhere else — the bug it caught left six
-  of eight presets under the text floor on a panel (2026-08-30).
+  dashboard paints, plus the EXTREMES no preset list can cover (neon, pure
+  black, near-black, pure white), and it pins `hueFamily()` against sixteen
+  colours. It exists because correcting a colour against one ground buys a
+  floor on that ground and nowhere else — the bug it caught left six of eight
+  presets under the text floor on a panel (2026-08-30).
+- **Before changing any colour, know law 11b (`docs/design-system.md`): the
+  accent is IDENTITY, never MEANING.** Paid / money-up / "it worked" are the
+  fixed green `--ac`; cancelled / no-show / error are the fixed red `--bad`.
+  Neither follows the tenant. `grep 'var(--ac)'` in `theme.css` finds every
+  fixed-meaning site. The owner's rule, 2026-08-30.
 - Report what was observed, never "this should work."
 
 ## Process

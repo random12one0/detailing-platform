@@ -181,9 +181,47 @@ Not suggestions. Where a test enforces one, it is named.
     **What this costs, stated plainly because it is the reason the old
     reading existed:** every dashboard screen now has to survive an arbitrary
     tenant colour, which `docs/design-knowledge.md` §4 calls the hardest
-    visual problem in the product. It is bounded by the curated set (item 3
-    under "What this file does NOT settle") and by the correction in
-    `lib/theme.js`, and it has to be swept at the extremes — see roadmap 2.4.
+    visual problem in the product. It is bounded by the correction in
+    `lib/theme.js`, by law 11b below, and it has to be swept at the extremes —
+    `node scripts/accent-sweep.mjs`, which does the twelve presets, neon,
+    black and white on every run.
+
+11b. **The accent is IDENTITY. It never carries MEANING.** *The owner's rule,
+    2026-08-30, roadmap 2.4:* "Not everything, not every single colour needs to
+    be changed just because they changed the accent colour… the paid should
+    always be green because that's just kind of paid. Money green is all kind
+    of cohesive… the accent colour is more like the mark complete button, or
+    the calendar highlight — what day it is — and the outline for month, and
+    the colour theming on the money page."
+
+    So the product now has two kinds of colour and they must not be confused:
+
+    | | Carries | Follows the tenant? | Where |
+    |---|---|---|---|
+    | `--accent*` | identity | **yes** | actions, navigation, selection, focus, today's disc, the selected day, chart bars, the "it landed" node |
+    | `--ac` (green) | meaning: paid, money up, it worked | **no** | `.pill.paid`, `.badge.paid`, `.dot.paid`, `.delta.up`, `.ok-box`, Money's `tone="good"` figure |
+    | `--bad` (red) | meaning: cancelled, no-show, error, destructive | **no** | `.pill.cancelled`, `.error-box`, `.btn.danger`, `--bk-danger` |
+
+    **Why it is a law and not a preference.** Paid-is-green and error-is-red
+    are conventions a customer already knows before they open the product; a
+    brand colour does not get to overwrite them. Concretely, on the accent a
+    red-branded business — 48% of this trade, see DECISIONS.md → "Roadmap
+    2.4" — got a red "Paid" beside a red "Cancelled", a red ▲ beside a red ▼,
+    and an `.ok-box` identical to the `.error-box` above it. The rule removes
+    all three at the root rather than patching each.
+
+    **The judgment call inside it, recorded so it is not re-derived.**
+    *Completed* stays on the accent while *paid* moves to green. A finished
+    job is not money, "mark complete" is the owner's own example of an
+    accent-side control, and the Today rail's landed node is the one place
+    the detailer's colour appears on the screen they open every morning —
+    moving it to green would put the house colour back on their main screen,
+    which is what law 11 was rewritten to stop. Flipping it is a one-line
+    change in `theme.css` if that reading is ever rejected.
+
+    **`grep 'var(--ac)'` in `theme.css` finds every fixed-meaning site.** That
+    file's token block used to say "below here there is no `var(--ac)` left";
+    that rule is now exactly inverted, and the comment says so.
 
 12. **Measure with layout values, not with transformed boxes.** This design
     animates by transform almost exclusively, so `getBoundingClientRect()`
@@ -332,15 +370,28 @@ instruction that the shape of the fix is an engineering call and not his.
 
 1. **Never invent a second red.** A new error colour to dodge a tenant's red is
    the failure mode `design-knowledge.md` §2 names, and red-for-error is a
-   stronger convention than any tenant's brand.
-2. **Status must not be carried by colour alone.** The pills and badges are
-   already safe — they print "Paid" and "Cancelled" as words. The exposed
-   surfaces are the ones with no text: `.dot.completed` / `.dot.cancelled` and
-   the calendar's `.marks`. Those need a form difference, not a colour one, and
-   the system already has the vocabulary — `docs/dashboard-skeletons.md` uses
-   hollow versus solid for "ahead" versus "landed". **This is a WCAG 1.4.1
-   obligation on its own**, true even for a tenant who picks blue, so it is
-   worth doing regardless of how the accent question resolves.
+   stronger convention than any tenant's brand. *This is about `--bad`, the
+   error colour. It has never been about the preset list — 2.4 added a second
+   tenant red (Rose) on evidence, and that is a different thing.*
+2. **Status must not be carried by colour alone.** — **DONE, roadmap 2.4,
+   2026-08-30.** Circles are jobs, squares are the day, a bar is a job that did
+   not happen; `--bad` left the calendar entirely. The vocabulary and the
+   measurements are `docs/dashboard-skeletons.md` §5b.
+
+**Three things 2.4 established that supersede the analysis above.**
+
+- **The collision was never red-only.** Measured on the shipped markup, a
+  *silver* accent collided with the "booked" ring at ΔE 8.5 and a *near-black*
+  accent with the blocked-day grey at ΔE 17.1 — the silver case is exactly as
+  severe as the red one. So the fix is a form vocabulary that always holds, not
+  a branch that fires on red.
+- **Dropping Crimson would not have worked either.** A deep red typed into the
+  custom picker corrects to `#E26666`, ΔE **8.5** from `--bad` — closer than
+  Crimson's 11.4. The preset list was never the lever. The owner's instinct was
+  right for a reason the recommendation did not have.
+- **The real fix is law 11b: the accent is identity, never meaning.** Paid is
+  always green, cancelled and errors are always red, for every tenant. That
+  removes the red-on-red pairing at the root instead of patching each site.
 
 It is the one token that is **not** in the reference page, for the reason
 above, so it is exempt from the sixteen-token drift check in
@@ -666,11 +717,23 @@ these go to the owner rather than being decided by a skill.
    of them is light; "follow the tenant's own ground" was offered and
    declined only because there is nothing to follow yet.
 
-3. **The tenant's curated accent set has no colours in it yet.** He decided
-   "a curated four to six"; nobody has picked the four to six. Needed before
-   2.4. **"Customer-facing only" is no longer part of it** — see law 11, which
-   he changed on 2026-08-30: the colour reaches the dashboard too, so the set
-   has to work on every surface in the product, not two.
+3. ~~**The tenant's curated accent set has no colours in it yet.**~~
+   **SETTLED 2026-08-30, roadmap 2.4 — and the question itself was wrong.**
+   "A curated four to six" is dead: the owner does not want the list narrowed,
+   he wants coverage, and he said the eight that were there carried no
+   authority — *"those eight colors were chosen by AI… I really don't care
+   about them."* `PRESET_COLORS` is now **twelve, built from evidence** rather
+   than taste: a 46-brand car-care sample plus general logo-colour studies, in
+   DECISIONS.md → "Roadmap 2.4". Red leads the trade at 48%, twice blue's 24%,
+   which is why there are two reds; green is 0 of 46, which makes the house
+   green a genuine differentiator rather than a coincidence.
+   **There is no dark preset**, and that is a finding rather than an omission:
+   the correction moves lightness only, so deep navy paints `#4269D6` and deep
+   garnet paints `#D72727` — both collapse onto brighter presets already in the
+   list. A detailer whose brand IS deep navy uses the custom picker and
+   `describeAccent()` tells them in words why it came back brighter.
+   **"Customer-facing only" is no longer part of it** — see law 11: the colour
+   reaches the dashboard too, so the set has to work on every surface.
 
 4. ~~**The dashboard's own skeletons are undrawn.**~~ **DRAWN 2026-08-30 in
    roadmap 2.3, and written up in `docs/dashboard-skeletons.md`** — read that

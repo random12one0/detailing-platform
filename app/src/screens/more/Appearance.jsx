@@ -24,7 +24,7 @@
 import { useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
-import { PRESET_COLORS, correctAccent, brandVarsFor, CUSTOMER_BG, HOUSE_ACCENT } from "../../lib/theme.js";
+import { PRESET_COLORS, correctAccent, brandVarsFor, describeAccent, CUSTOMER_BG, HOUSE_ACCENT } from "../../lib/theme.js";
 
 export default function Appearance() {
   const { business, branding, reload } = useBusiness();
@@ -111,11 +111,14 @@ export default function Appearance() {
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
 
-      <p className="quiet">
-        Whatever you pick is checked against the dark background before it is
-        used, so it can never come out too faint to read — which is why a very
-        pale colour may look slightly deeper than the one you chose.
-      </p>
+      {/* WHAT YOU PICKED, IN WORDS — roadmap 2.4 item 3b. This replaced a
+          fixed paragraph that said a pale colour "may look slightly deeper
+          than the one you chose", which was backwards: the ground is dark, so
+          it is DARK colours that get lightened. A live sentence about the
+          actual colour cannot go stale that way, and it is the only place a
+          detailer whose brand is a deep navy finds out why their swatch came
+          back brighter than their van. */}
+      <p className="quiet">{describeAccent(current || custom)}</p>
     </div>
   );
 }

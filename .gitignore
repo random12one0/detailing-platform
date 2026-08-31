@@ -109,8 +109,11 @@ frontend/node_modules/.cache/default-development/3.pack
 .emergent/
 
 # Screenshot output from scripts/shoot-dashboard.mjs — regenerated on demand,
-# never committed.
+# never committed. The OUT env var lets a session write elsewhere (roadmap 2.4
+# used shots-2.4/ to keep a before/after pair side by side), so the glob covers
+# those too.
 shots/
+shots-*/
 
 # Reference screenshots — evidence for the design phase, kept local on purpose.
 # 21 MB of other people's websites; the repo is public and history is forever.

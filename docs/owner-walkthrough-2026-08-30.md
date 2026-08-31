@@ -82,6 +82,45 @@ NOT change the measurement that prompted it: Crimson corrected for text is
 still `#E55B5B`, still ΔE 11.4 from `--bad` `#E2705F`. The number stands; the
 response to it changed.
 
+### D3 — The accent is identity. It must not carry meaning.
+
+**Said mid-session while roadmap 2.4 was being built, and it changed the
+shape of the fix.** His words:
+
+> *"Not everything, not every single colour needs to be changed just because
+> they changed the accent colour. Like, the paid should always be green because
+> that's just kind of paid. Money green is all kind of cohesive. So the paid
+> button should just always be green. Now the accent colour is more like the
+> mark complete button or, like, the calendar highlight — like, what day it is,
+> you know — and the outline for month, and the colour theming on the money
+> page and stuff like that. Like, there's little accents of colour should be
+> whatever the client chooses. But stuff that's, like, the paid button should
+> just be green because, well, that's, you know, obviously green. And there
+> might be other places that that rule applies to also."*
+
+This is now `docs/design-system.md` **law 11b**, with the full table of which
+colour goes where. The short version: **`--accent` = identity** (actions,
+navigation, selection, focus, today's disc, chart bars, the "it landed" node);
+**`--ac` green and `--bad` red = meaning** (paid / money up / it worked, and
+cancelled / no-show / error), fixed for every tenant.
+
+It is a better answer than the one being built. D2's fix was making the
+statuses survive a red accent by shape; D3 stops the collision existing for the
+things that matter, because "Paid" is no longer red at all. The shape work
+stayed anyway — it also covers the silver and near-black accents, which collide
+with the *neutral* marks and have nothing to do with red.
+
+**"There might be other places that that rule applies to also" was taken as an
+instruction to extend it**, and it was extended to four more sites he did not
+name: `.delta.up` (a red ▲ beside a red ▼ on the Money screen), `.ok-box`
+(identical to the `.error-box` above it under a red accent), Money's
+`tone="good"` figure, and `.badge.paid`. All are in DECISIONS.md → "Roadmap
+2.4".
+
+**One judgment call was made inside the rule and it is worth knowing about:**
+*completed* stays on the accent while *paid* moves to green. Reasoning in law
+11b; it is a one-line change if he reads it the other way.
+
 ---
 
 ## The colour problem, restated for whoever picks it up

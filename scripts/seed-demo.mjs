@@ -166,17 +166,39 @@ const today = localDate(0);
 const todayIsOpen = ![0, 1].includes(new Date(...today.split("-").map((v, i) => (i === 1 ? +v - 1 : +v))).getDay());
 const day0 = todayIsOpen ? today : openDay(0);
 
+// THE NEXT OPEN DAY AFTER day0 — and it has to be derived FROM day0, not from
+// a fixed offset. The two "tomorrow" bookings below used openDay(1), which is
+// the next open day after TODAY, and on a Sunday or a Monday that is the same
+// Tuesday day0 already resolved to. Both rows then overlapped the day0 jobs,
+// the database's double-booking constraint refused them (23P01), and the seed
+// printed "skipped" and carried on — so the Today screen's TOMORROW section
+// read "Nothing booked yet" every weekend, on a demo whose whole job is to be
+// looked at. Found in roadmap 2.4 while re-seeding on a Sunday.
+// Every upcoming day is CHAINED off the one before it rather than measured
+// from today, which is what makes them provably distinct. Offsets from today
+// are not: openDay walks forward past the closed Sunday and Monday, so two
+// different offsets collapse onto the same open day whenever a weekend sits
+// between them, and the later booking is then refused. openDay(3) hit this
+// too, one day after openDay(1) was fixed.
+const dayOffset = (d) =>
+  Math.round((Date.parse(`${d}T12:00:00Z`) - Date.parse(`${localDate(0)}T12:00:00Z`)) / 86400000);
+const after = (d, n) => openDay(dayOffset(d) + n);
+const day1 = after(day0, 1);    // tomorrow-ish
+const day2 = after(day1, 2);
+const day3 = after(day2, 3);
+const day4 = after(day3, 3);
+
 // Today (or the next open day): two done, two still to come.
 // Then upcoming across the next couple of weeks, plus history for the chart.
 const PLAN = [
   { day: day0, time: "08:30", who: "Marcus Webb", service: "Full Detail", size: "large", status: "completed", paid: 260, addOn: "Engine bay clean" },
   { day: day0, time: "13:00", who: "Dana Ruiz", service: "Express Wash", size: "medium", status: "completed", paid: 80 },
   { day: day0, time: "15:30", who: "Priya Anand", service: "Interior Deep Clean", size: "medium", status: "confirmed", addOn: "Pet hair removal" },
-  { day: openDay(1), time: "09:00", who: "Tom Okafor", service: "Full Detail", size: "medium", status: "confirmed" },
-  { day: openDay(1), time: "14:00", who: "Elena Marsh", service: "Express Wash", size: "small", status: "confirmed" },
-  { day: openDay(3), time: "10:00", who: "Sam Delgado", service: "Ceramic Coating", size: "large", status: "confirmed" },
-  { day: openDay(6), time: "11:00", who: "Aisha Rahman", service: "Interior Deep Clean", size: "small", status: "confirmed" },
-  { day: openDay(9), time: "13:30", who: "Chris Vogel", service: "Full Detail", size: "medium", status: "confirmed" },
+  { day: day1, time: "09:00", who: "Tom Okafor", service: "Full Detail", size: "medium", status: "confirmed" },
+  { day: day1, time: "14:00", who: "Elena Marsh", service: "Express Wash", size: "small", status: "confirmed" },
+  { day: day2, time: "10:00", who: "Sam Delgado", service: "Ceramic Coating", size: "large", status: "confirmed" },
+  { day: day3, time: "11:00", who: "Aisha Rahman", service: "Interior Deep Clean", size: "small", status: "confirmed" },
+  { day: day4, time: "13:30", who: "Chris Vogel", service: "Full Detail", size: "medium", status: "confirmed" },
   // History — completed, spread over previous months so the chart has shape.
   { day: openDay(-9, -1), time: "09:00", who: "Elena Marsh", service: "Full Detail", size: "medium", status: "completed", paid: 235 },
   { day: openDay(-16, -1), time: "13:00", who: "Chris Vogel", service: "Express Wash", size: "small", status: "completed", paid: 65 },
@@ -190,6 +212,16 @@ const PLAN = [
   { day: openDay(-108, -1), time: "13:00", who: "Elena Marsh", service: "Express Wash", size: "small", status: "completed", paid: 65 },
   { day: openDay(-132, -1), time: "10:00", who: "Chris Vogel", service: "Ceramic Coating", size: "medium", status: "completed", paid: 650 },
   { day: openDay(-140, -1), time: "14:30", who: "Tom Okafor", service: "Express Wash", size: "large", status: "completed", paid: 95 },
+  // ONE CANCELLED AND ONE NO-SHOW, added in roadmap 2.4. Until then the demo
+  // had NEITHER — twenty-one bookings, every one confirmed or completed — so
+  // the whole family of "Cancelled" and "No-show" styling could not be seen
+  // in a browser at all. That is why a red "Paid" beside a red "Cancelled"
+  // survived unnoticed: the screen that would have shown it had no row to
+  // show. Both are in the recent past so they land in the History list and
+  // the no-show reaches the month grid. Keep them: a status with no seed row
+  // is a status nobody ever looks at.
+  { day: openDay(-4, -1), time: "11:30", who: "Aisha Rahman", service: "Full Detail", size: "medium", status: "cancelled" },
+  { day: openDay(-6, -1), time: "16:00", who: "Sam Delgado", service: "Express Wash", size: "small", status: "no_show" },
 ];
 
 let made = 0;

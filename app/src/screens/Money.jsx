@@ -298,19 +298,22 @@ export default function Money() {
   );
 }
 
+// tone="good" is money the detailer earned, so it is the fixed house green and
+// NOT the tenant's accent — theme.css § THE ACCENT, the owner's rule of
+// 2026-08-30: "money green is all kind of cohesive."
 function Cell({ label, value, tone }) {
   return (
     <div>
       <span className="label">{label}</span>
-      <div className="strong num" style={{ marginTop: 4, color: tone === "good" ? "var(--accent-text)" : undefined }}>
+      <div className="strong num" style={{ marginTop: 4, color: tone === "good" ? "var(--ac)" : undefined }}>
         {value}
       </div>
     </div>
   );
 }
 
-// Change vs last month. Colour here IS the message, so it is one of the few
-// places signal colour is spent.
+// Change vs last month. The arrow carries it and the colour agrees: green up,
+// red down, fixed for every tenant.
 function Delta({ now, prev }) {
   if (!prev) return <p className="quiet" style={{ marginTop: 6 }}>No comparison yet</p>;
   const diff = now - prev;
