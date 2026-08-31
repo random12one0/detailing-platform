@@ -5,7 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { money } from "../../lib/format.js";
-import { DurationChoice, Group, Setting, Switch } from "../../components/controls.jsx";
+// Segmented was USED at the type picker and never imported — the Promos
+// screen crashed the whole app the moment it rendered. Found by roadmap
+// 2.3's settings sweep; pre-existing, not caused by the restyle.
+import { DurationChoice, Group, Segmented, Setting, Switch } from "../../components/controls.jsx";
 
 export default function Promos() {
   const { business, settings, reload } = useBusiness();

@@ -1,113 +1,137 @@
-/* ONE theme system for the whole dashboard.
-   ------------------------------------------------------------------
-   DIRECTION: "Raking Light" — see docs/design-system.md, which is LAW.
-   Read it before changing anything here.
+/* The dashboard — every signed-in screen in the product.
+   ==================================================================
+   "The Thread" (docs/design-system.md) applied. Roadmap 2.3.
 
-   The product borrows the detailer's own instrument: a matte, near-black
-   surface where ONE thing is lit — the next job, the current step, the
-   unsaved change. The reference object is an instrument cluster: wide
-   luminous type (Anybody) on matte black, figures in mono (DM Mono).
+   THIS IS THE FIRST SURFACE THE SYSTEM WAS APPLIED TO RATHER THAN PORTED
+   ONTO. 2.1 and 2.2 both had the approved reference rendering to copy from;
+   the dashboard has none, so the reasoning behind its shapes lives in
+   docs/dashboard-skeletons.md and the laws are cited inline below. Read
+   that file before changing a shape here.
 
-   The two laws this file enforces:
+   Replaces "Raking Light" — the matte ground with exactly one lit element
+   per screen, three type faces and a light/dark switch. The owner threw the
+   old identity out on 2026-08-28 ("Nah. Throw it out. It's all fine.") and
+   killed the light theme on 2026-08-30. Both are gone from this file now.
 
-     ONE LIGHT PER SCREEN   .lit (and .card.attend, its alias) is the bar +
-                            bloom + lifted surface. It marks the screen's
-                            single primary object. Selection is a QUIETER
-                            state (tinted border, no bloom). If two things
-                            glow, one of them is wrong.
+   THE SIXTEEN TOKENS LIVE HERE NOW. Until this rewrite they lived in the
+   reference page docs/design-directions/5-the-thread.html, because app/src
+   had not been restyled; tests/design-contrast.test.mjs switches its source
+   to this file the moment it defines --ink-0, which it now does. So this is
+   the system's home in the app, and the outgoing-palette blocks in that test
+   stop running by themselves.
 
-     GLOW IS ADDITIVE       every lit element also lifts its surface value
-                            and warms its border, so when sunlight deletes
-                            the bloom, the hierarchy survives. Text >=4.5:1
-                            on every surface it sits on, both themes,
-                            measured in docs/design-system.md.
+   WHY :root AND NOT A SCOPE. booking.css scopes under .bk and landing.css
+   under .ld, and both headers give the same reason: :root here used to flip
+   with the dashboard's light/dark switch, so a customer or a prospect could
+   inherit whatever the last dashboard user picked on that device. That
+   switch is gone, so the reason is gone with it — there is one ground and
+   :root is fixed. The two scopes are LEFT IN PLACE anyway: they now hold the
+   same values this file does (tests/design-contrast.test.mjs fails if either
+   drifts), they cost nothing, and .bk's are genuinely different because its
+   accent is injected per tenant.
 
-   Dark is the HOME theme; light is the disciplined daytime mode — same
-   structure, tinted bar, no bloom (a halo on white reads as a printing
-   error). The tenant accent is injected by lib/theme.js (the only JS that
-   writes colour) and contrast-corrected against the active ground. */
-
-:root,
-:root[data-theme="dark"] {
-  --bg: #0F1012;              /* the matte ground */
-  --surface: #18191C;         /* a panel */
-  --surface-lit: #1E2024;     /* the lit panel — pairs with the bar */
-  --surface-sunken: #131416;  /* wells, inputs, recessed context */
-  --border: #26282C;
-  --hairline: #1E2023;
-  --text: #F0F1F2;
-  --text-2: #A3A7AC;
-  --text-muted: #8B9095;      /* 4.6:1 on --surface, 5.0:1 on the ground */
-  --accent: #57B2E8;          /* runtime-overridden by the tenant colour */
-  --accent-text: #57B2E8;     /* accent-as-text tier, corrected to 4.5:1 at runtime */
-  --accent-ink: #04131D;      /* derived at runtime */
-  --success: #4FC08D;
-  --warning: #DCA84E;
-  --danger: #E2705F;
-  --overlay: rgba(5, 6, 8, 0.72);
-  --tab-surface: #131416;
-
-  /* THE LIGHT — dark theme carries the real bloom. */
-  --lit-border: color-mix(in srgb, var(--accent) 45%, var(--border));
-  --lit-glow: 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent),
-              0 -6px 28px -8px color-mix(in srgb, var(--accent) 38%, transparent),
-              0 10px 34px -18px rgba(0, 0, 0, 0.85);
-  --bar-glow: 0 0 14px 1px color-mix(in srgb, var(--accent) 75%, transparent);
-  --pri-glow: 0 0 22px -4px color-mix(in srgb, var(--accent) 55%, transparent);
-  --chip-glow: 0 0 16px -2px color-mix(in srgb, var(--accent) 50%, transparent);
-
-  --sh-raised: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -20px rgba(0, 0, 0, 0.85);
-  --sh-btn: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --sh-inset: inset 0 2px 4px rgba(0, 0, 0, 0.4);
-  --sh-sunken: inset 0 2px 5px rgba(0, 0, 0, 0.32);
-  --sh-sheet: 0 -24px 60px -18px rgba(0, 0, 0, 0.85);
-}
-
-:root[data-theme="light"] {
-  /* Daytime mode: matte greys, no bloom anywhere. */
-  --bg: #E7E7E5;
-  --surface: #F3F3F1;
-  --surface-lit: #FCFCFB;
-  --surface-sunken: #DEDEDB;
-  --border: #C6C6C2;
-  --hairline: #E0E0DD;
-  --text: #151515;
-  --text-2: #4A4D49;
-  --text-muted: #5D605C;
-  --accent: #0D689D;
-  --accent-text: #0D689D;
-  --accent-ink: #FFFFFF;
-  --success: #1E7A4E;
-  --warning: #8A5A14;
-  --danger: #A83A2C;
-  --overlay: rgba(18, 18, 18, 0.42);
-  --tab-surface: #F3F3F1;
-
-  --lit-border: color-mix(in srgb, var(--accent) 55%, var(--border));
-  --lit-glow: 0 -4px 18px -8px color-mix(in srgb, var(--accent) 25%, transparent);
-  --bar-glow: none;
-  --pri-glow: none;
-  --chip-glow: none;
-
-  --sh-raised: 0 1px 2px rgba(21, 21, 21, 0.07), 0 8px 22px -16px rgba(21, 21, 21, 0.28);
-  --sh-btn: 0 1px 2px rgba(21, 21, 21, 0.09);
-  --sh-inset: inset 0 2px 3px rgba(21, 21, 21, 0.09);
-  --sh-sunken: inset 0 2px 4px rgba(21, 21, 21, 0.07);
-  --sh-sheet: 0 -24px 60px -18px rgba(21, 21, 21, 0.3);
-}
+   AND THE LEAK IS NOT FIXED BY THIS REWRITE — a note in landing.css's header
+   says "all of this goes away in roadmap 2.3, when theme.css stops being the
+   outgoing system", and that is wrong. This sheet leaks into .ld and .bk
+   because it is GLOBAL, not because it was old. Every bare selector below
+   still reaches into both pages for any property they do not declare
+   themselves, so landing.css's nine renamed class names and the grep in its
+   header stay load-bearing. Check a new bare class name here against both
+   sheets before adding it. */
 
 :root {
-  --accent-quiet: color-mix(in srgb, var(--accent) 11%, var(--surface));
-  --accent-line: color-mix(in srgb, var(--accent) 50%, transparent);
+  color-scheme: dark;   /* native controls, scrollbars and date pickers come
+                           back dark for free — worth more on this surface
+                           than anywhere else, because it is the form-heavy
+                           one. Free only now that there is one ground. */
 
-  /* SHAPE */
-  --r-pill: 999px;
-  --r-sm: 6px;
-  --r-md: 9px;    /* tappable */
-  --r-lg: 10px;   /* one panel */
+  /* ═══ THE SYSTEM'S SIXTEEN TOKENS ═══════════════════════════════════
+     docs/design-system.md § Tokens. These names, these values, defined
+     once. Everything below is expressed in them; nothing in this file
+     writes a raw colour except where a comment says why. */
 
-  /* SPACE — related <= 8, unrelated >= 28. 12/18 are reserved for
-     inside-a-panel structure and panel padding. */
+  /* The ground — cool-biased, so no pure mid-grey ever appears. */
+  --ink-0: #0B0D0E;   /* the ground everything sits on */
+  --ink-1: #111417;   /* a surface lifted off it */
+  --ink-2: #171B1E;   /* the top of a panel gradient */
+  --ink-3: #1E2327;   /* the highest surface */
+  --line:   #272D31;  /* every hairline and inset ring */
+  --line-2: #333B40;  /* a line that has to be seen */
+  --fog:    #939CA1;  /* secondary prose */
+  --fog-2:  #7B858A;  /* 10-13px labels — THE FLOOR, do not darken */
+  --bone:   #F2F1EC;  /* the dominant: warm, never #fff */
+  --bone-2: #CFD2CE;  /* bone stepped back */
+
+  /* The one sharp accent. Signal green — the thing that has landed. */
+  --ac: #38E08B;
+  --ac-deep: #0E5C36;   /* the accent at rest, on light */
+
+  /* The one warm value. An error, and a destructive control's edge. */
+  --bad: #E2705F;
+
+  /* The light band. Defined because it is part of the system and this file
+     is now where the system lives — tests/design-contrast.test.mjs reads all
+     sixteen from here. THE DASHBOARD PAINTS NONE OF IT: a light band is a
+     change of ground for rhythm on a long marketing page, and a tool has no
+     rhythm problem. Phase 3's tenant sites will read these. */
+  --paper: #EFEEE7;
+  --paper-ink: #12161A;
+  --paper-fog: #565F64;
+  --paper-line: #D2D1C9;
+
+  /* ═══ ROLES ══════════════════════════════════════════════════════════
+     What the screens actually name. Every one is a system token — this
+     block is the mapping, and it is the only place a role and a value meet.
+     Kept under the OLD role names on purpose: thirty components read them,
+     and renaming three hundred call sites to change no pixel is the diff
+     nobody should have to review. */
+  --bg: var(--ink-0);
+  --surface: var(--ink-2);          /* a panel */
+  --surface-lit: var(--ink-3);      /* the highest surface — what you are on */
+  --surface-sunken: var(--ink-1);   /* wells, inputs, recessed context */
+  --border: var(--line-2);          /* a line that has to be seen */
+  --hairline: var(--line);
+  --text: var(--bone);
+  --text-2: var(--bone-2);
+  /* --fog, not --fog-2, and this is the same call booking.css made: a label
+     in this app can end up on --ink-3, where --fog-2 measures 4.20:1 and is
+     under the floor. --fog clears 4.98:1 there. --fog-2 stays defined
+     because the system defines it and the contrast test measures it. */
+  --text-muted: var(--fog);
+  --danger: var(--bad);
+
+  /* THE ACCENT IS THE HOUSE'S, FIXED — law 11. The tenant's colour is
+     customer-facing only: their booking page and, in phase 3, their site.
+     Until this rewrite lib/theme.js injected the tenant's colour over
+     --accent here at runtime; it no longer does, and that file's comment
+     explains the change. --accent-text exists and equals --accent because
+     the two-value rule is the system's (a fill takes 3:1, the same colour
+     as words takes 4.5:1) and a screen should not have to know that they
+     currently agree. #38E08B measures 11.28:1 on the ground, so it clears
+     both by a distance. */
+  --accent: var(--ac);
+  --accent-text: var(--ac);
+  --accent-ink: #04150C;   /* what is drawn ON an accent fill. A raw value
+                              because it is not a surface — it is the ink for
+                              one specific green, 10.36:1 on it, and the same
+                              value booking.css uses. */
+  --accent-quiet: color-mix(in srgb, var(--ac) 10%, var(--ink-2));
+  --accent-line: color-mix(in srgb, var(--ac) 45%, transparent);
+
+  --overlay: rgba(6, 8, 9, 0.74);
+
+  /* ═══ SHAPE ══════════════════════════════════════════════════════════
+     Radii by ROLE, not by habit — docs/design-system.md § Layout, and
+     "rounded-lg on everything" is a named tell. Three sizes and a circle. */
+  --r-pill: 100px;    /* buttons, chips, state pills, the tab bar */
+  --r-panel: 18px;    /* a panel */
+  --r-inset: 12px;    /* a sunken block, an input, a calendar cell */
+  /* The old names, pointed at the new set so no call site had to move. */
+  --r-sm: var(--r-inset);
+  --r-md: var(--r-inset);
+  --r-lg: var(--r-panel);
+
+  /* SPACE — related <= 8, unrelated >= 28. */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -115,27 +139,48 @@
   --sp-5: 28px;
   --sp-6: 44px;
 
-  /* TYPE — see the three voices below. */
-  --t-label: 0.6875rem;   /* 11 — Anybody narrow, 600, +.16em, caps */
-  --t-meta: 0.8125rem;    /* 13 */
-  --t-body: 0.9375rem;    /* 15 */
-  --t-strong: 1.0625rem;  /* 17 — 600, the row's headline */
-  --t-title: 1.375rem;    /* 22 — Anybody wide, 700 */
-  --t-figure: 1.875rem;   /* 30 — DM Mono, tabular */
-  --t-display: 2.25rem;   /* 36 — Anybody wide, 700, once per screen */
+  /* ═══ TYPE ═══════════════════════════════════════════════════════════
+     Two faces, and every figure is monospaced — law 8. Down from three.
+     NOTE the law's second half: font-variation-settings is NEVER set on a
+     root element. It inherits and it beats font-weight, so declaring the
+     default instance here would silently pin every <strong> and every
+     500-weight price to 400. Both axes are set per ROLE below. */
+  --f-body: "Archivo", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --f-num: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* The old third face is gone with the old system. --f-display no longer
+     exists; display type is Archivo at the width axis's wide end. */
 
-  /* Three voices, one product. A price set in --f-body is a bug. */
-  --f-display: "Anybody", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --f-body: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --f-num: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --wdth-wide: 114;
-  --wdth-narrow: 88;
+  /* The width axis carries as much hierarchy as the weight axis, which is
+     the part that is easy to lose (§ Type). */
+  --wdth-disp: 116;
+  --wdth-title: 108;
+  --wdth-lab: 72;
 
-  --ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --dur-tap: 90ms;
-  --dur-fast: 160ms;
-  --dur: 200ms;
-  --dur-travel: 300ms;   /* the light moving to a new primary object */
+  /* Smaller than the landing page's scale on purpose: this is a dense
+     one-handed tool, not a page that is arguing something. Body 15 to
+     display 44 is still very nearly the 3x jump § Type asks for. */
+  --t-label: 11px;
+  --t-meta: 13px;
+  --t-body: 15px;
+  --t-strong: 17px;
+  --t-title: clamp(22px, 2.8vw, 30px);
+  --t-figure: clamp(26px, 3.2vw, 34px);
+  --t-display: clamp(30px, 4.6vw, 44px);
+
+  /* ═══ MOTION ═════════════════════════════════════════════════════════
+     One curve, and the system's four durations — law 4. No fifth duration
+     and no second curve anywhere in this file.
+
+     The old file's 90ms tap token is gone rather than renamed: a press now
+     scales with NO transition at all, so contact is instant in both
+     directions. That is better feedback than a fast transition was, and it
+     is one less number to keep in step. */
+  --e-out: cubic-bezier(.16, .84, .34, 1);
+  --t-reveal: 950ms;
+  --t-exit: 420ms;
+  --t-hover: 180ms;
+  /* Old names, same curve — call sites did not have to move. */
+  --ease: var(--e-out);
 
   --tap: 46px;
 }
@@ -147,48 +192,60 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--f-body);
-  font-size: 16px;
+  font-size: var(--t-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
+::selection { background: var(--ac); color: var(--accent-ink); }
 
 /* ---------------------------------------------------------------- TYPE */
-/* Only .display is 700. If a second 700 appears on a screen, that's the bug. */
+/* Both axes explicitly on the roles that need them, never on a root. */
 .display {
-  font-family: var(--f-display);
-  font-variation-settings: "wdth" var(--wdth-wide);
-  font-size: var(--t-display); font-weight: 700; letter-spacing: -0.015em;
-  line-height: 1.06; margin: 0;
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-disp), "wght" 760;
+  font-size: var(--t-display); letter-spacing: -0.028em;
+  line-height: 0.98; margin: 0;
 }
 .title {
-  font-family: var(--f-display);
-  font-variation-settings: "wdth" var(--wdth-wide);
-  font-size: var(--t-title); font-weight: 700; letter-spacing: -0.012em;
-  line-height: 1.2; margin: 0;
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-title), "wght" 640;
+  font-size: var(--t-title); letter-spacing: -0.022em;
+  line-height: 1.08; margin: 0;
 }
 .strong { font-size: var(--t-strong); font-weight: 600; line-height: 1.3; }
 .body { font-size: var(--t-body); font-weight: 400; }
 .quiet { font-size: var(--t-meta); font-weight: 400; color: var(--text-muted); }
-/* Every figure is mono. Columns of money line up down a screen whether or
-   not they are in a table, and the numbers stop looking like sentences. */
+/* Every figure is mono (law 8). A price set in the body face is a bug. */
 .figure {
   font-family: var(--f-num);
-  font-size: var(--t-figure); font-weight: 500; letter-spacing: -0.015em;
-  line-height: 1.12; font-variant-numeric: tabular-nums;
+  font-size: var(--t-figure); font-weight: 500; letter-spacing: -0.03em;
+  line-height: 1.1; font-variant-numeric: tabular-nums;
 }
-.figure.lead { font-size: 2.5rem; letter-spacing: -0.026em; line-height: 1.04; }
+.figure.lead { font-size: clamp(34px, 5.2vw, 52px); letter-spacing: -0.04em; line-height: 1; }
+/* The eyebrow. 11px at .22em on the width axis's narrow end — the system's
+   own label instance (§ Type, .lab). */
 .label {
-  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.12em;
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
+  font-size: var(--t-label); letter-spacing: 0.22em;
   text-transform: uppercase; color: var(--text-muted); display: block;
 }
 /* Headings map onto the scale so raw h1/h2/h3 can never drift off it. */
 h1, h2, h3 { margin: 0; }
-h1 { font-family: var(--f-display); font-variation-settings: "wdth" var(--wdth-wide); font-size: var(--t-display); font-weight: 700; letter-spacing: -0.015em; line-height: 1.06; }
-h2 { font-family: var(--f-display); font-variation-settings: "wdth" var(--wdth-wide); font-size: var(--t-title); font-weight: 700; letter-spacing: -0.012em; }
+h1 {
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-disp), "wght" 760;
+  font-size: var(--t-display); letter-spacing: -0.028em; line-height: 0.98;
+}
+h2 {
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-title), "wght" 640;
+  font-size: var(--t-title); letter-spacing: -0.022em; line-height: 1.08;
+}
 h3 { font-size: var(--t-strong); font-weight: 600; }
 p { margin: 0; }
 a { color: var(--accent-text); text-decoration: none; }
-.num { font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.015em; }
+.num { font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 
 /* --------------------------------------------------------------- SPACE */
 /* Flow containers, not per-element margins. Pick by relationship. */
@@ -205,43 +262,35 @@ a { color: var(--accent-text); text-decoration: none; }
 
 /* ------------------------------------------------------------ SURFACES */
 .card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-lg); padding: var(--sp-4);
-  box-shadow: var(--sh-raised);
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: var(--r-panel); padding: var(--sp-4);
 }
-/* THE LIGHT. One per screen — the primary object. .card.attend is kept as
-   an alias so existing screens light their "next up" without renaming. */
+/* THE ONE YOU ARE ON. Raised to the highest surface, with a soft accent
+   bloom UNDER it rather than a bar on it — "an accent bar on a rounded card"
+   is a named never-default and the old .lit was exactly that, a 3px accent
+   rule across its top edge plus a tinted wash. The bloom is atmosphere,
+   which the system asks for, and it survives being screenshotted in
+   sunlight because the surface value moved too. */
 .lit, .card.attend {
   position: relative;
   background: var(--surface-lit);
-  border-color: var(--lit-border);
-  box-shadow: var(--lit-glow);
-}
-.lit::before, .card.attend::before {
-  content: ""; position: absolute; top: -1px; left: 12px; right: 12px;
-  height: 3px; border-radius: 0 0 4px 4px; background: var(--accent);
-  box-shadow: var(--bar-glow);
+  border-color: var(--line-2);
 }
 .lit::after, .card.attend::after {
-  content: ""; position: absolute; inset: 0 0 auto 0; height: 56px;
-  border-radius: var(--r-lg) var(--r-lg) 0 0; pointer-events: none;
-  background: linear-gradient(color-mix(in srgb, var(--accent) 12%, transparent), transparent);
+  content: ""; position: absolute; inset: -22% -7%;
+  z-index: -1; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--ac) 15%, transparent), transparent 74%);
 }
-/* The one card that needs attention. A tint, not a new component. */
-/* The one card that needs attention. A tint plus a slightly deeper lift —
-   no outline, because introducing one here would make every other card look
-   like it was missing something. */
 
-.card.tappable { cursor: pointer; transition: background var(--dur-fast) var(--ease); }
-.card.tappable:active { background: color-mix(in srgb, var(--text) 5%, var(--surface)); }
-/* Context, not content: no border, so it is one fewer box on the screen. */
-/* Recessed: a well pressed into the ground. No border — the inset shadow
-   IS the edge, and giving it one too would read as a floating box. */
-/* Recessed: a well pressed into the ground. No border — the inset shadow IS
-   the edge, and adding one too would read as a floating box. */
+.card.tappable { cursor: pointer; transition: background var(--t-hover) var(--e-out); }
+.card.tappable:active { background: color-mix(in srgb, var(--bone) 4%, var(--surface-lit)); }
+
+/* Recessed: a well pressed into the ground. No border — the inset ring IS
+   the edge, and giving it one too would read as a floating box. */
 .sunken {
-  background: var(--surface-sunken); border-radius: var(--r-lg); padding: var(--sp-4);
-  box-shadow: var(--sh-sunken);
+  background: var(--surface-sunken); border-radius: var(--r-inset);
+  padding: var(--sp-4);
+  box-shadow: inset 0 0 0 1px var(--hairline);
 }
 .sunken.flush { padding: var(--sp-3) var(--sp-4); }
 
@@ -249,103 +298,227 @@ a { color: var(--accent-text); text-decoration: none; }
 .rule { height: 1px; background: var(--hairline); border: 0; margin: var(--sp-3) 0; }
 .rule.tight { margin: var(--sp-2) 0; }
 
-/* "Nothing here yet" without a colour and without an icon. */
-/* "Nothing here yet" — the one dashed line in a system with no solid ones,
-   which is exactly why it reads as a placeholder rather than a container. */
+/* "Nothing here yet" without a colour and without an icon. The one dashed
+   line in a system with no solid ones, which is why it reads as a
+   placeholder rather than a container. */
 .dashed {
-  border: 1px dashed var(--border); border-radius: var(--r-lg);
+  border: 1px dashed var(--hairline); border-radius: var(--r-inset);
   padding: var(--sp-5) var(--sp-4); text-align: center;
   color: var(--text-muted); font-size: var(--t-meta);
 }
 
-/* Status reads before any word does, in a list of eight. */
-.stripe { border-left: 3px solid var(--text-muted); padding-left: var(--sp-3); }
-.stripe.confirmed { border-left-color: var(--accent); }
-.stripe.completed { border-left-color: var(--success); }
-.stripe.cancelled { border-left-color: var(--danger); }
-.stripe.no_show   { border-left-color: var(--warning); }
-.stripe.pending   { border-left-color: var(--text-muted); }
+/* ------------------------------------------------------------ THE MARKS
+   FIVE STATUSES, TWO HUES, THREE SHAPES. The system has one accent and one
+   warm value and says so twice, so --success and --warning are gone rather
+   than kept as a third and fourth hue. Cancelled and no-show share --bad
+   because they are the same outcome reached two ways, and the pill beside
+   the mark still says the word, so colour is never alone.
+   See docs/dashboard-skeletons.md §5b for the whole table. */
+.dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--fog);
+}
+.dot.completed, .dot.paid { background: var(--ac); }
+.dot.cancelled { background: var(--bad); }
+/* Upcoming and not-yet-answered are HOLLOW: nothing has landed. */
+.dot.confirmed { background: transparent; box-shadow: inset 0 0 0 2px var(--bone-2); }
+.dot.pending   { background: transparent; box-shadow: inset 0 0 0 2px var(--fog); }
+.dot.no_show   { background: transparent; box-shadow: inset 0 0 0 2px var(--bad); }
+/* A day you marked off is not an error — it is a decision, so it is neutral
+   and solid. Drop-off-only keeps the hollow ring it always had. */
+.dot.block { background: var(--fog); }
+.ring {
+  width: 7px; height: 7px; border-radius: 50%; background: transparent;
+  box-shadow: inset 0 0 0 2px var(--ac); flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------- THE RAIL
+   Today's signature move, and the only rail in the product: the day's jobs
+   hang off one continuous hairline with a node each. It is the landing
+   page's "scattered becomes ordered" at the far end of the thread — see
+   docs/dashboard-skeletons.md §2. It also replaces .stripe, which did the
+   same job in the shape the never-defaults name.
+
+   NAMED "dayrail", AND IT WAS NAMED "thread" FIRST. This sheet is global
+   (see the header), and landing.css already owns that name for the
+   messages-becoming-a-schedule element — the approved page's own signature
+   move. A bare rule here reached straight into it and gave it a 26px left
+   pad, a rail and a node on every child, on the LIVE marketing page. Caught
+   by the grep that file's header prescribes, which is now also a test
+   (tests/composition.test.mjs, "theme.css cannot reach into a scoped
+   sheet"). Check any new bare class name here the same way — and note this
+   comment writes the old name without its dot on purpose, so it does not
+   trip that grep itself. */
+.dayrail { position: relative; padding-left: 26px; }
+/* The rail starts BELOW the section label — the label names the run, it is
+   not a stop on it — and fades out at the bottom rather than stopping dead,
+   so the day reads as continuing rather than as a closed box. */
+.dayrail::before {
+  content: ""; position: absolute; left: 3px; top: 24px; bottom: 4px;
+  width: 1px; background: linear-gradient(var(--line), var(--line) 78%, transparent);
+}
+.dayrail > * { position: relative; }
+/* The node, drawn on the child so it lines up with whatever hangs there.
+   Not on the label, which is a heading rather than a job. */
+.dayrail > *:not(.label)::before {
+  content: ""; position: absolute; left: -26px; top: 24px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ink-0); box-shadow: inset 0 0 0 2px var(--bone-2);
+}
+/* It landed. The one place the accent is spent on this screen apart from
+   the primary button. */
+.dayrail > .landed::before { background: var(--ac); box-shadow: none; }
+/* A settled row is a line, not a card, so its node sits on the line's own
+   centre rather than a card's first line of text. */
+.dayrail > .settled-row::before { top: 20px; }
+.dayrail > .settled-row:first-of-type::before { top: 19px; }
 
 /* --------------------------------------------------------------- SHELL */
-.app-shell { display: flex; flex-direction: column; min-height: 100dvh; }
+.app-shell {
+  display: flex; flex-direction: column; min-height: 100dvh;
+  position: relative; isolation: isolate;
+}
+/* NEVER A FLAT SOLID BACKGROUND (§ Atmosphere), and law 2 — something is
+   always animating. Two fixed layers under everything: a grain, and two
+   slow lights that never stop. Lightness moves; hue and chroma do not, so
+   it never reads as a coloured wash drifting about.
+   Calmer and slower than the landing page's, because this is a tool. */
+.app-shell::before,
+.app-shell::after {
+  content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+}
+.app-shell::before {
+  background:
+    radial-gradient(60vmax 52vmax at 8% -12%, rgba(224, 233, 237, .07), rgba(224, 233, 237, 0) 66%),
+    radial-gradient(52vmax 48vmax at 104% 88%, rgba(210, 226, 232, .055), rgba(210, 226, 232, 0) 68%);
+  animation: ground-drift 54s var(--e-out) infinite alternate;
+}
+.app-shell::after {
+  opacity: .05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@keyframes ground-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-2.5%, 1.5%, 0) scale(1.06); }
+}
+
 .app-main {
-  flex: 1; padding: var(--sp-4) var(--sp-4) calc(76px + env(safe-area-inset-bottom));
+  flex: 1; padding: var(--sp-4) var(--sp-4) calc(96px + env(safe-area-inset-bottom));
   max-width: 760px; margin: 0 auto; width: 100%;
 }
 
+/* The tab bar is a floating pill, not a bar welded to the bottom edge — the
+   glass pill nav is the approved page's own vocabulary, and it is what stops
+   the dashboard reading as a default mobile app shell. It keeps the full
+   safe-area inset underneath it so a home indicator never overlaps a tab. */
 .tabbar {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-  display: flex; justify-content: space-around;
-  background: var(--tab-surface);
-  border-top: 1px solid var(--border);
-  padding: var(--sp-1) var(--sp-1) calc(var(--sp-1) + env(safe-area-inset-bottom));
+  position: fixed; z-index: 40;
+  left: 50%; transform: translateX(-50%);
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  width: min(calc(100% - 24px), 460px);
+  display: flex; justify-content: space-around; gap: 2px;
+  padding: 5px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-2);
+  background: color-mix(in srgb, var(--ink-1) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: 0 12px 34px -14px rgba(0, 0, 0, .8);
 }
 .tabbar button {
-  flex: 1; min-height: var(--tap);
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  flex: 1; min-height: 44px; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   background: none; border: none; color: var(--text-muted);
-  font-size: var(--t-label); font-weight: 600; cursor: pointer; border-radius: var(--r-md);
-  transition: color var(--dur-fast) var(--ease);
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" 88, "wght" 600;
+  font-size: 10px; letter-spacing: .06em;
+  cursor: pointer; border-radius: var(--r-pill);
+  transition: color var(--t-hover) var(--e-out), background var(--t-hover) var(--e-out);
 }
 .tabbar button svg { flex-shrink: 0; }
-.tabbar button.active { color: var(--accent-text); }
-.tabbar button.active svg { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent)); }
-:root[data-theme="light"] .tabbar button.active svg { filter: none; }
+.tabbar button.active {
+  color: var(--accent-text);
+  background: color-mix(in srgb, var(--ac) 12%, transparent);
+}
 
 .topbar {
   position: sticky; top: 0; z-index: 30;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  padding: calc(var(--sp-2) + env(safe-area-inset-top)) var(--sp-4) var(--sp-2);
+  background: color-mix(in srgb, var(--ink-0) 84%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+  padding: calc(var(--sp-3) + env(safe-area-inset-top)) var(--sp-4) var(--sp-3);
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
 }
 .topbar .brand {
-  font-family: var(--f-display);
-  font-variation-settings: "wdth" 104;
-  font-size: var(--t-body); font-weight: 700; letter-spacing: 0.01em;
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" 104, "wght" 680;
+  font-size: var(--t-body); letter-spacing: -0.012em;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 /* ------------------------------------------------------------- CONTROLS */
+/* A pill, per § Layout — pills are the role for buttons and chips. */
 .btn {
-  min-height: var(--tap); padding: 0 var(--sp-4);
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  border-radius: var(--r-md); border: 1px solid var(--border);
+  min-height: var(--tap); padding: 0 var(--sp-5);
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border-radius: var(--r-pill); border: 1px solid var(--line-2);
   background: var(--surface); color: var(--text);
   font-size: var(--t-body); font-weight: 600; cursor: pointer; width: 100%;
   font-family: var(--f-body);
-  box-shadow: var(--sh-btn);
-  transition: transform var(--dur-tap) var(--ease), background var(--dur-tap) var(--ease);
+  transition: background var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
 .btn svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
-/* 90ms, because on a phone with no haptics this is the only confirmation
-   the tap registered. Fast enough to read as contact, not as animation. */
+/* No transition on the press: on a phone with no haptics this is the only
+   confirmation the tap registered, and instant in both directions reads as
+   contact rather than as animation. */
 .btn:active:not(:disabled) { transform: scale(0.985); }
-/* A SOLID fill, not a glow. The glow was Studio's one flourish and the one
-   place its identity depended on a colour the customer picks. */
+.btn:hover:not(:disabled) { border-color: var(--fog-2); }
+/* A solid fill. One accent, spent on the single action that moves the
+   screen forward. */
 .btn.primary {
-  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
-  box-shadow: var(--pri-glow);
+  background: var(--ac); border-color: var(--ac); color: var(--accent-ink);
+  font-weight: 700;
 }
-.btn.filled { background: var(--surface-sunken); box-shadow: var(--sh-sunken); }
-.btn.danger { background: var(--surface); border-color: var(--danger); color: var(--danger); }
-.btn.ghost { border-color: transparent; background: transparent; box-shadow: none; }
+.btn.primary:hover:not(:disabled) { background: color-mix(in srgb, var(--bone) 12%, var(--ac)); border-color: transparent; }
+.btn.filled { background: var(--surface-sunken); }
+.btn.danger { background: transparent; border-color: color-mix(in srgb, var(--bad) 55%, transparent); color: var(--bad); }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.ghost:hover:not(:disabled) { background: var(--surface); border-color: transparent; }
 .btn.inline { width: auto; }
-.btn.sm { min-height: 38px; font-size: var(--t-meta); padding: 0 var(--sp-3); }
-.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.sm { min-height: 38px; font-size: var(--t-meta); padding: 0 var(--sp-4); }
+.btn:disabled { opacity: 0.42; cursor: default; }
+/* Except the primary: 42% of the signal green on this ground is a muddy dark
+   green that reads as a different colour, not as an unavailable one. A
+   disabled action is not the accent at all. */
+.btn.primary:disabled {
+  opacity: 1; background: var(--surface); border-color: var(--hairline);
+  color: var(--text-muted); font-weight: 600;
+}
 .btnrow { display: flex; gap: var(--sp-2); }
 .btnrow .btn { flex: 1; }
 
 .chip {
-  display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 0 var(--sp-3);
-  border-radius: var(--r-pill); border: 1px solid var(--border);
+  display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 0 var(--sp-4);
+  border-radius: var(--r-pill); border: 1px solid var(--hairline);
   background: var(--surface); color: var(--text-2);
   font-size: var(--t-meta); font-weight: 500; cursor: pointer; font-family: var(--f-body);
-  box-shadow: var(--sh-btn);
-  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
 .chip svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
-.chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; box-shadow: var(--chip-glow); }
+.chip:hover:not(:disabled):not(.active) { border-color: var(--line-2); color: var(--text); }
+/* SELECTION IS TINTED; A FILL IS AN ACTION OR A FACT. The rule for the whole
+   dashboard, and it is what keeps one accent from becoming the loudest thing
+   on a settings form: a SOLID accent fill means an action (.btn.primary), a
+   fact (today's date disc, a switch that is on) or a job that has landed (a
+   thread node). Anything you have merely SELECTED gets the tint. Found by
+   looking: Hours put five solid green day-chips next to a solid green Apply
+   button, and Calendar's History view stacks three chiprows, so a solid
+   selection would have lit nine things on one screen. */
+.chip.active {
+  background: color-mix(in srgb, var(--ac) 15%, transparent);
+  border-color: var(--ac); color: var(--accent-text); font-weight: 600;
+}
 .chip:disabled { opacity: 0.4; cursor: default; }
 .chiprow {
   display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
@@ -356,215 +529,286 @@ a { color: var(--accent-text); text-decoration: none; }
 
 /* A category that cannot change — square-ish, quiet, never coloured. */
 .tag {
-  display: inline-flex; align-items: center; padding: 2px 8px;
-  border-radius: var(--r-sm); background: var(--surface-sunken);
-  font-family: var(--f-display);
-  font-variation-settings: "wdth" var(--wdth-narrow);
-  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.14em;
+  display: inline-flex; align-items: center; padding: 3px 9px;
+  border-radius: var(--r-inset); background: color-mix(in srgb, var(--bone) 7%, transparent);
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
+  font-size: var(--t-label); letter-spacing: 0.18em;
   text-transform: uppercase; color: var(--text-muted);
 }
-.card .tag, .sunken .tag { background: color-mix(in srgb, var(--text) 8%, transparent); }
 
-/* A state that CAN change — pill, and the colour is the message. */
+/* A state that CAN change — pill, and it carries the WORD. The mark beside
+   it carries the colour; see THE MARKS above for why there are only two. */
 .pill {
-  display: inline-flex; align-items: center; padding: 2px 9px;
-  border-radius: var(--r-pill); font-size: var(--t-label); font-weight: 600;
-  letter-spacing: 0.04em; color: var(--text-muted);
-  border: 1px solid var(--border); white-space: nowrap;
+  display: inline-flex; align-items: center; padding: 3px 10px;
+  border-radius: var(--r-pill); font-size: var(--t-label);
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" 84, "wght" 620;
+  letter-spacing: 0.08em; color: var(--text-muted);
+  border: 1px solid var(--hairline); white-space: nowrap;
 }
-/* In a borderless system a pill reads by its FILL, not its outline. Each is
-   a wash of its own signal colour at a weight that keeps the label legible. */
-.pill.completed, .pill.paid { border-color: color-mix(in srgb, var(--success) 45%, transparent); background: color-mix(in srgb, var(--success) 12%, var(--surface)); color: var(--success); }
-.pill.cancelled { border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, var(--surface)); color: var(--danger); }
-.pill.no_show, .pill.pending, .pill.partial { border-color: color-mix(in srgb, var(--warning) 50%, transparent); background: color-mix(in srgb, var(--warning) 12%, var(--surface)); color: var(--warning); }
-.pill.confirmed { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent-text); }
-.pill.waived { border-color: var(--border); color: var(--text-muted); }
-
-/* A second indicator meaning with no second hue: hollow ring vs solid dot. */
-.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
-.dot.confirmed { background: var(--accent); }
-.dot.completed { background: var(--success); }
-.dot.cancelled { background: var(--danger); }
-.dot.no_show, .dot.pending { background: var(--warning); }
-.ring {
-  width: 7px; height: 7px; border-radius: 50%; background: transparent;
-  box-shadow: inset 0 0 0 2px var(--accent); flex-shrink: 0;
-}
-.dot.block { background: var(--warning); }
+.pill.completed, .pill.paid { border-color: var(--accent-line); background: color-mix(in srgb, var(--ac) 11%, transparent); color: var(--accent-text); }
+.pill.confirmed { border-color: var(--line-2); color: var(--text-2); }
+.pill.cancelled, .pill.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); color: var(--bad); }
+.pill.pending, .pill.partial { border-color: var(--line-2); color: var(--text-muted); }
+.pill.waived { border-color: var(--hairline); color: var(--text-muted); }
 
 /* ----------------------------------------------------------------- FORM */
 label.field { display: block; }
 label.field > span {
-  display: block; font-family: var(--f-display);
-  font-variation-settings: "wdth" var(--wdth-narrow);
-  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--text-muted); margin-bottom: var(--sp-1);
+  display: block; font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
+  font-size: var(--t-label); letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
 }
-.fields { display: flex; flex-direction: column; gap: var(--sp-3); }
+.fields { display: flex; flex-direction: column; gap: var(--sp-4); }
 input, select, textarea {
-  width: 100%; min-height: var(--tap); padding: 11px 13px;
+  width: 100%; min-height: var(--tap); padding: 11px 14px;
   background: var(--surface-sunken); color: var(--text);
-  border: 1px solid var(--border); border-radius: var(--r-md);
+  border: 1px solid var(--hairline); border-radius: var(--r-inset);
   font-size: var(--t-body); font-family: var(--f-body);
-  box-shadow: var(--sh-inset);
-  transition: border-color var(--dur-fast) var(--ease);
+  transition: border-color var(--t-hover) var(--e-out);
 }
-/* A time or an amount is a figure wherever it appears, including in a field. */
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+/* A time or an amount is a figure wherever it appears, including in a
+   field — law 8. */
 input[type="time"], input[type="date"], input[type="number"] {
   font-family: var(--f-num); font-variant-numeric: tabular-nums;
 }
-/* With no border there is nothing to recolour on focus, so focus is a ring
-   — which is clearer than a border change was anyway. */
+input:hover, select:hover, textarea:hover { border-color: var(--line-2); }
 input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: none; border-color: var(--accent); box-shadow: var(--sh-inset), 0 0 0 2px var(--accent-line);
+  outline: none; border-color: var(--ac); box-shadow: 0 0 0 3px var(--accent-line);
 }
 textarea { min-height: 92px; resize: vertical; line-height: 1.5; }
-input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--accent); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--ac); }
+input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 
 /* --------------------------------------------------------------- STATES */
 .warn-box, .error-box, .ok-box, .confirm-box {
-  border-radius: var(--r-md); padding: 10px 12px; font-size: var(--t-meta);
-  display: flex; gap: var(--sp-2); align-items: flex-start;
+  border-radius: var(--r-inset); padding: 12px 14px; font-size: var(--t-meta);
+  display: flex; gap: var(--sp-3); align-items: flex-start;
+  line-height: 1.45;
 }
 .warn-box svg, .error-box svg, .ok-box svg { flex-shrink: 0; width: 1.15em; height: 1.15em; margin-top: 1px; }
+/* NOT a warning any more. Its one real use is "N finished jobs still need
+   payment recorded", which is a thing to DO, and it is already a <button>.
+   So it is drawn as a control: a panel with an edge you can see, the words
+   in --bone, and the accent only on its marker. There is no amber in this
+   system and inventing one for a to-do would be the third hue.
+   See docs/dashboard-skeletons.md §5c. */
 .warn-box {
-  border: 1px solid color-mix(in srgb, var(--warning) 50%, transparent);
-  background: color-mix(in srgb, var(--warning) 8%, transparent); color: var(--warning);
+  border: 1px solid var(--line-2); background: var(--surface); color: var(--text);
 }
+.warn-box svg { color: var(--accent-text); }
 .warn-box .actions { margin-left: auto; display: flex; gap: var(--sp-1); }
-.warn-box .actions button { background: none; border: none; color: var(--warning); font-weight: 600; cursor: pointer; white-space: nowrap; font-size: var(--t-meta); }
-.error-box { border: 1px solid var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); color: var(--danger); }
-.ok-box { border: 1px solid var(--success); background: color-mix(in srgb, var(--success) 8%, transparent); color: var(--success); }
+.warn-box .actions button {
+  background: none; border: none; color: var(--accent-text); font-weight: 600;
+  cursor: pointer; white-space: nowrap; font-size: var(--t-meta); font-family: var(--f-body);
+}
+.error-box { border: 1px solid color-mix(in srgb, var(--bad) 55%, transparent); background: color-mix(in srgb, var(--bad) 9%, transparent); color: var(--bad); }
+.ok-box { border: 1px solid var(--accent-line); background: color-mix(in srgb, var(--ac) 9%, transparent); color: var(--accent-text); }
 .confirm-box {
-  display: block; border: 1px solid var(--accent); background: var(--accent-quiet);
-  color: var(--text); padding: var(--sp-3) var(--sp-4); font-size: var(--t-body); line-height: 1.45;
+  display: block; border: 1px solid var(--accent-line); background: var(--accent-quiet);
+  color: var(--text); padding: var(--sp-3) var(--sp-4); font-size: var(--t-body);
 }
 
-/* ------------------------------------------------------------- CALENDAR */
-.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--sp-1); }
+/* ------------------------------------------------------------- CALENDAR
+   The only grid in the product — law 1, the Calendar tab's own skeleton. */
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
 .cal-head {
-  display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--sp-1);
-  margin-bottom: var(--sp-1);
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px;
+  margin-bottom: 6px;
 }
 .cal-head span {
-  text-align: center; font-size: var(--t-label); font-weight: 600;
-  letter-spacing: 0.06em; color: var(--text-muted);
+  text-align: center; font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
+  font-size: var(--t-label); letter-spacing: 0.14em; color: var(--text-muted);
 }
 .cal-cell {
-  min-height: 54px; border-radius: var(--r-md); border: 1px solid var(--border);
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 5px 2px; background: var(--surface); cursor: pointer;
+  min-height: 56px; border-radius: var(--r-inset); border: 1px solid var(--hairline);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px 2px; background: var(--surface); cursor: pointer;
   font-size: var(--t-meta); color: var(--text); position: relative;
-  transition: background var(--dur-fast) var(--ease);
+  transition: background var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
-.cal-cell:active { background: var(--surface-sunken); }
+.cal-cell:hover { border-color: var(--line-2); }
+.cal-cell:active { background: var(--surface-lit); }
 .cal-cell.other { opacity: 0.3; }
-/* "Today" is marked by SHAPE — a filled circle behind the number — so the
+/* "Today" is marked by SHAPE — a filled disc behind the number — so the
    accent budget isn't spent on a day that is merely today. */
 .cal-cell .n {
-  width: 24px; height: 24px; border-radius: 50%; display: flex;
-  align-items: center; justify-content: center; font-weight: 600;
-  font-variant-numeric: tabular-nums;
+  width: 25px; height: 25px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center;
+  font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums;
 }
-.cal-cell.today .n { background: var(--accent); color: var(--accent-ink); }
-.cal-cell.selected { border-color: var(--accent); background: var(--accent-quiet); }
-.cal-cell .marks { margin-top: auto; display: flex; align-items: center; gap: 2px; min-height: 7px; }
+.cal-cell.today .n { background: var(--ac); color: var(--accent-ink); font-weight: 700; }
+.cal-cell.selected { border-color: var(--ac); background: var(--accent-quiet); }
+.cal-cell .marks { margin-top: auto; display: flex; align-items: center; gap: 3px; min-height: 7px; }
+/* Once there is room, the grid takes it. At 768 and 1440 a 56px cell left a
+   third of the screen empty under the month — the "not enough content to
+   fill the viewport" failure docs/design-system.md § Verification names, and
+   it is worse on a wide screen than on a phone, never better. The cell is
+   also the tap target for the day sheet, so this is a bigger target too. */
+@media (min-width: 700px) {
+  .cal-cell { min-height: 88px; padding: 10px 4px; }
+  .cal-cell .n { width: 28px; height: 28px; font-size: var(--t-body); }
+}
 
 /* --------------------------------------------------------------- MISC */
 .swatch-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
-.swatch { width: 46px; height: 46px; border-radius: var(--r-md); cursor: pointer; border: 1px solid var(--border); box-shadow: var(--sh-btn); }
-.swatch.selected { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text); }
+.swatch-row .swatch {
+  width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--hairline); padding: 0;
+}
+.swatch-row .swatch.selected { box-shadow: 0 0 0 2px var(--ink-0), 0 0 0 4px var(--bone); }
 .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-md); }
+.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-inset); }
 
 .center { display: flex; align-items: center; justify-content: center; min-height: 40vh; flex-direction: column; gap: var(--sp-3); }
 .spinner {
   width: 26px; height: 26px; border: 2px solid var(--hairline);
-  border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite;
+  border-top-color: var(--ac); border-radius: 50%; animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Bars for the revenue chart — the accent marks the current period only. */
-.bars { display: flex; align-items: flex-end; gap: 5px; height: 56px; }
-.bars i, .bars button { flex: 1; background: color-mix(in srgb, var(--text-muted) 30%, transparent); border-radius: 2px 2px 0 0; min-height: 2px; transition: height var(--dur) var(--ease); }
-.bars i.on, .bars button.on { background: var(--accent); }
+/* The revenue chart. The only chart in the product — Money's own skeleton.
+   The bars used to `transition: height`, flagged in roadmap 2.3 as a real
+   layout-thrash smell. They now GROW ON ARRIVAL with transform: scaleY off a
+   bottom origin — no layout, and it is the system's own preset rather than a
+   new one: one staggered reveal on first paint (design-knowledge.md §1),
+   staggered by --i. A month switch snaps, deliberately: animating bars
+   between two different months implies a continuity that is not there. */
+.bars { display: flex; align-items: flex-end; gap: 5px; height: 64px; }
+.bars i, .bars button {
+  flex: 1; background: color-mix(in srgb, var(--fog) 26%, transparent);
+  border-radius: 3px 3px 0 0; min-height: 3px;
+  transform-origin: 50% 100%;
+  animation: bar-rise var(--t-reveal) var(--e-out) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.bars i.on, .bars button.on { background: var(--ac); }
 .bars button { border: 0; padding: 0; cursor: pointer; align-self: flex-end; }
-.bars button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.barlabels { display: flex; gap: 5px; margin-top: 5px; }
-.barlabels span { flex: 1; text-align: center; font-size: var(--t-label); color: var(--text-muted); letter-spacing: 0; text-transform: none; font-weight: 500; }
-
-.delta { font-size: var(--t-meta); font-weight: 600; }
-.delta.up { color: var(--success); }
-.delta.down { color: var(--danger); }
-
-/* On a tool someone opens forty times a day, motion that draws attention
-   to itself is what starts to feel gimmicky. Two durations, one curve. */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+.bars button:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+@keyframes bar-rise { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
+.barlabels { display: flex; gap: 5px; margin-top: 6px; }
+.barlabels span {
+  flex: 1; text-align: center; font-family: var(--f-num);
+  font-size: var(--t-label); color: var(--text-muted); font-weight: 400;
 }
 
+/* Change against last month. Colour IS the message here, which is one of the
+   few places it is spent — and it is the system's two values, not four. */
+.delta { font-size: var(--t-meta); font-weight: 600; font-family: var(--f-num); }
+.delta.up { color: var(--accent-text); }
+.delta.down { color: var(--bad); }
+
+/* ------------------------------------------------------- ONE REVEAL
+   Law 2 is carried by the ground, which never stops. This is the other half
+   of the motion budget: ONE orchestrated arrival per screen, staggered, on
+   transform and opacity only — docs/design-knowledge.md §1, "one
+   well-orchestrated page load with staggered reveals creates more delight
+   than scattered micro-interactions". Not a scroll reveal: a dashboard
+   screen is read, not travelled. */
+.app-main > .group > *,
+.app-main > .rows,
+.app-main > .card {
+  animation: arrive var(--t-reveal) var(--e-out) backwards;
+}
+.app-main > .group > *:nth-child(1) { animation-delay: 0ms; }
+.app-main > .group > *:nth-child(2) { animation-delay: 55ms; }
+.app-main > .group > *:nth-child(3) { animation-delay: 110ms; }
+.app-main > .group > *:nth-child(4) { animation-delay: 165ms; }
+.app-main > .group > *:nth-child(n+5) { animation-delay: 210ms; }
+@keyframes arrive {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------------------------------------------------------- DEGRADATION
+   ONE code path — docs/design-system.md § Degradation. `.lite` is set on
+   <html> in main.jsx by ?lite=1 AND by prefers-reduced-motion; this file
+   must never carry its own @media (prefers-reduced-motion) block, because
+   the second implementation is the one that rots.
+   Everything below renders the END STATE the animation was travelling to,
+   using the same properties, so nothing can be hidden behind an animation. */
+.lite .app-shell::before { animation: none; }
+.lite .bars i, .lite .bars button { animation: none; }
+.lite .app-main > .group > *,
+.lite .app-main > .rows,
+.lite .app-main > .card { animation: none; }
+.lite .spinner { animation: none; border-top-color: var(--hairline); }
+.lite .sheet, .lite .sheet-backdrop { animation: none; }
+.lite .sheet { transition: none; }
+.lite * { transition-duration: 1ms !important; }
+
 /* ---------------------------------------------------------------------
-   Older class names, redefined ON the new scale rather than removed.
-   These were the actual carriers of the hierarchy bug — .big was weight
-   800, .section-title and .badge were 700 — so redefining them here
-   corrects every screen that still uses them, in one place, without a
-   rename sweep. New code should prefer .figure / .label / .pill. */
-.big { font-size: var(--t-figure); font-weight: 600; letter-spacing: -0.012em; line-height: 1.12; font-variant-numeric: tabular-nums; }
+   Older class names, redefined ON the new scale rather than removed. These
+   were the actual carriers of the old hierarchy bug, so redefining them here
+   corrects every screen that still uses them in one place, without a rename
+   sweep. New code should prefer .figure / .label / .pill. */
+.big { font-family: var(--f-num); font-size: var(--t-figure); font-weight: 500; letter-spacing: -0.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .muted { font-size: var(--t-meta); font-weight: 400; color: var(--text-muted); }
 .stack { display: flex; flex-direction: column; gap: var(--sp-3); }
-/* Carries the 24-above / 8-below rule itself, so a screen that only uses
+/* Carries the 28-above / 8-below rule itself, so a screen that only uses
    section titles to separate groups gets the right ratio for free. */
 .section-title {
   display: block; margin: var(--sp-5) 0 var(--sp-2);
-  font-family: var(--f-display);
-  font-variation-settings: "wdth" var(--wdth-narrow);
-  font-size: var(--t-label); font-weight: 600; letter-spacing: 0.16em;
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
+  font-size: var(--t-label); letter-spacing: 0.22em;
   text-transform: uppercase; color: var(--text-muted);
 }
 .badge {
-  display: inline-flex; align-items: center; padding: 2px 9px;
-  border-radius: var(--r-pill); font-size: var(--t-label); font-weight: 600;
-  letter-spacing: 0.04em; color: var(--text-muted);
-  border: 1px solid var(--border); white-space: nowrap;
+  display: inline-flex; align-items: center; padding: 3px 10px;
+  border-radius: var(--r-pill); font-size: var(--t-label);
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" 84, "wght" 620;
+  letter-spacing: 0.08em; color: var(--text-muted);
+  border: 1px solid var(--hairline); white-space: nowrap;
 }
-.badge.completed, .badge.paid { background: color-mix(in srgb, var(--success) 15%, var(--surface)); color: var(--success); }
-.badge.cancelled { background: color-mix(in srgb, var(--danger) 15%, var(--surface)); color: var(--danger); }
-.badge.no_show, .badge.pending, .badge.partial { background: color-mix(in srgb, var(--warning) 18%, var(--surface)); color: var(--warning); }
-.badge.confirmed { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent-text); }
-.badge.waived { background: var(--surface-sunken); color: var(--text-muted); }
+.badge.completed, .badge.paid { border-color: var(--accent-line); background: color-mix(in srgb, var(--ac) 11%, transparent); color: var(--accent-text); }
+.badge.cancelled, .badge.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); color: var(--bad); }
+.badge.pending, .badge.partial { border-color: var(--line-2); color: var(--text-muted); }
+.badge.confirmed { border-color: var(--line-2); color: var(--text-2); }
+.badge.waived { border-color: var(--hairline); color: var(--text-muted); }
 
 /* An icon never squashes into an oval before its text wraps. */
 .row svg, .btn svg, .chip svg, .tag svg, .label svg { flex-shrink: 0; }
 
 /* ------------------------------------------------------------------ SHEET
    Every panel in the app opens as a bottom sheet rather than a full page.
-   See components/Sheet.jsx for the interaction; this is only its skin.
-   It is a raised surface like any other — border plus elevation — so it
-   reads as a separate object sitting over the page rather than a region
-   the page happened to turn into. */
+   See components/Sheet.jsx for the interaction; this is only its skin. */
 .sheet-backdrop {
   position: fixed; inset: 0; z-index: 50;
   background: var(--overlay);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   display: flex; align-items: flex-end; justify-content: center;
-  animation: backdrop-in var(--dur-fast) var(--ease);
+  animation: backdrop-in var(--t-hover) var(--e-out);
 }
-.sheet-backdrop.leaving { animation: backdrop-out 180ms var(--ease) forwards; }
+.sheet-backdrop.leaving { animation: backdrop-out var(--t-exit) var(--e-out) forwards; }
+@keyframes backdrop-in { from { opacity: 0; } }
+@keyframes backdrop-out { to { opacity: 0; } }
 
 .sheet {
   width: 100%; max-width: 640px;
   display: flex; flex-direction: column;
   background: var(--surface);
-  border: 1px solid var(--border); border-bottom: 0;
-  border-radius: 18px 18px 0 0;
-  box-shadow: var(--sh-sheet);
-  animation: sheet-in var(--dur) var(--ease);
-  /* Height is animated EXCEPT while a finger is on it — during a drag the
-     sheet must track the thumb exactly, or it feels like syrup. */
-  transition: height var(--dur-fast) var(--ease);
+  border: 1px solid var(--line-2); border-bottom: 0;
+  border-radius: var(--r-panel) var(--r-panel) 0 0;
+  box-shadow: 0 -30px 70px -20px rgba(0, 0, 0, 0.9);
+  animation: sheet-in var(--t-reveal) var(--e-out);
+  /* KEPT, deliberately — flagged in roadmap 2.3 and judged on its merits.
+     The height IS the thing being dragged, transform cannot express it, and
+     the transition is switched off while a finger is on it (.dragging). */
+  transition: height var(--t-hover) var(--e-out);
 }
 .sheet.dragging { transition: none; }
-.sheet.leaving { animation: sheet-out 180ms var(--ease) forwards; }
+/* An exit is faster than an entrance, and unstaggered — law 4. */
+.sheet.leaving { animation: sheet-out var(--t-exit) var(--e-out) forwards; }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+@keyframes sheet-out { to { transform: translateY(100%); opacity: 0.6; } }
 
 /* The whole header is the drag surface. touch-action:none is scoped HERE so
    the sheet body still scrolls with a finger normally. */
@@ -575,22 +819,28 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 }
 .sheet-grab:active { cursor: grabbing; }
 .sheet-grab .grabber {
-  display: block; width: 40px; height: 4px; border-radius: 999px;
-  background: var(--border); margin: 0 auto var(--sp-3);
+  display: block; width: 40px; height: 4px; border-radius: var(--r-pill);
+  background: var(--line-2); margin: 0 auto var(--sp-3);
 }
-/* The sheet's close button. Standalone rather than scoped to a header —
-   it lives directly inside .sheet-grab, and an earlier scoped selector left
-   it falling back to the browser default (a white box) in dark mode. */
+/* The sheet's close button. Standalone rather than scoped to a header — an
+   earlier scoped selector left it falling back to the browser default. */
 .x {
   min-height: 36px; width: 36px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   border-radius: var(--r-pill);
-  border: 1px solid var(--border); background: var(--surface);
-  color: var(--text-muted); cursor: pointer; box-shadow: var(--sh-btn);
-  transition: color var(--dur-tap) var(--ease);
+  border: 1px solid var(--hairline); background: var(--surface-sunken);
+  color: var(--text-muted); cursor: pointer;
+  transition: color var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
+.x:hover { color: var(--text); border-color: var(--line-2); }
 .x:active { transform: scale(0.94); }
 
+/* A panel inside a panel takes the surface ABOVE the sheet's own, or it does
+   not lift at all — the sheet is --ink-2 and so is .card, so every settings
+   screen's cards were reading as outlines rather than as objects. Inputs stay
+   on --ink-1, so a form still sinks INTO a card that sits on a sheet: three
+   levels, three values, in the order the eye expects. */
+.sheet-body .card { background: var(--surface-lit); }
 .sheet-body {
   flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -602,18 +852,14 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
   background: var(--surface);
 }
 
-@keyframes backdrop-out { to { opacity: 0; } }
-@keyframes sheet-out { to { transform: translateY(100%); opacity: 0.6; } }
-
 @media (min-width: 700px) {
   /* On a wide screen the sheet stops being a sheet and becomes a panel —
      dragging a thing up from the bottom edge is a thumb gesture, not a
      mouse one. */
   .sheet-backdrop { align-items: center; padding: var(--sp-5); }
   .sheet {
-    border-radius: 14px; border-bottom: 1px solid var(--border);
+    border-radius: var(--r-panel); border-bottom: 1px solid var(--line-2);
     height: auto !important; max-height: 86vh;
-    box-shadow: var(--sh-raised), 0 24px 60px -20px rgba(0, 0, 0, 0.45);
   }
   .sheet-grab { cursor: default; }
   .sheet-grab .grabber { display: none; }
@@ -625,7 +871,7 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 
 /* A settings card is a stack of rows divided by hairlines, not a stack of
    separate cards — the group is one object, the rows are its contents. */
-.setting-card { padding: 0; }
+.setting-card { padding: 0; overflow: hidden; }
 .setting {
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: var(--sp-4); padding: var(--sp-4);
@@ -636,7 +882,7 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 .setting-label { font-size: var(--t-body); font-weight: 600; line-height: 1.3; }
 /* The consequence, in a sentence. A label names a setting; this says what it
    does, which is the part that was missing. */
-.setting-help { font-size: var(--t-meta); color: var(--text-muted); margin-top: 3px; line-height: 1.45; }
+.setting-help { font-size: var(--t-meta); color: var(--text-muted); margin-top: 4px; line-height: 1.45; }
 .setting-control { flex-shrink: 0; display: flex; align-items: center; }
 .setting.stacked .setting-control { display: block; }
 
@@ -645,65 +891,70 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 .switch { position: relative; width: 46px; height: 28px; flex-shrink: 0; display: block; }
 .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
 .switch .knob {
-  position: absolute; inset: 0; border-radius: 999px;
-  background: var(--surface-sunken); border: 1px solid var(--border);
-  box-shadow: var(--sh-inset);
-  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  position: absolute; inset: 0; border-radius: var(--r-pill);
+  background: var(--surface-sunken); border: 1px solid var(--line-2);
+  transition: background var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
 .switch .knob::after {
   content: ""; position: absolute; top: 2px; left: 2px;
   width: 22px; height: 22px; border-radius: 50%;
-  background: var(--surface); border: 1px solid var(--border);
-  box-shadow: var(--sh-btn);
-  transition: transform var(--dur-fast) var(--ease);
+  background: var(--fog); border: 0;
+  transition: transform var(--t-hover) var(--e-out), background var(--t-hover) var(--e-out);
 }
-.switch.on .knob { background: var(--accent); border-color: var(--accent); box-shadow: none; }
-.switch.on .knob::after { transform: translateX(18px); border-color: transparent; }
-.switch input:focus-visible + .knob { outline: 2px solid var(--accent); outline-offset: 2px; }
+.switch.on .knob { background: var(--ac); border-color: var(--ac); }
+.switch.on .knob::after { transform: translateX(18px); background: var(--accent-ink); }
+.switch input:focus-visible + .knob { outline: 2px solid var(--ac); outline-offset: 2px; }
 
 /* Segmented — mutually exclusive, and the invalid combination cannot be
-   expressed at all. */
+   expressed at all. Two to four choices is a segmented control, never a
+   native <select> (§ Composition). */
 .segmented {
   display: inline-flex; padding: 3px; gap: 3px;
-  background: var(--surface-sunken); border: 1px solid var(--border);
-  border-radius: var(--r-md); box-shadow: var(--sh-inset);
+  background: var(--surface-sunken); border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
 }
 .segmented button {
   border: 0; background: transparent; color: var(--text-muted);
   font-family: var(--f-body); font-size: var(--t-meta); font-weight: 600;
-  padding: 8px 12px; border-radius: 7px; cursor: pointer; white-space: nowrap;
-  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  padding: 8px 14px; border-radius: var(--r-pill); cursor: pointer; white-space: nowrap;
+  transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out);
 }
-.segmented button.on { background: var(--surface); color: var(--text); box-shadow: var(--sh-btn); }
+.segmented button:hover:not(.on) { color: var(--text); }
+.segmented button.on { background: var(--surface-lit); color: var(--text); }
 
 /* Duration / choice chips. */
 .choice-wrap { width: 100%; }
 .choices { display: flex; flex-wrap: wrap; gap: 6px; }
 .choice {
   display: inline-flex; align-items: center; gap: 5px;
-  min-height: 38px; padding: 0 var(--sp-3);
-  border-radius: var(--r-pill); border: 1px solid var(--border);
+  min-height: 38px; padding: 0 var(--sp-4);
+  border-radius: var(--r-pill); border: 1px solid var(--hairline);
   background: var(--surface); color: var(--text-2);
   font-family: var(--f-body); font-size: var(--t-meta); font-weight: 600;
   cursor: pointer; white-space: nowrap;
-  transition: background var(--dur-tap) var(--ease), color var(--dur-tap) var(--ease);
+  transition: background var(--t-hover) var(--e-out), color var(--t-hover) var(--e-out), border-color var(--t-hover) var(--e-out);
 }
+.choice:hover:not(.on) { border-color: var(--line-2); color: var(--text); }
 .choice:active { transform: scale(0.97); }
-.choice.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.choice.on {
+  background: color-mix(in srgb, var(--ac) 15%, transparent);
+  border-color: var(--ac); color: var(--accent-text);
+}
 
 /* Stepper — nudge a small number instead of typing it. */
 .stepper-wrap { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
 .stepper {
   display: inline-flex; align-items: center;
-  border: 1px solid var(--border); border-radius: var(--r-md);
-  background: var(--surface); box-shadow: var(--sh-btn); overflow: hidden;
+  border: 1px solid var(--hairline); border-radius: var(--r-pill);
+  background: var(--surface); overflow: hidden;
 }
 .stepper button {
-  width: 40px; height: 42px; border: 0; background: transparent;
+  width: 42px; height: 42px; border: 0; background: transparent;
   color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background var(--t-hover) var(--e-out);
 }
 .stepper button:disabled { opacity: 0.3; cursor: default; }
-.stepper button:active:not(:disabled) { background: var(--surface-sunken); }
+.stepper button:hover:not(:disabled) { background: var(--surface-lit); }
 .stepper .num {
   min-width: 62px; text-align: center; font-family: var(--f-num); font-weight: 500;
   font-size: var(--t-body); font-variant-numeric: tabular-nums;
@@ -714,74 +965,81 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
 /* Money — the currency lives inside the field. */
 .money-field {
   display: inline-flex; align-items: center; gap: 2px;
-  border: 1px solid var(--border); border-radius: var(--r-md);
-  background: var(--surface-sunken); box-shadow: var(--sh-inset);
-  padding-left: 11px; max-width: 130px;
+  border: 1px solid var(--hairline); border-radius: var(--r-inset);
+  background: var(--surface-sunken);
+  padding-left: 12px; max-width: 130px;
 }
 .money-field span { color: var(--text-muted); font-family: var(--f-num); font-size: var(--t-body); }
 .money-field input {
-  border: 0; background: transparent; box-shadow: none; padding-left: 2px;
+  border: 0; background: transparent; padding-left: 2px;
   font-family: var(--f-num); font-variant-numeric: tabular-nums;
 }
 .money-field input:focus-visible { box-shadow: none; outline: none; }
-.money-field:focus-within { border-color: var(--accent); }
+.money-field:focus-within { border-color: var(--ac); }
 
-/* The More hub: a settings row that answers its own question. */
+/* The More hub: a settings row that answers its own question — the only
+   screen in the product made of panels (law 1, its own skeleton). */
 .nav-row {
   display: flex; align-items: center; gap: var(--sp-3);
   padding: var(--sp-3) var(--sp-4); cursor: pointer;
   background: transparent; border: 0; width: 100%; text-align: left;
   font-family: var(--f-body); color: var(--text);
-  transition: background var(--dur-tap) var(--ease);
+  transition: background var(--t-hover) var(--e-out);
 }
 .nav-row + .nav-row { border-top: 1px solid var(--hairline); }
-.nav-row:active { background: var(--surface-sunken); }
+.nav-row:hover { background: var(--surface-lit); }
 .nav-row .ico { flex-shrink: 0; color: var(--text-muted); display: flex; }
 /* The name and its summary are two lines, not one. Both are spans (a button
-   cannot contain a div), so they need to be made block-level explicitly —
-   left inline they ran together as "Business infoCoastline Auto Detailing". */
+   cannot contain a div), so they are made block-level explicitly. */
 .nav-row .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .nav-row .name { display: block; font-size: var(--t-body); font-weight: 600; line-height: 1.3; }
 /* The current state, so the list can be read without opening anything. */
 .nav-row .now {
-  display: block; font-size: var(--t-meta); color: var(--text-muted); margin-top: 2px;
+  display: block; font-size: var(--t-meta); color: var(--text-muted); margin-top: 3px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .nav-row .chev { flex-shrink: 0; color: var(--text-muted); display: flex; }
+/* The brand colour, shown as itself, in the icon slot. */
+.nav-row .swatch {
+  display: block; width: 19px; height: 19px; border-radius: 50%;
+  border: 1px solid var(--line-2);
+}
 
-/* Third-party sign-in. The marque keeps its own colours, so the button is
-   a neutral surface rather than the accent — an accent-filled button with
+/* Third-party sign-in. The marque keeps its own colours, so the button is a
+   neutral surface rather than the accent — an accent-filled button with
    Google's four colours inside it looks like a mistake. */
 .btn.oauth {
   width: 100%; gap: 10px;
-  background: var(--surface-lit); border: 1px solid var(--border); color: var(--text);
+  background: var(--surface-lit); border: 1px solid var(--line-2); color: var(--text);
   font-weight: 600;
 }
-.btn.oauth:hover { border-color: var(--text-muted); }
+.btn.oauth:hover { border-color: var(--fog-2); }
 /* "or" as a rule with a gap, not a floating word. */
 .or {
   display: flex; align-items: center; gap: 12px;
-  margin: var(--sp-3) 0; color: var(--text-muted);
-  font-size: var(--t-label); letter-spacing: 0.12em; text-transform: uppercase;
+  margin: var(--sp-4) 0; color: var(--text-muted);
+  font-family: var(--f-body);
+  font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
+  font-size: var(--t-label); letter-spacing: 0.22em; text-transform: uppercase;
 }
 .or::before, .or::after { content: ""; height: 1px; flex: 1; background: var(--hairline); }
 
 /* The booking link — a value to read and check, so it is set in the figure
    face and made selectable rather than being prose. */
 .booking-link {
-  font-family: var(--f-num); font-size: var(--t-body);
+  font-family: var(--f-num); font-size: var(--t-meta);
   color: var(--text); word-break: break-all; user-select: all;
   background: var(--surface-sunken); border: 1px solid var(--hairline);
-  border-radius: var(--r-md); padding: 12px 14px;
+  border-radius: var(--r-inset); padding: 13px 15px; line-height: 1.5;
 }
 
-/* A disclosure for the minority path — the extras form on Finalize, which
-   used to sit above the answer most jobs need. Closed by default, and it
-   looks like a control rather than a heading so it reads as openable. */
+/* A disclosure for the minority path. Closed by default, and it looks like a
+   control rather than a heading so it reads as openable. Native
+   <details>/<summary>: no script, no ARIA to get wrong (§ Composition). */
 .disclose { margin-top: var(--sp-4); }
 .disclose > summary {
   cursor: pointer; list-style: none;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 9px;
   min-height: var(--tap); padding: 0 2px;
   font-size: var(--t-body); font-weight: 600; color: var(--text-2);
 }
@@ -798,50 +1056,47 @@ input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color:
    it is history, and history is a line, not an object you act on. */
 .settled-row {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  width: 100%; min-height: var(--tap); padding: 10px 14px;
+  width: 100%; min-height: var(--tap); padding: 11px 2px;
   background: transparent; border: 0; border-top: 1px solid var(--hairline);
   color: var(--text-2); text-align: left; cursor: pointer; font: inherit;
+  transition: color var(--t-hover) var(--e-out);
 }
 .settled-row:first-of-type { border-top: 0; }
 .settled-row .nm { font-size: var(--t-body); }
 .settled-row .figure.sm {
   font-size: var(--t-body); color: var(--text-muted); line-height: 1;
 }
-.settled-row:active { background: var(--surface); }
+.settled-row:hover { color: var(--text); }
 /* The warning is now a control, so it must look and behave like one. */
 button.warn-box { width: 100%; text-align: left; cursor: pointer; font: inherit; }
+button.warn-box:hover { border-color: var(--fog-2); }
 
 /* A ruled list: the treatment for an enumeration, per the composition rule.
-   No border, no fill — hairlines and the ground. */
+   No border, no fill — hairlines and the ground. Clients is nothing but
+   this, which is that tab's own skeleton (law 1). */
 .rows { display: flex; flex-direction: column; }
 .row-item {
   display: flex; align-items: center; gap: 12px;
-  width: 100%; min-height: var(--tap); padding: 12px 2px;
+  width: 100%; min-height: var(--tap); padding: 13px 2px;
   background: transparent; border: 0; border-top: 1px solid var(--hairline);
   color: var(--text); text-align: left; cursor: pointer; font: inherit;
+  transition: padding-left var(--t-hover) var(--e-out);
 }
 .row-item:first-child { border-top: 0; }
-.row-item .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.row-item .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .row-item .nm { font-size: var(--t-body); font-weight: 600; }
 .row-item .sub {
   font-size: var(--t-meta); color: var(--text-muted);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.row-item svg { color: var(--text-muted); flex-shrink: 0; }
-.row-item:active { background: var(--surface); }
+.row-item svg { color: var(--text-muted); flex-shrink: 0; transition: color var(--t-hover) var(--e-out); }
+.row-item:hover { padding-left: 6px; }
+.row-item:hover svg { color: var(--accent-text); }
 
-/* Actions that belong together, across rather than stacked. The booking
-   sheet used four full-width buttons where the card uses one row. */
+/* Actions that belong together, across rather than stacked. */
 .actions-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .actions-row:has(> :last-child:nth-child(2)) { grid-template-columns: repeat(2, 1fr); }
 .actions-row .btn.sm { width: 100%; }
-
-/* The brand colour, shown as itself. The row used to print a hex code. */
-.swatch {
-  display: block; width: 19px; height: 19px; border-radius: 50%;
-  border: 1px solid var(--border);
-  box-shadow: inset 0 0 0 2px var(--surface);
-}
 
 /* A segmented control that cannot be changed — the last owner's role. */
 .segmented.is-disabled { opacity: 0.55; }

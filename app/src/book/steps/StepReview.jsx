@@ -50,19 +50,19 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
           </div>
         ))}
         {quote?.vehicle_size_fee > 0 && (
-          <div className="line muted">
+          <div className="line dim">
             <span>Vehicle size</span>
             <span className="bk-price">{money(quote.vehicle_size_fee)}</span>
           </div>
         )}
         {quote?.site_discount > 0 && (
-          <div className="line muted">
+          <div className="line dim">
             <span>{settings.site_discount_label || `${quote.site_discount_percent}% off`}</span>
             <span className="bk-price">-{money(quote.site_discount)}</span>
           </div>
         )}
         {quote?.promo_discount > 0 && (
-          <div className="line muted">
+          <div className="line dim">
             <span>Promo {quote.promo_code}</span>
             <span className="bk-price">-{money(quote.promo_discount)}</span>
           </div>
@@ -70,7 +70,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         {/* The engine rounds to the business's nearest-dollar setting. Without
             this line, a customer doing the arithmetic watches $1 vanish. */}
         {quote && quote.total !== quote.subtotal - (quote.promo_discount || 0) && (
-          <div className="line muted">
+          <div className="line dim">
             <span>Rounding</span>
             <span className="bk-price">
               {quote.total > quote.subtotal - (quote.promo_discount || 0) ? "+" : "-"}

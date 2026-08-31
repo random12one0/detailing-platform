@@ -305,7 +305,13 @@
   padding: 11px 0; font-size: var(--bk-t-body);
   border-bottom: 1px solid var(--bk-hairline);
 }
-.bk-receipt .line.muted span { color: var(--bk-muted); }
+/* `dim`, not `muted`: theme.css is global and declares a bare `.muted`, so a
+   `.line.muted` here also picked up that sheet's font-size and colour. They
+   happen to be the same values today, which is exactly why it would have
+   stayed invisible until one of them changed. Renamed in roadmap 2.3 and now
+   enforced by tests/composition.test.mjs, "theme.css cannot reach into a
+   scoped sheet". */
+.bk-receipt .line.dim span { color: var(--bk-muted); }
 .bk-receipt .line.total {
   border-bottom: 0; border-top: 1px dashed var(--bk-border);
   margin-top: 2px; padding-top: 15px;

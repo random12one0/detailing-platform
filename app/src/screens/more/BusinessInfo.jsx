@@ -9,7 +9,7 @@ import { uploadBusinessPhoto } from "../../lib/upload.js";
 import TimezonePicker from "../../components/TimezonePicker.jsx";
 import TimezoneChangeGuard from "../../components/TimezoneChangeGuard.jsx";
 import { localTime } from "../../lib/format.js";
-import { DEFAULT_ACCENT } from "../../lib/theme.js";
+import { HOUSE_ACCENT, HOUSE_ACCENT_DEEP } from "../../lib/theme.js";
 
 export default function BusinessInfo() {
   const { business, branding, settings, reload } = useBusiness();
@@ -22,8 +22,11 @@ export default function BusinessInfo() {
     timezone: business.timezone,
   });
   const [brand, setBrand] = useState({
-    primary_color: branding?.primary_color || DEFAULT_ACCENT.dark,
-    secondary_color: branding?.secondary_color || DEFAULT_ACCENT.light,
+    primary_color: branding?.primary_color || HOUSE_ACCENT,
+    // The old default here was the light THEME's accent, which stopped
+    // existing when the light theme did. The system's "accent at rest" is a
+    // real second brand colour rather than a leftover.
+    secondary_color: branding?.secondary_color || HOUSE_ACCENT_DEEP,
     tagline: branding?.tagline || "",
     about_copy: branding?.about_copy || "",
     logo_url: branding?.logo_url || "",

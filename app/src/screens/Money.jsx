@@ -174,11 +174,11 @@ export default function Money() {
         <Delta now={stats.netNow} prev={stats.netPrev} />
         <div className="bars" style={{ marginTop: 14 }}>
           {/* The bars looked tappable and were not; now they pick the month. */}
-          {stats.chart.map((c) => (
+          {stats.chart.map((c, i) => (
             <button key={c.key} type="button" className={c.key === thisMonth ? "on" : ""}
               aria-label={`Show ${c.label}`}
               onClick={() => setThisMonth(c.key)}
-              style={{ height: `${Math.max(2, (Math.abs(c.value) / peak) * 100)}%` }} />
+              style={{ "--i": i, height: `${Math.max(3, (Math.abs(c.value) / peak) * 100)}%` }} />
           ))}
         </div>
         <div className="barlabels">
@@ -231,7 +231,11 @@ export default function Money() {
           ? <div className="dashed">Nothing outstanding.</div>
           : stats.unpaid.map((b) => (
             <div className="card" key={b.id}>
-              <div className={`stripe ${b.status}`} role="button" tabIndex={0}
+              {/* No status stripe. Every row here is waiting on payment, so a
+                  status colour down the edge carried nothing — and inside a
+                  card it was the named never-default, an accent bar on a
+                  rounded card. See docs/dashboard-skeletons.md §5a. */}
+              <div role="button" tabIndex={0}
                 onClick={() => setSelected(b)} style={{ cursor: "pointer" }}
                 onKeyDown={(e) => { if (e.key === "Enter") setSelected(b); }}>
                 <div className="row top between">
@@ -298,7 +302,7 @@ function Cell({ label, value, tone }) {
   return (
     <div>
       <span className="label">{label}</span>
-      <div className="strong num" style={{ marginTop: 4, color: tone === "good" ? "var(--success)" : undefined }}>
+      <div className="strong num" style={{ marginTop: 4, color: tone === "good" ? "var(--accent-text)" : undefined }}>
         {value}
       </div>
     </div>

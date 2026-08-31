@@ -2541,3 +2541,261 @@ tested locally:
   sits six screens down. That is the attribute working, not a broken path —
   scroll to it and it fetches. Do not "fix" a 0x0 lazy image that has never
   been scrolled to.
+
+## Roadmap 2.3 — the dashboard restyled, and the four things it deleted (2026-08-30)
+
+The last surface. 2.1 and 2.2 both had the approved rendering
+`docs/design-directions/5-the-thread.html` to copy from; **the dashboard had
+no reference page and no worked skeleton**, which `docs/design-system.md`
+said plainly was where the system would actually be tested. The plan was
+written before any code, in `docs/dashboard-skeletons.md`, and that is the
+file to read before changing a shape in `app/src/theme.css`.
+
+### What the dashboard IS, in the system's terms
+
+The landing page's idea is that a detailer's Saturday already exists,
+scattered, and the product sorts it; its signature move is four text messages
+resolving into four rows of a schedule. **The dashboard is what they resolve
+into** — the far end of the same thread. Two things follow. It is the
+destination, not a second marketing page, so it is quieter and denser with no
+scroll choreography. And the green keeps its meaning without needing a new
+one: on the landing page it marks a booking arriving, here it marks a job
+finished and paid.
+
+**The signature move is the thread, drawn.** Today's jobs hang off one
+continuous hairline with a node each — hollow while the job is ahead, a solid
+`--ac` disc once it has landed. It is the only rail in the product, it cost a
+wrapper class and two pseudo-elements, and it is what makes Today
+unmistakable at a glance. Tomorrow is deliberately NOT on it: the point of
+the rail is that the day ends.
+
+### The five skeletons (law 1)
+
+Today the only **rail**, Calendar the only **grid**, Money the only **chart**,
+Clients the only screen with **no panel on it**, More the only screen **made
+of panels**. Each shape follows from what the screen holds rather than being
+applied to it.
+
+**The eleven settings screens share one skeleton on purpose** — a form in a
+sheet. They are modal panels reached one at a time and a person never sees
+two of them together; law 1 governs what is on screen at once. What varies
+between them is internal structure, which follows their content.
+
+### The class API was kept, and that was the biggest single decision
+
+`theme.css` was rewritten end to end, but **every class name in it stayed**.
+Thirty components and roughly three hundred call sites read `--surface`,
+`--text-muted`, `.card`, `.chip`, `.label`; renaming them to the system's own
+token names would have produced a several-thousand-line diff that changed no
+pixel and buried the ones that mattered. So the sixteen system tokens are
+defined on `:root` under their own names, and a short ROLES block maps the old
+names onto them. That block is now the only place in the app where a role and
+a colour value meet.
+
+### Four deletions, each because the system has fewer things than the old one
+
+1. **`.stripe` is gone.** The roadmap handed it forward undecided — *"probably
+   keep the job it does; the shape is 2.3's call."* Looked at: its one
+   remaining use was `Money.jsx`'s waiting-on-payment list, where it sat
+   **inside a `.card`**, so it was literally "an accent bar on a rounded
+   card", a named never-default — and where every row has the same status, so
+   the colour it carried was information nobody needed. Its real job,
+   status-without-reading on Today, is done better by the thread node.
+
+2. **`--success` and `--warning` are gone.** The system has one accent and one
+   warm value and says so twice; a second green beside `--ac` and an amber
+   beside it is a four-hue palette, which is the "timid, evenly distributed"
+   failure `design-knowledge.md` §1 names. **The five booking statuses are
+   carried by two hues and three shapes instead**: confirmed is a hollow
+   `--bone-2` ring (just what is next), completed/paid a solid `--ac` disc (it
+   landed), pending a hollow `--fog` ring, cancelled a solid `--bad` disc, and
+   no-show a hollow `--bad` ring — the same colour as cancelled with a
+   different shape, because they are the same outcome reached two ways. The
+   pill beside the mark still says the word, so colour is never alone. A
+   blocked day on the calendar is a solid `--fog` disc: a day you marked off
+   is a decision, not an error.
+
+3. **`.warn-box` stopped being a warning.** Its one real use is *"N more
+   finished jobs still need payment recorded"* — a thing to DO, not an error,
+   and already a `<button>`. It is drawn as a control now: a panel, a
+   `--line-2` edge, `--bone` text, the accent only on its marker.
+
+4. **The light theme, and the tap-duration token.** The old file had a 90ms
+   `--dur-tap` for press feedback. A press now scales with **no transition at
+   all**, so contact is instant in both directions — better feedback than a
+   fast transition was, and one fewer number to keep in step with the
+   system's four.
+
+### The light theme took five places, not the four that were scoped
+
+`docs/design-system.md` listed `theme.css`, `lib/theme.js`,
+`more/Appearance.jsx` and the per-user preference key. The fifth was
+**`context/BusinessContext.jsx`**, which held the `themeMode` state and made
+the `applyTheme` call — it is the thing that actually *set* `data-theme`, and
+it was not on the list. Worth recording because the same shape of miss is
+likely again: the file that *stores* a setting is easy to scope, the file that
+*applies* it is the one that gets forgotten. There is no `data-theme` anywhere
+in the product now, and `:root` carries `color-scheme: dark`, which is what
+makes native controls, scrollbars and date pickers come back dark for free —
+a win that only became available once there was one ground.
+
+### The rule that fell out of looking: a fill is an action, a tint is a selection
+
+Not planned; found in the screenshots. Hours renders **five** solid green day
+chips beside a solid green "Apply to 5 days", and Calendar's History view
+stacks **three** chiprows — a solid selection would have lit nine things on
+one screen and made the accent the loudest thing on a settings form. So:
+
+- **A solid accent fill means an action (`.btn.primary`), a fact (today's
+  date disc, a switch that is on) or a job that has landed (a thread node).**
+- **Anything merely SELECTED gets the tint** — `--ac` at 15%, an `--ac`
+  border, `--accent-text` words. `.chip.active` and `.choice.on`.
+
+It reads better, and it is the system's "one sharp accent used sparingly"
+rather than a contradiction of it. A disabled `.btn.primary` also stopped
+being the accent at 42% opacity, which on this ground is a muddy dark green
+that reads as a *different colour* rather than as an unavailable one; it goes
+neutral instead.
+
+### The dashboard no longer takes the tenant's colour — law 11, and an unanswered question
+
+`lib/theme.js` used to write the detailer's brand colour over `--accent` on
+the dashboard root at every load. It does not any more. Law 11 says the house
+accent is fixed and the tenant's is customer-facing only, and that is the
+owner's own reasoning, recorded unprompted in `docs/design-brief.md` §B6b: a
+detailer *"probably doesn't really care about the admin dashboard colour
+scheme"*, the accent is about what their **customers** see.
+
+**But that brief flagged it as an assumption and asked for it to be confirmed
+"before 2.3", and it never was.** It is asked now rather than treated as
+settled. Implemented the law's way in the meantime, because that is what is
+written down; the change back is small if he wants it.
+
+The screen carries the consequence honestly instead of hiding it.
+"Appearance" is now **"Your colour"**, its More row reads *"Shown on your
+booking page"*, and the screen shows a **live preview on the booking page's
+own ground** — the corrected fill, the ink measured against that fill, and
+the accent-as-words value, all from `brandVarsFor`, the same function the
+booking page itself calls, so the preview cannot drift from the page. Without
+it, picking a colour and seeing nothing change would read as broken.
+
+The More row's swatch also shows the **corrected** colour now rather than the
+raw hex out of the database: that row is a summary of a setting, and the
+setting's effect is what the customer sees after correction.
+
+### Found while verifying, and fixed: Promos crashed the whole app
+
+`screens/more/Promos.jsx` used `<Segmented>` and never imported it. Opening
+**Promo codes & sale** threw `ReferenceError: Segmented is not defined` and
+took the app down. Pre-existing, nothing to do with the restyle, and it had
+survived because **nobody had ever walked all eleven settings screens in a
+browser** — which is exactly what this item's verification routine is for.
+
+### Two other things the screenshots caught
+
+- **A `.card` inside a `.sheet` did not lift.** Both are `--ink-2`, so every
+  settings panel was reading as an outline rather than an object. One rule
+  fixes it everywhere: `.sheet-body .card` takes `--surface-lit`. Inputs stay
+  on `--ink-1`, so a form still sinks INTO a card that sits on a sheet —
+  three levels, three values, in the order the eye expects. Catalog and Team
+  additionally wrapped their cards in another `.card`, which no surface value
+  can rescue; those wrappers became plain containers, and their card lists
+  got a `.tight` so they stopped butting into one striped block.
+- **The calendar left a third of the screen empty at 768 and 1440.** The "not
+  enough content to fill the viewport" failure the system names, and it is
+  worse on a wide screen, never better. Cells go from 56px to 88px at ≥700px,
+  which fills it and makes a day a bigger tap target for the day sheet at the
+  same time.
+
+Clients also had **no masthead** — the only one of the five tabs with no
+identity and no count, opening straight into a search field. It has one now,
+and the count is the thing an owner actually wants from that tab at a glance.
+
+### Where the tokens live now — the question 2.2 left for this item
+
+All sixteen are on `:root` in **`app/src/theme.css`**.
+`tests/design-contrast.test.mjs` was written to switch its source to that file
+the moment it defines `--ink-0`, so it did, by itself, and the
+outgoing-palette blocks stopped running.
+
+**The other two scopes stay.** `.bk` and `.ld` were introduced because `:root`
+flipped with the light/dark switch and a customer must not inherit a dashboard
+preference. That reason is gone with the switch. Two that are not: each file
+being self-contained is what makes it diffable against the reference
+rendering, and `theme.css` is still a global sheet. `design-contrast` pins all
+three sets against each other, so they cannot drift apart.
+
+### The leak bit this session too, on the live marketing page
+
+Not a theoretical risk. The day rail's first name was `.thread`, declared bare
+in `theme.css`. **`landing.css` already owns `.thread`** — it is the class on
+the messages-becoming-a-schedule element, the approved page's own signature
+move. Because `theme.css` is global, that bare rule reached straight into it
+and gave the marketing page a 26px left pad, a one-pixel rail and a seven-pixel
+node on every child. Reproduced in the browser before touching anything
+(`paddingLeft: "26px"`, `railWidth: "1px"`, a node `box-shadow` on the first
+child), renamed to `.dayrail`, and re-checked: `paddingLeft: "0px"`,
+`position: static`, `content: none` on both pseudo-elements.
+
+**So the grep has become a test.** `tests/composition.test.mjs` now has a
+check called *"theme.css cannot reach into a scoped sheet"*: it parses every
+selector in `theme.css`, keeps the ones whose WHOLE form is a single class
+(anything anchored on an ancestor or a second class cannot match over there),
+and fails if `landing.css` or `booking.css` uses that name. `landing.css`'s
+header has prescribed exactly this grep since 2.2 and nobody ran it — which is
+the argument for a test rather than a note, and it is the standing rule in
+that file: a test is for a rule that has already been broken by hand.
+
+It immediately found a second one: **`booking.css` used `.line.muted`**, and
+`theme.css` declares a bare `.muted`. That one was inert — the two font sizes
+and the two greys happen to be the same values today, and every visible string
+sits in a `<span>` the booking sheet colours itself — **which is exactly why it
+would have stayed invisible until one of them changed.** Renamed to
+`.line.dim`.
+
+`.lite` is excluded from the check by name, and deliberately: it is the
+app-wide degradation class, set on `<html>` in `main.jsx`, and reaching every
+surface is its entire job.
+
+### A note in `landing.css` was wrong, and 2.3 is where that shows
+
+It said the nine class renames *"all goes away in roadmap 2.3, when theme.css
+stops being the outgoing system."* **They do not.** The leak has nothing to do
+with `theme.css` being the OLD system and everything to do with it being a
+GLOBAL one, imported by `main.jsx` on every route. It was rewritten onto The
+Thread and every bare selector in it still reaches into `.ld` and `.bk` for
+any property those sheets do not declare themselves. The renames and the grep
+in that header stay load-bearing. Scoping the sheet would mean putting a class
+on the app shell, the auth screen, the invite page, the job page and the sheet
+portal — a bigger and riskier change than the nine renames it would undo. Not
+done, and not obviously worth doing; the header now says so, and so does
+`theme.css`'s.
+
+### What was verified, by looking
+
+Signed in as the seeded demo owner against real data, through the real
+sign-in form:
+
+- **All five tabs at 1920 / 1440x900 / 768x1024 / 392x844**, full-page.
+- **All eleven settings screens at all four widths** — 44 screenshots.
+- **The whole set again with `?lite=1`**, which renders identically: nothing
+  on this surface is hidden behind an animation, and only the ground's drift
+  and the bars' arrival stop.
+- **Console read at every width.** Clean apart from two React Router v7
+  future-flag warnings that predate this work and are unrelated to it.
+- **The two PUBLIC pages re-checked afterwards**, because the sheet that was
+  rewritten is global and reaches both. The landing page measures
+  **11243 / 10130 / 11809 / 11938** at the four widths — byte-for-byte the
+  numbers DECISIONS.md records for the deployed production build in 2.2, so
+  the rewrite moved nothing there. Console clean and no response ≥ 400 on
+  either page.
+
+The tenant-accent retint sweep is deliberately NOT part of this item: the
+dashboard's palette is fixed now (law 11), so there is nothing here to
+retint. That check belongs to the booking page and to 2.4.
+
+**The demo business was re-seeded to do this** (`scripts/seed-demo.mjs`,
+which deletes and recreates `demo-detail` on the PLATFORM project only), and
+three of its bookings were shifted onto the current date so Today had a real
+day on it rather than an empty state. The empty state was looked at too,
+before the re-seed, and reads as calm rather than unfinished.

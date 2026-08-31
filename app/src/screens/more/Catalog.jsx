@@ -102,35 +102,41 @@ export default function Catalog() {
   };
 
   return (
-    <div className="card">
+    // A plain container, not a .card: the services inside it ARE the cards,
+    // and a card holding cards is boxes in boxes at one surface value.
+    <div>
       <div className="row between">
         <h3>Services</h3>
         <button className="btn inline" onClick={() => openService(null)}>+ Add</button>
       </div>
+      <div className="tight">
       {services.map((s) => (
         <div className="card row between" key={s.id} style={{ opacity: s.is_active ? 1 : 0.5 }}>
           <div className="tappable" onClick={() => openService(s)} style={{ flex: 1, cursor: "pointer" }}>
             <strong>{s.name}</strong>
             <div className="muted">{money(s.price)} · {s.duration_minutes} min{s.group_label ? ` · ${s.group_label}` : ""}</div>
           </div>
-          <button className="btn ghost inline" onClick={() => toggleService(s)}>{s.is_active ? "Deactivate" : "Activate"}</button>
+          <button className="btn sm inline" onClick={() => toggleService(s)}>{s.is_active ? "Deactivate" : "Activate"}</button>
         </div>
       ))}
+      </div>
       {services.length === 0 && <p className="muted">No services yet — customers can't book until you add one.</p>}
 
       <div className="row between" style={{ marginTop: 16 }}>
         <h3>Add-ons</h3>
         <button className="btn inline" onClick={() => setEditing({ kind: "addon", form: { ...EMPTY_ADDON } })}>+ Add</button>
       </div>
+      <div className="tight">
       {addOns.map((a) => (
         <div className="card row between" key={a.id} style={{ opacity: a.is_active ? 1 : 0.5 }}>
           <div onClick={() => setEditing({ kind: "addon", id: a.id, form: { name: a.name, description: a.description || "", price: String(a.price), duration_minutes: String(a.duration_minutes) } })} style={{ flex: 1, cursor: "pointer" }}>
             <strong>{a.name}</strong>
             <div className="muted">{money(a.price)}{a.duration_minutes ? ` · +${a.duration_minutes} min` : ""}</div>
           </div>
-          <button className="btn ghost inline" onClick={() => toggleAddOn(a)}>{a.is_active ? "Deactivate" : "Activate"}</button>
+          <button className="btn sm inline" onClick={() => toggleAddOn(a)}>{a.is_active ? "Deactivate" : "Activate"}</button>
         </div>
       ))}
+      </div>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
 

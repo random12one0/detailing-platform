@@ -4,7 +4,6 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase.js";
-import { applyTheme, loadThemeMode, saveThemeMode } from "../lib/theme.js";
 
 const Ctx = createContext(null);
 export const useBusiness = () => useContext(Ctx);
@@ -16,7 +15,6 @@ export function BusinessProvider({ children }) {
   const [branding, setBranding] = useState(null);
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [themeMode, setThemeModeState] = useState("dark");
   const [firstName, setFirstName] = useState(null);
 
   useEffect(() => {
@@ -59,22 +57,13 @@ export function BusinessProvider({ children }) {
     if (session !== undefined) reload();
   }, [session, reload]);
 
-  // Theme: saved per user, defaults to dark; the brand accent comes from
-  // business_branding.primary_color and is contrast-corrected per theme.
-  useEffect(() => {
-    const mode = loadThemeMode(session?.user?.id);
-    setThemeModeState(mode);
-    applyTheme(mode, branding?.primary_color);
-  }, [session, branding]);
-
-  const setThemeMode = useCallback(
-    (mode) => {
-      setThemeModeState(mode);
-      saveThemeMode(session?.user?.id, mode);
-      applyTheme(mode, branding?.primary_color);
-    },
-    [session, branding],
-  );
+  // NO THEME EFFECT, AND NO THEME STATE. Until roadmap 2.3 this provider
+  // read a saved light/dark preference, set data-theme on <html>, and wrote
+  // the tenant's brand colour over the dashboard's --accent on every load.
+  // The owner killed the light theme (2026-08-30) and the design system's
+  // law 11 keeps the tenant's colour on customer-facing surfaces only, so
+  // both jobs are gone: the dashboard's ground and accent are fixed tokens
+  // in theme.css and nothing writes colour here. See lib/theme.js.
 
   const value = {
     session,
@@ -85,8 +74,6 @@ export function BusinessProvider({ children }) {
     firstName,
     loading: session === undefined || loading,
     reload,
-    themeMode,
-    setThemeMode,
     signOut: () => supabase.auth.signOut(),
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

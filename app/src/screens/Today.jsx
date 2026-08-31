@@ -1,6 +1,15 @@
-// Today — the morning-open home.
+// Today — the morning-open home, and the one screen that carries the
+// dashboard's signature move.
 //
-// Rebuilt on the new scale. The changes that matter:
+// THE RAIL — class `dayrail`, not `thread`, which landing.css owns (roadmap 2.3, docs/dashboard-skeletons.md §2). The day hangs on
+// one continuous hairline with a node per job: hollow while the job is
+// ahead, a solid green disc once it has landed. It is the approved landing
+// page's "scattered becomes ordered" at the far end of the same thread, and
+// it is the only rail in the product — which is what makes this tab
+// structurally different from the other four (law 1). It also replaced
+// .stripe, which did the same job in the shape the never-defaults name.
+//
+// Earlier work, still true. The changes that mattered then:
 //   - the two stat tiles sank onto --surface-sunken with no border, because
 //     they are context, not content: two fewer boxes on the screen.
 //   - "Next up" became a section LABEL above the card rather than a shouted
@@ -90,25 +99,30 @@ export default function Today() {
         </p>
       </div>
 
-      <div className="grid2">
-        <div className="sunken">
+      {/* ONE ledger strip split by a hairline, not two boxes side by side.
+          Two evenly spaced tiles is the three-card tell one short; a single
+          sunken block with a rule down it reads as one object with two
+          readings, which is what it is. */}
+      <div className="sunken" style={{ display: "grid", gridTemplateColumns: "1fr 1px 1fr", gap: "var(--sp-4)" }}>
+        <div>
           <span className="label">Jobs today</span>
-          <div className="figure" style={{ marginTop: 6 }}>{todays.length}</div>
-          <div className="quiet" style={{ marginTop: 2 }}>
+          <div className="figure" style={{ marginTop: 8 }}>{todays.length}</div>
+          <div className="quiet" style={{ marginTop: 4 }}>
             {todays.length === 0 ? "Nothing booked" : `${done} done · ${todays.length - done} to go`}
           </div>
         </div>
-        <div className="sunken">
+        <div style={{ background: "var(--line-2)" }} />
+        <div>
           <span className="label">Expected</span>
-          <div className="figure" style={{ marginTop: 6 }}>{money(expected)}</div>
-          <div className="quiet" style={{ marginTop: 2 }}>
+          <div className="figure" style={{ marginTop: 8 }}>{money(expected)}</div>
+          <div className="quiet" style={{ marginTop: 4 }}>
             {collected > 0 ? `${money(collected)} collected` : "Nothing collected yet"}
           </div>
         </div>
       </div>
 
       {nextJob && (
-        <div className="tight">
+        <div className="tight dayrail">
           <span className="label">Next up</span>
           <BookingCard
             booking={nextJob} isNext
@@ -120,7 +134,7 @@ export default function Today() {
       )}
 
       {later.length > 0 && (
-        <div className="tight">
+        <div className="tight dayrail">
           <span className="label">{nextJob ? "Later today" : "Today"}</span>
           {later.map((b) => (
             <BookingCard key={b.id} booking={b} onClick={() => setSelected(b)}
@@ -131,10 +145,10 @@ export default function Today() {
       )}
 
       {settled.length > 0 && (
-        <div className="tight">
+        <div className="tight dayrail">
           <span className="label">Done and paid</span>
           {settled.map((b) => (
-            <button className="settled-row" key={b.id} onClick={() => setSelected(b)}>
+            <button className="settled-row landed" key={b.id} onClick={() => setSelected(b)}>
               <span className="nm">{b.customer_name}</span>
               <span className="figure sm">{money(b.final_amount ?? b.total_price)}</span>
             </button>
@@ -158,6 +172,9 @@ export default function Today() {
         </button>
       )}
 
+      {/* Deliberately NOT on the rail. The thread is today's day; carrying it
+          through tomorrow would say the two are one continuous run of work,
+          and the point of the rail is that it ends. */}
       <div className="tight">
         <span className="label">Tomorrow</span>
         {tomorrows.length === 0

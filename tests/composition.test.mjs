@@ -12,11 +12,11 @@
 // component and the page drifts" is the named failure mode
 // (docs/design-knowledge.md §2).
 //
-// Note on scope: app/src has NOT been restyled yet — that is Phase 2. So the
-// look-level rules are checked against the reference page, which is where
-// the system currently lives, and the composition rules are checked against
-// app/src, where they already applied. As Phase 2 lands, REFERENCE below
-// grows to include the app's own stylesheet.
+// Note on scope, CORRECTED as Phase 2 finished landing: app/src IS restyled
+// now — the booking page in 2.1, the landing page in 2.2, the dashboard in
+// 2.3 — so all three of its stylesheets are checked here alongside the
+// reference page. The reference page is still the tie-breaker for the
+// look-level rules, because it is the rendering the owner approved.
 //
 //   node tests/composition.test.mjs
 
@@ -182,13 +182,16 @@ console.log("\ntest 4: two faces, and the never-defaults are absent");
   // the "REFERENCE grows to include the app's own stylesheet" note at the
   // top of this file, honoured one surface at a time: the landing page was
   // ported in roadmap 2.2 and a third face creeping back into it is exactly
-  // the kind of drift that goes unnoticed. The dashboard's theme.css joins
-  // this list in 2.3, when it stops shipping the outgoing three.
+  // the kind of drift that goes unnoticed. THE DASHBOARD'S theme.css JOINED
+  // THIS LIST IN 2.3 — it was the only thing still using Anybody, Public Sans
+  // and DM Mono, and app/index.html went from five families to two in the
+  // same edit. All three surfaces are checked now, so "REFERENCE grows to
+  // include the app's own stylesheet" is finished.
   // A stack can be written inline (landing.css) or held in a token that
   // font-family then points at (booking.css's --bk-f-body). Both forms
   // start the same way — a quoted family name — so match on that rather
   // than on the property, and `font-family: var(…)` falls out for free.
-  for (const sheet of ["app/src/landing/landing.css", "app/src/book/booking.css"]) {
+  for (const sheet of ["app/src/theme.css", "app/src/landing/landing.css", "app/src/book/booking.css"]) {
     const css = await readFile(sheet, "utf8");
     const fams = new Set(
       [...css.matchAll(/(?:font-family|--[\w-]+)\s*:\s*"([^"]+)"/gi)].map(m => m[1]),
@@ -223,6 +226,62 @@ console.log("\ntest 4: two faces, and the never-defaults are absent");
     offenders.join("\n        "),
   );
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+console.log("\ntest 4b: theme.css cannot reach into a scoped sheet");
+{
+  // THE LEAK. app/src/theme.css is imported by main.jsx on EVERY route, so
+  // any BARE class selector in it also applies inside .ld (the landing page)
+  // and .bk (the booking page), for every property those sheets do not
+  // declare themselves. That has now caused live bugs twice: in roadmap 2.2
+  // nine of the reference page's class names collided with it, two of them
+  // visibly on first render; in 2.3 a new bare rule for the dashboard's day
+  // rail reached into the landing page's OWN element of the same name and
+  // gave the approved marketing page a rail and a node it never had.
+  //
+  // landing.css's header has prescribed the grep for this since 2.2. Nobody
+  // ran it. So it is a test now, which is exactly what this file is for: a
+  // rule that has already been broken by hand.
+  //
+  // A selector anchored on something theme.css owns (.btn.sm, .cal-cell .n,
+  // .settled-row .nm) cannot match over there and is fine: the ancestor or
+  // the second class does not exist in a scoped sheet. Only a selector whose
+  // WHOLE form is one class counts as bare.
+  const themeCss = await readFile("app/src/theme.css", "utf8");
+  const strip = (css) => css.replace(/\/\*[\s\S]*?\*\//g, "");
+  const bare = new Set();
+  for (const block of strip(themeCss).split("}")) {
+    const sel = block.split("{")[0];
+    if (!sel || !sel.includes(".")) continue;
+    for (const one of sel.split(",")) {
+      // Only a WHOLE selector that is one compound of one class can reach
+      // over there. `.cal-cell .n` needs a .cal-cell ancestor, which no
+      // scoped sheet has; `.btn.sm` needs both classes on one element.
+      const m = one.trim().match(/^\.([-\w]+)((::?[-\w()]+)*)$/);
+      if (m) bare.add(m[1]);
+    }
+  }
+  // .lite is the app-wide degradation class and is SUPPOSED to reach every
+  // surface — it is set on <html> in main.jsx for exactly that reason.
+  bare.delete("lite");
+  const offenders = [];
+  for (const sheet of ["app/src/landing/landing.css", "app/src/book/booking.css"]) {
+    const scoped = strip(await readFile(sheet, "utf8"));
+    for (const name of bare) {
+      if (new RegExp(`\\.${name}(?![-\\w])`).test(scoped)) {
+        offenders.push(`${sheet.split("/").pop()} uses .${name}, which theme.css declares bare`);
+      }
+    }
+  }
+  check(
+    "no bare class in theme.css is used by landing.css or booking.css",
+    offenders.length === 0,
+    offenders.join("\n        ")
+      + "\n        theme.css is GLOBAL. Rename the one in theme.css, or anchor its"
+      + "\n        selector on something that sheet owns. See landing.css's header.",
+  );
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────
 console.log("\ntest 5: two motion presets and one curve (law 4)");

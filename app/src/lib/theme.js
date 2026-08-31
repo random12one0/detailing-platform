@@ -1,37 +1,63 @@
-// Theme + brand-color engine.
+// Theme + brand-colour engine.
 //
-// Two rules, enforced here and nowhere else:
-//  1. The brand color (business_branding.primary_color) applies ONLY to the
-//     --accent token — buttons, active tab, links, selected states. Page and
-//     card backgrounds and body text always come from the theme.
-//  2. The accent is contrast-corrected against the ACTIVE theme background:
-//     if the chosen color fails a minimum contrast ratio, its lightness is
-//     adjusted until it passes, and the text drawn on accent surfaces
-//     (--accent-ink) is picked black or white by contrast, never assumed.
+// THE ONLY FILE ALLOWED TO COMPUTE OR WRITE COLOUR FROM JS
+// (docs/design-system.md, law 11 and §11). Everything else reads var(--…).
+//
+// Two changes landed here in roadmap 2.3, and both DELETED code:
+//
+//  1. THERE IS NO LIGHT THEME. The owner killed the dashboard's light/dark
+//     switch on 2026-08-30 ("no light theme needed"). One ground, so there is
+//     no mode argument, no THEME_BG map, no stored preference and no
+//     `data-theme` attribute anywhere in the product.
+//
+//  2. THE DASHBOARD NO LONGER TAKES THE TENANT'S COLOUR. Law 11: "The house
+//     accent is fixed; the tenant's accent is customer-facing only." This
+//     file used to write the detailer's brand colour over --accent on the
+//     dashboard root at every load. It does not any more — the dashboard is
+//     one fixed house palette (the signal green), and the tenant's colour
+//     appears where their CUSTOMERS see it: their booking page today, their
+//     own site in phase 3. That is the owner's own reasoning, recorded in
+//     docs/design-brief.md §B6b: a detailer "probably doesn't really care
+//     about the admin dashboard colour scheme."
+//
+// What survives unchanged is the contrast correction itself, which is the
+// actual value in this file: a brand colour is nudged in lightness until it
+// clears its floor against the ground it will be PAINTED on, and the ink
+// drawn on top of it is picked by measurement, never assumed.
 
-// Must match --bg in theme.css. The accent is corrected against the
-// GROUND, which is what the eye compares a coloured control to.
-// Must match --bg in theme.css (docs/design-system.md is law).
-const THEME_BG = { dark: "#0F1012", light: "#E7E7E5" };
-const DEFAULT_ACCENT = { dark: "#57B2E8", light: "#0D689D" };
+// The dashboard's ground. Must match --ink-0 in theme.css, which is the
+// system's own ground and now the value all three surfaces paint.
+const DASHBOARD_BG = "#0B0D0E";        // --ink-0
 
-// The PUBLIC booking page's own ground and fallback accent. Deliberately
-// separate from the two above: those describe the dashboard, which still
-// ships the outgoing palette until roadmap 2.3, and the booking page went
-// dark first (roadmap 2.1). Both values are "The Thread"'s —
-// docs/design-system.md § Tokens — and BOOKING_BG must match --bk-bg in
-// app/src/book/booking.css, because that is the ground the accent is
-// corrected against and the ground the page actually paints.
+// The house accent — fixed, not a fallback for a tenant colour. --ac.
+export const HOUSE_ACCENT = "#38E08B";
+// The accent at rest (--ac-deep). Used as the default SECOND brand colour a
+// business starts with, so a new tenant is not handed a raw hex from a theme
+// that no longer exists.
+export const HOUSE_ACCENT_DEEP = "#0E5C36";
+
+// The PUBLIC booking page's own ground and fallback accent. It is the same
+// ground as the dashboard's now — every surface in the product paints
+// --ink-0 — but it stays its own named constant on purpose: this one is what
+// the tenant's colour is CORRECTED against, and it must track --bk-bg in
+// app/src/book/booking.css, which is a different file with a different
+// scope. design-contrast.test.mjs asserts that pairing.
 const BOOKING_BG = "#0B0D0E";      // --ink-0
-const BOOKING_ACCENT = "#38E08B";  // --ac, the house signal green
+const BOOKING_ACCENT = HOUSE_ACCENT;
 
 // Accent-vs-background must clear WCAG's non-text component minimum (3:1);
-// text ON the accent must clear the normal-text minimum (4.5:1).
+// the same colour used AS TEXT must clear the normal-text minimum (4.5:1).
 const MIN_ACCENT_CONTRAST = 3;
 const MIN_INK_CONTRAST = 4.5;
 
-// Curated presets — every one passes contrast in BOTH themes after
-// correction, so a detailer can pick one and move on.
+// Curated presets. Every one is corrected before it is painted, so a
+// detailer can pick one and move on.
+//
+// STILL THE OLD EIGHT, and that is a known gap rather than a decision:
+// docs/design-system.md "What this file does NOT settle" item 3 says the
+// owner chose "a curated four to six, customer-facing only" and nobody has
+// picked which four to six. Roadmap 2.4 needs them. Left alone here because
+// narrowing the list is his call, not a side effect of a restyle.
 export const PRESET_COLORS = [
   { name: "Sky", hex: "#0ea5e9" },
   { name: "Ocean", hex: "#2563eb" },
@@ -132,84 +158,62 @@ function correctToward(brandHex, bg, min, fallback) {
   return fallback;
 }
 
-// Fills and large marks: WCAG non-text contrast (3:1) keeps the brand color
-// as close to the owner's choice as legibility allows.
-export function correctAccent(brandHex, mode) {
-  return correctToward(brandHex, THEME_BG[mode], MIN_ACCENT_CONTRAST, DEFAULT_ACCENT[mode]);
+// A brand colour as a FILL — a button face, a selected day, a ring. WCAG's
+// non-text minimum (3:1) keeps it as close to the owner's choice as
+// legibility allows. Corrected against whichever ground it will be painted
+// on; the caller says which, because getting that wrong is the exact bug
+// this file exists to prevent.
+export function correctAccent(brandHex, bg = BOOKING_BG) {
+  return correctToward(brandHex, bg, MIN_ACCENT_CONTRAST, HOUSE_ACCENT);
 }
 
-// Accent used AS TEXT (tab labels, links, status pills) is small text and
-// must clear 4.5:1 — pushed further from the brand where needed.
-export function accentTextFor(brandHex, mode) {
-  return correctToward(brandHex, THEME_BG[mode], MIN_INK_CONTRAST, DEFAULT_ACCENT[mode]);
+// The same colour used AS WORDS — a running total, a link, a status line.
+// Small text takes 4.5:1, so it is pushed further from the brand where it
+// has to be. Crimson (#DC2626) is a real preset and measures 3.27:1 on the
+// ground: it passes as a fill and fails as type. That is why there are two.
+export function accentTextFor(brandHex, bg = BOOKING_BG) {
+  return correctToward(brandHex, bg, MIN_INK_CONTRAST, HOUSE_ACCENT);
 }
 
 // The booking page's accent, as CSS custom properties. This is the ONE
 // policy for public pages: the ground is the booking page's own, fixed and
 // independent of any dashboard state, and the accent is corrected against
-// THAT ground — the one the page actually paints — rather than against the
-// dashboard's. The booking context used to re-implement this sequence
-// inline, which forked the policy.
+// THAT ground — the one the page actually paints.
 //
-// No mode argument any more: this surface is dark, full stop (owner,
-// 2026-08-30). If a bespoke tenant site ever turns out light, roadmap
-// phase 3 reopens it and the ground comes back as a parameter.
+// No mode argument: this surface is dark, full stop (owner, 2026-08-30). If
+// a bespoke tenant site ever turns out light, roadmap phase 3 reopens it and
+// the ground comes back as a parameter.
 export function brandVarsFor(brandHex) {
   const brand = brandHex || BOOKING_ACCENT;
-  const accent = correctToward(brand, BOOKING_BG, MIN_ACCENT_CONTRAST, BOOKING_ACCENT);
+  const accent = correctAccent(brand, BOOKING_BG);
   let ink = inkFor(accent);
   if (contrastRatio(accent, ink) < MIN_INK_CONTRAST) {
     ink = contrastRatio(accent, "#ffffff") > contrastRatio(accent, "#000000") ? "#ffffff" : "#000000";
   }
-  // --bk-accent is a FILL: buttons, the selected day, the progress mark, a
-  // ring. 3:1 is the right floor for those. --bk-accent-text is the same
-  // colour used AS WORDS — the running total, "PROMO applied", the phone
-  // link — and small text takes 4.5:1, so it is corrected further where the
-  // brand needs it. Splitting these is not fussiness: crimson (#DC2626)
-  // measures 3.27:1 on this ground, which passes as a fill and fails as
-  // type, and that is a real tenant preset (PRESET_COLORS above).
-  const accentText = correctToward(brand, BOOKING_BG, MIN_INK_CONTRAST, BOOKING_ACCENT);
   return {
     "--bk-accent": accent,
     "--bk-accent-ink": ink,
-    "--bk-accent-text": accentText,
+    "--bk-accent-text": accentTextFor(brand, BOOKING_BG),
     "--bk-bg": BOOKING_BG,
   };
 }
 
-export { DEFAULT_ACCENT };
+// The ground a tenant's colour is previewed against in the dashboard's
+// Appearance screen. Exported so that screen does not have to know a hex:
+// what it is showing is what the CUSTOMER will see, and the customer sees
+// it on the booking page, not here.
+export const CUSTOMER_BG = BOOKING_BG;
 
 // --- Application -----------------------------------------------------------
 
-// Applies theme mode + brand accent to the document root. The ONLY place
-// that writes color values from JS.
-export function applyTheme(mode, brandHex) {
-  const m = mode === "light" ? "light" : "dark";
-  document.documentElement.dataset.theme = m;
-  const accent = correctAccent(brandHex || DEFAULT_ACCENT[m], m);
-  let ink = inkFor(accent);
-  // Belt and braces: if ink somehow fails on the corrected accent, force the
-  // stronger of the two.
-  if (contrastRatio(accent, ink) < MIN_INK_CONTRAST) {
-    ink = contrastRatio(accent, "#ffffff") > contrastRatio(accent, "#000000") ? "#ffffff" : "#000000";
-  }
-  const root = document.documentElement.style;
-  root.setProperty("--accent", accent);
-  root.setProperty("--accent-ink", ink);
-  root.setProperty("--accent-text", accentTextFor(brandHex || DEFAULT_ACCENT[m], m));
-}
-
-// Saved per user (per browser); defaults to dark.
-const themeKey = (userId) => `dp-theme:${userId || "anon"}`;
-export const loadThemeMode = (userId) => {
-  try {
-    return localStorage.getItem(themeKey(userId)) === "light" ? "light" : "dark";
-  } catch {
-    return "dark";
-  }
-};
-export const saveThemeMode = (userId, mode) => {
-  try {
-    localStorage.setItem(themeKey(userId), mode);
-  } catch { /* private mode etc. — theme just won't persist */ }
-};
+// NOTHING TO APPLY ANY MORE, AND THAT IS THE POINT. This function used to
+// set data-theme on <html> and write three colour custom properties over the
+// dashboard's tokens at every load. There is one ground now (no light theme)
+// and one fixed house accent (law 11), so both jobs are gone and the tokens
+// in theme.css are the whole story. Deleting the call sites rather than
+// leaving an empty function is deliberate: an applyTheme() that does nothing
+// is an invitation to start putting things back in it.
+//
+// The dashboard's ground is exported for anything that needs to measure
+// against it — nothing does today.
+export { DASHBOARD_BG };

@@ -104,7 +104,8 @@ export default function Team() {
   };
 
   return (
-    <div className="card">
+    // A container, not a card — the member rows inside are the objects.
+    <div>
       <div className="section-title" style={{ marginTop: 0 }}>Your name</div>
       <p className="muted" style={{ marginBottom: 8 }}>Used to greet you on the Today screen.</p>
       <div className="row" style={{ gap: 8 }}>
@@ -114,6 +115,7 @@ export default function Team() {
       </div>
 
       <div className="section-title">Team</div>
+      <div className="tight">
       {members.map((m) => (
         <div className="card row between" key={m.user_id}>
           <div>
@@ -144,6 +146,7 @@ export default function Team() {
           </div>
         </div>
       ))}
+      </div>
 
       <div className="section-title">Invite someone</div>
       <div className="grid2">

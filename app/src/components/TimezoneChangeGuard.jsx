@@ -28,7 +28,7 @@ export default function TimezoneChangeGuard({ from, to, sample, count, onCancel,
             </div>
             <div style={{ textAlign: "right" }}>
               <div className="muted" style={{ fontSize: "0.75rem" }}>Will show as</div>
-              <strong style={{ color: "var(--accent)" }}>{dayName} {time12(sample.newTime)}</strong>
+              <strong style={{ color: "var(--accent-text)" }}>{dayName} {time12(sample.newTime)}</strong>
             </div>
           </div>
         </div>

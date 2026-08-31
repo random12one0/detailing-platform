@@ -56,9 +56,23 @@ export default function Clients() {
   const lastVisit = completed[0]?.booking_date ?? null;
 
   return (
-    <>
-      <input placeholder="Search name or phone…" value={search} onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: 12 }} />
+    <div className="group">
+      {/* A masthead, like every other tab. This screen went straight into a
+          search field, which left it the only one of the five with no
+          identity and no count — and the count is the thing an owner
+          actually wants from this tab at a glance. */}
+      <div>
+        <h1 className="display">Clients</h1>
+        <p className="quiet" style={{ marginTop: 4 }}>
+          {search.trim()
+            ? `${customers.length} match${customers.length === 1 ? "" : "es"}`
+            : customers.length === 0
+              ? "Nobody yet"
+              : `${customers.length} ${customers.length === 1 ? "person" : "people"}`}
+        </p>
+      </div>
+
+      <input placeholder="Search name or phone…" value={search} onChange={(e) => setSearch(e.target.value)} />
       {customers.length === 0 && <p className="muted">No customers yet — they appear automatically when bookings come in.</p>}
       {/* A ruled list, not a stack of cards. Cards are for objects you pick
           BETWEEN; a customer list is an enumeration, and eight bordered
@@ -104,6 +118,6 @@ export default function Clients() {
         <BookingDetail booking={selected} onClose={() => setSelected(null)}
           onChanged={() => { setSelected(null); if (open) openCustomer(open); }} />
       )}
-    </>
+    </div>
   );
 }

@@ -10,14 +10,17 @@
    are about to change a number here, check the reference first: most of
    them were measured, and the comment says against what.
 
-   THE .ld SCOPE IS LOAD-BEARING, for the same reason .bk is on the booking
-   page. The dashboard's tokens live on :root in theme.css and, until
-   roadmap 2.3 removes the switch, still flip with the owner's chosen
-   theme. A prospect arriving at detailingplatform.com must not inherit
-   whatever the last dashboard user picked on that device, so this page
-   carries its own ground, fixed. Nothing here reads a token that is not
-   defined in the .ld block, and nothing in the dashboard reads one of
-   these at all.
+   THE .ld SCOPE, AND WHY IT STAYS THOUGH ITS ORIGINAL REASON IS GONE.
+   It was here because theme.css defined its tokens on :root and :root
+   flipped with the dashboard's light/dark switch, so a prospect could
+   inherit whatever the last dashboard user picked on that device. Roadmap
+   2.3 removed that switch, so that specific risk no longer exists — and
+   the scope is kept anyway, for two reasons that do: nothing here reads a
+   token that is not defined in the .ld block, which is what makes this
+   file diffable against the reference page; and theme.css is still a
+   GLOBAL sheet whose bare selectors reach in here, which is the paragraph
+   below. tests/design-contrast.test.mjs pins these values against
+   theme.css's, so the two scopes cannot drift apart.
 
    The tokens keep the SYSTEM's own names (--ink-0, --fog, --ac …) rather
    than a --ld-* prefix: the scope already isolates them, and identical
@@ -26,7 +29,7 @@
    by lib/theme.js; nothing is injected here — the house accent is fixed
    (law 11).
 
-   EIGHT CLASS NAMES DIFFER FROM THE REFERENCE, and this is the one thing
+   NINE CLASS NAMES DIFFER FROM THE REFERENCE, and this is the one thing
    about the port that is not guessable. `theme.css` is global and loads
    first, and it applies inside `.ld` for every property a rule here does not
    itself declare. Nine of the reference's names collided with it and two
@@ -40,10 +43,11 @@
        .dot  → .pip       .stack  → .substack   .quiet → .softlink
 
    A block of "un-declare what leaked" rules was the alternative and was
-   rejected: it can only ever list the leaks somebody thought of, and
-   `theme.css` still has `[data-theme="light"]` blocks that could redefine
-   any of those names later — a landing page whose card lightens because of
-   a dashboard preference is exactly what this scope exists to prevent.
+   rejected: it can only ever list the leaks somebody thought of, whereas a
+   rename cannot be reached at all. (This paragraph used to add "and
+   theme.css still has [data-theme=\"light\"] blocks that could redefine any
+   of those names later" — those blocks are gone as of roadmap 2.3, so that
+   half is no longer a reason. The first half still is.)
 
    **The rule to keep: no selector in `theme.css` may be able to match an
    element on this page.** Seven names are still shared — `sm`, `wrap`,
@@ -54,8 +58,19 @@
 
        grep -nE "(^|[ ,>+~{])\.NAME([ ,:.{>+~]|$)" app/src/theme.css
 
-   A hit means a bare rule that would reach in here. All of this goes away
-   in roadmap 2.3, when theme.css stops being the outgoing system.
+   A hit means a bare rule that would reach in here.
+
+   THIS DOES NOT GO AWAY, and an earlier version of this note said it would
+   ("all of this goes away in roadmap 2.3, when theme.css stops being the
+   outgoing system"). That was wrong, and 2.3 checked it: the leak has
+   nothing to do with theme.css being the OLD system and everything to do
+   with it being a GLOBAL one, imported by main.jsx on every route. It was
+   rewritten onto "The Thread" in 2.3 and every bare selector in it still
+   reaches in here. The renames and the grep above stay load-bearing until
+   something scopes that sheet, which would mean putting a class on the app
+   shell, the auth screen, the invite page, the job page and the sheet
+   portal — a bigger and riskier change than the nine renames it would
+   undo. Not done, and not obviously worth doing.
 
    TWO OTHER DIFFERENCES FROM THE REFERENCE FILE, both forced by living
    inside an app rather than in a standalone document, and neither visual:

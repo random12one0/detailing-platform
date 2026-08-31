@@ -3,36 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0F1012" />
+    <!-- The system's ground, --ink-0. All three surfaces paint it now: the
+         booking page since 2.1, the landing page since 2.2, and the dashboard
+         since 2.3 — this was the last thing holding the old #0F1012. -->
+    <meta name="theme-color" content="#0B0D0E" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <!-- Declared so the browser stops requesting /favicon.ico and 404ing on
          every page load. Inline SVG rather than a file: this is a
          white-label platform, so there is no logo to ship — the tenant's own
-         branding renders in-app from the database. -->
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1220'/%3E%3Cpath d='M8 20.5c0-3.6 2.6-6.5 5.8-6.5h4.4c3.2 0 5.8 2.9 5.8 6.5' stroke='%2338bdf8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='11' cy='22.5' r='1.8' fill='%2338bdf8'/%3E%3Ccircle cx='21' cy='22.5' r='1.8' fill='%2338bdf8'/%3E%3C/svg%3E" />
+         branding renders in-app from the database. Its two colours are the
+         system's own: --ink-0 for the ground, --ac for the mark. -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B0D0E'/%3E%3Cpath d='M8 20.5c0-3.6 2.6-6.5 5.8-6.5h4.4c3.2 0 5.8 2.9 5.8 6.5' stroke='%2338E08B' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='11' cy='22.5' r='1.8' fill='%2338E08B'/%3E%3Ccircle cx='21' cy='22.5' r='1.8' fill='%2338E08B'/%3E%3C/svg%3E" />
     <!-- TWO faces, one product — "The Thread", docs/design-system.md law 8:
          Archivo worked hard across both axes (wdth 62..125, wght 100..900)
          for everything that is words, and JetBrains Mono for every figure.
 
-         TRANSITIONAL, and the only reason five families are requested here:
-         the outgoing three (Anybody / Public Sans / DM Mono) are what the
-         DASHBOARD ships, in app/src/theme.css's --f-display / --f-body /
-         --f-num. It is the only thing left that uses any of them.
+         FIVE FAMILIES BECAME TWO IN ROADMAP 2.3, in one edit, exactly as
+         2.2's note said it would. Anybody, Public Sans and DM Mono were the
+         DASHBOARD's three, held here transitionally because app/src/theme.css
+         was the last thing using any of them; that file was rewritten onto
+         the system in 2.3, so all three left together. 2.2 expected to drop
+         some of them and correctly dropped none — theme.css used all three on
+         its own, so restyling the landing page freed nothing.
 
-         ROADMAP 2.2 EXPECTED TO DROP SOME OF THEM AND CORRECTLY DROPPED
-         NONE. That item's note assumed the landing page and the dashboard
-         each owned a share of the three; they do not — theme.css uses all
-         three on its own, so restyling the landing page (2.2, done) freed
-         nothing here. All three go together in 2.3, with theme.css, and
-         this list drops from five families to two in one edit. Removing
-         any of them before then would leave the dashboard rendering in a
-         fallback face. The booking page (2.1) and the landing page (2.2)
-         already use only the first two.
          Preconnected so the first paint is not a flash of system font. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&family=Anybody:wdth,wght@75..125,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap" />
     <!-- Generic platform title; the business's own name renders in-app from the database. -->
     <title>Detailing Platform</title>
   </head>

@@ -176,9 +176,10 @@ Not suggestions. Where a test enforces one, it is named.
     *"no light theme needed"* — and it is a decision about the dashboard's
     light/dark switch, which goes. The light band (`--paper`) is the only
     light surface in the product, and it is a change of ground inside a dark
-    page, not a second palette. The removal itself happens in roadmap 2.3
-    and is scoped at the end of this file; do not rip it out of the shipped
-    app before the new dashboard exists.
+    page, not a second palette. **Removed 2026-08-30 in roadmap 2.3** — there
+    is no `data-theme` attribute left anywhere in the product, and `:root`
+    carries `color-scheme: dark` so native controls follow. The five places
+    it touched are listed at the end of this file.
 
 ---
 
@@ -186,21 +187,24 @@ Not suggestions. Where a test enforces one, it is named.
 
 Defined once. The direction file holds them in its own `:root`.
 
-**Where they live in the app, corrected 2026-08-30 (roadmap 2.2).** This
-line used to say "Phase 2 moves them into `app/src/theme.css` unchanged",
-and Phase 2 did not, twice, for the same reason both times: `theme.css`
-defines its tokens on `:root`, and `:root` still flips with the dashboard's
-light/dark switch until 2.3 removes it. A customer or a prospect must not
-inherit whatever the last dashboard user picked on that device. So each
-restyled surface carries the values in its own scope —
-`app/src/book/booking.css` under `.bk` with `--bk-*` names (2.1, because its
-accent is injected per tenant by `lib/theme.js`), and
-`app/src/landing/landing.css` under `.ld` under the system's own names (2.2,
-because nothing is injected there). `tests/design-contrast.test.mjs` reads
-both and fails if either drifts from the values below. When 2.3 rewrites
-`theme.css` this is the moment to decide whether the three scopes become
-one `:root`; it is a real simplification, and it is not free, because the
-scopes are also what keep the three surfaces independent.
+**Where they live in the app — SETTLED 2026-08-30 (roadmap 2.3).** All
+sixteen now live on `:root` in **`app/src/theme.css`**, which is the
+system's home in the app. `tests/design-contrast.test.mjs` switches its
+source to that file the moment it defines `--ink-0`, so the reference page
+is no longer what the app is measured against, and the outgoing-palette
+blocks in that test stopped running by themselves.
+
+The other two surfaces **keep their scopes**, and that was the decision 2.3
+was asked to make. `app/src/book/booking.css` holds them under `.bk` with
+`--bk-*` names (2.1, because its accent is injected per tenant by
+`lib/theme.js`) and `app/src/landing/landing.css` under `.ld` with the
+system's own names (2.2, because nothing is injected there). The reason
+they were scoped — `:root` flipping with the dashboard's light/dark switch —
+is gone with the switch. Two reasons that are not gone kept them: each file
+staying self-contained is what makes it diffable against the reference
+rendering, and `theme.css` is still a GLOBAL sheet whose bare selectors
+reach into both pages. `design-contrast` pins all three sets against each
+other, so they cannot drift apart.
 
 ### The ground — cool-biased, so no pure mid-grey ever appears
 
@@ -499,16 +503,20 @@ these go to the owner rather than being decided by a skill.
    - **This is about the DASHBOARD's toggle**, which is the thing he was
      asked about. It does not by itself decide the customer booking page,
      which is a separate surface — see item 2.
-   - **Nothing is ripped out yet, deliberately.** `app/` still ships the OLD
-     system, where light mode works; deleting it before the new dashboard
-     exists would degrade a working product for no gain. **The removal
-     happens in roadmap 2.3**, and it touches exactly four places:
-     `app/src/theme.css` (three `[data-theme]` blocks),
-     `app/src/lib/theme.js` (`THEME_BG`, `DEFAULT_ACCENT`, `brandVarsFor`'s
-     mode argument, and the stored preference), `app/src/screens/more/
-     Appearance.jsx` (the Light/Dark chips), and the per-user preference key.
-     `tests/design-contrast.test.mjs`'s "outgoing: dashboard light" block goes
-     with it.
+   - **DONE 2026-08-30 in roadmap 2.3**, and it came out at five places
+     rather than four. The four that were scoped: `app/src/theme.css` (the
+     `[data-theme]` blocks, gone with the rewrite), `app/src/lib/theme.js`
+     (`THEME_BG`, `DEFAULT_ACCENT`, `loadThemeMode`/`saveThemeMode` and the
+     `dp-theme:` key), `app/src/screens/more/Appearance.jsx` (the Light/Dark
+     chips), and the per-user preference. The fifth was
+     `app/src/context/BusinessContext.jsx`, which held `themeMode` state and
+     called `applyTheme` on every load — it is the thing that actually *set*
+     `data-theme`, and it was not on the list. `design-contrast`'s "outgoing:
+     dashboard light" block went by itself, because that block is guarded on
+     the test still reading the reference page. There is no `data-theme`
+     attribute anywhere in the product now, and `:root` carries
+     `color-scheme: dark`, which is what makes native controls, scrollbars
+     and date pickers come back dark for free.
    - The reasoning, on the record: sunlight is not a constraint
      (`design-brief.md` §B5), a second theme doubles every contrast check and
      every tenant-accent retint test forever, and the identity is the dark
@@ -533,11 +541,22 @@ these go to the owner rather than being decided by a skill.
    "a curated four to six, customer-facing only"; nobody has picked the four
    to six. Needed before 2.4.
 
-4. **The dashboard's own skeletons are undrawn.** Law 1 says every section
-   gets a different one, and the landing page has nine worked examples; the
-   five dashboard tabs and eleven settings screens have none. That is the
-   body of 2.3, and it is where this system will actually be tested — a
-   marketing page is a much easier thing to be beautiful on.
+4. ~~**The dashboard's own skeletons are undrawn.**~~ **DRAWN 2026-08-30 in
+   roadmap 2.3, and written up in `docs/dashboard-skeletons.md`** — read that
+   before changing a shape in `app/src/theme.css`. Five tabs, five skeletons:
+   Today is the only **rail** (the day's jobs strung on one hairline with a
+   node each, hollow while a job is ahead and solid green once it has
+   landed — the approved page's "scattered becomes ordered" at the far end of
+   the same thread), Calendar the only **grid**, Money the only **chart**,
+   Clients the only screen with **no panel on it**, More the only screen
+   **made of panels**. The eleven settings screens share one skeleton — a
+   form in a sheet — deliberately, because they are modal panels reached one
+   at a time and a person never sees two of them together; law 1 governs what
+   is on screen at once.
+   That file also records the three judgments the system did not settle: why
+   `.stripe` was deleted rather than kept, why `--success` and `--warning`
+   went (five statuses carried by two hues and three shapes instead of four
+   hues), and why `.warn-box` stopped being a warning.
 
 5. **Mid-range Android is still unmeasured** (`README.md` "Still open" #4).
    Nothing uses WebGL so the risk is low, but nobody has put a thumb on a

@@ -506,7 +506,76 @@ is kept; the entire visual design restarts from scratch.
          reasoning is written into that file so the next session does not
          re-derive it.
 
-- [ ] 2.3 Dashboard — all five tabs and every settings screen.
+- [x] 2.3 Dashboard — all five tabs and every settings screen.
+
+      **DONE 2026-08-30.** `app/src/theme.css` rewritten onto "The Thread":
+      the sixteen tokens on `:root` under the system's own names (so it is now
+      the system's home in the app and `design-contrast` reads it there),
+      Archivo + JetBrains Mono, radii by role, one curve, and an atmospheric
+      ground — a grain and two slow lights that never stop, which is law 2 —
+      instead of a flat fill. The class API was kept unchanged on purpose:
+      thirty components read those names and renaming three hundred call
+      sites to change no pixel is the diff nobody should have to review.
+
+      **The five skeletons are drawn and written up in
+      `docs/dashboard-skeletons.md`**, which is the answer to the question
+      `docs/design-system.md` parked for this item. Today is the only **rail**
+      — the day's jobs strung on one hairline with a node each, hollow while
+      a job is ahead and solid green once it has landed, which is the approved
+      page's "scattered becomes ordered" at the far end of the same thread.
+      Calendar is the only grid, Money the only chart, Clients the only screen
+      with no panel on it, More the only screen made of panels.
+
+      **Everything this item carried is done:** the light theme is gone from
+      five places (one more than the four that were scoped — `BusinessContext`
+      held the state and made the `applyTheme` call, and was not on the list);
+      `app/index.html` went from five font families to two in one edit, as
+      2.2 predicted; and `<meta name="theme-color">` is `#0B0D0E`, so all
+      three surfaces paint the system's ground.
+
+      **The three `theme.css` findings, judged on their merits:** `.stripe` is
+      DELETED — its one remaining use sat inside a `.card` in Money's
+      waiting-on-payment list, which makes it literally "an accent bar on a
+      rounded card", and every row there has the same status so the colour
+      carried nothing; Today's rail does its old job better. `.bars` no longer
+      transitions height — the bars now grow on arrival with `transform:
+      scaleY` off a bottom origin, and a month switch snaps, because animating
+      bars between two different months implies a continuity that is not
+      there. `.sheet` keeps its height transition, for the reason already
+      commented in place.
+
+      **A fourth thing, not on the list: `--success` and `--warning` are
+      gone.** The system has one accent and one warm value; a second green
+      and an amber beside them is a four-hue palette. The five booking
+      statuses are carried by two hues and three shapes instead — see
+      `docs/dashboard-skeletons.md` §5b for the table.
+
+      **Found while verifying, and fixed:** `screens/more/Promos.jsx` used
+      `<Segmented>` without importing it, so opening Promo codes crashed the
+      whole app. Pre-existing, nothing to do with the restyle, and it had
+      never been caught because nobody had walked all eleven settings screens
+      in a browser.
+
+      **And the global-sheet leak bit this item itself.** The day rail was
+      called `.thread` first; `landing.css` already owns that name for the
+      approved page's signature element, and because `theme.css` is global
+      the bare rule gave the LIVE marketing page a rail it never had.
+      Reproduced, renamed to `.dayrail`, re-checked — and the grep
+      `landing.css`'s header has prescribed since 2.2 is now a test
+      (`composition.test.mjs`, "theme.css cannot reach into a scoped sheet"),
+      which immediately found a second, inert one in `booking.css`.
+
+      **Verified by looking**, signed in as the seeded demo owner against real
+      data: all five tabs and all eleven settings screens at 1920 / 1440x900 /
+      768x1024 / 392x844, in the normal path and `?lite=1`, console read at
+      every width. Full write-up and every judgment call: DECISIONS.md →
+      "Roadmap 2.3".
+
+      **One question went to the owner and is recorded in DECISIONS.md** — the
+      dashboard now keeps a fixed house palette and no longer takes the
+      detailer's brand colour, which is law 11 and his own reasoning, but
+      `docs/design-brief.md` asked for it to be confirmed before 2.3 and it
+      never was.
 
       **Carries the light-theme removal** (scoped at the end of
       `docs/design-system.md`) and — corrected in 2.2 — ALL THREE remaining

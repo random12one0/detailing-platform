@@ -108,6 +108,10 @@ frontend/node_modules/.cache/default-development/3.pack
 # Emergent build-tool metadata (pre-conversion tooling, deleted in roadmap 0.1)
 .emergent/
 
+# Screenshot output from scripts/shoot-dashboard.mjs — regenerated on demand,
+# never committed.
+shots/
+
 # Reference screenshots — evidence for the design phase, kept local on purpose.
 # 21 MB of other people's websites; the repo is public and history is forever.
 # Owner decision 2026-08-29. Cited by filename in docs/references/ANALYSIS.md.

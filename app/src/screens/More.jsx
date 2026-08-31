@@ -36,6 +36,7 @@ import Notifications from "./more/Notifications.jsx";
 import MessageTemplates from "./more/MessageTemplates.jsx";
 import Preferences from "./more/Preferences.jsx";
 import { detectPlatform, loadPrefs, PLATFORMS } from "../lib/platform.js";
+import { correctAccent, CUSTOMER_BG } from "../lib/theme.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const time12 = (t) => {
@@ -123,8 +124,11 @@ export default function More() {
     ["Your business", [
       ["info", "Business info", Store, business.name, true],
       // A hex code as the summary reads like something a developer forgot
-      // to finish. The colour itself says it in one glance.
-      ["appearance", "Appearance", Palette, "Colour and theme", false,
+      // to finish. The colour itself says it in one glance. Renamed from
+      // "Appearance / Colour and theme" in roadmap 2.3: there is no theme to
+      // choose any more, and the colour is customer-facing only (law 11), so
+      // the row now says where it lands.
+      ["appearance", "Your colour", Palette, "Shown on your booking page", false,
         branding?.primary_color ?? null],
     ]],
     ["What you sell", [
@@ -157,7 +161,7 @@ export default function More() {
 
   const SCREENS = {
     info: [BusinessInfo, "Business info"],
-    appearance: [Appearance, "Appearance"],
+    appearance: [Appearance, "Your colour"],
     catalog: [Catalog, "Services & add-ons"],
     promos: [Promos, "Promo codes & sale"],
     gallery: [Gallery, "Photo gallery"],
@@ -188,8 +192,14 @@ export default function More() {
               {visible.map(([key, name, Icon, now, , swatch]) => (
                 <button className="nav-row" key={key} onClick={() => setOpen(key)}>
                   <span className="ico">
+                    {/* The CORRECTED colour, not the raw one out of the
+                        database: this row is a summary of a setting, and the
+                        setting's effect is what the customer sees on the
+                        booking page after lib/theme.js has nudged it to stay
+                        legible. Showing the raw hex would make the row lie
+                        about a colour that had to be adjusted. */}
                     {swatch
-                      ? <span className="swatch" style={{ background: swatch }} />
+                      ? <span className="swatch" style={{ background: correctAccent(swatch, CUSTOMER_BG) }} />
                       : <Icon size={19} strokeWidth={2} />}
                   </span>
                   <span className="txt">
