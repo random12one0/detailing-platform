@@ -602,6 +602,18 @@ fee." Settings put the control under the words below 361px now. A switch is
 exempt: 46px costs the sentence nothing, and a toggle under its own label
 reads as a second setting.
 
+**ONE THING WAS NOTICED AND DELIBERATELY NOT CHANGED, so it does not get
+rediscovered as a bug.** PRODUCT.md's accessibility line says "tap targets
+≥ 46px", and three controls have always been smaller on purpose: `.btn.sm` is
+38px, `.choice` 38px, `.chip` 36px, and the colour swatch 44px. That is not a
+defect — WCAG 2.2 AA's actual floor is 24x24 CSS px and all of them clear it
+comfortably; 46px is this product's PRIMARY control size (`--tap`), and the
+small sizes are the deliberate secondary. **The imprecise thing is the
+sentence, not the code.** Raising `.btn.sm` to 46px would move every measured
+spare-room figure in `sweep-booking-steps.mjs`, so nobody should do it on the
+strength of that sentence alone. Roadmap 2.9 kept the 44px swatch for the same
+reason it did not shrink it: 44 is where that grid already sat.
+
 **The lever was copy again — third item in a row.** Two native time fields
 cannot share 244px at any spacing (Chromium will not draw one under 138px), so
 they stack; stacked, "to" no longer says which field is which, so each took its
