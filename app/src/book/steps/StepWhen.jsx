@@ -62,9 +62,22 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
     setForm((f) => ({ ...f, bookingDate: "", startTime: "" }));
   };
 
-  const slotsFor = (date) => days?.[date]?.slots ?? [];
-  const daySlots = form.bookingDate ? slotsFor(form.bookingDate) : [];
-  const dropoffOnly = form.bookingDate ? days?.[form.bookingDate]?.dropoff_only : false;
+  // W4 — a day can now be restricted EITHER way (drop-offs only, or mobile
+  // only), so the times offered are the ones this customer's chosen service
+  // type can actually have. Showing the rest and refusing them at submit is
+  // the hole this closes: the page used to print "This day is drop-off only"
+  // and then let a mobile booking through anyway.
+  const allowed = (date) => {
+    const d = days?.[date];
+    if (!d) return [];
+    const blocked = form.serviceType === "mobile" ? d.dropoff_slots : d.mobile_slots;
+    return (d.slots ?? []).filter((t) => !(blocked ?? []).includes(t));
+  };
+  const daySlots = form.bookingDate ? allowed(form.bookingDate) : [];
+  const day = form.bookingDate ? days?.[form.bookingDate] : null;
+  // Named for what it is: this day cannot take the service type they picked.
+  const wrongMode = !!day
+    && ((form.serviceType === "mobile" && day.dropoff_only) || (form.serviceType !== "mobile" && day.mobile_only));
 
   return (
     <>
@@ -95,7 +108,12 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
         <div className="bk-cal">
           {cells.map((date, i) => {
             if (!date) return <div key={`e${i}`} className="cell empty" />;
-            const open = slotsFor(date).length > 0;
+            // OPEN means the BUSINESS has times that day, not that this
+            // customer can have them. A day restricted the other way (W4) is
+            // still worth opening: greyed out it says only "closed", while
+            // opening it says which way it is restricted and that going back
+            // a step fixes it. The submit gate is validateSlot either way.
+            const open = (days?.[date]?.slots ?? []).length > 0;
             return (
               <div
                 key={date}
@@ -132,8 +150,12 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
           <div className="bk-step-label" style={{ marginTop: 18 }}>
             Times on {new Date(`${form.bookingDate}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </div>
-          {dropoffOnly && form.serviceType === "mobile" && (
-            <div className="bk-note">This day is drop-off only.</div>
+          {wrongMode && (
+            <div className="bk-note">
+              {form.serviceType === "mobile"
+                ? `${business.name} is taking drop-offs only that day — go back a step to change how it’s done, or pick another day.`
+                : `${business.name} is coming to customers that day rather than taking drop-offs — go back a step, or pick another day.`}
+            </div>
           )}
           <div className="bk-slots">
             {daySlots.map((t) => (
@@ -146,7 +168,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
               </button>
             ))}
           </div>
-          {daySlots.length === 0 && <p className="bk-muted">Nothing open that day.</p>}
+          {daySlots.length === 0 && !wrongMode && <p className="bk-muted">Nothing open that day.</p>}
         </>
       )}
     </>

@@ -116,6 +116,39 @@ export async function validateSlot(opts: {
     };
   }
 
+  // PER-DAY SERVICE-TYPE GUARD. Roadmap 2.7, W4 — and it was a live hole, not
+  // a new feature: `dropoff_only_periods` reached the customer as a NOTE on
+  // the booking page ("This day is drop-off only") and nothing more. Nothing
+  // on the way in ever read the table, so the customer could read the note and
+  // book a mobile job anyway, and the detailer found out on the day.
+  //
+  // It goes here rather than in create-booking because reschedule-booking and
+  // update-booking move a booking's date with the same freedom and had the
+  // same hole. One guard where all three meet.
+  const { data: periods } = await supabase
+    .from("dropoff_only_periods")
+    .select("start_time, end_time, mode")
+    .eq("business_id", business.id)
+    .lte("start_date", bookingDate)
+    .or(`end_date.is.null,end_date.gte.${bookingDate}`);
+  const restricts = (mode: string) =>
+    (periods || []).some((p) => (p.mode ?? "dropoff") === mode
+      && (!p.start_time || !p.end_time || overlaps(jobStart, jobEnd, p.start_time, p.end_time)));
+  if (serviceType === "mobile" && restricts("dropoff")) {
+    return {
+      ok: false,
+      status: 409,
+      error: "That day is drop-off only — we can't come to you. Please choose drop-off, or another day.",
+    };
+  }
+  if (serviceType === "dropoff" && restricts("mobile")) {
+    return {
+      ok: false,
+      status: 409,
+      error: "That day is mobile only — we come to you rather than taking drop-offs. Please choose mobile, or another day.",
+    };
+  }
+
   // Hours guard — per-date override wins over the weekly schedule; a row with
   // null open/close means CLOSED. A job must start at/after open and FINISH
   // by close.

@@ -27,6 +27,8 @@
 //
 //   node scripts/sweep-booking-steps.mjs              # the four verification sizes
 //   node scripts/sweep-booking-steps.mjs 1440x900     # any list of WxH
+//   node scripts/sweep-booking-steps.mjs --shots=shots-2.7   # and save PNGs
+//   node scripts/sweep-booking-steps.mjs --lite              # the ?lite=1 path
 //
 // EXITS NON-ZERO while any step overflows, so it is the definition of done
 // for W16. Needs the dev server on :5173 and the seeded demo business, like
@@ -45,6 +47,9 @@ const SIZES = (args.length ? args : ["1920x1080", "1440x900", "768x1024", "392x8
 });
 const BASE = "http://localhost:5173";
 const SLUG = "demo-detail";
+const SHOTS = process.argv.find((a) => a.startsWith("--shots="))?.slice(8) ?? "";
+// CLAUDE.md § Design: every width is checked in the normal path AND ?lite=1.
+const LITE = process.argv.includes("--lite");
 
 // Runs in the page. `.bk-wrap` is the column; its children are the blocks a
 // step is made of, so naming the tallest three names the thing to fix.
@@ -87,13 +92,17 @@ for (const size of SIZES) {
   const errors = [];
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
 
-  await page.goto(`${BASE}/book/${SLUG}`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${BASE}/book/${SLUG}${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector(".bk-card, .bk-note", { timeout: 30000 });
   // The staggered rise runs 950ms with delays to 300ms; measuring inside it
   // measures a transform, which design-system law 12 forbids.
   await page.waitForTimeout(1600);
 
   const say = async (label) => {
+    if (SHOTS) {
+      const file = `${SHOTS}/${size.width}x${size.height}${LITE ? "-lite" : ""}-${label.replace(/[^a-z0-9]+/gi, "-")}.png`;
+      await page.screenshot({ path: file });
+    }
     const { over, vh, blocks } = await page.evaluate(MEASURE);
     const bad = over > 1;
     if (bad) failing++;

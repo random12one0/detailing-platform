@@ -30,6 +30,15 @@ interface DayResult {
   slots: string[];
   dropoff_slots: string[];
   dropoff_only: boolean;
+  // Roadmap 2.7, W4. A restricted period used to be able to say one thing —
+  // "drop-offs only" — because that is the shape the owner's own business
+  // needed. A detailer whose unit is shut for the day needs the opposite, so
+  // `dropoff_only_periods.mode` now carries which way it goes, and this is
+  // the mirror of the two fields above it. Both lists stay because a period
+  // may cover only part of a day; the flags are the whole-day case, which is
+  // the only one the dashboard can currently create.
+  mobile_slots: string[];
+  mobile_only: boolean;
   hours: { open: string; close: string } | null;
 }
 
@@ -107,7 +116,7 @@ Deno.serve(async (req) => {
         .gte("end_date", startDate),
       supabase
         .from("dropoff_only_periods")
-        .select("start_date, end_date, start_time, end_time")
+        .select("start_date, end_date, start_time, end_time, mode")
         .eq("business_id", business.id)
         .lte("start_date", endDate)
         .gte("end_date", startDate),
@@ -161,7 +170,10 @@ Deno.serve(async (req) => {
 
     const dayResults: Record<string, DayResult> = {};
     for (const date of days) {
-      const closed: DayResult = { open: false, slots: [], dropoff_slots: [], dropoff_only: false, hours: null };
+      const closed: DayResult = {
+        open: false, slots: [], dropoff_slots: [], dropoff_only: false,
+        mobile_slots: [], mobile_only: false, hours: null,
+      };
 
       if (date < todayLocal || (maxDateStr && date > maxDateStr)) {
         dayResults[date] = closed;
@@ -196,6 +208,7 @@ Deno.serve(async (req) => {
       const [y, mo, d] = date.split("-").map(Number);
       const slots: string[] = [];
       const dropoffSlots: string[] = [];
+      const mobileSlots: string[] = [];
 
       // Slot grid at the business's own interval; a job must FINISH by close.
       for (let t = toMin(hours.start); t + durationMinutes <= toMin(hours.end); t += settings.slot_interval_minutes) {
@@ -225,15 +238,25 @@ Deno.serve(async (req) => {
         });
         if (blockoutConflict) continue;
 
-        const isDropoff =
-          !settings.mobile_enabled ||
-          dropoffs.some((p) => {
-            if (!p.start_time || !p.end_time) return true;
-            return overlaps(slot, slotEnd, p.start_time, p.end_time);
-          });
+        // Which restrictions are live for THIS slot. A period with no times
+        // covers the whole day; one with times covers the hours it names.
+        const restricts = (mode: string) =>
+          dropoffs.some((p) => (p.mode ?? "dropoff") === mode
+            && (!p.start_time || !p.end_time || overlaps(slot, slotEnd, p.start_time, p.end_time)));
+
+        // Drop-off is the only option when the business does not do mobile at
+        // all, or when a 'dropoff' period is closing mobile for these hours.
+        const isDropoff = !settings.mobile_enabled || restricts("dropoff");
+        const isMobile = !settings.dropoff_enabled || restricts("mobile");
+
+        // Both at once is a detailer who has restricted the same hours two
+        // opposite ways. Nothing can be booked then, and saying so by leaving
+        // the slot out is better than offering a time that will be refused.
+        if (isDropoff && isMobile) continue;
 
         slots.push(slot);
         if (isDropoff) dropoffSlots.push(slot);
+        if (isMobile) mobileSlots.push(slot);
       }
 
       dayResults[date] = {
@@ -241,13 +264,22 @@ Deno.serve(async (req) => {
         slots,
         dropoff_slots: dropoffSlots,
         dropoff_only: slots.length > 0 && dropoffSlots.length === slots.length,
+        mobile_slots: mobileSlots,
+        mobile_only: slots.length > 0 && mobileSlots.length === slots.length,
         hours: displayHours,
       };
     }
 
     if (body.booking_date && !body.start_date && !body.end_date) {
-      const r = dayResults[body.booking_date] ?? { slots: [], dropoff_slots: [], dropoff_only: false, hours: null };
-      return json({ success: true, slots: r.slots, dropoff_slots: r.dropoff_slots, dropoff_only: r.dropoff_only, hours: r.hours });
+      const r = dayResults[body.booking_date] ?? {
+        slots: [], dropoff_slots: [], dropoff_only: false,
+        mobile_slots: [], mobile_only: false, hours: null,
+      };
+      return json({
+        success: true, slots: r.slots, hours: r.hours,
+        dropoff_slots: r.dropoff_slots, dropoff_only: r.dropoff_only,
+        mobile_slots: r.mobile_slots, mobile_only: r.mobile_only,
+      });
     }
     return json({ success: true, days: dayResults });
   } catch (err) {

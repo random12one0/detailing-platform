@@ -152,6 +152,7 @@ await svc.post("/rest/v1/promo_codes", [
 const D1 = daysOut(20); // clear day
 const D2 = daysOut(21); // booking-conflict day
 const D3 = daysOut(22); // cancel/reschedule day
+const D4 = daysOut(23); // W4 restricted-day tests
 
 // ---------------------------------------------------------------------------
 console.log("test 1: per-business slot grid (interval 30 vs 60)");
@@ -424,6 +425,54 @@ console.log("test 11: member gates on admin functions");
   check("soft delete sets deleted_at", softDel.status === 200 && !!softDel.data?.booking?.deleted_at);
   const still = await svc.get(`/rest/v1/bookings?id=eq.${bookingA1.id}&select=id,deleted_at`);
   check("soft-deleted row still exists", still.data?.length === 1 && !!still.data[0].deleted_at);
+}
+
+// ---------------------------------------------------------------------------
+console.log("test 12: a day restricted to one service type refuses the other");
+// Roadmap 2.7, W4. This was a live hole rather than a new rule:
+// dropoff_only_periods reached the customer as a NOTE on the booking page and
+// nothing on the way in ever read the table, so "this day is drop-off only"
+// could be read and then ignored. The guard is in _shared/slotValidation.ts,
+// which is where create-, reschedule- and update-booking all meet.
+{
+  const book = (type) => fn("create-booking", {
+    business_slug: "engine-a", customer_name: "Mode Check", customer_phone: "555-0900",
+    customer_email: "mode@engine.test", customer_address: "9 Test St", service_type: type,
+    vehicle_size: "small", service_ids: [serviceA.id], add_ons: [],
+    booking_date: D4, start_time: "10:00",
+  });
+  const clear = () => svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0900`);
+  const restrict = async (mode) => {
+    await svc.del(`/rest/v1/dropoff_only_periods?business_id=eq.${A.id}&start_date=eq.${D4}`);
+    if (mode) {
+      await svc.post("/rest/v1/dropoff_only_periods",
+        [{ business_id: A.id, start_date: D4, end_date: D4, mode }]);
+    }
+    await clear();
+  };
+
+  await restrict("dropoff");
+  const slotsD = await fn("available-slots", { business_slug: "engine-a", booking_date: D4, duration_minutes: 120 });
+  check("drop-off day reports dropoff_only", slotsD.data?.dropoff_only === true, JSON.stringify(slotsD.data));
+  check("drop-off day does not report mobile_only", slotsD.data?.mobile_only === false);
+  const m1 = await book("mobile"); await clear();
+  check("mobile booking on a drop-off day -> 409", m1.status === 409, `${m1.status} ${JSON.stringify(m1.data)}`);
+  const d1 = await book("dropoff"); await clear();
+  check("drop-off booking on a drop-off day -> 200", d1.status === 200, `${d1.status} ${JSON.stringify(d1.data)}`);
+
+  // The other direction is the half W4 added: a detailer whose unit is shut.
+  await restrict("mobile");
+  const slotsM = await fn("available-slots", { business_slug: "engine-a", booking_date: D4, duration_minutes: 120 });
+  check("mobile-only day reports mobile_only", slotsM.data?.mobile_only === true, JSON.stringify(slotsM.data));
+  const d2 = await book("dropoff"); await clear();
+  check("drop-off booking on a mobile-only day -> 409", d2.status === 409, `${d2.status} ${JSON.stringify(d2.data)}`);
+  const m2 = await book("mobile"); await clear();
+  check("mobile booking on a mobile-only day -> 200", m2.status === 200, `${m2.status} ${JSON.stringify(m2.data)}`);
+
+  // And with nothing set, both work, so the guard is not just refusing.
+  await restrict(null);
+  const free = await book("mobile"); await clear();
+  check("unrestricted day still takes a mobile booking", free.status === 200, `${free.status}`);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
