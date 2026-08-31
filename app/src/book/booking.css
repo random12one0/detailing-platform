@@ -1,306 +1,519 @@
-/* The public booking page.
-   ------------------------------------------------------------------
-   Same design system as the dashboard — the same seven type steps, the
-   same six spacing steps, the same rule that related things sit 8px
-   apart and unrelated things 24px — but scoped entirely under .bk with
-   its own token names.
-   That scoping is deliberate and load-bearing: the dashboard's tokens
-   are set on :root and switch with the owner's chosen theme, and a
-   customer arriving from a text message must not inherit whatever
-   theme the last dashboard user picked. Nothing here reads a --bk-*
-   token that isn't defined in this block, and nothing in the dashboard
-   reads one at all.
-   --bk-accent and --bk-accent-ink are injected per business by
-   BookingBusinessContext, contrast-corrected against this page's own
-   background. */
+/* The public booking page — and the customer-facing receipt / manage page,
+   which shares this sheet.
+   ==================================================================
+   "The Thread" (docs/design-system.md) applied. Roadmap 2.1.
+
+   DARK, decided by the owner 2026-08-30. The argument was positioning, not
+   taste: the page claims the booking form is built INTO the detailer's own
+   site, and a light form sitting inside a dark site breaks that on sight.
+   See DECISIONS.md, "The customer booking page is dark".
+
+   THE .bk SCOPE IS STILL LOAD-BEARING, and for exactly the reason it always
+   was — only the conclusion changed. The dashboard's tokens live on :root
+   and, until roadmap 2.3 removes the switch, still flip with the owner's
+   chosen theme. A customer arriving from a text message must not inherit
+   whatever the last dashboard user picked, so this page carries its own
+   ground, fixed. Nothing here reads a --bk-* token that isn't defined in
+   this block, and nothing in the dashboard reads one at all.
+
+   Every colour below is a token from docs/design-system.md § Tokens, with
+   the system's own name in the comment beside it, so a drift shows up in a
+   diff. The four --bk-accent* values are injected per business by
+   BookingBusinessContext, contrast-corrected in lib/theme.js against this
+   page's own ground — the one file allowed to compute colour in JS.
+
+   WHAT THIS SURFACE DELIBERATELY DOES NOT CARRY, per law 3 (a dropped
+   mechanic is stated, never quietly lost):
+   · The drifting dot lattice. It is a landing-page mechanic: there the
+     ground is mostly empty and the lattice is what makes it a surface
+     rather than a colour. Here the ground is never empty — a ruled list, a
+     seven-column calendar and a slot grid sit on it — and a 46px lattice
+     behind a seven-column grid reads as moiré, not as texture. Law 2 is
+     carried by the drifting light instead, which is the layer above it in
+     the system's own order of cost.
+   · The pointer light and the buttons' radial sheen. Both need a rAF
+     pointer listener and both are fine-pointer-only; this is the most
+     phone-first surface in the product. The hover lift stays. */
 
 .bk {
-  /* Raking Light, daytime posture (docs/design-system.md). The customer's
-     surface is light-first — same matte family as the dashboard's light
-     theme, tinted bar instead of bloom. */
-  --bk-bg: #E7E7E5;
-  --bk-surface: #F3F3F1;
-  --bk-lit: #FCFCFB;
-  --bk-sunken: #DEDEDB;
-  --bk-border: #C6C6C2;
-  --bk-hairline: #E0E0DD;
-  --bk-text: #151515;
-  --bk-text-2: #4A4D49;
-  --bk-muted: #5D605C;
-  --bk-accent: #0D689D;
-  --bk-accent-ink: #ffffff;
-  --bk-accent-quiet: color-mix(in srgb, var(--bk-accent) 10%, #ffffff);
+  /* ── The ground ────────────────────────────────────────────────── */
+  --bk-bg: #0B0D0E;            /* --ink-0  — must match BOOKING_BG in lib/theme.js */
+  --bk-sunken: #111417;        /* --ink-1  */
+  --bk-surface: #171B1E;       /* --ink-2  */
+  --bk-lit: #1E2327;           /* --ink-3  */
+  --bk-hairline: #272D31;      /* --line   */
+  --bk-border: #333B40;        /* --line-2 — a line that has to be seen */
+
+  /* ── Type colour ───────────────────────────────────────────────── */
+  --bk-text: #F2F1EC;          /* --bone   — the dominant, warm, never #fff */
+  --bk-text-2: #CFD2CE;        /* --bone-2 */
+  /* --fog, not --fog-2. Every small label on this page can end up on the
+     lit surface, where --fog-2 measures 4.20:1 — under the floor. --fog
+     clears 5.67:1 there and 6.98:1 on the ground. */
+  --bk-muted: #939CA1;         /* --fog    */
+
+  /* ── The accent — the TENANT's, on their own customer-facing page ─
+     Law 11: the house palette is fixed for the dashboard; the tenant's
+     colour is customer-facing only, and this is one of the two places it
+     appears. Injected by BookingBusinessContext; the values here are what
+     shows if that ever fails to run. */
+  --bk-accent: #38E08B;        /* --ac     — FILLS and rings: the 3:1 floor */
+  --bk-accent-ink: #04150C;    /* what is drawn ON a fill                   */
+  /* The same colour used AS WORDS. Small text takes 4.5:1, so lib/theme.js
+     corrects it further where a tenant's brand needs it — crimson passes as
+     a fill and fails as type. Never use --bk-accent on text. */
+  --bk-accent-text: #38E08B;
   --bk-accent-line: color-mix(in srgb, var(--bk-accent) 45%, transparent);
-  --bk-success: #1E7A4E;
-  --bk-danger: #A83A2C;
 
-  /* Two-layer elevation: a tight contact shadow at the edge does what a
-     border would, and survives daylight; the wide one does the floating. */
-  --bk-sh: 0 1px 2px rgba(21, 21, 21, 0.06), 0 8px 20px -16px rgba(21, 21, 21, 0.25);
-  --bk-sh-btn: 0 1px 2px rgba(21, 21, 21, 0.08);
-  --bk-sh-inset: inset 0 2px 3px rgba(21, 21, 21, 0.08);
-  --bk-lit-border: color-mix(in srgb, var(--bk-accent) 55%, var(--bk-border));
-  --bk-lit-glow: 0 -4px 18px -8px color-mix(in srgb, var(--bk-accent) 25%, transparent);
+  --bk-danger: #E2705F;        /* --bad — the system's one warm value */
 
-  --bk-r-sm: 6px;
-  --bk-r-md: 10px;
-  --bk-r-lg: 12px;
+  /* ── Radii, by role and not by habit (docs/design-system.md § Layout) */
+  --bk-r-pill: 100px;          /* buttons, chips, state pills */
+  --bk-r-panel: 18px;          /* panels */
+  --bk-r-inset: 12px;          /* sunken and inset blocks */
 
-  --bk-sp-1: 4px;
+  /* ONE column, defined once. This is the CONTENT width — the masthead, the
+     form and the price bar all have to line up on it, and they did not: the
+     wrap's max-width included its own 16px padding while the header's and
+     the bar's .inner did not, so at 768 and up the business name and the
+     total sat 16px to the left of every card edge. */
+  --bk-col: 600px;
+
   --bk-sp-2: 8px;
   --bk-sp-3: 12px;
   --bk-sp-4: 16px;
   --bk-sp-5: 26px;
-  --bk-sp-6: 40px;
 
-  --bk-t-label: 0.6875rem;
-  --bk-t-meta: 0.8125rem;
-  --bk-t-body: 0.9375rem;
-  --bk-t-strong: 1rem;
-  --bk-t-title: 1.375rem;
-  --bk-t-figure: 1.875rem;
-  --bk-t-display: 2.125rem;
+  --bk-t-label: 11px;
+  --bk-t-meta: 13px;
+  --bk-t-body: 15px;
+  --bk-t-strong: 17px;
+  --bk-t-title: clamp(20px, 2.2vw, 25px);
+  --bk-t-display: clamp(26px, 3.4vw, 42px);
 
-  --bk-f-display: "Anybody", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --bk-f-body: "Public Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --bk-f-num: "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* Two faces, and every figure is monospaced (law 8). */
+  --bk-f-body: "Archivo", ui-sans-serif, sans-serif;
+  --bk-f-num: "JetBrains Mono", ui-monospace, monospace;
 
-  --bk-ease: cubic-bezier(0.32, 0.72, 0, 1);
-  --bk-dur-fast: 160ms;
-  --bk-dur: 200ms;
+  /* One curve — the system's only one. */
+  --bk-e: cubic-bezier(.16, .84, .34, 1);   /* --e-out */
+  --bk-t-reveal: 950ms;
+  /* No --t-exit token, and that is not an omission: nothing on this page
+     animates out. A step's content unmounts when the step changes, and
+     holding the old step mounted so it could leave would be real machinery
+     for a transition nobody watches. The system's exit-faster-than-entrance
+     rule has nothing to govern here. */
+  --bk-t-hover: 180ms;
 
+  position: relative;
+  isolation: isolate;
   min-height: 100dvh;
   background: var(--bk-bg);
   color: var(--bk-text);
+  /* Native dark form controls — the checkbox, the scrollbar and any date
+     input come back dark for free instead of being restyled by hand. */
+  color-scheme: dark;
   font-family: var(--bk-f-body);
-  font-size: 16px;
+  /* Deliberately NOT setting font-variation-settings here, and this is a
+     trap worth naming: it is a low-level property that beats font-weight,
+     it inherits, and it would silently pin every descendant to wght 400 —
+     every <strong>, every 500-weight price, every selected chip. Archivo's
+     default instance already IS wdth 100 / wght 400, so the declaration
+     bought nothing and cost all of those. Set both axes explicitly on the
+     roles that need them (below), and leave font-weight working everywhere
+     else. */
+  font-size: var(--bk-t-strong);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 .bk * { box-sizing: border-box; }
+.bk ::selection { background: var(--bk-accent); color: var(--bk-accent-ink); }
 
-/* ------------------------------------------------------------- TYPE */
-.bk h1 { font-family: var(--bk-f-display); font-variation-settings: "wdth" 114; font-size: var(--bk-t-display); font-weight: 700; letter-spacing: -0.015em; line-height: 1.06; margin: 0; }
-.bk h2 { font-family: var(--bk-f-display); font-variation-settings: "wdth" 114; font-size: var(--bk-t-title); font-weight: 700; letter-spacing: -0.012em; margin: 0; }
-.bk h3 { font-size: var(--bk-t-strong); font-weight: 600; margin: 0; line-height: 1.3; }
+/* ── The continuous ground ─────────────────────────────────────────────
+   Never a flat solid background (docs/design-system.md § Atmosphere). Two
+   fixed layers under everything, both pure CSS, both under a stacking
+   context so they can never sit on top of the form.
+
+   The light layer never stops moving — law 2, "a screen where all motion is
+   triggered is a screen that is dead while you read it." It runs
+   `alternate`, so it reverses rather than resetting: a looping gradient that
+   snaps back is visible on a wide screen, and this one has no seam to see.
+   Lightness moves; hue and chroma do not. A drifting coloured wash is the
+   same tell as a glow drawn with a gradient. */
+.bk::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(58vmax 58vmax at 12% -8%, rgba(226, 234, 238, .085), rgba(226, 234, 238, 0) 68%),
+    /* Low and right, not mid-right: a business with two services leaves the
+       bottom two-thirds of a phone screen to the ground, and that is exactly
+       where the second light has to be for it to read as a lit surface
+       rather than as a page that ran out. */
+    radial-gradient(46vmax 46vmax at 88% 74%, rgba(226, 234, 238, .062), rgba(226, 234, 238, 0) 66%);
+  animation: bk-drift 17s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+@keyframes bk-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); opacity: .85; }
+  to   { transform: translate3d(4vw, 5vh, 0) scale(1.12); opacity: 1; }
+}
+/* Grain. The Vox texture, for the cost of one data URI and no JavaScript —
+   the highest value-per-effort item in docs/references/ANALYSIS.md. It sits
+   at z-index 0 with the content at 1, so it blends with the ground and the
+   light beneath it and never touches the type. */
+.bk::after {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.42'/%3E%3C/svg%3E");
+  opacity: .055; mix-blend-mode: overlay;
+}
+.bk-header, .bk-wrap, .bk-center { position: relative; z-index: 1; }
+
+/* ------------------------------------------------------------- TYPE
+   Archivo alone, worked across both axes — the width axis carries as much
+   of the hierarchy as the weight axis does, which is the part that is easy
+   to lose in a restyle. */
+.bk h1 {
+  font-family: var(--bk-f-body); font-variation-settings: "wdth" 108, "wght" 700;
+  font-size: var(--bk-t-display); font-weight: 400;
+  letter-spacing: -.028em; line-height: .96; margin: 0;
+}
+.bk h2 {
+  font-family: var(--bk-f-body); font-variation-settings: "wdth" 108, "wght" 640;
+  font-size: var(--bk-t-title); font-weight: 400;
+  letter-spacing: -.022em; line-height: 1.08; margin: 0;
+}
+.bk h3 {
+  font-variation-settings: "wdth" 102, "wght" 620; font-size: var(--bk-t-strong);
+  font-weight: 400; margin: 0; line-height: 1.3;
+}
 .bk p { margin: 0; }
-.bk-muted { font-size: var(--bk-t-meta); color: var(--bk-muted); }
+.bk-muted { font-size: var(--bk-t-meta); color: var(--bk-muted); line-height: 1.45; }
 .bk-body { font-size: var(--bk-t-body); }
+/* The eyebrow: 11px, wide-tracked, narrow-cut. Same shape everywhere it
+   appears, which is what makes it read as one voice. */
 .bk-step-label {
-  display: block; font-size: var(--bk-t-label); font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--bk-muted);
+  display: block; font-family: var(--bk-f-body);
+  font-variation-settings: "wdth" 72, "wght" 620;
+  font-size: var(--bk-t-label); font-weight: 400;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--bk-muted);
 }
 /* Every price is mono — the numbers are the thing being decided on. */
 .bk-price {
-  font-family: var(--bk-f-num); font-size: var(--bk-t-strong); font-weight: 500;
-  font-variant-numeric: tabular-nums; letter-spacing: -0.015em; white-space: nowrap;
+  font-family: var(--bk-f-num); font-size: var(--bk-t-body); font-weight: 500;
+  font-variant-numeric: tabular-nums; letter-spacing: -.02em; white-space: nowrap;
+  color: var(--bk-text);
 }
 
 /* ------------------------------------------------------------ LAYOUT */
 .bk-wrap {
-  max-width: 560px; margin: 0 auto;
-  padding: var(--bk-sp-5) var(--bk-sp-4) calc(96px + env(safe-area-inset-bottom));
+  max-width: calc(var(--bk-col) + 2 * var(--bk-sp-4)); margin: 0 auto;
+  padding: var(--bk-sp-5) var(--bk-sp-4) calc(104px + env(safe-area-inset-bottom));
   display: flex; flex-direction: column; gap: var(--bk-sp-5);
 }
-.bk-tight { display: flex; flex-direction: column; gap: var(--bk-sp-2); }
 .bk-step-head { display: flex; flex-direction: column; gap: var(--bk-sp-3); }
 .bk-step-head h2 { margin-top: 2px; }
-.bk-thoughts { display: flex; flex-direction: column; gap: var(--bk-sp-3); }
 .bk-row { display: flex; align-items: center; gap: var(--bk-sp-2); }
 .bk-row.top { align-items: flex-start; }
 .bk-row.between { justify-content: space-between; }
-.bk-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70dvh; gap: var(--bk-sp-3); padding: var(--bk-sp-4); text-align: center; }
-
-.bk-header {
-  background: var(--bk-surface); border-bottom: 1px solid var(--bk-border);
-  padding: calc(var(--bk-sp-3) + env(safe-area-inset-top)) var(--bk-sp-4) var(--bk-sp-3);
+.bk-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--bk-sp-3); }
+@media (max-width: 400px) { .bk-grid2 { grid-template-columns: 1fr; } }
+.bk-center {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 70dvh; gap: var(--bk-sp-3); padding: var(--bk-sp-4); text-align: center;
 }
-.bk-header .inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; gap: var(--bk-sp-3); }
-.bk-header img { width: 40px; height: 40px; object-fit: contain; border-radius: var(--bk-r-sm); flex-shrink: 0; }
-.bk-header h1 { font-size: var(--bk-t-strong); font-weight: 600; letter-spacing: 0; }
-.bk-header .tagline { font-size: var(--bk-t-meta); color: var(--bk-muted); margin-top: 1px; }
 
-/* Progress: six marks, the current one filled. Shape and fill, not colour
-   alone, so it still reads for a colour-blind customer. */
+/* The masthead carries the tenant's name, because on this page they are the
+   business being bought from — we are not in the room. It grows into a real
+   masthead on a desktop, where a 60px bar above a centred column leaves the
+   top third of a 1920 screen empty. */
+.bk-header {
+  border-bottom: 1px solid var(--bk-hairline);
+  padding: calc(var(--bk-sp-4) + env(safe-area-inset-top)) var(--bk-sp-4) var(--bk-sp-4);
+}
+.bk-header .inner {
+  max-width: var(--bk-col); margin: 0 auto;
+  display: flex; align-items: center; gap: var(--bk-sp-3);
+}
+.bk-header img { width: 42px; height: 42px; object-fit: contain; border-radius: var(--bk-r-inset); flex-shrink: 0; }
+.bk-header h1 {
+  font-size: var(--bk-t-title); font-variation-settings: "wdth" 106, "wght" 680;
+  letter-spacing: -.018em;
+}
+.bk-header .tagline { font-size: var(--bk-t-meta); color: var(--bk-muted); margin-top: 3px; }
+@media (min-width: 1000px) {
+  .bk-header { padding-top: 54px; padding-bottom: 26px; }
+  .bk-header h1 { font-size: clamp(25px, 2.6vw, 34px); }
+}
+
+/* Progress: six marks, the ones behind you filled. Shape and fill, not
+   colour alone, so it still reads for a colour-blind customer. */
 .bk-rail { display: flex; gap: 5px; }
 .bk-rail span {
-  height: 3px; flex: 1; border-radius: 2px; background: var(--bk-hairline);
-  transition: background var(--bk-dur) var(--bk-ease);
+  height: 3px; flex: 1; border-radius: var(--bk-r-pill); background: var(--bk-hairline);
+  transition: background var(--bk-t-hover) var(--bk-e);
 }
 .bk-rail span.done { background: var(--bk-accent-line); }
 .bk-rail span.current { background: var(--bk-accent); }
 
-/* ---------------------------------------------------------- SURFACES */
+/* ---------------------------------------------------------- SURFACES
+   On a dark ground a shadow does almost nothing; an inset ring does the
+   work a border used to. This is the reference page's own panel idiom
+   (`.plan` / `.plan.lead` in 5-the-thread.html). */
 .bk-card {
-  background: var(--bk-surface); border: 1px solid var(--bk-border);
-  border-radius: var(--bk-r-lg); padding: var(--bk-sp-3);
-  box-shadow: var(--bk-sh);
+  background: rgba(255, 255, 255, .02);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
+  border-radius: var(--bk-r-panel); padding: clamp(15px, 3.6vw, 20px);
 }
 .bk-card.selectable {
   cursor: pointer;
-  transition: border-color var(--bk-dur-fast) var(--bk-ease), background var(--bk-dur-fast) var(--bk-ease);
+  transition: box-shadow var(--bk-t-hover) var(--bk-e),
+              background var(--bk-t-hover) var(--bk-e),
+              transform var(--bk-t-hover) var(--bk-e);
 }
-.bk-card.selectable:active { transform: scale(0.995); }
-/* THE LIGHT — the selected service / current focus. Tinted bar, lifted
-   surface, no bloom (daytime posture). */
+.bk-card.selectable:hover { box-shadow: inset 0 0 0 1px var(--bk-border); }
+.bk-card.selectable:active { transform: scale(.995); }
+/* THE ONE LIT THING on the screen: what you have chosen. A lifted gradient
+   panel, an accent ring, and the deep drop that separates it from the
+   ground — the accent is what marks the thing that has landed. */
 .bk-card.selected {
-  position: relative; background: var(--bk-lit);
-  border-color: var(--bk-lit-border); box-shadow: var(--bk-lit-glow);
+  background: linear-gradient(166deg, var(--bk-lit), var(--bk-sunken));
+  /* The ring is the full accent, not a tint of it: "selected" is a state a
+     customer has to be able to see, so it takes the 3:1 non-text floor
+     rather than the decorative-hairline exemption. */
+  box-shadow: inset 0 0 0 1px var(--bk-accent),
+              0 40px 70px -40px rgba(0, 0, 0, .92);
 }
-.bk-card.selected::before {
-  content: ""; position: absolute; top: -1px; left: 12px; right: 12px;
-  height: 3px; border-radius: 0 0 4px 4px; background: var(--bk-accent);
-}
-.bk-sunken { background: var(--bk-sunken); border-radius: var(--bk-r-lg); padding: var(--bk-sp-3); box-shadow: inset 0 2px 4px rgba(16, 23, 32, 0.07); }
 /* Ruled checklist — hairline rows on the ground, no boxes. Composition
    rule (docs/design-system.md): boxes are for things you pick between or
    act on; enumerations are lists. */
 .bk-list { display: flex; flex-direction: column; }
 .bk-list-row {
   display: flex; align-items: center; gap: var(--bk-sp-3);
-  padding: var(--bk-sp-3) 2px; min-height: 46px; cursor: pointer;
+  padding: var(--bk-sp-3) 2px; min-height: 48px; cursor: pointer;
   border-top: 1px solid var(--bk-hairline);
 }
 .bk-list-row:first-child { border-top: 0; }
 .bk-list-row .grow { flex: 1; min-width: 0; }
-.bk-list-row.on .bk-price { color: var(--bk-text); }
-/* The receipt — the money breakdown looks like the piece of paper it is. */
-.bk-receipt {
-  background: var(--bk-lit); border-radius: var(--bk-r-lg);
-  padding: var(--bk-sp-4); box-shadow: var(--bk-sh);
-}
+.bk-list-row .bk-price { color: var(--bk-muted); }
+.bk-list-row.on .bk-price { color: var(--bk-accent-text); }
+
+/* The money. A ruled ledger on the ground rather than a second panel: it is
+   a collection of records, and the lit appointment card above it is the
+   object. Two shapes, one screen — every section its own skeleton. */
+.bk-receipt { border-top: 1px solid var(--bk-hairline); }
 .bk-receipt .line {
   display: flex; align-items: baseline; justify-content: space-between; gap: var(--bk-sp-3);
-  padding: 7px 0; font-size: var(--bk-t-body);
+  padding: 11px 0; font-size: var(--bk-t-body);
+  border-bottom: 1px solid var(--bk-hairline);
 }
-.bk-receipt .line + .line { border-top: 1px solid var(--bk-hairline); }
 .bk-receipt .line.muted span { color: var(--bk-muted); }
 .bk-receipt .line.total {
-  border-top: 1px dashed var(--bk-border); margin-top: 4px; padding-top: 12px;
+  border-bottom: 0; border-top: 1px dashed var(--bk-border);
+  margin-top: 2px; padding-top: 15px;
 }
-.bk-rule { height: 1px; background: var(--bk-hairline); border: 0; margin: var(--bk-sp-3) 0; }
+.bk-receipt .line.total strong { font-variation-settings: "wdth" 104, "wght" 640; font-weight: 400; }
+.bk-receipt .line.total .bk-price { color: var(--bk-accent-text); }
+
 .bk-note {
-  border: 1px solid var(--bk-border); background: var(--bk-sunken);
-  border-radius: var(--bk-r-lg); padding: var(--bk-sp-3) var(--bk-sp-4);
-  font-size: var(--bk-t-body); color: var(--bk-text-2);
-}
-.bk-dashed {
-  border: 1px dashed var(--bk-border); border-radius: var(--bk-r-lg);
-  padding: var(--bk-sp-5) var(--bk-sp-4); text-align: center;
-  color: var(--bk-muted); font-size: var(--bk-t-meta);
-}
-.bk-tag {
-  display: inline-flex; align-items: center; padding: 2px 7px;
-  border-radius: var(--bk-r-sm); background: var(--bk-sunken);
-  font-size: var(--bk-t-label); font-weight: 600; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--bk-muted);
+  background: rgba(255, 255, 255, .02);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
+  border-radius: var(--bk-r-inset); padding: var(--bk-sp-3) var(--bk-sp-4);
+  font-size: var(--bk-t-body); color: var(--bk-text-2); line-height: 1.5;
 }
 
 /* ---------------------------------------------------------- CONTROLS */
 .bk-btn {
-  min-height: 48px; padding: 0 var(--bk-sp-4);
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  border-radius: var(--bk-r-md); border: 1px solid var(--bk-border);
-  background: var(--bk-surface); color: var(--bk-text);
-  font-size: var(--bk-t-body); font-weight: 600; font-family: var(--bk-f-body);
-  cursor: pointer; width: 100%; text-decoration: none; box-shadow: var(--bk-sh-btn);
-  transition: transform var(--bk-dur-fast) var(--bk-ease), background var(--bk-dur-fast) var(--bk-ease);
+  min-height: 48px; padding: 0 var(--bk-sp-5);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: var(--bk-r-pill); border: 0;
+  background: transparent; color: var(--bk-text);
+  box-shadow: inset 0 0 0 1px var(--bk-border);
+  font-size: var(--bk-t-body); font-family: var(--bk-f-body);
+  font-variation-settings: "wdth" 96, "wght" 640; font-weight: 400;
+  letter-spacing: -.005em; cursor: pointer; width: 100%; text-decoration: none;
+  transition: transform var(--bk-t-hover) var(--bk-e),
+              box-shadow var(--bk-t-hover) var(--bk-e);
 }
 .bk-btn svg { flex-shrink: 0; width: 1.15em; height: 1.15em; }
-.bk-btn:active:not(:disabled) { transform: scale(0.98); }
-.bk-btn.primary { background: var(--bk-accent); border-color: var(--bk-accent); color: var(--bk-accent-ink); }
-.bk-btn.ghost { background: transparent; box-shadow: none; }
+.bk-btn:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--bk-muted); transform: translateY(-2px); }
+.bk-btn:active:not(:disabled) { transform: translateY(0) scale(.985); }
+.bk-btn.primary {
+  background: var(--bk-accent); color: var(--bk-accent-ink); box-shadow: none;
+}
+.bk-btn.primary:hover:not(:disabled) { box-shadow: none; }
+.bk-btn.ghost { box-shadow: none; color: var(--bk-muted); }
+.bk-btn.ghost:hover:not(:disabled) { box-shadow: none; color: var(--bk-text); }
 .bk-btn.inline { width: auto; }
-.bk-btn:disabled { opacity: 0.45; cursor: default; }
+.bk-btn:disabled { opacity: .38; cursor: default; }
+/* A disabled PRIMARY goes neutral rather than translucent. Faded, the accent
+   fill kept enough presence to still read as the thing to press, while its
+   dark ink faded into it and became almost unreadable. Neutral also keeps
+   the promise the accent makes: it appears when the action is actually
+   available, and not before. */
+.bk-btn.primary:disabled {
+  opacity: 1; background: var(--bk-surface); color: var(--bk-muted);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
+}
 
 .bk-chip {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 44px; padding: 0 var(--bk-sp-3);
-  border-radius: var(--bk-r-md); border: 1px solid var(--bk-border);
-  background: var(--bk-surface); color: var(--bk-text);
-  font-size: var(--bk-t-body); font-weight: 500; font-family: var(--bk-f-body); cursor: pointer;
-  box-shadow: var(--bk-sh-btn);
-  transition: background var(--bk-dur-fast) var(--bk-ease);
+  border-radius: var(--bk-r-pill); border: 0;
+  background: transparent; color: var(--bk-text);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
+  font-family: var(--bk-f-num); font-size: var(--bk-t-body); font-weight: 400;
+  font-variant-numeric: tabular-nums; letter-spacing: -.02em; cursor: pointer;
+  transition: box-shadow var(--bk-t-hover) var(--bk-e), background var(--bk-t-hover) var(--bk-e);
 }
-.bk-chip.selected { background: var(--bk-accent); border-color: var(--bk-accent); color: var(--bk-accent-ink); font-weight: 600; }
-.bk-chip:disabled { opacity: 0.35; cursor: default; }
-.bk-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 6px; }
+.bk-chip:hover:not(:disabled):not(.selected) { box-shadow: inset 0 0 0 1px var(--bk-border); }
+.bk-chip.selected { background: var(--bk-accent); color: var(--bk-accent-ink); box-shadow: none; font-weight: 500; }
+.bk-chip:disabled { opacity: .35; cursor: default; }
+.bk-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(94px, 1fr)); gap: 7px; }
 
 .bk-field { display: block; }
 .bk-field > span {
-  display: block; font-size: var(--bk-t-label); font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase; color: var(--bk-muted);
-  margin-bottom: var(--bk-sp-1);
+  display: block; font-family: var(--bk-f-body);
+  font-variation-settings: "wdth" 72, "wght" 620;
+  font-size: var(--bk-t-label); font-weight: 400;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--bk-muted);
+  margin-bottom: var(--bk-sp-2);
 }
-.bk input, .bk select, .bk textarea {
-  width: 100%; min-height: 48px; padding: 12px 14px;
+.bk input, .bk textarea {
+  width: 100%; min-height: 48px; padding: 12px 15px;
   background: var(--bk-sunken); color: var(--bk-text);
-  border: 1px solid var(--bk-border); border-radius: var(--bk-r-md);
-  font-size: 1rem; font-family: var(--bk-f-body); box-shadow: var(--bk-sh-inset);
-  transition: border-color var(--bk-dur-fast) var(--bk-ease);
+  border: 0; box-shadow: inset 0 0 0 1px var(--bk-hairline);
+  border-radius: var(--bk-r-inset);
+  font-size: var(--bk-t-strong); font-family: var(--bk-f-body);
+  transition: box-shadow var(--bk-t-hover) var(--bk-e);
 }
-.bk input:focus-visible, .bk select:focus-visible, .bk textarea:focus-visible {
-  outline: none; border-color: var(--bk-accent); box-shadow: var(--bk-sh-inset), 0 0 0 2px var(--bk-accent-line);
+.bk input::placeholder, .bk textarea::placeholder { color: var(--bk-muted); }
+.bk input:focus-visible, .bk textarea:focus-visible {
+  outline: none; box-shadow: inset 0 0 0 1px var(--bk-accent), 0 0 0 3px var(--bk-accent-line);
 }
-.bk textarea { min-height: 88px; resize: vertical; line-height: 1.5; }
-.bk input[type="checkbox"] { width: 22px; height: 22px; min-height: 0; accent-color: var(--bk-accent); flex-shrink: 0; }
-.bk :focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 2px; }
+.bk textarea { min-height: 92px; resize: vertical; line-height: 1.5; }
+.bk input[type="checkbox"] {
+  width: 22px; height: 22px; min-height: 0; box-shadow: none;
+  accent-color: var(--bk-accent); flex-shrink: 0;
+}
+.bk :focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 3px; }
 
 .bk-error {
-  border: 1px solid var(--bk-danger);
-  background: color-mix(in srgb, var(--bk-danger) 7%, #ffffff);
-  color: var(--bk-danger); border-radius: var(--bk-r-md);
-  padding: 10px 12px; font-size: var(--bk-t-meta);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bk-danger) 55%, transparent);
+  background: color-mix(in srgb, var(--bk-danger) 9%, transparent);
+  color: var(--bk-danger); border-radius: var(--bk-r-inset);
+  padding: 11px 14px; font-size: var(--bk-t-body);
 }
 
-/* The persistent price bar. It is the only fixed element on the page and
-   the only place the accent appears twice, because the running total and
-   the way forward are the two things that must always be reachable. */
+/* The persistent price bar. The only fixed element on the page, and the
+   only place the accent appears twice, because the running total and the
+   way forward are the two things that must always be reachable.
+
+   SOLID, and NOT translucent-with-a-backdrop-filter. It was built that way
+   first and the bar intermittently failed to paint at all — the whole strip,
+   CTA included — while the DOM said it was there at the right rect. The
+   combination is the cause: a backdrop-filtered fixed bar over a fixed
+   mix-blend-mode grain layer. Removing the filter fixed it every time.
+   Whether or not that reproduces on a phone, the primary control on a
+   customer-facing page does not ship on a compositing trick, and the
+   translucency bought almost nothing at 88%. Solid on the ground colour
+   also reads better than a lighter strip: content scrolling under it simply
+   disappears at the hairline, so the page stays one surface. */
 .bk-bar {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
-  background: var(--bk-surface); border-top: 1px solid var(--bk-border);
+  background: var(--bk-bg);
+  border-top: 1px solid var(--bk-hairline);
   padding: var(--bk-sp-3) var(--bk-sp-4) calc(var(--bk-sp-3) + env(safe-area-inset-bottom));
 }
 .bk-bar .inner {
-  max-width: 560px; margin: 0 auto;
+  max-width: var(--bk-col); margin: 0 auto;
   display: flex; align-items: center; gap: var(--bk-sp-3);
 }
 .bk-bar .total { min-width: 0; flex: 1; }
-.bk-bar .total strong { font-family: var(--bk-f-num); font-size: var(--bk-t-title); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.bk-bar .bk-btn { width: auto; flex-shrink: 0; padding: 0 var(--bk-sp-5); }
+.bk-bar .total strong {
+  font-family: var(--bk-f-num); font-size: var(--bk-t-title); font-weight: 500;
+  font-variant-numeric: tabular-nums; letter-spacing: -.03em;
+}
+.bk-bar .bk-btn { width: auto; flex-shrink: 0; }
 
 .bk-spinner {
   width: 26px; height: 26px; border: 2px solid var(--bk-hairline);
   border-top-color: var(--bk-accent); border-radius: 50%;
-  animation: bk-spin 0.7s linear infinite;
+  animation: bk-spin .7s linear infinite;
 }
 @keyframes bk-spin { to { transform: rotate(360deg); } }
 
+/* ----------------------------------------------------------- MOTION
+   THE ONE ORCHESTRATED MOMENT: a step arrives as a staggered rise.
+   docs/design-knowledge.md §1 — "one well-orchestrated page load with
+   staggered reveals creates more delight than scattered micro-interactions."
+
+   Pure CSS. The wrapper is keyed on the step index in BookingPage.jsx, so
+   React hands back a fresh element and the animation re-runs; there is no
+   observer, no rAF and nothing to fail. `display:contents` keeps the step's
+   children as direct flex items of .bk-wrap, so the wrapper changes the
+   motion and nothing about the layout.
+
+   `both` means the end state is what applies at the 0.01ms duration
+   prefers-reduced-motion forces below — nothing on this page is ever hidden
+   behind an animation (docs/design-system.md, Degradation). */
+.bk-step { display: contents; }
+.bk-step > *, .bk-step-head > * { animation: bk-rise var(--bk-t-reveal) var(--bk-e) both; }
+.bk-step > *:nth-child(2), .bk-step-head > *:nth-child(2) { animation-delay: 60ms; }
+.bk-step > *:nth-child(3), .bk-step-head > *:nth-child(3) { animation-delay: 120ms; }
+.bk-step > *:nth-child(4) { animation-delay: 180ms; }
+.bk-step > *:nth-child(5) { animation-delay: 240ms; }
+.bk-step > *:nth-child(n+6) { animation-delay: 300ms; }
+@keyframes bk-rise {
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .bk *, .bk *::before, .bk *::after {
-    animation-duration: 0.01ms !important; transition-duration: 0.01ms !important;
+  .bk *, .bk *::before, .bk *::after, .bk::before, .bk::after {
+    animation-duration: .01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
   }
 }
 
 /* The date grid in step 4. A day that cannot be booked is DIM AND FLAT
    rather than hidden, so the customer can see the shape of the week and
    understand that Tuesday is simply not offered — not that the page is
-   broken. Selection is the accent; today is a ring, so the two never
-   compete for the same signal. */
-.bk-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+   broken. The difference is carried by the type colour and by whether the
+   cell has a ring at all, so it is never colour alone. Selection is the
+   accent; today is a ring, so the two never compete for the same signal. */
+.bk-cal-block { display: flex; flex-direction: column; gap: var(--bk-sp-3); }
+/* The month is a control label, not a section heading. Left at h2 it sat at
+   the same size and weight as the step's own question two lines above it,
+   and the centred one won — two headings competing for the same screen. */
+.bk-cal-block > .bk-row > h2 {
+  font-size: var(--bk-t-strong); font-variation-settings: "wdth" 104, "wght" 620;
+}
+.bk-dow {
+  text-align: center; font-family: var(--bk-f-body);
+  font-variation-settings: "wdth" 72, "wght" 620;
+  font-size: var(--bk-t-label); letter-spacing: .18em; color: var(--bk-muted);
+}
+.bk-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
 .bk-cal .cell {
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  border-radius: var(--bk-r-md); border: 1px solid var(--bk-border); box-shadow: var(--bk-sh-btn);
-  background: var(--bk-surface); color: var(--bk-text);
+  border-radius: var(--bk-r-inset);
+  background: rgba(255, 255, 255, .025);
+  box-shadow: inset 0 0 0 1px var(--bk-hairline);
+  color: var(--bk-text);
   font-family: var(--bk-f-num);
-  font-size: var(--bk-t-body); font-weight: 500; font-variant-numeric: tabular-nums;
+  font-size: var(--bk-t-body); font-weight: 400; font-variant-numeric: tabular-nums;
   cursor: pointer; user-select: none;
-  transition: background var(--bk-dur-fast) var(--bk-ease), border-color var(--bk-dur-fast) var(--bk-ease);
+  transition: background var(--bk-t-hover) var(--bk-e), box-shadow var(--bk-t-hover) var(--bk-e);
 }
-.bk-cal .cell.empty { background: transparent; border-color: transparent; box-shadow: none; cursor: default; }
+.bk-cal .cell:hover:not(.closed):not(.empty):not(.selected) { box-shadow: inset 0 0 0 1px var(--bk-border); }
+.bk-cal .cell.empty { background: transparent; box-shadow: none; cursor: default; }
 .bk-cal .cell.closed {
-  background: transparent; border-color: transparent; box-shadow: none;
-  color: var(--bk-muted); opacity: 0.45; cursor: default;
+  background: transparent; box-shadow: none;
+  color: var(--bk-muted); cursor: default;
 }
-.bk-cal .cell.selected { background: var(--bk-accent); border-color: var(--bk-accent); color: var(--bk-accent-ink); font-weight: 600; }
-.bk-cal .cell.today:not(.selected) { border-color: var(--bk-accent); }
+.bk-cal .cell.selected {
+  background: var(--bk-accent); color: var(--bk-accent-ink);
+  box-shadow: none; font-weight: 500;
+}
+/* Today is a ring, and selection is a fill, so the two never compete for
+   the same signal. Scoped away from .closed on purpose: a ring on a day
+   that cannot be booked is a promise the cell does not keep. */
+.bk-cal .cell.today:not(.selected):not(.closed) { box-shadow: inset 0 0 0 1px var(--bk-accent); }

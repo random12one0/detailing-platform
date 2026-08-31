@@ -15,6 +15,16 @@
 const THEME_BG = { dark: "#0F1012", light: "#E7E7E5" };
 const DEFAULT_ACCENT = { dark: "#57B2E8", light: "#0D689D" };
 
+// The PUBLIC booking page's own ground and fallback accent. Deliberately
+// separate from the two above: those describe the dashboard, which still
+// ships the outgoing palette until roadmap 2.3, and the booking page went
+// dark first (roadmap 2.1). Both values are "The Thread"'s —
+// docs/design-system.md § Tokens — and BOOKING_BG must match --bk-bg in
+// app/src/book/booking.css, because that is the ground the accent is
+// corrected against and the ground the page actually paints.
+const BOOKING_BG = "#0B0D0E";      // --ink-0
+const BOOKING_ACCENT = "#38E08B";  // --ac, the house signal green
+
 // Accent-vs-background must clear WCAG's non-text component minimum (3:1);
 // text ON the accent must clear the normal-text minimum (4.5:1).
 const MIN_ACCENT_CONTRAST = 3;
@@ -102,13 +112,12 @@ export function inkFor(accentHex) {
 // until the accent clears the given minimum — a light brand color gets
 // darkened on a light theme, lightened on a dark theme. Falls back to the
 // theme default if the color is so extreme no step passes.
-function correctToward(brandHex, mode, min) {
-  const bg = THEME_BG[mode];
+function correctToward(brandHex, bg, min, fallback) {
   let hex;
   try {
     hex = rgbToHex(hexToRgb(brandHex)); // normalizes #abc and bad casing
   } catch {
-    return DEFAULT_ACCENT[mode];
+    return fallback;
   }
   if (contrastRatio(hex, bg) >= min) return hex;
 
@@ -120,32 +129,52 @@ function correctToward(brandHex, mode, min) {
     const candidate = rgbToHex(hslToRgb([h, s, nl]));
     if (contrastRatio(candidate, bg) >= min) return candidate;
   }
-  return DEFAULT_ACCENT[mode];
+  return fallback;
 }
 
 // Fills and large marks: WCAG non-text contrast (3:1) keeps the brand color
 // as close to the owner's choice as legibility allows.
 export function correctAccent(brandHex, mode) {
-  return correctToward(brandHex, mode, MIN_ACCENT_CONTRAST);
+  return correctToward(brandHex, THEME_BG[mode], MIN_ACCENT_CONTRAST, DEFAULT_ACCENT[mode]);
 }
 
 // Accent used AS TEXT (tab labels, links, status pills) is small text and
 // must clear 4.5:1 — pushed further from the brand where needed.
 export function accentTextFor(brandHex, mode) {
-  return correctToward(brandHex, mode, MIN_INK_CONTRAST);
+  return correctToward(brandHex, THEME_BG[mode], MIN_INK_CONTRAST, DEFAULT_ACCENT[mode]);
 }
 
 // The booking page's accent, as CSS custom properties. This is the ONE
-// policy for public pages — mode comes from the page, the default comes
-// from here, and the ink fallback matches applyTheme's. The booking context
-// used to re-implement this sequence inline, which forked the policy.
-export function brandVarsFor(brandHex, mode = "light") {
-  const accent = correctAccent(brandHex || DEFAULT_ACCENT[mode], mode);
+// policy for public pages: the ground is the booking page's own, fixed and
+// independent of any dashboard state, and the accent is corrected against
+// THAT ground — the one the page actually paints — rather than against the
+// dashboard's. The booking context used to re-implement this sequence
+// inline, which forked the policy.
+//
+// No mode argument any more: this surface is dark, full stop (owner,
+// 2026-08-30). If a bespoke tenant site ever turns out light, roadmap
+// phase 3 reopens it and the ground comes back as a parameter.
+export function brandVarsFor(brandHex) {
+  const brand = brandHex || BOOKING_ACCENT;
+  const accent = correctToward(brand, BOOKING_BG, MIN_ACCENT_CONTRAST, BOOKING_ACCENT);
   let ink = inkFor(accent);
   if (contrastRatio(accent, ink) < MIN_INK_CONTRAST) {
     ink = contrastRatio(accent, "#ffffff") > contrastRatio(accent, "#000000") ? "#ffffff" : "#000000";
   }
-  return { "--bk-accent": accent, "--bk-accent-ink": ink, "--bk-bg": THEME_BG[mode] };
+  // --bk-accent is a FILL: buttons, the selected day, the progress mark, a
+  // ring. 3:1 is the right floor for those. --bk-accent-text is the same
+  // colour used AS WORDS — the running total, "PROMO applied", the phone
+  // link — and small text takes 4.5:1, so it is corrected further where the
+  // brand needs it. Splitting these is not fussiness: crimson (#DC2626)
+  // measures 3.27:1 on this ground, which passes as a fill and fails as
+  // type, and that is a real tenant preset (PRESET_COLORS above).
+  const accentText = correctToward(brand, BOOKING_BG, MIN_INK_CONTRAST, BOOKING_ACCENT);
+  return {
+    "--bk-accent": accent,
+    "--bk-accent-ink": ink,
+    "--bk-accent-text": accentText,
+    "--bk-bg": BOOKING_BG,
+  };
 }
 
 export { DEFAULT_ACCENT };

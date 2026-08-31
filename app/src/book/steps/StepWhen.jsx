@@ -68,26 +68,30 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
 
   return (
     <>
-      <div className="bk-row between" style={{ marginBottom: 10 }}>
-        <button className="bk-btn ghost inline" onClick={() => moveMonth(-1)} aria-label="Previous month"
-          disabled={month <= today.slice(0, 7)}>
-          <ChevronLeft size={20} strokeWidth={1.75} />
-        </button>
-        <h2>{new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h2>
-        <button className="bk-btn ghost inline" onClick={() => moveMonth(1)} aria-label="Next month">
-          <ChevronRight size={20} strokeWidth={1.75} />
-        </button>
-      </div>
+      {/* One calendar unit. Without the wrapper, bk-wrap's flex gap opens a
+          26px void between the month header, the weekday row and the grid —
+          the same reason .bk-step-head exists in BookingPage.jsx. */}
+      <div className="bk-cal-block">
+        <div className="bk-row between">
+          <button className="bk-btn ghost inline" onClick={() => moveMonth(-1)} aria-label="Previous month"
+            disabled={month <= today.slice(0, 7)}>
+            <ChevronLeft size={20} strokeWidth={1.75} />
+          </button>
+          <h2>{new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h2>
+          <button className="bk-btn ghost inline" onClick={() => moveMonth(1)} aria-label="Next month">
+            <ChevronRight size={20} strokeWidth={1.75} />
+          </button>
+        </div>
 
-      <div className="bk-cal" style={{ marginBottom: 4 }}>
-        {DOW.map((d, i) => (
-          <div key={i} className="bk-muted" style={{ textAlign: "center", fontSize: "0.7rem" }}>{d}</div>
-        ))}
-      </div>
+        <div className="bk-cal">
+          {DOW.map((d, i) => (
+            <div key={i} className="bk-dow">{d}</div>
+          ))}
+        </div>
 
-      {loading && <div className="bk-center" style={{ minHeight: 160 }}><div className="bk-spinner" /></div>}
+        {loading && <div className="bk-center" style={{ minHeight: 160 }}><div className="bk-spinner" /></div>}
 
-      {!loading && (
+        {!loading && (
         <div className="bk-cal">
           {cells.map((date, i) => {
             if (!date) return <div key={`e${i}`} className="cell empty" />;
@@ -97,7 +101,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
                 key={date}
                 role={open ? "button" : undefined}
                 tabIndex={open ? 0 : undefined}
-                className={`cell ${open ? "" : "closed"} ${form.bookingDate === date ? "selected" : ""}`}
+                className={`cell ${open ? "" : "closed"} ${date === today ? "today" : ""} ${form.bookingDate === date ? "selected" : ""}`}
                 onClick={() => open && setForm((f) => ({ ...f, bookingDate: date, startTime: "" }))}
                 onKeyDown={(e) => {
                   if (open && (e.key === "Enter" || e.key === " ")) {
@@ -111,7 +115,8 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
             );
           })}
         </div>
-      )}
+        )}
+      </div>
 
       {error && <div className="bk-error">{error}</div>}
 

@@ -225,7 +225,7 @@ function BookingFlow() {
       <div className="bk-wrap">
         {/* One header unit: without the wrapper, bk-wrap's flex gap opens
             28px voids between rail, label and heading. */}
-        <div className="bk-step-head">
+        <div className="bk-step-head" key={`head-${step}`}>
           <div className="bk-rail" aria-hidden="true">
             {STEPS.map((s, i) => (
               <span key={s} className={i < step ? "done" : i === step ? "current" : ""} />
@@ -235,6 +235,12 @@ function BookingFlow() {
           <h2>{headingFor(stepName, bothModes, settings)}</h2>
         </div>
 
+        {/* Keyed on the step so React hands back a fresh element and the
+            staggered rise in booking.css re-runs — the whole of the step
+            motion, with no observer and nothing to fail. The wrapper is
+            display:contents, so it changes the motion and nothing about the
+            layout: its children stay direct flex items of .bk-wrap. */}
+        <div className="bk-step" key={`step-${step}`}>
         {stepName === "Services" && (
           <StepServices
             selected={form.serviceIds}
@@ -261,13 +267,14 @@ function BookingFlow() {
             promoState={promoState} onApplyPromo={applyPromo}
           />
         )}
+        </div>
 
         {/* A failed price calculation is visible and recoverable — never a
             silent state that explodes at submit. */}
         {quoteError && (
           <div className="bk-error">
             {quoteError}{" "}
-            <button className="bk-btn ghost inline" style={{ minHeight: 32, textDecoration: "underline" }}
+            <button className="bk-btn inline" style={{ minHeight: 34, padding: "0 16px", marginTop: 8 }}
               onClick={fetchQuote}>
               Try again
             </button>
@@ -275,8 +282,11 @@ function BookingFlow() {
         )}
         {submitError && <div className="bk-error">{submitError}</div>}
 
+        {/* Auto width and left-aligned: a full-bleed ghost button reads as a
+            centred word floating in the column, not as a way back. */}
         {step > 0 && (
-          <button className="bk-btn ghost" style={{ marginTop: 14 }} onClick={() => go(-1)}>
+          <button className="bk-btn ghost" style={{ marginTop: 14, width: "auto", alignSelf: "flex-start", paddingLeft: 0 }}
+            onClick={() => go(-1)}>
             <ArrowLeft size={18} strokeWidth={2} /> Back
           </button>
         )}

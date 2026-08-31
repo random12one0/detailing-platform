@@ -50,13 +50,17 @@ Better than typical for this stage — there is a real, enforced design system:
   only. Both design tests were rewritten to enforce the new rules —
   `composition` is 22 checks now, including a token-drift check that makes
   the page, the document and the test agree on all sixteen values.
-  **Not yet applied to `app/` — that is the whole of Phase 2.** The
-  description that follows is the OLD look, which is still what ships.
+  **Applied to the PUBLIC BOOKING PAGE, and only there, 2026-08-30
+  (roadmap 2.1).** `/book/:slug` and the receipt/manage page `/booking/:id`
+  (they share `app/src/book/booking.css`) now carry the new system, dark. The
+  landing page (2.2) and the dashboard (2.3) still ship the OLD look, and the
+  description that follows is that old look.
 - **Fonts (new system):** exactly two — **Archivo**, one variable face worked
   across both axes (`wdth` 62–125, `wght` 100–900), and **JetBrains Mono**
   for every figure. Down from three.
 - **Old system:** `docs/design-system.md` ("Raking Light") was explicit law: matte near-black ground, exactly one "lit" element per screen, tokens defined once in `theme.css` (`:root` dark + `[data-theme="light"]` + `--bk-*` booking mirror). Enforced by tests: `composition.test.mjs`, `design-contrast.test.mjs` — all passing when I ran them.
-- **Fonts (old system, still what `app/` ships):** exactly three, loaded from Google Fonts in `app/index.html`: Anybody (variable width — titles/labels), Public Sans (prose), DM Mono (every figure, tabular-nums). Phase 2 replaces these with the two above.
+- **Fonts:** `app/index.html` currently requests FIVE families, transitionally and deliberately — Archivo + JetBrains Mono, which the restyled booking page uses, plus Anybody / Public Sans / DM Mono, which the landing page and dashboard still ship. It drops back to two when 2.2 and 2.3 land; the reason is written in the file so it is not mistaken for the intended state.
+- **`app/src/lib/theme.js` now holds three grounds, on purpose:** `THEME_BG` (the dashboard's two, outgoing) and `BOOKING_BG` = `#0B0D0E`, the booking page's own. `brandVarsFor` corrects the tenant accent against `BOOKING_BG` and returns FOUR values, including `--bk-accent-text` — the accent corrected to the 4.5:1 text floor rather than the 3:1 fill floor. `design-contrast` asserts `BOOKING_BG` and `--bk-bg` are the same colour.
 - **Tokens vs hardcoded:** discipline is real. The only hex colors in JS live in `lib/theme.js` (the designated color-math file) and Google-logo colors in Auth **(guess for exact location of the Google hexes — I found the file set, didn't trace each)**. CSS uses `var(--…)` throughout.
 - **Inline styles exist but are modest:** heaviest are LandingPage (28 `style={{`), ManageBookingPage (18), Money (15) — mostly layout one-offs, not colors, judging by spot checks.
 - **Worst pages (guess — I did not screenshot):** the dashboard-spec gap report and HANDOFF list the known weak spots: Calendar (no week view, cell weight), Clients (no sort/filter, was the screen that previously violated the composition rule), Hours (multi-glow deferred). Money's quoted-vs-on-site metric is flagged for demotion.
@@ -140,13 +144,25 @@ phase 1 is outstanding.
   colours (2.4 needs them, nobody has picked them), the dashboard's own
   section skeletons (the body of 2.3), and mid-range Android, which nobody
   has put a thumb on. Nothing uses WebGL, so that risk is low.
+- **New, out of 2.1 (2026-08-30):** **`?lite=1` is not implemented anywhere
+  in `app/`** (`prefers-reduced-motion` is, and was
+  verified on the booking page) — raise it in 2.2; and the Review step prints
+  "Estimated total" twice, once in the receipt and once in the price bar
+  below it — looked at and deliberately kept, with the reasoning recorded so a
+  later pass does not delete the wrong one. Both are written up in
+  DECISIONS.md → "Roadmap 2.1", along with the error-colour hole that item
+  found and closed.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
-0. **Start Phase 2.1 — the public booking page.** Nothing blocks it: the
-   system is written, the direction is approved, and the one question it
-   would have opened with — dark or light — was answered on 2026-08-30:
-   **dark**. See §6b.
+0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
+   Next is **2.2, the marketing/landing page** — which is the page the
+   reference rendering was actually built as, so it is the closest port in
+   Phase 2 and the one place `?lite=1` should finally be implemented in
+   `app/` (it exists on the reference page and on no shipped page).
+   Nothing blocks it. The error-colour hole that 2.1 found was closed in the
+   same session — `--bad: #E2705F` is in the system file and enforced — so
+   2.3 will not walk into it.
 1. ~~**Fix email.**~~ Done and proven 2026-08-29 — see §5. The next-highest open thread is now the reminder scheduler (item 2).
 2. ~~**Wire the reminder scheduler.**~~ Done and proven 2026-08-29 — see §5. HANDOFF thread #2 is closed.
 3. ~~**Delete the pre-conversion junk.**~~ Done 2026-08-28 — roadmap 0.1.

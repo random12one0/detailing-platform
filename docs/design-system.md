@@ -119,6 +119,12 @@ Not suggestions. Where a test enforces one, it is named.
    both axes, JetBrains Mono for money, time and counts, with
    `font-variant-numeric: tabular-nums`. A price set in the body face is a
    bug. See §5.
+   **Never put `font-variation-settings` on a root element.** It inherits,
+   and it beats `font-weight` — declaring the default instance on a page root
+   looks harmless and silently pins every descendant to weight 400: every
+   `<strong>`, every 500-weight price, every selected chip. Set both axes
+   explicitly on the roles that need them and leave `font-weight` working
+   everywhere else. Cost a real bug in 2.1.
    *Enforced by `tests/composition.test.mjs`.*
 
 9. **Legibility beats style, and it is measured, not eyeballed.** Text
@@ -196,6 +202,40 @@ moves them into `app/src/theme.css` unchanged.
 |---|---|---|
 | `--ac` | `#38E08B` | signal green — the thing that has landed |
 | `--ac-deep` | `#0E5C36` | the accent at rest, on light |
+
+**An accent has two jobs and they take different floors.** As a FILL — a
+button face, a selected day, a ring — it clears **3:1**, the non-text
+minimum. As WORDS — a running total, a link, a status line — it is small
+text and clears **4.5:1**. For the house green those are the same colour; for
+a *tenant's* accent they are not. Crimson `#DC2626`, a real preset, measures
+**3.27:1** on `--ink-0`: it passes as a fill and fails as type. So
+`lib/theme.js` corrects twice and hands out two values —
+`--bk-accent` / `--bk-accent-text` on the booking page, `--accent` /
+`--accent-text` on the dashboard. **Any surface that prints the tenant's
+colour as words takes the text variant**, and that includes every tenant site
+built in Phase 3. Found and fixed in roadmap 2.1; see DECISIONS.md.
+
+### The one warm value
+
+| Token | Value | Job |
+|---|---|---|
+| `--bad` | `#E2705F` | an error, and a destructive control's edge |
+
+**Added 2026-08-30 in roadmap 2.1, and deliberately NOT invented.** The
+approved reference page contains no red at all — it is a marketing page with
+no error states — so there was nothing to derive from and a hole where every
+later screen would have invented its own hex, which is the named failure mode
+(`design-knowledge.md` §2). `#E2705F` is the value the product *already*
+ships in the outgoing dashboard palette: continuity rather than a new
+decision. It measures **6.23:1 on `--ink-0`** and **5.54:1 on `--ink-2`**,
+both above the body floor, and it is the only warm value anywhere in the
+system, so it can never be confused with the accent.
+
+It is the one token that is **not** in the reference page, for the reason
+above, so it is exempt from the sixteen-token drift check in
+`composition.test.mjs` — `design-contrast.test.mjs` measures it against this
+document instead. If the owner wants a different red, this is the single
+place to change it.
 
 Signal green because orange was ruled out by name and he flagged his own
 lean toward blue as *"kind of typical AI"*. One dominant plus one sharp
@@ -440,7 +480,10 @@ these go to the owner rather than being decided by a skill.
      accepted that.
 
 2. ~~**The customer booking page is light-first.**~~ **SETTLED 2026-08-30
-   by the owner: dark, like everything else.** The deciding argument was the
+   by the owner: dark — and APPLIED in roadmap 2.1, so this is done, not
+   just decided.** The comment was re-pointed rather than deleted, as
+   required below.
+   The deciding argument was the
    positioning, not taste — the page claims the booking form is built INTO
    the detailer's site, and a light form inside a dark site breaks that on
    sight. **What survives:** the page keeps its own fixed ground independent

@@ -14,9 +14,19 @@ import { brandVarsFor } from "../lib/theme.js";
 const Ctx = createContext(null);
 export const useBookingBusiness = () => useContext(Ctx);
 
-// The booking page is light-first — a customer arriving from a text message
-// shouldn't inherit whatever theme the last dashboard user picked. The
-// ground value comes from lib/theme.js so it can never drift from the CSS.
+// The booking page carries its own fixed ground, independent of any
+// dashboard state — a customer arriving from a text message shouldn't
+// inherit whatever theme the last dashboard user picked. That argument is
+// unchanged; only its conclusion moved. The page was light-first until
+// 2026-08-30, when the owner made it DARK like everything else: the page
+// claims the booking form is built INTO the detailer's site, and a light
+// form sitting inside a dark site breaks that on sight. Reopen in phase 3
+// if a bespoke tenant site turns out light. See DECISIONS.md, "The customer
+// booking page is dark", and docs/design-system.md, item 2 of "What this
+// file does NOT settle".
+//
+// The ground value still comes from lib/theme.js, so the colour the accent
+// is corrected against can never drift from the colour the page paints.
 
 export function BookingBusinessProvider({ slug, children }) {
   const [state, setState] = useState({ status: "loading", profile: null, error: null });
@@ -47,7 +57,7 @@ export function BookingBusinessProvider({ slug, children }) {
 
   // Derived brand tokens — ONE policy, owned by lib/theme.js.
   const brandVars = useMemo(
-    () => brandVarsFor(profile?.branding?.primary_color, "light"),
+    () => brandVarsFor(profile?.branding?.primary_color),
     [profile],
   );
 

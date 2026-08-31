@@ -11,14 +11,20 @@
          white-label platform, so there is no logo to ship — the tenant's own
          branding renders in-app from the database. -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1220'/%3E%3Cpath d='M8 20.5c0-3.6 2.6-6.5 5.8-6.5h4.4c3.2 0 5.8 2.9 5.8 6.5' stroke='%2338bdf8' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='11' cy='22.5' r='1.8' fill='%2338bdf8'/%3E%3Ccircle cx='21' cy='22.5' r='1.8' fill='%2338bdf8'/%3E%3C/svg%3E" />
-    <!-- Three voices, one product (docs/design-system.md): Anybody wide for
-         titles and narrow-tracked for labels — a motorsport-derived face, so
-         the instrument-cluster reference is literal — Public Sans for prose,
-         and DM Mono for every figure.
+    <!-- TWO faces, one product — "The Thread", docs/design-system.md law 8:
+         Archivo worked hard across both axes (wdth 62..125, wght 100..900)
+         for everything that is words, and JetBrains Mono for every figure.
+
+         TRANSITIONAL, and the only reason five families are requested here:
+         the outgoing three (Anybody / Public Sans / DM Mono) are still what
+         the dashboard and the landing page ship. They go when those two are
+         restyled — the landing page in roadmap 2.2, the dashboard in 2.3 —
+         and this list drops back to two. The booking page, restyled in 2.1,
+         already uses only the first two.
          Preconnected so the first paint is not a flash of system font. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@75..125,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&family=Anybody:wdth,wght@75..125,400..800&family=DM+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap" />
     <!-- Generic platform title; the business's own name renders in-app from the database. -->
     <title>Detailing Platform</title>
   </head>

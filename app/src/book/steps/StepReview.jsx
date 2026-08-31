@@ -103,7 +103,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         </div>
         {promoState.error && <div className="bk-error" style={{ marginBottom: 0, marginTop: 8 }}>{promoState.error}</div>}
         {promoState.applied && (
-          <p className="bk-muted" style={{ marginTop: 8, color: "var(--bk-success)" }}>
+          <p className="bk-muted" style={{ marginTop: 8, color: "var(--bk-accent-text)" }}>
             {promoState.applied} applied.
           </p>
         )}

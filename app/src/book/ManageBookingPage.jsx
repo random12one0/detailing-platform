@@ -170,7 +170,7 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
           </p>
           <div className="bk-row between" style={{ marginTop: 10 }}>
             <span>Estimated total</span>
-            <strong>{money(booking.final_amount ?? booking.total_price)}</strong>
+            <strong className="bk-price">{money(booking.final_amount ?? booking.total_price)}</strong>
           </div>
         </div>
 
@@ -222,7 +222,7 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
               <strong>{time12(booking.start_time)}</strong>? The time goes back to
               whoever wants it, so we may not be able to give it back.
             </p>
-            <button className="bk-btn" style={{ marginTop: 12, borderColor: "var(--bk-danger)", color: "var(--bk-danger)" }}
+            <button className="bk-btn" style={{ marginTop: 12, boxShadow: "inset 0 0 0 1px var(--bk-danger)", color: "var(--bk-danger)" }}
               disabled={busy} onClick={doCancel}>
               {busy ? "Cancelling…" : "Yes, cancel it"}
             </button>
@@ -268,7 +268,7 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
                 <button className="bk-btn" style={{ marginTop: 10 }} disabled={busy} onClick={loadSlots}>
                   <CalendarClock size={18} strokeWidth={2} /> {busy ? "Loading…" : "Change the time"}
                 </button>
-                <button className="bk-btn" style={{ marginTop: 10, borderColor: "var(--bk-danger)", color: "var(--bk-danger)" }}
+                <button className="bk-btn" style={{ marginTop: 10, boxShadow: "inset 0 0 0 1px var(--bk-danger)", color: "var(--bk-danger)" }}
                   disabled={busy} onClick={() => setConfirmCancel(true)}>
                   <X size={18} strokeWidth={2} /> Cancel this booking
                 </button>

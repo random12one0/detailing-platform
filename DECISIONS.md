@@ -2064,3 +2064,185 @@ file computing colour in JS — but `brandVarsFor(..., "light")` at
 `DEFAULT_ACCENT` in `theme.js` collapse to single values along with the
 dashboard toggle in 2.3. The contrast test's "outgoing: booking (light-first)"
 block goes when the tokens do.
+
+## Roadmap 2.1 — the booking page restyled, and what it cost (2026-08-30)
+
+The first surface in `app/` to actually carry "The Thread". Files touched:
+`app/src/book/booking.css` (rewritten), `BookingPage.jsx`, `StepWhen.jsx`,
+`StepReview.jsx`, `BookingConfirmed.jsx`, `ManageBookingPage.jsx`,
+`BookingBusinessContext.jsx`, `app/src/lib/theme.js`, `app/index.html`, and
+the booking block of `tests/design-contrast.test.mjs`.
+
+The light-first comment in `BookingBusinessContext.jsx` was **re-pointed, not
+deleted**, as the decision above requires: the page still carries its own
+fixed ground independent of dashboard state — only the colour changed.
+
+### The accent had to split in two, and this is a system-level rule
+
+`brandVarsFor` now returns **`--bk-accent-text` as well as `--bk-accent`**,
+and the stylesheet says plainly: never use `--bk-accent` on words.
+
+The reason is measured, not stylistic. `correctAccent` clears the **3:1**
+non-text floor, which is right for a button fill, a selected day or a ring.
+But this page also sets the running total, the "PROMO applied" line and the
+phone link IN the accent, and small text takes **4.5:1**. Crimson `#DC2626` —
+a real entry in `PRESET_COLORS` and the live accent of `demo-riverside` —
+measures **3.27:1** on `--ink-0`: it passes as a fill and fails as type. The
+text variant runs the same correction at the 4.5 floor and comes back
+`#E04040` (4.62:1) for that tenant, and is identical to the fill for accents
+with headroom.
+
+The dashboard already had this distinction (`accentTextFor` → `--accent-text`)
+and the booking page simply never used it. **Any surface that prints the
+tenant's colour as words needs the text variant — that includes every tenant
+site built in Phase 3.**
+
+`correctToward` took `(hex, mode, min)` and now takes `(hex, bg, min,
+fallback)`, because the booking page's ground is no longer one of the
+dashboard's two. `BOOKING_BG` (`#0B0D0E`) and `BOOKING_ACCENT` (`#38E08B`)
+are named constants in `theme.js`, kept separate from `THEME_BG` /
+`DEFAULT_ACCENT` on purpose: those still describe the dashboard, which ships
+the outgoing palette until 2.3. **`design-contrast` now asserts that
+`BOOKING_BG` and `--bk-bg` are the same colour**, because correcting an
+accent against one ground and painting it on another is a silent failure.
+
+### The system had no error colour — that hole is now closed, not flagged
+
+The first pass reused `#E2705F` locally and flagged the gap. That was leaving
+a hole for 2.3 to fall into on eleven settings screens, so it was chased
+instead: **`--bad: #E2705F` is now a named token in
+`docs/design-system.md` § Tokens**, under "The one warm value".
+
+It was NOT invented. A grep of the approved reference page found **no red in
+it at all** — it is a marketing page with no error states, so there was
+nothing to derive from and nothing to contradict. `#E2705F` is the value the
+product already ships in the outgoing dashboard palette: continuity rather
+than a new decision. On the new ground it measures **6.23:1 on `--ink-0`**
+and **5.54:1 on `--ink-2`**, and it is the only warm value anywhere in the
+system, so it can never be mistaken for the accent.
+
+It is the one token that is not in the reference page, so it is exempt from
+`composition`'s sixteen-token drift check; `design-contrast` now asserts the
+stylesheet and the document agree on its value instead. **If the owner wants
+a different red, `docs/design-system.md` is the single place to change it and
+the test will fail until the stylesheet follows.**
+
+### Two traps found by looking, worth not re-learning
+
+- **`font-variation-settings` inherits and beats `font-weight`.** It was set
+  on `.bk` as `"wdth" 100, "wght" 400` — harmless-looking, since that is
+  Archivo's default instance — and it silently pinned every descendant to
+  weight 400: every `<strong>`, every 500-weight price, every selected chip.
+  Confirmed in the browser, not guessed. It is gone from `.bk`; the roles
+  that need an axis set both explicitly. **2.2 and 2.3 must not re-add it to
+  a root element.**
+- **The price bar intermittently failed to paint at all** — the whole strip,
+  CTA included — while the DOM reported it present at the right rect. It was
+  `backdrop-filter: blur(16px)` on a fixed bar sitting over the fixed
+  `mix-blend-mode: overlay` grain layer; removing the filter fixed it every
+  time. The bar is now solid `--bk-bg`. Whether or not that reproduces on a
+  phone, the primary control on a customer-facing page does not ship on a
+  compositing trick, and translucency at 88% bought almost nothing.
+
+### Mechanics deliberately not carried, per law 3
+
+- **The drifting dot lattice.** It is a landing-page mechanic: there the
+  ground is mostly empty and the lattice is what makes it a surface rather
+  than a colour. Here the ground is never empty — a ruled list, a
+  seven-column calendar and a slot grid sit on it — and a 46px lattice behind
+  a seven-column grid reads as moire. Law 2 is carried by the drifting light,
+  which is the layer above it in the system's own order of cost.
+- **The pointer light and the buttons' radial sheen.** Both need a rAF
+  pointer listener and both are fine-pointer-only; this is the most
+  phone-first surface in the product. The hover lift stays.
+- **No `--t-exit` token.** Nothing on this page animates out — a step's
+  content unmounts when the step changes, and holding the old step mounted so
+  it could leave is real machinery for a transition nobody watches.
+
+The one orchestrated moment is the step's staggered rise: `bk-rise`, keyed on
+the step index in `BookingPage.jsx` so React hands back a fresh element and
+the CSS animation re-runs. No observer, no rAF, nothing to fail. The wrapper
+is `display: contents`, so it changes the motion and nothing about the layout.
+Verified with every animation and transition force-disabled: the page reads
+completely, so nothing is hidden behind an animation.
+
+### Smaller fixes made on the way, all found by looking
+
+- **The masthead and the price bar sat 16px left of every card edge** at 768
+  and up: `.bk-wrap`'s `max-width` included its own padding and the two
+  `.inner` elements' did not. One `--bk-col` token now defines the content
+  width for all three.
+- `.bk-grid2` (the phone/email pair in `StepDetails`) was **used in JSX and
+  never defined in CSS** — the fields had been stacking at every width.
+- The month header was an `<h2>` at the same size and weight as the step's
+  own question two lines above it, and being centred it won. Demoted.
+- The calendar's month nav, weekday row and grid are now one `.bk-cal-block`,
+  for the same reason `.bk-step-head` exists — the wrap's 26px flex gap was
+  opening voids inside what is one control.
+- `.cell.today` was styled and commented in the old CSS but **no code ever
+  set the class**. Now set, and scoped `:not(.closed)` so a ring never
+  appears on a day that cannot be booked.
+- A disabled primary button was the accent at 38% opacity, which kept enough
+  presence to read as pressable while its dark ink faded into it. Disabled
+  primaries go neutral, so the accent only appears when the action is live.
+- Money in `BookingConfirmed` and `ManageBookingPage` was a plain `<strong>`,
+  not `.bk-price` — law 8 says every figure is monospaced.
+- `ManageBookingPage`'s destructive buttons set `borderColor` inline, dead
+  since buttons now ring with `box-shadow`; converted.
+- Six dead classes and three unused tokens deleted.
+
+### A screenshot trap, so the next session does not chase it
+
+**In the in-app browser pane, a screenshot of a SCROLLED page paints every
+`position: fixed` element offset downward by exactly `scrollY`.** It looks
+like a hard seam across the page and like the price bar has vanished. It is
+the capture path, not the CSS: a plain magenta fixed `div` with no animation,
+blend or `will-change` reproduces it exactly, while `getBoundingClientRect()`
+reports the correct viewport rect for all of them. Judge fixed elements from
+an unscrolled capture. (This is separate from the `backdrop-filter` bar
+above, which was real and is fixed.)
+
+Also: while the pane is hidden, CSS animations are throttled, so a screenshot
+taken shortly after a step change catches the reveal mid-flight and reads as
+"the content is invisible". Front the tab, or finish the finite animations
+first via `document.getAnimations()`.
+
+### What 2.1 leaves open
+
+1. ~~**The system has no error colour.**~~ **Closed in this session** — see
+   above. `--bad: #E2705F` is in the system file and enforced.
+2. **`?lite=1` does not exist in `app/`.** The reference page has `.lite` on
+   its root; the shipped app has never implemented that flag, on any page.
+   `prefers-reduced-motion` IS handled here and was verified. The flag is a
+   Phase 2 gap, not a 2.1 gap — raise it in 2.2, which is the page the
+   reference was actually built as.
+3. **`index.html` requests five font families**, not two: Archivo and
+   JetBrains Mono for this page, plus Anybody / Public Sans / DM Mono, which
+   the landing page and the dashboard still ship. It drops back to two when
+   2.2 and 2.3 land. Stated in the file itself so it is not mistaken for the
+   intended state.
+4. **`<meta name="theme-color">` is still `#0F1012`**, the outgoing
+   dashboard ground, against this page's `#0B0D0E`. One shared tag, one
+   value, four units apart — invisible in practice. It moves in 2.3.
+5. **The Review step prints "Estimated total" twice** — once at the foot of
+   the receipt, once in the price bar directly below it, which is visible
+   together on a desktop. **Looked at and deliberately kept, not left open:**
+   a receipt that does not foot to a total is not a receipt, and a running
+   total that disappears on the last step is worse than one that repeats. The
+   two only coincide on one step at one width. Noted so a later pass does not
+   "fix" it by deleting the wrong one.
+
+### What was actually looked at
+
+Every one of the six steps, the confirmation screen, the receipt/manage page
+including its reschedule and cancel-confirm states, the not-found screen and
+a forced error block — at **392, 768, 1440 and 1920** — across three real
+demo tenants chosen for their differences: `demo-detail` (four services in
+four groups, both service modes, sky `#0EA5E9`), `demo-riverside` (**two**
+services, no groups, mobile-only, travel fee, site discount, crimson
+`#DC2626` — the empty-state case the roadmap names), and `demo-ironclad`
+(seven services in three groups, drop-off only, forest `#059669`). A real
+booking was created end to end and then opened on its own receipt page.
+Console clean at every width apart from two pre-existing React Router v7
+future-flag warnings. `composition` 22/22, `design-contrast` all pairs,
+`landing-pricing` 18/18, `route-contract` 18/18.

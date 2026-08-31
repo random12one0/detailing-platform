@@ -52,7 +52,7 @@ export default function BookingConfirmed({ booking, form }) {
           </p>
           <div className="bk-row between" style={{ marginTop: 10 }}>
             <span>Estimated total</span>
-            <strong>{money(booking.total_price)}</strong>
+            <strong className="bk-price">{money(booking.total_price)}</strong>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ export default function BookingConfirmed({ booking, form }) {
 
         {business.phone && (
           <p className="bk-muted" style={{ marginTop: 18, textAlign: "center" }}>
-            Questions? Call <a href={`tel:${business.phone}`} style={{ color: "var(--bk-accent)" }}>{business.phone}</a>
+            Questions? Call <a href={`tel:${business.phone}`} style={{ color: "var(--bk-accent-text)" }}>{business.phone}</a>
           </p>
         )}
       </div>

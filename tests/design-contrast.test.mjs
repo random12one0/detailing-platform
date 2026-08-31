@@ -108,14 +108,51 @@ if (SOURCE !== APP) {
   row("text-2 / surface-lit", L.t2, L.lit);
   row("accent / bg", L.ac, L.bg);
 
-  console.log("== outgoing: booking (light-first) ==");
+  console.log("== booking page — DARK, restyled to \"The Thread\" in roadmap 2.1 ==");
+  // No longer an outgoing palette: this surface has already been restyled,
+  // and its tokens are the system's, scoped under .bk for the reason the
+  // stylesheet's header explains. The tenant's accent is NOT checked here —
+  // it is injected per business and corrected at runtime by lib/theme.js
+  // against --bk-bg, which is exactly why that ground has to be the value
+  // this file reads. tests for the correction itself live with theme.js.
   const bk = readFileSync("app/src/book/booking.css", "utf8");
   const g = (name) => bk.match(new RegExp(`--bk-${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1];
-  const B = { bg: g("bg"), card: g("card") || g("surface"), lit: g("lit"), t: g("ink") || g("text"), mut: g("muted") };
+  const B = {
+    bg: g("bg"), sunken: g("sunken"), card: g("card") || g("surface"), lit: g("lit"),
+    t: g("ink") || g("text"), t2: g("text-2"), mut: g("muted"), bad: g("danger"),
+  };
+  // The ground the CSS paints and the ground lib/theme.js corrects the
+  // tenant accent against must be the same colour, or a brand colour can be
+  // corrected against one background and displayed on another.
+  const themeJs = readFileSync("app/src/lib/theme.js", "utf8");
+  const bookingBg = themeJs.match(/BOOKING_BG\s*=\s*"(#[0-9a-fA-F]{6})"/)?.[1];
+  if (!bookingBg || bookingBg.toUpperCase() !== (B.bg || "").toUpperCase()) {
+    bad++;
+    console.log(`FAIL         --bk-bg is ${B.bg}, lib/theme.js BOOKING_BG is ${bookingBg}`);
+  } else {
+    console.log(`ok           --bk-bg matches lib/theme.js BOOKING_BG (${bookingBg})`);
+  }
   row("ink / bg", B.t, B.bg);
   row("ink / card", B.t, B.card);
+  row("ink / lit (the selected card)", B.t, B.lit);
+  row("ink-2 / card", B.t2, B.card);
+  row("muted / bg", B.mut, B.bg);
+  row("muted / sunken (input placeholders)", B.mut, B.sunken);
   row("muted / card", B.mut, B.card);
   row("muted / lit", B.mut, B.lit);
+  // --bad is the one token that is not in the reference page (that page has
+  // no error states), so the sixteen-token drift check in composition.test
+  // cannot cover it. It is checked against the DOCUMENT here instead.
+  const docBad = readFileSync("docs/design-system.md", "utf8")
+    .match(/`--bad`\s*\|\s*`(#[0-9a-fA-F]{6})`/)?.[1];
+  if (!docBad || docBad.toUpperCase() !== (B.bad || "").toUpperCase()) {
+    bad++;
+    console.log(`FAIL         --bk-danger is ${B.bad}, docs/design-system.md --bad is ${docBad}`);
+  } else {
+    console.log(`ok           --bk-danger matches docs/design-system.md --bad (${docBad})`);
+  }
+  row("danger / bg", B.bad, B.bg);
+  row("danger / card", B.bad, B.card);
 
   console.log("== outgoing: landing (dark only) ==");
   // FOUND 2026-08-30 while rewriting this file: every one of these used to

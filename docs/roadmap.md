@@ -429,15 +429,41 @@ is kept; the entire visual design restarts from scratch.
 
 ## Phase 2 — Apply the new look everywhere
 
-- [ ] 2.1 Public booking page `/book/:slug` (heaviest weight: customers
+- [x] 2.1 Public booking page `/book/:slug` (heaviest weight: customers
       use it and prospects judge it) — including the empty-state rule: a
       business with two services and no photos must look intentional.
 
-      **ANSWERED 2026-08-30, before the item starts: DARK.** He was asked
-      separately rather than having it inferred from his dashboard answer,
-      because this is a different surface — it is light-first today on
-      purpose (`BookingBusinessContext.jsx`, grounded on
-      `--bk-bg: #E7E7E5`). The deciding argument was the positioning: the
+      **DONE 2026-08-30.** `app/src/book/booking.css` rewritten onto "The
+      Thread": the sixteen tokens under their `--bk-*` names with the system
+      name beside each, Archivo + JetBrains Mono, pill/panel/inset radii, the
+      one easing curve, and an atmospheric ground (a drifting light that
+      never stops, plus grain) instead of a flat fill. The receipt/manage
+      page shares the stylesheet and came dark with it, ahead of its own
+      restyle in 2.4. Full write-up, including every judgment call and the
+      five threads it leaves open, is in DECISIONS.md → "Roadmap 2.1".
+
+      **The empty-state rule holds.** `demo-riverside` — two services, no
+      groups, no photos — reads as calm rather than unfinished: two
+      well-spaced panels, a lit ground under them, and one clear next action.
+      Nothing is stretched to fill and there is no placeholder.
+
+      **Two things came out of it that outrank this item.** The tenant accent
+      had to split into a fill value and a TEXT value, because a real preset
+      (crimson) passes the 3:1 non-text floor and fails the 4.5:1 text floor —
+      that is now written into `docs/design-system.md` § Tokens and applies to
+      every tenant site in Phase 3. And the system named no error colour at all —
+      the approved page has no red in it anywhere — so `--bad: #E2705F` was
+      added to it, taken from the palette the product already ships rather
+      than invented, measured on the new ground and enforced by
+      `design-contrast`. 2.3 no longer walks into that hole.
+
+      **ANSWERED 2026-08-30, before the item started: DARK — and now
+      built.** He was asked separately rather than having it inferred from
+      his dashboard answer, because this is a different surface — it *was*
+      light-first on purpose (`BookingBusinessContext.jsx`, grounded on
+      `--bk-bg: #E7E7E5`; it now grounds on `#0B0D0E`, and the comment was
+      re-pointed as instructed below, not deleted). The deciding argument
+      was the positioning: the
       page claims the booking form is built INTO the detailer's site, and a
       light form sitting inside a dark site breaks that on sight.
       **Keep the page's ground independent of dashboard state** — that is
@@ -446,9 +472,57 @@ is kept; the entire visual design restarts from scratch.
       light. See `DECISIONS.md` → "The customer booking page is dark".
 
 - [ ] 2.2 Marketing/landing page.
+
+      **This is the closest port in Phase 2** — the reference rendering
+      `docs/design-directions/5-the-thread.html` *is* this page, so most of
+      it is transplanting rather than interpreting.
+
+      **Two things 2.1 deliberately left here rather than doing twice.**
+
+      1. **`?lite=1` does not exist anywhere in `app/`.** The system's
+         Degradation section makes `.lite` the single code path and routes
+         `prefers-reduced-motion` into it; the shipped app has only ever had
+         the media query. The booking page's reduced-motion handling was
+         verified working, and every animation was force-disabled to prove
+         nothing is hidden behind one — but building a `.bk`-only `.lite`
+         would have created exactly the second implementation the system
+         forbids. It belongs at the app root (`main.jsx`), which is this
+         item's territory: read the flag, add the class to
+         `<html>`, and route reduced-motion into the same class in JS rather
+         than duplicating it in CSS.
+      2. **`app/index.html` requests five font families**, not two — Archivo
+         and JetBrains Mono for the booking page, plus Anybody / Public Sans
+         / DM Mono for this page and the dashboard. Drop the three this item
+         stops using; the last of them goes in 2.3.
+
 - [ ] 2.3 Dashboard — all five tabs and every settings screen.
-- [ ] 2.4 Per-tenant recoloring — test extreme accents (neon, near-black),
-      both themes; restyle the customer cancel/reschedule pages.
+
+      **Carries the light-theme removal** (scoped at the end of
+      `docs/design-system.md`) and the last three font families out of
+      `app/index.html`. Also `<meta name="theme-color">`, still `#0F1012` —
+      the outgoing dashboard ground — where the system's ground is `#0B0D0E`.
+
+      **Two things 2.1 established that this item must follow rather than
+      re-derive:** never put `font-variation-settings` on a root element
+      (law 8 now says why), and the tenant accent has a fill value and a
+      separate TEXT value — though the dashboard keeps the fixed house
+      palette, so only its `--accent-text` path is affected.
+- [ ] 2.4 Per-tenant recoloring — test extreme accents (neon, near-black);
+      restyle the customer cancel/reschedule pages.
+
+      **Two corrections, both from 2026-08-30.** "Both themes" is stale —
+      the owner killed the light theme, so there is one ground to test
+      against. And the cancel/reschedule page (`ManageBookingPage.jsx`)
+      shares `booking.css`, so it already came dark in 2.1 and was walked at
+      all four widths in its confirmed, reschedule and cancel-confirm states;
+      what is left for 2.4 is its own composition, not its palette — chiefly
+      that its three stacked full-width buttons carry no hierarchy.
+
+      **The accent work 2.4 has to test is now two values, not one.**
+      `--bk-accent` is the fill (3:1) and `--bk-accent-text` is the same
+      colour as words (4.5:1); an extreme accent can pass one and fail the
+      other. Test both. Still blocked on the curated four-to-six accent set,
+      which nobody has picked.
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
 
