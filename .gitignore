@@ -116,3 +116,10 @@ shots/
 # 21 MB of other people's websites; the repo is public and history is forever.
 # Owner decision 2026-08-29. Cited by filename in docs/references/ANALYSIS.md.
 screenshots/
+
+# Local tooling config for the impeccable design hook. NOT tracked, on purpose:
+# CLAUDE.md requires that no tool-specific mechanism carry a decision, because
+# the owner expects to move to a different coding agent. The one suppression in
+# it (the .sheet height transition) is a duplicate — the reasoning that matters
+# lives in a comment beside that rule in app/src/theme.css.
+.impeccable/
