@@ -52,11 +52,11 @@ were made more than once.
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
 | **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
-| **The dashboard `/app`** | **Roadmap 2.11, step 4 first — it is the current design of every screen** · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
+| **The dashboard `/app`** | **Roadmap 2.11, step 4 first — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
 | **Spacing, layout, or anything at phone width** | Roadmap 2.6 · Test at HIS screen size, not yours |
-| **A test, a check, or a measuring script** | A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
+| **A test, a check, or a measuring script** | Roadmap 2.11, step 5 (what `composition.test.mjs` test 1 must assert) · A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
 | **`main`, deploying or publishing** | The owner put the redesign on `main` and published it · ANSWERED: Netlify does auto-publish `main` |
 | **Keys, RLS, the public repo, or the live business** | Phase 0 — 0.4 deployment sanity · Abuse check on the live project · Roadmap 0.1 cleanup · A guessable demo login |
 | **Email or reminders** | Phase 0 — 0.2 email · Test deployment and later fixes |
@@ -142,6 +142,7 @@ were made more than once.
 - **His answers to the inventory's seven** — all seven the same day, and **three answered bigger than they were asked.** Q1 overruled the recommendation (a setup FORM plus a separate guided tour); **Q5 became roadmap 2.12** — a switch between a booking that RESERVES and a booking that is a REQUEST. And the caveat that matters more than any answer: **the file was too long for him to read.**
 - **Roadmap 2.11, step 3 — the desktop specification, and a "no" he asked for** — two derived breakpoints and **five screens given five DIFFERENT wide forms**, because "list left, panel right" five times is law 1's own named failure. **Calendar stays ONE column and Part B's approved "month beside the day" was overruled by measuring it** (a split cell is 104px; one column is 163px). **The week view is ruled NO**, with the month cell as its replacement. And the sweep grew a fifth check because the four it had reported CLEAN at 1920 with a 724px column.
 - **Roadmap 2.11, step 4 — every screen designed, and three defects fixed on paper** — the three were **re-measured in a live browser** before being designed against (three rails not one; a finished job wearing the "ahead" node; a paid job wearing the tenant's accent where the calendar uses the fixed green). **A fourth was found by looking and nothing had named it: leaving Today and coming back throws the whole day away and redraws it**, and `reload()` does the same after every "Mark complete". The label fix is a **deletion** — two runs collapse into one — and **one question deleted itself by reading the schema instead of asking him.**
+- **Roadmap 2.11, step 5 — the component inventory, and three rulings** — **twelve new files, one deleted, and nothing invented.** History's and Clients' column-carrying row is ruled **one CSS chassis with two call sites, not a React component and not a new “table”** — which spends bucket 2's one permitted vocabulary addition on nothing, deliberately. That ruling also settles **2.10's declined decision 7**: `composition.test.mjs` test 1's allowance becomes per-CALLER, not per-component, which is the half that makes it able to see the failure it exists to catch. Plus the setup form's progress rule (**a segment fills when a step is COMPLETED, never when it is passed** — otherwise the bar and Business's “3 of 7 done” are two numbers that disagree) and the walkthrough's spotlight (**one element and a 9999px shadow**, verified against the EMPTY dashboard rather than the demo). **Three things found by counting: `--wrap` has never existed in `theme.css`, `.badge` is seven dead rules duplicating `.pill`, and two settings-screen counts in the files above are off by one.**
 
 <!-- INDEX:END -->
 
@@ -5852,3 +5853,139 @@ rather than an omission** — monthly plans are a feature with a price and a
 term rather than a settings screen, the custom domain is roadmap 3.3, and
 campaigns stay deliberately unplaced because inventing a sixth destination for
 a half-built feature is how a five-tab bar becomes six.
+
+
+## Roadmap 2.11, step 5 — the component inventory, and three rulings
+
+`docs/dashboard-component-inventory-2026-08-31.md`, 2026-08-31. **Nothing is
+built.** Step 6 is his approval gate and is the next thing that needs him.
+This step is bookkeeping over what step 4 named — no design skill ran against
+it, per the roadmap's own table row.
+
+**THE SHAPE OF THE ANSWER: twelve new files, one deleted, nothing invented.**
+Sixty-one source files become seventy-two. Sixteen components are untouched,
+fifteen are rewrites of things already there, `BookingCard` is kept and
+narrowed from five callers to two, and `More.jsx` is the only deletion.
+
+- **RULING 1 — History's row and Clients' row are ONE shape, and it is CSS,
+  not a component.** Step 4 §17 handed this forward with 2.10's declined
+  decision 7 riding on it. Three parts. **(i) The vocabulary gains nothing.**
+  The desktop specification §9 nominated a **table** and it is refused: what
+  these screens need is the hairline, the row rhythm and the tap height
+  `.rows` / `.row-item` already have, with the row's *interior* going from a
+  stacked pair to N columns above 1024. The container does not change, so
+  there is no new container. Bucket 2's one permitted addition — *"at step 5,
+  deliberately and once"* — **is spent on nothing, on purpose**, and the
+  vocabulary stays at seven. **(ii) The chassis is `.rows.cols` plus two
+  column templates in `theme.css`**, three lines apart, rather than a
+  `<ListRow columns={...}>`. The reasoning is the point: a component that
+  takes a column list IS a generic table primitive, and a generic table
+  primitive is the eighth screen inventing a fourth kind of list arriving
+  through the front door instead of by accident. Two CSS rules cannot be
+  imported. **(iii) Each screen writes its own row markup**, because History
+  carries a status mark and a month rule and Clients carries neither, and
+  sharing them would mean a prop that switches half a row off.
+
+- **AND THAT RULING SETTLES DECLINED DECISION 7, WHICH IS WHY IT WAS PARKED
+  HERE.** `composition.test.mjs` test 1 matches a `.map(...)` whose callback
+  contains a `className` with `card` **in the same file**, and
+  `BookingCard.jsx` sits on a GLOBAL allowed list — so `Calendar.jsx` maps
+  eighteen bookings onto `<BookingCard>` and passes. The rewrite is two
+  changes and **the second is the one that matters: the allowance is keyed to
+  `file > component`, not to component.** `Today.jsx > BookingCard` and
+  `DaySheet.jsx > BookingCard` are allowed with reasons; `Calendar.jsx` and
+  `Clients.jsx` are not. Making it per-component and not per-caller would
+  leave the hole exactly where it is. `docs/design-system.md` § Composition
+  gains the sentence that makes it enforceable — **"a card rendered from a
+  list through a component is still a card"** — at step 6, not silently.
+
+- **RULING 2 — the setup form's progress rule, and it is a data question
+  dressed as a visual one.** Seven segments, `--hairline` track, `--accent`
+  fill. **A segment fills in when a step is COMPLETED, never when it is
+  passed.** Step 4 §13a made setup skippable on his own words AND made
+  Business carry *"Finish setting up · 3 of 7 done"*; if the bar painted
+  position, a detailer who skipped seven times would watch it fill and then be
+  told nothing is done. One number, both places. **A skipped step is a hole in
+  the bar and the hole is the feature** — which is also why it is segmented
+  rather than one continuous fill, since a continuous bar cannot express a
+  gap. Filled and empty differ in fill, not hue, so it adds nothing to the
+  1.4.1 surface. Ceiling stated: **~31px a segment at 320 with seven steps;
+  past about ten steps the words are doing all the work.**
+
+- **RULING 3 — the walkthrough's spotlight is one element and a 9999px
+  shadow.** `box-shadow: 0 0 0 9999px` dims everything OUTSIDE the element's
+  box, so the box is the hole: one element, one `getBoundingClientRect()`, no
+  mask, no `clip-path` arithmetic, no second copy of the dashboard to keep in
+  sync, and **it never touches the styles of the thing it points at** — which
+  matters because it runs over the live screen with real data. Six rules come
+  with it, and **the third is the one a later session would otherwise find the
+  hard way: it must be verified against the EMPTY dashboard, not the seeded
+  demo.** Step 4's own step list includes *"a job"*, and a first-run detailer
+  has none — so the tour is six steps that day and seven later, and both are
+  correct. Targets are found by a `data-tour` attribute rather than by
+  position, which is what makes the step list survive a target moving into a
+  second column at 1180.
+
+- **ONE RULE REORGANISES MORE CODE THAN ANY OF THE THREE: a record renders its
+  content, and its container is the caller's.** It is the mechanical
+  consequence of the desktop spec §4a, and it was not obvious until the
+  components were counted: **eleven `<Sheet>` call sites across ten files
+  render their own container today**, and four of them are records that above
+  1180 have to open beside a list instead. `Sheet.jsx` itself does not change
+  — four things stop BEING a sheet and start being HOSTED in one, through one
+  ~20-line `RecordHost`. Six call sites each writing their own width check is
+  how the 320 floor got fixed on one screen and not its neighbour twice
+  already.
+
+- **THREE FINDINGS THAT CAME FROM COUNTING, WHICH IS WHAT THIS STEP IS FOR.**
+  **(a) `--wrap` has never existed in `theme.css`** — the desktop
+  specification names its breakpoint after it, and the token lives in
+  `landing.css:115` scoped to `.ld`. Two stylesheets must not each hold their
+  own copy of a layout number. **(b) `.badge` is seven dead rules** — zero
+  users anywhere in `app/src` or `supabase/`, and a byte-for-byte duplicate of
+  `.pill`, which every screen actually uses. **The coupling to
+  `accent-sweep.mjs` was checked rather than assumed, and the first answer was
+  wrong**: the sweep does not lose a row, because it never had a `.badge` one —
+  `accent-sweep.mjs:78` measures a single surface and labels it *".pill.completed
+  / .badge.completed"*, the two being the same declaration. What deleting
+  `.badge` actually leaves is **five comments that would become false**
+  (`accent-sweep.mjs:19`, `:65`, `:78`; `lib/theme.js:42`, `:68`), corrected in
+  the same change. No measurement moves and the sweep still exits 0.
+  **(c) Two counts are off by one** — step 4 §11 is titled *"twelve of them"*
+  and lists thirteen, and the desktop spec §4a's *"all eleven"* is the same
+  slip a step earlier. There are **thirteen** settings screens; Switch
+  business is a fourteenth destination and is not one of them, because it is a
+  picker and does not share the settings skeleton. **Both were corrected at
+  source in this session rather than only reported** — a wrong count that is
+  merely written down somewhere else is how it survives — and each correction
+  carries a dated note saying step 5 made it.
+
+- **AND A FOURTH THING THE COUNT TURNED UP, WHICH IS THE FAMILIAR FAMILY IN A
+  NEW PLACE.** `sweep-widths.mjs:90` holds a `MORE` array of **eleven
+  settings-screen titles** and walks each one. Reviews and FAQ would simply not
+  be visited, and the sweep would report CLEAN across eighteen screens having
+  never opened two of them — *"a skipped check reads exactly like a passing
+  one"*, in the script that exists to stop that. **It also opens all eleven
+  from one door**, and §10 moves the plumbing behind the gear, so it needs two
+  routes rather than one. The same eleven is quoted in CLAUDE.md's own
+  description of the script and becomes thirteen with the build.
+
+- **`.dashed` DIES, AND ITS DELETION HAS A SIDE EFFECT WORTH THE SENTENCE.**
+  Step 4 §1a leaves no shape for a dashed box to be — an empty section is not
+  drawn and an empty screen is one sentence and one way forward — so the class
+  and its seven uses go. `sweep-widths.mjs`'s `boxy()` matcher lists `.dashed`
+  among the things with an edge; once nothing carries the class that matcher
+  is harmlessly matching nothing, which is the "a skipped check reads like a
+  passing one" family in miniature. Step 6 takes it out of the selector in the
+  same change.
+
+- **ONE THING WAS CONSIDERED AND REFUSED, RECORDED SO IT IS A DECISION RATHER
+  THAN AN OVERSIGHT: `Calendar.jsx` is NOT split into Month and History.**
+  They are two rows in the law-1 register behind one chip toggle in one
+  294-line file, and the rebuild grows both. The split was argued for — two
+  desktop layouts, two verification targets, step 6 building one screen at a
+  time — and refused on the repo's own evidence: the `mode` branch already
+  separates them cleanly and this codebase's norm is 500–600 line screens
+  (`BookingRules` 541, `Catalog` 614). **The trigger that reverses it is
+  written down:** if either mode needs its own scroll or sticky container,
+  split then, in that change.

@@ -196,7 +196,7 @@ because you have already left the list.
 |---|---|
 | A job (from Today, from History, from the day) | New booking |
 | A client | Finalize payment |
-| A settings screen (all eleven) | Add an expense |
+| A settings screen (all thirteen) | Add an expense |
 | The selected day (inline — see Calendar, §5b) | Block this day / Hours / How this day works |
 
 **Everything in the left column stays where it was while a record is open.**
@@ -618,7 +618,7 @@ against numbers rather than against a screenshot.
 | Calendar, viewport left below the grid at 1920x1080 | 327px | **≤180px** |
 | Clients columns per row at 1440 | 2 | **4** |
 | Clients columns per row at 392 | 2 | **2 — unchanged** |
-| Settings screens at 1440 | 640px modal | **≥700px column, no backdrop** |
+| Settings screens at 1440 | 640px modal | **≥700px column, no backdrop**, all thirteen |
 | Every screen at 1023px and below | — | **identical to today, byte for byte** |
 | `sweep-widths.mjs` default | 392/360/320 | **1920/1440/392/360/320, both paths, exit 0** |
 | `DESKTOP_SPEC_BUILT` | `false` | **`true`** |

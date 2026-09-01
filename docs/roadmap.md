@@ -1588,6 +1588,25 @@ is kept; the entire visual design restarts from scratch.
          counts as a card is decided once, here, and `composition.test.mjs` is
          written to match that decision when the code lands. It is also what
          stops the eighth screen inventing a fourth kind of list.
+         **DONE 2026-08-31 — `docs/dashboard-component-inventory-2026-08-31.md`.**
+         **Twelve new files, one deleted, nothing invented**; 61 source files
+         become 72. **History's and Clients' column-carrying row is ruled one
+         CSS chassis with two call sites** — not a React component, and **not a
+         new "table"**, so bucket 2's one permitted vocabulary addition is
+         spent on nothing, deliberately. That settles decision 7: test 1's
+         allowance becomes **per-CALLER, not per-component**, which is the half
+         that lets it see the failure it exists to catch. The two genuinely new
+         shapes are ruled — the setup form's progress rule (**a segment fills
+         when a step is COMPLETED, never when it is passed**, or the bar and
+         Business's "3 of 7 done" disagree) and the walkthrough's spotlight
+         (**one element and a 9999px shadow**, and it must be verified against
+         the EMPTY dashboard, not the demo). **One rule reorganises more code
+         than any of the three:** a record renders its content and its
+         container is the caller's — eleven `<Sheet>` call sites across ten
+         files render their own today. **Three things found by counting:**
+         `--wrap` has never existed in `theme.css`, `.badge` is seven dead
+         rules duplicating `.pill`, and two settings-screen counts in the files
+         above are off by one (thirteen, not twelve/eleven).
       6. **STOP. He approves the whole specification.** Then, and only then,
          it gets built — screen at a time, each one verified by LOOKING at
          1920 / 1440x900 / 768x1024 / 392x844 plus the desktop sweep, with
@@ -1947,7 +1966,7 @@ those are not negotiable by any skill.
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
-| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. **Steps 0–4 are done; the list is approved, the desktop layout is specified and every screen is designed. Step 5 is next: the component inventory — no design skill, it is a bookkeeping pass over what step 4 named** |
+| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. **Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so** |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |

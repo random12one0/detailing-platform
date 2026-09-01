@@ -894,7 +894,13 @@ panels.**
 
 ---
 
-## 11. The settings screens — one skeleton, twelve of them
+## 11. The settings screens — one skeleton, thirteen of them
+
+*(Corrected from "twelve" at step 5, 2026-08-31: the table below lists
+thirteen — the eleven that exist plus Reviews and FAQ. Switch business is a
+fourteenth destination behind the gear and is not one of them, because it is a
+picker and does not share this skeleton.
+`docs/dashboard-component-inventory-2026-08-31.md` §3f.)*
 
 **One shape on purpose** (`dashboard-skeletons.md` §3): a form — a row per
 setting, its control on the right, and a plain sentence underneath saying what
@@ -917,7 +923,7 @@ Only what **changes** is listed. Everything unnamed keeps its current design.
 | **FAQ** *(new)* | On or off, and the questions and answers, written by the detailer. *"They're the detailer."* AI may polish wording only — an action on a written answer, never a generator of one. | Your Q2. Three rows on the inventory because turning it on, writing it and improving it are three different things. |
 | **Message templates · This device · Promo codes · Photo gallery** | Unchanged, and they move behind the gear or stay on Business per §10. | |
 
-### States, for all twelve
+### States, for all thirteen
 
 - **Empty.** Every one of these can be empty on day one, and each says what is
   missing **in terms of the customer**: *"No services yet — your booking page
