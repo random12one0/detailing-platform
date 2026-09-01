@@ -406,9 +406,16 @@ this product where a tenant colour is used with no floor at all.**
 
 This is the mistake DECISIONS.md’s index lists first — *"a tint of the accent is
 a ground"* — in a fourth place nobody had looked, and the only one where the
-sweep that exists to catch it does not reach. **Not fixed here.** It is a live
-defect for the build stage, and it is bigger than a layout: whether "Your
-colour" writes both columns is a decision about what one colour means.
+sweep that exists to catch it does not reach.
+
+**Not fixed here, and it is deliberately NOT one of the seven questions**, because
+it is already answered by something you approved. Design-system law 11 says a
+tenant has **one** accent. So the two pickers on Business info are not a choice
+the product is offering — they are a schema column that grew a second field by
+accident. The fix that follows is craft rather than a decision: **one colour,
+written to both columns, with the email path getting the same contrast floor
+every other surface already has, and `accent-sweep.mjs` grown to reach it.**
+It lands in the build stage. **Nobody needs to ask you about it.**
 
 **D2 — NEW. The three action buttons on a job card sat outside their own card
 at 392px and at 320px.** Six pixels and eighteen pixels. It had never been seen

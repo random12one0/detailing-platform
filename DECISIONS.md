@@ -5435,9 +5435,17 @@ is that step's entire reason for existing. Files:
   2.94:1**, and a tenant who picks **Sky** — the platform's own default and the
   demo's colour — gets the invoice email's title drawn in `#0ea5e9` on a
   `#0ea5e9` band. **1:1. The same colour on itself.** `accent-sweep.mjs` does
-  not reach email and there is nothing else that would. **Not fixed here**, and
-  it is deliberately not a layout question: whether "Your colour" writes both
-  columns is a decision about what one colour means.
+  not reach email and there is nothing else that would.
+
+  **Not fixed here, and deliberately NOT put in front of him**, which is the
+  judgment worth recording. It looks like an owner question — "is your brand
+  colour one colour or two?" — and it is not one, because **law 11 already says
+  a tenant has ONE accent.** The second picker on Business info is a schema
+  column that grew a field, not a choice the product is offering. So the fix is
+  craft: one colour written to both columns, the email path given the same
+  contrast floor as every other surface, and `accent-sweep.mjs` grown to reach
+  it. That is the other half of "never hand him a decision that was never his" —
+  **a defect big enough to feel like a decision is still a defect.**
 
 - **THREE OF THE FIVE NEW DEFECTS ARE DELIBERATELY NOT PATCHED, AND THAT IS THE
   RIGHT CALL RATHER THAN A DEFERRAL.** Today's "NEXT UP" over a job that

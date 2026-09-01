@@ -837,6 +837,12 @@ were not among them because nothing could see them until today.
    `#0ea5e9` band. **Email is the one surface where a tenant colour is used
    with no floor at all; `accent-sweep.mjs` does not reach it.** This is the
    costly mistake at the top of DECISIONS.md's index, in a fourth place.
+   **It is deliberately NOT one of the seven questions**: law 11 already says a
+   tenant has ONE accent, so the two pickers are a schema accident rather than a
+   choice the product offers. The fix is craft — one colour written to both
+   columns, the email path given the same floor as every other surface, and
+   `accent-sweep.mjs` grown to reach it — and it lands in the build stage.
+   **Nobody re-asks him.**
 2. **Today's section headings describe time; the sections are ordered by work.**
    "NEXT UP" over a job that finished at 4:15 PM, "LATER TODAY" over one that
    finished at 6:00 PM, both marked *Completed*. The ordering is right; the
