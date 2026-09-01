@@ -229,6 +229,16 @@ and the navigation stops covering the first job. **Content width goes 724 →
 That is 51px, 7%**, and it is 51 rather than 36 because a headless viewport
 carries a scrollbar a phone does not; on a real 844px device it is 36px.
 
+**THE ONE THING THIS DECISION ASSUMES AND CANNOT YET MEASURE: THE RAIL HAS TO
+FIT ITS OWN EDGE.** Five icon-over-label buttons at the spec's 44px minimum,
+stacked with padding, is roughly **290–310px** — which fits inside 390px with
+room, and fits inside an old iPhone SE's **320px landscape height with about
+10px to spare at each end.** That is a projection from the spec's numbers, not
+a measurement, because the rail does not exist below 1024px yet. **It is the
+first thing step 6 must measure**, and it is in §21. If it does not fit at 320
+tall, the answer is the rail's own labels — icons alone at that height — not a
+return to the bottom pill, which is what created the problem.
+
 **The header stays at both shapes.** The desktop spec settled that
 deliberately — *"a rail that stole them back would make the header mean two
 different things at two widths"* — and the `+` and the gear live in it. 48px is
@@ -958,6 +968,7 @@ stated.
 | Check | Today | Required |
 |---|---|---|
 | Chrome as a share of a sideways screen | **30%** (116px of 390) | **≤ 20%** — 12% after the rail |
+| **The rail's own height, at 390 and at 320 (SE landscape)** | **does not exist below 1024px** | **fits, with the pill vertically centred and not clipped** — the one assumption §2a could not measure |
 | The tab bar over the first job | **it covers it** | the rail; nothing covers content |
 | Today, five jobs, sideways | **2,480px, 9.05 screens** | **≤ 4.5 screens** (projected 3.5) |
 | Today, five jobs, at 392x844 | **2,500px, 3.4 screens** | **≤ 2.2 screens** (projected 1.7) |
