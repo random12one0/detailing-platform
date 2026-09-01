@@ -1309,11 +1309,136 @@ it**, so the contradiction cannot be re-inherited. If he takes the
 recommendation, `Faq.jsx` leaves the twelve new files and the settings screens
 go back to twelve.
 
-**WHAT IS WAITING: his yes, and his (a)-or-(b) on §3b. Nothing else.** The session stays open per
+~~**WHAT IS WAITING: his yes, and his (a)-or-(b) on §3b. Nothing else.**~~
+**HE ANSWERED THE SAME DAY — §6n.** The session stays open per
 CLAUDE.md — no sign-off, no next-session prompt, because a prompt in the chat
 reads as "go clear" and would bury the ask. **§6 of the approval page is a
 blank block for his answer**, and his answer gets written there before anything
 is built, because an answer that lives only in the chat dies at the clear.
+
+## 6n. ROADMAP 2.11, STEP 6 — HE ANSWERED: APPROVED WITH AMENDMENTS, AND HE LIFTED A RULE (2026-08-31)
+
+**His answer is §6 of `docs/dashboard-spec-approval-2026-08-31.md`, written out
+in full with what each part settles and what it costs.** He approved the
+specification and amended it in the same breath: **two of the eight reversed, a
+third that was wrong as written withdrawn, the phone reopened, and the
+no-schema rule lifted outright.** Nothing is built. **Step 4b, the phone pass,
+is the next session and it is the only thing standing between here and code.**
+
+**THE BIGGEST THING HE SAID IS NOT ABOUT A SCREEN.** *"I don't know why there
+was a rule that did not edit the back end. You could 100% edit the back end
+however much you want… We got tables if we need to."* **Roadmap 2.11's
+no-schema constraint is withdrawn by the owner** — it came from the item's own
+wording, four steps of specification were written inside it, and he did not
+know it was there. Struck at source in `docs/roadmap.md` (2.11's "(b)") and
+recorded in CLAUDE.md, because a session that inherits it from an older file
+will do LESS than he asked for. **The append-only migration rule is
+unaffected** — it governs how you change the schema, not whether you may.
+**And what he refuses is the opposite of what that rule protected:** structural
+inheritance from the OLD DASHBOARD. *"forget that the old dashboard even
+existed… it should be based off of the design of our current landing page."*
+The look was never in question; `design-system.md` already derives from the
+landing page and `DESIGN.md` already says the page wins.
+
+**TWO OF HIS ANSWERS TURN ON BELIEFS THE CODE DOES NOT SUPPORT, AND BOTH WERE
+CHECKED RATHER THAN ARGUED WITH.**
+
+1. **THE PHONE PUSH NOTIFICATIONS DO NOT EXIST — WHAT ALERTS HIM IS EMAIL.**
+   He said *"it works since it's been working for me"* and reversed the removal.
+   The server half is complete and good: VAPID keys, `web-push`,
+   `owner_push_subscriptions`, `sendOwnerPush()` called from `create-booking`.
+   **The browser half is absent entirely** — no service worker file anywhere in
+   `app/`, no `PushManager.subscribe`, no permission prompt, and nothing ever
+   calls `owner-push-subscribe`. So the table is empty and `sendOwnerPush`
+   returns `sent: 0` every time. **What reaches him is the switch directly above
+   it in the same group — "A new booking comes in", an email** — and his live
+   business runs on a different codebase (`carwashweb`) besides. **Decided, not
+   re-asked, because his instruction was "keep it": the switch stays and the
+   missing half gets BUILT**, so what he believes becomes true. **The
+   constraint to carry: on an iPhone, web push works only once the page is
+   added to the Home Screen.** Apple's rule.
+2. **HE ALREADY HAS A TRAVEL FEE, AND THE APPROVAL PAGE HAD JUST TOLD HIM IT
+   WAS BEING DELETED. THAT WAS THIS SESSION'S SECOND WRONG CLAIM.**
+   `pricing.ts:135` returns the flat fee and `computeQuote` charges it — that is
+   what roadmap 2.8c fixed — and **travel AREAS with per-area fees already
+   exist** and are picked by the customer. **Part B row 5 was precise and step 4
+   flattened it:** the field is superseded *only when areas exist*, and the
+   change is that it becomes a sentence, not that anything is deleted. **A field
+   that is dead in ONE CONFIGURATION is not a dead field**, and dropping that
+   condition turned a live money path into a proposed deletion. Corrected at
+   source in step 4 §11 and on the approval page.
+
+**WHAT HE ASKED FOR THAT IS NOT DASHBOARD DRAWING — THREE NEW ROADMAP ITEMS,
+so 2.11 does not swell until it never lands:**
+
+- **2.13, custom roles and permissions.** He rejected fixed owner/staff:
+  *"invite someone, and you could give them a name, like a customizable name,
+  and… options on what permissions they should have."* Today
+  `business_users.role` is `check (role in ('owner','staff'))` and **the
+  enforcement is in row-level security** via `is_business_owner()` across the
+  money, settings and marketing tables. This is a permissions MODEL plus every
+  one of those policies rewritten. **The thing that must survive it:
+  `protect_last_owner()`, a trigger that binds even the service role.**
+  **Step 4 §10's "staff get no Business tab" stands until this ships** — it is
+  correct for the two roles that exist today.
+- **2.14, plans a customer can sign up to — and he asked for RESEARCH FIRST**,
+  which is step 1 of the item: do the trade's booking systems carry recurring
+  plans at all, and is the plan sold IN the booking flow or beside it? He runs
+  plans himself and explicitly does not want that generalised without evidence.
+  **`monthly_plans` exists and is ONLY a discount** — name, description,
+  percentage-or-amount, active. **No cadence, no enrolment, no recurring
+  booking.** So "monthly plans come back" was never a matter of giving an
+  existing feature a door, and step 4 §15 was right to refuse it.
+- **2.15, travel by measured distance.** The ONLY missing piece is turning an
+  address into a distance; bands, fees, snapshotting and the receipt line are
+  all built. **It owes him a decision that is not a coding one:** a map service
+  means an account, a per-lookup cost, and every customer address going to a
+  third party. The item names the cheap middle path — measure when the lookup
+  succeeds, fall back to the customer picking their area when it does not,
+  which is also what happens for an address no service can find.
+
+**THE TAB BAR WAS REOPENED IN PRINCIPLE AND CLOSED ON HIS OWN CONDITION.** He
+said not to keep five tabs merely because the old dashboard had them — *"we
+might have five. We might have six. We might have two"* — and then, in the same
+answer, *"as long as that's the best order and amount, then that's fine."*
+**They pass his test on the record:** `dashboard-architecture-2026-08-31.md`
+§3a derives them from **the five questions a detailer's day contains, before
+looking at our own tabs at all**, then compares six competitor products; four
+landed where the product already was and the fifth changed *because* of the
+derivation. §3b states why not four and why not six. **Shown to him rather than
+asserted, and not re-derived.**
+
+**THE PHONE IS REOPENED, AND HALF OF THAT IS THIS SESSION'S WORDING.** He
+objected to *"not the phone"*: *"the whole admin dashboard is changing both with
+desktop and phone."* The sentence meant something narrow and true — **no screen
+grows a second column below 1024px** — and read as *the phone keeps the old
+dashboard*, which was never the plan. **But his instruction goes further than
+step 4 went, and that part is a real gap:** step 4 describes several phone forms
+as *"what ships today"*, and under *forget the old dashboard existed* an
+unchanged screen is the absence of a decision rather than a decision.
+**Step 4b re-decides every screen's phone form from scratch. It is the next
+session.**
+
+**THE ONE NEW CHECK HIS ANSWER BOUGHT: PHONE LANDSCAPE.** He asked it to
+survive *"if you shrink a page or you'll not full screen it or goes to
+landscape."* Measured against what is checked: a current iPhone is 393x852 and
+a Samsung 360x800, **both already inside 392/360/320**, and the laptop is
+1440x900. **Landscape was the gap.** `sweep-widths.mjs` now handles **844x390**
+— `heightFor()` special-cases it — and **390px of height is shorter than any
+viewport this product has ever been measured at**, which puts the day rail, a
+`.sheet` pinned to 92vh and the bottom tab bar in the same 390px.
+**It is deliberately NOT in the default list yet:** step 4b baselines it and has
+to satisfy it, and adding it now would hand the next session a red gate with no
+baseline — this repo's own rule about baselining a new check.
+
+**THE FAQ QUESTION CAME BACK AS HALF OF EACH OPTION, AND HIS SPLIT IS THE
+CHEAPER ONE.** *"you could definitely add stuff to the supabase… Just add a
+small bit of database now, but we could tackle FAQ later."* **Storage lands in
+2.11; the screen waits.** So it is **twelve settings screens, not thirteen** —
+the third correction to that count in three sessions.
+
+**WHAT IS WAITING ON HIM: NOTHING.** Every question this session opened is
+answered or has become a roadmap item with its decision written into it.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

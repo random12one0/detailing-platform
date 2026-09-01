@@ -1626,6 +1626,37 @@ is kept; the entire visual design restarts from scratch.
          because no file had one** — the shell ships WITH Today rather than
          before it, and first run is last. **Nothing may be built until he
          answers.** PROJECT-STATE.md §6m.
+         **HE ANSWERED THE SAME DAY: APPROVED WITH AMENDMENTS, and his answer
+         is §6 of the approval page.** It reversed two of the eight, corrected
+         a third that was wrong as written, and **withdrew this item's
+         no-schema rule outright** — *"I don't know why there was a rule that
+         did not edit the back end… do as much with the back end as you want."*
+         So (b) below under "what a cold session will get wrong" — *it does NOT
+         mean touching the schema, the engine or the booking flow* — **is
+         SUPERSEDED BY THE OWNER. The constraint that replaces it is his own:
+         forget the old dashboard's structure, keep the landing page's look.**
+         **Four changes to what step 6 builds:** the push switch STAYS and its
+         missing browser half gets built (there is no service worker anywhere
+         in `app/`, nothing has ever subscribed a device, and the EMAIL is what
+         reaches him today); the flat travel fee is **not** deleted because
+         `pricing.ts:135` charges it — it becomes a sentence only once travel
+         areas exist; the FAQ gets its **storage now and its screen later**, so
+         twelve settings screens rather than thirteen; and `sweep-widths.mjs`
+         gains **phone landscape, ~844x390** — the only size in his list not
+         already checked, and the shortest viewport this product has ever been
+         measured at.
+         **AND ONE STEP IS ADDED BEFORE ANY CODE — step 4b, the phone pass.**
+         He rejected *"below 1024 nothing changes"*: *"the whole admin
+         dashboard is changing both with desktop and phone."* Step 4 describes
+         several phone forms as "what ships today", and under *forget the old
+         dashboard existed* an unchanged screen is the absence of a decision
+         rather than a decision. **Every screen's phone form is re-decided from
+         scratch, and that is the next session.**
+         **Three of his asks left this item entirely** — roadmap 2.13 (custom
+         roles and permissions), 2.14 (plans with cadences, research first) and
+         2.15 (travel by measured distance). **Staff getting no Business tab
+         stands until 2.13 ships**, because it is correct for the two roles
+         that exist today.
 
       **Skills, in order** (and this is the roadmap table's row for 2.11):
       `impeccable` — `shape` at step 4, one screen at a time; `critique` on
@@ -1636,8 +1667,11 @@ is kept; the entire visual design restarts from scratch.
 
       **Three things a cold session will get wrong.** (a) "From scratch" does
       NOT mean re-deriving the tab bar — he approved it on 2026-08-31 and
-      re-opening it wastes his time. (b) It does NOT mean touching the schema,
-      the engine or the booking flow. (c) The deliverable of steps 1–5 is
+      re-opening it wastes his time. **(b) ~~It does NOT mean touching the
+      schema, the engine or the booking flow.~~ WITHDRAWN BY THE OWNER,
+      2026-08-31** — *"do as much with the back end as you want"*; the schema,
+      emails and pricing are all open, and what he does NOT want inherited is
+      the old dashboard's STRUCTURE. (c) The deliverable of steps 1–5 is
       FILES, not code; this is 2.8 → 2.8b's shape again, which is the shape
       that has worked twice on this project.
 
@@ -1806,6 +1840,120 @@ is kept; the entire visual design restarts from scratch.
       a working baseline. What DOES run today and covers most of this:
       `node tests/booking-engine.test.mjs` (63 checks, real bookings through
       the deployed functions) and `node scripts/sweep-booking-steps.mjs`.
+
+- [ ] 2.13 **Custom roles and permissions — the OWNER asked for this on
+      2026-08-31, answering roadmap 2.11 step 6, and it REVERSES that item's
+      staff design.**
+
+      > "right now, the owner kinda chooses this person's an owner, this
+      > person's a staff, and we set the rules. They should set the rules. They
+      > should just be, like, hey, invite someone, and you could give them a
+      > name, like a customizable name, and you could also check out, like,
+      > there should be options on what permissions they should have and what
+      > they shouldn't have."
+
+      **Why it is its own item and not part of 2.11.** 2.11 redraws screens.
+      This changes who the database will answer. `business_users.role` is a
+      two-value check constraint — `check (role in ('owner','staff'))`,
+      `20260827003000_staff_roles.sql:27` — and **the enforcement is in
+      row-level security**, through `public.is_business_owner(business_id)`,
+      across the money, settings and marketing tables. Named roles with
+      tickable permissions is a permissions MODEL: a permission set per
+      membership, every one of those policies rewritten to read it, and a
+      migration that cannot lose the protection the current design has.
+
+      **The one thing that must survive the rewrite**, because it is a trigger
+      today and not a policy: `protect_last_owner()` forbids removing or
+      demoting the last owner **including for the service role**. Whatever
+      replaces `role`, something must still make "a business with nobody who
+      can administer it" unreachable.
+
+      **What 2.11 does in the meantime.** Step 4 §10's ruling stands as
+      written — staff get four rail buttons, not five, and no Business tab —
+      because it is correct for the roles that exist TODAY. It becomes wrong
+      the day this item ships, and the screen it names is where the new
+      permission set gets read.
+
+      **Skills: none — this is schema, RLS and edge-function work.** It adds
+      one settings screen that 2.11 already designed the skeleton for.
+
+- [ ] 2.14 **Plans a customer can sign up to — the OWNER asked for this on
+      2026-08-31, and he asked for RESEARCH FIRST.**
+
+      > "we should have, like, a plan section where they could customize
+      > monthly, bimonthly, yearly, biweekly, you know, like, whatever they
+      > want… and then it'll show up in the booking area, or they could just,
+      > like, have it just listed on the website. And they could kinda choose
+      > how they want to manage that. I don't know what's most — probably if
+      > you kinda go over into research if most people have a monthly plan
+      > within their booking system, or if that would be a good option. I mean,
+      > that's how I do it, but I don't know."
+
+      **Step 1 is the research, and he named it himself.** Do the six-product
+      sweep the way 2.8 and 2.10 did it — the products' own documentation, not
+      review sites, source strength per claim, counts not impressions: **do
+      the trade's booking systems carry recurring plans or subscriptions at
+      all, and when they do, is the plan sold IN the booking flow or listed
+      beside it?** He runs plans in his own business and explicitly does not
+      want that generalised without evidence.
+
+      **What exists, so nobody re-derives it.** `monthly_plans` is real and has
+      no screen — but it is **only a discount**: `name`, `description`,
+      `discount_type` (percentage|amount), `discount_value`, `is_active`
+      (`20260827000200_tenant_data.sql:51`). **There is no cadence, no
+      enrolment and no recurring booking.** His version needs all three. So
+      "monthly plans come back" — one of the five reversals of 2026-08-28 — is
+      **not** a matter of giving an existing feature a door, and roadmap 2.11
+      step 4 §15 was right to refuse to design it in the margin.
+
+      **The two design questions the research feeds**, both his words: whether
+      the plan appears inside the booking flow or is listed beside it, and
+      whether that is the DETAILER's choice or the product's.
+
+      **Skills: `impeccable` for the screens once the shape is settled.** The
+      research step is not visual.
+
+- [ ] 2.15 **Travel priced by measured distance — the OWNER asked for this on
+      2026-08-31, and it is the ONE part of travel that does not already
+      exist.**
+
+      > "it just detects the company miles near… basically, the detailer sets
+      > up a mile radius or multiple mile radiuses, and says if it's within
+      > this, then there's a drop fee; if it's within this, there's another
+      > drop fee… and then obviously you have to calculate that based off the
+      > address."
+
+      **Read what is already built before starting, because most of it is.**
+      A flat travel fee exists and **is charged** (`pricing.ts:135`, wired in
+      by roadmap 2.8c). **Multiple travel AREAS with their own fees exist** —
+      `business_settings.travel_zones`, `[{key, name, fee}]` — and the customer
+      picks theirs on the booking page, with the chosen fee snapshotted to
+      `bookings.travel_fee` and `bookings.travel_zone`. **The only thing
+      missing is the word "detects": the areas are NAMED by the detailer and
+      CHOSEN by the customer, not measured.** The migration says so in its own
+      comment: *"NOT geocoded distance: we have no way to measure one."*
+
+      **So this item is one capability, not a feature: turn an address into a
+      distance from the business.** Everything downstream — bands, fees,
+      snapshotting, the receipt line, the confirmation email — is already
+      shaped for it and the band's fee just stops being picked and starts
+      being derived.
+
+      **THE DECISION THIS ITEM OWES THE OWNER, and it is not a coding
+      decision.** Measuring distance means a map service: an account, a cost
+      per address looked up, and **every customer's address being sent to a
+      third party**. Put the options to him with prices when the item starts —
+      and note the cheap middle path that keeps today's behaviour as a
+      fallback: **measure when the lookup succeeds, fall back to the customer
+      picking their area when it does not**, which is also what happens when a
+      customer types an address no map service can find.
+
+      **Watch the money rule** (CLAUDE.md): a number printed is not a number
+      charged. Follow it to `bookings.total_price` and the confirmation email,
+      and `tests/booking-engine.test.mjs` test 17 is the shape of the check.
+
+      **Skills: none — this is engine work.** It changes no screen that 2.11
+      has not already designed.
 
 ## Phase 3 — Tenant websites (the biggest new build)
 

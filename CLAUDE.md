@@ -133,8 +133,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   **Roadmap 2.11 step 6 flips it to `true` in the same change**, and the summary
   line says out loud that a clean run is not proof while it is false.
   `--lite` runs the whole thing through `?lite=1`. It exits 0 at all five
-  widths in both paths today. Pass a width to ask a different question. It needs
-  the dev server and the demo login, like
+  widths in both paths today. Pass a width to ask a different question.
+  **`844` IS PHONE LANDSCAPE (844x390) and is wired but NOT in the default
+  list** — the owner asked for landscape on 2026-08-31 and it is the only size
+  he named that nothing measured. **390px of height is shorter than any
+  viewport this product has ever been checked at.** It joins the default in
+  roadmap 2.11 step 4b, the phone pass, which both baselines it and has to
+  satisfy it; adding it before then would be a red gate with no baseline.
+  **The script needs the dev server and the demo login**, like
   `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
   on Windows has it and headless does not, and that one difference is the
   whole of walkthrough W14.
@@ -170,6 +176,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   **The lesson under all of it: a spare-room figure is only true of the screen
   AND the feature set it was taken with.** Quote both, or the number rots.
 
+- **THE OWNER LIFTED THE "DON'T TOUCH THE BACK END" RULE ON 2026-08-31**, and
+  a session that inherits it from an older file will do less than he asked for.
+  His words, answering roadmap 2.11 step 6: *"I don't know why there was a rule
+  that did not edit the back end. You could 100% edit the back end however much
+  you want… We got tables if we need to."* **The schema, edge functions, emails
+  and pricing are open.** What he does NOT want is structural inheritance from
+  the OLD DASHBOARD — *"forget that the old dashboard even existed"* — while
+  the LOOK stays the landing page's. The append-only migration rule above is
+  unaffected; it is about how you change the schema, not whether you may.
 - **Before changing any colour, know law 11b (`docs/design-system.md`): the
   accent is IDENTITY, never MEANING.** Paid / money-up / "it worked" are the
   fixed green `--ac`; cancelled / no-show / error are the fixed red `--bad`.

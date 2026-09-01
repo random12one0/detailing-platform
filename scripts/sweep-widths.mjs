@@ -42,6 +42,7 @@
 //
 //   node scripts/sweep-widths.mjs --lite         # the same, through ?lite=1
 //   node scripts/sweep-widths.mjs                # 1920, 1440, 392, 360, 320
+//   node scripts/sweep-widths.mjs 844            # PHONE LANDSCAPE, 844x390
 //   node scripts/sweep-widths.mjs 320            # just the PRODUCT.md floor
 //   node scripts/sweep-widths.mjs 392 360 1440   # any list
 //
@@ -75,7 +76,24 @@ const SIZES = WIDTHS.length ? WIDTHS : [1920, 1440, 392, 360, 320];
 const BASE = "http://localhost:5173";
 // The verification heights, not the phone's. 1080 is his monitor; 900 is the
 // laptop and the shortest screen this product is checked against.
-const heightFor = (w) => (w >= 1900 ? 1080 : w >= 1024 ? 900 : 844);
+//
+// 844 IS PHONE LANDSCAPE, AND IT IS THE ONE SIZE THE OWNER ASKED FOR ON
+// 2026-08-31 THAT NOTHING HERE MEASURED. His words: "if you shrink a page or
+// you'll not full screen it or goes to landscape... it should be able to
+// modify and move around and not losing the information." A current iPhone
+// (393x852) and Samsung (360x800) are already inside 392/360/320, and the
+// laptop is 1440x900 -- landscape was the gap. 844x390 is 390px of HEIGHT,
+// SHORTER THAN ANY VIEWPORT THIS PRODUCT HAS EVER BEEN MEASURED AT, which is
+// why it belongs to height-hungry things: the day rail, a .sheet pinned to
+// 92vh, and the bottom tab bar eating from the same 390px.
+//
+// DELIBERATELY NOT IN THE DEFAULT LIST YET -- `node scripts/sweep-widths.mjs
+// 844` runs it today. It joins SIZES in roadmap 2.11 step 4b, the phone pass,
+// which is both the change that BASELINES it (this repo's rule: baseline a new
+// check against the last known-good version) and the change that has to
+// satisfy it. Adding it to the default now would hand the next session a red
+// gate with no baseline, against a phone layout that is about to be redrawn.
+const heightFor = (w) => (w === 844 ? 390 : w >= 1900 ? 1080 : w >= 1024 ? 900 : 844);
 
 // --- dead-width, and the one line that arms it -----------------------------
 // FLIP THIS TO `true` IN ROADMAP 2.11 STEP 6, in the same change that ships the
