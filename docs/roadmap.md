@@ -1607,6 +1607,27 @@ is kept; the entire visual design restarts from scratch.
          `--wrap` has never existed in `theme.css`, `.badge` is seven dead
          rules duplicating `.pill`, and two settings-screen counts in the files
          above are off by one (thirteen, not twelve/eleven).
+      4b. **THE PHONE PASS — ADDED 2026-08-31 BY HIS ANSWER TO STEP 6, AND IT
+         IS THE ONLY THING BEFORE CODE.** He rejected the guarantee step 3 was
+         proudest of: *"the whole admin dashboard is changing both with desktop
+         and phone."* **Half of that was a wording bug** — "below 1024 nothing
+         changes" meant *no screen grows a second column*, and it read as *the
+         phone keeps the old dashboard*, which was never the plan. **Half is a
+         real gap:** step 4 describes several phone forms as *"what ships
+         today"*, and under his *"forget that the old dashboard even existed"*
+         an unchanged screen is the absence of a decision rather than a
+         decision. **Re-decide every screen's phone form from scratch**, in
+         `docs/dashboard-screen-designs-2026-08-31.md`, marking what changed
+         and what survived the pass ON ITS MERITS rather than by inheritance.
+         **And baseline phone landscape here**: `sweep-widths.mjs` already
+         handles **844x390** and it is deliberately out of the default list
+         until this step — 390px of HEIGHT is shorter than anything this
+         product has ever been measured at, and the day rail, a `.sheet` pinned
+         to 92vh and the bottom tab bar all live inside it. **Baseline first,
+         then add it to SIZES**, which is this repo's own rule about a new
+         check.
+         `impeccable shape`, one screen at a time. Still no code.
+
       6. **STOP. He approves the whole specification.** Then, and only then,
          it gets built — screen at a time, each one verified by LOOKING at
          1920 / 1440x900 / 768x1024 / 392x844 plus the desktop sweep, with
@@ -2128,7 +2149,7 @@ those are not negotiable by any skill.
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
-| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. **Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so** |
+| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ **HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code. Three of his asks left the item as roadmap 2.13, 2.14 and 2.15.** |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |
