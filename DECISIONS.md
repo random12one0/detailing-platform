@@ -52,7 +52,7 @@ were made more than once.
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
 | **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
-| **The dashboard `/app`** | Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
+| **The dashboard `/app`** | **Roadmap 2.11, step 4 first — it is the current design of every screen** · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
 | **Spacing, layout, or anything at phone width** | Roadmap 2.6 · Test at HIS screen size, not yours |
@@ -141,6 +141,7 @@ were made more than once.
 - **Roadmap 2.11, steps 0–2 — the day is seeded and the list is written** — 118 capabilities from five sources, and **Today had never been looked at with anything on it.** Five new defects the empty screen was hiding, the worst being that **“Your colour” cannot change the colour customers see in their email** — four of twelve presets under the contrast floor, and “Sky” draws the invoice title 1:1.
 - **His answers to the inventory's seven** — all seven the same day, and **three answered bigger than they were asked.** Q1 overruled the recommendation (a setup FORM plus a separate guided tour); **Q5 became roadmap 2.12** — a switch between a booking that RESERVES and a booking that is a REQUEST. And the caveat that matters more than any answer: **the file was too long for him to read.**
 - **Roadmap 2.11, step 3 — the desktop specification, and a "no" he asked for** — two derived breakpoints and **five screens given five DIFFERENT wide forms**, because "list left, panel right" five times is law 1's own named failure. **Calendar stays ONE column and Part B's approved "month beside the day" was overruled by measuring it** (a split cell is 104px; one column is 163px). **The week view is ruled NO**, with the month cell as its replacement. And the sweep grew a fifth check because the four it had reported CLEAN at 1920 with a 724px column.
+- **Roadmap 2.11, step 4 — every screen designed, and three defects fixed on paper** — the three were **re-measured in a live browser** before being designed against (three rails not one; a finished job wearing the "ahead" node; a paid job wearing the tenant's accent where the calendar uses the fixed green). **A fourth was found by looking and nothing had named it: leaving Today and coming back throws the whole day away and redraws it**, and `reload()` does the same after every "Mark complete". The label fix is a **deletion** — two runs collapse into one — and **one question deleted itself by reading the schema instead of asking him.**
 
 <!-- INDEX:END -->
 
@@ -5738,3 +5739,116 @@ the judgment, not the spec — read the file for what the layout actually is.
   vocabulary is added or refused **at step 5, deliberately and once**, and step 5
   is already where card-versus-list is being settled (2.10's declined decision
   7). **Ruling there is cheaper than ruling twice.**
+
+## Roadmap 2.11, step 4 — every screen designed, and three defects fixed on paper
+
+**One new file: `docs/dashboard-screen-designs-2026-08-31.md`.** Nothing is
+built. Step 5 (components) is next; step 6 is where he approves the whole
+specification and only then does code start. **Nothing is waiting on him.**
+
+**THE THREE DEFECTS WERE RE-MEASURED IN A REAL BROWSER BEFORE BEING DESIGNED
+AGAINST, AND THAT IS THE PART WORTH KEEPING.** Steps 1–3 named them from
+reading; this step opened the running app with the seeded day on it and read
+the computed styles:
+
+- **`railCount: 3`** — three `.dayrail` elements on one screen, where
+  `dashboard-skeletons.md` §2 specifies one continuous hairline.
+- **Both completed job cards draw `rgb(11,13,14)` with a `rgb(207,210,206)`
+  inset ring** — the hollow "this job is ahead" node, on jobs that finished at
+  4:15 PM and 6:00 PM.
+- **The three settled rows draw `rgb(14,165,233)`** — `#0ea5e9`, the tenant's
+  own accent — where the calendar's `.dot.paid` draws `--ac` `#38E08B`. Law
+  11b, in one component and not the other.
+- And the labels: **"NEXT UP" over a job that ran 2:45–4:15 PM and is marked
+  *Completed*.**
+
+**THE LABEL FIX IS A DELETION, NOT A REWORDING, AND THAT IS THE decision.**
+"Next up" and "Later today" collapse into **one** run called *Still to do*.
+They were never two kinds of work — they were one kind split by a clock the
+ordering already respects, and the split is precisely what made the label lie.
+The first row of that run **is** the next job and is lit when nothing needs
+payment, so the treatment now says "this one" where a heading used to say it
+wrongly. Three runs, each named for the work: **Needs payment · Still to do ·
+Done.**
+
+**AND THE WARN-BOX GOES WITH IT.** It exists to say *"N more finished jobs
+still need payment recorded"* — which is the *Needs payment* run with its
+count in its own label. One fact, one place; Part B row 10's family.
+
+**A FOURTH DEFECT WAS FOUND BY LOOKING, AND NOTHING HAD NAMED IT.** Leaving
+Today and returning replaces `.app-main`'s only child with `.center` carrying a
+spinner — **the whole day is thrown away and redrawn.** Observed with a
+MutationObserver, not reasoned: `["group|kids=3", "center|kids=1"]`. And
+`useBookings.reload()` sets `loading` true, so **the same replacement happens
+after "Mark complete" and after "Finalize payment"** — the day disappears and
+re-arrives, staggered animation and all, as a reward for finishing a job.
+Three screens currently do three different things while loading. **§1a of the
+new file is one rule for all of them:** first paint may spin; every load after
+that leaves the screen standing and dims only what is changing.
+
+**THE STATES ARE DEFINED ONCE, AND THAT IS WHY THE FILE IS READABLE.** Empty,
+one, many, loading, error and staff are written as a table at the top; a screen
+below only says what *differs*. Eighteen screens × six states restated in full
+would be the file he already told us he cannot read.
+
+**THE REQUEST QUEUE IS DESIGNED, EMPTY, AND DELIBERATELY NOT ON THE RAIL.**
+Roadmap 2.12 fills it in. It sits above the rail because the rail is *today's
+day* and a request can be for any date — the same reason
+`dashboard-skeletons.md` §2 already refuses to run the rail through tomorrow.
+**Two consequences recorded so 2.12 does not re-derive them:** a waiting
+request outranks unrecorded money in the one-lit-thing order (a request has a
+customer waiting on the answer and goes stale; money you already hold does
+not), and **a request needs no new calendar mark** — it draws the hollow circle
+a confirmed booking draws, which is the merge §5b made on purpose.
+
+**THE JOB RECORD GOT THE MOST WORK, BECAUSE F4 SAID SO.** 26 of 126
+capabilities on one object, in a 340-line single scroll, reached from four
+places, and the one screen nobody has ever redesigned. It becomes **an action
+bar over six named sections** — sections rather than Jobber's tabs, because a
+tab strip inside a sheet inside a phone is a second navigation on a screen that
+already has one, and because tabs hide state on a screen whose job is scanning.
+**The action bar moving to the top is the single largest change in the file**:
+Call / Text / Navigate currently sit under a heading called *Contact*, four
+blocks down, on the screen you open standing at the car.
+
+**ONE QUESTION DELETED ITSELF BY BEING LOOKED UP.** "May a staff member record
+a payment?" was about to be handed to him. `20260827003000_staff_roles.sql`
+already answers it — staff have **bookings, calendar and customers**, and the
+database returns zero rows from `expenses`, `business_settings`, `promo_codes`
+and `campaigns`. `update-booking` has no role gate. **So staff may finalize a
+payment and may not read the books**, which is coherent, and there was nothing
+to ask. Recorded because the near-miss is the lesson: check the schema before
+spending his attention. **What the file does add is a sentence it will not let
+anyone forget — a UI that hides a figure from staff is a courtesy, not a
+control.**
+
+**THREE FILES THAT OUTRANK THIS ONE GET UPDATED AT STEP 6, AND NONE OF IT IS
+SILENT** (CLAUDE.md's rule):
+
+1. **`docs/design-system.md` law 11b's table — one word.** "The 'it landed'
+   node" is ambiguous between *finished* and *paid*, and that ambiguity is what
+   produced the defect. It splits: `--accent` carries the **completed** node,
+   `--ac` the **paid** one. **The paragraph under it stands and is answered
+   rather than overruled** — it worried that greening the node would take the
+   tenant's colour off the screen they open every morning; under this design
+   the accent is still on every unpaid-finished node, the lit bloom and every
+   button.
+2. **`dashboard-skeletons.md` §6** — the lit order gains "a booking waiting to
+   be accepted" above "money not recorded".
+3. **`dashboard-desktop-spec-2026-08-31.md` §4a — one table row.** *Block this
+   day / Hours / How this day works* were listed as modals at every width. They
+   expand **in place**, at both widths, because that is the owner's own W1
+   instruction and turning them into modals at a desk would undo it to satisfy
+   a table. The spec's actual point — they are not records and take no second
+   column — is untouched.
+
+**AND FOUR DOORS WERE BUILT FOR THINGS THE DATABASE ALREADY HOLDS**, which is
+what stops this rebuild being "the same thing redrawn": **Reviews** (the
+`testimonials` table the booking page already reads and nothing writes), the
+three **social links** with columns and no fields, an **FAQ** he asked for, and
+**Switch business** for an account with more than one membership. The list went
+from seven with no door to three, and **each of the three has a stated reason
+rather than an omission** — monthly plans are a feature with a price and a
+term rather than a settings screen, the custom domain is roadmap 3.3, and
+campaigns stay deliberately unplaced because inventing a sixth destination for
+a half-built feature is how a five-tab bar becomes six.

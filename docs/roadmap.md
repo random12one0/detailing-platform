@@ -1563,6 +1563,25 @@ is kept; the entire visual design restarts from scratch.
          many, loading, error, staff — the composition vocabulary it uses, and
          both its phone form and its desktop form. `impeccable shape` per
          screen. Still no code.
+         **DONE 2026-08-31 — `docs/dashboard-screen-designs-2026-08-31.md`.**
+         Eighteen screens, with the six states **defined once at the top** so a
+         screen only says what differs — the file he has to approve stays
+         readable. **The three defects steps 1–3 named and left are fixed on
+         paper, and all three were re-measured in a live browser first**: three
+         `.dayrail` elements where the skeletons file specifies one; a finished
+         job wearing the hollow "ahead" node; a paid job wearing `#0ea5e9`, the
+         tenant's accent, where the calendar draws `--ac`. **Today's labels are
+         fixed by DELETION** — "Next up" and "Later today" collapse into one
+         run called *Still to do*, because they were one kind of work split by a
+         clock the ordering already respects. **A fourth defect was found by
+         looking:** leaving Today and returning throws the whole day away and
+         redraws it, and `reload()` does the same after every *Mark complete*.
+         **The day screen carries the accept state 2.12 needs**, above the rail
+         rather than on it. **The job record got the most work** (F4): an action
+         bar over six named sections, replacing one 340-line scroll.
+         **Four doors** for things the database already holds — Reviews, the
+         three social links, the FAQ, Switch business — taking "built with no
+         screen" from seven to three, each of the three with a stated reason.
       5. **The component inventory.** Every component the whole dashboard
          needs: which exist, which are new, which die. **This is where 2.10's
          declined decision 7 gets settled** — what counts as a list and what
@@ -1658,6 +1677,21 @@ is kept; the entire visual design restarts from scratch.
         `docs/dashboard-desktop-spec-2026-08-31.md`. It also carries **the
         week-view ruling (NO, §7)** and **his request-vs-reserve
         clarification (§8)**, which makes 2.12 smaller — see below.
+      - **STEP 4 IS DONE, 2026-08-31.** File:
+        `docs/dashboard-screen-designs-2026-08-31.md`. **STEP 5 IS NEXT** — the
+        component inventory — and it inherits three things this file states and
+        deliberately does not rule: whether History's and Clients'
+        column-carrying row is one component or two (with 2.10's declined
+        decision 7 and `composition.test.mjs` test 1 riding on the same
+        answer), and **two genuinely new shapes** the design asks for — the
+        stepped setup form's progress rule and the walkthrough's spotlight.
+        **Step 4 also updates three files that outrank it, at build time and
+        never silently:** `design-system.md` law 11b's table splits the rail's
+        node between `--accent` (completed) and `--ac` (paid);
+        `dashboard-skeletons.md` §6 puts a waiting request above unrecorded
+        money in the lit order; and the desktop spec's §4a table row for the
+        three day controls, which expand in place rather than becoming modals
+        — the owner's own W1 instruction outranking a table.
 - [ ] 2.12 **Request-vs-reserve, accept/decline, and quotes — the OWNER's
       answer to 2.11's question 5, 2026-08-31, and it is engine work rather
       than layout.**
@@ -1913,7 +1947,7 @@ those are not negotiable by any skill.
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
-| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. **Steps 0–3 are done; the list is approved and the desktop layout is specified. Step 4 is next: `impeccable shape`, one screen at a time** |
+| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. **Steps 0–4 are done; the list is approved, the desktop layout is specified and every screen is designed. Step 5 is next: the component inventory — no design skill, it is a bookkeeping pass over what step 4 named** |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |

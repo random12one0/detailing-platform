@@ -946,8 +946,8 @@ is the lesson: a file he has to APPROVE needs a top layer he can actually read.*
   the floor exists on paper only.
 
 ~~**WHAT IS OPEN: NOTHING FOR HIM. Steps 3, 4 and 5 are the next session's
-work**~~ — **step 3 is now done too; see §6j.** Steps 4 and 5 are next, and
-step 6 is where he approves the whole specification.
+work**~~ — **steps 3 AND 4 are now done too; see §6j and §6k.** **Step 5 is next** — the
+component inventory — and step 6 is where he approves the whole specification.
 
 ## 6j. ROADMAP 2.11, STEP 3 — THE DESKTOP SPECIFICATION, AND A "NO" HE ASKED FOR (2026-08-31)
 
@@ -1033,6 +1033,117 @@ existing *ruled list* widening rather than a new "table" in the composition
 vocabulary — but bucket 2 says the vocabulary is added or refused **at step 5,
 deliberately and once**, and step 5 is already where card-versus-list is being
 settled. **Step 5 rules.**
+
+## 6k. ROADMAP 2.11, STEP 4 — EVERY SCREEN DESIGNED, AND FOUR DEFECTS ON TODAY (2026-08-31)
+
+**One new file: `docs/dashboard-screen-designs-2026-08-31.md`.** Nothing is
+built. Judgment calls are DECISIONS.md → "Roadmap 2.11, step 4". **Nothing is
+waiting on him.** Step 5 (components) is next; step 6 is his approval gate.
+
+**EIGHTEEN SCREENS, AND THE SIX STATES ARE DEFINED ONCE AT THE TOP.** Empty,
+one, many, loading, error and staff are a table in §1a; each screen below says
+only what *differs*. Eighteen screens × six states written out in full is the
+file he already told us he cannot read — *"there's just so many words"* — and
+§0a is the one-page layer that caveat earned.
+
+**THE THREE NAMED DEFECTS WERE RE-MEASURED IN A LIVE BROWSER BEFORE BEING
+DESIGNED AGAINST, AND THE NUMBERS ARE THESE.** Signed in as the seeded demo
+owner with the full day on screen at 1920:
+
+- **`railCount: 3`** — three `.dayrail` elements where `dashboard-skeletons.md`
+  §2 specifies *one continuous hairline with a node per job*.
+- **Both completed job cards draw `rgb(11,13,14)` with a `rgb(207,210,206)`
+  inset ring** — the hollow "this job is ahead" node, on jobs that finished at
+  4:15 PM and 6:00 PM.
+- **The three settled rows draw `rgb(14,165,233)`** = `#0ea5e9`, **the tenant's
+  accent**, where the calendar's `.dot.paid` draws `--ac` `#38E08B`. Law 11b in
+  one component and not the other.
+- The labels, in the flesh: **"NEXT UP" over a job that ran 2:45–4:15 PM and is
+  marked *Completed*.**
+- Also confirmed in passing: `.app-main` **760px** and the document **1,805px**
+  tall on a 1920 monitor — step 3's measurement standing up.
+
+**THE LABEL FIX IS A DELETION.** "Next up" and "Later today" collapse into
+**one** run, *Still to do*. They were never two kinds of work — one kind, split
+by a clock the ordering already respects, and the split is exactly what made
+the label lie. Three runs named for the work: **Needs payment · Still to do ·
+Done**, with the calendar's own node vocabulary (hollow ring ahead, solid
+`--accent` finished, solid `--ac` paid). **The warn-box goes with it** — it says
+what the *Needs payment* label now says with its count.
+
+**A FOURTH DEFECT WAS FOUND BY LOOKING AND NOTHING HAD NAMED IT.** Leaving
+Today and coming back replaces `.app-main`'s only child with `.center` carrying
+a spinner — the whole day thrown away and redrawn. Observed with a
+MutationObserver rather than reasoned: `["group|kids=3", "center|kids=1"]`. And
+`useBookings.reload()` sets `loading` true, so **the same thing happens after
+"Mark complete" and after "Finalize payment"** — the day vanishes and
+re-arrives, staggered animation and all, as a reward for finishing a job. Three
+screens do three different things while loading today; §1a is one rule for all
+of them.
+
+**AND ONE MOTION CONSEQUENCE OF FIXING THE RAIL, CAUGHT BEFORE IT COST
+ANYTHING.** The arrival staggers `.app-main > .group > *`. Making the rail one
+element would make the whole day arrive in a single slot — the signature move
+lost to a bug fix, which is what law 3 forbids. **The stagger moves inside the
+rail** and the day arrives one job at a time down the thread, which is closer to
+"scattered becomes ordered" than what ships. Same budget, same ~580ms ceiling.
+
+**THE JOB RECORD GOT THE MOST WORK, WHICH IS WHAT F4 ASKED FOR.** 26 of 126
+capabilities on one object, in a 340-line single scroll reached from four
+places, and the one screen nobody has ever redesigned. **An action bar over six
+named sections** — sections not tabs, because a tab strip inside a sheet inside
+a phone is a second navigation on a screen whose job is scanning. **The largest
+single change in the file is moving Call / Text / Navigate to the top**: they
+sit under a heading called *Contact*, four blocks down, on the screen you open
+standing at the car.
+
+**THE REQUEST QUEUE IS DESIGNED, EMPTY, AND NOT ON THE RAIL** — the rail is
+*today's day* and a request can be for any date, which is the same reason the
+skeletons file already refuses to run it through tomorrow. **Two things 2.12
+therefore does not have to re-derive:** a waiting request outranks unrecorded
+money in the one-lit-thing order, and **a request needs no new calendar mark**.
+
+**ONE QUESTION DELETED ITSELF BY BEING LOOKED UP RATHER THAN ASKED.** "May
+staff record a payment?" was about to go to him. `20260827003000_staff_roles.sql`
+answers it: staff have **bookings, calendar and customers**, the database
+returns zero rows from `expenses`, `business_settings`, `promo_codes` and
+`campaigns`, and `update-booking` has no role gate. **So staff may finalize a
+payment and may not read the books.** Recorded because the near-miss is the
+lesson. The file carries the sentence that came out of it: **a UI that hides a
+figure from staff is a courtesy, not a control.**
+
+**FOUR DOORS FOR THINGS THE DATABASE ALREADY HOLDS**, which is what stops the
+rebuild being the same thing redrawn: **Reviews** (`testimonials` — the booking
+page already reads it and nothing writes it), the three **social links** with
+columns and no fields, the **FAQ** he asked for, and **Switch business**.
+Built-with-no-door goes from **seven to three**, and each of the three has a
+stated reason rather than an omission.
+
+**THREE FILES THAT OUTRANK THIS ONE GET UPDATED AT STEP 6, NONE OF IT SILENT.**
+`design-system.md` law 11b's table splits the rail node (`--accent` completed,
+`--ac` paid) — **and its paragraph is answered rather than overruled**, since
+the accent stays on every unpaid-finished node, the lit bloom and every button.
+`dashboard-skeletons.md` §6 gains the request at the top of the lit order. And
+**the desktop spec's §4a loses one table row**: the three day controls expand in
+place at both widths rather than becoming modals, because that is the owner's
+own W1 instruction and a table does not outrank it.
+
+**AND ONE "MEASURE IT AT BUILD TIME" WAS CLOSED IN THIS SESSION INSTEAD OF
+HANDED ON.** The job record's second action row (Calendar · Contacts ·
+Reminder) was written with a note saying step 6 must check it at 320, because
+the neighbouring `.btnrow` on a job card sits at **1px of spare room**. Opened
+the sheet at 320 and measured it: `.actions-row` is a CSS **grid**, one column
+per child, so it divides rather than overflows — **89px a button, 38px tall,
+one line**, and *Reminder* dropped into that column is **90px wide, 38px tall,
+zero overflow. It fits.** The ceiling is now a number rather than a worry:
+**about eight or nine characters, ~60px of text** — *Remind them* wraps to
+41px. That is why the button says *Reminder*.
+
+**WHAT STEP 5 INHERITS AND MUST RULE:** whether History's and Clients'
+column-carrying row is one component or two (2.10's declined decision 7 and
+`composition.test.mjs` test 1 ride on the same answer), and **two genuinely new
+shapes** — the stepped setup form's progress rule and the walkthrough's
+spotlight.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
