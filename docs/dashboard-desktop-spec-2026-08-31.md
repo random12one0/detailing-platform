@@ -35,8 +35,15 @@ below it. It is a phone app parked in the middle of a large screen.
 4. **A record you clicked opens BESIDE the list, not on top of it** — the
    research is blunt about this being the mistake, and right now every record
    in the product opens as a panel covering the thing you were reading.
-5. **Below 1024 pixels nothing changes at all.** The phone, which is where the
-   work actually happens, is untouched — this is added, not swapped.
+5. ~~**Below 1024 pixels nothing changes at all.** The phone, which is where the
+   work actually happens, is untouched — this is added, not swapped.~~
+   **WITHDRAWN BY THE OWNER, 2026-08-31.** He read this as *the phone keeps the
+   old dashboard* and answered *"the whole admin dashboard is changing both with
+   desktop and phone."* What the sentence meant is narrow and still true — **no
+   screen grows a second column below 1024px**, so this file cannot damage the
+   phone. What replaces it is `docs/dashboard-phone-pass-2026-08-31.md`, which
+   re-decides every screen's phone form from scratch, **and it takes one thing
+   from this file: the rail below.**
 
 **The numbers it has to hit** (measured today → required after):
 
@@ -142,7 +149,7 @@ specific stops fitting.
 
 | Name | Value | Why exactly this |
 |---|---|---|
-| **`--bp-rail`** | **1024px** | The rail costs a 72px pill plus a 24px gutter each side = 120px of left inset. At 1024 the content is still 880px — **156px wider than today**, so the rail never costs width. Below it are both phone-shaped verification sizes (768x1024 portrait, 392x844). |
+| **`--bp-rail`** | **1024px wide, OR 500px tall and at least 520px wide** | The rail costs a 72px pill plus a 24px gutter each side = 120px of left inset. At 1024 the content is still 880px — **156px wider than today**, so the rail never costs width. Below it are both phone-shaped verification sizes (768x1024 portrait, 392x844). **THE SECOND CONDITION WAS ADDED IN STEP 4b, 2026-08-31**, and it is the whole of the phone-landscape fix: a phone on its side is 844x390, so the rail's question is not "is the screen wide" but "which edge has room on it". At 390px tall the bottom pill is 17% of the screen and covers the first job; the rail costs **51px of width, measured** (content 724 → 673 at 844; 36px of that on a real device without a headless scrollbar). **The 520px width floor is not optional** — an old iPhone SE upright is 320x480, which is under 500 tall, and a height-only rule would give a 320px screen a 120px inset. `docs/dashboard-phone-pass-2026-08-31.md` §2a. |
 | **`--bp-split`** | **1180px** | `--wrap`. Two columns need a primary ≥637px and a secondary ≥320px with a 24px gap; at 1180 the content region is 1,036px, which is exactly that. And a breakpoint that equals the layout token is a number nobody has to look up. |
 
 There is **no third breakpoint and no maximum beyond `--wrap`.** At 1920 the
@@ -150,15 +157,23 @@ content is 1,180px centred in the band right of the rail; the rest is the
 ground, which is the design's own material (law 1, one continuous ground) and
 not dead space to be filled.
 
-**Below 1024, this specification changes nothing.** That is a guarantee, not a
+~~**Below 1024, this specification changes nothing.** That is a guarantee, not a
 default: every screen at 1023px and below is byte-for-byte what ships today,
-which is what makes this additive rather than a second design.
+which is what makes this additive rather than a second design.~~
+**CORRECTED 2026-08-31, STEP 4b.** What is still guaranteed is that *this file*
+adds no second column below 1024. What is no longer true is "byte-for-byte what
+ships today" — the owner rejected it, and
+`docs/dashboard-phone-pass-2026-08-31.md` redraws the phone. **The one line of
+this file that the phone pass reaches into is `--bp-rail` above.**
 
 ### The shell, in one block
 
 ```
 < 1024      the shell exactly as it ships: .app-main max-width 760px,
             the floating bottom pill, sheets as sheets.
+            EXCEPT a SHORT screen -- <= 500px tall and >= 520px wide,
+            which is a phone on its side. That gets the >= 1024 rail,
+            and sheets go full-bleed. Step 4b, §2a and §2d.
 
 >= 1024     shell padding-left 120px; .app-main max-width var(--wrap);
             the tab bar becomes the vertical rail; list rows gain
@@ -574,8 +589,12 @@ screen that is waiting on the detailer rather than on a car.
 
 - **It does not re-derive the tab bar.** Five destinations, that order, settled
   in Part A on 2026-08-31.
-- **It does not touch the phone.** Below 1024px every screen is what ships
-  today, and that is the guarantee that makes this additive.
+- ~~**It does not touch the phone.** Below 1024px every screen is what ships
+  today, and that is the guarantee that makes this additive.~~
+  **CORRECTED 2026-08-31, STEP 4b.** True of this file's *columns*, and the
+  owner rejected the sentence anyway. The phone is redrawn in
+  `docs/dashboard-phone-pass-2026-08-31.md`, which borrows this file's rail for
+  short screens (`--bp-rail` above) and changes nothing else here.
 - **It does not add a composition-vocabulary item, and it does hand one
   question to step 5.** Clients and History both want a **ruled list whose rows
   carry columns**. The recommendation is that this is the existing *ruled list*

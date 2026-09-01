@@ -81,6 +81,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   puts its control under its words, a segmented control goes full-width and
   wraps, and the palette is 4x3. So a change that looks fine at 392 can still
   break 320 — run the sweep, do not reason about it.
+  **AND THE PHONE HAS A SECOND SHAPE, DECIDED IN ROADMAP 2.11 STEP 4b:
+  LANDSCAPE, 844x390.** `docs/dashboard-phone-pass-2026-08-31.md` is the phone's
+  authority and it overrides step 4's screen designs wherever the two disagree
+  about a phone. **The rule under all of it: a layout decision that spends
+  height must ask about height.** Every landscape defect in this product traces
+  to a width-only media query — `theme.css:1067` turns a sheet into a centred
+  desk panel at `min-width: 700px`, and a sideways phone is 844 wide, so it gets
+  the desk's panel on the shortest screen the product has. **Short screens
+  (≤500px tall and ≥520px wide) take the desktop RAIL, not the bottom pill**, and
+  the 520px width floor is not optional: an old iPhone SE upright is 320x480,
+  and a height-only rule would put a 120px inset on a 320px screen.
 - **Imagery: never a grey placeholder box.** An Unsplash connector is
   wired up and confirmed working 2026-08-29 (`search_photos`; "car
   detailing" returns ~4,800 real photos). Use it for mockups, the demo
@@ -115,7 +126,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
   eleven settings sheets, the client sheet and the booking page at **1920, 1440,
-  392, 360 and 320** and reports anything past the right edge, anything
+  844, 392, 360 and 320** and reports anything past the right edge, anything
   **outside its own
   parent's box**, anything scrolling sideways with no scrollbar, and any two
   boxes stacked with no gap. **320 joined the default in roadmap 2.9**, the item
@@ -132,14 +143,28 @@ explaining it; if they still have to ask "so should I?", it failed.
   script, `DESKTOP_SPEC_BUILT`, is `false` until the desktop layout ships.
   **Roadmap 2.11 step 6 flips it to `true` in the same change**, and the summary
   line says out loud that a clean run is not proof while it is false.
-  `--lite` runs the whole thing through `?lite=1`. It exits 0 at all five
+  `--lite` runs the whole thing through `?lite=1`. It exits 0 at all six
   widths in both paths today. Pass a width to ask a different question.
-  **`844` IS PHONE LANDSCAPE (844x390) and is wired but NOT in the default
-  list** — the owner asked for landscape on 2026-08-31 and it is the only size
-  he named that nothing measured. **390px of height is shorter than any
-  viewport this product has ever been checked at.** It joins the default in
-  roadmap 2.11 step 4b, the phone pass, which both baselines it and has to
-  satisfy it; adding it before then would be a red gate with no baseline.
+  **`844` IS PHONE LANDSCAPE (844x390) AND IT JOINED THE DEFAULT IN ROADMAP
+  2.11 STEP 4b** — baselined first, on the app as it ships: clean on all 18
+  screens. **390px of height is shorter than any viewport this product has ever
+  been checked at.**
+  **AND THAT CLEAN BASELINE IS WHY THE SCRIPT GREW A SIXTH CHECK,
+  `short-screen`.** All five checks above ask about the RIGHT-HAND edge, and a
+  phone on its side fails at the BOTTOM one: on the same viewport the sweep
+  called clean, the tab bar covers the first job, the month shows 1.3 of 5
+  weeks, a settings sheet shows 20% of its form, and **the sign-in card with an
+  error on it is 25px past the bottom of the screen.** That is the third time
+  this shape has appeared here. `short-screen` measures the sticky+fixed chrome
+  as a share of any viewport ≤500px tall — **30% today (48px topbar + 68px tab
+  bar in 390px), budget 20%, 12% once the rail lands** — and it does not gate
+  until `PHONE_PASS_BUILT` flips at step 6, exactly like `DESKTOP_SPEC_BUILT`.
+  **Neither of them makes a clean run proof while it is false, and the summary
+  line says so out loud.**
+  **What `short-screen` still cannot see:** it measures the chrome budget, not
+  the content, so it would NOT have caught the sign-in card. That is a document
+  taller than a viewport that should not scroll, which is the question
+  `sweep-booking-steps.mjs` already answers for the booking page.
   **The script needs the dev server and the demo login**, like
   `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
   on Windows has it and headless does not, and that one difference is the
@@ -175,6 +200,13 @@ explaining it; if they still have to ask "so should I?", it failed.
   that is already on the screen.**
   **The lesson under all of it: a spare-room figure is only true of the screen
   AND the feature set it was taken with.** Quote both, or the number rots.
+  **AND EVERY FIGURE ABOVE IS A PORTRAIT FIGURE.** Measured 2026-08-31 while
+  baselining landscape for 2.11 step 4b: `sweep-booking-steps.mjs 844x390`
+  reports **all eight steps over, the worst by 467px — 120% of the screen, on
+  step 1.** W16 is not met on any step sideways. **That is roadmap 2.16**, which
+  is deliberately not part of 2.11 — the fix is the booking page's step layout,
+  not the dashboard — and its numbers are written into the item so nobody has
+  to take them again.
 
 - **THE OWNER LIFTED THE "DON'T TOUCH THE BACK END" RULE ON 2026-08-31**, and
   a session that inherits it from an older file will do less than he asked for.

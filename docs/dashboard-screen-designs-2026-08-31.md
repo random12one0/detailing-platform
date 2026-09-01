@@ -3,6 +3,18 @@
 **Nothing here is built.** Step 5 is the component inventory, step 6 is where
 you approve the whole specification, and only then does code start.
 
+> **EVERY "WHAT SHIPS TODAY" IN THIS FILE IS SUPERSEDED — 2026-08-31, STEP 4b.**
+> The owner rejected *"below 1024 nothing changes"*: *"the whole admin dashboard
+> is changing both with desktop and phone."* This file describes several phone
+> forms as *unchanged in shape from what ships* (§2), *exactly what ships* (§4),
+> *the sheet, as today* (§3, §9) and *nothing on the phone gets worse to make the
+> desk better* (§0a). **Under "forget the old dashboard existed", an unchanged
+> screen is the absence of a decision.**
+> **`docs/dashboard-phone-pass-2026-08-31.md` re-decides every one of them from
+> scratch and is the phone's authority where the two disagree.** Everything else
+> in this file — the screens' content, sections, states, copy fixes and desktop
+> forms — stands, and the phone pass names its three changes to it in its §17.
+
 This is the step your own words asked for: *"just basically see every
 component and just see what best fits where."* Steps 1–3 listed the features
 (126), researched how the trade's screens work (14 findings) and specified the
@@ -133,11 +145,21 @@ vocabulary in `dashboard-skeletons.md` §5b — never a second hue.
 
 The desktop specification's §4a, unchanged, and every screen below obeys it:
 
-- **A RECORD** — a job, a client, a settings screen — opens **beside** its
+- **A RECORD** — a job, a client, ~~a settings screen~~ — opens **beside** its
   list at ≥1180px, and as a sheet below that.
 - **A FORM YOU COMMIT** — new booking, finalize payment, add an expense —
   stays a modal at every width.
 - Everything in the left column stays where it was while a record is open.
+
+> **CORRECTED 2026-08-31, STEP 4b — there is a third kind and a settings screen
+> is it.** A settings screen is not a record you opened out of a list; it is **a
+> place you go**, and the `›` chevron on its row has been promising a push and
+> delivering a peek. On a phone it becomes **a page with a back control**, not a
+> sheet — which is also what §10 already does to it at the desk (*"the eleven
+> stop being 640px modals"*). Measured sideways, the sheet form showed **20% of
+> Business info's form**, through two nested scrollers.
+> `docs/dashboard-phone-pass-2026-08-31.md` §2c. **Desktop behaviour is
+> unchanged: both still become the right column.**
 
 ### 1e. Law 1 — the skeleton register
 
@@ -515,8 +537,17 @@ one thing to check at step 5** — it must not become a second kind of card.
 
 ## 5. The day
 
-Reached by tapping a date. **A sheet on a phone, an inline panel under the
-grid at desktop** — the same content in both.
+Reached by tapping a date. ~~**A sheet on a phone, an inline panel under the
+grid at desktop**~~ — the same content in both.
+
+> **CORRECTED 2026-08-31, STEP 4b: it is the inline panel at EVERY width.** Two
+> containers meant two things to build and keep in step, for one panel that had
+> to be designed for the desk anyway. On a phone, tapping a day scrolls the
+> selected week to the top and opens the panel beneath it, so the month stays on
+> screen — which is §4a's own concern, answered rather than traded away. It also
+> removes the last full-height sheet from the calendar — the container that
+> measured **20–38% visible** on a phone in landscape.
+> `docs/dashboard-phone-pass-2026-08-31.md` §5a.
 
 ### What it must show
 

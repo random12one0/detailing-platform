@@ -1458,6 +1458,98 @@ the finding rather than contradicting it), and travel-by-distance is refused and
 closed. **His verdict on the rest: *"everything else looks good."*** Roadmap
 2.13 and 2.14 are the only items his answer added.
 
+## 6o. ROADMAP 2.11, STEP 4b — THE PHONE RE-DECIDED, AND A GREEN CHECK THAT COULD NOT SEE THE FAILURE (2026-08-31)
+
+**One new file: `docs/dashboard-phone-pass-2026-08-31.md`, and it is the phone's
+authority over step 4 wherever the two disagree.** Nothing is built. **Step 6,
+the build, is now the only thing left in 2.11.**
+
+**WHY THE STEP EXISTS IS BIGGER THAN THE SENTENCE HE OBJECTED TO.** He rejected
+*"below 1024 nothing changes"*; step 4 describes five screens' phone form as
+*"what ships today"*, *"exactly what ships"* and *"the sheet, as today"*. Under
+his own instruction — *forget the old dashboard existed* — **an unchanged screen
+is the absence of a decision.** Every screen was decided again from nothing;
+where the answer came out the same the reason is written down and the screen
+earned it. **"Unchanged" was not an allowed answer anywhere in the file.**
+
+**THE STRUCTURAL FINDING, AND IT IS ONE LINE OF CODE WIDE.** The dashboard
+decides its layout by **width alone**, so a phone on its side — 844x390 — gets
+the **widest** layout the product has and the **shortest** screen it has ever
+had, simultaneously. Measured on the seeded demo, sideways: **Today's five-job
+day is 2,480px in a 274px band, 9.05 screens**; the tab bar covers the first
+job; the month grid shows **1.3 of 5 weeks**; Clients shows **1.3 rows of 8**;
+opening a job shows **38%** of it and Business info **20%**, through two nested
+scrollers. **Nearly a third of the screen — 30% — is navigation.**
+
+**ROOT CAUSE, FOUND BY READING `theme.css` RATHER THAN THE DESIGN FILES.**
+`theme.css:1067` turns a sheet into a centred desk panel at `min-width: 700px`.
+A sideways phone is 844 wide, so it is "a wide screen" and gets `max-height:
+86vh` of 390 = 335px. The comment above it is right about *why* and wrong about
+*when*. **The rule that generalises it: a layout decision that spends height
+must ask about height.** Fourth time in three sessions that opening the code beat
+reading the document describing it.
+
+**THE FIX INVENTS NOTHING.** The desktop spec already turns the tab bar into a
+**vertical rail on the left edge** at ≥1024 — approved, drawn, and existing
+because that edge has room. Its real question was never width; it is *which edge
+has room*. So `--bp-rail` becomes **width ≥ 1024, OR height ≤ 500 AND width ≥
+520**, and the live band goes **274 → 342px, +25%**, for **51px of width —
+measured by putting the inset on `.app-shell` in the running app** (724 → 673;
+36px of it on a real device, the rest a headless scrollbar). **The
+520px width floor is load-bearing**: an old iPhone SE upright is 320x480, under
+500 tall, and a height-only rule would give a 320px screen a 120px inset.
+
+**THE CHECK FINDING IS THE BIGGER ONE, AND IT IS THE THIRD TIME.**
+`sweep-widths.mjs 844` was baselined first, as CLAUDE.md requires. **It reported
+CLEAN on all 18 screens** — of the viewport described above. Every check it owns
+asks about the **right-hand edge**; landscape fails at the **bottom** one. Proof
+on the product's first screen: **the sign-in card with an error on it is 399px
+in a 390px viewport, 25px past the bottom, "Create an account" clipped**, and the
+sweep calls it clean. It was `past-parent` in 2.9 and `dead-width` in step 3.
+**So 844 joined the default AND the script gained `short-screen`** — sticky+fixed
+chrome as a share of any viewport ≤500px tall, **30% today against a 20% budget,
+12% after the rail** — non-gating behind `PHONE_PASS_BUILT` until step 6, the
+same shape and reason as `DESKTOP_SPEC_BUILT`. **The full default sweep is green
+at all six widths.**
+
+**THE TWO PHONE DECISIONS THAT ARE NOT ABOUT LANDSCAPE.**
+
+1. **Only the lit job is a card.** A five-job day draws **five identical 289px
+   cards** — word for word a named tell in this project's own
+   `design-knowledge.md` §1. The rest become one row each: **the rail region 1,522px →
+   593px**, the day **3.4 screens → a projected 1.7** — and what is actually
+   visible above the tab bar goes from **one card and a sliver of a second** to
+   **the lit card and three rows.** *One thing lit* also becomes a matter of FORM
+   rather than colour, which is what the marks vocabulary is for.
+2. **A settings screen becomes a page, not a sheet.** The row's `›` chevron
+   promises a push and delivers a peek; a 92vh sheet inside a scrolling page is
+   two scrollers; and **step 4 §10 already moved this way at the desk**.
+   `dashboard-skeletons.md` §3's justification survives word for word — *reached
+   one at a time* is still true of a page.
+
+**WHAT WAS DELIBERATELY CONFIRMED RATHER THAN CHANGED, which is the other half
+of "from scratch":** the five tabs and their order; the floating pill upright
+(`theme.css:525` — it is *"what stops the dashboard reading as a default mobile
+app shell"*, and it is 8% of an 844px screen); the month grid on a phone (an
+agenda list cannot draw an empty, closed or blocked day, which is the screen's
+whole question); the centred sign-in card. **Each with its reason on the record.**
+
+**WHAT IT CHANGES IN THE FILES ABOVE IT** — all four dated in place, none
+cosmetic: the desktop spec's `--bp-rail` condition and its *"below 1024 nothing
+changes"* guarantee; step 4 §1d gains a **third container** (a settings screen is
+a place you go, not a record); step 4 §4/§5 make the day panel **inline at every
+width, one component not two**; and `theme.css:1067` gains a height condition at
+step 6.
+
+**ONE FINDING LEFT THE ITEM: ROADMAP 2.16.** `sweep-booking-steps.mjs 844x390`,
+run as part of the same baseline: **all eight steps of the CUSTOMER's booking
+page overflow, the worst by 467px — 120% of the screen, on step 1.** W16 is not
+met on any step sideways. It is the booking widget, not the dashboard, and
+folding it into 2.11 would swell the roadmap's largest item. **Its numbers are
+written into 2.16 so nobody takes them again.**
+
+**WHAT IS WAITING ON HIM: NOTHING.**
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**

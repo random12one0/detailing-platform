@@ -40,8 +40,23 @@
 //                   top of DECISIONS.md — a check that cannot see the common
 //                   failure looks exactly like a check that passes.
 //
+//   short-screen    ADDED IN ROADMAP 2.11 STEP 4b, and it exists because the
+//                   five checks above are ALL questions about the RIGHT-HAND
+//                   EDGE, and phone landscape's whole failure is the BOTTOM
+//                   one. Baselined before it was written: `sweep-widths.mjs
+//                   844` reported CLEAN on all 18 screens on a 390px-tall
+//                   viewport where the tab bar covers the first job, the month
+//                   grid shows 1.4 of 5 weeks, a settings sheet shows 20% of
+//                   its form, and the sign-in card with an error on it is 25px
+//                   PAST THE BOTTOM EDGE. So this measures the one thing that
+//                   is wrong there and is checkable in one number: on a
+//                   viewport <= SHORT_H tall, the sticky+fixed chrome as a
+//                   share of the viewport HEIGHT. 30% today (48px topbar + 68px
+//                   tab bar in 390); 12% once the rail lands.
+//                   docs/dashboard-phone-pass-2026-08-31.md §1c and §19.
+//
 //   node scripts/sweep-widths.mjs --lite         # the same, through ?lite=1
-//   node scripts/sweep-widths.mjs                # 1920, 1440, 392, 360, 320
+//   node scripts/sweep-widths.mjs                # 1920, 1440, 844, 392, 360, 320
 //   node scripts/sweep-widths.mjs 844            # PHONE LANDSCAPE, 844x390
 //   node scripts/sweep-widths.mjs 320            # just the PRODUCT.md floor
 //   node scripts/sweep-widths.mjs 392 360 1440   # any list
@@ -72,7 +87,7 @@ const WIDTHS = (process.argv.slice(2).filter((a) => /^\d+$/.test(a)).map(Number)
 // layout that holds in one can fail in the other; sweep-booking-steps.mjs has
 // carried this flag since 2.7 and this script needed a scratch copy without it.
 const LITE = process.argv.includes("--lite") ? "?lite=1" : "";
-const SIZES = WIDTHS.length ? WIDTHS : [1920, 1440, 392, 360, 320];
+const SIZES = WIDTHS.length ? WIDTHS : [1920, 1440, 844, 392, 360, 320];
 const BASE = "http://localhost:5173";
 // The verification heights, not the phone's. 1080 is his monitor; 900 is the
 // laptop and the shortest screen this product is checked against.
@@ -87,12 +102,15 @@ const BASE = "http://localhost:5173";
 // why it belongs to height-hungry things: the day rail, a .sheet pinned to
 // 92vh, and the bottom tab bar eating from the same 390px.
 //
-// DELIBERATELY NOT IN THE DEFAULT LIST YET -- `node scripts/sweep-widths.mjs
-// 844` runs it today. It joins SIZES in roadmap 2.11 step 4b, the phone pass,
-// which is both the change that BASELINES it (this repo's rule: baseline a new
-// check against the last known-good version) and the change that has to
-// satisfy it. Adding it to the default now would hand the next session a red
-// gate with no baseline, against a phone layout that is about to be redrawn.
+// IT JOINED THE DEFAULT IN ROADMAP 2.11 STEP 4b, and it was BASELINED FIRST:
+// `sweep-widths.mjs 844` was run against the app as it ships, before the width
+// was added, and reported clean on all 18 screens. So it is a green gate from
+// the moment it arrives, which is this repo's rule for a new check.
+//
+// AND A CLEAN RUN AT 844 PROVED THE FOUR EDGE CHECKS CANNOT SEE LANDSCAPE --
+// see `short-screen` above, which is the half of this change that matters. The
+// width alone would have bought a gate that stays green whether or not the
+// phone layout is ever fixed.
 const heightFor = (w) => (w === 844 ? 390 : w >= 1900 ? 1080 : w >= 1024 ? 900 : 844);
 
 // --- dead-width, and the one line that arms it -----------------------------
@@ -105,6 +123,15 @@ const heightFor = (w) => (w === 844 ? 390 : w >= 1900 ? 1080 : w >= 1024 ? 900 :
 const DESKTOP_SPEC_BUILT = false;
 const BP_SPLIT = 1180;   // --wrap; where the desktop spec's second column engages
 const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that says "a desktop layout exists"
+
+// --- short-screen, and the line that arms IT ------------------------------
+// Same shape as DESKTOP_SPEC_BUILT and for the same reason. FLIP TO `true` IN
+// ROADMAP 2.11 STEP 6, in the change that ships the shell -- the tab bar
+// becoming the left-hand rail on a short screen is what takes 30% down to 12%.
+// docs/dashboard-phone-pass-2026-08-31.md §2a and §19.
+const PHONE_PASS_BUILT = false;
+const SHORT_H = 500;      // a phone on its side is 390-393 tall; nothing real sits between 500 and 800
+const MAX_CHROME = 0.20;  // sticky + fixed navigation may not eat more than a fifth of a short screen
 const MORE = ["Business info", "Your colour", "Services & add-ons", "Promo codes & sale",
   "Photo gallery", "Hours & days off", "Booking rules", "Notifications",
   "Message templates", "Team", "Maps, calendar & contacts"];
@@ -159,9 +186,35 @@ const CHECK = () => {
   return [...new Set(out)];
 };
 
+// How much of a short screen the navigation is standing on. Runs once per
+// width, like dead-width: every dashboard screen sits in the same shell, so
+// eighteen copies of one number would only be noise. Takes the union of the
+// chrome at each edge rather than summing every element, or a bar inside a bar
+// counts twice; skips anything over half the viewport tall, which is a sheet
+// or a backdrop rather than navigation.
+const CHROME = () => {
+  const vh = document.documentElement.clientHeight;
+  const vw = document.documentElement.clientWidth;
+  let top = 0, bottom = 0;
+  const pieces = [];
+  for (const el of document.querySelectorAll("body *")) {
+    const cs = getComputedStyle(el);
+    if (cs.position !== "fixed" && cs.position !== "sticky") continue;
+    const r = el.getBoundingClientRect();
+    if (!r.height || r.height > vh * 0.5) continue;
+    if (r.width < vw * 0.4) continue;
+    const cls = el.tagName.toLowerCase() + (typeof el.className === "string" && el.className
+      ? "." + el.className.trim().split(/\s+/).join(".") : "");
+    if (r.top <= 2 && r.bottom > top) { top = r.bottom; pieces.push(`${cls} ${Math.round(r.bottom)}px at the top`); }
+    else if (r.bottom >= vh - 24 && vh - r.top > bottom) { bottom = vh - r.top; pieces.push(`${cls} ${Math.round(vh - r.top)}px at the bottom`); }
+  }
+  return { vh, top: Math.round(top), bottom: Math.round(bottom), pieces };
+};
+
 const browser = await chromium.launch();
 let found = 0;
 let narrow = 0;   // desktop widths whose content column is still phone-sized
+let squeezed = 0; // short screens whose navigation is over the chrome budget
 
 for (const w of SIZES) {
   console.log(`\n══ ${w}px ══════════════════════════════════════════`);
@@ -215,6 +268,19 @@ for (const w of SIZES) {
     }
   }
 
+  if (heightFor(w) <= SHORT_H) {
+    const c = await page.evaluate(CHROME);
+    const chrome = c.top + c.bottom;
+    const share = chrome / c.vh;
+    const line = `short-screen   ${Math.round(share * 100)}% of a ${c.vh}px screen is navigation`
+      + ` (${chrome}px: ${c.pieces.join(", ") || "none found"}) — budget ${Math.round(MAX_CHROME * 100)}%`;
+    if (share > MAX_CHROME) {
+      squeezed++;
+      if (PHONE_PASS_BUILT) { found++; console.log(`  ${line}`); }
+      else console.log(`  ${line}  (not gating until PHONE_PASS_BUILT)`);
+    } else console.log(`  short-screen   ${Math.round(share * 100)}% chrome on a ${c.vh}px screen — within budget`);
+  }
+
   for (const t of ["Today", "Calendar", "Money", "Clients", "More"]) {
     await page.getByRole("button", { name: t, exact: true }).first().click();
     await page.waitForTimeout(1700);
@@ -258,5 +324,11 @@ console.log(found
 if (narrow && !DESKTOP_SPEC_BUILT) {
   console.log(`  ...but the content column is still narrow at ${narrow} desktop width${narrow === 1 ? "" : "s"}`
     + ` — see dead-width above. That is roadmap 2.11's desktop layout, not yet built.`);
+}
+// Same warning for the other end of the range: at 844 the four edge checks are
+// clean today on a screen where the tab bar covers the first job.
+if (squeezed && !PHONE_PASS_BUILT) {
+  console.log(`  ...and the navigation is over its budget at ${squeezed} short screen${squeezed === 1 ? "" : "s"}`
+    + ` — see short-screen above. That is roadmap 2.11's phone pass, not yet built.`);
 }
 process.exit(found ? 1 : 0);

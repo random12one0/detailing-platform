@@ -52,11 +52,11 @@ were made more than once.
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
 | **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
-| **The dashboard `/app`** | **Roadmap 2.11, step 4 first — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
+| **The dashboard `/app`** | **Roadmap 2.11, step 4b first if it is the PHONE — it overrides step 4 there** · **Roadmap 2.11, step 4 — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
-| **Spacing, layout, or anything at phone width** | Roadmap 2.6 · Test at HIS screen size, not yours |
-| **A test, a check, or a measuring script** | Roadmap 2.11, step 5 (what `composition.test.mjs` test 1 must assert) · A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
+| **Spacing, layout, or anything at phone width** | **Roadmap 2.11, step 4b — landscape (844x390) is a HEIGHT problem and the sweep is blind to it** · Roadmap 2.6 · Test at HIS screen size, not yours |
+| **A test, a check, or a measuring script** | Roadmap 2.11, step 4b (a green check that could not see the failure — the THIRD time) · Roadmap 2.11, step 5 (what `composition.test.mjs` test 1 must assert) · A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
 | **`main`, deploying or publishing** | The owner put the redesign on `main` and published it · ANSWERED: Netlify does auto-publish `main` |
 | **Keys, RLS, the public repo, or the live business** | Phase 0 — 0.4 deployment sanity · Abuse check on the live project · Roadmap 0.1 cleanup · A guessable demo login |
 | **Email or reminders** | Phase 0 — 0.2 email · Test deployment and later fixes |
@@ -147,6 +147,8 @@ were made more than once.
 - **Roadmap 2.11, step 6 — how the approval was ASKED, and a build order nobody had written** — a SIXTH file for a man who said there were too many words, and the reason it is not a contradiction: the five files each have a one-pager, but none of them is a layer ACROSS the five, and the ask and his answer would otherwise live only in a chat the next `/clear` destroys. **It is organised around the eight things the specification TAKES AWAY or contradicts him on, not around what it adds**, numbered so a partial no costs him three words. **A build order is proposed because no other file has one** — the shell ships WITH Today rather than before it (a session whose deliverable cannot be looked at, on a project verified by looking), and first run is last. And one claim in the draft was false until `theme.css` was opened: Today's payment panel is not an orange warning box, because **there is no amber in this system.**
 
 - **Roadmap 2.11, step 6 — his answer, and the two claims that did not survive contact with the code** — **APPROVED WITH AMENDMENTS the same day.** He **lifted the no-schema rule** that four steps of specification were written inside — *"I don't know why there was a rule that did not edit the back end"* — and what he actually wants fenced off is the opposite thing: the OLD DASHBOARD's structure, with the landing page's look kept. **Two of this session's own claims died on contact with the code:** Today's "orange warning box" (there is no amber in the system) and the "dead" travel fee (`pricing.ts:135` charges it — a field dead in ONE CONFIGURATION is not a dead field). **He reversed the push removal on a belief the code does not support** — there is no service worker at all, so the EMAIL is what reaches him — and the right answer was to build the missing half rather than re-ask. **The tab bar was closed on his own condition by SHOWING the derivation** rather than re-running it. **Three asks became roadmap 2.13, 2.14 and 2.15** instead of swelling this item, and **phone landscape (844x390) is wired but deliberately not armed**, same shape as `DESKTOP_SPEC_BUILT`. **Then two clarifications from him closed 2.15 unstarted** — he refused automatic travel calculation and the alternative he described (*"the customer just ticks… are you outside of ten mile range"*) is `travel_zones`, already shipped — and confirmed his push sighting was his OWN business's dashboard, a different product entirely. **Three wrong claims in one session, all from trusting a document over the code it described.**
+
+- **Roadmap 2.11, step 4b — the phone re-decided, and a green check that could not see the failure** — the owner rejected *"below 1024 nothing changes"*, so **every screen’s phone form was decided again from nothing**; "unchanged" was not an allowed answer. **The biggest finding is about the CHECK:** `sweep-widths.mjs 844` reported CLEAN on all 18 screens of a viewport where the tab bar covers the first job and the sign-in card sits **25px past the bottom** — all five of its checks ask about the RIGHT edge and landscape fails at the BOTTOM one. Third time this shape has appeared here, after `past-parent` in 2.9 and `dead-width` in step 3. **Root cause of every sideways container defect is one media query** (`theme.css:1067`, `min-width: 700px`, no height condition): *a layout decision that spends height must ask about height.* The fix invents nothing — the desktop rail’s condition widens to *short screens too*, and the live band gains 25%. Plus **only the lit job is a card** (five identical 289px cards is this project’s own named slop tell) and **a settings screen becomes a page, not a sheet.**
 
 <!-- INDEX:END -->
 
@@ -6243,3 +6245,101 @@ Nothing built. His answer is §6 of `docs/dashboard-spec-approval-2026-08-31.md`
   wrong claims this session — the "orange" warn-box, the "dead" travel fee, and
   a roadmap item for a feature that already existed — and all three came from
   trusting a document over the code it described.**
+
+## Roadmap 2.11, step 4b — the phone re-decided, and a green check that could not see the failure
+
+**The owner's rejection of *"below 1024 nothing changes"* opened this step, and
+it is bigger than the sentence he objected to.** Step 4 describes five screens'
+phone form as *"what ships today"*, *"exactly what ships"* and *"the sheet, as
+today"*. Under his own instruction — *"forget that the old dashboard even
+existed"* — **an unchanged screen is the absence of a decision, not a decision**,
+so every screen was decided again from nothing in
+`docs/dashboard-phone-pass-2026-08-31.md`. Where the answer came out the same,
+the reason is written down and the screen earned it; "unchanged" was not an
+allowed answer anywhere.
+
+**THE FINDING THAT MATTERS MOST IS ABOUT THE CHECK, NOT A SCREEN, AND IT IS THE
+THIRD TIME THIS SHAPE HAS APPEARED IN THIS REPO.** `sweep-widths.mjs 844` was
+run first, as the baseline, exactly as CLAUDE.md requires before a new size
+joins the default. **It reported CLEAN on all 18 screens.** It is clean and it
+is not true: every check that script owns — `past-viewport`, `past-parent`,
+`self-clipped`, `touching`, `dead-width` — asks a question about the RIGHT-HAND
+EDGE, and a phone on its side fails at the BOTTOM one. On the same viewport the
+sweep called clean: the tab bar covers the first job, the month grid shows 1.4
+of 5 weeks, a settings sheet shows 20% of its form, and **the sign-in card with
+an error on it is 399px tall in a 390px viewport — 25px past the bottom, with
+"Create an account" clipped.** It was `past-parent` in 2.9 and `dead-width` in
+step 3, and it is this now. **So 844 joined the default AND the script gained
+`short-screen`**, which measures the sticky+fixed chrome as a share of a short
+viewport: **30% today (48px topbar + 68px tab bar in 390px), 12% after the
+fix.** Non-gating behind `PHONE_PASS_BUILT`, same shape and same reason as
+`DESKTOP_SPEC_BUILT`, and the summary line says out loud that a clean run is not
+proof while it is false. **Adding the width without the check would have bought
+a gate that stays green whether or not the phone is ever fixed.**
+
+**THE ROOT CAUSE OF EVERY LANDSCAPE CONTAINER DEFECT IS ONE MEDIA QUERY, AND IT
+WAS FOUND BY READING `theme.css` RATHER THAN THE DESIGN FILES.**
+`theme.css:1067` turns a sheet into a centred desk panel at `min-width: 700px`.
+**A phone on its side is 844px wide, so it is "a wide screen"** and gets
+`max-height: 86vh` of 390px = 335px. The comment above it is right about *why*
+(*"dragging a thing up from the bottom edge is a thumb gesture, not a mouse
+one"*) and wrong about *when* — it asked only about width. **The rule that
+generalises it: a layout decision that spends height must ask about height.**
+That is the fourth time in three sessions that opening the code beat reading the
+document that described it.
+
+**THE STRUCTURAL DECISION IS ONE LINE AND IT INVENTS NOTHING.** The desktop
+specification already turns the tab bar into a vertical rail on the left edge at
+≥1024px — approved, drawn, and existing precisely because that edge has room.
+**Its condition was never really about width; it is about which edge has room**,
+and a sideways phone has 844px of left edge and no bottom one. So `--bp-rail`
+becomes *width ≥ 1024, OR height ≤ 500 AND width ≥ 520*, and the live band goes
+**274px → 342px, +25%**, for **51px of width — measured, not assumed** (724 →
+673, and 36px of that on a real device without a headless scrollbar). **The 520px width floor is not
+decoration**: an old iPhone SE upright is 320x480, which is under 500 tall, and
+a height-only rule would give a 320px screen a 120px inset and 200px of content.
+A height rule without a width floor is a 320-floor regression waiting to happen.
+
+**THE TWO PHONE-SHAPED DECISIONS THAT ARE NOT ABOUT LANDSCAPE AT ALL:**
+
+- **Only the lit job is a card.** A five-job day draws **five identical 289px
+  cards**, measured — which is also, word for word, a named tell in this
+  project's own `design-knowledge.md` §1 (*"five identical full-width stacked
+  sections"*). The other four become one row each: **the rail region goes 1,522px →
+  593px, and the day 3.4 screens → a projected 1.7** — but the number that
+  matters is what is above the tab bar: **the lit card and three rows, against
+  one card and a sliver of a second.** It also makes *one thing lit* a matter of
+  **form** rather than colour, which is what the marks vocabulary exists for
+  and what keeps law 11b from having to work harder. The actions are not lost —
+  step 4 put an action bar at the top of the job record precisely so Call /
+  Text / Navigate are one tap from any row.
+- **A settings screen stops being a sheet and becomes a page.** Four reasons and
+  none is taste: the row's `›` chevron promises a push and delivers a peek; a
+  92vh sheet with an inner scroller inside a scrolling page is **two scrollers**
+  and measured 20% visible sideways; *Services & add-ons* is four lists in a
+  640px floating box; and **step 4 §10 already moved this direction at the desk**
+  (*"the eleven stop being 640px modals"*). `dashboard-skeletons.md` §3's
+  justification survives word for word — it allows twelve screens to share one
+  skeleton because *"they are modal panels reached one at a time"*, and **reached
+  one at a time is still true of a page.**
+
+**WHAT WAS DELIBERATELY LEFT ALONE, WHICH IS THE OTHER HALF OF "FROM SCRATCH".**
+The five tabs and their order (derived and approved; re-deriving wastes his
+time). The floating pill upright — `theme.css:525` says it is *"what stops the
+dashboard reading as a default mobile app shell"*, it is thumb-reachable, and it
+costs 8% of an 844px screen. The month grid on a phone, because the obvious
+alternative — an agenda list — cannot draw an empty day, a closed day or a
+blocked one, which is the screen's whole question. The centred sign-in card,
+which is where *"centred exactly once"* is spent. **Each is confirmed with its
+reason rather than inherited, and that distinction is the entire point of the
+step.**
+
+**AND ONE FINDING THAT IS NOT THIS ITEM'S AND WAS GIVEN ITS OWN HOME.**
+`sweep-booking-steps.mjs 844x390`, run as part of the same landscape baseline:
+**all eight steps of the customer's booking page overflow, the worst by 467px —
+120% of the screen, on step 1.** W16 is the owner's rule that a customer never scrolls
+inside a step, and sideways it is not met on any step. **It is the booking
+widget, not the dashboard**, and folding it into 2.11 would swell the item that
+is already the largest on the roadmap. Written up as roadmap 2.16 with the
+numbers, because a measurement taken and not written down is a measurement that
+gets taken again.
