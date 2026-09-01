@@ -744,12 +744,21 @@ from scratch… I wanna do it properly, from the start."*
   and is settled inside 2.11 step 5. **Do not re-ask him.**
 - **Roadmap 2.11 is the item**, with his words quoted in full, the order, and
   the skills. Steps 1–5 produce FILES; he approves before any code.
-- **ONE QUESTION IS OPEN AND MUST NOT BE GUESSED.** He said *"using the
-  correct direction"*, and *direction* is this project's word for the visual
-  world. The item is written for the reading that **"The Thread" still stands
-  and only the SCREENS are rebuilt** — because 2.10, his own item, says the
-  look is not reopened, and he approved and praised the design. But the other
-  reading is a different project. It is asked at the top of roadmap 2.11.
+- **THE OPEN QUESTION IS ANSWERED: "The look stays."** The Thread still
+  stands, the skill-collision rule stays on, no direction round. **But he
+  asked the follow-up that mattered — *"that means just the colors and fonts,
+  right?"* — and the answer is NO**, so the boundary is written out in roadmap
+  2.11 as three buckets rather than left as the phrase "the look":
+  **FIXED** (the sixteen tokens, the two faces, the one dark ground, the
+  accent-is-identity-never-meaning rule, the motion budget, the accessibility
+  floors, the never-defaults); **FIXED IN KIND BUT GROWABLE ONCE, at step 5**
+  (the composition vocabulary — the desktop spec will probably want a table,
+  which the set does not have); and **COMPLETELY OPEN** (which block each
+  screen uses, what is on it in what order, every layout on phone and desktop,
+  every state). **Law 1 — every screen a structurally different skeleton — is
+  the one fixed rule that constrains the REBUILD rather than the styling**;
+  flagged to him, kept, and it is what stops five tabs becoming five stacks of
+  identical rounded boxes.
 - **What is already settled and must NOT be re-derived:** 2.10 Part A's tab
   bar (Today · Calendar · Money · Clients · **Business**, gear for plumbing,
   `+` in the header), decision 6, and Part B's 21 findings as the list of what

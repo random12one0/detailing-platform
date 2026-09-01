@@ -136,7 +136,8 @@ were made more than once.
 - **The owner reopened the dashboard's architecture** — the five tabs and the More screen are a copy of his own admin page; 2.10 rethinks WHERE things live and explicitly not how they look.
 - **Roadmap 2.10 — the architecture proposal** — four of the five tabs survived a from-scratch derivation; **"what you sell" is top-level in five of six trade products and is a chevron inside our Settings screen.** Also: the push switch has no client and does nothing.
 - **Roadmap 2.10, part B — the owner widened it to every screen** — he chose "Business" and delegated the rest. **There is no desktop layout: one 724px column at every width, and History is 3,619px tall on a 1440 monitor AND on a phone.** Plus a composition test that cannot see the failure it exists to catch.
-- **Roadmap 2.11 — he asked for the dashboard from scratch** — desktop gets a real SPECIFICATION, and the rebuild is sequenced inventory → research → spec → screens → components → his approval → build. **One question is open and must not be guessed: does "the correct direction" reopen the visual world, or only the screens?**
+- **Roadmap 2.11 — he asked for the dashboard from scratch** — desktop gets a real SPECIFICATION, and the rebuild is sequenced inventory → research → spec → screens → components → his approval → build. ~~One question is open~~ **ANSWERED: the look stays.**
+- **"The look stays" — what that actually fences off** — his words, and then his own follow-up ("just the colors and fonts, right?"). **It is not: the ground, the accent-is-never-meaning rule, the motion budget and the accessibility floors ride along with it.** Three buckets, in roadmap 2.11.
 
 <!-- INDEX:END -->
 
@@ -5309,3 +5310,48 @@ item, the order and the skills are `docs/roadmap.md` 2.11.
   his answer, then a build. It is the shape that has worked twice on this
   project, and it is the shape he named when he said he wanted it done
   properly from the start.
+
+## "The look stays" — what that actually fences off
+
+He answered 2.11's open question on 2026-08-31 with *"The look stays"*, and
+then asked the question that mattered more: *"but that means like just the
+colors and like fonts stuff like that right"*. **It does not, and the gap
+between those two sentences is exactly the ambiguity that would have been
+re-litigated at every screen** — so the boundary is written out in roadmap
+2.11 in three buckets instead of resting on the phrase "the look".
+
+- **The phrase was doing more work than he thought, and telling him so was the
+  whole job.** "The look" in this repo is the design system, and the system
+  carries four things beyond colour and type: the single dark ground (law 14
+  — he killed the light theme himself), the tenant-accent rules (law 11b — the
+  accent is identity, never meaning; paid is always the fixed green), the
+  motion budget (law 3 — one staggered reveal per screen, no scroll
+  choreography), and the accessibility floors. **Left as "the look", a later
+  session would have read it as "colours and fonts" — his own words — and
+  quietly reopened three laws he never meant to touch.**
+
+- **Bucket 2 exists because a frozen vocabulary would have been the wrong
+  answer.** The composition set (lit card, quiet card, ruled list, receipt,
+  rail, bare figures, sunken panel) is fixed IN KIND but may GROW — the
+  desktop specification will very likely want a table, which is not in the set
+  — and the growth happens once, deliberately, at step 5's component
+  inventory, with `docs/design-system.md` updated first. What is banned is the
+  thing that actually goes wrong: each screen inventing its own fourth kind of
+  list. **Saying "the vocabulary is frozen" would have been simpler and would
+  have forced the rebuild to either break the rule or ship a worse desktop.**
+
+- **Law 1 was flagged to him rather than filed under "the look", because it is
+  the one fixed rule that constrains the REBUILD rather than the styling.**
+  One continuous ground, every screen a structurally different skeleton — it
+  is why Today is the only rail, Calendar the only grid, Money the only chart,
+  Clients the only screen with no panel. At step 4 that forbids two tabs that
+  resemble each other even where that is the easy answer. **It stands, with
+  the recommendation to keep it**: it is what stops five tabs collapsing into
+  five stacks of identical rounded boxes, which is a failure this product has
+  already had once (`docs/ux-audit.md` G3, and Clients was the proof).
+
+- **Bucket 3 is deliberately everything else, and it is where "from scratch"
+  means what he said it means:** which block each screen uses and how many,
+  what is on each screen in what order at what weight, every layout on both
+  phone and desktop, and every state — empty, one, twelve, loading, error,
+  staff. A blank page, on a foundation that is not.

@@ -1417,8 +1417,8 @@ is kept; the entire visual design restarts from scratch.
       > what, and based on the information off of actual web design research,
       > what detailers want, what we need — basically, all of that."
 
-      **ONE QUESTION MUST BE ANSWERED BEFORE STEP 1, AND A COLD SESSION MUST
-      NOT GUESS IT.** He said "using the correct direction", and *direction*
+      **THE ONE QUESTION THAT WAS OPEN HERE IS ANSWERED — read the boundary,
+      not just the answer.** He said "using the correct direction", and *direction*
       is this project's word for the visual world. Two readings, and they are
       different projects:
 
@@ -1437,11 +1437,54 @@ is kept; the entire visual design restarts from scratch.
       when he walked the whole product on 2026-08-30 his verdict was *"I
       really like the design."* His complaint both times has been that the
       dashboard was *"just kind of created"* — a thinking complaint about
-      screens, not a taste complaint about the look. **If he confirms (B),
-      step 0 of this item becomes a direction round and everything below
-      shifts by one; nothing else in the plan changes.** Do not start step 1
-      until this is answered. See DECISIONS.md → "Roadmap 2.11".
+      screens, not a taste complaint about the look. See DECISIONS.md → "Roadmap 2.11".
 
+      **ANSWERED 2026-08-31: (A). "The look stays."** And he immediately
+      asked the right follow-up — *"but that means like just the colors and
+      like fonts stuff like that right"* — so **the boundary is written out
+      below in three buckets rather than left as the phrase "the look", which
+      is the ambiguity that would otherwise be re-litigated at step 4 of every
+      screen.** The skill-collision rule stays ON: appliers and auditors only,
+      no direction round.
+
+      **BUCKET 1 — FIXED. Not reopened, not proposed against, not "improved".**
+      The sixteen colour tokens; the two faces (Archivo across both variable
+      axes, JetBrains Mono for every figure) and the type scale; the single
+      dark ground (law 14 — there is no light theme); the tenant-accent rules
+      (law 11 and 11b — the accent is identity, never meaning: paid is always
+      the fixed green, cancelled always the fixed red); the motion budget (law
+      3 — one staggered reveal per screen, no scroll choreography); the
+      accessibility floors (4.5:1 text on its actual surface, 3:1 non-text
+      edges, a visible focus ring, `prefers-reduced-motion`, 320→1440); and
+      the never-defaults in `docs/design-knowledge.md` §1.
+
+      **BUCKET 2 — FIXED IN KIND, GROWABLE BY DECISION.** The composition
+      vocabulary: lit card, quiet card, ruled list, receipt, rail, bare
+      figures, sunken panel. A rebuild MAY add a new one — a table, say, which
+      the desktop specification will probably want — but only at **step 5, the
+      component inventory, deliberately and once.** What is banned is what
+      always happens otherwise: each screen quietly inventing its own fourth
+      kind of list. Adding to the vocabulary updates `docs/design-system.md`
+      first, never silently (CLAUDE.md's rule about a test and a design
+      decision colliding).
+
+      **BUCKET 3 — COMPLETELY OPEN. This is where the whole item lives.**
+      Which block each screen uses and how many of them; what is on each
+      screen, in what order, at what size and weight; every layout, phone and
+      desktop, with the desktop specification being new work that has never
+      existed; what every state looks like (empty, one, twelve, loading,
+      error, staff). **"From scratch" means all of bucket 3 is a blank page.**
+
+      **ONE RULE IN BUCKET 1 IS MORE THAN COSMETIC AND HE SHOULD KNOW IT
+      SHAPES THE REBUILD: law 1 — one continuous ground, and every screen a
+      structurally different skeleton.** It is why Today is the only rail,
+      Calendar the only grid, Money the only chart and Clients the only screen
+      with no panel on it. It is a real constraint on step 4, not a colour
+      rule: it forbids two tabs that look like each other even when that would
+      be the easy answer. **It stands unless he says otherwise** — flagged to
+      him 2026-08-31 with the recommendation to keep it, because it is what
+      stops five tabs collapsing into five stacks of identical rounded boxes,
+      which is the named failure this whole product has already had once.
       **WHAT IS ALREADY DECIDED AND DOES NOT GET RE-DERIVED.** "From scratch"
       is about the screens, not about work he has already approved. Carried
       in, settled:
