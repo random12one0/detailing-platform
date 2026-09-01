@@ -41,7 +41,8 @@ screen; everything below is the detail behind it.**
 | **98 already work** | the current dashboard, unchanged |
 | **7 are built and have no working screen** | reviews, monthly plans, custom domains, three social links, multi-business, and the push switch |
 | **4 are on screen and broken** | the push switch, the dead travel-fee field, a "last visit" that can print a future date, and the colour problem below |
-| **11 are new or newly agreed** | the setup form, the guided tour, three FAQ pieces, before-and-after photos, request-vs-reserve, accept a booking, quotes — plus the week view and the export, which were already on the list as open questions |
+| **10 are new or newly agreed** | the setup form, the guided tour, three FAQ pieces, before-and-after photos, request-vs-reserve, accept a booking, quotes, and the export |
+| **1 was ruled out** | **the week view** — your conditional yes, and step 3's answer is no, because the desktop **month** cell writes the jobs out and does the same job. §9 Q3 |
 
 **The three numbers that decide the layout**
 
@@ -194,7 +195,7 @@ if it can be made good — there is exactly one).
 | 28 | Give one day different hours from the usual week | a | works | `DaySheet` → `booking_hours_overrides` |
 | 29 | Make a day or a stretch of days drop-off-only, or mobile-only | a | works | `DaySheet` → `dropoff_only_periods` |
 | 30 | Find a past job by customer, service or status | a | works | Calendar → History |
-| 31 | See a week rather than a month | e + o | **conditional** | Nowhere — §9 Q3 answered. **Only if it can be made convenient** |
+| 31 | See a week rather than a month | e + o | ~~conditional~~ **NOT SHIPPING** | Nowhere — §9 Q3. **Ruled NO by step 3**, and the month cell is what replaces it. `dashboard-desktop-spec-2026-08-31.md` §7 |
 
 ### 2c. Money
 
@@ -661,13 +662,31 @@ right about why: only the detailer knows what customers actually ask them.
 > If you could find a way to have a week view that's, you know, convenient and
 > doesn't make it a burden, then sure."*
 
-**Row 31, which already existed as this question and is now marked
-`conditional` — the only row on the list that is.** He has
-not said build it; he has said build it **if it can be made good**. Step 3 tries
-it against the desktop layout — where the month may already sit beside the
-selected day, which could make a week view redundant — and **if it cannot be
-made convenient, it does not ship and the file says so.** A conditional yes
-treated as a yes is how features nobody wanted get built.
+**Row 31, which already existed as this question and was the only
+`conditional` row on the list.** He did not say build it; he said build it
+**if it can be made good**. Step 3 tried it against the desktop layout, and
+**a conditional yes treated as a yes is how features nobody wanted get built.**
+
+> ### **STEP 3 RULED: NO. 2026-08-31.**
+>
+> The full reasoning is `docs/dashboard-desktop-spec-2026-08-31.md` §7. In
+> short: a week view is a seven-column time grid, and at 356px of phone content
+> that is **51px a column** — it cannot carry a name or a time, so it would be
+> a desk-only mode, which is the burden he asked me to avoid. It is also a
+> second grid on the only screen that is a grid (law 1), and the demo's month —
+> built in step 0 to be realistic — holds **9 jobs across 5 days**, which is
+> one or two jobs drawn into a 70-cell grid.
+>
+> **What replaces it is the reason the answer is not just "no".** At the
+> desktop content width a **month** cell is 163px wide and 112px tall — room to
+> write `9:00 Tom O.` three times over instead of drawing a dot. **A month that
+> writes its jobs out is a week view five times over**, with no third mode, no
+> new skeleton, and nothing changed on the phone.
+>
+> **What would overturn it:** a detailer dense enough that three lines and
+> "+2 more" stops being enough — a shop with a crew, not a solo mobile
+> detailer. Written down so this is a no with its condition attached, not a
+> quiet drop.
 
 ### Q4 — An export for the accountant? **YES.**
 
@@ -702,9 +721,30 @@ detailers work the other way.** Reserve-on-booking is a choice Andrew's business
 makes, and it is currently baked in for everybody.
 
 **This is engine and schema work, and roadmap 2.11 does not reopen either.** It
-needs a per-business setting, a booking that is held rather than reserved, an
-accept/decline path, and availability that behaves differently in each mode.
-**So it is a separate roadmap item.**
+needs a per-business setting, a booking that is held rather than confirmed, and
+an accept/decline path. **So it is a separate roadmap item.**
+
+> ### **HE CLARIFIED THIS ON 2026-08-31, AND IT MADE THE ITEM SMALLER.**
+>
+> > *"I didn't mean that if they choose to approve bookings… some could book two
+> > of the same slots. So someone sends a request, it will take up that time
+> > slot. But there should be a version they could choose of either: if someone
+> > books, it's like, yeah, they booked for that time, we're gonna do our best
+> > to make it to that time — while [in] a request it was like, hey, this is
+> > when [I want it], and it's like, okay, I have to approve it. You've not
+> > really guaranteed it. Obviously neither is gonna be a hundred percent
+> > guaranteed, but one is just a little bit more guaranteed than the other."*
+>
+> **A request holds the slot.** Two customers cannot request the same time. The
+> difference between the modes is **the promise made to the customer**, not the
+> mechanics of the calendar. **Availability behaves identically in both.**
+>
+> That deletes what roadmap 2.12 had called its hard part — "in request mode a
+> slot is not taken, so two requests can want the same time, which the exclusion
+> constraint currently forbids." **The constraint stays exactly as it is.** What
+> is left is a setting, a status, an accept/decline action, and different
+> wording on the customer's page and email.
+> Full note: `docs/dashboard-desktop-spec-2026-08-31.md` §8.
 
 **But it changes step 4 anyway, and that is the point of having listed it.** He
 named where the accept action goes — *"the page that the detailer uses their

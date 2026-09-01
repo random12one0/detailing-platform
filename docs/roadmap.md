@@ -1548,6 +1548,16 @@ is kept; the entire visual design restarts from scratch.
          what. **And the check: `scripts/sweep-widths.mjs` grows the desktop
          widths in the same item**, or the desktop layout becomes the only
          part of this product nothing automatically verifies.
+         **DONE 2026-08-31 — `docs/dashboard-desktop-spec-2026-08-31.md`.**
+         Two breakpoints, both derived: **1024** (the rail — it costs 120px of
+         inset and still leaves 880px, so it never costs width) and **1180**
+         (`--wrap`, where a 637px primary + 320px secondary + a 24px gap fit).
+         Below 1024 nothing changes at all. Five screens, five DIFFERENT wide
+         forms, because "list left, panel right" on all five is law 1's named
+         failure — **and Calendar stays ONE column on purpose**, since
+         splitting it takes the width straight back off the grid. The sweep now
+         runs **1920/1440/392/360/320** at the verification heights and carries
+         a fifth check, `dead-width`. **The week view is ruled NO** — §7.
       4. **Screen-by-screen design, on the approved system.** Per screen:
          what it is for, what it must show, **every state** — empty, one,
          many, loading, error, staff — the composition vocabulary it uses, and
@@ -1631,12 +1641,23 @@ is kept; the entire visual design restarts from scratch.
         adapt based off of what color the detailer chooses."* One colour,
         everywhere, with a floor, and **`accent-sweep.mjs` grows to reach email
         in the same change.**
-      - **One finding steps 3 must handle carefully (F14).** Every product in
-        the sample changes its navigation SHAPE on desktop and ours does not.
-        **That is NOT the tab bar reopening** — Part A settled which five
-        destinations exist and in what order, and it stands. What is open is
-        where the bar is DRAWN above the desktop breakpoint, which is decision
-        6's scope and has never been specified.
+      - ~~**One finding steps 3 must handle carefully (F14).**~~ **SETTLED IN
+        STEP 3.** Every product in the sample changes its navigation SHAPE on
+        desktop and ours does not. **That was NOT the tab bar reopening** —
+        Part A settled which five destinations exist and in what order, and it
+        stands untouched. What was open was where the bar is DRAWN above the
+        desktop breakpoint. **Answer: at ≥1024 the same glass pill turns
+        vertical and fixes to the left edge** — same five buttons, same order,
+        same glass, blur, radius and active fill, `flex-direction: column`.
+        Not a conventional 220px label-beside-icon sidebar, which is the
+        default admin shell the pill exists to avoid (`theme.css:525` says so
+        in its own comment). **The header does not change shape at all** —
+        name left, `+` and gear right at every width — which is the collision
+        F14 flagged, resolved by not moving them.
+      - **STEP 3 IS DONE, 2026-08-31.** File:
+        `docs/dashboard-desktop-spec-2026-08-31.md`. It also carries **the
+        week-view ruling (NO, §7)** and **his request-vs-reserve
+        clarification (§8)**, which makes 2.12 smaller — see below.
 - [ ] 2.12 **Request-vs-reserve, accept/decline, and quotes — the OWNER's
       answer to 2.11's question 5, 2026-08-31, and it is engine work rather
       than layout.**
@@ -1655,20 +1676,52 @@ is kept; the entire visual design restarts from scratch.
       > that option. Obviously that's quite a bit of work, but that's probably
       > something a detailer would want to have an option for."*
 
+      **HE CLARIFIED THIS ON 2026-08-31 AND IT MADE THE ITEM SMALLER. READ THIS
+      BEFORE THE PARAGRAPH UNDER IT, WHICH IS NOW PARTLY WRONG.**
+
+      > *"I didn't mean that if they choose to approve bookings… some could book
+      > two of the same slots. So someone sends a request, it will take up that
+      > time slot. But there should be a version they could choose of either: if
+      > someone books, it's like, yeah, they booked for that time, we're gonna
+      > do our best to make it to that time — while [in] a request it was like,
+      > hey, this is when [I want it], and it's like, okay, I have to approve
+      > it. You've not really guaranteed it. Obviously neither is gonna be a
+      > hundred percent guaranteed, but one is just a little bit more guaranteed
+      > than the other."*
+
+      **A REQUEST HOLDS THE SLOT.** Two customers cannot request the same time.
+      The difference between the two modes is **the promise made to the
+      customer**, not the mechanics of the calendar — one is "you're booked,
+      we'll do our best to be there", the other is "you've asked; the detailer
+      has to accept it." Availability behaves **identically** in both modes.
+
+      **What that deletes.** The paragraph below called the exclusion
+      constraint the hard part. It is not a part at all: the constraint stays
+      exactly as it is and nothing about availability changes. What is left is
+      a per-business setting, one more booking status, an accept/decline
+      action, and different wording on the customer's page and in the email.
+      **Recorded in full at `docs/dashboard-desktop-spec-2026-08-31.md` §8.**
+
       **Why it is its own item.** Roadmap 2.11 redraws the dashboard and
       explicitly does not reopen the schema, the quote engine or the booking
       flow. This changes all three: a per-business mode setting, a booking that
-      is HELD rather than reserved, an accept/decline path, and availability
-      that behaves differently in each mode (in request mode a slot is not
-      taken, so two requests can want the same time — which the exclusion
-      constraint currently forbids). **That last one is the hard part and it is
-      not a UI question.**
+      is HELD rather than confirmed, and an accept/decline path.
+      ~~and availability that behaves differently in each mode (in request mode
+      a slot is not taken, so two requests can want the same time — which the
+      exclusion constraint currently forbids). **That last one is the hard part
+      and it is not a UI question.**~~ **Struck by his clarification above** —
+      kept visible because a session that finds only the corrected version will
+      not know the harder reading was considered and ruled out by him.
 
       **What 2.11 still owes it.** Rows 123–25 of
       `docs/dashboard-feature-inventory-2026-08-31.md`. He named where the
       accept action lives — the screen the day is on — so **2.11 step 4 designs
       the day screen WITH an accept state**, and this item fills it in. That is
       the whole reason step 1 listed features before step 4 drew screens.
+      **Step 3 has already reserved the room:** the desktop spec puts the
+      request queue at the TOP of Today's second column, above tomorrow,
+      because a request is the only object on that screen waiting on the
+      detailer rather than on a car (spec §5a).
 
       **Quotes are the smaller half** and were the original question; the mode
       switch is the part that matters, because reserve-on-booking is currently
@@ -1860,7 +1913,7 @@ those are not negotiable by any skill.
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
-| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. **Steps 0–2 are done and the list is approved** |
+| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. **Steps 0–3 are done; the list is approved and the desktop layout is specified. Step 4 is next: `impeccable shape`, one screen at a time** |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |

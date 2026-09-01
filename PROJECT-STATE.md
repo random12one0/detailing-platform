@@ -945,8 +945,94 @@ is the lesson: a file he has to APPROVE needs a top layer he can actually read.*
   **`accent-sweep.mjs` grows to cover the email path in the same change**, or
   the floor exists on paper only.
 
-**WHAT IS OPEN: NOTHING FOR HIM. Steps 3, 4 and 5 are the next session's work**,
-and step 6 is where he approves the whole specification.
+~~**WHAT IS OPEN: NOTHING FOR HIM. Steps 3, 4 and 5 are the next session's
+work**~~ — **step 3 is now done too; see §6j.** Steps 4 and 5 are next, and
+step 6 is where he approves the whole specification.
+
+## 6j. ROADMAP 2.11, STEP 3 — THE DESKTOP SPECIFICATION, AND A "NO" HE ASKED FOR (2026-08-31)
+
+**One new file: `docs/dashboard-desktop-spec-2026-08-31.md`.** Nothing is
+built. Judgment calls are DECISIONS.md → "Roadmap 2.11, step 3". **Nothing is
+waiting on him.**
+
+**THE MEASUREMENTS FIRST, BECAUSE THEY ARE WHAT THE SPEC IS ARGUING WITH.**
+Taken today on the running app with a full day seeded: the content column is
+**724px at 1920, 1440, 1280 and 768 alike**; Today is **1,810px tall on his
+monitor**; Money 1,589px; More 1,620px. Calendar is the one that had never been
+looked at properly — the month grid is 7 × **99.14px** cells, **553px tall,
+bottom edge at y=753 at 1920x1080 AND 1440x900 alike**, which leaves **327px of
+viewport below it on the monitor** as well as 1,196px beside it.
+**It is the only screen in the product that is short and narrow at the same
+time**, and no file had said so.
+
+**TWO BREAKPOINTS, AND NEITHER IS A TASTE NUMBER.** **1024** is where the tab
+bar becomes a rail: the rail costs 120px of left inset and still leaves 880px,
+which is **156px more content than today**, so it can never cost width. **1180**
+is `--wrap`, the layout token the design system already has and the dashboard is
+the only surface ignoring — and it is exactly where a 637px primary + a 320px
+secondary + a 24px gap fit. **Below 1024 nothing changes at all**, which is the
+guarantee that makes this additive rather than a second design.
+
+**FIVE SCREENS, FIVE DIFFERENT WIDE FORMS, AND THAT IS THE HARD PART.** The
+lazy desktop answer is "list left, panel right" on all five, and five screens
+sharing a skeleton is the failure law 1 exists to name. So: Today is the rail
+plus *the future* (1.7/1); **Calendar · Month stays ONE column on purpose** —
+splitting it takes the width straight back off the grid, and one column puts the
+cell at **163px, wide enough to write "9:00 Tom O." instead of drawing a dot**;
+History is the table plus the record; Money is the figures beside the lists,
+which is F7's two destinations as two columns; Clients is a full-bleed table
+whose record opens as **ruled rows with no panel**, because Clients is the only
+screen in the product with no panel on it; Business is the only screen weighted
+toward its RIGHT column, and it is where the **eleven settings sheets stop being
+640px modals.**
+
+**THE NAVIGATION ANSWER (F14): the same glass pill, turned vertical.** Fixed
+left, vertically centred, 72px, same glass, blur, radius and active fill,
+`flex-direction: column`. **Not a 220px label-beside-icon sidebar** — that is
+the default admin shell, and `theme.css:525` already says in its own comment
+that the pill exists to avoid exactly that. **The header does not change shape
+at either width**, which resolves the collision F14 flagged.
+
+**THE WEEK VIEW IS RULED NO, AND THE REASONING IS THE REPLACEMENT.** Row 31 was
+the only `conditional` row on the list. A week view is a seven-column time grid;
+at 356px of phone content that is **51px a column**, which carries neither a
+name nor a time — so it would be desk-only, which is the burden he told me to
+avoid. It is also a second grid on the only screen that is a grid, and the
+demo's month holds **9 jobs across 5 days**, drawn into a 70-cell grid. **What
+replaces it is the desktop month cell writing its jobs out — a week view five
+times over, with no third mode and nothing changed on the phone.** The condition
+that would overturn it is written down: a detailer with a crew.
+
+**THE SWEEP GREW, AND IT NEEDED MORE THAN THE WIDTHS.** Default is now
+**1920 / 1440 / 392 / 360 / 320** at the verification heights (1080, 900, 844),
+and there is a fifth check, **`dead-width`**. It was baselined first and that is
+the whole story: **the four existing checks report CLEAN on all 18 screens at
+both 1920 and 1440 today**, with a 724px column on a 1920 monitor, because
+"nothing is off the edge" is trivially true when 62% of the screen is empty.
+Adding the widths alone would have bought a gate that stays green whether or not
+the layout is ever built — the mistake at the top of DECISIONS.md. `dead-width`
+prints **"276px short"** at both desktop widths today. **It is armed by one
+constant, `DESKTOP_SPEC_BUILT`, currently `false`**: while false the measurement
+prints and does not count, so the failure is visible without leaving a standing
+gate red before the thing it gates exists. **Step 6 flips it in the same change
+that ships the layout.**
+
+**AND HIS REQUEST-VS-RESERVE CLARIFICATION IS CAPTURED — IT MAKES 2.12
+SMALLER.** He said a request **still takes up the time slot**; two customers
+cannot request the same time. The difference between the two modes is **the
+promise made to the customer**, not the calendar's mechanics. That deletes what
+roadmap 2.12 called its hard part — the exclusion constraint stays exactly as it
+is and availability behaves identically in both modes. What is left is a
+setting, a status, an accept/decline action and different wording. **Roadmap
+2.12, inventory §9 Q5 and spec §8 all carry it now**; the harder reading is
+struck rather than deleted, so nobody re-derives it.
+
+**ONE QUESTION HANDED FORWARD, NOT TO HIM.** Clients and History both want a
+ruled list whose rows carry columns. The recommendation is that this is the
+existing *ruled list* widening rather than a new "table" in the composition
+vocabulary — but bucket 2 says the vocabulary is added or refused **at step 5,
+deliberately and once**, and step 5 is already where card-versus-list is being
+settled. **Step 5 rules.**
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

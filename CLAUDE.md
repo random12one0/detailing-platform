@@ -114,14 +114,25 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  eleven settings sheets, the client sheet and the booking page at 392, 360 and
-  320 and reports anything past the right edge, anything **outside its own
+  eleven settings sheets, the client sheet and the booking page at **1920, 1440,
+  392, 360 and 320** and reports anything past the right edge, anything
+  **outside its own
   parent's box**, anything scrolling sideways with no scrollbar, and any two
   boxes stacked with no gap. **320 joined the default in roadmap 2.9**, the item
   that made it pass, and so did the parent-box check — until then a clean sweep
   meant nothing was off the SCREEN, and two defects sat 19px and 11px outside
   their card at 360 through two roadmap items because the card's padding hid
-  them. `--lite` runs the whole thing through `?lite=1`. It exits 0 at all three
+  them. **1920 and 1440 joined in roadmap 2.11 step 3**, at the verification
+  HEIGHTS (1080 and 900), not the phone's 844.
+  **And they came with a fifth check, `dead-width`, because the other four
+  reported CLEAN on all 18 screens at 1920 with a 724px column** — "nothing is
+  off the edge" is trivially true when 62% of the screen is empty, and that is
+  the "a skipped check reads like a passing one" family again. It prints
+  *276px short* today and **does not gate**: one constant at the top of the
+  script, `DESKTOP_SPEC_BUILT`, is `false` until the desktop layout ships.
+  **Roadmap 2.11 step 6 flips it to `true` in the same change**, and the summary
+  line says out loud that a clean run is not proof while it is false.
+  `--lite` runs the whole thing through `?lite=1`. It exits 0 at all five
   widths in both paths today. Pass a width to ask a different question. It needs
   the dev server and the demo login, like
   `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome

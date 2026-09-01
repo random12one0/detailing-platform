@@ -27,9 +27,21 @@
 //   touching        two boxes stacked with under 4px between them (W7/W11 —
 //                   "the boxes touch"), because a box with no gap under it
 //                   reads as part of the box below
+//   dead-width      ADDED IN ROADMAP 2.11 STEP 3. At >= 1180px the content
+//                   column must be at least MIN_DESK_COL wide. The four checks
+//                   above are all "is something outside its box", and at a
+//                   desktop width they are trivially satisfied by a narrow
+//                   column with empty screen either side: baselined before it
+//                   was written, this script reported CLEAN on all 18 screens
+//                   at both 1920 and 1440 with a 724px column on a 1920
+//                   monitor. Adding the wide widths without this check would
+//                   have bought a gate that stays green whether or not the
+//                   desktop layout is ever built, which is the mistake at the
+//                   top of DECISIONS.md — a check that cannot see the common
+//                   failure looks exactly like a check that passes.
 //
 //   node scripts/sweep-widths.mjs --lite         # the same, through ?lite=1
-//   node scripts/sweep-widths.mjs                # 392, 360 and 320
+//   node scripts/sweep-widths.mjs                # 1920, 1440, 392, 360, 320
 //   node scripts/sweep-widths.mjs 320            # just the PRODUCT.md floor
 //   node scripts/sweep-widths.mjs 392 360 1440   # any list
 //
@@ -37,6 +49,11 @@
 // argument you had to remember while it was failing on purpose; PRODUCT.md
 // promises 320 -> 1440, so the floor is now swept every time rather than when
 // somebody thinks to ask for it.
+//
+// 1920 AND 1440 JOINED THE DEFAULT IN ROADMAP 2.11 STEP 3, and they carry the
+// verification HEIGHTS (1080 and 900) rather than the phone's 844 — a screen
+// that fits 900px of laptop is the question, and 844 is not that question.
+// docs/dashboard-desktop-spec-2026-08-31.md is what they check against.
 //
 // EXITS NON-ZERO if it finds anything, so it can gate a change. Needs the dev
 // server on :5173 (npm run dev --prefix app) and the seeded demo business,
@@ -54,8 +71,22 @@ const WIDTHS = (process.argv.slice(2).filter((a) => /^\d+$/.test(a)).map(Number)
 // layout that holds in one can fail in the other; sweep-booking-steps.mjs has
 // carried this flag since 2.7 and this script needed a scratch copy without it.
 const LITE = process.argv.includes("--lite") ? "?lite=1" : "";
-const SIZES = WIDTHS.length ? WIDTHS : [392, 360, 320];
+const SIZES = WIDTHS.length ? WIDTHS : [1920, 1440, 392, 360, 320];
 const BASE = "http://localhost:5173";
+// The verification heights, not the phone's. 1080 is his monitor; 900 is the
+// laptop and the shortest screen this product is checked against.
+const heightFor = (w) => (w >= 1900 ? 1080 : w >= 1024 ? 900 : 844);
+
+// --- dead-width, and the one line that arms it -----------------------------
+// FLIP THIS TO `true` IN ROADMAP 2.11 STEP 6, in the same change that ships the
+// desktop layout. While it is false the measurement is PRINTED every run and
+// does not count toward the exit code, so the failure is visible today without
+// leaving a standing gate red before the layout it gates has been built. Once
+// true, a regression back to a narrow column fails the sweep.
+// docs/dashboard-desktop-spec-2026-08-31.md §6b and §10.
+const DESKTOP_SPEC_BUILT = false;
+const BP_SPLIT = 1180;   // --wrap; where the desktop spec's second column engages
+const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that says "a desktop layout exists"
 const MORE = ["Business info", "Your colour", "Services & add-ons", "Promo codes & sale",
   "Photo gallery", "Hours & days off", "Booking rules", "Notifications",
   "Message templates", "Team", "Maps, calendar & contacts"];
@@ -112,10 +143,11 @@ const CHECK = () => {
 
 const browser = await chromium.launch();
 let found = 0;
+let narrow = 0;   // desktop widths whose content column is still phone-sized
 
 for (const w of SIZES) {
   console.log(`\n══ ${w}px ══════════════════════════════════════════`);
-  const ctx = await browser.newContext({ viewport: { width: w, height: 844 }, deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({ viewport: { width: w, height: heightFor(w) }, deviceScaleFactor: 1 });
   await ctx.addInitScript(() => {
     Object.defineProperty(navigator, "share", { value: () => Promise.resolve(), configurable: true });
   });
@@ -146,6 +178,24 @@ for (const w of SIZES) {
   }
   await page.waitForSelector(".tabbar", { timeout: 30000 });
   await page.waitForTimeout(2200);
+
+  // Once per width, not once per screen — every dashboard screen is inside the
+  // same container, so eighteen copies of one fact would only be noise.
+  if (w >= BP_SPLIT) {
+    const col = await page.evaluate(() => {
+      const m = document.querySelector(".app-main");
+      if (!m) return null;
+      const cs = getComputedStyle(m);
+      return Math.round(m.getBoundingClientRect().width
+        - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight));
+    });
+    if (col !== null && col < MIN_DESK_COL) {
+      const line = `dead-width     ${MIN_DESK_COL - col}px short  .app-main content is ${col}px in a ${w}px viewport`;
+      narrow++;
+      if (DESKTOP_SPEC_BUILT) { found++; console.log(`  ${line}`); }
+      else console.log(`  ${line}  (not gating until DESKTOP_SPEC_BUILT)`);
+    }
+  }
 
   for (const t of ["Today", "Calendar", "Money", "Clients", "More"]) {
     await page.getByRole("button", { name: t, exact: true }).first().click();
@@ -185,4 +235,10 @@ await browser.close();
 console.log(found
   ? `\n${found} problem${found === 1 ? "" : "s"} — see above`
   : `\nclean at ${SIZES.join(", ")}${LITE ? " (?lite=1)" : ""}: nothing off the screen, nothing outside its own box, no boxes touching`);
+// A "clean" that silently swallowed a dead-width reads as proof the desktop
+// layout is fine. It is not proof of anything until DESKTOP_SPEC_BUILT.
+if (narrow && !DESKTOP_SPEC_BUILT) {
+  console.log(`  ...but the content column is still narrow at ${narrow} desktop width${narrow === 1 ? "" : "s"}`
+    + ` — see dead-width above. That is roadmap 2.11's desktop layout, not yet built.`);
+}
 process.exit(found ? 1 : 0);

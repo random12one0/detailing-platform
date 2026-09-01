@@ -140,6 +140,7 @@ were made more than once.
 - **"The look stays" — what that actually fences off** — his words, and then his own follow-up ("just the colors and fonts, right?"). **It is not: the ground, the accent-is-never-meaning rule, the motion budget and the accessibility floors ride along with it.** Three buckets, in roadmap 2.11.
 - **Roadmap 2.11, steps 0–2 — the day is seeded and the list is written** — 118 capabilities from five sources, and **Today had never been looked at with anything on it.** Five new defects the empty screen was hiding, the worst being that **“Your colour” cannot change the colour customers see in their email** — four of twelve presets under the contrast floor, and “Sky” draws the invoice title 1:1.
 - **His answers to the inventory's seven** — all seven the same day, and **three answered bigger than they were asked.** Q1 overruled the recommendation (a setup FORM plus a separate guided tour); **Q5 became roadmap 2.12** — a switch between a booking that RESERVES and a booking that is a REQUEST. And the caveat that matters more than any answer: **the file was too long for him to read.**
+- **Roadmap 2.11, step 3 — the desktop specification, and a "no" he asked for** — two derived breakpoints and **five screens given five DIFFERENT wide forms**, because "list left, panel right" five times is law 1's own named failure. **Calendar stays ONE column and Part B's approved "month beside the day" was overruled by measuring it** (a split cell is 104px; one column is 163px). **The week view is ruled NO**, with the month cell as its replacement. And the sweep grew a fifth check because the four it had reported CLEAN at 1920 with a 724px column.
 
 <!-- INDEX:END -->
 
@@ -5617,3 +5618,123 @@ the inventory to 126. Files: `docs/dashboard-feature-inventory-2026-08-31.md`
   the trade and he supplies the requirement; ask him about the product and he
   delegates. That is the same lesson as roadmap 2.8, where his own menu shape
   overruled five researched ones.
+
+## Roadmap 2.11, step 3 — the desktop specification, and a "no" he asked for
+
+**2026-08-31.** The deliverable is
+`docs/dashboard-desktop-spec-2026-08-31.md`. Nothing was built. What follows is
+the judgment, not the spec — read the file for what the layout actually is.
+
+- **THE MEASUREMENT THAT SHAPED EVERYTHING WAS THE ONE NOBODY HAD TAKEN.** Part
+  B proved there is no desktop layout using More and History; step 1 added
+  Today. **Calendar had never been measured at all, and it is the worst of the
+  four:** at 1920 the month grid is 7 × 99.14px cells that **end at y≈790, with
+  290px of black BELOW them** as well as 1,196px beside them. **It is the only
+  screen in the product that is short and narrow at the same time**, and that
+  single fact is why Calendar's desktop form is the one screen that stays ONE
+  column.
+
+- **THE SPLIT THAT WAS REJECTED, AND WHY IT IS THE INTERESTING ONE.** Part B
+  proposed "the month beside the selected day". Measured against real numbers it
+  does not work: a two-column Calendar leaves the grid about 760px, which is a
+  **104px cell** — still too small to write a name into, so the split buys a day
+  panel by spending the width on nothing. **One column at 1,180 gives a 163px
+  cell, which holds `9:00 Tom O.` three times over.** The selected day opens
+  INLINE beneath the grid instead. That still satisfies F11 — its concern is
+  that the reference data stays visible, and the month does — and a side column
+  is not the only way to meet it. **An approved proposal was overruled by
+  measuring it**; recorded because Part B's three moves have been treated as
+  settled elsewhere and one of them is not.
+
+- **FIVE SCREENS GOT FIVE DIFFERENT WIDE FORMS ON PURPOSE, AND THAT IS THE WHOLE
+  DIFFICULTY OF THE ITEM.** The default desktop answer is "list left, panel
+  right", and applying it five times is exactly the failure law 1 exists to
+  name: five screens sharing a skeleton. Today is 1.7/1 with *the future* on the
+  right; Calendar · Month is one column; History is 1.7/1 with the record; Money
+  is 1.2/1 and is F7's two destinations drawn as two columns; Clients is
+  full-bleed and its record is **ruled rows with no panel**, because Clients is
+  the only screen in the product with no panel on it and a right-hand card would
+  end that; Business is the ONLY screen weighted toward its right column, 1/1.9,
+  because there the left is an index and the right is the work.
+
+- **THE NAVIGATION ANSWER IS "THE SAME PILL, TURNED VERTICAL", AND THE REJECTED
+  ALTERNATIVE MATTERS.** F14 says every product in the sample changes navigation
+  shape on desktop. The conventional answer is a 220px sidebar with labels
+  beside icons — and `theme.css:525` already says in its own comment that the
+  floating pill exists because it is *"what stops the dashboard reading as a
+  default mobile app shell."* That argument does not stop being true at a desk.
+  So the rail is the same component with `flex-direction: column`: same glass,
+  blur, radius, active fill, 44px buttons. **F14 asked for a different SHAPE,
+  not a different vocabulary.** And **the header does not change at either
+  width** — the `+` and the gear were approved into it days ago, and a rail that
+  stole them back would make the header mean two things at two widths.
+
+- **THE BREAKPOINTS ARE DERIVED, WHICH IS THE ONLY REASON THERE ARE TWO.** 1024
+  is where the rail costs 120px of inset and still leaves 880px of content — 156
+  MORE than today, so the rail can never cost width, and both phone-shaped
+  verification sizes sit below it. 1180 is `--wrap`, a token the design system
+  has had all along and the dashboard is the only surface ignoring, and it is
+  exactly where a 637px primary + 320px secondary + 24px gap fit. **A breakpoint
+  that equals a layout token is one nobody has to look up.**
+
+- **THE WEEK VIEW IS A NO, AND A CONDITIONAL YES IS WHY IT NEEDED A RULING
+  RATHER THAN A SHRUG.** His words were *"if you could find a way to have a week
+  view that's convenient and doesn't make it a burden, then sure"* — row 31, the
+  only `conditional` row on the inventory. Four reasons it does not ship, and
+  the first decides it: **seven day-columns in 356px of phone content is 51px a
+  column**, which carries neither a name nor a time, so a week view is
+  desk-only — and desk-only is his own definition of a burden. It is also a
+  second grid on the only screen that is a grid; and the demo's month, an honest
+  one built in step 0, holds **9 jobs across 5 days** to fill a 70-cell grid.
+  **The answer is only defensible because of what replaces it:** the desktop
+  month cell writes its jobs out, which is a week view five times over, in the
+  view he was already in, with nothing changed on the phone. **The condition
+  that would overturn it is written down** — a detailer with a crew — so this is
+  a no with its own reversal attached rather than a quiet drop.
+
+- **THE SWEEP NEEDED MORE THAN THE TWO WIDTHS THE ROADMAP ASKED FOR, AND
+  BASELINING IS WHAT SHOWED IT.** Run before any edit, `sweep-widths.mjs`
+  reported **CLEAN on all 18 screens at both 1920 and 1440** — with a 724px
+  column on a 1920 monitor. All four of its checks ask "is something outside its
+  box", and a narrow column with empty screen either side satisfies every one of
+  them. **Adding the widths alone would have bought a green gate that stays
+  green whether or not the desktop layout is ever built**, which is this file's
+  oldest recurring failure: a check that cannot see the common failure looks
+  exactly like a check that passes. So a fifth check, `dead-width`, measures the
+  content column at 1180 and above and reports it short of 1,000px. It says
+  **"276px short"** at both desktop widths today.
+
+- **AND IT IS ARMED BY ONE CONSTANT RATHER THAN SHIPPED RED.**
+  `DESKTOP_SPEC_BUILT` is `false`; while false, `dead-width` **prints its
+  measurement every run and does not count toward the exit code**, and the
+  summary line carries a sentence saying so, because a bare "clean" that
+  swallowed it would read as proof the desktop layout is fine. The alternative —
+  a genuinely failing gate — would sit red from now until step 6, and CLAUDE.md's
+  own reasoning from step 0 is that leaving a standing layout gate red poisons
+  every session in between. The alternative on the other side — adding the
+  widths and no check — is the failure above. **One line, flipped in the same
+  change that ships the layout**, is the smallest thing that is honest in both
+  directions, and step 6's definition of done names it so it cannot be
+  forgotten.
+
+- **HIS REQUEST-VS-RESERVE CLARIFICATION MADE ROADMAP 2.12 SMALLER, AND IT
+  ARRIVED IN A CHAT MESSAGE.** He said a request **still takes up the time
+  slot** — two customers cannot request the same time — and that the difference
+  between the modes is **the promise made to the customer**, not the calendar's
+  mechanics. Roadmap 2.12 had called the opposite reading its hard part: "in
+  request mode a slot is not taken, so two requests can want the same time,
+  which the exclusion constraint currently forbids." **That problem does not
+  exist.** The constraint is untouched, availability is identical in both modes,
+  and what remains is a setting, a status, an accept/decline action and
+  different wording on the customer's page and email. Written into roadmap 2.12,
+  inventory §9 Q5 and spec §8, **with the harder reading struck rather than
+  deleted** so nobody re-derives it as new work.
+
+- **ONE QUESTION WAS HANDED TO STEP 5 RATHER THAN ANSWERED HERE.** Clients and
+  History both want a ruled list whose rows carry columns at desktop width. The
+  recommendation is that this is the existing *ruled list* widening — same
+  hairlines, same rhythm, only the row's internal layout differs by width —
+  rather than a new "table" in the composition vocabulary. But bucket 2 says the
+  vocabulary is added or refused **at step 5, deliberately and once**, and step 5
+  is already where card-versus-list is being settled (2.10's declined decision
+  7). **Ruling there is cheaper than ruling twice.**
