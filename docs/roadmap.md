@@ -1579,6 +1579,49 @@ is kept; the entire visual design restarts from scratch.
       FILES, not code; this is 2.8 → 2.8b's shape again, which is the shape
       that has worked twice on this project.
 
+      **STEPS 0, 1 AND 2 ARE DONE, 2026-08-31, AND THE ITEM IS NOW WAITING ON
+      HIM.** Files: `docs/dashboard-feature-inventory-2026-08-31.md` (118
+      capabilities from the five sources) and
+      `docs/dashboard-screen-research-2026-08-31.md` (fourteen findings).
+      PROJECT-STATE.md §6i is the briefing; DECISIONS.md → "Roadmap 2.11,
+      steps 0–2" is why.
+
+      - **Step 0 is closed and it changed three files.** `seed-demo.mjs` now
+        derives the demo's closed days from today and dates the day to TODAY,
+        with every "completed" read off the clock rather than written down, so
+        a finished job can never be printed in the future. **Five jobs 08:00–
+        18:00 at 45-minute spacing — the business's own `buffer_minutes`, so
+        five is the busiest day these settings ALLOW.** The two most recent
+        finished jobs carry no payment, which is a state the seed had never
+        produced: `needFinalize` was always empty, so **the lit card and the
+        warn-box had never rendered against data.**
+      - **The sweep found a live defect the minute Today had a job on it** —
+        a job card's three action buttons, 6px outside their own card at 392
+        and 18px at 320. **Fixed in `theme.css`**, because leaving the standing
+        layout gate red would poison every later session in this item. 2.9 had
+        measured the same row and fixed only the width it could see. **1px of
+        spare room at both widths now; that is a real ceiling.**
+      - **Five NEW defects are in the inventory §7**, none of them in Part B's
+        21 because nothing could see them until Today had data. **The largest
+        is not a layout at all:** "Your colour" writes `primary_color`, but an
+        email uses `secondary_color` as its accent — the confirmation button,
+        the labels, the invoice email's own title — and `secondary_color` is
+        reachable only from a raw colour picker on Business info and is never
+        seeded. Measured: four of twelve presets put the business name under
+        the 3:1 floor on the email's header band, and picking "Sky" draws the
+        invoice title at **1:1, the same colour on itself.** Email is the one
+        surface `accent-sweep.mjs` does not reach.
+      - **SEVEN QUESTIONS ARE WAITING FOR HIM** at §9 of the inventory, each
+        with a recommendation: a first-run state, an FAQ for tenant sites, a
+        week view, a CSV for the accountant, quotes before a booking, a deposit
+        at booking, before-and-after photos on a job. **He approves the list
+        first; steps 3–6 do not start until he has.**
+      - **One finding steps 3 must handle carefully (F14).** Every product in
+        the sample changes its navigation SHAPE on desktop and ours does not.
+        **That is NOT the tab bar reopening** — Part A settled which five
+        destinations exist and in what order, and it stands. What is open is
+        where the bar is DRAWN above the desktop breakpoint, which is decision
+        6's scope and has never been specified.
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
 

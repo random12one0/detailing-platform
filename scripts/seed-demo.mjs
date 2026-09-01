@@ -127,10 +127,26 @@ await post("/rest/v1/business_branding", [{
 }]);
 
 // Open Tue–Sat, closed Sun/Mon — so the calendar shows real closed days.
+//
+// EXCEPT THAT THE CLOSED DAYS ARE DERIVED FROM TODAY, and that is the point of
+// it. A demo business that is closed TODAY can only ever draw an empty Today
+// screen, and that is exactly what happened: for the whole life of this
+// product the busiest state of its busiest screen had never been looked at
+// (docs/dashboard-architecture-2026-08-31.md §B4 row 21; roadmap 2.11 step 0
+// exists to close it). So today’s weekday is dropped from the closed set.
+// Five days in seven that changes nothing — closed Sunday and Monday, as
+// before. On a Sunday the demo is closed Monday only; on a Monday, Sunday
+// only. It is still a business with days off, the calendar still has closed
+// cells to draw, and Today can always be seeded.
+const TODAY = localDate(0);
+// Noon UTC on the local date, so the weekday cannot slip across a DST edge.
+const weekdayOf = (d) => new Date(`${d}T12:00:00Z`).getUTCDay();
+const CLOSED = [0, 1].filter((wd) => wd !== weekdayOf(TODAY));
+
 await post("/rest/v1/business_hours", [0, 1, 2, 3, 4, 5, 6].map((wd) => ({
   business_id: business.id, weekday: wd,
-  open_time: wd === 0 || wd === 1 ? null : "08:00",
-  close_time: wd === 0 || wd === 1 ? null : "18:00",
+  open_time: CLOSED.includes(wd) ? null : "08:00",
+  close_time: CLOSED.includes(wd) ? null : "18:00",
 })));
 
 // TWO CATEGORIES OF THREE, EACH PICK-ONE — reshaped in roadmap 2.8b, and the
@@ -224,20 +240,20 @@ const customers = await post("/rest/v1/customers", CUSTOMERS.map(([name, phone, 
 })));
 const cust = (name) => customers.find((c) => c.name === name);
 
-// A day the business is open (skip Sun/Mon), N days from today.
+// A day the business is open (skip its closed weekdays), N days from today.
 function openDay(fromOffset, direction = 1) {
   for (let i = 0; i < 20; i++) {
     const d = localDate(fromOffset + i * direction);
-    const [y, m, dd] = d.split("-").map(Number);
-    const wd = new Date(y, m - 1, dd).getDay();
-    if (wd !== 0 && wd !== 1) return d;
+    if (!CLOSED.includes(weekdayOf(d))) return d;
   }
   return localDate(fromOffset);
 }
 
-const today = localDate(0);
-const todayIsOpen = ![0, 1].includes(new Date(...today.split("-").map((v, i) => (i === 1 ? +v - 1 : +v))).getDay());
-const day0 = todayIsOpen ? today : openDay(0);
+// day0 IS ALWAYS TODAY NOW. It used to be "today if the business is open,
+// otherwise the next open day", which is how a demo whose whole job is to be
+// looked at came to date its finished-and-paid jobs TOMORROW — a state that
+// cannot happen in life — while Today drew "No jobs booked for today."
+const day0 = TODAY;
 
 // THE NEXT OPEN DAY AFTER day0 — and it has to be derived FROM day0, not from
 // a fixed offset. The two "tomorrow" bookings below used openDay(1), which is
@@ -261,12 +277,62 @@ const day2 = after(day1, 2);
 const day3 = after(day2, 3);
 const day4 = after(day3, 3);
 
-// Today (or the next open day): two done, two still to come.
+// What a job costs and how long it takes. One place, because the seed now has
+// to know a job’s END TIME before it can decide whether that job has happened.
+const quote = (p) => {
+  const service = svc(p.service);
+  const adj = service.vehicle_size_adjustments?.[p.size] ?? { price: 0, duration_minutes: 0 };
+  const addOn = p.addOn ? addOns.find((a) => a.name === p.addOn) : null;
+  return {
+    service, addOn, sizeAdj: adj,
+    price: Number(service.price) + Number(adj.price) + (addOn ? Number(addOn.price) : 0),
+    duration: Number(service.duration_minutes) + Number(adj.duration_minutes)
+      + (addOn ? Number(addOn.duration_minutes) : 0),
+  };
+};
+
+// TODAY — A FULL WORKING DAY, AND ITS STATUSES ARE READ OFF THE CLOCK.
+//
+// Roadmap 2.11 step 0. Today had never been photographed with anything on it,
+// so nothing on this screen — the rail, the ledger strip, the lit card, "Done
+// and paid", the warn-box — had ever been seen carrying data.
+//
+// Five jobs 08:00–18:00 with 45 minutes between them, which is `buffer_minutes`
+// in this business’s own settings: a customer could actually have booked this
+// day, and five is therefore the BUSIEST day these settings allow, not a number
+// picked to look full.
+//
+// Nothing below says "completed". A job is completed once it has ENDED, which
+// is the only rule that cannot print a finished job in the future — the defect
+// this whole change exists to remove. Consequence worth knowing: what Today
+// draws depends on the hour the seed is run. Seed in the morning and the day is
+// ahead of you; seed after 18:00 and it is behind you. Both are real states.
+const TODAY_SHIFTS = [
+  { time: "08:00", who: "Marcus Webb",  service: "Express Wash",     size: "small"  },
+  { time: "09:45", who: "Dana Ruiz",    service: "Interior Refresh", size: "medium" },
+  { time: "12:15", who: "Priya Anand",  service: "Express Wash",     size: "medium", addOn: "Pet hair removal" },
+  { time: "14:45", who: "Elena Marsh",  service: "Interior Refresh", size: "small"  },
+  { time: "17:00", who: "Chris Vogel",  service: "Express Wash",     size: "small"  },
+];
+const nowMs = Date.now();
+const hasEnded = (p) => Date.parse(toUtc(day0, p.time)) + quote(p).duration * 60_000 < nowMs;
+const endedCount = TODAY_SHIFTS.filter(hasEnded).length;
+// THE TWO MOST RECENT FINISHED JOBS HAVE NO PAYMENT RECORDED, and that state
+// had never existed in this seed either: every "completed" row it wrote also
+// carried `finalized_at`, so `needFinalize` was always empty. That is the one
+// thing Today lights (docs/dashboard-skeletons.md §6 — money not yet recorded
+// outranks the next job) and the only thing that draws the warn-box, and
+// neither had rendered against data in the life of the product.
+const TODAY_PLAN = TODAY_SHIFTS.map((p, i) => {
+  if (!hasEnded(p)) return { ...p, day: day0, status: "confirmed" };
+  if (i >= endedCount - 2) return { ...p, day: day0, status: "completed" };  // finished, unrecorded
+  // A tip on the first one, so "Estimated ≠ Final" appears somewhere real.
+  return { ...p, day: day0, status: "completed", paid: quote(p).price + (i === 0 ? 20 : 0) };
+});
+
 // Then upcoming across the next couple of weeks, plus history for the chart.
 const PLAN = [
-  { day: day0, time: "08:30", who: "Marcus Webb", service: "Full Interior Detail", size: "large", status: "completed", paid: 260, addOn: "Engine bay clean" },
-  { day: day0, time: "13:00", who: "Dana Ruiz", service: "Express Wash", size: "medium", status: "completed", paid: 80 },
-  { day: day0, time: "15:30", who: "Priya Anand", service: "Interior Deep Clean", size: "medium", status: "confirmed", addOn: "Pet hair removal" },
+  ...TODAY_PLAN,
   { day: day1, time: "09:00", who: "Tom Okafor", service: "Full Interior Detail", size: "medium", status: "confirmed" },
   { day: day1, time: "14:00", who: "Elena Marsh", service: "Express Wash", size: "small", status: "confirmed" },
   { day: day2, time: "10:00", who: "Sam Delgado", service: "Ceramic Coating", size: "large", status: "confirmed" },
@@ -299,12 +365,8 @@ const PLAN = [
 
 let made = 0;
 for (const p of PLAN) {
-  const service = svc(p.service);
   const c = cust(p.who);
-  const sizeAdj = service.vehicle_size_adjustments?.[p.size] ?? { price: 0, duration_minutes: 0 };
-  const addOn = p.addOn ? addOns.find((a) => a.name === p.addOn) : null;
-  const price = Number(service.price) + Number(sizeAdj.price) + (addOn ? Number(addOn.price) : 0);
-  const duration = Number(service.duration_minutes) + Number(sizeAdj.duration_minutes) + (addOn ? Number(addOn.duration_minutes) : 0);
+  const { service, addOn, sizeAdj, price, duration } = quote(p);
   const startAt = toUtc(p.day, p.time);
 
   try {

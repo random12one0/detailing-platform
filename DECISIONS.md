@@ -138,6 +138,7 @@ were made more than once.
 - **Roadmap 2.10, part B — the owner widened it to every screen** — he chose "Business" and delegated the rest. **There is no desktop layout: one 724px column at every width, and History is 3,619px tall on a 1440 monitor AND on a phone.** Plus a composition test that cannot see the failure it exists to catch.
 - **Roadmap 2.11 — he asked for the dashboard from scratch** — desktop gets a real SPECIFICATION, and the rebuild is sequenced inventory → research → spec → screens → components → his approval → build. ~~One question is open~~ **ANSWERED: the look stays.**
 - **"The look stays" — what that actually fences off** — his words, and then his own follow-up ("just the colors and fonts, right?"). **It is not: the ground, the accent-is-never-meaning rule, the motion budget and the accessibility floors ride along with it.** Three buckets, in roadmap 2.11.
+- **Roadmap 2.11, steps 0–2 — the day is seeded and the list is written** — 118 capabilities from five sources, and **Today had never been looked at with anything on it.** Five new defects the empty screen was hiding, the worst being that **“Your colour” cannot change the colour customers see in their email** — four of twelve presets under the contrast floor, and “Sky” draws the invoice title 1:1.
 
 <!-- INDEX:END -->
 
@@ -5355,3 +5356,137 @@ re-litigated at every screen** — so the boundary is written out in roadmap
   what is on each screen in what order at what weight, every layout on both
   phone and desktop, and every state — empty, one, twelve, loading, error,
   staff. A blank page, on a foundation that is not.
+
+
+## Roadmap 2.11, steps 0–2 — the day is seeded and the list is written
+
+2026-08-31. Steps 0, 1 and 2 of the six. Nothing past step 1's gate has started:
+**he approves the feature inventory before a single screen is designed**, which
+is that step's entire reason for existing. Files:
+`docs/dashboard-feature-inventory-2026-08-31.md`,
+`docs/dashboard-screen-research-2026-08-31.md`. Briefing: PROJECT-STATE.md §6i.
+
+- **THE PREREQUISITE WAS NOT PAPERWORK, AND IT PAID FOR ITSELF IN ONE MINUTE.**
+  The roadmap made "seed a realistic day" step 0 on the argument that Today had
+  only ever been photographed empty. Within a minute of Today having jobs on it,
+  `sweep-widths.mjs` — which had been green for two roadmap items — reported a
+  job card's three action buttons **6px outside their own card at 392 and 18px
+  at 320.** The row only exists on a job card, and no job card had ever been on
+  a swept screen. **A check cannot see a component that never renders**, which
+  is the same family as this file's "a skipped check reads exactly like a
+  passing one" and the 360px parent-box defects: the instrument was fine and the
+  fixture was starving it.
+
+- **THE BTNROW FIX WAS TAKEN EVEN THOUGH 2.11 BUILDS NO CODE BEFORE STEP 6, AND
+  THE REASON IS THE GATE RATHER THAN THE BUG.** The rule about no code is about
+  the REBUILD. What happened here is that a step-0 change turned a standing
+  verification gate red; leaving it red means every later session in this item
+  cannot tell its own regressions from this one. Two rules in `theme.css`, and
+  they are visually inert above 360px because the buttons are `flex: 1` and were
+  already stretching to equal thirds — padding only sets the MINIMUM, and
+  `min-width: auto` on a flex item is what stopped the row shrinking past it.
+  **Roadmap 2.9 had measured this exact row** (".btnrow three sm buttons 298px
+  wanted / 280 there") **and fixed only the width it could see**, ≤360, because
+  the only place it could observe the row was the Clients sheet. The padding rule
+  moved out of that media query; the 320 rule went to 4px padding and a 4px
+  gutter. **Measured after: 291px in 292px at 392, 219px in 220px at 320 — 1px
+  of spare room at both, and that is a real ceiling worth quoting, not a pass.**
+
+- **THE SEED'S FIX IS A RULE, NOT A DATE.** Two halves. The demo's closed days
+  are now `[Sun, Mon]` minus today's weekday, so the business always trades
+  today while still having days off and closed calendar cells — five days in
+  seven nothing changes at all. And **no seeded row says "completed"**: a job is
+  completed once it has ENDED, compared against the clock at seed time. That is
+  the only rule that cannot produce the thing Part B row 21 complained about, a
+  job finished and paid on a future date. **The cost is stated rather than
+  hidden: what Today draws now depends on the hour the seed is run.** Seed in
+  the morning and the day is ahead of you; seed after 18:00 and it is behind
+  you. Both are real states and neither is a lie.
+
+- **FIVE JOBS IS NOT A NUMBER THAT WAS CHOSEN TO LOOK BUSY.** 08:00–18:00 with
+  45 minutes between jobs, which is this business's own `buffer_minutes`, so a
+  customer could actually have booked the day the seed writes. Five is therefore
+  the busiest day these settings ALLOW. A seed that ignored its own buffer would
+  be showing a day the booking engine would refuse.
+
+- **THE STATE THAT HAD NEVER EXISTED.** Every "completed" row the old seed wrote
+  also carried `finalized_at`, so `Today.jsx`'s `needFinalize` was always an
+  empty array. That single fact meant **the lit card — the whole of
+  `dashboard-skeletons.md` §6's "money not yet recorded outranks the next job"
+  — and the warn-box had never once rendered against data** in the life of the
+  product. The seed now leaves the two most recent finished jobs unrecorded.
+  Same lesson as roadmap 2.4's cancelled and no-show rows: **a status with no
+  seed row is a status nobody ever looks at.**
+
+- **THE EMAIL COLOUR DEFECT IS THE COSTLIEST MISTAKE IN THIS FILE'S OWN INDEX,
+  IN A FOURTH PLACE.** "A tint of the accent is a ground" has been paid for in
+  2.3, 2.4 and 2.6. This one is worse in kind, because it is not a wrong ground
+  — it is a surface with **no floor at all**. `primary_color` and
+  `secondary_color` swap roles between the app and an email: in the app
+  `primary_color` IS the tenant's accent, and in
+  `_shared/emailTemplates.ts` it is the dark band behind the business name while
+  `secondary_color` is the accent — the confirmation button, every section
+  label, the site link, and the invoice email's own title. "Your colour" writes
+  only `primary_color`; `secondary_color` is reachable only from an
+  `<input type="color">` on *Business info*; and `create-business` inserts a
+  branding row with **both columns null.** Measured today against the twelve
+  presets on the colour screen: white on the header band is under WCAG's 3:1
+  large-text floor for **Silver 1.45:1, Sunflower 1.92:1, Sky 2.77:1 and Gold
+  2.94:1**, and a tenant who picks **Sky** — the platform's own default and the
+  demo's colour — gets the invoice email's title drawn in `#0ea5e9` on a
+  `#0ea5e9` band. **1:1. The same colour on itself.** `accent-sweep.mjs` does
+  not reach email and there is nothing else that would. **Not fixed here**, and
+  it is deliberately not a layout question: whether "Your colour" writes both
+  columns is a decision about what one colour means.
+
+- **THREE OF THE FIVE NEW DEFECTS ARE DELIBERATELY NOT PATCHED, AND THAT IS THE
+  RIGHT CALL RATHER THAN A DEFERRAL.** Today's "NEXT UP" over a job that
+  finished four hours ago, the rail drawing a finished job as "ahead", and a
+  paid job's rail node taking the tenant accent where the calendar's takes the
+  fixed green. Each is a symptom of one thing: **the rail has two states and the
+  day now has three.** Patching the label, or the class, or the colour
+  separately would be three edits to a screen that step 4 rebuilds anyway, and
+  each would settle by accident a question step 5 is supposed to settle on
+  purpose — what a completed-but-unpaid job IS. Recorded with measurements
+  instead.
+
+- **THE INVENTORY'S THREE NUMBERS ARE WORTH MORE THAN ITS 118 ROWS.** 23 of the
+  118 are about one job, and that object lives in a single 340-line sheet with
+  no structure — which the research then independently confirmed is unlike
+  every product that documents its own job screen (3 of 3 use tabs or named
+  sections). 37 are configuration, nearly a third of the product, and it is what
+  a customer meets — the number behind Part A's Business tab. And 9 have no
+  door at all, six of those being what Phase 3's websites need first. **A
+  rebuild that redraws 92 rows and leaves the nine where they are has done the
+  redrawing without the thinking**, which is exactly the complaint the owner
+  made about the first dashboard.
+
+- **THE RESEARCH SAMPLE IS SMALLER THAN 2.10'S AND SAYS SO.** 2.10 could say "6
+  of 6" about navigation because all six products publish their top-level nav.
+  **Only three publish anything at screen level** (Jobber, Housecall Pro,
+  Zenbooker), so every count in step 2's file is out of three. Two pages would
+  not surrender their body and are marked MEDIUM rather than quoted as if they
+  had. And the honest limit is written into the file: **none of the three is a
+  mobile detailer**, none publishes a design rationale, and **every one of them
+  assumes employees** — Jobber's Home opens with a clock-in button — so roughly
+  a third of what those home screens carry is irrelevant to a solo operator.
+
+- **F14 IS ONE SENTENCE AWAY FROM RE-OPENING SOMETHING HE APPROVED, AND IS
+  WRITTEN TO PREVENT THAT.** Every product in the sample uses a different
+  navigation shape on desktop than on a phone; Housecall Pro states it outright.
+  Ours draws the phone's bottom tab bar unchanged at 1920. **Part A settled
+  WHICH five destinations exist and in what order and that does not move.** What
+  F14 raises is where the bar is DRAWN above the desktop breakpoint — a
+  question Part A never asked, squarely inside decision 6, and belonging to step
+  3. It also collides with the `+` and the gear having just moved into the
+  header, so step 3 has to specify the header for both shapes at once.
+
+- **NN/g GAVE THE REBUILD TWO THINGS IT COULD NOT HAVE GOT FROM COMPETITORS.**
+  A ceiling on list-entry indicators — more than 2–3 unique ones clutters a
+  listing page, and our booking card carries four families (mobile/drop-off tag,
+  status pill, paid pill, rail node) before its four buttons — which is the
+  card-versus-list question of declined decision 7 with a number attached. And
+  the rule that a record should open BESIDE its list rather than over it,
+  because a modal hides the reference data. **Our whole dashboard opens records
+  in modal sheets.** Right on a phone, the named mistake at 1920, and
+  independent corroboration for decision 6 that Part B reached on its own.

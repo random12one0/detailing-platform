@@ -765,6 +765,121 @@ from scratch… I wanna do it properly, from the start."*
   the rebuild must not reproduce. The schema, the engine and the booking flow
   are not reopened at all.
 
+## 6i. ROADMAP 2.11, STEPS 0-2 - THE DAY IS SEEDED AND THE LIST IS WRITTEN, AWAITING HIS APPROVAL (2026-08-31)
+
+**Steps 0, 1 and 2 of the six are done. He approves the FEATURE INVENTORY
+before a single screen is designed** - that gate is step 1's whole point and
+nothing past it has started. Two new files:
+`docs/dashboard-feature-inventory-2026-08-31.md` (step 1) and
+`docs/dashboard-screen-research-2026-08-31.md` (step 2). Judgment calls are
+DECISIONS.md -> "Roadmap 2.11, steps 0-2". **Seven questions are waiting for
+him at §9 of the inventory.**
+
+**STEP 0 - TODAY HAS BEEN LOOKED AT FOR THE FIRST TIME, AND IT COST TWO
+CHANGES TO `scripts/seed-demo.mjs` AND ONE TO `theme.css`.** The demo was
+closed Sun/Mon, today was a Monday, and `day0` resolved to the next OPEN day -
+so the seed dated its finished-and-paid jobs to TOMORROW and Today drew "No
+jobs booked for today." Both halves are gone:
+
+- **The closed days are derived from today.** `[0, 1]` minus today's weekday.
+  Five days in seven nothing changes; on a Sunday the demo is closed Monday
+  only, and on a Monday, Sunday only. Still a business with days off, still
+  closed cells on the calendar, and Today is always seedable.
+- **`day0` is always today, and no row says "completed".** A job is completed
+  once it has ENDED, read off the clock - the only rule that cannot print a
+  finished job in the future. Five jobs, 08:00-18:00, 45 minutes apart, which
+  is this business's own `buffer_minutes`: **five is the busiest day these
+  settings allow**, not a number picked to look full. **Consequence to know:
+  what Today draws now depends on the hour the seed runs.**
+- **THE TWO MOST RECENT FINISHED JOBS HAVE NO PAYMENT RECORDED, and that state
+  had never existed in this seed at all** - every "completed" row it wrote also
+  carried `finalized_at`, so `needFinalize` was always empty. That is the one
+  thing Today lights (`dashboard-skeletons.md` §6) and the only thing that
+  draws the warn-box, and **neither had ever rendered against data.**
+
+**AND THE SWEEP FOUND A LIVE DEFECT WITHIN THE MINUTE, WHICH IS THE WHOLE
+ARGUMENT FOR DOING STEP 0 FIRST.** A job card's three action buttons sat
+**6px outside their own card at 392 and 18px at 320.** `sweep-widths.mjs` had
+never seen it because the row only exists on a job card and Today had never
+had a job. **Fixed** - roadmap 2.9 had measured the same row and fixed only the
+width it could see (<=360), so the padding rule moved out of that media query
+and the 320 rule went further. Measured after: **291px in 292px at 392, 219px
+in 220px at 320. Both are 1px of spare room and that is a real ceiling** - a
+longer label or a fourth button breaks it again. Sweep is clean at 392/360/320
+in both paths; the four credential-free tests pass.
+
+**STEP 1 - 118 CAPABILITIES, FROM FIVE SOURCES.** 92 work, 6 are broken, 9 are
+built underneath with no screen anywhere, 5 are things he said come back, 6 are
+things Phase 3's websites will need. Three numbers the layout has to answer to:
+**23 of the 118 are about one job** (the densest cluster in the product, and it
+lives in one 340-line sheet), **37 are configuration** (nearly a third, and it
+is what a customer meets), and **9 have no door at all** - six of those nine
+being exactly what the tenant websites need first.
+
+**FIVE NEW DEFECTS, AND ONE IS BIGGER THAN A LAYOUT.** Part B listed 21; these
+were not among them because nothing could see them until today.
+
+1. **THE COLOUR SCREEN CANNOT CHANGE THE COLOUR CUSTOMERS SEE.** "Your colour"
+   writes `primary_color`, with the whole correction system behind it. **In an
+   email the two columns swap roles:** `primary_color` is the band behind the
+   business name and `secondary_color` is the accent - the confirmation button,
+   every label, the site link, and the invoice email's own title.
+   `secondary_color` is reachable ONLY from a raw OS colour picker on *Business
+   info*, and `create-business` inserts both columns null. Measured today
+   against the twelve presets: white-on-band is **under the 3:1 large-text
+   floor for four of twelve** (Silver 1.45, Sunflower 1.92, Sky 2.77, Gold
+   2.94), and **picking "Sky" makes the invoice email's title 1:1 - the same
+   colour on itself**, because the accent falls back to `#0ea5e9` on a
+   `#0ea5e9` band. **Email is the one surface where a tenant colour is used
+   with no floor at all; `accent-sweep.mjs` does not reach it.** This is the
+   costly mistake at the top of DECISIONS.md's index, in a fourth place.
+2. **Today's section headings describe time; the sections are ordered by work.**
+   "NEXT UP" over a job that finished at 4:15 PM, "LATER TODAY" over one that
+   finished at 6:00 PM, both marked *Completed*. The ordering is right; the
+   words are wrong for it. **Step 4, not a patch** - labels and ordering are one
+   decision.
+3. **The rail says a finished job has not happened.** `.landed` is only on the
+   settled rows, so a completed job drawn as a CARD gets the hollow "ahead"
+   node. The calendar's marks get this right and have three states.
+4. **A paid job's rail node is the tenant accent; the calendar's is the fixed
+   green.** Law 11b says money is never the tenant's colour. Same fact, two
+   components, two colours.
+5. **The btnrow overflow** - fixed, above.
+
+**STEP 2 - FOURTEEN FINDINGS, AND THE SAMPLE IS SMALLER THAN 2.10'S.** Only
+three of the six products document their screens at all (Jobber, Housecall Pro,
+Zenbooker), so the counts are out of three, never six. The four that matter
+most:
+
+- **F4 - every documented job record is SECTIONED, 3 of 3.** Tabs in Jobber,
+  named sections in Housecall Pro, grouped fields in Zenbooker. **Ours is one
+  340-line scroll carrying 23 capabilities.** The strongest single finding in
+  the file, and the job record is the one screen nobody has ever redesigned.
+- **F7 - Housecall Pro splits money into TWO destinations** (My Money,
+  Reporting). We have one tab doing both jobs. **Not an argument for a sixth
+  tab** - it is the reason Part B's desktop Money is two columns.
+- **F11 - NN/g says a record should open BESIDE its list, not over it**, because
+  a modal hides the reference data. Our whole dashboard opens records in modal
+  sheets. Right on a phone; the named mistake at 1920. Independent
+  corroboration for decision 6.
+- **F14 - every product changes navigation SHAPE on desktop; ours does not.**
+  Housecall Pro states it outright. **Read carefully: Part A settled WHICH five
+  destinations and in what order, and that is not reopened.** What is open is
+  where the bar is DRAWN above the desktop breakpoint, which is decision 6's
+  scope and belongs to step 3.
+
+**Also new and useful: F1** (a home screen's sections are conditional - Jobber's
+Reminders *"only appears when there's something to show"*), **F10** (NN/g's
+ceiling is 2-3 unique indicators per list entry; our booking card carries four
+families), and **F3** (Jobber gives Home's first slot to a dynamic setup guide -
+direct evidence for the first-run question).
+
+**WHAT IS WAITING ON HIM.** Approve the 118-row list, and answer as many of the
+seven questions at §9 as he has an opinion about: a first-run state; an FAQ for
+tenant sites; a week view; a CSV for the accountant; quotes before a booking; a
+deposit at booking; before-and-after photos on a job. **Recommendations are on
+all seven.** Steps 3-6 do not start until the list is approved.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**

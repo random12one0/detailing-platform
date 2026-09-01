@@ -613,6 +613,19 @@ a { color: var(--accent-text); text-decoration: none; }
   color: var(--text-muted); font-weight: 600;
 }
 .btnrow { display: flex; gap: var(--sp-2); }
+/* PADDING IS THE ONLY THING THESE CAN GIVE BACK, and it costs nothing to give.
+   They are `flex: 1`, so the rendered width is the container’s third whatever
+   the padding is — padding only sets the MINIMUM, and `min-width: auto` on a
+   flex item means the row cannot shrink past the sum of those minimums. With
+   18px a side, three buttons want 297px of the 292px a 392px phone gives, so
+   the row sat 6px outside its own card. Nobody had seen it because Today has
+   never had a job on it: the demo dated its day to TOMORROW, and this row only
+   exists on a job card (roadmap 2.11 step 0 seeded a real day, and the sweep
+   found this within the minute). Narrowing it here rather than in the 320
+   media query — where roadmap 2.9 measured the same row and fixed only the
+   width it could see — is what makes it hold at every width. Nothing above
+   360px changes shape: the buttons already stretch to equal thirds. */
+.btnrow .btn, .actions-row .btn { padding: 0 var(--sp-2); }
 .btnrow .btn { flex: 1; }
 
 .chip {
@@ -1404,10 +1417,14 @@ button.warn-box:hover { border-color: var(--fog-2); }
   .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; width: 100%; }
   .segmented button { white-space: normal; padding: 8px 6px; line-height: 1.2; text-wrap: balance; }
 
-  /* Three small buttons across carry 108px of side padding between them and
-     are 18px over. The padding is what goes: they are stretched to equal
-     widths anyway, so nothing above this width changes shape. */
-  .btnrow .btn, .actions-row .btn { padding: 0 var(--sp-2); }
+  /* The 8px above is not enough down here: three buttons plus two gaps still
+     want 237px of the 220px a 320px card gives. Their LABELS are 189px of
+     that, so what is left to spend is the padding and the gutter, and both go
+     to 4px. Measured after: 205px in 220px. (This rule used to BE the 8px —
+     it moved out to the unconditional block above when a real day on Today
+     showed the same row failing at 392, where this media query never ran.) */
+  .btnrow { gap: 4px; }
+  .btnrow .btn, .actions-row .btn { padding: 0 4px; }
 
   /* 6 x 44 + 5 x 8 = 304 in 282. Four columns keeps the circle at 44px —
      shrinking it instead would take the tap target under the floor — and
