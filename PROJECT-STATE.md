@@ -1432,17 +1432,17 @@ unchanged screen is the absence of a decision rather than a decision.
 **Step 4b re-decides every screen's phone form from scratch. It is the next
 session.**
 
-**THE ONE NEW CHECK HIS ANSWER BOUGHT: PHONE LANDSCAPE.** He asked it to
-survive *"if you shrink a page or you'll not full screen it or goes to
-landscape."* Measured against what is checked: a current iPhone is 393x852 and
-a Samsung 360x800, **both already inside 392/360/320**, and the laptop is
-1440x900. **Landscape was the gap.** `sweep-widths.mjs` now handles **844x390**
-— `heightFor()` special-cases it — and **390px of height is shorter than any
-viewport this product has ever been measured at**, which puts the day rail, a
-`.sheet` pinned to 92vh and the bottom tab bar in the same 390px.
-**It is deliberately NOT in the default list yet:** step 4b baselines it and has
-to satisfy it, and adding it now would hand the next session a red gate with no
-baseline — this repo's own rule about baselining a new check.
+~~**THE ONE NEW CHECK HIS ANSWER BOUGHT: PHONE LANDSCAPE.**~~ **HE REVERSED
+THIS THE SAME DAY — SEE §6o. PHONES ARE PORTRAIT ONLY.** He asked landscape to
+survive (*"if you shrink a page or you'll not full screen it or goes to
+landscape"*), so step 4b measured 844x390 and it is genuinely broken. He then
+said the opposite and was precise about why: *"when someone flips their phone
+over sideways, I don't want it to completely readjust… it might get annoying."*
+**`844` is NOT in `sweep-widths.mjs` and `heightFor()` has no special case** —
+what step 6 owes instead is a guard that stops the layout changing on rotation.
+The rest of the paragraph stands and is worth keeping: a current iPhone is
+393x852 and a Samsung 360x800, **both already inside 392/360/320**, and the
+laptop is 1440x900.
 
 **THE FAQ QUESTION CAME BACK AS HALF OF EACH OPTION, AND HIS SPLIT IS THE
 CHEAPER ONE.** *"you could definitely add stuff to the supabase… Just add a
@@ -1458,7 +1458,7 @@ the finding rather than contradicting it), and travel-by-distance is refused and
 closed. **His verdict on the rest: *"everything else looks good."*** Roadmap
 2.13 and 2.14 are the only items his answer added.
 
-## 6o. ROADMAP 2.11, STEP 4b — THE PHONE RE-DECIDED, AND A GREEN CHECK THAT COULD NOT SEE THE FAILURE (2026-08-31)
+## 6o. ROADMAP 2.11, STEP 4b — THE PHONE RE-DECIDED, AND HE RULED IT PORTRAIT-ONLY (2026-08-31)
 
 **One new file: `docs/dashboard-phone-pass-2026-08-31.md`, and it is the phone's
 authority over step 4 wherever the two disagree.** Nothing is built. **Step 6,
@@ -1472,81 +1472,82 @@ is the absence of a decision.** Every screen was decided again from nothing;
 where the answer came out the same the reason is written down and the screen
 earned it. **"Unchanged" was not an allowed answer anywhere in the file.**
 
-**THE STRUCTURAL FINDING, AND IT IS ONE LINE OF CODE WIDE.** The dashboard
-decides its layout by **width alone**, so a phone on its side — 844x390 — gets
-the **widest** layout the product has and the **shortest** screen it has ever
-had, simultaneously. Measured on the seeded demo, sideways: **Today's five-job
-day is 2,480px in a 274px band, 9.05 screens**; the tab bar covers the first
-job; the month grid shows **1.3 of 5 weeks**; Clients shows **1.3 rows of 8**;
-opening a job shows **38%** of it and Business info **20%**, through two nested
-scrollers. **Nearly a third of the screen — 30% — is navigation.**
+**THE FOUR PORTRAIT DECISIONS, all measured at 392x844 on the seeded five-job
+day:**
 
-**ROOT CAUSE, FOUND BY READING `theme.css` RATHER THAN THE DESIGN FILES.**
-`theme.css:1067` turns a sheet into a centred desk panel at `min-width: 700px`.
-A sideways phone is 844 wide, so it is "a wide screen" and gets `max-height:
-86vh` of 390 = 335px. The comment above it is right about *why* and wrong about
-*when*. **The rule that generalises it: a layout decision that spends height
-must ask about height.** Fourth time in three sessions that opening the code beat
-reading the document describing it.
-
-**THE FIX INVENTS NOTHING.** The desktop spec already turns the tab bar into a
-**vertical rail on the left edge** at ≥1024 — approved, drawn, and existing
-because that edge has room. Its real question was never width; it is *which edge
-has room*. So `--bp-rail` becomes **width ≥ 1024, OR height ≤ 500 AND width ≥
-520**, and the live band goes **274 → 342px, +25%**, for **51px of width —
-measured by putting the inset on `.app-shell` in the running app** (724 → 673;
-36px of it on a real device, the rest a headless scrollbar). **The
-520px width floor is load-bearing**: an old iPhone SE upright is 320x480, under
-500 tall, and a height-only rule would give a 320px screen a 120px inset.
-
-**THE CHECK FINDING IS THE BIGGER ONE, AND IT IS THE THIRD TIME.**
-`sweep-widths.mjs 844` was baselined first, as CLAUDE.md requires. **It reported
-CLEAN on all 18 screens** — of the viewport described above. Every check it owns
-asks about the **right-hand edge**; landscape fails at the **bottom** one. Proof
-on the product's first screen: **the sign-in card with an error on it is 399px
-in a 390px viewport, 25px past the bottom, "Create an account" clipped**, and the
-sweep calls it clean. It was `past-parent` in 2.9 and `dead-width` in step 3.
-**So 844 joined the default AND the script gained `short-screen`** — sticky+fixed
-chrome as a share of any viewport ≤500px tall, **30% today against a 20% budget,
-12% after the rail** — non-gating behind `PHONE_PASS_BUILT` until step 6, the
-same shape and reason as `DESKTOP_SPEC_BUILT`. **The full default sweep is green
-at all six widths.**
-
-**THE TWO PHONE DECISIONS THAT ARE NOT ABOUT LANDSCAPE.**
-
-1. **Only the lit job is a card.** A five-job day draws **five identical 289px
-   cards** — word for word a named tell in this project's own
-   `design-knowledge.md` §1. The rest become one row each: **the rail region 1,522px →
-   593px**, the day **3.4 screens → a projected 1.7** — and what is actually
-   visible above the tab bar goes from **one card and a sliver of a second** to
-   **the lit card and three rows.** *One thing lit* also becomes a matter of FORM
-   rather than colour, which is what the marks vocabulary is for.
+1. **Only the lit job is a card.** The day draws **five identical 289px cards**
+   — word for word a named tell in this project's own `design-knowledge.md`
+   §1. The rest become one row each (71px, the measured `.row-item`): **the rail
+   region 1,522px → ~633px, and the day 3.4 screens → a projected 1.7.** What
+   actually changes for him is what sits above the tab bar at y=785: **one whole
+   job of five today, against the lit card and three rows.** It also makes *one
+   thing lit* a matter of FORM rather than colour, which is what the marks
+   vocabulary is for.
 2. **A settings screen becomes a page, not a sheet.** The row's `›` chevron
-   promises a push and delivers a peek; a 92vh sheet inside a scrolling page is
-   two scrollers; and **step 4 §10 already moved this way at the desk**.
+   promises a push and delivers a peek; a sheet with an inner scroller inside a
+   scrolling page is two scrollers, and *Services & add-ons* is four lists
+   inside one; and **step 4 §10 already moved this way at the desk.**
    `dashboard-skeletons.md` §3's justification survives word for word — *reached
    one at a time* is still true of a page.
+3. **Today's 112px ledger panel becomes one row of three bare figures**, so the
+   first job moves 318 → ~262px. The masthead is deliberately NOT cut — it is
+   the type contrast that keeps these screens off the default-app-shell shape.
+4. **A Clients row drops the customer's EMAIL** — the least useful thing about
+   a customer to a detailer holding a phone — for **lifetime spend and last
+   visit**, which is step 4's *"shows what it already calculates and currently
+   hides"* made concrete.
 
-**WHAT WAS DELIBERATELY CONFIRMED RATHER THAN CHANGED, which is the other half
-of "from scratch":** the five tabs and their order; the floating pill upright
-(`theme.css:525` — it is *"what stops the dashboard reading as a default mobile
-app shell"*, and it is 8% of an 844px screen); the month grid on a phone (an
-agenda list cannot draw an empty, closed or blocked day, which is the screen's
-whole question); the centred sign-in card. **Each with its reason on the record.**
+**AND HE RULED THE PHONE PORTRAIT-ONLY, WHICH CLOSED THE OTHER HALF OF THE
+STEP.** He asked for landscape in the morning (*"or goes to landscape… it
+should be able to modify and move around"*), so it was measured; he reversed it
+the same day and was precise about why: *"for the phone version, it should
+always just stay portrait… when someone flips their phone over sideways, I
+don't want it to completely readjust. I could tell if we had that, it might get
+annoying."*
 
-**WHAT IT CHANGES IN THE FILES ABOVE IT** — all four dated in place, none
-cosmetic: the desktop spec's `--bp-rail` condition and its *"below 1024 nothing
-changes"* guarantee; step 4 §1d gains a **third container** (a settings screen is
-a place you go, not a record); step 4 §4/§5 make the day panel **inline at every
-width, one component not two**; and `theme.css:1067` gains a height condition at
-step 6.
+**THIS IS NOT "DO NOTHING", AND THAT IS THE ONE THING A COLD SESSION WILL GET
+WRONG.** The dashboard **readjusts on rotation today**, and nobody chose it:
+`theme.css`'s `min-width: 700px` and `min-width: 560px` fire on a sideways
+phone, because a sideways phone is **844px wide**. The 700px rule says *"on a
+wide screen the sheet stops being a sheet and becomes a panel"* — so a settings
+screen becomes a centred desk panel at `86vh` of 390px = **335px, showing 20% of
+Business info's 1,365px form.** **Both breakpoints gain `and (min-height:
+500px)` at step 6** — one clause, two places, desktop untouched because a desk
+screen is taller than 500px. **The transferable rule: a layout decision that
+spends height must ask about height.**
 
-**ONE FINDING LEFT THE ITEM: ROADMAP 2.16.** `sweep-booking-steps.mjs 844x390`,
-run as part of the same baseline: **all eight steps of the CUSTOMER's booking
-page overflow, the worst by 467px — 120% of the screen, on step 1.** W16 is not
-met on any step sideways. It is the booking widget, not the dashboard, and
-folding it into 2.11 would swell the roadmap's largest item. **Its numbers are
-written into 2.16 so nobody takes them again.**
+**WHAT THE RULING WITHDREW**, all of it designed and then taken back out: a left
+rail on short screens, sideways column-pairing, full-bleed sheets sideways, a
+shorter calendar cell sideways, **`844` in `sweep-widths.mjs`'s default sizes,
+and the `short-screen` check written for it** — removed rather than left
+dormant, because a check nothing triggers is a check that rots. **The
+measurements are kept in the phone pass §20** precisely so nobody re-measures
+them in six months and files them as a discovery. **A true orientation lock is
+not available to a web page** — it needs a manifest and a Home Screen install,
+Android honours it and iPhone ignores it, and there is no manifest in `app/` at
+all; worth one line if the push-notification work lands, not worth creating one
+for on its own.
+
+**ROADMAP 2.16 WAS OPENED AND CLOSED BY THE SAME RULING.**
+`sweep-booking-steps.mjs 844x390` reports **all eight steps of the CUSTOMER's
+booking page over, the worst by 467px — 120% of the screen, on step 1.** W16 is
+the owner's rule that a customer never scrolls inside a step, and he has now
+scoped the shape it applies to: **W16 is a portrait rule.** Closed unstarted,
+numbers kept in the item.
+
+**WHAT IT CHANGES IN THE FILES ABOVE IT** — three, all dated in place: step 4
+§1d gains a **third container** (a settings screen is a place you go, not a
+record); step 4 §4/§5 make the day panel **inline at every width, one component
+not two**; and `theme.css` gets the height guard above. **The desktop
+specification is UNCHANGED** — an earlier draft of the phone pass widened its
+`--bp-rail` to short screens and the ruling withdrew that.
+
+**ONE THING STEP 6 CANNOT VERIFY FROM A SCRIPT.** Every number here came from a
+headless browser. A real phone has a notch, a home indicator, a URL bar that
+comes and goes, and a keyboard — and `100dvh` behaves differently under all
+four. **The pinned primary action on a committing form (§13) is the one that
+most needs a real thumb on it**, since a phone keyboard takes about 300px of an
+844px screen. Mid-range Android is already on `DESIGN.md`'s open list.
 
 **WHAT IS WAITING ON HIM: NOTHING.**
 

@@ -13,7 +13,11 @@ you approve the whole specification, and only then does code start.
 > **`docs/dashboard-phone-pass-2026-08-31.md` re-decides every one of them from
 > scratch and is the phone's authority where the two disagree.** Everything else
 > in this file — the screens' content, sections, states, copy fixes and desktop
-> forms — stands, and the phone pass names its three changes to it in its §17.
+> forms — stands, and the phone pass names its changes to it in its §17.
+> **The phone is PORTRAIT, by his ruling the same day** — *"it should always
+> just stay portrait… when someone flips their phone over sideways, I don't want
+> it to completely readjust"* — so there is no landscape form of any screen in
+> this file or that one.
 
 This is the step your own words asked for: *"just basically see every
 component and just see what best fits where."* Steps 1–3 listed the features
@@ -155,10 +159,11 @@ The desktop specification's §4a, unchanged, and every screen below obeys it:
 > is it.** A settings screen is not a record you opened out of a list; it is **a
 > place you go**, and the `›` chevron on its row has been promising a push and
 > delivering a peek. On a phone it becomes **a page with a back control**, not a
-> sheet — which is also what §10 already does to it at the desk (*"the eleven
-> stop being 640px modals"*). Measured sideways, the sheet form showed **20% of
-> Business info's form**, through two nested scrollers.
-> `docs/dashboard-phone-pass-2026-08-31.md` §2c. **Desktop behaviour is
+> sheet: a sheet with its own inner scroller inside a page that also scrolls is
+> two scrollers, and *Services & add-ons* is four lists inside one of them.
+> **This is also what §10 already does to it at the desk** (*"the eleven stop
+> being 640px modals"*), so the phone is not being given a new idea.
+> `docs/dashboard-phone-pass-2026-08-31.md` §2b. **Desktop behaviour is
 > unchanged: both still become the right column.**
 
 ### 1e. Law 1 — the skeleton register
@@ -544,9 +549,9 @@ grid at desktop**~~ — the same content in both.
 > containers meant two things to build and keep in step, for one panel that had
 > to be designed for the desk anyway. On a phone, tapping a day scrolls the
 > selected week to the top and opens the panel beneath it, so the month stays on
-> screen — which is §4a's own concern, answered rather than traded away. It also
-> removes the last full-height sheet from the calendar — the container that
-> measured **20–38% visible** on a phone in landscape.
+> screen — which is §4a's own concern, answered rather than traded away, and it
+> takes a full-height sheet with an inner scroller off the one screen whose own
+> content is the thing you want to keep looking at.
 > `docs/dashboard-phone-pass-2026-08-31.md` §5a.
 
 ### What it must show

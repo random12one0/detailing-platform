@@ -1619,13 +1619,13 @@ is kept; the entire visual design restarts from scratch.
          decision. **Re-decide every screen's phone form from scratch**, in
          `docs/dashboard-screen-designs-2026-08-31.md`, marking what changed
          and what survived the pass ON ITS MERITS rather than by inheritance.
-         **And baseline phone landscape here**: `sweep-widths.mjs` already
-         handles **844x390** and it is deliberately out of the default list
-         until this step — 390px of HEIGHT is shorter than anything this
-         product has ever been measured at, and the day rail, a `.sheet` pinned
-         to 92vh and the bottom tab bar all live inside it. **Baseline first,
-         then add it to SIZES**, which is this repo's own rule about a new
-         check.
+         ~~**And baseline phone landscape here**… **baseline first, then add it
+         to SIZES.**~~ **DONE AND THEN WITHDRAWN BY HIM, SAME DAY.** It was
+         baselined (clean on all 18 screens, which is itself a finding — every
+         check in that script asks about the RIGHT edge and landscape fails at
+         the bottom), and then he ruled phones **portrait only**. `844` is not
+         in SIZES, `heightFor()` has no special case, and the `short-screen`
+         check written for it was removed. See below and the phone pass §20.
          `impeccable shape`, one screen at a time. Still no code.
 
       6. **STOP. He approves the whole specification.** Then, and only then,
@@ -1662,10 +1662,10 @@ is kept; the entire visual design restarts from scratch.
          reaches him today); the flat travel fee is **not** deleted because
          `pricing.ts:135` charges it — it becomes a sentence only once travel
          areas exist; the FAQ gets its **storage now and its screen later**, so
-         twelve settings screens rather than thirteen; and `sweep-widths.mjs`
-         gains **phone landscape, ~844x390** — the only size in his list not
-         already checked, and the shortest viewport this product has ever been
-         measured at.
+         twelve settings screens rather than thirteen; and ~~`sweep-widths.mjs`
+         gains **phone landscape, ~844x390**~~ — **REVERSED BY HIM THE SAME DAY:
+         phones are portrait only, and what step 6 owes instead is a guard that
+         stops the layout changing on rotation.**
          **AND ONE STEP IS ADDED BEFORE ANY CODE — step 4b, the phone pass.**
          He rejected *"below 1024 nothing changes"*: *"the whole admin
          dashboard is changing both with desktop and phone."* Step 4 describes
@@ -1677,34 +1677,33 @@ is kept; the entire visual design restarts from scratch.
          and it is the phone's authority over step 4 wherever the two
          disagree.** Every screen decided again from nothing; "unchanged" was
          not an allowed answer, and where the answer came out the same the
-         reason is written down. **The structural finding: the app decides its
-         layout by WIDTH alone, so a phone on its side (844x390) gets the
-         WIDEST layout the product has and the SHORTEST screen it has ever
-         had.** Root cause of every sideways container defect is one media
-         query — `theme.css:1067`, `min-width: 700px`, no height condition —
-         and the rule that generalises it is *a layout decision that spends
-         height must ask about height.* **The fix invents nothing: the desktop
-         rail's condition widens to short screens too (+25% of the live band).**
-         **And the check finding is the bigger one:** `sweep-widths.mjs 844` was
-         baselined first and reported CLEAN on all 18 screens of a viewport
-         where the tab bar covers the first job and the sign-in card sits 25px
-         past the bottom — all five checks ask about the RIGHT edge. **844
-         joined the default AND the script gained `short-screen`**, non-gating
-         behind `PHONE_PASS_BUILT` until step 6, same shape as
-         `DESKTOP_SPEC_BUILT`. **One finding left the item: roadmap 2.16**, the
-         customer's booking page sideways — 8 of 8 steps over, worst 467px.
-         **AND ONE THING STEP 6 CANNOT VERIFY FROM A SCRIPT.** Every number in
-         step 4b came from a headless browser at a set viewport. A real phone
-         has a notch, a home indicator, a URL bar that appears and disappears,
-         and a keyboard — and `100dvh` behaves differently under all four.
-         **The rail is new chrome on an edge that has never carried any, so it
-         needs its own `env(safe-area-inset-left)`**, and the pinned primary
-         action in a committing form is the other one (§13 of the phone pass:
-         390px minus a keyboard is about 190px, the worst case in the product).
-         **Step 6 must be LOOKED AT on a real phone, held sideways, with the
-         keyboard up** — the owner has the demo login on his own device for
-         exactly this. Mid-range Android is already on `DESIGN.md`'s open list
-         and this is the same gap.
+         reason is written down. **The four portrait decisions:** only the lit
+         job is a card (five identical 289px cards is this project's own named
+         slop tell, and the day goes 3.4 screens to a projected 1.7); a
+         settings screen becomes a PAGE rather than a floating sheet; Today's
+         112px ledger panel becomes one row of bare figures; and a Clients row
+         drops the customer's email for what they have spent and when they were
+         last in.
+         **AND HE RULED THE PHONE PORTRAIT-ONLY, WHICH CLOSED THE OTHER HALF OF
+         THE STEP.** An earlier draft designed a landscape layout as well — he
+         asked for landscape in the morning (*"or goes to landscape"*) and
+         reversed it the same day: *"for the phone version, it should always
+         just stay portrait… when someone flips their phone over sideways, I
+         don't want it to completely readjust. It might get annoying."*
+         **This is not "do nothing", because the dashboard READJUSTS TODAY:**
+         `theme.css`'s `min-width: 700px` and `min-width: 560px` rules fire on a
+         sideways phone (844px wide), so a settings sheet becomes a centred desk
+         panel showing 20% of its form. **Both gain `and (min-height: 500px)` at
+         step 6** — one clause, two places, and the desktop is untouched
+         because a desk screen is taller than 500px. **The rule underneath: a
+         layout decision that spends height must ask about height.**
+         **What the ruling withdrew:** a left rail on short screens, sideways
+         column-pairing, `844` in `sweep-widths.mjs`'s default sizes, and the
+         `short-screen` check written for it — removed rather than left
+         dormant, because a check nothing triggers is a check that rots. **The
+         measurements are kept in the phone pass §20** so nobody re-derives
+         them. **Roadmap 2.16 was opened for the booking page's landscape
+         overflow and closed by the same ruling.**
          **Step 6, the build, is now the only thing left in 2.11.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
@@ -1999,50 +1998,43 @@ is kept; the entire visual design restarts from scratch.
       free"*, and he said *"we could put that up later"* — so it is a
       preference about cost and complexity, not a rejection of the capability.
 
-- [ ] 2.16 **The customer's booking page in landscape — W16 is not met on any
-      step.** Found while baselining phone landscape for 2.11 step 4b, and
-      given its own item because it is the BOOKING WIDGET, not the dashboard,
-      and 2.11 is already the largest item on this roadmap.
+- [x] 2.16 ~~**The customer's booking page in landscape — W16 is not met on any
+      step.**~~ **CLOSED BY THE OWNER THE SAME DAY IT WAS WRITTEN, UNSTARTED.
+      Phones are PORTRAIT; W16 is a portrait rule.**
 
-      **The measurement, `node scripts/sweep-booking-steps.mjs 844x390`, on the
-      demo reshaped into the owner's own menu:**
+      **His ruling, 2026-08-31**, given about the dashboard and applying to
+      every phone screen this product has:
+
+      > "Let's not have a horizontal phone setup, only portrait. Because yeah,
+      > no need and will only be making things harder."
+      > "For the phone version, it should always just stay portrait… when
+      > someone flips their phone over sideways, I don't want it to completely
+      > readjust. I could tell if we had that, it might get annoying."
+
+      **The measurements are kept because they are real and somebody will
+      re-take them otherwise.** `node scripts/sweep-booking-steps.mjs 844x390`,
+      on the demo reshaped into his own menu:
 
       | Step | Over the bottom |
       |---|---|
       | 1 · What can we do | **467px (120% of the screen)** |
-      | 2 · Anything to add | 93px (24% of the screen) |
+      | 2 · Anything to add | 93px (24%) |
       | 3 · Tell us about the vehicle | 366px (94%) |
       | 4 · Where should we do it | 404px (104%) |
       | 5 · Pick a time | 229px, and 359px once slots appear (92%) |
       | 6 · How do we reach you | 236px (61%) |
       | 7 · Check everything | 307px (79%) |
 
-      **Eight of eight steps overflow.** W16 is the owner's own rule — a
-      customer should never scroll inside a step — and
-      `sweep-booking-steps.mjs` exits 1 while anything overflows, which is the
-      definition of done for this item.
+      **Why this is closed rather than deferred.** W16 — *a customer should
+      never scroll inside a step* — is the owner's rule, and he has now scoped
+      the shape it applies to. A customer who turns their phone sideways gets
+      the portrait layout in a short window and scrolls; that is the accepted
+      cost of not having a second design. **`sweep-booking-steps.mjs` keeps its
+      four portrait sizes and stays the definition of done.**
 
-      **What the numbers say about the fix, before anyone designs one.** The
-      tallest thing on almost every step is `.bk-choices`, a single column of
-      full-width cards on a screen with **844px of width and 390 of height**.
-      That is the same diagnosis 2.11 step 4b reached about the dashboard —
-      *a layout decision that spends height must ask about height* — and the
-      same shape of answer is likely: **at a short height the choices go
-      two-up.** Step 1's `.bk-choices` is **607px on its own** in a 390px
-      viewport and is the worst; step 5's calendar block is 369px and is the
-      hardest to pair; step 4's two mobile/drop-off cards are 81px each and
-      pair trivially.
-
-      **Do not simply shrink the copy.** Roadmap 2.8c won its height back from
-      a sentence that restated the step's own heading, and that trick is spent
-      — CLAUDE.md's note that *"when a step overflows, look first for the
-      sentence that is already on the screen"* was about a 6px overflow, not a
-      467px one. **And the spare-room figures in CLAUDE.md are portrait
-      figures**: step 1's tightest screen is 1440x900 with 10px spare, and
-      that number says nothing about 390px of height.
-
-      **Skills:** `impeccable` — `adapt`, then `audit`. No direction skills;
-      the booking page carries the design system already.
+      **What would reopen it:** him asking. **Do not re-derive this** — the
+      booking page's `.bk-choices` being a tall single column on a wide short
+      screen is the obvious "bug" to spot, and it has been ruled not-a-bug.
 
 ## Phase 3 — Tenant websites (the biggest new build)
 
@@ -2217,7 +2209,7 @@ those are not negotiable by any skill.
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
-| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ ~~**HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code.**~~ **STEP 4b IS DONE TOO** — `docs/dashboard-phone-pass-2026-08-31.md`, every screen's phone form decided again from nothing, and it OVERRIDES step 4 wherever the two disagree about a phone. **Step 6, the build, is the only thing left.** Four of his asks left the item as roadmap 2.13, 2.14 and 2.15; a landscape finding on the CUSTOMER's booking page left it as 2.16. |
+| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ ~~**HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code.**~~ **STEP 4b IS DONE TOO** — `docs/dashboard-phone-pass-2026-08-31.md`, every screen's phone form decided again from nothing, and it OVERRIDES step 4 wherever the two disagree about a phone. **AND HE RULED THE PHONE PORTRAIT-ONLY the same day** — *"when someone flips their phone over sideways, I don't want it to completely readjust"* — which withdrew the landscape half of step 4b, took `844` and the `short-screen` check back out of `sweep-widths.mjs`, and closed 2.16 unstarted. **The dashboard readjusts today**, so step 6 still owes one guard: `min-height: 500px` on `theme.css`'s 700px and 560px breakpoints. **Step 6, the build, is the only thing left.** His asks left the item as roadmap 2.13, 2.14 and 2.15. |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |
