@@ -6504,6 +6504,18 @@ touched, which is the point of fixing it where the callers route through.
   lost. The gear's menu is `GearMenu.jsx`, which does not exist until Business
   (stage 6), and adding a gear now would mean two doors onto `More.jsx`'s
   plumbing in the middle of a rebuild.
+- **TWO INTERIM STATES THE SHELL CREATES, both of them correct and both of them
+  easy to misread as finished or as a bug:**
+  - **Calendar's month grid is 1,144px wide now and still draws DOTS.** The
+    shell gave it the width for free (the desktop spec §5b's whole argument is
+    that this screen keeps one column so the width goes into the cells), but
+    writing *"9:00 Tom O."* into a cell, the legend that lists only what is on
+    the month shown, `.cal-cell.selected` and the inline day panel are all
+    **stage 3**. A wide grid of dots is the shell working, not §5b shipped.
+  - **There are TWO doors to a new booking right now** — the header `+` and
+    Calendar's own button. Step 5 §3d already has that button on the death
+    list; it dies with Calendar in stage 3. Today's went with Today's rebuild
+    because that is the screen this stage owns.
 - **The open-slots figure stays on Booking rules AS WELL AS landing on
   Today.** The specification calls it "stranded" there, but on that screen it
   answers *"did that setting do what I wanted"* and on Today it answers *"what

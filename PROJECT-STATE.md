@@ -1625,6 +1625,16 @@ And the open-slots figure stays on *Booking rules* as well as landing on Today:
 there it answers "did that setting do what I wanted", here it answers "what
 does the near future look like".
 
+
+**TWO INTERIM STATES THE SHELL CREATES, both correct, both easy to misread.**
+**Calendar's month grid is 1,144px wide now and still draws DOTS** — the shell
+gave it the width for free, but writing *"9:00 Tom O."* into a cell, the
+trimmed legend, `.cal-cell.selected` and the inline day panel are **stage 3**.
+A wide grid of dots is the shell working, not the desktop spec §5b shipped.
+And **there are TWO doors to a new booking** — the header `+` and Calendar's own
+button, which step 5 already has on the death list and which dies with Calendar.
+Today's went with Today's rebuild, because that is the screen this stage owns.
+
 **FOUR FILES THAT OUTRANK THE DESIGNS WERE CORRECTED IN THE SAME CHANGE**, per
 step 4 §16 and CLAUDE.md's never-silently rule: `design-system.md` law 11b's
 table now names the completed node (`--accent`) and the paid node (`--ac`)
