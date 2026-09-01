@@ -729,6 +729,33 @@ paid" jobs on tomorrow's date. So Today could only be photographed EMPTY —
 looked at.** Seed a realistic day before redesigning Today, or it gets
 redesigned from its emptiest state. Screenshots: `shots-2.10/` (68 PNGs).
 
+**2.10 IS CLOSED AND HE OPENED 2.11 IN ITS PLACE — read this before starting
+anything.** He answered the last two decisions and then replaced what would
+have been 2.10's build item with a bigger one: *"create the entire admin
+dashboard from scratch… forget everything about it… know every single aspect
+of all the features that's gonna be in the admin dashboard, and then create it
+from scratch… I wanna do it properly, from the start."*
+
+- **Decision 6 is YES and the word matters:** *"desktop should get an actual
+  layout SPECIFIED just for desktop."* A written specification, not
+  breakpoints added to the phone layout.
+- **Decision 7 he declined** — *"I don't like the question"* — and he was
+  right: it asked him to rule on the internals of a test. The finding stands
+  and is settled inside 2.11 step 5. **Do not re-ask him.**
+- **Roadmap 2.11 is the item**, with his words quoted in full, the order, and
+  the skills. Steps 1–5 produce FILES; he approves before any code.
+- **ONE QUESTION IS OPEN AND MUST NOT BE GUESSED.** He said *"using the
+  correct direction"*, and *direction* is this project's word for the visual
+  world. The item is written for the reading that **"The Thread" still stands
+  and only the SCREENS are rebuilt** — because 2.10, his own item, says the
+  look is not reopened, and he approved and praised the design. But the other
+  reading is a different project. It is asked at the top of roadmap 2.11.
+- **What is already settled and must NOT be re-derived:** 2.10 Part A's tab
+  bar (Today · Calendar · Money · Clients · **Business**, gear for plumbing,
+  `+` in the header), decision 6, and Part B's 21 findings as the list of what
+  the rebuild must not reproduce. The schema, the engine and the booking flow
+  are not reopened at all.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**

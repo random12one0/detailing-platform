@@ -1117,7 +1117,34 @@ only.
 
 ---
 
-## B6. Two more decisions
+## B6. Two more decisions — BOTH ANSWERED, 2026-08-31
+
+> **Decision 6 — YES.** His words: *"desktop should get an actual layout
+> specified just for desktop."* Note **"specified"** — not "widened". The
+> desktop layout is a written specification with its own decisions, not a
+> couple of breakpoints added to the phone layout as an afterthought. It is a
+> deliverable of the rebuild (roadmap 2.11, step 3), not a polish pass.
+>
+> **Decision 7 — he declined the question**: *"I don't like the question."*
+> Taken at face value and not re-argued. What happens to it: **the finding
+> does not go away and does not need him.** `composition.test.mjs` test 1
+> still cannot see a card rendered through a component, and History still
+> draws 18 records as 18 cards. But asking him to rule on the internals of a
+> test was the wrong thing to put in front of him — it is a craft decision,
+> not an owner decision, and it should never have been on his list. **It is
+> settled inside roadmap 2.11 instead:** a from-scratch dashboard decides what
+> a list is and what a card is as part of its component inventory (step 5),
+> and the test is written to match that decision when the code lands. Recorded
+> here so a later session does not re-ask him.
+>
+> **AND HE REPLACED THE REST OF THE ITEM WITH SOMETHING BIGGER** — a
+> from-scratch rebuild of the whole dashboard, properly sequenced. That is
+> **roadmap 2.11**, and his words are quoted in full there. Everything in this
+> file stays true and becomes an INPUT to it: Part A's architecture is
+> approved and does not get re-derived, and Part B's 21 findings are the list
+> of what the rebuild must not reproduce.
+
+### The two, as they were put to him
 
 ### Decision 6 — Should the dashboard get a real desktop layout?
 

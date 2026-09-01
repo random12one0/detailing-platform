@@ -1250,7 +1250,7 @@ is kept; the entire visual design restarts from scratch.
       1920/1440x900/768x1024/392 to confirm nothing above the breakpoint
       moved; console clean at every width.
 
-- [ ] 2.10 **Rethink the admin dashboard from first principles — the OWNER
+- [x] 2.10 **Rethink the admin dashboard from first principles — the OWNER
       asked for this on 2026-08-31, in his own words, and they matter:**
 
       > "The layout of the admin's booking page is just based off of my admin
@@ -1384,6 +1384,157 @@ is kept; the entire visual design restarts from scratch.
       the demo is closed Sun/Mon and the seed dates "completed and paid" jobs
       tomorrow — so Today could only be photographed EMPTY, and the busiest
       state of the busiest screen has never been looked at.
+
+      **CLOSED 2026-08-31. All seven decisions are answered.** Decision 6 is
+      **yes** — *“desktop should get an actual layout specified just for
+      desktop”*, and the word is **specified**. Decision 7 he declined — *“I
+      don’t like the question”* — and he was right that it should never have
+      been on his list: the composition test’s blind spot is a craft decision,
+      not an owner decision. **It is settled inside 2.11 step 5 instead, and
+      nobody re-asks him.**
+
+      **AND HE REPLACED WHAT WOULD HAVE BEEN 2.10’s BUILD ITEM WITH SOMETHING
+      BIGGER: roadmap 2.11, the dashboard rebuilt from scratch.** Everything
+      in this item stays true and becomes an INPUT to that one — Part A’s tab
+      bar is approved and must not be re-derived, and Part B’s 21 findings are
+      the list of what the rebuild must not reproduce.
+
+- [ ] 2.11 **Build the admin dashboard from scratch, properly — the OWNER
+      asked for this on 2026-08-31, immediately after answering 2.10's
+      decisions, and his words are the brief:**
+
+      > "I do want you to kind of create the entire admin dashboard from
+      > scratch, with no… like, basically, like, forget about the old
+      > dashboard or the current dashboard, forget everything about it, and
+      > just know that — know every single aspect of, like, all the features
+      > and whatever that's gonna be in the admin dashboard, and then create
+      > it from scratch. …I wanna do it properly, like, from the start.
+      > Because last time the admin dashboard was created, it was good, but it
+      > was just kind of created. There was no… this time I want it to
+      > actually be thought through, using the proper skills, using the
+      > correct direction and order and steps that it has to take. Just
+      > basically see every component and just see what best fits where and
+      > what, and based on the information off of actual web design research,
+      > what detailers want, what we need — basically, all of that."
+
+      **ONE QUESTION MUST BE ANSWERED BEFORE STEP 1, AND A COLD SESSION MUST
+      NOT GUESS IT.** He said "using the correct direction", and *direction*
+      is this project's word for the visual world. Two readings, and they are
+      different projects:
+
+      - **(A) The system stands.** "The Thread" (`docs/design-system.md`) is
+        still law; what gets rebuilt from scratch are the dashboard's SCREENS,
+        components, layout and desktop form, designed properly on the approved
+        foundation. The skill-collision rule stays on — appliers and auditors
+        only.
+      - **(B) The direction reopens too**, and the dashboard gets a fresh
+        visual world chosen through a direction round.
+
+      **The reading this item is written for is (A)**, and the reasons are on
+      the record rather than assumed: roadmap 2.10 — his own item, written
+      from his own words — says in capitals that **the LOOK is not reopened**;
+      he approved The Thread after fifteen rounds of his own corrections; and
+      when he walked the whole product on 2026-08-30 his verdict was *"I
+      really like the design."* His complaint both times has been that the
+      dashboard was *"just kind of created"* — a thinking complaint about
+      screens, not a taste complaint about the look. **If he confirms (B),
+      step 0 of this item becomes a direction round and everything below
+      shifts by one; nothing else in the plan changes.** Do not start step 1
+      until this is answered. See DECISIONS.md → "Roadmap 2.11".
+
+      **WHAT IS ALREADY DECIDED AND DOES NOT GET RE-DERIVED.** "From scratch"
+      is about the screens, not about work he has already approved. Carried
+      in, settled:
+
+      - **The information architecture** — `docs/dashboard-architecture-2026-08-31.md`
+        Part A, all five decisions answered 2026-08-31. Five tabs: **Today ·
+        Calendar · Money · Clients · Business**, a gear in the header for
+        plumbing, `+` in the header for a new booking. **Do not re-derive
+        the tab bar.** The admission test comes with it: *a row belongs on
+        Business only if it changes what a customer meets.*
+      - **A desktop layout is a yes** (decision 6), and the word he used was
+        **"specified"** — a written spec, not breakpoints bolted on.
+      - **The 21 findings in Part B §B4** are the list of things the rebuild
+        must not reproduce. Five of them are live defects, not composition.
+      - **Everything below the UI** — schema, edge functions, the quote
+        engine, the booking flow, emails, RLS. **None of it is reopened.**
+        This item redraws the dashboard, not the product.
+
+      **THE ORDER, AND IT IS THE PART HE ASKED FOR.** Each step ends in a file
+      and steps 1 and 6 end with him. Nothing is built before step 6.
+
+      0. **Prerequisites, because two of them poison the work if skipped.**
+         **Seed a realistic day** — today is a Monday, the demo is closed
+         Sun/Mon and the seed dates "completed and paid" jobs tomorrow, so
+         Today has only ever been photographed EMPTY and the busiest state of
+         the busiest screen has never been looked at. Also re-read
+         `docs/dashboard-skeletons.md` (the shapes and why) and
+         `docs/design-system.md` (law 1 especially: every screen a different
+         skeleton).
+      1. **The complete feature inventory — "know every single aspect".**
+         One table of every capability the dashboard must carry, from five
+         sources, none of which is optional:
+         (a) what it does today — 2.10 Part A §2a, already written;
+         (b) what has a database table or an edge function and **no UI** —
+             `testimonials`, `campaigns` + `campaign_visits` + `track-visit`,
+             `monthly_plans`, `business_domains`, and the owner push
+             subscription functions;
+         (c) what **he has already said comes back** — monthly plans,
+             referral/loyalty, Google Calendar sync, the owner test-booking
+             preview, the vCard attachment (DECISIONS.md → "Owner decisions");
+         (d) what **Phase 3** will require the dashboard to run — the tenant
+             websites: pages, about, FAQ, reviews, custom domain;
+         (e) what the trade's products carry that we do not — the inbox,
+             deposits, recurring/subscription work, before-and-after
+             inspections, estimates (2.10 §1b has the six-product table).
+         **He approves this list before a single screen is designed.** This is
+         the step that makes it "from scratch" rather than "the same thing
+         redrawn": you cannot lay out a dashboard around features you have not
+         listed.
+      2. **Research — the half 2.10 did not do.** 2.10 researched
+         NAVIGATION and stopped there. Not yet researched: **how the
+         individual screens should work** — the day view, the job record, the
+         money screen, the client record, dense list design, and dashboard
+         layout at desktop width. Same discipline as 2.8 and 2.10: the
+         products' own documentation rather than review sites, source strength
+         marked per claim, counts not impressions, and what it *cannot* tell
+         you written down.
+      3. **The desktop specification** (decision 6). Breakpoints; what each
+         screen does with the width; which screens are two-column and what
+         each column holds; what collapses below the breakpoint and back to
+         what. **And the check: `scripts/sweep-widths.mjs` grows the desktop
+         widths in the same item**, or the desktop layout becomes the only
+         part of this product nothing automatically verifies.
+      4. **Screen-by-screen design, on the approved system.** Per screen:
+         what it is for, what it must show, **every state** — empty, one,
+         many, loading, error, staff — the composition vocabulary it uses, and
+         both its phone form and its desktop form. `impeccable shape` per
+         screen. Still no code.
+      5. **The component inventory.** Every component the whole dashboard
+         needs: which exist, which are new, which die. **This is where 2.10's
+         declined decision 7 gets settled** — what counts as a list and what
+         counts as a card is decided once, here, and `composition.test.mjs` is
+         written to match that decision when the code lands. It is also what
+         stops the eighth screen inventing a fourth kind of list.
+      6. **STOP. He approves the whole specification.** Then, and only then,
+         it gets built — screen at a time, each one verified by LOOKING at
+         1920 / 1440x900 / 768x1024 / 392x844 plus the desktop sweep, with
+         `sweep-widths.mjs`, the four credential-free tests and
+         `accent-sweep.mjs` after anything that touches colour.
+
+      **Skills, in order** (and this is the roadmap table's row for 2.11):
+      `impeccable` — `shape` at step 4, one screen at a time; `critique` on
+      each finished screen; `audit` for accessibility and responsive
+      behaviour. `animate` only if motion actually changes. `ship-check` at
+      the end. **No direction-generating skill unless the open question above
+      is answered (B).**
+
+      **Three things a cold session will get wrong.** (a) "From scratch" does
+      NOT mean re-deriving the tab bar — he approved it on 2026-08-31 and
+      re-opening it wastes his time. (b) It does NOT mean touching the schema,
+      the engine or the booking flow. (c) The deliverable of steps 1–5 is
+      FILES, not code; this is 2.8 → 2.8b's shape again, which is the shape
+      that has worked twice on this project.
 
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
@@ -1571,6 +1722,7 @@ those are not negotiable by any skill.
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
+| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills, **unless he answers (B) to the open question at the top of the item.** Steps 1–5 produce FILES; he approves before any code |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |
 | 5 — Andrew's migration | `security-review`, `code-review`. Real customer data — no shortcuts | anything that writes to the old project without an explicit go-ahead |

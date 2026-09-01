@@ -136,6 +136,7 @@ were made more than once.
 - **The owner reopened the dashboard's architecture** — the five tabs and the More screen are a copy of his own admin page; 2.10 rethinks WHERE things live and explicitly not how they look.
 - **Roadmap 2.10 — the architecture proposal** — four of the five tabs survived a from-scratch derivation; **"what you sell" is top-level in five of six trade products and is a chevron inside our Settings screen.** Also: the push switch has no client and does nothing.
 - **Roadmap 2.10, part B — the owner widened it to every screen** — he chose "Business" and delegated the rest. **There is no desktop layout: one 724px column at every width, and History is 3,619px tall on a 1440 monitor AND on a phone.** Plus a composition test that cannot see the failure it exists to catch.
+- **Roadmap 2.11 — he asked for the dashboard from scratch** — desktop gets a real SPECIFICATION, and the rebuild is sequenced inventory → research → spec → screens → components → his approval → build. **One question is open and must not be guessed: does "the correct direction" reopen the visual world, or only the screens?**
 
 <!-- INDEX:END -->
 
@@ -5226,3 +5227,85 @@ business is a better name" — and delegated the other four.** Part B of
   was changed. **What is worth knowing is the shape:** a SECOND section whose
   opening clause matches an existing one is invisible to that check. The index
   line was written by hand regardless, per CLAUDE.md.
+
+## Roadmap 2.11 — he asked for the dashboard from scratch
+
+Same message that answered 2.10's last two decisions (2026-08-31). He took
+decision 6 (*"desktop should get an actual layout specified just for
+desktop"*), declined decision 7, and then replaced what would have been
+2.10's build item with something larger: *"create the entire admin dashboard
+from scratch… forget everything about it… know every single aspect of all the
+features that's gonna be in the admin dashboard, and then create it from
+scratch… I wanna do it properly, from the start. Because last time the admin
+dashboard was created, it was good, but it was just kind of created."* The
+item, the order and the skills are `docs/roadmap.md` 2.11.
+
+- **HIS "I DON'T LIKE THE QUESTION" WAS TAKEN AT FACE VALUE AND HE WAS RIGHT.**
+  Decision 7 asked him to rule on the internals of a test. That is a craft
+  decision, not an owner decision, and putting it on his list was the mistake
+  — not his refusal to answer it. **The finding is unaffected and does not go
+  away:** `composition.test.mjs` test 1 still cannot see a card rendered
+  through a component, and History still draws 18 records as 18 cards. It is
+  now settled inside 2.11 step 5, where the component inventory decides once
+  what a list is and what a card is, and the test is written to match.
+  **Nobody re-asks him.** The general lesson is worth more than the instance:
+  CLAUDE.md says never hand him a decision without what he needs to make it —
+  the unstated other half is **never hand him a decision that was never his**.
+
+- **THE ONE QUESTION THAT IS GENUINELY HIS IS ASKED AND NOT GUESSED.** He said
+  *"using the correct direction"*, and *direction* is this project's word for
+  the visual world. Reading (A): the design system stands and the SCREENS are
+  rebuilt on it. Reading (B): the visual direction reopens too. **They are
+  different projects** — (B) would re-open something he approved after fifteen
+  rounds of his own corrections and then praised (*"I really like the
+  design"*), and DECISIONS.md's own list of the five costly mistakes has
+  "do not re-propose what he has decided" at number five. **But (A) guessed
+  wrongly means the whole rebuild sits on a foundation he wanted revisited.**
+  So the item is WRITTEN for (A), with the reasons on the record, and the
+  question sits at the top of it in a form a cold session cannot miss — rather
+  than being resolved silently either way. If he answers (B), step 0 becomes a
+  direction round and nothing else in the plan changes.
+
+- **"From scratch" was scoped rather than taken literally, and the scope is
+  written into the item.** Taken literally it would re-derive the tab bar he
+  approved hours earlier, and re-open the schema, the quote engine and the
+  booking flow — none of which he was talking about. What it means here: the
+  SCREENS, their components, their layout and their desktop form. What is
+  carried in as settled: 2.10 Part A's architecture (five tabs — Today,
+  Calendar, Money, Clients, **Business** — a gear for plumbing, `+` in the
+  header), decision 6's yes, and Part B's 21 findings as the list of what not
+  to reproduce.
+
+- **The order was designed around the phrase he used — "know every single
+  aspect… and THEN create it from scratch".** That sequence is the whole
+  point, so step 1 is a complete feature inventory that HE approves before a
+  single screen is designed, drawn from five sources: what the dashboard does
+  today; what has a table or an edge function and no UI (`testimonials`,
+  `campaigns`, `monthly_plans`, `business_domains`, owner push); what he has
+  already said comes back (monthly plans, referral/loyalty, calendar sync, the
+  test-booking preview, the vCard); what Phase 3's tenant websites will need
+  the dashboard to run; and what the trade's six products carry that we do
+  not. **You cannot lay out a dashboard around features you have not listed**
+  — and that, not the redrawing, is the difference between this and "the same
+  thing again".
+
+- **Research is step 2 because 2.10 only did half of it.** 2.10 researched
+  NAVIGATION — which tabs, in what order. It never researched how an
+  individual SCREEN should work: the day view, the job record, the money
+  screen, the client record, dense list design, desktop dashboard layout.
+  Same discipline as 2.8 and 2.10 — vendors' own documentation rather than
+  review sites, source strength marked per claim, counts rather than
+  impressions, and what the sample cannot tell you written down.
+
+- **The desktop spec is step 3 and it is a SPECIFICATION, because that is the
+  word he used.** Not breakpoints bolted onto the phone layout. And it carries
+  a condition that is easy to drop: **`scripts/sweep-widths.mjs` grows the
+  desktop widths in the same item**, or the desktop layout is the only part of
+  this product that nothing automatically checks — which is how the 360px
+  parent-box defects survived two roadmap items.
+
+- **Nothing is built before step 6 and he approves the whole specification
+  first.** This is 2.8 → 2.8b and 2.10 → 2.11 again: research, a written file,
+  his answer, then a build. It is the shape that has worked twice on this
+  project, and it is the shape he named when he said he wanted it done
+  properly from the start.
