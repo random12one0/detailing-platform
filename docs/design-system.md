@@ -199,6 +199,18 @@ Not suggestions. Where a test enforces one, it is named.
     | | Carries | Follows the tenant? | Where |
     |---|---|---|---|
     | `--accent*` | identity | **yes** | actions, navigation, selection, focus, today's disc, the selected day, chart bars, the "it landed" node |
+
+    **"THE 'IT LANDED' NODE" IS AMBIGUOUS AND ROADMAP 2.11 STEP 4 SPLITS IT.**
+    It reads as either *finished* or *paid*, and that ambiguity produced a real
+    defect: the day rail paints a PAID job in the tenant's accent while the
+    calendar paints the same fact `--ac`. The ruling is that `--accent` carries
+    the **completed** node and `--ac` the **paid** one, which is what the
+    calendar already does. **The table row above is corrected in the same
+    change that ships the rebuilt Today screen** (roadmap 2.11, step 6);
+    `docs/dashboard-screen-designs-2026-08-31.md` §16 is the reasoning, and the
+    paragraph below is answered by it rather than overruled — the accent stays
+    on every finished-and-unpaid node, on the lit card's bloom and on every
+    button, so it does not leave the screen the detailer opens every morning.
     | `--ac` (green) | meaning: paid, money up, it worked | **no** | `.pill.paid`, `.badge.paid`, `.dot.paid`, `.delta.up`, `.ok-box`, Money's `tone="good"` figure |
     | `--bad` (red) | meaning: cancelled, no-show, error, destructive | **no** | `.pill.cancelled`, `.error-box`, `.btn.danger`, `--bk-danger` |
 

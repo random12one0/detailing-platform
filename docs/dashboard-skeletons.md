@@ -201,6 +201,15 @@ system-wide one. The behaviour itself never broke: it is still encoded in
 2. **The current or next job.**
 3. **An unsaved setting.**
 
+**ROADMAP 2.11 STEP 4 ADDS ONE ABOVE ALL THREE, AND IT LANDS WITH 2.12.** *A
+booking waiting for you to accept it* becomes the first item on this list.
+Unrecorded money is money you already hold and can write down tonight; an
+un-accepted request has a customer at the other end of it who does not know
+whether they are booked, and it goes stale on its own. It is the only object on
+the screen with somebody else waiting on the answer.
+`docs/dashboard-screen-designs-2026-08-31.md` §1b. **Nothing changes until
+roadmap 2.12 ships the request status.**
+
 Ties go to the earlier one. **A screen with no qualifying object has no lit
 element at all** — nothing is promoted just to have something lit.
 
