@@ -5455,11 +5455,25 @@ is that step's entire reason for existing. Files:
   no structure — which the research then independently confirmed is unlike
   every product that documents its own job screen (3 of 3 use tabs or named
   sections). 37 are configuration, nearly a third of the product, and it is what
-  a customer meets — the number behind Part A's Business tab. And 9 have no
-  door at all, six of those being what Phase 3's websites need first. **A
-  rebuild that redraws 92 rows and leaves the nine where they are has done the
-  redrawing without the thinking**, which is exactly the complaint the owner
-  made about the first dashboard.
+  a customer meets — the number behind Part A's Business tab. And 7 have a
+  working back end and no working front end, three of the four things Phase 3's
+  websites are missing being among them. **A rebuild that redraws the 98 working
+  rows and leaves those seven where they are has done the redrawing without the
+  thinking**, which is exactly the complaint the owner made about the first
+  dashboard.
+
+- **THE COUNTS WERE WRONG IN THE FIRST DRAFT AND THE FIX IS WORTH RECORDING,
+  BECAUSE IT IS THE FAILURE THIS FILE WARNS ABOUT ELSEWHERE.** The prose summary
+  was written from memory of the table rather than from the table — "92 work,
+  6 broken, 9 with no screen" against an actual 98 / 4 / 6 — and it was caught
+  only by counting the rows mechanically afterwards. **A summary that disagrees
+  with its own table is worse than no summary**, for the same reason a stale
+  index is worse than none: the owner reads the summary and never counts the
+  table. Every count in the inventory, PROJECT-STATE §6i, the roadmap and this
+  entry is now the mechanical count, and where two counts of the same thing are
+  both legitimate — six rows marked `no screen` versus seven things with no
+  working front end — the file states both and says why they differ instead of
+  picking one.
 
 - **THE RESEARCH SAMPLE IS SMALLER THAN 2.10'S AND SAYS SO.** 2.10 could say "6
   of 6" about navigation because all six products publish their top-level nav.

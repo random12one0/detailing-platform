@@ -1581,7 +1581,8 @@ is kept; the entire visual design restarts from scratch.
 
       **STEPS 0, 1 AND 2 ARE DONE, 2026-08-31, AND THE ITEM IS NOW WAITING ON
       HIM.** Files: `docs/dashboard-feature-inventory-2026-08-31.md` (118
-      capabilities from the five sources) and
+      capabilities from the five sources — 98 working, 6 coming back, 6 with
+      no door, 4 broken, 3 questions, 1 Phase 3) and
       `docs/dashboard-screen-research-2026-08-31.md` (fourteen findings).
       PROJECT-STATE.md §6i is the briefing; DECISIONS.md → "Roadmap 2.11,
       steps 0–2" is why.

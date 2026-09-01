@@ -20,13 +20,25 @@ desk goes and which drawer holds what, somebody has to walk the room and write
 down everything that has to live in it — including the boxes still in the van,
 and the shelf that was ordered and never arrived.
 
-That walk is done. **The room has to hold 118 things.** Ninety-two of them are
-already in it and working. Six are in it and **broken** — a switch or a field
-that is on the screen and does nothing, or does the wrong thing. Nine are
-built into the walls but have no door on them yet: the database and the server
-already do the work, and there is no screen anywhere that reaches them. Five
-are things **you** have said are coming back. Six more are things the tenant
-websites (Phase 3) will need this dashboard to feed them.
+That walk is done. **The room has to hold 118 things**, and the table at §2
+counts them exactly:
+
+| | |
+|---|---|
+| **98** | are in the room and working |
+| **6** | are things **you** have already said come back |
+| **6** | are built into the walls with **no door on them at all** — the database and the server do the work and no screen anywhere reaches them |
+| **4** | are in the room and **broken**: a switch or a field that is on the screen and does not do what it says |
+| **3** | are **questions for you** — §9 |
+| **1** | is Phase 3 work that has nothing behind it yet |
+
+**Two of those groups overlap with things named elsewhere in this file and the
+numbers are not the same, on purpose.** §3 counts **seven** things with a
+working back end and no working front end — the six with no door, plus the push
+switch, which is counted as *broken* above because it is on a screen. §4 counts
+the **five** features you reversed in 2026-08-28's decision; two more rows are
+*comes back* from a different decision of yours (decision 3, the Clients
+screen). Where a number could mean two things, both are stated.
 
 **Nothing on this list is a new idea of mine.** Every row comes from one of
 five places: the code as it stands today, the database, your own recorded
@@ -34,8 +46,8 @@ decisions, Phase 3's requirements, or the six competitor products researched
 in roadmap 2.10. Where I think something is missing and you have never ruled
 on it, it is in **§9 as a question**, not smuggled into the table.
 
-**The one thing worth your attention before anything else:** six live defects
-are listed at §7, and **three of them are new** — nobody has seen them before
+**The one thing worth your attention before anything else:** §7 lists live
+defects, and **five of them are new** — nobody has seen them before
 today, because seeing them needed a demo business with a real day's work on it,
 which is what step 0 of this item built. One of them is that **the screen built for
 picking your colour cannot change the colour your customers see in their
@@ -248,8 +260,11 @@ proposal about the next one.
 
 ## 3. What is built underneath and has no door — the (b) list in one place
 
-Nine things. Each is a table or a server function that already works, with no
-screen anywhere in `app/` that reaches it. **This is the list that decides
+Seven things. Each is a table or a server function that already works, with no
+working screen anywhere in `app/`. **Six of them are the rows marked
+`no screen` at §2; the seventh is the push switch**, which counts as *broken*
+there because a switch a detailer can turn on IS a screen — it just is not
+connected to anything. **This is the list that decides
 whether the rebuild is "the same thing redrawn":** a layout that does not give
 these a home leaves them exactly as they are.
 
@@ -313,9 +328,12 @@ reviews, FAQ, contact, booking:
 | Booking | the whole engine | **Yes** |
 | The domain it lives on | `business_domains` | **No** (#97) |
 
-**Three gaps, and they are the same three that show up in §3.** That is a
-useful convergence rather than a coincidence: the things with no screen are
-mostly the things the websites will need first.
+**Four gaps — reviews, the domain, three of the social links, and the FAQ —
+and three of the four are already in §3's list of things with no door.** That
+is a useful convergence rather than a coincidence: **what has no screen today is
+mostly what the websites will need first.** The FAQ is the exception and it is
+the only one with nothing behind it at all, which is why it is a question
+(§9 Q2) rather than a gap.
 
 **One thing this file will not guess at: the FAQ.** There is no table, no
 column and no decision. It is §9 Q2.
@@ -409,7 +427,17 @@ The ordering is right — money not recorded outranks everything, which is the
 one-light rule — but the words are wrong for it. **This is a step-4 problem,
 not a bug to patch**: the labels and the ordering have to be decided together.
 
-**D4 — NEW. The rail says a finished job has not happened.** The day rail's
+**D4 — NEW, and there are two things wrong with the rail. It says a finished
+job has not happened, and it is not one rail.**
+
+Counted in the running browser: **three `.dayrail` elements on one screen**, one
+per section. `docs/dashboard-skeletons.md` §2 describes the signature move as
+*"one continuous hairline with a node per job"* — the far end of the landing
+page's thread. What ships is three hairlines that each start and fade out, so
+the day reads as three runs rather than one. Nobody could see it before because
+a rail with no jobs on it draws nothing.
+
+And the node itself: The day rail's
 node is hollow ("ahead") for every job drawn as a card, including a completed
 one, because the "landed" class is only put on the settled rows. Meanwhile the
 calendar's marks get this right and have three states. **Two components draw
@@ -419,6 +447,15 @@ the same fact differently** — a step-5 component-inventory problem.
 green.** Law 11b says money is never the tenant's colour. The calendar obeys it
 (`.dot.paid` is `--ac`); the rail under the heading "Done and paid" paints the
 tenant accent. Same fact, two colours, and the law names which is right.
+
+**D7 — NEW, and it is Part B's desktop finding measured on the screen that
+matters.** Part B proved there is no desktop layout using More (1,620px at 1920
+against 1,626px at 392) and History (3,619px at both). It could not use Today,
+because Today was empty. **Measured now, with a full day on it: Today is
+1,810px tall at 1920 and 1,815px at 392 — five pixels apart across a fivefold
+difference in screen width**, in a 724px column with **62% of the monitor
+unused.** The screen a detailer opens forty times a day is the same height on
+his own 1920 monitor as on his phone.
 
 **D6 — carried from Part B.** The push switch (#101), the superseded travel fee
 (#79), the future "last visit" (#45), the staff "Your colour" row the database
@@ -434,8 +471,8 @@ once, and the test is rewritten to match.
 
 ## 8. What the count means for the layout
 
-**118 capabilities. The current dashboard reaches 92 of them.** Five tabs and
-eleven settings sheets carry those 92, which is why More became a drawer: it
+**118 capabilities. The current dashboard reaches 98 of them.** Five tabs and
+eleven settings sheets carry those 98, which is why More became a drawer: it
 holds everything that did not fit the four verbs.
 
 Three numbers worth carrying into step 4:
@@ -447,9 +484,11 @@ Three numbers worth carrying into step 4:
 - **Thirty-seven are configuration** (§2e + §2f). That is nearly a third of the
   product, it is what a customer meets, and today it is a chevron inside a
   screen called Settings. This is the number behind Part A's "Business" tab.
-- **Nine have no door at all** (§3), and **six of those are things the tenant
-  websites need** (§5). A rebuild that redraws 92 rows and leaves those nine
-  where they are has done the redrawing without the thinking.
+- **Seven have a working back end and no working front end** (§3), and **three
+  of the four things the tenant websites are missing are among them** (§5). A
+  rebuild that redraws 98 rows and leaves those seven where they are has done
+  the redrawing without the thinking — which is the complaint that started this
+  item.
 
 ---
 

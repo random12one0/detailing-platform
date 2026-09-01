@@ -808,13 +808,17 @@ in 220px at 320. Both are 1px of spare room and that is a real ceiling** - a
 longer label or a fourth button breaks it again. Sweep is clean at 392/360/320
 in both paths; the four credential-free tests pass.
 
-**STEP 1 - 118 CAPABILITIES, FROM FIVE SOURCES.** 92 work, 6 are broken, 9 are
-built underneath with no screen anywhere, 5 are things he said come back, 6 are
-things Phase 3's websites will need. Three numbers the layout has to answer to:
+**STEP 1 - 118 CAPABILITIES, FROM FIVE SOURCES.** By row status: **98 work, 6
+he has said come back, 6 have no door at all, 4 are broken, 3 are questions for
+him, 1 is Phase 3 work.** Two narrative counts differ from those on purpose and
+the file says so: §3 counts **seven** things with a working back end and no
+working front end (the six with no door, plus the push switch, which is *broken*
+rather than *no screen* because it IS on a screen), and §4 counts the **five**
+removals he reversed in 2026-08-28. Three numbers the layout has to answer to:
 **23 of the 118 are about one job** (the densest cluster in the product, and it
 lives in one 340-line sheet), **37 are configuration** (nearly a third, and it
-is what a customer meets), and **9 have no door at all** - six of those nine
-being exactly what the tenant websites need first.
+is what a customer meets), and **7 have no working front end** - three of the
+four things the tenant websites are missing being among them.
 
 **FIVE NEW DEFECTS, AND ONE IS BIGGER THAN A LAYOUT.** Part B listed 21; these
 were not among them because nothing could see them until today.
@@ -838,13 +842,24 @@ were not among them because nothing could see them until today.
    finished at 6:00 PM, both marked *Completed*. The ordering is right; the
    words are wrong for it. **Step 4, not a patch** - labels and ordering are one
    decision.
-3. **The rail says a finished job has not happened.** `.landed` is only on the
-   settled rows, so a completed job drawn as a CARD gets the hollow "ahead"
-   node. The calendar's marks get this right and have three states.
+3. **The rail is three rails, and it says a finished job has not happened.**
+   Counted in the browser: **three `.dayrail` elements on one screen**, one per
+   section, where `dashboard-skeletons.md` §2 describes "one continuous
+   hairline with a node per job". And `.landed` is only on the settled rows, so
+   a completed job drawn as a CARD gets the hollow "ahead" node. The calendar's
+   marks get this right and have three states.
 4. **A paid job's rail node is the tenant accent; the calendar's is the fixed
    green.** Law 11b says money is never the tenant's colour. Same fact, two
    components, two colours.
 5. **The btnrow overflow** - fixed, above.
+
+**AND PART B'S DESKTOP FINDING NOW HAS THE MEASUREMENT IT COULD NOT TAKE.** Part
+B proved there is no desktop layout with More (1,620px at 1920 vs 1,626px at
+392) and History (3,619px at both), and had to skip Today because Today was
+empty. **With a full day on it, Today is 1,810px tall at 1920 and 1,815px at
+392** - five pixels apart across a fivefold difference in width, in a 724px
+column with 62% of the monitor unused. **That is the screen he opens forty times
+a day**, and it is now the strongest single number for decision 6.
 
 **STEP 2 - FOURTEEN FINDINGS, AND THE SAMPLE IS SMALLER THAN 2.10'S.** Only
 three of the six products document their screens at all (Jobber, Housecall Pro,
