@@ -146,7 +146,7 @@ were made more than once.
 
 - **Roadmap 2.11, step 6 — how the approval was ASKED, and a build order nobody had written** — a SIXTH file for a man who said there were too many words, and the reason it is not a contradiction: the five files each have a one-pager, but none of them is a layer ACROSS the five, and the ask and his answer would otherwise live only in a chat the next `/clear` destroys. **It is organised around the eight things the specification TAKES AWAY or contradicts him on, not around what it adds**, numbered so a partial no costs him three words. **A build order is proposed because no other file has one** — the shell ships WITH Today rather than before it (a session whose deliverable cannot be looked at, on a project verified by looking), and first run is last. And one claim in the draft was false until `theme.css` was opened: Today's payment panel is not an orange warning box, because **there is no amber in this system.**
 
-- **Roadmap 2.11, step 6 — his answer, and the two claims that did not survive contact with the code** — **APPROVED WITH AMENDMENTS the same day.** He **lifted the no-schema rule** that four steps of specification were written inside — *"I don't know why there was a rule that did not edit the back end"* — and what he actually wants fenced off is the opposite thing: the OLD DASHBOARD's structure, with the landing page's look kept. **Two of this session's own claims died on contact with the code:** Today's "orange warning box" (there is no amber in the system) and the "dead" travel fee (`pricing.ts:135` charges it — a field dead in ONE CONFIGURATION is not a dead field). **He reversed the push removal on a belief the code does not support** — there is no service worker at all, so the EMAIL is what reaches him — and the right answer was to build the missing half rather than re-ask. **The tab bar was closed on his own condition by SHOWING the derivation** rather than re-running it. **Three asks became roadmap 2.13, 2.14 and 2.15** instead of swelling this item, and **phone landscape (844x390) is wired but deliberately not armed**, same shape as `DESKTOP_SPEC_BUILT`.
+- **Roadmap 2.11, step 6 — his answer, and the two claims that did not survive contact with the code** — **APPROVED WITH AMENDMENTS the same day.** He **lifted the no-schema rule** that four steps of specification were written inside — *"I don't know why there was a rule that did not edit the back end"* — and what he actually wants fenced off is the opposite thing: the OLD DASHBOARD's structure, with the landing page's look kept. **Two of this session's own claims died on contact with the code:** Today's "orange warning box" (there is no amber in the system) and the "dead" travel fee (`pricing.ts:135` charges it — a field dead in ONE CONFIGURATION is not a dead field). **He reversed the push removal on a belief the code does not support** — there is no service worker at all, so the EMAIL is what reaches him — and the right answer was to build the missing half rather than re-ask. **The tab bar was closed on his own condition by SHOWING the derivation** rather than re-running it. **Three asks became roadmap 2.13, 2.14 and 2.15** instead of swelling this item, and **phone landscape (844x390) is wired but deliberately not armed**, same shape as `DESKTOP_SPEC_BUILT`. **Then two clarifications from him closed 2.15 unstarted** — he refused automatic travel calculation and the alternative he described (*"the customer just ticks… are you outside of ten mile range"*) is `travel_zones`, already shipped — and confirmed his push sighting was his OWN business's dashboard, a different product entirely. **Three wrong claims in one session, all from trusting a document over the code it described.**
 
 <!-- INDEX:END -->
 
@@ -6199,3 +6199,47 @@ Nothing built. His answer is §6 of `docs/dashboard-spec-approval-2026-08-31.md`
   **Settings screens are therefore TWELVE, not thirteen** — the third correction
   to that count in three sessions, which is itself the argument for the count
   living in one place.
+
+- **HIS TWO CLARIFICATIONS AFTER THE FIRST SIGN-OFF, AND ONE OF THEM CLOSED A
+  ROADMAP ITEM THE SAME DAY IT WAS WRITTEN.**
+
+  **The push sighting was his OWN business's dashboard, which CONFIRMS the
+  finding rather than contradicting it.** *"I'm seeing it worked on my admin
+  dashboard. Not the one that we're building, but the one for my business. So
+  I'm saying we shouldn't remove notifications because I know that it's
+  possible."* **There was never a disagreement about this codebase** — he was
+  arguing from proof that phone notifications are achievable, against removing
+  the capability. The outcome is unchanged (the switch stays, the missing
+  browser half gets built) and the reasoning is now his rather than inferred.
+  **Worth keeping as a pattern:** an owner saying "it works" about a feature
+  may be reporting a DIFFERENT system he owns. `carwashweb` is a separate
+  product with a separate database and separate deploys, and it is the thing he
+  uses daily. **Check which product a report is about before treating it as
+  evidence about this one.**
+
+  **AND HE REFUSED AUTOMATIC TRAVEL CALCULATION, WHICH CLOSED 2.15 UNSTARTED —
+  BECAUSE THE ALTERNATIVE HE DESCRIBED WAS ALREADY BUILT.** Given the costs of
+  the automatic part (a map service, a per-lookup fee, every customer address
+  leaving the product) he said: *"we don't need to do that for the automatic
+  part… I don't wanna do automatic calculations. Or if we want, we can have the
+  customer check themselves… are you outside of, like, ten mile range, and they
+  just click something."* **That is `travel_zones`, shipped in roadmap 2.8c.**
+  The detailer names their own areas and prices each; the customer picks one on
+  the booking page from *"Which area are you in?"*, every option showing its own
+  surcharge (`StepLocation.jsx:107-122`); the fee joins the quote and is
+  snapshotted to `bookings.travel_fee` / `travel_zone`. **His literal example —
+  two areas, "Within 10 miles" free and "Outside 10 miles" charged — is a
+  configuration, not a feature request.**
+  **The item is kept and marked closed rather than deleted**, per this file's
+  own rule that a reversal is usually the load-bearing part: *detect the miles
+  automatically* is the obvious next idea and will be proposed again by someone
+  who has not seen this. **It was put to him with its costs and he said no**,
+  and the condition that reopens it is his own words rather than an inference —
+  *"if there's someone to do it for free"*. A cost preference, not a rejection
+  of the capability.
+  **The wider lesson, and it is the third time in two sessions:** the fastest
+  route to a correct answer about travel was reading `StepLocation.jsx` and
+  `pricing.ts` rather than the specification files that described them. **Three
+  wrong claims this session — the "orange" warn-box, the "dead" travel fee, and
+  a roadmap item for a feature that already existed — and all three came from
+  trusting a document over the code it described.**

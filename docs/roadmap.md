@@ -1675,7 +1675,9 @@ is kept; the entire visual design restarts from scratch.
          scratch, and that is the next session.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
-         2.15 (travel by measured distance). **Staff getting no Business tab
+         2.15 (travel by measured distance), **the last of which he then CLOSED
+         the same day: he refused automatic calculation, and the alternative he
+         described is the travel-areas picker that already ships.** **Staff getting no Business tab
          stands until 2.13 ships**, because it is correct for the two roles
          that exist today.
 
@@ -1934,47 +1936,35 @@ is kept; the entire visual design restarts from scratch.
       **Skills: `impeccable` for the screens once the shape is settled.** The
       research step is not visual.
 
-- [ ] 2.15 **Travel priced by measured distance — the OWNER asked for this on
-      2026-08-31, and it is the ONE part of travel that does not already
-      exist.**
+- [x] 2.15 ~~**Travel priced by measured distance**~~ **REFUSED BY THE OWNER
+      2026-08-31, THE SAME DAY IT WAS WRITTEN, AND THE THING HE DESCRIBED
+      INSTEAD IS ALREADY BUILT. This item is closed without work.**
 
-      > "it just detects the company miles near… basically, the detailer sets
-      > up a mile radius or multiple mile radiuses, and says if it's within
-      > this, then there's a drop fee; if it's within this, there's another
-      > drop fee… and then obviously you have to calculate that based off the
-      > address."
+      He was told the automatic part needs a map service, a per-lookup cost and
+      every customer address leaving the product. His answer:
 
-      **Read what is already built before starting, because most of it is.**
-      A flat travel fee exists and **is charged** (`pricing.ts:135`, wired in
-      by roadmap 2.8c). **Multiple travel AREAS with their own fees exist** —
-      `business_settings.travel_zones`, `[{key, name, fee}]` — and the customer
-      picks theirs on the booking page, with the chosen fee snapshotted to
-      `bookings.travel_fee` and `bookings.travel_zone`. **The only thing
-      missing is the word "detects": the areas are NAMED by the detailer and
-      CHOSEN by the customer, not measured.** The migration says so in its own
-      comment: *"NOT geocoded distance: we have no way to measure one."*
+      > "we don't need to do that for the automatic part… I don't wanna do
+      > automatic calculations. Or if we want, we can have the customer check
+      > themselves. Like… the customer just ticks up mark, like, are you
+      > outside of, like, ten mile range, and they just click something."
 
-      **So this item is one capability, not a feature: turn an address into a
-      distance from the business.** Everything downstream — bands, fees,
-      snapshotting, the receipt line, the confirmation email — is already
-      shaped for it and the band's fee just stops being picked and starts
-      being derived.
+      **What he described is `travel_zones`, which shipped in roadmap 2.8c.**
+      The detailer names their own areas and sets a fee on each
+      (`BookingRules.jsx`, "Travel areas"); the customer picks one on the
+      booking page from a labelled drop-down — *"Which area are you in?"*, each
+      option showing its own surcharge (`StepLocation.jsx:107-122`) — and the
+      chosen fee is added to the quote and snapshotted to `bookings.travel_fee`
+      and `bookings.travel_zone`. **A detailer who wants exactly his example
+      names two areas: "Within 10 miles" at $0 and "Outside 10 miles" at their
+      price.** Nothing needs building.
 
-      **THE DECISION THIS ITEM OWES THE OWNER, and it is not a coding
-      decision.** Measuring distance means a map service: an account, a cost
-      per address looked up, and **every customer's address being sent to a
-      third party**. Put the options to him with prices when the item starts —
-      and note the cheap middle path that keeps today's behaviour as a
-      fallback: **measure when the lookup succeeds, fall back to the customer
-      picking their area when it does not**, which is also what happens when a
-      customer types an address no map service can find.
-
-      **Watch the money rule** (CLAUDE.md): a number printed is not a number
-      charged. Follow it to `bookings.total_price` and the confirmation email,
-      and `tests/booking-engine.test.mjs` test 17 is the shape of the check.
-
-      **Skills: none — this is engine work.** It changes no screen that 2.11
-      has not already designed.
+      **Kept as a closed item rather than deleted, because the refusal is the
+      load-bearing part.** "Detect the miles automatically" is the obvious next
+      idea and it will be proposed again; **it was put to the owner with its
+      costs and he said no.** The two reasons to reopen, in his words rather
+      than inferred: he would accept it *"if there's someone to do it for
+      free"*, and he said *"we could put that up later"* — so it is a
+      preference about cost and complexity, not a rejection of the capability.
 
 ## Phase 3 — Tenant websites (the biggest new build)
 

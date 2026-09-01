@@ -1354,7 +1354,13 @@ CHECKED RATHER THAN ARGUED WITH.**
    it in the same group — "A new booking comes in", an email** — and his live
    business runs on a different codebase (`carwashweb`) besides. **Decided, not
    re-asked, because his instruction was "keep it": the switch stays and the
-   missing half gets BUILT**, so what he believes becomes true. **The
+   missing half gets BUILT**, so what he believes becomes true.
+   **HE CLARIFIED THE SAME DAY AND THE FINDING STANDS:** *"I'm seeing it worked
+   on my admin dashboard. Not the one that we're building, but the one for my
+   business. So I'm saying we shouldn't remove notifications because I know
+   that it's possible."* **He was arguing from proof that it is achievable, not
+   claiming this product does it** — so there was never a disagreement, and the
+   outcome is unchanged. **The
    constraint to carry: on an iPhone, web push works only once the page is
    added to the Home Screen.** Apple's rule.
 2. **HE ALREADY HAS A TRAVEL FEE, AND THE APPROVAL PAGE HAD JUST TOLD HIM IT
@@ -1389,13 +1395,20 @@ so 2.11 does not swell until it never lands:**
   percentage-or-amount, active. **No cadence, no enrolment, no recurring
   booking.** So "monthly plans come back" was never a matter of giving an
   existing feature a door, and step 4 §15 was right to refuse it.
-- **2.15, travel by measured distance.** The ONLY missing piece is turning an
-  address into a distance; bands, fees, snapshotting and the receipt line are
-  all built. **It owes him a decision that is not a coding one:** a map service
-  means an account, a per-lookup cost, and every customer address going to a
-  third party. The item names the cheap middle path — measure when the lookup
-  succeeds, fall back to the customer picking their area when it does not,
-  which is also what happens for an address no service can find.
+- ~~**2.15, travel by measured distance.**~~ **WRITTEN AND CLOSED THE SAME DAY,
+  UNSTARTED.** Told what the automatic part costs — a map service, a per-lookup
+  fee, every customer address leaving the product — he refused it: *"I don't
+  wanna do automatic calculations. Or… we can have the customer check
+  themselves… are you outside of, like, ten mile range, and they just click
+  something."* **That is `travel_zones`, which shipped in 2.8c**: the detailer
+  names and prices their own areas, and the customer picks one from *"Which
+  area are you in?"* on the booking page, each option showing its surcharge
+  (`StepLocation.jsx:107-122`). **Two areas — "Within 10 miles" at $0 and
+  "Outside 10 miles" at his price — IS his example, already working.**
+  Kept as a closed item, not deleted, because the refusal is the load-bearing
+  part: automatic detection is the obvious next idea and it will be proposed
+  again. **He would reopen it "if there's someone to do it for free"** — a cost
+  preference, not a rejection of the capability.
 
 **THE TAB BAR WAS REOPENED IN PRINCIPLE AND CLOSED ON HIS OWN CONDITION.** He
 said not to keep five tabs merely because the old dashboard had them — *"we
@@ -1439,6 +1452,11 @@ the third correction to that count in three sessions.
 
 **WHAT IS WAITING ON HIM: NOTHING.** Every question this session opened is
 answered or has become a roadmap item with its decision written into it.
+**Two of his clarifications landed after the first sign-off and both are
+above** — the push sighting was his OWN business's dashboard (which confirms
+the finding rather than contradicting it), and travel-by-distance is refused and
+closed. **His verdict on the rest: *"everything else looks good."*** Roadmap
+2.13 and 2.14 are the only items his answer added.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

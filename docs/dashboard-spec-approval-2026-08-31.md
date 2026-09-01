@@ -364,6 +364,12 @@ returns `sent: 0` every time. **What actually reaches him today is the switch
 directly above it in the same group — *"A new booking comes in"*, which is an
 email.** His own live business also runs on a different codebase entirely
 (`carwashweb`), which is the likelier source of anything he is seeing.
+**CONFIRMED BY HIM, same day:** *"I'm seeing it worked on my admin dashboard.
+Not the one that we're building, but the one for my business. So I'm saying we
+shouldn't remove notifications because I know that it's possible."* **So the
+finding was right and his instruction was never a contradiction of it** — he
+was arguing from proof that the thing is achievable, not claiming this product
+already does it. **Same outcome, better reason: build the missing half.**
 **Decided rather than re-asked, because his instruction was "keep it":** the
 switch stays and **the missing browser half gets built**, so the thing he
 believes he has becomes true. **One constraint he needs to know: on an iPhone,
@@ -380,15 +386,28 @@ does NOT exist is the automatic part:** mile radii measured from the customer's
 address. The migration says why in its own comment — *"NOT geocoded distance: we
 have no way to measure one"*. **Measuring one needs a map service**, which means
 an account, a per-lookup cost, and every customer address being sent to a third
-party. **That is its own roadmap item and its own decision**, written up as one
-rather than smuggled into the rebuild.
+party.
+
+> **HE THEN REFUSED THE AUTOMATIC PART, SAME DAY, AND CLOSED THE ITEM:**
+> *"we don't need to do that for the automatic part… I don't wanna do automatic
+> calculations. Or if we want, we can have the customer check themselves…
+> are you outside of, like, ten mile range, and they just click something."*
+> **What he describes there is what already ships.** The detailer names their
+> areas and prices them; the customer picks one from *"Which area are you in?"*
+> on the booking page, each option showing its surcharge
+> (`StepLocation.jsx:107-122`). **He names two — "Within 10 miles" at $0 and
+> "Outside 10 miles" at his price — and it does exactly what he asked for, with
+> nothing built.** Roadmap 2.15 is closed unstarted. **He would reopen it "if
+> there's someone to do it for free"** — a cost preference, not a rejection of
+> the capability.
 
 ---
 
 ### What his answer costs, honestly
 
-**Three of his asks are not dashboard drawing at all**, and each becomes its own
-roadmap item rather than swelling 2.11 until it never lands:
+**Three of his asks are not dashboard drawing at all**, and each became its own
+roadmap item rather than swelling 2.11 until it never lands. **One of the three
+then closed the same day without any work** — see travel, below:
 
 - **Custom roles and permissions.** Today `business_users.role` is a two-value
   check constraint, `('owner','staff')`, and **the whole database enforces it**
@@ -400,7 +419,9 @@ roadmap item rather than swelling 2.11 until it never lands:
   discount** — name, description, percentage or amount, active. No cadence, no
   sign-up, no recurring bookings. His version needs all three, plus the research
   he asked for.
-- **Travel by measured distance**, above.
+- ~~**Travel by measured distance**, above.~~ **CLOSED BY HIM UNSTARTED** —
+  he refused automatic calculation and the alternative he described is the
+  travel-areas picker that already ships.
 
 **And one is 2.11's own work, now that the schema rule is lifted:** the email
 colour repair, already agreed and now unblocked to do properly.
