@@ -24,7 +24,8 @@ import { money, todayLocal } from "../lib/format.js";
 import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt } from "../lib/periods.js";
 import { api } from "../lib/api.js";
 import ExpenseModal from "../components/ExpenseModal.jsx";
-import BookingDetail from "../components/BookingDetail.jsx";
+import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
+import Sheet from "../components/Sheet.jsx";
 
 // Line-item categories that represent money sold at the job rather than
 // through the booking page. A discount is negative and belongs on the same
@@ -315,8 +316,10 @@ export default function Money() {
           onSaved={() => { setAdding(false); loadExtras(); }} />
       )}
       {selected && (
-        <BookingDetail booking={selected} onClose={() => setSelected(null)}
-          onChanged={() => { setSelected(null); reload(); loadExtras(); }} />
+        <Sheet onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
+          <BookingDetail booking={selected} onClose={() => setSelected(null)}
+            onChanged={() => { setSelected(null); reload(); loadExtras(); }} />
+        </Sheet>
       )}
     </div>
   );

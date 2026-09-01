@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { CalendarDays, CircleDollarSign, Settings, Sun, Users } from "lucide-react";
+import { CalendarDays, CircleDollarSign, Plus, Settings, Sun, Users } from "lucide-react";
 import { useBusiness } from "./context/BusinessContext.jsx";
+import NewBookingModal from "./components/NewBookingModal.jsx";
 import Auth from "./screens/Auth.jsx";
 import CreateBusiness from "./screens/CreateBusiness.jsx";
 import Today from "./screens/Today.jsx";
@@ -20,6 +21,15 @@ const TABS = [
 export default function App() {
   const { session, business, role, loading, signOut } = useBusiness();
   const [tab, setTab] = useState("today");
+  // NEW BOOKING HAS ONE DOORWAY AND IT IS THE HEADER. It used to be a
+  // full-width button at the bottom of Today AND another on Calendar — two
+  // doors to one modal, each costing its screen a row it did not have to
+  // spend. Owning it here is what lets both of those go.
+  const [creating, setCreating] = useState(false);
+  // A booking made from the header has to reach the screen that is showing.
+  // A counter, not a remount: remounting would replace the screen with a
+  // spinner, which is the very thing §1a of the screen designs forbids.
+  const [rev, setRev] = useState(0);
 
   if (loading) {
     return (
@@ -44,10 +54,16 @@ export default function App() {
       <header className="topbar">
         {/* The business's own name from the database — never a hardcoded brand. */}
         <div className="brand">{business.name}</div>
-        <span className="muted">{activeTab.label}</span>
+        {/* The screen's NAME used to sit here, which made three copies of it
+            on one phone: the lit tab, this, and the screen's own masthead.
+            docs/dashboard-phone-pass-2026-08-31.md §2d. */}
+        <button className="btn icon ghost" aria-label="New booking"
+          onClick={() => setCreating(true)}>
+          <Plus strokeWidth={2} />
+        </button>
       </header>
       <main className="app-main">
-        <Active />
+        <Active refreshKey={rev} />
       </main>
       <nav className="tabbar">
         {visibleTabs.map((t) => (
@@ -57,6 +73,10 @@ export default function App() {
           </button>
         ))}
       </nav>
+      {creating && (
+        <NewBookingModal onClose={() => setCreating(false)}
+          onCreated={() => { setCreating(false); setRev((r) => r + 1); }} />
+      )}
     </div>
   );
 }

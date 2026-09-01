@@ -1461,8 +1461,9 @@ closed. **His verdict on the rest: *"everything else looks good."*** Roadmap
 ## 6o. ROADMAP 2.11, STEP 4b — THE PHONE RE-DECIDED, AND HE RULED IT PORTRAIT-ONLY (2026-08-31)
 
 **One new file: `docs/dashboard-phone-pass-2026-08-31.md`, and it is the phone's
-authority over step 4 wherever the two disagree.** Nothing is built. **Step 6,
-the build, is now the only thing left in 2.11.**
+authority over step 4 wherever the two disagree.** Nothing is built here.
+**Step 6, the build, is the only thing left in 2.11 — and its STAGE 1 (the shell
+and Today) is now built: see §6p.**
 
 **WHY THE STEP EXISTS IS BIGGER THAN THE SENTENCE HE OBJECTED TO.** He rejected
 *"below 1024 nothing changes"*; step 4 describes five screens' phone form as
@@ -1550,6 +1551,99 @@ most needs a real thumb on it**, since a phone keyboard takes about 300px of an
 844px screen. Mid-range Android is already on `DESIGN.md`'s open list.
 
 **WHAT IS WAITING ON HIM: NOTHING.**
+
+## 6p. ROADMAP 2.11, STEP 6 — STAGE 1 IS BUILT: THE SHELL AND TODAY (2026-09-01)
+
+**The first code in the rebuild.** The approval page's §5 build order is seven
+stages and this is stage 1; the phone pass was stage 0 and is done.
+Judgment calls are DECISIONS.md → "Roadmap 2.11, step 6, stage 1".
+**Nothing is waiting on the owner.**
+
+**THE NUMBERS, WHICH ARE THE POINT OF THE STAGE.**
+
+| | Before | After |
+|---|---|---|
+| `.app-main` content column, 1920 and 1440 | 724px at every width | **1,144px** |
+| Today's document height, 1440x900 | 1,810px | **1,006px** — required ≤1,200 |
+| Today's document height, 392x844 | ~2,500px (3.4 screens) | **1,103px** |
+| `.dayrail` elements on Today | 3 | **1** |
+| A finished job's node | the hollow "still ahead" ring | solid `--accent` |
+| A paid job's node | `#0ea5e9`, the tenant's accent | `--ac` `#38E08B` |
+| Today's ledger at 392 / 320 | a 112px sunken panel | **75px / 98px**, bare figures |
+
+**`DESKTOP_SPEC_BUILT` IS `true`** and `dead-width` gates from now on. The
+sweep is clean at 1920 / 1440 / 392 / 360 / 320 in both the normal and
+`?lite=1` paths; `composition`, `design-contrast`, `landing-pricing`,
+`route-contract`, `decisions-index` and `accent-sweep` all pass.
+
+**WHAT SHIPPED.** The tab bar becomes a vertical glass pill rail at ≥1024 —
+**the same component with `flex-direction: column`**, not a 220px sidebar,
+which `theme.css` already argued against in its own comment. `--wrap` finally
+exists in `theme.css` (it only ever lived in `landing.css`, scoped to `.ld`)
+and `.app-main` takes it. `.split` / `.col-1` / `.col-2` carry the second
+column at ≥1180, `hooks/useWide.js` is the one width check and
+`components/RecordHost.jsx` the one container decision — **`BookingDetail` no
+longer renders its own `<Sheet>`, so a job opens BESIDE the day at a desk and
+the rail does not move** (NN/g's F11, desktop spec §5a). The header carries the
+`+` and Today's full-width *New booking* button is gone; the top bar's copy of
+the screen's name is gone with it, which was the third place one phone screen
+named itself. Today is one rail with three runs named for the work — **Needs
+payment · Still to do · Done** — carrying the calendar's own node vocabulary,
+with **only the lit job as a card** and everything else a row. The phone's
+ledger is three bare figures; Tomorrow is one line that opens tomorrow's day.
+The warn box is gone (its label says what it said, with the count).
+
+**THREE THINGS A COLD SESSION WOULD OTHERWISE RE-DERIVE THE HARD WAY**, all
+three in DECISIONS.md in full:
+
+1. **A flat DOM cannot carry a second column.** The split was built flat first,
+   to protect the staggered arrival that reads `.group > *`. A grid row is as
+   tall as its tallest item, so the second column at `grid-row: 1` made row 1
+   264px tall and pushed the ledger a fifth of a screen down — and there is no
+   escape: `grid-row: 1 / -1` resolves against the EXPLICIT grid, which has no
+   rows. **`.col-1` wraps and the stagger block carries a second selector on
+   every line.**
+2. **The rail's `animation: none` must sit AFTER the stagger block**, not next
+   to `.dayrail`. Both selectors are (0,3,0); source order decides, and written
+   in the obvious place it silently lost.
+3. **The rotation guard was THREE places, not the two the phone pass listed.**
+   The calendar cell's own `min-width: 700px` rule spends height (56px → 88px),
+   so rotating a phone made the month grid taller on the shortest screen in the
+   product. **Found by grepping the breakpoint rather than trusting the list —
+   and that is the lesson: a file that names two instances of a pattern invites
+   a session to fix two and stop.** Verified at 844x390.
+
+**WHAT STAGE 1 DELIBERATELY LEFT, so nobody reads more as built than is.**
+**The job record is still the 340-line single scroll** — it opens beside the
+list now, but the action-bar-over-six-sections redesign is stage 2. `.dashed`
+and `.badge` do NOT die yet (five of `.dashed`'s uses are on screens not yet
+rebuilt, and `sweep-widths.mjs`'s `boxy()` selector moves in the same change
+that removes the last one). `.rows.cols` has no caller until History and
+Clients. **The header's GEAR is not there** — the `+` is, because Today's own
+button died with it; the gear needs `GearMenu.jsx`, which is stage 6.
+And the open-slots figure stays on *Booking rules* as well as landing on Today:
+there it answers "did that setting do what I wanted", here it answers "what
+does the near future look like".
+
+**FOUR FILES THAT OUTRANK THE DESIGNS WERE CORRECTED IN THE SAME CHANGE**, per
+step 4 §16 and CLAUDE.md's never-silently rule: `design-system.md` law 11b's
+table now names the completed node (`--accent`) and the paid node (`--ac`)
+separately; `dashboard-skeletons.md` §2 gains the rail's three states and says
+there is ONE rail; the desktop spec §4a's day-controls row is struck (they
+expand in place — the owner's own W1); and the phone pass §2a records the third
+rotation guard.
+
+**AND TWO SESSIONS WERE GIVEN THIS PROMPT AT ONCE.** A second Claude session
+was editing the same working tree and spotted `theme.css` changing under it.
+It stood down without reverting — a `git checkout` would have taken this
+session's work too — and **its `RecordHost` / `jobRecordProps` work was read
+and KEPT**, because it is the shell plumbing stage 1 owes and it had already
+avoided the regression that would have justified dropping it. Worth knowing
+that this can happen; DECISIONS.md carries the rule that came out of it.
+
+**STAGES 2-7 REMAIN:** the job record · Calendar · Money · Clients · Business
+and the twelve settings screens (with the colour repair, Reviews and the
+rebuilt push switch) · first run, last on purpose.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

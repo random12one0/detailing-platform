@@ -1705,6 +1705,31 @@ is kept; the entire visual design restarts from scratch.
          them. **Roadmap 2.16 was opened for the booking page's landscape
          overflow and closed by the same ruling.**
          **Step 6, the build, is now the only thing left in 2.11.**
+         **STAGE 1 OF THE BUILD IS DONE, 2026-09-01 — the shell and Today, which
+         the approval page's §5 says ship together (plumbing alone has nothing
+         to look at).** Shipped: the tab bar as a vertical glass pill rail at
+         ≥1024 (the same component, `flex-direction: column`, not a sidebar);
+         `--wrap` added to `theme.css` and `.app-main` taking it; `.split` /
+         `.col-1` / `.col-2`; `hooks/useWide.js`; `components/RecordHost.jsx`
+         and `BookingDetail` no longer rendering its own `<Sheet>`; the header
+         `+` as the one door to a new booking, with Today's full-width button
+         gone; ONE `.dayrail` with three runs named for the work
+         (*Needs payment · Still to do · Done*) and the calendar's node
+         vocabulary; only the LIT job as a card; the phone's bare-figure ledger
+         and one-line Tomorrow; the empty state; the reload that dims instead of
+         blanking (fixed in `useBookings`, so Calendar and Money get it too);
+         and **the three rotation guards — three, not the two the phone pass
+         listed**, because the calendar cell's own 700px rule spends height as
+         well. **`DESKTOP_SPEC_BUILT` is `true`.**
+         **Measured after:** content column 724 → **1,144px** at 1920 and 1440;
+         Today **1,810 → 1,006px at 1440x900** (the requirement was ≤1,200) and
+         **2,500 → 1,103px at 392** (the projection was ~1,265). Sweep clean at
+         all five widths in both paths; all four credential-free tests and
+         `accent-sweep` pass.
+         **What stage 1 did NOT do, so nobody reads §5a as finished twice:**
+         the job record is still the 340-line single scroll — it opens BESIDE
+         the list at ≥1180 now, but its own redesign (an action bar over six
+         named sections) is stage 2. **Stages 2-7 of §5 remain.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
          2.15 (travel by measured distance), **the last of which he then CLOSED

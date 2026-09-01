@@ -121,12 +121,28 @@ on a screen whose real problem is height.** The rule underneath, written once:
 desktop threshold gain a minimum height:
 
 ```
-@media (min-width: 700px) and (min-height: 500px)   /* the sheet rule   */
-@media (min-width: 560px) and (min-height: 500px)   /* the day-row rule */
+@media (min-width: 700px) and (min-height: 500px)   /* the sheet rule       */
+@media (min-width: 700px) and (min-height: 500px)   /* the calendar cell    */
+@media (min-width: 560px) and (min-height: 500px)   /* the day-row rule     */
 ```
+**BUILT 2026-09-01, and there were THREE, not two** — see the third bullet
+below. Verified at 844x390 on the running app: both `(min-width: 700px) and
+(min-height: 500px)` and the 560px form report `false` while a bare
+`(min-width: 700px)` reports `true`, a settings sheet is still bottom-anchored
+and full-width (`align-items: flex-end`, bottom radius 0) instead of a centred
+640px panel, and the calendar cell is 56px instead of 88.
 
 - **500px** because a phone is 800–852 tall upright and 360–393 sideways, and
   nothing real sits between. A laptop is 900.
+- **THERE WAS A THIRD PLACE, AND IT WAS FOUND BY GREPPING FOR THE BREAKPOINT
+  RATHER THAN TRUSTING THIS LIST OF TWO (built 2026-09-01, roadmap 2.11
+  step 6).** `theme.css`'s calendar-cell rule is also `@media (min-width:
+  700px)`, and it SPENDS HEIGHT — a month cell goes 56px to 88px — so rotating
+  the phone made the month grid taller on the screen with the least height in
+  the product. It is the same shape as the two above and it gained the same
+  clause. **Measured after: the cell stays 56px at 844x390.** The lesson is
+  about the list, not the rule: a file that names two instances of a pattern
+  invites a session to fix two and stop. Grep the breakpoint.
 - **Nothing above the desktop threshold needs a guard**: the desktop rail
   engages at 1024px wide and no phone is 1024px wide in any orientation.
 - **The desktop is untouched.** A desk screen is taller than 500px.

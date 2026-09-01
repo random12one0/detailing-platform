@@ -173,6 +173,20 @@
   --r-md: var(--r-inset);
   --r-lg: var(--r-panel);
 
+  /* THE CONTENT BAND. landing.css has had this token since 2.2, scoped to
+     .ld, and theme.css never had one at all — the dashboard was the only
+     surface in the product ignoring its own layout number. Two stylesheets
+     must not each own a copy of it, so it is declared here and .ld's own
+     value still wins inside .ld. It is also --bp-split: the width at which
+     a 637px primary + a 320px secondary + a 24px gap first fit.
+     docs/dashboard-desktop-spec-2026-08-31.md §3. */
+  --wrap: 1180px;
+  /* The sticky header's own height, so a sticky second column knows what to
+     clear. It is padding + the 44px control the header now carries, and it
+     is a token rather than a number in one media query because two places
+     would drift. Measured on the running app. */
+  --topbar-h: 61px;
+
   /* SPACE — related <= 8, unrelated >= 28. */
   --sp-1: 4px;
   --sp-2: 8px;
@@ -370,6 +384,62 @@ a { color: var(--accent-text); text-decoration: none; }
 }
 .sunken.flush { padding: var(--sp-3) var(--sp-4); }
 
+/* THE DAY'S FIGURES, BARE ON THE GROUND. Today's sunken two-cell strip costs
+   112px for two numbers a detailer reads in a second, and it is the third
+   block on the screen before any work appears. On a phone it becomes one row
+   of bare figures — no container, hairlines above and below, one between each
+   pair — which moves the first job 318 -> ~262px. Bare figures are already
+   this screen's own vocabulary, so nothing is invented.
+   The masthead above it is deliberately NOT cut: it is the type contrast that
+   keeps these screens off the default-app-shell shape, and cutting it would
+   be a move toward the generic rather than away from it.
+   THE STRIP ITSELF IS UNCHANGED AT >= 1024 — the desk has the height, the
+   phone does not. docs/dashboard-phone-pass-2026-08-31.md §3a. */
+.ledger {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+.ledger > div { padding: var(--sp-3) var(--sp-2); min-width: 0; }
+.ledger > div + div { border-left: 1px solid var(--hairline); }
+/* Smaller than --t-figure, and the reason is a width: a monospaced glyph is
+   ~0.57em after this face's letter-spacing, so a third of a 392px row is
+   104px of usable space and a 26px figure runs out of it at six characters.
+   At this clamp a cell holds EIGHT — "$1455.00", money() carries no thousands
+   separator — and below 361 the money cell takes a row of its own anyway
+   (§ THE 320 FLOOR). THE CEILING IS THEREFORE A $12,455 DAY ON A 392px PHONE,
+   which is a number rather than a worry, and sweep-widths' past-parent check
+   is what would catch it. */
+.ledger .figure { font-size: clamp(20px, 5.4vw, 26px); line-height: 1; }
+.ledger .lbl {
+  display: block; margin-top: 5px;
+  font-size: var(--t-meta); color: var(--text-muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* A JOB AS A LINE. Five identical full-width cards is a named tell in this
+   project's own docs/design-knowledge.md §1, and it was 1,522px of screen
+   for a five-job day. Only the LIT job stays a card; everything still to do
+   is one row, which makes "one thing lit" a matter of FORM rather than
+   colour. Two lines at 392, the same NN/g ceiling History and Clients use.
+   The row is .row-item — the ruled list this product already has — plus the
+   time and the amount, which are figures wherever they appear (law 8).
+   docs/dashboard-phone-pass-2026-08-31.md §3b. */
+.row-item .t {
+  font-family: var(--f-num); font-weight: 500;
+  color: var(--text-muted); font-variant-numeric: tabular-nums;
+  margin-right: 8px;
+}
+.row-item > .figure.sm {
+  font-size: var(--t-body); color: var(--text-2);
+  line-height: 1; flex-shrink: 0;
+  /* On the FIRST line, beside the name — not centred across both. .row-item
+     centres its children, which put the amount half a line below the name it
+     belongs to and level with the service underneath it. 3px is the offset
+     that lands it on the name's own centre at this size. */
+  align-self: flex-start; margin-top: 3px;
+}
+
 /* A boundary INSIDE a group — the device that replaces a second box. */
 .rule { height: 1px; background: var(--hairline); border: 0; margin: var(--sp-3) 0; }
 .rule.tight { margin: var(--sp-2) 0; }
@@ -476,13 +546,54 @@ a { color: var(--accent-text); text-decoration: none; }
   width: 7px; height: 7px; border-radius: 50%;
   background: var(--ink-0); box-shadow: inset 0 0 0 2px var(--bone-2);
 }
-/* It landed. The one place the accent is spent on this screen apart from
-   the primary button. */
+/* IT IS FINISHED. Same three forms the calendar's own marks use, because
+   until roadmap 2.11 the same fact was drawn two ways by two components: a
+   completed job got the HOLLOW "still ahead" node hours after it ended, and
+   a paid one got the tenant's accent where .dot.paid draws the fixed green.
+   Law 11b — a finished job is a job, so it keeps the accent; PAID is money
+   and takes --ac. docs/dashboard-screen-designs-2026-08-31.md §2, D4b/D5. */
 .dayrail > .landed::before { background: var(--accent); box-shadow: none; }
-/* A settled row is a line, not a card, so its node sits on the line's own
-   centre rather than a card's first line of text. */
+.dayrail > .paid::before { background: var(--ac); box-shadow: none; }
+/* A row is a line, not a card, so its node sits on the line's own centre
+   rather than on a card's first line of text. */
 .dayrail > .settled-row::before { top: 20px; }
-.dayrail > .settled-row:first-of-type::before { top: 19px; }
+.dayrail > .row-item::before { top: 23px; }  /* measured: the row's first line centres at 23-24px */
+/* THE RUN LABEL IS A HEADING ON THE RAIL, NOT A STOP ON IT. The rail is one
+   continuous hairline through all three runs now, so the label no longer
+   starts a new list — it ends one. The row under it opens its run and takes
+   no hairline of its own; .row-item:first-child / .settled-row:first-of-type
+   cannot see that, because inside one rail only the very first row is. */
+.dayrail > .label + .row-item,
+.dayrail > .label + .settled-row { border-top: 0; }
+/* THE RUNS' OWN RHYTHM, and it has to be written because the rail's children
+   are a flat list with no gap between them: measured on the built screen, every
+   pair sat 0px apart and the only separation was whatever slack a label's line
+   box happened to give. A label is 8px above its own run (one thought) and a
+   NEW run opens 18px below the last thing in the previous one — the rows keep
+   their hairline rhythm untouched, because a ruled list's separation IS the
+   hairline and a gap between rows would break it. */
+.dayrail > .label { padding-bottom: var(--sp-2); }
+.dayrail > .label ~ .label { padding-top: var(--sp-4); }
+.dayrail > .card { margin-bottom: var(--sp-1); }
+/* THE DAY ARRIVES ONE JOB AT A TIME, DOWN THE THREAD. Making the rail ONE
+   element (the D4a fix) would otherwise have collapsed the whole day into a
+   single stagger slot — the signature move lost to a bug fix, which is what
+   law 3 forbids. So the rail opts out of the group's stagger and its
+   children carry it instead.
+   THE BUDGET IS UNCHANGED and this is the whole constraint: the last element
+   still has to settle by ~580ms (docs/dashboard-skeletons.md §4). The rail
+   is the group's third child, so it starts at that child's 80ms slot and
+   steps 20ms rather than 40, which buys five distinct beats inside the same
+   160ms ceiling instead of two. Past the fifth job the delay holds at 160.
+   The `animation: none` half of this lives with the stagger block it
+   overrides, further down: both selectors are (0,3,0), so source order is
+   what decides, and putting it here would silently lose. */
+.dayrail > * { animation: arrive var(--t-reveal) var(--e-out) backwards; }
+.dayrail > *:nth-child(1) { animation-delay: 80ms; }
+.dayrail > *:nth-child(2) { animation-delay: 100ms; }
+.dayrail > *:nth-child(3) { animation-delay: 120ms; }
+.dayrail > *:nth-child(4) { animation-delay: 140ms; }
+.dayrail > *:nth-child(n+5) { animation-delay: 160ms; }
 
 /* --------------------------------------------------------------- SHELL */
 .app-shell {
@@ -558,7 +669,10 @@ a { color: var(--accent-text); text-decoration: none; }
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hairline);
-  padding: calc(var(--sp-3) + env(safe-area-inset-top)) var(--sp-4) var(--sp-3);
+  /* sp-2, not sp-3: the header carries a 44px control now (the one doorway
+     to a new booking), and at sp-3 it would have grown 22px on the screen
+     roadmap 2.11's phone pass exists to shorten. 61px total, --topbar-h. */
+  padding: calc(var(--sp-2) + env(safe-area-inset-top)) var(--sp-4) var(--sp-2);
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
 }
 .topbar .brand {
@@ -566,6 +680,116 @@ a { color: var(--accent-text); text-decoration: none; }
   font-variation-settings: "wdth" 104, "wght" 680;
   font-size: var(--t-body); letter-spacing: -0.012em;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ------------------------------------------------------------- THE DESK
+   Two breakpoints, and neither is a taste number — each is the width at
+   which something specific stops fitting
+   (docs/dashboard-desktop-spec-2026-08-31.md §3):
+
+     1024  the tab bar becomes a vertical rail. The rail costs a 72px pill
+           plus a 24px gutter each side = 120px of left inset, and 1024 - 120
+           still leaves 904px of content against the 724px this dashboard has
+           at EVERY width today. So the rail can never cost width, which is
+           what makes it additive rather than a second layout.
+     1180  = --wrap, where the second column engages (see .split).
+
+   Below 1024 nothing here fires, and that is the guarantee: a phone is
+   byte-for-byte what it was. A media query cannot read a custom property,
+   so the numbers are written out; --wrap carries the one that is a length.
+
+   NOT A SIDEBAR. A flat 220px panel welded to the left edge with five text
+   rows is the default admin shell, and .tabbar's own note above says the
+   pill exists to avoid exactly that. This is the SAME component with
+   flex-direction: column — same glass, same blur, same radius, same 12%
+   active fill, same icon-over-label buttons at the same 44px floor. F14
+   asks for the navigation to change SHAPE at a desk; it does not ask for a
+   second visual world, which bucket 1 forbids. */
+@media (min-width: 1024px) {
+  .app-shell { padding-left: 120px; }
+  /* The pill is off the bottom edge, so the 96px it was being cleared by is
+     no longer owed to anything. */
+  .app-main { max-width: var(--wrap); padding-bottom: var(--sp-6); }
+  .tabbar {
+    left: 24px; right: auto; bottom: auto; top: 50%;
+    transform: translateY(-50%);
+    width: 72px;
+    flex-direction: column; justify-content: center;
+    gap: var(--sp-1);
+  }
+  .tabbar button { flex: 0 0 auto; padding: var(--sp-2) 0; }
+}
+
+/* ---------------------------------------------------------- TWO COLUMNS
+   WIDTH BUYS A SECOND THING; IT DOES NOT STRETCH THE FIRST THING. The
+   primary column lands at 637-728px across the whole desktop range, within
+   a rounding error of the 724px every one of these screens was already
+   designed at, so nothing in it reflows — the second column is NEW content
+   (desktop spec §4b, and Apple's own layout guidance behind it). Five
+   screens want five different ratios, so the ratio is a custom property and
+   the class is one class.
+
+   THE PRIMARY COLUMN IS ONE ELEMENT, AND THAT WAS MEASURED RATHER THAN
+   ASSUMED. A flat list of children was tried first, because the screen's
+   stagger reads `.group > *` and wrapping costs it its beats. It does not
+   work: a grid row is as tall as its tallest item, so the second column
+   sharing row 1 with the date masthead made that row 264px tall and pushed
+   the ledger a fifth of a screen down the page. There is no way to make an
+   item span an unknown number of IMPLICIT rows — `grid-row: 1 / -1` resolves
+   against the explicit grid, which has no rows here. So .col-1 wraps, and
+   the stagger learns to look one level deeper (see § THE ARRIVAL).
+
+   THE PAGE SCROLLS, NEVER A COLUMN — two independent scrollbars on one
+   screen is what makes a web app feel like a web app. The second column is
+   sticky and sized by its own content. */
+.split { --split: 1.7fr; }
+@media (min-width: 1180px) {
+  .split {
+    display: grid; grid-template-columns: var(--split) 1fr;
+    gap: var(--sp-5); align-items: start;
+  }
+  .split > .col-1 { grid-column: 1; min-width: 0; }
+  .split > .col-2 {
+    grid-column: 2; grid-row: 1;
+    position: sticky; top: calc(var(--topbar-h) + var(--sp-4));
+    display: flex; flex-direction: column; gap: var(--sp-5); min-width: 0;
+  }
+}
+
+/* A RECORD IN THE SECOND COLUMN. Below --wrap a job or a client is pulled up
+   over its list as a sheet; at or above it, the same content is drawn beside
+   the list instead — NN/g's F11, because a modal hides the reference data you
+   are reading the record AGAINST. RecordHost is the one width check; this is
+   what it lands in. It takes the panel surface a sheet has, so a record reads
+   as the same object at both widths and only its container changed. */
+.record {
+  border-radius: var(--r-panel);
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  padding: var(--sp-4);
+  display: flex; flex-direction: column; gap: var(--sp-4);
+  /* The page scrolls, never a column — but a record longer than the screen
+     has to stop somewhere, and this is the one place a scroller is right:
+     the LIST beside it must stay where it was. */
+  max-height: calc(100dvh - var(--topbar-h) - var(--sp-6));
+}
+.record > .record-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+/* A panel inside a panel takes the surface ABOVE its own — the same three
+   levels the sheet already sets up, so a settings card does not read as an
+   outline once it is in a column instead of a sheet. */
+.record .card { background: var(--surface-lit); }
+.record h2 { font-size: var(--t-strong); font-variation-settings: "wdth" var(--wdth-title), "wght" 640; }
+
+/* A RELOAD DOES NOT THROW THE SCREEN AWAY. Observed with a MutationObserver
+   before it was fixed: leaving Today and coming back replaced .app-main's
+   only child with a centred spinner, and useBookings.reload() sets the same
+   flag, so the whole day vanished and re-arrived — staggered animation and
+   all — as the reward for marking a job complete. What is being re-read now
+   dims and stops taking taps, and nothing moves.
+   docs/dashboard-screen-designs-2026-08-31.md §1a. */
+.refreshing {
+  opacity: .55; pointer-events: none;
+  transition: opacity var(--t-hover) var(--e-out);
 }
 
 /* ------------------------------------------------------------- CONTROLS */
@@ -820,7 +1044,14 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    fill the viewport" failure docs/design-system.md § Verification names, and
    it is worse on a wide screen than on a phone, never better. The cell is
    also the tap target for the day sheet, so this is a bigger target too. */
-@media (min-width: 700px) {
+/* AND (MIN-HEIGHT: 500px) — A THIRD PLACE THE ROTATION GUARD BELONGS, found
+   by grepping for the breakpoint rather than by taking the phone pass's list
+   of two on trust. This rule SPENDS HEIGHT (a cell goes 56 -> 88px) on a
+   width-only question, which is the exact shape §2a names, and a sideways
+   phone is 844px wide: rotating the phone made the month grid taller on the
+   screen with the least height in the product. Same clause, same reason.
+   The phone pass §2a carries a dated note pointing here. */
+@media (min-width: 700px) and (min-height: 500px) {
   .cal-cell { min-height: 88px; padding: 10px 4px; }
   .cal-cell .n { width: 28px; height: 28px; font-size: var(--t-body); }
 }
@@ -910,11 +1141,19 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    Excluding it, rather than raising the backdrop's specificity to (0,2,0),
    because a tie decided by source order is one reorder away from silently
    coming back. */
+/* .col-1 IS THE SAME LIST ONE LEVEL DOWN. A screen that splits at 1180 has
+   to wrap its primary column (see § TWO COLUMNS for why a flat list cannot
+   work), and the arrival must not become "the whole left column at once" as
+   a result — that is the same failure the rail's own stagger exists to
+   avoid. So every selector in this block carries a second form, and the
+   wrapper itself opts out. The two are one rule; changing one alone rots. */
 .app-main > .group > *:not(.sheet-backdrop),
+.app-main > .group > .col-1 > *,
 .app-main > .rows,
 .app-main > .card {
   animation: arrive var(--t-reveal) var(--e-out) backwards;
 }
+.app-main > .group > .col-1 { animation: none; }
 /* 40ms, down from 55 — the stagger has to come down with the duration or the
    tail of the screen still lands late. The last element now settles at
    420 + 160 = 580ms, against 1160ms before.
@@ -924,11 +1163,22 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    cascade. Excluding the backdrop from the animation but not from the delay
    left it fading in correctly and 160ms late — the stagger slot of whatever
    child index it happened to land on. Both halves or neither. */
-.app-main > .group > *:not(.sheet-backdrop):nth-child(1) { animation-delay: 0ms; }
-.app-main > .group > *:not(.sheet-backdrop):nth-child(2) { animation-delay: 40ms; }
-.app-main > .group > *:not(.sheet-backdrop):nth-child(3) { animation-delay: 80ms; }
-.app-main > .group > *:not(.sheet-backdrop):nth-child(4) { animation-delay: 120ms; }
-.app-main > .group > *:not(.sheet-backdrop):nth-child(n+5) { animation-delay: 160ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(1),
+.app-main > .group > .col-1 > *:nth-child(1) { animation-delay: 0ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(2),
+.app-main > .group > .col-1 > *:nth-child(2) { animation-delay: 40ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(3),
+.app-main > .group > .col-1 > *:nth-child(3) { animation-delay: 80ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(4),
+.app-main > .group > .col-1 > *:nth-child(4) { animation-delay: 120ms; }
+.app-main > .group > *:not(.sheet-backdrop):nth-child(n+5),
+.app-main > .group > .col-1 > *:nth-child(n+5) { animation-delay: 160ms; }
+/* THE RAIL IS THE ONE EXCEPTION, and it has to be written here rather than
+   next to .dayrail: this selector and that one are both (0,3,0), so whichever
+   comes last wins and the rail would arrive as one block again. Today's day
+   staggers INSIDE the rail — see § THE RAIL for the reasoning and the beats. */
+.app-main > .group > .dayrail,
+.app-main > .group > .col-1 > .dayrail { animation: none; }
 @keyframes arrive {
   from { opacity: 0; transform: translate3d(0, 14px, 0); }
   to   { opacity: 1; transform: none; }
@@ -944,8 +1194,10 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .lite .app-shell::before { animation: none; }
 .lite .bars i, .lite .bars button { animation: none; }
 .lite .app-main > .group > *,
+.lite .app-main > .group > .col-1 > *,
 .lite .app-main > .rows,
-.lite .app-main > .card { animation: none; }
+.lite .app-main > .card,
+.lite .dayrail > * { animation: none; }
 .lite .spinner { animation: none; border-top-color: var(--hairline); }
 .lite .sheet, .lite .sheet-backdrop { animation: none; }
 .lite .sheet { transition: none; }
@@ -1064,7 +1316,19 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   background: var(--surface);
 }
 
-@media (min-width: 700px) {
+/* AND (MIN-HEIGHT: 500px) — ROTATING A PHONE MUST NOT RE-LAY-OUT THE APP.
+   The owner's ruling, 2026-08-31: "when someone flips their phone over
+   sideways, I don't want it to completely readjust." It DID. A sideways
+   phone is 844px WIDE, so it counted as a wide screen here, and a settings
+   sheet became a centred desk panel at max-height 86vh of 390px = 335px,
+   showing 20% of Business info's 1,365px form.
+   500px because a phone is 800-852 tall upright and 360-393 sideways, and
+   nothing real sits between; a laptop is 900, so the desk is untouched.
+   THE RULE UNDERNEATH, which is the transferable part: a layout decision
+   that spends height must ask about height. This one and the .day rule
+   below were both width-only questions about a height-only problem.
+   docs/dashboard-phone-pass-2026-08-31.md §2a. */
+@media (min-width: 700px) and (min-height: 500px) {
   /* On a wide screen the sheet stops being a sheet and becomes a panel —
      dragging a thing up from the bottom edge is a thumb gesture, not a
      mouse one. */
@@ -1179,7 +1443,10 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .day > .times input { flex: 1; min-width: 0; }
 .day > .times .tlab { display: none; }
 .day > .dayact { margin-left: auto; flex-shrink: 0; }
-@media (min-width: 560px) {
+/* The second half of the rotation guard — see the 700px rule above. A
+   sideways phone is 844px wide, so this fired and a day's time row
+   reordered on a screen with less height than any phone upright. */
+@media (min-width: 560px) and (min-height: 500px) {
   .day > .times { order: 0; flex: 1 1 auto; }
   .day > .dayact { margin-left: 0; }
 }
@@ -1392,6 +1659,22 @@ button.warn-box:hover { border-color: var(--fog-2); }
      Stacked, the gap between them stops being a column gutter and becomes the
      rhythm between fields, which is .fields' own --sp-4. */
   .grid2, .grid2.wide { grid-template-columns: 1fr; gap: var(--sp-4); }
+
+  /* Same rule, the day's figures: three cells share 288px here, so the money
+     one gets 80px and a four-figure total does not fit in it. The two counts
+     stay paired and the figure takes the row under them — which is this
+     floor's own idiom (a pair becomes a stack) rather than a new one. */
+  .ledger { grid-template-columns: 1fr 1fr; }
+  .ledger > div:nth-child(3) {
+    grid-column: 1 / -1; border-left: 0;
+    border-top: 1px solid var(--hairline);
+  }
+  /* And the figure sits BESIDE its word rather than over it, because two
+     stacked rows of stacked cells is 147px — taller than the 112px panel this
+     replaced, which would make the phone form a loss at the one width that
+     can least afford it. Beside, it is ~99px. */
+  .ledger > div { display: flex; align-items: baseline; gap: 6px; }
+  .ledger .lbl { margin-top: 0; }
 
   /* Same rule one level up: a setting whose control is a field keeps 96px for
      its sentence and prints it five words at a time. Label and help above,

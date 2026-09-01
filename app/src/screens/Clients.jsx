@@ -5,7 +5,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { dateLong, money } from "../lib/format.js";
 import BookingCard from "../components/BookingCard.jsx";
-import BookingDetail from "../components/BookingDetail.jsx";
+import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import Sheet from "../components/Sheet.jsx";
 
 export default function Clients() {
@@ -126,8 +126,10 @@ export default function Clients() {
         </Sheet>
       )}
       {selected && (
-        <BookingDetail booking={selected} onClose={() => setSelected(null)}
-          onChanged={() => { setSelected(null); if (open) openCustomer(open); }} />
+        <Sheet onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
+          <BookingDetail booking={selected} onClose={() => setSelected(null)}
+            onChanged={() => { setSelected(null); if (open) openCustomer(open); }} />
+        </Sheet>
       )}
     </div>
   );

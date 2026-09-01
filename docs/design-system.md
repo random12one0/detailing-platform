@@ -198,9 +198,13 @@ Not suggestions. Where a test enforces one, it is named.
 
     | | Carries | Follows the tenant? | Where |
     |---|---|---|---|
-    | `--accent*` | identity | **yes** | actions, navigation, selection, focus, today's disc, the selected day, chart bars, the "it landed" node |
+    | `--accent*` | identity | **yes** | actions, navigation, selection, focus, today's disc, the selected day, chart bars, **the completed node on the day rail** |
 
-    **"THE 'IT LANDED' NODE" IS AMBIGUOUS AND ROADMAP 2.11 STEP 4 SPLITS IT.**
+    **~~"THE 'IT LANDED' NODE" IS AMBIGUOUS AND ROADMAP 2.11 STEP 4 SPLITS IT.~~
+    SPLIT AND SHIPPED, 2026-09-01, roadmap 2.11 step 6** — the row above and the
+    `--ac` row below now say which node each carries, and `theme.css`'s
+    `.dayrail > .landed` / `.dayrail > .paid` draw them. The reasoning, kept
+    because it is what stops the split being re-argued:
     It reads as either *finished* or *paid*, and that ambiguity produced a real
     defect: the day rail paints a PAID job in the tenant's accent while the
     calendar paints the same fact `--ac`. The ruling is that `--accent` carries
@@ -211,7 +215,7 @@ Not suggestions. Where a test enforces one, it is named.
     paragraph below is answered by it rather than overruled — the accent stays
     on every finished-and-unpaid node, on the lit card's bloom and on every
     button, so it does not leave the screen the detailer opens every morning.
-    | `--ac` (green) | meaning: paid, money up, it worked | **no** | `.pill.paid`, `.badge.paid`, `.dot.paid`, `.delta.up`, `.ok-box`, Money's `tone="good"` figure |
+    | `--ac` (green) | meaning: paid, money up, it worked | **no** | `.pill.paid`, `.badge.paid`, `.dot.paid`, **the paid node on the day rail**, `.delta.up`, `.ok-box`, Money's `tone="good"` figure |
     | `--bad` (red) | meaning: cancelled, no-show, error, destructive | **no** | `.pill.cancelled`, `.error-box`, `.btn.danger`, `--bk-danger` |
 
     **Why it is a law and not a preference.** Paid-is-green and error-is-red

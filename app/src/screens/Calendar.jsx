@@ -27,7 +27,8 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
 import { addDays, money, todayLocal } from "../lib/format.js";
 import BookingCard from "../components/BookingCard.jsx";
-import BookingDetail from "../components/BookingDetail.jsx";
+import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
+import Sheet from "../components/Sheet.jsx";
 import NewBookingModal from "../components/NewBookingModal.jsx";
 import DaySheet from "../components/DaySheet.jsx";
 
@@ -282,8 +283,10 @@ export default function Calendar() {
         />
       )}
       {selected && (
-        <BookingDetail booking={selected} onClose={() => setSelected(null)}
-          onChanged={() => { reload(); setSelected(null); }} />
+        <Sheet onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
+          <BookingDetail booking={selected} onClose={() => setSelected(null)}
+            onChanged={() => { reload(); setSelected(null); }} />
+        </Sheet>
       )}
       {creating && (
         <NewBookingModal initialDate={creating} onClose={() => setCreating(null)}

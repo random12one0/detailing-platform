@@ -24,7 +24,7 @@ const STATUS_LABEL = {
 
 export default function BookingCard({
   booking, onClick, showDate = false, isNext = false,
-  onMarkComplete, onFinalize, dense = false,
+  onMarkComplete, onFinalize, dense = false, rail = "",
 }) {
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const isMobile = booking.service_type === "mobile";
@@ -39,8 +39,12 @@ export default function BookingCard({
   // aiming for Call never opens the detail sheet instead.
   const hasActions = !dense && (onMarkComplete || onFinalize || booking.customer_phone);
 
+  // `rail` is the state of this job's NODE when the card hangs on Today's
+  // rail — "landed" for finished, nothing for a job still ahead. The node is
+  // drawn by .dayrail on its child, so the class has to be out here on the
+  // card rather than anywhere inside it.
   return (
-    <div className={`card${isNext ? " attend" : ""}`}>
+    <div className={`card${isNext ? " attend" : ""}${rail ? ` ${rail}` : ""}`}>
       <div
         role="button"
         tabIndex={0}

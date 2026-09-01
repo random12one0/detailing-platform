@@ -7,8 +7,10 @@ files. This is the page that stands in for reading them.
 > Sections 2 to 5 below are the page as it was PUT to him. He reversed two
 > items, corrected a third, lifted the no-schema rule and reopened the phone.
 > **Every line he changed is struck or flagged in place**, but §6 is the
-> authority where they disagree. **Nothing is built yet:** the phone pass at
-> §6 comes first.
+> authority where they disagree. ~~**Nothing is built yet:** the phone pass at
+> §6 comes first.~~ **THE PHONE PASS IS DONE (2026-08-31) AND THE BUILD HAS
+> STARTED: stage 1 of §5, the shell and Today, shipped 2026-09-01.** §5 carries
+> what it measured.
 
 Your caveat on the last file — *"there's just so many words, and I think I'd
 lose my mind reading that"* — is why this exists. Read this page. If a line
@@ -202,10 +204,16 @@ It gets built **one screen at a time**, each one finished and looked at before
 the next starts. **No file has named an order yet, so this is my proposal and
 you can change it:**
 
-0. **The phone pass** — every screen's phone form re-decided from scratch,
-   because he is right that *"what ships today"* is not a design decision.
-   **This is the next session and it is the only thing before code.**
-1. **The shell and Today, together.** The shell is the part every screen shares
+0. ~~**The phone pass**~~ **DONE 2026-08-31** —
+   `docs/dashboard-phone-pass-2026-08-31.md`.
+1. ~~**The shell and Today, together.**~~ **DONE 2026-09-01.** The vertical
+   rail at ≥1024, `--wrap`, the two-column split, `useWide`, `RecordHost`, the
+   header `+`, one rail with three runs and the calendar's node colours, the
+   phone's bare-figure ledger and one-line Tomorrow, the reload that no longer
+   throws the screen away, and the three rotation guards. Measured: the content
+   column 724 → **1,144px**; Today **1,810 → 1,006px at 1440x900** and
+   **2,500 → 1,103px at 392**. `dead-width` is armed.
+   *The original wording, kept because it is the reasoning:* The shell is the part every screen shares
    — the button bar turning vertical at a desk, the wider column, and the one
    piece of code that decides whether a record opens beside a list or over it.
    It has to land with the first screen rather than before it, or there is

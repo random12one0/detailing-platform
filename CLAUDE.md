@@ -84,11 +84,18 @@ explaining it; if they still have to ask "so should I?", it failed.
   **THE PHONE IS PORTRAIT, AND ROTATING IT MUST CHANGE NOTHING — the owner's
   ruling, 2026-08-31**: *"for the phone version, it should always just stay
   portrait… when someone flips their phone over sideways, I don't want it to
-  completely readjust."* **It readjusts today**, which is why this is a build
-  item and not just an absence: `theme.css`'s `min-width: 700px` and
-  `min-width: 560px` rules fire on a sideways phone (844px wide), so a settings
-  sheet becomes a centred desk panel showing 20% of its form. **Both gain
-  `and (min-height: 500px)`** in roadmap 2.11 step 6.
+  completely readjust."* It used to readjust: `theme.css`'s `min-width: 700px`
+  and `min-width: 560px` rules fire on a sideways phone (844px wide), so a
+  settings sheet became a centred desk panel showing 20% of its form.
+  **BUILT 2026-09-01 (roadmap 2.11 step 6), and it was THREE places, not the
+  two the phone pass listed** — the calendar cell's own 700px rule spends
+  height too (a cell goes 56px → 88px), so rotating made the month grid taller
+  on the shortest screen in the product. All three carry
+  `and (min-height: 500px)` now. Verified at 844x390: the settings sheet is
+  still bottom-anchored and full-width, the cell is still 56px.
+  **The lesson is about the LIST, not the rule — a file that names two
+  instances of a pattern invites a session to fix two and stop. Grep the
+  breakpoint.**
   **The rule underneath, which is the transferable part: a layout decision that
   spends height must ask about height.**
   **`docs/dashboard-phone-pass-2026-08-31.md` is the phone's authority** and it
@@ -140,11 +147,13 @@ explaining it; if they still have to ask "so should I?", it failed.
   **And they came with a fifth check, `dead-width`, because the other four
   reported CLEAN on all 18 screens at 1920 with a 724px column** — "nothing is
   off the edge" is trivially true when 62% of the screen is empty, and that is
-  the "a skipped check reads like a passing one" family again. It prints
-  *276px short* today and **does not gate**: one constant at the top of the
-  script, `DESKTOP_SPEC_BUILT`, is `false` until the desktop layout ships.
-  **Roadmap 2.11 step 6 flips it to `true` in the same change**, and the summary
-  line says out loud that a clean run is not proof while it is false.
+  the "a skipped check reads like a passing one" family again. It printed
+  *276px short* and did not gate while one constant at the top of the script,
+  `DESKTOP_SPEC_BUILT`, was `false`. **IT IS `true` AS OF 2026-09-01** —
+  roadmap 2.11 step 6 shipped the shell, `.app-main` takes `--wrap` at ≥1024,
+  and the content column measures **1,144px at both 1920 and 1440** against the
+  724px it was at every width before. **The check gates now**: a regression
+  back to a narrow column fails the sweep.
   `--lite` runs the whole thing through `?lite=1`. It exits 0 at all five
   widths in both paths today. Pass a width to ask a different question.
   **PHONE LANDSCAPE IS NOT SWEPT, AND THAT IS THE OWNER'S RULING, NOT AN

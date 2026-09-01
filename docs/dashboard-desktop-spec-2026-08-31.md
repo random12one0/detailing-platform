@@ -205,7 +205,16 @@ because you have already left the list.
 | A job (from Today, from History, from the day) | New booking |
 | A client | Finalize payment |
 | A settings screen (all thirteen) | Add an expense |
-| The selected day (inline — see Calendar, §5b) | Block this day / Hours / How this day works |
+| The selected day (inline — see Calendar, §5b) | ~~Block this day / Hours / How this day works~~ |
+
+> **THAT LAST CELL IS STRUCK, 2026-09-01 (roadmap 2.11 step 6).** The day's
+> three controls do NOT become modals at any width — they expand in place
+> inside the day panel, which is the owner's own W1 instruction (*"you should
+> be able to click anywhere in that box to open it up"*) and what
+> `DaySheet.jsx` already does. A table row does not outrank an owner ruling.
+> `docs/dashboard-screen-designs-2026-08-31.md` §5 and §16 item 3. The row's
+> real point is untouched: they are not records and they do not take a second
+> column.
 
 **Everything in the left column stays where it was while a record is open.**
 That is the whole point: you can see the next job while you read this one.

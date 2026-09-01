@@ -33,10 +33,27 @@ thread. That gives two consequences that shape everything else:
 ## 2. The signature move: the thread, drawn
 
 **Today's schedule hangs on a literal thread** — a one-pixel `--line` rail
-down the left of the day, with a node per job. The node is a hollow ring
-while the job is ahead and a solid `--ac` disc once it has landed. Nothing
-else in the product uses a rail, so Today is unmistakable at a glance, and it
-is the same "scattered becomes ordered" reading the approved page opens with.
+down the left of the day, with a node per job. Nothing else in the product uses
+a rail, so Today is unmistakable at a glance, and it is the same "scattered
+becomes ordered" reading the approved page opens with.
+
+**THE NODE HAS THREE STATES, NOT TWO, AND THEY ARE THE CALENDAR'S OWN
+(built 2026-09-01, roadmap 2.11 step 6).** This paragraph said *"a hollow ring
+while the job is ahead and a solid `--ac` disc once it has landed"*, which is
+two states for three facts — and the shipped screen drew a job that finished
+hours ago with the hollow "ahead" ring, and a PAID job in the tenant's accent
+where the calendar's `.dot.paid` draws the fixed green. Same fact, two
+components, two colours. Now:
+
+- **ahead** — hollow ring, `--bone-2`
+- **finished** — solid `--accent` (a finished job is a job, not money: law 11b)
+- **paid** — solid `--ac`, the fixed green, on every tenant
+
+**And there is ONE rail, not one per run.** This section always said *one
+continuous hairline with a node per job*; the first build drew three
+`.dayrail` elements, one per section. The runs are labels ON the rail now, and
+the screen's staggered arrival moved INSIDE it so the day still arrives one job
+at a time rather than all at once — §4's budget is unchanged.
 
 Cost: one wrapper class and two pseudo-elements. It replaces `.stripe`, which
 did the same job in the shape the never-defaults name (see §5).

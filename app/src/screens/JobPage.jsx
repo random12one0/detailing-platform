@@ -36,11 +36,19 @@ export default function JobPage() {
       </div>
     );
   }
+  // The record no longer carries its own Sheet, and at /job/:id there is no
+  // list to open it beside — so the page IS the container, and this is the
+  // one caller that got simpler (component inventory §3b).
   return (
-    <BookingDetail
-      booking={booking}
-      onClose={() => navigate("/")}
-      onChanged={() => navigate("/")}
-    />
+    <div className="app-shell">
+      <main className="app-main">
+        <h1 className="title">{booking.customer_name}</h1>
+        <BookingDetail
+          booking={booking}
+          onClose={() => navigate("/")}
+          onChanged={() => navigate("/")}
+        />
+      </main>
+    </div>
   );
 }

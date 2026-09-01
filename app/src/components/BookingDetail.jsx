@@ -37,6 +37,14 @@ const CONDITION_LABELS = {
   light: "Light dirt", moderate: "Moderately dirty", heavy: "Heavily soiled", extreme: "Extreme",
 };
 
+// The record's own name for itself. The container is the caller's now
+// (docs/dashboard-component-inventory-2026-08-31.md §2), and six callers each
+// composing this string is six chances for the same job to be titled two ways.
+export const jobRecordProps = (b) => ({
+  title: b.customer_name,
+  subtitle: `${dateLong(b.booking_date)} · ${time12(b.start_time)} – ${time12(b.end_time)}`,
+});
+
 export default function BookingDetail({ booking, onClose, onChanged }) {
   const { business } = useBusiness();
   const [templates, setTemplates] = useState([]);
@@ -120,8 +128,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     });
 
   return (
-    <Sheet onClose={onClose} title={booking.customer_name}
-      subtitle={`${dateLong(booking.booking_date)} · ${time12(booking.start_time)} – ${time12(booking.end_time)}`}>
+    <>
         {/* The date and time live in the sheet's own header now, so they are
             not repeated here. */}
         <div className="row wrap" style={{ gap: 6 }}>
@@ -335,6 +342,6 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             }}
           />
         )}
-    </Sheet>
+    </>
   );
 }

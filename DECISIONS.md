@@ -52,11 +52,11 @@ were made more than once.
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
 | **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
-| **The dashboard `/app`** | **Roadmap 2.11, step 4b first if it is the PHONE — it overrides step 4 there, and PHONES ARE PORTRAIT ONLY** · **Roadmap 2.11, step 4 — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
+| **The dashboard `/app`** | **Roadmap 2.11, step 6, stage 1 — what is BUILT, and what stage 1 deliberately left** · **Roadmap 2.11, step 4b first if it is the PHONE — it overrides step 4 there, and PHONES ARE PORTRAIT ONLY** · **Roadmap 2.11, step 4 — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
-| **Spacing, layout, or anything at phone width** | **Roadmap 2.11, step 4b — PHONES ARE PORTRAIT ONLY and rotating one must change nothing; landscape is a HEIGHT problem and the sweep is blind to it** · Roadmap 2.6 · Test at HIS screen size, not yours |
-| **A test, a check, or a measuring script** | Roadmap 2.11, step 4b (a green check that could not see the failure — the THIRD time; and why the check written for it was DELETED rather than left dormant) · Roadmap 2.11, step 5 (what `composition.test.mjs` test 1 must assert) · A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
+| **Spacing, layout, or anything at phone width** | **Roadmap 2.11, step 6, stage 1 (a grid row is as tall as its tallest item — a flat DOM cannot carry a second column)** · **Roadmap 2.11, step 4b — PHONES ARE PORTRAIT ONLY and rotating one must change nothing; landscape is a HEIGHT problem and the sweep is blind to it** · Roadmap 2.6 · Test at HIS screen size, not yours |
+| **A test, a check, or a measuring script** | Roadmap 2.11, step 6, stage 1 (`DESKTOP_SPEC_BUILT` is armed; the rotation guard was THREE places, not the two the file listed — grep the breakpoint) · Roadmap 2.11, step 4b (a green check that could not see the failure — the THIRD time; and why the check written for it was DELETED rather than left dormant) · Roadmap 2.11, step 5 (what `composition.test.mjs` test 1 must assert) · A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
 | **`main`, deploying or publishing** | The owner put the redesign on `main` and published it · ANSWERED: Netlify does auto-publish `main` |
 | **Keys, RLS, the public repo, or the live business** | Phase 0 — 0.4 deployment sanity · Abuse check on the live project · Roadmap 0.1 cleanup · A guessable demo login |
 | **Email or reminders** | Phase 0 — 0.2 email · Test deployment and later fixes |
@@ -149,6 +149,8 @@ were made more than once.
 - **Roadmap 2.11, step 6 — his answer, and the two claims that did not survive contact with the code** — **APPROVED WITH AMENDMENTS the same day.** He **lifted the no-schema rule** that four steps of specification were written inside — *"I don't know why there was a rule that did not edit the back end"* — and what he actually wants fenced off is the opposite thing: the OLD DASHBOARD's structure, with the landing page's look kept. **Two of this session's own claims died on contact with the code:** Today's "orange warning box" (there is no amber in the system) and the "dead" travel fee (`pricing.ts:135` charges it — a field dead in ONE CONFIGURATION is not a dead field). **He reversed the push removal on a belief the code does not support** — there is no service worker at all, so the EMAIL is what reaches him — and the right answer was to build the missing half rather than re-ask. **The tab bar was closed on his own condition by SHOWING the derivation** rather than re-running it. **Three asks became roadmap 2.13, 2.14 and 2.15** instead of swelling this item, and **phone landscape (844x390) is wired but deliberately not armed**, same shape as `DESKTOP_SPEC_BUILT`. **Then two clarifications from him closed 2.15 unstarted** — he refused automatic travel calculation and the alternative he described (*"the customer just ticks… are you outside of ten mile range"*) is `travel_zones`, already shipped — and confirmed his push sighting was his OWN business's dashboard, a different product entirely. **Three wrong claims in one session, all from trusting a document over the code it described.**
 
 - **Roadmap 2.11, step 4b — the phone re-decided, and he ruled it portrait-only** — the owner rejected *"below 1024 nothing changes"*, so **every screen’s phone form was decided again from nothing**; "unchanged" was not an allowed answer. **He then reversed his own morning ask and ruled phones PORTRAIT ONLY** — and the reversal is the load-bearing part: *"when someone flips their phone over sideways, I don’t want it to completely readjust."* **That is not "do nothing" — the dashboard readjusts today**, because `theme.css`’s `min-width: 700px` and `560px` rules fire on a sideways phone (844px wide) and turn a settings sheet into a desk panel showing 20% of its form. Both gain `min-height: 500px`. *A layout decision that spends height must ask about height.* **The finding that outlived the withdrawn landscape work:** `sweep-widths.mjs 844` reported CLEAN on a viewport where the sign-in card sits 25px past the bottom — every check it owns asks about the RIGHT edge. **The four portrait decisions:** only the lit job is a card (five identical 289px cards is our own named slop tell); a settings screen becomes a page; Today’s ledger panel becomes one row of figures; a Clients row drops the email for spend and last visit. **And the process lesson: a whole landscape layout was built before he saw a sentence of it.**
+
+- **Roadmap 2.11, step 6, stage 1 — the shell and Today built, and the grid row that made a flat DOM impossible** — the first code in the rebuild. **`DESKTOP_SPEC_BUILT` is `true`** and the content column went 724 -> **1,144px**; Today went **1,810 -> 1,006px at 1440x900** and **2,500 -> 1,103px at 392**. **Three things a later session would otherwise re-derive the hard way:** a grid row is as tall as its tallest item, so the second column sharing row 1 with the masthead pushed the ledger 264px down the page and there is no way to span an unknown number of IMPLICIT rows — the primary column has to be one element and the stagger has to look one level deeper; the rail's `animation: none` override has to sit AFTER the stagger block it overrides, because both selectors are (0,3,0) and source order decides; and **the rotation guard was THREE places, not the two the phone pass listed** — the calendar cell's own 700px rule spends height too. **The list was the bug, not the rule: a file naming two instances of a pattern invites a session to fix two and stop.** Also: **two sessions were given this same prompt and both wrote to the tree**, so the collision and how it was resolved are recorded here rather than dying in a chat.
 
 <!-- INDEX:END -->
 
@@ -6382,3 +6384,145 @@ shape without changing*, and the second reading is both cheaper and what he
 meant. **When an instruction about behaviour has a cheap reading and an
 expensive one, put the fork to him in one sentence before building the
 expensive one.**
+
+
+## Roadmap 2.11, step 6, stage 1 — the shell and Today built, and the grid row that made a flat DOM impossible
+
+**2026-09-01.** The first code in the dashboard rebuild. The approval page's
+§5 build order puts the shell and Today together on purpose — plumbing alone
+has nothing to look at, on a project whose own rule is that visual work is
+verified by LOOKING — and that is what shipped.
+
+### What was built
+
+`theme.css` gains `--wrap: 1180px` and `--topbar-h: 61px`; the `>= 1024` block
+that insets the shell 120px, lets `.app-main` take `--wrap`, and turns the tab
+bar into a vertical glass pill rail (the same component, `flex-direction:
+column` — not a 220px sidebar, which `theme.css`'s own note argues against);
+`.split` / `.col-1` / `.col-2`; `.ledger`; the rail's three node states;
+`.record`; `.refreshing`. `hooks/useWide.js` and `components/RecordHost.jsx`
+are new, `BookingDetail` stops rendering its own `<Sheet>`, and `App.jsx`
+carries the `+` that is now the only door to a new booking. `Today.jsx` is
+rewritten.
+
+### The measurements, before and after
+
+| | Before | After |
+|---|---|---|
+| `.app-main` content column, 1920 and 1440 | 724px | **1,144px** |
+| Today's document height, 1440x900 | 1,810px | **1,006px** (required <= 1,200) |
+| Today's document height, 392x844 | ~2,500px | **1,103px** (projected ~1,265) |
+| `.dayrail` elements | 3 | **1** |
+| A finished job's node | hollow "ahead" ring | solid `--accent` |
+| A paid job's node | `#0ea5e9`, the tenant accent | `--ac` `#38E08B` |
+| Today's ledger, 392 / 320 | 112px sunken panel | **75px / 98px**, bare figures |
+
+Sweep clean at 1920 / 1440 / 392 / 360 / 320 in both the normal and `?lite=1`
+paths; the four credential-free tests and `accent-sweep.mjs` pass.
+
+### 1. A FLAT DOM CANNOT CARRY A SECOND COLUMN, AND THIS COST THE MOST TIME
+
+The split was built first as a flat list of children — `.group.split` with the
+masthead, the ledger, the rail and the aside as siblings — because the
+screen's staggered arrival reads `.app-main > .group > *`, and wrapping the
+primary column costs it its beats. **It renders wrong, and the reason is the
+grid model itself:** a grid row is as tall as its tallest item, so the second
+column placed at `grid-row: 1` made row 1 as tall as ITSELF (264px) and pushed
+the ledger a fifth of a screen down the page. Seen in a screenshot, not
+reasoned about.
+
+**And there is no way out of it.** `grid-row: 1 / -1` resolves `-1` against
+the EXPLICIT grid, which has no rows when only columns are declared; `span 99`
+creates 99 implicit rows and 98 gaps; `grid-template-rows: repeat(20, auto)`
+does the same with `row-gap` applied to every empty track. Absolute
+positioning gives up `position: sticky`, which is the one thing the second
+column actually needs.
+
+**So `.col-1` wraps, and the stagger block gained a second selector on every
+line**, with a comment saying the two are one rule and changing one alone is
+what would rot. That duplication is the price, and it is named rather than
+hidden.
+
+### 2. THE RAIL'S `animation: none` HAS TO SIT AFTER THE RULE IT OVERRIDES
+
+Making the rail one element would have collapsed the day into a single stagger
+slot — the signature move lost to a bug fix, which law 3 forbids — so the
+stagger moved INSIDE the rail. The override was written next to `.dayrail`,
+several hundred lines above the stagger block. **Both selectors are (0,3,0),
+so source order decides, and the override silently lost.** It lives with the
+block it overrides now, and both places carry a comment saying why.
+
+The beats: the rail is the group's third child, so it starts at that child's
+80ms slot and steps **20ms rather than 40**, which buys five distinct beats
+inside the same 160ms ceiling instead of two. **The budget is unchanged — the
+last element still settles by ~580ms.**
+
+### 3. THE ROTATION GUARD WAS THREE PLACES, NOT TWO
+
+`docs/dashboard-phone-pass-2026-08-31.md` §2a names two width-only media
+queries that fire on a sideways phone: the sheet rule at `min-width: 700px`
+and the day-row rule at `560px`. **Grepping the breakpoint instead of trusting
+the list found a third** — the calendar cell's own `min-width: 700px` rule,
+which takes a month cell from 56px to 88px. It SPENDS HEIGHT on a width-only
+question, which is the exact shape §2a names, so rotating the phone made the
+month grid taller on the shortest screen in the product.
+
+**The lesson is about the list, not the rule: a file that names two instances
+of a pattern invites a session to fix two and stop.** Verified at 844x390:
+both guarded queries report `false` while a bare `(min-width: 700px)` reports
+`true`, the settings sheet is still bottom-anchored and full-width
+(`align-items: flex-end`, bottom radius 0) rather than a centred 640px panel,
+and the calendar cell is still 56px.
+
+### 4. THE RELOAD FIX WENT IN `useBookings`, NOT IN `Today`
+
+Leaving Today and coming back replaced the screen with a spinner, and so did
+*Mark complete* and *Finalize payment*, because `reload()` sets the same
+`loading` flag the screens answer with a spinner. **Three screens read this
+hook and all three had it**, so the flag split in two there — `loading` is the
+first paint of a mount, `refreshing` is every read after it — rather than each
+screen growing its own version. Calendar and Money get the fix without being
+touched, which is the point of fixing it where the callers route through.
+
+### 5. WHAT STAGE 1 DELIBERATELY DID NOT DO
+
+- **The job record is still the 340-line single scroll.** It opens BESIDE the
+  list at >= 1180 now (`RecordHost`), which is desktop spec §5a and NN/g's
+  F11, but the action-bar-over-six-named-sections redesign is **stage 2**.
+  Nobody should read §5a as finished.
+- **`.dashed` and `.badge` did not die**, and `sweep-widths.mjs`'s `boxy()`
+  selector still lists `.dashed`. Today's two uses are gone; the other five
+  belong to screens that have not been rebuilt yet, and deleting the class now
+  would leave those screens with a hole where a shape used to be. **Both
+  deletions land with the last screen that uses them**, and the `boxy()` edit
+  goes in the same change so the matcher never points at nothing.
+- **`.rows.cols` was not added.** It has no caller until History and Clients
+  (stages 3 and 5), and a stylesheet block with no user is the same debt as a
+  check with nothing to trigger it.
+- **The header's GEAR was not added.** The `+` was, because Today's own
+  full-width *New booking* button dies with it and the door would otherwise be
+  lost. The gear's menu is `GearMenu.jsx`, which does not exist until Business
+  (stage 6), and adding a gear now would mean two doors onto `More.jsx`'s
+  plumbing in the middle of a rebuild.
+- **The open-slots figure stays on Booking rules AS WELL AS landing on
+  Today.** The specification calls it "stranded" there, but on that screen it
+  answers *"did that setting do what I wanted"* and on Today it answers *"what
+  does the near future look like"*. Two questions, one number, and no file
+  asked for the deletion.
+
+### 6. TWO SESSIONS WERE GIVEN THIS PROMPT AND BOTH WROTE TO THE TREE
+
+A second Claude session (`claude-9d`) was started on the same prompt and was
+editing the same working tree; it noticed `theme.css` changing under it and
+asked. **Recorded because the resolution is reusable:** it stood down without
+reverting — a `git checkout` of "its" files would have taken this session's
+work with them — and its `RecordHost.jsx` + `jobRecordProps` +
+`BookingDetail`-loses-its-`<Sheet>` work was **kept rather than reverted**,
+after being read, because it is exactly the shell plumbing the approval page
+names as stage 1 and it had already avoided the regression that would have
+justified dropping it: Calendar, Clients and Money keep an explicit `<Sheet>`,
+so nothing changes on the three screens this stage does not build.
+
+**The general rule: on a collision, the session that is further along keeps
+the tree, the other writes nothing further and does NOT revert, and whatever
+survives is read in full before it is adopted.**

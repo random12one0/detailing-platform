@@ -98,13 +98,15 @@ const BASE = "http://localhost:5173";
 const heightFor = (w) => (w >= 1900 ? 1080 : w >= 1024 ? 900 : 844);
 
 // --- dead-width, and the one line that arms it -----------------------------
-// FLIP THIS TO `true` IN ROADMAP 2.11 STEP 6, in the same change that ships the
-// desktop layout. While it is false the measurement is PRINTED every run and
-// does not count toward the exit code, so the failure is visible today without
-// leaving a standing gate red before the layout it gates has been built. Once
-// true, a regression back to a narrow column fails the sweep.
+// FLIPPED TO `true` IN ROADMAP 2.11 STEP 6, 2026-09-01, in the same change that
+// shipped the shell: .app-main takes --wrap (1180px) at >= 1024 and the tab bar
+// becomes the vertical rail, so the content column is 1,148px at both desktop
+// widths against the 724px it was at every width before. While this was false
+// the measurement PRINTED every run and did not count, so the failure was
+// visible without leaving a standing gate red before the layout it gates
+// existed. It gates now: a regression back to a narrow column fails the sweep.
 // docs/dashboard-desktop-spec-2026-08-31.md §6b and §10.
-const DESKTOP_SPEC_BUILT = false;
+const DESKTOP_SPEC_BUILT = true;
 const BP_SPLIT = 1180;   // --wrap; where the desktop spec's second column engages
 const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that says "a desktop layout exists"
 const MORE = ["Business info", "Your colour", "Services & add-ons", "Promo codes & sale",
