@@ -474,6 +474,12 @@ exactly how a wrong count outlives the thing it was counting.
   1 must assert; it is rewritten when the screens it measures exist.
 - **It does not touch schema, edge functions, the engine or email**, with the
   one exception step 4 already carried: the email accent path (D1).
+  **CORRECTED AT STEP 6, 2026-08-31.** `screens/more/Faq.jsx` at §3c has nowhere
+  to write — the FAQ has no table and no column, and this file repeated step 4's
+  no-schema promise without noticing the screen it had just listed needs one.
+  Settled by the owner at §3b of `docs/dashboard-spec-approval-2026-08-31.md`;
+  **if the FAQ waits for Phase 3, `Faq.jsx` drops from the twelve new files and
+  the settings screens go back to twelve.**
 - **It builds nothing.**
 
 ---

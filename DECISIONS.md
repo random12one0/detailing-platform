@@ -144,6 +144,8 @@ were made more than once.
 - **Roadmap 2.11, step 4 — every screen designed, and three defects fixed on paper** — the three were **re-measured in a live browser** before being designed against (three rails not one; a finished job wearing the "ahead" node; a paid job wearing the tenant's accent where the calendar uses the fixed green). **A fourth was found by looking and nothing had named it: leaving Today and coming back throws the whole day away and redraws it**, and `reload()` does the same after every "Mark complete". The label fix is a **deletion** — two runs collapse into one — and **one question deleted itself by reading the schema instead of asking him.**
 - **Roadmap 2.11, step 5 — the component inventory, and three rulings** — **twelve new files, one deleted, and nothing invented.** History's and Clients' column-carrying row is ruled **one CSS chassis with two call sites, not a React component and not a new “table”** — which spends bucket 2's one permitted vocabulary addition on nothing, deliberately. That ruling also settles **2.10's declined decision 7**: `composition.test.mjs` test 1's allowance becomes per-CALLER, not per-component, which is the half that makes it able to see the failure it exists to catch. Plus the setup form's progress rule (**a segment fills when a step is COMPLETED, never when it is passed** — otherwise the bar and Business's “3 of 7 done” are two numbers that disagree) and the walkthrough's spotlight (**one element and a 9999px shadow**, verified against the EMPTY dashboard rather than the demo). **Three things found by counting: `--wrap` has never existed in `theme.css`, `.badge` is seven dead rules duplicating `.pill`, and two settings-screen counts in the files above are off by one.**
 
+- **Roadmap 2.11, step 6 — how the approval was ASKED, and a build order nobody had written** — a SIXTH file for a man who said there were too many words, and the reason it is not a contradiction: the five files each have a one-pager, but none of them is a layer ACROSS the five, and the ask and his answer would otherwise live only in a chat the next `/clear` destroys. **It is organised around the eight things the specification TAKES AWAY or contradicts him on, not around what it adds**, numbered so a partial no costs him three words. **A build order is proposed because no other file has one** — the shell ships WITH Today rather than before it (a session whose deliverable cannot be looked at, on a project verified by looking), and first run is last. And one claim in the draft was false until `theme.css` was opened: Today's payment panel is not an orange warning box, because **there is no amber in this system.**
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -5989,3 +5991,82 @@ narrowed from five callers to two, and `More.jsx` is the only deletion.
   (`BookingRules` 541, `Catalog` 614). **The trigger that reverses it is
   written down:** if either mode needs its own scroll or sticky container,
   split then, in that change.
+
+## Roadmap 2.11, step 6 — how the approval was ASKED, and a build order nobody had written
+
+*2026-08-31. Nothing built. `docs/dashboard-spec-approval-2026-08-31.md` is the
+only new file; step 6 is the owner's gate and he has not answered yet.*
+
+- **A SIXTH FILE WAS WRITTEN FOR A MAN WHO SAID THERE WERE TOO MANY WORDS, AND
+  THAT IS NOT THE CONTRADICTION IT LOOKS LIKE.** Steps 1–5 are five files of
+  ~200KB. Each already carries a §0a one-pager, written precisely because of
+  his caveat on the inventory — *"there's just so many words, and I think I'd
+  lose my mind reading that."* What did not exist was a layer **across** the
+  five: he cannot approve "the specification" by reading five separate
+  summaries and doing the joining himself. The approval page is one screen and
+  it names the file behind every line, so it replaces the reading rather than
+  adding to it. **The alternative that was rejected was putting it only in
+  chat** — his answer, and the ask itself, would then live in a conversation
+  that the next `/clear` destroys, which is CLAUDE.md's own rule about threads
+  that exist only in chat. §6 of the page is a blank block his answer goes in.
+
+- **IT IS ORGANISED AROUND WHAT THE SPECIFICATION TAKES AWAY, NOT WHAT IT
+  ADDS.** An addition does not need his attention — he can meet it when it
+  ships and ask for it to change. A **removal** is the class of change he has
+  already reversed once in this project (the five removals of 2026-08-28), and
+  a removal he did not notice in a 200KB specification is a removal he meets
+  as a surprise in a finished screen. So §3 is eight numbered items, each of
+  which either deletes something visible or goes against something he said:
+  the week view (the one outright contradiction of an answer of his), the push
+  switch, the travel-fee field, the second colour picker, Today's payment box,
+  Business's headings, staff's Business tab, and monthly plans still having no
+  door. **They are numbered so he can answer "yes except 4" without writing a
+  paragraph** — the cheapest possible shape for a partial no.
+
+- **A BUILD ORDER IS PROPOSED, AND THE REASON IT IS IN THIS FILE IS THAT NO
+  OTHER FILE HAS ONE.** Checked before writing it: steps 3, 4 and 5 contain no
+  build order, and the roadmap says only "screen at a time". Two judgments in
+  it are worth keeping:
+  - **The shell ships WITH Today, not before it.** The vertical rail, `--wrap`,
+    `useWide` and `RecordHost` are shared plumbing that every screen needs, and
+    the tempting order is to land them first. That would be a session whose
+    deliverable cannot be LOOKED at, on a project whose verification rule is
+    looking. Today is also the screen carrying four of the fixes and the one he
+    opens forty times a day.
+  - **First run is last.** The setup form and the walkthrough point at the
+    other screens. Built early, the walkthrough's step list is rewritten once
+    per screen that lands after it.
+
+- **ONE CLAIM IN THE DRAFT WAS FALSE AND WAS CAUGHT BY OPENING THE STYLESHEET.**
+  The page described Today's *"N finished jobs still need payment recorded"*
+  panel as an **orange warning box** — the obvious thing to call it, and wrong.
+  `theme.css:755` carries a comment saying the opposite in its own words:
+  *"NOT a warning any more… There is no amber in this system and inventing one
+  for a to-do would be the third hue."* It is a bordered panel, `--surface`,
+  with the accent on its marker only. **Described to him by what it says
+  instead of by a colour it does not have.** The general lesson is the small
+  one this repo keeps re-learning: a summary written for a non-technical reader
+  is still a claim about the code, and it gets checked like one.
+
+- **AND CHECKING THE SUMMARY AGAINST THE SCHEMA FOUND A HOLE FOUR STEPS OF
+  DESIGN WALKED PAST.** The approval page called the FAQ one of the four
+  "doors", so the claim was checked rather than copied: `grep -i faq
+  supabase/migrations/` returns **nothing**, and `business_branding` has no
+  column for it. **The FAQ has no storage at all** — and step 1's own inventory
+  §5 says exactly that (*"no table, no screen"*) before steps 3, 4 and 5 lost
+  it. **Step 4 §17 and step 5 §4 each assert "touches no schema" on a document
+  that designs a screen requiring one.**
+  **The word "door" is what hid it.** Reviews, the three social links and Switch
+  business are doors onto storage that already exists and is unreachable; the
+  FAQ is a door onto nothing. Grouped under one heading in three files, four of
+  the four read as the same kind of thing. **A collective noun that is true of
+  three items out of four is a defect in a specification**, and it survived
+  because every later file inherited the grouping instead of the four rows.
+  **It is a WHEN question, not a HOW question, so it went to the owner** rather
+  than being decided — §3b of the approval page, with the recommendation that
+  the FAQ ships in Phase 3 beside the tenant website that would display it,
+  because building it now means a detailer writing answers nothing renders,
+  which is this item's own "built with no door" problem inverted. **Both spec
+  files carry a dated correction at the exact sentence that was wrong**, so a
+  build session cannot re-inherit the contradiction from whichever file it
+  opens first.

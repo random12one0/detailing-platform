@@ -1110,6 +1110,16 @@ floor, no never-default.
 - **It touches no schema, no edge function, no engine and no email** — with
   one exception that is a defect rather than a feature: the email accent path
   (D1), which is craft and lands in the build.
+  **CORRECTED AT STEP 6, 2026-08-31: this claim and the FAQ screen at §11 are
+  in each other's way.** The FAQ has **no table and no column** — inventory §5
+  says so outright (*"no table, no screen"*) and the schema confirms it: nothing
+  in `supabase/migrations/` mentions an FAQ, and `business_branding` has no
+  column for one. Reviews, the social links and Switch business are *doors onto
+  storage that exists*; the FAQ is not, and calling all four "doors" is what hid
+  it. **It is the owner's to settle** and it is §3b of
+  `docs/dashboard-spec-approval-2026-08-31.md`: build it in Phase 3 with the
+  page that would display it (recommended), or add the storage inside 2.11 and
+  accept that a detailer writes answers nothing renders yet.
 - **It builds nothing.** Every measurement quoted here was taken from the
   running app; every design is on paper.
 - **It does not re-derive the tab bar, the visual world, or the desktop

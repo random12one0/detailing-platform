@@ -1253,6 +1253,68 @@ sticky container, split then.
 SPECIFICATION.** Steps 1–5 are five files. Step 6 is his yes, and then it gets
 built one screen at a time.
 
+## 6m. ROADMAP 2.11, STEP 6 — THE ASK IS ON THE TABLE, AND THE SESSION IS OPEN (2026-08-31)
+
+**One new file: `docs/dashboard-spec-approval-2026-08-31.md`. Nothing is built,
+and nothing may be built until he answers.** It is the page that stands in for
+reading five files totalling ~200KB, which is the only way this gate is
+answerable given his own caveat — *"there's just so many words, and I think I'd
+lose my mind reading that."* Each of the five files already has a §0a one-pager;
+what did not exist was a top layer ACROSS them, and a single place his answer
+can be written down.
+
+**IT IS ORGANISED AROUND THE EIGHT PLACES THE SPECIFICATION TAKES SOMETHING
+AWAY OR CONTRADICTS HIM, NOT AROUND WHAT IT ADDS.** Additions do not need his
+attention; removals are the class of change he has reversed before (five of
+them on 2026-08-28). §3 of the approval page: **the week view ruled NO** against
+his conditional yes (the one outright contradiction, and the replacement is the
+argument); the **push switch withdrawn** until the browser half exists; the
+**dead travel-fee field** and the **second colour picker** deleted; the
+**"N jobs need payment" box** deleted in favour of the heading that says it;
+**Business 8 headings → 3** with the plumbing moving behind the gear; **staff
+lose the Business tab**; and **monthly plans still has no door** although it is
+one of the five he asked to bring back — named as its own roadmap item rather
+than invented in the margin.
+
+**A BUILD ORDER IS PROPOSED BECAUSE NO FILE HAD ONE.** Checked: neither step 3,
+4 nor 5 names one. **The shell ships WITH Today rather than before it** — the
+vertical rail, `--wrap`, `useWide` and `RecordHost` are shared plumbing, and a
+session that builds plumbing alone has nothing to look at, which is this
+project's own rule about verifying by LOOKING. Then the job record, Calendar,
+Money, Clients, Business + the thirteen settings screens, and **first run last
+on purpose**: a walkthrough of screens that are still moving gets rewritten
+once per screen.
+
+**ONE CLAIM IN THE DRAFT WAS WRONG AND WAS CAUGHT BY READING `theme.css`
+INSTEAD OF ASSUMING.** The approval page called the Today box an *orange
+warning box*. `theme.css:755` says the opposite in its own comment — *"NOT a
+warning any more… There is no amber in this system and inventing one for a
+to-do would be the third hue."* It is a bordered panel with the accent on its
+marker only. Described to him by what it SAYS instead.
+
+**AND CHECKING MY OWN SUMMARY AGAINST THE SCHEMA FOUND A HOLE IN THE
+SPECIFICATION THAT STEPS 4 AND 5 BOTH WALKED PAST.** The approval page called
+the FAQ one of the four "doors", so the claim was checked: **the FAQ has no
+table and no column anywhere.** `grep -i faq supabase/migrations/` returns
+nothing and `business_branding` has no field for it — and the inventory said so
+in step 1 (*"no table, no screen"*, §5) before four steps of design forgot it.
+**Both step 4 §17 and step 5 §4 assert "touches no schema" on a page that
+designs a screen needing one.** Reviews, the social links and Switch business
+are doors onto storage that already exists; the FAQ is not, and grouping all
+four under one word is exactly what hid it. **It is a WHEN question, so it went
+to him** as §3b of the approval page with a recommendation — build it in Phase 3
+alongside the page that would display it, since otherwise a detailer writes
+answers nothing renders. **Both spec files carry a dated correction pointing at
+it**, so the contradiction cannot be re-inherited. If he takes the
+recommendation, `Faq.jsx` leaves the twelve new files and the settings screens
+go back to twelve.
+
+**WHAT IS WAITING: his yes, and his (a)-or-(b) on §3b. Nothing else.** The session stays open per
+CLAUDE.md — no sign-off, no next-session prompt, because a prompt in the chat
+reads as "go clear" and would bury the ask. **§6 of the approval page is a
+blank block for his answer**, and his answer gets written there before anything
+is built, because an answer that lives only in the chat dies at the clear.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**

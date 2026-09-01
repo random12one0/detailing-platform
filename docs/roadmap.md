@@ -1612,6 +1612,20 @@ is kept; the entire visual design restarts from scratch.
          1920 / 1440x900 / 768x1024 / 392x844 plus the desktop sweep, with
          `sweep-widths.mjs`, the four credential-free tests and
          `accent-sweep.mjs` after anything that touches colour.
+         **THE ASK IS ON THE TABLE, 2026-08-31 —
+         `docs/dashboard-spec-approval-2026-08-31.md`.** Five files totalling
+         ~200KB are not a thing he can approve, so that page is the top layer
+         across all five, **organised around the EIGHT places the spec removes
+         something or contradicts him** rather than around what it adds — the
+         week view ruled no against his conditional yes, the push switch
+         withdrawn, the dead travel-fee field and the second colour picker
+         deleted, Today's payment box deleted, Business 8 headings → 3, staff
+         losing the Business tab, and monthly plans still doorless. **§6 of it
+         is a blank block his answer gets written into**; an answer that lives
+         only in the chat dies at the clear. **A build order is proposed there
+         because no file had one** — the shell ships WITH Today rather than
+         before it, and first run is last. **Nothing may be built until he
+         answers.** PROJECT-STATE.md §6m.
 
       **Skills, in order** (and this is the roadmap table's row for 2.11):
       `impeccable` — `shape` at step 4, one screen at a time; `critique` on
