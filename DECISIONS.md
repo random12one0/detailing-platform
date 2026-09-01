@@ -135,6 +135,7 @@ were made more than once.
 - **Roadmap 2.9 — the 320px floor** — four failures were one failure, and **two of them were already overflowing their card at 360 where the sweep could not see them.** A clean sweep means nothing is off the SCREEN, not off its box.
 - **The owner reopened the dashboard's architecture** — the five tabs and the More screen are a copy of his own admin page; 2.10 rethinks WHERE things live and explicitly not how they look.
 - **Roadmap 2.10 — the architecture proposal** — four of the five tabs survived a from-scratch derivation; **"what you sell" is top-level in five of six trade products and is a chevron inside our Settings screen.** Also: the push switch has no client and does nothing.
+- **Roadmap 2.10, part B — the owner widened it to every screen** — he chose "Business" and delegated the rest. **There is no desktop layout: one 724px column at every width, and History is 3,619px tall on a 1440 monitor AND on a phone.** Plus a composition test that cannot see the failure it exists to catch.
 
 <!-- INDEX:END -->
 
@@ -5117,3 +5118,111 @@ than leaving them to be rediscovered.
 measurements the proposal defers — the header carrying a business name, a `+`
 and a gear at 320px, and the new tab's scroll depth — belong to the build item
 and are called out there.
+
+## Roadmap 2.10, part B — the owner widened it to every screen
+
+He answered the five decisions and widened the item in the same message
+(2026-08-31): *"The layout / redesign was more than just the order of the tabs
+but of every GUI and how things look and are laid out, going through every
+single GUI tab page whatnot."* **Decision 2 he answered himself — "I think
+business is a better name" — and delegated the other four.** Part B of
+`docs/dashboard-architecture-2026-08-31.md` is the screen-by-screen pass, and
+**two new decisions (§B6) are open.** Still no code.
+
+- **His answers, recorded:** fifth tab = **"Business"**; delete More (yes);
+  Clients becomes the bring-people-back screen, manual only (yes); Booking
+  rules stays one sheet (no split); `+` in the header (yes, measure 320 first).
+
+- **CHOOSING "BUSINESS" COST SOMETHING AND THE COST IS WRITTEN DOWN, not
+  argued with.** "Your page" was recommended because the name itself refused
+  anything a customer could not see — the admission test came free with the
+  label. "Business" admits anything, which is the exact property that let
+  "More" fill up. So the rule is now stated explicitly in the file instead of
+  being carried by the name: *a row belongs on Business only if it changes
+  what a customer meets; if it changes how the app behaves for the detailer it
+  goes behind the gear; anything that is neither is a new destination or is
+  not built.* Without that sentence in a file, "Business" is "More" renamed
+  and this item recurs.
+
+- **"How things look" was read as composition and layout, not as a new visual
+  world**, and the reading is stated at the top of the file so a cold session
+  cannot take Part B as licence. The design system is still law, the
+  skill-collision rule still holds, and Part B proposes no colour, face, token
+  or motion. What it does change is which container a thing is in, how many of
+  them there are, and what a screen does at a width nobody designed it for.
+  **If that reading is wrong he will say so; guessing the wider reading would
+  have re-opened a direction he has already approved and praised.**
+
+- **THE BIGGEST FINDING OF THE WHOLE ITEM CAME OUT OF PART B, NOT PART A:
+  there is no desktop layout at all.** `.app-main` is 760px and the content
+  column 724px at **every** width from 768 up — measured, not estimated. The
+  proof that it is a real cost rather than an aesthetic complaint is that two
+  pages are the same HEIGHT on a monitor as on a phone: More is 1,620px at
+  1920 and 1,626px at 392, and Calendar's History is **3,619px at 1440 and
+  3,619px at 392, identical to the pixel.** Sixty per cent of his own 1920
+  monitor is unused. Proposed as three cheap moves (grow the column where
+  content is tabular; two columns on the three screens with two readings; let
+  rows show the columns they already compute) rather than a second design,
+  with law 1 as the constraint: a skeleton may have a wide form, but it must
+  stay the same skeleton. **It is decision 6, and it is recommended LAST** —
+  it is the only stage that adds work rather than moving it, and every other
+  stage is easier to do narrow and then widen.
+
+- **A test was found that cannot see the failure it exists to catch, and that
+  is decision 7.** `composition.test.mjs` test 1 enforces "records are lists,
+  cards are objects" by matching a `.map(...)` whose callback contains a
+  `className` with `card` **in the same file**. Calendar's History maps onto
+  `<BookingCard>` — a component, no className in `Calendar.jsx` — and
+  `BookingCard.jsx` is itself on the ALLOWED list. **So any screen may render
+  an unbounded list of cards through a component and pass.** History does: 18
+  bookings, 18 cards, 3,619px. This is the *"a skipped check reads exactly
+  like a passing one"* family in a new shape — not a check that was skipped, a
+  check that is blind to the common violation — and the recommendation is to
+  fix the test in the same change as the screen, because fixing either alone
+  lets it return.
+
+- **The audit was done by LOOKING, and one claim was withdrawn because of it.**
+  68 screenshots at 1920/1440x900/768x1024/392x844 via `shoot-dashboard.mjs`,
+  plus four surfaces that script cannot reach driven by hand. On seeing
+  "Small / Medium / Large" in the New booking modal the first conclusion was
+  that the owner's own form ignores W9's tenant-defined vehicle sizes — **and
+  the code says otherwise**: it reads `settings.vehicle_sizes` and falls back
+  only when the tenant has defined none. Checked before it was written down.
+  **The neighbouring claim survived the same check and is real:** the modal
+  renders services as a flat chip wrap with no categories and no `max_select`,
+  while `create-booking` enforces both on the server — so the owner can fill
+  the form in and be refused with *"Please choose just one service from
+  Exterior."* Same shape as roadmap 2.7's W4: a rule that lived on the
+  customer's page and not on the gate the owner goes through.
+
+- **Twenty-one findings are tabled in §B4 and NONE is fixed**, because the item
+  changes no code. Five are live defects rather than composition: the push
+  switch, the staff colour row, the New booking rule gap, the superseded
+  travel-fee field that is still editable (in a product that has already
+  shipped a travel fee it printed and never charged), and a "Last visit" that
+  can print a future date.
+
+- **Six patterns were named rather than only their instances**, because the
+  pattern is cheaper to fix and stops the instances returning: an empty state
+  that repeats itself; one action with three doorways; records drawn as cards;
+  a group heading that owns one row; a control that is shown and cannot work;
+  and the phone layout shipped to the monitor unchanged.
+
+- **A gap in the demo data is recorded as a gap, not worked around.** Today is
+  a Monday and the demo business is closed Sunday and Monday, so the Today
+  screen could only be photographed EMPTY — and the seed puts "completed and
+  paid" jobs on tomorrow's date, which cannot happen in life. **The busiest
+  state of the busiest screen in the product has still never been looked at.**
+  The build item should seed a realistic day before it starts, or it will
+  redesign Today from its emptiest state.
+
+- **A footnote on the index checker, because it is the third blind-spot story
+  in one session.** `scripts/decisions-index.mjs` **passed before this
+  section's index line was written**, and it was right to: `key()` compares
+  only a heading's opening clause — up to the first em-dash, colon, comma or
+  bracket — so "Roadmap 2.10, part B" reduces to "Roadmap 2.10", which the
+  index already contained. Its own comment says it *"errs toward passing on
+  purpose"*, so this is a documented tolerance rather than a bug, and nothing
+  was changed. **What is worth knowing is the shape:** a SECOND section whose
+  opening clause matches an existing one is invisible to that check. The index
+  line was written by hand regardless, per CLAUDE.md.

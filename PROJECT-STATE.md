@@ -677,6 +677,58 @@ proposal names a home for each rather than leaving them to surprise someone.
 `campaigns` is the one exception and is **deliberately left unplaced** — see
 §6 of the proposal.
 
+**HE ANSWERED THE FIVE AND WIDENED THE ITEM, THE SAME DAY.** *"The layout /
+redesign was more than just the order of the tabs but of every GUI and how
+things look and are laid out, going through every single GUI tab page
+whatnot."* **The fifth tab is called "Business"** — his own choice over the
+recommended "Your page" — and the other four decisions were delegated
+(*"make the correct changes you think is best"*): delete More, yes; Clients
+becomes the bring-people-back screen, manual only; Booking rules stays one
+sheet; `+` moves to the header. **The screen-by-screen pass he asked for is
+Part B of the same file, and two decisions are still open there (§B6).**
+
+**BECAUSE HE CHOSE "BUSINESS", ONE THING HAD TO BE WRITTEN DOWN.** "Your page"
+was recommended because the NAME refused anything a customer could not see —
+the admission test came free. "Business" admits anything, which is exactly how
+"More" filled up. So the rule is stated explicitly instead: *a row belongs on
+Business only if it changes what a customer meets; if it changes how the app
+behaves for the detailer it goes behind the gear.* **Without that sentence in
+a file, "Business" is "More" renamed.**
+
+**THE BIGGEST FINDING OF THE ITEM IS IN PART B AND IT IS NOT ABOUT TABS AT
+ALL: there is no desktop layout.** `.app-main` is 760px and the content column
+**724px at every width from 768 upward** — measured. Two pages prove the cost
+because they are the same HEIGHT on a monitor as on a phone: More is 1,620px
+at 1920 and 1,626px at 392, and **Calendar's History is 3,619px at 1440 AND
+3,619px at 392, identical to the pixel.** Sixty per cent of his own 1920
+monitor is empty. Proposed as three cheap moves, not a second design, with law
+1 as the constraint — a skeleton may have a wide form but must stay the same
+skeleton — and **recommended LAST**, because it is the only stage that adds
+work rather than moving it.
+
+**AND A TEST WAS FOUND THAT CANNOT SEE THE FAILURE IT EXISTS TO CATCH.**
+`composition.test.mjs` test 1 ("records are lists, cards are objects") matches
+a `.map(...)` whose callback carries a `className` with `card` **in the same
+file**. Calendar's History maps onto `<BookingCard>` — a component — and
+`BookingCard.jsx` is on the test's ALLOWED list, so **any screen can render an
+unbounded list of cards through a component and pass.** History does: 18
+records, 18 cards, 3,619px. Same family as the skipped contrast check; fix the
+test in the same change as the screen or it returns. That is decision 7.
+
+**§B4 tables 21 findings and NONE is fixed** (this item changes no code). Five
+are live defects rather than composition — the push switch, the staff colour
+row, New booking offering combinations `create-booking` rejects with a 409,
+the superseded travel-fee field that is still editable, and a "Last visit"
+that can print a future date. **One claim was checked and WITHDRAWN**: the New
+booking modal does respect W9's tenant-defined vehicle sizes.
+
+**A DATA GAP THAT THE BUILD ITEM MUST CLOSE FIRST.** Today is a Monday, the
+demo business is closed Sunday and Monday, and the seed puts "completed and
+paid" jobs on tomorrow's date. So Today could only be photographed EMPTY —
+**the busiest state of the busiest screen in the product has still never been
+looked at.** Seed a realistic day before redesigning Today, or it gets
+redesigned from its emptiest state. Screenshots: `shots-2.10/` (68 PNGs).
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**

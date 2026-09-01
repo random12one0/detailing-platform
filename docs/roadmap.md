@@ -1356,6 +1356,35 @@ is kept; the entire visual design restarts from scratch.
       two rows. They are written up in PROJECT-STATE §6h — do not rediscover
       them as new.
 
+      **HE ANSWERED THE FIVE AND WIDENED THE ITEM, 2026-08-31.** The fifth tab
+      is **"Business"** (his choice, over the recommended "Your page"); the
+      other four were delegated. And the scope grew: *"more than just the
+      order of the tabs but of every GUI and how things look and are laid
+      out, going through every single GUI tab page whatnot."* **That pass is
+      done — Part B of the same file** — every screen and sheet shot at four
+      sizes (`shots-2.10/`, 68 PNGs) and audited, 21 findings tabled, none
+      fixed. **Two decisions are still open at §B6; the item stays unticked
+      until he answers them.**
+
+      **Read these three before touching the dashboard again.**
+      **(a) There is no desktop layout** — the content column is 724px at
+      EVERY width from 768 up, so More is 1,620px tall at 1920 and 1,626px at
+      392, and History is 3,619px at 1440 and 3,619px at 392. Sixty per cent
+      of his monitor is empty. Decision 6, and recommended LAST because it is
+      the only stage that adds work rather than moving it.
+      **(b) `composition.test.mjs` test 1 cannot see a card rendered through a
+      component**, so History's 18-cards-in-a-list passes. Decision 7 — fix
+      the test in the same change as the screen or it returns.
+      **(c) "Business" does not enforce the admission test the way "Your page"
+      would have**, so the rule is written out instead: a row belongs on
+      Business only if it changes what a customer meets. Do not let it become
+      More with a better name.
+
+      **Before the build starts, seed a realistic day.** Today is a Monday,
+      the demo is closed Sun/Mon and the seed dates "completed and paid" jobs
+      tomorrow — so Today could only be photographed EMPTY, and the busiest
+      state of the busiest screen has never been looked at.
+
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
 

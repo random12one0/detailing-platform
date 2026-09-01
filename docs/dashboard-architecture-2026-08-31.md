@@ -4,11 +4,25 @@
 approves it before any code, and the build gets its own roadmap item the way
 2.8b did for 2.8.**
 
-**The LOOK is not reopened.** "The Thread" (`docs/design-system.md`) stands,
-the skill-collision rule stands, and no direction-generating skill ran against
-this. What was reopened is WHERE THINGS LIVE: how many bottom tabs there
-should be, what belongs on each, and how the eleven settings sheets behind
-More should be grouped, ordered and named.
+**THIS FILE IS IN TWO PARTS, and the second was added on his instruction.**
+
+- **Part A (§0–§7) — the navigation.** Which tabs exist, what is on each, how
+  the More screen is grouped. **He answered all five of its decisions on
+  2026-08-31 (§5): the fifth tab is called "Business", and the other four were
+  delegated.**
+- **Part B — every screen, looked at.** He said the item was bigger than the
+  tab bar: *"more than just the order of the tabs but of every GUI and how
+  things look and are laid out, going through every single GUI tab page."*
+  Part B is that pass — every screen and sheet shot at four sizes and audited.
+  **It ends with two more decisions (§B6) and they are still open.**
+
+**The LOOK is not reopened, in either part.** "The Thread"
+(`docs/design-system.md`) stands, the skill-collision rule stands, and no
+direction-generating skill ran against this. What is reopened is WHERE THINGS
+LIVE — across the tabs in Part A, and inside each screen in Part B: which
+container a thing sits in, how many of them there are, what a screen shows,
+and what it does at a width nobody designed it for. No new colours, faces,
+tokens or motion anywhere in this document.
 
 ---
 
@@ -36,13 +50,20 @@ costs a tab slot nothing.
 ```
 NOW       Today  Calendar  Money  Clients  More ──▶ 11 sheets, mixed together
 
-PROPOSED  Today  Calendar  Money  Clients  Your page        [⚙ in the header]
+PROPOSED  Today  Calendar  Money  Clients  Business        [⚙ in the header]
                                            └ the 7 a        └ the 5 that are
                                              customer sees    app plumbing
 ```
 
-**Five decisions for the owner are at the end (§5).** Everything above them is
-the reasoning.
+**Those five decisions were answered on 2026-08-31 — see §5.** Everything
+above them is the reasoning.
+
+**And the biggest single finding in the whole item is not in Part A at all.**
+**The dashboard draws one 724-pixel column at every width from 768px upward** —
+the same column on a 1920 monitor as on a 1440 laptop, so the More screen is
+1,620px tall on the monitor and 1,626px on a phone, and Calendar's History is
+3,619px on both. Sixty per cent of the owner's own screen is empty. That is
+**§B1**, and it is decision 6.
 
 ---
 
@@ -273,7 +294,7 @@ plumbing holds a tab slot it did not earn.
 | 2 | **Calendar** | Question 2. Schedule is 6 of 6 in the trade | Next to Today; both are about time | Role unchanged |
 | 3 | **Money** | Question 3. Money/reports is 5 of 6 | Owner-only; the middle keeps it off both thumb-easy ends | One change, §3c |
 | 4 | **Clients** | Question 4. Customers is 6 of 6 | Beside Money: both are the week, not the day | Re-conceived, §3d |
-| 5 | **Your page** | Question 5. "What you sell" is 5 of 6, and top-level in every product where the booking page IS the product | Slot 5 is where the hand already goes for "the business-y one" — the habit is kept while its contents change | **New. Replaces More** |
+| 5 | **Business** | Question 5. "What you sell" is 5 of 6, and top-level in every product where the booking page IS the product | Slot 5 is where the hand already goes for "the business-y one" — the habit is kept while its contents change | **New. Replaces More** |
 
 **The header carries the plumbing.** `.topbar` currently shows the business
 name on the left and the active tab's name on the right — and the right half
@@ -287,7 +308,7 @@ the platform convention (a phone tab bar holds five, and the sixth becomes a
 different skeleton**. There are exactly five skeletons today (the day rail,
 the calendar grid, the money chart, the ruled client list, the settings panels)
 and a sixth tab would owe the system a sixth. **This proposal needs no new
-skeleton:** "Your page" inherits the panels skeleton that More gives up, and
+skeleton:** "Business" inherits the panels skeleton that More gives up, and
 the Settings sheet is the "form in a sheet" that all eleven sheets already are.
 
 ### 3c. What each tab holds
@@ -322,10 +343,10 @@ putting a list above the figure that gives the tab its name.
 
 **4 · Clients** — re-conceived; see §3d.
 
-**5 · Your page** — a new screen, and mostly More re-grouped.
+**5 · Business** — a new screen, and mostly More re-grouped.
 
 ```
-Your page                                          [owner only]
+Business                                          [owner only]
 
   ▸ Your booking link — the address, Copy · Open · Share    ← first, not last
 
@@ -352,7 +373,7 @@ thing about the current More screen and none of it is being thrown away.
 
 **The admission test, and it is the point of the name.** *A row belongs on
 this tab only if it changes what a customer meets on your page.* "More" became
-a junk drawer because its name admitted anything; "Your page" refuses
+a junk drawer because its name admitted anything; the name refuses
 everything that is not customer-facing. **That rule is worth more than the
 re-grouping, because it is what stops the drawer forming again.**
 
@@ -409,11 +430,11 @@ it cannot be smuggled in with a layout change.
 
 | Thing | Status | Home in this architecture |
 |---|---|---|
-| Reviews / `testimonials` | Table, no UI; a website page in Phase 3 | Your page → **Your website** group (Phase 3) |
-| Monthly plans | Table, no UI; the owner has said it comes back | Your page → What you sell |
-| Referral / loyalty | Removed; the owner has said it comes back | Your page → What you sell |
+| Reviews / `testimonials` | Table, no UI; a website page in Phase 3 | Business → **Your website** group (Phase 3) |
+| Monthly plans | Table, no UI; the owner has said it comes back | Business → What you sell |
+| Referral / loyalty | Removed; the owner has said it comes back | Business → What you sell |
 | Google Calendar sync | Removed; the owner has said it comes back | Settings → This device |
-| Custom domain (`business_domains`) | Roadmap 3.3 | Your page → Your website group |
+| Custom domain (`business_domains`) | Roadmap 3.3 | Business → Your website group |
 | vCard on owner emails | Removed; the owner has said it comes back | Not an architecture question — it is an email template |
 | `campaigns` / `track-visit` | Half-built attribution, no UI | **Left unplaced on purpose — see §6** |
 
@@ -448,7 +469,7 @@ it cannot be smuggled in with a layout change.
 ### 4c. Staff, which this makes better and which forces one fix
 
 A staff member sees Today, Calendar and Clients — three tabs, no Money
-(mirroring the database), and no Your page, because `business_settings` is
+(mirroring the database), and no Business, because `business_settings` is
 **owner-only to read** and nine of the eleven sheets are already owner-only.
 Their gear holds **This device** and **Account**.
 
@@ -461,7 +482,7 @@ database refuses the write.
 
 - **Tabs are state, not URLs** (a standing landmine, PROJECT-STATE §6). This
   proposal does not change that and does not need to; the `+` and the gear are
-  state too. But it means a push notification still cannot open "Your page" —
+  state too. But it means a push notification still cannot open "Business" —
   only `/job/:id` is addressable.
 - **The push switch (§2c item 1)** should be resolved in the same build:
   either the client subscription gets written, or the switch comes off the
@@ -473,14 +494,46 @@ database refuses the write.
 
 - **No inbox.** Four of six have one; ours would need a phone number and a
   per-message cost. Named in F4, not reserved for.
-- **No new screens invented.** Everything on Your page exists today.
+- **No new screens invented.** Everything on Business exists today.
 - **No visual change.** Same skeletons, same tokens, same components. A row
   that moves looks identical when it arrives.
 - **No re-litigation of Today or Calendar.** Both survived the derivation.
 
 ---
 
-## 5. The five decisions — the owner answers these before anything is built
+## 5. The five decisions — ANSWERED BY THE OWNER, 2026-08-31
+
+> **He answered all five the same day.** **Decision 2 he answered himself:
+> "I think business is a better name"** — so the fifth tab is **"Business"**,
+> not "Your page". **The other four he delegated:** *"the other stuff make the
+> correct changes you think is best."* Recorded below against each one. He also
+> widened the item — see **Part B**, which is the screen-by-screen half he
+> asked for.
+>
+> | # | Decision | Answer |
+> |---|---|---|
+> | 1 | Delete "More", give slot 5 to the shopfront | **YES** (delegated; recommendation taken) |
+> | 2 | What it is called | **"Business"** — *his own words* |
+> | 3 | Clients becomes the bring-people-back screen | **YES**, manual only (delegated) |
+> | 4 | Split "Booking rules" | **NO**, leave it as one for now (delegated) |
+> | 5 | `+` in the header | **YES**, with the 320px measurement first (delegated) |
+>
+> **THE ONE THING THAT CHANGES BECAUSE HE CHOSE "BUSINESS".** The name was
+> carrying the admission test — "Your page" refused anything a customer could
+> not see, for free. **"Business" does not refuse anything**, which is the
+> property that made "More" fill up. So the test has to be written down as a
+> rule instead of ridden on the label, and it is, here and in
+> `docs/dashboard-skeletons.md` when the build lands:
+>
+> > **A row belongs on the Business tab only if it changes what a customer
+> > meets. If it changes how the app behaves for the detailer, it goes behind
+> > the gear.** Anything that fits neither is a new destination or is not
+> > built — it does not get filed under Business because there was room.
+>
+> Without that written down, "Business" is "More" with a better name, and this
+> item happens again in six months.
+
+### The five, as they were put to him
 
 ### Decision 1 — Delete the "More" tab and give the fifth slot to the shopfront?
 
@@ -630,3 +683,486 @@ Already in this repo, and the strongest evidence about detailers we have:
 `docs/detailer-research-2026-08-31.md`,
 `docs/detailer-menu-shapes-2026-08-31.md`,
 `docs/owner-walkthrough-2026-08-30.md`, `docs/dashboard-skeletons.md`.
+
+---
+---
+
+# PART B — every screen, looked at
+
+**Added 2026-08-31, on the owner's instruction that the item is bigger than
+the tab bar:** *"The layout / redesign was more than just the order of the
+tabs but of every GUI and how things look and are laid out, going through
+every single GUI tab page whatnot."*
+
+**What that does and does not reopen.** The visual system is still not
+reopened — no new colours, faces, tokens or motion, and no
+direction-generating skill. What Part B covers is **composition and layout**:
+which container a thing sits in, how many of them there are, what a screen
+shows, and what it does at a width nobody designed it for. That is the same
+kind of question as "which tab does this live on", asked inside a screen
+instead of across the bar. Where a change would touch the LOOK, it says so and
+stops.
+
+## B0. How this was done
+
+Every dashboard screen and all eleven settings sheets were shot in a real
+browser at **1920 / 1440x900 / 768x1024 / 392x844** — 68 PNGs in `shots-2.10/`
+via `scripts/shoot-dashboard.mjs`. The four surfaces that script cannot reach
+(the day sheet, the booking detail sheet, Calendar's History mode, the client
+sheet) were driven by hand in a browser and shot separately. **Console was
+clean at every width** apart from two React Router v7 future-flag warnings,
+which are notices about a version we are not on.
+
+**Every number quoted below was measured against the running app**, not
+estimated from code. Layout boxes only (`offsetWidth` / `offsetTop`), never
+`getBoundingClientRect` on a transformed element — design-system law 12.
+
+**The PNGs are NOT committed** — `.gitignore` excludes `shots-*/` on purpose
+and this set is 24MB. So every observation below is written out in words and
+every number is in this file, because **the file is what survives and the
+screenshots are not.** To regenerate them:
+`OUT=shots-2.10 node scripts/shoot-dashboard.mjs` with the dev server up, then
+the same command with `--more "…"` for the sheets.
+
+**One caveat on the demo data, because it shaped what could be seen.** Today
+is Monday and the demo business is closed Sunday and Monday, so **Today had no
+jobs on it** and the populated Today could not be photographed. The seed also
+puts "completed and paid" jobs on tomorrow's date, which is not a state that
+can happen in life. Neither is a product defect — but it means **the busiest
+state of the busiest screen in the product has still never been looked at**,
+and that is a gap the build item should close by seeding a realistic day
+first.
+
+---
+
+## B1. The finding that outranks the tab bar: THERE IS NO DESKTOP LAYOUT
+
+**The dashboard renders one 724px column at every width from 768px upward.
+Measured, at both sizes:**
+
+| Viewport | `.app-main` | Content column | Screen unused |
+|---|---|---|---|
+| **1920 x 1080** (his own monitor) | 760px | **724px** | **60%** |
+| **1440 x 900** | 760px | **724px** | 47% |
+| 392 x 844 (the phone) | 392px | 356px | — |
+
+The column does not grow. It is the same 724px on a 1920 monitor as on a
+1440 laptop, and the page is therefore **exactly as tall on the monitor as on
+the phone**. Two measurements make that concrete and neither is a rounding:
+
+- **The More screen is 1620px tall at 1920, and 1626px tall at 392.** Six
+  pixels apart across a fivefold difference in screen width.
+- **Calendar's History is 3,619px tall at 1440 — and 3,619px at 392.**
+  Identical to the pixel.
+
+**This is not a bug and it was not an oversight.** The dashboard was built
+phone-first on purpose (PRODUCT.md: owners work "usually on a phone, often
+between jobs"), and phone-first is right. But phone-first does not have to
+mean *a phone screenshot stretched down the middle of a monitor*, and the
+owner's own screen is 1920. What it costs, screen by screen:
+
+- **Calendar** is a month grid — the one screen in the product that genuinely
+  wants width — drawn at 95px cells with 1,160px of black on either side. A
+  cell has room for a name and a time at that width and shows a 6px dot.
+- **Clients** draws eight rows, each using about a third of its own row width,
+  with 60% of the monitor empty — while the last-visit date and the lifetime
+  spend that decision 3 wants are computed already and shown nowhere.
+- **History** stacks 18 bookings down four monitor-heights of scroll.
+- **Money** puts a six-bar chart in a 724px strip and scrolls to 1,353px on a
+  1080px screen.
+- **The client sheet** gives a twelve-character phone number a 600px
+  full-width button, and the email another one under it.
+- **The eleven settings sheets** are 640px modals — including Services &
+  add-ons, which is four lists and the most-edited screen in the product.
+
+**What is proposed, and it is deliberately three cheap moves rather than a
+second design:**
+
+1. **Let the column grow where the content is tabular** — roughly 960–1,100px
+   on Clients, History and Money. Nothing reflows; the same rows get the width
+   they already need.
+2. **Two columns where a screen genuinely has two readings.** Calendar: the
+   month beside the selected day, instead of the day arriving as a modal over
+   it. Money: the figures beside the lists. Today: the day beside tomorrow.
+   Below the breakpoint each collapses back to exactly what ships now.
+3. **Let list rows carry the columns they already compute.** Clients has last
+   visit and lifetime spend in the sheet; History has the status and the
+   total. On a phone they stay stacked; on a monitor they become columns.
+
+**The constraint on all three, and it is the one that matters:** this must not
+become a second design. Law 1 says every screen a different skeleton — a
+skeleton is allowed a wide form, but it must be recognisably the same
+skeleton. The day rail stays a rail; the month stays a grid. **This is a
+decision for the owner (§B6, decision 6)**, because it is the only part of
+Part B that adds work rather than moving it.
+
+---
+
+## B2. Screen by screen
+
+Each entry is what the screen is, what was seen wrong with it, and what
+changes. **"Seen" means seen** — every item below was observed in a
+screenshot or a live browser, not inferred from the source.
+
+### Today
+
+**What it is:** the day rail — the date masthead, a two-cell ledger strip,
+the lit next job, later today, done-and-paid, tomorrow, and a New booking
+button at the very bottom. 1,112px tall on a phone with an empty day.
+
+1. **The empty day says "nothing booked" three times.** The masthead subtitle
+   says "Afternoon · nothing booked"; the ledger's left cell says "0" and
+   "Nothing booked"; the right says "$0.00" and "Nothing collected yet"; and
+   then a dashed box says "No jobs booked for today." **Four statements of one
+   fact, filling the first screen.** A day with no work is a real and frequent
+   state — every Sunday and Monday for this business — and it currently
+   produces the emptiest possible screen at maximum verbosity.
+   **Change:** the ledger strip and the dashed box are the same information;
+   on an empty day one of them goes, and the space belongs to the next thing
+   the detailer can actually do (tomorrow, or take a booking).
+2. **"New booking" is the last element on the screen**, below tomorrow's jobs.
+   Decision 5 already moves it to the header.
+3. **Tomorrow's jobs are full cards, not a preview.** Three of them at 176px
+   each. Tomorrow is context, and the screen's own rule (settled jobs collapse
+   to a line) already knows how to demote something.
+
+**What is right and should not be touched:** the rail, the lit-card rule, the
+single ledger strip split by a hairline instead of two tiles.
+
+### Calendar — month
+
+**What it is:** the seven-column grid, a Month/History segmented pair, a New
+booking button, and a five-symbol legend.
+
+1. **The legend decodes five marks and the month contains three.** Booked (a
+   hollow ring), Done (a filled disc), No-show (a dash), Blocked (a filled
+   square), One type only (an outlined square). At the size these render, the
+   ring, the filled square and the outlined square are genuinely hard to tell
+   apart — and the legend needs two rows on a phone to say so.
+   **Change:** the marks are load-bearing (roadmap 2.4 made them shapes on
+   purpose, so they survive any tenant accent) — but a legend that is bigger
+   than the thing it explains is the tell. On a monitor the cell has room to
+   write the fact instead of encoding it.
+2. **42 bordered boxes, mostly empty.** Defensible — a day is tappable, so it
+   is an object — but at 95px on a monitor it is a grid of empty cards.
+3. **New booking is top-right here and bottom-of-page on Today** — the same
+   action, two placements, on adjacent tabs. A third lives inside the day
+   sheet ("Add a job on this day"). **Three placements for one action.**
+4. **The day-cell accessibility label says "1 jobs".** A plural bug in the
+   `aria-label`, read aloud by a screen reader.
+
+**What is right:** at 392 this screen is genuinely good — the grid fills the
+width, today is an unmistakable filled disc, and it reads as a month.
+
+### Calendar — History
+
+**What it is:** search over every booking, with a status filter, a date range
+and a totals bar. 18 results in the demo.
+
+1. **Eighteen records drawn as eighteen identical cards, 3,619px tall.** This
+   is the exact defect `docs/ux-audit.md` item 9 fixed on Clients — *"eight
+   cards filling a phone → a ruled list"* — reappearing on a different screen
+   with more than twice the rows. Design-system § Composition: **a collection
+   of records is a ruled list; a card is for an object you act on.**
+2. **The test that exists to catch this cannot see it, and that is the more
+   important half.** `tests/composition.test.mjs` test 1 matches a `.map(...)`
+   whose callback contains `className="…card…"` **in the same file**. History
+   maps onto `<BookingCard>`, a component — no `className` in Calendar.jsx —
+   and `BookingCard.jsx` is on the test's ALLOWED list, reasoned as "a job is
+   an object you act on". **So the rule is enforced only where somebody writes
+   a card inline, and any screen may render an unbounded list of cards through
+   a component and pass.** That is the "a skipped check reads exactly like a
+   passing one" family (DECISIONS.md, the five that have cost sessions) in a
+   new shape: not a check that was skipped, a check that cannot see the most
+   common way its rule is broken.
+   **This is decision 7 (§B6)** — it is a change to a test, and tests in this
+   repo are load-bearing.
+3. **Nine filter chips in two rows** (five statuses, four ranges) above the
+   results.
+
+**Change:** History becomes a ruled list with columns — date, who, what,
+status, total. On a phone the columns stack; on a monitor they are columns.
+The cards stay where cards belong: Today, the day sheet, and the unpaid list
+on Money, each of which is a small set of objects you act on one at a time.
+
+### Calendar — the day sheet
+
+**What it is:** what a tapped date opens — the day's jobs, "Add a job on this
+day", and three whole-card controls (Block this day / Hours / How this day
+works).
+
+**This is the best-composed screen in the dashboard and nothing should move.**
+Each control states its current value and is tappable across its whole box
+(roadmap 2.7's W1), and the undo stays on its own explicit control. The one
+change is second-order: at desktop width it should be the right-hand column
+beside the month (B1), not a modal over it.
+
+### Money
+
+**What it is:** period chips, a stepper, the net lead figure, a six-bar chart,
+a sunken ledger of eight to eleven cells, the unpaid list, and expenses.
+1,353px tall on a 1080px screen.
+
+1. **"Waiting on payment" is the fourth thing on the screen** and it is the
+   only thing on it you can *act* on. §3c already moves a lit line up under
+   the lead figure.
+2. **"Nothing outstanding" gets a full dashed box.** A non-event given the
+   same weight as a list of debts. Same family as Today's empty state.
+3. **A loss and a win are still the same size.** The bar height is the
+   absolute value, so −$114 and +$114 draw identically; roadmap 2.7 fixed the
+   *confusion* by colouring a negative bar red (money down is meaning, law
+   11b), and that is the right fix for "which is it". But at a glance the
+   month with the biggest loss reads as the smallest month, because the bar is
+   short. **Change:** a zero line, so a negative bar hangs below it. That is
+   composition, not colour, and it costs one rule.
+4. **Three controls for one question.** Chips choose the length, arrows choose
+   which one, and a label names it — stacked as three rows. At desktop width
+   they fit on one line.
+5. **"Quoted up front / Added on site"** is still there and is still the
+   metric PROJECT-STATE has flagged for demotion. Part B does not re-decide
+   it; it belongs in the build.
+
+### Clients
+
+**What it is:** a masthead with a count, a search field, and a ruled list of
+eight people.
+
+1. **A row shows name, phone and email — and nothing that helps you choose
+   one.** No last visit, no spend, no next appointment. **The sheet behind the
+   row computes all three** (`Visits 3 · Total spent $675.00 · Last visit …`).
+   The list has the data and shows the least useful third of it. This is
+   decision 3, and the screenshot is the argument for it.
+2. **"Last visit" can print a date in the future.** It is
+   `completed[0]?.booking_date` from a newest-first list, so a booking already
+   marked completed on a future date — which the demo contains — is announced
+   as the last visit. Small, real, and a one-line fix.
+3. Search matches name and phone only; the placeholder says so, which is
+   honest, but History next door searches service text too.
+
+### The client sheet
+
+1. **The phone number is on the screen twice** — as the subtitle under the
+   name and again as a full-width button.
+2. **Every history row inside one person's sheet repeats that person's name.**
+   You are inside Marcus Webb; each card says "Marcus Webb".
+3. **A large empty notes textarea sits between the facts and the history**,
+   which is the third of the four blocks and the one most often left blank.
+4. The three facts (`Visits / Total spent / Last visit`) are ruled rows and
+   are the best part of the sheet — and are the thing the list should borrow.
+
+### More → Business
+
+**What it is today:** eleven rows in six cards under **eight** group
+headings, plus the booking link and an account block. **1,620px tall at every
+width, measured.**
+
+1. **The screen is titled "Settings" and the tab is labelled "More".** Two
+   names for one place, visible simultaneously — the tab bar says More, the
+   masthead says Settings.
+2. **Eight headings for eleven rows.** Three of them own a single row
+   ("Access" → Team; "This device" → Maps; "Account" → sign out). A heading
+   that owns one row is a label pretending to be a group.
+3. **The booking link is 1,156px down — 1.35 phone screens.** Measured. The
+   most-shared thing the business owns, below everything.
+4. **Six cards of one to three rows each**, stacked, which is close to the
+   composition tell the system names by hand.
+
+**Change:** this is §3c — three groups, the link first, and the plumbing
+behind the gear. Under the new grouping the same eleven rows sit under **three
+headings on the Business tab and one list behind the gear**, and every heading
+owns at least two rows.
+
+### The eleven settings sheets
+
+Walked all eleven. Nine are fine and need only their new home. Two are not:
+
+**Services & add-ons — the biggest screen in the product, in a 640px modal.**
+Four lists in sequence (Categories, Services, Add-ons, Vehicle sizes), each
+row a card, each row carrying **two round reorder arrows** — about 130px of
+every row, and eighteen buttons on one screen for an action performed rarely.
+And the services are listed flat: **the detailer edits a flat list while the
+customer meets a grouped menu**, so the structure being edited is not the
+structure being sold. **Change:** services nest under their category, the
+reorder control stops occupying every row (drag, or a reorder mode), and at
+desktop width this stops being a modal — it is the one settings screen that
+deserves the whole tab.
+
+**Booking rules — a setting that announces it is dead and stays editable.**
+"Travel fee — *Replaced by your travel areas below — each area sets its own
+fee*" sits next to a live `$25` input. Roadmap 2.9 fixed how that sentence
+*wraps*; the underlying problem is that a superseded field is still on the
+screen and still holds a value. **Given this product has already shipped a
+travel fee that was printed and never charged** (roadmap 2.8c), a dead
+travel-fee input that a detailer can still type into is the wrong thing to
+leave lying around. **Change:** when travel areas exist, the old flat fee
+becomes a sentence, not a field.
+
+Also on that sheet: **"Open slots in the next 7 days · 35"** is the only
+figure on any settings screen and reads as a stray. It is genuinely useful —
+it belongs on Today or Calendar, where a number about the near future has
+neighbours.
+
+### The modals
+
+**New booking — it offers choices the server will reject.** Services render
+as a flat wrap of chips with no categories and no `max_select`. The demo's
+menu is two pick-one categories; `create-booking` enforces that on the server
+and returns *"Please choose just one service from Exterior."* **So the owner
+can fill in the whole form, submit, and be refused for obeying a rule the form
+never showed them.** This is the same shape as roadmap 2.7's W4 — a rule that
+existed on the customer's page and not on the gate the owner goes through.
+Vehicle sizes were checked and are **fine**: the modal reads
+`settings.vehicle_sizes` and only falls back to small/medium/large when the
+tenant has defined none.
+Its empty state also says *"Add them in the More tab under Services"* — one of
+the strings the rename has to follow.
+
+**Booking detail** — five action buttons across two ragged rows (three, then
+two wider ones), and "Estimated $235.00 · Final $235.00" prints the same
+number twice whenever nothing changed on the job, which is most jobs.
+
+**Finalize payment / Expense** — walked, nothing found. The finalize order
+(total and method first, extras after) is the fix ux-audit item 2 made and it
+has held.
+
+### Sign in / create business
+
+Small centred card on the ground, with the **default** green accent because no
+tenant is loaded yet — correct, and the stale-accent bug from roadmap 2.3 has
+stayed fixed. Nothing to change.
+
+---
+
+## B3. The patterns underneath, which are worth more than the list
+
+Six things recur across unrelated screens. Fixing the pattern is cheaper than
+fixing the instances, and stops them coming back.
+
+1. **An empty state repeats itself.** Today says "nothing booked" four ways;
+   Money gives "Nothing outstanding" a dashed box; the gallery row says "0
+   photos". **Rule: an empty state says the thing once, and spends the rest of
+   the space on what to do next.**
+2. **One action, three doorways.** New booking is bottom-of-page on Today,
+   top-right on Calendar, and inside the day sheet. Decision 5 makes it one.
+3. **Records drawn as cards.** History (18), and the pull toward it everywhere
+   else. The rule exists and its test cannot see the common violation
+   (decision 7).
+4. **A group heading that owns one row.** Three on More.
+5. **A control that is shown and cannot work.** The push switch (no client at
+   all), the travel-fee field (superseded), "Your colour" for staff (the
+   database refuses it). **Rule: if it cannot do anything, it is not on the
+   screen.**
+6. **The phone layout is shipped to the monitor unchanged.** §B1.
+
+---
+
+## B4. Everything found by looking, in one table
+
+Nothing here is fixed — this item changes no code.
+
+| # | Where | What | Kind |
+|---|---|---|---|
+| 1 | Notifications | Push switch has no client anywhere in `app/`; nothing is ever delivered | **Defect** |
+| 2 | More / Appearance | Staff are shown "Your colour"; `business_branding` refuses the write | **Defect** |
+| 3 | More | A staff member's whole screen is those two rows | Defect |
+| 4 | New booking | Offers service combinations `create-booking` returns 409 for | **Defect** |
+| 5 | Booking rules | A superseded travel-fee field, still editable, still holding $25 | **Defect** |
+| 6 | Clients | "Last visit" can print a future date | Defect |
+| 7 | Calendar | Day cell `aria-label` reads "1 jobs" | Defect (a11y) |
+| 8 | Calendar / History | 18 records as 18 cards; 3,619px | Composition |
+| 9 | `composition.test.mjs` | Test 1 cannot see a card rendered through a component | **Test blind spot** |
+| 10 | Today | An empty day states one fact four times | Composition |
+| 11 | Money | "Nothing outstanding" gets a dashed box | Composition |
+| 12 | Money | A loss and a win draw the same height; no zero line | Composition |
+| 13 | Everywhere ≥768px | One 724px column; 60% of a 1920 screen unused | **Layout** |
+| 14 | More | Titled "Settings", tab labelled "More" | Copy |
+| 15 | More | Eight headings for eleven rows; three own one row | Composition |
+| 16 | More | Booking link 1,156px down | Composition |
+| 17 | Services & add-ons | Flat list where the customer meets a grouped menu; 2 arrows per row | Composition |
+| 18 | Client sheet | Phone number printed twice; every history row repeats the client's name | Composition |
+| 19 | Booking detail | "Estimated $235.00 · Final $235.00" when nothing changed | Copy |
+| 20 | Today / Calendar / day sheet | Three doorways to New booking | Consistency |
+| 21 | Demo seed | Jobs "completed and paid" on a future date; today is a closed day | **Test data** |
+
+---
+
+## B5. Build order, when he approves
+
+Grouped so that each stage is shippable and verifiable on its own. **Nothing
+starts until §B6 is answered**, because decision 6 changes what the screens
+are being built into.
+
+1. **The navigation** (Part A) — Business tab, gear, `+` in the header, delete
+   More. Small, and it makes the rest easier to describe.
+2. **The five defects that are live** — table rows 1, 2, 4, 5, 6. None is
+   layout; all are things the product currently says that are not true.
+3. **The composition fixes that need no new layout** — rows 10, 11, 14, 15,
+   16, 18, 19, plus row 7.
+4. **History becomes a ruled list, and the test learns to see it** — rows 8
+   and 9 together, because fixing one without the other means it returns.
+5. **Clients earns its tab** — decision 3's sort and filter, using the figures
+   the sheet already computes.
+6. **The desktop layout** — only if decision 6 says yes. Last, because it is
+   the only stage that adds rather than moves, and because every stage above
+   it is easier to do in the narrow column and then widen.
+
+**Verification for every stage is the routine that already exists:**
+`sweep-widths.mjs` (392/360/320, both paths) for anything that moves a box,
+the four credential-free tests, `accent-sweep.mjs` if a colour is touched, and
+screenshots read at 1920 / 1440x900 / 768x1024 / 392x844. **A desktop layout
+adds one thing the routine does not currently have: 1920 and 1440 are
+*screenshotted* but not *swept*.** If decision 6 is yes, `sweep-widths.mjs`
+should grow the two desktop widths, or the widening will be checked by eye
+only.
+
+---
+
+## B6. Two more decisions
+
+### Decision 6 — Should the dashboard get a real desktop layout?
+
+**What it is.** Right now the dashboard draws one narrow column, 724 pixels
+wide, no matter how big the screen is — the same width on your 1920 monitor as
+on a 1440 laptop. Measured: on your monitor, **60% of the screen is empty
+black**, and the More screen is 1,620 pixels tall on the monitor and 1,626 on
+a phone. It was built for the phone on purpose, and that was the right call —
+but it means that when you sit at your desk you are looking at a phone app in
+the middle of a large screen. The proposal is three things: let the column
+grow where the content is a table; put two columns side by side on the three
+screens that have two things to show (the month beside the day you tapped, the
+money figures beside the lists, today beside tomorrow); and let list rows show
+the extra columns they already calculate.
+
+**If you do it:** the calendar becomes usable at a desk — a day cell gets big
+enough to write the customer's name in — and Clients and History stop being
+four screens of scrolling. **If you don't:** nothing breaks, and the phone,
+which is where the work actually happens, is unaffected either way. The cost
+is that this is the only part of the whole audit that adds work rather than
+moving work: every other change is re-grouping things that exist.
+
+**Recommendation: yes, but last** — after the navigation and the defects, and
+built so that below 768 pixels the screens collapse to exactly what ships
+today. And one condition: the checking script that walks the narrow widths
+should learn the two wide ones at the same time, or the desktop layout is the
+only part of this product nothing automatically checks.
+
+### Decision 7 — Should the composition test be taught to see through components?
+
+**What it is.** The design system has a rule: a long list of records should be
+a plain ruled list, and a card is for a single thing you act on. There is an
+automatic test for it. **It missed a live case** — the History list draws 18
+bookings as 18 cards, four screens of scrolling — because the test only spots a
+card when someone writes the word "card" directly in the screen's own file, and
+History builds its cards through a shared component. So the rule is only
+enforced in the easy case.
+
+**If you fix it:** the test starts counting how many cards a screen can produce
+from a list, and complains past a small number — which would have caught this
+one. **If you don't:** the rule keeps being real on paper and optional in
+practice, and the next screen that grows a long list repeats it.
+
+**Recommendation: fix it, in the same change as History.** This repo's own
+principle is that a rule with no test is a rule that gets broken again — and
+this is worse than no test, because a passing suite reads as proof. It is the
+same lesson as the skipped-contrast check: **a check that cannot see the
+common failure looks exactly like a check that passes.**
