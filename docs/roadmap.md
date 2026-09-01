@@ -1726,6 +1726,11 @@ is kept; the entire visual design restarts from scratch.
          **2,500 → 1,103px at 392** (the projection was ~1,265). Sweep clean at
          all five widths in both paths; all four credential-free tests and
          `accent-sweep` pass.
+         **AND IT FOUND TWO DEFECTS ON `/job/:id`, the page a push notification
+         opens** — losing the `<Sheet>` took the record's only way back, and
+         every exit from that page went to `/`, **the marketing site**, because
+         the dashboard is `/app`. The second predates the rebuild and was only
+         findable by PRESSING the control the first one added.
          **What stage 1 did NOT do, so nobody reads §5a as finished twice:**
          the job record is still the 340-line single scroll — it opens BESIDE
          the list at ≥1180 now, but its own redesign (an action bar over six

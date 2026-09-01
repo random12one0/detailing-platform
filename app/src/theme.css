@@ -184,8 +184,12 @@
   /* The sticky header's own height, so a sticky second column knows what to
      clear. It is padding + the 44px control the header now carries, and it
      is a token rather than a number in one media query because two places
-     would drift. Measured on the running app. */
-  --topbar-h: 61px;
+     would drift. MEASURED ON THE RUNNING APP: 63px = 8 + 8 of block padding,
+     the 44px control the header now carries, and the 1px hairline under it.
+     It was written as 61 from arithmetic first and the browser disagreed —
+     which is the whole reason it is one token and not a number in two
+     places. */
+  --topbar-h: 63px;
 
   /* SPACE — related <= 8, unrelated >= 28. */
   --sp-1: 4px;

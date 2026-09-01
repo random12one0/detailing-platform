@@ -150,7 +150,7 @@ were made more than once.
 
 - **Roadmap 2.11, step 4b — the phone re-decided, and he ruled it portrait-only** — the owner rejected *"below 1024 nothing changes"*, so **every screen’s phone form was decided again from nothing**; "unchanged" was not an allowed answer. **He then reversed his own morning ask and ruled phones PORTRAIT ONLY** — and the reversal is the load-bearing part: *"when someone flips their phone over sideways, I don’t want it to completely readjust."* **That is not "do nothing" — the dashboard readjusts today**, because `theme.css`’s `min-width: 700px` and `560px` rules fire on a sideways phone (844px wide) and turn a settings sheet into a desk panel showing 20% of its form. Both gain `min-height: 500px`. *A layout decision that spends height must ask about height.* **The finding that outlived the withdrawn landscape work:** `sweep-widths.mjs 844` reported CLEAN on a viewport where the sign-in card sits 25px past the bottom — every check it owns asks about the RIGHT edge. **The four portrait decisions:** only the lit job is a card (five identical 289px cards is our own named slop tell); a settings screen becomes a page; Today’s ledger panel becomes one row of figures; a Clients row drops the email for spend and last visit. **And the process lesson: a whole landscape layout was built before he saw a sentence of it.**
 
-- **Roadmap 2.11, step 6, stage 1 — the shell and Today built, and the grid row that made a flat DOM impossible** — the first code in the rebuild. **`DESKTOP_SPEC_BUILT` is `true`** and the content column went 724 -> **1,144px**; Today went **1,810 -> 1,006px at 1440x900** and **2,500 -> 1,103px at 392**. **Three things a later session would otherwise re-derive the hard way:** a grid row is as tall as its tallest item, so the second column sharing row 1 with the masthead pushed the ledger 264px down the page and there is no way to span an unknown number of IMPLICIT rows — the primary column has to be one element and the stagger has to look one level deeper; the rail's `animation: none` override has to sit AFTER the stagger block it overrides, because both selectors are (0,3,0) and source order decides; and **the rotation guard was THREE places, not the two the phone pass listed** — the calendar cell's own 700px rule spends height too. **The list was the bug, not the rule: a file naming two instances of a pattern invites a session to fix two and stop.** Also: **two sessions were given this same prompt and both wrote to the tree**, so the collision and how it was resolved are recorded here rather than dying in a chat.
+- **Roadmap 2.11, step 6, stage 1 — the shell and Today built, and the grid row that made a flat DOM impossible** — the first code in the rebuild. **`DESKTOP_SPEC_BUILT` is `true`** and the content column went 724 -> **1,144px**; Today went **1,810 -> 1,006px at 1440x900** and **2,500 -> 1,103px at 392**. **Three things a later session would otherwise re-derive the hard way:** a grid row is as tall as its tallest item, so the second column sharing row 1 with the masthead pushed the ledger 264px down the page and there is no way to span an unknown number of IMPLICIT rows — the primary column has to be one element and the stagger has to look one level deeper; the rail's `animation: none` override has to sit AFTER the stagger block it overrides, because both selectors are (0,3,0) and source order decides; and **the rotation guard was THREE places, not the two the phone pass listed** — the calendar cell's own 700px rule spends height too. **The list was the bug, not the rule: a file naming two instances of a pattern invites a session to fix two and stop.** **And exercising the record's new container found two defects on `/job/:id`** — the page a push notification opens: losing the `<Sheet>` took its only way back, and every exit from it went to `/`, **the marketing site**, because the dashboard is `/app`. The second predates the rebuild and was only findable by PRESSING the control the first one added. Also: **two sessions were given this same prompt and both wrote to the tree**, so the collision and how it was resolved are recorded here rather than dying in a chat.
 
 <!-- INDEX:END -->
 
@@ -6526,3 +6526,25 @@ so nothing changes on the three screens this stage does not build.
 **The general rule: on a collision, the session that is further along keeps
 the tree, the other writes nothing further and does NOT revert, and whatever
 survives is read in full before it is adopted.**
+
+### 7. TWO DEFECTS ON `/job/:id` THAT ONLY EXISTED BECAUSE SOMETHING WAS EXERCISED
+
+`BookingDetail` losing its own `<Sheet>` is right, and it cost this page the
+`X` in that sheet's header. **`JobPage` had `onClose` wired to the dashboard
+and nothing on screen that could call it** — a job opened from a push
+notification was a dead end. It now draws a *Dashboard* control above the
+name.
+
+**And pressing that control found the second one, which predates the rebuild
+entirely: every way out of this page went to `/`, which is the MARKETING
+SITE.** `main.jsx` maps `/` to `LandingPage` and the dashboard to `/app`, and
+`JobPage` had four `navigate("/")` calls — the close, the change handler, and
+the not-found screen's own *"Go to dashboard"* button, which did not go to the
+dashboard. A detailer who opened a job from a notification and pressed
+anything landed on the sales page for the product they already own.
+
+**Neither was findable by reading, and that is the point.** The first needed
+the page rendered; the second needed the control PRESSED. It had never been
+pressed because until this change the record's own sheet swallowed the close,
+so the route underneath it was never taken. **A code path with no way to reach
+it is not a working path — it is an unmeasured one.**

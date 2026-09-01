@@ -1633,6 +1633,17 @@ there is ONE rail; the desktop spec §4a's day-controls row is struck (they
 expand in place — the owner's own W1); and the phone pass §2a records the third
 rotation guard.
 
+**AND EXERCISING THE NEW CONTAINER FOUND TWO DEFECTS ON `/job/:id`, THE PAGE A
+PUSH NOTIFICATION OPENS.** `BookingDetail` losing its own `<Sheet>` took that
+sheet's `X` with it, so the page had a close handler and nothing on screen that
+could call it — a dead end. It has a *Dashboard* control now. **And pressing
+that control found the second, which predates the rebuild: all four
+`navigate("/")` calls in `JobPage` go to the MARKETING SITE**, because `/` is
+`LandingPage` and the dashboard is `/app` — including the not-found screen's own
+*"Go to dashboard"* button, which did not. **Neither was findable by reading:
+one needed the page rendered, the other needed the control pressed, and it had
+never been pressed because the sheet used to swallow the close.**
+
 **AND TWO SESSIONS WERE GIVEN THIS PROMPT AT ONCE.** A second Claude session
 was editing the same working tree and spotted `theme.css` changing under it.
 It stood down without reverting — a `git checkout` would have taken this

@@ -89,7 +89,9 @@ export default function Today({ refreshKey = 0 }) {
   const [slots, setSlots] = useState(null);
 
   // A booking made from the header's + has to reach the day it landed on.
-  useEffect(() => { if (refreshKey) reload(); }, [refreshKey]); // eslint-disable-line
+  // refreshKey ALONE on purpose: reload's identity changes whenever the hook's
+  // dates do, and re-running this on that would double every read.
+  useEffect(() => { if (refreshKey) reload(); }, [refreshKey]);
 
   const todays = bookings.filter((b) => b.booking_date === today && b.status !== "cancelled");
   const tomorrows = bookings.filter((b) => b.booking_date === tomorrow && b.status !== "cancelled");
