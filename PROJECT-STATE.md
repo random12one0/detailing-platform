@@ -1644,6 +1644,15 @@ that control found the second, which predates the rebuild: all four
 one needed the page rendered, the other needed the control pressed, and it had
 never been pressed because the sheet used to swallow the close.**
 
+**AND THE HOOK FIX HAD TO BE FINISHED ON ITS OTHER TWO CALLERS.** Splitting
+`loading` from `refreshing` stopped Calendar and Money blanking themselves — but
+they did not READ `refreshing`, so walking to another month showed **September's
+marks under an August heading**, which is worse than the spinner it replaced.
+One class and one `aria-busy` each. Verified with a MutationObserver on a month
+change: `["group|kids=3", "center|kids=1"]` became
+`["group refreshing|kids=2", "group|kids=2"]`. **Fixing the shared function is
+right, and it is only half the fix if the callers each had to answer it.**
+
 **AND TWO SESSIONS WERE GIVEN THIS PROMPT AT ONCE.** A second Claude session
 was editing the same working tree and spotted `theme.css` changing under it.
 It stood down without reverting — a `git checkout` would have taken this

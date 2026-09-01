@@ -62,7 +62,7 @@ export default function Calendar() {
 
   const from = mode === "month" ? monthStart : listFrom;
   const to = mode === "month" ? monthEnd : listTo;
-  const { bookings, loading, reload } = useBookings(from, to);
+  const { bookings, loading, refreshing, reload } = useBookings(from, to);
 
   // Day marks for the month grid — blockouts and drop-off-only periods, both
   // of which are date RANGES, expanded into the days they cover.
@@ -146,7 +146,7 @@ export default function Calendar() {
     .reduce((s, b) => s + Number(b.final_amount ?? b.total_price ?? 0), 0);
 
   return (
-    <div className="group">
+    <div className={`group${refreshing ? " refreshing" : ""}`} aria-busy={refreshing || undefined}>
       <div className="row between">
         <div className="row" style={{ gap: 6 }}>
           <button className={`chip ${mode === "month" ? "active" : ""}`} onClick={() => setMode("month")}>Month</button>

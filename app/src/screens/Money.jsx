@@ -58,7 +58,7 @@ export default function Money() {
   // shorter lifetime.
   const from = [buckets[0]?.start, previous.start].filter(Boolean).sort()[0];
   const to = period.end > today ? today : period.end;
-  const { bookings, loading, reload } = useBookings(from, to);
+  const { bookings, loading, refreshing, reload } = useBookings(from, to);
   const [expenses, setExpenses] = useState([]);
   const [lineItems, setLineItems] = useState([]);
   const [adding, setAdding] = useState(false);
@@ -149,7 +149,7 @@ export default function Money() {
   const periodExpenses = expenses.filter((e) => inPeriod(e.date, period));
 
   return (
-    <div className="group">
+    <div className={`group${refreshing ? " refreshing" : ""}`} aria-busy={refreshing || undefined}>
       <div className="tight">
         <h1 className="display">Money</h1>
         {/* W6. The chips choose the LENGTH, the arrows choose WHICH one —

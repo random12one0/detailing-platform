@@ -150,7 +150,7 @@ were made more than once.
 
 - **Roadmap 2.11, step 4b — the phone re-decided, and he ruled it portrait-only** — the owner rejected *"below 1024 nothing changes"*, so **every screen’s phone form was decided again from nothing**; "unchanged" was not an allowed answer. **He then reversed his own morning ask and ruled phones PORTRAIT ONLY** — and the reversal is the load-bearing part: *"when someone flips their phone over sideways, I don’t want it to completely readjust."* **That is not "do nothing" — the dashboard readjusts today**, because `theme.css`’s `min-width: 700px` and `560px` rules fire on a sideways phone (844px wide) and turn a settings sheet into a desk panel showing 20% of its form. Both gain `min-height: 500px`. *A layout decision that spends height must ask about height.* **The finding that outlived the withdrawn landscape work:** `sweep-widths.mjs 844` reported CLEAN on a viewport where the sign-in card sits 25px past the bottom — every check it owns asks about the RIGHT edge. **The four portrait decisions:** only the lit job is a card (five identical 289px cards is our own named slop tell); a settings screen becomes a page; Today’s ledger panel becomes one row of figures; a Clients row drops the email for spend and last visit. **And the process lesson: a whole landscape layout was built before he saw a sentence of it.**
 
-- **Roadmap 2.11, step 6, stage 1 — the shell and Today built, and the grid row that made a flat DOM impossible** — the first code in the rebuild. **`DESKTOP_SPEC_BUILT` is `true`** and the content column went 724 -> **1,144px**; Today went **1,810 -> 1,006px at 1440x900** and **2,500 -> 1,103px at 392**. **Three things a later session would otherwise re-derive the hard way:** a grid row is as tall as its tallest item, so the second column sharing row 1 with the masthead pushed the ledger 264px down the page and there is no way to span an unknown number of IMPLICIT rows — the primary column has to be one element and the stagger has to look one level deeper; the rail's `animation: none` override has to sit AFTER the stagger block it overrides, because both selectors are (0,3,0) and source order decides; and **the rotation guard was THREE places, not the two the phone pass listed** — the calendar cell's own 700px rule spends height too. **The list was the bug, not the rule: a file naming two instances of a pattern invites a session to fix two and stop.** **And exercising the record's new container found two defects on `/job/:id`** — the page a push notification opens: losing the `<Sheet>` took its only way back, and every exit from it went to `/`, **the marketing site**, because the dashboard is `/app`. The second predates the rebuild and was only findable by PRESSING the control the first one added. Also: **two sessions were given this same prompt and both wrote to the tree**, so the collision and how it was resolved are recorded here rather than dying in a chat.
+- **Roadmap 2.11, step 6, stage 1 — the shell and Today built, and the grid row that made a flat DOM impossible** — the first code in the rebuild. **`DESKTOP_SPEC_BUILT` is `true`** and the content column went 724 -> **1,144px**; Today went **1,810 -> 1,006px at 1440x900** and **2,500 -> 1,103px at 392**. **Three things a later session would otherwise re-derive the hard way:** a grid row is as tall as its tallest item, so the second column sharing row 1 with the masthead pushed the ledger 264px down the page and there is no way to span an unknown number of IMPLICIT rows — the primary column has to be one element and the stagger has to look one level deeper; the rail's `animation: none` override has to sit AFTER the stagger block it overrides, because both selectors are (0,3,0) and source order decides; and **the rotation guard was THREE places, not the two the phone pass listed** — the calendar cell's own 700px rule spends height too. **The list was the bug, not the rule: a file naming two instances of a pattern invites a session to fix two and stop.** **And exercising the record's new container found two defects on `/job/:id`** — the page a push notification opens: losing the `<Sheet>` took its only way back, and every exit from it went to `/`, **the marketing site**, because the dashboard is `/app`. The second predates the rebuild and was only findable by PRESSING the control the first one added. **And the hook fix had to be finished on its other two callers** — Calendar showed September's marks under an August heading with nothing saying so, which is worse than the spinner it replaced: *fixing the shared function is right, and it is only half the fix if the callers each had to answer it.* Also: **two sessions were given this same prompt and both wrote to the tree**, so the collision and how it was resolved are recorded here rather than dying in a chat.
 
 <!-- INDEX:END -->
 
@@ -6548,3 +6548,24 @@ the page rendered; the second needed the control PRESSED. It had never been
 pressed because until this change the record's own sheet swallowed the close,
 so the route underneath it was never taken. **A code path with no way to reach
 it is not a working path — it is an unmeasured one.**
+
+### 8. AND THE HOOK FIX HAD TO BE FINISHED ON ITS OTHER TWO CALLERS
+
+Splitting `loading` from `refreshing` in `useBookings` stopped Calendar and
+Money replacing themselves with a spinner — but they did not READ `refreshing`,
+so walking to another month showed **September's marks under an August
+heading** for as long as the read took, with nothing saying so. **That is worse
+than the spinner it replaced**, and it was introduced by fixing the hook
+without finishing the callers.
+
+One class and one `aria-busy` on each screen's root, the same as Today.
+Verified with a MutationObserver — the instrument step 4 used to find the
+original defect — on a month change:
+
+```
+before   ["group|kids=3", "center|kids=1"]     the screen thrown away
+after    ["group refreshing|kids=2", "group|kids=2"]   nothing removed
+```
+
+**The rule this is an instance of: fixing something in the shared function is
+right, and it is only half the fix if the callers each had to answer it.**
