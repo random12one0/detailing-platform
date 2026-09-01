@@ -139,6 +139,7 @@ were made more than once.
 - **Roadmap 2.11 — he asked for the dashboard from scratch** — desktop gets a real SPECIFICATION, and the rebuild is sequenced inventory → research → spec → screens → components → his approval → build. ~~One question is open~~ **ANSWERED: the look stays.**
 - **"The look stays" — what that actually fences off** — his words, and then his own follow-up ("just the colors and fonts, right?"). **It is not: the ground, the accent-is-never-meaning rule, the motion budget and the accessibility floors ride along with it.** Three buckets, in roadmap 2.11.
 - **Roadmap 2.11, steps 0–2 — the day is seeded and the list is written** — 118 capabilities from five sources, and **Today had never been looked at with anything on it.** Five new defects the empty screen was hiding, the worst being that **“Your colour” cannot change the colour customers see in their email** — four of twelve presets under the contrast floor, and “Sky” draws the invoice title 1:1.
+- **His answers to the inventory's seven** — all seven the same day, and **three answered bigger than they were asked.** Q1 overruled the recommendation (a setup FORM plus a separate guided tour); **Q5 became roadmap 2.12** — a switch between a booking that RESERVES and a booking that is a REQUEST. And the caveat that matters more than any answer: **the file was too long for him to read.**
 
 <!-- INDEX:END -->
 
@@ -5512,3 +5513,107 @@ is that step's entire reason for existing. Files:
   because a modal hides the reference data. **Our whole dashboard opens records
   in modal sheets.** Right on a phone, the named mistake at 1920, and
   independent corroboration for decision 6 that Part B reached on its own.
+
+
+## His answers to the inventory's seven (2026-08-31)
+
+Same day. He approved the 117-row list and answered every question, which took
+the inventory to 126. Files: `docs/dashboard-feature-inventory-2026-08-31.md`
+§9 (his words, in full) and §2j (the nine rows they added). PROJECT-STATE §6i.
+
+- **THE CAVEAT IS WORTH MORE THAN ANY OF THE ANSWERS, AND IT IS A PROCESS
+  FAILURE OF MINE.** *"I kind of went through the specifications of each
+  feature, but I didn't read every single word because there's just so many
+  words, and I think I'd lose my mind reading that. But if it's just what we've
+  already had established, then it's fine."* He approved a document he could not
+  finish reading, **on trust that it contained nothing invented** — and it did
+  not, because every row carries a source tag and everything new was quarantined
+  in §9 by design. But trust is not the same as approval, and the fix is not to
+  write less: it is that **a file he has to APPROVE needs a top layer he can
+  actually read.** §0a is now that layer — the whole file on one screen. CLAUDE.md
+  already says chat messages must be understandable to a non-programmer; this
+  extends it: **a document that asks him for a decision is a chat message that
+  happens to live in a file.**
+
+- **Q1 OVERRULED THE RECOMMENDATION, AND THE RECOMMENDATION WAS TOO CAUTIOUS.**
+  "Empty states, not a wizard" was proposed on the grounds that a wizard is the
+  thing people abandon. He asked for **a setup form** covering everything in
+  Settings the booking page needs — *"they could, like, skip stuff or enter it
+  later"* — **and separately a guided walkthrough of the dashboard.** The
+  skippability is exactly what defuses the objection the recommendation was
+  built on, and he supplied it unprompted. **His three constraints on the guide
+  are the specification, not preferences:** *"not have paragraphs of text… more
+  steps and not try to combine any things into one step… just put some thought
+  through into that."* A guide that breaks those is worse than no guide, and he
+  said so before it existed. **Two rows, not one — the form and the tour are
+  different products and building them as one is how the form becomes a wizard.**
+
+- **Q5 IS THE ANSWER THAT CHANGED THE MOST, AND HE ASKED A BETTER QUESTION THAN
+  THE ONE PUT TO HIM.** Quotes were offered and deferred with a recommendation
+  of "not in this rebuild". He answered past it: *"that kind of brings up a
+  whole new kind of opinion… there should be kind of a switch"* — does a
+  booking RESERVE the slot, or is it a REQUEST the detailer accepts?
+  **Reserve-on-booking is Andrew's own model and it is currently baked in for
+  every tenant on the platform**, which nobody had noticed was a tenant choice
+  at all. That is a bigger finding than quotes and it came from him.
+
+  **It is roadmap 2.12 rather than part of 2.11, and the line is not
+  bureaucratic.** It needs a per-business setting, a booking that is held rather
+  than reserved, an accept/decline path, and — the hard part — availability that
+  behaves differently per mode: **in request mode two requests can want the same
+  slot, which the `bookings_no_overlap` exclusion constraint currently forbids
+  outright.** None of that is layout. **But it stays on the inventory**, because
+  he named where the accept action goes (*"the page that the detailer uses their
+  bookings on"*), so **2.11 step 4 designs the day screen WITH an accept state
+  and 2.12 fills it in.** This is the exact thing step 1 exists to prevent: a
+  screen designed around a feature nobody listed gets it bolted on later.
+
+- **Q7 WAS A WORRY, NOT A QUESTION, AND WORRIES GET ANSWERED RATHER THAN HANDED
+  BACK.** *"I don't wanna have a huge database because I don't wanna store their
+  photos on my end."* **He already does.** Gallery images have gone to the
+  `business-media` Supabase bucket — per-business folder, 10 MB cap, public
+  read — since Phase 2, so before-and-after photos are the same mechanism
+  pointed at a booking. Measured rather than reassured: a compressed pair is
+  ~1.6 MB, a busy detailer books ~1,560 jobs a year, so **~2.5 GB per detailer
+  per year** against Supabase Pro's **100 GB included** and **$0.0213/GB/month**
+  beyond it (checked 2026-08-31). **Ten detailers use a quarter of the included
+  storage in year one, and a further 100 GB would cost about $2.13 a month.**
+  CLAUDE.md's rule is never to hand him a decision without what he needs to make
+  it; the corollary is that **when the missing thing is a number, go and get the
+  number.**
+
+- **Q3 IS THE ONLY CONDITIONAL ROW ON THE LIST AND IT IS MARKED THAT WAY ON
+  PURPOSE.** *"If you could find a way to have a week view that's convenient and
+  doesn't make it a burden, then sure."* That is not a yes. **A conditional yes
+  read as a yes is how features nobody wanted get built**, so row 31 carries the
+  status `conditional`, step 3 tries it against the desktop layout — where the
+  month may already sit beside the selected day, which could make it redundant —
+  and if it cannot be made good, **it does not ship and the file records why.**
+
+- **Q6 WAS PARKED BY HIM AND IS DELIBERATELY NOT A ROW.** *"That might be a
+  later kind of decision because payment and whatever, I may get to later."*
+  Nothing is designed around deposits; the only obligation on step 4 is not to
+  make them impossible. **Two things were recorded for when he returns**, both
+  unasked-for and both short: the routing he described — customers pay him, he
+  pays the detailer — is the normal marketplace pattern and is done with Stripe
+  Connect **without the platform ever holding the funds**, which is what keeps
+  him out of money transmission; and deposits are the strongest answer to
+  no-shows, which is the loss the trade research names.
+
+- **THE EMAIL COLOUR FIX GOT A GO-AHEAD IT WAS NOT ASKING FOR.** The defect was
+  deliberately kept off his list as craft rather than a decision (see the entry
+  above). He answered it anyway and widened it: *"we should work on the emails
+  and other places where colors should apply. We should have it work and adapt
+  based off of what color the detailer chooses."* **"Other places" is the
+  operative phrase** — it is an instruction to go looking for the rest, not just
+  to fix email. So the fix carries a condition: **`accent-sweep.mjs` grows to
+  cover the email path in the same change**, or the floor exists on paper only,
+  which is this file's oldest recurring failure.
+
+- **THREE OF SEVEN ANSWERED BIGGER THAN ASKED, AND THAT IS A SIGNAL ABOUT HOW TO
+  ASK HIM THINGS.** Q1, Q5 and Q7 all came back larger or reframed. The pattern:
+  **the questions he expands are the ones about how a detailer actually works**,
+  and the ones he answers narrowly (Q3, Q4) are about software. Ask him about
+  the trade and he supplies the requirement; ask him about the product and he
+  delegates. That is the same lesson as roadmap 2.8, where his own menu shape
+  overruled five researched ones.

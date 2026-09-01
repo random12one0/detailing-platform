@@ -895,11 +895,58 @@ ceiling is 2-3 unique indicators per list entry; our booking card carries four
 families), and **F3** (Jobber gives Home's first slot to a dynamic setup guide -
 direct evidence for the first-run question).
 
-**WHAT IS WAITING ON HIM.** Approve the 118-row list, and answer as many of the
-seven questions at §9 as he has an opinion about: a first-run state; an FAQ for
-tenant sites; a week view; a CSV for the accountant; quotes before a booking; a
-deposit at booking; before-and-after photos on a job. **Recommendations are on
-all seven.** Steps 3-6 do not start until the list is approved.
+**HE APPROVED THE LIST AND ANSWERED ALL SEVEN, THE SAME DAY. THE LIST IS NOW
+126 AND NOTHING IS WAITING ON HIM.** Three of the seven he answered BIGGER than
+they were asked, and his caveat is instruction as much as approval: *"I didn't
+read every single word because there's just so many words, and I think I'd lose
+my mind reading that. But if it's just what we've already had established, then
+it's fine."* **It was** - every original row carries a source tag and nothing was
+invented outside §9. **§0a of the inventory is now a one-page version, and that
+is the lesson: a file he has to APPROVE needs a top layer he can actually read.**
+
+- **Q1, first-run - YES, and he overruled the recommendation.** "Empty states,
+  not a wizard" was proposed; he wants **a setup form** that collects everything
+  in Settings the booking page needs, **skippable and resumable**, AND
+  **separately a guided walkthrough** of the dashboard. His three constraints on
+  the guide are the specification and are not stylistic: **no paragraphs, MORE
+  steps rather than fewer, never two things in one step.**
+- **Q2, FAQ - YES, optional, never a default.** He asks each detailer; **the
+  detailer writes the answers** ("they're the detailer"); AI may polish the
+  wording only. Three rows, because turning it on, writing it and improving it
+  are three different things.
+- **Q3, week view - CONDITIONAL, and it is the only conditional row on the
+  list.** *"If you could find a way to have a week view that's convenient and
+  doesn't make it a burden, then sure."* Step 3 tries it against the desktop
+  layout and **if it cannot be made good it does not ship.**
+- **Q4, export - YES.** Jobs and expenses, nothing more.
+- **Q5 - HE REPLACED THE QUESTION WITH A BIGGER ONE, AND IT IS THE MOST
+  CONSEQUENTIAL ANSWER OF THE SEVEN.** Not just quotes: a per-detailer
+  **switch between "a booking RESERVES the slot" and "a booking is a REQUEST
+  the detailer accepts"**. Reserve-on-booking is Andrew's own model and it is
+  currently baked in for everybody. He named where the accept action goes -
+  *"the page that the detailer uses their bookings on"*. **This is engine and
+  schema work and 2.11 reopens neither, so it is roadmap 2.12** - but it is on
+  the list because **step 4 now designs the day screen WITH an accept state**
+  instead of having one bolted on.
+- **Q6, deposits - PARKED BY HIM**, explicitly, until he reaches payments. Not
+  a row. Two things recorded for when he picks it up: the routing he described
+  is the normal pattern and is done with Stripe Connect **without the platform
+  ever holding the funds**, and deposits are the strongest answer to no-shows.
+- **Q7, photos - his only worry was storage, and it is answered rather than
+  handed back.** He already stores their photos: gallery images go to the
+  `business-media` bucket, per-business folder, 10 MB cap, live since Phase 2.
+  A before/after pair is ~1.6 MB, so a busy detailer at 1,560 jobs a year is
+  **~2.5 GB/year**; Supabase Pro includes **100 GB** and overage is **$0.0213/GB
+  /month** (checked 2026-08-31). **Ten detailers use about a quarter of the
+  included storage in year one.**
+- **And the email colour defect got a go-ahead it was not asking for:** *"we
+  should work on the emails and other places where colors should apply. We
+  should have it work and adapt based off of what color the detailer chooses."*
+  **`accent-sweep.mjs` grows to cover the email path in the same change**, or
+  the floor exists on paper only.
+
+**WHAT IS OPEN: NOTHING FOR HIM. Steps 3, 4 and 5 are the next session's work**,
+and step 6 is where he approves the whole specification.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

@@ -1612,17 +1612,68 @@ is kept; the entire visual design restarts from scratch.
         the 3:1 floor on the email's header band, and picking "Sky" draws the
         invoice title at **1:1, the same colour on itself.** Email is the one
         surface `accent-sweep.mjs` does not reach.
-      - **SEVEN QUESTIONS ARE WAITING FOR HIM** at §9 of the inventory, each
-        with a recommendation: a first-run state, an FAQ for tenant sites, a
-        week view, a CSV for the accountant, quotes before a booking, a deposit
-        at booking, before-and-after photos on a job. **He approves the list
-        first; steps 3–6 do not start until he has.**
+      - ~~**SEVEN QUESTIONS ARE WAITING FOR HIM**~~ **ANSWERED, ALL SEVEN, THE
+        SAME DAY, AND THE LIST IS APPROVED — it is now 126 rows.** Three he
+        answered bigger than they were asked. **Q1 overruled the
+        recommendation:** he wants a skippable setup FORM plus a separate
+        guided walkthrough, and his constraints on the guide are the spec — no
+        paragraphs, MORE steps, never two things in one step. **Q2:** FAQ, yes,
+        optional, and the detailer writes it. **Q3:** week view only if it can
+        be made convenient — the one `conditional` row on the list. **Q4:**
+        export, yes. **Q5 became roadmap 2.12** — see below. **Q6:** deposits
+        parked by him. **Q7:** photos, yes; the storage worry is answered with
+        numbers (~2.5 GB per detailer per year against 100 GB included).
+        **His caveat is instruction:** the file was too long to read, so §0a is
+        now a one-page version — **anything he has to APPROVE needs a top layer
+        he can actually read.**
+      - **He also green-lit the colour fix without being asked:** *"we should
+        work on the emails and other places where colors should apply… have it
+        adapt based off of what color the detailer chooses."* One colour,
+        everywhere, with a floor, and **`accent-sweep.mjs` grows to reach email
+        in the same change.**
       - **One finding steps 3 must handle carefully (F14).** Every product in
         the sample changes its navigation SHAPE on desktop and ours does not.
         **That is NOT the tab bar reopening** — Part A settled which five
         destinations exist and in what order, and it stands. What is open is
         where the bar is DRAWN above the desktop breakpoint, which is decision
         6's scope and has never been specified.
+- [ ] 2.12 **Request-vs-reserve, accept/decline, and quotes — the OWNER's
+      answer to 2.11's question 5, 2026-08-31, and it is engine work rather
+      than layout.**
+
+      > *"I think there should be kind of a switch. Like, basically, when
+      > someone books through the website, is it done booking, you know,
+      > putting a request, or is it just like a ‘hey, I want to book this
+      > time'? Because how I have it is, when you book, you're pretty confident
+      > that's gonna be your day… you've reserved a time slot. Whereas other
+      > detailers might want it that they just put in a request, and nothing is
+      > reserved to them. It's just a request that they have to accept."*
+      >
+      > *"And maybe we can even have an accept page, or that same page — or the
+      > Today page … the page that the detailer uses their bookings on, it could
+      > be ‘accept this booking'. And then they can also send quotes, to have
+      > that option. Obviously that's quite a bit of work, but that's probably
+      > something a detailer would want to have an option for."*
+
+      **Why it is its own item.** Roadmap 2.11 redraws the dashboard and
+      explicitly does not reopen the schema, the quote engine or the booking
+      flow. This changes all three: a per-business mode setting, a booking that
+      is HELD rather than reserved, an accept/decline path, and availability
+      that behaves differently in each mode (in request mode a slot is not
+      taken, so two requests can want the same time — which the exclusion
+      constraint currently forbids). **That last one is the hard part and it is
+      not a UI question.**
+
+      **What 2.11 still owes it.** Rows 123–25 of
+      `docs/dashboard-feature-inventory-2026-08-31.md`. He named where the
+      accept action lives — the screen the day is on — so **2.11 step 4 designs
+      the day screen WITH an accept state**, and this item fills it in. That is
+      the whole reason step 1 listed features before step 4 drew screens.
+
+      **Quotes are the smaller half** and were the original question; the mode
+      switch is the part that matters, because reserve-on-booking is currently
+      Andrew's model baked in for every tenant.
+
 - [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
 
@@ -1809,7 +1860,8 @@ those are not negotiable by any skill.
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
-| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills, **unless he answers (B) to the open question at the top of the item.** Steps 1–5 produce FILES; he approves before any code |
+| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. **Steps 0–2 are done and the list is approved** |
+| 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |
 | 5 — Andrew's migration | `security-review`, `code-review`. Real customer data — no shortcuts | anything that writes to the old project without an explicit go-ahead |

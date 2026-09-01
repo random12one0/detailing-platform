@@ -1,5 +1,22 @@
 # The dashboard's complete feature inventory — 2026-08-31 (roadmap 2.11, step 1)
 
+> **APPROVED BY THE OWNER, 2026-08-31, with one caveat and seven answers.**
+> His caveat, in full, because it is instruction as much as approval: *"I kind
+> of went through the specifications of each feature, but I didn't read every
+> single word because there's just so many words, and I think I'd lose my mind
+> reading that. But if it's just, you know, what we've already had established,
+> then, you know, it's fine."*
+>
+> **It is what was already established.** Every one of the original 117 rows
+> carries a source tag — the code, the database, his own decisions, Phase 3, or
+> the six-product comparison — and nothing was invented outside §9, which is
+> exactly why §9 existed. **§0a is the one-page version he should not have had
+> to ask for.**
+>
+> **His answers are written into §9, and nine capabilities were added by them
+> — §2j. The list is now 126.** Two of the nine are not this item's work and
+> say so.
+
 **This is the list the whole rebuild is laid out around, and it is the thing
 you approve before a single screen is designed.** Roadmap 2.11's own words:
 *"you cannot lay out a dashboard around features you have not listed"* — and
@@ -13,6 +30,47 @@ screens come after.
 
 ---
 
+## 0a. The whole thing on one page
+
+**You asked for this by telling me the file was too long. It is the file in one
+screen; everything below is the detail behind it.**
+
+| The dashboard has to hold | |
+|---|---|
+| **126 capabilities** | 117 found by looking, 9 added by your answers |
+| **98 already work** | the current dashboard, unchanged |
+| **7 are built and have no working screen** | reviews, monthly plans, custom domains, three social links, multi-business, and the push switch |
+| **4 are on screen and broken** | the push switch, the dead travel-fee field, a "last visit" that can print a future date, and the colour problem below |
+| **11 are new or newly agreed** | the setup form, the guided tour, three FAQ pieces, before-and-after photos, request-vs-reserve, accept a booking, quotes — plus the week view and the export, which were already on the list as open questions |
+
+**The three numbers that decide the layout**
+
+- **23 of them are about one job.** The densest object in the product, and it
+  lives in one long scroll with no structure. Every competitor that documents
+  its job screen breaks it into sections. **This is the screen most in need of
+  designing.**
+- **37 are configuration** — nearly a third of everything, and it is what your
+  customer meets. That is the number behind the Business tab.
+- **7 have no working screen at all**, and three of the four things your tenant
+  websites are missing are among them.
+
+**The one fault worth knowing about**
+
+The screen called "Your colour" cannot change the colour your customers see in
+their email. Four of your twelve colours make the business name at the top of
+that email too faint to read, and picking "Sky" makes the invoice email's own
+title invisible — the same colour as the band behind it. **You have said to fix
+it and to make colour work everywhere; that is now settled and does not need you
+again.**
+
+**What is NOT this rebuild** — two of your eleven need the booking engine
+changed, not the dashboard redrawn: **request-vs-reserve with an accept step,
+and quotes** (§9 Q5), and **deposits** (§9 Q6), which you have parked until you
+reach payments. Both are listed anyway, because the screens have to be designed
+knowing they are coming rather than have them bolted on afterwards.
+
+---
+
 ## 0. The short version, in plain words
 
 Think of the dashboard as a shop's back office. Before anyone decides where the
@@ -20,8 +78,9 @@ desk goes and which drawer holds what, somebody has to walk the room and write
 down everything that has to live in it — including the boxes still in the van,
 and the shelf that was ordered and never arrived.
 
-That walk is done. **The room has to hold 118 things**, and the table at §2
-counts them exactly:
+That walk is done. **The room has to hold 126 things** — 117 found by walking
+it, and nine more that your answers of 2026-08-31 added. The tables at §2
+count them exactly:
 
 | | |
 |---|---|
@@ -29,8 +88,8 @@ counts them exactly:
 | **6** | are things **you** have already said come back |
 | **6** | are built into the walls with **no door on them at all** — the database and the server do the work and no screen anywhere reaches them |
 | **4** | are in the room and **broken**: a switch or a field that is on the screen and does not do what it says |
-| **3** | are **questions for you** — §9 |
 | **1** | is Phase 3 work that has nothing behind it yet |
+| **9** | were added by your answers — §2j. **Three of the original 117 were questions and all three are now answered**, so nothing on this list is waiting on you |
 
 **Two of those groups overlap with things named elsewhere in this file and the
 numbers are not the same, on purpose.** §3 counts **seven** things with a
@@ -44,7 +103,9 @@ screen). Where a number could mean two things, both are stated.
 five places: the code as it stands today, the database, your own recorded
 decisions, Phase 3's requirements, or the six competitor products researched
 in roadmap 2.10. Where I think something is missing and you have never ruled
-on it, it is in **§9 as a question**, not smuggled into the table.
+on it, it **was** in §9 as a question rather than smuggled into the table — and
+**§9 is now answered in full.** The eleven rows those answers added are kept
+separate at §2j, so what was found and what was asked for never blur together.
 
 **The one thing worth your attention before anything else:** §7 lists live
 defects, and **five of them are new** — nobody has seen them before
@@ -91,7 +152,8 @@ proposal about the next one.
 
 **Status column:** `works` · `broken` (on screen, does not do what it says) ·
 `no screen` (built underneath, unreachable) · `comes back` (your decision) ·
-`Phase 3` · `question` (§9 — you rule on it).
+`Phase 3` · `new` (agreed 2026-08-31, not built) · `conditional` (agreed only
+if it can be made good — there is exactly one).
 
 ### 2a. The day, and one job
 
@@ -132,7 +194,7 @@ proposal about the next one.
 | 28 | Give one day different hours from the usual week | a | works | `DaySheet` → `booking_hours_overrides` |
 | 29 | Make a day or a stretch of days drop-off-only, or mobile-only | a | works | `DaySheet` → `dropoff_only_periods` |
 | 30 | Find a past job by customer, service or status | a | works | Calendar → History |
-| 31 | See a week rather than a month | e | question | Nowhere — §9 Q3 |
+| 31 | See a week rather than a month | e + o | **conditional** | Nowhere — §9 Q3 answered. **Only if it can be made convenient** |
 
 ### 2c. Money
 
@@ -146,7 +208,7 @@ proposal about the next one.
 | 37 | See expenses listed | a | works | Money |
 | 38 | See income against expenses | a | works | Money — the ledger |
 | 39 | Record how an expense was paid | a | works | `expenses.payment_method` |
-| 40 | Export or send the figures to an accountant | e | question | Nowhere — §9 Q4 |
+| 40 | Export or send the figures to an accountant | e + o | **new** | Nowhere — §9 Q4 answered: yes |
 
 ### 2d. Customers
 
@@ -254,7 +316,42 @@ proposal about the next one.
 | 115 | Sign in | a | works | `Auth` |
 | 116 | Create a business | a | works | `CreateBusiness` → `create-business` |
 | 117 | Accept an invitation to someone else's business | a | works | `AcceptInvite` → `accept-invite` |
-| 118 | Be shown something useful on the very first run, before any data exists | a | question | Nowhere. §9 Q1 |
+
+### 2j. Added by his answers of 2026-08-31
+
+Nine. **None of these is my idea** — each one is an answer he gave to §9, and
+the wording of the row follows what he actually asked for rather than what was
+proposed to him. Source tag **(o)**: the owner, 2026-08-31.
+
+**Two of his answers did not need a new row** — the week view and the export
+were already rows 31 and 40, sitting as open questions, and they are now marked
+answered where they already lived. **His first-run answer replaced a row rather
+than adding one:** the old row 118 asked whether there should be a first-run
+state at all, and rows 118 and 119 below are the two concrete things he asked
+for instead.
+
+| # | Capability | Src | Status | Belongs with | Note |
+|---|---|---|---|---|---|
+| 118 | A setup form a new detailer runs through that collects everything the booking page needs to work — hours, services, add-ons, promo codes, business info, booking rules | o | **new** | Getting started | **Skippable, and resumable later** — his words |
+| 119 | A guided walkthrough of the dashboard, highlighting one thing at a time | o | **new** | Getting started | **Many short steps, no paragraphs, nothing combined** — his constraint, quoted at §9 Q1 |
+| 120 | Turn an FAQ page on or off for this business | o | **new** | What your page says | **Optional, never a default** |
+| 121 | Write the FAQ — the detailer's own questions and answers | o | **new** | What your page says | The detailer writes it; **they are the detailer** |
+| 122 | Improve the wording of what they wrote | o | **new** | What your page says | His idea, and explicitly polish only — the answers stay theirs |
+| 123 | Choose whether a booking RESERVES the slot or is a REQUEST to be accepted | o | **new, engine** | When you can be booked | **Not this item.** §9 Q5 |
+| 124 | Accept or decline a request, from the screen the day lives on | o | **new, engine** | The day, and one job | **Not this item.** §9 Q5 |
+| 125 | Send a quote to a customer | o | **new, engine** | The day, and one job | **Not this item.** §9 Q5 |
+| 126 | Before-and-after photos on a job | o | **new** | The day, and one job | Storage is answered — §9 Q7 |
+
+**Rows 123–125 change the booking engine and the schema, which roadmap 2.11
+explicitly does not reopen.** They are on the list anyway, and the reason is his
+own instruction: *you cannot lay out a dashboard around features you have not
+listed.* **Step 4 designs the screens knowing these are coming.** The engine
+work is its own roadmap item.
+
+**Deposits (§9 Q6) are deliberately NOT a row.** He parked them — *"that might
+be a later kind of decision because payment and whatever, I may get to later."*
+Nothing is designed around them; the only obligation on step 4 is not to paint
+into a corner that makes them impossible.
 
 ---
 
@@ -478,13 +575,15 @@ once, and the test is rewritten to match.
 
 ## 8. What the count means for the layout
 
-**118 capabilities. The current dashboard reaches 98 of them.** Five tabs and
+**126 capabilities. The current dashboard reaches 98 of them.** Five tabs and
 eleven settings sheets carry those 98, which is why More became a drawer: it
 holds everything that did not fit the four verbs.
 
 Three numbers worth carrying into step 4:
 
-- **Twenty-three of the 118 are about one job** (§2a). That is the densest
+- **Twenty-three of them are about one job** (§2a), and his answers add three
+  more to that object — accept, quote, before-and-after photos — taking it to
+  **twenty-six.** That is the densest
   cluster in the product and it currently lives in one sheet reached from four
   places. The job record, not the day, may be the screen that most needs
   designing.
@@ -499,101 +598,197 @@ Three numbers worth carrying into step 4:
 
 ---
 
-## 9. What I need from you
+## 9. The seven questions — ALL ANSWERED, 2026-08-31
 
-**Approve the list, and answer as many of the seven as you have an opinion
-about.** A question you skip is not a blocker — I will build the specification
-without the feature and say so — but each one changes what step 4 has to make
-room for, and it is much cheaper to answer now than after a screen exists.
+He answered every one the same day, and **three of them he answered bigger than
+they were asked.** His words are quoted because in two places the wording is the
+requirement.
 
-None of these is on the list yet. They are all things I would otherwise be
-guessing about.
-
----
-
-**Q1 — Should the dashboard have a proper first-run state?**
-Right now a brand-new detailer signs up and lands on a dashboard where every
-screen is empty: no jobs, no clients, no money, no services. Nothing tells them
-what to do first, and the one thing they must do before anyone can book them —
-put their services and hours in — is behind a chevron on the fifth tab.
-**If you do it:** their first ten minutes have a path through them, and fewer
-people sign up and never finish. **If you don't:** nothing breaks for anyone
-who is already set up, and you keep explaining the first ten minutes yourself
-to every customer you onboard. **My recommendation: yes**, but as the empty
-state of the screens you already have — not a wizard. Empty states are being
-designed at step 4 anyway, so it is close to free if it is decided now, and
-expensive if it is decided later.
-
-**Q2 — Do tenant websites get an FAQ page, and if so who writes it?**
-Roadmap 3.1 lists FAQ as a page every tenant site gets. There is no table for
-it, no column, and no screen — so today an FAQ would have to be typed into the
-site's code by hand, which breaks the rule you confirmed (the front end is
-custom, the content comes from the dashboard). **If you add it:** it is one
-simple screen, questions and answers in a list, and every tenant site can have
-one that they maintain themselves. **If you don't:** either the page goes, or
-you write each client's FAQ into their site yourself and re-edit their code
-every time it changes. **My recommendation: add it**, because it is the
-cheapest of everything on this page and the alternative quietly makes you the
-editor for every client forever.
-
-**Q3 — Should the calendar get a week view?**
-Five of the six competitor products have one; ours has a month grid and a day
-sheet. A week view is the one that answers "what does the rest of this week
-look like" without tapping seven days. **If you do it:** it is genuinely useful
-on a desktop screen, which is being specified at step 3 anyway. **If you
-don't:** the month grid plus tapping a day covers it, just with more taps.
-**My recommendation: decide it at step 3, not now** — if the desktop layout
-puts the month beside the selected day, a week view may turn out to be
-redundant. Flagged so it is a decision rather than an omission.
-
-**Q4 — Should Money be able to hand figures to an accountant?**
-Five of six products have some form of report export. Ours shows the figures on
-screen and there is no way to get them out. **If you do it:** a CSV button is a
-morning's work, and at tax time it is the difference between a detailer reading
-numbers off a phone and sending a file. **If you don't:** they read the numbers
-off the phone. **My recommendation: yes, and keep it to a CSV of jobs and a CSV
-of expenses.** Anything more is accounting software, which this is not.
-
-**Q5 — Should a detailer be able to send a quote before there is a booking?**
-Two of the six do this: the customer asks about a job, the detailer sends a
-price, the customer accepts, and it becomes a booking. **If you do it:** it
-covers the "someone messaged me about a full correction" case that the booking
-page cannot price. **If you don't:** they quote by text and then key the
-booking in themselves, which is what happens today. **My recommendation: not in
-this rebuild.** It is a new object with its own states — sent, accepted,
-expired — and that is a feature, not a layout. Named here so it is a deferral
-rather than an oversight.
-
-**Q6 — Should customers be able to pay a deposit when they book?**
-Two of the six do. **If you do it:** it cuts no-shows, which is the thing the
-trade research says detailers actually lose money to. **If you don't:** nothing
-changes; the cancellation window is the only protection. **My recommendation:
-not in this rebuild, and it is the one on this page I would revisit soonest.**
-It needs a payment processor, which is a business decision and an account in
-your name — not something I should pick for you.
-
-**Q7 — Should a job carry before-and-after photos?**
-Two of the six have inspection photos on a job. Detailing is the trade where
-that is most obviously worth something — the before-and-after IS the product.
-**If you do it:** it is a small addition to a screen that exists, and it feeds
-the gallery and the reviews the websites want. **If you don't:** detailers keep
-using their camera roll, which works and is invisible to the platform.
-**My recommendation: yes, and it is the strongest of the seven** — you already
-have photo upload built for the gallery, so this is mostly the job screen
-finding a place to put it.
+**And one thing that was never a question got an answer too.** On the email
+colour defect (§7 D1) he said: *"yes, we should work on the emails and other
+places where colors should apply. We should have it work and adapt based off of
+what color the detailer chooses."* That is the fix already recorded as craft —
+one colour, everywhere, adapted for legibility — now with his explicit
+go-ahead. **`accent-sweep.mjs` grows to cover the email path in the same
+change**, or it is a floor that exists on paper.
 
 ---
 
-## 10. What happens when you answer
+### Q1 — A proper first-run state? **YES, and it is TWO things, not one.**
 
-Steps 2 to 5 run on whatever this list says. Nothing is built until step 6,
-when you approve the whole specification.
+> *"There should be, like, a sign up form or something that basically gets them
+> to put in all of their information about the business that needs for the site
+> to function. So like you said, there are times, there are hours, you know,
+> what their services are, any promo codes that they want. Basically, anything
+> that's within the settings… they could, like, skip stuff or enter it later."*
 
-- **Step 2** — research how the individual SCREENS should work. 2.10 researched
-  navigation and stopped there.
+> *"Then, also, there should be a kind of guide that walks them through the
+> entire website… if it's, like, those guides that highlight the thing and has a
+> little blah blah text on that. Just if we do create that, just make sure to
+> kinda not have paragraphs of text and for there to be more steps and not try
+> to combine any things into one step. Just put some thought through into that
+> if we do the guide."*
+
+**Rows 118 and 119.** The recommendation was "empty states, not a wizard" and
+**he overruled it**: he wants the form. Two separate things, and they should not
+be built as one:
+
+- **A setup form** covering everything in Settings that the booking page needs
+  to function. **Skippable per item and resumable** — that is what stops it
+  being the wizard the recommendation was afraid of.
+- **A walkthrough of the dashboard**, highlight-plus-a-line. **His three
+  constraints are the specification and they are not stylistic:** no paragraphs;
+  **more** steps rather than fewer; **never combine two things into one step.**
+  A guide that breaks those is worse than no guide, and he said so before it
+  existed.
+
+### Q2 — An FAQ page? **YES, as an option and never a default.**
+
+> *"They could have an option for FAQ page. Now might not be a default, but I
+> always ask the detailer, hey, do you wanna have the FAQ page? And then they
+> would write it… And we could obviously improve what they wrote with AI or
+> whatever to get it nice, but they would obviously have to answer the questions
+> because, you know, they're the detailer."*
+
+**Rows 120, 121 and 122.** Three separate capabilities, and the split matters:
+turning the page on, writing the content, and improving the wording. **The
+answers stay the detailer's** — improvement is polish, never authorship. He is
+right about why: only the detailer knows what customers actually ask them.
+
+### Q3 — A week view? **YES, CONDITIONALLY — and the condition is real.**
+
+> *"I guess we could have a week view, but I don't know how it generally work.
+> If you could find a way to have a week view that's, you know, convenient and
+> doesn't make it a burden, then sure."*
+
+**Row 31, which already existed as this question and is now marked
+`conditional` — the only row on the list that is.** He has
+not said build it; he has said build it **if it can be made good**. Step 3 tries
+it against the desktop layout — where the month may already sit beside the
+selected day, which could make a week view redundant — and **if it cannot be
+made convenient, it does not ship and the file says so.** A conditional yes
+treated as a yes is how features nobody wanted get built.
+
+### Q4 — An export for the accountant? **YES.**
+
+> *"Yeah. We could do an export of some kind… that would be a nice feature to
+> have."*
+
+**Row 40**, which already existed as this question. Jobs and expenses. Nothing more — anything beyond that is
+accounting software, which this is not.
+
+### Q5 — Quotes before a booking? **HE ANSWERED A BIGGER QUESTION, AND IT IS THE MOST CONSEQUENTIAL ANSWER IN THIS FILE.**
+
+> *"I think that kind of brings up a whole new kind of opinion. I think there
+> should be kind of a switch. Like, basically, when someone books through the
+> website, is it done booking, you know, putting a request, or is it just like a
+> ‘hey, I want to book this time'? Because how I have it is, like, basically,
+> when you book, yeah, you're pretty confident that's gonna be your day… you've
+> reserved a time slot. Whereas other detailers might want it that they just put
+> in a request, and nothing is reserved to them. It's just a request that they
+> have to accept."*
+
+> *"And maybe we can even have an accept page, or that same page — or the Today
+> page, even though it might change in the future — but the page that the
+> detailer uses their bookings on, it could be, like, ‘accept this booking'. And
+> then they can also send quotes, to have that option. Obviously that's quite a
+> bit of work, but that's probably something a detailer would want to have an
+> option for."*
+
+**Rows 123, 124 and 125.** The recommendation was "not in this rebuild" and
+**he replaced the question with a better one.** Quotes were the small half; the
+big half is that **this product currently assumes one booking model and other
+detailers work the other way.** Reserve-on-booking is a choice Andrew's business
+makes, and it is currently baked in for everybody.
+
+**This is engine and schema work, and roadmap 2.11 does not reopen either.** It
+needs a per-business setting, a booking that is held rather than reserved, an
+accept/decline path, and availability that behaves differently in each mode.
+**So it is a separate roadmap item.**
+
+**But it changes step 4 anyway, and that is the point of having listed it.** He
+named where the accept action goes — *"the page that the detailer uses their
+bookings on"* — so the day screen is being designed with an accept state in it
+rather than having one added later. **That is the whole argument for step 1
+existing: a screen designed around a feature you have not listed gets it bolted
+on.**
+
+### Q6 — Deposits at booking? **PARKED BY HIM, DELIBERATELY.**
+
+> *"I guess we could have a feature where they pay me first for the deposit, but
+> then it goes… since I have the detailer's card on file since they paid me,
+> then it will just pay them, route it through them. I don't know if that's
+> possible. If it's too high, we might leave it out. But that might be a later
+> kind of decision because payment and whatever, I may get to later."*
+
+**Not a row.** He parked it and that is respected — nothing gets designed
+around it. **Two things he should know when he picks it up, and neither needs an
+answer now:**
+
+- **The routing he described is possible and is the normal way this is done**,
+  but not by holding the money himself. Stripe Connect (and its equivalents) let
+  a platform take a customer's payment straight into the detailer's own account
+  and keep a fee, **without the platform ever holding the funds** — which is
+  what keeps him out of being a money transmitter. That is the version to price
+  when he gets there.
+- **Deposits are the strongest answer to no-shows**, which the trade research
+  names as the recurring loss. That is the reason to come back to it, not the
+  payment plumbing.
+
+### Q7 — Before-and-after photos on a job? **HIS ONLY WORRY IS STORAGE, AND IT IS ANSWERED.**
+
+> *"So you're basically saying that you can link specific bookings to photos. I
+> don't know where we would store the photos, because I don't wanna have a huge
+> database because I don't wanna store their photos on my end."*
+
+**Row 126, and the worry does not survive the numbers.**
+
+**You already store their photos.** Every gallery image a detailer uploads goes
+into a Supabase storage bucket called `business-media`, in a folder named after
+their business, with a 10 MB-per-file cap — built in Phase 2 and live today.
+**Before-and-after photos are the same mechanism pointed at a booking instead of
+a gallery.** There is no new kind of storage and no new kind of exposure.
+
+**The volume, measured against a busy detailer.** A before and an after,
+compressed, is about 1.6 MB a job. Five jobs a day, six days a week, is roughly
+1,560 jobs a year — **about 2.5 GB per detailer per year.** The Supabase Pro
+plan includes **100 GB**, and beyond that it is **$0.0213 per GB per month**
+(checked 2026-08-31). **Ten detailers fill about a quarter of the included
+storage in their first year**, and if it ever ran over, another 100 GB costs
+about **$2.13 a month.**
+
+**So the honest answer is: it costs nothing worth thinking about, and the
+feature pays for itself twice** — it is the proof a detailer sends a customer,
+and it is the raw material for the gallery and the reviews his tenant websites
+need. **Two cheap safeguards if he still wants them:** make it per-detailer
+opt-in, and age photos out after a set number of months.
+
+---
+
+
+## 10. What happens now that you have answered
+
+**Steps 0, 1 and 2 are done and this list is approved. Steps 3, 4 and 5 run on
+it, and nothing is built until step 6, when you approve the whole
+specification.**
+
+- ~~**Step 2** — research how the individual SCREENS should work.~~ **DONE** —
+  `docs/dashboard-screen-research-2026-08-31.md`, fourteen findings.
 - **Step 3** — the desktop specification (your decision 6, and your word:
-  *specified*).
-- **Step 4** — screen by screen, every state, phone and desktop.
+  *specified*). It also has to try the week view and rule on it (row 124), and
+  grow `scripts/sweep-widths.mjs` to the desktop widths in the same item.
+- **Step 4** — screen by screen, every state, phone and desktop. **It now has
+  to make room for the accept step and the setup flow**, which it would not have
+  known about a day ago.
 - **Step 5** — the component inventory, where what-is-a-list-and-what-is-a-card
   gets settled once.
 - **Step 6** — you approve, then it gets built.
+
+**Three things this list sends OUTSIDE 2.11**, so they do not get lost by being
+someone else's problem:
+
+| What | Why it is not this item | Where it goes |
+|---|---|---|
+| Request-vs-reserve, accept/decline, quotes (rows 123–125) | Engine and schema, which 2.11 does not reopen | Its own roadmap item. **Step 4 still designs the screens for it** |
+| The colour fix — one colour everywhere, including email, with a floor | A defect, and it touches email templates rather than the dashboard | The build stage, with `accent-sweep.mjs` grown to reach email |
+| Deposits | You parked them until you reach payments | Revisited when you do. Nothing is designed around them |
