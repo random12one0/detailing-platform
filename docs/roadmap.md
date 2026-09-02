@@ -2321,6 +2321,35 @@ is kept; the entire visual design restarts from scratch.
       **His phrase to design against is *"it's almost like I refresh the
       page"*** — whatever ships, nothing may disappear and come back.
 
+      **HE CONFIRMED IT ON 2026-09-02 AND ADDED TWO THINGS.** He asked whether
+      it had been written down, which it had — and then sharpened it:
+
+      > “I just wanna confirm that it stuck — that throughout the site, there’s
+      > multiple points where stuff just kinda pops into place, and there’s no
+      > fluid animation. Keep that in mind when we build future things so it’s
+      > already there; but for the past things, it needs to get revised. It’s
+      > for desktop — desktop’s the majority of the things where you click
+      > something in the calendar, you click a booking, whatever, and it just
+      > instantly pops with this. There’s no kind of intro animation.”
+
+      **(a) IT IS A DESK PROBLEM, and that narrows the audit.** Below `--wrap`
+      `.sheet` already carries `sheet-in` and `sheet-out`, so the phone is
+      mostly right; the desk is where a thing you clicked appears with no
+      motion at all. Start the audit at `--wrap` and above.
+
+      **(b) IT BINDS NEW WORK ALREADY, and that half is DONE (2026-09-02).**
+      He asked for it to be in place for future builds rather than waiting for
+      this item, so the standing rule — *anything that opens, animates in;
+      a new component ships its entrance AND its exit in the change that
+      builds it* — is now in `dashboard-skeletons.md` §4 (the motion budget,
+      where it belongs) and in `CLAUDE.md`’s Design section (where a session
+      will actually read it). **What is left in this item is the RETROFIT.**
+
+      **The list is not three items.** Stage 6 alone added two more openings
+      that arrive with no motion at a desk — a settings screen entering the
+      second column, and the gear taking the main area — which is his
+      “multiple points” confirmed rather than a new complaint.
+
       **WHERE TO START, IF IT IS NOT OBVIOUS.** `improve-animations` reads the
       whole codebase and produces a prioritised audit before anything is
       written; that is the shape of this item's first half. The three above

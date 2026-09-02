@@ -1374,14 +1374,24 @@ it differs from §10-12 above, and each difference has its reason with it —
    `SettingsHost` decides page-or-column once for both doors, and pressing the
    gear again returns you to the tab you left rather than to Today.
 
-**AND ONE THING §10 ASKED FOR THAT IS NOT BUILT AND IS NOT REFUSED: the QR.**
-The right column at rest holds the booking link and nothing else. A QR encoder
-is not a few lines — it is Reed-Solomon and a bit matrix — so it means a
-dependency, and this repo adds none without being asked. **The owner has the
-question**, with the recommendation, in the stage-6 handoff. Until then the
-resting column is short at 1440x900, which is honest rather than dead: it is
-the same shape Money's and Today's second columns already have, and it becomes
-the settings screen the moment a row is pressed.
+**AND THE QR IS BUILT, ANSWERED BY HIM THE SAME DAY — AS A BUTTON, NOT AS THE
+RESTING CONTENT.** §10 wanted the code drawn permanently in the second column;
+he asked for an action instead: *“you click generate QR code and it just pops
+up with the one that you could copy, save to your files.”* **His version is
+the better one and the reason is in this file’s own logic** — most visits to
+that block are to copy the link, so a permanently-drawn QR paid for something
+nobody asked for on that visit, and it would have been the largest object on a
+screen that is an index.
+
+So: a full-width *Generate QR code* button that is **replaced by what it
+makes** — the code, then *Save* and *Copy image*. Black on white with a
+4-module quiet zone (a scanner needs contrast and a margin; law 11 does not
+reach a machine-readable object), a 1,110px canvas shown at 200 so the SAVED
+file is printable rather than screen-sized, and its own line rather than a
+third button beside Copy and Open — W14 is the measured ceiling there.
+`tests/qr-scans.test.mjs` decodes the rendered pixels back with a different
+library than wrote them, because a QR that looks right and does not scan is
+the `travel_fee` family of defect.
 
 **WHAT THE CODE ADDED THAT NO DESIGN FILE PREDICTED:**
 `components/SettingsHost.jsx`. The component inventory §3c named

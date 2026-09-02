@@ -2371,11 +2371,14 @@ rule, the `email-brand` test and the unverified-push warning.
 | The service worker | registers and activates; `/sw.js` served as `text/javascript` and present in `dist/` |
 | The VAPID probe | the deployed function returns an 87-character base64url key |
 | Rotation | no new breakpoint below 1180, so the five guarded sites are still five |
+| **`qr-scans` (14, new)** | the rendered QR decodes back to the same URL, with a light quiet zone, at a printable size |
 
 **STAGE 7 REMAINS:** first run — the setup form and the walkthrough, last on
 purpose.
 
-**AND TWO THINGS ARE OPEN.**
+**ONE THING IS STILL OPEN, and two more arrived and were closed the same day**
+(the QR, and the motion rule he asked to have confirmed — DECISIONS.md → “The
+QR code, and the motion rule he asked to have confirmed”).
 
 1. **PUSH'S GRANTED PATH IS UNVERIFIED, AND ONLY HE CAN CLOSE IT.** The blocked
    branch is verified; the ALLOW branch is not, because headless Chromium
@@ -2383,11 +2386,31 @@ purpose.
    browser will not launch in this environment. **Push is not finished until
    somebody taps Allow on a real device and a notification arrives.** No file
    should record it as done before that.
-2. **THE QR IS A QUESTION HE HAS NOT BEEN ASKED.** Step 4 §10 wants the resting
-   second column to hold the booking link "larger, with its QR". It holds the
-   link and no QR, because a QR encoder means a dependency this repo has not
-   been asked to add. The column is short at 1440x900 as a result — honest
-   rather than dead, but the QR is what would make it pay for itself.
+2. ~~**THE QR IS A QUESTION HE HAS NOT BEEN ASKED.**~~ **ANSWERED AND BUILT
+   THE SAME DAY.** He said yes and specified a better shape than step 4 §10
+   had: not a permanently-drawn code, but a **button** — *“you click generate
+   QR code and it just pops up with the one that you could copy, save to your
+   files”*. Most visits to that block are to copy the link, so drawing a QR
+   every time paid for something nobody asked for on that visit.
+   `qrcode-generator` (zero dependencies, unlike `qrcode`), black on white
+   with a 4-module quiet zone, a 1,110px canvas shown at 200 so the SAVED
+   file is printable, Save and *Copy image*. **`tests/qr-scans.test.mjs`
+   decodes the rendered pixels back with a different library than wrote
+   them** — the risk named when the question was put to him was that a QR can
+   look right and not scan, and that is a test now rather than a hope.
+   Baselined at 6 failures with the quiet zone removed.
+
+3. **AND HE ADDED ONE THING THAT IS NOT STAGE 6’S:** he asked whether the
+   “everything pops into place with no animation” complaint had been written
+   down. **It had — roadmap 2.17.** His re-statement sharpened it twice: it is
+   a **DESK** problem (below `--wrap` `.sheet` already animates in and out),
+   and it must **bind new work now** rather than when 2.17 is scheduled. That
+   second half is DONE: the standing rule — *anything that opens, animates in;
+   a new component ships its entrance AND its exit in the change that builds
+   it* — is in `dashboard-skeletons.md` §4 and `CLAUDE.md`. **The retrofit is
+   what is left in 2.17**, and stage 6 itself added two more to its list (a
+   settings screen entering the second column, and the gear taking the main
+   area).
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

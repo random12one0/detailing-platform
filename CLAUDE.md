@@ -112,6 +112,24 @@ explaining it; if they still have to ask "so should I?", it failed.
   **`docs/dashboard-phone-pass-2026-08-31.md` is the phone's authority** and it
   overrides step 4's screen designs wherever the two disagree about a phone.
 
+- **ANYTHING THAT OPENS, ANIMATES IN — AND THIS BINDS NEW WORK TODAY, not
+  when roadmap 2.17 is scheduled.** The owner asked for it 2026-09-01 and
+  confirmed it 2026-09-02: *“there’s multiple points where stuff just kinda
+  pops into place, and there’s no fluid animation… keep that in mind when we
+  build future things so it’s already there; for the past things it needs to
+  get revised.”* **It is a DESK problem** in his own words — below `--wrap`
+  `.sheet` already animates in and out; at a desk a record, a day panel, a
+  settings column and a picker all just appear.
+  **Do not confuse it with the arrival budget** (`dashboard-skeletons.md` §4,
+  where the full rule now lives): that caps a SCREEN’s first paint at one
+  stagger. This is about a thing somebody OPENED, which has to come from
+  somewhere. **A new component that opens ships its entrance AND its exit in
+  the same change.** Retrofitting the existing ones is roadmap 2.17, and it is
+  a LIST rather than the two he happened to name.
+  His limit is the acceptance test: *fluid and connected, without being in the
+  way of productivity* — interruptible, fast, never a gate between a tap and
+  the thing tapped for.
+
 - **Imagery: never a grey placeholder box.** An Unsplash connector is
   wired up and confirmed working 2026-08-29 (`search_photos`; "car
   detailing" returns ~4,800 real photos). Use it for mockups, the demo
@@ -150,6 +168,11 @@ explaining it; if they still have to ask "so should I?", it failed.
   colour maths is allowed — an edge function is a separate Deno bundle and the
   Supabase CLI will not follow an import out of `supabase/` — and this test is
   the price of that permission),
+  **`qr-scans`** (14 checks, new 2026-09-02 — the ONE browser test in this
+  list, because the QR is drawn on a `<canvas>` and an encoder can be perfect
+  while the rendering is unscannable. It decodes the pixels back with a
+  DIFFERENT library than wrote them, and it needs the dev server but no login
+  and no seed. Baselined at 6 failures with the quiet zone removed),
   **`client-list`** (31 checks, new 2026-09-02 — the Clients list's date
   arithmetic and the lapsed filter, which decides who ends up on the end of a
   group text; baselined both ways) from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
@@ -176,6 +199,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   TWELVE settings screens through TWO DOORS — eight on Business and four behind
   the header gear (it was eleven behind one until roadmap 2.11 step 6 stage 6,
   and a script that opens one door reports clean on screens it never visits) —
+  **the booking link’s QR CODE, which is behind a button and so is a state the
+  script has to enter (added 2026-09-02 with it — measuring the Business index
+  says nothing about a plate that only exists after a click, which is stage
+  6’s own finding for the fifth time)**,
   the client sheet, **the job record in two states
   (added 2026-09-01, roadmap 2.11 step 6 stage 2 — until then the object
   carrying 26 of the product's 126 capabilities had never been swept, so a

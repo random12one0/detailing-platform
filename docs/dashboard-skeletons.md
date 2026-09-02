@@ -152,6 +152,30 @@ so and say why."* The dashboard carries:
   transition at all, so a press registers as contact rather than as
   animation.
 
+**AND ONE MORE, ADDED 2026-09-02 BY THE OWNER, WHICH BINDS NEW WORK NOW AND
+NOT ONLY WHEN 2.17 IS SCHEDULED: ANYTHING THAT OPENS, ANIMATES IN.** He said
+it first on 2026-09-01 (roadmap 2.17) and again on 2026-09-02 to confirm it
+had stuck: *“there’s multiple points where stuff just kinda pops into place,
+and there’s no fluid animation… keep that in mind when we build future things
+so it’s already there; for the past things it needs to get revised.”*
+
+**The distinction that makes this a rule rather than a contradiction of the
+three above:** the budget over this line is about a screen’s ARRIVAL — one
+stagger on first paint, and no more. This is about a thing you OPENED. A
+record, a day panel, a settings column, a picker: it appeared because somebody
+clicked, and it has to come from somewhere. Below `--wrap` this already holds
+(`.sheet` has `sheet-in` and `sheet-out`); **at a DESK almost nothing does**,
+which is why he named the desk — *“desktop’s the majority of the things where
+you click something in the calendar, you click a booking, whatever, and it just
+instantly pops”*.
+
+**So: a NEW component that opens gets its entrance and its exit in the change
+that builds it.** The existing ones are roadmap 2.17’s job and are a list, not
+two items — he named the two he happened to hit. His own limit is the
+acceptance test and it has not moved: *fluid and connected, without being in
+the way of productivity*. Interruptible, fast, never a gate between a tap and
+the thing tapped for.
+
 Dropped, each with its reason:
 
 - **The scrub preset and the pin.** Law 6 puts a pin's floor at ~1.8 screens

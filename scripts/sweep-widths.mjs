@@ -501,6 +501,20 @@ for (const w of SIZES) {
 
   await page.getByRole("button", { name: "Business", exact: true }).first().click();
   await settle(page, 1400);
+
+  // THE QR IS BEHIND A BUTTON, SO IT IS A STATE THIS SCRIPT HAS TO ENTER.
+  // Added with it (2026-09-02). Opening Business and measuring the index says
+  // nothing about a 200px white plate and a two-button row that only exist
+  // after a click — which is the finding stage 6 hit four times over on the
+  // job record, the calendar, Money and Clients, and the reason its own
+  // settings rows are walked rather than assumed.
+  const qr = page.getByRole("button", { name: "Generate QR code" });
+  if (await qr.count()) {
+    await qr.first().click();
+    await settle(page, 1200);
+    await say("Business · the QR code");
+  } else { console.log(`${"the QR button".padEnd(24)} NO SUCH BUTTON`); found++; }
+
   await walk("Business", BUSINESS_ROWS);
 
   // THE SECOND DOOR. The gear is a destination rather than an overlay, so it

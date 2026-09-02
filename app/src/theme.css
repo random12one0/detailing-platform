@@ -983,6 +983,20 @@ a { color: var(--accent-text); text-decoration: none; }
 /* The stars on a review. They are a rating drawn as a shape, so the words
    are on the aria-label and these are hidden from a screen reader. */
 .stars { display: inline-flex; gap: 1px; margin-left: 6px; color: var(--accent); vertical-align: -1px; }
+
+/* THE QR PLATE. The one white rectangle in a product with one near-black
+   ground, and it is not a style choice: a scanner reads a QR by contrast and
+   needs a light quiet zone around the dark modules. The code is drawn white-
+   backed on its own canvas, and this is the frame that keeps it from bleeding
+   into the panel behind it. Law 11 does not reach it — the tenant’s accent
+   paints identity, and this is a machine-readable object, not a surface.
+   Centred and capped rather than full-width: at 1,144px of desk column a
+   full-bleed QR would be the largest thing on the screen. */
+.qr-plate {
+  background: #ffffff; border-radius: var(--r-inset);
+  padding: 10px; width: fit-content; margin: 0 auto;
+}
+.qr-plate canvas { display: block; width: 200px; max-width: 100%; height: auto; image-rendering: pixelated; }
 /* Two lines, then clip. The row rules elsewhere ellipsise to ONE, which is
    right for a service name and wrong for a sentence somebody wrote about
    your work. */

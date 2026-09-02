@@ -158,6 +158,7 @@ were made more than once.
 - **Roadmap 2.11, step 6, stage 4 — Money, the accountant export, and a chart nobody had measured** — The zero line (−$114 and +$114 drew the IDENTICAL bar), and a second defect only measuring found: **the bars themselves were 1.51:1 and 1.68:1** against the ground, under law 9's 3:1 non-text floor, which every previous reading had treated as being about EDGES — a bar is the graphical object the content is IN. Raising them cost the selection something and it was MEASURED rather than left as a worry — the lit bar is 3.74:1 against the ground on Slate and the dim ones 3.18, **1.18:1 between them** — so selection gained two cues that are not hues: the column behind the bar is TINTED and the period's LABEL is lit, and the tint was then checked the other way (the lit bar still clears 3.04:1 against its own tinted column). **The 60/40 chart is right only once there is a loss** — six winning bars over 48px of reserved emptiness made the rule read as a gap, so it is 72px until a bucket loses money. **The export is a FLAT ledger because that makes it checkable**: the Amount column adds up to the Net on the screen, pinned by `tests/money-export.test.mjs`, baselined both ways. **Three layout numbers in step 4 were written before the control existed** and all three lost to a measurement (1.35/1 not 1.2/1; the export on its own row; the segmented wrap ending at 700 **with the rotation guard — its fourth site**). **"Waiting on payment" was answering a period question** — switching Month→Week changed who owed you money. **`loadExtras` swallowed all three of its errors**, which is `useBookings`'s stage 3 defect in the file next door: `const { data } =` destructures the error away, and it is written that way to keep the line short. **THE OWNER OVERRULED STEP 4 §4**: the day opens BESIDE the month at ≥1180 in a fixed 420px column, `--wrap` lifts to 1720 for that one screen via `:has()`, and the month keeps its written cells only while the grid is ≥1,024px — so at 1440 it becomes marks while the day is open, which is the trade he named.
 - **Roadmap 2.11, step 6, stage 5 — Clients, the client record, and three of his own corrections** — The one screen with NO PANEL and the one record with NO CONTAINER, both built: `RecordHost` gained a `bare` prop rather than the `ClientRecord.jsx` the inventory predicted, because a component with one caller extracted to satisfy a prediction is the abstraction this repo's rules forbid. **The list is full-bleed only while no client is open** — every other split screen has something to put in column two and this one does not, so an always-on grid left 465px permanently dead INSIDE the content column. **Law 1's "History and Clients must not be the same shape" is answered by structure**: History has a time axis (status marks, month rules, money last), Clients has none (search first, sort only, phone last). **Part B rows 6 and 18 are struck** — last visit could print a future date because it never asked whether the job had happened. **THE LIST READ SWALLOWED ITS ERROR, the THIRD site of `const { data } = await`** after `useBookings` and `loadExtras`. And three owner corrections that arrived with the prompt: **the Money period control's 3 + 2 wrap** (five cells of two sizes; now equal columns, and 4px of padding rather than 6 is the whole difference between one line and two at 392), **"Export for my accountant" -> "Export"** on the period line — *a label names what the control DOES, never who the result is for* — and **the ground's two lights now carry the tenant's colour**, mixed into them rather than added as a third light, with the alphas untouched, because more light moves every floor measured against the ground.
 - **Roadmap 2.11, step 6, stage 6 — Business, the twelve settings screens, and three repairs** — `More.jsx` is deleted. **The admission test is in the CODE**: a row belongs on Business only if it changes what a CUSTOMER meets, otherwise it goes behind the header gear — eight rows in three groups, four behind the gear. **The gear is a DESTINATION, not an overlay**, so `SettingsHost` decides page-or-column once for both doors and a settings screen is never a sheet again. **Staff get THREE rail buttons** (two files said four; the number was inherited from before Business was also taken from them). **TWELVE settings screens, not thirteen** — the FAQ’s storage landed and its screen did not, so there is no row for it, because a row that opens nothing is the very defect this stage repairs. **D1, the colour repair, was TWO defects**: one colour now writes both columns AND the email had no floor at all — a 3px rule at 1:1 on its own band, a hardcoded white title, and the brand colour as words on white at 1.36:1 for Silver; fixed in `_shared/brandColor.js`, **the one place in this repo a second implementation of the colour maths is allowed**, with `tests/email-brand.test.mjs` as the price. **PUSH: the browser half is built and the SERVER half was not live either** — the VAPID secrets had never been set, so `sendOwnerPush` had been skipping for its whole life; **the granted path is still unverified and needs one tap on a real device.** **Reviews has a door** and says out loud that the words go to the Phase 3 websites rather than implying they are live. Plus the booking link drawn twice on one phone, a heading’s arrow 700px from its words, a truncated page title, a `disabled` prop that was dropped, a CSS rule that lost silently, and `memberships?.[0]`. **The QR is a question for him, not a refusal.**
+- **The QR code, and the motion rule he asked to have confirmed** — Both answers to stage 6’s two questions, 2026-09-02. **He said yes to the QR and specified a better shape than the design had**: a *Generate QR code* BUTTON that is replaced by what it makes, not a permanently-drawn code — most visits to that block are to copy the link. `qrcode-generator` (zero dependencies, unlike `qrcode`), and **the dependency argument was settled by verifiability, not size**: there is no way to check a hand-rolled QR SCANS, which is the `travel_fee` family. **Black on white with a 4-module quiet zone on a near-black product, and law 11 does not reach it** — a machine-readable object is not a surface; the canvas is 1,110px and the screen shows 200, because saving the screen-sized one is what makes a QR useless on a card. `tests/qr-scans.test.mjs` **decodes the pixels back with a DIFFERENT library than wrote them** and pins `QUIET`/`PX` to the component; baselined at 6 failures with the quiet zone removed. **And the motion complaint had already stuck — roadmap 2.17, with his words in full.** What his re-statement added: **it is a DESK problem** (below `--wrap` `.sheet` already animates both ways), and **it must bind NEW work now rather than when 2.17 is scheduled** — that gap is CLOSED, the standing rule is in `dashboard-skeletons.md` §4 and `CLAUDE.md`, and what is left in 2.17 is the retrofit. Stage 6 itself added two more instant-opens to that list.
 
 - **The copy pass — the owner's rule against explaining what the label already said** — his instruction, 2026-09-01, and he named the instance: *"Mobile — we go to them"* on the job record. *"No duh… it thinks that humans can't think, or it feels the need to explain literally every single thing."* **The test: does the sentence add a fact the control does not already carry?** Twenty-four sites swept across the dashboard, the booking page and the way in. **The half that stops the rule becoming its own mistake is what STAYED** — *"Picking another swaps it"*, *"Past bookings keep it"*, *"Timing is set in Booking rules"*: the rule is against restatement, not against explanation, and a session that reads it as "delete help text" will strip the sentences that were doing work. The durable form lives in `docs/design-system.md` § Never-defaults and in CLAUDE.md.
 
@@ -7535,3 +7536,121 @@ pre-existing React Router v7 future-flag warnings. `composition` ·
 `design-contrast` · `landing-pricing` · `route-contract` · `money-export` ·
 `client-list` · **`email-brand` (97, new)** · `decisions-index` ·
 `accent-sweep` all pass.
+
+---
+
+## The QR code, and the motion rule he asked to have confirmed
+
+**Both from the owner on 2026-09-02**, answering the two things stage 6 handed
+him. They are unrelated to each other and to stage 6's own scope, and they are
+recorded together because they arrived in one message.
+
+### 1. The QR — he said yes, and he specified the SHAPE
+
+> *"Yeah. Probably just a QR code generator. You click generate QR code and it
+> just pops up with the one that you could copy, save to your files, whatnot."*
+
+**That is not the design's version and his is better.** Step 4 §10 wanted the
+QR drawn permanently as the resting content of Business's second column. He
+described an ACTION: a button, and the code appears when you ask for it. Most
+visits to that block are to copy the link, so drawing a QR every time was
+paying for a thing nobody asked for on that visit — and it made the QR the
+largest object on a screen that is an index.
+
+**So: a full-width *Generate QR code* button that is REPLACED by what it
+makes.** Once the code is on the screen the button would be a control that
+does nothing, and the two actions under the image — Save, Copy image — are
+what is left to do with it.
+
+**`qrcode-generator`, and the dependency argument was settled by
+verifiability rather than by size.** A QR is Reed-Solomon over GF(256) plus
+mask selection — 250-odd lines, not a few — and the thing that decided it is
+that **there is no way to check a hand-rolled one SCANS.** That is the
+`travel_fee` family: a number printed on a screen that was never charged. The
+library has **zero dependencies of its own**, which `qrcode` (the more obvious
+pick) does not — it pulls `pngjs`, `yargs` and `dijkstrajs`, all Node-only, to
+support a file-writing API a browser never calls.
+
+**FIVE THINGS ABOUT THE RENDERING, AND FOUR OF THEM ARE THE DIFFERENCE BETWEEN
+A QR AND A PICTURE OF ONE.**
+
+1. **Black on white with a 4-module quiet zone, on a near-black product.** A
+   scanner finds a code by contrast and by its margin. Painting it in the
+   tenant's accent on the dashboard ground would match the product and fail to
+   scan, which is the one outcome worse than not building it. **Law 11 does
+   not reach here** — the accent paints identity, and this is a
+   machine-readable object that happens to sit on a surface.
+2. **The canvas is 1,110px and the screen shows 200.** What SAVES is the big
+   one. Saving what is on the screen is the mistake that makes a QR useless at
+   the only size that matters — a card, a van panel, a window sticker.
+3. **It is drawn in an effect, not in the click handler.** The canvas is only
+   in the DOM after the state flips, so painting in the handler paints
+   nothing.
+4. **Its own line, never a third button beside Copy and Open.** Walkthrough
+   W14 is the measured ceiling: three buttons across at 392 put *Open* 24px
+   past the edge, which is why *Share* already takes its own line.
+5. **The QR's copy button says "Copy image".** The button eight lines above it
+   also says *Copy* and copies the LINK. Two controls with one label on one
+   card, doing different things, is the label failing at its only job.
+
+**AND ONE SENTENCE WAS WRITTEN AND THEN DELETED**, which is the owner's own
+copy rule doing its work: *"Point a phone at it and it opens your booking
+page."* The block is headed **Your booking page**, the address is printed two
+rows above, and everybody knows what a QR code is. It added no fact the
+controls did not already carry.
+
+**`tests/qr-scans.test.mjs` IS THE POINT OF THE WHOLE EXERCISE.** It renders
+the code exactly as `BookingLink.jsx` renders it, reads the canvas pixels back,
+and **decodes them with a different library than the one that wrote them**
+(`jsqr`, a devDependency — an independent implementation). It passes only if
+the string that comes out is the string that went in. It also checks the quiet
+zone is light, that the saved size is printable, and **that `QUIET` and `PX`
+still match the component** — otherwise every other check is measuring a code
+the product does not draw, which is a check that has quietly stopped testing
+the thing it names.
+
+**Baselined against a deliberate defect**, as this repo requires: with the
+quiet zone set to 0 it reports **6 failures**, and clean again once restored.
+
+### 2. The motion complaint — he asked whether it had stuck. It had.
+
+> *"Can you add this for the next kind of code cleanup? And I said this before,
+> so maybe it's already there. I just wanna confirm that it stuck — that
+> throughout the site, there's multiple points where stuff just kinda pops into
+> place, and there's no fluid animation… It's for desktop. Desktop's the
+> majority of the things where you click something in the calendar, you click a
+> booking, whatever, and it just instantly pops."*
+
+**It was already roadmap 2.17**, opened 2026-09-01 with his words in full,
+three named complaints and the principle. **Nothing needed re-deriving.** But
+his re-statement carried two things the item did not have, and one of them was
+a real gap:
+
+**(a) IT IS A DESK PROBLEM, in his own words.** 2.17 named two desk instances
+without ever saying that the desk is where the whole class lives. Below
+`--wrap` `.sheet` carries `sheet-in` and `sheet-out`, so the phone is mostly
+right already; at a desk a record, a day panel, a settings column and a picker
+all simply appear. **That narrows the audit to `--wrap` and above.**
+
+**(b) THE GAP, AND IT IS CLOSED: he wants it binding on NEW work now, not when
+2.17 is scheduled.** *"Keep that in mind when we build future things so it's
+already there."* A roadmap item does not stop the next session shipping
+another instant-open — and stage 7 is first-run, which is nothing but things
+that open. **So the standing rule was written immediately, into the two files
+a session actually reads before building**: `dashboard-skeletons.md` §4 (the
+motion budget, where the cap it sits beside lives) and `CLAUDE.md`'s Design
+section. *Anything that opens, animates in; a new component ships its entrance
+AND its exit in the change that builds it.* **What is left in 2.17 is the
+retrofit.**
+
+**The distinction that keeps this from contradicting the budget it sits in**,
+and it has to be stated or somebody will read the two as a conflict: the budget
+above it governs a screen's **arrival** — one stagger on first paint and no
+more. This governs a thing you **opened**. It appeared because somebody
+clicked, and it has to come from somewhere.
+
+**And the list is longer than the three 2.17 names — stage 6 added two more on
+the day he said it**: a settings screen entering the second column, and the
+gear taking the main area. Neither has any motion at a desk. That is *"multiple
+points"* confirmed rather than a new complaint, and it is written into 2.17 so
+the audit starts from a list rather than from three examples.
