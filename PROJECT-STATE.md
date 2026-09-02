@@ -1809,6 +1809,18 @@ it: that is the four callers' `onChanged` policy, not the record's, and it is
 the same two-step Today's card already has. Left for stages 3-5, which rebuild
 those callers.
 
+**AND TWO SMALL THINGS OBSERVED AND NOT FIXED, written down so they are not
+found again as if new.** On `/job/:id` the headings run **h1 → h3 with no h2**,
+because the record's five section titles are `<h3>` under a container's `<h2>`
+and that page's container is the page, whose title is its `<h1>`. Making them
+`h2` there would mean the record knowing which container it is in, which is the
+coupling `RecordHost` exists to remove; a skipped level conveys nesting rather
+than breaking it, and no WCAG criterion requires contiguous levels. **And every
+route in the app answers `document.title` with "Detailing Platform"** — nothing
+in the SPA manages it — so the page an emailed job link opens does not name the
+job. Product-wide, one line to fix in one place when somebody owns it, and
+wrong to fix on one route alone.
+
 **FOUR FILES THAT OUTRANK THE DESIGNS WERE CORRECTED IN THE SAME CHANGE**, per
 CLAUDE.md's never-silently rule: step 4 §3 gains a *What shipped* block naming
 every place the code and the drawing differ (and the file's own "nothing here
