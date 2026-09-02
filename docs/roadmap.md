@@ -2175,6 +2175,114 @@ is kept; the entire visual design restarts from scratch.
       booking page's `.bk-choices` being a tall single column on a wide short
       screen is the obvious "bug" to spot, and it has been ruled not-a-bug.
 
+- [ ] 2.17 **Motion and shape as a house style — the OWNER asked for this on
+      2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named
+      complaints and one principle that outranks them.
+
+      **His words, in full, because the principle is the load-bearing part:**
+
+      > "There's a few things I just don't like — I don't have animations. For
+      > example, on the booking page, when I click on a booking, it just kind
+      > of spawns in on the side, like, instantly with no animation. It just
+      > instantly opens, which kinda goes against a lot of the stuff that we
+      > usually do — usually every single UI that opens has an animation."
+
+      > "One thing: I want everything to be a squircle. Like, the kind of
+      > professional rounded corners that Apple has."
+
+      > "And then on the calendar also — how it turns from centre into that
+      > split view. I think it should just automatically be in that split view,
+      > or have an animation. Because right now it's almost like I refresh the
+      > page when I click on something. I don't want everything to disappear
+      > and come back, like the current animation is. I want a nice fluid
+      > animation of everything opening up."
+
+      > "And have that as a keynote for the entire site. As the design process
+      > is going, everything should have a very nice animation. That makes
+      > everything feel very fluid and connected — without being in the way of
+      > actual productivity and usability."
+
+      **THIS CHANGES THE MOTION LAW, AND THAT IS THE FIRST THING TO SETTLE.**
+      `docs/design-system.md` § Motion and `docs/design-knowledge.md` §1 both
+      say the opposite of what he just asked for: *"one well-orchestrated page
+      load with staggered reveals creates more delight than scattered
+      micro-interactions"*, and `dashboard-skeletons.md` §4 spends the budget
+      on exactly three things — the ground that never stops, ONE staggered
+      arrival per screen, and pointer feedback. **He is asking for the budget
+      to grow, deliberately.** So the system file gets updated FIRST, with his
+      quote in it, and then the code follows — never the other way round
+      (CLAUDE.md: if a rule and a real design decision collide, the system
+      file changes first, never silently). His own limit is in the last
+      sentence and it is the acceptance test: *fluid and connected, without
+      being in the way of productivity*. That means interruptible, fast, and
+      never a gate between a tap and the thing you tapped for.
+
+      **1 · A RECORD OPENS INSTANTLY AT A DESK, AND IT IS THE SAME OBJECT THAT
+      ANIMATES ON A PHONE.** Verified in the stylesheet rather than assumed:
+      `.sheet` carries `animation: sheet-in var(--t-reveal)` and a matching
+      `sheet-out`; `.record` — the second column `RecordHost` draws at ≥1180 —
+      carries **no animation at all**, and the screen's arrival stagger is
+      scoped `.app-main > .split > .col-1 > *`, so `.col-2` is excluded by
+      design. **This is the seam `RecordHost` exists to hide, showing
+      through**: a job is supposed to be one object whose container changed.
+      It is reached from Today, Calendar month, Calendar history, Clients and
+      Money, so it is one fix in one file. **Exit matters as much as entry** —
+      `.sheet` has `sheet-out` and `.record` has nothing, so closing a record
+      at a desk is a hard cut too.
+
+      **2 · SQUIRCLES.** Every corner in the product is `border-radius`
+      (`--r-panel`, `--r-inset`, `--r-pill` in `theme.css`), which is a
+      circular arc. He wants the continuous-curvature corner Apple uses.
+      **Check what the browsers actually support before choosing a route** —
+      there is a native CSS property for this now (`corner-shape`, used
+      alongside `border-radius`) and if it is available in the browsers this
+      product supports, it is one token change and degrades to the current
+      look where it is not. If it is not available, the honest alternatives
+      are an SVG mask or a paint worklet, and **both are expensive on a
+      component that appears hundreds of times** — say so and put the choice
+      back to him rather than shipping a slow page. **Do not hand-roll a
+      squircle on one component**: the value belongs in the token, next to the
+      radii, or the product ends up with two corner languages.
+
+      **3 · THE CALENDAR'S SPLIT, WHICH IS THIS SESSION'S OWN WORK.** Stage 4
+      made the day open beside the month at ≥1180 (his earlier ask, same day).
+      What he is objecting to now is the TRANSITION: `.app-main` widens from
+      1180 to 1720, the grid narrows, and below 1640px of screen the cells
+      change from written-out job lines to marks — all at once, on a click,
+      with no motion. **He gave two options and they are not equal:**
+
+      - **(a) "It should just automatically be in that split view."** The
+        month is always the split layout at ≥1180, second column empty until a
+        day is picked. **This removes the reflow completely** and is the
+        cheaper, more robust answer. **Its cost is real and he must be told
+        it: at 1440 the grid would then always be ~696px, so the written-out
+        month — the `9:00 AM Tom O.` lines he specifically said were helpful —
+        would be gone at that width permanently**, not just while a day is
+        open. At 1920 nothing is lost.
+      - **(b) Animate the transition.** Keeps the words when nothing is open.
+        **Harder than it looks**: the width change is on `.app-main`'s
+        `max-width`, the column count changes, and the cell's whole internal
+        layout changes — this is the case `view-transition` exists for, and a
+        naive `transition: max-width` will animate the container while the
+        grid inside it snaps.
+
+      **His phrase to design against is *"it's almost like I refresh the
+      page"*** — whatever ships, nothing may disappear and come back.
+
+      **WHERE TO START, IF IT IS NOT OBVIOUS.** `improve-animations` reads the
+      whole codebase and produces a prioritised audit before anything is
+      written; that is the shape of this item's first half. The three above
+      are the known ones and are not the whole list — **he said "a few things",
+      and named the ones he happened to hit.**
+
+      **WHAT NOT TO DO.** The skill-collision rule is still on (CLAUDE.md):
+      `animate` and `improve-animations` are appliers and auditors and are
+      allowed; no direction-generating skill runs against this product. **The
+      LOOK is settled** — this item is motion and one corner token, not a
+      redesign, and a session that treats "everything should feel fluid" as
+      permission to restyle has misread it.
+
+
 ## Phase 3 — Tenant websites (the biggest new build)
 
 - [ ] 3.1 Plan: which pages every tenant gets (home, services, gallery,
@@ -2349,6 +2457,7 @@ those are not negotiable by any skill.
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
 | 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ ~~**HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code.**~~ **STEP 4b IS DONE TOO** — `docs/dashboard-phone-pass-2026-08-31.md`, every screen's phone form decided again from nothing, and it OVERRIDES step 4 wherever the two disagree about a phone. **AND HE RULED THE PHONE PORTRAIT-ONLY the same day** — *"when someone flips their phone over sideways, I don't want it to completely readjust"* — which withdrew the landscape half of step 4b, took `844` and the `short-screen` check back out of `sweep-widths.mjs`, and closed 2.16 unstarted. **The dashboard readjusts today**, so step 6 still owes one guard: `min-height: 500px` on `theme.css`'s 700px and 560px breakpoints. **Step 6, the build, is the only thing left.** His asks left the item as roadmap 2.13, 2.14 and 2.15. |
+| 2.17 — motion and shape as a house style | `improve-animations` to audit first, then `animate` to build. `impeccable` — `audit` for reduced motion and `critique` on each screen it touches. **`docs/design-system.md` § Motion is updated BEFORE any code**, because this item deliberately grows a budget that file caps | every direction-generating skill, as everywhere else on this product. **The look is settled — this is motion and one corner token, not a redesign** |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |

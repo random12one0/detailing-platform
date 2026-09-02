@@ -587,6 +587,18 @@ nothing.
 > rule): the grid is the same 1,144px it has at every desktop width today, and
 > the extra screen goes to the new column. Nothing about a phone changes.
 > Built in roadmap 2.11 step 6, stage 4.
+>
+> **AND HE REOPENED THE TRANSITION THE SAME DAY — ROADMAP 2.17.** Not the
+> split, which he asked for; the JUMP into it. *"It's almost like I refresh
+> the page when I click on something. I don't want everything to disappear and
+> come back."* **His preferred fix is that the month is ALWAYS in the split
+> layout at a desk**, second column empty until a day is picked, which removes
+> the reflow completely — **at the cost of the written-out cells at 1440,
+> permanently rather than only while the day is open.** That cost is the thing
+> to put in front of him before anyone builds it, because those job lines are
+> what he called helpful in the same conversation. The alternative is
+> animating the transition, which is a `view-transition` problem: the width,
+> the column count and the cell's internal layout all change at once.
 
 - Cell min-height **112px**: the date, then **up to three job lines** —
   `09:00` in the figure face, given name and last initial in the body face —
@@ -907,8 +919,13 @@ period already chosen, the stated expense cap, and both dashed boxes gone.
   measure 3.18:1 and 3.21:1 — **and that costs the selected bar something**,
   because a corrected tenant accent is only guaranteed to clear the same 3:1
   fill floor, so on the darkest presets a lit bar and a dim one could measure
-  alike. **The selected period's LABEL is lit instead**: form, not a second
-  colour.
+  alike. **Measured across four presets after the change: the lit bar is
+  3.74:1 against the ground on Slate and the dim ones are 3.18 — 1.18:1
+  between them, 1.27:1 on Crimson.** So selection gained two cues that are not
+  hues: **the column behind the bar is tinted** (the system's own "selection is
+  tinted") and **the period's label is lit**. Then the tint was checked the
+  other way, because a tint of the accent is a ground: the lit bar still clears
+  **3.04:1 against its own tinted column** on the worst preset.
 
 **And three things this design did not ask for, found by building it:**
 

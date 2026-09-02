@@ -1358,6 +1358,21 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 }
 .bars button.on::before { background: var(--accent); }
 .bars button.neg.on::before { background: var(--bad); }
+/* AND THE COLUMN ITSELF IS TINTED, which is § Selection's own rule ("selection
+   is tinted; a fill is an action or a fact") and, on this control, the only
+   part of the selection that survives a dark tenant accent. MEASURED across
+   four presets once the bars were raised to the 3:1 floor: the lit bar is
+   3.74:1 against the ground on Slate and 4.03 on Crimson while the dim ones
+   are 3.18 — **1.18:1 and 1.27:1 between them**, which is selection carried by
+   hue alone, the exact failure the zero line was added to remove. Three cues
+   now, and only one of them is a colour: the column lights, the label under it
+   lights, and the bar's own fill agrees.
+   AND THE TINT DOES NOT COST THE BAR ITS FLOOR, which is the thing to check
+   when you put a fill on a ground made of the same colour: the lit bar
+   measures 3.04:1 against its own tinted column on Slate, 3.37 on Crimson,
+   5.42 on Sky, 9.48 on Silver. That is the "a tint of the accent is a ground"
+   rule at the top of DECISIONS.md, applied before it could bite. */
+.bars button.on { background: var(--accent-quiet); border-radius: 5px; }
 /* Nothing in and nothing out IS the line. A 2px stub there would read as a
    loss too small to see, which is the one thing this rewrite is about. */
 .bars button.zero::before { min-height: 0; height: 0; }

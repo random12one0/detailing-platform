@@ -2018,8 +2018,15 @@ decoration around the content; it is the graphical object the content is IN.
 corrected tenant accent is only guaranteed to clear the same 3:1 fill floor,
 so on the darkest presets a lit bar and a dim one could now measure alike —
 selection carried by hue alone, which is the exact failure the zero line was
-added to remove. **The selected period's LABEL is lit instead.** Form, not a
-second colour.
+added to remove. **Measured across four presets after the change: the lit bar
+is 3.74:1 against the ground on Slate and the dim ones are 3.18 — 1.18:1
+between them, and 1.27:1 on Crimson.** So selection gained two cues that are
+not hues: **the column behind the bar is tinted**, which is the system's own
+"selection is tinted; a fill is an action or a fact", and **the period's label
+is lit**. The tint was then checked the other way — the lit bar still measures
+**3.04:1 against its own tinted column** on the worst preset — because a tint
+of the accent is a ground, which is the first of the five mistakes at the top
+of DECISIONS.md.
 
 **AND FOUR MORE THAT WERE ONLY FINDABLE BY BUILDING OR BY MEASURING.**
 
@@ -2117,6 +2124,36 @@ protecting.
 **STAGES 5-7 REMAIN:** Clients · Business and the twelve settings screens
 (with the colour repair, Reviews and the rebuilt push switch) · first run,
 last on purpose.
+
+**AND HE OPENED A NEW ITEM AT THE END OF THIS SESSION — ROADMAP 2.17, MOTION
+AND SHAPE AS A HOUSE STYLE.** Three named complaints and a principle, and the
+principle outranks them: *"everything should have a very nice animation — that
+makes everything feel very fluid and connected, without being in the way of
+actual productivity and usability."* **It deliberately grows a budget the
+design system caps**, so `design-system.md` § Motion is updated before any code
+is written. The three he named:
+
+1. **A record opens INSTANTLY at a desk.** Verified in the stylesheet: `.sheet`
+   carries `sheet-in` and `sheet-out`; `.record` — the second column
+   `RecordHost` draws at ≥1180 — has no animation at all, and the arrival
+   stagger is scoped to `.col-1` on purpose. **The same object animates on a
+   phone and hard-cuts at a desk**, which is the one seam `RecordHost` exists
+   to hide. Five screens reach it; one fix.
+2. **Squircles everywhere** — Apple's continuous-curvature corner instead of
+   `border-radius`'s circular arc. It is a token change if the browsers this
+   product supports have the native property, and expensive if they do not;
+   **check before choosing, and put the cost back to him rather than shipping
+   a slow page.**
+3. **The calendar's split transition — which is THIS section's own work.** He
+   is not objecting to the split; he asked for it. He is objecting to the
+   jump: *"it's almost like I refresh the page."* **He offered two options and
+   they are not equal** — always being in split view removes the reflow
+   entirely but permanently costs the written-out month at 1440, and animating
+   the transition keeps it but is a `view-transition` problem rather than a
+   `transition: max-width` one. **The cost of option (a) is the thing to put
+   in front of him**, because it takes away the cells he said were helpful.
+
+**Nothing in 2.17 is started and nothing in it blocks stage 5.**
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
