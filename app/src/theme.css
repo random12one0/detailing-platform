@@ -747,6 +747,18 @@ a { color: var(--accent-text); text-decoration: none; }
    screen is what makes a web app feel like a web app. The second column is
    sticky and sized by its own content. */
 .split { --split: 1.7fr; }
+/* Money. The two questions the trade treats as two destinations — what did I
+   make, and who owes me and what went out — are nearly equal in weight, so
+   neither column is the other's margin.
+   1.35, NOT THE 1.2 STEP 4 SPECIFIED, and the reason is a measurement rather
+   than a preference: at 1.2 the primary column is 609px, and the period
+   control on one line (§ THE PERIOD, which is what step 4 asks for in the
+   same paragraph) is 607px for "September 2026" and 622px for
+   "Sep 2026 – Feb 2027". One line that holds for four of the five period
+   kinds and breaks on the fifth is not one line. 1.35 gives 641/475, and
+   475px is still wider than the phone every card in the second column was
+   designed at. */
+.split.money { --split: 1.35fr; }
 @media (min-width: 1180px) {
   .split {
     display: grid; grid-template-columns: var(--split) 1fr;
@@ -758,6 +770,38 @@ a { color: var(--accent-text); text-decoration: none; }
     position: sticky; top: calc(var(--topbar-h) + var(--sp-4));
     display: flex; flex-direction: column; gap: var(--sp-5); min-width: 0;
   }
+
+  /* ------------------------------------------- THE DAY BESIDE THE MONTH
+     THE OWNER'S ASK, 2026-09-01: "the calendar kind of has these huge blocks
+     that take up the entire desktop space, and you have to scroll down…
+     maybe shrink it a little, and have the information that is below it on
+     one of the sides. We have the space." Measured before it was built: at
+     1440x900 with a day open the page was 1,284px against a 900px screen, so
+     the panel started 20px BELOW the fold and every one of its controls was
+     a scroll away.
+     A FIXED 420px, NOT A RATIO, and that is the difference between this
+     screen and the other four. Everywhere else the second column holds a
+     record or a filter list and can take a share; here the first column is a
+     seven-column GRID whose cell width decides whether the month can write
+     itself out, so the panel takes what it needs and the month keeps the
+     rest. 420px is the day's own content — a job row and three state cards
+     with switches — at the width the phone already proves they work at.
+     THIS IS WHERE STEP 4 §4's "must not be split" IS OVERRULED, and by him.
+     The reasoning there was sound and incomplete: a second column does take
+     width off the cells, and the file weighed that against nothing, because
+     the cost of the day arriving below the fold had not been measured yet. */
+  .split.calday { grid-template-columns: minmax(0, 1fr) 420px; }
+  /* AND THE PANEL IS PAID FOR OUT OF THE SCREEN WHERE THERE IS SCREEN. This
+     is the one place --wrap lifts, and it lifts for the reason --wrap exists:
+     "width buys a second thing, it does not stretch the first thing"
+     (§ TWO COLUMNS). The month is not stretched — it is the same 1,144px it
+     has at every desktop width today — and the extra goes to the day. On a
+     1920 monitor that leaves the grid 1,236px, so the cells keep their words
+     (Calendar.jsx's 1,640 is this rule read backwards). :has() rather than a
+     class on .app-main because the screen cannot reach its own container,
+     and a prop threaded through App.jsx to say "this screen is wider" would
+     be a second mechanism for one rule. */
+  .app-main:has(> .split.calday) { max-width: 1720px; }
 }
 
 /* A RECORD IN THE SECOND COLUMN. Below --wrap a job or a client is pulled up
@@ -1071,36 +1115,55 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    the rule is "a layout decision that spends height must ask about height",
    and a height-blind rule that happens to be safe is the one a later width
    makes unsafe. */
+/* `.writes` IS THE SCREEN SAYING THE GRID IS WIDE ENOUGH TO CARRY WORDS, and
+   it is a class rather than a second media query because the answer depends
+   on something CSS cannot see: whether the day panel is open beside the month
+   and has taken 448px off this column. Calendar.jsx computes it once — the
+   cells, the legend and this block all read the same answer, or the legend
+   ends up decoding marks that are not on the screen. */
 @media (min-width: 1180px) and (min-height: 500px) {
-  .cal-cell {
+  .writes .cal-cell {
     min-height: 112px; padding: 8px 9px;
     display: grid; grid-template-columns: 1fr auto;
     align-content: start; justify-items: start; gap: 3px 6px;
   }
-  .cal-cell .n { justify-self: start; }
+  .writes .cal-cell .n { justify-self: start; }
   /* The day's own marks move up beside the numeral: the body of the cell is
      the jobs now, and `margin-top: auto` would push them under it. */
-  .cal-cell .marks { margin-top: 0; align-self: center; }
-  .cal-cell .jobs {
+  .writes .cal-cell .marks { margin-top: 0; align-self: center; }
+  .writes .cal-cell .jobs {
     grid-column: 1 / -1; width: 100%; min-width: 0;
     display: flex; flex-direction: column; gap: 1px;
   }
-  .cal-cell .jobs > span {
+  .writes .cal-cell .jobs > span {
     display: block; width: 100%; min-width: 0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     font-size: var(--t-meta); color: var(--text-2); text-align: left;
   }
   /* The time is a figure (law 8); the name is not. */
-  .cal-cell .jobs .t {
+  .writes .cal-cell .jobs .t {
     font-family: var(--f-num); font-variant-numeric: tabular-nums;
     color: var(--text-muted); margin-right: 5px;
   }
   /* A finished job's line takes the same accent its node and its dot take;
      one that did not happen is struck, which is the bar's own idea in text. */
-  .cal-cell .jobs .completed .t { color: var(--accent-text); }
-  .cal-cell .jobs .no_show { color: var(--text-muted); text-decoration: line-through; }
-  .cal-cell .jobs .more { color: var(--text-muted); }
+  .writes .cal-cell .jobs .completed .t { color: var(--accent-text); }
+  .writes .cal-cell .jobs .no_show { color: var(--text-muted); text-decoration: line-through; }
+  .writes .cal-cell .jobs .more { color: var(--text-muted); }
 }
+/* The legend under the month. An even split on a phone, where four entries
+   across 356px is the only shape that does not orphan one; at a desk they
+   collapse to their own widths and sit together on the left, because a row of
+   three marks spread evenly across 836px reads as a distributed toolbar
+   rather than as a key to the grid above it. */
+.cal-legend {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: var(--sp-3); padding-top: var(--sp-2); border-top: 1px solid var(--hairline);
+}
+@media (min-width: 1180px) {
+  .cal-legend { display: flex; flex-wrap: wrap; gap: var(--sp-5); }
+}
+
 /* THE SELECTED DAY, which was dead CSS until this stage revived it — the cell
    the panel below the grid came from. It needs a hover of its own, per
    .chip.active's note: a state with no hover reads as disabled. */
@@ -1134,6 +1197,11 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
     gap: var(--sp-5); align-items: start;
   }
   .daypanel > .group > .error-box { grid-column: 1 / -1; }
+  /* EXCEPT WHEN THE PANEL IS ITSELF A COLUMN. The owner asked for the day to
+     open beside the month rather than under it (§ THE DAY BESIDE THE MONTH),
+     and 420px does not hold two columns — the rule above was written for a
+     panel inheriting the month's full 1,144px. */
+  .split.calday .daypanel > .group { display: flex; flex-direction: column; }
 }
 
 /* ------------------------------------------------- A RULED LIST WITH COLUMNS
@@ -1234,24 +1302,85 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    new one: one staggered reveal on first paint (design-knowledge.md §1),
    staggered by --i. A month switch snaps, deliberately: animating bars
    between two different months implies a continuity that is not there. */
-.bars { display: flex; align-items: flex-end; gap: 5px; height: 64px; }
-.bars i, .bars button {
-  flex: 1; background: color-mix(in srgb, var(--fog) 26%, transparent);
-  border-radius: 3px 3px 0 0; min-height: 3px;
+/* THE ZERO LINE, roadmap 2.11 step 6 stage 4. Until this the chart was
+   `align-items: flex-end` with `height: |value|`, so −$114 AND +$114 DREW
+   THE IDENTICAL BAR and only the colour told them apart. Roadmap 2.4 made a
+   losing bar red, which was right and was not enough: colour alone is the
+   WCAG 1.4.1 failure the calendar's marks were rewritten to remove, and it
+   is exactly what the marks vocabulary exists to answer. A win STANDS on the
+   rule, a loss HANGS below it — the difference is a POSITION and the red now
+   only agrees, which is what keeps the chart readable in greyscale.
+   60/40 rather than 50/50, and it was reasoned rather than centred: losses
+   are rarer and shallower than wins, and a symmetrical chart spends half its
+   height on the half that is usually empty (phone pass §8, which also fixes
+   the height at 120px — a −$114 bar 30px tall says nothing).
+   ONE SCALE FOR BOTH DIRECTIONS. The screen divides by the larger of the two
+   extremes, so a bar can never draw past its own half and a single bad week
+   does not flatten five good ones. */
+/* THE BOTTOM HALF ONLY EXISTS WHEN A BAR IS IN IT. Six winning bars over 48px
+   of reserved space made the rule read as a gap rather than as an axis — the
+   "not enough content to fill it" shape, one level down from the screen it is
+   named for. Without a loss the chart is 72px with the rule along its floor,
+   which is where zero is; `.signed` is the screen saying one of these six
+   periods lost money. */
+.bars { display: flex; gap: 5px; height: 72px; position: relative; }
+.bars.signed { height: 120px; }
+.bars::after {
+  content: ""; position: absolute; left: 0; right: 0; top: calc(100% - 1px);
+  height: 1px; background: var(--line-2); pointer-events: none;
+}
+.bars.signed::after { top: 60%; }
+/* THE COLUMN IS THE TARGET, THE BAR IS THE DRAWING. The bar itself used to be
+   the button, so a flat week was a 3px tap target on a 64px chart. */
+.bars button {
+  flex: 1; min-width: 0; height: 100%; position: relative;
+  background: none; border: 0; padding: 0; cursor: pointer;
+}
+.bars button::before {
+  content: ""; position: absolute; left: 0; right: 0;
+  bottom: 0; height: var(--h, 0%); min-height: 2px;
+  background: color-mix(in srgb, var(--fog) 60%, transparent);
+  border-radius: 3px 3px 0 0;
   transform-origin: 50% 100%;
   animation: bar-rise var(--t-reveal) var(--e-out) backwards;
   animation-delay: calc(var(--i, 0) * 40ms);   /* was 60ms — see § MOTION */
 }
-.bars i.on, .bars button.on { background: var(--accent); }
 /* A period that lost money. Selection is still carried the same way it is for
    a positive bar — dim for the ones either side, full strength for the one you
    are on — so this adds a value to the existing mechanic rather than a second
    one. --bad is FIXED for every tenant (law 11b: the accent is identity, money
    moving is meaning) and it is the red .delta.down already uses. */
-.bars button.neg { background: color-mix(in srgb, var(--bad) 34%, transparent); }
-.bars button.neg.on { background: var(--bad); }
-.bars button { border: 0; padding: 0; cursor: pointer; align-self: flex-end; }
-.bars button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.bars.signed button::before { bottom: 40%; }
+.bars.signed button.neg::before {
+  top: 60%; bottom: auto;
+  border-radius: 0 0 3px 3px; transform-origin: 50% 0;
+  background: color-mix(in srgb, var(--bad) 65%, transparent);
+}
+.bars button.on::before { background: var(--accent); }
+.bars button.neg.on::before { background: var(--bad); }
+/* Nothing in and nothing out IS the line. A 2px stub there would read as a
+   loss too small to see, which is the one thing this rewrite is about. */
+.bars button.zero::before { min-height: 0; height: 0; }
+/* A state with no hover reads as disabled (.chip.active's note). A bar's own
+   language is a fill, so its hover is more fill. */
+.bars button:hover:not(:disabled):not(.on)::before { background: color-mix(in srgb, var(--fog) 74%, transparent); }
+.bars button.neg:hover:not(:disabled):not(.on)::before { background: color-mix(in srgb, var(--bad) 80%, transparent); }
+.bars button:disabled { cursor: default; }
+/* THE 60% AND THE 65% ABOVE ARE THE 3:1 NON-TEXT FLOOR, MEASURED, and they
+   were 26% and 34% until stage 4 — 1.51:1 and 1.68:1 against --ink-0, which
+   is a chart you cannot see. §Colour puts non-text at 3:1 and a bar is the
+   graphical object the content is IN, so the floor applies to it the way it
+   applies to a ring or a fill. fog reaches 3.18:1 at 60%, --bad 3.21:1 at
+   65%; the hovers are the same colours further up, which is § Selection's
+   "more hover means more, in that control's own language".
+   AND THAT COSTS THE SELECTED BAR SOMETHING, so the label pays it back. A
+   corrected tenant accent is only guaranteed to clear the same 3:1 fill
+   floor, so on the darkest presets a lit bar and a dim one could now measure
+   alike — selection carried by hue alone, which is the failure this whole
+   rewrite is about. The selected period's LABEL is lit instead: form, not a
+   second colour (docs/dashboard-skeletons.md §5b). */
+.barlabels span.on { color: var(--text); font-weight: 600; }
+.bars button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 @keyframes bar-rise { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
 .barlabels { display: flex; gap: 5px; margin-top: 6px; }
 .barlabels span {
@@ -1268,6 +1397,62 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .delta { font-size: var(--t-meta); font-weight: 600; font-family: var(--f-num); }
 .delta.up { color: var(--ac); }
 .delta.down { color: var(--bad); }
+
+/* ------------------------------------------------------------ THE PERIOD
+   ONE LINE FOR ONE QUESTION. It was three stacked rows — chips, a stepper
+   row, then the label — for a single choice. Chips left, stepper and label
+   right (step 4 §7).
+   AND ON A PHONE IT CANNOT BE ONE LINE, which the phone pass measured rather
+   than assumed: the five chips are 388px of content in a 356px column and
+   already wrapped 4 + 1, orphaning "Lifetime". So they are a SEGMENTED
+   control — one mutually exclusive choice, which is what this control means —
+   full-width and wrapping 3 + 2, which is a deliberate shape rather than an
+   orphan and is the answer the 320 floor already gives a segmented control
+   that will not fit (§ THE 320 FLOOR). Step 4's one-line target is a desk
+   target and is met there.
+   THE EXPORT TAKES ITS OWN ROW, and that was measured too. Step 4 put it
+   "beside the period label"; at the 1.2fr column this screen splits into,
+   the control and the label are already ~590px of a 609px column before the
+   button exists. So it hangs directly under the control whose period it
+   uses — which is what the phone pass asked for at the narrow end anyway. */
+.moneyhead { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+.moneyhead > .segmented { display: flex; flex-wrap: wrap; flex: 1 0 100%; }
+.moneyhead > .segmented button { flex: 1 0 28%; }
+.moneyhead-when { display: flex; align-items: center; gap: var(--sp-2); flex: 1 1 auto; }
+.moneyhead > .btn.export { flex: 1 0 100%; width: 100%; }
+.moneyhead > .sent { flex: 1 0 100%; margin-top: -6px; }
+/* THE WRAP IS FOR THE COLUMN THAT CANNOT HOLD FIVE, AND NOTHING WIDER. The
+   control is 367px of content; a 392px phone gives it 356 and a 768 tablet
+   gives it 748, where a full-width segmented control with five 230px
+   segments reads as a navigation bar rather than as a choice. So the wrap
+   ends at the same 700 the calendar cell uses.
+   AND (MIN-HEIGHT: 500px) — the FOURTH site of that guard, found by grepping
+   the breakpoint rather than by trusting a list, which is CLAUDE.md's own
+   lesson from the third. A sideways phone is 844px wide, and rotating one
+   must change nothing. */
+@media (min-width: 700px) and (min-height: 500px) {
+  .moneyhead > .segmented { flex: 0 0 auto; flex-wrap: nowrap; }
+  .moneyhead > .segmented button { flex: 0 0 auto; }
+  .moneyhead-when { flex: 1 1 auto; }
+  /* Its own row, sized to its words. A 748px button for a secondary action is
+     the phone's answer left running on a tablet. */
+  .moneyhead > .btn.export { max-width: fit-content; }
+}
+/* At --wrap the stepper goes to the far end of the line — "chips left,
+   stepper and label right" (step 4 §7). `max-width` above rather than
+   `flex-basis` on the export, because a flex item's basis wins over its width
+   and losing the row break would cost the line this rule is about. */
+@media (min-width: 1180px) {
+  .moneyhead-when { flex: 0 0 auto; margin-left: auto; }
+}
+
+/* The sunken ledger's paired cells — the row gap is larger than the column
+   gap so that two ROWS of pairs read as two rows rather than as a 2x2 block
+   of four unrelated figures. Inline styles until stage 4; they are here
+   because there are now four of them. */
+.paircells { display: grid; grid-template-columns: 1fr 1fr; gap: 16px var(--sp-2); }
+.paircells.three { grid-template-columns: 1fr 1fr 1fr; }
+.paircells.tight-rows { row-gap: var(--sp-2); }
 
 /* ------------------------------------------------------- ONE REVEAL
    Law 2 is carried by the ground, which never stops. This is the other half
@@ -1349,7 +1534,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    Everything below renders the END STATE the animation was travelling to,
    using the same properties, so nothing can be hidden behind an animation. */
 .lite .app-shell::before { animation: none; }
-.lite .bars i, .lite .bars button { animation: none; }
+.lite .bars button::before { animation: none; }
 .lite .app-main > .group > *,
 .lite .app-main > .split > .col-1 > *,
 .lite .app-main > .rows,

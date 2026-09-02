@@ -99,8 +99,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   **BUILT 2026-09-01 (roadmap 2.11 step 6), and it was THREE places, not the
   two the phone pass listed** — the calendar cell's own 700px rule spends
   height too (a cell goes 56px → 88px), so rotating made the month grid taller
-  on the shortest screen in the product. All three carry
-  `and (min-height: 500px)` now. Verified at 844x390: the settings sheet is
+  on the shortest screen in the product. **A FOURTH ARRIVED IN STAGE 4** —
+  Money's period control stops wrapping at 700 — and it carried the guard
+  from the first line it was written on, which is what the lesson below is
+  for. All four carry `and (min-height: 500px)`. Verified at 844x390: the settings sheet is
   still bottom-anchored and full-width, the cell is still 56px.
   **The lesson is about the LIST, not the rule — a file that names two
   instances of a pattern invites a session to fix two and stop. Grep the
@@ -121,8 +123,8 @@ explaining it; if they still have to ask "so should I?", it failed.
 ## Verification
 
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, `landing-pricing`, `route-contract` from repo root —
-  credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
+  `design-contrast`, `landing-pricing`, `route-contract`, **`money-export`**
+  from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 7 tests need env vars from
   root `.env`.
 - **Also credential-free, and it must exit 0 after anything touching accent
@@ -151,7 +153,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   collapsed filter bar and a history job (added 2026-09-01, stage 3, and the
   same gap: clicking the Calendar tab measured the month and nothing else,
   so four capabilities and a whole second mode had never been opened at any
-  width)** and the booking page at **1920, 1440,
+  width)**, **MONEY'S three period kinds, its unpaid job and its expense form
+  (added 2026-09-01, stage 4 — the same gap a THIRD time, and the period
+  control is the one row in this product that has to hold one line at a desk
+  and wrap 3 + 2 on a phone)** and the booking page at **1920, 1440,
   392, 360 and 320** and reports anything past the right edge, anything
   **outside its own
   parent's box**, anything scrolling sideways with no scrollbar, and any two
@@ -246,7 +251,13 @@ explaining it; if they still have to ask "so should I?", it failed.
   Neither follows the tenant. `grep 'var(--ac)'` in `theme.css` finds every
   fixed-meaning site. The owner's rule, 2026-08-30.
 - **A number PRINTED on a screen is not a number that is CHARGED, and this
-  product has already shipped one that was not.** `business_settings.travel_fee`
+  product has already shipped one that was not.** **And a number EXPORTED is
+  the same risk one step later**, because the file goes to somebody who will
+  never check it against the screen: `lib/accountant-export.js` is a flat
+  ledger precisely so its Amount column adds up to Money's own Net figure, and
+  `tests/money-export.test.mjs` is that tie-out (2026-09-01, roadmap 2.11 step
+  6 stage 4).
+  The one this rule came from: `business_settings.travel_fee`
   was drawn on the booking page as “+$25” and was never in `computeQuote` — for
   the whole life of the quote engine, past eleven test suites, because every
   test asserted that the engine did what the engine did. Fixed in roadmap 2.8c.

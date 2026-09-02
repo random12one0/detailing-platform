@@ -564,6 +564,30 @@ column takes the width straight back off the cells. At 1,180 the cell is
 **163px** and can carry a time and a name; at 760 it is 104px and carries
 nothing.
 
+> **OVERRULED BY THE OWNER ON 2026-09-01, AND ONLY FOR THE DAY PANEL.** He
+> opened this screen on his own 1920 monitor: *"the calendar kind of has these
+> huge blocks that take up the entire desktop space, and you have to scroll
+> down… maybe shrink it a little, and have the information that is below it on
+> one of the sides. We have the space."* **He is right and the paragraph above
+> was arguing against a cost it had not measured.** At 1440x900 with a day
+> open the page was **1,284px against a 900px screen** — the panel began 20px
+> below the fold and every one of its controls was a scroll away, on the
+> screen whose whole purpose is that the month stays visible.
+>
+> **What ships instead:** at ≥1180 the day opens in a **fixed 420px second
+> column** and the month keeps the rest. A fixed column rather than a ratio,
+> because here the first column is a GRID whose cell width decides whether the
+> month can write itself out. **The month writes its jobs out while the grid
+> is still ≥1,024px wide** — which it is at ≥1640px of screen, once `--wrap`
+> lifts to 1720 for this one screen — and goes back to marks below that, with
+> the legend growing to decode them. So on his 1920 monitor nothing is lost
+> and the day arrives beside the month; on a 1440 laptop the month shrinks to
+> marks for as long as the day is open, which is the trade he named.
+> **`--wrap` lifting is not "stretching the first thing"** (§ TWO COLUMNS'
+> rule): the grid is the same 1,144px it has at every desktop width today, and
+> the extra screen goes to the new column. Nothing about a phone changes.
+> Built in roadmap 2.11 step 6, stage 4.
+
 - Cell min-height **112px**: the date, then **up to three job lines** —
   `09:00` in the figure face, given name and last initial in the body face —
   then *"+2 more"*.
@@ -575,6 +599,9 @@ nothing.
   marked. The month stays above it and stays readable, which is the whole of
   4a's concern. `.cal-cell.selected` already exists in `theme.css:816` and is
   currently dead CSS; this is what revives it.
+  **"NOT A SIDE COLUMN" IS SUPERSEDED at ≥1180 — see the block above.** It is
+  still exactly right below --wrap, which is where the phone pass §5a ruling
+  lives, and the panel is still the same one component in both places.
 
 ### States
 
@@ -844,6 +871,62 @@ side by side including the header**, which is the whole screen inside one
 
 Bare figures; the lead figure; the signed bar chart; the sunken paired-cell
 ledger; quiet cards for the unpaid rows.
+
+### What shipped (roadmap 2.11 step 6, stage 4 — 2026-09-01)
+
+**Built as designed**: the zero line with a loss hanging below it, one scale
+for both directions, the two questions as two columns, the export using the
+period already chosen, the stated expense cap, and both dashed boxes gone.
+
+**Where the code and this design differ, and why — all four are measurements:**
+
+- **The split is 1.35 / 1, not 1.2 / 1.** At 1.2 the primary column is 609px
+  and the period control on one line — which this same section asks for — is
+  607px for *"September 2026"* and 622px for *"Sep 2026 – Feb 2027"*. A line
+  that holds for four of the five period kinds and breaks on the fifth is not
+  one line. 1.35 gives **641 / 475**, and 475px is wider than the phone every
+  card in the second column was designed at.
+- **The export is on its own row, not beside the period label.** Same
+  measurement one step further: the control and the label are already ~590px
+  of that 641px column before the button exists. It sits directly under the
+  control whose period it uses, full-width below 700 and sized to its words
+  above — which is what the phone pass asked for at the narrow end anyway.
+  **Its words are "Export for my accountant", not "Send this month to my
+  accountant".** *This month* is already on the line above it (the copy rule),
+  and *send* would have been a lie on a desk, where the file downloads; on a
+  phone it does go to the share sheet, and *export* covers both.
+- **The chart is 72px until something loses money, then 120px.** The design's
+  60/40 split is right the moment there is a loss and wrong before it: six
+  winning bars over 48px of reserved space made the rule read as a gap rather
+  than as an axis — the *"not enough content to fill it"* shape, one level
+  down from the screen it is named for. Without a loss the rule is the chart's
+  floor, which is where zero is.
+- **The bars went from 26% / 34% of their colour to 60% / 65%.** Measured
+  against `--ink-0`: **1.51:1 and 1.68:1**, against the 3:1 non-text floor
+  § Colour sets. A bar is the graphical object the content is IN. They now
+  measure 3.18:1 and 3.21:1 — **and that costs the selected bar something**,
+  because a corrected tenant accent is only guaranteed to clear the same 3:1
+  fill floor, so on the darkest presets a lit bar and a dim one could measure
+  alike. **The selected period's LABEL is lit instead**: form, not a second
+  colour.
+
+**And three things this design did not ask for, found by building it:**
+
+1. **"Waiting on payment" was reading a period question.** The unpaid list was
+   filtered out of the same window the chart uses, so switching from *Month*
+   to *Week* changed who owed you money and last month's unpaid job vanished
+   from the one screen that exists to chase it. **It is its own read now, with
+   no dates on it.**
+2. **`loadExtras` swallowed all three of its errors** — `data ?? []` turned a
+   dropped connection into *"no expenses, nothing outstanding, nothing sold on
+   site"*. The same defect `useBookings` carried until stage 3, one file over.
+3. **The expenses read stopped at TODAY, not at the end of the period**, so an
+   expense dated forward inside the current month — a supply order, an
+   insurance instalment — was invisible on the screen that lists expenses.
+
+**Unchanged and still true**: staff are not offered this tab at all, `$0.00`
+is a correct answer rather than an empty state, and Lifetime says *"No
+comparison yet"* rather than inventing a previous lifetime.
 
 ---
 

@@ -89,6 +89,22 @@ export default function Calendar({ refreshKey = 0 }) {
   // cell can carry words and History grows a column. Everything else here is
   // CSS. (hooks/useWide.js.)
   const wide = useWide(1180);
+  // AND A THIRD, WHICH THE OWNER ASKED FOR ON 2026-09-01 AND WHICH IS DERIVED
+  // RATHER THAN CHOSEN. He opened the calendar on his own 1920 monitor:
+  // "the calendar kind of has these huge blocks that take up the entire
+  // desktop space, and you have to scroll down… we could probably move the
+  // calendar to one side, maybe shrink it a little, and have the information
+  // that is below it on one of the sides. We have the space."
+  // So at a desk the day opens BESIDE the month. The month column loses
+  // 420px + a gutter to it, and a cell can only write `12:15 PM Marcus W.`
+  // while the grid is at least 1,024px wide — the width it has at --wrap
+  // today. 1,024 + 28 + 420 = 1,472px of content, which is 1,628px of screen
+  // once the rail and the page padding are paid, so 1,640 is where a month
+  // can keep its words AND hold the day beside it. Below that the day still
+  // opens beside the month and the cells go back to marks for as long as it
+  // is open, which is the trade he named: shrink the calendar, stop
+  // scrolling. Nothing about a phone changes.
+  const veryWide = useWide(1640);
   const [mode, setMode] = useState("month");
   const [cursor, setCursor] = useState(today.slice(0, 7));
   const [day, setDay] = useState(null);          // the selected date, or null
@@ -180,6 +196,11 @@ export default function Calendar({ refreshKey = 0 }) {
     setCursor(`${dt.getFullYear()}-${pad(dt.getMonth() + 1)}`);
   };
 
+  // DOES THE MONTH WRITE ITSELF OUT, OR DRAW MARKS? One answer, read by the
+  // cells, by the legend and by the grid's own class — three places that must
+  // agree or the legend decodes symbols that are not on the screen.
+  const writes = wide && (!day || veryWide);
+
   // THE LEGEND DECODES WHAT IS ON THIS MONTH AND NOTHING ELSE. Five entries
   // every time, three of which the month did not contain, is a legend larger
   // than the thing it explains. At --wrap the first three are words in the
@@ -193,8 +214,8 @@ export default function Calendar({ refreshKey = 0 }) {
       ["dot block", "Blocked", () => marks.blocked.size > 0],
       ["ring", "One type only", () => marks.dropoff.size > 0],
     ];
-    return rows.filter((row, i) => (wide ? i >= 3 : true) && row[2]());
-  }, [bookings, marks, wide]);
+    return rows.filter((row, i) => (writes ? i >= 3 : true) && row[2]());
+  }, [bookings, marks, writes]);
 
   const openDay = (date, el) => {
     const next = day === date ? null : date;
@@ -300,8 +321,8 @@ export default function Calendar({ refreshKey = 0 }) {
   // wants width and the one that must not be split — a second column takes
   // the width straight back off the cells (step 4 §4).
   if (mode === "month") {
-    return (
-      <div className={`group${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
+    const month = (
+      <>
         {modeSwitch}
         {/* Above the grid, and the last good month stays drawn. */}
         {error && <div className="error-box">{error}</div>}
@@ -321,7 +342,7 @@ export default function Calendar({ refreshKey = 0 }) {
             <div className="cal-head">
               {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <span key={i}>{d}</span>)}
             </div>
-            <div className="cal-grid">
+            <div className={`cal-grid${writes ? " writes" : ""}`}>
               {cells.map((date, i) => {
                 if (date === null) return <div key={`x${i}`} />;
                 const jobs = (byDay[date] ?? []).filter((b) => b.status !== "cancelled");
@@ -346,7 +367,7 @@ export default function Calendar({ refreshKey = 0 }) {
                     onClick={(e) => openDay(date, e.currentTarget)}>
                     <span className="n">{Number(date.slice(8))}</span>
                     <span className="marks" aria-hidden="true">
-                      {!wide && jobs.slice(0, 3).map((b) => (
+                      {!writes && jobs.slice(0, 3).map((b) => (
                         <span key={b.id} className={`dot ${b.status}`} />
                       ))}
                       {blocked && <span className="dot block" title="Blocked out" />}
@@ -357,7 +378,7 @@ export default function Calendar({ refreshKey = 0 }) {
                         business's own buffer — with room; a cell that needed
                         six is the crew case that reopens the week view, which
                         step 3 §7 named as the condition. */}
-                    {wide && jobs.length > 0 && (
+                    {writes && jobs.length > 0 && (
                       <span className="jobs" aria-hidden="true">
                         {jobs.slice(0, 3).map((b) => (
                           <span key={b.id} className={b.status}>
@@ -376,13 +397,12 @@ export default function Calendar({ refreshKey = 0 }) {
 
           {/* A GRID, NOT A WRAPPING ROW — at 392 a fifth entry wrapped alone
               onto its own line, which reads as a mistake. auto-fit gives one
-              row on a desk and an even split on a phone. Inline because it is
-              layout for this one element, like the row above it. */}
+              row on a desk and an even split on a phone. It stopped being an
+              inline style when the day moved beside the month: three entries
+              spread across an 836px grid with 240px between them is not a
+              legend, so at a desk they sit together (theme.css). */}
           {legend.length > 0 && (
-            <div style={{
-              display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))",
-              gap: 12, paddingTop: 8, borderTop: "1px solid var(--hairline)",
-            }}>
+            <div className="cal-legend">
               {legend.map(([cls, label]) => (
                 <span className="row" key={label} style={{ gap: 5 }}>
                   <span className={cls} /><span className="quiet">{label}</span>
@@ -391,19 +411,41 @@ export default function Calendar({ refreshKey = 0 }) {
             </div>
           )}
         </div>
+      </>
+    );
 
-        {day && (
-          <DaySheet
-            inline
-            date={day}
-            bookings={byDay[day] ?? []}
-            onClose={() => { setDay(null); dayCell.current?.focus(); }}
-            onOpenBooking={setSelected}
-            onNewBooking={setCreating}
-            onChanged={() => { loadMarks(); reload(); }}
-          />
-        )}
+    const daypanel = day && (
+      <DaySheet
+        inline
+        date={day}
+        bookings={byDay[day] ?? []}
+        onClose={() => { setDay(null); dayCell.current?.focus(); }}
+        onOpenBooking={setSelected}
+        onNewBooking={setCreating}
+        onChanged={() => { loadMarks(); reload(); }}
+      />
+    );
 
+    // AT A DESK THE DAY IS THE SECOND COLUMN; on a phone it stays inline under
+    // the grid, which is step 4b §5a and is unchanged. The record replaces the
+    // day rather than sharing the column with it — a job opened from the day
+    // belongs beside the month for the same reason the day does, and two
+    // panels in one grid cell is two panels on top of each other.
+    if (wide && day) {
+      return (
+        <div className={`split calday${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
+          <div className="group col-1">{month}</div>
+          {!selected && <div className="col-2">{daypanel}</div>}
+          {record}
+          {newBooking}
+        </div>
+      );
+    }
+
+    return (
+      <div className={`group${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
+        {month}
+        {daypanel}
         {record}
         {newBooking}
       </div>

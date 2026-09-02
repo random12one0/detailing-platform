@@ -1082,7 +1082,7 @@ Nothing here is fixed — this item changes no code.
 | 8 | Calendar / History | ~~18 records as 18 cards; 3,619px~~ **FIXED 2026-09-01, stage 3** — a ruled list with columns under month rules; **3,942 → 1,373px at 1440**, 1,973px at 392. | Composition |
 | 9 | `composition.test.mjs` | ~~Test 1 cannot see a card rendered through a component~~ **FIXED 2026-09-01, stage 3** — it resolves card components and keys allowances to `file > component`. **Its first rewrite still passed against the commit it was written to catch**; baselined both ways now. | **Test blind spot** |
 | 10 | Today | An empty day states one fact four times | Composition |
-| 11 | Money | "Nothing outstanding" gets a dashed box | Composition |
+| 11 | Money | ~~"Nothing outstanding" gets a dashed box~~ **FIXED 2026-09-01, stage 4** — both dashed boxes are gone; a section with nothing in it is not drawn, and a whole screen with nothing on it says so once under a $0.00 that is correct rather than empty. | Composition |
 | 12 | Money | A loss and a win draw the same height; no zero line | Composition |
 | 13 | Everywhere ≥768px | One 724px column; 60% of a 1920 screen unused | **Layout** |
 | 14 | More | Titled "Settings", tab labelled "More" | Copy |

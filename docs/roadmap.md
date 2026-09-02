@@ -1802,7 +1802,48 @@ is kept; the entire visual design restarts from scratch.
          *"Mobile — we go to them"* on the job record: **twenty-four sites**
          where the copy explained what the label already said. The rule and the
          half that stayed are in `docs/design-system.md` § Never-defaults and
-         CLAUDE.md. **Stages 4-7 of §5 remain.**
+         CLAUDE.md. ~~**Stages 4-7 of §5 remain.**~~
+         **STAGE 4 IS DONE, 2026-09-01 — Money, and the accountant export.**
+         The chart got the zero line step 4 asked for (a win stands on a 1px
+         rule, a loss hangs below it, one scale for both directions) — and a
+         second defect nobody had measured: **the bars themselves were 1.51:1
+         and 1.68:1** against the ground, under the system's own 3:1 non-text
+         floor, which every previous reading had treated as being about
+         EDGES. They are 3.18 and 3.21 now, and because that could make a
+         dark tenant accent measure like a dim bar, **the selected period's
+         LABEL is what is lit** — form, not a second colour. The period
+         control is one line at a desk and a segmented control wrapping 3 + 2
+         below 700; the two questions are two columns; both dashed boxes are
+         gone; the expense cap states itself.
+         **The export (feature row 40, his Q4) is a flat CSV ledger** — a row
+         per completed job, a row per expense carrying its own minus sign —
+         **so the Amount column adds up to the Net printed on the screen**,
+         which is what `tests/money-export.test.mjs` pins and what makes it
+         checkable at all. Its words are *Export for my accountant*: *this
+         month* is already on the line above it, and *send* would be a lie on
+         a desk.
+         **Three things the design did not ask about, found by building it:**
+         *Waiting on payment* was answering a period question, so switching
+         Month→Week changed who owed you money; `loadExtras` swallowed all
+         three of its errors, which is `useBookings`'s stage 3 defect in the
+         file next door; and the expenses read stopped at TODAY rather than at
+         the end of the period, hiding a forward-dated expense on the screen
+         whose job is to list it.
+         **AND THE OWNER REOPENED THE CALENDAR IN THE SAME PROMPT**, which is
+         why the desk day panel is here rather than in stage 3: *"the calendar
+         kind of has these huge blocks that take up the entire desktop
+         space, and you have to scroll down… we have the space."* Measured:
+         **1,284px of page against a 900px screen** at 1440 with a day open.
+         **The day opens BESIDE the month at ≥1180** in a fixed 420px column,
+         `--wrap` lifts to 1720 for that one screen, and the month keeps its
+         written cells while the grid is ≥1,024px — so his 1920 loses nothing
+         and a 1440 laptop trades the words for the panel, which is the trade
+         he named. **Step 4 §4's "must not be split" is overruled and marked**.
+         **`sweep-widths.mjs` walks Money's three period kinds, the unpaid job
+         and the expense form now** — the tab was swept, its states never had
+         been, which is stage 2's and stage 3's finding a third time.
+         **Stages 5-7 of §5 remain: Clients · Business and the twelve settings
+         screens · first run.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
          2.15 (travel by measured distance), **the last of which he then CLOSED

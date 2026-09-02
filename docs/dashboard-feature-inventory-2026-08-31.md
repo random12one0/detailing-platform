@@ -209,7 +209,7 @@ if it can be made good — there is exactly one).
 | 37 | See expenses listed | a | works | Money |
 | 38 | See income against expenses | a | works | Money — the ledger |
 | 39 | Record how an expense was paid | a | works | `expenses.payment_method` |
-| 40 | Export or send the figures to an accountant | e + o | **new** | Nowhere — §9 Q4 answered: yes |
+| 40 | Export or send the figures to an accountant | e + o | **BUILT 2026-09-01, roadmap 2.11 step 6 stage 4** | Money — one button under the period control. A flat CSV ledger of the chosen period: a row per completed job, a row per expense (negative), and a Net row that equals the figure on the screen. `lib/accountant-export.js`, pinned by `tests/money-export.test.mjs`. |
 
 ### 2d. Customers
 

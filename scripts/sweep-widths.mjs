@@ -246,6 +246,47 @@ for (const w of SIZES) {
     await page.waitForTimeout(700);
   }
 
+  // MONEY IS FIVE PERIODS, A RECORD AND A MODAL, AND THE SWEEP ONLY EVER SAW
+  // ONE OF THEM — the same gap as the job record before stage 2 and the
+  // calendar before stage 3. Clicking the tab measured the current month with
+  // nothing open, so the period control (the one row on this screen that has
+  // to hold ONE LINE at a desk and wrap 3 + 2 on a phone), the unpaid job and
+  // the expense form had never been laid out at any width. The three kinds
+  // below are the ones that change the row's width: "6 months" is the widest
+  // label, "Week" the widest period LABEL ("Aug 30 – Sep 5"), and Lifetime is
+  // the one that draws no stepper at all.
+  await page.getByRole("button", { name: "Money", exact: true }).first().click();
+  await page.waitForTimeout(1600);
+  for (const k of ["Week", "6 months", "Lifetime"]) {
+    const chip = page.getByRole("radio", { name: k, exact: true });
+    if (!(await chip.count())) { console.log(`Money · ${k}`.padEnd(24) + "NO SUCH PERIOD"); found++; continue; }
+    await chip.first().click();
+    await page.waitForTimeout(1500);
+    await say(`Money · ${k}`);
+  }
+  await page.getByRole("radio", { name: "Month", exact: true }).first().click();
+  await page.waitForTimeout(1500);
+  {
+    const owed = page.locator(".card", { hasText: "Mark paid" }).first();
+    if (await owed.count()) {
+      await owed.locator("[role=button]").first().click();
+      await page.waitForTimeout(1500);
+      await grow();
+      await say("Money · an unpaid job");
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(700);
+    }
+    const add = page.getByRole("button", { name: "Add", exact: true });
+    if (await add.count()) {
+      await add.first().click();
+      await page.waitForTimeout(1200);
+      await grow();
+      await say("Money · add an expense");
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(700);
+    }
+  }
+
   // THE CALENDAR IS THREE SCREENS AND THE SWEEP ONLY EVER SAW ONE. Until
   // roadmap 2.11 step 6 stage 3 this script clicked the Calendar tab, measured
   // the month, and moved on — so the day (four capabilities, three editors

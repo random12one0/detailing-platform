@@ -53,9 +53,13 @@ export function Switch({ checked, onChange, label, help, bare = false, disabled 
 // Two to four mutually exclusive options. Used where the old UI had separate
 // checkboxes that could contradict each other — a segmented control cannot
 // represent the invalid state at all.
-export function Segmented({ value, onChange, options, disabled = false }) {
+// `label` names the group for a screen reader. Optional, because most of
+// these sit under a visible heading that already names them; Money's period
+// switch does not, and a radiogroup with no accessible name is a control
+// that announces five unrelated radios.
+export function Segmented({ value, onChange, options, disabled = false, label }) {
   return (
-    <div className={`segmented${disabled ? " is-disabled" : ""}`} role="radiogroup">
+    <div className={`segmented${disabled ? " is-disabled" : ""}`} role="radiogroup" aria-label={label}>
       {options.map(([v, label]) => (
         <button key={v} type="button" role="radio" aria-checked={value === v}
           disabled={disabled}

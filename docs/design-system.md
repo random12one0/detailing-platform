@@ -129,7 +129,11 @@ Not suggestions. Where a test enforces one, it is named.
 
 9. **Legibility beats style, and it is measured, not eyeballed.** Text
    ≥ 4.5:1 on every surface it sits on; large bold ≥ 3:1; non-text
-   interactive edges ≥ 3:1. A ramp's dim end is a contrast floor, not a
+   interactive edges ≥ 3:1 — **and a CHART BAR is one of those**, which
+   nobody had measured until 2026-09-01: Money's bars were 26% and 34%
+   of their colour, **1.51:1 and 1.68:1** on `--ink-0`. A bar is the
+   graphical object the content is IN, not decoration around it. 60% and
+   65% clear it. A ramp's dim end is a contrast floor, not a
    taste call — `--fog-2` exists at `#7B858A` because `#6B757A` measured
    4.22:1 and that ramp carries every 10–13px label. **Text on a photograph
    cannot be checked from CSS**: screenshot the box with the text hidden,
@@ -597,6 +601,11 @@ change to a display string re-measures the longest one at 392, 1440 and
   pick between or act on one at a time. Mapping records onto cards is the
   specific shape that keeps coming back and it has its own test.
 - **Two to four choices is a segmented control, never a native `<select>`.**
+  **FIVE IS STILL A SEGMENTED CONTROL** (Money's period switch, 2026-09-01).
+  The rule is about the `<select>`, not about the count: a fifth mutually
+  exclusive choice does not become a drop-down, it wraps. Below 700px that
+  one goes full-width and wraps **3 + 2**, which is the shape § THE 320
+  FLOOR already gives a segmented control that will not fit.
 - **Numbers only on sequences.** `01 / 02 / 03` on content that is not a
   sequence is the "structure as decoration" tell. The pricing terms are
   numbered because they are an enumeration; the comparison table's rows are

@@ -155,6 +155,7 @@ were made more than once.
 - **Roadmap 2.11, step 6, stage 2 — the job record, and two defects the specification had already described** — the 340-line single scroll became an action bar over five named sections, and the bar is **PINNED**. **`position: sticky` because the record has THREE containers** (a sheet, the desk's second column, `/job/:id`) and it is the one mechanism that behaves in all three without any of them knowing about the others — but **`top: 0` alone stuck the bar 18px down**, because a sticky box may not leave its CONTAINING BLOCK and for a child of `.sheet-body` that is the CONTENT box, 16px inside the scrollport. **Only visible at the 56vh peek a phone opens at** — every screenshot script here pulls the sheet to 92vh, where the record nearly fits and the bar never sticks: *a pinned thing has to be tested at the height that scrolls, not the height that is convenient to photograph.* **TWO LIVE DEFECTS, both of which the specification had already described in the present tense without anyone noticing it was a bug report:** *Finalize payment* only ever appeared while a job was `confirmed`, so the record behind Today's *Needs payment* card **had no way to take the payment**; and **nobody has ever seen “Reminder sent to customer.”**, because all four callers close the record on any change. **A specification can describe a bug and read as a design; building it is what surfaces that, not reading it.** Also: **the job record had never been swept at all** — same family as the always-false contrast rows and `dead-width` — and *at most one accent fill* on the record turned out to be a consequence of the statuses rather than a rule to enforce. **And walking it with a KEYBOARD found a defect that was never about this screen: `Sheet.jsx` says `aria-modal="true"` and did not trap focus, on all eleven sheets** — tabbing out of the record went through four job rows before it reached the sheet's own Close. Fixed in the shared component. **A closed `<details>` lies about its contents** (`getClientRects()`, a 46px box and a live `offsetParent` all say visible; only `checkVisibility()` says false), which is why the trap watches where focus LANDS instead of computing which control is last.
 
 - **Roadmap 2.11, step 6, stage 3 — the calendar, and a signature move that had never once run** — Month, the day and History. **The one to carry: Today's staggered arrival has been DEAD since the shell shipped** — the reveal block's second form reads `.app-main > .group > .col-1 > *` and a split screen's root is `.split`, so `.col-1` **is** a `.group` rather than a child of one and the selector matched nothing. **Nothing in the product could report it**: a stagger that never runs looks exactly like a screen that has finished arriving, and the screenshot scripts photograph the end state on purpose. Found by reading the COMPUTED `animation-name` on the live screen. *A mechanism whose failure mode is SILENCE needs a check that asserts it RAN, not one that asserts the screen looks right* — third member of the `dead-width` family. **The day does NOT go through `RecordHost`**: it is not a record, it never opens beside its list, and it must not open over the grid it is read against, so it opens inline BELOW at every width — the only panel in the product that does. `DaySheet` takes an `inline` prop instead of losing its sheet, because Today's *Tomorrow* still wants one. **The day and the history had never been swept at all** — the tab was, the other two screens were not, which is stage 2's finding one stage later. **An `auto` amount column made a ruled list ragged** (every row is its own grid, so `$65.00` and `$235.00` gave the fr columns different widths and *what* started 4px apart); `display: contents` is what lets one markup be two cells on a phone and five columns at a desk. **`useBookings` swallowed its error**, so a failed read drew an empty month, an empty day and an empty Money period with nothing saying so — fixed in the hook AND finished on all three callers. **And `composition.test.mjs` test 1's rewrite passed against the exact commit it was written to catch** on its first attempt, because `[^)]` cannot cross a callback's own `(b) =>`; baselined both ways now. Also: Escape closes the record at BOTH widths, guarded on there being no modal over it.
+- **Roadmap 2.11, step 6, stage 4 — Money, the accountant export, and a chart nobody had measured** — The zero line (−$114 and +$114 drew the IDENTICAL bar), and a second defect only measuring found: **the bars themselves were 1.51:1 and 1.68:1** against the ground, under law 9's 3:1 non-text floor, which every previous reading had treated as being about EDGES — a bar is the graphical object the content is IN. Raising them cost the selection something (a corrected tenant accent is only guaranteed the same 3:1), so **the selected period's LABEL is lit**: form, not a second colour. **The 60/40 chart is right only once there is a loss** — six winning bars over 48px of reserved emptiness made the rule read as a gap, so it is 72px until a bucket loses money. **The export is a FLAT ledger because that makes it checkable**: the Amount column adds up to the Net on the screen, pinned by `tests/money-export.test.mjs`, baselined both ways. **Three layout numbers in step 4 were written before the control existed** and all three lost to a measurement (1.35/1 not 1.2/1; the export on its own row; the segmented wrap ending at 700 **with the rotation guard — its fourth site**). **"Waiting on payment" was answering a period question** — switching Month→Week changed who owed you money. **`loadExtras` swallowed all three of its errors**, which is `useBookings`'s stage 3 defect in the file next door: `const { data } =` destructures the error away, and it is written that way to keep the line short. **THE OWNER OVERRULED STEP 4 §4**: the day opens BESIDE the month at ≥1180 in a fixed 420px column, `--wrap` lifts to 1720 for that one screen via `:has()`, and the month keeps its written cells only while the grid is ≥1,024px — so at 1440 it becomes marks while the day is open, which is the trade he named.
 
 - **The copy pass — the owner's rule against explaining what the label already said** — his instruction, 2026-09-01, and he named the instance: *"Mobile — we go to them"* on the job record. *"No duh… it thinks that humans can't think, or it feels the need to explain literally every single thing."* **The test: does the sentence add a fact the control does not already carry?** Twenty-four sites swept across the dashboard, the booking page and the way in. **The half that stops the rule becoming its own mistake is what STAYED** — *"Picking another swaps it"*, *"Past bookings keep it"*, *"Timing is set in Booking rules"*: the rule is against restatement, not against explanation, and a session that reads it as "delete help text" will strip the sentences that were doing work. The durable form lives in `docs/design-system.md` § Never-defaults and in CLAUDE.md.
 
@@ -6965,3 +6966,138 @@ help text" will strip the sentences that were doing work.
 **Nothing on the landing page changed.** Its copy was already written to this
 standard and the owner approved that page; the register he objected to is a
 dashboard and settings problem, which is where it was fixed.
+
+## Roadmap 2.11, step 6, stage 4 — Money, the accountant export, and a chart nobody had measured
+
+Stage 4 of the approval page's seven: the Money screen and the export he asked
+for in §9 Q4. **The owner also reopened the calendar in the same prompt**, so
+the desk day panel is here rather than in stage 3, and it is his decision
+rather than a design one.
+
+**THE CHART WAS THE POINT, AND IT WAS TWO DEFECTS RATHER THAN ONE.** Step 4
+named the first: `.bars` was `align-items: flex-end` with `height: |value|`,
+so **−$114 and +$114 drew the identical bar** and only the colour separated
+them — the WCAG 1.4.1 failure the calendar's marks were rewritten to remove,
+sitting on the one chart in the product. A win stands on a 1px rule now and a
+loss hangs below it, one scale for both directions so a bar can never draw
+past its own half.
+
+The second was only findable by measuring: **the bars themselves were 1.51:1
+and 1.68:1 against the ground** — `--fog` at 26% and `--bad` at 34%. The
+system's own law 9 puts non-text at 3:1, and every previous reading of that
+law had been about *edges*: a ring, a fill, a focus outline. **A bar is the
+graphical object the content is IN.** 60% and 65% clear it at 3.18:1 and
+3.21:1. **And raising the floor cost the selection something**, which is the
+part worth carrying: a corrected tenant accent is only guaranteed to clear the
+same 3:1 fill floor, so on the darkest presets a lit bar and a dim one could
+now measure alike — selection carried by hue alone, which is the failure this
+whole rewrite is about. **The selected period's LABEL is lit instead**: form,
+not a second colour, which is the marks vocabulary applied to a chart.
+
+**THE 60/40 SPLIT IS RIGHT ONLY ONCE THERE IS A LOSS.** The phone pass fixed
+the chart at 120px with the zero line at 60% of it. Built exactly that and
+looked: six winning bars over 48px of reserved emptiness, and the rule read as
+a gap rather than as an axis — the *"not enough content to fill the viewport"*
+shape one level down, on a 120px box. **The chart is 72px with the rule on its
+floor until a bucket loses money**, then 120px with the line at 60%. The
+height is data-driven, which is honest: it grows for the one thing it exists
+to show.
+
+**THE EXPORT IS A FLAT LEDGER, AND THAT IS WHY IT CAN BE CHECKED.** "Jobs and
+expenses, nothing more" could have been two tables in one file. One flat
+ledger — a row per completed job, a row per expense carrying its own minus
+sign — has a property two tables do not: **the Amount column adds up to the
+Net figure printed on the screen it came from.** `tests/money-export.test.mjs`
+asserts that tie-out and is baselined both ways (flip the expense sign and
+three checks fail). CLAUDE.md's rule is *a number PRINTED is not a number
+CHARGED*; `travel_fee` was drawn on the booking page for the whole life of the
+quote engine without ever being in it. **An export is the same risk one step
+later** — a file handed to somebody who will never check it against the
+screen. It lives in `lib/`, not in the screen, so a credential-free node test
+can import it.
+
+**Its words are *"Export for my accountant"*, not step 4's *"Send this month
+to my accountant"*.** *This month* is already on the line above it, which is
+his own copy rule; and *send* would be a lie at a desk, where the file
+downloads. On a phone it goes to the share sheet, which does send, and
+*export* covers both. A download is invisible on a desk, so the button says
+where the file went afterwards — a fact the label does not carry.
+
+**THREE MEASUREMENTS OVERRULED THREE LINES OF THE DESIGN, AND ALL THREE ARE
+THE SAME MISTAKE: A LAYOUT NUMBER WRITTEN BEFORE THE CONTROL EXISTED.**
+
+1. **1.35 / 1, not 1.2 / 1.** At 1.2 the primary column is 609px and the
+   period control on one line — which the same section asks for — is 607px for
+   *"September 2026"* and 622px for *"Sep 2026 – Feb 2027"*. A line that holds
+   for four of five period kinds and breaks on the fifth is not one line.
+2. **The export takes its own row rather than sitting beside the period
+   label**, for the same reason one step further along.
+3. **The segmented control's wrap ends at 700, not at `--wrap`.** The five
+   chips are 367px of content: a 392px phone gives 356 and wraps 3 + 2 as the
+   phone pass decided, but a 768px tablet gives 748, where five 230px segments
+   read as a navigation bar. **With `and (min-height: 500px)` — the fourth
+   site of the rotation guard**, found by grepping the breakpoint, which is
+   the lesson stage 1 left about the third.
+
+**AND THREE THINGS THE DESIGN DID NOT ASK ABOUT, FOUND BY BUILDING IT.**
+
+1. **"Waiting on payment" was answering a period question.** The unpaid list
+   was filtered out of the same window the chart uses, so **switching from
+   Month to Week changed who owed you money** and last month's unpaid job
+   disappeared from the one screen that exists to chase it. Who owes you is
+   not a period question. It is its own read now, with no dates on it.
+2. **`loadExtras` swallowed all three of its errors** — `data ?? []` turned a
+   dropped connection into *"no expenses, nothing outstanding, nothing sold on
+   site"*. This is `useBookings`'s stage 3 defect, in the file next door, and
+   it is worth naming as a pattern rather than a bug: **`const { data } =`
+   destructures the error away, and every one of these was written that way to
+   keep the line short.**
+3. **The expenses read stopped at TODAY rather than at the end of the
+   period.** `to` is clamped to today so the chart does not read a month that
+   has not happened; an EXPENSE can legitimately be dated forward inside the
+   current month — a supply order, an insurance instalment — and clamping this
+   read too made it invisible on the screen whose job is to list it.
+
+**THE CALENDAR: HE OVERRULED STEP 4 §4, AND THE PARAGRAPH HE OVERRULED WAS
+ARGUING AGAINST AN UNMEASURED COST.** His words: *"the calendar kind of has
+these huge blocks that take up the entire desktop space, and you have to
+scroll down… maybe shrink it a little, and have the information that is below
+it on one of the sides. We have the space."* Step 4 said the month *"must not
+be split: a second column takes the width straight back off the cells"*, which
+is true and was weighed against nothing — **at 1440x900 with a day open the
+page was 1,284px against a 900px screen**, so the panel began 20px below the
+fold and every control on it was a scroll away, on the screen whose whole
+purpose is that the month stays visible.
+
+**What ships: a fixed 420px second column, not a ratio.** Everywhere else in
+this product the second column holds a record or a filter list and can take a
+share of the width; here the first column is a seven-column GRID whose cell
+width decides whether the month can write itself out, so the panel takes what
+it needs and the month keeps the rest. **The month writes its jobs out while
+the grid is ≥1,024px** — the width it has at `--wrap` today — and falls back
+to marks below that, with the legend growing to decode them, which is why the
+legend, the cells and the grid's class all read **one** flag. On his 1920
+monitor nothing is lost; on a 1440 laptop the month becomes marks for as long
+as the day is open, which is the trade he named.
+
+**`--wrap` lifts to 1720 for this one screen, and that is not "stretching the
+first thing".** The desktop spec's rule is that width buys a second thing. The
+grid is the same 1,144px it has at every desktop width today; the extra screen
+goes to the new column. `.app-main:has(> .split.calday)` rather than a class
+threaded through `App.jsx`, because a screen cannot reach its own container
+and a prop for one rule is a second mechanism.
+
+**A JOB OPENED FROM THE DAY REPLACES THE DAY.** Two panels cannot share one
+grid cell, and a record belongs beside the list it came from — which, on this
+screen, is the day panel. Closing the record puts the day back. It is the same
+answer History already gives when a job replaces its filter column.
+
+**WHAT WAS LEFT, ON PURPOSE.** A no-show still counts toward a month rule's
+total (stage 3's note, still a money question rather than a layout one);
+`document.title` is still "Detailing Platform" on every route (stage 2's
+finding, still product-wide); the month grid is still 30 tab stops (stage 3's
+note, still a change to the cell's interaction model). **And at 1440x900 the
+month loses its written cells while the day is open** — that is the cost of
+his own trade, it is stated here so nobody finds it and files it as a bug, and
+the fix if he ever wants it is a wider `--wrap` on that screen, not a
+different layout.

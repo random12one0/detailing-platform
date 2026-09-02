@@ -412,6 +412,16 @@ its merits.**
 Step 4 gave the desk **an inline panel directly beneath the grid** and left the
 phone a sheet. **Decided: the phone gets the inline panel too.**
 
+> **THE TITLE IS NO LONGER TRUE ABOVE --wrap, AND THE OWNER IS WHY (2026-09-01,
+> roadmap 2.11 step 6 stage 4).** He asked for the day to open BESIDE the month
+> at a desk rather than under it — *"you have to scroll down… have the
+> information that is below it on one of the sides"* — and at 1440x900 the
+> panel was measured starting 20px below the fold. **It is still ONE
+> COMPONENT**, which is what this section is actually about: the same
+> `DaySheet inline` renders in both places and only its container changed,
+> exactly as `RecordHost` does for a job. **Nothing on a phone moved.** The
+> full reasoning is in step 4 §4's own overrule block.
+
 - **One component instead of two.** The panel already had to be designed for
   the desk; a phone sheet is a second thing to build, test and keep in step.
 - **The month stays on the screen.** Tapping a day scrolls the selected week to
@@ -510,6 +520,28 @@ found by building it:
   needs no control of its own.
 - **The expenses cap is stated**: 12 rows then *"+9 more this month"*, which
   expands. Silent truncation reads as a complete list.
+
+### §8 BUILT 2026-09-01 (roadmap 2.11 step 6, stage 4)
+
+All of the above ships as written. **Four things this file did not say:**
+
+- **The wrap ends at 700, not at --wrap.** The segmented control is 367px of
+  content: a 392px phone gives it 356 and wraps 3 + 2 as decided here, but a
+  768px tablet gives it 748, where five 230px segments read as a navigation
+  bar rather than as a choice. So the full-width wrapping is a
+  `max-width: 699px` behaviour and one line starts at 700 — **with
+  `and (min-height: 500px)`, the fourth site of the rotation guard**, because
+  a sideways phone is 844px wide and §2a says rotating one changes nothing.
+- **The export's words are *"Export for my accountant"***, not *"Send this
+  month to my accountant"*: *this month* is already on the line above it, and
+  *send* would be a lie on a desk. On a phone it is the share sheet, which
+  does send. It is full-width here as this file asked, and its own row rather
+  than beside the label — step 4's *What shipped* has the measurement.
+- **The cap line says *"+3 more in September 2026"***, not *"this month"* —
+  the period is a control on this screen, so the line names the one it means.
+- **The chart is 72px until a period actually loses money**, then the 120px
+  this file specifies. Reserving the bottom 40% before there is anything in
+  it made the zero rule read as a gap.
 
 ---
 

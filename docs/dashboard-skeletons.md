@@ -73,8 +73,8 @@ is not exempt, it just has fewer sections.
 | Tab | Skeleton | Nothing else in the app is this |
 |---|---|---|
 | **Today** | the day rail (`.dayrail`) — a vertical rail with nodes, jobs hanging off it, under a date masthead and a two-cell ledger strip | the only rail |
-| **Calendar** | a seven-column grid; History is a filtered ruled list | the only grid |
-| **Money** | one display-sized lead figure, a six-bar chart, then a paired-cell ledger | the only chart |
+| **Calendar** | a seven-column grid, with the day beside it at ≥1180 and under it below that; History is a filtered ruled list | the only grid |
+| **Money** | one display-sized lead figure, a six-bar **signed** chart on a zero rule, then a paired-cell ledger | the only chart |
 | **Clients** | a full-bleed ruled list, no panels at all | the only screen with no panel on it |
 | **More** | grouped panels of self-answering nav rows | the only screen made of panels |
 

@@ -1971,9 +1971,152 @@ again as if new.**
    2's finding, still open, still product-wide and still wrong to fix on one
    route alone.
 
-**STAGES 4-7 REMAIN:** Money · Clients · Business and the twelve settings
+~~**STAGES 4-7 REMAIN:** Money~~ **— Money is §6s.** Clients · Business and the twelve settings
 screens (with the colour repair, Reviews and the rebuilt push switch) · first
 run, last on purpose.
+
+## 6s. ROADMAP 2.11, STEP 6 — STAGE 4 IS BUILT: MONEY, THE EXPORT, AND THE CALENDAR HE REOPENED (2026-09-01)
+
+**Stage 4 of the approval page's seven**, plus one thing that is not stage 4:
+the owner reopened the calendar's desktop layout in the same prompt, so the
+day panel moved beside the month here rather than in stage 3. Judgment calls
+are DECISIONS.md → "Roadmap 2.11, step 6, stage 4". **Nothing is waiting on
+the owner** — the one thing he might want to revisit is named at the bottom.
+
+**THE NUMBERS.**
+
+| | Before | After |
+|---|---|---|
+| Money's document height, 1440x900 | 1,284px (it scrolled) | **900px — the whole screen, no scroll** |
+| Money's document height, 1920x1080 | 1,284px | **1,080px** |
+| A −$114 bar against a +$114 bar | **identical, only the colour differed** | one hangs below the rule, one stands on it |
+| The bars' contrast on `--ink-0` | **1.51:1 and 1.68:1** | **3.18:1 and 3.21:1** (the 3:1 non-text floor) |
+| The period control | three stacked rows | **one line at ≥700; 3 + 2 below it** |
+| "Nothing outstanding" / "Nothing logged" | two dashed boxes | **neither section is drawn** |
+| Expenses past twelve | silently cut | **"+3 more in September 2026", which expands** |
+| The accountant export (feature row 40) | did not exist | a flat CSV whose total **equals the screen's Net** |
+| Calendar, 1440x900, a day open | 1,284px — the panel began **20px below the fold** | **900px, the day beside the month** |
+| Screens `sweep-widths.mjs` opens on Money | 1 | **6** (the tab, three period kinds, an unpaid job, the expense form) |
+
+**WHAT SHIPPED ON MONEY.** A signed chart on a zero rule; a segmented period
+control with the stepper at the far end of the same line; the export directly
+under it; the two questions the trade treats as two destinations as two
+columns at `--wrap` (1.35 / 1); the sunken ledger unchanged; the unpaid rows
+as quiet cards; the expenses list with a stated cap. A job opened from the
+unpaid list now goes through `RecordHost` like every other job in the product
+— it was a `<Sheet>` at every width here, which made the same object open two
+different ways depending on which screen you reached it from.
+
+**THE ONE A COLD SESSION MUST NOT RE-DERIVE: THE 3:1 NON-TEXT FLOOR APPLIES
+TO A CHART BAR.** `design-system.md` law 9 has said *"non-text interactive
+edges ≥ 3:1"* since the system was written, and every reading of it had been
+about edges — a ring, a fill, a focus outline. Money's bars were `--fog` at
+26% and `--bad` at 34%: **1.51:1 and 1.68:1 against the ground, on the only
+chart in the product**, for as long as the chart has existed. A bar is not
+decoration around the content; it is the graphical object the content is IN.
+**And raising it cost something, which is the half worth carrying:** a
+corrected tenant accent is only guaranteed to clear the same 3:1 fill floor,
+so on the darkest presets a lit bar and a dim one could now measure alike —
+selection carried by hue alone, which is the exact failure the zero line was
+added to remove. **The selected period's LABEL is lit instead.** Form, not a
+second colour.
+
+**AND FOUR MORE THAT WERE ONLY FINDABLE BY BUILDING OR BY MEASURING.**
+
+1. **"Waiting on payment" was answering a period question.** The unpaid list
+   was filtered out of the same window the chart uses, so **switching from
+   *Month* to *Week* changed who owed you money**, and last month's unpaid job
+   vanished from the one screen that exists to chase it. It is its own read
+   now, with no dates on it.
+2. **`loadExtras` swallowed all three of its errors.** `const { data } = await`
+   turned a dropped connection into *"no expenses, nothing outstanding,
+   nothing sold on site"* — `useBookings`'s stage 3 defect, in the file next
+   door, written the same way for the same reason (it keeps the line short).
+   **Worth treating as a pattern to grep for, not as a bug that was fixed.**
+3. **The expenses read stopped at TODAY, not at the end of the period**, so an
+   expense dated forward inside the current month — a supply order, an
+   insurance instalment — was invisible on the screen whose job is to list it.
+4. **The 60/40 chart is right only once there is a loss.** Built exactly as
+   the phone pass specified and looked: six winning bars over 48px of reserved
+   emptiness made the zero rule read as a gap rather than as an axis. The
+   chart is 72px with the rule on its floor until a bucket loses money.
+
+**THE EXPORT, AND WHY IT IS A SEPARATE FILE.** "Jobs and expenses, nothing
+more" is one flat ledger — a row per completed job, a row per expense carrying
+its own minus sign — because that has a property two stacked tables do not:
+**the Amount column adds up to the Net figure printed on the screen it came
+from.** `app/src/lib/accountant-export.js` holds the pure builder so
+`tests/money-export.test.mjs` can import it with no browser and no
+credentials; the test is baselined both ways (flip the expense sign and three
+checks fail). This is CLAUDE.md's *a number PRINTED is not a number CHARGED*
+one step later: a file handed to somebody who will never check it against the
+screen. Verified end to end in a real browser — the download is
+`coastline-auto-detailing-september-2026.csv` and its Net row reads `286.00`
+against the screen's `$286.00`.
+
+**THE CALENDAR — HIS DECISION, NOT A DESIGN ONE.** *"The calendar kind of has
+these huge blocks that take up the entire desktop space, and you have to
+scroll down… maybe shrink it a little, and have the information that is below
+it on one of the sides. We have the space."* Step 4 §4 said the month **must
+not be split**; that was true about the cost and had weighed it against
+nothing. **Measured: at 1440x900 with a day open the page was 1,284px against
+a 900px screen** — the panel began 20px below the fold.
+
+- **The day opens in a fixed 420px second column at ≥1180**, not a ratio: this
+  first column is a seven-column grid whose cell width decides whether the
+  month can write itself out, so the panel takes what it needs.
+- **`--wrap` lifts to 1720 on that screen only**, through
+  `.app-main:has(> .split.calday)`. That is not "stretching the first thing" —
+  the grid is the same 1,144px it has at every desktop width today and the
+  extra screen goes to the new column.
+- **The month keeps its written cells while the grid is ≥1,024px wide**, which
+  it is at ≥1640px of screen. So **1920 loses nothing**; at 1440 the cells go
+  back to marks for as long as the day is open and the legend grows to decode
+  them. One flag (`writes`) is read by the cells, the legend and the grid's
+  class, or the legend explains marks that are not there.
+- **A job opened from the day replaces the day** in that column and closing it
+  puts the day back — the same answer History already gives.
+
+**MEASURED AFTER.**
+
+| | |
+|---|---|
+| `sweep-widths.mjs` | clean at 1920 / 1440 / 392 / 360 / 320, normal and `?lite=1` |
+| Console at 1920 / 1440 / 768 / 392 | nothing but the two pre-existing React Router v7 future-flag warnings |
+| `composition` (26) · `design-contrast` · `landing-pricing` (18) · `route-contract` (18) · `money-export` (16, new) · `decisions-index` · `accent-sweep` | all pass |
+| Money's arrival | `arrive @0 / 40 / 80 / 120ms` on `.col-1`'s children at 1920 and 1440 and `@0…160ms` at 392; every one `none` under `?lite=1` — asserted on the COMPUTED `animation-name`, which is stage 3's own lesson |
+
+**SEVEN FILES THAT OUTRANK THE DESIGNS WERE CORRECTED IN THE SAME CHANGE**:
+the screen designs gain a *What shipped* block for §7 **and an overrule block
+on §4**; the phone pass gains one for §8 and a correction to §5a's title; the
+component inventory marks `Money.jsx` built and re-marks `Calendar.jsx` and
+`DaySheet.jsx`; `dashboard-skeletons.md`'s register says *signed* chart and
+names the day's new place; the feature inventory marks row 40 built; the
+architecture audit's Part B **row 11 is struck**; and `design-system.md` gains
+two clarifications — that five choices is still a segmented control, and that
+a chart bar takes the 3:1 non-text floor.
+
+**AND THREE THINGS OBSERVED AND NOT FIXED, carried forward from stages 2 and
+3 because none of them belongs to a screen.**
+
+1. **`document.title` is still "Detailing Platform" on every route** —
+   stage 2's finding, still open, still product-wide.
+2. **The month grid is still 30 tab stops.** Stage 3's note: inherited, no
+   WCAG criterion against it, and a roving `tabindex` is a change to the
+   cell's interaction model that belongs to a session that owns it.
+3. **A no-show still counts toward a month rule's total.** Stage 3's note; it
+   is a money question rather than a layout one and stage 4 did not reopen it.
+
+**AND ONE NEW ONE, WHICH IS THE COST OF HIS OWN TRADE:** at 1440x900 the month
+loses its written cells while the day is open. It is written down here so a
+later session does not find it and file it as a bug. **If he wants the words
+at 1440 too, the fix is a wider `--wrap` on that screen, not a different
+layout** — and it would cost the day panel width, which is what the 420px was
+protecting.
+
+**STAGES 5-7 REMAIN:** Clients · Business and the twelve settings screens
+(with the colour repair, Reviews and the rebuilt push switch) · first run,
+last on purpose.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
