@@ -301,7 +301,7 @@ line and it survives here unchanged.
 
 ### 3a. Kept, untouched — 16
 
-`ErrorBoundary` · `ExpenseModal` · `FinalizeModal` · `Sheet` ·
+`ErrorBoundary` · `ExpenseModal` · `FinalizeModal` · `Sheet` (**13 `<Sheet` sites across 12 files as of 2026-09-02 — counted, not remembered. `More.jsx`’s went with it; the twelve settings screens are pages or columns now, and the sheets that remain are forms you commit, records below `--wrap`, and the editors INSIDE two settings screens**) ·
 `TimezoneChangeGuard` · `TimezonePicker` · `controls.jsx` (all eight exports:
 `Setting`, `Switch`, `Segmented`, `DurationChoice`, `Stepper`, `MoneyField`,
 `HourChoice`, `Group`) · `Auth` · `AcceptInvite` · `CreateBusiness` ·
@@ -320,19 +320,19 @@ Two notes, because both look like defects and are not:
 
 | Component | What changes | From |
 |---|---|---|
-| `App.jsx` | The shell. Header gains the `+` and the gear; the tab bar becomes a vertical glass pill rail at ≥1024 (**the same component, `flex-direction: column`** — not a sidebar); `.app-main` gains `--wrap`; the fifth tab is **Business**. | Part A; desktop spec §6a |
+| `App.jsx` | **BUILT — the rail and `--wrap` in stage 1, the gear and the fifth tab’s NAME in stage 6 (2026-09-02).** The gear is a destination beside `tab`, not an overlay, so closing it returns you to the screen you were on. Staff lose Business as well as Money — **three rail buttons, not the four §10 counts** (see the screen designs’ §10-12 shipped block). | Part A; desktop spec §6a |
 | `Today.jsx` | **One** rail, not three. Three runs — *Needs payment · Still to do · Done*. The request slot above it, empty. No warn box, no bottom button. Right column at ≥1180. | §2 |
 | `BookingDetail.jsx` | **BUILT — stage 2, 2026-09-01.** The job record: an **action bar over named sections**, replacing one 340-line scroll. Two rows of three — Call · Text · Navigate, then Calendar · Contacts · Reminder — **pinned** (`.jobbar`, sticky). Stopped rendering its own Sheet in stage 1. **Five sections on the screen, not six: Photos is designed and not built, and an absent thing draws nothing.** | §3 |
 | `Calendar.jsx` | **BUILT — stage 3, 2026-09-01; the desk day panel CORRECTED in stage 4 on the owner's instruction — it opens BESIDE the month at ≥1180, in a fixed 420px column, and the cells fall back to marks while the grid is under 1,024px wide.** Month: cells carry job lines at ≥1180, `1 job` not `1 jobs`, a legend that lists only what is on the month shown, `.cal-cell.selected` revived, the day opening **inline under the grid at every width**. History: the ruled list with columns, month rules, the 1.7/1 split, and the nine chips behind one *Filter* below `--wrap`. Its *New booking* button and its own `<Sheet>` are gone. | §4, §6 |
 | `DaySheet.jsx` | **BUILT — stage 3, 2026-09-01.** Takes an `inline` prop rather than always being a sheet: the calendar draws it under the grid on a phone and **in the second column at ≥1180 (stage 4, the owner's ask)**, Today's *Tomorrow* row still opens it as a sheet (there is no grid behind that one to cover). **Not RecordHost** — a day is not a record and never opens beside its list. The three state cards keep expand-in-place at **both** widths, and its JOBS became rows. | §5 |
 | `Money.jsx` | **BUILT — stage 4, 2026-09-01.** The chart gets a zero line (a loss hangs **below** it, and the bars cleared the 3:1 non-text floor at the same time — they were 1.51:1); the period control is a segmented control on one line at ≥700 and wraps 3 + 2 below it; the accountant export is its own row under that control, **not beside the label** — it did not fit; **1.35/1, not 1.2/1**, for the same measurement. `Cell` and `Delta` unchanged; the job record moved to `RecordHost`. | §7 |
 | `Clients.jsx` | The list shows what it already computes: name · last visit · spend · phone. A segmented sort of three, one chip. **`lastVisit` stops being able to print a future date.** | §8 |
-| `BookingLink.jsx` | Same component, moved to the **top** of Business from 1,156px down, and gaining a larger form with a QR in the right column when nothing is selected. Its W14 three-button rule is untouched. | §10 |
-| `Appearance.jsx` | Writes **one** colour to both `primary_color` and `secondary_color`; the email path gets the contrast floor every other surface has. **D1 — the worst defect on step 4's list.** | §11 |
-| `BusinessInfo.jsx` | The second colour picker is deleted. Facebook, TikTok and YouTube fields added. | §11, §15 |
-| `BookingRules.jsx` | The superseded flat travel fee is deleted — the field that is still editable, still holds $25, and has not been charged since 2.8c. Keeps `.warn-box`. | §11 |
-| `Catalog.jsx` | Grouped the way the customer meets it — categories with their services inside, not four flat lists. One arrow per row. | §11 |
-| `Notifications.jsx` | The push switch is **withdrawn** until the browser half exists. | §11 |
+| `BookingLink.jsx` | **BUILT — stage 6, 2026-09-02, MINUS the QR.** Unchanged component, first on the page below --wrap and the second column’s resting content above it — never both, which was a measured defect in the first build. **No QR**: it needs a dependency (Reed-Solomon and a bit matrix, not a few lines) and the owner has not been asked. The question is in the stage-6 handoff. | §10 |
+| `Appearance.jsx` | **BUILT — stage 6, 2026-09-02.** Writes **one** colour to both columns, and the email path gained the floor through a new `supabase/functions/_shared/brandColor.js` — the band corrected 3:1 on the paper, its ink MEASURED rather than the hardcoded white it was, and the brand colour as words on white pushed to 4.5:1. The 3px rule that was drawn in `secondary_color` on a band of `primary_color` (1:1 once they became one colour) is drawn in the band’s own ink. `tests/email-brand.test.mjs` pins that file against `lib/theme.js` on all twelve presets and four extremes. | §11 |
+| `BusinessInfo.jsx` | **BUILT — stage 6, 2026-09-02.** BOTH colour pickers are gone, not one: the row said “the second colour picker” meaning the second SCREEN offering one, and with `Appearance` writing both columns this screen had no business writing either. Facebook, TikTok and YouTube added, paired. | §11, §15 |
+| `BookingRules.jsx` | **BUILT — stage 6, 2026-09-02, and NOT as written here.** The deletion was reversed at step 6: `pricing.ts:135` charges the fee, so it is live money whenever there are no travel areas. It becomes a SENTENCE once areas exist and is an editable field again when the last one is removed. `.warn-box` kept. | §11 |
+| `Catalog.jsx` | **BUILT — stage 6, 2026-09-02.** The category is the HEADING its services sit under, so the screen looks like the menu it is. One arrow per row — up only, absent on the first row: moving a row above the one before it reaches every order a pair reaches, and two 34px buttons on every row of the longest list in the product is more furniture than list. `above` is an index rather than a direction, because a service’s neighbour on the SCREEN is the previous one in its CATEGORY. | §11 |
+| `Notifications.jsx` | **BUILT — stage 6, 2026-09-02, and the OPPOSITE of this row**: the owner reversed it on 2026-08-31 (*“the push switch STAYS and its missing browser half gets built”*). `app/public/sw.js` and `lib/push.js` landed; the switch reads THIS DEVICE’s registration rather than the saved boolean, and unsupported / blocked / off each get their own sentence. `Switch` also gained a working `disabled` — it took the prop and dropped it. | §11 |
 | `NewBookingModal.jsx` | Must ask the server what is bookable instead of composing freely, and is reached from the header `+` alone. | §12 |
 | `JobPage.jsx` | Gets **simpler**: with `BookingDetail` no longer carrying a Sheet, the record at `/job/:id` is the page and needs no container at all. | §2 above |
 
@@ -353,18 +353,25 @@ the two this section first wrote. And `Today.jsx`'s own `JobRow` moved out to
 identical eight lines — two copies is how one of them gets a fix and the other
 does not, which this repo has already paid for twice.
 
+
 ### 3c. New — 12 files, and one named but not built
+
+**STATUS 2026-09-02 (stage 6):** ten of the twelve are built. `Faq.jsx` is
+deliberately not, `SetupForm.jsx` and `Walkthrough.jsx` are stage 7, and
+`ClientRecord.jsx` was refused at stage 5 with its reason kept. **One file
+this section did not predict was needed is now here: `SettingsHost.jsx`.**
 
 | File | What it is | Why it is not something that exists |
 |---|---|---|
-| `screens/Business.jsx` | The fifth tab: the booking-link block, then three groups of nine self-answering nav rows. | Replaces `More.jsx`. Three headings for nine rows where there are eight for eleven. |
-| `components/GearMenu.jsx` | The plumbing behind the header gear: Notifications · Message templates · Team · This device · Switch business · the account block · Sign out. | Same `.nav-row` panel shape, different contents and a different door. |
-| `screens/more/index.js` | key → `[component, title]`, ~15 lines. | Business and GearMenu both need the registry; one importing it from the other is a worse shape than a file that holds it. |
-| `screens/more/Reviews.jsx` | Writes `testimonials`, which the booking page already reads. | A table with no door. One of the four things Phase 3's websites need. |
-| `screens/more/Faq.jsx` | On/off plus the questions and answers, written by the detailer. | His Q2. AI polishes wording; it never generates an answer. |
-| `screens/more/SwitchBusiness.jsx` | Only rendered when the account has more than one membership. | Multi-business membership works and is unreachable. |
+| `screens/Business.jsx` | **BUILT 2026-09-02.** The fifth tab: three groups of **eight** self-answering nav rows, the booking-link block, and the admission test written into the file’s own header. | Replaces `More.jsx`, which is deleted. Eight, not the nine §10 designed — there is no FAQ row until there is a FAQ screen. |
+| `components/GearMenu.jsx` | **BUILT 2026-09-02.** The plumbing behind the header gear, and a DESTINATION rather than an overlay — it takes the main area, so its four screens are the same page-or-column as Business’s eight. | A sheet holding a menu would have been a second container mechanism for one set of screens, and they would be sheets at a desk — the thing this stage ends. |
+| `screens/more/index.js` | **BUILT 2026-09-02.** key → `[component, title]`, thirteen entries (twelve settings screens plus the Switch business picker). | Business and GearMenu both need it; one importing it from the other is a worse shape than a file that holds it. |
+| `screens/more/Reviews.jsx` | **BUILT 2026-09-02.** Writes `testimonials`: add, edit, hide, delete, with the stars stored as the number a website draws them from. | A table with no door since the first tenant migration. **The words are not DRAWN anywhere yet** — the booking page reads them into context and its steps are on a height budget — so the screen names the tenant websites rather than implying they are live. |
+| ~~`screens/more/Faq.jsx`~~ **NOT BUILT 2026-09-02, and deliberately** | On/off plus the questions and answers. | The owner split it himself: storage now, screen later. `business_settings.faqs` and `faq_enabled` landed in `20260902001000_faq_storage.sql`; there is no Business row for it, because a row that opens nothing is the push switch’s own defect wearing a different label. |
+| `screens/more/SwitchBusiness.jsx` | **BUILT 2026-09-02.** Only rendered above one membership. | It also needed `BusinessContext` to stop taking `memberships?.[0]`: the database has supported two businesses per account since the staff-roles migration and the front end could only ever open the first. The choice is a localStorage fact about the DEVICE, not a column. |
 | ~~`components/ClientRecord.jsx`~~ **NOT BUILT, 2026-09-02, and deliberately** | Bare ruled rows on the ground — `.facts` promoted from the sheet's best block to the record itself. Leads with visits and spend. | The reason given here dissolved when the record stopped being a sheet: `Clients.jsx` renders `RecordHost` directly, so the rows already sit in a column with no card. `RecordHost` gained a **`bare`** prop (`.record.bare` drops border, background and padding) and that is the whole of it. A component with one caller, extracted to satisfy a prediction, is the abstraction this repo's own rules forbid. |
 | `components/RecordHost.jsx` | Sheet below 1180, sticky column above. | §2. Six callers, one width check. |
+| **`components/SettingsHost.jsx`** — **NOT PREDICTED BY THIS FILE, built 2026-09-02** | Where a settings screen is drawn: a page below --wrap, the second column at or above it. `RecordHost`’s twin. | **The gap is instructive.** At step 5 a settings screen was still a `Sheet` below 1180, so `Sheet` WAS the container and no new component was needed. Step 4b re-decided that (“a page, with a back control”) and no file came back to name the piece that decision now required. A container change is a component even when it is only a container. |
 | `hooks/useWide.js` | Six lines of `matchMedia`. | Calendar's inline day panel needs the width without needing `RecordHost`. |
 | `components/SetupForm.jsx` | The stepped form, one question a step, skippable and resumable, with §1b's rule. | The only stepped thing in the product. |
 | `components/Walkthrough.jsx` | The spotlight and its step list, §1c. | The only overlay that is not a sheet. |
@@ -391,6 +398,15 @@ order and needs no new calendar mark.
 | **`.dashed`** — the class and all **seven** uses | §1a: an empty section is **not drawn**, and an empty screen is one sentence and one way forward. There is no shape left for a dashed box to be. | §1a |
 | **`.badge`** — seven rules, zero users | §3e. | found here |
 
+**DONE 2026-09-02, AND IT WAS BOTH HALVES.** `sweep-widths.mjs`’s eleven
+titles became `BUSINESS_ROWS` (8) and `GEAR_ROWS` (4), reached through two
+doors; “Maps, calendar & contacts” is “This device”; Reviews joined; there is
+no FAQ row to visit. `shoot-dashboard.mjs` gained `--gear` for the same
+reason — a screenshot tool that can only reach one door photographs two
+thirds of the product. **Both scripts also stopped closing a settings screen
+by clicking a sheet’s X**, because there is no sheet: Escape closes the page
+and the column alike. The original note follows.
+
 **One check will go stale silently unless step 6 moves it, and it is the same
 family as everything else on this list.** `sweep-widths.mjs:90` holds a `MORE`
 array of **eleven settings-screen titles** and walks each one; Reviews and FAQ
@@ -400,6 +416,13 @@ door.** After §10 the plumbing moves behind the gear, so the sweep needs two
 routes rather than one. The same eleven is quoted in CLAUDE.md's own
 description of the script (*"all eleven settings sheets"*) and becomes thirteen
 with the build.
+
+**BOTH DELETIONS LANDED 2026-09-02.** `.dashed` was down to ONE caller by
+then (`BookingDetail`’s “no templates yet”), which became a plain sentence;
+`.badge` still had zero. `boxy()` in `sweep-widths.mjs` lost `.dashed` in the
+same change, and the three `accent-sweep.mjs` comments plus the two in
+`lib/theme.js` that named `.badge` were corrected. No measurement moved and
+the sweep still exits 0.
 
 **`.dashed` is the one deletion with a side effect worth naming.**
 `sweep-widths.mjs`'s `boxy()` matcher lists `.dashed` among the things with an
@@ -447,6 +470,11 @@ same change; no measurement moves, and the sweep must still exit 0.
 ### 3f. Two counts in step 4's file, corrected
 
 Bookkeeping is what this step is, so:
+
+> **SETTLED BY THE BUILD, 2026-09-02: TWELVE.** The owner split the FAQ
+> (storage in 2.11, screen later), so eleven existing + Reviews is what
+> shipped, and the phone pass §12’s count was the right one all along.
+> Switch business is still a fourteenth destination and still not one of them.
 
 - **Step 4 §11 is titled *"one skeleton, twelve of them"* and its table lists
   thirteen.** Eleven exist today — Business info, Your colour, Services &

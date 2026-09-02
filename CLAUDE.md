@@ -143,6 +143,13 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - Finish every session: `node tests/composition.test.mjs`,
   `design-contrast`, `landing-pricing`, `route-contract`, **`money-export`**,
+  **`email-brand`** (97 checks, new 2026-09-02 — it pins
+  `supabase/functions/_shared/brandColor.js`, the EMAIL’s copy of the colour
+  engine, against `app/src/lib/theme.js` on the twelve presets and the four
+  extremes. Email is the one place in this repo a second implementation of the
+  colour maths is allowed — an edge function is a separate Deno bundle and the
+  Supabase CLI will not follow an import out of `supabase/` — and this test is
+  the price of that permission),
   **`client-list`** (31 checks, new 2026-09-02 — the Clients list's date
   arithmetic and the lapsed filter, which decides who ends up on the end of a
   group text; baselined both ways) from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
@@ -166,7 +173,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  eleven settings sheets, the client sheet, **the job record in two states
+  TWELVE settings screens through TWO DOORS — eight on Business and four behind
+  the header gear (it was eleven behind one until roadmap 2.11 step 6 stage 6,
+  and a script that opens one door reports clean on screens it never visits) —
+  the client sheet, **the job record in two states
   (added 2026-09-01, roadmap 2.11 step 6 stage 2 — until then the object
   carrying 26 of the product's 126 capabilities had never been swept, so a
   clean run said nothing about it)**, **the calendar's OTHER TWO SCREENS —
@@ -263,6 +273,26 @@ explaining it; if they still have to ask "so should I?", it failed.
   **closed by him unstarted**; the figures live there so nobody re-measures
   them and files them as new.
 
+- **THE FIFTH TAB IS `Business`, THE PLUMBING IS BEHIND A GEAR IN THE HEADER,
+  AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
+  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. Eight rows on
+  Business (what changes what a CUSTOMER meets), four behind the gear (what
+  changes how the app behaves for the detailer), and the test that decides
+  which is written into `screens/Business.jsx`’s own header. **Staff get
+  THREE rail buttons** — Today, Calendar, Clients — plus the gear.
+  `components/SettingsHost.jsx` is the container: a PAGE with a back control
+  below `--wrap`, the second column at or above it. Anything that walks the
+  settings screens must go through both doors.
+- **PUSH NOW HAS A BROWSER HALF, AND ONE STEP OF IT IS UNVERIFIED.**
+  `app/public/sw.js` + `app/src/lib/push.js` + a `probe` branch on
+  `owner-push-subscribe` that serves the VAPID public key. **The VAPID secrets
+  were never set on the platform project either** — `sendOwnerPush` had been
+  logging “skipping” for its whole life — and a keypair was generated and set
+  on 2026-09-02. **Nobody has yet completed the ALLOW path in a real browser**:
+  headless Chromium reports `Notification.permission === “denied”
+  unconditionally, so the switch’s blocked branch is verified and its granted
+  branch is not. It needs one tap on a real device. Do not record push as
+  finished until somebody has actually received one.
 - **THE OWNER LIFTED THE "DON'T TOUCH THE BACK END" RULE ON 2026-08-31**, and
   a session that inherits it from an older file will do less than he asked for.
   His words, answering roadmap 2.11 step 6: *"I don't know why there was a rule

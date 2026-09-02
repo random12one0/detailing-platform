@@ -384,6 +384,29 @@ what beside-not-over buys.
 
 ### 5f. Business — the eleven settings screens stop being modals
 
+> **BUILT 2026-09-02 (roadmap 2.11 step 6, stage 6), with three corrections
+> to this section:**
+>
+> - **1 / 1.9 held**, and it is written as `grid-template-columns` rather
+>   than `--split` (following `.split.calday`), because --split is a fr value
+>   for column ONE and 1/1.9 would have to be spelled `0.526fr` — the ratio
+>   with the arithmetic already done to it.
+> - **“Below 1180 the eleven open as sheets — today exactly” is SUPERSEDED**
+>   by the phone pass §2b, which is later and is the phone’s authority: below
+>   --wrap a settings screen is a PAGE with a back control. The `›` on the row
+>   promised a push and delivered a peek; and a sheet with its own scroller
+>   inside a page that also scrolls is two scrollers.
+> - **STAFF SEE THREE RAIL BUTTONS, NOT FOUR.** This section’s “four, not
+>   five (no Money)” was written before Business was also taken from them
+>   (screen designs §10, staff state). Today · Calendar · Clients, plus the
+>   gear. The count in the screen designs inherited this figure and is
+>   corrected there too.
+>
+> **With nothing selected the right column holds the booking link and NOT the
+> account block** — the account block moved behind the gear in the same
+> change, and the gear’s own resting column is where it landed.
+
+
 The fifth tab from Part A. **The only screen weighted toward its right column**,
 because here the left is an index and the right is the actual work.
 

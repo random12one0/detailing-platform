@@ -13,8 +13,14 @@ export interface TenantBrand {
   contactPhone: string | null;
   dropoffAddress: string | null;
   siteUrl: string;
-  primaryColor: string;         // header background
-  accentColor: string;          // links/highlights
+  // THREE VALUES, ONE TENANT COLOUR, AND EACH NAMES THE GROUND IT LANDS ON.
+  // A tenant has ONE accent (law 11); the second brand colour was a schema
+  // accident and it drew a 3px rule on a band of its own colour -- 1:1, the
+  // worst defect on step 4s list. _shared/brandColor.js computes all three
+  // and says why each ground is the one it is.
+  primaryColor: string;         // the header bands FILL, corrected 3:1 on paper
+  headerInk: string;            // what is legible ON that band -- measured, never assumed
+  accentColor: string;          // the same colour as WORDS on white paper, 4.5:1
   googleReviewUrl: string | null;
   yelpReviewUrl: string | null;
   paymentMethodsLine: string | null; // e.g. "Cash, Venmo & Zelle" (optional)
@@ -80,14 +86,14 @@ function shell(brand: TenantBrand, headerHtml: string, bodyHtml: string, prehead
     <tr><td align="center" style="padding:24px 12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; background-color:#ffffff; border-radius:16px; overflow:hidden;">
         <tr><td style="background-color:${brand.primaryColor}; padding:28px 32px;">
-          <div style="font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold; color:#ffffff;">${esc(brand.brandName)}</div>
-          <div style="height:3px; width:44px; background-color:${brand.accentColor}; margin:12px 0 14px 0; border-radius:2px;"></div>
+          <div style="font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold; color:${brand.headerInk};">${esc(brand.brandName)}</div>
+          <div style="height:3px; width:44px; background-color:${brand.headerInk}; margin:12px 0 14px 0; border-radius:2px;"></div>
           ${headerHtml}
         </td></tr>
         ${bodyHtml}
         <tr><td style="padding:24px 32px 32px 32px; font-family:Arial,Helvetica,sans-serif; text-align:center;">
           <div style="border-top:1px solid #eef2f6; padding-top:20px;">
-            <p style="margin:0 0 4px 0; font-size:14px; font-weight:bold; color:${brand.primaryColor};">${esc(brand.brandName)}</p>
+            <p style="margin:0 0 4px 0; font-size:14px; font-weight:bold; color:${brand.accentColor};">${esc(brand.brandName)}</p>
             ${brand.contactPhone ? `<p style="margin:0 0 4px 0; font-size:13px; color:#64748b;">${esc(brand.contactPhone)}</p>` : ""}
             <p style="margin:0 0 10px 0; font-size:13px; color:#64748b;"><a href="${brand.siteUrl}" style="color:${brand.accentColor}; text-decoration:none;">${esc(brand.siteUrl.replace(/^https?:\/\//, ""))}</a></p>
             <p style="margin:0; font-size:11px; color:#a8b4c0;">Automated message — reply to reach us.</p>
@@ -181,7 +187,7 @@ export function customerConfirmationEmail(brand: TenantBrand, b: BookingEmailDat
         ${b.siteDiscount > 0 ? `<tr><td style="padding:4px 0; color:#64748b;">${b.siteDiscountPercent}% Sale</td><td style="padding:4px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">-${money(b.siteDiscount)}</td></tr>` : ""}
         ${b.promoCode ? `<tr><td style="padding:4px 0; color:#64748b;">Promo (${esc(b.promoCode)})</td><td style="padding:4px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">${b.promoDiscount > 0 ? `-${money(b.promoDiscount)}` : "Applied"}</td></tr>` : ""}
         <tr><td colspan="2" style="padding:6px 0 0 0;"><div style="border-top:2px solid #dbe4ec;"></div></td></tr>
-        <tr><td style="padding:8px 0 0 0; font-size:16px; font-weight:bold; color:${brand.primaryColor};">Estimated total</td><td style="padding:8px 0 0 0; text-align:right; font-size:20px; font-weight:bold; color:${brand.primaryColor};">${money(b.total)}</td></tr>
+        <tr><td style="padding:8px 0 0 0; font-size:16px; font-weight:bold; color:${brand.accentColor};">Estimated total</td><td style="padding:8px 0 0 0; text-align:right; font-size:20px; font-weight:bold; color:${brand.accentColor};">${money(b.total)}</td></tr>
       </table>
       <p style="margin:12px 0 0 0; font-size:12px; line-height:1.5; color:#94a3b8;">This total is an estimate and may change if the vehicle&rsquo;s condition requires additional time or services.</p>
     `)}</td></tr>
@@ -189,7 +195,7 @@ export function customerConfirmationEmail(brand: TenantBrand, b: BookingEmailDat
       <a href="${b.receiptUrl}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">View / save your confirmation</a>
     </td></tr>
     ${b.customerNotes ? `<tr><td style="padding:16px 32px 4px 32px; font-family:Arial,Helvetica,sans-serif;">${label(brand.accentColor, "Your notes")}<p style="margin:0; font-size:14px; line-height:1.6; color:#475569;">${esc(b.customerNotes)}</p></td></tr>` : ""}
-    ${brand.paymentMethodsLine ? `<tr><td style="padding:20px 32px 8px 32px;"><div style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px; padding:14px 20px; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#0f172a;"><strong style="color:${brand.primaryColor};">Payments accepted:</strong> ${esc(brand.paymentMethodsLine)}</div></td></tr>` : ""}
+    ${brand.paymentMethodsLine ? `<tr><td style="padding:20px 32px 8px 32px;"><div style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px; padding:14px 20px; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#0f172a;"><strong style="color:${brand.accentColor};">Payments accepted:</strong> ${esc(brand.paymentMethodsLine)}</div></td></tr>` : ""}
   `;
   const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e2e8f0;">Booking confirmed</div>
     <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:#ffffff; margin-top:4px;">You're all set!</div>`;
@@ -209,7 +215,7 @@ export function ownerNewBookingEmail(brand: TenantBrand, b: BookingEmailData): {
     <tr><td style="padding:20px 28px 4px 28px;">${infoCard(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
         <td style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#64748b;">Booking total</td>
-        <td style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:${brand.primaryColor}; text-align:right;">${money(b.total)}</td>
+        <td style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:${brand.accentColor}; text-align:right;">${money(b.total)}</td>
       </tr></table>`)}
     </td></tr>
     <tr><td style="padding:18px 28px 4px 28px; font-family:Arial,Helvetica,sans-serif;">
@@ -293,12 +299,12 @@ export function invoiceEmail(
           <tr><td style="padding:5px 0; color:#64748b;">Subtotal</td><td style="padding:5px 0; text-align:right;">${money(totals.chargesSubtotal)}</td></tr>
           ${totals.discountsTotal < 0 ? `<tr><td style="padding:5px 0; color:#64748b;">Discounts</td><td style="padding:5px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">-${money(Math.abs(totals.discountsTotal))}</td></tr>` : ""}
           ${totals.tipTotal > 0 ? `<tr><td style="padding:5px 0; color:#64748b;">Tip</td><td style="padding:5px 0; text-align:right;">${money(totals.tipTotal)}</td></tr>` : ""}
-          <tr><td colspan="2" style="padding:6px 0 0 0;"><div style="border-top:2px solid ${brand.primaryColor};"></div></td></tr>
-          <tr><td style="padding:10px 0 0 0; font-size:16px; font-weight:bold; color:${brand.primaryColor};">Total paid</td><td style="padding:10px 0 0 0; text-align:right; font-size:22px; font-weight:bold; color:${brand.primaryColor};">${money(totals.totalPaid)}</td></tr>
+          <tr><td colspan="2" style="padding:6px 0 0 0;"><div style="border-top:2px solid ${brand.accentColor};"></div></td></tr>
+          <tr><td style="padding:10px 0 0 0; font-size:16px; font-weight:bold; color:${brand.accentColor};">Total paid</td><td style="padding:10px 0 0 0; text-align:right; font-size:22px; font-weight:bold; color:${brand.accentColor};">${money(totals.totalPaid)}</td></tr>
         </table>
       </td></tr></table>
     </td></tr>
-    ${brand.paymentMethodsLine ? `<tr><td style="padding:20px 32px 4px 32px;"><div style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px; padding:14px 20px; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#0f172a;"><strong style="color:${brand.primaryColor};">Payments accepted:</strong> ${esc(brand.paymentMethodsLine)}</div></td></tr>` : ""}
+    ${brand.paymentMethodsLine ? `<tr><td style="padding:20px 32px 4px 32px;"><div style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px; padding:14px 20px; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#0f172a;"><strong style="color:${brand.accentColor};">Payments accepted:</strong> ${esc(brand.paymentMethodsLine)}</div></td></tr>` : ""}
     ${paymentNotes ? `<tr><td style="padding:16px 32px 4px 32px; font-family:Arial,Helvetica,sans-serif;">${label(brand.accentColor, "Notes")}<p style="margin:0; font-size:13px; line-height:1.6; color:#475569;">${esc(paymentNotes)}</p></td></tr>` : ""}`;
   return {
     subject: `Your invoice from ${brand.brandName} - ${money(totals.totalPaid)} (Ref #${invoiceRef})`,

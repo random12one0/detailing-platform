@@ -281,11 +281,11 @@ if it can be made good — there is exactly one).
 | 89 | Set a logo and a hero image | a | works | Business info (URL fields) |
 | 90 | Choose your colour | a | **broken** | Two screens write it, and neither writes the one the emails use (§7 D1) |
 | 91 | Link Instagram, Google, Yelp | a | works | Business info |
-| 92 | Link Facebook, TikTok, YouTube | b | **no screen** | Columns exist on `business_branding`; nothing edits them |
+| 92 | Link Facebook, TikTok, YouTube | b | ~~**no screen**~~ **BUILT 2026-09-02** | Business info, paired beside Instagram. The columns had been on `business_branding` since the first tenant migration |
 | 93 | Point customers at your Google and Yelp review pages | a | works | Business info |
 | 94 | Show photos of your work | a | works | Gallery |
-| 95 | Share your booking link — copy, open, share sheet | a | works | Bottom of More |
-| 96 | Collect and show reviews | b + d | **no screen** | Table `testimonials` exists; the booking page READS it; nothing writes it |
+| 95 | Share your booking link — copy, open, share sheet | a | works | **The TOP of Business**, and the second column’s resting content at a desk. It was 1,156px down (Part B row 16) |
+| 96 | Collect and show reviews | b + d | ~~**no screen**~~ **COLLECTING BUILT 2026-09-02; SHOWING IS PHASE 3** | `screens/more/Reviews.jsx` — add, edit, hide, delete. The booking page reads them into its context and does not DRAW them; the tenant websites are where they were always going, and the screen says so in its own words |
 | 97 | Use your own domain name | b + d | **no screen** | Table `business_domains` exists; roadmap 3.3 |
 | 98 | Edit the pages of your website — home, about, FAQ, contact | d | Phase 3 | Nowhere. Roadmap 3.1 decides the page list |
 | 99 | See how many people visited and where from | b | **no screen** | `campaigns` + `campaign_visits` + `track-visit`, all unreachable. **Deliberately unplaced** — architecture doc §6 |
@@ -295,7 +295,7 @@ if it can be made good — there is exactly one).
 | # | Capability | Src | Status | Where it lives now |
 |---|---|---|---|---|
 | 100 | Choose which emails go out, to customers and to you | a | works | Notifications |
-| 101 | Get a push notification on your phone | a + b | **broken** | Switch writes `push_enabled`; **there is no client code at all** (Part B #1) |
+| 101 | Get a push notification on your phone | a + b | ~~**broken**~~ **BUILT 2026-09-02, one step UNVERIFIED** | `app/public/sw.js` + `lib/push.js`; the switch reads THIS DEVICE’s registration rather than the saved boolean. The VAPID secrets were missing from the project too and are set now. **The granted path has not been exercised in a real browser** — headless Chromium reports `Notification.permission === "denied"` unconditionally |
 | 102 | Choose when reminders send | a | works | `customer_reminder_lead_minutes`, `evening_before_*` |
 | 103 | Choose when you get nudged — before, after, and to finalise | a | works | `owner_nudge_*`, `wrapup_*`, `finalize_*` |
 | 104 | Get a summary of the day each morning | a + b | works | `daily_digest_hour`; state in `owner_daily_digest_state` |
@@ -335,8 +335,8 @@ for instead.
 |---|---|---|---|---|---|
 | 118 | A setup form a new detailer runs through that collects everything the booking page needs to work — hours, services, add-ons, promo codes, business info, booking rules | o | **new** | Getting started | **Skippable, and resumable later** — his words |
 | 119 | A guided walkthrough of the dashboard, highlighting one thing at a time | o | **new** | Getting started | **Many short steps, no paragraphs, nothing combined** — his constraint, quoted at §9 Q1 |
-| 120 | Turn an FAQ page on or off for this business | o | **new** | What your page says | **Optional, never a default** |
-| 121 | Write the FAQ — the detailer's own questions and answers | o | **new** | What your page says | The detailer writes it; **they are the detailer** |
+| 120 | Turn an FAQ page on or off for this business | o | **new** — **storage landed 2026-09-02** (`business_settings.faq_enabled`), screen deliberately later | What your page says | **Optional, never a default** |
+| 121 | Write the FAQ — the detailer’s own questions and answers | o | **new** — **storage landed 2026-09-02** (`business_settings.faqs`), screen deliberately later | What your page says | The detailer writes it; **they are the detailer** |
 | 122 | Improve the wording of what they wrote | o | **new** | What your page says | His idea, and explicitly polish only — the answers stay theirs |
 | 123 | Choose whether a booking RESERVES the slot or is a REQUEST to be accepted | o | **new, engine** | When you can be booked | **Not this item.** §9 Q5 |
 | 124 | Accept or decline a request, from the screen the day lives on | o | **new, engine** | The day, and one job | **Not this item.** §9 Q5 |

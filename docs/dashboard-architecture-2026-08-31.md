@@ -227,6 +227,33 @@ sentence this whole item turns on.
 
 ### 2c. Five things found while taking the inventory
 
+> **ALL FIVE ARE ANSWERED AS OF 2026-09-02 (roadmap 2.11 step 6, stage 6),
+> and one of them was answered the OPPOSITE way to what this section
+> proposed.**
+>
+> 1. **The push switch.** Built, not withdrawn — the owner’s call on
+>    2026-08-31. `app/public/sw.js`, `app/src/lib/push.js`, a `probe` branch
+>    on `owner-push-subscribe` that serves the VAPID public key, and a switch
+>    that reads THIS DEVICE’s registration instead of the saved boolean.
+>    **And the server half was not live either**, which nothing had noticed:
+>    `OWNER_VAPID_*` were never set as function secrets, so `sendOwnerPush`
+>    had been logging “VAPID keys not configured — skipping” for its whole
+>    life. A keypair was generated and set on the platform project
+>    (`kguqylyzgyzfktkfnhjb`, never the live business). **One step is still
+>    unverified:** the granted path needs a real browser, and headless
+>    Chromium reports `Notification.permission === “denied”` unconditionally.
+> 2. **Staff and “Your colour”.** Fixed structurally: staff have no Business
+>    tab at all, which is where that row lives, so the screen the database
+>    refuses is not offered.
+> 3. **A staff More screen of two rows.** Gone — staff get THREE rail buttons
+>    (Today, Calendar, Clients) plus the gear, which keeps Message templates,
+>    This device and the account block.
+> 4. **Four tables with no interface.** `testimonials` has one now
+>    (`screens/more/Reviews.jsx`). `campaigns`, `monthly_plans` and
+>    `business_domains` are unchanged and still deliberately unplaced.
+> 5. Dead weight — see the deletions in the component inventory §3d.
+
+
 These were not being looked for. Three are defects, two are dead weight.
 
 1. **The push-notification switch does not do anything.** Notifications offers
@@ -1085,10 +1112,10 @@ Nothing here is fixed — this item changes no code.
 | 11 | Money | ~~"Nothing outstanding" gets a dashed box~~ **FIXED 2026-09-01, stage 4** — both dashed boxes are gone; a section with nothing in it is not drawn, and a whole screen with nothing on it says so once under a $0.00 that is correct rather than empty. | Composition |
 | 12 | Money | A loss and a win draw the same height; no zero line | Composition |
 | 13 | Everywhere ≥768px | One 724px column; 60% of a 1920 screen unused | **Layout** |
-| 14 | More | Titled "Settings", tab labelled "More" | Copy |
-| 15 | More | Eight headings for eleven rows; three own one row | Composition |
-| 16 | More | Booking link 1,156px down | Composition |
-| 17 | Services & add-ons | Flat list where the customer meets a grouped menu; 2 arrows per row | Composition |
+| 14 | More | ~~Titled “Settings”, tab labelled “More”~~ **FIXED 2026-09-02, stage 6** — the tab and the screen are both **Business**. | Copy |
+| 15 | More | ~~Eight headings for eleven rows; three own one row~~ **FIXED 2026-09-02, stage 6** — **three headings for eight rows**. The other four failed the admission test (*does it change what a CUSTOMER meets?*) and are behind the header gear. | Composition |
+| 16 | More | ~~Booking link 1,156px down~~ **FIXED 2026-09-02, stage 6** — first on the page below --wrap, the second column’s resting content above it, never both. | Composition |
+| 17 | Services & add-ons | ~~Flat list where the customer meets a grouped menu; 2 arrows per row~~ **FIXED 2026-09-02, stage 6** — the category is the heading its services sit under, and there is one arrow (up only, absent on the first row). | Composition |
 | 18 | Client sheet | ~~Phone number printed twice; every history row repeats the client's name~~ **FIXED 2026-09-02, stage 5** — the number is the record's subtitle and the button beside it says *Call*; a history row is *date · what · total*. | Composition |
 | 19 | Booking detail | "Estimated $235.00 · Final $235.00" when nothing changed | Copy |
 | 20 | Today / Calendar / day sheet | Three doorways to New booking | Consistency |

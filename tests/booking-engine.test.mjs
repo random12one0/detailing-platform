@@ -366,7 +366,7 @@ console.log("test 9: email addressing routes per business, never cross-tenant");
     businessId: biz.id, slug: biz.slug, brandName: biz.name,
     contactEmail: biz.contact_email, contactPhone: biz.contact_phone,
     dropoffAddress: biz.dropoff_address, siteUrl: `https://detailplatform.com/${biz.slug}`,
-    primaryColor: "#111827", accentColor: "#0ea5e9",
+    primaryColor: "#111827", headerInk: "#ffffff", accentColor: "#0b7caf",
     googleReviewUrl: null, yelpReviewUrl: null, paymentMethodsLine: null,
   });
   const aAddr = m.buildAddressing(brandOf(A), "bookings@detailplatform.com");

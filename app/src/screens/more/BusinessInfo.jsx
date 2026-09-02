@@ -9,7 +9,6 @@ import { uploadBusinessPhoto } from "../../lib/upload.js";
 import TimezonePicker from "../../components/TimezonePicker.jsx";
 import TimezoneChangeGuard from "../../components/TimezoneChangeGuard.jsx";
 import { localTime } from "../../lib/format.js";
-import { HOUSE_ACCENT, HOUSE_ACCENT_DEEP } from "../../lib/theme.js";
 
 export default function BusinessInfo() {
   const { business, branding, settings, reload } = useBusiness();
@@ -21,17 +20,22 @@ export default function BusinessInfo() {
     service_area: business.service_area || "",
     timezone: business.timezone,
   });
+  // THE TWO COLOUR PICKERS ARE GONE (roadmap 2.11 step 6, stage 6). A tenant
+  // has ONE accent — law 11 — and it is set on "Your colour", which is the
+  // only screen that shows what the choice does. Two pickers on two screens
+  // writing two columns was a schema accident, not a choice the product
+  // offers, and the second colour is what drew a 3px rule the same colour as
+  // the band under it on every email (D1). Neither column is written from
+  // here any more; `Appearance` writes both.
   const [brand, setBrand] = useState({
-    primary_color: branding?.primary_color || HOUSE_ACCENT,
-    // The old default here was the light THEME's accent, which stopped
-    // existing when the light theme did. The system's "accent at rest" is a
-    // real second brand colour rather than a leftover.
-    secondary_color: branding?.secondary_color || HOUSE_ACCENT_DEEP,
     tagline: branding?.tagline || "",
     about_copy: branding?.about_copy || "",
     logo_url: branding?.logo_url || "",
     hero_image_url: branding?.hero_image_url || "",
     social_instagram: branding?.social_instagram || "",
+    social_facebook: branding?.social_facebook || "",
+    social_tiktok: branding?.social_tiktok || "",
+    social_youtube: branding?.social_youtube || "",
     social_google: branding?.social_google || "",
     social_yelp: branding?.social_yelp || "",
   });
@@ -92,13 +96,14 @@ export default function BusinessInfo() {
       }).eq("id", business.id),
       supabase.from("business_branding").upsert({
         business_id: business.id,
-        primary_color: brand.primary_color,
-        secondary_color: brand.secondary_color,
         tagline: nn(brand.tagline),
         about_copy: nn(brand.about_copy),
         logo_url: nn(brand.logo_url),
         hero_image_url: nn(brand.hero_image_url),
         social_instagram: nn(brand.social_instagram),
+        social_facebook: nn(brand.social_facebook),
+        social_tiktok: nn(brand.social_tiktok),
+        social_youtube: nn(brand.social_youtube),
         social_google: nn(brand.social_google),
         social_yelp: nn(brand.social_yelp),
       }),
@@ -150,12 +155,6 @@ export default function BusinessInfo() {
       </label>
 
       <div className="section-title">Branding</div>
-      <div className="grid2">
-        <label className="field"><span>Primary color</span>
-          <input type="color" value={brand.primary_color} onChange={(e) => setBrand({ ...brand, primary_color: e.target.value })} /></label>
-        <label className="field"><span>Accent color</span>
-          <input type="color" value={brand.secondary_color} onChange={(e) => setBrand({ ...brand, secondary_color: e.target.value })} /></label>
-      </div>
       <label className="field"><span>Tagline</span>
         <input value={brand.tagline} onChange={(e) => setBrand({ ...brand, tagline: e.target.value })} /></label>
       <label className="field"><span>About / owner bio</span>
@@ -171,8 +170,23 @@ export default function BusinessInfo() {
       </div>
 
       <div className="section-title">Links</div>
-      <label className="field"><span>Instagram URL</span>
-        <input value={brand.social_instagram} onChange={(e) => setBrand({ ...brand, social_instagram: e.target.value })} /></label>
+      {/* FOUR SOCIAL FIELDS, NOT ONE. The columns for Facebook, TikTok and
+          YouTube have been on `business_branding` since the first tenant
+          migration and no screen ever offered them (inventory row 92), so a
+          detailer whose customers are all on TikTok had nowhere to say so.
+          Paired, because a phone stacks them at 320 anyway. */}
+      <div className="grid2">
+        <label className="field"><span>Instagram</span>
+          <input value={brand.social_instagram} onChange={(e) => setBrand({ ...brand, social_instagram: e.target.value })} /></label>
+        <label className="field"><span>Facebook</span>
+          <input value={brand.social_facebook} onChange={(e) => setBrand({ ...brand, social_facebook: e.target.value })} /></label>
+      </div>
+      <div className="grid2">
+        <label className="field"><span>TikTok</span>
+          <input value={brand.social_tiktok} onChange={(e) => setBrand({ ...brand, social_tiktok: e.target.value })} /></label>
+        <label className="field"><span>YouTube</span>
+          <input value={brand.social_youtube} onChange={(e) => setBrand({ ...brand, social_youtube: e.target.value })} /></label>
+      </div>
       <div className="grid2">
         <label className="field"><span>Google review link</span>
           <input value={reviews.google_review_url} onChange={(e) => setReviews({ ...reviews, google_review_url: e.target.value })} /></label>

@@ -40,9 +40,20 @@ export default function Appearance() {
   const saveBrandColor = async (hex) => {
     setMsg(null);
     setCustom(hex);
+    // ONE COLOUR, WRITTEN TO BOTH COLUMNS — the fix for D1, the worst defect
+    // on step 4's list. `secondary_color` is a schema accident: law 11 gives
+    // a tenant ONE accent, nothing in the dashboard or on the booking page
+    // has ever read the second, and the ONE place that did was the email,
+    // which drew a 3px rule in it ON a band of the first. Once BusinessInfo
+    // stopped offering its own picker (same change), a business that never
+    // touched that screen would have kept a stale second colour forever. So
+    // it is kept in step rather than left to rot, and the email now derives
+    // all three of its values from the one hex
+    // (supabase/functions/_shared/brandColor.js).
     const { error } = await supabase.from("business_branding").upsert({
       business_id: business.id,
       primary_color: hex,
+      secondary_color: hex,
     });
     if (error) {
       setMsg({ ok: false, text: error.message });

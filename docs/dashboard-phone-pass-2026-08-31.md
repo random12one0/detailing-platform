@@ -669,6 +669,44 @@ later, which is your own split.
 
 ---
 
+### §11-12 BUILT 2026-09-02 (roadmap 2.11 step 6, stage 6)
+
+**The phone form is what shipped**, and where §11-12 and step 4 §10-11
+disagreed this file won, which is what it is for.
+
+- **The booking link is line 1 truncated + `Copy · Open` (and `Share` when the
+  browser has it) — unchanged**, and it is the FIRST thing on the page. It was
+  1,156px down. At a desk it moves to the second column's resting content and
+  is **not drawn twice**: measured, because the first build DID draw it twice
+  on one 392px screen — `.split` is not a grid below --wrap, so a second
+  column rendered there simply stacks under the index.
+- **Three groups, EIGHT rows, every row answering itself.** Nine minus the FAQ,
+  which has storage and no screen.
+- **A settings screen is a page with a back control**, one scroller, and its
+  title is `--t-title` rather than the tab masthead's `--t-display`: measured
+  at 392, *"Services & add-ons"* at 30px beside a 44px back control came back
+  as *"Services & add-o…"*, and a truncated title is the one string on a
+  screen nobody should have to guess at.
+- **The gear holds Notifications · Message templates · Team · This device ·
+  Switch business (only above one membership) · the account block and Sign
+  out** — and it is a DESTINATION, not an overlay. It takes the main area, so
+  the four screens behind it are the same page-below-`--wrap` and the same
+  column-above-it as the eight on Business. A sheet holding a menu would have
+  been a second container for one set of screens.
+- **The admission test is in `screens/Business.jsx`'s own header**, not only in
+  a document, because the document is the half that rots.
+
+**§12's count was TWELVE and twelve is what shipped** — this file was right and
+step 4 §11's thirteen was the one that had to move.
+
+**Rotation:** no new breakpoint was added. `.settings-page`, `.settings-head`,
+`.settings-col`, `.cat-head` and the blocking row carry no `min-width`, and the
+only new media queries are `≥1180` (`.split.business`, `.split.gear`,
+`.gear-account`), which a 844px-wide phone never reaches. So the five guarded
+sites in `theme.css` are still five and a sideways phone still changes nothing.
+
+---
+
 ## 13. The forms you commit
 
 **New booking · Finalize payment · Add an expense.** Modals at every width,

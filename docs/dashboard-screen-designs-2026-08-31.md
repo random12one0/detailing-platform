@@ -1329,6 +1329,70 @@ weight. Nothing else.
 
 ---
 
+---
+
+## 10-12 · What shipped (roadmap 2.11 step 6, stage 6 — 2026-09-02)
+
+**Six of the seven stages are built.** This block is what the code does where
+it differs from §10-12 above, and each difference has its reason with it —
+§10-12 stay as written, because the reasoning is the part that survives.
+
+| | §10-12 designed | What shipped |
+|---|---|---|
+| Rows on Business | three headings, **nine** rows | three headings, **eight** — FAQ has no row because it has no screen |
+| Settings screens | **thirteen** | **twelve**; the FAQ's storage landed and its screen did not |
+| A settings screen's container | second column ≥1180; a sheet below | second column ≥1180, **a PAGE below** — the phone pass outranks §11 here and §1d already carries the correction |
+| Staff rail buttons | "four, not five" | **three** — the rule ("staff do not get a Business tab") is what was built; the count was the desktop spec's older figure, taken before Business was also removed |
+| A blocking row | the `.lit` treatment | its summary line in `--bad` |
+| The right column at rest | the booking link, larger, **with its QR** | the booking link. **No QR** — it needs a library this repo does not have, and the owner has not been asked |
+| The push switch | **withdrawn** until the browser half exists | **the browser half was built** — the owner reversed §11's row on 2026-08-31 |
+| Booking rules' travel fee | ~~deleted~~ → "becomes a sentence once areas exist" | exactly that, and nothing is deleted |
+
+**THE FOUR THAT NEEDED A REASON, not just a note.**
+
+1. **THERE IS NO FAQ ROW, AND THAT IS THE SAME RULE THIS STAGE IS REPAIRING.**
+   The owner split the FAQ himself — storage now, screen later — so a row
+   under *Your page* would open nothing. That is the push switch's own defect
+   with a different label on it. `business_settings.faqs` and `faq_enabled`
+   exist; the row arrives with the screen.
+2. **THE BLOCKING ROW IS NOT LIT, AND IT WAS MEASURED RATHER THAN PREFERRED.**
+   `.lit`'s glow is an `::after` at `z-index: -1`; these rows live inside a
+   `.card`, which paints its own background over it. An invisible warning is
+   worse than none. `--bad` on the summary line is §1c's own meaning for
+   "this needs fixing" and invents no vocabulary. At most one row carries it,
+   ordered hours → services → business info, exactly as §10 specifies.
+3. **STAFF GET THREE TABS.** §10's sentence and §10's number disagree with
+   each other; the sentence is load-bearing and the number was inherited from
+   the desktop spec §5f, which was written when staff still had Business.
+   Today · Calendar · Clients, plus the gear — which keeps *Message
+   templates*, *This device* and the account block, which §10 itself names as
+   what a staff session can use.
+4. **THE GEAR IS A DESTINATION, NOT AN OVERLAY**, and the smaller design won.
+   A sheet from the header holding a menu would have been a SECOND container
+   mechanism for the same twelve screens, and those screens would then be
+   sheets at a desk — the thing §11 exists to end. It takes the main area, so
+   `SettingsHost` decides page-or-column once for both doors, and pressing the
+   gear again returns you to the tab you left rather than to Today.
+
+**AND ONE THING §10 ASKED FOR THAT IS NOT BUILT AND IS NOT REFUSED: the QR.**
+The right column at rest holds the booking link and nothing else. A QR encoder
+is not a few lines — it is Reed-Solomon and a bit matrix — so it means a
+dependency, and this repo adds none without being asked. **The owner has the
+question**, with the recommendation, in the stage-6 handoff. Until then the
+resting column is short at 1440x900, which is honest rather than dead: it is
+the same shape Money's and Today's second columns already have, and it becomes
+the settings screen the moment a row is pressed.
+
+**WHAT THE CODE ADDED THAT NO DESIGN FILE PREDICTED:**
+`components/SettingsHost.jsx`. The component inventory §3c named
+`screens/more/index.js` (the registry, built) and `components/GearMenu.jsx`
+(built) but nothing for the CONTAINER, because at step 5 a settings screen was
+still a sheet at every width below 1180 and `Sheet` was the container. Step 4b
+changed that and no file went back to name the piece it needed. It is
+`RecordHost`'s twin, one width check, two callers.
+
+---
+
 ## 13. First run — the two things you asked for
 
 Your Q1, and you overruled the recommendation: *"empty states, not a wizard"*

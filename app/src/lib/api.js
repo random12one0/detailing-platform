@@ -45,6 +45,14 @@ export const api = {
     callFn("send-owner-reminders", { business_id: businessId, booking_id: bookingId, target }),
   inviteUser: (businessId, email, role) => callFn("invite-user", { business_id: businessId, email, role }),
 
+  // PUSH, THE BROWSER HALF (roadmap 2.11 step 6 stage 6). All three of these
+  // functions already existed and nothing in `app/` had ever called one.
+  // `pushPublicKey` is a probe rather than a build-time VITE_ variable so the
+  // VAPID key has ONE home, beside its private half as a function secret.
+  pushPublicKey: (businessId) => callFn("owner-push-subscribe", { business_id: businessId, probe: true }),
+  pushSubscribe: (businessId, subscription) => callFn("owner-push-subscribe", { business_id: businessId, subscription }),
+  pushUnsubscribe: (businessId, endpoint) => callFn("owner-push-unsubscribe", { business_id: businessId, endpoint }),
+
   // --- Public, customer-facing. No session; the unguessable booking UUID is
   // the credential, the same access model the receipt endpoint already used.
   validatePromo: (businessSlug, code, customerEmail, customerPhone) =>

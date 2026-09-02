@@ -127,13 +127,21 @@ export default function Catalog() {
     load();
   };
 
-  const Reorder = ({ kind, index, length }) => (
-    <>
-      <button className="btn sm inline icon" aria-label="Move up" disabled={index === 0}
-        onClick={(e) => { e.stopPropagation(); move(kind, index, -1); }}><ChevronUp strokeWidth={2} /></button>
-      <button className="btn sm inline icon" aria-label="Move down" disabled={index === length - 1}
-        onClick={(e) => { e.stopPropagation(); move(kind, index, 1); }}><ChevronDown strokeWidth={2} /></button>
-    </>
+  // ONE ARROW PER ROW, NOT TWO — Part B row 17, the second half of it. Two
+  // 34px buttons on every row of the longest list in the product is more
+  // furniture than list, and the pair is redundant: moving a row UP past the
+  // one above it reaches every order a pair of arrows reaches. The first row
+  // has nothing above it, so it draws no arrow at all rather than a dead one
+  // — a disabled control still costs the row its width.
+  //
+  // `above` is the index to swap WITH rather than a direction, because a
+  // service’s neighbour on the screen is the previous one IN ITS CATEGORY,
+  // which is not always the previous one in the flat list.
+  const Reorder = ({ kind, index, above }) => (
+    above === null || above === undefined ? <span className="reorder-gap" aria-hidden="true" /> : (
+      <button className="btn sm inline icon" aria-label="Move up"
+        onClick={(e) => { e.stopPropagation(); move(kind, index, above - index); }}><ChevronUp strokeWidth={2} /></button>
+    )
   );
 
   // ── Editors ─────────────────────────────────────────────────────────────
@@ -307,6 +315,21 @@ export default function Catalog() {
     saveSizes(next);
   };
 
+  // THE MENU, IN THE ORDER THE CUSTOMER MEETS IT. Each service keeps its
+  // index in the FLAT list, because that is what `move` renumbers — a
+  // service’s neighbour on the screen is its neighbour in its category, and
+  // the two are only the same while every category’s services happen to be
+  // contiguous. Swapping two non-adjacent flat positions moves exactly those
+  // two rows, so what a detailer sees inside a category is a clean swap and
+  // no other category’s internal order changes.
+  const indexed = services.map((s, i) => ({ s, i }));
+  const sections = [
+    ...groups.map((group, gi) => ({ group, gi, rows: indexed.filter(({ s }) => s.group_id === group.id) })),
+    // Uncategorised services last, and only drawn as a named section when
+    // there are categories for them to be outside OF.
+    { group: null, gi: null, rows: indexed.filter(({ s }) => !groups.some((g) => g.id === s.group_id)) },
+  ].filter(({ group, rows }) => group || rows.length);
+
   const groupRule = (g) => (g.is_exclusive
     ? "Booked on its own — nothing else can be added"
     : g.max_select === 1 ? "Customers pick one" : "Customers pick any number");
@@ -315,50 +338,71 @@ export default function Catalog() {
     // A plain container, not a .card: the services inside it ARE the cards,
     // and a card holding cards is boxes in boxes at one surface value.
     <div>
-      {/* CATEGORIES FIRST, because they are what the services below sit in.
-          W25, and the rule lives here rather than on the business: his own
-          menu is Interior (one), Exterior (one) and add-ons (several), which
-          one business-wide switch cannot express. */}
-      <div className="row between">
-        <h3>Categories</h3>
-        <button className="btn inline" onClick={() => setEditing({ kind: "group", form: { ...EMPTY_GROUP } })}>+ Add</button>
-      </div>
-      <p className="muted" style={{ marginBottom: "var(--sp-3)" }}>
-        Optional. A category groups services on your booking page and decides
-        whether a customer picks one of them or as many as they like.
-      </p>
-      <div className="tight">
-        {groups.map((g, i) => (
-          <div className="card row between" key={g.id}>
-            <div className="tappable" onClick={() => setEditing({ kind: "group", id: g.id, form: { name: g.name, max_select: g.max_select === 1 ? "1" : "any", is_exclusive: !!g.is_exclusive, description: g.description || "" } })}
-              style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
-              <strong>{g.name}</strong>
-              <div className="muted">{groupRule(g)}</div>
-            </div>
-            <Reorder kind="group" index={i} length={groups.length} />
-          </div>
-        ))}
-      </div>
-      {groups.length === 0 && <p className="muted">No categories — every service shows in one plain list.</p>}
-
-      <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
+      {/* GROUPED THE WAY THE CUSTOMER MEETS IT — Part B row 17. This screen
+          drew a flat list of categories and then a flat list of services, so
+          the detailer had to hold the menu in their head to see what their
+          booking page actually looks like. It IS the menu; it should look
+          like the menu. The category is the heading its services sit under,
+          which is both what the customer sees and where the category’s own
+          rule ("pick one" / "pick any number") is legible against the things
+          it governs. */}
+      {/* WRAPS AT 320, WHERE "Services" + two buttons is 12px more than the
+          screen. The pair drops under the heading rather than either button
+          shrinking — § THE 320 FLOOR's own answer for a row that no longer
+          fits, and the two are the same size on both lines. */}
+      <div className="row wrap between">
         <h3>Services</h3>
-        <button className="btn inline" onClick={() => openService(null)}>+ Add</button>
+        <div className="row wrap" style={{ gap: 6 }}>
+          <button className="btn inline" onClick={() => setEditing({ kind: "group", form: { ...EMPTY_GROUP } })}>+ Category</button>
+          <button className="btn inline" onClick={() => openService(null)}>+ Service</button>
+        </div>
       </div>
-      <div className="tight">
-      {services.map((s, i) => (
-        <div className="card row between" key={s.id} style={{ opacity: s.is_active ? 1 : 0.5 }}>
-          <div className="tappable" onClick={() => openService(s)} style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
-            <strong>{s.name}</strong>
-            <div className="muted">
-              {s.price_is_from ? "from " : ""}{money(s.price)} · {s.duration_minutes} min
-              {s.group_label ? ` · ${s.group_label}` : ""}
+
+      {sections.map(({ group, gi, rows }) => (
+        <div className="tight" key={group ? group.id : "loose"} style={{ marginTop: "var(--sp-3)" }}>
+          {group ? (
+            /* NOT `between`. A heading with no box around it spans the whole
+               column, so `between` threw the category’s own arrow 700px away
+               from the words it moves — the “not enough content to fill it”
+               shape inside a row, which is exactly what stage 5 had to fix on
+               a Clients row. The control sits beside what it acts on. A
+               SERVICE’s arrow stays at the right because that row IS a card
+               and the card’s edge is what it aligns to. */
+            <div className="row" style={{ gap: 4 }}>
+              <button className="cat-head"
+                onClick={() => setEditing({ kind: "group", id: group.id, form: { name: group.name, max_select: group.max_select === 1 ? "1" : "any", is_exclusive: !!group.is_exclusive, description: group.description || "" } })}>
+                <span className="label">{group.name}</span>
+                <span className="muted">{groupRule(group)}</span>
+              </button>
+              {gi > 0 && <Reorder kind="group" index={gi} above={gi - 1} />}
             </div>
-          </div>
-          <Reorder kind="service" index={i} length={services.length} />
+          ) : groups.length > 0 && (
+            <span className="label">Not in a category</span>
+          )}
+
+          {rows.map(({ s, i }, k) => (
+            <div className="card row between" key={s.id} style={{ opacity: s.is_active ? 1 : 0.5 }}>
+              <div className="tappable" onClick={() => openService(s)} style={{ flex: 1, minWidth: 0, cursor: "pointer" }}>
+                <strong>{s.name}</strong>
+                <div className="muted">
+                  {/* The category is the heading above this row now, so
+                      repeating it here is the label explaining itself. */}
+                  {s.price_is_from ? "from " : ""}{money(s.price)} · {s.duration_minutes} min
+                </div>
+              </div>
+              <Reorder kind="service" index={i} above={k === 0 ? null : rows[k - 1].i} />
+            </div>
+          ))}
+
+          {/* An empty CATEGORY is drawn, unlike an empty section elsewhere:
+              it is a thing the detailer made and can open, and hiding it
+              would make a category they created disappear. */}
+          {group && rows.length === 0 && (
+            <p className="muted">Nothing in this one yet.</p>
+          )}
         </div>
       ))}
-      </div>
+
       {services.length === 0 && <p className="muted">No services yet — customers can't book until you add one.</p>}
 
       <div className="row between" style={{ marginTop: "var(--sp-5)" }}>
@@ -373,7 +417,7 @@ export default function Catalog() {
             <strong>{a.name}</strong>
             <div className="muted">{money(a.price)}{a.duration_minutes ? ` · +${a.duration_minutes} min` : ""}</div>
           </div>
-          <Reorder kind="addon" index={i} length={addOns.length} />
+          <Reorder kind="addon" index={i} above={i === 0 ? null : i - 1} />
         </div>
       ))}
       </div>

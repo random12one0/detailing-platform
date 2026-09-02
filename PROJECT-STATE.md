@@ -2261,7 +2261,7 @@ row 45 fixed; the architecture audit's Part B **rows 6 and 18 are struck**;
 `design-system.md` gains the new copy rule; and `CLAUDE.md` gains the fifth
 rotation-guard site.
 
-**STAGES 6-7 REMAIN:** Business and the twelve settings screens (with the
+~~**STAGES 6-7 REMAIN:**~~ **STAGE 6 IS BUILT — §6u.** Business and the twelve settings screens (with the
 colour repair, Reviews and the rebuilt push switch) · first run, last on
 purpose.
 
@@ -2269,6 +2269,125 @@ purpose.
 the list from 1,144px to 651px. The chrome above it does not move — the search
 field keeps a 520px cap — so the jump is the list alone, but it is the same
 jump he named on the calendar (*"it's almost like I refresh the page"*).
+
+## 6u. ROADMAP 2.11, STEP 6 — STAGE 6 IS BUILT: BUSINESS, TWELVE SETTINGS SCREENS, AND THREE REPAIRS (2026-09-02)
+
+**Stage 6 of the approval page's seven.** Judgment calls are DECISIONS.md →
+"Roadmap 2.11, step 6, stage 6". **Two things are open and both are named at
+the bottom of this section — one question for him, one tap only he can make.**
+
+**THE NUMBERS.**
+
+| | Before | After |
+|---|---|---|
+| The fifth tab | "More", opening a screen titled "Settings" | **"Business", opening "Business"** |
+| Its rows | **eleven rows under eight headings**, three of them owning one row | **eight rows under three headings** |
+| Where the other four went | — | **behind a gear in the header**, by the admission test |
+| The booking link | **1,156px down** the screen | first on the page; the second column's resting content at a desk |
+| A settings screen's container | a **640px floating sheet at every width** | a **page** with a back control below `--wrap`; the **second column** at or above it |
+| Settings screens | eleven | **twelve** (Reviews is new; the FAQ's storage landed, its screen did not) |
+| Doors onto them | one | **two** |
+| Staff rail buttons | four | **three** — Today · Calendar · Clients, plus the gear |
+| The email's brand colours | two, uncorrected | **one, and three corrected values** — band 3:1 on paper, ink measured, words 4.5:1 |
+| The 3px rule on an email header | **1:1** once a tenant has one colour | the band's own ink |
+| Silver as words on email paper | **1.36:1** | 4.71:1 |
+| The push switch | wrote a boolean; **no client code at all** | registers **this device**; unsupported / blocked / off each say so |
+| VAPID secrets on the project | **none — `sendOwnerPush` had always skipped** | set 2026-09-02 |
+| `testimonials` | a table with no door | `screens/more/Reviews.jsx` |
+| Colour pickers in the product | **two screens** | one — *Your colour* |
+| Arrows per Catalog row | **two** | **one**, up only, absent on the first row |
+| Settings screens `sweep-widths.mjs` opens | 11, one door | **12, two doors** |
+
+**WHAT SHIPPED.** `screens/Business.jsx` (the admission test at the top of the
+file, three groups, eight self-answering rows, the blocking row in `--bad`),
+`components/GearMenu.jsx` (Notifications · Message templates · Team · This
+device · Switch business when there is more than one · the account block),
+`components/SettingsHost.jsx` (page below `--wrap`, column above — `RecordHost`'s
+twin), `screens/more/index.js` (the registry both doors need),
+`screens/more/Reviews.jsx`, `screens/more/SwitchBusiness.jsx`,
+`app/public/sw.js`, `app/src/lib/push.js`,
+`supabase/functions/_shared/brandColor.js`, `tests/email-brand.test.mjs` (97
+checks) and `20260902001000_faq_storage.sql`. `screens/More.jsx` is deleted,
+and so are `.dashed` and `.badge`.
+
+**THE ONE A COLD SESSION MUST NOT RE-DERIVE: THE GEAR IS A DESTINATION, NOT AN
+OVERLAY.** The obvious build is a sheet from the header holding a menu whose
+items open inside it. That is a second container mechanism for one set of
+screens, and those four would be sheets at a desk — the exact thing this stage
+exists to end. It takes the main area instead, so `SettingsHost` decides
+page-or-column once for both doors, and pressing the gear again returns you to
+the tab you left rather than to Today. `App.jsx` holds it as a boolean beside
+`tab`; no tab is lit while it is open.
+
+**AND ONE COUNT THAT TWO DESIGN FILES GOT WRONG: STAFF GET THREE TABS.** Screen
+designs §10 says *"staff do not get a Business tab"* and then counts *"four
+rail buttons, not five"*. Staff already had no Money, so both cannot be true.
+The sentence is load-bearing; the number came from desktop spec §5f, written
+while staff still had Business. Both files are corrected.
+
+**FIVE THINGS THAT WERE ONLY FINDABLE BY BUILDING OR BY MEASURING.**
+
+1. **The booking link was drawn TWICE on one 392px screen.** `SettingsHost`
+   rendered its resting second column at every width, and below `--wrap`
+   `.split` is not a grid, so it stacked under the index — under the copy the
+   caller had already put there. Found in a screenshot. Guarded on `wide` now.
+2. **`.row.between` is wrong for a heading with no box.** Catalog's category
+   heading threw its reorder arrow 700px from the words it moves — the "not
+   enough content to fill it" shape inside a row, which is what stage 5 fixed
+   on a Clients row.
+3. **A settings page's title is not a tab masthead.** At `--t-display`,
+   *"Services & add-ons"* beside a 44px back control came back as *"Services &
+   add-o…"*. `--t-title` fits the longest of the twelve at 320.
+4. **`Switch` took a `disabled` prop and dropped it** in its row form.
+   Invisible until push needed a state it must refuse to leave.
+5. **`.clamp2` did nothing as written** — `.row-item .sub` is two selectors and
+   sets `nowrap`. A rule that loses silently is a rule that is not there.
+
+**AND ONE THAT WAS FOUND BY LOOKING FOR THE OTHER HALF OF A FEATURE: the VAPID
+secrets had never been set.** Every file in this repo describes push's server
+side as working. `sendOwnerPush` reads three env vars and returns early with a
+`console.warn` when they are missing, and they were missing — for the whole
+life of the feature. Set on the platform project (`kguqylyzgyzfktkfnhjb`)
+2026-09-02; the live business's project was never touched.
+
+**EIGHT FILES THAT OUTRANK THE DESIGNS WERE CORRECTED IN THE SAME CHANGE:** the
+screen designs gain a *What shipped* for §10-12; the phone pass gains one for
+§11-12; the component inventory marks seven §3b rows and six §3c rows built,
+adds `SettingsHost.jsx` as a file it did not predict, marks `Faq.jsx` NOT BUILT
+with the reason, and settles the twelve/thirteen count; the architecture audit
+strikes Part B rows 14-17 and answers all five of §2c; the desktop spec §5f
+takes three corrections including the staff count; `dashboard-skeletons.md`
+says twelve and says a settings screen is not a sheet; the feature inventory
+marks rows 92, 95, 96, 101, 120 and 121; and `CLAUDE.md` gains the two-doors
+rule, the `email-brand` test and the unverified-push warning.
+
+**MEASURED AFTER.**
+
+| | |
+|---|---|
+| `sweep-widths.mjs` | clean at 1920 / 1440 / 392 / 360 / 320, normal and `?lite=1` |
+| Console at 1920 / 1440 / 768 / 392 | nothing but the two pre-existing React Router v7 future-flag warnings |
+| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `client-list` · **`email-brand` (97, new)** · `decisions-index` · `accent-sweep` | all pass |
+| The service worker | registers and activates; `/sw.js` served as `text/javascript` and present in `dist/` |
+| The VAPID probe | the deployed function returns an 87-character base64url key |
+| Rotation | no new breakpoint below 1180, so the five guarded sites are still five |
+
+**STAGE 7 REMAINS:** first run — the setup form and the walkthrough, last on
+purpose.
+
+**AND TWO THINGS ARE OPEN.**
+
+1. **PUSH'S GRANTED PATH IS UNVERIFIED, AND ONLY HE CAN CLOSE IT.** The blocked
+   branch is verified; the ALLOW branch is not, because headless Chromium
+   reports `Notification.permission === "denied"` unconditionally and a headed
+   browser will not launch in this environment. **Push is not finished until
+   somebody taps Allow on a real device and a notification arrives.** No file
+   should record it as done before that.
+2. **THE QR IS A QUESTION HE HAS NOT BEEN ASKED.** Step 4 §10 wants the resting
+   second column to hold the booking link "larger, with its QR". It holds the
+   link and no QR, because a QR encoder means a dependency this repo has not
+   been asked to add. The column is short at 1440x900 as a result — honest
+   rather than dead, but the QR is what would make it pay for itself.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

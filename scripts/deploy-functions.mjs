@@ -45,7 +45,14 @@ const all = (await readdir(fnRoot, { withFileTypes: true }))
   .sort();
 const targets = process.argv.length > 2 ? process.argv.slice(2) : all;
 
-const sharedFiles = (await readdir(path.join(fnRoot, "_shared"))).filter((f) => f.endsWith(".ts"));
+// `.js` AS WELL AS `.ts`, since roadmap 2.11 step 6 stage 6 put
+// `_shared/brandColor.js` here — a plain ESM module with no Deno API in it,
+// so the Node test can import the same file Deno runs and pin the two colour
+// implementations against each other. Filtering to .ts would have left
+// `email.ts` importing a file that was never uploaded, which breaks every
+// function that sends mail at RUNTIME rather than at deploy time.
+const sharedFiles = (await readdir(path.join(fnRoot, "_shared")))
+  .filter((f) => f.endsWith(".ts") || f.endsWith(".js"));
 
 for (const fn of targets) {
   const indexSrc = await readFile(path.join(fnRoot, fn, "index.ts"), "utf8");
@@ -63,7 +70,9 @@ for (const fn of targets) {
   form.append("file", new Blob([rewritten], { type: "application/typescript" }), "index.ts");
   for (const sf of sharedFiles) {
     const content = await readFile(path.join(fnRoot, "_shared", sf), "utf8");
-    form.append("file", new Blob([content], { type: "application/typescript" }), `_shared/${sf}`);
+    form.append("file", new Blob([content], {
+      type: sf.endsWith(".js") ? "application/javascript" : "application/typescript",
+    }), `_shared/${sf}`);
   }
 
   const res = await fetch(

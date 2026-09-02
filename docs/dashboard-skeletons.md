@@ -92,8 +92,15 @@ scanning a ledger; Clients ends with the phone number, because the row's last
 job is to let you act on the person. Built 2026-09-02; the shared chassis was
 settled in the component inventory §1a.
 
-**The eleven settings screens are one skeleton on purpose: a form in a
-sheet.** They are not sections of a continuous page — they are modal panels
+**The TWELVE settings screens are one skeleton on purpose: a form.** It said
+*“eleven… a form in a sheet”* until 2026-09-02, and both halves moved in the
+same change (roadmap 2.11 step 6, stage 6). **Twelve**: the eleven that
+existed plus **Reviews**, with the FAQ’s screen deliberately later. **And not
+a sheet**: a settings screen is a PAGE with a back control below --wrap and
+the second column at or above it (`components/SettingsHost.jsx`). **This
+paragraph’s REASONING is untouched, which is the point** — they are still
+“reached one at a time”, a person still never sees two together, and law 1
+still governs what is on screen at once. Only the container changed. They are not sections of a continuous page — they are modal panels
 reached one at a time, and a person never sees two of them together. Law 1
 governs what is on screen at once. What varies between them is their internal
 structure (a list, a form, a grid), which follows the content.

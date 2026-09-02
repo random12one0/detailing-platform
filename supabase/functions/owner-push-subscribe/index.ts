@@ -3,6 +3,18 @@
 // (unique on business_id + endpoint, not endpoint alone).
 //
 // Input: { business_id?, subscription: { endpoint, keys: { p256dh, auth } } }
+//    or: { business_id?, probe: true } -> { public_key }
+//
+// THE PROBE EXISTS BECAUSE THE BROWSER CANNOT SUBSCRIBE WITHOUT THE VAPID
+// PUBLIC KEY, and roadmap 2.11 step 6 stage 6 built the browser half that
+// had never existed. It is served from here rather than shipped as a
+// VITE_ env var on purpose: the key already lives beside its private half
+// as a function secret, and a second copy in the front-end build is one
+// more thing to rotate and to get wrong. It is a PUBLIC key — the whole
+// point of it is that a browser holds it — so serving it costs nothing,
+// and it still goes through requireMember so the endpoint has one gate.
+// A null key is the honest answer when VAPID is not configured: the switch
+// then says so instead of failing at the moment the detailer taps it.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
@@ -16,6 +28,10 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const member = await requireMember(req, body.business_id ?? null);
     if (!member) return json({ error: "Unauthorized" }, 401);
+
+    if (body.probe) {
+      return json({ public_key: Deno.env.get("OWNER_VAPID_PUBLIC_KEY") ?? null });
+    }
 
     const subscription = body.subscription;
     const endpoint = subscription?.endpoint;

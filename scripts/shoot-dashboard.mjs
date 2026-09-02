@@ -30,7 +30,12 @@ const LITE = process.argv.includes("--lite");
 const WIDTHS = [[1920, 1080], [1440, 900], [768, 1024], [392, 844]];
 const argOf = (f) => { const i = process.argv.indexOf(f); return i > -1 ? process.argv[i + 1] : null; };
 const TABS = (argOf("--tab") || "today,calendar,money,clients,more").split(",");
-const MORE = argOf("--more");   // comma list of settings keys to open
+const MORE = argOf("--more");   // comma list of Business settings rows to open
+// THE SECOND DOOR, added with it in roadmap 2.11 step 6 stage 6. Four of the
+// twelve settings screens are behind the header gear now, and a screenshot
+// tool that can only reach one door photographs two thirds of the product.
+// `--gear` on its own (no list) shoots just the gear's own index.
+const GEAR = process.argv.includes("--gear") ? (argOf("--gear") ?? "") : null;
 // --accent <PresetName> picks a tenant colour through the REAL screen before
 // shooting: More > Your colour > the swatch with that aria-label. Added when
 // law 11 was rewritten (roadmap 2.3 reopened) and the dashboard started
@@ -39,7 +44,10 @@ const MORE = argOf("--more");   // comma list of settings keys to open
 // direct is deliberate — it proves the save and the live retint, not just
 // the stylesheet.
 const ACCENT = argOf("--accent");
-const LABEL = { today: "Today", calendar: "Calendar", money: "Money", clients: "Clients", more: "More" };
+// `more` keeps its KEY so existing --tabs arguments and every screenshot
+// filename in shots-*/ still resolve; the tab it clicks is called Business
+// since roadmap 2.11 step 6 stage 6.
+const LABEL = { today: "Today", calendar: "Calendar", money: "Money", clients: "Clients", more: "Business" };
 const suffix = `${ACCENT ? `-${ACCENT.toLowerCase()}` : ""}${LITE ? "-lite" : ""}`;
 
 mkdirSync(OUT, { recursive: true });
@@ -111,7 +119,7 @@ for (const [w, h] of WIDTHS) {
   await settle(page, 2500);
 
   if (ACCENT) {
-    await page.getByRole("button", { name: "More", exact: true }).first().click();
+    await page.getByRole("button", { name: "Business", exact: true }).first().click();
     await settle(page, 1200);
     await page.locator(".nav-row", { hasText: "Your colour" }).first().click();
     await settle(page, 1200);
@@ -121,8 +129,8 @@ for (const [w, h] of WIDTHS) {
       await sw.first().click();
       await settle(page, 1800);   // save + reload() + repaint
     }
-    const x = page.locator(".sheet .x, .sheet-grab button");
-    if (await x.count()) { await x.first().click(); await settle(page, 700); }
+    await page.keyboard.press("Escape");
+    await settle(page, 700);
   }
 
   for (const t of TABS) {
@@ -132,7 +140,7 @@ for (const [w, h] of WIDTHS) {
   }
 
   if (MORE) {
-    await page.getByRole("button", { name: "More", exact: true }).first().click();
+    await page.getByRole("button", { name: "Business", exact: true }).first().click();
     await settle(page, 1500);
     for (const key of MORE.split(",")) {
       const btn = page.locator(`.nav-row`, { hasText: key });
@@ -140,8 +148,25 @@ for (const [w, h] of WIDTHS) {
       await btn.first().click();
       await settle(page, 1800);
       await page.screenshot({ path: `${OUT}/${w}-more-${key.replace(/\W+/g, "")}${suffix}.png` });
-      const x = page.locator(".sheet .x, .sheet-grab button");
-      if (await x.count()) { await x.first().click(); await settle(page, 700); }
+      // A settings screen is a page or a column now, never a sheet, so the
+      // way out is the key both containers answer.
+      await page.keyboard.press("Escape");
+      await settle(page, 700);
+    }
+  }
+
+  if (GEAR !== null) {
+    await page.getByRole("button", { name: "Settings", exact: true }).first().click();
+    await settle(page, 1500);
+    await page.screenshot({ path: `${OUT}/${w}-gear${suffix}.png`, fullPage: true });
+    for (const key of GEAR.split(",").filter(Boolean)) {
+      const btn = page.locator(`.nav-row`, { hasText: key });
+      if (!(await btn.count())) { problems.push(`${w}: no gear row matching "${key}"`); continue; }
+      await btn.first().click();
+      await settle(page, 1800);
+      await page.screenshot({ path: `${OUT}/${w}-gear-${key.replace(/W+/g, "")}${suffix}.png` });
+      await page.keyboard.press("Escape");
+      await settle(page, 700);
     }
   }
   await ctx.close();

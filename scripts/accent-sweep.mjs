@@ -16,7 +16,7 @@
 // THE HOLE THIS FOUND, on the day it was written. lib/theme.js used to correct
 // the dashboard accent against --ink-0 (#0B0D0E), the ground. But a dashboard
 // accent does not stay on the ground: .cal-cell.today sits in a panel on
-// --ink-2, and .pill / .badge / .chip.active print --accent-text on a tinted
+// --ink-2, and .pill / .chip.active print --accent-text on a tinted
 // panel. Those are LIGHTER, so contrast on them is LOWER than the number the
 // correction guaranteed. SIX of the eight presets failed the 4.5:1 text floor
 // on a panel; violet and slate failed even the 3:1 FILL floor on --ink-3.
@@ -62,7 +62,7 @@ const EXTREMES = [
 
 const GROUNDS = [
   ["ink-0", "#0B0D0E", "the ground — most of the dashboard"],
-  ["ink-2", "#171B1E", "a panel — .cal-cell.today, .pill, .badge sit here"],
+  ["ink-2", "#171B1E", "a panel — .cal-cell.today and .pill sit here"],
   ["ink-3", "#1E2327", "highest surface — and what the FILL is corrected against"],
 ];
 
@@ -75,7 +75,7 @@ const GROUNDS = [
 // fails with the number.
 const TINTED = [
   [0.12, "#171B1E", ".tabbar button.active — theme.css:539"],
-  [0.11, "#1E2327", ".pill.completed / .badge.completed — theme.css:655, 915"],
+  [0.11, "#1E2327", ".pill.completed — theme.css:655 (.badge, its byte-identical twin, was deleted 2026-09-02)"],
   [0.15, "#1E2327", ".chip.active / .choice.on — theme.css:617, 1088"],
   [DASHBOARD_TEXT_TINT, "#1E2327", "…and the same two on HOVER — the lightest ground there is"],
 ];

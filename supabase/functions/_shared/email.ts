@@ -7,14 +7,17 @@ import { businessSiteUrl } from "./config.ts";
 import type { Business } from "./tenant.ts";
 import type { BusinessSettings } from "./tenant.ts";
 import type { TenantBrand } from "./emailTemplates.ts";
+import { emailBrandColors } from "./brandColor.js";
 
-const DEFAULT_PRIMARY = "#0f172a";
-const DEFAULT_ACCENT = "#0ea5e9";
+// The house colours an unbranded business sends with. There is no second
+// one any more: a tenant has ONE accent (law 11), and the email derives its
+// band, its band ink and its on-paper value from that single hex.
+const DEFAULT_BRAND = "#0f172a";
 
 export async function buildBrand(business: Business, settings: BusinessSettings): Promise<TenantBrand> {
   const { data: branding } = await supabase
     .from("business_branding")
-    .select("primary_color, secondary_color")
+    .select("primary_color")
     .eq("business_id", business.id)
     .maybeSingle();
   return {
@@ -25,8 +28,15 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
     contactPhone: business.contact_phone,
     dropoffAddress: business.dropoff_address,
     siteUrl: businessSiteUrl(business.slug),
-    primaryColor: branding?.primary_color || DEFAULT_PRIMARY,
-    accentColor: branding?.secondary_color || DEFAULT_ACCENT,
+    // ONE COLOUR IN, THREE OUT, AND EACH CORRECTED AGAINST THE GROUND IT
+    // LANDS ON. `secondary_color` is no longer read here: "Your colour"
+    // writes the same hex to both columns, so reading the second one bought
+    // nothing and, before this, drew a rule the same colour as the band
+    // underneath it. brandColor.js carries the whole reasoning.
+    ...(() => {
+      const c = emailBrandColors(branding?.primary_color || DEFAULT_BRAND);
+      return { primaryColor: c.band, headerInk: c.bandInk, accentColor: c.onPaper };
+    })(),
     googleReviewUrl: settings.google_review_url,
     yelpReviewUrl: settings.yelp_review_url,
     paymentMethodsLine: null,

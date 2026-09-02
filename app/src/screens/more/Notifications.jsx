@@ -9,11 +9,12 @@
 // The customer reminder timing lives in Booking rules, next to the
 // cancellation window it interacts with, rather than in two places.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Mail, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { DurationChoice, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
+import { disablePush, enablePush, pushState } from "../../lib/push.js";
 
 const CUSTOMER_EMAILS = [
   ["email_customer_confirmation", "Booking confirmation",
@@ -46,8 +47,41 @@ export default function Notifications() {
   const [newEmail, setNewEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  // THE SWITCH READS THE DEVICE, NOT THE DATABASE — the whole of the repair.
+  // `push_enabled` is a business-wide preference (the edge functions read it
+  // before they send); whether THIS phone is registered is a fact about this
+  // browser, and drawing the second from the first is what made the old
+  // switch a lie. Null while we ask.
+  const [device, setDevice] = useState(null);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushErr, setPushErr] = useState("");
 
   const set = (k, v) => { setForm((f) => ({ ...f, [k]: v })); setMsg(null); };
+
+  useEffect(() => { pushState().then(setDevice); }, []);
+
+  // ON MEANS TWO THINGS AND BOTH HAVE TO HAPPEN: the browser registers this
+  // device, and the business preference is written so the edge functions
+  // will actually send. The preference is saved HERE rather than waiting for
+  // the Save button, because the browser permission it sits beside is
+  // already committed by the time the prompt closes — a switch that has
+  // taken a permission and not saved is the two halves disagreeing again.
+  const togglePush = async (want) => {
+    setPushBusy(true);
+    setPushErr("");
+    try {
+      if (want) await enablePush(business.id); else await disablePush(business.id);
+      await supabase.from("business_settings").update({ push_enabled: want })
+        .eq("business_id", business.id);
+      set("push_enabled", want);
+      setDevice(await pushState());
+      reload();
+    } catch (e) {
+      setPushErr(e.message || "Could not change that.");
+      setDevice(await pushState());
+    }
+    setPushBusy(false);
+  };
 
   const addEmail = () => {
     const e = newEmail.trim().toLowerCase();
@@ -91,9 +125,29 @@ export default function Notifications() {
           <Switch key={k} label={label} help={help}
             checked={form[k]} onChange={(v) => set(k, v)} />
         ))}
-        <Switch label="Push notifications on your phone"
-          help="Needs to be allowed once per device, from the phone you want alerts on."
-          checked={form.push_enabled} onChange={(v) => set("push_enabled", v)} />
+        {/* THE SWITCH THAT DELIVERED NOTHING, REBUILT (roadmap 2.11 step 6
+            stage 6). It wrote `push_enabled` and there was no service worker
+            anywhere in the app, so no device was ever registered and nothing
+            was ever sent. It now registers THIS browser, and it draws itself
+            from that registration rather than from the saved boolean.
+            EACH REFUSAL GETS ITS OWN SENTENCE. "Off", "this browser cannot"
+            and "you denied it and only browser settings can undo that" look
+            identical on a switch and are three different problems — the last
+            one especially, because tapping harder will never fix it. */}
+        {device === "unsupported" ? (
+          <Setting label="Push notifications"
+            help="On an iPhone, add this dashboard to your home screen first — Safari only allows it there.">
+            <span className="quiet">Not available in this browser</span>
+          </Setting>
+        ) : (
+          <Switch label="Push notifications on this device"
+            help={device === "blocked"
+              ? "Blocked for this site. Turn notifications back on in your browser settings, then try again."
+              : "Allowed once per device, on the phone or computer you want the alerts on."}
+            disabled={pushBusy || device === null || device === "blocked"}
+            checked={device === "on"} onChange={togglePush} />
+        )}
+        {pushErr && <div className="error-box">{pushErr}</div>}
       </Group>
 
       <Group title="Where your alerts go">

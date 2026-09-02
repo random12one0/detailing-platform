@@ -202,6 +202,36 @@ codes had survived because nobody had ever opened all eleven settings screens.
 
 ---
 
+# Part B2 — the function secrets, and the one that was missing
+
+Edge functions read their configuration from Supabase **function secrets**, set
+on the project rather than in any file here. As of 2026-09-02 the project
+carries `SUPABASE_*` (automatic), `PLATFORM_URL`, `PLATFORM_FROM_ADDRESS`,
+`RESEND_API_KEY`, and — **added on 2026-09-02** — `OWNER_VAPID_PUBLIC_KEY`,
+`OWNER_VAPID_PRIVATE_KEY` and `OWNER_VAPID_SUBJECT`.
+
+**The VAPID three had never been set, and that is worth knowing about rather
+than just fixing.** Push notifications had a table, three edge functions, a
+`/job/:id` route built for the tap, and a switch in the dashboard. Every
+document in this repo described the server side as working. It was not:
+`_shared/ownerPush.ts` reads those three env vars and returns early with a
+`console.warn` when they are missing, so it had been quietly skipping for the
+whole life of the feature. **A feature can be complete in four places and dead
+because of a fifth that nobody listed.** They are set now (a P-256 keypair
+generated with Node’s own `crypto`); if the project is ever rebuilt from
+scratch, generate a new pair and set all three, or push silently does nothing
+again.
+
+**And push is still not proven end to end.** The browser half shipped in
+roadmap 2.11 step 6 stage 6 and the BLOCKED path is verified; the ALLOW path
+is not, because headless Chromium reports `Notification.permission ===
+“denied”` unconditionally. It needs one person to open the dashboard on a real
+phone or desktop, go to the gear → Notifications, turn on *Push notifications
+on this device*, allow the prompt, and then have a booking come in. Until
+somebody has actually received one, treat push as unfinished.
+
+---
+
 # Part C — how the pieces connect
 
 ```

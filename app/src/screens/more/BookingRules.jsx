@@ -268,12 +268,27 @@ export default function BookingRules() {
                 TOTAL. It was printed on the booking page ("+$25" on the "We
                 come to you" card) and `computeQuote` had no travel input at
                 all, so the Estimated total never contained it. */}
-            <Setting label="Travel fee"
-              help={form.travel_zones.length
-                ? "Replaced by your travel areas below — each area sets its own fee."
-                : "Added to every mobile booking, and included in the price the customer is quoted. Leave blank for none."}>
-              <MoneyField value={form.travel_fee} onChange={(v) => set("travel_fee", v)} />
-            </Setting>
+            {/* A FIELD THAT IS DEAD IN ONE CONFIGURATION IS NOT A DEAD FIELD.
+                Step 4 proposed deleting this outright and was CORRECTED at
+                step 6: `pricing.ts:135` returns it and `computeQuote` adds it,
+                which is what roadmap 2.8c fixed — deleting it would take a
+                live money path out. It is superseded only WHILE travel areas
+                exist, and that is exactly when it stops being editable: an
+                editable box holding $25 that nothing charges is the same lie
+                as a switch that delivers nothing, one screen over. Add an area
+                and it becomes a sentence; remove them all and it is a field
+                again, still holding the number it always held. */}
+            {form.travel_zones.length ? (
+              <Setting label="Travel fee"
+                help="Each area below sets its own, so this one is not charged while you have areas.">
+                <span className="quiet">{Number(form.travel_fee) > 0 ? `${money(Number(form.travel_fee))}, not charged` : "Not set"}</span>
+              </Setting>
+            ) : (
+              <Setting label="Travel fee"
+                help="Added to every mobile booking, and included in the price the customer is quoted. Leave blank for none.">
+                <MoneyField value={form.travel_fee} onChange={(v) => set("travel_fee", v)} />
+              </Setting>
+            )}
 
             {/* Not geocoded distance — we cannot measure one. These are the
                 detailer's own areas in their own words, which is how a small

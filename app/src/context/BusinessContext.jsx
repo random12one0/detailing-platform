@@ -6,6 +6,14 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { supabase } from "../lib/supabase.js";
 import { applyDashboardAccent } from "../lib/theme.js";
 
+// WHICH BUSINESS THIS BROWSER LAST CHOSE. localStorage rather than the
+// database: it is a fact about this DEVICE, not about the account — the same
+// person can have the van's tablet on one business and their laptop on the
+// other, and a server-side "current business" would fight them for it.
+// lib/platform.js keeps this device's other preferences the same way.
+const PREFERRED_KEY = "dp.business";
+const readPreferred = () => { try { return localStorage.getItem(PREFERRED_KEY); } catch { return null; } };
+
 const Ctx = createContext(null);
 export const useBusiness = () => useContext(Ctx);
 
@@ -17,6 +25,13 @@ export function BusinessProvider({ children }) {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [firstName, setFirstName] = useState(null);
+  // EVERY MEMBERSHIP, NOT JUST THE FIRST — roadmap 2.11 step 6, stage 6.
+  // `memberships?.[0]` with a comment saying "multi-business switching comes
+  // later" is what made `Switch business` a new door rather than a moved
+  // one: the database has supported an account belonging to two businesses
+  // since the staff-roles migration, and the front end could only ever open
+  // whichever one came back first.
+  const [memberships, setMemberships] = useState([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session ?? null));
@@ -33,6 +48,7 @@ export function BusinessProvider({ children }) {
   // different one wore their predecessor's colour until the fetch returned.
   const clearTenant = () => {
     setBusiness(null);
+    setMemberships([]);
     setSettings(null);
     setBranding(null);
     setRole(null);
@@ -62,9 +78,17 @@ export function BusinessProvider({ children }) {
     if (loadedFor.current !== session.user.id) setLoading(true);
     const { data: memberships } = await supabase
       .from("business_users")
-      .select("business_id, role, first_name")
+      // `businesses(name)` joins in the NAME so the picker has something to
+      // print without a second read. Harmless for the one-membership case.
+      .select("business_id, role, first_name, businesses(name)")
       .eq("user_id", session.user.id);
-    const membership = memberships?.[0] ?? null; // multi-business switching comes later
+    const list = memberships ?? [];
+    setMemberships(list);
+    // The one they last chose, if they still belong to it. Anything else —
+    // a stale id, an account they were removed from, a first sign-in — falls
+    // back to the first, which is what this line always did.
+    const wanted = readPreferred();
+    const membership = list.find((m) => m.business_id === wanted) ?? list[0] ?? null;
     if (!membership) {
       clearTenant();
       setLoading(false);
@@ -110,6 +134,18 @@ export function BusinessProvider({ children }) {
     branding,
     role,
     firstName,
+    memberships,
+    // Switching is a WRITE TO THIS DEVICE and then a reload — there is no
+    // server-side notion of a current business, and adding one would put the
+    // same fact in two places. reload() re-reads the list and picks the
+    // stored id, so every screen follows without knowing this exists.
+    switchBusiness: (id) => {
+      try { localStorage.setItem(PREFERRED_KEY, id); } catch { /* private mode */ }
+      // A different tenant: show the spinner rather than wear the last
+      // one's name and colour until the fetch lands.
+      loadedFor.current = null;
+      return reload();
+    },
     loading: session === undefined || loading,
     reload,
     signOut: () => supabase.auth.signOut(),

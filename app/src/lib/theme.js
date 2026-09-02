@@ -39,7 +39,7 @@ const DASHBOARD_BG = "#0B0D0E";        // --ink-0
 //
 //   Correcting against --ink-0 guarantees a floor ON --ink-0 and nowhere
 //   else. A dashboard accent does not stay on the ground — .cal-cell.today
-//   sits in a panel, .pill/.badge/.chip.active/.choice.on print
+//   sits in a panel, .pill/.chip.active/.choice.on print
 //   --accent-text on a tinted panel, and `a` can be anywhere. Those surfaces
 //   are LIGHTER, so contrast on them is LOWER than the number the correction
 //   just guaranteed. Six of the eight presets failed the 4.5:1 text floor on
@@ -65,7 +65,7 @@ const DASHBOARD_ACCENT_BG = "#1E2327";  // --ink-3, the highest surface
 // the accent itself, which is LIGHTER again, so the floor bought on --ink-3
 // does not hold there either. Measured across the twelve presets and the
 // extremes, four sites failed 4.5:1: a selected chip (3.92 at worst), a
-// selected choice (3.92), .pill/.badge.completed (4.13) and the selected tab
+// selected choice (3.92), .pill.completed (4.13) and the selected tab
 // (4.46). Nine presets, plus black and near-black, were under the floor.
 //
 // So the text is corrected against the lightest ground it can ever land on:

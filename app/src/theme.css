@@ -454,14 +454,14 @@ a { color: var(--accent-text); text-decoration: none; }
 .rule { height: 1px; background: var(--hairline); border: 0; margin: var(--sp-3) 0; }
 .rule.tight { margin: var(--sp-2) 0; }
 
-/* "Nothing here yet" without a colour and without an icon. The one dashed
-   line in a system with no solid ones, which is why it reads as a
-   placeholder rather than a container. */
-.dashed {
-  border: 1px dashed var(--hairline); border-radius: var(--r-inset);
-  padding: var(--sp-5) var(--sp-4); text-align: center;
-  color: var(--text-muted); font-size: var(--t-meta);
-}
+/* .dashed IS GONE (roadmap 2.11 step 6, stage 6). An empty SECTION is not
+   drawn at all and an empty SCREEN is one sentence and one way forward
+   (screen designs §1a), so there was no shape left for a dashed box to be.
+   Seven callers when the component inventory listed it; one by the time it
+   was deleted, and that one became a plain sentence. It also came out of
+   sweep-widths.mjs's boxy() matcher in the same change — a check that
+   matches a class nothing carries reads as covering something it cannot
+   find. */
 
 /* ------------------------------------------------------------ THE MARKS
    FORM CARRIES THE MEANING; COLOUR ONLY AGREES WITH IT. Rewritten in roadmap
@@ -806,6 +806,22 @@ a { color: var(--accent-text); text-decoration: none; }
    beside-not-over buys, and it is why the four columns are specified at 1024
    rather than at --wrap. */
 .split.clients { --split: 1.4fr; }
+/* Business, and THE ONLY SCREEN WEIGHTED TOWARD ITS RIGHT COLUMN — 1 / 1.9,
+   desktop spec §5f. Everywhere else the left column is the work and the
+   right is a record beside it; here the left is an INDEX and the right is
+   the actual work. *Services & add-ons* is four lists and the most-edited
+   screen in the product, and it was a 640px modal at every width.
+   grid-template-columns rather than --split, following .split.calday: --split
+   is a fr value for column ONE against a fixed 1fr, so 1/1.9 would have to be
+   written 0.526fr, which is the ratio with the arithmetic already done to it
+   and no longer readable as the number the spec names. */
+@media (min-width: 1180px) {
+  .split.business { grid-template-columns: 1fr 1.9fr; }
+  /* The gear's plumbing list is shorter and its screens are the same twelve,
+     so it takes the same shape. Slightly wider on the left because there is
+     no booking-link block above the rows to set the column's width. */
+  .split.gear { grid-template-columns: 1fr 1.7fr; }
+}
 @media (min-width: 1180px) {
   .split {
     display: grid; grid-template-columns: var(--split) 1fr;
@@ -889,6 +905,111 @@ a { color: var(--accent-text); text-decoration: none; }
    only the box goes. The rows sit directly on the ground, which is the whole
    reason §9 specifies this record separately from the job record. */
 .record.bare { border: 0; background: none; padding: 0; }
+
+/* ----------------------------------------------- A SETTINGS SCREEN
+   The third container (phone pass §2b): not a record you opened out of a
+   list, and not a form you commit — A PLACE YOU GO. Below --wrap it is a
+   PAGE with a back control; at or above it, the second column. It was a
+   640px floating sheet at every width, and the `›` on the row that opened
+   it had been promising a push and delivering a peek since it was built.
+
+   NO BOX. Every settings screen is already made of `.card.setting-card`
+   groups, so a panel here would be boxes in boxes at one surface value —
+   the same note Catalog's own container carries. The BEHAVIOUR the panel
+   was doing is kept, exactly as .record.bare keeps it: the column stops at
+   the screen's height and scrolls inside itself, so the index beside it
+   stays where it was. */
+.settings-col {
+  display: flex; flex-direction: column; gap: var(--sp-4);
+  max-height: calc(100dvh - var(--topbar-h) - var(--sp-6));
+  min-width: 0;
+}
+.settings-col > .settings-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.settings-col h2 {
+  font-size: var(--t-strong);
+  font-variation-settings: "wdth" var(--wdth-title), "wght" 640;
+}
+/* A settings screen ends in a Save button on most of the twelve. Inside a
+   scroller that button can sit under the fold with nothing saying so, so the
+   body keeps a little room past its last child rather than cropping it flush
+   to the edge. */
+.settings-col > .settings-body > :last-child { margin-bottom: var(--sp-2); }
+
+/* THE PAGE FORM, below --wrap. One scroller, not two — which is the second
+   of the four reasons the sheet went. The head is the back control and the
+   screen's name on ONE line: a settings screen reached from a row is a push,
+   and a push shows you where you came from. */
+.settings-head {
+  display: flex; align-items: center; gap: var(--sp-2); min-width: 0;
+}
+/* A SETTINGS PAGE'S TITLE IS NOT A TAB MASTHEAD, and it took a measurement to
+   say so: at --t-display (30px on a phone) "Services & add-ons" ran off the
+   line beside a 44px back control and came back as "Services & add-o…". A
+   truncated TITLE is the one string on a screen that must never be guessed
+   at. --t-title fits the longest of the twelve at 320 with room, and it is
+   the right voice anyway: the masthead names a DESTINATION you chose from a
+   bar, this names a page you pushed into from a row.
+   It wraps rather than clips if a tenant ever gets a longer one. */
+.settings-head .display { min-width: 0; font-size: var(--t-title); letter-spacing: -0.022em; }
+/* The back control is a 44px target pulled tight to the left edge of the
+   content column, so the title starts where every other screen's masthead
+   starts rather than 44px in. */
+.settings-head > .btn.icon { margin-left: calc(var(--sp-2) * -1); }
+
+/* The gear's account block is the end of its PAGE and the resting content of
+   its COLUMN — never both at once, or Sign out is on the screen twice. */
+@media (min-width: 1180px) { .gear-account { display: none; } }
+
+/* THE ROW YOU ARE IN, at a desk, where the screen it opened is beside it
+   rather than over it. Below --wrap the index is not on the screen at all,
+   so there is nothing to mark. Not the accent as a FILL: these rows sit in a
+   panel and a filled row would read as a selected item in a list rather than
+   as "this is what the column is showing". */
+.nav-row[aria-current="true"] { background: var(--surface-lit); }
+.nav-row[aria-current="true"] .name { color: var(--accent-text); }
+
+/* A ROW WHOSE ANSWER BLOCKS A BOOKING. At most one on the screen, ordered
+   hours → services → business info (§1b item 4) — three red rows is a screen
+   with no priority on it, and the point of the order is that a brand-new
+   business is told the ONE thing standing between it and a customer.
+   --bad is §1c's own meaning for "this needs fixing", not a new colour: it
+   is a fixed red that never follows the tenant (law 11b). §10 asks for the
+   `.lit` treatment here and it cannot be used — .lit's glow is an ::after at
+   z-index -1, which puts it BEHIND the .card these rows live in. An
+   invisible warning is worse than none. */
+.nav-row.blocking .now { color: var(--bad); }
+.nav-row.blocking .ico { color: var(--bad); }
+
+/* The stars on a review. They are a rating drawn as a shape, so the words
+   are on the aria-label and these are hidden from a screen reader. */
+.stars { display: inline-flex; gap: 1px; margin-left: 6px; color: var(--accent); vertical-align: -1px; }
+/* Two lines, then clip. The row rules elsewhere ellipsise to ONE, which is
+   right for a service name and wrong for a sentence somebody wrote about
+   your work. */
+/* Written as `.clamp2` first and it did nothing: `.row-item .sub` is two
+   selectors and sets `white-space: nowrap`, so it won. A rule that loses
+   silently is indistinguishable from a rule that is not there. */
+.row-item .sub.clamp2 {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden; white-space: normal; text-overflow: clip;
+}
+
+/* A CATEGORY IS A HEADING YOU CAN OPEN, on the one screen that is a menu.
+   It takes the .label voice every other group heading on the product uses —
+   it IS one — and the rule underneath it is what the customer will be held
+   to, printed where the things it governs are. Not a card: the services
+   under it are the cards, and a card holding cards is boxes in boxes at one
+   surface value. */
+.cat-head {
+  display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  background: none; border: 0; padding: var(--sp-1) 0; margin: 0;
+  color: inherit; text-align: left; cursor: pointer; font: inherit;
+}
+.cat-head:hover .label { color: var(--accent-text); }
+/* Where the first row’s missing arrow was. Without it the row above and the
+   row below disagree about where their right edge is, which reads as the
+   list being ragged rather than as one row having one fewer control. */
+.reorder-gap { display: block; width: var(--tap); flex-shrink: 0; }
 /* A panel inside a panel takes the surface ABOVE its own — the same three
    levels the sheet already sets up, so a settings card does not read as an
    outline once it is in a column instead of a sheet. */
@@ -942,6 +1063,10 @@ a { color: var(--accent-text); text-decoration: none; }
    64px wide for a 17px mark, and three of those plus a worded button do not
    fit a 392px row. */
 .btn.icon { width: var(--tap); padding: 0; }
+/* PRESSED, for the gear — it is a place you are IN, not an action you fire,
+   and it is the one header control with a state. Same 12% accent fill the
+   tab bar uses for the tab you are on, because it is the same fact. */
+.btn.icon.on { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text); }
 .btn.sm.icon { width: 38px; }
 .btn:disabled { opacity: 0.42; cursor: default; }
 /* Except the primary: 42% of the signal green on this ground is a muddy dark
@@ -1740,22 +1865,14 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   font-size: var(--t-label); letter-spacing: 0.22em;
   text-transform: uppercase; color: var(--text-muted);
 }
-.badge {
-  display: inline-flex; align-items: center; padding: 3px 10px;
-  border-radius: var(--r-pill); font-size: var(--t-label);
-  font-family: var(--f-body);
-  font-variation-settings: "wdth" 84, "wght" 620;
-  letter-spacing: 0.08em; color: var(--text-muted);
-  border: 1px solid var(--hairline); white-space: nowrap;
-}
-.badge.completed { border-color: var(--accent-line); background: color-mix(in srgb, var(--accent) 11%, transparent); color: var(--accent-text); }
-/* Paid is green, always — see .pill.paid. */
-.badge.paid { border-color: color-mix(in srgb, var(--ac) 45%, transparent); background: color-mix(in srgb, var(--ac) 11%, transparent); color: var(--ac); }
-/* Outlined, not tinted — the .pill rule above says why. */
-.badge.cancelled, .badge.no_show { border-color: color-mix(in srgb, var(--bad) 48%, transparent); background: none; color: var(--bad); }
-.badge.pending, .badge.partial { border-color: var(--line-2); color: var(--text-muted); }
-.badge.confirmed { border-color: var(--line-2); color: var(--text-2); }
-.badge.waived { border-color: var(--hairline); color: var(--text-muted); }
+/* .badge IS GONE (roadmap 2.11 step 6, stage 6): seven rules and ZERO users,
+   byte-for-byte a duplicate of .pill, which is what every screen actually
+   carries. The coupling to scripts/accent-sweep.mjs was checked rather than
+   assumed — that script has no .badge row; its line 78 measures ONE surface
+   and labelled it ".pill.completed / .badge.completed" because the two were
+   the same declaration. No measurement moved; three comments that named it
+   were corrected in the same change. */
+
 
 /* An icon never squashes into an oval before its text wraps. */
 .row svg, .btn svg, .chip svg, .tag svg, .label svg { flex-shrink: 0; }
@@ -2211,6 +2328,15 @@ button.warn-box:hover { border-color: var(--fog-2); }
 /* A segmented control that cannot be changed — the last owner's role. */
 .segmented.is-disabled { opacity: 0.55; }
 .segmented.is-disabled button { cursor: not-allowed; }
+/* A SETTING ROW THAT CANNOT BE CHANGED, and the one that made it necessary:
+   push, when the browser has blocked notifications for the site. It stays
+   readable (its help line is the only place the reason is written) and stops
+   looking like something a thumb can move. Same 0.55 as the segmented form,
+   because they are the same idea wearing two shapes. */
+.setting.switch-row.is-disabled { opacity: 0.55; }
+.setting.switch-row.is-disabled .switch { cursor: not-allowed; }
+/* The help line carries the reason, so it must not dim with the rest. */
+.setting.switch-row.is-disabled .setting-help { opacity: 1; }
 
 /* ------------------------------------------------------ THE 320 FLOOR
    PRODUCT.md promises 320 -> 1440 and until roadmap 2.9 the product did not

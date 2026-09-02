@@ -157,6 +157,7 @@ were made more than once.
 - **Roadmap 2.11, step 6, stage 3 — the calendar, and a signature move that had never once run** — Month, the day and History. **The one to carry: Today's staggered arrival has been DEAD since the shell shipped** — the reveal block's second form reads `.app-main > .group > .col-1 > *` and a split screen's root is `.split`, so `.col-1` **is** a `.group` rather than a child of one and the selector matched nothing. **Nothing in the product could report it**: a stagger that never runs looks exactly like a screen that has finished arriving, and the screenshot scripts photograph the end state on purpose. Found by reading the COMPUTED `animation-name` on the live screen. *A mechanism whose failure mode is SILENCE needs a check that asserts it RAN, not one that asserts the screen looks right* — third member of the `dead-width` family. **The day does NOT go through `RecordHost`**: it is not a record, it never opens beside its list, and it must not open over the grid it is read against, so it opens inline BELOW at every width — the only panel in the product that does. `DaySheet` takes an `inline` prop instead of losing its sheet, because Today's *Tomorrow* still wants one. **The day and the history had never been swept at all** — the tab was, the other two screens were not, which is stage 2's finding one stage later. **An `auto` amount column made a ruled list ragged** (every row is its own grid, so `$65.00` and `$235.00` gave the fr columns different widths and *what* started 4px apart); `display: contents` is what lets one markup be two cells on a phone and five columns at a desk. **`useBookings` swallowed its error**, so a failed read drew an empty month, an empty day and an empty Money period with nothing saying so — fixed in the hook AND finished on all three callers. **And `composition.test.mjs` test 1's rewrite passed against the exact commit it was written to catch** on its first attempt, because `[^)]` cannot cross a callback's own `(b) =>`; baselined both ways now. Also: Escape closes the record at BOTH widths, guarded on there being no modal over it.
 - **Roadmap 2.11, step 6, stage 4 — Money, the accountant export, and a chart nobody had measured** — The zero line (−$114 and +$114 drew the IDENTICAL bar), and a second defect only measuring found: **the bars themselves were 1.51:1 and 1.68:1** against the ground, under law 9's 3:1 non-text floor, which every previous reading had treated as being about EDGES — a bar is the graphical object the content is IN. Raising them cost the selection something and it was MEASURED rather than left as a worry — the lit bar is 3.74:1 against the ground on Slate and the dim ones 3.18, **1.18:1 between them** — so selection gained two cues that are not hues: the column behind the bar is TINTED and the period's LABEL is lit, and the tint was then checked the other way (the lit bar still clears 3.04:1 against its own tinted column). **The 60/40 chart is right only once there is a loss** — six winning bars over 48px of reserved emptiness made the rule read as a gap, so it is 72px until a bucket loses money. **The export is a FLAT ledger because that makes it checkable**: the Amount column adds up to the Net on the screen, pinned by `tests/money-export.test.mjs`, baselined both ways. **Three layout numbers in step 4 were written before the control existed** and all three lost to a measurement (1.35/1 not 1.2/1; the export on its own row; the segmented wrap ending at 700 **with the rotation guard — its fourth site**). **"Waiting on payment" was answering a period question** — switching Month→Week changed who owed you money. **`loadExtras` swallowed all three of its errors**, which is `useBookings`'s stage 3 defect in the file next door: `const { data } =` destructures the error away, and it is written that way to keep the line short. **THE OWNER OVERRULED STEP 4 §4**: the day opens BESIDE the month at ≥1180 in a fixed 420px column, `--wrap` lifts to 1720 for that one screen via `:has()`, and the month keeps its written cells only while the grid is ≥1,024px — so at 1440 it becomes marks while the day is open, which is the trade he named.
 - **Roadmap 2.11, step 6, stage 5 — Clients, the client record, and three of his own corrections** — The one screen with NO PANEL and the one record with NO CONTAINER, both built: `RecordHost` gained a `bare` prop rather than the `ClientRecord.jsx` the inventory predicted, because a component with one caller extracted to satisfy a prediction is the abstraction this repo's rules forbid. **The list is full-bleed only while no client is open** — every other split screen has something to put in column two and this one does not, so an always-on grid left 465px permanently dead INSIDE the content column. **Law 1's "History and Clients must not be the same shape" is answered by structure**: History has a time axis (status marks, month rules, money last), Clients has none (search first, sort only, phone last). **Part B rows 6 and 18 are struck** — last visit could print a future date because it never asked whether the job had happened. **THE LIST READ SWALLOWED ITS ERROR, the THIRD site of `const { data } = await`** after `useBookings` and `loadExtras`. And three owner corrections that arrived with the prompt: **the Money period control's 3 + 2 wrap** (five cells of two sizes; now equal columns, and 4px of padding rather than 6 is the whole difference between one line and two at 392), **"Export for my accountant" -> "Export"** on the period line — *a label names what the control DOES, never who the result is for* — and **the ground's two lights now carry the tenant's colour**, mixed into them rather than added as a third light, with the alphas untouched, because more light moves every floor measured against the ground.
+- **Roadmap 2.11, step 6, stage 6 — Business, the twelve settings screens, and three repairs** — `More.jsx` is deleted. **The admission test is in the CODE**: a row belongs on Business only if it changes what a CUSTOMER meets, otherwise it goes behind the header gear — eight rows in three groups, four behind the gear. **The gear is a DESTINATION, not an overlay**, so `SettingsHost` decides page-or-column once for both doors and a settings screen is never a sheet again. **Staff get THREE rail buttons** (two files said four; the number was inherited from before Business was also taken from them). **TWELVE settings screens, not thirteen** — the FAQ’s storage landed and its screen did not, so there is no row for it, because a row that opens nothing is the very defect this stage repairs. **D1, the colour repair, was TWO defects**: one colour now writes both columns AND the email had no floor at all — a 3px rule at 1:1 on its own band, a hardcoded white title, and the brand colour as words on white at 1.36:1 for Silver; fixed in `_shared/brandColor.js`, **the one place in this repo a second implementation of the colour maths is allowed**, with `tests/email-brand.test.mjs` as the price. **PUSH: the browser half is built and the SERVER half was not live either** — the VAPID secrets had never been set, so `sendOwnerPush` had been skipping for its whole life; **the granted path is still unverified and needs one tap on a real device.** **Reviews has a door** and says out loud that the words go to the Phase 3 websites rather than implying they are live. Plus the booking link drawn twice on one phone, a heading’s arrow 700px from its words, a truncated page title, a `disabled` prop that was dropped, a CSS rule that lost silently, and `memberships?.[0]`. **The QR is a question for him, not a refusal.**
 
 - **The copy pass — the owner's rule against explaining what the label already said** — his instruction, 2026-09-01, and he named the instance: *"Mobile — we go to them"* on the job record. *"No duh… it thinks that humans can't think, or it feels the need to explain literally every single thing."* **The test: does the sentence add a fact the control does not already carry?** Twenty-four sites swept across the dashboard, the booking page and the way in. **The half that stops the rule becoming its own mistake is what STAYED** — *"Picking another swaps it"*, *"Past bookings keep it"*, *"Timing is set in Booking rules"*: the rule is against restatement, not against explanation, and a session that reads it as "delete help text" will strip the sentences that were doing work. The durable form lives in `docs/design-system.md` § Never-defaults and in CLAUDE.md.
 
@@ -7292,3 +7293,245 @@ paid / cancelled / error moved.
 - **The three carried forward since stage 2 are still carried**: `document.title`
   is "Detailing Platform" on every route; the month grid is 30 tab stops; a
   no-show still counts toward a month rule's total.
+
+---
+
+## Roadmap 2.11, step 6, stage 6 — Business, the twelve settings screens, and three repairs
+
+**Stage 6 of seven.** `screens/More.jsx` is deleted; `screens/Business.jsx`,
+`components/GearMenu.jsx`, `components/SettingsHost.jsx`,
+`screens/more/index.js`, `screens/more/Reviews.jsx`,
+`screens/more/SwitchBusiness.jsx`, `app/public/sw.js`, `app/src/lib/push.js`,
+`supabase/functions/_shared/brandColor.js`, `tests/email-brand.test.mjs` and
+one migration are new. **Nothing is waiting on the owner except one question
+he has not been asked yet — the QR — and one thing only he can do, which is
+tap the push switch on a real phone.**
+
+### The admission test, and why it is in the code rather than only in a file
+
+> **A row belongs on Business only if it changes what a CUSTOMER meets. If it
+> changes how the app BEHAVES for the detailer, it goes behind the gear.**
+
+Step 4 §10 wrote it and said, correctly, that without it "Business" is "More"
+with a better name in six months. So it is repeated at the top of
+`screens/Business.jsx` — the file somebody will be looking at when they are
+about to add a row is not the design document.
+
+**Eight rows in three groups, four behind the gear.** Eight headings for
+eleven rows becomes three for eight. The four that moved — Notifications,
+Message templates, Team, This device — moved because they fail the test, not
+because the screen was long.
+
+### The gear is a DESTINATION, and the smaller design won
+
+The obvious build was a sheet from the header holding a menu, with its screens
+opening inside it. That is a **second container mechanism for one set of
+screens**, and those four would then be sheets at a desk — the exact thing
+this stage exists to end. Rendering the gear where a tab renders means
+`SettingsHost` decides page-or-column once, for both doors, and pressing the
+gear again returns you to the tab you were on rather than to Today.
+
+`App.jsx` holds it as a boolean beside `tab`, not as a sixth tab: no tab is
+lit while it is open, because a lit *Today* over a settings screen is the
+shell telling you where you are not.
+
+### Twelve, not thirteen, and no FAQ row
+
+The owner split the FAQ himself on 2026-08-31: storage in 2.11, screen later.
+`20260902001000_faq_storage.sql` adds `business_settings.faqs` and
+`faq_enabled` (jsonb + boolean, the same reasoning `travel_zones` and
+`vehicle_sizes` carry — small, ordered, entirely tenant-defined, never the
+target of a foreign key). **There is no Business row for it**, and that is not
+tidiness: a row that opens nothing is the push switch's own defect wearing a
+different label, on the one screen where that defect is being repaired.
+
+**Twelve settles a count three files disagreed about.** The phone pass §12 was
+right; step 4 §11 said "twelve" in its title and listed thirteen.
+
+### Staff get THREE rail buttons, and two files said four
+
+Screen designs §10 says plainly *"staff do not get a Business tab"* and then
+counts *"four rail buttons, not five"*. Both cannot be true: staff already had
+no Money. The sentence is the load-bearing half and the number was inherited
+from desktop spec §5f, written while staff still had Business. **Today ·
+Calendar · Clients, plus the gear**, which keeps Message templates, This
+device and the account block — which §10 itself names as what a staff session
+can actually use. Both files are corrected.
+
+### THE COLOUR REPAIR (D1), and the one place a second implementation is allowed
+
+The worst defect on step 4's list, and it was two defects wearing one name.
+
+**One colour, written to both columns.** Law 11 gives a tenant ONE accent.
+`business_branding.secondary_color` was a schema accident: nothing in the
+dashboard or on the booking page ever read it, and the one thing that did was
+the email. `Appearance` now writes the same hex to both, and `BusinessInfo`'s
+colour pickers are gone — **both of them, not the one the inventory row
+named**. That row said "the second colour picker", meaning the second SCREEN
+offering one; with `Appearance` writing both columns this screen had no
+business writing either. Keeping them in step matters: a business that never
+opened Business info would otherwise have kept a stale second colour forever.
+
+**And the email had no floor at all.** Three failures, all fixed in
+`supabase/functions/_shared/brandColor.js`:
+
+| | Before | After |
+|---|---|---|
+| The 3px rule on the header band | `secondary_color` on a band of `primary_color` — **1:1 once they are one colour** | the band's own ink |
+| The band's title | hardcoded `#ffffff` — unreadable on Sunflower or Silver | measured, black or white, with the same 4.5:1 guard `accentTriple` applies |
+| The brand colour as WORDS on white | uncorrected; Silver measures **1.36:1** | corrected to 4.5:1 against the paper |
+
+**The band is corrected to 3:1 against the paper too**, because it is the only
+place the detailer's colour appears at size in an email and a near-white band
+on a white card is not a header.
+
+**THIS IS THE ONE PLACE IN THE REPO A SECOND IMPLEMENTATION OF THE COLOUR
+MATHS IS ALLOWED**, and the permission has a price attached. `lib/theme.js`
+says it is "THE ONLY FILE ALLOWED TO COMPUTE OR WRITE COLOUR FROM JS", and it
+means it — every drift bug here came from two places doing the same arithmetic
+slightly differently. Email cannot import it: an edge function is a separate
+Deno bundle and the Supabase CLI will not follow an import out of `supabase/`.
+So the port exists, it is a plain `.js` module with no Deno API in it **on
+purpose** — Node runs it in the test, Deno runs it in the function — and
+`tests/email-brand.test.mjs` (97 checks) imports BOTH and asserts they agree on
+the twelve presets and the four extremes. **Drift is a failing test, not a
+surprise in somebody's inbox.**
+
+**One trap this uncovered:** `scripts/deploy-functions.mjs` uploaded only
+`_shared/*.ts`. A `.js` shared module would have been silently left out, and
+`email.ts` would have failed at RUNTIME — every function that sends mail —
+rather than at deploy. Fixed in the same change.
+
+### THE PUSH REPAIR, and a second half nobody had checked either
+
+The owner reversed step 4 §11's "withdraw the switch" on 2026-08-31: *"the
+push switch STAYS and its missing browser half gets built."*
+
+Built: `app/public/sw.js` (a `push` handler and a `notificationclick` that
+reuses an open tab rather than opening a fifth dashboard),
+`app/src/lib/push.js`, three callers on `api`, and a `probe` branch on
+`owner-push-subscribe` that serves the VAPID **public** key.
+
+**Three judgments in there worth keeping.**
+
+1. **The permission prompt is asked LAST**, after the worker is registered and
+   the server has handed over a key. A browser gives one prompt per decision;
+   a detailer who is asked and then hits a missing key has spent it, and
+   "Allow" is wired to nothing until they dig into browser settings.
+2. **The key is served, not built in.** A `VITE_` variable would be a second
+   copy of something that already lives beside its private half as a function
+   secret. It is a public key — a browser holding it is the entire point.
+3. **The switch reads THIS DEVICE, not the database.** `push_enabled` is a
+   business-wide preference the edge functions check before sending; whether
+   this phone is registered is a fact about this browser. Drawing the second
+   from the first is what made the old switch a lie. Unsupported, blocked and
+   off each get their own sentence, because they look identical on a switch
+   and the middle one cannot be fixed by tapping harder.
+
+**AND THE SERVER HALF WAS NOT LIVE EITHER.** `OWNER_VAPID_PUBLIC_KEY` /
+`_PRIVATE_KEY` / `_SUBJECT` were **never set** on the platform project, so
+`sendOwnerPush` had been taking its "VAPID keys not configured — skipping"
+branch for its entire life. Every document in this repo describes the server
+side as working; nobody had listed the secrets. A P-256 keypair was generated
+with Node's own `crypto` and set on `kguqylyzgyzfktkfnhjb` (the platform's
+project — never the live business).
+
+**WHAT IS VERIFIED AND WHAT IS NOT, precisely.** The worker registers and
+activates against the dev server; `/sw.js` is served as `text/javascript` and
+is in `dist/`; the deployed probe returns an 87-character base64url key; the
+BLOCKED branch renders correctly in a browser that denies. **The GRANTED path
+has not been exercised by anybody.** Headless Chromium reports
+`Notification.permission === "denied"` unconditionally — `grantPermissions`
+does not change it — and a headed browser will not launch in this environment.
+**Push is not finished until somebody taps Allow on a real device and receives
+one**, and no file should say otherwise until they have.
+
+### THE REVIEWS DOOR, and the honest thing it says
+
+`testimonials` has existed since the first tenant migration,
+`get_public_business_profile` returns the active ones, and
+`BookingBusinessContext` puts them on the booking page's context. Nothing
+could ever write one.
+
+**The screen is the door. It is not a display**, and the screen says so rather
+than implying otherwise. The booking page READS them and does not DRAW them:
+its steps are on a measured height budget (W16 — step 1 has 10px spare at
+1440x900), so a block of quotes cannot be dropped into one. The tenant
+websites are where they were always going. **A screen that collected words and
+implied they were live somewhere would be the push switch again one screen
+over**, which is why the blurb names the destination.
+
+**Hide, never delete, is the default.** `is_active` is what the public read
+filters on, and a review is somebody else's words about a job that happened;
+taking one down should not destroy it. Delete stays and asks first.
+
+### Six more things, all found by building or by measuring
+
+1. **THE BOOKING LINK WAS DRAWN TWICE ON ONE PHONE SCREEN.** `SettingsHost`
+   rendered its resting second column at every width; below `--wrap` `.split`
+   is not a grid, so it simply stacked under the index — beneath the copy the
+   caller had already put there. **Guarded on `wide` now.** Found in a
+   screenshot, not by reasoning about the markup.
+2. **`.row.between` IS WRONG FOR A HEADING WITH NO BOX.** Catalog's category
+   heading threw its own reorder arrow 700px away from the words it moves —
+   the "not enough content to fill it" shape inside a row, which is what stage
+   5 had to fix on a Clients row. A control sits beside what it acts on; a
+   SERVICE's arrow stays right because that row is a card and has an edge.
+3. **A SETTINGS PAGE'S TITLE IS NOT A TAB MASTHEAD.** At `--t-display` (30px
+   on a phone) "Services & add-ons" beside a 44px back control came back as
+   "Services & add-o…". `--t-title` fits the longest of the twelve at 320. A
+   truncated TITLE is the one string on a screen nobody should have to guess.
+4. **`Switch` TOOK A `disabled` PROP AND DROPPED IT.** The bare form honoured
+   it; the row form did not render it at all. Invisible until a switch got a
+   state it must refuse to leave — push, when the browser has blocked the
+   site. **A switch that looks live and does nothing is this stage's own
+   defect one level down.**
+5. **`.clamp2` DID NOTHING AS WRITTEN.** `.row-item .sub` is two selectors and
+   sets `white-space: nowrap`, so it won. A rule that loses silently is
+   indistinguishable from a rule that is not there — the same family as a
+   skipped check reading like a passing one.
+6. **`BusinessContext` COULD ONLY EVER OPEN THE FIRST BUSINESS.**
+   `memberships?.[0]`, with a comment saying switching came later. The
+   database has supported two per account since the staff-roles migration.
+   The chosen one is a **localStorage fact about the DEVICE** — the same
+   person can have the van's tablet on one and their laptop on the other, and
+   a server-side "current business" would fight them for it.
+
+### One arrow per row, and what that actually means
+
+Part B row 17 named "2 arrows per row" as the defect. Up-only, absent on the
+first row, is what shipped: **moving a row above the one before it reaches
+every order a pair of arrows reaches**, and two 34px buttons on every row of
+the longest list in the product is more furniture than list. `above` is passed
+as an INDEX rather than a direction, because a service's neighbour on the
+screen is the previous one in its CATEGORY, which is not always the previous
+one in the flat list.
+
+### The QR, which is a question and not a refusal
+
+Step 4 §10 asks for the booking link "larger, with its QR" as the second
+column's resting content. **It is not built.** A QR encoder is Reed-Solomon
+and a bit matrix, not a few lines, so it means a dependency — and this repo
+does not add one unasked. Without it the resting column is short at 1440x900.
+That is honest rather than dead (it is the same shape Money's and Today's
+second columns have, and it becomes the settings screen the moment a row is
+pressed), but the QR is the thing that would make it pay for itself. **The
+owner has the question in the handoff.**
+
+### Deletions
+
+`.dashed` (one caller left by now — it became a plain sentence) and `.badge`
+(seven rules, zero users, byte-identical to `.pill`). `boxy()` in
+`sweep-widths.mjs` lost `.dashed` in the same change, and the five comments
+across `accent-sweep.mjs` and `lib/theme.js` that named `.badge` were
+corrected. **No measurement moved and `accent-sweep` still exits 0** — that
+coupling was checked rather than assumed, because CLAUDE.md requires it.
+
+### Measured after
+
+`sweep-widths.mjs` clean at 1920 / 1440 / 392 / 360 / 320, normal and
+`?lite=1`. Console at all four verification widths: nothing but the two
+pre-existing React Router v7 future-flag warnings. `composition` ·
+`design-contrast` · `landing-pricing` · `route-contract` · `money-export` ·
+`client-list` · **`email-brand` (97, new)** · `decisions-index` ·
+`accent-sweep` all pass.

@@ -37,13 +37,19 @@ export function Switch({ checked, onChange, label, help, bare = false, disabled 
     );
   }
   return (
-    <label className="setting switch-row">
+    // `disabled` reached the bare form and was DROPPED here, which mattered
+    // the moment a switch got a state it must refuse to leave: push, when
+    // the browser has blocked notifications for the site. A switch that
+    // looks live and silently does nothing is the defect this whole stage
+    // is repairing, one level down.
+    <label className={`setting switch-row${disabled ? " is-disabled" : ""}`}>
       <div className="setting-text">
         <div className="setting-label">{label}</div>
         {help && <p className="setting-help">{help}</p>}
       </div>
       <span className={`switch${checked ? " on" : ""}`}>
-        <input type="checkbox" checked={!!checked} onChange={(e) => onChange(e.target.checked)} />
+        <input type="checkbox" checked={!!checked} disabled={disabled}
+          onChange={(e) => onChange(e.target.checked)} />
         <span className="knob" />
       </span>
     </label>

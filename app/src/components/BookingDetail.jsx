@@ -394,7 +394,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           <Sheet onClose={() => setPickingText(false)} title="Send a text" peek={48}>
             <div className="tight">
               {templates.length === 0 && (
-                <div className="dashed">No templates yet. Add them in More, under Message templates.</div>
+                <p className="quiet">No templates yet — the gear, then Message templates.</p>
               )}
               {templates.map((t) => (
                 <a key={t.id} className="card tappable" href={smsHref(filled(t.body))}

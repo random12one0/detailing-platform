@@ -422,6 +422,19 @@ await post("/rest/v1/expenses", EXPENSES.map(([off, category, description, amoun
   payment_method: "unspecified",
 })));
 
+// THREE REVIEWS, because the Reviews screen shipped in roadmap 2.11 step 6
+// stage 6 and a screen swept with nothing on it proves nothing — the row is
+// a name, a rating and somebody else’s SENTENCE, and a sentence is the thing
+// that runs off the edge at 320. One long, one short, one hidden.
+const REVIEWS = [
+  ["Marcus T.", 5, "Google", "Booked him for a wash and wax on a car I had honestly given up on, and it came back looking better than the day I bought it. He showed up on time, worked around my street parking, and did not disappear for four hours.", true],
+  ["Priya R.", 5, "In person", "Interior refresh on a car with two kids in it. Immaculate.", true],
+  ["Dan W.", 4, null, "Good job on the coating, took a bit longer than quoted.", false],
+];
+await post("/rest/v1/testimonials", REVIEWS.map(([author, rating, source, quote, is_active], i) => ({
+  business_id: business.id, author, rating, source, quote, sort_order: i, is_active,
+})));
+
 // A blocked-out day so the calendar shows one.
 await post("/rest/v1/blockout_dates", [{
   business_id: business.id, event_name: "Equipment servicing",
@@ -433,7 +446,7 @@ console.log(`
 Demo business ready.
   Business : ${business.name} (slug: ${SLUG}, ${TZ})
   Bookings : ${counts.length} (${made} seeded)
-  Customers: ${customers.length}   Categories: ${groups.length}   Services: ${services.length}   Expenses: ${EXPENSES.length}
+  Customers: ${customers.length}   Categories: ${groups.length}   Services: ${services.length}   Expenses: ${EXPENSES.length}   Reviews: ${REVIEWS.length}
   Owner    : ${OWNER.email} / ${OWNER.password}
   Staff    : ${STAFF.email} / ${STAFF.password}
 `);

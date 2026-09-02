@@ -115,16 +115,30 @@ const heightFor = (w) => (w >= 1900 ? 1080 : w >= 1024 ? 900 : 844);
 const DESKTOP_SPEC_BUILT = true;
 const BP_SPLIT = 1180;   // --wrap; where the desktop spec's second column engages
 const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that says "a desktop layout exists"
-const MORE = ["Business info", "Your colour", "Services & add-ons", "Promo codes & sale",
-  "Photo gallery", "Hours & days off", "Booking rules", "Notifications",
-  "Message templates", "Team", "Maps, calendar & contacts"];
+// TWELVE SETTINGS SCREENS BEHIND TWO DOORS, from roadmap 2.11 step 6 stage 6.
+// It was ELEVEN behind one, and the count and the door both had to move or
+// this script would report clean on eighteen screens while never opening the
+// four that had been re-homed and the one that is new. That is the family of
+// failure at the top of DECISIONS.md: a skipped check reads exactly like a
+// passing one.
+//
+// BUSINESS holds what changes what a CUSTOMER meets; the GEAR holds the
+// plumbing. "Maps, calendar & contacts" is called "This device" now.
+// Reviews is the twelfth and is new. There is no FAQ row: its storage
+// landed and its screen deliberately did not.
+const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews",
+  "Services & add-ons", "Promo codes & sale", "Hours & days off", "Booking rules"];
+const GEAR_ROWS = ["Notifications", "Message templates", "Team", "This device"];
 
 // Runs in the page. Boxes are the things with an edge — two of those touching
 // is the defect; two paragraphs touching is just text.
 const CHECK = () => {
   const vw = document.documentElement.clientWidth;
   const out = [];
-  const boxy = (el) => el.matches(".card, .sunken, .dashed, .setting-card, .bk-card");
+  // `.dashed` came out of this list in roadmap 2.11 step 6 stage 6, in the
+  // same change that deleted the class: a matcher naming something nothing
+  // carries reads as covering a case it can no longer find.
+  const boxy = (el) => el.matches(".card, .sunken, .setting-card, .bk-card");
   const name = (el) => el.tagName.toLowerCase()
     + (typeof el.className === "string" && el.className ? "." + el.className.trim().split(/\s+/).join(".") : "");
   for (const el of document.querySelectorAll("body *")) {
@@ -293,7 +307,7 @@ for (const w of SIZES) {
     }
   }
 
-  for (const t of ["Today", "Calendar", "Money", "Clients", "More"]) {
+  for (const t of ["Today", "Calendar", "Money", "Clients", "Business"]) {
     await page.getByRole("button", { name: t, exact: true }).first().click();
     await settle(page, 1700);
     await say(t);
@@ -467,18 +481,36 @@ for (const w of SIZES) {
     await settle(page, 700);
   }
 
-  await page.getByRole("button", { name: "More", exact: true }).first().click();
+  // A SETTINGS SCREEN IS NO LONGER A SHEET, and the walk needed no change for
+  // it: below --wrap it is a page that REPLACES the index, at or above --wrap
+  // it is the second column and the index stays put. Escape closes it at both
+  // widths (SettingsHost), so the next row click lands either way, and
+  // `grow()` no-ops where there is no sheet to drag.
+  const walk = async (label, rows) => {
+    for (const key of rows) {
+      const row = page.locator(".nav-row", { hasText: key });
+      if (!(await row.count())) { console.log(`${key.padEnd(24)} NO SUCH ROW (${label})`); found++; continue; }
+      await row.first().click();
+      await settle(page, 1600);
+      await grow();
+      await say(`${label} · ${key}`);
+      await page.keyboard.press("Escape");
+      await settle(page, 800);
+    }
+  };
+
+  await page.getByRole("button", { name: "Business", exact: true }).first().click();
   await settle(page, 1400);
-  for (const key of MORE) {
-    const row = page.locator(".nav-row", { hasText: key });
-    if (!(await row.count())) { console.log(`${key.padEnd(24)} NO SUCH ROW`); found++; continue; }
-    await row.first().click();
-    await settle(page, 1600);
-    await grow();
-    await say(key);
-    await page.keyboard.press("Escape");
-    await settle(page, 800);
-  }
+  await walk("Business", BUSINESS_ROWS);
+
+  // THE SECOND DOOR. The gear is a destination rather than an overlay, so it
+  // takes the main area and its own index has to be measured too — until
+  // this stage every one of these screens was reached from one list and four
+  // of them have moved.
+  await page.getByRole("button", { name: "Settings", exact: true }).first().click();
+  await settle(page, 1400);
+  await say("the gear");
+  await walk("gear", GEAR_ROWS);
   await ctx.close();
 }
 

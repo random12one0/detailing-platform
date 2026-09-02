@@ -1875,8 +1875,27 @@ is kept; the entire visual design restarts from scratch.
          first and put two presets under the chart's 3:1 floor).
          **`sweep-widths.mjs` walks six Clients screens now, against one** —
          stage 2's, 3's and 4's finding a fourth time.
-         **Stages 6-7 of §5 remain: Business and the twelve settings screens ·
-         first run.**
+         ~~**Stages 6-7 of §5 remain: Business and the twelve settings screens ·
+         first run.**~~ **STAGE 6 IS BUILT, 2026-09-02** — `More.jsx` is gone;
+         the fifth tab is **Business** with eight rows in three groups, the
+         plumbing is behind a header gear, and a settings screen is a PAGE
+         below `--wrap` and the second column above it rather than a 640px
+         sheet at every width. **Twelve settings screens** (Reviews is new;
+         the FAQ’s storage landed and its screen did not, so it has no row —
+         a row that opens nothing is the defect this stage repairs).
+         **All three repairs landed:** *Your colour* writes one hex to both
+         columns and the EMAIL finally has a contrast floor (its 3px rule was
+         1:1 on its own band and Silver printed at 1.36:1 on white);
+         `testimonials` has a door; and the push switch has its browser half.
+         **Staff get THREE rail buttons, not the four two design files
+         counted.** `sweep-widths.mjs` walks twelve settings screens through
+         TWO doors, against eleven through one.
+         **TWO THINGS ARE OPEN and both are in PROJECT-STATE §6u:** push’s
+         GRANTED path is unverified (headless Chromium always reports
+         “denied”, so it needs one tap on a real device), and the QR on the
+         resting booking-link column is a question for him rather than a
+         refusal — it needs a dependency.
+         **Stage 7, first run, is the last one.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
          2.15 (travel by measured distance), **the last of which he then CLOSED
