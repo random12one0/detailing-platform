@@ -99,10 +99,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   **BUILT 2026-09-01 (roadmap 2.11 step 6), and it was THREE places, not the
   two the phone pass listed** — the calendar cell's own 700px rule spends
   height too (a cell goes 56px → 88px), so rotating made the month grid taller
-  on the shortest screen in the product. **A FOURTH ARRIVED IN STAGE 4** —
-  Money's period control stops wrapping at 700 — and it carried the guard
-  from the first line it was written on, which is what the lesson below is
-  for. All four carry `and (min-height: 500px)`. Verified at 844x390: the settings sheet is
+  on the shortest screen in the product. **A FOURTH ARRIVED IN STAGE 4** — Money's period control stops wrapping
+  at 700 — **AND A FIFTH IN STAGE 5**, `.clientfilters`, which was written
+  with the guard on its first line because the lesson below had already been
+  learned. All five carry `and (min-height: 500px)`. Verified at 844x390: the settings sheet is
   still bottom-anchored and full-width, the cell is still 56px.
   **The lesson is about the LIST, not the rule — a file that names two
   instances of a pattern invites a session to fix two and stop. Grep the
@@ -122,9 +122,30 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 ## Verification
 
+- **THE CHECKS ARE 2.6x FASTER AS OF 2026-09-02, AND HOW YOU RUN THEM MATTERS
+  MORE THAN THAT.** The owner asked why a one-screen session takes an hour;
+  the answer, the fix and the rules that came out of it are
+  `docs/verification-speed-2026-09-02.md`. The short version, and it is not
+  optional:
+  **Iterate with `node scripts/sweep-widths.mjs 392 --only Clients` (38s) and
+  run the full sweep ONCE at the end (178s, was 463s). `--lite` is a
+  final-run flag, not an iteration one. Screenshot the ONE width that answers
+  the question. And when a layout question has a number in it, MEASURE FIRST
+  rather than building, looking, and then measuring** — the period control
+  was rebuilt twice before anyone measured that the answer was 2px of padding.
+  The scripts now `settle()` instead of sleeping: the old fixed timeout is a
+  CAP, and the wait ends when the DOM has been quiet for 130ms with no finite
+  animation running and no spinner on the page. **It was baselined against a
+  deliberate defect** — 96 reported, then clean again once removed — because
+  a check that measures the page too early looks exactly like a check that
+  passes.
+
+
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, `landing-pricing`, `route-contract`, **`money-export`**
-  from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
+  `design-contrast`, `landing-pricing`, `route-contract`, **`money-export`**,
+  **`client-list`** (31 checks, new 2026-09-02 — the Clients list's date
+  arithmetic and the lapsed filter, which decides who ends up on the end of a
+  group text; baselined both ways) from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 7 tests need env vars from
   root `.env`.
 - **Also credential-free, and it must exit 0 after anything touching accent
@@ -156,8 +177,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   width)**, **MONEY'S three period kinds, its unpaid job and its expense form
   (added 2026-09-01, stage 4 — the same gap a THIRD time, and the period
   control is the one row in this product that has to hold one line at a desk
-  and wrap 3 + 2 on a phone)** and the booking page at **1920, 1440,
-  392, 360 and 320** and reports anything past the right edge, anything
+  and five equal cells on a phone — it wrapped 3 + 2 until the owner rejected
+  that on 2026-09-02)**, **CLIENTS' OTHER FIVE — the list itself, each of its two other sorts, the
+  lapsed filter and a job opened from a client's own history (added
+  2026-09-02, stage 5, and the same gap a FOURTH time: it opened one client
+  sheet and measured nothing else, and this list is also the only one in the
+  product whose LAYOUT changes when a record opens, so its closed and open
+  states are two measurements rather than one)** and the booking page at
+  **1920, 1440, 392, 360 and 320** and reports anything past the right edge, anything
   **outside its own
   parent's box**, anything scrolling sideways with no scrollbar, and any two
   boxes stacked with no gap. **320 joined the default in roadmap 2.9**, the item

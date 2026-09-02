@@ -40,7 +40,7 @@
 // booking_line_items, and TIPS.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings, withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
@@ -302,12 +302,22 @@ export default function Money() {
               <ChevronRight size={18} strokeWidth={2} />
             </button>
           )}
+          {/* "EXPORT FOR MY ACCOUNTANT" WAS THE WHOLE ROW AND THREE WORDS TOO
+              LONG — the owner, 2026-09-02: "they may go by a different name.
+              Maybe they're not even exporting for the accountant… it's weird
+              to have a button that says exclusively export for my accountant.
+              And it takes up an entire line, which, screen space is valuable."
+              The label is what the button DOES; who the file is for is the
+              detailer's business. It rides the period line, which had room to
+              spare at every width, and it says which period it takes to
+              anyone listening to the screen rather than looking at it. */}
+          {exportable && (
+            <button className="btn sm inline export" onClick={sendToAccountant}
+              aria-label={`Export ${period.label}`}>
+              <Download strokeWidth={2} /> Export
+            </button>
+          )}
         </div>
-        {exportable && (
-          <button className="btn sm export" onClick={sendToAccountant}>
-            Export for my accountant
-          </button>
-        )}
         {sent && <span className="quiet sent" aria-live="polite">{sent}</span>}
       </div>
 

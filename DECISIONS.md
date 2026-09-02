@@ -156,6 +156,7 @@ were made more than once.
 
 - **Roadmap 2.11, step 6, stage 3 — the calendar, and a signature move that had never once run** — Month, the day and History. **The one to carry: Today's staggered arrival has been DEAD since the shell shipped** — the reveal block's second form reads `.app-main > .group > .col-1 > *` and a split screen's root is `.split`, so `.col-1` **is** a `.group` rather than a child of one and the selector matched nothing. **Nothing in the product could report it**: a stagger that never runs looks exactly like a screen that has finished arriving, and the screenshot scripts photograph the end state on purpose. Found by reading the COMPUTED `animation-name` on the live screen. *A mechanism whose failure mode is SILENCE needs a check that asserts it RAN, not one that asserts the screen looks right* — third member of the `dead-width` family. **The day does NOT go through `RecordHost`**: it is not a record, it never opens beside its list, and it must not open over the grid it is read against, so it opens inline BELOW at every width — the only panel in the product that does. `DaySheet` takes an `inline` prop instead of losing its sheet, because Today's *Tomorrow* still wants one. **The day and the history had never been swept at all** — the tab was, the other two screens were not, which is stage 2's finding one stage later. **An `auto` amount column made a ruled list ragged** (every row is its own grid, so `$65.00` and `$235.00` gave the fr columns different widths and *what* started 4px apart); `display: contents` is what lets one markup be two cells on a phone and five columns at a desk. **`useBookings` swallowed its error**, so a failed read drew an empty month, an empty day and an empty Money period with nothing saying so — fixed in the hook AND finished on all three callers. **And `composition.test.mjs` test 1's rewrite passed against the exact commit it was written to catch** on its first attempt, because `[^)]` cannot cross a callback's own `(b) =>`; baselined both ways now. Also: Escape closes the record at BOTH widths, guarded on there being no modal over it.
 - **Roadmap 2.11, step 6, stage 4 — Money, the accountant export, and a chart nobody had measured** — The zero line (−$114 and +$114 drew the IDENTICAL bar), and a second defect only measuring found: **the bars themselves were 1.51:1 and 1.68:1** against the ground, under law 9's 3:1 non-text floor, which every previous reading had treated as being about EDGES — a bar is the graphical object the content is IN. Raising them cost the selection something and it was MEASURED rather than left as a worry — the lit bar is 3.74:1 against the ground on Slate and the dim ones 3.18, **1.18:1 between them** — so selection gained two cues that are not hues: the column behind the bar is TINTED and the period's LABEL is lit, and the tint was then checked the other way (the lit bar still clears 3.04:1 against its own tinted column). **The 60/40 chart is right only once there is a loss** — six winning bars over 48px of reserved emptiness made the rule read as a gap, so it is 72px until a bucket loses money. **The export is a FLAT ledger because that makes it checkable**: the Amount column adds up to the Net on the screen, pinned by `tests/money-export.test.mjs`, baselined both ways. **Three layout numbers in step 4 were written before the control existed** and all three lost to a measurement (1.35/1 not 1.2/1; the export on its own row; the segmented wrap ending at 700 **with the rotation guard — its fourth site**). **"Waiting on payment" was answering a period question** — switching Month→Week changed who owed you money. **`loadExtras` swallowed all three of its errors**, which is `useBookings`'s stage 3 defect in the file next door: `const { data } =` destructures the error away, and it is written that way to keep the line short. **THE OWNER OVERRULED STEP 4 §4**: the day opens BESIDE the month at ≥1180 in a fixed 420px column, `--wrap` lifts to 1720 for that one screen via `:has()`, and the month keeps its written cells only while the grid is ≥1,024px — so at 1440 it becomes marks while the day is open, which is the trade he named.
+- **Roadmap 2.11, step 6, stage 5 — Clients, the client record, and three of his own corrections** — The one screen with NO PANEL and the one record with NO CONTAINER, both built: `RecordHost` gained a `bare` prop rather than the `ClientRecord.jsx` the inventory predicted, because a component with one caller extracted to satisfy a prediction is the abstraction this repo's rules forbid. **The list is full-bleed only while no client is open** — every other split screen has something to put in column two and this one does not, so an always-on grid left 465px permanently dead INSIDE the content column. **Law 1's "History and Clients must not be the same shape" is answered by structure**: History has a time axis (status marks, month rules, money last), Clients has none (search first, sort only, phone last). **Part B rows 6 and 18 are struck** — last visit could print a future date because it never asked whether the job had happened. **THE LIST READ SWALLOWED ITS ERROR, the THIRD site of `const { data } = await`** after `useBookings` and `loadExtras`. And three owner corrections that arrived with the prompt: **the Money period control's 3 + 2 wrap** (five cells of two sizes; now equal columns, and 4px of padding rather than 6 is the whole difference between one line and two at 392), **"Export for my accountant" -> "Export"** on the period line — *a label names what the control DOES, never who the result is for* — and **the ground's two lights now carry the tenant's colour**, mixed into them rather than added as a third light, with the alphas untouched, because more light moves every floor measured against the ground.
 
 - **The copy pass — the owner's rule against explaining what the label already said** — his instruction, 2026-09-01, and he named the instance: *"Mobile — we go to them"* on the job record. *"No duh… it thinks that humans can't think, or it feels the need to explain literally every single thing."* **The test: does the sentence add a fact the control does not already carry?** Twenty-four sites swept across the dashboard, the booking page and the way in. **The half that stops the rule becoming its own mistake is what STAYED** — *"Picking another swaps it"*, *"Past bookings keep it"*, *"Timing is set in Booking rules"*: the rule is against restatement, not against explanation, and a session that reads it as "delete help text" will strip the sentences that were doing work. The durable form lives in `docs/design-system.md` § Never-defaults and in CLAUDE.md.
 
@@ -7107,3 +7108,187 @@ month loses its written cells while the day is open** — that is the cost of
 his own trade, it is stated here so nobody finds it and files it as a bug, and
 the fix if he ever wants it is a wider `--wrap` on that screen, not a
 different layout.
+
+## Roadmap 2.11, step 6, stage 5 — Clients, the client record, and three of his own corrections
+
+*2026-09-02. Stage 5 of the approval page's seven, plus three things he sent
+with the prompt that are not stage 5 at all.*
+
+### The screen
+
+**Law 1 gives Clients two properties nothing else in the product has: it is
+the only screen with no panel on it, and §9 makes its record the only record
+with no container.** Both shipped, and the second one needed a decision.
+
+`docs/dashboard-component-inventory-2026-08-31.md` §3c predicted a new file,
+`components/ClientRecord.jsx`, and gave a reason: *"it has to render into a
+column with no card around it; it cannot stay inline in `Clients.jsx`'s
+sheet."* **That reason dissolved the moment the record stopped being a
+sheet.** `Clients.jsx` renders `RecordHost` directly now, so its rows already
+sit in a column; what was actually needed was for `RecordHost` to be able to
+draw no box. It gained a `bare` prop — `.record.bare` drops border, background
+and padding and keeps everything that is BEHAVIOUR (the height cap, the body
+that scrolls so the list beside it stays put). **A component with one caller,
+extracted to satisfy a prediction, is the abstraction this repo's own rules
+forbid.** The inventory row is marked NOT BUILT with this reasoning rather
+than deleted.
+
+**THE LIST IS FULL-BLEED ONLY WHILE NO CLIENT IS OPEN, and that took a rule of
+its own.** Every other split screen puts something in the second column when
+no record is open — History its filters, Money its unpaid list, the calendar
+its day — so `.split`'s always-on grid is right for them. This screen has
+nothing to put there and law 1 forbids the panel that would fill it, so the
+grid left **465px of the content column permanently empty**: the `dead-width`
+failure one level down, inside the column rather than beside it.
+`.split.clients:not(:has(> .col-2))` drops to one column. `:has()` rather than
+a class, because the condition IS "is there a second column" and React already
+answers that by rendering one.
+
+**AND THE FOUR COLUMNS WERE RE-PROPORTIONED AFTER LOOKING AT THEM.** Built to
+step 4 §8's own order first — name · last visit · spend · phone, all
+left-aligned — and at 1920 the name started at x=448 with the last phone
+number **290px short of the hairline's own end**. Everything bunched in the
+middle of a 1,144px rule, which is the *"not enough content to fill it"* shape
+inside a row. The figure and the phone are right-aligned now so the row ends
+where the line ends. **The general form is worth carrying: a full-bleed row
+has to be pinned at BOTH ends, or the width it gained shows up as a hole.**
+
+### Law 1's actual question, and how it is answered
+
+**"History and Clients must not become the same shape"** — and both use
+`.rows.cols`, which the component inventory §1a settled as one chassis with
+two column templates. What keeps them apart is STRUCTURE:
+
+| | History | Clients |
+|---|---|---|
+| What it lists | events | people |
+| Time axis | month rules carrying a month's total | none |
+| Per-row mark | a status dot | none |
+| First control | a search field and nine filter chips | a search field, then a sort and one chip |
+| The row ends with | the money, right-aligned — you are scanning a ledger | the phone, right-aligned — the row's last job is to let you act on the person |
+
+Written into `docs/dashboard-skeletons.md`'s register so the next session does
+not re-derive it.
+
+### The defects the build found
+
+1. **Part B row 6 — "last visit" could print a future date.** It read the
+   first row of a newest-first history without asking whether the job had
+   happened. It is now the most recent completed job whose `end_at` has
+   passed, computed once for the whole list rather than per opened record — so
+   the fix reaches the ROW, which is where the design put the figure.
+2. **THE LIST READ SWALLOWED ITS ERROR, AND THAT IS THE THIRD SITE.**
+   `const { data } = await q` destructures the error away, and it turned a
+   dropped connection into *"No customers yet — they appear on their own when
+   bookings come in"* — the most reassuring possible way to be wrong.
+   `useBookings` carried it until stage 3 and `loadExtras` until stage 4.
+   **Three files, three stages, one line each.** It is written this way every
+   time because it keeps the line short. **Grep for `const { data } = await`
+   before writing a new read.**
+3. **`completed_washes_count` on `customers` is dead.** It exists in the
+   schema and nothing in the product maintains it. The two figures come from
+   one query of the business's completed-and-ended bookings, aggregated by
+   phone in the browser — the same shape Money's *Lifetime* already has, and
+   fine at a detailer's volume.
+
+### His three corrections, which arrived with the prompt
+
+**1. The Money period control's 3 + 2 wrap.** *"The bar that says week, month,
+six month, year and lifetime kinda looks funky… there's three on top, two on
+the bottom, and they're spaced out weirdly."* It is measurable rather than a
+matter of taste: `flex: 1 0 28%` let each ROW share itself out, so the top
+three were 110px and the bottom two 168px — **five cells of two different
+sizes inside one control**. It is a grid of equal columns now, which is what
+§ THE 320 FLOOR already does for a segmented control that will not fit. **And
+4px of side padding rather than 6 is the whole difference between one line and
+two**: at 392 the cell is 67.2px and *"6 months"* sets 55.4px against the
+55.2px that 6px leaves it. **It wrapped by two tenths of a pixel, and every
+cell then took the taller row.** 39.6px tall now against 55.2.
+
+**2. "Export for my accountant" → "Export".** *"They may go by a different
+name. Maybe they're not even exporting for the accountant, they're exporting
+for some separate reason. It's weird to have a button that says exclusively
+export for my accountant. And it takes up an entire line, which, screen space
+is valuable."*
+
+**The rule it produces, and it is new: a label names what the control DOES,
+never who the result is for.** A use case is the detailer's business; naming
+one narrows a button that was never narrow. This is a sibling of his
+2026-09-01 rule (*copy that explains what the label already said*) and it is
+not the same rule — that one is about redundancy, this one is about
+presumption. **Both are now in `docs/design-system.md` § Never-defaults.**
+
+He also asked for the button to stop taking a row. It rides the period line
+now, `margin-left: auto`, which **overrules step 4 §7's "chips left, stepper
+and label right" on one line at a desk** — arithmetic: at the 1.35fr column
+the control is 367px, the stepper and label 202, the button 100 and the gaps
+24, which is 693px in 628. Breaking **after the control** keeps the period's
+name beside the button that exports that period and gives the desk the same
+two rows the phone has. **At 768 all four now fit on one line, which they did
+not before.**
+
+**A COPY SWEEP WAS RUN FOR THE SAME SHAPE ELSEWHERE, because he asked.** Every
+button and link label in the app, every `Setting` label, every `help=` and
+`blurb=`, and every standalone JSX text node in the dashboard screens.
+**Nothing else in the product names a use case in a control's label.** The
+2026-09-01 copy pass is why: every remaining help sentence adds a fact its
+label does not carry. Two were looked at and kept, with the reason:
+*"Reset to what this device suggests"* (Preferences) names what it resets TO,
+which is the non-obvious half, and *"Add a note or change the date"*
+(ExpenseModal) names what is behind the fold, which a bare *"More"* would not.
+
+**3. The ground's lights carry the tenant's colour.** *"The background kinda
+has this dark and then it kinda glows… should that change with the hue of the
+color that they chose? I think that'd be cool for the entire background to
+have a pop of the color they chose… I don't want it to just be straight their
+color. It should be a little diffused, have some white in it."*
+
+**The load-bearing decision is that the colour is MIXED INTO the two existing
+lights and THE TWO ALPHAS DID NOT MOVE.** A third light, or more alpha on
+these, is more light: the ground under the corner rises, and every floor
+measured against the ground is measured against a value that no longer holds
+there. **It was built at 8.5% / 7% first and the numbers said no.** Money's
+dim bar and losing bar measure **3.07:1 and 3.05:1 against the LIT CORNER** —
+not the 3.18 / 3.21 stage 4 took against the bare token — so the margin over
+the 3:1 non-text floor was **0.05**, and the extra alpha spent it: 2.98 and
+2.94 on a pure-white accent, **3.01 and 2.99 on Silver, which is a real
+preset.**
+
+At the original 7% / 5.5% the tint costs the floor nothing it did not already
+lack. Measured across the twelve presets and the four extremes:
+
+| | Before | After |
+|---|---|---|
+| Chart bars on the lit corner, worst case | 3.07 / 3.05 | **3.04 / 3.02** (pure white; 3.07 / 3.03 on Silver) |
+| Ten of the twelve presets | 3.07 / 3.05 | **higher** — a corrected accent is darker than the near-white it is mixed into |
+| `--bone` on the lit corner, worst case | 15.11:1 | **14.96:1** |
+| `--bone` on the lit corner, best case | 15.11:1 | **15.97:1** |
+
+**And the chart is not on that corner at either verification width** — at 392
+and at 1440 it falls outside both gradients' 66% falloff — so those are the
+worst point on the SCREEN rather than the bar's own.
+
+**Law 11b is not in play**: the ground is identity, not meaning. Nothing about
+paid / cancelled / error moved.
+
+### Measured after
+
+| | |
+|---|---|
+| `sweep-widths.mjs` | clean at 1920 / 1440 / 392 / 360 / 320, normal and `?lite=1` — **and it opens six Clients screens now, against one** |
+| Console at 1920 / 1440 / 768 / 392 | nothing but the two pre-existing React Router v7 future-flag warnings |
+| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · **`client-list` (31, new)** · `decisions-index` · `accent-sweep` | all pass |
+| Clients' arrival | `arrive @0 / 40 / 80 / 120ms` on `.col-1`'s children at 1440 and 392, every one `none` under `?lite=1` — asserted on the COMPUTED `animation-name`, which is stage 3's lesson |
+| Keyboard | Tab reaches a client row with a 2px accent ring, Enter opens the record, Escape closes it and returns to the list |
+| Money's period control at 392 | 39.6px tall, five equal 67.2px cells, one line |
+
+### Left open
+
+- **The list reflows from 1,144px to 651px when a client opens**, which is the
+  cost of full-bleed. The chrome above it does NOT move (the search field
+  keeps a 520px cap), so the jump is the list alone. **It belongs to roadmap
+  2.17**, which he opened for exactly this complaint on the calendar — *"it's
+  almost like I refresh the page."*
+- **The three carried forward since stage 2 are still carried**: `document.title`
+  is "Detailing Platform" on every route; the month grid is 30 tab stops; a
+  no-show still counts toward a month rule's total.

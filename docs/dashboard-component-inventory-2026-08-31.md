@@ -256,7 +256,7 @@ to.
 | Component | Renders its own Sheet today | After |
 |---|---|---|
 | `BookingDetail` (the job record) | yes | **no** — the caller hosts it |
-| `Clients`' client sheet → `ClientRecord` | yes | **no** |
+| `Clients`' client sheet → ~~`ClientRecord`~~ | yes | **DONE 2026-09-02, stage 5 — and NO `ClientRecord.jsx` was created; see §3c** |
 | `DaySheet` (the day) | yes | **no** — a sheet below 1180, an inline panel under the grid above it (step 4 §5) |
 | `More`'s settings host → `Business` | yes | **no** — a sheet below 1180, the right column above it |
 | `ExpenseModal` · `FinalizeModal` · `NewBookingModal` · `TimezoneChangeGuard` | yes | **yes, unchanged** — forms you commit are modals at every width |
@@ -344,10 +344,10 @@ callers go from five to ~~two~~ **one**:
 | `Today.jsx` | **stays** — the ONE lit job, and at most one card is on the screen |
 | `DaySheet.jsx` | ~~**stays**~~ **GOES, 2026-09-01** — the phone pass §6 outranks this row: *"the panel is not the place a job is a card; the job record is."* Its jobs are `JobRow`, the same rows Today uses. |
 | `Calendar.jsx` (History) | **GONE, 2026-09-01** — 18 records became 18 ruled rows (§1a) |
-| `Clients.jsx` (the record's history) | **goes** — a history row is *date · what · total* (§9); stage 5 |
+| `Clients.jsx` (the record's history) | **GONE 2026-09-02** — a history row is *date · what · total* (§9), a plain `.row-item` with `.txt` / `.figure.sm`, which is markup this file already had |
 | `Money.jsx` (unpaid) | never used it; its own inline card stays, and is right |
 
-**So the count is two today (`Today`, `Clients`) and one after stage 5**, not
+**So the count is ONE as of 2026-09-02 (`Today`)**, which is what this row predicted, not
 the two this section first wrote. And `Today.jsx`'s own `JobRow` moved out to
 `components/JobRow.jsx` in the same change, because the day panel needed the
 identical eight lines — two copies is how one of them gets a fix and the other
@@ -363,7 +363,7 @@ does not, which this repo has already paid for twice.
 | `screens/more/Reviews.jsx` | Writes `testimonials`, which the booking page already reads. | A table with no door. One of the four things Phase 3's websites need. |
 | `screens/more/Faq.jsx` | On/off plus the questions and answers, written by the detailer. | His Q2. AI polishes wording; it never generates an answer. |
 | `screens/more/SwitchBusiness.jsx` | Only rendered when the account has more than one membership. | Multi-business membership works and is unreachable. |
-| `components/ClientRecord.jsx` | Bare ruled rows on the ground — `.facts` promoted from the sheet's best block to the record itself. Leads with visits and spend. | It has to render into a column with **no card around it**; it cannot stay inline in `Clients.jsx`'s sheet. |
+| ~~`components/ClientRecord.jsx`~~ **NOT BUILT, 2026-09-02, and deliberately** | Bare ruled rows on the ground — `.facts` promoted from the sheet's best block to the record itself. Leads with visits and spend. | The reason given here dissolved when the record stopped being a sheet: `Clients.jsx` renders `RecordHost` directly, so the rows already sit in a column with no card. `RecordHost` gained a **`bare`** prop (`.record.bare` drops border, background and padding) and that is the whole of it. A component with one caller, extracted to satisfy a prediction, is the abstraction this repo's own rules forbid. |
 | `components/RecordHost.jsx` | Sheet below 1180, sticky column above. | §2. Six callers, one width check. |
 | `hooks/useWide.js` | Six lines of `matchMedia`. | Calendar's inline day panel needs the width without needing `RecordHost`. |
 | `components/SetupForm.jsx` | The stepped form, one question a step, skippable and resumable, with §1b's rule. | The only stepped thing in the product. |

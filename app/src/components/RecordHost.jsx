@@ -15,7 +15,11 @@ import { X } from "lucide-react";
 import Sheet from "./Sheet.jsx";
 import { useWide } from "../hooks/useWide.js";
 
-export default function RecordHost({ open = true, onClose, title, subtitle, children, footer }) {
+// `bare` is Clients and only Clients: law 1 makes it the one screen in the
+// product with NO PANEL ON IT, and a right-hand card at a desk would end that.
+// The record still gets this component — the seam between a sheet and a column
+// is exactly what it exists to hide — it just draws no box (screen designs §9).
+export default function RecordHost({ open = true, onClose, title, subtitle, children, footer, bare = false }) {
   const wide = useWide();
 
   // ESCAPE CLOSES IT AT BOTH WIDTHS. A sheet has always taken Escape, so
@@ -45,7 +49,7 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
   }
 
   return (
-    <aside className="col-2 record" aria-label={title}>
+    <aside className={`col-2 record${bare ? " bare" : ""}`} aria-label={title}>
       <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
         <div style={{ minWidth: 0 }}>
           {title && <h2 style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</h2>}

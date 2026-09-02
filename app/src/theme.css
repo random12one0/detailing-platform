@@ -404,6 +404,12 @@ a { color: var(--accent-text); text-decoration: none; }
   border-top: 1px solid var(--hairline);
   border-bottom: 1px solid var(--hairline);
 }
+/* THE CLIENT RECORD LEADS WITH TWO OF THEM — visits and lifetime spend (§9),
+   or one when a staff member is looking, because spend is owner-only. Same
+   strip, a different count; three columns holding two figures leaves a third
+   of the width empty and reads as a missing cell. */
+.ledger.two { grid-template-columns: 1fr 1fr; }
+.ledger.one { grid-template-columns: 1fr; }
 .ledger > div { padding: var(--sp-3) var(--sp-2); min-width: 0; }
 .ledger > div + div { border-left: 1px solid var(--hairline); }
 /* Smaller than --t-figure, and the reason is a width: a monospaced glyph is
@@ -608,15 +614,50 @@ a { color: var(--accent-text); text-decoration: none; }
    always animating. Two fixed layers under everything: a grain, and two
    slow lights that never stop. Lightness moves; hue and chroma do not, so
    it never reads as a coloured wash drifting about.
-   Calmer and slower than the landing page's, because this is a tool. */
+   Calmer and slower than the landing page's, because this is a tool.
+
+   AND THE LIGHTS NOW CARRY THE TENANT'S COLOUR — the owner, 2026-09-02:
+   "the background kinda has this dark and then it kinda glows… should that
+   change with the hue of the color that they chose? I think that'd be cool
+   for the entire background to have a pop of the color they chose… I don't
+   want it to just be straight their color. It should be a little diffused,
+   have some white in it."
+   So the colour is MIXED INTO THE EXISTING TWO LIGHTS rather than added as a
+   third one, AND THE TWO ALPHAS DID NOT MOVE. That is the load-bearing half.
+   A third light, or a higher alpha on these, is MORE LIGHT: the ground under
+   the corner rises, and every floor measured against the ground is measured
+   against a value that no longer holds there. It was tried at 8.5%/7% first
+   and the numbers said no — Money's dim bar and losing bar measure 3.07:1 and
+   3.05:1 against the LIT CORNER (not the 3.18/3.21 stage 4 took against the
+   bare token), so the margin over the 3:1 non-text floor was 0.05, and the
+   extra alpha spent it: 2.98 and 2.94 on a pure-white accent, 3.01 and 2.99
+   on Silver, which is a real preset.
+   At the original 7% / 5.5% the tint costs the floor nothing it did not
+   already lack: worst case across the twelve presets AND the four extremes is
+   3.02:1 (pure white), and ten of the twelve presets come out HIGHER than
+   before, because a corrected accent is darker than the near-white it is
+   mixed into. Text on the same corner: 14.96:1 at worst against 15.11 before.
+   And the chart is not on that corner at either verification width — at 392
+   and at 1440 it falls outside both gradients' 66% falloff — so the figures
+   above are the worst point on the screen rather than the bar's own.
+   The mix is roughly half and half, which is what "diffused, with some white
+   in it" is: at 7% over near-black a light this pale is a cast ON the ground
+   rather than a colour ON the screen. Law 11b is not in play — this is
+   identity, not meaning. */
 .app-shell::before,
 .app-shell::after {
   content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
 }
 .app-shell::before {
+  /* The two near-whites are the ones that were here, kept as the base so the
+     lights stay distinguishable — one warm, one cool — after the tint. */
+  --glow-warm: color-mix(in srgb, var(--accent) 55%, #E0E9ED);
+  --glow-cool: color-mix(in srgb, var(--accent) 45%, #D2E2E8);
   background:
-    radial-gradient(60vmax 52vmax at 8% -12%, rgba(224, 233, 237, .07), rgba(224, 233, 237, 0) 66%),
-    radial-gradient(52vmax 48vmax at 104% 88%, rgba(210, 226, 232, .055), rgba(210, 226, 232, 0) 68%);
+    radial-gradient(60vmax 52vmax at 8% -12%,
+      color-mix(in srgb, var(--glow-warm) 7%, transparent), transparent 66%),
+    radial-gradient(52vmax 48vmax at 104% 88%,
+      color-mix(in srgb, var(--glow-cool) 5.5%, transparent), transparent 68%);
   animation: ground-drift 54s var(--e-out) infinite alternate;
 }
 .app-shell::after {
@@ -759,12 +800,30 @@ a { color: var(--accent-text); text-decoration: none; }
    475px is still wider than the phone every card in the second column was
    designed at. */
 .split.money { --split: 1.35fr; }
+/* Clients. 1.4 / 1, step 4 §8 — the list is four columns wide and the record
+   beside it is a note and a dated history, which is the narrower of the two
+   things. Nothing in the list narrows away when a client opens: that is what
+   beside-not-over buys, and it is why the four columns are specified at 1024
+   rather than at --wrap. */
+.split.clients { --split: 1.4fr; }
 @media (min-width: 1180px) {
   .split {
     display: grid; grid-template-columns: var(--split) 1fr;
     gap: var(--sp-5); align-items: start;
   }
   .split > .col-1 { grid-column: 1; min-width: 0; }
+
+  /* CLIENTS IS FULL-BLEED UNTIL A CLIENT IS OPENED (step 4 §8). Every other
+     split screen puts something in the second column when no record is open —
+     History its filters, Money its unpaid list, the calendar its day — so the
+     grid is always right for them. This screen has nothing else to put there:
+     §8's own vocabulary is "the full-bleed ruled list with columns", and law 1
+     forbids the panel that would otherwise fill it. A permanently empty 465px
+     is the dead-width failure one level down, inside the content column.
+     `:has()` rather than a class on the element, because the condition IS
+     "is there a second column" and React already answers that by rendering
+     one. */
+  .split.clients:not(:has(> .col-2)) { display: block; }
   .split > .col-2 {
     grid-column: 2; grid-row: 1;
     position: sticky; top: calc(var(--topbar-h) + var(--sp-4));
@@ -822,6 +881,14 @@ a { color: var(--accent-text); text-decoration: none; }
   max-height: calc(100dvh - var(--topbar-h) - var(--sp-6));
 }
 .record > .record-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+/* THE ONE RECORD WITH NO CONTAINER, and it is a law rather than a preference:
+   law 1's register makes Clients the only screen in the product with no panel
+   on it, and a card around the client record at a desk would end that
+   (screen designs §9). Everything the panel was doing that is BEHAVIOUR — the
+   height cap, the body that scrolls so the list beside it stays put — is kept;
+   only the box goes. The rows sit directly on the ground, which is the whole
+   reason §9 specifies this record separately from the job record. */
+.record.bare { border: 0; background: none; padding: 0; }
 /* A panel inside a panel takes the surface ABOVE its own — the same three
    levels the sheet already sets up, so a settings card does not read as an
    outline once it is in a column instead of a sheet. */
@@ -1260,6 +1327,72 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   .rows.cols.history .row-item .c-what { grid-area: what; }
   .rows.cols.history .row-item .c-what::before { content: none; }
 }
+
+/* CLIENTS' OWN FORM OF THE SAME LIST, AND LAW 1 SAYS IT MUST NOT BECOME
+   HISTORY'S. They are separated by STRUCTURE, not by decoration:
+     - History is a list of EVENTS and has a time axis — a status mark at the
+       left of every row, and month rules carrying a month's total.
+     - Clients is a list of PEOPLE and has none of that: no mark column, no
+       grouping, a search field as the screen's first control, and a sort
+       whose whole job is to reorder the same set.
+   The column ORDER differs for the same reason. History ends with the money,
+   right-aligned, because you are scanning down a ledger. Clients ends with
+   the PHONE, because the row's last job is to let you act on the person; the
+   figure sits inboard where the eye lands after the name (step 4 §8's order:
+   name · last visit · lifetime spend · phone).
+   TWO CELLS ON A PHONE, and which two is step 4b §9: line 1 is the name and
+   the figure, line 2 is `last visit · phone`. Email is dropped from the row
+   and lives in the record — it is the least useful thing about a customer to
+   somebody holding a phone. */
+.rows.cols.clients .row-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "who total" "sub sub";
+}
+@media (min-width: 1024px) {
+  /* 92px for the figure, the same fixed width and for the same measured
+     reason as History's: with `auto` the column sizes to its own content, so
+     "$65.00" and "$235.00" gave the fr columns different widths on adjacent
+     rows of a list whose whole point is that you scan down it. */
+  .rows.cols.clients .row-item {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.8fr) 110px minmax(0, 0.85fr);
+    grid-template-areas: "who date total what";
+    row-gap: 0;
+  }
+  .rows.cols.clients .row-item .c-sub { display: contents; }
+  .rows.cols.clients .row-item .c-date { grid-area: date; }
+  .rows.cols.clients .row-item .c-what { grid-area: what; }
+  .rows.cols.clients .row-item .c-what::before { content: none; }
+  /* BOTH ENDS OF THE ROW ARE PINNED. The list is full-bleed until a client is
+     opened, and with four left-aligned columns the first shot of it at 1920
+     put the name at x=448 and the last phone number 290px short of the
+     hairline's own end — everything bunched in the middle of a 1,144px rule.
+     The figure and the phone are right-aligned so the row ENDS where the line
+     ends, and the four fr shares are proportioned rather than fixed so the
+     same row still reads at the 651px it becomes when a record opens. */
+  .rows.cols.clients .row-item .c-total { text-align: right; }
+  .rows.cols.clients .row-item .c-what { text-align: right; }
+  /* THE CHROME ABOVE THE LIST DOES NOT MOVE WHEN A CLIENT OPENS. Only the
+     list reflows from 1,144px to 651px; the search field and the sort keep
+     the width they had, so opening a record is a change to one thing rather
+     than to the whole screen. The owner has already named that jump on the
+     calendar — "it's almost like I refresh the page" (roadmap 2.17). */
+  .split.clients > .col-1 > input { max-width: 520px; }
+}
+
+/* The sort and the chip. One row at a desk; on a phone the segmented control
+   takes the width by itself and the chip drops under it, which is the shape
+   § THE 320 FLOOR already gives a segmented control that will not fit. */
+.clientfilters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
+.clientfilters > .segmented { flex: 1 0 100%; }
+.clientfilters > .segmented button { flex: 1 1 auto; }
+/* AND (MIN-HEIGHT: 500px) — the fifth site of that guard. A sideways phone is
+   844px wide and rotating one must change nothing (CLAUDE.md); this rule
+   spends height, so it has to ask about height. Grep the breakpoint, do not
+   trust a list. */
+@media (min-width: 700px) and (min-height: 500px) {
+  .clientfilters > .segmented { flex: 0 0 auto; }
+  .clientfilters > .segmented button { flex: 0 0 auto; }
+}
 /* THE MONTH RULE. History is a list of EVENTS, so it has a time axis, and a
    month rule is what a time axis looks like when the list is long — it is
    also the only navigation 400 rows need. It carries the month's own total,
@@ -1431,35 +1564,65 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    button exists. So it hangs directly under the control whose period it
    uses — which is what the phone pass asked for at the narrow end anyway. */
 .moneyhead { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); }
-.moneyhead > .segmented { display: flex; flex-wrap: wrap; flex: 1 0 100%; }
-.moneyhead > .segmented button { flex: 1 0 28%; }
-.moneyhead-when { display: flex; align-items: center; gap: var(--sp-2); flex: 1 1 auto; }
-.moneyhead > .btn.export { flex: 1 0 100%; width: 100%; }
+/* FIVE EQUAL CELLS, NOT A 3 + 2 WRAP — the owner, 2026-09-02: "the bar that
+   says week, month, six month, year and lifetime kinda looks funky… there's
+   three on top, two on the bottom, and they're spaced out weirdly."
+   He is describing a measurable thing rather than a taste. `flex: 1 0 28%`
+   let each ROW share itself out, so the top three were 110px each and the
+   bottom two were 168px — five cells of two different sizes in one control,
+   which reads as a broken row rather than as a choice.
+   The answer is the one this file already gives a segmented control that
+   will not fit (§ THE 320 FLOOR): a grid of equal columns with the label
+   allowed to wrap inside its own cell. Every cell is the same width and the
+   same height at every width, and the wrap happens in the words rather than
+   in the layout. */
+.moneyhead > .segmented {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; flex: 1 0 100%;
+}
+/* 4px OF SIDE PADDING, NOT 6, AND THE 2px IS THE WHOLE DIFFERENCE BETWEEN A
+   ONE-LINE CONTROL AND A TWO-LINE ONE. Measured at 392: the cell is 67.2px,
+   and "6 months" sets 55.4px against the 55.2px that 6px padding leaves it —
+   it wrapped by two tenths of a pixel, and every cell then took the taller
+   row. `white-space: normal` stays because the 320 floor still needs it. */
+.moneyhead > .segmented button {
+  white-space: normal; padding: 8px 4px; line-height: 1.2; text-wrap: balance;
+}
+.moneyhead-when {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); flex: 1 1 auto;
+}
+/* THE EXPORT RIDES THE PERIOD LINE. It had a row of its own — a full-width
+   button for a secondary action, on a screen where height is the budget. The
+   period line is a stepper and a label and had room to spare at every width;
+   `margin-left: auto` puts the button at the far end of it, and the row wraps
+   below 361 where "Sep 2026 – Feb 2027" and a button do not both fit. */
+.moneyhead-when > .btn.export { margin-left: auto; }
 .moneyhead > .sent { flex: 1 0 100%; margin-top: -6px; }
-/* THE WRAP IS FOR THE COLUMN THAT CANNOT HOLD FIVE, AND NOTHING WIDER. The
+/* THE GRID IS FOR THE COLUMN THAT CANNOT HOLD FIVE, AND NOTHING WIDER. The
    control is 367px of content; a 392px phone gives it 356 and a 768 tablet
    gives it 748, where a full-width segmented control with five 230px
-   segments reads as a navigation bar rather than as a choice. So the wrap
-   ends at the same 700 the calendar cell uses.
+   segments reads as a navigation bar rather than as a choice. So it goes
+   back to an inline row sized to its words at the same 700 the calendar cell
+   uses.
    AND (MIN-HEIGHT: 500px) — the FOURTH site of that guard, found by grepping
    the breakpoint rather than by trusting a list, which is CLAUDE.md's own
    lesson from the third. A sideways phone is 844px wide, and rotating one
    must change nothing. */
 @media (min-width: 700px) and (min-height: 500px) {
-  .moneyhead > .segmented { flex: 0 0 auto; flex-wrap: nowrap; }
-  .moneyhead > .segmented button { flex: 0 0 auto; }
+  .moneyhead > .segmented { display: inline-flex; flex: 0 0 auto; }
+  .moneyhead > .segmented button { white-space: nowrap; padding: 8px 14px; }
   .moneyhead-when { flex: 1 1 auto; }
-  /* Its own row, sized to its words. A 748px button for a secondary action is
-     the phone's answer left running on a tablet. */
-  .moneyhead > .btn.export { max-width: fit-content; }
 }
-/* At --wrap the stepper goes to the far end of the line — "chips left,
-   stepper and label right" (step 4 §7). `max-width` above rather than
-   `flex-basis` on the export, because a flex item's basis wins over its width
-   and losing the row break would cost the line this rule is about. */
-@media (min-width: 1180px) {
-  .moneyhead-when { flex: 0 0 auto; margin-left: auto; }
-}
+/* STEP 4 §7 SAID "CHIPS LEFT, STEPPER AND LABEL RIGHT" ON ONE LINE, AND THAT
+   IS OVERRULED HERE — by arithmetic, and by an owner ask that arrived after
+   it. The export moved onto the period line on 2026-09-02, and at the 1.35fr
+   column this screen splits into that line is 628px holding 693px: the
+   control is 367, the stepper and its label 202, the button 100, and three
+   gaps 24. Something has to break, and breaking AFTER the control is the
+   better of the two: it keeps the period's name beside the button that
+   exports that period, and it gives the desk the same two rows the phone
+   already has, rather than a third arrangement to hold in your head.
+   So both rows start at the left margin and the export anchors the right —
+   `margin-left: auto` on the button, not on the row. */
 
 /* The sunken ledger's paired cells — the row gap is larger than the column
    gap so that two ROWS of pairs read as two rows rather than as a 2x2 block

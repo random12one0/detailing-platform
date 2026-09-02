@@ -1077,7 +1077,7 @@ Nothing here is fixed — this item changes no code.
 | 3 | More | A staff member's whole screen is those two rows | Defect |
 | 4 | New booking | Offers service combinations `create-booking` returns 409 for | **Defect** |
 | 5 | Booking rules | A superseded travel-fee field, still editable, still holding $25 | **Defect** |
-| 6 | Clients | "Last visit" can print a future date | Defect |
+| 6 | Clients | ~~"Last visit" can print a future date~~ **FIXED 2026-09-02, stage 5** — it read the first row of a newest-first history without asking whether the job had happened. It is the most recent completed job whose `end_at` has passed, computed once for the whole list rather than per opened record, so the fix reaches the ROW as well as the sheet. | Defect |
 | 7 | Calendar | ~~Day cell `aria-label` reads "1 jobs"~~ **FIXED 2026-09-01, stage 3** — and the label was rebuilt around it: it spoke a bare `2026-09-02`, which a screen reader reads as digits, and named neither of the day marks. | Defect (a11y) |
 | 8 | Calendar / History | ~~18 records as 18 cards; 3,619px~~ **FIXED 2026-09-01, stage 3** — a ruled list with columns under month rules; **3,942 → 1,373px at 1440**, 1,973px at 392. | Composition |
 | 9 | `composition.test.mjs` | ~~Test 1 cannot see a card rendered through a component~~ **FIXED 2026-09-01, stage 3** — it resolves card components and keys allowances to `file > component`. **Its first rewrite still passed against the commit it was written to catch**; baselined both ways now. | **Test blind spot** |
@@ -1089,7 +1089,7 @@ Nothing here is fixed — this item changes no code.
 | 15 | More | Eight headings for eleven rows; three own one row | Composition |
 | 16 | More | Booking link 1,156px down | Composition |
 | 17 | Services & add-ons | Flat list where the customer meets a grouped menu; 2 arrows per row | Composition |
-| 18 | Client sheet | Phone number printed twice; every history row repeats the client's name | Composition |
+| 18 | Client sheet | ~~Phone number printed twice; every history row repeats the client's name~~ **FIXED 2026-09-02, stage 5** — the number is the record's subtitle and the button beside it says *Call*; a history row is *date · what · total*. | Composition |
 | 19 | Booking detail | "Estimated $235.00 · Final $235.00" when nothing changed | Copy |
 | 20 | Today / Calendar / day sheet | Three doorways to New booking | Consistency |
 | 21 | Demo seed | Jobs "completed and paid" on a future date; today is a closed day | **Test data** |

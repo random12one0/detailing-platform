@@ -595,6 +595,31 @@ All of the above ships as written. **Four things this file did not say:**
   history row is **date · what · total**.
 - **The history caps at 50, stated.**
 
+### What shipped (roadmap 2.11 step 6, stage 5 — 2026-09-02)
+
+**Built as decided**: two cells on the row, email dropped from it, the sort
+full-width and the chip under it, the 200-row cap stated, the record as a
+sheet with two bare figures side by side and no container inside it.
+
+- **Line 2 reads "3 weeks ago · 562-555-0142", not "Last in 3 weeks ago".**
+  The words this file wrote do not parse out loud; the row's accessible name
+  carries them instead.
+- **The 229px of chrome above the first row is now 265px** — the sort and the
+  chip are two rows at 392, not one, because a full-width segmented control of
+  three plus a 168px chip is 356px of room holding 400. Three rows are still
+  visible under it, which is the number this file accepted the chrome for.
+
+### And §8's period control was re-decided by the owner (2026-09-02)
+
+This file's §8 asked for the five period chips to **wrap 3 + 2** at 392, and
+that is what shipped in stage 4. **He rejected the result on sight**: *"three
+on top, two on the bottom, and they're spaced out weirdly."* The wrap gave
+each ROW its own share, so the cells came out 110px and 168px. **It is five
+equal columns on one line now** — the § THE 320 FLOOR answer, applied 32px
+higher up — and the export rides the period line instead of taking a row.
+**Measured at 392: the control is 39.6px tall against 55.2, and the head is
+one row shorter.** Full detail in the screen designs' §7 stage 5 block.
+
 ---
 
 ## 11. Business

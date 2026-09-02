@@ -75,11 +75,22 @@ is not exempt, it just has fewer sections.
 | **Today** | the day rail (`.dayrail`) — a vertical rail with nodes, jobs hanging off it, under a date masthead and a two-cell ledger strip | the only rail |
 | **Calendar** | a seven-column grid, with the day beside it at ≥1180 and under it below that; History is a filtered ruled list | the only grid |
 | **Money** | one display-sized lead figure, a six-bar **signed** chart on a zero rule, then a paired-cell ledger | the only chart |
-| **Clients** | a full-bleed ruled list, no panels at all | the only screen with no panel on it |
+| **Clients** | a full-bleed ruled list of PEOPLE — a masthead, a search field, a sort and one chip, then four columns under no headings, and a record beside it with no container either | the only screen with no panel on it, **and the only record with none** (built 2026-09-02) |
 | **More** | grouped panels of self-answering nav rows | the only screen made of panels |
 
 Each is structurally different from the other four, and each shape follows
 from what the screen holds rather than being applied to it.
+
+**CLIENTS AND HISTORY BOTH USE `.rows.cols`, AND THAT IS NOT A COLLISION —
+what separates them is structure, which is what law 1 asks about.** History is
+a list of EVENTS: it has a time axis, so every row carries a status mark and
+the rows sit under month rules that total the month. Clients is a list of
+PEOPLE: no mark, no grouping, a search field as the screen's first control,
+and a sort whose only job is to reorder the same set. Their column ORDER
+differs for the same reason — History ends with the money because you are
+scanning a ledger; Clients ends with the phone number, because the row's last
+job is to let you act on the person. Built 2026-09-02; the shared chassis was
+settled in the component inventory §1a.
 
 **The eleven settings screens are one skeleton on purpose: a form in a
 sheet.** They are not sections of a continuous page — they are modal panels

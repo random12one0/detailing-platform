@@ -1812,16 +1812,20 @@ is kept; the entire visual design restarts from scratch.
          EDGES. They are 3.18 and 3.21 now, and because that could make a
          dark tenant accent measure like a dim bar, **the selected period's
          LABEL is what is lit** — form, not a second colour. The period
-         control is one line at a desk and a segmented control wrapping 3 + 2
-         below 700; the two questions are two columns; both dashed boxes are
-         gone; the expense cap states itself.
+         control is one line at a desk and ~~a segmented control wrapping
+         3 + 2~~ **five equal cells on one line** below 700 (the owner
+         rejected the wrap on 2026-09-02 — see stage 5); the two questions are
+         two columns; both dashed boxes are gone; the expense cap states
+         itself.
          **The export (feature row 40, his Q4) is a flat CSV ledger** — a row
          per completed job, a row per expense carrying its own minus sign —
          **so the Amount column adds up to the Net printed on the screen**,
          which is what `tests/money-export.test.mjs` pins and what makes it
-         checkable at all. Its words are *Export for my accountant*: *this
-         month* is already on the line above it, and *send* would be a lie on
-         a desk.
+         checkable at all. ~~Its words are *Export for my accountant*.~~
+         **Its words are *Export*, on the period line — the owner cut three
+         of them on 2026-09-02, and it produced a rule.** *Send* would still
+         be a lie on a desk, so *export* stands; naming the accountant does
+         not.
          **Three things the design did not ask about, found by building it:**
          *Waiting on payment* was answering a period question, so switching
          Month→Week changed who owed you money; `loadExtras` swallowed all
@@ -1842,8 +1846,37 @@ is kept; the entire visual design restarts from scratch.
          **`sweep-widths.mjs` walks Money's three period kinds, the unpaid job
          and the expense form now** — the tab was swept, its states never had
          been, which is stage 2's and stage 3's finding a third time.
-         **Stages 5-7 of §5 remain: Clients · Business and the twelve settings
-         screens · first run.**
+         ~~**Stages 5-7 of §5 remain**~~ **STAGE 5 IS DONE, 2026-09-02 —
+         Clients and the client record, plus three corrections he sent with
+         the prompt.** The list shows what it already calculated (name · last
+         visit · lifetime spend · phone, two cells on a phone); *last visit*
+         can no longer print a future date, which was Part B row 6; the sort,
+         the *Not seen in 3 months* chip and *"Text these N"* are built, which
+         closes feature rows 47 and 48; the 200-row cap states itself. **The
+         record has NO CONTAINER at either width** — law 1's entry for
+         Clients — and `RecordHost` gained a `bare` prop rather than the
+         `ClientRecord.jsx` the component inventory predicted, because a
+         component with one caller extracted to satisfy a prediction is the
+         abstraction this repo's rules forbid. **The list is full-bleed only
+         while no client is open**: every other split screen has something for
+         column two and this one does not, so the always-on grid left 465px
+         dead inside the content column.
+         **His three corrections, none of which were stage 5:** the Money
+         period control's 3 + 2 wrap (*"three on top, two on the bottom, and
+         they're spaced out weirdly"* — five cells of two sizes, now equal
+         columns, and **4px of padding rather than 6 is the whole difference
+         between one line and two at 392**); *Export for my accountant* →
+         *Export* on the period line, **which produced a new never-default —
+         a label names what the control DOES, never who the result is for** —
+         and a copy sweep for that shape across the whole product found
+         nothing else; and **the ground's two lights now carry the tenant's
+         colour**, mixed in with the alphas untouched, because more light
+         moves every floor measured against the ground (it was built brighter
+         first and put two presets under the chart's 3:1 floor).
+         **`sweep-widths.mjs` walks six Clients screens now, against one** —
+         stage 2's, 3's and 4's finding a fourth time.
+         **Stages 6-7 of §5 remain: Business and the twelve settings screens ·
+         first run.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
          2.15 (travel by measured distance), **the last of which he then CLOSED

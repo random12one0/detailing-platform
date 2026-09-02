@@ -43,11 +43,50 @@ const LABEL = { today: "Today", calendar: "Calendar", money: "Money", clients: "
 const suffix = `${ACCENT ? `-${ACCENT.toLowerCase()}` : ""}${LITE ? "-lite" : ""}`;
 
 mkdirSync(OUT, { recursive: true });
+// --- SETTLE, NOT SLEEP ------------------------------------------------------
+// The same change `sweep-widths.mjs` got on 2026-09-02, for the same reason and
+// with the same guards: wait until the DOM has been quiet for 130ms, no FINITE
+// animation is still running (infinite ones — the ground's 54-second drift —
+// are excluded, and a `.spinner` means keep waiting), and take the old fixed
+// number as a CAP rather than as a value. A screenshot taken before the
+// arrival stagger lands is a picture of the wrong screen, so this is not
+// "wait less", it is "wait for the thing".
+const settle = (page, cap = 2000) => page.evaluate(async (cap) => {
+  const t0 = performance.now();
+  const QUIET = 130;
+  let last = performance.now();
+  const obs = new MutationObserver(() => { last = performance.now(); });
+  obs.observe(document.documentElement, {
+    subtree: true, childList: true, attributes: true, characterData: true,
+  });
+  const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
+  try {
+    for (;;) {
+      await frame();
+      const now = performance.now();
+      if (now - t0 >= cap) return Math.round(now - t0);
+      if (document.querySelector(".spinner")) { last = now; continue; }
+      const busy = document.getAnimations().some((a) => {
+        if (a.playState !== "running") return false;
+        const t = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();
+        return !t || t.iterations !== Infinity;
+      });
+      if (!busy && now - last >= QUIET) return Math.round(now - t0);
+    }
+  } finally { obs.disconnect(); }
+}, cap);
+
+// One sign-in, not four. The FIRST width still goes through the real form.
+let signedIn = null;
+
 const browser = await chromium.launch();
 const problems = [];
 
 for (const [w, h] of WIDTHS) {
-  const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({
+    viewport: { width: w, height: h }, deviceScaleFactor: 1,
+    ...(signedIn ? { storageState: signedIn } : {}),
+  });
   const page = await ctx.newPage();
   page.on("console", (m) => {
     if (m.type() === "error" || m.type() === "warning") problems.push(`${w} ${m.type()}: ${m.text().slice(0, 200)}`);
@@ -65,42 +104,44 @@ for (const [w, h] of WIDTHS) {
     // dashboard at all — could not sign in. Change both or neither.
     await page.fill("input[type=password]", "demo123");
     await page.click("form button.btn.primary");
+    await page.waitForSelector(".tabbar", { timeout: 30000 });
+    signedIn = await ctx.storageState();
   }
   await page.waitForSelector(".tabbar", { timeout: 30000 });
-  await page.waitForTimeout(2500);
+  await settle(page, 2500);
 
   if (ACCENT) {
     await page.getByRole("button", { name: "More", exact: true }).first().click();
-    await page.waitForTimeout(1200);
+    await settle(page, 1200);
     await page.locator(".nav-row", { hasText: "Your colour" }).first().click();
-    await page.waitForTimeout(1200);
+    await settle(page, 1200);
     const sw = page.locator(`.swatch-row button[aria-label="${ACCENT}"]`);
     if (!(await sw.count())) problems.push(`${w}: no preset swatch named "${ACCENT}"`);
     else {
       await sw.first().click();
-      await page.waitForTimeout(1800);   // save + reload() + repaint
+      await settle(page, 1800);   // save + reload() + repaint
     }
     const x = page.locator(".sheet .x, .sheet-grab button");
-    if (await x.count()) { await x.first().click(); await page.waitForTimeout(700); }
+    if (await x.count()) { await x.first().click(); await settle(page, 700); }
   }
 
   for (const t of TABS) {
     await page.getByRole("button", { name: LABEL[t], exact: true }).first().click();
-    await page.waitForTimeout(2200);
+    await settle(page, 2200);
     await page.screenshot({ path: `${OUT}/${w}-${t}${suffix}.png`, fullPage: true });
   }
 
   if (MORE) {
     await page.getByRole("button", { name: "More", exact: true }).first().click();
-    await page.waitForTimeout(1500);
+    await settle(page, 1500);
     for (const key of MORE.split(",")) {
       const btn = page.locator(`.nav-row`, { hasText: key });
       if (!(await btn.count())) { problems.push(`${w}: no More row matching "${key}"`); continue; }
       await btn.first().click();
-      await page.waitForTimeout(1800);
+      await settle(page, 1800);
       await page.screenshot({ path: `${OUT}/${w}-more-${key.replace(/\W+/g, "")}${suffix}.png` });
       const x = page.locator(".sheet .x, .sheet-grab button");
-      if (await x.count()) { await x.first().click(); await page.waitForTimeout(700); }
+      if (await x.count()) { await x.first().click(); await settle(page, 700); }
     }
   }
   await ctx.close();

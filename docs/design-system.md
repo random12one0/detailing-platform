@@ -732,6 +732,22 @@ In addition to everything above. From `CLAUDE.md` and
   *"Past bookings keep it"* are exactly the sentences worth keeping. What
   goes is the restatement. **Swept across the whole product on 2026-09-01;
   DECISIONS.md → "The copy pass" carries the 24 sites and the rule.**
+- **A label that names WHO the result is for, rather than what the control
+  DOES.** THE OWNER'S RULE, 2026-09-02, and he named the instance: Money's
+  export button said *"Export for my accountant"*. His words: *"they may go by
+  a different name. Maybe they're not even exporting for the accountant,
+  they're exporting for some separate reason. It's weird to have a button that
+  says exclusively export for my accountant."* **The test is whether the extra
+  words are true of every person who will press it.** A use case is the
+  detailer's business; naming one narrows a button that was never narrow, and
+  a detailer whose bookkeeper is their spouse reads it as "not for me".
+  **This is a SIBLING of the rule above it, not the same rule** — that one is
+  about restating what is already on the screen, this one is about presuming
+  why somebody is here. The button is *"Export"*. **Swept across the whole
+  product the same day** — every button and link label, every `Setting` label,
+  every `help=` and `blurb=` — and nothing else named a use case; DECISIONS.md
+  → "Roadmap 2.11, step 6, stage 5" carries the sweep and the two borderline
+  labels that were kept.
 - **Claims:** nothing the product does not do. "Start free" shipped on the
   direction page when there is no free tier; `landing-pricing.test.mjs`
   exists because of that class of bug. No invented testimonials, customer

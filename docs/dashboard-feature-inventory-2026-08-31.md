@@ -215,14 +215,14 @@ if it can be made good — there is exactly one).
 
 | # | Capability | Src | Status | Where it lives now |
 |---|---|---|---|---|
-| 41 | Look a customer up by name | a | works | Clients |
-| 42 | See one customer's contact details and act on them | a | works | Client sheet |
-| 43 | Keep a private note about a customer | a | works | Client sheet → `customers.notes` |
-| 44 | See everything a customer has ever booked | a | works | Client sheet |
-| 45 | See when a customer was last in | a | **broken** | Client sheet — can print a future date (Part B #6) |
-| 46 | See what a customer has spent in total | a | works | Computed, shown in the sheet only |
-| 47 | Sort or filter clients — last visit, lifetime value, not seen in N months | c | comes back | Nowhere. **Decision 3, answered yes, manual only** |
-| 48 | Text a group of past customers to fill a slow week | c | comes back | Nowhere — decision 3's "act on the answer" |
+| 41 | Look a customer up by name | a | works | Clients — the search field, unchanged, still one database read per keystroke |
+| 42 | See one customer's contact details and act on them | a | works | Client record — Call, and the email address as its own button. The phone number is printed ONCE (2026-09-02, stage 5) |
+| 43 | Keep a private note about a customer | a | works | Client record → `customers.notes` |
+| 44 | See everything a customer has ever booked | a | works | Client record — *date · what · total*, 50 most recent, **and the cap is stated** (2026-09-02) |
+| 45 | See when a customer was last in | a | **FIXED 2026-09-02, roadmap 2.11 step 6 stage 5** | On the LIST as well as in the record, as *"3 weeks ago"*. The most recent completed job that has already ENDED — the read filters `end_at <= now`, so nothing finished is ever printed in the future (Part B #6) |
+| 46 | See what a customer has spent in total | a | works | **On the list too as of 2026-09-02**, not the record only. Owner sees spend, staff see visits, same column |
+| 47 | Sort or filter clients — last visit, lifetime value, not seen in N months | c | **BUILT 2026-09-02, roadmap 2.11 step 6 stage 5** | Clients — a segmented control of three (Recent · Most spent · Longest away), absent below three rows, and one chip (*Not seen in 3 months*). Manual only, which is decision 3 |
+| 48 | Text a group of past customers to fill a slow week | c | **BUILT 2026-09-02, roadmap 2.11 step 6 stage 5** | Clients — with the chip on, the list offers *"Text these N"*, an `sms:` link carrying the filtered numbers. It opens the phone's own messages app; this product does not send texts and is not going to |
 
 ### 2e. What you sell
 

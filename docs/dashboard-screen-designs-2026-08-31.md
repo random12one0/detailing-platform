@@ -903,10 +903,18 @@ period already chosen, the stated expense cap, and both dashed boxes gone.
   of that 641px column before the button exists. It sits directly under the
   control whose period it uses, full-width below 700 and sized to its words
   above — which is what the phone pass asked for at the narrow end anyway.
-  **Its words are "Export for my accountant", not "Send this month to my
-  accountant".** *This month* is already on the line above it (the copy rule),
-  and *send* would have been a lie on a desk, where the file downloads; on a
-  phone it does go to the share sheet, and *export* covers both.
+  ~~**Its words are "Export for my accountant", not "Send this month to my
+  accountant".**~~ **BOTH HALVES OF THIS BULLET WERE OVERRULED BY THE OWNER ON
+  2026-09-02, and the reasoning that produced them is the interesting part.**
+  The *send / export* call was right and stands. Everything else was wrong:
+  *"they may go by a different name. Maybe they're not even exporting for the
+  accountant, they're exporting for some separate reason. It's weird to have a
+  button that says exclusively export for my accountant. And it takes up an
+  entire line, which, you know, screen space is valuable."* **The button is
+  now "Export", with a download mark, ON the period line.** See §7's stage 5
+  block below. The general rule it produced: *a label names what the control
+  DOES, never who the result is for* — a use case is the detailer's business,
+  and naming one narrows a button that was never narrow.
 - **The chart is 72px until something loses money, then 120px.** The design's
   60/40 split is right the moment there is a loss and wrong before it: six
   winning bars over 48px of reserved space made the rule read as a gap rather
@@ -944,6 +952,36 @@ period already chosen, the stated expense cap, and both dashed boxes gone.
 **Unchanged and still true**: staff are not offered this tab at all, `$0.00`
 is a correct answer rather than an empty state, and Lifetime says *"No
 comparison yet"* rather than inventing a previous lifetime.
+
+### What shipped, part two (roadmap 2.11 step 6, stage 5 — 2026-09-02)
+
+**Two owner corrections to the period row, and one of them reverses a stage 4
+measurement rather than adding to it.**
+
+- **THE PERIOD CONTROL IS FIVE EQUAL CELLS ON ONE LINE, NOT A 3 + 2 WRAP.**
+  His words: *"the bar that says week, month, six month, year and lifetime
+  kinda looks funky… there's three on top, two on the bottom, and they're
+  spaced out weirdly."* It is measurable rather than a matter of taste:
+  `flex: 1 0 28%` let each ROW share itself out, so the top three were 110px
+  and the bottom two 168px — **five cells of two sizes inside one control.**
+  It is now the shape this stylesheet already gives a segmented control that
+  will not fit (§ THE 320 FLOOR): a grid of equal columns, the label allowed
+  to wrap inside its own cell. **And 4px of side padding rather than 6, which
+  is the whole difference between one line and two**: at 392 the cell is
+  67.2px and *"6 months"* sets 55.4px against the 55.2px that 6px leaves it —
+  it wrapped by two tenths of a pixel and every cell then took the taller row.
+  Measured after: **one line at 392 (39.6px tall, was 55.2), two even lines at
+  360 and 320.**
+- **THE EXPORT IS "EXPORT", AND IT IS ON THE PERIOD LINE** — see the struck
+  bullet above for why. **This overrules step 4 §7's "chips left, stepper and
+  label right" on one line at a desk, and the reason is arithmetic**: at the
+  1.35fr column the control is 367px, the stepper and its label 202, the
+  button 100 and the gaps 24 — 693px in 628. Something breaks, and breaking
+  **after the control** keeps the period's name beside the button that exports
+  that period, and gives the desk the same two rows the phone has instead of a
+  third arrangement. **At 768 all four fit on one line, which they did not
+  before.** The button's accessible name is *"Export September 2026"*, so
+  which period is in the file is a fact for a screen reader too.
 
 ---
 
@@ -1057,6 +1095,75 @@ text field; a dated list for the history. **No card, no panel.**
   the three figures, so **the header draws immediately** and only the history
   dims.
 - **Error / staff:** §1a; staff see visits, not spend.
+
+---
+
+## 8-9 · What shipped (roadmap 2.11 step 6, stage 5 — 2026-09-02)
+
+**Built as designed**: the four columns and the phone's two; the three sorts
+and the one chip, manual only; the sort absent below three rows; *"Text these
+N"* when the filter is on; the 200-row cap stated with the search as the way
+past it; the record with **no container at either width**; the two bare
+figures leading it; a history row as *date · what · total*; both copy defects
+gone; and the future-dated *last visit* fixed at the read.
+
+**Where the code and this design differ, and why:**
+
+- **"Last in 3 weeks ago" became "3 weeks ago".** The phone pass §9 wrote the
+  row's line 2 as *"Last in 3 weeks ago · 562-555-0142"*, which does not parse
+  out loud. The cell says *"3 weeks ago"*, and the row's accessible name
+  supplies the missing words: *"Marcus Webb, last visit 3 weeks ago, $500.00,
+  562-555-0142."*
+- **The list is full-bleed only while no client is open, and that needed a
+  rule of its own.** Every other split screen puts something in the second
+  column when no record is open — History its filters, Money its unpaid list,
+  the calendar its day — so their grid is always right. This one has nothing
+  to put there, and law 1 forbids the panel that would fill it. Measured: a
+  permanently empty **465px** of the content column, which is the dead-width
+  failure one level down. `.split.clients:not(:has(> .col-2))` drops to one
+  column.
+- **The four columns were re-proportioned after looking at them.** Built to
+  the design's own order first — name · last visit · spend · phone, all
+  left-aligned — and at 1920 the name started at x=448 with the last phone
+  number **290px short of the hairline's own end**: everything bunched in the
+  middle of a 1,144px rule. **The figure and the phone are right-aligned now,
+  so the row ends where the line ends**, and the shares are 1.15 / 0.8 / 110px
+  / 0.85 so the same row still reads at the 651px it becomes when a record
+  opens.
+- **The chrome above the list does not move when a client opens.** The search
+  field keeps a 520px cap at ≥1024, so opening a record reflows the LIST and
+  nothing else. He has already named that jump on the calendar — *"it's almost
+  like I refresh the page"* (roadmap 2.17) — and this is the cheap half of
+  that answer; the list's own reflow is 2.17's to finish.
+- **The "Text these N" row is the button alone.** A *"2 not seen in 3 months"*
+  label went beside it first and restated the chip switched on directly above
+  it — the owner's own copy rule. The count that is NEW went to the masthead,
+  where every count on this screen already lives: *"2 of 8"*.
+- **`agoWords` says "Never" for somebody with no completed visit**, and they
+  sort LAST in both directions of *Longest away*: never been in is not the
+  same as been away a long time, and leading that sort with people who have
+  never visited answers a different question than the one the control asks.
+
+**And two things this design did not ask for, found by building it:**
+
+1. **The list read swallowed its error** — `const { data } = await q` turned a
+   dropped connection into *"No customers yet — they appear on their own when
+   bookings come in"*, which is the most reassuring possible way to be wrong.
+   **The third site of that exact defect** (`useBookings` until stage 3,
+   `loadExtras` until stage 4). It is a pattern to grep for, not a bug that
+   keeps getting fixed.
+2. **The two figures the list now shows are one extra read, not 200.** Visits,
+   lifetime spend and last visit come from one query of the business's
+   completed-and-ended bookings, aggregated by phone in the browser — the same
+   shape Money's *Lifetime* already has. `completed_washes_count` on
+   `customers` was NOT used: nothing in this product maintains it.
+
+**A panel does appear on this screen in one case, and it is not a law-1
+breach:** opening a job from a client's history draws the JOB record, which is
+made of sections in containers and looks the same on all five screens that
+reach it. Law 1 governs a screen's own composition, and §9 says so directly —
+"that is the whole reason this record is specified separately from the job
+record."
 
 ---
 

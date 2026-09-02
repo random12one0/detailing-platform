@@ -71,6 +71,12 @@ const WIDTHS = (process.argv.slice(2).filter((a) => /^\d+$/.test(a)).map(Number)
 // layout that holds in one can fail in the other; sweep-booking-steps.mjs has
 // carried this flag since 2.7 and this script needed a scratch copy without it.
 const LITE = process.argv.includes("--lite") ? "?lite=1" : "";
+// --only <substring> measures just the screens whose label contains it, e.g.
+// `--only Clients`. FOR ITERATING, NEVER FOR SIGNING OFF: the full run is the
+// check, and this is the difference between a 20-second answer and an
+// eight-minute one while you are still changing things.
+const ONLY = (() => { const i = process.argv.indexOf("--only"); return i > -1 ? process.argv[i + 1] : null; })();
+const TIMING = process.argv.includes("--timing");
 const SIZES = WIDTHS.length ? WIDTHS : [1920, 1440, 392, 360, 320];
 const BASE = "http://localhost:5173";
 // The verification heights, not the phone's. 1080 is his monitor; 900 is the
@@ -163,18 +169,82 @@ const CHECK = () => {
   return [...new Set(out)];
 };
 
+// --- SETTLE, NOT SLEEP ------------------------------------------------------
+// WHY THIS EXISTS, 2026-09-02: this script spent 463 seconds per run, and
+// roughly three quarters of that was `waitForTimeout`. Thirty-five fixed
+// sleeps of 400-3200ms, times five widths, times two paths (normal and
+// `?lite=1`) — most of them waiting 1.7 seconds for a screen that had finished
+// painting in 250ms. The owner asked why a one-screen task takes an hour, and
+// this was the largest single answer.
+//
+// THE REPLACEMENT MUST NOT BE FASTER BY MEASURING EARLIER. That is this
+// repo's own worst failure mode — "a skipped check reads exactly like a
+// passing one" — so `settle` waits for three things and takes the OLD number
+// as a CAP rather than as a value:
+//
+//   1. no DOM mutation for 130ms (React has finished committing),
+//   2. no FINITE animation still running — the arrival stagger translates a
+//      child 14px down for up to 580ms, and the parent-box check would read
+//      that as an element outside its own box. Infinite ones are excluded on
+//      purpose: `.app-shell::before` drifts for 54 seconds forever and the
+//      page is not "loading" while it does,
+//   3. no `.spinner` in the DOM — a screen that is still fetching is quiet in
+//      the two senses above and is exactly what must not be measured.
+//
+// Returns the milliseconds it actually took, so `--timing` can print where
+// the run went.
+let settled = 0, slept = 0;
+const settle = async (page, cap = 2000) => {
+  slept += cap;
+  const ms = await page.evaluate(async (cap) => {
+    const t0 = performance.now();
+    const QUIET = 130;
+    let last = performance.now();
+    const obs = new MutationObserver(() => { last = performance.now(); });
+    obs.observe(document.documentElement, {
+      subtree: true, childList: true, attributes: true, characterData: true,
+    });
+    const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
+    try {
+      for (;;) {
+        await frame();
+        const now = performance.now();
+        if (now - t0 >= cap) return Math.round(now - t0);
+        if (document.querySelector(".spinner")) { last = now; continue; }
+        const busy = document.getAnimations().some((a) => {
+          if (a.playState !== "running") return false;
+          const t = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();
+          return !t || t.iterations !== Infinity;
+        });
+        if (!busy && now - last >= QUIET) return Math.round(now - t0);
+      }
+    } finally { obs.disconnect(); }
+  }, cap);
+  settled += ms;
+  return ms;
+};
+
+// --- ONE SIGN-IN, NOT FIVE --------------------------------------------------
+// The form was filled in again at every width. It is the same account and the
+// same session; Playwright can carry it across contexts.
+let signedIn = null;
+
 const browser = await chromium.launch();
 let found = 0;
 let narrow = 0;   // desktop widths whose content column is still phone-sized
 
 for (const w of SIZES) {
   console.log(`\n══ ${w}px ══════════════════════════════════════════`);
-  const ctx = await browser.newContext({ viewport: { width: w, height: heightFor(w) }, deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({
+    viewport: { width: w, height: heightFor(w) }, deviceScaleFactor: 1,
+    ...(signedIn ? { storageState: signedIn } : {}),
+  });
   await ctx.addInitScript(() => {
     Object.defineProperty(navigator, "share", { value: () => Promise.resolve(), configurable: true });
   });
   const page = await ctx.newPage();
   const say = async (label) => {
+    if (ONLY && !label.toLowerCase().includes(ONLY.toLowerCase())) return;
     const rows = await page.evaluate(CHECK);
     found += rows.length;
     console.log(`${label.padEnd(24)} ${rows.length ? "\n  " + rows.join("\n  ") : "clean"}`);
@@ -183,11 +253,11 @@ for (const w of SIZES) {
   // is laid out and measurable, not just the part currently on screen.
   const grow = async () => {
     await page.evaluate(() => { const s = document.querySelector(".sheet"); if (s) s.style.height = "92vh"; });
-    await page.waitForTimeout(400);
+    await settle(page, 400);
   };
 
   await page.goto(`${BASE}/book/demo-detail${LITE}`, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(3200);
+  await settle(page, 3200);
   await say("book · step 1");
 
   await page.goto(`${BASE}/app${LITE}`, { waitUntil: "domcontentloaded" });
@@ -197,9 +267,13 @@ for (const w of SIZES) {
     // Must match scripts/seed-demo.mjs, same as shoot-dashboard.mjs.
     await page.fill("input[type=password]", "demo123");
     await page.click("form button.btn.primary");
+    await page.waitForSelector(".tabbar", { timeout: 30000 });
+    // Kept for the remaining widths. The FIRST width still signs in through
+    // the real form, so the sign-in path is still exercised every run.
+    signedIn = await ctx.storageState();
   }
   await page.waitForSelector(".tabbar", { timeout: 30000 });
-  await page.waitForTimeout(2200);
+  await settle(page, 2200);
 
   // Once per width, not once per screen — every dashboard screen is inside the
   // same container, so eighteen copies of one fact would only be noise.
@@ -221,7 +295,7 @@ for (const w of SIZES) {
 
   for (const t of ["Today", "Calendar", "Money", "Clients", "More"]) {
     await page.getByRole("button", { name: t, exact: true }).first().click();
-    await page.waitForTimeout(1700);
+    await settle(page, 1700);
     await say(t);
   }
 
@@ -233,17 +307,17 @@ for (const w of SIZES) {
   // finished, unpaid job (Finalize payment, no Mark completed) and the first
   // plain row is one still to do (Mark completed, no money action).
   await page.getByRole("button", { name: "Today", exact: true }).first().click();
-  await page.waitForTimeout(1400);
+  await settle(page, 1400);
   for (const [label, sel] of [["job record · finished", ".card.attend .strong"],
                               ["job record · to do", ".row-item"]]) {
     const job = page.locator(sel).first();
     if (!(await job.count())) { console.log(`${label.padEnd(24)} NO SUCH JOB (is the demo seeded for today?)`); found++; continue; }
     await job.click();
-    await page.waitForTimeout(1500);
+    await settle(page, 1500);
     await grow();
     await say(label);
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(700);
+    await settle(page, 700);
   }
 
   // MONEY IS FIVE PERIODS, A RECORD AND A MODAL, AND THE SWEEP ONLY EVER SAW
@@ -256,34 +330,34 @@ for (const w of SIZES) {
   // label, "Week" the widest period LABEL ("Aug 30 – Sep 5"), and Lifetime is
   // the one that draws no stepper at all.
   await page.getByRole("button", { name: "Money", exact: true }).first().click();
-  await page.waitForTimeout(1600);
+  await settle(page, 1600);
   for (const k of ["Week", "6 months", "Lifetime"]) {
     const chip = page.getByRole("radio", { name: k, exact: true });
     if (!(await chip.count())) { console.log(`Money · ${k}`.padEnd(24) + "NO SUCH PERIOD"); found++; continue; }
     await chip.first().click();
-    await page.waitForTimeout(1500);
+    await settle(page, 1500);
     await say(`Money · ${k}`);
   }
   await page.getByRole("radio", { name: "Month", exact: true }).first().click();
-  await page.waitForTimeout(1500);
+  await settle(page, 1500);
   {
     const owed = page.locator(".card", { hasText: "Mark paid" }).first();
     if (await owed.count()) {
       await owed.locator("[role=button]").first().click();
-      await page.waitForTimeout(1500);
+      await settle(page, 1500);
       await grow();
       await say("Money · an unpaid job");
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(700);
+      await settle(page, 700);
     }
     const add = page.getByRole("button", { name: "Add", exact: true });
     if (await add.count()) {
       await add.first().click();
-      await page.waitForTimeout(1200);
+      await settle(page, 1200);
       await grow();
       await say("Money · add an expense");
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(700);
+      await settle(page, 700);
     }
   }
 
@@ -295,14 +369,14 @@ for (const w of SIZES) {
   // job record before stage 2 and as `dead-width`: a check that never reaches
   // a thing reports exactly like a check that reached it and found nothing.
   await page.getByRole("button", { name: "Calendar", exact: true }).first().click();
-  await page.waitForTimeout(1500);
+  await settle(page, 1500);
   {
     // The 2nd cell of the demo month carries two jobs; the panel opens under
     // the grid at every width now, so there is no sheet to grow.
     const cell = page.locator(".cal-cell").nth(1);
     if (await cell.count()) {
       await cell.click();
-      await page.waitForTimeout(1600);
+      await settle(page, 1600);
       await say("Calendar · a day");
       // The three state cards are the day's own editors and each expands in
       // place (W1). An unopened editor is a check that never reached it.
@@ -310,17 +384,17 @@ for (const w of SIZES) {
         const card = page.locator(".daypanel .card", { hasText: label });
         if (!(await card.count())) continue;
         await card.first().click();
-        await page.waitForTimeout(900);
+        await settle(page, 900);
         await say(`Calendar · day, ${label}`);
         await card.first().click();
-        await page.waitForTimeout(500);
+        await settle(page, 500);
       }
       await page.locator(".daypanel .x").first().click();
-      await page.waitForTimeout(600);
+      await settle(page, 600);
     }
   }
   await page.getByRole("button", { name: "History", exact: true }).first().click();
-  await page.waitForTimeout(2200);
+  await settle(page, 2200);
   await say("Calendar · history");
   {
     // The nine chips are behind one control below --wrap and in the second
@@ -328,51 +402,90 @@ for (const w of SIZES) {
     const filter = page.getByRole("button", { name: "Filter" });
     if (await filter.count()) {
       await filter.first().click();
-      await page.waitForTimeout(700);
+      await settle(page, 700);
       await say("Calendar · filters open");
       await filter.first().click();
-      await page.waitForTimeout(400);
+      await settle(page, 400);
     }
     const row = page.locator(".rows.cols.history .row-item").first();
     if (await row.count()) {
       await row.click();
-      await page.waitForTimeout(1500);
+      await settle(page, 1500);
       await grow();
       await say("Calendar · history job");
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(700);
+      await settle(page, 700);
     }
   }
 
-  // The client sheet is its own screen and it is where W7/W8 lived.
+  // CLIENTS' OTHER SCREENS — added 2026-09-02, roadmap 2.11 step 6 stage 5,
+  // and it is the same gap a FOURTH time: clicking the Clients tab opened one
+  // client sheet and measured nothing else, so the sort, the lapsed filter and
+  // the job reached from a client's own history had never been opened at any
+  // width. The list is also the one in the product whose LAYOUT changes when a
+  // record opens — full-bleed until then (§8) — so the closed state and the
+  // open state are two different measurements of the same screen.
   await page.getByRole("button", { name: "Clients", exact: true }).first().click();
-  await page.waitForTimeout(1400);
-  const client = page.locator(".row-item").first();
+  await settle(page, 1600);
+  await say("Clients · the list");
+  for (const s of ["Most spent", "Longest away"]) {
+    const b = page.getByRole("radio", { name: s, exact: true });
+    if (!(await b.count())) continue;
+    await b.first().click();
+    await settle(page, 600);
+    await say(`Clients · sorted by ${s}`);
+  }
+  {
+    const chip = page.getByRole("button", { name: "Not seen in 3 months" });
+    if (await chip.count()) {
+      await chip.first().click();
+      await settle(page, 700);
+      await say("Clients · not seen in 3 months");
+      await chip.first().click();
+      await settle(page, 500);
+    }
+  }
+  // The client record is where W7/W8 lived.
+  const client = page.locator(".rows.cols.clients .row-item").first();
   if (await client.count()) {
     await client.click();
-    await page.waitForTimeout(1500);
+    await settle(page, 1600);
     await grow();
     await say("Clients · one client");
+    // A job opened from a client's history takes the same column the client
+    // was in, which is a state neither screen owns by itself.
+    const job = page.locator(".record .rows .row-item, .sheet .rows .row-item").first();
+    if (await job.count()) {
+      await job.first().click();
+      await settle(page, 1500);
+      await grow();
+      await say("Clients · a job from the history");
+      await page.keyboard.press("Escape");
+      await settle(page, 700);
+    }
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(700);
+    await settle(page, 700);
   }
 
   await page.getByRole("button", { name: "More", exact: true }).first().click();
-  await page.waitForTimeout(1400);
+  await settle(page, 1400);
   for (const key of MORE) {
     const row = page.locator(".nav-row", { hasText: key });
     if (!(await row.count())) { console.log(`${key.padEnd(24)} NO SUCH ROW`); found++; continue; }
     await row.first().click();
-    await page.waitForTimeout(1600);
+    await settle(page, 1600);
     await grow();
     await say(key);
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(800);
+    await settle(page, 800);
   }
   await ctx.close();
 }
 
 await browser.close();
+if (TIMING) {
+  console.log(`\nwaited ${(settled / 1000).toFixed(1)}s where the old fixed sleeps would have waited ${(slept / 1000).toFixed(1)}s`);
+}
 console.log(found
   ? `\n${found} problem${found === 1 ? "" : "s"} — see above`
   : `\nclean at ${SIZES.join(", ")}${LITE ? " (?lite=1)" : ""}: nothing off the screen, nothing outside its own box, no boxes touching`);

@@ -2155,6 +2155,121 @@ is written. The three he named:
 
 **Nothing in 2.17 is started and nothing in it blocks stage 5.**
 
+## 6t. ROADMAP 2.11, STEP 6 — STAGE 5 IS BUILT: CLIENTS, AND THREE CORRECTIONS HE SENT WITH IT (2026-09-02)
+
+**Stage 5 of the approval page's seven**, plus three things that are not stage
+5: the Money period control, the export button's wording and place, and the
+tenant's colour in the ground. Judgment calls are DECISIONS.md → "Roadmap
+2.11, step 6, stage 5". **Nothing is waiting on the owner.**
+
+**THE NUMBERS.**
+
+| | Before | After |
+|---|---|---|
+| What a client row shows | name / phone · email | **name · last visit · lifetime spend · phone** (two cells on a phone) |
+| "Last visit" | could print a **future** date (Part B row 6) | the most recent completed job that has **ended** |
+| Where "last visit" and spend are visible | inside the sheet only | **on the list**, for every row |
+| Sort and filter (rows 47, 48) | did not exist | **three sorts, one chip, and "Text these N"** |
+| The 200-row cap | silent | **stated, with the search named as the way past it** |
+| The client record's container | a card at every width | **none at either** — law 1's entry for Clients |
+| The list's width at 1920 with nothing open | 651px, with **465px dead beside it** | **1,144px, full-bleed** |
+| Money's period control at 392 | 3 + 2, cells of **110px and 168px** | **five equal 67.2px cells on one line**, 55.2px tall → 39.6 |
+| The export button | "Export for my accountant", its own row | **"Export"**, on the period line; at 768 the whole head is one line |
+| The ground's two lights | fixed near-whites | **carry the tenant's colour**, same alphas |
+| Clients screens `sweep-widths.mjs` opens | 1 | **6** |
+
+**WHAT SHIPPED ON CLIENTS.** A masthead and a search field; a segmented sort
+of three that is absent below three rows; one chip, *Not seen in 3 months*,
+which when on offers *"Text these N"* as an `sms:` link to the filtered
+numbers; a full-bleed four-column ruled list that drops to 1.4 / 1 when a
+client opens; and a record of bare ruled rows on the ground — two figures,
+last visit, Call and the email address, the note, and a history of
+*date · what · total*. A job opened from that history replaces the client in
+the same column and closing it puts the client back.
+
+**THE ONE A COLD SESSION MUST NOT RE-DERIVE: `RecordHost` GAINED A `bare`
+PROP, AND `components/ClientRecord.jsx` WAS DELIBERATELY NOT WRITTEN.** The
+component inventory predicted that file and gave a reason — *"it cannot stay
+inline in `Clients.jsx`'s sheet"* — which dissolved when the record stopped
+being a sheet. What was actually needed was for `RecordHost` to draw no box.
+The inventory row is marked NOT BUILT with the reasoning rather than deleted.
+
+**AND FOUR MORE THAT WERE ONLY FINDABLE BY BUILDING OR BY MEASURING.**
+
+1. **THE LIST READ SWALLOWED ITS ERROR — the THIRD site of the same line.**
+   `const { data } = await q` turned a dropped connection into *"No customers
+   yet — they appear on their own when bookings come in"*, which is the most
+   reassuring possible way to be wrong. `useBookings` carried it until stage
+   3, `loadExtras` until stage 4. **Grep `const { data } = await` before
+   writing a new read.**
+2. **A full-bleed row has to be pinned at BOTH ends.** Built to step 4 §8's
+   order with everything left-aligned, the name started at x=448 at 1920 and
+   the last phone number sat **290px short of the hairline's own end** — the
+   *"not enough content to fill it"* shape inside a row. The figure and the
+   phone are right-aligned now.
+3. **`.split`'s always-on grid is wrong for the one screen with nothing to put
+   in column two.** 465px of the content column, permanently empty — the
+   `dead-width` failure one level down.
+4. **`completed_washes_count` on `customers` is dead** — it exists and nothing
+   maintains it. The figures come from one aggregate read, the same shape
+   Money's Lifetime already has.
+
+**HIS THREE CORRECTIONS.**
+
+- **The period control.** *"Three on top, two on the bottom, and they're spaced
+  out weirdly."* `flex: 1 0 28%` let each ROW share itself out, so one control
+  had cells of two sizes. It is a grid of equal columns now — the answer
+  § THE 320 FLOOR already gives — and **4px of side padding rather than 6 is
+  the whole difference between one line and two**: *"6 months"* sets 55.4px
+  against the 55.2px that 6px left it, so it wrapped by two tenths of a pixel
+  and every cell took the taller row.
+- **"Export for my accountant" → "Export", on the period line.** **The rule it
+  produced is new and is now in `design-system.md` § Never-defaults: a label
+  names what the control DOES, never who the result is for.** A copy sweep
+  for the same shape found **nothing else in the product** — every button
+  label, every `Setting` label, every `help=` and `blurb=`. This **overrules
+  step 4 §7's one-line desk head** by arithmetic (693px of content in a 628px
+  column); breaking after the control keeps the period's name beside the
+  button that exports it, and at 768 all four fit on one line.
+- **The ground carries the tenant's colour.** Mixed into the two existing
+  lights, **with the alphas untouched**, because more light moves every floor
+  measured against the ground. Built at 8.5% / 7% first and the numbers said
+  no: **Money's bars measure 3.07:1 and 3.05:1 against the LIT CORNER**, not
+  the 3.18 / 3.21 stage 4 took against the bare token, and the extra alpha
+  spent that 0.05 — 3.01 and 2.99 on Silver, a real preset. At 7% / 5.5% the
+  worst case across twelve presets and four extremes is **3.02:1**, ten of
+  twelve come out higher than before, and text on the same corner is 14.96:1
+  at worst against 15.11.
+
+**MEASURED AFTER.**
+
+| | |
+|---|---|
+| `sweep-widths.mjs` | clean at 1920 / 1440 / 392 / 360 / 320, normal and `?lite=1` |
+| Console at 1920 / 1440 / 768 / 392 | nothing but the two pre-existing React Router v7 future-flag warnings |
+| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · **`client-list` (31, new)** · `decisions-index` · `accent-sweep` | all pass |
+| Clients' arrival | `arrive @0 / 40 / 80 / 120ms` on `.col-1`'s children at 1440 and 392, `none` under `?lite=1`, asserted on the COMPUTED `animation-name` |
+| Keyboard | Tab reaches a row with a 2px accent ring, Enter opens, Escape closes back to the list |
+
+**EIGHT FILES THAT OUTRANK THE DESIGNS WERE CORRECTED IN THE SAME CHANGE**:
+the screen designs gain a *What shipped* for §8-9 **and a second one for §7
+that strikes stage 4's own export bullet**; the phone pass gains one for §10
+and a re-decision block on §8; the component inventory marks `ClientRecord.jsx`
+NOT BUILT with the reason; `dashboard-skeletons.md`'s register says what keeps
+Clients and History apart; the feature inventory marks rows **41–48** built and
+row 45 fixed; the architecture audit's Part B **rows 6 and 18 are struck**;
+`design-system.md` gains the new copy rule; and `CLAUDE.md` gains the fifth
+rotation-guard site.
+
+**STAGES 6-7 REMAIN:** Business and the twelve settings screens (with the
+colour repair, Reviews and the rebuilt push switch) · first run, last on
+purpose.
+
+**AND ONE THING LEFT OPEN, WHICH BELONGS TO 2.17:** opening a client reflows
+the list from 1,144px to 651px. The chrome above it does not move — the search
+field keeps a 520px cap — so the jump is the list alone, but it is the same
+jump he named on the calendar (*"it's almost like I refresh the page"*).
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**

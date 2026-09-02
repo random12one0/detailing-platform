@@ -82,6 +82,38 @@ const MEASURE = () => {
   return { over, vh, blocks };
 };
 
+// --- SETTLE, NOT SLEEP ------------------------------------------------------
+// The same change `sweep-widths.mjs` and `shoot-dashboard.mjs` got on
+// 2026-09-02: the fixed number becomes a CAP, and the wait ends when the DOM
+// has been quiet for 130ms with no FINITE animation running and no `.spinner`
+// on the page. A step measured before it finished animating in reports the
+// wrong bottom edge, which is the one number this script exists for — so this
+// is "wait for the thing", not "wait less".
+const settle = (page, cap = 2000) => page.evaluate(async (cap) => {
+  const t0 = performance.now();
+  const QUIET = 130;
+  let last = performance.now();
+  const obs = new MutationObserver(() => { last = performance.now(); });
+  obs.observe(document.documentElement, {
+    subtree: true, childList: true, attributes: true, characterData: true,
+  });
+  const frame = () => new Promise((r) => requestAnimationFrame(() => r()));
+  try {
+    for (;;) {
+      await frame();
+      const now = performance.now();
+      if (now - t0 >= cap) return Math.round(now - t0);
+      if (document.querySelector(".spinner")) { last = now; continue; }
+      const busy = document.getAnimations().some((a) => {
+        if (a.playState !== "running") return false;
+        const t = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();
+        return !t || t.iterations !== Infinity;
+      });
+      if (!busy && now - last >= QUIET) return Math.round(now - t0);
+    }
+  } finally { obs.disconnect(); }
+}, cap);
+
 const browser = await chromium.launch();
 let failing = 0;
 
@@ -96,7 +128,7 @@ for (const size of SIZES) {
   await page.waitForSelector(".bk-card, .bk-note", { timeout: 30000 });
   // The staggered rise runs 950ms with delays to 300ms; measuring inside it
   // measures a transform, which design-system law 12 forbids.
-  await page.waitForTimeout(1600);
+  await settle(page, 1600);
 
   const say = async (label) => {
     if (SHOTS) {
@@ -135,7 +167,7 @@ for (const size of SIZES) {
     if (await page.locator(".bk-card.selectable").count()
         && !(await page.locator(".bk-card.selected").count())) {
       await page.locator(".bk-card.selectable").first().click();
-      await page.waitForTimeout(1800);            // the server quote
+      await settle(page, 1800);            // the server quote
     }
     if (await page.locator(".bk-cal").count()) {
       // On the last day of a month the whole grid is closed, and an open cell
@@ -144,18 +176,18 @@ for (const size of SIZES) {
       for (let month = 0; month < 3 && !picked; month++) {
         if (month) {
           await page.getByRole("button", { name: "Next month" }).click();
-          await page.waitForTimeout(1500);
+          await settle(page, 1500);
         }
         const days = page.locator(".bk-cal .cell:not(.closed):not(.empty)");
         for (let i = 0; i < (await days.count()); i++) {
           await days.nth(i).click();
-          await page.waitForTimeout(900);
+          await settle(page, 900);
           if (await page.locator(".bk-chip").count()) { picked = true; break; }
         }
       }
       await say(`${n}/${total} ${h.slice(0, 12)} + slots`);
       await page.locator(".bk-chip").first().click();
-      await page.waitForTimeout(400);
+      await settle(page, 400);
     }
     for (const [sel, value] of [
       ['.bk-field input[type=tel]', "5551234567"],
@@ -169,9 +201,9 @@ for (const size of SIZES) {
     if (await text.count() && !(await text.inputValue())) {
       await text.fill(/reach you/i.test(h) ? "Casey Rivera" : "140 Market Street, Springfield");
     }
-    await page.waitForTimeout(400);
+    await settle(page, 400);
     await page.locator(".bk-bar button.bk-btn.primary").click();
-    await page.waitForTimeout(1500);
+    await settle(page, 1500);
   }
 
   if (errors.length) { failing++; console.log(`  console: ${errors.length} error(s)\n  ${errors.join("\n  ")}`); }
