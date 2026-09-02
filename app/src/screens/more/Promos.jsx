@@ -67,7 +67,7 @@ export default function Promos() {
         <Switch label="Sale is running" checked={sale.active}
           help={sale.active
             ? `Every booking is ${sale.percent || 0}% cheaper right now.`
-            : "Turn on to discount everything at once."}
+            : undefined}
           onChange={(v) => setSale({ ...sale, active: v })} />
         {sale.active && (
           <>

@@ -48,7 +48,7 @@ export default function Appearance() {
       setMsg({ ok: false, text: error.message });
       return;
     }
-    setMsg({ ok: true, text: "Saved. This dashboard and your booking page use it straight away." });
+    setMsg({ ok: true, text: "Saved." });
     reload();
   };
 

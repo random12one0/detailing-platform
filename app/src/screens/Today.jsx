@@ -48,35 +48,15 @@ import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import BookingLink from "../components/BookingLink.jsx";
 import DaySheet from "../components/DaySheet.jsx";
 import FinalizeModal from "../components/FinalizeModal.jsx";
+import JobRow from "../components/JobRow.jsx";
 import NewBookingModal from "../components/NewBookingModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
-
-// A job as a LINE. Two lines at 392 — the same NN/g ceiling History and
-// Clients use — with the time and the amount in the figure face (law 8) and
-// the node drawn by the rail on the left. Tapping it opens the record, which
-// step 4 gave an action bar at the top precisely so Call / Text / Navigate
-// are one tap away: the actions are not lost, they are where they belong.
-function JobRow({ booking, node, onClick }) {
-  const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
-  const where = booking.service_type === "mobile" ? "Mobile" : "Drop-off";
-  return (
-    <button className={`row-item${node ? ` ${node}` : ""}`} onClick={onClick}>
-      <span className="txt">
-        <span className="nm">
-          <span className="t">{time12(booking.start_time)}</span>{booking.customer_name}
-        </span>
-        <span className="sub">{[...services, where].join(" · ")}</span>
-      </span>
-      <span className="figure sm">{money(booking.final_amount ?? booking.total_price)}</span>
-    </button>
-  );
-}
 
 export default function Today({ refreshKey = 0 }) {
   const { business, firstName } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
-  const { bookings, loading, refreshing, reload } = useBookings(today, tomorrow);
+  const { bookings, loading, refreshing, error, reload } = useBookings(today, tomorrow);
   // Two widths, and only where the two show DIFFERENT CONTENT rather than the
   // same content arranged differently — the rest of the desk layout is CSS.
   const desk = useWide(1024);   // the sunken ledger strip comes back
@@ -183,6 +163,8 @@ export default function Today({ refreshKey = 0 }) {
           Measured, not assumed — theme.css § TWO COLUMNS carries the working.
           The arrival's beats follow it one level down. */}
       <div className="group col-1">
+      {/* Above the day, and the last good day stays drawn. */}
+      {error && <div className="error-box">{error}</div>}
       {/* The day is the headline. */}
       <div>
         <h1 className="title">{longDate}</h1>

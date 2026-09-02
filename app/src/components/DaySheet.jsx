@@ -23,12 +23,12 @@
 // control, because a 300px target that silently unblocks a day is a worse
 // bug than the one W1 is about.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Ban, CalendarClock, Plus, Truck, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { addDays, dateLong } from "../lib/format.js";
-import BookingCard from "./BookingCard.jsx";
+import JobRow from "./JobRow.jsx";
 import Sheet from "./Sheet.jsx";
 import { Segmented, Switch } from "./controls.jsx";
 
@@ -57,7 +57,7 @@ const spanNote = (start, end) => (end && end > start
   ? ` · through ${new Date(`${end}T12:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}`
   : "");
 
-export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNewBooking, onChanged }) {
+export default function DaySheet({ date, bookings, inline = false, onClose, onOpenBooking, onNewBooking, onChanged }) {
   const { business, role, settings } = useBusiness();
   const [state, setState] = useState({ loading: true, blockout: null, override: null, dropoff: null });
   const [editing, setEditing] = useState(null); // null | "hours" | "blockout" | "dropoff"
@@ -71,6 +71,7 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
   const [dropoff, setDropoff] = useState({ end_date: date, reason: "", mode: "dropoff" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const panel = useRef(null);
 
   const load = useCallback(async () => {
     const [bl, ov, dp] = await Promise.all([
@@ -89,6 +90,17 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
   }, [business.id, date]);
 
   useEffect(() => { load(); }, [load]);
+
+  // THE INLINE PANEL TAKES FOCUS WHEN IT OPENS, AND IT WAS MEASURED. It sits
+  // below the WHOLE grid, so opening the 2nd of a 30-cell month with Enter
+  // left the day you just asked for **29 tab stops away**, past 28 more cells
+  // and the legend. Moving focus is what a disclosure owes when the thing it
+  // reveals is not next in reading order — and `Sheet.jsx` already does the
+  // other half of this contract, which is why the caller puts focus back on
+  // the cell when the panel closes.
+  // preventScroll, because the phone is separately scrolling the selected week
+  // up under the masthead and the two would fight over the same page.
+  useEffect(() => { if (inline) panel.current?.focus({ preventScroll: true }); }, [inline, date]);
 
   const run = async (fn) => {
     setBusy(true);
@@ -159,8 +171,16 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
   // knowing before they load the van. So: an existing restriction always
   // shows; the "both bookable" resting state only shows to someone who can
   // actually see the settings behind it.
+  // Staff can see the day but not rewrite the schedule; the database policies
+  // are the real enforcement, this just doesn't offer what would be refused.
+  // DECLARED HERE, not below: `shows()` calls it at definition time, so it has
+  // to exist before showModeCard/showState are computed.
+  const canEdit = role === "owner";
   const bothModes = !!settings?.mobile_enabled && !!settings?.dropoff_enabled;
-  const showModeCard = !!state.dropoff || bothModes;
+  // An owner can always set one; a staff member only ever sees one that IS set.
+  const shows = (fact) => canEdit || !!fact;
+  const showModeCard = (!!state.dropoff || bothModes) && shows(state.dropoff);
+  const showState = shows(state.blockout) || shows(state.override) || showModeCard;
   // A card is tappable when it HAS an editor to show. The two that are
   // already set do not: their editor would be a second way to say what the
   // card already says, and the only thing left to do to them is clear them,
@@ -183,34 +203,62 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
   const blockSpan = spanOf(block.end_date);
   const hoursSpan = spanOf(hours.end_date);
   const dropoffSpan = spanOf(dropoff.end_date);
-  // Staff can see the day but not rewrite the schedule; the database policies
-  // are the real enforcement, this just doesn't offer what would be refused.
-  const canEdit = role === "owner";
 
-  return (
-    <Sheet
-      onClose={onClose}
-      title={dateLong(date)}
-      subtitle={active.length === 0 ? "No jobs" : `${active.length} job${active.length > 1 ? "s" : ""}`}
-    >
-
+  const subtitle = active.length === 0 ? "No jobs" : `${active.length} job${active.length > 1 ? "s" : ""}`;
+  const body = (
         <div className="group">
-          <div className="tight">
+          <div className="tight day-jobs">
             {active.length === 0
-              ? <div className="dashed">Nothing booked.</div>
-              : active.map((b) => (
-                <BookingCard key={b.id} booking={b} dense onClick={() => onOpenBooking(b)} />
-              ))}
-            <button className="btn filled" onClick={() => onNewBooking(date)}>
-              <Plus strokeWidth={2} /> Add a job on this day
-            </button>
+              ? <p className="quiet">Nothing booked.</p>
+              : (
+                <div className="rows">
+                  {active.map((b) => (
+                    <JobRow key={b.id} booking={b} onClick={() => onOpenBooking(b)} />
+                  ))}
+                </div>
+              )}
+            {/* Not a third New booking door — that is the header's `+`, and it
+                opens with no date on it. This one carries THIS day, which is
+                the capability the two full-width buttons on the death list
+                never had, so it is kept and demoted: a control beside the
+                jobs rather than the loudest thing in the panel. */}
+            <div className="row" style={{ justifyContent: "flex-end" }}>
+              <button className="btn sm inline" onClick={() => onNewBooking(date)}>
+                <Plus strokeWidth={2} /> Add a job
+              </button>
+            </div>
           </div>
 
-          {state.loading ? <div className="spinner" /> : (
-            <div className="tight">
+          {/* THE THREE CARDS DRAW AT 55% UNTIL THEIR STATE ARRIVES, rather
+              than a spinner standing where they will be — otherwise the day's
+              own settings flash into place under your thumb (step 4 §5). It
+              is `.refreshing`, which is already exactly that (opacity .55, no
+              taps) and is what every other screen dims with; a second class
+              saying the same thing is the drift law 1 is about. Each summary
+              line waits, because "Bookings allowed as normal" is a claim and
+              a null blockout during a read is not evidence for it. */}
+          {/* STAFF SEE FACTS, NOT SWITCHES — and until 2026-09-01 they saw a
+              third thing, which was neither. Measured on the seeded staff
+              session: *Block this day / Bookings allowed as normal* and
+              *Hours / Your normal hours for this weekday* drew with **zero
+              controls in them** — two panels stating a default and offering
+              nothing to do about it. Step 4 §5 and the phone pass §6 both say
+              a staff member gets the jobs and not the state cards; §1a says an
+              empty section is not drawn; and the owner's copy rule says a
+              sentence that adds nothing goes.
+              The three agree, and this is narrower than "not drawn" on
+              purpose: an existing blockout, override or restriction is a fact
+              a staff member needs BEFORE they load the van, which is the
+              reasoning the mode card below already carries. So the section
+              draws for an owner always, and for a staff member only where
+              there is a fact — per card, not per section. */}
+          {showState && (
+            <div className={`tight day-state${state.loading ? " refreshing" : ""}`}
+              aria-busy={state.loading || undefined}>
               <span className="label">This day</span>
 
               {/* --- Blocked out ------------------------------------------ */}
+              {shows(state.blockout) && (
               <div className={`card${state.blockout ? " attend" : ""}${openable("blockout") ? " tappable" : ""}`}
                 {...cardProps("blockout")}>
                 <div className="row top between">
@@ -223,7 +271,7 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
                           thing with two states, so it is a switch. */}
                       <div className="strong">Block this day</div>
                       <div className="quiet" style={{ marginTop: 2 }}>
-                        {state.blockout
+                        {state.loading ? "" : state.blockout
                           ? `${state.blockout.event_name}${state.blockout.all_day ? "" : ` · ${hhmm(state.blockout.start_time)}–${hhmm(state.blockout.end_time)}`}`
                             + spanNote(state.blockout.start_date, state.blockout.end_date)
                           : "Bookings allowed as normal"}
@@ -275,8 +323,10 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
                   </>
                 )}
               </div>
+              )}
 
               {/* --- Custom hours ----------------------------------------- */}
+              {shows(state.override) && (
               <div className={`card${state.override ? " attend" : ""}${openable("hours") ? " tappable" : ""}`}
                 {...cardProps("hours")}>
                 <div className="row top between">
@@ -285,7 +335,7 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
                     <div>
                       <div className="strong">Hours</div>
                       <div className="quiet" style={{ marginTop: 2 }}>
-                        {state.override
+                        {state.loading ? "" : state.override
                           ? (state.override.open_time
                             ? `${hhmm(state.override.open_time)}–${hhmm(state.override.close_time)} just for this day`
                             : "Closed just for this day")
@@ -336,6 +386,7 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
                   </>
                 )}
               </div>
+              )}
 
               {/* --- W4: what this day can be booked AS ------------------- */}
               {/* His words: "that button should depend on what customers
@@ -363,7 +414,7 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
                     <div>
                       <div className="strong">How this day works</div>
                       <div className="quiet" style={{ marginTop: 2 }}>
-                        {state.dropoff
+                        {state.loading ? "" : state.dropoff
                           ? `${MODES[state.dropoff.mode ?? "dropoff"].said}`
                             + spanNote(state.dropoff.start_date, state.dropoff.end_date)
                             + (state.dropoff.reason ? ` · ${state.dropoff.reason}` : "")
@@ -405,6 +456,35 @@ export default function DaySheet({ date, bookings, onClose, onOpenBooking, onNew
 
           {error && <div className="error-box">{error}</div>}
         </div>
+  );
+
+  // INLINE AT EVERY WIDTH ON THE CALENDAR, a sheet when Today opens tomorrow.
+  // Not RecordHost: a day is not a record, so it never opens BESIDE its list,
+  // and on the calendar it must not open OVER the month either — the month is
+  // the thing you want to keep looking at while you read the day
+  // (docs/dashboard-phone-pass-2026-08-31.md §5a). Today's Tomorrow row is the
+  // other case: there is no grid behind it to cover.
+  if (inline) {
+    return (
+      <section className="daypanel" id="day-panel" ref={panel} tabIndex={-1}
+        aria-label={dateLong(date)}>
+        <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
+          <div style={{ minWidth: 0 }}>
+            <h2>{dateLong(date)}</h2>
+            <p className="quiet" style={{ marginTop: 2 }}>{subtitle}</p>
+          </div>
+          <button className="x" aria-label="Close the day" onClick={onClose}>
+            <X size={18} strokeWidth={2} />
+          </button>
+        </div>
+        {body}
+      </section>
+    );
+  }
+
+  return (
+    <Sheet onClose={onClose} title={dateLong(date)} subtitle={subtitle}>
+      {body}
     </Sheet>
   );
 }

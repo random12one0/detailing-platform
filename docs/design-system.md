@@ -708,6 +708,21 @@ In addition to everything above. From `CLAUDE.md` and
   section markers.
 - **Copy:** "modern and clean", "seamless", "elevate", feature triplets,
   Lorem ipsum, "Feature One / Feature Two / Feature Three".
+- **Copy that explains what the label already said.** THE OWNER'S RULE,
+  2026-09-01, and he named the instance: the job record printed
+  *"Mobile — we go to them"*. His words: *"no duh. you don't need to say
+  that, and it just looks bad… it thinks that humans can't think, or it
+  feels the need to explain literally every single thing, which just gets
+  annoying and cluttered."* **The test is whether the sentence adds a fact
+  the control does not already carry.** A switch called *"A new booking
+  comes in"* does not need *"So you know before they do."* A choice between
+  *I go to them* and *They come to me* does not need each option defined
+  under it. A *Saved.* does not need *"…and your booking page uses it
+  straight away."* **He is not asking for nothing to be explained** — the
+  non-obvious still gets its sentence, and *"Picking another swaps it"* or
+  *"Past bookings keep it"* are exactly the sentences worth keeping. What
+  goes is the restatement. **Swept across the whole product on 2026-09-01;
+  DECISIONS.md → "The copy pass" carries the 24 sites and the rule.**
 - **Claims:** nothing the product does not do. "Start free" shipped on the
   direction page when there is no free tier; `landing-pricing.test.mjs`
   exists because of that class of bug. No invented testimonials, customer

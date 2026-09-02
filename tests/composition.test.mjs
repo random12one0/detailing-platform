@@ -59,37 +59,71 @@ console.log(`scanning ${files.length} components + the reference page`);
 // ─────────────────────────────────────────────────────────────────────────
 console.log("\ntest 1: collections are lists, not stacks of cards");
 
-// A screen that renders a collection as cards. `.map(` over something
-// plural, and a `className` containing `card` inside the callback, with no
-// modifier that makes it a deliberate object (selected / attend / lit).
+// A screen that renders a collection as cards. There are two ways to be one:
+//
+//   (a) the `.map(…)` callback writes a `className` with `card` in it, or
+//   (b) it renders a COMPONENT whose own file draws a `.card` at its root.
+//
+// (b) IS THE ONE THAT MATTERS, AND THIS TEST WAS BLIND TO IT UNTIL 2026-09-01.
+// The old version matched (a) only and kept a flat ALLOWED set of filenames.
+// `BookingCard.jsx` was on it — correctly, as the file that DEFINES the card —
+// and that allowance then covered every caller of it, so `Calendar.jsx` mapping
+// eighteen bookings onto <BookingCard> passed cleanly while drawing exactly the
+// failure this rule exists to catch: 18 cards, 3,942px tall at every width.
+// A component-level allowance is what made the rule optional for everybody.
+//
+// So allowances are keyed to `file > component`, not to component. Whether a
+// card is right is a property of the CALLER — a small set of objects you act on
+// one at a time — never of the card. Component inventory §1a.
 const OFFENDER = /\.map\(\s*\(?\s*(\w+)\s*(?:,\s*\w+\s*)?\)?\s*=>\s*\(?\s*<[^>]*className=\{?["`][^"`]*\bcard\b/;
 
-// Cards ARE right for these: things you choose between or act on one at a
-// time, rather than read down a list of.
-const ALLOWED = new Set([
-  "BookingCard.jsx",   // a job is an object you act on
-  "DaySheet.jsx",      // one day's blocks and overrides, each acted on
-  "Catalog.jsx",       // services you pick between to edit
-  "Promos.jsx",        // same
-  "Team.jsx",          // same
-  "Gallery.jsx",       // images are objects, not rows of text
-  "StepServices.jsx",  // the customer is choosing BETWEEN these
-  "StepVehicle.jsx",   // same
-  // Each unpaid job carries its own "Mark paid" button — objects you act
-  // on one at a time, which is what a card is for.
-  "Money.jsx",
-  // The text-template picker: you are choosing BETWEEN these.
-  "BookingDetail.jsx",
+const ALLOWED = new Map([
+  // file > component — the caller is what is being allowed.
+  ["Today.jsx > BookingCard", "the ONE lit job; at most one card is on the screen"],
+  ["Clients.jsx > BookingCard", "NOT SETTLED — stage 5 rebuilds Clients and this line goes with it"],
+  // whole files, where the file's own maps are all deliberate objects
+  ["BookingCard.jsx", "the file that defines the card"],
+  ["DaySheet.jsx", "the day's three state cards, each acted on (its JOBS are rows)"],
+  ["Catalog.jsx", "services you pick between to edit"],
+  ["Promos.jsx", "same"],
+  ["Team.jsx", "same"],
+  ["Gallery.jsx", "images are objects, not rows of text"],
+  ["StepServices.jsx", "the customer is choosing BETWEEN these"],
+  ["StepVehicle.jsx", "same"],
+  ["Money.jsx", "each unpaid job carries its own Mark paid button"],
+  ["BookingDetail.jsx", "the text-template picker: you are choosing BETWEEN these"],
 ]);
 
 {
+  // Which components draw a card at their root, read from the file rather than
+  // listed — a component that stops being a card stops being flagged.
+  const cardComponents = new Map();
+  for (const file of files) {
+    const src = await readFile(file, "utf8");
+    const m = src.match(/export default function (\w+)[\s\S]{0,4000}?return \(\s*<div className=\{?[`"][^`"]*\bcard\b/);
+    if (m) cardComponents.set(m[1], path.basename(file));
+  }
+
   const offenders = [];
   for (const file of files) {
-    if (ALLOWED.has(path.basename(file))) continue;
+    const base = path.basename(file);
     const src = await readFile(file, "utf8");
     const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-    const m = code.match(OFFENDER);
-    if (m) offenders.push(`${file} — ${m[0].replace(/\s+/g, " ").slice(0, 90)}`);
+
+    if (!ALLOWED.has(base)) {
+      const m = code.match(OFFENDER);
+      if (m) offenders.push(`${file} — ${m[0].replace(/\s+/g, " ").slice(0, 90)}`);
+    }
+    for (const name of cardComponents.keys()) {
+      if (ALLOWED.has(base) || ALLOWED.has(`${base} > ${name}`)) continue;
+      // [\s\S] and not [^)] — a callback's own parameter list contains a ")",
+      // so [^)] cannot reach past `(b) =>`, which is how every real caller in
+      // this repo is written. The first version of this line passed against
+      // the exact commit it was written to catch. Baselined both ways since.
+      if (new RegExp(`\\.map\\([\\s\\S]{0,90}?=>\\s*\\(?\\s*<${name}\\b`).test(code)) {
+        offenders.push(`${file} — maps onto <${name}>, whose own file draws a .card`);
+      }
+    }
   }
   check(
     "no screen maps records onto .card",

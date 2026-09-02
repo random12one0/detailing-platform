@@ -323,8 +323,8 @@ Two notes, because both look like defects and are not:
 | `App.jsx` | The shell. Header gains the `+` and the gear; the tab bar becomes a vertical glass pill rail at ≥1024 (**the same component, `flex-direction: column`** — not a sidebar); `.app-main` gains `--wrap`; the fifth tab is **Business**. | Part A; desktop spec §6a |
 | `Today.jsx` | **One** rail, not three. Three runs — *Needs payment · Still to do · Done*. The request slot above it, empty. No warn box, no bottom button. Right column at ≥1180. | §2 |
 | `BookingDetail.jsx` | **BUILT — stage 2, 2026-09-01.** The job record: an **action bar over named sections**, replacing one 340-line scroll. Two rows of three — Call · Text · Navigate, then Calendar · Contacts · Reminder — **pinned** (`.jobbar`, sticky). Stopped rendering its own Sheet in stage 1. **Five sections on the screen, not six: Photos is designed and not built, and an absent thing draws nothing.** | §3 |
-| `Calendar.jsx` | Month: cells carry job lines at ≥1180, `1 job` not `1 jobs`, a legend that lists only what is on the month shown, `.cal-cell.selected` revived, the day opening **inline under the grid**. History: the ruled list with columns, month rules, the 1.7/1 split. | §4, §6 |
-| `DaySheet.jsx` | Hosted rather than self-hosting. The three state cards keep expand-in-place at **both** widths — step 4 §5 overrules the desktop spec's table row here, on the owner's own W1 instruction. | §5 |
+| `Calendar.jsx` | **BUILT — stage 3, 2026-09-01.** Month: cells carry job lines at ≥1180, `1 job` not `1 jobs`, a legend that lists only what is on the month shown, `.cal-cell.selected` revived, the day opening **inline under the grid at every width**. History: the ruled list with columns, month rules, the 1.7/1 split, and the nine chips behind one *Filter* below `--wrap`. Its *New booking* button and its own `<Sheet>` are gone. | §4, §6 |
+| `DaySheet.jsx` | **BUILT — stage 3, 2026-09-01.** Takes an `inline` prop rather than always being a sheet: the calendar draws it under the grid at every width, Today's *Tomorrow* row still opens it as a sheet (there is no grid behind that one to cover). **Not RecordHost** — a day is not a record and never opens beside its list. The three state cards keep expand-in-place at **both** widths, and its JOBS became rows. | §5 |
 | `Money.jsx` | The chart gets a zero line (a loss hangs **below** it), the period control goes on one line, the accountant export lands beside the period label, 1.2/1 split. `Cell` and `Delta` unchanged. | §7 |
 | `Clients.jsx` | The list shows what it already computes: name · last visit · spend · phone. A segmented sort of three, one chip. **`lastVisit` stops being able to print a future date.** | §8 |
 | `BookingLink.jsx` | Same component, moved to the **top** of Business from 1,156px down, and gaining a larger form with a QR in the right column when nothing is selected. Its W14 three-button rule is untouched. | §10 |
@@ -337,15 +337,21 @@ Two notes, because both look like defects and are not:
 | `JobPage.jsx` | Gets **simpler**: with `BookingDetail` no longer carrying a Sheet, the record at `/job/:id` is the page and needs no container at all. | §2 above |
 
 **`BookingCard.jsx` is kept and narrowed, and that is a ruling too.** Its
-callers go from five to two:
+callers go from five to ~~two~~ **one**:
 
 | Caller | After |
 |---|---|
-| `Today.jsx` | **stays** — jobs you act on, each carrying its own buttons |
-| `DaySheet.jsx` | **stays** — same |
-| `Calendar.jsx` (History) | **goes** — 18 records become 18 ruled rows (§1a) |
-| `Clients.jsx` (the record's history) | **goes** — a history row is *date · what · total* (§9) |
+| `Today.jsx` | **stays** — the ONE lit job, and at most one card is on the screen |
+| `DaySheet.jsx` | ~~**stays**~~ **GOES, 2026-09-01** — the phone pass §6 outranks this row: *"the panel is not the place a job is a card; the job record is."* Its jobs are `JobRow`, the same rows Today uses. |
+| `Calendar.jsx` (History) | **GONE, 2026-09-01** — 18 records became 18 ruled rows (§1a) |
+| `Clients.jsx` (the record's history) | **goes** — a history row is *date · what · total* (§9); stage 5 |
 | `Money.jsx` (unpaid) | never used it; its own inline card stays, and is right |
+
+**So the count is two today (`Today`, `Clients`) and one after stage 5**, not
+the two this section first wrote. And `Today.jsx`'s own `JobRow` moved out to
+`components/JobRow.jsx` in the same change, because the day panel needed the
+identical eight lines — two copies is how one of them gets a fix and the other
+does not, which this repo has already paid for twice.
 
 ### 3c. New — 12 files, and one named but not built
 

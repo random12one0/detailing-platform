@@ -848,8 +848,18 @@ booking button, and a five-symbol legend.
 3. **New booking is top-right here and bottom-of-page on Today** — the same
    action, two placements, on adjacent tabs. A third lives inside the day
    sheet ("Add a job on this day"). **Three placements for one action.**
+   > **RESOLVED 2026-09-01 (stage 3), and not by deleting all three.** The two
+   > *New booking* buttons carried no date and are gone; the header `+` is the
+   > doorway. The day's third one carries THIS day, which is a capability the
+   > other two never had, so it survives demoted to a `.btn.sm` beside the
+   > jobs. Two doors for one action, one door for a different one.
 4. **The day-cell accessibility label says "1 jobs".** A plural bug in the
    `aria-label`, read aloud by a screen reader.
+   > **FIXED 2026-09-01 (stage 3)**, and the label had a second half nobody had
+   > written down: it spoke the raw `2026-09-02`, which is read as digits, and
+   > it named neither *blocked* nor *one type only* — the two facts the cell
+   > carries by SHAPE, and therefore the two a screen reader had no way to
+   > reach. It reads *"Wednesday, September 2, 2 jobs"* now.
 
 **What is right:** at 392 this screen is genuinely good — the grid fills the
 width, today is an unmistakable filled disc, and it reads as a month.
@@ -1068,9 +1078,9 @@ Nothing here is fixed — this item changes no code.
 | 4 | New booking | Offers service combinations `create-booking` returns 409 for | **Defect** |
 | 5 | Booking rules | A superseded travel-fee field, still editable, still holding $25 | **Defect** |
 | 6 | Clients | "Last visit" can print a future date | Defect |
-| 7 | Calendar | Day cell `aria-label` reads "1 jobs" | Defect (a11y) |
-| 8 | Calendar / History | 18 records as 18 cards; 3,619px | Composition |
-| 9 | `composition.test.mjs` | Test 1 cannot see a card rendered through a component | **Test blind spot** |
+| 7 | Calendar | ~~Day cell `aria-label` reads "1 jobs"~~ **FIXED 2026-09-01, stage 3** — and the label was rebuilt around it: it spoke a bare `2026-09-02`, which a screen reader reads as digits, and named neither of the day marks. | Defect (a11y) |
+| 8 | Calendar / History | ~~18 records as 18 cards; 3,619px~~ **FIXED 2026-09-01, stage 3** — a ruled list with columns under month rules; **3,942 → 1,373px at 1440**, 1,973px at 392. | Composition |
+| 9 | `composition.test.mjs` | ~~Test 1 cannot see a card rendered through a component~~ **FIXED 2026-09-01, stage 3** — it resolves card components and keys allowances to `file > component`. **Its first rewrite still passed against the commit it was written to catch**; baselined both ways now. | **Test blind spot** |
 | 10 | Today | An empty day states one fact four times | Composition |
 | 11 | Money | "Nothing outstanding" gets a dashed box | Composition |
 | 12 | Money | A loss and a win draw the same height; no zero line | Composition |

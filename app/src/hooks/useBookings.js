@@ -39,6 +39,7 @@ export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState("");
   // A ref, not state: it must survive fromDate/toDate changing (Calendar
   // walking to another month is not a first paint either).
   const painted = useRef(false);
@@ -59,12 +60,23 @@ export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) 
       .lte("start_at", new Date(toUtc.getTime() + 60 * 3600_000).toISOString())
       .order("start_at", { ascending: true });
     if (!includeCancelled) q = q.neq("status", "cancelled");
-    const { data } = await q;
-    const rows = (data ?? [])
-      .map((b) => withLocal(b, tz))
-      .filter((b) => b.booking_date >= fromDate && b.booking_date <= toDate);
-    setBookings(rows);
-    painted.current = true;
+    const { data, error: e } = await q;
+    // A FAILED READ USED TO LOOK EXACTLY LIKE AN EMPTY MONTH. `error` was
+    // destructured away and `data ?? []` turned a dropped connection into
+    // "no bookings" — on Today, on the calendar and on Money. The design's
+    // rule is one rule for every screen: the message goes above the content
+    // and THE LAST GOOD DATA STAYS DRAWN, because a month you can still read
+    // is worth more than a blank one that is also wrong
+    // (docs/dashboard-screen-designs-2026-08-31.md §1a, §4 States).
+    if (e) {
+      setError(e.message || "Could not load bookings.");
+    } else {
+      setError("");
+      setBookings((data ?? [])
+        .map((b) => withLocal(b, tz))
+        .filter((b) => b.booking_date >= fromDate && b.booking_date <= toDate));
+      painted.current = true;
+    }
     setLoading(false);
     setRefreshing(false);
   }, [business, fromDate, toDate, includeCancelled]);
@@ -73,5 +85,5 @@ export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) 
     reload();
   }, [reload]);
 
-  return { bookings, loading, refreshing, reload };
+  return { bookings, loading, refreshing, error, reload };
 }

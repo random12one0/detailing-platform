@@ -24,8 +24,8 @@ const CUSTOMER_EMAILS = [
     "Goes out after you record payment."],
 ];
 const OWNER_EMAILS = [
-  ["email_owner_new_booking", "A new booking comes in", "So you know before they do."],
-  ["email_owner_reminder", "A job is coming up", "A heads-up the day before."],
+  ["email_owner_new_booking", "A new booking comes in"],
+  ["email_owner_reminder", "A job is coming up", "The day before."],
 ];
 
 const OWNER_NUDGE = [[15, "15 min"], [30, "30 min"], [60, "1 hour"], [120, "2 hours"]];
@@ -79,7 +79,7 @@ export default function Notifications() {
   return (
     <>
       <Group title="What your customers get"
-        blurb="Turning one off does not stop the booking working — it just stops the email.">
+        blurb="Turning one off stops the email, not the booking.">
         {CUSTOMER_EMAILS.map(([k, label, help]) => (
           <Switch key={k} label={label} help={help}
             checked={form[k]} onChange={(v) => set(k, v)} />
@@ -97,7 +97,7 @@ export default function Notifications() {
       </Group>
 
       <Group title="Where your alerts go">
-        <Setting label="Main address" help="From your business info. This one always receives.">
+        <Setting label="Main address" help="From your business info. Always receives.">
           <span className="quiet">{primary || "Not set"}</span>
         </Setting>
         <Setting label="Also send to" stacked
@@ -127,8 +127,7 @@ export default function Notifications() {
       </Group>
 
       <Group title="Timing" blurb="Only affects nudges to you, not your customers.">
-        <Setting label="Nudge you before a job starts" stacked
-          help="A reminder to get moving.">
+        <Setting label="Nudge you before a job starts" stacked>
           <DurationChoice value={form.owner_nudge_lead_minutes} presets={OWNER_NUDGE}
             onChange={(v) => set("owner_nudge_lead_minutes", v)} unit="minutes" customMax={720} />
         </Setting>

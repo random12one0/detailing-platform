@@ -251,7 +251,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           <>
             <h3 className="section-title">The job</h3>
             <div className="card tight">
-              <p>{booking.service_type === "mobile" ? "Mobile — we go to them" : "Drop-off"}</p>
+              <p>{booking.service_type === "mobile" ? "Mobile" : "Drop-off"}</p>
               {address && <p className="quiet">{address}</p>}
               <p className="muted">
                 {(booking.services ?? []).map((s) => s.name_at_booking).join(", ")}

@@ -1759,7 +1759,50 @@ is kept; the entire visual design restarts from scratch.
          states, at all five widths — until this stage the object carrying 26 of
          the product's 126 capabilities had never been swept, so "clean" said
          nothing about it. Clean in both paths; the four credential-free tests
-         and `accent-sweep` pass. **Stages 3-7 of §5 remain.**
+         and `accent-sweep` pass. ~~**Stages 3-7 of §5 remain.**~~
+         **STAGE 3 IS DONE, 2026-09-01 — the calendar, which is three screens
+         rather than one.** The desk writes the month out (up to three
+         `time · name` lines a cell and a `+N more`, so *Booked / Done /
+         No-show* become words and the legend shrinks to the two marks a cell
+         cannot write); the legend lists only what is on the month shown, at
+         both widths; the spoken cell label says *1 job* and names the day
+         marks; `.cal-cell.selected` is alive after being dead CSS since 2.6;
+         **the day opens INLINE UNDER THE GRID at every width** — not a sheet,
+         not `RecordHost`, because a day is not a record and the month is the
+         thing you read it against; and History is a ruled list with columns
+         under month rules carrying each month's own total, with the nine
+         filter chips behind one *Filter* below `--wrap` and in the second
+         column above it. The screen's own *New booking* button and its own
+         `<Sheet>` are both gone.
+         **Measured:** History **3,942 → 1,373px at 1440** and **1,973px at
+         392**; the cell 88 → 118px at 1440; `BookingCard` callers 4 → 2.
+         **AND THE ONE A COLD SESSION MUST NOT RE-DERIVE: Today's staggered
+         arrival had never once run.** The reveal block's second selector,
+         `.app-main > .group > .col-1 > *`, matched nothing — a split screen's
+         root is `.split`, so `.col-1` **is** a `.group` rather than a child of
+         one. Nothing in the product could report it: a stagger that never runs
+         looks exactly like a screen that has finished arriving. Found by
+         reading the *computed* `animation-name` on the live screen.
+         **Third member of the `dead-width` family**, and the transferable part
+         is *a mechanism whose failure mode is silence needs a check that
+         asserts it RAN*.
+         **Four more that were only findable by building or by running:**
+         `useBookings` swallowed its error, so a failed read drew an empty
+         month, day and Money period with nothing saying so (fixed in the hook
+         AND on all three callers); the filter chips ran 93px and 125px off the
+         right edge of a phone, seen only because the sweep was taught to open
+         the filter bar; `composition.test.mjs` test 1's rewrite **passed
+         against the exact commit it was written to catch** on its first
+         attempt, because `[^)]` cannot cross a callback's own `(b) =>`; and a
+         staff session saw two state cards stating a default **with zero
+         controls in them**. **`sweep-widths.mjs` walks the day, its three
+         editors, the history, its filter bar and a history job now** — the tab
+         was swept, its other two screens never had been.
+         **AND THE OWNER'S COPY RULE LANDED IN THE SAME SESSION**, from
+         *"Mobile — we go to them"* on the job record: **twenty-four sites**
+         where the copy explained what the label already said. The rule and the
+         half that stayed are in `docs/design-system.md` § Never-defaults and
+         CLAUDE.md. **Stages 4-7 of §5 remain.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
          2.15 (travel by measured distance), **the last of which he then CLOSED

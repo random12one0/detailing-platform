@@ -10,12 +10,30 @@
 // booking, finalize payment, add an expense stay modals at every width, and
 // they still render their own <Sheet>. Desktop spec §4a.
 
+import { useEffect } from "react";
 import { X } from "lucide-react";
 import Sheet from "./Sheet.jsx";
 import { useWide } from "../hooks/useWide.js";
 
 export default function RecordHost({ open = true, onClose, title, subtitle, children, footer }) {
   const wide = useWide();
+
+  // ESCAPE CLOSES IT AT BOTH WIDTHS. A sheet has always taken Escape, so
+  // below --wrap the record did and above it the same record did not — the
+  // seam this component exists to hide, showing through. It is not a modal
+  // here and does not trap anything; it just answers the key.
+  // GUARDED ON AN OPEN SHEET, because a form you commit (Finalize payment,
+  // the text picker) opens as a modal ON TOP of the record: without this,
+  // Escape would dismiss the modal AND the record under it in one press.
+  useEffect(() => {
+    if (!open || !wide) return;
+    const onKey = (e) => {
+      if (e.key === "Escape" && !document.querySelector(".sheet-backdrop")) onClose?.();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, wide, onClose]);
+
   if (!open) return null;
 
   if (!wide) {

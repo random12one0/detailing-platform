@@ -246,6 +246,63 @@ for (const w of SIZES) {
     await page.waitForTimeout(700);
   }
 
+  // THE CALENDAR IS THREE SCREENS AND THE SWEEP ONLY EVER SAW ONE. Until
+  // roadmap 2.11 step 6 stage 3 this script clicked the Calendar tab, measured
+  // the month, and moved on — so the day (four capabilities, three editors
+  // that expand in place) and the history (a filter bar, a ruled list with
+  // columns, month rules) were never opened at any width. Same family as the
+  // job record before stage 2 and as `dead-width`: a check that never reaches
+  // a thing reports exactly like a check that reached it and found nothing.
+  await page.getByRole("button", { name: "Calendar", exact: true }).first().click();
+  await page.waitForTimeout(1500);
+  {
+    // The 2nd cell of the demo month carries two jobs; the panel opens under
+    // the grid at every width now, so there is no sheet to grow.
+    const cell = page.locator(".cal-cell").nth(1);
+    if (await cell.count()) {
+      await cell.click();
+      await page.waitForTimeout(1600);
+      await say("Calendar · a day");
+      // The three state cards are the day's own editors and each expands in
+      // place (W1). An unopened editor is a check that never reached it.
+      for (const label of ["Block this day", "Hours", "How this day works"]) {
+        const card = page.locator(".daypanel .card", { hasText: label });
+        if (!(await card.count())) continue;
+        await card.first().click();
+        await page.waitForTimeout(900);
+        await say(`Calendar · day, ${label}`);
+        await card.first().click();
+        await page.waitForTimeout(500);
+      }
+      await page.locator(".daypanel .x").first().click();
+      await page.waitForTimeout(600);
+    }
+  }
+  await page.getByRole("button", { name: "History", exact: true }).first().click();
+  await page.waitForTimeout(2200);
+  await say("Calendar · history");
+  {
+    // The nine chips are behind one control below --wrap and in the second
+    // column above it, so the open filter bar is a phone-only state.
+    const filter = page.getByRole("button", { name: "Filter" });
+    if (await filter.count()) {
+      await filter.first().click();
+      await page.waitForTimeout(700);
+      await say("Calendar · filters open");
+      await filter.first().click();
+      await page.waitForTimeout(400);
+    }
+    const row = page.locator(".rows.cols.history .row-item").first();
+    if (await row.count()) {
+      await row.click();
+      await page.waitForTimeout(1500);
+      await grow();
+      await say("Calendar · history job");
+      await page.keyboard.press("Escape");
+      await page.waitForTimeout(700);
+    }
+  }
+
   // The client sheet is its own screen and it is where W7/W8 lived.
   await page.getByRole("button", { name: "Clients", exact: true }).first().click();
   await page.waitForTimeout(1400);

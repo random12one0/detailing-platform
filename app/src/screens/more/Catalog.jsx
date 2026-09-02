@@ -450,9 +450,8 @@ export default function Catalog() {
               </p>
 
               <Setting label="How many can they choose?"
-                help={editing.form.max_select === "any"
-                  ? "A customer can take several of these in one booking."
-                  : "A customer takes one of these — picking another swaps it."}
+                help={editing.form.max_select === "any" ? undefined
+                  : "Picking another swaps it."}
                 stacked>
                 <Segmented value={editing.form.max_select} onChange={(v) => set({ max_select: v })}
                   options={[["1", "Just one"], ["any", "Any number"]]}
@@ -499,8 +498,8 @@ export default function Catalog() {
                       what the number CLAIMS TO BE and never the arithmetic. */}
                   <Switch label="Show this as a starting price"
                     help={editing.form.price_is_from
-                      ? `Customers see "from ${money(Number(editing.form.price) || 0)}", and the review step says the price may change once you have seen the vehicle.`
-                      : "Customers read this price as a firm quote."}
+                      ? `Customers see "from ${money(Number(editing.form.price) || 0)}".`
+                      : "Customers read this as a firm quote."}
                     checked={editing.form.price_is_from}
                     onChange={(v) => set({ price_is_from: v })} />
 
@@ -583,8 +582,8 @@ export default function Catalog() {
                   this sheet is what edits properties. */}
               <Switch label="Show on your booking page"
                 help={editing.form.is_active
-                  ? "Customers can book this."
-                  : "Hidden from customers. Past bookings keep it — nothing here is ever deleted."}
+                  ? undefined
+                  : "Hidden from customers. Past bookings keep it."}
                 checked={editing.form.is_active}
                 onChange={(v) => set({ is_active: v })} />
               <button className="btn primary" onClick={editing.kind === "service" ? saveService : saveAddOn}>Save</button>

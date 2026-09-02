@@ -154,6 +154,10 @@ were made more than once.
 
 - **Roadmap 2.11, step 6, stage 2 — the job record, and two defects the specification had already described** — the 340-line single scroll became an action bar over five named sections, and the bar is **PINNED**. **`position: sticky` because the record has THREE containers** (a sheet, the desk's second column, `/job/:id`) and it is the one mechanism that behaves in all three without any of them knowing about the others — but **`top: 0` alone stuck the bar 18px down**, because a sticky box may not leave its CONTAINING BLOCK and for a child of `.sheet-body` that is the CONTENT box, 16px inside the scrollport. **Only visible at the 56vh peek a phone opens at** — every screenshot script here pulls the sheet to 92vh, where the record nearly fits and the bar never sticks: *a pinned thing has to be tested at the height that scrolls, not the height that is convenient to photograph.* **TWO LIVE DEFECTS, both of which the specification had already described in the present tense without anyone noticing it was a bug report:** *Finalize payment* only ever appeared while a job was `confirmed`, so the record behind Today's *Needs payment* card **had no way to take the payment**; and **nobody has ever seen “Reminder sent to customer.”**, because all four callers close the record on any change. **A specification can describe a bug and read as a design; building it is what surfaces that, not reading it.** Also: **the job record had never been swept at all** — same family as the always-false contrast rows and `dead-width` — and *at most one accent fill* on the record turned out to be a consequence of the statuses rather than a rule to enforce. **And walking it with a KEYBOARD found a defect that was never about this screen: `Sheet.jsx` says `aria-modal="true"` and did not trap focus, on all eleven sheets** — tabbing out of the record went through four job rows before it reached the sheet's own Close. Fixed in the shared component. **A closed `<details>` lies about its contents** (`getClientRects()`, a 46px box and a live `offsetParent` all say visible; only `checkVisibility()` says false), which is why the trap watches where focus LANDS instead of computing which control is last.
 
+- **Roadmap 2.11, step 6, stage 3 — the calendar, and a signature move that had never once run** — Month, the day and History. **The one to carry: Today's staggered arrival has been DEAD since the shell shipped** — the reveal block's second form reads `.app-main > .group > .col-1 > *` and a split screen's root is `.split`, so `.col-1` **is** a `.group` rather than a child of one and the selector matched nothing. **Nothing in the product could report it**: a stagger that never runs looks exactly like a screen that has finished arriving, and the screenshot scripts photograph the end state on purpose. Found by reading the COMPUTED `animation-name` on the live screen. *A mechanism whose failure mode is SILENCE needs a check that asserts it RAN, not one that asserts the screen looks right* — third member of the `dead-width` family. **The day does NOT go through `RecordHost`**: it is not a record, it never opens beside its list, and it must not open over the grid it is read against, so it opens inline BELOW at every width — the only panel in the product that does. `DaySheet` takes an `inline` prop instead of losing its sheet, because Today's *Tomorrow* still wants one. **The day and the history had never been swept at all** — the tab was, the other two screens were not, which is stage 2's finding one stage later. **An `auto` amount column made a ruled list ragged** (every row is its own grid, so `$65.00` and `$235.00` gave the fr columns different widths and *what* started 4px apart); `display: contents` is what lets one markup be two cells on a phone and five columns at a desk. **`useBookings` swallowed its error**, so a failed read drew an empty month, an empty day and an empty Money period with nothing saying so — fixed in the hook AND finished on all three callers. **And `composition.test.mjs` test 1's rewrite passed against the exact commit it was written to catch** on its first attempt, because `[^)]` cannot cross a callback's own `(b) =>`; baselined both ways now. Also: Escape closes the record at BOTH widths, guarded on there being no modal over it.
+
+- **The copy pass — the owner's rule against explaining what the label already said** — his instruction, 2026-09-01, and he named the instance: *"Mobile — we go to them"* on the job record. *"No duh… it thinks that humans can't think, or it feels the need to explain literally every single thing."* **The test: does the sentence add a fact the control does not already carry?** Twenty-four sites swept across the dashboard, the booking page and the way in. **The half that stops the rule becoming its own mistake is what STAYED** — *"Picking another swaps it"*, *"Past bookings keep it"*, *"Timing is set in Booking rules"*: the rule is against restatement, not against explanation, and a session that reads it as "delete help text" will strip the sentences that were doing work. The durable form lives in `docs/design-system.md` § Never-defaults and in CLAUDE.md.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -6758,3 +6762,206 @@ never fight over focus.**
   re-selecting from a reloaded list or showing a stale `booking` prop. It is
   the same two-step the product already has on Today's card. Left for the
   stages that rebuild those callers (3-5).
+
+## Roadmap 2.11, step 6, stage 3 — the calendar, and a signature move that had never once run
+
+**Stage 3 of seven.** Month, the day, and History — one tab, two modes and a
+panel under one of them. The designs are
+`docs/dashboard-screen-designs-2026-08-31.md` §4-6 and
+`docs/dashboard-phone-pass-2026-08-31.md` §5-7.
+
+### The one to carry: Today's staggered arrival was dead, and nothing could see it
+
+`theme.css`'s reveal block reads
+`.app-main > .group > *` **and** `.app-main > .group > .col-1 > *`. Stage 1
+added the second form when the primary column had to be wrapped, and **it
+matched nothing**: a split screen's ROOT is `.split`, so the real markup is
+`.app-main > .split > .group.col-1 > *` — `.col-1` **is** a `.group` rather
+than a child of one. Every child of Today's primary column has been arriving
+with `animation-name: none` since the day the shell shipped, on the one screen
+the signature move exists for.
+
+**Nothing in the product could report it.** A stagger that never runs looks
+exactly like a screen that has already finished arriving; there is no error, no
+console line, no layout difference, and the screenshot scripts photograph the
+end state on purpose. It was found by reading the **computed** `animation-name`
+on the live screen, which is the only place a selector that matches nothing is
+visible at all — the stylesheet reads correctly either way.
+
+**Same family as `dead-width` and the always-false contrast rows, and it is the
+third member now.** The lesson is not "check your selectors": it is that
+**a mechanism whose failure mode is silence needs a check that asserts it RAN**,
+not one that asserts the screen looks right. Fixed by pointing both forms and
+the `.lite` form at `.split`.
+
+### The day is not a record, so it does not go through RecordHost
+
+`RecordHost` decides one thing: a sheet below `--wrap`, the second column at or
+above it. **A day answers neither.** It does not open beside its list, because
+the list is a seven-column grid and taking a column off it is what §4 spends
+its whole argument refusing; and it must not open OVER the grid, because the
+month is the thing you read the day *against*. So it opens **inline, directly
+beneath the grid, at every width** — the only place in the product where
+selecting something opens a panel below rather than over or beside it.
+
+`DaySheet` therefore takes an `inline` prop rather than losing its `<Sheet>`
+outright: **Today's *Tomorrow* row still wants the sheet**, and it is right
+there — there is no grid behind that one to cover. One component, two
+containers, and the caller says which, which is the same rule `RecordHost`
+carries one level up.
+
+**On a phone the panel scrolls its week to the top** rather than the page
+staying put: `scrollIntoView({ block: "start" })` on the cell, plus
+`scroll-margin-top` on `.cal-cell` equal to the sticky top bar, because a
+browser scrolls a target flush to the viewport edge and knows nothing about
+what is fixed over it. At a desk both are already in view, so it does not fire
+— `useWide` used for exactly what `hooks/useWide.js` says it is for.
+
+**And at a desk the panel takes the width as a SECOND THING.** Month is the one
+screen deliberately not split, so the panel under it inherits 1,144px, and a
+job row that wide puts the customer's name at one end of the screen and their
+money at the other. The day holds two different things — what is booked, and
+what is true of the day — so the panel splits 1.35/1 at 1180. That is the
+desktop specification's own rule ("width buys a second thing; it does not
+stretch the first thing") applied one level down from the page.
+
+### The month grid was swept; the day and the history never had been
+
+`sweep-widths.mjs` clicked the Calendar tab, measured the month, and moved on.
+**Four capabilities and a whole second mode had never been opened at any
+width** — the day's three editors write `blockout_dates`,
+`booking_hours_overrides` and `dropoff_only_periods`, and History carries a
+filter bar, a ruled list and month rules. Exactly the gap stage 2 found on the
+job record, one stage later. **A check that never reaches a thing reports
+identically to a check that reached it and found nothing**, and a tab is not a
+screen when the tab has three of them. The sweep opens all of it now.
+
+### A fixed amount column, because `auto` made a ruled list ragged
+
+Every `.row-item` is its own grid, so an `auto` final column sizes to that
+row's own total: a row saying `$65.00` gave the two `fr` columns 4px more than
+one saying `$235.00`, and the *what* column started at **572px on some rows and
+576px on others**. In a list whose entire purpose is that you scan down it.
+92px fixed, right-aligned — `money()` writes no thousands separator, so that
+holds `$12345.00`.
+
+**And `display: contents` is what makes the row one markup at both widths.**
+The date and the service share one line-2 cell on a phone and are two separate
+columns at a desk. Rather than render either twice, `.c-sub` wraps them and
+then stops being a box at 1024, so its children become grid items of the row
+itself.
+
+### A failed read used to look exactly like an empty month
+
+`useBookings` destructured `error` away and returned `data ?? []`, so a dropped
+connection drew **an empty month, an empty day and an empty Money period** with
+nothing saying so. Fixed in the hook, because all three screens had it — and
+**finished on all three callers in the same change**, which is stage 1's own
+lesson about the other half of a shared fix. The last good data stays drawn and
+the message goes above it: a month you can still read is worth more than a
+blank one that is also wrong.
+
+### Things kept deliberately, so they are not found again as oversights
+
+- **The day's *Add a job* survives.** Step 5's §12 names three New-booking
+  doors and says the header `+` is the one doorway; two of the three carried no
+  date and are dead. This one carries THIS day, which is the capability the
+  other two never had — deleting it would cost a real thing to satisfy a
+  count. Demoted from a full-width filled button to a `.btn.sm` beside the
+  jobs: a control, not a door.
+- **A no-show still counts toward a month rule's total**, because
+  `status !== "cancelled"` is the rule the totals bar has always used and this
+  stage did not reopen it. It is a money question, not a layout one; the note
+  is here so the next person to ask knows it was inherited rather than chosen.
+- **`.dashed` loses two of its seven users** (the day's *Nothing booked.* and
+  History's empty state, both now one sentence). The class and
+  `sweep-widths.mjs`'s `boxy()` selector die together, at the last one.
+
+### A staff member saw two panels with nothing in them
+
+Step 4 §5 and the phone pass §6 both say a staff member gets the day's jobs and
+not its state cards. **The code drew them anyway** — measured on the seeded
+staff session, `demo-staff@detailplatform.com`: *Block this day / Bookings
+allowed as normal* and *Hours / Your normal hours for this weekday*, with
+**zero controls inside either**. Two panels stating a default and offering
+nothing to do about it, which §1a forbids on its own and which the owner's copy
+rule forbids again.
+
+**Narrowed rather than obeyed literally, and the narrowing is the decision.**
+"Not drawn" would also hide an existing blockout or restriction from the person
+driving to the job, and `DaySheet` has carried the argument against that since
+roadmap 2.7: an existing restriction comes from a table staff CAN read and is
+worth their knowing before they load the van. So it is **per card, not per
+section** — an owner can always set one, a staff member only ever sees one that
+IS set, and the *This day* heading is absent when none of the three is. Both
+design files carry the amendment.
+
+**It was only findable by signing in as the other role.** Everything else in
+this stage was verified as the owner, and the owner's view of those two cards
+is correct and always has been.
+
+### Escape closes the record at both widths now
+
+A sheet has always taken Escape, so below `--wrap` the job record did and above
+it the same record did not — the seam `RecordHost` exists to hide, showing
+through. It answers the key at both widths now, **guarded on there being no
+open `.sheet-backdrop`**: a form you commit (Finalize payment, the text
+picker) opens as a modal on top of the record, and without the guard one press
+would dismiss the modal and the record under it together.
+
+### composition.test.mjs test 1 was rewritten, and its first version passed against the commit it was written to catch
+
+The rule the component inventory §1a settled: **an unbounded `.map(…)` may not
+render a component whose own file draws a `.card` at its root, unless that
+(file, component) pair is allowed with a stated reason.** The old test matched
+only a literal `className` containing `card` inside the callback, and kept a
+flat allow-set of filenames — with `BookingCard.jsx` on it, correctly, as the
+file that DEFINES the card. That allowance then covered every CALLER, which is
+how `Calendar.jsx` mapped eighteen bookings onto `<BookingCard>` and passed
+while drawing 3,942px of stacked cards.
+
+**The rewrite was baselined both ways, and the first attempt failed that
+baseline.** Run against the pre-stage-3 `Calendar.jsx` it reported `ok`: the
+caller regex used `[^)]{0,90}` to cross from `.map(` to the component name, and
+a callback's own parameter list contains a `)`, so it could not reach past
+`(b) =>` — which is how every real caller in this repo is written.
+`[\s\S]{0,90}?` fixes it. **A check that has not been shown to fail is not
+evidence of anything**, and this one had a passing green light on the exact
+commit it exists to catch.
+
+`Clients.jsx > BookingCard` is allowed **with the reason written as "NOT
+SETTLED — stage 5 rebuilds Clients and this line goes with it"**, so the
+allowance names its own expiry rather than looking like a decision.
+
+## The copy pass — the owner's rule against explaining what the label already said
+
+**His instruction, 2026-09-01, and he named the instance himself:** the job
+record printed *"Mobile — we go to them"*. *"No duh. You don't need to say
+that, and it just looks bad… it thinks that humans can't think, or it feels
+the need to explain literally every single thing, which just gets annoying and
+cluttered. Now I'm not saying to never explain anything."*
+
+**The test that came out of it: does the sentence add a fact the control does
+not already carry?** If not, it goes. Twenty-four sites across the dashboard,
+the booking page and the way in — the durable form of the rule is in
+`docs/design-system.md` § Never-defaults and in CLAUDE.md, which is where it
+will survive a `/clear` and a move to another coding agent.
+
+**What went**, as a shape rather than a list: a switch called *"A new booking
+comes in"* explained with *"So you know before they do."*; a three-way choice
+between *I go to them* and *They come to me* with each option defined
+underneath it; *"Saved."* extended into *"Saved. This dashboard and your
+booking page use it straight away."*; three section blurbs restating their own
+headings; and two paragraphs of platform explanation where one clause does it.
+
+**What stayed, and this is the half that stops the rule becoming its own
+mistake.** *"Picking another swaps it."* — swapping is not visible from the
+label. *"Past bookings keep it."* — the consequence of hiding a service is
+genuinely not obvious. *"One reminder before the job. Timing is set in Booking
+rules."* — it names where the other half lives. **The rule is against
+restatement, not against explanation**, and a session that reads it as "delete
+help text" will strip the sentences that were doing work.
+
+**Nothing on the landing page changed.** Its copy was already written to this
+standard and the owner approved that page; the register he objected to is a
+dashboard and settings problem, which is where it was fixed.

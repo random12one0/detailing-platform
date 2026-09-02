@@ -1,34 +1,53 @@
-// Month calendar + a real booking history.
+// Calendar — the month, the day under it, and the history.
 //
-// Two fixes here:
-//   1. Tapping a date used to do nothing. It now opens the day sheet, which
-//      is the only route to blockouts, one-off hours and drop-off-only
-//      periods — all of which had schema and no UI.
-//   2. List mode used to be Today with a status filter. It is now the full
-//      searchable history: name, phone or service text, a status filter, a
-//      date range, and totals for whatever the filter currently matches.
+// REBUILT IN ROADMAP 2.11 STEP 6, STAGE 3, against
+// docs/dashboard-screen-designs-2026-08-31.md §4-6 (the shape) and
+// docs/dashboard-phone-pass-2026-08-31.md §5-7 (the phone, which overrides it
+// wherever the two disagree). What changed and why:
 //
-// The month grid carries three independent facts per day, and since roadmap
-// 2.4 item 3c it carries them by SHAPE: jobs are circles (hollow = ahead,
-// solid = landed) or a bar (it did not happen), and facts about the DAY —
-// blocked, drop-off-only — are squares. No two marks that can share a cell
-// share a form, so the grid still reads under any tenant accent, including
-// the near-blacks and silvers that used to collide with the neutral marks.
-// The rule and the measurements are in theme.css § THE MARKS.
+//   THE MONTH  The desk writes the month out. At --wrap a cell is 163px and
+//              carries a time and a name, so Booked / Done / No-show stop
+//              being 7px marks and become WORDS — and the legend shrinks to
+//              the two facts a cell cannot write, Blocked and One type only.
+//              At every width the legend now lists only the marks that are
+//              actually ON the month shown: a five-symbol legend physically
+//              larger than the marks it decodes is a tell, and on a phone it
+//              is a full row of screen spent explaining two things that are
+//              not there.
+//   THE DAY    Tapping a date used to throw a full-height sheet over the
+//              month. It opens INLINE, directly beneath the grid, at every
+//              width — one component instead of two, and the month stays on
+//              the screen, which is the whole of §4a's concern answered
+//              rather than traded away. `.cal-cell.selected` had been dead
+//              CSS since roadmap 2.6; this is what revives it.
+//   THE HISTORY  18 records drew as 18 cards, 3,942px tall, at every width
+//              (Part B row 8). They are a ruled list with columns now —
+//              two cells on a phone, five at a desk — broken by month rules
+//              that carry the month's own total, which is the only
+//              navigation 400 rows need. The nine filter chips collapse
+//              behind one control on a phone and live in the second column
+//              at a desk.
 //
-// The legend below decodes all five. It used to decode four of seven, which
-// is how a red no-show dot survived here for months meaning nothing to
-// anybody.
+// AND TWO DOORS CLOSED. The screen's own *New booking* button is gone — the
+// header's `+` is the one doorway (component inventory §3d) — and the job
+// record no longer renders its own <Sheet> here: RecordHost decides, so at a
+// desk a job opens BESIDE the list it came from instead of over it (F11).
+//
+// The month grid still carries three independent facts per day by SHAPE
+// (roadmap 2.4 item 3c): jobs are circles (hollow = ahead, solid = landed) or
+// a bar (it did not happen), and facts about the DAY — blocked, one-type-only
+// — are squares. No two marks that can share a cell share a form, so the grid
+// reads under any tenant accent. The rule is in theme.css § THE MARKS.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
-import { addDays, money, todayLocal } from "../lib/format.js";
-import BookingCard from "../components/BookingCard.jsx";
+import { useWide } from "../hooks/useWide.js";
+import { addDays, dateLong, money, time12, todayLocal } from "../lib/format.js";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
-import Sheet from "../components/Sheet.jsx";
+import RecordHost from "../components/RecordHost.jsx";
 import NewBookingModal from "../components/NewBookingModal.jsx";
 import DaySheet from "../components/DaySheet.jsx";
 
@@ -40,19 +59,49 @@ const STATUSES = [
 const RANGES = [
   ["30", "Last 30 days"], ["90", "Last 90 days"], ["365", "Last year"], ["all", "Everything"],
 ];
+const RANGE_SAID = {
+  30: "the last 30 days", 90: "the last 90 days", 365: "the last year", all: "your history",
+};
+const STATUS_SAID = Object.fromEntries(STATUSES);
+const DEFAULT_RANGE = "90";
 
-export default function Calendar() {
+// "Tom O." — a given name and a last initial is what fits a 163px cell, and
+// it is also how a detailer says the name out loud.
+const shortName = (n) => {
+  const parts = String(n ?? "").trim().split(/\s+/).filter(Boolean);
+  return parts.length > 1 ? `${parts[0]} ${parts[1][0]}.` : (parts[0] ?? "");
+};
+const shortDate = (d) => new Date(`${d}T12:00:00`)
+  .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+const monthName = (ym) => {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+};
+const sum = (rows) => rows
+  .filter((b) => b.status !== "cancelled")
+  .reduce((s, b) => s + Number(b.final_amount ?? b.total_price ?? 0), 0);
+
+export default function Calendar({ refreshKey = 0 }) {
   const { business } = useBusiness();
   const today = todayLocal(business.timezone);
+  // The two widths this product asks about are the only two the desktop
+  // specification derives, and this screen only needs the second: at --wrap a
+  // cell can carry words and History grows a column. Everything else here is
+  // CSS. (hooks/useWide.js.)
+  const wide = useWide(1180);
   const [mode, setMode] = useState("month");
   const [cursor, setCursor] = useState(today.slice(0, 7));
-  const [daySheet, setDaySheet] = useState(null);
-  const [selected, setSelected] = useState(null);
+  const [day, setDay] = useState(null);          // the selected date, or null
+  const [selected, setSelected] = useState(null); // the open job record
   const [creating, setCreating] = useState(null); // null | date string
 
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [range, setRange] = useState("90");
+  const [range, setRange] = useState(DEFAULT_RANGE);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  // The cell the open day came from, so closing the panel puts you back on it
+  // rather than on the body — the same contract Sheet.jsx keeps.
+  const dayCell = useRef(null);
 
   const [y, m] = cursor.split("-").map(Number);
   const monthStart = `${cursor}-01`;
@@ -62,9 +111,10 @@ export default function Calendar() {
 
   const from = mode === "month" ? monthStart : listFrom;
   const to = mode === "month" ? monthEnd : listTo;
-  const { bookings, loading, refreshing, reload } = useBookings(from, to);
+  const { bookings, loading, refreshing, error, reload } = useBookings(from, to);
+  const busy = loading || refreshing;
 
-  // Day marks for the month grid — blockouts and drop-off-only periods, both
+  // Day marks for the month grid — blockouts and one-type-only periods, both
   // of which are date RANGES, expanded into the days they cover.
   const [marks, setMarks] = useState({ blocked: new Set(), dropoff: new Set(), dropoffLabel: {} });
   const loadMarks = useCallback(async () => {
@@ -91,9 +141,9 @@ export default function Calendar() {
     // hard-labelled "Drop-off only", would have been a plain lie on half of
     // them. A second FORM is not the answer: docs/dashboard-skeletons.md §5b
     // makes the marks form-first precisely so no two that share a cell share
-    // a shape, and inventing a sixth to split a distinction the day sheet
+    // a shape, and inventing a sixth to split a distinction the day panel
     // spells out one tap away buys nothing. The mark means "this day is not
-    // normal"; the tooltip and the sheet say how.
+    // normal"; the tooltip and the panel say how.
     const label = {};
     for (const r of dp.data ?? []) {
       for (let d = r.start_date; d <= r.end_date && d <= monthEnd; d = addDays(d, 1)) {
@@ -103,6 +153,11 @@ export default function Calendar() {
     setMarks({ blocked: expand(bl.data), dropoff: expand(dp.data), dropoffLabel: label });
   }, [business.id, mode, monthStart, monthEnd]);
   useEffect(() => { loadMarks(); }, [loadMarks]);
+
+  // A booking made from the header's + has to reach the month it landed on.
+  // refreshKey ALONE, for the reason Today carries: reload's identity changes
+  // whenever the hook's dates do, and re-running this on that doubles a read.
+  useEffect(() => { if (refreshKey) { reload(); loadMarks(); } }, [refreshKey]);
 
   const byDay = useMemo(() => {
     const map = {};
@@ -121,7 +176,42 @@ export default function Calendar() {
 
   const moveMonth = (delta) => {
     const dt = new Date(y, m - 1 + delta, 1);
+    setDay(null);
     setCursor(`${dt.getFullYear()}-${pad(dt.getMonth() + 1)}`);
+  };
+
+  // THE LEGEND DECODES WHAT IS ON THIS MONTH AND NOTHING ELSE. Five entries
+  // every time, three of which the month did not contain, is a legend larger
+  // than the thing it explains. At --wrap the first three are words in the
+  // cells, so only the two the cell cannot write survive.
+  const legend = useMemo(() => {
+    const jobs = bookings.filter((b) => b.status !== "cancelled");
+    const rows = [
+      ["dot confirmed", "Booked", () => jobs.some((b) => b.status === "confirmed" || b.status === "pending")],
+      ["dot completed", "Done", () => jobs.some((b) => b.status === "completed")],
+      ["dot no_show", "No-show", () => jobs.some((b) => b.status === "no_show")],
+      ["dot block", "Blocked", () => marks.blocked.size > 0],
+      ["ring", "One type only", () => marks.dropoff.size > 0],
+    ];
+    return rows.filter((row, i) => (wide ? i >= 3 : true) && row[2]());
+  }, [bookings, marks, wide]);
+
+  const openDay = (date, el) => {
+    const next = day === date ? null : date;
+    setDay(next);
+    dayCell.current = next ? el : null;
+    // THE MONTH STAYS ON THE SCREEN. On a phone the panel opens below a grid
+    // that is most of the viewport, so the selected week is scrolled up under
+    // the masthead and the day is read against the row it belongs to
+    // (docs/dashboard-phone-pass-2026-08-31.md §5a). At a desk the month and
+    // the panel are both already in view, and moving the page would be motion
+    // for its own sake.
+    if (next && !wide && el) {
+      el.scrollIntoView({
+        block: "start",
+        behavior: document.documentElement.classList.contains("lite") ? "auto" : "smooth",
+      });
+    }
   };
 
   // The history. Search matches the things you would actually remember about
@@ -141,157 +231,315 @@ export default function Calendar() {
       .sort((a, b) => b.start_at.localeCompare(a.start_at));
   }, [bookings, statusFilter, query]);
 
-  const listTotal = listRows
-    .filter((b) => b.status !== "cancelled")
-    .reduce((s, b) => s + Number(b.final_amount ?? b.total_price ?? 0), 0);
+  // A LIST OF EVENTS HAS A TIME AXIS, and a month rule is what a time axis
+  // looks like when the list is long. Already sorted newest first, so this is
+  // a single pass rather than a group-and-sort.
+  const months = useMemo(() => {
+    const out = [];
+    for (const b of listRows) {
+      const key = b.booking_date.slice(0, 7);
+      if (out.at(-1)?.key !== key) out.push({ key, rows: [] });
+      out.at(-1).rows.push(b);
+    }
+    return out;
+  }, [listRows]);
 
-  return (
-    <div className={`group${refreshing ? " refreshing" : ""}`} aria-busy={refreshing || undefined}>
-      <div className="row between">
-        <div className="row" style={{ gap: 6 }}>
-          <button className={`chip ${mode === "month" ? "active" : ""}`} onClick={() => setMode("month")}>Month</button>
-          <button className={`chip ${mode === "list" ? "active" : ""}`} onClick={() => setMode("list")}>History</button>
-        </div>
-        <button className="btn sm inline filled" onClick={() => setCreating(today)}>New booking</button>
-      </div>
+  const filtered = statusFilter !== "all" || query.trim() !== "";
+  const activeChips = [
+    statusFilter !== "all" && [STATUS_SAID[statusFilter], () => setStatusFilter("all")],
+    range !== DEFAULT_RANGE && [RANGES.find(([k]) => k === range)[1], () => setRange(DEFAULT_RANGE)],
+  ].filter(Boolean);
 
-      {mode === "month" && (
-        <>
-          <div className="tight">
-            <div className="row between">
-              <button className="btn sm inline ghost" onClick={() => moveMonth(-1)} aria-label="Previous month">
-                <ChevronLeft strokeWidth={2} />
-              </button>
-              <h2>{new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h2>
-              <button className="btn sm inline ghost" onClick={() => moveMonth(1)} aria-label="Next month">
-                <ChevronRight strokeWidth={2} />
-              </button>
+  const modeSwitch = (
+    <div className="row" style={{ gap: 6 }}>
+      <button className={`chip ${mode === "month" ? "active" : ""}`}
+        onClick={() => setMode("month")}>Month</button>
+      <button className={`chip ${mode === "list" ? "active" : ""}`}
+        onClick={() => setMode("list")}>History</button>
+    </div>
+  );
+
+  // `.chiprow WRAP`, at both widths, and it was measured rather than assumed.
+  // The bare `.chiprow` is a sideways scroller with `scrollbar-width: none`,
+  // and the sweep — the first run that ever opened this filter bar — found
+  // «No show» 93px off the right edge of a 392px phone and «Everything» 61px
+  // off it, with nothing on screen saying they were there. The product had
+  // already answered this once: the phone pass §8 measured Money's five period
+  // chips at 388px in a 356px column and wrapped them rather than hiding two.
+  // Same question, same answer.
+  const chipRow = (opts, value, set) => (
+    <div className="chiprow wrap">
+      {opts.map(([k, label]) => (
+        <button key={k} className={`chip ${value === k ? "active" : ""}`}
+          onClick={() => set(k)}>{label}</button>
+      ))}
+    </div>
+  );
+  const totals = (
+    <div className="sunken flush row between">
+      <span className="quiet">
+        {listRows.length} booking{listRows.length === 1 ? "" : "s"}
+      </span>
+      <span className="strong num">{money(sum(listRows))}</span>
+    </div>
+  );
+
+  const record = selected && (
+    <RecordHost onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
+      <BookingDetail booking={selected} onClose={() => setSelected(null)}
+        onChanged={() => { reload(); setSelected(null); }} />
+    </RecordHost>
+  );
+  const newBooking = creating && (
+    <NewBookingModal initialDate={creating} onClose={() => setCreating(null)}
+      onCreated={() => { setCreating(null); reload(); loadMarks(); }} />
+  );
+
+  // ─── THE MONTH ──────────────────────────────────────────────────────────
+  // One column, all of the width into the grid. This is the screen that most
+  // wants width and the one that must not be split — a second column takes
+  // the width straight back off the cells (step 4 §4).
+  if (mode === "month") {
+    return (
+      <div className={`group${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
+        {modeSwitch}
+        {/* Above the grid, and the last good month stays drawn. */}
+        {error && <div className="error-box">{error}</div>}
+
+        <div className="tight">
+          <div className="row between">
+            <button className="btn sm inline ghost" onClick={() => moveMonth(-1)} aria-label="Previous month">
+              <ChevronLeft strokeWidth={2} />
+            </button>
+            <h2>{monthName(cursor)}</h2>
+            <button className="btn sm inline ghost" onClick={() => moveMonth(1)} aria-label="Next month">
+              <ChevronRight strokeWidth={2} />
+            </button>
+          </div>
+
+          <div>
+            <div className="cal-head">
+              {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <span key={i}>{d}</span>)}
             </div>
-
-            <div>
-              <div className="cal-head">
-                {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <span key={i}>{d}</span>)}
-              </div>
-              <div className="cal-grid">
-                {cells.map((date, i) => {
-                  if (date === null) return <div key={`x${i}`} />;
-                  const jobs = (byDay[date] ?? []).filter((b) => b.status !== "cancelled");
-                  return (
-                    <button key={date} type="button"
-                      className={`cal-cell ${date === today ? "today" : ""}`}
-                      aria-label={`${date}${jobs.length ? `, ${jobs.length} jobs` : ""}`}
-                      onClick={() => setDaySheet(date)}>
-                      <span className="n">{Number(date.slice(8))}</span>
-                      <span className="marks">
+            <div className="cal-grid">
+              {cells.map((date, i) => {
+                if (date === null) return <div key={`x${i}`} />;
+                const jobs = (byDay[date] ?? []).filter((b) => b.status !== "cancelled");
+                const blocked = marks.blocked.has(date);
+                const limited = marks.dropoff.has(date);
+                return (
+                  <button key={date} type="button"
+                    className={`cal-cell${date === today ? " today" : ""}${day === date ? " selected" : ""}`}
+                    aria-expanded={day === date}
+                    aria-controls={day === date ? "day-panel" : undefined}
+                    // "1 job", not "1 jobs" (Part B row 7) — and the date is
+                    // spoken rather than spelled out digit by digit, which is
+                    // what a bare "2026-09-02" gets you. The two day marks are
+                    // named here too: form carries them for an eye, and this
+                    // is the same fact for everyone else.
+                    aria-label={[
+                      dateLong(date),
+                      jobs.length ? `${jobs.length} job${jobs.length === 1 ? "" : "s"}` : null,
+                      blocked ? "blocked" : null,
+                      limited ? marks.dropoffLabel[date] : null,
+                    ].filter(Boolean).join(", ")}
+                    onClick={(e) => openDay(date, e.currentTarget)}>
+                    <span className="n">{Number(date.slice(8))}</span>
+                    <span className="marks" aria-hidden="true">
+                      {!wide && jobs.slice(0, 3).map((b) => (
+                        <span key={b.id} className={`dot ${b.status}`} />
+                      ))}
+                      {blocked && <span className="dot block" title="Blocked out" />}
+                      {limited && <span className="ring" title={marks.dropoffLabel[date] ?? "One type only"} />}
+                    </span>
+                    {/* THE DESK WRITES IT OUT. Three lines and an overflow
+                        covers the busiest realistic cell — five, this
+                        business's own buffer — with room; a cell that needed
+                        six is the crew case that reopens the week view, which
+                        step 3 §7 named as the condition. */}
+                    {wide && jobs.length > 0 && (
+                      <span className="jobs" aria-hidden="true">
                         {jobs.slice(0, 3).map((b) => (
-                          <span key={b.id} className={`dot ${b.status}`} />
+                          <span key={b.id} className={b.status}>
+                            <span className="t">{time12(b.start_time)}</span>
+                            {shortName(b.customer_name)}
+                          </span>
                         ))}
-                        {marks.blocked.has(date) && <span className="dot block" title="Blocked out" />}
-                        {marks.dropoff.has(date) && <span className="ring" title={marks.dropoffLabel?.[date] ?? "Limited"} />}
+                        {jobs.length > 3 && <span className="more">+{jobs.length - 3} more</span>}
                       </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* A GRID, NOT A WRAPPING ROW — at 392 a fifth entry wrapped alone
+              onto its own line, which reads as a mistake. auto-fit gives one
+              row on a desk and an even split on a phone. Inline because it is
+              layout for this one element, like the row above it. */}
+          {legend.length > 0 && (
+            <div style={{
+              display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))",
+              gap: 12, paddingTop: 8, borderTop: "1px solid var(--hairline)",
+            }}>
+              {legend.map(([cls, label]) => (
+                <span className="row" key={label} style={{ gap: 5 }}>
+                  <span className={cls} /><span className="quiet">{label}</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {day && (
+          <DaySheet
+            inline
+            date={day}
+            bookings={byDay[day] ?? []}
+            onClose={() => { setDay(null); dayCell.current?.focus(); }}
+            onOpenBooking={setSelected}
+            onNewBooking={setCreating}
+            onChanged={() => { loadMarks(); reload(); }}
+          />
+        )}
+
+        {record}
+        {newBooking}
+      </div>
+    );
+  }
+
+  // ─── THE HISTORY ────────────────────────────────────────────────────────
+  // 1.7 / 1 at --wrap: the list, and a second column that holds the selected
+  // job — or, with nothing selected, the filters and the totals, which takes
+  // two rows of chrome off the top of the results (step 4 §6).
+  return (
+    <div className="split">
+      <div className="group col-1">
+        {modeSwitch}
+        {error && <div className="error-box">{error}</div>}
+
+        <div className="tight">
+          <div style={{ position: "relative" }}>
+            <Search size={17} strokeWidth={2} style={{
+              position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
+              color: "var(--text-muted)", pointerEvents: "none",
+            }} />
+            <input value={query} onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search bookings"
+              placeholder="Search name, phone or service" style={{ paddingLeft: 38, paddingRight: 38 }} />
+            {query && (
+              <button onClick={() => setQuery("")} aria-label="Clear search" style={{
+                position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)",
+                background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer",
+                padding: 6, display: "flex",
+              }}><X size={16} strokeWidth={2} /></button>
+            )}
+          </div>
+
+          {/* THE FILTER BAR IS THE PHONE PROBLEM, NOT THE LIST. Nine chips, a
+              search field and a date range is three rows of chrome before a
+              single result. The search stays — on a phone, finding a past job
+              IS a search — and the chips go behind one control, with whatever
+              is switched on showing as a pill you can drop
+              (docs/dashboard-phone-pass-2026-08-31.md §7). */}
+          {!wide && (
+            <div className="row wrap" style={{ gap: 6 }}>
+              <button className={`chip ${filtersOpen ? "active" : ""}`}
+                aria-expanded={filtersOpen}
+                onClick={() => setFiltersOpen((v) => !v)}>
+                <SlidersHorizontal strokeWidth={2} /> Filter
+              </button>
+              {activeChips.map(([label, clear]) => (
+                <button key={label} className="chip active" onClick={clear}
+                  aria-label={`Remove filter: ${label}`}>
+                  {label} <X size={13} strokeWidth={2.4} />
+                </button>
+              ))}
+            </div>
+          )}
+          {!wide && filtersOpen && (<>
+            {chipRow(STATUSES, statusFilter, setStatusFilter)}
+            {chipRow(RANGES, range, setRange)}
+          </>)}
+          {!wide && totals}
+        </div>
+
+        {/* The list dims while a read is in flight; the filter bar above stays
+            live, because changing a filter is how you get out of a slow one. */}
+        <div className={busy ? "refreshing" : undefined} aria-busy={busy || undefined}>
+          {listRows.length === 0 && !busy && (
+            <div className="tight">
+              <p className="body">
+                {filtered ? "Nothing matches that." : `No bookings in ${RANGE_SAID[range]}.`}
+              </p>
+              {/* An empty result is a state of the FILTER, not of the
+                  business, and with the chips collapsed this is the only way
+                  the screen can say which (step 4 §6, phone pass §7). */}
+              {filtered && (
+                <div className="row wrap" style={{ gap: 6 }}>
+                  {query.trim() && (
+                    <button className="chip active" onClick={() => setQuery("")}>
+                      “{query.trim()}” <X size={13} strokeWidth={2.4} />
+                    </button>
+                  )}
+                  {statusFilter !== "all" && (
+                    <button className="chip active" onClick={() => setStatusFilter("all")}>
+                      {STATUS_SAID[statusFilter]} <X size={13} strokeWidth={2.4} />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {months.map(({ key, rows }) => (
+            <div key={key}>
+              <div className="month-rule">
+                <span className="label">{monthName(key)}</span>
+                <span className="num strong">{money(sum(rows))}</span>
+              </div>
+              <div className="rows cols history">
+                {rows.map((b) => {
+                  const services = (b.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
+                  const what = services.join(" · ") || (b.service_type === "mobile" ? "Mobile" : "Drop-off");
+                  const amount = money(b.final_amount ?? b.total_price);
+                  return (
+                    <button key={b.id} className="row-item" onClick={() => setSelected(b)}
+                      aria-label={`${b.customer_name}, ${dateLong(b.booking_date)}, ${what}, ${STATUS_SAID[b.status] ?? b.status}, ${amount}`}>
+                      <span className={`c-mark dot ${b.status}`} aria-hidden="true" />
+                      <span className="c-who nm">{b.customer_name}</span>
+                      <span className="c-sub">
+                        <span className="c-date">{shortDate(b.booking_date)}</span>
+                        <span className="c-what">{what}</span>
+                      </span>
+                      <span className="c-total figure sm">{amount}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
+          ))}
+        </div>
+      </div>
 
-            {/* A GRID, NOT A WRAPPING ROW. Five entries since 2.4 (it decoded
-                four of seven marks before), and at 392 the fifth wrapped alone
-                onto its own line, which reads as a mistake. auto-fit gives one
-                row on desktop and an even 3+2 on a phone. Inline because it is
-                layout for this one element, like the row above it. */}
-            <div style={{
-              display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))",
-              gap: 12, paddingTop: 8, borderTop: "1px solid var(--hairline)",
-            }}>
-              <span className="row" style={{ gap: 5 }}><span className="dot confirmed" /><span className="quiet">Booked</span></span>
-              <span className="row" style={{ gap: 5 }}><span className="dot completed" /><span className="quiet">Done</span></span>
-              <span className="row" style={{ gap: 5 }}><span className="dot no_show" /><span className="quiet">No-show</span></span>
-              <span className="row" style={{ gap: 5 }}><span className="dot block" /><span className="quiet">Blocked</span></span>
-              <span className="row" style={{ gap: 5 }}><span className="ring" /><span className="quiet">One type only</span></span>
-            </div>
-          </div>
-
-          {loading && <div className="spinner" />}
-        </>
-      )}
-
-      {mode === "list" && (
-        <>
+      {wide && !selected && (
+        <aside className="col-2">
+          {totals}
           <div className="tight">
-            <div style={{ position: "relative" }}>
-              <Search size={17} strokeWidth={2} style={{
-                position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)",
-                color: "var(--text-muted)", pointerEvents: "none",
-              }} />
-              <input value={query} onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search name, phone or service" style={{ paddingLeft: 38, paddingRight: 38 }} />
-              {query && (
-                <button onClick={() => setQuery("")} aria-label="Clear search" style={{
-                  position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)",
-                  background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer",
-                  padding: 6, display: "flex",
-                }}><X size={16} strokeWidth={2} /></button>
-              )}
-            </div>
-            <div className="chiprow">
-              {STATUSES.map(([k, label]) => (
-                <button key={k} className={`chip ${statusFilter === k ? "active" : ""}`}
-                  onClick={() => setStatusFilter(k)}>{label}</button>
-              ))}
-            </div>
-            <div className="chiprow">
-              {RANGES.map(([k, label]) => (
-                <button key={k} className={`chip ${range === k ? "active" : ""}`}
-                  onClick={() => setRange(k)}>{label}</button>
-              ))}
-            </div>
+            <h2 className="label">Status</h2>
+            {chipRow(STATUSES, statusFilter, setStatusFilter)}
           </div>
-
-          <div className="sunken flush row between">
-            <span className="quiet">
-              {listRows.length} booking{listRows.length === 1 ? "" : "s"}
-              {query ? ` matching “${query}”` : ""}
-            </span>
-            <span className="strong num">{money(listTotal)}</span>
-          </div>
-
-          {loading && <div className="spinner" />}
-          {!loading && listRows.length === 0 && (
-            <div className="dashed">
-              {query || statusFilter !== "all"
-                ? "Nothing matches that. Try a different search or filter."
-                : "No bookings in this period yet."}
-            </div>
-          )}
           <div className="tight">
-            {listRows.map((b) => (
-              <BookingCard key={b.id} booking={b} showDate dense onClick={() => setSelected(b)} />
-            ))}
+            <h2 className="label">When</h2>
+            {chipRow(RANGES, range, setRange)}
           </div>
-        </>
+        </aside>
       )}
 
-      {daySheet && (
-        <DaySheet
-          date={daySheet}
-          bookings={byDay[daySheet] ?? []}
-          onClose={() => setDaySheet(null)}
-          onOpenBooking={(b) => { setDaySheet(null); setSelected(b); }}
-          onNewBooking={(d) => { setDaySheet(null); setCreating(d); }}
-          onChanged={() => { loadMarks(); reload(); }}
-        />
-      )}
-      {selected && (
-        <Sheet onClose={() => setSelected(null)} {...jobRecordProps(selected)}>
-          <BookingDetail booking={selected} onClose={() => setSelected(null)}
-            onChanged={() => { reload(); setSelected(null); }} />
-        </Sheet>
-      )}
-      {creating && (
-        <NewBookingModal initialDate={creating} onClose={() => setCreating(null)}
-          onCreated={() => { setCreating(null); reload(); loadMarks(); }} />
-      )}
+      {record}
+      {newBooking}
     </div>
   );
 }

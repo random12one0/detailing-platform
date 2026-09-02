@@ -56,7 +56,7 @@ export default function Preferences() {
         </Setting>
         <Setting
           label="Try it"
-          help="Opens a sample so you can check it lands where you expect."
+          help="Opens a sample."
         >
           <button
             type="button"
@@ -85,7 +85,7 @@ export default function Preferences() {
       >
         <Setting
           label="Contacts"
-          help="A contact card file is the only way a website can reach your address book. iPhone opens it straight in Contacts; Android saves the file and Contacts imports it."
+          help="iPhone opens it in Contacts; Android saves the file first."
           stacked
         >
           <Segmented

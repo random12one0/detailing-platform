@@ -254,12 +254,8 @@ export default function BookingRules() {
         <span className="strong num">{slotCount === null ? "—" : slotCount}</span>
       </div>
 
-      <Group title="What you offer"
-        blurb="Customers only ever see the options you turn on here.">
+      <Group title="What you offer">
         <Setting label="Where you work"
-          help={mode === "both" ? "Customers choose which they'd prefer."
-            : mode === "mobile" ? "Every job happens at the customer's address."
-              : "Every job happens at your place."}
           stacked>
           <Segmented value={mode} onChange={setMode} options={[
             ["mobile", "I go to them"], ["dropoff", "They come to me"], ["both", "Both"],
@@ -335,10 +331,9 @@ export default function BookingRules() {
         )}
       </Group>
 
-      <Group title="When you can be booked"
-        blurb="These decide which times show up on your booking page.">
+      <Group title="When you can be booked">
         <Setting label="Gap between jobs"
-          help="Time to pack up, drive and set up again. It is held after every booking."
+          help="Held after every booking, to pack up and drive."
           stacked>
           <DurationChoice value={form.buffer_minutes} presets={BUFFER}
             onChange={(v) => set("buffer_minutes", v)} unit="minutes" customMax={480} />
@@ -352,7 +347,6 @@ export default function BookingRules() {
         </Setting>
 
         <Setting label="How far ahead they can book"
-          help="Anything past this is not offered yet."
           stacked>
           <DurationChoice value={form.max_advance_days} presets={WINDOW}
             onChange={(v) => set("max_advance_days", v)} unit="days" customMax={1095} />
@@ -373,10 +367,9 @@ export default function BookingRules() {
         </Setting>
       </Group>
 
-      <Group title="Changes and reminders"
-        blurb="What a customer can do on their own, and when they hear from you.">
+      <Group title="Changes and reminders">
         <Setting label="They can change or cancel until"
-          help="Closer than this and they have to call you. Your booking page says so rather than failing."
+          help="Closer than this and they have to call you."
           stacked>
           <DurationChoice value={form.cancellation_window_hours} presets={CANCEL}
             onChange={(v) => set("cancellation_window_hours", v)} unit="hours" customMax={720} />
@@ -390,12 +383,12 @@ export default function BookingRules() {
         </Setting>
 
         <Switch label="Ask how dirty the vehicle is"
-          help="Four choices — light, moderate, heavy or extreme — on the booking page. It never changes the price; it tells you what you are driving to."
+          help="Light, moderate, heavy or extreme. Never changes the price."
           checked={form.ask_vehicle_condition}
           onChange={(v) => set("ask_vehicle_condition", v)} />
 
         <Switch label="Remind the night before for early jobs"
-          help="A 7am reminder for a 8am job is no use. This sends it the evening before instead."
+          help="Sent the evening before instead."
           checked={form.evening_before_enabled}
           onChange={(v) => set("evening_before_enabled", v)} />
       </Group>

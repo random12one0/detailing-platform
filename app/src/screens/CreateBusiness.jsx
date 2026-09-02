@@ -96,7 +96,7 @@ export default function CreateBusiness({ onDone }) {
       <form onSubmit={submit} style={{ width: "100%", maxWidth: 420 }} className="card">
         <h1 style={{ marginBottom: 4 }}>Your business</h1>
         <p className="quiet" style={{ marginBottom: 16 }}>
-          This is all we need. Services, hours and the rest are in Settings.
+          Services, hours and the rest are in Settings.
         </p>
 
         {wantsFounding && spots?.left > 0 && (

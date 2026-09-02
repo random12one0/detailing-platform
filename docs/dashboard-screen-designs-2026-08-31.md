@@ -710,6 +710,67 @@ The ruled list with columns; month rules; status marks; the totals bar; chips.
 
 ---
 
+## 4-6 · What shipped (roadmap 2.11 step 6, stage 3 — 2026-09-01)
+
+**One block for the three, because they are one screen with two modes and a
+panel under one of them.**
+
+**Built as designed.** The desk cell is 159px at 1440 (the design said 163 at
+1,180 and the column is capped at `--wrap`, so this is the same number) and
+carries `9:00 AM Tom O.` on up to three lines with `+N more`; Booked / Done /
+No-show are words there and the legend drops to the two marks a cell cannot
+write. The legend lists only what is on the month shown at both widths, the
+spoken label says *1 job*, `.cal-cell.selected` is alive, the day opens inline
+under the grid at every width, History is a ruled list with columns under month
+rules carrying each month's own total, the chips collapse behind *Filter* on a
+phone and live in the second column at a desk, and the screen's *New booking*
+button and its own `<Sheet>` are both gone.
+
+**Measured.** History **3,942px → 1,373px at 1440** and **1,973px at 392**.
+The month at 392 is 844px — one screen, where the legend used to take a second
+row. `sweep-widths.mjs` walks the day, its three editors, the history, the open
+filter bar and a history job now; it never opened any of them before.
+
+**Where the code and the drawing differ, and why:**
+
+- **The day's *Add a job on this day* survives, demoted.** §12 says the header
+  `+` is the one doorway and lists three doors; two of the three were
+  *New booking* with no date on them and are dead. This one carries THIS day,
+  which is the capability the other two never had, so removing it would cost a
+  real thing to satisfy a count. It is a `.btn.sm` beside the jobs now instead
+  of a full-width filled button — a control, not a door.
+- **The day panel is TWO COLUMNS at ≥1180.** Not in any design; it follows from
+  one that is. Month is deliberately unsplit, so the panel under it inherits
+  1,144px, and a job row that wide puts the name at one end of the screen and
+  the money at the other. The day holds two different things — what is booked,
+  and what is true of the day — so width buys a column rather than stretching
+  one, which is the desktop spec's own rule one level down.
+- **The three state cards dim to `.refreshing` while their state loads** rather
+  than growing a class of their own. §5 asks for 55% and that class is 55% and
+  no taps. **Each summary line waits** as well: "Bookings allowed as normal" is
+  a claim, and a null blockout during a read is not evidence for it.
+- **"Staff. Jobs, no state cards… the section simply is not drawn" is BUILT,
+  and narrowed by one clause.** §5's States row was never true of the code:
+  measured on the seeded staff session, a staff member saw *Block this day /
+  Bookings allowed as normal* and *Hours / Your normal hours for this weekday*
+  drawn **with zero controls in them** — two panels stating a default and
+  offering nothing to do about it, which §1a already forbids and which the
+  owner's copy rule forbids twice. **The narrowing:** an existing blockout,
+  hours override or restriction still shows to a staff member, because it is a
+  fact they need before they load the van — the same reasoning the mode card
+  has carried since roadmap 2.7. So the rule is **per card, not per section**:
+  an owner can always set one, a staff member only ever sees one that IS set,
+  and the *This day* heading is absent when none of the three is.
+- **The empty-unfiltered sentence names the range.** *"No bookings yet."* is
+  wrong when the range control is sitting at *Last 90 days*, which is its
+  default, so it reads *"No bookings in the last 90 days."* — one sentence, and
+  true. The filtered case is unchanged.
+- **The amount column at a desk is a fixed 92px, not `auto`.** Measured: with
+  `auto` a row totalling `$65.00` gave the two `fr` columns 4px more than a row
+  totalling `$235.00`, and since every row is its own grid the *what* column
+  started at 572px on some rows and 576px on others — a ragged column in a list
+  whose whole point is that you scan down it.
+
 ## 7. Money
 
 ### What it is for

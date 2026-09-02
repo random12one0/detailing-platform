@@ -98,6 +98,29 @@ not `fixed`, because the record has three containers** (a sheet, the desk's
 second column, `/job/:id`) and only sticky behaves in all three without any of
 them knowing about the others.
 
+**AND THE CALENDAR'S ROW GAINED ITS TWO HALVES ON 2026-09-01 (stage 3), which
+is the same skeleton and not a seventh.** *"A seven-column grid; History is a
+filtered ruled list"* is still exactly what that tab is. What landed under
+each half:
+
+- **The month grid writes words into its cells at ≥1180** — up to three
+  `time · name` lines and a `+N more` — so *Booked*, *Done* and *No-show* stop
+  being marks there and the legend shrinks to *Blocked* and *One type only*.
+  The marks vocabulary in §5b is unchanged; it is the phone's form of the same
+  fact, and it is still what the 320-to-1179 grid draws.
+- **THE DAY OPENS INLINE UNDER THE GRID, AND THAT IS THE ONE THING WORTH
+  KNOWING.** It is not a sheet, not a modal, and NOT the second column — a day
+  is not a record, so it does not go through `RecordHost`. The grid stays
+  drawn above it at every width, which is the whole reason: the month is the
+  thing you are reading the day *against*. `.cal-cell.selected` marks the cell
+  it came from. **This is the only place in the product where selecting
+  something opens a panel BELOW rather than over or beside.**
+- **`.rows.cols` — the ruled list, widening.** The row's interior goes from a
+  stacked pair to five columns above 1024 and the container does not change.
+  It is not a table and the composition vocabulary stays seven; the reasoning
+  is `docs/dashboard-component-inventory-2026-08-31.md` §1a, which spent
+  bucket 2's one permitted addition on nothing, deliberately.
+
 ## 4. The motion budget, and what is deliberately dropped (law 3)
 
 Law 3: *"Motion is not spendable… If a mechanic is deliberately dropped, say

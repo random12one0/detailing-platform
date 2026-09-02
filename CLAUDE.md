@@ -66,6 +66,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   system-ui/Space Grotesk as design choices; purple-blue gradients on
   white; three evenly spaced cards; numbered markers on non-sequences;
   "modern and clean"-style copy. See `docs/design-knowledge.md`.
+- **AND COPY THAT EXPLAINS WHAT THE LABEL ALREADY SAID — the owner's rule,
+  2026-09-01.** He found *"Mobile — we go to them"* on the job record:
+  *"no duh… it thinks that humans can't think, or it feels the need to
+  explain literally every single thing, which just gets annoying and
+  cluttered."* **The test: does the sentence add a fact the control does
+  not already carry?** If not, delete it. He is not asking for nothing to
+  be explained — the non-obvious keeps its sentence. Full rule and the
+  swept sites: `docs/design-system.md` § Never-defaults, and
+  DECISIONS.md → "The copy pass".
 - Visual work is verified by LOOKING: screenshot **1920 / 1440x900 /
   768x1024 / 392x844**, console read at each, in the normal path AND
   `?lite=1`, compared against the design system. 1920 is the owner's own
@@ -137,7 +146,12 @@ explaining it; if they still have to ask "so should I?", it failed.
   eleven settings sheets, the client sheet, **the job record in two states
   (added 2026-09-01, roadmap 2.11 step 6 stage 2 — until then the object
   carrying 26 of the product's 126 capabilities had never been swept, so a
-  clean run said nothing about it)** and the booking page at **1920, 1440,
+  clean run said nothing about it)**, **the calendar's OTHER TWO SCREENS —
+  the day panel with each of its three editors opened, the history, its
+  collapsed filter bar and a history job (added 2026-09-01, stage 3, and the
+  same gap: clicking the Calendar tab measured the month and nothing else,
+  so four capabilities and a whole second mode had never been opened at any
+  width)** and the booking page at **1920, 1440,
   392, 360 and 320** and reports anything past the right edge, anything
   **outside its own
   parent's box**, anything scrolling sideways with no scrollbar, and any two

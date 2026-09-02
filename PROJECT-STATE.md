@@ -1830,9 +1830,150 @@ pinned action bar over named sections, and why it is `sticky` and not `fixed`;
 and the component inventory's `BookingDetail.jsx` row is marked built and
 corrected from six sections to five.
 
-**STAGES 3-7 REMAIN:** Calendar · Money · Clients · Business and the twelve
+~~**STAGES 3-7 REMAIN:** Calendar · Money · Clients · Business and the twelve
 settings screens (with the colour repair, Reviews and the rebuilt push switch)
-· first run, last on purpose.
+· first run, last on purpose.~~ **CALENDAR SHIPPED THE SAME DAY — see §6r.**
+
+## 6r. ROADMAP 2.11, STEP 6 — STAGE 3 IS BUILT: THE CALENDAR (2026-09-01)
+
+**Stage 3 of the approval page's seven**, and it is one tab with three screens:
+the month, the day, and the history. Judgment calls are DECISIONS.md →
+"Roadmap 2.11, step 6, stage 3" and "The copy pass". **Nothing is waiting on
+the owner.**
+
+**THE NUMBERS.**
+
+| | Before | After |
+|---|---|---|
+| History's document height, 1440 | 3,942px (18 cards) | **1,373px** — a ruled list with columns |
+| History's document height, 392 | 3,942px, the same at every width | **1,973px** |
+| The month cell at 1440 | 88px, up to 3 dots | **118px, `9:00 AM Tom O.` on up to 3 lines** |
+| The legend | five entries, always | **only the marks on the month shown** — three at 392, one at 1440 |
+| The day | a full-height sheet OVER the month | **an inline panel UNDER the grid**, at every width |
+| `.cal-cell.selected` | dead CSS since roadmap 2.6 | drawn |
+| `BookingCard` callers | 4 | **2** (`Today`, `Clients` — and 1 after stage 5) |
+| Screens `sweep-widths.mjs` opens on this tab | 1 | **7** (month, day, its three editors, history, a history job) |
+
+**WHAT SHIPPED.** The desk writes the month out — up to three `time · name`
+lines per cell and a `+N more`, so *Booked*, *Done* and *No-show* become words
+and the legend drops to the two marks a cell cannot write. At every width the
+legend lists only what is actually on the month shown. **The day opens inline
+under the grid at both widths** and the cell it came from is marked; on a phone
+the selected week scrolls up under the masthead so the month stays readable.
+History is a ruled list with columns — two cells on a phone, five at a desk —
+broken by month rules carrying each month's own total, with the nine filter
+chips behind one *Filter* below `--wrap` and in the second column above it, and
+a job opening BESIDE the list through `RecordHost`. The screen's own
+*New booking* button and its own `<Sheet>` are both gone.
+
+**THE ONE A COLD SESSION MUST NOT RE-DERIVE: TODAY'S STAGGERED ARRIVAL HAD
+NEVER RUN.** `theme.css`'s reveal block carries a second selector for split
+screens, `.app-main > .group > .col-1 > *`, and it **matched nothing** — a
+split screen's root is `.split`, so `.col-1` **is** a `.group` rather than a
+child of one. Every child of Today's primary column has arrived with
+`animation-name: none` since the shell shipped, on the one screen the signature
+move exists for. **Nothing in the product could report it**: no error, no
+console line, no layout difference, and every screenshot script photographs the
+end state on purpose. Found by reading the *computed* `animation-name` on the
+live screen. **Third member of the `dead-width` family**, and the transferable
+part is sharper than "check your selectors": **a mechanism whose failure mode is
+silence needs a check that asserts it RAN**, not one that asserts the screen
+looks right.
+
+**AND FOUR MORE THINGS THAT WERE ONLY FINDABLE BY BUILDING OR BY RUNNING.**
+
+1. **`useBookings` swallowed its error.** `const { data } = await q` — so a
+   failed read drew **an empty month, an empty day and an empty Money period**,
+   with nothing on screen saying so. Fixed in the hook because all three
+   screens had it, **and finished on all three callers in the same change**,
+   which is stage 1's own lesson about the other half of a shared fix. The last
+   good data stays drawn and the message goes above it.
+2. **The filter chips ran 93px and 125px off the right edge of a phone**, and
+   the sweep only saw it because this stage taught it to open the filter bar.
+   `.chiprow` is a sideways scroller with `scrollbar-width: none`, so two of
+   five statuses were simply not on the screen and nothing said they were
+   there. **The product had already answered this once** — the phone pass §8
+   measured Money's five period chips at 388px in a 356px column and wrapped
+   them rather than hiding two. Same question, same answer.
+3. **`composition.test.mjs` test 1's rewrite passed against the exact commit it
+   was written to catch**, on the first attempt. The caller regex used
+   `[^)]{0,90}` to get from `.map(` to the component name, and a callback's own
+   parameter list contains a `)` — so it could not cross `(b) =>`, which is how
+   every real caller in this repo is written. **A check that has not been shown
+   to fail is not evidence of anything**; it is baselined both ways now.
+4. **An `auto` amount column made the new ruled list ragged.** Every
+   `.row-item` is its own grid, so a row totalling `$65.00` gave the two `fr`
+   columns 4px more than one totalling `$235.00`, and *what* started at 572px
+   on some rows and 576px on others — in a list whose whole purpose is that you
+   scan down it. 92px fixed.
+
+**THE COPY PASS — HIS OWN INSTRUCTION, AND IT IS NOW A NEVER-DEFAULT.** He
+found *"Mobile — we go to them"* on the job record: *"no duh… it thinks that
+humans can't think, or it feels the need to explain literally every single
+thing, which just gets annoying and cluttered."* **Twenty-four sites** across
+the dashboard, the settings screens, the booking page and the way in. **The
+test: does the sentence add a fact the control does not already carry?** What
+went was restatement — a switch called *A new booking comes in* explained with
+*"So you know before they do."*, a choice between *I go to them* and *They come
+to me* with each option defined underneath, *"Saved."* extended into a sentence
+about where the colour lands. **What stayed is the half that stops the rule
+becoming its own mistake**: *"Picking another swaps it"*, *"Past bookings keep
+it"*, *"Timing is set in Booking rules."* The durable form is in
+`docs/design-system.md` § Never-defaults and CLAUDE.md; **nothing on the
+landing page changed**, because its copy was already written to this standard
+and he approved that page.
+
+**MEASURED AFTER.**
+
+| | |
+|---|---|
+| `sweep-widths.mjs` | clean at 1920 / 1440 / 392 / 360 / 320, normal and `?lite=1` |
+| Console at 1920 / 1440 / 768 / 392 | nothing but the two pre-existing React Router v7 future-flag warnings |
+| `composition` (26) · `design-contrast` · `landing-pricing` (18) · `route-contract` (18) · `decisions-index` · `accent-sweep` | all pass |
+| Today's arrival | `arrive @0s` / `@40ms` on the masthead and the ledger, and the rail correctly `none` because its own children carry the beats — **all three read `none` before**. `?lite=1` still turns every one of them off. |
+
+**FIVE FILES THAT OUTRANK THE DESIGNS WERE CORRECTED IN THE SAME CHANGE**, per
+CLAUDE.md's never-silently rule: the screen designs gain a *What shipped* block
+for §4-6; the phone pass records how the week-scroll and the shared `JobRow`
+were done; `dashboard-skeletons.md` §3 gains the calendar's two halves and the
+fact that the inline-below panel is the only one of its kind in the product;
+the component inventory marks `Calendar.jsx` and `DaySheet.jsx` built and
+strikes its own `DaySheet > BookingCard` row (the phone pass outranks it — the
+day's jobs are rows); and the architecture audit's Part B rows 7, 8 and 9 are
+struck with what replaced them.
+
+**TWO THINGS LEFT STANDING ON PURPOSE.** The day's *Add a job* survives step
+5's death list, demoted to a `.btn.sm`: the two dead buttons carried no date
+and this one carries THIS day, so removing it would cost a real capability to
+satisfy a count. And **a no-show still counts toward a month rule's total** —
+`status !== "cancelled"` is the rule the totals bar has always used, it is a
+money question rather than a layout one, and this stage did not reopen it.
+
+**AND THREE THINGS OBSERVED AND NOT FIXED, written down so they are not found
+again as if new.**
+
+1. **The month grid is 30 tab stops.** Every cell is a `<button>`, so getting
+   from the month heading to the legend costs thirty presses. **Inherited, not
+   introduced** — it has been thirty since the grid was built. No WCAG
+   criterion is against it (2.4.3 is about order, not count) and a month view
+   is not a date input, but the convention for a grid of dates is a roving
+   `tabindex` with arrow keys, which is one stop. **That is a change to the
+   cell's interaction model and belongs to a session that owns it**, not to a
+   paste at the end of a stage; it would also have to answer what arrow keys do
+   at a row edge and at a month edge.
+2. **At 1920x1080 the month ends 270px above the fold with nothing under it.**
+   That is the *"not enough content to fill the viewport"* shape
+   `design-system.md` § Verification names — and it is left, because the
+   alternative is inflating the cell past the 112px the design specifies to
+   fill a screen, which is spending height on nothing. **Opening a day fills
+   it** (to ~1,240px), and opening a day is what the screen is for.
+3. **`document.title` is still "Detailing Platform" on every route** — stage
+   2's finding, still open, still product-wide and still wrong to fix on one
+   route alone.
+
+**STAGES 4-7 REMAIN:** Money · Clients · Business and the twelve settings
+screens (with the colour repair, Reviews and the rebuilt push switch) · first
+run, last on purpose.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

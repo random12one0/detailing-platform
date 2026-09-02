@@ -80,7 +80,7 @@ export default function Auth() {
         <h1 style={{ marginBottom: 4 }}>{creating ? "Create your account" : "Sign in"}</h1>
         <p className="quiet" style={{ marginBottom: 16 }}>
           {creating
-            ? "Two fields now, your business details next."
+            ? "Your business details come next."
             : "Welcome back."}
         </p>
 

@@ -437,6 +437,11 @@ phone a sheet. **Decided: the phone gets the inline panel too.**
 - **Jobs in the day panel are rows**, same form as §3b. The panel is not the
   place a job is a card; the job record is.
 - Staff see the jobs and not the state cards, as step 4 has it.
+  **BUILT 2026-09-01, and narrowed by one clause:** an existing blockout,
+  override or restriction still shows, because it is a fact a staff member
+  needs before they load the van. Per card, not per section — an owner can
+  always set one, a staff member only ever sees one that IS set. Until this
+  stage they saw two cards stating a default with **no controls in them.**
 
 ---
 
@@ -461,6 +466,24 @@ navigation 400 rows need.
   step 4's rule, and with the chips collapsed it is the only way the screen can
   be honest about why it is empty. **This is the one place the collapse costs
   something, and the empty state is what pays it back.**
+
+### §5-7 BUILT 2026-09-01 (roadmap 2.11 step 6, stage 3)
+
+All of the above ships as written. Three things this file did not say, all
+found by building it:
+
+- **The phone's scroll-the-week-up is `scrollIntoView({ block: "start" })` on
+  the cell**, plus `scroll-margin-top` on `.cal-cell` equal to the sticky top
+  bar — a browser scrolls a target flush to the viewport edge and knows
+  nothing about what is fixed over it. It is the phone only: at a desk the
+  month and the panel are both already in view and moving the page would be
+  motion for its own sake, which is `useWide` doing the job §2b describes.
+- **The day panel's jobs are `JobRow`, the same component §3b's rows use** —
+  it moved out of `Today.jsx` into `components/JobRow.jsx` rather than being
+  written a second time. That also drops `BookingCard`'s callers to two.
+- **History's 92px amount column and the `display: contents` trick** are in
+  step 4's *What shipped* block; the phone form is the one both branches are
+  written against, so the phone is where `.c-sub` is a real box.
 
 ---
 
