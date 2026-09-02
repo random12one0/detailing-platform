@@ -1,9 +1,23 @@
-// Full booking detail + every action: status, edit, finalize payment,
-// invoice, reminders, soft delete. Every booking WRITE goes through the
-// update-booking edge function (validation + conflict checks server-side).
+// The job record: an ACTION BAR over named sections.
+//
+// 26 of the product's 126 capabilities live on this object and until roadmap
+// 2.11 step 6 stage 2 it was one 340-line scroll with the phone buttons four
+// blocks down, under a heading called "Contact". Every product in the research
+// sample (Jobber, Housecall Pro, Zenbooker) puts them at the top, because that
+// is the only thing you need while you are standing at the car. Sections, not
+// tabs: tabs hide state, and a tab strip inside a sheet inside a phone is a
+// second navigation on a screen that already has one.
+// docs/dashboard-screen-designs-2026-08-31.md §3.
+//
+// THE CONTAINER IS THE CALLER'S (component inventory §2) — a sheet below
+// --wrap, the second column at a desk, the page itself at /job/:id. This file
+// renders content and nothing else.
+//
+// Every booking WRITE goes through the update-booking edge function
+// (validation + conflict checks server-side).
 
-import { useState } from "react";
-import { CalendarPlus, MessageSquare, Navigation, Phone, UserPlus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, CalendarPlus, CheckCircle2, CreditCard, MessageSquare, Navigation, Phone, UserPlus } from "lucide-react";
 import { api, icsUrl } from "../lib/api.js";
 import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
@@ -64,19 +78,37 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     admin_notes: booking.admin_notes || "",
   });
 
-  const act = async (fn, doneMsg) => {
+  // `changed` is FALSE for the two actions that send an email and touch
+  // nothing. All four callers wire onChanged to "reload the list AND close
+  // the record", which is right for a status change and wrong for a send:
+  // it meant "Reminder sent to customer." and "Invoice + thank-you sent."
+  // were written into a record that was already gone. Nobody had ever seen
+  // either message. It matters more now — Reminder is one tap in the bar.
+  const act = async (fn, doneMsg, changed = true) => {
     setBusy(true);
     setError("");
     setNotice("");
     try {
       await fn();
       if (doneMsg) setNotice(doneMsg);
-      onChanged?.();
+      if (changed) onChanged?.();
     } catch (e) {
       setError(e.message);
     }
     setBusy(false);
   };
+
+  // A CONFIRMATION IN A PINNED BAR HAS TO LEAVE ON ITS OWN. It used to scroll
+  // away with the rest of the record; now it sits in the one part of the
+  // screen that never moves, so "Reminder sent to customer." would eat 44px of
+  // the bar for the rest of the session. Six seconds is long enough to read a
+  // five-word sentence twice. AN ERROR IS NOT TIMED OUT — it is a thing you
+  // still have to do something about, and it clears on the next action.
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(""), 6000);
+    return () => clearTimeout(t);
+  }, [notice]);
 
   const setStatus = (status) =>
     act(() => api.updateBooking(business.id, { booking_id: booking.id, status }), `Marked ${status}.`);
@@ -127,9 +159,23 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       total: money(booking.final_amount ?? booking.total_price),
     });
 
+  // THE MONEY, and this is Part B row 19. The record printed "Estimated
+  // $235.00 · Final $235.00" on every finalized job, which is two figures
+  // saying one thing. One figure when they agree; both only when they
+  // differ, and then the difference is NAMED rather than left to subtract.
+  const quoted = Number(booking.total_price);
+  const charged = booking.final_amount == null ? null : Number(booking.final_amount);
+  const diff = charged == null ? 0 : Math.round((charged - quoted) * 100) / 100;
+  // Same condition as Today's lit card and its "Needs payment" run, so the
+  // card and the record it opens cannot disagree about what the job wants
+  // next. It also answers the design's "a job in the future has no Finalize
+  // payment" for free: a future job cannot be completed.
+  const canFinalize = booking.status === "completed" && !booking.finalized_at;
+  const cancelled = booking.status === "cancelled";
+
   return (
     <>
-        {/* The date and time live in the sheet's own header now, so they are
+        {/* The date and time live in the container's own header, so they are
             not repeated here. */}
         <div className="row wrap" style={{ gap: 6 }}>
           {/* These read as raw enum values — lowercase here, title case on
@@ -140,14 +186,73 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           </span>
         </div>
 
-        {error && <div className="error-box">{error}</div>}
-        {notice && <div className="ok-box">{notice}</div>}
+        {/* THE ACTION BAR — first, unheaded, and PINNED. Two rows of three:
+            the driveway row (where you are standing) over the desk row (what
+            you do about it afterwards). It carries the error and notice boxes
+            because they answer its own buttons and a message that scrolls out
+            of a sticky bar is a message nobody reads.
+            The label ceiling here is ~9 characters / ~60px of text, measured
+            at 320 in step 4 §3 — which is what "Navigate" already is. */}
+        <div className="jobbar">
+          {error && <div className="error-box" role="alert">{error}</div>}
+          {notice && <div className="ok-box" role="status">{notice}</div>}
+          <div className="actions-row">
+            <a className="btn sm" href={`tel:${booking.customer_phone}`}>
+              <Phone size={18} strokeWidth={2} /> Call
+            </a>
+            <button className="btn sm" onClick={openTextPicker}>
+              <MessageSquare size={18} strokeWidth={2} /> Text
+            </button>
+            {address && (
+              <a className="btn sm" href={mapsUrl(address)} target="_blank" rel="noreferrer">
+                <Navigation size={18} strokeWidth={2} /> Navigate
+              </a>
+            )}
+          </div>
+          <div className="actions-row">
+            <a
+              className="btn sm"
+              href={calendarUrlFor(
+                { ...booking, service_name: (booking.services ?? [])[0]?.name_at_booking },
+                icsUrl(booking.id, "owner"),
+              )}
+              {...(loadPrefs().calendar === "google"
+                ? { target: "_blank", rel: "noreferrer" }
+                : {})}
+            >
+              <CalendarPlus size={18} strokeWidth={2} /> Calendar
+            </a>
+            {loadPrefs().contacts !== "off" && booking.customer_phone && (
+              <button
+                className="btn sm"
+                onClick={() => saveContact({
+                  name: booking.customer_name,
+                  phone: booking.customer_phone,
+                  email: booking.customer_email,
+                  address: booking.customer_address,
+                })}
+              >
+                <UserPlus size={18} strokeWidth={2} /> Contacts
+              </button>
+            )}
+            {/* "Reminder", not "Remind them": 47px of text wraps the button
+                onto two lines at 320 and 59px does not. Step 4 §3. */}
+            {booking.customer_email && (
+              <button className="btn sm" disabled={busy}
+                onClick={() => act(() => api.sendReminder(business.id, booking.id, "customer"),
+                  "Reminder sent to customer.", false)}>
+                <Bell size={18} strokeWidth={2} /> Reminder
+              </button>
+            )}
+          </div>
+        </div>
 
         {!editing ? (
           <>
-            <div className="section-title">Job</div>
-            <div className="card">
+            <h3 className="section-title">The job</h3>
+            <div className="card tight">
               <p>{booking.service_type === "mobile" ? "Mobile — we go to them" : "Drop-off"}</p>
+              {address && <p className="quiet">{address}</p>}
               <p className="muted">
                 {(booking.services ?? []).map((s) => s.name_at_booking).join(", ")}
                 {(booking.booking_add_ons ?? []).length > 0 &&
@@ -170,124 +275,95 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   ].filter(Boolean).join(" and ")}
                 </p>
               )}
-              <p style={{ marginTop: 6 }}>
-                Estimated {money(booking.total_price)}
-                {booking.final_amount != null && <> · Final <strong>{money(booking.final_amount)}</strong></>}
-              </p>
             </div>
 
-            <div className="section-title">Contact</div>
-            {/* Four stacked full-width buttons took about 290px to do what
-                the job card does in one 46px row — and Navigate wrapped onto
-                two lines because the address was inside the label. The
-                address is a line of text; the actions are a row. */}
-            {address && <p className="quiet" style={{ marginBottom: 8 }}>{address}</p>}
-            <div className="actions-row">
-              <a className="btn sm" href={`tel:${booking.customer_phone}`}>
-                <Phone size={18} strokeWidth={2} /> Call
-              </a>
-              <button className="btn sm" onClick={openTextPicker}>
-                <MessageSquare size={18} strokeWidth={2} /> Text
-              </button>
-              {address && (
-                <a className="btn sm" href={mapsUrl(address)} target="_blank" rel="noreferrer">
-                  <Navigation size={18} strokeWidth={2} /> Navigate
-                </a>
-              )}
-            </div>
-            <div className="actions-row" style={{ marginTop: 8 }}>
-              <a
-                className="btn sm"
-                href={calendarUrlFor(
-                  { ...booking, service_name: (booking.services ?? [])[0]?.name_at_booking },
-                  icsUrl(booking.id, "owner"),
-                )}
-                {...(loadPrefs().calendar === "google"
-                  ? { target: "_blank", rel: "noreferrer" }
-                  : {})}
-              >
-                <CalendarPlus size={18} strokeWidth={2} /> Calendar
-              </a>
-              {loadPrefs().contacts !== "off" && booking.customer_phone && (
-                <button
-                  className="btn sm"
-                  onClick={() => saveContact({
-                    name: booking.customer_name,
-                    phone: booking.customer_phone,
-                    email: booking.customer_email,
-                    address: booking.customer_address,
-                  })}
-                >
-                  <UserPlus size={18} strokeWidth={2} /> Contacts
+            <h3 className="section-title">The money</h3>
+            <div className="card tight">
+              <p className="body">
+                {charged == null
+                  ? <>Quoted <span className="num">{money(quoted)}</span></>
+                  : diff === 0
+                    ? <>Charged <span className="num">{money(charged)}</span></>
+                    : <>
+                        Quoted <span className="num">{money(quoted)}</span> ·
+                        charged <strong className="num">{money(charged)}</strong>{" "}
+                        ({diff > 0 ? `+${money(diff)} added on site` : `${money(-diff)} taken off`})
+                      </>}
+              </p>
+              {/* Written by Finalize payment and, until now, printed nowhere. */}
+              {booking.payment_notes && <p className="quiet">How they paid: {booking.payment_notes}</p>}
+              {canFinalize ? (
+                <button className="btn primary" style={{ marginTop: "var(--sp-1)" }} disabled={busy}
+                  onClick={() => setFinalizing(true)}>
+                  <CreditCard size={18} strokeWidth={2} /> Finalize payment
                 </button>
-              )}
+              ) : charged != null && booking.customer_email ? (
+                <button className="btn primary" style={{ marginTop: "var(--sp-1)" }} disabled={busy}
+                  onClick={() => act(() => api.sendInvoice(business.id, booking.id),
+                    "Invoice + thank-you sent.", false)}>
+                  Email invoice
+                </button>
+              ) : null}
             </div>
 
             {(booking.customer_notes || booking.admin_notes) && (
               <>
-                <div className="section-title">Notes</div>
-                <div className="card">
+                <h3 className="section-title">Notes</h3>
+                <div className="card tight">
                   {booking.customer_notes && <p><span className="muted">Customer:</span> {booking.customer_notes}</p>}
                   {booking.admin_notes && <p><span className="muted">Private:</span> {booking.admin_notes}</p>}
                 </div>
               </>
             )}
 
-            <div className="section-title">Actions</div>
+            {/* Three or more actions take three weights — filled, ringed,
+                ringless (design-system.md § Composition). These were a 2x2
+                grid of identical buttons, which weighted cancelling a job the
+                same as correcting one. At most ONE accent fill is ever on this
+                screen: Mark completed only exists while the job is not
+                completed, and Finalize payment only once it is. */}
+            <h3 className="section-title">What happened</h3>
             <div className="stack" style={{ gap: 8 }}>
-              {booking.status === "confirmed" && (
-                <button className="btn primary" disabled={busy} onClick={() => setFinalizing(true)}>
-                  Finalize payment
-                </button>
+              {cancelled ? (
+                <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>Un-cancel</button>
+              ) : (
+                <>
+                  {booking.status !== "completed" && (
+                    <button className="btn primary" disabled={busy} onClick={() => setStatus("completed")}>
+                      <CheckCircle2 size={18} strokeWidth={2} /> Mark completed
+                    </button>
+                  )}
+                  {booking.status !== "no_show" && (
+                    <button className="btn" disabled={busy} onClick={() => setStatus("no_show")}>Didn’t show up</button>
+                  )}
+                  <button className="btn ghost" disabled={busy} onClick={() => setStatus("cancelled")}>Cancel the job</button>
+                </>
               )}
-              {booking.final_amount != null && booking.customer_email && (
-                <button className="btn" disabled={busy}
-                  onClick={() => act(() => api.sendInvoice(business.id, booking.id), "Invoice + thank-you sent.")}>
-                  Email invoice
-                </button>
-              )}
-              {booking.customer_email && (
-                <button className="btn" disabled={busy}
-                  onClick={() => act(() => api.sendReminder(business.id, booking.id, "customer"), "Reminder sent to customer.")}>
-                  Send customer reminder
-                </button>
-              )}
-              <button className="btn" disabled={busy} onClick={() => setEditing(true)}>Change time or details</button>
-              <div className="grid2">
-                {booking.status !== "completed" && (
-                  <button className="btn" disabled={busy} onClick={() => setStatus("completed")}>Mark completed</button>
-                )}
-                {booking.status !== "no_show" && (
-                  <button className="btn" disabled={busy} onClick={() => setStatus("no_show")}>Didn’t show up</button>
-                )}
-                {booking.status !== "cancelled" && (
-                  <button className="btn" disabled={busy} onClick={() => setStatus("cancelled")}>Cancel the job</button>
-                )}
-                {booking.status === "cancelled" && (
-                  <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>Un-cancel</button>
-                )}
-              </div>
-              {/* Delete used to be the biggest, reddest thing in the sheet —
-                  the rarest action given the most weight, sitting beside two
-                  others with no stated difference. Cancelling is what a
-                  detailer nearly always means, so deleting hides behind it
-                  and says what it does that cancelling doesn't. */}
-              <details className="disclose">
-                <summary>Remove this from my records too</summary>
-                <p className="quiet" style={{ margin: "0 0 10px" }}>
-                  Cancelling frees the slot and keeps the job in your history.
-                  Removing takes it out of your records and your totals as well.
-                  It cannot be undone.
-                </p>
-                <button className="btn danger" disabled={busy} onClick={softDelete}>
-                  Remove from records
-                </button>
-              </details>
             </div>
+
+            <h3 className="section-title">Change the time or details</h3>
+            <button className="btn" disabled={busy} onClick={() => setEditing(true)}>Edit</button>
+
+            {/* Delete used to be the biggest, reddest thing in the sheet —
+                the rarest action given the most weight, sitting beside two
+                others with no stated difference. Cancelling is what a
+                detailer nearly always means, so deleting hides behind it
+                and says what it does that cancelling doesn't. */}
+            <details className="disclose">
+              <summary>Remove this from my records too</summary>
+              <p className="quiet" style={{ margin: "0 0 10px" }}>
+                Cancelling frees the slot and keeps the job in your history.
+                Removing takes it out of your records and your totals as well.
+                It cannot be undone.
+              </p>
+              <button className="btn danger" disabled={busy} onClick={softDelete}>
+                Remove from records
+              </button>
+            </details>
           </>
         ) : (
           <>
-            <div className="section-title">Edit</div>
+            <h3 className="section-title">Change the time or details</h3>
             <label className="field"><span>Name</span>
               <input value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} /></label>
             <label className="field"><span>Phone</span>
@@ -324,7 +400,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 <a key={t.id} className="card tappable" href={smsHref(filled(t.body))}
                    style={{ display: "block", color: "inherit" }}>
                   <div className="strong">{t.label}</div>
-                  <div className="quiet" style={{ marginTop: 4 }}>{filled(t.body)}</div>
+                  <div className="quiet" style={{ marginTop: "var(--sp-1)" }}>{filled(t.body)}</div>
                 </a>
               ))}
               <a className="btn" href={`sms:${booking.customer_phone}`}>Write my own</a>

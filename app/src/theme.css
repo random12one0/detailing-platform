@@ -1634,10 +1634,63 @@ button.warn-box:hover { border-color: var(--fog-2); }
 .row-item svg { color: var(--text-muted); flex-shrink: 0; transition: color var(--t-hover) var(--e-out); }
 .row-item:hover svg { color: var(--accent-text); }
 
-/* Actions that belong together, across rather than stacked. */
+/* Actions that belong together, across rather than stacked. A GRID, not a
+   flex row — one column per child, so it divides rather than overflows,
+   which is why the job record's second row of three fits at 320 where
+   .btnrow's three would not. Every member of the row is conditional, so the
+   two shorter cases are declared rather than left at a third of the width. */
 .actions-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .actions-row:has(> :last-child:nth-child(2)) { grid-template-columns: repeat(2, 1fr); }
+.actions-row:has(> :only-child) { grid-template-columns: 1fr; }
 .actions-row .btn.sm { width: 100%; }
+
+/* THE JOB RECORD'S ACTION BAR, AND IT DOES NOT SCROLL AWAY.
+   Step 4 put Call / Text / Navigate at the top because "that is the only
+   thing you need while you are standing there"; the phone pass (§4) made the
+   argument stronger and PINNED it. Sticky rather than a fixed header: the
+   bar is content, the record has three different containers (a sheet, the
+   desk's second column, the /job/:id page) and sticky is the one mechanism
+   that behaves in all three without any of them knowing about it.
+   The error and notice boxes ride inside it — they answer its own buttons,
+   and a message that scrolls out of a pinned bar is a message nobody reads.
+   top: 0 lands the bar on the scrollport's PADDING-box edge, so nothing
+   passes above it; what it does NOT cover without help is the container's
+   side padding, where text would slide up the gutters beside it. */
+.jobbar {
+  position: sticky; top: 0; z-index: 3;
+  background: var(--surface);
+  display: flex; flex-direction: column; gap: 8px;
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.sheet-body > .jobbar {
+  margin-inline: calc(var(--sp-4) * -1);
+  padding-inline: var(--sp-4);
+}
+/* AND top: 0 IS NOT ENOUGH ON ITS OWN — MEASURED, twice, before and after.
+   A sticky box may not leave its CONTAINING BLOCK, which for a child of
+   .sheet-body is that element's CONTENT box: 16px below the scrollport. So
+   the bar stuck 18px down and a line of the record slid through the band
+   above it, on the one container where it matters most (a phone opens at a
+   56vh peek, so this is the case that scrolls). The sheet hands its top
+   padding to its first child instead, and only when a record is in it.
+   .record-body needs none of this — it has no padding, so its content box
+   IS its scrollport and the bar lands flush. */
+.sheet-body:has(> .jobbar) { padding-top: 0; }
+.sheet-body:has(> .jobbar) > :first-child { margin-top: var(--sp-4); }
+/* AND A PINNED BAR HIDES WHATEVER THE KEYBOARD SCROLLS UP TO. Observed, not
+   assumed: SHIFT-TAB backwards through the record put *Finalize payment* and
+   *Didn't show up* underneath the bar, focus ring and all, because a browser
+   scrolls a focused element just far enough to be inside the SCROLLPORT and
+   knows nothing about what is stuck over the top of it. `scroll-margin-top`
+   is the one thing it does honour. The bar measures 109px at 320, 392 and
+   1440; 10rem is that rounded up with room for the error box it can grow, and
+   overshooting only scrolls a little further than it had to.
+   DESCENDANTS TOO, and that was the second half of the same measurement: the
+   browser scrolls the FOCUSED element, and every control down there is inside
+   a card rather than a sibling of the bar, so the sibling selector alone
+   changed nothing. */
+.jobbar ~ *, .jobbar ~ * * { scroll-margin-top: 10rem; }
 
 /* A segmented control that cannot be changed — the last owner's role. */
 .segmented.is-disabled { opacity: 0.55; }

@@ -1614,8 +1614,9 @@ three in DECISIONS.md in full:
    a session to fix two and stop.** Verified at 844x390.
 
 **WHAT STAGE 1 DELIBERATELY LEFT, so nobody reads more as built than is.**
-**The job record is still the 340-line single scroll** — it opens beside the
-list now, but the action-bar-over-six-sections redesign is stage 2. `.dashed`
+~~**The job record is still the 340-line single scroll** — it opens beside the
+list now, but the action-bar-over-six-sections redesign is stage 2.~~
+**STAGE 2 SHIPPED THE SAME DAY — see §6q.** `.dashed`
 and `.badge` do NOT die yet (five of `.dashed`'s uses are on screens not yet
 rebuilt, and `sweep-widths.mjs`'s `boxy()` selector moves in the same change
 that removes the last one). `.rows.cols` has no caller until History and
@@ -1674,6 +1675,152 @@ that this can happen; DECISIONS.md carries the rule that came out of it.
 **STAGES 2-7 REMAIN:** the job record · Calendar · Money · Clients · Business
 and the twelve settings screens (with the colour repair, Reviews and the
 rebuilt push switch) · first run, last on purpose.
+
+## 6q. ROADMAP 2.11, STEP 6 — STAGE 2 IS BUILT: THE JOB RECORD (2026-09-01)
+
+**Stage 2 of the approval page's seven.** 26 of the product's 126 capabilities
+live on this one object and it is reached from four places. Judgment calls are
+DECISIONS.md → "Roadmap 2.11, step 6, stage 2". **Nothing is waiting on the
+owner.**
+
+**WHAT SHIPPED.** The record is **an action bar over named sections**. The bar
+is first, unheaded and **PINNED** — two rows of three, *Call · Text · Navigate*
+over *Calendar · Contacts · Reminder* — and under it five named sections:
+**The job · The money · Notes · What happened · Change the time or details**,
+with the *Remove from records* disclosure underneath, untouched because it was
+already right. **Photos stays designed and not built** (row 126) and draws
+nothing, so it is five sections on the screen against the design's six.
+*What happened* was a 2×2 grid of four identical buttons and is now three
+weights — *Mark completed* filled, *Didn't show up* ringed, *Cancel the job*
+ringless. *Send customer reminder* was a full-width button most of a screen
+down and is now one tap in the bar.
+
+**THE MONEY SECTION IS WHERE PART B ROW 19 DIED**, and all three of its cases
+were verified in a browser rather than reasoned about — the differing one by
+finalizing a real job through the real modal with a real extra charge:
+
+| The job | What it prints |
+|---|---|
+| Not finalized | `Quoted $95.00`, and nothing else |
+| Finalized, nothing changed | `Charged $65.00` — **one figure, not two saying the same thing** |
+| Finalized, charged more | `Quoted $110.00 · charged $140.00 (+$30.00 added on site)` |
+
+plus *How they paid: Cash* from `payment_notes`, **which Finalize payment has
+always written and which no screen in this product has ever shown.**
+
+**TWO LIVE DEFECTS, AND BOTH WERE ALREADY WRITTEN DOWN AS DESIGN.** Neither
+was findable by reading the code; both surfaced from building the screen the
+specification describes and noticing the product did not do it.
+
+1. **"A job finished and unpaid — *Finalize payment* is the primary action and
+   the record is what Today's lit card opens into" was FALSE.** The record
+   showed that button only while `status === "confirmed"`, and finalizing sets
+   `status = "completed"` — so **the record you reach by tapping the one card
+   on Today that says a job needs paying had no way to take the payment.** It
+   uses the card's own condition now (`completed && !finalized_at`), which also
+   answers *"a job in the future has no Finalize payment"* for free.
+2. **Nobody has ever seen "Reminder sent to customer." or "Invoice +
+   thank-you sent."** All four callers wire `onChanged` to *reload the list AND
+   close the record*, so both messages were written into a panel that was
+   already gone. `act()` takes a `changed` flag and the two email actions pass
+   `false`; neither writes to the booking, so there is nothing to reload
+   either. **It matters more from here on, because Reminder is now one tap.**
+
+**AND A THIRD, ON THE PAGE A PUSH NOTIFICATION OPENS.** `/job/:id` printed the
+customer's name and **not the date or the time** — the record deliberately does
+not repeat them because a sheet and the desk's second column both print them
+above it, and this page is the one container that never took the job over. Same
+shape as the two defects stage 1 found on the same page. It uses
+`jobRecordProps` now, so all three containers title a job identically.
+
+**PINNING IT COST TWO THINGS WORTH CARRYING.**
+
+1. **`position: sticky; top: 0` was not enough.** A sticky box may not leave its
+   containing block, which for a child of `.sheet-body` is that element's
+   *content* box — 16px inside the scrollport. The bar stuck **18px down** and a
+   line of the record slid through the band above it. The sheet hands its top
+   padding to its first child instead, and only when a record is in it.
+   `.record-body` needed none of it: no padding, so its content box **is** its
+   scrollport. **And it is only visible at the 56vh peek a phone opens at** —
+   every screenshot script here pulls a sheet to 92vh, where the record nearly
+   fits and the bar never has to stick at all. *A pinned thing has to be tested
+   at the height that scrolls, not the height that is convenient to photograph.*
+2. **A pinned bar hides whatever the keyboard scrolls up to.** Shift-tabbing
+   backwards put *Finalize payment* and *Didn't show up* underneath it, focus
+   ring and all. `scroll-margin-top: 10rem` on everything after the bar **and
+   on their descendants** — every control down there is inside a card rather
+   than a sibling of the bar, so the sibling selector alone changed nothing.
+
+**AND THE KEYBOARD WALK FOUND SOMETHING THAT WAS NEVER ABOUT THIS SCREEN.**
+`Sheet.jsx` carries `aria-modal="true"` and **did not trap focus — on all
+eleven sheets in the product.** Opening one left focus on the page behind it,
+and tabbing forward out of the job record went through four job rows and
+*Tomorrow* before reaching the sheet's own *Close*. The body-overflow freeze
+that has always been there stops the MOUSE scrolling past a sheet; nothing
+stopped the keyboard, so the markup and the behaviour disagreed. **Fixed in the
+shared component**, focus restored to where it came from on close. **It was
+written twice:** the first version computed the first and last focusable and
+let exactly one stop escape, because **a closed `<details>` lies about its
+contents** — the disclosure's hidden button reports `getClientRects().length
+=== 1`, a 46px box and a live `offsetParent`; only `checkVisibility()` says
+false. What shipped never asks which control is last: it watches where focus
+lands and refuses to let it settle outside.
+
+**AND A THIRD THING THE PINNING CHANGED, found by using it.** A confirmation
+used to scroll away with the record; now it sits in the one part of the screen
+that never moves, so *"Reminder sent to customer."* would have eaten 44px of the
+bar for the rest of the session. **The notice clears itself after six seconds;
+an error does not**, because an error is a thing you still have to do something
+about. Verified: in the bar at 3.5s with the record still open, gone by 11.5s.
+
+**ONE FINDING KEPT RATHER THAN FIXED, so it stops being rediscovered.**
+`PRODUCT.md` stated a 46px tap-target floor; `.btn.sm` is **38px**, at 28 call
+sites in ten files, including this record's action bar and the job card's own
+button row. It clears WCAG 2.2 AA target size (24×24) with room and is under
+AAA's 44×44, which this product does not claim; step 4 §3 measured the row at
+38px and built its label ceiling on that height; and raising it costs 16px of
+PINNED height on the narrowest screen. **Kept, and `PRODUCT.md` now names the
+exception** instead of stating a floor the product does not keep. **Reopen with
+the owner, not in passing.**
+
+**MEASURED AFTER.**
+
+| | |
+|---|---|
+| The bar, pinned | flush at the scrollport top at 320, 392 and 1440 (`barTop === scrollportTop`), 109px tall at all three |
+| The record's tab cycle | **12 stops, every one inside the sheet, none behind the bar, both directions** |
+| `/job/:id` | bar at viewport top after 194px of page scroll; 356px wide in a 392px phone |
+| States checked in a browser | finished-unpaid · still-to-do · finalized-and-paid · **cancelled (collapses to *Un-cancel*, driveway row stays)** · **no-show (*Didn't show up* correctly absent)** · edit mode |
+| `sweep-widths.mjs` | clean at 1920 / 1440 / 392 / 360 / 320, normal and `?lite=1` |
+
+**THE SWEEP NOW WALKS THE JOB RECORD**, two jobs in two states, because until
+this stage it never opened one — so "clean at five widths" was silent about the
+widest object in the app. **Same family as the always-false contrast rows and
+as `dead-width`: a check that never reaches a thing reports exactly like a
+check that reached it and found nothing.**
+
+**TWO THINGS LEFT STANDING ON PURPOSE, so nobody reads them as oversights.**
+On the desk *Finalize payment* appears twice — once on Today's lit card and
+once in the record open beside it — which is inherent to a record opening
+BESIDE its list rather than over it; the alternative is a card that changes
+shape when selected, which is worse. And **marking a job complete from the
+record closes the record**, so taking the payment afterwards means reopening
+it: that is the four callers' `onChanged` policy, not the record's, and it is
+the same two-step Today's card already has. Left for stages 3-5, which rebuild
+those callers.
+
+**FOUR FILES THAT OUTRANK THE DESIGNS WERE CORRECTED IN THE SAME CHANGE**, per
+CLAUDE.md's never-silently rule: step 4 §3 gains a *What shipped* block naming
+every place the code and the drawing differ (and the file's own "nothing here
+is built" is struck); the phone pass §4 records how the pinning was done and
+what it cost; `dashboard-skeletons.md` gains the records' sixth skeleton — a
+pinned action bar over named sections, and why it is `sticky` and not `fixed`;
+and the component inventory's `BookingDetail.jsx` row is marked built and
+corrected from six sections to five.
+
+**STAGES 3-7 REMAIN:** Calendar · Money · Clients · Business and the twelve
+settings screens (with the colour repair, Reviews and the rebuilt push switch)
+· first run, last on purpose.
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 

@@ -52,11 +52,11 @@ were made more than once.
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
 | **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
-| **The dashboard `/app`** | **Roadmap 2.11, step 6, stage 1 — what is BUILT, and what stage 1 deliberately left** · **Roadmap 2.11, step 4b first if it is the PHONE — it overrides step 4 there, and PHONES ARE PORTRAIT ONLY** · **Roadmap 2.11, step 4 — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
+| **The dashboard `/app`** | **Roadmap 2.11, step 6, stage 2 — the job record, and the two defects the specification had already described** · **Roadmap 2.11, step 6, stage 1 — what is BUILT, and what stage 1 deliberately left** · **Roadmap 2.11, step 4b first if it is the PHONE — it overrides step 4 there, and PHONES ARE PORTRAIT ONLY** · **Roadmap 2.11, step 4 — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
 | **Spacing, layout, or anything at phone width** | **Roadmap 2.11, step 6, stage 1 (a grid row is as tall as its tallest item — a flat DOM cannot carry a second column)** · **Roadmap 2.11, step 4b — PHONES ARE PORTRAIT ONLY and rotating one must change nothing; landscape is a HEIGHT problem and the sweep is blind to it** · Roadmap 2.6 · Test at HIS screen size, not yours |
-| **A test, a check, or a measuring script** | Roadmap 2.11, step 6, stage 1 (`DESKTOP_SPEC_BUILT` is armed; the rotation guard was THREE places, not the two the file listed — grep the breakpoint) · Roadmap 2.11, step 4b (a green check that could not see the failure — the THIRD time; and why the check written for it was DELETED rather than left dormant) · Roadmap 2.11, step 5 (what `composition.test.mjs` test 1 must assert) · A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
+| **A test, a check, or a measuring script** | Roadmap 2.11, step 6, stage 2 (the job record had never been swept at all; and a pinned thing must be tested at the height that SCROLLS) · Roadmap 2.11, step 6, stage 1 (`DESKTOP_SPEC_BUILT` is armed; the rotation guard was THREE places, not the two the file listed — grep the breakpoint) · Roadmap 2.11, step 4b (a green check that could not see the failure — the THIRD time; and why the check written for it was DELETED rather than left dormant) · Roadmap 2.11, step 5 (what `composition.test.mjs` test 1 must assert) · A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
 | **`main`, deploying or publishing** | The owner put the redesign on `main` and published it · ANSWERED: Netlify does auto-publish `main` |
 | **Keys, RLS, the public repo, or the live business** | Phase 0 — 0.4 deployment sanity · Abuse check on the live project · Roadmap 0.1 cleanup · A guessable demo login |
 | **Email or reminders** | Phase 0 — 0.2 email · Test deployment and later fixes |
@@ -151,6 +151,8 @@ were made more than once.
 - **Roadmap 2.11, step 4b — the phone re-decided, and he ruled it portrait-only** — the owner rejected *"below 1024 nothing changes"*, so **every screen’s phone form was decided again from nothing**; "unchanged" was not an allowed answer. **He then reversed his own morning ask and ruled phones PORTRAIT ONLY** — and the reversal is the load-bearing part: *"when someone flips their phone over sideways, I don’t want it to completely readjust."* **That is not "do nothing" — the dashboard readjusts today**, because `theme.css`’s `min-width: 700px` and `560px` rules fire on a sideways phone (844px wide) and turn a settings sheet into a desk panel showing 20% of its form. Both gain `min-height: 500px`. *A layout decision that spends height must ask about height.* **The finding that outlived the withdrawn landscape work:** `sweep-widths.mjs 844` reported CLEAN on a viewport where the sign-in card sits 25px past the bottom — every check it owns asks about the RIGHT edge. **The four portrait decisions:** only the lit job is a card (five identical 289px cards is our own named slop tell); a settings screen becomes a page; Today’s ledger panel becomes one row of figures; a Clients row drops the email for spend and last visit. **And the process lesson: a whole landscape layout was built before he saw a sentence of it.**
 
 - **Roadmap 2.11, step 6, stage 1 — the shell and Today built, and the grid row that made a flat DOM impossible** — the first code in the rebuild. **`DESKTOP_SPEC_BUILT` is `true`** and the content column went 724 -> **1,144px**; Today went **1,810 -> 1,006px at 1440x900** and **2,500 -> 1,103px at 392**. **Three things a later session would otherwise re-derive the hard way:** a grid row is as tall as its tallest item, so the second column sharing row 1 with the masthead pushed the ledger 264px down the page and there is no way to span an unknown number of IMPLICIT rows — the primary column has to be one element and the stagger has to look one level deeper; the rail's `animation: none` override has to sit AFTER the stagger block it overrides, because both selectors are (0,3,0) and source order decides; and **the rotation guard was THREE places, not the two the phone pass listed** — the calendar cell's own 700px rule spends height too. **The list was the bug, not the rule: a file naming two instances of a pattern invites a session to fix two and stop.** **And exercising the record's new container found two defects on `/job/:id`** — the page a push notification opens: losing the `<Sheet>` took its only way back, and every exit from it went to `/`, **the marketing site**, because the dashboard is `/app`. The second predates the rebuild and was only findable by PRESSING the control the first one added. **And the hook fix had to be finished on its other two callers** — Calendar showed September's marks under an August heading with nothing saying so, which is worse than the spinner it replaced: *fixing the shared function is right, and it is only half the fix if the callers each had to answer it.* Also: **two sessions were given this same prompt and both wrote to the tree**, so the collision and how it was resolved are recorded here rather than dying in a chat.
+
+- **Roadmap 2.11, step 6, stage 2 — the job record, and two defects the specification had already described** — the 340-line single scroll became an action bar over five named sections, and the bar is **PINNED**. **`position: sticky` because the record has THREE containers** (a sheet, the desk's second column, `/job/:id`) and it is the one mechanism that behaves in all three without any of them knowing about the others — but **`top: 0` alone stuck the bar 18px down**, because a sticky box may not leave its CONTAINING BLOCK and for a child of `.sheet-body` that is the CONTENT box, 16px inside the scrollport. **Only visible at the 56vh peek a phone opens at** — every screenshot script here pulls the sheet to 92vh, where the record nearly fits and the bar never sticks: *a pinned thing has to be tested at the height that scrolls, not the height that is convenient to photograph.* **TWO LIVE DEFECTS, both of which the specification had already described in the present tense without anyone noticing it was a bug report:** *Finalize payment* only ever appeared while a job was `confirmed`, so the record behind Today's *Needs payment* card **had no way to take the payment**; and **nobody has ever seen “Reminder sent to customer.”**, because all four callers close the record on any change. **A specification can describe a bug and read as a design; building it is what surfaces that, not reading it.** Also: **the job record had never been swept at all** — same family as the always-false contrast rows and `dead-width` — and *at most one accent fill* on the record turned out to be a consequence of the statuses rather than a rule to enforce. **And walking it with a KEYBOARD found a defect that was never about this screen: `Sheet.jsx` says `aria-modal="true"` and did not trap focus, on all eleven sheets** — tabbing out of the record went through four job rows before it reached the sheet's own Close. Fixed in the shared component. **A closed `<details>` lies about its contents** (`getClientRects()`, a 46px box and a live `offsetParent` all say visible; only `checkVisibility()` says false), which is why the trap watches where focus LANDS instead of computing which control is last.
 
 <!-- INDEX:END -->
 
@@ -6581,3 +6583,178 @@ after    ["group refreshing|kids=2", "group|kids=2"]   nothing removed
 
 **The rule this is an instance of: fixing something in the shared function is
 right, and it is only half the fix if the callers each had to answer it.**
+
+
+## Roadmap 2.11, step 6, stage 2 — the job record, and two defects the specification had already described
+
+**2026-09-01.** Stage 2 of the approval page's §5 build order. 26 of the
+product's 126 capabilities live on this one object, it is reached from four
+places, and it was a 340-line single scroll with the phone buttons four blocks
+down under a heading called *Contact*. Step 4 §3 redrew it as **an action bar
+over named sections**; the phone pass §4 kept the shape, confirmed the sheet
+on merits and **pinned the bar**. This is what that cost and what it found.
+
+### The bar is pinned with `position: sticky`, and `top: 0` was not enough
+
+Sticky rather than a fixed header, and rather than lifting the bar into
+`RecordHost`: **the record has three containers** — a sheet below `--wrap`,
+the desk's second column at or above it, and the `/job/:id` page, which has no
+container at all — and sticky is the one mechanism that behaves in all three
+without any of them knowing about the others. Lifting the bar into the host
+would have meant the host knowing what kind of record it is holding, which is
+exactly the coupling `RecordHost` exists to avoid.
+
+**Then it did not work, and the reason is worth carrying.** `position: sticky;
+top: 0` inside `.sheet-body` stuck the bar **18px below** the scrollport, and a
+line of the record slid through the band above it. A sticky box may not leave
+its **containing block**, and for a child of `.sheet-body` that is the
+element's *content* box — the sheet's own 16px of top padding puts it 16px
+below the padding box the scrollport actually is. The fix is that the sheet
+hands its top padding to its first child, and only when a record is in it
+(`.sheet-body:has(> .jobbar)`). `.record-body` needed none of it: it has no
+padding, so its content box **is** its scrollport, and the bar lands flush.
+
+**And it is only visible at the height a phone actually opens at.** The sheet
+opens at a 56vh peek; pulled to 92vh — which is what every screenshot script in
+this repo does, so the rest of the screen is measurable — the whole record
+nearly fits, the bar never has to stick, and the bug does not happen.
+**A pinned thing has to be tested at the height that scrolls, not the height
+that is convenient to photograph.**
+
+### Two defects, and both were already written down as design
+
+Neither was found by reading the code. Both were found by building the screen
+the specification describes and noticing that the product did not do it.
+
+1. **"A job finished and unpaid — *Finalize payment* is the primary action and
+   the record is what Today's lit card opens into" was FALSE.** The record
+   showed *Finalize payment* only while `status === "confirmed"`. Finalizing
+   sets `status = "completed"`, and Today's *Needs payment* run is
+   `completed && !finalized_at` — so **the record you reach by tapping the one
+   card on Today that says a job needs paying had no way to take the payment.**
+   The record now uses the card's own condition, so the two cannot disagree.
+   It also answers the design's *"a job in the future has no Finalize
+   payment"* for free: a future job cannot be completed.
+2. **Nobody has ever seen "Reminder sent to customer." or "Invoice +
+   thank-you sent."** All four callers wire `onChanged` to *reload the list AND
+   close the record*, which is right for a status change and wrong for a send.
+   Both messages were written into a panel that was already gone. `act()` takes
+   a `changed` flag now and the two email actions pass `false` — neither writes
+   to the booking (checked in `send-invoice` and `send-owner-reminders`; the
+   `customer` target writes nothing), so there is nothing to reload either.
+   **It matters more from this stage on, because *Reminder* is one tap in the
+   pinned bar rather than a full-width button most of a screen down.**
+
+**The shape both share: a specification can describe a bug in the present
+tense and read as a design.** Nothing in step 4 §3 said "this is broken" — it
+said what the screen should do, and the screen did not do it. The way that
+surfaces is building it, not reading it.
+
+### At most one accent fill, and it is a consequence rather than a rule
+
+The design system's *three or more actions take three weights* put a filled
+*Mark completed* in **What happened** while **The money** already had a filled
+*Finalize payment*, which would be two accent fills on one record and against
+law 11's *one accent, spent on the single action that moves the screen
+forward*. **It resolves itself:** *Mark completed* exists only while the job is
+not completed and *Finalize payment* only once it is, so the two can never
+share a screen. Same for *Email invoice*, which replaces *Finalize payment*
+after finalizing. *Didn't show up* is ringed, *Cancel the job* ringless — a
+destructive choice weighted the same as a convenience is a hazard.
+
+### Four smaller calls, recorded so they are not re-litigated
+
+- **"Change the time or details" is the section NAME and its button says
+  *Edit*.** The section title took the words today's button carried; a heading
+  over a single control repeating it is a section that says everything twice.
+- **The address moved into *The job*.** It lived under the *Contact* heading
+  the action bar replaced, and it is the *where* — so it sits under the line
+  it qualifies.
+- **The money section prints *How they paid* from `payment_notes`**, which
+  Finalize payment has always written and which no screen in the product has
+  ever shown. The payment STATE is the pill, which is pinned and therefore
+  always on the page; a second copy of that word would have been the
+  duplication, not the fix.
+- **Photos is designed and not built** (row 126) and draws nothing. Five
+  sections on the screen against the design's six, which §1a already permits.
+
+### The record was never swept, and that is the third instance of a family
+
+`sweep-widths.mjs` walked every dashboard screen, all eleven settings sheets
+and the client sheet — and **never opened a job record**. So "clean at five
+widths" was silent about the widest object in the app, on the screen that
+carries a fifth of its capabilities. It walks two jobs in two states now (the
+lit card is finished-and-unpaid, the first plain row is still-to-do), because
+the record's shape depends on the job's. **Same family as the always-false
+contrast rows and as `dead-width`: a check that never reaches a thing reports
+exactly like a check that reached it and found nothing.**
+
+### Walking the record with a keyboard found two more, one of them not about this screen at all
+
+A pinned bar is a keyboard question, so the record was tabbed through in a real
+browser rather than reasoned about. Two findings, both measured:
+
+1. **`scroll-margin-top`, because a browser scrolls a focused control into the
+   SCROLLPORT and knows nothing about what is stuck over the top of it.**
+   Shift-tabbing backwards put *Finalize payment* and *Didn't show up*
+   underneath the bar, focus ring and all. Fixed with `scroll-margin-top:
+   10rem` on everything after the bar — **and on their descendants, which was
+   the second half of the same measurement**: every control down there is
+   inside a card rather than a sibling of the bar, so the sibling selector
+   alone changed nothing. The bar measures 109px at 320, 392 and 1440;
+   overshooting only scrolls a little further than it had to.
+2. **`Sheet.jsx` says `aria-modal="true"` and did not trap focus — on all
+   eleven sheets in the product, not just this one.** Opening a sheet left
+   focus on the page behind it, and tabbing forward out of the job record went
+   through four job rows and *Tomorrow* before it reached the sheet's own
+   *Close*. The body-overflow freeze that has always been there stops the
+   MOUSE scrolling past a sheet; nothing stopped the keyboard, so the markup
+   and the behaviour disagreed. **Fixed in the shared component**, because
+   eleven call sites each getting their own answer is the failure mode this
+   repo already has a name for. Not `<dialog showModal()>`, which gives
+   trapping for free: the height is dragged, the backdrop is ours, and the top
+   layer would take the exit animation and the peek with it.
+
+**A third thing the pinning changed, found by using it:** a confirmation used
+to scroll away with the record and now sits in the one part of the screen that
+never moves, so *"Reminder sent to customer."* would have eaten 44px of the bar
+for the rest of the session. **The notice clears itself after six seconds; an
+error does not** — an error is a thing you still have to do something about,
+and it clears on the next action. Verified: the message appears in the bar at
+3.5s with the record still open, and is gone by 11.5s.
+
+**And one finding kept rather than fixed, so it stops being rediscovered:**
+`PRODUCT.md` states a 46px tap-target floor and `.btn.sm` is **38px**, at 28
+call sites in ten files — the job card's Navigate · Call · Text row and this
+record's action bar among them. It clears WCAG 2.2 AA target size (2.5.8,
+24×24) with room and is under AAA 2.5.5's 44×44, which this product does not
+claim; step 4 §3 measured the row at 38px and built its whole label ceiling on
+that height; and raising it costs 16px of PINNED height on the narrowest
+screen. **Kept, and `PRODUCT.md` now names the exception** rather than stating
+a floor the product does not keep. Reopen it with the owner, not in passing.
+
+**And the trap was written twice.** The first version computed the first and
+last focusable and wrapped at the ends, and it let exactly one stop escape.
+**A closed `<details>` lies about its contents:** the disclosure's hidden
+*Remove from records* button reports `getClientRects().length === 1`, a 46px
+box and a live `offsetParent`, because the browser hides it with
+`content-visibility` rather than `display` — `checkVisibility()` is the only
+one of the four that says false. The version that shipped does not ask which
+control is last at all: it watches where focus LANDS and refuses to let it
+settle outside the panel, which is shorter and blind to the whole class of
+question. **A sheet opened from a sheet is inside that sheet's DOM, so the two
+never fight over focus.**
+
+### Two things left standing on purpose
+
+- **On the desk, *Finalize payment* appears twice** — once on Today's lit card
+  and once in the record open beside it. That is inherent to a record opening
+  BESIDE its list rather than over it (F11): the list item stays on screen.
+  Considered and kept; the alternative is a card that changes shape when it is
+  selected, which is worse.
+- **Marking a job complete from the record closes the record**, so taking the
+  payment afterwards means reopening it — one extra tap. That is the callers'
+  `onChanged` policy, not the record's, and changing it means the four callers
+  re-selecting from a reloaded list or showing a stale `booking` prop. It is
+  the same two-step the product already has on Today's card. Left for the
+  stages that rebuild those callers (3-5).

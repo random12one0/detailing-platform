@@ -87,6 +87,17 @@ reached one at a time, and a person never sees two of them together. Law 1
 governs what is on screen at once. What varies between them is their internal
 structure (a list, a form, a grid), which follows the content.
 
+**The records have a sixth skeleton of their own, and it landed with the job
+record on 2026-09-01: a PINNED ACTION BAR over named sections** (`.jobbar` over
+`.section-title` blocks). Nothing else in the app pins anything — a tab bar is
+fixed furniture, this is content that refuses to scroll — and nothing else
+puts its controls above its content. It does not break law 1 against the five
+tabs: a record is drawn over a list on a phone and beside one at a desk, so
+the two are never the same section of the same page. **The bar is `sticky`,
+not `fixed`, because the record has three containers** (a sheet, the desk's
+second column, `/job/:id`) and only sticky behaves in all three without any of
+them knowing about the others.
+
 ## 4. The motion budget, and what is deliberately dropped (law 3)
 
 Law 3: *"Motion is not spendable… If a mechanic is deliberately dropped, say

@@ -40,6 +40,7 @@ export default function Sheet({
   const [dragging, setDragging] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const drag = useRef(null);
+  const panel = useRef(null);
 
   const close = useCallback(() => {
     if (!dismissible) return;
@@ -50,15 +51,62 @@ export default function Sheet({
   }, [onClose, dismissible]);
 
   // Escape closes, and the page behind is frozen while it is open.
+  //
+  // AND TAB STAYS INSIDE, WHICH IT DID NOT UNTIL 2026-09-01. Measured by
+  // walking the job record with the keyboard (roadmap 2.11 step 6 stage 2):
+  // opening a sheet left focus on the page BEHIND it, and tabbing forward out
+  // of the record went through four job rows and Tomorrow before it reached
+  // the sheet's own Close. This element says `aria-modal="true"`, which tells
+  // a screen reader the rest of the page is inert — so the keyboard was
+  // contradicting the markup on all eleven sheets in the product, not just
+  // this one. The body freeze above stops the MOUSE scrolling past a sheet
+  // and always did; nothing stopped the keyboard.
+  //
+  // Not `<dialog showModal()>`, which would give this for free: the height is
+  // dragged, the backdrop is ours, and the top layer would take the exit
+  // animation and the peek with it. Twelve lines here is the smaller change.
+  // It watches where focus LANDS rather than trying to work out which control
+  // is last. Computing first/last was written first and let exactly one stop
+  // escape: a closed `<details>` still answers `querySelectorAll` and still
+  // has a layout box, so the disclosure's hidden button counted as the last
+  // focusable while the browser skipped it. Refusing to let focus settle
+  // outside is both shorter and blind to that whole class of question.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e) => { if (e.key === "Escape") close(); };
+    const returnTo = document.activeElement;
+    const back = { current: false };   // which way the last Tab went
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+      if (e.key === "Tab") back.current = e.shiftKey;
+    };
+    const onFocusIn = (e) => {
+      const p = panel.current;
+      // A sheet opened FROM a sheet (the text picker, Finalize payment) is
+      // inside this one's DOM, so its own focus stays "contained" here and
+      // the two never fight over it.
+      if (!p || p.contains(e.target)) return;
+      const list = [...p.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select, textarea, summary, [tabindex]:not([tabindex="-1"])',
+        // A CLOSED <details> IS THE ONE THING THAT LIES HERE, and it was
+        // measured rather than guessed: the disclosure's hidden button
+        // reports `getClientRects().length === 1`, a 46px box and a live
+        // `offsetParent`, because the browser hides it with
+        // content-visibility rather than display. `checkVisibility()` is the
+        // only one of the four that says false.
+      )].filter((el) => (el.checkVisibility ? el.checkVisibility() : el.offsetParent !== null));
+      (list.length ? (back.current ? list[list.length - 1] : list[0]) : p).focus();
+    };
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    panel.current?.focus();
     window.addEventListener("keydown", onKey);
+    document.addEventListener("focusin", onFocusIn);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
+      document.removeEventListener("focusin", onFocusIn);
+      // Back where you were — a sheet is put away, not navigated away from.
+      if (returnTo instanceof HTMLElement && document.contains(returnTo)) returnTo.focus();
     };
   }, [open, close]);
 
@@ -105,11 +153,15 @@ export default function Sheet({
   return (
     <div className={`sheet-backdrop${leaving ? " leaving" : ""}`} onClick={close}>
       <div
+        ref={panel}
         className={`sheet${dragging ? " dragging" : ""}${leaving ? " leaving" : ""}`}
         style={{ height: `${height}vh` }}
         role="dialog"
         aria-modal="true"
         aria-label={title}
+        /* -1 so the panel itself can take focus when it opens without ever
+           landing in the Tab order. */
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sheet-grab" {...dragHandlers}>

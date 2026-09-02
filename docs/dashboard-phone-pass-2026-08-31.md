@@ -372,6 +372,23 @@ What is decided here is its container and its behaviour on a phone.
 `Estimated / Final` copy fix are the design; this file gave it a container and
 pinned its bar.
 
+**BUILT 2026-09-01 (roadmap 2.11 step 6, stage 2). The pinning cost one thing
+this file could not have known, and it is worth carrying:** the bar is
+`position: sticky; top: 0`, which is the one mechanism that works unchanged in
+all three of the record's containers (the sheet, the desk's second column, and
+the `/job/:id` page — none of which has to know about the others). **`top: 0`
+was not enough on its own.** A sticky box may not leave its CONTAINING BLOCK,
+and for a child of `.sheet-body` that is the element's *content* box, 16px
+below the scrollport — so the bar stuck 18px down and a line of the record slid
+through the band above it. The sheet hands its top padding to its first child
+instead, and only when a record is in it. **Measured at the 56vh peek**, which
+is the height a phone opens at and the only height where the record scrolls
+enough to find this: pulled to 92vh the whole record nearly fits, the bar never
+sticks, and the bug is invisible. **A pinned thing has to be tested at the
+height that scrolls, not the height that is convenient to screenshot.**
+The two rows of three were re-measured after the rebuild and hold: six buttons,
+one line each, no overflow at 320.
+
 ---
 
 ## 5. Calendar · Month

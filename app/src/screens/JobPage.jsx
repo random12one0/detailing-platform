@@ -15,7 +15,7 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import Auth from "./Auth.jsx";
-import BookingDetail from "../components/BookingDetail.jsx";
+import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 
 export default function JobPage() {
   const { id } = useParams();
@@ -61,7 +61,18 @@ export default function JobPage() {
           onClick={() => navigate("/app")}>
           <ChevronLeft strokeWidth={2} /> Dashboard
         </button>
-        <h1 className="title">{booking.customer_name}</h1>
+        {/* THIS PAGE IS THE RECORD'S CONTAINER, SO IT OWES THE HEADER A
+            CONTAINER GIVES. The record deliberately does not repeat the date
+            and time — a sheet and the desk's second column both print them
+            above it — and this page printed only the name, so a job opened
+            from a push notification did not say WHEN it was. Same shape as
+            the two defects stage 1 found here: the page inherited a job it
+            never took over. `jobRecordProps` is the one place that string is
+            composed, so all three containers title a job the same way. */}
+        <h1 className="title">{jobRecordProps(booking).title}</h1>
+        <p className="quiet" style={{ marginTop: 2, marginBottom: "var(--sp-4)" }}>
+          {jobRecordProps(booking).subtitle}
+        </p>
         <BookingDetail
           booking={booking}
           onClose={() => navigate("/app")}

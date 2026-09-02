@@ -1,7 +1,12 @@
 # Every dashboard screen, designed — 2026-08-31 (roadmap 2.11, step 4)
 
-**Nothing here is built.** Step 5 is the component inventory, step 6 is where
-you approve the whole specification, and only then does code start.
+~~**Nothing here is built.**~~ **STEP 6 IS BUILDING IT, ONE STAGE AT A TIME.**
+Step 5 was the component inventory, step 6 is the build, and the approval
+page's §5 carries the stage order and what has landed. **§2 (Today) shipped in
+stage 1 on 2026-09-01; §3 (the job record) shipped in stage 2 the same day and
+carries a *What shipped* block naming every place the code and this design
+differ.** A design file that still reads as a proposal after the code exists is
+how a later session rebuilds what is already there.
 
 > **EVERY "WHAT SHIPS TODAY" IN THIS FILE IS SUPERSEDED — 2026-08-31, STEP 4b.**
 > The owner rejected *"below 1024 nothing changes"*: *"the whole admin dashboard
@@ -471,6 +476,61 @@ callers**, which is why it is designed once here.
 
 Action rows; named section titles; quiet cards; the disclosure; pills. **One
 new arrangement — the action bar** — and it is a placement, not a component.
+
+### What shipped (roadmap 2.11 step 6, stage 2 — 2026-09-01)
+
+**Built as designed**: the action bar first and unheaded, two rows of three,
+five named sections, the three weights on *What happened*, the disclosure
+untouched, and the *Estimated / Final* copy fix. **Photos is still designed
+and not built** (row 126), and §1a says an absent thing draws nothing, so
+there is no placeholder for it. Six sections in the design, five on the
+screen.
+
+**Where the code and the drawing differ, and why:**
+
+- **The bar is PINNED and the pills are not.** The drawing rules a line under
+  the pills and another under the bar; the shipped bar has only its own
+  bottom hairline, and the pills scroll up behind it. **The error and notice
+  boxes ride INSIDE the pinned bar**, which is still "directly under the
+  pills, above the actions" at rest — and is the only placement where a
+  message answering one of the bar's own buttons can be read. *Reminder* is
+  one tap now; its confirmation had to stop being scrollable.
+- **`.jobbar` is `position: sticky`, and `top: 0` alone was not enough.** A
+  sticky box may not leave its containing block, which for a child of
+  `.sheet-body` is that element's CONTENT box — 16px below the scrollport. The
+  bar stuck 18px down and a line of the record slid through the band above it.
+  Measured at the 56vh peek, which is the height a phone actually opens at.
+  The sheet hands its top padding to its first child instead, and only when a
+  record is in it (`.sheet-body:has(> .jobbar)`).
+- **"Change the time or details" is the section NAME; its button says *Edit*.**
+  Today's button carried those words, and a heading over a control repeating
+  it is a section that says everything twice. The edit mode itself is
+  unchanged, as this design asked.
+- **The address moved into *The job*.** It was under the *Contact* heading
+  that the action bar replaced, and it is the *where* — so it sits under
+  "Mobile — we go to them", the line it qualifies.
+- **The money section's agreed case says *Charged $65.00*.** This design named
+  the differing case's words and left the agreeing one as "one figure".
+- **The money section also prints *How they paid*** when a job carries
+  `payment_notes` — the method Finalize payment writes and which, until this
+  stage, was stored and shown on no screen in the product. The payment STATE
+  is the pill, which is pinned and therefore always on the page; a second copy
+  of the word would have been the duplication, not the fix.
+- **The Finalize condition is `completed && !finalized_at`, not
+  `confirmed`** — and that is the defect this design's own state list caught.
+  *"A job finished and unpaid — Finalize payment is the primary action and the
+  record is what Today's lit card opens into"* was **false in the shipped
+  product**: the button appeared only while the job was still `confirmed`, so
+  the record you reach by tapping the "Needs payment" card had no way to take
+  the payment. The record now uses the same condition as the card, so the two
+  cannot disagree.
+- **At most one accent fill is ever on this record**, which the design's
+  "filled / ringed / ringless" needed checking against law 11: *Mark
+  completed* exists only while the job is not completed and *Finalize payment*
+  only once it is, so the two never share a screen.
+- **The five section titles are `<h3>`, not `<div>`.** Same argument Today's
+  run labels already carry: six named sections a screen reader gets as
+  unstructured text cannot be skipped between.
 
 ---
 

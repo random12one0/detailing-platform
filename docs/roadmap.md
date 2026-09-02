@@ -1731,10 +1731,35 @@ is kept; the entire visual design restarts from scratch.
          every exit from that page went to `/`, **the marketing site**, because
          the dashboard is `/app`. The second predates the rebuild and was only
          findable by PRESSING the control the first one added.
-         **What stage 1 did NOT do, so nobody reads §5a as finished twice:**
+         ~~**What stage 1 did NOT do, so nobody reads §5a as finished twice:**
          the job record is still the 340-line single scroll — it opens BESIDE
          the list at ≥1180 now, but its own redesign (an action bar over six
-         named sections) is stage 2. **Stages 2-7 of §5 remain.**
+         named sections) is stage 2.~~
+         **STAGE 2 IS DONE, 2026-09-01 — the job record.** The action bar
+         first, unheaded and **pinned** (`.jobbar`, `position: sticky`); two
+         rows of three; five named sections (*The job · The money · Notes ·
+         What happened · Change the time or details*) where one 340-line scroll
+         used to be; **Photos stays designed and not built**, and an absent
+         thing draws nothing; three weights on *What happened* in place of a
+         2×2 grid of identical buttons; and the *Estimated $235 · Final $235*
+         copy fixed to one figure, with the difference NAMED when there is one.
+         **TWO LIVE DEFECTS CAME OUT OF IT, both of them things the
+         specification had already described without anyone noticing it was
+         describing a bug.** (1) *"A job finished and unpaid — Finalize payment
+         is the primary action"* was FALSE: the button only appeared while the
+         job was still `confirmed`, so the record you reach by tapping Today's
+         *Needs payment* card had no way to take the payment. It uses the
+         card's own condition now. (2) **Nobody has ever seen "Reminder sent to
+         customer." or "Invoice + thank-you sent."** — all four callers close
+         the record on any change, and both messages were written into a panel
+         that was already gone. The two actions that only send an email no
+         longer report themselves as changes. **It mattered more from this
+         stage on, because *Reminder* is now one tap in the bar.**
+         **`sweep-widths.mjs` walks the job record now**, two jobs in two
+         states, at all five widths — until this stage the object carrying 26 of
+         the product's 126 capabilities had never been swept, so "clean" said
+         nothing about it. Clean in both paths; the four credential-free tests
+         and `accent-sweep` pass. **Stages 3-7 of §5 remain.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
          2.15 (travel by measured distance), **the last of which he then CLOSED

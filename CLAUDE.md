@@ -134,7 +134,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  eleven settings sheets, the client sheet and the booking page at **1920, 1440,
+  eleven settings sheets, the client sheet, **the job record in two states
+  (added 2026-09-01, roadmap 2.11 step 6 stage 2 — until then the object
+  carrying 26 of the product's 126 capabilities had never been swept, so a
+  clean run said nothing about it)** and the booking page at **1920, 1440,
   392, 360 and 320** and reports anything past the right edge, anything
   **outside its own
   parent's box**, anything scrolling sideways with no scrollbar, and any two

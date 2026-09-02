@@ -225,6 +225,27 @@ for (const w of SIZES) {
     await say(t);
   }
 
+  // THE JOB RECORD IS A SCREEN AND WAS NEVER SWEPT. 26 of the product's 126
+  // capabilities live on it, it is reached from four places, and until
+  // roadmap 2.11 step 6 stage 2 rebuilt it nothing here had ever opened it —
+  // so "clean" said nothing about the widest object in the app. Two jobs,
+  // because the record's shape depends on the job's state: the LIT card is a
+  // finished, unpaid job (Finalize payment, no Mark completed) and the first
+  // plain row is one still to do (Mark completed, no money action).
+  await page.getByRole("button", { name: "Today", exact: true }).first().click();
+  await page.waitForTimeout(1400);
+  for (const [label, sel] of [["job record · finished", ".card.attend .strong"],
+                              ["job record · to do", ".row-item"]]) {
+    const job = page.locator(sel).first();
+    if (!(await job.count())) { console.log(`${label.padEnd(24)} NO SUCH JOB (is the demo seeded for today?)`); found++; continue; }
+    await job.click();
+    await page.waitForTimeout(1500);
+    await grow();
+    await say(label);
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(700);
+  }
+
   // The client sheet is its own screen and it is where W7/W8 lived.
   await page.getByRole("button", { name: "Clients", exact: true }).first().click();
   await page.waitForTimeout(1400);

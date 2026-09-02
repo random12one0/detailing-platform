@@ -219,7 +219,25 @@ you can change it:**
    It has to land with the first screen rather than before it, or there is
    nothing to look at. Today goes with it because it is the screen you open
    forty times a day and it carries four of the fixes.
-2. **The job record** — the most work in the specification.
+2. ~~**The job record** — the most work in the specification.~~ **DONE
+   2026-09-01.** The action bar first, unheaded and **pinned**; two rows of
+   three (Call · Text · Navigate, then Calendar · Contacts · Reminder); five
+   named sections where one 340-line scroll used to be; three weights on
+   *What happened* instead of a 2×2 grid of identical buttons; and the
+   *Estimated $235 · Final $235* copy fixed to one figure.
+   **And it found a live defect the specification had already described
+   without anyone noticing it was a bug report:** *"a job finished and unpaid —
+   Finalize payment is the primary action and the record is what Today's lit
+   card opens into"* was false. The button only ever appeared while the job was
+   still `confirmed`, so the record you reach by tapping the *Needs payment*
+   card had no way to take the payment. **Fixed at the shared condition, so the
+   card and the record cannot disagree.**
+   **A second one: nobody has ever seen the words "Reminder sent to customer."**
+   All four callers close the record on any change, so both of the record's
+   confirmation messages were written into a panel that was already gone. The
+   two actions that only send an email no longer report themselves as changes.
+   `sweep-widths.mjs` walks the record now — two jobs in two states — because
+   until this stage the widest object in the app had never been swept at all.
 3. **Calendar**, where the desk gets the written-out month.
 4. **Money**, including the accountant export.
 5. **Clients.**

@@ -91,3 +91,14 @@ correction that matters most; the ordering within it has since moved."
 ## Accessibility & Inclusion
 
 Design-system quality floor: text ≥ 4.5:1 on its actual surface in both themes (measured by tests), non-text edges ≥ 3:1, visible 2px accent focus ring, `prefers-reduced-motion` collapses all animation, tap targets ≥ 46px, responsive 320→1440.
+
+**The tap-target figure has one deliberate exception and it is not drift**
+(checked 2026-09-01, roadmap 2.11 step 6 stage 2): `--tap` is 46px and every
+full-width control takes it, but `.btn.sm` is **38px** and is used at 28 call
+sites in ten files — the job card's Navigate · Call · Text row and the job
+record's action bar among them. It clears WCAG 2.2 AA target size (2.5.8,
+24×24) with room; it is under the 44×44 of AAA 2.5.5, which this product does
+not claim. `docs/dashboard-screen-designs-2026-08-31.md` §3 measured the row at
+38px and built its whole label ceiling on that height, and raising it costs
+16px of PINNED height on the narrowest screen. **Kept on purpose. Reopen it
+with the owner, not in passing.**
