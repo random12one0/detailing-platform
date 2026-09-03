@@ -49,9 +49,13 @@ import Appearance from "../screens/more/Appearance.jsx";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-// The three counting reads the form and Business both need. One place, so the
-// two screens cannot end up counting differently.
-export async function loadSetupCounts(businessId) {
+// The four reads that answer setupProgress()'s derivable half. NOT exported
+// and not shared with Business: that screen already asks six of these
+// questions in one Promise.all for its own summary lines, and reusing this
+// would cost it a second round trip to learn what it had just been told. The
+// thing that must not be duplicated is the ARITHMETIC, and that is in
+// lib/setup.js.
+async function loadSetupCounts(businessId) {
   const head = { count: "exact", head: true };
   const [s, a, p, h] = await Promise.all([
     supabase.from("services").select("id", head).eq("business_id", businessId).eq("is_active", true),

@@ -2433,9 +2433,11 @@ form becomes a wizard, which is the thing people abandon.
 | `sweep-widths.mjs` screens | 40 | **54** — the form's seven steps and the tour's seven |
 | Roadmap 2.11 | seven stages, six built | **closed** |
 
-**WHAT SHIPPED.** `components/SetupForm.jsx` (the form, and it exports
-`setupProgress()` / `loadSetupCounts()` because Business's row must print the
-same number the bar paints), `components/Walkthrough.jsx`, the
+**WHAT SHIPPED.** `components/SetupForm.jsx` (the form) and
+`app/src/lib/setup.js` (the seven steps and the progress arithmetic, with no
+React in them, because Business's row must print the same number the bar
+paints and the test can only pin that if it imports without a DOM),
+`components/Walkthrough.jsx`, the
 `.progress-rule` / `.setupform` / `.setupstep` / `.setupfoot` / `.tourblock` /
 `.spotlight` / `.tourcard` block in `theme.css`, and
 `20260902002000_first_run.sql` (one jsonb column, `business_settings.setup`).
