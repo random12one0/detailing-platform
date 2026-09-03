@@ -127,11 +127,12 @@ the flow container that stopped each card being its own page section at the
 - ~~**Never proven:** the reminder sweep~~ — **DONE 2026-08-29 (roadmap 0.3), proven.** pg_cron + pg_net now run `send-owner-reminders-sweep` every 15 minutes. A scheduled run sent a real reminder (delivered in Resend), the next tick sent nothing, and a cancelled booking was never mailed. Two defects were fixed on the way: the sweep leaked booking UUIDs to unauthenticated callers, and reminders never re-armed after an edit. Still open: a failed tick is silent — nothing alerts anyone. See DECISIONS.md.
 - **Unverified:** Android vCard export — only tested in Chromium (HANDOFF #4).
 - **Deps:** clean — 5 runtime deps, all used. `playwright` is a devDep for screenshot scripts.
-- **Tests:** 11 suites, no runner — plain `node tests/X.test.mjs` from repo root. 4 run credential-free (all passed for me); 7 hit the real Supabase project and need env vars.
+- **Tests: 16 suites, no runner** — plain `node tests/X.test.mjs` from repo root. **NINE run credential-free** (composition, design-contrast, landing-pricing, route-contract, money-export, email-brand, client-list, setup-progress, and qr-scans — which needs the dev server but no login and no seed); the other seven hit the real Supabase project and need env vars. **This line said "11 suites, 4 credential-free" until 2026-09-02 and had been stale for five suites** — CLAUDE.md's own list under Verification is the authority, and it is the one a session actually runs.
 
 ## 6. LANDMINES
 
 - **`main` = production, and a push to it IS a publish — CONFIRMED 2026-08-30, not inherited.** `main` was pushed and Netlify rebuilt and republished the live site on its own, with no upload and no dashboard visit. Work still happens on `claude/superbase-access-anj1h7`; **never merge to `main` on your own initiative — ask.** The owner said yes on 2026-08-30, so the redesign through roadmap 2.2 IS live and `main`, the branch and the working machine are all the same commit. ~~**THAT PARITY IS STALE AS OF 2026-08-31: `main` is 19 commits behind the branch**~~ — **AND THAT SENTENCE WAS ITSELF STALE BY THE END OF THE SAME DAY. Checked 2026-08-31 during roadmap 2.10: `main`, `origin/main` and the branch are all at `b24b95d`, the last commit of roadmap 2.9.** Everything through 2.9 — the walkthrough, the research, 2.8b's five builds, 2.8c's six settings and the money bug, and the 320px floor — **is published and live.** The only commits ahead of `main` are 2.10's two documentation commits, which contain no `app/` code and are not worth a publish on their own. Kept rather than deleted because the lesson is the point: **this line has now been wrong twice in one day, so a session that needs to know should run `git rev-list --count origin/main..HEAD` rather than trust it.** Still never merge without his word.
+  **RUN 2026-09-02, AT THE END OF ROADMAP 2.11: THE ANSWER IS 34, AND BOTH REMOTES ARE STILL AT `b24b95d`** — the last commit of roadmap 2.9. `origin/main` and `origin/claude/superbase-access-anj1h7` are the same commit as each other, and **everything from roadmap 2.10 onward — the architecture proposal, the whole seven-stage dashboard rebuild, first run, five new test suites and three migrations — exists only on this machine.** That is not a publish question: pushing the BRANCH deploys nothing (only `main` does), so the risk is one-directional and it is the loss of a month of work to a disk. **Handed to the owner 2026-09-02 with the recommendation to push the branch; the answer belongs here when it comes.**
 - **The old business is live and off-limits:** its Supabase project, Netlify site, and Resend domain (`andrewsdetail.com`). The Resend account contains real customers' emails. `reference/` is read-only.
 - **RLS is the security model.** An event trigger auto-enables RLS on new tables; `business_settings` is owner-only to READ (staff get zero rows — future staff screens must use edge functions). Don't "fix" what looks like an over-strict policy.
 - **Migrations are append-only, filename-ordered**; the apply script intentionally fails loudly on an already-migrated DB unless given specific filenames.
@@ -2533,6 +2534,15 @@ with `dropoff_enabled` false for *"I go to them"*; and all seven keys in
 | First run, new business | form at step 1 with 2 of 7 filled; tour 6 steps; neither returns after a reload |
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
+
+
+**THE HEADLINE, 2026-09-02: ROADMAP 2.11 IS CLOSED.** All seven stages of its
+step 6 are built — the shell and Today, the job record, the calendar, Money,
+Clients, Business with its twelve settings screens behind two doors, and first
+run. The dashboard is the one this product ships. **The next unchecked item is
+2.12** (request-vs-reserve, accept/decline and quotes), which is engine and
+schema work rather than layout — 2.11 left the accept slot designed and empty
+on purpose.
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
    ~~**2.2, the marketing/landing page.**~~ **DONE 2026-08-30** — ported from
