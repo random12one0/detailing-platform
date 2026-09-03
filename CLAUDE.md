@@ -162,12 +162,30 @@ explaining it; if they still have to ask "so should I?", it failed.
   because this script is the only thing in the repo that opens either and
   neither is reachable by clicking a tab. **Iterate at one width; the full run
   is a once-per-item cost, not a per-change one.**
-  **AND RUN IT IN THE FOREGROUND.** Both full passes finish inside the ten
-  minutes a foreground command is allowed; the same runs redirected to a file
-  from a background job sat at one width for ten minutes twice and had to be
-  killed. That is a harness artefact, not the script — but it wastes a whole
-  pass, and the script's own stall is fixed separately (see
-  `docs/verification-speed-2026-09-02.md`). `--lite` is a
+  **AND THE RULE THAT IS WORTH MORE THAN EVERY OTHER LINE IN THIS SECTION, and
+  costs nothing: START THE LONG CHECK, WRITE WHILE IT RUNS, THEN READ THE
+  RESULT.** The owner asked a second time during roadmap 2.12 why a session
+  takes as long as it does, and that session's own runs were counted rather
+  than estimated: **~33 minutes spent WAITING, all but two of them blocking**,
+  while the documentation it was always going to write — DECISIONS, PROJECT-
+  STATE, the roadmap — needs no I/O at all. **The two halves of a session do
+  not contend for anything and were being run one after the other.** Background
+  every full sweep and every env-backed test run, and write during them.
+  Two corollaries from the same count: **`--only <Screen>` is the iteration
+  tool and takes seconds** — a 56-screen run at one width is 82s and is not the
+  cheap option, and it was used ONCE all session; and **write all the edge-
+  function code, then deploy once** rather than deploying after each pass.
+  Full working: `docs/verification-speed-2026-09-02.md`, last section.
+  ~~**AND RUN IT IN THE FOREGROUND.**~~ **SUPERSEDED 2026-09-02.** Both full
+  passes finish inside the ten minutes a foreground command is allowed; the
+  same runs redirected to a file from a background job once sat at one width
+  for ten minutes twice and had to be killed. **That was the SCRIPT's own stall
+  — the setup-form race — and it is fixed, along with a 15s default timeout on
+  every page so nothing can hang for thirty seconds again.** A background
+  five-width run was taken at the end of roadmap 2.12 to prove it, because the
+  rule above is worthless if the longest check in the repo is exempt from it.
+  If a background run ever stalls again, count the orphaned
+  `chrome-headless-shell.exe` processes before blaming the harness. `--lite` is a
   final-run flag, not an iteration one. Screenshot the ONE width that answers
   the question. And when a layout question has a number in it, MEASURE FIRST
   rather than building, looking, and then measuring** — the period control

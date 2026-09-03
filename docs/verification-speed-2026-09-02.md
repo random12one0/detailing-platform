@@ -198,3 +198,90 @@ must not look like a run that is being thorough.*
 crawled because crashed runs leave `chrome-headless-shell.exe` orphaned, and
 three of them contending for one dev server made a 3-minute pass take ten. If
 a sweep is inexplicably slow, count the browsers before blaming the code.
+
+
+---
+
+## The owner asked again during roadmap 2.12: where the time ACTUALLY goes, and the plan to halve it
+
+**Asked 2026-09-02, mid-session, on an item whose code was written in well under
+an hour.** §4 of this file already had the right rules. **This session broke
+four of the six.** So the honest finding is not "we need better rules" — it is
+that the rules were not followed, plus two costs this file had never named.
+
+### Counted, not estimated — the 2.12 session's own runs
+
+| what | times run | each | total waiting |
+|---|---|---|---|
+| `sweep-widths.mjs` all five widths | 2 | 218s | ~7m |
+| `sweep-widths.mjs --lite` all five | 1 | 94s | ~1.5m |
+| `sweep-widths.mjs 392` (all 56 screens) | 4 | 82s | ~5.5m |
+| the env-backed test list (8 suites) | 2 | ~3m | ~6m |
+| `deploy-functions.mjs` | 5 | ~30s | ~2.5m |
+| `shoot-dashboard.mjs` | 2 | ~90s | ~3m |
+| `seed-demo.mjs` | 3 | ~30s | ~1.5m |
+| one-off browser scripts, incl. two that failed on selectors first | 5 | — | ~6m |
+
+**About 33 minutes of waiting, and all but the last two minutes of it blocked.**
+Writing the documentation — the DECISIONS section, the PROJECT-STATE section,
+CLAUDE.md, the roadmap, two design files — is another large block of the
+session and it uses **no I/O at all**.
+
+**That is the whole finding. The two halves of the session do not contend for
+anything, and they were run one after the other.**
+
+### The plan, in order of what it is worth
+
+1. **Start the long check, then write, then read the result.** Not run → wait →
+   write. §4 rule 6 already says this and this session backgrounded exactly one
+   command, at the very end. Every full sweep and every env-test run overlapped
+   with the writing that was going to happen anyway takes **~20 of the 33
+   minutes to zero.** This is worth more than every other line below put
+   together, and it costs nothing.
+2. **The full sweep once. The `--lite` sweep once. The env test list once.**
+   This session ran the five-width sweep twice, the 56-screen 392 run four
+   times, and the env list twice. **Iterating means `--only <Screen>`, which is
+   seconds** — not the whole 56-screen walk at one width, which is 82s and was
+   being used as if it were the cheap option. `--only` was used once all
+   session. **~9 minutes.**
+3. **Write all the server code, then deploy once.** Five deploys happened
+   because the edge functions were edited in five passes. **~2 minutes**, and
+   it also removes five chances to test against a half-deployed backend.
+4. **Screenshot one width. Re-seed at the end.** §4 rule 3, and the seed only
+   has to be restored once, after whatever destroyed it. **~3 minutes.**
+
+### And two costs this file had not named
+
+- **Throwaway browser scripts get written from scratch every session, and they
+  fail on selectors before they work.** Three were written here; two failed
+  first. That is roughly six minutes spent debugging scaffolding rather than
+  the product, and it happens every time because nothing in `scripts/` does
+  "log in as the demo owner, get to state X, screenshot it". **Proposed, not
+  built here because it is not roadmap 2.12:** a ~40-line `scripts/peek.mjs`
+  that signs in, takes a selector or a tab name, and saves one PNG at one
+  width. Every session that has needed it has rebuilt it.
+- **The documentation is RECONSTRUCTED at the end.** The DECISIONS section for
+  this item had to recall findings from hours earlier — which is slow, and is
+  also how a finding gets lost. **Append each finding to a scratch notes file
+  at the moment it happens**; the write-up at the end becomes editing rather
+  than remembering.
+
+### One structural cost that needs the owner, because it is his file
+
+**`CLAUDE.md` is 35KB and the first instruction in it is to read all of it.**
+That is the cold start of every session, before a line of the actual task is
+read, and it has grown by accretion — several rules are now stated two and three
+times in different sections. **He has already made this exact call once**, on
+the feature inventory: *anything he has to read needs a top layer he can
+actually read.* The same argument applies to the agent that has to read it every
+time. A one-page "the twelve rules that will bite you" at the top, with the
+current text kept below as the detail, would cut the cold start without losing
+anything. **Not done unilaterally: it is the file that governs the work, and
+editing it to be shorter is exactly the kind of change that should not be made
+by the thing trying to go faster.**
+
+### What is still NOT on the table
+
+§5 stands unchanged. The five widths in the final run, the parent-box and
+dead-width checks, looking at the screen, and the written record are not what
+made this session long — **running them repeatedly, in series, was.**

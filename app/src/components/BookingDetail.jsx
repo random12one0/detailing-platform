@@ -181,7 +181,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // owner asked for the accept action on "the page the detailer uses their
   // bookings on" and this record IS that page at /job/:id.
   const waiting = booking.status === "pending";
-  const quotedAmount = booking.quoted_at ? Number(booking.quoted_amount) : null;
+  // A QUOTE ONLY MEANS ANYTHING WHILE THE BOOKING IS STILL PENDING, and the
+  // guard is here rather than on each write for a reason: a declined request
+  // and a customer cancellation both end the wait, and so will whatever path
+  // gets added next. Clearing the columns in three places is three chances to
+  // forget; asking about the status once is none. The columns stay behind as
+  // the record of what was last offered, which is worth keeping.
+  const quotedAmount = booking.quoted_at && booking.status === "pending"
+    ? Number(booking.quoted_amount) : null;
   const respond = (action) =>
     act(() => api.respondToBooking(business.id, booking.id, action),
       action === "accept" ? "Accepted — they've been emailed." : "Declined — they've been emailed.");

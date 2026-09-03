@@ -8155,6 +8155,19 @@ so it is widened to 96 hours rather than the date being computed more cleverly.
 **A gate that is red at some hours and green at others is worse than a gate
 that is red**, because the next session assumes it is theirs.
 
+### Staff can answer requests, and that is a default rather than a ruling
+
+Verified rather than assumed, on the staff demo login: staff get their three
+rail buttons — Today, Calendar, Clients — and Today carries the request queue
+with a working Accept. `respond-to-booking` uses `requireMember`, which does not
+distinguish owner from staff.
+
+**It is the right default for the roles that exist today.** Staff run the diary;
+a staff-only day where nobody can accept a request is worse than a staff member
+accepting one. **Roadmap 2.13 is where it becomes a tick box** — that item
+replaces `business_users.role` with a permission set, and "can answer requests"
+is one of the permissions it will have to name.
+
 ### THREE QUESTIONS STANDING FOR THE OWNER
 
 Recorded here because they were reached by building, and none of them has an

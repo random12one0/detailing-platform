@@ -2193,6 +2193,13 @@ is kept; the entire visual design restarts from scratch.
       the day this item ships, and the screen it names is where the new
       permission set gets read.
 
+      **AND 2.12 GAVE IT ONE MORE PERMISSION TO NAME.** Staff can accept,
+      decline and quote a booking request today — `respond-to-booking` uses
+      `requireMember`, which does not distinguish the two roles. That is the
+      right default for the roles that exist now (staff run the diary), and it
+      is exactly the kind of thing this item makes a tick box. Verified on the
+      staff demo login, not assumed.
+
       **Skills: none — this is schema, RLS and edge-function work.** It adds
       one settings screen that 2.11 already designed the skeleton for.
 
