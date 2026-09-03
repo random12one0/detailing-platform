@@ -2699,6 +2699,117 @@ and the answer to his question is yes: it is the stage not yet reached.
 | The four new emails | rendered and LOOKED AT, which is how the contrast defect above was found |
 | End to end, real browser | a customer booked through `/book/demo-detail` in request mode and got *"We're holding your time"*; the row came back `pending`; the two test bookings were deleted afterwards |
 
+## 6x. ROADMAP 2.18, STEP 1 — THE EMAIL RESEARCH, AWAITING THE OWNER (2026-09-03)
+
+**Nothing in `app/` or `supabase/` changed.** The owner asked for the emails to
+be deleted and rebuilt from scratch and asked for the research first, by name.
+Step 1 is done; the item is waiting on him for two answers before any template
+is drawn.
+
+- **The file:** `docs/email-research-2026-09-03.md` — tables, per-claim source
+  strength, and every URL.
+- **The judgment:** DECISIONS.md → "Roadmap 2.18, step 1 — what the trade's
+  booking systems actually send".
+- **The panel:** the same six 2.10 and 2.14 used — Jobber, Housecall Pro,
+  Zenbooker, Square Appointments, Urable, Mobile Tech RX — so the counts are
+  comparable across roadmap items. **The two detailing-specific ones have the
+  worst public documentation** (Urable's help centre is behind a login), so
+  their rows say a feature exists and never how it is configured. That is
+  marked in the file rather than averaged away.
+
+### What it found
+
+| Question the item asked | Answer |
+|---|---|
+| Are we missing an email everybody else has? | **Two.** A **payment receipt separate from the invoice** (five of six) and a **re-book / maintenance reminder** (four of six, all four in a separate paid tier). Nothing else. |
+| A "you're next in the queue" email? | **Nobody sends one.** What the trade sends is **on-my-way, and it is SMS in all four products that have it.** We already have it (`on_my_way` message template). |
+| A review request? | **We already have one** — `followupEmail`, five of six have the same. What we lack is the configurable **delay**. |
+| How much of the SCHEDULE is theirs? | **Two reminders is the trade's ceiling, not its floor** — Jobber caps at two and says so; nobody offers three. **Our timing already beats four of the six**: we carry Square's offset shape and Housecall Pro's clock-time shape at once, per business, timezone-correct. |
+| How much of the CONTENT is theirs? | **Five of six give WORDS. One gives a DESIGN.** And the one that gives a design still renders the invoice's itemisation as a single variable the editor cannot open. |
+| What does "premade templates" mean here? | **WORDING.** Not one of the six offers a choice of visual designs for a transactional email. Where design galleries exist they are marketing email in a paid tier, and they apply the brand automatically anyway. |
+
+### Three things a cold session must not re-derive
+
+**1. On-my-way is not an email and never was.** Four of six have it, all four
+as SMS, and we already ship it. **Adding an on-my-way email and recording it as
+a closed gap is the specific mistake this paragraph exists to prevent.**
+
+**2. Half of "multiple options for when emails get sent out" is
+discoverability.** The reminder timing control is on **Booking rules**; the
+Notifications screen just says *"Timing is set in Booking rules."* The owner has
+never been shown a control that is already better than most of the category.
+
+**3. The logo is one field away.** `business_branding.logo_url` exists,
+detailers already upload it on Business info, and it is drawn on the booking
+page, the confirmation page and the manage page. **`buildBrand()` has never read
+it**, so no email has ever carried a logo — the band prints the business name as
+text. Cheapest and most visible item in the build.
+
+### THE TRAP, and it is the one thing here that will silently waste a session
+
+**`tests/email-brand.test.mjs` is PARTLY A SOURCE-SHAPE TEST.** Of its 138
+checks:
+
+- **1–6, 7b and 7c are arithmetic.** They measure through `brandColor.js`, never
+  look at a template, and pass untouched through any rebuild.
+- **7a, 7a-ii and 7b-ii read `emailTemplates.ts` as text** and assert facts
+  about a file a rebuild deletes: that `const header =` blocks exist, that
+  `${brand.headerInk}` appears at least fourteen times, that the literal
+  `max-width:600px; background-color:#ffffff;` is present, and that three
+  specific greys never return.
+
+**Their intent is right and must survive; their pointers must move — in the same
+commit, deliberately, never dropped.** A rebuild that quietly loses 7a is how the
+D1 defect returns: 7a exists to stop the NEXT template hardcoding a colour on the
+band, and a rebuild is precisely "the next template". This is *a test can verify
+the arithmetic and still be blind to the drawing* one step further along — the
+test that learned to look at the drawing, pointed at a drawing that no longer
+exists.
+
+**Baseline taken at the start of the session: `email-brand` 138 pass,
+`composition` 26 pass.**
+
+### The instrument that does not exist
+
+**Nothing in this repo renders an email for a human to look at.** No preview
+script, no fixture, no screenshot path — the only way anybody has ever seen one
+is by triggering a real send, and 2.12 found **eleven** under-floor headlines the
+first time somebody did. For an item whose acceptance test is *"thought of
+properly… make them look the best"*, that is the missing measuring stick, and it
+is the same gap `sweep-widths.mjs` filled for the dashboard. **Build it before
+the templates.**
+
+### The proposed set: twelve customer kinds, plus two owner ones
+
+Eleven today. The change is two splits, not an expansion: **confirmation splits
+into *booking confirmed* and *request received*** (both products with request
+mode keep them apart, and they make different promises), and **invoice splits
+into *invoice* and *receipt***. Splitting the invoice **doubles the number of
+places that arithmetic is drawn**, so both have to tie out — `money-export`
+class, and it needs its own check.
+
+### FOUR QUESTIONS STAND FOR HIM; TWO BLOCK THE BUILD
+
+1. **Premade templates — wording or looks?** Recommend wording. **Blocks.**
+2. **How many reminders?** Ours sends one. Recommend the second. **Blocks**, and
+   it is a migration rather than a number: each send is guarded by exactly one
+   marker column (`customer_reminder_sent_at`), so a second reminder needs a
+   second marker and a second lead setting or the sweep either double-sends or
+   never sends the second.
+3. **The re-book / maintenance reminder** — recommend its own roadmap item. It
+   is the only **marketing** email in the set, so it needs an unsubscribe, a
+   suppression list and a sending reputation the transactional ones are exempt
+   from. Does not block.
+4. **Logo on the coloured band or on the white paper?** A logo is an arbitrary
+   PNG, so its contrast cannot be measured the way every other colour here is.
+   Recommend paper. Does not block.
+
+**And a constraint on the editor that falls out of the same law as #3:** a
+detailer who types *"20% off ceramic coating this month"* into a reminder's
+prose slot has reclassified a transactional email as a commercial one. Square
+warns its own users in those words; our screen should too, in plainer ones.
+
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 
@@ -2712,6 +2823,16 @@ standing for the owner**. **The next unchecked item is 2.5**, the booking smoke
 test — and note that `scripts/e2e-booking.mjs` does not run (it hardcodes a
 Linux Playwright path from a container that no longer exists), so that item
 either repairs it or writes the check fresh.
+
+**AND SINCE 2026-09-03, ROADMAP 2.18 IS OPEN AND HALF-BLOCKED.** He asked for
+the emails deleted and rebuilt from scratch, and for the research first.
+**Step 1 is done — `docs/email-research-2026-09-03.md`, §6x here, and the
+DECISIONS section — and nothing in `app/` or `supabase/` changed.** Four
+questions stand for him and **two of them block the build**: what "premade
+templates" means to him (the trade means wording, not looks), and whether to
+build a second reminder (a migration, not a number). **The colour half is done
+and must not be rebuilt**; the trap is that `email-brand`'s 138 checks are
+partly SOURCE-SHAPE checks pointed at a file the rebuild deletes.
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
    ~~**2.2, the marketing/landing page.**~~ **DONE 2026-08-30** — ported from

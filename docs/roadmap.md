@@ -2390,6 +2390,69 @@ is kept; the entire visual design restarts from scratch.
       screens are new. No direction-generating skill; the emails carry the
       product's identity, not a new one.
 
+      **STEP 1 IS DONE, 2026-09-03. THE ITEM IS WAITING ON HIM FOR TWO
+      ANSWERS.** The research is `docs/email-research-2026-09-03.md`, the
+      judgment is DECISIONS.md → "Roadmap 2.18, step 1", and **nothing in
+      `app/` or `supabase/` changed.** Do not re-derive any of the following.
+
+      **What it found, shortest form.** Three of the four questions came back
+      cheaper than this item assumed:
+
+      - **The "you're next in the queue" email does not exist anywhere.** What
+        the trade sends is **on-my-way, and it is SMS in all four products that
+        have it** — no product offers an email version. **We already have it**
+        (`on_my_way` in `app/src/lib/templates.js`). **Do not add an on-my-way
+        EMAIL and record it as closing a gap.**
+      - **A review request is not missing either** — five of six have one and
+        so do we (`followupEmail`). What is missing is the **delay**.
+      - **A receipt separate from the invoice IS missing — five of six have
+        one.** Ours sends an email titled *invoice* after the money is taken.
+      - **Our reminder SCHEDULE already beats four of the six** (Square's
+        offset shape and Housecall Pro's clock-time shape, both at once). Half
+        of "multiple options for when emails get sent out" is a
+        discoverability problem — the control lives on Booking rules and
+        Notifications only points at it.
+      - **Content: five of six give the detailer WORDS, one gives a DESIGN** —
+        and even that one renders the invoice's itemisation as a single
+        variable the editor cannot open. Recommendation is a fixed frame with
+        named slots, reusing `message_templates` / `MessageTemplates.jsx`
+        rather than inventing a second editor.
+      - **"Premade templates" means WORDING in this trade.** Not one of the six
+        offers a choice of visual designs for a transactional email.
+      - **`business_branding.logo_url` already exists, is already uploaded, is
+        already drawn on three customer pages — and `buildBrand()` has never
+        read it.** Cheapest and most visible item in the whole build.
+
+      **THE TRAP, and it is the one thing here that will silently waste a
+      session: `tests/email-brand.test.mjs` is PARTLY A SOURCE-SHAPE TEST.**
+      Checks 7a, 7a-ii and 7b-ii read `emailTemplates.ts` as text and assert
+      facts about a file a rebuild deletes (`const header =` blocks,
+      `${brand.headerInk}` at least fourteen times, the literal
+      `max-width:600px; background-color:#ffffff;`, three banned greys). Their
+      **intent must survive and their pointers must move, in the same commit**.
+      A rebuild that quietly drops 7a is how D1 comes back — 7a exists to stop
+      the NEXT template hardcoding a colour on the band, and a rebuild is
+      exactly "the next template". The arithmetic checks (1–6, 7b, 7c) pass
+      untouched. Baseline confirmed 2026-09-03: **138 pass**.
+
+      **AND BUILD THE PREVIEW SCRIPT FIRST.** Nothing in this repo renders an
+      email for a human to look at; 2.12 found eleven under-floor headlines the
+      first time anybody did. For an item whose acceptance test is *"make them
+      look the best"*, that is the missing instrument.
+
+      **THE FOUR QUESTIONS FOR HIM (1 and 2 block the build):**
+      1. **Premade templates — wording or looks?** Recommend wording.
+      2. **How many reminders?** Ours sends one, Jobber caps at two, nobody
+         offers three. Recommend the second. It is a migration, not a number:
+         each send is guarded by ONE marker column
+         (`customer_reminder_sent_at`).
+      3. **The re-book / maintenance reminder** (four of six, all four in a
+         separate paid tier because it is marketing email and needs an
+         unsubscribe) — recommend its own roadmap item. Does not block.
+      4. **Logo on the coloured band or on the white paper?** A logo is an
+         arbitrary PNG and its contrast cannot be measured. Recommend paper.
+         Does not block.
+
 - [ ] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named
       complaints and one principle that outranks them.

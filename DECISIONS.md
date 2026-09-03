@@ -59,7 +59,7 @@ were made more than once.
 | **A test, a check, or a measuring script** | Roadmap 2.11, step 6, stage 2 (the job record had never been swept at all; and a pinned thing must be tested at the height that SCROLLS) · Roadmap 2.11, step 6, stage 1 (`DESKTOP_SPEC_BUILT` is armed; the rotation guard was THREE places, not the two the file listed — grep the breakpoint) · Roadmap 2.11, step 4b (a green check that could not see the failure — the THIRD time; and why the check written for it was DELETED rather than left dormant) · Roadmap 2.11, step 5 (what `composition.test.mjs` test 1 must assert) · A skipped check reads exactly like a passing one · Baseline a new check against the last known-good version · Never measure a transformed element with getBoundingClientRect |
 | **`main`, deploying or publishing** | The owner put the redesign on `main` and published it · ANSWERED: Netlify does auto-publish `main` |
 | **Keys, RLS, the public repo, or the live business** | Phase 0 — 0.4 deployment sanity · Abuse check on the live project · Roadmap 0.1 cleanup · A guessable demo login |
-| **Email or reminders** | Phase 0 — 0.2 email · Test deployment and later fixes |
+| **Email or reminders** | **Roadmap 2.18, step 1 — what the trade actually sends, and the SOURCE-SHAPE trap in `email-brand.test.mjs`** · Every email headline in the product was under the contrast floor · Roadmap 2.11, step 6, stage 6 (`brandColor.js`, the one allowed second implementation) · Phase 0 — 0.2 email · Test deployment and later fixes |
 | **Signup or a new tenant's first run** | Signup · Phase 2 follow-ups |
 | **The design system itself** | The new design system · Roadmap 1.3, the rebuild · Phase 1 — reference analysis · Design system (August 2026), for history only |
 | **Anything he may already have ruled on** | Owner decisions · The owner's answers of 2026-08-30 · The owner walked the whole product · Removed on purpose · Four threads from the owner before clearing |
@@ -166,6 +166,8 @@ were made more than once.
 - **Roadmap 2.12 — request mode, accept/decline and quotes, and the sixth status that was not written** — the mode switch is one column and one line in `create-booking`; **what took the thinking was what NOT to add.** A request holds its slot because `pending` is absent from the exclusion constraint's WHERE clause — a fact established by not writing something, and therefore invisible to a reader and unprotected by anything but a test. **A decline is `cancelled` plus `declined_at`, not a sixth status**, because twelve places in this codebase already ask `status <> 'cancelled'` and every one is right about a declined request; a sixth would have meant editing all twelve to say the same thing twice, with the first one anybody forgot leaving a declined request still holding a slot. **A quote is offered, never charged** — `quoted_amount` is its own column and only the customer moves it to `total_price`, and accepting it lands the difference as a `price_adjustments` line so the receipt still reconciles, which is the `travel_fee` family one step later. **Three things the new status broke that nothing announced:** the four reminder RPCs would have emailed “your appointment is tomorrow” about a request nobody accepted, the manual Reminder button did the same by hand, and `sweep-widths.mjs`'s `.card.attend` selector silently changed meaning because a waiting request now takes the lit treatment — a rename with no error. **The demo takes requests now**, deliberately: it is the only business the sweep can log into, so a reserve-mode demo means the whole of this item's screen work is never rendered at any width. **Three questions stand for him** — quotes exist only on requests, a request whose time has passed is chased by nothing, and the demo no longer shows his own model.
 
 - **Every email headline in the product was under the contrast floor, and it was found by rendering one** — roadmap 2.12, while looking at the new quote email. Stage 6's D1 fix gave the header band a MEASURED ink and used it for the brand name and the 44px rule; **every template's own headline went on hardcoding `color:#ffffff`** onto that same band. Measured: **3.01–3.76:1 on all fourteen colours**, the small label 2.44–3.05:1, against a 4.5:1 text floor — **not one preset passed.** Worse on the invoice, where *“Invoice / Receipt”* printed the PAPER colour on the band at **1.20–1.57:1**, which is D1's “the same colour on itself” wearing different clothes. **`email-brand.test.mjs` passed throughout**, because it pinned `brandColor.js` against `theme.js` and never looked at what the templates DID with the answer — *a test can verify the arithmetic and still be blind to the drawing.* Also three fixed greys under the floor (fine print at 2.40:1) that were nothing to do with the tenant's colour. **The finding underneath: two of the eleven bad lines were written that same hour, by copying the template above them** — a defect in a pattern reproduces itself into every new instance until somebody renders one and looks.
+
+- **Roadmap 2.18, step 1 — what the trade's booking systems actually send** — the six-product sweep he asked for by name, before any template was drawn. **Three of the four questions came back cheaper than the item assumed.** The "you're next in the queue" email does not exist anywhere: what the trade sends is **on-my-way, and it is SMS in all four products that have it** — we already have it as a message template, so that gap is closed and must not be reopened as an email. **Our reminder SCHEDULE is already better than four of the six** (we carry Square's offset shape and Housecall Pro's clock-time shape at once) and nobody has ever shown it to the owner, because it lives in Booking rules. **Content is the lopsided one: five of six give the detailer WORDS, one gives a DESIGN** — and even Zenbooker, the permissive one, renders the invoice's itemisation as a single variable the editor cannot open, which is our own `money-export` rule arrived at independently. **"Premade templates" in this trade means WORDING, not looks**: not one of the six offers a choice of visual designs for a transactional email, and where design galleries exist they are marketing email behind a paywall that applies the brand automatically anyway. **Two real gaps: a payment receipt separate from the invoice (five of six; ours calls a paid job an invoice), and the tenant's LOGO** — `business_branding.logo_url` is already uploaded and drawn on three customer pages and `buildBrand()` has never read it. **The thing that will bite: `email-brand.test.mjs` is partly a SOURCE-SHAPE test** — 7a, 7a-ii and 7b-ii read `emailTemplates.ts` as text and assert facts about a file a rebuild deletes, so "rebuilt from scratch" and "keeps passing 138 checks" are in tension and the checks must be re-pointed deliberately, never dropped. Full working, counts and sources: `docs/email-research-2026-09-03.md`. **Four questions stand for him and two of them block the build.**
 
 <!-- INDEX:END -->
 
@@ -8351,3 +8353,177 @@ brand object and produced a white band, which looked like a much bigger bug
 than the real one. **Check the harness against the interface before believing
 what it draws** — `TenantBrand` is `primaryColor` / `headerInk` / `accentColor`,
 and nothing warns you when a template literal interpolates `undefined`.
+
+## Roadmap 2.18, step 1 — what the trade's booking systems actually send
+
+2026-09-03. The owner asked for the emails deleted and rebuilt, and he asked
+for the research first, by name. This is the research; **nothing in `app/` or
+`supabase/` changed.** The file is `docs/email-research-2026-09-03.md` and it
+carries the tables, the per-claim source strength and the URLs. What follows is
+the judgment, not the evidence.
+
+**The panel is the same six products 2.10 and 2.14 used** — Jobber, Housecall
+Pro, Zenbooker, Square Appointments, Urable, Mobile Tech RX — deliberately, so
+counts are comparable across roadmap items instead of a new panel each time.
+**The two detailing-specific products are the two with the worst public
+documentation** (Urable's help centre is behind a login, Mobile Tech RX has one
+public lesson page), so their rows establish that a feature exists and never
+how it is configured. That is marked in the file rather than averaged away.
+
+### Three of the four questions came back cheaper than the item assumed
+
+**The "you're next in the queue" email does not exist, anywhere.** What the
+trade actually sends is **on-my-way**, and it is **SMS in all four products
+that have it** — Housecall Pro, Zenbooker, Urable, Mobile Tech RX — with no
+exceptions and no email version offered by anyone. The reason is obvious once
+seen: it has to land in the ten minutes before somebody turns into a driveway,
+and email is the wrong pipe. **We already have it, as the `on_my_way` message
+template.** So that gap is closed, and the reason is written down specifically
+so a later session does not add an on-my-way EMAIL and believe it has closed
+something.
+
+**Our reminder schedule is already better than four of the six.** We carry
+Square's shape (an offset before the start) and Housecall Pro's shape (a clock
+time on the previous day, with a latest-start cutoff) *at the same time*, per
+business, timezone-correct. Nobody has ever shown the owner this, because it
+lives on Booking rules and the Notifications screen only says *"Timing is set
+in Booking rules."* **Half of "multiple options for when emails get sent out"
+is a discoverability problem, not a build.**
+
+**A review request is not missing either** — `followupEmail` is one of the most
+universal kinds in the set, five of six. What we lack is the **delay**: Jobber
+and Urable let the detailer choose how long after completion it goes; ours
+fires the instant payment is recorded.
+
+### The one that is genuinely lopsided, and the finding underneath it
+
+**Five of six give the detailer WORDS. One of six gives them a DESIGN.** Jobber,
+Square, Urable, Mobile Tech RX and (barely) Housecall Pro all offer an editable
+message body plus variables inside a frame the product owns. Zenbooker alone
+offers layout, colours, images, buttons and footer.
+
+**And Zenbooker still does not give them the money.** Its invoice itemisation is
+a single variable — `{{invoice.line_items}}`, `{{invoice.pricing_summary}}` —
+that renders itself and cannot be opened. Jobber says the same thing in its own
+words: the payment section is added by Jobber and is not editable. **The most
+permissive product in the category independently arrived at our own
+`money-export` rule** — a number printed is not a number charged — and drew the
+line in exactly the same place. That is the strongest single piece of evidence
+on the page, because it is two parties reaching one answer without talking.
+
+**So the recommendation is a fixed frame we own with named editable slots**
+(subject, one or two prose blocks), the itemisation never a slot, and **the
+mechanism reused rather than invented**: `message_templates` + `templates.js` +
+`MessageTemplates.jsx` already do this for SMS, chips-instead-of-braces and
+live preview included, and that screen's own header comment already names the
+email gap as real. Two editors for one job would be two answers to one
+question.
+
+### "Premade templates" means WORDING, and the evidence is one-sided
+
+Not one of the six offers a choice of visual designs for a transactional email.
+Every product has exactly one look, with the business's logo and colour dropped
+into it. **Where prebuilt design templates exist at all, they are marketing
+email in a separate paid tier** — Jobber's Campaigns at $29/month — and even
+those "already include your logo and brand colors", i.e. the gallery applies
+the brand automatically rather than offering a choice of looks. Meanwhile every
+appearance of the word "template" in a transactional settings screen means a
+message body: Jobber's "templates for email and text", Urable's "save your
+favorite scripts", Mobile Tech RX's "default text templates". The trade's own
+artefact is a paragraph you copy — Jobber publishes an article of eight of them.
+
+**He will recognise prewritten wordings.** A gallery of looks is a different and
+much larger feature, and guessing wrong in either direction is expensive, so it
+is question 1 for him rather than a decision taken here.
+
+### Two real gaps, and one of them is nearly free
+
+**A payment receipt separate from the invoice — five of six.** Ours makes one
+email do both jobs: `invoiceEmail` is titled and subject-lined as an *invoice*
+and is sent from `send-invoice` after the money has already been taken, so a
+customer receives a bill for something they have paid. That is a framing defect
+rather than a missing feature, and the fix is the same itemisation with a
+different headline and one line saying what was paid and how. **But splitting it
+doubles the number of places that arithmetic is drawn**, which is the
+`money-export` class again and needs its own tie-out.
+
+**The logo, and this is the cheapest item on the page.**
+`business_branding.logo_url` exists, detailers already upload one on Business
+info, and it is drawn on the booking page, the confirmation page and the manage
+page. **`buildBrand()` has never read it**, so it has never appeared in an
+email — the band prints the business name as text and nothing else. One column,
+one `<img>`, one fallback. Square's own documentation describes the pattern we
+are a single field away from.
+
+**Recommend the logo on the PAPER, not on the band.** A logo is an arbitrary
+PNG somebody uploaded, so its contrast against the tenant's coloured band
+cannot be measured the way every other colour in this product is. White paper
+is safe for every logo anyone will ever upload; the band is a guess that
+`accent-sweep` and `email-brand` are both structurally unable to check. Put to
+him as question 4, with that recommendation.
+
+### The re-book reminder is a different animal wearing the same clothes
+
+Four of six have it. **All four keep it in a separate paid tier** — Jobber's
+Campaigns, Housecall Pro's Email Automations app, Urable's service-anniversary
+follow-up, Mobile Tech RX's text blast — and the pricing is not the reason. It
+is the only email in the whole set whose primary purpose is **marketing**, so
+under CAN-SPAM it needs an unsubscribe, a suppression list and a sending
+reputation the transactional ones are exempt from. **Recommend its own roadmap
+item.** Putting it in the same file as the confirmation is how the confirmation
+ends up needing an unsubscribe link.
+
+**The same rule constrains the editor**, which is the non-obvious half: a
+detailer who types *"20% off ceramic coating this month"* into the reminder's
+prose slot has reclassified a transactional email as a commercial one. Square
+warns its own users in exactly those terms — *"don't include marketing or
+promotional material in your custom notifications"* — and our screen should say
+it in plainer words.
+
+### The thing that will silently waste a session
+
+**`tests/email-brand.test.mjs` is partly a SOURCE-SHAPE test, and "rebuilt from
+scratch" collides with it head-on.** Of the 138 checks (confirmed passing at
+the start of this session, alongside composition's 26):
+
+- 1–6, 7b and 7c are **arithmetic**. They measure through `brandColor.js`,
+  never look at a template, and will keep passing untouched.
+- **7a, 7a-ii and 7b-ii read `emailTemplates.ts` as text.** They assert that
+  `const header =` blocks exist, that `${brand.headerInk}` appears at least
+  fourteen times, that the literal `max-width:600px; background-color:#ffffff;`
+  is present, and that three specific greys never come back.
+
+Those three are asserting facts about a file a rebuild deletes. **Their intent
+is right and must survive; their pointers must move, deliberately and in the
+same commit** — CLAUDE.md's rule that a test and a real design decision
+colliding means the file changes first and never silently. **A rebuild that
+quietly drops 7a is how the D1 defect returns**: 7a exists to stop the *next*
+template being written with a hardcoded white on the band, and a rebuild is
+precisely "the next template". This is the same family as *a test can verify
+the arithmetic and still be blind to the drawing* — one step further along,
+where the test that learned to look at the drawing is pointed at a drawing that
+no longer exists.
+
+### The instrument that does not exist
+
+**Nothing in this repo renders an email for a human to look at.** No preview
+script, no fixture, no screenshot path — the only way anyone has ever seen one
+is by triggering a real send, and 2.12 found eleven under-floor headlines the
+first time somebody bothered. For an item whose acceptance test is *"make them
+look the best"*, that is the missing measuring stick, and it is the same gap
+`sweep-widths.mjs` filled for the dashboard. A script that renders all twelve
+to HTML from fixture data is small and makes the visual half checkable at all.
+**Build it before the templates, not after** — the 2.12 write-up already says
+the render took four minutes and that nothing in the repo did it.
+
+### Four questions stand for the owner; two block the build
+
+1. **Premade templates — wording or looks?** Recommend wording. Blocks.
+2. **How many reminders?** Ours sends one; Jobber caps at two; nobody offers
+   three. Recommend building the second. Blocks, because it is a migration:
+   each send is guarded by exactly one marker column
+   (`customer_reminder_sent_at`), so a second reminder needs a second marker
+   and a second lead setting, not a bigger number.
+3. **The re-book / maintenance reminder** — recommend its own item. Does not
+   block.
+4. **Logo on the band or on the paper?** Recommend paper. Does not block.
