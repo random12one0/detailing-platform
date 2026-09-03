@@ -152,3 +152,49 @@ was asked for.
 - **The written record.** The reason a cold session can pick this product up
   is that every decision is in a file. That is not overhead; it is the
   migration plan (`CLAUDE.md`, "Write for a coding agent that is not Claude").
+
+---
+
+## The number moved again the same day, and upward — roadmap 2.11 step 6 stage 7
+
+**Measured 2026-09-02, after first run shipped**, against the 178s this file
+records for the whole run:
+
+| run | `--timing` says it waited | wall |
+|---|---|---|
+| 392 only, normal | 46.6s | **82s** |
+| all five widths, normal | **218.0s** | inside ten minutes |
+| all five widths, `--lite` | **93.5s** | inside ten minutes |
+
+The caps are not what costs — the per-screen DOM walk is, and the walk now
+runs on **54 states rather than 40**.
+
+**The fourteen are the setup form's seven steps and the walkthrough's seven,
+and the trade was taken deliberately.** Neither of those screens is reachable
+by clicking a tab — the form is behind a row that only exists while setup is
+unfinished, and the tour is behind a row in the gear — so this script is the
+only thing in the repo that opens either. The alternative was the failure this
+file's own siblings keep naming: *a screen nothing enters reports exactly like
+a screen that was entered and found clean.*
+
+**What that changes about how to run it, which is this file's whole point:**
+nothing, except that the once-at-the-end run is now seven minutes rather than
+three. Iterating at one width is 82s and `--only` is still seconds. **The rule
+was already "iterate narrow, run the full sweep once"** — it just matters more
+than it did this morning.
+
+**AND ONE STALL THAT WAS THE SCRIPT'S, worth the paragraph because it looked
+exactly like slowness.** Walking the setup form ends on its last step, where
+the form closes ITSELF — and the walk then did `count()` on its close button
+and clicked it. That is a race against the 180ms the form spends leaving:
+count says one, the element unmounts, and the click waits for something that
+is never coming back. A whole `?lite=1` run sat at width 1 for ten minutes
+looking like a slow machine. **It waits for the form to detach now**, and
+`page.setDefaultTimeout(15000)` is set on every page in the script so that
+nothing can ever stall for thirty seconds again: *a run that has gone wrong
+must not look like a run that is being thorough.*
+
+**And a cost that is NOT the script's**: two runs were wrecked and a third
+crawled because crashed runs leave `chrome-headless-shell.exe` orphaned, and
+three of them contending for one dev server made a 3-minute pass take ten. If
+a sweep is inexplicably slow, count the browsers before blaming the code.

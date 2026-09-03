@@ -257,6 +257,10 @@ for (const w of SIZES) {
     Object.defineProperty(navigator, "share", { value: () => Promise.resolve(), configurable: true });
   });
   const page = await ctx.newPage();
+  // NOTHING WAITS THIRTY SECONDS. The default makes a run that has gone wrong
+  // look like a run that is being thorough, and this script is minutes long
+  // even when it is healthy — a stall has to announce itself.
+  page.setDefaultTimeout(15000);
   const say = async (label) => {
     if (ONLY && !label.toLowerCase().includes(ONLY.toLowerCase())) return;
     const rows = await page.evaluate(CHECK);
@@ -582,9 +586,16 @@ for (const w of SIZES) {
       await later.click();
       await settle(page, 800);
     }
-    // It may already have closed itself on the last "later" of step 7.
+    // IT HAS ALREADY CLOSED ITSELF on the last "later" of step 7, so wait for
+    // that rather than clicking its X — and the difference is not pedantry.
+    // `count()` then `click()` is a race against the 180ms the form spends
+    // LEAVING: count says 1, the element unmounts, and the click then waits
+    // for something that will never come back. That is what stalled a whole
+    // ?lite=1 run at width 1. Every wait below is bounded.
+    await page.locator(".setupform").waitFor({ state: "detached", timeout: 5000 }).catch(() => {});
     const x = page.locator(".setupform .x");
-    if (await x.count()) { await x.click(); await settle(page, 700); }
+    if (await x.count()) await x.click({ timeout: 5000 }).catch(() => {});
+    await settle(page, 700);
   }
 
   await page.getByRole("button", { name: "Settings", exact: true }).first().click();

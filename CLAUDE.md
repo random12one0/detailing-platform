@@ -153,7 +153,21 @@ explaining it; if they still have to ask "so should I?", it failed.
   `docs/verification-speed-2026-09-02.md`. The short version, and it is not
   optional:
   **Iterate with `node scripts/sweep-widths.mjs 392 --only Clients` (38s) and
-  run the full sweep ONCE at the end (178s, was 463s). `--lite` is a
+  run the full sweep ONCE at the end. **IT COSTS MORE THAN THE 178s THIS FILE
+  USED TO QUOTE, and the figures are measured rather than estimated
+  (2026-09-02): 392 alone is 82s wall with 47s of that being `settle`, and the
+  full five-width run reports 218s of waiting normally and 94s through
+  `--lite`.** Stage 7 took it from 40 screens to 54 — the setup form's seven
+  steps and the walkthrough's seven — and the trade was taken deliberately,
+  because this script is the only thing in the repo that opens either and
+  neither is reachable by clicking a tab. **Iterate at one width; the full run
+  is a once-per-item cost, not a per-change one.**
+  **AND RUN IT IN THE FOREGROUND.** Both full passes finish inside the ten
+  minutes a foreground command is allowed; the same runs redirected to a file
+  from a background job sat at one width for ten minutes twice and had to be
+  killed. That is a harness artefact, not the script — but it wastes a whole
+  pass, and the script's own stall is fixed separately (see
+  `docs/verification-speed-2026-09-02.md`). `--lite` is a
   final-run flag, not an iteration one. Screenshot the ONE width that answers
   the question. And when a layout question has a number in it, MEASURE FIRST
   rather than building, looking, and then measuring** — the period control
