@@ -326,16 +326,94 @@ for (const w of SIZES) {
   // plain row is one still to do (Mark completed, no money action).
   await page.getByRole("button", { name: "Today", exact: true }).first().click();
   await settle(page, 1400);
-  for (const [label, sel] of [["job record · finished", ".card.attend .strong"],
-                              ["job record · to do", ".row-item"]]) {
+
+  // ROADMAP 2.12 — THE REQUEST QUEUE AND THE QUOTE SHEET, and adding them
+  // moved the two selectors below. `.card.attend` used to mean "the lit job";
+  // since 2.12 a waiting request outranks everything else on this screen
+  // (docs/dashboard-skeletons.md §6), so on the seeded demo `.card.attend` is
+  // now a REQUEST card and the old selector would have quietly measured a
+  // different object under the same label — a rename with no error, which is
+  // the worst kind. The rail's own cards are addressed through `.dayrail` now.
+  //
+  // The quote sheet is behind a button, so it is a state this script has to
+  // ENTER, exactly like the booking link's QR plate: measuring Today says
+  // nothing about a form that only exists after a tap. `seed-demo.mjs` pins
+  // two requests so the queue is always there.
+  {
+    const req = page.locator(".reqcard").first();
+    if (!(await req.count())) {
+      console.log("request queue".padEnd(24) + "NO REQUESTS (is the demo seeded in request mode?)");
+      found++;
+    } else {
+      await req.locator("[role=button]").first().click();
+      await settle(page, 1500);
+      await grow();
+      await say("job record · a request");
+      await page.keyboard.press("Escape");
+      await settle(page, 700);
+      // Back to Today, then the quote sheet from the card's own button.
+      await page.getByRole("button", { name: "Today", exact: true }).first().click();
+      await settle(page, 1400);
+      await page.locator(".reqcard").first().getByRole("button", { name: "Quote", exact: true }).click();
+      await settle(page, 1300);
+      await grow();
+      await say("send a quote");
+      await page.keyboard.press("Escape");
+      await settle(page, 700);
+    }
+  }
+
+  await page.getByRole("button", { name: "Today", exact: true }).first().click();
+  await settle(page, 1400);
+  // TWO JOB STATES, AND WHICH DOOR THEY ARE BEHIND MOVED IN 2.12. They used to
+  // be "the lit card" and "the first row"; a waiting request now takes the lit
+  // treatment, so both are rows on the rail and they are told apart by the
+  // rail NODE — `.landed` is a job that has finished, which on this seed means
+  // finished and unpaid (Finalize payment, no Mark completed).
+  //
+  // WHICH OF THE TWO EXISTS DEPENDS ON THE CLOCK, and that was always true —
+  // `seed-demo.mjs` reads every "completed" off the hour it is run, so a
+  // morning sweep has no finished job and an evening one has no job still to
+  // do. The old pair papered over it: its "to do" selector was bare
+  // `.row-item`, which in the evening matched a FINISHED job and measured the
+  // same record twice under two labels. Tomorrow is the door that is open at
+  // any hour, so the still-to-do record comes from there instead.
+  for (const [label, sel] of [["job record · finished", ".dayrail .row-item.landed"],
+                              ["job record · to do", ".dayrail .row-item:not(.landed)"]]) {
     const job = page.locator(sel).first();
-    if (!(await job.count())) { console.log(`${label.padEnd(24)} NO SUCH JOB (is the demo seeded for today?)`); found++; continue; }
+    if (!(await job.count())) { console.log(`${label.padEnd(24)} none on the rail at this hour — see Tomorrow below`); continue; }
     await job.click();
     await settle(page, 1500);
     await grow();
     await say(label);
     await page.keyboard.press("Escape");
     await settle(page, 700);
+  }
+
+  // TOMORROW'S FIRST JOB — a confirmed booking that has not happened, which is
+  // the record shape the rail cannot promise at every hour. Reached the way a
+  // detailer reaches it: the Tomorrow row below --wrap, the second column's
+  // list above it.
+  {
+    await page.getByRole("button", { name: "Today", exact: true }).first().click();
+    await settle(page, 1400);
+    const tomorrowRow = page.locator(".row-item", { hasText: "Tomorrow" }).first();
+    if (await tomorrowRow.count()) {
+      await tomorrowRow.click();
+      await settle(page, 1400);
+      await grow();
+      await page.locator(".sheet .row-item, .sheet .card [role=button]").first().click();
+      await settle(page, 1400);
+      await grow();
+    } else {
+      await page.locator(".col-2 .settled-row").first().click();
+      await settle(page, 1500);
+    }
+    await say("job record · tomorrow");
+    await page.keyboard.press("Escape");
+    await settle(page, 700);
+    await page.keyboard.press("Escape");
+    await settle(page, 500);
   }
 
   // MONEY IS FIVE PERIODS, A RECORD AND A MODAL, AND THE SWEEP ONLY EVER SAW

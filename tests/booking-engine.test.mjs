@@ -718,6 +718,19 @@ console.log("test 17: travel and time-based surcharges reach the price");
   check("with no date chosen, no time rule applies", (undated.adjustments ?? []).length === 0,
     JSON.stringify(undated.adjustments));
 
+  // A CLOCK-DEPENDENT CHECK, FIXED 2026-09-02 WHILE DOING ROADMAP 2.12 — it
+  // failed against an unchanged pricing path at 22:31 local and passed at
+  // 15:00. `Date.now() + 20h` then `.slice(0, 10)` yields a DATE, and 10:00
+  // local on that date is anywhere from 14 to 44 hours away depending on the
+  // hour the suite is run; past 24 the rule correctly does not apply and the
+  // check correctly failed. The assertion is "a lead-time rule fires inside
+  // its window", and the window is ours to choose, so it is widened past the
+  // worst case rather than the date being computed more cleverly.
+  const rushRules = [
+    { label: "Weekend rate", kind: "time", weekdays: [0, 6], start_time: null, end_time: null, amount: 30, is_percent: false },
+    { label: "Short notice", kind: "lead_time", within_hours: 96, amount: 20, is_percent: false },
+  ];
+  await setPricing({ travel_zones: [], price_rules: rushRules });
   const tomorrow = new Date(Date.now() + 20 * 3600_000).toISOString().slice(0, 10);
   const rush = (await price({ service_type: "dropoff", booking_date: tomorrow, start_time: "10:00" })).data?.quote;
   check("a job booked inside the notice window gets the short-notice fee",

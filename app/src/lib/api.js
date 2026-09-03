@@ -36,6 +36,12 @@ export const api = {
   updateBooking: (businessId, payload) => callFn("update-booking", { business_id: businessId, ...payload }),
   softDeleteBooking: (businessId, bookingId) =>
     callFn("update-booking", { business_id: businessId, booking_id: bookingId, soft_delete: true }),
+  // ROADMAP 2.12 — answering a request. Its own function rather than three
+  // more allowlisted fields on update-booking: each of these three is a
+  // status change AND a customer email, and which email is not a decision the
+  // browser gets to make.
+  respondToBooking: (businessId, bookingId, action, extra = {}) =>
+    callFn("respond-to-booking", { business_id: businessId, booking_id: bookingId, action, ...extra }),
   // Reads / utilities.
   availableSlots: (businessSlug, payload) => callFn("available-slots", { business_slug: businessSlug, ...payload }),
   calculateBooking: (businessSlug, payload) => callFn("calculate-booking", { business_slug: businessSlug, ...payload }),
@@ -72,6 +78,9 @@ export const api = {
     return { total: Number(data?.total ?? 0), left: Number(data?.left ?? 0) };
   },
   cancelBooking: (bookingId) => callFn("cancel-booking", { booking_id: bookingId }),
+  // Roadmap 2.12. Saying NO to a quote is cancelBooking above — a customer who
+  // won't pay the price is cancelling, and the slot has to go back either way.
+  acceptQuote: (bookingId) => callFn("accept-quote", { booking_id: bookingId }),
   rescheduleBooking: (bookingId, bookingDate, startTime) =>
     callFn("reschedule-booking", { booking_id: bookingId, booking_date: bookingDate, start_time: startTime }),
 };

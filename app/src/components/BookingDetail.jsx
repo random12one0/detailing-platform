@@ -17,7 +17,7 @@
 // (validation + conflict checks server-side).
 
 import { useEffect, useState } from "react";
-import { Bell, CalendarPlus, CheckCircle2, CreditCard, MessageSquare, Navigation, Phone, UserPlus } from "lucide-react";
+import { Bell, CalendarPlus, Check, CheckCircle2, CreditCard, MessageSquare, MessageSquareQuote, Navigation, Phone, UserPlus, X } from "lucide-react";
 import { api, icsUrl } from "../lib/api.js";
 import { calendarUrlFor, loadPrefs, saveContact } from "../lib/platform.js";
 import { supabase } from "../lib/supabase.js";
@@ -25,6 +25,7 @@ import { fillTemplate } from "../lib/templates.js";
 import { dateLong, mapsUrl, money, time12 } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
+import QuoteModal from "./QuoteModal.jsx";
 import Sheet from "./Sheet.jsx";
 
 // One vocabulary for the values a person reads, so the same booking does
@@ -32,7 +33,10 @@ import Sheet from "./Sheet.jsx";
 // database's own word for a vehicle size.
 const STATUS_LABELS = {
   confirmed: "Confirmed", completed: "Completed",
-  cancelled: "Cancelled", no_show: "No-show", pending: "Pending",
+  cancelled: "Cancelled", no_show: "No-show",
+  // ROADMAP 2.12 — "Pending" is what the database calls it and nobody says it
+  // out loud. The detailer's own word for this row is that somebody is waiting.
+  pending: "Waiting on you",
 };
 const PAY_LABELS = {
   paid: "Paid", pending: "Unpaid", partial: "Part paid", waived: "Waived",
@@ -68,6 +72,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   const [notice, setNotice] = useState("");
   const [editing, setEditing] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
+  const [quoting, setQuoting] = useState(false);
   const [form, setForm] = useState({
     customer_name: booking.customer_name,
     customer_phone: booking.customer_phone,
@@ -172,6 +177,14 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // payment" for free: a future job cannot be completed.
   const canFinalize = booking.status === "completed" && !booking.finalized_at;
   const cancelled = booking.status === "cancelled";
+  // ROADMAP 2.12. A request is answered here as well as on Today, because the
+  // owner asked for the accept action on "the page the detailer uses their
+  // bookings on" and this record IS that page at /job/:id.
+  const waiting = booking.status === "pending";
+  const quotedAmount = booking.quoted_at ? Number(booking.quoted_amount) : null;
+  const respond = (action) =>
+    act(() => api.respondToBooking(business.id, booking.id, action),
+      action === "accept" ? "Accepted — they've been emailed." : "Declined — they've been emailed.");
 
   return (
     <>
@@ -237,7 +250,13 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             )}
             {/* "Reminder", not "Remind them": 47px of text wraps the button
                 onto two lines at 320 and 59px does not. Step 4 §3. */}
-            {booking.customer_email && (
+            {/* NOT WHILE IT IS A REQUEST. "Your appointment is coming up" to
+                somebody whose request has not been accepted is the automatic
+                sweep's bug wearing a button — the migration took `pending` out
+                of all four reminder RPCs, and this is the same send by hand.
+                `send-owner-reminders` refuses it too; this is so the button is
+                not there to press. */}
+            {booking.customer_email && !waiting && (
               <button className="btn sm" disabled={busy}
                 onClick={() => act(() => api.sendReminder(business.id, booking.id, "customer"),
                   "Reminder sent to customer.", false)}>
@@ -281,7 +300,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             <div className="card tight">
               <p className="body">
                 {charged == null
-                  ? <>Quoted <span className="num">{money(quoted)}</span></>
+                  /* ROADMAP 2.12 — "Quoted" now means something specific in
+                     this product: a price the DETAILER offered. On a request
+                     this line is the price the CUSTOMER was shown, so the two
+                     senses sat one line apart saying opposite things. Seen in
+                     the first screenshot of a request record. */
+                  ? <>{waiting ? "They asked for " : "Quoted "}<span className="num">{money(quoted)}</span></>
                   : diff === 0
                     ? <>Charged <span className="num">{money(charged)}</span></>
                     : <>
@@ -290,6 +314,16 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                         ({diff > 0 ? `+${money(diff)} added on site` : `${money(-diff)} taken off`})
                       </>}
               </p>
+              {/* ROADMAP 2.12 — A QUOTE IS NOT A PRICE UNTIL THEY SAY YES, and
+                  this line is the whole reason `quoted_amount` is its own
+                  column. Two numbers are on the record while a quote is out,
+                  and only one of them is what the job costs. */}
+              {quotedAmount !== null && (
+                <p className="body">
+                  Quote sent for <strong className="num">{money(quotedAmount)}</strong> — not charged
+                  until they accept it.
+                </p>
+              )}
               {/* Written by Finalize payment and, until now, printed nowhere. */}
               {booking.payment_notes && <p className="quiet">How they paid: {booking.payment_notes}</p>}
               {canFinalize ? (
@@ -322,10 +356,38 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 same as correcting one. At most ONE accent fill is ever on this
                 screen: Mark completed only exists while the job is not
                 completed, and Finalize payment only once it is. */}
-            <h3 className="section-title">What happened</h3>
+            <h3 className="section-title">{waiting ? "Your answer" : "What happened"}</h3>
             <div className="stack" style={{ gap: 8 }}>
-              {cancelled ? (
-                <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>Un-cancel</button>
+              {waiting ? (
+                /* Three weights, and the same order as the card on Today so
+                   the two cannot teach different habits. Marking a job the
+                   customer has not been accepted onto as COMPLETE is not one
+                   of the choices, which is why this branch replaces the other
+                   rather than adding to it. */
+                <>
+                  <button className="btn primary" disabled={busy} onClick={() => respond("accept")}>
+                    <Check size={18} strokeWidth={2} /> Accept
+                  </button>
+                  <button className="btn" disabled={busy} onClick={() => setQuoting(true)}>
+                    <MessageSquareQuote size={18} strokeWidth={2} />
+                    {quotedAmount === null ? " Send a quote" : " Send a new quote"}
+                  </button>
+                  <button className="btn ghost" disabled={busy} onClick={() => respond("decline")}>
+                    <X size={18} strokeWidth={2} /> Decline
+                  </button>
+                </>
+              ) : cancelled ? (
+                <>
+                  {/* THE ONE THING `declined_at` IS FOR. A decline is stored as
+                      a cancellation so the slot frees and every existing filter
+                      is right about it — which leaves "Cancelled" saying the
+                      customer backed out when in fact the detailer said no. A
+                      column nothing prints is a column nobody can trust. */}
+                  {booking.declined_at && (
+                    <p className="quiet" style={{ margin: 0 }}>You declined this request.</p>
+                  )}
+                  <button className="btn" disabled={busy} onClick={() => setStatus("confirmed")}>Un-cancel</button>
+                </>
               ) : (
                 <>
                   {booking.status !== "completed" && (
@@ -406,6 +468,11 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               <a className="btn" href={`sms:${booking.customer_phone}`}>Write my own</a>
             </div>
           </Sheet>
+        )}
+
+        {quoting && (
+          <QuoteModal booking={booking} onClose={() => setQuoting(false)}
+            onSent={() => { setQuoting(false); onChanged?.(); }} />
         )}
 
         {finalizing && (

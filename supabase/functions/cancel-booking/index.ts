@@ -34,7 +34,14 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!booking) return json({ error: "not_found" }, 404);
     if (booking.status === "cancelled") return json({ success: true, message: "Already cancelled." });
-    if (booking.status !== "confirmed") return json({ error: "This booking can no longer be cancelled online." }, 409);
+    // ROADMAP 2.12 — a PENDING request is cancellable too, and this is also
+    // how a customer says no to a quote. They asked for a time and changed
+    // their mind, or the price is not for them; either way the slot has to go
+    // back, and the detailer has to be told. There is no separate "decline the
+    // quote" path for exactly this reason.
+    if (booking.status !== "confirmed" && booking.status !== "pending") {
+      return json({ error: "This booking can no longer be cancelled online." }, 409);
+    }
 
     const business = (await businessById(booking.business_id))!;
     const settings = await getSettings(business.id);

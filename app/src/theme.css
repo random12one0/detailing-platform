@@ -2482,6 +2482,28 @@ button.warn-box:hover { border-color: var(--fog-2); }
 .setupform.leaving { animation: setup-out var(--t-exit) var(--e-out) forwards; }
 @keyframes setup-out { to { opacity: 0; transform: translate3d(0, 8px, 0); } }
 
+/* ------------------------------------------------------- A REQUEST LEAVING
+   ROADMAP 2.12. A request card only has an EXIT, and that is deliberate: it
+   renders as a child of `.col-1`, so the screen's own staggered arrival is
+   already its entrance (CLAUDE.md, "a component that renders as a .group under
+   .app-main already HAS an entrance"). Giving it a second one would be two
+   animations running the same 420ms.
+
+   --t-exit, and it collapses its own height as well as fading: accepting three
+   requests in a row would otherwise snap the whole column up under the
+   detailer's thumb between taps. `max-height` is the cheap half of that — an
+   exact height would need a measurement, and 400px is comfortably taller than
+   this card ever is at 320. */
+.reqcard.leaving {
+  animation: req-out var(--t-exit) var(--e-out) forwards;
+  overflow: hidden;
+  pointer-events: none;
+}
+@keyframes req-out {
+  from { max-height: 400px; }
+  to   { opacity: 0; max-height: 0; padding-block: 0; margin-block: 0; border-width: 0; }
+}
+
 /* THE PROGRESS RULE — the one new MARK in the product, used on one screen.
    Seven segments of a 2px rule: --hairline track, --accent fill, --sp-1 gaps,
    small rounding.

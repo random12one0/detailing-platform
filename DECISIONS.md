@@ -163,6 +163,8 @@ were made more than once.
 
 - **The copy pass — the owner's rule against explaining what the label already said** — his instruction, 2026-09-01, and he named the instance: *"Mobile — we go to them"* on the job record. *"No duh… it thinks that humans can't think, or it feels the need to explain literally every single thing."* **The test: does the sentence add a fact the control does not already carry?** Twenty-four sites swept across the dashboard, the booking page and the way in. **The half that stops the rule becoming its own mistake is what STAYED** — *"Picking another swaps it"*, *"Past bookings keep it"*, *"Timing is set in Booking rules"*: the rule is against restatement, not against explanation, and a session that reads it as "delete help text" will strip the sentences that were doing work. The durable form lives in `docs/design-system.md` § Never-defaults and in CLAUDE.md.
 
+- **Roadmap 2.12 — request mode, accept/decline and quotes, and the sixth status that was not written** — the mode switch is one column and one line in `create-booking`; **what took the thinking was what NOT to add.** A request holds its slot because `pending` is absent from the exclusion constraint's WHERE clause — a fact established by not writing something, and therefore invisible to a reader and unprotected by anything but a test. **A decline is `cancelled` plus `declined_at`, not a sixth status**, because twelve places in this codebase already ask `status <> 'cancelled'` and every one is right about a declined request; a sixth would have meant editing all twelve to say the same thing twice, with the first one anybody forgot leaving a declined request still holding a slot. **A quote is offered, never charged** — `quoted_amount` is its own column and only the customer moves it to `total_price`, and accepting it lands the difference as a `price_adjustments` line so the receipt still reconciles, which is the `travel_fee` family one step later. **Three things the new status broke that nothing announced:** the four reminder RPCs would have emailed “your appointment is tomorrow” about a request nobody accepted, the manual Reminder button did the same by hand, and `sweep-widths.mjs`'s `.card.attend` selector silently changed meaning because a waiting request now takes the lit treatment — a rename with no error. **The demo takes requests now**, deliberately: it is the only business the sweep can log into, so a reserve-mode demo means the whole of this item's screen work is never rendered at any width. **Three questions stand for him** — quotes exist only on requests, a request whose time has passed is chased by nothing, and the demo no longer shows his own model.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -7976,3 +7978,200 @@ and `contact_email`; `mobile_enabled` true with `dropoff_enabled` false for
 *"I go to them"*; and all seven keys in `setup.done`. The demo was re-seeded
 afterwards, and `seed-demo.mjs` now pins its first-run state so the row the
 sweep opens the form from is always there.
+
+
+## Roadmap 2.12 — request mode, accept/decline and quotes, and the sixth status that was not written
+
+Roadmap 2.12, built 2026-09-02. The owner's answer to 2.11's question 5, plus
+his own clarification of it the following day, which is the sentence the whole
+shape of this item hangs off:
+
+> *"I didn't mean that if they choose to approve bookings… some could book two
+> of the same slots. So someone sends a request, it will take up that time
+> slot… one is just a little bit more guaranteed than the other."*
+
+**Both modes hold the slot. Only the promise differs.** Availability is
+identical either way, and everything below follows from that.
+
+### The switch
+
+`business_settings.booking_mode`, `reserve` | `request`, **default `reserve`**
+— and the default is a decision, not a convenience: flipping an existing
+business to `request` would change what its customers are told, mid-flight,
+without anybody choosing it. It lives at the top of the Booking rules screen,
+above *What you offer*, because it changes what every other rule on that screen
+means.
+
+`create-booking` reads it in one line. **An admin booking is never a request**:
+the detailer typing one in at the counter is the person who would be accepting
+it, so a request made by a member is confirmed.
+
+### The fact that is true because nothing was written
+
+**A request holds its slot, and the exclusion constraint was not touched.**
+`bookings_no_overlap` excludes rows `where status <> 'cancelled'`; `pending` is
+not `cancelled`, so a request is inside it and a second customer is refused
+with no change at all. `available-slots` and `slotValidation` both filter the
+same way, so a requested time is not even offered.
+
+**That is a load-bearing fact established by NOT doing something**, which means
+a reader of the migration cannot see it and a later session tidying `pending`
+into one of those three filters would silently make requests double-bookable.
+`tests/request-mode.test.mjs` tests 3 and 4 exist for that and nothing else.
+
+### Why there is no `declined` status
+
+A decline is `status = 'cancelled'` plus a new `declined_at` timestamp.
+
+The alternative was a sixth status value. It was rejected by counting: **twelve
+places in this codebase ask "is this booking still happening" as
+`status <> 'cancelled'`** — two edge-function queries, the exclusion
+constraint, `useBookings`, Today twice, Calendar three times, DaySheet,
+BusinessInfo and Money's sum. Every one of them is **already correct** about a
+declined request, because a declined request is not happening and its slot is
+free. A sixth status would have meant editing all twelve to say the same thing
+twice, and the first one anybody forgot would be a declined request still
+holding a time nobody can book.
+
+What `cancelled` cannot carry is WHO ended it, and that is the one thing
+`declined_at` stores. The job record prints it — *"You declined this request."*
+— because a column nothing prints is a column nobody can trust.
+
+### A quote is offered, never charged
+
+`quoted_amount`, `quoted_note`, `quoted_at`. A quote never writes
+`total_price`. Only `accept-quote`, called by the customer from the link in
+their email, moves one to the other.
+
+**And when it moves, the itemisation still has to add up.** The confirmation
+email and the invoice both print services, add-ons, travel and
+`price_adjustments` and then a total. Moving `total_price` on its own would
+leave the customer a receipt whose lines are short by exactly the size of the
+quote — the same shape as the travel fee that was drawn on the booking page and
+never charged (roadmap 2.8c). So the difference lands as a `price_adjustments`
+line, which every surface that itemises already reads, and `subtotal` moves
+with it. **`tests/request-mode.test.mjs` test 8 is the tie-out, baselined by
+deleting that line: it then fails by exactly the quote (230 of lines against a
+305 subtotal).**
+
+Saying NO to a quote is the ordinary `cancel-booking`. A customer who will not
+pay the quoted price is cancelling their booking — the slot frees, the detailer
+is emailed — so there is no second decline path and one less place to get the
+constraint wrong.
+
+### Three things the new status broke, none of which announced itself
+
+1. **The four `get_bookings_due_for_*` RPCs.** All four said
+   `status <> 'cancelled'`, which was a complete description of "not happening"
+   until this item existed. A pending request would have got the customer *"your
+   appointment is tomorrow"* for an appointment nobody had accepted, and got the
+   detailer nudged to go and do it. All four now say
+   `not in ('cancelled', 'pending')`.
+2. **The manual Reminder button** did the same thing by hand, past the RPCs
+   entirely. Guarded in `send-owner-reminders` — in the FUNCTION, not only in
+   the UI, because a guard that only hides a button leaves the hole open to
+   anything else that ever calls it.
+3. **`sweep-widths.mjs` measured a different object under the same label.** Its
+   "job record · finished" step opened `.card.attend`, meaning "the lit job";
+   since a waiting request now takes the lit treatment
+   (`dashboard-skeletons.md` §6), that selector resolves to a REQUEST card on
+   the seeded demo. **A rename with no error** — the run stays green while
+   measuring the wrong thing. Both rail selectors are now addressed through
+   `.dayrail` and by rail node.
+
+   Fixing it exposed something older: the "to do" selector was bare
+   `.row-item`, which in the evening matched a FINISHED job, so the script had
+   been measuring the same record twice under two labels for as long as the
+   demo has read its statuses off the clock. Tomorrow's first job is the door
+   that is open at every hour, and it is swept now.
+
+### What is lit, and what that costs
+
+`dashboard-skeletons.md` §6 put a waiting request above unrecorded money, and
+Today now implements it: when `requests.length > 0`, **`lit` is null** and the
+rail draws no card at all. **The cost, stated because somebody will meet it
+before they find the note:** while a request waits, the finished-and-unpaid job
+loses its one-tap *Finalize payment* on Today and becomes a row. The action is
+still one tap away inside the record. The order is the design's, and the
+argument for it is that a customer who does not know whether they are booked
+outranks money the detailer already holds.
+
+### The demo takes requests now
+
+`seed-demo.mjs` sets `booking_mode: "request"` and seeds **two** pending
+requests — one plain, one already quoted, because those are the two states the
+card has.
+
+**This is a decision about the DEMO, not about Andrew.** His own business
+reserves, and `reserve` is what every real tenant gets. But the demo is the only
+business `sweep-widths.mjs` can log into, and a reserve-mode demo means the
+request queue — the whole of this item's screen work — is never rendered at any
+width by anything. **This repo has now written the same finding six times:** a
+script that cannot reach a state reports clean on it. The sweep walks the
+request record and the quote sheet as their own labelled steps.
+
+### Two collisions with existing rules, both resolved in the file rather than quietly
+
+- **`composition.test.mjs` test 1** flagged Today for mapping records onto a
+  card. It is allowed as `Today.jsx > RequestCard`, with the reason written
+  next to it: `dashboard-screen-designs-2026-08-31.md` §2 designed this queue
+  and said *"one card"* in those words, and every row carries its own Accept,
+  Quote and Decline — the Money.jsx allowance's reasoning exactly. **The
+  ceiling is real and is stated in `Today.jsx`:** twelve unanswered requests
+  would be twelve cards, and the answer then is a ruled list with the first one
+  open, not a shorter card.
+- **The screen designs put the request queue underneath the rail between 1024
+  and 1180.** It is built above the ledger there instead — the phone's own
+  position — for two reasons, the second deciding it: one fewer arrangement to
+  maintain, and §1b says the first request is the lit object, which a position
+  below the rail contradicts by putting it under the fold at 1100px. Written
+  into §2 rather than left as a silent divergence.
+
+### Three things found by looking, after the code worked
+
+All three were invisible in the code and obvious in a screenshot:
+
+- **Two accent-filled Accept buttons** the moment two requests were on one
+  screen. Only the lit card's Accept is filled now, the same expression
+  `BookingCard` already used for *Mark complete*.
+- **The job record said "Quoted $165.00"** one line above *Send a quote*. That
+  line is the price the CUSTOMER was shown; this item had just given the word
+  "quote" the opposite meaning. On a request it reads *"They asked for"*.
+- **A confirmation tick over the words "we're holding your time"** on the
+  customer's screen. A tick means done and a request is not; it is a clock.
+
+And one that only the customer's page could show: **two filled buttons**, the
+quote's *Accept* and the page's own *Change the time*. While a quote is out,
+the reason the page is open is the price.
+
+### A clock-dependent test fixed on the way past
+
+`tests/booking-engine.test.mjs`'s short-notice check failed against an entirely
+unchanged pricing path at 22:31 local and passed at 15:00.
+`Date.now() + 20h` then `.slice(0, 10)` yields a DATE, and 10:00 local on that
+date is anywhere from 14 to 44 hours away depending on the hour the suite runs;
+past 24 the rule correctly does not apply. The window is the test's to choose,
+so it is widened to 96 hours rather than the date being computed more cleverly.
+**A gate that is red at some hours and green at others is worse than a gate
+that is red**, because the next session assumes it is theirs.
+
+### THREE QUESTIONS STANDING FOR THE OWNER
+
+Recorded here because they were reached by building, and none of them has an
+answer this session could take on its own.
+
+1. **Quotes exist only on a request.** A reserve-mode detailer — which is
+   Andrew, and the default for every tenant — cannot send one at all. His
+   words put quotes on "the accept page", so this is a faithful reading, but it
+   means the feature is invisible to most of the product. The alternative is a
+   quote on any future booking, which is a price change on a booking the
+   customer already thinks is settled, and that is a bigger question than it
+   looks.
+2. **Nothing chases a request that went stale.** Today's queue is floored at
+   `now`, so a request whose time has passed leaves the screen. It stays
+   `pending`, on the calendar, behind the *Waiting* filter, and nothing
+   notifies. `dashboard-skeletons.md` §6 says a request "goes stale on its
+   own"; nothing acts on that yet.
+3. **The demo now shows the request flow rather than his own.** The reasoning
+   is above and it is about the sweep, but he opens that demo, and it is his
+   product's shop window.

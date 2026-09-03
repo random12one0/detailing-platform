@@ -112,6 +112,10 @@ export default function BookingRules() {
     // sheets below rather than in this form's fields.
     travel_zones: Array.isArray(settings?.travel_zones) ? settings.travel_zones : [],
     price_rules: Array.isArray(settings?.price_rules) ? settings.price_rules : [],
+    // Roadmap 2.12. 'reserve' is the fallback as well as the schema default:
+    // an unreadable value must never quietly downgrade what a business has
+    // been promising its customers.
+    booking_mode: settings?.booking_mode === "request" ? "request" : "reserve",
   }));
   const [editing, setEditing] = useState(null);   // {kind:"zone"|"rule", index?, form}
   const [dismissed, setDismissed] = useState(() => {
@@ -239,6 +243,7 @@ export default function BookingRules() {
       travel_radius_miles: num(form.travel_radius_miles),
       travel_zones: form.travel_zones,
       price_rules: form.price_rules,
+      booking_mode: form.booking_mode,
     }).eq("business_id", business.id);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
     if (!error) { reload(); refreshSlotCount(); }
@@ -253,6 +258,23 @@ export default function BookingRules() {
         <span className="quiet">Open slots in the next 7 days</span>
         <span className="strong num">{slotCount === null ? "—" : slotCount}</span>
       </div>
+
+      {/* ROADMAP 2.12 — THE OWNER'S OWN QUESTION, AND IT IS FIRST BECAUSE IT
+          CHANGES WHAT EVERY OTHER RULE ON THIS SCREEN MEANS. His words: "when
+          you book, you're pretty confident that's gonna be your day… whereas
+          other detailers might want it that they just put in a request".
+          Both keep the slot — see the help text, which is the one thing here
+          a detailer cannot work out from the labels. */}
+      <Group title="When someone books">
+        <Setting label="What a booking means" stacked
+          help={form.booking_mode === "request"
+            ? "The time is held for them and nobody else can take it, but they're told it's a request until you accept it. Requests wait on your Today screen."
+            : "The time is theirs the moment they book it. Nothing waits on you."}>
+          <Segmented value={form.booking_mode} onChange={(v) => set("booking_mode", v)} options={[
+            ["reserve", "They're booked"], ["request", "They've asked"],
+          ]} />
+        </Setting>
+      </Group>
 
       <Group title="What you offer">
         <Setting label="Where you work"

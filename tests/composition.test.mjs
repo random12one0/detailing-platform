@@ -80,6 +80,15 @@ const OFFENDER = /\.map\(\s*\(?\s*(\w+)\s*(?:,\s*\w+\s*)?\)?\s*=>\s*\(?\s*<[^>]*
 const ALLOWED = new Map([
   // file > component — the caller is what is being allowed.
   ["Today.jsx > BookingCard", "the ONE lit job; at most one card is on the screen"],
+  // ROADMAP 2.12. Not a quiet exemption: docs/dashboard-screen-designs-
+  // 2026-08-31.md §2 designed this queue and said "one card" in those words,
+  // and it is the Money.jsx reasoning exactly — every row here carries its own
+  // Accept, Quote and Decline, which is the definition of an object you act on
+  // rather than a record you read. The ceiling is real and is stated in
+  // Today.jsx: a detailer sitting on twelve unanswered requests gets twelve
+  // cards, and if that ever happens the answer is a ruled list with the first
+  // one opened, not a shorter card.
+  ["Today.jsx > RequestCard", "each request carries its own three actions — an object you act on"],
   ["Clients.jsx > BookingCard", "NOT SETTLED — stage 5 rebuilds Clients and this line goes with it"],
   // whole files, where the file's own maps are all deliberate objects
   ["BookingCard.jsx", "the file that defines the card"],

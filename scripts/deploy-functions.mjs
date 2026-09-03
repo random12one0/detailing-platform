@@ -30,6 +30,10 @@ const PUBLIC_FUNCTIONS = new Set([
   "track-visit",
   "cancel-booking",
   "reschedule-booking",
+  // Roadmap 2.12 — the customer accepting a quote from the link in their
+  // email. Same access model as the two above: the booking UUID is the
+  // credential, and there is no session on that page.
+  "accept-quote",
   "send-owner-reminders", // scheduled sweep; manual mode still checks membership itself
   "send-email",           // internal relay; gates itself on the service-role key
   "accept-invite",        // invite landing page — the invitee has no session yet

@@ -157,7 +157,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   USED TO QUOTE, and the figures are measured rather than estimated
   (2026-09-02): 392 alone is 82s wall with 47s of that being `settle`, and the
   full five-width run reports 218s of waiting normally and 94s through
-  `--lite`.** Stage 7 took it from 40 screens to 54 — the setup form's seven
+  `--lite`.** Stage 7 took it from 40 screens to 54, and roadmap 2.12 to 56 — the setup form's seven
   steps and the walkthrough's seven — and the trade was taken deliberately,
   because this script is the only thing in the repo that opens either and
   neither is reachable by clicking a tab. **Iterate at one width; the full run
@@ -205,8 +205,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   than stored. Baselined at 11 failures with the derivation removed, which is
   the state that tells a fully configured business it has done nothing)
   from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
-  to that list if you touched `DECISIONS.md`.** The other 7 tests need env vars from
-  root `.env`.
+  to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
+  root `.env` — and one of them is new: **`request-mode`** (45 checks, roadmap 2.12,
+  2026-09-02). It pins the two facts about request mode that no reader of the code
+  can see: **a request HOLDS its slot**, which is true only because `pending` is
+  absent from the exclusion constraint's WHERE clause — a fact established by NOT
+  writing something — and **the quote tie-out**, that accepting a quote leaves the
+  receipt's itemisation still adding up to what is charged. Baselined by deleting
+  the `price_adjustments` line from `accept-quote`, which fails it by exactly the
+  quote.
 - **Also credential-free, and it must exit 0 after anything touching accent
   colour or the ground tokens: `node scripts/accent-sweep.mjs`.** It measures
   every tenant preset as a fill AND as words on all three grounds the
@@ -258,6 +265,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   walk uses "I'll do this later" throughout and never presses Continue, which
   is the one that writes; `seed-demo.mjs` pins the demo at 6 of 7 so the row
   it opens the form from is always there)**,
+  **THE REQUEST QUEUE, THE REQUEST RECORD AND THE QUOTE SHEET (added 2026-09-02,
+  roadmap 2.12), and adding them MOVED two selectors that had silently changed
+  meaning.** `.card.attend` used to mean "the lit job"; a waiting request now
+  takes the lit treatment (`dashboard-skeletons.md` §6), so on the seeded demo
+  that selector resolves to a REQUEST card — the run stays green while measuring
+  a different object under the same label, which is a rename with no error. Both
+  rail records are addressed through `.dayrail` and by rail NODE now, and
+  **tomorrow's first job is swept as its own state**, because which of the two
+  rail states exists depends on the hour the seed was run and the old pair papered
+  over that by measuring the same record twice.
+  **The demo takes REQUESTS as of 2026-09-02** (`seed-demo.mjs`,
+  `booking_mode: "request"`, two pending requests, one already quoted) — it is the
+  only business this script can log into, so a reserve-mode demo would mean the
+  request queue is never rendered at any width by anything.
   **and TWO KEYBOARD ASSERTIONS on the walkthrough at 392 — the only thing in
   that script that is not about an edge.** They are there because the overlay
   claims `aria-modal` and its own rule says the lit element is not clickable,
@@ -380,6 +401,28 @@ explaining it; if they still have to ask "so should I?", it failed.
   THIS dashboard has: 7 for an owner with jobs, 6 on an empty one, 4 for staff.
   **The empty dashboard is the state to verify against**, not the seeded demo —
   the opposite of every other screen in this rebuild.
+- **A BOOKING CAN NOW BE A REQUEST, AND BOTH MODES HOLD THE SLOT — roadmap
+  2.12, 2026-09-02.** `business_settings.booking_mode` is `reserve` (the
+  default, and what every existing tenant has) or `request`. The owner's own
+  clarification is the load-bearing sentence: *"someone sends a request, it will
+  take up that time slot… one is just a little bit more guaranteed than the
+  other."* **Availability behaves identically in both modes** — only the promise
+  made to the customer differs.
+  **The exclusion constraint was deliberately NOT touched**: `pending` is not
+  `cancelled`, so a request holds its time with no change at all. That is a
+  load-bearing fact established by NOT writing something, so it is invisible in
+  the migration and protected only by `tests/request-mode.test.mjs`. **A session
+  that "tidies" `pending` into `slotValidation.ts`, `available-slots` or the
+  constraint's WHERE clause makes requests double-bookable.**
+  **THERE IS NO `declined` STATUS AND THAT IS A DECISION.** A decline is
+  `status = 'cancelled'` plus `declined_at`, because twelve places in this
+  codebase already ask `status <> 'cancelled'` and every one of them is right
+  about a declined request. **A QUOTE IS OFFERED, NEVER CHARGED** —
+  `quoted_amount` is its own column and only `accept-quote` (the customer, from
+  their email) moves it to `total_price`, landing the difference as a
+  `price_adjustments` line so the receipt still reconciles. Saying no to a quote
+  is the ordinary `cancel-booking`. Full reasoning and **three questions standing
+  for the owner**: DECISIONS.md → "Roadmap 2.12".
 - **PUSH WORKS END TO END, CONFIRMED BY THE OWNER ON A REAL DEVICE
   2026-09-02.** He was asked to tap the switch and let a booking through; his
   answer was “works”. The browser half is `app/public/sw.js` +

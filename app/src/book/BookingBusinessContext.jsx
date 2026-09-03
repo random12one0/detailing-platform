@@ -98,6 +98,10 @@ export function BookingBusinessProvider({ slug, children }) {
         // tenant on migration day.
         travel_zones: Array.isArray(settings.travel_zones) ? settings.travel_zones : [],
         min_advance_minutes: settings.min_advance_minutes ?? 120,
+        // Roadmap 2.12 — 'reserve' is the fallback as well as the schema
+        // default: an unreadable value must never make a page promise LESS
+        // than the business actually delivers.
+        booking_mode: settings.booking_mode === "request" ? "request" : "reserve",
         google_review_url: settings.google_review_url ?? null,
         yelp_review_url: settings.yelp_review_url ?? null,
       },

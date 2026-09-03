@@ -56,13 +56,19 @@ const STATUSES = [
   ["all", "All"], ["confirmed", "Confirmed"], ["completed", "Completed"],
   ["cancelled", "Cancelled"], ["no_show", "No show"],
 ];
+// ROADMAP 2.12. The sixth chip exists only for a business that takes requests:
+// a reserve-mode detailer can never have a pending booking, and a filter that
+// can only ever return nothing is a control that teaches the row above it is
+// incomplete. `STATUS_SAID` below is built from BOTH so a pending job that
+// predates a mode change is still named correctly wherever it is printed.
+const WAITING = ["pending", "Waiting"];
 const RANGES = [
   ["30", "Last 30 days"], ["90", "Last 90 days"], ["365", "Last year"], ["all", "Everything"],
 ];
 const RANGE_SAID = {
   30: "the last 30 days", 90: "the last 90 days", 365: "the last year", all: "your history",
 };
-const STATUS_SAID = Object.fromEntries(STATUSES);
+const STATUS_SAID = Object.fromEntries([...STATUSES, WAITING]);
 const DEFAULT_RANGE = "90";
 
 // "Tom O." — a given name and a last initial is what fits a 163px cell, and
@@ -82,7 +88,7 @@ const sum = (rows) => rows
   .reduce((s, b) => s + Number(b.final_amount ?? b.total_price ?? 0), 0);
 
 export default function Calendar({ refreshKey = 0 }) {
-  const { business } = useBusiness();
+  const { business, settings } = useBusiness();
   const today = todayLocal(business.timezone);
   // The two widths this product asks about are the only two the desktop
   // specification derives, and this screen only needs the second: at --wrap a
@@ -113,6 +119,7 @@ export default function Calendar({ refreshKey = 0 }) {
 
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const statuses = settings?.booking_mode === "request" ? [...STATUSES, WAITING] : STATUSES;
   const [range, setRange] = useState(DEFAULT_RANGE);
   const [filtersOpen, setFiltersOpen] = useState(false);
   // The cell the open day came from, so closing the panel puts you back on it
@@ -502,7 +509,7 @@ export default function Calendar({ refreshKey = 0 }) {
             </div>
           )}
           {!wide && filtersOpen && (<>
-            {chipRow(STATUSES, statusFilter, setStatusFilter)}
+            {chipRow(statuses, statusFilter, setStatusFilter)}
             {chipRow(RANGES, range, setRange)}
           </>)}
           {!wide && totals}
@@ -571,7 +578,7 @@ export default function Calendar({ refreshKey = 0 }) {
           {totals}
           <div className="tight">
             <h2 className="label">Status</h2>
-            {chipRow(STATUSES, statusFilter, setStatusFilter)}
+            {chipRow(statuses, statusFilter, setStatusFilter)}
           </div>
           <div className="tight">
             <h2 className="label">When</h2>

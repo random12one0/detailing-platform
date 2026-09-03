@@ -338,9 +338,9 @@ for instead.
 | 120 | Turn an FAQ page on or off for this business | o | **new** — **storage landed 2026-09-02** (`business_settings.faq_enabled`), screen deliberately later | What your page says | **Optional, never a default** |
 | 121 | Write the FAQ — the detailer’s own questions and answers | o | **new** — **storage landed 2026-09-02** (`business_settings.faqs`), screen deliberately later | What your page says | The detailer writes it; **they are the detailer** |
 | 122 | Improve the wording of what they wrote | o | **new** | What your page says | His idea, and explicitly polish only — the answers stay theirs |
-| 123 | Choose whether a booking RESERVES the slot or is a REQUEST to be accepted | o | **new, engine** | When you can be booked | **Not this item.** §9 Q5 |
-| 124 | Accept or decline a request, from the screen the day lives on | o | **new, engine** | The day, and one job | **Not this item.** §9 Q5 |
-| 125 | Send a quote to a customer | o | **new, engine** | The day, and one job | **Not this item.** §9 Q5 |
+| 123 | Choose whether a booking RESERVES the slot or is a REQUEST to be accepted | o | **BUILT 2026-09-02** — `business_settings.booking_mode`, on Booking rules | When you can be booked | Roadmap 2.12. **Both modes hold the slot** — only the promise differs. `reserve` is the default and stays it, because changing it under an existing business changes what their customers are told |
+| 124 | Accept or decline a request, from the screen the day lives on | o | **BUILT 2026-09-02** — `components/RequestCard.jsx` on Today, and the same three actions on the job record | The day, and one job | Roadmap 2.12. A decline is `status = cancelled` **plus `declined_at`** — no sixth status, because every existing "is this happening" filter is already right about a cancellation |
+| 125 | Send a quote to a customer | o | **BUILT 2026-09-02** — `components/QuoteModal.jsx`, `respond-to-booking`, `accept-quote` | The day, and one job | Roadmap 2.12. **A quote is offered, never charged**: it writes `quoted_amount`, and only the customer pressing the button in their email moves it to `total_price`. **Only on a REQUEST today** — a reserve-mode detailer cannot quote at all, which is a question standing for him |
 | 126 | Before-and-after photos on a job | o | **new** | The day, and one job | Storage is answered — §9 Q7 |
 
 **Rows 123–125 change the booking engine and the schema, which roadmap 2.11

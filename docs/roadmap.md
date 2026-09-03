@@ -2034,9 +2034,53 @@ is kept; the entire visual design restarts from scratch.
         money in the lit order; and the desktop spec's §4a table row for the
         three day controls, which expand in place rather than becoming modals
         — the owner's own W1 instruction outranking a table.
-- [ ] 2.12 **Request-vs-reserve, accept/decline, and quotes — the OWNER's
+- [x] 2.12 **Request-vs-reserve, accept/decline, and quotes — the OWNER's
       answer to 2.11's question 5, 2026-08-31, and it is engine work rather
-      than layout.**
+      than layout.** **DONE 2026-09-02.**
+
+      **WHAT SHIPPED, and the two decisions underneath it that a later session
+      would otherwise re-take.**
+
+      - **`business_settings.booking_mode`** — `reserve` | `request`, default
+        `reserve`, on the Booking rules screen as the first thing on it. The
+        migration is `20260902003000_request_mode_and_quotes.sql`.
+      - **`bookings.status` grew ONE value, `pending`, and no more.** A
+        DECLINE is `status = 'cancelled'` plus a new `declined_at`. There is no
+        `declined` status and that was a decision: twelve places in this
+        codebase ask `status <> 'cancelled'` and every one of them is already
+        correct about a declined request, so a sixth status would have meant
+        editing all twelve to say the same thing twice — and the first one
+        anybody forgot would be a declined request still holding a slot.
+      - **The exclusion constraint was NOT touched, and that is the whole
+        point.** `pending` is not `cancelled`, so a request holds its slot with
+        no change at all. It is a fact established by NOT writing something,
+        which is why `tests/request-mode.test.mjs` tests 3 and 4 exist.
+      - **A quote is `quoted_amount` / `quoted_note` / `quoted_at`, and it is
+        never `total_price`.** Only the customer pressing the button in their
+        email moves one to the other (`accept-quote`, public, UUID as the
+        credential like `cancel-booking`). Accepting it lands the difference as
+        a `price_adjustments` line so the receipt's itemisation still
+        reconciles — test 8 is that tie-out, baselined by removing the line.
+      - **Two edge functions**: `respond-to-booking` (member-gated: accept |
+        decline | quote) and `accept-quote` (public). Saying NO to a quote is
+        the ordinary `cancel-booking`, which is why there is no third.
+      - **`tests/request-mode.test.mjs` — 45 checks**, needs the root `.env`.
+      - **The four reminder RPCs now exclude `pending`**, and so does the
+        manual Reminder button, or a customer whose request was never accepted
+        gets "your appointment is tomorrow".
+      - **The demo seed takes requests now** (`booking_mode: "request"`, two
+        pending requests, one of them already quoted). Deliberate and not about
+        Andrew: the demo is the only business `sweep-widths.mjs` can log into,
+        and a reserve-mode demo means the request queue is never rendered at
+        any width by anything. The sweep walks the request record and the quote
+        sheet; it also stopped calling `.card.attend` "the lit job", which is
+        now a request card.
+
+      **THREE THINGS LEFT OPEN, all of them his to answer — see DECISIONS.md,
+      "Request mode, accept/decline and quotes".** Quotes exist only on a
+      request, so a reserve-mode detailer cannot send one; a request whose time
+      has passed leaves the Today queue and nothing chases it; and the demo now
+      shows the request flow rather than his own reserve flow.
 
       > *"I think there should be kind of a switch. Like, basically, when
       > someone books through the website, is it done booking, you know,

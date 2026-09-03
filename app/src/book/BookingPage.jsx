@@ -462,8 +462,14 @@ function BookingFlow() {
             )}
           </div>
           {isLast ? (
+            /* ROADMAP 2.12 — the button says what pressing it DOES. In
+               request mode it does not confirm anything: the time is held and
+               the detailer has to accept. Nothing else on this page changes,
+               because the same times are open either way. */
             <button className="bk-btn primary" disabled={submitting || !quote} onClick={submit}>
-              {submitting ? "Booking…" : "Confirm booking"}
+              {settings.booking_mode === "request"
+                ? (submitting ? "Sending…" : "Request this time")
+                : (submitting ? "Booking…" : "Confirm booking")}
             </button>
           ) : (
             <button className="bk-btn primary" disabled={!canAdvance} onClick={() => go(1)}>

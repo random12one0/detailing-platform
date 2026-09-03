@@ -266,7 +266,13 @@ Deno.serve(async (req) => {
         applied_promo_code: promo ? promo.code : null,
         promo_discount: quote.promoDiscount,
         campaign_id: campaignId,
-        status: "confirmed",
+        // ROADMAP 2.12 — THE ONE LINE THE WHOLE MODE SWITCH COMES DOWN TO.
+        // `pending` is not `cancelled`, so the exclusion constraint above has
+        // already refused anybody else this slot: a request HOLDS the time,
+        // exactly like a confirmed booking, and only the promise differs. An
+        // admin logging a booking by hand from the dashboard is never a
+        // request — they are the person who would be accepting it.
+        status: !member && settings.booking_mode === "request" ? "pending" : "confirmed",
       })
       .select()
       .single();
@@ -337,12 +343,14 @@ Deno.serve(async (req) => {
       receiptUrl: receiptUrl(business.slug, booking.id),
     };
 
+    const isRequest = booking.status === "pending";
+
     if (booking.customer_email && settings.email_customer_confirmation) {
-      const msg = customerConfirmationEmail(brand, emailData);
+      const msg = customerConfirmationEmail(brand, emailData, isRequest);
       await sendTenantEmail({ businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html });
     }
     if (settings.email_owner_new_booking) {
-      const msg = ownerNewBookingEmail(brand, emailData);
+      const msg = ownerNewBookingEmail(brand, emailData, isRequest);
       // Every configured recipient, not just one address.
       for (const to of ownerRecipients(business, settings)) {
         await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html });
@@ -350,7 +358,7 @@ Deno.serve(async (req) => {
     }
     try {
       if (settings.push_enabled) await sendOwnerPush(business.id, {
-        title: "New booking",
+        title: isRequest ? "Booking request" : "New booking",
         body: `${booking.customer_name} — ${emailData.dateStr} at ${emailData.startTime} ($${Number(quote.total).toFixed(2)})`,
         url: `/admin/job/${booking.id}`,
         tag: `booking-${booking.id}`,
@@ -368,6 +376,10 @@ Deno.serve(async (req) => {
         end_time: emailData.endTime,
         total_price: quote.total,
         receipt_url: emailData.receiptUrl,
+        // Roadmap 2.12 — the confirmation SCREEN has to make the same promise
+        // the confirmation EMAIL just made, and it cannot re-read the setting
+        // without a second round trip that could disagree with this one.
+        status: booking.status,
       },
     });
   } catch (err) {

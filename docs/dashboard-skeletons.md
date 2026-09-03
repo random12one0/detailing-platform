@@ -307,8 +307,19 @@ Unrecorded money is money you already hold and can write down tonight; an
 un-accepted request has a customer at the other end of it who does not know
 whether they are booked, and it goes stale on its own. It is the only object on
 the screen with somebody else waiting on the answer.
-`docs/dashboard-screen-designs-2026-08-31.md` §1b. **Nothing changes until
-roadmap 2.12 ships the request status.**
+`docs/dashboard-screen-designs-2026-08-31.md` §1b. ~~**Nothing changes until
+roadmap 2.12 ships the request status.**~~ **SHIPPED 2026-09-02, roadmap 2.12.**
+`screens/Today.jsx` reads it as written: when `requests.length > 0` the rail has
+NO lit card at all and `lit` is null, because at most one object on a screen is
+lit and the request has taken it.
+
+**The consequence, stated because it is a real cost and somebody will notice it
+before they find this line:** while a request is waiting, the finished-and-unpaid
+job loses its one-tap *Finalize payment* on Today and becomes a row like any
+other. The action is still one tap away inside the record, and this is the order
+saying what it says — a customer who does not know whether they are booked
+outranks money the detailer is already holding. Reopen it with him if a real
+detailer finds the trade wrong, not on a hunch.
 
 Ties go to the earlier one. **A screen with no qualifying object has no lit
 element at all** — nothing is promoted just to have something lit.

@@ -127,6 +127,15 @@ await post("/rest/v1/business_settings", [{
       amount: 30, is_percent: false },
     { label: "Short notice", kind: "lead_time", within_hours: 24, amount: 20, is_percent: false },
   ],
+  // ROADMAP 2.12, AND THIS IS A DELIBERATE CHOICE ABOUT THE DEMO RATHER THAN
+  // ABOUT ANDREW. His own business reserves, and `reserve` is the schema
+  // default every real tenant gets. The DEMO takes requests because it is the
+  // only business `sweep-widths.mjs` can log into, and a reserve-mode demo
+  // means the request queue — the whole of this roadmap item's screen work —
+  // is never rendered at any width by anything. This repo has now written the
+  // same finding six times: a script that cannot reach a state reports clean
+  // on it. The two seeded requests below are what it walks.
+  booking_mode: "request",
 }]);
 await post("/rest/v1/business_branding", [{
   business_id: business.id,
@@ -285,6 +294,13 @@ const day1 = after(day0, 1);    // tomorrow-ish
 const day2 = after(day1, 2);
 const day3 = after(day2, 3);
 const day4 = after(day3, 3);
+// Roadmap 2.12 — two open days of their own for the requests below, because
+// Ceramic Coating is five hours and every earlier day already has a job on it.
+// The exclusion constraint would refuse the overlap and the seed would print
+// "skipped", which is how a demo quietly loses the state a whole roadmap item
+// was built to show.
+const day5 = after(day4, 2);
+const day6 = after(day5, 2);
 
 // What a job costs and how long it takes. One place, because the seed now has
 // to know a job’s END TIME before it can decide whether that job has happened.
@@ -370,6 +386,18 @@ const PLAN = [
   // is a status nobody ever looks at.
   { day: openDay(-4, -1), time: "11:30", who: "Aisha Rahman", service: "Full Interior Detail", size: "medium", status: "cancelled" },
   { day: openDay(-6, -1), time: "16:00", who: "Sam Delgado", service: "Express Wash", size: "small", status: "no_show" },
+  // ROADMAP 2.12 — TWO REQUESTS, AND THEY ARE TWO BECAUSE THE CARD HAS TWO
+  // STATES. The first is untouched; the second already has a quote out, which
+  // is the only thing on that card the controls do not say and the only state
+  // where the record shows two numbers. Both are in the FUTURE — Today's queue
+  // is deliberately floored at `now`, because a request whose time has gone is
+  // not something to accept.
+  // They also make `pending` a status with a seed row, which is the rule
+  // roadmap 2.4 wrote when it added the cancelled and the no-show: a status
+  // nothing seeds is a status nobody ever looks at.
+  { day: day5, time: "10:00", who: "Dana Ruiz", service: "Interior Deep Clean", size: "medium", status: "pending" },
+  { day: day6, time: "08:30", who: "Marcus Webb", service: "Ceramic Coating", size: "large", status: "pending",
+    quote: { amount: 780, note: "The paint needs a correction pass before the coating goes on — that's the extra." } },
 ];
 
 let made = 0;
@@ -394,6 +422,11 @@ for (const p of PLAN) {
       final_amount: p.paid ?? null,
       payment_status: p.paid ? "paid" : "pending",
       finalized_at: p.paid ? addMinutes(startAt, duration + 10) : null,
+      // Roadmap 2.12 — a quote OFFERED, never a price charged. total_price
+      // above is still what the customer asked for, which is the point.
+      quoted_amount: p.quote?.amount ?? null,
+      quoted_note: p.quote?.note ?? null,
+      quoted_at: p.quote ? new Date().toISOString() : null,
       customer_notes: p.who === "Priya Anand" ? "Two child seats in the back, please work around them." : null,
     }]);
     await post("/rest/v1/booking_services", [{

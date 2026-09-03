@@ -80,6 +80,12 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
   );
   const isCancelled = booking.status === "cancelled" || mode === "cancelled";
   const isPast = new Date(booking.start_at) < new Date();
+  // ROADMAP 2.12. Two new facts this page has to be honest about: the booking
+  // may be a REQUEST nobody has accepted yet, and there may be a QUOTE waiting
+  // on the customer. Both are true of the same row at the same time — a quote
+  // is sent on a request and the request stays pending until they say yes.
+  const isRequest = booking.status === "pending";
+  const quote = booking.quoted_at ? Number(booking.quoted_amount) : null;
 
   // Online changes close this many hours before the appointment.
   const windowHours = Number(receiptBusiness?.cancellation_window_hours ?? 0);
@@ -124,6 +130,21 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
     setBusy(false);
   };
 
+  // Saying YES. Saying no is the ordinary Cancel below — a customer who won't
+  // pay the quoted price is cancelling, and the slot has to go back either
+  // way, so there is no second decline button competing with it.
+  const acceptQuote = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await api.acceptQuote(booking.id);
+      onChanged();
+    } catch (e) {
+      setError(e.message);
+    }
+    setBusy(false);
+  };
+
   const doCancel = async () => {
     setBusy(true);
     setError("");
@@ -154,14 +175,16 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
           {branding?.logo_url && <img src={branding.logo_url} alt="" />}
           <div>
             <h1>{business.name}</h1>
-            <div className="tagline">Your booking</div>
+            <div className="tagline">{isRequest ? "Your request" : "Your booking"}</div>
           </div>
         </div>
       </header>
 
       <div className="bk-wrap" style={{ paddingBottom: 40 }}>
         <div className="bk-card" style={{ marginTop: 18 }}>
-          <div className="bk-step-label">{isCancelled ? "Cancelled" : "Confirmed"}</div>
+          <div className="bk-step-label">
+            {isCancelled ? "Cancelled" : isRequest ? "Waiting to be accepted" : "Confirmed"}
+          </div>
           <h3 style={{ textDecoration: isCancelled ? "line-through" : "none" }}>{dateLabel}</h3>
           <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
           {services.length > 0 && (
@@ -176,7 +199,36 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
             <span>Estimated total</span>
             <strong className="bk-price">{money(booking.final_amount ?? booking.total_price)}</strong>
           </div>
+          {isRequest && !isCancelled && (
+            <p className="bk-muted" style={{ marginTop: 8 }}>
+              This time is held for you while {business.name} looks at it.
+            </p>
+          )}
         </div>
+
+        {/* THE QUOTE, AND IT IS ITS OWN CARD ON PURPOSE. It is a different
+            number from the one above it, and the one above is still what the
+            booking costs — putting the two in one card would leave the
+            customer working out which they are being asked to agree to. */}
+        {quote !== null && !isCancelled && !isPast && (
+          <div className="bk-card" style={{ marginTop: 14 }}>
+            <div className="bk-step-label">A price from {business.name}</div>
+            <div className="bk-row between" style={{ marginTop: 6 }}>
+              <span>Their price</span>
+              <strong className="bk-price">{money(quote)}</strong>
+            </div>
+            {booking.quoted_note && (
+              <p className="bk-body" style={{ marginTop: 10 }}>{booking.quoted_note}</p>
+            )}
+            <button className="bk-btn primary" style={{ marginTop: 14 }}
+              disabled={busy} onClick={acceptQuote}>
+              <Check size={18} strokeWidth={2} /> {busy ? "Saving…" : `Accept ${money(quote)}`}
+            </button>
+            <p className="bk-muted" style={{ marginTop: 10 }}>
+              Not for you? Cancel below and the time goes back.
+            </p>
+          </div>
+        )}
 
         {error && <div className="bk-error">{error}</div>}
 
@@ -272,7 +324,11 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
             ) : (
               // The one filled thing on the screen, and it is the reason the
               // page exists: moving an appointment without ringing anybody.
-              <button className="bk-btn primary" disabled={busy} onClick={loadSlots}>
+              // UNLESS A QUOTE IS OUT (roadmap 2.12) — then the reason the page
+              // is open is the price, and two filled buttons make the customer
+              // choose between two things the page is equally insisting on.
+              // Seen in the first screenshot of a quote on this page.
+              <button className={`bk-btn${quote === null ? " primary" : ""}`} disabled={busy} onClick={loadSlots}>
                 <CalendarClock size={18} strokeWidth={2} /> {busy ? "Loading…" : "Change the time"}
               </button>
             )}
@@ -292,7 +348,7 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
               <div className="bk-exits">
                 <button className="bk-btn danger bare" disabled={busy}
                   onClick={() => setConfirmCancel(true)}>
-                  <X size={18} strokeWidth={2} /> Cancel this booking
+                  <X size={18} strokeWidth={2} /> {isRequest ? "Cancel this request" : "Cancel this booking"}
                 </button>
                 {business.phone && (
                   <a className="bk-btn ghost" href={`tel:${business.phone}`}>

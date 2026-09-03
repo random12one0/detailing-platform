@@ -2544,16 +2544,127 @@ with `dropoff_enabled` false for *"I go to them"*; and all seven keys in
 | Keyboard, tour | Tab cycles the caption's two controls and never reaches the page behind; Escape closes; the body lock is restored. **Asserted by `sweep-widths.mjs` at 392 in BOTH paths now**, and baselined by removing the listener |
 | First run, new business | form at step 1 with 2 of 7 filled; tour 6 steps; neither returns after a reload |
 
+## 6w. ROADMAP 2.12 — REQUEST-VS-RESERVE, ACCEPT/DECLINE AND QUOTES (2026-09-02)
+
+**DONE.** The owner's answer to 2.11's question 5, and the first item after the
+dashboard rebuild. Engine, schema and edge-function work; the only new screen
+work fills a slot 2.11 designed and deliberately built empty.
+
+**HIS CLARIFICATION IS THE WHOLE SHAPE OF THE ITEM.** *"Someone sends a request,
+it will take up that time slot… one is just a little bit more guaranteed than
+the other."* **Both modes hold the slot. Only the promise differs.** Availability
+behaves identically, which is what made this a small item rather than a large
+one.
+
+### What shipped
+
+| | |
+|---|---|
+| `business_settings.booking_mode` | `reserve` \| `request`, **default `reserve`**. First control on the Booking rules screen |
+| `bookings.status` | one new value, `pending`. **No `declined`** — see below |
+| `bookings.declined_at` | the detailer said no. `status` is `cancelled` too |
+| `bookings.quoted_amount` / `quoted_note` / `quoted_at` | a price OFFERED, never charged |
+| `supabase/functions/respond-to-booking` | member-gated: accept \| decline \| quote |
+| `supabase/functions/accept-quote` | public, UUID as the credential, like `cancel-booking` |
+| `app/src/components/RequestCard.jsx` | the queue's card — Accept filled, Quote ringed, Decline ringless |
+| `app/src/components/QuoteModal.jsx` | the composer: a price, a sentence, a confirm step |
+| `tests/request-mode.test.mjs` | **45 checks**, needs the root `.env` |
+| Migration | `20260902003000_request_mode_and_quotes.sql`, applied |
+
+### The three decisions worth carrying
+
+**1. The exclusion constraint was NOT touched, and that is the point.**
+`bookings_no_overlap` excludes rows `where status <> 'cancelled'`. `pending` is
+not `cancelled`, so a request holds its slot with no change at all, and
+`available-slots` does not even offer the time. **A load-bearing fact
+established by NOT writing something** — invisible in the migration, and
+protected only by `tests/request-mode.test.mjs` tests 3 and 4. A later session
+that "tidies" `pending` into any of those three filters makes requests
+double-bookable.
+
+**2. There is no `declined` status.** Twelve places in this codebase ask
+`status <> 'cancelled'` and every one of them is already correct about a
+declined request. A sixth status would have meant editing all twelve to say the
+same thing twice, and the first one anybody forgot would be a declined request
+still holding a time nobody can book. `declined_at` carries the one fact
+`cancelled` cannot — who ended it — and the job record prints it.
+
+**3. A quote is offered, never charged.** `quoted_amount` is its own column;
+only the customer, pressing the button in their email, moves it to
+`total_price`. When it moves, the difference lands as a `price_adjustments`
+line so the receipt's itemisation still reconciles — the `travel_fee` family one
+step later. Saying NO to a quote is the ordinary `cancel-booking`, which is why
+there is no third action.
+
+### Three things the new status broke, none of which announced itself
+
+- **The four `get_bookings_due_for_*` RPCs** would have emailed a customer
+  *"your appointment is tomorrow"* about a request nobody had accepted. All four
+  now exclude `pending`.
+- **The manual Reminder button** did the same by hand, past the RPCs. Guarded in
+  `send-owner-reminders` itself, not only in the UI.
+- **`sweep-widths.mjs` silently changed what it measured.** `.card.attend` meant
+  "the lit job"; a waiting request now takes the lit treatment, so that selector
+  resolves to a request card. A rename with no error — the run stays green while
+  measuring the wrong object.
+
+### Three things only a screenshot could find
+
+Two accent-filled Accept buttons the moment two requests shared a screen; the
+job record printing *"Quoted $165.00"* one line above *Send a quote*, after this
+item had given the word the opposite meaning; and a confirmation TICK over the
+words *"we're holding your time"* on the customer's screen. Plus, on the
+customer's manage page, two filled buttons — the quote's Accept and the page's
+own Change the time.
+
+### And a clock-dependent test fixed on the way past
+
+`tests/booking-engine.test.mjs`'s short-notice check failed against an unchanged
+pricing path at 22:31 local and passed at 15:00: `Date.now() + 20h` sliced to a
+DATE puts 10:00 local anywhere from 14 to 44 hours away. The window is widened
+to 96 hours. **A gate that is red at some hours and green at others is worse
+than a gate that is red**, because the next session assumes it is theirs.
+
+### The demo takes requests now
+
+`seed-demo.mjs` sets `booking_mode: "request"` and seeds two pending requests,
+one already quoted. **A decision about the demo, not about Andrew** — it is the
+only business the sweep can log into, and a reserve-mode demo means the request
+queue is never rendered at any width by anything. Sixth time this repo has
+written that finding.
+
+### THREE QUESTIONS STANDING FOR THE OWNER
+
+1. **Quotes exist only on a request**, so a reserve-mode detailer — Andrew, and
+   every tenant by default — cannot send one.
+2. **Nothing chases a request that went stale.** Today's queue is floored at
+   `now`; a request whose time has passed leaves the screen and nothing notifies.
+3. **The demo now shows the request flow** rather than his own reserve flow.
+
+**MEASURED AFTER.**
+
+| | |
+|---|---|
+| `sweep-widths.mjs` | clean at 1920 / 1440 / 392 / 360 / 320, normal and `?lite=1` — **56 clean this evening** against 54 before it, the three new states being the request record, the quote sheet and tomorrow's job record. It is 56 rather than 57 because which of the rail's two job records exists depends on the hour the demo was seeded, and the script now says so instead of measuring the same one twice |
+| `sweep-booking-steps.mjs` | every step fits at all four sizes; step 1 still 10px spare at 1440x900, unchanged |
+| `request-mode` | 45 checks pass; test 8's tie-out baselined by deleting the `price_adjustments` line, which fails it by exactly the quote |
+| `booking-engine` · `timezone-and-slots` · `tenant-isolation` · `staff-roles` · `owner-writes` · `ics-and-notifications` · `booking-page-isolation` | all pass (86 / 34 / 40 / 35 / 62 / 32 / 62) |
+| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `email-brand` · `client-list` · `setup-progress` · `qr-scans` · `decisions-index` · `accent-sweep` | all pass |
+| End to end, real browser | a customer booked through `/book/demo-detail` in request mode and got *"We're holding your time"*; the row came back `pending`; the two test bookings were deleted afterwards |
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 
-**THE HEADLINE, 2026-09-02: ROADMAP 2.11 IS CLOSED.** All seven stages of its
-step 6 are built — the shell and Today, the job record, the calendar, Money,
-Clients, Business with its twelve settings screens behind two doors, and first
-run. The dashboard is the one this product ships. **The next unchecked item is
-2.12** (request-vs-reserve, accept/decline and quotes), which is engine and
-schema work rather than layout — 2.11 left the accept slot designed and empty
-on purpose.
+**THE HEADLINE, 2026-09-02: ROADMAP 2.11 AND 2.12 ARE BOTH CLOSED.** All seven
+stages of 2.11's step 6 are built — the shell and Today, the job record, the
+calendar, Money, Clients, Business with its twelve settings screens behind two
+doors, and first run — and **2.12 filled the accept slot 2.11 designed and left
+empty**: a booking can now be a REQUEST the detailer accepts, declines or
+quotes, and both modes hold the slot. See §6w, which ends with **three questions
+standing for the owner**. **The next unchecked item is 2.5**, the booking smoke
+test — and note that `scripts/e2e-booking.mjs` does not run (it hardcodes a
+Linux Playwright path from a container that no longer exists), so that item
+either repairs it or writes the check fresh.
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
    ~~**2.2, the marketing/landing page.**~~ **DONE 2026-08-30** — ported from

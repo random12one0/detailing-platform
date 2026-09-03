@@ -111,6 +111,13 @@ Deno.serve(async (req) => {
         .maybeSingle();
       if (!b) return json({ error: "Booking not found" }, 404);
 
+      // ROADMAP 2.12 — NOT FOR A REQUEST NOBODY HAS ACCEPTED. The migration
+      // took `pending` out of all four due-for-reminder RPCs; this is the same
+      // send by hand, and a guard in the UI alone would leave the hole open to
+      // anything else that ever calls this.
+      if (b.status === "pending") {
+        return json({ error: "Accept this request before reminding them about it." }, 409);
+      }
       if (body.target === "customer") {
         if (!b.customer_email) return json({ error: "This booking has no customer email on file." }, 400);
         await sendCustomerReminder(b);

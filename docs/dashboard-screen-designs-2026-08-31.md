@@ -306,6 +306,13 @@ lit element on the screen is the first of these (§1b).
 > continuous run of work. Roadmap 2.12 fills these cards in; **2.11 designs
 > the slot and builds nothing.**
 >
+> **FILLED 2026-09-02 — `components/RequestCard.jsx`.** Three actions rather
+> than two: Accept filled, **Send a quote** ringed, Decline ringless, which is
+> the owner's own second half of question 5. Only the LIT card's Accept takes
+> the accent — two requests on one screen would otherwise put two accent fills
+> on it. The card prints its own DATE, because it is the only object on Today
+> that can be for a day other than today.
+>
 > **And it needs no new mark on the calendar.** A request draws the same
 > hollow circle a confirmed booking does — on a month grid both mean "booked,
 > nothing has happened yet", which is the merge `dashboard-skeletons.md` §5b
@@ -340,6 +347,17 @@ not move. A back control returns the column to what is next.
 
 **Between 1024 and 1180:** one column at up to `--wrap`, the right column's
 contents returning underneath the rail in the order above.
+
+> **BUILT DIFFERENTLY FOR THE REQUESTS, ON PURPOSE — roadmap 2.12, 2026-09-02,
+> written here rather than left as a silent divergence.** Below 1180 the request
+> queue sits **second, under the masthead and above the ledger**, which is this
+> file's own phone order — not underneath the rail with tomorrow and the open
+> slots. Two reasons, and the second is the one that decides it: keeping the
+> phone's placement means the component has TWO arrangements rather than three,
+> and §1b says the first request is the lit object on the screen, which a
+> position below the rail contradicts at 1100px by putting the lit thing under
+> the fold. Tomorrow and the open slots still return underneath the rail exactly
+> as written.
 
 ### States
 

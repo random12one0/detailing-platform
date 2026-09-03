@@ -67,6 +67,9 @@ export interface BusinessSettings {
   email_owner_new_booking: boolean;
   email_owner_reminder: boolean;
   push_enabled: boolean;
+  // Roadmap 2.12 — 'reserve' | 'request'. What a booking through the page
+  // MEANS. Both hold the slot; only the promise differs.
+  booking_mode: string;
 }
 
 // Missing settings row → every default the schema declares. Fetched fresh per
@@ -108,6 +111,10 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     wrapup_nudge_lead_minutes: 20,
     finalize_nudge_delay_minutes: 120,
     daily_digest_hour: 7,
+    // The schema's own default, and it has to stay 'reserve' here too: a
+    // business with no settings row must not silently start telling
+    // customers their booking is only a request.
+    booking_mode: "reserve",
     cancellation_window_hours: 24,
     price_rounding_nearest: 5,
     site_discount_active: false,

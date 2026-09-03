@@ -39,7 +39,7 @@
 import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { useBusiness } from "../context/BusinessContext.jsx";
-import { useBookings } from "../hooks/useBookings.js";
+import { useBookings, usePendingRequests } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
 import { api } from "../lib/api.js";
 import { addDays, money, time12, todayLocal } from "../lib/format.js";
@@ -50,13 +50,18 @@ import DaySheet from "../components/DaySheet.jsx";
 import FinalizeModal from "../components/FinalizeModal.jsx";
 import JobRow from "../components/JobRow.jsx";
 import NewBookingModal from "../components/NewBookingModal.jsx";
+import QuoteModal from "../components/QuoteModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
+import RequestCard from "../components/RequestCard.jsx";
 
 export default function Today({ refreshKey = 0 }) {
   const { business, firstName } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
   const { bookings, loading, refreshing, error, reload } = useBookings(today, tomorrow);
+  // ROADMAP 2.12 — its own read, because a request can be for any date and
+  // the hook above only knows about today and tomorrow. See useBookings.js.
+  const { requests, error: reqError, reload: reloadRequests } = usePendingRequests(refreshKey);
   // Two widths, and only where the two show DIFFERENT CONTENT rather than the
   // same content arranged differently — the rest of the desk layout is CSS.
   const desk = useWide(1024);   // the sunken ledger strip comes back
@@ -67,6 +72,12 @@ export default function Today({ refreshKey = 0 }) {
   const [creating, setCreating] = useState(null);
   const [busyId, setBusyId] = useState(null);
   const [slots, setSlots] = useState(null);
+  const [quoting, setQuoting] = useState(null);
+  // ANSWERING A REQUEST MAKES A CARD LEAVE, AND IT HAS TO LEAVE RATHER THAN
+  // VANISH — CLAUDE.md's standing rule since 2026-09-01. The card carries the
+  // exit and the reload waits for it: --t-exit (180ms), not --t-reveal, because
+  // this is a thing the detailer does several times in a row.
+  const [leavingId, setLeavingId] = useState(null);
 
   // A booking made from the header's + has to reach the day it landed on.
   // refreshKey ALONE on purpose: reload's identity changes whenever the hook's
@@ -89,13 +100,18 @@ export default function Today({ refreshKey = 0 }) {
   // which is true of it, and needs no fourth run.
   const still = todays.filter((b) => b.status !== "completed");
 
-  // THE ONE LIT THING (§1b). Money not yet recorded outranks the next job:
-  // a finished job with no payment against it is what the day is waiting on.
-  // A booking waiting to be ACCEPTED will outrank both — roadmap 2.12.
+  // THE ONE LIT THING (§1b, and docs/dashboard-skeletons.md §6). Roadmap 2.12
+  // added the top of that list: a booking waiting to be ACCEPTED outranks both
+  // of the others, because unrecorded money is money you already hold and a
+  // request has a customer at the other end who does not know if they are
+  // booked. AT MOST ONE object is lit, so when a request is on the screen the
+  // rail has no card at all — `lit` is null and every job draws as a row.
   const nowIso = new Date().toISOString();
-  const lit = needsPay[0]
-    ?? still.find((b) => b.end_at > nowIso && b.status === "confirmed")
-    ?? null;
+  const lit = requests.length > 0
+    ? null
+    : needsPay[0]
+      ?? still.find((b) => b.end_at > nowIso && b.status === "confirmed")
+      ?? null;
 
   // Open slots in the next 7 days — a figure about the near future, which had
   // been stranded on the Booking rules settings sheet. Only asked for at the
@@ -110,6 +126,24 @@ export default function Today({ refreshKey = 0 }) {
       .catch(() => live && setSlots(null));
     return () => { live = false; };
   }, [wide, business, today]);
+
+  // Accept and decline are the same shape: answer, let the card go, refresh
+  // both lists — an accepted request becomes a job, and if it is today's it
+  // has to appear on the rail in the same beat it leaves the queue.
+  const respond = (action) => async (b) => {
+    setBusyId(b.id);
+    try {
+      await api.respondToBooking(business.id, b.id, action);
+      setLeavingId(b.id);
+      await new Promise((r) => setTimeout(r, 180));
+      setLeavingId(null);
+      await Promise.all([reloadRequests(), reload()]);
+    } finally {
+      setBusyId(null);
+    }
+  };
+  const acceptRequest = respond("accept");
+  const declineRequest = respond("decline");
 
   const markComplete = async (b) => {
     setBusyId(b.id);
@@ -179,6 +213,31 @@ export default function Today({ refreshKey = 0 }) {
         </p>
       </div>
 
+      {/* ROADMAP 2.12 FILLS THE SLOT 2.11 BUILT EMPTY. Above everything when
+          there is anything, absent when there is not (§1a) — and second in the
+          phone's order, under the masthead and over the ledger, which is where
+          docs/dashboard-screen-designs-2026-08-31.md §2 puts it. At a desk it
+          moves to the top of the second column instead; it is never in both. */}
+      {/* THE CEILING, STATED: one card per waiting request. Two is the demo
+          and a handful is realistic; a detailer sitting on twelve unanswered
+          requests would get twelve cards, and the answer then is a ruled list
+          with the first one open — not a smaller card.
+          ponytail: N cards, list-with-one-open if a real queue ever gets long. */}
+      {reqError && <div className="error-box">{reqError}</div>}
+      {!wide && requests.length > 0 && (
+        <div className="tight">
+          <h2 className="label">
+            {requests.length === 1 ? "Waiting on you" : `Waiting on you · ${requests.length}`}
+          </h2>
+          {requests.map((b, i) => (
+            <RequestCard key={b.id} booking={b} lit={i === 0}
+              busy={busyId === b.id} leaving={leavingId === b.id}
+              onAccept={acceptRequest} onDecline={declineRequest}
+              onQuote={setQuoting} onClick={() => setSelected(b)} />
+          ))}
+        </div>
+      )}
+
       {/* A strip of zeroes states nothing, so an empty day has no ledger. */}
       {!empty && (desk
         ? (
@@ -222,11 +281,6 @@ export default function Today({ refreshKey = 0 }) {
           </div>
         ))}
 
-      {/* Bookings waiting to be ACCEPTED go above everything when there are
-          any, and are absent when there are none (§1a). They are deliberately
-          NOT on the rail: the rail is today's day, and a request can be for
-          any date. Roadmap 2.12 fills this; 2.11 builds the slot empty. */}
-
       {!empty && (
         <div className="dayrail" data-tour="job">
           {needsPay.length > 0 && (
@@ -248,7 +302,7 @@ export default function Today({ refreshKey = 0 }) {
       {/* A detailer with no bookings needs the thing that GETS them, not a
           button for typing one in by hand. One sentence and one way forward,
           and it never restates the masthead's own "nothing booked". */}
-      {empty && tomorrows.length === 0 && (
+      {empty && tomorrows.length === 0 && requests.length === 0 && (
         <div className="tight">
           <p className="body">Your booking link is how a day gets filled.</p>
           <BookingLink slug={business.slug} />
@@ -280,6 +334,23 @@ export default function Today({ refreshKey = 0 }) {
           than over it (F11). Desktop spec §5a. */}
       {wide && !selected && (
         <aside className="col-2">
+          {/* FIRST IN THE COLUMN — the desktop spec §5a reserved this spot
+              before there was anything to put in it, "because a request is the
+              only object on that screen waiting on the detailer rather than on
+              a car". */}
+          {requests.length > 0 && (
+            <div className="tight">
+              <h2 className="label">
+                {requests.length === 1 ? "Waiting on you" : `Waiting on you · ${requests.length}`}
+              </h2>
+              {requests.map((b, i) => (
+                <RequestCard key={b.id} booking={b} lit={i === 0}
+                  busy={busyId === b.id} leaving={leavingId === b.id}
+                  onAccept={acceptRequest} onDecline={declineRequest}
+                  onQuote={setQuoting} onClick={() => setSelected(b)} />
+              ))}
+            </div>
+          )}
           {tomorrows.length > 0 && (
             <div className="tight">
               <h2 className="label">Tomorrow</h2>
@@ -322,6 +393,10 @@ export default function Today({ refreshKey = 0 }) {
       {creating && (
         <NewBookingModal initialDate={creating} onClose={() => setCreating(null)}
           onCreated={() => { setCreating(null); reload(); }} />
+      )}
+      {quoting && (
+        <QuoteModal booking={quoting} onClose={() => setQuoting(null)}
+          onSent={() => { setQuoting(null); reloadRequests(); }} />
       )}
     </div>
   );

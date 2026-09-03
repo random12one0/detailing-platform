@@ -33,7 +33,13 @@ Deno.serve(async (req) => {
       .is("deleted_at", null)
       .maybeSingle();
     if (!booking) return json({ error: "not_found" }, 404);
-    if (booking.status !== "confirmed") return json({ error: "This booking can no longer be rescheduled online." }, 409);
+    // ROADMAP 2.12 — a pending request can be moved, and it stays pending.
+    // A customer picking a different time has not been accepted by anybody;
+    // silently confirming them here would let the request mode be walked
+    // straight past.
+    if (booking.status !== "confirmed" && booking.status !== "pending") {
+      return json({ error: "This booking can no longer be rescheduled online." }, 409);
+    }
 
     const business = (await businessById(booking.business_id))!;
     const settings = await getSettings(business.id);

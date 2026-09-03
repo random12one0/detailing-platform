@@ -87,3 +87,41 @@ export function useBookings(fromDate, toDate, { includeCancelled = true } = {}) 
 
   return { bookings, loading, refreshing, error, reload };
 }
+
+// ROADMAP 2.12 — REQUESTS WAITING TO BE ACCEPTED, AND WHY THEY ARE NOT PART OF
+// THE HOOK ABOVE. `useBookings` asks for a DATE RANGE, and Today's range is
+// today and tomorrow. A request can be for any date at all — that is the whole
+// reason the design keeps it off the rail
+// (docs/dashboard-screen-designs-2026-08-31.md §2: "the rail is today's day").
+// Filtering the day's rows for `pending` would have quietly hidden every
+// request past tomorrow, which is most of them.
+//
+// The floor is `now` rather than today's midnight: a request for a time that
+// has already gone by is not something to accept, it is something the detailer
+// missed, and it stays on the calendar where the rest of the past lives.
+export function usePendingRequests(refreshKey = 0) {
+  const { business } = useBusiness();
+  const [requests, setRequests] = useState([]);
+  const [error, setError] = useState("");
+
+  const reload = useCallback(async () => {
+    if (!business) return;
+    const { data, error: e } = await supabase
+      .from("bookings")
+      .select(BOOKING_SELECT)
+      .eq("business_id", business.id)
+      .eq("status", "pending")
+      .is("deleted_at", null)
+      .gte("start_at", new Date().toISOString())
+      .order("start_at", { ascending: true });
+    // Same rule as above: a failed read leaves the last good list drawn rather
+    // than silently reporting an empty queue, which here would mean a customer
+    // waiting on an answer that looks like it was never asked for.
+    if (e) setError(e.message || "Could not load requests.");
+    else { setError(""); setRequests((data ?? []).map((b) => withLocal(b, business.timezone))); }
+  }, [business]);
+
+  useEffect(() => { reload(); }, [reload, refreshKey]);
+
+  return { requests, error, reload };
+}

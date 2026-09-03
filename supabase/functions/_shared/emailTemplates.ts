@@ -154,13 +154,27 @@ export function jobAddress(brand: TenantBrand, b: Pick<BookingEmailData, "servic
   return brand.dropoffAddress || "";
 }
 
-export function customerConfirmationEmail(brand: TenantBrand, b: BookingEmailData): { subject: string; html: string } {
+// ROADMAP 2.12 — ONE TEMPLATE, TWO PROMISES. `isRequest` is the tenant's
+// `booking_mode`, and it changes four sentences and nothing else: the same
+// appointment, the same money, the same slot held. That is the owner's own
+// framing — "one is just a little bit more guaranteed than the other" — and
+// building it as a second 50-line template would be two places to fix the day
+// the money table changes. Where the two differ is listed below rather than
+// scattered: the header, the opening line, the note under the appointment
+// card, and the subject.
+export function customerConfirmationEmail(
+  brand: TenantBrand,
+  b: BookingEmailData,
+  isRequest = false,
+): { subject: string; html: string } {
   const dateLong = formatDateLong(b.dateStr);
   const services = [...b.serviceNames.map((s) => esc(s)), ...b.addOnNames.map((a) => `Add-on: ${esc(a)}`)];
   const body = `
     <tr><td style="padding:28px 32px 8px 32px; font-family:Arial,Helvetica,sans-serif;">
       <p style="margin:0 0 8px 0; font-size:16px; color:#0f172a; font-weight:bold;">Hi ${esc(b.customerName)},</p>
-      <p style="margin:0; font-size:15px; line-height:1.6; color:#475569;">Thanks for booking with us. Here are the details of your appointment.</p>
+      <p style="margin:0; font-size:15px; line-height:1.6; color:#475569;">${isRequest
+        ? "Thanks for asking &mdash; we&rsquo;ve got your request and we&rsquo;re holding this time while we look at it. Here&rsquo;s what you asked for."
+        : "Thanks for booking with us. Here are the details of your appointment."}</p>
     </td></tr>
     <tr><td style="padding:20px 32px 4px 32px;">${infoCard(`
       ${label(brand.accentColor, "Appointment")}
@@ -171,7 +185,9 @@ export function customerConfirmationEmail(brand: TenantBrand, b: BookingEmailDat
         ${kv("Vehicle", `${esc(sizeDisplay(b.vehicleSize))}${b.vehicleModel ? ` &middot; ${esc(b.vehicleModel)}` : ""}`)}
         ${kv(b.serviceType === "mobile" ? "Address" : "Drop-off", esc(jobAddress(brand, b)))}
       </table>
-      <p style="margin:12px 0 0 0; font-size:12px; line-height:1.5; color:#94a3b8;">Your appointment time is approximate &mdash; we aim to arrive within about 30 minutes of it. This is a booking request; your time is our best availability until we confirm it with you.</p>
+      <p style="margin:12px 0 0 0; font-size:12px; line-height:1.5; color:#94a3b8;">${isRequest
+        ? "Nobody else can take this time while we decide. You&rsquo;ll get another email as soon as we&rsquo;ve accepted it."
+        : "Your appointment time is approximate &mdash; we aim to arrive within about 30 minutes of it."}</p>
     `)}</td></tr>
     <tr><td style="padding:20px 32px 4px 32px; font-family:Arial,Helvetica,sans-serif;">
       ${label(brand.accentColor, "Services")}
@@ -192,23 +208,37 @@ export function customerConfirmationEmail(brand: TenantBrand, b: BookingEmailDat
       <p style="margin:12px 0 0 0; font-size:12px; line-height:1.5; color:#94a3b8;">This total is an estimate and may change if the vehicle&rsquo;s condition requires additional time or services.</p>
     `)}</td></tr>
     <tr><td style="padding:24px 32px 8px 32px;" align="center">
-      <a href="${b.receiptUrl}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">View / save your confirmation</a>
+      <a href="${b.receiptUrl}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">${isRequest ? "View or change your request" : "View / save your confirmation"}</a>
     </td></tr>
     ${b.customerNotes ? `<tr><td style="padding:16px 32px 4px 32px; font-family:Arial,Helvetica,sans-serif;">${label(brand.accentColor, "Your notes")}<p style="margin:0; font-size:14px; line-height:1.6; color:#475569;">${esc(b.customerNotes)}</p></td></tr>` : ""}
     ${brand.paymentMethodsLine ? `<tr><td style="padding:20px 32px 8px 32px;"><div style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px; padding:14px 20px; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#0f172a;"><strong style="color:${brand.accentColor};">Payments accepted:</strong> ${esc(brand.paymentMethodsLine)}</div></td></tr>` : ""}
   `;
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e2e8f0;">Booking confirmed</div>
+  const header = isRequest
+    ? `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e2e8f0;">Request received</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:#ffffff; margin-top:4px;">We're holding your time</div>`
+    : `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e2e8f0;">Booking confirmed</div>
     <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:#ffffff; margin-top:4px;">You're all set!</div>`;
   return {
-    subject: `Booking confirmed - ${formatDateLong(b.dateStr)} | ${brand.brandName}`,
-    html: shell(brand, header, body, `Your booking with ${brand.brandName} is confirmed for ${dateLong}.`),
+    subject: isRequest
+      ? `Request received - ${formatDateLong(b.dateStr)} | ${brand.brandName}`
+      : `Booking confirmed - ${formatDateLong(b.dateStr)} | ${brand.brandName}`,
+    html: shell(
+      brand, header, body,
+      isRequest
+        ? `${brand.brandName} has your request for ${dateLong} and is holding the time.`
+        : `Your booking with ${brand.brandName} is confirmed for ${dateLong}.`,
+    ),
   };
 }
 
-export function ownerNewBookingEmail(brand: TenantBrand, b: BookingEmailData): { subject: string; html: string } {
+export function ownerNewBookingEmail(
+  brand: TenantBrand,
+  b: BookingEmailData,
+  isRequest = false,
+): { subject: string; html: string } {
   const dateLong = formatDateLong(b.dateStr);
   const services = [...b.serviceNames.map((s) => esc(s)), ...b.addOnNames.map((a) => `Add-on: ${esc(a)}`)];
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:${brand.accentColor}; font-weight:bold;">New booking received</div>
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:${brand.accentColor}; font-weight:bold;">${isRequest ? "Waiting for you to accept" : "New booking received"}</div>
     <div style="font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold; color:#ffffff; margin-top:6px;">${esc(b.customerName)}</div>
     <div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#e2e8f0; margin-top:4px;">${esc(dateLong)} &middot; ${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}</div>`;
   const body = `
@@ -243,9 +273,85 @@ export function ownerNewBookingEmail(brand: TenantBrand, b: BookingEmailData): {
       <p style="margin:0; font-size:14px; line-height:1.6; color:${b.customerNotes ? "#0f172a" : "#94a3b8"};">${esc(b.customerNotes || "None")}</p>
     </td></tr>`;
   return {
-    subject: `New booking - ${b.customerName} - ${dateLong} (${money(b.total)})`,
+    subject: isRequest
+      ? `Request - ${b.customerName} - ${dateLong} (${money(b.total)})`
+      : `New booking - ${b.customerName} - ${dateLong} (${money(b.total)})`,
     html: shell(brand, header, body, `${b.customerName} · ${dateLong} · ${money(b.total)}`),
   };
+}
+
+// ROADMAP 2.12 — THE DETAILER'S ANSWER TO A REQUEST. Three outcomes, one
+// template, because the three share a shape: what was asked for, what the
+// answer is, and one way forward. The quote is the only one that carries a
+// number, and it is the only one with a button, because it is the only one
+// still waiting on the customer.
+//
+// `manageUrl` is the receipt page — the same UUID-as-credential link the
+// confirmation email already sends. Accepting a quote happens there.
+export function requestDecisionEmail(
+  brand: TenantBrand,
+  b: BookingEmailData,
+  kind: "accepted" | "declined" | "quote",
+  opts: { manageUrl: string; quotedAmount?: number; quotedNote?: string | null } = { manageUrl: "" },
+): { subject: string; html: string } {
+  const dateLong = formatDateLong(b.dateStr);
+  const whenLine = `<strong>${esc(dateLong)}</strong> at <strong>${formatTime12hr(b.startTime)}</strong>`;
+  const headline = kind === "accepted"
+    ? "You're booked in"
+    : kind === "declined"
+      ? "We can't make that one"
+      : "Here's your price";
+  const header =
+    `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e2e8f0;">${
+      kind === "quote" ? "Quote" : kind === "accepted" ? "Request accepted" : "Request declined"
+    }</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:#ffffff; margin-top:4px;">${headline}</div>`;
+
+  const lead = kind === "accepted"
+    ? `<p style="margin:0 0 12px 0;">Good news &mdash; we&rsquo;ve accepted your request for ${whenLine}. It&rsquo;s in the diary.</p>`
+    : kind === "declined"
+      ? `<p style="margin:0 0 12px 0;">We&rsquo;re sorry &mdash; we can&rsquo;t take ${whenLine}, so we&rsquo;ve let that time go.</p>`
+      : `<p style="margin:0 0 12px 0;">We&rsquo;ve had a look at what you asked for on ${whenLine}, and here&rsquo;s what we can do it for.</p>`;
+
+  const quoteCard = kind === "quote"
+    ? `<tr><td style="padding:8px 32px 4px 32px;">${infoCard(`
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#64748b;">Our price</td>
+            <td style="font-family:Arial,Helvetica,sans-serif; font-size:24px; font-weight:bold; color:${brand.accentColor}; text-align:right;">${money(Number(opts.quotedAmount ?? 0))}</td>
+          </tr>
+        </table>
+        ${opts.quotedNote
+          ? `<p style="margin:12px 0 0 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.6; color:#0f172a;">${esc(opts.quotedNote)}</p>`
+          : ""}
+        <p style="margin:12px 0 0 0; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:1.5; color:#94a3b8;">We&rsquo;re still holding ${esc(dateLong)} at ${formatTime12hr(b.startTime)} for you. Nothing is charged until you say yes.</p>
+      `)}</td></tr>
+      <tr><td style="padding:20px 32px 8px 32px;" align="center">
+        <a href="${opts.manageUrl}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">See it and say yes</a>
+      </td></tr>`
+    : "";
+
+  const tail = kind === "accepted"
+    ? `<p style="margin:0;">Need to move it or cancel? <a href="${opts.manageUrl}" style="color:${brand.accentColor};">Manage your booking</a>.</p>`
+    : kind === "declined"
+      ? `<p style="margin:0;">If another day works, we&rsquo;d still love to see you &mdash; <a href="${brand.siteUrl}" style="color:${brand.accentColor};">${esc(brand.siteUrl.replace(/^https?:\/\//, ""))}</a>.</p>`
+      : "";
+
+  const body = `
+    <tr><td style="padding:28px 32px 8px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:1.7; color:#0f172a;">
+      <p style="margin:0 0 12px 0;">Hi ${esc(b.customerName)},</p>
+      ${lead}
+      ${tail}
+    </td></tr>
+    ${quoteCard}`;
+
+  const subject = kind === "accepted"
+    ? `You're booked in - ${dateLong} | ${brand.brandName}`
+    : kind === "declined"
+      ? `About your request for ${dateLong} | ${brand.brandName}`
+      : `Your price: ${money(Number(opts.quotedAmount ?? 0))} for ${dateLong} | ${brand.brandName}`;
+
+  return { subject, html: shell(brand, header, body, `${headline} — ${dateLong}`) };
 }
 
 export interface InvoiceRow {
