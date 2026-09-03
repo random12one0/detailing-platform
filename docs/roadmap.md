@@ -2435,12 +2435,25 @@ is kept; the entire visual design restarts from scratch.
       exactly "the next template". The arithmetic checks (1–6, 7b, 7c) pass
       untouched. Baseline confirmed 2026-09-03: **138 pass**.
 
-      **AND BUILD THE PREVIEW SCRIPT FIRST.** Nothing in this repo renders an
-      email for a human to look at; 2.12 found eleven under-floor headlines the
-      first time anybody did. For an item whose acceptance test is *"make them
-      look the best"*, that is the missing instrument.
+      ~~**AND BUILD THE PREVIEW SCRIPT FIRST.**~~ **BUILT 2026-09-03 —
+      `node scripts/render-emails.mjs`**, all sixteen emails to
+      `email-preview/index.html`, `--accent=#hex` for another tenant, no new
+      dependency (Node 24 strips the types, so it reads the SAME
+      `emailTemplates.ts` the edge function runs).
 
-      **THE FOUR QUESTIONS FOR HIM (1 and 2 block the build):**
+      **AND IT FAILS TODAY, ON PURPOSE — IT FOUND A LIVE MONEY DEFECT ON ITS
+      FIRST RUN.** **The invoice's printed column does not reach the invoice's
+      printed total whenever a promo code was used**, by exactly the promo:
+      `send-invoice` builds its rows from `bookings.subtotal` (BEFORE any
+      discount) and its total from `final_amount` (already PAST it), and
+      `promo_discount` is in neither the rows nor `discountsTotal`. Rendered:
+      *Subtotal $405, Tip $30, **Total paid $395*** — $40 missing, unexplained.
+      **`site_discount` is the same hole.** This is the `travel_fee` family in
+      the same file, one comment below the fix for its twin. **Fix it inside
+      the invoice/receipt split, in `send-invoice` (which survives the
+      rebuild), and the check that gates it already exists.**
+
+      **THE FIVE QUESTIONS FOR HIM (1 and 2 block the build):**
       1. **Premade templates — wording or looks?** Recommend wording.
       2. **How many reminders?** Ours sends one, Jobber caps at two, nobody
          offers three. Recommend the second. It is a migration, not a number:
@@ -2452,6 +2465,12 @@ is kept; the entire visual design restarts from scratch.
       4. **Logo on the coloured band or on the white paper?** A logo is an
          arbitrary PNG and its contrast cannot be measured. Recommend paper.
          Does not block.
+      5. **May we READ `carwashweb`'s invoice email?** `reference/`'s copy has
+         the same missing promo row, so the omission was **inherited by the
+         port rather than introduced by it**. If his LIVE business still
+         matches, real customers have been getting invoices that do not add
+         up. A read, not a write. **Does not block 2.18 and should not wait
+         for it.**
 
 - [ ] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named

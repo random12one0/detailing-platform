@@ -167,7 +167,7 @@ were made more than once.
 
 - **Every email headline in the product was under the contrast floor, and it was found by rendering one** — roadmap 2.12, while looking at the new quote email. Stage 6's D1 fix gave the header band a MEASURED ink and used it for the brand name and the 44px rule; **every template's own headline went on hardcoding `color:#ffffff`** onto that same band. Measured: **3.01–3.76:1 on all fourteen colours**, the small label 2.44–3.05:1, against a 4.5:1 text floor — **not one preset passed.** Worse on the invoice, where *“Invoice / Receipt”* printed the PAPER colour on the band at **1.20–1.57:1**, which is D1's “the same colour on itself” wearing different clothes. **`email-brand.test.mjs` passed throughout**, because it pinned `brandColor.js` against `theme.js` and never looked at what the templates DID with the answer — *a test can verify the arithmetic and still be blind to the drawing.* Also three fixed greys under the floor (fine print at 2.40:1) that were nothing to do with the tenant's colour. **The finding underneath: two of the eleven bad lines were written that same hour, by copying the template above them** — a defect in a pattern reproduces itself into every new instance until somebody renders one and looks.
 
-- **Roadmap 2.18, step 1 — what the trade's booking systems actually send** — the six-product sweep he asked for by name, before any template was drawn. **Three of the four questions came back cheaper than the item assumed.** The "you're next in the queue" email does not exist anywhere: what the trade sends is **on-my-way, and it is SMS in all four products that have it** — we already have it as a message template, so that gap is closed and must not be reopened as an email. **Our reminder SCHEDULE is already better than four of the six** (we carry Square's offset shape and Housecall Pro's clock-time shape at once) and nobody has ever shown it to the owner, because it lives in Booking rules. **Content is the lopsided one: five of six give the detailer WORDS, one gives a DESIGN** — and even Zenbooker, the permissive one, renders the invoice's itemisation as a single variable the editor cannot open, which is our own `money-export` rule arrived at independently. **"Premade templates" in this trade means WORDING, not looks**: not one of the six offers a choice of visual designs for a transactional email, and where design galleries exist they are marketing email behind a paywall that applies the brand automatically anyway. **Two real gaps: a payment receipt separate from the invoice (five of six; ours calls a paid job an invoice), and the tenant's LOGO** — `business_branding.logo_url` is already uploaded and drawn on three customer pages and `buildBrand()` has never read it. **The thing that will bite: `email-brand.test.mjs` is partly a SOURCE-SHAPE test** — 7a, 7a-ii and 7b-ii read `emailTemplates.ts` as text and assert facts about a file a rebuild deletes, so "rebuilt from scratch" and "keeps passing 138 checks" are in tension and the checks must be re-pointed deliberately, never dropped. Full working, counts and sources: `docs/email-research-2026-09-03.md`. **Four questions stand for him and two of them block the build.**
+- **Roadmap 2.18, step 1 — what the trade's booking systems actually send** — the six-product sweep he asked for by name, before any template was drawn. **Three of the four questions came back cheaper than the item assumed.** The "you're next in the queue" email does not exist anywhere: what the trade sends is **on-my-way, and it is SMS in all four products that have it** — we already have it as a message template, so that gap is closed and must not be reopened as an email. **Our reminder SCHEDULE is already better than four of the six** (we carry Square's offset shape and Housecall Pro's clock-time shape at once) and nobody has ever shown it to the owner, because it lives in Booking rules. **Content is the lopsided one: five of six give the detailer WORDS, one gives a DESIGN** — and even Zenbooker, the permissive one, renders the invoice's itemisation as a single variable the editor cannot open, which is our own `money-export` rule arrived at independently. **"Premade templates" in this trade means WORDING, not looks**: not one of the six offers a choice of visual designs for a transactional email, and where design galleries exist they are marketing email behind a paywall that applies the brand automatically anyway. **Two real gaps: a payment receipt separate from the invoice (five of six; ours calls a paid job an invoice), and the tenant's LOGO** — `business_branding.logo_url` is already uploaded and drawn on three customer pages and `buildBrand()` has never read it. **The thing that will bite: `email-brand.test.mjs` is partly a SOURCE-SHAPE test** — 7a, 7a-ii and 7b-ii read `emailTemplates.ts` as text and assert facts about a file a rebuild deletes, so "rebuilt from scratch" and "keeps passing 138 checks" are in tension and the checks must be re-pointed deliberately, never dropped. **AND THE MISSING INSTRUMENT WAS BUILT IN THE SAME SESSION AND FOUND A LIVE MONEY DEFECT ON ITS FIRST RUN** — `scripts/render-emails.mjs` (no new dependency; Node 24 strips the types, so it reads the SAME `emailTemplates.ts` the edge function runs). **The invoice's printed column does not reach the invoice's printed total whenever a promo code was used**, by exactly the promo: `send-invoice` builds its rows from `bookings.subtotal` (BEFORE any discount) and its total from `final_amount` (already PAST it), and `promo_discount` is in neither the rows nor `discountsTotal`. **This is the `travel_fee` family in the same file, one comment below the fix for its twin** — *a fix that names one instance of a pattern fixes one instance.* Eleven suites missed it because `money-export` ties out the ACCOUNTANT EXPORT and `booking-engine` test 17 ties out the QUOTE ENGINE — **a tie-out is only a tie-out for the document it names.** It is an ASSERTION now, failing on purpose, not a note. **And `reference/`'s copy has the same shape, so the omission was INHERITED — question 5 is whether we may read `carwashweb` to see if his LIVE business sends invoices that do not add up.** Full working, counts and sources: `docs/email-research-2026-09-03.md`. **Five questions stand for him; two block the build and the fifth should not wait for it.**
 
 <!-- INDEX:END -->
 
@@ -8527,3 +8527,88 @@ the render took four minutes and that nothing in the repo did it.
 3. **The re-book / maintenance reminder** — recommend its own item. Does not
    block.
 4. **Logo on the band or on the paper?** Recommend paper. Does not block.
+
+### The instrument got built, and it found a live money defect on its first run
+
+The research above names "nothing in this repo renders an email for a human to
+look at" as the missing measuring stick. **It was built in the same session** —
+`scripts/render-emails.mjs` — and the reason it is worth a section of its own is
+what happened when it was run.
+
+**No new dependency, and that decided the shape.** 2.12's one-off used
+`esbuild --bundle` to get at the templates; a permanent script that needs a
+build step is a script that rots. **Node 24 strips TypeScript types itself**, so
+this imports `_shared/emailTemplates.ts` directly and reads **the same file the
+edge function runs** rather than a bundle or a copy. That is only possible
+because that module is dependency-free on purpose — its own header says so, and
+the reason given there was testability under plain Node. That decision paid out
+here, two roadmap items later.
+
+**THE INVOICE'S COLUMN DOES NOT REACH THE INVOICE'S TOTAL, and never has.**
+Rendered and looked at: rows of $285 + $35 + $40 + $25 + $20, a $30 tip,
+**Subtotal $405, Tip $30, Total paid $395.** $405 + $30 is $435. **$40 is
+missing and nothing on the page mentions it** — it is the customer's promo code,
+which the *confirmation* email drew correctly as `-$40.00` an hour before.
+
+**The mechanism.** `send-invoice/index.ts` builds its charge rows from services,
+add-ons, travel and `price_adjustments` — which is exactly `bookings.subtotal`,
+the figure BEFORE any discount — and takes `totalPaid` from
+`bookings.final_amount`, which is `total_price`, already PAST the promo, plus
+the finalize extras. **`promo_discount` is in neither the rows nor
+`discountsTotal`.** The gap is exactly the promo, every time. `b.promoDiscount`
+is even passed into `invoiceEmail`; the template never reads it. `site_discount`
+is the same hole and has not been reproduced only because no seeded booking
+carries one.
+
+**This is the `travel_fee` family and the resemblance is textual.**
+`send-invoice`'s own comment, written when travel had this bug in 2.8c, reads:
+*"the bottom line was still right (it is final_amount, what was actually
+collected) but the itemisation above it did not add up to anything."* That
+sentence describes the promo today, in the same file, under a comment
+announcing the fix for its twin. **A fix that names one instance of a pattern
+fixes one instance** — the same lesson the rotation guard taught (three places,
+not two) and the sweep taught (`.card.attend`), now in money.
+
+**Why eleven test suites missed it.** `money-export.test.mjs` ties out the
+ACCOUNTANT EXPORT. `booking-engine.test.mjs` test 17 ties out the QUOTE ENGINE.
+Both are real tie-outs and both are about a different document. **Nothing has
+ever asserted that the invoice's printed column reaches the invoice's printed
+total** — which is the one piece of arithmetic the person who paid will actually
+check, because it is the only one they can see. **A tie-out is only a tie-out
+for the document it names.**
+
+**It is an ASSERTION now, not a paragraph, and that is deliberate.** A paragraph
+is what the travel fee had. `render-emails.mjs` computes the totals the way
+`send-invoice` computes them and **exits 1 while the column does not close**; it
+fails today on purpose, and the rebuild is what makes it pass.
+
+**NOT PATCHED, and the reasoning matters more than the choice.** The fix belongs
+in `send-invoice` — which survives the rebuild, unlike the template — but
+inside the invoice/receipt split that this same roadmap item performs, because
+patching now means re-deriving the same arithmetic days later against a
+different set of rows. The failing check is what makes forgetting impossible,
+and it is a stronger guarantee than a done diff would be. **Nobody is receiving
+these**: detailingplatform.com is his private preview and billing charges
+nobody.
+
+**AND THE HALF THAT IS NOT OURS.**
+`reference/supabase/functions/send-invoice/index.ts` — the read-only snapshot of
+his LIVE business's old site — **has the same shape**: it pushes an explicit
+negative row for a *monthly plan* discount and pushes nothing for
+`promo_discount`, and that site does have promo codes. **So the omission was
+inherited by the port, not introduced by it.** What is NOT established, and must
+not be assumed either way, is whether the live `carwashweb` still matches the
+snapshot and whether its own `final_amount` path — it recomputes from base items
+rather than from `total_price` — closes the gap another way. **That is a READ of
+a different repo against a live business, which CLAUDE.md allows and which this
+session did not take on its own initiative beyond the snapshot already in this
+repo.** It is question 5 for him, it does not block 2.18, and it should not wait
+for it: if it reproduces, real customers of Andrew's Auto Detail have been
+receiving invoices that do not add up whenever they used a promo code.
+
+**The transferable finding, and it is the one to carry:** the research file
+predicted the instrument was missing and treated that as a documentation gap.
+It was a live defect the whole time. **"Nothing here can look at X" and "X is
+fine" are the same observation until somebody looks** — which is 2.12's *a test
+can verify the arithmetic and still be blind to the drawing*, one level up: the
+drawing nobody had ever drawn.

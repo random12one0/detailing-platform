@@ -403,6 +403,35 @@ explaining it; if they still have to ask "so should I?", it failed.
   **closed by him unstarted**; the figures live there so nobody re-measures
   them and files them as new.
 
+- **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
+  (new 2026-09-03, roadmap 2.18 step 1). Credential-free, no browser, no dev
+  server. It writes all sixteen emails to `email-preview/index.html` so a human
+  can look at them — **the first thing in this repo that ever has**, which is why
+  2.12 shipped eleven under-floor headlines and why the defect below survived
+  eleven test suites. `--accent=#hex` re-renders for another tenant;
+  `--out=DIR` keeps two side by side. **No new dependency**: Node 24 strips the
+  types, so it imports `_shared/emailTemplates.ts` directly and reads the SAME
+  file the edge function runs — keep that module dependency-free or this stops
+  working.
+  **IT EXITS 1 TODAY AND THAT IS CORRECT, NOT A BROKEN SCRIPT.** It asserts that
+  **the invoice's printed column reaches the invoice's printed total**, and it
+  does not: `send-invoice` builds its rows from `bookings.subtotal` (BEFORE any
+  discount) and its total from `final_amount` (already PAST it), so
+  `promo_discount` appears in neither the rows nor `discountsTotal` and the
+  column misses by exactly the promo. **`site_discount` is the same hole.**
+  Roadmap 2.18's invoice/receipt split is what makes it pass — **fix it in
+  `send-invoice`, which survives the rebuild, not in the template, which does
+  not.** It also fails on `undefined` / `NaN` / `[object Object]` / `href=""` in
+  any rendered file, because 2.12's first render used made-up field names and
+  produced a convincing-looking wrong answer.
+  **The rule it is here to enforce, and it is the third rung of the same
+  ladder:** a number PRINTED is not a number CHARGED, a number EXPORTED is that
+  risk one step later, and **a number INVOICED is it one step further still** —
+  the invoice goes to the one party who will check it against their card
+  statement. **And a tie-out is only a tie-out for the document it names**:
+  `money-export` ties out the accountant export, `booking-engine` test 17 the
+  quote engine, and neither one has ever looked at this.
+
 - **THE FIFTH TAB IS `Business`, THE PLUMBING IS BEHIND A GEAR IN THE HEADER,
   AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
   stage 6 (2026-09-02).** `screens/More.jsx` is deleted. Eight rows on

@@ -115,6 +115,12 @@ frontend/node_modules/.cache/default-development/3.pack
 shots/
 shots-*/
 
+# Rendered email output from scripts/render-emails.mjs — regenerated on demand
+# (--accent= to check another tenant, --out= to keep two side by side), never
+# committed. The SCRIPT is the artefact; the HTML is what you look at once.
+email-preview/
+email-preview-*/
+
 # Reference screenshots — evidence for the design phase, kept local on purpose.
 # 21 MB of other people's websites; the repo is public and history is forever.
 # Owner decision 2026-08-29. Cited by filename in docs/references/ANALYSIS.md.

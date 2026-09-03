@@ -357,13 +357,15 @@ defect comes back** — its whole purpose is to stop the *next* template being
 written with a hardcoded white on the band, and a rebuild is exactly "the next
 template".
 
-**2. The invoice is a `money-export`-class risk and it is about to be split in
-two.** `invoiceEmail` itemises services, add-ons, travel and `price_adjustments`
-and must reconcile to `final_amount`. Splitting it into an invoice and a receipt
-**doubles the number of places that arithmetic is drawn**. Both have to tie out.
-`tests/money-export.test.mjs` is the shape of that check and the new one should
-look like it. This is the `travel_fee` family — a line drawn on a screen that was
-never in the total — one step further along.
+**2. The invoice is a `money-export`-class risk, it is about to be split in
+two, AND IT IS ALREADY BROKEN.** `invoiceEmail` itemises services, add-ons,
+travel and `price_adjustments` and must reconcile to `final_amount`. **It does
+not today** — the promo discount is missing and the column misses the total by
+exactly that amount; full reproduction in the section above. Splitting it into
+an invoice and a receipt **doubles the number of places that arithmetic is
+drawn**, so both have to tie out. `tests/money-export.test.mjs` is the shape of
+that check and the new one should look like it; `render-emails.mjs` already
+fails on this one.
 
 **3. A template editor writes DATA, never code.** Every template is rendered by a
 Deno edge function that cannot import from `app/`. Whatever the editor saves has
@@ -388,13 +390,87 @@ include marketing or promotional material in your custom notifications."*
 with its own unsubscribe machinery, and our editor screen should carry Square's
 sentence in plainer words.
 
-**6. Nothing in the repo renders an email for a human to look at.** There is no
-preview script, no fixture, no screenshot path — the only way anyone has ever
-seen one of these is by triggering a real send. For an item whose acceptance test
-is *"make them look the best"*, **that is the missing instrument**, and it is the
-same gap `sweep-widths.mjs` filled for the dashboard. A small script that renders
-all twelve to HTML files from fixture data costs very little and makes the visual
-half checkable at all.
+**6. Nothing in the repo rendered an email for a human to look at.** ~~There is
+no preview script~~ — **BUILT IN THIS SESSION, and it found a live money defect
+in its first run. See the next section.** `node scripts/render-emails.mjs`
+writes all sixteen (eleven kinds, sixteen counting the branches somebody
+actually receives) to `email-preview/`, from one fixture, with no new
+dependency: Node 24 strips the types itself, so it reads the *same*
+`emailTemplates.ts` the edge function runs rather than a bundle or a copy.
+
+---
+
+## What the instrument found on its first run
+
+**The invoice's own column does not reach its own total whenever a promo code
+was used, and it has never done.** Reproduced, rendered and looked at:
+
+| What the invoice prints | |
+|---|---|
+| Full Interior + Exterior Detail | $285.00 |
+| Add-on: Pet hair removal | $35.00 |
+| Add-on: Engine bay clean | $40.00 |
+| Travel — Outer ring | $25.00 |
+| Heavy soiling surcharge | $20.00 |
+| Tip | $30.00 |
+| **Subtotal** | **$405.00** |
+| **Tip** | **$30.00** |
+| **Total paid** | **$395.00** |
+
+$405 + $30 is $435. **$40 is missing and nothing on the page mentions it** — it
+is the customer's promo code, `FALL10`, which the *confirmation* email drew
+correctly as `-$40.00` an hour earlier.
+
+**The mechanism.** `send-invoice/index.ts` builds its charge rows from
+services, add-ons, travel and `price_adjustments` — which is exactly
+`bookings.subtotal`, i.e. the figure **before** any discount — and takes
+`totalPaid` from `bookings.final_amount`, which is `total_price` (already
+**past** the promo) plus the finalize extras. **`promo_discount` is in neither
+the rows nor `discountsTotal`**, so the gap is exactly the promo, every time.
+`b.promoDiscount` is even passed into `invoiceEmail`; the template never reads
+it.
+
+**This is the `travel_fee` family, and the resemblance is not loose.**
+`send-invoice`'s own comment, written when travel had this bug in roadmap 2.8c,
+says it: *"the bottom line was still right (it is final_amount, what was
+actually collected) but the itemisation above it did not add up to anything."*
+The same sentence describes the promo today. **`site_discount` is the same hole
+and has not been reproduced only because no seeded booking carries one.**
+
+**Why no test caught it.** `money-export.test.mjs` ties out the accountant
+export, not this email. `booking-engine.test.mjs` test 17 ties out the quote
+engine. **Nothing in the repo has ever asserted that the invoice's printed
+column reaches the invoice's printed total** — which is the one arithmetic the
+person who paid will actually check.
+
+**It is now an assertion rather than a paragraph**, because a paragraph is what
+the travel fee had: `render-emails.mjs` computes the totals the way
+`send-invoice` computes them and **exits 1 while the column does not close.**
+It fails today, deliberately. The rebuild is what makes it pass.
+
+**Not patched here, on purpose.** The fix belongs in the invoice/receipt split
+this same roadmap item performs — patching now means the rebuild re-derives it
+days later — and the failing check is what makes forgetting impossible.
+Nobody is receiving these: detailingplatform.com is the owner's private preview
+and billing charges nobody.
+
+### But it may not be ours alone — one thing for the owner to authorise
+
+**`reference/supabase/functions/send-invoice/index.ts` — the read-only snapshot
+of his live business's old site — has the same shape.** It pushes an explicit
+negative row for a *monthly plan* discount and **pushes nothing for
+`promo_discount`**, and that site does have promo codes
+(`validate-promo-code`, `promo_discount` on its bookings table). So the
+omission was **inherited by the port, not introduced by it.**
+
+**What is NOT established, and must not be assumed either way:** whether the
+live `carwashweb` still matches this snapshot, and whether its own
+`final_amount` path (it recomputes from base items rather than from
+`total_price`) closes the gap by another route. **That is a read of a
+different repo against a live business, which CLAUDE.md says needs his explicit
+go-ahead.** It is worth asking for: if it does reproduce there, real customers
+of Andrew's Auto Detail have been receiving invoices that do not add up
+whenever they used a promo code.
 
 ---
 
@@ -402,6 +478,8 @@ half checkable at all.
 
 | Piece | Size | Why |
 |---|---|---|
+| ~~A script that renders every email to look at~~ | **DONE** | `scripts/render-emails.mjs`, no new dependency. It found the invoice defect on its first run. |
+| **Fix the invoice's missing promo row** | **Small** | In `send-invoice`, not the template — that file survives the rebuild. Do it inside the invoice/receipt split. |
 | Rebuild the twelve templates + shell | **Large** | The design job. No schema. The 138-check test's source checks move with it. |
 | Logo in the header | **Tiny** | One column in `buildBrand`, one `<img>`, one fallback. |
 | Split invoice / receipt | **Small** | Same itemisation, second framing — plus its own tie-out test. |
@@ -418,7 +496,8 @@ half checkable at all.
 
 ## What needs the owner before the build starts
 
-Four things, and only the first two block anything.
+Five things, and only the first two block the build. **The fifth is not about
+this product at all and is the most urgent of them.**
 
 **1. "Premade templates" — wording or looks?** The research says the trade means
 **wording**: a few prewritten versions of each email that he picks and edits,
@@ -441,6 +520,13 @@ item, not 2.18.**
 contrast against the tenant's coloured band cannot be measured the way every
 other colour in this product is. **Recommend the paper above the band**, which is
 safe for every logo anyone uploads.
+
+**5. May we look at `carwashweb`'s invoice email?** The read-only snapshot of his
+old site has the same missing promo row as this platform. **If the live business
+still matches it, real customers have been getting invoices that do not add up
+whenever they used a promo code.** A read of that repo settles it in minutes;
+CLAUDE.md says a read is allowed and a write is not, and this is a read. **Does
+not block 2.18 and should not wait for it.**
 
 ---
 

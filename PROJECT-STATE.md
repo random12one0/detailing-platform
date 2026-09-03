@@ -2769,15 +2769,61 @@ exists.
 **Baseline taken at the start of the session: `email-brand` 138 pass,
 `composition` 26 pass.**
 
-### The instrument that does not exist
+### The instrument was missing; it was built, and it found a live money defect
 
-**Nothing in this repo renders an email for a human to look at.** No preview
-script, no fixture, no screenshot path — the only way anybody has ever seen one
-is by triggering a real send, and 2.12 found **eleven** under-floor headlines the
-first time somebody did. For an item whose acceptance test is *"thought of
-properly… make them look the best"*, that is the missing measuring stick, and it
-is the same gap `sweep-widths.mjs` filled for the dashboard. **Build it before
-the templates.**
+**`node scripts/render-emails.mjs`** — new 2026-09-03. Writes all sixteen emails
+(eleven kinds; sixteen counting the branches somebody actually receives) to
+`email-preview/index.html` from one fixture. `--accent=#hex` re-renders for
+another tenant, `--out=` keeps two side by side, and it is **gitignored** — the
+script is the artefact, the HTML is what you look at once.
+
+**No new dependency, and that is the design.** Node 24 strips TypeScript types
+itself, so it imports `_shared/emailTemplates.ts` directly and reads **the same
+file the edge function runs**. 2.12 used `esbuild --bundle` for its one-off; a
+permanent script needing a build step is a script that rots. This works only
+because that module is dependency-free on purpose — a decision made two roadmap
+items ago for testability, paying out here.
+
+**IT FAILS TODAY, ON PURPOSE. THE INVOICE'S COLUMN DOES NOT REACH THE INVOICE'S
+TOTAL.** Rendered and looked at: $285 + $35 + $40 + $25 + $20 of charges, a $30
+tip, then **Subtotal $405, Tip $30, Total paid $395.** $405 + $30 is $435.
+**$40 is missing and nothing on the page mentions it** — the customer's promo
+code, which the *confirmation* email drew correctly as `-$40.00` an hour before.
+
+**Mechanism:** `send-invoice/index.ts` builds its charge rows from services,
+add-ons, travel and `price_adjustments` — exactly `bookings.subtotal`, the
+figure BEFORE any discount — and takes `totalPaid` from `final_amount`, which is
+`total_price`, already PAST the promo, plus finalize extras. **`promo_discount`
+is in neither the rows nor `discountsTotal`.** It is even passed into
+`invoiceEmail`; the template never reads it. `site_discount` is the same hole,
+unreproduced only because no seeded booking carries one.
+
+**It is the `travel_fee` family, in the same file, one comment below the fix for
+its twin** — that comment reads *"the bottom line was still right… but the
+itemisation above it did not add up to anything"*, which describes the promo
+today. **A fix that names one instance of a pattern fixes one instance.**
+
+**Why eleven suites missed it:** `money-export` ties out the ACCOUNTANT EXPORT,
+`booking-engine` test 17 ties out the QUOTE ENGINE. Both are real, both are
+about a different document. **A tie-out is only a tie-out for the document it
+names** — and nothing had ever asserted the one arithmetic the person who paid
+can actually see.
+
+**Not patched, deliberately.** The fix belongs in `send-invoice` (which survives
+the rebuild, unlike the template) but inside the invoice/receipt split this same
+item performs — patching now means re-deriving it days later against different
+rows. **The failing assertion is the guarantee; a done diff would be weaker.**
+Nobody receives these: detailingplatform.com is his private preview and billing
+charges nobody.
+
+**AND IT MAY NOT BE OURS ALONE.** `reference/supabase/functions/send-invoice/
+index.ts` — the read-only snapshot of his LIVE business's old site — has the
+same shape: an explicit negative row for a *monthly plan* discount, and nothing
+for `promo_discount`, on a site that does have promo codes. **The omission was
+inherited by the port, not introduced by it.** Whether the live `carwashweb`
+still matches, and whether its own `final_amount` path (it recomputes from base
+items) closes the gap another way, is **not established and must not be assumed
+either way.** That is question 5.
 
 ### The proposed set: twelve customer kinds, plus two owner ones
 
@@ -2788,7 +2834,7 @@ into *invoice* and *receipt***. Splitting the invoice **doubles the number of
 places that arithmetic is drawn**, so both have to tie out — `money-export`
 class, and it needs its own check.
 
-### FOUR QUESTIONS STAND FOR HIM; TWO BLOCK THE BUILD
+### FIVE QUESTIONS STAND FOR HIM; TWO BLOCK THE BUILD, AND THE FIFTH SHOULD NOT WAIT FOR IT
 
 1. **Premade templates — wording or looks?** Recommend wording. **Blocks.**
 2. **How many reminders?** Ours sends one. Recommend the second. **Blocks**, and
@@ -2803,6 +2849,12 @@ class, and it needs its own check.
 4. **Logo on the coloured band or on the white paper?** A logo is an arbitrary
    PNG, so its contrast cannot be measured the way every other colour here is.
    Recommend paper. Does not block.
+5. **May we READ `carwashweb`'s invoice email?** The read-only snapshot of his
+   old site has the same missing promo row. **If the live business still
+   matches it, real customers have been getting invoices that do not add up
+   whenever they used a promo code.** A read settles it in minutes; CLAUDE.md
+   allows reads and forbids writes, and this is a read. **Does not block 2.18
+   and should not wait for it.**
 
 **And a constraint on the editor that falls out of the same law as #3:** a
 detailer who types *"20% off ceramic coating this month"* into a reminder's
