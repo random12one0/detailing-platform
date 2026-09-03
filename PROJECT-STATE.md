@@ -2790,13 +2790,18 @@ tip, then **Subtotal $405, Tip $30, Total paid $395.** $405 + $30 is $435.
 **$40 is missing and nothing on the page mentions it** — the customer's promo
 code, which the *confirmation* email drew correctly as `-$40.00` an hour before.
 
-**Mechanism:** `send-invoice/index.ts` builds its charge rows from services,
-add-ons, travel and `price_adjustments` — exactly `bookings.subtotal`, the
-figure BEFORE any discount — and takes `totalPaid` from `final_amount`, which is
-`total_price`, already PAST the promo, plus finalize extras. **`promo_discount`
-is in neither the rows nor `discountsTotal`.** It is even passed into
-`invoiceEmail`; the template never reads it. `site_discount` is the same hole,
-unreproduced only because no seeded booking carries one.
+**Mechanism, and it is THREE holes rather than one.** `send-invoice/index.ts`
+builds its charge rows from services, add-ons, travel and `price_adjustments`,
+which sum to `subtotalBase` — **before the site sale and before the promo**. It
+takes `totalPaid` from `final_amount`, which is `total_price`, **past both and
+rounded**, plus finalize extras. **Neither discount, and neither the rounding,
+is drawn anywhere**, so the gap is `siteDiscount + promoDiscount + rounding`.
+`b.promoDiscount` is even passed into `invoiceEmail`; the template never reads
+it, and `siteDiscount` is hardcoded to `0` on the way in.
+**The detail that hides it: `bookings.subtotal` is NOT what the rows add up
+to** — `create-booking` writes `quote.subtotalAfterSite`, already past the site
+sale, so the two are equal only when no sale is running. **Fix the promo, watch
+the number close, and the site sale is still broken.**
 
 **It is the `travel_fee` family, in the same file, one comment below the fix for
 its twin** — that comment reads *"the bottom line was still right… but the

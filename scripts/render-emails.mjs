@@ -74,9 +74,13 @@ const brand = {
 // and an empty fixture renders a table that always adds up.
 //
 // THE NUMBERS ARE INTERNALLY CONSISTENT AND THAT IS LOAD-BEARING, not tidiness:
-//   services + add-ons + travel + adjustments = subtotal   285 + 75 + 25 + 20 = 405
-//   subtotal - promo                          = total_price      405 - 40 = 365
-//   total_price + tip                         = final_amount     365 + 30 = 395
+//   services + add-ons + travel + adjustments = subtotalBase  285+75+25+20 = 405
+//   subtotalBase - site sale (none here)      = bookings.subtotal       = 405
+//   bookings.subtotal - promo                 = total_price   405 - 40   = 365
+//   total_price + tip                         = final_amount  365 + 30   = 395
+// NO SITE SALE HERE ON PURPOSE, so subtotalBase and `bookings.subtotal` are the
+// same number and the promo is the only hole on show. Give the fixture a site
+// sale and the gap grows by that too — they are two holes, not one.
 // A fixture whose parts do not add up cannot tell you whether a template's
 // money table adds up either — it just makes every check unreadable. The
 // first draft of this file invented figures and produced a false alarm on the
@@ -206,14 +210,21 @@ words on paper <code>${c.onPaper}</code>. Re-run with <code>--accent=#hex</code>
 // will check it against their card statement.
 //
 // `send-invoice` builds the charge rows from services, add-ons, travel and
-// `price_adjustments` — which is exactly `bookings.subtotal` — and takes
-// `totalPaid` from `bookings.final_amount`, which is `total_price` (already
-// PAST the promo) plus the finalize extras. **The promo discount is in
-// neither the rows nor `discountsTotal`**, so on any booking with a promo code
-// or a site sale the printed column misses the total by exactly that
-// discount. It is `travel_fee`'s twin: the bottom line is right and the
-// itemisation above it does not reach it — which is the wording of
-// `send-invoice`'s own comment about the bug it fixed for travel.
+// `price_adjustments`, which sum to `subtotalBase` — BEFORE the site sale and
+// BEFORE the promo. It takes `totalPaid` from `bookings.final_amount`, which is
+// `total_price` (PAST both, and rounded) plus the finalize extras. **Neither
+// discount, and neither the rounding, is drawn anywhere on the invoice**, so
+// the printed column misses the printed total by
+// `siteDiscount + promoDiscount + rounding`.
+//
+// `bookings.subtotal` is `subtotalAfterSite` (create-booking writes
+// `quote.subtotalAfterSite`), so it is NOT what the rows add up to. That is the
+// detail that makes this look like one bug and be three, and it is why the
+// fixture below runs with no site sale: one hole at a time is readable.
+//
+// It is `travel_fee`'s twin — the bottom line is right and the itemisation
+// above it does not reach it, which is the wording of `send-invoice`'s own
+// comment about the bug it fixed for travel, one screen further up the file.
 //
 // This is an ASSERTION rather than a note in a document because a note is
 // what the travel fee had. It fails today, on purpose, and roadmap 2.18's
@@ -227,7 +238,11 @@ if (Math.abs(closes - invoiceTotals.totalPaid) > 0.005) {
     + `\n        subtotal ${invoiceTotals.chargesSubtotal} + discounts ${invoiceTotals.discountsTotal}`
     + ` + tip ${invoiceTotals.tipTotal} = ${closes}, printed total ${invoiceTotals.totalPaid}`
     + `\n        off by ${gap} — the promo discount (${booking.promoDiscount}) is drawn on the`
-    + ` confirmation and is missing from the invoice.`,
+    + ` confirmation and is missing from the invoice.`
+    + `\n        The site sale and the rounding are the same hole and are NOT`
+    + ` exercised here: this fixture runs no sale, so fixing the promo alone`
+    + `\n        will make this pass while leaving them broken. Fix all three in`
+    + ` send-invoice, which survives the rebuild.`,
   );
   bad++;
 }

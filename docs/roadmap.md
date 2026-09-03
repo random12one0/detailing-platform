@@ -2444,11 +2444,15 @@ is kept; the entire visual design restarts from scratch.
       **AND IT FAILS TODAY, ON PURPOSE — IT FOUND A LIVE MONEY DEFECT ON ITS
       FIRST RUN.** **The invoice's printed column does not reach the invoice's
       printed total whenever a promo code was used**, by exactly the promo:
-      `send-invoice` builds its rows from `bookings.subtotal` (BEFORE any
-      discount) and its total from `final_amount` (already PAST it), and
-      `promo_discount` is in neither the rows nor `discountsTotal`. Rendered:
+      its charge rows sum to `subtotalBase` (services + add-ons + travel +
+      `price_adjustments`, **before the site sale and before the promo**) while
+      its total is `final_amount` = `total_price`, which is **past both** and
+      rounded. **Neither discount and neither the rounding is drawn anywhere**,
+      so the gap is `siteDiscount + promoDiscount + rounding`. Rendered:
       *Subtotal $405, Tip $30, **Total paid $395*** — $40 missing, unexplained.
-      **`site_discount` is the same hole.** This is the `travel_fee` family in
+      **`bookings.subtotal` is `subtotalAfterSite` and is NOT what the rows add
+      up to**, which is the detail that makes this look like one bug and be
+      three. This is the `travel_fee` family in
       the same file, one comment below the fix for its twin. **Fix it inside
       the invoice/receipt split, in `send-invoice` (which survives the
       rebuild), and the check that gates it already exists.**

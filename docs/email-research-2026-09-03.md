@@ -421,21 +421,30 @@ $405 + $30 is $435. **$40 is missing and nothing on the page mentions it** — i
 is the customer's promo code, `FALL10`, which the *confirmation* email drew
 correctly as `-$40.00` an hour earlier.
 
-**The mechanism.** `send-invoice/index.ts` builds its charge rows from
-services, add-ons, travel and `price_adjustments` — which is exactly
-`bookings.subtotal`, i.e. the figure **before** any discount — and takes
-`totalPaid` from `bookings.final_amount`, which is `total_price` (already
-**past** the promo) plus the finalize extras. **`promo_discount` is in neither
-the rows nor `discountsTotal`**, so the gap is exactly the promo, every time.
+**The mechanism, and it is three holes rather than one.** `send-invoice/index.ts`
+builds its charge rows from services, add-ons, travel and `price_adjustments`,
+which sum to `subtotalBase` — **before the site sale and before the promo**. It
+takes `totalPaid` from `bookings.final_amount`, which is `total_price`,
+**past both and rounded**, plus the finalize extras. **Neither discount, and
+neither the rounding, is drawn anywhere on the invoice**, so the printed column
+misses the printed total by `siteDiscount + promoDiscount + rounding`.
 `b.promoDiscount` is even passed into `invoiceEmail`; the template never reads
-it.
+it — and `siteDiscount` is hardcoded to `0` on the way in.
+
+**The detail that hides it, and it will cost the next session an hour:
+`bookings.subtotal` is NOT what the rows add up to.** `create-booking` writes
+`quote.subtotalAfterSite` there, already past the site sale, so the two figures
+are equal only when no sale is running — which is true of the demo and of the
+fixture. **Fix the promo, watch the number close, and the site sale is still
+broken.**
 
 **This is the `travel_fee` family, and the resemblance is not loose.**
 `send-invoice`'s own comment, written when travel had this bug in roadmap 2.8c,
 says it: *"the bottom line was still right (it is final_amount, what was
 actually collected) but the itemisation above it did not add up to anything."*
-The same sentence describes the promo today. **`site_discount` is the same hole
-and has not been reproduced only because no seeded booking carries one.**
+**That sentence describes the promo today, in the same file, one screen below
+the fix for its twin** — a fix that names one instance of a pattern fixes one
+instance.
 
 **Why no test caught it.** `money-export.test.mjs` ties out the accountant
 export, not this email. `booking-engine.test.mjs` test 17 ties out the quote

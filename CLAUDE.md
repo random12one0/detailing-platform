@@ -415,10 +415,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   working.
   **IT EXITS 1 TODAY AND THAT IS CORRECT, NOT A BROKEN SCRIPT.** It asserts that
   **the invoice's printed column reaches the invoice's printed total**, and it
-  does not: `send-invoice` builds its rows from `bookings.subtotal` (BEFORE any
-  discount) and its total from `final_amount` (already PAST it), so
-  `promo_discount` appears in neither the rows nor `discountsTotal` and the
-  column misses by exactly the promo. **`site_discount` is the same hole.**
+  does not. Its charge rows sum to `subtotalBase` — services + add-ons + travel
+  + `price_adjustments`, **before the site sale and before the promo** — while
+  its total is `final_amount`, which is `total_price` (**past both**, and
+  rounded) plus the finalize extras. **Neither discount and neither the
+  rounding is ever drawn**, so the printed column misses the printed total by
+  `siteDiscount + promoDiscount + rounding`. Note `bookings.subtotal` is
+  `subtotalAfterSite`, so it is NOT what the rows add up to — the two figures
+  are only equal when no site sale is running.
   Roadmap 2.18's invoice/receipt split is what makes it pass — **fix it in
   `send-invoice`, which survives the rebuild, not in the template, which does
   not.** It also fails on `undefined` / `NaN` / `[object Object]` / `href=""` in
