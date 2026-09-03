@@ -1538,6 +1538,14 @@ one of them blocking, the tour then ran **six steps** over the empty dashboard
 carried *"Finish setting up · 2 of 7 done"* afterwards. Neither came back on
 its own after a reload. The business and its account were then deleted.
 
+**ONE THING OBSERVED AND LEFT ALONE, so nobody re-derives it as a defect:**
+Business's resume row appears AFTER its counts land, so opening that tab
+shifts the rest of the screen down about 90px once. Every alternative is
+worse — rendering it immediately with a placeholder count makes it flash in
+and out on a business that turns out to be finished, which is the majority
+case in the long run — and it is the same shape as the blocking row, which
+also only decides itself once the same read returns.
+
 **WHAT NEITHER DESIGN FILE PREDICTED, and it is a shell rule rather than a
 screen:** the setup form takes the main area exactly as the gear does, so the
 gear's two rules apply to it unchanged — **no tab is lit while it is up**, and
