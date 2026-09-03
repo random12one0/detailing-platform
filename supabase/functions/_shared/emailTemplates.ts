@@ -94,9 +94,9 @@ function shell(brand: TenantBrand, headerHtml: string, bodyHtml: string, prehead
         <tr><td style="padding:24px 32px 32px 32px; font-family:Arial,Helvetica,sans-serif; text-align:center;">
           <div style="border-top:1px solid #eef2f6; padding-top:20px;">
             <p style="margin:0 0 4px 0; font-size:14px; font-weight:bold; color:${brand.accentColor};">${esc(brand.brandName)}</p>
-            ${brand.contactPhone ? `<p style="margin:0 0 4px 0; font-size:13px; color:#64748b;">${esc(brand.contactPhone)}</p>` : ""}
-            <p style="margin:0 0 10px 0; font-size:13px; color:#64748b;"><a href="${brand.siteUrl}" style="color:${brand.accentColor}; text-decoration:none;">${esc(brand.siteUrl.replace(/^https?:\/\//, ""))}</a></p>
-            <p style="margin:0; font-size:11px; color:#a8b4c0;">Automated message — reply to reach us.</p>
+            ${brand.contactPhone ? `<p style="margin:0 0 4px 0; font-size:13px; color:#63738a;">${esc(brand.contactPhone)}</p>` : ""}
+            <p style="margin:0 0 10px 0; font-size:13px; color:#63738a;"><a href="${brand.siteUrl}" style="color:${brand.accentColor}; text-decoration:none;">${esc(brand.siteUrl.replace(/^https?:\/\//, ""))}</a></p>
+            <p style="margin:0; font-size:11px; color:#6a7179;">Automated message — reply to reach us.</p>
           </div>
         </td></tr>
       </table>
@@ -113,7 +113,7 @@ const infoCard = (inner: string) =>
   `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px;"><tr><td style="padding:18px 20px; font-family:Arial,Helvetica,sans-serif;">${inner}</td></tr></table>`;
 
 const kv = (k: string, v: string, bold = false) =>
-  `<tr><td style="padding:5px 0; color:#64748b; width:120px; vertical-align:top; font-size:14px;">${esc(k)}</td><td style="padding:5px 0; vertical-align:top; font-size:14px; color:#0f172a; ${bold ? "font-weight:bold;" : ""}">${v}</td></tr>`;
+  `<tr><td style="padding:5px 0; color:#63738a; width:120px; vertical-align:top; font-size:14px;">${esc(k)}</td><td style="padding:5px 0; vertical-align:top; font-size:14px; color:#0f172a; ${bold ? "font-weight:bold;" : ""}">${v}</td></tr>`;
 
 export interface BookingEmailData {
   id: string;
@@ -185,7 +185,7 @@ export function customerConfirmationEmail(
         ${kv("Vehicle", `${esc(sizeDisplay(b.vehicleSize))}${b.vehicleModel ? ` &middot; ${esc(b.vehicleModel)}` : ""}`)}
         ${kv(b.serviceType === "mobile" ? "Address" : "Drop-off", esc(jobAddress(brand, b)))}
       </table>
-      <p style="margin:12px 0 0 0; font-size:12px; line-height:1.5; color:#94a3b8;">${isRequest
+      <p style="margin:12px 0 0 0; font-size:12px; line-height:1.5; color:#687281;">${isRequest
         ? "Nobody else can take this time while we decide. You&rsquo;ll get another email as soon as we&rsquo;ve accepted it."
         : "Your appointment time is approximate &mdash; we aim to arrive within about 30 minutes of it."}</p>
     `)}</td></tr>
@@ -197,15 +197,15 @@ export function customerConfirmationEmail(
     </td></tr>
     <tr><td style="padding:20px 32px 4px 32px;">${infoCard(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; color:#0f172a;">
-        ${Number(b.travelFee) > 0 ? `<tr><td style="padding:4px 0; color:#64748b;">${b.travelZone ? `Travel &mdash; ${esc(b.travelZone)}` : "Travel"}</td><td style="padding:4px 0; text-align:right;">${money(Number(b.travelFee))}</td></tr>` : ""}
-        ${(b.adjustments ?? []).map((a) => `<tr><td style="padding:4px 0; color:#64748b;">${esc(a.label)}</td><td style="padding:4px 0; text-align:right;">${money(Number(a.amount))}</td></tr>`).join("")}
-        <tr><td style="padding:4px 0; color:#64748b;">Subtotal</td><td style="padding:4px 0; text-align:right;">${money(b.subtotal)}</td></tr>
-        ${b.siteDiscount > 0 ? `<tr><td style="padding:4px 0; color:#64748b;">${b.siteDiscountPercent}% Sale</td><td style="padding:4px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">-${money(b.siteDiscount)}</td></tr>` : ""}
-        ${b.promoCode ? `<tr><td style="padding:4px 0; color:#64748b;">Promo (${esc(b.promoCode)})</td><td style="padding:4px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">${b.promoDiscount > 0 ? `-${money(b.promoDiscount)}` : "Applied"}</td></tr>` : ""}
+        ${Number(b.travelFee) > 0 ? `<tr><td style="padding:4px 0; color:#63738a;">${b.travelZone ? `Travel &mdash; ${esc(b.travelZone)}` : "Travel"}</td><td style="padding:4px 0; text-align:right;">${money(Number(b.travelFee))}</td></tr>` : ""}
+        ${(b.adjustments ?? []).map((a) => `<tr><td style="padding:4px 0; color:#63738a;">${esc(a.label)}</td><td style="padding:4px 0; text-align:right;">${money(Number(a.amount))}</td></tr>`).join("")}
+        <tr><td style="padding:4px 0; color:#63738a;">Subtotal</td><td style="padding:4px 0; text-align:right;">${money(b.subtotal)}</td></tr>
+        ${b.siteDiscount > 0 ? `<tr><td style="padding:4px 0; color:#63738a;">${b.siteDiscountPercent}% Sale</td><td style="padding:4px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">-${money(b.siteDiscount)}</td></tr>` : ""}
+        ${b.promoCode ? `<tr><td style="padding:4px 0; color:#63738a;">Promo (${esc(b.promoCode)})</td><td style="padding:4px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">${b.promoDiscount > 0 ? `-${money(b.promoDiscount)}` : "Applied"}</td></tr>` : ""}
         <tr><td colspan="2" style="padding:6px 0 0 0;"><div style="border-top:2px solid #dbe4ec;"></div></td></tr>
         <tr><td style="padding:8px 0 0 0; font-size:16px; font-weight:bold; color:${brand.accentColor};">Estimated total</td><td style="padding:8px 0 0 0; text-align:right; font-size:20px; font-weight:bold; color:${brand.accentColor};">${money(b.total)}</td></tr>
       </table>
-      <p style="margin:12px 0 0 0; font-size:12px; line-height:1.5; color:#94a3b8;">This total is an estimate and may change if the vehicle&rsquo;s condition requires additional time or services.</p>
+      <p style="margin:12px 0 0 0; font-size:12px; line-height:1.5; color:#687281;">This total is an estimate and may change if the vehicle&rsquo;s condition requires additional time or services.</p>
     `)}</td></tr>
     <tr><td style="padding:24px 32px 8px 32px;" align="center">
       <a href="${b.receiptUrl}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">${isRequest ? "View or change your request" : "View / save your confirmation"}</a>
@@ -214,10 +214,10 @@ export function customerConfirmationEmail(
     ${brand.paymentMethodsLine ? `<tr><td style="padding:20px 32px 8px 32px;"><div style="background-color:#f4f8fb; border:1px solid #e2eaf1; border-radius:12px; padding:14px 20px; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#0f172a;"><strong style="color:${brand.accentColor};">Payments accepted:</strong> ${esc(brand.paymentMethodsLine)}</div></td></tr>` : ""}
   `;
   const header = isRequest
-    ? `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e2e8f0;">Request received</div>
-    <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:#ffffff; margin-top:4px;">We're holding your time</div>`
-    : `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e2e8f0;">Booking confirmed</div>
-    <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:#ffffff; margin-top:4px;">You're all set!</div>`;
+    ? `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:${brand.headerInk};">Request received</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:${brand.headerInk}; margin-top:4px;">We're holding your time</div>`
+    : `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:${brand.headerInk};">Booking confirmed</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:${brand.headerInk}; margin-top:4px;">You're all set!</div>`;
   return {
     subject: isRequest
       ? `Request received - ${formatDateLong(b.dateStr)} | ${brand.brandName}`
@@ -238,13 +238,13 @@ export function ownerNewBookingEmail(
 ): { subject: string; html: string } {
   const dateLong = formatDateLong(b.dateStr);
   const services = [...b.serviceNames.map((s) => esc(s)), ...b.addOnNames.map((a) => `Add-on: ${esc(a)}`)];
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:${brand.accentColor}; font-weight:bold;">${isRequest ? "Waiting for you to accept" : "New booking received"}</div>
-    <div style="font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold; color:#ffffff; margin-top:6px;">${esc(b.customerName)}</div>
-    <div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#e2e8f0; margin-top:4px;">${esc(dateLong)} &middot; ${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}</div>`;
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:${brand.headerInk}; font-weight:bold;">${isRequest ? "Waiting for you to accept" : "New booking received"}</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold; color:${brand.headerInk}; margin-top:6px;">${esc(b.customerName)}</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:${brand.headerInk}; margin-top:4px;">${esc(dateLong)} &middot; ${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}</div>`;
   const body = `
     <tr><td style="padding:20px 28px 4px 28px;">${infoCard(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#64748b;">Booking total</td>
+        <td style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#63738a;">Booking total</td>
         <td style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:${brand.accentColor}; text-align:right;">${money(b.total)}</td>
       </tr></table>`)}
     </td></tr>
@@ -270,7 +270,7 @@ export function ownerNewBookingEmail(
     </td></tr>
     <tr><td style="padding:18px 28px 8px 28px; font-family:Arial,Helvetica,sans-serif;">
       ${label(brand.accentColor, "Notes")}
-      <p style="margin:0; font-size:14px; line-height:1.6; color:${b.customerNotes ? "#0f172a" : "#94a3b8"};">${esc(b.customerNotes || "None")}</p>
+      <p style="margin:0; font-size:14px; line-height:1.6; color:${b.customerNotes ? "#0f172a" : "#687281"};">${esc(b.customerNotes || "None")}</p>
     </td></tr>`;
   return {
     subject: isRequest
@@ -302,10 +302,10 @@ export function requestDecisionEmail(
       ? "We can't make that one"
       : "Here's your price";
   const header =
-    `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:#e2e8f0;">${
+    `<div style="font-family:Arial,Helvetica,sans-serif; font-size:15px; color:${brand.headerInk};">${
       kind === "quote" ? "Quote" : kind === "accepted" ? "Request accepted" : "Request declined"
     }</div>
-    <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:#ffffff; margin-top:4px;">${headline}</div>`;
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:26px; font-weight:bold; color:${brand.headerInk}; margin-top:4px;">${headline}</div>`;
 
   const lead = kind === "accepted"
     ? `<p style="margin:0 0 12px 0;">Good news &mdash; we&rsquo;ve accepted your request for ${whenLine}. It&rsquo;s in the diary.</p>`
@@ -317,14 +317,14 @@ export function requestDecisionEmail(
     ? `<tr><td style="padding:8px 32px 4px 32px;">${infoCard(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
-            <td style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#64748b;">Our price</td>
+            <td style="font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#63738a;">Our price</td>
             <td style="font-family:Arial,Helvetica,sans-serif; font-size:24px; font-weight:bold; color:${brand.accentColor}; text-align:right;">${money(Number(opts.quotedAmount ?? 0))}</td>
           </tr>
         </table>
         ${opts.quotedNote
           ? `<p style="margin:12px 0 0 0; font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.6; color:#0f172a;">${esc(opts.quotedNote)}</p>`
           : ""}
-        <p style="margin:12px 0 0 0; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:1.5; color:#94a3b8;">We&rsquo;re still holding ${esc(dateLong)} at ${formatTime12hr(b.startTime)} for you. Nothing is charged until you say yes.</p>
+        <p style="margin:12px 0 0 0; font-family:Arial,Helvetica,sans-serif; font-size:12px; line-height:1.5; color:#687281;">We&rsquo;re still holding ${esc(dateLong)} at ${formatTime12hr(b.startTime)} for you. Nothing is charged until you say yes.</p>
       `)}</td></tr>
       <tr><td style="padding:20px 32px 8px 32px;" align="center">
         <a href="${opts.manageUrl}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">See it and say yes</a>
@@ -375,26 +375,26 @@ export function invoiceEmail(
     .map((r) => {
       const isNeg = r.lineTotal < 0;
       return `<tr>
-        <td style="padding:10px 0; border-bottom:1px solid #eef2f6; font-size:14px; color:#0f172a;">${esc(r.label)}${r.qty > 1 ? ` <span style="color:#94a3b8;">&times;${r.qty}</span>` : ""}</td>
+        <td style="padding:10px 0; border-bottom:1px solid #eef2f6; font-size:14px; color:#0f172a;">${esc(r.label)}${r.qty > 1 ? ` <span style="color:#687281;">&times;${r.qty}</span>` : ""}</td>
         <td style="padding:10px 0; border-bottom:1px solid #eef2f6; font-size:14px; text-align:right; color:${isNeg ? brand.accentColor : "#0f172a"}; font-weight:${isNeg ? "bold" : "normal"}; white-space:nowrap;">${isNeg ? "-" : ""}${money(Math.abs(r.lineTotal))}</td>
       </tr>`;
     })
     .join("");
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; letter-spacing:2px; text-transform:uppercase; color:${brand.accentColor}; font-weight:bold;">Invoice / Receipt</div>
-    <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#e2e8f0; margin-top:6px;">Ref #${invoiceRef}</div>
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; letter-spacing:2px; text-transform:uppercase; color:${brand.headerInk}; font-weight:bold;">Invoice / Receipt</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:${brand.headerInk}; margin-top:6px;">Ref #${invoiceRef}</div>
     ${paidLabel ? `<div style="display:inline-block; margin-top:10px; padding:4px 12px; background-color:${brand.accentColor}; border-radius:20px; font-family:Arial,Helvetica,sans-serif; font-size:12px; font-weight:bold; color:#ffffff; letter-spacing:1px;">${paidLabel}</div>` : ""}`;
   const body = `
     <tr><td style="padding:26px 32px 6px 32px; font-family:Arial,Helvetica,sans-serif;">
       ${label(brand.accentColor, "Billed to")}
       <div style="font-size:15px; font-weight:bold; color:#0f172a;">${esc(b.customerName)}</div>
-      ${b.customerEmail ? `<div style="font-size:13px; color:#64748b; margin-top:3px;">${esc(b.customerEmail)}</div>` : ""}
-      <div style="font-size:13px; color:#64748b; margin-top:6px;">${esc(formatDateLong(b.dateStr))} &middot; ${formatTime12hr(b.startTime)} &middot; ${b.serviceType === "mobile" ? "Mobile" : "Drop-off"}</div>
+      ${b.customerEmail ? `<div style="font-size:13px; color:#63738a; margin-top:3px;">${esc(b.customerEmail)}</div>` : ""}
+      <div style="font-size:13px; color:#63738a; margin-top:6px;">${esc(formatDateLong(b.dateStr))} &middot; ${formatTime12hr(b.startTime)} &middot; ${b.serviceType === "mobile" ? "Mobile" : "Drop-off"}</div>
     </td></tr>
     <tr><td style="padding:22px 32px 4px 32px; font-family:Arial,Helvetica,sans-serif;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td style="padding:0 0 8px 0; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#94a3b8; font-weight:bold; border-bottom:2px solid #dbe4ec;">Description</td>
-          <td style="padding:0 0 8px 0; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#94a3b8; font-weight:bold; text-align:right; border-bottom:2px solid #dbe4ec;">Amount</td>
+          <td style="padding:0 0 8px 0; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#687281; font-weight:bold; border-bottom:2px solid #dbe4ec;">Description</td>
+          <td style="padding:0 0 8px 0; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#687281; font-weight:bold; text-align:right; border-bottom:2px solid #dbe4ec;">Amount</td>
         </tr>
         ${rowHtml}
       </table>
@@ -402,9 +402,9 @@ export function invoiceEmail(
     <tr><td style="padding:16px 32px 4px 32px; font-family:Arial,Helvetica,sans-serif;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td></td><td style="width:260px;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px; color:#0f172a;">
-          <tr><td style="padding:5px 0; color:#64748b;">Subtotal</td><td style="padding:5px 0; text-align:right;">${money(totals.chargesSubtotal)}</td></tr>
-          ${totals.discountsTotal < 0 ? `<tr><td style="padding:5px 0; color:#64748b;">Discounts</td><td style="padding:5px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">-${money(Math.abs(totals.discountsTotal))}</td></tr>` : ""}
-          ${totals.tipTotal > 0 ? `<tr><td style="padding:5px 0; color:#64748b;">Tip</td><td style="padding:5px 0; text-align:right;">${money(totals.tipTotal)}</td></tr>` : ""}
+          <tr><td style="padding:5px 0; color:#63738a;">Subtotal</td><td style="padding:5px 0; text-align:right;">${money(totals.chargesSubtotal)}</td></tr>
+          ${totals.discountsTotal < 0 ? `<tr><td style="padding:5px 0; color:#63738a;">Discounts</td><td style="padding:5px 0; text-align:right; color:${brand.accentColor}; font-weight:bold;">-${money(Math.abs(totals.discountsTotal))}</td></tr>` : ""}
+          ${totals.tipTotal > 0 ? `<tr><td style="padding:5px 0; color:#63738a;">Tip</td><td style="padding:5px 0; text-align:right;">${money(totals.tipTotal)}</td></tr>` : ""}
           <tr><td colspan="2" style="padding:6px 0 0 0;"><div style="border-top:2px solid ${brand.accentColor};"></div></td></tr>
           <tr><td style="padding:10px 0 0 0; font-size:16px; font-weight:bold; color:${brand.accentColor};">Total paid</td><td style="padding:10px 0 0 0; text-align:right; font-size:22px; font-weight:bold; color:${brand.accentColor};">${money(totals.totalPaid)}</td></tr>
         </table>
@@ -425,7 +425,7 @@ export function followupEmail(brand: TenantBrand, firstName: string): { subject:
     brand.googleReviewUrl ? `<li style="margin-bottom:8px;"><a href="${brand.googleReviewUrl}" style="color:${brand.accentColor}; text-decoration:underline;">Google Review</a></li>` : "",
     brand.yelpReviewUrl ? `<li><a href="${brand.yelpReviewUrl}" style="color:${brand.accentColor}; text-decoration:underline;">Yelp Review</a></li>` : "",
   ].join("");
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:#ffffff;">Thank you!</div>`;
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:${brand.headerInk};">Thank you!</div>`;
   const body = `
     <tr><td style="padding:28px 32px 24px 32px; font-family:Arial,Helvetica,sans-serif; color:#0f172a; font-size:15px; line-height:1.7;">
       <p style="margin:0 0 16px 0;">Hello ${esc(firstName)},</p>
@@ -442,7 +442,7 @@ export function followupEmail(brand: TenantBrand, firstName: string): { subject:
 // Customer appointment reminder (the settings-driven sweep sends this).
 export function customerReminderEmail(brand: TenantBrand, b: BookingEmailData): { subject: string; html: string } {
   const dateLong = formatDateLong(b.dateStr);
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:#ffffff;">See you soon!</div>`;
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:${brand.headerInk};">See you soon!</div>`;
   const body = `
     <tr><td style="padding:28px 32px 8px 32px; font-family:Arial,Helvetica,sans-serif;">
       <p style="margin:0 0 8px 0; font-size:16px; color:#0f172a; font-weight:bold;">Hi ${esc(b.customerName)},</p>
@@ -465,11 +465,11 @@ export function customerReminderEmail(brand: TenantBrand, b: BookingEmailData): 
 
 export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOwner: boolean): { subject: string; html: string } {
   const dateLong = formatDateLong(b.dateStr);
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:#ffffff;">Booking cancelled</div>`;
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:${brand.headerInk};">Booking cancelled</div>`;
   const body = `
     <tr><td style="padding:28px 32px 16px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:1.7; color:#0f172a;">
       ${forOwner
-        ? `<p style="margin:0 0 12px 0;"><strong>${esc(b.customerName)}</strong> cancelled their booking for <strong>${esc(dateLong)}</strong> at <strong>${formatTime12hr(b.startTime)}</strong>.</p><p style="margin:0; color:#64748b;">The slot is open again.</p>`
+        ? `<p style="margin:0 0 12px 0;"><strong>${esc(b.customerName)}</strong> cancelled their booking for <strong>${esc(dateLong)}</strong> at <strong>${formatTime12hr(b.startTime)}</strong>.</p><p style="margin:0; color:#63738a;">The slot is open again.</p>`
         : `<p style="margin:0 0 12px 0;">Hi ${esc(b.customerName)},</p><p style="margin:0 0 12px 0;">Your booking with ${esc(brand.brandName)} for <strong>${esc(dateLong)}</strong> at <strong>${formatTime12hr(b.startTime)}</strong> has been cancelled.</p><p style="margin:0;">We'd love to see you another time — you can rebook any time at <a href="${brand.siteUrl}" style="color:${brand.accentColor};">${esc(brand.siteUrl.replace(/^https?:\/\//, ""))}</a>.</p>`}
     </td></tr>`;
   return {
@@ -483,13 +483,13 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
 export function rescheduleEmail(brand: TenantBrand, b: BookingEmailData, oldDateStr: string, oldStartTime: string, forOwner: boolean): { subject: string; html: string } {
   const dateLong = formatDateLong(b.dateStr);
   const oldLong = formatDateLong(oldDateStr);
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:#ffffff;">Booking rescheduled</div>`;
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:${brand.headerInk};">Booking rescheduled</div>`;
   const body = `
     <tr><td style="padding:28px 32px 16px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:1.7; color:#0f172a;">
       ${forOwner
         ? `<p style="margin:0 0 12px 0;"><strong>${esc(b.customerName)}</strong> moved their booking.</p>`
         : `<p style="margin:0 0 12px 0;">Hi ${esc(b.customerName)},</p><p style="margin:0 0 12px 0;">Your booking with ${esc(brand.brandName)} has been moved.</p>`}
-      <p style="margin:0 0 6px 0; color:#94a3b8;">From: ${esc(oldLong)} at ${formatTime12hr(oldStartTime)}</p>
+      <p style="margin:0 0 6px 0; color:#687281;">From: ${esc(oldLong)} at ${formatTime12hr(oldStartTime)}</p>
       <p style="margin:0;">To: <strong>${esc(dateLong)}</strong> at <strong>${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}</strong></p>
     </td></tr>`;
   return {
@@ -507,13 +507,13 @@ export function inviteEmail(
 ): { subject: string; html: string } {
   const roleWord = opts.role === "owner" ? "an owner" : "a staff member";
   const expires = formatDateLong(String(opts.expiresAt).slice(0, 10));
-  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:#ffffff;">You've been added to the team</div>`;
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:${brand.headerInk};">You've been added to the team</div>`;
   const body = `
     <tr><td style="padding:28px 32px 16px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:1.7; color:#0f172a;">
       <p style="margin:0 0 12px 0;">${esc(brand.brandName)} has invited you to join their booking dashboard as ${esc(roleWord)}.</p>
       <p style="margin:0 0 20px 0;">Use the button below to set your password and sign in. This link works until ${esc(expires)}.</p>
       <p style="margin:0 0 20px 0;"><a href="${opts.link}" style="display:inline-block; padding:14px 32px; font-size:15px; font-weight:bold; color:${brand.accentColor === "#ffffff" ? "#000000" : "#ffffff"}; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">Set up your account</a></p>
-      <p style="margin:0; font-size:12px; color:#94a3b8;">Or open: ${esc(opts.link)}</p>
+      <p style="margin:0; font-size:12px; color:#687281;">Or open: ${esc(opts.link)}</p>
     </td></tr>`;
   return {
     subject: `Join ${brand.brandName} on the booking dashboard`,

@@ -165,6 +165,8 @@ were made more than once.
 
 - **Roadmap 2.12 — request mode, accept/decline and quotes, and the sixth status that was not written** — the mode switch is one column and one line in `create-booking`; **what took the thinking was what NOT to add.** A request holds its slot because `pending` is absent from the exclusion constraint's WHERE clause — a fact established by not writing something, and therefore invisible to a reader and unprotected by anything but a test. **A decline is `cancelled` plus `declined_at`, not a sixth status**, because twelve places in this codebase already ask `status <> 'cancelled'` and every one is right about a declined request; a sixth would have meant editing all twelve to say the same thing twice, with the first one anybody forgot leaving a declined request still holding a slot. **A quote is offered, never charged** — `quoted_amount` is its own column and only the customer moves it to `total_price`, and accepting it lands the difference as a `price_adjustments` line so the receipt still reconciles, which is the `travel_fee` family one step later. **Three things the new status broke that nothing announced:** the four reminder RPCs would have emailed “your appointment is tomorrow” about a request nobody accepted, the manual Reminder button did the same by hand, and `sweep-widths.mjs`'s `.card.attend` selector silently changed meaning because a waiting request now takes the lit treatment — a rename with no error. **The demo takes requests now**, deliberately: it is the only business the sweep can log into, so a reserve-mode demo means the whole of this item's screen work is never rendered at any width. **Three questions stand for him** — quotes exist only on requests, a request whose time has passed is chased by nothing, and the demo no longer shows his own model.
 
+- **Every email headline in the product was under the contrast floor, and it was found by rendering one** — roadmap 2.12, while looking at the new quote email. Stage 6's D1 fix gave the header band a MEASURED ink and used it for the brand name and the 44px rule; **every template's own headline went on hardcoding `color:#ffffff`** onto that same band. Measured: **3.01–3.76:1 on all fourteen colours**, the small label 2.44–3.05:1, against a 4.5:1 text floor — **not one preset passed.** Worse on the invoice, where *“Invoice / Receipt”* printed the PAPER colour on the band at **1.20–1.57:1**, which is D1's “the same colour on itself” wearing different clothes. **`email-brand.test.mjs` passed throughout**, because it pinned `brandColor.js` against `theme.js` and never looked at what the templates DID with the answer — *a test can verify the arithmetic and still be blind to the drawing.* Also three fixed greys under the floor (fine print at 2.40:1) that were nothing to do with the tenant's colour. **The finding underneath: two of the eleven bad lines were written that same hour, by copying the template above them** — a defect in a pattern reproduces itself into every new instance until somebody renders one and looks.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -8188,3 +8190,76 @@ answer this session could take on its own.
 3. **The demo now shows the request flow rather than his own.** The reasoning
    is above and it is about the sweep, but he opens that demo, and it is his
    product's shop window.
+
+
+## Every email headline in the product was under the contrast floor, and it was found by rendering one
+
+Roadmap 2.12, 2026-09-02. Not part of the item; found while checking that the
+four NEW emails it adds actually look like anything.
+
+### What was wrong
+
+`shell()` paints the header band `brand.primaryColor` and, since roadmap 2.11
+step 6's D1 fix, draws the brand NAME and the 44px rule in `brand.headerInk` —
+*"what is legible ON that band — measured, never assumed."*
+
+**Every template's own header block then hardcoded `color:#ffffff` for its
+headline and `color:#e2e8f0` for the small label above it.** The fix had
+covered the two lines `shell()` owns and stopped one line short of the eleven
+the templates own.
+
+**Measured on the twelve presets and the two dark extremes:**
+
+| | contrast on the corrected band | floor |
+|---|---|---|
+| headline, `#ffffff` | **3.01 – 3.76 : 1** on all fourteen | 4.5 |
+| small label, `#e2e8f0` | **2.44 – 3.05 : 1** on all fourteen | 4.5 |
+| *"Invoice / Receipt"*, `brand.accentColor` | **1.20 – 1.57 : 1** on all twelve | 4.5 |
+| the buttons, `#ffffff` on `accentColor` | 4.50 – 4.96 : 1 | fine, left alone |
+
+**Not one preset passed the first two.** The third is worse and is D1 exactly:
+`accentColor` is the tenant's colour corrected for **white paper**, and it was
+being printed on the **band** — a colour is only safe against the ground it was
+corrected for, which is the lesson this repo has now paid for four times.
+
+### Why nothing caught it
+
+`tests/email-brand.test.mjs` — 97 checks, written in stage 6 for precisely this
+surface — **passed throughout.** It pins `brandColor.js` against `theme.js` and
+asserts the three returned colours clear their floors. It never looked at what
+the templates DID with the answer. **A test can verify the arithmetic and still
+be blind to the drawing.** Same family as `dead-width` and the always-false
+contrast rows: the check was real, it just could not see this failure.
+
+It is 138 checks now. Test 7a reads the SOURCE for a hardcoded colour in a
+header block — that is the only form that stops the next template being written
+the same way — 7a-ii refuses a paper colour on the band, 7b asserts the floor
+per preset, and 7c asserts the buttons are fine rather than trusting it.
+Baselined by putting one `#ffffff` and one `accentColor` back: both fail.
+
+### Three greys, nothing to do with the tenant
+
+Measured in the same pass, and they are plain palette defects rather than the
+colour engine: the fine print `#94a3b8` is **2.40:1** on the info card and
+2.56:1 on paper, and the small labels `#64748b` are **4.46:1** — a hair under,
+which is the number nobody catches by eye. They carry real sentences
+(*"Nothing is charged until you say yes"*, *"This total is an estimate"*), so
+they are text and take the text floor. Darkened along their own hue to the
+first value that clears 4.5:1 on the FAINTER of the two grounds: `#687281`,
+`#63738a`, `#6a7179`.
+
+### The finding worth carrying
+
+**Two of the eleven bad lines were written that same hour** — the request
+header and `requestDecisionEmail`'s — by copying the template directly above
+them. **A defect that lives in a pattern reproduces itself into every new
+instance until somebody renders one and looks at it.** The rendering took about
+four minutes: `esbuild --bundle` the template module, call it with a real brand
+object, write the HTML, open it. Nothing in the repo did that before, which is
+why eleven of these accumulated.
+
+The other half is that the first render used **made-up field names** for the
+brand object and produced a white band, which looked like a much bigger bug
+than the real one. **Check the harness against the interface before believing
+what it draws** — `TenantBrand` is `primaryColor` / `headerInk` / `accentColor`,
+and nothing warns you when a template literal interpolates `undefined`.

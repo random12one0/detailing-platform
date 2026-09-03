@@ -2633,6 +2633,32 @@ only business the sweep can log into, and a reserve-mode demo means the request
 queue is never rendered at any width by anything. Sixth time this repo has
 written that finding.
 
+### And one defect found by rendering an email, which was not part of the item
+
+Checking that the four NEW emails look like anything found that **every email
+headline in the product was under the contrast floor**, on every colour. Stage
+6's D1 fix gave the header band a measured ink and used it for the brand name
+and the 44px rule; every template's own headline went on hardcoding
+`color:#ffffff` onto that same band.
+
+| | on the corrected band | floor |
+|---|---|---|
+| headline `#ffffff` | **3.01 – 3.76 : 1**, all fourteen colours | 4.5 |
+| label `#e2e8f0` | **2.44 – 3.05 : 1**, all fourteen | 4.5 |
+| *"Invoice / Receipt"* (the PAPER colour, on the band) | **1.20 – 1.57 : 1** | 4.5 |
+| the buttons | 4.50 – 4.96 : 1 — fine, left alone | 4.5 |
+
+Plus three fixed greys nothing to do with the tenant: the fine print was
+**2.40:1** and the small labels 4.46:1.
+
+**`email-brand.test.mjs` passed throughout** — it pinned the colour ENGINE and
+never looked at what the templates did with the answer. *A test can verify the
+arithmetic and still be blind to the drawing.* It is **138 checks** now, two of
+them reading the SOURCE, and both baselined. **And two of the eleven bad lines
+were written that same hour, by copying the template above them** — a defect in
+a pattern reproduces into every new instance until somebody renders one and
+looks.
+
 ### THREE QUESTIONS STANDING FOR THE OWNER
 
 1. **Quotes exist only on a request**, so a reserve-mode detailer — Andrew, and
@@ -2649,7 +2675,8 @@ written that finding.
 | `sweep-booking-steps.mjs` | every step fits at all four sizes; step 1 still 10px spare at 1440x900, unchanged |
 | `request-mode` | 45 checks pass; test 8's tie-out baselined by deleting the `price_adjustments` line, which fails it by exactly the quote |
 | `booking-engine` · `timezone-and-slots` · `tenant-isolation` · `staff-roles` · `owner-writes` · `ics-and-notifications` · `booking-page-isolation` | all pass (86 / 34 / 40 / 35 / 62 / 32 / 62) |
-| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `email-brand` · `client-list` · `setup-progress` · `qr-scans` · `decisions-index` · `accent-sweep` | all pass |
+| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `email-brand` (**138**) · `client-list` · `setup-progress` · `qr-scans` · `decisions-index` · `accent-sweep` | all pass |
+| The four new emails | rendered and LOOKED AT, which is how the contrast defect above was found |
 | End to end, real browser | a customer booked through `/book/demo-detail` in request mode and got *"We're holding your time"*; the row came back `pending`; the two test bookings were deleted afterwards |
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)

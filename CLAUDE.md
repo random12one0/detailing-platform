@@ -200,7 +200,14 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - Finish every session: `node tests/composition.test.mjs`,
   `design-contrast`, `landing-pricing`, `route-contract`, **`money-export`**,
-  **`email-brand`** (97 checks, new 2026-09-02 — it pins
+  **`email-brand`** (**138** checks — 97 when it was written and grown in roadmap
+  2.12, which found what it could not see: it pinned the colour ENGINE and never
+  looked at what the templates DID with the answer, so **every email headline in
+  the product was 3.01–3.76:1 on a 4.5:1 floor, on all fourteen colours**, and
+  the invoice's own title was 1.20–1.57:1. Tests 7a and 7a-ii read the SOURCE
+  for a hardcoded colour on the header band, because that is the only form that
+  stops the next template being written the same way. **A test can verify the
+  arithmetic and still be blind to the drawing.** It pins
   `supabase/functions/_shared/brandColor.js`, the EMAIL’s copy of the colour
   engine, against `app/src/lib/theme.js` on the twelve presets and the four
   extremes. Email is the one place in this repo a second implementation of the

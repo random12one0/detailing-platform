@@ -22,6 +22,7 @@
 // white paper. Tests 3 and 4 below are those two failures, stated as floors.
 
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import {
   emailBrandColors, contrastRatio, PAPER, PAPER_FALLBACK,
 } from "../supabase/functions/_shared/brandColor.js";
@@ -109,6 +110,94 @@ for (const bad of [null, undefined, "", "not a colour", "#12"]) {
   const c = emailBrandColors(bad);
   check(`a ${JSON.stringify(bad)} colour still yields three hexes`,
     [c.band, c.bandInk, c.onPaper].every((v) => /^#[0-9a-f]{6}$/i.test(v)), JSON.stringify(c));
+}
+
+// --- 7. NO TEMPLATE MAY HARDCODE A COLOUR ONTO THE HEADER BAND -------------
+// Roadmap 2.12, and it is the D1 defect one line further on. Stage 6 gave the
+// band a measured ink and used it for the brand NAME and the 44px rule — and
+// every template's own header block went on painting its headline
+// `color:#ffffff` and its small label `color:#e2e8f0` onto that same band.
+//
+// MEASURED BEFORE FIXING, because "it looks white-ish" is not a finding:
+// white on the corrected band is **3.01–3.76:1 on all fourteen colours**, and
+// #e2e8f0 is 2.44–3.05:1, against the 4.5:1 text floor. Not one preset passed.
+// Sky's band is #0d9edf and its headline was 3.01:1.
+//
+// The buttons are deliberately NOT included: they are white on `onPaper`,
+// which is corrected for 4.5:1 against white paper, and they measure
+// 4.50–4.96:1. Test 7c asserts that rather than trusting it — the whole
+// lesson of D1 is that a colour is only safe against the ground it was
+// corrected for, and these two are different grounds.
+//
+// 7a is a SOURCE check rather than a colour one, because that is the only
+// form that stops the next template being written the same way.
+{
+  const src = await readFile(new URL("../supabase/functions/_shared/emailTemplates.ts", import.meta.url), "utf8");
+  // Every remaining literal white must be a button or the card, i.e. followed
+  // by a background-color of its own.
+  // Every legitimate remaining white is on a ground of its OWN — a button
+  // (`background-color:` right after it) or the pill and the card, which name
+  // their own background earlier in the same style string. Anything else is a
+  // colour landing on the band without having been measured against it.
+  const stray = [...src.matchAll(/(?<!background-)color:#(?:ffffff|e2e8f0)\b(?!; background-color:)/g)]
+    .filter((m) => !/background-color:\$\{brand\.accentColor\}[^"]*$/.test(
+      src.slice(Math.max(0, m.index - 220), m.index)));
+  check("no template paints a hardcoded colour on the header band",
+    stray.length === 0, `${stray.length} left: ${stray.map((m) => m[0]).join(", ")}`);
+  // 7a-ii — THE OTHER HALF, and the one that measured worst: a colour
+  // corrected for WHITE PAPER printed ON the band. "Invoice / Receipt" and the
+  // owner email's own first line were `brand.accentColor` on `brand.band` —
+  // **1.20 to 1.57:1 on all twelve presets**, which is D1's "the same colour
+  // on itself" wearing different clothes. `accentColor` belongs on paper.
+  const headers = [...src.matchAll(/const header =[\s\S]*?`;/g)].map((m) => m[0]).join("\n");
+  const onBand = [...headers.matchAll(/(?<!background-)color:\$\{brand\.accentColor\}/g)];
+  check("no header block prints the PAPER colour on the band",
+    onBand.length === 0, `${onBand.length} left`);
+  check("the band's ink is still read from the brand",
+    (src.match(/\$\{brand\.headerInk\}/g) ?? []).length >= 14,
+    `${(src.match(/\$\{brand\.headerInk\}/g) ?? []).length} uses`);
+  // The card is white and must stay white — it is paper, not a band, and a
+  // regex written for the headers took it out once already.
+  check("the card itself is still white paper",
+    src.includes("max-width:600px; background-color:#ffffff;"));
+}
+
+// 7b — the floor itself, on every preset and every extreme.
+for (const [name, hex] of [...PRESET_COLORS.map((c) => [c.name, c.hex]), ...EXTREMES]) {
+  const { band, bandInk } = emailBrandColors(hex);
+  check(`${name}: the header's ink clears 4.5:1 on its own band`,
+    contrastRatio(bandInk, band) >= 4.5,
+    `${bandInk} on ${band} = ${contrastRatio(bandInk, band).toFixed(2)}`);
+}
+
+// 7b-ii — THE FIXED GREYS, which are not the tenant's colour and were under
+// the floor anyway. Measured while looking at the quote email: the fine print
+// was **2.40:1** on the info card and 2.56:1 on paper, and the small labels
+// were 4.46:1 — a hair under, which is the kind of number nobody catches by
+// eye. They carry real sentences ("Nothing is charged until you say yes",
+// "This total is an estimate"), so they are text and take the text floor.
+// Read from the source so a new template cannot reintroduce the old values.
+{
+  const src = await readFile(new URL("../supabase/functions/_shared/emailTemplates.ts", import.meta.url), "utf8");
+  for (const dead of ["#94a3b8", "#64748b", "#a8b4c0"]) {
+    check(`the sub-floor grey ${dead} is gone from the templates`, !src.includes(dead));
+  }
+  // Both grounds, because the same grey is printed on the white card and on
+  // the #f4f8fb info card, and only the fainter one decides.
+  for (const grey of ["#687281", "#63738a", "#6a7179"]) {
+    for (const ground of ["#ffffff", "#f4f8fb"]) {
+      check(`${grey} clears 4.5:1 on ${ground}`,
+        contrastRatio(grey, ground) >= 4.5, contrastRatio(grey, ground).toFixed(2));
+    }
+  }
+}
+
+// 7c — and the button's white, which is a DIFFERENT ground and is fine.
+for (const [name, hex] of PRESET_COLORS.map((c) => [c.name, c.hex])) {
+  const { onPaper } = emailBrandColors(hex);
+  check(`${name}: white on the button still clears 4.5:1`,
+    contrastRatio("#ffffff", onPaper) >= 4.5,
+    `${contrastRatio("#ffffff", onPaper).toFixed(2)}`);
 }
 
 console.log(process.exitCode ? `\n${n} checks, some FAILED` : `\nemail-brand: ${n} checks pass`);
