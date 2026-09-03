@@ -266,12 +266,19 @@ export default function Walkthrough({ onGo, onClose }) {
     return () => window.removeEventListener("resize", onResize);
   }, [key]);
 
-  // FOCUS FOLLOWS THE CARD, and it has to wait for the card to be PLACED.
-  // It could not be done in the measuring pass above: until `place` exists
-  // the card is drawn `visibility: hidden` so it does not flash at 0,0, and a
-  // hidden element cannot take focus — the call ran, did nothing, and left
-  // focus on <body> for the whole tour. Measured with a real Tab walk, which
-  // is the only place that is visible.
+  // FOCUS FOLLOWS THE CARD, and it waits for the card to be PLACED — it
+  // cannot be done in the measuring pass above, because that pass needs the
+  // card in the DOM to read its height.
+  //
+  // THE CARD IS HIDDEN WITH `opacity: 0` RATHER THAN `visibility: hidden`,
+  // AND THAT IS THE WHOLE OF WHETHER THIS WORKS. A `visibility: hidden`
+  // element cannot take focus, so this call ran and did nothing and left
+  // focus on <body> for the entire tour. It was written that way first, and
+  // it LOOKED fixed: in the normal path the style is off the element by the
+  // time this fires. In `?lite=1` it is not, and the sweep caught it there —
+  // 200ms after the tour opened the card still computed `hidden` while
+  // already carrying its top and left. An opacity-0 element is focusable and
+  // measurable, so there is no ordering left to get wrong.
   const focusedFor = useRef(null);
   useEffect(() => {
     if (!place || focusedFor.current === i) return;
@@ -317,7 +324,7 @@ export default function Walkthrough({ onGo, onClose }) {
         }} />
       )}
       <div ref={card} className="tourcard" tabIndex={-1}
-        style={place ? { top: place.top, left: place.left } : { visibility: "hidden" }}>
+        style={place ? { top: place.top, left: place.left } : { opacity: 0 }}>
         {/* The count is the "more steps rather than fewer" constraint made
             visible — it is what tells someone the tour is seven short things
             rather than an unknown number of long ones. */}

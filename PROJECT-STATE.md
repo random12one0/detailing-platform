@@ -2470,7 +2470,7 @@ you work` is the one step nothing can derive** (`mobile_enabled` and
 asked" are the same two rows), which is why the seeded demo reads *6 of 7
 done*.
 
-**SIX THINGS THAT WERE ONLY FINDABLE BY BUILDING, MEASURING, OR TABBING.**
+**SEVEN THINGS THAT WERE ONLY FINDABLE BY BUILDING, MEASURING, OR TABBING.**
 
 1. **THE TOUR'S COUNT LIED FOR A WHOLE ROLE.** Rule 3 skips a step whose
    target is absent, which runs the tour correctly and cannot COUNT it. On a
@@ -2496,7 +2496,16 @@ done*.
 5. **THE CAPTION NEEDED A THIRD PLACEMENT, and §1c says "no third case".** At
    392x844 the day rail is a **665px** hole with 98px above and 80px below for
    a 130px card.
-6. **PINNING THE ACTIONS TO THE BOTTOM HAD TO HAVE NO BREAKPOINT.** The
+6. **AND THE FIX FOR (2) LOOKED FIXED AND WAS NOT — `?lite=1` IS WHAT SAID
+   SO.** `sweep-widths.mjs` gained two keyboard assertions with this stage and
+   they went red on the reduced-motion pass while the normal pass stayed
+   green: 200ms after the tour opened, the caption card already carried its
+   top and left and still computed `visibility: hidden`. The focus call was a
+   race the normal path won and the lite path lost. It is `opacity: 0` now —
+   focusable and measurable, no ordering left to get wrong. **A keyboard walk
+   in one path is one sample of a timing-dependent behaviour, and removing
+   every animation is a second sample of it for free.**
+7. **PINNING THE ACTIONS TO THE BOTTOM HAD TO HAVE NO BREAKPOINT.** The
    obvious rule was `(max-width: 1023px) and (min-height: 500px)` — the guard
    CLAUDE.md requires of any layout decision that spends height. It is wrong
    here: a rule that fires only in portrait means rotating a phone MOVES the
@@ -2532,7 +2541,7 @@ with `dropoff_enabled` false for *"I go to them"*; and all seven keys in
 | Console at 1920 / 1440 / 392 | nothing but the two pre-existing React Router v7 future-flag warnings |
 | `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `email-brand` · `client-list` · `qr-scans` · `decisions-index` · `accent-sweep` | all pass |
 | The progress rule at 320 | 37.14px a segment against the ≥28px the inventory set as its floor |
-| Keyboard, tour | Tab cycles the caption's two controls and never reaches the page behind; Escape closes; the body lock is restored |
+| Keyboard, tour | Tab cycles the caption's two controls and never reaches the page behind; Escape closes; the body lock is restored. **Asserted by `sweep-widths.mjs` at 392 in BOTH paths now**, and baselined by removing the listener |
 | First run, new business | form at step 1 with 2 of 7 filled; tour 6 steps; neither returns after a reload |
 
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)

@@ -580,6 +580,40 @@ for (const w of SIZES) {
     // The tour is six steps on an empty dashboard and seven on a seeded one
     // (a step whose target is absent skips itself), so the loop asks whether
     // the card is still there rather than counting to a fixed number.
+    // THE ONE THING IN THIS SCRIPT THAT IS NOT ABOUT AN EDGE, and it is here
+    // rather than in a suite of its own because the tour is already open, the
+    // browser is already logged in, and the alternative is a SECOND
+    // login-dependent browser test for two assertions.
+    //
+    // It exists because the walkthrough overlay says aria-modal="true" and
+    // its rule 1 says the lit element is not clickable, and BOTH of those
+    // were false when it was built: a backdrop stops a pointer and stops
+    // nothing else, so Tab walked into the dashboard behind the dim. Two
+    // React defects hid the fix twice (an effect keyed on an inline callback
+    // re-ran its own cleanup; a `visibility: hidden` card cannot take focus).
+    // Nothing this script otherwise measures could see any of it — a tour
+    // with no keyboard behaviour photographs perfectly. One width is enough:
+    // the trap has no layout in it.
+    if (w === 392) {
+      const inCard = async () => page.evaluate(() =>
+        !!document.querySelector(".tourcard")?.contains(document.activeElement));
+      if (!(await inCard())) {
+        console.log(`${"tour · focus on open".padEnd(24)} FOCUS IS OUTSIDE THE CAPTION CARD`);
+        found++;
+      }
+      for (let k = 0; k < 5; k++) {
+        await page.keyboard.press("Tab");
+        await settle(page, 200);
+        const a = await page.evaluate(() => {
+          const el = document.activeElement;
+          if (!el || el === document.body) return null;   // the browser's own cycle stop
+          return document.querySelector(".tourcard")?.contains(el) ? null
+            : (el.tagName + "." + el.className).slice(0, 50);
+        });
+        if (a) { console.log(`${"tour · tab escapes".padEnd(24)} ${a}`); found++; break; }
+      }
+    }
+
     for (let k = 1; k <= 7; k++) {
       if (!(await page.locator(".tourcard").count())) break;
       await say(`tour · step ${k}`);

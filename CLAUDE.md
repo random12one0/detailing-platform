@@ -243,7 +243,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   behind a row in the gear, so a script that walks tabs cannot see either. The
   walk uses "I'll do this later" throughout and never presses Continue, which
   is the one that writes; `seed-demo.mjs` pins the demo at 6 of 7 so the row
-  it opens the form from is always there)** and the booking page at
+  it opens the form from is always there)**,
+  **and TWO KEYBOARD ASSERTIONS on the walkthrough at 392 — the only thing in
+  that script that is not about an edge.** They are there because the overlay
+  claims `aria-modal` and its own rule says the lit element is not clickable,
+  and both were false when it was built; they then caught the FIX being
+  broken too, in `?lite=1` only. **Run `--lite` before believing a timing
+  fix**: removing every animation changes when things settle, so it is a
+  second sample of any race for free.
+  And the booking page at
   **1920, 1440, 392, 360 and 320** and reports anything past the right edge, anything
   **outside its own
   parent's box**, anything scrolling sideways with no scrollbar, and any two

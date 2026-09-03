@@ -7805,6 +7805,34 @@ check this repo owns.** `sweep-widths.mjs` measures boxes, the contrast tests
 measure colours, and a screenshot shows a tour that looks perfect. A `Tab`
 walk is the only instrument, and it found three separate bugs in ten seconds.
 
+### The fix that looked fixed, and only `?lite=1` disagreed
+
+The focus trap above was verified with a real `Tab` walk and passed. It was
+also still broken, and the sweep found it — in the `?lite=1` path only.
+
+`sweep-widths.mjs` gained two keyboard assertions with stage 7 (focus is
+inside the caption card on open; five Tabs never land outside it), and they
+went red on the reduced-motion pass while the normal pass stayed green.
+**Measured: 200ms after the tour opened, the caption card already carried its
+top and left and still computed `visibility: hidden`.** The card is hidden
+until it has been measured and placed so it does not flash at 0,0, and a
+`visibility: hidden` element cannot take focus — so "focus moves to the
+caption card" was a race that the normal path happened to win and the lite
+path happened to lose.
+
+**It is `opacity: 0` now**, which is focusable and measurable, so there is no
+ordering left to get wrong in either path.
+
+**The transferable part is about the CHECK, not the CSS.** A keyboard walk in
+one path is one sample of a timing-dependent behaviour. This repo already
+knows that shape — *"a check that measures the page too early looks exactly
+like a check that passes"* — and `--lite` turns out to be a second sample of
+it for free, because removing every animation changes when things settle. The
+two assertions live in `sweep-widths.mjs` rather than in a suite of their own:
+the tour is already open there and the browser is already signed in, and the
+alternative was a second login-dependent browser test for two lines.
+Baselined — removing the `focusin` listener reports *tour · tab escapes*.
+
 ### Three smaller things that were only findable by running it
 
 **The tour started on the wrong screen from its own second door.** It is
