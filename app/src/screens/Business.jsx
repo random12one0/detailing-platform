@@ -40,13 +40,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  CalendarClock, ChevronRight, ClipboardList, Images, MessageSquareQuote, Palette, Store, Tag, Wrench,
+  CalendarClock, ChevronRight, ClipboardList, Images, ListChecks,
+  MessageSquareQuote, Palette, Store, Tag, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useWide } from "../hooks/useWide.js";
 import SettingsHost from "../components/SettingsHost.jsx";
 import BookingLink from "../components/BookingLink.jsx";
+import { setupProgress } from "../lib/setup.js";
 import { brandVarsFor } from "../lib/theme.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -80,7 +82,7 @@ const humanNotice = (mins) => {
   return `${mins} min notice`;
 };
 
-export default function Business() {
+export default function Business({ onSetup }) {
   const { business, settings, branding, reload: reloadTenant } = useBusiness();
   const wide = useWide();
   const [open, setOpen] = useState(null);
@@ -105,6 +107,9 @@ export default function Business() {
       hoursRows: h.data ?? [],
       services: s.count, addOns: a.count,
       promos: p.count, photos: g.count, reviews: r.count,
+      // The setup form's own reading of the same rows. It asks whether ANY
+      // day is open, which is the same question the blocking row below asks.
+      hoursOpen: (h.data ?? []).some((r) => r.open_time),
     });
   }, [business.id]);
 
@@ -131,6 +136,18 @@ export default function Business() {
     : (counts.hoursRows ?? []).every((r) => !r.open_time) ? "hours"
       : counts.services === 0 ? "catalog"
         : !business.contact_phone && !business.contact_email ? "info" : null;
+
+  // RESUMABLE, AND THIS ROW IS THE HALF THAT MAKES IT SO (§13a). It stands
+  // until the seven are finished or the detailer says stop, and the number on
+  // it is the same one the form's progress rule paints — one function, so the
+  // bar and this line cannot disagree (component inventory §1b).
+  //
+  // It sits ABOVE the booking link, which stage 6 fought to put first on this
+  // page. That is deliberate and it is a cost of about 70px: this row is
+  // temporary and the link is permanent, and a nag under the thing you came
+  // to copy is a nag nobody reads.
+  const setup = counts ? setupProgress({ business, branding, settings, counts }) : null;
+  const setupOpen = setup && setup.count < setup.total && !settings?.setup?.dismissed;
 
   const GROUPS = [
     ["Your page", [
@@ -168,6 +185,19 @@ export default function Business() {
         <h1 className="display">Business</h1>
         <p className="quiet" style={{ marginTop: 2 }}>{business.name}</p>
       </div>
+
+      {setupOpen && (
+        <div className="card setting-card">
+          <button className="nav-row" onClick={() => onSetup?.()}>
+            <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
+            <span className="txt">
+              <span className="name">Finish setting up</span>
+              <span className="now">{setup.count} of {setup.total} done</span>
+            </span>
+            <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
+          </button>
+        </div>
+      )}
 
       {/* FIRST ON A PHONE, AND ONLY ON A PHONE. At a desk it is the second
           column's resting content, so rendering it here as well would print

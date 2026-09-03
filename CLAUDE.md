@@ -129,6 +129,13 @@ explaining it; if they still have to ask "so should I?", it failed.
   His limit is the acceptance test: *fluid and connected, without being in the
   way of productivity* — interruptible, fast, never a gate between a tap and
   the thing tapped for.
+  **FIRST HONOURED 2026-09-02 (stage 7), and two things came out of it worth
+  reusing.** A component that renders as a `.group` under `.app-main` already
+  HAS an entrance — the screen's staggered arrival — so it needs only an exit;
+  giving it a second one is two animations running the same 420ms. And a step
+  or panel somebody advances repeatedly takes `--t-exit` (180ms), not
+  `--t-reveal` (420ms): 420 is right for a screen you meet once and is a gate
+  on a thing you do seven times in two minutes.
 
 - **Imagery: never a grey placeholder box.** An Unsplash connector is
   wired up and confirmed working 2026-08-29 (`search_photos`; "car
@@ -168,14 +175,22 @@ explaining it; if they still have to ask "so should I?", it failed.
   colour maths is allowed — an edge function is a separate Deno bundle and the
   Supabase CLI will not follow an import out of `supabase/` — and this test is
   the price of that permission),
-  **`qr-scans`** (14 checks, new 2026-09-02 — the ONE browser test in this
+  **`qr-scans`** (**17** checks — this file said 14 until 2026-09-02 and it was
+  a guess at authoring time; the script prints its own figure, new 2026-09-02 — the ONE browser test in this
   list, because the QR is drawn on a `<canvas>` and an encoder can be perfect
   while the rendering is unscannable. It decodes the pixels back with a
   DIFFERENT library than wrote them, and it needs the dev server but no login
   and no seed. Baselined at 6 failures with the quiet zone removed),
   **`client-list`** (31 checks, new 2026-09-02 — the Clients list's date
   arithmetic and the lapsed filter, which decides who ends up on the end of a
-  group text; baselined both ways) from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
+  group text; baselined both ways),
+  **`setup-progress`** (24 checks, new 2026-09-02 — how many of the seven
+  first-run steps are done. That number is printed in TWO places that must
+  never disagree, the setup form's progress rule and Business's *Finish
+  setting up* row, and five of the seven are DERIVED from the database rather
+  than stored. Baselined at 11 failures with the derivation removed, which is
+  the state that tells a fully configured business it has done nothing)
+  from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 7 tests need env vars from
   root `.env`.
 - **Also credential-free, and it must exit 0 after anything touching accent
@@ -220,7 +235,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   2026-09-02, stage 5, and the same gap a FOURTH time: it opened one client
   sheet and measured nothing else, and this list is also the only one in the
   product whose LAYOUT changes when a record opens, so its closed and open
-  states are two measurements rather than one)** and the booking page at
+  states are two measurements rather than one)**,
+  **FIRST RUN'S FOURTEEN — the setup form's seven steps and the walkthrough's
+  seven (added 2026-09-02, stage 7, and it is the same gap a SIXTH time in its
+  sharpest form: NEITHER screen is reachable by clicking a tab. The form is
+  behind a row that only exists while setup is unfinished and the tour is
+  behind a row in the gear, so a script that walks tabs cannot see either. The
+  walk uses "I'll do this later" throughout and never presses Continue, which
+  is the one that writes; `seed-demo.mjs` pins the demo at 6 of 7 so the row
+  it opens the form from is always there)** and the booking page at
   **1920, 1440, 392, 360 and 320** and reports anything past the right edge, anything
   **outside its own
   parent's box**, anything scrolling sideways with no scrollbar, and any two
@@ -310,6 +333,31 @@ explaining it; if they still have to ask "so should I?", it failed.
   `components/SettingsHost.jsx` is the container: a PAGE with a back control
   below `--wrap`, the second column at or above it. Anything that walks the
   settings screens must go through both doors.
+- **FIRST RUN EXISTS, AND IT IS TWO SEPARATE THINGS — since roadmap 2.11 step
+  6 stage 7 (2026-09-02), which closed 2.11.** A **stepped setup form**
+  (`components/SetupForm.jsx`, seven steps, one question each, skippable and
+  resumable) and, separately, a **guided walkthrough** (`Walkthrough.jsx`, a
+  spotlight over the live dashboard, one sentence and one element a step). The
+  owner insisted they stay two; building them as one is how the form becomes a
+  wizard.
+  **The seven steps and the progress arithmetic live in `app/src/lib/setup.js`,
+  with no React in them**, because the same number is printed on the form and
+  on Business and the two must never disagree — `tests/setup-progress.test.mjs`
+  is what holds them together.
+  **COMPLETION IS DERIVED WHERE THE DATABASE CAN ANSWER IT, and a session that
+  changes this to a stored count will break every business that already
+  exists.** Five of the seven steps are facts the schema holds (services,
+  add-ons, promo codes, an open day, a phone or email, a colour), so a
+  detailer who set up through the settings screens is never told they have
+  done nothing. **`where you work` is the one that can never be derived** —
+  `mobile_enabled` and `dropoff_enabled` both default to true — which is why
+  the seeded demo reads *6 of 7 done* and its row stays until somebody answers
+  that question.
+  **STAFF GET THE TOUR AND NOT THE FORM.** They are not setting up a business.
+  The tour re-runs from *Show me around* behind the gear, and it counts what
+  THIS dashboard has: 7 for an owner with jobs, 6 on an empty one, 4 for staff.
+  **The empty dashboard is the state to verify against**, not the seeded demo —
+  the opposite of every other screen in this rebuild.
 - **PUSH WORKS END TO END, CONFIRMED BY THE OWNER ON A REAL DEVICE
   2026-09-02.** He was asked to tap the switch and let a booking through; his
   answer was “works”. The browser half is `app/public/sw.js` +

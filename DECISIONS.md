@@ -159,6 +159,7 @@ were made more than once.
 - **Roadmap 2.11, step 6, stage 5 — Clients, the client record, and three of his own corrections** — The one screen with NO PANEL and the one record with NO CONTAINER, both built: `RecordHost` gained a `bare` prop rather than the `ClientRecord.jsx` the inventory predicted, because a component with one caller extracted to satisfy a prediction is the abstraction this repo's rules forbid. **The list is full-bleed only while no client is open** — every other split screen has something to put in column two and this one does not, so an always-on grid left 465px permanently dead INSIDE the content column. **Law 1's "History and Clients must not be the same shape" is answered by structure**: History has a time axis (status marks, month rules, money last), Clients has none (search first, sort only, phone last). **Part B rows 6 and 18 are struck** — last visit could print a future date because it never asked whether the job had happened. **THE LIST READ SWALLOWED ITS ERROR, the THIRD site of `const { data } = await`** after `useBookings` and `loadExtras`. And three owner corrections that arrived with the prompt: **the Money period control's 3 + 2 wrap** (five cells of two sizes; now equal columns, and 4px of padding rather than 6 is the whole difference between one line and two at 392), **"Export for my accountant" -> "Export"** on the period line — *a label names what the control DOES, never who the result is for* — and **the ground's two lights now carry the tenant's colour**, mixed into them rather than added as a third light, with the alphas untouched, because more light moves every floor measured against the ground.
 - **Roadmap 2.11, step 6, stage 6 — Business, the twelve settings screens, and three repairs** — `More.jsx` is deleted. **The admission test is in the CODE**: a row belongs on Business only if it changes what a CUSTOMER meets, otherwise it goes behind the header gear — eight rows in three groups, four behind the gear. **The gear is a DESTINATION, not an overlay**, so `SettingsHost` decides page-or-column once for both doors and a settings screen is never a sheet again. **Staff get THREE rail buttons** (two files said four; the number was inherited from before Business was also taken from them). **TWELVE settings screens, not thirteen** — the FAQ’s storage landed and its screen did not, so there is no row for it, because a row that opens nothing is the very defect this stage repairs. **D1, the colour repair, was TWO defects**: one colour now writes both columns AND the email had no floor at all — a 3px rule at 1:1 on its own band, a hardcoded white title, and the brand colour as words on white at 1.36:1 for Silver; fixed in `_shared/brandColor.js`, **the one place in this repo a second implementation of the colour maths is allowed**, with `tests/email-brand.test.mjs` as the price. **PUSH: the browser half is built and the SERVER half was not live either** — the VAPID secrets had never been set, so `sendOwnerPush` had been skipping for its whole life; **and the owner confirmed the same day that a notification actually arrives on a real device — first delivery in the life of the feature.** The lesson is the shape: it was dead in TWO places at once and neither announced itself, so a feature can be complete in five places and dead because of a sixth nobody listed. **Reviews has a door** and says out loud that the words go to the Phase 3 websites rather than implying they are live. Plus the booking link drawn twice on one phone, a heading’s arrow 700px from its words, a truncated page title, a `disabled` prop that was dropped, a CSS rule that lost silently, and `memberships?.[0]`. **The QR is a question for him, not a refusal.**
 - **The QR code, and the motion rule he asked to have confirmed** — Both answers to stage 6’s two questions, 2026-09-02. **He said yes to the QR and specified a better shape than the design had**: a *Generate QR code* BUTTON that is replaced by what it makes, not a permanently-drawn code — most visits to that block are to copy the link. `qrcode-generator` (zero dependencies, unlike `qrcode`), and **the dependency argument was settled by verifiability, not size**: there is no way to check a hand-rolled QR SCANS, which is the `travel_fee` family. **Black on white with a 4-module quiet zone on a near-black product, and law 11 does not reach it** — a machine-readable object is not a surface; the canvas is 1,110px and the screen shows 200, because saving the screen-sized one is what makes a QR useless on a card. `tests/qr-scans.test.mjs` **decodes the pixels back with a DIFFERENT library than wrote them** and pins `QUIET`/`PX` to the component; baselined at 6 failures with the quiet zone removed. **And the motion complaint had already stuck — roadmap 2.17, with his words in full.** What his re-statement added: **it is a DESK problem** (below `--wrap` `.sheet` already animates both ways), and **it must bind NEW work now rather than when 2.17 is scheduled** — that gap is CLOSED, the standing rule is in `dashboard-skeletons.md` §4 and `CLAUDE.md`, and what is left in 2.17 is the retrofit. Stage 6 itself added two more instant-opens to that list.
+- **Roadmap 2.11, step 6, stage 7 — first run, and the count that lied for a whole role** — The setup form and the walkthrough, kept two because he insisted. **The seventh step is *Your colour*, and no design file names it**: §13a lists six areas while every other file says seven segments, and the seventh falls out of Business's own admission test minus the two a detailer cannot answer on their first morning. **Completion is DERIVED where the database can answer it** — §1b rules that filled means completed so the bar and Business's row agree, and the half it does not say is that five of the seven are facts the schema already holds; without that, every business that predates the form would be told it had done nothing. **`where you work` is the one nothing can derive**, because `mobile_enabled` and `dropoff_enabled` both default to true and "I do both" is byte-identical to "nobody has been asked". **The tour's COUNT lied for a whole role**: rule 3 skips an absent target correctly and cannot count, so a staff login ran four steps saying "of 7" throughout — the plan is resolved once now, before the first step is drawn (7 owner, 6 empty dashboard, 4 staff). **The focus trap was THREE defects and only a keyboard could see any of them**: a backdrop stops a POINTER and nothing else; the effect depended on an inline `onClose` so its own cleanup kept yanking focus back out; and the caption is `visibility: hidden` until placed, and **a hidden element cannot take focus**, so "focus moves to the caption card" had never once happened. **Pinning the actions had to have NO breakpoint** — the guarded `min-height: 500px` rule CLAUDE.md requires would have MOVED the buttons on rotation, which is the owner's ruling broken by the clause written to respect it. Plus: six editors written and *Your colour* reused whole (the other six settings screens end in a Save button, and a step whose Continue does not save throws away what was typed); a THIRD caption placement because the day rail is a 665px hole on an 844px phone; a fixed frame budget that read a LOADING screen as a MISSING target; the tour skipping its own first step when started from the gear; and "centred exactly once" spent a second and last time. **Verified on a business signed up and created through the real forms**, because §1c asks for the empty dashboard and the demo cannot answer it.
 
 - **The copy pass — the owner's rule against explaining what the label already said** — his instruction, 2026-09-01, and he named the instance: *"Mobile — we go to them"* on the job record. *"No duh… it thinks that humans can't think, or it feels the need to explain literally every single thing."* **The test: does the sentence add a fact the control does not already carry?** Twenty-four sites swept across the dashboard, the booking page and the way in. **The half that stops the rule becoming its own mistake is what STAYED** — *"Picking another swaps it"*, *"Past bookings keep it"*, *"Timing is set in Booking rules"*: the rule is against restatement, not against explanation, and a session that reads it as "delete help text" will strip the sentences that were doing work. The durable form lives in `docs/design-system.md` § Never-defaults and in CLAUDE.md.
 
@@ -7664,3 +7665,286 @@ the day he said it**: a settings screen entering the second column, and the
 gear taking the main area. Neither has any motion at a desk. That is *"multiple
 points"* confirmed rather than a new complaint, and it is written into 2.17 so
 the audit starts from a list rather than from three examples.
+
+## Roadmap 2.11, step 6, stage 7 — first run, and the count that lied for a whole role
+
+**The last stage, so 2.11 is closed.** Two things the owner insisted stay two
+— a stepped setup form and a separate guided walkthrough — and every judgment
+call under them.
+
+### The seventh step, because no design file names it
+
+Screen designs §13a lists SIX areas the form collects: business info, hours,
+services, add-ons, booking rules, promo codes. Component inventory §1b, the
+phone pass §14 and §13a's own resume row all say **seven**. Services and
+add-ons are one settings screen and two questions, which reconciles five of
+the difference and leaves one.
+
+**The seventh is *Your colour*, and it is derived rather than invented.** The
+form collects what the BOOKING PAGE needs, which is the same test Business's
+own eight rows pass (*what a CUSTOMER meets*). Business has eight; two of them
+cannot be answered on a detailer's first morning — Photo gallery needs photos
+they have not uploaded, Reviews needs customers they have not served. Eight
+minus two, with the catalog split into its two questions, is seven:
+
+> services · add-ons · promo code · hours · where you work · your details ·
+> your colour
+
+**The order is §13a's order** — what you sell, then when you work, then who
+you are — so a detailer who quits after two steps still has a bookable page.
+
+### Completion is DERIVED where the database can answer it
+
+§1b's ruling is that a segment fills when a step is **completed**, never when
+it is passed, precisely so the bar and Business's *"N of 7 done"* cannot
+disagree. That ruling is right and it is only half of the question.
+
+**The other half only appears once you have a business that predates the
+form.** A business with three services has finished the services step whether
+or not it has ever seen this screen — and every business on the platform is in
+that position, including the owner's own. A purely stored count would open
+Business on a fully configured business and tell it *0 of 7 done*, which is
+both false and insulting.
+
+So `setupProgress()` **asks the data first**: services, add-ons and promo codes
+by count, hours by whether any day is open, contact by phone-or-email, colour
+by `branding.primary_color`. The stored list in `business_settings.setup.done`
+carries only what nothing else can answer, and it is only ever appended to.
+
+**`where you work` is the one step that can never be derived, and that is a
+fact about the schema.** `mobile_enabled` and `dropoff_enabled` both default
+to `true`, so *"I do both"* and *"nobody has been asked"* are byte-identical.
+It is the only step that stays open until a person answers it — correct, since
+it changes what the booking page asks the customer — and it is why the seeded
+demo reads **6 of 7 done** and the row on Business does not disappear for an
+established detailer until they answer it once.
+
+### One jsonb column, three facts, and a backfill that is the whole safety of it
+
+`business_settings.setup` is `{done, seen, dismissed}` — the same
+small/ordered/tenant-only shape that `faqs` and `travel_zones` argued for, and
+for the same reasons. `seen` is written **by the form on the way in**, not by
+whatever opened it, because both doors lead to the same component; without it
+the form is a first run every morning, since finishing all seven steps does
+not set it.
+
+**The migration marks every business that already exists as seen**, and that
+line is doing more work than it looks. Without it the form would open itself
+on the next sign-in for every detailer on the platform — including the demo
+that every verification script drives, which would have made a clean sweep
+impossible to take. First run has already happened for them.
+
+### Six editors written, one reused, and the split is not arbitrary
+
+*Your colour* renders `screens/more/Appearance.jsx` **whole**: it commits on
+the tap that picks a swatch, has no Save button, carries the corrected-colour
+preview and the "what you picked, in words" sentence, and duplicating any of
+that would be a second implementation of the one thing this repo has a rule
+about.
+
+**The other six settings screens all END in a Save button**, and that is
+exactly why they are not reused. §13a says *each step commits on leaving it*.
+A step that renders `Hours.jsx` and then offers Continue has two commit
+gestures on one screen, and the one the person presses is the wrong one — they
+type their hours, press Continue, and the hours are gone. So the form holds
+one `draft` object and one `commit()` with a branch per step, and **Continue
+is the write**. Skip is not.
+
+That also puts every write for first run in one function where it can be read
+against the schema, which is the same argument `lib/accountant-export.js`
+makes about the money column.
+
+### The tour's count lied for a whole role, and rule 3 could not have caught it
+
+§1c rule 3 — *a step whose target is not on the page is skipped, silently* —
+is right, and it runs the tour correctly on an empty dashboard. **It cannot
+count the tour.** Measured on the demo's staff login: four steps delivered
+while the caption said *"of 7"* the whole way, because Money, Business and the
+booking link are all absent for that role and each absence was only discovered
+as it was reached. A count that promises seven and delivers four is worse than
+no count at all, and the count exists to carry the owner's own constraint —
+*more steps rather than fewer*.
+
+**So the plan is resolved once, before the first step is drawn.** A step that
+names a TAB is available when that tab's own button exists — which makes
+`App.jsx`'s role filter do the work for free, since those steps point at the
+very buttons it removes — and a step that names nothing is available when its
+own target is on the screen the tour starts on. Measured: **7** for an owner
+with jobs, **6** on the empty dashboard (the missing one is *a job*, §1c's own
+example), **4** for staff. Rule 3 stays as the safety net for a target that
+was there when the plan was made and is not there now.
+
+### The focus trap was three defects, and only a keyboard could see any of them
+
+`aria-modal="true"` tells a screen reader the rest of the page is inert, and
+rule 1 says the lit element is not clickable. **A backdrop stops a POINTER and
+stops nothing else**: `Tab` walked straight into the dashboard behind the dim,
+and `Enter` on the tab button the caption was pointing at would have navigated
+away mid-tour — the exact outcome rule 1 exists to prevent. This is
+`Sheet.jsx`'s defect from stage 2, one screen over, and its fix is reused
+rather than reinvented: watch where focus LANDS and refuse to let it settle
+outside.
+
+**Adding the trap did nothing, twice, and both reasons are React rather than
+CSS.**
+
+1. The effect depended on `close`, which depends on `onClose` — an inline
+   arrow in `App.jsx`, so a new identity on every render. The effect therefore
+   tore down and re-ran constantly, and its cleanup restores focus to wherever
+   it was when that render started. **The trap was fighting itself.** Both
+   effects in the file are mount-only now and read their callbacks through a
+   ref.
+2. The caption is `visibility: hidden` until it has been measured and placed,
+   so it does not flash at 0,0. **A hidden element cannot take focus.** The
+   "focus moves to the caption card" call in §1c rule 6 had never once worked,
+   and nothing on screen could show it. Focus is now taken in an effect that
+   waits for the placement.
+
+**The transferable part: an overlay's keyboard behaviour is invisible to every
+check this repo owns.** `sweep-widths.mjs` measures boxes, the contrast tests
+measure colours, and a screenshot shows a tour that looks perfect. A `Tab`
+walk is the only instrument, and it found three separate bugs in ten seconds.
+
+### Three smaller things that were only findable by running it
+
+**The tour started on the wrong screen from its own second door.** It is
+re-runnable from the gear, and the gear TAKES the main area — so a tour
+started there had no Today on the page and silently skipped its first step,
+which is rule 3 working perfectly and producing a wrong answer. The first step
+names its tab now, which makes the tour deterministic from wherever it was
+asked for.
+
+**A fixed frame budget read a LOADING screen as a MISSING target.** Twelve
+frames is plenty once a screen is quiet and nothing at all while it is
+fetching, and every screen in this product paints a spinner while it does. The
+give-up test asks whether a `.spinner` is on the page — the same signal
+`sweep-widths.mjs`'s own `settle()` uses, and the same distinction: *measuring
+too early looks exactly like measuring and finding nothing.*
+
+**The caption needed a THIRD placement and §1c says "no third case".** At
+392x844 the day rail is a **665px** hole with 98px above it and 80px below,
+for a 130px card. Clamping to the top covers the first job, which is what the
+sentence is about; the third branch pins it to the bottom edge, which is the
+half of a long list nobody reads first.
+
+### Pinning the actions had to have NO breakpoint, and the missing one is the decision
+
+One question a step means most steps do not fill a screen — the *Where does
+the work happen?* step is a heading and a three-way control, and a Continue
+that stopped a third of the way down read as a page that had failed to finish
+loading. The actions are pinned to the bottom of the frame, which is also the
+thumb.
+
+The obvious implementation was `@media (max-width: 1023px) and (min-height:
+500px)` — CLAUDE.md's own guard, required of any layout decision that spends
+height, and this is its sixth site. **It is wrong here.** A rule that fires
+only in portrait means rotating a phone MOVES the buttons, which is the
+owner's 2026-08-31 ruling being broken by the very clause written to respect
+it. `.app-main:has(> .setupform)` becomes a flex column and `.setupfoot` takes
+`margin-top: auto`, at every width. **The same rule at every size cannot
+change on rotation** — which is the first time the answer to that question has
+been "no breakpoint" rather than "a guarded one".
+
+### Centred exactly once, spent a second time
+
+The form is capped at 560px — §13a's *"a stepped form that widened would just
+put more air around one question"* — and §13a does not say what the other
+620px of a desk column do. A 560px column pinned to the LEFT of a 1,144px one
+at 1920 is the "not enough content to fill the viewport" failure this project
+already has a rule about, so it is centred.
+
+That is the second and last spend of the design system's *"centred exactly
+once"*, and the justification is the one §14 of the screen designs already
+gives for the first: **these are the only screens in the product with exactly
+one thing on them.** Sign-in and a stepped form. Nothing else may take it.
+
+### The shell rules the setup form inherits, which no design file predicted
+
+It takes the main area exactly as the gear does, so stage 6's two gear rules
+apply to it unchanged and were only noticed by looking at a screenshot: **no
+tab is lit while it is up** — a lit Today over a form you are not on is the
+shell saying where you are not — and **pressing a tab is a way out of it.**
+*Skippable at any point* has to include the bar that is already on the screen.
+
+### Motion: the standing rule's first outing
+
+CLAUDE.md's rule since 2026-09-02 — *anything that opens, animates in; a new
+component ships its entrance AND its exit in the change that builds it.* This
+stage is almost entirely things that open, and it is the first work bound by
+it.
+
+- **The form's ENTRANCE is the screen's existing staggered arrival.** It is a
+  `.group` directly under `.app-main`, so its children already take the one
+  orchestrated arrival the whole dashboard uses. Adding a second would be two
+  animations running the same 420ms. **Its exit is its own** because nothing
+  else provides one: opacity and 8px down at `--t-exit`, then unmount — which
+  is `Sheet.jsx`'s leaving-then-unmount pattern, not a second mechanic.
+- **A step arrives from the direction it was travelling**, transform and
+  opacity, at `--t-exit` (180ms) rather than `--t-reveal` (420ms). A step
+  change is a thing somebody does seven times in two minutes and 420ms there
+  is a gate, which is the owner's own acceptance test: *fluid and connected,
+  without being in the way of productivity.* Keyframes rather than a
+  transition because React replaces the element on each step, so there is no
+  previous value to retarget from.
+- **The spotlight TRAVELS between targets rather than cutting**, because the
+  point of a spotlight is that it is the same light moving. A transition, not
+  keyframes — the target can change before the last move has finished and a
+  transition retargets from where it is. The properties are named rather than
+  `all`: four of them, on one fixed element with no children.
+- **The dim uses `--overlay`**, the product's existing sheet backdrop value,
+  rather than the `color-mix` §1c wrote. One dim in the product.
+- **`.lite` covers all of it**, which is the app-wide reduced-motion path and
+  needed no new media query.
+
+### The progress rule's track is decoration, and that was measured before it was claimed
+
+1.4.11 asks 3:1 of a graphical object required to understand the content.
+**Measured: `--hairline` is 1.40:1 on the ground and `--line-2` would be
+1.71** — no neutral in this system reaches 3:1 there, and the only token that
+would (`--fog-2`) draws a 2px rule across the top of the form that reads as
+ALREADY FULL, which is worse than faint.
+
+**It does not need to, and the reason is which mark carries the fact.** The
+information is *which steps are done*, and that is carried by the FILLED
+segments — the tenant's accent as a fill on the ground, gated at 3:1 for every
+preset by `accent-sweep.mjs`, and 11.32:1 for the house green. An empty
+segment says "not done" by ABSENCE, and the gap between two filled marks is
+legible because the marks are. The current step is also named in words
+underneath, which is §1b's own accessible form of "you are here".
+
+**And the keyboard was walked rather than assumed.** Focus lands on the step's
+own heading when a step changes — a new question is a new heading, and nothing
+else on the screen moves to say so — then the three inputs, then *I'll do this
+later*, *Continue* and the quit line, each with the 2px accent ring. The *Add
+this service* button is `disabled` while the name is empty and is correctly
+out of the tab order.
+
+### Verified on a genuinely new business, which the demo cannot answer
+
+§1c says the walkthrough *"must be verified against the EMPTY dashboard, not
+the seeded demo, which is the opposite of every other screen in this
+rebuild"*. So an account was signed up through the real form and a business
+created through `CreateBusiness`, and first run watched end to end:
+
+- the setup form opened itself at step 1 with **two of seven segments already
+  filled** — `create-business` gives a new business Mon–Fri 9–5 and the
+  account's own email, and both of those are true, so deriving them is
+  correct rather than a false positive;
+- all seven steps were skipped in turn and not one of them blocked;
+- the tour then ran **six** steps over the empty dashboard, the missing one
+  being *a job* — §1c's own example, arrived at without being staged;
+- Business afterwards carried *"Finish setting up · 2 of 7 done"*;
+- after a reload neither came back on its own.
+
+The business and its auth account were deleted afterwards.
+
+**And every write was followed into the database rather than trusted.** The
+seven steps were run once with real values against the demo and each row read
+back: the service, the add-on and the promo code exactly as typed; seven
+`business_hours` rows with four days open and the other three present with
+null times — the invariant the slot engine depends on, which distinguishes
+*"we don't work Sundays"* from *"hours were never set up"*; `contact_phone`
+and `contact_email`; `mobile_enabled` true with `dropoff_enabled` false for
+*"I go to them"*; and all seven keys in `setup.done`. The demo was re-seeded
+afterwards, and `seed-demo.mjs` now pins its first-run state so the row the
+sweep opens the form from is always there.

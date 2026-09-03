@@ -1399,7 +1399,7 @@ is kept; the entire visual design restarts from scratch.
       bar is approved and must not be re-derived, and Part B’s 21 findings are
       the list of what the rebuild must not reproduce.
 
-- [ ] 2.11 **Build the admin dashboard from scratch, properly — the OWNER
+- [x] 2.11 **Build the admin dashboard from scratch, properly — the OWNER
       asked for this on 2026-08-31, immediately after answering 2.10's
       decisions, and his words are the brief:**
 
@@ -1898,7 +1898,33 @@ is kept; the entire visual design restarts from scratch.
          *Generate QR code* button rather than a permanently-drawn code, which
          is his own answer. `tests/qr-scans.test.mjs` decodes it back with an
          independent library at both the saved and the on-screen size.
-         **Stage 7, first run, is the last one.**
+         ~~**Stage 7, first run, is the last one.**~~ **STAGE 7 IS BUILT,
+         2026-09-02, AND WITH IT ROADMAP 2.11 IS DONE.** Two things the owner
+         insisted stay two, and they are two: a **stepped setup form** —
+         seven steps, one question each, *"I'll do this later"* on every one,
+         and a *Finish setting up · N of 7 done* row on Business until it is
+         finished or dismissed — and a **guided walkthrough**, one sentence
+         and one element a step, a spotlight over the LIVE dashboard rather
+         than a slideshow.
+         **The seventh step is *Your colour*, and no design file named it:**
+         §13a lists six areas while every other file says seven segments, and
+         the seventh falls out of Business's own admission test minus the two
+         a detailer cannot answer on their first morning (photos, reviews).
+         **Completion is DERIVED where the database can answer it** — five of
+         the seven are facts the schema already holds, which is what stops a
+         business set up through the settings screens being told it has done
+         nothing. `where you work` is the one that cannot be derived, because
+         `mobile_enabled` and `dropoff_enabled` both default to true.
+         **The tour's count is PLANNED before the first step is drawn**, after
+         a staff login ran four steps while the card said "of 7" the whole
+         way. Seven for an owner with jobs, six on an empty dashboard, four
+         for staff.
+         **Verified on a genuinely new business, signed up and created
+         through the real forms**, because §1c asks for the empty dashboard
+         and the seeded demo cannot answer it; the business and its account
+         were deleted afterwards.
+         **Both animate in and out in the same change** — the standing rule
+         from 2026-09-02's own ruling, honoured for the first time here.
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and
          2.15 (travel by measured distance), **the last of which he then CLOSED
@@ -2540,7 +2566,7 @@ those are not negotiable by any skill.
 | 1 — choose the look | **Direction-generating skills, and only here**: `frontend-design`, `tastemaker`, `great-design`. One per direction, so the directions stay genuinely different | applying a direction to real screens before the owner has picked one |
 | 2 — apply the look | Appliers and auditors only: `impeccable`, `animate`, `ship-check`. The rewritten `docs/design-system.md` outranks any skill's opinion | direction-generating skills — the skill-collision rule is back on from 1.5 onward |
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
-| 2.11 — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ ~~**HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code.**~~ **STEP 4b IS DONE TOO** — `docs/dashboard-phone-pass-2026-08-31.md`, every screen's phone form decided again from nothing, and it OVERRIDES step 4 wherever the two disagree about a phone. **AND HE RULED THE PHONE PORTRAIT-ONLY the same day** — *"when someone flips their phone over sideways, I don't want it to completely readjust"* — which withdrew the landscape half of step 4b, took `844` and the `short-screen` check back out of `sweep-widths.mjs`, and closed 2.16 unstarted. **The dashboard readjusts today**, so step 6 still owes one guard: `min-height: 500px` on `theme.css`'s 700px and 560px breakpoints. **Step 6, the build, is the only thing left.** His asks left the item as roadmap 2.13, 2.14 and 2.15. |
+| 2.11 — **DONE 2026-09-02** — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ ~~**HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code.**~~ **STEP 4b IS DONE TOO** — `docs/dashboard-phone-pass-2026-08-31.md`, every screen's phone form decided again from nothing, and it OVERRIDES step 4 wherever the two disagree about a phone. **AND HE RULED THE PHONE PORTRAIT-ONLY the same day** — *"when someone flips their phone over sideways, I don't want it to completely readjust"* — which withdrew the landscape half of step 4b, took `844` and the `short-screen` check back out of `sweep-widths.mjs`, and closed 2.16 unstarted. **The dashboard readjusts today**, so step 6 still owes one guard: `min-height: 500px` on `theme.css`'s 700px and 560px breakpoints. ~~**Step 6, the build, is the only thing left.**~~ **ALL SEVEN STAGES OF STEP 6 ARE BUILT — the shell and Today, the job record, the calendar, Money, Clients, Business and the twelve settings screens, and first run. The item is closed 2026-09-02.** His asks left the item as roadmap 2.13, 2.14 and 2.15. |
 | 2.17 — motion and shape as a house style | `improve-animations` to audit first, then `animate` to build. `impeccable` — `audit` for reduced motion and `critique` on each screen it touches. **`docs/design-system.md` § Motion is updated BEFORE any code**, because this item deliberately grows a budget that file caps | every direction-generating skill, as everywhere else on this product. **The look is settled — this is motion and one corner token, not a redesign** |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |

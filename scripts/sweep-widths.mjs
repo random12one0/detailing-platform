@@ -525,6 +525,69 @@ for (const w of SIZES) {
   await settle(page, 1400);
   await say("the gear");
   await walk("gear", GEAR_ROWS);
+
+  // FIRST RUN — THE SETUP FORM'S SEVEN STEPS AND THE WALKTHROUGH'S SEVEN,
+  // added 2026-09-02 with roadmap 2.11 step 6 stage 7. It is the same finding
+  // this script has now made six times: a screen nothing enters reports
+  // exactly like a screen that was entered and found clean. These two are the
+  // worst case of it, because NEITHER IS REACHABLE BY CLICKING A TAB — the
+  // form is behind a row that only exists while setup is unfinished, and the
+  // tour is behind a row in the gear. Every step is a different screen: step 1
+  // carries a list that grows with the tenant, step 5 is a single control with
+  // most of a phone under it, step 7 is a whole settings screen embedded, and
+  // the tour's caption is a 340px fixed box that has to fit a 320px phone.
+  //
+  // NOTHING HERE WRITES. The form is walked with "I'll do this later", which
+  // is the skip path; Continue is the one that commits and is never pressed.
+  // `seed-demo.mjs` pins the demo at "6 of 7 done" so the row it opens from is
+  // always there.
+  await page.getByRole("button", { name: "Business", exact: true }).first().click();
+  await settle(page, 1400);
+  const finish = page.locator(".nav-row", { hasText: "Finish setting up" });
+  if (!(await finish.count())) {
+    console.log(`${"the setup row".padEnd(24)} NO SUCH ROW (re-run scripts/seed-demo.mjs)`);
+    found++;
+  } else {
+    await finish.first().click();
+    await settle(page, 1700);
+    // It RESUMES at the first unfinished step, so walk back to the start
+    // first. Bounded rather than while(true): a Back that never disables is a
+    // defect, not a reason to hang the sweep.
+    const back = page.locator(".settings-head .btn.icon").first();
+    for (let k = 0; k < 8 && await back.isEnabled(); k++) {
+      await back.click();
+      await settle(page, 500);
+    }
+    for (let k = 1; k <= 7; k++) {
+      await say(`setup · step ${k}`);
+      if (k === 7) break;
+      await page.getByRole("button", { name: "I'll do this later" }).click();
+      await settle(page, 800);
+    }
+    await page.locator(".setupform .x").click();
+    await settle(page, 700);
+  }
+
+  await page.getByRole("button", { name: "Settings", exact: true }).first().click();
+  await settle(page, 1400);
+  const tourRow = page.locator(".nav-row", { hasText: "Show me around" });
+  if (!(await tourRow.count())) {
+    console.log(`${"the tour row".padEnd(24)} NO SUCH ROW`);
+    found++;
+  } else {
+    await tourRow.first().click();
+    await settle(page, 1800);
+    // The tour is six steps on an empty dashboard and seven on a seeded one
+    // (a step whose target is absent skips itself), so the loop asks whether
+    // the card is still there rather than counting to a fixed number.
+    for (let k = 1; k <= 7; k++) {
+      if (!(await page.locator(".tourcard").count())) break;
+      await say(`tour · step ${k}`);
+      await page.locator(".tourcard button.primary").click();
+      await settle(page, 1000);
+    }
+  }
+
   await ctx.close();
 }
 

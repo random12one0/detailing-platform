@@ -2403,6 +2403,135 @@ QR code, and the motion rule he asked to have confirmed”).
    settings screen entering the second column, and the gear taking the main
    area).
 
+## 6v. ROADMAP 2.11, STEP 6 — STAGE 7 IS BUILT: FIRST RUN, AND 2.11 IS CLOSED (2026-09-02)
+
+**The last of the approval page's seven stages, so roadmap 2.11 is done.**
+Judgment calls are DECISIONS.md → "Roadmap 2.11, step 6, stage 7".
+**Nothing is left open.**
+
+**TWO THINGS THE OWNER INSISTED STAY TWO, AND THEY ARE TWO.** He overruled the
+"empty states, not a wizard" recommendation and asked for a **setup form**
+*and separately* a **guided walkthrough**. Building them as one is how the
+form becomes a wizard, which is the thing people abandon.
+
+**THE NUMBERS.**
+
+| | Before | After |
+|---|---|---|
+| A brand-new dashboard | nothing happened; you were on Today with no jobs and no instruction | **the setup form opens itself**, then the tour |
+| The setup form | — | **seven steps, one question each**, one column capped at 560px |
+| Skipping | — | *"I'll do this later"* on every step, and it **never blocks the next one** |
+| Resuming | — | Business carries **"Finish setting up · N of 7 done"** until it is finished or dismissed, and re-entering lands on the first unfinished step |
+| The progress rule | designed, ~31px a segment at 320 | **built; 37.14px measured**, from 284px of usable width rather than the 244 the design assumed |
+| Where "N of 7" comes from | designed as a stored count | **derived from the database for five of the seven**, stored only for what nothing else can answer |
+| The tour | — | **a spotlight over the live dashboard**, one element and a 9999px shadow |
+| Its step count | designed as "six or seven" | **planned before the first step is drawn**: 7 for an owner with jobs, **6** on an empty dashboard, **4** for staff |
+| Its keyboard | — | Escape, a visible *Skip the tour*, and **a focus trap** |
+| Staff | got neither | **get the tour and not the form** — they are not setting up a business |
+| Re-running the tour | — | *Show me around* behind the gear |
+| `sweep-widths.mjs` screens | 40 | **54** — the form's seven steps and the tour's seven |
+| Roadmap 2.11 | seven stages, six built | **closed** |
+
+**WHAT SHIPPED.** `components/SetupForm.jsx` (the form, and it exports
+`setupProgress()` / `loadSetupCounts()` because Business's row must print the
+same number the bar paints), `components/Walkthrough.jsx`, the
+`.progress-rule` / `.setupform` / `.setupstep` / `.setupfoot` / `.tourblock` /
+`.spotlight` / `.tourcard` block in `theme.css`, and
+`20260902002000_first_run.sql` (one jsonb column, `business_settings.setup`).
+`App.jsx` mounts both and gained the `data-tour` attributes on the header `+`
+and the rail; `Today.jsx` and `BookingLink.jsx` gained one each; `Business.jsx`
+carries the resume row; `GearMenu.jsx` carries *Show me around*;
+`seed-demo.mjs` pins the demo's first-run state.
+
+**THE ONE A COLD SESSION MUST NOT RE-DERIVE: WHERE THE SEVENTH STEP CAME
+FROM.** Screen designs §13a names SIX areas — business info, hours, services,
+add-ons, booking rules, promo codes — and every other file says SEVEN
+segments. Services and add-ons are one settings screen and two questions,
+which gets to six. **The seventh is *Your colour*,** and it is not invented:
+it is the eight rows of the Business tab, the ones that pass that screen's own
+admission test (*what a CUSTOMER meets*), minus the two a detailer cannot
+answer on their first morning — Photo gallery needs photos, Reviews needs
+customers.
+
+**AND ONE THAT NO DESIGN FILE COULD HAVE SEEN, because it is about the
+businesses that already exist: COMPLETION IS DERIVED.** §1b's ruling is that a
+segment fills when a step is COMPLETED rather than passed, so the bar and
+Business's row cannot disagree. Building it made the other half obvious — a
+business with three services has finished the services step whether or not it
+ever opened this form, and **every business that existed before this change is
+in exactly that position.** `setupProgress()` therefore asks the database
+first and the stored list carries only what nothing else can. Without it the
+owner's own live business would have been told it had done nothing. **`where
+you work` is the one step nothing can derive** (`mobile_enabled` and
+`dropoff_enabled` both default to true, so "I do both" and "nobody has been
+asked" are the same two rows), which is why the seeded demo reads *6 of 7
+done*.
+
+**SIX THINGS THAT WERE ONLY FINDABLE BY BUILDING, MEASURING, OR TABBING.**
+
+1. **THE TOUR'S COUNT LIED FOR A WHOLE ROLE.** Rule 3 skips a step whose
+   target is absent, which runs the tour correctly and cannot COUNT it. On a
+   staff login it delivered four steps while the card said *"of 7"* the whole
+   way. The plan is resolved once now, before the first step is drawn.
+2. **THE FOCUS TRAP WAS THREE DEFECTS, NOT ONE.** A backdrop stops a POINTER
+   and stops nothing else, so `Tab` walked into the dashboard behind the dim
+   and `Enter` pressed the very control the caption was pointing at. Adding
+   the trap did nothing, twice over: the effect depended on `onClose`, an
+   inline arrow that is a new identity every render, so its own cleanup kept
+   yanking focus back out; and the caption is `visibility: hidden` until it
+   has been placed, and **a hidden element cannot take focus**, so "focus
+   moves to the caption card" had never once happened. All three found with a
+   real `Tab` walk, which is the only place any of them is visible.
+3. **THE TOUR STARTED ON THE WRONG SCREEN FROM ITS OWN SECOND DOOR.** It is
+   re-runnable from the gear, and the gear TAKES the main area — so a tour
+   started from there had no Today on the page and silently skipped its first
+   step. The first step names its tab now.
+4. **A FIXED FRAME BUDGET READ A LOADING SCREEN AS A MISSING TARGET.** Twelve
+   frames is plenty once a screen is quiet and nothing at all once it is
+   fetching, so the give-up test asks whether a `.spinner` is on the page —
+   the same signal `sweep-widths.mjs`'s own `settle()` uses.
+5. **THE CAPTION NEEDED A THIRD PLACEMENT, and §1c says "no third case".** At
+   392x844 the day rail is a **665px** hole with 98px above and 80px below for
+   a 130px card.
+6. **PINNING THE ACTIONS TO THE BOTTOM HAD TO HAVE NO BREAKPOINT.** The
+   obvious rule was `(max-width: 1023px) and (min-height: 500px)` — the guard
+   CLAUDE.md requires of any layout decision that spends height. It is wrong
+   here: a rule that fires only in portrait means rotating a phone MOVES the
+   buttons, which is the owner's ruling being broken by the very clause
+   written to respect it. **The same rule at every size cannot change on
+   rotation.**
+
+**VERIFIED ON A GENUINELY NEW BUSINESS, WHICH THE SEEDED DEMO CANNOT ANSWER.**
+Component inventory §1c asks for the EMPTY dashboard, "the opposite of every
+other screen in this rebuild". An account was signed up through the real form
+and a business created through `CreateBusiness`: the setup form opened itself
+at step 1 with **two of seven segments filled** (`create-business` gives a new
+business Mon–Fri 9–5 and the account's own email, and both are true), all
+seven steps were skipped without one of them blocking, the tour then ran
+**six** steps over the empty dashboard — the missing one being *a job*,
+exactly §1c's own example — and Business afterwards read *"Finish setting up ·
+2 of 7 done"*. Neither returned on its own after a reload. The business and
+its account were then deleted.
+
+**AND EVERY WRITE WAS FOLLOWED INTO THE DATABASE.** The seven steps were run
+once with real values on the demo and each row read back: the service, the
+add-on and the promo code as typed; seven `business_hours` rows with the four
+open days set and the other three present-and-null (the invariant the slot
+engine depends on); `contact_phone` and `contact_email`; `mobile_enabled` true
+with `dropoff_enabled` false for *"I go to them"*; and all seven keys in
+`setup.done`. The demo was re-seeded afterwards.
+
+**MEASURED AFTER.**
+
+| | |
+|---|---|
+| `sweep-widths.mjs` | clean at 1920 / 1440 / 392 / 360 / 320, normal and `?lite=1` — **54 screens now**, including the form's seven steps and the tour's seven |
+| Console at 1920 / 1440 / 392 | nothing but the two pre-existing React Router v7 future-flag warnings |
+| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `email-brand` · `client-list` · `qr-scans` · `decisions-index` · `accent-sweep` | all pass |
+| The progress rule at 320 | 37.14px a segment against the ≥28px the inventory set as its floor |
+| Keyboard, tour | Tab cycles the caption's two controls and never reaches the page behind; Escape closes; the body lock is restored |
+| First run, new business | form at step 1 with 2 of 7 filled; tour 6 steps; neither returns after a reload |
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**

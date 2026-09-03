@@ -1860,6 +1860,13 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .lite .spinner { animation: none; border-top-color: var(--hairline); }
 .lite .sheet, .lite .sheet-backdrop { animation: none; }
 .lite .sheet { transition: none; }
+/* FIRST RUN. The setup form's step slide, the walkthrough's dim and its
+   caption all render their END state instead — the hole is simply where it
+   is. The spotlight's own travel between targets is a transition and is
+   covered by the `* { transition-duration: 1ms }` line below; naming it here
+   as well would be two rules for one fact. */
+.lite .setupform, .lite .setupstep, .lite .tourline,
+.lite .spotlight, .lite .tourcard { animation: none; }
 .lite * { transition-duration: 1ms !important; }
 
 /* ---------------------------------------------------------------------
@@ -2427,3 +2434,160 @@ button.warn-box:hover { border-color: var(--fog-2); }
      twelve is a whole rectangle either way. */
   .swatch-row { grid-template-columns: repeat(4, 44px); }
 }
+
+/* ═══════════════════════════════════════════════════════ FIRST RUN
+   Roadmap 2.11 step 6, stage 7. Two things the owner insisted stay two: a
+   stepped SETUP FORM and, separately, a guided WALKTHROUGH. The only two
+   genuinely new shapes the whole rebuild asked for (component inventory
+   §1b, §1c). */
+
+/* ONE COLUMN AT EVERY WIDTH, and that is a decision rather than a default —
+   screen designs §13a: "a stepped form that widened would just put more air
+   around one question". So width is CAPPED rather than spent, and the cap is
+   the measure a question and its answer want, not the content column's 1,144.
+
+   IT IS CENTRED, WHICH IS THE SECOND AND LAST SPEND OF "centred exactly
+   once" (design-system.md § Composition, and §14 of the screen designs spends
+   the first on sign-in). The justification is the same one §14 gives: these
+   are the only screens in the product with exactly ONE thing on them. A
+   560px column pinned to the left of a 1,144px one at 1920 is the
+   "not enough content to fill the viewport" failure this project already has
+   a rule about.
+
+   NO ENTRANCE OF ITS OWN. It is a `.group` directly under `.app-main`, so its
+   children already take the screen's staggered arrival — the entrance the
+   whole dashboard uses. Giving it a second one on top would be two
+   animations running the same 420ms. The EXIT is its own, because nothing
+   else provides one. */
+/* THE ACTIONS SIT AT THE BOTTOM OF THE FRAME, at every width and with no
+   media query — which is the point. One question a step means most steps do
+   not fill a screen, and a Continue that stops a third of the way down reads
+   as a page that failed to finish loading. Pinning them is also the thumb on
+   a phone. NO BREAKPOINT because a layout decision that spends HEIGHT must
+   ask about height (CLAUDE.md), and the honest answer here is that it does
+   not need to: the same rule at every size means rotating a phone changes
+   nothing, which is the owner's ruling of 2026-08-31.
+
+   WHAT THIS COSTS, STATED SO NOBODY "FIXES" IT INTO A REAL BUG: at 1920x1080
+   the shortest step leaves about 600px between the question and Continue. The
+   obvious repair is to centre the form vertically instead, and it is a trap —
+   `justify-content: center` on a container the PAGE scrolls pushes a tall
+   step's first line ABOVE the container's top edge, where no scroll can reach
+   it (`safe center` fixes that and is younger than this product's floor).
+   A frame with its actions at the bottom is what an installer looks like; an
+   unreachable heading is a defect. The gap is the cheaper of the two. */
+.app-main:has(> .setupform) { display: flex; flex-direction: column; }
+.setupform { max-width: 560px; margin-inline: auto; width: 100%; flex: 1; }
+.setupfoot { margin-top: auto; }
+.setupform.leaving { animation: setup-out var(--t-exit) var(--e-out) forwards; }
+@keyframes setup-out { to { opacity: 0; transform: translate3d(0, 8px, 0); } }
+
+/* THE PROGRESS RULE — the one new MARK in the product, used on one screen.
+   Seven segments of a 2px rule: --hairline track, --accent fill, --sp-1 gaps,
+   small rounding.
+
+   A SEGMENT FILLS WHEN A STEP IS COMPLETED, NEVER WHEN IT IS PASSED, and the
+   reason is a data question rather than a visual one (component inventory
+   §1b): setup is skippable at any point, and Business carries the same number
+   in words, so a bar that painted POSITION would fill to the end for a
+   detailer who skipped seven times while Business told them nothing was done.
+   A skipped step is therefore a HOLE, and the hole is the feature — segments
+   rather than one continuous fill exist for exactly that: a gap at position
+   two with position three full is a legible instruction to go back.
+
+   NO COLOUR CARRIES MEANING: filled and empty differ in FILL, not in hue, so
+   this adds nothing to the 1.4.1 surface, and where you are is said in words
+   underneath.
+
+   AND THE TRACK IS DECORATION, WHICH IS WHY IT MAY BE A HAIRLINE. Measured:
+   --hairline is 1.40:1 on the ground and --line-2 would be 1.71 — no neutral
+   in this system reaches 1.4.11'''s 3:1 there, and the only one that would
+   (--fog-2) draws a rule that reads as ALREADY FULL, which is worse than
+   faint. It does not need to: the graphical object carrying the information
+   is the FILLED segment, which is the tenant'''s accent as a fill on the
+   ground and is gated at 3:1 by accent-sweep.mjs for every preset (11.32:1
+   for the house green). An empty segment says "not done" by ABSENCE, and the
+   gap between two filled marks is legible because the marks are. THE CEILING, so nobody has to re-derive it: at 320 the form has
+   244px of usable width, so seven segments and six 4px gaps put a segment at
+   ~31px. Past about ten steps they stop reading as separate things and the
+   count in words is doing all the work. */
+.progress-rule { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--sp-1); }
+.progress-rule > span {
+  height: 2px; border-radius: 1px; background: var(--hairline);
+  transition: background var(--t-hover) var(--e-out);
+}
+.progress-rule > span.on { background: var(--accent); }
+
+/* A STEP ARRIVES FROM THE DIRECTION IT WAS TRAVELLING. Transform and opacity
+   only, 180ms — the owner's acceptance test for all of this is "fluid and
+   connected, without being in the way of productivity", and a step change is
+   a thing somebody does seven times in two minutes. --t-reveal would gate it.
+   Keyframes rather than a transition because the element is REPLACED on each
+   step (React keys it), so there is no previous value to retarget from. */
+.setupstep {
+  display: flex; flex-direction: column; gap: var(--sp-4);
+  animation: step-fwd var(--t-exit) var(--e-out);
+}
+.setupstep.back { animation-name: step-back; }
+.setupstep .title:focus-visible { outline: none; }
+@keyframes step-fwd  { from { opacity: 0; transform: translate3d(14px, 0, 0); } }
+@keyframes step-back { from { opacity: 0; transform: translate3d(-14px, 0, 0); } }
+
+/* Two ways on, and they are not equal: Continue is the filled one. `.btnrow`
+   is the existing pair, and the quit line under it is deliberately a third,
+   quietest weight — three actions take three weights (design-system.md). */
+.setupfoot { display: flex; gap: var(--sp-2); }
+.setupfoot .btn { flex: 1; }
+/* The step body must not stretch into the space `margin-top: auto` is
+   claiming — it is content, not a filler. */
+.setupstep { flex: 0 0 auto; }
+.setupquit { align-self: flex-start; color: var(--text-muted); }
+
+/* THE SPOTLIGHT — the only overlay in the product that is not a sheet, and
+   one element rather than a mask (component inventory §1c). A 9999px spread
+   shadow dims everything OUTSIDE the box, so the box is the hole. It never
+   touches the target's own styles, which matters because the tour runs over
+   the live dashboard with the detailer's real data.
+
+   `.tourblock` is transparent and catches every pointer event, which is what
+   makes the lit element un-clickable: the alternative — letting the real +
+   be tapped while a caption points at it — opens New booking in the middle
+   of a tour with no good answer for what happens next.
+
+   THE HOLE TRAVELS BETWEEN STEPS rather than cutting, because the whole
+   point of a spotlight is that it is the same light moving. A transition,
+   not keyframes: the target can change before the last move has finished and
+   a transition retargets from where it is. The properties are named rather
+   than `all` — four of them, on one fixed element with no children, so the
+   layout cost is the element itself. */
+.tourblock { position: fixed; inset: 0; z-index: 60; }
+.spotlight {
+  position: fixed; pointer-events: none;
+  border-radius: var(--r-panel);
+  box-shadow: 0 0 0 9999px var(--overlay);
+  transition: top var(--t-hover) var(--e-out), left var(--t-hover) var(--e-out),
+              width var(--t-hover) var(--e-out), height var(--t-hover) var(--e-out);
+  animation: dim-in var(--t-reveal) var(--e-out);
+}
+/* Out faster than in — law 4, and the same pair .sheet already keeps. */
+.tourblock.leaving .spotlight,
+.tourblock.leaving .tourcard { animation: dim-out var(--t-exit) var(--e-out) forwards; }
+@keyframes dim-in  { from { opacity: 0; } }
+@keyframes dim-out { to   { opacity: 0; } }
+
+/* The caption. Placed in JS against the measured hole (there is no CSS way to
+   ask "does this fit under that"), so this rule owns everything except top
+   and left. The panel surface a sheet takes, because it is over the page. */
+.tourcard {
+  position: fixed; width: min(340px, calc(100vw - 32px));
+  display: flex; flex-direction: column; gap: var(--sp-2);
+  background: var(--surface-lit); border: 1px solid var(--border);
+  border-radius: var(--r-panel); padding: var(--sp-4);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+  animation: arrive var(--t-reveal) var(--e-out);
+}
+.tourcard:focus-visible { outline: none; }
+.tourcard .btnrow { margin-top: var(--sp-1); }
+/* The sentence is the only thing that changes between steps, so it is the
+   only thing that moves. */
+.tourline { animation: step-fwd var(--t-exit) var(--e-out); }

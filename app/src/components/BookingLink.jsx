@@ -139,7 +139,9 @@ export default function BookingLink({ slug }) {
   const canCopyImage = typeof window !== "undefined" && typeof window.ClipboardItem === "function";
 
   return (
-    <div className="tight">
+    /* data-tour — the walkthrough's LAST step (§13b), because the link is the
+       thing they have to go and use. */
+    <div className="tight" data-tour="link">
       <span className="label">Your booking page</span>
       <div className="card">
         {/* The address itself, selectable, in the figure face — it is a

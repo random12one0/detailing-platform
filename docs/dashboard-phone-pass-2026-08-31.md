@@ -766,6 +766,57 @@ it is.
 
 ---
 
+## 14-15 · What shipped (roadmap 2.11 step 6, stage 7 — 2026-09-02)
+
+**Both are built.** §14 and §15 hold; three things the phone decided
+differently, and one number this file can now state instead of predicting.
+
+**1. ONE COLUMN AT EVERY WIDTH, BUT CAPPED AND CENTRED.** §14's decision was
+that the form must not widen, and it does not — 560px is the measure a
+question and its answer want. What §14 did not say is what the other 620px of
+a desk column do, and the answer is nothing: the form is centred in it. That
+is the SECOND and last spend of the design system's *"centred exactly once"*,
+and it is spent on the same grounds §16 spends the first — these are the only
+screens in the product with exactly one thing on them. A 560px column pinned
+to the left of a 1,144px one at 1920 is the "not enough content to fill the
+viewport" failure this project already has a rule about.
+
+**2. THE ACTIONS ARE PINNED TO THE BOTTOM OF THE FRAME, WITH NO BREAKPOINT,
+AND THE MISSING BREAKPOINT IS THE POINT.** One question a step means most
+steps do not fill a screen: at 392x844 the *Where does the work happen?* step
+is a heading and a three-way control, and a Continue that stopped 300px down
+read as a page that had failed to finish loading. Pinning is also the thumb.
+The obvious implementation was `@media (max-width: 1023px) and (min-height:
+500px)` — the guard CLAUDE.md requires of any layout decision that spends
+height — and it was rejected: a rule that fires only in portrait means
+rotating a phone MOVES the buttons, which is the owner's 2026-08-31 ruling
+being broken by the very clause written to respect it. **The same rule at
+every size cannot change on rotation.** So `.app-main:has(> .setupform)`
+becomes a flex column and `.setupfoot` takes `margin-top: auto`, everywhere.
+This is a sixth site of that question and the first one whose answer was "no
+breakpoint".
+
+**3. THE PROGRESS RULE'S 320 CEILING, MEASURED RATHER THAN PREDICTED.**
+Component inventory §1b worked it out at **~31px a segment** from 244px of
+usable width and set the floor at 28px. The real figure at 320 is **284px of
+usable width and 37.14px a segment.** The ceiling it derives from that is
+therefore later than §1b thought: seven segments have room to spare, and the
+count in words is not carrying the load yet.
+
+**4. THE WALKTHROUGH'S PHONE DECISION HELD, AND ONE SENTENCE STILL BROKE IT.**
+§15's rule is that a step names the THING, never its position, because the
+bottom bar is the left rail at a desk. The first draft of step 3 read *"Tap a
+job…"*, which names the GESTURE — wrong on every width at 1180 and above for
+exactly the same reason. It reads *"Open a job to see everything about it."*
+The rule is about anything that is only true of one size, not only about
+position.
+
+**5. THE CAPTION NEEDED A THIRD PLACEMENT** — see the screen designs' own
+§13 What shipped. At 392x844 the day rail's hole is 665px tall and neither
+"under" nor "over" fits a 130px card.
+
+---
+
 ## 16. The way in — sign in, create a business, accept an invitation
 
 **One shape: a single centred card on the ground.** This is where the design

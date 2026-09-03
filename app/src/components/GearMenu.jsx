@@ -29,7 +29,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  Bell, Building2, ChevronRight, LogOut, MessageSquare, Smartphone, Users, X,
+  Bell, Building2, ChevronRight, Compass, LogOut, MessageSquare, Smartphone, Users, X,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -46,7 +46,7 @@ function describeDevice() {
   return `${where} · ${MAPS_NAME[p.maps] ?? "Maps"} · ${CAL_NAME[p.calendar] ?? "Calendar"}`;
 }
 
-export default function GearMenu({ onClose }) {
+export default function GearMenu({ onClose, onTour }) {
   const { business, settings, role, memberships, signOut } = useBusiness();
   const owner = role === "owner";
   const [open, setOpen] = useState(null);
@@ -77,6 +77,13 @@ export default function GearMenu({ onClose }) {
     // A PICKER WITH ONE CHOICE ON IT IS A CONTROL THAT CANNOT CHANGE
     // ANYTHING. It is absent at one membership, which is every account in the
     // product today — the row appears the day somebody runs two businesses.
+    // THE TOUR'S SECOND DOOR, and its only one after the first morning — the
+    // walkthrough leaves whenever you want and never comes back on its own
+    // (screen designs §13b), so something has to be able to ask for it. It
+    // belongs behind the gear by this screen's own admission test: it changes
+    // how the app behaves for the DETAILER and nothing a customer meets.
+    // Staff keep it; they are the ones most likely to be new.
+    ["tour", "Show me around", Compass, "The guided tour of this dashboard", false],
     ...(memberships.length > 1
       ? [["switch", "Switch business", Building2, `${memberships.length} businesses`, false]]
       : []),
@@ -114,7 +121,7 @@ export default function GearMenu({ onClose }) {
         {ROWS.map(([key, name, Icon, now]) => (
           <button className="nav-row" key={key} data-settings-key={key}
             aria-current={open === key ? "true" : undefined}
-            onClick={() => setOpen(key)}>
+            onClick={() => (key === "tour" ? onTour?.() : setOpen(key))}>
             <span className="ico"><Icon size={19} strokeWidth={2} /></span>
             <span className="txt">
               <span className="name">{name}</span>

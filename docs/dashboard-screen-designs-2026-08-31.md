@@ -1459,6 +1459,93 @@ genuinely new shapes this file asks for.
 
 ---
 
+## 13 · What shipped (roadmap 2.11 step 6, stage 7 — 2026-09-02)
+
+**All seven stages are built; this is the last one.** §13 stays as written —
+the reasoning is the part that survives — and this block is what the code does
+where it differs, with the reason attached.
+
+| | §13 designed | What shipped |
+|---|---|---|
+| The seven steps | six areas named, "seven" everywhere else | **services · add-ons · promo code · hours · where you work · your details · your colour** — the seventh is *Your colour*, and where it comes from is below |
+| "N of 7 done" | a stored count | **derived where the database can answer, stored only where it cannot.** Five of the seven are facts the schema already holds |
+| The setup form's container | one column at every width | one column, **capped at 560px and centred** — the second and last spend of "centred exactly once" |
+| Its actions | not specified | **pinned to the bottom of the frame at every width**, no breakpoint, so rotating a phone changes nothing |
+| Each step's editor | not specified | six written here; ***Your colour* renders `screens/more/Appearance.jsx` whole** |
+| The walkthrough's step count | "six steps that day and seven later" | **planned before the first step is drawn**, so the card counts what this dashboard actually has. Measured: 7 for an owner with jobs, **6 on the empty dashboard**, **4 for staff** |
+| The caption's placement | "two branches, no third case" | **three.** The day rail is a 665px hole on an 844px phone and neither branch fits |
+| Leaving the tour | Escape · *Skip the tour* | both, **plus a focus trap** — `aria-modal="true"` with a reachable page behind it is the defect `Sheet.jsx` fixed on 2026-09-01 |
+
+**THE SEVENTH STEP, because the count and the list in §13a disagree.** §13a
+names six areas; §1b and the phone pass both say seven segments. Services and
+add-ons are one settings screen and two questions, which gets to six. The
+seventh is *Your colour*: it is the eight rows of the Business tab — the ones
+that pass the admission test, *what a CUSTOMER meets* — minus the two a
+detailer cannot answer on their first morning. Photo gallery needs photos and
+Reviews needs customers.
+
+**COMPLETION IS DERIVED WHERE IT CAN BE, AND THAT IS NOT AN OPTIMISATION.**
+§1b's ruling is that a segment fills when a step is COMPLETED so the bar and
+Business's row cannot disagree. Building it made a second thing obvious: a
+business with three services has finished the services step whether or not it
+ever opened this form, and **every business that existed before today is in
+exactly that position.** So `setupProgress()` asks the database first and the
+stored list carries only what nothing else can. Without it, the owner's own
+live business would have been told it had done nothing.
+
+**`where you work` IS THE ONE STEP NOTHING CAN DERIVE**, and that is a fact
+about the schema rather than an oversight: `mobile_enabled` and
+`dropoff_enabled` both default to true, so *"I do both"* and *"nobody has been
+asked"* are the same two rows. It is the only step that stays open until
+somebody answers it, which is correct — it changes what the booking page asks
+the customer. It is also why the seeded demo reads **6 of 7 done**.
+
+**SIX EDITORS WRITTEN HERE, ONE REUSED, AND THE SPLIT IS NOT ARBITRARY.**
+*Your colour* renders `Appearance.jsx` whole because it commits on the tap
+that picks a swatch and has no Save button to lose. The other six settings
+screens all END in a Save button, and a step whose Continue does not save is a
+step that silently throws away what was typed into it — which is the opposite
+of §13a's *"each step commits on leaving it"*. So the form holds one `draft`
+and one `commit()`, and Continue is the write.
+
+**THE THIRD BRANCH IN THE CAPTION'S PLACEMENT, measured.** §1c rule 5 says
+under the hole if it fits, over it otherwise, *"two branches, no third case"*.
+The third case is the day rail: at 392x844 that hole is **665px tall**, which
+leaves 98px above it and 80px below for a 130px card. Clamping to the top
+covers the first job — the thing the sentence is about. The third branch pins
+the card to the bottom edge, which is the half of a long list nobody reads
+first.
+
+**THE COUNT IS PLANNED, NOT DISCOVERED.** Rule 3 skips a step whose target is
+absent, and that is enough to run the tour correctly but not to count it:
+measured on a staff login, the tour ran four steps while the card said *"of
+7"* the whole way, because Money, Business and the booking link are all gone
+for that role and each was only found as it was reached. A count that promises
+seven and delivers four is worse than no count. So the tour resolves its plan
+once, before the first step is drawn: a step that names a TAB is available
+when that tab's own button exists — which makes the role filter in `App.jsx`
+do the work for free — and a step that names nothing is available when its own
+target is on the screen it starts on.
+
+**VERIFIED ON A GENUINELY NEW BUSINESS, which is what §1c asks for and what
+the seeded demo cannot answer.** An account was signed up through the real
+form, a business created through `CreateBusiness`, and first run watched end
+to end: the form opened itself at step 1 with **two of seven segments already
+filled** (`create-business` gives a new business Mon–Fri 9–5 and the account's
+own email, and both of those are true), all seven steps were skipped without
+one of them blocking, the tour then ran **six steps** over the empty dashboard
+— the missing one being *a job*, exactly the example §1c uses — and Business
+carried *"Finish setting up · 2 of 7 done"* afterwards. Neither came back on
+its own after a reload. The business and its account were then deleted.
+
+**WHAT NEITHER DESIGN FILE PREDICTED, and it is a shell rule rather than a
+screen:** the setup form takes the main area exactly as the gear does, so the
+gear's two rules apply to it unchanged — **no tab is lit while it is up**, and
+**pressing a tab is a way out of it.** *Skippable at any point* has to include
+the bar that is already on the screen.
+
+---
+
 ## 14. The way in
 
 **Sign in · Create a business · Accept an invitation.** One shape: a single

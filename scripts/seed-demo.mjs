@@ -103,6 +103,15 @@ await post("/rest/v1/business_settings", [{
   cancellation_window_hours: 24,
   google_review_url: "https://example.com/google-review",
   yelp_review_url: "https://example.com/yelp-review",
+  // FIRST RUN, PINNED (roadmap 2.11 step 6, stage 7). `seen` so the setup
+  // form never ambushes the demo — it is a fully set-up business, which is
+  // the whole point of it — and `done` EMPTY so Business still carries the
+  // "Finish setting up" row that `sweep-widths.mjs` opens the form from.
+  // Six of the seven steps are derived from the demo's own data, so the row
+  // reads "6 of 7 done" and the one hole is `where`, the only step nothing in
+  // the schema can answer. Without this line the sweep loses the setup form
+  // the first time somebody presses Continue on that step.
+  setup: { done: [], seen: true, dismissed: false },
   // ROADMAP 2.8c. The demo carries one of each new pricing shape, because a
   // feature with no seed row is a feature nobody ever looks at — the same
   // reason roadmap 2.4 added a cancelled and a no-show booking. The travel fee

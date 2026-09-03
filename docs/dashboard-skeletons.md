@@ -170,7 +170,14 @@ you click something in the calendar, you click a booking, whatever, and it just
 instantly pops”*.
 
 **So: a NEW component that opens gets its entrance and its exit in the change
-that builds it.** The existing ones are roadmap 2.17’s job and are a list, not
+that builds it.** *(First honoured 2026-09-02, roadmap 2.11 step 6 stage 7:
+the setup form fades and drops 8px out at `--t-exit` and the walkthrough's dim
+and caption go with it, and each step's caption arrives from the direction it
+travelled at `--t-exit` rather than at `--t-reveal` — a step change is a thing
+somebody does seven times in two minutes, and 420ms there is a gate. The
+form's own ENTRANCE is the screen's existing staggered arrival: it is a
+`.group` directly under `.app-main`, so adding a second one would be two
+animations running the same 420ms.)* The existing ones are roadmap 2.17’s job and are a list, not
 two items — he named the two he happened to hit. His own limit is the
 acceptance test and it has not moved: *fluid and connected, without being in
 the way of productivity*. Interruptible, fast, never a gate between a tap and

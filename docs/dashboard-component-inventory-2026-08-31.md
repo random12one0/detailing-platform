@@ -147,6 +147,27 @@ now is what it must assert.
 
 ### 1b. The stepped setup form's progress rule
 
+> **BUILT 2026-09-02, roadmap 2.11 step 6 stage 7 — `.progress-rule` in
+> `theme.css`, drawn by `components/SetupForm.jsx`. Two corrections below,
+> both from measuring rather than from taste.**
+>
+> **THE CEILING WAS PESSIMISTIC.** This section derives ~31px a segment at 320
+> from 244px of usable width. The real figure is **284px and 37.14px a
+> segment** — the form's own container gives more back than the arithmetic
+> here assumed. The ≥28px check in §6 passes with room.
+>
+> **AND THE RULE GREW A HALF NOBODY WROTE DOWN: completion is DERIVED where
+> the database can answer it.** The reasoning below is exactly right that
+> filled must mean COMPLETED so the bar and Business's row cannot disagree.
+> What it does not say is that five of the seven steps are facts the schema
+> already holds — a business with three services has finished the services
+> step whether or not it ever opened this form, and **every business that
+> existed before this change is in that position.** So `setupProgress()` asks
+> the data first and the stored list carries only what nothing else can. One
+> step (*where you work*) can never be derived, because `mobile_enabled` and
+> `dropoff_enabled` both default to true and "I do both" is indistinguishable
+> from "nobody has been asked".
+
 **The one new mark in the product**, used on one screen, and it is a mark
 rather than a container — so §1a's refusal of a new vocabulary item stands
 alongside it. `.bars` is Money's own furniture and is not in the vocabulary
@@ -190,6 +211,47 @@ reduced motion needs no new rule.
 nothing from the desktop split and nothing from `RecordHost`.
 
 ### 1c. The walkthrough's spotlight
+
+> **BUILT 2026-09-02, roadmap 2.11 step 6 stage 7 — `components/Walkthrough.jsx`
+> and `.tourblock` / `.spotlight` / `.tourcard` in `theme.css`. The mechanic
+> below is exactly what shipped, including the 9999px shadow and `--overlay`,
+> the product's existing dim, rather than a new `color-mix`. Four corrections.**
+>
+> **RULE 5 HAS A THIRD CASE, and it is the day rail.** "Under the hole if it
+> fits, above it otherwise, two branches, no third case" leaves nowhere for a
+> caption when the hole is most of the screen: at 392x844 `.dayrail` is a
+> **665px** hole with 98px above and 80px below, and the card is 130px.
+> Clamping to the top covers the first job, which is what the sentence is
+> about. The third branch pins the card to the bottom edge.
+>
+> **RULE 3 RUNS THE TOUR CORRECTLY AND CANNOT COUNT IT.** Skipping an absent
+> target as it is reached is right; discovering the absences one at a time is
+> not, because the card says "N of 7" from the first step. Measured on a staff
+> login: four steps delivered against seven promised, since Money, Business
+> and the booking link are all gone for that role. **The plan is resolved once
+> before the first step is drawn** — a step that names a TAB is available when
+> that tab's own button exists (so `App.jsx`'s role filter does the work for
+> free), and a step that names nothing is available when its target is on the
+> screen the tour starts on. Owner with jobs: 7. Empty dashboard: 6. Staff: 4.
+>
+> **RULE 6 NEEDED A FOCUS TRAP, and rule 1 turns out to depend on it.** A
+> backdrop stops a POINTER and stops nothing else: `Tab` walked into the
+> dashboard behind the dim and `Enter` pressed the very control the caption
+> was pointing at, which is the outcome rule 1 exists to prevent — and
+> `aria-modal="true"` was telling a screen reader the opposite. It is
+> `Sheet.jsx`'s own fix, not a second one. **Two React defects had to be
+> fixed before it worked, and both are invisible in the stylesheet**: the
+> effect depended on `onClose`, an inline arrow that is a new identity every
+> render, so its cleanup re-ran constantly and yanked focus back out; and the
+> caption is `visibility: hidden` until it has been placed, and a hidden
+> element cannot take focus, so the "focus moves to the caption card" call
+> did nothing at all. Both found with a real `Tab` walk, which is the only
+> place either is visible.
+>
+> **THE FIRST STEP NAMES ITS TAB.** The tour is re-runnable from the gear, and
+> the gear TAKES THE MAIN AREA — so a tour started from there had no Today on
+> the page and silently skipped its own first step. Saying which screen it
+> starts on makes it deterministic from wherever it was asked for.
 
 **The only overlay in the product that is not a sheet**, and the laziest
 mechanic that actually works is one element:
@@ -373,8 +435,8 @@ this section did not predict was needed is now here: `SettingsHost.jsx`.**
 | `components/RecordHost.jsx` | Sheet below 1180, sticky column above. | §2. Six callers, one width check. |
 | **`components/SettingsHost.jsx`** — **NOT PREDICTED BY THIS FILE, built 2026-09-02** | Where a settings screen is drawn: a page below --wrap, the second column at or above it. `RecordHost`’s twin. | **The gap is instructive.** At step 5 a settings screen was still a `Sheet` below 1180, so `Sheet` WAS the container and no new component was needed. Step 4b re-decided that (“a page, with a back control”) and no file came back to name the piece that decision now required. A container change is a component even when it is only a container. |
 | `hooks/useWide.js` | Six lines of `matchMedia`. | Calendar's inline day panel needs the width without needing `RecordHost`. |
-| `components/SetupForm.jsx` | The stepped form, one question a step, skippable and resumable, with §1b's rule. | The only stepped thing in the product. |
-| `components/Walkthrough.jsx` | The spotlight and its step list, §1c. | The only overlay that is not a sheet. |
+| `components/SetupForm.jsx` | **BUILT 2026-09-02.** The stepped form, one question a step, skippable and resumable, with §1b's rule. It also exports `setupProgress()` and `loadSetupCounts()`, because Business's resume row has to print the same number the bar paints. | The only stepped thing in the product. Six of its seven editors are written in the file; *Your colour* renders `screens/more/Appearance.jsx` whole, because that screen commits on the tap that picks a swatch and has no Save button to lose. The other six settings screens end in one, and a step whose Continue does not save throws away what was typed into it. |
+| `components/Walkthrough.jsx` | **BUILT 2026-09-02.** The spotlight and its step list, §1c, plus a resolved PLAN — which of the seven this dashboard actually has, worked out before the first step is drawn. | The only overlay that is not a sheet. Its targets are `data-tour` attributes on Today's masthead and rail, the header `+`, the tab buttons and the booking link — five files gained one attribute each and nothing else. |
 | `lib/export.js` | Jobs and expenses for the chosen period, nothing more — his answer to Q4. | Row 40. It uses the period already on the Money screen, so it needs no control of its own. |
 
 **`RequestCard` — named, not built.** Step 4 designed the accept/decline card
@@ -560,10 +622,10 @@ are the ones this step adds.
 | `sweep-widths.mjs`'s `MORE` list | **11 titles** | **13**, reached from two doors — Business and the gear |
 | CLAUDE.md's *"all eleven settings sheets"* | 11 | **13** |
 | Things with a back end and no door | 7 | **3** |
-| Setup form: steps skipped vs segments filled | — | **filled == completed**, and equal to Business's *"N of 7 done"* |
+| Setup form: steps skipped vs segments filled | — | **filled == completed**, and equal to Business's *"N of 7 done"*. **MEASURED 2026-09-02:** seven skips leave the bar where it was and Business reads *2 of 7 done* on a new business (the two being what `create-business` itself sets). |
 | Walkthrough on an **empty** dashboard | — | **runs, skips the absent steps, never blanks** |
 | Spotlight target rect at 392, 1024 and 1440 | — | **on the element at all three**, targets found by `data-tour` |
-| `.progress-rule` segment width at 320 | — | **≥ 28px** with seven steps |
+| `.progress-rule` segment width at 320 | — | **≥ 28px** with seven steps. **MEASURED 2026-09-02: 37.14px**, from 284px of usable width rather than the 244 §1b assumed. |
 
 ---
 

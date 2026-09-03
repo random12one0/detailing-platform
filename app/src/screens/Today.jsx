@@ -166,7 +166,11 @@ export default function Today({ refreshKey = 0 }) {
       {/* Above the day, and the last good day stays drawn. */}
       {error && <div className="error-box">{error}</div>}
       {/* The day is the headline. */}
-      <div>
+      {/* data-tour — the walkthrough's first target, and it is the MASTHEAD
+          rather than the rail on purpose: the rail is absent on the empty
+          dashboard the tour was designed for, and a first step that skips
+          itself leaves the tour starting on the header + . */}
+      <div data-tour="day">
         <h1 className="title">{longDate}</h1>
         <p className="quiet" style={{ marginTop: 2 }}>
           {partOfDay}{firstName ? `, ${firstName}` : ""} · {empty
@@ -224,7 +228,7 @@ export default function Today({ refreshKey = 0 }) {
           any date. Roadmap 2.12 fills this; 2.11 builds the slot empty. */}
 
       {!empty && (
-        <div className="dayrail">
+        <div className="dayrail" data-tour="job">
           {needsPay.length > 0 && (
             <h2 className="label">Needs payment · {needsPay.length}</h2>
           )}
