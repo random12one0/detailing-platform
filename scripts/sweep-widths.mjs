@@ -543,7 +543,15 @@ for (const w of SIZES) {
   // always there.
   await page.getByRole("button", { name: "Business", exact: true }).first().click();
   await settle(page, 1400);
+  // WAIT FOR THE ROW RATHER THAN ASSUME IT, and the reason is a real property
+  // of the screen: Business renders its rows immediately with "…" summaries
+  // and fills them in when one round trip returns, and the resume row is the
+  // one that is ABSENT until then rather than merely unfilled. `settle()`
+  // cannot see that — there is no spinner and the DOM goes quiet — so the
+  // click below raced the fetch and reported NO SUCH ROW. It bit in `--lite`
+  // first, because everything settles sooner with no animations running.
   const finish = page.locator(".nav-row", { hasText: "Finish setting up" });
+  await finish.first().waitFor({ timeout: 10000 }).catch(() => {});
   if (!(await finish.count())) {
     console.log(`${"the setup row".padEnd(24)} NO SUCH ROW (re-run scripts/seed-demo.mjs)`);
     found++;
@@ -558,14 +566,25 @@ for (const w of SIZES) {
       await back.click();
       await settle(page, 500);
     }
-    for (let k = 1; k <= 7; k++) {
-      await say(`setup · step ${k}`);
-      if (k === 7) break;
-      await page.getByRole("button", { name: "I'll do this later" }).click();
+    // LABELLED BY THE FORM'S OWN STEP LINE, not by the loop counter, and
+    // guarded on the button existing rather than waiting 30s for it. The
+    // first version counted 1..7 and clicked blind: when the walk back to
+    // step 1 did not land where it assumed, every label was wrong by the same
+    // offset AND the last click closed the form, after which the run hung on
+    // a button that no longer existed. A walk that names what it is looking
+    // at cannot drift, and one that checks before it clicks cannot hang.
+    for (let k = 0; k < 8; k++) {
+      const line = await page.locator(".setupform .label").first().textContent().catch(() => null);
+      if (!line) break;                       // the form is gone
+      await say(`setup · ${line.replace(/ · .*/, "").toLowerCase()}`);
+      const later = page.getByRole("button", { name: "I'll do this later" });
+      if (!(await later.count())) break;
+      await later.click();
       await settle(page, 800);
     }
-    await page.locator(".setupform .x").click();
-    await settle(page, 700);
+    // It may already have closed itself on the last "later" of step 7.
+    const x = page.locator(".setupform .x");
+    if (await x.count()) { await x.click(); await settle(page, 700); }
   }
 
   await page.getByRole("button", { name: "Settings", exact: true }).first().click();

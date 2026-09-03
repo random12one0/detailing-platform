@@ -1544,7 +1544,22 @@ shifts the rest of the screen down about 90px once. Every alternative is
 worse — rendering it immediately with a placeholder count makes it flash in
 and out on a business that turns out to be finished, which is the majority
 case in the long run — and it is the same shape as the blocking row, which
-also only decides itself once the same read returns.
+also only decides itself once the same read returns. **It did cost the sweep
+two runs before it was understood** — `settle()` cannot see a row that is
+absent rather than merely unfilled, because there is no spinner and the DOM
+goes quiet, so the script raced the fetch and reported the row missing. It bit
+in `--lite` first, where everything settles sooner. The script waits for the
+row now.
+
+**And the second run failed differently, in the SCRIPT rather than the
+screen**, which is worth writing down because a walk of a stepped thing is a
+new shape for this repo: it counted its own iterations 1..7 and clicked blind,
+so when it did not start where it assumed, every label was wrong by the same
+offset and the last click closed the form — after which it waited thirty
+seconds for a button that no longer existed. **It names what it is looking at
+now** (the form's own *STEP N OF 7* line) **and checks before it clicks.** A
+walk that reads the label cannot drift; one that checks cannot hang. The form
+itself was traced separately and steps 1 → 7 in order, forwards and back.
 
 **WHAT NEITHER DESIGN FILE PREDICTED, and it is a shell rule rather than a
 screen:** the setup form takes the main area exactly as the gear does, so the
