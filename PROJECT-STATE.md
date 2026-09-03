@@ -2359,7 +2359,7 @@ strikes Part B rows 14-17 and answers all five of §2c; the desktop spec §5f
 takes three corrections including the staff count; `dashboard-skeletons.md`
 says twelve and says a settings screen is not a sheet; the feature inventory
 marks rows 92, 95, 96, 101, 120 and 121; and `CLAUDE.md` gains the two-doors
-rule, the `email-brand` test and the unverified-push warning.
+rule, the `email-brand` test and the push-secrets warning.
 
 **MEASURED AFTER.**
 
@@ -2376,29 +2376,20 @@ rule, the `email-brand` test and the unverified-push warning.
 **STAGE 7 REMAINS:** first run — the setup form and the walkthrough, last on
 purpose.
 
-**ONE THING IS STILL OPEN, and two more arrived and were closed the same day**
+**NOTHING IS LEFT OPEN. Three threads, all closed on 2026-09-02**
 (the QR, and the motion rule he asked to have confirmed — DECISIONS.md → “The
 QR code, and the motion rule he asked to have confirmed”).
 
-1. **PUSH'S GRANTED PATH IS UNVERIFIED, AND ONLY HE CAN CLOSE IT.** The blocked
-   branch is verified; the ALLOW branch is not, because headless Chromium
-   reports `Notification.permission === "denied"` unconditionally and a headed
-   browser will not launch in this environment. **Push is not finished until
-   somebody taps Allow on a real device and a notification arrives.** No file
-   should record it as done before that.
-2. ~~**THE QR IS A QUESTION HE HAS NOT BEEN ASKED.**~~ **ANSWERED AND BUILT
-   THE SAME DAY.** He said yes and specified a better shape than step 4 §10
-   had: not a permanently-drawn code, but a **button** — *“you click generate
-   QR code and it just pops up with the one that you could copy, save to your
-   files”*. Most visits to that block are to copy the link, so drawing a QR
-   every time paid for something nobody asked for on that visit.
-   `qrcode-generator` (zero dependencies, unlike `qrcode`), black on white
-   with a 4-module quiet zone, a 1,110px canvas shown at 200 so the SAVED
-   file is printable, Save and *Copy image*. **`tests/qr-scans.test.mjs`
-   decodes the rendered pixels back with a different library than wrote
-   them** — the risk named when the question was put to him was that a QR can
-   look right and not scan, and that is a test now rather than a hope.
-   Baselined at 6 failures with the quiet zone removed.
+1. ~~**PUSH’S GRANTED PATH IS UNVERIFIED, AND ONLY HE CAN CLOSE IT.**~~
+   **CLOSED THE SAME DAY — HE TAPPED IT AND IT WORKS.** Asked to turn the
+   switch on and let a booking come through, he answered *“works”*. So the
+   feature is delivering for the first time since it was written: the browser
+   registers, the row lands in `owner_push_subscriptions`, and
+   `sendOwnerPush` reaches the device. **The half nobody had ever checked was
+   the SERVER half** — the VAPID secrets had never been set, so it had been
+   taking its “skipping” branch silently for its whole life. If push ever
+   goes quiet, look there first: the failure is a `console.warn` in an edge
+   function and is invisible from the dashboard.
 
 3. **AND HE ADDED ONE THING THAT IS NOT STAGE 6’S:** he asked whether the
    “everything pops into place with no animation” complaint had been written

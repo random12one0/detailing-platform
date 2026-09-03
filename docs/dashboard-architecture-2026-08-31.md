@@ -239,9 +239,11 @@ sentence this whole item turns on.
 >    `OWNER_VAPID_*` were never set as function secrets, so `sendOwnerPush`
 >    had been logging “VAPID keys not configured — skipping” for its whole
 >    life. A keypair was generated and set on the platform project
->    (`kguqylyzgyzfktkfnhjb`, never the live business). **One step is still
->    unverified:** the granted path needs a real browser, and headless
->    Chromium reports `Notification.permission === “denied”` unconditionally.
+>    (`kguqylyzgyzfktkfnhjb`, never the live business). **VERIFIED END TO
+>    END the same day — the owner tapped the switch on a real device and a
+>    notification arrived.** The automated browser could not do that half —
+>    headless Chromium reports `Notification.permission === “denied”`
+>    unconditionally — so the last step was always going to be a person.
 > 2. **Staff and “Your colour”.** Fixed structurally: staff have no Business
 >    tab at all, which is where that row lives, so the screen the database
 >    refuses is not offered.

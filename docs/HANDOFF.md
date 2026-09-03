@@ -222,13 +222,14 @@ generated with Node’s own `crypto`); if the project is ever rebuilt from
 scratch, generate a new pair and set all three, or push silently does nothing
 again.
 
-**And push is still not proven end to end.** The browser half shipped in
-roadmap 2.11 step 6 stage 6 and the BLOCKED path is verified; the ALLOW path
-is not, because headless Chromium reports `Notification.permission ===
-“denied”` unconditionally. It needs one person to open the dashboard on a real
-phone or desktop, go to the gear → Notifications, turn on *Push notifications
-on this device*, allow the prompt, and then have a booking come in. Until
-somebody has actually received one, treat push as unfinished.
+**AND PUSH IS PROVEN END TO END AS OF 2026-09-02.** The browser half shipped
+in roadmap 2.11 step 6 stage 6 and the owner confirmed the same day that a
+notification actually arrives on a real device — the automated browser could
+verify everything up to the permission prompt and not the prompt itself,
+because headless Chromium reports `Notification.permission === “denied”`
+unconditionally. **So the whole path is now known good**: worker → prompt →
+`owner-push-subscribe` → `owner_push_subscriptions` → `sendOwnerPush` →
+the device.
 
 ---
 

@@ -295,7 +295,7 @@ if it can be made good — there is exactly one).
 | # | Capability | Src | Status | Where it lives now |
 |---|---|---|---|---|
 | 100 | Choose which emails go out, to customers and to you | a | works | Notifications |
-| 101 | Get a push notification on your phone | a + b | ~~**broken**~~ **BUILT 2026-09-02, one step UNVERIFIED** | `app/public/sw.js` + `lib/push.js`; the switch reads THIS DEVICE’s registration rather than the saved boolean. The VAPID secrets were missing from the project too and are set now. **The granted path has not been exercised in a real browser** — headless Chromium reports `Notification.permission === "denied"` unconditionally |
+| 101 | Get a push notification on your phone | a + b | ~~**broken**~~ **WORKS 2026-09-02, confirmed on a real device by the owner** | `app/public/sw.js` + `lib/push.js`; the switch reads THIS DEVICE’s registration rather than the saved boolean. The VAPID secrets were missing from the project too and are set now — **`sendOwnerPush` had been silently skipping for the whole life of the feature**, which is where to look first if it ever goes quiet |
 | 102 | Choose when reminders send | a | works | `customer_reminder_lead_minutes`, `evening_before_*` |
 | 103 | Choose when you get nudged — before, after, and to finalise | a | works | `owner_nudge_*`, `wrapup_*`, `finalize_*` |
 | 104 | Get a summary of the day each morning | a + b | works | `daily_digest_hour`; state in `owner_daily_digest_state` |

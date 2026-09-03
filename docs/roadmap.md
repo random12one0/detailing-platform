@@ -1890,11 +1890,14 @@ is kept; the entire visual design restarts from scratch.
          **Staff get THREE rail buttons, not the four two design files
          counted.** `sweep-widths.mjs` walks twelve settings screens through
          TWO doors, against eleven through one.
-         **TWO THINGS ARE OPEN and both are in PROJECT-STATE §6u:** push’s
-         GRANTED path is unverified (headless Chromium always reports
-         “denied”, so it needs one tap on a real device), and the QR on the
-         resting booking-link column is a question for him rather than a
-         refusal — it needs a dependency.
+         **BOTH THINGS IT LEFT OPEN WERE CLOSED THE SAME DAY.** Push’s
+         GRANTED path is **verified — the owner tapped the switch on a real
+         device and a notification arrived** (headless Chromium always reports
+         “denied”, so that last step was always going to be a person). And the
+         QR is **built**, in a better shape than step 4 §10 designed: a
+         *Generate QR code* button rather than a permanently-drawn code, which
+         is his own answer. `tests/qr-scans.test.mjs` decodes it back with an
+         independent library at both the saved and the on-screen size.
          **Stage 7, first run, is the last one.**
          **Three of his asks left this item entirely** — roadmap 2.13 (custom
          roles and permissions), 2.14 (plans with cadences, research first) and

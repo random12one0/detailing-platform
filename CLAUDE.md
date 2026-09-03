@@ -310,16 +310,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   `components/SettingsHost.jsx` is the container: a PAGE with a back control
   below `--wrap`, the second column at or above it. Anything that walks the
   settings screens must go through both doors.
-- **PUSH NOW HAS A BROWSER HALF, AND ONE STEP OF IT IS UNVERIFIED.**
-  `app/public/sw.js` + `app/src/lib/push.js` + a `probe` branch on
-  `owner-push-subscribe` that serves the VAPID public key. **The VAPID secrets
-  were never set on the platform project either** — `sendOwnerPush` had been
-  logging “skipping” for its whole life — and a keypair was generated and set
-  on 2026-09-02. **Nobody has yet completed the ALLOW path in a real browser**:
-  headless Chromium reports `Notification.permission === “denied”
-  unconditionally, so the switch’s blocked branch is verified and its granted
-  branch is not. It needs one tap on a real device. Do not record push as
-  finished until somebody has actually received one.
+- **PUSH WORKS END TO END, CONFIRMED BY THE OWNER ON A REAL DEVICE
+  2026-09-02.** He was asked to tap the switch and let a booking through; his
+  answer was “works”. The browser half is `app/public/sw.js` +
+  `app/src/lib/push.js` + a `probe` branch on `owner-push-subscribe` that
+  serves the VAPID public key.
+  **The VAPID secrets had never been set on the platform project either**, so
+  `sendOwnerPush` had been taking its “VAPID keys not configured — skipping”
+  branch for the whole life of the feature. A keypair was generated and set
+  the same day. **If push ever goes quiet, check those three secrets FIRST**
+  — the failure is a `console.warn` inside an edge function and is completely
+  invisible from the dashboard, which is how it survived this long.
+  Two limits that are real and are NOT defects: an iPhone only allows this
+  from a dashboard added to the home screen, and the switch reads THIS
+  device’s registration, so turning it on is per-device by design.
 - **THE OWNER LIFTED THE "DON'T TOUCH THE BACK END" RULE ON 2026-08-31**, and
   a session that inherits it from an older file will do less than he asked for.
   His words, answering roadmap 2.11 step 6: *"I don't know why there was a rule
