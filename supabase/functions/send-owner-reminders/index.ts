@@ -14,7 +14,7 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
-import { customerReminderEmail, formatTime12hr, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
+import { customerReminderEmail, formatTime12hr, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { dateStrIn, hourIn, timeStrIn } from "../_shared/tz.ts";
@@ -133,14 +133,16 @@ Deno.serve(async (req) => {
     const mark = (id: string, col: string) =>
       supabase.from("bookings").update({ [col]: new Date().toISOString() }).eq("id", id);
 
-    const [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue] = await Promise.all([
+    const [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue, requestDue] = await Promise.all([
       supabase.rpc("get_bookings_due_for_reminder", { target: "owner" }),
       supabase.rpc("get_bookings_due_for_reminder", { target: "customer" }),
       supabase.rpc("get_bookings_due_for_nudge"),
       supabase.rpc("get_bookings_due_for_wrapup_nudge"),
       supabase.rpc("get_bookings_due_for_finalize_nudge"),
+      // ROADMAP 2.12 FOLLOW-UP, approved by the owner 2026-09-03.
+      supabase.rpc("get_requests_due_for_nudge"),
     ]);
-    for (const r of [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue]) {
+    for (const r of [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue, requestDue]) {
       if (r.error) throw r.error;
     }
 
@@ -205,6 +207,39 @@ Deno.serve(async (req) => {
         results.push({ id: b.id, kind: "finalize", sent: true });
       } catch (e) {
         results.push({ id: b.id, kind: "finalize", sent: false, error: String(e) });
+      }
+    }
+
+    // A REQUEST NOBODY ANSWERED — the fifth nudge, and the only one that is
+    // about the DETAILER owing somebody a reply rather than about a job. It
+    // sends a push AND an email, unlike the other three nudges, which are push
+    // only: those all fire within an hour of a job the detailer is already
+    // thinking about, and this one can fire on a quiet Tuesday about a request
+    // that arrived while their phone was in a pocket. Request mode's whole
+    // promise is that the detailer answers; a notification nobody sees is the
+    // feature not working.
+    for (const b of requestDue.data || []) {
+      try {
+        const business = await biz(b.business_id);
+        const settings = await getSettings(business.id);
+        const tz = business.timezone;
+        const when = `${dateStrIn(tz, new Date(b.start_at))} at ${formatTime12hr(timeStrIn(tz, new Date(b.start_at)))}`;
+        const waited = Math.round((Date.now() - new Date(b.created_at).getTime()) / 3600_000);
+        await sendOwnerPush(business.id, {
+          title: "Still waiting on you",
+          body: `${b.customer_name} asked for ${when} — ${waited}h ago, no answer yet`,
+          url: `/admin/job/${b.id}`,
+          tag: `booking-${b.id}`,
+        });
+        const brand = await buildBrand(business, settings);
+        const msg = staleRequestEmail(brand, emailDataFor(business, b), waited);
+        for (const to of ownerRecipients(business, settings)) {
+          await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html });
+        }
+        await mark(b.id, "owner_request_nudge_sent_at");
+        results.push({ id: b.id, kind: "request_nudge", sent: true });
+      } catch (e) {
+        results.push({ id: b.id, kind: "request_nudge", sent: false, error: String(e) });
       }
     }
 

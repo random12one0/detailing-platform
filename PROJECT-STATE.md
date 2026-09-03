@@ -2659,13 +2659,33 @@ were written that same hour, by copying the template above them** — a defect i
 a pattern reproduces into every new instance until somebody renders one and
 looks.
 
-### THREE QUESTIONS STANDING FOR THE OWNER
+### ~~THREE QUESTIONS~~ — ANSWERED 2026-09-03, and one of them became code
 
-1. **Quotes exist only on a request**, so a reserve-mode detailer — Andrew, and
-   every tenant by default — cannot send one.
-2. **Nothing chases a request that went stale.** Today's queue is floored at
-   `now`; a request whose time has passed leaves the screen and nothing notifies.
-3. **The demo now shows the request flow** rather than his own reserve flow.
+1. **Quotes stay on requests only.** His reason is the keeper: *"the final
+   pricing is usually done when you're there… you don't really get quoted
+   digitally. With the request thing, you send them the quote, but it's really
+   gonna be based off of your pricing, not as much as the person's car."*
+   **A quote prices the JOB from the price list; the CAR is priced in person**,
+   which is what `final_amount` at Finalize payment has always been for.
+2. **The stale-request nudge is BUILT** —
+   `20260903000000_stale_request_nudge.sql`, a fifth kind in the reminder
+   sweep, push AND email, `request_nudge_hours` on Booking rules (default 12,
+   0 = never, shown only in request mode). Six behaviours pinned by
+   `request-mode` test 13, which is 51 checks now. It measures from
+   `created_at` rather than `start_at`, and it never chases a request whose
+   time has already gone.
+3. **The demo staying in request mode** drew no objection.
+
+### And he asked about animations. Measured, and he is half right.
+
+Read from the COMPUTED style on the live dashboard, because stage 3 already
+shipped an arrival that was dead and looked like a finished screen. **Running:**
+the staggered arrival on every tab change (420ms, 0/40/80/120/160ms delays),
+180ms hover transitions, the sheet in and out below `--wrap`. **Not running:**
+opening a job record at a DESK produces no new animation at all — the second
+column just appears, and the same is true of the day panel, a settings column
+and a picker. **That is roadmap 2.17 exactly**, now carrying the measurement,
+and the answer to his question is yes: it is the stage not yet reached.
 
 **MEASURED AFTER.**
 

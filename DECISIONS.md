@@ -8157,6 +8157,47 @@ so it is widened to 96 hours rather than the date being computed more cleverly.
 **A gate that is red at some hours and green at others is worse than a gate
 that is red**, because the next session assumes it is theirs.
 
+### The stale-request nudge, built 2026-09-03 — and it is the FIFTH of its kind
+
+He approved question 2, so a request that has sat unanswered now chases the
+detailer with a push AND an email.
+
+**It invents nothing.** `bookings` already carried four `*_nudge_sent_at`
+markers, `business_settings` four lead times, and `send-owner-reminders`
+already looped one RPC per kind. This is a fifth of exactly that shape, so the
+15-minute sweep, the marker-guard that makes it idempotent, the
+reset-on-reschedule trigger and the manual mode all work on it unchanged.
+
+**Three things about it are deliberately unlike the other four.**
+
+1. **It is measured from `created_at`, not `start_at`.** The other four all ask
+   "how close is this job"; this one asks **how long has the customer been
+   waiting**, which is a different clock and the only one that makes sense for
+   a request.
+2. **The unit is HOURS.** The other four are minutes because they fire inside
+   an hour of a job. A detailer thinking about an unanswered request thinks
+   "sometime today", so the presets are Never / 2h / 6h / 12h / 1 day, and the
+   default is **12 hours** — a request that arrives in the evening is chased in
+   the morning rather than at midnight, and somebody who answers within half a
+   day does not need nagging.
+3. **It sends an email as well as a push.** The other three nudges are push
+   only, and they can be, because they fire about a job the detailer is already
+   thinking about. This one can fire on a quiet Tuesday about a request that
+   arrived while the phone was in a pocket, and **request mode's whole promise
+   is that the detailer answers** — a notification nobody sees is the feature
+   not working.
+
+**And what it must NOT do, which is the guard worth keeping:** it does not
+chase a request whose time has already passed. That is not something to accept
+any more, and a push saying *"accept this"* about yesterday would be worse than
+silence. `tests/request-mode.test.mjs` test 13 pins all six behaviours —
+too-soon, due, once-only, the off switch, the past guard, and that an accepted
+booking is never in the list.
+
+**The setting only appears in request mode.** A reserve-mode detailer can never
+have a request, so the row would be a control that can never do anything —
+the same reasoning as the Calendar's *Waiting* chip.
+
 ### Staff can answer requests, and that is a default rather than a ruling
 
 Verified rather than assumed, on the staff demo login: staff get their three
@@ -8170,10 +8211,57 @@ accepting one. **Roadmap 2.13 is where it becomes a tick box** — that item
 replaces `business_users.role` with a permission set, and "can answer requests"
 is one of the permissions it will have to name.
 
-### THREE QUESTIONS STANDING FOR THE OWNER
+### He asked whether there are no animations yet — measured, and he is half right
 
-Recorded here because they were reached by building, and none of them has an
-answer this session could take on its own.
+> *"There's still no animations on the page, but is that just because we
+> haven't gone to that stage yet?"*
+
+**Read from the COMPUTED style on the live dashboard rather than answered from
+the stylesheet**, because this project has already shipped an arrival animation
+that was dead for a whole stage and looked exactly like a finished screen
+(stage 3's finding).
+
+**What IS running.** The screen's staggered arrival fires on every tab change —
+`arrive`, 420ms, at 0 / 40 / 80 / 120 / 160ms delays, measured 120ms after a
+Calendar click with the delays visible on the elements. Buttons, chips and
+calendar cells carry 180ms hover transitions. The rail's job rows translate
+their text. Below `--wrap` a sheet animates in and out.
+
+**What is NOT, and it is exactly what he is seeing.** At a desk, opening a job
+record produced **no new animation at all** — the second column simply appears.
+The report 120ms after opening one shows only the screen's own arrival
+(unchanged from before the click) and hover transitions. Same for the day
+panel, a settings column and a picker.
+
+**That is roadmap 2.17 and it is already scoped in his own words** — *"it is a
+DESK problem"* — and CLAUDE.md already binds NEW components to ship an entrance
+and an exit, which is why 2.12's request card has one. **What is left in 2.17
+is the retrofit, and it is a LIST rather than the two he happened to name.**
+
+### ~~THREE QUESTIONS STANDING FOR THE OWNER~~ — ANSWERED, ALL THREE, 2026-09-03
+
+**He took the recommendation on all three**, and on question 1 he gave the
+reason, which is worth more than the answer:
+
+> *"The final pricing is usually done when you're there, and you can see the
+> current person. Most of the time you don't really get quoted digitally. Now
+> with the request thing — yeah, you send them the quote, but it's really gonna
+> be based off of your pricing, not as much as the person's car."*
+
+**That settles what a quote IS in this product, and it is narrower than the
+word suggests.** A digital quote prices the JOB from the detailer's own price
+list; the car is priced in person, on arrival. So a quote belongs on a request —
+where the detailer is answering someone who has not been seen yet — and it does
+NOT need to reach into the pricing engine, the vehicle condition, or a booking
+already agreed. **A later session tempted to grow quotes into an estimating tool
+should read that quote first.** `bookings.final_amount` and Finalize payment are
+where the car's own price lands, and that has always been true.
+
+**Question 2 approved: the stale-request nudge is built** — see below.
+**Question 3 needed nothing**: he did not object to the demo taking requests.
+
+Recorded below as originally asked, because the reasoning that produced them is
+what makes his answers legible.
 
 1. **Quotes exist only on a request.** A reserve-mode detailer — which is
    Andrew, and the default for every tenant — cannot send one at all. His

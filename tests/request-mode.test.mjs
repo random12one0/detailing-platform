@@ -366,6 +366,63 @@ console.log("\ntest 12: another business's request is not yours to answer");
     `${attempt.status} ${JSON.stringify(attempt.data)}`);
 }
 
+// ---------------------------------------------------------------------------
+// The hole request mode's own promise creates: it says the detailer answers,
+// and until 2026-09-03 nothing made them. A request for Friday that was never
+// accepted just dropped off Today when Friday passed.
+console.log("\ntest 13: a request nobody answered gets chased");
+{
+  const r = await book(daysOut(40), "09:00", "555-2013");
+  const id = r.data?.booking?.id;
+  await svc.patch(`/rest/v1/business_settings?business_id=eq.${R.id}`, { request_nudge_hours: 12 });
+
+  const tooSoon = await rest("POST", "/rest/v1/rpc/get_requests_due_for_nudge", { body: {} });
+  check("a request that just arrived is not chased yet",
+    !(tooSoon.data ?? []).some((b) => b.id === id), `${(tooSoon.data ?? []).length} due`);
+
+  // Age it past the window. created_at is what this one measures from, not
+  // start_at — the question is how long the CUSTOMER has waited.
+  await svc.patch(`/rest/v1/bookings?id=eq.${id}`,
+    { created_at: new Date(Date.now() - 20 * 3600_000).toISOString() });
+  const due = await rest("POST", "/rest/v1/rpc/get_requests_due_for_nudge", { body: {} });
+  check("one that has sat 20 hours IS chased",
+    (due.data ?? []).some((b) => b.id === id), `${(due.data ?? []).length} due`);
+
+  // The marker is what makes the 15-minute sweep idempotent.
+  await svc.patch(`/rest/v1/bookings?id=eq.${id}`,
+    { owner_request_nudge_sent_at: new Date().toISOString() });
+  const after = await rest("POST", "/rest/v1/rpc/get_requests_due_for_nudge", { body: {} });
+  check("and only once — the marker guards it",
+    !(after.data ?? []).some((b) => b.id === id));
+  await svc.patch(`/rest/v1/bookings?id=eq.${id}`, { owner_request_nudge_sent_at: null });
+
+  // 0 is the off switch, the same convention every other lead time uses.
+  await svc.patch(`/rest/v1/business_settings?business_id=eq.${R.id}`, { request_nudge_hours: 0 });
+  const off = await rest("POST", "/rest/v1/rpc/get_requests_due_for_nudge", { body: {} });
+  check("0 hours turns it off entirely",
+    !(off.data ?? []).some((b) => b.id === id), `${(off.data ?? []).length} due`);
+  await svc.patch(`/rest/v1/business_settings?business_id=eq.${R.id}`, { request_nudge_hours: 12 });
+
+  // AND IT MUST NOT CHASE A REQUEST WHOSE TIME HAS GONE. That is not something
+  // to accept any more; a push saying "accept this" would be wrong.
+  await svc.patch(`/rest/v1/bookings?id=eq.${id}`,
+    { start_at: new Date(Date.now() - 3600_000).toISOString(),
+      end_at: new Date(Date.now() - 1800_000).toISOString() });
+  const past = await rest("POST", "/rest/v1/rpc/get_requests_due_for_nudge", { body: {} });
+  check("a request whose time has already passed is not chased",
+    !(past.data ?? []).some((b) => b.id === id), `${(past.data ?? []).length} due`);
+
+  // An ACCEPTED booking is never in this list — it is not waiting on anybody.
+  const r2 = await book(daysOut(41), "09:00", "555-2014");
+  const id2 = r2.data?.booking?.id;
+  await svc.patch(`/rest/v1/bookings?id=eq.${id2}`,
+    { created_at: new Date(Date.now() - 20 * 3600_000).toISOString() });
+  await fn("respond-to-booking", { business_id: R.id, booking_id: id2, action: "accept" }, owner.jwt);
+  const accepted = await rest("POST", "/rest/v1/rpc/get_requests_due_for_nudge", { body: {} });
+  check("an accepted booking is never chased",
+    !(accepted.data ?? []).some((b) => b.id === id2));
+}
+
 await setMode("reserve");
 await svc.del("/rest/v1/businesses?slug=eq.engine-r");
 

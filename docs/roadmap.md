@@ -2076,11 +2076,20 @@ is kept; the entire visual design restarts from scratch.
         sheet; it also stopped calling `.card.attend` "the lit job", which is
         now a request card.
 
-      **THREE THINGS LEFT OPEN, all of them his to answer — see DECISIONS.md,
-      "Request mode, accept/decline and quotes".** Quotes exist only on a
-      request, so a reserve-mode detailer cannot send one; a request whose time
-      has passed leaves the Today queue and nothing chases it; and the demo now
-      shows the request flow rather than his own reserve flow.
+      ~~**THREE THINGS LEFT OPEN, all of them his to answer.**~~ **ANSWERED
+      2026-09-03, all three, and he took the recommendation on each.**
+
+      - **Quotes stay on requests only.** His reason is the part to keep:
+        *"the final pricing is usually done when you're there… most of the time
+        you don't really get quoted digitally. With the request thing, you send
+        them the quote, but it's really gonna be based off of your pricing, not
+        as much as the person's car."* **A quote prices the JOB from the price
+        list; the CAR is priced in person.** That is why it does not need to
+        reach the pricing engine, and why `final_amount` at Finalize payment is
+        still where the car's own price lands.
+      - **The stale-request nudge is approved and BUILT** — a push and an email
+        to the detailer when a request has sat unanswered.
+      - **The demo staying in request mode** drew no objection.
 
       > *"I think there should be kind of a switch. Like, basically, when
       > someone books through the website, is it done booking, you know,
@@ -2307,6 +2316,80 @@ is kept; the entire visual design restarts from scratch.
       booking page's `.bk-choices` being a tall single column on a wide short
       screen is the obvious "bug" to spot, and it has been ruled not-a-bug.
 
+- [ ] 2.18 **THE EMAILS, REBUILT FROM SCRATCH — the OWNER asked for this on
+      2026-09-03, and he asked for RESEARCH FIRST.** Bigger than it sounds:
+      it is a settings surface, a template system and a design job at once.
+
+      > *"For the emails — just delete all of the existing emails and work them
+      > from scratch. Make them look the best. Have email customizability for
+      > each customer. Have multiple options for when emails get sent out and
+      > whatnot. If you could do some research into that… an option to set
+      > reminder emails, when the reminder emails will be sent out, what is
+      > contained in the reminder email. Have some premade templates. And also
+      > have them be able to change colour based off of the person's business.
+      > So the emails need to be completely reworked from scratch and thought
+      > of properly, not just made quickly."*
+
+      **READ THE LAST SENTENCE AS THE ACCEPTANCE TEST.** *"Thought of properly,
+      not just made quickly."* This item is not a restyle of the eleven
+      templates that exist; he asked for them deleted.
+
+      **STEP 1 IS THE RESEARCH, AND HE NAMED IT.** Same six-product sweep 2.8,
+      2.10 and 2.14 use — the products' own documentation, source strength per
+      claim, counts not impressions:
+      - **Which emails do the trade's booking systems actually send?** Ours
+        sends eight kinds; is that the set, or are we missing one everybody
+        else has (a "you're next in the queue", a review request, a receipt
+        separate from the invoice)?
+      - **How much of the SCHEDULE is the detailer's to set** — which emails
+        can be switched off, how many reminders, how far ahead, and whether
+        anyone lets them send more than one.
+      - **How much of the CONTENT is theirs** — a free-text block, a full
+        template editor, or a fixed template with a few slots? This is the
+        question with the widest range of answers and the biggest cost
+        difference, so it wants counts.
+      - **What "premade templates" means in this trade** — a choice of visual
+        designs, or a choice of WORDING? He said the phrase; the research is
+        what decides which he will recognise when he sees it.
+
+      **WHAT EXISTS TODAY, so nobody re-derives it.**
+      `supabase/functions/_shared/emailTemplates.ts` is ~530 lines and holds
+      **eleven** templates behind one `shell()`: customer confirmation (which
+      doubles as the request email since 2.12), owner new-booking, invoice,
+      follow-up, customer reminder, cancellation, reschedule, invite, the three
+      2.12 request-decision variants. **The settings that already exist** are
+      five booleans on `business_settings`
+      (`email_customer_confirmation`, `email_customer_reminder`,
+      `email_customer_followup`, `email_owner_new_booking`,
+      `email_owner_reminder`), one lead time
+      (`customer_reminder_lead_minutes`), the evening-before rule, and
+      `notification_emails`. **There is no screen for any of the content.**
+      `screens/more/Notifications.jsx` is the switches only.
+
+      **THE COLOUR HALF IS ALREADY DONE AND MUST NOT BE REDONE.** Roadmap 2.11
+      step 6 stage 6 built `_shared/brandColor.js` — the one place in this repo
+      a second implementation of the colour maths is allowed — and 2.12 fixed
+      the eleven header lines that ignored it. `tests/email-brand.test.mjs` is
+      138 checks and pins all of it. **Anything rebuilt has to keep passing
+      it**, and the two source-reading checks (7a, 7a-ii) exist specifically so
+      a fresh template cannot reintroduce a hardcoded colour on the band.
+
+      **THREE THINGS THAT WILL BITE.**
+      1. **An email cannot load a webfont**, so "make them look the best"
+         cannot mean the product's own two faces. Arial/Helvetica is the
+         email-safe stack and that is why this file uses it — the design
+         freedom is in layout, colour, spacing and hierarchy, not type.
+      2. **`money-export`-class risk.** The invoice itemises services, add-ons,
+         travel and `price_adjustments` and must reconcile to `final_amount`.
+         A rebuilt invoice that drops a line is the `travel_fee` family again.
+      3. **Every template is rendered by a Deno edge function**, so it cannot
+         import from `app/`. Whatever a template editor writes has to be data
+         the function can render, not code.
+
+      **Skills: `impeccable` for the visual half** — it is a design job and the
+      screens are new. No direction-generating skill; the emails carry the
+      product's identity, not a new one.
+
 - [ ] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named
       complaints and one principle that outranks them.
@@ -2446,6 +2529,26 @@ is kept; the entire visual design restarts from scratch.
 
 ## Phase 3 — Tenant websites (the biggest new build)
 
+      **MEASURED 2026-09-03, when he asked *"there's still no animations on
+      the page, but is that just because we haven't gone to that stage yet?"* —
+      read from the COMPUTED style on the live dashboard, not from the
+      stylesheet, because stage 3 already shipped an arrival that was dead and
+      looked exactly like a finished screen.**
+
+      **Running:** the screen's staggered arrival on every tab change
+      (`arrive`, 420ms, 0/40/80/120/160ms delays — confirmed 120ms after a
+      Calendar click with the delays live on the elements); 180ms hover
+      transitions on buttons, chips and calendar cells; the rail row's text
+      translate; and `.sheet` in and out below `--wrap`.
+
+      **Not running, which is what he is seeing:** opening a job record at a
+      desk produces **no new animation at all** — 120ms after the click the
+      only animations on the page are the screen's own arrival, unchanged, and
+      hover transitions. Same for the day panel, a settings column and a
+      picker. **That is this item exactly, and the answer to his question is
+      yes: it is the stage we have not reached.** New components already ship
+      their entrance and exit (2.12's request card does); the retrofit is what
+      is left.
 - [ ] 3.1 Plan: which pages every tenant gets (home, services, gallery,
       about, reviews, FAQ, contact, booking) and which settings drive each.
       **OWNER approves the plan.**
@@ -2619,6 +2722,7 @@ those are not negotiable by any skill.
 | 2.10 — dashboard IA | `impeccable` (`shape` for the architecture, `critique` for the audit). Research first, written proposal, owner approves before code | direction-generating skills — this reopens WHERE things live, never how they look |
 | 2.11 — **DONE 2026-09-02** — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ ~~**HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code.**~~ **STEP 4b IS DONE TOO** — `docs/dashboard-phone-pass-2026-08-31.md`, every screen's phone form decided again from nothing, and it OVERRIDES step 4 wherever the two disagree about a phone. **AND HE RULED THE PHONE PORTRAIT-ONLY the same day** — *"when someone flips their phone over sideways, I don't want it to completely readjust"* — which withdrew the landscape half of step 4b, took `844` and the `short-screen` check back out of `sweep-widths.mjs`, and closed 2.16 unstarted. **The dashboard readjusts today**, so step 6 still owes one guard: `min-height: 500px` on `theme.css`'s 700px and 560px breakpoints. ~~**Step 6, the build, is the only thing left.**~~ **ALL SEVEN STAGES OF STEP 6 ARE BUILT — the shell and Today, the job record, the calendar, Money, Clients, Business and the twelve settings screens, and first run. The item is closed 2026-09-02.** His asks left the item as roadmap 2.13, 2.14 and 2.15. |
 | 2.17 — motion and shape as a house style | `improve-animations` to audit first, then `animate` to build. `impeccable` — `audit` for reduced motion and `critique` on each screen it touches. **`docs/design-system.md` § Motion is updated BEFORE any code**, because this item deliberately grows a budget that file caps | every direction-generating skill, as everywhere else on this product. **The look is settled — this is motion and one corner token, not a redesign** |
+| 2.18 — the emails, rebuilt from scratch | `impeccable` for the visual half, and only that | direction-generating skills. **Step 1 is RESEARCH and he asked for it by name** — do not start designing templates before the six-product sweep says what the set of emails even is |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |

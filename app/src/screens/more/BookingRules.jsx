@@ -34,6 +34,10 @@ const WINDOW = [[30, "1 month"], [60, "2 months"], [90, "3 months"], [180, "6 mo
 const SLOT = [[15, "15 min"], [20, "20 min"], [30, "30 min"], [60, "1 hour"]];
 const CANCEL = [[0, "Any time"], [2, "2 hours"], [12, "12 hours"], [24, "1 day"], [48, "2 days"]];
 const REMIND = [[60, "1 hour"], [180, "3 hours"], [720, "12 hours"], [1440, "1 day"], [2880, "2 days"]];
+// Roadmap 2.12 follow-up. Hours, not minutes, because this one is measured
+// from when the REQUEST ARRIVED rather than from the appointment, and the unit
+// a detailer thinks in there is "sometime today".
+const CHASE = [[0, "Never"], [2, "2 hours"], [6, "6 hours"], [12, "12 hours"], [24, "1 day"]];
 // Roadmap 2.8c — the surcharge editor's own shapes.
 const RULE_DOW = [["S", 0], ["M", 1], ["T", 2], ["W", 3], ["T", 4], ["F", 5], ["S", 6]];
 const EMPTY_RULE = {
@@ -116,6 +120,7 @@ export default function BookingRules() {
     // an unreadable value must never quietly downgrade what a business has
     // been promising its customers.
     booking_mode: settings?.booking_mode === "request" ? "request" : "reserve",
+    request_nudge_hours: settings?.request_nudge_hours ?? 12,
   }));
   const [editing, setEditing] = useState(null);   // {kind:"zone"|"rule", index?, form}
   const [dismissed, setDismissed] = useState(() => {
@@ -244,6 +249,7 @@ export default function BookingRules() {
       travel_zones: form.travel_zones,
       price_rules: form.price_rules,
       booking_mode: form.booking_mode,
+      request_nudge_hours: Number(form.request_nudge_hours) || 0,
     }).eq("business_id", business.id);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
     if (!error) { reload(); refreshSlotCount(); }
@@ -418,6 +424,20 @@ export default function BookingRules() {
           <DurationChoice value={form.customer_reminder_lead_minutes} presets={REMIND}
             onChange={(v) => set("customer_reminder_lead_minutes", v)} unit="minutes" customMax={10080} />
         </Setting>
+
+        {/* ROADMAP 2.12 FOLLOW-UP, and only for a business that takes requests
+            — a reserve-mode detailer can never have one, so the row would be a
+            control that can never do anything. The help text carries the one
+            fact the label does not: the slot is held the whole time, so a
+            forgotten request costs a bookable time as well as a customer. */}
+        {form.booking_mode === "request" && (
+          <Setting label="Chase me about a request I haven't answered"
+            help="Their time stays held until you answer, so a forgotten request holds a slot too."
+            stacked>
+            <DurationChoice value={form.request_nudge_hours} presets={CHASE}
+              onChange={(v) => set("request_nudge_hours", v)} unit="hours" customMax={168} />
+          </Setting>
+        )}
 
         <Switch label="Ask how dirty the vehicle is"
           help="Light, moderate, heavy or extreme. Never changes the price."

@@ -285,3 +285,82 @@ by the thing trying to go faster.**
 §5 stands unchanged. The five widths in the final run, the parent-box and
 dead-width checks, looking at the screen, and the written record are not what
 made this session long — **running them repeatedly, in series, was.**
+
+
+---
+
+## He pushed back the same day: "an hour thirty-three, so an hour was coding" — and the sweep was cut 39%
+
+**2026-09-03.** The section above was right about the 33 minutes of waiting and
+he accepted it, then made the harder point: *"the progress took an hour and
+thirty-three minutes, so that means there's an hour spent on coding. I feel
+like this is going unnecessarily long, and we need to find some actual ways to
+make it shorter, like removing some components of something that we're
+doing."* His own suggestion: **fewer full-width passes, and all 56 screens at
+only one or two widths rather than five.**
+
+### The numbers, finally measured per width
+
+`sweep-widths.mjs` now prints its own wall clock on **every** run, not only
+under `--timing` — a script that is the biggest single block of a session
+should say what it spent, and until this day nobody had the number:
+
+| width | deep (all 56 states) | core only |
+|---|---|---|
+| 1920 | 63–66s | — |
+| 392 | 69s | 25s |
+| 320 | 68s | — |
+| 1440 | — | 22s |
+| 360 | — | 25s |
+
+**A deep width is ~67s and a core-only one ~24s, so the long tail is ~43s per
+width.** Five deep widths is **335s**. The tiered default is **203s** —
+**39% off**, measured rather than estimated, with `--all` restoring the old
+walk.
+
+### What the tiering actually is
+
+**Every width still walks the core**: the booking page, the five tabs, the job
+record in three states, the request card, the quote sheet, the calendar's day
+and history, Money's three periods and its two modals, and Clients' six.
+
+**The long tail runs at 320 and 1920 only** — the twelve settings screens, the
+gear, the setup form's seven steps and the walkthrough's seven. That is 28 of
+the 56 states, and they are not 28 independent screens: they are **three shared
+containers** (`SettingsHost`, `SetupForm`, `Walkthrough`) rendering different
+content.
+
+**The bet, stated so it can be checked rather than trusted:** a width-specific
+defect in the long tail shows at an extreme. The evidence is this repo's own
+history — every width-specific defect in DECISIONS.md was found at 320, 360 or
+1920, and the two that were found at 360 (roadmap 2.9, 19px and 11px outside
+their card) were also visible at 320. **Where the bet loses is a change to what
+those containers SHARE**, which is why `--all` is not optional after touching
+`theme.css`, `SettingsHost`, `Sheet` or `controls.jsx`.
+
+### The other half of his hour, honestly
+
+**Cutting the sweep does not get an hour back, and it would be dishonest to
+imply it.** The 2.12 session's hour of non-waiting was: reading the task and
+the twelve files it touched, writing the migration and two edge functions,
+eight front-end files, a 51-check test suite, and roughly 400 lines of
+documentation across six files — DECISIONS, PROJECT-STATE, the roadmap, two
+design files and CLAUDE.md.
+
+**Three of those are genuinely cuttable and one is not.**
+
+1. **The documentation is not.** It is the reason a cold session can pick this
+   product up, and it is the migration plan (CLAUDE.md, "Write for a coding
+   agent that is not Claude"). What IS cuttable is writing it TWICE — once as
+   notes and once at the end. Append as you go.
+2. **Throwaway browser scripts.** Three written in the 2.12 session, two failed
+   on selectors first, and the same thing happened again on 2026-09-03. Still
+   proposed, still not built: a ~40-line `scripts/peek.mjs`.
+3. **Re-deriving what a file already says.** The 2.12 session read
+   `emailTemplates.ts` three separate times because the first two reads were
+   for different questions. Read a file once, for everything you will need.
+4. **Fixing things found on the way.** The 2.12 session found and fixed a
+   clock-dependent test and eleven sub-floor email headlines. Neither was in
+   scope; both were real. **This is the one to bring to him rather than
+   decide** — the alternative is filing them and moving on, which is faster per
+   session and slower per product.

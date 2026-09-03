@@ -162,6 +162,18 @@ explaining it; if they still have to ask "so should I?", it failed.
   because this script is the only thing in the repo that opens either and
   neither is reachable by clicking a tab. **Iterate at one width; the full run
   is a once-per-item cost, not a per-change one.**
+  **AND THE DEFAULT RUN IS TIERED AS OF 2026-09-03, at the owner's push: 203s
+  rather than 335s.** Every width walks the CORE — the booking page, the five
+  tabs, the job record, the request card, the calendar's day and history,
+  Money's periods and modals, Clients' six. **The long tail — the twelve
+  settings screens, the gear, setup x7, tour x7 — runs at 320 and 1920 only**,
+  the two extremes where every width-specific defect in this repo's history was
+  actually found. Measured: a deep width is ~67s, a core-only one ~24s, so the
+  tail is ~43s a width. **`--all` restores the exhaustive walk and is NOT
+  optional after a change to what those screens SHARE** — `theme.css`,
+  `SettingsHost`, `Sheet`, `controls.jsx` — because the tiering is a bet that
+  the long tail is uniform, and a change to the shared container is that bet
+  losing. The script prints its own per-width wall clock on every run now.
   **AND THE RULE THAT IS WORTH MORE THAN EVERY OTHER LINE IN THIS SECTION, and
   costs nothing: START THE LONG CHECK, WRITE WHILE IT RUNS, THEN READ THE
   RESULT.** The owner asked a second time during roadmap 2.12 why a session

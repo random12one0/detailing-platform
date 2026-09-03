@@ -511,6 +511,43 @@ export function rescheduleEmail(brand: TenantBrand, b: BookingEmailData, oldDate
   };
 }
 
+// ROADMAP 2.12 FOLLOW-UP — A REQUEST THE DETAILER HAS NOT ANSWERED. Goes to
+// the DETAILER, not the customer, which is why it says what to do rather than
+// apologising. Short on purpose: it is a nudge, and the thing it is nudging
+// toward is one tap away in the dashboard, not in this email.
+export function staleRequestEmail(
+  brand: TenantBrand,
+  b: BookingEmailData,
+  hoursWaited: number,
+): { subject: string; html: string } {
+  const dateLong = formatDateLong(b.dateStr);
+  const header = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:${brand.headerInk}; font-weight:bold;">Still waiting on you</div>
+    <div style="font-family:Arial,Helvetica,sans-serif; font-size:20px; font-weight:bold; color:${brand.headerInk}; margin-top:6px;">${esc(b.customerName)}</div>`;
+  const body = `
+    <tr><td style="padding:28px 32px 8px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; line-height:1.7; color:#0f172a;">
+      <p style="margin:0 0 12px 0;"><strong>${esc(b.customerName)}</strong> asked for
+      <strong>${esc(dateLong)}</strong> at <strong>${formatTime12hr(b.startTime)}</strong>
+      &mdash; ${hoursWaited} hour${hoursWaited === 1 ? "" : "s"} ago, and it is still waiting for an answer.</p>
+      <p style="margin:0 0 12px 0;">That time is held for them until you accept or decline it, so nobody else can book it either.</p>
+    </td></tr>
+    <tr><td style="padding:4px 32px 8px 32px;">${infoCard(`
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        ${kv("Phone", esc(b.customerPhone), true)}
+        ${b.customerEmail ? kv("Email", esc(b.customerEmail)) : ""}
+        ${kv("Service type", b.serviceType === "mobile" ? "Mobile (you go to them)" : "Drop-off")}
+        ${kv("Where", esc(jobAddress(brand, b)))}
+        ${kv("Asking", money(b.total), true)}
+      </table>
+    `)}</td></tr>
+    <tr><td style="padding:20px 32px 8px 32px;" align="center">
+      <a href="${b.receiptUrl}" target="_blank" style="display:inline-block; padding:14px 32px; font-family:Arial,Helvetica,sans-serif; font-size:15px; font-weight:bold; color:#ffffff; background-color:${brand.accentColor}; text-decoration:none; border-radius:10px;">Open this request</a>
+    </td></tr>`;
+  return {
+    subject: `Still waiting: ${b.customerName} — ${dateLong}`,
+    html: shell(brand, header, body, `${b.customerName} asked for ${dateLong} and has not heard back.`),
+  };
+}
+
 // Team invite — sent when an owner adds someone to their business.
 export function inviteEmail(
   brand: TenantBrand,

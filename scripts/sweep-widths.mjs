@@ -78,6 +78,41 @@ const LITE = process.argv.includes("--lite") ? "?lite=1" : "";
 const ONLY = (() => { const i = process.argv.indexOf("--only"); return i > -1 ? process.argv[i + 1] : null; })();
 const TIMING = process.argv.includes("--timing");
 const SIZES = WIDTHS.length ? WIDTHS : [1920, 1440, 392, 360, 320];
+// ---------------------------------------------------------------------------
+// TWO TIERS, ADDED 2026-09-03 BECAUSE THE OWNER ASKED WHY A SESSION TAKES AS
+// LONG AS IT DOES, and this script is the single biggest block of it.
+//
+// The cost is widths x states, and it was 5 x 56 = 280 measurements every run.
+// His own proposal was "two full sweeps and three quick ones", and that is
+// almost exactly what this is — the refinement is WHICH states, rather than
+// which widths, get the short version.
+//
+// FULL_WIDTHS get everything, and they are the two EXTREMES. 320 is
+// PRODUCT.md's promise and where narrow overflow lives; 1920 is his own
+// monitor and the only place dead-width can be seen. **Every width-specific
+// defect in DECISIONS.md was found at an extreme** — the 360 pair in roadmap
+// 2.9, the 320 floor, dead-width at 1920 — which is the evidence this bet is
+// made on rather than a feeling about it.
+//
+// MEASURED, 2026-09-03: a deep width costs ~67s and a core-only one ~24s, so
+// the long tail is ~43s per width. Five deep is 335s; this is ~205s.
+//
+// At the other two widths only the CORE runs: the booking page, the five tabs,
+// the job record, the request card and the screens with real content. What is
+// skipped there is the long tail — the twelve settings screens, the gear, the
+// setup form's seven steps and the tour's seven — which are simple forms in
+// one shared container, and if one of them breaks it breaks at the floor or in
+// dead width, both of which are still swept.
+//
+// `--all` restores the exhaustive walk, and it is not optional after a change
+// to `theme.css`, `SettingsHost` or anything else every screen shares: this
+// tiering is a bet that the long tail is uniform, and a change to what they
+// SHARE is exactly the bet losing.
+const ALL = process.argv.includes("--all");
+const widthMs = [];
+const FULL_WIDTHS = new Set([1920, 320]);
+// True while this width should walk the long tail as well as the core.
+let deep = true;
 const BASE = "http://localhost:5173";
 // The verification heights, not the phone's. 1080 is his monitor; 900 is the
 // laptop and the shortest screen this product is checked against.
@@ -248,7 +283,12 @@ let found = 0;
 let narrow = 0;   // desktop widths whose content column is still phone-sized
 
 for (const w of SIZES) {
-  console.log(`\n══ ${w}px ══════════════════════════════════════════`);
+  // A width the caller asked for BY NUMBER is always deep — `sweep-widths 1440`
+  // is somebody asking a question about 1440, and answering a narrower one
+  // than they asked is the "a skipped check reads like a passing one" family.
+  deep = ALL || WIDTHS.length > 0 || FULL_WIDTHS.has(w);
+  const widthStart = Date.now();
+  console.log(`\n══ ${w}px ══${deep ? "" : " core only, --all for everything "}════════════════════════════════`);
   const ctx = await browser.newContext({
     viewport: { width: w, height: heightFor(w) }, deviceScaleFactor: 1,
     ...(signedIn ? { storageState: signedIn } : {}),
@@ -397,19 +437,32 @@ for (const w of SIZES) {
   {
     await page.getByRole("button", { name: "Today", exact: true }).first().click();
     await settle(page, 1400);
+    // TWO DOORS, AND NEITHER IS GUARANTEED — count before clicking. A
+    // `.first().click()` on an empty locator throws after 15s and takes the
+    // WHOLE remaining pass with it, which is the most expensive way this
+    // script can fail: four widths lost to a missing row. It cost a timed run
+    // on 2026-09-03. Nothing in here may assume the demo's shape.
     const tomorrowRow = page.locator(".row-item", { hasText: "Tomorrow" }).first();
+    const deskRow = page.locator(".col-2 .settled-row").first();
+    let opened = false;
     if (await tomorrowRow.count()) {
       await tomorrowRow.click();
       await settle(page, 1400);
       await grow();
-      await page.locator(".sheet .row-item, .sheet .card [role=button]").first().click();
-      await settle(page, 1400);
-      await grow();
-    } else {
-      await page.locator(".col-2 .settled-row").first().click();
+      const inSheet = page.locator(".sheet .row-item, .sheet .card [role=button]").first();
+      if (await inSheet.count()) {
+        await inSheet.click();
+        await settle(page, 1400);
+        await grow();
+        opened = true;
+      }
+    } else if (await deskRow.count()) {
+      await deskRow.click();
       await settle(page, 1500);
+      opened = true;
     }
-    await say("job record · tomorrow");
+    if (opened) await say("job record · tomorrow");
+    else console.log("job record · tomorrow".padEnd(24) + "no tomorrow to open (is the demo seeded?)");
     await page.keyboard.press("Escape");
     await settle(page, 700);
     await page.keyboard.press("Escape");
@@ -581,6 +634,15 @@ for (const w of SIZES) {
     }
   };
 
+  // ---- THE LONG TAIL: 28 of the 56 states, and the half that is skipped at
+  // 1440 and 360. Everything above this line runs at every width.
+  if (!deep) {
+    console.log(`${"the long tail".padEnd(24)} skipped at ${w} — 12 settings screens, the gear, setup x7, tour x7`);
+    await ctx.close();
+    widthMs.push([w, Date.now() - widthStart]);
+    continue;
+  }
+
   await page.getByRole("button", { name: "Business", exact: true }).first().click();
   await settle(page, 1400);
 
@@ -731,11 +793,19 @@ for (const w of SIZES) {
   }
 
   await ctx.close();
+  widthMs.push([w, Date.now() - widthStart]);
 }
 
 await browser.close();
+// ALWAYS PRINTED, not just under --timing. The owner asked where the minutes
+// go and the honest answer was "nobody measured"; a script whose runtime is
+// the biggest single cost in a session should say what it spent, every run.
+{
+  const total = widthMs.reduce((acc, [, ms]) => acc + ms, 0);
+  console.log(`\n${(total / 1000).toFixed(0)}s: ` + widthMs.map(([w, ms]) => `${w}px ${(ms / 1000).toFixed(0)}s`).join(" · "));
+}
 if (TIMING) {
-  console.log(`\nwaited ${(settled / 1000).toFixed(1)}s where the old fixed sleeps would have waited ${(slept / 1000).toFixed(1)}s`);
+  console.log(`waited ${(settled / 1000).toFixed(1)}s where the old fixed sleeps would have waited ${(slept / 1000).toFixed(1)}s`);
 }
 console.log(found
   ? `\n${found} problem${found === 1 ? "" : "s"} — see above`
