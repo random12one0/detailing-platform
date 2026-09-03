@@ -4,6 +4,17 @@
 //
 // This module is dependency-free (no Deno/DB imports) so the routing and
 // rendering logic can be tested under plain Node.
+//
+// ARIAL IS DELIBERATE HERE AND NOWHERE ELSE. An HTML email cannot load a
+// webfont — no @font-face, no <link> to Google Fonts — so Arial/Helvetica is
+// the email-safe stack and this is the one file in the product allowed to name
+// it. The product's own two faces (Archivo, JetBrains Mono) are unaffected and
+// are pinned by `tests/composition.test.mjs`. The design hook flags every one
+// of these as an overused font; the suppression is scoped to this FILE so that
+// Arial in a stylesheet a browser actually renders is still caught. The
+// reasoning is written here because `.impeccable/config.json` is untracked on
+// purpose (.gitignore, and CLAUDE.md's rule that no tool-specific mechanism may
+// carry a decision).
 
 export interface TenantBrand {
   businessId: string;

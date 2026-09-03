@@ -122,7 +122,9 @@ screenshots/
 
 # Local tooling config for the impeccable design hook. NOT tracked, on purpose:
 # CLAUDE.md requires that no tool-specific mechanism carry a decision, because
-# the owner expects to move to a different coding agent. The one suppression in
-# it (the .sheet height transition) is a duplicate — the reasoning that matters
-# lives in a comment beside that rule in app/src/theme.css.
+# the owner expects to move to a different coding agent. Both suppressions in it
+# are DUPLICATES — the reasoning that matters lives beside the code:
+#   .sheet's height transition   -> a comment at that rule in app/src/theme.css
+#   Arial in the email templates -> the header of
+#                                   supabase/functions/_shared/emailTemplates.ts
 .impeccable/
