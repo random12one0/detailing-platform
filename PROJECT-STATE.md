@@ -3782,3 +3782,37 @@ point was written to a file and applied with Python.
 - `composition` 26 → **57**, nine mutations each breaking exactly its own check.
 - Full `--all` sweep and `--lite`, five widths; the booking gate.
 
+### ⚠ THE DISSOLVE IS REJECTED AND IS STILL IN THE CODE (2026-09-03)
+
+**Read this before touching anything about the content swap.** The owner looked
+at the dissolve and turned it down flat:
+
+> "The dissolve that you created is horrible in the terms of… it just looks
+> like a page refresh… **And I'm sorry if I steered you to that. I wasn't
+> trying to.** … Same with it today when I switch it. It's, like, this kind of
+> harsh fade in… **it doesn't look fluid**."
+
+**THE TRAP: his own earlier words are what produced it** — *"maybe, like, a
+little dissolve or a blur"* — and that quote is still in `docs/roadmap.md`,
+`docs/design-system.md` and `DECISIONS.md`. **A session that finds the earlier
+quote and not this one rebuilds the rejected thing and cites him for it.**
+
+**He deliberately did not specify a replacement**: *"I'm not gonna give you an
+animation idea. You should figure out the animation idea."* He floated *"text
+that went down and faded up"* and withdrew it in the same sentence — a hint he
+took back, not a spec.
+
+**The diagnosis to design against:** a page reload IS a whole block changing
+opacity at once, so a uniform cross-fade of a content block reproduces its
+optical signature no matter how brief it is. **The fault is the uniformity, not
+the duration or the blur.** Every motion he has approved moves its parts on
+different timelines (the arrival staggers 0/40/80/120/160ms; the day rail
+staggers inside itself). Nothing he likes fades as a single flat plane.
+
+**Two surfaces, one cause:** the job record switching (`RecordHost`, reached
+from Today *and* the calendar) and the same `.swap` on Money and Clients.
+
+**NOTHING WAS CHANGED IN RESPONSE.** He said *"don't do anything yet. Stop."*
+The dissolve is committed and passing `composition` 8e, which is written
+against it and must move with it. **Next session replaces it; it does not need
+to rediscover it.**

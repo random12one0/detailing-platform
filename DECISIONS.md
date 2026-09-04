@@ -9589,6 +9589,16 @@ Verified: three consecutive clean full runs, plus `--lite`.
 
 ## Roadmap 2.17, second pass — the owner walked it
 
+> **⚠ SUPERSEDED IN PART, SAME DAY: the DISSOLVE below was rejected by the
+> owner on sight** — *"it just looks like a page refresh… I'm sorry if I
+> steered you to that. I wasn't trying to."* Everything else in this section
+> stands (the month's travel, the cascade lesson, the baselining findings).
+> **The dissolve does not.** His earlier *"a little dissolve or a blur"* is
+> quoted approvingly below and is exactly what he has now withdrawn — read
+> PROJECT-STATE.md, "THE DISSOLVE IS REJECTED", before acting on any quote in
+> this section. Kept rather than deleted because the reversal is the
+> load-bearing part.
+
 He looked at the retrofit on his own machine (27" 1080p, so 1920x1080) and went
 through it item by item. Most of it he liked — *"a lot of stuff kinda has that
 nice animation that you added, so that's good"*. What follows is what he

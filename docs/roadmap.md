@@ -2995,6 +2995,57 @@ is kept; the entire visual design restarts from scratch.
         two speeds on first paint.
       - **`composition` is 57 checks**, nine mutations baselined.
 
+      **⚠ THE DISSOLVE IS REJECTED — the owner, 2026-09-03, looking at it.
+      DO NOT REBUILD IT, AND DO NOT RE-DERIVE IT FROM HIS EARLIER MESSAGE.**
+
+      > "The dissolve that you created is horrible in the terms of… it just
+      > looks like a page refresh. Yeah. So the dissolve wasn't it. **And I'm
+      > sorry if I steered you to that. I wasn't trying to.** … But the
+      > dissolve looks like just the page reloading. **Same with it today when
+      > I switch it.** It just… it's, like, this kind of harsh fade in, you
+      > know, like, **it doesn't look fluid**."
+
+      **THE TRAP, AND IT IS THE WHOLE REASON THIS IS WRITTEN AT THE TOP.** His
+      OWN earlier message is what produced the dissolve — *"maybe, like, a
+      little dissolve or a blur"* — and that sentence is still sitting in this
+      file and in `docs/design-system.md`. **A session that reads the earlier
+      quote and not this one will build exactly the thing he has now rejected,
+      and will be able to cite him for it.** He withdrew it himself and
+      apologised for it, which is as clear as a retraction gets.
+
+      **HE DECLINED TO SPECIFY THE REPLACEMENT, ON PURPOSE.** *"Okay. Sorry.
+      I'm not gonna give you an animation idea. You should figure out the
+      animation idea."* He floated *"maybe a text that, you know, went down and
+      faded up or something"* and pulled it back in the same breath. **Treat
+      that as a hint he withdrew, not as a specification** — building it
+      literally repeats the mistake that got us here.
+
+      **WHAT IS ACTUALLY WRONG WITH IT, as a diagnosis to design against
+      rather than a restatement of the complaint.** A page reload *is* a whole
+      block changing opacity at once. `.swap` fades an entire content block on
+      one timeline, so it reproduces the exact optical signature of a reload —
+      which is why it reads as one no matter how short it is. **The fault is
+      the UNIFORMITY, not the duration and not the blur.** Everything else in
+      this product that he likes moves its parts on *different* timelines: the
+      screen's arrival staggers 0/40/80/120/160ms, the day rail staggers inside
+      itself. **Nothing he has approved fades as a single flat plane.**
+
+      **WHERE IT IS, so the removal is one list:** `.swap` and `@keyframes
+      swap-in` in `theme.css`; the header and body in `RecordHost.jsx`; the two
+      keyed blocks in `Money.jsx`; the list in `Clients.jsx`. `composition`
+      test 8e is written against it and must move with it — 8e-i pins the blur
+      by name.
+
+      **AND IT IS TWO PLACES, NOT ONE.** He named the job record *and* Today
+      (*"same with it today when I switch it"*), which is the same `.swap` on
+      `RecordHost` reached from a different screen — so it is one fix, but a
+      session that only looks at the calendar will think it has finished.
+
+      **NOTHING WAS CHANGED IN RESPONSE TO THIS.** He said *"don't do anything
+      yet. Stop."* The dissolve is still in the code, still committed, and
+      still passing its checks. **The next session's first job is to replace
+      it, not to discover it.**
+
       **⚠ AND A SECOND THING FOR HIM, ON THE SQUIRCLE: THE LANDING PAGE.**
       The dashboard and the customer's booking page are squircled. **The
       marketing page at `/` is not, and that is deliberate rather than
