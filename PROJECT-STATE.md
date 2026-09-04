@@ -3245,12 +3245,40 @@ a fresh finalize starts from **list prices**, so a promo customer defaults to
 the full amount unless the owner adjusts — the modal shows the difference on
 screen, so it is visible and his call.
 
+### AND THE LAST TWO PIECES LANDED THE SAME DAY
+
+**The second reminder** — `customer_reminder_2_enabled` +
+`customer_reminder_2_lead_minutes`, its own marker on the booking, its own RPC,
+a row on Booking rules, off by default. **Two columns rather than a
+`booking_reminders_sent` table, reversing what was written earlier the same
+day**: that shape was right while the count was open-ended and became wrong
+when he capped it at two. **Its own RPC because the first one carries the
+evening-before rule**, which the second must not inherit — two evening sends
+racing on one marker — and it refuses to fire before the first has.
+
+**"Your own words"** — `business_settings.email_messages jsonb`, one optional
+paragraph per email kind, rendered in the panel block by one `ownWords()`
+helper, with prewritten wordings as a constant in
+`app/src/lib/emailMessages.js`. **No `{{placeholders}}`, deliberately**: the
+email already greets the customer and states their date, vehicle and address,
+so a token would be the owner's own never-default. **The absence removes
+everything there is to typo or validate.**
+
+**AND THE EMAILS WERE SENT** — `scripts/send-test-emails.mjs --to=…`, four
+different shapes, through the real relay. **It needs `SUPABASE_SECRET_KEY`, not
+the legacy service-role JWT**: `send-email` compares against what Supabase
+injects, this project has migrated, and the legacy key returns a flat 401 that
+reads exactly like a revoked key.
+
+**`buildAddressing` was deleted as dead code and is not dead** —
+`booking-engine` test 9 pins TENANT ISOLATION with it, and the caller was in
+`tests/` while the grep was of `supabase/functions/`. Restored.
+
 ### Still open
 
-The simple settings surface (on/off per email, one optional message of the
-detailer's own, prewritten wordings) · `booking_reminders_sent` + the two
-reminder rules · `formatDateLong` hardcoded `en-US` · **and nothing has been
-opened in a real email client.** A send to a Gmail, an Outlook and an iCloud address in both
+`formatDateLong` hardcoded `en-US` · **and the owner's verdict on the four
+emails now in his inbox**, which is the only thing that can close the "nothing
+has been opened in a real email client" gap. A send to a Gmail, an Outlook and an iCloud address in both
 modes is twenty minutes, and it is the only thing that turns "should work" into
 "does work".
 

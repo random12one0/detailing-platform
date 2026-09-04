@@ -5,7 +5,10 @@
 // one reminder on demand.
 //
 // Reminder kinds, all settings-driven:
-//   * customer + owner appointment reminders (evening-before rule included)
+//   * customer appointment reminders — TWO of them since roadmap 2.18, the
+//     first carrying the evening-before rule and the second a plain offset,
+//     each with its own marker so a re-run cannot double-send
+//   * owner appointment reminders (evening-before rule included)
 //  * "starting soon" owner push, "wrapping up" push, "finalize payment" push
 //   * one morning digest per business per local day at daily_digest_hour
 
@@ -58,12 +61,17 @@ function emailDataFor(business: Business, b: BookingRow) {
   };
 }
 
-async function sendCustomerReminder(b: BookingRow) {
+async function sendCustomerReminder(b: BookingRow, second = false) {
   const business = await biz(b.business_id);
   const settings = await getSettings(business.id);
+  // THE SECOND REMINDER HAS ITS OWN SWITCH AND STILL RESPECTS THE FIRST'S.
+  // `email_customer_reminder` is "does this business remind its customers at
+  // all"; turning it off must silence both, or a detailer who switched
+  // reminders off keeps getting the second one.
   if (!settings.email_customer_reminder) return;
+  if (second && !settings.customer_reminder_2_enabled) return;
   const brand = await buildBrand(business, settings);
-  const msg = customerReminderEmail(brand, emailDataFor(business, b));
+  const msg = customerReminderEmail(brand, emailDataFor(business, b), second);
   await sendTenantEmail({ businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
 }
 
@@ -134,7 +142,7 @@ Deno.serve(async (req) => {
     const mark = (id: string, col: string) =>
       supabase.from("bookings").update({ [col]: new Date().toISOString() }).eq("id", id);
 
-    const [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue, requestDue] = await Promise.all([
+    const [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue, requestDue, secondDue] = await Promise.all([
       supabase.rpc("get_bookings_due_for_reminder", { target: "owner" }),
       supabase.rpc("get_bookings_due_for_reminder", { target: "customer" }),
       supabase.rpc("get_bookings_due_for_nudge"),
@@ -142,8 +150,14 @@ Deno.serve(async (req) => {
       supabase.rpc("get_bookings_due_for_finalize_nudge"),
       // ROADMAP 2.12 FOLLOW-UP, approved by the owner 2026-09-03.
       supabase.rpc("get_requests_due_for_nudge"),
+      // ROADMAP 2.18. Its own RPC rather than a `target` on the first one:
+      // that function carries the EVENING-BEFORE rule, and a second reminder
+      // must not inherit it or a business with both settings on gets two
+      // evening-before sends racing on one marker. The RPC also refuses to run
+      // before the first reminder has gone.
+      supabase.rpc("get_bookings_due_for_second_reminder"),
     ]);
-    for (const r of [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue, requestDue]) {
+    for (const r of [ownerDue, customerDue, nudgeDue, wrapupDue, finalizeDue, requestDue, secondDue]) {
       if (r.error) throw r.error;
     }
 
@@ -163,6 +177,15 @@ Deno.serve(async (req) => {
         results.push({ id: b.id, kind: "customer_reminder", sent: true });
       } catch (e) {
         results.push({ id: b.id, kind: "customer_reminder", sent: false, error: String(e) });
+      }
+    }
+    for (const b of secondDue.data || []) {
+      try {
+        await sendCustomerReminder(b, true);
+        await mark(b.id, "customer_reminder_2_sent_at");
+        results.push({ id: b.id, kind: "customer_reminder_2", sent: true });
+      } catch (e) {
+        results.push({ id: b.id, kind: "customer_reminder_2", sent: false, error: String(e) });
       }
     }
     for (const b of nudgeDue.data || []) {

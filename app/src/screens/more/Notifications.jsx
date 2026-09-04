@@ -15,12 +15,13 @@ import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { DurationChoice, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
 import { disablePush, enablePush, pushState } from "../../lib/push.js";
+import { cleanMessages, MESSAGE_KINDS, MESSAGE_MAX } from "../../lib/emailMessages.js";
 
 const CUSTOMER_EMAILS = [
   ["email_customer_confirmation", "Booking confirmation",
     "Sent the moment they book, with their receipt and a link to change it."],
   ["email_customer_reminder", "Appointment reminder",
-    "One reminder before the job. Timing is set in Booking rules."],
+    "Timing, and whether there is a second one, are set in Booking rules."],
   ["email_customer_followup", "Thank-you and review request",
     "Goes out after you record payment."],
 ];
@@ -44,6 +45,9 @@ export default function Notifications() {
     return f;
   });
   const [recipients, setRecipients] = useState(settings?.notification_emails ?? []);
+  // The detailer's own paragraph per email kind. Roadmap 2.18.
+  const [messages, setMessages] = useState(() => ({ ...(settings?.email_messages ?? {}) }));
+  const [openKind, setOpenKind] = useState(null);
   const [newEmail, setNewEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
@@ -100,6 +104,7 @@ export default function Notifications() {
       finalize_nudge_delay_minutes: Number(form.finalize_nudge_delay_minutes) || 0,
       daily_digest_hour: Math.min(23, Math.max(0, Number(form.daily_digest_hour) || 0)),
       notification_emails: recipients,
+      email_messages: cleanMessages(messages),
     }).eq("business_id", business.id);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
     if (!error) reload();
@@ -193,6 +198,59 @@ export default function Notifications() {
         <Setting label="Morning summary" help="Your day's jobs, sent once each morning.">
           <HourChoice value={form.daily_digest_hour} onChange={(v) => set("daily_digest_hour", v)} />
         </Setting>
+      </Group>
+
+      {/* ROADMAP 2.18 — THE DETAILER'S OWN WORDS.
+          This is the whole of "email customizability" after the owner scrapped
+          the block editor he had asked for one message earlier: the design is
+          ours, the words are theirs. One optional paragraph per email, with
+          prewritten ones to start from — which is what "premade templates"
+          turned out to mean in this trade (not a choice of looks; not one of
+          the six products offers that for a transactional email).
+          NO PLACEHOLDERS ON PURPOSE: the email already greets the customer by
+          name and states their date, vehicle and address, so a second
+          "Hi {name}" is the owner's own never-default. Nothing to typo,
+          nothing to validate. */}
+      <Group title="Your own words"
+        blurb="Add a line to any email. Everything else stays as designed.">
+        {MESSAGE_KINDS.map((k) => {
+          const body = messages[k.key] ?? "";
+          const open = openKind === k.key;
+          return (
+            <Setting key={k.key} label={k.label} help={k.when} stacked>
+              {!open && (
+                <button className="btn sm inline ghost" onClick={() => setOpenKind(k.key)}>
+                  {body ? "Edit your line" : "Add a line"}
+                </button>
+              )}
+              {!open && body && <p className="body" style={{ marginTop: 8 }}>{body}</p>}
+              {open && (
+                <div className="tight">
+                  <textarea rows={3} maxLength={MESSAGE_MAX} value={body}
+                    placeholder="Anything you want them to know."
+                    onChange={(e) => { setMessages({ ...messages, [k.key]: e.target.value }); setMsg(null); }} />
+                  <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                    {k.presets.map((preset) => (
+                      <button key={preset} className="btn sm inline ghost"
+                        onClick={() => { setMessages({ ...messages, [k.key]: preset }); setMsg(null); }}>
+                        {preset.length > 44 ? `${preset.slice(0, 44)}…` : preset}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="row" style={{ gap: 8 }}>
+                    <button className="btn sm inline" onClick={() => setOpenKind(null)}>Done</button>
+                    {body && (
+                      <button className="btn sm inline ghost"
+                        onClick={() => { const m = { ...messages }; delete m[k.key]; setMessages(m); setMsg(null); }}>
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </Setting>
+          );
+        })}
       </Group>
 
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}

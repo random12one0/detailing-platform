@@ -46,6 +46,14 @@ export interface BusinessSettings {
   price_rules: any[];
   travel_zones: { key: string; name: string; fee: number }[];
   customer_reminder_lead_minutes: number;
+  // Roadmap 2.18 — the SECOND customer reminder. Off by default; two is the
+  // trade's ceiling rather than its floor (Jobber caps there, nobody offers
+  // three), and a third costs deliverability for the receipt.
+  customer_reminder_2_enabled: boolean;
+  customer_reminder_2_lead_minutes: number;
+  // Roadmap 2.18 — the detailer's own paragraph per email kind, keyed by
+  // template name. The design and the money are not editable; this is.
+  email_messages: Record<string, string | null>;
   evening_before_enabled: boolean;
   evening_before_latest_start: string;
   evening_before_send_time: string;

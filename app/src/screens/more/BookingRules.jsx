@@ -103,6 +103,8 @@ export default function BookingRules() {
     max_bookings_per_day: settings?.max_bookings_per_day ?? null,
     cancellation_window_hours: settings?.cancellation_window_hours ?? 0,
     customer_reminder_lead_minutes: settings?.customer_reminder_lead_minutes ?? 1440,
+    customer_reminder_2_enabled: settings?.customer_reminder_2_enabled ?? false,
+    customer_reminder_2_lead_minutes: settings?.customer_reminder_2_lead_minutes ?? 120,
     mobile_enabled: settings?.mobile_enabled ?? true,
     dropoff_enabled: settings?.dropoff_enabled ?? true,
     ask_water_electric: settings?.ask_water_electric ?? true,
@@ -233,6 +235,8 @@ export default function BookingRules() {
       max_bookings_per_day: num(form.max_bookings_per_day),
       cancellation_window_hours: Number(form.cancellation_window_hours) || 0,
       customer_reminder_lead_minutes: Number(form.customer_reminder_lead_minutes) || 0,
+      customer_reminder_2_enabled: !!form.customer_reminder_2_enabled,
+      customer_reminder_2_lead_minutes: Number(form.customer_reminder_2_lead_minutes) || 0,
       mobile_enabled: form.mobile_enabled,
       dropoff_enabled: form.dropoff_enabled,
       // The old boolean is kept in step with the two new settings rather than
@@ -419,11 +423,29 @@ export default function BookingRules() {
         </Setting>
 
         <Setting label="Remind them before the job"
-          help="One email, this far ahead of the appointment."
+          help="This far ahead of the appointment."
           stacked>
           <DurationChoice value={form.customer_reminder_lead_minutes} presets={REMIND}
             onChange={(v) => set("customer_reminder_lead_minutes", v)} unit="minutes" customMax={10080} />
         </Setting>
+
+        {/* ROADMAP 2.18 — THE SECOND REMINDER, OFF BY DEFAULT. Two is the
+            trade's ceiling rather than its floor: Jobber caps there and
+            nobody in the six-product sweep offers three. The help text
+            carries the fact the label cannot — the pair that actually works
+            is one the day before and one a couple of hours out, and the
+            second one only sends after the first has. */}
+        <Switch label="Send a second reminder"
+          help="For the pair that works: one the day before, one a couple of hours out."
+          checked={form.customer_reminder_2_enabled}
+          onChange={(v) => set("customer_reminder_2_enabled", v)} />
+
+        {form.customer_reminder_2_enabled && (
+          <Setting label="Second reminder" help="Never sends before the first one." stacked>
+            <DurationChoice value={form.customer_reminder_2_lead_minutes} presets={REMIND}
+              onChange={(v) => set("customer_reminder_2_lead_minutes", v)} unit="minutes" customMax={10080} />
+          </Setting>
+        )}
 
         {/* ROADMAP 2.12 FOLLOW-UP, and only for a business that takes requests
             — a reserve-mode detailer can never have one, so the row would be a

@@ -177,6 +177,8 @@ were made more than once.
 
 - **Roadmap 2.18 — the live-business read, and the invoice stopped doing arithmetic** — he authorised the read, and it produced a RETRACTION. **CLAUDE.md names the wrong repo**: `carwashweb` is a 99-file Emergent scaffold last pushed 2026-02-01 with no invoice code at all; the live business is **`random12one0/carwebitebooking`**. **And its invoice ADDS UP** — both its finalize modal and its `send-invoice` exclude the promo, so they agree with each other. **The bug was INTRODUCED by our port, not inherited**, which is the opposite of what the earlier entry today concluded from reading only the row-building. *A defect diagnosed by reading the code that DRAWS a number is half a diagnosis; the other half computes it.* (What the live site does have: `roundToNearest5` rounds the total but not the rows, so up to $2.50 of drift, and a fresh finalize defaults to LIST price, so a promo customer is charged full unless the owner adjusts — visible on screen, his call.) **THE INVOICE NOW COPIES WHAT WAS FINALIZED INSTEAD OF RE-DERIVING IT, on his instruction** — *"just have it copy exactly what was calculated on what you finalized… I don't get why there has to be math"* — and he was describing the root cause, not a preference: `send-invoice` was rebuilding the bill from five sources and hoping their sum matched a `final_amount` computed in another file, which is why 2.8c patched travel in and 2.18 still found the promo missing. **Now it prints `total_price` + the finalize lines, which is `final_amount`'s own definition, so the column cannot disagree with the total.** ~45 lines deleted; the work is still NAMED but no longer priced, because per-service prices are not what was charged. `reconcile` stays as a guard that should never fire. **And the re-book email is MANUAL with a dashboard nudge, his call** — a human picks the recipients, nothing sends itself, which removes most of the CAN-SPAM machinery the research had costed.
 
+- **Roadmap 2.18 — the last two pieces, and the first real send** — the second reminder and "your own words" are built, and four emails were sent to his actual inbox. **The second reminder is TWO COLUMNS, NOT a `booking_reminders_sent` table — a same-day reversal of this file**: a per-(booking, rule) table was right while the count was open-ended and became wrong the moment he capped it at two, because a general table then buys extensibility nobody asked for at the price of a join in the hottest RPC in the product. **Its own RPC, not a `target`**, because `get_bookings_due_for_reminder` carries the EVENING-BEFORE rule and a second reminder inheriting it means two evening sends racing on one marker; it also refuses to run before the first has, and excludes `pending` for 2.12's reason. **"Your own words" is one jsonb column and NO `{{placeholders}}`** — the email already greets the customer and states their date, vehicle and address, so a token would be the owner's own never-default; the absence is the feature, and it removes everything there is to typo or validate. Escaped BEFORE newlines become `<br>`, never after. **THE SEND FOUND TWO THINGS.** `send-email` compares against the `SUPABASE_SERVICE_ROLE_KEY` **Supabase injects into the function**, and this project has migrated — so it wants `SUPABASE_SECRET_KEY` (`sb_secret_…`) while the root `.env` still holds the legacy JWT under the old name; **legacy → flat 401, which reads exactly like a revoked key.** And four emails, not seventeen: different SHAPES only, because duplicates spend a sending reputation shared with the live business. **AND A DELETION THAT WAS WRONG:** `buildAddressing` was removed as dead code and is not — `booking-engine` test 9 uses it to pin TENANT ISOLATION, and the check for callers had grepped `supabase/functions/` while the caller sat in `tests/`. ***A symbol used only by its test still has a user, and the test is usually pinning the thing that matters most.***
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -9106,3 +9108,118 @@ automatically, which is exactly the line he drew.
 already knows who has lapsed (`tests/client-list.test.mjs`, 31 checks, and the
 lapsed filter is *"who ends up on the end of a group text"*) — so the selection
 half exists and what is missing is a compose-and-send surface plus the prompt.
+
+## Roadmap 2.18 — the last two pieces, and the first real send
+
+2026-09-03. *"Okay, dude. These two. And, also… send some emails to me so I
+could check it out."* Both built; four emails sent to his inbox.
+
+### The second reminder: TWO COLUMNS, NOT A TABLE — a same-day reversal
+
+Earlier today this file said a second reminder needs a
+`booking_reminders_sent` row per (booking, rule), because a marker column
+"does not generalise". **That was correct while the count was open-ended and
+became wrong the moment he capped it.** He said *"as many as we want"*, then
+*"as many as you recommend"*, and the recommendation is **two**.
+
+**Once the count is fixed at two, a general table buys extensibility nobody
+asked for at the price of a join in the hottest RPC in the product.** So:
+`customer_reminder_2_enabled`, `customer_reminder_2_lead_minutes`, and
+`bookings.customer_reminder_2_sent_at`. If a third is ever wanted, THAT is when
+the table earns its place — and the migration says so.
+
+**It is its own RPC, `get_bookings_due_for_second_reminder`, not a `target` on
+the existing one, and the reason is load-bearing.**
+`get_bookings_due_for_reminder` carries the **evening-before rule**: when that
+fires, the reminder goes at a wall-clock time on the previous day rather than
+an offset before the start. **A second reminder must not inherit it** — a
+business running both settings would otherwise get two evening-before sends
+racing on one marker, which is the same class of bug as a shared selector
+meaning two things.
+
+**And it refuses to run before the first has:** `customer_reminder_sent_at is
+not null`. On a job booked an hour out, both lead times can come due in the
+same sweep, and a "second" reminder arriving first is worse than no second
+reminder. **Also `status <> 'pending'`** — the 2.12 rule that a request nobody
+accepted must never be told "your appointment is tomorrow"; the first RPC
+excludes it and a new one that forgot would reopen exactly that hole.
+
+**The switch nests, deliberately.** `email_customer_reminder` is "does this
+business remind customers at all" and silences both; `customer_reminder_2_enabled`
+only adds the second. A detailer who turns reminders off and still receives the
+second one would be the switch lying, which this product has shipped once
+already (the push toggle that registered nothing).
+
+### "Your own words": one paragraph per email, and no placeholders
+
+The simple version of what he asked for, and it is what five of the six
+products in the sweep do. `business_settings.email_messages jsonb`, keyed by
+template name, rendered by one `ownWords()` helper into the panel block so it
+reads as an aside from the business rather than another sentence from us.
+
+**ONE JSONB COLUMN, NOT A TABLE.** A dozen optional strings with no per-row
+lifecycle, read on one code path. A table would bring an id, a timestamp, two
+RLS policies and a join to fetch a paragraph; `business_settings` already has
+the policies and is already loaded everywhere this is needed.
+
+**NO `{{placeholders}}`, AND THAT IS THE INTERESTING DECISION.** The SMS
+templates have them because a text IS the whole message and has to carry the
+name. These paragraphs sit inside an email that **already** greets the customer
+by name and states their date, vehicle and address — so a second
+"Hi {{customer_name}}" is the owner's own never-default, *copy that explains
+what the screen already said*. Leaving tokens out means nothing to typo,
+nothing to validate, and no `findBadTokens` equivalent to write. **The absence
+is the feature.**
+
+**Escaped before newlines become `<br>`, not after.** The other order lets a
+detailer's paragraph inject markup into every email they send.
+
+**The prewritten wordings are a constant in `app/src/lib/emailMessages.js`, not
+schema.** "Premade templates" turned out to mean wording rather than looks, and
+a wording you can pick and then edit needs no storage of its own — it is a
+button that fills a textarea.
+
+### THE EMAILS WERE ACTUALLY SENT, AND TWO THINGS CAME OUT OF DOING IT
+
+`scripts/send-test-emails.mjs --to=…` renders the real templates and posts them
+through the **real relay**, so the `text` part, the From line, the Reply-To and
+the tenant lookup are exercised rather than simulated. **`--to` is required with
+no default**, because a script that mails somebody when run bare eventually
+mails the wrong person.
+
+**1. THE RELAY WANTS `SUPABASE_SECRET_KEY`, NOT THE LEGACY SERVICE-ROLE JWT.**
+`send-email` compares the caller's bearer token against the
+`SUPABASE_SERVICE_ROLE_KEY` **that Supabase injects into the function's own
+environment**, and this project has migrated to the new key format — so what
+the platform injects is the `sb_secret_…` value, while the root `.env` still
+holds the legacy JWT under the old name. Measured: legacy → `401 Unauthorized`,
+`sb_secret_…` → `400 …are required`, i.e. past the gate. **A flat 401 reads
+exactly like a revoked key or a broken relay**, and it sent the first run down
+the wrong path entirely. The script tries the secret key first and falls back,
+so it works against a migrated project and an unmigrated one.
+
+**2. FOUR, NOT SEVENTEEN.** Each is a different SHAPE — the mark-and-facts
+layout, the money column, the single-figure layout, the owner's decide-now
+layout. Sending all of them buries the differences in an inbox **and spends
+sending reputation on duplicates**, which matters here because the platform and
+the live business share one Resend account.
+
+### AND A DELETION THAT WAS WRONG, CAUGHT BY THE ENV-BACKED SUITE
+
+The rebuild deleted `buildAddressing` as dead code. **It was not dead:
+`tests/booking-engine.test.mjs` test 9 uses it**, and what that test pins is
+**tenant isolation** — A's mail replies to A's owner, B's to B's, and A's email
+never mentions B. The platform sends every business's mail from one verified
+address, so the display name and the Reply-To are the *only* things separating
+two tenants' email.
+
+**The check for callers was a grep of `supabase/functions/` and the caller was
+in `tests/`.** Restored, with that written above it. ***A symbol used only by
+its test still has a user, and the test is usually pinning the thing that
+matters most.***
+
+The same test's brand fixture still named the old colour fields
+(`primaryColor`/`headerInk`/`accentColor`), which are now ignored — updated
+rather than left, because a harness that disagrees with its interface renders
+`undefined` and looks like a bug in the code under test. That is 2.12's lesson
+for the second time in one item.

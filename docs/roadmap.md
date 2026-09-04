@@ -2570,13 +2570,37 @@ is kept; the entire visual design restarts from scratch.
         replacements turned up **a raw backspace character inside the new
         regex**, which made the anti-vacuity check vacuous on its first run.
 
-      **STILL OPEN:** the simple settings surface (on/off per email, one
-      optional message of the detailer's own, prewritten wordings) ·
-      `booking_reminders_sent` + the two reminder rules · storing the site-sale
-      amount on the booking · `formatDateLong` hardcoded `en-US` (named, not
-      fixed — US-only product) · **and nothing has been opened in a real email
-      client.** A send to a Gmail, an Outlook and an iCloud address in both
-      modes is twenty minutes and is what turns "should work" into "does work".
+      **AND THE LAST TWO PIECES LANDED (2026-09-03) — *"Okay, dude. These
+      two."***
+
+      - **THE SECOND REMINDER.** `customer_reminder_2_enabled` +
+        `customer_reminder_2_lead_minutes` on settings, its own marker on the
+        booking, its own RPC. **TWO COLUMNS, NOT a `booking_reminders_sent`
+        table** — that shape was right while the count was open-ended and
+        became wrong when he capped it at two. **Its own RPC because the first
+        one carries the EVENING-BEFORE rule**, which a second reminder must not
+        inherit; it also refuses to fire before the first, and excludes
+        `pending` for 2.12's reason. On Booking rules, off by default.
+      - **"YOUR OWN WORDS".** `business_settings.email_messages jsonb`, one
+        optional paragraph per email kind, rendered in the panel block by a
+        single `ownWords()` helper. Prewritten wordings live in
+        `app/src/lib/emailMessages.js` — a constant, not schema. **NO
+        `{{placeholders}}`**: the email already greets the customer and states
+        their date, vehicle and address, so a token would be the owner's own
+        never-default. Nothing to typo, nothing to validate.
+      - **THE EMAILS WERE ACTUALLY SENT.**
+        `node scripts/send-test-emails.mjs --to=…` posts the real templates
+        through the real relay. **It wants `SUPABASE_SECRET_KEY`, not the
+        legacy service-role JWT** — this project has migrated, and the legacy
+        key returns a flat 401 that reads like a revoked key.
+      - **`buildAddressing` was deleted as dead code and is NOT** —
+        `booking-engine` test 9 pins tenant isolation with it. The caller was
+        in `tests/` and the grep was of `supabase/functions/`. Restored.
+
+      **STILL OPEN:** `formatDateLong` hardcoded `en-US` (named, not fixed —
+      US-only product) · **and the owner's verdict on the four emails now in
+      his inbox**, which is the only thing that can close the "nothing has been
+      opened in a real email client" gap.
 
       **AND THE INVOICE STOPPED DOING ARITHMETIC (2026-09-03, his
       instruction).** *"We don't need to recalculate everything again when we

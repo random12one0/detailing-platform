@@ -55,8 +55,26 @@ import {
 export { formatDateLong, formatTime12hr, money };
 export type { Brand, MoneyLine };
 
+/** The email kinds a detailer may add their own paragraph to. */
+export type MessageKind =
+  | "confirmation" | "request_received" | "reminder" | "reminder_2"
+  | "accepted" | "declined" | "quote"
+  | "receipt" | "invoice" | "followup" | "cancelled" | "rescheduled";
+
 /** The tenant's identity as an email needs it. Built by `_shared/email.ts`. */
 export type TenantBrand = Brand & {
+  /**
+   * THE DETAILER'S OWN WORDS, one optional paragraph per email kind.
+   *
+   * This is the whole of "email customizability" after the owner scrapped the
+   * block editor he had asked for one message earlier: *"make it a lot more
+   * simple."* Five of the six products in the sweep do exactly this — the
+   * design is the product's, the words are the business's.
+   *
+   * **It can never reach the money.** `moneyBlock` takes no input from here;
+   * see the migration's comment and CLAUDE.md.
+   */
+  messages?: Partial<Record<MessageKind, string | null>>;
   /** Becomes Reply-To, and is where the owner's copy of a cancellation or a
    *  reschedule is sent when no notification list is configured. */
   contactEmail: string | null;
@@ -108,6 +126,34 @@ export interface Mail {
   text: string;
 }
 
+export interface MailAddressing {
+  from: string;
+  replyTo: string | null;
+  ownerTo: string | null;
+}
+
+/**
+ * WHO A TENANT'S MAIL COMES FROM AND GOES BACK TO — and this is a
+ * TENANT-ISOLATION function, not a formatting one.
+ *
+ * The platform sends every business's mail from one verified address, so the
+ * only things separating two tenants' email are the display name and the
+ * Reply-To. `tests/booking-engine.test.mjs` test 9 pins exactly that: A's mail
+ * replies to A's owner, B's to B's, and A's email never mentions B.
+ *
+ * **It was deleted in the 2.18 rebuild as dead code and restored the same
+ * hour**, because the check for callers was a grep of `supabase/functions/`
+ * and the caller was in `tests/`. *A symbol used only by its test still has a
+ * user, and the test is usually pinning the thing that matters most.*
+ */
+export function buildAddressing(brand: TenantBrand, platformFromAddress: string): MailAddressing {
+  return {
+    from: `${brand.brandName} <${platformFromAddress}>`,
+    replyTo: brand.contactEmail,
+    ownerTo: brand.contactEmail,
+  };
+}
+
 const sizeDisplay = (s: string) =>
   ({
     small: "Small car", compact: "Compact", mid: "Mid-size", midsize: "Mid-size",
@@ -128,6 +174,24 @@ export function jobAddress(
 /** Every template ends here, so no template can forget the text half. */
 function mail(subject: string, html: string): Mail {
   return { subject, html, text: htmlToText(html) };
+}
+
+/**
+ * The detailer's paragraph, or nothing. One helper rather than an inline
+ * ternary per template, so every one of them places it the same way and a new
+ * template cannot quietly forget to offer the slot.
+ *
+ * It renders on the PANEL rather than as plain prose, because it is the one
+ * part of the email the business wrote and it should look like an aside from
+ * them rather than another sentence from us.
+ */
+function ownWords(brand: TenantBrand, kind: MessageKind): string {
+  const body = brand.messages?.[kind];
+  if (!body || !String(body).trim()) return "";
+  // Escaped first, THEN newlines become `<br>` — the other order would let a
+  // detailer's paragraph inject markup into every email they send.
+  const safe = esc(String(body).trim()).split(/\r?\n\s*/).join("<br>");
+  return noteBlock(safe);
 }
 
 /**
@@ -207,6 +271,7 @@ export function customerConfirmationEmail(
     labBlock("What we're doing"),
     moneyBlock(brand, quoteLines(b), { label: "Estimated total", amount: Number(b.total) }),
     fineBlock("An estimate. If the vehicle's condition needs more time than expected we'll tell you before we start, never after."),
+    ownWords(brand, isRequest ? "request_received" : "confirmation"),
     buttonBlock(brand, isRequest ? "View or change your request" : "View your booking", b.receiptUrl),
     isRequest ? noteBlock("Nothing is charged now. We'll email you the moment we've accepted.") : "",
     b.customerNotes ? proseBlock(`<strong style="color:${G.bone};">Your notes</strong><br>${esc(b.customerNotes)}`, 26) : "",
@@ -298,6 +363,7 @@ export function requestDecisionEmail(
       markBlock(brand, [money(Number(opts.quotedAmount ?? 0)), "Our price for this job"]),
       opts.quotedNote ? proseBlock(esc(opts.quotedNote), 22) : "",
       noteBlock(`We're still holding ${esc(dateLong)} at ${formatTime12hr(b.startTime)} for you. <strong style="color:${G.bone2};">Nothing is charged until you say yes.</strong>`),
+      ownWords(brand, "quote"),
       buttonBlock(brand, "See it and say yes", opts.manageUrl),
     ].filter(Boolean)
     : kind === "accepted"
@@ -307,14 +373,16 @@ export function requestDecisionEmail(
       proseBlock(`Good news &mdash; we've accepted your request for ${when}. It's in the diary.`),
       markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
       factsBlock(jobFacts(brand, b)),
+      ownWords(brand, "accepted"),
       buttonBlock(brand, "View or change your booking", opts.manageUrl),
-    ]
+    ].filter(Boolean)
     : [
       labBlock("Request declined"),
       headlineBlock("We can't make that one"),
       proseBlock(`We're sorry &mdash; we can't take ${when}, so we've let that time go.`),
       proseBlock(`If another day works, we'd still love to see you &mdash; <a href="${brand.siteUrl}" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>.`),
-    ];
+      ownWords(brand, "declined"),
+    ].filter(Boolean);
 
   const subject = kind === "accepted"
     ? `You're booked in — ${dateLong}`
@@ -393,6 +461,7 @@ export function invoiceEmail(
       amount: Number(totals.totalPaid),
     }),
     paymentNotes ? proseBlock(`<strong style="color:${G.bone};">Notes</strong><br>${esc(paymentNotes)}`, 26) : "",
+    ownWords(brand, paid ? "receipt" : "invoice"),
     buttonBlock(brand, "View this online", b.receiptUrl),
     fineBlock("Keep this for your records. Reply to this email if anything looks wrong."),
   ].filter(Boolean);
@@ -426,6 +495,7 @@ export function followupEmail(brand: TenantBrand, name: string): Mail {
     links.length
       ? proseBlock("If you were happy with the work, a quick review genuinely helps us.", 22)
       : "",
+    ownWords(brand, "followup"),
     ...links.map(([label, href]) => buttonBlock(brand, label, href)),
     links.length ? fineBlock("It takes about a minute, and it is the single biggest thing that helps a small business like ours.") : "",
   ].filter(Boolean);
@@ -439,7 +509,13 @@ export function followupEmail(brand: TenantBrand, name: string): Mail {
 // ---------------------------------------------------------------------------
 // 6 · CUSTOMER — APPOINTMENT REMINDER (the settings-driven sweep sends this)
 // ---------------------------------------------------------------------------
-export function customerReminderEmail(brand: TenantBrand, b: BookingEmailData): Mail {
+export function customerReminderEmail(
+  brand: TenantBrand,
+  b: BookingEmailData,
+  /** The SECOND reminder, if the business has one switched on. It differs only
+   *  in which paragraph the detailer gets to attach — same facts, same job. */
+  second = false,
+): Mail {
   const dateLong = formatDateLong(b.dateStr);
   const blocks = [
     labBlock("Reminder"),
@@ -447,8 +523,9 @@ export function customerReminderEmail(brand: TenantBrand, b: BookingEmailData): 
     proseBlock(`Hi ${esc(firstName(b.customerName))}, a quick reminder about your appointment with ${esc(brand.brandName)}.`),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
     factsBlock(jobFacts(brand, b)),
+    ownWords(brand, second ? "reminder_2" : "reminder"),
     buttonBlock(brand, "View or change your booking", b.receiptUrl),
-  ];
+  ].filter(Boolean);
   return mail(
     `Reminder: your appointment ${dateLong}`,
     shell(brand, blocks, `Reminder: ${dateLong} at ${formatTime12hr(b.startTime)}`),
@@ -480,7 +557,8 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
       headlineBlock("Your booking is cancelled"),
       proseBlock(`Hi ${esc(firstName(b.customerName))}, your booking with ${esc(brand.brandName)} for <strong style="color:${G.bone};">${esc(dateLong)}</strong> at <strong style="color:${G.bone};">${formatTime12hr(b.startTime)}</strong> has been cancelled.`),
       proseBlock(`We'd love to see you another time &mdash; you can book again at <a href="${brand.siteUrl}" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>.`),
-    ];
+      ownWords(brand, "cancelled"),
+    ].filter(Boolean);
   return mail(
     forOwner ? `Cancelled — ${b.customerName} — ${dateLong}` : `Your booking has been cancelled`,
     shell(brand, blocks, `Cancelled: ${dateLong}`),
@@ -512,8 +590,9 @@ export function rescheduleEmail(
     proseBlock(`<span style="color:${G.fog2}; text-decoration:line-through;">${esc(oldLong)} at ${formatTime12hr(oldStartTime)}</span>`, 24),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
     factsBlock(jobFacts(brand, b)),
+    forOwner ? "" : ownWords(brand, "rescheduled"),
     buttonBlock(brand, forOwner ? "Open the job" : "View your booking", b.receiptUrl),
-  ];
+  ].filter(Boolean);
   return mail(
     forOwner ? `Rescheduled — ${b.customerName} — now ${dateLong}` : "Your booking has been rescheduled",
     shell(brand, blocks, `Rescheduled to ${dateLong}`),

@@ -362,12 +362,18 @@ let bookingA3;
 console.log("test 9: email addressing routes per business, never cross-tenant");
 {
   const m = await import("../supabase/functions/_shared/emailTemplates.ts");
+  // ROADMAP 2.18: the colour set moved from band/bandInk/onPaper (a white card
+  // under a coloured band) to accent/accentFill/accentInk (the product's own
+  // dark ground). The fixture is updated rather than left — a harness that
+  // disagrees with the interface renders `undefined` and looks like a bug in
+  // the code it is testing, which is exactly how 2.12 lost an hour.
   const brandOf = (biz) => ({
-    businessId: biz.id, slug: biz.slug, brandName: biz.name,
+    brandName: biz.name,
     contactEmail: biz.contact_email, contactPhone: biz.contact_phone,
     dropoffAddress: biz.dropoff_address, siteUrl: `https://detailplatform.com/${biz.slug}`,
-    primaryColor: "#111827", headerInk: "#ffffff", accentColor: "#0b7caf",
-    googleReviewUrl: null, yelpReviewUrl: null, paymentMethodsLine: null,
+    logoUrl: null,
+    accent: "#38E08B", accentFill: "#38E08B", accentInk: "#0b1220",
+    googleReviewUrl: null, yelpReviewUrl: null,
   });
   const aAddr = m.buildAddressing(brandOf(A), "bookings@detailplatform.com");
   const bAddr = m.buildAddressing(brandOf(B), "bookings@detailplatform.com");

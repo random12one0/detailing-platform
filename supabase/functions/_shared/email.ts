@@ -43,6 +43,10 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
     dropoffAddress: business.dropoff_address,
     googleReviewUrl: settings.google_review_url,
     yelpReviewUrl: settings.yelp_review_url,
+    // The detailer's own paragraph per email kind. `{}` for every business
+    // that has not written one, which is all of them until they do — the
+    // templates render nothing when a key is absent.
+    messages: (settings.email_messages ?? {}) as Record<string, string | null>,
   };
 }
 
