@@ -3224,9 +3224,27 @@ is kept; the entire visual design restarts from scratch.
       that is not named in that check is the one surface the pairing rule
       silently stops covering.
 
-      **THE LANDING PAGE IS STILL UNANSWERED**, and the tightening makes it
-      more visible rather than less: `/` now differs from the dashboard by 6px
-      of radius as well as by corner shape.
+      **AND THE LANDING PAGE WENT IN THE SAME DAY — *"just do whatever is
+      needed"* — WHICH CLOSES THE LAST THREAD IN 2.17.** `/` had six ad-hoc
+      radii and no tokens; it now carries `--ld-r-panel: 12px`,
+      `--ld-r-inset: 8px` and `--ld-corner`, the product's own values, so
+      pressing *Get started* no longer changes the corner under the visitor
+      mid-click. **The approved reference rendering moved in the same edit and
+      is swept as its own surface** — where it and the document disagree the
+      PAGE is right, so a page that drifts from the stylesheet quietly becomes
+      the wrong authority. `composition` 8a is four surfaces now, 72 checks.
+      **Both files were rewritten from ONE table keyed on the VALUE, not the
+      selector**: they spell their selectors differently (`.ld .tile` against
+      `.sunken`, spaced against minified) and a selector-keyed pass silently
+      missed four of the twelve on the first attempt.
+      **The two complications raised when this was only measured were both
+      real and are both fixed**: `corner-shape` does not inherit (the hero
+      card's highlight would have stayed a round rect inside a squircled card)
+      and it has no effect on `clip-path` (the comparison row would have wiped
+      a different shape than it drew). At 8px the second is a 3-pixel
+      difference — *which is exactly why it would have survived a look.*
+      Verified at 1920 / 1440 / 768 / 392 with the console read at each: clean
+      but for the two known React Router future-flag warnings.
 
       **MEASURED 2026-09-04 so the ask is a number rather than "roughly
       twenty", and it turned up two complications a token pass would have

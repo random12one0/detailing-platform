@@ -413,9 +413,19 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
   // are deliberately not swept — see roadmap 2.17, still with the owner.)
   //
   // Split on `}` so each declaration block is judged on its own.
+  // FOUR SURFACES SINCE 2026-09-04, and the last two are the point. The
+  // landing page had SIX ad-hoc radii and no tokens, so it was the one surface
+  // this rule could not reach — and it is the page a visitor meets first. It
+  // now carries `--ld-r-*`, and so does the APPROVED REFERENCE RENDERING,
+  // which is swept as its own surface rather than trusted: CLAUDE.md says that
+  // where that page and the document disagree the PAGE is right, so a page
+  // that drifts from the stylesheet quietly becomes the wrong authority. The
+  // two hold the same twelve corners and are edited from one table.
   const SURFACES = [
     ["theme.css", theme, "--r", 10],
     ["booking.css", await readFile("app/src/book/booking.css", "utf8"), "--bk-r", 4],
+    ["landing.css", await readFile("app/src/landing/landing.css", "utf8"), "--ld-r", 12],
+    ["the reference page", ref, "--ld-r", 12],
   ];
   const firstLine = (b) => (b.trim().split("\n").find((l) => l.includes("{")) || b.trim().slice(0, 60)).trim();
 

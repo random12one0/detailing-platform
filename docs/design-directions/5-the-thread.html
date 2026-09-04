@@ -180,6 +180,17 @@
   --t-reveal:950ms;
   --t-exit:420ms;
   --t-hover:180ms;
+  /* THE CORNER — the reasoning is written once, in landing.css § THE CORNER.
+     Panels 12, insets 8, and `corner-shape` is additive so a browser that
+     does not know it draws the radius that is already there.
+     THIS PAGE AND landing.css HOLD THE SAME TWELVE CORNERS and must move
+     together: CLAUDE.md says that where this page and the document disagree,
+     THIS PAGE is right, so a page that drifts from the stylesheet quietly
+     becomes the wrong authority. composition 8a sweeps both. */
+  --ld-r-panel:12px;
+  --ld-r-inset:8px;
+  --ld-corner:squircle;
+
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -447,20 +458,20 @@ section{position:relative}
    there is no cursor and a touch-driven tilt just fights the scroll. */
 .float{will-change:transform;transform:translate3d(0,var(--py,0px),0)}
 .lit{
-  position:relative;border-radius:16px;padding:20px;
+  position:relative;border-radius:var(--ld-r-panel); corner-shape:var(--ld-corner);padding:20px;
   background:linear-gradient(168deg,var(--ink-3),var(--ink-1));
   box-shadow:inset 0 0 0 1px var(--line-2),0 30px 60px -30px rgba(0,0,0,.92),0 1px 0 rgba(255,255,255,.035);
   transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
   transition:transform 240ms var(--e-out);
 }
 .lit::before{
-  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.55;
+  content:"";position:absolute;inset:0;border-radius:inherit; corner-shape:var(--ld-corner);pointer-events:none;opacity:.55;
   background:radial-gradient(340px circle at var(--lx,60%) var(--ly,8%),rgba(255,255,255,.1),transparent 60%);
 }
 .lit > *{position:relative}
 .rowline{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
 .hero .stack{display:grid;gap:10px;margin-top:10px}
-.plain{border-radius:13px;padding:14px 16px;background:rgba(255,255,255,.022);box-shadow:inset 0 0 0 1px var(--line)}
+.plain{border-radius:var(--ld-r-inset); corner-shape:var(--ld-corner);padding:14px 16px;background:rgba(255,255,255,.022);box-shadow:inset 0 0 0 1px var(--line)}
 .ac{color:var(--ac)}
 @media (max-width:900px){
   .hero .grid{grid-template-columns:1fr;gap:44px}
@@ -508,7 +519,7 @@ section{position:relative}
 .thread{display:grid;gap:11px;justify-items:start}
 .bub{
   position:relative;max-width:min(300px,92%);
-  padding:11px 15px;border-radius:16px 16px 16px 5px;
+  padding:11px 15px;border-radius:var(--ld-r-panel) var(--ld-r-panel) var(--ld-r-panel) 5px; corner-shape:var(--ld-corner);
   background:var(--ink-3);box-shadow:inset 0 0 0 1px var(--line);
   font-size:15px;line-height:1.35;
   will-change:transform,opacity;
@@ -524,16 +535,16 @@ section{position:relative}
 .bub .t{display:block;margin-top:5px;font-size:11px;color:var(--fog-2)}
 
 /* right: the dashboard, rendered from the same array the thread is */
-.dash{border-radius:18px;padding:clamp(14px,2vw,20px);background:linear-gradient(178deg,var(--ink-2),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line)}
+.dash{border-radius:var(--ld-r-panel); corner-shape:var(--ld-corner);padding:clamp(14px,2vw,20px);background:linear-gradient(178deg,var(--ink-2),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line)}
 .dash .hd{font-variation-settings:"wdth" 106,"wght" 680;font-size:clamp(17px,2vw,23px);letter-spacing:-.02em;line-height:1.1}
 .dash .hq{color:var(--fog);font-size:13px;margin-top:3px}
 .dash .tiles{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-.sunken{border-radius:11px;padding:11px 13px;background:rgba(0,0,0,.3)}
+.sunken{border-radius:var(--ld-r-inset); corner-shape:var(--ld-corner);padding:11px 13px;background:rgba(0,0,0,.3)}
 .sunken .figure{font-family:"JetBrains Mono",monospace;font-size:clamp(18px,2.2vw,24px);margin-top:5px;font-variant-numeric:tabular-nums}
 .sunken .q{color:var(--fog-2);font-size:11.5px;margin-top:2px}
 .jobs{display:grid;gap:8px;margin-top:14px}
 .job{
-  border-radius:11px;padding:11px 13px;background:rgba(255,255,255,.024);
+  border-radius:var(--ld-r-inset); corner-shape:var(--ld-corner);padding:11px 13px;background:rgba(255,255,255,.024);
   box-shadow:inset 0 0 0 1px var(--line);
   will-change:transform,opacity;
   opacity:max(0, min(1, calc((var(--f,0) - .44) * 1.9)));
@@ -557,7 +568,7 @@ section{position:relative}
 .nojobs{
   position:absolute;inset:0;pointer-events:none;
   display:flex;align-items:center;justify-content:center;text-align:center;
-  border-radius:11px;border:1px dashed var(--line-2);
+  border-radius:var(--ld-r-inset); corner-shape:var(--ld-corner);border:1px dashed var(--line-2);
   color:var(--fog-2);font-size:13.5px;line-height:1.45;padding:0 18px;
   opacity:calc(1 - var(--f0,0));transition:opacity 160ms linear;
 }
@@ -701,7 +712,7 @@ section{position:relative}
 /* the site rides UP out of the band — real overlap, not a gap */
 .widget-hold{margin-top:calc(-1 * clamp(46px,7vw,92px));will-change:transform;transform:translate3d(0,var(--py,0px),0)}
 .site{
-  border-radius:16px;background:#0E1114;overflow:hidden;
+  border-radius:var(--ld-r-panel); corner-shape:var(--ld-corner);background:#0E1114;overflow:hidden;
   box-shadow:0 40px 80px -34px rgba(10,14,12,.6),inset 0 0 0 1px rgba(255,255,255,.08);
   max-width:560px;margin-inline:auto;
 }
@@ -757,10 +768,10 @@ section{position:relative}
 /* The booking panel is a bordered block INSIDE the page's own column. That
    containment is the claim — "built into the page, not a link to somewhere
    else" — made as a shape rather than as a sentence. */
-.site .bd{margin:16px 18px;border:1px solid var(--paper-line);border-radius:12px;padding:13px 14px 14px}
+.site .bd{margin:16px 18px;border:1px solid var(--paper-line);border-radius:var(--ld-r-inset); corner-shape:var(--ld-corner);padding:13px 14px 14px}
 .site .bl{display:block;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--paper-fog)}
 .site .q{font-variation-settings:"wght" 640;font-size:14px;margin-top:8px}
-.site .svc{margin-top:10px;border:1px solid var(--paper-line);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;background:rgba(255,255,255,.5);transition:border-color var(--t-hover) linear,transform var(--t-hover) var(--e-out)}
+.site .svc{margin-top:10px;border:1px solid var(--paper-line);border-radius:var(--ld-r-inset); corner-shape:var(--ld-corner);padding:10px 12px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;background:rgba(255,255,255,.5);transition:border-color var(--t-hover) linear,transform var(--t-hover) var(--e-out)}
 .site .svc:hover{border-color:var(--paper-ink);transform:translateY(-1px)}
 .site .svc .n{font-variation-settings:"wght" 600;font-size:13.5px}
 .site .svc .d{font-size:11.5px;color:var(--paper-fog);margin-top:1px}
@@ -775,7 +786,7 @@ section{position:relative}
 /* ═══ 6. PRICING — asymmetric pair + ruled terms ══════════════════════ */
 .price{padding:clamp(80px,13vh,150px) 0 clamp(50px,7vh,80px)}
 .plans{display:grid;grid-template-columns:minmax(0,1.34fr) minmax(0,.66fr);gap:clamp(16px,2.6vw,30px);margin-top:44px;align-items:stretch}
-.plan{display:flex;flex-direction:column;border-radius:18px;padding:clamp(22px,3vw,34px);background:rgba(255,255,255,.02);box-shadow:inset 0 0 0 1px var(--line)}
+.plan{display:flex;flex-direction:column;border-radius:var(--ld-r-panel); corner-shape:var(--ld-corner);padding:clamp(22px,3vw,34px);background:rgba(255,255,255,.02);box-shadow:inset 0 0 0 1px var(--line)}
 .plan.lead{background:linear-gradient(166deg,var(--ink-3),var(--ink-1));box-shadow:inset 0 0 0 1px var(--line-2),0 40px 70px -40px rgba(0,0,0,.92)}
 .plan .amount{font-family:"JetBrains Mono",monospace;font-size:clamp(38px,5.6vw,64px);line-height:1;letter-spacing:-.05em;margin-top:14px}
 .plan .amount small{font-family:"Archivo",sans-serif;font-size:15px;letter-spacing:0;color:var(--fog);font-variation-settings:"wght" 400}
@@ -865,10 +876,10 @@ section{position:relative}
    is how an effect starts looking like a glitch. */
 .vsrow.mine{
   background:var(--paper-ink);color:var(--paper);
-  border-radius:13px;margin-top:12px;
+  border-radius:var(--ld-r-inset); corner-shape:var(--ld-corner);margin-top:12px;
   padding:24px clamp(16px,2.2vw,24px);
   margin-left:calc(-1 * clamp(16px,2.2vw,24px));margin-right:calc(-1 * clamp(16px,2.2vw,24px));
-  clip-path:inset(0 calc((1 - var(--rp,1)) * 100%) 0 0 round 13px);
+  clip-path:inset(0 calc((1 - var(--rp,1)) * 100%) 0 0 round var(--ld-r-inset));
 }
 .vsrow.mine::after{display:none}
 .vsrow.mine .nm{color:var(--paper)}

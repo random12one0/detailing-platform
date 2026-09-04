@@ -4033,5 +4033,21 @@ looking**: at 460×54 it stops reading as an object floating over the ground.
 **Pills did not move** — Apple squircles cards and keeps capsules as capsules.
 `composition` 8a now covers `--r-nav`, baselined by unpairing it.
 
-**AND IT MAKES THE LANDING-PAGE QUESTION LOUDER, not quieter:** `/` now differs
-from the rest of the product by 6px of radius as well as by corner shape.
+**AND THE LANDING PAGE WENT IN THE SAME DAY** — *"just do whatever is needed"* —
+**which closes roadmap 2.17 entirely.** `/` had six ad-hoc radii and no tokens;
+it now carries `--ld-r-panel: 12px`, `--ld-r-inset: 8px` and `--ld-corner`.
+**The approved reference rendering moved in the same edit and is swept as its
+own surface**, because where it and the design document disagree the PAGE is
+right — a page that drifts from the stylesheet quietly becomes the wrong
+authority. `composition` 8a is four surfaces, 72 checks.
+**Both files were rewritten from ONE table keyed on the VALUE, not the
+selector**: a selector-keyed first pass silently applied 13 of 15 edits to one
+and 11 of 15 to the other, because they spell their selectors in two dialects
+(`.ld .tile` against `.sunken`, spaced against minified). The rewrite asserts
+exactly twelve corners per file.
+**Both complications flagged when this was only measured were real**:
+`corner-shape` does not inherit (the hero card's own highlight would have
+stayed a round rect inside a squircled card) and has no effect on `clip-path`
+(the comparison row's reveal). The second is a 3-pixel difference at 8px —
+**which is exactly why it would have survived a look**, and it was caught by
+reading the file rather than by screenshotting the result.

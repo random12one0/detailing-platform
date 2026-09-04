@@ -125,6 +125,22 @@
   --t-reveal: 950ms;
   --t-exit: 420ms;
   --t-hover: 180ms;
+  /* THE CORNER, 2026-09-04 — the landing page joins the product's own, which
+     closes the last thing roadmap 2.17 left open.
+     It had SIX ad-hoc radii (18, 16, 13, 12, 11, 10) and no tokens at all —
+     the "by habit rather than by role" tell docs/design-system.md names — so
+     the one page a visitor meets FIRST was the only surface in the product
+     with a corner language of its own. `--r-*` in theme.css and `--bk-r-*` in
+     booking.css have carried this since 2.17; this is the third and last.
+     THE VALUES ARE THE PRODUCT'S, not this page's old ones: panels 12px,
+     insets 8px, so pressing "Get started" no longer changes the corners under
+     the visitor mid-click.
+     PILLS DO NOT MOVE and stay literal 100px — the one value that did not
+     change, and composition 8a already reads a literal 100px as a pill. */
+  --ld-r-panel: 12px;
+  --ld-r-inset: 8px;
+  --ld-corner: squircle;
+
 
   position: relative;
   min-height: 100dvh;
@@ -363,20 +379,20 @@
    there is no cursor and a touch-driven tilt just fights the scroll. */
 .ld .float { will-change: transform; transform: translate3d(0, var(--py,0px), 0); }
 .ld .litcard {
-  position: relative; border-radius: 16px; padding: 20px;
+  position: relative; border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner); padding: 20px;
   background: linear-gradient(168deg, var(--ink-3), var(--ink-1));
   box-shadow: inset 0 0 0 1px var(--line-2), 0 30px 60px -30px rgba(0,0,0,.92), 0 1px 0 rgba(255,255,255,.035);
   transform: perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
   transition: transform 240ms var(--e-out);
 }
 .ld .litcard::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: .55;
+  content: ""; position: absolute; inset: 0; border-radius: inherit; corner-shape: var(--ld-corner); pointer-events: none; opacity: .55;
   background: radial-gradient(340px circle at var(--lx,60%) var(--ly,8%), rgba(255,255,255,.1), transparent 60%);
 }
 .ld .litcard > * { position: relative; }
 .ld .rowline { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
 .ld .hero .substack { display: grid; gap: 10px; margin-top: 10px; }
-.ld .plain { border-radius: 13px; padding: 14px 16px; background: rgba(255,255,255,.022); box-shadow: inset 0 0 0 1px var(--line); }
+.ld .plain { border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner); padding: 14px 16px; background: rgba(255,255,255,.022); box-shadow: inset 0 0 0 1px var(--line); }
 .ld .ac { color: var(--ac); }
 .ld .wght-620 { font-variation-settings: "wght" 620; }
 @media (max-width: 900px) {
@@ -421,7 +437,7 @@
 .ld .thread { display: grid; gap: 11px; justify-items: start; }
 .ld .bub {
   position: relative; max-width: min(300px, 92%);
-  padding: 11px 15px; border-radius: 16px 16px 16px 5px;
+  padding: 11px 15px; border-radius: var(--ld-r-panel) var(--ld-r-panel) var(--ld-r-panel) 5px; corner-shape: var(--ld-corner);
   background: var(--ink-3); box-shadow: inset 0 0 0 1px var(--line);
   font-size: 15px; line-height: 1.35;
   will-change: transform, opacity;
@@ -435,16 +451,16 @@
 .ld .bub .t { display: block; margin-top: 5px; font-size: 11px; color: var(--fog-2); }
 
 /* right: the dashboard, rendered from the same array the thread is */
-.ld .dash { border-radius: 18px; padding: clamp(14px,2vw,20px); background: linear-gradient(178deg, var(--ink-2), var(--ink-1)); box-shadow: inset 0 0 0 1px var(--line); }
+.ld .dash { border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner); padding: clamp(14px,2vw,20px); background: linear-gradient(178deg, var(--ink-2), var(--ink-1)); box-shadow: inset 0 0 0 1px var(--line); }
 .ld .dash .hd { font-variation-settings: "wdth" 106, "wght" 680; font-size: clamp(17px,2vw,23px); letter-spacing: -.02em; line-height: 1.1; }
 .ld .dash .hq { color: var(--fog); font-size: 13px; margin-top: 3px; }
 .ld .dash .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 14px; }
-.ld .tile { border-radius: 11px; padding: 11px 13px; background: rgba(0,0,0,.3); }
+.ld .tile { border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner); padding: 11px 13px; background: rgba(0,0,0,.3); }
 .ld .tile .fig { font-family: "JetBrains Mono", monospace; font-size: clamp(18px,2.2vw,24px); margin-top: 5px; font-variant-numeric: tabular-nums; }
 .ld .tile .q { color: var(--fog-2); font-size: 11.5px; margin-top: 2px; }
 .ld .jobs { display: grid; gap: 8px; margin-top: 14px; }
 .ld .job {
-  border-radius: 11px; padding: 11px 13px; background: rgba(255,255,255,.024);
+  border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner); padding: 11px 13px; background: rgba(255,255,255,.024);
   box-shadow: inset 0 0 0 1px var(--line);
   will-change: transform, opacity;
   opacity: max(0, min(1, calc((var(--f,0) - .44) * 1.9)));
@@ -468,7 +484,7 @@
 .ld .nojobs {
   position: absolute; inset: 0; pointer-events: none;
   display: flex; align-items: center; justify-content: center; text-align: center;
-  border-radius: 11px; border: 1px dashed var(--line-2);
+  border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner); border: 1px dashed var(--line-2);
   color: var(--fog-2); font-size: 13.5px; line-height: 1.45; padding: 0 18px;
   opacity: calc(1 - var(--f0,0)); transition: opacity 160ms linear;
 }
@@ -569,7 +585,7 @@
 /* the site rides UP out of the band — real overlap, not a gap */
 .ld .widget-hold { margin-top: calc(-1 * clamp(46px,7vw,92px)); will-change: transform; transform: translate3d(0, var(--py,0px), 0); }
 .ld .site {
-  border-radius: 16px; background: #0E1114; overflow: hidden;
+  border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner); background: #0E1114; overflow: hidden;
   box-shadow: 0 40px 80px -34px rgba(10,14,12,.6), inset 0 0 0 1px rgba(255,255,255,.08);
   max-width: 560px; margin-inline: auto;
 }
@@ -621,10 +637,10 @@
 /* The booking panel is a bordered block INSIDE the page's own column. That
    containment is the claim — "built into the page, not a link to somewhere
    else" — made as a shape rather than as a sentence. */
-.ld .site .bd { margin: 16px 18px; border: 1px solid var(--paper-line); border-radius: 12px; padding: 13px 14px 14px; }
+.ld .site .bd { margin: 16px 18px; border: 1px solid var(--paper-line); border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner); padding: 13px 14px 14px; }
 .ld .site .bl { display: block; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--paper-fog); }
 .ld .site .q { font-variation-settings: "wght" 640; font-size: 14px; margin-top: 8px; }
-.ld .site .svc { margin-top: 10px; border: 1px solid var(--paper-line); border-radius: 10px; padding: 10px 12px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; background: rgba(255,255,255,.5); transition: border-color var(--t-hover) linear, transform var(--t-hover) var(--e-out); }
+.ld .site .svc { margin-top: 10px; border: 1px solid var(--paper-line); border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner); padding: 10px 12px; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; background: rgba(255,255,255,.5); transition: border-color var(--t-hover) linear, transform var(--t-hover) var(--e-out); }
 .ld .site .svc:hover { border-color: var(--paper-ink); transform: translateY(-1px); }
 .ld .site .svc .n { font-variation-settings: "wght" 600; font-size: 13.5px; }
 .ld .site .svc .d { font-size: 11.5px; color: var(--paper-fog); margin-top: 1px; }
@@ -639,7 +655,7 @@
 /* ═══ 6. PRICING — asymmetric pair + ruled terms ══════════════════════ */
 .ld .price { padding: clamp(80px,13vh,150px) 0 clamp(50px,7vh,80px); }
 .ld .plans { display: grid; grid-template-columns: minmax(0,1.34fr) minmax(0,.66fr); gap: clamp(16px,2.6vw,30px); margin-top: 44px; align-items: stretch; }
-.ld .plan { display: flex; flex-direction: column; border-radius: 18px; padding: clamp(22px,3vw,34px); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px var(--line); }
+.ld .plan { display: flex; flex-direction: column; border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner); padding: clamp(22px,3vw,34px); background: rgba(255,255,255,.02); box-shadow: inset 0 0 0 1px var(--line); }
 .ld .plan.lead { background: linear-gradient(166deg, var(--ink-3), var(--ink-1)); box-shadow: inset 0 0 0 1px var(--line-2), 0 40px 70px -40px rgba(0,0,0,.92); }
 .ld .plan .amount { font-family: "JetBrains Mono", monospace; font-size: clamp(38px,5.6vw,64px); line-height: 1; letter-spacing: -.05em; margin-top: 14px; }
 .ld .plan .amount small { font-family: "Archivo", sans-serif; font-size: 15px; letter-spacing: 0; color: var(--fog); font-variation-settings: "wght" 400; }
@@ -714,10 +730,10 @@
    element is how an effect starts looking like a glitch. */
 .ld .vsrow.mine {
   background: var(--paper-ink); color: var(--paper);
-  border-radius: 13px; margin-top: 12px;
+  border-radius: var(--ld-r-inset); corner-shape: var(--ld-corner); margin-top: 12px;
   padding: 24px clamp(16px,2.2vw,24px);
   margin-left: calc(-1 * clamp(16px,2.2vw,24px)); margin-right: calc(-1 * clamp(16px,2.2vw,24px));
-  clip-path: inset(0 calc((1 - var(--rp,1)) * 100%) 0 0 round 13px);
+  clip-path: inset(0 calc((1 - var(--rp,1)) * 100%) 0 0 round var(--ld-r-inset));
 }
 .ld .vsrow.mine::after { display: none; }
 .ld .vsrow.mine .nm { color: var(--paper); }

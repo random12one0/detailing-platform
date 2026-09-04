@@ -554,6 +554,37 @@ the same edit**: at 12/8 a Safari user and a Chrome user are looking at
 practically the same corner, without a mask, a worklet, or a line of
 JavaScript. That is what "universal" can honestly buy here.
 
+#### And the landing page joined, which closes it
+
+**Until 2026-09-04 `/` was the one surface outside this rule** — six ad-hoc
+radii (18, 16, 13, 12, 11, 10) and no tokens at all, which is the *by habit
+rather than by role* tell this section opens with, on the page a visitor meets
+FIRST. It now carries `--ld-r-panel: 12px`, `--ld-r-inset: 8px` and
+`--ld-corner`, the product's own values, so pressing *Get started* no longer
+changes the corner under the visitor mid-click.
+
+**THE APPROVED REFERENCE RENDERING MOVED IN THE SAME EDIT AND IS NOW SWEPT AS
+ITS OWN SURFACE.** `docs/design-directions/5-the-thread.html` holds the same
+twelve corners; CLAUDE.md says that where that page and this document disagree
+**the page is right**, so a page that drifts from the stylesheet quietly
+becomes the wrong authority. Both files were rewritten from ONE table, keyed on
+the VALUE rather than the selector — they spell their selectors differently
+(`.ld .tile` against `.sunken`, spaced against minified) and a selector-keyed
+pass silently missed four of the twelve on the first attempt. `composition` 8a
+sweeps four surfaces now, and each was baselined by unpairing one corner.
+
+**Two things a value swap alone would have shipped as defects**, and neither is
+visible from a list of radii:
+
+- **`corner-shape` does not inherit.** The hero card's full-bleed highlight
+  takes `border-radius: inherit`, so it would have stayed a round rect inside a
+  squircled card and sat proud of the corner it is lighting.
+- **`corner-shape` has no effect on `clip-path`.** The comparison row reveals
+  through `clip-path: inset(… round …)`, which had to take the token itself or
+  it wipes a different shape than it draws. At 8px the two are 3 pixels apart,
+  so this is a correctness fix rather than a visible one — *which is exactly
+  why it would have survived a look.*
+
 #### The corner is a SQUIRCLE where the browser can draw one — one token, and it degrades
 
 **THE OWNER'S ASK, 2026-09-01:** *"One thing: I want everything to be a

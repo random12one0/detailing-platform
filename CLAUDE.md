@@ -236,9 +236,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   panel/inset/nav corner and onto **no pill, dot or ring** — a superellipse at a
   100px radius is a lozenge, at 50% a blob. Every surface defines its own copy
   of the radii, so setting it on one and not the other is the two-corner-
-  languages failure the design system forbids. **The landing page is
-  deliberately NOT done and is with the owner** — it uses literal pixel radii,
-  no tokens, and the approved reference rendering would have to move with it. `corner-shape` is
+  languages failure the design system forbids. **THE LANDING PAGE JOINED 2026-09-04** — `--ld-r-panel`, `--ld-r-inset`
+  and `--ld-corner` in `landing.css` AND in the approved reference rendering,
+  which is now a swept surface of its own (8a is four surfaces, 72 checks)
+  because where that page and the document disagree the PAGE is right. **Edit
+  those two files from ONE table keyed on the VALUE, never the selector** —
+  they spell their selectors in two dialects and a selector-keyed pass silently
+  missed four of twelve. **`corner-shape` does not inherit and does not affect
+  `clip-path`**; both bit here, and the second is a 3-pixel difference at 8px,
+  which is exactly why reading the file caught it and a screenshot would not.
+  *(This entry said "deliberately NOT done and with the owner" until he said
+  "just do whatever is needed".)* `corner-shape` is
   **Chromium-only in stable** (Chrome/Edge 139+; Safari Technology Preview
   only; Firefox no — measured 2026-09-03, not assumed), and it is additive, so
   Safari draws today's corners. **A Houdini paint worklet is Chromium-only
