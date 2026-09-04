@@ -39,7 +39,7 @@
 // when you buy your own supplies), QUOTED vs ADDED ON SITE off
 // booking_line_items, and TIPS.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Download, Plus } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -93,6 +93,37 @@ export default function Money() {
   // week's on a Monday.
   const [offset, setOffset] = useState(0);
   const wide = useWide();
+  // IS THIS CHART BEING REPLACED, OR DRAWN FOR THE FIRST TIME? The bars grow
+  // on arrival (`bar-rise`, --t-reveal) and that is right the first time and
+  // wrong on a switch: measured 2026-09-04, a period change left the chart
+  // drawing at 620ms while every figure beside it had settled at 340ms, which
+  // is the "half the screen moving" the owner called a page refresh, inverted
+  // rather than removed. The figures are inside a keyed `.swap`, so the whole
+  // subtree remounts either way and NO SELECTOR CAN SEE THE DIFFERENCE — this
+  // ref is what can. `theme.css` claimed a month switch snapped since the
+  // chart was written; this is what finally makes that true.
+  // A REF AND NOT `useState`, because knowing this must not cause a render.
+  // Compared against the PERIOD rather than set once on mount: this screen
+  // paints a spinner first, so a mount flag would already be spent by the time
+  // the chart existed and the first chart would never rise.
+  //
+  // AND THE VERDICT IS LATCHED PER PERIOD, WHICH IS THE HALF THAT WAS WRONG
+  // FIRST AND MEASURED WRONG BEFORE IT WAS BELIEVED. Written as a plain
+  // comparison updated in `useEffect`, it was true on the render that changed
+  // the period and FALSE on the very next one — the reload finishing sets
+  // `refreshing`, which re-renders. The class went on and straight back off,
+  // and REMOVING `animation: none` FROM A LIVE ELEMENT STARTS THE ANIMATION,
+  // so the chart re-rose exactly as before while the code looked correct.
+  // `getAnimations()` is what caught it; the class was already gone by then, so
+  // even reading the DOM afterwards would have shown nothing wrong.
+  // Latched during render rather than in an effect, which is React's own
+  // adjust-state-while-rendering pattern and is idempotent here.
+  const periodKey = `${kind}|${offset}`;
+  const drawn = useRef({ key: null, replacing: false });
+  if (drawn.current.key !== periodKey) {
+    drawn.current = { key: periodKey, replacing: drawn.current.key !== null };
+  }
+  const replacing = drawn.current.replacing;
   const period = periodAt(kind, today, offset);
   const previous = periodAt(kind, today, offset - 1);
   const buckets = useMemo(() => bucketsFor(kind, today, offset), [kind, today, offset]);
@@ -328,8 +359,8 @@ export default function Money() {
           while every FIGURE beside it changed with no motion at all — half the
           screen moving is what reads as a refresh.
           EVERYTHING FROM HERE DOWN IS THE PERIOD'S, and the control that
-          chooses it is above the swap: a segmented control that dissolves as
-          you press it reads as a glitch. Keyed on kind + offset, because
+          chooses it is above the swap: a segmented control that moves as you
+          press it reads as a glitch. Keyed on kind + offset, because
           stepping to last week is the same kind of change as switching to Year.
           See theme.css § A CONTENT SWAP. */}
       {/* One lead figure. Net, not revenue — revenue is a vanity number when
@@ -357,7 +388,17 @@ export default function Money() {
               arrow, and what keeps this readable in greyscale. --bad is
               fixed for every tenant: money moving is meaning, not identity
               (law 11b). The whole column is the target, not just the bar. */}
-          <div className={`bars${signed ? " signed" : ""}`} style={{ marginTop: 14 }}>
+          <div className={`bars${signed ? " signed" : ""}${replacing ? " replacing" : ""}`} style={{ marginTop: 14 }}>
+            {/* A SWITCH REALLY DOES SNAP NOW, which is what theme.css has
+                claimed since this chart was written and what was never true.
+                `bar-rise` is --t-reveal and is right the FIRST time the chart
+                is drawn; on a period change it ran 280ms past everything
+                beside it — the owner's own "half the screen moving" with the
+                halves swapped over. `replacing` above is the fact no selector
+                can see, and `.bars.replacing button::before` is where it
+                lands. The chart still MOVES on a switch: `.bars` is a `.swap`
+                part and takes its beat with the figures. What stops is the
+                second animation on top of the first. */}
             {stats.chart.map((c, i) => (
               <button key={c.key} type="button"
                 className={`${c.value < 0 ? "neg " : ""}${c.value === 0 ? "zero " : ""}${c.key === period.start ? "on" : ""}`}

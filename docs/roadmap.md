@@ -2981,10 +2981,12 @@ is kept; the entire visual design restarts from scratch.
 
       - **A SWAP is a third kind of motion** and it was the real gap — *"the
         GUI kind of doesn't really change, but the actual text inside of it
-        changes."* `.swap` + a React key, opacity and a 4px blur at
-        `--t-exit`, on the job record, Money's period figures and the Clients
-        list. **It overrules the first pass's "no exit on replacement"**,
-        which was right about the container and wrong about the contents.
+        changes."* `.swap` + a React key, on the job record, Money's period
+        figures and the Clients list. **It overrules the first pass's "no exit
+        on replacement"**, which was right about the container and wrong about
+        the contents. ***THE MOTION described here — "opacity and a 4px blur at
+        `--t-exit`" — WAS REJECTED BY HIM AND REPLACED ON 2026-09-04. See the
+        end of this item; do not build from this line.***
       - **The month now travels with the panel.** Killing the remount was not
         enough — `.app-main`'s max-width and the grid's track list still
         snapped 270px. Both transition now; the closed state is a 0px track
@@ -2995,8 +2997,9 @@ is kept; the entire visual design restarts from scratch.
         two speeds on first paint.
       - **`composition` is 57 checks**, nine mutations baselined.
 
-      **⚠ THE DISSOLVE IS REJECTED — the owner, 2026-09-03, looking at it.
-      DO NOT REBUILD IT, AND DO NOT RE-DERIVE IT FROM HIS EARLIER MESSAGE.**
+      **⚠ THE DISSOLVE WAS REJECTED — the owner, 2026-09-03, looking at it.
+      REPLACED 2026-09-04 (see the end of this item). DO NOT REBUILD IT, AND DO
+      NOT RE-DERIVE IT FROM HIS EARLIER MESSAGE.**
 
       > "The dissolve that you created is horrible in the terms of… it just
       > looks like a page refresh. Yeah. So the dissolve wasn't it. **And I'm
@@ -3030,21 +3033,137 @@ is kept; the entire visual design restarts from scratch.
       screen's arrival staggers 0/40/80/120/160ms, the day rail staggers inside
       itself. **Nothing he has approved fades as a single flat plane.**
 
-      **WHERE IT IS, so the removal is one list:** `.swap` and `@keyframes
+      **WHERE IT WAS, so the removal was one list:** `.swap` and `@keyframes
       swap-in` in `theme.css`; the header and body in `RecordHost.jsx`; the two
       keyed blocks in `Money.jsx`; the list in `Clients.jsx`. `composition`
-      test 8e is written against it and must move with it — 8e-i pins the blur
-      by name.
+      test 8e was written against it and moved with it. **All of that is done —
+      `@keyframes swap-in` no longer exists, the four sites keep their `.swap`
+      class and their keys, and 8e-ii now pins the blur as GONE by name.**
 
       **AND IT IS TWO PLACES, NOT ONE.** He named the job record *and* Today
       (*"same with it today when I switch it"*), which is the same `.swap` on
       `RecordHost` reached from a different screen — so it is one fix, but a
       session that only looks at the calendar will think it has finished.
 
-      **NOTHING WAS CHANGED IN RESPONSE TO THIS.** He said *"don't do anything
-      yet. Stop."* The dissolve is still in the code, still committed, and
-      still passing its checks. **The next session's first job is to replace
-      it, not to discover it.**
+      **NOTHING WAS CHANGED IN RESPONSE TO THIS** on the day he said it — he
+      said *"don't do anything yet. Stop."* **REPLACED 2026-09-04**, below.
+
+      ---
+
+      **THE REPLACEMENT, BUILT 2026-09-04. THE DISSOLVE IS GONE FROM THE CODE.**
+
+      **It was designed against the DIAGNOSIS, not the complaint**, and that
+      distinction is the whole item: designing against *"it looks like a page
+      refresh"* produces a shorter dissolve, which is the same defect in less
+      time. A page reload IS a whole block changing opacity at once, so the
+      fault was the UNIFORMITY.
+
+      **A SWAP IS NOW THE SCREEN'S OWN ARRIVAL, PLAYED ON THE PARTS INSTEAD OF
+      THE SECTIONS, AT EXIT SPEED.** `.swap` itself carries no animation at
+      all; `.swap > *` runs `arrive` for `--t-exit`, staggered 20ms and capped
+      at 160ms. **No new keyframe, no new duration, no new distance and no new
+      property** — 14px is `arrive`'s, 180ms is `--t-exit`, 20ms is the day
+      rail's step, 160ms is the arrival's own ceiling. The product has ONE
+      entrance shape at three scales now: a screen (420/40), a rail inside a
+      screen (420/20), a block's parts (180/20). **The blur is gone and law 4
+      goes back to transform-and-opacity-only** — the written exception it
+      needed went with it.
+
+      **THE LADDER RUNS EIGHT DEEP RATHER THAN FIVE, and that is the one number
+      that is not simply borrowed.** Both ladders it copies cap at the fifth
+      child. The Clients list is the longest thing that swaps here and most of
+      it sits below the fifth row, so a cap at five would leave the majority of
+      that list moving as one plane — the rejected fault, on the screen where
+      it would be most visible.
+
+      **MEASURED, NOT READ** — `getAnimations()` at 1920, 120ms after each
+      click. The job record switch: **15 parts** on `arrive` at
+      0/20/40/60/80/100/120/140/160ms, and **no `column-in`**, so the panel
+      holds still exactly as before. Money: figures at 0/20/40/60/80, ledger at
+      0/20/40. Clients: its **eight** rows at 0…140, one beat each — the demo's
+      list is exactly the depth the ladder was cut for. `?lite=1`: nothing
+      running, rows at `opacity: 1` and `transform: none`.
+
+      **ONE PART DOES NOT FINISH ON THE SWAP'S CLOCK, AND IT IS LEFT ON
+      PURPOSE.** Money's bars re-run `bar-rise` at 420ms with delays to 200ms,
+      so the chart is still drawing at 620ms while the rest of the block has
+      settled at 340ms. It was tried and reverted: the `.swap` WRAPPER is what
+      is keyed, so the subtree remounts however the bars are keyed, and every
+      way of stopping it hits FIRST PAINT identically, where 420ms is right and
+      matches the screen's arrival — **nothing in CSS can tell the two apart.**
+      Left because a bar growing carries meaning (magnitude drawing itself, not
+      an entrance) and what he rejected was a flat fade. The fix, if he ever
+      notices it, is a JS "first paint?" flag rather than a selector.
+      **And `theme.css` claimed the opposite of all of this until today** —
+      *"a month switch snaps, deliberately"* — which had never been true. A
+      comment describing an intention rather than the behaviour is worse than
+      none; it would have sent the next session hunting a bug in the swap.
+
+      **`composition` is 59 checks** (57 → 59). 8e-i now pins the animation to
+      the PARTS, **8e-i-b fails on any rule targeting `.swap` at all** —
+      deliberately stricter than "no animation there", because the narrow
+      version would have to guess at every spelling of the defect — 8e-ii pins
+      the rejected blur as gone BY NAME, and 8e-vii counts **distinct** delays
+      rather than the presence of a ladder, because a stagger that collapses to
+      one beat is a uniform fade wearing ten selectors. All five baselined both
+      ways by a Python harness that asserts each mutation changed the file
+      before running anything — roadmap 2.17's own lesson from the bash
+      harness that could not fail.
+
+      **THEN IT WENT THROUGH `impeccable critique` AND THAT FOUND THREE
+      THINGS THE MEASUREMENT HAD NOT** — two of them defects, and the review is
+      the reason they are not shipping. **A clean `getAnimations()` reading
+      tells you what is animating, not whether it SHOULD be.**
+
+      - **THE PINNED ACTION BAR WAS ANIMATING.** `.jobbar` is a child of
+        `.record-body`, so it was inside the swap: six buttons that are
+        pixel-identical between any two jobs, travelling 14px at delay 20ms on
+        every switch, on the record's primary tap target. **`RecordHost`
+        already pulls the CLOSE BUTTON out of the swap for exactly this
+        reason** — the action bar is the same object one level down and was
+        missed because it is a child rather than a sibling. **Furniture opting
+        out is the rule's other half, not an exception to it**: a swap means
+        *the words changed*, and static chrome behaving like content is the
+        purest page-refresh tell there is. `composition` 8e-viii.
+      - **AND THE CHART IS FIXED RATHER THAN ACCEPTED.** The note above said
+        620ms was left because no selector can separate a swap from first
+        paint. True of CSS, and the review was right that it was being used to
+        close the question: `Money.jsx` can see it in three lines. It does now
+        (`.bars.replacing`), and the chart no longer animates twice — it still
+        takes its beat as a `.swap` part; what stops is the second animation on
+        top of the first. **Measured after: no `bar-rise` on a switch, six on
+        the screen's first paint, nothing running at 440ms.**
+      - **THE FIRST VERSION OF THAT FLAG WAS CORRECT-LOOKING AND DID NOTHING,
+        and it is the best lesson in the item.** Recomputed per render, it was
+        true on the render that changed the period and FALSE on the very next
+        one — the reload finishing sets `refreshing`, which re-renders. The
+        class went on and straight back off, and **removing `animation: none`
+        from a live element STARTS the animation.** Plausible code, unchanged
+        behaviour, and the class was already gone by the time anyone could
+        inspect the DOM. Only `getAnimations()` caught it. Latched per period
+        now.
+      - **And the eight-deep ladder's written justification was overclaiming.**
+        It said a cap at five would leave "the majority" of the Clients list as
+        one plane; `ROW_CAP` is 200, so eight leaves a majority too. The cap is
+        a BUDGET — the top of the list cascades, and it stops at eight because
+        160ms is where the screen's own arrival stops. Wording corrected rather
+        than the number.
+
+      **What the review did NOT change, on purpose:** the blank tail (the
+      bottom of a switched record is empty for up to 160ms) is the same thing
+      the screen's own arrival does and is what "resolving top-down" costs; and
+      rapid switching faster than ~150ms restarts the keyframes from zero, so
+      the tail never lands — real, but it was equally true of the dissolve, and
+      fixing it means abandoning the remount that makes a swap a swap.
+
+      **`composition` is 61 checks.** Four more mutations baselined, each
+      failing exactly its own check.
+
+      **Full `--all` sweep, five widths: clean. `--lite` too. Nine
+      credential-free suites, `accent-sweep`, `qr-scans`: all pass. The
+      mechanical design detector: zero findings on all three changed files.
+      Console: zero errors across every run.**
+
 
       **⚠ AND A SECOND THING FOR HIM, ON THE SQUIRCLE: THE LANDING PAGE.**
       The dashboard and the customer's booking page are squircled. **The
@@ -3064,6 +3183,34 @@ is kept; the entire visual design restarts from scratch.
       languages argument that put the corner on `booking.css` applies to `/`
       just as well, and a visitor who presses *Get started* crosses from one to
       the other in one click.
+
+      **MEASURED 2026-09-04 so the ask is a number rather than "roughly
+      twenty", and it turned up two complications a token pass would have
+      shipped as defects.** `landing.css` and the approved reference rendering
+      hold **27 `border-radius` declarations each, with identical value
+      profiles** — the two files are in lockstep, which is the good news.
+      Of those 27: six are `100px` pills, four are `50%` dots, one is a 3px
+      bar and four are `inherit`. **That leaves TWELVE panel/inset corners** —
+      10, 11 (x3), 12, 13 (x2), 16 (x2), 18 (x2) and one asymmetric
+      `16px 16px 16px 5px` — so it is **12 pairings in each of two files, 24
+      edits**, and it should introduce `--ld-corner` beside them the way
+      `--corner` and `--bk-corner` already exist, so the third surface stops
+      being the one without a token.
+
+      **THE TWO COMPLICATIONS, and they are why this is still not a token
+      change.** (1) `.ld .litcard::before` is a full-bleed light overlay with
+      `border-radius: inherit` — and **`corner-shape` does NOT inherit**, so
+      squircling the card alone leaves its own highlight drawn as a round rect
+      inside it. (2) `.ld .vsrow.mine` carries `clip-path: inset(… round 13px)`
+      and **`corner-shape` has no effect on `clip-path` at all**, so that row's
+      reveal would stay a round rect whatever the radius says. Both are
+      fixable; neither is visible from a list of radii.
+
+      **AND HE CAN NOW DECIDE BY LOOKING.** The hero card was rendered at 1920
+      both ways by injecting `corner-shape: squircle` at runtime — no file was
+      touched — and the difference is clearly visible at real size: the
+      squircle's edge runs straighter for longer and turns harder. The
+      comparison was sent to him 2026-09-04. **Still his call.**
 
 
 ## Phase 3 — Tenant websites (the biggest new build)

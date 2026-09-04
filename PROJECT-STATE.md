@@ -3782,37 +3782,219 @@ point was written to a file and applied with Python.
 - `composition` 26 → **57**, nine mutations each breaking exactly its own check.
 - Full `--all` sweep and `--lite`, five widths; the booking gate.
 
-### ⚠ THE DISSOLVE IS REJECTED AND IS STILL IN THE CODE (2026-09-03)
+### ✅ THE DISSOLVE WAS REJECTED AND HAS BEEN REPLACED (2026-09-04)
 
 **Read this before touching anything about the content swap.** The owner looked
-at the dissolve and turned it down flat:
+at the dissolve on 2026-09-03 and turned it down flat:
 
 > "The dissolve that you created is horrible in the terms of… it just looks
-> like a page refresh… **And I'm sorry if I steered you to that. I wasn't
+> like a page refresh. **And I'm sorry if I steered you to that. I wasn't
 > trying to.** … Same with it today when I switch it. It's, like, this kind of
 > harsh fade in… **it doesn't look fluid**."
 
-**THE TRAP: his own earlier words are what produced it** — *"maybe, like, a
-little dissolve or a blur"* — and that quote is still in `docs/roadmap.md`,
-`docs/design-system.md` and `DECISIONS.md`. **A session that finds the earlier
-quote and not this one rebuilds the rejected thing and cites him for it.**
+**THE TRAP, WHICH IS STILL LIVE: his own earlier words are what produced it** —
+*"maybe, like, a little dissolve or a blur"* — and that sentence still appears
+in `docs/roadmap.md`, `docs/design-system.md` and `DECISIONS.md`. **Every
+surviving copy now carries the retraction beside it**, deliberately rather than
+being deleted: a deleted retraction is how the idea gets re-derived from a
+fourth file nobody thought to check. **A session that finds the earlier quote
+and not the withdrawal rebuilds the rejected thing and can cite him for it.**
 
-**He deliberately did not specify a replacement**: *"I'm not gonna give you an
-animation idea. You should figure out the animation idea."* He floated *"text
-that went down and faded up"* and withdrew it in the same sentence — a hint he
-took back, not a spec.
+**He also declined to specify the replacement, on purpose**: *"I'm not gonna
+give you an animation idea. You should figure out the animation idea."* He
+floated *"text that went down and faded up"* and withdrew it in the same
+sentence — a second hint he took back, not a spec.
 
-**The diagnosis to design against:** a page reload IS a whole block changing
-opacity at once, so a uniform cross-fade of a content block reproduces its
-optical signature no matter how brief it is. **The fault is the uniformity, not
-the duration or the blur.** Every motion he has approved moves its parts on
-different timelines (the arrival staggers 0/40/80/120/160ms; the day rail
-staggers inside itself). Nothing he likes fades as a single flat plane.
+#### The diagnosis it was designed against, which is the reusable half
 
-**Two surfaces, one cause:** the job record switching (`RecordHost`, reached
-from Today *and* the calendar) and the same `.swap` on Money and Clients.
+**A page reload IS a whole block changing opacity at once.** A uniform
+cross-fade of a content block therefore reproduces the optical signature of a
+reload no matter how brief it is or what filter rides along. **The fault was
+the UNIFORMITY — not the duration, and not the blur**, even though the blur is
+the thing his hint named and the duration is what an instinct reaches for.
+Designing against the COMPLAINT would have produced a shorter dissolve: the
+same defect in less time, defensible against every word he said.
 
-**NOTHING WAS CHANGED IN RESPONSE.** He said *"don't do anything yet. Stop."*
-The dissolve is committed and passing `composition` 8e, which is written
-against it and must move with it. **Next session replaces it; it does not need
-to rediscover it.**
+The corroboration was already in the repo: **every motion he has approved moves
+its parts on different timelines** — the arrival staggers 0/40/80/120/160ms,
+the day rail staggers inside itself. **Nothing he likes fades as a flat plane.**
+
+#### What is in the code now
+
+**`.swap` carries no animation at all** — it is a marker plus a React `key`,
+and the key is what mounts new children so their animation runs. **`.swap > *`
+runs the screen's own `arrive`** (opacity + 14px on Y) for `--t-exit`,
+staggered **20ms**, capped at **160ms**, tail settling at 340ms.
+
+**No new keyframe, duration, distance or property**: 14px is `arrive`'s, 180ms
+is `--t-exit`, 20ms is the day rail's step, 160ms the arrival's ceiling. The
+product now has **one entrance shape at three scales** — screen 420/40, rail
+420/20, a block's parts 180/20. **The blur is gone and law 4 goes back to
+transform-and-opacity-only**; the rejected version was also the one that needed
+a law bent for it.
+
+**The ladder runs eight deep rather than five**, which is the only number not
+simply borrowed: most of the Clients list sits below the fifth row, so a cap at
+five would leave the majority of it moving as one plane.
+
+**Two surfaces, three sites, unchanged from before:** the job record
+(`RecordHost`, reached from Today *and* the calendar), Money's period figures
+and its ledger, the Clients list.
+
+**`composition` is 61.** 8e-i-b fails on **any** rule targeting `.swap`, which
+is stricter than the defect on purpose — the flat plane coming back would
+arrive looking like a tidy-up, one selector instead of ten. 8e-vii counts
+DISTINCT delays, because a stagger that collapses to one beat is a uniform fade
+wearing ten selectors. 8e-viii holds the action bar's opt-out and 8e-ix pins
+BOTH halves of the chart fix, because a CSS-only edit there would silently kill
+the first-paint rise as well. Nine checks baselined both ways with a Python
+harness that asserts each mutation changed the file first.
+
+**THEN IT WENT THROUGH `impeccable critique`, WHICH FOUND TWO DEFECTS THE CLEAN
+MEASUREMENT COULD NOT.** A clean `getAnimations()` reading tells you what IS
+animating, not whether it SHOULD be — that is the whole value of the pass.
+
+- **The pinned action bar was animating.** `.jobbar` is a child of
+  `.record-body`, so it was inside the swap: six buttons pixel-identical
+  between any two jobs, travelling 14px on every switch, on the record's
+  primary tap target. `RecordHost` already pulled the CLOSE BUTTON out for
+  exactly this reason. **Furniture opting out is the rule's other half, not an
+  exception** — a swap means *the words changed*, and static chrome behaving
+  like content is the purest page-refresh tell there is. The test for the next
+  one: would this control be pixel-identical in the record you came from?
+- **Money's chart is fixed, not accepted.** It had been recorded as
+  measured-and-left at 620ms because no SELECTOR can separate a swap from a
+  first paint. True of CSS, and three lines of `Money.jsx` can see it — which
+  is not a reason to ship the one defect on the one screen he named. The chart
+  still takes its beat as a `.swap` part; what stops is the second animation on
+  top of the first.
+- **The flag's first version was correct-looking and did nothing, and this is
+  the reusable part.** Recomputed per render it went true, then FALSE on the
+  very next render — the reload finishing sets `refreshing`. The class went on
+  and straight back off, and **removing `animation: none` from a live element
+  STARTS the animation.** Plausible code, unchanged behaviour, the class gone
+  before the DOM could be inspected, and only `getAnimations()` able to see it.
+  Latched per period now.
+- **The ladder's justification was overclaiming** (`ROW_CAP` is 200, so eight
+  beats leaves a majority sharing one too). The cap is a budget — the TOP of a
+  list cascades — and it stops at eight because 160ms is the arrival's own
+  ceiling. Wording corrected, number kept.
+
+**Left on purpose:** the blank tail (up to 160ms at the bottom of a switched
+record) is what the screen's own arrival already does; and switching faster
+than ~150ms restarts the keyframes, which was equally true of the dissolve and
+cannot be fixed without abandoning the remount that makes a swap a swap.
+
+**And `theme.css` had claimed since the chart was written that a month switch
+snapped, deliberately.** That was never true. It is now, and the comment says
+so.
+
+**Verified:** `getAnimations()` at 1920 and again at 1440 on all three surfaces
+— record: **14** parts at 0…160 with the pinned bar sitting still, and no
+`column-in`; Money 0/20/40/60/80 and 0/20/40 with **no `bar-rise` on a switch
+and six on first paint**; Clients eight rows at 0…140. Nothing running at 440ms
+on any of them. Frame-stepped by pausing and seeking, showing the record
+filling top-down at 90ms rather than fading as a plane. `?lite=1` renders the
+end state, sampled every frame. Horizontal overflow sampled every frame:
+never. Full `--all` sweep clean at five widths and `--lite` clean; nine
+credential-free suites, `accent-sweep` and `qr-scans` all pass; the mechanical
+design detector reports zero findings on all three changed files; zero console
+errors across every run.
+
+### ⚠ STILL WITH THE OWNER: the landing page's corner (asked 2026-09-03, measured 2026-09-04)
+
+The dashboard and the customer's booking page are squircled; **the marketing
+page at `/` is not**, and that was raised rather than taken because
+`landing.css` and the approved reference rendering
+(`docs/design-directions/5-the-thread.html`) use literal pixel radii and no
+tokens, and the reference page is the artifact he approved pixel by pixel.
+
+**Now measured, so the ask is a number.** The two files hold **27
+`border-radius` declarations each with identical value profiles** — six `100px`
+pills, four `50%` dots, one 3px bar, four `inherit`, and **twelve real
+panel/inset corners**. So it is **12 pairings in each of two files** plus a
+`--ld-corner` token beside them, matching `--corner` and `--bk-corner`.
+
+**Two complications a token pass would have shipped as defects**, and neither
+is visible from a list of radii: `.ld .litcard::before` takes
+`border-radius: inherit` and **`corner-shape` does not inherit**, so the card's
+own highlight would stay a round rect inside a squircled card; and
+`.ld .vsrow.mine` reveals through `clip-path: inset(… round 13px)`, which
+**`corner-shape` cannot touch at all.**
+
+**He was sent a side-by-side of his own hero card, rendered both ways at 1920**
+by injecting the property at runtime — no file was changed. Nothing has been
+built. See `docs/roadmap.md` 2.17, last block.
+
+### Found in passing 2026-09-04, FIXED 2026-09-04 as its own item: reduced motion was read once
+
+`app/src/main.jsx:32` reads `prefers-reduced-motion` **once at boot** and adds
+`.lite` to `<html>`. There is no `matchMedia` change listener, so **somebody who
+turns reduced motion ON while the dashboard is open keeps every animation until
+they reload.** The product's own accessibility floor (PRODUCT.md) says
+`prefers-reduced-motion` collapses all animation, and that claim is only true at
+load time.
+
+Pre-existing, unrelated to the swap, and roughly four lines to fix
+(`.addEventListener("change", …)` that toggles the class). **Left alone by the
+2.17 session because a session owns one roadmap item**, and recorded here so it
+is not rediscovered as new. Found by review, not by a test — nothing in the
+repo can see it.
+
+**FIXED THE SAME AFTERNOON, IN ITS OWN SESSION AND ITS OWN COMMIT** —
+`main.jsx` toggles `.lite` from a `matchMedia` change listener now, with
+`?lite=1` read ONCE into its own constant as a manual override the media query
+can never take away. **That constant is the load-bearing half and it is not
+decoration**: re-reading the URL inside the listener toggles correctly on the
+media query and still passes a naive test, while quietly making the system
+setting able to clear a state somebody chose by hand. `composition` 9a-ii pins
+the constant, not just the listener, for exactly that reason.
+**The paragraph that used to sit here said the fix had "appeared in the working
+tree" from outside the 2.17 session. It had not** — `main.jsx` was still
+read-once at HEAD and in the tree when this session opened it, so that note
+described a change nobody had made. A note that reports work as already done is
+worse than no note: the next session skips the item. Verified before rewriting
+it, which is the only reason it was caught.
+
+**AND THE STYLESHEET RULE NOW HAS TEETH.** main.jsx's header, theme.css
+§ DEGRADATION, booking.css and landing.css all state that
+`prefers-reduced-motion` is handled in JS and never as a second `@media` block
+— and until this item that rule was enforced by NOTHING, which is precisely the
+comment-only rule its own wording warns about. `composition` 9b asserts the
+at-rule is absent from all three stylesheets. **It strips CSS comments first,
+and skipping that is not a detail**: the first version failed on all three
+files by matching the prose that documents the rule.
+
+**IT WAS NOT COMMITTED, AND THAT IS A HANDOVER RATHER THAN AN OVERSIGHT.**
+When this session opened the tree, eleven files were already modified and
+uncommitted from roadmap 2.17's own work — `theme.css`, `Money.jsx`,
+`RecordHost.jsx`, `Clients.jsx`, `DECISIONS.md`, `docs/roadmap.md`,
+`docs/design-system.md` among them. **Only `app/src/main.jsx` is this item
+alone**; `tests/composition.test.mjs`, `CLAUDE.md` and this file each carry
+this fix's edits ON TOP OF that earlier work, in the same files. There is no
+way to commit one without the other short of splitting hunks by hand, and
+`git add -i` is not available in this environment. So nothing was committed:
+a commit message naming the reduced-motion fix while carrying 2.17's swap
+rebuild is a mislabelled commit, and this repo's own note two paragraphs up
+says folding somebody else's change into another commit hides it. **The owner
+decides whether that goes in as one commit.** Everything is verified green
+either way — the tree is correct, it is simply unrecorded.
+
+**ONE THING WAS LOOKED AT AND DELIBERATELY LEFT.** `landing/thread.js` adds
+`.lite` itself as a 6s load-timeout safety net and removes it on teardown, so
+it is a second writer of the class. If a visitor turns reduced motion OFF in
+the window where that net is holding the landing page open, the listener clears
+a class the net wanted. It needs the fonts to hang AND the preference to be
+toggled inside that window, and coordinating the two writers costs more
+plumbing than the case is worth — recorded rather than built.
+**It also cost two full `--lite` sweeps.** Editing a file under `app/src`
+while `sweep-widths.mjs` is running makes Vite issue `page reload
+src/main.jsx` — that file has a non-component export, so Fast Refresh bails
+and the whole document reloads — and the sweep dies with *"Execution context
+was destroyed, most likely because of a navigation"* at whatever screen it
+happened to be on. It landed in two completely different places on two runs,
+which is what a source edit during a browser walk looks like from the outside.
+**CLAUDE.md's "start the long check, write while it runs" means write PROSE.
+A `.jsx` or `.css` edit during a sweep invalidates the run**, and the dev
+server's own log names the cause in one line: `preview_logs` / the Vite
+console shows `page reload`.

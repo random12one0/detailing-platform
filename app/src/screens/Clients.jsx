@@ -213,9 +213,15 @@ export default function Clients() {
           between the recent, most spent, longest away… it just feels very
           static." Measured: nothing at all was running 120ms after the click
           except the chip's own hover colour. The rows below are the only thing
-          that changed, so they are the only thing that dissolves; the controls
-          above stay put, because they did not change and a control that
-          dissolves under the pointer pressing it reads as a glitch.
+          that changed, so they are the only thing that moves — and they move
+          one at a time, down the list, rather than as one block; the controls
+          above stay put, because they did not change and a control that moves
+          under the pointer pressing it reads as a glitch.
+          THIS LIST IS WHY THE SWAP'S LADDER RUNS EIGHT DEEP instead of the
+          five the screen's arrival and the day rail cap at: most of a customer
+          list is below the fifth row, and a cap at five would leave that
+          majority moving as one flat plane, which is the fault the owner
+          rejected the first version for.
           Keyed on the sort AND the lapsed filter — both re-order or re-cut the
           same list, which is one kind of change wearing two controls.
           See theme.css § A CONTENT SWAP. */}

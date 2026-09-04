@@ -1671,8 +1671,19 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    layout-thrash smell. They now GROW ON ARRIVAL with transform: scaleY off a
    bottom origin — no layout, and it is the system's own preset rather than a
    new one: one staggered reveal on first paint (design-knowledge.md §1),
-   staggered by --i. A month switch snaps, deliberately: animating bars
-   between two different months implies a continuity that is not there. */
+   staggered by --i.
+   THIS USED TO SAY "A MONTH SWITCH SNAPS, DELIBERATELY: animating bars between
+   two different months implies a continuity that is not there." IT WAS NOT
+   TRUE, and it had never been — measured 2026-09-04 with getAnimations() while
+   replacing the swap. Money's figures sit inside a keyed `.swap`, so a period
+   change remounts the whole block and every bar re-runs this: 420ms with
+   delays to 200ms, finishing at 620ms while the rest of the block settles at
+   340ms. It is the one part of a swap that does not finish on the swap's
+   clock, and it is LEFT that way on purpose — see the note beside the chart in
+   Money.jsx for why nothing in CSS can separate this case from first paint,
+   where 420ms is right. A comment that describes an intention rather than the
+   behaviour is worse than none: this one would have sent a session looking for
+   a bug in the swap. */
 /* THE ZERO LINE, roadmap 2.11 step 6 stage 4. Until this the chart was
    `align-items: flex-end` with `height: |value|`, so −$114 AND +$114 DREW
    THE IDENTICAL BAR and only the colour told them apart. Roadmap 2.4 made a
@@ -1716,6 +1727,16 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   animation: bar-rise var(--t-reveal) var(--e-out) backwards;
   animation-delay: calc(var(--i, 0) * 40ms);   /* was 60ms — see § MOTION */
 }
+/* AND NOW A SWITCH REALLY DOES SNAP. `.replacing` is set by Money.jsx when the
+   chart is being REPLACED rather than drawn for the first time — the one fact
+   no selector here can see, because the figures live in a keyed `.swap` and the
+   bars remount identically in both cases. Without it the chart finished at
+   620ms while the block around it settled at 340ms, which is the owner's own
+   "half the screen moving" complaint with the halves swapped over.
+   The chart still MOVES on a switch — `.bars` is a `.swap` part and takes its
+   beat with everything else. What stops is the second animation on top of the
+   first, which is the mistake this file already records for the gear. */
+.bars.replacing button::before { animation: none; }
 /* A period that lost money. Selection is still carried the same way it is for
    a positive bar — dim for the ones either side, full strength for the one you
    are on — so this adds a value to the existing mechanic rather than a second
@@ -1999,56 +2020,119 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 @keyframes column-out { to   { opacity: 0; transform: translate3d(14px, 0, 0); } }
 
 /* ------------------------------------------- A CONTENT SWAP, NOT AN ENTRANCE
-   THE OWNER, 2026-09-03, looking at the retrofit: "if I switch between, like,
-   one booking and I click another one, it just instantly changes… maybe, like,
-   a little dissolve or a blur. You figure out a nice quick animation for
-   switching between stuff where, like, the GUI kind of doesn't really change,
-   but the actual text inside of it changes."
+   THE THIRD KIND OF MOTION. A screen ARRIVES, a thing OPENS, and a frame that
+   stays exactly where it is while everything inside it is replaced does this.
+   The owner's own definition, 2026-09-03: "the GUI kind of doesn't really
+   change, but the actual text inside of it changes." Three sites, all named by
+   him: a job record switching from one job to another (reached from Today AND
+   from the calendar), Money's figures when the period changes, and the Clients
+   list when the sort changes.
 
-   THIS OVERRULES A DECISION MADE EARLIER THE SAME DAY, deliberately and on his
-   say-so. The retrofit skipped the exit on replacement — clicking job B while
-   job A is open changed the content in place — on the reasoning that playing A
-   out and B in puts 180ms between a tap and the thing tapped for. That reasoning
-   still holds for the CONTAINER and is why the panel does not leave and come
-   back. What was wrong was concluding that the CONTENTS should therefore not
-   move either. **A frame that stays still while everything inside it is replaced
-   is the one case where a dissolve is the honest description of what happened.**
+   IT WAS A DISSOLVE FIRST — opacity plus a 4px blur, the whole block on one
+   timeline — AND HE REJECTED IT THE SAME DAY, looking at it: "the dissolve
+   that you created is horrible… it just looks like a page refresh… it's, like,
+   this kind of harsh fade in, you know, like, it doesn't look fluid."
+   HIS OWN EARLIER MESSAGE IS WHAT PRODUCED IT — "maybe, like, a little
+   dissolve or a blur" — and he withdrew that himself and apologised for it.
+   That earlier sentence is still quoted in the roadmap and in DECISIONS, so a
+   session that finds it and not this comment will rebuild the rejected thing
+   and be able to cite him for it. THE BLUR IS NOT COMING BACK.
+   He also declined to specify the replacement, deliberately: "I'm not gonna
+   give you an animation idea. You should figure out the animation idea."
 
-   IT IS A DISSOLVE, NOT A TRAVEL, and that is his distinction: nothing moved,
-   so nothing slides. Opacity and a 4px blur, which is the whole vocabulary of
-   "these are different words in the same box".
+   THE DIAGNOSIS, WHICH IS WHAT THIS RULE IS DESIGNED AGAINST — rather than the
+   complaint, which is only its symptom. A page reload IS a whole block
+   changing opacity at once, so a uniform cross-fade of a content block
+   reproduces the optical signature of one no matter how short it is. THE FAULT
+   IS THE UNIFORMITY: not the duration, and not the blur. Every motion in this
+   product he has approved moves its parts on DIFFERENT timelines — the
+   screen's arrival steps 0/40/80/120/160ms, the day rail steps inside itself.
+   Nothing he likes fades as a single flat plane.
 
-   THE BLUR IS A NEW PROPERTY IN THIS SYSTEM AND IT IS ON PURPOSE. Law 4 says
-   transform and opacity only, and that rule is about not paying for layout or
-   paint during a travel. A 4px blur on a panel for 180ms is a filter on a
-   composited layer and is the cheapest way to say "resolving" rather than
-   "arriving" — it was asked for by name, and it is scoped to this one class
-   rather than loosened everywhere. If it ever costs a frame, drop the blur and
-   keep the opacity: the animation still reads.
+   SO THE SWAP IS ON THE PARTS AND NEVER ON THE BLOCK. `.swap` itself carries
+   no animation at all now: it is a marker plus a React `key`, and the key is
+   what mounts new children so that their animation runs. **An edit that puts
+   `animation:` back on `.swap` itself brings the flat plane back, and with it
+   the complaint** — composition 8e-i is what stops that happening quietly.
 
-   180ms is --t-exit, which is the same number the second column uses. No fifth
-   duration, for the reason the table above gives. */
-@keyframes swap-in { from { opacity: 0; filter: blur(4px); } }
-.swap { animation: swap-in var(--t-exit) var(--e-out); }
+   AND IT IS THE SCREEN'S OWN ARRIVAL, ONE LEVEL DOWN AND AT EXIT SPEED. Same
+   keyframe (`arrive`), same 14px, same curve, the rail's 20ms step and the
+   arrival's 160ms ceiling — at --t-exit rather than --t-reveal, because this
+   is something you do forty times a day and 420ms would be a gate on it.
+   NO NEW KEYFRAME, NO NEW DURATION, NO NEW DISTANCE AND NO NEW PROPERTY: the
+   product now has ONE entrance shape at three scales, which is what "motion as
+   a house style" actually means. The tail settles at 180 + 160 = 340ms,
+   against the screen's own 580ms.
+
+   IT TRAVELS, AND THAT IS NOT THE FRAME LYING ABOUT WHAT HAPPENED. This file
+   and the design system both said the opposite while the dissolve was here —
+   "nothing moved, so nothing slides". The FRAME still does not move, and still
+   does not leave and come back; what travels is NEW CONTENT resolving into
+   place, which is the thing `arrive` has always meant. Law 4 is now satisfied
+   rather than excepted: transform and opacity only, and the filter that needed
+   a written exception is gone. */
+.swap > * { animation: arrive var(--t-exit) var(--e-out) backwards; }
+/* THE LADDER RUNS EIGHT DEEP, AND THAT IS THE ONE PLACE THIS DIFFERS FROM THE
+   TWO LADDERS IT BORROWS FROM. Both of those cap at the fifth child, which is
+   right for a screen (five sections) and for a rail (five jobs). A swapped
+   block is longer than either: the job record's body measured FIFTEEN parts
+   and the Clients list eight on the seeded demo, so a cap at five would leave
+   ten of fifteen and three of eight moving as one plane — the exact fault this
+   rule exists to remove.
+   THE CAP IS A BUDGET AND NOT A CLAIM THAT EVERY ROW IS DISTINCT, and that
+   matters because `ROW_CAP` in Clients.jsx is 200: on a long list rows nine
+   and down do share a beat. What the ladder buys is that the TOP of a list —
+   the part you are looking at when you press the chip — cascades, and it stops
+   at eight because 160ms is where the screen's own arrival stops. Going deeper
+   would mean inventing a ceiling this system does not have.
+   20ms is the rail's step, 160ms is the arrival's ceiling; neither is new. */
+.swap > *:nth-child(1) { animation-delay: 0ms; }
+.swap > *:nth-child(2) { animation-delay: 20ms; }
+.swap > *:nth-child(3) { animation-delay: 40ms; }
+.swap > *:nth-child(4) { animation-delay: 60ms; }
+.swap > *:nth-child(5) { animation-delay: 80ms; }
+.swap > *:nth-child(6) { animation-delay: 100ms; }
+.swap > *:nth-child(7) { animation-delay: 120ms; }
+.swap > *:nth-child(8) { animation-delay: 140ms; }
+.swap > *:nth-child(n+9) { animation-delay: 160ms; }
+/* FURNITURE OPTS OUT, AND THIS IS THE RULE'S OTHER HALF RATHER THAN AN
+   EXCEPTION TO IT. A swap is "the words changed"; a control that is IDENTICAL
+   in both records did not change, so moving it says something untrue — and
+   static chrome behaving like content is the purest page-refresh tell there
+   is. `RecordHost.jsx` already pulls the CLOSE BUTTON out of the swap for
+   exactly this reason ("a control that moves under the pointer that is about
+   to press it reads as a glitch"); the action bar is the same object one level
+   down and was missed, because it happens to be a CHILD of `.record-body`
+   rather than a sibling. Found by review, then confirmed: `getAnimations()`
+   listed `.jobbar` travelling 14px at delay 20ms on every job switch — six
+   unchanged buttons, PINNED, and the primary tap target on a record somebody
+   opens forty times a day.
+   IT IS THE ONLY PIECE OF FURNITURE INSIDE A SWAP TODAY. When a second one
+   appears, add it here rather than inventing a class for it — and the test to
+   apply is the one above: would this control be pixel-identical in the record
+   you just came from? Section titles are NOT furniture by that test; they head
+   the block under them and resolve with it. */
+.swap > .jobbar { animation: none; }
 /* A SWAP NEVER SITS DIRECTLY UNDER `.col-1`, AND THAT IS A RULE ABOUT THE
-   MARKUP RATHER THAN ABOUT THIS FILE. The screen's arrival selector is
-   `.app-main > .split > .col-1 > *` at (0,4,0), so a `.swap` placed there
-   loses the cascade: measured, Money re-ran `arrive` on every period change —
-   a 420ms staggered LIFT, which is the "page refresh" feeling he complained
-   about rather than the dissolve he asked for.
+   MARKUP RATHER THAN ABOUT THIS FILE. It survives the dissolve being replaced,
+   and the reason has only got simpler: the screen's arrival selector is
+   `.app-main > .split > .col-1 > *`, so a keyed `.swap` placed there re-runs
+   `arrive` at --t-reveal on every change — a 420ms staggered LIFT of the whole
+   block, which is the "page refresh" feeling he complained about in the first
+   place. Measured on Money, not read.
 
    THE FIRST FIX WAS A SPECIFICITY OVERRIDE AND IT WAS THE WRONG ONE. It won
    the fight and then broke a different law: on FIRST paint the swapped blocks
-   dissolved in 180ms while their siblings rose over 420ms, so the screen
-   arrived at two speeds and its tail landed EARLY. `getAnimations()` on
-   Money's first paint showed `arrive` at 0/40ms next to `swap-in` at 0ms.
+   ran at 180ms while their siblings rose over 420ms, so the screen arrived at
+   two speeds and its tail landed EARLY. `getAnimations()` on Money's first
+   paint showed `arrive` at 0/40ms next to the swap at 0ms.
    *Winning a cascade fight is not the same as being right.*
 
    So the swap goes on an inner wrapper instead: the outer element keeps its
-   place in the arrival, and the inner one dissolves only when its key changes.
-   On first paint both run and the inner is invisible, because its parent is
-   fading up from zero over the same window. No override, no delay reset, and
-   the one-arrival law is untouched. */
+   place in the arrival, and the inner one's children move only when the key
+   changes. On first paint both run and the inner parts are invisible, because
+   their grandparent is fading up from zero over the same window. No override,
+   no delay reset, and the one-arrival law is untouched. */
 
 /* ---------------------------------------------------------- DEGRADATION
    ONE code path — docs/design-system.md § Degradation. `.lite` is set on
@@ -2074,9 +2158,14 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    still reads as "both directions off" and so removing that short-circuit
    cannot silently reintroduce a visible exit here. */
 .lite .split > .col-2, .lite .split > .col-2.leaving { animation: none; }
-/* A swap renders its END state, which is the new content at full opacity and
-   no blur — i.e. exactly what a swap with no animation already is. */
-.lite .swap { animation: none; }
+/* A swap renders its END state, which is the new content in place at full
+   opacity — i.e. exactly what a swap with no animation already is.
+   ON THE PARTS, because that is where the animation now is: `.lite .swap`
+   would switch off an animation that no longer exists there and leave every
+   child of it still travelling 14px, which is the shape of a degradation rule
+   that rots when the thing it degrades moves one level. The shorthand also
+   clears the staggered `animation-delay`, so no beat survives either. */
+.lite .swap > * { animation: none; }
 /* AND THE MONTH DOES NOT GLIDE. `transition-duration: 1ms` below already
    covers it; naming it here would be two rules for one fact, so this comment
    is the note that it was considered rather than missed. */

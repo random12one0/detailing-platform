@@ -509,13 +509,41 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
   check("8d-iii · no :has() is nested inside another :has()",
     !/:has\((?:[^()]|\([^()]*\))*:has\(/.test(theme));
 
-  // 8e · A CONTENT SWAP, added 2026-09-03 on the owner's second pass: "if I
-  // switch between one booking and I click another one, it just instantly
-  // changes… a little dissolve or a blur."
-  check("8e-i · the swap exists and dissolves rather than travels",
-    /@keyframes swap-in \{ from \{ opacity: 0; filter: blur\(4px\); \} \}/.test(theme));
-  check("8e-ii · at --t-exit, no fifth duration",
-    /\.swap \{ animation: swap-in var\(--t-exit\) var\(--e-out\); \}/.test(theme));
+  // 8e · A CONTENT SWAP, added 2026-09-03 on the owner's second pass — "the GUI
+  // kind of doesn't really change, but the actual text inside of it changes" —
+  // and REWRITTEN the same day after he rejected the first version of it.
+  //
+  // WHAT THESE CHECKS ARE NOW FOR, because it is not what they were for this
+  // morning. The first version was a uniform cross-fade (opacity + a 4px blur,
+  // the whole block on one timeline) and he turned it down: "it just looks like
+  // a page refresh… it doesn't look fluid." A page reload IS a whole block
+  // changing opacity at once, so the fault was the UNIFORMITY rather than the
+  // duration or the blur. **The invariant these checks defend is therefore
+  // "the block never animates as one plane"** — which is a property no
+  // screenshot, no sweep and no contrast test in this repo can see, and which
+  // one plausible-looking edit (moving the animation back up onto `.swap`)
+  // silently destroys.
+  check("8e-i · the swap moves its PARTS, on the screen's own keyframe at exit speed",
+    /\.swap > \* \{ animation: arrive var\(--t-exit\) var\(--e-out\) backwards; \}/.test(theme));
+  // THE HALF THAT ACTUALLY HOLDS THE LINE, and it is deliberately stricter
+  // than "no animation on .swap": NO RULE MAY TARGET `.swap` ITSELF AT ALL.
+  // The narrow version would have to guess at every spelling of the defect
+  // (`animation:`, `animation-name:`, a shorthand inside a media query, a
+  // `transition` doing the same job), and the flat plane coming back is
+  // exactly the edit that looks like a tidy-up — one selector instead of ten.
+  // The block is a marker and a React key; everything visual is on its parts.
+  // A future rule that genuinely needs to style `.swap` fails here and has to
+  // read the comment in theme.css first, which is the point.
+  check("8e-i-b · no rule targets the block itself, only its parts",
+    !/\.swap\s*\{/.test(theme), "a rule targets .swap itself, not its children");
+  // THE REJECTED PROPERTY IS GONE, BY NAME. He asked for a blur in his first
+  // message and withdrew it in his second, apologising for having steered us
+  // to it — and the withdrawn quote is still in the roadmap, the design system
+  // and DECISIONS, so it is re-derivable by a session reading only that half.
+  // `backdrop-filter: blur()` is a different property and three surfaces use
+  // it, which is why this looks for `filter:` not preceded by a hyphen.
+  check("8e-ii · the rejected blur is gone and did not come back",
+    !/@keyframes swap-in/.test(theme) && !/(^|[^-])filter: blur/m.test(theme));
   // 8e-iii REPLACED 2026-09-03, and the reason is worth more than the check.
   // The swap first lost the cascade to the screen's arrival
   // (`.app-main > .split > .col-1 > *` is (0,4,0), `.swap` is (0,1,0)), so
@@ -548,8 +576,50 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
     check(`8e-iv · ${f.split("/").pop()}: ${what} is nested, not a .col-1 child`,
       src.includes(needle));
   }
+  // 8e-vii · THE PARTS MOVE ON DIFFERENT TIMELINES, WHICH IS THE WHOLE FIX.
+  // A stagger that collapses to one beat is a uniform fade wearing ten
+  // selectors, so this counts DISTINCT delays rather than the presence of a
+  // ladder. Eight deep rather than the five the screen's arrival and the day
+  // rail cap at: the Clients list is the longest thing that swaps here and
+  // most of it sits below the fifth row, so a cap at five would leave the
+  // majority of that list moving as one plane — the rejected fault, on the
+  // screen where it would be most visible.
+  const beats = [...theme.matchAll(/\.swap > \*:nth-child\([^)]*\) \{ animation-delay: (\d+)ms; \}/g)]
+    .map((m) => Number(m[1]));
+  check("8e-vii · the parts are staggered, eight beats deep before it caps",
+    new Set(beats).size >= 8 && /\.swap > \*:nth-child\(n\+9\) \{ animation-delay: 160ms; \}/.test(theme),
+    `${new Set(beats).size} distinct delays: ${beats.join(", ")}`);
+  // 8e-viii · FURNITURE DOES NOT MOVE. A control that is pixel-identical in
+  // both records did not change, so animating it says something untrue — and
+  // static chrome behaving like content is the page-refresh tell itself. The
+  // close button was pulled out of the swap in the markup for this reason; the
+  // action bar is the same object and was missed because it is a CHILD of
+  // `.record-body` rather than a sibling of it. Measured: `.jobbar` travelling
+  // 14px at delay 20ms on every job switch, six unchanged buttons, pinned, on
+  // the record's primary tap target.
+  check("8e-viii · the pinned action bar opts out of the swap",
+    /\.swap > \.jobbar \{ animation: none; \}/.test(theme));
+  // 8e-ix · AND THE CHART DOES NOT ANIMATE TWICE. `bar-rise` is --t-reveal and
+  // is right on first paint; on a period change it ran 280ms past everything
+  // beside it, which is "half the screen moving" with the halves swapped. No
+  // selector can tell the two apart — the figures are in a keyed `.swap`, so
+  // the bars remount identically either way — so Money.jsx carries the fact
+  // and this pins BOTH halves. A CSS-only edit here would silently kill the
+  // first-paint rise as well, which is the failure this pairing prevents.
+  {
+    const money = await readFile("app/src/screens/Money.jsx", "utf8");
+    check("8e-ix · the chart does not re-rise on a swap",
+      /\.bars\.replacing button::before \{ animation: none; \}/.test(theme)
+      // LATCHED PER PERIOD, not recomputed per render — the first version was
+      // recomputed and went false on the very next render (the reload setting
+      // `refreshing`), which REMOVED `animation: none` from a live element and
+      // therefore STARTED the animation. Correct-looking code, unchanged
+      // behaviour, and only `getAnimations()` could see it.
+      && /drawn\.current = \{ key: periodKey, replacing: drawn\.current\.key !== null \};/.test(money)
+      && money.includes('${replacing ? " replacing" : ""}'));
+  }
   check("8e-v · reduced motion renders the end state",
-    /\.lite \.swap \{ animation: none; \}/.test(theme));
+    /\.lite \.swap > \* \{ animation: none; \}/.test(theme));
   // EVERY SCREEN THE OWNER NAMED USES IT. He listed three places that "just
   // instantly change"; a fourth that hand-rolls its own is how this forks.
   for (const [f, why] of [

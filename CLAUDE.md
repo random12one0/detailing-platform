@@ -68,9 +68,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   listed in the new file under "§11". Backend, content, copy facts and
   accessibility floors were always kept; only the visual world changed.
 - The design tests enforce the NEW rules: `tests/composition.test.mjs`
-  (**57 checks** — 24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
+  (**66 checks** — 24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
   which added test 8: the squircle pairing, the second column's motion, the
-  calendar's travel and the content swap) and
+  calendar's travel and the content swap; 57 until the swap was rebuilt on
+  2026-09-04; 61 until test 9 landed the same day with the reduced-motion fix.
+  **Test 9 is the degradation rule finally getting teeth**: `.lite` is live
+  rather than read once, `?lite=1` outranks the media query, and NO stylesheet
+  carries a second `@media (prefers-reduced-motion)` implementation — a rule
+  four files had asserted in prose and nothing had ever checked) and
   `tests/design-contrast.test.mjs`. Don't contort work to
   pass them — if a test and a real design decision collide, the system file
   gets updated first, never silently.
@@ -168,15 +173,53 @@ explaining it; if they still have to ask "so should I?", it failed.
   came from. That is the rule for the next container, not a preference.
   **AND THERE IS A THIRD KIND OF MOTION: A SWAP (2026-09-03, his second
   pass).** A screen ARRIVES, a thing OPENS, and a frame that stays put while
-  its contents are replaced **dissolves** — `.swap` plus a React `key`,
-  opacity and a 4px blur at `--t-exit`. His definition: *"the GUI kind of
+  its contents are replaced does this. His definition: *"the GUI kind of
   doesn't really change, but the actual text inside of it changes."* It is on
-  the job record, Money's period figures and the Clients list.
+  the job record (reached from Today AND the calendar), Money's period figures
+  and the Clients list.
+  **IT SHIPPED AS A UNIFORM DISSOLVE, HE REJECTED IT ON SIGHT, AND IT WAS
+  REPLACED 2026-09-04** — *"it just looks like a page refresh… it doesn't look
+  fluid."* **HIS OWN EARLIER WORDS PRODUCED IT** — *"maybe, like, a little
+  dissolve or a blur"* — **he withdrew them and apologised**, and that sentence
+  still sits in `docs/roadmap.md`, `docs/design-system.md` and `DECISIONS.md`
+  with the retraction now beside every copy. **A session that finds the earlier
+  quote and not the withdrawal rebuilds the rejected thing and can cite him for
+  it.** He refused to specify a replacement on purpose, and floated a second
+  hint (*"text that went down and faded up"*) which he withdrew in the same
+  breath. **Neither is a spec.**
+  **THE DIAGNOSIS IS THE PART TO CARRY FORWARD: a page reload IS a whole block
+  changing opacity at once, so the fault was the UNIFORMITY — not the duration
+  and not the blur.** Designing against the complaint gives a shorter dissolve,
+  which is the same defect in less time. Everything he approves moves its parts
+  on different timelines.
+  **SO `.swap` CARRIES NO ANIMATION AT ALL** — it is a marker plus a React
+  `key` — and **`.swap > *` runs the screen's own `arrive` at `--t-exit`,
+  staggered 20ms, capped at 160ms**. No new keyframe, duration, distance or
+  property: one entrance shape at three scales (screen 420/40, rail 420/20,
+  parts 180/20). **The blur is gone and law 4 is back to transform and opacity
+  only.** `composition` 8e-i-b fails on ANY rule targeting `.swap`, on purpose.
   **A SWAP MUST NOT BE A DIRECT CHILD OF `.col-1`** — the arrival selector is
-  (0,4,0) and beats it, so it re-runs `arrive` instead. Nest it in a wrapper;
-  **do NOT fix it with a specificity override**, which was tried and broke the
-  one-arrival law instead (the screen then arrives at two speeds). `composition`
-  8e-iii and 8e-iv hold both halves.
+  (0,4,0), so a keyed swap there re-runs `arrive` at 420ms instead. Nest it in
+  a wrapper; **do NOT fix it with a specificity override**, which was tried and
+  broke the one-arrival law instead (the screen then arrives at two speeds).
+  `composition` 8e-iii and 8e-iv hold both halves.
+  **AND FURNITURE OPTS OUT — the rule's other half, not an exception.** A
+  control that is pixel-identical in the record you came from did not change,
+  so moving it says something untrue, and static chrome behaving like content
+  is the purest page-refresh tell there is. `.swap > .jobbar` opts out;
+  `RecordHost` had already pulled the close button out for the same reason and
+  the action bar was missed because it is a CHILD of `.record-body` rather than
+  a sibling. **The test for the next one is that question, not a class.**
+  **NOTHING ANIMATES TWICE EITHER.** Money's `bar-rise` is right on first paint
+  and wrong on a switch (it ran 280ms past everything beside it). No selector
+  can separate the two cases — the bars remount identically — so `Money.jsx`
+  carries the fact and `.bars.replacing` reads it.
+  **AND THAT FLAG'S FIRST VERSION WAS CORRECT-LOOKING AND DID NOTHING, which is
+  the transferable bit:** recomputed per render it went true and then FALSE on
+  the very next render, and **removing `animation: none` from a live element
+  STARTS the animation** — plausible code, unchanged behaviour, the class gone
+  before the DOM could be inspected. `getAnimations()` was the only instrument
+  that could see it. Latch a flag like this per subject, never per render.
   **AND THE CORNER IS A TOKEN, ON BOTH TOKENISED SURFACES: `--corner` in
   `theme.css` and `--bk-corner` in `booking.css`**, paired onto every
   panel/inset corner and onto **no pill, dot or ring** — a superellipse at a
@@ -233,7 +276,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   losing. The script prints its own per-width wall clock on every run now.
   **AND THE RULE THAT IS WORTH MORE THAN EVERY OTHER LINE IN THIS SECTION, and
   costs nothing: START THE LONG CHECK, WRITE WHILE IT RUNS, THEN READ THE
-  RESULT.** The owner asked a second time during roadmap 2.12 why a session
+  RESULT.** **WRITE PROSE — NOT SOURCE. Learned the expensive way 2026-09-04:
+  an edit to anything under `app/src` while `sweep-widths.mjs` is running makes
+  Vite reload the page** (`main.jsx` has a non-component export, so a cascading
+  HMR update there fails Fast Refresh and falls back to a full reload), **and
+  the sweep dies with "Execution context was destroyed, most likely because of
+  a navigation" at whatever screen it happened to be on.** It cost two full
+  `--lite` runs and landed in two unrelated places, which is exactly what a
+  source edit during a browser walk looks like from the outside — it reads as a
+  flaky script or a bad diff. **The dev server names the cause in one line:
+  `page reload src/main.jsx` in the Vite log.** Check that before blaming
+  anything else.
+  Same trap from the other side: a second agent or session working in this same
+  directory does it to you without your knowing, so a sweep that dies mid-run
+  is worth a `git status` before it is worth a bisect. The owner asked a second time during roadmap 2.12 why a session
   takes as long as it does, and that session's own runs were counted rather
   than estimated: **~33 minutes spent WAITING, all but two of them blocking**,
   while the documentation it was always going to write — DECISIONS, PROJECT-

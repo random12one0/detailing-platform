@@ -187,6 +187,8 @@ were made more than once.
 
 - **Roadmap 2.17, second pass — he walked it and found the hole: a SWAP is a third kind of motion** — the retrofit covered a screen ARRIVING and a thing OPENING, and missed the case he cared most about: *"if I switch between one booking and I click another one, it just instantly changes… **the GUI kind of doesn't really change, but the actual text inside of it changes**."* That last clause is the definition. **It overrules a decision made earlier the same day**, which had deliberately skipped the exit on replacement to avoid putting 180ms between a tap and the thing tapped for — right about the CONTAINER, wrong to conclude the CONTENTS should not move either. `.swap` + a React key, opacity and a 4px blur at `--t-exit`; it dissolves rather than travels, because nothing moved. **THE BLUR IS A NEW PROPERTY AGAINST LAW 4 AND IT IS SCOPED, not loosened.** **The trap, and it caught two different fixes: a swap must not be a direct child of `.col-1`** — the arrival selector is (0,4,0) and beats `.swap`, so Money re-ran `arrive` on every period change, which IS the "page refresh" feeling he was complaining about. **The first fix was a specificity override, and it won the fight and broke a different law**: on first paint the swapped blocks dissolved in 180ms while their siblings rose over 420ms, so the screen arrived at two speeds and its tail landed EARLY. Both states measured with `getAnimations()`, neither read. The answer was MARKUP — nest the swap so the outer element keeps its arrival slot. ***Winning a cascade fight is not the same as being right.*** **And the month now travels with the panel**: killing the remount was not enough, because `.app-main`'s max-width and the grid's track list still snapped 270px with no transition — both are transitionable, `display` is not, so the closed state became a 0px second track instead of `display: block`, and both ends key on `:not(.leaving)` so closing is one 180ms gesture rather than two. **Three vacuous checks were found by BASELINING, all the same shape**: an `||` across independent subjects is not a check on either of them, and a `src.includes("swap")` was satisfied by the word appearing in its own explanatory comment. **A raw backspace (0x08) got into a regex through a shell heredoc for the SECOND time in this repo** — CLAUDE.md already records that exact trap from 2.18.
 
+- **Roadmap 2.17, third pass — replacing the dissolve he rejected** — he looked at the dissolve and turned it down flat: *"it just looks like a page refresh… **And I'm sorry if I steered you to that. I wasn't trying to.** … it doesn't look fluid."* **His own earlier *"a little dissolve or a blur"* is what produced it, he withdrew it himself, and every surviving copy of that sentence now carries the retraction beside it** — deleting a retracted hint is how it gets re-derived from a fourth file nobody checked. He also refused to specify the replacement on purpose (*"I'm not gonna give you an animation idea"*) and floated a second hint he withdrew in the same breath. **THE TRANSFERABLE PART: design against the DIAGNOSIS, not the complaint.** Designing against *"it looks like a page refresh"* produces a shorter dissolve, which is the same defect in less time. The diagnosis is that **a page reload IS a whole block changing opacity at once**, so a uniform cross-fade reproduces a reload's optical signature however brief it is — **the fault was the UNIFORMITY, not the duration and not the blur**, and the corroboration was already in the repo: every motion he has approved moves its parts on different timelines. **So `.swap` now carries no animation at all** (it is a marker plus a React key) and `.swap > *` runs the screen's own `arrive` for `--t-exit`, staggered 20ms, capped at 160ms — no new keyframe, duration, distance or property, giving ONE entrance shape at three scales. **The blur is gone and law 4 goes back to transform-and-opacity-only: the rejected version was also the one that needed a law bent for it.** The ladder runs EIGHT deep rather than five because most of the Clients list sits below the fifth row and a cap at five leaves the majority moving as one plane. **`composition` 8e-i-b fails on ANY rule targeting `.swap`, which is deliberately stricter than the defect** — the flat plane coming back would arrive looking like a tidy-up, one selector instead of ten — and 8e-vii counts DISTINCT delays, because a stagger that collapses to one beat is a uniform fade wearing ten selectors. **Then `impeccable critique` found two defects the clean measurement could not: a clean `getAnimations()` reading tells you what IS animating, not whether it SHOULD be.** The pinned action bar was inside the swap — six buttons pixel-identical between any two jobs, travelling on every switch, on the record's primary tap target — and `RecordHost` had already pulled the CLOSE BUTTON out for that exact reason, so **furniture opting out is the rule's other half, not an exception**. And Money's 620ms chart tail, first recorded as measured-and-left because no SELECTOR can separate a swap from first paint, is fixed: `Money.jsx` can see it in three lines, and "three lines" is not a reason to ship the one defect on the one screen he named. **The flag's first version was correct-looking and did nothing, which is the most reusable part**: recomputed per render it went true then false on the very next render (the reload setting `refreshing`), and **removing `animation: none` from a live element STARTS the animation** — plausible code, unchanged behaviour, the class gone before anyone could inspect it, and only `getAnimations()` able to see it. Latched per period now. **And `theme.css` had claimed the opposite since the chart was written** (*"a month switch snaps, deliberately"*), which had never been true.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -9621,6 +9623,11 @@ third:
 > for switching between stuff where, like, **the GUI kind of doesn't really
 > change, but the actual text inside of it changes**."
 
+**⚠ *"a little dissolve or a blur"* IS WITHDRAWN — he took it back the next
+day and apologised for it. Only the bolded clause survives.** Kept here because
+deleting a retracted hint is how it gets re-derived from a file nobody checked.
+See *Roadmap 2.17, third pass — replacing the dissolve he rejected*.
+
 **That last clause is the definition.** Nothing arrived and nothing left; a
 frame stayed exactly where it was and everything inside it was replaced.
 
@@ -9720,3 +9727,183 @@ clean pass. **A baseline harness that cannot fail is the exact defect it exists
 to catch.** Rewritten in one language, and every mutation now asserts it
 changed the file before anything runs.
 
+## Roadmap 2.17, third pass — replacing the dissolve he rejected
+
+The dissolve shipped in the second pass, he looked at it, and he turned it
+down flat:
+
+> "The dissolve that you created is horrible in the terms of… it just looks
+> like a page refresh. Yeah. So the dissolve wasn't it. **And I'm sorry if I
+> steered you to that. I wasn't trying to.** … Same with it today when I switch
+> it. It's, like, this kind of harsh fade in… **it doesn't look fluid**."
+
+Nothing was changed that day — *"don't do anything yet. Stop."* This section is
+what replaced it on 2026-09-04.
+
+### The two withdrawn hints, and why they are still quoted
+
+**His own earlier message is what produced the dissolve** — *"maybe, like, a
+little dissolve or a blur"* — and it is still sitting in `docs/roadmap.md`,
+`docs/design-system.md` and in the section above this one. He withdrew it
+himself and apologised for it, which is as clear as a retraction gets, but
+**a session that finds the earlier quote and not the retraction rebuilds the
+rejected thing and can cite him for it.** So every surviving copy of that
+sentence now carries the withdrawal beside it rather than being deleted: a
+deleted retraction is how the idea gets re-derived from a fourth file nobody
+thought to check.
+
+**And he declined to specify the replacement, on purpose:** *"I'm not gonna
+give you an animation idea. You should figure out the animation idea."* He
+floated *"maybe a text that went down and faded up"* and pulled it back in the
+same breath — **a second withdrawn hint, not a spec.** Building either one
+literally repeats the mistake that produced the first.
+
+### Designing against the diagnosis, not the complaint
+
+**This is the transferable part of the whole item.** Designing against *"it
+looks like a page refresh"* produces a shorter dissolve, or one without a blur,
+which is the same defect in less time — and it would have been defensible,
+because it answers every word he said.
+
+The diagnosis is one sentence: **a page reload IS a whole block changing
+opacity at once.** A uniform cross-fade of a content block therefore reproduces
+the exact optical signature of a reload, however brief it is and whatever
+filter rides along with it. **The fault was the UNIFORMITY — not the duration
+and not the blur**, even though the blur is the thing his hint named and the
+duration is the thing an instinct reaches for first.
+
+The corroboration was already in the repo and cost nothing to check: **every
+motion in this product he has approved moves its parts on different timelines.**
+The screen's arrival steps 0/40/80/120/160ms. The day rail steps inside itself.
+**Nothing he has ever approved fades as a single flat plane.**
+
+### What it is now: the screen's own arrival, one level down
+
+`.swap` carries **no animation at all** — it is a marker plus a React `key`,
+and the key is what mounts new children so their animation runs. `.swap > *`
+runs `arrive` for `--t-exit`, staggered **20ms**, capped at **160ms**.
+
+**No new keyframe, no new duration, no new distance and no new property.** 14px
+is `arrive`'s and `step-fwd`'s, 180ms is `--t-exit`, 20ms is the day rail's
+step, 160ms is the arrival's own ceiling. **The product has ONE entrance shape
+at three scales now** — a screen (420/40), a rail inside a screen (420/20), a
+block's parts (180/20) — which is the only reading of *"a keynote for the
+entire site"* that produces a system rather than a pile of animations.
+
+**The blur is gone and law 4 goes back to transform-and-opacity-only.** The
+written exception it needed left with it. That is worth noticing on its own:
+**the rejected version was also the one that needed a law bent for it.**
+
+**The ladder runs eight deep, and it is the one number not simply borrowed.**
+Both ladders it copies cap at the fifth child — right for a screen with five
+sections and a rail with five jobs. The Clients list is the longest thing that
+swaps here and most of it sits *below* the fifth row, so a cap at five would
+leave the majority of that list moving as one plane: the rejected fault, on the
+screen where it would be most visible.
+
+**And this section had to reverse a sentence the design system stated as a
+principle.** It said *"nothing moved, so nothing slides — a 14px translate here
+would be the frame lying about what happened."* The frame still does not move,
+does not leave and does not come back. **What travels is new content resolving
+into place, which is what `arrive` has always meant.** The old sentence was
+reasoning from the hint rather than from the object.
+
+### The check that holds it is stricter than the defect
+
+`composition` 57 → **59**. The interesting one is **8e-i-b, which fails on ANY
+rule targeting `.swap` at all** — not merely on an animation there. The narrow
+version would have to guess at every spelling of the same defect
+(`animation:`, `animation-name:`, a shorthand inside a media query, a
+`transition` doing the same job), and **the flat plane coming back would arrive
+looking like a tidy-up: one selector instead of ten.** A future rule that
+genuinely needs to style `.swap` fails this check and has to read the comment
+first, which is the point.
+
+**8e-vii counts DISTINCT delays rather than the presence of a ladder**, because
+a stagger that collapses to one beat is a uniform fade wearing ten selectors —
+the vacuity family this item has now hit five times.
+
+All five new or changed checks were baselined both ways **by a Python harness
+that asserts each mutation actually changed the file before running anything**,
+which is the second pass's own lesson from the bash harness that could not
+fail. Two mutations trip a sibling check as well as their own; that is reported
+rather than tuned away.
+
+### What the review found that the measurement could not
+
+The build measured clean — `getAnimations()` said the right things were running
+at the right beats on all three surfaces. It went through `impeccable critique`
+anyway, and that found two real defects. **A clean animation reading tells you
+what IS animating, not whether it SHOULD be**, and that is the whole value of
+the second pass.
+
+**1 · The pinned action bar was animating.** `.jobbar` is a child of
+`.record-body`, so it sat inside the swap: six buttons that are pixel-identical
+between any two jobs, travelling 14px on every switch, on the record's primary
+tap target, forty times a day. **`RecordHost` already pulled the CLOSE BUTTON
+out of the swap for exactly this reason** — the action bar is the same object
+one level down, and it was missed only because it is a *child* of the swapped
+element rather than a *sibling* of it. **Furniture opting out is the rule's
+other half rather than an exception to it**: a swap means *the words changed*,
+and static chrome behaving like content is the purest page-refresh tell there
+is. The test for the next one: *would this control be pixel-identical in the
+record you just came from?*
+
+**2 · The chart is fixed rather than accepted.** This section originally
+recorded Money's 620ms tail as measured-and-left, on the grounds that no
+selector can separate a swap from a first paint. That is true of CSS and it was
+being used to close the question — `Money.jsx` can see it in three lines, and
+the note admitted as much while deferring it. **Three lines is not a reason to
+ship the one defect on the one screen he named.** `.bars.replacing` now says
+so, and the chart no longer animates twice: it still takes its beat as a
+`.swap` part, and what stops is the second animation on top of the first —
+which is the mistake this repo already recorded for the gear.
+
+**3 · And the flag's first version was correct-looking and did nothing. This is
+the most reusable thing in the item.** Written as a comparison recomputed on
+every render, it was true on the render that changed the period and **false on
+the very next one** — the reload finishing sets `refreshing`, which re-renders.
+The class went on and straight back off. **Removing `animation: none` from a
+live element STARTS the animation**, so the chart re-rose exactly as before
+while the code read as a correct fix, and the class was already gone by the
+time anyone could inspect the DOM. `getAnimations()` at 120ms is the only
+instrument that could see it. The verdict is latched per period now, not
+derived per render.
+
+**4 · The eight-deep ladder's written justification was overclaiming**, and the
+number was right anyway. It said a cap at five would leave "the majority" of
+the Clients list moving as one plane; `ROW_CAP` is 200, so eight leaves a
+majority too. **The cap is a BUDGET, not a claim that every row is distinct** —
+what it buys is that the TOP of the list cascades, and it stops at eight
+because 160ms is where the screen's own arrival stops. The wording was
+corrected rather than the ladder.
+
+**What the review did NOT change, deliberately.** The blank tail — the bottom
+of a switched record is empty for up to 160ms — is the same thing the screen's
+own arrival does, and is what "resolving top-down" costs; the alternative is
+the flat plane he rejected. And switching faster than ~150ms restarts the
+keyframes from zero so the tail never lands: real, equally true of the
+dissolve, and fixing it means abandoning the remount that makes a swap a swap.
+
+**And `theme.css` had claimed the opposite of all of this since the chart was
+written:** *"a month switch snaps, deliberately: animating bars between two
+different months implies a continuity that is not there."* **It had never been
+true** — the bars have always re-animated on a period change. Corrected in
+place. *A comment that describes an intention rather than the behaviour is
+worse than no comment, because it sends the next session hunting a bug that is
+not there.*
+
+### Verified
+
+- `getAnimations()` at 1920, 120ms after each click, on all three surfaces.
+  The job record switch: **15 parts** on `arrive` at
+  0/20/40/60/80/100/120/140/160ms and **no `column-in`**, so the panel holds
+  still exactly as it did. Money: figures at 0/20/40/60/80, ledger at 0/20/40.
+  Clients: **eight** rows at 0…140, one beat each.
+- Frame-stepped by pausing the animations and seeking: at **90ms** the record's
+  top half is drawn and its lower half is still empty; at **180ms** nearly all
+  of it is in. That is a block filling top-down rather than a plane fading, and
+  it is the difference the whole item turns on.
+- `?lite=1`: nothing running, rows at `opacity: 1`, `transform: none`.
+- Full `--all` sweep at five widths, **clean, 356s**; `--lite` clean, 209s.
+- Nine credential-free suites, `accent-sweep`, `qr-scans`: all pass.

@@ -742,8 +742,9 @@ actually running.
 #### The third kind of motion: a SWAP
 
 **Added 2026-09-03, after the owner walked the retrofit and found the hole in
-it.** The two kinds above are a screen ARRIVING and a thing OPENING. There is a
-third, and it is the one that felt most dead to him:
+it. REBUILT 2026-09-04, because the first version of it was rejected.** The two
+kinds above are a screen ARRIVING and a thing OPENING. There is a third, and it
+is the one that felt most dead to him:
 
 > "The only one that I don't like — there's no animation of, like, if I switch
 > between one booking and I click another one, it just instantly changes. I
@@ -751,6 +752,13 @@ third, and it is the one that felt most dead to him:
 > like a little dissolve or a blur. You figure out a nice quick animation for
 > switching between stuff where, like, **the GUI kind of doesn't really change,
 > but the actual text inside of it changes**."
+
+**⚠ HE WITHDREW THE MIDDLE OF THAT QUOTE THE NEXT DAY AND APOLOGISED FOR IT.**
+*"maybe like a little dissolve or a blur"* is a hint he took back, not a
+specification — it is left in the paragraph above only because deleting a
+retracted sentence is how the next session re-derives it from somewhere else.
+**The only load-bearing clause is the last one**, in bold, which is the
+definition of what a swap IS. Everything about how it MOVES is below.
 
 His last clause is the definition, and it is what separates this from an
 entrance. **Nothing arrived and nothing left — a frame stayed exactly where it
@@ -763,36 +771,142 @@ That reasoning was right about the CONTAINER and is why the panel still does
 not leave and come back. **What was wrong was concluding that the contents
 should therefore not move either.**
 
+##### The first version was a uniform dissolve, and he rejected it
+
+**2026-09-03, looking at what had been built from his own hint:**
+
+> "The dissolve that you created is horrible in the terms of… it just looks
+> like a page refresh. Yeah. So the dissolve wasn't it. **And I'm sorry if I
+> steered you to that. I wasn't trying to.** … Same with it today when I switch
+> it. It's, like, this kind of harsh fade in… **it doesn't look fluid**."
+
+**AND HE DECLINED TO SPECIFY THE REPLACEMENT, DELIBERATELY** — *"I'm not gonna
+give you an animation idea. You should figure out the animation idea."* He
+floated *"maybe a text that went down and faded up"* and pulled it back in the
+same breath. **Two withdrawn hints, then, and neither is a spec.**
+
+**THE DIAGNOSIS, WHICH IS WHAT THE REPLACEMENT WAS DESIGNED AGAINST.** Not the
+complaint — the complaint is only the symptom, and designing against a symptom
+is how the same thing gets rebuilt slightly faster. **A page reload IS a whole
+block changing opacity at once.** A uniform cross-fade of a content block
+therefore reproduces the exact optical signature of a reload, no matter how
+brief it is or what filter rides along with it. **The fault is the UNIFORMITY:
+not the duration, and not the blur.**
+
+The corroboration is in this document: **every motion in this product he has
+approved moves its parts on different timelines.** The screen's arrival steps
+0/40/80/120/160ms. The day rail steps inside itself. The booking steps travel.
+**Nothing he has ever approved fades as a single flat plane** — which is also
+why "make it quicker" was not the answer, and why the blur was never the
+subject even though it is the thing his hint named.
+
+##### What it is now
+
 | | |
 |---|---|
-| It is | `opacity: 0 → 1` and `filter: blur(4px) → 0` |
-| For | `--t-exit` (180ms), the same number as everything else here |
+| It is | the screen's own `arrive` — `opacity: 0 → 1` and `translate3d(0, 14px, 0) → none` |
+| On | **the PARTS**, `.swap > *` — never on the block |
+| For | `--t-exit` (180ms) each, staggered **20ms** and capped at **160ms** |
 | Class | `.swap`, plus a React `key` that changes with the content |
 | Where | a job record's header and body, Money's figures when the period changes, the Clients list when the sort changes |
 
-**IT DISSOLVES, IT DOES NOT TRAVEL**, and that is his distinction rather than a
-taste: nothing moved, so nothing slides. A 14px translate here would be the
-frame lying about what happened.
+**IT IS THE SCREEN'S ARRIVAL, ONE LEVEL DOWN AND AT EXIT SPEED, AND THAT IS THE
+WHOLE IDEA.** No new keyframe, no new duration, no new distance, no new
+property: 14px is `arrive`'s and `step-fwd`'s, 180ms is `--t-exit`, 20ms is the
+day rail's step, 160ms is the arrival's own ceiling. **The product now has ONE
+entrance shape at three scales** — a screen (420ms / 40ms), a rail inside a
+screen (420ms / 20ms), a block's parts (180ms / 20ms) — which is what *"a
+keynote for the entire site"* has to mean if it means anything. The tail
+settles at 180 + 160 = **340ms**, against the screen's own 580ms.
 
-**THE BLUR IS A NEW PROPERTY IN THIS SYSTEM AND IT IS DELIBERATE.** Law 4 says
-transform and opacity only. That law is about not paying for layout or paint
-during a TRAVEL; a 4px blur on one panel for 180ms is a filter on a composited
-layer, it was asked for by name, and it is scoped to this one class rather than
-loosened everywhere. If it ever costs a frame, drop the blur and keep the
-opacity — the animation still reads.
+**NOTHING MAY ANIMATE `.swap` ITSELF.** The class is a marker plus a React key,
+and the key is what mounts new children so their animation runs. A rule on the
+block is the flat plane coming back, and it would arrive looking like a
+tidy-up — one selector instead of ten. `composition` 8e-i-b fails on **any**
+rule targeting `.swap`, which is deliberately stricter than "no animation
+there": the narrow version would have to guess at every spelling of the defect.
+
+**THE LADDER RUNS EIGHT DEEP, WHICH IS THE ONE PLACE IT DIFFERS FROM THE TWO IT
+BORROWS FROM.** Both of those cap at the fifth child — right for a screen with
+five sections and for a rail with five jobs. A swapped block is longer than
+either: the job record's body measures **fifteen** parts and the Clients list
+eight, so a cap at five would leave ten of fifteen and three of eight moving as
+one plane — the rejected fault, one level down.
+**The cap is a BUDGET, not a claim that every row is distinct**, and that
+matters because `ROW_CAP` is 200: on a long client list, rows nine and down do
+share a beat. What the ladder buys is that the TOP of a list — what you are
+looking at when you press the chip — cascades. It stops at eight because 160ms
+is where the screen's own arrival stops, and going deeper would mean inventing
+a ceiling this system does not have.
+
+**IT TRAVELS, AND THIS SECTION USED TO SAY IT MUST NOT.** The old wording was
+*"nothing moved, so nothing slides — a 14px translate here would be the frame
+lying about what happened."* **The frame still does not move**, does not leave
+and does not come back; what travels is NEW CONTENT resolving into place, which
+is what `arrive` has always meant. **Law 4 is now satisfied rather than
+excepted**: transform and opacity only, and the blur that needed a written
+exception is gone with the dissolve that asked for it.
 
 **A SWAP NEVER SITS DIRECTLY UNDER `.col-1`, AND THAT IS THE PART THAT WILL BE
-GOT WRONG.** The screen's arrival selector is `.app-main > .split > .col-1 > *`
-at (0,4,0), so a `.swap` placed there loses the cascade and re-runs `arrive`
-instead — a 420ms staggered lift, which is the *page refresh* feeling rather
-than the dissolve. **The first fix was a specificity override, and it won the
-fight and broke a different law**: on first paint the swapped blocks dissolved
-in 180ms while their siblings rose over 420ms, so the screen arrived at two
-speeds and its tail landed early. Both states were measured, not read.
+GOT WRONG.** The screen's arrival selector is `.app-main > .split > .col-1 > *`,
+so a keyed `.swap` placed there re-runs `arrive` at `--t-reveal` on every
+change — a 420ms staggered lift of the whole block, which is the *page refresh*
+feeling itself. **The first fix was a specificity override, and it won the
+fight and broke a different law**: on first paint the swapped blocks ran at
+180ms while their siblings rose over 420ms, so the screen arrived at two speeds
+and its tail landed early. Both states were measured, not read.
 **So the swap goes on an INNER wrapper** — the outer element keeps its place in
-the arrival, the inner one dissolves when its key changes, and on first paint
-the inner animation is invisible because its parent is fading up from zero over
+the arrival, the inner one's parts move only when the key changes, and on first
+paint they are invisible because their grandparent is fading up from zero over
 the same window. *Winning a cascade fight is not the same as being right.*
+
+**FURNITURE OPTS OUT, AND THAT IS THE RULE'S OTHER HALF RATHER THAN AN
+EXCEPTION TO IT.** A swap means *the words changed*. A control that is
+pixel-identical in the record you just came from did **not** change, so moving
+it says something untrue — and **static chrome behaving like content is the
+purest page-refresh tell there is.** `RecordHost` had already pulled the close
+button out of the swap for exactly this reason; **the pinned action bar is the
+same object one level down and was missed**, because it is a *child* of
+`.record-body` rather than a sibling of it. Measured: `.jobbar` travelling 14px
+at delay 20ms on every job switch — six unchanged buttons, pinned, the primary
+tap target on a record somebody opens forty times a day. `.swap > .jobbar
+{ animation: none; }`, and `composition` 8e-viii holds it.
+**The test to apply when a second one appears: would this control be
+pixel-identical in the record you just came from?** Section titles are not
+furniture by that test — they head the block under them and resolve with it.
+
+**AND NOTHING ANIMATES TWICE.** Money's bars grow on arrival (`bar-rise`,
+`--t-reveal`), which is right the first time and wrong on a switch: it left the
+chart drawing at **620ms** while the block around it settled at 340ms — the
+owner's own *"half the screen moving"* complaint with the halves swapped over.
+**No selector can see the difference**, because the figures live in a keyed
+`.swap` and the bars remount identically whether the screen is being met or the
+period changed, so `Money.jsx` carries the fact and the stylesheet reads it
+(`.bars.replacing`). The chart still MOVES on a switch — `.bars` is a `.swap`
+part and takes its beat with everything else; what stops is the second
+animation on top of the first, which is the mistake this document already
+records for the gear.
+**THE FIRST VERSION OF THAT FLAG WAS CORRECT-LOOKING AND DID NOTHING, and the
+lesson is general.** Written as a comparison recomputed on every render, it was
+true on the render that changed the period and **false on the very next one** —
+the reload finishing sets `refreshing`, which re-renders. The class went on and
+straight back off, and **removing `animation: none` from a live element STARTS
+the animation.** Behaviour unchanged, code plausible, and the class already
+gone by the time anyone could inspect it. `getAnimations()` is the only thing
+that caught it. **The verdict is now latched per period**, not derived per
+render.
+
+**Verified the way this section demands: `getAnimations()` on the live
+dashboard 120ms after each click, at 1920 and again at 1440.** The job record
+switch reports **fourteen** parts on `arrive` at 0/20/40/60/80/100/120/140/160ms
+with the pinned bar sitting still at `opacity: 1` (fifteen before it opted out),
+and **no `column-in`** — the panel holds still. Money's period switch reports
+the figures at 0/20/40/60/80 and the ledger at 0/20/40 and **no `bar-rise`**,
+while the screen's FIRST paint still reports six. The Clients re-sort reports
+its eight rows at 0…140, one beat each. Nothing on any of the three is still
+running at 440ms. `?lite=1` reports nothing running at all, the rows at
+`opacity: 1` and `transform: none`, sampled on every frame rather than at a
+point. Horizontal overflow was sampled every frame throughout: never.
 
 ### Atmosphere
 

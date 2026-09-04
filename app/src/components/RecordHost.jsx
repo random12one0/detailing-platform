@@ -69,13 +69,21 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
   }
 
   // SWITCHING RECORDS IS A SWAP, NOT AN ENTRANCE — the owner, 2026-09-03:
-  // "if I switch between, like, one booking and I click another one, it just
-  // instantly changes… maybe a little dissolve or a blur."
+  // "the GUI kind of doesn't really change, but the actual text inside of it
+  // changes."
   //
   // The panel deliberately does NOT leave and come back — that would put 180ms
   // between a tap and the thing tapped for, which is his own acceptance test
-  // failing. What changes is everything INSIDE it, so the contents dissolve
-  // while the frame holds still.
+  // failing. What changes is everything INSIDE it, so the frame holds still and
+  // the contents resolve part by part, each on its own beat.
+  //
+  // IT WAS A UNIFORM DISSOLVE UNTIL HE SAW IT AND TURNED IT DOWN — "it just
+  // looks like a page refresh… it doesn't look fluid" — and he named THIS
+  // record, from Today as well as from the calendar. The fault was that the
+  // whole block changed opacity at once, which is what a page reload looks
+  // like; the fix is in theme.css § A CONTENT SWAP and it is the stagger, not
+  // the duration. Do not put a blur back, and do not re-derive one from his
+  // earlier message: he withdrew that himself.
   //
   // KEYED ON title + subtitle rather than on an id threaded down from five
   // call sites. `jobRecordProps` makes those the customer's name and the job's
@@ -85,8 +93,8 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
   // there already-played.
   //
   // THE CLOSE BUTTON IS OUTSIDE THE SWAP on purpose: it does not change, and a
-  // control that dissolves under the pointer that is about to press it reads
-  // as a glitch.
+  // control that moves under the pointer that is about to press it reads as a
+  // glitch.
   const swapKey = `${title}|${subtitle}`;
 
   return (
