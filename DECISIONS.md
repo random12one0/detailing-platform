@@ -201,6 +201,8 @@ were made more than once.
 
 - **He is 17 and in California, and both facts changed the payment plan** — he volunteered them, nobody had asked, and **every consequence below was checked against a primary source rather than reasoned about.** **Stripe says yes with a parent**: Standard accounts are **13+**, and under 18 *"a legal guardian must assume the role of owner of your account before your account can accept charges and funds can be transferred"* — so **the build is unblocked and LAUNCH is not**, and **stage 3 is untouched** because Express and Custom Connect require 18 while **Standard does not** and the detailers are adults anyway. **California starts taxing SaaS on 1 January 2027 (SB 122, signed 2026-06-29) and does not today**, he has California nexus from his first sale, and **Stripe Tax calculates but does not file** — so the merchant-of-record premium that round 1 called premature has an expiry date on it: **84¢ per detailer per month to make CDTFA filings somebody else's job**, decided by November, because switching after a hundred subscribers means every one re-enters a card. **His twelve-month lock-in with an early-cancellation fee collides with AB 2863**, California's amended auto-renewal law: disclosure before billing details, express affirmative consent, and **cancellation in the same medium they signed up in** — a term and a fee are legal, **routing the exit through him is not.** And **§6700 makes it worse for him specifically**: a minor may contract *subject to the power of disaffirmance*, and adults contract with a minor at their own risk, so **an early-termination fee is the hardest term he could pick to enforce.** **The replacement is the plans research's own strongest finding aimed at his own pricing: discount the annual PREPAY.** Money already taken binds structurally, so *"pay for the year, get two months free"* buys the same twelve months with **nothing to chase, no ARL friction and better cash.** **He also asked whether he thinks about invoices wrongly — he does not, and 2.18 had already fixed it**: `invoiceEmail` branches on `payment_status`, so paid prints *Receipt / Paid in full* and unpaid prints *Invoice / Amount due*, **which sharpens stage 1 to putting payment handles on the UNPAID branch only.** **He decided plans are LOGGED, not billed** — arriving at option A himself and listing cadence, tier, percent and bundle unprompted — **and his customer-accounts idea got a verdict: good idea, one step early**, because everything it buys comes from a LINK, the pattern `/booking/:id` and 2.12's quote acceptance already rely on, while an account puts **a second kind of human** into an auth system holding only detailers and staff and has no right answer to *"whose customer are they"* when someone uses two detailers. **He overruled the recommendation on non-payment** (their site goes down) and **his Resend correction moved the real ceiling to 100 emails a day.**
 
+- **"Should I just start with Paddle?" — no, and the reason had not been checked by anyone** — **neither Paddle nor Lemon Squeezy does marketplace payouts**, so money-through is Stripe Connect regardless and the real question is *"Paddle AND Stripe, or just Stripe"*: two dashboards and two webhook sets for a business whose support desk is one person. **And Paddle's Acceptable Use Policy prohibits *"human services that are not related to a software offering"*, which his $499 hand-built website may well be** — their call, not ours, and *"you cannot sell your main up-front product here"* is a worse day than a tax return. **The tax benefit is also smaller than it looks because he sells in ONE STATE**: a merchant of record earns its 2 extra points across forty states, and a California business selling to California detailers has one registration and one filing schedule. **So Stripe, and register with CDTFA when the law starts** — a sharpening of round 2's "decide by November", with the trigger now being *selling outside California* rather than a date. **The early-exit fee came BACK ON, and his counter-argument was right**: he proposed Adobe's exact model (annual term, billed monthly, half the remainder on early cancellation) and **the FTC sued Adobe in June 2024 over the PRESENTATION, not the fee** — pre-selecting the plan, burying the commitment in hover-icons, obstructing cancellation — so it ships with neither plan pre-selected, the term and fee in plain text at the price's own size, an explicit tick, and a one-click cancel that charges the fee to the card on file. **With a card on file the fee collects itself, so "he is badly placed to chase it" mostly dissolves; what survives is the CHARGEBACK**, whose defence is that same disclosure. **His trade knowledge moved a build decision for the second time in two sessions**: detailers *"don't leave a client's house until it's paid"*, so the unpaid invoice is a rare page and round 2 was aiming at it — **his own old site already printed the payment methods on the CONFIRMATION email**, which is where they belong, and never on a receipt. **Refunds: setup fee non-refundable once work begins, current month not refunded, and the setup fee and the exit fee are two separate arguments** that must not be merged. **And one small thing ships beside the Resend free plan he is keeping: make a REJECTED SEND VISIBLE** — the cap is not the risk, the silence is.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -10762,3 +10764,119 @@ the form.
 carry** — several vehicles, a year of history, an outstanding balance — and by
 then the page exists, so **adding a login in front of it is much smaller than
 inventing both together.**
+
+## "Should I just start with Paddle?" — no, and the reason had not been checked
+
+He asked whether to begin on a merchant of record so the sales-tax filing is
+never his problem, and — the useful half of the question — **whether they also
+do the Connect-style split so a detailer's money goes straight to the detailer.**
+
+### They do not, and that reframes the whole question
+
+**Neither Paddle nor Lemon Squeezy does marketplace payouts.** They are merchant
+of record for *your own* product sales; splitting a payment and paying a third
+party is precisely what Stripe Connect exists for, and they cannot match it.
+
+**So money-through is Stripe either way.** The choice was never "Paddle or
+Stripe" — it is **"Paddle AND Stripe, or just Stripe"**: two dashboards, two
+webhook sets, two failure modes and two reconciliations, for a product whose
+entire support desk is one person who is also in school.
+
+### And Paddle may not accept the product he most needs to sell
+
+Paddle's Acceptable Use Policy prohibits *"human services that are not related
+to a software offering (e.g., pure consulting or advisory services…)"*. **His
+$499 is building somebody a website by hand.** Whether that reads as related to
+the SaaS — it is onboarding onto it — or as a prohibited human service **is
+Paddle's judgment, not ours**, and their policy is silent on setup and
+implementation fees.
+
+**Being told after launch that the up-front product cannot be sold through the
+payment provider is a worse day than filing a tax return**, which is the thing
+the merchant of record was supposed to prevent.
+
+### The tax benefit is small because he sells in one state
+
+**This is what actually decides it.** A merchant of record earns its extra two
+points when you are selling into forty states and twenty countries — dozens of
+registrations, dozens of filing calendars, each with its own thresholds.
+
+**He is a California business whose first customers are California detailers.**
+From 1 January 2027 that is **one registration and one filing schedule** — the
+simplest sales-tax situation that exists. **84¢ per detailer per month, forever,
+plus a second payment system, plus a policy risk on his main product, to avoid
+one state's returns is the wrong trade.**
+
+**Decision: Stripe, and register with CDTFA when California's law starts.** This
+sharpens round 2 rather than reversing it — the November review still happens,
+but **the condition that would flip it is selling meaningfully outside
+California**, not the calendar.
+
+### The early-exit fee came back on, because his counter-argument was right
+
+Round 2 recommended against it. He pushed back, and correctly.
+
+He proposed Adobe's exact model — an annual term billed monthly, with half the
+remaining months owed on early cancellation — and **the FTC sued Adobe over that
+plan in June 2024.** The complaint is worth reading precisely, because **it is
+not about the fee existing.** It is that Adobe **pre-selected the plan by
+default**, **buried the commitment and the fee in fine print and hover-over
+icons**, and **put roadblocks in front of cancelling.**
+
+**So the fee is fine and the presentation is the entire risk**, which makes the
+FTC complaint a build checklist: neither plan pre-selected, the term and fee in
+the plan's own plain text at the size of the price, a separate explicit tick
+(AB 2863 requires affirmative consent anyway), and a cancel button that stays
+one click — the fee charged at that moment to the card on file.
+
+**And his rebuttal of "you are badly placed to collect it" was right.** With a
+card on file the fee collects itself; refusal is not the path. **What survives
+is the chargeback** — a customer telling their bank the charge was unexpected —
+**and the defence against that is the same disclosure list.** So the objection
+does not disappear, it converts into a presentation requirement.
+
+**Build month-to-month AND annual-paid-monthly, and keep the discounted prepay
+as a third option.** He is right that a monthly-feeling commitment is a
+different product from a lump sum, and *"guaranteed at least half the year"* is
+a real answer to a real problem.
+
+### His trade knowledge moved a build decision, for the second time in two sessions
+
+*"They don't leave a client's house until it's paid… the amount of times someone
+marks something finalized and it's not paid is, like, zero percent."*
+
+**If that is right, the UNPAID invoice is a rare document and round 2's "put the
+payment handles on the unpaid branch" was aiming at a page almost nobody sees.**
+And his own old site had already solved it: `create-booking/index.ts:776` prints
+*"Payments accepted: Cash, Cash App, PayPal, Venmo & Zelle"* **in the
+CONFIRMATION email** — before the job, when it is useful.
+
+**So stage 1 is the confirmation and the reminder, plus the unpaid invoice, and
+never the receipt.** The first session found his old invoice was wrong; this one
+found the confirmation was right all along. **Both corrections came from him
+knowing his trade, not from the research.**
+
+### Refunds, and one thing about his dad's account
+
+**Setup fee non-refundable once work begins** — he is delivering custom work
+against it and the work is front-loaded — **the current month is not refunded**,
+and **the setup fee and the exit fee are two separate arguments.** *"They
+already paid for the website"* justifies keeping the setup fee; it does not
+justify the remaining months, which is what the term is for. Merging them makes
+both weaker. A written policy is a floor, not a cage: he can always refund
+someone anyway, and what the policy buys is winning the dispute when he does
+not.
+
+**And one thing said once rather than repeated:** *"technically it's my dad that
+signed up"* is the normal arrangement and exactly what Stripe asks for — **and
+it means his dad is the business** for chargebacks, refunds and the 2027 CDTFA
+registration. He should know what he is agreeing to, not just sign it.
+
+### One small thing ships beside the free Resend plan he is keeping
+
+He is staying on the free tier for now and is probably right that twenty
+bookings a day across every tenant is not this year's problem. **The addition is
+not capacity, it is visibility: make a rejected send show up somewhere he
+looks.** A booking never fails because an email did — that is deliberate — so
+the cap being hit produces no symptom until a customer says they never got their
+confirmation. **Staying on the free plan makes this worth more, not less.**

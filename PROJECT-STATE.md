@@ -4455,5 +4455,39 @@ Round 2 of `docs/payments-research-2026-09-04.md` and round 3 of the plans file.
   staff. **He handed the requirement-case design to us**, owed at build time.
 
 **NEW ROADMAP ITEMS FROM THIS EXCHANGE: 2.20 (taking money), 2.21 (spam
-filter), 2.22 (free backups).** **WAITING ON HIM: a parent on the Stripe
-account, lock-in vs prepay, and the November merchant-of-record decision.**
+filter), 2.22 (free backups).**
+
+### ROUND 3 — "SHOULD I JUST START WITH PADDLE?" — ANSWERED NO, AND TWO OF HIS PUSHBACKS WON
+
+- **NEITHER PADDLE NOR LEMON SQUEEZY DOES MARKETPLACE PAYOUTS.** Money-through
+  is Stripe Connect either way, **so the choice was never "Paddle or Stripe" —
+  it is "Paddle AND Stripe, or just Stripe"**: two dashboards and two webhook
+  sets for a one-person support desk. **And Paddle's AUP prohibits *"human
+  services that are not related to a software offering"*, which his $499
+  hand-built website may be** — their call, not ours. **The tax benefit is small
+  because he sells in ONE STATE**: one CDTFA registration, one filing schedule.
+  **Decision: Stripe, register with CDTFA when the law starts. The trigger to
+  revisit is selling outside California, not the calendar.**
+- **THE EARLY-EXIT FEE IS BACK ON AND HIS COUNTER-ARGUMENT WAS RIGHT.** He
+  proposed Adobe's exact model; **the FTC sued Adobe in June 2024 over the
+  PRESENTATION, not the fee** — pre-selected plan, fine print, hover icons,
+  obstructed cancellation. **So the complaint is the build checklist.** With a
+  card on file the fee collects itself, **so "he is badly placed to chase it"
+  converts into "the chargeback is the risk and disclosure is the defence".**
+  **Build month-to-month AND annual-paid-monthly; keep the prepay as a third.**
+- **HIS TRADE KNOWLEDGE MOVED A BUILD DECISION FOR THE SECOND TIME IN TWO
+  SESSIONS.** *"They don't leave a client's house until it's paid"* → the unpaid
+  invoice is rare, and **his own old site already printed the payment methods on
+  the CONFIRMATION email** (`create-booking/index.ts:776`). **Stage 1 is the
+  confirmation and the reminder, plus the unpaid invoice. Never the receipt.**
+- **REFUNDS:** setup fee non-refundable once work begins; current month not
+  refunded; **the setup fee and the exit fee are two separate arguments** and
+  merging them weakens both.
+- **AND ONE SMALL THING SHIPS BESIDE THE FREE RESEND PLAN HE IS KEEPING: make a
+  REJECTED SEND VISIBLE.** The cap is not the risk, **the silence is.**
+
+**WAITING ON HIM: nothing that blocks work.** His dad on the Stripe account is
+settled in principle (*"my dad signed up and I'll manage it"* — and **whoever
+owns that account is the business for chargebacks, refunds and tax**). The
+lock-in question is answered (build both). The merchant-of-record question is
+answered (Stripe).

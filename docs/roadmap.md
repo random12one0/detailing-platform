@@ -2508,6 +2508,21 @@ is kept; the entire visual design restarts from scratch.
       What must survive: it is a **deadline with a date**, an **escalating
       reminder** and a **last-done stamp** — not a stricter cadence.
 
+      **HE CONFIRMED THE SCOPE 2026-09-04, and it is wider than "log a
+      member":** *"we need our website to be set up to be able to have whatever
+      they want… so we have to have Supabase tables for all the tracking, and a
+      way for them to set up their monthly plan within the website, like in the
+      More page or the business page… we need to accommodate for everything."*
+      **So the deliverable is the SETTINGS SURFACE plus the tables, not just a
+      badge** — a detailer defines their own plans (the four fields) and logs
+      members against them. **And he will feed real requirements back**: *"as I
+      get my first clients, I will be talking to you for any changes they say —
+      hey, this isn't compatible."* **Which means the schema's job is to be
+      cheap to extend, not complete on day one.**
+      **He also confirmed the payment rail is the DETAILER's choice** — 2.20's
+      stage 3 (cards through the platform) or *"whatever system they've been
+      using already"*. **Neither is the default; both are settings.**
+
 - [x] 2.15 ~~**Travel priced by measured distance**~~ **REFUSED BY THE OWNER
       2026-08-31, THE SAME DAY IT WAS WRITTEN, AND THE THING HE DESCRIBED
       INSTEAD IS ALREADY BUILT. This item is closed without work.**
@@ -3091,9 +3106,66 @@ is kept; the entire visual design restarts from scratch.
         **the constraint is Resend's 100 EMAILS A DAY** (~20 bookings across all
         tenants at ~5 emails each), and a rejected send is invisible.
 
-      **STILL NEEDS HIM: a parent or guardian on the Stripe account; lock-in
-      versus prepay; and the November decision on Stripe vs a merchant of
-      record.**
+      **ROUND 3 — HE ASKED "SHOULD I JUST START WITH PADDLE?" AND THE ANSWER IS
+      NO, FOR A REASON NOBODY HAD CHECKED (2026-09-04).**
+
+      - **NEITHER PADDLE NOR LEMON SQUEEZY DOES MARKETPLACE PAYOUTS.** They are
+        merchant of record for *your own* sales; splitting a payment to a third
+        party is the thing Connect exists for. **So money-through is Stripe
+        either way, and the real question is "Paddle AND Stripe, or just
+        Stripe"** — two dashboards, two webhook sets and two failure modes for a
+        business whose support desk is one person.
+      - **AND PADDLE MAY NOT ACCEPT THE $499 AT ALL.** Their Acceptable Use
+        Policy prohibits *"human services that are not related to a software
+        offering"*, and the setup fee is **building somebody a website by
+        hand**. Whether that reads as related to the SaaS is **their call, not
+        ours**, and being told after launch that the up-front product cannot be
+        sold is worse than a tax return. **Ask them in writing before building.**
+      - **THE TAX BENEFIT IS SMALL BECAUSE HE SELLS IN ONE STATE.** A merchant of
+        record earns its extra 2 points across forty states; **a California
+        business selling to California detailers has one registration and one
+        filing schedule.** 84¢/detailer/month forever, plus a second payment
+        system, to avoid that is the wrong trade.
+      - **SO: STRIPE, AND REGISTER WITH CDTFA WHEN THE LAW STARTS.** This
+        sharpens round 2's "decide by November" rather than reversing it —
+        **the condition that would change it is selling meaningfully outside
+        California**, not a date.
+      - **THE EARLY-EXIT FEE IS BACK ON, AND THE ADOBE COMPLAINT IS THE
+        CHECKLIST.** He proposed Adobe's exact model — annual term, billed
+        monthly, cancel early and pay half the remainder — and **the FTC sued
+        Adobe over it in June 2024 for the PRESENTATION, not the fee**:
+        pre-selecting the plan, burying the commitment in fine print and hover
+        icons, and obstructing cancellation. **So it ships with: neither plan
+        pre-selected, the term and fee in the plan's plain text at the price's
+        own size, a separate explicit tick, and a cancel button that stays one
+        click** (the fee is charged then, to the card on file).
+        **HIS COUNTER-ARGUMENT WAS ACCEPTED:** with a card on file the fee
+        collects itself, so refusal is not the risk — **a CHARGEBACK is**, and
+        the defence is that same disclosure. **Build month-to-month AND
+        annual-paid-monthly, and keep the discounted prepay as a third option.**
+      - **REFUNDS — HE ASKED.** Setup fee **non-refundable once work begins**,
+        said before purchase; the current month is not refunded, cancelling
+        stops the next charge; **and the setup fee and the exit fee are two
+        separate arguments** — *"they already paid for the website"* justifies
+        the first and not the second. A policy is a floor, not a cage.
+      - **HIS TRADE OBSERVATION MOVED THE HANDLES.** *"They don't leave a
+        client's house until it's paid"* — so the UNPAID invoice is rare and
+        round 2 was aiming at a page almost nobody sees. **His old site already
+        had it right**: `reference/.../create-booking/index.ts:776` prints
+        *"Payments accepted…"* in the **CONFIRMATION** email. **Stage 1 is the
+        confirmation and the reminder, plus the unpaid invoice. Never the
+        receipt.**
+      - **AND BUILD ONE SMALL THING BESIDE IT: MAKE A REJECTED SEND VISIBLE.**
+        The Resend cap is not the risk, **the silence is** — a booking never
+        fails because an email did, so nothing on any screen shows it. He is
+        staying on the free plan for now, which is fine, and that makes this
+        worth more, not less.
+
+      **STILL NEEDS HIM: his dad on the Stripe account** — settled in principle,
+      *"my dad signed up and I'll manage it"*, and **whoever owns that account is
+      the business for chargebacks, refunds and tax**, so he should know what he
+      is signing. **The lock-in question is answered (build both).** **The
+      merchant-of-record question is answered (Stripe).**
 
 - [ ] 2.21 **A SMALL SPAM FILTER ON THE BOOKING PAGE — the OWNER said yes on
       2026-09-04** (*"and yes we should have a small spam filter"*), answering

@@ -516,3 +516,199 @@ He said *"I don't know what that means."* Fair — here it is without the jargon
 - Supabase backups on the free plan, and the export-it-yourself advice: https://axonbuild.com/blog/supabase-backup/
 - Automatic Supabase backups with GitHub Actions, incl. the IPv4 / session-pooler gotcha: https://backupdrill.com/guides/supabase-backup-github-actions
 - This repo, read directly: `supabase/functions/_shared/emailTemplates.ts` (`invoiceEmail` branching on `payment_status`)
+
+---
+---
+
+# ROUND 3 — "should I just start with Paddle?" (2026-09-04)
+
+He asked whether to start on a merchant of record so the tax filing is never his
+problem, whether those also do the Connect-style split so detailers get paid
+directly, whether the early-exit fee can stay, and what to do about refunds. He
+also settled the age question — **his dad signs up and he runs the account** —
+and made an observation about his own trade that moves a build decision.
+
+---
+
+## 1. The Paddle question has a hard answer: it cannot do the other half
+
+**Neither Paddle nor Lemon Squeezy does marketplace payouts.** They are merchant
+of record for *your own* product sales; splitting a payment and paying out a
+third party is the thing Stripe Connect exists for and they *"cannot match"* it.
+
+**So money-through is Stripe Connect either way.** That reframes his question
+completely: it is not *"Paddle or Stripe"*, it is **"Paddle AND Stripe, or just
+Stripe."** Choosing the merchant of record means running **two payment systems**
+— two dashboards, two sets of webhooks, two failure modes, two things to
+reconcile — for a business run by one person who is also the support desk.
+
+### And there is a second problem, specific to his $499
+
+**Paddle's Acceptable Use Policy prohibits *"human services that are not related
+to a software offering (e.g., pure consulting or advisory services, including
+but not limited to legal advice, coaching, IT services…)"*.**
+
+His $499 is **building somebody a website by hand**. Whether that reads as
+"related to a software offering" — it is onboarding onto his SaaS — or as a
+prohibited human service is **Paddle's call, not ours**, and their policy does
+not address setup or implementation fees either way. **Being told after launch
+that his main up-front product cannot be sold through his payment provider is a
+worse day than filing a tax return.** If he goes this route, that question goes
+to Paddle in writing *before* anything is built.
+
+### And the tax benefit is smaller than it looks, because he sells in one state
+
+This is the part that actually decides it. **A merchant of record earns its 2
+extra points when you are selling into forty states and twenty countries** —
+dozens of registrations, dozens of filing calendars. **He is a California
+business whose first customers are California detailers.** From 1 January 2027
+that is **one state, one registration, one filing schedule** — the simplest
+sales-tax situation that exists.
+
+**Paying 84¢ per detailer per month, forever, to avoid one state's returns —
+while also running a second payment system and risking his setup fee being
+disallowed — is the wrong trade.**
+
+**REVISED RECOMMENDATION: Stripe, and register with CDTFA when California's law
+starts.** This is a sharpening of round 2's "decide by November", not a
+reversal: the November decision now has a predicted answer, and the thing that
+would change it is **selling meaningfully outside California**, which is the
+condition to watch rather than the calendar.
+
+## 2. The early-exit fee: yes, and the Adobe lawsuit is the instruction manual
+
+He proposed exactly Adobe's model — *"a year long term that's split… subscribed
+monthly, but if they try to cancel, they have to pay half of whatever was
+remaining for the year"* — and asked whether he can still have it.
+
+**Yes. And the reason to be careful is not the fee, it is how Adobe presented
+it.** In June 2024 the FTC sued Adobe over its **"Annual, Paid Monthly"** plan:
+a year-long commitment, paid monthly, with an early-termination fee of **50% of
+the remaining subscription** — the identical shape. **The complaint is not that
+the fee existed.** It is that Adobe **pre-selected that plan by default**,
+**buried the commitment and the fee in fine print and hover-over icons**, and
+**put roadblocks in front of cancelling.** The case is pending in the Northern
+District of California.
+
+**So the fee is fine and the presentation is the whole risk.** Four things it
+needs, and none of them costs anything:
+
+- **The plan is not pre-selected.** Month-to-month and annual-paid-monthly are
+  shown side by side, neither ticked by default.
+- **The commitment and the fee are in the plain text of the plan**, at the same
+  size as the price — not behind an icon, not in a linked document only.
+- **A separate, explicit tick** acknowledging the twelve months and the fee
+  before payment details are taken. (California's AB 2863 requires express
+  affirmative consent anyway.)
+- **Cancelling stays one click.** The fee is charged at that moment to the card
+  on file; it is never a reason to make the button harder to find.
+
+### He asked what "worst-placed person to collect it" meant — and he is mostly right
+
+**It meant: if somebody simply refuses, chasing them costs more than the fee,
+and a minor is poorly placed to chase anyone.** He answered it correctly:
+**there is a card on file, and cancellation charges it automatically**, so
+refusal is not really the path. He is also right that his customers are adults
+and that he turns 18 soon.
+
+**The residual risk is not refusal, it is a CHARGEBACK** — the customer telling
+their bank the charge was unexpected. **The defence against that is the
+disclosure above**, which is the same list. **So the objection largely
+dissolves, and what survives of it is: make the disclosure loud enough to win a
+dispute.**
+
+**Recommendation, softened from round 2: build both and let him price them.**
+Month-to-month, and an annual-paid-monthly at a lower rate with the fee
+disclosed. **The discounted prepay stays worth offering as a third option** — it
+is the only one where the money is already in the account — but he is right that
+it is a different product from a monthly-feeling commitment, and *"guaranteed at
+least half the year"* is a real answer to a real problem.
+
+## 3. Refunds — he asked, and the answer is mostly "write it down"
+
+He is right that a full refund with the website already built is a bad deal for
+him. The normal shape for this kind of business, and the one to write:
+
+- **The setup fee is non-refundable once work begins.** He is delivering custom
+  work against it, and the whole reason it exists is that the work is front-
+  loaded. **Say so before purchase, not in a policy nobody reads.**
+- **The subscription's current month is not refunded**; cancelling stops the
+  next charge. Standard, and it is what the cancel button should say.
+- **The setup fee and the exit fee are two different things and should not be
+  argued as one.** *"They've already paid for the website"* is a reason the
+  setup fee is not refunded. It is not a reason the remaining months are owed —
+  that is what the term is for. Keeping them separate is what makes both
+  defensible.
+- **A written policy is a floor, not a cage.** He can always refund somebody as
+  a goodwill decision; what the policy buys is the ability to say no once and
+  win the chargeback.
+
+**One thing that changes if he ever does use a merchant of record:** refunds
+become partly *their* decision, because they are the seller. Paddle also keeps
+the 50¢ fixed fee on a refunded transaction.
+
+## 4. His trade observation moves where the payment handles go
+
+> *"I don't know how detailers work, but usually they don't leave a client's
+> house until it's paid. So the amount of times someone's gonna mark something
+> finalized and it not be paid is, like, zero percent chance almost."*
+
+**If that is right — and his own old site's FAQ said *"Payment is due upon
+completion of service"*, so it is at least right about him — then the UNPAID
+invoice is a rare document, and round 2's "put the handles on the unpaid branch"
+was aiming at a page almost nobody sees.**
+
+**His old site already put them in the better place and nobody noticed:**
+`reference/supabase/functions/create-booking/index.ts:776` prints *"Payments
+accepted: Cash, Cash App, PayPal, Venmo & Zelle"* **in the booking confirmation
+email** — before the job, when it is genuinely useful — as well as on the
+invoice.
+
+**So stage 1 becomes: the confirmation email and the reminder carry the
+handles, and the unpaid invoice carries them too.** The receipt does not, which
+was the original complaint. **That is the whole of the correction, and it came
+from him knowing his trade rather than from any of the research.**
+
+## 5. His dad on the account — one thing worth saying once
+
+> *"I'll just kind of manage the account, but technically it's my dad that
+> signed up."*
+
+**That is the normal arrangement and it is what Stripe's own policy asks for.**
+The one thing worth stating plainly, once: **whoever owns that account is the
+business as far as Stripe, the bank and the state are concerned** — chargebacks,
+refunds, and the tax obligations land on his dad's name. **He should know what
+he is agreeing to rather than just signing**, and the CDTFA registration in 2027
+will be in his name too.
+
+## 6. Resend — accepted, with one small addition
+
+He is staying on the free plan and will upgrade later, and he is probably right
+that twenty bookings a day across every tenant is not this year's problem.
+
+**The one thing worth building alongside it costs almost nothing: make a
+rejected send visible.** The cap is not the risk; **a silent failure is** — a
+booking never fails because an email did, so nothing on any screen would show
+it. Whoever builds 2.20 should log a rejected send somewhere he will actually
+look, so the first symptom is not a customer saying they never got their
+confirmation.
+
+---
+
+## What changed in this round
+
+| | Round 2 said | Round 3 says |
+|---|---|---|
+| **Stripe vs merchant of record** | Decide by November | **Stripe.** MoRs cannot pay out to detailers, so it would be two systems; Paddle may not accept the $499 at all; and one state is the simplest tax case there is. **Revisit only if he sells outside California.** |
+| **The early-exit fee** | Recommended against | **Buildable, with the Adobe complaint as the checklist.** The FTC sued over the presentation, not the fee. |
+| **Payment handles** | On the unpaid invoice | **On the confirmation and reminder too** — because jobs are paid before the detailer leaves, so the unpaid invoice is rare. His observation. |
+| **Refunds** | Not addressed | Setup fee non-refundable once work starts; current month not refunded; keep the setup fee and the exit fee as separate arguments. |
+
+## Sources added in round 3
+
+- Paddle vs Lemon Squeezy vs Stripe on marketplace payouts (neither MoR splits payments to third parties): https://blog.vibecoder.me/stripe-vs-lemon-squeezy-vs-paddle
+- Paddle — Acceptable Use Policy, prohibited categories incl. human services: https://www.paddle.com/help/start/intro-to-paddle/what-am-i-not-allowed-to-sell-on-paddle
+- FTC — complaint against Adobe over the "Annual, Paid Monthly" plan and its early-termination fee: https://www.ftc.gov/business-guidance/blog/2024/06/ftc-says-adobe-hid-key-terms-annual-paid-monthly-subscription-plan-set-roadblocks-deter-customer
+- FTC press release, June 2024: https://ftc.gov/news-events/news/press-releases/2024/06/ftc-takes-action-against-adobe-executives-hiding-fees-preventing-consumers-easily-cancelling
+- Paddle refund fee behaviour (5% returned, 50¢ retained): https://dodopayments.com/blogs/paddle-fees-explained
+- This repo, read directly: `reference/supabase/functions/create-booking/index.ts:776` (payment methods on the CONFIRMATION email)
