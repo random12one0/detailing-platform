@@ -3652,3 +3652,34 @@ him is **(b), do nothing**: the complaint was the disappear-and-come-back, and
 (a) would trade a transition he may no longer notice for content he explicitly
 said was useful.
 
+### ⚠ THE SECOND OPEN THREAD — does the LANDING page join the squircle
+
+The dashboard and the customer's booking page are squircled. **The marketing
+page at `/` is not, and that is deliberate rather than missed.**
+`landing.css` and the approved reference rendering
+(`docs/design-directions/5-the-thread.html`) use **literal pixel radii** — 16,
+13, 11, 18, 100, 50% — and no radius tokens at all. So unlike the other two
+surfaces there is no one token to change: it is roughly twenty hand edits, and
+the reference rendering has to move with them or CLAUDE.md's *"where the
+document and that page disagree, the page is right"* starts pointing at a page
+that no longer matches the system.
+
+**A different-sized decision from a token, so it was raised rather than
+taken.** His phrase was *"a keynote for the entire site"*, which probably
+includes it — but it is the artifact he approved pixel by pixel.
+**Recommendation: do it, in its own small item** — the two-corner-languages
+argument that put the corner on `booking.css` applies to `/` just as well, and
+a visitor who presses *Get started* crosses from one to the other in one click.
+
+### And one thing fixed on the way that is not roadmap 2.17
+
+**`scripts/sweep-booking-steps.mjs` had been passing by luck.** It walked
+calendar days by INDEX against a live locator, and choosing a day re-renders
+the calendar, so it gave up after ONE day the moment that day had no slots —
+which it never did while the demo's own trading day was open. It began failing
+at ~22:00 local and looked exactly like the CSS change under test. **A control
+run with that change reverted is what proved it innocent, and it should have
+been the first thing tried rather than the fifth.** Fixed (days addressed by
+date, the grid waited for before it is read), plus `SLOTPROBE=1`. Full write-up
+in DECISIONS.md → *The booking sweep had been passing by luck*.
+
