@@ -2694,7 +2694,7 @@ is kept; the entire visual design restarts from scratch.
       **Skills: `impeccable`** — it is a new screen. No direction-generating
       skill.
 
-- [ ] 2.17 **Motion and shape as a house style — the OWNER asked for this on
+- [x] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named
       complaints and one principle that outranks them.
 
