@@ -148,4 +148,46 @@ export function emailBrandColors(brandHex, fallbackBand = PAPER_FALLBACK) {
   return { band, bandInk: inkFor(band), onPaper: correctToward(brandHex || fallbackBand, PAPER, MIN_INK_CONTRAST, PAPER_FALLBACK) };
 }
 
-export { PAPER, PAPER_FALLBACK };
+// ---------------------------------------------------------------------------
+// THE DARK GROUND — roadmap 2.18, 2026-09-03.
+//
+// The owner looked at the rendered emails and said the obvious true thing:
+// *"it looks exactly the same style as the email template i had before. and
+// doesnt even match the style of the websites."* It did — a blue band on a
+// white card is the shape every transactional email in the world has. The
+// product's own world is The Thread: **one continuous cool-biased near-black
+// ground the reader travels down**, warm bone type that is never `#fff`, and
+// **one** sharp accent marking the thing that has landed.
+//
+// So the email gets a second pair of grounds, and this is ADDITIVE ON PURPOSE.
+// `emailBrandColors` above is unchanged and still corrects against white paper,
+// because `tests/email-brand.test.mjs` — 138 checks — pins it that way against
+// `app/src/lib/theme.js`. A rebuild that edits that function turns a green
+// suite red for a reason that has nothing to do with the rebuild.
+//
+// WHICH GROUND, AND WHY IT IS NOT `--ink-0`. The design system's own rule,
+// arrived at three separate times and written up each time: **correct against
+// the lightest surface THAT VALUE can land on**, never the one the page
+// paints. The accent lands on the ground AND on a lifted panel, and the panel
+// is lighter, so the panel decides. `--ink-2` `#171B1E` is the lightest
+// surface anything in these templates sits on.
+//
+// TWO VALUES, TWO FLOORS, same as everywhere else in this product: as WORDS a
+// colour is small text and takes 4.5:1; as a FILL it is a background and takes
+// the 3:1 non-text minimum. For the house green they are one colour; for a
+// tenant's crimson they are not.
+const GROUND = "#0B0D0E";        // --ink-0, the ground everything sits on
+const PANEL = "#171B1E";         // --ink-2, the lightest thing an accent lands on
+const BONE = "#F2F1EC";          // --bone. Warm. NEVER #ffffff — a named tell.
+
+export function emailDarkBrandColors(brandHex) {
+  const seed = brandHex || BONE;
+  const fill = correctToward(seed, PANEL, MIN_ACCENT_CONTRAST, BONE);
+  return {
+    text: correctToward(seed, PANEL, MIN_INK_CONTRAST, BONE),
+    fill,
+    fillInk: inkFor(fill),
+  };
+}
+
+export { BONE as EMAIL_BONE, GROUND as EMAIL_GROUND, PANEL as EMAIL_PANEL, PAPER, PAPER_FALLBACK };

@@ -120,6 +120,8 @@ shots-*/
 # committed. The SCRIPT is the artefact; the HTML is what you look at once.
 email-preview/
 email-preview-*/
+email-new/
+email-new-*/
 
 # Reference screenshots — evidence for the design phase, kept local on purpose.
 # 21 MB of other people's websites; the repo is public and history is forever.

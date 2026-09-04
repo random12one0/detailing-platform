@@ -2457,18 +2457,67 @@ is kept; the entire visual design restarts from scratch.
       the invoice/receipt split, in `send-invoice` (which survives the
       rebuild), and the check that gates it already exists.**
 
-      **THE FIVE QUESTIONS FOR HIM (1 and 2 block the build):**
-      1. **Premade templates — wording or looks?** Recommend wording.
-      2. **How many reminders?** Ours sends one, Jobber caps at two, nobody
-         offers three. Recommend the second. It is a migration, not a number:
-         each send is guarded by ONE marker column
-         (`customer_reminder_sent_at`).
+      **HE ANSWERED 1 AND 2 ON 2026-09-03, AND OVERRULED THE RESEARCH ON BOTH.
+      Full reasoning: DECISIONS.md → "Roadmap 2.18 — his answers, and the look
+      he rejected"; state: PROJECT-STATE.md §6y.**
+
+      - **"Premade templates" means an EDITOR** — *"by scutom i mean they can
+        choose whats in in and what order ect. we can make a email editor page…
+        a way for hte customer to customze the look wordsa and thgings of the
+        email."* The research recommended prose slots on a five-of-six count;
+        **he asked for the sixth. This is the 2.8 pattern again — research
+        rules shapes IN, it cannot rule them OUT.**
+      - **SO A TEMPLATE IS AN ARRAY OF BLOCKS.** Every renderer returns one
+        self-contained `<tr>`. Reordering is reordering an array; switching a
+        block off is filtering it. **A template written as one HTML literal
+        cannot have an editor over it at any price** — this is why the shape
+        was settled before the other ten were ported.
+      - **`moneyBlock` IS THE ONE BLOCK THE EDITOR MAY NOT OPEN.** Not
+        reorderable, not editable, not deletable. The half of the research that
+        survived the overrule.
+      - **Reminders: NO CAP** — *"we can have as many emails as we want i mean
+        i dont care."* That turns a second marker column into a
+        `booking_reminders_sent` row per (booking, rule) plus a list of
+        reminder RULES on the business.
+      - **HE REJECTED THE EXISTING LOOK, correctly** — *"it looks exactly the
+        saem sytle as the email template i had before. and doesnt even macth
+        the style of the wwebsites."* He was shown the OLD emails as a
+        before-image; the finding stands regardless.
+
+      **BUILT ON THE STRENGTH OF IT, AND DELIBERATELY NOT WIRED UP:**
+      `_shared/emailKit.ts` (ground, blocks, shell) and `_shared/emailsNew.ts`
+      (confirmation / request received, receipt / invoice), drawn by
+      `node scripts/render-emails-new.mjs`. **The edge functions still send the
+      old templates and `email-brand` is still green at 138 on the old file.
+      The swap is one commit after he approves the world** — porting ten
+      templates into a rejected look, or re-pointing the 138-check test twice,
+      are the two ways to waste this.
+      **The type law survived even though the faces did not:** an email cannot
+      load Archivo, but the system's rule is *one face for words, one for
+      figures*, and that ports intact to Arial + a monospace stack. **When a
+      constraint kills a rule's implementation, ask what the rule was FOR
+      before recording it unmeetable.**
+      **The colour engine was EXTENDED, never edited** — `emailDarkBrandColors`
+      sits beside `emailBrandColors`, corrected against `--ink-2` because the
+      accent lands on a lifted panel too.
+
+      **STILL OPEN:** ten templates to port · the editor screen · schema for
+      reminder rules · the wiring · re-pointing `email-brand`'s three
+      source-shape checks · **and nothing has been rendered in a real email
+      client**, only in a browser.
+
+      **THE REMAINING QUESTIONS (3, 4 and 5 — none of them block):**
       3. **The re-book / maintenance reminder** (four of six, all four in a
          separate paid tier because it is marketing email and needs an
          unsubscribe) — recommend its own roadmap item. Does not block.
-      4. **Logo on the coloured band or on the white paper?** A logo is an
-         arbitrary PNG and its contrast cannot be measured. Recommend paper.
-         Does not block.
+      4. ~~**Logo on the coloured band or on the white paper?**~~ **BUILT ON
+         THE GROUND, 2026-09-03**, because the rebuilt masthead needed an
+         answer to exist at all and the ground is the only one nothing in the
+         repo can be wrong about — a logo is an arbitrary PNG, so unlike every
+         other colour here its contrast cannot be measured, and there is no
+         coloured band any more. `business_branding.logo_url` is read for the
+         first time in the product's life; it falls back to the business name
+         in bone. **Reversible in one line if he wants it somewhere else.**
       5. **May we READ `carwashweb`'s invoice email?** `reference/`'s copy has
          the same missing promo row, so the omission was **inherited by the
          port rather than introduced by it**. If his LIVE business still

@@ -169,6 +169,8 @@ were made more than once.
 
 - **Roadmap 2.18, step 1 — what the trade's booking systems actually send** — the six-product sweep he asked for by name, before any template was drawn. **Three of the four questions came back cheaper than the item assumed.** The "you're next in the queue" email does not exist anywhere: what the trade sends is **on-my-way, and it is SMS in all four products that have it** — we already have it as a message template, so that gap is closed and must not be reopened as an email. **Our reminder SCHEDULE is already better than four of the six** (we carry Square's offset shape and Housecall Pro's clock-time shape at once) and nobody has ever shown it to the owner, because it lives in Booking rules. **Content is the lopsided one: five of six give the detailer WORDS, one gives a DESIGN** — and even Zenbooker, the permissive one, renders the invoice's itemisation as a single variable the editor cannot open, which is our own `money-export` rule arrived at independently. **"Premade templates" in this trade means WORDING, not looks**: not one of the six offers a choice of visual designs for a transactional email, and where design galleries exist they are marketing email behind a paywall that applies the brand automatically anyway. **Two real gaps: a payment receipt separate from the invoice (five of six; ours calls a paid job an invoice), and the tenant's LOGO** — `business_branding.logo_url` is already uploaded and drawn on three customer pages and `buildBrand()` has never read it. **The thing that will bite: `email-brand.test.mjs` is partly a SOURCE-SHAPE test** — 7a, 7a-ii and 7b-ii read `emailTemplates.ts` as text and assert facts about a file a rebuild deletes, so "rebuilt from scratch" and "keeps passing 138 checks" are in tension and the checks must be re-pointed deliberately, never dropped. **AND THE MISSING INSTRUMENT WAS BUILT IN THE SAME SESSION AND FOUND A LIVE MONEY DEFECT ON ITS FIRST RUN** — `scripts/render-emails.mjs` (no new dependency; Node 24 strips the types, so it reads the SAME `emailTemplates.ts` the edge function runs). **The invoice's printed column does not reach the invoice's printed total whenever a promo code was used**, by exactly the promo: its charge rows sum to `subtotalBase` (services + add-ons + travel + `price_adjustments`, BEFORE the site sale and BEFORE the promo) while its total is `final_amount` = `total_price`, which is PAST both and rounded — **neither discount and neither the rounding is drawn anywhere**, so the gap is `siteDiscount + promoDiscount + rounding`. **`bookings.subtotal` is `subtotalAfterSite` and is NOT what the rows add up to**, which is what makes this look like one bug and be three. **This is the `travel_fee` family in the same file, one comment below the fix for its twin** — *a fix that names one instance of a pattern fixes one instance.* Eleven suites missed it because `money-export` ties out the ACCOUNTANT EXPORT and `booking-engine` test 17 ties out the QUOTE ENGINE — **a tie-out is only a tie-out for the document it names.** It is an ASSERTION now, failing on purpose, not a note. **And `reference/`'s copy has the same shape, so the omission was INHERITED — question 5 is whether we may read `carwashweb` to see if his LIVE business sends invoices that do not add up.** Full working, counts and sources: `docs/email-research-2026-09-03.md`. **Five questions stand for him; two block the build and the fifth should not wait for it.**
 
+- **Roadmap 2.18 — his answers, and the look he rejected** — he opened the rendered emails and said they look like the template he already had and nothing like the site. **Half communication failure, half real finding, and they separate cleanly**: those were the EXISTING emails, handed over as a before-image without the word BEFORE next to the picture — but the finding stands anyway, because a coloured band above a white card is the on-distribution default `design-knowledge.md` §1 exists to prevent. **"Premade templates" turned out to mean an EDITOR** — *"they can choose whats in it and what order"* — which overrules the research's five-of-six count and is **the 2.8 pattern for the second time: research rules shapes IN, it cannot rule them OUT.** What survives the overrule is the half that was never about freedom — **`moneyBlock` is the one block the editor may not open**, which is where Zenbooker independently drew the same line. **So a template is an ARRAY OF BLOCKS**, decided before porting rather than after, because a 50-line HTML literal cannot have an editor over it at any price. **Reminders: no cap** — *"as many as we want"* — which turns a second marker column into a `booking_reminders_sent` row per (booking, rule). **The world is built on two emails and deliberately NOT wired up**: `emailKit.ts` + `emailsNew.ts`, the edge functions still send the old ones, `email-brand` still green at 138 on the old file. **The type law survived even though the faces did not** — an email cannot load Archivo, but the system's rule was *one face for words, one for figures*, and that ports intact; **when a constraint kills a rule's implementation, ask what the rule was FOR before recording it unmeetable.** Colour engine EXTENDED not edited (`emailDarkBrandColors`, corrected against `--ink-2` because the accent lands on a lifted panel — the fourth time this project has learned *correct against the lightest surface that value can land on*).
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -8619,3 +8621,137 @@ It was a live defect the whole time. **"Nothing here can look at X" and "X is
 fine" are the same observation until somebody looks** — which is 2.12's *a test
 can verify the arithmetic and still be blind to the drawing*, one level up: the
 drawing nobody had ever drawn.
+
+## Roadmap 2.18 — his answers, and the look he rejected
+
+2026-09-03, immediately after the step-1 research was handed over. Three
+things came back, and two of them overrule what the research recommended.
+
+### 1. He rejected the look, and he was right
+
+His words, having opened the two rendered emails:
+
+> *"one thing i though you werrte gonna make the email from scratch it looks
+> exactly the saem sytle as the email template i had before. and doesnt even
+> macth the style of the wwebsites and all the stuff. liek come on."*
+
+**Half of this was a communication failure and half was a real finding, and
+they need separating because only one of them is a defect in the product.**
+
+The rendered emails he was looking at were the **existing** ones — the whole
+point of `render-emails.mjs` was to see what the product sends today, and the
+handover said "as a customer receives it today". It said it once, in a caption,
+under a heading about a money bug. **A before-image handed over without the
+word BEFORE in the same breath as the picture reads as the deliverable**, and
+the fix is on the sending side, not his.
+
+**The finding underneath it stands on its own and did not depend on the
+misunderstanding.** Those emails genuinely do not carry The Thread: a coloured
+band above a white card is the shape of every transactional email ever sent,
+which makes it precisely the on-distribution default `docs/design-knowledge.md`
+§1 exists to prevent. The research file had this and buried it — it treated
+"make them look the best" as a design job to schedule rather than as a defect
+already shipped, and it wrote three paragraphs about what could not be done
+(webfonts) before saying what could.
+
+### 2. "Premade templates" means an EDITOR, not prewritten wording
+
+The research recommended a fixed frame with two or three prose slots, on a
+count: five of the six products give the detailer words, one gives a design.
+**He asked for the sixth.**
+
+> *"i will probobly be makign custome emails for each customer. but by scutom i
+> mean they can choose whats in in and what order ect. we can make a email
+> editor page i think that would be cool. bascily a way for hte customer to
+> customze the look wordsa and thgings of the email."*
+
+**This is the 2.8 pattern for the second time and it is worth naming as a
+pattern rather than an event.** That item researched five real detailer menus,
+recommended a shape, and he overruled it by being the sixth menu — the entry is
+*"The owner's answers to 2.8, and the one that overruled the research"*, and its
+lesson was written down as **research rules shapes IN; it cannot rule them
+OUT.** Six products not offering a block editor is evidence that a block editor
+is unusual. It is not evidence that it is wrong, and he is building the product
+he wants to sell, not the median of the category.
+
+**What survives the overrule, and it is the load-bearing half:** Zenbooker, the
+one product that DOES give a design editor, still renders the invoice's
+itemisation as a single variable the editor cannot open. That finding was never
+about how much freedom to give — it was about **which one block must be
+uneditable**, and it applies exactly as hard now. `moneyBlock` is not
+reorderable, not editable, and not deletable.
+
+**So the architecture is BLOCKS**, decided here: a template is an ARRAY of
+self-contained `<tr>` renderers, not a bespoke layout. Reordering is reordering
+an array; switching a block off is filtering it; changing the words is swapping
+one string. **A template built as one 50-line HTML literal cannot have an editor
+over it at any price**, which is why the shape had to be settled before the
+other ten were ported rather than after.
+
+### 3. Reminders — no cap
+
+> *"yeah we can have as many emails as we want i mean i dont care."*
+
+The research asked whether to build a second reminder and noted Jobber caps at
+two. **He removed the cap rather than answering the question**, which makes the
+schema decision the important one: a per-booking marker column does not
+generalise, so this becomes a `booking_reminders_sent` row per (booking, rule)
+and a list of reminder RULES on the business rather than one lead time. **Two
+booleans and a second integer would have been the answer to the question he was
+asked, and it is not the answer to the question he gave back.**
+
+### What was built on the strength of it, and what was deliberately not
+
+**BUILT: the world, on two emails, so he can approve it before ten more are
+poured into it.** `_shared/emailKit.ts` (the ground, the blocks, the shell) and
+`_shared/emailsNew.ts` (confirmation/request, receipt/invoice), rendered by
+`scripts/render-emails-new.mjs`.
+
+**NOT WIRED UP, ON PURPOSE.** The edge functions still send the old templates
+and `tests/email-brand.test.mjs` is still green on the old file at 138. **The
+swap is one commit after he says yes**, and doing it before he has looked would
+mean either porting ten templates into a world he rejects, or re-pointing the
+138-check test twice.
+
+**How The Thread survives an inbox, since this is the question the whole item
+turns on.** One continuous near-black ground rather than a card — free, and it
+is most of the difference. Warm bone `#F2F1EC`, never `#ffffff`, which the
+system names as a tell. Hairline rules instead of boxes, because *a collection
+of records is a ruled list* and an itemised total is the cleanest case of that
+law in the product. One accent, marking the thing that has landed.
+
+**AND THE TYPE LAW SURVIVES EVEN THOUGH THE FACES DO NOT.** An email cannot
+load a webfont, so Archivo and JetBrains Mono are gone and Arial is the only
+honest stack. But the system's actual rule is *one face for everything that is
+words, one face for every figure* — and that shape ports intact to
+Arial + a monospace stack. **The faces were never the law; the split was.**
+Worth carrying: when a constraint kills the specific implementation of a design
+rule, ask what the rule was FOR before recording it as unmeetable.
+
+**Two defects found by looking at the first render, both fixed in the same
+pass**, which is the routine working as intended rather than a footnote: the
+services were listed once as prose and again in the money table with prices
+beside them — the owner's own copy rule (*does this block add a fact the one
+below it does not already carry?*) broken in layout form — and the eyebrow was
+painted in the accent 100px above the accent mark, which is the scatter the
+one-accent law exists to prevent. The eyebrow is `--fog-2` now, which is what
+the type scale assigns an 11px label anyway.
+
+**The colour engine was EXTENDED, not edited.** `emailDarkBrandColors()` is a
+new export beside `emailBrandColors()`, which is untouched — 138 checks pin
+that function against `app/src/lib/theme.js` and a rebuild that edits it turns
+a green suite red for reasons that have nothing to do with the rebuild. The new
+one corrects against **`--ink-2` `#171B1E`**, not `--ink-0`, because the accent
+lands on a lifted panel as well as on the ground and *correct against the
+lightest surface that value can land on* is the rule this project has now
+learned four separate times. Verified on the house green and on crimson, a real
+preset that fails as text where it passes as a fill.
+
+### Still open after this
+
+Ten templates to port, the editor screen itself, the schema for reminder rules,
+the wiring, and the re-pointing of `email-brand`'s three source-shape checks
+onto the new file. **And the invoice's missing promo row is now a REBUILD
+requirement rather than a patch** — `render-emails-new.mjs` asserts the lines
+reach the total and the rebuilt receipt carries the discount, so the fix ships
+with the port instead of before it.

@@ -2867,6 +2867,112 @@ prose slot has reclassified a transactional email as a commercial one. Square
 warns its own users in those words; our screen should too, in plainer ones.
 
 
+## 6y. ROADMAP 2.18 — HE ANSWERED, AND THE LOOK IS REBUILT ON TWO EMAILS (2026-09-03)
+
+**He rejected the existing look, asked for a block EDITOR rather than
+prewritten wording, and removed the cap on reminders.** Full reasoning:
+DECISIONS.md → "Roadmap 2.18 — his answers, and the look he rejected".
+
+### What he said
+
+- *"i though you werrte gonna make the email from scratch it looks exactly the
+  saem sytle as the email template i had before. and doesnt even macth the
+  style of the wwebsites."* — **those were the EXISTING emails**, rendered so
+  he could see them, handed over without the word BEFORE beside the picture.
+  **The finding stands on its own regardless:** a coloured band above a white
+  card is the on-distribution default, and it is not The Thread.
+- *"by scutom i mean they can choose whats in in and what order ect. we can
+  make a email editor page."* — **an editor, not prose slots.**
+- *"we can have as many emails as we want i mean i dont care."* — **no cap on
+  reminders.**
+
+### What that decides
+
+**A TEMPLATE IS AN ARRAY OF BLOCKS.** Every renderer returns one
+self-contained `<tr>`; reordering is reordering an array, switching a block off
+is filtering it, changing the words is swapping a string. **A template written
+as one HTML literal cannot have an editor over it at any price**, which is why
+this had to be settled before the other ten were ported rather than after.
+
+**`moneyBlock` IS THE ONE BLOCK THE EDITOR MAY NOT OPEN** — not reorderable,
+not editable, not deletable. This is the half of the research that survived
+being overruled: Zenbooker, the most permissive product in the sweep, drew the
+same line independently, and it is CLAUDE.md's own rule about a printed number.
+
+**Reminders need a `booking_reminders_sent` row per (booking, rule)**, not a
+second marker column. "As many as we want" does not generalise from
+`customer_reminder_sent_at`.
+
+**This is the 2.8 pattern for the second time** — research recommended a shape
+on a six-product count and he overruled it. *Research rules shapes IN; it
+cannot rule them OUT.*
+
+### What is BUILT, and what is deliberately not
+
+**BUILT:** `supabase/functions/_shared/emailKit.ts` (ground, blocks, shell) and
+`_shared/emailsNew.ts` (confirmation / request received, receipt / invoice),
+drawn by **`node scripts/render-emails-new.mjs`** (`--accent=#hex`, `--out=`).
+
+**NOT WIRED UP, ON PURPOSE.** The edge functions still send
+`_shared/emailTemplates.ts`; `tests/email-brand.test.mjs` is still green on the
+old file at **138**. **The swap is one commit after he approves the world.**
+Doing it first means either porting ten templates into a look he rejects or
+re-pointing the 138-check test twice.
+
+### How The Thread survives an inbox
+
+| The law | In the email |
+|---|---|
+| One continuous cool-biased near-black ground | Full-bleed `#0B0D0E`, `bgcolor` attribute AND inline style — Outlook's Word engine reads the attribute, and a dark design that loses its ground becomes bone-on-white |
+| Warm bone, **never `#ffffff`** | `#F2F1EC`. The system names pure white as a tell, and on near-black the warmth is most of why it reads as designed |
+| A collection of records is a ruled list | Hairline `#272D31` between rows. An itemised total is the cleanest case of that law in the product |
+| One sharp accent, marking what has landed | The appointment, the money, the action. **The eyebrow was accent in the first render and is `--fog-2` now** |
+| Centred exactly once, at the end | The footer |
+| Size jumps of 3x | 11px label → 15px body → 34px headline |
+
+**THE TYPE LAW SURVIVED EVEN THOUGH THE FACES DID NOT, and this is the
+transferable part.** An email cannot load a webfont, so Archivo and JetBrains
+Mono are gone and Arial is the only honest stack. But the system's rule is *one
+face for everything that is words, one face for every figure* — and that shape
+ports intact to Arial + a monospace stack. **The faces were never the law; the
+split was. When a constraint kills a rule's implementation, ask what the rule
+was FOR before recording it unmeetable.**
+
+### Two defects found by looking, fixed in the same pass
+
+The services were listed once as prose and again in the money table with prices
+beside them — **the owner's own copy rule broken in layout form** (*does this
+block add a fact the one below it does not already carry?*). And the eyebrow
+was painted in the accent 100px above the accent mark, which is the scatter the
+one-accent law exists to prevent.
+
+### The colour engine was EXTENDED, never edited
+
+`emailDarkBrandColors()` is a **new export beside** `emailBrandColors()`, which
+is byte-identical. 138 checks pin that function against `app/src/lib/theme.js`;
+editing it would turn a green suite red for reasons unrelated to the rebuild.
+
+**It corrects against `--ink-2` `#171B1E`, not `--ink-0`** — the accent lands
+on a lifted panel as well as the ground, and *correct against the lightest
+surface THAT VALUE can land on* is the rule this project has now learned four
+separate times. Verified on the house green and on **crimson**, a real preset
+that passes as a fill and fails as text.
+
+### Still open
+
+Ten templates to port · the editor screen · schema for reminder rules · the
+wiring · re-pointing `email-brand`'s three source-shape checks onto the new
+file. **And the invoice's missing promo row is a REBUILD requirement now, not a
+patch** — `render-emails-new.mjs` asserts the lines reach the total, and the
+rebuilt receipt carries the discount, so the fix ships with the port.
+
+**Not verified, and it is a real gap:** no email client has rendered these.
+`render-emails-new.mjs` draws them in a browser, which is not Outlook, not the
+Gmail app and not Apple Mail's dark-mode inversion. The design is built to
+degrade (square corners, lost tracking, no media queries relied on), but
+degradation-by-construction is not the same as having looked.
+
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 
@@ -2881,15 +2987,19 @@ test — and note that `scripts/e2e-booking.mjs` does not run (it hardcodes a
 Linux Playwright path from a container that no longer exists), so that item
 either repairs it or writes the check fresh.
 
-**AND SINCE 2026-09-03, ROADMAP 2.18 IS OPEN AND HALF-BLOCKED.** He asked for
-the emails deleted and rebuilt from scratch, and for the research first.
-**Step 1 is done — `docs/email-research-2026-09-03.md`, §6x here, and the
-DECISIONS section — and nothing in `app/` or `supabase/` changed.** Four
-questions stand for him and **two of them block the build**: what "premade
-templates" means to him (the trade means wording, not looks), and whether to
-build a second reminder (a migration, not a number). **The colour half is done
-and must not be rebuilt**; the trap is that `email-brand`'s 138 checks are
-partly SOURCE-SHAPE checks pointed at a file the rebuild deletes.
+**AND SINCE 2026-09-03, ROADMAP 2.18 IS OPEN AND MOVING.** He asked for the
+emails deleted and rebuilt from scratch, and for the research first. **Step 1
+is done** — `docs/email-research-2026-09-03.md`, §6x here — **and he has since
+answered, overruling two of its recommendations: §6y.** "Premade templates"
+means a **block EDITOR**, not prewritten wording; reminders have **no cap**;
+and he rejected the existing look outright, correctly. **The new world is built
+on two emails and deliberately NOT wired up** (`emailKit.ts`, `emailsNew.ts`,
+`scripts/render-emails-new.mjs`) — the edge functions still send the old
+templates and `email-brand` is still green at **138** on the old file, because
+porting ten templates into a look he has not approved is the expensive mistake
+here. **Waiting on: does the new world get a yes.** The colour half is done and
+was EXTENDED rather than edited; the trap that remains is that `email-brand`'s
+138 checks are partly SOURCE-SHAPE checks pointed at a file the port deletes.
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
    ~~**2.2, the marketing/landing page.**~~ **DONE 2026-08-30** — ported from

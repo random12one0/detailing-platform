@@ -403,6 +403,21 @@ explaining it; if they still have to ask "so should I?", it failed.
   **closed by him unstarted**; the figures live there so nobody re-measures
   them and files them as new.
 
+- **THE EMAILS ARE MID-REBUILD AND THERE ARE TWO RENDER SCRIPTS ON PURPOSE
+  (roadmap 2.18, 2026-09-03).** `render-emails.mjs` draws the OLD templates,
+  which are what the edge functions still send; **`render-emails-new.mjs` draws
+  the REBUILT world** — `_shared/emailKit.ts` (the ground, the blocks, the
+  shell) and `_shared/emailsNew.ts` (two of twelve templates). A before and an
+  after you can open side by side is the only honest way to answer "does this
+  match the site", and **the pair collapses to one the moment the port lands.**
+  **The rebuilt world is NOT wired up and `email-brand` is still green at 138
+  on the OLD file** — that is deliberate and it is waiting on the owner
+  approving the look. **A TEMPLATE IS AN ARRAY OF BLOCKS**, because he asked
+  for an editor that reorders them; a template written as one HTML literal
+  cannot have an editor over it at any price. **`moneyBlock` is the one block
+  the editor may never open.** `emailDarkBrandColors` is a NEW export beside
+  `emailBrandColors`, which is untouched for exactly the reason the 138 checks
+  exist.
 - **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
   (new 2026-09-03, roadmap 2.18 step 1). Credential-free, no browser, no dev
   server. It writes all sixteen emails to `email-preview/index.html` so a human
