@@ -10135,3 +10135,26 @@ Seeding one is two lines — but it puts a new sentence on step 4, which has 39p
 of spare height at 392 (W16), so it needs a `sweep-booking-steps.mjs`
 re-measure and belongs with the next change to that step's budget rather than
 here. It is written into the roadmap item so it is not rediscovered as new.
+
+**HIS ANSWER ON PUBLISHING, 2026-09-04, and it is a STANDING PERMISSION rather
+than a one-off.** Asked whether to put the crash fix on `main`:
+
+> *"btw no detailers are using this yet. im not ging public umtill eveything is
+> cpmpleaye. but yes we can publish if we need to"*
+
+Three facts in one sentence, and the first two change how the third reads.
+**There are no detailers on the product at all** — not "few", none — so a
+booking-page crash on the live site harms nobody today, and the urgency this
+item's ask implied was wrong. **He is not going public until the build is
+finished**, which he has now said twice (2026-08-30, 2026-09-04). And
+**publishing is authorised when it is needed**, with the judgment of whether it
+is needed delegated.
+
+**So it was NOT merged, and that is the answer to his condition rather than a
+deferral.** Nothing needs it: no user can meet the crash, the fix is on the
+branch, and putting 66 commits onto his private preview mid-build changes the
+thing he checks his own work against for no gain. **The next session that has a
+reason to publish does not need to ask again** — it needs to say why it is
+needed. What was done instead is the thing that WAS overdue: the branch was
+pushed, because 21 commits (all of roadmap 2.17, 2.18 and 2.5) existed only on
+this machine, and pushing the branch deploys nothing.

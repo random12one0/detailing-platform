@@ -28,6 +28,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   `main` IS a publish** — there is no second step to forget.
   The owner can say yes, and did on 2026-08-30: the redesign through roadmap
   2.2 is live, and `main`, the branch and this machine are the same commit.
+  **HE MADE IT A STANDING PERMISSION ON 2026-09-04** — *"yes we can publish
+  if we need to"* — so the question a session must answer is no longer "may
+  I" but "is it needed", and it must say WHY in the same breath. He said two
+  other things in that sentence that decide most of those calls: **there are
+  no detailers on the product at all**, so a live defect harms nobody today,
+  and **he is not going public until the build is finished** (his second time
+  saying so). Roadmap 2.5 found a booking-page crash that had been live since
+  2026-08-31 and still did NOT merge, because nothing needed it.
   So "main is months behind" is no longer true, and a session that finds them
   apart should say so rather than assume it is normal. See DECISIONS.md, "The
   owner put the redesign on `main` and published it".
