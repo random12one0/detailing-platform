@@ -108,25 +108,23 @@ const booking = {
   receiptUrl: "https://detailingplatform.com/booking/7f3ab210-55c1-4e0a-9d2e-31b6c4a90e77",
 };
 
-// BUILT THE WAY `send-invoice/index.ts` BUILDS IT — services, add-ons, travel
-// and `price_adjustments` as charges, then the finalize line items, then the
-// promo. **The site sale is deliberately absent**, because its AMOUNT is not
-// stored on the booking row; `reconcile` is what draws it, and this fixture
-// exists partly to prove that.
+// BUILT THE WAY `send-invoice/index.ts` BUILDS IT — AND THAT IS NOW ONE LINE
+// PLUS THE FINALIZE EXTRAS, which is the point of roadmap 2.18's last change.
+// The invoice copies what was finalized instead of re-deriving it:
+// `FinalizeModal` computes `final_amount = total_price + Σ(line items)`, so the
+// invoice prints exactly those terms and the column cannot disagree with the
+// total. No services, no travel, no promo, no site sale, no rounding — all of
+// them are already inside `total_price`.
 const invoiceRows = [
-  { label: "Full Interior + Exterior Detail", qty: 1, lineTotal: 285, kind: "charge" },
-  { label: "Add-on: Pet hair removal", qty: 1, lineTotal: 35, kind: "charge" },
-  { label: "Add-on: Engine bay clean", qty: 1, lineTotal: 40, kind: "charge" },
-  { label: "Travel — Outer ring", qty: 1, lineTotal: 25, kind: "charge" },
-  { label: "Heavy soiling surcharge", qty: 1, lineTotal: 20, kind: "charge" },
+  { label: "Booking total", qty: 1, lineTotal: 345, kind: "charge" },   // total_price
   { label: "Tip", qty: 1, lineTotal: 30, kind: "tip" },
-  { label: "Promo FALL10", qty: 1, lineTotal: -40, kind: "discount" },
+  { label: "Discount: Loyal customer", qty: 1, lineTotal: -15, kind: "discount" },
 ];
 const invoiceTotals = {
-  chargesSubtotal: 405,
-  discountsTotal: -40,
+  chargesSubtotal: 345,
+  discountsTotal: -15,
   tipTotal: 30,
-  totalPaid: 375, // final_amount
+  totalPaid: 360, // final_amount = 345 + 30 - 15
 };
 
 // EVERY KIND, INCLUDING THE BRANCHES. `isRequest`, `forOwner` and the three

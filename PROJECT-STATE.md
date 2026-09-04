@@ -3203,13 +3203,54 @@ own documentation gets deleted rather than fixed.**
 | `email-brand` | 186 pass; the two new source checks baselined failing. |
 | `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `client-list` · `setup-progress` · `decisions-index` · `accent-sweep` | all pass |
 
+### AND THEN THE INVOICE STOPPED DOING ARITHMETIC, on his instruction
+
+*"We don't need to recalculate everything again when we send out the email…
+just have it copy exactly what was calculated on what you finalized. I don't
+get why there has to be math."* **He was describing the root cause.**
+`send-invoice` rebuilt the customer's bill from five sources — snapshotted
+services, add-ons, `travel_fee`, `price_adjustments`, finalize line items — and
+hoped the sum matched `final_amount`, which is computed in a different file.
+**It never did, and the gap moved every time somebody added a price feature.**
+
+It now prints **`total_price` + the finalize lines**, which is `final_amount`'s
+own definition, so **the column cannot disagree with the total**. ~45 lines
+deleted. The work is still NAMED on the invoice but no longer carries prices,
+because per-service prices are not what was charged. `reconcile` stays as a
+guard that should never fire. **Storing the site-sale amount on the booking is
+no longer needed** — nothing re-derives it any more.
+
+### THE LIVE BUSINESS WAS READ, AND IT PRODUCED A RETRACTION
+
+He authorised it. Two corrections:
+
+**CLAUDE.md named the wrong repo.** `carwashweb` is a private **99-file
+Emergent scaffold last pushed 2026-02-01** with no Supabase functions, no
+invoice code and no promo codes. The live code is
+**`random12one0/carwebitebooking`**. A session following the old name finds a
+shell and concludes there is nothing there. Corrected in CLAUDE.md.
+
+**AND ITS INVOICE ADDS UP — so our bug was INTRODUCED by the port, not
+inherited.** The morning's entry said the opposite, on the strength of
+`reference/`'s row-building not pushing a promo row. Following `final_amount`
+to where it is computed finishes the trace: the live finalize modal and the
+live `send-invoice` **both** exclude the promo, so they agree with each other.
+Ours did not, because our `final_amount` starts from `total_price` — which is
+post-promo — while our rows were rebuilt from pre-discount parts. ***A defect
+diagnosed by reading the code that DRAWS a number is half a diagnosis.***
+
+Two smaller things on the live site, named so nobody re-finds them as new:
+`roundToNearest5` rounds the total but not the rows (up to $2.50 of drift), and
+a fresh finalize starts from **list prices**, so a promo customer defaults to
+the full amount unless the owner adjusts — the modal shows the difference on
+screen, so it is visible and his call.
+
 ### Still open
 
 The simple settings surface (on/off per email, one optional message of the
 detailer's own, prewritten wordings) · `booking_reminders_sent` + the two
-reminder rules · storing the site-sale amount on the booking ·
-`formatDateLong` hardcoded `en-US` · **and nothing has been opened in a real
-email client.** A send to a Gmail, an Outlook and an iCloud address in both
+reminder rules · `formatDateLong` hardcoded `en-US` · **and nothing has been
+opened in a real email client.** A send to a Gmail, an Outlook and an iCloud address in both
 modes is twenty minutes, and it is the only thing that turns "should work" into
 "does work".
 

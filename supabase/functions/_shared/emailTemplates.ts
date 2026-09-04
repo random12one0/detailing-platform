@@ -373,7 +373,21 @@ export function invoiceEmail(
       ["Service", b.serviceType === "mobile" ? "Mobile" : "Drop-off"],
     ]),
     ruleBlock(34),
-    labBlock(paid ? "What you paid for" : "What this covers"),
+    labBlock("The work"),
+    // NAMED, NOT PRICED. The prices of the individual services are not what was
+    // charged — `total_price` is, and the customer's confirmation email already
+    // itemises how that figure was reached. Printing per-service prices here
+    // would be a second, re-derived version of a number that is not in doubt,
+    // which is exactly the shape that kept this invoice wrong.
+    b.serviceNames.length || b.addOnNames.length
+      ? proseBlock(
+        [...b.serviceNames, ...b.addOnNames.map((a) => `${a} (add-on)`)]
+          .map((sv) => `<div style="padding:4px 0;">${esc(sv)}</div>`).join(""),
+        12,
+      )
+      : "",
+    ruleBlock(26),
+    labBlock(paid ? "What you paid" : "What is due"),
     moneyBlock(brand, lines, {
       label: paid ? "Total paid" : "Amount due",
       amount: Number(totals.totalPaid),

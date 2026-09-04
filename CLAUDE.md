@@ -31,10 +31,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   So "main is months behind" is no longer true, and a session that finds them
   apart should say so rather than assume it is normal. See DECISIONS.md, "The
   owner put the redesign on `main` and published it".
-- The owner's live business site (repo `carwashweb`, Supabase project
-  `adtlnvihwrcqcasqcjwd`, Netlify, Resend domain andrewsdetail.com) takes
-  real customers' money. Reads are allowed; writes only with the owner's
-  explicit go-ahead for that specific action.
+- The owner's live business site (Supabase project `adtlnvihwrcqcasqcjwd`,
+  Netlify, Resend domain andrewsdetail.com) takes real customers' money.
+  Reads are allowed; writes only with the owner's explicit go-ahead for that
+  specific action.
+  **THE REPO IS `random12one0/carwebitebooking`, NOT `carwashweb` — corrected
+  2026-09-03 by reading both.** This file said `carwashweb` until then;
+  that repo is real, private, and a **99-file Emergent scaffold last pushed
+  2026-02-01** with no Supabase functions, no invoice code and no promo codes
+  in it. **A session that follows the old name finds a shell and concludes
+  there is nothing to look at.** `carwebitebooking` has
+  `supabase/functions/send-invoice/index.ts` and
+  `frontend/src/admin/modals/FinalizePaymentModal.jsx`, and matches the
+  `reference/` snapshot in this repo. Read it with `gh api`; there is no
+  local clone.
 - Migrations are append-only. Never edit an existing one.
 - Consequential writes go through edge functions, not the browser client.
 - Never commit `app/.env.production`, or any credential.

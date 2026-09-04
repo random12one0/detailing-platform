@@ -2578,6 +2578,55 @@ is kept; the entire visual design restarts from scratch.
       client.** A send to a Gmail, an Outlook and an iCloud address in both
       modes is twenty minutes and is what turns "should work" into "does work".
 
+      **AND THE INVOICE STOPPED DOING ARITHMETIC (2026-09-03, his
+      instruction).** *"We don't need to recalculate everything again when we
+      send out the email… just have it copy exactly what was calculated on what
+      you finalized. I don't get why there has to be math."* **He was describing
+      the root cause, not a preference.** `send-invoice` rebuilt the bill from
+      five sources and hoped their sum matched a `final_amount` computed in
+      another file — which is why 2.8c patched travel in and 2.18 still found
+      the promo missing. It now prints `total_price` + the finalize lines, which
+      **is** `final_amount`'s own definition, so the column cannot disagree with
+      the total. ~45 lines deleted. The work is still NAMED but no longer
+      priced, because per-service prices are not what was charged.
+      **And the live business was READ (he authorised it): its invoice ADDS UP,
+      so our bug was INTRODUCED by the port rather than inherited** — the
+      opposite of what the morning's entry concluded from reading only the
+      row-building. CLAUDE.md's repo name was wrong too; see DECISIONS.md.
+
+- [ ] 2.19 **"Want to email some of your old customers?" — MANUAL, with a
+      nudge. The OWNER decided the shape on 2026-09-03**, answering the
+      research's recommendation that an automated re-book campaign be its own
+      item.
+
+      > *"Don't have one that automatically messaged on the email. Just have it,
+      > like, the business person whoever is running it could send out email to
+      > someone that they want. And maybe, like, remind deals. Like, hey, do you
+      > want to send out email to some of your old people? I don't know."*
+
+      **NOTHING SENDS ITSELF. That is the whole design and it is what makes
+      this cheap.** Four of six trade products have an automated re-book
+      campaign and all four keep it in a separate paid tier, because a
+      scheduled marketing blast needs an unsubscribe, a suppression list and a
+      sending reputation the transactional set is exempt from
+      (`docs/email-research-2026-09-03.md`). **A human picking named recipients
+      and pressing send is much closer to transactional**, so most of that
+      machinery goes away with the automation.
+
+      **The nudge is a DASHBOARD PROMPT, not an email.** "You have 14 customers
+      you haven't seen in six months" is a row on a screen. **If the nudge ever
+      becomes an email to the detailer, re-read this paragraph** — the line he
+      drew is that the product does not send anything nobody asked it to.
+
+      **Half of it already exists.** The Clients screen knows who has lapsed —
+      `tests/client-list.test.mjs` is 31 checks on exactly that date arithmetic,
+      and its own note calls the lapsed filter *"who ends up on the end of a
+      group text"*. **What is missing is a compose-and-send surface and the
+      prompt**, not the selection.
+
+      **Skills: `impeccable`** — it is a new screen. No direction-generating
+      skill.
+
 - [ ] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named
       complaints and one principle that outranks them.

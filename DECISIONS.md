@@ -175,6 +175,8 @@ were made more than once.
 
 - **Roadmap 2.18 — the port: all twelve rebuilt, wired, and the invoice made to add up** — the old ~530-line `emailTemplates.ts` is gone, all eight edge functions send the rebuilt emails, `email-brand` is **186 checks** (was 138). **The file kept its PATH and most export names on purpose** — rebuilding the RENDERING was the item, and changing `BookingEmailData` at the same time would have meant rewriting every call site's query too. **`reconcile(lines, total)` is the guarantee that replaced a promise**: the invoice bug could have been three pushes in `send-invoice`, but that is the fix 2.8c already applied once and it did not generalise — so both money templates now pass their lines through one function that draws any remainder as its own line. **It was load-bearing immediately: `bookings` HAS NO `site_discount` COLUMN**, and the first draft of the fix referenced `booking.site_discount` → `undefined` → the line silently never draws. **A fix that reads as a fix and does nothing**, caught only by checking the schema instead of assuming it. **The plain-text half is DERIVED, one `htmlToText` rather than twelve twins that drift** — now the main thing the block architecture buys. **Re-pointing `email-brand`: two source checks failed loudly and one went SILENTLY VACUOUS** (`const header =` matched nothing, so it passed by having no subjects) — rewritten stronger (no literal hex anywhere in the templates; the two accent values may not swap jobs) plus **7a-iii, which asserts the checks HAVE subjects** so the next layout change fails loudly. **AND THE BASELINING FOUND A REAL BUG: a raw backspace (0x08) in the regex source** left by the script that wrote the test — `/…{3,8}\x08/` can never match, invisible in every editor and in `sed`, only visible under `od -c`. **A check written to prevent silent vacuity was itself silently vacuous on its first run.** Still not done: the settings surface, the two-reminder schema, and **nothing has been opened in a real email client.**
 
+- **Roadmap 2.18 — the live-business read, and the invoice stopped doing arithmetic** — he authorised the read, and it produced a RETRACTION. **CLAUDE.md names the wrong repo**: `carwashweb` is a 99-file Emergent scaffold last pushed 2026-02-01 with no invoice code at all; the live business is **`random12one0/carwebitebooking`**. **And its invoice ADDS UP** — both its finalize modal and its `send-invoice` exclude the promo, so they agree with each other. **The bug was INTRODUCED by our port, not inherited**, which is the opposite of what the earlier entry today concluded from reading only the row-building. *A defect diagnosed by reading the code that DRAWS a number is half a diagnosis; the other half computes it.* (What the live site does have: `roundToNearest5` rounds the total but not the rows, so up to $2.50 of drift, and a fresh finalize defaults to LIST price, so a promo customer is charged full unless the owner adjusts — visible on screen, his call.) **THE INVOICE NOW COPIES WHAT WAS FINALIZED INSTEAD OF RE-DERIVING IT, on his instruction** — *"just have it copy exactly what was calculated on what you finalized… I don't get why there has to be math"* — and he was describing the root cause, not a preference: `send-invoice` was rebuilding the bill from five sources and hoping their sum matched a `final_amount` computed in another file, which is why 2.8c patched travel in and 2.18 still found the promo missing. **Now it prints `total_price` + the finalize lines, which is `final_amount`'s own definition, so the column cannot disagree with the total.** ~45 lines deleted; the work is still NAMED but no longer priced, because per-service prices are not what was charged. `reconcile` stays as a guard that should never fire. **And the re-book email is MANUAL with a dashboard nudge, his call** — a human picks the recipients, nothing sends itself, which removes most of the CAN-SPAM machinery the research had costed.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -8991,3 +8993,116 @@ of the detailer's own, prewritten wordings), the two-reminder schema
 (`booking_reminders_sent` per (booking, rule)), and storing the site-sale amount
 on the booking. **And nothing has been opened in a real email client** — that is
 still the one claim this work cannot make.
+
+## Roadmap 2.18 — the live-business read, and the invoice stopped doing arithmetic
+
+2026-09-03. Three things, and the first is a correction to something this file
+said earlier today about his real business.
+
+### THE LIVE BUSINESS DOES NOT HAVE THE BUG. I SAID IT PROBABLY DID.
+
+He authorised the read. Two corrections came out of it.
+
+**FIRST, CLAUDE.md NAMES THE WRONG REPO.** It says the live business is
+`carwashweb`. That repo exists, is private, and was last pushed **2026-02-01**;
+it is a 99-file Emergent scaffold (`backend/server.py`, `frontend/src/App.js`)
+with **no invoice code, no Supabase functions and no promo codes**. The live
+code is **`random12one0/carwebitebooking`** (pushed 2026-08-26), which has
+`supabase/functions/send-invoice/index.ts` and
+`frontend/src/admin/modals/FinalizePaymentModal.jsx` and matches the `reference/`
+snapshot. **A session that follows CLAUDE.md to `carwashweb` finds a shell and
+concludes there is nothing there.**
+
+**SECOND, AND THIS IS THE CORRECTION THAT MATTERS: its invoice adds up.** The
+earlier entry today said the omission was *"inherited by the port rather than
+introduced by it"*, on the strength of `reference/`'s row-building not pushing a
+promo row. **That was a conclusion drawn from half the trace.** Following
+`final_amount` to where it is computed finishes it:
+
+- `FinalizePaymentModal.buildBaseItems` builds from packages + vehicle size +
+  the monthly-plan discount + add-ons, and `computeTotal` is
+  `baseSum + adjSum → roundToNearest5`. **The promo is not subtracted.**
+- `send-invoice` builds its rows from the same set — packages, add-ons, the
+  monthly-plan discount, line items — and also does not include the promo.
+
+**Both sides exclude it, so they agree with each other.** The live invoice's
+column reaches its own total. **Our platform's did not, because our
+`final_amount` starts from `total_price` — which IS post-promo — while our rows
+were rebuilt from pre-discount parts. The bug was INTRODUCED by the port, not
+inherited.** I told him the opposite this morning; this is the retraction.
+
+**What the live site does have is smaller and worth him knowing anyway:**
+`roundToNearest5` rounds the total but not the rows, so its printed column can
+be off by up to $2.50. And separately — not a bug, a behaviour — a fresh
+finalize starts from **list prices**, so a customer who used a promo code
+defaults to the full amount unless the owner adjusts. The modal shows the
+difference against `booking.total_price` on screen, so it is visible and his to
+decide; it is named here because nobody has looked at it deliberately.
+
+**The lesson, and it is the same one this project keeps paying for:** a defect
+diagnosed by reading the code that DRAWS a number is half a diagnosis. The other
+half is the code that COMPUTES it, and the two were in different files and
+different languages.
+
+### The invoice stopped doing arithmetic, on his instruction, and he was right
+
+> *"I feel like it's so much simpler than it could be. We don't need to
+> recalculate everything again when we send out the email. When you click
+> finalize payment, it knows the total price and it has all the stuff you just
+> put in. Just have it copy exactly what was calculated on what you finalized
+> inside of the website. I don't get why there has to be math."*
+
+**He is describing the root cause, not a preference.** `send-invoice` was
+rebuilding the customer's bill out of five separate sources — snapshotted
+services, original add-ons, `travel_fee`, `price_adjustments`, then the finalize
+line items — and hoping their sum matched `final_amount`, which is computed in a
+completely different file. **It never did, and the gap moved every time somebody
+added a price feature**: 2.8c patched travel and surcharges in, 2.18 found the
+promo still missing, and the site sale was unreachable because its amount is not
+stored anywhere.
+
+**Every one of those fixes was arithmetic applied to the wrong shape.**
+
+The shape now: `FinalizeModal` computes `final_amount = booking.total_price +
+Σ(line items)`, so the invoice prints **exactly those terms** — `Booking total`,
+then each finalize line, then the total. **The column cannot disagree with the
+total, because it IS the total's own definition.** Services, add-ons, travel,
+adjustments, promo, site sale and rounding are all already inside `total_price`,
+which is the figure the customer agreed to and which their confirmation email
+itemises.
+
+**The work is still NAMED on the invoice; it just no longer carries prices**,
+because per-service prices are not what was charged. That distinction is the
+whole fix: *re-itemising a number that was never in doubt is a chance to be
+wrong about it, taken once per feature.*
+
+**`reconcile()` stays, demoted to a guard.** With rows defined as the total's
+own terms it should never fire; if it ever does, something edited line items
+without updating `final_amount`, and a visible line is better than a silent gap.
+
+**Roughly 45 lines of row-building deleted**, and with them the reason this file
+had been wrong twice.
+
+### The re-book email: MANUAL, with a nudge — his answer, and it is better
+
+> *"Don't have one that automatically messaged on the email. Just have it, like,
+> the business person whoever is running it could send out email to someone that
+> they want. And maybe, like, remind deals. Like, hey, do you want to send out
+> email to some of your old people?"*
+
+The research recommended this be its own roadmap item because an automated
+re-book campaign is **marketing** email — CAN-SPAM unsubscribe, a suppression
+list, a sending reputation. **His answer removes most of that cost by removing
+the automation**: a human picks the recipients and presses send, and the
+dashboard's only job is to *notice* and *ask*.
+
+**Two properties worth writing down before anyone builds it.** A human-initiated
+message to a named past customer of a business they have used is much closer to
+transactional than a scheduled blast, so the legal machinery shrinks. And the
+**nudge is a dashboard prompt, not an email** — nothing new is sent
+automatically, which is exactly the line he drew.
+
+**This replaces the "automated re-book campaign" item.** The Clients screen
+already knows who has lapsed (`tests/client-list.test.mjs`, 31 checks, and the
+lapsed filter is *"who ends up on the end of a group text"*) — so the selection
+half exists and what is missing is a compose-and-send surface plus the prompt.

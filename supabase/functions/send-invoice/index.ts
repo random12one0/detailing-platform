@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     const [bookingRes, lineItemsRes] = await Promise.all([
       supabase
         .from("bookings")
-        .select("*, services:booking_services(name_at_booking, price_at_booking), add_ons:booking_add_ons(add_on:add_ons(id, name, price))")
+        .select("*, services:booking_services(name_at_booking), add_ons:booking_add_ons(add_on:add_ons(name))")
         .eq("id", id)
         .eq("business_id", member.businessId)
         .maybeSingle(),
@@ -55,32 +55,40 @@ Deno.serve(async (req) => {
     const brand = await buildBrand(business, settings);
     const tz = business.timezone;
 
-    // --- Itemized rows: snapshotted services (size fee already included in
-    // price_at_booking), original add-ons, then finalized line items. -------
-    const rows: InvoiceRow[] = [];
-    for (const s of booking.services ?? []) {
-      rows.push({ label: s.name_at_booking, qty: 1, lineTotal: Number(s.price_at_booking) || 0, kind: "charge" });
-    }
-    for (const a of booking.add_ons ?? []) {
-      if (a?.add_on?.name) {
-        rows.push({ label: `Add-on: ${a.add_on.name}`, qty: 1, lineTotal: Number(a.add_on.price) || 0, kind: "charge" });
-      }
-    }
-    // ROADMAP 2.8c — travel and the time-based surcharges live ON the booking
-    // row, not in booking_line_items, so an invoice built only from services,
-    // add-ons and line items silently dropped them. The bottom line was still
-    // right (it is final_amount, what was actually collected) but the
-    // itemisation above it did not add up to anything.
-    if (Number(booking.travel_fee) > 0) {
-      rows.push({
-        label: booking.travel_zone ? `Travel — ${booking.travel_zone}` : "Travel",
-        qty: 1, lineTotal: Number(booking.travel_fee), kind: "charge",
-      });
-    }
-    for (const a of booking.price_adjustments ?? []) {
-      rows.push({ label: String(a.label), qty: 1, lineTotal: Number(a.amount) || 0, kind: "charge" });
-    }
-
+    // --- THE INVOICE COPIES WHAT WAS FINALIZED. IT DOES NOT RE-DERIVE IT. ---
+    //
+    // THE OWNER'S OWN INSTRUCTION, 2026-09-03, and he was right:
+    //
+    //   *"I feel like it's so much simpler than it could be. We don't need to
+    //   recalculate everything again when we send out the email. When you click
+    //   finalize payment, it knows the total price and it has all the stuff you
+    //   just put in. Just have it copy exactly what was calculated on what you
+    //   finalized inside of the website. I don't get why there has to be math."*
+    //
+    // WHAT THIS FILE USED TO DO, and why it kept being wrong. It rebuilt the
+    // customer's bill from scratch out of five different sources — snapshotted
+    // services, original add-ons, `travel_fee`, `price_adjustments`, then the
+    // finalize line items — and hoped the total of those five matched
+    // `final_amount`, which is computed somewhere else entirely. **It never
+    // did, and the gap moved every time somebody added a price feature.**
+    // Roadmap 2.8c patched travel and surcharges in; 2.18 rendered one, looked
+    // at it, and found the promo still missing — *Subtotal $405, Tip $30, Total
+    // paid $395*, with $40 unexplained. Two fixes, same file, same defect,
+    // because the shape was wrong rather than the arithmetic.
+    //
+    // WHAT IT DOES NOW, IN ONE SENTENCE: `FinalizeModal.jsx` computes
+    // `final_amount = booking.total_price + Σ(line items)`, so the invoice
+    // prints exactly those terms. **The column cannot disagree with the total,
+    // because it IS the total's own definition.**
+    //
+    // No services, no add-ons, no travel, no `price_adjustments`, no promo, no
+    // site sale, no rounding remainder — every one of those is already inside
+    // `total_price`, which is the figure the customer agreed to and the one
+    // their confirmation email itemises. **Re-itemising it here was rebuilding
+    // a number that was never in doubt, and every rebuild was a chance to be
+    // wrong about it.** The work is still NAMED on the invoice; it just does
+    // not carry its own prices any more, because those are not what was
+    // charged — `total_price` is.
     const CATEGORY_LABELS: Record<string, string> = {
       service: "Service",
       upgrade: "Upgrade",
@@ -90,6 +98,9 @@ Deno.serve(async (req) => {
       tip: "Tip",
       discount: "Discount",
     };
+    const rows: InvoiceRow[] = [
+      { label: "Booking total", qty: 1, lineTotal: Number(booking.total_price) || 0, kind: "charge" },
+    ];
     for (const li of lineItemsRes.data ?? []) {
       const qty = parseInt(String(li.quantity || 1), 10) || 1;
       const lineTotal = (parseFloat(String(li.amount || 0)) || 0) * qty;
@@ -97,37 +108,6 @@ Deno.serve(async (req) => {
         li.category === "tip" ? "tip" : li.category === "discount" || lineTotal < 0 ? "discount" : "charge";
       const prefix = CATEGORY_LABELS[li.category] ? `${CATEGORY_LABELS[li.category]}: ` : "";
       rows.push({ label: `${prefix}${li.label}`, qty, lineTotal, kind });
-    }
-
-    // THE PROMO LINE THAT WAS NEVER DRAWN, AND THE BUG IT FIXES.
-    //
-    // Roadmap 2.18 rendered an invoice and looked at it for the first time in
-    // the product's life. The column did not reach its own total: the charge
-    // rows sum to `subtotalBase` — services, add-ons, travel, surcharges, all
-    // BEFORE any discount — while `final_amount` is `total_price`, already
-    // PAST the site sale AND the promo, and rounded. Rendered: Subtotal $405,
-    // Tip $30, Total paid $395 — $40 missing and unexplained.
-    //
-    // It is `travel_fee`'s twin, in this file, a few lines below the fix for
-    // it — *a fix that names one instance of a pattern fixes one instance.*
-    // And no test saw it because `money-export` ties out the ACCOUNTANT EXPORT
-    // and `booking-engine` test 17 ties out the QUOTE ENGINE: **a tie-out is
-    // only a tie-out for the document it names.**
-    //
-    // ONLY THE PROMO IS ITEMISED BY NAME, AND THAT IS A LIMIT RATHER THAN A
-    // CHOICE. `promo_discount` and `applied_promo_code` are columns on the
-    // booking; **the site sale's AMOUNT is not stored anywhere** — it is baked
-    // into `subtotal` at booking time (`create-booking` writes
-    // `quote.subtotalAfterSite`) and the settings it came from may have
-    // changed since. `invoiceEmail` passes its lines through `reconcile`,
-    // which draws whatever is left — the sale, the rounding — as one honest
-    // "Discount applied" line instead of a silent gap. Storing the amount on
-    // the booking row is a migration and its own item.
-    if (booking.applied_promo_code && Number(booking.promo_discount) > 0) {
-      rows.push({
-        label: `Promo ${booking.applied_promo_code}`,
-        qty: 1, lineTotal: -Math.abs(Number(booking.promo_discount)), kind: "discount",
-      });
     }
 
     const chargesSubtotal = rows.filter((r) => r.kind === "charge").reduce((s, r) => s + r.lineTotal, 0);
@@ -149,7 +129,7 @@ Deno.serve(async (req) => {
       vehicleModel: booking.vehicle_model,
       customerNotes: booking.customer_notes,
       serviceNames: (booking.services ?? []).map((s: { name_at_booking: string }) => s.name_at_booking),
-      addOnNames: [],
+      addOnNames: (booking.add_ons ?? []).map((a: { add_on?: { name?: string } }) => a?.add_on?.name).filter(Boolean),
       subtotal: Number(booking.subtotal),
       siteDiscount: 0,
       siteDiscountPercent: 0,
