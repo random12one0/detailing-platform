@@ -621,3 +621,127 @@ the ones that will otherwise be discovered mid-build:
 - System X annual maintenance, 30-day anniversary window: https://afterhourscardetailing.com/ceramic-maintenance
 - Prepaid vs monthly retention (adjacent industry, secondary): https://baremetrics.com/blog/annual-vs-monthly-pricing-better-retention
 - Gym / studio membership terms, as the industry detailing has visibly rejected: https://movementgyms.com/membership-terms-and-conditions/
+
+---
+---
+
+# ROUND 3 — HE DECIDED THE SHAPE (2026-09-04)
+
+**He chose option A, in his own words and for his own reason**, which is worth
+recording because he arrived at it independently of the research:
+
+> *"I think what's gonna be hard is there's gonna be no real way to easily have
+> a monthly system that every detailer wants and how it's gonna work in the
+> booking process… So what we need is a way for them to be able to track it
+> inside of our app somehow, but they're gonna do the negotiations of, like, what
+> dates and all the times and all that kind of stuff separately. So we need a
+> way for the detailer within the app to log this customer as a monthly plan,
+> and they could set all the settings — if it's weekly, biweekly, monthly, which
+> tier it is, or if it's a percent discount, if it's a bundle."*
+
+**That is the decision, and three things about it are now settled facts rather
+than recommendations:**
+
+1. **The plan is LOGGED, not sold and not billed.** The negotiation happens
+   between the detailer and their customer, off the product.
+2. **The four fields are confirmed by the person who runs a detailing
+   business** — he listed cadence, tier, percent discount and bundle unprompted,
+   which is §1's taxonomy arrived at from the other direction.
+3. **He named the reason the research gave, without having been given it:** the
+   sale and the schedule are two acts, and no single booking flow can hold every
+   detailer's version of the first one.
+
+**So the build is:** a plan a detailer defines, a member they log against it,
+the four fields, a badge on the client, and **the ledger of visits owed and
+used** — which stays non-negotiable, because it is the only thing standing
+between "log it now" and "a rewrite when billing arrives."
+
+---
+
+## His idea: should plan customers get an account?
+
+> *"maybe we make clients who have a monthly plan make an account… they log on
+> with Google or they make an account, and then when they go to book they log
+> in… it shows their monthly plan and stuff, and then they could cancel. So we
+> could have, like, when people book, a little simple thing: log in or continue
+> as guest. I don't know. Tell me if this is a bad idea or not."*
+
+**It is not a bad idea. It is a good idea one step too early — and everything it
+buys is available from a LINK, which this product already uses twice.**
+
+### What he actually wants from it
+
+Three things: the plan applies itself when they book, the customer can see what
+they are on, and the customer can cancel. **All three are properties of knowing
+who the person is — and an account is only one way to know that.**
+
+**The other way is already load-bearing here**: `/booking/:id`, where *the UUID
+is the credential*, is how every customer cancels and reschedules today, and
+2.12's quote acceptance works the same way — a link in an email that only that
+customer has. **A plan member gets a "your plan" link**: what they are on, when
+they are next due, a cancel button, and a book-now button that carries the plan
+with it. **No password, no sign-up, no new kind of user.**
+
+**And it happens to satisfy California's cancellation law** (see the payments
+file): a customer who joined online must be able to leave online. A link with a
+cancel button does that. So does an account — but the link does it for a
+fraction of the work.
+
+### The four reasons an account is expensive here, in order
+
+1. **It puts a second kind of human into an auth system that has exactly one
+   today.** `auth.users` currently holds detailers and staff, the public booking
+   page sits deliberately OUTSIDE `BusinessProvider`, and roadmap 2.13 has just
+   finished making permissions coherent. Every RLS policy would have to answer a
+   new question — *"is this a customer?"* — and the failure mode is a customer
+   reaching a dashboard.
+2. **Whose customer are they?** Someone who uses two detailers on this platform
+   is either one account across both — in which case the PLATFORM now knows a
+   person's relationship with two competing businesses, which those businesses
+   would have opinions about — or two accounts on one email address, which is
+   confusing. **There is no obviously right answer, and that is usually the sign
+   a thing is early.**
+3. **Passwords are a permanent obligation**: resets, recovery, lockouts, and a
+   breach surface holding names, phone numbers and home addresses — for a
+   product whose customer-side promise is currently *book in ninety seconds
+   without an account*.
+4. **"Log in or continue as guest" costs bookings.** Every extra decision on the
+   form is somewhere to stop, and W16 — the owner's own rule — is that a
+   customer never fights the booking flow.
+
+**And nothing in the sample requires it.** Ten detailer plan pages and six
+products: plans are sold by conversation, and Housecall Pro's customer portal
+exists to accept an agreement and store a card, not to book.
+
+### When an account becomes the right answer
+
+**When a customer needs to do something a single link cannot carry** — manage
+several vehicles, look back over a year of visits, settle an outstanding
+balance. That day comes after billing exists, and by then the "your plan" page
+already exists too: **putting a login in front of a page is a much smaller job
+than inventing the page and the login together.**
+
+**Verdict: build the link now. Keep the account idea; it is the same page with a
+door on it later.**
+
+---
+
+## The requirement case — he handed the design to us
+
+> *"and then there was, like, the requirement case things. And I think you could
+> probably figure all that out. I don't really know how to do all that. You
+> could figure out the best way to implement it… and just be customizable for
+> the detailer who might have a lot of different things."*
+
+**Recorded as owed.** §2 established what it has to be — a **deadline with a
+date**, an **escalating reminder**, and a **record of when the last qualifying
+service happened** — rather than a stricter cadence, because the driving example
+(a ceramic coating warranty that voids ~30 days after the anniversary) is a
+date, not an interval.
+
+**The design is a build-time deliverable, not a research one**, and it is
+deliberately NOT being specified here: it depends on decisions the plans build
+has not made yet (where a member's ledger lives, which reminder rail it rides).
+**What must survive to that point is the requirement itself** — that the thing
+being modelled is a deadline with a consequence, and that the reminder has to
+escalate rather than fire once.

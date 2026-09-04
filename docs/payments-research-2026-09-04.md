@@ -267,3 +267,252 @@ our own database.
 - How mobile detailers collect payment today: https://doorstephq.com/blog/how-to-collect-payment-for-mobile-detailing-jobs-without-the-awkward-fumble
 - Payment software for detailers, incl. Square's solo pricing: https://myquoteiq.com/best-mobile-payment-software-mobile-detailing-2026/
 - This repo, read directly: `reference/frontend/src/components/sections/FAQ.jsx`, `reference/supabase/functions/send-invoice/index.ts`, `app/src/components/FinalizeModal.jsx`, `supabase/migrations/20260827000200_tenant_data.sql`
+
+---
+---
+
+# ROUND 2 — his answers, and four facts that change the plan (2026-09-04)
+
+He answered the four questions and told us two things nobody had asked:
+**he is under 18 and he is in California.** Both have consequences, **neither is
+a blocker**, and every one of the four findings below was checked against a
+primary or near-primary source rather than assumed.
+
+---
+
+## 1. Under 18: Stripe says yes, with a parent on the account
+
+**Stripe's own support pages:** the minimum age for a **Standard** account is
+**13**, and *"if you are under 18, a legal guardian must assume the role of
+owner of your account before your account can accept charges and funds can be
+transferred to your bank account."* Stripe asks the guardian for name, date of
+birth, the last four of their SSN, address and a consent statement.
+
+**So the platform's own Stripe account needs a parent or guardian as its
+owner.** That is the whole of it. He can build, test and run everything else;
+the account cannot take a charge or pay out until an adult is on it.
+
+**One thing this does NOT break:** Connect **Standard** for the detailers.
+Express and Custom Connect accounts require 18 — Standard does not, and the
+detailers will be adults with their own Stripe accounts anyway. **The design
+chosen in round 1 survives his age unchanged.**
+
+**The second consequence is contractual, and it lands squarely on his lock-in
+idea.** California Family Code §6700: a minor may make a contract, **subject to
+the power of disaffirmance** — a minor can back out — and the standing rule is
+that **adults contract with a minor at their own risk.** He is not prevented
+from selling subscriptions. **He is in a weak position to ENFORCE a term
+against someone who refuses to pay it**, and an early-termination fee is the
+single hardest term to collect. See §3.
+
+## 2. California starts taxing SaaS on 1 January 2027 — it does not today
+
+His question was *"do I charge sales tax on a $40/month subscription and a $499
+setup fee in California?"* The answer has a date in it:
+
+- **Today: no.** California has not taxed electronically delivered or remotely
+  accessed software where nothing tangible changes hands.
+- **From 1 January 2027: yes.** **SB 122, signed 29 June 2026**, applies sales
+  and use tax to digital products and prewritten software *"transferred on
+  tangible media, transferred electronically, or accessed remotely."* CDTFA
+  guidance is expected in the second half of 2026.
+- **Custom software stays exempt** — worth remembering when Phase 3's bespoke
+  tenant websites are priced, because they may not be the same thing as the
+  subscription.
+
+**He is a California business selling to California customers, so he has nexus
+in California from his first sale.** From that date the $40/month becomes
+taxable and he must register with CDTFA, collect, and file. **That is about
+four months away.**
+
+**What this does to the Stripe-vs-merchant-of-record choice, which round 1
+called too early to make:**
+
+| | Fee on $40 | What it does about California tax |
+|---|---|---|
+| **Stripe** | **$1.66** (4.1%) | Nothing by itself. **Stripe Tax** calculates and monitors thresholds at **0.5% per transaction**, but **filing is through outside partners at extra cost** — he still registers and still files |
+| **Paddle / Lemon Squeezy** | **$2.50** (6.3%) | **It stops being his problem.** They become the seller of record: they register, collect and file |
+
+**The gap is 84¢ per detailer per month.** At twenty detailers that is $17 a
+month to make a tax-filing obligation belong to someone else — and the person
+who would otherwise be doing CDTFA filings is a seventeen-year-old and his
+parent.
+
+**Recommendation: start on Stripe, and decide by November 2026.** California
+does not tax this until January, Stripe is cheaper and simpler to build against,
+and he will have few enough subscribers before then that moving them is an
+email rather than a migration. **Switching AFTER he has a hundred subscribers
+means every one of them re-enters a card**, so this decision has an expiry date
+and it should go in the calendar.
+
+## 3. California's click-to-cancel law constrains the lock-in he described
+
+He proposed: *"they have their subscription that's like a yearly, monthly
+subscription. So basically they're locked in for a year and they pay every
+month… if they cancel early, obviously there's a cancel early fee."* And on
+leaving: *"if they contact me, I could figure out the best way…"*
+
+**California's Automatic Renewal Law, as amended by AB 2863 (in force since 1
+July 2025), says three things that bear on that**, and they apply to any
+business offering auto-renewal to California consumers:
+
+- **Clear and conspicuous disclosure of the auto-renewal BEFORE billing
+  information is taken.**
+- **Express affirmative consent** to the renewal terms.
+- **Cancellation in the same medium the customer signed up in** — sign up
+  online, cancel online. The law also prohibits contract wording that
+  *"interferes with, detracts from, contradicts, or otherwise undermines"* a
+  consumer's ability to understand their rights.
+
+**An annual term and an early-termination fee are not illegal.** What is not
+allowed is making the exit run through him. *"If they contact me I'll work with
+them"* is a fine thing to offer and **cannot be the only route out** — a
+cancel button has to exist in the dashboard.
+
+### The version that gets the same lock-in with nothing to enforce
+
+**Discount the annual PREPAY instead of penalising the annual exit.**
+
+That is the plans research's own strongest finding pointed at his own pricing:
+**money already taken binds structurally, and needs no enforcement at all.**
+*"Pay for the year up front and get two months free"* produces the same twelve
+months of commitment, with:
+
+- **nothing to chase** — no fee to invoice to someone who has stopped answering,
+  which matters twice over given §1;
+- **no ARL friction** — a prepaid year is not an auto-renewing monthly
+  subscription with a penalty attached;
+- **better cash**, which is the thing a business at this stage actually needs.
+
+**Recommendation: month-to-month with no fee, plus a discounted annual prepay.**
+If he still wants the monthly-with-commitment version, it is buildable — it
+just needs the disclosure, the affirmative tick, and a working cancel button,
+and he should expect some fees never to be collected.
+
+## 4. His Resend correction is right, and it moves the ceiling
+
+He corrected round 1: *"I was able to have two domains on my Resend account, and
+I'm not gonna have each detailer have their own domain… my Resend's only gonna
+have just my domain, and I'm the one that's sending out all the emails."*
+
+**Accepted — the one-domain limit is not the constraint.** But the caps still
+are, and the one that bites is **100 emails a day** (3,000 a month). At roughly
+five emails per booking — confirmation, owner alert, two reminders, invoice —
+**that is about twenty bookings a day across every tenant combined.**
+
+**And the failure is silent.** `sendTenantEmail` is best-effort by design so a
+booking never fails because an email did; a rejected send is a `console.error`
+inside an edge function, invisible from every screen. **Whoever ships the first
+paying tenant should watch that number, not discover it.**
+
+## 5. His backup idea works, and it is Supabase's own advice
+
+*"Maybe I could create another Supabase account and we could do our own type of
+backing up for free."* **Yes.** Supabase's documentation tells free-plan
+projects to export with `supabase db dump` and keep off-site copies, and the
+GitHub Actions pattern — a nightly cron job running `pg_dump` — is well
+travelled.
+
+**One gotcha that costs an afternoon if unknown: GitHub Actions runners are
+IPv4-only and a free-tier project's DIRECT connection resolves to IPv6.** Use
+the **Session pooler on port 5432**; the Transaction pooler does not work with
+`pg_dump`.
+
+**Two rules that are not optional:**
+
+- **The destination must be private and encrypted.** This dump is real
+  customers' names, phone numbers and home addresses. A public repo would be
+  the worst single thing that could happen to this product.
+- **A backup nobody has restored is not a backup.** One restore, once, into a
+  scratch project, or it does not count. That is the entire reason this was
+  raised.
+
+**His "I've had no problems for over a year" is true and is not evidence.**
+Nothing has gone wrong yet because nothing has been under load and nobody else's
+customers were in it.
+
+## 6. He was right about invoices — and the product already agrees with him
+
+> *"Am I thinking of invoices the wrong way? Usually I'd send out invoices after
+> they've already paid… even on my invoice it says 'here's the payments we
+> accept', which is so weird since they already paid."*
+
+**He is not thinking about it wrong. His OLD site was wrong, and this one was
+already fixed.** An invoice asks for money; a receipt proves it was paid. His
+old site sent one document for both, which is why it read strangely.
+
+**`_shared/emailTemplates.ts` already branches on `payment_status`:** paid gives
+*"Receipt"* and *"Paid in full"*, unpaid gives *"Invoice"* and *"Amount due"* —
+different heading, different money label, different opening sentence. The file
+even carries a comment about the old behaviour: a *"document headed 'invoice'
+for money it had already taken."*
+
+**So stage 1 is smaller than it looked and gets sharper: the payment handles
+belong on the UNPAID branch only.** Printing "here's how to pay me" on a receipt
+would recreate exactly the thing he finds weird about his own site.
+
+---
+
+## The build order, in plain words
+
+He said *"I don't know what that means."* Fair — here it is without the jargon.
+
+1. **Your payment handles on the bill.** You type your Venmo, Zelle and Cash App
+   names into settings once. When a customer is sent a bill they have not paid
+   yet, those appear on it. **Nothing goes through the site; it just stops being
+   handwritten.** Days of work, no fees, no accounts.
+2. **Detailers pay you automatically.** A proper sign-up page: they enter a card
+   once, it charges $499 now and $40 every month after, forever, without you
+   doing anything. **This is the one you said you will not do by hand.**
+3. **Detailers can take cards from their own customers.** Each detailer links
+   their own Stripe; the money goes straight to their bank, never through you.
+   Costs you nothing.
+4. **Then monthly plans**, which need 3 before they can charge anything — and
+   the version you described does not need to charge anything, so it can come
+   earlier.
+
+---
+
+## His decisions, recorded
+
+- **Non-payment takes the whole thing down.** *"If they just stop paying, then
+  yes, their site will go down."* **Recorded as his call over the
+  recommendation.** One consequence worth knowing rather than arguing: their
+  customers' existing bookings are already made, and those customers lose the
+  page they cancel and reschedule from — so the detailer gets the phone calls
+  during the week they are already unhappy. **A grace period before the public
+  page goes dark costs nothing to build and is not the same as being lenient.**
+- **Help on the way out is discretionary and may carry a fee.** *"I'll help
+  them, like, maybe transfer their website… or they have no fee but I just won't
+  help them with anything."* Fine, and it belongs in the terms rather than in
+  code — but see §3: **discretionary help cannot replace a cancel button.**
+- **Vehicle or person is the detailer's decision** — *"that's the detailer's
+  decision."* Implemented as an **optional vehicle on the plan member**: a
+  detailer who thinks in cars fills it in, one who thinks in people leaves it
+  empty. It costs one nullable column to let both be right.
+
+## What still needs him
+
+1. **A parent or guardian has to go on the Stripe account** before it can take a
+   single payment. Nothing else in the build waits on this, but launch does.
+2. **Annual lock-in with a fee, or a discounted annual prepay?** *Recommendation:
+   the prepay* — same commitment, nothing to enforce, no California
+   complication, better cash.
+3. **A calendar note for November 2026: Stripe or a merchant of record.**
+   California taxes this product from 1 January 2027 and moving subscribers
+   later means asking every one of them for their card again.
+
+## Sources added in round 2
+
+- Stripe — age requirement to create an account (13+, guardian must own it under 18): https://support.stripe.com/questions/age-requirement-to-create-a-stripe-account
+- Stripe — age requirement for Connect accounts (Express/Custom require 18): https://support.stripe.com/embedded-connect/questions/age-requirement-to-create-an-account
+- California Family Code §6700 (a minor may contract, subject to disaffirmance): https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=FAM&sectionNum=6700
+- California SB 122 — sales tax on SaaS and digital software from 1 Jan 2027: https://www.pwc.com/us/en/services/tax/library/california-imposes-sales-and-use-tax-on-digital-products-and-saas.html
+- The same, with the custom-software exemption: https://ktslaw.com/kilpatrick/blog/kilpatricks-state-and-local-tax-blog/2026/7/california-expands-sales-and-use-tax-to-saas-and-electronically-delivered-software
+- California's current (pre-2027) treatment of SaaS: https://taxcloud.com/blog/california-saas-sales-tax/
+- California AB 2863 — the amended Automatic Renewal Law: https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=202320240AB2863
+- What AB 2863 requires in practice (same-medium cancellation, affirmative consent): https://www.dwt.com/insights/2024/10/ab-2863-updates-california-automatic-renewal-law
+- Stripe Tax pricing and what it does not do (filing is via partners): https://stripe.com/tax/pricing
+- Supabase backups on the free plan, and the export-it-yourself advice: https://axonbuild.com/blog/supabase-backup/
+- Automatic Supabase backups with GitHub Actions, incl. the IPv4 / session-pooler gotcha: https://backupdrill.com/guides/supabase-backup-github-actions
+- This repo, read directly: `supabase/functions/_shared/emailTemplates.ts` (`invoiceEmail` branching on `payment_status`)

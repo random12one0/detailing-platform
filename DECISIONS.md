@@ -199,6 +199,8 @@ were made more than once.
 
 - **Taking money, and roadmap 2.14 round 2** — he asked for payment and for a deeper plans pass in the same breath, and **the first job was splitting them: there are TWO money problems and only one is about plans.** **MONEY IN** is detailers paying him ($499 + $40/month, recurring, *"I'm not gonna do it manually"*); **MONEY THROUGH** is a detailer's customers paying the detailer. **He must never hold the second**, because holding other people's revenue means owning their chargebacks and answering for a detailer who did not turn up — **and Stripe Connect `Standard` avoids all of it at $0 to the platform**, read from Stripe's own fee-payer table rather than inferred: a `type=standard` account defaults to the connected account paying, Stripe *"[doesn't] charge any Connect fees to it or to your platform"*, and processing, **dispute** and Invoicing/Subscriptions fees all land on the detailer. The $2/active-account and 0.25% + 25¢ payout fees apply only if the PLATFORM handles pricing. **He corrected a finding from the first pass and the correction matters**: the old site's *"Cash, Cash App, PayPal, Venmo & Zelle"* was never a checkout, it is a list and *"I just have them scan my code"* — so **stage 1 is putting those handles into settings and onto the invoice**, which costs nothing, charges 0%, and makes today's real behaviour official. **On plans, the trade's own practice overruled the obvious build twice.** Six plan shapes exist and **they are not six features — they are four fields** (cadence, contents, price shape, term), and cadence is not a fixed list. **The trade does not use contracts and advertises against them** — six of ten plan pages sell *"no contracts, cancel anytime"*, early-termination fees are the GYM industry's answer, and **the tools that actually work are PAUSE and SKIP**, because most breakage is a month somebody could not do rather than defection; **we could not enforce a penalty anyway, since we take no money.** **The "requirement" he meant has a real example and it is not a cadence**: ceramic coating warranties VOID without documented annual maintenance (System X, within ~30 days of the anniversary), which needs a **deadline, an escalating reminder and a last-done stamp** — and **none of the six panel products does it**, which is the one place a detailing-specific product beats Jobber outright. **We log plans, the detailer runs them — for now** — because five of seven detailers manage them by conversation, **real subscriptions cost a SUPPORT burden rather than a code one** (a customer charged for a month nobody showed up for complains to whoever sent the email), and **logging is a strict subset of billing so nothing is thrown away** — provided the **ledger of visits owed and used exists from day one**, or adding billing later is a rewrite. **And "free" was measured rather than assumed: Supabase's free plan has NO BACKUPS AT ALL** and Resend's allows **ONE domain and 100 emails a day** — ~$45/month of real fixed cost, covered by the second detailer, and the same moment plans become worth having.
 
+- **He is 17 and in California, and both facts changed the payment plan** — he volunteered them, nobody had asked, and **every consequence below was checked against a primary source rather than reasoned about.** **Stripe says yes with a parent**: Standard accounts are **13+**, and under 18 *"a legal guardian must assume the role of owner of your account before your account can accept charges and funds can be transferred"* — so **the build is unblocked and LAUNCH is not**, and **stage 3 is untouched** because Express and Custom Connect require 18 while **Standard does not** and the detailers are adults anyway. **California starts taxing SaaS on 1 January 2027 (SB 122, signed 2026-06-29) and does not today**, he has California nexus from his first sale, and **Stripe Tax calculates but does not file** — so the merchant-of-record premium that round 1 called premature has an expiry date on it: **84¢ per detailer per month to make CDTFA filings somebody else's job**, decided by November, because switching after a hundred subscribers means every one re-enters a card. **His twelve-month lock-in with an early-cancellation fee collides with AB 2863**, California's amended auto-renewal law: disclosure before billing details, express affirmative consent, and **cancellation in the same medium they signed up in** — a term and a fee are legal, **routing the exit through him is not.** And **§6700 makes it worse for him specifically**: a minor may contract *subject to the power of disaffirmance*, and adults contract with a minor at their own risk, so **an early-termination fee is the hardest term he could pick to enforce.** **The replacement is the plans research's own strongest finding aimed at his own pricing: discount the annual PREPAY.** Money already taken binds structurally, so *"pay for the year, get two months free"* buys the same twelve months with **nothing to chase, no ARL friction and better cash.** **He also asked whether he thinks about invoices wrongly — he does not, and 2.18 had already fixed it**: `invoiceEmail` branches on `payment_status`, so paid prints *Receipt / Paid in full* and unpaid prints *Invoice / Amount due*, **which sharpens stage 1 to putting payment handles on the UNPAID branch only.** **He decided plans are LOGGED, not billed** — arriving at option A himself and listing cadence, tier, percent and bundle unprompted — **and his customer-accounts idea got a verdict: good idea, one step early**, because everything it buys comes from a LINK, the pattern `/booking/:id` and 2.12's quote acceptance already rely on, while an account puts **a second kind of human** into an auth system holding only detailers and staff and has no right answer to *"whose customer are they"* when someone uses two detailers. **He overruled the recommendation on non-payment** (their site goes down) and **his Resend correction moved the real ceiling to 100 emails a day.**
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -10607,3 +10609,156 @@ Resend account for the platform" thread. At ~5 emails a booking, 100 a day is
 second detailer.** The useful framing: **payments have no fixed cost at all**
 (every fee is a slice of money that moved), while the free tier stops being
 appropriate at roughly the same moment plans become worth having.
+
+## He is 17 and in California, and both facts changed the payment plan
+
+He volunteered both — *"So I live in California, uh, and, you know, I'm under
+eighteen. I hope this won't hurt anything"* — and nobody had asked. **Every
+consequence here was checked against a primary or near-primary source**, because
+this is the one area of the project where being confidently wrong costs him
+money or a legal problem rather than a bad screen.
+
+**Neither fact blocks the build. Both change what launch looks like.**
+
+### Stripe says yes, with a parent
+
+Stripe's own support pages: the minimum age for a **Standard** account is
+**13**, and under 18 *"a legal guardian must assume the role of owner of your
+account before your account can accept charges and funds can be transferred to
+your bank account"* — with the guardian's name, date of birth, last four of
+their SSN, address and a consent statement.
+
+**So the platform's own Stripe account needs an adult on it before it takes a
+single payment, and nothing else waits.** He can build and test the whole thing.
+
+**The important part is what this does NOT break.** Express and Custom Connect
+accounts require 18; **Standard does not**, and the detailers are adults with
+their own Stripe accounts. **The round-1 architecture survives his age
+unchanged**, which is worth stating plainly because the reflex on hearing "under
+18" is to assume the payments design has to be redrawn.
+
+### California taxes this product from 1 January 2027, and not before
+
+**SB 122, signed 29 June 2026**, applies sales and use tax to prewritten
+software and SaaS *"transferred on tangible media, transferred electronically,
+or accessed remotely"*, from 1 January 2027. Until then California has not taxed
+electronically delivered software. **Custom software stays exempt**, which is
+worth remembering when Phase 3's bespoke sites are priced — they may not be the
+same product as the subscription.
+
+He is a California business selling to California customers, so **he has nexus
+from his first sale** and the $40 becomes taxable on that date.
+
+**This puts an expiry date on round 1's "merchant of record is premature".** It
+was premature against a $100k-per-state nexus threshold he will not reach. It is
+not premature against a statute with a date on it. **Stripe Tax calculates at
+0.5% per transaction and monitors thresholds, but filing runs through outside
+partners** — so Stripe leaves him registering with CDTFA and filing returns, at
+seventeen, with a parent. **A merchant of record makes that obligation belong to
+someone else for 84¢ per detailer per month.**
+
+**Decision: start on Stripe, choose by November 2026.** California does not tax
+it until January, Stripe is cheaper and simpler to build against, and he will
+have few enough subscribers before then that moving them is an email. **After a
+hundred subscribers, switching means every one of them re-enters a card**, which
+is why this has a date rather than a "revisit sometime".
+
+### His lock-in idea is the one thing here that had to be argued with
+
+He proposed a twelve-month commitment paid monthly with an early-cancellation
+fee, and an exit that runs through him: *"if they contact me, I could figure out
+the best way."*
+
+**California's Automatic Renewal Law as amended by AB 2863 (in force 1 July
+2025)** requires clear and conspicuous disclosure of the auto-renewal **before**
+billing information is taken, **express affirmative consent**, and
+**cancellation in the same medium the customer signed up in** — and prohibits
+contract wording that undermines a consumer's understanding of those rights.
+
+**A term and a fee are not illegal. Making himself the only door out is.**
+
+**And Family Code §6700 makes it worse for him than for an adult founder:** a
+minor may contract *subject to the power of disaffirmance*, and the standing
+rule is that adults contract with a minor at their own risk. **He has picked the
+single hardest term to enforce, from the weakest position to enforce it.**
+
+**So the recommendation is not "drop the commitment" — it is to get the same
+twelve months from the other direction: discount the annual PREPAY.** This is
+the plans research's own strongest finding turned around and pointed at his own
+pricing: **money already taken binds structurally and needs no enforcement at
+all.** *"Pay for the year, get two months free"* produces the same year, with
+nothing to chase, no auto-renewal-law friction, and better cash — which is what
+a business at this stage actually needs. **If he still wants the monthly
+version, it is buildable; it needs the disclosure, the tick and a working cancel
+button, and some fees will simply never be collected.**
+
+### He was right about invoices, and the fix was already shipped
+
+*"Am I thinking of invoices the wrong way?"* — because his old site's invoice
+listed accepted payment methods **after** the customer had paid. **He is right
+that it is odd, and 2.18 already fixed it here without anyone connecting the
+two:** `invoiceEmail` branches on `payment_status` — paid gives *Receipt* and
+*Paid in full*, unpaid gives *Invoice* and *Amount due* — and the file carries a
+comment about the old behaviour, a *"document headed 'invoice' for money it had
+already taken."*
+
+**That sharpens stage 1 rather than changing it: the payment handles go on the
+UNPAID branch only.** Printing them on a receipt would rebuild the exact thing
+he finds weird about his own site — **which is the second time in two sessions
+that his instinct about his own trade corrected a plan.**
+
+### Two corrections he made to this research, both accepted
+
+- **Resend: he has two domains, uses only his own, and sends all tenant mail
+  himself.** So the one-domain limit is not the constraint and the earlier
+  framing was wrong. **The real ceiling is 100 emails a day** — roughly twenty
+  bookings across every tenant at five emails each — **and a rejected send is
+  invisible**, because `sendTenantEmail` is best-effort so a booking never fails
+  over an email.
+- **Backups: his "make another Supabase account and back it up ourselves" is
+  Supabase's own advice**, which tells free-plan projects to export with
+  `supabase db dump` and keep off-site copies. Roadmap 2.22. **His "no problems
+  in over a year" is true and is not evidence** — nothing has been under load and
+  nobody else's customers have been in it.
+
+### Recorded as his call, over the recommendation
+
+**Non-payment takes the whole thing down**, public booking page included:
+*"if they just stop paying, then yes, their site will go down."* The consequence
+was named once and not argued: their customers' bookings already exist, and
+those customers lose the page they cancel and reschedule from, so the calls land
+on a detailer who is already having a bad week. **A grace period before the
+public page goes dark costs nothing to build if he ever wants it.**
+
+**And plans belong to a vehicle or a person at the DETAILER's discretion** —
+his answer — implemented as **one nullable vehicle column on the plan member**,
+so a detailer who thinks in cars and one who thinks in people are both right.
+
+### The customer-accounts idea: good, one step early
+
+He asked directly — *"tell me if this is a bad idea or not"* — about plan
+customers signing in with Google, seeing their plan, cancelling, and a *"log in
+or continue as guest"* choice on the booking page.
+
+**Everything he wants from it comes from a link, and this product already leans
+on that pattern twice:** `/booking/:id`, where the UUID *is* the credential and
+every cancellation and reschedule already happens, and 2.12's quote acceptance
+from an email. A **"your plan" link** carries what they are on, when they are
+next due, a cancel button and a book button that brings the plan with it — **and
+it satisfies California's same-medium cancellation rule for free.**
+
+**The account is expensive for four reasons, in order of weight:** it introduces
+**a second kind of human** into an auth system that holds only detailers and
+staff, with the public booking page deliberately outside `BusinessProvider` and
+2.13 having just finished making permissions coherent — the failure mode is a
+customer reaching a dashboard; **"whose customer are they"** has no right answer
+when one person uses two detailers on the platform, and a question with no right
+answer usually means the feature is early; passwords are a permanent obligation
+over names, phone numbers and addresses; and **"log in or continue as guest"
+costs bookings**, against W16, the owner's own rule that a customer never fights
+the form.
+
+**It becomes right when a customer needs something a single link cannot
+carry** — several vehicles, a year of history, an outstanding balance — and by
+then the page exists, so **adding a login in front of it is much smaller than
+inventing both together.**

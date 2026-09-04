@@ -2464,6 +2464,50 @@ is kept; the entire visual design restarts from scratch.
       nothing from 2.20; the billing version needs Connect. Build order is 2.20
       stage 1–2, then this.
 
+      **HE DECIDED THE SHAPE THE SAME DAY, AND HE GOT THERE HIMSELF — ROUND 3 of
+      `docs/plans-research-2026-09-04.md`.**
+
+      > *"there's gonna be no real way to easily have a monthly system that every
+      > detailer wants and how it's gonna work in the booking process… what we
+      > need is a way for them to be able to track it inside of our app somehow,
+      > but they're gonna do the negotiations of, like, what dates and all the
+      > times separately. So we need a way for the detailer within the app to log
+      > this customer as a monthly plan, and they could set all the settings — if
+      > it's weekly, biweekly, monthly, which tier it is, or if it's a percent
+      > discount, if it's a bundle."*
+
+      **That is option A, decided.** The plan is LOGGED, never sold and never
+      billed by us; the detailer negotiates dates and times off the product.
+      **He listed cadence, tier, percent and bundle unprompted — the four fields
+      arrived at from the other direction by someone who runs the business.**
+      **The ledger of visits owed and used stays non-negotiable**: it is the only
+      thing between "log it now" and a rewrite when billing arrives.
+
+      **HIS CUSTOMER-ACCOUNTS IDEA — HE ASKED FOR A VERDICT AND THE ANSWER IS
+      "GOOD IDEA, ONE STEP EARLY".** He proposed plan customers signing in with
+      Google or an account, seeing their plan and cancelling, with *"log in or
+      continue as guest"* on the booking page. **Everything he wants from it
+      comes from a LINK, a pattern this product already leans on twice** —
+      `/booking/:id`, where the UUID IS the credential, and 2.12's quote
+      acceptance. A plan member gets a **"your plan" link**: what they are on,
+      when they are next due, a cancel button, and a book button that carries
+      the plan. **It also happens to satisfy California's same-medium
+      cancellation rule** (2.20). Four reasons the account itself is expensive
+      now: it puts a **second kind of human** into an auth system that holds only
+      detailers and staff, with the public booking page deliberately outside
+      `BusinessProvider` and 2.13 having just made permissions coherent;
+      **"whose customer are they"** has no right answer when someone uses two
+      detailers on the platform; passwords are a permanent obligation over
+      names, phones and addresses; and **"log in or continue as guest" costs
+      bookings**, against W16. **Build the link; the account is the same page
+      with a door on it later.**
+
+      **AND HE HANDED THE REQUIREMENT CASE'S DESIGN TO US** — *"I think you could
+      probably figure all that out."* **Recorded as owed at build time, not
+      specified here**, because it depends on where the member's ledger lives.
+      What must survive: it is a **deadline with a date**, an **escalating
+      reminder** and a **last-done stamp** — not a stricter cadence.
+
 - [x] 2.15 ~~**Travel priced by measured distance**~~ **REFUSED BY THE OWNER
       2026-08-31, THE SAME DAY IT WAS WRITTEN, AND THE THING HE DESCRIBED
       INSTEAD IS ALREADY BUILT. This item is closed without work.**
@@ -2986,6 +3030,71 @@ is kept; the entire visual design restarts from scratch.
       integration itself is not visual. **`security-review` is not optional on
       any stage that touches a key or a webhook.**
 
+      **HE ANSWERED THE SAME DAY AND TOLD US TWO THINGS NOBODY HAD ASKED: HE IS
+      UNDER 18 AND HE IS IN CALIFORNIA.** Both were checked against primary
+      sources; **neither is a blocker** and both change something. Round 2 of
+      `docs/payments-research-2026-09-04.md` carries the working.
+
+      - **STRIPE SAYS YES, WITH A PARENT ON THE ACCOUNT.** Stripe's own support
+        pages: **Standard accounts are 13+**, and under 18 *"a legal guardian
+        must assume the role of owner of your account before your account can
+        accept charges and funds can be transferred to your bank account"*
+        (guardian's name, DOB, last four of SSN, address, consent). **Nothing in
+        the build waits on this; LAUNCH does.** **And it does not touch stage
+        3** — Express and Custom Connect require 18, **Standard does not**, and
+        the detailers are adults with their own accounts. The round-1 design
+        survives his age unchanged.
+      - **CALIFORNIA TAXES SaaS FROM 1 JANUARY 2027 — NOT TODAY.** **SB 122,
+        signed 2026-06-29.** He is a California business selling to California
+        customers, so he has nexus from his first sale; from that date the $40
+        is taxable and he registers with CDTFA, collects and files. **Custom
+        software stays exempt**, which may matter for Phase 3's bespoke sites.
+        **That is ~4 months out.** Stripe Tax calculates at **0.5%/transaction**
+        but **filing is via outside partners** — a merchant of record (5% + 50¢,
+        so **84¢/month more per detailer**) makes the obligation belong to
+        someone else entirely. **Start on Stripe; put a decision in the calendar
+        for November 2026**, because switching after a hundred subscribers means
+        every one of them re-enters a card.
+      - **HIS LOCK-IN IDEA COLLIDES WITH CALIFORNIA'S CLICK-TO-CANCEL LAW.** He
+        proposed a twelve-month commitment paid monthly with an early-cancellation
+        fee, and leaving via *"if they contact me, I could figure out the best
+        way"*. **AB 2863 (in force 1 July 2025)** requires clear disclosure of
+        auto-renewal **before** billing details are taken, **express affirmative
+        consent**, and **cancellation in the same medium the customer signed up
+        in.** A term and a fee are legal; **routing the exit through him is
+        not — a cancel button has to exist.** And §6700: a minor may contract
+        **subject to the power of disaffirmance**, and *adults contract with a
+        minor at their own risk* — **an early-termination fee is the single
+        hardest term for him specifically to collect.**
+        **THE VERSION THAT GETS THE SAME YEAR WITH NOTHING TO ENFORCE: DISCOUNT
+        THE ANNUAL PREPAY.** *"Pay for the year, get two months free"* is the
+        plans research's own strongest finding — **money already taken binds
+        structurally** — applied to his own pricing. No fee to chase, no ARL
+        friction, better cash. **Recommended over the lock-in.**
+      - **HE RULED ON NON-PAYMENT, OVER THE RECOMMENDATION:** *"if they just
+        stop paying, then yes, their site will go down."* **Recorded as his
+        call.** One consequence to know rather than argue: their customers'
+        bookings already exist and those customers lose the page they cancel and
+        reschedule from, so the phone calls land on a detailer already having a
+        bad week. **A grace period before the PUBLIC page goes dark costs
+        nothing to build.**
+      - **STAGE 1 GOT SHARPER, AND IT WAS HIS OWN QUESTION THAT DID IT.** He
+        asked whether he was *"thinking of invoices the wrong way"* because his
+        old site's invoice listed payment methods after the customer had already
+        paid. **He is right that it is wrong, and 2.18 already fixed it here:**
+        `invoiceEmail` branches on `payment_status` — paid gives *Receipt / Paid
+        in full*, unpaid gives *Invoice / Amount due*. **So the payment handles
+        go on the UNPAID branch only**; printing them on a receipt would rebuild
+        the exact thing he finds weird about his own site.
+      - **THE EMAIL CEILING MOVED.** He corrected the one-domain finding — he has
+        two domains, uses only his own, and sends all tenant mail himself — so
+        **the constraint is Resend's 100 EMAILS A DAY** (~20 bookings across all
+        tenants at ~5 emails each), and a rejected send is invisible.
+
+      **STILL NEEDS HIM: a parent or guardian on the Stripe account; lock-in
+      versus prepay; and the November decision on Stripe vs a merchant of
+      record.**
+
 - [ ] 2.21 **A SMALL SPAM FILTER ON THE BOOKING PAGE — the OWNER said yes on
       2026-09-04** (*"and yes we should have a small spam filter"*), answering
       gap C below.
@@ -3009,6 +3118,38 @@ is kept; the entire visual design restarts from scratch.
       exclusion constraint means a refusal must not leave a half-written row.
 
       **Skills: none — this is engine work. `security-review` before it ships.**
+
+- [ ] 2.22 **BACK THE DATABASE UP FOR FREE — his own idea, 2026-09-04, and it
+      works.**
+
+      > *"Supabase's free plan — like, I guess I got backups, but I haven't had a
+      > problem, I've been working with it for over a year… Maybe I could create
+      > another Supabase account and we could, like, do our own type of backing
+      > up for free."*
+
+      **He is right that it can be done free, and it is Supabase's OWN advice:**
+      their documentation tells free-plan projects to export with
+      `supabase db dump` and keep off-site copies. **The free plan includes no
+      backups at all** — that part of gap E stands.
+
+      **The shape: a nightly GitHub Actions cron running `pg_dump`.** One
+      gotcha that costs an afternoon if unknown — **GitHub runners are IPv4-only
+      and a free project's DIRECT connection resolves to IPv6, so use the
+      SESSION pooler on port 5432; the transaction pooler does not work with
+      `pg_dump`.** A second Supabase project also works as the destination.
+
+      **Two rules that are not optional.** **The destination must be private and
+      encrypted** — the dump is real customers' names, phone numbers and home
+      addresses, and a public repo would be the worst single thing that could
+      happen to this product. And **a backup nobody has restored is not a
+      backup**: one restore into a scratch project, once, or the item is not
+      done.
+
+      **His "no problems in over a year" is true and is not evidence** — nothing
+      has been under load and nobody else's customers have been in it. **On his
+      word "maybe"**, so it is scheduled but he has not said build it.
+
+      **Skills: none. `security-review` on where the dump lands.**
 
 - [x] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named
@@ -3806,7 +3947,9 @@ recommendation.
   has already bitten twice (the dead email relay in 0.2, VAPID keys never set).
   7.2 adds Sentry for the FRONT END. **Recommendation: fold a heartbeat into
   7.2 — the sweep writes a timestamp, and something checks it is recent.**
-- **E. NO BACKUPS, NO RESTORE DRILL, NO STAGING — AND "no backups" IS NOW A
+- **E. THE BACKUP HALF IS ROADMAP 2.22 NOW — his own idea, 2026-09-04, and it
+  works on the free plan.** Staging is still unscheduled.
+  **NO BACKUPS, NO RESTORE DRILL, NO STAGING — AND "no backups" IS NOW A
   MEASURED FACT, NOT A SUSPICION (2026-09-04): Supabase's FREE PLAN INCLUDES NO
   BACKUPS AT ALL.** Daily backups with 7-day retention start on **Pro, $25/month
   per project**. Also on free: 500 MB, two projects, and a pause after 7 days

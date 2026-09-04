@@ -4407,3 +4407,53 @@ moved. Two detailers cover the lot.
   schedule are two acts. **Three statuses, not their seven.**
 - **The schema decision most likely to be regretted: a plan belongs to a
   VEHICLE, not a person.** `customers` has no vehicles today.
+
+### HE ANSWERED THE SAME DAY, AND TOLD US HE IS 17 AND IN CALIFORNIA
+
+**Both facts were checked against primary sources; neither blocks the build.**
+Round 2 of `docs/payments-research-2026-09-04.md` and round 3 of the plans file.
+
+- **STRIPE: 13+ FOR A STANDARD ACCOUNT, BUT A LEGAL GUARDIAN MUST OWN IT** before
+  it can accept charges or move money. **The build is unblocked; LAUNCH is
+  not.** **Stage 3 is untouched** — Express and Custom Connect require 18,
+  **Standard does not**, and detailers are adults. **The reflex on hearing
+  "under 18" is to redraw the payments design; do not — it survives unchanged.**
+- **CALIFORNIA TAXES SaaS FROM 1 JANUARY 2027 (SB 122, signed 2026-06-29), NOT
+  TODAY.** He has CA nexus from his first sale. **Stripe Tax calculates (0.5%)
+  but does NOT file** — a merchant of record costs **84¢/detailer/month** and
+  makes CDTFA registration and filing somebody else's job. **Start on Stripe,
+  decide by November 2026**; after ~100 subscribers a switch means every one
+  re-enters a card.
+- **HIS 12-MONTH LOCK-IN WITH AN EARLY-CANCELLATION FEE WAS ARGUED WITH, ONCE.**
+  **AB 2863** (in force 1 July 2025) requires disclosure before billing details,
+  affirmative consent, and **cancellation in the same medium they signed up
+  in** — a term and a fee are legal, **an exit that runs only through him is
+  not.** And **Family Code §6700**: a minor contracts subject to disaffirmance
+  and adults deal with a minor at their own risk, so **he has picked the hardest
+  term to enforce from the weakest position.** **Recommended instead: discount
+  the annual PREPAY** — the plans research's own finding (money already taken
+  binds structurally) aimed at his own pricing. Same year, nothing to chase.
+- **HE WAS RIGHT ABOUT INVOICES AND 2.18 HAD ALREADY FIXED IT.** `invoiceEmail`
+  branches on `payment_status`: paid → *Receipt / Paid in full*, unpaid →
+  *Invoice / Amount due*. **So stage 1's payment handles go on the UNPAID branch
+  only** — printing them on a receipt rebuilds the thing he finds weird about
+  his own site. **Second time in two sessions his instinct corrected a plan.**
+- **TWO CORRECTIONS FROM HIM, BOTH ACCEPTED.** Resend: he has two domains, uses
+  only his own, sends all tenant mail himself — **so the ceiling is 100 EMAILS A
+  DAY**, not the domain count. Backups: *"maybe I could create another Supabase
+  account"* is **Supabase's own advice** and is now roadmap 2.22 (nightly
+  `pg_dump` via GitHub Actions; **session pooler on 5432, because runners are
+  IPv4-only and the free direct URL is IPv6**).
+- **HIS CALLS, RECORDED OVER THE RECOMMENDATIONS:** non-payment takes the public
+  booking page down too, and **vehicle-or-person is the detailer's choice**
+  (one nullable column on the plan member).
+- **PLANS ARE LOGGED, NOT BILLED — he chose option A himself** and listed
+  cadence, tier, percent and bundle unprompted. **His customer-accounts idea got
+  a verdict: good, one step early** — everything it buys comes from a **link**
+  (`/booking/:id` already treats the UUID as the credential), while an account
+  puts a second kind of human into an auth system holding only detailers and
+  staff. **He handed the requirement-case design to us**, owed at build time.
+
+**NEW ROADMAP ITEMS FROM THIS EXCHANGE: 2.20 (taking money), 2.21 (spam
+filter), 2.22 (free backups).** **WAITING ON HIM: a parent on the Stripe
+account, lock-in vs prepay, and the November merchant-of-record decision.**
