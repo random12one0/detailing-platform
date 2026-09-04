@@ -9,11 +9,27 @@ He is asking it about a **dark** email, which is the version of the question
 with real teeth: dark is where email clients misbehave, and a design that looks
 right in a browser can arrive inverted, greyed or unreadable.
 
-**Short answer: it holds. The majority of opens render it as coded, the
-minority that don't get a light version of the same email that is still
-readable and still the right hue, and nothing anywhere renders it broken.**
-Three changes were made because of this research and they are listed at the
-bottom. One real defect was found that has nothing to do with dark mode.
+> **CORRECTED THE SAME DAY, AFTER HE TESTED IT. The conclusion below was
+> wrong, and the way it was wrong is the lesson.**
+>
+> This file predicted Gmail's inversion correctly and then reasoned — rather
+> than measured — that the result would be "readable". The owner opened the
+> real sends: Apple Mail perfect in both modes, Gmail's dark mode broken.
+> **Measured afterwards by applying Gmail's actual transform to our palette:
+> the accent as words falls to 1.99:1 and the button's ink to 1.77:1**, on a
+> 4.5:1 floor. Unreadable, not merely off-brand.
+>
+> **The emails are LIGHT-FIRST now**, with the dark design behind
+> `prefers-color-scheme` for the clients that honour it. Everything below about
+> WHICH clients do what is accurate and still worth reading; only the verdict
+> in the next paragraph was wrong.
+>
+> *A prediction plus a plausible consequence is not a measurement. The numbers
+> took ten minutes and would have caught it before the send.*
+
+**~~Short answer: it holds.~~** The majority of opens render it as coded, the
+minority that don't get a light version of the same email — **and that version
+was NOT still readable, which is what the correction above is about.**
 
 ---
 
@@ -51,31 +67,53 @@ cannot happen here**, and the reason is structural rather than lucky:
   more than one guide and implies a green button arriving magenta. It does not:
   the hue is preserved and the lightness is mirrored.
 
-So the worst case — Gmail's iOS app, in dark mode — is **a light-mode version of
-the same email**: near-white ground, near-black text, the tenant's colour still
-recognisably theirs, every contrast ratio still passing because a ratio is
-symmetric under a brightness flip. **Not the design. Entirely readable.**
+~~So the worst case is a light-mode version of the same email… entirely
+readable.~~ **THIS WAS THE WRONG CONCLUSION AND IT IS WORTH KEEPING VISIBLE.**
 
-**There is a known hack that forces the dark rendering through Gmail** —
-nested `mix-blend-mode: screen` / `difference` spans. **Not used, deliberately.**
-It is fragile, it produces artefacts of its own when it half-applies, it has to
-wrap every piece of text in two extra elements, and the thing it buys is
-*"looks dark rather than light in one client"* — not *"is readable rather than
-unreadable"*. **Add it only if he says the light rendering bothers him**, and
-if he does, add it to the shell once rather than to eleven templates.
+The reasoning was: a contrast ratio is symmetric under a brightness flip, so
+flipping everything preserves every ratio. **The flaw is that inversion does
+not flip everything by the same amount.** It is an HSL *lightness* mirror, so a
+mid-lightness accent barely moves (green L≈55% → 45%) while its near-black ink
+swings from L≈8% to L≈92%. The pair does not travel together, and the pair is
+what contrast measures.
+
+MEASURED AFTERWARDS, which is what should have happened first:
+
+| | before | after Gmail |
+|---|---|---|
+| accent as words on the ground | 10.07:1 | **1.99:1** |
+| ink on the accent button | 10.88:1 | **1.77:1** |
+| the 11px labels | 5.16:1 | 3.68:1 |
+
+**Unreadable, not off-brand.** Checked across four accents including crimson and
+violet — every one fails, so it is unfixable by palette.
+
+**THE FIX WAS TO MOVE THE DESIGN, NOT THE COLOURS: light-first, with the dark
+palette behind `prefers-color-scheme`.** Gmail then darkens a LIGHT email,
+which is the one thing its algorithm is actually tuned for, and Apple Mail —
+~60% of opens — still shows the real dark design. See `emailKit.ts`'s header.
+
+**The `mix-blend-mode` hack that forces dark through Gmail is still NOT used**,
+and light-first removes the reason to want it: what it buys is "looks dark
+rather than light", and light is now the intended rendering rather than a
+degradation.
+
+*The transferable part: a prediction plus a plausible consequence is not a
+measurement, and this file shipped one as if it were.*
 
 ---
 
 ## What was changed because of this research
 
-**1. Pure black and pure white are now impossible in the tenant's colour.**
-`emailDarkBrandColors` maps `#ffffff` → `#fefefe` and `#000000` → `#010101`.
-Those two exact values are Apple Mail's inversion trigger — **~60% of all
-opens** — and they were reachable: a tenant who picks white gets `#ffffff` as
-their accent, and crimson's button ink was `#ffffff`. The nudge costs about
-0.1 of a contrast ratio and is asserted in `render-emails-new.mjs`. **Applied in
-the dark wrapper only**, never in `inkFor`, which the 138-check white-paper
-suite pins.
+**1. Pure black and pure white are now impossible in the tenant's colour, IN
+BOTH PALETTES.** `#ffffff` → `#fefefe`, `#000000` → `#010101`. Those two exact
+values are Apple Mail's inversion trigger — **~60% of all opens** — and they
+were reachable: a tenant who picks white gets `#ffffff` as their accent, and
+crimson's and violet's button ink are `#ffffff`. **It was applied to the dark
+wrapper only at first, which left the LIGHT path — the one every client now
+sees by default — still able to hand Apple Mail its own trigger.** That is the
+one way to make Apple Mail behave like Gmail, and it was one line from
+shipping. Asserted in both palettes by `render-emails.mjs`.
 
 **2. The logo sits on a bone plate.** This one is not a dark-mode subtlety, it
 is a straight defect the research direction surfaced: **a detailer's logo is
@@ -156,3 +194,60 @@ CLAUDE.md, and this file does not meet it yet.
 - Stripo — Common Issues in Dark Mode and How to Work Around Them — https://support.stripo.email/en/articles/13375260-common-issues-in-dark-mode-and-how-to-work-around-them
 - Dyspatch — Solving Gmail Greyscale Dark Mode Issues — https://www.dyspatch.io/blog/solving-gmail-greyscale-dark-mode-issues-in-email-design/
 - Mail Designer 365 — Email Design for Dark Mode — https://www.maildesigner365.com/email-design-for-dark-mode/
+
+---
+
+## The spam answer — measured on both domains, 2026-09-03
+
+The owner's report: *"it went to my spam folder… because my Andrews detail one
+doesn't go to spam."*
+
+**Checked rather than guessed, which settles what it is and is not:**
+
+| | `email.detailingplatform.com` (the platform) | `andrewsdetail.com` (his business) |
+|---|---|---|
+| DKIM (`resend._domainkey`) | present | present |
+| SPF on the sending subdomain | present | present |
+| DMARC | `v=DMARC1; p=none;` | `v=DMARC1; p=none;` |
+| Resend infrastructure | `forge.rmta.net`, hardcoded shared IPs | `feedback-smtp.us-east-1.amazonses.com` |
+| History of real, engaged mail | almost none | months of it |
+
+**AUTHENTICATION IS NOT THE PROBLEM. The two are configured the same way**, and
+both pass. Verifying anything further buys nothing, which is the useful half of
+this answer — it stops the obvious next move being a wasted afternoon of DNS.
+
+**Two real differences.** The domains sit on **different Resend sending pools**:
+his on the long-established Amazon SES one, the platform on Resend's newer
+own-MTA pool whose shared IPs have less history. And — much more heavily
+weighted by Gmail — **his domain has months of real mail to real people who open
+and reply to it, while the platform subdomain has sent almost nothing ever.** A
+first-ever message from an unknown domain to a personal Gmail account is a
+textbook cold-start classification, and it is what this is.
+
+**One genuine gap: `detailingplatform.com` (the ROOT) has no SPF record at all.**
+It does not affect these sends, which come from the subdomain — but a domain
+that never states what may send for it is a weaker domain, and it is free to
+fix. `v=spf1 -all` on the root says "nothing sends from the bare name", which is
+true and also blocks spoofing.
+
+### What actually moves the needle, in order
+
+1. **Mark it "Not spam" and drag it to the inbox.** Fixes his own view
+   immediately and teaches Gmail for his account. Does nothing for customers.
+2. **Root SPF and a DMARC `rua=` address.** Small, free, and the reporting gives
+   visibility nobody has today.
+3. **Time and engagement.** This is the actual answer and it cannot be bought:
+   reputation is earned by mail that real people open and reply to. It arrives
+   with real tenants sending real confirmations, not with test sends to oneself.
+4. **The plain-text part**, added the same day, is a real positive signal that
+   was missing for the whole life of the product.
+
+**NOT DONE, DELIBERATELY: a `List-Unsubscribe` header.** It is a
+legitimate-sender signal and it is the wrong tool here — these are transactional
+emails, and a customer who unsubscribes stops receiving their own receipts.
+Gmail's one-click requirement applies to bulk senders; this is not one.
+
+**Worth knowing and not acted on:** the platform and the live business share one
+Resend account, so platform test sends accumulate against the same reputation as
+Andrew's Auto Detail's real customer mail. A separate account for the platform
+before real tenants exist was flagged in Phase 0 and is still the right move.

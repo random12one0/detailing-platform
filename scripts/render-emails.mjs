@@ -35,8 +35,8 @@
 //     spam-filter defect until 2026-09-03.
 
 import { mkdir, writeFile } from "node:fs/promises";
-import { contrastRatio, emailDarkBrandColors } from "../supabase/functions/_shared/brandColor.js";
-import { G, htmlToText } from "../supabase/functions/_shared/emailKit.ts";
+import { contrastRatio, emailBrandColors, emailDarkBrandColors } from "../supabase/functions/_shared/brandColor.js";
+import { brandFrom, D, htmlToText, L } from "../supabase/functions/_shared/emailKit.ts";
 import * as T from "../supabase/functions/_shared/emailTemplates.ts";
 
 const arg = (n, d) => {
@@ -58,16 +58,19 @@ const LOGO = process.argv.includes("--logo")
      </svg>`)
   : null;
 
-const c = emailDarkBrandColors(ACCENT);
+// BUILT BY `brandFrom`, NOT BY HAND. A fixture assembled field by field is a
+// fixture that silently disagrees with the interface the moment one is added —
+// which is exactly what happened when the dark palette arrived and every email
+// rendered `undefined`. The builder is the same one `_shared/email.ts` uses in
+// production, so the fixture cannot drift from it.
 const brand = {
-  brandName: "Ridgeline Auto Detail",
+  ...brandFrom({
+    brandName: "Ridgeline Auto Detail",
+    contactPhone: "(303) 555-0142",
+    siteUrl: "https://detailingplatform.com/book/demo-detail",
+    logoUrl: LOGO,
+  }, ACCENT),
   contactEmail: "hello@ridgelinedetail.example",
-  contactPhone: "(303) 555-0142",
-  siteUrl: "https://detailingplatform.com/book/demo-detail",
-  logoUrl: LOGO,
-  accent: c.text,
-  accentFill: c.fill,
-  accentInk: c.fillInk,
   dropoffAddress: "2200 Blake St, Denver, CO 80205",
   googleReviewUrl: "https://g.page/r/example/review",
   yelpReviewUrl: "https://www.yelp.com/biz/example",
@@ -207,35 +210,73 @@ for (const [file, label, render] of EMAILS) {
   }
 }
 
-// --- THE FLOORS, ON BOTH GROUNDS ------------------------------------------
+// --- THE FLOORS, IN BOTH PALETTES -----------------------------------------
+//
+// The email ships a LIGHT design inline and a DARK one behind
+// `prefers-color-scheme`, so both have to clear the floors — a palette that is
+// only checked in one mode is half-checked. Roadmap 2.18: the dark-first
+// version failed on Gmail at 1.77:1 and nothing in this script noticed,
+// because nothing measured what a client does to the colours afterwards.
 {
-  for (const [gName, g] of [["ground", G.ground], ["panel", G.panel]]) {
-    for (const t of ["bone", "bone2", "fog", "fog2"]) {
-      const r = contrastRatio(G[t], g);
-      if (r < 4.5) {
-        console.error(`  FAIL  ${t} on ${gName} is ${r.toFixed(2)}:1, floor 4.5`);
-        bad++;
+  for (const [mode, P, accentOf] of [
+    ["light", L, (h) => { const c = emailBrandColors(h); return { text: c.onPaper, fill: c.band, ink: c.bandInk }; }],
+    ["dark", D, (h) => { const c = emailDarkBrandColors(h); return { text: c.text, fill: c.fill, ink: c.fillInk }; }],
+  ]) {
+    for (const [gName, g] of [["ground", P.ground], ["panel", P.panel]]) {
+      for (const t of ["ink", "ink2", "fog", "fog2"]) {
+        const r = contrastRatio(P[t], g);
+        if (r < 4.5) {
+          console.error(`  FAIL  ${mode}: ${t} on ${gName} is ${r.toFixed(2)}:1, floor 4.5`);
+          bad++;
+        }
+      }
+    }
+    for (const hex of ["#38E08B", "#DC2626", "#F5D90A", "#7C3AED", "#000000", "#FFFFFF", "#0B0D0E"]) {
+      const k = accentOf(hex);
+      for (const [what, a, b, floor] of [
+        ["accent as words on the panel", k.text, P.panel, 4.5],
+        ["accent as a fill on the panel", k.fill, P.panel, 3],
+        ["ink on the accent fill", k.ink, k.fill, 4.5],
+      ]) {
+        const r = contrastRatio(a, b);
+        if (r < floor - 1e-9) {
+          console.error(`  FAIL  ${mode}: ${hex}: ${what} is ${r.toFixed(2)}:1, floor ${floor}`);
+          bad++;
+        }
+      }
+      // Apple Mail is ~60% of opens and treats a pure value as permission to
+      // invert the whole email.
+      for (const [label, v] of [["text", k.text], ["fill", k.fill], ["ink", k.ink]]) {
+        if (/^#(fff(fff)?|000(000)?)$/i.test(v)) {
+          console.error(`  FAIL  ${mode}: ${hex}: ${label} is ${v} — Apple Mail inverts on a pure value`);
+          bad++;
+        }
       }
     }
   }
-  for (const hex of ["#38E08B", "#DC2626", "#F5D90A", "#7C3AED", "#000000", "#FFFFFF", "#0B0D0E"]) {
-    const k = emailDarkBrandColors(hex);
-    for (const [what, a, b, floor] of [
-      ["accent as words on the panel", k.text, G.panel, 4.5],
-      ["accent as a fill on the panel", k.fill, G.panel, 3],
-      ["ink on the accent fill", k.fillInk, k.fill, 4.5],
-    ]) {
-      const r = contrastRatio(a, b);
-      if (r < floor - 1e-9) {
-        console.error(`  FAIL  ${hex}: ${what} is ${r.toFixed(2)}:1, floor ${floor}`);
-        bad++;
-      }
-    }
-    for (const [label, v] of [["text", k.text], ["fill", k.fill], ["ink", k.fillInk]]) {
-      if (/^#(fff(fff)?|000(000)?)$/i.test(v)) {
-        console.error(`  FAIL  ${hex}: ${label} is ${v} — Apple Mail inverts on a pure value`);
-        bad++;
-      }
+}
+
+// --- EVERY COLOURED ELEMENT CARRIES ITS DARK-MODE CLASS -------------------
+//
+// The dark palette is applied by CLASS. An element that sets a colour inline
+// and forgets its class stays LIGHT inside a dark email — the one way this
+// design can look broken rather than merely different, and something no
+// contrast check can see because both values are individually fine.
+{
+  const html = T.customerConfirmationEmail(brand, booking, false).html
+    + T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "paid", "Paid by card.").html
+    + T.cancellationEmail(brand, booking, false).html
+    + T.requestDecisionEmail(brand, booking, "quote", { manageUrl: booking.receiptUrl, quotedAmount: 395 }).html;
+  // Every inline `color:` / `background-color:` outside the <style> block, with
+  // the tag it sits on. Anything carrying a colour must also carry a class.
+  const body = html.slice(html.indexOf("</style>"));
+  for (const m of body.matchAll(/<(td|div|span|strong|a|body|table)([^>]*?)style="([^"]*)"/g)) {
+    const [, tag, attrs, style] = m;
+    if (!/(^|;|\s)(background-)?color:/.test(style)) continue;
+    if (/color:transparent/.test(style)) continue;         // the preheader
+    if (!/class="/.test(attrs)) {
+      console.error(`  FAIL  <${tag}> sets a colour with no dark-mode class: ${style.slice(0, 70)}`);
+      bad++;
     }
   }
 }
@@ -244,11 +285,14 @@ await writeFile(`${OUT}/index.html`, `<!DOCTYPE html><html lang="en"><head><meta
 <title>Emails — ${ACCENT}</title><style>
 body{font:15px/1.6 system-ui,sans-serif;background:#0B0D0E;color:#F2F1EC;max-width:760px;margin:40px auto;padding:0 20px}
 h1{font-size:20px}ul{list-style:none;padding:0}li{padding:12px 0;border-bottom:1px solid #272D31}
-a{color:${c.text};font-weight:600}.t{font-weight:400;font-size:12px;color:#7B858A;margin-left:8px}
+a{color:${brand.accentDark};font-weight:600}.t{font-weight:400;font-size:12px;color:#7B858A;margin-left:8px}
 .s{color:#7B858A;font-size:13px;margin-top:2px}code{color:#939CA1}
 </style></head><body><h1>Every email this product sends</h1>
-<p>Tenant accent <code>${ACCENT}</code> &rarr; words <code>${c.text}</code>, fill <code>${c.fill}</code>,
-ink on fill <code>${c.fillInk}</code>. Re-run with <code>--accent=#hex</code>, <code>--logo</code>.</p>
+<p>Tenant accent <code>${ACCENT}</code>.
+Light: words <code>${brand.accent}</code>, fill <code>${brand.accentFill}</code>, ink <code>${brand.accentInk}</code>.
+Dark: words <code>${brand.accentDark}</code>, fill <code>${brand.accentFillDark}</code>, ink <code>${brand.accentInkDark}</code>.
+Every file below is LIGHT by default and swaps to dark under <code>prefers-color-scheme</code> &mdash;
+switch your OS theme to see the other one. Re-run with <code>--accent=#hex</code>, <code>--logo</code>.</p>
 <ul>${cards.join("\n")}</ul></body></html>`);
 
 console.log(`\n${EMAILS.length} emails → ${OUT}/index.html  (accent ${ACCENT})`);

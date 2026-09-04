@@ -1,100 +1,151 @@
 // THE EMAIL'S HALF OF "THE THREAD" — roadmap 2.18, 2026-09-03.
 //
-// WHY THIS FILE REPLACES THE OLD ONE'S LOOK. The owner rendered the existing
-// emails and said the true thing: *"it looks exactly the same style as the
-// email template i had before. and doesnt even match the style of the websites
-// and all the stuff."* He was right, and it was not a small miss — a coloured
-// band above a white card is the shape of literally every transactional email
-// ever sent, which makes it the definition of on-distribution. The product's
-// own world is the opposite of it.
+// WHY THIS FILE EXISTS. The owner rendered the emails the product used to send
+// and said the true thing: *"it looks exactly the same style as the email
+// template i had before. and doesnt even match the style of the websites."* A
+// coloured band above a white card is the shape of every transactional email
+// ever sent, which makes it the on-distribution default.
 //
-// WHAT THE THREAD ACTUALLY IS, and what of it survives into an inbox
-// (`docs/design-system.md`):
+// ============================================================================
+// LIGHT IS THE DEFAULT AND DARK IS THE VARIANT — A MEASURED DECISION
+// ============================================================================
 //
-//   * ONE CONTINUOUS COOL-BIASED NEAR-BLACK GROUND the reader travels down.
-//     Not a card floating on grey. This is the single biggest difference and
-//     it is free — a full-bleed `bgcolor` works in every client including
-//     Outlook's Word engine.
-//   * WARM BONE TYPE, `#F2F1EC`, **never `#ffffff`**. The system names pure
-//     white as a tell. On a near-black ground the warmth is visible and it is
-//     most of why this reads as somebody's design rather than a default.
-//   * EXACTLY ONE ACCENT, marking the thing that has landed. Not a band, not a
-//     header fill, not five links — one mark per email. On a confirmation it
-//     marks the appointment; on an invoice it marks the total paid.
-//   * A COLLECTION OF RECORDS IS A RULED LIST, never a stack of cards
-//     (composition law, and it has its own test). Hairline `#272D31` between
-//     rows. An itemised total is exactly that shape.
-//   * SIZE JUMPS ARE 3x OR MORE. 11px label → 15px body → 34px headline.
+// The first version of this file was dark-first, because The Thread is a dark
+// system and the dark rendering is the better one. **The owner tested it on
+// real devices and it failed on Gmail**, which he reported precisely: Apple
+// Mail correct in both modes, *"but on the Gmail… it does reverse it when I
+// have dark mode activated… it darkened the green somehow."*
+//
+// **Gmail's app inverts an already-dark email and CANNOT BE TOLD NOT TO.** No
+// meta tag, no media query — it ignores `color-scheme` and `prefers-color-scheme`
+// alike. That is documented behaviour, not a bug to work around.
+//
+// AND IT IS NOT COSMETIC. Gmail's transform flips LIGHTNESS and keeps HUE, so
+// it was measured against our own palette rather than eyeballed:
+//
+//   accent as words on the ground     10.07:1  →  **1.99:1**
+//   ink on the accent button          10.88:1  →  **1.77:1**
+//   the 11px labels                    5.16:1  →   3.68:1
+//
+// Against a 4.5:1 floor. **The total and the button label become unreadable.**
+//
+// IT IS UNFIXABLE BY PALETTE, which is why the design moved instead of the
+// colours. Inversion barely shifts a mid-lightness accent (green L≈55% → 45%)
+// while swinging its near-black ink from L≈8% to L≈92% — so a pair that was
+// high-contrast becomes light-on-mid-green. No accent survives that both ways.
+//
+// **Light-first sidesteps it entirely.** Gmail darkening a LIGHT email is the
+// one thing its algorithm is actually tuned for, and it does it competently.
+// Apple Mail — ~60% of all opens, and the client the owner was admiring — still
+// gets the real dark design through `prefers-color-scheme`, which it honours.
+// The coverage is strictly better than dark-first:
+//
+//   Apple Mail light  → our light design      Apple Mail dark → OUR DARK DESIGN
+//   Gmail light       → our light design      Gmail dark      → Gmail's own darkening
+//   Outlook Windows   → our light design
+//
+// HOW THE SWAP IS DONE, and why it degrades safely. Every colour is written
+// INLINE as its light value — so a client that strips `<style>`, which several
+// do, shows the light design correctly and completely. The dark palette lives
+// in ONE `<style>` block keyed on `prefers-color-scheme: dark`, overriding by
+// class with `!important` because inline styles otherwise win. **Nothing
+// depends on that block surviving.**
+//
+// ============================================================================
+// WHAT THE THREAD IS, AND WHAT SURVIVES INTO AN INBOX
+// ============================================================================
+//
+//   * ONE CONTINUOUS GROUND the reader travels down — not a card floating on
+//     grey. Both palettes are the design system's own: `--paper` for light
+//     ("warm off-white, never paper white") and `--ink-0` for dark.
+//   * NEVER `#ffffff` OR `#000000`. A design law — the system names pure white
+//     as a tell — and independently a compatibility one, since Apple Mail
+//     reads a pure value as permission to invert the whole email.
+//   * ONE ACCENT, marking the thing that has landed: the appointment, the
+//     money, the action. Not a header fill, not five links.
+//   * A COLLECTION OF RECORDS IS A RULED LIST, never a stack of cards. An
+//     itemised total is the cleanest case of that law in the product.
+//   * SIZE JUMPS OF 3x. 11px label → 15px body → 34px headline.
 //   * CENTRED EXACTLY ONCE, at the end.
 //
-// WHAT CANNOT SURVIVE, STATED PLAINLY SO NOBODY FILES IT AS A BUG: **Archivo
-// and JetBrains Mono do not travel.** An HTML email cannot load a webfont —
-// no `@font-face`, no `<link>` — so the two faces are gone and Arial/Helvetica
-// is the only honest stack. **But the TYPE LAW survives the substitution**,
-// which is the part that matters: the system's rule is "one face for
-// everything that is words, one face for every figure", and this file keeps
-// that shape with the two email-safe families. Every figure is monospace and
-// right-aligned; every word is Arial. The hierarchy that Archivo's width axis
-// carried is carried here by size, tracking and colour instead.
+// **Archivo and JetBrains Mono do not travel** — an email cannot load a
+// webfont. But the system's type rule is *one face for everything that is
+// words, one face for every figure*, and that shape ports intact to Arial plus
+// a monospace stack. **The faces were never the law; the split was.**
 //
-// EMAIL CONSTRAINTS THIS FILE IS BUILT AROUND, none of them negotiable:
-//   * Tables for layout. No flex, no grid — Outlook's Word engine has neither.
-//   * Inline styles. `<style>` blocks are stripped or ignored by enough
-//     clients that relying on them is a coin flip.
-//   * No `border-radius` in Outlook desktop. Everything here degrades to a
-//     square corner and still reads, because the design leans on rules and
-//     space rather than on rounded boxes.
-//   * `letter-spacing` is ignored by Outlook desktop. The labels lose their
-//     tracking there and stay legible; nothing depends on it.
-//   * `color-scheme: dark` is declared so Apple Mail and Gmail stop trying to
-//     invert a design that is already dark.
+// EMAIL CONSTRAINTS THIS IS BUILT AROUND: tables, not flex or grid (Outlook's
+// Word engine has neither); inline styles, because `<style>` is unreliable;
+// `border-radius` and `letter-spacing` ignored by Outlook desktop, and nothing
+// depends on either.
 //
-// BLOCKS, AND THE REASON CHANGED UNDER THEM — WHICH IS WHY THEY STAYED.
-// They were built as the substrate for an editor the owner asked for
-// ("they can choose whats in it and what order"), and he scrapped that one
-// message later: *"scrap the custom email editor thing / make it a lot more
-// simple."* Nothing had to be torn out, because the session had stopped at the
-// blocks and never written an editor screen.
+// BLOCKS, AND THE REASON CHANGED UNDER THEM — WHICH IS WHY THEY STAYED. They
+// were the substrate for an editor the owner asked for and scrapped one message
+// later. They earn their place now for two better reasons: twelve templates
+// come out consistent with each other, and **the plain-text half of every email
+// is ONE derived pass over the same markup** rather than twelve twins that
+// drift.
 //
-// They earn their place now for two reasons that have nothing to do with an
-// editor, and both are better ones:
-//
-//   * Twelve templates come out short and consistent with each other. Every
-//     block is one self-contained `<tr>`; a template is a LIST of them, so the
-//     spacing, the rules and the type scale cannot drift between emails the
-//     way twelve hand-written layouts would.
-//   * **The plain-text half of every email is ONE derived pass over the same
-//     markup** (`htmlToText`), not twelve hand-written twins. Twins drift, and
-//     the first time somebody edits one and not the other the two disagree
-//     about a price. Derived cannot drift.
-//
-// `moneyBlock` and `reconcile` are the load-bearing pair: CLAUDE.md's rule is
-// that a number printed is not a number charged, and an invoice is that risk
-// one step further along because it reaches the one person who checks it
+// `moneyBlock` and `reconcile` are the load-bearing pair: a number printed is
+// not a number charged, and an invoice reaches the one person who checks it
 // against a card statement.
 
-import { emailDarkBrandColors, EMAIL_BONE, EMAIL_GROUND, EMAIL_PANEL } from "./brandColor.js";
+import {
+  emailBrandColors,
+  emailDarkBrandColors,
+  EMAIL_BONE,
+  EMAIL_GROUND,
+  EMAIL_PANEL,
+  PAPER,
+  PAPER_GROUND,
+} from "./brandColor.js";
 
-// The ground set, straight from `docs/design-system.md` § Tokens. Named here
-// rather than imported as CSS because an edge function has no stylesheet —
-// `tests/design-contrast.test.mjs` is what stops these drifting from
-// `app/src/theme.css`.
-export const G = {
-  ground: EMAIL_GROUND,   // --ink-0  the ground everything sits on
-  panel: EMAIL_PANEL,     // --ink-2  a lifted surface
-  line: "#272D31",        // --line   every hairline
-  line2: "#333B40",       // --line-2 a line that has to be seen
-  fog: "#939CA1",         // --fog    secondary prose
-  fog2: "#7B858A",        // --fog-2  10-13px labels. THE FLOOR — do not darken.
-  bone: EMAIL_BONE,       // --bone   the dominant. Warm. Never #fff.
-  bone2: "#CFD2CE",       // --bone-2 bone stepped back
-  bad: "#E2705F",         // --bad    an error, a cancellation
+/**
+ * THE LIGHT PALETTE — written inline, so it is what every client shows unless
+ * it both supports `prefers-color-scheme` AND the reader is in dark mode.
+ * Straight from `docs/design-system.md` § The light band.
+ */
+export const L = {
+  ground: PAPER_GROUND,   // --paper  #EFEEE7, warm, never paper white
+  panel: PAPER,           // the lifted surface, and what the accent is corrected against
+  line: "#D2D1C9",        // --paper-line
+  line2: "#C2C1B7",       // a line that has to be seen
+  ink: "#12161A",         // --paper-ink, the dominant
+  ink2: "#2E3533",        // stepped back
+  fog: "#565F64",         // --paper-fog, secondary prose
+  fog2: "#5E6870",        // 11–13px labels. 4.51:1 on the panel — THE FLOOR.
+  bad: "#B3402F",         // an error, a cancellation. Fixed; never the tenant's.
 };
 
+/**
+ * THE DARK PALETTE — the `prefers-color-scheme` override only. The Thread's
+ * own ground set, and what Apple Mail shows in dark mode.
+ */
+export const D = {
+  ground: EMAIL_GROUND,   // --ink-0
+  panel: EMAIL_PANEL,     // --ink-2
+  line: "#272D31",        // --line
+  line2: "#333B40",       // --line-2
+  ink: EMAIL_BONE,        // --bone. Warm. Never #fff.
+  ink2: "#CFD2CE",        // --bone-2
+  fog: "#939CA1",         // --fog
+  fog2: "#7B858A",        // --fog-2. THE FLOOR — do not darken.
+  bad: "#E2705F",         // --bad
+};
+
+/** What the templates and the render script mean by "the palette": the default. */
+export const G = L;
+
 const WORDS = "Arial,Helvetica,sans-serif";
-// The figure face. Every one of these ships somewhere; the stack ends at the
-// generic so a figure is monospace on every client that has ever existed.
+// The figure face. Every one of these ships somewhere and the stack ends at the
+// generic, so a figure is monospace on every client that has ever existed.
 const FIGS = "'SF Mono',SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace";
+
+// 32px, not 40. An email column is `width:100%` capped at 600px, so on a 320px
+// phone the side padding comes out of the content: 40 each side leaves 240 for
+// an address and a right-aligned figure on one row. 32 leaves 256 and still
+// reads generous at 600. The system's `--gut` is a `clamp()`, which no email
+// client can be trusted with.
+const PAD = "padding:0 32px;";
 
 export const esc = (s: unknown) =>
   String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -120,79 +171,83 @@ export interface Brand {
   contactPhone: string | null;
   siteUrl: string;
   logoUrl: string | null;
-  /** The tenant's colour as WORDS on the panel — 4.5:1. */
+  /** Light: the accent as WORDS, 4.5:1 on the panel. */
   accent: string;
-  /** The tenant's colour as a FILL — 3:1. */
+  /** Light: the accent as a FILL, 3:1. */
   accentFill: string;
-  /** What is legible ON that fill — measured, never assumed. */
+  /** Light: what is legible ON that fill — measured. */
   accentInk: string;
+  /** The same three for the dark override. */
+  accentDark: string;
+  accentFillDark: string;
+  accentInkDark: string;
 }
 
 export function brandFrom(
   base: { brandName: string; contactPhone: string | null; siteUrl: string; logoUrl?: string | null },
   hex: string | null,
 ): Brand {
-  const c = emailDarkBrandColors(hex);
-  return { ...base, logoUrl: base.logoUrl ?? null, accent: c.text, accentFill: c.fill, accentInk: c.fillInk };
+  const l = emailBrandColors(hex || undefined);
+  const d = emailDarkBrandColors(hex);
+  return {
+    ...base,
+    logoUrl: base.logoUrl ?? null,
+    accent: l.onPaper, accentFill: l.band, accentInk: l.bandInk,
+    accentDark: d.text, accentFillDark: d.fill, accentInkDark: d.fillInk,
+  };
 }
 
 // --- The blocks -------------------------------------------------------------
 //
-// Every one returns a complete `<tr>`. They are ordered, filtered and fed by
-// the template; none of them knows what comes before or after it, which is the
-// property the editor needs.
-
-// 32px, not 40. An email column is `width:100%` with a 600px cap, so on a
-// 320px phone the side padding comes straight out of the content: 40px each
-// side leaves 240px for an address and a right-aligned figure on the same row.
-// 32 leaves 256 and still reads generous at 600. The system's own `--gut` is a
-// `clamp()`, which no email client can be trusted with.
-const PAD = "padding:0 32px;";
+// Every one returns a complete `<tr>` and knows nothing about its neighbours.
+// EVERY COLOURED ELEMENT CARRIES BOTH an inline light value AND a class, and
+// the class is the only thing the dark override can reach — an element that
+// forgets its class stays light inside a dark email, which is the one way this
+// design can look broken rather than merely different.
 
 /** An eyebrow. 11px, .22em, uppercase — `.lab` in the system's type scale. */
-export function labBlock(text: string, color = G.fog2): string {
-  return `<tr><td style="${PAD} padding-top:34px; font-family:${WORDS}; font-size:11px; line-height:1.4; letter-spacing:.22em; text-transform:uppercase; font-weight:bold; color:${color};">${esc(text)}</td></tr>`;
+export function labBlock(text: string, tone: "fog2" | "bad" = "fog2"): string {
+  const bad = tone === "bad";
+  return `<tr><td class="${bad ? "c-bad" : "c-fog2"}" style="${PAD} padding-top:34px; font-family:${WORDS}; font-size:11px; line-height:1.4; letter-spacing:.22em; text-transform:uppercase; font-weight:bold; color:${bad ? L.bad : L.fog2};">${esc(text)}</td></tr>`;
 }
 
-/** The one big thing. 34px bone, tight leading — a display size wants it. */
+/** The one big thing. 34px, tight leading — a display size wants it. */
 export function headlineBlock(text: string): string {
-  return `<tr><td style="${PAD} padding-top:10px; font-family:${WORDS}; font-size:34px; line-height:1.1; letter-spacing:-.02em; font-weight:bold; color:${G.bone};">${esc(text)}</td></tr>`;
+  return `<tr><td class="c-ink" style="${PAD} padding-top:10px; font-family:${WORDS}; font-size:34px; line-height:1.1; letter-spacing:-.02em; font-weight:bold; color:${L.ink};">${esc(text)}</td></tr>`;
 }
 
-/** Prose. This is the block an editor lets the detailer rewrite. */
+/** Prose. */
 export function proseBlock(html: string, top = 18): string {
-  return `<tr><td style="${PAD} padding-top:${top}px; font-family:${WORDS}; font-size:15px; line-height:1.65; color:${G.bone2};">${html}</td></tr>`;
+  return `<tr><td class="c-ink2" style="${PAD} padding-top:${top}px; font-family:${WORDS}; font-size:15px; line-height:1.65; color:${L.ink2};">${html}</td></tr>`;
 }
 
-/** A hairline the full width of the column. The system's rule, not a divider. */
-export function ruleBlock(top = 30, color = G.line): string {
-  return `<tr><td style="${PAD} padding-top:${top}px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="height:1px; line-height:1px; font-size:0; background-color:${color};">&nbsp;</td></tr></table></td></tr>`;
+/** A hairline the width of the column. The system's rule, not a divider. */
+export function ruleBlock(top = 30): string {
+  return `<tr><td style="${PAD} padding-top:${top}px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="bg-line" style="height:1px; line-height:1px; font-size:0; background-color:${L.line};">&nbsp;</td></tr></table></td></tr>`;
 }
 
 /**
- * THE ONE ACCENT MARK. A short rule in the tenant's colour above a line of
- * type — the system's "the thing that has landed". Exactly one per email; a
- * second one is the law broken, not a richer design.
+ * THE ONE ACCENT MARK: a short rule in the tenant's colour above a line of
+ * type — the system's "the thing that has landed". One per email.
  */
 export function markBlock(brand: Brand, lines: string[]): string {
   return `<tr><td style="${PAD} padding-top:30px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td style="width:44px; height:3px; line-height:3px; font-size:0; background-color:${brand.accentFill};">&nbsp;</td>
+      <td class="bg-accent" bgcolor="${brand.accentFill}" style="width:44px; height:3px; line-height:3px; font-size:0; background-color:${brand.accentFill};">&nbsp;</td>
     </tr></table>
-    ${lines.map((l, i) => `<div style="font-family:${WORDS}; font-size:${i === 0 ? 22 : 15}px; line-height:1.45; font-weight:${i === 0 ? "bold" : "normal"}; color:${i === 0 ? G.bone : G.fog}; margin-top:${i === 0 ? 14 : 4}px;">${l}</div>`).join("")}
+    ${lines.map((l, i) => `<div class="${i === 0 ? "c-ink" : "c-fog"}" style="font-family:${WORDS}; font-size:${i === 0 ? 22 : 15}px; line-height:1.45; font-weight:${i === 0 ? "bold" : "normal"}; color:${i === 0 ? L.ink : L.fog}; margin-top:${i === 0 ? 14 : 4}px;">${l}</div>`).join("")}
   </td></tr>`;
 }
 
 /**
- * A ruled list of facts — label left in fog, value right in bone. NOT a card:
- * "a collection of records is a ruled list" is a composition law with its own
- * test, and a fact table is the clearest case of it in the whole product.
+ * A ruled list of facts — label left, value right. NOT a card: "a collection of
+ * records is a ruled list" is a composition law with its own test.
  */
 export function factsBlock(rows: [string, string][]): string {
   const body = rows.map(([k, v], i) => `<tr>
-      <td style="padding:${i === 0 ? 0 : 11}px 12px 11px 0; font-family:${WORDS}; font-size:13px; line-height:1.5; color:${G.fog2}; vertical-align:top; white-space:nowrap;">${esc(k)}</td>
-      <td style="padding:${i === 0 ? 0 : 11}px 0 11px 0; font-family:${WORDS}; font-size:15px; line-height:1.5; color:${G.bone}; vertical-align:top; text-align:right;">${v}</td>
-    </tr>${i < rows.length - 1 ? `<tr><td colspan="2" style="height:1px; line-height:1px; font-size:0; background-color:${G.line};">&nbsp;</td></tr>` : ""}`).join("");
+      <td class="c-fog2" style="padding:${i === 0 ? 0 : 11}px 12px 11px 0; font-family:${WORDS}; font-size:13px; line-height:1.5; color:${L.fog2}; vertical-align:top; white-space:nowrap;">${esc(k)}</td>
+      <td class="c-ink" style="padding:${i === 0 ? 0 : 11}px 0 11px 0; font-family:${WORDS}; font-size:15px; line-height:1.5; color:${L.ink}; vertical-align:top; text-align:right;">${v}</td>
+    </tr>${i < rows.length - 1 ? `<tr><td colspan="2" class="bg-line" style="height:1px; line-height:1px; font-size:0; background-color:${L.line};">&nbsp;</td></tr>` : ""}`).join("");
   return `<tr><td style="${PAD} padding-top:26px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${body}</table></td></tr>`;
 }
 
@@ -205,34 +260,22 @@ export interface MoneyLine {
 }
 
 /**
- * THE BLOCK THE EDITOR MAY NEVER OPEN.
- *
- * Every figure is monospace and right-aligned so the column reads as a column.
- * The caller passes the lines AND the total, and `render-emails.mjs` asserts
- * that the lines reach the total — because the live invoice does not, and has
- * never, whenever a promo code or a site sale was involved. See CLAUDE.md.
- */
-/**
  * THE COLUMN ALWAYS REACHES THE TOTAL, AND IT IS STRUCTURAL RATHER THAN
  * DISCIPLINE.
  *
  * This exists because the opposite shipped. The old invoice's rows summed to
  * `subtotalBase` while its printed total was `final_amount` — past the site
  * sale, past the promo and rounded — so a customer with a promo code received
- * a bill whose figures did not add up, by exactly the discount. It was the
- * `travel_fee` bug's twin and no test saw it, because `money-export` ties out
- * the accountant export and `booking-engine` ties out the quote engine: **a
- * tie-out is only a tie-out for the document it names.**
+ * a bill whose figures did not add up, by exactly the discount. No test saw it,
+ * because `money-export` ties out the accountant export and `booking-engine`
+ * ties out the quote engine: **a tie-out is only a tie-out for the document it
+ * names.**
  *
- * Every caller that draws money passes its lines through here against the
- * total it is about to print, so "the caller remembered to itemise everything"
- * stops being a thing anyone has to remember. Where a real remainder exists
- * and cannot be attributed — rounding, or a site sale whose AMOUNT is not
- * stored on the booking row — it is drawn plainly rather than left as a gap.
- * **An unexplained gap is the defect; a line saying "a discount was applied"
- * is not.**
- *
- * Under a cent, nothing is drawn.
+ * Every caller that draws money passes its lines through here against the total
+ * it is about to print. Where a real remainder exists and cannot be attributed
+ * — rounding, or a site sale whose AMOUNT is not stored on the booking — it is
+ * drawn plainly. **An unexplained gap is the defect; a line saying "a discount
+ * was applied" is not.**
  */
 export function reconcile(lines: MoneyLine[], total: number): MoneyLine[] {
   const drawn = lines.reduce((s, l) => s + (l.kind === "discount" ? -Math.abs(l.amount) : l.amount), 0);
@@ -245,6 +288,11 @@ export function reconcile(lines: MoneyLine[], total: number): MoneyLine[] {
   }];
 }
 
+/**
+ * Every figure is monospace and right-aligned so the column reads as a column.
+ * `render-emails.mjs` asserts on the RENDERED output that the lines reach the
+ * total, which is the check the old invoice would have failed.
+ */
 export function moneyBlock(
   brand: Brand,
   lines: MoneyLine[],
@@ -252,18 +300,19 @@ export function moneyBlock(
 ): string {
   const row = (l: MoneyLine) => {
     const neg = l.kind === "discount";
+    const cls = neg ? "c-accent" : (l.muted ? "c-fog2" : "c-ink2");
     return `<tr>
-      <td style="padding:9px 12px 9px 0; font-family:${WORDS}; font-size:14px; line-height:1.5; color:${l.muted ? G.fog2 : G.bone2};">${esc(l.label)}</td>
-      <td style="padding:9px 0 9px 0; font-family:${FIGS}; font-size:14px; line-height:1.5; text-align:right; white-space:nowrap; color:${neg ? brand.accent : (l.muted ? G.fog2 : G.bone2)};">${neg ? "&minus;" : ""}${money(Math.abs(l.amount))}</td>
+      <td class="${l.muted ? "c-fog2" : "c-ink2"}" style="padding:9px 12px 9px 0; font-family:${WORDS}; font-size:14px; line-height:1.5; color:${l.muted ? L.fog2 : L.ink2};">${esc(l.label)}</td>
+      <td class="${cls}" style="padding:9px 0 9px 0; font-family:${FIGS}; font-size:14px; line-height:1.5; text-align:right; white-space:nowrap; color:${neg ? brand.accent : (l.muted ? L.fog2 : L.ink2)};">${neg ? "&minus;" : ""}${money(Math.abs(l.amount))}</td>
     </tr>`;
   };
   return `<tr><td style="${PAD} padding-top:26px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      ${lines.map(row).join(`<tr><td colspan="2" style="height:1px; line-height:1px; font-size:0; background-color:${G.line};">&nbsp;</td></tr>`)}
-      <tr><td colspan="2" style="height:1px; line-height:1px; font-size:0; background-color:${G.line2}; padding-top:0;">&nbsp;</td></tr>
+      ${lines.map(row).join(`<tr><td colspan="2" class="bg-line" style="height:1px; line-height:1px; font-size:0; background-color:${L.line};">&nbsp;</td></tr>`)}
+      <tr><td colspan="2" class="bg-line2" style="height:1px; line-height:1px; font-size:0; background-color:${L.line2};">&nbsp;</td></tr>
       <tr>
-        <td style="padding:16px 12px 0 0; font-family:${WORDS}; font-size:13px; line-height:1.4; letter-spacing:.16em; text-transform:uppercase; font-weight:bold; color:${G.fog2};">${esc(total.label)}</td>
-        <td style="padding:16px 0 0 0; font-family:${FIGS}; font-size:26px; line-height:1.2; font-weight:bold; text-align:right; white-space:nowrap; color:${brand.accent};">${money(total.amount)}</td>
+        <td class="c-fog2" style="padding:16px 12px 0 0; font-family:${WORDS}; font-size:13px; line-height:1.4; letter-spacing:.16em; text-transform:uppercase; font-weight:bold; color:${L.fog2};">${esc(total.label)}</td>
+        <td class="c-accent" style="padding:16px 0 0 0; font-family:${FIGS}; font-size:26px; line-height:1.2; font-weight:bold; text-align:right; white-space:nowrap; color:${brand.accent};">${money(total.amount)}</td>
       </tr>
     </table>
   </td></tr>`;
@@ -272,8 +321,8 @@ export function moneyBlock(
 /** A quiet aside on a lifted panel. The only box in the design, used sparingly. */
 export function noteBlock(html: string): string {
   return `<tr><td style="${PAD} padding-top:26px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${G.panel}" style="background-color:${G.panel};"><tr>
-      <td style="padding:16px 20px; font-family:${WORDS}; font-size:13px; line-height:1.6; color:${G.fog}; border-left:2px solid ${G.line2};">${html}</td>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${L.panel}" class="bg-panel" style="background-color:${L.panel};"><tr>
+      <td class="c-fog bd-line2" style="padding:16px 20px; font-family:${WORDS}; font-size:13px; line-height:1.6; color:${L.fog}; border-left:2px solid ${L.line2};">${html}</td>
     </tr></table>
   </td></tr>`;
 }
@@ -282,51 +331,38 @@ export function noteBlock(html: string): string {
 export function buttonBlock(brand: Brand, label: string, href: string): string {
   return `<tr><td style="${PAD} padding-top:32px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td style="background-color:${brand.accentFill}; border-radius:100px;">
-        <a href="${href}" target="_blank" style="display:inline-block; padding:15px 34px; font-family:${WORDS}; font-size:15px; font-weight:bold; line-height:1; color:${brand.accentInk}; text-decoration:none; border-radius:100px;">${esc(label)}</a>
+      <td class="bg-accent" bgcolor="${brand.accentFill}" style="background-color:${brand.accentFill}; border-radius:100px;">
+        <a href="${href}" target="_blank" class="c-accent-ink" style="display:inline-block; padding:15px 34px; font-family:${WORDS}; font-size:15px; font-weight:bold; line-height:1; color:${brand.accentInk}; text-decoration:none; border-radius:100px;">${esc(label)}</a>
       </td>
     </tr></table>
   </td></tr>`;
 }
 
-/** Fine print. `--fog-2` is the floor for 10-13px — never darker. */
+/** Fine print. `fog2` is the floor for 11–13px — never fainter. */
 export function fineBlock(text: string, top = 20): string {
-  return `<tr><td style="${PAD} padding-top:${top}px; font-family:${WORDS}; font-size:12px; line-height:1.6; color:${G.fog2};">${esc(text)}</td></tr>`;
+  return `<tr><td class="c-fog2" style="${PAD} padding-top:${top}px; font-family:${WORDS}; font-size:12px; line-height:1.6; color:${L.fog2};">${esc(text)}</td></tr>`;
 }
 
 // --- The shell --------------------------------------------------------------
 
 /**
- * THE MASTHEAD CARRIES THE LOGO, AND IT SITS ON THE GROUND RATHER THAN ON A
- * COLOURED BAND. That was a live question put to the owner: a logo is an
- * arbitrary PNG somebody uploaded, so unlike every other colour in this
- * product its contrast cannot be measured. On the ground it is safe for every
- * logo anyone will ever upload; on a band of the tenant's own colour it is a
- * guess nothing in the repo can check.
+ * THE MASTHEAD CARRIES THE LOGO, ON A BONE PLATE.
  *
- * `business_branding.logo_url` has existed the whole time and is already drawn
- * on the booking page, the confirmation page and the manage page. No email has
- * ever carried it. It falls back to the business name set in bone.
+ * A detailer uploads whatever they have, and what they have is almost always
+ * dark artwork on a transparent or white background — that is what a logo made
+ * for a white website is. **On the DARK palette it would be invisible, and
+ * nothing in this repo can ever detect that**: unlike every colour in the
+ * product, an arbitrary PNG's contrast cannot be measured. The plate is bone in
+ * BOTH palettes, so every possible upload stays legible in both.
+ *
+ * `business_branding.logo_url` has existed since the first migration and is
+ * already drawn on three customer-facing pages; no email carried it until now.
  */
 function masthead(brand: Brand): string {
-  const name = `<div style="font-family:${WORDS}; font-size:16px; line-height:1.3; font-weight:bold; letter-spacing:.01em; color:${G.bone};">${esc(brand.brandName)}</div>`;
+  const name = `<div class="c-ink" style="font-family:${WORDS}; font-size:16px; line-height:1.3; font-weight:bold; letter-spacing:.01em; color:${L.ink};">${esc(brand.brandName)}</div>`;
   if (!brand.logoUrl) return `<tr><td style="${PAD} padding-top:38px;">${name}</td></tr>`;
-
-  // THE LOGO SITS ON A BONE PLATE, AND IT IS NOT A STYLE PREFERENCE.
-  //
-  // A detailer uploads whatever they have, and what they have is almost always
-  // dark artwork on a transparent or white background — that is what a logo
-  // made for a white website is. Dropped straight onto `--ink-0` it is
-  // invisible, and nothing in this repo can detect that: unlike every colour
-  // in the product, an arbitrary PNG's contrast cannot be measured, which is
-  // exactly why the logo went on the ground rather than on a tenant-coloured
-  // band in the first place. The plate makes EVERY possible upload legible,
-  // including the light-on-transparent one that would have been fine anyway.
-  //
-  // It reads as a deliberate object rather than a mistake — the one light
-  // element on a dark page, which is a shape this design system already uses.
   return `<tr><td style="${PAD} padding-top:38px;">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" bgcolor="${G.bone}" style="background-color:${G.bone}; border-radius:8px;"><tr>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" bgcolor="${EMAIL_BONE}" style="background-color:${EMAIL_BONE}; border-radius:8px;"><tr>
       <td style="padding:12px 16px;">
         <img src="${brand.logoUrl}" alt="${esc(brand.brandName)}" height="30" style="height:30px; width:auto; max-width:220px; border:0; display:block;">
       </td>
@@ -339,11 +375,11 @@ function footer(brand: Brand): string {
   // Centred exactly once, at the end — the composition law, spent here.
   return `<tr><td style="${PAD} padding-top:44px; padding-bottom:44px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr><td style="height:1px; line-height:1px; font-size:0; background-color:${G.line};">&nbsp;</td></tr>
-      <tr><td align="center" style="padding-top:24px; font-family:${WORDS}; font-size:13px; line-height:1.7; color:${G.fog2};">
-        <div style="color:${G.bone2}; font-weight:bold;">${esc(brand.brandName)}</div>
+      <tr><td class="bg-line" style="height:1px; line-height:1px; font-size:0; background-color:${L.line};">&nbsp;</td></tr>
+      <tr><td align="center" class="c-fog2" style="padding-top:24px; font-family:${WORDS}; font-size:13px; line-height:1.7; color:${L.fog2};">
+        <div class="c-ink2" style="color:${L.ink2}; font-weight:bold;">${esc(brand.brandName)}</div>
         ${brand.contactPhone ? `<div>${esc(brand.contactPhone)}</div>` : ""}
-        <div><a href="${brand.siteUrl}" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a></div>
+        <div><a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a></div>
         <div style="padding-top:10px; font-size:11px;">Automated message &mdash; reply to reach us.</div>
       </td></tr>
     </table>
@@ -351,25 +387,61 @@ function footer(brand: Brand): string {
 }
 
 /**
- * The ground, edge to edge. `bgcolor` on the outer table as well as the inline
- * style, because Outlook's Word engine reads the attribute and not always the
- * property — and a dark design that loses its ground becomes bone-on-white,
- * which is unreadable rather than merely wrong.
+ * THE DARK OVERRIDE — one `<style>` block, and the only thing in this file a
+ * client is allowed to ignore.
+ *
+ * Everything else is inline and light, so a client that strips `<style>` (and
+ * several do) shows a complete, correct light email. Apple Mail and iOS Mail
+ * honour `prefers-color-scheme` and swap in The Thread's real dark ground.
+ * `!important` is required because an inline style otherwise wins.
+ *
+ * `[data-ogsc]` is Outlook.com's dark-mode hook: it rewrites inline colours and
+ * exposes the original under that attribute, so the same overrides are repeated
+ * there. Outlook desktop ignores both and keeps the light design, which is the
+ * correct outcome for it.
  */
+function darkStyle(brand: Brand): string {
+  const rules = `
+    body, .bg-ground { background-color:${D.ground} !important; }
+    .bg-panel { background-color:${D.panel} !important; }
+    .bg-line { background-color:${D.line} !important; }
+    .bg-line2 { background-color:${D.line2} !important; }
+    .bd-line2 { border-left-color:${D.line2} !important; }
+    .c-ink { color:${D.ink} !important; }
+    .c-ink2 { color:${D.ink2} !important; }
+    .c-fog { color:${D.fog} !important; }
+    .c-fog2 { color:${D.fog2} !important; }
+    .c-bad { color:${D.bad} !important; }
+    .c-accent { color:${brand.accentDark} !important; }
+    .bg-accent { background-color:${brand.accentFillDark} !important; }
+    .c-accent-ink { color:${brand.accentInkDark} !important; }`;
+  return `<style>
+  @media (prefers-color-scheme: dark) {${rules}
+  }
+  [data-ogsc] body, [data-ogsc] .bg-ground { background-color:${D.ground} !important; }
+  [data-ogsc] .bg-panel { background-color:${D.panel} !important; }
+  [data-ogsc] .c-ink { color:${D.ink} !important; }
+  [data-ogsc] .c-ink2 { color:${D.ink2} !important; }
+  [data-ogsc] .c-fog, [data-ogsc] .c-fog2 { color:${D.fog} !important; }
+  [data-ogsc] .c-accent { color:${brand.accentDark} !important; }
+</style>`;
+}
+
 export function shell(brand: Brand, blocks: string[], preheader: string): string {
   return `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="dark">
-<meta name="supported-color-schemes" content="dark">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
 <title>${esc(brand.brandName)}</title>
+${darkStyle(brand)}
 </head>
-<body style="margin:0; padding:0; background-color:${G.ground};">
+<body class="bg-ground" style="margin:0; padding:0; background-color:${L.ground};">
 <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">${esc(preheader)}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${G.ground}" style="background-color:${G.ground};">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${L.ground}" class="bg-ground" style="background-color:${L.ground};">
   <tr><td align="center" style="padding:0;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${G.ground}" style="max-width:600px; background-color:${G.ground};">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${L.ground}" class="bg-ground" style="max-width:600px; background-color:${L.ground};">
       ${masthead(brand)}
       ${blocks.join("\n      ")}
       ${footer(brand)}
@@ -382,33 +454,21 @@ export function shell(brand: Brand, blocks: string[], preheader: string): string
 /**
  * THE PLAIN-TEXT HALF, DERIVED RATHER THAN HAND-WRITTEN.
  *
- * Every email in this product was sent HTML-only until 2026-09-03 — the Resend
- * payload set `html` and nothing else. An HTML-only message with no text
- * alternative is a long-standing spam-filter signal, and it applied to every
- * email including the receipt, which is the one that must never land in junk.
- * Found while answering "will it work globally", by following the question
- * past the templates and into the sender. `docs/email-clients-2026-09-03.md`.
+ * Every email was sent HTML-only until 2026-09-03 — a long-standing
+ * spam-filter signal, and it applied to every email including the receipt.
  *
- * ONE FUNCTION RATHER THAN TWELVE TWINS, and that is the whole design decision
- * here. A hand-written text version of each template is twelve more things to
- * keep in step with twelve HTML ones, and the first time somebody edits one
- * and not the other the two disagree about a price. Deriving it means the text
- * half cannot drift, because there is nothing to drift from.
- *
- * It reads well because the blocks above are structural: every row is a `<tr>`
- * and every figure sits in its own cell, so "one block per line, label then
- * value" falls out of the markup rather than being reconstructed from it.
+ * ONE FUNCTION RATHER THAN TWELVE TWINS. Twins drift, and the first time
+ * somebody edits one and not the other they disagree about a price. It reads
+ * well because the blocks are structural: every row is a `<tr>` and every
+ * figure sits in its own cell, so "label | value, one per line" falls out of
+ * the markup rather than being reconstructed from it.
  */
 export function htmlToText(html: string): string {
   return String(html)
-    // The preheader is a hidden duplicate of the first line. In text it is
-    // just the first line printed twice.
     .replace(/<div style="display:none[\s\S]*?<\/div>/gi, "")
     .replace(/<(head|style|title)[\s\S]*?<\/\1>/gi, "")
-    // A link becomes "text (url)" — a text reader cannot click a bare label.
     .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_m, href, inner) =>
       `${String(inner).replace(/<[^>]+>/g, "").trim()} (${href})`)
-    // A table cell is a column; two cells on one row are "label: value".
     .replace(/<\/td>\s*<td[^>]*>/gi, "  |  ")
     .replace(/<\/(tr|div|p|h1|h2|h3|li)>/gi, "\n")
     .replace(/<br\s*\/?>/gi, "\n")
@@ -420,7 +480,6 @@ export function htmlToText(html: string): string {
     .replace(/&amp;/g, "&")
     .split("\n").map((l) => l.replace(/[ \t]+/g, " ").trim()).filter(Boolean)
     .join("\n")
-    // A blank line between blocks, never three.
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }

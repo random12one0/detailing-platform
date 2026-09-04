@@ -179,6 +179,8 @@ were made more than once.
 
 - **Roadmap 2.18 — the last two pieces, and the first real send** — the second reminder and "your own words" are built, and four emails were sent to his actual inbox. **The second reminder is TWO COLUMNS, NOT a `booking_reminders_sent` table — a same-day reversal of this file**: a per-(booking, rule) table was right while the count was open-ended and became wrong the moment he capped it at two, because a general table then buys extensibility nobody asked for at the price of a join in the hottest RPC in the product. **Its own RPC, not a `target`**, because `get_bookings_due_for_reminder` carries the EVENING-BEFORE rule and a second reminder inheriting it means two evening sends racing on one marker; it also refuses to run before the first has, and excludes `pending` for 2.12's reason. **"Your own words" is one jsonb column and NO `{{placeholders}}`** — the email already greets the customer and states their date, vehicle and address, so a token would be the owner's own never-default; the absence is the feature, and it removes everything there is to typo or validate. Escaped BEFORE newlines become `<br>`, never after. **THE SEND FOUND TWO THINGS.** `send-email` compares against the `SUPABASE_SERVICE_ROLE_KEY` **Supabase injects into the function**, and this project has migrated — so it wants `SUPABASE_SECRET_KEY` (`sb_secret_…`) while the root `.env` still holds the legacy JWT under the old name; **legacy → flat 401, which reads exactly like a revoked key.** And four emails, not seventeen: different SHAPES only, because duplicates spend a sending reputation shared with the live business. **AND A DELETION THAT WAS WRONG:** `buildAddressing` was removed as dead code and is not — `booking-engine` test 9 uses it to pin TENANT ISOLATION, and the check for callers had grepped `supabase/functions/` while the caller sat in `tests/`. ***A symbol used only by its test still has a user, and the test is usually pinning the thing that matters most.***
 
+- **Roadmap 2.18 — the emails go LIGHT-FIRST, because Gmail proved the dark ones broken** — he opened the four test sends on real devices: Apple Mail correct in both modes, **Gmail's dark mode inverts an already-dark email and cannot be told not to.** The research had PREDICTED this and concluded the worst case was "readable" — **that conclusion was reasoning, not measurement, and it was wrong.** Measured by applying Gmail's actual transform to our palette: the accent as words **10.07:1 → 1.99:1**, the button's ink **10.88:1 → 1.77:1**. Unreadable, not off-brand. **Unfixable by palette**, because inversion barely moves a mid-lightness accent while swinging its near-black ink from L≈8% to L≈92% — checked on four accents, all fail. So the design moved: **light inline by default, dark behind `prefers-color-scheme`**, both palettes being The Thread's own (`--paper` and `--ink-0` — the light band already existed). Apple Mail still shows the dark design; Gmail now darkens a LIGHT email, which is the one thing its algorithm is tuned for. **The new failure mode it introduces, and the check written for it: the dark palette applies BY CLASS, so an element setting a colour inline without a class stays light inside a dark email — invisible to any contrast check, because both values are individually fine.** `render-emails.mjs` walks the rendered output and caught six on its first run. Also found: **pure white was still reachable in the LIGHT path** (crimson's and violet's button ink), which is Apple Mail's own inversion trigger — the very thing that would have made Apple Mail behave like Gmail. **AND THE SPAM ANSWER: authentication is FINE and identical on both domains** (DKIM, SPF on the sending subdomain, DMARC `p=none`) — what differs is **reputation**: his business domain has months of engaged mail, the platform subdomain has almost none, and the two sit on different Resend pools (SES versus Resend's newer own-MTA). One real gap: the ROOT `detailingplatform.com` has no SPF record at all. `List-Unsubscribe` deliberately NOT added — a customer who unsubscribes stops receiving their own receipts.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -9223,3 +9225,122 @@ The same test's brand fixture still named the old colour fields
 rather than left, because a harness that disagrees with its interface renders
 `undefined` and looks like a bug in the code under test. That is 2.12's lesson
 for the second time in one item.
+
+## Roadmap 2.18 — the emails go LIGHT-FIRST, because Gmail proved the dark ones broken
+
+2026-09-03, after the owner opened the four test sends on real devices. Two
+findings from him, and the first one reversed a decision made the same day.
+
+### He tested it properly, and the dark design failed on Gmail
+
+> *"So it looks good in dark and light mode iCloud… but on the Gmail, it does
+> reverse it when I have dark mode activated… it darkened the green somehow.
+> The format and everything was good. It's just the colors on Gmail."*
+
+**The research had predicted this and the build shipped anyway.**
+`docs/email-clients-2026-09-03.md` names Gmail's iOS app as "the one real risk"
+and says the meta tags do not stop it — then concludes the worst case is "a
+light version of the same email, correct hue, every ratio still passing,
+entirely readable". **That conclusion was reasoning, not measurement, and it
+was wrong.**
+
+MEASURED PROPERLY THIS TIME, by applying Gmail's actual transform (an HSL
+lightness flip, hue preserved) to our own palette:
+
+| | before | after Gmail |
+|---|---|---|
+| accent as words on the ground | 10.07:1 | **1.99:1** |
+| ink on the accent button | 10.88:1 | **1.77:1** |
+| the 11px labels | 5.16:1 | 3.68:1 |
+
+Against a 4.5:1 floor. **The total and the button label become unreadable.**
+Not off-brand — unreadable.
+
+**AND IT IS UNFIXABLE BY PALETTE, which is why the design moved instead of the
+colours.** Inversion barely shifts a mid-lightness accent (green L≈55% → 45%)
+while swinging its near-black ink from L≈8% to L≈92%, so a high-contrast pair
+becomes light-on-mid-green. Checked across four accents including crimson and
+violet: every one fails. There is no accent that survives being flipped in one
+direction while its ink flips in the other.
+
+**There is also no switch.** Gmail ignores `color-scheme`, `supported-color-schemes`
+and `prefers-color-scheme` alike — the answer to his *"is there some way to tell
+Gmail it's already in dark mode"* is no, and that is documented behaviour rather
+than something to work around.
+
+### So: light by default, dark behind `prefers-color-scheme`
+
+Both palettes are the design system's own — `--paper` `#EFEEE7` ("warm
+off-white, never paper white") and `--ink-0` for dark. **The light band was
+already in The Thread; nothing was invented.** The coverage is strictly better
+than dark-first:
+
+| | light mode | dark mode |
+|---|---|---|
+| **Apple Mail** (~60% of opens) | our light design | **our dark design** |
+| **Gmail** (~29%) | our light design | Gmail's own darkening of a light email — the one thing its algorithm is tuned for |
+| **Outlook Windows** (~4%) | our light design | our light design |
+
+**He still gets the dark design on the client he was admiring it in.**
+
+**HOW IT DEGRADES, and this is the part that had to be got right.** Every colour
+is written INLINE as its light value, so a client that strips `<style>` — and
+several do — shows a complete, correct light email. The dark palette is ONE
+`<style>` block keyed on the media query, overriding by class with
+`!important`. **Nothing depends on that block surviving.** Confirmed
+accidentally and usefully: the local preview pane strips `<style>` entirely and
+rendered the light design perfectly.
+
+**THE FAILURE MODE THIS INTRODUCES, and the check written for it.** The dark
+palette is applied BY CLASS, so an element that sets a colour inline and forgets
+its class **stays light inside a dark email** — and no contrast check can see
+it, because both values are individually fine. `render-emails.mjs` now walks the
+rendered output and fails on any tag carrying an inline colour without a class.
+It caught six on its first run, all of them `<strong>` and `<span>` colours
+inside prose strings in the templates.
+
+### Two more things the change turned up
+
+**Pure white was still reachable in the LIGHT path.** `deTrigger` had been
+applied to the dark wrapper only; crimson's and violet's button ink are
+`#ffffff`, and a tenant picking black gets `#000000`. Both are Apple Mail's
+inversion trigger — **the very thing that would have made Apple Mail behave like
+Gmail.** Now applied to both palettes and asserted in both.
+
+**The `email-brand` shell checks needed re-pointing again, one day after the
+last time.** They pinned `bgcolor="${G.ground}"` and `ink: EMAIL_BONE` — facts
+about the dark-first shell. Rewritten to pin what is true now: the shell paints
+the LIGHT ground inline, declares BOTH schemes, ships **exactly one** dark
+override block, and **neither palette names a pure value.** 189 checks.
+
+### The spam finding: authentication is fine, reputation is not
+
+> *"One major problem, though, is that currently it went to my spam folder…
+> because my Andrews detail one doesn't go to spam."*
+
+**Checked both domains rather than guessed**, which settles it:
+
+| | `email.detailingplatform.com` (ours) | `andrewsdetail.com` (his) |
+|---|---|---|
+| DKIM | present | present |
+| SPF on the sending subdomain | present | present |
+| DMARC | `p=none` | `p=none` |
+| Resend infrastructure | `forge.rmta.net`, hardcoded shared IPs | `feedback-smtp.us-east-1.amazonses.com` |
+
+**Authentication is not the problem — the two are configured the same.** Two
+real differences: the domains sit on **different Resend sending pools** (his on
+the long-established SES one, the platform on Resend's newer own-MTA pool), and
+far more importantly **his domain has months of real, engaged mail to real
+people while the platform subdomain has sent almost nothing.** Gmail weighs
+sender history heavily, and a first-ever message from an unknown domain to a
+personal Gmail account is a textbook cold-start classification.
+
+**One genuine gap found: `detailingplatform.com` (the ROOT) has no SPF record at
+all.** It does not affect these sends — they come from the subdomain, which has
+one — but a domain that never says what may send for it is a weaker domain, and
+`v=spf1 -all` on the root is free.
+
+**What was NOT done, deliberately: a `List-Unsubscribe` header.** It is a
+legitimate-sender signal and it is the wrong tool here — these are transactional
+emails, and a customer who unsubscribes stops receiving their own receipts.
+Gmail's one-click requirement applies to bulk senders, which this is not.

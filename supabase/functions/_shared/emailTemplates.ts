@@ -274,7 +274,7 @@ export function customerConfirmationEmail(
     ownWords(brand, isRequest ? "request_received" : "confirmation"),
     buttonBlock(brand, isRequest ? "View or change your request" : "View your booking", b.receiptUrl),
     isRequest ? noteBlock("Nothing is charged now. We'll email you the moment we've accepted.") : "",
-    b.customerNotes ? proseBlock(`<strong style="color:${G.bone};">Your notes</strong><br>${esc(b.customerNotes)}`, 26) : "",
+    b.customerNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">Your notes</strong><br>${esc(b.customerNotes)}`, 26) : "",
   ].filter(Boolean);
 
   return mail(
@@ -307,7 +307,7 @@ export function ownerNewBookingEmail(
     headlineBlock(b.customerName),
     markBlock(brand, [money(Number(b.total)), `${dateLong} · ${formatTime12hr(b.startTime)} – ${formatTime12hr(b.endTime)}`]),
     factsBlock([
-      ["Phone", `<a href="tel:${esc(b.customerPhone)}" style="color:${brand.accent}; text-decoration:none;">${esc(b.customerPhone)}</a>`],
+      ["Phone", `<a href="tel:${esc(b.customerPhone)}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(b.customerPhone)}</a>`],
       ...(b.customerEmail ? [["Email", esc(b.customerEmail)] as [string, string]] : []),
       ["Where", esc(jobAddress(brand, b))],
       ["Type", b.serviceType === "mobile" ? "Mobile" : "Drop-off"],
@@ -317,12 +317,12 @@ export function ownerNewBookingEmail(
     labBlock("The work"),
     proseBlock(
       services.map((s) => `<div style="padding:4px 0;">${esc(s)}</div>`).join("")
-        + (b.promoCode ? `<div style="padding:4px 0; color:${brand.accent};">Promo ${esc(b.promoCode)}${Number(b.promoDiscount) > 0 ? ` (−${money(Number(b.promoDiscount))})` : ""}</div>` : ""),
+        + (b.promoCode ? `<div class="c-accent" style="padding:4px 0; color:${brand.accent};">Promo ${esc(b.promoCode)}${Number(b.promoDiscount) > 0 ? ` (−${money(Number(b.promoDiscount))})` : ""}</div>` : ""),
       12,
     ),
     ruleBlock(30),
     labBlock("Customer notes"),
-    proseBlock(b.customerNotes ? esc(b.customerNotes) : `<span style="color:${G.fog2};">None.</span>`, 12),
+    proseBlock(b.customerNotes ? esc(b.customerNotes) : `<span class="c-fog2" style="color:${G.fog2};">None.</span>`, 12),
     buttonBlock(brand, isRequest ? "Answer this request" : "Open the job", b.receiptUrl),
   ];
 
@@ -352,7 +352,7 @@ export function requestDecisionEmail(
   opts: { manageUrl: string; quotedAmount?: number; quotedNote?: string | null } = { manageUrl: "" },
 ): Mail {
   const dateLong = formatDateLong(b.dateStr);
-  const when = `<strong style="color:${G.bone};">${esc(dateLong)}</strong> at <strong style="color:${G.bone};">${formatTime12hr(b.startTime)}</strong>`;
+  const when = `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`;
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
 
   const blocks = kind === "quote"
@@ -362,7 +362,7 @@ export function requestDecisionEmail(
       proseBlock(`We've had a look at what you asked for on ${when}, and here's what we can do it for.`),
       markBlock(brand, [money(Number(opts.quotedAmount ?? 0)), "Our price for this job"]),
       opts.quotedNote ? proseBlock(esc(opts.quotedNote), 22) : "",
-      noteBlock(`We're still holding ${esc(dateLong)} at ${formatTime12hr(b.startTime)} for you. <strong style="color:${G.bone2};">Nothing is charged until you say yes.</strong>`),
+      noteBlock(`We're still holding ${esc(dateLong)} at ${formatTime12hr(b.startTime)} for you. <strong class="c-ink2" style="color:${G.ink2};">Nothing is charged until you say yes.</strong>`),
       ownWords(brand, "quote"),
       buttonBlock(brand, "See it and say yes", opts.manageUrl),
     ].filter(Boolean)
@@ -380,7 +380,7 @@ export function requestDecisionEmail(
       labBlock("Request declined"),
       headlineBlock("We can't make that one"),
       proseBlock(`We're sorry &mdash; we can't take ${when}, so we've let that time go.`),
-      proseBlock(`If another day works, we'd still love to see you &mdash; <a href="${brand.siteUrl}" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>.`),
+      proseBlock(`If another day works, we'd still love to see you &mdash; <a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>.`),
       ownWords(brand, "declined"),
     ].filter(Boolean);
 
@@ -436,7 +436,7 @@ export function invoiceEmail(
       ? `Thanks, ${esc(firstName(b.customerName))} &mdash; here's your receipt for the work on ${esc(dateLong)}.`
       : `Hi ${esc(firstName(b.customerName))}, here's the invoice for the work on ${esc(dateLong)}.`),
     factsBlock([
-      ["Reference", `<span style="font-family:'SF Mono',Menlo,Consolas,monospace;">${esc(ref)}</span>`],
+      ["Reference", `<span class="c-ink" style="font-family:'SF Mono',Menlo,Consolas,monospace;">${esc(ref)}</span>`],
       ["Vehicle", `${esc(sizeDisplay(b.vehicleSize))}${b.vehicleModel ? ` &middot; ${esc(b.vehicleModel)}` : ""}`],
       ["Service", b.serviceType === "mobile" ? "Mobile" : "Drop-off"],
     ]),
@@ -460,7 +460,7 @@ export function invoiceEmail(
       label: paid ? "Total paid" : "Amount due",
       amount: Number(totals.totalPaid),
     }),
-    paymentNotes ? proseBlock(`<strong style="color:${G.bone};">Notes</strong><br>${esc(paymentNotes)}`, 26) : "",
+    paymentNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">Notes</strong><br>${esc(paymentNotes)}`, 26) : "",
     ownWords(brand, paid ? "receipt" : "invoice"),
     buttonBlock(brand, "View this online", b.receiptUrl),
     fineBlock("Keep this for your records. Reply to this email if anything looks wrong."),
@@ -544,19 +544,19 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
   const blocks = forOwner
     ? [
-      labBlock("Cancelled", G.bad),
+      labBlock("Cancelled", "bad"),
       headlineBlock(b.customerName),
-      proseBlock(`<strong style="color:${G.bone};">${esc(dateLong)}</strong> at <strong style="color:${G.bone};">${formatTime12hr(b.startTime)}</strong> is cancelled. The slot is open again.`),
+      proseBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong> is cancelled. The slot is open again.`),
       factsBlock([
         ["Phone", esc(b.customerPhone)],
         ["Was worth", money(Number(b.total))],
       ]),
     ]
     : [
-      labBlock("Cancelled", G.bad),
+      labBlock("Cancelled", "bad"),
       headlineBlock("Your booking is cancelled"),
-      proseBlock(`Hi ${esc(firstName(b.customerName))}, your booking with ${esc(brand.brandName)} for <strong style="color:${G.bone};">${esc(dateLong)}</strong> at <strong style="color:${G.bone};">${formatTime12hr(b.startTime)}</strong> has been cancelled.`),
-      proseBlock(`We'd love to see you another time &mdash; you can book again at <a href="${brand.siteUrl}" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>.`),
+      proseBlock(`Hi ${esc(firstName(b.customerName))}, your booking with ${esc(brand.brandName)} for <strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong> has been cancelled.`),
+      proseBlock(`We'd love to see you another time &mdash; you can book again at <a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>.`),
       ownWords(brand, "cancelled"),
     ].filter(Boolean);
   return mail(
@@ -585,7 +585,7 @@ export function rescheduleEmail(
     labBlock("Rescheduled"),
     headlineBlock(forOwner ? b.customerName : "Your booking has moved"),
     proseBlock(forOwner
-      ? `<strong style="color:${G.bone};">${esc(b.customerName)}</strong> moved their booking.`
+      ? `<strong class="c-ink" style="color:${G.ink};">${esc(b.customerName)}</strong> moved their booking.`
       : `Hi ${esc(firstName(b.customerName))}, your booking with ${esc(brand.brandName)} has been moved.`),
     proseBlock(`<span style="color:${G.fog2}; text-decoration:line-through;">${esc(oldLong)} at ${formatTime12hr(oldStartTime)}</span>`, 24),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
@@ -609,9 +609,9 @@ export function rescheduleEmail(
 export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hoursWaited: number): Mail {
   const dateLong = formatDateLong(b.dateStr);
   const blocks = [
-    labBlock("Still waiting on you", G.bad),
+    labBlock("Still waiting on you", "bad"),
     headlineBlock(b.customerName),
-    proseBlock(`asked for <strong style="color:${G.bone};">${esc(dateLong)}</strong> at <strong style="color:${G.bone};">${formatTime12hr(b.startTime)}</strong> &mdash; ${hoursWaited} hour${hoursWaited === 1 ? "" : "s"} ago, and it is still waiting for an answer.`),
+    proseBlock(`asked for <strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong> &mdash; ${hoursWaited} hour${hoursWaited === 1 ? "" : "s"} ago, and it is still waiting for an answer.`),
     proseBlock("That time is held for them until you accept or decline it, so nobody else can book it either.", 16),
     factsBlock([
       ["Phone", esc(b.customerPhone)],

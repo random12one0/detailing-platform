@@ -186,10 +186,24 @@ for (const bad of [null, undefined, "", "not a colour", "#12"]) {
   // to the client, and that the type is warm bone rather than pure white —
   // which is both a design law and, since Apple Mail inverts on a pure value,
   // a compatibility one.
-  check("the shell paints the product's own ground",
-    kit.includes('bgcolor="${G.ground}"') && kit.includes('name="color-scheme" content="dark"'));
-  check("the dominant type value is warm bone, never pure white",
-    kit.includes('bone: EMAIL_BONE') && !/bone:\s*"#f{3,6}"/i.test(kit));
+  // ROADMAP 2.18, SAME DAY: the email became LIGHT-FIRST with dark behind
+  // `prefers-color-scheme`, because Gmail's app inverts an already-dark email
+  // and cannot be told not to — measured at 1.77:1 on the button label. So the
+  // fact to pin moved with it: the shell paints the LIGHT ground inline,
+  // declares BOTH schemes, and ships exactly one dark override block.
+  check("the shell paints the light ground inline",
+    kit.includes('bgcolor="${L.ground}"'));
+  check("the shell declares both colour schemes",
+    kit.includes('content="light dark"'));
+  check("there is exactly one dark override, keyed on prefers-color-scheme",
+    (kit.match(/@media \(prefers-color-scheme: dark\)/g) ?? []).length === 1);
+  // The dark palette's dominant is the system's warm bone; the light one's is
+  // its warm near-black. **Neither may be a pure value** — a design law, and
+  // independently a compatibility one, since Apple Mail inverts on either.
+  check("the dark dominant is warm bone, never pure white",
+    kit.includes("ink: EMAIL_BONE"));
+  check("neither palette names a pure value",
+    !/(ground|panel|ink2?|fog2?|line2?):\s*"#(fff(fff)?|000(000)?)"/i.test(kit));
 }
 
 // 7b-ii — THE FIXED GREYS, MEASURED ON BOTH GROUNDS THEY LAND ON.

@@ -3274,11 +3274,70 @@ reads exactly like a revoked key.
 `booking-engine` test 9 pins TENANT ISOLATION with it, and the caller was in
 `tests/` while the grep was of `supabase/functions/`. Restored.
 
+### HE OPENED THEM, AND THE DARK DESIGN FAILED ON GMAIL
+
+*"It looks good in dark and light mode iCloud… but on the Gmail, it does
+reverse it when I have dark mode activated… it darkened the green somehow."*
+
+**The research had PREDICTED this and concluded the result would be readable —
+that conclusion was reasoning, not measurement, and it was wrong.** Measured
+afterwards by applying Gmail's actual transform (an HSL lightness mirror) to
+our own palette:
+
+| | before | after Gmail |
+|---|---|---|
+| accent as words on the ground | 10.07:1 | **1.99:1** |
+| ink on the accent button | 10.88:1 | **1.77:1** |
+
+**Unreadable, not off-brand.** The flaw in the reasoning: a ratio IS symmetric
+under a flip, but inversion does not flip everything by the same amount — a
+mid-lightness accent barely moves while its near-black ink swings to near-white,
+so the pair does not travel together. **Unfixable by palette; all four accents
+tested fail.** And Gmail ignores `color-scheme` and `prefers-color-scheme`
+alike, so there is no way to tell it.
+
+**SO THE EMAILS ARE LIGHT-FIRST NOW**, with the dark design behind
+`prefers-color-scheme`. Both palettes are The Thread's own — `--paper` and
+`--ink-0`; the light band already existed. Apple Mail (~60% of opens) still
+shows the dark design; Gmail now darkens a LIGHT email, which is the one thing
+its algorithm is tuned for. Everything is inline and light, so a client that
+strips `<style>` shows a complete light email.
+
+**THE NEW FAILURE MODE, AND ITS CHECK: the dark palette applies BY CLASS**, so
+an element that sets a colour inline and forgets its class stays light inside a
+dark email — invisible to any contrast check, because both values are
+individually fine. `render-emails.mjs` walks the rendered output and fails on
+any inline colour without a class; it caught six on its first run. **Pure white
+was also still reachable in the LIGHT path** (crimson's and violet's button
+ink) — Apple Mail's own inversion trigger, one line from making Apple Mail
+behave like Gmail.
+
+`email-brand` is **189 checks**; its shell assertions were re-pointed a second
+time in two days, which is what a live architecture costs.
+
+### AND THE SPAM ANSWER: AUTHENTICATION IS FINE, REPUTATION IS NOT
+
+Both domains checked rather than guessed. DKIM, SPF on the sending subdomain
+and DMARC `p=none` are **present and identical** on `email.detailingplatform.com`
+and `andrewsdetail.com`. **Verifying anything further buys nothing** — which is
+the useful half, because it stops the obvious next move being a wasted
+afternoon of DNS.
+
+What differs: the two sit on **different Resend pools** (his on Amazon SES, the
+platform on Resend's newer own-MTA), and far more heavily, **his domain has
+months of engaged mail and the platform subdomain has sent almost nothing.**
+Gmail weighs sender history hard; a first-ever message from an unknown domain
+to a personal Gmail account is a textbook cold-start classification.
+
+**One genuine gap: the ROOT `detailingplatform.com` has no SPF record at all.**
+Free to fix, does not affect these sends. Full working and the ordered list of
+what actually helps: `docs/email-clients-2026-09-03.md`, last section.
+
 ### Still open
 
-`formatDateLong` hardcoded `en-US` · **and the owner's verdict on the four
-emails now in his inbox**, which is the only thing that can close the "nothing
-has been opened in a real email client" gap. A send to a Gmail, an Outlook and an iCloud address in both
+`formatDateLong` hardcoded `en-US` · the root SPF and a DMARC `rua=` (his DNS,
+in Netlify) · **and his verdict on the light-first sends**, which is the only
+thing that closes this loop. A send to a Gmail, an Outlook and an iCloud address in both
 modes is twenty minutes, and it is the only thing that turns "should work" into
 "does work".
 

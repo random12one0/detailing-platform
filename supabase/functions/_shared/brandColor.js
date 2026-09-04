@@ -29,19 +29,38 @@
 //     corrected to 4.5:1 against the paper, the same floor every other
 //     surface in the product has.
 //
-// THE GROUND IS WHITE HERE, WHICH IS THE ONE THING THAT IS NOT LIKE THE REST
-// OF THE PRODUCT. Everything else corrects a colour by LIGHTENING it away
-// from a near-black ground; on paper the same function darkens it. That falls
-// out of `correctToward` reading the ground's luminance rather than assuming
-// a dark one, which is why the port is the whole function and not the half
-// this file happens to use.
+// THE EMAIL HAS TWO GROUNDS AND BOTH ARE LIVE (roadmap 2.18). `emailBrandColors`
+// corrects against the LIGHT one — what every client shows by default — and
+// `emailDarkBrandColors` against the dark one, which Apple Mail swaps in under
+// `prefers-color-scheme`. One function serves both because `correctToward`
+// reads the ground's luminance rather than assuming a dark one: it lightens a
+// colour away from near-black and darkens the same colour away from paper.
+// That is why the port was the whole function rather than the half the old
+// white-card design happened to use.
 
-// The email card's body. Must match the `background-color:#ffffff` on the
-// inner table in emailTemplates.ts's shell().
-const PAPER = "#ffffff";
-// Where a colour lands when it cannot be corrected at all. Slate-900, which
-// is what the templates already used for body copy.
-const PAPER_FALLBACK = "#0f172a";
+// THE LIGHT EMAIL'S GROUND — and it is NOT `#ffffff` any more.
+//
+// It was, while the email was a white card under a coloured band. Roadmap 2.18
+// replaced that with The Thread's own two grounds, and pure white left with it
+// for two independent reasons: the design system names `#ffffff` as a tell
+// ("warm off-white, never paper white"), and **Apple Mail treats a pure value
+// as permission to invert the whole email**.
+//
+// THE VALUE IS THE PANEL, NOT THE PAPER, AND THAT IS THE LAW BEING APPLIED
+// RATHER THAN BENT. `docs/design-system.md` says to correct against "the
+// lightest surface THAT VALUE can land on" — but that sentence was written for
+// a DARK ground, where lighter means less contrast. **The general form is:
+// correct against the surface that gives the LEAST contrast**, which on a dark
+// ground is the lightest surface and on a light ground is the DARKEST one. The
+// light email paints `#EFEEE7` paper and a `#E7E5DC` panel; a darkened accent
+// has less room on the panel, so the panel decides.
+//
+// Getting this backwards is how the same defect has arrived four times.
+const PAPER = "#E7E5DC";
+// Where a colour lands when it cannot be corrected at all: the light design's
+// dominant ink, so an uncorrectable accent reads as ordinary type rather than
+// as a smudge.
+const PAPER_FALLBACK = "#12161A";
 const MIN_ACCENT_CONTRAST = 3;
 const MIN_INK_CONTRAST = 4.5;
 
@@ -134,19 +153,46 @@ function inkFor(fillHex) {
   return ink;
 }
 
-// The three values a tenant's one colour turns into on an email.
+// The three values a tenant's one colour turns into on the LIGHT email.
 //
-//   band     the header band's fill. A background, so it takes the 3:1
-//            non-text floor against the paper the card sits on — a band the
-//            same colour as the page has no header.
-//   bandInk  what is legible on that band: the title, and the 44px rule that
-//            used to be the second brand colour.
-//   onPaper  the same colour as WORDS on white — labels, links, totals,
-//            the footer name. 4.5:1, because they are all small text.
+//   band     the accent as a FILL — the button face, the accent rule. A
+//            background, so it takes the 3:1 non-text floor.
+//   bandInk  what is legible ON that fill. Measured, never assumed.
+//   onPaper  the accent as WORDS — the total, links, the footer name. 4.5:1,
+//            because every one of them is small text.
+//
+// The names are the old white-card ones and are kept deliberately: they are
+// what `tests/email-brand.test.mjs` reads, and renaming them would churn a
+// hundred checks to say the same thing. What each one MEANS is above.
+// PURE BLACK AND PURE WHITE ARE INVERSION TRIGGERS, and this is the one place a
+// compatibility fact reaches into the colour maths. Apple Mail — ~60% of all
+// opens — leaves an email alone in dark mode UNLESS it finds `#ffffff` or
+// `#000000`, which it reads as "this email has no opinion, invert it". Nudging
+// one step off both is the standard defence and costs nothing measurable:
+// `#ffffff` → `#fefefe` moves a contrast ratio by about 0.1.
+//
+// **Applied to BOTH palettes.** It was in the dark wrapper only until
+// 2026-09-03, and the light path reached pure white anyway — crimson's and
+// violet's button ink are `#ffffff`, and a tenant who picks black gets
+// `#000000` as their accent. `render-emails.mjs` asserts the absence in both.
+const deTrigger = (hex) => {
+  const h = String(hex).toLowerCase();
+  if (h === "#ffffff" || h === "#fff") return "#fefefe";
+  if (h === "#000000" || h === "#000") return "#010101";
+  return hex;
+};
+
 export function emailBrandColors(brandHex, fallbackBand = PAPER_FALLBACK) {
   const band = correctToward(brandHex || fallbackBand, PAPER, MIN_ACCENT_CONTRAST, fallbackBand);
-  return { band, bandInk: inkFor(band), onPaper: correctToward(brandHex || fallbackBand, PAPER, MIN_INK_CONTRAST, PAPER_FALLBACK) };
+  return {
+    band: deTrigger(band),
+    bandInk: deTrigger(inkFor(band)),
+    onPaper: deTrigger(correctToward(brandHex || fallbackBand, PAPER, MIN_INK_CONTRAST, PAPER_FALLBACK)),
+  };
 }
+
+/** The light email's grounds, named so the templates and the tests agree. */
+const PAPER_GROUND = "#EFEEE7";  // --paper
 
 // ---------------------------------------------------------------------------
 // THE DARK GROUND — roadmap 2.18, 2026-09-03.
@@ -159,11 +205,19 @@ export function emailBrandColors(brandHex, fallbackBand = PAPER_FALLBACK) {
 // ground the reader travels down**, warm bone type that is never `#fff`, and
 // **one** sharp accent marking the thing that has landed.
 //
-// So the email gets a second pair of grounds, and this is ADDITIVE ON PURPOSE.
-// `emailBrandColors` above is unchanged and still corrects against white paper,
-// because `tests/email-brand.test.mjs` — 138 checks — pins it that way against
-// `app/src/lib/theme.js`. A rebuild that edits that function turns a green
-// suite red for a reason that has nothing to do with the rebuild.
+// THE EMAIL HAS TWO GROUNDS AND BOTH ARE LIVE. `emailBrandColors` above is the
+// LIGHT one — what every client sees by default — and this is the DARK one,
+// which Apple Mail swaps in under `prefers-color-scheme`.
+//
+// **Light is the default rather than dark, and that is a measured decision, not
+// a taste one.** Gmail's app inverts an already-dark email and cannot be told
+// not to — no meta tag, no media query, confirmed by the owner on a real
+// device. Measured on our own palette: the accent as words falls to **1.99:1**
+// after that inversion and the button label to **1.77:1**, against a 4.5:1
+// floor. It is unfixable by palette, because inversion barely moves a
+// mid-lightness accent while swinging its near-black ink to near-white.
+// Light-first sidesteps it entirely: Gmail darkens a light email competently,
+// which is the one thing its algorithm is actually tuned for.
 //
 // WHICH GROUND, AND WHY IT IS NOT `--ink-0`. The design system's own rule,
 // arrived at three separate times and written up each time: **correct against
@@ -191,13 +245,6 @@ const BONE = "#F2F1EC";          // --bone. Warm. NEVER #ffffff — a named tell
 // is shared with the white-paper path above, which `tests/email-brand.test.mjs`
 // pins across twelve presets and four extremes. The two paths do not have the
 // same problem and must not share the fix.
-const deTrigger = (hex) => {
-  const h = String(hex).toLowerCase();
-  if (h === "#ffffff" || h === "#fff") return "#fefefe";
-  if (h === "#000000" || h === "#000") return "#010101";
-  return hex;
-};
-
 export function emailDarkBrandColors(brandHex) {
   const seed = brandHex || BONE;
   const fill = correctToward(seed, PANEL, MIN_ACCENT_CONTRAST, BONE);
@@ -208,4 +255,4 @@ export function emailDarkBrandColors(brandHex) {
   };
 }
 
-export { BONE as EMAIL_BONE, GROUND as EMAIL_GROUND, PANEL as EMAIL_PANEL, PAPER, PAPER_FALLBACK };
+export { BONE as EMAIL_BONE, GROUND as EMAIL_GROUND, PANEL as EMAIL_PANEL, PAPER, PAPER_FALLBACK, PAPER_GROUND };

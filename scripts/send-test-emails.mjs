@@ -30,7 +30,7 @@
 // rendering; do not loop.
 
 import { readFile } from "node:fs/promises";
-import { emailDarkBrandColors } from "../supabase/functions/_shared/brandColor.js";
+import { brandFrom } from "../supabase/functions/_shared/emailKit.ts";
 import * as T from "../supabase/functions/_shared/emailTemplates.ts";
 
 const arg = (n) => {
@@ -74,20 +74,35 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
   process.exit(1);
 }
 
-// The seeded demo tenant. Its name is what appears in the From line, so the
-// inbox shows what a real customer of a real tenant would see.
-const BUSINESS_ID = "584da3a6-a796-4b72-8ae2-015f951adb95";
+// THE SEEDED DEMO TENANT, RESOLVED BY SLUG RATHER THAN PINNED BY ID.
+// Its name is what appears in the From line, so the inbox shows what a real
+// customer of a real tenant would see. **The id was hardcoded until
+// 2026-09-03 and `seed-demo.mjs` reassigned it**, so every send came back
+// `unknown_business` — a fixture pinned to a value another script owns.
+const bizRes = await fetch(
+  `${SUPABASE_URL}/rest/v1/businesses?select=id,name&slug=eq.demo-detail&limit=1`,
+  { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } },
+);
+const [demoBiz] = await bizRes.json().catch(() => []);
+if (!demoBiz) {
+  console.error("No business with slug 'demo-detail'. Run `node scripts/seed-demo.mjs` first.");
+  process.exit(1);
+}
+const BUSINESS_ID = demoBiz.id;
 
-const c = emailDarkBrandColors("#38E08B");
+// BUILT BY `brandFrom`, NOT BY HAND. A fixture assembled field by field is a
+// fixture that silently disagrees with the interface the moment one is added —
+// which is exactly what happened when the dark palette arrived and every email
+// rendered `undefined`. The builder is the same one `_shared/email.ts` uses in
+// production, so the fixture cannot drift from it.
 const brand = {
-  brandName: "Coastline Auto Detailing",
+  ...brandFrom({
+    brandName: "Coastline Auto Detailing",
+    contactPhone: "(303) 555-0142",
+    siteUrl: "https://detailingplatform.com/book/demo-detail",
+    logoUrl: null,
+  }, "#38E08B"),
   contactEmail: null,
-  contactPhone: "(303) 555-0142",
-  siteUrl: "https://detailingplatform.com/book/demo-detail",
-  logoUrl: null,
-  accent: c.text,
-  accentFill: c.fill,
-  accentInk: c.fillInk,
   dropoffAddress: "2200 Blake St, Denver, CO 80205",
   googleReviewUrl: "https://g.page/r/example/review",
   yelpReviewUrl: "https://www.yelp.com/biz/example",

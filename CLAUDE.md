@@ -222,7 +222,7 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - Finish every session: `node tests/composition.test.mjs`,
   `design-contrast`, `landing-pricing`, `route-contract`, **`money-export`**,
-  **`email-brand`** (**186** checks — 97 when it was written and grown in roadmap
+  **`email-brand`** (**189** checks — 97 when it was written and grown in roadmap
   2.12, which found what it could not see: it pinned the colour ENGINE and never
   looked at what the templates DID with the answer, so **every email headline in
   the product was 3.01–3.76:1 on a 4.5:1 floor, on all fourteen colours**, and
@@ -434,6 +434,28 @@ explaining it; if they still have to ask "so should I?", it failed.
   **closed by him unstarted**; the figures live there so nobody re-measures
   them and files them as new.
 
+- **THE EMAILS ARE LIGHT-FIRST WITH A DARK VARIANT, AND THAT IS MEASURED
+  RATHER THAN CHOSEN (roadmap 2.18, 2026-09-03).** They shipped dark-first; the
+  owner opened them on real devices and **Gmail's dark mode inverts an
+  already-dark email and cannot be told not to** — it ignores `color-scheme`
+  and `prefers-color-scheme` alike. Measured on our own palette by applying
+  Gmail's transform: the accent as words **10.07:1 → 1.99:1**, the button's ink
+  **10.88:1 → 1.77:1**, against a 4.5:1 floor. **Unfixable by palette** —
+  inversion barely moves a mid-lightness accent while swinging its near-black
+  ink to near-white, and all four accents tested fail.
+  So: **every colour is INLINE and LIGHT** (`--paper`, the design system's own
+  light band), and **one `<style>` block keyed on `prefers-color-scheme: dark`**
+  swaps in `--ink-0`. Apple Mail — ~60% of opens — still shows the dark design.
+  A client that strips `<style>` shows a complete light email, so nothing
+  depends on that block.
+  **THE FAILURE MODE THIS CREATES: the dark palette applies BY CLASS**, so an
+  element that sets a colour inline and forgets its class stays LIGHT inside a
+  dark email — and no contrast check can see it, because both values are
+  individually fine. `render-emails.mjs` walks the rendered output and fails on
+  any inline colour without a class. **Add the class when you add the colour.**
+  **And pure `#ffffff`/`#000000` are banned in BOTH palettes** — Apple Mail
+  treats either as permission to invert the whole email, which is the one way
+  to make Apple Mail behave like Gmail.
 - **THE EMAILS ARE REBUILT AND LIVE (roadmap 2.18, 2026-09-03).** The old
   ~530-line `emailTemplates.ts` is gone. **`_shared/emailKit.ts` is the world** —
   the ground, the design-system tokens, the blocks and the shell, with the
