@@ -68,7 +68,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   listed in the new file under "§11". Backend, content, copy facts and
   accessibility floors were always kept; only the visual world changed.
 - The design tests enforce the NEW rules: `tests/composition.test.mjs`
-  (**66 checks** — 24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
+  (**72 checks — this said 66 until 2026-09-04 and had been stale since the
+  last commits of 2.17, which is the fourth stale count found in this file;
+  the script prints its own figure, so read that rather than this** —
+  24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
   which added test 8: the squircle pairing, the second column's motion, the
   calendar's travel and the content swap; 57 until the swap was rebuilt on
   2026-09-04; 61 until test 9 landed the same day with the reduced-motion fix.
@@ -516,6 +519,41 @@ explaining it; if they still have to ask "so should I?", it failed.
   `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
   on Windows has it and headless does not, and that one difference is the
   whole of walkthrough W14.
+- **THE CHECK FOR ANYTHING ON THE PATH A CUSTOMER OR A BOOKING TAKES:
+  `node scripts/e2e-booking.mjs`** (roadmap 2.5, 2026-09-04 — 82 checks, ~3
+  minutes). Same dev server and seeds as the sweeps, plus the root `.env`,
+  which it loads itself. It is the only thing in this repo that **presses the
+  button**: `sweep-booking-steps.mjs` walks all seven steps and stops ON the
+  review step, so until this landed, the one action the product exists for was
+  exercised by no test at any level. It books in a real browser, checks the row
+  against what the price bar printed, reads the project's **edge-function
+  logs** for both sends, asks `available-slots` whether the slot is held,
+  accepts the request on the dashboard, then reschedules and cancels from the
+  receipt page and watches the slot come back.
+  **IT WALKS TWO TENANTS AND THAT IS THE POINT.** `demo-detail` is REQUEST mode
+  and the only business anything can sign into, so it gets the dashboard leg;
+  `demo-riverside` is RESERVE mode, which is the schema default and what every
+  real tenant has. **Running only the demo is what hid a white-screen crash on
+  `main` for four days** — `StepLocation.jsx` never destructured its
+  `modeLimit` prop, and the branch that reads it renders only for a business
+  offering ONE of mobile and drop-off, which the demo is not. Same finding as
+  always, in its widest form yet: **a configuration nothing seeds is a
+  configuration nothing tests.**
+  **THE EMAIL LEG IS THE PART NOTHING ELSE CAN DO.** `sendTenantEmail` is
+  best-effort by design — an email failure must never fail a booking — so a
+  dead relay is a `console.error` inside an edge function, invisible from every
+  screen and every other suite. That is exactly how the 0.2 defect survived.
+  This reads `function_edge_logs` and `function_logs` through the Management
+  API, which needs `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF`; without
+  them the leg prints **skip**, not pass. The customer address is Resend's
+  `delivered@resend.dev` simulator (roadmap 0.3's own choice), so the send
+  really reaches the provider at no cost to the sending reputation the live
+  business shares. **A tenant's owner alert falls back to
+  `businesses.contact_email` when `notification_emails` is empty** — keep every
+  seeded one on a reserved domain, or the demos hard-bounce against that same
+  reputation, which they did until this item.
+  `--slug=<one>` runs a single tenant, `--keep` leaves the booking behind,
+  `--headed` shows the browser.
 - **The check for anything that changes the BOOKING WIDGET:
   `node scripts/sweep-booking-steps.mjs`.** Same dev server, no login (the page
   is public). It walks every step at all four verification sizes, fills the form

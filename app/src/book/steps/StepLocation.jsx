@@ -27,9 +27,23 @@
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 import { money } from "../../lib/format.js";
 
-export default function StepLocation({ form, setForm }) {
+// `modeLimit` IS A PROP AND WAS NOT TAKEN — the booking page threw
+// `ReferenceError: modeLimit is not defined` for every business offering only
+// ONE of mobile and drop-off, which is a total booking outage for that tenant.
+// Found by roadmap 2.5's smoke test on the mobile-only seed, 2026-09-04; live
+// on `main` since 2026-08-31 (1ed5084, roadmap 2.8c), and invisible until now
+// because the demo enables both modes, so nothing in the repo ever rendered
+// the branch below.
+//
+// AND THE SAME LINE HID THE OTHER HALF. `both` was computed here WITHOUT
+// `modeLimit`, while BookingPage's own `bothModes` includes it and feeds the
+// step's heading. So a business with both modes on and a service that allows
+// only one got the heading for a narrowed step and the two choice cards
+// anyway — and the "which service decided" message this file was written to
+// print was unreachable in every configuration that did not crash.
+export default function StepLocation({ form, setForm, modeLimit }) {
   const { settings, business } = useBookingBusiness();
-  const both = settings.mobile_enabled && settings.dropoff_enabled;
+  const both = settings.mobile_enabled && settings.dropoff_enabled && !modeLimit;
   const isMobile = form.serviceType === "mobile";
 
   return (

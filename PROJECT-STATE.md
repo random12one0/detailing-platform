@@ -3342,6 +3342,74 @@ modes is twenty minutes, and it is the only thing that turns "should work" into
 "does work".
 
 
+## 6z-iii. ROADMAP 2.5 — THE SMOKE TEST, AND A WHITE SCREEN ON `main` (2026-09-04)
+
+**The loop works. The thing that was broken was a configuration nothing in this
+repo had ever rendered.**
+
+**`scripts/e2e-booking.mjs` is rewritten** — it had been dead since before
+2026-08-31, pointing at a Linux Playwright path and a container scratch
+directory, and nothing noticed because it was in no list. It is now **82 checks
+across two tenants, ~3 minutes**, and it is in CLAUDE.md's verification list,
+which is the half that stops it rotting again.
+
+**What it does that nothing else did.** `sweep-booking-steps.mjs` walks all
+seven steps of the booking page and stops ON the review step — so **nothing in
+this repo had ever pressed Confirm.** The one action the product exists for was
+exercised at the API level by `booking-engine` and through the UI by nothing.
+This presses it, then follows the booking the whole way: the row against what
+the price bar printed, both emails through the project's own edge-function
+logs, the slot through `available-slots`, the request card on Today, Accept,
+the reschedule and the cancel from the receipt page.
+
+**THE DEFECT: `ReferenceError: modeLimit is not defined` — a white screen on
+step 4 for every business offering only ONE of mobile and drop-off.**
+`StepLocation.jsx` was passed `modeLimit` by `BookingPage.jsx` and never
+destructured it; the only branch that reads it is the one a single-mode
+business renders. **Live on `main` since 2026-08-31 (`1ed5084`, roadmap
+2.8c).** For such a tenant it is a total booking outage — the form dies at the
+address step and the customer meets the error boundary. Nobody had seen it
+because **the demo enables both modes**, so the branch was unreachable by every
+script, every screenshot and every sweep. The seeded mobile-only tenant
+(`demo-riverside`) existed the whole time and nothing walked it.
+
+**The same line hid the feature's other half.** `both` was computed inside
+`StepLocation` WITHOUT `modeLimit`, while `BookingPage`'s own `bothModes`
+includes it and feeds the step's heading. So a business with both modes on and
+a service that allows only one got the narrowed heading over two choice cards,
+and the *"Ceramic Coating has to be done at our place"* line that file was
+written to print was **unreachable in every configuration that did not crash**.
+Roadmap 2.8c built that message; it had never once been on screen. One-line
+fix covers both halves; verified by hand on a temporarily narrowed demo
+service, then restored.
+
+**The second finding: the demo was mailing a parked domain.** `contact_email`
+was `demo@detailplatform.com` — a SIGN-IN reused as a MAILBOX.
+`notification_emails` is empty, so every owner alert fell back to it, and that
+domain belongs to somebody else and has **no MX record**. `send-email`'s
+undeliverable-domain guard let it through because the domain looks ordinary, so
+every booking on the demo asked Resend to deliver mail that could only
+hard-bounce — against the same sending reputation that carries Andrew's real
+customers' receipts. Now `demo@example.com`, which is reserved and IS in that
+guard. Fixed in `seed-demo.mjs` and on the live demo row.
+
+**What is now proven, and how far.** Both loops are green: the price bar equals
+`total_price`, a `pending` request holds its slot (roadmap 2.12's
+established-by-not-writing-it constraint fact, now checked from outside the
+schema), Accept turns it into a job, the job is findable in the calendar's
+history, the reschedule frees the old slot and takes the new one, the cancel
+gives it back, no console errors. **The emails are proven to the PROVIDER, not
+to an inbox** — the customer address is Resend's `delivered@resend.dev`
+simulator, so the send genuinely posts to Resend and a non-2xx fails the run.
+Whether a mail client renders it is `send-test-emails.mjs` plus a person, which
+2.18 did on 2026-09-03.
+
+**ONE GAP LEFT OPEN ON PURPOSE.** No seeded business has a service that narrows
+the mode, so the message above is still rendered by nothing automated. Seeding
+one is two lines — but it puts a new sentence on step 4, which has 39px spare
+at 392 (W16), so it needs a `sweep-booking-steps.mjs` re-measure and belongs
+with the next change to that step's budget.
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 

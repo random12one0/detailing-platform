@@ -87,7 +87,17 @@ const [business] = await post("/rest/v1/businesses", [{
   slug: SLUG,
   name: "Coastline Auto Detailing",
   timezone: TZ,
-  contact_email: OWNER.email,
+  // NOT `OWNER.email` — that is a SIGN-IN, and this is a MAILBOX. Found doing
+  // roadmap 2.5 (2026-09-04): `notification_emails` is empty on the demo, so
+  // every owner alert falls back to this address, and `detailplatform.com` is
+  // a real registered domain that belongs to somebody else and has NO MX
+  // record. `send-email`'s undeliverable-domain guard lets it straight
+  // through — the domain looks ordinary — so a booking on the demo asked
+  // Resend to deliver mail that can only hard-bounce, against the same
+  // sending reputation that carries Andrew's real customers' receipts.
+  // `example.com` is reserved (RFC 2606) and IS in that guard, so the demo's
+  // owner alert is now skipped before it reaches the provider.
+  contact_email: "demo@example.com",
   contact_phone: "562-555-0180",
   dropoff_address: "1450 Marina Blvd, Long Beach, CA",
   service_area: "Long Beach & South Bay",

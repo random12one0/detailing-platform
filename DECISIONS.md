@@ -51,7 +51,7 @@ were made more than once.
 | About to touch | Sections to read |
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
-| **The customer booking page `/book/:slug`** | Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
+| **The customer booking page `/book/:slug`** | **Roadmap 2.5 — the smoke test, and the single-mode crash it found; run `node scripts/e2e-booking.mjs`** · Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
 | **The dashboard `/app`** | **Roadmap 2.11, step 6, stage 2 — the job record, and the two defects the specification had already described** · **Roadmap 2.11, step 6, stage 1 — what is BUILT, and what stage 1 deliberately left** · **Roadmap 2.11, step 4b first if it is the PHONE — it overrides step 4 there, and PHONES ARE PORTRAIT ONLY** · **Roadmap 2.11, step 4 — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
@@ -190,6 +190,8 @@ were made more than once.
 - **Roadmap 2.17, third pass — replacing the dissolve he rejected** — he looked at the dissolve and turned it down flat: *"it just looks like a page refresh… **And I'm sorry if I steered you to that. I wasn't trying to.** … it doesn't look fluid."* **His own earlier *"a little dissolve or a blur"* is what produced it, he withdrew it himself, and every surviving copy of that sentence now carries the retraction beside it** — deleting a retracted hint is how it gets re-derived from a fourth file nobody checked. He also refused to specify the replacement on purpose (*"I'm not gonna give you an animation idea"*) and floated a second hint he withdrew in the same breath. **THE TRANSFERABLE PART: design against the DIAGNOSIS, not the complaint.** Designing against *"it looks like a page refresh"* produces a shorter dissolve, which is the same defect in less time. The diagnosis is that **a page reload IS a whole block changing opacity at once**, so a uniform cross-fade reproduces a reload's optical signature however brief it is — **the fault was the UNIFORMITY, not the duration and not the blur**, and the corroboration was already in the repo: every motion he has approved moves its parts on different timelines. **So `.swap` now carries no animation at all** (it is a marker plus a React key) and `.swap > *` runs the screen's own `arrive` for `--t-exit`, staggered 20ms, capped at 160ms — no new keyframe, duration, distance or property, giving ONE entrance shape at three scales. **The blur is gone and law 4 goes back to transform-and-opacity-only: the rejected version was also the one that needed a law bent for it.** The ladder runs EIGHT deep rather than five because most of the Clients list sits below the fifth row and a cap at five leaves the majority moving as one plane. **`composition` 8e-i-b fails on ANY rule targeting `.swap`, which is deliberately stricter than the defect** — the flat plane coming back would arrive looking like a tidy-up, one selector instead of ten — and 8e-vii counts DISTINCT delays, because a stagger that collapses to one beat is a uniform fade wearing ten selectors. **Then `impeccable critique` found two defects the clean measurement could not: a clean `getAnimations()` reading tells you what IS animating, not whether it SHOULD be.** The pinned action bar was inside the swap — six buttons pixel-identical between any two jobs, travelling on every switch, on the record's primary tap target — and `RecordHost` had already pulled the CLOSE BUTTON out for that exact reason, so **furniture opting out is the rule's other half, not an exception**. And Money's 620ms chart tail, first recorded as measured-and-left because no SELECTOR can separate a swap from first paint, is fixed: `Money.jsx` can see it in three lines, and "three lines" is not a reason to ship the one defect on the one screen he named. **The flag's first version was correct-looking and did nothing, which is the most reusable part**: recomputed per render it went true then false on the very next render (the reload setting `refreshing`), and **removing `animation: none` from a live element STARTS the animation** — plausible code, unchanged behaviour, the class gone before anyone could inspect it, and only `getAnimations()` able to see it. Latched per period now. **And `theme.css` had claimed the opposite since the chart was written** (*"a month switch snaps, deliberately"*), which had never been true.
 
 - **The corner got smaller rather than more universal** — the two asks turned out to be one edit. The owner asked for "a squircle design that doesn't rely on the browser knowing what it is… that will work universally", and separately said that what he actually liked in a browser-extension preview was that **the radius got smaller**: *"more blocky with still being rounded off… but not, like, super blocky, like the casual AI blocky, just a little bit less rounded."* **There is no universal superellipse worth its cost** — both routes were costed before he asked and neither was re-opened. But **the visible difference between a true squircle and the plain rounded corner every browser already draws is PROPORTIONAL TO THE RADIUS**, measured by rendering one corner at 4x and counting pixels rather than reasoning: 34 differ at 18px, 14 at 12px, 7 at 10px, 3 at 8px. **So tightening the radii IS the universal fix**, cutting the Chromium-only difference by 59% on panels and 79% on insets with no mask, no worklet and no JavaScript. `--r-panel` 18 -> 12 and `--r-inset` 12 -> 8, ratio held at 3:2, `booking.css` moved in the same edit. **The tab switcher came off `--r-pill` onto its own `--r-nav: 16px`** — he named it specifically — **with its buttons at `calc(var(--r-nav) - 5px)`, which is arithmetic and not taste**: the bar's padding is 5px and concentric corners have to be 5px apart or the gap pinches. **12px was tried on the bar and rejected BY LOOKING** at 392 and 1440: a 460x54 floating bar at 12px stops reading as an object over the ground and starts reading as a strip welded to the bottom. **AND THE LANDING PAGE JOINED THE SAME DAY, closing roadmap 2.17** — it had six ad-hoc radii and no tokens, and the APPROVED REFERENCE RENDERING moved with it and is now swept as its own surface, because where that page and the document disagree the PAGE is right and a page that drifts from the stylesheet quietly becomes the wrong authority. **Both files were rewritten from ONE table keyed on the VALUE, not the selector**: a selector-keyed first attempt silently applied 13 of 15 edits to one file and 11 of 15 to the other, because they spell their selectors in two dialects. **And both complications were real**: `corner-shape` does not inherit (the hero card's highlight) and has no effect on `clip-path` (the comparison row's reveal) — the second is a 3-pixel difference at 8px, *which is exactly why it would have survived a look.* **Pills did not move** — Apple squircles cards and keeps capsules as capsules, and nobody asked for every button to become a rectangle. **And `composition` 8a had to learn the new token**, because a radius token missing from that check is the one surface the pairing rule silently stops covering.
+
+- **Roadmap 2.5 — the smoke test, and a white screen that was live on `main`** — the loop is fine; what was broken was **a configuration nothing in this repo had ever rendered**. `StepLocation.jsx` took `modeLimit` as a prop from `BookingPage.jsx` and never destructured it, and the only branch that reads it is the one a business offering ONE of mobile and drop-off renders — **`ReferenceError`, error boundary, total booking outage for that tenant, live on `main` since 2026-08-31 (`1ed5084`, roadmap 2.8c).** The demo enables both modes, so every script, screenshot and sweep in this project's history had drawn the other branch, and the mobile-only seed existed the whole time with nothing walking it. **The same line hid the feature's other half**: `both` was computed here WITHOUT `modeLimit` while `BookingPage`'s `bothModes` includes it and feeds the heading, so the *“Ceramic Coating has to be done at our place”* message that file exists to print was unreachable in every configuration that did not crash. ***A derived value computed twice is one bug wearing two costumes.*** **`scripts/e2e-booking.mjs` is rewritten** (82 checks, two tenants, ~3 min) and is in CLAUDE.md's verification list — it had been dead since before 2026-08-31 and the script was never the problem, the absence of a caller was. **It is the only thing in this repo that presses Confirm**; `sweep-booking-steps.mjs` measures heights and stops ON the review step. **Also fixed: the demo was mailing a parked domain** — `contact_email` was `demo@detailplatform.com`, a SIGN-IN reused as a MAILBOX, with no MX record and not covered by `send-email`'s reserved-domain guard, so every demo booking asked Resend to deliver a guaranteed hard bounce against the reputation Andrew's real customer mail shares. **The emails are proven to the PROVIDER, not an inbox** (`delivered@resend.dev`), because best-effort sending means only the edge-function logs can see a dead relay — the 0.2 failure mode exactly.
 
 <!-- INDEX:END -->
 
@@ -10030,3 +10032,106 @@ screenshotting the result.
 `composition` 8a sweeps **four** surfaces now (72 checks), each baselined by
 unpairing one corner. Verified at 1920 / 1440 / 768 / 392 with the console read
 at each.
+
+## Roadmap 2.5 — the smoke test, and a white screen that was live on `main`
+
+The loop works. What was broken was a **configuration nothing in this repo had
+ever rendered**, and the shape of that is the whole entry.
+
+**`scripts/e2e-booking.mjs` was dead and is rewritten.** It had pointed at a
+Linux Playwright path and a container scratch directory since before
+2026-08-31, and nothing noticed because it was in no list anything runs. It is
+now 82 checks over two tenants and it is in CLAUDE.md's verification list,
+which is the half that stops it rotting again — the script was never the
+problem, the absence of a caller was.
+
+**IT IS THE ONLY THING IN THIS REPO THAT PRESSES THE BUTTON.**
+`sweep-booking-steps.mjs` walks all seven steps of the booking page and stops
+ON the review step, because it measures heights. So Confirm — the one action
+the product exists for — had been exercised at the API level by
+`booking-engine` and through the UI by **nothing at all**. That is not a gap
+anybody chose; it is what a test written to answer one question looks like when
+it is also the only test on the screen.
+
+**THE DEFECT: `ReferenceError: modeLimit is not defined`, a white screen on
+step 4 for every business offering only ONE of mobile and drop-off.**
+`BookingPage.jsx` passes `modeLimit` to `StepLocation.jsx`; `StepLocation`
+never destructured it, and the only branch that reads it is the one a
+single-mode business renders. Live on `main` since 2026-08-31 (`1ed5084`,
+roadmap 2.8c). For such a tenant it is a **total booking outage** — the form
+dies at the address step and the customer meets the error boundary. The demo
+enables both modes, so every script, screenshot and sweep in this repo's
+history had rendered the other branch. **The mobile-only seed
+(`demo-riverside`) existed the whole time and nothing walked it**, which is why
+the new script walks two tenants rather than one and why that is not a
+nice-to-have.
+
+**The same line hid the feature's other half, and this is the more interesting
+failure.** `both` was computed inside `StepLocation` as
+`mobile_enabled && dropoff_enabled`, while `BookingPage`'s own `bothModes` is
+the same expression `&& !modeLimit` and feeds the step's HEADING. So a business
+with both modes on and a service that allows only one got the narrowed heading
+sitting over two choice cards — and the *"Ceramic Coating has to be done at our
+place"* line that file was written to print was **unreachable in every
+configuration that did not crash**. Roadmap 2.8c built that message; it had
+never once been on a screen. ***The same duplicated expression both crashed the
+page and made the feature it guarded dead — a derived value computed twice is
+one bug wearing two costumes, and the fix is to take the prop that was already
+being passed.***
+
+**The second finding: the demo was asking Resend to deliver mail that could
+only bounce.** `businesses.contact_email` for the demo was
+`demo@detailplatform.com` — **a sign-in reused as a mailbox**.
+`notification_emails` is empty, so `ownerRecipients` falls back to it, and that
+domain is registered to somebody else and has **no MX record**. `send-email`'s
+undeliverable-domain guard covers reserved domains (`.test`, `.invalid`,
+`example.com`) and this one looks perfectly ordinary, so it went straight
+through — against the same sending reputation that carries Andrew's real
+customers' receipts. Now `demo@example.com`, in `seed-demo.mjs` and on the live
+row. ***A login and a mailbox are two different facts that happen to be spelled
+the same way; a seed that stores one under the other will send mail to it.***
+
+**HOW THE EMAIL LEG SEES ANYTHING AT ALL.** `sendTenantEmail` is best-effort by
+design — *an email failure must never fail a booking* — so a dead relay is a
+`console.error` inside an edge function and is invisible from every screen and
+every other suite. That is exactly how the 0.2 defect survived: mail was 403ing
+for every customer and the dashboard looked fine. The only instrument that can
+see it is the project's own logs, so the script reads `function_edge_logs` and
+`function_logs` through the Management API. Without
+`SUPABASE_ACCESS_TOKEN`/`SUPABASE_PROJECT_REF` the leg prints **skip**, never
+pass — a check that cannot run must not look like one that did.
+
+**Proven to the PROVIDER, not to an inbox, and the distinction is deliberate.**
+The customer address is Resend's `delivered@resend.dev` simulator — roadmap
+0.3's own choice for the same reason — so the send genuinely posts to Resend
+and a non-2xx fails the run, at no cost to a shared reputation. Whether a mail
+client RENDERS it is `send-test-emails.mjs` plus a person, which 2.18 did on
+2026-09-03. Two different questions, two different instruments.
+
+**Three script bugs that all looked like product bugs, kept because the shape
+repeats.** `bookings` stores `start_at timestamptz` and has no `booking_date`
+or `start_time` column — every local date in this product is derived in the
+business's zone — and asking PostgREST for one returns a 42703 that reads
+exactly like *"the booking was never made"*. A `settle()` after pressing **Move
+my booking** reads the OLD row, because there is no spinner on that page and
+`settle()` is a cap on a repaint, not a wait for a round trip — the same lesson
+`sweep-booking-steps.mjs` already carries, arriving from a new direction. And
+Continue is gated on the server quote, so reading `isEnabled()` the instant a
+card is clicked reports a working step as broken. **All three failed loudly and
+all three were mine; the control for that is to distrust the harness before the
+product when the product is the thing under test.**
+
+**AND THE OBVIOUS FOLLOW-UP WAS ASKED AND ANSWERED: there are no others.**
+Every `<Component prop={…}>` in `app/src` was compared against that
+component's own parameter list. The only props passed and not taken are
+React's own `key`, ten times, which is correct. `modeLimit` was the single
+instance in the codebase. There is no linter in this project — five runtime
+dependencies and no ESLint — so this class of bug has nothing standing
+between it and a customer except somebody rendering the branch.
+
+**WHAT IS NOT COVERED, ON PURPOSE.** No seeded business has a service that
+narrows the mode, so the message above is still rendered by nothing automated.
+Seeding one is two lines — but it puts a new sentence on step 4, which has 39px
+of spare height at 392 (W16), so it needs a `sweep-booking-steps.mjs`
+re-measure and belongs with the next change to that step's budget rather than
+here. It is written into the roadmap item so it is not rediscovered as new.

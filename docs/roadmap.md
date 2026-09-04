@@ -2156,16 +2156,68 @@ is kept; the entire visual design restarts from scratch.
       switch is the part that matters, because reserve-on-booking is currently
       Andrew's model baked in for every tenant.
 
-- [ ] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
+- [x] 2.5 Smoke test: book, email arrives, shows on dashboard, cancel
       frees the slot, reschedule works. Stop and report anything broken.
+      **DONE 2026-09-04, and it found a live crash on `main`.**
 
-      **Before reaching for `scripts/e2e-booking.mjs`, know that it does not
-      run** — noticed while doing 2.8b, 2026-08-31. It hardcodes a Linux
-      Playwright path (`/opt/pw-browsers/...`) and a scratch directory from a
-      container that no longer exists, so it has been dead for a while and
-      nothing noticed, because it is not in CLAUDE.md’s verification list.
-      Either repair it here or write the smoke test fresh; do not assume it is
-      a working baseline. What DOES run today and covers most of this:
+      **`scripts/e2e-booking.mjs` is rewritten and it is 82 checks across two
+      tenants** — the demo (request mode, with the dashboard leg) and
+      `demo-riverside` (reserve mode, the schema default every real tenant
+      has). It books through the real browser, presses the button, reads the
+      row, reads the project's edge-function logs for both sends, asks
+      `available-slots` whether the slot is held, accepts the request on the
+      dashboard, then reschedules and cancels from the receipt page. It is in
+      CLAUDE.md's verification list now, which is the thing that stopped it
+      rotting a second time.
+
+      **WHAT IT FOUND — `ReferenceError: modeLimit is not defined`, a WHITE
+      SCREEN on step 4 of the booking page for every business that offers only
+      ONE of mobile and drop-off.** `StepLocation.jsx` took `modeLimit` as a
+      prop from `BookingPage.jsx` and never destructured it, and the only
+      branch that reads it is the one a single-mode business renders. Live on
+      `main` since 2026-08-31 (`1ed5084`, roadmap 2.8c). It is a **total
+      booking outage** for that tenant — the form dies at the address step and
+      the customer meets the error boundary. Nobody had seen it because the
+      demo enables both modes, so no script in this repo had ever rendered
+      that branch.
+      **The same line hid the other half:** `both` was computed inside
+      `StepLocation` WITHOUT `modeLimit`, while `BookingPage`'s own
+      `bothModes` includes it and feeds the step's heading — so a business
+      with both modes on and a service that allows only one got the narrowed
+      heading over two choice cards, and the *"Ceramic Coating has to be done
+      at our place"* line that file was written to print was unreachable in
+      every configuration that did not crash. One-line fix, both halves;
+      verified by hand on a temporarily narrowed demo service.
+
+      **Also found and fixed:** the demo's `contact_email` was
+      `demo@detailplatform.com` — a sign-in reused as a mailbox.
+      `notification_emails` is empty, so every owner alert fell back to it, and
+      that domain is registered to somebody else with **no MX record**. The
+      relay's undeliverable-domain guard let it straight through, so a booking
+      on the demo asked Resend to deliver mail that could only hard-bounce,
+      against the reputation Andrew's real customer mail shares. Now
+      `demo@example.com`, which is reserved and IS in that guard.
+
+      **What was NOT broken:** everything else. Both loops are green — the
+      price bar matches `total_price`, a `pending` request holds its slot
+      (roadmap 2.12's constraint fact, now checked from the outside), Accept
+      turns it into a job, the reschedule frees the old slot and takes the new
+      one, the cancel gives it back, and no console errors anywhere.
+
+      **The emails are proven to the PROVIDER, not to an inbox.** The customer
+      address is Resend's `delivered@resend.dev` simulator — the same one
+      roadmap 0.3 used — so `send-email` really posts to Resend and a non-2xx
+      would fail the run. Whether a human's mail client renders it is
+      `scripts/send-test-emails.mjs --to=…` plus a person, which 2.18 did.
+
+      **ONE GAP LEFT OPEN ON PURPOSE.** No seeded business has a service that
+      narrows the mode, so the message above is still rendered by nothing
+      automated. Seeding one is two lines — but it puts a new sentence on step
+      4, which has 39px of spare height at 392 (W16), so it needs a
+      `sweep-booking-steps.mjs` re-measure and belongs to whoever next touches
+      that step's budget, not here.
+
+      What already covered the engine underneath this, and still does:
       `node tests/booking-engine.test.mjs` (63 checks, real bookings through
       the deployed functions) and `node scripts/sweep-booking-steps.mjs`.
 
