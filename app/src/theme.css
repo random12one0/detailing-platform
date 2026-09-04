@@ -165,9 +165,30 @@
   /* ═══ SHAPE ══════════════════════════════════════════════════════════
      Radii by ROLE, not by habit — docs/design-system.md § Layout, and
      "rounded-lg on everything" is a named tell. Three sizes and a circle. */
-  --r-pill: 100px;    /* buttons, chips, state pills, the tab bar */
-  --r-panel: 18px;    /* a panel */
-  --r-inset: 12px;    /* a sunken block, an input, a calendar cell */
+  --r-pill: 100px;    /* buttons, chips, state pills */
+  --r-nav: 16px;      /* the tab switcher, and only it — see below */
+  --r-panel: 12px;    /* a panel */
+  --r-inset: 8px;     /* a sunken block, an input, a calendar cell */
+  /* TIGHTENED 2026-09-04 (18/12 -> 12/8) AND THE TAB SWITCHER CAME OFF THE
+     PILL, at the owner's ask after he previewed smaller radii in a browser
+     extension: "what I liked is... it just made the radius smaller, so more
+     blocky with still being rounded off. I think I like the blockiness more,
+     but not, like, super blocky, like the casual AI blocky, but just a little
+     bit less rounded. And more specifically... the tab switcher, the corner
+     radiation should be smaller."
+     THE RATIO IS UNCHANGED — 18:12 and 12:8 are both 3:2 — so a panel still
+     reads as the parent of an inset. Only the scale moved.
+     AND IT IS ALSO THE ANSWER TO "MAKE THE SQUIRCLE UNIVERSAL", WHICH IS THE
+     PART THAT IS NOT OBVIOUS. He asked for a squircle that does not depend on
+     the browser knowing `corner-shape`. There is no such thing that is worth
+     its cost (both routes are costed below and in the design system). But the
+     GAP between a true squircle and the plain rounded corner every browser
+     draws is proportional to the radius, and that was measured rather than
+     argued: rendered at 4x and counted, a 60x60 corner differs by 34px at
+     18px radius, 14px at 12px, 7px at 10px and 3px at 8px. So tightening the
+     radii shrinks the Chrome-only difference by ~59% on panels and ~79% on
+     insets. The thing he actually liked and the thing he asked for turn out
+     to be the same edit. */
   /* The old names, pointed at the new set so no call site had to move. */
   --r-sm: var(--r-inset);
   --r-md: var(--r-inset);
@@ -715,7 +736,19 @@ a { color: var(--accent-text); text-decoration: none; }
   width: min(calc(100% - 24px), 460px);
   display: flex; justify-content: space-around; gap: 2px;
   padding: 5px;
-  border-radius: var(--r-pill);
+  /* NOT A CAPSULE ANY MORE — the owner, 2026-09-04, naming this component on
+     its own: "more specifically, just on the tab switcher, the corner
+     radiation should be smaller." At --r-pill the bar's ends were 27px domes
+     on a phone and the whole rail was a lozenge at a desk.
+     ITS OWN TOKEN AND NOT --r-panel, decided by looking at all three side by
+     side at 392 and 1440: at 12px a 460x54 floating bar stops reading as an
+     object over the ground and starts reading as a strip welded across the
+     bottom, which is the thing this component's own note above exists to
+     avoid. 16px keeps it floating and is still 84px less round than it was.
+     It is the only element in the product that floats free with padding
+     inside it, which is why it is the only one with a radius of its own. */
+  border-radius: var(--r-nav);
+  corner-shape: var(--corner);
   border: 1px solid var(--line-2);
   background: color-mix(in srgb, var(--ink-1) 82%, transparent);
   backdrop-filter: blur(18px) saturate(1.3);
@@ -729,7 +762,13 @@ a { color: var(--accent-text); text-decoration: none; }
   font-family: var(--f-body);
   font-variation-settings: "wdth" 88, "wght" 600;
   font-size: 10px; letter-spacing: .06em;
-  cursor: pointer; border-radius: var(--r-pill);
+  /* CONCENTRIC, NOT CHOSEN. The bar's padding is 5px, so a button inside it
+     has to be 5px less round or the two curves are not parallel and the gap
+     between them pinches at the corners — the nested-corner rule Apple's own
+     hardware and icons follow. `calc()` means the 11px cannot drift when the
+     16px moves; there is no second number to keep in step. */
+  cursor: pointer; border-radius: calc(var(--r-nav) - 5px);
+  corner-shape: var(--corner);
   transition: color var(--t-hover) var(--e-out), background var(--t-hover) var(--e-out);
 }
 .tabbar button svg { flex-shrink: 0; }

@@ -421,7 +421,12 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
 
   for (const [name, src, prefix, floor] of SURFACES) {
     const blocks = src.split("}");
-    const radiusRe = new RegExp(`border-radius:[^;]*var\\(${prefix}-(panel|inset)\\)`);
+    // `nav` joined 2026-09-04 with --r-nav (the tab switcher, which came off
+    // the pill and is now a panel-family corner). A NEW RADIUS TOKEN THAT IS
+    // NOT NAMED HERE IS THE ONE SURFACE THE PAIRING RULE SILENTLY STOPS
+    // COVERING, and nothing else in the repo can see it — an unpaired token
+    // looks exactly like a finished one.
+    const radiusRe = new RegExp(`border-radius:[^;]*var\\(${prefix}-(panel|inset|nav)\\)`);
     const pillRe = new RegExp(`border-radius:[^;]*(var\\(${prefix}-pill\\)|50%|100px)`);
     const radiusBlocks = blocks.filter((b) => radiusRe.test(b));
     const unpaired = radiusBlocks.filter((b) => !/corner-shape:/.test(b)).map(firstLine);

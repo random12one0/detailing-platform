@@ -4005,3 +4005,33 @@ which is what a source edit during a browser walk looks like from the outside.
 A `.jsx` or `.css` edit during a sweep invalidates the run**, and the dev
 server's own log names the cause in one line: `preview_logs` / the Vite
 console shows `page reload`.
+
+### THE CORNER IS TIGHTER, AND THE TAB SWITCHER IS NO LONGER A PILL (2026-09-04)
+
+**The owner asked for two things and they were one edit.** He wanted a squircle
+that does not depend on the browser knowing `corner-shape`; and, separately,
+he said what he actually LIKED when he previewed the product with a browser
+extension was that the radius got smaller — *"more blocky with still being
+rounded off… but not, like, super blocky, like the casual AI blocky, just a
+little bit less rounded"* — and named the tab switcher specifically.
+
+**There is no universal superellipse worth its cost** (a paint worklet is
+Chromium-only too; an SVG mask clips the hairline — both were costed in 2.17
+and neither was re-opened). **But the difference between a true squircle and
+the plain rounded corner every browser draws is proportional to the radius**,
+and that was measured by rendering one corner at 4x and counting pixels:
+**34 differ at 18px, 14 at 12px, 7 at 10px, 3 at 8px.** So tightening the radii
+IS the universal answer — it cuts the Chromium-only difference by **59% on
+panels and 79% on insets**, with no mask, no worklet and no JavaScript.
+
+**Shipped:** `--r-panel` 18 → **12**, `--r-inset` 12 → **8** (ratio held at
+3:2), the same pair on `booking.css` in the same edit, and the tab switcher off
+`--r-pill` onto its own **`--r-nav: 16px`**, buttons at
+`calc(var(--r-nav) - 5px)` — arithmetic, because the bar's padding is 5px and
+concentric corners have to be. **12px on the bar was tried and rejected by
+looking**: at 460×54 it stops reading as an object floating over the ground.
+**Pills did not move** — Apple squircles cards and keeps capsules as capsules.
+`composition` 8a now covers `--r-nav`, baselined by unpairing it.
+
+**AND IT MAKES THE LANDING-PAGE QUESTION LOUDER, not quieter:** `/` now differs
+from the rest of the product by 6px of radius as well as by corner shape.

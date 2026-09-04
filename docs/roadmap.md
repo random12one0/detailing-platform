@@ -3184,6 +3184,50 @@ is kept; the entire visual design restarts from scratch.
       just as well, and a visitor who presses *Get started* crosses from one to
       the other in one click.
 
+      ---
+
+      **HE ANSWERED SOMETHING ELSE, 2026-09-04, AND IT CHANGED THE SHAPE OF THE
+      QUESTION.** He did not rule on the landing page. He asked for two other
+      things, and both are BUILT:
+
+      > "For the squircles, do, like, your best to make a squircle design that
+      > doesn't rely on the browser knowing what it is… that will work
+      > universally. And when I used a browser extension to preview what it
+      > looked like — what I liked is, the day menu and other menus, the main
+      > difference is it just made the radius smaller, so more blocky with
+      > still being rounded off. I think I like the blockiness more, but not,
+      > like, super blocky, like the casual AI blocky, but just a little bit
+      > less rounded. And more specifically, just on the tab switcher, the
+      > corner radiation should be smaller. But just do whatever you think will
+      > look well and doesn't look like AI."
+
+      **THE TWO ASKS TURNED OUT TO BE ONE EDIT, and that is the finding.** The
+      difference between a true squircle and the plain rounded corner every
+      browser draws is PROPORTIONAL TO THE RADIUS — measured by rendering a
+      corner at 4x and counting pixels, not argued: 34 differing pixels at
+      18px, 14 at 12px, 7 at 10px, 3 at 8px. So tightening the radii is itself
+      the universal fix; it cuts the Chromium-only difference by **59% on
+      panels and 79% on insets**, with no mask, no worklet and no JavaScript.
+      **Both alternatives stay rejected for the reasons already costed above**
+      — this did not re-open them, it made them matter less.
+
+      **WHAT SHIPPED:** `--r-panel` 18 → **12**, `--r-inset` 12 → **8** (ratio
+      unchanged at 3:2), the same pair on `booking.css`, and the tab switcher
+      off `--r-pill` onto its own **`--r-nav: 16px`** with its buttons at
+      `calc(var(--r-nav) - 5px)` — arithmetic, because the bar's padding is
+      5px and concentric corners have to be. **12px was tried on the bar and
+      rejected by looking**: a 460x54 floating bar at 12px stops reading as an
+      object over the ground and starts reading as a strip welded to the
+      bottom. **Pills did not move** — he named menus and the tab switcher, and
+      Apple keeps capsules as capsules while squircling cards.
+      `composition` 8a now covers `--r-nav` too, because a new radius token
+      that is not named in that check is the one surface the pairing rule
+      silently stops covering.
+
+      **THE LANDING PAGE IS STILL UNANSWERED**, and the tightening makes it
+      more visible rather than less: `/` now differs from the dashboard by 6px
+      of radius as well as by corner shape.
+
       **MEASURED 2026-09-04 so the ask is a number rather than "roughly
       twenty", and it turned up two complications a token pass would have
       shipped as defects.** `landing.css` and the approved reference rendering

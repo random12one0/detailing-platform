@@ -488,9 +488,71 @@ screens together.
 | `--gut` | `clamp(20px,5vw,48px)` |
 
 Radii are a small set, used by role and not by habit: `100px` for pills
-(nav, buttons, small state chips), `16–18px` for panels, `11–13px` for
-sunken and inset blocks, `50%` for dots. `rounded-lg on everything` is a
-named tell.
+(buttons and small state chips), **`16px` for the tab switcher and only it**,
+**`12px` for panels**, **`8px` for sunken and inset blocks**, `50%` for dots.
+`rounded-lg on everything` is a named tell.
+
+#### They were tightened 2026-09-04, and the tab switcher came off the pill
+
+**THE OWNER, after previewing smaller radii with a browser extension:** *"What
+I liked is, the day menu and other menus — the main difference is it just made
+the radius smaller, so more blocky with still being rounded off. I think I like
+the blockiness more, but not, like, super blocky, like the casual AI blocky,
+but just a little bit less rounded. And more specifically, just on the tab
+switcher — the corner radiation should be smaller."*
+
+Panels went **18px → 12px** and insets **12px → 8px**. **The RATIO did not
+move**: 18:12 and 12:8 are both 3:2, so a panel still reads as the parent of an
+inset and only the scale changed. `--bk-r-panel` and `--bk-r-inset` moved in
+the same edit — the detailer's page and the customer's page share one corner
+language or they have two, which § Layout already calls worse than not doing
+this at all.
+
+**PILLS DID NOT MOVE.** Buttons and state chips are still `100px`. He named
+menus and the tab switcher, and Apple — the reference he keeps citing — keeps
+its capsules as capsules while squircling its cards. Turning every button into
+a rounded rectangle is a different decision and nobody has asked for it.
+
+**THE TAB SWITCHER IS NOW `--r-nav: 16px`, its own token.** It was `--r-pill`,
+so on a phone the bar's ends were 27px domes and at a desk the rail was a
+lozenge. **12px was tried and rejected by looking** at 392 and 1440 side by
+side: a 460×54 floating bar at 12px stops reading as an object over the ground
+and starts reading as a strip welded across the bottom, which is the exact
+failure `theme.css`'s own note on that component exists to avoid. 16px keeps it
+floating and is still 84px less round than it was. It is the only element in
+the product that floats free with padding inside it, which is why it is the
+only one carrying a radius of its own.
+**Its buttons are `calc(var(--r-nav) - 5px)` and that is arithmetic, not
+taste** — the bar's padding is 5px, so an inner corner has to be 5px tighter or
+the two curves are not parallel and the gap pinches at the corners. `calc()`
+means the inner number cannot drift when the outer one moves.
+
+#### "Make the squircle universal" — and why the answer was to shrink the radius
+
+**THE OWNER, 2026-09-04:** *"Do, like, your best to make a squircle design that
+doesn't rely on the browser knowing what it is… that will work universally."*
+
+**There is no universal superellipse worth its cost, and that is measured
+rather than repeated** — both routes are costed below, and both were costed
+before he asked. What is true instead: **the visible difference between a true
+squircle and the plain rounded corner every browser already draws is
+proportional to the radius.** Rendered at 4× and counted, pixel by pixel, in a
+60×60 corner:
+
+| Radius | Pixels differing between `round` and `squircle` |
+|---|---|
+| 24px | 71 |
+| 18px | 34 |
+| 14px | 20 |
+| **12px** | **14** |
+| 10px | 7 |
+| **8px** | **3** |
+
+So the tightening above cuts the Chrome-only difference by **59% on panels and
+79% on insets**. **The thing he liked and the thing he asked for turn out to be
+the same edit**: at 12/8 a Safari user and a Chrome user are looking at
+practically the same corner, without a mask, a worklet, or a line of
+JavaScript. That is what "universal" can honestly buy here.
 
 #### The corner is a SQUIRCLE where the browser can draw one — one token, and it degrades
 

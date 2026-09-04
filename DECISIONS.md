@@ -189,6 +189,8 @@ were made more than once.
 
 - **Roadmap 2.17, third pass — replacing the dissolve he rejected** — he looked at the dissolve and turned it down flat: *"it just looks like a page refresh… **And I'm sorry if I steered you to that. I wasn't trying to.** … it doesn't look fluid."* **His own earlier *"a little dissolve or a blur"* is what produced it, he withdrew it himself, and every surviving copy of that sentence now carries the retraction beside it** — deleting a retracted hint is how it gets re-derived from a fourth file nobody checked. He also refused to specify the replacement on purpose (*"I'm not gonna give you an animation idea"*) and floated a second hint he withdrew in the same breath. **THE TRANSFERABLE PART: design against the DIAGNOSIS, not the complaint.** Designing against *"it looks like a page refresh"* produces a shorter dissolve, which is the same defect in less time. The diagnosis is that **a page reload IS a whole block changing opacity at once**, so a uniform cross-fade reproduces a reload's optical signature however brief it is — **the fault was the UNIFORMITY, not the duration and not the blur**, and the corroboration was already in the repo: every motion he has approved moves its parts on different timelines. **So `.swap` now carries no animation at all** (it is a marker plus a React key) and `.swap > *` runs the screen's own `arrive` for `--t-exit`, staggered 20ms, capped at 160ms — no new keyframe, duration, distance or property, giving ONE entrance shape at three scales. **The blur is gone and law 4 goes back to transform-and-opacity-only: the rejected version was also the one that needed a law bent for it.** The ladder runs EIGHT deep rather than five because most of the Clients list sits below the fifth row and a cap at five leaves the majority moving as one plane. **`composition` 8e-i-b fails on ANY rule targeting `.swap`, which is deliberately stricter than the defect** — the flat plane coming back would arrive looking like a tidy-up, one selector instead of ten — and 8e-vii counts DISTINCT delays, because a stagger that collapses to one beat is a uniform fade wearing ten selectors. **Then `impeccable critique` found two defects the clean measurement could not: a clean `getAnimations()` reading tells you what IS animating, not whether it SHOULD be.** The pinned action bar was inside the swap — six buttons pixel-identical between any two jobs, travelling on every switch, on the record's primary tap target — and `RecordHost` had already pulled the CLOSE BUTTON out for that exact reason, so **furniture opting out is the rule's other half, not an exception**. And Money's 620ms chart tail, first recorded as measured-and-left because no SELECTOR can separate a swap from first paint, is fixed: `Money.jsx` can see it in three lines, and "three lines" is not a reason to ship the one defect on the one screen he named. **The flag's first version was correct-looking and did nothing, which is the most reusable part**: recomputed per render it went true then false on the very next render (the reload setting `refreshing`), and **removing `animation: none` from a live element STARTS the animation** — plausible code, unchanged behaviour, the class gone before anyone could inspect it, and only `getAnimations()` able to see it. Latched per period now. **And `theme.css` had claimed the opposite since the chart was written** (*"a month switch snaps, deliberately"*), which had never been true.
 
+- **The corner got smaller rather than more universal** — the two asks turned out to be one edit. The owner asked for "a squircle design that doesn't rely on the browser knowing what it is… that will work universally", and separately said that what he actually liked in a browser-extension preview was that **the radius got smaller**: *"more blocky with still being rounded off… but not, like, super blocky, like the casual AI blocky, just a little bit less rounded."* **There is no universal superellipse worth its cost** — both routes were costed before he asked and neither was re-opened. But **the visible difference between a true squircle and the plain rounded corner every browser already draws is PROPORTIONAL TO THE RADIUS**, measured by rendering one corner at 4x and counting pixels rather than reasoning: 34 differ at 18px, 14 at 12px, 7 at 10px, 3 at 8px. **So tightening the radii IS the universal fix**, cutting the Chromium-only difference by 59% on panels and 79% on insets with no mask, no worklet and no JavaScript. `--r-panel` 18 -> 12 and `--r-inset` 12 -> 8, ratio held at 3:2, `booking.css` moved in the same edit. **The tab switcher came off `--r-pill` onto its own `--r-nav: 16px`** — he named it specifically — **with its buttons at `calc(var(--r-nav) - 5px)`, which is arithmetic and not taste**: the bar's padding is 5px and concentric corners have to be 5px apart or the gap pinches. **12px was tried on the bar and rejected BY LOOKING** at 392 and 1440: a 460x54 floating bar at 12px stops reading as an object over the ground and starts reading as a strip welded to the bottom. **Pills did not move** — Apple squircles cards and keeps capsules as capsules, and nobody asked for every button to become a rectangle. **And `composition` 8a had to learn the new token**, because a radius token missing from that check is the one surface the pairing rule silently stops covering.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -9907,3 +9909,86 @@ not there.*
 - `?lite=1`: nothing running, rows at `opacity: 1`, `transform: none`.
 - Full `--all` sweep at five widths, **clean, 356s**; `--lite` clean, 209s.
 - Nine credential-free suites, `accent-sweep`, `qr-scans`: all pass.
+
+## The corner got smaller rather than more universal
+
+The owner asked for two things on 2026-09-04 and they turned out to be one
+edit. That is the whole entry.
+
+> "For the squircles, do, like, your best to make a squircle design that
+> doesn't rely on the browser knowing what it is… that will work universally.
+> And when I used a browser extension to preview what it looked like — what I
+> liked is, the day menu and other menus, the main difference is it just made
+> the radius smaller, so more blocky with still being rounded off. I think I
+> like the blockiness more, but not, like, super blocky, like the casual AI
+> blocky, but just a little bit less rounded. And more specifically, just on
+> the tab switcher, the corner radiation should be smaller. But just do
+> whatever you think will look well and doesn't look like AI."
+
+### The universal squircle does not exist, and it stopped mattering
+
+Both routes were costed in roadmap 2.17 before he asked, and neither was
+re-opened: a Houdini paint worklet is Chromium-only too, so it buys a JS paint
+pass to reach exactly the browsers `corner-shape` already reaches; an SVG mask
+reaches Safari and clips the 1px hairline this system draws on nearly every
+surface.
+
+**What is true instead was measured rather than argued.** The difference
+between a true squircle and the plain rounded corner every browser already
+draws is proportional to the radius. One corner, rendered at 4x, pixels counted
+in a 60x60 crop:
+
+| Radius | Pixels differing between `round` and `squircle` |
+|---|---|
+| 24px | 71 |
+| 18px | 34 |
+| 14px | 20 |
+| 12px | 14 |
+| 10px | 7 |
+| 8px | 3 |
+
+**So tightening the radii IS the universal fix.** Panels 18 -> 12 and insets
+12 -> 8 cut the Chromium-only difference by 59% and 79%. A Safari user and a
+Chrome user are now looking at practically the same corner, with no mask, no
+worklet and no JavaScript. *The thing he liked and the thing he asked for were
+the same change* — which is only visible if you take the diagnosis apart
+instead of building the thing that was named.
+
+### What moved, and what deliberately did not
+
+- **Panels 18 -> 12, insets 12 -> 8, and the RATIO HELD.** Both pairs are 3:2,
+  so a panel still reads as the parent of an inset; only the scale moved.
+- **`booking.css` moved in the same edit.** One corner language or two, and
+  § Layout already calls two worse than not doing this at all.
+- **The tab switcher came off `--r-pill` onto its own `--r-nav: 16px`**, which
+  he named specifically. It was a capsule: 27px domes on a phone, a lozenge at
+  a desk.
+- **Its buttons are `calc(var(--r-nav) - 5px)`, and that is arithmetic.** The
+  bar's padding is 5px, so an inner corner must be 5px tighter or the two
+  curves are not parallel and the gap pinches at the corners. `calc()` means
+  the inner number cannot drift when the outer one moves.
+- **PILLS DID NOT MOVE.** Buttons and state chips are still 100px. He named
+  menus and the tab switcher; Apple — his own reference — squircles cards and
+  keeps capsules as capsules. Turning every button into a rounded rectangle is
+  a different decision nobody has asked for, and *"do whatever you think will
+  look well"* is not a licence to widen the ask.
+
+### 12px on the bar was tried and rejected by looking
+
+The tidy answer was to give the tab bar `--r-panel` and its buttons
+`--r-inset`, which would have added no new token at all. Rendered at 392 and
+1440 and put side by side, it was wrong: **a 460x54 floating bar at 12px stops
+reading as an object over the ground and starts reading as a strip welded
+across the bottom** — the exact failure `theme.css`'s own note on that
+component was written to avoid. 16px keeps it floating and is still 84px less
+round than it was. **One new token, bought by a screenshot rather than by an
+argument.**
+
+### And the check had to learn the new token
+
+`composition` 8a pairs every `--r-panel` / `--r-inset` corner with
+`corner-shape` and forbids it on pills. `--r-nav` would have sat outside the
+subject set — **a new radius token that is not named in that check is the one
+surface the pairing rule silently stops covering**, and an unpaired token looks
+exactly like a finished one. The regex reads `(panel|inset|nav)` now, and it
+was baselined by unpairing the tab bar: exactly 8a-ii fails.

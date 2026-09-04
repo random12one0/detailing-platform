@@ -69,8 +69,14 @@
 
   /* ── Radii, by role and not by habit (docs/design-system.md § Layout) */
   --bk-r-pill: 100px;          /* buttons, chips, state pills */
-  --bk-r-panel: 18px;          /* panels */
-  --bk-r-inset: 12px;          /* sunken and inset blocks */
+  --bk-r-panel: 12px;          /* panels */
+  --bk-r-inset: 8px;           /* sunken and inset blocks */
+  /* TIGHTENED 2026-09-04 WITH theme.css, 18/12 -> 12/8, and the two move
+     TOGETHER or the detailer's page and the customer's page end up with two
+     corner languages — the failure § Layout calls worse than not doing this
+     at all. The owner's ask and the measurement behind it are written out
+     once, in theme.css § SHAPE; this file is the other half of it. There is
+     no --bk-r-nav: the booking page has no tab switcher. */
   /* THE SAME CORNER THE DASHBOARD TAKES — roadmap 2.17, the owner's ask:
      "I want everything to be a squircle… the kind of professional rounded
      corners that Apple has." This surface defines its own copy of the radii,

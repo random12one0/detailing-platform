@@ -220,9 +220,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   STARTS the animation** — plausible code, unchanged behaviour, the class gone
   before the DOM could be inspected. `getAnimations()` was the only instrument
   that could see it. Latch a flag like this per subject, never per render.
+  **AND THE RADII WERE TIGHTENED 2026-09-04 — `--r-panel` 18 → 12, `--r-inset`
+  12 → 8 on BOTH surfaces, and the tab switcher off `--r-pill` onto its own
+  `--r-nav: 16px`** (buttons `calc(var(--r-nav) - 5px)`: the bar's padding is
+  5px and concentric corners have to be). His ask, and **it is also the answer
+  to "make the squircle work universally"**: the gap between a true squircle
+  and a plain rounded corner is PROPORTIONAL TO THE RADIUS — measured at 4x,
+  34 differing pixels at 18px against 14 at 12px and 3 at 8px — so tightening
+  cuts the Chromium-only difference by ~59%/79% with no mask and no worklet.
+  **Pills did not move**; Apple squircles cards and keeps capsules as capsules.
+  **`composition` 8a covers `--r-nav` too — a new radius token missing from
+  that check is the one surface the pairing rule silently stops covering.**
   **AND THE CORNER IS A TOKEN, ON BOTH TOKENISED SURFACES: `--corner` in
   `theme.css` and `--bk-corner` in `booking.css`**, paired onto every
-  panel/inset corner and onto **no pill, dot or ring** — a superellipse at a
+  panel/inset/nav corner and onto **no pill, dot or ring** — a superellipse at a
   100px radius is a lozenge, at 50% a blob. Every surface defines its own copy
   of the radii, so setting it on one and not the other is the two-corner-
   languages failure the design system forbids. **The landing page is
