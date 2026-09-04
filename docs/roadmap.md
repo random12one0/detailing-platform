@@ -2501,10 +2501,56 @@ is kept; the entire visual design restarts from scratch.
       sits beside `emailBrandColors`, corrected against `--ink-2` because the
       accent lands on a lifted panel too.
 
-      **STILL OPEN:** ten templates to port · the editor screen · schema for
-      reminder rules · the wiring · re-pointing `email-brand`'s three
-      source-shape checks · **and nothing has been rendered in a real email
-      client**, only in a browser.
+      **AND HE ANSWERED AGAIN THE SAME DAY — THE LOOK IS APPROVED AND THE
+      EDITOR IS SCRAPPED.** *"Also it looks good."* · *"Also scrap the custom
+      email editor thing. / make it a lot more simple."* · *"ima do as many
+      emails as you recommend."* · *"do some resasserch into how emails and
+      different services open it and make sure it will work globally."*
+      Reasoning: DECISIONS.md → "Roadmap 2.18 — the look approved, the editor
+      scrapped, and will it work everywhere"; state: PROJECT-STATE.md §6z;
+      research: `docs/email-clients-2026-09-03.md`.
+
+      - **THE EDITOR IS OFF.** It was his own idea one message earlier.
+        **Nothing had to be torn out** — the session stopped at two rendered
+        templates to get the look approved, and that gate doubled as a rollback
+        point. **The blocks STAY**: the plain-text half of every email is a
+        second pass over the same block list.
+      - **"A lot more simple" = what the research recommended**: our design,
+        fixed; an on/off switch per email, one optional message of the
+        detailer's own, and a choice of prewritten wordings. Five of six
+        products do exactly this.
+      - **REMINDERS: TWO, THE SECOND OFF BY DEFAULT** (he delegated the
+        number). Jobber caps at two and nobody offers three; the useful pair is
+        the evening before and ~2 hours out; **a third costs deliverability for
+        the receipt**, since reputation is shared. Still needs
+        `booking_reminders_sent` per (booking, rule) — two markers is where a
+        boolean column stops generalising.
+      - **COMPATIBILITY HOLDS.** Apple Mail ~60% leaves a dark email alone
+        unless it finds pure `#ffffff`/`#000000`; **full inversion mirrors
+        BRIGHTNESS and preserves HUE**; light-on-light cannot happen because
+        every colour is declared on the element that shows it. Worst case is a
+        readable light version. **The `mix-blend-mode` Gmail hack was
+        deliberately not used.**
+      - **Three changes it forced:** pure black/white made unreachable in a
+        tenant's colour (both were reachable), `bgcolor` beside every
+        background property, and **the logo onto a bone plate** — a detailer's
+        logo is dark-on-transparent and was invisible on `--ink-0`, which
+        nothing in this repo could ever have measured.
+
+      **AND A DEFECT THAT IS NOT ABOUT DARK MODE: EVERY EMAIL IS SENT
+      HTML-ONLY.** `send-email/index.ts` sets `html` and no `text` — a
+      spam-filter signal on every email including the receipt. **Fix it in the
+      port**, as a `text` pass over the block list. Gmail's 102KB clip was
+      MEASURED, not assumed: these are 9–10KB.
+
+      **STILL OPEN:** ten templates to port · the simple settings surface ·
+      `booking_reminders_sent` + two reminder rules · the plain-text part · the
+      wiring · re-pointing `email-brand`'s three source-shape checks ·
+      `formatDateLong` is hardcoded `en-US` (named, not fixed — US-only
+      product) · **and nothing has been opened in a real email client**, only
+      rendered in a browser. **A send to a Gmail, an Outlook and an iCloud
+      address in both modes is twenty minutes and is what turns "should work"
+      into "does work".**
 
       **THE REMAINING QUESTIONS (3, 4 and 5 — none of them block):**
       3. **The re-book / maintenance reminder** (four of six, all four in a

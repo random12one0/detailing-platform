@@ -16,7 +16,8 @@
 // add up — so the defect cannot survive the rebuild silently.
 
 import { mkdir, writeFile } from "node:fs/promises";
-import { brandFrom } from "../supabase/functions/_shared/emailKit.ts";
+import { contrastRatio, emailDarkBrandColors } from "../supabase/functions/_shared/brandColor.js";
+import { brandFrom, G } from "../supabase/functions/_shared/emailKit.ts";
 import { confirmationEmail, receiptEmail } from "../supabase/functions/_shared/emailsNew.ts";
 
 const arg = (n, d) => {
@@ -26,11 +27,23 @@ const arg = (n, d) => {
 const ACCENT = arg("accent", "#38E08B");
 const OUT = arg("out", "email-new");
 
+// THE LOGO PATH IS RENDERED, NOT ASSUMED. `--logo` swaps in the WORST case a
+// detailer can upload: dark artwork on a transparent background, which is what
+// a logo made for a white website is and what most of them will be. On the
+// near-black ground it would be invisible; the masthead's bone plate is what
+// makes it legible, and this is the only way to see that working.
+const LOGO = process.argv.includes("--logo")
+  ? "data:image/svg+xml;utf8," + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="34" viewBox="0 0 200 34">
+       <text x="0" y="25" font-family="Georgia,serif" font-size="24" font-weight="bold" fill="#101418">RIDGELINE</text>
+     </svg>`)
+  : null;
+
 const brand = brandFrom({
   brandName: "Ridgeline Auto Detail",
   contactPhone: "(303) 555-0142",
   siteUrl: "https://detailingplatform.com/book/demo-detail",
-  logoUrl: null, // no logo on file — the masthead falls back to the name
+  logoUrl: LOGO, // null falls back to the business name set in bone
 }, ACCENT);
 
 const job = {
@@ -104,6 +117,53 @@ for (const [name, lines, total] of [["quote", QUOTE_LINES, QUOTE_TOTAL], ["recei
   if (Math.abs(sum(lines) - total) > 0.005) {
     console.error(`  FAIL  the ${name}'s lines sum to ${sum(lines)}, printed total ${total}`);
     bad++;
+  }
+}
+
+// --- THE FLOORS, ON BOTH GROUNDS ------------------------------------------
+//
+// The old templates went eleven headlines deep at 3.01:1 on a 4.5:1 floor
+// because `email-brand.test.mjs` measured the colour ENGINE and never what the
+// templates DID with the answer. This is the drawing's own check: every text
+// colour this design uses, on every ground it can land on, plus the tenant
+// accent across the presets and the extremes.
+//
+// PURE #ffffff / #000000 ARE ASSERTED ABSENT, and that is a COMPATIBILITY
+// rule rather than a contrast one: Apple Mail is ~60% of opens and treats
+// either value as "this email has no opinion, invert it".
+{
+  const GROUNDS = [["ground", G.ground], ["panel", G.panel]];
+  for (const [gName, g] of GROUNDS) {
+    for (const t of ["bone", "bone2", "fog", "fog2"]) {
+      const r = contrastRatio(G[t], g);
+      if (r < 4.5) {
+        console.error(`  FAIL  ${t} on ${gName} is ${r.toFixed(2)}:1, floor 4.5`);
+        bad++;
+      }
+    }
+  }
+  // Twelve presets would need the app's theme.js; the four extremes are what
+  // actually break, and the house green anchors the normal case.
+  for (const hex of ["#38E08B", "#DC2626", "#F5D90A", "#7C3AED", "#000000", "#FFFFFF", "#0B0D0E"]) {
+    const c = emailDarkBrandColors(hex);
+    const checks = [
+      ["accent as words on the panel", c.text, G.panel, 4.5],
+      ["accent as a fill on the panel", c.fill, G.panel, 3],
+      ["ink on the accent fill", c.fillInk, c.fill, 4.5],
+    ];
+    for (const [what, a, b, floor] of checks) {
+      const r = contrastRatio(a, b);
+      if (r < floor - 1e-9) {
+        console.error(`  FAIL  ${hex}: ${what} is ${r.toFixed(2)}:1, floor ${floor}`);
+        bad++;
+      }
+    }
+    for (const [label, v] of [["text", c.text], ["fill", c.fill], ["ink", c.fillInk]]) {
+      if (/^#(fff(fff)?|000(000)?)$/i.test(v)) {
+        console.error(`  FAIL  ${hex}: ${label} is ${v} — Apple Mail inverts on a pure value`);
+        bad++;
+      }
+    }
   }
 }
 

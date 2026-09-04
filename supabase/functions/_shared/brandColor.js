@@ -180,13 +180,31 @@ const GROUND = "#0B0D0E";        // --ink-0, the ground everything sits on
 const PANEL = "#171B1E";         // --ink-2, the lightest thing an accent lands on
 const BONE = "#F2F1EC";          // --bone. Warm. NEVER #ffffff — a named tell.
 
+// PURE BLACK AND PURE WHITE ARE INVERSION TRIGGERS, and this is the one place
+// a compatibility fact reaches into the colour maths. Apple Mail — ~60% of all
+// opens — leaves an email alone in dark mode UNLESS it finds `#ffffff` or
+// `#000000`, which it treats as "this email has no opinion, invert it". Nudging
+// one step off both values is the standard defence and it costs nothing
+// measurable: `#ffffff` → `#fefefe` moves a contrast ratio by ~0.1.
+//
+// It is applied HERE, in the dark wrapper, and NOT in `inkFor` — that function
+// is shared with the white-paper path above, which `tests/email-brand.test.mjs`
+// pins across twelve presets and four extremes. The two paths do not have the
+// same problem and must not share the fix.
+const deTrigger = (hex) => {
+  const h = String(hex).toLowerCase();
+  if (h === "#ffffff" || h === "#fff") return "#fefefe";
+  if (h === "#000000" || h === "#000") return "#010101";
+  return hex;
+};
+
 export function emailDarkBrandColors(brandHex) {
   const seed = brandHex || BONE;
   const fill = correctToward(seed, PANEL, MIN_ACCENT_CONTRAST, BONE);
   return {
-    text: correctToward(seed, PANEL, MIN_INK_CONTRAST, BONE),
-    fill,
-    fillInk: inkFor(fill),
+    text: deTrigger(correctToward(seed, PANEL, MIN_INK_CONTRAST, BONE)),
+    fill: deTrigger(fill),
+    fillInk: deTrigger(inkFor(fill)),
   };
 }
 

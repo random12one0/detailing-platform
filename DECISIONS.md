@@ -171,6 +171,8 @@ were made more than once.
 
 - **Roadmap 2.18 — his answers, and the look he rejected** — he opened the rendered emails and said they look like the template he already had and nothing like the site. **Half communication failure, half real finding, and they separate cleanly**: those were the EXISTING emails, handed over as a before-image without the word BEFORE next to the picture — but the finding stands anyway, because a coloured band above a white card is the on-distribution default `design-knowledge.md` §1 exists to prevent. **"Premade templates" turned out to mean an EDITOR** — *"they can choose whats in it and what order"* — which overrules the research's five-of-six count and is **the 2.8 pattern for the second time: research rules shapes IN, it cannot rule them OUT.** What survives the overrule is the half that was never about freedom — **`moneyBlock` is the one block the editor may not open**, which is where Zenbooker independently drew the same line. **So a template is an ARRAY OF BLOCKS**, decided before porting rather than after, because a 50-line HTML literal cannot have an editor over it at any price. **Reminders: no cap** — *"as many as we want"* — which turns a second marker column into a `booking_reminders_sent` row per (booking, rule). **The world is built on two emails and deliberately NOT wired up**: `emailKit.ts` + `emailsNew.ts`, the edge functions still send the old ones, `email-brand` still green at 138 on the old file. **The type law survived even though the faces did not** — an email cannot load Archivo, but the system's rule was *one face for words, one for figures*, and that ports intact; **when a constraint kills a rule's implementation, ask what the rule was FOR before recording it unmeetable.** Colour engine EXTENDED not edited (`emailDarkBrandColors`, corrected against `--ink-2` because the accent lands on a lifted panel — the fourth time this project has learned *correct against the lightest surface that value can land on*).
 
+- **Roadmap 2.18 — the look approved, the editor scrapped, and will it work everywhere** — *"Also it looks good"*, then *"scrap the custom email editor thing / make it a lot more simple"* — **his own idea from one message earlier, reversed inside the same session.** **NOTHING HAD TO BE TORN OUT, and that is the carryable part**: the session had built the blocks and stopped at two rendered templates, so **the stopping point chosen to get the LOOK approved cheaply was the same one that made the reversal free** — when an item has a subjective half and a mechanical half, render the subjective half first and stop; the approval gate doubles as a rollback point. The blocks survive with a new justification: **the plain-text half of every email is a second pass over the same block list**. **Reminders: he delegated the number and the answer is TWO, second off by default** — Jobber caps at two and nobody offers three, the useful pair for this trade is the evening before and two hours out, and **a third costs deliverability for the receipt**, which is shared reputation. **The compatibility research holds**: Apple Mail (~60%) leaves a dark email alone unless it finds pure `#ffffff`/`#000000`, **full inversion mirrors BRIGHTNESS and preserves HUE** (checked specifically — the guides' "flips brand colours to their opposites" would have meant a green button arriving magenta), and light-on-light cannot happen because every colour is declared on the element that shows it, so ground and type flip together. Worst case is a light version of the same email, still readable; **the `mix-blend-mode` Gmail hack was deliberately NOT used.** Three changes came out of it — pure black/white made unreachable in a tenant's colour (**both were genuinely reachable**), `bgcolor` beside every background property, and **the logo onto a bone plate because a detailer's logo is dark-on-transparent and was invisible on `--ink-0`, which nothing in this repo could ever have measured.** **AND THE FINDING THAT IS NOT ABOUT DARK MODE: every email is sent HTML-ONLY, with no plain-text part** — a spam-filter signal on every email including the receipt, found by following "will it work globally" past the templates into the sender. Gmail's 102KB clip threshold MEASURED at 9–10KB. Full working: `docs/email-clients-2026-09-03.md`. **Honest limit: nothing has been opened in a real email client yet.**
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -8755,3 +8757,132 @@ onto the new file. **And the invoice's missing promo row is now a REBUILD
 requirement rather than a patch** — `render-emails-new.mjs` asserts the lines
 reach the total and the rebuilt receipt carries the discount, so the fix ships
 with the port instead of before it.
+
+## Roadmap 2.18 — the look approved, the editor scrapped, and will it work everywhere
+
+2026-09-03, same day, third exchange. Three decisions and one reversal.
+
+### He approved the look, and scrapped the editor he had asked for
+
+> *"Also it looks good."*
+> *"Also scrap the custom email editor thing. / make it a lot more simple."*
+
+**The editor was his own idea one message earlier**, and the reversal came
+inside the same session — which is worth recording precisely, because the two
+messages read as contradictory to anyone who finds only one of them.
+
+**NOTHING HAD TO BE TORN OUT, and that is the part worth carrying rather than
+the reversal itself.** The session had built the block architecture and stopped
+at two rendered templates; no editor screen, no schema, no `email_templates`
+table, no settings rows. **The stopping point that was chosen to get the LOOK
+approved cheaply is the same stopping point that made the reversal free.** The
+general form: when a large item has a subjective half and a mechanical half,
+render the subjective half first and stop — the approval gate doubles as a
+rollback point.
+
+**The blocks survive the scrap, and their justification changes.** They were
+built as an editor substrate; they are now simply how the templates are
+assembled, and they still earn their place for two reasons that have nothing to
+do with an editor. Four templates come out shorter and consistent with each
+other than four hand-written HTML literals would. And **the plain-text half of
+every email is a second pass over the same block list rather than eleven
+hand-written twins** — which matters now that HTML-only sending has been found
+to be a real defect (below).
+
+**What "a lot more simple" resolves to, and it is the research's own
+recommendation arrived at from the other side**: the design is ours and fixed;
+the detailer gets an on/off switch per email, one optional message of their own
+per email, and a choice of prewritten wordings. That is what five of the six
+products in the sweep do. **The research recommended it, he overruled it, he
+reversed, and it landed back on the count.** The lesson is not "the research was
+right" — it is that the overrule cost two rendered emails and a day's thinking
+rather than a shipped editor, because the shape was proven before it was built.
+
+### Reminders: he delegated the number
+
+> *"ima do as many emails as you recommend."*
+
+**Recommended: TWO customer reminders per appointment, the second one off by
+default.** Reasoning, in order of weight:
+
+1. **Jobber caps at two and nobody in the sweep offers three.** The category
+   leader having a hard ceiling is stronger evidence than the median.
+2. **Two is the useful pair for this trade specifically** — the evening before
+   (so the car is moved, the driveway is clear, the tap is findable) and about
+   two hours out (so nobody is asleep or at work). A third has no job.
+3. **A third reminder costs deliverability for every other email.** Nagging is
+   what generates spam complaints, and a sender reputation is shared across the
+   receipt, the confirmation and the quote. The invoice going to junk is a
+   worse outcome than a missed appointment.
+4. **He said "as many as we want" and then "make it a lot more simple" one
+   message later.** Two rules with sensible defaults is simple; an unbounded
+   list of reminder rules is a small scheduling product.
+
+**It still needs the schema the unbounded version needed** — a
+`booking_reminders_sent` row per (booking, rule) rather than
+`customer_reminder_sent_at` — because two markers is where a boolean column
+stops generalising, and the second one costs nothing once the first exists.
+
+### The compatibility research: it holds, and it found a defect that is not about dark mode
+
+Full working: `docs/email-clients-2026-09-03.md`.
+
+**The dark design survives.** Apple Mail is ~60% of opens and leaves an email
+alone unless it finds pure `#ffffff`/`#000000`. Gmail desktop leaves it alone;
+Gmail Android's engine respects explicitly-set backgrounds; **Gmail's iOS app is
+the one real risk** and can fully invert an already-dark section. Outlook
+Windows inverts and is ~4%, skewed to offices rather than to car owners.
+
+**The failure everyone fears cannot happen here, structurally rather than
+luckily.** Light-on-light needs one of the two values to flip without the other;
+every colour in these templates is declared on the element that shows it, so an
+inversion engine flips ground and type together. **And full inversion mirrors
+BRIGHTNESS while preserving HUE** — this was worth checking specifically,
+because more than one guide says inversion "flips brand colours to their
+opposites", which would mean a green button arriving magenta. It does not.
+
+So the worst case is **a light version of the same email, correct hue, every
+ratio still passing** (a contrast ratio is symmetric under a brightness flip).
+Not the design; entirely readable. **The `mix-blend-mode` hack that forces the
+dark rendering through Gmail was deliberately NOT used**: it wraps every piece
+of text in two extra elements, it half-applies badly, and what it buys is
+"looks dark rather than light in one client" rather than "readable rather than
+unreadable".
+
+**THREE CHANGES CAME OUT OF IT.** Pure black and white are now unreachable in a
+tenant's colour (`#ffffff` → `#fefefe`), applied in the dark wrapper only and
+never in `inkFor`, which the 138-check paper suite pins — **both values were
+genuinely reachable**, a tenant picking white got `#ffffff` as their accent and
+crimson's button ink was `#ffffff`. `bgcolor` attributes sit beside every
+background property, because Outlook's Word engine reads the attribute and a
+dark design that loses its ground is the one truly unreadable outcome. And
+**the logo went onto a bone plate**, which is a straight defect the research
+direction surfaced rather than a dark-mode subtlety: a detailer's logo is
+almost always dark artwork on transparent, because it was made for a white
+website, and on `--ink-0` it is invisible. **Nothing in this repo could ever
+detect that** — an arbitrary PNG's contrast cannot be measured, which is the
+same reason the logo was kept off a tenant-coloured band. Rendered with the
+worst case and looked at, because a code path nobody has drawn is a code path
+nobody has checked, and that is the third time this session.
+
+**AND THE FINDING THAT IS NOT ABOUT DARK MODE AT ALL: every email in the
+product is sent HTML-ONLY.** `send-email/index.ts` builds its Resend payload
+with `html` and no `text`. An HTML-only message with no plain-text alternative
+is a long-standing spam-filter signal, and it applies to **every** email
+including the receipt — the one that must never land in junk. **Found by asking
+"will it work globally" and following the question past the templates into the
+sender**, which is where the question actually lived.
+
+**Gmail's 102KB clipping threshold was MEASURED, not assumed**: the rebuilt
+emails are 9–10KB. Two orders of magnitude of headroom.
+
+**One real "globally" gap named and not fixed:** `formatDateLong` is hardcoded
+`toLocaleDateString("en-US")`. The product is US-only and its timezone handling
+assumes it, so this is a marker for whoever adds a second country.
+
+**The honest limit, and it is stated in the file rather than buried:** nothing
+has been opened in a real email client. Research plus a browser is not Outlook's
+Word engine, the Gmail iOS app, or Apple Mail's dark pass. **A real send to a
+Gmail, an Outlook and an iCloud address, in both modes, is twenty minutes and
+is what turns "should work" into "does work"** — which is CLAUDE.md's standing
+rule, and this does not meet it yet.

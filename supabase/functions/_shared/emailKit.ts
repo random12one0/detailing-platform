@@ -231,7 +231,7 @@ export function moneyBlock(
 /** A quiet aside on a lifted panel. The only box in the design, used sparingly. */
 export function noteBlock(html: string): string {
   return `<tr><td style="${PAD} padding-top:26px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${G.panel};"><tr>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${G.panel}" style="background-color:${G.panel};"><tr>
       <td style="padding:16px 20px; font-family:${WORDS}; font-size:13px; line-height:1.6; color:${G.fog}; border-left:2px solid ${G.line2};">${html}</td>
     </tr></table>
   </td></tr>`;
@@ -269,10 +269,27 @@ export function fineBlock(text: string, top = 20): string {
  */
 function masthead(brand: Brand): string {
   const name = `<div style="font-family:${WORDS}; font-size:16px; line-height:1.3; font-weight:bold; letter-spacing:.01em; color:${G.bone};">${esc(brand.brandName)}</div>`;
+  if (!brand.logoUrl) return `<tr><td style="${PAD} padding-top:38px;">${name}</td></tr>`;
+
+  // THE LOGO SITS ON A BONE PLATE, AND IT IS NOT A STYLE PREFERENCE.
+  //
+  // A detailer uploads whatever they have, and what they have is almost always
+  // dark artwork on a transparent or white background — that is what a logo
+  // made for a white website is. Dropped straight onto `--ink-0` it is
+  // invisible, and nothing in this repo can detect that: unlike every colour
+  // in the product, an arbitrary PNG's contrast cannot be measured, which is
+  // exactly why the logo went on the ground rather than on a tenant-coloured
+  // band in the first place. The plate makes EVERY possible upload legible,
+  // including the light-on-transparent one that would have been fine anyway.
+  //
+  // It reads as a deliberate object rather than a mistake — the one light
+  // element on a dark page, which is a shape this design system already uses.
   return `<tr><td style="${PAD} padding-top:38px;">
-    ${brand.logoUrl
-      ? `<img src="${brand.logoUrl}" alt="${esc(brand.brandName)}" height="34" style="height:34px; width:auto; max-width:240px; border:0; display:block;">`
-      : name}
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" bgcolor="${G.bone}" style="background-color:${G.bone}; border-radius:8px;"><tr>
+      <td style="padding:12px 16px;">
+        <img src="${brand.logoUrl}" alt="${esc(brand.brandName)}" height="30" style="height:30px; width:auto; max-width:220px; border:0; display:block;">
+      </td>
+    </tr></table>
   </td></tr>`;
 }
 
