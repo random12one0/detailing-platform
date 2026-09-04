@@ -2968,6 +2968,33 @@ is kept; the entire visual design restarts from scratch.
       disappear-and-come-back, and that is fixed; (a) would trade a transition
       he may no longer notice for content he explicitly said was useful.
 
+      **ANSWERED 2026-09-03 — (b), and by his own report rather than by a
+      ruling.** He is on a **27" 1080p monitor**, so 1920x1080, and he said
+      *"when I go to the calendar, I see the names just fine."* That is the
+      width where the month GAINS room when a day opens. Nothing to do.
+
+      ---
+
+      **SECOND PASS, 2026-09-03 — he walked it and gave a punch list.** Most of
+      it he liked; four things were wrong and all four are fixed. Full working
+      in PROJECT-STATE.md and DECISIONS.md; the short version:
+
+      - **A SWAP is a third kind of motion** and it was the real gap — *"the
+        GUI kind of doesn't really change, but the actual text inside of it
+        changes."* `.swap` + a React key, opacity and a 4px blur at
+        `--t-exit`, on the job record, Money's period figures and the Clients
+        list. **It overrules the first pass's "no exit on replacement"**,
+        which was right about the container and wrong about the contents.
+      - **The month now travels with the panel.** Killing the remount was not
+        enough — `.app-main`'s max-width and the grid's track list still
+        snapped 270px. Both transition now; the closed state is a 0px track
+        rather than `display: block`, because `display` cannot animate.
+      - **The trap for the next session: a swap must not be a direct child of
+        `.col-1`**, and the fix is a wrapper, NOT a specificity override —
+        the override was tried, won the cascade, and made the screen arrive at
+        two speeds on first paint.
+      - **`composition` is 57 checks**, nine mutations baselined.
+
       **⚠ AND A SECOND THING FOR HIM, ON THE SQUIRCLE: THE LANDING PAGE.**
       The dashboard and the customer's booking page are squircled. **The
       marketing page at `/` is not, and that is deliberate rather than

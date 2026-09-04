@@ -68,8 +68,9 @@ explaining it; if they still have to ask "so should I?", it failed.
   listed in the new file under "§11". Backend, content, copy facts and
   accessibility floors were always kept; only the visual world changed.
 - The design tests enforce the NEW rules: `tests/composition.test.mjs`
-  (**41 checks** — 24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
-  which added test 8: the squircle pairing and the second column's motion) and
+  (**57 checks** — 24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
+  which added test 8: the squircle pairing, the second column's motion, the
+  calendar's travel and the content swap) and
   `tests/design-contrast.test.mjs`. Don't contort work to
   pass them — if a test and a real design decision collide, the system file
   gets updated first, never silently.
@@ -165,6 +166,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   **THE AXIS IS THE ORIGIN.** `arrive` travels Y because a screen is read
   downward; the second column travels X because the column edge is where it
   came from. That is the rule for the next container, not a preference.
+  **AND THERE IS A THIRD KIND OF MOTION: A SWAP (2026-09-03, his second
+  pass).** A screen ARRIVES, a thing OPENS, and a frame that stays put while
+  its contents are replaced **dissolves** — `.swap` plus a React `key`,
+  opacity and a 4px blur at `--t-exit`. His definition: *"the GUI kind of
+  doesn't really change, but the actual text inside of it changes."* It is on
+  the job record, Money's period figures and the Clients list.
+  **A SWAP MUST NOT BE A DIRECT CHILD OF `.col-1`** — the arrival selector is
+  (0,4,0) and beats it, so it re-runs `arrive` instead. Nest it in a wrapper;
+  **do NOT fix it with a specificity override**, which was tried and broke the
+  one-arrival law instead (the screen then arrives at two speeds). `composition`
+  8e-iii and 8e-iv hold both halves.
   **AND THE CORNER IS A TOKEN, ON BOTH TOKENISED SURFACES: `--corner` in
   `theme.css` and `--bk-corner` in `booking.css`**, paired onto every
   panel/inset corner and onto **no pill, dot or ring** — a superellipse at a

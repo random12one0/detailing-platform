@@ -912,7 +912,41 @@ a { color: var(--accent-text); text-decoration: none; }
      is the same idiom `.split.clients` two rules up already uses, and for the
      same reason: the condition IS "is there a second column", and React
      already answers it by rendering one. */
-  .split.calday:not(:has(> .col-2)) { display: block; }
+  /* `:not(.leaving)` ON BOTH ENDS — so the month starts travelling BACK the
+     moment the panel starts leaving, rather than waiting for it to unmount.
+     Without it the two are sequential: 180ms of the panel sliding out, then
+     180ms of the month gliding over, which is 360ms to close something and
+     reads as two events. He asked for one. Caught by measuring the close and
+     finding only `column-out` running. */
+  .split.calday:not(:has(> .col-2:not(.leaving))) {
+    grid-template-columns: minmax(0, 1fr) 0px;
+    column-gap: 0;
+  }
+  /* AND THE LEAVING PANEL KEEPS ITS WIDTH while the track closes under it, or
+     it would reflow — 420px of content squeezing into 0px over 180ms, with
+     every line inside it rewrapping on the way out. It is fading and sliding
+     right as this happens, so overflowing its track is invisible and
+     re-laying-out would not have been. */
+  .split.calday > .col-2.leaving { width: 420px; }
+  /* AND THE MONTH TRAVELS INSTEAD OF SNAPPING — the owner, 2026-09-03, after
+     the first pass: "you didn't animate the calendar. So the calendar, like,
+     instantly shifts over with a quick snap… the out animation is good, but
+     the calendar just snaps back into place."
+     MEASURED AT HIS SIZE (27" 1080p = 1920x1080): opening a day moved the
+     month grid 270px to the LEFT and grew it from 1,144px to 1,236px, with no
+     transition on either. The panel was animating and the bigger object next
+     to it was not, which is the same complaint as the remount one step on.
+     TWO PROPERTIES, BECAUSE THE MOVE IS TWO THINGS. `.app-main`'s max-width
+     carries the sideways travel (the block is centred, so widening it moves
+     the left edge), and the track list carries the space the panel opens into.
+     Both are transitionable; `display` is NOT, which is why the closed state
+     is now a 0px second track rather than `display: block`.
+     --t-exit, the same 180ms the panel takes, so the two read as ONE gesture
+     rather than as two animations that happen to overlap. */
+  .split.calday {
+    transition: grid-template-columns var(--t-exit) var(--e-out),
+                column-gap var(--t-exit) var(--e-out);
+  }
   /* AND THE PANEL IS PAID FOR OUT OF THE SCREEN WHERE THERE IS SCREEN. This
      is the one place --wrap lifts, and it lifts for the reason --wrap exists:
      "width buys a second thing, it does not stretch the first thing"
@@ -934,7 +968,8 @@ a { color: var(--accent-text); text-decoration: none; }
      measuring .app-main's own width before and after the click rather than by
      reading this file. A child combinator inside one :has() is legal and says
      the same thing. */
-  .app-main:has(> .split.calday > .col-2) { max-width: 1720px; }
+  .app-main:has(> .split.calday) { transition: max-width var(--t-exit) var(--e-out); }
+  .app-main:has(> .split.calday > .col-2:not(.leaving)) { max-width: 1720px; }
 }
 
 /* A RECORD IN THE SECOND COLUMN. Below --wrap a job or a client is pulled up
@@ -1963,6 +1998,58 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 @keyframes column-in  { from { opacity: 0; transform: translate3d(14px, 0, 0); } }
 @keyframes column-out { to   { opacity: 0; transform: translate3d(14px, 0, 0); } }
 
+/* ------------------------------------------- A CONTENT SWAP, NOT AN ENTRANCE
+   THE OWNER, 2026-09-03, looking at the retrofit: "if I switch between, like,
+   one booking and I click another one, it just instantly changes… maybe, like,
+   a little dissolve or a blur. You figure out a nice quick animation for
+   switching between stuff where, like, the GUI kind of doesn't really change,
+   but the actual text inside of it changes."
+
+   THIS OVERRULES A DECISION MADE EARLIER THE SAME DAY, deliberately and on his
+   say-so. The retrofit skipped the exit on replacement — clicking job B while
+   job A is open changed the content in place — on the reasoning that playing A
+   out and B in puts 180ms between a tap and the thing tapped for. That reasoning
+   still holds for the CONTAINER and is why the panel does not leave and come
+   back. What was wrong was concluding that the CONTENTS should therefore not
+   move either. **A frame that stays still while everything inside it is replaced
+   is the one case where a dissolve is the honest description of what happened.**
+
+   IT IS A DISSOLVE, NOT A TRAVEL, and that is his distinction: nothing moved,
+   so nothing slides. Opacity and a 4px blur, which is the whole vocabulary of
+   "these are different words in the same box".
+
+   THE BLUR IS A NEW PROPERTY IN THIS SYSTEM AND IT IS ON PURPOSE. Law 4 says
+   transform and opacity only, and that rule is about not paying for layout or
+   paint during a travel. A 4px blur on a panel for 180ms is a filter on a
+   composited layer and is the cheapest way to say "resolving" rather than
+   "arriving" — it was asked for by name, and it is scoped to this one class
+   rather than loosened everywhere. If it ever costs a frame, drop the blur and
+   keep the opacity: the animation still reads.
+
+   180ms is --t-exit, which is the same number the second column uses. No fifth
+   duration, for the reason the table above gives. */
+@keyframes swap-in { from { opacity: 0; filter: blur(4px); } }
+.swap { animation: swap-in var(--t-exit) var(--e-out); }
+/* A SWAP NEVER SITS DIRECTLY UNDER `.col-1`, AND THAT IS A RULE ABOUT THE
+   MARKUP RATHER THAN ABOUT THIS FILE. The screen's arrival selector is
+   `.app-main > .split > .col-1 > *` at (0,4,0), so a `.swap` placed there
+   loses the cascade: measured, Money re-ran `arrive` on every period change —
+   a 420ms staggered LIFT, which is the "page refresh" feeling he complained
+   about rather than the dissolve he asked for.
+
+   THE FIRST FIX WAS A SPECIFICITY OVERRIDE AND IT WAS THE WRONG ONE. It won
+   the fight and then broke a different law: on FIRST paint the swapped blocks
+   dissolved in 180ms while their siblings rose over 420ms, so the screen
+   arrived at two speeds and its tail landed EARLY. `getAnimations()` on
+   Money's first paint showed `arrive` at 0/40ms next to `swap-in` at 0ms.
+   *Winning a cascade fight is not the same as being right.*
+
+   So the swap goes on an inner wrapper instead: the outer element keeps its
+   place in the arrival, and the inner one dissolves only when its key changes.
+   On first paint both run and the inner is invisible, because its parent is
+   fading up from zero over the same window. No override, no delay reset, and
+   the one-arrival law is untouched. */
+
 /* ---------------------------------------------------------- DEGRADATION
    ONE code path — docs/design-system.md § Degradation. `.lite` is set on
    <html> in main.jsx by ?lite=1 AND by prefers-reduced-motion; this file
@@ -1987,6 +2074,12 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    still reads as "both directions off" and so removing that short-circuit
    cannot silently reintroduce a visible exit here. */
 .lite .split > .col-2, .lite .split > .col-2.leaving { animation: none; }
+/* A swap renders its END state, which is the new content at full opacity and
+   no blur — i.e. exactly what a swap with no animation already is. */
+.lite .swap { animation: none; }
+/* AND THE MONTH DOES NOT GLIDE. `transition-duration: 1ms` below already
+   covers it; naming it here would be two rules for one fact, so this comment
+   is the note that it was considered rather than missed. */
 .lite .spinner { animation: none; border-top-color: var(--hairline); }
 .lite .sheet, .lite .sheet-backdrop { animation: none; }
 .lite .sheet { transition: none; }

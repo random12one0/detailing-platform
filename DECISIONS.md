@@ -185,6 +185,8 @@ were made more than once.
 
 - **The booking sweep had been passing by luck, and it cost a session to find out** — `sweep-booking-steps.mjs` failed on about half its runs during roadmap 2.17, in the same minute as an unrelated CSS change, and looked exactly like that change's fault. **It was not, and the thing that proved it was a CONTROL RUN**: revert the suspect, run again, watch it fail identically. One run, and it should have been the first one. **Two races underneath, both the same shape.** The script picked calendar days by INDEX against a live locator — and choosing a day re-renders the calendar, greying out every day that cannot hold the chosen service, which is correct product behaviour — so `days.count()` fell to 0 and the walk gave up after ONE day. **It had never actually walked more than one day in its life**: while TODAY still had a free slot it exited on the first iteration, and it started failing at ~22:00 local when the demo's own 08:00–18:00 trading day closed. *A test that passes on its first try every time is not the same as a test that works.* The second race was one level up — the month's open days come from an availability call, so enumerating them right after `settle()` could read an empty grid and conclude the business was shut. **`settle()` is a CAP, and a fine one on a repaint; it is not a wait for a network round trip**, which is the general form of both. Fixed by addressing days by their DATE and re-querying after every render (the same "address a node, never a position" lesson the day rail already taught), and by waiting for the grid before reading it. `SLOTPROBE=1` now prints the day walk and every slots response, because the diagnosis was invisible without it.
 
+- **Roadmap 2.17, second pass — he walked it and found the hole: a SWAP is a third kind of motion** — the retrofit covered a screen ARRIVING and a thing OPENING, and missed the case he cared most about: *"if I switch between one booking and I click another one, it just instantly changes… **the GUI kind of doesn't really change, but the actual text inside of it changes**."* That last clause is the definition. **It overrules a decision made earlier the same day**, which had deliberately skipped the exit on replacement to avoid putting 180ms between a tap and the thing tapped for — right about the CONTAINER, wrong to conclude the CONTENTS should not move either. `.swap` + a React key, opacity and a 4px blur at `--t-exit`; it dissolves rather than travels, because nothing moved. **THE BLUR IS A NEW PROPERTY AGAINST LAW 4 AND IT IS SCOPED, not loosened.** **The trap, and it caught two different fixes: a swap must not be a direct child of `.col-1`** — the arrival selector is (0,4,0) and beats `.swap`, so Money re-ran `arrive` on every period change, which IS the "page refresh" feeling he was complaining about. **The first fix was a specificity override, and it won the fight and broke a different law**: on first paint the swapped blocks dissolved in 180ms while their siblings rose over 420ms, so the screen arrived at two speeds and its tail landed EARLY. Both states measured with `getAnimations()`, neither read. The answer was MARKUP — nest the swap so the outer element keeps its arrival slot. ***Winning a cascade fight is not the same as being right.*** **And the month now travels with the panel**: killing the remount was not enough, because `.app-main`'s max-width and the grid's track list still snapped 270px with no transition — both are transitionable, `display` is not, so the closed state became a 0px second track instead of `display: block`, and both ends key on `:not(.leaving)` so closing is one 180ms gesture rather than two. **Three vacuous checks were found by BASELINING, all the same shape**: an `||` across independent subjects is not a check on either of them, and a `src.includes("swap")` was satisfied by the word appearing in its own explanatory comment. **A raw backspace (0x08) got into a regex through a shell heredoc for the SECOND time in this repo** — CLAUDE.md already records that exact trap from 2.18.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -9584,4 +9586,127 @@ instead of naming a locator. And **`SLOTPROBE=1` prints the day walk and every
 and the next person should spend ten seconds on this rather than an hour.
 
 Verified: three consecutive clean full runs, plus `--lite`.
+
+## Roadmap 2.17, second pass — the owner walked it
+
+He looked at the retrofit on his own machine (27" 1080p, so 1920x1080) and went
+through it item by item. Most of it he liked — *"a lot of stuff kinda has that
+nice animation that you added, so that's good"*. What follows is what he
+didn't, and every one of them was reproduced by measurement before it was
+touched.
+
+**And his monitor answered the question the first pass left open.** The 1440
+calendar reflow was put to him as a decision; he reported *"when I go to the
+calendar, I see the names just fine"*, which is the 1920 case where nothing is
+lost. Left as it is.
+
+### A SWAP is a third kind of motion, and it was the real gap
+
+The first pass covered a screen ARRIVING and a thing OPENING. He found the
+third:
+
+> "The only one that I don't like — there's no animation of, like, if I switch
+> between one booking and I click another one, it just instantly changes…
+> maybe like a little dissolve or a blur. You figure out a nice quick animation
+> for switching between stuff where, like, **the GUI kind of doesn't really
+> change, but the actual text inside of it changes**."
+
+**That last clause is the definition.** Nothing arrived and nothing left; a
+frame stayed exactly where it was and everything inside it was replaced.
+
+**IT OVERRULES A DECISION FROM EARLIER THE SAME DAY.** The retrofit skipped the
+exit on replacement, reasoning that playing record A out and record B in puts
+180ms between a tap and the thing tapped for. **That was right about the
+container** — which is why the panel still does not leave and come back — and
+**wrong to conclude the contents should not move either.** A dissolve costs
+nothing in delay because the new content is on screen at frame one; only its
+opacity is travelling.
+
+Three sites, one mechanism: the job record (`RecordHost`), Money's figures when
+the period changes, and the Clients list when the sort changes. He named all
+three.
+
+### The trap, which caught two different fixes
+
+**A swap must not be a direct child of `.col-1`.** The screen's arrival
+selector is `.app-main > .split > .col-1 > *` at (0,4,0) and `.swap` is
+(0,1,0), so the arrival wins: Money re-ran `arrive` on every period change — a
+420ms staggered LIFT, which is precisely the *"page refresh thing"* he was
+complaining about rather than the dissolve he asked for. `getAnimations()`
+reported `anim:arrive on div.swap`, which is the whole diagnosis in one line.
+
+**The first fix was a specificity override. It won the fight and broke a
+different law.** With `.swap` forced to win, first paint became: heading and
+control rising over 420ms on a 0/40ms stagger, and the two swapped blocks
+dissolving in 180ms with no delay. The screen arrived at **two speeds**, and
+its tail landed EARLY — the mirror image of the defect the 40ms stagger exists
+to prevent. Measured on Money's first paint, not reasoned about.
+
+**The answer was markup, not cascade.** The swap goes on an INNER wrapper, so
+the outer element keeps its place in the arrival and the inner one dissolves
+only when its key changes. On first paint both run and the inner is invisible,
+because its parent is fading up from zero over the same window. No override, no
+delay reset, one arrival preserved, and eight lines of tricky CSS deleted.
+
+***Winning a cascade fight is not the same as being right.*** The override made
+the symptom go away and moved the damage somewhere nobody was looking.
+
+### The month travels with the panel now
+
+Killing the remount in the first pass was necessary and not sufficient:
+
+> "You didn't animate the calendar. So the calendar, like, instantly shifts
+> over with a quick snap… the out animation is good, but the calendar just
+> snaps back into place."
+
+Measured at his size: opening a day moved the month grid **270px left** and
+grew it **1,144px → 1,236px**, with no transition on either. The small thing
+animated and the big thing beside it did not.
+
+**Two properties carry the move.** `.app-main`'s `max-width` (the block is
+centred, so widening it moves the left edge) and `.split.calday`'s track list
+(the space the panel opens into). Both are transitionable. **`display` is
+not** — which is why the closed state stopped being `display: block` and became
+a **0px second track**. That change forced `tests/composition.test.mjs` 8d-ii
+to be re-pointed at the invariant (*with nothing open the month takes the whole
+width*) rather than at the old spelling of it.
+
+**Both ends key on `:not(.leaving)`**, so the month starts back as the panel
+starts leaving. Without that the close is 180ms of panel followed by 180ms of
+month — 360ms, and it reads as two events. Found by measuring the close and
+seeing only `column-out` running.
+
+**One artifact, measured and accepted:** the panel's heading re-wraps from two
+lines to one over the last ~20px of the open. Visible at 10x slow motion,
+**~18ms at real speed**. Both alternatives are worse — pinning the panel's
+width makes it overflow the viewport during the open, and animating the month's
+own track instead makes every cell re-truncate its text.
+
+### Baselining found three vacuous checks, all the same shape
+
+Every new check was mutated to prove it could fail. Three could not:
+
+1. **`src.includes("swap")`** was satisfied by the word *swap* appearing in the
+   comment that explains the swap. A check whose only subject is its own
+   documentation.
+2. **An `||` across two Money sites** meant unwrapping one left the other
+   answering for it.
+3. **An `||` across Money and Clients** in the wrapper check, same failure.
+
+***An OR across independent subjects is not a check on either of them.*** Each
+site is now named and asserted separately.
+
+**And a raw backspace (0x08) got into a regex through a shell heredoc, for the
+SECOND time in this repo** — CLAUDE.md already records that exact trap from
+roadmap 2.18, and it happened again anyway because `\b` in a bash heredoc is a
+backspace, not a word boundary. Visible only under `cat -A`. **The fix that
+sticks is not to write regexes through heredocs**: every patch in the rest of
+this session was written to a file and applied with Python.
+
+**The baseline harness itself was the fourth instance.** Written first as bash,
+it used `cp` to Git Bash's `/tmp` while native Python read a path that did not
+exist — so every mutation silently failed to apply and every run reported a
+clean pass. **A baseline harness that cannot fail is the exact defect it exists
+to catch.** Rewritten in one language, and every mutation now asserts it
+changed the file before anything runs.
 

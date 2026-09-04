@@ -68,16 +68,37 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
     );
   }
 
+  // SWITCHING RECORDS IS A SWAP, NOT AN ENTRANCE — the owner, 2026-09-03:
+  // "if I switch between, like, one booking and I click another one, it just
+  // instantly changes… maybe a little dissolve or a blur."
+  //
+  // The panel deliberately does NOT leave and come back — that would put 180ms
+  // between a tap and the thing tapped for, which is his own acceptance test
+  // failing. What changes is everything INSIDE it, so the contents dissolve
+  // while the frame holds still.
+  //
+  // KEYED ON title + subtitle rather than on an id threaded down from five
+  // call sites. `jobRecordProps` makes those the customer's name and the job's
+  // date and time, so two different jobs cannot collide, and a client record's
+  // name + phone is unique by construction. The key is what makes React mount
+  // a NEW node, which is what re-runs the animation — a class alone would sit
+  // there already-played.
+  //
+  // THE CLOSE BUTTON IS OUTSIDE THE SWAP on purpose: it does not change, and a
+  // control that dissolves under the pointer that is about to press it reads
+  // as a glitch.
+  const swapKey = `${title}|${subtitle}`;
+
   return (
     <aside className={`col-2 record${bare ? " bare" : ""}${leaving ? " leaving" : ""}`} aria-label={title}>
       <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
-        <div style={{ minWidth: 0 }}>
+        <div className="swap" key={`h-${swapKey}`} style={{ minWidth: 0 }}>
           {title && <h2 style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</h2>}
           {subtitle && <p className="quiet" style={{ marginTop: 2 }}>{subtitle}</p>}
         </div>
         <button className="x" aria-label="Close" onClick={close}><X size={18} strokeWidth={2} /></button>
       </div>
-      <div className="record-body">{children}</div>
+      <div className="record-body swap" key={`b-${swapKey}`}>{children}</div>
       {footer}
     </aside>
   );

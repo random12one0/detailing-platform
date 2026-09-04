@@ -703,6 +703,26 @@ acceptance test doing work: clicking job B while job A is open is one gesture,
 and playing A out before B in puts 180ms between a tap and the thing tapped
 for. Replacement changes the content in place.
 
+**AND THE MONTH TRAVELS WITH THE PANEL — the second half of the same
+complaint, 2026-09-03.** Killing the remount was not enough: *"you didn't
+animate the calendar. So the calendar, like, instantly shifts over with a quick
+snap… the out animation is good, but the calendar just snaps back into place."*
+Measured at his own size (27" 1080p): opening a day moved the month grid 270px
+left and grew it 1,144px → 1,236px with no transition on either, so the small
+thing animated and the big thing next to it did not.
+**Two properties carry it**: `.app-main`'s `max-width` (the block is centred,
+so widening it moves the left edge) and `.split.calday`'s track list (the space
+the panel opens into). Both are transitionable; `display` is not, which is why
+the closed state is a **0px second track** rather than `display: block`.
+**Both ends key on `:not(.leaving)`** so the month starts back as the panel
+starts leaving — otherwise closing is 180ms of panel then 180ms of month, which
+is 360ms and reads as two events.
+**One known artifact, measured and accepted:** the panel's heading re-wraps
+from two lines to one over the last ~20px of the open. Visible at 10x slow
+motion, ~18ms at real speed, and the alternatives (pinning the panel's width so
+it overflows the viewport, or animating the month's track instead so every cell
+re-truncates) are both worse.
+
 **WHAT MUST NOT ANIMATE, and this is measured rather than assumed.** A
 container swap that REMOUNTS the thing you were already looking at reads as a
 page refresh — his words: *"it's almost like I refresh the page when I click
@@ -718,6 +738,61 @@ from the stylesheet.** A selector that matches nothing looks exactly like a
 finished screen; roadmap 2.11 step 6 shipped Today's whole arrival dead for
 that reason, and stage 3 shipped another. 120ms after the click, list what is
 actually running.
+
+#### The third kind of motion: a SWAP
+
+**Added 2026-09-03, after the owner walked the retrofit and found the hole in
+it.** The two kinds above are a screen ARRIVING and a thing OPENING. There is a
+third, and it is the one that felt most dead to him:
+
+> "The only one that I don't like — there's no animation of, like, if I switch
+> between one booking and I click another one, it just instantly changes. I
+> don't know if there's some slight animation that could happen there… maybe
+> like a little dissolve or a blur. You figure out a nice quick animation for
+> switching between stuff where, like, **the GUI kind of doesn't really change,
+> but the actual text inside of it changes**."
+
+His last clause is the definition, and it is what separates this from an
+entrance. **Nothing arrived and nothing left — a frame stayed exactly where it
+was and everything inside it was replaced.**
+
+**THIS OVERRULES A DECISION MADE EARLIER THE SAME DAY, on his say-so.** The
+retrofit deliberately skipped the exit on replacement, reasoning that playing
+record A out and record B in puts 180ms between a tap and the thing tapped for.
+That reasoning was right about the CONTAINER and is why the panel still does
+not leave and come back. **What was wrong was concluding that the contents
+should therefore not move either.**
+
+| | |
+|---|---|
+| It is | `opacity: 0 → 1` and `filter: blur(4px) → 0` |
+| For | `--t-exit` (180ms), the same number as everything else here |
+| Class | `.swap`, plus a React `key` that changes with the content |
+| Where | a job record's header and body, Money's figures when the period changes, the Clients list when the sort changes |
+
+**IT DISSOLVES, IT DOES NOT TRAVEL**, and that is his distinction rather than a
+taste: nothing moved, so nothing slides. A 14px translate here would be the
+frame lying about what happened.
+
+**THE BLUR IS A NEW PROPERTY IN THIS SYSTEM AND IT IS DELIBERATE.** Law 4 says
+transform and opacity only. That law is about not paying for layout or paint
+during a TRAVEL; a 4px blur on one panel for 180ms is a filter on a composited
+layer, it was asked for by name, and it is scoped to this one class rather than
+loosened everywhere. If it ever costs a frame, drop the blur and keep the
+opacity — the animation still reads.
+
+**A SWAP NEVER SITS DIRECTLY UNDER `.col-1`, AND THAT IS THE PART THAT WILL BE
+GOT WRONG.** The screen's arrival selector is `.app-main > .split > .col-1 > *`
+at (0,4,0), so a `.swap` placed there loses the cascade and re-runs `arrive`
+instead — a 420ms staggered lift, which is the *page refresh* feeling rather
+than the dissolve. **The first fix was a specificity override, and it won the
+fight and broke a different law**: on first paint the swapped blocks dissolved
+in 180ms while their siblings rose over 420ms, so the screen arrived at two
+speeds and its tail landed early. Both states were measured, not read.
+**So the swap goes on an INNER wrapper** — the outer element keeps its place in
+the arrival, the inner one dissolves when its key changes, and on first paint
+the inner animation is invisible because its parent is fading up from zero over
+the same window. *Winning a cascade fight is not the same as being right.*
 
 ### Atmosphere
 

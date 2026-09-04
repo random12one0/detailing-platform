@@ -209,6 +209,16 @@ export default function Clients() {
         </div>
       )}
 
+      {/* RE-SORTING IS A SWAP — the owner, 2026-09-03: "same thing, no animation
+          between the recent, most spent, longest away… it just feels very
+          static." Measured: nothing at all was running 120ms after the click
+          except the chip's own hover colour. The rows below are the only thing
+          that changed, so they are the only thing that dissolves; the controls
+          above stay put, because they did not change and a control that
+          dissolves under the pointer pressing it reads as a glitch.
+          Keyed on the sort AND the lapsed filter — both re-order or re-cut the
+          same list, which is one kind of change wearing two controls.
+          See theme.css § A CONTENT SWAP. */}
       {customers.length === 0 && !busy && !error && (
         <p className="body">No customers yet — they appear on their own when bookings come in.</p>
       )}
@@ -223,7 +233,11 @@ export default function Clients() {
           THE LIST DIMS AND THE SEARCH FIELD STAYS LIVE — §8's loading state,
           and the same rule every other screen follows: after the first paint
           a read never blanks what you are looking at. */}
-      <div className={`rows cols clients${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
+      {/* The OUTER div holds this list's place in the screen's arrival; the
+          inner one is the swap (theme.css § A CONTENT SWAP). */}
+      <div>
+      <div className={`rows cols clients swap${busy ? " refreshing" : ""}`}
+        key={`${sort}|${lapsed}`} aria-busy={busy || undefined}>
         {rows.map(({ c, visits, spend, last }) => (
           <button key={c.id} className="row-item" onClick={() => openCustomer(c)}
             aria-label={`${c.name}, last visit ${agoWords(last, today).toLowerCase()}, ${owner ? money(spend) : `${visits} visits`}, ${c.phone}`}>
@@ -237,6 +251,7 @@ export default function Clients() {
             <span className="c-total figure sm">{owner ? money(spend) : visits}</span>
           </button>
         ))}
+      </div>
       </div>
 
       {/* A SILENT TRUNCATION READS AS A COMPLETE LIST, and the search is the

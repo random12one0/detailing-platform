@@ -321,10 +321,25 @@ export default function Money() {
         {sent && <span className="quiet sent" aria-live="polite">{sent}</span>}
       </div>
 
+      {/* CHANGING THE PERIOD IS A SWAP — the owner, 2026-09-03: "when I switch
+          between year, month, six months, year, lifetime, it kinda does that
+          page refresh thing." Measured: the only thing running 120ms after the
+          click was `bar-rise` re-firing on the chart, so the chart re-animated
+          while every FIGURE beside it changed with no motion at all — half the
+          screen moving is what reads as a refresh.
+          EVERYTHING FROM HERE DOWN IS THE PERIOD'S, and the control that
+          chooses it is above the swap: a segmented control that dissolves as
+          you press it reads as a glitch. Keyed on kind + offset, because
+          stepping to last week is the same kind of change as switching to Year.
+          See theme.css § A CONTENT SWAP. */}
       {/* One lead figure. Net, not revenue — revenue is a vanity number when
           you buy your own supplies. $0.00 is a correct answer, not an empty
           state, so it is drawn the same way at every size. */}
+      {/* The OUTER div keeps this block's place in the screen's arrival; the
+          inner one is the swap. See theme.css § A CONTENT SWAP for why it is
+          nested rather than given a higher specificity. */}
       <div>
+      <div className="swap" key={`${kind}|${offset}`}>
         <span className="label">
           {kind === "all" ? "Net, all time" : offset === 0 ? `Net this ${NOUN[kind]}` : `Net that ${NOUN[kind]}`}
         </span>
@@ -365,10 +380,14 @@ export default function Money() {
           </div>
         </>)}
       </div>
+      </div>
 
-      {/* Context, not content: one sunken block instead of eight cards. */}
+      {/* Context, not content: one sunken block instead of eight cards.
+          Same swap and the same key as the figures above — this block is the
+          same period's numbers and must not resolve a beat after them. */}
       {anything && (
-        <div className="sunken">
+        <div>
+        <div className="sunken swap" key={`ctx-${kind}|${offset}`}>
           <div className="paircells">
             <Cell label="Collected" value={money(stats.inNow)} />
             <Cell label="Expenses" value={money(stats.outNow)} />
@@ -402,6 +421,7 @@ export default function Money() {
               </div>
             </>
           )}
+        </div>
         </div>
       )}
     </>

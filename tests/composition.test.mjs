@@ -482,13 +482,101 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
   const cal = await readFile("app/src/screens/Calendar.jsx", "utf8");
   check("8d-i · the month's desk container does not depend on a day being open",
     !/if \(wide && day\) \{/.test(cal));
-  check("8d-ii · and it collapses back to a block with no second column",
-    /\.split\.calday:not\(:has\(> \.col-2\)\) \{ display: block/.test(theme));
+  // 8d-ii CHANGED 2026-09-03 WHEN THE OWNER ASKED FOR THE MONTH TO TRAVEL.
+  // It used to assert `display: block` for the closed state. That was right
+  // until the month had to ANIMATE between the two: `display` is not
+  // transitionable, so the closed state is now a two-track grid whose second
+  // track is 0px, which is. The invariant is unchanged — with nothing open the
+  // month gets the whole width and no gap is reserved — so the check follows
+  // the invariant rather than the old spelling of it.
+  // AND IT ASSERTS `display: block` IS GONE, because re-introducing it is the
+  // one edit that silently kills the travel while still looking correct.
+  check("8d-ii · with nothing open the month takes the whole width",
+    /\.split\.calday:not\(:has\(> \.col-2:not\(\.leaving\)\)\) \{[^}]*grid-template-columns: minmax\(0, 1fr\) 0px;[^}]*column-gap: 0;/.test(theme));
+  check("8d-ii-b · and it does that with a 0px track, not display:block",
+    !/\.split\.calday[^{]*\{[^}]*display: block/.test(theme));
+  // THE MONTH TRAVELS WITH THE PANEL, not after it. Both ends key on
+  // `:not(.leaving)` so the return starts as the exit starts; without that,
+  // closing is 180ms of panel then 180ms of month and reads as two events.
+  check("8d-iv · the month's own move is transitioned",
+    /\.split\.calday \{[^}]*transition: grid-template-columns var\(--t-exit\)/.test(theme)
+    && /\.app-main:has\(> \.split\.calday\) \{ transition: max-width var\(--t-exit\)/.test(theme));
+  check("8d-v · and it starts back as the panel starts leaving",
+    /\.app-main:has\(> \.split\.calday > \.col-2:not\(\.leaving\)\) \{ max-width: 1720px/.test(theme));
   // A :has() MAY NOT CONTAIN ANOTHER :has(). The nested form was written first
   // and the browser dropped the whole selector in silence, costing the month
   // 540px at 1920. Nothing else in this repo can see an invalid selector.
   check("8d-iii · no :has() is nested inside another :has()",
     !/:has\((?:[^()]|\([^()]*\))*:has\(/.test(theme));
+
+  // 8e · A CONTENT SWAP, added 2026-09-03 on the owner's second pass: "if I
+  // switch between one booking and I click another one, it just instantly
+  // changes… a little dissolve or a blur."
+  check("8e-i · the swap exists and dissolves rather than travels",
+    /@keyframes swap-in \{ from \{ opacity: 0; filter: blur\(4px\); \} \}/.test(theme));
+  check("8e-ii · at --t-exit, no fifth duration",
+    /\.swap \{ animation: swap-in var\(--t-exit\) var\(--e-out\); \}/.test(theme));
+  // 8e-iii REPLACED 2026-09-03, and the reason is worth more than the check.
+  // The swap first lost the cascade to the screen's arrival
+  // (`.app-main > .split > .col-1 > *` is (0,4,0), `.swap` is (0,1,0)), so
+  // Money re-ran `arrive` on every period change. The first fix was a
+  // specificity override, and it won the fight and broke a different law: on
+  // FIRST paint the swapped blocks dissolved in 180ms while their siblings
+  // rose over 420ms, so the screen arrived at two speeds. Measured both times
+  // with getAnimations(), not read.
+  // THE FIX IS MARKUP: a swap goes on an INNER wrapper, so the outer element
+  // keeps its place in the arrival. This check exists to stop the override
+  // coming back, because it looks like the obvious answer and it is not.
+  check("8e-iii · the swap does not fight the screen's arrival in the cascade",
+    !/\.col-1 > \.swap/.test(theme) && !/\.rows\.swap/.test(theme));
+  // AND THE MARKUP HALF, SITE BY SITE. The first version of this asked for
+  // "a wrapper" with an `||` across the two patterns, so unwrapping ONE of
+  // Money's two swaps left it green — the other one answered for it.
+  // Baselining caught that, and it is the third `||`-shaped vacuity in this
+  // test today: **an OR across independent subjects is not a check on either
+  // of them.** Every site is named and asserted on its own.
+  const WRAPPED = [
+    ["app/src/screens/Money.jsx", "the period's figures",
+      '      <div>\n      <div className="swap" key={`${kind}|${offset}`}>'],
+    ["app/src/screens/Money.jsx", "the period's context block",
+      '        <div>\n        <div className="sunken swap" key={`ctx-${kind}|${offset}`}>'],
+    ["app/src/screens/Clients.jsx", "the sorted list",
+      '      <div>\n      <div className={`rows cols clients swap'],
+  ];
+  for (const [f, what, needle] of WRAPPED) {
+    const src = await readFile(f, "utf8");
+    check(`8e-iv · ${f.split("/").pop()}: ${what} is nested, not a .col-1 child`,
+      src.includes(needle));
+  }
+  check("8e-v · reduced motion renders the end state",
+    /\.lite \.swap \{ animation: none; \}/.test(theme));
+  // EVERY SCREEN THE OWNER NAMED USES IT. He listed three places that "just
+  // instantly change"; a fourth that hand-rolls its own is how this forks.
+  for (const [f, why] of [
+    ["app/src/components/RecordHost.jsx", "switching from one job to another"],
+    ["app/src/screens/Money.jsx", "switching period"],
+    ["app/src/screens/Clients.jsx", "re-sorting the list"],
+  ]) {
+    const src = await readFile(f, "utf8");
+    check(`8e-vi · ${f.split("/").pop()} swaps its content (${why})`,
+      // Plain includes(), NOT a regex. The first version of this line was
+      // written through a shell heredoc and `\b` became a RAW BACKSPACE
+      // (0x08) inside the pattern — invisible in every editor and in sed,
+      // visible only under `cat -A` / `od -c`. CLAUDE.md already records
+      // that exact trap from roadmap 2.18 and it happened again anyway, so:
+      // when a check that should pass fails on a regex, LOOK AT THE BYTES.
+      // AND IT LOOKS FOR THE CLASS BEING APPLIED, NOT FOR THE WORD. The
+      // first version asked `src.includes("swap")`, which the WORD in the
+      // comment explaining the swap satisfied all by itself — so deleting
+      // the class from Money left this green. Baselining is what found it,
+      // and it is the vacuity family again: a check whose only subject was
+      // its own documentation.
+      (src.includes('className="swap"')
+        || src.includes("record-body swap")
+        || src.includes("clients swap")
+        || src.includes("sunken swap"))
+      && src.includes("key={"));
+  }
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

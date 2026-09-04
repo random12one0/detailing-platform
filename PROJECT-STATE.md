@@ -3683,3 +3683,102 @@ been the first thing tried rather than the fifth.** Fixed (days addressed by
 date, the grid waited for before it is read), plus `SLOTPROBE=1`. Full write-up
 in DECISIONS.md → *The booking sweep had been passing by luck*.
 
+## ROADMAP 2.17, SECOND PASS — THE OWNER WALKED IT (2026-09-03)
+
+He went through the retrofit on his own machine and gave a punch list. Most of
+it he liked — *"a lot of stuff kinda has that nice animation that you added, so
+that's good"*. Four things were wrong and all four are fixed.
+
+### HIS MONITOR CLOSED THE OPEN QUESTION
+
+**27" at 1080p, so 1920x1080** — worth writing down, because half the layout
+decisions in this repo turn on it. The 1440 calendar reflow was handed to him
+as a decision; he answered it sideways: *"when I go to the calendar, I see the
+names just fine."* That is the 1920 case, where the month **gains** width when
+a day opens. **Left as it is, which was the recommendation.**
+
+### A SWAP IS A THIRD KIND OF MOTION
+
+The first pass covered a screen ARRIVING and a thing OPENING and missed the one
+he cared most about: *"if I switch between one booking and I click another one,
+it just instantly changes… **the GUI kind of doesn't really change, but the
+actual text inside of it changes**."*
+
+**That clause is the definition.** Nothing arrived and nothing left. `.swap`
+plus a React `key`: opacity and a 4px blur at `--t-exit`. It **dissolves**
+rather than travels, because nothing moved.
+
+**IT OVERRULES A DECISION FROM EARLIER THE SAME DAY.** The retrofit skipped the
+exit on replacement so as not to put 180ms between a tap and the thing tapped
+for. Right about the CONTAINER — the panel still does not leave and come back —
+and wrong about the CONTENTS.
+
+Three sites, all named by him: the job record, Money's period figures, the
+Clients list.
+
+### THE THING A COLD SESSION WILL GET WRONG
+
+**A SWAP MUST NOT BE A DIRECT CHILD OF `.col-1`.** The arrival selector is
+`.app-main > .split > .col-1 > *` at (0,4,0) and beats `.swap` at (0,1,0), so
+Money re-ran `arrive` on every period change — a 420ms staggered lift, which IS
+the *"page refresh thing"* he was complaining about.
+
+**AND DO NOT FIX IT WITH A SPECIFICITY OVERRIDE.** That was tried. It won the
+cascade and broke a different law: on first paint the swapped blocks dissolved
+in 180ms while their siblings rose over 420ms, so the screen arrived at two
+speeds with its tail landing EARLY. **The fix is MARKUP** — nest the swap in a
+wrapper so the outer element keeps its arrival slot. `composition` 8e-iii holds
+the cascade half and 8e-iv the markup half, per site.
+
+### THE MONTH TRAVELS WITH THE PANEL
+
+Killing the remount was necessary and not sufficient: *"the calendar, like,
+instantly shifts over with a quick snap… the out animation is good, but the
+calendar just snaps back into place."*
+
+Measured at 1920: opening a day moved the month **270px left** and grew it
+**1,144px → 1,236px** with no transition. `.app-main`'s `max-width` and
+`.split.calday`'s track list now carry it, both at `--t-exit`. **`display` is
+not transitionable**, so the closed state is a **0px second track** rather than
+`display: block` — which is why check 8d-ii was re-pointed at the invariant
+instead of the old spelling.
+**Both ends key on `:not(.leaving)`** so closing is one 180ms gesture, not
+180ms of panel followed by 180ms of month.
+**Known artifact, measured and accepted:** the panel's heading re-wraps over
+the last ~20px of the open — 18ms at real speed, visible only at 10x. Both
+alternatives are worse.
+
+### WHAT BASELINING FOUND, AND IT IS THE MOST REUSABLE PART
+
+Every new check was mutated to prove it could fail. **Four things could not.**
+
+1. `src.includes("swap")` was satisfied by the word *swap* in the comment
+   explaining the swap — a check whose only subject was its own documentation.
+2. and 3. Two `||`s across independent subjects: unwrapping one Money site left
+   the other answering for it. ***An OR across independent subjects is not a
+   check on either of them.***
+4. **The baseline harness itself.** Written as bash, it `cp`-ed to Git Bash's
+   `/tmp` while native Python read a path that does not exist — so every
+   mutation silently failed to apply and every run reported a clean pass.
+   **A baseline harness that cannot fail is the exact defect it exists to
+   catch.** Rewritten in one language; every mutation now asserts it changed
+   the file before anything runs.
+
+**And a raw backspace (0x08) got into a regex through a shell heredoc for the
+SECOND time in this repo** — CLAUDE.md already records that trap from 2.18 and
+it happened anyway, because `\b` in a bash heredoc is a backspace rather than a
+word boundary, and it is invisible in every editor. **The rule that actually
+prevents it: do not write patches through heredocs.** Everything after that
+point was written to a file and applied with Python.
+
+### VERIFIED
+
+- `getAnimations()` at 1920 on all four complaints, before and after.
+- Money and Clients **first paint** re-measured after the wrapper change:
+  `arrive` at 0/40/80/120ms, one stagger, no two-speed arrival.
+- Slow-motion capture at 10x for the calendar travel and the dissolve, because
+  a Playwright screenshot costs longer than a 180ms transition and cannot catch
+  the middle of one otherwise.
+- `composition` 26 → **57**, nine mutations each breaking exactly its own check.
+- Full `--all` sweep and `--lite`, five widths; the booking gate.
+
