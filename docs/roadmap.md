@@ -3606,6 +3606,83 @@ is kept; the entire visual design restarts from scratch.
       generic SaaS-speak. Needs an OG image too, which is the part that needs
       the owner: there is no logo, by design.
 
+## Not on the roadmap yet — found 2026-09-04, awaiting the owner
+
+**These are gaps in the PLAN, not bugs in the code.** They were found while
+answering his question *"is there anything we haven't thought of"* at the end of
+roadmap 2.14 step 1, by reading the roadmap against the code rather than against
+itself. **None is scheduled and none should be started without him saying
+where it goes.** Each says what it is, what happens if it is skipped, and the
+recommendation.
+
+- **A. TAKING MONEY — THERE IS NONE, IN EITHER DIRECTION, AND NOTHING ON THIS
+  ROADMAP BUILDS IT.** No Stripe, no card on file, no capture anywhere in the
+  repo. Two separate holes: **(1) a detailer's customer paying the detailer**
+  — deposits, invoices, and any plan that claims to be a subscription (2.14);
+  **(2) the platform charging the detailer** — the founding offer is $499 setup
+  and $40/month and *"nothing charges anyone"*. 7.4 is only a **pricing sanity
+  check**, not a build. **Skipped:** he can still launch — money is collected
+  the way it is today, in person or by his own invoicing — but he cannot bill a
+  subscriber, and every plan page has to say so honestly. **Recommendation: one
+  item, in Phase 4, and it decides both directions at once**; it is the single
+  biggest unscheduled build left and it also unblocks 2.14's richer shape.
+- **B. THE DEMO LOGIN IS GUESSABLE AND ON THE LIVE SITE.**
+  `demo@detailplatform.com` / `demo123`, deliberately, so the dashboard could be
+  looked at. **Skipped:** anyone who guesses it edits the demo business — today
+  that is nothing, on launch day it is a public account on a product with
+  paying tenants. **Recommendation: a Phase 7 item to rotate or remove it, and
+  every script that logs in reads the credential from `.env` instead.**
+- **C. NOBODY CAN SPAM THE BOOKING PAGE TODAY, AND NOTHING STOPS THEM.** There
+  is no rate limit, no captcha and no honeypot on `create-booking`, which is
+  public by design — and since 2.12 a **request holds the slot**, so filling a
+  detailer's whole week costs a bot nothing. **Skipped:** one bored person can
+  take a detailer's calendar offline. **Recommendation: a small Phase 7 item —
+  a per-IP and per-phone throttle in the edge function is most of it; no
+  captcha, which costs the customer more than it costs the attacker.**
+- **D. IF THE REMINDER CRON STOPS, NOBODY FINDS OUT.** `pg_cron` runs the
+  reminder sweep; a failure is silent, and the same family of invisible failure
+  has already bitten twice (the dead email relay in 0.2, VAPID keys never set).
+  7.2 adds Sentry for the FRONT END. **Recommendation: fold a heartbeat into
+  7.2 — the sweep writes a timestamp, and something checks it is recent.**
+- **E. NO BACKUPS, NO RESTORE DRILL, NO STAGING.** One Supabase project holds
+  every tenant's bookings and customers, `main` publishes on push, and there is
+  no second environment to try anything against. **Skipped:** a bad migration
+  or a wrong `delete` on launch day has no undo that anyone has ever tested.
+  **Recommendation: a Phase 7 item — confirm what Supabase's plan retains,
+  take one manual export, and restore it once to prove it works. A staging
+  project is the bigger version and can wait for the first paying tenant.**
+- **F. THE PRODUCT SENDS EMAIL AND THE TRADE SENDS TEXTS.** `on_my_way`,
+  reminders and confirmations are SMS in four of the six products
+  (`docs/email-research-2026-09-03.md`), and detailing is the trade where the
+  customer is standing next to the car. We send email only, and there is no
+  item for SMS. **Skipped:** a real gap against competitors, and it costs money
+  per message. **Recommendation: ask him, do not schedule it — it is a
+  per-tenant cost decision, not a technical one.**
+- **G. A DETAILER WHO GETS STUCK HAS NOWHERE TO GO.** No help text, no support
+  address, no way to ask a question from inside the dashboard. 7.1 mentions a
+  support policy in the FOOTER of the marketing page only. **Recommendation:
+  smallest useful version in Phase 7 — one support email address, shown in the
+  gear, and it is his inbox.**
+- **H. AND A DETAILER WHO LEAVES CANNOT TAKE THEIR DATA.** 4.4 can suspend a
+  business; nothing exports one. **Skipped:** it is also the answer to a
+  customer-data deletion request, which is the one legal ask that arrives
+  without warning. **Recommendation: fold "export a business" into 4.4** —
+  `lib/accountant-export.js` already does the hard half for money.
+- **I. THREE THREADS 2.18 LEFT ARE STILL OPEN AND ARE NOT ITEMS ANYWHERE:** the
+  root SPF record (his DNS), `formatDateLong`'s hardcoded `en-US`, and a
+  separate Resend account so the platform's mail stops sharing a sending
+  reputation with Andrew's real customer mail. **Recommendation: the SPF record
+  and the Resend account belong in Phase 7; the `en-US` is a one-line fix
+  whenever a tenant outside the US exists.**
+- **J. THE WEBSITE INTAKE FORM IS DESCRIBED IN 3.4 AND SCHEDULED NOWHERE.** His
+  own words: most detailers *"will not know what they want in the abstract"*.
+  **Recommendation: make it a 3.1 deliverable** — it is the input to every
+  bespoke site and it is the first thing a new website customer meets.
+- **K. PHASE 4.3 IS A DUPLICATE OF 2.14.** *"Monthly plans — needs a design
+  conversation first"* predates this item and describes the same feature.
+  **Recommendation: close 4.3 into 2.14 once the shape is settled**, keeping
+  its one live question — how a plan should charge — which is item A above.
+
 ## Standing owner jobs
 
 - Pick and approve at every **OWNER** checkpoint — the plan stalls without
