@@ -22,17 +22,20 @@ import LandingPage from "./landing/LandingPage.jsx";
 // one that rots. `?lite=1` is the everything-off state, reachable by hand on
 // any page — it is how a slow phone gets checked without a slow phone.
 //
-// Read once, at load: a visitor who changes the system setting mid-session
-// gets it on the next navigation, which is also how the OS itself behaves
-// for most apps. Nothing is hidden behind an animation either way — every
+// LIVE, not read-once: somebody who turns reduced motion on while the
+// dashboard is open gets it without reloading, which is what PRODUCT.md's
+// accessibility floor actually promises. `?lite=1` is a MANUAL override and
+// outranks the media query — it is checked once, so turning the system
+// setting off can never take away the everything-off state somebody asked
+// for by hand. Nothing is hidden behind an animation either way — every
 // revealable ends at `.in`, so if this file never ran at all the page would
 // still read.
 {
-  const params = new URLSearchParams(window.location.search);
-  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-  if (params.get("lite") === "1" || reduce) {
-    document.documentElement.classList.add("lite");
-  }
+  const forced = new URLSearchParams(window.location.search).get("lite") === "1";
+  const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+  const apply = () => document.documentElement.classList.toggle("lite", forced || !!mq?.matches);
+  apply();
+  mq?.addEventListener("change", apply);
 }
 
 // The router is outermost so the PUBLIC routes sit outside BusinessProvider.

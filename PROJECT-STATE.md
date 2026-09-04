@@ -3965,20 +3965,27 @@ at-rule is absent from all three stylesheets. **It strips CSS comments first,
 and skipping that is not a detail**: the first version failed on all three
 files by matching the prose that documents the rule.
 
-**IT WAS NOT COMMITTED, AND THAT IS A HANDOVER RATHER THAN AN OVERSIGHT.**
-When this session opened the tree, eleven files were already modified and
-uncommitted from roadmap 2.17's own work — `theme.css`, `Money.jsx`,
-`RecordHost.jsx`, `Clients.jsx`, `DECISIONS.md`, `docs/roadmap.md`,
-`docs/design-system.md` among them. **Only `app/src/main.jsx` is this item
-alone**; `tests/composition.test.mjs`, `CLAUDE.md` and this file each carry
-this fix's edits ON TOP OF that earlier work, in the same files. There is no
-way to commit one without the other short of splitting hunks by hand, and
-`git add -i` is not available in this environment. So nothing was committed:
-a commit message naming the reduced-motion fix while carrying 2.17's swap
-rebuild is a mislabelled commit, and this repo's own note two paragraphs up
-says folding somebody else's change into another commit hides it. **The owner
-decides whether that goes in as one commit.** Everything is verified green
-either way — the tree is correct, it is simply unrecorded.
+**IT WENT IN AS TWO COMMITS, AND NOT THE TWO ANYONE INTENDED — worth reading
+before trusting a `git log` on this branch.** When this session opened the
+tree, eleven files were already modified and uncommitted from roadmap 2.17's
+own work. Only `app/src/main.jsx` and `tests/composition.test.mjs` were this
+item alone; `CLAUDE.md` and this file carried this fix's edits ON TOP OF that
+earlier work, in the same files, and hunks cannot be split by hand here
+(`git add -i` is unavailable). The commit was therefore put to the owner rather
+than taken. **While he was answering, another session committed the tree it
+could see** — `ebc5967`, *"Roadmap 2.17: replace the dissolve he rejected"* —
+which swept this fix's DOCUMENTATION in under a 2.17 message while leaving its
+CODE behind, because `main.jsx` and the test were still being verified.
+**So for a window, HEAD said `composition` had 66 checks and shipped a file
+with 61.** The code commit that follows closes it.
+**The transferable part is not the race, it is what it looked like from
+inside:** a session that had just corrected a note for reporting undone work as
+done then wrote a note of its own that was falsified within the hour. **A
+sentence about commit state is true for as long as nobody else is working, and
+this branch has more than one session on it.** Re-read `git status` immediately
+before committing rather than trusting the read that opened the session — that
+is the only reason this was caught rather than committed as an eleven-file
+mislabel.
 
 **ONE THING WAS LOOKED AT AND DELIBERATELY LEFT.** `landing/thread.js` adds
 `.lite` itself as a 6s load-timeout safety net and removes it on teardown, so

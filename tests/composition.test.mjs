@@ -649,5 +649,46 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
   }
 }
 
+// ── 9. DEGRADATION IS ONE CODE PATH, AND IT IS LIVE ────────────────────────
+// The rule is stated in main.jsx's header, in theme.css § DEGRADATION and in
+// booking.css and landing.css — and until now it was enforced by NOTHING, so
+// it was exactly the comment-only rule its own wording warns about.
+//
+// It has two halves and both are here. Read once at load was the shipped
+// behaviour until 2026-09-04: a visitor who turned reduced motion ON while the
+// dashboard was open kept every animation until they reloaded, so PRODUCT.md's
+// accessibility floor was a LOAD-TIME promise wearing a runtime one's words.
+// And `?lite=1` is a MANUAL override — a hand-set state the media query must
+// never be able to take away — which is why it is read once into its own
+// constant instead of being re-read inside the listener.
+{
+  const main = await readFile("app/src/main.jsx", "utf8");
+  check("9a · reduced motion is live, not read once (a change listener exists)",
+    /matchMedia\?\.\("\(prefers-reduced-motion: reduce\)"\)/.test(main)
+    && main.includes('addEventListener("change", apply)'));
+  // The override half, and it is the one a "tidy" edit breaks: collapsing this
+  // to a single re-read of the URL inside the listener still passes 9a and
+  // still toggles correctly on the media query, while quietly making the
+  // system setting able to clear a state somebody chose by hand.
+  check("9a-ii · ?lite=1 outranks the media query (read once, into the toggle)",
+    /const forced = .*get\("lite"\) === "1";/.test(main)
+    && /classList\.toggle\("lite", forced \|\| /.test(main));
+  // THE SECOND IMPLEMENTATION IS THE ONE THAT ROTS. No stylesheet may carry
+  // its own @media (prefers-reduced-motion) block — that is the whole reason
+  // this lives in JS. Three files, because the rule is app-wide and the
+  // booking page and the landing page each have their own ground.
+  for (const f of ["app/src/theme.css", "app/src/book/booking.css",
+                   "app/src/landing/landing.css"]) {
+    // COMMENTS COME OUT FIRST, and skipping that is not a detail: all three
+    // files DISCUSS this media query by name — theme.css § DEGRADATION spells
+    // out the whole at-rule it forbids — so the first version of this check
+    // failed on every file by matching the prose that documents the rule. The
+    // subject is an @media AT-RULE, never the string.
+    const css = (await readFile(f, "utf8")).replace(/\/\*[\s\S]*?\*\//g, "");
+    check(`9b · ${f.split("/").pop()} has no second reduced-motion implementation`,
+      !/@media[^{]*prefers-reduced-motion/.test(css));
+  }
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
