@@ -4271,3 +4271,65 @@ change that turns a green check red somewhere unrelated and points the next
 session at the wrong diff. Fixed with a binary read/write; every python patch
 since opens with `newline=""`. **If a byte-exact check fails in a file you did
 not mean to change, `cat -A` it before reading the logic.**
+
+## ROADMAP 2.14, STEP 1 — THE PLANS RESEARCH, AWAITING THE OWNER (2026-09-04)
+
+**Nothing in `app/` or `supabase/` changed.** He asked for plans a customer can
+sign up to and asked for the research first, by name. Step 1 is done; the item
+is waiting on him for four answers before any table is created.
+
+- **The file:** `docs/plans-research-2026-09-04.md` — tables, per-claim source
+  strength, and every URL.
+- **The judgment:** DECISIONS.md → "Roadmap 2.14, step 1 — plans a customer can
+  sign up to".
+- **The panel:** the same six 2.10 and 2.18 used — Jobber, Housecall Pro,
+  Zenbooker, Square Appointments, Urable, Mobile Tech RX — **plus seven real
+  detailing businesses' own plan pages** and one detailer forum thread. The
+  seven pages are the primary evidence and they are what settles the placement
+  question; the products settle whether the capability exists at all.
+
+### What it found
+
+| Question the item asked | Answer |
+|---|---|
+| Do the trade's booking systems carry recurring plans at all? | **Recurrence yes, plans mostly no.** 5 of 6 can repeat a job; only **2 of 6** (Housecall Pro, Urable) have a plan as an object of its own; **1 of 6** (Zenbooker) lets a customer choose a recurrence while booking; **0 of 6** sell a membership inside a booking form. Mobile Tech RX has **no customer-facing online booking at all** — its own FAQ says *"Not yet."* |
+| Is the plan sold IN the booking flow or beside it? | **Beside it — 7 of 7 detailers, 5 of 6 products.** Every real plan is on its own page (`/membership`, `/maintenance-plan`). The one in-flow product is a cleaning tool selling a repeat, not a plan. |
+| Is that the detailer's choice or the product's? | **The detailer's for wording, cadence and price shape** (all three price shapes appear in the sample: monthly amount, per-visit amount, percent off). **The placement should NOT be a toggle** — a second layout to build and sweep for a placement no evidence supports. |
+
+### Four things a cold session must not re-derive
+
+**1. The sale and the schedule are two different acts, and nobody joins them.**
+Not one of the seven detailers schedules the visits at sign-up. Car Detox sells
+through a checkout and then *phones* the customer; ZS takes a phone number and a
+person sets up visit one; Mint members book each month themselves. **The
+expensive half of the obvious design — create the next N bookings on sign-up —
+is not a thing the trade does**, and `bookings_no_overlap` (a GiST exclusion
+constraint, refusing at the database) would fight it anyway.
+
+**2. WE TAKE NO MONEY.** There is no Stripe, no card on file and no payment
+capture anywhere in this repo; `bookings.payment_status` is a flag the detailer
+sets by hand in `FinalizeModal.jsx`. Every plan in the sample that charges,
+charges a stored card. **So a plan here can be an arrangement, a cadence and a
+price — never a subscription**, and a page that says *"$150/month, cancel
+anytime"* while cash is still collected on the day is the travel-fee defect in a
+new place.
+
+**3. The recommended shape adds almost no machinery: a sign-up is a REQUEST.**
+2.12 already built ask → hold the slot → detailer accepts, which is exactly what
+the phone call does in five of the seven businesses. Recurrence becomes a
+**nudge to book the next visit** on the existing owner-nudge rail, not a
+scheduler.
+
+**4. The slot is what a plan customer is actually buying, and a skip is a real
+concept.** Visual bills a month ahead *"in order to reserve your scheduled
+appointment"* and charges even when the car is not available; Deluxe warns you
+*"run the risk of losing your date"*; ZS gives *"One free skip per year"*. If
+holding a standing slot is ever built, the skip comes with it.
+
+### Two corrections this step makes to other files
+
+- **Phase 4.3 *"Monthly plans — needs a design conversation first"* is the same
+  feature as 2.14** and should be closed into it once the shape is settled.
+- **The sample bias is large and is named in the file**: every one of the seven
+  pages was found by searching for detailing membership pages, so the evidence
+  says what plan-running detailers do — **never how many detailers run plans.**

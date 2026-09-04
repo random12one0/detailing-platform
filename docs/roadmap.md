@@ -2360,6 +2360,53 @@ is kept; the entire visual design restarts from scratch.
       **Skills: `impeccable` for the screens once the shape is settled.** The
       research step is not visual.
 
+      ---
+
+      **STEP 1 IS DONE — 2026-09-04. `docs/plans-research-2026-09-04.md`.**
+      The same six-product panel 2.10 and 2.18 used, plus **seven real
+      detailing businesses' own plan pages** and one detailer forum thread.
+      Nothing in `app/` or `supabase/` changed. **The item is now waiting on
+      him for four answers**, all of which change the schema; they are the last
+      section of that file, each with a recommendation.
+
+      **The four findings a cold session must not re-derive:**
+
+      1. **THE SALE AND THE SCHEDULE ARE TWO DIFFERENT ACTS, AND NOBODY JOINS
+         THEM.** Not one of the seven detailers schedules the visits at
+         sign-up — Car Detox sells through a checkout and then *phones* you,
+         ZS takes a phone number and a person sets up visit one, Mint members
+         book each month themselves. **So the expensive half of the obvious
+         design — create the next N bookings on sign-up — is not a thing the
+         trade does**, and `bookings_no_overlap` would refuse it anyway.
+      2. **WE TAKE NO MONEY, SO WE CANNOT SELL A SUBSCRIPTION.** Every plan in
+         the sample that charges, charges a stored card. There is no Stripe, no
+         card on file and no payment capture anywhere in this repo —
+         `bookings.payment_status` is a flag the DETAILER sets by hand. A plan
+         page saying *"$150/month"* while the money is still collected in
+         person is the travel-fee defect again.
+      3. **BESIDE THE FLOW, NOT IN IT — 7 of 7 detailers and 5 of 6 products.**
+         The single product that puts a recurrence inside the booking form
+         (Zenbooker) is a cleaning tool selling a *repeat*, not a plan. **The
+         answer to his own question is that most booking systems do NOT carry
+         a plan**: 5 of 6 can repeat a job, only 2 of 6 have a plan as an
+         object, and 0 of 6 sell one inside a booking form.
+      4. **THE RECOMMENDED SHAPE COSTS ALMOST NO NEW MACHINERY: a sign-up is a
+         REQUEST**, the rail 2.12 already built — the customer asks, the
+         detailer accepts, exactly what the phone call does in five of the
+         seven businesses. Recurrence is a NUDGE to book the next one, not a
+         scheduler.
+
+      **And two things about the second question:** the DETAILER owns the
+      wording, cadence and price shape (all three price shapes appear in the
+      sample — monthly amount, per-visit amount, percent off — so forcing one
+      excludes real businesses), but **"in the flow vs beside it" should not be
+      a toggle**: it is a second layout to build and sweep for a placement no
+      evidence supports.
+
+      **`monthly_plans` is still gone and Phase 4.3 is the same feature.** 4.3
+      *"Monthly plans — needs a design conversation first"* predates this item
+      and should be closed into it once the shape is settled.
+
 - [x] 2.15 ~~**Travel priced by measured distance**~~ **REFUSED BY THE OWNER
       2026-08-31, THE SAME DAY IT WAS WRITTEN, AND THE THING HE DESCRIBED
       INSTEAD IS ALREADY BUILT. This item is closed without work.**

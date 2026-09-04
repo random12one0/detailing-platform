@@ -195,6 +195,8 @@ were made more than once.
 
 - **Roadmap 2.13 — custom roles and permissions** — he asked to *"invite someone, and you could give them a name, like a customizable name… and you could also check out, like, there should be options on what permissions they should have"*, and the obvious reading — replace `business_users.role` with a permission set — **is wrong because of a TRIGGER**. `protect_last_owner()` refuses to remove or demote the last owner *including for the service role*, and a permission set has no last-anything, so dissolving `owner` takes that trigger's subject away from it. **`role` is untouched and `owner` still means everything**; what is new is that a NON-owner carries its own `label` and `permissions text[]`. **The four permissions were DERIVED from the schema** — each one is a group of policies that was ALREADY owner-only — because a list invented from the tab bar names screens, and the database has never gated on a screen. **The vocabulary is closed by a CHECK CONSTRAINT**: a typo'd permission grants nothing and looks exactly like one that was never ticked. **`has_business_permission()` folds the owner in**, so every policy asks one question and no check can forget owners. **"Team" is deliberately NOT a tick** — whoever hands out permissions can hand themselves every other one, and making that safe needs a grant lattice nobody asked for. **`requests` is the one permission that TAKES AWAY** (staff have had it since 2.12), so every existing staff row and live invite is backfilled with it: nobody's dashboard did less the day this shipped. **A SECOND migration was needed because the tick did not mean its own words** — it says "Prices, hours…" and `services.price` and `business_hours` were `*_tenant_all`, writable by any member since before there were two roles; unreachable through the UI is not the same as untrue, and RLS is the enforcement here. SELECT stays open to every member (a member must read `services` to take a booking at all). **`monthly_plans` does not exist and roadmap 2.14 is wrong about it** — created in `tenant_data.sql:51`, dropped nine hours later in `phase2_cleanup_and_storage.sql:16`. **The role editor is a SWAP, the first site built under that rule rather than retrofitted into it** — the card does not move, its contents are replaced, so it costs no entrance, no exit and no `useLeaving`. **And `sweep-widths.mjs` reported a CRASHED SCREEN as "clean"**: one missing word took the gear index down, `ErrorBoundary` drew four short lines, and four short lines are not off the edge, not outside their parent, not scrolling and not ungapped — **every check this script owns is about GEOMETRY, and geometry has nothing to say about whether the screen is the one you asked for.** `say()` now looks for the boundary first. **Also: a python rewrite silently turned twelve files CRLF**, and the first symptom was a byte-exact check failing in a file this item had barely touched.
 
+- **Roadmap 2.14, step 1 — plans a customer can sign up to** — he asked for plans with cadences and asked for the research first, by name. **The six-product panel was not enough for this one** and seven real detailing businesses' own plan pages were sampled beside it, because the question *"in the flow or beside it"* is about what a detailer PUBLISHES, and the products only say what is possible. **The finding that decides the build: the sale and the schedule are two different acts and nobody joins them** — not one of the seven schedules visits at sign-up, Car Detox sells through a checkout and then *phones* you, ZS takes a phone number and a person books visit one. So generating the next N bookings on sign-up, the obvious design, is not a thing the trade does — **and `bookings_no_overlap` would refuse it anyway**, at a moment nobody is watching. **The second finding is ours, not theirs: WE TAKE NO MONEY.** Every plan in the sample that charges, charges a stored card; there is no Stripe, no card on file and no payment capture in this repo, and `bookings.payment_status` is a flag the detailer sets by hand — so *"$150/month, cancel anytime"* on a page while cash is collected on the day is **the travel-fee defect in a new place**. **Placement: beside the flow, 7 of 7 detailers and 5 of 6 products**, and the single in-flow product (Zenbooker) is a cleaning tool selling a REPEAT, not a plan — conflating those two is the main way this item could go wrong. **His own question answered: most booking systems do NOT carry a plan** (5 of 6 repeat a job, 2 of 6 have a plan object, 0 of 6 sell one in a booking form), so running plans is not unusual but selling them inside the booking form would be. **The recommended shape adds almost no machinery — a sign-up is a REQUEST**, the rail 2.12 already built, and recurrence is a nudge to book the next visit rather than a scheduler. **The placement is deliberately NOT a per-detailer toggle** (a second layout to build and sweep for a shape no evidence supports) while the wording, cadence and price shape are entirely the detailer's — all three price shapes appear in the sample, so forcing one excludes real businesses. **Four questions stand for the owner**, all schema-changing, each with a recommendation.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -10359,3 +10361,106 @@ invisible byte change that turns a green check red somewhere unrelated, and
 sends the next session looking at the wrong diff.** Normalised back with a
 binary read/write. If a byte-exact check fails in a file you did not mean to
 change, `cat -A` it before reading the logic.
+
+## Roadmap 2.14, step 1 — plans a customer can sign up to
+
+The research is `docs/plans-research-2026-09-04.md`. This is the judgment: what
+was decided about how to look, what the evidence changes, and what is left for
+him.
+
+### The panel was not enough, so seven real plan pages were sampled beside it
+
+2.10 and 2.18 both used the same six products, and keeping that panel is what
+makes counts comparable across items. **But the question this item asks is
+about what a detailer PUBLISHES**, not about what a product can be configured
+to do, and six vendors' help centres cannot answer it: a product that *supports*
+recurrence tells you nothing about whether anyone puts it on their booking page.
+
+So the panel answers question 1 (does the capability exist) and **seven real
+detailing businesses' own plan pages answer question 2** (where the plan lives),
+with one detailer forum thread for how the trade prices them. Same two-tier
+split 2.8 used, for the same reason.
+
+**The bias is stated in the file rather than averaged away, and it is large.**
+Every one of the seven was found by searching for detailing membership pages, so
+all seven have a plan and publish it. **This method cannot say how many
+detailers run plans at all** — it says what the ones who do actually do. That is
+enough for the two design questions and not enough for a "most detailers…"
+claim, and no such claim is made.
+
+### The finding that decides the build: the sale and the schedule are two acts
+
+His sentence assumes one — *"it'll show up in the booking area"*, the customer
+picks a plan and the visits follow. **Not one of the seven does that.** Car
+Detox sells the membership through a checkout and then *phones* the customer to
+agree a day; ZS Clean takes a phone number and says a team member will *"help
+set up your first visit"*; Mint members *"schedule your service visit online
+every month"* themselves; Visual pre-schedules only after a conversation. The
+two products with a plan object generate it from something a human sold — an
+accepted quote (Urable) or an emailed agreement (Housecall Pro).
+
+**So the expensive half of the obvious design — create the next N bookings when
+somebody signs up — is not something the trade does.** It also happens to be the
+half our own schema fights: `bookings_no_overlap` is a GiST exclusion constraint
+enforced by the database, so a batch of future visits fails on the first real
+collision, in a job nobody is watching, and "skip the ones that conflict" means
+a plan customer silently loses a month.
+
+**The one product that does auto-schedule from the flow is Zenbooker, and it is
+a cleaning tool.** Cleaning is the trade where a repeat is a chore on a fixed
+rhythm; a Zenbooker recurring option is a REPEAT, not a plan — no membership, no
+benefits, just a frequency with an optional discount. **Conflating a recurring
+series with a plan object is the main way this item could go wrong**, which is
+why the research file separates the two columns and counts them apart.
+
+### The second finding is ours, not theirs: we take no money
+
+Every plan in the sample that charges, charges a stored card. This repo has **no
+payment processing of any kind** — no Stripe, no card on file, no capture;
+`bookings.payment_status` is a flag the DETAILER sets by hand in
+`FinalizeModal.jsx`, and `expenses.payment_method` is his own bookkeeping.
+
+**A plan here can be an arrangement, a cadence and a price. It cannot be a
+subscription.** A page reading *"$150/month, cancel anytime"* while the money is
+still collected in person on the day is a number PRINTED that is not a number
+CHARGED — the travel-fee defect in a new place, and this time it would be on the
+customer-facing page. Whatever ships says plainly who takes the money and when.
+
+### Placement: beside the flow, and deliberately not a toggle
+
+7 of 7 detailers and 5 of 6 products put the plan on its own surface. Making
+that a per-detailer choice — *"in the booking area, or just listed on the
+website"*, which is how he phrased it — buys a second layout to design, build,
+sweep at five widths and keep honest, **for a placement no evidence supports.**
+The wording, the cadence and the price shape ARE his detailers' to choose, and
+all three price shapes appear in the sample (a monthly amount, a per-visit
+amount, a percentage off), so forcing one of the three excludes real businesses.
+**That is the split: the detailer owns the offer, the product owns where it
+sits.** If a real detailer asks for it in the flow, that is the moment to build
+it.
+
+### The recommended shape is mostly things that already exist
+
+A sign-up is a **request** — ask, hold the slot, the detailer accepts — which is
+2.12's rail and is exactly what the phone call does in five of the seven
+businesses. Recurrence is a **nudge to book the next visit** on the existing
+owner-nudge rail, which is what all seven actually do and the only version the
+exclusion constraint cannot break. The discount lands where discounts already
+land, so the receipt still reconciles.
+
+**Deliberately not built:** subscription billing (there is nothing to bill
+with), auto-created future visits, a customer plan portal, and the placement
+toggle. **Billing is a platform-wide decision, not a plan feature** — when card
+processing arrives it changes deposits, invoices and Money too.
+
+### Two corrections to other files
+
+**Phase 4.3, *"Monthly plans — needs a design conversation first: the old one
+was a discount with no billing behind it"*, is the same feature as 2.14** and
+predates it. It should be closed into this item once the shape is settled rather
+than left to be rediscovered as a separate build.
+
+And `monthly_plans` is still gone — created in `tenant_data.sql:51`, dropped
+nine hours later in `phase2_cleanup_and_storage.sql:16`. **This is the third
+file to record that**, and it is recorded again here because the roadmap item
+carried the opposite claim for a week.
