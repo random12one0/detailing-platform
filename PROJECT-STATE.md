@@ -3101,6 +3101,119 @@ twenty minutes** and is what turns "should work" into "does work" — CLAUDE.md'
 standing rule, which this does not yet meet.
 
 
+## 6z-ii. ROADMAP 2.18 — THE PORT LANDED: TWELVE REBUILT, WIRED, AND THE INVOICE ADDS UP (2026-09-03)
+
+On *"do whataver u want and is best"*. The look was approved and the editor
+scrapped, so the mechanical half was what remained. Reasoning: DECISIONS.md →
+"Roadmap 2.18 — the port: all twelve rebuilt, wired, and the invoice made to
+add up".
+
+### What shipped
+
+| | |
+|---|---|
+| `_shared/emailKit.ts` | The world: ground, design-system tokens, blocks, shell, `htmlToText`, `reconcile`. Its header carries the email-client constraints. |
+| `_shared/emailTemplates.ts` | **Rewritten.** Twelve templates, each a LIST OF BLOCKS. The old ~530-line file is gone. |
+| Eight edge functions | All send the rebuilt emails, all pass the plain-text half through. |
+| `send-email` | Sets `text` on the Resend payload. **HTML-only was a live spam-filter defect for the whole life of the product.** |
+| `scripts/render-emails.mjs` | One script again (the `-new` sibling is deleted). Seventeen emails, HTML **and .txt**, `--accent=`, `--logo`, `--out=`. |
+| `tests/email-brand.test.mjs` | **186 checks**, was 138. |
+
+**THE FILE KEPT ITS PATH AND MOST EXPORT NAMES ON PURPOSE.** Eight edge
+functions import from it and `BookingEmailData` is a shape they already
+assemble. **Rebuilding the RENDERING was the item**; changing the data contract
+at the same time would have meant rewriting every call site's query as well as
+its render, for nothing. Only `TenantBrand` moved, because the colour set
+genuinely changed: `primaryColor`/`headerInk`/`accentColor` became
+`accent`/`accentFill`/`accentInk` plus `logoUrl`.
+
+### `reconcile()` — a guarantee where there had been a promise
+
+The invoice bug could have been three pushes in `send-invoice`. **That is the
+fix 2.8c already applied once and it did not generalise** — that session added
+travel and surcharge rows to this exact file, under a comment saying the
+itemisation had not added up, and left the promo out. *A fix that names one
+instance of a pattern fixes one instance.*
+
+So `reconcile(lines, total)` takes the lines a template is about to draw and
+the total it is about to print, and appends the remainder as its own line when
+they disagree by a cent or more. **Both money templates run through it. "Did the
+caller remember to itemise everything" stops being something anyone has to
+remember.**
+
+**AND IT WAS LOAD-BEARING IMMEDIATELY.** The plan was to push a site-sale row
+beside the promo — and **`bookings` has no `site_discount` column.** The amount
+is baked into `subtotal` at booking time (`create-booking` writes
+`quote.subtotalAfterSite`) and the settings it came from may have changed since,
+so the invoice cannot attribute it. **The first draft referenced
+`booking.site_discount`, which is `undefined`, so `Number(undefined) > 0` is
+false and the line silently never draws** — a fix that reads as a fix and does
+nothing, caught only because the schema was checked rather than assumed.
+
+Where each of the three holes is answered now: the **promo** is itemised by name
+(real columns); the **site sale** and the **rounding** are drawn by `reconcile`
+as one honest *"Discount applied"* line. **An unexplained gap is the defect; a
+line saying a discount was applied is not.** Storing the sale amount on the
+booking is a migration and its own item.
+
+### The plain-text half is DERIVED
+
+`htmlToText()` — one function, not twelve twins. Twins drift, and the first time
+somebody edits one and not the other they disagree about a price. It reads well
+only because the blocks are structural: every row is a `<tr>` and every figure
+sits in its own cell, so "label | value, one per line" falls out of the markup.
+**This is now the main thing the block architecture buys, and it is a better
+reason than the editor it was built for.**
+
+### Re-pointing `email-brand`, and the check that caught itself going quiet
+
+The three SOURCE-SHAPE checks described a layout that no longer exists. **Two
+failed loudly and one went silently vacuous** — the `const header =` regex
+matched nothing, so its assertion passed by having no subjects. *A skipped check
+reads exactly like a passing one.*
+
+Rewritten **stronger** than the originals could be: the old 7a banned two hex
+values on one surface, the new one bans **any literal hex in the templates**,
+because every colour now comes from a token or the brand and a literal is by
+definition unmeasured. 7a-ii became **"the two accent values may not swap
+jobs"** — `accentFill` is corrected 3:1 as a background and `accent` 4.5:1 as
+words, so printing one as the other is the old "paper colour on the band"
+defect in the only shape it can still take. **7a-iii asserts the checks HAVE
+SUBJECTS**, so the next layout change fails loudly instead of going quiet.
+
+**BASELINING FOUND A REAL BUG IN THE NEW CHECK.** 7a passed while a literal
+`#ffffff` sat in the file: the regex source contained **a raw backspace
+character (0x08)**, left by the script that wrote the test, making it
+`/#[0-9a-fA-F]{3,8}\x08/` — which can never match. It was invisible in every
+editor and in `sed` output and only showed under `od -c`. **A check written to
+prevent silent vacuity was itself silently vacuous on its first run.** Fixed,
+then baselined both ways: a literal colour injected into a template fails it,
+and swapping the fill value into a `color:` fails 7a-ii.
+
+The check also strips comments before scanning, because this file's own prose
+explains the rule by naming the value it bans — **and a check that fails on its
+own documentation gets deleted rather than fixed.**
+
+### Verified
+
+| | |
+|---|---|
+| `render-emails.mjs` | exit 0 on the house green, on **crimson**, and with `--logo`. Seventeen emails, HTML and text. |
+| Money | Confirmation 360 + 25 + 20 − 20 − 40 = **345**; receipt 285 + 35 + 40 + 25 + 20 + 30 − 40 − 20 = **375**. Asserted on the RENDERED output, not the inputs. |
+| `email-brand` | 186 pass; the two new source checks baselined failing. |
+| `composition` · `design-contrast` · `landing-pricing` · `route-contract` · `money-export` · `client-list` · `setup-progress` · `decisions-index` · `accent-sweep` | all pass |
+
+### Still open
+
+The simple settings surface (on/off per email, one optional message of the
+detailer's own, prewritten wordings) · `booking_reminders_sent` + the two
+reminder rules · storing the site-sale amount on the booking ·
+`formatDateLong` hardcoded `en-US` · **and nothing has been opened in a real
+email client.** A send to a Gmail, an Outlook and an iCloud address in both
+modes is twenty minutes, and it is the only thing that turns "should work" into
+"does work".
+
+
 ## 7. WHAT I'D DO NEXT (payoff ÷ effort)
 
 
@@ -3129,11 +3242,14 @@ off by default** — he delegated the number. Client compatibility is researched
 (`docs/email-clients-2026-09-03.md`): **the dark design holds**, and it forced
 three changes plus turned up a defect that is not about dark mode at all —
 **every email is sent HTML-ONLY, with no plain-text part.**
-**The port is now the work**: ten templates, the simple settings surface, the
-reminder schema, the wiring, and re-pointing `email-brand`'s three SOURCE-SHAPE
-checks off the file the port deletes. `emailKit.ts` + `emailsNew.ts` hold two of
-twelve; the edge functions still send the old templates and `email-brand` is
-still green at **138** on the old file.
+**AND THE PORT LANDED THE SAME DAY (§6z-ii).** All twelve templates are
+rebuilt, the old ~530-line file is gone, all eight edge functions send them,
+every email now carries a plain-text half, and **the invoice's column reaches
+its own total for the first time** — structurally, through `reconcile()`.
+`email-brand` is **186 checks** and its three source-shape checks were
+re-pointed deliberately. **What is left is the settings surface and the
+reminder schema** — plus the one claim nothing here can make yet: **no email
+has been opened in a real client.**
 
 0. ~~**Start Phase 2.1 — the public booking page.**~~ **DONE 2026-08-30.**
    ~~**2.2, the marketing/landing page.**~~ **DONE 2026-08-30** — ported from

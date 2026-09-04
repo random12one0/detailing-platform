@@ -7,7 +7,7 @@
 // contact address, so replies reach the right detailer and never another
 // business.
 //
-// Input: { business_id, to, subject, body, attachments? }
+// Input: { business_id, to, subject, body, text?, attachments? }
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { business_id, to, subject, body, attachments } = await req.json();
+    const { business_id, to, subject, body, text, attachments } = await req.json();
     if (!business_id || !to || !subject || !body) {
       return json({ error: "business_id, to, subject and body are required" }, 400);
     }
@@ -56,6 +56,15 @@ Deno.serve(async (req) => {
       subject,
       html: body,
     };
+    // THE PLAIN-TEXT ALTERNATIVE — added roadmap 2.18, 2026-09-03, and it had
+    // been missing for the whole life of the product. An HTML-only message
+    // with no text part is a long-standing spam-filter signal, and it applied
+    // to EVERY email including the receipt, which is the one that must never
+    // land in junk. Found by asking whether the emails work globally and
+    // following the question past the templates into the sender, which is
+    // where it actually lived. Every template derives its own text half from
+    // its own markup (`emailKit.ts` → `htmlToText`), so the two cannot drift.
+    if (text) payload.text = text;
     if (business.contact_email) payload.reply_to = business.contact_email;
     if (Array.isArray(attachments) && attachments.length > 0) payload.attachments = attachments;
 

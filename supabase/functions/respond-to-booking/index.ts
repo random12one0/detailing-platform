@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
         { manageUrl: emailData.receiptUrl, quotedAmount: amount, quotedNote: update.quoted_note as string | null },
       );
       await sendTenantEmail({
-        businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html,
+        businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text,
       });
     }
 

@@ -7,39 +7,42 @@ import { businessSiteUrl } from "./config.ts";
 import type { Business } from "./tenant.ts";
 import type { BusinessSettings } from "./tenant.ts";
 import type { TenantBrand } from "./emailTemplates.ts";
-import { emailBrandColors } from "./brandColor.js";
+import { emailDarkBrandColors } from "./brandColor.js";
 
-// The house colours an unbranded business sends with. There is no second
-// one any more: a tenant has ONE accent (law 11), and the email derives its
-// band, its band ink and its on-paper value from that single hex.
-const DEFAULT_BRAND = "#0f172a";
+// What an unbranded business sends with. The house accent, because the email
+// ground is now the product's own near-black and a slate hex on it is not a
+// brand, it is a smudge. A tenant has ONE accent (law 11) and the email
+// derives all three of its values from that single hex.
+const DEFAULT_BRAND = "#38E08B";
 
 export async function buildBrand(business: Business, settings: BusinessSettings): Promise<TenantBrand> {
   const { data: branding } = await supabase
     .from("business_branding")
-    .select("primary_color")
+    .select("primary_color, logo_url")
     .eq("business_id", business.id)
     .maybeSingle();
+  // ONE COLOUR IN, THREE OUT, EACH CORRECTED AGAINST THE GROUND IT LANDS ON.
+  // Roadmap 2.18 moved the email onto the product's own near-black, so these
+  // are the DARK values now: the accent as words and as a fill on `--ink-2`
+  // (the lightest surface either can land on), plus the measured ink that goes
+  // on the fill. `secondary_color` is still not read — "Your colour" writes
+  // the same hex to both columns. brandColor.js carries the whole reasoning.
+  const c = emailDarkBrandColors(branding?.primary_color || DEFAULT_BRAND);
   return {
-    businessId: business.id,
-    slug: business.slug,
     brandName: business.name,
     contactEmail: business.contact_email,
     contactPhone: business.contact_phone,
-    dropoffAddress: business.dropoff_address,
     siteUrl: businessSiteUrl(business.slug),
-    // ONE COLOUR IN, THREE OUT, AND EACH CORRECTED AGAINST THE GROUND IT
-    // LANDS ON. `secondary_color` is no longer read here: "Your colour"
-    // writes the same hex to both columns, so reading the second one bought
-    // nothing and, before this, drew a rule the same colour as the band
-    // underneath it. brandColor.js carries the whole reasoning.
-    ...(() => {
-      const c = emailBrandColors(branding?.primary_color || DEFAULT_BRAND);
-      return { primaryColor: c.band, headerInk: c.bandInk, accentColor: c.onPaper };
-    })(),
+    // FIRST TIME IN THE PRODUCT'S LIFE THAT AN EMAIL CARRIES THE LOGO. The
+    // column has existed since the first migration and is already drawn on
+    // three customer-facing pages; `buildBrand` had simply never read it.
+    logoUrl: branding?.logo_url || null,
+    accent: c.text,
+    accentFill: c.fill,
+    accentInk: c.fillInk,
+    dropoffAddress: business.dropoff_address,
     googleReviewUrl: settings.google_review_url,
     yelpReviewUrl: settings.yelp_review_url,
-    paymentMethodsLine: null,
   };
 }
 
@@ -62,6 +65,8 @@ export async function sendTenantEmail(opts: {
   to: string;
   subject: string;
   html: string;
+  /** The plain-text alternative. Every template derives one; see emailKit. */
+  text?: string;
   attachments?: Attachment[];
 }): Promise<boolean> {
   try {
@@ -76,6 +81,7 @@ export async function sendTenantEmail(opts: {
         to: opts.to,
         subject: opts.subject,
         body: opts.html,
+        text: opts.text,
         attachments: opts.attachments,
       }),
     });

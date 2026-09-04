@@ -122,11 +122,11 @@ Deno.serve(async (req) => {
     };
     if (booking.customer_email) {
       const msg = rescheduleEmail(brand, emailData, oldDateStr, oldStartTime, false);
-      await sendTenantEmail({ businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html });
+      await sendTenantEmail({ businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
     }
     if (brand.contactEmail) {
       const msg = rescheduleEmail(brand, emailData, oldDateStr, oldStartTime, true);
-      await sendTenantEmail({ businessId: business.id, to: brand.contactEmail, subject: msg.subject, html: msg.html });
+      await sendTenantEmail({ businessId: business.id, to: brand.contactEmail, subject: msg.subject, html: msg.html, text: msg.text });
     }
     try {
       await sendOwnerPush(business.id, {

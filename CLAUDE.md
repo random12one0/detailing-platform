@@ -212,14 +212,26 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - Finish every session: `node tests/composition.test.mjs`,
   `design-contrast`, `landing-pricing`, `route-contract`, **`money-export`**,
-  **`email-brand`** (**138** checks — 97 when it was written and grown in roadmap
+  **`email-brand`** (**186** checks — 97 when it was written and grown in roadmap
   2.12, which found what it could not see: it pinned the colour ENGINE and never
   looked at what the templates DID with the answer, so **every email headline in
   the product was 3.01–3.76:1 on a 4.5:1 floor, on all fourteen colours**, and
-  the invoice's own title was 1.20–1.57:1. Tests 7a and 7a-ii read the SOURCE
-  for a hardcoded colour on the header band, because that is the only form that
-  stops the next template being written the same way. **A test can verify the
-  arithmetic and still be blind to the drawing.** It pins
+  the invoice's own title was 1.20–1.57:1. **A test can verify the
+  arithmetic and still be blind to the drawing.**
+  **GROWN AGAIN IN 2.18 (138 → 186) AND ITS SOURCE CHECKS WERE RE-POINTED, which
+  is the part a cold session needs.** 7a, 7a-ii and 7b-ii described the old
+  white-card-under-a-coloured-band layout; the rebuild deleted it, **two of them
+  failed loudly and one went SILENTLY VACUOUS** — its regex matched nothing, so
+  it passed by having no subjects. They were rewritten stronger: **no literal
+  hex anywhere in the templates** (every colour comes from a token or the brand,
+  so a literal is by definition unmeasured), **the two accent values may not
+  swap jobs** (`accentFill` is corrected 3:1 as a background and `accent` 4.5:1
+  as words), and **7a-iii asserts the checks HAVE SUBJECTS** so the next layout
+  change fails loudly instead of going quiet. **Baselining found a raw backspace
+  (0x08) inside the new regex** — invisible in every editor and in `sed`, visible
+  only under `od -c` — so the check written to prevent silent vacuity was itself
+  vacuous on its first run. **Baseline any check you add to this file, both
+  ways.** It pins
   `supabase/functions/_shared/brandColor.js`, the EMAIL’s copy of the colour
   engine, against `app/src/lib/theme.js` on the twelve presets and the four
   extremes. Email is the one place in this repo a second implementation of the
@@ -403,46 +415,48 @@ explaining it; if they still have to ask "so should I?", it failed.
   **closed by him unstarted**; the figures live there so nobody re-measures
   them and files them as new.
 
-- **THE EMAILS ARE MID-REBUILD AND THERE ARE TWO RENDER SCRIPTS ON PURPOSE
-  (roadmap 2.18, 2026-09-03).** `render-emails.mjs` draws the OLD templates,
-  which are what the edge functions still send; **`render-emails-new.mjs` draws
-  the REBUILT world** — `_shared/emailKit.ts` (the ground, the blocks, the
-  shell) and `_shared/emailsNew.ts` (two of twelve templates). A before and an
-  after you can open side by side is the only honest way to answer "does this
-  match the site", and **the pair collapses to one the moment the port lands.**
-  **The rebuilt world is NOT wired up and `email-brand` is still green at 138
-  on the OLD file** — that is deliberate and it is waiting on the owner
-  approving the look. **A TEMPLATE IS AN ARRAY OF BLOCKS**, because he asked
-  for an editor that reorders them; a template written as one HTML literal
-  cannot have an editor over it at any price. **`moneyBlock` is the one block
-  the editor may never open.** `emailDarkBrandColors` is a NEW export beside
-  `emailBrandColors`, which is untouched for exactly the reason the 138 checks
-  exist.
+- **THE EMAILS ARE REBUILT AND LIVE (roadmap 2.18, 2026-09-03).** The old
+  ~530-line `emailTemplates.ts` is gone. **`_shared/emailKit.ts` is the world** —
+  the ground, the design-system tokens, the blocks and the shell, with the
+  email-client constraints in its header. **`_shared/emailTemplates.ts` is the
+  twelve templates**, each one a LIST OF BLOCKS rather than an HTML literal.
+  **`emailDarkBrandColors` is a SECOND export beside `emailBrandColors`**, which
+  is untouched — the paper function is what 138 of the checks were written
+  against and editing it turns a green suite red for unrelated reasons.
+  **A template is a list of blocks and that survived the editor being
+  scrapped**: it buys twelve consistent templates, and — the better reason —
+  **the plain-text half of every email is ONE derived pass (`htmlToText`)
+  rather than twelve twins that drift.** HTML-only sending was a live
+  spam-filter defect until this item; `send-email` sets `text` now.
+  **`reconcile(lines, total)` is why the money adds up**, and it is structural
+  rather than a promise: both money templates pass their lines through it and
+  it draws any remainder as its own line. **`bookings` has no `site_discount`
+  column** — the amount is baked into `subtotal` at booking time — so the site
+  sale and the rounding are drawn by `reconcile`, and only the promo is
+  itemised by name.
 - **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
-  (new 2026-09-03, roadmap 2.18 step 1). Credential-free, no browser, no dev
-  server. It writes all sixteen emails to `email-preview/index.html` so a human
-  can look at them — **the first thing in this repo that ever has**, which is why
-  2.12 shipped eleven under-floor headlines and why the defect below survived
-  eleven test suites. `--accent=#hex` re-renders for another tenant;
+  (new 2026-09-03, roadmap 2.18). Credential-free, no browser, no dev server. It
+  writes all seventeen emails — twelve kinds plus the branches somebody actually
+  receives — to `email-preview/index.html`, **HTML and .txt side by side**, so a
+  human can look at them. **The first thing in this repo that ever has**, which
+  is why 2.12 shipped eleven under-floor headlines and why the invoice defect
+  survived eleven test suites. `--accent=#hex` re-renders for another tenant;
   `--out=DIR` keeps two side by side. **No new dependency**: Node 24 strips the
   types, so it imports `_shared/emailTemplates.ts` directly and reads the SAME
   file the edge function runs — keep that module dependency-free or this stops
   working.
-  **IT EXITS 1 TODAY AND THAT IS CORRECT, NOT A BROKEN SCRIPT.** It asserts that
-  **the invoice's printed column reaches the invoice's printed total**, and it
-  does not. Its charge rows sum to `subtotalBase` — services + add-ons + travel
-  + `price_adjustments`, **before the site sale and before the promo** — while
-  its total is `final_amount`, which is `total_price` (**past both**, and
-  rounded) plus the finalize extras. **Neither discount and neither the
-  rounding is ever drawn**, so the printed column misses the printed total by
-  `siteDiscount + promoDiscount + rounding`. Note `bookings.subtotal` is
-  `subtotalAfterSite`, so it is NOT what the rows add up to — the two figures
-  are only equal when no site sale is running.
-  Roadmap 2.18's invoice/receipt split is what makes it pass — **fix it in
-  `send-invoice`, which survives the rebuild, not in the template, which does
-  not.** It also fails on `undefined` / `NaN` / `[object Object]` / `href=""` in
-  any rendered file, because 2.12's first render used made-up field names and
-  produced a convincing-looking wrong answer.
+  **WHAT IT ASSERTS, and every one of these is a defect it has already caught:**
+  that **every money column reaches its own printed total** (the invoice missed
+  by exactly the promo for the whole life of the product); that every text
+  colour clears its floor on both grounds; that **no pure `#ffffff`/`#000000`
+  reaches a tenant's colour**, because those are Apple Mail's dark-mode
+  inversion trigger and Apple Mail is ~60% of opens; that every email carries a
+  plain-text alternative; and that no output contains `undefined` / `NaN` /
+  `[object Object]` / `href=""`, because 2.12's first render used made-up field
+  names and produced a convincing-looking wrong answer. **`--logo` draws the
+  worst logo a detailer can upload** (dark artwork on transparent) — it was
+  invisible on the ground until the masthead got its bone plate, and no test in
+  this repo can ever measure a PNG's contrast.
   **The rule it is here to enforce, and it is the third rung of the same
   ladder:** a number PRINTED is not a number CHARGED, a number EXPORTED is that
   risk one step later, and **a number INVOICED is it one step further still** —

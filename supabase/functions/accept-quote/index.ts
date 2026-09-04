@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
     if (booking.customer_email && settings.email_customer_confirmation) {
       const msg = customerConfirmationEmail(brand, emailData);
       await sendTenantEmail({
-        businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html,
+        businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text,
       });
     }
     // The detailer has to know the job is on. This is the answer to something
@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
     const ownerMsg = ownerNewBookingEmail(brand, emailData);
     for (const to of ownerRecipients(business, settings)) {
       await sendTenantEmail({
-        businessId: business.id, to, subject: ownerMsg.subject, html: ownerMsg.html,
+        businessId: business.id, to, subject: ownerMsg.subject, html: ownerMsg.html, text: ownerMsg.text,
       });
     }
     try {

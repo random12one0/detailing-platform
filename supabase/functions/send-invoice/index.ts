@@ -99,6 +99,37 @@ Deno.serve(async (req) => {
       rows.push({ label: `${prefix}${li.label}`, qty, lineTotal, kind });
     }
 
+    // THE PROMO LINE THAT WAS NEVER DRAWN, AND THE BUG IT FIXES.
+    //
+    // Roadmap 2.18 rendered an invoice and looked at it for the first time in
+    // the product's life. The column did not reach its own total: the charge
+    // rows sum to `subtotalBase` — services, add-ons, travel, surcharges, all
+    // BEFORE any discount — while `final_amount` is `total_price`, already
+    // PAST the site sale AND the promo, and rounded. Rendered: Subtotal $405,
+    // Tip $30, Total paid $395 — $40 missing and unexplained.
+    //
+    // It is `travel_fee`'s twin, in this file, a few lines below the fix for
+    // it — *a fix that names one instance of a pattern fixes one instance.*
+    // And no test saw it because `money-export` ties out the ACCOUNTANT EXPORT
+    // and `booking-engine` test 17 ties out the QUOTE ENGINE: **a tie-out is
+    // only a tie-out for the document it names.**
+    //
+    // ONLY THE PROMO IS ITEMISED BY NAME, AND THAT IS A LIMIT RATHER THAN A
+    // CHOICE. `promo_discount` and `applied_promo_code` are columns on the
+    // booking; **the site sale's AMOUNT is not stored anywhere** — it is baked
+    // into `subtotal` at booking time (`create-booking` writes
+    // `quote.subtotalAfterSite`) and the settings it came from may have
+    // changed since. `invoiceEmail` passes its lines through `reconcile`,
+    // which draws whatever is left — the sale, the rounding — as one honest
+    // "Discount applied" line instead of a silent gap. Storing the amount on
+    // the booking row is a migration and its own item.
+    if (booking.applied_promo_code && Number(booking.promo_discount) > 0) {
+      rows.push({
+        label: `Promo ${booking.applied_promo_code}`,
+        qty: 1, lineTotal: -Math.abs(Number(booking.promo_discount)), kind: "discount",
+      });
+    }
+
     const chargesSubtotal = rows.filter((r) => r.kind === "charge").reduce((s, r) => s + r.lineTotal, 0);
     const discountsTotal = rows.filter((r) => r.kind === "discount").reduce((s, r) => s + r.lineTotal, 0);
     const tipTotal = rows.filter((r) => r.kind === "tip").reduce((s, r) => s + r.lineTotal, 0);
@@ -141,6 +172,7 @@ Deno.serve(async (req) => {
       to: booking.customer_email,
       subject: invoice.subject,
       html: invoice.html,
+      text: invoice.text, text: invoice.text,
     });
     if (!sent) return json({ error: "email_failed" }, 502);
 
@@ -154,6 +186,7 @@ Deno.serve(async (req) => {
         to: booking.customer_email,
         subject: followup.subject,
         html: followup.html,
+        text: followup.text, text: followup.text,
       });
     } catch (e) {
       console.error("Error sending thank-you email:", e);

@@ -2543,33 +2543,40 @@ is kept; the entire visual design restarts from scratch.
       port**, as a `text` pass over the block list. Gmail's 102KB clip was
       MEASURED, not assumed: these are 9–10KB.
 
-      **STILL OPEN:** ten templates to port · the simple settings surface ·
-      `booking_reminders_sent` + two reminder rules · the plain-text part · the
-      wiring · re-pointing `email-brand`'s three source-shape checks ·
-      `formatDateLong` is hardcoded `en-US` (named, not fixed — US-only
-      product) · **and nothing has been opened in a real email client**, only
-      rendered in a browser. **A send to a Gmail, an Outlook and an iCloud
-      address in both modes is twenty minutes and is what turns "should work"
-      into "does work".**
+      **THE PORT LANDED THE SAME DAY, on *"do whataver u want and is best"*.**
+      DECISIONS.md → "Roadmap 2.18 — the port: all twelve rebuilt, wired, and
+      the invoice made to add up".
 
-      **THE REMAINING QUESTIONS (3, 4 and 5 — none of them block):**
-      3. **The re-book / maintenance reminder** (four of six, all four in a
-         separate paid tier because it is marketing email and needs an
-         unsubscribe) — recommend its own roadmap item. Does not block.
-      4. ~~**Logo on the coloured band or on the white paper?**~~ **BUILT ON
-         THE GROUND, 2026-09-03**, because the rebuilt masthead needed an
-         answer to exist at all and the ground is the only one nothing in the
-         repo can be wrong about — a logo is an arbitrary PNG, so unlike every
-         other colour here its contrast cannot be measured, and there is no
-         coloured band any more. `business_branding.logo_url` is read for the
-         first time in the product's life; it falls back to the business name
-         in bone. **Reversible in one line if he wants it somewhere else.**
-      5. **May we READ `carwashweb`'s invoice email?** `reference/`'s copy has
-         the same missing promo row, so the omission was **inherited by the
-         port rather than introduced by it**. If his LIVE business still
-         matches, real customers have been getting invoices that do not add
-         up. A read, not a write. **Does not block 2.18 and should not wait
-         for it.**
+      - **All twelve templates rebuilt; the old ~530-line file is gone.**
+        `_shared/emailKit.ts` is the world, `_shared/emailTemplates.ts` is the
+        twelve. **The file kept its PATH and most export names** — rebuilding
+        the RENDERING was the item, and changing `BookingEmailData` too would
+        have meant rewriting every call site's query.
+      - **All eight edge functions send them**, and every one passes the
+        plain-text half through. `send-email` sets `text`.
+      - **`reconcile(lines, total)` makes the money add up STRUCTURALLY.** The
+        invoice bug could have been three pushes in `send-invoice` — that is
+        the fix 2.8c already applied once, and it did not generalise. Both
+        money templates pass their lines through one function that draws any
+        remainder as its own line.
+      - **`bookings` HAS NO `site_discount` COLUMN**, and the first draft of the
+        fix referenced it → `undefined` → the line silently never draws. **A fix
+        that reads as a fix and does nothing**, caught only by checking the
+        schema. The promo is itemised by name; the sale and the rounding are
+        drawn by `reconcile`. **Storing the sale amount on the booking is a
+        migration and its own item.**
+      - **`email-brand` is 186 checks and its source checks were re-pointed** —
+        two failed loudly, one went silently vacuous, and baselining the
+        replacements turned up **a raw backspace character inside the new
+        regex**, which made the anti-vacuity check vacuous on its first run.
+
+      **STILL OPEN:** the simple settings surface (on/off per email, one
+      optional message of the detailer's own, prewritten wordings) ·
+      `booking_reminders_sent` + the two reminder rules · storing the site-sale
+      amount on the booking · `formatDateLong` hardcoded `en-US` (named, not
+      fixed — US-only product) · **and nothing has been opened in a real email
+      client.** A send to a Gmail, an Outlook and an iCloud address in both
+      modes is twenty minutes and is what turns "should work" into "does work".
 
 - [ ] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named

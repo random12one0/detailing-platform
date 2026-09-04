@@ -347,13 +347,13 @@ Deno.serve(async (req) => {
 
     if (booking.customer_email && settings.email_customer_confirmation) {
       const msg = customerConfirmationEmail(brand, emailData, isRequest);
-      await sendTenantEmail({ businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html });
+      await sendTenantEmail({ businessId: business.id, to: booking.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
     }
     if (settings.email_owner_new_booking) {
       const msg = ownerNewBookingEmail(brand, emailData, isRequest);
       // Every configured recipient, not just one address.
       for (const to of ownerRecipients(business, settings)) {
-        await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html });
+        await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
       }
     }
     try {

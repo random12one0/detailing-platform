@@ -49,21 +49,29 @@
 //   * `color-scheme: dark` is declared so Apple Mail and Gmail stop trying to
 //     invert a design that is already dark.
 //
-// BLOCKS, BECAUSE THE OWNER ASKED FOR AN EDITOR. His words, 2026-09-03:
-// *"by custom i mean they can choose whats in it and what order ect… a way for
-// the customer to customze the look words and thgings of the email."* So the
-// unit here is a BLOCK, not a template: every function below renders one
-// self-contained `<tr>` that can be reordered, switched off, or have its words
-// replaced without touching its neighbours. A template is a LIST OF BLOCKS.
-// That is what makes the editor possible at all, and it is why this file is
-// blocks-plus-a-shell rather than eleven bespoke layouts.
+// BLOCKS, AND THE REASON CHANGED UNDER THEM — WHICH IS WHY THEY STAYED.
+// They were built as the substrate for an editor the owner asked for
+// ("they can choose whats in it and what order"), and he scrapped that one
+// message later: *"scrap the custom email editor thing / make it a lot more
+// simple."* Nothing had to be torn out, because the session had stopped at the
+// blocks and never written an editor screen.
 //
-// THE ONE BLOCK THAT IS NOT EDITABLE, and it is a rule rather than an
-// oversight: `moneyBlock`. CLAUDE.md — a number printed is not a number
-// charged. Zenbooker, the most permissive product in the whole six-product
-// sweep, reached the same answer independently and renders its itemisation as
-// a single variable the editor cannot open. The detailer writes AROUND the
-// money; they never write inside it.
+// They earn their place now for two reasons that have nothing to do with an
+// editor, and both are better ones:
+//
+//   * Twelve templates come out short and consistent with each other. Every
+//     block is one self-contained `<tr>`; a template is a LIST of them, so the
+//     spacing, the rules and the type scale cannot drift between emails the
+//     way twelve hand-written layouts would.
+//   * **The plain-text half of every email is ONE derived pass over the same
+//     markup** (`htmlToText`), not twelve hand-written twins. Twins drift, and
+//     the first time somebody edits one and not the other the two disagree
+//     about a price. Derived cannot drift.
+//
+// `moneyBlock` and `reconcile` are the load-bearing pair: CLAUDE.md's rule is
+// that a number printed is not a number charged, and an invoice is that risk
+// one step further along because it reaches the one person who checks it
+// against a card statement.
 
 import { emailDarkBrandColors, EMAIL_BONE, EMAIL_GROUND, EMAIL_PANEL } from "./brandColor.js";
 
@@ -204,6 +212,39 @@ export interface MoneyLine {
  * that the lines reach the total — because the live invoice does not, and has
  * never, whenever a promo code or a site sale was involved. See CLAUDE.md.
  */
+/**
+ * THE COLUMN ALWAYS REACHES THE TOTAL, AND IT IS STRUCTURAL RATHER THAN
+ * DISCIPLINE.
+ *
+ * This exists because the opposite shipped. The old invoice's rows summed to
+ * `subtotalBase` while its printed total was `final_amount` — past the site
+ * sale, past the promo and rounded — so a customer with a promo code received
+ * a bill whose figures did not add up, by exactly the discount. It was the
+ * `travel_fee` bug's twin and no test saw it, because `money-export` ties out
+ * the accountant export and `booking-engine` ties out the quote engine: **a
+ * tie-out is only a tie-out for the document it names.**
+ *
+ * Every caller that draws money passes its lines through here against the
+ * total it is about to print, so "the caller remembered to itemise everything"
+ * stops being a thing anyone has to remember. Where a real remainder exists
+ * and cannot be attributed — rounding, or a site sale whose AMOUNT is not
+ * stored on the booking row — it is drawn plainly rather than left as a gap.
+ * **An unexplained gap is the defect; a line saying "a discount was applied"
+ * is not.**
+ *
+ * Under a cent, nothing is drawn.
+ */
+export function reconcile(lines: MoneyLine[], total: number): MoneyLine[] {
+  const drawn = lines.reduce((s, l) => s + (l.kind === "discount" ? -Math.abs(l.amount) : l.amount), 0);
+  const gap = Math.round((Number(total) - drawn) * 100) / 100;
+  if (Math.abs(gap) < 0.01) return lines;
+  return [...lines, {
+    label: gap < 0 ? "Discount applied" : "Adjustment",
+    amount: Math.abs(gap),
+    kind: gap < 0 ? "discount" : "charge",
+  }];
+}
+
 export function moneyBlock(
   brand: Brand,
   lines: MoneyLine[],
@@ -336,6 +377,52 @@ export function shell(brand: Brand, blocks: string[], preheader: string): string
   </td></tr>
 </table>
 </body></html>`;
+}
+
+/**
+ * THE PLAIN-TEXT HALF, DERIVED RATHER THAN HAND-WRITTEN.
+ *
+ * Every email in this product was sent HTML-only until 2026-09-03 — the Resend
+ * payload set `html` and nothing else. An HTML-only message with no text
+ * alternative is a long-standing spam-filter signal, and it applied to every
+ * email including the receipt, which is the one that must never land in junk.
+ * Found while answering "will it work globally", by following the question
+ * past the templates and into the sender. `docs/email-clients-2026-09-03.md`.
+ *
+ * ONE FUNCTION RATHER THAN TWELVE TWINS, and that is the whole design decision
+ * here. A hand-written text version of each template is twelve more things to
+ * keep in step with twelve HTML ones, and the first time somebody edits one
+ * and not the other the two disagree about a price. Deriving it means the text
+ * half cannot drift, because there is nothing to drift from.
+ *
+ * It reads well because the blocks above are structural: every row is a `<tr>`
+ * and every figure sits in its own cell, so "one block per line, label then
+ * value" falls out of the markup rather than being reconstructed from it.
+ */
+export function htmlToText(html: string): string {
+  return String(html)
+    // The preheader is a hidden duplicate of the first line. In text it is
+    // just the first line printed twice.
+    .replace(/<div style="display:none[\s\S]*?<\/div>/gi, "")
+    .replace(/<(head|style|title)[\s\S]*?<\/\1>/gi, "")
+    // A link becomes "text (url)" — a text reader cannot click a bare label.
+    .replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, (_m, href, inner) =>
+      `${String(inner).replace(/<[^>]+>/g, "").trim()} (${href})`)
+    // A table cell is a column; two cells on one row are "label: value".
+    .replace(/<\/td>\s*<td[^>]*>/gi, "  |  ")
+    .replace(/<\/(tr|div|p|h1|h2|h3|li)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ").replace(/&mdash;/g, "—").replace(/&ndash;/g, "–")
+    .replace(/&middot;/g, "·").replace(/&minus;/g, "-").replace(/&rsquo;/g, "'")
+    .replace(/&times;/g, "x").replace(/&rarr;/g, "->")
+    .replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .split("\n").map((l) => l.replace(/[ \t]+/g, " ").trim()).filter(Boolean)
+    .join("\n")
+    // A blank line between blocks, never three.
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 export { FIGS, PAD, WORDS };

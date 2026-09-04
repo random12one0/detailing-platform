@@ -173,6 +173,8 @@ were made more than once.
 
 - **Roadmap 2.18 — the look approved, the editor scrapped, and will it work everywhere** — *"Also it looks good"*, then *"scrap the custom email editor thing / make it a lot more simple"* — **his own idea from one message earlier, reversed inside the same session.** **NOTHING HAD TO BE TORN OUT, and that is the carryable part**: the session had built the blocks and stopped at two rendered templates, so **the stopping point chosen to get the LOOK approved cheaply was the same one that made the reversal free** — when an item has a subjective half and a mechanical half, render the subjective half first and stop; the approval gate doubles as a rollback point. The blocks survive with a new justification: **the plain-text half of every email is a second pass over the same block list**. **Reminders: he delegated the number and the answer is TWO, second off by default** — Jobber caps at two and nobody offers three, the useful pair for this trade is the evening before and two hours out, and **a third costs deliverability for the receipt**, which is shared reputation. **The compatibility research holds**: Apple Mail (~60%) leaves a dark email alone unless it finds pure `#ffffff`/`#000000`, **full inversion mirrors BRIGHTNESS and preserves HUE** (checked specifically — the guides' "flips brand colours to their opposites" would have meant a green button arriving magenta), and light-on-light cannot happen because every colour is declared on the element that shows it, so ground and type flip together. Worst case is a light version of the same email, still readable; **the `mix-blend-mode` Gmail hack was deliberately NOT used.** Three changes came out of it — pure black/white made unreachable in a tenant's colour (**both were genuinely reachable**), `bgcolor` beside every background property, and **the logo onto a bone plate because a detailer's logo is dark-on-transparent and was invisible on `--ink-0`, which nothing in this repo could ever have measured.** **AND THE FINDING THAT IS NOT ABOUT DARK MODE: every email is sent HTML-ONLY, with no plain-text part** — a spam-filter signal on every email including the receipt, found by following "will it work globally" past the templates into the sender. Gmail's 102KB clip threshold MEASURED at 9–10KB. Full working: `docs/email-clients-2026-09-03.md`. **Honest limit: nothing has been opened in a real email client yet.**
 
+- **Roadmap 2.18 — the port: all twelve rebuilt, wired, and the invoice made to add up** — the old ~530-line `emailTemplates.ts` is gone, all eight edge functions send the rebuilt emails, `email-brand` is **186 checks** (was 138). **The file kept its PATH and most export names on purpose** — rebuilding the RENDERING was the item, and changing `BookingEmailData` at the same time would have meant rewriting every call site's query too. **`reconcile(lines, total)` is the guarantee that replaced a promise**: the invoice bug could have been three pushes in `send-invoice`, but that is the fix 2.8c already applied once and it did not generalise — so both money templates now pass their lines through one function that draws any remainder as its own line. **It was load-bearing immediately: `bookings` HAS NO `site_discount` COLUMN**, and the first draft of the fix referenced `booking.site_discount` → `undefined` → the line silently never draws. **A fix that reads as a fix and does nothing**, caught only by checking the schema instead of assuming it. **The plain-text half is DERIVED, one `htmlToText` rather than twelve twins that drift** — now the main thing the block architecture buys. **Re-pointing `email-brand`: two source checks failed loudly and one went SILENTLY VACUOUS** (`const header =` matched nothing, so it passed by having no subjects) — rewritten stronger (no literal hex anywhere in the templates; the two accent values may not swap jobs) plus **7a-iii, which asserts the checks HAVE subjects** so the next layout change fails loudly. **AND THE BASELINING FOUND A REAL BUG: a raw backspace (0x08) in the regex source** left by the script that wrote the test — `/…{3,8}\x08/` can never match, invisible in every editor and in `sed`, only visible under `od -c`. **A check written to prevent silent vacuity was itself silently vacuous on its first run.** Still not done: the settings surface, the two-reminder schema, and **nothing has been opened in a real email client.**
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -8886,3 +8888,106 @@ Word engine, the Gmail iOS app, or Apple Mail's dark pass. **A real send to a
 Gmail, an Outlook and an iCloud address, in both modes, is twenty minutes and
 is what turns "should work" into "does work"** — which is CLAUDE.md's standing
 rule, and this does not meet it yet.
+
+## Roadmap 2.18 — the port: all twelve rebuilt, wired, and the invoice made to add up
+
+2026-09-03, on *"do whataver u want and is best"*. The look was approved and
+the editor scrapped, so what was left was the mechanical half. It is done:
+`_shared/emailTemplates.ts` is a new file, the old ~530-line one is gone, all
+eight edge functions send the rebuilt emails, and `email-brand` is **186 checks**
+where it was 138.
+
+### The old file was replaced, not renamed around
+
+`emailTemplates.ts` keeps its **path and most of its export names**, and that
+was the decision that kept the diff small: eight edge functions import from it,
+and `BookingEmailData` is a shape they already assemble. **Rebuilding the
+RENDERING was the item.** Changing the data contract at the same time would have
+meant rewriting every call site's query as well as its render, for no gain.
+Only `TenantBrand` moved, because the colour set genuinely changed —
+`primaryColor`/`headerInk`/`accentColor` (a band, its ink, and words on white)
+became `accent`/`accentFill`/`accentInk` plus `logoUrl`.
+
+### `reconcile()` — the guarantee that replaced a promise
+
+The invoice bug could have been fixed with three pushes in `send-invoice`. It
+was not, because **that is the fix that was already applied once and did not
+generalise**: 2.8c added travel and surcharge rows to this exact file, under a
+comment saying the itemisation had not added up, and the promo was left out —
+*a fix that names one instance of a pattern fixes one instance.*
+
+So the reconciliation is **structural** instead. `reconcile(lines, total)` in
+`emailKit.ts` takes the lines a template is about to draw and the total it is
+about to print, and appends the remainder as its own line when they disagree by
+a cent or more. Both money templates run through it. **"Did the caller remember
+to itemise everything" stops being something anyone has to remember.**
+
+**AND IT TURNED OUT TO BE LOAD-BEARING IMMEDIATELY, WHICH IS THE PART WORTH
+CARRYING.** The plan was to push a site-sale row alongside the promo — and
+`bookings` **has no `site_discount` column.** The amount is baked into
+`subtotal` at booking time (`create-booking` writes `quote.subtotalAfterSite`)
+and the settings it came from may have changed since, so the invoice cannot
+attribute it. **The first draft of the fix referenced `booking.site_discount`,
+which is `undefined`, so `Number(undefined) > 0` is false and the line silently
+never draws** — a fix that reads as a fix and does nothing, caught only because
+the schema was checked rather than assumed. `reconcile` draws it as one honest
+*"Discount applied"* line. **An unexplained gap is the defect; a line that says
+a discount was applied is not.**
+
+The three holes and where each is now answered: the **promo** is itemised by
+name (`promo_discount` and `applied_promo_code` are real columns); the **site
+sale** and the **rounding** are drawn by `reconcile`, because neither is
+recoverable from the booking row. Storing the sale amount on the booking is a
+migration and its own item.
+
+### The plain-text half is DERIVED, and that is the whole argument for it
+
+`htmlToText()` — one function, not twelve twins. Twins drift, and the first
+time somebody edits one and not the other they disagree about a price. It reads
+well only because the blocks are structural: every row is a `<tr>` and every
+figure sits in its own cell, so "label | value, one per line" falls out of the
+markup rather than being reconstructed from it. **This is now the main thing the
+block architecture buys, and it is a better reason than the editor it was built
+for.**
+
+### Re-pointing `email-brand` — and the check that caught itself going quiet
+
+The three SOURCE-SHAPE checks (7a, 7a-ii, 7b-ii) described a white-card layout
+that no longer exists. **Two failed loudly and one went silently vacuous** — the
+`const header =` regex matched nothing, so its assertion passed by having no
+subjects. That is *a skipped check reads exactly like a passing one*, and it is
+why they were rewritten rather than deleted with a note.
+
+Restated for the architecture that exists, and in a **stronger** form than the
+originals could take: the old 7a banned two specific hex values on one specific
+surface; the new one bans **any literal hex in the templates at all**, because
+every colour now comes from a named token or from the brand, so a literal is by
+definition a colour nobody measured. 7a-ii became "the two accent values may
+not swap jobs" — printing `accentFill` (corrected 3:1 as a background) as words,
+or painting `accent` (corrected 4.5:1 as words) as a background, is the old
+"paper colour on the band" defect in the only shape it can still take. And
+**7a-iii asserts the checks HAVE SUBJECTS** — that `accentInk` is used, that the
+accent is painted as a fill somewhere, that `moneyBlock` is still called —
+specifically so the next layout change fails loudly instead of going quiet.
+
+**BASELINED BOTH WAYS, and the baselining is what found the real bug.** The
+first version of 7a passed while a literal `#ffffff` sat in the file, and the
+reason was **a raw backspace character (0x08) in the regex source**, left by the
+script that wrote the test: `/#[0-9a-fA-F]{3,8}\x08/` can never match. It was
+invisible in every editor and in `sed` output, and only showed up under `od -c`.
+**A check written to prevent silent vacuity was itself silently vacuous on its
+first run.** Fixed, then re-baselined by injecting a real colour into a template
+(fails) and by swapping the fill value into a `color:` (fails).
+
+The stripped-comments detail matters too: the check scans **code**, not prose,
+because this file's own documentation explains the rule by naming the value it
+bans — and a check that fails on its own documentation gets deleted rather than
+fixed.
+
+### What the port did NOT do
+
+The simple settings surface (an on/off switch per email, one optional message
+of the detailer's own, prewritten wordings), the two-reminder schema
+(`booking_reminders_sent` per (booking, rule)), and storing the site-sale amount
+on the booking. **And nothing has been opened in a real email client** — that is
+still the one claim this work cannot make.

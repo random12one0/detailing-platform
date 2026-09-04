@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     const brand = await buildBrand(business, settings);
     const link = `https://${PLATFORM_DOMAIN}/invite/${invite.token}`;
     const msg = inviteEmail(brand, { role, link, expiresAt: invite.expires_at });
-    const sent = await sendTenantEmail({ businessId: business.id, to: email, subject: msg.subject, html: msg.html });
+    const sent = await sendTenantEmail({ businessId: business.id, to: email, subject: msg.subject, html: msg.html, text: msg.text });
 
     // The link is returned so the owner can copy it if email is unavailable.
     return json({ success: true, invite: { id: invite.id, email, role, expires_at: invite.expires_at, link }, emailed: sent });

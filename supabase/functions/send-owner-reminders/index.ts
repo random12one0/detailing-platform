@@ -64,7 +64,7 @@ async function sendCustomerReminder(b: BookingRow) {
   if (!settings.email_customer_reminder) return;
   const brand = await buildBrand(business, settings);
   const msg = customerReminderEmail(brand, emailDataFor(business, b));
-  await sendTenantEmail({ businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html });
+  await sendTenantEmail({ businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
 }
 
 async function sendOwnerReminder(b: BookingRow) {
@@ -82,6 +82,7 @@ async function sendOwnerReminder(b: BookingRow) {
         to,
         subject: `Upcoming job - ${data.customerName} - ${data.dateStr} at ${formatTime12hr(data.startTime)}`,
         html: msg.html,
+        text: msg.text,
       });
     }
   }
@@ -234,7 +235,7 @@ Deno.serve(async (req) => {
         const brand = await buildBrand(business, settings);
         const msg = staleRequestEmail(brand, emailDataFor(business, b), waited);
         for (const to of ownerRecipients(business, settings)) {
-          await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html });
+          await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
         }
         await mark(b.id, "owner_request_nudge_sent_at");
         results.push({ id: b.id, kind: "request_nudge", sent: true });

@@ -24,6 +24,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import {
+  emailDarkBrandColors,
   emailBrandColors, contrastRatio, PAPER, PAPER_FALLBACK,
 } from "../supabase/functions/_shared/brandColor.js";
 import { PRESET_COLORS, contrastRatio as themeContrast } from "../app/src/lib/theme.js";
@@ -112,54 +113,98 @@ for (const bad of [null, undefined, "", "not a colour", "#12"]) {
     [c.band, c.bandInk, c.onPaper].every((v) => /^#[0-9a-f]{6}$/i.test(v)), JSON.stringify(c));
 }
 
-// --- 7. NO TEMPLATE MAY HARDCODE A COLOUR ONTO THE HEADER BAND -------------
-// Roadmap 2.12, and it is the D1 defect one line further on. Stage 6 gave the
-// band a measured ink and used it for the brand NAME and the 44px rule — and
-// every template's own header block went on painting its headline
-// `color:#ffffff` and its small label `color:#e2e8f0` onto that same band.
+// --- 7. NO TEMPLATE MAY HARDCODE A COLOUR ---------------------------------
 //
-// MEASURED BEFORE FIXING, because "it looks white-ish" is not a finding:
-// white on the corrected band is **3.01–3.76:1 on all fourteen colours**, and
-// #e2e8f0 is 2.44–3.05:1, against the 4.5:1 text floor. Not one preset passed.
-// Sky's band is #0d9edf and its headline was 3.01:1.
+// RE-POINTED IN ROADMAP 2.18 (2026-09-03), DELIBERATELY AND WITH ITS INTENT
+// INTACT, because the file it used to read no longer exists in that form.
 //
-// The buttons are deliberately NOT included: they are white on `onPaper`,
-// which is corrected for 4.5:1 against white paper, and they measure
-// 4.50–4.96:1. Test 7c asserts that rather than trusting it — the whole
-// lesson of D1 is that a colour is only safe against the ground it was
-// corrected for, and these two are different grounds.
+// The original three checks were written after 2.12 found **eleven** headlines
+// hardcoding `color:#ffffff` onto a brand-coloured band — 3.01–3.76:1 on a
+// 4.5:1 floor, on all fourteen colours, not one preset passing. They asserted
+// facts about a white-card-under-a-coloured-band layout: that `const header =`
+// blocks existed, that `${brand.headerInk}` appeared at least fourteen times,
+// and that the literal `max-width:600px; background-color:#ffffff;` was
+// present. **2.18 replaced that layout with the product's own near-black
+// ground, so all three describe a drawing that is gone.**
 //
-// 7a is a SOURCE check rather than a colour one, because that is the only
-// form that stops the next template being written the same way.
+// TWO OF THEM FAILED LOUDLY AND ONE WENT SILENTLY VACUOUS — the `const header`
+// regex matched nothing, so its assertion passed by having no subjects. That
+// is *a skipped check reads exactly like a passing one*, the family this repo
+// has paid for more than once, and it is the reason these were rewritten
+// rather than deleted with a note.
+//
+// THE INTENT, RESTATED FOR THE ARCHITECTURE THAT EXISTS: a colour that lands
+// on a surface must have been MEASURED against that surface. The new templates
+// make that checkable in a stronger form than the old ones could — every
+// colour now comes from a named token or from the brand, so a literal hex in a
+// template is by definition a colour nobody measured.
 {
-  const src = await readFile(new URL("../supabase/functions/_shared/emailTemplates.ts", import.meta.url), "utf8");
-  // Every remaining literal white must be a button or the card, i.e. followed
-  // by a background-color of its own.
-  // Every legitimate remaining white is on a ground of its OWN — a button
-  // (`background-color:` right after it) or the pill and the card, which name
-  // their own background earlier in the same style string. Anything else is a
-  // colour landing on the band without having been measured against it.
-  const stray = [...src.matchAll(/(?<!background-)color:#(?:ffffff|e2e8f0)\b(?!; background-color:)/g)]
-    .filter((m) => !/background-color:\$\{brand\.accentColor\}[^"]*$/.test(
-      src.slice(Math.max(0, m.index - 220), m.index)));
-  check("no template paints a hardcoded colour on the header band",
-    stray.length === 0, `${stray.length} left: ${stray.map((m) => m[0]).join(", ")}`);
-  // 7a-ii — THE OTHER HALF, and the one that measured worst: a colour
-  // corrected for WHITE PAPER printed ON the band. "Invoice / Receipt" and the
-  // owner email's own first line were `brand.accentColor` on `brand.band` —
-  // **1.20 to 1.57:1 on all twelve presets**, which is D1's "the same colour
-  // on itself" wearing different clothes. `accentColor` belongs on paper.
-  const headers = [...src.matchAll(/const header =[\s\S]*?`;/g)].map((m) => m[0]).join("\n");
-  const onBand = [...headers.matchAll(/(?<!background-)color:\$\{brand\.accentColor\}/g)];
-  check("no header block prints the PAPER colour on the band",
-    onBand.length === 0, `${onBand.length} left`);
-  check("the band's ink is still read from the brand",
-    (src.match(/\$\{brand\.headerInk\}/g) ?? []).length >= 14,
-    `${(src.match(/\$\{brand\.headerInk\}/g) ?? []).length} uses`);
-  // The card is white and must stay white — it is paper, not a band, and a
-  // regex written for the headers took it out once already.
-  check("the card itself is still white paper",
-    src.includes("max-width:600px; background-color:#ffffff;"));
+  const kit = await readFile(new URL("../supabase/functions/_shared/emailKit.ts", import.meta.url), "utf8");
+  const tpl = await readFile(new URL("../supabase/functions/_shared/emailTemplates.ts", import.meta.url), "utf8");
+
+  // 7a — NO LITERAL HEX IN THE TEMPLATES. Stronger than the old rule, which
+  // banned two specific values on one specific surface. Colours live in
+  // `emailKit`'s `G` (the design system's tokens) or come off the brand;
+  // anything else is unmeasured by construction.
+  // COMMENTS ARE STRIPPED FIRST, because this file's own prose explains the
+  // rule by naming the value it bans ("warm bone, and never #ffffff") and a
+  // check that fails on its own documentation gets deleted rather than fixed.
+  // The subject is CODE: a literal colour a template actually renders.
+  const code = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^[ \t]*\/\/.*$/gm, "");
+  const tplCode = code(tpl);
+  const strayInTemplates = [...tplCode.matchAll(/#[0-9a-fA-F]{3,8}/g)];
+  check("no template hardcodes a colour", strayInTemplates.length === 0,
+    `${strayInTemplates.length}: ${strayInTemplates.map((m) => m[0]).join(", ")}`);
+
+  // 7a-ii — THE TWO ACCENT VALUES MAY NOT SWAP JOBS. This is the old "paper
+  // colour on the band" defect in the shape it can take now: `accent` is
+  // corrected for 4.5:1 as WORDS and `accentFill` for 3:1 as a BACKGROUND, so
+  // printing the fill as text, or painting the words as a background, is a
+  // colour used against a ground it was never measured on.
+  const fillAsText = [...kit.matchAll(/(?<!background-)color:\$\{brand\.accentFill\}/g)];
+  check("the fill value is never printed as words", fillAsText.length === 0, `${fillAsText.length}`);
+  const wordsAsFill = [...kit.matchAll(/background-color:\$\{brand\.accent\}(?!Fill|Ink)/g)];
+  check("the words value is never painted as a background", wordsAsFill.length === 0, `${wordsAsFill.length}`);
+
+  // 7a-iii — AND THE CHECK MUST HAVE SUBJECTS. The predecessor of 7a-ii
+  // silently matched nothing once the layout changed. These three assert that
+  // the things they are about actually exist, so the next layout change fails
+  // loudly instead of going quiet.
+  check("the ink on an accent fill is read from the brand",
+    (kit.match(/\$\{brand\.accentInk\}/g) ?? []).length >= 1,
+    `${(kit.match(/\$\{brand\.accentInk\}/g) ?? []).length} uses`);
+  check("the accent is still painted as a fill somewhere",
+    (kit.match(/background-color:\$\{brand\.accentFill\}/g) ?? []).length >= 2,
+    `${(kit.match(/background-color:\$\{brand\.accentFill\}/g) ?? []).length} uses`);
+  check("the templates still draw money through the kit",
+    (tpl.match(/moneyBlock\(/g) ?? []).length >= 2,
+    `${(tpl.match(/moneyBlock\(/g) ?? []).length} uses`);
+
+  // 7a-iv — THE GROUND IS THE PRODUCT'S GROUND. The old check pinned a white
+  // card because that was the paper every colour had been corrected against.
+  // The equivalent fact now is that the shell paints `--ink-0` and declares it
+  // to the client, and that the type is warm bone rather than pure white —
+  // which is both a design law and, since Apple Mail inverts on a pure value,
+  // a compatibility one.
+  check("the shell paints the product's own ground",
+    kit.includes('bgcolor="${G.ground}"') && kit.includes('name="color-scheme" content="dark"'));
+  check("the dominant type value is warm bone, never pure white",
+    kit.includes('bone: EMAIL_BONE') && !/bone:\s*"#f{3,6}"/i.test(kit));
+}
+
+// 7b-ii — THE FIXED GREYS, MEASURED ON BOTH GROUNDS THEY LAND ON.
+// The predecessor banned three specific sub-floor greys from the old white
+// card. These are the tokens the new ground uses, and they are MEASURED rather
+// than blacklisted, which is the version that cannot go stale.
+{
+  const GROUNDS = { ground: "#0B0D0E", panel: "#171B1E" };
+  const TYPE = { bone: "#F2F1EC", "bone-2": "#CFD2CE", fog: "#939CA1", "fog-2": "#7B858A" };
+  for (const [gName, g] of Object.entries(GROUNDS)) {
+    for (const [tName, t] of Object.entries(TYPE)) {
+      check(`${tName} on ${gName} clears 4.5:1`,
+        contrastRatio(t, g) >= 4.5, contrastRatio(t, g).toFixed(2));
+    }
+  }
 }
 
 // 7b — the floor itself, on every preset and every extreme.
@@ -192,12 +237,20 @@ for (const [name, hex] of [...PRESET_COLORS.map((c) => [c.name, c.hex]), ...EXTR
   }
 }
 
-// 7c — and the button's white, which is a DIFFERENT ground and is fine.
-for (const [name, hex] of PRESET_COLORS.map((c) => [c.name, c.hex])) {
-  const { onPaper } = emailBrandColors(hex);
-  check(`${name}: white on the button still clears 4.5:1`,
-    contrastRatio("#ffffff", onPaper) >= 4.5,
-    `${contrastRatio("#ffffff", onPaper).toFixed(2)}`);
+// 7c — THE INK ON THE BUTTON, which is a DIFFERENT ground and is measured
+// rather than assumed. The whole lesson of D1 is that a colour is only safe
+// against the ground it was corrected for; the button's face is the accent
+// FILL and its ink is chosen against that fill specifically.
+for (const [name, hex] of [...PRESET_COLORS.map((c) => [c.name, c.hex]), ...EXTREMES]) {
+  const { fill, fillInk } = emailDarkBrandColors(hex);
+  check(`${name}: the button's ink clears 4.5:1 on its own fill`,
+    contrastRatio(fillInk, fill) >= 4.5 - 1e-9,
+    `${fillInk} on ${fill} = ${contrastRatio(fillInk, fill).toFixed(2)}`);
+  // Apple Mail is ~60% of opens and inverts an email that names a pure value.
+  for (const [what, v] of [["fill", fill], ["ink", fillInk]]) {
+    check(`${name}: the ${what} is not a pure inversion trigger`,
+      !/^#(fff(fff)?|000(000)?)$/i.test(v), v);
+  }
 }
 
 console.log(process.exitCode ? `\n${n} checks, some FAILED` : `\nemail-brand: ${n} checks pass`);
