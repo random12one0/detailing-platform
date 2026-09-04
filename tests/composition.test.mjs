@@ -585,6 +585,11 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
       '        <div>\n        <div className="sunken swap" key={`ctx-${kind}|${offset}`}>'],
     ["app/src/screens/Clients.jsx", "the sorted list",
       '      <div>\n      <div className={`rows cols clients swap'],
+    // ROADMAP 2.13. The wrapper here is the member's own card rather than a
+    // bare <div>, which is the same guarantee arriving for free: a `.card` is
+    // never a direct child of `.col-1`.
+    ["app/src/screens/more/Team.jsx", "a member's role editor",
+      '          <div className="card" key={m.user_id}>\n            <div className="swap" key={open ? "edit" : "view"}>'],
   ];
   for (const [f, what, needle] of WRAPPED) {
     const src = await readFile(f, "utf8");
@@ -641,6 +646,13 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
     ["app/src/components/RecordHost.jsx", "switching from one job to another"],
     ["app/src/screens/Money.jsx", "switching period"],
     ["app/src/screens/Clients.jsx", "re-sorting the list"],
+    // He named three; this is the first NEW site built under the rule rather
+    // than retrofitted into it (roadmap 2.13). A member card whose contents
+    // become a name field and four switches is exactly his definition — the
+    // frame stays, the inside changes — and building it as a thing that OPENS
+    // would have cost an entrance, an exit and a delayed unmount for the same
+    // 180ms of motion.
+    ["app/src/screens/more/Team.jsx", "opening a member's role editor"],
   ]) {
     const src = await readFile(f, "utf8");
     check(`8e-vi · ${f.split("/").pop()} swaps its content (${why})`,

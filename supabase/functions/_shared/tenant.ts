@@ -160,23 +160,49 @@ export async function businessById(id: string): Promise<Business | null> {
   return (data as Business) ?? null;
 }
 
+// The closed permission vocabulary, mirroring the check constraint in
+// 20260904000000_custom_roles.sql. An unknown string is rejected rather than
+// stored, because a permission nothing recognises grants nothing and looks
+// exactly like one that was never ticked.
+export const PERMISSIONS = ["money", "marketing", "settings", "requests"] as const;
+export type Permission = (typeof PERMISSIONS)[number];
+
+export function cleanPermissions(input: unknown): Permission[] {
+  if (!Array.isArray(input)) return [];
+  const set = new Set(input.map((p) => String(p)));
+  return PERMISSIONS.filter((p) => set.has(p));
+}
+
+export type Member = { userId: string; businessId: string; role: string; permissions: string[] };
+
+// An owner has everything, always — the same fold `has_business_permission()`
+// does in SQL, so a caller can never write a check that forgets owners.
+export function can(member: Member, permission: Permission): boolean {
+  return member.role === "owner" || member.permissions.includes(permission);
+}
+
 // Verifies the request's JWT and returns the caller's membership in the
 // requested business, or null. When businessId is omitted and the user
 // belongs to exactly one business, that one is used.
 export async function requireMember(
   req: Request,
   businessId?: string | null,
-): Promise<{ userId: string; businessId: string; role: string } | null> {
+): Promise<Member | null> {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
   if (!token) return null;
   const { data: userData, error } = await supabase.auth.getUser(token);
   const user = userData?.user;
   if (error || !user) return null;
 
-  let q = supabase.from("business_users").select("business_id, role").eq("user_id", user.id);
+  let q = supabase.from("business_users").select("business_id, role, permissions").eq("user_id", user.id);
   if (businessId) q = q.eq("business_id", businessId);
   const { data: rows } = await q;
   if (!rows || rows.length === 0) return null;
   if (!businessId && rows.length > 1) return null; // ambiguous — caller must specify
-  return { userId: user.id, businessId: rows[0].business_id, role: rows[0].role };
+  return {
+    userId: user.id,
+    businessId: rows[0].business_id,
+    role: rows[0].role,
+    permissions: rows[0].permissions ?? [],
+  };
 }

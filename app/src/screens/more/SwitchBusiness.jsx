@@ -15,6 +15,7 @@
 
 import { useState } from "react";
 import { Check } from "lucide-react";
+import { roleName } from "../../lib/permissions.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 
 export default function SwitchBusiness() {
@@ -44,7 +45,7 @@ export default function SwitchBusiness() {
                   different screens, so which hat you wear here is the fact that
                   changes what happens next. */}
               <span className="now">
-                {here ? "You are here" : busy === m.business_id ? "Switching…" : `Sign in as ${m.role === "owner" ? "the owner" : "staff"}`}
+                {here ? "You are here" : busy === m.business_id ? "Switching…" : `Sign in as ${roleName(m.role, m.label)}`}
               </span>
             </span>
           </button>

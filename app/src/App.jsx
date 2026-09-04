@@ -35,7 +35,7 @@ const tourSeen = () => { try { return !!localStorage.getItem(TOUR_KEY); } catch 
 const markTourSeen = () => { try { localStorage.setItem(TOUR_KEY, "1"); } catch { /* private mode */ } };
 
 export default function App() {
-  const { session, business, settings, role, loading, signOut } = useBusiness();
+  const { session, business, settings, role, can, loading, signOut } = useBusiness();
   // NEW BOOKING HAS ONE DOORWAY AND IT IS THE HEADER. It used to be a
   // full-width button at the bottom of Today AND another on Calendar — two
   // doors to one modal, each costing its screen a row it did not have to
@@ -107,18 +107,19 @@ export default function App() {
 
   // The database policies are the real enforcement; this only stops the UI
   // offering what the session cannot use.
-  // STAFF GET THREE, NOT FOUR, AND THE FOURTH IS BUSINESS. Money was always
-  // hidden from them (the database returns them no expenses and no
-  // settings); Business joins it because their whole Business screen would
-  // be two rows and the database refuses the save on one of them
-  // (architecture audit §2c items 2 and 3). Screen designs §10 says "staff
-  // do not get a Business tab" and then counts four rail buttons — the
-  // count is the desktop spec's older figure carried forward, written
-  // before Business was also taken away. The RULE is the load-bearing half;
-  // three is what the rule produces. What a staff session can use is behind
-  // the gear, which they still have.
-  const STAFF_HIDDEN = new Set(["money", "business"]);
-  const visibleTabs = role === "owner" ? TABS : TABS.filter((t) => !STAFF_HIDDEN.has(t.key));
+  // ROADMAP 2.13 MADE THIS A TICK RATHER THAN A ROLE. It used to be a fixed
+  // STAFF_HIDDEN set, which was right while there were exactly two roles; a
+  // detailer now names the role and chooses its list, so the question each
+  // tab asks is what it OPENS. Money needs the money permission (expenses is
+  // that tab and the database returns none without it) and Business needs
+  // settings (every row on it saves to business_settings, branding or the
+  // business itself, and without the permission the SELECT returns nothing
+  // either — the screen would be a page of blanks that refuses every save).
+  // Three rail buttons was what the OLD rule produced for staff; it is now
+  // what an unticked membership produces, and a detailer can hand back
+  // either tab by ticking. What is left when both go is behind the gear.
+  const TAB_NEEDS = { money: "money", business: "settings" };
+  const visibleTabs = TABS.filter((t) => !TAB_NEEDS[t.key] || can(TAB_NEEDS[t.key]));
   const activeTab = visibleTabs.find((t) => t.key === tab) ?? visibleTabs[0];
   const Active = activeTab.el;
 

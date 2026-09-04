@@ -24,7 +24,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
-import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
+import { businessById, can, getSettings, requireMember } from "../_shared/tenant.ts";
 import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
 import { requestDecisionEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -37,6 +37,12 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const member = await requireMember(req, body.business_id ?? null);
     if (!member) return json({ error: "Unauthorized" }, 401);
+    // Answering a request is the one capability roadmap 2.13 can TAKE AWAY
+    // rather than add — staff have had it since 2.12 — so every existing
+    // staff membership was backfilled with it by the migration.
+    if (!can(member, "requests")) {
+      return json({ error: "You do not have permission to answer booking requests." }, 403);
+    }
 
     const action = String(body.action || "");
     if (!["accept", "decline", "quote"].includes(action)) {

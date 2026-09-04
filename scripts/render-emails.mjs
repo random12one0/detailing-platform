@@ -151,7 +151,11 @@ const EMAILS = [
   ["owner-reschedule", "Owner · a booking moved", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", true)],
   ["owner-cancellation", "Owner · a booking cancelled", () => T.cancellationEmail(brand, booking, true)],
   ["owner-stale-request", "Owner · nobody answered a request", () => T.staleRequestEmail(brand, booking, 19)],
-  ["staff-invite", "Staff · team invite", () => T.inviteEmail(brand, { role: "staff", link: "https://detailingplatform.com/invite/abc123", expiresAt: "2026-09-10T00:00:00Z" })],
+  // WITH A LABEL, because roadmap 2.13 made the role's name the detailer's to
+  // choose and this sentence is where their customer-facing word first reaches
+  // the person they invited. Rendered with one so the preview shows the real
+  // string ("as a Detailer") rather than the fallback nobody will see.
+  ["staff-invite", "Staff · team invite", () => T.inviteEmail(brand, { role: "staff", label: "Detailer", link: "https://detailingplatform.com/invite/abc123", expiresAt: "2026-09-10T00:00:00Z" })],
 ];
 
 const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[object Object\]/], ['href=""', /href=""/]];

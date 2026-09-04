@@ -2359,6 +2359,19 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 /* A settings card is a stack of rows divided by hairlines, not a stack of
    separate cards — the group is one object, the rows are its contents. */
 .setting-card { padding: 0; overflow: hidden; }
+
+/* AN EMAIL ADDRESS IS ONE WORD AND IT IS SOMEBODY ELSE'S (roadmap 2.13, the
+   Team screen). `demo-staff@detailplatform.com` is 227px and has no space in
+   it to break at, so a flex child holding one cannot shrink below it: at 320
+   it ran 29px past its own card, which `sweep-widths`' past-parent check found
+   and no other width could have. `anywhere` rather than `break-word` because
+   break-word only breaks a word that would otherwise overflow ITS OWN line,
+   and this one is already the whole line.
+   THE RULE UNDER IT: any element whose content is USER DATA with no spaces —
+   an address, a slug, a promo code — has to say where it may break, and it is
+   not a 320-only fix, because the same thing happens at 1920 the moment a
+   detailer's address is long enough. */
+.member-id { overflow-wrap: anywhere; }
 .setting {
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: var(--sp-4); padding: var(--sp-4);

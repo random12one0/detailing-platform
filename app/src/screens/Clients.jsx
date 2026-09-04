@@ -70,8 +70,9 @@ const shortDate = (d) => new Date(`${d}T12:00:00`)
   .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
 export default function Clients() {
-  const { business, role } = useBusiness();
-  const owner = role === "owner";
+  const { business, can } = useBusiness();
+  // Lifetime spend is money, not rank — roadmap 2.13.
+  const owner = can("money");
   const today = todayLocal(business.timezone);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");

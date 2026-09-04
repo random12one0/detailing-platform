@@ -2221,9 +2221,9 @@ is kept; the entire visual design restarts from scratch.
       `node tests/booking-engine.test.mjs` (63 checks, real bookings through
       the deployed functions) and `node scripts/sweep-booking-steps.mjs`.
 
-- [ ] 2.13 **Custom roles and permissions — the OWNER asked for this on
+- [x] 2.13 **Custom roles and permissions — the OWNER asked for this on
       2026-08-31, answering roadmap 2.11 step 6, and it REVERSES that item's
-      staff design.**
+      staff design. BUILT 2026-09-04.**
 
       > "right now, the owner kinda chooses this person's an owner, this
       > person's a staff, and we set the rules. They should set the rules. They
@@ -2264,6 +2264,59 @@ is kept; the entire visual design restarts from scratch.
       **Skills: none — this is schema, RLS and edge-function work.** It adds
       one settings screen that 2.11 already designed the skeleton for.
 
+      **WHAT SHIPPED, 2026-09-04.**
+
+      **`role` was NOT replaced, and that is the answer to this item's own
+      warning.** `owner` still means everything, so `protect_last_owner()`
+      keeps its subject and "a business nobody can administer" stays
+      unreachable, service role included. A NON-owner membership now carries
+      `label` (their business's own word for the role) and `permissions
+      text[]`. Two migrations: `20260904000000_custom_roles.sql` and
+      `20260904001000_catalog_behind_settings.sql`.
+
+      **Four permissions, DERIVED from the schema rather than invented** —
+      each is a group of policies that was already owner-only:
+      `money` (expenses), `marketing` (promo codes, campaigns),
+      `settings` (business settings, branding, the business itself, domains,
+      message templates, AND — via the second migration — prices, hours,
+      the catalog, the gallery and the storage bucket), and `requests`
+      (answering a booking request). **The vocabulary is closed by a check
+      constraint**, because a typo'd permission grants nothing and looks
+      exactly like one that was never ticked.
+
+      **"Team" is deliberately NOT one of them.** Whoever can hand out
+      permissions can hand themselves every other one; making that safe needs
+      a grant lattice nobody has asked for. Invites and membership stay
+      `is_business_owner()`.
+
+      **The permission 2.12 named is the one that TAKES AWAY**, so every
+      existing staff row and live invite was backfilled with `requests`:
+      nobody's dashboard did less the day this shipped than the day before.
+
+      **The second migration exists because the tick did not mean its own
+      words.** The screen says `settings` covers *"Prices, hours, booking
+      rules, branding…"* and `services.price` / `business_hours` were
+      `*_tenant_all` — writable by any member since before there were two
+      roles. Unreachable through the UI is not the same as untrue. SELECT
+      stays open to every member; only the writing verbs moved.
+
+      **Tests: `staff-roles` 30 -> 64 checks**, every new one baselined by
+      breaking the thing it guards (the helper made unconditional, the
+      constraint dropped, the request gate removed, the old `services` policy
+      restored). `composition` 72 -> 74. `sweep-widths.mjs` walks the opened
+      role editor — the eighth time a state behind a button inside a screen
+      has had to be added — **and now refuses to measure a screen the error
+      boundary is on**, which it silently reported as "clean" during this
+      item.
+
+      **STANDING FOR THE OWNER (three questions, DECISIONS.md → Roadmap
+      2.13):** whether a named role should ever be able to invite people;
+      whether `money` should also hide a job's price from the diary (it does
+      not today — bookings are member-readable, so a role without `money`
+      still sees what each job is worth); and whether roles should become
+      reusable definitions rather than per-person ticks once he has more than
+      two or three staff.
+
 - [ ] 2.14 **Plans a customer can sign up to — the OWNER asked for this on
       2026-08-31, and he asked for RESEARCH FIRST.**
 
@@ -2284,14 +2337,21 @@ is kept; the entire visual design restarts from scratch.
       beside it?** He runs plans in his own business and explicitly does not
       want that generalised without evidence.
 
-      **What exists, so nobody re-derives it.** `monthly_plans` is real and has
-      no screen — but it is **only a discount**: `name`, `description`,
-      `discount_type` (percentage|amount), `discount_value`, `is_active`
-      (`20260827000200_tenant_data.sql:51`). **There is no cadence, no
-      enrolment and no recurring booking.** His version needs all three. So
-      "monthly plans come back" — one of the five reversals of 2026-08-28 — is
-      **not** a matter of giving an existing feature a door, and roadmap 2.11
-      step 4 §15 was right to refuse to design it in the margin.
+      **What exists, so nobody re-derives it.** ~~`monthly_plans` is real and
+      has no screen — but it is only a discount.~~ **CORRECTED 2026-09-04 (by
+      roadmap 2.13, whose migration failed on it): `monthly_plans` DOES NOT
+      EXIST.** It was created in `20260827000200_tenant_data.sql:51` — `name`,
+      `description`, `discount_type` (percentage|amount), `discount_value`,
+      `is_active` — and **DROPPED nine hours later** in
+      `20260827001000_phase2_cleanup_and_storage.sql:16`. The line above cited
+      only the creating migration, which is why it read as true for a week.
+      **So the ground is barer than this item thought**: there is no table, no
+      cadence, no enrolment and no recurring booking, and "monthly plans come
+      back" — one of the five reversals of 2026-08-28 — is not a matter of
+      giving an existing feature a door. Roadmap 2.11 step 4 §15 was right to
+      refuse to design it in the margin, and it was even more right than it
+      knew. **The transferable bit: a `create table` line is not evidence the
+      table is there — grep the whole folder, or ask the database.**
 
       **The two design questions the research feeds**, both his words: whether
       the plan appears inside the booking flow or is listed beside it, and

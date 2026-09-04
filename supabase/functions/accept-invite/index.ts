@@ -1,8 +1,9 @@
 // Public: redeem an invite token. Creates the account (or attaches an
-// existing one), adds the membership with the invited role, and marks the
-// invite accepted. Expired, revoked and already-used tokens are refused.
+// existing one), adds the membership with the invited role, name and
+// permissions, and marks the invite accepted. Expired, revoked and
+// already-used tokens are refused.
 //
-// GET  ?token=…              → { business_name, email, role } for the form
+// GET  ?token=…              → { business_name, email, role, label } for the form
 // POST { token, password }   → creates/attaches the account
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -34,7 +35,7 @@ Deno.serve(async (req) => {
       const { invite, error } = await loadInvite(token);
       if (error) return json({ error }, 400);
       const business = await businessById(invite!.business_id);
-      return json({ business_name: business?.name ?? null, email: invite!.email, role: invite!.role });
+      return json({ business_name: business?.name ?? null, email: invite!.email, role: invite!.role, label: invite!.label ?? null });
     }
 
     const { token, password } = await req.json();
@@ -61,6 +62,10 @@ Deno.serve(async (req) => {
       business_id: invite!.business_id,
       user_id: userId,
       role: invite!.role,
+      // The name and the ticks the owner chose travel with the invite, so the
+      // membership arrives already shaped (roadmap 2.13).
+      label: invite!.label ?? null,
+      permissions: invite!.permissions ?? [],
       email: invite!.email,
     }, { onConflict: "business_id,user_id" });
     if (memberErr) throw memberErr;

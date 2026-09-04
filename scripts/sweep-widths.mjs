@@ -301,8 +301,28 @@ for (const w of SIZES) {
   // look like a run that is being thorough, and this script is minutes long
   // even when it is healthy — a stall has to announce itself.
   page.setDefaultTimeout(15000);
+  // A CRASHED SCREEN MEASURES CLEAN, AND THAT IS THE OLDEST FAILURE SHAPE IN
+  // THIS REPO WEARING NEW CLOTHES (roadmap 2.13, 2026-09-04). A one-word
+  // mistake took the gear's whole index down; `ErrorBoundary` caught it and
+  // drew four short lines, and four short lines are not off the right edge,
+  // not outside their parent, not scrolling sideways and not stacked without
+  // a gap — so every check this script owns passed on a screen that did not
+  // exist. It printed "the gear   clean" and then reported the twelve rows
+  // beneath it as NO SUCH ROW, which reads like a renamed control rather than
+  // a crash. The boundary's own heading is the cheapest possible tell.
   const say = async (label) => {
     if (ONLY && !label.toLowerCase().includes(ONLY.toLowerCase())) return;
+    const broken = await page.evaluate(() => /That didn't load/.test(document.body.innerText));
+    if (broken) {
+      // textContent, not innerText: the reason lives inside a CLOSED <details>,
+      // which innerText correctly reports as invisible — and an empty reason
+      // beside the word CRASHED is the least useful half of this message.
+      const why = await page.evaluate(() =>
+        (document.querySelector("details")?.textContent ?? "").replace("Technical detail", "").trim());
+      console.log(`${label.padEnd(24)} CRASHED — the error boundary is on screen: ${why}`);
+      found++;
+      return;
+    }
     const rows = await page.evaluate(CHECK);
     found += rows.length;
     console.log(`${label.padEnd(24)} ${rows.length ? "\n  " + rows.join("\n  ") : "clean"}`);
@@ -693,6 +713,32 @@ for (const w of SIZES) {
     await settle(page, 700);
     await say("gear · Notifications, a line open");
   } else { console.log(`${"the Add a line button".padEnd(24)} NO SUCH BUTTON`); found++; }
+  // ESCAPE, NOT THE GEAR. Pressing the header gear again LEAVES the gear
+  // entirely (it is aria-pressed, a destination toggled in and out), which is
+  // right at the end of this block and wrong in the middle of it: the Team
+  // walk below then looks for a row on a screen it just closed and reports
+  // NO SUCH BUTTON, which reads like a renamed control. Escape is what `walk`
+  // uses to come back to the index.
+  await page.keyboard.press("Escape");
+  await settle(page, 900);
+
+  // TEAM'S ROLE EDITOR IS THE EIGHTH INSTANCE OF THE SAME GAP (roadmap 2.13).
+  // A member row shows a name and one sentence; the role's own name field and
+  // its four permission switches only exist after pressing "Change", and that
+  // opened card is the tallest thing on this screen by some way. Added in the
+  // change that built it rather than in the roadmap item that finds it broken.
+  // The demo seeds two members — an owner and a "Detailer" — so there is
+  // always a second "Change" whose card carries the ticks; the first belongs
+  // to the owner, whose editor is deliberately shorter (nothing to tick).
+  await page.getByRole("button", { name: "Team" }).first().click().catch(() => {});
+  await settle(page, 1200);
+  const change = page.getByRole("button", { name: "Change" });
+  const changes = await change.count();
+  if (changes > 0) {
+    await change.nth(changes - 1).click();
+    await settle(page, 700);
+    await say("gear · Team, a role open");
+  } else { console.log(`${"the Change button".padEnd(24)} NO SUCH BUTTON`); found++; }
   await page.getByRole("button", { name: "Settings", exact: true }).first().click().catch(() => {});
   await settle(page, 1000);
 

@@ -83,7 +83,7 @@ const humanNotice = (mins) => {
 };
 
 export default function Business({ onSetup }) {
-  const { business, settings, branding, reload: reloadTenant } = useBusiness();
+  const { business, settings, branding, role, reload: reloadTenant } = useBusiness();
   const wide = useWide();
   const [open, setOpen] = useState(null);
   const [counts, setCounts] = useState(null);
@@ -147,7 +147,21 @@ export default function Business({ onSetup }) {
   // temporary and the link is permanent, and a nag under the thing you came
   // to copy is a nag nobody reads.
   const setup = counts ? setupProgress({ business, branding, settings, counts }) : null;
-  const setupOpen = setup && setup.count < setup.total && !settings?.setup?.dismissed;
+  // AND ONLY THE OWNER SEES IT — roadmap 2.13, found by signing in as the
+  // demo's new "Detailer" role rather than reasoned about. Two reasons, and
+  // the second is the one that would have bitten:
+  //   1. It is the setup FORM's only door, and the form is already owner-only
+  //      (App.jsx, and screen designs §13b: "staff are not setting up a
+  //      business"). A door for a room they cannot enter is the defect stage 6
+  //      spent a whole pass removing.
+  //   2. FIVE OF THE SEVEN STEPS ARE DERIVED FROM THE DATABASE, so the count
+  //      is only true for a session that can SEE all seven. A role with
+  //      `settings` but not `marketing` reads zero promo codes and is told
+  //      *5 of 7 done* about a business that is at 6 — a number that changes
+  //      with who is looking, on the one row whose whole job is to be a
+  //      number. Nothing in `setup.js` is wrong; it is being asked the
+  //      question through a narrower window.
+  const setupOpen = role === "owner" && setup && setup.count < setup.total && !settings?.setup?.dismissed;
 
   const GROUPS = [
     ["Your page", [

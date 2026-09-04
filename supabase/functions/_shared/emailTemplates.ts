@@ -632,9 +632,16 @@ export function staleRequestEmail(brand: TenantBrand, b: BookingEmailData, hours
 // ---------------------------------------------------------------------------
 export function inviteEmail(
   brand: TenantBrand,
-  opts: { role: string; link: string; expiresAt: string },
+  opts: { role: string; label?: string | null; link: string; expiresAt: string },
 ): Mail {
-  const roleWord = opts.role === "owner" ? "an owner" : "a staff member";
+  // The detailer's own word for the role when they gave one (roadmap 2.13).
+  // "as a Detailer" reads as their business; "as a staff member" reads as ours.
+  const named = opts.role !== "owner" && opts.label?.trim();
+  const roleWord = opts.role === "owner"
+    ? "an owner"
+    : named
+      ? `${/^[aeiou]/i.test(opts.label!.trim()) ? "an" : "a"} ${opts.label!.trim()}`
+      : "a staff member";
   const expires = formatDateLong(String(opts.expiresAt).slice(0, 10));
   const blocks = [
     labBlock("Invitation"),

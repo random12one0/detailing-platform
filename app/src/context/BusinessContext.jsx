@@ -4,6 +4,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
+import { can as canDo } from "../lib/permissions.js";
 import { applyDashboardAccent } from "../lib/theme.js";
 
 // WHICH BUSINESS THIS BROWSER LAST CHOSE. localStorage rather than the
@@ -23,6 +24,11 @@ export function BusinessProvider({ children }) {
   const [settings, setSettings] = useState(null);
   const [branding, setBranding] = useState(null);
   const [role, setRole] = useState(null);
+  // ROLE IS STILL THE GATE; THESE TWO ARE ITS SHAPE (roadmap 2.13). `owner`
+  // means everything and carries neither. Anyone else has the name their
+  // business gave them and the list it ticked.
+  const [label, setLabel] = useState(null);
+  const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [firstName, setFirstName] = useState(null);
   // EVERY MEMBERSHIP, NOT JUST THE FIRST — roadmap 2.11 step 6, stage 6.
@@ -52,6 +58,8 @@ export function BusinessProvider({ children }) {
     setSettings(null);
     setBranding(null);
     setRole(null);
+    setLabel(null);
+    setPermissions([]);
     setFirstName(null);
   };
 
@@ -80,7 +88,7 @@ export function BusinessProvider({ children }) {
       .from("business_users")
       // `businesses(name)` joins in the NAME so the picker has something to
       // print without a second read. Harmless for the one-membership case.
-      .select("business_id, role, first_name, businesses(name)")
+      .select("business_id, role, label, permissions, first_name, businesses(name)")
       .eq("user_id", session.user.id);
     const list = memberships ?? [];
     setMemberships(list);
@@ -95,6 +103,8 @@ export function BusinessProvider({ children }) {
       return;
     }
     setRole(membership.role);
+    setLabel(membership.label || null);
+    setPermissions(membership.permissions ?? []);
     setFirstName(membership.first_name || null);
     const [bizRes, setRes, brandRes] = await Promise.all([
       supabase.from("businesses").select("*").eq("id", membership.business_id).single(),
@@ -133,6 +143,12 @@ export function BusinessProvider({ children }) {
     settings,
     branding,
     role,
+    label,
+    permissions,
+    // The one question every screen actually asks. Bound here rather than
+    // imported at each call site so nothing can check a permission without
+    // this session's own list.
+    can: (key) => canDo(role, permissions, key),
     firstName,
     memberships,
     // Switching is a WRITE TO THIS DEVICE and then a reload — there is no

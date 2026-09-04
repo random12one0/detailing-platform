@@ -76,7 +76,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   listed in the new file under "§11". Backend, content, copy facts and
   accessibility floors were always kept; only the visual world changed.
 - The design tests enforce the NEW rules: `tests/composition.test.mjs`
-  (**72 checks — this said 66 until 2026-09-04 and had been stale since the
+  (**74 checks — this said 66 until 2026-09-04 and had been stale since the
   last commits of 2.17, which is the fourth stale count found in this file;
   the script prints its own figure, so read that rather than this** —
   24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
@@ -249,7 +249,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   of the radii, so setting it on one and not the other is the two-corner-
   languages failure the design system forbids. **THE LANDING PAGE JOINED 2026-09-04** — `--ld-r-panel`, `--ld-r-inset`
   and `--ld-corner` in `landing.css` AND in the approved reference rendering,
-  which is now a swept surface of its own (8a is four surfaces, 72 checks)
+  which is now a swept surface of its own (8a is four surfaces)
   because where that page and the document disagree the PAGE is right. **Edit
   those two files from ONE table keyed on the VALUE, never the selector** —
   they spell their selectors in two dialects and a selector-keyed pass silently
@@ -406,6 +406,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   receipt's itemisation still adding up to what is charged. Baselined by deleting
   the `price_adjustments` line from `accept-quote`, which fails it by exactly the
   quote.
+- **PATCH SOURCE FILES WITH `sed`, OR WITH PYTHON OPENED `newline=""` — never
+  plain `open(p, "w")` on Windows.** Python reads LF and writes `os.linesep`,
+  so a scripted edit silently converts the WHOLE FILE to CRLF; git's autocrlf
+  hides it from `git status`, and the first symptom (2026-09-04) was
+  `composition` 8e-iv failing on **Clients.jsx, a file that item had barely
+  touched**, because that check is a literal `includes()` of a needle
+  containing `\n`. Same shape as the raw backspace this file already records
+  twice: an invisible byte change that turns a green check red somewhere
+  unrelated and points the next session at the wrong diff. **If a byte-exact
+  check fails in a file you did not mean to change, `cat -A` it before reading
+  the logic.**
 - **Also credential-free, and it must exit 0 after anything touching accent
   colour or the ground tokens: `node scripts/accent-sweep.mjs`.** It measures
   every tenant preset as a fill AND as words on all three grounds the
@@ -466,6 +477,9 @@ explaining it; if they still have to ask "so should I?", it failed.
   and a state you reach by pressing something INSIDE a screen is not
   navigation.** When you add a control that reveals other controls, add its
   opened state here in the same change,
+  **TEAM'S ROLE EDITOR, WHICH IS THE EIGHTH (added 2026-09-04, roadmap 2.13 —
+  a member row's name field and its four permission switches only exist after
+  pressing *Change*)**,
   **THE REQUEST QUEUE, THE REQUEST RECORD AND THE QUOTE SHEET (added 2026-09-02,
   roadmap 2.12), and adding them MOVED two selectors that had silently changed
   meaning.** `.card.attend` used to mean "the lit job"; a waiting request now
@@ -519,6 +533,23 @@ explaining it; if they still have to ask "so should I?", it failed.
   measurements are kept in `docs/dashboard-phone-pass-2026-08-31.md` §20 so
   nobody takes them again and files them as new. **Do not re-add without
   asking him.**
+  **AND IT REFUSES TO MEASURE A SCREEN THE ERROR BOUNDARY IS ON — new
+  2026-09-04, and it is the widest form yet of "a skipped check reads like a
+  passing one".** A one-word slip took the whole gear index down; `ErrorBoundary`
+  drew four short lines, and four short lines are not past the right edge, not
+  outside their parent, not scrolling sideways and not stacked without a gap —
+  so the run printed `the gear   clean` and then reported the twelve rows under
+  it as `NO SUCH ROW`, which reads like a renamed control rather than a crash.
+  `say()` looks for the boundary's own heading first now and prints
+  `CRASHED — <reason>`; the reason comes from `textContent`, because it lives
+  inside a CLOSED `<details>` that `innerText` correctly reports as invisible.
+  **The general form: every check this script owns is a question about
+  GEOMETRY, and geometry has nothing to say about whether the screen is the one
+  you asked for.**
+  **AND COMING BACK FROM A SETTINGS SCREEN IS `Escape`, NOT THE HEADER GEAR** —
+  the gear is `aria-pressed` and toggles you OUT of settings entirely, so a
+  block that ends with it leaves the next block looking for rows on a screen it
+  just closed. That, too, prints as `NO SUCH ROW`.
   **What that leaves, and it was always true:** every check this script owns
   asks about the RIGHT-HAND edge, so it cannot see a bottom-edge failure at any
   size. `sweep-booking-steps.mjs` is the one that asks the bottom question, and
@@ -732,6 +763,48 @@ explaining it; if they still have to ask "so should I?", it failed.
   THIS dashboard has: 7 for an owner with jobs, 6 on an empty one, 4 for staff.
   **The empty dashboard is the state to verify against**, not the seeded demo —
   the opposite of every other screen in this rebuild.
+- **A DETAILER NAMES THE ROLE AND TICKS WHAT IT CAN DO — roadmap 2.13,
+  2026-09-04, and `role` IS NO LONGER THE QUESTION TO ASK.** `role` is still
+  `owner` / `staff` and **`owner` still means everything**, because
+  `protect_last_owner()` is a TRIGGER and needs a last owner to protect — a
+  permission set has no last-anything. What is new is that a NON-owner
+  membership carries **`label`** (the business's own word for the role) and
+  **`permissions text[]`**.
+  **FOUR PERMISSIONS, AND EVERY ONE IS A GROUP OF POLICIES THAT WAS ALREADY
+  OWNER-ONLY**: `money` (expenses), `marketing` (promo codes, campaigns),
+  `settings` (business settings, branding, the business itself, domains,
+  message-template writes — **and prices, hours, the catalog, the gallery and
+  the storage bucket, which moved in a SECOND migration because the tick's own
+  words say "Prices, hours…" and `services.price` was `*_tenant_all`,
+  writable by any member**), and `requests` (answering a booking request).
+  **SELECT on the catalog stays open to every member** — a member must read
+  `services` to take a booking at all.
+  **`public.has_business_permission()` FOLDS THE OWNER IN**, so a policy asks
+  one question and no check can be written that forgets owners;
+  `business_ids_with_permission()` is its set form for the storage policies,
+  which compare a folder NAME and must not cast an arbitrary path to uuid.
+  **THERE IS NO `team` TICK AND THAT IS DELIBERATE** — whoever hands out
+  permissions can hand themselves every other one, and making that safe needs
+  a grant lattice nobody has asked for. Invites and membership stay
+  `is_business_owner()`.
+  **THE VOCABULARY IS CLOSED BY A CHECK CONSTRAINT** on both tables and
+  filtered again in `invite-user`: a typo'd permission grants nothing and
+  looks exactly like one that was never ticked.
+  **`requests` IS THE ONE THAT TAKES AWAY** (staff have had it since 2.12), so
+  the migration backfilled every existing staff row and live staff invite —
+  nobody's dashboard did less the day this shipped.
+  **IN THE APP, ASK `can(key)` FROM `useBusiness()`, NEVER `role === "owner"`.**
+  `app/src/lib/permissions.js` is the ONE list (names, sentences, `can`,
+  `roleName`, `permissionSummary`, no React in it, same reason as `setup.js`).
+  `App.jsx`'s rail is `TAB_NEEDS`, `GearMenu`'s rows carry a permission name,
+  Clients' lifetime spend is `can("money")`, DaySheet's `canEdit` is
+  `can("settings")`. `tests/staff-roles.test.mjs` is 64 checks and every new
+  one was baselined by breaking what it guards.
+  **AND `monthly_plans` DOES NOT EXIST** — created in `tenant_data.sql:51`,
+  dropped nine hours later in `phase2_cleanup_and_storage.sql:16`. Roadmap
+  2.14 said it was real for a week because the note cited only the creating
+  migration. **A `create table` line is not evidence the table is there.**
+
 - **A BOOKING CAN NOW BE A REQUEST, AND BOTH MODES HOLD THE SLOT — roadmap
   2.12, 2026-09-02.** `business_settings.booking_mode` is `reserve` (the
   default, and what every existing tenant has) or `request`. The owner's own

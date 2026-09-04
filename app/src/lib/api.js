@@ -49,7 +49,8 @@ export const api = {
   sendInvoice: (businessId, bookingId) => callFn("send-invoice", { business_id: businessId, booking_id: bookingId }),
   sendReminder: (businessId, bookingId, target) =>
     callFn("send-owner-reminders", { business_id: businessId, booking_id: bookingId, target }),
-  inviteUser: (businessId, email, role) => callFn("invite-user", { business_id: businessId, email, role }),
+  inviteUser: (businessId, email, role, label, permissions) =>
+    callFn("invite-user", { business_id: businessId, email, role, label, permissions }),
 
   // PUSH, THE BROWSER HALF (roadmap 2.11 step 6 stage 6). All three of these
   // functions already existed and nothing in `app/` had ever called one.

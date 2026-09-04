@@ -4119,3 +4119,155 @@ stayed a round rect inside a squircled card) and has no effect on `clip-path`
 (the comparison row's reveal). The second is a 3-pixel difference at 8px —
 **which is exactly why it would have survived a look**, and it was caught by
 reading the file rather than by screenshotting the result.
+
+### A DETAILER NAMES THE ROLE AND TICKS WHAT IT CAN DO (roadmap 2.13, 2026-09-04)
+
+**`business_users.role` is still two values and `owner` still means
+everything.** The item's own warning was that `protect_last_owner()` is a
+TRIGGER and binds even the service role; a permission set has no
+last-anything, so dissolving `owner` into booleans would have taken that
+trigger's subject away from it. It was left alone. What is new is that a
+NON-owner membership carries **`label`** — the business's own word for the
+role — and **`permissions text[]`**.
+
+**Four permissions, and every one is a group of policies that was ALREADY
+owner-only** before this item started:
+
+| tick | what the database opens |
+|---|---|
+| `money` | `expenses` — the Money tab, and lifetime spend on a client |
+| `marketing` | `promo_codes`, `campaigns`, `campaign_visits` |
+| `settings` | `business_settings`, `business_branding`, `businesses`, `business_domains`, `message_templates` writes — **and, from the second migration, `services` (prices), `business_hours`, `blockout_dates`, the catalog, the gallery and the storage bucket** |
+| `requests` | accepting / declining / quoting a booking request |
+
+**There is no `team` tick and that is deliberate**: whoever can hand out
+permissions can hand themselves every other one, and making that safe needs a
+grant lattice nobody has asked for. Invites and membership stay
+`is_business_owner()`.
+
+**`public.has_business_permission(business_id, permission)` is the new
+`is_business_owner()`**, and it FOLDS THE OWNER IN — `role = 'owner' or
+permission = any(permissions)` — so every re-pointed policy asks one question
+and no check can be written that forgets owners. `business_ids_with_permission()`
+is its set form, for the storage policies, which compare a folder NAME.
+
+**Nobody's dashboard did less the day this shipped.** `requests` is the one
+permission that takes something away rather than granting it (staff have had
+it since 2.12, because `respond-to-booking` uses `requireMember`), so the
+migration backfilled every existing `staff` row and every live `staff` invite
+with it.
+
+**The vocabulary is closed by a CHECK CONSTRAINT** on both tables, and
+`invite-user` filters the same list on the way in. A typo'd permission grants
+nothing and looks exactly like one that was never ticked.
+
+**Two migrations, and the second one exists because the first left the tick
+lying.** The screen tells a detailer `settings` covers *"Prices, hours,
+booking rules, branding…"*, and `services.price` and `business_hours` were
+`*_tenant_all` — writable by any member since long before there were two
+roles. Not reachable through the UI (staff have had no Business tab since
+2.11) is not the same as not true, and RLS is the enforcement in this product.
+`20260904001000_catalog_behind_settings.sql` splits ten policies in two:
+**SELECT stays open to every member** — a member must read `services` to take
+a booking at all — and the writing verbs move behind the tick.
+
+**`monthly_plans` DOES NOT EXIST**, found by that migration failing on it:
+created in `20260827000200_tenant_data.sql:51`, dropped nine hours later in
+`20260827001000_phase2_cleanup_and_storage.sql:16`. **Roadmap 2.14 said it was
+real** and has been corrected. A `create table` line is not evidence the table
+is there.
+
+**Where it shows up in the app.** `lib/permissions.js` is the single list —
+the four names, their sentences, `can()`, `roleName()` and
+`permissionSummary()` — with no React in it, for the same reason `setup.js`
+has none. `BusinessContext` exposes `label`, `permissions` and a bound
+`can(key)`. `App.jsx`'s rail is `TAB_NEEDS` rather than the old fixed
+`STAFF_HIDDEN` set; `GearMenu`'s rows carry a permission name instead of a
+boolean; Clients' lifetime spend is `can("money")`; DaySheet's `canEdit` is
+`can("settings")`. The Team screen carries the name field and the four
+switches, on a member and on the invite form, through one `RoleFields`.
+
+**The role editor is a SWAP** — `.swap` plus a React key inside the member's
+own card. The card does not move, does not leave and does not come back; its
+contents are replaced, which is the owner's own third kind of motion. It cost
+no keyframe, no duration, no `useLeaving` and no delayed unmount, and
+`composition` 8e-iv/8e-vi hold it.
+
+**Checks: `staff-roles` 30 → 64, `composition` 72 → 74**, and every new check
+was baselined by breaking the thing it guards — the helper made unconditional
+(17 failures), the constraint dropped, the request gate removed and
+redeployed (3 failures), the old `services` policy restored (3 failures).
+`sweep-widths.mjs` now walks the opened role editor, which is the **eighth**
+time a state behind a button inside a screen has had to be added by hand.
+
+### WHAT THE TICKS DO NOT DO — the honest limits, so nobody re-derives them
+
+**`money` does NOT hide a job's price from the diary, and never did.**
+`bookings` is member-level by design — it is the diary, which is the whole job
+of a membership with nothing ticked — so Today still prints *EXPECTED $455.00*
+and *$65.00* beside each job for a role with no `money` tick, and so does the
+job record. **This is not a regression: staff saw exactly this before 2.13**,
+and the tick's own words ("The Money tab, expenses, and what each customer has
+spent") do not promise otherwise, so nothing on screen is lying. It is worth
+KNOWING because a detailer may assume otherwise. **Fixing it is a product
+decision rather than a bug fix** — a helper who takes payment on the day needs
+the number — and it was left for the owner rather than guessed at. Flagged to
+him 2026-09-04.
+
+**A permission changed mid-session takes effect at the database immediately and
+in the UI on the next load.** `BusinessContext` reads the membership once, so
+a role that loses `settings` keeps the Business tab until reload — and every
+row on it then reads nothing, because RLS is live. Same shape as removing a
+member, which `tests/staff-roles.test.mjs` test 7 already pins ("removed
+staff's existing session now reads nothing"). No crash, and no second source
+of truth: the browser is never the enforcement.
+
+**A custom role cannot invite anybody, by design**, so there is no way for a
+detailer to delegate "add the new hire" without making that person an owner.
+If he asks for it, the thing to build is a grant lattice (you may only give
+what you hold), not a `team` tick — see DECISIONS.md → Roadmap 2.13.
+
+### THE SWEEP REPORTED A CRASHED SCREEN AS "clean" (2026-09-04)
+
+A one-word slip — `settings` dropped from `GearMenu`'s destructure while `can`
+was added beside it — took the whole gear index down. `ErrorBoundary` caught
+it and drew four short lines, and **four short lines are not past the right
+edge, not outside their parent, not scrolling sideways and not stacked without
+a gap.** Every check `sweep-widths.mjs` owns passed:
+
+```
+the gear                 clean
+Notifications            NO SUCH ROW (gear)
+```
+
+which reads like a renamed control rather than a crash — and the run then died
+forty lines later on an unrelated timeout that looked like the real fault.
+
+`say()` now checks for the boundary's own heading before measuring anything,
+prints `CRASHED — the error boundary is on screen: <reason>`, and counts it as
+a problem. The reason comes from `textContent`, not `innerText`, because it
+lives inside a CLOSED `<details>`. Baselined by re-breaking GearMenu.
+
+**The general form, and it is the widest version of a lesson this repo has
+already learned twice: every check this script owns is a question about
+GEOMETRY, and geometry has nothing to say about whether the screen is the one
+you asked for.**
+
+A second gap in the same walk: the Notifications block finished by pressing
+the header gear, which LEAVES the gear rather than going back to its index, so
+the Team walk after it looked for a row on a screen it had just closed. Escape
+is what `walk()` uses; the block uses it now too.
+
+### A PYTHON REWRITE SILENTLY TURNED TWELVE SOURCE FILES CRLF (2026-09-04)
+
+Patching the front end with `python -c "…open(p,'w').write(s)"` reads LF and
+writes `os.linesep` — `\r\n` on Windows. Git's autocrlf hid it from
+`git status`, and the FIRST symptom was `composition` 8e-iv failing on
+**Clients.jsx**, a file this item had barely touched, because that check is a
+literal `includes()` of a two-line needle containing `\n`.
+
+Same shape as the raw backspace this repo has hit twice: an invisible byte
+change that turns a green check red somewhere unrelated and points the next
+session at the wrong diff. Fixed with a binary read/write; every python patch
+since opens with `newline=""`. **If a byte-exact check fails in a file you did
+not mean to change, `cat -A` it before reading the logic.**

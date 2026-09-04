@@ -139,9 +139,10 @@ export default function Walkthrough({ onGo, onClose }) {
 
   // THE PLAN. Go to the first step's screen, wait for it, then keep the steps
   // whose target this dashboard actually has: a step that names a TAB is
-  // available when that tab's own button exists (which is what makes staff's
-  // missing Money and Business fall out for free — the rail is filtered by
-  // role in App.jsx and these steps point at the very buttons it removes),
+  // available when that tab's own button exists (which is what makes an
+  // unticked membership's missing Money and Business fall out for free — the
+  // rail is filtered by PERMISSION in App.jsx since roadmap 2.13, and these
+  // steps point at the very buttons it removes),
   // and a step that names nothing is available when its own target is on the
   // screen we just arrived at. That second half is the empty dashboard's
   // missing job, which is the case §1c wrote this rule for.

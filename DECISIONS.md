@@ -193,6 +193,8 @@ were made more than once.
 
 - **Roadmap 2.5 — the smoke test, and a white screen that was live on `main`** — the loop is fine; what was broken was **a configuration nothing in this repo had ever rendered**. `StepLocation.jsx` took `modeLimit` as a prop from `BookingPage.jsx` and never destructured it, and the only branch that reads it is the one a business offering ONE of mobile and drop-off renders — **`ReferenceError`, error boundary, total booking outage for that tenant, live on `main` since 2026-08-31 (`1ed5084`, roadmap 2.8c).** The demo enables both modes, so every script, screenshot and sweep in this project's history had drawn the other branch, and the mobile-only seed existed the whole time with nothing walking it. **The same line hid the feature's other half**: `both` was computed here WITHOUT `modeLimit` while `BookingPage`'s `bothModes` includes it and feeds the heading, so the *“Ceramic Coating has to be done at our place”* message that file exists to print was unreachable in every configuration that did not crash. ***A derived value computed twice is one bug wearing two costumes.*** **`scripts/e2e-booking.mjs` is rewritten** (82 checks, two tenants, ~3 min) and is in CLAUDE.md's verification list — it had been dead since before 2026-08-31 and the script was never the problem, the absence of a caller was. **It is the only thing in this repo that presses Confirm**; `sweep-booking-steps.mjs` measures heights and stops ON the review step. **Also fixed: the demo was mailing a parked domain** — `contact_email` was `demo@detailplatform.com`, a SIGN-IN reused as a MAILBOX, with no MX record and not covered by `send-email`'s reserved-domain guard, so every demo booking asked Resend to deliver a guaranteed hard bounce against the reputation Andrew's real customer mail shares. **The emails are proven to the PROVIDER, not an inbox** (`delivered@resend.dev`), because best-effort sending means only the edge-function logs can see a dead relay — the 0.2 failure mode exactly.
 
+- **Roadmap 2.13 — custom roles and permissions** — he asked to *"invite someone, and you could give them a name, like a customizable name… and you could also check out, like, there should be options on what permissions they should have"*, and the obvious reading — replace `business_users.role` with a permission set — **is wrong because of a TRIGGER**. `protect_last_owner()` refuses to remove or demote the last owner *including for the service role*, and a permission set has no last-anything, so dissolving `owner` takes that trigger's subject away from it. **`role` is untouched and `owner` still means everything**; what is new is that a NON-owner carries its own `label` and `permissions text[]`. **The four permissions were DERIVED from the schema** — each one is a group of policies that was ALREADY owner-only — because a list invented from the tab bar names screens, and the database has never gated on a screen. **The vocabulary is closed by a CHECK CONSTRAINT**: a typo'd permission grants nothing and looks exactly like one that was never ticked. **`has_business_permission()` folds the owner in**, so every policy asks one question and no check can forget owners. **"Team" is deliberately NOT a tick** — whoever hands out permissions can hand themselves every other one, and making that safe needs a grant lattice nobody asked for. **`requests` is the one permission that TAKES AWAY** (staff have had it since 2.12), so every existing staff row and live invite is backfilled with it: nobody's dashboard did less the day this shipped. **A SECOND migration was needed because the tick did not mean its own words** — it says "Prices, hours…" and `services.price` and `business_hours` were `*_tenant_all`, writable by any member since before there were two roles; unreachable through the UI is not the same as untrue, and RLS is the enforcement here. SELECT stays open to every member (a member must read `services` to take a booking at all). **`monthly_plans` does not exist and roadmap 2.14 is wrong about it** — created in `tenant_data.sql:51`, dropped nine hours later in `phase2_cleanup_and_storage.sql:16`. **The role editor is a SWAP, the first site built under that rule rather than retrofitted into it** — the card does not move, its contents are replaced, so it costs no entrance, no exit and no `useLeaving`. **And `sweep-widths.mjs` reported a CRASHED SCREEN as "clean"**: one missing word took the gear index down, `ErrorBoundary` drew four short lines, and four short lines are not off the edge, not outside their parent, not scrolling and not ungapped — **every check this script owns is about GEOMETRY, and geometry has nothing to say about whether the screen is the one you asked for.** `say()` now looks for the boundary first. **Also: a python rewrite silently turned twelve files CRLF**, and the first symptom was a byte-exact check failing in a file this item had barely touched.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -10158,3 +10160,202 @@ reason to publish does not need to ask again** — it needs to say why it is
 needed. What was done instead is the thing that WAS overdue: the branch was
 pushed, because 21 commits (all of roadmap 2.17, 2.18 and 2.5) existed only on
 this machine, and pushing the branch deploys nothing.
+
+## Roadmap 2.13 — custom roles and permissions
+
+### The word `owner` survived, and that is the design rather than an omission
+
+His ask reverses 2.11's staff design: *"right now, the owner kinda chooses this
+person's an owner, this person's a staff, and we set the rules. They should set
+the rules… invite someone, and you could give them a name, like a customizable
+name, and you could also check out, like, there should be options on what
+permissions they should have and what they shouldn't have."*
+
+The obvious reading is "replace `business_users.role` with a permission set".
+**That reading is wrong, and the reason is a trigger.** `protect_last_owner()`
+fires before every update and delete on `business_users` and refuses to remove
+or demote the last `role = 'owner'` — **including for the service role**, which
+is what makes "a business nobody can administer" genuinely unreachable rather
+than merely unlikely. A permission set has no last-anything: dissolving `owner`
+into four booleans takes that trigger's subject away from it, and the
+replacement would have to be a fresh invariant written from scratch over an
+array column, on a live database, in the same change as a new screen.
+
+So `role` is untouched — two values, same check constraint, same trigger,
+same `is_business_owner()`. **What is new is that a NON-owner is no longer one
+fixed shape**: the membership carries `label` (their own word for the role) and
+`permissions text[]` (what they ticked). `owner` still means everything, always.
+
+**This is also the smallest diff that answers what he actually asked for.** He
+asked to name a role and tick its abilities. He did not ask to be able to give
+away the thing that makes him the owner.
+
+### The four permissions were DERIVED from the schema, not invented
+
+`money`, `marketing`, `settings`, `requests`. Every one of them is the key to a
+group of policies that already existed as an owner-only group before this item
+started — the tables `20260827003000_staff_roles.sql` tightened, plus the
+`requests` capability 2.12 handed staff by default. Nothing was named because it
+sounded like a feature.
+
+That matters more than it sounds. A permission list invented from the tab bar
+would have produced "Calendar", "Clients", "Today" — names that describe
+screens, which the database has never gated on and which hiding a tab does not
+enforce. **The list had to be the shape of the enforcement or the ticks would
+be decoration.**
+
+**The vocabulary is closed by a CHECK CONSTRAINT** (`permissions <@ array[…]`),
+because a typo'd permission grants nothing and looks exactly like a permission
+that was never ticked — the "a skipped check reads like a passing one" family,
+one table over. `invite-user` filters the same list on the way in, so a bad
+value from a client is dropped rather than 500ing the invite.
+
+### `has_business_permission()` folds the owner in, on purpose
+
+```sql
+where … and (role = 'owner' or p_permission = any(permissions))
+```
+
+Every re-pointed policy then asks ONE question instead of two, and **there is
+no way to write a permission check that forgets owners** — which is precisely
+the mistake that would show up as a detailer locked out of their own money
+screen, on a Sunday, with no way to fix it. The edge functions' `can()` and the
+front end's `can()` fold it the same way, and `tests/staff-roles.test.mjs`
+test 11 asserts the owner's own list is EMPTY and that they read everything
+anyway.
+
+### Managing the team is deliberately NOT a tick box
+
+The obvious fifth permission is "Team", and it is a trap: whoever can hand out
+permissions can hand themselves every other one. Making it safe needs a grant
+lattice — you may only give what you already hold — which is a real feature
+nobody has asked for, on a product whose largest tenant has one owner and one
+staff member. Invites, membership and permission changes stay
+`is_business_owner()`. Test 13 pins it from the other side: a member cannot
+grant themselves a permission and cannot rename their own role.
+
+### `requests` is the one permission that TAKES AWAY, which is why the migration backfills
+
+The other three grant something a staff member never had. `requests` removes
+something they have had since 2.12 — `respond-to-booking` uses `requireMember`
+and does not distinguish the roles. So the migration writes
+`permissions = '{requests}'` onto every existing `staff` row and every live
+`staff` invite: **the day this shipped, nobody's dashboard did less than it did
+the day before.** Test 14 baselines both halves — 403 without the tick, accepted
+with it — and the 403 case was baselined by deleting the gate and redeploying,
+which failed exactly three checks.
+
+### The settings tick did not mean what its own words said, and that needed a second migration
+
+The screen tells a detailer that `settings` covers *"Prices, hours, booking
+rules, branding and the business's own details."* The first migration made that
+true of `business_settings`, `business_branding`, `businesses` and
+`business_domains` — **and prices and hours are in none of those.**
+`services.price`, `business_hours`, `blockout_dates`, `gallery_images` and five
+others were `*_tenant_all` from `20260827000200_tenant_data.sql`: writable by
+ANY member, since long before there were two roles.
+
+**It was not reachable, and that is not the same as not being true.** Staff have
+had no Business tab since 2.11, so nothing in the dashboard offered it. But RLS
+is the enforcement in this product, a browser is not the only client, and what
+changed today is that a detailer is now SHOWN a tick box and told what it
+controls. A promise printed on a settings screen that the database does not keep
+is *"a number PRINTED is not a number CHARGED"* one table over.
+
+`20260904001000_catalog_behind_settings.sql` splits each of those policies in
+two: **SELECT stays open to every member** — load-bearing, because a member must
+read `services` to take a booking at all, and DaySheet shows them an existing
+blockout because it is worth their knowing before they load the van — and the
+three writing verbs move behind `settings`. The storage bucket moved with them,
+through a set-returning helper rather than a uuid cast, because casting an
+arbitrary object path to uuid inside a policy is an error waiting for the first
+file that lands outside a business folder and **Postgres does not promise to
+evaluate a guard before the cast beside it.**
+
+**`monthly_plans` is not in that list and roadmap 2.14 is wrong about it.** The
+migration failed on it: the table was created in `tenant_data.sql:51` and
+DROPPED nine hours later in `phase2_cleanup_and_storage.sql:16`. 2.14's "what
+exists, so nobody re-derives it" paragraph cites it as real, which is exactly
+where the next session will look. Corrected in the roadmap.
+
+### The role editor is a SWAP, and it is the first site built under that rule rather than retrofitted into it
+
+A member card shows a name and one sentence; pressing *Change* replaces those
+with a name field and four switches. The reflex is "a thing that opens", which
+under CLAUDE.md costs an entrance, an exit, `useLeaving` and a delayed unmount.
+**It is not one.** The card does not move, does not leave and does not come
+back — its contents are replaced, which is the owner's own third kind of motion
+in his own words: *"the GUI kind of doesn't really change, but the actual text
+inside of it changes."* So it is `.swap` plus a React key: no new keyframe, no
+new duration, no hook, and the parts arrive on their own 20ms beats.
+
+`composition` 8e-iv and 8e-vi carry it, and 8e-iv passes for a reason worth
+naming: the wrapper that keeps a swap off `.col-1` is the member's own `.card`,
+so the guarantee arrives for free instead of needing a bare `<div>`.
+
+### The sweep reported a CRASHED SCREEN as "clean", and that is the oldest failure in this repo wearing new clothes
+
+A one-word mistake — `settings` dropped from GearMenu's destructure while
+adding `can` beside it — took the entire gear index down. `ErrorBoundary`
+caught it and drew four short lines, and **four short lines are not off the
+right edge, not outside their parent, not scrolling sideways, and not stacked
+without a gap.** Every check `sweep-widths.mjs` owns passed. It printed
+
+```
+the gear                 clean
+Notifications            NO SUCH ROW (gear)
+```
+
+— which reads like a renamed control, not a crash, and the run then died 40
+lines later on an unrelated timeout that looked like the real fault.
+
+`say()` now checks for the boundary's own heading before measuring anything and
+prints `CRASHED — the error boundary is on screen: <reason>`. Baselined by
+re-breaking GearMenu: it fires. **The reason comes from `textContent` and not
+`innerText`, because it lives inside a CLOSED `<details>` — which `innerText`
+correctly reports as invisible, and an empty reason beside the word CRASHED is
+the least useful half of the message.**
+
+This is the same lesson as the always-false `if` and the vacuous regex, in its
+most general form yet: **every check in this script asks a question about
+GEOMETRY, and geometry has nothing to say about whether the screen is the one
+you asked for.**
+
+### What the ticks do NOT do, and the one thing left with him
+
+**`money` does not hide a job's PRICE from the diary, and never did.**
+`bookings` is member-level by design — the diary is what a membership with
+nothing ticked still has — so Today prints *EXPECTED $455.00* and a price
+beside every job to a role with no `money` tick, and so does the job record.
+**Not a regression** (staff saw exactly this before 2.13) and **not a lie**
+(the tick says "The Money tab, expenses, and what each customer has spent",
+which is what it does). But a detailer may reasonably assume otherwise, and
+**the fix is a product decision rather than a bug fix** — a helper who takes
+payment on the day needs the number — so it went to him rather than being
+guessed at.
+
+**A custom role cannot invite anybody**, which means there is no way to
+delegate "add the new hire" without making that person an owner. If he wants
+it, the thing to build is the grant lattice, not a `team` tick.
+
+**Reusable role DEFINITIONS were considered and not built.** He described
+per-person naming — *"invite someone, and you could give them a name"* — and a
+`roles` table shared across people is the more "proper" model for a business
+with fifteen staff, which nobody in this trade has. Per-membership columns
+answer what he asked and do not foreclose the table: a later `role_id` can
+point at a definition without touching what exists.
+
+### A python rewrite silently converted twelve source files to CRLF
+
+Patching the front end with `python -c "open(p,'w').write(s)"` reads LF and
+writes `os.linesep`, which on Windows is `\r\n`. Every file went from LF to
+CRLF, git's autocrlf hid it from `git status`, and the FIRST symptom was
+`composition` 8e-iv failing on **Clients.jsx — a file this item had barely
+touched** — because that check is a literal `includes()` of a two-line needle
+containing `\n`.
+
+It is the same shape as the raw backspace this repo has now hit twice: **an
+invisible byte change that turns a green check red somewhere unrelated, and
+sends the next session looking at the wrong diff.** Normalised back with a
+binary read/write. If a byte-exact check fails in a file you did not mean to
+change, `cat -A` it before reading the logic.

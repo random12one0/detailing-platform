@@ -58,7 +58,7 @@ const spanNote = (start, end) => (end && end > start
   : "");
 
 export default function DaySheet({ date, bookings, inline = false, onClose, onOpenBooking, onNewBooking, onChanged }) {
-  const { business, role, settings } = useBusiness();
+  const { business, can, settings } = useBusiness();
   const [state, setState] = useState({ loading: true, blockout: null, override: null, dropoff: null });
   const [editing, setEditing] = useState(null); // null | "hours" | "blockout" | "dropoff"
   // W2/W3 — every one of the three can now cover a RANGE. "There should be an
@@ -175,7 +175,7 @@ export default function DaySheet({ date, bookings, inline = false, onClose, onOp
   // are the real enforcement, this just doesn't offer what would be refused.
   // DECLARED HERE, not below: `shows()` calls it at definition time, so it has
   // to exist before showModeCard/showState are computed.
-  const canEdit = role === "owner";
+  const canEdit = can("settings");
   const bothModes = !!settings?.mobile_enabled && !!settings?.dropoff_enabled;
   // An owner can always set one; a staff member only ever sees one that IS set.
   const shows = (fact) => canEdit || !!fact;

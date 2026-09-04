@@ -20,12 +20,13 @@
 // once, for both doors, and pressing the gear again puts you back on the tab
 // you left.
 //
-// STAFF REACH THIS AND NOT BUSINESS. Their whole Business screen would have
-// been two rows, one of which the database refuses to let them save
-// (architecture audit §2c items 2 and 3), so the tab is gone for them and
-// what a staff session can actually use is here: Message templates, This
-// device, and the account block. The list below is filtered, not duplicated —
-// one array, one owner check.
+// A MEMBERSHIP WITHOUT THE SETTINGS TICK REACHES THIS AND NOT BUSINESS.
+// Their whole Business screen would be two rows, one of which the database
+// refuses to let them save (architecture audit §2c items 2 and 3), so the tab
+// is gone for them and what they can actually use is here: Message templates,
+// This device, the tour and the account block. The list below is filtered,
+// not duplicated — one array, one permission per row, and roadmap 2.13 turned
+// that column from a boolean into the permission's own name.
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -35,6 +36,7 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import SettingsHost from "./SettingsHost.jsx";
 import { detectPlatform, loadPrefs, PLATFORMS } from "../lib/platform.js";
+import { roleName } from "../lib/permissions.js";
 
 // The device row answers itself like every other row: what it will open.
 const MAPS_NAME = { apple: "Apple Maps", google: "Google Maps", waze: "Waze" };
@@ -47,7 +49,7 @@ function describeDevice() {
 }
 
 export default function GearMenu({ onClose, onTour }) {
-  const { business, settings, role, memberships, signOut } = useBusiness();
+  const { business, settings, label, role, can, memberships, signOut } = useBusiness();
   const owner = role === "owner";
   const [open, setOpen] = useState(null);
   const [team, setTeam] = useState(null);
@@ -68,12 +70,17 @@ export default function GearMenu({ onClose, onTour }) {
        "email_owner_new_booking", "email_owner_reminder"].filter((k) => settings[k] !== false).length
     : null;
 
+  // THE LAST COLUMN IS A PERMISSION, NOT A ROLE, SINCE ROADMAP 2.13 — null
+  // for a row everyone gets. Notifications writes business_settings and can
+  // only READ it with that permission, so it follows `settings`; Team stays
+  // owner-only because somebody who can hand out permissions can hand
+  // themselves any of the others (the migration's header says why).
   const ROWS = [
     ["notifications", "Notifications", Bell,
-      emailsOn === null ? "…" : `${emailsOn} of 5 emails on`, true],
-    ["templates", "Message templates", MessageSquare, "Texts you send from a job", false],
-    ["team", "Team", Users, team === null ? "—" : `${team} ${team === 1 ? "person" : "people"}`, true],
-    ["preferences", "This device", Smartphone, describeDevice(), false],
+      emailsOn === null ? "…" : `${emailsOn} of 5 emails on`, "settings"],
+    ["templates", "Message templates", MessageSquare, "Texts you send from a job", null],
+    ["team", "Team", Users, team === null ? "—" : `${team} ${team === 1 ? "person" : "people"}`, "owner"],
+    ["preferences", "This device", Smartphone, describeDevice(), null],
     // A PICKER WITH ONE CHOICE ON IT IS A CONTROL THAT CANNOT CHANGE
     // ANYTHING. It is absent at one membership, which is every account in the
     // product today — the row appears the day somebody runs two businesses.
@@ -83,18 +90,21 @@ export default function GearMenu({ onClose, onTour }) {
     // belongs behind the gear by this screen's own admission test: it changes
     // how the app behaves for the DETAILER and nothing a customer meets.
     // Staff keep it; they are the ones most likely to be new.
-    ["tour", "Show me around", Compass, "The guided tour of this dashboard", false],
+    ["tour", "Show me around", Compass, "The guided tour of this dashboard", null],
     ...(memberships.length > 1
-      ? [["switch", "Switch business", Building2, `${memberships.length} businesses`, false]]
+      ? [["switch", "Switch business", Building2, `${memberships.length} businesses`, null]]
       : []),
-  ].filter(([, , , , ownerOnly]) => owner || !ownerOnly);
+  ].filter(([, , , , needs]) => !needs || (needs === "owner" ? owner : can(needs)));
 
   const account = (
     <div className="tight">
       <span className="label">Account</span>
       <div className="card">
         <div className="thoughts">
-          <div className="body">Signed in as {owner ? "an owner" : "staff"}.</div>
+          {/* The detailer's own word for this role when they set one, spelled
+              the way they typed it — the whole point of 2.13 is that "staff"
+              is no longer the product's to decide. */}
+          <div className="body">Signed in as {roleName(role, label)}.</div>
           <button className="btn" onClick={signOut}>
             <LogOut strokeWidth={2} /> Sign out
           </button>

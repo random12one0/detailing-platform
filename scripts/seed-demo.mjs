@@ -104,8 +104,21 @@ const [business] = await post("/rest/v1/businesses", [{
 }]);
 
 await post("/rest/v1/business_users", [
-  { business_id: business.id, user_id: ownerId, role: "owner", email: OWNER.email },
-  { business_id: business.id, user_id: staffId, role: "staff", email: STAFF.email },
+  // The owner's own label and list stay empty — `owner` means everything, so
+  // there is nothing to name and nothing to tick. Spelled out rather than
+  // omitted because PostgREST refuses a bulk insert whose objects do not have
+  // identical keys ("All object keys must match").
+  { business_id: business.id, user_id: ownerId, role: "owner", email: OWNER.email, label: null, permissions: [] },
+  // A NAMED ROLE WITH A REAL TICK LIST — roadmap 2.13. The demo is the only
+  // business anything can sign into, so a membership left at the bare default
+  // would mean the custom-role half of the Team screen is never rendered by
+  // any check at any width. "Detailer" is what this trade calls the person who
+  // does the work; requests is what staff already had, money is deliberately
+  // OFF so the tab filter has something to actually hide.
+  {
+    business_id: business.id, user_id: staffId, role: "staff", email: STAFF.email,
+    label: "Detailer", permissions: ["requests", "settings"],
+  },
 ]);
 await post("/rest/v1/business_settings", [{
   business_id: business.id,

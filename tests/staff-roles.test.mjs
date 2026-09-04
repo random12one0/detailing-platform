@@ -168,7 +168,15 @@ let inviteToken;
   const denied = await fn("invite-user", { business_id: biz.id, email: "nope@staff.test", role: "staff" }, staff.jwt);
   check("staff cannot invite", denied.status === 403, `${denied.status}`);
 
-  const r = await fn("invite-user", { business_id: biz.id, email: "invitee@staff.test", role: "staff" }, owner.jwt);
+  const r = await fn("invite-user", {
+    business_id: biz.id, email: "invitee@staff.test", role: "staff",
+    // Roadmap 2.13: the name and the ticks ride ON the invite, so the person
+    // who accepts arrives already shaped. `nonsense` is here to prove the edge
+    // function drops what the constraint would reject — an unknown permission
+    // that reached the table would fail the INSERT and lose the whole invite,
+    // and one that reached the array would grant nothing while looking ticked.
+    label: "Detailer", permissions: ["requests", "nonsense"],
+  }, owner.jwt);
   check("owner can invite", r.status === 200 && !!r.data?.invite?.link, JSON.stringify(r.data).slice(0, 150));
   inviteToken = r.data?.invite?.link?.split("/invite/")[1];
   const days = (new Date(r.data.invite.expires_at) - Date.now()) / 86400_000;
@@ -204,8 +212,12 @@ console.log("test 6: accepting an invite grants exactly the invited role");
   check("invite accepted", r.status === 200, JSON.stringify(r.data));
   const session = await signIn("invitee@staff.test", "Invitee-pass-123");
   check("invited user can sign in", !!session.access_token, JSON.stringify(session).slice(0, 120));
-  const membership = await svc.get(`/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${session.user.id}&select=role`);
+  const membership = await svc.get(`/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${session.user.id}&select=role,label,permissions`);
   check("granted staff role", membership.data?.[0]?.role === "staff", JSON.stringify(membership.data));
+  check("the invited NAME landed on the membership", membership.data?.[0]?.label === "Detailer", JSON.stringify(membership.data));
+  check("the invited ticks landed, with the unknown one dropped",
+    JSON.stringify(membership.data?.[0]?.permissions) === JSON.stringify(["requests"]),
+    JSON.stringify(membership.data?.[0]?.permissions));
   const money = await rest("GET", "/rest/v1/expenses?select=*", { key: ANON, jwt: session.access_token });
   check("newly-invited staff also sees no money data", (money.data ?? []).length === 0);
   const reuse = await fn("accept-invite", { token: inviteToken, password: "x" });
@@ -254,6 +266,189 @@ console.log("test 9: staff cannot escalate their own role");
   check("staff cannot promote themselves", selfPromote.status === 200 && (selfPromote.data ?? []).length === 0, `${selfPromote.status} ${JSON.stringify(selfPromote.data)}`);
   const check2 = await svc.get(`/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}&select=role`);
   check("still staff", check2.data?.[0]?.role === "staff");
+}
+
+
+// ---------------------------------------------------------------------------
+// ROADMAP 2.13 — the permission model. Tests 1-9 above are unchanged on
+// purpose: they are the proof that the OLD guarantees survived, and three of
+// them are about `protect_last_owner()`, which is a TRIGGER and had to keep
+// binding the service role too.
+//
+// What follows is the new half, and the assertion that matters most is that
+// ONE TICK OPENS ONE GROUP. A helper that returned true for everything would
+// pass a test that only ever read the group it had just granted, so every case
+// below reads the OTHER two as well.
+console.log("test 10: one tick opens one group and nothing else");
+{
+  const GROUPS = {
+    money:     "/rest/v1/expenses?select=*",
+    settings:  "/rest/v1/business_settings?select=*",
+    marketing: "/rest/v1/promo_codes?select=*",
+  };
+  const readable = async (jwt) => {
+    const out = [];
+    for (const [name, path] of Object.entries(GROUPS)) {
+      const r = await rest("GET", path, { key: ANON, jwt });
+      if ((r.data ?? []).length > 0) out.push(name);
+    }
+    return out.sort().join(",");
+  };
+  const setPerms = (perms) => rest(
+    "PATCH",
+    `/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}`,
+    { body: { permissions: perms } },
+  );
+
+  // Nothing ticked: the state test 1 already proves, restated as the baseline
+  // this walk moves away from.
+  await setPerms([]);
+  check("no ticks: reads none of the three groups", (await readable(staff.jwt)) === "");
+
+  for (const only of ["money", "settings", "marketing"]) {
+    await setPerms([only]);
+    const got = await readable(staff.jwt);
+    check(`${only}: opens ${only} and ONLY ${only}`, got === only, `got "${got}"`);
+  }
+
+  // WRITING, NOT JUST READING. A select policy that opened without an update
+  // policy would pass everything above and still refuse every save, which is
+  // the page of blanks the dashboard used to show staff.
+  await setPerms(["settings"]);
+  const w = await rest("PATCH", `/rest/v1/business_settings?business_id=eq.${biz.id}`, {
+    key: ANON, jwt: staff.jwt, body: { buffer_minutes: 45 },
+  });
+  check("settings: the tick also allows the SAVE", w.status === 200 && (w.data ?? []).length === 1,
+    `${w.status} ${JSON.stringify(w.data).slice(0, 120)}`);
+  const back = await svc.get(`/rest/v1/business_settings?business_id=eq.${biz.id}&select=buffer_minutes`);
+  check("settings: the value actually changed", back.data?.[0]?.buffer_minutes === 45, JSON.stringify(back.data));
+
+  const marketingWrite = await rest("POST", "/rest/v1/promo_codes", {
+    key: ANON, jwt: staff.jwt, body: { business_id: biz.id, code: "TICKTEST", type: "amount", value: 1 },
+  });
+  check("settings does not carry marketing's write either", marketingWrite.status === 403, `${marketingWrite.status}`);
+}
+
+console.log("test 11: an owner needs no ticks, and never loses one");
+{
+  const owned = await svc.get(`/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${owner.id}&select=permissions`);
+  check("the owner's own list is empty", JSON.stringify(owned.data?.[0]?.permissions) === "[]", JSON.stringify(owned.data));
+  // ...and reads everything anyway. This is the fold has_business_permission()
+  // does in SQL: no policy can be written that forgets owners.
+  for (const path of ["/rest/v1/expenses?select=*", "/rest/v1/business_settings?select=*", "/rest/v1/promo_codes?select=*"]) {
+    const r = await rest("GET", path, { key: ANON, jwt: owner.jwt });
+    check(`owner reads ${path.split("?")[0].split("/").pop()} with no ticks`, (r.data ?? []).length >= 1, `${r.status}`);
+  }
+}
+
+console.log("test 12: the vocabulary is closed at the database");
+{
+  const bad = await rest("PATCH", `/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}`, {
+    body: { permissions: ["settings", "everything"] },
+  });
+  check("an unknown permission is refused by the constraint", bad.status >= 400,
+    `${bad.status} ${JSON.stringify(bad.data).slice(0, 140)}`);
+  const still = await svc.get(`/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}&select=permissions`);
+  check("and the row is unchanged", JSON.stringify(still.data?.[0]?.permissions) === JSON.stringify(["settings"]),
+    JSON.stringify(still.data));
+}
+
+console.log("test 13: a member cannot tick their own boxes");
+{
+  // business_users UPDATE is still is_business_owner() — deliberately NOT a
+  // permission, because whoever can hand out permissions can hand themselves
+  // every other one. RLS returns 200 with zero rows rather than an error.
+  const grab = await rest("PATCH", `/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}`, {
+    key: ANON, jwt: staff.jwt, body: { permissions: ["money", "settings", "marketing", "requests"] },
+  });
+  check("a member cannot grant themselves a permission", grab.status === 200 && (grab.data ?? []).length === 0,
+    `${grab.status} ${JSON.stringify(grab.data)}`);
+  const still = await svc.get(`/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}&select=permissions`);
+  check("still just the one they were given", JSON.stringify(still.data?.[0]?.permissions) === JSON.stringify(["settings"]),
+    JSON.stringify(still.data));
+  const rename = await rest("PATCH", `/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}`, {
+    key: ANON, jwt: staff.jwt, body: { label: "Manager" },
+  });
+  check("a member cannot rename their own role either", rename.status === 200 && (rename.data ?? []).length === 0, `${rename.status}`);
+}
+
+console.log("test 14: answering a booking request is a tick");
+{
+  const pending = (await svc.post("/rest/v1/bookings", [{
+    business_id: biz.id, customer_name: "Asker", customer_phone: "555-9100",
+    customer_email: "delivered@resend.dev",
+    start_at: "2026-11-05T18:00:00Z", end_at: "2026-11-05T20:00:00Z",
+    service_type: "mobile", status: "pending",
+    total_price: 100, subtotal: 100, final_amount: 100,
+  }])).data[0];
+  const setPerms = (perms) => rest(
+    "PATCH",
+    `/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}`,
+    { body: { permissions: perms } },
+  );
+
+  // Without it — and this is the one permission 2.13 TAKES AWAY rather than
+  // adds, which is why the migration backfilled every existing staff row.
+  await setPerms(["settings"]);
+  const denied = await fn("respond-to-booking", { business_id: biz.id, booking_id: pending.id, action: "accept" }, staff.jwt);
+  check("no tick: answering a request is refused", denied.status === 403,
+    `${denied.status} ${JSON.stringify(denied.data).slice(0, 120)}`);
+  const untouched = await svc.get(`/rest/v1/bookings?id=eq.${pending.id}&select=status`);
+  check("and the request is still waiting", untouched.data?.[0]?.status === "pending", JSON.stringify(untouched.data));
+
+  await setPerms(["requests"]);
+  const ok = await fn("respond-to-booking", { business_id: biz.id, booking_id: pending.id, action: "accept" }, staff.jwt);
+  check("with the tick: accepted", ok.status === 200, `${ok.status} ${JSON.stringify(ok.data).slice(0, 160)}`);
+  const now = await svc.get(`/rest/v1/bookings?id=eq.${pending.id}&select=status`);
+  check("the booking is confirmed", now.data?.[0]?.status === "confirmed", JSON.stringify(now.data));
+  await svc.del(`/rest/v1/bookings?id=eq.${pending.id}`);
+}
+
+
+
+console.log("test 15: prices and hours are behind the settings tick too");
+{
+  // THE TICK'S OWN WORDS ARE "Prices, hours, booking rules, branding and the
+  // business's own details", and until 20260904001000 the first two were not
+  // true: `services` and `business_hours` were *_tenant_all, writable by any
+  // member since long before there were two roles. Nothing in the dashboard
+  // offered it — but RLS is the enforcement in this product and a browser is
+  // not the only client.
+  const setPerms = (perms) => rest(
+    "PATCH",
+    `/rest/v1/business_users?business_id=eq.${biz.id}&user_id=eq.${staff.id}`,
+    { body: { permissions: perms } },
+  );
+  await setPerms([]);
+
+  // READING STAYS OPEN, and that is load-bearing: a member has to read
+  // `services` to take a booking at all.
+  const read = await rest("GET", "/rest/v1/services?select=id,price", { key: ANON, jwt: staff.jwt });
+  check("no ticks: still reads services (needed to book)", (read.data ?? []).length >= 1, `${read.status}`);
+  const hours = await rest("GET", "/rest/v1/business_hours?select=weekday", { key: ANON, jwt: staff.jwt });
+  check("no ticks: still reads the opening hours", hours.status === 200, `${hours.status}`);
+
+  const reprice = await rest("PATCH", `/rest/v1/services?id=eq.${service.id}`, {
+    key: ANON, jwt: staff.jwt, body: { price: 1 },
+  });
+  check("no ticks: cannot change what the business charges",
+    reprice.status === 200 && (reprice.data ?? []).length === 0, `${reprice.status} ${JSON.stringify(reprice.data)}`);
+  const unchanged = await svc.get(`/rest/v1/services?id=eq.${service.id}&select=price`);
+  check("and the price really did not move", Number(unchanged.data?.[0]?.price) === 100, JSON.stringify(unchanged.data));
+
+  const newService = await rest("POST", "/rest/v1/services", {
+    key: ANON, jwt: staff.jwt, body: { business_id: biz.id, name: "Sneaky", price: 5, duration_minutes: 30 },
+  });
+  check("no ticks: cannot add a service either", newService.status === 403, `${newService.status}`);
+
+  await setPerms(["settings"]);
+  const ok = await rest("PATCH", `/rest/v1/services?id=eq.${service.id}`, {
+    key: ANON, jwt: staff.jwt, body: { price: 120 },
+  });
+  check("with the settings tick: the price change goes through",
+    ok.status === 200 && (ok.data ?? []).length === 1, `${ok.status} ${JSON.stringify(ok.data).slice(0, 120)}`);
+  const moved = await svc.get(`/rest/v1/services?id=eq.${service.id}&select=price`);
+  check("and it landed", Number(moved.data?.[0]?.price) === 120, JSON.stringify(moved.data));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
