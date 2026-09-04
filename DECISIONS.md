@@ -181,6 +181,10 @@ were made more than once.
 
 - **Roadmap 2.18 — the emails go LIGHT-FIRST, because Gmail proved the dark ones broken** — he opened the four test sends on real devices: Apple Mail correct in both modes, **Gmail's dark mode inverts an already-dark email and cannot be told not to.** The research had PREDICTED this and concluded the worst case was "readable" — **that conclusion was reasoning, not measurement, and it was wrong.** Measured by applying Gmail's actual transform to our palette: the accent as words **10.07:1 → 1.99:1**, the button's ink **10.88:1 → 1.77:1**. Unreadable, not off-brand. **Unfixable by palette**, because inversion barely moves a mid-lightness accent while swinging its near-black ink from L≈8% to L≈92% — checked on four accents, all fail. So the design moved: **light inline by default, dark behind `prefers-color-scheme`**, both palettes being The Thread's own (`--paper` and `--ink-0` — the light band already existed). Apple Mail still shows the dark design; Gmail now darkens a LIGHT email, which is the one thing its algorithm is tuned for. **The new failure mode it introduces, and the check written for it: the dark palette applies BY CLASS, so an element setting a colour inline without a class stays light inside a dark email — invisible to any contrast check, because both values are individually fine.** `render-emails.mjs` walks the rendered output and caught six on its first run. Also found: **pure white was still reachable in the LIGHT path** (crimson's and violet's button ink), which is Apple Mail's own inversion trigger — the very thing that would have made Apple Mail behave like Gmail. **AND THE SPAM ANSWER: authentication is FINE and identical on both domains** (DKIM, SPF on the sending subdomain, DMARC `p=none`) — what differs is **reputation**: his business domain has months of engaged mail, the platform subdomain has almost none, and the two sit on different Resend pools (SES versus Resend's newer own-MTA). One real gap: the ROOT `detailingplatform.com` has no SPF record at all. `List-Unsubscribe` deliberately NOT added — a customer who unsubscribes stops receiving their own receipts.
 
+- **Roadmap 2.17 — motion and shape as a house style** — the retrofit of *anything that opens, animates in*, plus the squircle. **The LIST was five, and it was found by MEASURING rather than by reading the stylesheet**: `document.getAnimations()` on the live dashboard 120ms after each click reported *nothing running but the ground's 54-second drift* for the job record, the client record, the settings column through **both** doors, the calendar's day panel, and every screen's RESTING second column — which had never animated even on first paint. **One selector fixed all five** (`.split > .col-2`), because they are the same object: the thing that lives beside the list. **It comes from its own SIDE, 14px on X at 180ms**, not from the top like the screen's `arrive` — an object animates from where it came from, and 420ms on a record you open forty times a day is the gate his acceptance test forbids. **THE ROADMAP WAS WRONG ABOUT THE GEAR**: it already animates, via the screen stagger, and giving it a second entrance would be two animations on the same 420ms. **The calendar was the odd one out and it was THE WRONG ELEMENT MOVING** — picking a day swapped `.group` for `.split.calday`, React discarded the month and rebuilt it, so `arrive` re-ran on the thing you were already looking at while the panel you asked for arrived dead. *"It's almost like I refresh the page"*, diagnosed. **The fix is a stable container, not a nicer animation.** **THREE DEFECTS THE MEASUREMENT CAUGHT THAT READING WOULD NOT:** a `:has()` nested inside a `:has()` is INVALID and browsers drop the whole selector silently — the calendar split correctly and never widened, costing the month 540px at 1920; two `<aside>`s in one slot are RECONCILED rather than remounted, so the settings screen's entrance never fired until they were keyed apart; and pressing the open day again toggles it closed down a path that skipped the exit. **THE SQUIRCLE IS ONE TOKEN AND IT DEGRADES**: `corner-shape: squircle` is Chrome/Edge 139+ and **NOT Safari or Firefox** (measured from webstatus.dev and MDN compat, 2026-09-03), and an unsupported browser draws the `border-radius` already there — so his iPhone shows today's corners until WebKit ships it, **which is the one thing he has to agree to**. A Houdini paint worklet is Chromium-only TOO, so it costs a JS paint pass to reach exactly the same browsers; an SVG mask reaches Safari but clips the 1px hairline this system draws on nearly every surface. **PANELS AND INSETS ONLY** — a superellipse at a 100px radius is a lozenge and at 50% a blob, so pills, dots and rings keep `round`. **STILL HIS CALL: the 1440 reflow.** With a day open the month goes 1,144px → 836px and its cells stop writing job names; lowering the 1,640 threshold was measured and rejected by LOOKING — at 836px a cell is 115px and *"8:00 AM Marcus W."* renders as *"8:00 AM Mar…"*.
+
+- **The booking sweep had been passing by luck, and it cost a session to find out** — `sweep-booking-steps.mjs` failed on about half its runs during roadmap 2.17, in the same minute as an unrelated CSS change, and looked exactly like that change's fault. **It was not, and the thing that proved it was a CONTROL RUN**: revert the suspect, run again, watch it fail identically. One run, and it should have been the first one. **Two races underneath, both the same shape.** The script picked calendar days by INDEX against a live locator — and choosing a day re-renders the calendar, greying out every day that cannot hold the chosen service, which is correct product behaviour — so `days.count()` fell to 0 and the walk gave up after ONE day. **It had never actually walked more than one day in its life**: while TODAY still had a free slot it exited on the first iteration, and it started failing at ~22:00 local when the demo's own 08:00–18:00 trading day closed. *A test that passes on its first try every time is not the same as a test that works.* The second race was one level up — the month's open days come from an availability call, so enumerating them right after `settle()` could read an empty grid and conclude the business was shut. **`settle()` is a CAP, and a fine one on a repaint; it is not a wait for a network round trip**, which is the general form of both. Fixed by addressing days by their DATE and re-querying after every render (the same "address a node, never a position" lesson the day rail already taught), and by waiting for the grid before reading it. `SLOTPROBE=1` now prints the day walk and every slots response, because the diagnosis was invisible without it.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -9344,3 +9348,240 @@ one — but a domain that never says what may send for it is a weaker domain, an
 legitimate-sender signal and it is the wrong tool here — these are transactional
 emails, and a customer who unsubscribes stops receiving their own receipts.
 Gmail's one-click requirement applies to bulk senders, which this is not.
+
+## Roadmap 2.17 — motion and shape as a house style
+
+### The audit was a MEASUREMENT, and it is why the list was five and not three
+
+The roadmap named three complaints and warned the list was longer. It was, but
+not in the direction anyone guessed — and the method is the transferable part.
+
+`document.getAnimations()` was read on the live dashboard at 1920, **120ms after
+each click**, and filtered down to what was actually running. Not the
+stylesheet. This repo has now shipped two animations that were dead in the
+cascade and looked exactly like finished screens (Today's whole arrival in step
+6, another in stage 3), so reading a selector is not evidence that anything
+moves.
+
+What it reported before any code was written — in every case *nothing running
+but the ground's 54-second drift and a hover transition*:
+
+| Opened at a desk | Reached from |
+|---|---|
+| `.col-2.record` — a job | Today, Calendar month, Calendar history, Money |
+| `.col-2.record.bare` — a client | Clients |
+| `.col-2.settings-col` | Business **and** the gear |
+| `.split.calday > .col-2` — the day panel | Calendar month |
+| `.col-2` resting content | Today, Money, Calendar history |
+
+**The fifth is the one nobody had named**, and it is the reason one selector
+covers the whole list: every desk screen staggered its LEFT column in and left
+the right one sitting there, on first paint as well as on open. They are one
+object — the thing beside the list — so `.split > .col-2` is the rule.
+
+**AND THE ROADMAP WAS WRONG ABOUT THE GEAR.** It listed "the gear taking the
+main area" as arriving with no motion; it runs `arrive` on its index, because
+`GearMenu` renders a `.split` directly under `.app-main` and the screen's own
+stagger catches it. Adding an entrance would have been two animations running
+the same 420ms — the mistake stage 7 already documented for the setup form.
+*A list of defects written from reading is a list of hypotheses.*
+
+### It comes from its own side, and that is not a second motion system
+
+`arrive` travels 14px on Y because a screen is read downward. A record travels
+14px on X because **the column edge is where it came from**. Same curve, same
+distance, same transform-and-opacity-only rule, pointed at the axis the object
+actually moved along.
+
+**180ms (`--t-exit`), not 420ms (`--t-reveal`)**, and that is his own acceptance
+test doing the work: *"without being in the way of actual productivity"*. 420 is
+right for a screen you meet once and is a gate on a record you open forty times
+a day — the same distinction stage 7 drew for the walkthrough's step changes.
+**No new duration and no new distance were invented.**
+
+**The exit needed a state, because React unmounts.** `Sheet.jsx` has carried the
+pattern since it was written; by the third caller it became
+`hooks/useLeaving.js`, which is also where the 180 now lives instead of being
+written out in two files each carrying a comment saying it must track
+`--t-exit`. **A number duplicated with a warning attached is a number that
+drifts.**
+
+**AND THE EXIT IS SKIPPED ON REPLACEMENT.** Clicking job B while job A is open
+keeps the element mounted, so nothing re-triggers and the content changes in
+place. Playing A out before B in would put 180ms between a tap and the thing
+tapped for, which is the acceptance test failing.
+
+### The calendar: the wrong element was moving
+
+His complaint was *"it's almost like I refresh the page when I click on
+something. I don't want everything to disappear and come back."* That is a
+literal description of what the code did.
+
+`Calendar.jsx` rendered `.group` with nothing open and `.split.calday` with a
+day open. Two different elements, so React discarded the month subtree and
+rebuilt it — measured: `arrive` re-ran on the whole left column, while the day
+panel that had just been asked for animated not at all. **The thing you were
+already looking at was the thing that moved.**
+
+The fix is a **stable container**, not a nicer animation. The wrapper is now
+rendered at every desk width and collapses to `display: block` when there is no
+second column (`:not(:has(> .col-2))`, the idiom `.split.clients` already uses).
+Proved rather than asserted: the `.cal-grid` node was stamped with a dataset
+attribute before the click and the stamp survives it.
+
+### Three defects the measurement caught that reading would not have
+
+1. **A `:has()` MAY NOT CONTAIN ANOTHER `:has()`.** The widening rule was
+   written `.app-main:has(> .split.calday:has(> .col-2))`, which is invalid, so
+   the browser dropped the whole selector **silently**. The grid split
+   correctly and the page never widened — at 1920 the month went to 696px
+   instead of *gaining* room to 1,236px. Caught by logging `.app-main`'s own
+   width before and after the click. *A CSS rule that is thrown away looks
+   exactly like a CSS rule that is satisfied.*
+2. **Two `<aside>`s in one slot are RECONCILED, not remounted.** The open
+   settings screen and the resting content are both
+   `<aside class="col-2 settings-col">` in the same position, so React swapped
+   their children and no entrance fired — while the gear's resting column,
+   three lines away, animated correctly. Keyed apart. Same family as the
+   `.card.attend` rename the sweep caught: the right element, silently meaning
+   something else.
+3. **Pressing the open day again toggles it closed**, and that path called
+   `setDay(null)` directly, skipping the exit. The one way of putting the day
+   away that does not touch the panel was the one way that skipped its
+   animation.
+
+### The squircle: one token, and the honest cost is Safari
+
+**`corner-shape: squircle`, set once beside the radii.** A `border-radius`
+corner is a circular arc — curvature jumps from zero to maximum where the
+straight edge ends. Apple's is a superellipse, where it ramps.
+
+**Support, measured 2026-09-03 from `api.webstatus.dev` and MDN's
+browser-compat-data rather than assumed:** Chrome / Chrome Android / Edge
+**139+** (shipped 2025-08-05); Safari **no** (Technology Preview only); Firefox
+**no**; Baseline **limited**.
+
+**It is additive, which is the whole argument.** A browser that does not know
+the property draws the `border-radius` that is already there — no fallback, no
+feature query, no second corner language. **The cost he has to accept: at a
+Chrome desk he sees squircles and on his iPhone he does not**, because every
+iOS browser is WebKit. It resolves itself when WebKit ships, with no release
+from us.
+
+**Both alternatives were costed and rejected, and one of them for a reason that
+is not obvious.** A **Houdini paint worklet is Chromium-only too** —
+`CSS.paintWorklet` is Chrome 65+, never Firefox (bugzil.la/1302328), never
+Safari (webkit.org/b/190217) — so it costs a JS paint pass per element to reach
+**exactly the same browsers as the free property**. Do not re-propose it on
+rediscovering that `corner-shape` is Chromium-only; that is the same fact. An
+**SVG mask** is the only route that reaches Safari and it is the expensive one:
+a mask composite on `.card`, `.chip`, `.cal-cell` and `.row-item` — hundreds of
+elements on one calendar month — and it **clips the 1px `--hairline` this system
+draws on nearly every surface**, so it is a border rewrite as well as a corner
+one.
+
+**PANELS AND INSETS ONLY, and that is the design.** A superellipse at a 100px
+radius is a lozenge and at 50% it is a blob, so every pill, dot, ring, avatar
+and spinner would change shape. Apple squircles cards and app icons; its
+capsules stay capsules. Verified on the live page: `.card` and `.sunken` compute
+`squircle`, `.btn` and `.tabbar` compute `round`, and with every animation
+frozen the corner crop still differs from the `round` one — so it is genuinely
+rasterised and not a no-op.
+
+### STILL HIS CALL: the 1440 reflow, and a third option that was measured and died
+
+With a day open at 1440x900 the month goes **1,144px → 836px** and `writes`
+flips off, so cells stop carrying `9:00 AM Tom O.` and go back to dots. At 1920
+nothing is lost — the month *gains* room, 1,144px → 1,236px, and keeps its
+words.
+
+**A third option was tried before handing him the two: lower the 1,640
+threshold so the month keeps its words at 1440 with the day open.** Built,
+screenshotted, and rejected **by looking**. At 836px a cell is 115px, and the
+lines render `8:00 AM Mar…`, `9:45 AM Da…`, `12:15 PM Pr…` — the time survives
+and the name does not, which is worse than a dot because it looks like data
+rather than a mark. `text-overflow: ellipsis` means **no overflow check can
+ever see this**; the only instrument is a screenshot
+(`shots-2.17/1440-calendar-day-WORDS.png`).
+
+So the two options in the roadmap stand, they are still not equal, and the
+remount — which was most of the *"refresh the page"* feeling — is gone from
+both.
+
+## The booking sweep had been passing by luck
+
+Found 2026-09-03, during roadmap 2.17, and the process half is worth more than
+the fix.
+
+### What it looked like
+
+`node scripts/sweep-booking-steps.mjs` — the W16 gate, the script that decides
+whether a customer ever has to scroll inside a booking step — started failing
+on roughly half its runs, with a raw Playwright timeout:
+
+```
+locator.click: Timeout 30000ms exceeded.
+  - waiting for locator('.bk-chip').first()
+```
+
+It failed in the same minute as an unrelated change to `booking.css`, and the
+obvious reading was that the change had broken it.
+
+### What proved it innocent, and it took one run
+
+**A control.** Revert the suspect change, run the script again, and watch it
+fail *identically*. That is one run and it should have been the first one
+rather than the fifth; instead the change was re-applied, re-reverted, the demo
+was re-seeded, and the edge function was queried by hand — all of it downstream
+of an assumption nobody had tested.
+
+***When a check fails next to a change, run the check without the change before
+you do anything else.*** A green control indicts the diff; a red one exonerates
+it, and both answers cost the same.
+
+### The two races underneath, which are the same shape twice
+
+**1 · Days were picked by INDEX against a live locator.**
+
+```js
+const days = page.locator(".bk-cal .cell:not(.closed):not(.empty)");
+for (let i = 0; i < (await days.count()); i++) { await days.nth(i).click(); ... }
+```
+
+Choosing a day re-renders the calendar — every day that cannot hold the chosen
+service greys out, which is **correct product behaviour**. So after the first
+click `days.count()` fell to 0, the loop condition failed at `i = 1`, all three
+months reported no open cells, and the throw landed on a locator instead of on
+the cause.
+
+**AND IT HAD NEVER WALKED MORE THAN ONE DAY IN ITS LIFE.** While today still
+had a free slot the loop exited on the first iteration and never reached the
+bug. It began failing at ~22:00 local — when the demo's own trading day
+(08:00–18:00) closed and the first day stopped having slots. *A check that
+succeeds on its first attempt every time has never exercised its retry, and is
+not the same as a check that works.* Same family as the always-false `if` and
+the selector that matched nothing: **a skipped path reads exactly like a
+passing one.**
+
+**2 · The grid was read before it existed.** A month's open days come from an
+availability call, so enumerating them straight after `settle()` could read an
+**empty** grid and conclude the business was shut. Visible only with the
+network log next to the day log: `month 0 open:` with nothing after it, and two
+`available-slots` 200s arriving immediately afterwards.
+
+**The general form of both, and it is the transferable line: `settle()` is a
+CAP.** It is a fine cap on a repaint and it is not a wait for a network round
+trip. Where the thing being waited for comes off the wire, wait for the thing.
+
+### The fix
+
+Days are collected as DATES and clicked by their own label, re-querying after
+every render and skipping any that have since greyed out — the same *address a
+node, never a position* rule the day rail already taught this repo. The grid is
+waited for before it is read. The failure now says what happened in a sentence
+instead of naming a locator. And **`SLOTPROBE=1` prints the day walk and every
+`available-slots` response**, because none of the above was visible without it
+and the next person should spend ten seconds on this rather than an hour.
+
+Verified: three consecutive clean full runs, plus `--lite`.
+

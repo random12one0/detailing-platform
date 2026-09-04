@@ -173,6 +173,34 @@
   --r-md: var(--r-inset);
   --r-lg: var(--r-panel);
 
+  /* THE CORNER ITSELF — the owner's ask, 2026-09-01 (roadmap 2.17):
+     "I want everything to be a squircle. Like, the kind of professional
+     rounded corners that Apple has."  A `border-radius` corner is a circular
+     arc, so curvature jumps from zero to maximum where the straight edge
+     ends; Apple's is a superellipse, where it ramps.
+
+     ADDITIVE, WHICH IS THE WHOLE REASON THIS IS ONE TOKEN AND NOT A BUILD.
+     `corner-shape` is Chrome / Chrome Android / Edge 139+ (shipped
+     2025-08-05) and NOT Safari or Firefox — measured 2026-09-03 from
+     webstatus.dev and MDN's compat data, not assumed. A browser that does
+     not know the property draws the border-radius that is already there, so
+     there is no fallback to write and no feature query. When WebKit ships
+     it, iPhones get squircles with no release from us.
+     A Houdini paint worklet is Chromium-only TOO (Chrome 65+, never Firefox,
+     never Safari) so it costs a JS paint pass to reach the same browsers; an
+     SVG mask reaches Safari but clips the 1px hairline this system draws on
+     nearly every surface. Full working: docs/design-system.md § Layout.
+
+     PANELS AND INSETS ONLY. --r-pill and 50% are NOT squircled and that is
+     the design rather than an oversight: a superellipse at a 100px radius is
+     a lozenge and at 50% it is a blob, so every pill, dot, ring, avatar and
+     spinner in the product would change shape. Apple squircles cards and app
+     icons; its capsules stay capsules.
+     THE RULE, so it does not rot: a declaration that sets border-radius to
+     --r-panel or --r-inset sets corner-shape beside it. `grep -- '--r-panel'`
+     finds every site, and tests/composition.test.mjs holds the pairing. */
+  --corner: squircle;
+
   /* THE CONTENT BAND. landing.css has had this token since 2.2, scoped to
      .ld, and theme.css never had one at all — the dashboard was the only
      surface in the product ignoring its own layout number. Two stylesheets
@@ -345,6 +373,7 @@ a { color: var(--accent-text); text-decoration: none; }
 .card {
   background: var(--surface); border: 1px solid var(--hairline);
   border-radius: var(--r-panel); padding: var(--sp-4);
+  corner-shape: var(--corner);
 }
 /* THE ONE YOU ARE ON. Raised to the highest surface, with a soft accent
    bloom UNDER it rather than a bar on it — "an accent bar on a rounded card"
@@ -383,6 +412,7 @@ a { color: var(--accent-text); text-decoration: none; }
    the edge, and giving it one too would read as a floating box. */
 .sunken {
   background: var(--surface-sunken); border-radius: var(--r-inset);
+  corner-shape: var(--corner);
   padding: var(--sp-4);
   box-shadow: inset 0 0 0 1px var(--hairline);
 }
@@ -866,6 +896,23 @@ a { color: var(--accent-text); text-decoration: none; }
      width off the cells, and the file weighed that against nothing, because
      the cost of the day arriving below the fold had not been measured yet. */
   .split.calday { grid-template-columns: minmax(0, 1fr) 420px; }
+  /* AND IT IS THE CONTAINER EVEN WITH NOTHING OPEN, which is a MOTION fix
+     rather than a layout one — roadmap 2.17. Picking a day used to swap the
+     container from `.group` to `.split.calday`, so React discarded the month
+     subtree and rebuilt it: measured on the live dashboard, `arrive` re-ran
+     on the whole left column — the thing you were already looking at — while
+     the day panel you had just asked for animated not at all. THE WRONG
+     ELEMENT WAS MOVING, and that is his complaint word for word: "it's almost
+     like I refresh the page when I click on something. I don't want
+     everything to disappear and come back."
+     Calendar.jsx now renders this wrapper at every desk width, so React
+     reconciles and the month keeps its DOM. With no second column it has to
+     collapse back to one full-width block or the grid would reserve 420px of
+     nothing — the dead-width failure one level down. `:not(:has(> .col-2))`
+     is the same idiom `.split.clients` two rules up already uses, and for the
+     same reason: the condition IS "is there a second column", and React
+     already answers it by rendering one. */
+  .split.calday:not(:has(> .col-2)) { display: block; }
   /* AND THE PANEL IS PAID FOR OUT OF THE SCREEN WHERE THERE IS SCREEN. This
      is the one place --wrap lifts, and it lifts for the reason --wrap exists:
      "width buys a second thing, it does not stretch the first thing"
@@ -876,7 +923,18 @@ a { color: var(--accent-text); text-decoration: none; }
      class on .app-main because the screen cannot reach its own container,
      and a prop threaded through App.jsx to say "this screen is wider" would
      be a second mechanism for one rule. */
-  .app-main:has(> .split.calday) { max-width: 1720px; }
+  /* :has(> .col-2) ADDED WITH THE RULE ABOVE. The wrapper is now present with
+     nothing open, so widening on the wrapper alone would give the month 1720px
+     of room it does not use and cannot fill. The lift is owed to the DAY, so
+     it is conditioned on the day being there.
+     A `:has()` MAY NOT CONTAIN ANOTHER `:has()` — the nested form was written
+     first, the whole selector was invalid, and the browser dropped it
+     silently: the grid split correctly and the page never widened, so at 1920
+     the month went 1,144px -> 696px instead of gaining room. Caught by
+     measuring .app-main's own width before and after the click rather than by
+     reading this file. A child combinator inside one :has() is legal and says
+     the same thing. */
+  .app-main:has(> .split.calday > .col-2) { max-width: 1720px; }
 }
 
 /* A RECORD IN THE SECOND COLUMN. Below --wrap a job or a client is pulled up
@@ -887,6 +945,7 @@ a { color: var(--accent-text); text-decoration: none; }
    as the same object at both widths and only its container changed. */
 .record {
   border-radius: var(--r-panel);
+  corner-shape: var(--corner);
   border: 1px solid var(--line-2);
   background: var(--surface);
   padding: var(--sp-4);
@@ -994,6 +1053,7 @@ a { color: var(--accent-text); text-decoration: none; }
    full-bleed QR would be the largest thing on the screen. */
 .qr-plate {
   background: #ffffff; border-radius: var(--r-inset);
+  corner-shape: var(--corner);
   padding: 10px; width: fit-content; margin: 0 auto;
 }
 .qr-plate canvas { display: block; width: 200px; max-width: 100%; height: auto; image-rendering: pixelated; }
@@ -1157,6 +1217,7 @@ a { color: var(--accent-text); text-decoration: none; }
 .tag {
   display: inline-flex; align-items: center; padding: 3px 9px;
   border-radius: var(--r-inset); background: color-mix(in srgb, var(--bone) 7%, transparent);
+  corner-shape: var(--corner);
   font-family: var(--f-body);
   font-variation-settings: "wdth" var(--wdth-lab), "wght" 620;
   font-size: var(--t-label); letter-spacing: 0.18em;
@@ -1205,6 +1266,7 @@ input, select, textarea {
   width: 100%; min-height: var(--tap); padding: 11px 14px;
   background: var(--surface-sunken); color: var(--text);
   border: 1px solid var(--hairline); border-radius: var(--r-inset);
+  corner-shape: var(--corner);
   font-size: var(--t-body); font-family: var(--f-body);
   transition: border-color var(--t-hover) var(--e-out);
 }
@@ -1226,6 +1288,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 /* --------------------------------------------------------------- STATES */
 .warn-box, .error-box, .ok-box, .confirm-box {
   border-radius: var(--r-inset); padding: 12px 14px; font-size: var(--t-meta);
+  corner-shape: var(--corner);
   display: flex; gap: var(--sp-3); align-items: flex-start;
   line-height: 1.45;
 }
@@ -1269,6 +1332,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 }
 .cal-cell {
   min-height: 56px; border-radius: var(--r-inset); border: 1px solid var(--hairline);
+  corner-shape: var(--corner);
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 6px 2px; background: var(--surface); cursor: pointer;
   font-size: var(--t-meta); color: var(--text); position: relative;
@@ -1558,7 +1622,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 }
 .swatch-row .swatch.selected { box-shadow: 0 0 0 2px var(--ink-0), 0 0 0 4px var(--bone); }
 .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-inset); }
+.gallery-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-inset); corner-shape: var(--corner); }
 
 .center { display: flex; align-items: center; justify-content: center; min-height: 40vh; flex-direction: column; gap: var(--sp-3); }
 .spinner {
@@ -1843,6 +1907,62 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   to   { opacity: 1; transform: none; }
 }
 
+/* ------------------------------------------- THE SECOND COLUMN ARRIVES
+   ANYTHING THAT OPENS, ANIMATES IN — the owner, 2026-09-01 and again
+   2026-09-02: "when I click on a booking, it just kind of spawns in on the
+   side, like, instantly with no animation… every single UI that opens has an
+   animation." Roadmap 2.17. The law and his words in full are
+   docs/design-system.md § Motion.
+
+   MEASURED BEFORE IT WAS WRITTEN, with document.getAnimations() on the live
+   dashboard 120ms after each click — never from this file, because a
+   selector that matches nothing looks exactly like a finished screen (Today
+   shipped its whole arrival dead for that reason). At 1920, opening a job
+   record, a client record, a settings screen or the calendar's day panel
+   produced NOTHING RUNNING but the ground's 54-second drift. Closing one was
+   a hard cut.
+
+   ONE SELECTOR FOR ALL FIVE, and that is the point: .record, .record.bare,
+   .settings-col, the calendar's day panel and each screen's RESTING second
+   column are the same object as far as this rule is concerned — the thing
+   that lives beside the list. The resting column had never animated either,
+   not even on a screen's own first paint, so half of every desk screen
+   arrived and half did not.
+
+   FROM ITS OWN SIDE, NOT FROM THE TOP. The screen's `arrive` travels 14px on
+   Y because a screen is read downward; this travels 14px on X because the
+   column edge is where the thing came from. Law 4's "two presets" is not
+   broken — same curve, same distance, same transform-and-opacity-only rule,
+   pointed at the axis the object actually moved along.
+
+   180ms (--t-exit), NOT 420ms (--t-reveal), and the reason is his own
+   acceptance test: "without being in the way of actual productivity". 420 is
+   right for a screen you meet once and is a gate on a record you open forty
+   times a day — the same distinction roadmap 2.11 step 6 stage 7 drew for the
+   walkthrough's step changes. No new duration and no new distance: both
+   numbers are already in this file.
+
+   BELOW --wrap THIS IS DEAD ON PURPOSE. There is no second column there — a
+   record is a .sheet with sheet-in/sheet-out, a settings screen is a page,
+   and the day panel sits inline under the month. Scoped to the media query
+   so it can never fire on a phone.
+
+   NOT ON REPLACEMENT. Clicking job B while job A is open keeps this element
+   mounted, so nothing re-triggers and the content changes in place. That is
+   deliberate: playing A out and B in puts 180ms between a tap and the thing
+   tapped for, which is the acceptance test failing. */
+@media (min-width: 1180px) {
+  .split > .col-2 { animation: column-in var(--t-exit) var(--e-out) backwards; }
+  /* THE EXIT IS DRIVEN FROM JS, because React unmounts the element and CSS
+     cannot animate something that is no longer in the tree. RecordHost and
+     SettingsHost set `.leaving`, wait --t-exit, then call onClose — the same
+     pattern Sheet.jsx has carried since it was written, not a second
+     mechanism. THE 180 IN THOSE TWO FILES AND --t-exit MOVE TOGETHER. */
+  .split > .col-2.leaving { animation: column-out var(--t-exit) var(--e-out) forwards; }
+}
+@keyframes column-in  { from { opacity: 0; transform: translate3d(14px, 0, 0); } }
+@keyframes column-out { to   { opacity: 0; transform: translate3d(14px, 0, 0); } }
+
 /* ---------------------------------------------------------- DEGRADATION
    ONE code path — docs/design-system.md § Degradation. `.lite` is set on
    <html> in main.jsx by ?lite=1 AND by prefers-reduced-motion; this file
@@ -1857,6 +1977,16 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .lite .app-main > .rows,
 .lite .app-main > .card,
 .lite .dayrail > * { animation: none; }
+/* The second column renders where it was travelling TO. The ENTRANCE half is
+   the live one: with no animation the column is simply there, which is the end
+   state. The `.leaving` half is a GUARD rather than the mechanism — under
+   `.lite` the hook closes immediately without ever setting the class, because
+   holding an element in its START state for 180ms and then cutting is the
+   opposite of what this section is for, and it is the wrong 180ms to spend on
+   somebody who asked for less motion (hooks/useLeaving.js). Kept so the rule
+   still reads as "both directions off" and so removing that short-circuit
+   cannot silently reintroduce a visible exit here. */
+.lite .split > .col-2, .lite .split > .col-2.leaving { animation: none; }
 .lite .spinner { animation: none; border-top-color: var(--hairline); }
 .lite .sheet, .lite .sheet-backdrop { animation: none; }
 .lite .sheet { transition: none; }
@@ -1919,6 +2049,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   background: var(--surface);
   border: 1px solid var(--line-2); border-bottom: 0;
   border-radius: var(--r-panel) var(--r-panel) 0 0;
+  corner-shape: var(--corner);
   box-shadow: 0 -30px 70px -20px rgba(0, 0, 0, 0.9);
   animation: sheet-in var(--t-reveal) var(--e-out);
   /* KEPT, deliberately — flagged in roadmap 2.3 and judged on its merits.
@@ -1993,6 +2124,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   .sheet-backdrop { align-items: center; padding: var(--sp-5); }
   .sheet {
     border-radius: var(--r-panel); border-bottom: 1px solid var(--line-2);
+    corner-shape: var(--corner);
     height: auto !important; max-height: 86vh;
   }
   .sheet-grab { cursor: default; }
@@ -2134,6 +2266,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .money-field {
   display: inline-flex; align-items: center; gap: 2px;
   border: 1px solid var(--hairline); border-radius: var(--r-inset);
+  corner-shape: var(--corner);
   background: var(--surface-sunken);
   padding-left: 12px; max-width: 130px;
 }
@@ -2199,6 +2332,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   color: var(--text); word-break: break-all; user-select: all;
   background: var(--surface-sunken); border: 1px solid var(--hairline);
   border-radius: var(--r-inset); padding: 13px 15px; line-height: 1.5;
+  corner-shape: var(--corner);
 }
 
 /* A disclosure for the minority path. Closed by default, and it looks like a
@@ -2586,6 +2720,7 @@ button.warn-box:hover { border-color: var(--fog-2); }
 .spotlight {
   position: fixed; pointer-events: none;
   border-radius: var(--r-panel);
+  corner-shape: var(--corner);
   box-shadow: 0 0 0 9999px var(--overlay);
   transition: top var(--t-hover) var(--e-out), left var(--t-hover) var(--e-out),
               width var(--t-hover) var(--e-out), height var(--t-hover) var(--e-out);
@@ -2605,6 +2740,7 @@ button.warn-box:hover { border-color: var(--fog-2); }
   display: flex; flex-direction: column; gap: var(--sp-2);
   background: var(--surface-lit); border: 1px solid var(--border);
   border-radius: var(--r-panel); padding: var(--sp-4);
+  corner-shape: var(--corner);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
   animation: arrive var(--t-reveal) var(--e-out);
 }

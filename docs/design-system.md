@@ -492,6 +492,87 @@ Radii are a small set, used by role and not by habit: `100px` for pills
 sunken and inset blocks, `50%` for dots. `rounded-lg on everything` is a
 named tell.
 
+#### The corner is a SQUIRCLE where the browser can draw one — one token, and it degrades
+
+**THE OWNER'S ASK, 2026-09-01:** *"One thing: I want everything to be a
+squircle. Like, the kind of professional rounded corners that Apple has."*
+
+A `border-radius` corner is a circular arc: the curvature jumps from zero to
+maximum at the point the straight edge ends. Apple's corner is a
+**superellipse** — the curvature ramps in, so the corner reads as continuous
+rather than as an arc stuck onto a line. That is the whole difference, and it
+is why an Apple corner looks softer at the same radius.
+
+**The route is `corner-shape: squircle`, set ONCE next to the radii**, and the
+reason is that it is additive: a browser that does not know the property draws
+the `border-radius` it already draws. There is no fallback to write, no
+feature query, and no second corner language.
+
+```css
+:root { --corner: squircle; }
+.card, .btn, .chip, .sheet, .record, .cal-cell, … {
+  corner-shape: var(--corner);       /* ignored where unsupported */
+  border-radius: var(--r-panel);     /* unchanged, and still the shape */
+}
+```
+
+**BROWSER SUPPORT, MEASURED 2026-09-03 rather than assumed** — from
+`api.webstatus.dev/v1/features/corner-shape` and MDN's browser-compat-data:
+
+| | |
+|---|---|
+| Chrome / Chrome Android / Edge | **139+**, shipped 2025-08-05 |
+| Safari (macOS and iOS) | **no** — Technology Preview only |
+| Firefox | **no** |
+| Baseline | **limited** |
+
+**So the detailer sees squircles at a Chrome desk and does not see them on an
+iPhone**, because every iOS browser is WebKit. That is the honest cost and it
+is the one thing the owner has to agree to. It resolves itself: when WebKit
+ships the property, the corners change on their own with no release from us.
+
+**THE TWO ALTERNATIVES ARE REJECTED, AND ONE OF THEM FOR A REASON THAT IS NOT
+OBVIOUS.**
+
+- **A Houdini paint worklet is Chromium-only too** — `CSS.paintWorklet` is
+  Chrome 65+, Firefox never (bugzil.la/1302328), Safari never
+  (webkit.org/b/190217). Verified from browser-compat-data on 2026-09-03. **It
+  costs a JS paint pass per element and reaches exactly the same browsers as
+  the free property**, so it is strictly worse. Do not re-propose it on
+  rediscovering that `corner-shape` is Chromium-only; that is the same fact.
+- **An SVG mask is the only route that reaches Safari, and it is the expensive
+  one.** A mask composite on `.card`, `.chip`, `.btn`, `.cal-cell` and
+  `.row-item` — components that appear in the hundreds on one calendar month —
+  is a real frame cost on the least powerful device the product runs on. And
+  it takes the hairline with it: a mask clips the element's own 1px
+  `var(--hairline)` border at the corner, and this system draws that border on
+  nearly every surface, so the mask route is a border rewrite as well as a
+  corner one.
+
+**DO NOT HAND-ROLL A SQUIRCLE ON ONE COMPONENT.** The value belongs in the
+token next to the radii, or the product ends up with two corner languages —
+which is a worse outcome than having one corner language that is rounder on
+some browsers than others.
+
+**IT IS ON BOTH TOKENISED SURFACES, AND THAT IS THE SAME RULE ONE LEVEL UP.**
+Every surface in this product defines its own copy of the radii (§ Tokens), so
+a corner set on one of them is a corner the others drift away from —
+`theme.css` gets `--corner` and `booking.css` gets `--bk-corner`, because the
+detailer's page and the customer's page having different corners is precisely
+the two-corner-languages outcome the paragraph above forbids.
+`tests/composition.test.mjs` 8a sweeps both, and asserts on each that the check
+HAS SUBJECTS so renaming the radius tokens fails loudly rather than going
+quiet.
+
+**THE LANDING PAGE IS DELIBERATELY NOT DONE, AND IT IS WITH THE OWNER.**
+`landing.css` and the approved reference rendering
+(`docs/design-directions/5-the-thread.html`) use **literal pixel radii** — 16,
+13, 11, 18, 100, 50% — and no radius tokens at all, so there is no token to
+change: it is ~20 hand edits across the page he signed off pixel by pixel, and
+the reference rendering would have to move with it or the two stop agreeing.
+That is a different-sized decision from a token, so it was raised rather than
+taken. See roadmap 2.17.
+
 ### Motion
 
 | Token | Value | Job |
@@ -548,6 +629,95 @@ leaving took longer than arriving.
 `tests/composition.test.mjs` test 5 reads the **reference page**, not
 `theme.css`, so it still measures 950/420 and is unaffected — which is
 correct, because it is testing the system's own page.
+
+#### ANYTHING THAT OPENS, ANIMATES IN — the budget grows, on purpose
+
+**THE OWNER GREW THIS BUDGET DELIBERATELY, 2026-09-01, and confirmed it
+2026-09-02. This section used to say the opposite of what he asked for**, and
+a session that reads only the three bullets in `dashboard-skeletons.md` §4
+will still find the old answer. Both halves are one rule now.
+
+> "There's a few things I just don't like — I don't have animations. For
+> example, on the booking page, when I click on a booking, it just kind of
+> spawns in on the side, like, instantly with no animation. It just instantly
+> opens, which kinda goes against a lot of the stuff that we usually do —
+> usually every single UI that opens has an animation."
+
+> "And have that as a keynote for the entire site. As the design process is
+> going, everything should have a very nice animation. That makes everything
+> feel very fluid and connected — **without being in the way of actual
+> productivity and usability**."
+
+> *(2026-09-02, confirming it had stuck)* "Throughout the site, there's
+> multiple points where stuff just kinda pops into place, and there's no
+> fluid animation. Keep that in mind when we build future things so it's
+> already there; but for the past things, it needs to get revised. **It's for
+> desktop** — desktop's the majority of the things where you click something
+> in the calendar, you click a booking, whatever, and it just instantly pops."
+
+**The last clause of the second quote is the acceptance test, not a caveat.**
+*Fluid and connected, without being in the way of productivity.* Three things
+follow from it and they are the whole law:
+
+- **Interruptible.** Nothing waits for an animation to finish. A record that
+  is being replaced by another record does not play an exit first.
+- **Fast.** An entrance you meet forty times a day is `--t-exit` (180ms), not
+  `--t-reveal` (420ms). 420 is right for a screen you meet once and is a gate
+  on a thing you do seven times in two minutes. *(That distinction was learned
+  in roadmap 2.11 step 6 stage 7 and it is the same one here.)*
+- **Never a gate.** The thing you tapped for is on screen and usable at frame
+  one; the motion is the last 14px and the last of the opacity, not the wait.
+
+**THIS DOES NOT CONTRADICT THE THREE-ITEM BUDGET ABOVE IT — it is a fourth
+item with a different subject.** The budget in `dashboard-skeletons.md` §4 is
+about a screen's ARRIVAL: one stagger on first paint, and no more. This is
+about a thing somebody OPENED. It appeared because a person clicked, and **it
+has to come from somewhere.**
+
+**A NEW COMPONENT THAT OPENS SHIPS ITS ENTRANCE AND ITS EXIT IN THE SAME
+CHANGE.** Not the entrance now and the exit later — an exit is the half that
+gets skipped, and `.record` had a sheet's entrance below `--wrap` and a hard
+cut at a desk for the whole life of the second column.
+
+**Where it comes from is the design, and the answer is different per
+container:**
+
+| It opens as | It comes from | Keyframes |
+|---|---|---|
+| a bottom sheet, below `--wrap` | the bottom edge it is anchored to | `sheet-in` / `sheet-out` |
+| the SECOND COLUMN, at or above `--wrap` | **its own side** — 14px of X, because the column edge is where it came from, not the top of the page | `column-in` / `column-out` |
+| a screen taking the main area (a tab, the gear, the setup form) | the screen's own staggered arrival | `arrive` — **it already has one, do not give it a second** |
+
+**14px and 180ms are numbers the system already holds** — `arrive` travels
+14px, `step-fwd` travels 14px on X, and 180ms is `--t-exit`. Nothing new was
+invented here, which is the same argument the 420/180 table above makes.
+
+**REACT UNMOUNTS, SO AN EXIT NEEDS A `leaving` STATE.** There is no CSS-only
+exit for an element the tree removes. `components/Sheet.jsx` has carried the
+pattern since it was written — `setLeaving(true)`, then `setTimeout(onClose,
+180)` — and `RecordHost` and `SettingsHost` use the same one rather than a
+second mechanism. **The timeout and `--t-exit` must move together.**
+
+**AND THE EXIT IS SKIPPED WHEN THE RECORD IS BEING REPLACED**, which is the
+acceptance test doing work: clicking job B while job A is open is one gesture,
+and playing A out before B in puts 180ms between a tap and the thing tapped
+for. Replacement changes the content in place.
+
+**WHAT MUST NOT ANIMATE, and this is measured rather than assumed.** A
+container swap that REMOUNTS the thing you were already looking at reads as a
+page refresh — his words: *"it's almost like I refresh the page when I click
+on something. I don't want everything to disappear and come back."* The
+calendar did exactly this: picking a day swapped `.group` for `.split.calday`,
+React threw away the month subtree and rebuilt it, and `arrive` re-ran on the
+whole left column while the NEW day panel animated not at all. **The wrong
+element was moving.** The fix is a stable container, not a nicer animation —
+see `docs/dashboard-skeletons.md` §4.
+
+**Verified by reading `document.getAnimations()` on the live dashboard, never
+from the stylesheet.** A selector that matches nothing looks exactly like a
+finished screen; roadmap 2.11 step 6 shipped Today's whole arrival dead for
+that reason, and stage 3 shipped another. 120ms after the click, list what is
+actually running.
 
 ### Atmosphere
 

@@ -121,6 +121,9 @@ for (const size of SIZES) {
   console.log(`\n══ ${size.width}x${size.height} ═══════════════════════════════════`);
   const ctx = await browser.newContext({ viewport: size, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
+  if (process.env.SLOTPROBE) page.on("response", (r) => {
+    if (/available-slots/.test(r.url())) console.log("      slots ->", r.status());
+  });
   const errors = [];
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
 
@@ -178,12 +181,69 @@ for (const size of SIZES) {
           await page.getByRole("button", { name: "Next month" }).click();
           await settle(page, 1500);
         }
-        const days = page.locator(".bk-cal .cell:not(.closed):not(.empty)");
-        for (let i = 0; i < (await days.count()); i++) {
-          await days.nth(i).click();
-          await settle(page, 900);
-          if (await page.locator(".bk-chip").count()) { picked = true; break; }
+        // WALK THE DAYS BY THEIR DATE, NOT BY THEIR INDEX — fixed 2026-09-03
+        // during roadmap 2.17, and it is the same lesson CLAUDE.md already
+        // records for the day rail: address a node, never a position.
+        //
+        // WHAT WAS WRONG, because it is not obvious and it had been passing:
+        // this used `days.nth(i)` against a LIVE locator, and picking a day
+        // re-renders the calendar — every day that cannot hold the chosen
+        // service greys out, which is correct product behaviour. So the
+        // moment the first day had no slots, `days.count()` fell to 0, the
+        // `for` condition failed on i=1, all three months reported 0 open
+        // cells, and the run died on a locator timeout that read as "the chip
+        // is missing".
+        //
+        // IT HAD BEEN PASSING BY LUCK. It only ever tried ONE day: while
+        // TODAY still had a free slot the loop exited on the first iteration
+        // and never reached the bug. It started failing at ~22:00 local, when
+        // the demo's own trading day (08:00-18:00) had closed — so this looked
+        // exactly like a flake, and cost most of a session being mistaken for
+        // the change under test before a control run with that change reverted
+        // failed identically. **Run the control before blaming the diff.**
+        //
+        // Collect the dates FIRST, then click them one at a time by their own
+        // label, re-querying after every render.
+        // AND WAIT FOR THE GRID BEFORE READING IT. The month's open days are
+        // decided by an availability call, so enumerating them straight after
+        // `settle()` can read an empty grid and conclude the business is shut.
+        // This was the other half of the same race: the run above printed
+        // `month 0 open:` with nothing after it, while the network log showed
+        // two slots responses arriving right afterwards.
+        await page.locator(".bk-cal .cell:not(.closed):not(.empty)").first()
+          .waitFor({ state: "attached", timeout: 6000 }).catch(() => {});
+        const dayText = [];
+        for (const cell of await page.locator(".bk-cal .cell:not(.closed):not(.empty)").all()) {
+          dayText.push((await cell.textContent()).trim());
         }
+        if (process.env.SLOTPROBE) console.log("      month", month, "open:", dayText.join(" "));
+        for (const d of dayText) {
+          const cell = page.locator(".bk-cal .cell", { hasText: new RegExp(`^${d}$`) }).first();
+          if (!(await cell.count())) continue;
+          const cls = (await cell.getAttribute("class")) || "";
+          if (/closed|empty/.test(cls)) continue;   // greyed out by an earlier pick
+          await cell.click();
+          // The slots come from a REMOTE edge function. `settle()` is a CAP,
+          // and 900ms is a fine cap on a repaint but not on a network round
+          // trip, so wait for the chip itself and let settle finish the job.
+          await page.locator(".bk-chip").first()
+            .waitFor({ state: "attached", timeout: 4000 }).catch(() => {});
+          await settle(page, 900);
+          const got = await page.locator(".bk-chip").count();
+          if (process.env.SLOTPROBE) console.log("      day", d, "->", got, "chips");
+          if (got) { picked = true; break; }
+        }
+      }
+      // AND SAY WHAT WENT WRONG. Without this the failure is a raw Playwright
+      // timeout on `.bk-chip`, which reads as "the chip is missing" when what
+      // happened is "no day in three months had one".
+      if (!picked) {
+        throw new Error(
+          "no bookable slot found in three months of the calendar — the demo "
+          + "has no availability, or the slots call is losing a race. Re-seed "
+          + "(node scripts/seed-demo.mjs) and check available-slots by hand. "
+          + "SLOTPROBE=1 prints every day tried and every slots response.",
+        );
       }
       await say(`${n}/${total} ${h.slice(0, 12)} + slots`);
       await page.locator(".bk-chip").first().click();

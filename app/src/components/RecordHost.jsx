@@ -14,6 +14,16 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 import Sheet from "./Sheet.jsx";
 import { useWide } from "../hooks/useWide.js";
+import { useLeaving } from "../hooks/useLeaving.js";
+
+// IT ANIMATES OUT, NOT JUST IN — roadmap 2.17, and the exit is the half that
+// gets skipped. Below --wrap a record has always left the way it arrived
+// (`.sheet` has sheet-out); at a desk it vanished, which is the seam this
+// component exists to hide showing through the other way round.
+// React unmounts the element, so CSS alone cannot do this: the close is held
+// for --t-exit while `.leaving` plays, then the caller is told. `useLeaving`
+// is that hold, shared with SettingsHost and the calendar's day panel so the
+// duration lives in exactly one place.
 
 // `bare` is Clients and only Clients: law 1 makes it the one screen in the
 // product with NO PANEL ON IT, and a right-hand card at a desk would end that.
@@ -21,6 +31,13 @@ import { useWide } from "../hooks/useWide.js";
 // is exactly what it exists to hide — it just draws no box (screen designs §9).
 export default function RecordHost({ open = true, onClose, title, subtitle, children, footer, bare = false }) {
   const wide = useWide();
+  // A CLOSE THE PERSON ASKED FOR — the X, or Escape. A record that closes
+  // because something CHANGED (a payment finalized, a booking cancelled) is
+  // the caller unmounting us and still goes straight out: that is not a "put
+  // it away" gesture, and holding the screen for 180ms after a save would put
+  // the animation in front of the result.
+  // Below --wrap the Sheet runs its own exit, so this one stands down.
+  const [leaving, close] = useLeaving(onClose, wide);
 
   // ESCAPE CLOSES IT AT BOTH WIDTHS. A sheet has always taken Escape, so
   // below --wrap the record did and above it the same record did not — the
@@ -32,16 +49,19 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
   useEffect(() => {
     if (!open || !wide) return;
     const onKey = (e) => {
-      if (e.key === "Escape" && !document.querySelector(".sheet-backdrop")) onClose?.();
+      if (e.key === "Escape" && !document.querySelector(".sheet-backdrop")) close();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, wide, onClose]);
+  }, [open, wide, close]);
 
   if (!open) return null;
 
   if (!wide) {
     return (
+      /* Sheet runs its OWN leaving state and its own 180ms, so it takes the
+         raw onClose. Wrapping it in this one would be two exits for one
+         gesture — 360ms and a record that leaves twice. */
       <Sheet open onClose={onClose} title={title} subtitle={subtitle} footer={footer}>
         {children}
       </Sheet>
@@ -49,13 +69,13 @@ export default function RecordHost({ open = true, onClose, title, subtitle, chil
   }
 
   return (
-    <aside className={`col-2 record${bare ? " bare" : ""}`} aria-label={title}>
+    <aside className={`col-2 record${bare ? " bare" : ""}${leaving ? " leaving" : ""}`} aria-label={title}>
       <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
         <div style={{ minWidth: 0 }}>
           {title && <h2 style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</h2>}
           {subtitle && <p className="quiet" style={{ marginTop: 2 }}>{subtitle}</p>}
         </div>
-        <button className="x" aria-label="Close" onClick={onClose}><X size={18} strokeWidth={2} /></button>
+        <button className="x" aria-label="Close" onClick={close}><X size={18} strokeWidth={2} /></button>
       </div>
       <div className="record-body">{children}</div>
       {footer}

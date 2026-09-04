@@ -390,5 +390,106 @@ console.log("\ntest 7: the rules are actually written down");
   check("the old system is named as replaced", /Raking Light/.test(docFlat));
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)");
+{
+  // WHY THIS TEST EXISTS. Both halves of 2.17 are rules that a later change
+  // breaks by OMISSION rather than by doing something wrong — a new panel that
+  // forgets `corner-shape`, a new second column that forgets its exit. Neither
+  // failure is visible: an un-squircled card looks like a card, and a hard cut
+  // looks like a fast animation. Nothing else in this repo can see either.
+  const theme = await readFile("app/src/theme.css", "utf8");
+
+  // 8a · EVERY --r-panel / --r-inset CORNER IS SQUIRCLED, AND NO PILL IS.
+  // The pairing rule from theme.css § SHAPE.
+  //
+  // BOTH TOKENISED SURFACES, and that is the point rather than thoroughness.
+  // Every surface in this product defines its own copy of the radii, so a rule
+  // enforced on one of them is a rule the other drifts away from — the
+  // detailer's page and the customer's page would end up with two corner
+  // languages, which is the one outcome § Layout says is worse than not doing
+  // this at all. (`landing.css` and the approved reference rendering use
+  // LITERAL pixel radii, no tokens, so there is nothing here to pair and they
+  // are deliberately not swept — see roadmap 2.17, still with the owner.)
+  //
+  // Split on `}` so each declaration block is judged on its own.
+  const SURFACES = [
+    ["theme.css", theme, "--r", 10],
+    ["booking.css", await readFile("app/src/book/booking.css", "utf8"), "--bk-r", 4],
+  ];
+  const firstLine = (b) => (b.trim().split("\n").find((l) => l.includes("{")) || b.trim().slice(0, 60)).trim();
+
+  for (const [name, src, prefix, floor] of SURFACES) {
+    const blocks = src.split("}");
+    const radiusRe = new RegExp(`border-radius:[^;]*var\\(${prefix}-(panel|inset)\\)`);
+    const pillRe = new RegExp(`border-radius:[^;]*(var\\(${prefix}-pill\\)|50%|100px)`);
+    const radiusBlocks = blocks.filter((b) => radiusRe.test(b));
+    const unpaired = radiusBlocks.filter((b) => !/corner-shape:/.test(b)).map(firstLine);
+    // Borrowed from email-brand 7a-iii: assert the check HAS SUBJECTS, so a
+    // rename of the radius tokens fails loudly instead of going vacuous.
+    check(`8a-i · ${name}: the corner check has subjects`, radiusBlocks.length >= floor,
+      `only ${radiusBlocks.length} panel/inset radius declarations found`);
+    check(`8a-ii · ${name}: every panel and inset corner is squircled`, unpaired.length === 0,
+      unpaired.join("\n        "));
+    // A PILL IS NEVER SQUIRCLED — a superellipse at a 100px radius is a
+    // lozenge and at 50% a blob. This is the half that would silently reshape
+    // every dot, ring, avatar and spinner in the product.
+    const pillSquircled = blocks
+      .filter((b) => /corner-shape:/.test(b)).filter((b) => pillRe.test(b)).map(firstLine);
+    check(`8a-iii · ${name}: no pill, dot or circle is squircled`, pillSquircled.length === 0,
+      pillSquircled.join("\n        "));
+  }
+  const blocks = theme.split("}");
+
+  // 8b · THE SECOND COLUMN ANIMATES IN AND OUT.
+  check("8b-i · the second column has an entrance",
+    /\.split > \.col-2 \{[^}]*animation: column-in/.test(theme));
+  check("8b-ii · and an exit",
+    /\.split > \.col-2\.leaving \{[^}]*animation: column-out/.test(theme));
+  check("8b-iii · both keyframes exist",
+    /@keyframes column-in\b/.test(theme) && /@keyframes column-out\b/.test(theme));
+  // It is --t-exit and not --t-reveal, which is the acceptance test in a
+  // regex: 420ms on a record you open forty times a day is a gate.
+  check("8b-iv · the second column opens at --t-exit, not --t-reveal",
+    /\.split > \.col-2 \{[^}]*column-in var\(--t-exit\)/.test(theme));
+  // `.lite` renders the end state for BOTH directions — the degradation rule.
+  check("8b-v · reduced motion switches both directions off",
+    /\.lite \.split > \.col-2, \.lite \.split > \.col-2\.leaving \{ animation: none/.test(theme));
+
+  // 8c · THE JS HALF, AND THE NUMBER THAT MUST NOT DRIFT. An exit is a delayed
+  // unmount, so the delay and --t-exit are one fact in two files. It was
+  // written out twice before `useLeaving` existed; this stops it happening
+  // again silently.
+  const leaving = await readFile("app/src/hooks/useLeaving.js", "utf8");
+  const exitMs = /EXIT_MS = (\d+)/.exec(leaving)?.[1];
+  const tExit = /--t-exit:\s*(\d+)ms/.exec(theme)?.[1];
+  check("8c-i · useLeaving's delay matches --t-exit", exitMs && exitMs === tExit,
+    `useLeaving ${exitMs}ms vs --t-exit ${tExit}ms`);
+  // ANYTHING THAT OPENS INTO THE SECOND COLUMN USES IT. Three callers today;
+  // a fourth that rolls its own setTimeout is how the pattern forks.
+  for (const f of ["app/src/components/RecordHost.jsx",
+                   "app/src/components/SettingsHost.jsx",
+                   "app/src/screens/Calendar.jsx"]) {
+    const src = await readFile(f, "utf8");
+    check(`8c-ii · ${f.split("/").pop()} closes through useLeaving`,
+      /useLeaving\(/.test(src));
+  }
+
+  // 8d · THE CALENDAR'S CONTAINER IS STABLE. A `wide && day` here would put the
+  // remount back: React would swap `.group` for `.split.calday` and re-run the
+  // whole month's arrival, which is the "it's almost like I refresh the page"
+  // defect this item was opened for.
+  const cal = await readFile("app/src/screens/Calendar.jsx", "utf8");
+  check("8d-i · the month's desk container does not depend on a day being open",
+    !/if \(wide && day\) \{/.test(cal));
+  check("8d-ii · and it collapses back to a block with no second column",
+    /\.split\.calday:not\(:has\(> \.col-2\)\) \{ display: block/.test(theme));
+  // A :has() MAY NOT CONTAIN ANOTHER :has(). The nested form was written first
+  // and the browser dropped the whole selector in silence, costing the month
+  // 540px at 1920. Nothing else in this repo can see an invalid selector.
+  check("8d-iii · no :has() is nested inside another :has()",
+    !/:has\((?:[^()]|\([^()]*\))*:has\(/.test(theme));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

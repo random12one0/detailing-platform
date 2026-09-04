@@ -45,6 +45,7 @@ import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import { useBookings } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
+import { useLeaving } from "../hooks/useLeaving.js";
 import { addDays, dateLong, money, time12, todayLocal } from "../lib/format.js";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import RecordHost from "../components/RecordHost.jsx";
@@ -125,6 +126,13 @@ export default function Calendar({ refreshKey = 0 }) {
   // The cell the open day came from, so closing the panel puts you back on it
   // rather than on the body — the same contract Sheet.jsx keeps.
   const dayCell = useRef(null);
+  // THE DAY PANEL LEAVES THE WAY IT ARRIVED — roadmap 2.17. It is the one
+  // second column in the product that is not a RecordHost or a SettingsHost,
+  // so it needs the hold explicitly; below --wrap it is inline under the month
+  // and there is nothing to animate, which is what the `wide` argument says.
+  const [dayLeaving, closeDay] = useLeaving(
+    () => { setDay(null); dayCell.current?.focus(); }, wide,
+  );
 
   const [y, m] = cursor.split("-").map(Number);
   const monthStart = `${cursor}-01`;
@@ -225,7 +233,11 @@ export default function Calendar({ refreshKey = 0 }) {
   }, [bookings, marks, writes]);
 
   const openDay = (date, el) => {
-    const next = day === date ? null : date;
+    // PRESSING THE OPEN DAY AGAIN IS A CLOSE, and it goes out the same door as
+    // the panel's own X — otherwise the one way of putting the day away that
+    // does not touch the panel is the one way that skips its exit.
+    if (day === date) { closeDay(); return; }
+    const next = date;
     setDay(next);
     dayCell.current = next ? el : null;
     // THE MONTH STAYS ON THE SCREEN. On a phone the panel opens below a grid
@@ -426,7 +438,7 @@ export default function Calendar({ refreshKey = 0 }) {
         inline
         date={day}
         bookings={byDay[day] ?? []}
-        onClose={() => { setDay(null); dayCell.current?.focus(); }}
+        onClose={closeDay}
         onOpenBooking={setSelected}
         onNewBooking={setCreating}
         onChanged={() => { loadMarks(); reload(); }}
@@ -438,11 +450,23 @@ export default function Calendar({ refreshKey = 0 }) {
     // day rather than sharing the column with it — a job opened from the day
     // belongs beside the month for the same reason the day does, and two
     // panels in one grid cell is two panels on top of each other.
-    if (wide && day) {
+    // AND THE WRAPPER IS THERE WITH NOTHING OPEN TOO — roadmap 2.17, and it
+    // is a MOTION fix, not a layout one. It used to be `wide && day`, so
+    // picking a day swapped `.group` for `.split.calday` and React threw the
+    // month away and rebuilt it. Measured with document.getAnimations() 120ms
+    // after the click: `arrive` re-ran on the whole left column while the day
+    // panel arrived with no motion at all — the wrong element moving, which is
+    // his "it's almost like I refresh the page" exactly. Same wrapper at every
+    // desk width means React reconciles and the month keeps its DOM.
+    // theme.css collapses `.split.calday:not(:has(> .col-2))` back to a block,
+    // so with nothing open the layout is byte-for-byte what it was.
+    if (wide) {
       return (
         <div className={`split calday${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
           <div className="group col-1">{month}</div>
-          {!selected && <div className="col-2">{daypanel}</div>}
+          {day && !selected && (
+          <div className={`col-2${dayLeaving ? " leaving" : ""}`}>{daypanel}</div>
+        )}
           {record}
           {newBooking}
         </div>

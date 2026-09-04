@@ -183,6 +183,54 @@ acceptance test and it has not moved: *fluid and connected, without being in
 the way of productivity*. Interruptible, fast, never a gate between a tap and
 the thing tapped for.
 
+**THE RETROFIT SHIPPED 2026-09-03 (roadmap 2.17), and the LIST was five, not
+the two or three anybody had named.** The full law, the quotes and the
+per-container table now live in `docs/design-system.md` § Motion — *anything
+that opens, animates in* — because that is the file a session reads before
+touching anything a person looks at. What belongs here is the budget line and
+what the audit actually found.
+
+**Measured on the live dashboard at 1920 with `document.getAnimations()`, 120ms
+after each click, because a selector that matches nothing looks exactly like a
+finished screen.** Before the retrofit, every one of these produced *nothing
+running but the ground's 54-second drift*:
+
+| Opened at a desk | Reached from | Had |
+|---|---|---|
+| `.col-2.record` — a job | Today, Calendar month, Calendar history, Money | no entrance, no exit |
+| `.col-2.record.bare` — a client | Clients | no entrance, no exit |
+| `.col-2.settings-col` | Business **and** the gear | no entrance, no exit |
+| `.split.calday > .col-2` — the day panel | Calendar month | no entrance, no exit |
+| `.col-2` resting content | Today, Money, Calendar history | never animated, first paint included |
+
+**AND ONE THING ROADMAP 2.17 LISTED AS BROKEN THAT IS NOT: the gear.** Opening
+it runs `arrive` on its index, because `GearMenu` renders a `.split` directly
+under `.app-main` and the screen's own stagger catches it. It is in the same
+family as the setup form — a component that takes the main area already HAS an
+entrance, and giving it a second one is two animations running the same 420ms.
+**Check what is running before adding one; the budget's first three items still
+bind.**
+
+**THE CALENDAR WAS THE ODD ONE OUT AND IT WAS THE WRONG ELEMENT MOVING.**
+Picking a day swapped the container from `.group` to `.split.calday`, so React
+discarded the month subtree and rebuilt it: `arrive` re-ran on the whole left
+column — the thing you were already looking at — while the day panel you had
+just asked for arrived with no motion at all. That is *"it's almost like I
+refresh the page"* exactly, and **the fix is a stable container rather than a
+nicer animation.** `.split.calday` is now always the container at a desk and
+collapses to `display: block` when no day is open (`:not(:has(> .col-2))`, the
+idiom `.split.clients` already uses), so React reconciles and the month keeps
+its DOM.
+
+**WHAT IS STILL DELIBERATELY DROPPED, and it is worth naming because
+"everything should feel fluid" reads as permission to animate everything:** a
+screen's first paint still gets ONE stagger and no more; `:active` still has no
+transition at all, so a press is contact rather than animation; and the grid's
+own reflow when the calendar narrows is NOT animated — a seven-column grid
+losing 35% of its width while its cells change from written-out job lines to
+dots is not a thing a `transition` improves, and pretending otherwise is how
+the container swap got papered over the first time.
+
 Dropped, each with its reason:
 
 - **The scrub preset and the pin.** Law 6 puts a pin's floor at ~1.8 screens

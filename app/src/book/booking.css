@@ -71,6 +71,18 @@
   --bk-r-pill: 100px;          /* buttons, chips, state pills */
   --bk-r-panel: 18px;          /* panels */
   --bk-r-inset: 12px;          /* sunken and inset blocks */
+  /* THE SAME CORNER THE DASHBOARD TAKES — roadmap 2.17, the owner's ask:
+     "I want everything to be a squircle… the kind of professional rounded
+     corners that Apple has." This surface defines its own copy of the radii,
+     as every surface in this product does (theme.css § SHAPE carries the full
+     reasoning and the browser-support measurement), so it needs its own copy
+     of the shape or the customer's page and the detailer's page end up with
+     two corner languages.
+     PANELS AND INSETS ONLY. --bk-r-pill and 50% keep `round`: a superellipse
+     at a 100px radius is a lozenge and at 50% a blob.
+     Additive — Safari and Firefox do not know `corner-shape` and draw the
+     border-radius already there, so there is nothing to fall back to. */
+  --bk-corner: squircle;
 
   /* ONE column, defined once. This is the CONTENT width — the masthead, the
      form and the price bar all have to line up on it, and they did not: the
@@ -296,7 +308,7 @@
   max-width: var(--bk-col); margin: 0 auto;
   display: flex; align-items: center; gap: var(--bk-sp-3);
 }
-.bk-header img { width: 42px; height: 42px; object-fit: contain; border-radius: var(--bk-r-inset); flex-shrink: 0; }
+.bk-header img { width: 42px; height: 42px; object-fit: contain; border-radius: var(--bk-r-inset); flex-shrink: 0; corner-shape: var(--bk-corner); }
 .bk-header h1 {
   font-size: var(--bk-t-title); font-variation-settings: "wdth" 106, "wght" 680;
   letter-spacing: -.018em;
@@ -360,6 +372,7 @@
   background: rgba(255, 255, 255, .02);
   box-shadow: inset 0 0 0 1px var(--bk-hairline);
   border-radius: var(--bk-r-panel); padding: clamp(15px, 3.6vw, 20px);
+  corner-shape: var(--bk-corner);
 }
 .bk-card.selectable {
   cursor: pointer;
@@ -525,6 +538,7 @@
   background: rgba(255, 255, 255, .02);
   box-shadow: inset 0 0 0 1px var(--bk-hairline);
   border-radius: var(--bk-r-inset); padding: var(--bk-sp-3) var(--bk-sp-4);
+  corner-shape: var(--bk-corner);
   font-size: var(--bk-t-body); color: var(--bk-text-2); line-height: 1.5;
 }
 
@@ -622,6 +636,7 @@
   background: var(--bk-sunken); color: var(--bk-text);
   border: 0; box-shadow: inset 0 0 0 1px var(--bk-hairline);
   border-radius: var(--bk-r-inset);
+  corner-shape: var(--bk-corner);
   font-size: var(--bk-t-strong); font-family: var(--bk-f-body);
   transition: box-shadow var(--bk-t-hover) var(--bk-e);
 }
@@ -640,6 +655,7 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bk-danger) 55%, transparent);
   background: color-mix(in srgb, var(--bk-danger) 9%, transparent);
   color: var(--bk-danger); border-radius: var(--bk-r-inset);
+  corner-shape: var(--bk-corner);
   padding: 11px 14px; font-size: var(--bk-t-body);
 }
 
@@ -761,6 +777,7 @@
   aspect-ratio: 1; max-height: 52px;
   display: flex; align-items: center; justify-content: center;
   border-radius: var(--bk-r-inset);
+  corner-shape: var(--bk-corner);
   background: rgba(255, 255, 255, .025);
   box-shadow: inset 0 0 0 1px var(--bk-hairline);
   color: var(--bk-text);

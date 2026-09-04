@@ -32,10 +32,22 @@
 import { useEffect, useRef } from "react";
 import { ChevronLeft, X } from "lucide-react";
 import { useWide } from "../hooks/useWide.js";
+import { useLeaving } from "../hooks/useLeaving.js";
 import { SCREENS } from "../screens/more/index.js";
+
+// IT ANIMATES OUT AT A DESK — roadmap 2.17. A settings screen entering and
+// leaving the second column was a hard cut in both directions, measured on the
+// live dashboard: 120ms after the click, nothing was running but the ground.
+// Same hold as RecordHost and as Sheet.jsx before it — `useLeaving` keeps
+// `.leaving` on for --t-exit, then tells the caller. ONE mechanism and one
+// duration for the three containers.
 
 export default function SettingsHost({ open, onClose, splitClass, empty, children }) {
   const wide = useWide();
+  // BELOW --wrap THERE IS NOTHING TO ANIMATE OUT — the screen is the page, and
+  // it leaves by the page changing. The delay would be 180ms of a dead back
+  // button on the surface where the sheet already felt right.
+  const [leaving, close] = useLeaving(onClose, wide);
 
   // ESCAPE CLOSES IT AT BOTH WIDTHS, the same rule and the same reason as
   // RecordHost: below --wrap a sheet always took Escape, so the seam between
@@ -45,11 +57,11 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
-      if (e.key === "Escape" && !document.querySelector(".sheet-backdrop")) onClose?.();
+      if (e.key === "Escape" && !document.querySelector(".sheet-backdrop")) close();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open, close]);
 
   // A PAGE STARTS AT ITS TOP. Opening the ninth row of an index and landing
   // two thirds of the way down a form is the thing a sheet got right for
@@ -86,7 +98,7 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
     return (
       <div className="group settings-page">
         <div className="settings-head">
-          <button ref={back} className="btn icon ghost" aria-label="Back" onClick={onClose}>
+          <button ref={back} className="btn icon ghost" aria-label="Back" onClick={close}>
             <ChevronLeft strokeWidth={2} />
           </button>
           <h1 className="display">{title}</h1>
@@ -111,10 +123,18 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
            `.card.setting-card` groups, so a panel here would be boxes in
            boxes at one surface value — the note Catalog's own container
            carries, and what `.record.bare` exists for one screen over. */
-        <aside className="col-2 settings-col" aria-label={title}>
+        /* KEYED, AND IT IS NOT COSMETIC. The open screen and the resting
+           content are both `<aside class="col-2 settings-col">` in the same
+           slot, so without a key React reconciles them as one element — the
+           content swaps and the entrance never fires. Measured: opening a
+           settings screen at 1920 produced no animation at all while the
+           gear's own resting column, three lines up, animated correctly.
+           Same shape as the `.card.attend` rename the sweep caught — the
+           right element, silently meaning something else. */
+        <aside key={open} className={`col-2 settings-col${leaving ? " leaving" : ""}`} aria-label={title}>
           <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
             <h2>{title}</h2>
-            <button className="x" aria-label="Close" onClick={onClose}><X size={18} strokeWidth={2} /></button>
+            <button className="x" aria-label="Close" onClick={close}><X size={18} strokeWidth={2} /></button>
           </div>
           <div className="settings-body"><Active /></div>
         </aside>
@@ -126,7 +146,7 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
            the booking link was drawn TWICE on one 392px screen.
            `wide` and the caller's own useWide() are the same query, so the
            two halves cannot disagree. */
-        <aside className="col-2 settings-col">{empty}</aside>
+        <aside key="resting" className="col-2 settings-col">{empty}</aside>
       ) : null}
     </div>
   );

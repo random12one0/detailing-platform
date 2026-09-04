@@ -3508,3 +3508,147 @@ has been opened in a real client.**
    until he answers. Clients sort/filter (item 7 below) is folded into that
    proposal and should not be started separately before he replies.
 7. **The five deferred dashboard items** (calendar week view, Clients sort/filter with lifetime value, demote quoted-vs-on-site, Hours multi-glow, calendar cell weight) — agreed non-blocking, but Clients sort/filter is the one owners will hit daily; do it first of the five.
+
+## ROADMAP 2.17 — MOTION AND SHAPE AS A HOUSE STYLE (2026-09-03)
+
+**BUILT, except one thing that is the owner's call.** He asked for this three
+times — 2026-09-01, confirmed 2026-09-02, and asked again on 2026-09-03
+whether the missing animations were just a stage not reached yet. They were.
+
+### What a cold session needs to know first
+
+1. **The rule now lives in `docs/design-system.md` § Motion**, with his quotes
+   in full, and the budget in `docs/dashboard-skeletons.md` §4 was grown to
+   match. **The system file was changed BEFORE any code**, which is the
+   sequence CLAUDE.md requires and the roadmap named explicitly.
+2. **`.split > .col-2` is the whole retrofit** — one selector, `column-in` /
+   `column-out`, 14px on X at `--t-exit` (180ms) on the one curve. It covers
+   the job record, the client record, the settings column through both doors,
+   the calendar's day panel and every screen's resting second column.
+3. **`hooks/useLeaving.js` is the exit**, used by `RecordHost`,
+   `SettingsHost` and `Calendar`. React unmounts, so an exit is a delayed
+   unmount. **The 180 lives there and nowhere else** and
+   `tests/composition.test.mjs` 8c-i pins it against `--t-exit`.
+4. **`--corner: squircle` in `theme.css`**, paired onto every `--r-panel` /
+   `--r-inset` corner and onto **no pill, dot or ring**.
+5. **The one open thread is the 1440 calendar reflow** — roadmap 2.17, the
+   block marked ⚠. Everything else in the item is done.
+
+### The audit was a measurement, and that is the transferable part
+
+`document.getAnimations()` on the live dashboard at 1920, **120ms after each
+click**. Not the stylesheet — this repo has shipped two animations that were
+dead in the cascade and looked exactly like finished screens (Today's whole
+arrival in step 6, another in stage 3), so a selector is not evidence.
+
+It found **five** things arriving with nothing but the ground's 54-second
+drift, where the roadmap had named three — and **one thing the roadmap listed
+as broken that was already fine**, the gear, which renders a `.split` under
+`.app-main` and is caught by the screen's own stagger. *A defect list written
+from reading is a list of hypotheses.*
+
+**The fifth was the one nobody had named**: every desk screen staggered its
+LEFT column in and left the right one sitting there, on first paint as well as
+on open. That is why one selector closes the whole list — they are one object,
+the thing beside the list.
+
+### The calendar was the wrong element moving
+
+His words were *"it's almost like I refresh the page when I click on
+something."* Literally what the code did: `Calendar.jsx` rendered `.group`
+with nothing open and `.split.calday` with a day open, so React discarded the
+month subtree and rebuilt it. `arrive` re-ran on the whole left column — the
+thing he was already looking at — while the day panel he had just asked for
+animated not at all.
+
+**Fixed with a stable container, not a nicer animation.** The wrapper renders
+at every desk width; `.split.calday:not(:has(> .col-2))` collapses it to
+`display: block` when nothing is open, which is the idiom `.split.clients`
+already used. Proved by stamping the `.cal-grid` node before the click and
+finding the stamp afterwards.
+
+### Three defects the measurement caught that reading would not have
+
+- **A `:has()` may not contain another `:has()`.** The widening rule was
+  written `.app-main:has(> .split.calday:has(> .col-2))`, which is invalid, and
+  the browser dropped the whole selector **in silence**: the grid split
+  correctly and the page never widened, so at 1920 the month went to 696px
+  instead of gaining room to 1,236px. *An invalid CSS rule looks exactly like a
+  satisfied one.* Pinned by check 8d-iii.
+- **Two `<aside>`s in one slot are RECONCILED, not remounted.** The open
+  settings screen and the resting content are both
+  `<aside class="col-2 settings-col">` in the same position, so React swapped
+  their children and the entrance never fired — while the gear's resting
+  column, three lines away, animated correctly. Keyed apart. Same family as the
+  `.card.attend` rename: the right element, silently meaning something else.
+- **Pressing the open day again toggles it closed**, down a path that called
+  `setDay(null)` directly and skipped the exit.
+
+### The squircle: one token, and the honest cost is Safari
+
+`corner-shape: squircle`. **Measured 2026-09-03** from `api.webstatus.dev` and
+MDN's browser-compat-data, not assumed: **Chrome / Chrome Android / Edge 139+**
+(shipped 2025-08-05); **Safari no** (Technology Preview only); **Firefox no**;
+Baseline **limited**.
+
+It is **additive** — an unsupported browser draws the `border-radius` already
+there — so there is no fallback, no feature query and no second corner
+language. **The cost the owner has to accept: he sees squircles at a Chrome
+desk and not on his iPhone**, because every iOS browser is WebKit. It resolves
+itself when WebKit ships, with no release from us.
+
+**Both alternatives are worse and one of them is non-obviously worse.** A
+Houdini paint worklet is **Chromium-only too** (Chrome 65+, never Firefox
+bugzil.la/1302328, never Safari webkit.org/b/190217) — a JS paint pass per
+element to reach *exactly the same browsers as the free property*. **Do not
+re-propose it on rediscovering that `corner-shape` is Chromium-only; that is
+the same fact.** An SVG mask is the only route that reaches Safari, and it
+clips the 1px `--hairline` this system draws on nearly every surface, so it is
+a border rewrite as well as a corner one.
+
+**Panels and insets only.** A superellipse at a 100px radius is a lozenge and
+at 50% a blob — every pill, dot, ring, avatar and spinner would change shape.
+Verified live: `.card` and `.sunken` compute `squircle`, `.btn` and `.tabbar`
+compute `round`, and with every animation frozen the corner crop still differs
+from the `round` one, so it is genuinely rasterised.
+
+### What was verified
+
+- **`document.getAnimations()` re-read after the change** at 1920 and 1440:
+  every one of the five now reports `column-in` on open and `column-out` on
+  close, and the month's DOM survives a day click.
+- **`node scripts/sweep-widths.mjs --all`** — clean at 1920, 1440, 392, 360,
+  320 (352s). `--all` rather than the tiered default, because this change
+  touches `theme.css` and `SettingsHost`, which is exactly the shared container
+  the tiering bets is uniform.
+- **`tests/composition.test.mjs`** grown from 26 to **41** checks (test 8, 15
+  new), **every family baselined both ways** — each deliberate defect fails
+  exactly one check and the file is clean again after restore.
+- The rest of the credential-free suite: `design-contrast`, `landing-pricing`,
+  `route-contract`, `money-export`, `email-brand` (189), `client-list` (31),
+  `setup-progress` (24), `accent-sweep`, `render-emails` — all pass.
+- Console at every width: only the two pre-existing React Router future-flag
+  warnings. No new errors.
+
+### ⚠ THE ONE OPEN THREAD — the 1440 calendar reflow, and it is his decision
+
+At **1920 nothing is lost, and the fix improved it**: opening a day takes the
+month from 1,144px to **1,236px** — it gains room and keeps its written-out
+cells. At **1440x900** it goes **1,144px → 836px** and `writes` flips off at the
+1,640 rule, so cells go back to dots.
+
+**A third option was tried before putting his two back to him, and it died by
+measurement.** Lower the 1,640 threshold so the month keeps its words at 1440
+with a day open: built, screenshotted, rejected **by looking**. At 836px a cell
+is 115px and the lines render `8:00 AM Mar…`, `9:45 AM Da…`, `12:15 PM Pr…` —
+the time survives and the name does not, which is worse than a dot because it
+reads as data rather than as a mark. **`text-overflow: ellipsis` means no
+overflow check can ever see this**; the only instrument is a screenshot
+(`shots-2.17/1440-calendar-day-WORDS.png` against `-marks.png`).
+
+So the roadmap's (a) and (b) stand, **and the remount — most of the
+"refresh the page" feeling — is gone from both.** The recommendation given to
+him is **(b), do nothing**: the complaint was the disappear-and-come-back, and
+(a) would trade a transition he may no longer notice for content he explicitly
+said was useful.
+

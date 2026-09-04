@@ -68,7 +68,8 @@ explaining it; if they still have to ask "so should I?", it failed.
   listed in the new file under "§11". Backend, content, copy facts and
   accessibility floors were always kept; only the visual world changed.
 - The design tests enforce the NEW rules: `tests/composition.test.mjs`
-  (26 checks — it said 24 until 2026-08-30, which was stale) and
+  (**41 checks** — 24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
+  which added test 8: the squircle pairing and the second column's motion) and
   `tests/design-contrast.test.mjs`. Don't contort work to
   pass them — if a test and a real design decision collide, the system file
   gets updated first, never silently.
@@ -146,6 +147,40 @@ explaining it; if they still have to ask "so should I?", it failed.
   or panel somebody advances repeatedly takes `--t-exit` (180ms), not
   `--t-reveal` (420ms): 420 is right for a screen you meet once and is a gate
   on a thing you do seven times in two minutes.
+  **THE RETROFIT SHIPPED 2026-09-03 (roadmap 2.17) AND THE MECHANICS ARE NOW
+  FIXED — use them rather than inventing a second set.**
+  **`.split > .col-2` carries `column-in` / `column-out`**, 14px on X at
+  `--t-exit`, one selector for the job record, the client record, the settings
+  column through both doors, the calendar's day panel and every screen's
+  resting second column. A new thing that opens into the second column gets
+  this for free by being a `.col-2` — **do not give it its own animation.**
+  **`hooks/useLeaving.js` is the exit** and the 180 lives there and nowhere
+  else (`composition` 8c-i pins it to `--t-exit`). React unmounts, so an exit
+  is a delayed unmount; a fourth caller rolling its own `setTimeout` is how the
+  pattern forks.
+  **A component that takes the MAIN AREA already has an entrance** — the
+  screen's stagger — and that now has a second confirmed instance: the gear.
+  The roadmap listed it as broken; it was not. **Read
+  `document.getAnimations()` before adding one.**
+  **THE AXIS IS THE ORIGIN.** `arrive` travels Y because a screen is read
+  downward; the second column travels X because the column edge is where it
+  came from. That is the rule for the next container, not a preference.
+  **AND THE CORNER IS A TOKEN, ON BOTH TOKENISED SURFACES: `--corner` in
+  `theme.css` and `--bk-corner` in `booking.css`**, paired onto every
+  panel/inset corner and onto **no pill, dot or ring** — a superellipse at a
+  100px radius is a lozenge, at 50% a blob. Every surface defines its own copy
+  of the radii, so setting it on one and not the other is the two-corner-
+  languages failure the design system forbids. **The landing page is
+  deliberately NOT done and is with the owner** — it uses literal pixel radii,
+  no tokens, and the approved reference rendering would have to move with it. `corner-shape` is
+  **Chromium-only in stable** (Chrome/Edge 139+; Safari Technology Preview
+  only; Firefox no — measured 2026-09-03, not assumed), and it is additive, so
+  Safari draws today's corners. **A Houdini paint worklet is Chromium-only
+  TOO** and reaches exactly the same browsers for a JS paint pass, so do not
+  re-propose it on rediscovering the support gap; an SVG mask reaches Safari
+  and clips the hairline this system draws almost everywhere.
+  **`tests/composition.test.mjs` test 8 holds all of it** — 15 checks,
+  baselined both ways.
 
 - **Imagery: never a grey placeholder box.** An Unsplash connector is
   wired up and confirmed working 2026-08-29 (`search_photos`; "car
@@ -402,6 +437,29 @@ explaining it; if they still have to ask "so should I?", it failed.
   owner's rule that a customer should never scroll inside a step — and the
   script exits 1 while anything overflows, so it is the definition of done.
   `--lite` runs the `?lite=1` path; `--shots=DIR` saves the PNGs.
+  **AND `SLOTPROBE=1` PRINTS THE DAY WALK AND EVERY `available-slots` RESPONSE
+  — new 2026-09-03, and it is the thing to reach for FIRST if this script ever
+  fails on step 5.** It was added while fixing two races that had made the
+  script fail on about half its runs; the diagnosis cost most of a session and
+  none of it would have been needed with this switch.
+  **THE TWO RACES, because the shape of them is the reusable part.** The
+  script picked days by INDEX against a live locator, and choosing a day
+  re-renders the calendar — every day that cannot hold the chosen service greys
+  out, which is correct product behaviour — so `days.count()` fell to 0 and the
+  loop gave up after ONE day. **It had been passing by luck**: while today
+  still had a free slot it exited on the first iteration and never reached the
+  bug, and it began failing at ~22:00 local when the demo's own trading day
+  (08:00–18:00) closed. The second race was one level up: the month's open days
+  come from an availability call, so enumerating them straight after `settle()`
+  could read an EMPTY grid and conclude the business was shut. Both are fixed —
+  days are addressed by their date and re-queried after every render, and the
+  grid is waited for before it is read. **`settle()` is a CAP and a fine one on
+  a repaint; it is not a wait for a network round trip.**
+  **AND THE PROCESS LESSON, which cost more than the bug: RUN THE CONTROL
+  BEFORE BLAMING THE DIFF.** This failure appeared in the same minute as an
+  unrelated CSS change and looked exactly like its fault. Reverting that change
+  and watching the script fail identically is what proved it innocent, in one
+  run.
   **Read the spare room, not just the pass.** Both step 1 and step 3 are the
   TENANT’S budget, not ours, and both were re-measured in roadmap 2.8b against
   the demo reshaped into the owner’s own menu — two categories of three.
@@ -606,6 +664,19 @@ explaining it; if they still have to ask "so should I?", it failed.
   `bookings.total_price` and to the confirmation email**, and check that the
   itemisation still adds up to the total — `tests/booking-engine.test.mjs`
   test 17 is the shape of that check.
+- **THE INSTRUMENT FOR ANYTHING ABOUT MOTION IS `document.getAnimations()` ON
+  THE LIVE PAGE, 120ms AFTER THE CLICK — never the stylesheet.** Roadmap 2.17,
+  and it is the third time this has mattered: Today shipped its whole arrival
+  dead in step 6, stage 3 shipped another, and 2.17's own audit found the
+  roadmap wrong about one item (the gear animates) and short by two on the
+  rest. **A selector that matches nothing looks exactly like a finished
+  screen**, and an animation that is running on the WRONG element looks like an
+  animation that is working. Filter out `ground-drift` and the hover
+  transitions and read what is left.
+  **The same rule caught an invalid selector nothing else in this repo can
+  see:** a `:has()` may not contain another `:has()`, and the browser drops the
+  whole rule silently. It was found by logging `.app-main`'s own width before
+  and after a click, not by reading the file.
 - Report what was observed, never "this should work."
 
 ## Process

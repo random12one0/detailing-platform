@@ -2830,6 +2830,163 @@ is kept; the entire visual design restarts from scratch.
       redesign, and a session that treats "everything should feel fluid" as
       permission to restyle has misread it.
 
+      ---
+
+      **BUILT 2026-09-03, EXCEPT ONE THING THAT IS HIS CALL.** The retrofit,
+      the calendar's remount and the squircle are all in. What is left is the
+      1440 reflow, below.
+
+      **THE AUDIT WAS A MEASUREMENT, and it changed the list.**
+      `document.getAnimations()` read on the live dashboard at 1920, **120ms
+      after each click** — not the stylesheet, because this repo has already
+      shipped two animations that were dead in the cascade and looked exactly
+      like finished screens. **Five things arrived with nothing running but the
+      ground's 54-second drift**, and one thing this item listed as broken was
+      already fine:
+
+      | Opened at a desk | Before | Now |
+      |---|---|---|
+      | `.col-2.record` — a job (Today, Calendar month, Calendar history, Money) | nothing | in + out |
+      | `.col-2.record.bare` — a client | nothing | in + out |
+      | `.col-2.settings-col` — **both** doors | nothing | in + out |
+      | `.split.calday > .col-2` — the day panel | nothing | in + out |
+      | `.col-2` resting content, on first paint too | nothing | in |
+      | the gear taking the main area | **already ran `arrive`** | unchanged |
+
+      **THE FIFTH IS THE ONE NOBODY NAMED**, and it is why the whole list is
+      one selector: every desk screen staggered its LEFT column in and left the
+      right one sitting there. `.split > .col-2` is the rule — they are one
+      object, the thing beside the list.
+
+      **AND THE GEAR WAS A FALSE POSITIVE.** It renders a `.split` directly
+      under `.app-main`, so the screen's own stagger catches it; giving it an
+      entrance would have been two animations on the same 420ms — the mistake
+      stage 7 already recorded for the setup form. *A defect list written from
+      reading is a list of hypotheses.*
+
+      **HOW IT MOVES.** 14px on X at 180ms (`--t-exit`) on the one curve.
+      From its own SIDE, because the column edge is where the thing came from —
+      `arrive` travels Y because a screen is read downward. **No new duration
+      and no new distance**: 14px is `arrive`'s and `step-fwd`'s, 180ms is
+      `--t-exit`. 420ms was rejected against his own acceptance test — it is a
+      gate on a record you open forty times a day.
+
+      **The exit is `hooks/useLeaving.js`** — React unmounts, so an exit is a
+      delayed unmount. Three callers, one place for the 180 (it was written out
+      in two files first, each carrying a comment saying it must track
+      `--t-exit`, which is the shape of a number that drifts).
+      **Skipped on replacement**: clicking job B while A is open changes the
+      content in place, because 180ms between a tap and the thing tapped for is
+      the acceptance test failing.
+
+      **3 · THE CALENDAR WAS THE WRONG ELEMENT MOVING, and that is the whole
+      diagnosis.** Picking a day swapped `.group` for `.split.calday`, so React
+      discarded the month subtree and rebuilt it: `arrive` re-ran on the left
+      column — *the thing you were already looking at* — while the day panel
+      you had just asked for animated not at all. That is *"it's almost like I
+      refresh the page"* literally. **Fixed with a stable container, not a
+      nicer animation**: the wrapper renders at every desk width and collapses
+      to `display: block` with no second column. Proved by stamping the
+      `.cal-grid` node before the click and finding the stamp after it.
+
+      **THREE DEFECTS THE MEASUREMENT CAUGHT AND READING WOULD NOT HAVE.**
+      A **`:has()` may not contain another `:has()`** — the widening rule was
+      written that way, the browser dropped the whole selector *silently*, and
+      the month went to 696px at 1920 instead of gaining room to 1,236px.
+      **Two `<aside>`s in one slot are reconciled, not remounted**, so the
+      settings screen's entrance never fired until they were keyed apart.
+      And **pressing the open day again** toggles it closed down a path that
+      skipped the exit.
+
+      **2 · THE SQUIRCLE IS `corner-shape: squircle`, ONE TOKEN NEXT TO THE
+      RADII, AND IT DEGRADES TO TODAY'S LOOK.** Support measured 2026-09-03
+      from `api.webstatus.dev` and MDN's compat data rather than assumed:
+      **Chrome / Chrome Android / Edge 139+** (shipped 2025-08-05), **Safari
+      no** (Technology Preview only), **Firefox no**, Baseline **limited**. It
+      is additive, so an unsupported browser draws the `border-radius` that is
+      already there — no fallback, no feature query.
+      **PANELS AND INSETS ONLY**: a superellipse at a 100px radius is a lozenge
+      and at 50% a blob, so pills, dots, rings and the spinner keep `round`.
+      Apple squircles cards and app icons; its capsules stay capsules.
+      **Both alternatives were costed and BOTH are worse.** A Houdini paint
+      worklet is **Chromium-only too** (Chrome 65+, never Firefox, never
+      Safari), so it buys a JS paint pass and reaches exactly the same
+      browsers — *do not re-propose it on rediscovering that `corner-shape` is
+      Chromium-only, that is the same fact.* An SVG mask reaches Safari and
+      clips the 1px `--hairline` this system draws on nearly every surface.
+
+      **IT IS ON BOTH TOKENISED SURFACES — `--corner` in `theme.css` and
+      `--bk-corner` in `booking.css`.** Every surface in this product defines
+      its own copy of the radii, so squircling the detailer's page and not the
+      customer's is exactly the two-corner-languages failure the design system
+      forbids. `sweep-booking-steps.mjs` re-run after it: **every step still
+      fits at all four sizes**, unchanged — `corner-shape` is a paint property
+      and costs no layout.
+
+      **Pinned by `tests/composition.test.mjs` test 8** — 18 new checks (41 →
+      44), every family baselined both ways (each deliberate defect fails
+      exactly one, including the vacuity guard). They exist because both halves
+      of this item break by OMISSION and neither failure is visible: an
+      un-squircled card looks like a card, a hard cut looks like a fast
+      animation, and an invalid selector looks like a satisfied one.
+
+      ---
+
+      **⚠ STILL HIS CALL — THE ONLY THING LEFT IN THIS ITEM: the 1440 reflow.**
+
+      At **1920 nothing is lost** and the fix improved it: opening a day now
+      takes the month from 1,144px to **1,236px** — it *gains* room and keeps
+      its written-out cells.
+
+      At **1440x900** the month goes **1,144px → 836px** with a day open, and
+      `writes` flips off at the 1,640 rule, so cells stop carrying
+      `9:00 AM Tom O.` and go back to dots.
+
+      **A THIRD OPTION WAS TRIED BEFORE PUTTING (a) AND (b) BACK TO HIM, AND IT
+      DIED BY MEASUREMENT.** Lower the 1,640 threshold so the month keeps its
+      words at 1440 with the day open. Built, screenshotted, rejected **by
+      looking**: at 836px a cell is 115px and the lines render `8:00 AM Mar…`,
+      `9:45 AM Da…`, `12:15 PM Pr…` — the time survives, the name does not,
+      which is worse than a dot because it reads as data rather than as a mark.
+      **`text-overflow: ellipsis` means no overflow check can ever see this**;
+      the only instrument is a screenshot
+      (`shots-2.17/1440-calendar-day-WORDS.png` against
+      `1440-calendar-day-marks.png`).
+
+      So (a) and (b) stand as written above, unchanged, **and the remount —
+      which was most of the "refresh the page" feeling — is already gone from
+      both.** What he is choosing between now is only whether the month keeps
+      its words at 1440 when nothing is open:
+
+      - **(a) always split at ≥1180.** No reflow at all, ever. Costs the
+        written-out month at 1440 permanently, even with nothing open.
+      - **(b) leave it as it is now.** The words are there whenever no day is
+        open; opening one still narrows the grid and swaps words for dots, but
+        nothing is destroyed and rebuilt any more.
+
+      **Recommendation: (b), and do nothing.** The complaint was the
+      disappear-and-come-back, and that is fixed; (a) would trade a transition
+      he may no longer notice for content he explicitly said was useful.
+
+      **⚠ AND A SECOND THING FOR HIM, ON THE SQUIRCLE: THE LANDING PAGE.**
+      The dashboard and the customer's booking page are squircled. **The
+      marketing page at `/` is not, and that is deliberate rather than
+      missed.** `landing.css` and the approved reference rendering
+      (`docs/design-directions/5-the-thread.html`) use **literal pixel radii**
+      — 16, 13, 11, 18, 100, 50% — and no radius tokens at all, so there is no
+      one token to change: it is roughly twenty hand edits across the page he
+      approved pixel by pixel, and the reference rendering has to move with it
+      or CLAUDE.md's "where the document and that page disagree, the page is
+      right" starts pointing at a page that no longer matches the system.
+      **That is a different-sized decision from a token, so it was raised
+      rather than taken.** His phrase was *"a keynote for the entire site"*,
+      which probably includes it — but it is his approved artifact.
+
+      **Recommendation: do it, in its own small item.** The two-corner-
+      languages argument that put the corner on `booking.css` applies to `/`
+      just as well, and a visitor who presses *Get started* crosses from one to
+      the other in one click.
+
 
 ## Phase 3 — Tenant websites (the biggest new build)
 
