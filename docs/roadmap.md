@@ -2407,6 +2407,63 @@ is kept; the entire visual design restarts from scratch.
       *"Monthly plans — needs a design conversation first"* predates this item
       and should be closed into it once the shape is settled.
 
+      **ROUND 2 — HE ASKED FOR MORE RESEARCH THE SAME DAY, AND IT IS DONE
+      (2026-09-04).** He named five things: the types of plan detailers run, how
+      to stop people breaking one *"let's say if like there's a requirement"*,
+      how to display and track members, whether the detailer handles it or we do
+      with payments, and how it works *"with what's available to me for free"*.
+      Three more businesses were sampled (ten plan pages now) plus Housecall
+      Pro's Service Plans dashboard docs. **Second half of
+      `docs/plans-research-2026-09-04.md`.** What it settled:
+
+      - **SIX PLAN SHAPES EXIST AND THEY ARE NOT SIX FEATURES.** Frequency plan,
+        tiered membership, visit bundle, prepaid block, discount membership and
+        coating-protection programme all fall out of **four fields: a cadence,
+        what's included, how it's priced, and whether there is a term.** Cadence
+        is not a fixed list (weekly through annual, and Tang advertises *"custom
+        schedules — just ask"*), and **price can vary by VEHICLE SIZE** (Car
+        Detox: $150 / $125 / $100), which we nearly have for free.
+      - **THE TRADE DOES NOT USE CONTRACTS AND ADVERTISES AGAINST THEM.** Six of
+        ten plan pages sell *"no contracts, cancel anytime"* as a feature. Early
+        termination fees are the GYM industry's answer and detailing has visibly
+        rejected it. **The anti-breakage tools that do work are PAUSE and SKIP**
+        — ZS gives *"One free skip per year"*, Tang lets you *"pause your
+        membership while you travel"* — because most breakage is a month somebody
+        could not do, not defection. **We could not enforce a penalty anyway; we
+        take no money.**
+      - **THE REQUIREMENT HE MEANT HAS A REAL EXAMPLE AND IT IS NOT A CADENCE.**
+        Ceramic coating warranties **void** without documented annual
+        maintenance — System X within ~30 days of the install anniversary, *"and
+        missing the window voids the warranty for good."* That needs a
+        **deadline, an escalating reminder and a last-done stamp**, not a
+        stricter interval. **None of the six panel products does this**, and it
+        is the one place a detailing-specific product beats Jobber outright.
+        Worth its own small item later rather than smuggling into a cadence.
+      - **TRACKING: COPY THE SHAPE OF HOUSECALL PRO'S DASHBOARD, NOT ITS SIZE.**
+        Its seven plan statuses exist because it has billing behind it; **ours
+        needs three — active / paused / ended.** The one list worth building is
+        **VISITS OWED BUT NOT BOOKED**, which exists in their product for
+        exactly this research's first finding: the sale and the schedule are two
+        acts. `Clients` already computes lapsed and `Money` already has periods,
+        so most of this is a badge and a list.
+      - **WHO HANDLES IT: WE LOG IT, THE DETAILER RUNS IT — for now.** Five of
+        seven detailers manage plans by conversation, real subscriptions cost a
+        SUPPORT burden rather than a code one (a customer charged for a month
+        nobody showed up for complains to whoever sent the email), and **logging
+        is a strict subset of billing** — nothing is thrown away. **The shape
+        that makes billing cheap later is decided now: a plan has a cadence, and
+        a MEMBER has a ledger of visits owed and used.** Build the ledger from
+        day one or adding billing is a rewrite.
+      - **SIX THINGS HE DID NOT TYPE OUT** are in the file. The one that will
+        hurt most: **a plan belongs to a VEHICLE, not a person** — Visual prices
+        *"per vehicle each visit"* and sells a two-vehicle plan — and
+        `customers` has no vehicles today, so *"his truck is on the bi-weekly,
+        her car is not"* cannot be said.
+
+      **BLOCKED ON PAYMENTS ONLY WHERE IT SHOULD BE.** Option A (log it) needs
+      nothing from 2.20; the billing version needs Connect. Build order is 2.20
+      stage 1–2, then this.
+
 - [x] 2.15 ~~**Travel priced by measured distance**~~ **REFUSED BY THE OWNER
       2026-08-31, THE SAME DAY IT WAS WRITTEN, AND THE THING HE DESCRIBED
       INSTEAD IS ALREADY BUILT. This item is closed without work.**
@@ -2852,6 +2909,106 @@ is kept; the entire visual design restarts from scratch.
 
       **Skills: `impeccable`** — it is a new screen. No direction-generating
       skill.
+
+- [ ] 2.20 **TAKING MONEY — the OWNER asked for this on 2026-09-04, and the
+      research is done: `docs/payments-research-2026-09-04.md`.**
+
+      > *"We need to figure out payment cuz at least I need a way for my
+      > customers to pay me."*
+      > *"The live site doesn't. That's just what I accept and I just have them
+      > like scan my code or whatever for which one they choose. No payment ever
+      > goes through my site. But that has to change. I want an official way to
+      > pay me with reoccurring subscription obv cuz my clients the detailers
+      > need to pay me and I'm not gonna do it manually."*
+
+      **THERE ARE TWO MONEY PROBLEMS IN THAT AND THEY HAVE DIFFERENT ANSWERS.**
+      **MONEY IN** is detailers paying HIM — $499 setup, $40/month, recurring,
+      and he will not chase it by hand. **MONEY THROUGH** is a detailer's
+      customers paying THE DETAILER. **He must never hold the second one**:
+      holding other people's revenue means owning their chargebacks and
+      answering for a detailer who did not turn up.
+
+      **NOTHING EXISTS TODAY AND THAT IS CLEAN, NOT BEHIND.** No processor, no
+      card data, no webhook, no subscription. `bookings.payment_status` is a
+      flag the detailer sets in `FinalizeModal.jsx` and **how they paid is FREE
+      TEXT in `payment_notes`** — there is no `payment_method` column on
+      `bookings`. The old site's *"Cash, Cash App, PayPal, Venmo & Zelle"* was a
+      LIST, never a checkout; he confirmed it.
+
+      **THREE STAGES, EACH OF WHICH STANDS ALONE. Build in this order.**
+
+      1. **The detailer's own payment handles on the invoice.** Settings fields
+         plus an email block, so what he already does — hold up a QR code —
+         becomes official. **No processor, no fees, no risk**, and it is days of
+         work. It is also the only option that costs a detailer 0%.
+      2. **Platform billing: Stripe Checkout in subscription mode**, the $499 as
+         a one-time line and the $40 as the recurring one. **This is his hard
+         requirement.** The work is not the checkout, it is **what happens when
+         a card fails** — failed payments are 20–40% of all SaaS churn, and the
+         trade's practice is 3–4 retries over 10–14 days, a 3–7 day grace
+         period, then **pause rather than cancel**. **Same suspend mechanism as
+         4.4, so build it once.**
+      3. **Stripe Connect `Standard` so a detailer can take cards.** **It costs
+         the PLATFORM $0** — read from Stripe's own docs, not inferred: a
+         `type=standard` account defaults to the connected account paying, and
+         in that mode Stripe *"[doesn't] charge any Connect fees to it or to
+         your platform"*, with processing fees, **dispute fees** and
+         Invoicing/Subscriptions fees all landing on the detailer. The $2/active
+         account and 0.25% + 25¢ per payout apply only if the PLATFORM handles
+         pricing, which we would not. **This is also what unlocks real plan
+         subscriptions in 2.14.**
+
+      **COSTS, ON HIS OWN NUMBERS.** Stripe takes **$1.66 of a $40 charge**
+      (2.9% + 30¢ + Billing's 0.5%) and **$14.77 of the $499**. No monthly fee.
+      A merchant of record (Paddle, Lemon Squeezy) is 5% + 50¢ — **$2.50 on
+      $40** — and what the extra buys is US sales-tax filing, which he does not
+      need yet: economic nexus is typically $100k or 200 transactions **per
+      state**, so at $40/month another state needs ~208 detailers before it is
+      in play. **What he does owe is his OWN state, and that is a question for
+      his accountant** (the $499 setup fee may be taxable where the subscription
+      is not).
+
+      **THE COST HE IS ACTUALLY TAKING ON IS SUPPORT, NOT CODE.** Today nobody
+      can be wrongly charged because nobody is charged. From stage 2 onward, a
+      double charge or a charge after cancelling is an email that becomes a
+      chargeback if it is not answered in a day.
+
+      **AND FREE STOPS BEING FREE AT THE SAME MOMENT.** Supabase's free plan has
+      **no backups at all**, 500 MB, and pauses after 7 days without requests —
+      **Pro is $25/month** and is the only responsible plan for a database
+      holding other people's customers. Resend's free plan is **3,000 emails a
+      month, 100 A DAY, and ONE domain** — the one-domain limit is already the
+      blocker on 2.18's open "separate Resend account for the platform" thread,
+      and at ~5 emails a booking the daily cap is ~20 bookings across all
+      tenants. **~$45/month of fixed cost, covered by the second detailer.**
+
+      **Skills: `impeccable` for the checkout and past-due screens.** The
+      integration itself is not visual. **`security-review` is not optional on
+      any stage that touches a key or a webhook.**
+
+- [ ] 2.21 **A SMALL SPAM FILTER ON THE BOOKING PAGE — the OWNER said yes on
+      2026-09-04** (*"and yes we should have a small spam filter"*), answering
+      gap C below.
+
+      **WHY IT MATTERS MORE THAN IT SOUNDS: since 2.12 a REQUEST HOLDS THE
+      SLOT.** `create-booking` is public by design and has **no rate limit, no
+      captcha and no honeypot** — grepped, not assumed — so filling a detailer's
+      entire week costs a script nothing, and every held slot is a real customer
+      turned away.
+
+      **Small means small.** A per-phone and per-IP throttle inside
+      `create-booking`, plus a honeypot field the widget leaves empty. **No
+      captcha** — it costs the real customer more than it costs the attacker,
+      and W16's whole point is that a customer never fights the booking form.
+      The 409 path for an overlapping insert already exists and is the model for
+      the refusal.
+
+      **Watch out:** `bookings` stores no IP today, so per-IP throttling needs
+      somewhere to count — decide between a small table and reusing
+      `visitor_id`/`track-visit` before writing anything, and remember the
+      exclusion constraint means a refusal must not leave a half-written row.
+
+      **Skills: none — this is engine work. `security-review` before it ships.**
 
 - [x] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named
@@ -3615,8 +3772,12 @@ itself. **None is scheduled and none should be started without him saying
 where it goes.** Each says what it is, what happens if it is skipped, and the
 recommendation.
 
-- **A. TAKING MONEY — THERE IS NONE, IN EITHER DIRECTION, AND NOTHING ON THIS
-  ROADMAP BUILDS IT.** No Stripe, no card on file, no capture anywhere in the
+- **A. TAKING MONEY — ANSWERED 2026-09-04. IT IS ROADMAP 2.20 NOW**, researched
+  (`docs/payments-research-2026-09-04.md`) and scoped in three stages. He
+  confirmed the priority himself: the recurring one, detailers paying him,
+  *"I'm not gonna do it manually."* The rest of this entry is kept as the
+  finding that produced it. **THERE IS NO PAYMENT ANYWHERE, IN EITHER
+  DIRECTION.** No Stripe, no card on file, no capture anywhere in the
   repo. Two separate holes: **(1) a detailer's customer paying the detailer**
   — deposits, invoices, and any plan that claims to be a subscription (2.14);
   **(2) the platform charging the detailer** — the founding offer is $499 setup
@@ -3632,7 +3793,8 @@ recommendation.
   that is nothing, on launch day it is a public account on a product with
   paying tenants. **Recommendation: a Phase 7 item to rotate or remove it, and
   every script that logs in reads the credential from `.env` instead.**
-- **C. NOBODY CAN SPAM THE BOOKING PAGE TODAY, AND NOTHING STOPS THEM.** There
+- **C. ANSWERED 2026-09-04 — HE SAID YES AND IT IS ROADMAP 2.21 NOW.**
+  **NOBODY CAN SPAM THE BOOKING PAGE TODAY, AND NOTHING STOPS THEM.** There
   is no rate limit, no captcha and no honeypot on `create-booking`, which is
   public by design — and since 2.12 a **request holds the slot**, so filling a
   detailer's whole week costs a bot nothing. **Skipped:** one bored person can
@@ -3644,7 +3806,11 @@ recommendation.
   has already bitten twice (the dead email relay in 0.2, VAPID keys never set).
   7.2 adds Sentry for the FRONT END. **Recommendation: fold a heartbeat into
   7.2 — the sweep writes a timestamp, and something checks it is recent.**
-- **E. NO BACKUPS, NO RESTORE DRILL, NO STAGING.** One Supabase project holds
+- **E. NO BACKUPS, NO RESTORE DRILL, NO STAGING — AND "no backups" IS NOW A
+  MEASURED FACT, NOT A SUSPICION (2026-09-04): Supabase's FREE PLAN INCLUDES NO
+  BACKUPS AT ALL.** Daily backups with 7-day retention start on **Pro, $25/month
+  per project**. Also on free: 500 MB, two projects, and a pause after 7 days
+  with no requests. One Supabase project holds
   every tenant's bookings and customers, `main` publishes on push, and there is
   no second environment to try anything against. **Skipped:** a bad migration
   or a wrong `delete` on launch day has no undo that anyone has ever tested.
@@ -3671,7 +3837,11 @@ recommendation.
 - **I. THREE THREADS 2.18 LEFT ARE STILL OPEN AND ARE NOT ITEMS ANYWHERE:** the
   root SPF record (his DNS), `formatDateLong`'s hardcoded `en-US`, and a
   separate Resend account so the platform's mail stops sharing a sending
-  reputation with Andrew's real customer mail. **Recommendation: the SPF record
+  reputation with Andrew's real customer mail. **AND THE BLOCKER ON THAT THIRD
+  ONE IS NOW KNOWN: Resend's free plan allows ONE domain**, plus 3,000
+  emails/month and **100 A DAY** — at ~5 emails a booking that is ~20 bookings
+  a day across every tenant, and a rejected send is invisible because
+  `sendTenantEmail` is best-effort. **Pro is ~$20/month.** **Recommendation: the SPF record
   and the Resend account belong in Phase 7; the `en-US` is a one-line fix
   whenever a tenant outside the US exists.**
 - **J. THE WEBSITE INTAKE FORM IS DESCRIBED IN 3.4 AND SCHEDULED NOWHERE.** His

@@ -197,6 +197,8 @@ were made more than once.
 
 - **Roadmap 2.14, step 1 — plans a customer can sign up to** — he asked for plans with cadences and asked for the research first, by name. **The six-product panel was not enough for this one** and seven real detailing businesses' own plan pages were sampled beside it, because the question *"in the flow or beside it"* is about what a detailer PUBLISHES, and the products only say what is possible. **The finding that decides the build: the sale and the schedule are two different acts and nobody joins them** — not one of the seven schedules visits at sign-up, Car Detox sells through a checkout and then *phones* you, ZS takes a phone number and a person books visit one. So generating the next N bookings on sign-up, the obvious design, is not a thing the trade does — **and `bookings_no_overlap` would refuse it anyway**, at a moment nobody is watching. **The second finding is ours, not theirs: WE TAKE NO MONEY.** Every plan in the sample that charges, charges a stored card; there is no Stripe, no card on file and no payment capture in this repo, and `bookings.payment_status` is a flag the detailer sets by hand — so *"$150/month, cancel anytime"* on a page while cash is collected on the day is **the travel-fee defect in a new place**. **Placement: beside the flow, 7 of 7 detailers and 5 of 6 products**, and the single in-flow product (Zenbooker) is a cleaning tool selling a REPEAT, not a plan — conflating those two is the main way this item could go wrong. **His own question answered: most booking systems do NOT carry a plan** (5 of 6 repeat a job, 2 of 6 have a plan object, 0 of 6 sell one in a booking form), so running plans is not unusual but selling them inside the booking form would be. **The recommended shape adds almost no machinery — a sign-up is a REQUEST**, the rail 2.12 already built, and recurrence is a nudge to book the next visit rather than a scheduler. **The placement is deliberately NOT a per-detailer toggle** (a second layout to build and sweep for a shape no evidence supports) while the wording, cadence and price shape are entirely the detailer's — all three price shapes appear in the sample, so forcing one excludes real businesses. **Four questions stand for the owner**, all schema-changing, each with a recommendation.
 
+- **Taking money, and roadmap 2.14 round 2** — he asked for payment and for a deeper plans pass in the same breath, and **the first job was splitting them: there are TWO money problems and only one is about plans.** **MONEY IN** is detailers paying him ($499 + $40/month, recurring, *"I'm not gonna do it manually"*); **MONEY THROUGH** is a detailer's customers paying the detailer. **He must never hold the second**, because holding other people's revenue means owning their chargebacks and answering for a detailer who did not turn up — **and Stripe Connect `Standard` avoids all of it at $0 to the platform**, read from Stripe's own fee-payer table rather than inferred: a `type=standard` account defaults to the connected account paying, Stripe *"[doesn't] charge any Connect fees to it or to your platform"*, and processing, **dispute** and Invoicing/Subscriptions fees all land on the detailer. The $2/active-account and 0.25% + 25¢ payout fees apply only if the PLATFORM handles pricing. **He corrected a finding from the first pass and the correction matters**: the old site's *"Cash, Cash App, PayPal, Venmo & Zelle"* was never a checkout, it is a list and *"I just have them scan my code"* — so **stage 1 is putting those handles into settings and onto the invoice**, which costs nothing, charges 0%, and makes today's real behaviour official. **On plans, the trade's own practice overruled the obvious build twice.** Six plan shapes exist and **they are not six features — they are four fields** (cadence, contents, price shape, term), and cadence is not a fixed list. **The trade does not use contracts and advertises against them** — six of ten plan pages sell *"no contracts, cancel anytime"*, early-termination fees are the GYM industry's answer, and **the tools that actually work are PAUSE and SKIP**, because most breakage is a month somebody could not do rather than defection; **we could not enforce a penalty anyway, since we take no money.** **The "requirement" he meant has a real example and it is not a cadence**: ceramic coating warranties VOID without documented annual maintenance (System X, within ~30 days of the anniversary), which needs a **deadline, an escalating reminder and a last-done stamp** — and **none of the six panel products does it**, which is the one place a detailing-specific product beats Jobber outright. **We log plans, the detailer runs them — for now** — because five of seven detailers manage them by conversation, **real subscriptions cost a SUPPORT burden rather than a code one** (a customer charged for a month nobody showed up for complains to whoever sent the email), and **logging is a strict subset of billing so nothing is thrown away** — provided the **ledger of visits owed and used exists from day one**, or adding billing later is a rewrite. **And "free" was measured rather than assumed: Supabase's free plan has NO BACKUPS AT ALL** and Resend's allows **ONE domain and 100 emails a day** — ~$45/month of real fixed cost, covered by the second detailer, and the same moment plans become worth having.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -10464,3 +10466,144 @@ And `monthly_plans` is still gone — created in `tenant_data.sql:51`, dropped
 nine hours later in `phase2_cleanup_and_storage.sql:16`. **This is the third
 file to record that**, and it is recorded again here because the roadmap item
 carried the opposite claim for a week.
+
+## Taking money, and roadmap 2.14 round 2
+
+The research is `docs/payments-research-2026-09-04.md` and the second half of
+`docs/plans-research-2026-09-04.md`. This is the judgment.
+
+### The first job was splitting one question into two
+
+He asked for payment and for a deeper plans pass in the same message, and the
+sentence that matters is *"at least I need a way for my customers to pay me"*
+followed by *"my clients the detailers need to pay me and I'm not gonna do it
+manually."* **Those are two different businesses.**
+
+- **MONEY IN** — detailers paying him, $499 setup and $40/month, recurring. His
+  own revenue, and the one he refuses to chase by hand.
+- **MONEY THROUGH** — a detailer's customers paying the detailer.
+
+**Answering them as one question produces the wrong architecture**, because the
+right answer to the first is "be the merchant" and the right answer to the
+second is "never be the merchant."
+
+### He corrected the first pass, and the correction changed stage 1
+
+The first research said the old site listed *"Cash, Cash App, PayPal, Venmo &
+Zelle"*. He sharpened it: **that is a list, not a checkout** — *"I just have
+them like scan my code or whatever for which one they choose. No payment ever
+goes through my site."*
+
+**That correction is the whole of stage 1.** Putting a detailer's own payment
+handles into settings and printing them on the invoice **makes what he already
+does official, costs nothing, charges 0%, and needs no processor.** It was not
+in the plan before he said that sentence, and it is now the first thing built —
+because the cheapest true version of *"an official way to pay me"* is the one he
+is already using, written down.
+
+### Connect Standard, and the reason is liability rather than price
+
+If money for a detail lands in the platform's account and is paid out, the
+platform holds other people's revenue, owns their chargebacks, and answers for a
+detailer who did not turn up. **Nothing about this product needs that.**
+
+Stripe's own fee-payer documentation, read rather than assumed: a
+`type=standard` connected account defaults to the **account** paying, and in
+that mode Stripe *"collects fees directly from your connected account. We don't
+charge any Connect fees to it or to your platform."* Processing fees, **dispute
+fees** and Invoicing/Subscriptions fees all sit on the detailer. The **$2 per
+monthly active account** and **0.25% + 25¢ per payout** on Connect's pricing
+page apply only where the PLATFORM handles pricing, which we would not.
+
+**So the cheapest option and the safest option are the same option**, which does
+not happen often enough to pass up. **And it is what makes real plan billing
+possible later at no platform cost**, because a subscription on a connected
+account is billed to that account.
+
+### Why NOT a merchant of record, stated so it is not re-proposed
+
+Paddle and Lemon Squeezy cost 5% + 50¢ against Stripe's ~4.1% all-in on a $40
+charge, and what the extra buys is **US sales-tax registration and filing**.
+Software is taxable in some form in 26 states. **But economic nexus is typically
+$100k or 200 transactions PER STATE**, so at $40/month another state needs ~208
+detailers before it applies. **Paying 6.3% from the first sale to insure against
+a problem that starts at ~200 customers is buying the wrong thing early.** What
+he genuinely owes is his own state, and that is an accountant's question — the
+$499 setup fee may be taxable where the subscription is not.
+
+### The work in stage 2 is the failure path, not the checkout
+
+Stripe Checkout in subscription mode is a hosted page and a webhook. **Failed
+payments are 20–40% of all SaaS churn** — people who want to keep paying whose
+card expired. The trade's practice is 3–4 retries over 10–14 days, a 3–7 day
+grace period, then **pause rather than cancel**, with hard cancellation after
+~30 days. **That is the same suspend mechanism roadmap 4.4 needs, so it gets
+built once**, and the recommended shape punishes the right person: the
+dashboard goes read-only while **the public booking page keeps working**, because
+taking it down punishes the detailer's customers, who did nothing.
+
+**And the real cost of stage 2 is support, not code.** Today nobody can be
+wrongly charged, because nobody is charged. From the day this ships, a double
+charge or a charge after cancelling is an email that becomes a chargeback if it
+goes unanswered.
+
+### On plans, the trade overruled the obvious build twice
+
+**First: six plan shapes exist and they are not six features.** Frequency plan,
+tiered membership, visit bundle, prepaid block, discount membership and
+coating-protection programme all fall out of **four fields — a cadence, what's
+included, how it's priced, whether there is a term.** Cadence is not a fixed
+list (weekly through annual, and Tang advertises *"custom schedules — just
+ask"*), and **price can vary by VEHICLE SIZE**, which we nearly have already.
+
+**Second: the anti-breakage feature is not a contract, it is a pause.** Six of
+ten plan pages advertise *"no contracts, cancel anytime"* **as a selling
+point**. Early-termination fees and minimum terms are the GYM industry's answer,
+and detailing has visibly rejected them. What the sample does use is **one free
+skip a year** (ZS) and **pause while you travel** (Tang), because **most
+breakage is a month somebody could not do, not defection.** **And we could not
+enforce a penalty regardless — we take no money.** A detailing product shipping
+cancellation fees would be selling the thing its market advertises against.
+
+**The requirement he asked about has a real example, and it is not a cadence.**
+Ceramic coating warranties **void** without documented annual maintenance —
+System X within about 30 days of the install anniversary, *"and missing the
+window voids the warranty for good"* — plus washing every 2–4 weeks. That needs
+a **deadline with a date, an escalating reminder, and a record of when the last
+qualifying service happened**, because the warranty claim depends on proving it.
+**None of the six panel products does this.** It is the clearest opportunity
+found so far to be plainly better than Jobber, and it deserves its own small
+item rather than being smuggled into a cadence field.
+
+### We log plans; the detailer runs them — and the ledger is why that is safe
+
+Five of seven detailers manage plans by conversation. Real subscriptions cost a
+**support burden rather than a code one**, and it lands in the wrong place: a
+customer charged for a month the detailer never showed up for complains to
+whoever sent the email. **Logging is a strict subset of billing, so nothing
+built now is thrown away** — but only on one condition, and it is the load-
+bearing part of this decision: **a plan has a cadence, and a MEMBER has a ledger
+of visits owed and used.** With the ledger, adding billing later is adding a
+charge against something that already balances. Without it, billing is a
+rewrite. **Housecall Pro's own dashboard corroborates it** — its most useful
+list is *"Unscheduled Visits"*, which exists precisely because the sale and the
+schedule are two acts, this research's first finding rendered as a screen.
+
+**Its seven plan statuses were deliberately NOT copied.** Seven states are what
+a product with billing behind it needs; **ours needs three — active, paused,
+ended** — and inventing four more that nothing can transition between is a
+screen telling a lie.
+
+### "Free" was measured, and it is not free
+
+**Supabase's free plan includes no backups at all** (500 MB, two projects, pause
+after 7 days without requests); daily backups start on **Pro at $25/month**.
+**Resend's free plan is 3,000 emails a month, 100 A DAY, and ONE domain** — and
+that one-domain limit is the actual blocker under 2.18's still-open "separate
+Resend account for the platform" thread. At ~5 emails a booking, 100 a day is
+~20 bookings across every tenant.
+
+**So ~$45/month of fixed cost the day this has real tenants — covered by the
+second detailer.** The useful framing: **payments have no fixed cost at all**
+(every fee is a slice of money that moved), while the free tier stops being
+appropriate at roughly the same moment plans become worth having.

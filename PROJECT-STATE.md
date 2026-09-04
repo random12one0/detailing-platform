@@ -4333,3 +4333,77 @@ holding a standing slot is ever built, the skip comes with it.
 - **The sample bias is large and is named in the file**: every one of the seven
   pages was found by searching for detailing membership pages, so the evidence
   says what plan-running detailers do — **never how many detailers run plans.**
+
+## TAKING MONEY, AND 2.14 ROUND 2 — AWAITING THE OWNER (2026-09-04)
+
+**Nothing in `app/` or `supabase/` changed.** He read the plans research, asked
+for payment to be figured out, said yes to a spam filter, and asked for a deeper
+plans pass. All three are researched; two became roadmap items.
+
+- **The files:** `docs/payments-research-2026-09-04.md` (new) and the **ROUND 2**
+  half of `docs/plans-research-2026-09-04.md`.
+- **The judgment:** DECISIONS.md → "Taking money, and roadmap 2.14 round 2".
+- **New roadmap items: 2.20 (taking money, three stages) and 2.21 (a small spam
+  filter).** Gaps A and C in the roadmap's "Not on the roadmap yet" list are
+  answered and now point at them.
+
+### He corrected the previous session, and the correction changed the build
+
+The last pass reported that his old site listed *"Cash, Cash App, PayPal, Venmo
+& Zelle"*. **That is a list, not a checkout** — *"I just have them like scan my
+code or whatever for which one they choose. No payment ever goes through my
+site."* **So stage 1 of 2.20 is putting a detailer's own payment handles into
+settings and onto the invoice**: it costs nothing, charges 0%, needs no
+processor, and makes what he already does official. It did not exist as an idea
+before he said that sentence.
+
+### The load-bearing facts
+
+**1. There are TWO money problems and they have opposite answers.** MONEY IN
+(detailers paying him, recurring, *"I'm not gonna do it manually"*) wants him to
+be the merchant. MONEY THROUGH (a detailer's customers paying the detailer)
+requires that he never is — holding other people's revenue means owning their
+chargebacks and answering for a detailer who did not turn up.
+
+**2. Stripe Connect `Standard` costs the PLATFORM $0**, read from Stripe's own
+fee-payer table: the connected account pays processing, **dispute** and
+Invoicing/Subscriptions fees, and Stripe charges no Connect fees to it or to the
+platform. The $2/active account and 0.25% + 25¢ payout fees apply only where the
+platform handles pricing. **The cheapest option and the safest one are the same
+option**, and it is what makes real plan billing possible later at no platform
+cost.
+
+**3. The work in platform billing is the FAILURE path.** Failed payments are
+**20–40% of all SaaS churn**. Retries, a grace period, then **pause rather than
+cancel** — the same suspend 4.4 needs, so build it once. Recommended shape: the
+dashboard goes read-only, **the public booking page keeps working**, because
+taking it down punishes the detailer's customers.
+
+**4. "FREE" IS ~$45/MONTH, AND IT WAS MEASURED.** **Supabase's free plan
+includes NO BACKUPS AT ALL** (500 MB, 2 projects, pauses after 7 days idle);
+daily backups start on **Pro, $25/month**. **Resend's free plan is 3,000
+emails/month, 100 A DAY, ONE domain** — that one-domain limit is the real
+blocker under 2.18's open "separate Resend account" thread — **Pro ~$20/month**.
+Payments themselves have **no fixed cost**: every fee is a slice of money that
+moved. Two detailers cover the lot.
+
+### What round 2 settled about plans
+
+- **Six plan shapes exist and they are FOUR FIELDS**: a cadence, what's
+  included, how it's priced, whether there is a term. Cadence is not a fixed
+  list, and **price can vary by vehicle size**.
+- **The trade does not use contracts and advertises against them** — six of ten
+  plan pages sell *"no contracts, cancel anytime"*. **The anti-breakage tools
+  that work are PAUSE and SKIP**, because most breakage is a month somebody
+  could not do. We could not enforce a penalty anyway.
+- **The "requirement" case is ceramic coating warranties, and it is not a
+  cadence** — they VOID without documented annual maintenance (System X: within
+  ~30 days of the anniversary). It needs a **deadline, an escalating reminder
+  and a last-done stamp**, and **none of the six panel products does it.**
+- **We log plans, the detailer runs them — on ONE condition**: a member carries
+  a **ledger of visits owed and used** from day one, or adding billing later is
+  a rewrite. Housecall Pro's most useful screen is *"Unscheduled Visits"*, which
+  exists for exactly the reason this research found first: the sale and the
+  schedule are two acts. **Three statuses, not their seven.**
+- **The schema decision most likely to be regretted: a plan belongs to a
+  VEHICLE, not a person.** `customers` has no vehicles today.
