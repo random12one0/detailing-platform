@@ -324,6 +324,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   walk uses "I'll do this later" throughout and never presses Continue, which
   is the one that writes; `seed-demo.mjs` pins the demo at 6 of 7 so the row
   it opens the form from is always there)**,
+  **NOTIFICATIONS' "YOUR OWN WORDS" EDITOR, WHICH IS A STATE BEHIND A BUTTON
+  (added 2026-09-03, roadmap 2.18 — the SEVENTH time this same gap has been
+  found).** Twelve rows collapse to an "Add a line" button and the textarea,
+  the preset chips and the Done row only exist after a click, so a clean
+  measurement of the Notifications screen said nothing about them. **The
+  pattern, now that it has arrived seven times: the script walks NAVIGATION,
+  and a state you reach by pressing something INSIDE a screen is not
+  navigation.** When you add a control that reveals other controls, add its
+  opened state here in the same change,
   **THE REQUEST QUEUE, THE REQUEST RECORD AND THE QUOTE SHEET (added 2026-09-02,
   roadmap 2.12), and adding them MOVED two selectors that had silently changed
   meaning.** `.card.attend` used to mean "the lit job"; a waiting request now

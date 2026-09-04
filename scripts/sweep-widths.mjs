@@ -670,6 +670,32 @@ for (const w of SIZES) {
   await say("the gear");
   await walk("gear", GEAR_ROWS);
 
+  // NOTIFICATIONS' "YOUR OWN WORDS" EDITOR IS A STATE BEHIND A BUTTON, and
+  // walking to the screen does not enter it (roadmap 2.18, 2026-09-03).
+  //
+  // Twelve rows each collapse to an "Add a line" button; the textarea, the
+  // preset chips and the Done/Clear row only exist after a click. **A clean
+  // measurement of the Notifications screen says nothing at all about the
+  // shape those controls take** — which is the same finding as the QR plate
+  // above it, the job record, the calendar's day panel, Money's periods,
+  // Clients' list and first run. **It keeps arriving because the script walks
+  // NAVIGATION, and a state you reach by pressing something inside a screen is
+  // not navigation.**
+  //
+  // Guarded rather than assumed: staff never see Notifications, and a future
+  // layout may rename the button. A missing button is reported, not skipped —
+  // silently measuring nothing is how this gap survived six times.
+  await page.getByRole("button", { name: "Notifications" }).first().click().catch(() => {});
+  await settle(page, 1200);
+  const addLine = page.getByRole("button", { name: "Add a line" });
+  if (await addLine.count() > 0) {
+    await addLine.first().click();
+    await settle(page, 700);
+    await say("gear · Notifications, a line open");
+  } else { console.log(`${"the Add a line button".padEnd(24)} NO SUCH BUTTON`); found++; }
+  await page.getByRole("button", { name: "Settings", exact: true }).first().click().catch(() => {});
+  await settle(page, 1000);
+
   // FIRST RUN — THE SETUP FORM'S SEVEN STEPS AND THE WALKTHROUGH'S SEVEN,
   // added 2026-09-02 with roadmap 2.11 step 6 stage 7. It is the same finding
   // this script has now made six times: a screen nothing enters reports
