@@ -2316,7 +2316,14 @@ is kept; the entire visual design restarts from scratch.
       booking page's `.bk-choices` being a tall single column on a wide short
       screen is the obvious "bug" to spot, and it has been ruled not-a-bug.
 
-- [ ] 2.18 **THE EMAILS, REBUILT FROM SCRATCH — the OWNER asked for this on
+- [x] 2.18 **THE EMAILS, REBUILT FROM SCRATCH — DONE 2026-09-03.** All twelve
+      rebuilt in The Thread, wired up, sent to a real inbox and corrected after
+      he opened them. **Three threads survive this item and are the owner's or
+      time's, not code:** the root SPF record (his DNS), `formatDateLong`
+      hardcoded `en-US`, and a separate Resend account for the platform. See
+      "WHERE IT LANDED" at the end of this item.
+
+      **THE ORIGINAL ASK — the OWNER asked for this on
       2026-09-03, and he asked for RESEARCH FIRST.** Bigger than it sounds:
       it is a settings surface, a template system and a design job at once.
 
@@ -2617,6 +2624,42 @@ is kept; the entire visual design restarts from scratch.
       so our bug was INTRODUCED by the port rather than inherited** — the
       opposite of what the morning's entry concluded from reading only the
       row-building. CLAUDE.md's repo name was wrong too; see DECISIONS.md.
+
+      ---
+
+      **WHERE IT LANDED, so nobody re-derives it.**
+
+      | | |
+      |---|---|
+      | The world | `_shared/emailKit.ts` — palettes, blocks, shell, `htmlToText`, `reconcile` |
+      | The twelve | `_shared/emailTemplates.ts`, each a LIST OF BLOCKS |
+      | Look at them | `node scripts/render-emails.mjs` (`--accent=`, `--logo`, `--out=`) |
+      | Send them | `node scripts/send-test-emails.mjs --to=…` — needs `SUPABASE_SECRET_KEY`, NOT the legacy JWT |
+      | Pinned by | `tests/email-brand.test.mjs`, **189 checks** |
+      | Settings | "Your own words" on Notifications; the second reminder on Booking rules |
+
+      **THE FOUR THINGS A COLD SESSION WOULD GET WRONG:**
+      1. **The emails are LIGHT-FIRST with dark behind `prefers-color-scheme`,
+         and that is MEASURED, not chosen.** Gmail's app inverts an already-dark
+         email and cannot be told not to; measured on our palette, the accent as
+         words fell to **1.99:1** and the button's ink to **1.77:1**. Do not
+         "restore" the dark-first version.
+      2. **The dark palette applies BY CLASS.** An element that sets a colour
+         inline and forgets its class stays LIGHT inside a dark email, and no
+         contrast check can see it. Add the class when you add the colour;
+         `render-emails.mjs` fails on any inline colour without one.
+      3. **Pure `#ffffff`/`#000000` are banned in BOTH palettes** — they are
+         Apple Mail's own inversion trigger.
+      4. **The invoice COPIES what was finalized** (`total_price` + the finalize
+         lines). It does not re-derive services, travel, promo, sale or
+         rounding. Re-deriving them is what made it wrong twice.
+
+      **STILL OPEN AND NOT CODE:** the root `detailingplatform.com` SPF record
+      (his DNS, in Netlify — `v=spf1 -all`) · a DMARC `rua=` for visibility ·
+      `formatDateLong` is hardcoded `en-US` · **a separate Resend account for
+      the platform**, since it currently shares the live business's reputation ·
+      and **his verdict on the light-first sends**, which nobody has confirmed
+      in Gmail dark mode yet.
 
 - [ ] 2.19 **"Want to email some of your old customers?" — MANUAL, with a
       nudge. The OWNER decided the shape on 2026-09-03**, answering the

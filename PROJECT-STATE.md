@@ -3356,7 +3356,15 @@ test — and note that `scripts/e2e-booking.mjs` does not run (it hardcodes a
 Linux Playwright path from a container that no longer exists), so that item
 either repairs it or writes the check fresh.
 
-**AND SINCE 2026-09-03, ROADMAP 2.18 IS OPEN AND MOVING.** He asked for the
+**ROADMAP 2.18 IS CLOSED (2026-09-03).** All twelve emails rebuilt, wired,
+sent to a real inbox, and corrected after he opened them — §6x, §6y, §6z,
+§6z-ii and the light-first correction below them. **The next item is 2.17,
+motion as a house style**, which he has now raised three times. What survives
+2.18 is owner-side or time-side rather than code: the root SPF record, a DMARC
+`rua=`, `formatDateLong`'s hardcoded `en-US`, a separate Resend account for the
+platform, and his verdict on the light-first sends in Gmail dark mode.
+
+**HOW IT WENT, FOR THE RECORD.** He asked for the
 emails deleted and rebuilt from scratch, and for the research first. **Step 1
 is done** — `docs/email-research-2026-09-03.md`, §6x here — **and he has since
 answered, overruling two of its recommendations: §6y.** "Premade templates"
