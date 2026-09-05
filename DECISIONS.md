@@ -219,6 +219,8 @@ were made more than once.
 - **Roadmap 2.14, step 3 - the customer's half of plans, and the four decisions that kept it inside a measured budget** - the booking page's plan buttons, the recognition, the remembered browser, the "your plan" link and the email nudge. **The organising constraint was arithmetic, not taste: step 1 has TEN PIXELS of spare room at 1440x900 and that budget is the detailer's catalogue.** So the plans live on a page of their own (`/book/:slug/plans`, which is also what 7 of 7 sampled detailers and 5 of 6 products do), the door to them rides the row the progress rail and "Step 1 of 7" already share, and the recognition the owner asked for is spent on TWO LINES THAT WERE ALREADY DRAWN - step 1's heading becomes *"Welcome back, Marcus"* or *"Let's set up your Bi-weekly maintenance"*, and the price bar's eyebrow says which plan moved the number. **Every step's spare room is identical to before the item.** **The plan's effect on the price is ONE function in `_shared/pricing.ts` and it rides `price_adjustments`** - the array every receipt, email and invoice already itemises - rather than a `plan_discount` column that would have needed adding to nine render paths and forgetting in a tenth. **The rule: the plan governs the SERVICES, extras and travel are always extra, and a percentage comes off the whole job.** **A plan sign-up is a REQUEST in either booking mode**, because the sale and the schedule are two acts and the detailer has to agree somebody is on their plan - but an existing member booking their own covered visit is not held up, which is why `create-booking` asks whether they are already a member rather than keying off the plan alone. **The owner's "type your email and it shows you" was built as its safe twin, EMAIL IN / LINK OUT** - the version he described is address enumeration, and the endpoint answers identically whether or not the address is a member. **His customer-account idea shipped as a LINK** (`/plan/:memberId`, the membership UUID as the credential, the third caller of a pattern this product already used twice) rather than as a second kind of human in `auth.services`. **A defect fixed on the way through that predates this item: a NEGATIVE `price_adjustments` line printed as a positive CHARGE in every email** - `moneyBlock` draws by `kind`, not by sign - which `accept-quote` could already reach whenever a detailer quoted UNDER the estimate. **And the plans page was built as four boxed cards first and rejected on sight of its own screenshot**: four identical full-width panels each ending in a full-width button repeating the name above it, which is `docs/design-knowledge.md` §1's tell and the owner's copy rule in one. The ruled list that replaced it is the composition law's own answer and cost 96px a plan against 190px.
 - **Roadmap 2.19 — a manual re-book email, and the machinery a MANUAL send still needs** — the owner ruled that nothing sends itself: a human picks the names and presses the button, and the reminder is a ROW ON A SCREEN rather than an email to him. What the roadmap entry understated is that CAN-SPAM classifies a message by its PRIMARY PURPOSE, never by what pressed send — so *“we haven’t seen you in a while”* needs a working opt-out and a postal address whether a person or a cron job sent it. **What the manual design removes is the SCHEDULING, not the statute.** So: `customers.unsubscribed_at`, a public two-step opt-out page (a one-click GET link would be pressed by Gmail’s prefetcher and every corporate link scanner, silently opting people out of businesses they still want to hear from), `businesses.mailing_address` as its own field because a mobile detailer has no unit, and a **50-recipient cap** that is ours rather than the law’s — the platform’s whole Resend allowance is **100 emails a day across every tenant**, and one unbounded campaign could stop bookings confirming. **The compose surface selects nobody**: Clients already knew who had lapsed, so the sheet is handed a list a human narrowed and its only job is the words. **And the demo had ZERO lapsed customers**, so the “not seen in 3 months” block `sweep-widths.mjs` has walked at five widths since 2026-09-02 was measuring an empty screen and printing clean — the seventh instance of *a skipped check reads exactly like a passing one*, found by asking the database rather than by reading the sweep’s output. **And it exposed a RACE in `sweep-widths.mjs` that is older than the item**: Monthly plans and Team draw their buttons only after Supabase answers, and both were measured with `settle()` + `count()` — a cap on a repaint, never a wait for a round trip — which `?lite=1` makes WORSE because a page with no animations goes quiet sooner. It printed `NO SUCH BUTTON`, which reads as a renamed control. **A control run proved it was ours, a bisect blamed a file, and a `console.log` probe then passed with that file in place** — which is what a race looks like from the outside. Also recorded there: `campaigns`/`campaign_visits` are tracked marketing LINKS and have nothing to do with this feature, and the opt-out is NOT tamper-proof against the tenant, which is a stated ceiling.
 
+- **Roadmap 2.20, stage 1 — the detailer's own payment handles** — the half of "taking money" that needs no processor, no key and no webhook: the detailer types their Venmo, Cash App, PayPal, Zelle and cash, and the customer's emails print them. **The scope in the roadmap is ROUND 3's and it contradicts round 2's, which is still quoted in three files**: round 2 said the UNPAID INVOICE ONLY; round 3 moved it to the confirmation and the reminder as well, on the owner's own trade knowledge (*"they don't leave a client's house until it's paid"*), because the unpaid invoice is a rare document. **The receipt still carries nothing** — that is his complaint about his old site and it is the point of the branch. **A FIFTH email carries them and the roadmap's wording would have missed it**: in request mode the ACCEPTED-request email is the confirmation, so following "the confirmation and the reminder" literally gives every request-mode tenant handles on no email at all. **A link is built only from a plain username or a pasted `https:` URL** — a wrong payment link sends money to the wrong person and is invisible from every screen — so a phone number, an email address or `javascript:` is printed and not linked, and Zelle never links because it has no web address. **No preview on the settings screen and no QR upload**, both refused with reasons. **Two defects came out of LOOKING**: the paired Venmo/Cash App row clips a handle at 392, and a payment handle is the one value where reading half is reading none; and the Business row summary was truncated to "…something els…".
+
 - **Working from the cloud while the owner is away (2026-09-05)** — what a Claude Code web session can and cannot do on THIS repo, settled by reading the docs rather than guessing: no `.env` in the clone and no Supabase on the sandbox allowlist, so **no database**; no Playwright browsers and a blocked CDN, so **no browser and therefore no screens**; and the user-level design skills are not there either. What survives is measured — **all ten credential-free checks run on a bare clone with no `npm install`**, plus the production build and `gh`. He starts a session with one memorised sentence, *“Follow `docs/cloud/README.md`”*, so **that file’s first block is a complete brief and anything a cloud session must know goes in it rather than in a message.** § 6 is its bounded permission to choose its own work when the queue empties: three tests (can it be finished here, can it be CHECKED here — name the check or write a document instead — and would he recognise it as the next thing), a ranked list, an off-limits list no reasoning overrides, and a **stop rule**: two self-chosen sessions producing only documents means the cloud-shaped work has run out.
 
 <!-- INDEX:END -->
@@ -12095,3 +12097,181 @@ asked for is worse than two days of work and a quiet Sunday.**
 it did, which check covers it, and what the laptop still has to run. The queue
 is the record of what happened while he was away; a task that exists only in a
 session transcript is a task he will never find.
+
+## Roadmap 2.20, stage 1 — the detailer's own payment handles
+
+**The owner's ask was two different problems and this is the half that needs no
+processor.** *"At least I need a way for my customers to pay me."* Money IN
+(detailers paying him, $999 + $60/month) is stage 2 and cannot go live before
+2 December, when he turns 18 and can open a Stripe account. Money THROUGH (a
+detailer's customers paying the detailer by card) is stage 3 and needs Connect.
+**Stage 1 is neither**: the detailer types the handles they already read out at
+the door — Venmo, Cash App, PayPal, Zelle, cash, anything else — and the
+customer's emails print them. No key, no webhook, no fee, and **it is the only
+option that costs a detailer 0%.**
+
+### The scope in the roadmap is ROUND 3's, not round 2's, and the two disagree
+
+**Round 2 concluded "the payment handles go on the UNPAID branch only".** Round
+3 of `docs/payments-research-2026-09-04.md` §4 then moved them, on the owner's
+own knowledge of his trade rather than on any research: *"they don't leave a
+client's house until it's paid… the amount of times someone's gonna mark
+something finalized and it not be paid is, like, zero percent chance almost."*
+**If that is right, the unpaid invoice is a rare document and round 2 was
+aiming at a page almost nobody sees.** His old site already had it in the
+better place and nobody had noticed —
+`reference/supabase/functions/create-booking/index.ts:776` prints *"Payments
+accepted: Cash, Cash App, PayPal, Venmo & Zelle"* in the **confirmation**
+email, before the job, when it is actually useful.
+
+**So stage 1 is the confirmation and the reminder AND the unpaid invoice.** The
+round-2 sentence is still quoted in three files and reads like a complete
+specification on its own; this entry exists so the next session that finds it
+does not build the narrower thing. Same shape as the dissolve the owner
+withdrew: *a session that finds the earlier quote and not the correction
+rebuilds the rejected thing and can cite him for it.*
+
+### The receipt is the whole point of the branch
+
+`invoiceEmail` has branched on `payment_status` since roadmap 2.18: paid draws
+a **Receipt / Paid in full**, unpaid draws an **Invoice / Amount due**. The
+handles go on the second and never on the first, because printing "here's how
+to pay me" on a document for money already handed over is the exact thing the
+owner finds weird about his own old site: *"even on my invoice it says 'here's
+the payments we accept', which is so weird since they already paid."*
+
+### A FIFTH email carries them, and the roadmap's sentence would have missed it
+
+"The confirmation and the reminder" is true of a **reserve**-mode tenant. In
+**request** mode the customer's first email says *"we're holding your time"* and
+its own note says nothing is charged — so the handles are not on it. **The
+accepted-request email is that tenant's confirmation**, and it carries them
+instead. Following the roadmap's wording literally would have given every
+request-mode business payment handles on no email at all, and nothing on any
+screen would have shown it. `tests/payments.test.mjs` §3 pins all five
+placements and all four refusals.
+
+### Six columns, not a JSONB list
+
+`business_settings` already carries a feature per column group
+(`site_discount_active/percent/label`), a check constraint can hold the length,
+and the settings screen is six plain fields rather than the add-a-row editor a
+list would need. The trade is that a seventh method means a migration; the old
+site's own list was exactly these five plus cash, and `pay_other` is free text
+for anyone who takes something else. **The 120-character limit is a trust
+boundary, not tidiness** — every value is typed by a detailer and printed in a
+ruled label/value list that a 500-character "handle" would destroy.
+
+### A link is only built when it can be built correctly
+
+**A wrong payment link is worse than no link.** It sends somebody's money to the
+wrong person, or it 404s and makes the detailer look like they are not a real
+business — and neither failure is visible from any screen in this product.
+`supabase/functions/_shared/payments.ts` therefore links only two shapes: a
+plain username matching `^[A-Za-z0-9][A-Za-z0-9_.-]{0,39}$`, and a pasted
+`https:` URL with no character in it that could close the attribute it lands in.
+Everything else — a phone number, an email address, a full name, `http://`,
+`javascript:` — is **printed exactly as typed and not linked**. The sigil and
+the link stand or fall together, because `@(303) 555-0142` is not a Venmo
+handle and printing one says the detailer does not know their own details.
+**Zelle never links at all**: it lives inside a bank's own app and is reached by
+phone number or email, so there is no web address to send anyone to.
+
+**This is the second human-typed string in the product to reach an email**
+(the first is `campaignEmail`'s body, which is why `tests/campaign.test.mjs`
+exists). Two independent defences: the module refuses to build the href, and
+`emailTemplates.ts` escapes both the handle and the href where every other
+escape in the product lives. The module returns DATA, never HTML, so there is
+no second place to forget.
+
+### What was deliberately NOT built
+
+**No live preview of the emailed list on the settings screen**, which is the
+obvious build. It would mean a second copy of `payments.ts` inside `app/` —
+exactly the second-implementation problem CLAUDE.md allows in one place only
+(`brandColor.js`, and only because a Deno bundle cannot import out of
+`supabase/`). The two facts a preview would have carried are carried by the
+per-field placeholders and by one sentence instead. **Business.jsx's row
+summary is presence only** for the same reason: a summary answers "is anything
+set", never "what does it render as".
+
+**No QR upload.** The roadmap's *"what he already does — hold up a QR code —
+becomes official"* reads as a goal, not a component, and a QR is strictly worse
+than a handle in an email: **you cannot scan a code with the phone that is
+displaying it.** A tappable Venmo link is the same act with one fewer device.
+
+### Two things LOOKING at it changed, and neither was visible in the code
+
+**The paired Venmo / Cash App row was unpaired after measuring it.** At 392 two
+`.grid2` fields leave 155px each, which holds `@andrews-detail` and clips
+anything longer into a scroll inside the box. Every other paired field in this
+product holds a value you can recognise half of; **a payment handle is the one
+kind of value where reading half of it is the same as reading none**, because
+the detailer is checking it character by character against another app. Same
+finding as `Reviews.jsx`: a pair that does not survive 392 is not a pair.
+
+**The Business row summary named all six and was truncated to "Venmo, Cash App,
+PayPal, Zelle, something els…".** `.now` is one clamped line. It names two and
+counts the rest now — and the two it names are the two the email prints first,
+so the row and the email agree.
+
+**And the help sentence had been placed under PayPal, where it read as a
+caption about PayPal** — the `@` and the `$` it explains belong to the two
+fields above that one. It sits under the *Apps* heading now, which is the shape
+`controls.jsx`'s own `Group` blurb already uses.
+
+### The security review: nothing exploitable, two things worth fixing
+
+**No injection reaches the email.** Nineteen hostile inputs across all four
+text fields — `"><script>`, `' onmouseover='`, `javascript:`, `data:`,
+`HTTPS://`, `https:/\/`, NUL, an embedded newline, a backtick, an RTL override,
+percent-encoding — every one produced `href: null` or a benign `https:` href,
+and a full rendered confirmation carried no raw tag, no attribute break and no
+handler in any tag. `esc()` not covering the single quote is harmless here
+because every attribute on the path is double-quoted and the only things
+interpolated into one are `esc(r.href)` and a hex from the colour engine.
+**The six columns are covered by `business_settings`'s existing
+`has_business_permission(business_id, 'settings')` policies** — RLS is
+row-level, so a migration that adds columns needs no new policy — and
+`get_public_business_profile` builds its `settings` key from a 21-field
+allowlist that does not include them. No cross-tenant path: `buildBrand` is
+always called with `getSettings(business.id)` for the same business, and the
+write policy's `USING` and `WITH CHECK` both require the permission on that
+`business_id`.
+
+**What it did surface is a copy defect with teeth.** `business_settings` writes
+ride the `settings` tick, so the moment the handles landed on that table the
+tick also granted *"change where your customers are told to send money"* —
+while its own sentence still read *"Prices, hours, booking rules, branding and
+the business's own details."* **A permission that grants more than its sentence
+says is a permission nobody has actually agreed to**, and this is the same
+shape roadmap 2.13 already fixed one screen over, where the tick said "Prices,
+hours…" and `services.price` was writable by any member. The sentence names it
+now. **No new permission key** — the vocabulary is deliberately closed
+(CLAUDE.md: there is no `team` tick and that is on purpose), and a detailer who
+can change their prices can change where the money goes.
+
+**And it caught `payments.ts`'s own header lying about its code.** The header
+said *"Zelle never links at all"*; the pasted-URL branch runs before the
+per-service lookup, so `pay_zelle = "https://…"` does link. **The behaviour is
+right and the comment was wrong** — the real rule is that exactly two things
+are linked, a username on a service whose URL shape we know and a URL the
+detailer pasted themselves. Both halves are pinned by tests now. The test had
+said "Zelle never links" and passed, because it only ever tried a phone number:
+*a check that cannot reach a case reads exactly like a check that passes*, in a
+check written this same session.
+
+### What still needs the owner, and what is still open
+
+- **A rejected send is still invisible.** `send-email/index.ts` answers a
+  Resend rejection with `console.error` inside an edge function, and a booking
+  never fails because an email did — so a bad address, a suppression or a
+  domain problem shows up nowhere in this product. Round 3 §6 puts this beside
+  stage 1 and it is **not built**: the storage is easy, but *where a detailer
+  sees it* is a screen decision and this session did not have one to make it
+  on. Written up in the roadmap rather than half-built.
+- **Nothing tells a detailer their handle did not become a link.** The rule is
+  stated once on the screen; nothing checks their typing. A validation hint
+  needs the module the app cannot import, so the honest options are a preview
+  that costs a second implementation, or an edge function that answers it.
+  Neither is worth building until a real detailer has typed a handle in.

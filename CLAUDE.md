@@ -295,7 +295,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   **AND THE DEFAULT RUN IS TIERED AS OF 2026-09-03, at the owner's push: 203s
   rather than 335s.** Every width walks the CORE — the booking page, the five
   tabs, the job record, the request card, the calendar's day and history,
-  Money's periods and modals, Clients' six. **The long tail — the THIRTEEN
+  Money's periods and modals, Clients' six. **The long tail — the FOURTEEN
   settings screens, the gear, setup x7, tour x7 — runs at 320 and 1920 only**,
   the two extremes where every width-specific defect in this repo's history was
   actually found. Measured: a deep width is ~67s, a core-only one ~24s, so the
@@ -317,6 +317,22 @@ explaining it; if they still have to ask "so should I?", it failed.
   flaky script or a bad diff. **The dev server names the cause in one line:
   `page reload src/main.jsx` in the Vite log.** Check that before blaming
   anything else.
+  **IT IS EVERY BROWSER SCRIPT, NOT JUST THE SWEEP — AND `e2e-booking.mjs`'s
+  SYMPTOM READS AS A PRODUCT BUG RATHER THAN A HARNESS ONE (2026-09-04, roadmap
+  2.20).** Same cause, one edit to `app/src/lib/permissions.js` while a
+  backgrounded e2e run was on its second tenant. It did **not** print
+  "Execution context was destroyed". It printed a null receipt link and then
+  five failures in a row — *the booking is in the database — no id*, *stored as
+  confirmed*, *charged what the price bar printed — bar $150.00, row
+  undefined* — **while the same run's own email leg passed with the right
+  subject and the right amount**, which is a booking that plainly worked being
+  reported as a booking engine that does not store anything. A session reading
+  that output goes looking for a schema bug. **The tell is the contradiction
+  itself**: if the emails carry the right total, the row exists and the SCREEN
+  is what went missing. Confirmed in ten seconds by three timestamps — the file
+  write, the Vite `page reload`, and the log's own mtime. **`--slug=<one>`
+  re-runs a single tenant in ~90s and is the cheapest control**; the leg passed
+  39/39 alone and 82/82 on a clean full re-run.
   Same trap from the other side: a second agent or session working in this same
   directory does it to you without your knowing, so a sweep that dies mid-run
   is worth a `git status` before it is worth a bisect. The owner asked a second time during roadmap 2.12 why a session
@@ -415,10 +431,25 @@ explaining it; if they still have to ask "so should I?", it failed.
   only template whose body is TYPED BY A HUMAN and delivered to fifty, so the
   escape order — escape first, THEN newlines to `<br>` — is what stops one
   typed message becoming markup in every copy. Baselined both ways: dropping
-  the footer fails 4, dropping the escape fails 2)
+  the footer fails 4, dropping the escape fails 2),
+  **`payments`** (38 checks, new 2026-09-04, roadmap 2.20 stage 1 — the
+  detailer's own payment handles. It pins the two things no other check in this
+  repo can see. **WHICH EMAILS CARRY THE LIST**: `invoiceEmail` branches on
+  payment status, and both branches render a perfectly valid email, so handles
+  printed on a PAID RECEIPT would look like a working feature while being the
+  exact thing the owner complains about on his own old site. Five placements
+  and four refusals, including the one the roadmap's own wording would have
+  missed — in request mode the ACCEPTED-request email is the confirmation, so
+  "the confirmation and the reminder" leaves every request-mode tenant with
+  handles on no email at all. **AND WHAT REFUSES TO BECOME A LINK**: a wrong
+  payment link sends somebody's money to the wrong person and is invisible from
+  every screen, so only a plain username or a pasted `https:` URL is linked and
+  a phone number, an email address or `javascript:` is printed as typed.
+  Baselined three ways — handles on the receipt fails 1, the escape removed
+  fails 3, a link built from anything fails 7)
   from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
-  root `.env` — and one of them is new: **`request-mode`** (45 checks, roadmap 2.12,
+  root `.env` — and one of them is new: **`request-mode`** (51 checks — 45 when written, roadmap 2.12,
   2026-09-02). It pins the two facts about request mode that no reader of the code
   can see: **a request HOLDS its slot**, which is true only because `pending` is
   absent from the exclusion constraint's WHERE clause — a fact established by NOT
@@ -479,8 +510,8 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  THIRTEEN settings screens through TWO DOORS — NINE on Business (Monthly plans
-  joined in roadmap 2.14) and four behind
+  FOURTEEN settings screens through TWO DOORS — TEN on Business (Monthly plans
+  joined in roadmap 2.14, "How you get paid" in roadmap 2.20) and four behind
   the header gear (it was eleven behind one until roadmap 2.11 step 6 stage 6,
   and a script that opens one door reports clean on screens it never visits) —
   **the booking link’s QR CODE, which is behind a button and so is a state the

@@ -127,12 +127,13 @@ the flow container that stopped each card being its own page section at the
 - ~~**Never proven:** the reminder sweep~~ — **DONE 2026-08-29 (roadmap 0.3), proven.** pg_cron + pg_net now run `send-owner-reminders-sweep` every 15 minutes. A scheduled run sent a real reminder (delivered in Resend), the next tick sent nothing, and a cancelled booking was never mailed. Two defects were fixed on the way: the sweep leaked booking UUIDs to unauthenticated callers, and reminders never re-armed after an edit. Still open: a failed tick is silent — nothing alerts anyone. See DECISIONS.md.
 - **Unverified:** Android vCard export — only tested in Chromium (HANDOFF #4).
 - **Deps:** clean — 5 runtime deps, all used. `playwright` is a devDep for screenshot scripts.
-- **Tests: 16 suites, no runner** — plain `node tests/X.test.mjs` from repo root. **NINE run credential-free** (composition, design-contrast, landing-pricing, route-contract, money-export, email-brand, client-list, setup-progress, and qr-scans — which needs the dev server but no login and no seed); the other seven hit the real Supabase project and need env vars. **This line said "11 suites, 4 credential-free" until 2026-09-02 and had been stale for five suites** — CLAUDE.md's own list under Verification is the authority, and it is the one a session actually runs.
+- **Tests: 20 suites, no runner** — plain `node tests/X.test.mjs` from repo root. **TWELVE run credential-free** (composition, design-contrast, landing-pricing, route-contract, money-export, email-brand, client-list, plans, setup-progress, campaign, payments, and qr-scans — which needs the dev server but no login and no seed); the other eight hit the real Supabase project and need env vars. **This line said "16 suites, NINE credential-free" until 2026-09-04 and had been stale for four suites, which is the SECOND time it has gone stale** (it said "11 suites, 4" until 2026-09-02). CLAUDE.md's own list under Verification is the authority and it is the one a session actually runs; **every script prints its own figure, so read the output rather than either file.**
 
 ## 6. LANDMINES
 
 - **`main` = production, and a push to it IS a publish — CONFIRMED 2026-08-30, not inherited.** `main` was pushed and Netlify rebuilt and republished the live site on its own, with no upload and no dashboard visit. Work still happens on `claude/superbase-access-anj1h7`; **never merge to `main` on your own initiative — ask.** The owner said yes on 2026-08-30, so the redesign through roadmap 2.2 IS live and `main`, the branch and the working machine are all the same commit. ~~**THAT PARITY IS STALE AS OF 2026-08-31: `main` is 19 commits behind the branch**~~ — **AND THAT SENTENCE WAS ITSELF STALE BY THE END OF THE SAME DAY. Checked 2026-08-31 during roadmap 2.10: `main`, `origin/main` and the branch are all at `b24b95d`, the last commit of roadmap 2.9.** Everything through 2.9 — the walkthrough, the research, 2.8b's five builds, 2.8c's six settings and the money bug, and the 320px floor — **is published and live.** The only commits ahead of `main` are 2.10's two documentation commits, which contain no `app/` code and are not worth a publish on their own. Kept rather than deleted because the lesson is the point: **this line has now been wrong twice in one day, so a session that needs to know should run `git rev-list --count origin/main..HEAD` rather than trust it.** Still never merge without his word.
   **RUN 2026-09-02, AT THE END OF ROADMAP 2.11: THE ANSWER IS 34, AND BOTH REMOTES ARE STILL AT `b24b95d`** — the last commit of roadmap 2.9. `origin/main` and `origin/claude/superbase-access-anj1h7` are the same commit as each other, and **everything from roadmap 2.10 onward — the architecture proposal, the whole seven-stage dashboard rebuild, first run, five new test suites and three migrations — exists only on this machine.** That is not a publish question: pushing the BRANCH deploys nothing (only `main` does), so the risk is one-directional and it is the loss of a month of work to a disk. **ANSWERED THE SAME DAY: he said "push", and it is done.** `origin/claude/superbase-access-anj1h7` is at `92539f0` — the whole of roadmap 2.10 and 2.11 now has a second home. **`origin/main` is deliberately untouched at `b24b95d`, so nothing was published and nothing deployed**; the branch is 40 commits ahead of it and merging that is a separate question nobody has asked yet. **The lesson is the count, not the push: this landmine had said "run the command rather than trust it" since 2026-08-31 and nobody ran it for two days, in which the entire dashboard rebuild accumulated on one disk.** Run it at the end of an item, not when something feels wrong.
+  **RUN AGAIN 2026-09-04, AT THE END OF ROADMAP 2.20 STAGE 1: THE ANSWER IS 88, AND `origin/main` IS STILL AT `b24b95d`** — the last commit of roadmap 2.9, unchanged since 2026-08-31. It was 34 at the end of 2.11. **Nothing published since then**: 2.12 through 2.20 — request mode, quotes, custom roles, plans in both halves, the rebuilt emails, campaigns and now the payment handles — exist only on this branch. **That is deliberate rather than forgotten**, and the standing permission asks "is it needed" rather than "may I": there are no detailers on the product, so a live defect harms nobody and a live feature helps nobody, and stage 2 cannot go live before 2 December anyway. **The count is here because the landmine above says to run it at the END of an item, not when something feels wrong** — and the two days it went unrun are how the whole dashboard rebuild once accumulated on one disk.
 - **The old business is live and off-limits:** its Supabase project, Netlify site, and Resend domain (`andrewsdetail.com`). The Resend account contains real customers' emails. `reference/` is read-only.
 - **RLS is the security model.** An event trigger auto-enables RLS on new tables; `business_settings` is owner-only to READ (staff get zero rows — future staff screens must use edge functions). Don't "fix" what looks like an over-strict policy.
 - **Migrations are append-only, filename-ordered**; the apply script intentionally fails loudly on an already-migrated DB unless given specific filenames.
@@ -5032,3 +5033,109 @@ were all wrong; one probe settled it. And `git stash pop` on Windows rewrote 47
 untouched files to CRLF on the way back, which turned `composition` 8e-iv red
 in a file the item never opened — the same invisible-byte trap CLAUDE.md
 already records, reached by a new door.
+## ROADMAP 2.20, STAGE 1 — THE DETAILER'S OWN PAYMENT HANDLES (2026-09-04)
+
+**The owner's ask** — *"at least I need a way for my customers to pay me"* —
+**is two different problems.** Money IN is detailers paying him ($999 setup,
+$60/month) and is stage 2. Money THROUGH is a detailer's customers paying the
+detailer by card, which is stage 3 and needs Stripe Connect. **Neither can go
+live before 2 December 2026**, when he turns 18 and can open a Stripe account.
+
+**Stage 1 is the half that needs no processor at all**, and it shipped:
+the detailer types the handles they already read out at the door, and the
+customer's emails print them. No key, no webhook, no fee, and it is the only
+option that costs a detailer 0%.
+
+### What is built
+
+| | |
+|---|---|
+| **Schema** | `20260904006000_payment_handles.sql` — six columns on `business_settings`: `pay_cash` (boolean), `pay_venmo`, `pay_cashapp`, `pay_paypal`, `pay_zelle`, `pay_other`, each capped at 120 chars by a check constraint. **Applied.** |
+| **The engine** | `supabase/functions/_shared/payments.ts` — the ONE place that decides what a handle displays as and whether it can be linked. Returns data, never HTML. |
+| **The emails** | `paymentBlock` in `_shared/emailTemplates.ts`, on FIVE templates. |
+| **The screen** | `app/src/screens/more/Payments.jsx` — *"How you get paid"*, the fourteenth settings screen, tenth row on Business under *What you sell*. |
+| **The check** | `tests/payments.test.mjs` — 38 checks, credential-free, baselined three ways. |
+| **Deployed** | all ten edge functions that build a brand. |
+
+### The scope is ROUND 3's and it contradicts round 2's
+
+**Round 2 of `docs/payments-research-2026-09-04.md` concluded "the payment
+handles go on the UNPAID branch only".** Round 3 §4 moved them, on the owner's
+own knowledge of his trade rather than on research: *"they don't leave a
+client's house until it's paid… the amount of times someone's gonna mark
+something finalized and it not be paid is, like, zero percent chance almost."*
+**So the unpaid invoice is a rare document and round 2 was aiming at a page
+almost nobody sees.** His old site already had it in the better place —
+`reference/.../create-booking/index.ts:776` prints *"Payments accepted…"* in
+the **confirmation** email, before the job.
+
+**The round-2 sentence is still quoted in three files and reads like a complete
+specification on its own.** A session that finds it and not the correction
+builds the narrower thing — the same shape as the dissolve the owner withdrew.
+
+### Five emails, and the fifth is the one the roadmap's wording would have missed
+
+The confirmation, the reminder, the second reminder, **the accepted-request
+email** and the unpaid invoice. **Never the paid receipt** — that is the whole
+point of `invoiceEmail`'s branch, and printing handles on a document for money
+already handed over is exactly what the owner finds weird about his old site.
+
+The accepted-request branch is the non-obvious one. In **request** mode the
+customer's first email says *"we're holding your time"* and its own note says
+nothing is charged, so the handles are not on it — **the ACCEPTED email is that
+tenant's confirmation.** Following *"the confirmation and the reminder"*
+literally would have left every request-mode business with payment handles on
+no email at all, and nothing on any screen would have shown it.
+
+### A link is only built when it can be built correctly
+
+**A wrong payment link is worse than no link**: it sends somebody's money to the
+wrong person, or 404s and makes the detailer look like they are not a real
+business, and neither failure is visible from any screen in this product. Only
+two shapes link — a plain username, and a pasted `https:` URL with no character
+that could close the attribute it lands in. A phone number, an email address, a
+full name, `http://` and `javascript:` are printed exactly as typed. **Zelle
+never links**: it lives inside a bank's own app and has no web address.
+
+This is **the second human-typed string in the product to reach an email** (the
+first is `campaignEmail`'s body). Two independent defences: the module refuses
+the href, and the template escapes both the handle and the href.
+
+### Two defects came out of LOOKING, and neither was visible in the code
+
+- **The Venmo / Cash App pair was unpaired after measuring it.** Two `.grid2`
+  fields at 392 leave 155px each, which holds `@andrews-detail` and clips
+  anything longer into a scroll inside the box. **A payment handle is the one
+  value where reading half of it is the same as reading none**, because the
+  detailer is checking it character by character against another app.
+- **The Business row summary named all six and clipped** to *"Venmo, Cash App,
+  PayPal, Zelle, something els…"*. `.now` is one line. Two names and a count
+  now, and the two it names are the two the email prints first.
+
+### The security review found nothing exploitable, and one copy defect with teeth
+
+No injection reaches the email (19 hostile inputs, all refused a link and all escaped in the render), the six columns are covered by `business_settings`'s existing `settings` policies with no new policy needed, `get_public_business_profile` builds its `settings` key from a 21-field allowlist that excludes them, and there is no cross-tenant path.
+
+**What it did surface: `business_settings` writes ride the `settings` tick, so the moment the handles landed on that table the tick also granted "change where your customers are told to send money" — while its own sentence still read *"Prices, hours, booking rules, branding and the business's own details."* A permission that grants more than its sentence says is a permission nobody has agreed to.** Same shape as roadmap 2.13's `services.price`, one screen over. The sentence names it now; no new permission key, because the vocabulary is deliberately closed and a detailer who can change their prices can change where the money goes.
+
+**It also caught `payments.ts`'s header lying about its own code** — it claimed *"Zelle never links at all"*, but the pasted-URL branch runs first, so a pasted `https:` URL in that field does link. The behaviour is right and the comment was wrong. The test had asserted "Zelle never links" and passed, because it only ever tried a phone number: *a check that cannot reach a case reads exactly like a check that passes*, in a check written the same session. Both halves are pinned now.
+
+### STILL OPEN
+
+- **A rejected send is still invisible, and it is the other half of round 3
+  §6.** `send-email/index.ts` answers a Resend rejection with `console.error`
+  inside an edge function; a booking never fails because an email did, so a bad
+  address, a suppression or a domain problem shows up on no screen. **The
+  storage is trivial; WHERE A DETAILER SEES IT is the whole decision** — a row
+  on Today, a badge in the gear, or its own screen — and that is a design
+  question with five screenshot widths behind it. **Left rather than
+  half-built.** The QUOTA half needs nothing: Resend already emails at 80% and
+  100% on every plan.
+- **Nothing tells a detailer their handle did not become a link.** The rule is
+  stated once on the screen and nothing checks their typing. A hint needs
+  `payments.ts`, which lives in `supabase/` and cannot be imported from `app/`,
+  so the options are a preview costing a second implementation of the linking
+  rule, or an edge function that answers it. Not worth building until a real
+  detailer has typed one in.
+- **Stage 2 needs him** — his dad on the Stripe account, and whoever owns it is
+  the business for chargebacks, refunds and tax. Unchanged by this session.

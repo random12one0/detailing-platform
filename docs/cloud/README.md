@@ -79,7 +79,7 @@ PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --prefix app
 ```
 
 **Everything else needs no install whatsoever.** Verified 2026-09-05: not one
-of the ten credential-free checks imports anything outside `node:` and this
+of the eleven credential-free checks imports anything outside `node:` and this
 repo. They run on a bare clone.
 
 ### 1d. There is no `/clear`.
@@ -104,7 +104,7 @@ that would replace its judgement are not either.
 
 | | |
 |---|---|
-| **The ten credential-free checks** | zero install, no network, no browser. This is the real safety net |
+| **The eleven credential-free checks** | zero install, no network, no browser. This is the real safety net |
 | **The production build** | `npm run build --prefix app` — catches every import, syntax and module error a screenshot never would |
 | **`gh`** | pre-installed and authenticated through a proxy. **`random12one0/carwebitebooking` (the old live site) is readable**, which is what roadmap 4.1 needs |
 | **Reading and writing** | the whole repo, including `reference/`, `DECISIONS.md` and the research docs |

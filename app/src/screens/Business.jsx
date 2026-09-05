@@ -41,7 +41,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   CalendarClock, ChevronRight, ClipboardList, Images, ListChecks,
-  MessageSquareQuote, Palette, Repeat, Store, Tag, Wrench,
+  MessageSquareQuote, Palette, Repeat, Store, Tag, Wallet, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -74,6 +74,36 @@ function describeHours(rows) {
     ? `${label} · ${time12(open[0].open_time)} – ${time12(open[0].close_time)}`
     : `${label} · hours vary`;
 }
+
+// WHICH WAYS TO PAY ARE ON THE EMAILS, said the way a person would say it.
+//
+// PRESENCE ONLY, AND THAT IS THE WHOLE REASON THIS IS A LOCAL HELPER RATHER
+// THAN AN IMPORT. What a handle DISPLAYS as, and whether it can safely become
+// a tappable link, is decided once in `supabase/functions/_shared/payments.ts`
+// — and an edge function's bundle cannot be imported from `app/`, so the only
+// version of that logic this file could hold would be a SECOND one. It does
+// not need it: a row summary answers "is anything set", never "what does it
+// render as". Same order as the email's list, so the row and the email agree.
+const describePayment = (s) => {
+  const on = [
+    s?.pay_venmo && "Venmo",
+    s?.pay_cashapp && "Cash App",
+    s?.pay_paypal && "PayPal",
+    s?.pay_zelle && "Zelle",
+    s?.pay_other && "something else",
+    s?.pay_cash && "cash",
+  ].filter(Boolean);
+  // NAMED IN THE DETAILER'S TERMS, never "0 configured" (the state rule).
+  // And not a scold: a detailer who takes cash at the door and has not said
+  // so yet is the ordinary starting state, not a misconfiguration.
+  if (on.length === 0) return "Nothing on your emails yet";
+  if (on.length <= 2) return on.join(" & ");
+  // TWO NAMES AND A COUNT, because `.now` is ONE clamped line and the full
+  // list of six ran off the end of it as "Venmo, Cash App, PayPal, Zelle,
+  // something els…". A summary that has to be truncated is not a summary; the
+  // two it names are the two the email prints first.
+  return `${on[0]}, ${on[1]} & ${on.length - 2} more`;
+};
 
 const humanNotice = (mins) => {
   if (!mins) return "no notice needed";
@@ -194,6 +224,11 @@ export default function Business({ onSetup }) {
       ["plans", "Monthly plans", Repeat,
         counts ? (counts.plans === 0 ? "Not offering one"
           : `${n(counts.planMembers, "member", "members")} on ${n(counts.plans, "plan", "plans")}`) : "…"],
+      // ROADMAP 2.20 STAGE 1. Under "What you sell" rather than "Your page"
+      // because it is about the money on the job, and LAST in the group for
+      // the same reason cash is last in the email's own list: it is what
+      // happens once everything above it has been agreed.
+      ["payments", "How you get paid", Wallet, settings ? describePayment(settings) : "…"],
       ["promos", "Promo codes & sale", Tag,
         counts ? (settings?.site_discount_active
           ? `Site sale on · ${n(counts.promos, "code", "codes")}`

@@ -6,6 +6,10 @@
 // of them imports from the other is a worse shape than a file that just holds
 // it (component inventory §3c).
 //
+// FOURTEEN AS OF ROADMAP 2.20 — "How you get paid" joined under "What you
+// sell". Every handle typed on it is printed in a customer's email and
+// nowhere else, which is Business's admission test passed outright.
+//
 // THIRTEEN AS OF ROADMAP 2.14 — "Monthly plans" joined under "What you sell",
 // because a plan is an offer with a price and that is the same admission test
 // the catalog passes. The missing one is still the FAQ. Its storage landed in
@@ -21,6 +25,7 @@ import Reviews from "./Reviews.jsx";
 import Catalog from "./Catalog.jsx";
 import Promos from "./Promos.jsx";
 import Plans from "./Plans.jsx";
+import Payments from "./Payments.jsx";
 import Hours from "./Hours.jsx";
 import BookingRules from "./BookingRules.jsx";
 import Notifications from "./Notifications.jsx";
@@ -37,6 +42,7 @@ export const SCREENS = {
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
   plans: [Plans, "Monthly plans"],
+  payments: [Payments, "How you get paid"],
   hours: [Hours, "Hours & days off"],
   rules: [BookingRules, "Booking rules"],
   notifications: [Notifications, "Notifications"],

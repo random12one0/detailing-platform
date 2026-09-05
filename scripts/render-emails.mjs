@@ -38,6 +38,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { contrastRatio, emailBrandColors, emailDarkBrandColors } from "../supabase/functions/_shared/brandColor.js";
 import { brandFrom, D, htmlToText, L } from "../supabase/functions/_shared/emailKit.ts";
 import * as T from "../supabase/functions/_shared/emailTemplates.ts";
+import { paymentHandles } from "../supabase/functions/_shared/payments.ts";
 
 const arg = (n, d) => {
   const hit = process.argv.find((a) => a.startsWith(`--${n}=`));
@@ -74,6 +75,27 @@ const brand = {
   dropoffAddress: "2200 Blake St, Denver, CO 80205",
   googleReviewUrl: "https://g.page/r/example/review",
   yelpReviewUrl: "https://www.yelp.com/biz/example",
+  // ROADMAP 2.20 STAGE 1, AND IT IS ON THE BASE FIXTURE ON PURPOSE. Every
+  // template gets the handles, so the page a human opens shows both halves of
+  // the decision at once: the confirmation, the accepted request, the reminder
+  // and the INVOICE draw a "How to pay" list, and the RECEIPT — one card away
+  // from the invoice, same template, same fixture — draws none. That contrast
+  // is the owner's own complaint about his old site, and it is the thing worth
+  // being able to see rather than read.
+  //
+  // ONE OF EACH KIND THE MODULE CAN PRODUCE: two that link from a username, a
+  // pasted URL that links as typed, a phone number that must NOT link, free
+  // text, and cash. Run through `paymentHandles` rather than written by hand,
+  // for the same reason `brandFrom` builds the colours — a fixture assembled
+  // field by field is a fixture that silently disagrees with production.
+  payment: paymentHandles({
+    pay_venmo: "@ridgeline-detail",
+    pay_cashapp: "ridgelinedetail",
+    pay_paypal: "https://paypal.me/ridgelinedetail",
+    pay_zelle: "(303) 555-0142",
+    pay_other: "Apple Pay, or a check made out to Ridgeline",
+    pay_cash: true,
+  }),
 };
 
 // THE NUMBERS ARE INTERNALLY CONSISTENT AND THAT IS LOAD-BEARING, not tidiness.

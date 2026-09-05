@@ -150,8 +150,9 @@ const heightFor = (w) => (w >= 1900 ? 1080 : w >= 1024 ? 900 : 844);
 const DESKTOP_SPEC_BUILT = true;
 const BP_SPLIT = 1180;   // --wrap; where the desktop spec's second column engages
 const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that says "a desktop layout exists"
-// THIRTEEN SETTINGS SCREENS BEHIND TWO DOORS. It was twelve until roadmap
-// 2.14 added Monthly plans to Business; the count in a comment is the fourth
+// FOURTEEN SETTINGS SCREENS BEHIND TWO DOORS. It was twelve until roadmap
+// 2.14 added Monthly plans to Business and thirteen until roadmap 2.20 added
+// "How you get paid"; the count in a comment is the fourth
 // stale-number family this repo has caught, so the list below is the
 // authority and this sentence follows it.
 // From roadmap 2.11 step 6 stage 6.
@@ -166,8 +167,13 @@ const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that say
 // Reviews is the twelfth and is new. There is no FAQ row: its storage
 // landed and its screen deliberately did not.
 const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews",
-  "Services & add-ons", "Monthly plans", "Promo codes & sale", "Hours & days off",
-  "Booking rules"];
+  // "How you get paid" is roadmap 2.20 stage 1, and it is added in the change
+  // that BUILT it rather than in the item that later finds it broken — which
+  // is the whole lesson of the nine times this same gap has been recorded.
+  // Its own risk is the paired Venmo / Cash App row at 320, exactly like the
+  // plan form's segmented-control-beside-a-number-field.
+  "Services & add-ons", "Monthly plans", "How you get paid", "Promo codes & sale",
+  "Hours & days off", "Booking rules"];
 const GEAR_ROWS = ["Notifications", "Message templates", "Team", "This device"];
 
 // Runs in the page. Boxes are the things with an edge — two of those touching
@@ -701,7 +707,7 @@ for (const w of SIZES) {
   // ---- THE LONG TAIL: 28 of the 56 states, and the half that is skipped at
   // 1440 and 360. Everything above this line runs at every width.
   if (!deep) {
-    console.log(`${"the long tail".padEnd(24)} skipped at ${w} — 13 settings screens, the gear, setup x7, tour x7`);
+    console.log(`${"the long tail".padEnd(24)} skipped at ${w} — ${BUSINESS_ROWS.length + GEAR_ROWS.length} settings screens, the gear, setup x7, tour x7`);
     await ctx.close();
     widthMs.push([w, Date.now() - widthStart]);
     continue;

@@ -51,9 +51,11 @@ import {
   ruleBlock,
   shell,
 } from "./emailKit.ts";
+import { type PaymentHandle, paymentHandles, type PaymentSettings } from "./payments.ts";
 
 export { formatDateLong, formatTime12hr, money };
-export type { Brand, MoneyLine };
+export { paymentHandles };
+export type { Brand, MoneyLine, PaymentHandle, PaymentSettings };
 
 /** The email kinds a detailer may add their own paragraph to. */
 export type MessageKind =
@@ -81,6 +83,13 @@ export type TenantBrand = Brand & {
   dropoffAddress: string | null;
   googleReviewUrl: string | null;
   yelpReviewUrl: string | null;
+  /**
+   * ROADMAP 2.20 STAGE 1 — how this detailer wants to be paid, already
+   * normalised by `_shared/payments.ts`. Absent or empty for every business
+   * that has not filled the form in, which is all of them until they do, and
+   * the templates then render nothing.
+   */
+  payment?: PaymentHandle[];
 };
 
 export interface BookingEmailData {
@@ -209,6 +218,42 @@ function ownWords(brand: TenantBrand, kind: MessageKind): string {
  * One helper rather than the sentence typed into three templates, for the same
  * reason `ownWords` is one: copies drift and the third gets forgotten.
  */
+/**
+ * HOW TO PAY — roadmap 2.20 stage 1, and the whole of the stage on the email
+ * side.
+ *
+ * TWO BLOCKS, NOT ONE, because the heading is what stops this reading as more
+ * facts about the job. It is a ruled list for the same reason `factsBlock`
+ * exists at all — "a collection of records is a ruled list" is a composition
+ * law with its own test — and the values are label-left / handle-right like
+ * every other list in the set.
+ *
+ * ESCAPING IS THE POINT OF THIS FUNCTION LIVING HERE. `factsBlock` escapes its
+ * LABEL and takes its VALUE as raw HTML, and every value on this list was
+ * typed by a detailer. `esc` runs on the handle and on the href, and
+ * `payments.ts` has already refused to build an href out of anything but a
+ * plain username or an `https:` URL — so a hostile string reaches the page as
+ * inert text with no link on it, twice over.
+ *
+ * NOTHING IS RENDERED WHEN NOTHING IS SET, which is every business on the day
+ * this shipped. An empty heading over an empty list is worse than silence.
+ */
+function paymentBlock(brand: TenantBrand, lead = ""): string {
+  const rows = brand.payment ?? [];
+  if (rows.length === 0) return "";
+  // NO LEAD ON THE INVOICE. That email's heading is already "Amount due" and
+  // its money column is directly above this list, so a sentence here could
+  // only restate one of them — which is the owner's own copy rule, 2026-09-01.
+  return labBlock("How to pay") + (lead ? fineBlock(lead, 10) : "") + factsBlock(
+    rows.map((r) => [
+      r.label,
+      r.href
+        ? `<a href="${esc(r.href)}" target="_blank" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(r.handle)}</a>`
+        : `<span class="c-ink" style="color:${G.ink};">${esc(r.handle)}</span>`,
+    ] as [string, string]),
+  );
+}
+
 function keepLink(bookUrl: string): string {
   return fineBlock(
     "Keep this email — the link above is how you change or cancel without ringing "
@@ -307,6 +352,12 @@ export function customerConfirmationEmail(
     labBlock("What we're doing"),
     moneyBlock(brand, quoteLines(b), { label: "Estimated total", amount: Number(b.total) }),
     fineBlock("An estimate. If the vehicle's condition needs more time than expected we'll tell you before we start, never after."),
+    // ROADMAP 2.20 STAGE 1, AND NOT ON THE REQUEST BRANCH. A request is not a
+    // booking yet — that branch's own note says "nothing is charged now" — so
+    // telling somebody how to pay for a job nobody has accepted is the same
+    // mistake as printing payment methods on a receipt, one step earlier.
+    // The accepted-request email carries them instead.
+    isRequest ? "" : paymentBlock(brand, "Nothing to pay now — this is for when the work is done."),
     ownWords(brand, isRequest ? "request_received" : "confirmation"),
     buttonBlock(brand, isRequest ? "View or change your request" : "View your booking", b.receiptUrl),
     keepLink(brand.siteUrl),
@@ -410,6 +461,13 @@ export function requestDecisionEmail(
       proseBlock(`Good news &mdash; we've accepted your request for ${when}. It's in the diary.`),
       markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
       factsBlock(jobFacts(brand, b)),
+      // ROADMAP 2.20 STAGE 1, AND THIS IS THE CONFIRMATION FOR HALF THE
+      // TENANTS. In request mode the customer's first email says "we're
+      // holding your time" and explicitly charges nothing; THIS is the one
+      // that says the job is happening. Leaving it out because the roadmap's
+      // sentence says "the confirmation" would give every request-mode
+      // business no payment handles on the only email that confirms anything.
+      paymentBlock(brand, "Nothing to pay now — this is for when the work is done."),
       ownWords(brand, "accepted"),
       buttonBlock(brand, "View or change your booking", opts.manageUrl),
       keepLink(brand.siteUrl),
@@ -498,6 +556,11 @@ export function invoiceEmail(
       label: paid ? "Total paid" : "Amount due",
       amount: Number(totals.totalPaid),
     }),
+    // ROADMAP 2.20 STAGE 1 — AND `paid` IS THE WHOLE POINT OF THE BRANCH.
+    // The owner's complaint about his own old site was that its invoice listed
+    // the payments he accepts for money the customer had already handed over.
+    // A receipt proves; an invoice asks. Only the one that asks says how.
+    paid ? "" : paymentBlock(brand),
     paymentNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">Notes</strong><br>${esc(paymentNotes)}`, 26) : "",
     ownWords(brand, paid ? "receipt" : "invoice"),
     buttonBlock(brand, "View this online", b.receiptUrl),
@@ -561,6 +624,7 @@ export function customerReminderEmail(
     proseBlock(`Hi ${esc(firstName(b.customerName))}, a quick reminder about your appointment with ${esc(brand.brandName)}.`),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
     factsBlock(jobFacts(brand, b)),
+    paymentBlock(brand, "For when the work is done."),
     ownWords(brand, second ? "reminder_2" : "reminder"),
     buttonBlock(brand, "View or change your booking", b.receiptUrl),
     keepLink(brand.siteUrl),

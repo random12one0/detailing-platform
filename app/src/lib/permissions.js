@@ -39,7 +39,17 @@ export const PERMISSIONS = [
   {
     key: "settings",
     name: "Settings",
-    help: "Prices, hours, booking rules, branding and the business's own details.",
+    // "HOW YOU GET PAID" JOINED THE LIST IN ROADMAP 2.20 STAGE 1, AND THE
+    // SENTENCE HAD TO MOVE WITH IT. `business_settings` writes ride this tick,
+    // so the moment the payment handles landed on that table this tick also
+    // granted "change where your customers are told to send money" — while its
+    // own words still said prices and hours. That is the exact shape roadmap
+    // 2.13 already fixed one screen over, where the tick said "Prices, hours…"
+    // and `services.price` was writable by any member: **the tick's words are
+    // the specification, and a permission that grants more than its sentence
+    // says is a permission nobody has actually agreed to.** Named with the
+    // screen's own words so a detailer can connect the two.
+    help: "Prices, hours, booking rules, branding, how you get paid, and the business's own details.",
     noun: "the settings",
   },
   {

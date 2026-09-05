@@ -140,6 +140,20 @@ await post("/rest/v1/business_settings", [{
   cancellation_window_hours: 24,
   google_review_url: "https://example.com/google-review",
   yelp_review_url: "https://example.com/yelp-review",
+  // ROADMAP 2.20 STAGE 1, AND ONE OF EVERY KIND THE FEATURE CAN PRODUCE —
+  // because "a configuration nothing seeds is a configuration nothing tests"
+  // is this repo's most-repeated finding and it applies to the SETTINGS SCREEN
+  // as much as to the email. Without these, `sweep-widths.mjs` would measure
+  // the "How you get paid" screen with six empty inputs, which is the one
+  // state whose layout cannot go wrong.
+  //   two that link from a username, one pasted URL, one that must NOT link,
+  //   free text long enough to test the wrap, and cash.
+  pay_venmo: "@andrews-detail",
+  pay_cashapp: "andrewsdetail",
+  pay_paypal: "https://paypal.me/andrewsdetail",
+  pay_zelle: "(562) 555-0142",
+  pay_other: "Apple Pay, or a check made out to Andrew's Auto Detail",
+  pay_cash: true,
   // FIRST RUN, PINNED (roadmap 2.11 step 6, stage 7). `seen` so the setup
   // form never ambushes the demo — it is a fully set-up business, which is
   // the whole point of it — and `done` EMPTY so Business still carries the

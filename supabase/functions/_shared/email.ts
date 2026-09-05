@@ -7,6 +7,7 @@ import { businessSiteUrl } from "./config.ts";
 import type { Business } from "./tenant.ts";
 import type { BusinessSettings } from "./tenant.ts";
 import type { TenantBrand } from "./emailTemplates.ts";
+import { paymentHandles } from "./payments.ts";
 import { emailDarkBrandColors } from "./brandColor.js";
 
 // What an unbranded business sends with. The house accent, because the email
@@ -47,6 +48,12 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
     // that has not written one, which is all of them until they do — the
     // templates render nothing when a key is absent.
     messages: (settings.email_messages ?? {}) as Record<string, string | null>,
+    // Roadmap 2.20 stage 1. Normalised once, here, so no template ever sees a
+    // raw `pay_*` column — `_shared/payments.ts` is the one place that decides
+    // what a handle displays as and whether it can safely be linked. `[]` for
+    // every business that has not filled the form in, and the templates then
+    // draw nothing at all.
+    payment: paymentHandles(settings),
   };
 }
 

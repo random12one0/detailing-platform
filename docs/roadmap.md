@@ -3292,6 +3292,121 @@ is kept; the entire visual design restarts from scratch.
          pricing, which we would not. **This is also what unlocks real plan
          subscriptions in 2.14.**
 
+      **STAGE 1 SHIPPED 2026-09-04, AND ITS SCOPE IS ROUND 3'S — NOT THE
+      SENTENCE IN STAGE 1's OWN BULLET ABOVE, WHICH IS ROUND 2's AND IS
+      SUPERSEDED.** Round 2 said *"the payment handles go on the UNPAID branch
+      only"*; round 3 §4 moved them on the owner's own trade knowledge —
+      *"they don't leave a client's house until it's paid"* — so the unpaid
+      invoice is a rare document and round 2 was aiming at a page almost
+      nobody sees. **The round-2 sentence is still quoted in three files and
+      reads like a complete specification on its own.** Built:
+
+      - `business_settings` gains **six columns** — `pay_cash` (boolean),
+        `pay_venmo`, `pay_cashapp`, `pay_paypal`, `pay_zelle`, `pay_other`,
+        each capped at 120 characters by a check constraint because every one
+        of them is typed by a detailer and printed in a customer's email.
+        Migration `20260904006000_payment_handles.sql`, applied.
+      - **`supabase/functions/_shared/payments.ts` is the one place that
+        decides what a handle displays as and whether it can safely be
+        linked.** It returns DATA, never HTML. **A wrong payment link is worse
+        than no link** — it sends somebody's money to the wrong person, or
+        404s — so only a plain username or a pasted `https:` URL is linked;
+        a phone number, an email address, `http://` and `javascript:` are
+        printed exactly as typed. **Zelle never links**: it lives inside a
+        bank's app and has no web address. The sigil and the link stand or
+        fall together, because `@(303) 555-0142` is not a Venmo handle.
+      - **FIVE emails carry the list, not the two this item's prose names.**
+        The confirmation, the reminder, the second reminder, **the
+        accepted-request email** and the unpaid invoice. That fourth one is
+        the branch the wording would have missed: in **request** mode the
+        customer's first email says *"we're holding your time"* and charges
+        nothing, so the ACCEPTED email is that tenant's confirmation. Without
+        it, every request-mode business would have handles on no email at all.
+        **Never the paid receipt**, which is the whole point of the branch.
+      - **`app/src/screens/more/Payments.jsx`** — *"How you get paid"*, the
+        fourteenth settings screen, tenth row on Business under *What you
+        sell*. Added to `sweep-widths.mjs` in the change that built it. Clean
+        at 1920 / 1440 / 768 / 392 / 360 / 320.
+      - **`tests/payments.test.mjs`** — 38 checks, credential-free, baselined
+        three ways (handles on the receipt fails 1, the escape removed fails
+        3, a link built from anything fails 7). `seed-demo.mjs` now seeds one
+        of every handle shape, because *a configuration nothing seeds is a
+        configuration nothing tests* applies to the settings screen too.
+
+      **TWO DEFECTS CAME OUT OF LOOKING AT IT AND NEITHER WAS VISIBLE IN THE
+      CODE.** The Venmo / Cash App pair leaves 155px a field at 392, which
+      holds `@andrews-detail` and clips anything longer into a scroll inside
+      the box — **a payment handle is the one value where reading half of it
+      is the same as reading none**, because the detailer is checking it
+      character by character against another app, so it was unpaired. And the
+      Business row summary named all six and clipped to *"Venmo, Cash App,
+      PayPal, Zelle, something els…"*; it names two and counts the rest now.
+
+      **THE SECURITY REVIEW FOUND NOTHING EXPLOITABLE AND ONE THING WORTH
+      FIXING ANYWAY.** No injection reached the email — 19 hostile inputs all
+      produced `href: null` or a benign `https:` href, and the rendered output
+      carried no raw tag, no attribute break and no handler — the six new
+      columns are covered by `business_settings`'s existing
+      `has_business_permission(business_id, 'settings')` policies with no new
+      policy needed, `get_public_business_profile` builds its `settings` key
+      from a 21-field allowlist that does not include them, and the migration
+      drops nothing. **What it did surface is a COPY defect with teeth:
+      `business_settings` writes ride the `settings` tick, so the moment the
+      handles landed on that table the tick also granted "change where your
+      customers are told to send money" — while its own sentence still read
+      *"Prices, hours, booking rules, branding and the business's own
+      details."*** That is the same shape roadmap 2.13 already fixed one
+      screen over. **The tick's words are the specification**, so the sentence
+      now names it. **No new permission key**: the vocabulary is deliberately
+      closed, and a detailer who can change their prices can change where the
+      money goes.
+
+      **AND IT CAUGHT THE MODULE'S HEADER LYING ABOUT ITS OWN CODE.** It said
+      *"Zelle never links at all"*; the pasted-URL branch runs before the
+      per-service lookup, so a pasted `https:` URL in the Zelle field does
+      link. **The behaviour is right and the comment was wrong** — the real
+      rule is that we link exactly two things, a username on a service whose
+      URL shape we know and a URL the detailer pasted themselves. Both halves
+      are pinned by tests now, because *a check that cannot reach a case reads
+      exactly like a check that passes* and the Zelle case was only ever
+      tested with a phone number.
+
+      **STILL NOT BUILT, AND IT IS THE OTHER HALF OF ROUND 3 §6: MAKING A
+      REJECTED SEND VISIBLE.** `send-email/index.ts` answers a Resend
+      rejection with `console.error` inside an edge function, and a booking
+      never fails because an email did — so a bad address, a suppression or a
+      domain problem shows up on no screen in this product. **The storage is
+      trivial and WHERE A DETAILER SEES IT is the whole decision**: a row on
+      Today, a badge in the gear, or its own screen, and each of those is a
+      design question with five screenshot widths behind it. Left rather than
+      half-built. **The QUOTA half genuinely needs nothing** — Resend already
+      emails at 80% and 100% on every plan.
+
+      **THE RECOMMENDATION, SO THE NEXT SESSION IS NOT MAKING IT COLD: PUT IT
+      ON THE CUSTOMER, NOT IN A LOG.** A rejected send is almost always a bad
+      email address, and a bad email address is a fact about the CUSTOMER, not
+      about the mail system. So: store the last failure and its reason against
+      the customer row, and draw it wherever the product already prints that
+      customer's address — the job record and the client sheet. **Nothing new
+      to check daily, no inbox to build, and it appears at the moment the
+      detailer is about to rely on the address.** A "failed emails" screen is
+      the obvious build and is worse: it is a place you have to remember to
+      visit, about a problem you only care about per-person.
+
+      **The one mechanical detail that decides the shape:** `send-email` is
+      handed `business_id` and `to`, and nothing else — no booking, no customer
+      — so it matches `customers` on those two. That is enough for every send
+      to a customer, and an owner alert simply matches nothing, which is
+      correct. **~40 lines, one migration, no new screen.** It needs the
+      owner's yes on where it appears, and nothing else.
+
+      **AND NOTHING TELLS A DETAILER THEIR HANDLE DID NOT BECOME A LINK.** The
+      rule is stated once on the screen and nothing checks their typing. A hint
+      needs `payments.ts`, which lives in `supabase/` and cannot be imported
+      from `app/` — so the honest options are a preview that costs a second
+      implementation of the linking rule, or an edge function that answers it.
+      **Neither is worth building until a real detailer has typed one in.**
+
       **COSTS, ON HIS OWN NUMBERS.** Stripe takes **$1.66 of a $40 charge**
       (2.9% + 30¢ + Billing's 0.5%) and **$14.77 of the $499**. No monthly fee.
       A merchant of record (Paddle, Lemon Squeezy) is 5% + 50¢ — **$2.50 on

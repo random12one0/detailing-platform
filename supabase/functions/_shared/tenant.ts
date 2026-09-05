@@ -82,6 +82,15 @@ export interface BusinessSettings {
   // Roadmap 2.12 — 'reserve' | 'request'. What a booking through the page
   // MEANS. Both hold the slot; only the promise differs.
   booking_mode: string;
+  // Roadmap 2.20 stage 1 — the detailer's own ways to be paid, printed on the
+  // confirmation, the reminders and the UNPAID invoice. `_shared/payments.ts`
+  // is the only place that decides what these render as and what links.
+  pay_cash: boolean;
+  pay_venmo: string | null;
+  pay_cashapp: string | null;
+  pay_zelle: string | null;
+  pay_paypal: string | null;
+  pay_other: string | null;
 }
 
 // Missing settings row → every default the schema declares. Fetched fresh per
@@ -132,6 +141,16 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     site_discount_active: false,
     site_discount_percent: 0,
     site_discount_label: null,
+    // A business with no settings row accepts nothing in particular, so the
+    // emails print no payment block at all — the same shape as every other
+    // default here, and the state every existing tenant is in on the day this
+    // migration lands.
+    pay_cash: false,
+    pay_venmo: null,
+    pay_cashapp: null,
+    pay_zelle: null,
+    pay_paypal: null,
+    pay_other: null,
     google_review_url: null,
     yelp_review_url: null,
     notification_emails: [],
