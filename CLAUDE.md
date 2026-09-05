@@ -462,7 +462,7 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, **`landing-pricing`** (**58 checks** — 21 until roadmap
+  `design-contrast`, **`landing-pricing`** (**65 checks — measured 2026-09-05; this said 58 and was stale within a day of being written** — 21 until roadmap
   2.20 stage 2 on 2026-09-05, and its FIRST check had been vacuous since the
   day it was written: the pricing-section slice looked for
   `aria-labelledby="price"` when the section is `"prh"`, so `indexOf` returned
@@ -535,7 +535,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   escape order — escape first, THEN newlines to `<br>` — is what stops one
   typed message becoming markup in every copy. Baselined both ways: dropping
   the footer fails 4, dropping the escape fails 2),
-  **`platform-billing`** (**168 checks**, new 2026-09-05, roadmap 2.20 stage 2 —
+  **`platform-billing`** (**263 checks — measured 2026-09-05; this said 168 and the file said 220 sixty lines further down, which is the same suite counted twice and wrong twice**, new 2026-09-05, roadmap 2.20 stage 2 —
   what a DETAILER pays US, and the first suite in this repo where *a number
   PRINTED is not a number CHARGED* is literally rather than metaphorically
   true. It ties every rung on `/pricing`, founding and list, to the money
@@ -1215,7 +1215,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   status map and the dunning words. **It is the SECOND copy of
   `app/src/landing/pricing.js`** — a Deno bundle will not follow an import out
   of `supabase/`, the same wall that forced `_shared/brandColor.js` — and
-  `tests/platform-billing.test.mjs` (220 checks) pins the two tables value by
+  `tests/platform-billing.test.mjs` (263 checks — measured, not estimated) pins the two tables value by
   value AND ties every rung to the money on the wire. **This is the first place
   in the product where "a number PRINTED is not a number CHARGED" is literally
   true rather than a metaphor.**
@@ -1835,6 +1835,40 @@ explaining it; if they still have to ask "so should I?", it failed.
   the ONLY tool-specific file in the repo is `.claude/settings.json`
   (permissions), and all 20+ knowledge files are portable markdown. Keep
   it that way and the migration stays close to free. See DECISIONS.md.
+
+- **A TENANT'S OWN WEBSITE HAS A CONTRACT NOW, AND IT IS THE FIRST THING TO
+  READ BEFORE ANY PHASE 3 WORK — `docs/tenant-site-contract.md`, roadmap 3.1,
+  2026-09-05.** `docs/tenant-websites.md` is still the destination in the
+  owner's words; the contract is the enumeration its §3 said was owed.
+  **The rule it exists to protect is one this file already has in a harder
+  form: a site that hard-codes a price is *a number PRINTED is not a number
+  CHARGED* with the two numbers in two different codebases**, where nothing can
+  ever see both. §2 is the twelve things a site owes, each written as **what
+  silently stops working if the site omits it** — because all twelve fail
+  quietly: the dashboard screen still works, the setting still saves, and
+  nothing reports that the feature reaches nobody.
+  **THE FORK LINE IS ALREADY BUILT AND JUST HAD NEVER BEEN WRITTEN DOWN.** One
+  `security definer` RPC (`get_public_business_profile`) is the whole read
+  surface; every public edge function already answers
+  `Access-Control-Allow-Origin: *`; `business-media` is public-read; and
+  `create-booking` recomputes every quote server-side whatever the client sent.
+  **A site therefore needs no change to the engine — it needs permission not to
+  reimplement it.**
+  **THE ONE THING STANDING WITH THE OWNER is contract §1c**: a bespoke site
+  LINKS to `/book/:slug` rather than rebuilding the seven-step flow. Do not
+  build against the other answer before he says so.
+  **AND THE 3.1 ROADMAP ENTRY'S FOURTH GAP IS WRONG — the four measured gaps
+  are three.** "Five of six social links cannot be typed in" was true on
+  2026-08-31 and fixed on 2026-09-02, then copied forward unread. **A gap list
+  rots exactly like the counts this file keeps having to correct.** Contract
+  §6e has what is really broken there, and §6a–§6g are the seven that block a
+  site — the largest being that every customer-facing URL comes from one global
+  `PLATFORM_URL`, so a detailer on their own domain still emails links to
+  detailingplatform.com.
+  **The default visual world is `docs/design-directions/6-detailer-default.html`**
+  (Fable 5.1, per the roadmap's own split — the world, never the enumeration).
+  **Nothing tests it**: `composition` walks `app/src` plus `5-the-thread.html`
+  by name, so a new page in that folder is held by looking and not by a check.
 
 ## Context (read these, in this order, when new)
 

@@ -5513,18 +5513,59 @@ is kept; the entire visual design restarts from scratch.
       product, built once and diverged from per client (`tenant-websites.md`
       §3, "the kit ships a default"). **It is not the contract enumeration**,
       which is analytical and belongs to whichever model is already running.
-- [ ] 3.2 Build them. **NOTE: this wording predates the owner's 2026-08-29
-      decision** — "entirely from tenant configuration, zero hardcoded
-      content" describes the shared-system answer he rejected. Under the
-      confirmed model the front end is custom per client and the ENGINE is
-      shared, so what 3.2 must produce is the standard back-end wiring plus
-      the list of things a site is REQUIRED to implement for the dashboard's
-      features to work — his constraint: "a lot of the features of the admin
-      dashboard need some features on the website to work." Rewording this is
-      a 3.1 job. See `docs/tenant-websites.md` §3.
+
+      **BUILT 2026-09-05 AND WAITING ON HIS ONE APPROVAL.** The enumeration is
+      `docs/tenant-site-contract.md` — twelve implementations a site owes (§2),
+      the read contract key by key (§3), what a site may never do (§4) and may
+      omit (§5). The default visual world is
+      `docs/design-directions/6-detailer-default.html` (Fable 5.1). The item
+      stays unticked because its own line says **OWNER approves the plan**, and
+      the thing to approve is contract §1c: **the booking flow is engine, so a
+      bespoke site LINKS to `/book/:slug` rather than rebuilding the seven
+      steps.**
+      **THREE OF THE FOUR GAPS ABOVE ARE CONFIRMED; THE SOCIAL-LINKS ONE IS
+      WRONG.** `BusinessInfo.jsx` has edited four social fields since
+      2026-09-02 (stage 6) — the gap was copied out of
+      `dashboard-feature-inventory-2026-08-31.md` §3 without being re-read.
+      What is actually broken there is smaller: `branding.social_google` and
+      `branding.social_yelp` are dead columns shadowing the live
+      `settings.*_review_url` pair. Contract §6e.
+      **AND THREE MORE GAPS WERE FOUND, one of them larger than any of the
+      four:** every customer-facing URL the platform emits is built from one
+      global `PLATFORM_URL`, so a detailer on their own domain still sends
+      confirmation emails pointing at detailingplatform.com (§6a — this is
+      3.3's real content); `businesses.contact_email` is not in the profile
+      (§6f, a question for him); and `track-visit` + `campaigns` +
+      `campaign_visits` are dormant with no caller and no reader (§6g,
+      recommended to stay dormant).
+- [ ] 3.2 **Build the tenant-site kit against the contract.** Close
+      `docs/tenant-site-contract.md` §6's gaps, then produce the default world
+      and the brief that lets a fresh agent build a client's site from it. A
+      site's CONTENT comes entirely from tenant configuration — a price changed
+      in the dashboard changes the live site with no code edit — while its
+      PRESENTATION is bespoke per client. The required implementations are §2
+      of the contract; the read surface is §3.
+      **This wording replaced the original on 2026-09-05, which is what 3.1
+      owed.** It used to read "entirely from tenant configuration, zero
+      hardcoded content" and its own note said that predated the owner's
+      2026-08-29 decision and described the shared-system answer he rejected.
+      His constraint is unchanged and is the reason the contract exists: *"a
+      lot of the features of the admin dashboard need some features on the
+      website to work."* See `docs/tenant-websites.md` §3.
 - [ ] 3.3 Custom domains: hostname→business lookup + the Netlify alias
       process, so website-package customers can use their own domain.
       Booking-only customers stay on `detailingplatform.com/book/name`.
+
+      **THIS WORDING COVERS ONLY THE INBOUND HALF, AND THE OUTBOUND HALF IS
+      BIGGER — found 2026-09-05 writing the 3.1 contract (§6a).**
+      `supabase/functions/_shared/config.ts` builds `businessSiteUrl`,
+      `receiptUrl`, `planUrl` and `plansUrl` from **one global `PLATFORM_URL`**,
+      so a detailer on `coastlinedetail.com` still sends confirmation emails
+      whose "view, change or cancel" link goes to detailingplatform.com. A
+      hostname lookup that does not also make those four helpers per-tenant
+      leaves the seam in the one artifact the detailer did not write.
+      `business_domains` has existed since the first tenant migration and
+      nothing has ever read it.
 
 - [ ] 3.4 **The tenant-site build kit** — promoted 2026-08-29 from a
       parked note to a real item, on the owner's description. What they

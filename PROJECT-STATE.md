@@ -31,11 +31,18 @@ four files that state it, and **roadmap item L is closed**: his mobile and
 `support@detailingplatform.com` live in ONE constant that feeds both the billing
 emails and the billing screen over the wire.
 
-**NEXT: Phase 3, tenant websites, starting at roadmap 3.1 — his choice** over
-Connect and over the platform admin, because the product is sold as a $499
-website build and there is no builder. **The plan already exists** in
-`docs/tenant-websites.md`; 3.1's own entry now says so, and says what the
-enumeration owes. Fable 5.1 is reserved for the default visual world.
+~~**NEXT: Phase 3, tenant websites, starting at roadmap 3.1 — his choice**~~
+**3.1 IS BUILT AND WAITING ON ONE ANSWER FROM HIM — 2026-09-05.** The
+enumeration is `docs/tenant-site-contract.md` (twelve implementations a site
+owes, the read contract key by key, seven gaps) and the default visual world is
+`docs/design-directions/6-detailer-default.html` (Fable 5.1). **The item stays
+unticked because its own line says OWNER approves the plan**, and the thing to
+approve is contract §1c: a bespoke site LINKS to the booking flow rather than
+rebuilding its seven steps. Full write-up: the ROADMAP 3.1 section at the
+bottom of this file. **Three gaps nobody had written down came out of it, the
+largest being that every customer-facing URL is built from one global
+`PLATFORM_URL`** — so a detailer on their own domain still emails links to
+detailingplatform.com. That is roadmap 3.3's real content.
 
 **STILL OWED BY HIM, not by a session:** the iCloud+ custom domain (so
 `support@` receives — the phone is the one that works today), Stripe account
@@ -5293,3 +5300,109 @@ exist**, checked against the repo and the live project rather than assumed:
 Queued as roadmap **2.25** with both traps written down: `theme.css` is global
 and leaks into `.ld` (nine class names are already renamed for it), and
 `Auth.jsx` is the screen `sweep-widths.mjs` signs in through on every run.
+
+
+## ROADMAP 3.1 — THE TENANT-SITE CONTRACT, AND SEVEN GAPS (2026-09-05)
+
+**The deliverable is `docs/tenant-site-contract.md`.** The item's own roadmap
+entry opened with an instruction rather than a task — *"DO NOT WRITE ANOTHER
+PLAN"* — because the owner had already said it: *"Isn't there already a plan.
+Follow the docs."* `docs/tenant-websites.md` settled the architecture on
+2026-08-29 and its §3 names the one thing still owed, *"the list roadmap 3.1
+has to enumerate"*. That list is now written and nothing else was.
+
+**THE ITEM IS NOT TICKED, AND THAT IS ON PURPOSE**: its own line says **OWNER
+approves the plan**, and there is exactly one thing to approve — contract §1c.
+
+### What the contract is
+
+| §| |
+|---|---|
+| **1** | Where the fork line falls, file by file — the engine (one RPC, eleven public functions, five platform pages) and the presentation (everything else) |
+| **1c** | **The one decision for the owner**: a bespoke site LINKS to `/book/:slug` rather than rebuilding the seven-step flow |
+| **2** | **The twelve implementations a site owes**, each written as *what silently stops working if the site omits it* |
+| **3** | The read contract, key by key, tied to the implementation that consumes it |
+| **4 / 5** | What a site may never do, and what it may leave out |
+| **6** | The seven gaps that block a site from honouring any of it |
+| **7** | The rewording of roadmap 3.2 that 3.1 owed, now in `docs/roadmap.md` |
+
+**The thing to carry forward if you read nothing else: every one of the twelve
+fails SILENTLY.** The dashboard screen still works, the setting still saves,
+and nothing anywhere reports that the feature reaches nobody — this repo's
+oldest failure mode with a new surface to happen on. The sharpest is the
+catalog: a site with hard-coded prices is *a number PRINTED is not a number
+CHARGED* **with the two numbers in two different codebases**, where no check can
+ever see both.
+
+### What turned out to already be true, measured on the day
+
+- `get_public_business_profile` is one `security definer` RPC granted to `anon`,
+  filtered on `status = 'active'` (**which is how a suspended subscription
+  darkens a tenant's site**), returning ten keys — business, branding, 20
+  settings, service_groups, services, add_ons, plans, hours, testimonials,
+  gallery.
+- **Every public edge function already answers `Access-Control-Allow-Origin:
+  *`** (`_shared/http.ts`), so a bespoke site on any origin can call the whole
+  engine today with no change to it.
+- `business-media` is a public-read bucket, so gallery images render
+  cross-origin from a plain `<img>`.
+- `create-booking` recomputes every quote server-side through
+  `_shared/pricing.ts` regardless of what the client sent, **which is what makes
+  a bespoke front end safe at all.**
+
+### The seven gaps
+
+Three of the roadmap's four are confirmed; the fourth is wrong; three are new.
+
+1. **6a — every customer-facing URL is hardcoded to the platform. The biggest.**
+   `_shared/config.ts` builds `businessSiteUrl`, `receiptUrl`, `planUrl` and
+   `plansUrl` from **one global `PLATFORM_URL`**, so a detailer on their own
+   domain still sends confirmation emails linking to detailingplatform.com.
+   **This is roadmap 3.3's real content** — 3.3's wording covers only the
+   inbound half. `business_domains` has existed since the first tenant
+   migration and nothing has ever read it.
+2. **6b — FAQ.** `business_settings.faqs` / `faq_enabled` exist and the RPC
+   lists its settings keys explicitly and includes neither. Still no FAQ
+   settings screen either, so it is two changes.
+3. **6c — the six payment handles** are read only by `_shared/payments.ts` on
+   the way into an email. Not in the RPC.
+4. **6d — closures.** `blockout_dates` / `dropoff_only_periods` drive
+   availability server-side, so booking stays correct; a site simply cannot
+   *say* "closed the week of the 4th". **Lowest priority of the seven.**
+5. **6e — THE ROADMAP'S FOURTH GAP IS WRONG.** *"Five of the six social links
+   cannot be typed in"* was true on 2026-08-31 and **fixed on 2026-09-02**
+   (`BusinessInfo.jsx:193-201`, under a comment reading *"FOUR SOCIAL FIELDS,
+   NOT ONE"*). It was copied out of a 2026-08-31 file into a 2026-09-05
+   roadmap entry without being re-read. **A gap list rots exactly like a stale
+   count**, and this file has now recorded that about numbers four times.
+   The real defect is smaller: `branding.social_google` and
+   `branding.social_yelp` are **dead columns shadowing the live
+   `settings.google_review_url` / `yelp_review_url` pair** — same screen, five
+   lines apart, and the branding pair have save code but no input, so they are
+   always written empty.
+6. **6f — `businesses.contact_email` is not in the profile.** A site can print
+   a phone number and no address. Possibly deliberate (the RPC's rule is
+   "strictly public-safe"), but nothing says so. **A question, not a build.**
+7. **6g — `track-visit`, `campaigns` and `campaign_visits` are dormant**: a
+   deployed public function and two tables with no caller in `app/` and no
+   reader anywhere. A tenant site is the natural caller and calling it buys
+   nothing until a dashboard screen reads it. **Recommended to stay dormant.**
+
+**Sequencing: 6b, 6c and 6d are one migration** — three keys added to one
+`jsonb_build_object` — plus an FAQ screen. 6e is a decision plus a small
+migration. 6a is 3.3. 6f and 6g are his to answer.
+
+### The default visual world
+
+`docs/design-directions/6-detailer-default.html`, built with **Fable 5.1**,
+which is where the roadmap entry had already decided that budget should go
+(*"maybe using fable when it's needed"* — the default world, not the analytical
+enumeration). It is a standalone file in the same folder as the approved
+reference rendering and is read the same way. **Every element whose content
+would really come from the dashboard carries `data-src="table.column"`**, so
+the page doubles as the visual half of contract §3.
+
+**Note what does NOT cover it: `composition.test.mjs` walks `app/src/screens`,
+`app/src/components` and `app/src/book` plus `5-the-thread.html` by name.** A
+new page in `docs/design-directions/` is scanned by nothing. That is correct
+for a design artifact and it means the file is held by looking, not by a check.
