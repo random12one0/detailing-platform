@@ -13297,9 +13297,14 @@ it, how often, and what does a wrong value cost?"**
   retries, then the site goes offline"* and *"nothing is deleted"* are typed in
   four and five places across the pricing page, the dunning words and the two
   billing emails. **That is genuine drift risk and a database does not fix it
-  better than one exported constant does** — with the added cost that a row can
-  be edited into disagreeing with what the code actually DOES. The promise is
-  enforced by `dunningState()`; the words should live beside it.
+  better than a check does** — with the added cost that a row can be edited
+  into disagreeing with what the code actually DOES. **They cannot be one
+  constant either**: the landing bundle cannot import out of `supabase/`, the
+  same wall as the price table. **So § 7 now reads all four files** and fails
+  if the pricing page stops promising two weeks, stops promising the page comes
+  back, or starts counting retries out loud — which it could not do before,
+  because every check there compared `dunningState()` against a promise quoted
+  in a COMMENT.
 - **MARKETING COPY, THE FAQ AND THE COMPARISON TABLE: no.** Eight FAQ answers
   and five claims, changed a few times a year, always with a person reading
   them first. A CMS for one author is a second system to maintain.

@@ -324,6 +324,30 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // assumes their customer list went with it.
   check("suspended says nothing has been deleted", /deleted/i.test(down.detail), down.detail);
   check("suspended says what brings it back", /payment goes through/i.test(down.detail), down.detail);
+
+  // AND THE PAGE THAT MADE THE PROMISE HAS TO STILL BE MAKING IT. Everything
+  // above pins `dunningState()` against a promise quoted in a COMMENT — so
+  // rewriting `/pricing` to say "one week" would leave all of it green while
+  // the two halves disagreed. **Found 2026-09-05 auditing which facts are
+  // typed twice**: the same three facts are written out in four files (the
+  // pricing page, the dunning words, and both billing emails) and nothing
+  // compared them. They cannot be ONE constant — the landing bundle cannot
+  // import out of `supabase/`, the wall that forced `_shared/brandColor.js` —
+  // so a check is the only thing that can hold them together.
+  const promisePage = read("app/src/landing/PricingPage.jsx");
+  const emails = read("supabase/functions/_shared/emailTemplates.ts");
+  check("/pricing still promises two weeks of retries",
+    /two weeks/i.test(promisePage));
+  check("/pricing still says the site goes offline after that",
+    /goes offline/i.test(promisePage));
+  check("/pricing still promises nothing is deleted",
+    /[Nn]othing is deleted/.test(promisePage));
+  check("the failed-payment email keeps the two weeks",
+    /two weeks/i.test(emails));
+  check("the billing emails keep the nothing-is-deleted promise",
+    /[Nn]othing (?:is|has been) deleted/.test(emails));
+  check("and /pricing does not count retries out loud either",
+    !/\d+ (?:more )?(?:tries|attempts)\b/i.test(promisePage));
 }
 
 // ─── 8. THE WEBHOOK SIGNATURE — the only authentication that endpoint has ──
