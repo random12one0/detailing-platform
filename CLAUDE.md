@@ -432,7 +432,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   escape order — escape first, THEN newlines to `<br>` — is what stops one
   typed message becoming markup in every copy. Baselined both ways: dropping
   the footer fails 4, dropping the escape fails 2),
-  **`payments`** (38 checks, new 2026-09-04, roadmap 2.20 stage 1 — the
+  **`payments`** (45 checks, new 2026-09-04, roadmap 2.20 stage 1 — the
   detailer's own payment handles. It pins the two things no other check in this
   repo can see. **WHICH EMAILS CARRY THE LIST**: `invoiceEmail` branches on
   payment status, and both branches render a perfectly valid email, so handles
@@ -446,7 +446,13 @@ explaining it; if they still have to ask "so should I?", it failed.
   every screen, so only a plain username or a pasted `https:` URL is linked and
   a phone number, an email address or `javascript:` is printed as typed.
   Baselined three ways — handles on the receipt fails 1, the escape removed
-  fails 3, a link built from anything fails 7)
+  fails 3, a link built from anything fails 7. **§ 6 is the OTHER half of 2.20
+  and is about email rather than money**: `customers.email_failed_at` is a
+  third way to be unreachable beside "no address" and "opted out", and the
+  three places that ask *can we email this person* — the Clients count, the
+  compose sheet's, and `send-campaign`'s filter, which is the enforcement —
+  have to agree, so the predicate is written out once here. Baselined by
+  ignoring the bounce, which fails 2)
   from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
   root `.env` — and one of them is new: **`request-mode`** (51 checks — 45 when written, roadmap 2.12,
@@ -842,6 +848,55 @@ explaining it; if they still have to ask "so should I?", it failed.
   2026-09-02 was measuring an empty screen and printing `clean`. Five are
   seeded now — one with no email, one opted out, one with a long name for the
   chip wall at 320. Same family as everything else in this section.
+- **A GUARD THAT SKIPS MUST PRINT, AND THE CLIENTS BLOCK IS WHAT PROVED IT —
+  2026-09-04, roadmap 2.20.** Every state in `sweep-widths.mjs`'s Clients block
+  is drawn from a Supabase read and the block opened with `settle()` then
+  `count()` — the race this file already records for Monthly plans and Team,
+  in the one block nobody re-checked when that lesson landed. **In `--lite` it
+  lost at THREE of five widths**, and because every state there is guarded by
+  `if (await ...count())`, the sorts, the lapsed filter, the compose sheet, the
+  client record and the job from its history simply **did not happen**: the run
+  printed `Clients · the list   clean` and moved on. **Six measurements
+  vanishing is byte-identical to six measurements passing.**
+  **IT WAS FOUND ONLY BECAUSE A NEW STATE PRINTED `NOT MEASURED` INSTEAD OF
+  SKIPPING.** That is the whole lesson and it is cheaper than any of the fixes
+  in this file: **when you add a state to a browser script, give its `if` an
+  `else` that says it did not run.** A skipped check reads exactly like a
+  passing one — this repo's most repeated finding — and one `console.log` is
+  the entire cure.
+  **The mechanical half is worth knowing too: `appear()` was declared
+  immediately before the settings walk**, so a `const`'s temporal dead zone put
+  it out of reach of the Clients block two hundred lines earlier — the helper
+  written to fix this exact race could not have been called at the site that
+  still had it. It is declared once, high up, now.
+- **A REJECTED SEND IS A FACT ABOUT THE CUSTOMER, NOT AN ENTRY IN A LOG —
+  roadmap 2.20, 2026-09-04.** `sendTenantEmail` is best-effort by design (an
+  email failure must never fail a booking), so until this item a provider
+  rejection was a `console.error` inside an edge function and **the first
+  symptom was a customer saying they never got their confirmation.**
+  `customers.email_failed_at` / `email_failed_reason` are stamped by
+  `send-email` **on a 4xx only** (a 5xx is the provider having a bad day, not
+  this address being wrong — stamping it would put "this address bounced" on
+  every customer emailed during a Resend outage, which is the fastest way to
+  teach a detailer to ignore the flag) and **cleared by the next successful
+  send** — the asymmetry with
+  `unsubscribed_at` is deliberate and is the whole design: **an opt-out is
+  permanent until a human undoes it; a bounce must clear itself**, or a
+  detailer who fixes a typo is told forever that the address they just
+  corrected is broken and the flag becomes something to ignore.
+  **THERE ARE NOW THREE WAYS TO BE UNREACHABLE** — no address, opted out,
+  bounced — **and three places ask the question**: Clients' `emailable` count,
+  `CampaignModal`'s, and `send-campaign`'s `eligible` filter. **The last one is
+  the enforcement and the other two are courtesy**, because a caller can post
+  ids straight at the function. `tests/payments.test.mjs` § 6 holds the
+  predicate so they cannot drift, and **"nobody is quietly dropped" applies**:
+  a person who is both opted out and bounced is counted once.
+  **A "failed emails" SCREEN was the obvious build and was refused** — a place
+  you have to remember to visit, about a problem you only ever care about one
+  person at a time. It is drawn under the address on the client sheet, which is
+  the only place in the product that prints a customer's email. **The job
+  record does not print one at all**; if it ever does, the line belongs there
+  too. The QUOTA half needed nothing — Resend already emails at 80% and 100%.
 - **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
   (new 2026-09-03, roadmap 2.18). Credential-free, no browser, no dev server. It
   writes all TWENTY-ONE emails — fifteen kinds plus the branches somebody

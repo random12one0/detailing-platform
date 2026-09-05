@@ -330,6 +330,14 @@ const CUSTOMERS = [
   //   Grace Lindqvist a LONG name, on purpose: the compose sheet lists
   //                   recipients as wrapping chips and the longest one is what
   //                   decides whether that wall fits at 320.
+  //   Victor Salas    A BOUNCED ADDRESS (roadmap 2.20). The provider refused
+  //                   the last send to him, which is the ONLY row that draws
+  //                   the client sheet's bounce line and the only thing
+  //                   `send-campaign`'s new filter has to exclude. Without it
+  //                   both are code no check at any width can reach — which is
+  //                   the same finding as the demo having had zero lapsed
+  //                   customers while a sweep walked that block and printed
+  //                   clean.
   ["Nadia Fischer", "562-555-0511", "nadia.fischer@example.com", "18 Palm Ct, Long Beach, CA"],
   ["Owen Brady", "562-555-0566", null, "402 Redondo Ave, Long Beach, CA"],
   ["Grace Lindqvist", "562-555-0604", "grace.lindqvist@example.com", "77 Termino Ave, Long Beach, CA"],
@@ -342,6 +350,14 @@ const customers = await post("/rest/v1/customers", CUSTOMERS.map(([name, phone, 
   // Roadmap 2.19. See the list above for why one of them is opted out.
   unsubscribed_at: name === "Ruth Calloway"
     ? new Date(Date.now() - 40 * 86_400_000).toISOString()
+    : null,
+  // Roadmap 2.20. See the list above. The reason is the provider's own
+  // shape of words, because that is what the column actually receives.
+  email_failed_at: name === "Victor Salas"
+    ? new Date(Date.now() - 6 * 86_400_000).toISOString()
+    : null,
+  email_failed_reason: name === "Victor Salas"
+    ? "The recipient's address was rejected: mailbox does not exist"
     : null,
 })));
 const cust = (name) => customers.find((c) => c.name === name);

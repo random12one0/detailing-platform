@@ -56,9 +56,16 @@ export default function CampaignModal({ people, onClose, onSent }) {
   // NOBODY IS QUIETLY DROPPED. Most customers in this trade are a name and a
   // phone number, so "sent to 14" when four had no address is a detailer
   // believing they got in touch when they did not.
-  const reachable = people.filter((p) => (p.email || "").trim() && !p.unsubscribed_at);
-  const noEmail = people.length - people.filter((p) => (p.email || "").trim()).length;
-  const optedOut = people.filter((p) => (p.email || "").trim() && p.unsubscribed_at).length;
+  // A THIRD WAY TO BE UNREACHABLE ARRIVED IN ROADMAP 2.20: the provider has
+  // already refused this address. Sending to it again spends the platform's
+  // shared reputation on mail nobody will read, which is the risk the whole
+  // 50-per-press cap exists to protect — so it is dropped, and, by the rule
+  // this block is built on, it is dropped OUT LOUD.
+  const has = (p) => (p.email || "").trim();
+  const reachable = people.filter((p) => has(p) && !p.unsubscribed_at && !p.email_failed_at);
+  const noEmail = people.length - people.filter(has).length;
+  const optedOut = people.filter((p) => has(p) && p.unsubscribed_at).length;
+  const bounced = people.filter((p) => has(p) && !p.unsubscribed_at && p.email_failed_at).length;
   const chosen = reachable.filter((p) => !dropped.has(p.id));
   const address = (business.mailing_address || "").trim();
 
@@ -156,13 +163,16 @@ export default function CampaignModal({ people, onClose, onSent }) {
         </div>
       )}
 
-      {(noEmail > 0 || optedOut > 0) && (
+      {(noEmail > 0 || optedOut > 0 || bounced > 0) && (
         <p className="quiet">
           {[
             noEmail > 0 ? `${noEmail} of them ${noEmail === 1 ? "has" : "have"} no email address` : null,
             optedOut > 0 ? `${optedOut} asked not to get these` : null,
+            // NOT "asked not to" — nobody asked. Said as something to fix,
+            // because it usually is a typo and the detailer can correct it.
+            bounced > 0 ? `${bounced} ${bounced === 1 ? "address" : "addresses"} bounced last time` : null,
           ].filter(Boolean).join(" · ")}
-          {noEmail > 0 ? " — text those ones instead." : "."}
+          {noEmail > 0 || bounced > 0 ? " — text those ones instead." : "."}
         </p>
       )}
 

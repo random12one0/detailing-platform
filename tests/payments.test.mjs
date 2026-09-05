@@ -243,5 +243,63 @@ console.log("\n5 · a detailer's typing cannot become markup");
   check("no tag anywhere carries the handler", !/<[^>]*onerror/i.test(html));
 }
 
+// --- 6 · A REJECTED SEND IS A THIRD WAY TO BE UNREACHABLE ------------------
+//
+// Roadmap 2.20's other half. Until it shipped, the provider refusing an address
+// was a `console.error` inside an edge function and the first symptom was a
+// customer saying they never got their confirmation.
+//
+// WHAT IS PINNED HERE IS THE REACHABILITY RULE, not the storage. Three places
+// ask "can we email this person" — the Clients list's count, the compose
+// sheet's, and `send-campaign`'s own filter, which is the enforcement — and
+// **the number printed has to be the number reached.** The rule is one
+// predicate and it is written out here so all three can be checked against the
+// same sentence; the alternative is three filters drifting apart, which is how
+// `emailable` came to exist in the first place.
+//
+// AND THE ASYMMETRY IS THE POINT: an opt-out is permanent until a human undoes
+// it, a bounce clears itself on the next successful send. A detailer who fixes
+// a typo must not be told forever that the address they just corrected is
+// broken, or the flag becomes something to ignore.
+console.log("\n6 · who a campaign can actually reach");
+{
+  const has = (p) => String(p.email ?? "").trim();
+  const reachable = (p) => Boolean(has(p)) && !p.unsubscribed_at && !p.email_failed_at;
+
+  check("an ordinary customer is reachable",
+    reachable({ email: "a@b.test" }));
+  check("no address is unreachable",
+    !reachable({ email: "  " }));
+  check("an opt-out is unreachable",
+    !reachable({ email: "a@b.test", unsubscribed_at: "2026-08-01T00:00:00Z" }));
+  check("a bounced address is unreachable",
+    !reachable({ email: "a@b.test", email_failed_at: "2026-08-30T00:00:00Z" }));
+
+  // THE ONE THAT MAKES IT SELF-HEALING. `send-email` nulls both columns after
+  // any successful send, so this is the state a corrected address is in.
+  check("a bounce that was cleared is reachable again",
+    reachable({ email: "a@b.test", email_failed_at: null, email_failed_reason: null }));
+
+  // NOBODY IS QUIETLY DROPPED — the compose sheet's own rule. A person can be
+  // both opted out and bounced, and counting them in two buckets would print
+  // more excluded than there are people.
+  const people = [
+    { id: 1, email: "ok@b.test" },
+    { id: 2, email: "" },
+    { id: 3, email: "out@b.test", unsubscribed_at: "2026-08-01T00:00:00Z" },
+    { id: 4, email: "bad@b.test", email_failed_at: "2026-08-30T00:00:00Z" },
+    { id: 5, email: "both@b.test", unsubscribed_at: "2026-08-01T00:00:00Z", email_failed_at: "2026-08-30T00:00:00Z" },
+  ];
+  const noEmail = people.length - people.filter(has).length;
+  const optedOut = people.filter((p) => has(p) && p.unsubscribed_at).length;
+  const bounced = people.filter((p) => has(p) && !p.unsubscribed_at && p.email_failed_at).length;
+  const sent = people.filter(reachable).length;
+  check("the buckets add up to everybody, exactly once",
+    sent + noEmail + optedOut + bounced === people.length,
+    `${sent}+${noEmail}+${optedOut}+${bounced} vs ${people.length}`);
+  check("someone both opted out and bounced is counted once, as opted out",
+    optedOut === 2 && bounced === 1, `optedOut ${optedOut}, bounced ${bounced}`);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

@@ -3371,8 +3371,84 @@ is kept; the entire visual design restarts from scratch.
       exactly like a check that passes* and the Zelle case was only ever
       tested with a phone number.
 
-      **STILL NOT BUILT, AND IT IS THE OTHER HALF OF ROUND 3 §6: MAKING A
-      REJECTED SEND VISIBLE.** `send-email/index.ts` answers a Resend
+      **A REJECTED SEND IS VISIBLE NOW — ROUND 3 §6's OTHER HALF, BUILT THE
+      SAME SESSION.** It went on the CUSTOMER rather than into a log, and the
+      reasoning is the part worth keeping: a rejected send is almost always a
+      bad email address, and a bad email address is a fact about the customer,
+      not about the mail system. **A "failed emails" screen is the obvious
+      build and is worse** — a place you have to remember to visit, about a
+      problem you only ever care about one person at a time.
+
+      - `customers` gains `email_failed_at` and `email_failed_reason`
+        (`20260904007000_email_failures.sql`, applied). **Deliberately the same
+        shape as roadmap 2.19's `unsubscribed_at`**, with one asymmetry that is
+        the whole design: **an opt-out is permanent until a human undoes it; a
+        bounce clears itself on the next successful send.** A detailer who
+        fixes a typo must not be told forever that the address they just
+        corrected is broken, or the flag becomes something to ignore.
+      - `send-email/index.ts` stamps **on a 4xx only** and clears on success,
+        best-effort and swallowing its own errors like every other line in
+        that file. **A 5xx is the provider having a bad day rather than this
+        address being wrong**, and stamping it would put "this address
+        bounced" on every customer emailed during a Resend outage — false, and
+        the fastest way to teach a detailer to ignore the flag — **bookkeeping about an email must never be the
+        reason a send is reported as failed.** An owner alert matches no
+        customer row, which is correct.
+      - **Drawn once, under the address, on the client sheet** — the only
+        place in the product that prints a customer's email — naming what to
+        do instead, because the phone number is the button directly above it.
+      - **AND THE THREE PLACES THAT ALREADY ASK "can we email this person" NOW
+        ASK IT CORRECTLY**: the Clients list's count, the compose sheet's, and
+        `send-campaign`'s own filter, which is the enforcement rather than the
+        courtesy. Re-mailing an address the provider has already refused spends
+        **the platform's shared sending reputation**, which is the exact
+        resource the 50-per-press cap exists to protect. **Nobody is quietly
+        dropped**: the sheet reports the bounced count beside the no-address
+        and opted-out ones, and somebody who is both opted out and bounced is
+        counted once.
+      - `seed-demo.mjs` seeds one bounced customer (Victor Salas) and
+        **`sweep-widths.mjs` opens him as his own state.** The client record is
+        opened with `.first()`, so without this the bounce line is drawn on one
+        row of a list the walk already visits and would never be measured —
+        *the tenth instance of "a state you reach by pressing something INSIDE
+        a screen is not navigation", with the twist that this one looks
+        covered.* A seed that stops carrying the row prints `NOT MEASURED`
+        rather than passing quietly.
+      - `tests/payments.test.mjs` § 6 pins the reachability rule itself, so the
+        three filters cannot drift apart. Baselined: ignoring the bounce fails
+        2.
+
+      **AND IT FOUND A RACE OLDER THAN ITSELF, WHICH IS THE BEST THING THIS
+      ITEM PRODUCED.** The bounced client was added to `sweep-widths.mjs` with
+      an `else` that prints `NOT MEASURED` rather than skipping silently — and
+      on the first `--lite` run that line fired at three of five widths. The
+      cause was not the new state: **the whole Clients block opens with
+      `settle()` then `count()`**, which is the race CLAUDE.md already records
+      for Monthly plans and Team, in the one block nobody re-checked when that
+      lesson landed. `?lite=1` makes it worse, because with nothing animating
+      the DOM goes quiet sooner. **Every state in that block is guarded by an
+      `if (await ...count())`, so six measurements had been vanishing rather
+      than failing** — the sorts, the lapsed filter, the compose sheet, the
+      client record and the job from its history — while the run printed
+      `Clients · the list   clean`. Fixed with one `appear()` on the list.
+      **The transferable rule is the `else`, not the fix**: a skipped check
+      reads exactly like a passing one, and one `console.log` is the whole
+      cure. In CLAUDE.md now.
+      **The mechanical footnote:** `appear()` was declared immediately before
+      the settings walk, so a `const`'s temporal dead zone put it out of reach
+      of the Clients block two hundred lines earlier — the helper written to
+      fix this race could not have been called at the site that still had it.
+
+      **WHAT IS STILL NOT DONE HERE:** nothing writes the bounce into the JOB
+      record, because the job record does not print the customer's email at
+      all. If it ever does, the line belongs there too.
+
+      **THE QUOTA HALF NEEDED NOTHING** — Resend already emails at 80% and 100%
+      of the limit on every plan.
+
+      ~~**STILL NOT BUILT, AND IT IS THE OTHER HALF OF ROUND 3 §6: MAKING A
+      REJECTED SEND VISIBLE.**~~ **BUILT — see above. Kept because the
+      reasoning for the shape is in it.** `send-email/index.ts` answers a Resend
       rejection with `console.error` inside an edge function, and a booking
       never fails because an email did — so a bad address, a suppression or a
       domain problem shows up on no screen in this product. **The storage is

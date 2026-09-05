@@ -219,7 +219,7 @@ were made more than once.
 - **Roadmap 2.14, step 3 - the customer's half of plans, and the four decisions that kept it inside a measured budget** - the booking page's plan buttons, the recognition, the remembered browser, the "your plan" link and the email nudge. **The organising constraint was arithmetic, not taste: step 1 has TEN PIXELS of spare room at 1440x900 and that budget is the detailer's catalogue.** So the plans live on a page of their own (`/book/:slug/plans`, which is also what 7 of 7 sampled detailers and 5 of 6 products do), the door to them rides the row the progress rail and "Step 1 of 7" already share, and the recognition the owner asked for is spent on TWO LINES THAT WERE ALREADY DRAWN - step 1's heading becomes *"Welcome back, Marcus"* or *"Let's set up your Bi-weekly maintenance"*, and the price bar's eyebrow says which plan moved the number. **Every step's spare room is identical to before the item.** **The plan's effect on the price is ONE function in `_shared/pricing.ts` and it rides `price_adjustments`** - the array every receipt, email and invoice already itemises - rather than a `plan_discount` column that would have needed adding to nine render paths and forgetting in a tenth. **The rule: the plan governs the SERVICES, extras and travel are always extra, and a percentage comes off the whole job.** **A plan sign-up is a REQUEST in either booking mode**, because the sale and the schedule are two acts and the detailer has to agree somebody is on their plan - but an existing member booking their own covered visit is not held up, which is why `create-booking` asks whether they are already a member rather than keying off the plan alone. **The owner's "type your email and it shows you" was built as its safe twin, EMAIL IN / LINK OUT** - the version he described is address enumeration, and the endpoint answers identically whether or not the address is a member. **His customer-account idea shipped as a LINK** (`/plan/:memberId`, the membership UUID as the credential, the third caller of a pattern this product already used twice) rather than as a second kind of human in `auth.services`. **A defect fixed on the way through that predates this item: a NEGATIVE `price_adjustments` line printed as a positive CHARGE in every email** - `moneyBlock` draws by `kind`, not by sign - which `accept-quote` could already reach whenever a detailer quoted UNDER the estimate. **And the plans page was built as four boxed cards first and rejected on sight of its own screenshot**: four identical full-width panels each ending in a full-width button repeating the name above it, which is `docs/design-knowledge.md` §1's tell and the owner's copy rule in one. The ruled list that replaced it is the composition law's own answer and cost 96px a plan against 190px.
 - **Roadmap 2.19 — a manual re-book email, and the machinery a MANUAL send still needs** — the owner ruled that nothing sends itself: a human picks the names and presses the button, and the reminder is a ROW ON A SCREEN rather than an email to him. What the roadmap entry understated is that CAN-SPAM classifies a message by its PRIMARY PURPOSE, never by what pressed send — so *“we haven’t seen you in a while”* needs a working opt-out and a postal address whether a person or a cron job sent it. **What the manual design removes is the SCHEDULING, not the statute.** So: `customers.unsubscribed_at`, a public two-step opt-out page (a one-click GET link would be pressed by Gmail’s prefetcher and every corporate link scanner, silently opting people out of businesses they still want to hear from), `businesses.mailing_address` as its own field because a mobile detailer has no unit, and a **50-recipient cap** that is ours rather than the law’s — the platform’s whole Resend allowance is **100 emails a day across every tenant**, and one unbounded campaign could stop bookings confirming. **The compose surface selects nobody**: Clients already knew who had lapsed, so the sheet is handed a list a human narrowed and its only job is the words. **And the demo had ZERO lapsed customers**, so the “not seen in 3 months” block `sweep-widths.mjs` has walked at five widths since 2026-09-02 was measuring an empty screen and printing clean — the seventh instance of *a skipped check reads exactly like a passing one*, found by asking the database rather than by reading the sweep’s output. **And it exposed a RACE in `sweep-widths.mjs` that is older than the item**: Monthly plans and Team draw their buttons only after Supabase answers, and both were measured with `settle()` + `count()` — a cap on a repaint, never a wait for a round trip — which `?lite=1` makes WORSE because a page with no animations goes quiet sooner. It printed `NO SUCH BUTTON`, which reads as a renamed control. **A control run proved it was ours, a bisect blamed a file, and a `console.log` probe then passed with that file in place** — which is what a race looks like from the outside. Also recorded there: `campaigns`/`campaign_visits` are tracked marketing LINKS and have nothing to do with this feature, and the opt-out is NOT tamper-proof against the tenant, which is a stated ceiling.
 
-- **Roadmap 2.20, stage 1 — the detailer's own payment handles** — the half of "taking money" that needs no processor, no key and no webhook: the detailer types their Venmo, Cash App, PayPal, Zelle and cash, and the customer's emails print them. **The scope in the roadmap is ROUND 3's and it contradicts round 2's, which is still quoted in three files**: round 2 said the UNPAID INVOICE ONLY; round 3 moved it to the confirmation and the reminder as well, on the owner's own trade knowledge (*"they don't leave a client's house until it's paid"*), because the unpaid invoice is a rare document. **The receipt still carries nothing** — that is his complaint about his old site and it is the point of the branch. **A FIFTH email carries them and the roadmap's wording would have missed it**: in request mode the ACCEPTED-request email is the confirmation, so following "the confirmation and the reminder" literally gives every request-mode tenant handles on no email at all. **A link is built only from a plain username or a pasted `https:` URL** — a wrong payment link sends money to the wrong person and is invisible from every screen — so a phone number, an email address or `javascript:` is printed and not linked, and Zelle never links because it has no web address. **No preview on the settings screen and no QR upload**, both refused with reasons. **Two defects came out of LOOKING**: the paired Venmo/Cash App row clips a handle at 392, and a payment handle is the one value where reading half is reading none; and the Business row summary was truncated to "…something els…".
+- **Roadmap 2.20, stage 1 — the detailer's own payment handles** — the half of "taking money" that needs no processor, no key and no webhook: the detailer types their Venmo, Cash App, PayPal, Zelle and cash, and the customer's emails print them. **The scope in the roadmap is ROUND 3's and it contradicts round 2's, which is still quoted in three files**: round 2 said the UNPAID INVOICE ONLY; round 3 moved it to the confirmation and the reminder as well, on the owner's own trade knowledge (*"they don't leave a client's house until it's paid"*), because the unpaid invoice is a rare document. **The receipt still carries nothing** — that is his complaint about his old site and it is the point of the branch. **A FIFTH email carries them and the roadmap's wording would have missed it**: in request mode the ACCEPTED-request email is the confirmation, so following "the confirmation and the reminder" literally gives every request-mode tenant handles on no email at all. **A link is built only from a plain username or a pasted `https:` URL** — a wrong payment link sends money to the wrong person and is invisible from every screen — so a phone number, an email address or `javascript:` is printed and not linked, and a typed Zelle handle never links because Zelle has no username to build a link FROM — though a URL the detailer PASTES links in any field, which the module's own header denied until a security review ran the code instead of reading the comment. **No preview on the settings screen and no QR upload**, both refused with reasons. **Two defects came out of LOOKING**: the paired Venmo/Cash App row clips a handle at 392, and a payment handle is the one value where reading half is reading none; and the Business row summary was truncated to "…something els…". **Its other half shipped too: a rejected email send is now a fact about the CUSTOMER rather than an entry in a log** — `customers.email_failed_at`, stamped by `send-email` and **cleared by the next successful send**, because an opt-out is permanent and a bounce must not be, or a detailer who fixes a typo is told forever that the address they corrected is broken. The three places that ask *can we email this person* now agree, and only `send-campaign`'s is enforcement. **And adding the seeded bounce to the width sweep with an `else` that prints `NOT MEASURED` uncovered a race OLDER than the item**: the whole Clients block was `settle()` + `count()`, so in `--lite` six of its measurements had been silently ceasing to exist at three of five widths. *A guard that skips is byte-identical to a guard that passes; give every new one an `else`.*
 
 - **Working from the cloud while the owner is away (2026-09-05)** — what a Claude Code web session can and cannot do on THIS repo, settled by reading the docs rather than guessing: no `.env` in the clone and no Supabase on the sandbox allowlist, so **no database**; no Playwright browsers and a blocked CDN, so **no browser and therefore no screens**; and the user-level design skills are not there either. What survives is measured — **all ten credential-free checks run on a bare clone with no `npm install`**, plus the production build and `gh`. He starts a session with one memorised sentence, *“Follow `docs/cloud/README.md`”*, so **that file’s first block is a complete brief and anything a cloud session must know goes in it rather than in a message.** § 6 is its bounded permission to choose its own work when the queue empties: three tests (can it be finished here, can it be CHECKED here — name the check or write a document instead — and would he recognise it as the next thing), a ranked list, an off-limits list no reasoning overrides, and a **stop rule**: two self-chosen sessions producing only documents means the cloud-shaped work has run out.
 
@@ -12261,15 +12261,116 @@ said "Zelle never links" and passed, because it only ever tried a phone number:
 *a check that cannot reach a case reads exactly like a check that passes*, in a
 check written this same session.
 
+### The other half: a rejected send is a fact about the customer
+
+**Round 3 §6 asked for one small thing beside the handles: make a rejected send
+visible.** `sendTenantEmail` is best-effort by design — an email failure must
+never fail a booking — so a provider rejection was a `console.error` inside an
+edge function, invisible from every screen, and **the first symptom was a
+customer saying they never got their confirmation.**
+
+**IT WENT ON THE CUSTOMER, NOT INTO A LOG, AND THAT IS THE DECISION.** A
+rejected send is almost always a bad email address, and a bad email address is
+a fact about the *customer* rather than about the mail system. A "failed
+emails" screen is the obvious build and is worse: **a place you have to
+remember to visit, about a problem you only ever care about one person at a
+time.** Drawn under the address on the client sheet — the only place in this
+product that prints a customer's email — and it names the phone number as the
+alternative, because that button is directly above it.
+
+**IT STAMPS ON A 4xx AND NOT ON A 5xx.** A 4xx is the provider refusing this
+address; a 5xx is the provider having a bad day. Stamping the second would put
+*"this address bounced"* on every customer emailed during a Resend outage —
+false about all of them, and **the fastest possible way to teach a detailer to
+ignore the flag.** The send still fails and is still logged either way; it is
+simply not the customer's fault. Both paths were observed against the deployed
+function rather than reasoned about: a malformed address came back with
+Resend's own words on the customer row, and a real send through the public
+`plan-link` action cleared it again.
+
+**THE ASYMMETRY WITH `unsubscribed_at` IS THE WHOLE DESIGN.** The two columns
+are deliberately the same shape, and they differ in exactly one way: **an
+opt-out is permanent until a human undoes it; a bounce clears itself on the
+next successful send.** A human pressed the opt-out; the provider told us the
+other. A detailer who corrects a typo must not be told forever that the address
+they just fixed is broken — a flag that is wrong more often than right becomes
+a flag people learn to ignore, and then it is worse than nothing.
+
+**THREE PLACES ALREADY ASKED "CAN WE EMAIL THIS PERSON" AND NOW ASK IT
+CORRECTLY** — Clients' `emailable` count, `CampaignModal`'s, and
+`send-campaign`'s `eligible` filter. **Only the last is enforcement**; the two
+counts are courtesy, because a caller can post ids straight at the function.
+Re-mailing an address the provider has already refused spends **the platform's
+shared sending reputation**, which is the exact resource the 50-per-press cap
+exists to protect. **Nobody is quietly dropped**, which is the compose sheet's
+own standing rule: the bounced count is reported beside the no-address and
+opted-out ones, and someone who is both opted out and bounced is counted once —
+otherwise the sheet prints more excluded people than it has.
+
+`tests/payments.test.mjs` § 6 writes the reachability predicate out once so the
+three cannot drift apart, which is how `emailable` came to need its own comment
+in the first place. Baselined: ignoring the bounce fails 2.
+
+**AND THE STATE HAD TO BE SEEDED AND SWEPT OR IT WAS UNREACHABLE CODE.** The
+client record is opened by `sweep-widths.mjs` with `.first()`, so the bounce
+line is drawn on exactly one row of a list the walk already visits — which
+**looks covered and is not**. That is the tenth instance of *a state you reach
+by pressing something INSIDE a screen is not navigation*, in its most
+deceptive form yet: not a screen nobody opens, but one row of a screen
+everybody opens. Victor Salas is seeded bounced, the sweep opens him by name,
+and a seed that stops carrying that row prints `NOT MEASURED` rather than
+passing quietly.
+
+**The matching is exact on the address rather than case-folded**, and that is
+marked with a `ponytail:` comment rather than hidden: every caller passes an
+address read back out of the row it would update, so the two agree by
+construction; a `lower()` comparison needs an RPC or a functional index and can
+wait for a real mismatch.
+
+**WHAT IS STILL NOT DONE: the job record does not print a customer's email at
+all**, so there is nowhere to put the line there. If it ever gains one, it
+belongs there too.
+
+### The best thing this item produced was a race it did not cause
+
+The bounced client went into `sweep-widths.mjs` with an `else` branch that
+prints `NOT MEASURED` instead of skipping quietly. **On the first `--lite` run
+that line fired at three of five widths**, and the cause was not the new state.
+
+**The whole Clients block opens with `settle()` then `count()`** — the race this
+repo already documents for Monthly plans and Team's member list, sitting in the
+one block nobody re-checked when that lesson landed. `settle()` is a cap on a
+repaint, never a wait for a network round trip, and **`?lite=1` makes it worse
+rather than better** because with nothing animating the DOM goes quiet sooner.
+Every state in the block is guarded by `if (await ...count())`, so when the read
+had not returned, **six measurements did not fail — they ceased to exist**: the
+two sorts, the lapsed filter, the compose sheet, the client record and the job
+opened from its history. The run printed `Clients · the list   clean` and moved
+on, at three of five widths, in the reduced-motion path that CLAUDE.md
+specifically says to run before believing any timing fix.
+
+**Nothing in this repo could have reported that, because a guard that skips is
+byte-identical to a guard that passes.** The only reason it surfaced is that one
+new state was written to say so out loud. **That is the transferable rule and it
+is cheaper than any of the fixes it competes with: when you add a state to a
+browser script, give its `if` an `else` that names what did not run.** One
+`console.log`.
+
+**The mechanical footnote is its own small lesson.** `appear()` — the helper
+written for exactly this race — was declared immediately before the settings
+walk, and a `const` is in its own temporal dead zone above that line. So the
+Clients block, two hundred lines earlier, **could not have called it even if
+somebody had thought to.** The cure written for a bug was out of scope of the
+site that still had it. It is declared once, high up, now.
+
 ### What still needs the owner, and what is still open
 
-- **A rejected send is still invisible.** `send-email/index.ts` answers a
-  Resend rejection with `console.error` inside an edge function, and a booking
-  never fails because an email did — so a bad address, a suppression or a
-  domain problem shows up nowhere in this product. Round 3 §6 puts this beside
-  stage 1 and it is **not built**: the storage is easy, but *where a detailer
-  sees it* is a screen decision and this session did not have one to make it
-  on. Written up in the roadmap rather than half-built.
+- ~~**A rejected send is still invisible.**~~ **BUILT — see the section above.**
+  The first pass of this entry left it, on the reasoning that *where a detailer
+  sees it* was a screen decision. That was under-scoping rather than judgment:
+  it is one line under an address the client sheet already draws, not a screen.
+  **The only genuine remainder is that the JOB record does not print a
+  customer's email at all**, so there is nowhere to put it there.
 - **Nothing tells a detailer their handle did not become a link.** The rule is
   stated once on the screen; nothing checks their typing. A validation hint
   needs the module the app cannot import, so the honest options are a preview

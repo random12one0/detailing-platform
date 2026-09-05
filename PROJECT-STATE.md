@@ -5122,8 +5122,26 @@ No injection reaches the email (19 hostile inputs, all refused a link and all es
 
 ### STILL OPEN
 
-- **A rejected send is still invisible, and it is the other half of round 3
-  §6.** `send-email/index.ts` answers a Resend rejection with `console.error`
+- ~~**A rejected send is still invisible**~~ — **BUILT THE SAME SESSION.**
+  `customers.email_failed_at` / `email_failed_reason`, stamped by `send-email`
+  on a provider rejection (**4xx only** — a 5xx is the provider having a bad
+  day, not this address being wrong) and **cleared by the next successful
+  send**, drawn
+  under the address on the client sheet, and honoured by the three places that
+  already ask "can we email this person" — the Clients count, the compose
+  sheet's count, and `send-campaign`'s filter, which is the enforcement.
+  **It went on the CUSTOMER rather than into a log**: a rejected send is almost
+  always a bad address, and a bad address is a fact about that person. A
+  "failed emails" screen is a place you have to remember to visit about a
+  problem you only care about one person at a time. **The asymmetry with
+  `unsubscribed_at` is the design**: an opt-out is permanent until a human
+  undoes it, a bounce clears itself, or a detailer who fixes a typo is told
+  forever that the address they just corrected is broken. Seeded (Victor
+  Salas), swept as its own state, and pinned by `payments.test.mjs` § 6.
+  **What is left: the job record does not print a customer's email at all**, so
+  there is nowhere to put it there yet.
+- ~~**A rejected send is still invisible, and it is the other half of round 3
+  §6.**~~ (superseded by the line above; kept for the reasoning) `send-email/index.ts` answers a Resend rejection with `console.error`
   inside an edge function; a booking never fails because an email did, so a bad
   address, a suppression or a domain problem shows up on no screen. **The
   storage is trivial; WHERE A DETAILER SEES IT is the whole decision** — a row

@@ -196,7 +196,13 @@ export default function Clients({ intent = null }) {
   // trade that is routinely fewer. "Email these 5" over a list where 3 get one
   // is the same defect this repo chases everywhere else: a number printed that
   // is not the number acted on.
-  const emailable = rows.filter((r) => (r.c.email || "").trim() && !r.c.unsubscribed_at).length;
+  // `email_failed_at` JOINED THE TEST IN ROADMAP 2.20, and it belongs here for
+  // the reason the paragraph above already gives: the number printed has to be
+  // the number reached, and the provider has told us it will reject this one.
+  // It is not a permanent verdict — the flag clears itself the next time
+  // anything to that address goes through.
+  const emailable = rows.filter((r) =>
+    (r.c.email || "").trim() && !r.c.unsubscribed_at && !r.c.email_failed_at).length;
 
   const capped = !search.trim() && customers.length >= ROW_CAP;
 
@@ -383,6 +389,23 @@ export default function Clients({ intent = null }) {
               <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={2} /> Call</a>
               {open.email && (
                 <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={2} /> {open.email}</a>
+              )}
+              {/* ROADMAP 2.20 — THE ONE PLACE A REJECTED SEND BECOMES VISIBLE.
+                  Until this line the provider refusing an address was a
+                  `console.error` inside an edge function, so the first symptom
+                  was a customer saying they never got their confirmation. It
+                  is drawn HERE rather than in a log because a rejected send is
+                  a fact about this person, and this is where a detailer is
+                  about to rely on their address.
+                  It names what to DO — the phone number is right above it —
+                  because "delivery failed" on its own is a notification, not
+                  a help. `--bad` is the fixed red and does not follow the
+                  tenant (law 11b): this is meaning, not identity. */}
+              {open.email && open.email_failed_at && (
+                <p className="muted" style={{ margin: 0, color: "var(--bad)" }}>
+                  This address bounced — the last email to it was refused. Check
+                  it with them, or call instead.
+                </p>
               )}
             </div>
 

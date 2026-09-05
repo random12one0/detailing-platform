@@ -97,7 +97,7 @@ Deno.serve(async (req) => {
     // is not in the result, exactly as a nonexistent one is not.
     const { data: rows, error: readErr } = await supabase
       .from("customers")
-      .select("id, name, email, unsubscribed_at")
+      .select("id, name, email, unsubscribed_at, email_failed_at")
       .eq("business_id", member.businessId)
       .in("id", ids.slice(0, 500));
     if (readErr) throw readErr;
@@ -105,7 +105,16 @@ Deno.serve(async (req) => {
     const all = rows ?? [];
     const noEmail = all.filter((c) => !String(c.email ?? "").trim()).length;
     const optedOut = all.filter((c) => String(c.email ?? "").trim() && c.unsubscribed_at).length;
-    const eligible = all.filter((c) => String(c.email ?? "").trim() && !c.unsubscribed_at);
+    // ROADMAP 2.20 — AND THIS IS THE ENFORCEMENT, NOT THE MODAL'S FILTER. The
+    // browser's count is courtesy; a caller that posts ids straight at this
+    // function would otherwise still spend the platform's shared sending
+    // reputation on addresses the provider has already refused, which is the
+    // exact resource the 50-per-press cap exists to protect. The flag clears
+    // itself on the next successful send, so this excludes nobody permanently.
+    const bounced = all.filter((c) =>
+      String(c.email ?? "").trim() && !c.unsubscribed_at && c.email_failed_at).length;
+    const eligible = all.filter((c) =>
+      String(c.email ?? "").trim() && !c.unsubscribed_at && !c.email_failed_at);
     const recipients = eligible.slice(0, CAMPAIGN_MAX);
 
     const settings = await getSettings(business.id);
@@ -154,6 +163,7 @@ Deno.serve(async (req) => {
       failed,
       no_email: noEmail,
       unsubscribed: optedOut,
+      bounced,
       capped: Math.max(0, eligible.length - recipients.length),
       cap: CAMPAIGN_MAX,
     });

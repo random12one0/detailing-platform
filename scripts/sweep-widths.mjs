@@ -598,6 +598,30 @@ for (const w of SIZES) {
     }
   }
 
+  const appear = async (loc, ms = 6000) => {
+    try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
+    catch { return false; }
+  };
+
+  // AND THE CLIENTS BLOCK IS THE SIXTH PLACE, FOUND 2026-09-04 BY A NEW CHECK
+  // REFUSING TO GO QUIET.
+  //
+  // Every state below is drawn from a Supabase read, and this block opened
+  // with `settle()` then `count()` — the exact race the paragraph above
+  // describes, in the one block nobody re-checked when that lesson landed.
+  // **In `--lite` it lost at THREE of five widths**, and it lost SILENTLY:
+  // every state here is guarded by `if (await ...count())`, so the sorts, the
+  // lapsed filter, the compose sheet, the client record and the job from its
+  // history all just did not happen, and the run printed
+  // `Clients · the list   clean` and moved on. Six measurements vanishing is
+  // indistinguishable from six measurements passing.
+  //
+  // **It was found only because roadmap 2.20 added a state that says NOT
+  // MEASURED instead of skipping.** That is the whole argument for the else
+  // branch on the bounced client below, and for writing one on the next state
+  // added anywhere in this file: *a check that skips reads exactly like a
+  // check that passes* is this repo's most repeated finding, and a guard that
+  // prints is the cheapest possible cure.
   // CLIENTS' OTHER SCREENS — added 2026-09-02, roadmap 2.11 step 6 stage 5,
   // and it is the same gap a FOURTH time: clicking the Clients tab opened one
   // client sheet and measured nothing else, so the sort, the lapsed filter and
@@ -607,6 +631,13 @@ for (const w of SIZES) {
   // open state are two different measurements of the same screen.
   await page.getByRole("button", { name: "Clients", exact: true }).first().click();
   await settle(page, 1600);
+  // THE ONE LINE THAT FIXES ALL SIX. Everything below depends on the list
+  // having been drawn, so waiting for a row here is what makes the guards
+  // below mean "this control is missing" again instead of "the database had
+  // not answered yet".
+  if (!(await appear(page.locator(".rows.cols.clients .row-item")))) {
+    console.log(`${"Clients".padEnd(24)} NO ROWS — the list never drew`);
+  }
   await say("Clients · the list");
   for (const s of ["Most spent", "Longest away"]) {
     const b = page.getByRole("radio", { name: s, exact: true });
@@ -664,6 +695,32 @@ for (const w of SIZES) {
     await page.keyboard.press("Escape");
     await settle(page, 700);
   }
+  // THE CLIENT WHOSE ADDRESS BOUNCED — roadmap 2.20, and it is a SECOND
+  // measurement of the same screen rather than a nicety. The record above is
+  // opened with `.first()`, so the bounce line is drawn on exactly one client
+  // in the seed and the odds of that being the first row are nobody's to
+  // control. This is the tenth time this file has had to say it: *a state you
+  // reach by pressing something INSIDE a screen is not navigation* — and the
+  // added twist here is that this state belongs to ONE ROW of a list the walk
+  // already visits, which looks covered and is not.
+  // It is also the longest string on that panel: a two-line red sentence
+  // under a button that is already the widest thing in the column.
+  {
+    const bounced = page.locator(".rows.cols.clients .row-item", { hasText: "Victor Salas" });
+    if (await bounced.count()) {
+      await bounced.first().click();
+      await settle(page, 1500);
+      await grow();
+      await say("Clients · a client whose email bounced");
+      await page.keyboard.press("Escape");
+      await settle(page, 700);
+    } else {
+      // NOT SILENCE. A seed that stops carrying this row would otherwise make
+      // the whole state vanish from the sweep while it still printed clean,
+      // which is this repo's most-repeated failure wearing a new hat.
+      console.log(`${"Clients · bounced".padEnd(24)} NOT MEASURED — no bounced client in the seed`);
+    }
+  }
 
   // A SETTINGS SCREEN IS NO LONGER A SHEET, and the walk needed no change for
   // it: below --wrap it is a page that REPLACES the index, at or above --wrap
@@ -686,10 +743,12 @@ for (const w of SIZES) {
   // family as the crash that printed `clean` until `say()` learned to look for
   // the error boundary. Found because roadmap 2.19 added two reads to Today
   // and the extra latency tipped it over; the race was already there.
-  const appear = async (loc, ms = 6000) => {
-    try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
-    catch { return false; }
-  };
+  //
+  // **IT IS DECLARED WAY ABOVE NOW, AND THAT MOVE IS THE FIX FOR A SIXTH
+  // PLACE.** It used to be declared here, immediately before the settings
+  // walk -- and a `const` is in its own temporal dead zone above that line, so
+  // the CLIENTS block two hundred lines earlier could not have called it even
+  // if somebody had thought to. See its new home for what that cost.
 
   const walk = async (label, rows) => {
     for (const key of rows) {

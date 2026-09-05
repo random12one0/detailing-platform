@@ -17,6 +17,54 @@ import { PLATFORM_FROM_ADDRESS } from "../_shared/config.ts";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
+/**
+ * STAMP OR CLEAR THE ADDRESS ON THE CUSTOMER IT BELONGS TO — roadmap 2.20.
+ *
+ * `failure` null means the send worked and the flag comes off.
+ *
+ * IT IS BEST-EFFORT, LIKE EVERY OTHER LINE IN THIS FILE. This function is
+ * bookkeeping about an email; it must never be the reason a send is reported
+ * as failed, so it swallows its own errors exactly as `sendTenantEmail` does.
+ *
+ * AN OWNER ALERT MATCHES NOTHING AND THAT IS CORRECT: a detailer's own
+ * notification address is not one of their customers, so the update touches
+ * zero rows and the owner's mail is not tracked here.
+ *
+ * ponytail: exact-match on the address, not case-folded. Every caller passes
+ * an address read back out of the row it would update (`create-booking` stores
+ * what the customer typed and every later send reads it), so the two agree by
+ * construction. A `lower()` comparison needs an RPC or a functional index;
+ * add one if a real mismatch ever turns up rather than on principle.
+ */
+async function markAddress(
+  businessId: string,
+  to: string,
+  failure: unknown | null,
+): Promise<void> {
+  try {
+    await supabase
+      .from("customers")
+      .update(
+        failure === null
+          ? { email_failed_at: null, email_failed_reason: null }
+          : {
+            email_failed_at: new Date().toISOString(),
+            // The provider's own words, capped: this is drawn in one line
+            // beside the address and a whole JSON body would not be read.
+            email_failed_reason: String(
+              (failure as { message?: string; name?: string })?.message
+                ?? (failure as { name?: string })?.name
+                ?? JSON.stringify(failure),
+            ).slice(0, 200),
+          },
+      )
+      .eq("business_id", businessId)
+      .eq("email", to);
+  } catch (e) {
+    console.error("could not record the send result against the customer:", e);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
@@ -83,8 +131,26 @@ Deno.serve(async (req) => {
     const data = await res.json();
     if (!res.ok) {
       console.error("Resend API error:", data);
+      // ROADMAP 2.20 — AND THIS `console.error` IS EXACTLY WHY. A booking never
+      // fails because an email did, so until this line the only record of a
+      // rejected send was a log nobody reads, and the first symptom was a
+      // customer saying they never got their confirmation. The fact goes on the
+      // CUSTOMER, next to the address, where the detailer meets it at the
+      // moment they are about to rely on it.
+      //
+      // 4xx ONLY, AND THAT IS WHAT MAKES THE FLAG HONEST. A 5xx is the
+      // provider having a bad day, not this address being wrong — stamping it
+      // would put "this address bounced" on every customer emailed during a
+      // Resend outage, which is both false and the fastest way to teach a
+      // detailer to ignore the flag. The send still failed and is still
+      // logged; it is simply not the customer's fault.
+      if (res.status < 500) await markAddress(business_id, to, data);
       return json({ error: "Failed to send email", details: data }, res.status);
     }
+    // A BOUNCE MUST CLEAR ITSELF, unlike `unsubscribed_at`. Otherwise a
+    // detailer who corrects a typo is told forever that the address they just
+    // fixed is broken, and the flag becomes something to ignore.
+    await markAddress(business_id, to, null);
     return json({ success: true, id: data.id });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);
