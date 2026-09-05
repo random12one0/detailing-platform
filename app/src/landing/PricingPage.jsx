@@ -98,9 +98,12 @@ export default function PricingPage() {
   // Where a chosen option goes TODAY: the signup form, carrying the choice.
   // There is no checkout yet (roadmap 2.20 stage 2's second half, which
   // cannot go live before 2 December anyway) and no Stripe key is needed for
-  // any of this page. `term` is read by nothing yet and is here so the
-  // choice made on this page survives the step after it — Auth.jsx already
-  // switches to "create an account" on the presence of `plan`.
+  // any of this page. `term` SURVIVES THE WHOLE WAY NOW — Auth.jsx switches to
+  // "create an account" on the presence of `plan`, CreateBusiness carries the
+  // term into `/app?settings=billing&term=`, and Billing.jsx opens with that
+  // rung already chosen. (This comment said "read by nothing yet" until
+  // 2026-09-05, which was true on the day it was written and stopped being
+  // true when the billing screen shipped.)
   const buy = (term) =>
     `/app?plan=website&term=${term}${founding ? "&offer=founding" : ""}`;
 
