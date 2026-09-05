@@ -77,7 +77,7 @@ correction that matters most; the ordering within it has since moved."
 ## Evidence on Hand
 
 - Real product with a seeded demo business on a private Netlify test deploy; a real converted business's content as canon in `reference/` (read-only).
-- No testimonials, case studies, or customer counts exist — never fabricate them. The struck $900 list price is real and config-driven.
+- No testimonials, case studies, or customer counts exist — never fabricate them. The struck list price is real and config-driven — **$999 since 2026-09-04, the owner's call** ("things that end in ninety nine feel more professional to me"); it was $900 before, and `docs/design-directions/5-the-thread.html` still shows $900 because that file is a SNAPSHOT of what he approved on 2026-08-30, not a live surface. Read the number from `app/src/landing/pricing.js`, never from the reference rendering.
 - Design-rule tests in `tests/` (composition, design-contrast, landing-pricing, route-contract) run credential-free from repo root.
 
 ## Product Principles

@@ -203,6 +203,8 @@ were made more than once.
 
 - **"Should I just start with Paddle?" — no, and the reason had not been checked by anyone** — **neither Paddle nor Lemon Squeezy does marketplace payouts**, so money-through is Stripe Connect regardless and the real question is *"Paddle AND Stripe, or just Stripe"*: two dashboards and two webhook sets for a business whose support desk is one person. **And Paddle's Acceptable Use Policy prohibits *"human services that are not related to a software offering"*, which his $499 hand-built website may well be** — their call, not ours, and *"you cannot sell your main up-front product here"* is a worse day than a tax return. **The tax benefit is also smaller than it looks because he sells in ONE STATE**: a merchant of record earns its 2 extra points across forty states, and a California business selling to California detailers has one registration and one filing schedule. **So Stripe, and register with CDTFA when the law starts** — a sharpening of round 2's "decide by November", with the trigger now being *selling outside California* rather than a date. **The early-exit fee came BACK ON, and his counter-argument was right**: he proposed Adobe's exact model (annual term, billed monthly, half the remainder on early cancellation) and **the FTC sued Adobe in June 2024 over the PRESENTATION, not the fee** — pre-selecting the plan, burying the commitment in hover-icons, obstructing cancellation — so it ships with neither plan pre-selected, the term and fee in plain text at the price's own size, an explicit tick, and a one-click cancel that charges the fee to the card on file. **With a card on file the fee collects itself, so "he is badly placed to chase it" mostly dissolves; what survives is the CHARGEBACK**, whose defence is that same disclosure. **His trade knowledge moved a build decision for the second time in two sessions**: detailers *"don't leave a client's house until it's paid"*, so the unpaid invoice is a rare page and round 2 was aiming at it — **his own old site already printed the payment methods on the CONFIRMATION email**, which is where they belong, and never on a receipt. **Refunds: setup fee non-refundable once work begins, current month not refunded, and the setup fee and the exit fee are two separate arguments** that must not be merged. **And one small thing ships beside the Resend free plan he is keeping: make a REJECTED SEND VISIBLE** — the cap is not the risk, the silence is.
 
+- **Selling nationwide, and an idea that had to be refused** — the reasoning under the Stripe decision broke, and one thing he asked for is a data leak. *"I'm primarily gonna be selling anywhere in America… if I sell in California, that could potentially be my competition."* **Round 3's "he sells in one state, so the tax is simple" was load-bearing and is now wrong**, and it is marked rather than quietly rewritten. **The threshold that bites is TRANSACTIONS, not revenue**: $100k into a state is ~208 subscribers at $40, but **200 transactions is ~17 subscribers**, because each monthly charge is a separate sale — **except that 17+ states have now dropped the transaction test entirely**, ~14–20 still apply it, and SaaS is taxable in only ~26. **So the exposure is CONCENTRATION, not reach**: a hundred customers spread two per state is nowhere near anything, forty in Texas is a registration. **The recommendation survives for the non-tax reasons** (no merchant of record can pay the detailers; Paddle may refuse the $499) **but the tax problem is now worth instrumenting** — Stripe Tax at the first out-of-state sale, 0.5%, because **it warns before a nexus threshold is crossed**, which converts an invisible creeping exposure into an alert. **The merchant-of-record question re-opens on a concrete trigger, not a date: registered in three or more states, or a warning about a state he has never filed in.** **His "type your email and it shows you" must NOT be built as described** — it is address enumeration, and anyone could learn whether their neighbour uses this detailer — **the safe twin is one word different: email IN, LINK OUT**, which is a third caller of the pattern `/booking/:id` and 2.12's quote acceptance already use. **And the cheapest 90% of "auto-detect" is the BROWSER remembering the last customer on that device**, since most people rebook on the same phone. **Moving the contact step first was declined as a default** because the step budgets were measured (1440x900, 10px spare on step 1) and a reorder means retaking all of them — **show recognition at the top of step 1 instead.** **His own dashboard was already roadmap 4.4 and is now specified** (`docs/platform-admin-2026-09-04.md`): the test for every screen is *what will he otherwise do by hand at 11pm with a SQL query*, impersonation is the biggest time-saver and must be logged, and it **splits — suspend rides along with billing, the list follows, the site columns wait for Phase 3.** **Pricing: three ways to pay**, with month-to-month the most expensive because he carries the risk, and **the setup fee is $999 as of this session** — his call, his reason, verified in a browser.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -10880,3 +10882,126 @@ not capacity, it is visibility: make a rejected send show up somewhere he
 looks.** A booking never fails because an email did — that is deliberate — so
 the cap being hit produces no symptom until a customer says they never got their
 confirmation. **Staying on the free plan makes this worth more, not less.**
+
+## Selling nationwide, and an idea that had to be refused
+
+Three things arrived together: he sells across America and deliberately not
+locally, he needs his own dashboard, and he had an idea for recognising
+returning customers.
+
+### The reasoning under the Stripe decision broke, and the decision held anyway
+
+> *"I'm primarily gonna be selling anywhere in America. I'm not thinking of
+> selling in California… if I sell in California, that could potentially be my
+> competition."*
+
+**Round 3 argued against a merchant of record partly because "he sells in one
+state, so the tax is one registration and one return." That premise is now
+false, and it is marked rather than rewritten**, because a reader who finds the
+conclusion without the correction will trust reasoning that no longer applies.
+
+**What replaces it.** Two nexus thresholds matter, and **the one that bites is
+transactions, not revenue**: $100,000 into a single state is ~208 subscribers at
+$40/month, but **200 transactions is about 17 subscribers**, since each monthly
+charge is a separate sale and seventeen customers billed for a year is 204.
+
+**Three things keep that from being alarming.** **17 states and counting have
+eliminated the transaction test** — Alaska, Utah, Illinois, Kentucky among them
+— **roughly 14 to 20 still apply it**, and **SaaS is taxable in only about 26
+states** at all. **So the real variable is CONCENTRATION rather than reach.** A
+hundred customers spread two per state trips nothing. Forty in Texas is a
+registration.
+
+**And California inverts.** He has physical-presence nexus because he lives
+there, but **nexus only matters where there is a sale** — avoiding California
+customers avoids California sales tax entirely, even after SB 122. His
+*"Northern California is fine"* means a few, taxable from 1 January 2027.
+**California income tax on the business is owed regardless and is a different
+tax; conflating the two is how this gets confusing later.**
+
+**The decision survives on the two structural reasons, which have nothing to do
+with tax**: no merchant of record can pay the detailers, so Connect is Stripe
+regardless; and Paddle's acceptable-use policy may refuse the $499 hand-built
+website. **What changes is that the tax exposure is now worth instrumenting
+rather than ignoring: Stripe Tax at the first out-of-state sale**, 0.5%, chosen
+not for the calculation but because **it monitors nexus per state and warns
+before a threshold is crossed** — an invisible, creeping legal exposure turned
+into an alert.
+
+**And the merchant-of-record question is re-opened with a trigger instead of a
+date: three or more state registrations, or a warning about a state he has never
+filed in.** Before that the extra 84¢ per detailer per month buys nothing.
+After it, it buys the only thing it was ever for.
+
+### "Type your email and it shows you" is address enumeration
+
+He asked for a way around customers forgetting their booking link, and proposed
+that typing an email address bring up their details and plan.
+
+**Built as described, anyone can type any address** — a neighbour, an ex, a
+competitor — and learn whether that person uses this detailer and what they pay.
+**It is the kind of defect that is obvious only once it is live.**
+
+**The safe version is one word different: email IN, LINK OUT.** They type an
+address, we email them their link, the page displays nothing, and it says the
+same thing whether or not the address belongs to a customer. **This is not a new
+mechanism — it is a third caller of the pattern this product already relies on
+twice**: `/booking/:id`, where the UUID *is* the credential and every
+cancellation already happens, and 2.12's quote acceptance. **The same link round
+3 chose over customer accounts.**
+
+**And the cheapest ninety percent of what he wanted needs no lookup at all: let
+the BROWSER remember.** Most people rebook on the phone they booked on. Remember
+the last customer's name, email and phone on that device, pre-fill the contact
+step, and **if that customer is on a plan we know it before they type
+anything** — which is the "auto-detect" he was describing. It fails safely: a
+new device behaves exactly as today.
+
+**Moving the contact step to the front was declined as a default**, and the
+reason is measurement rather than taste: **the step budgets were measured**
+(2.7 and 2.8c; the binding screen is 1440x900 with 10px of spare room on step
+1), **so a reorder means retaking every one of them** — and asking for a phone
+number before showing a price is the order that makes a stranger close the tab.
+**Show recognition at the top of step 1 instead.** If he wants the reorder
+anyway it is his product, but as a deliberate item with the budgets re-measured,
+not as a side effect of the plans build.
+
+### His own dashboard was already in the plan, and is now specified
+
+*"I need to have a dashboard myself where I can manage all of the detailers…
+I don't really know what features I need."* **It is roadmap 4.4**, which he had
+not seen — reasonable, for something in Phase 4 of a 3,700-line file. Specified
+in `docs/platform-admin-2026-09-04.md`.
+
+**The test that decides every screen in it: what will he otherwise do by hand,
+at 11pm, with a SQL query, while a detailer waits on a text message?** Anything
+that fails that test is a dashboard for looking at, and those rot.
+
+**Three findings worth keeping out of the spec and here:** *open their dashboard
+as them* is the single biggest time-saver in any back office **and must be
+logged every time**, because it is also the action that will look worst if it is
+ever questioned; **the completeness signal already exists** in `lib/setup.js`'s
+seven-step progress and inventing a second one is how two numbers start
+disagreeing; and **the item should split rather than wait** — suspend rides
+along with 2.20's billing, the list follows when he can no longer hold his
+customers in his head, and the site columns wait for Phase 3 because that is
+when there are sites.
+
+### Pricing, and one change made
+
+**Three ways to pay**: month-to-month (new, and **the most expensive, because he
+carries all the risk**), annual-paid-monthly (**today's $40 founding / $60
+list**, gaining the term and the fee), and annual-paid-up-front (**already on
+the page as `PRICING.annual`**). The only new number is month-to-month, where a
+20–30% no-commitment premium gives $49 founding / $79 list with his own
+ends-in-9 preference applied. **Annual-paid-monthly is the visual middle and
+still not pre-selected** — pre-selection is the first thing the FTC named in the
+Adobe complaint.
+
+**And the setup fee is $999, done this session on his instruction** — *"things
+that end in ninety nine feel more professional to me."* **The reference
+rendering still shows $900 and that is correct**: it is a snapshot of what he
+approved on 2026-08-30, not a live surface. `PRODUCT.md` now says to read the
+price from `pricing.js` and never from that file, because the design system's
+"where they disagree, the page is right" rule is about DESIGN and would be
+actively wrong applied to a price.

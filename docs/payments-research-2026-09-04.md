@@ -712,3 +712,171 @@ confirmation.
 - FTC press release, June 2024: https://ftc.gov/news-events/news/press-releases/2024/06/ftc-takes-action-against-adobe-executives-hiding-fees-preventing-consumers-easily-cancelling
 - Paddle refund fee behaviour (5% returned, 50¢ retained): https://dodopayments.com/blogs/paddle-fees-explained
 - This repo, read directly: `reference/supabase/functions/create-booking/index.ts:776` (payment methods on the CONFIRMATION email)
+
+---
+---
+
+# ROUND 4 — he is selling NATIONWIDE, which changes the tax answer (2026-09-04)
+
+> *"I'm primarily gonna be selling anywhere in America. I'm not thinking of
+> selling in California… if I sell in California, that could potentially be my
+> competition… I probably won't sell in my local area or anywhere in LA, but I
+> guess Northern California is fine. I don't wanna limit myself — to have the
+> most success I need as big of a market as possible, and that includes the
+> entire United States."*
+
+**Round 3's "he sells in one state" was the load-bearing assumption under
+"Stripe, don't bother with a merchant of record", and it is now wrong.** It came
+from his first customers being California detailers. He has said the opposite,
+and for a good reason nobody had asked about: **a California customer is a
+competitor.**
+
+**Here is the corrected picture, and the recommendation survives — but for
+different reasons and with a different trigger.**
+
+## What selling into fifty states actually costs him
+
+**Two thresholds, and the second is the one that bites.** A state can require
+him to collect its sales tax once he crosses **$100,000 of sales into that
+state**, or, in the states that still use one, **200 separate transactions**.
+
+- **$100,000 into one state at $40/month is ~208 subscribers in that state.**
+  Not a real number for years.
+- **200 transactions is ~17 subscribers in that state**, because a monthly
+  subscription charge is a separate sale and seventeen customers billed for a
+  year is 204 of them. **That is a real number, and much sooner than it looks.**
+
+**The saving grace: that second threshold is disappearing.** **17 states and
+counting have eliminated the 200-transaction test**, leaving revenue only —
+Alaska, Utah, Illinois and Kentucky among them — while **roughly 14 to 20
+jurisdictions still apply it.** And **SaaS is only taxable in about 26 states**
+anyway, so a state where the product is not taxable does not produce a
+collection obligation even if he trips its threshold.
+
+**So the exposure is about CONCENTRATION, not reach.** A hundred customers
+spread two-per-state is nowhere near any threshold. **Forty customers in Texas
+is a registration.** Which of those happens is not something he controls, and it
+is not visible without something watching.
+
+## California specifically, now that he is avoiding it
+
+He has **physical-presence nexus in California** because he lives and works
+there — thresholds are irrelevant. But nexus only matters where there is a sale:
+**if he has no California customers, there is no California sales tax to
+collect**, even after SB 122 starts on 1 January 2027. His *"Northern California
+is fine"* means he will have some, and those are taxable from that date.
+
+**Two things that do not change either way**, and are worth separating so they
+are not conflated later: **California income tax on the business is owed
+regardless of where the customers are**, and **the CDTFA registration is his
+dad's name** (round 2).
+
+## The recommendation survives, and the trigger changes
+
+**Still Stripe.** The two structural reasons from round 3 are untouched by any
+of this, and neither is about tax:
+
+1. **No merchant of record can pay the detailers.** Money-through is Stripe
+   Connect regardless, so the choice remains *"Paddle AND Stripe, or just
+   Stripe"*.
+2. **Paddle's Acceptable Use Policy may not accept the $499 hand-built
+   website** at all.
+
+**What changes is that the tax problem is now real enough to instrument rather
+than ignore.** So:
+
+- **Turn on Stripe Tax when the first out-of-state sale happens** — 0.5% per
+  transaction, about 20¢ on $40. It calculates the right rate everywhere and,
+  the part that matters here, **it monitors economic nexus per state and warns
+  when a threshold is approaching.** That converts an invisible, creeping legal
+  exposure into an alert.
+- **Filing is still not solved by it** — Stripe hands that to outside partners
+  at extra cost — so **each state he trips is a registration and a return.**
+- **The merchant-of-record question is NOT closed; its trigger is now
+  concrete.** Revisit the moment either of these is true: **he is registered in
+  three or more states**, or **Stripe Tax warns about a state he has never
+  filed anything in.** At that point the 84¢ per detailer per month is buying
+  something he actually needs. **Before that it is not, and switching remains
+  expensive** — every subscriber re-enters a card.
+
+**Round 3's conclusion is unchanged; round 3's reasoning is half wrong and is
+marked as such rather than quietly rewritten.** "One state, so it is simple"
+was true of the business he described then, not the one he is building.
+
+---
+
+## The pricing structure he asked for
+
+> *"I think we should have another option where they could pay everything
+> upfront. But the monthly payment that isn't locked into a year, that should be
+> more expensive than what we have now. So the forty dollar a month, that should
+> be the one where it's a year but spread out payments… and then obviously years
+> should be low discounts."*
+
+**Three ways to pay, which is the standard shape and maps cleanly onto what
+already exists:**
+
+| | What it is | Today | Proposed |
+|---|---|---|---|
+| **Month to month** | No commitment, cancel any time, no fee | **does not exist** | **the most expensive** — it is the one where he carries all the risk |
+| **Annual, paid monthly** | 12-month term, spread, early-exit fee | **this is today's $40 founding / $60 list** | unchanged in price; gains the term, the tick and the fee |
+| **Annual, paid up front** | One payment, biggest discount | **`PRICING.annual = 600`, already on the page** | unchanged in shape; the cheapest per month |
+
+**The only new number is the month-to-month one**, and the usual premium for
+"no commitment" is **20–30%**. On the founding tier that is **$48–$52 against
+$40**; on the list tier **$72–$78 against $60**. **$50 and $75 are the round
+numbers**, and given his own stated instinct about prices ending in 9, **$49 and
+$79** are the same thing with his preference applied.
+
+**Two cautions, both cheap to honour:**
+
+- **This is now three plans on the pricing section, plus booking-only.** Four
+  choices is where a pricing page starts costing conversions rather than buying
+  them. **The annual-paid-monthly should be visually the middle option and the
+  one most people take — but NOT pre-selected**, because pre-selecting it is
+  the first thing the FTC named in the Adobe complaint (round 3).
+- **`tests/landing-pricing.test.mjs` reads the values out of
+  `pricing.js` rather than hard-coding them**, so adding a plan means adding its
+  assertions there in the same change. That test is what stops the page and the
+  config drifting apart.
+
+**The setup fee moved on his instruction and is done: `PRICING.website.setup`
+is $999**, struck through beside the $499 founding price, verified in a browser
+at 1440x900 — *"things that end in ninety nine feel more professional to me."*
+**`docs/design-directions/5-the-thread.html` still shows $900 and that is
+correct**: it is a snapshot of what he approved on 2026-08-30, not a live
+surface. **Read the price from `pricing.js`, never from the reference
+rendering.**
+
+---
+
+## The detailer's own billing page
+
+He answered his own question here — *"they'll have an account and they can see
+account details and payments, all that"* — and he is right that it belongs in
+the dashboard they already have rather than somewhere new.
+
+**What it holds:** their plan, what they pay, next charge date, the card on
+file, past invoices, **and a cancel button.**
+
+**The cancel button is a legal requirement, not a courtesy** — AB 2863 requires
+someone who signed up online to be able to cancel online. It is also where the
+twelve-month term and the early-exit fee have to be stated plainly, because that
+disclosure is what makes the fee defensible against a chargeback.
+
+**It goes behind the header gear** (the four screens that change how the app
+behaves for the detailer), not on Business (the eight that change what a
+customer meets) — the test is written into `screens/Business.jsx`'s own header.
+**And it is `owner`-only rather than a permission tick**, for the same reason
+2.13 refused a "team" permission: whoever can change what the business pays can
+change everything.
+
+---
+
+## Sources added in round 4
+
+- States eliminating the 200-transaction economic nexus threshold (17 and counting): https://www.avalara.com/blog/en/north-america/2025/06/states-eliminating-economic-nexus-transaction-thresholds.html
+- Economic nexus thresholds by state, 2026: https://taxcloud.com/blog/sales-tax-nexus-by-state/
+- Which jurisdictions still apply a transaction test: https://taxesledger.com/guides/economic-nexus-guide
+- Stripe Tax — threshold monitoring, 0.5%, and filing via partners: https://stripe.com/tax/pricing
+- This repo, read directly and changed: `app/src/landing/pricing.js` (setup 900 → 999), `tests/landing-pricing.test.mjs` (reads the config, does not hard-code it)

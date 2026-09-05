@@ -745,3 +745,124 @@ has not made yet (where a member's ledger lives, which reminder rail it rides).
 **What must survive to that point is the requirement itself** — that the thing
 being modelled is a deadline with a consequence, and that the reminder has to
 escalate rather than fire once.
+
+---
+---
+
+# ROUND 4 — the booking page: how a returning customer is recognised (2026-09-04)
+
+He raised three connected worries about the customer side:
+
+> *"they should just be able to go to the booking link slash their name so it's
+> something easy to remember. But I'm worried about customers forgetting their
+> booking link… Or maybe they just could type in their email and it'll
+> automatically show them, that way they don't have to create a password or an
+> account. Or maybe we auto-detect — you know the place where you put all your
+> information about who you are, that's usually the last step. Maybe we make
+> that the second step or the first step, so it could detect and show stuff
+> based off of just them."*
+
+> *"on the booking page we gotta figure out what it'll look like… it should just
+> be one button where it's the monthly thing, and it's whatever we calculate
+> based off of what the detailer chose."*
+
+## 1. The link is already what he described
+
+`/book/:slug` exists and is exactly *"the booking link slash their name"*. **The
+customer forgetting it is real, and it is not the customer's problem to
+solve** — it is the detailer's, and most of the fix already ships:
+
+- **Every email this product sends carries it** (confirmation, reminders,
+  receipt).
+- **The QR code exists** — roadmap 2.9 put one behind a button on the Business
+  screen, and it is swept at every width.
+- The detailer's Google profile, their site (Phase 3) and a text message are the
+  other three routes, and all of them are the detailer distributing a link
+  rather than the customer remembering one.
+
+**So the honest answer is that this is mostly solved and the remaining gap is
+recall on a phone weeks later** — which is what the rest of this section is
+about.
+
+## 2. "Type your email and it shows you" is a data leak, and it has a safe twin
+
+**Do not build the version he described.** If typing an email address returns
+that person's plan, history or details, then **anyone can type any address** —
+a neighbour, an ex, a competitor — and learn whether that person uses this
+detailer and what they pay. That is address enumeration, and it is the kind of
+defect that is obvious only after it is shipped.
+
+**The safe version is one word different: email in, LINK OUT.** They type their
+address, and **we email them their link** — we never display anything on the
+page. If the address is not a customer, the page says the same thing either way.
+
+**And this product already works exactly like that, twice**: `/booking/:id`,
+where the UUID *is* the credential and every cancellation and reschedule already
+happens, and 2.12's quote acceptance from an email. **So it is a third caller of
+an existing pattern rather than a new mechanism** — and it is the same "your
+plan" link round 3 chose over accounts.
+
+## 3. The cheapest 90% is the browser remembering, and it costs nothing
+
+**Most people rebook on the same phone they booked on.** So:
+
+- **Remember the last customer's name, email and phone on that device** and
+  pre-fill the contact step. No account, no lookup, no security surface, no new
+  screen — and it removes the typing that the account idea was really trying to
+  remove.
+- **If that remembered customer is on a plan, we already know it** without
+  anyone typing anything, which is the "auto-detect" he was reaching for.
+- It fails safely: a new device just fills the form in as today.
+
+**This is the answer to "how do we know who they are" for the large majority of
+returning customers, and it is a few lines.** The emailed link covers the rest.
+
+## 4. Moving the contact step first: not as the default, and here is the trade
+
+His instinct — know who they are early, then personalise — is sound, and it is
+how a logged-in product would work. **But the booking flow is not a logged-in
+product**, and three things argue against reordering it:
+
+- **It front-loads friction before value.** The current order lets somebody see
+  what a detail costs before they hand over a phone number. Asking first is the
+  order that makes a stranger close the tab.
+- **The step budget was measured, not guessed.** Roadmap 2.7 and 2.8c measured
+  every step against W16 — *a customer never scrolls inside a step* — and the
+  binding screen turned out to be 1440x900 with 10px spare on step 1. **Moving a
+  step changes those measurements and they would all have to be retaken.**
+- **Nothing in the ten sampled businesses or six products asks first.**
+
+**The version that gets his benefit without the cost: keep the order, and show
+recognition at the TOP of step 1 when we already have it** — from the remembered
+device or from a plan link. *"Welcome back, Marcus — your Bi-weekly plan
+applies"*, with the plan price already reflected in the bar. **The information
+arrives first; the form does not move.**
+
+**If he wants the reorder anyway it is buildable** — it is his product — but it
+should be a deliberate change with the step budgets re-measured, not a side
+effect of the plans work.
+
+## 5. The plan on the booking page — "one button", and what it computes
+
+He is right about the shape, and it matches what round 1 and 2 settled: **the
+plan lives beside the flow, not as a step inside it.**
+
+**The section:** each plan the detailer defined — its name, its cadence in their
+words, what is included, and its price expressed however they chose (a monthly
+amount, a per-visit amount, or a percentage off). **One button per plan.**
+
+**What the button does:** starts the ordinary booking flow with the plan
+attached, ending as a request the detailer accepts — the rail 2.12 already
+built, and the software version of the phone call five of the seven sampled
+businesses make.
+
+**What "whatever we calculate" means, precisely, because this is where a price
+becomes a promise:** the plan's effect on the quote has to run through the ONE
+pricing implementation (`_shared/pricing.ts`) and land where discounts already
+land, or the receipt stops reconciling. **A plan price shown on the booking page
+and not charged by `computeQuote` is the travel-fee defect for the third time.**
+`tests/booking-engine.test.mjs` test 17 is the shape of the check that stops it.
+
+**And the detailer needs to SEE that it is a plan booking** on the request card,
+or they will quote it as a one-off — which was already flagged in round 2's
+"things he did not type out" and is now load-bearing rather than speculative.

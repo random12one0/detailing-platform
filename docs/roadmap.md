@@ -2523,6 +2523,44 @@ is kept; the entire visual design restarts from scratch.
       stage 3 (cards through the platform) or *"whatever system they've been
       using already"*. **Neither is the default; both are settings.**
 
+      **ROUND 4 — THE BOOKING PAGE, AND ONE IDEA THAT MUST NOT BE BUILT AS
+      DESCRIBED (2026-09-04).**
+
+      - **"TYPE YOUR EMAIL AND IT SHOWS YOU" IS ADDRESS ENUMERATION.** If typing
+        an address returns that person's plan or history, **anyone can type any
+        address** and learn whether their neighbour uses this detailer and what
+        they pay. **The safe twin is one word different: email IN, LINK OUT** —
+        we email them their link and display nothing, and the page says the same
+        thing whether or not the address is a customer. **This product already
+        works that way twice** (`/booking/:id`, where the UUID is the
+        credential, and 2.12's quote acceptance), so it is a third caller of an
+        existing pattern rather than a new mechanism.
+      - **THE CHEAPEST 90% IS THE BROWSER REMEMBERING.** Most people rebook on
+        the same phone. Remember the last customer's name, email and phone on
+        that device and pre-fill; **if that customer is on a plan we already
+        know it without anyone typing** — which is the "auto-detect" he was
+        reaching for — and a new device just fills the form in as today. **No
+        account, no lookup, no security surface.**
+      - **MOVING THE CONTACT STEP FIRST: NOT AS THE DEFAULT.** It front-loads
+        friction before the customer knows the price, **nothing in the ten
+        sampled businesses or six products asks first**, and **the step budgets
+        were MEASURED** — 2.7 and 2.8c, binding screen 1440x900 with 10px spare
+        on step 1 — **so a reorder means retaking all of them.** The version
+        that gets his benefit without the cost: **keep the order and show
+        recognition at the TOP of step 1** when we already have it. *"Welcome
+        back, Marcus — your Bi-weekly plan applies."* Buildable as a deliberate
+        change if he still wants it; not as a side effect of the plans work.
+      - **THE PLAN SECTION IS "ONE BUTTON PER PLAN", AND HE IS RIGHT ABOUT THE
+        SHAPE.** Name, cadence in the detailer's words, what is included, price
+        however they chose to express it; the button starts the ordinary flow
+        with the plan attached and ends as a request. **"Whatever we calculate"
+        has to run through the ONE pricing implementation** and land where
+        discounts already land — **a plan price shown on the booking page and
+        not charged by `computeQuote` is the travel-fee defect for the THIRD
+        time**, and `tests/booking-engine.test.mjs` test 17 is the check's
+        shape. **And the request card must SAY it is a plan booking**, or the
+        detailer quotes it as a one-off.
+
 - [x] 2.15 ~~**Travel priced by measured distance**~~ **REFUSED BY THE OWNER
       2026-08-31, THE SAME DAY IT WAS WRITTEN, AND THE THING HE DESCRIBED
       INSTEAD IS ALREADY BUILT. This item is closed without work.**
@@ -3166,6 +3204,73 @@ is kept; the entire visual design restarts from scratch.
       the business for chargebacks, refunds and tax**, so he should know what he
       is signing. **The lock-in question is answered (build both).** **The
       merchant-of-record question is answered (Stripe).**
+
+      **ROUND 4 — HE IS SELLING NATIONWIDE, WHICH BREAKS ROUND 3'S REASONING
+      (2026-09-04).** *"I'm primarily gonna be selling anywhere in America…
+      if I sell in California, that could potentially be my competition."*
+      **Round 3's "he sells in one state, so tax is simple" was the load-bearing
+      assumption under the Stripe recommendation and it is now wrong.** Marked
+      rather than quietly rewritten.
+
+      - **THE THRESHOLD THAT BITES IS TRANSACTIONS, NOT REVENUE.** $100k into one
+        state is ~208 subscribers at $40; **200 transactions is ~17
+        subscribers**, because each monthly charge is a separate sale. **But
+        17+ states have now dropped the transaction test entirely** (Alaska,
+        Utah, Illinois, Kentucky among them) and **~14–20 still apply it**, and
+        **SaaS is taxable in only ~26 states.** **So the exposure is about
+        CONCENTRATION, not reach**: a hundred customers spread two per state is
+        nowhere near anything; forty in Texas is a registration.
+      - **CALIFORNIA, NOW THAT HE IS AVOIDING IT:** he has physical-presence
+        nexus, but **nexus only matters where there is a sale** — no California
+        customers means no California sales tax to collect even after SB 122.
+        *"Northern California is fine"* means some, and those are taxable from
+        1 Jan 2027. **California INCOME tax on the business is owed regardless**
+        and is a different thing; do not conflate them.
+      - **THE RECOMMENDATION SURVIVES FOR THE NON-TAX REASONS** — no merchant of
+        record can pay the detailers, and Paddle may refuse the $499 — **but the
+        tax problem is now worth instrumenting.** **Turn on Stripe Tax at the
+        first out-of-state sale** (0.5%, ~20¢ on $40): it calculates everywhere
+        and, the part that matters, **monitors nexus per state and warns before
+        a threshold is crossed**, turning an invisible creeping exposure into an
+        alert. **Filing is still not solved** — Stripe hands it to partners.
+      - **THE MERCHANT-OF-RECORD QUESTION IS RE-OPENED WITH A CONCRETE
+        TRIGGER**, not a date: **registered in three or more states, OR Stripe
+        Tax warning about a state he has never filed in.** Before that the extra
+        84¢/detailer/month buys nothing; after it, it buys the thing he
+        actually needs.
+
+      **THE PRICING STRUCTURE HE ASKED FOR — three ways to pay, which maps onto
+      what already exists.** Month-to-month (**does not exist today; the most
+      expensive, because he carries all the risk**), annual-paid-monthly
+      (**today's $40 founding / $60 list**, gaining the term, the tick and the
+      fee) and annual-paid-up-front (**`PRICING.annual = 600` is already on the
+      page**). **The only new number is month-to-month**: the usual no-commitment
+      premium is 20–30%, so **$49 founding / $79 list** applies his own
+      ends-in-9 preference to $48–52 / $72–78. **Two cautions:** four choices is
+      where a pricing page starts costing conversions, so annual-paid-monthly
+      should be the visual middle **and still NOT pre-selected** (the first
+      thing the FTC named in the Adobe complaint); and
+      `tests/landing-pricing.test.mjs` **reads the values out of `pricing.js`**,
+      so a new plan adds its assertions there in the same change.
+
+      **DONE IN THIS SESSION, on his instruction: `PRICING.website.setup` is
+      $999**, not $900 — *"things that end in ninety nine feel more professional
+      to me."* Verified in a browser at 1440x900: struck through beside $499, no
+      overflow, clean console. **`docs/design-directions/5-the-thread.html`
+      still shows $900 and that is CORRECT** — it is a snapshot of what he
+      approved on 2026-08-30, not a live surface. **Read the price from
+      `pricing.js`, never from the reference rendering.** `PRODUCT.md` says so
+      now.
+
+      **AND THE DETAILER'S OWN BILLING PAGE IS PART OF STAGE 2** — he answered
+      this himself (*"they'll have an account and they can see account details
+      and payments"*). Plan, price, next charge, card, invoices **and a cancel
+      button — which AB 2863 REQUIRES**, and which is also where the term and
+      the exit fee are disclosed. **Behind the header gear, not on Business**
+      (the test is in `screens/Business.jsx`'s own header), and **`owner`-only
+      rather than a permission tick**, for the reason 2.13 refused a "team"
+      permission: whoever can change what the business pays can change
+      everything.
 
 - [ ] 2.21 **A SMALL SPAM FILTER ON THE BOOKING PAGE — the OWNER said yes on
       2026-09-04** (*"and yes we should have a small spam filter"*), answering
@@ -3932,6 +4037,44 @@ is kept; the entire visual design restarts from scratch.
       settings, basic counts. Locked by a platform_admins table checked in
       the database, with a security test proving a business owner gets
       nothing.
+
+      **SPECIFIED 2026-09-04: `docs/platform-admin-2026-09-04.md`.** The owner
+      asked for it in his own words — *"I need to have a dashboard myself where
+      I can manage all of the detailers… I don't really know what features I
+      need"* — **without having seen that it was already this item**, which is
+      fair for something buried in Phase 4 of a 3,700-line file.
+
+      **THE TEST FOR EVERY SCREEN IN IT: what will he otherwise do by hand, at
+      11pm, with a SQL query, while a detailer waits on a text message?**
+      Everything else is a dashboard for looking at, and those rot.
+
+      **Three jobs:** *who are my customers and what state are they in* (one
+      searchable list; **"last activity" is the column that earns its place** —
+      no booking in three weeks means holiday or leaving, and both are worth
+      knowing before the card fails); *what is going on with this one* (their
+      setup — **reuse `lib/setup.js`'s seven-step progress rather than inventing
+      a second completeness number** — their people, their work, their money,
+      **their SITE**, and **his own free-text notes, the cheapest feature here
+      and the one he will use daily**); and *do the thing without a developer*
+      (**open-their-dashboard-as-them is the biggest single time-saver in any
+      back office**, plus suspend, tier changes, manual creation, resend
+      invite). **Four numbers across the top and no charts** — he has fewer than
+      ten customers and every trend line is noise.
+
+      **AND IT SHOULD SPLIT AND MOVE EARLIER.** 2.20 stage 2 needs *suspend*
+      anyway, and the day he has three paying customers he needs the list.
+      Order: suspend + the detailer's own billing page ride along with billing;
+      the list and the per-business page come next; **the site columns wait for
+      Phase 3, because that is when there are sites to track.**
+
+      **SECURITY IS THE PART THAT IS NOT NEGOTIABLE.** This is the one screen
+      where a bug exposes every tenant at once — everything else is RLS-scoped
+      to one business and this deliberately is not. Gate in the DATABASE
+      (`platform_admins`), a test proving a business owner gets nothing
+      (`tests/staff-roles.test.mjs` is the shape), **impersonation logged every
+      time**, and **its own route and layout — never a tab inside the detailer
+      dashboard**, so it is not one CSS mistake away from a screen a detailer
+      opens.
 
 ## Phase 5 — Andrew's Auto Detail becomes tenant #1
 

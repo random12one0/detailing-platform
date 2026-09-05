@@ -15,8 +15,11 @@
 //
 // A churned account releases its spot; the price stays locked for the
 // life of an account that stays open.
+// 999 rather than 900 since 2026-09-04, the owner's call and his reason:
+// "things that end in ninety nine feel more professional to me." Charm
+// pricing, and it is his product's positioning to set.
 export const PRICING = {
-  website: { setup: 900, monthly: 60 },
+  website: { setup: 999, monthly: 60 },
   bookingOnly: { monthly: 35 },
   annual: 600, // per year, instead of website.monthly × 12
 
