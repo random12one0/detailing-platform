@@ -84,6 +84,18 @@ export const api = {
   acceptQuote: (bookingId) => callFn("accept-quote", { booking_id: bookingId }),
   rescheduleBooking: (bookingId, bookingDate, startTime) =>
     callFn("reschedule-booking", { booking_id: bookingId, booking_date: bookingDate, start_time: startTime }),
+
+  // ROADMAP 2.14 STEP 3 — the customer's own plan, reached by the membership
+  // UUID exactly the way `/booking/:id` is reached by the booking UUID. There
+  // is no account and no password; the owner's account idea was answered with
+  // a link (round 3 of the plans research).
+  planMember: (memberId) => callFn("plan-link", { action: "get", member_id: memberId }),
+  cancelPlanMember: (memberId) => callFn("plan-link", { action: "cancel", member_id: memberId }),
+  // EMAIL IN, LINK OUT. It answers the same way whether or not the address
+  // belongs to a member — the version the owner first described ("type your
+  // email and it shows you") is address enumeration.
+  emailPlanLink: (businessSlug, email) =>
+    callFn("plan-link", { action: "email", business_slug: businessSlug, email }),
 };
 
 // The times on a day that THIS service type can actually have.

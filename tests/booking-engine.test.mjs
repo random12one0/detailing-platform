@@ -768,5 +768,76 @@ console.log("test 17: travel and time-based surcharges reach the price");
   await setPricing({ travel_fee: null, travel_zones: [], price_rules: [], price_rounding_nearest: 5 });
 }
 
+// ---------------------------------------------------------------------------
+console.log("test 18: a plan reaches the price, the row and the request rail");
+// ROADMAP 2.14 STEP 3. `tests/plans.test.mjs` pins the ARITHMETIC of a plan
+// discount credential-free; this is the half only a live engine can answer —
+// that the plan the customer PRESSED is read from the database, priced by the
+// same engine that charges it, snapshotted onto the booking, and that a
+// sign-up lands on the request rail even for a business whose ordinary
+// bookings confirm themselves.
+//
+// Business A is reserve mode, which is the whole point of the last assertion.
+{
+  const price = (extra) => fn("calculate-booking", {
+    business_slug: "engine-a", service_ids: [serviceA.id], add_ons: [], vehicle_size: "small", ...extra,
+  });
+  const [plan] = (await svc.post("/rest/v1/plans", {
+    business_id: A.id, name: "Test member rate", cadence_count: 1, cadence_unit: "month",
+    price_kind: "percent_off", price_amount: 20,
+  })).data ?? [];
+  check("a plan can be defined", !!plan?.id, JSON.stringify(plan));
+
+  const plain = (await price({ service_type: "dropoff" })).data?.quote;
+  const withPlan = (await price({ service_type: "dropoff", plan_id: plan.id })).data?.quote;
+  check("the quote names the plan it resolved", withPlan?.plan_name === "Test member rate", JSON.stringify(withPlan));
+  check("the plan comes off the price and is ITEMISED, not silent",
+    (withPlan.adjustments ?? []).some((a) => /Test member rate/.test(a.label) && a.amount < 0)
+      && Number(withPlan.total) < Number(plain.total),
+    JSON.stringify(withPlan.adjustments));
+
+  // AN ID THAT DOES NOT RESOLVE IS NOT AN ERROR, and that is deliberate: a
+  // stale tab holding a plan the detailer retired should still be able to
+  // book. It must, however, stop CLAIMING a plan.
+  await svc.patch(`/rest/v1/plans?id=eq.${plan.id}`, { is_active: false });
+  const retired = (await price({ service_type: "dropoff", plan_id: plan.id })).data?.quote;
+  check("a retired plan stops applying and stops being named",
+    retired?.plan_name === null && Number(retired.total) === Number(plain.total),
+    JSON.stringify(retired));
+  await svc.patch(`/rest/v1/plans?id=eq.${plan.id}`, { is_active: true });
+
+  // THE TIE-OUT, the same shape as test 17's: what the widget quotes is what
+  // the row stores, with the plan in it.
+  const day = new Date(Date.now() + 30 * 86400_000).toISOString().slice(0, 10);
+  const made = await fn("create-booking", {
+    business_slug: "engine-a", customer_name: "Plan Check", customer_phone: "555-0914",
+    customer_email: "plan@engine.test", service_type: "dropoff", vehicle_size: "small",
+    service_ids: [serviceA.id], add_ons: [], booking_date: day, start_time: "09:00",
+    plan_id: plan.id,
+  });
+  check("the plan booking is created", made.status === 200, `${made.status} ${JSON.stringify(made.data)}`);
+  const quotedForDay = (await price({ service_type: "dropoff", plan_id: plan.id, booking_date: day, start_time: "09:00" })).data?.quote;
+  check("the charged total equals the quoted total, plan and all",
+    Number(made.data?.booking?.total_price) === Number(quotedForDay.total),
+    `quoted ${quotedForDay.total}, charged ${made.data?.booking?.total_price}`);
+
+  const row = (await svc.get(
+    `/rest/v1/bookings?id=eq.${made.data?.booking?.id}&select=plan_id,status,price_adjustments,total_price`,
+  )).data?.[0];
+  check("the booking records WHICH plan, so the request card can say so",
+    row?.plan_id === plan.id, JSON.stringify(row));
+  check("the discount is snapshotted in price_adjustments like every other line",
+    (row?.price_adjustments ?? []).some((a) => /Test member rate/.test(a.label) && a.amount < 0),
+    JSON.stringify(row?.price_adjustments));
+  // A SIGN-UP IS A REQUEST IN EITHER MODE. Business A is `reserve` — its
+  // ordinary bookings confirm — so this is the assertion that would fail if
+  // somebody keyed the rule off `booking_mode` alone.
+  check("a plan sign-up arrives as a REQUEST even in reserve mode",
+    row?.status === "pending", `mode=reserve, status=${row?.status}`);
+
+  await svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0914`);
+  await svc.del(`/rest/v1/plans?id=eq.${plan.id}`);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed === 0 ? 0 : 1);

@@ -38,6 +38,10 @@ const PUBLIC_FUNCTIONS = new Set([
   "send-email",           // internal relay; gates itself on the service-role key
   "accept-invite",        // invite landing page — the invitee has no session yet
   "booking-ics",          // customers add their own booking to a calendar from email
+  // Roadmap 2.14 step 3 — the customer's own plan page and the email-in /
+  // link-out lookup behind it. Same access model again: the membership UUID
+  // is the credential, and a plan member has no session and never will.
+  "plan-link",
 ]);
 
 // fileURLToPath, not .pathname: on Windows .pathname yields "/D:/..." which

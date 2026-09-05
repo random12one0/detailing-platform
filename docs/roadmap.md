@@ -2317,7 +2317,10 @@ is kept; the entire visual design restarts from scratch.
       reusable definitions rather than per-person ticks once he has more than
       two or three staff.
 
-- [ ] 2.14 **Plans a customer can sign up to — the OWNER asked for this on
+- [x] 2.14 **Plans a customer can sign up to — DONE 2026-09-04, all three
+      steps: four rounds of research, the detailer's half, the customer's
+      half.** *(Phase 4.3, "Monthly plans — needs a design conversation
+      first", is this item and is closed into it.)* **The OWNER asked for it on
       2026-08-31, and he asked for RESEARCH FIRST.**
 
       > "we should have, like, a plan section where they could customize
@@ -2656,7 +2659,63 @@ is kept; the entire visual design restarts from scratch.
 
       ---
 
-      - [ ] **STEP 3 — THE CUSTOMER'S HALF, all of it on the booking page.**
+      - [x] **STEP 3 — THE CUSTOMER'S HALF — DONE 2026-09-04.**
+            `20260904004000_plans_customer_half.sql`, `supabase/functions/plan-link/`,
+            `app/src/book/PlansPage.jsx`, `app/src/book/PlanMemberPage.jsx`,
+            `planLineFor` in `_shared/pricing.ts`, and three states added to
+            `sweep-booking-steps.mjs`. Full reasoning: DECISIONS.md →
+            "Roadmap 2.14, step 3".
+
+            **WHAT A COLD SESSION MUST NOT RE-DERIVE:**
+
+            1. **EVERY STEP'S SPARE ROOM IS UNCHANGED — 10px on step 1 at
+               1440x900, 47px at 392x844 — and that is the whole shape of the
+               item.** The plans are a PAGE (`/book/:slug/plans`), the door to
+               them rides the row the progress rail and *"Step 1 of 7"*
+               already share, and the recognition the owner asked for is spent
+               on step 1's HEADING (*"Welcome back, Marcus"* /
+               *"Let's set up your Bi-weekly maintenance"*) and the price bar's
+               EYEBROW (*"Bi-weekly maintenance applied"*) — two lines that
+               were already drawn. **The door cost 3px on its first
+               measurement** and needed its line box pinned; a control that is
+               free in principle is not free until it is measured.
+            2. **THE PRICE IS ONE FUNCTION AND IT RIDES `price_adjustments`.**
+               `planLineFor` in `_shared/pricing.ts`, pushed into
+               `adjustmentLines` — the array the review step, every email, the
+               invoice, the manage page and the booking row already draw. A
+               `plan_discount` column was the obvious build and would have
+               meant nine render paths, of which one would have been missed.
+               **The rule: the plan governs the SERVICES; add-ons and travel
+               are always extra; a percentage comes off the whole job.**
+            3. **A SIGN-UP IS A REQUEST IN EITHER BOOKING MODE**, because the
+               sale and the schedule are two acts — but an existing member
+               booking their own covered visit is NOT held up, which is why
+               `create-booking` asks the database whether they are already a
+               member rather than keying off the plan alone. `booking-engine`
+               test 18 pins that on a reserve-mode business.
+            4. **"TYPE YOUR EMAIL AND IT SHOWS YOU" SHIPPED AS ITS SAFE TWIN**
+               — email IN, link OUT. `plan-link`'s `email` action answers
+               identically for an unknown business, a bad address and a
+               stranger. **His account idea shipped as `/plan/:memberId`**,
+               the membership UUID as the credential.
+            5. **A DEFECT OLDER THAN THIS ITEM WAS FIXED ON THE WAY: a
+               NEGATIVE `price_adjustments` line printed as a positive CHARGE
+               in every email** (`moneyBlock` draws by `kind`, not by sign), so
+               the column silently stopped adding up. Already reachable via
+               `accept-quote` whenever a detailer quoted UNDER the estimate.
+            6. **THE PLANS PAGE WAS BUILT TWICE.** Four boxed cards each ending
+               in a full-width *"Ask about <the name written above it>"* — the
+               §1 tell and the copy rule in one component — replaced by a RULED
+               LIST where the row is the button. 96px a plan against 190px, and
+               the page went from 311px past the bottom of a laptop to fitting.
+            7. **`included_service_ids` STILL HAS NO UI and no longer needs
+               one.** Step 2 named step 3 as the thing that would need it; the
+               plan button starts the ordinary flow and the customer picks,
+               which is what the auto-link trigger's stated ceiling already
+               assumes. Narrow the discount to covered services when a detailer
+               complains, not before.
+
+            ~~**STEP 3 — THE CUSTOMER'S HALF, all of it on the booking page.**~~
             Round 4 is approved and this is what it turns into:
             **one button per plan** in a section beside the flow (never a step
             inside it), which starts the ordinary flow with the plan attached
@@ -3542,6 +3601,16 @@ is kept; the entire visual design restarts from scratch.
       `visitor_id`/`track-visit` before writing anything, and remember the
       exclusion constraint means a refusal must not leave a half-written row.
 
+      **AND `plan-link` NEEDS THE SAME THROTTLE — new 2026-09-04, added by
+      roadmap 2.14 step 3 rather than found later.** Its `email` action is
+      public, takes an address, and SENDS AN EMAIL — so an unthrottled loop
+      against a known customer's address is a mail-bomb sent from the
+      detailer's own sending reputation, which is the platform's shared one.
+      It cannot leak anything (it answers identically either way, by design),
+      so this is a volume problem rather than a disclosure one — but it is the
+      same fix in the same place. **The other two actions are keyed on an
+      unguessable UUID and need nothing.**
+
       **Skills: none — this is engine work. `security-review` before it ships.**
 
 - [ ] 2.22 **BACK THE DATABASE UP FOR FREE — his own idea, 2026-09-04, and it
@@ -4326,9 +4395,14 @@ is kept; the entire visual design restarts from scratch.
       silently beyond the known list.
 - [ ] 4.2 Re-add as per-tenant features: referral/loyalty, Google Calendar
       sync, owner test-booking preview, vCard on owner emails.
-- [ ] 4.3 Monthly plans — needs a design conversation first: the old one
-      was a discount with no billing behind it. **OWNER decision on how
-      tenant subscription plans should charge.**
+- [x] 4.3 ~~Monthly plans — needs a design conversation first: the old one
+      was a discount with no billing behind it.~~ **CLOSED INTO 2.14, WHICH
+      SHIPPED IT 2026-09-04.** Four rounds of research, three tables, a
+      settings screen, a plans page, a member page and the pricing. **Its one
+      live question survives and is item A of the unscheduled list — how a
+      plan should CHARGE — which is roadmap 2.20 (payments), not this.** We
+      log a plan and never bill it, which is the owner's own decision.
+      **Do not reopen this as a second plans item.**
 - [ ] 4.4 Platform admin area: business list + search, per-business
       actions (founding mark, suspend, plan tier, open-their-dashboard),
       manual business creation for in-person onboarding, platform
@@ -4521,8 +4595,10 @@ recommendation.
   bespoke site and it is the first thing a new website customer meets.
 - **K. PHASE 4.3 IS A DUPLICATE OF 2.14.** *"Monthly plans — needs a design
   conversation first"* predates this item and describes the same feature.
-  **Recommendation: close 4.3 into 2.14 once the shape is settled**, keeping
-  its one live question — how a plan should charge — which is item A above.
+  ~~**Recommendation: close 4.3 into 2.14 once the shape is settled**~~
+  **DONE 2026-09-04 — 2.14 shipped and 4.3 is ticked and struck through.** Its
+  one live question — how a plan should charge — survives as item A above and
+  belongs to 2.20 (payments).
 
 ## Standing owner jobs
 
@@ -4548,7 +4624,7 @@ those are not negotiable by any skill.
 | 2.11 — **DONE 2026-09-02** — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ ~~**HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code.**~~ **STEP 4b IS DONE TOO** — `docs/dashboard-phone-pass-2026-08-31.md`, every screen's phone form decided again from nothing, and it OVERRIDES step 4 wherever the two disagree about a phone. **AND HE RULED THE PHONE PORTRAIT-ONLY the same day** — *"when someone flips their phone over sideways, I don't want it to completely readjust"* — which withdrew the landscape half of step 4b, took `844` and the `short-screen` check back out of `sweep-widths.mjs`, and closed 2.16 unstarted. **The dashboard readjusts today**, so step 6 still owes one guard: `min-height: 500px` on `theme.css`'s 700px and 560px breakpoints. ~~**Step 6, the build, is the only thing left.**~~ **ALL SEVEN STAGES OF STEP 6 ARE BUILT — the shell and Today, the job record, the calendar, Money, Clients, Business and the twelve settings screens, and first run. The item is closed 2026-09-02.** His asks left the item as roadmap 2.13, 2.14 and 2.15. |
 | 2.17 — motion and shape as a house style | `improve-animations` to audit first, then `animate` to build. `impeccable` — `audit` for reduced motion and `critique` on each screen it touches. **`docs/design-system.md` § Motion is updated BEFORE any code**, because this item deliberately grows a budget that file caps | every direction-generating skill, as everywhere else on this product. **The look is settled — this is motion and one corner token, not a redesign** |
 | 2.18 — the emails, rebuilt from scratch | `impeccable` for the visual half, and only that | direction-generating skills. **Step 1 is RESEARCH and he asked for it by name** — do not start designing templates before the six-product sweep says what the set of emails even is |
-| 2.14 — plans a detailer logs | **Step 1 (research) and step 2 (the tables, the ledger and the settings screen) are DONE 2026-09-04.** `impeccable` for the settings screen and, at step 3, for the booking page's plan section | direction-generating skills. **Step 3 is the CUSTOMER's half and it all lands on the booking page**, whose per-step budgets are measured to 10px spare at 1440x900 — anything added to a step spends something real, so `sweep-booking-steps.mjs` is the definition of done there. **And the plan's effect on the price goes through `_shared/pricing.ts` or it is the travel-fee defect a third time** |
+| 2.14 — plans a detailer logs | **CLOSED 2026-09-04 — all three steps.** `impeccable` was used on the settings screen and on the booking page's plan surfaces | direction-generating skills. **The item is done; do not reopen it as a design question.** What it left behind for the next session that touches plans: every booking step's spare room is unchanged and measured (10px on step 1 at 1440x900), the plan's effect on the price is `planLineFor` in `_shared/pricing.ts` and rides `price_adjustments`, and `sweep-booking-steps.mjs` now walks the plans page, the plan-attached flow, a remembered customer and a member's own page |
 | 2.23 — the maintenance deadline | `impeccable` for whatever screen it lands on | folding it into a cadence field. **It is a DATE with a consequence, an escalating reminder and a last-done stamp** — 2.14 shipped cadences without it on purpose |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |

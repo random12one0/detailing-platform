@@ -10,7 +10,7 @@ each picked as the option easiest to change later.
 
 ## Read this before you go digging
 
-**This file is over 3,600 lines and nobody reads it end to end — including the
+**This file is over 11,000 lines and nobody reads it end to end — including the
 agent that wrote most of it.** That is the problem this index exists to fix.
 Do not read the whole file. Find the two or three sections that touch what you
 are about to change, read *those* in full, and move on. A decision you did not
@@ -51,7 +51,7 @@ were made more than once.
 | About to touch | Sections to read |
 |---|---|
 | **Any colour, accent or contrast** | Roadmap 2.4 · Roadmap 2.3, reopened · Roadmap 2.6 · ANSWERED: the dashboard DOES take the tenant's colour · The new design system |
-| **The customer booking page `/book/:slug`** | **Roadmap 2.5 — the smoke test, and the single-mode crash it found; run `node scripts/e2e-booking.mjs`** · Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
+| **The customer booking page `/book/:slug`** | **Roadmap 2.14, step 3 — the plan surfaces, and why nothing was added to a step** · **Roadmap 2.5 — the smoke test, and the single-mode crash it found; run `node scripts/e2e-booking.mjs`** · Roadmap 2.1 · The customer booking page is dark · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Roadmap 2.4, the last piece |
 | **The dashboard `/app`** | **Roadmap 2.11, step 6, stage 2 — the job record, and the two defects the specification had already described** · **Roadmap 2.11, step 6, stage 1 — what is BUILT, and what stage 1 deliberately left** · **Roadmap 2.11, step 4b first if it is the PHONE — it overrides step 4 there, and PHONES ARE PORTRAIT ONLY** · **Roadmap 2.11, step 4 — it is the current design of every screen** · Roadmap 2.11, step 5 (which components, and what a list is) · Roadmap 2.11, step 3 (desktop) · Roadmap 2.3 · Roadmap 2.3, reopened · Roadmap 2.6 · Roadmap 2.7 · Roadmap 2.8b · Phase 2 · Phase 2 follow-ups |
 | **The marketing page `/`** | Roadmap 2.2 · Positioning: what we sell is the pair · Building 1.4 · Building the marketing rewrite · Cutting a section · His four instructions on the rewrite |
 | **Anything animated** | Ease the beat, not the hold · The load-in animation is too slow · Roadmap 2.3, reopened · Roadmap 1.3, the rebuild |
@@ -215,6 +215,8 @@ were made more than once.
 
 - **Roadmap 2.14, step 2 - the plans a detailer logs, and the ledger that makes billing additive later** - three tables, one settings screen and the arithmetic in a file a test can reach. **The shape was HIS**, decided in round 3 after four rounds of research: a plan is LOGGED, never sold and never billed by us. **The load-bearing decision is where the two halves of the ledger live**, and it is not the obvious one: OWED is append-only rows in `plan_visits`, but USED is a column on `bookings` (`plan_member_id`) rather than a second ledger row - **because cancellation already works there.** Twelve places in this codebase ask `status <> 'cancelled'` and every one of them is already correct about a plan visit that was called off; a `used` row in a ledger would have needed a thirteenth rule and a compensating row nobody would remember to write. **Pause is a DATE, not a flag** (`accrue_from`): accruing from `started_on` would backfill every visit the pause was meant to skip the moment the member came back, which is the opposite of what pause means to the customer who asked for it. **`on delete no action`, not `restrict`, on `plan_members.plan_id`** - both refuse to delete a plan somebody is on, but deleting a BUSINESS cascades to both tables in one statement in an order Postgres does not promise, and `seed-demo.mjs` takes that path on every run. **The auto-link is a TRIGGER because there are three writers** (the public booking page, the dashboard's New booking modal, and the seed), and its imprecision is stated rather than hidden: a member who books something the plan does not cover has it counted, because `booking_services` rows are written after the booking and a BEFORE INSERT trigger cannot see what was bought. **No new permission key** - `plans` writes ride `settings` (an offer with a price, exactly the catalog's test), `plan_members` and `plan_visits` ride `money` (what somebody pays, exactly what `can("money")` already hides on Clients) - **and that pairing is the one thing in this item put to the owner rather than decided.** **`composition` caught a real design error rather than a technicality**: both lists were cards, and a member list grows with the business - they are ruled rows now, with one editor open at a time replacing the list. **And two defects came out of LOOKING at it, neither of which any check in this repo could see**: the member editor never named the person it was about, and "No plans yet. Most detailers start with one..." was painted before the first read returned - the "a failed read must not look like an empty business" rule one state earlier, because the same sentence is equally untrue while loading. **A FOURTH PRICE SHAPE ARRIVED THE SAME DAY, because he asked whether a detailer is locked into a kind of plan and the answer was checked by putting ELEVEN real shapes on the screen rather than by reading the schema back to him.** Ten rendered correctly; **a prepaid block had to be entered as a MONTHLY price**, so "$1,999 for the year" printed as "$1999.00 a month". `price_kind` gained `'total'` — one value on an axis that already existed, not a column — and the same eleven rows showed that **a twelve-month term was printing nowhere on the screen that lists what you offer.** `term_months` stays SEPARATE from `price_kind`: a prepaid year is usually a twelve-month term, but a prepaid block of ten visits has no end date, and merging them makes one of the two unsayable. **What step 2 deliberately does NOT do is the customer's half** - the booking page's plan buttons, the welcome-back line, the remembered browser and the "your plan" link - and the reason it is a separate step is that all four are on the booking page, whose step budgets are measured to 10px.
 
+
+- **Roadmap 2.14, step 3 - the customer's half of plans, and the four decisions that kept it inside a measured budget** - the booking page's plan buttons, the recognition, the remembered browser, the "your plan" link and the email nudge. **The organising constraint was arithmetic, not taste: step 1 has TEN PIXELS of spare room at 1440x900 and that budget is the detailer's catalogue.** So the plans live on a page of their own (`/book/:slug/plans`, which is also what 7 of 7 sampled detailers and 5 of 6 products do), the door to them rides the row the progress rail and "Step 1 of 7" already share, and the recognition the owner asked for is spent on TWO LINES THAT WERE ALREADY DRAWN - step 1's heading becomes *"Welcome back, Marcus"* or *"Let's set up your Bi-weekly maintenance"*, and the price bar's eyebrow says which plan moved the number. **Every step's spare room is identical to before the item.** **The plan's effect on the price is ONE function in `_shared/pricing.ts` and it rides `price_adjustments`** - the array every receipt, email and invoice already itemises - rather than a `plan_discount` column that would have needed adding to nine render paths and forgetting in a tenth. **The rule: the plan governs the SERVICES, extras and travel are always extra, and a percentage comes off the whole job.** **A plan sign-up is a REQUEST in either booking mode**, because the sale and the schedule are two acts and the detailer has to agree somebody is on their plan - but an existing member booking their own covered visit is not held up, which is why `create-booking` asks whether they are already a member rather than keying off the plan alone. **The owner's "type your email and it shows you" was built as its safe twin, EMAIL IN / LINK OUT** - the version he described is address enumeration, and the endpoint answers identically whether or not the address is a member. **His customer-account idea shipped as a LINK** (`/plan/:memberId`, the membership UUID as the credential, the third caller of a pattern this product already used twice) rather than as a second kind of human in `auth.services`. **A defect fixed on the way through that predates this item: a NEGATIVE `price_adjustments` line printed as a positive CHARGE in every email** - `moneyBlock` draws by `kind`, not by sign - which `accept-quote` could already reach whenever a detailer quoted UNDER the estimate. **And the plans page was built as four boxed cards first and rejected on sight of its own screenshot**: four identical full-width panels each ending in a full-width button repeating the name above it, which is `docs/design-knowledge.md` §1's tell and the owner's copy rule in one. The ruled list that replaced it is the composition law's own answer and cost 96px a plan against 190px.
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -11598,3 +11600,168 @@ and **what's included is prose**, not a link to catalog rows —
 `included_service_ids` exists on the table with no UI, because the thing that
 needs it is step 3's booking-page button.
 
+
+## Roadmap 2.14, step 3 - the customer's half of plans
+
+Step 2 gave the detailer a plan to define and a member to log. This is what a
+CUSTOMER meets, and all of it lands on the booking page — which is why it was
+a separate step. **Everything below was decided against a measured number
+rather than a preference.**
+
+### The constraint that shaped every decision
+
+**Step 1 has ten pixels of spare room at 1440x900** (`sweep-booking-steps.mjs`,
+roadmap 2.7 and 2.8c), and that spare room is the DETAILER'S — their seventh
+service is what spends it, not our seventh idea. Round 4 of the research said
+so explicitly and the owner approved it. So the question for every part of this
+item was not "where does this look best" but "what does it cost in pixels", and
+three answers came out of that:
+
+1. **The plans live on a page of their own** — `/book/:slug/plans`. It is also
+   what the evidence says: 7 of 7 sampled detailers publish plans on a
+   `/membership` page and 5 of 6 products keep a plan beside the flow. A plan
+   section inside step 1 would have been over the bottom of a laptop before a
+   detailer had written a word.
+2. **The door to it rides a row that was already drawn** — the line the
+   progress rail and *"Step 1 of 7"* share. It appears on step 1 only, because
+   somebody on step 5 has decided and offering them a plan there is a way out
+   of a form they are most of the way through. **It cost 3px on its first
+   measurement** — a 13px link in a row whose height was set by 11px type — and
+   the line box is pinned to 13px with a padding/margin pair for the touch
+   target, which took it back to zero. *A control that is free in principle is
+   not free until it is measured.*
+3. **The recognition the owner asked for is spent on two lines that already
+   exist.** He asked for a welcome at the top of step 1 — *"a welcome message
+   would be cool"* — and a new line there is 39px on the tightest screen in the
+   product. Step 1's HEADING is one line either way and is the top of the step:
+   it becomes *"Welcome back, Marcus"* for a device we remember, or *"Let's set
+   up your Bi-weekly maintenance"* for somebody who pressed a plan button.
+   The price bar's eyebrow — already a drawn line — says *"Bi-weekly
+   maintenance applied"* in place of *"Estimated total"*, which puts the plan's
+   name beside the number it moved, the strongest place in the product to make
+   a price promise.
+
+**Every step's spare room is identical to before the item**: 10px on step 1 at
+1440x900, 47px at 392x844, and so on down. The plan-attached step 1 has 25px at
+392 (its heading wraps to two lines) and the same 10px at 1440.
+
+### The price: one function, and it rides a rail that already exists
+
+**`planLineFor` in `_shared/pricing.ts` is the only thing in this product that
+knows what a plan does to a price**, and `computeQuote` pushes its result into
+`adjustmentLines`. That is the whole integration.
+
+**A `plan_discount` column was the obvious build and it is wrong.** The plan
+discount has to appear on the review step's receipt, in the confirmation email,
+in the reminder, on the manage page, on the invoice, in the accountant export
+and in `bookings.price_adjustments` — nine render paths, of which a new field
+would have reached eight. `price_adjustments` is a labelled amount that every
+one of them already draws, and it is the same rail `accept-quote` lands a quote
+difference on.
+
+**The rule, and it is stated because what a plan covers is prose:**
+
+| `price_kind` | what it takes off |
+|---|---|
+| `percent_off` | that percentage of the WHOLE job — that is what *"10% off every visit"* says on every plan page in the sample |
+| `per_visit` | brings the SERVICES to the plan's rate; never adds, so a plan rate above the list price takes nothing off |
+| `monthly` / `total` | the services are already paid for, on the month or up front |
+
+**Add-ons and travel are always extra.** The plan governs the services it is a
+plan for. The imprecision is real and named: `plans.description` is prose, so
+this cannot know a member's wash plan does not cover a ceramic coating. The
+correction is the same human one the auto-link trigger already relies on — and
+it is why the next decision matters.
+
+### A sign-up is a request, in either booking mode
+
+**Pressing a plan button ends as a `pending` booking even for a business whose
+ordinary bookings confirm themselves.** The research's opening finding is that
+the sale and the schedule are two acts and nobody joins them — five of the
+seven sampled detailers set a new member up by TALKING to them — so asking to
+join is a thing somebody has to agree to. It is also the honest reading of the
+price: the plan rate on that quote is only true once the detailer agrees the
+customer is on the plan.
+
+**An existing member booking their own covered visit is NOT a sign-up and must
+not be held up.** That is the only reason `create-booking` asks the database
+whether this customer is already an active member of this plan rather than
+keying off `plan` alone. `tests/booking-engine.test.mjs` test 18 pins it on a
+reserve-mode business, which is the assertion that fails if somebody
+"simplifies" it back to the mode check.
+
+### Email in, link out — and why his own version was not built
+
+He asked for *"they just type in their email and it'll automatically show
+them"*. **That is address enumeration**: anyone could type a neighbour's
+address and learn whether they use this detailer and what they pay. The safe
+twin is one word different — the address goes IN, the link goes OUT by email,
+and nothing is displayed. **`plan-link`'s `email` action returns the same body
+for an unknown business, a malformed address and a stranger**, and the only
+thing that varies is whether a message is sent.
+
+### The account he asked about shipped as a link
+
+Round 3 answered his customer-account idea with *"good idea, one step early"*.
+`/plan/:memberId` is that page: what they are on, how many visits are waiting,
+when the next is due, a cancel button and a book button that carries the plan.
+**The membership UUID is the credential**, which makes this the third caller of
+a pattern the product already leans on twice (`/booking/:id` and 2.12's quote
+acceptance) rather than a second kind of human in `auth.users`. Cancelling is
+`status = 'ended'` plus `ended_on`; the ledger stays, and the partial unique
+index only counts live rows, so they can join again tomorrow. **The detailer is
+emailed when somebody leaves**, or a member would quietly vanish from the
+visits-owed list with no event anywhere.
+
+**The page computes nothing.** `plan-link` returns the two raw halves of the
+ledger and the page calls `ledgerFor` from `app/src/lib/plans.js` — the
+implementation `tests/plans.test.mjs` holds. The owed figure is the one number
+this whole feature exists to print and it does not get a second implementation.
+
+### Two things found on the way that were older than this item
+
+**A negative `price_adjustments` line printed as a positive CHARGE in every
+email.** `moneyBlock` draws by `kind`, not by sign, so a −$120 plan line showed
+as $120 owed while the total was $120 lower — a column that silently stops
+adding up, which is the exact family as the invoice that missed by the promo.
+It was already reachable before this item: `accept-quote` pushes a *"Quoted
+discount"* line whenever a detailer quotes UNDER the original estimate. Fixed
+where every adjustment reaches the page, in `quoteLines`.
+
+**`.bk-btn` labels could wrap.** The plans page's email row is an input at
+`width: 100%` beside an inline button, and the input took the space and folded
+*"Send it"* onto two lines inside a pill. The review step's promo row has had
+the same shape since roadmap 2.7 and survived only because *"Apply"* is short.
+`white-space: nowrap` and `flex-shrink: 0`, on the class rather than the case.
+
+### The plans page was built twice, and the screenshot is the argument
+
+**It shipped first as four boxed cards, each ending in a full-width button
+reading "Ask about <the name written 40px above it>".** That is
+`docs/design-knowledge.md` §1's "five identical full-width stacked sections"
+and the owner's own copy rule in the same component. It was replaced by a
+**ruled list** — the design system's own composition law, *a collection of
+records is a ruled list, never a stack of cards* — where the ROW is the button.
+It is still "one button per plan", which is what he asked for.
+
+It also cost 96px a plan instead of 190px, which took the page from 311px past
+the bottom of a laptop to fitting with 24px to spare. **The design law and the
+measurement agreed, which is usually the sign the law is right.**
+
+**The plans page and the member page are measured but NOT gated** in
+`sweep-booking-steps.mjs`. W16 is the owner's rule about STEPS —
+*"each step, you shouldn't have to scroll down or up"* — because scrolling
+inside a form you are halfway through is what loses a booking. A catalogue of
+plans is a page, its length is the detailer's, and all ten plan pages in the
+research sample scroll. The number is still printed, because "it scrolls" and
+"it scrolls by 600px" are different facts.
+
+### What this step does not do
+
+**Price by vehicle size, a plan per vehicle, and the coating-warranty deadline
+are all still not built** — the same four limits step 2 recorded, unchanged.
+**`included_service_ids` still has no UI**: step 3 was named as the thing that
+needed it, and it turned out not to — the plan button starts the ordinary flow
+and the customer picks what they want, which is what the auto-link trigger's
+stated ceiling already assumes. Narrowing the discount to covered services is a
+change to make when a detailer complains, not before.

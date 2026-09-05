@@ -114,13 +114,39 @@ const settle = (page, cap = 2000) => page.evaluate(async (cap) => {
   } finally { obs.disconnect(); }
 }, cap);
 
+// ROADMAP 2.14 STEP 3 — THE PLAN SURFACES, AND THE ONE THING THAT MAKES THEM
+// REACHABLE FROM HERE.
+//
+// Three of them are states rather than pages: the flow with a plan attached
+// (`?plan=`), and step 1 for a customer this DEVICE remembers. Neither is
+// reachable by walking, which is the gap this repo has now found nine times
+// under nine names — "the script walks NAVIGATION, and a state you reach by
+// pressing something INSIDE a screen is not navigation". They are added in the
+// change that BUILDS them, not by the item that later finds them broken.
+//
+// The fourth, `/plan/:memberId`, needs a membership UUID, and this script is
+// the customer: no session, no service key, nothing to look one up with. So
+// `seed-demo.mjs` writes `scripts/demo-refs.json` and this reads it. Missing
+// or stale, the run SAYS the page was not measured rather than passing
+// quietly — a skipped check that reads like a passing one is the single most
+// repeated failure in this file's history.
+const REFS = await (async () => {
+  try {
+    const { readFile } = await import("node:fs/promises");
+    return JSON.parse(await readFile(new URL("./demo-refs.json", import.meta.url), "utf8"));
+  } catch { return null; }
+})();
+
 const browser = await chromium.launch();
 let failing = 0;
 
 for (const size of SIZES) {
   console.log(`\n══ ${size.width}x${size.height} ═══════════════════════════════════`);
   const ctx = await browser.newContext({ viewport: size, deviceScaleFactor: 1 });
-  const page = await ctx.newPage();
+  // `let`, not `const`: the plan surfaces at the foot of this loop point it at
+  // their own page for one measurement each, so `say` stays the only place
+  // that knows how to measure and report.
+  let page = await ctx.newPage();
   if (process.env.SLOTPROBE) page.on("response", (r) => {
     if (/available-slots/.test(r.url())) console.log("      slots ->", r.status());
   });
@@ -133,22 +159,33 @@ for (const size of SIZES) {
   // measures a transform, which design-system law 12 forbids.
   await settle(page, 1600);
 
-  const say = async (label) => {
+  // `gate` is false for a PAGE rather than a step, and there are exactly two:
+  // the plans page and a member's own plan page (roadmap 2.14 step 3). W16 is
+  // the owner's rule about STEPS — *"each step, you shouldn't have to scroll
+  // down or up"* — because scrolling inside a form you are halfway through is
+  // what loses a booking. A catalogue of plans is not a step, its length is the
+  // detailer's (four in the demo is 757px before anything else on the page),
+  // and all ten plan pages in the research sample scroll. **The number is
+  // still printed**, because "it scrolls" and "it scrolls by 600px" are
+  // different facts and the second one is a design problem.
+  const say = async (label, gate = true) => {
     if (SHOTS) {
       const file = `${SHOTS}/${size.width}x${size.height}${LITE ? "-lite" : ""}-${label.replace(/[^a-z0-9]+/gi, "-")}.png`;
-      await page.screenshot({ path: file });
+      await page.screenshot({ path: file, fullPage: !gate });
     }
     const { over, vh, blocks } = await page.evaluate(MEASURE);
     const bad = over > 1;
-    if (bad) failing++;
+    if (bad && gate) failing++;
     const pct = Math.round((over / vh) * 100);
     console.log(
       // The spare room is reported on purpose. "Fits" is only true of the
       // business that was measured, and a detailer with two more services
       // than the demo has is a different page — the headroom is what says
       // how much more this layout can take before W16 breaks again.
-      `${label.padEnd(22)} ${bad ? `over ${String(over).padStart(4)}px (${pct}% of the screen)` : `fits, ${-over}px spare`}`
-      + (bad ? "\n  tallest: " + blocks.map((b) => `${b.h}px ${b.name} «${b.txt}»`).join("\n           ") : ""),
+      `${label.padEnd(22)} ${bad
+        ? `${gate ? "over" : "scrolls"} ${String(over).padStart(4)}px (${pct}% of the screen)`
+        : `fits, ${-over}px spare`}`
+      + (bad && gate ? "\n  tallest: " + blocks.map((b) => `${b.h}px ${b.name} «${b.txt}»`).join("\n           ") : ""),
     );
   };
 
@@ -264,6 +301,66 @@ for (const size of SIZES) {
     await settle(page, 400);
     await page.locator(".bk-bar button.bk-btn.primary").click();
     await settle(page, 1500);
+  }
+
+  // ── ROADMAP 2.14 STEP 3 — THE PLAN SURFACES ──────────────────────────────
+  //
+  // WHY STEP 1 AND NOT THE WHOLE FLOW AGAIN. A plan changes exactly three
+  // drawn things: step 1's heading (a line that was already there), the price
+  // bar's eyebrow (also already there) and ONE extra line on the review
+  // step's receipt — which is the same shape as the travel line, the site-sale
+  // line and the promo line that step already draws conditionally, and it has
+  // 98px spare at 1440x900 and 66px at 392x844. Walking all seven steps a
+  // second time at every size would double the longest check in the repo to
+  // re-measure five screens that cannot have moved. The heading is the one
+  // that CAN — "Let's set up your Bi-weekly maintenance" wraps where "What can
+  // we do for you?" does not.
+  const first = async (label, url, { before, gate = true } = {}) => {
+    const p = await ctx.newPage();
+    p.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+    if (before) {
+      // localStorage is per-ORIGIN, so it has to be written on the origin
+      // before the page that reads it loads. A blank document on the same
+      // origin is the cheapest way to be standing there.
+      await p.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+      await p.evaluate(before);
+    }
+    await p.goto(url, { waitUntil: "domcontentloaded" });
+    // Every landing state these four URLs can reach: a card (a step, the
+    // member page), a ruled plan row, the empty-plans note, or the not-found
+    // panel. A missing one here reads as a hang, which is how the member
+    // page's first-render crash presented.
+    await p.waitForSelector(".bk-card, .bk-plan-row, .bk-note, .bk-center h1", { timeout: 30000 });
+    await settle(p, 1600);
+    const old = page;
+    // `say` measures whatever `page` points at, so point it here for one call
+    // rather than growing a second copy of the measure-and-report block.
+    page = p;
+    await say(label, gate);
+    page = old;
+    await p.close();
+  };
+
+  const planId = REFS?.planId;
+  await first(`plans page`, `${BASE}/book/${SLUG}/plans${LITE ? "?lite=1" : ""}`, { gate: false });
+  if (planId) {
+    await first("1/N plan attached", `${BASE}/book/${SLUG}?plan=${planId}${LITE ? "&lite=1" : ""}`);
+  }
+  // A returning customer, from this device's own memory. The name is long on
+  // purpose: "Welcome back, Alexandrina" is the heading that wraps, and a
+  // short one would measure a screen no real customer has.
+  await first(
+    "1/N remembered",
+    `${BASE}/book/${SLUG}${LITE ? "?lite=1" : ""}`,
+    { before: `localStorage.setItem("bk.customer", ${JSON.stringify(JSON.stringify({
+      slug: SLUG, name: "Alexandrina Featherstone", email: "casey@example.com",
+      phone: "5551234567", planId: null,
+    }))})` },
+  );
+  if (REFS?.planMemberId) {
+    await first("your plan", `${BASE}/plan/${REFS.planMemberId}${LITE ? "?lite=1" : ""}`, { gate: false });
+  } else {
+    console.log("your plan            NOT MEASURED — no scripts/demo-refs.json; run node scripts/seed-demo.mjs");
   }
 
   if (errors.length) { failing++; console.log(`  console: ${errors.length} error(s)\n  ${errors.join("\n  ")}`); }

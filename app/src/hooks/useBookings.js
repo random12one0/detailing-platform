@@ -7,7 +7,13 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import { localDate, localTime } from "../lib/format.js";
 
 export const BOOKING_SELECT =
-  "*, services:booking_services(name_at_booking, price_at_booking), booking_add_ons(add_on:add_ons(id, name, price))";
+  "*, services:booking_services(name_at_booking, price_at_booking), booking_add_ons(add_on:add_ons(id, name, price)), "
+  // ROADMAP 2.14 STEP 3. The NAME, not just the id: the request card has to
+  // say which plan, or the detailer quotes a plan booking as a one-off — the
+  // research called that out as load-bearing rather than nice to have. Every
+  // member can SELECT plans (see the migration's RLS block), so this join
+  // costs no permission.
+  + "plan:plans(id, name)";
 
 // Attach business-local date/time strings so screens never re-derive them.
 export function withLocal(b, tz) {

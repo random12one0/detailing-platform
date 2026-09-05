@@ -32,6 +32,22 @@ export function receiptUrl(_slug: string, bookingId: string): string {
   return `${PLATFORM_URL}/booking/${bookingId}`;
 }
 
+// ROADMAP 2.14 STEP 3 — a plan member's own page. Same access model as
+// receiptUrl above and for the same reason: the membership UUID is the
+// credential, which is what let the owner's customer-account idea ship as a
+// link instead of an auth system (round 3 of the plans research).
+export function planUrl(memberId: string): string {
+  return `${PLATFORM_URL}/plan/${memberId}`;
+}
+
+// Where a business publishes its plans. A page of its own rather than a step
+// inside the booking flow — 7 of 7 sampled detailers and 5 of 6 products put
+// plans beside the flow, and the booking page's step budgets are measured to
+// 10px of spare room.
+export function plansUrl(slug: string): string {
+  return `${PLATFORM_URL}/book/${slug}/plans`;
+}
+
 // All tenant mail is sent from the platform's own domain (one verified
 // sending domain), with the tenant's brand as the display name and the
 // tenant's contact address as Reply-To.

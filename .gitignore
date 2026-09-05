@@ -136,3 +136,10 @@ screenshots/
 #   Arial in the email templates -> the header of
 #                                   supabase/functions/_shared/emailTemplates.ts
 .impeccable/
+
+# Ids the seed writes down for the sweeps (roadmap 2.14 step 3). The customer's
+# plan page is reached by a membership UUID and `sweep-booking-steps.mjs` has
+# no session and no service key with which to find one — so `seed-demo.mjs`
+# leaves them here. Regenerated on every seed and specific to whichever
+# database was seeded, which is exactly why it is not committed.
+scripts/demo-refs.json

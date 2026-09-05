@@ -12,7 +12,7 @@
 // retry instead of being silently ignored.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "../lib/api.js";
 import { duration, money } from "../lib/format.js";
@@ -39,6 +39,46 @@ import "./booking.css";
 const stepsFor = (addOns) =>
   ["Services", ...(addOns.length ? ["Extras"] : []), "Vehicle", "Location", "When", "Details", "Review"];
 
+// ROADMAP 2.14 STEP 3 — THE BROWSER REMEMBERS THE LAST CUSTOMER ON THIS
+// DEVICE, AND THE OWNER ASKED FOR IT IN THOSE WORDS: *"we should definitely
+// log people, log their browsers and with cookies."*
+//
+// It is the cheapest 90% of the problem the customer-account idea was really
+// about. Most people rebook on the phone they booked on, so remembering three
+// fields removes all the typing an account would have removed — with no
+// password, no lookup endpoint and no security surface. A new device simply
+// fills the form in as it always did, which is the whole failure mode.
+//
+// THE PLAN IS REMEMBERED TOO, and that is what makes the "auto-detect" he was
+// reaching for work without anybody typing an address: if the last booking on
+// this device carried a plan, the next one starts with it attached. **It is a
+// HINT, never a grant** — `create-booking` re-reads the plan from the database
+// and, if the customer is not actually a member, the booking arrives as a
+// REQUEST for the detailer to look at. So the worst a stale or borrowed device
+// can do is ask.
+//
+// Wrapped both ways: `localStorage` throws outright in some embedded and
+// privacy contexts, and a booking page that cannot render because a
+// convenience threw is a far worse defect than a form nobody pre-filled.
+const REMEMBER_KEY = "bk.customer";
+function recall(slug) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(REMEMBER_KEY) || "null");
+    return raw && raw.slug === slug ? raw : null;
+  } catch { return null; }
+}
+function remember(slug, form, planId) {
+  try {
+    localStorage.setItem(REMEMBER_KEY, JSON.stringify({
+      slug,
+      name: form.customerName.trim(),
+      email: form.customerEmail.trim(),
+      phone: form.customerPhone.trim(),
+      planId: planId || null,
+    }));
+  } catch { /* a device that will not remember is not an error */ }
+}
+
 export default function BookingPage() {
   const { slug } = useParams();
   return (
@@ -50,8 +90,19 @@ export default function BookingPage() {
 
 function BookingFlow() {
   const ctx = useBookingBusiness();
-  const { status, business, branding, settings, services, serviceGroups, addOns, brandVars, slug } = ctx;
+  const { status, business, branding, settings, services, serviceGroups, addOns, plans, brandVars, slug } = ctx;
   const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
+  const [params] = useSearchParams();
+
+  // WHO WE ALREADY KNOW, READ ONCE. Lazy state rather than a plain read: the
+  // recognition must not change under the customer mid-flow, and this page
+  // WRITES that key on submit — reading it every render would rename the
+  // heading the instant they book.
+  const [known] = useState(() => recall(slug));
+  // The plan this booking is against, if any. The URL wins — that is somebody
+  // who just pressed a plan button, or came in from their own plan link — and
+  // the remembered device is the fallback that needs no typing.
+  const planId = params.get("plan") || known?.planId || "";
 
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
@@ -70,9 +121,12 @@ function BookingFlow() {
     hasPower: false,
     bookingDate: "",
     startTime: "",
-    customerName: "",
-    customerPhone: "",
-    customerEmail: "",
+    // Pre-filled from this device's last booking, so a returning customer
+    // never retypes their own name. Empty for everybody else, exactly as
+    // before.
+    customerName: known?.name ?? "",
+    customerPhone: known?.phone ?? "",
+    customerEmail: known?.email ?? "",
     customerNotes: "",
     promoCode: "",
   });
@@ -125,9 +179,12 @@ function BookingFlow() {
   // whether anybody travels at all. So the quote re-runs when the customer
   // picks a day, a time, an area or a way of working — not only when they
   // change what they are buying.
+  // ROADMAP 2.14 joins the key too, and it is the same argument: a plan
+  // changes what the job costs, so the ONE server quote has to be the thing
+  // that says so. Nothing on this page computes a plan price.
   const quoteKey = JSON.stringify([
     form.serviceIds, form.addOns, form.vehicleSize, promoState.applied,
-    form.serviceType, form.travelZone, form.bookingDate, form.startTime,
+    form.serviceType, form.travelZone, form.bookingDate, form.startTime, planId,
   ]);
   const fetchQuote = useCallback(async () => {
     if (form.serviceIds.length === 0) {
@@ -150,6 +207,7 @@ function BookingFlow() {
         // appears with the day it depends on.
         booking_date: form.bookingDate || undefined,
         start_time: form.startTime || undefined,
+        plan_id: planId || undefined,
       });
       if (!r?.quote) throw new Error("We couldn't work out a price for that selection.");
       setQuote(r.quote);
@@ -304,7 +362,15 @@ function BookingFlow() {
         has_water_electric: form.hasWater && form.hasPower,
         customer_notes: form.customerNotes.trim() || null,
         applied_promo_code: promoState.applied || null,
+        // An id. The name, the kind and the amount all come off the plan row
+        // on the server — this page never names its own discount.
+        plan_id: planId || null,
       });
+      // Remembered only once the booking actually landed: a device that
+      // remembers an abandoned form is remembering somebody who left.
+      // `quote.plan_id` rather than `planId` on purpose — it is the id the
+      // SERVER resolved, so a retired plan is not carried forward.
+      remember(slug, form, quote?.plan_id);
       setConfirmed(r.booking);
     } catch (e) {
       // A 409 here means the slot went while they were filling the form, or
@@ -344,6 +410,24 @@ function BookingFlow() {
 
   const stepName = STEPS[step];
   const isLast = step === STEPS.length - 1;
+  // What step 1's heading says instead of its question, in priority order:
+  // somebody who just pressed a plan button is here to do that one thing, and
+  // somebody this device knows gets their name. Both fall back to the ordinary
+  // question, which is what every first-time customer still meets.
+  //
+  // The plan is named from the PUBLIC PROFILE, not from the quote, and the
+  // difference matters: the quote does not exist until a service is chosen, so
+  // reading it here would leave somebody who just pressed a plan button
+  // looking at the ordinary question until they tapped something. Naming a
+  // plan is not a price promise — the PRICE is only ever the server's, and it
+  // is drawn in the bar and on the receipt. A retired plan is absent from this
+  // list, so it correctly stops being named at all.
+  const attachedPlan = planId ? plans.find((p) => p.id === planId) ?? null : null;
+  const recognition = attachedPlan
+    ? { kind: "plan", text: attachedPlan.name }
+    : known?.name
+      ? { kind: "name", text: known.name.trim().split(" ")[0] }
+      : null;
 
   return (
     <div className="bk" style={brandVars}>
@@ -372,8 +456,26 @@ function BookingFlow() {
               ))}
             </div>
             <div className="bk-step-label">Step {step + 1} of {STEPS.length}</div>
+            {/* THE DOOR TO THE PLANS, AND IT COSTS THE STEP NOTHING. It rides
+                the row the rail and the step label already share, so its
+                height is the label's height — which matters, because step 1's
+                spare room at 1440x900 is TEN PIXELS and that budget is the
+                detailer's catalogue, not ours. Step 1 only: somebody on step 5
+                has decided, and offering them a plan there is a way out of a
+                form they are most of the way through. */}
+            {step === 0 && plans.length > 0 && !attachedPlan && (
+              <Link className="bk-plans-door" to={`/book/${slug}/plans`}>
+                {plans.length === 1 ? "See the plan" : "See the plans"}
+              </Link>
+            )}
           </div>
-          <h2>{headingFor(stepName, bothModes, settings, form.serviceType)}</h2>
+          {/* RECOGNITION IS SPENT ON A LINE THAT IS ALREADY DRAWN. The owner
+              asked for a welcome at the top of step 1 — *"a welcome message
+              would be cool"* — and the research's own condition was that the
+              step budgets are MEASURED, so a new line there is real height on
+              the tightest screen in the product. The heading is one line
+              either way, and it is the top of the step. */}
+          <h2>{headingFor(stepName, bothModes, settings, form.serviceType, step === 0 ? recognition : null)}</h2>
         </div>
 
         {/* Keyed on the step so React hands back a fresh element and the
@@ -452,8 +554,15 @@ function BookingFlow() {
                     is the one mono number in the bar; putting a second number
                     next to it makes two leads. The qualifier line is where a
                     qualifier goes. */}
+                {/* ROADMAP 2.14 — AND THE PLAN IS NAMED HERE, BESIDE THE
+                    NUMBER IT MOVED. That is the strongest place in the product
+                    to say it and it costs no height, because this line is
+                    already drawn: a price promise belongs next to the price.
+                    The receipt on the review step itemises the same plan by
+                    name, so the customer is told twice and charged once. */}
                 <div className="bk-muted">
-                  Estimated total{quote.total_duration ? ` · ${duration(quote.total_duration)}` : ""}
+                  {quote.plan_name ? `${quote.plan_name} applied` : "Estimated total"}
+                  {quote.total_duration ? ` · ${duration(quote.total_duration)}` : ""}
                 </div>
                 <strong>{money(quote.total)}</strong>
               </>
@@ -466,8 +575,15 @@ function BookingFlow() {
                request mode it does not confirm anything: the time is held and
                the detailer has to accept. Nothing else on this page changes,
                because the same times are open either way. */
+            /* ROADMAP 2.14 — A PLAN SIGN-UP IS A REQUEST IN EITHER MODE, so
+               the button has to say so. `create-booking` holds the real rule
+               and it knows something this page cannot: whether the customer is
+               ALREADY a member, in which case a reserve-mode booking still
+               confirms. So a plan booking under-promises here rather than
+               over-promising — the confirmation screen reads the status the
+               server actually wrote, and is right either way. */
             <button className="bk-btn primary" disabled={submitting || !quote} onClick={submit}>
-              {settings.booking_mode === "request"
+              {settings.booking_mode === "request" || attachedPlan
                 ? (submitting ? "Sending…" : "Request this time")
                 : (submitting ? "Booking…" : "Confirm booking")}
             </button>
@@ -482,9 +598,16 @@ function BookingFlow() {
   );
 }
 
-function headingFor(stepName, bothModes, settings, serviceType) {
+function headingFor(stepName, bothModes, settings, serviceType, recognition) {
   switch (stepName) {
-    case "Services": return "What can we do for you?";
+    case "Services":
+      // ROADMAP 2.14 STEP 3. Two recognitions, and neither adds a line: a
+      // plan booking says what is being set up, a returning customer gets
+      // their name. Everybody else meets the question this step has always
+      // asked.
+      if (recognition?.kind === "plan") return `Let’s set up your ${recognition.text}`;
+      if (recognition?.kind === "name") return `Welcome back, ${recognition.text}`;
+      return "What can we do for you?";
     case "Extras": return "Anything to add?";
     case "Vehicle": return "Tell us about the vehicle";
     // Not `settings.mobile_enabled` any more: roadmap 2.8c lets a SERVICE

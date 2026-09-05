@@ -315,7 +315,10 @@ const planRows = await post("/rest/v1/plans", [
   },
   {
     business_id: business.id, name: "Member rate", sort_order: 2,
-    description: "No set schedule — book whenever you like and take 10% off every visit.",
+    // Deliberately does NOT restate "no set schedule" — the cadence line above
+    // it on the plans page already says that, and copy that explains what the
+    // label already said is the owner's own rule.
+    description: "Book whenever you like and take 10% off every visit, on anything we do.",
     cadence_count: null, cadence_unit: null, visits_per_period: 1,
     price_kind: "percent_off", price_amount: 10, term_months: null,
   },
@@ -603,6 +606,35 @@ await post("/rest/v1/blockout_dates", [{
   business_id: business.id, event_name: "Equipment servicing",
   start_date: openDay(4), end_date: openDay(4), all_day: true,
 }]);
+
+// ROADMAP 2.14 STEP 3 — THE IDS THE SWEEPS CANNOT LOOK UP THEMSELVES.
+//
+// `/plan/:memberId` is the customer's own plan page and its credential is the
+// membership UUID. `sweep-booking-steps.mjs` drives a real browser with NO
+// session and NO service key, exactly like the customer it is imitating, so it
+// has no way to discover one — and a screen nothing can reach is a screen
+// nothing ever measures at any width. That gap has arrived nine times in this
+// repo's history under a different name each time.
+//
+// So the seed writes the ids down. Gitignored (`*.json` is not, but this file
+// is added there beside the screenshot folders): it is regenerated on every
+// seed, and a stale copy points at a member the database no longer has, which
+// is exactly the failure the sweep prints as "not measured".
+{
+  const [demoMember] = await get(
+    `/rest/v1/plan_members?business_id=eq.${business.id}&status=eq.active&select=id,plan_id&limit=1`,
+  );
+  const { writeFile } = await import("node:fs/promises");
+  await writeFile(
+    new URL("./demo-refs.json", import.meta.url),
+    `${JSON.stringify({
+      slug: SLUG,
+      businessId: business.id,
+      planId: planRows[0].id,
+      planMemberId: demoMember?.id ?? null,
+    }, null, 2)}\n`,
+  );
+}
 
 const counts = await get(`/rest/v1/bookings?business_id=eq.${business.id}&select=id`);
 console.log(`

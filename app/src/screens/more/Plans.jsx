@@ -33,6 +33,7 @@ import {
   STATUS_WORDS, cadenceWords, ledgerFor, priceWords, termWords, visitWords, visitsOwed,
 } from "../../lib/plans.js";
 import { MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
+import BookingLink from "../../components/BookingLink.jsx";
 
 // FOUR SHAPES, WHICH IS THIS CONTROL'S CEILING (controls.jsx: "two to four
 // mutually exclusive options"). A fifth would have to become a drop-down, and
@@ -521,6 +522,31 @@ export default function Plans() {
           </>
         )}
       </div>
+
+      {/* ROADMAP 2.14 STEP 3 — THE PLANS HAVE A PUBLIC PAGE, AND A PAGE
+          NOBODY CAN SHARE IS A PAGE NOBODY VISITS. The booking page's step 1
+          carries a door to it, which reaches people already booking; this is
+          the other route, and it is the one that goes in an Instagram bio and
+          on the side of a van. Same component as the booking link on Business
+          and Today — share, copy, open and a QR — because it is the same kind
+          of object.
+          Only where there is something to share: a link to an empty plans
+          page is a promise the page does not keep. */}
+      {plans.some((p) => p.is_active) && (
+        <div style={{ marginTop: "var(--sp-5)" }}>
+          {/* NO SECTION HEADING ABOVE IT. The block carries its own label, and
+              a `section-title` saying "Your plans page" over a card whose
+              first line says the same thing is the copy rule breaking itself.
+              The footnote is where the fact the label does NOT carry goes. */}
+          <BookingLink
+            slug={business.slug}
+            path="/plans"
+            label="Your plans page"
+            footnote="Put this in your bio and in your texts. It lists what you offer and lets people ask to join."
+            shareTitle="Our plans"
+          />
+        </div>
+      )}
 
       <div className="section-title">Members</div>
       <p className="muted" style={{ marginBottom: 8 }}>

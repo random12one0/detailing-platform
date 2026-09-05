@@ -9,6 +9,8 @@ import JobPage from "./screens/JobPage.jsx";
 import AcceptInvite from "./screens/AcceptInvite.jsx";
 import BookingPage from "./book/BookingPage.jsx";
 import ManageBookingPage from "./book/ManageBookingPage.jsx";
+import PlansPage from "./book/PlansPage.jsx";
+import PlanMemberPage from "./book/PlanMemberPage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
@@ -54,7 +56,16 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             domain should meet the product, not a login form. */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/book/:slug" element={<BookingPage />} />
+        {/* ROADMAP 2.14 STEP 3. The plans a detailer sells live BESIDE the
+            booking flow, never as a step inside it — 7 of 7 sampled detailers
+            and 5 of 6 products publish them on a page of their own, and step
+            1's spare room is measured at ten pixels. */}
+        <Route path="/book/:slug/plans" element={<PlansPage />} />
         <Route path="/booking/:id" element={<ManageBookingPage />} />
+        {/* The member's own page. The membership UUID is the credential, the
+            same access model as /booking/:id above — this is what the owner's
+            customer-account idea shipped as instead of an auth system. */}
+        <Route path="/plan/:memberId" element={<PlanMemberPage />} />
 
         {/* --- Signed-in. ---------------------------------------------- */}
         <Route path="/invite/:token" element={<Wrapped><AcceptInvite /></Wrapped>} />

@@ -59,6 +59,13 @@ export default function RequestCard({
 
           <div className="row wrap" style={{ gap: 6 }}>
             <span className="tag">{booking.service_type === "mobile" ? "Mobile" : "Drop-off"}</span>
+            {/* ROADMAP 2.14 STEP 3 — AND IT IS LOAD-BEARING RATHER THAN
+                DECORATIVE. A plan booking priced at the member rate looks
+                exactly like an underpriced one-off from here, and the research
+                named the consequence: *"the detailer needs to SEE that it is a
+                plan booking, or they will quote it as a one-off."* The quote
+                button is two inches below this line. */}
+            {booking.plan?.name && <span className="tag">Plan · {booking.plan.name}</span>}
             {/* A quote already sent is a DIFFERENT wait — on them, not on you —
                 and it is the only fact on this card the controls do not say. */}
             {quoted !== null && <span className="pill pending">Quoted {money(quoted)}</span>}

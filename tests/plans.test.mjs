@@ -24,6 +24,9 @@ import {
   STATUS_WORDS, addPeriod, cadenceWords, ledgerFor, nextDueOn, priceWords,
   termWords, visitWords, visitsOwed,
 } from "../app/src/lib/plans.js";
+// Roadmap 2.14 step 3. Node 24 strips the types, so this is the SAME module
+// the edge functions run — the one that decides what a customer is charged.
+import { computeQuote, planLineFor } from "../supabase/functions/_shared/pricing.ts";
 
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
@@ -237,6 +240,94 @@ const grants = [
 
   check("visitsOwed does not mutate the members it was given",
     members[0].id === "m1" && members.length === 4);
+}
+
+
+// ---------------------------------------------------------------------------
+// 6 · WHAT A PLAN DOES TO A PRICE — roadmap 2.14 step 3.
+//
+// THIS IS THE THIRD TIME THIS CHECK HAS BEEN NEEDED AND THE FIRST TIME IT WAS
+// WRITTEN BEFORE THE DEFECT RATHER THAN AFTER IT.
+// `business_settings.travel_fee` was drawn on the booking page as "+$25" and
+// never reached `computeQuote` for the whole life of the quote engine, past
+// eleven suites; the invoice's own column missed its printed total by exactly
+// the promo for the whole life of the product. A plan price shown on the
+// booking page and not charged is the same defect a third time, and the
+// research named it in advance.
+//
+// THE RULE BEING PINNED: the plan governs the SERVICES; add-ons and travel are
+// always extra; and a percentage comes off the whole job, because that is what
+// "10% off every visit" says on every plan page in the sample.
+// ---------------------------------------------------------------------------
+console.log("");
+console.log("test 6: what a plan does to a price");
+{
+  const plan = (priceKind, priceAmount) => ({ name: "Bi-weekly", priceKind, priceAmount });
+
+  check("percent_off comes off the WHOLE job, not just the services",
+    planLineFor(plan("percent_off", 10), 200, 300)?.amount === -30);
+  check("per_visit brings the SERVICES to the plan rate and leaves extras alone",
+    planLineFor(plan("per_visit", 90), 200, 300)?.amount === -110);
+  check("monthly means this visit's services are already paid for",
+    planLineFor(plan("monthly", 120), 200, 300)?.amount === -200);
+  check("paid up front behaves the same as monthly — the money is elsewhere",
+    planLineFor(plan("total", 1200), 200, 300)?.amount === -200);
+
+  // The two ways this could turn into a SURCHARGE, which it must never be.
+  check("a plan rate ABOVE the list price takes nothing off rather than adding",
+    planLineFor(plan("per_visit", 400), 200, 300) === null);
+  check("a discount can never exceed the job",
+    planLineFor(plan("monthly", 120), 900, 300)?.amount === -300);
+  check("no plan is no line", planLineFor(null, 200, 300) === null);
+  check("a zero percentage draws no line rather than a $0 row a customer has to ask about",
+    planLineFor(plan("percent_off", 0), 200, 300) === null);
+  check("the line names the plan AND what it did",
+    planLineFor(plan("percent_off", 10), 200, 300).label === "Bi-weekly — 10% off"
+    && planLineFor(plan("per_visit", 90), 200, 300).label === "Bi-weekly — plan rate"
+    && planLineFor(plan("monthly", 120), 200, 300).label === "Bi-weekly — included");
+
+  // --- AND IT HAS TO REACH THE TOTAL. Everything above is arithmetic; this is
+  // the tie-out, and it is also why the plan rides `price_adjustments` rather
+  // than a column of its own — every surface that itemises already draws that
+  // array, so there is no tenth render path to forget.
+  const base = {
+    services: [{ id: "s1", name: "Wash", price: 200, duration_minutes: 60, vehicle_size_adjustments: null }],
+    addOns: [], vehicleSize: "small", siteDiscountPercent: 0, promo: null, roundingNearest: 0,
+    travelFee: 25, adjustments: [],
+  };
+  const plain = computeQuote(base);
+  const withPlan = computeQuote({ ...base, plan: plan("percent_off", 10) });
+  check("with no plan, nothing about the quote changes at all",
+    plain.total === 225 && plain.adjustmentLines.length === 0, String(plain.total));
+  check("the plan line lands in price_adjustments, where every receipt already looks",
+    withPlan.adjustmentLines.length === 1 && withPlan.adjustmentLines[0].amount === -23,
+    JSON.stringify(withPlan.adjustmentLines));
+  check("the itemisation still adds up to the charged total",
+    withPlan.basePrice + withPlan.sizeAdd + withPlan.addOnsTotal + withPlan.travelFee
+      + withPlan.adjustmentsTotal - withPlan.siteDiscount - withPlan.promoDiscount === withPlan.total,
+    String(withPlan.total));
+  check("the percentage is of the job INCLUDING travel, so the bar and the receipt agree",
+    withPlan.total === 202, String(withPlan.total));
+
+  // What a plan covers is PROSE, so the honest reading is that it governs the
+  // services it is a plan for. A member who adds a wax still pays for the wax.
+  const withAddOn = computeQuote({
+    ...base,
+    addOns: [{ id: "a1", name: "Wax", price: 40, duration_minutes: 20 }],
+    plan: plan("monthly", 120),
+  });
+  check("a monthly member still pays for extras and travel",
+    withAddOn.total === 65, String(withAddOn.total));
+
+  // A promo comes off what is LEFT after the plan, so the two can never
+  // double-count the same money.
+  const withPromo = computeQuote({
+    ...base, plan: plan("monthly", 120), promo: { type: "percentage", value: 50 },
+  });
+  // $200 of services + $25 travel, the plan takes the services, and half of
+  // the $25 that is left is $13 off — never half of $225.
+  check("a promo applies to what is left after the plan, not to the list price",
+    withPromo.total === 12, String(withPromo.total));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

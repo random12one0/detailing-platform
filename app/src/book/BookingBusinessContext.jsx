@@ -111,6 +111,11 @@ export function BookingBusinessProvider({ slug, children }) {
       // no group_id yet.
       serviceGroups: profile?.service_groups ?? [],
       addOns: profile?.add_ons ?? [],
+      // ROADMAP 2.14 STEP 3 — the detailer's active plans, and an empty array
+      // for the great majority of tenants who run none. Every plan surface on
+      // this page is gated on `plans.length`, so a business without them sees
+      // exactly the page it saw before this item.
+      plans: profile?.plans ?? [],
       hours: profile?.hours ?? [],
       testimonials: profile?.testimonials ?? [],
       gallery: profile?.gallery ?? [],

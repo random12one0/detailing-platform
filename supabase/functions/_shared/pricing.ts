@@ -154,6 +154,65 @@ export function whenContextFor(
   };
 }
 
+// ROADMAP 2.14 STEP 3 — WHAT A PLAN DOES TO ONE VISIT'S PRICE.
+//
+// The plan the customer pressed, as the SERVER read it. Never as the client
+// sent it: the caller passes a plan id and resolves the row itself, exactly
+// like the promo code and the travel zone, because "a plan price shown on the
+// booking page and not charged by computeQuote is the travel-fee defect for
+// the third time" (roadmap 2.14, round 4).
+export interface PlanInput {
+  name: string;
+  priceKind: "monthly" | "per_visit" | "percent_off" | "total";
+  priceAmount: number;
+}
+
+// THE RULE, IN ONE SENTENCE: the plan governs the SERVICES; add-ons and travel
+// are always extra.
+//
+//   percent_off        the advertised member rate, off the whole job — that is
+//                      how "10% off every visit" reads on every plan page in
+//                      the sample, and reading it any other way would print a
+//                      smaller saving than the words promise.
+//   per_visit          the visit's services cost the plan's rate, whatever the
+//                      catalogue says. Never a surcharge: a plan rate ABOVE
+//                      the list price takes nothing off rather than adding.
+//   monthly / total    the visit is already paid for, on the month or up
+//                      front, so this job's services come to nothing.
+//
+// THE CEILING, STATED RATHER THAN DISCOVERED: what a plan actually includes is
+// PROSE (`plans.description`), so this cannot know that the member's plan
+// covers a wash and not a ceramic coating. It discounts whatever they chose.
+// The correction is the same human one the auto-link trigger already relies
+// on — the detailer accepts the request, and a plan booking arrives as a
+// request precisely so somebody looks at it. Narrow it with
+// `included_service_ids` only when a detailer complains, not before.
+export function planLineFor(
+  plan: PlanInput | null | undefined,
+  serviceCost: number,
+  jobCost: number,
+): { label: string; amount: number } | null {
+  if (!plan) return null;
+  const amount = Number(plan.priceAmount) || 0;
+  let off: number;
+  let what: string;
+  if (plan.priceKind === "percent_off") {
+    off = Math.round(jobCost * amount / 100);
+    what = `${amount}% off`;
+  } else if (plan.priceKind === "per_visit") {
+    off = Math.max(0, serviceCost - amount);
+    what = "plan rate";
+  } else {
+    off = serviceCost;
+    what = "included";
+  }
+  // Never past the whole job, and never a line worth nothing — a $0 row on a
+  // receipt is a question the customer has to ask somebody.
+  off = Math.min(Math.max(0, off), Math.max(0, jobCost));
+  if (off <= 0) return null;
+  return { label: `${plan.name} — ${what}`, amount: -off };
+}
+
 export interface QuoteInput {
   services: ServiceRow[];
   addOns: AddOnRow[];
@@ -167,6 +226,8 @@ export interface QuoteInput {
   travelFee?: number;
   // Rules that already matched, from matchPriceRules above.
   adjustments?: PriceRule[];
+  // Roadmap 2.14 step 3 — the plan this booking is against, if any.
+  plan?: PlanInput | null;
 }
 
 export interface Quote {
@@ -212,6 +273,16 @@ export function computeQuote(inp: QuoteInput): Quote {
       ? Math.round(beforeAdjustments * (Number(r.amount) || 0) / 100)
       : Number(r.amount) || 0,
   })).filter((l) => l.amount !== 0);
+  // ROADMAP 2.14 — THE PLAN RIDES `price_adjustments`, AND THAT IS THE WHOLE
+  // INTEGRATION. It is a labelled amount snapshotted onto the booking, drawn
+  // on the review step, the receipt, every email and the invoice, and already
+  // reconciled by `reconcile()` — the same rail `accept-quote` lands a quote
+  // difference on. A `plan_discount` COLUMN was the obvious build; it would
+  // have meant a new field in nine render paths to say what this array already
+  // says, and a tenth that forgot it.
+  const rulesTotal = adjustmentLines.reduce((s, l) => s + l.amount, 0);
+  const planLine = planLineFor(inp.plan, basePrice + sizeAdd, beforeAdjustments + rulesTotal);
+  if (planLine) adjustmentLines.push(planLine);
   const adjustmentsTotal = adjustmentLines.reduce((s, l) => s + l.amount, 0);
 
   const subtotalBase = beforeAdjustments + adjustmentsTotal;
@@ -297,6 +368,31 @@ export async function resolveAddOns(db: DB, businessId: string, addOnIds: string
   if (!data || data.length !== addOnIds.length) throw new Error("invalid_add_on");
   return data as AddOnRow[];
 }
+
+// ROADMAP 2.14 STEP 3 — the plan the customer pressed, read from the database
+// rather than believed. Scoped to this business and to `is_active`, which is
+// the one thing that flag decides (a retired plan takes no new sign-ups; the
+// people already on it keep accruing — see `accrue_plan_visits()`).
+//
+// Returns the ROW, so the caller can store `plan_id` and hand `computeQuote`
+// the three fields it prices from. Null for a missing, foreign or retired id,
+// which the endpoints turn into an ordinary booking rather than an error: a
+// stale tab holding a plan the detailer retired should still be able to book.
+export async function resolvePlan(db: DB, businessId: string, planId: string | null | undefined) {
+  if (!planId) return null;
+  const { data } = await db
+    .from("plans")
+    .select("id, name, price_kind, price_amount")
+    .eq("business_id", businessId)
+    .eq("id", planId)
+    .eq("is_active", true)
+    .maybeSingle();
+  return data ?? null;
+}
+
+// deno-lint-ignore no-explicit-any
+export const planInputFor = (row: any): PlanInput | null =>
+  row ? { name: row.name, priceKind: row.price_kind, priceAmount: Number(row.price_amount) || 0 } : null;
 
 // A usable promo code for THIS business (active, not expired, under any usage
 // limit), or null.

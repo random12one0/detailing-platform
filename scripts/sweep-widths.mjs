@@ -707,6 +707,19 @@ for (const w of SIZES) {
     await settle(page, 800);
     await say("Business · Monthly plans, the member form");
   } else { console.log(`${"the Log a member button".padEnd(24)} NO SUCH BUTTON`); found++; }
+  // AND THE PLANS PAGE'S OWN QR PLATE (roadmap 2.14 step 3). It is the same
+  // `BookingLink` already swept on Business, so this looks redundant — and it
+  // is not: the block sits under two lists and two buttons here rather than at
+  // the top of a short screen, and a 33-module code opening below all of that
+  // is a different measurement. The rule that keeps arriving is that a state
+  // behind a button is not navigation, and this one is behind a button on a
+  // screen that did not have it yesterday.
+  const plansQr = page.getByRole("button", { name: /QR code/i });
+  if (await plansQr.count()) {
+    await plansQr.first().click();
+    await settle(page, 900);
+    await say("Business · Monthly plans, the QR");
+  }
   // Escape, not the tab — the same reason the Notifications block below gives.
   await page.keyboard.press("Escape");
   await settle(page, 800);

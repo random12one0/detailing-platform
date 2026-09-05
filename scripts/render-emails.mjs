@@ -111,6 +111,26 @@ const booking = {
   receiptUrl: "https://detailingplatform.com/booking/7f3ab210-55c1-4e0a-9d2e-31b6c4a90e77",
 };
 
+// THE SAME BOOKING WITH A PLAN ON IT, AND THE ONLY DIFFERENCE THAT MATTERS IS
+// THE SIGN (roadmap 2.14 step 3). `computeQuote` pushes the plan into
+// `price_adjustments` as a NEGATIVE amount, and every other figure in this file
+// is positive — so without this row the money column's tie-out could not reach
+// the case where it breaks.
+//   services + add-ons        360
+//   + travel 25 + surcharge 20 = 405
+//   − plan "Bi-weekly maintenance — included"  60 = 345  (subtotalBase)
+//   − 5% site sale  20         = 325  (bookings.subtotal, post-sale)
+//   − promo FALL10  40         = 285  (total_price)
+const planBooking = {
+  ...booking,
+  adjustments: [
+    { label: "Heavy soiling surcharge", amount: 20 },
+    { label: "Bi-weekly maintenance — included", amount: -60 },
+  ],
+  subtotal: 325,
+  total: 285,
+};
+
 // BUILT THE WAY `send-invoice/index.ts` BUILDS IT — AND THAT IS NOW ONE LINE
 // PLUS THE FINALIZE EXTRAS, which is the point of roadmap 2.18's last change.
 // The invoice copies what was finalized instead of re-deriving it:
@@ -156,6 +176,20 @@ const EMAILS = [
   // the person they invited. Rendered with one so the preview shows the real
   // string ("as a Detailer") rather than the fallback nobody will see.
   ["staff-invite", "Staff · team invite", () => T.inviteEmail(brand, { role: "staff", label: "Detailer", link: "https://detailingplatform.com/invite/abc123", expiresAt: "2026-09-10T00:00:00Z" })],
+  // Roadmap 2.14 step 3. The plan link is the SAFE half of "type your email
+  // and it shows you" — it is the only thing that answers that form, so it is
+  // the one email in the set whose absence would be a security decision going
+  // quiet rather than a template looking wrong.
+  // A PLAN BOOKING, AND IT IS HERE FOR THE NEGATIVE LINE RATHER THAN FOR THE
+  // PLAN (roadmap 2.14 step 3). `moneyBlock` draws by `kind`, not by sign, so a
+  // −$60 adjustment printed as a $60 CHARGE and the column silently stopped
+  // reaching its total. Every other fixture on this page is positive, so the
+  // tie-out below could not see it — a check that cannot reach a case reads
+  // exactly like a check that passes. `accept-quote` could already produce one
+  // whenever a detailer quoted UNDER the estimate.
+  ["customer-confirmation-plan", "Customer · booking confirmed, on a plan", () => T.customerConfirmationEmail(brand, planBooking, false)],
+  ["customer-plan-link", "Customer · your plan link", () => T.planLinkEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", planUrl: "https://detailingplatform.com/plan/9c1f2b64-0000-4000-8000-000000000001", bookUrl: brand.siteUrl })],
+  ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", startedOn: "2026-03-02", endedOn: "2026-09-04" })],
 ];
 
 const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[object Object\]/], ['href=""', /href=""/]];
@@ -191,6 +225,12 @@ for (const [file, label, render] of EMAILS) {
 {
   const cases = [
     ["confirmation", T.customerConfirmationEmail(brand, booking, false).html, booking.total],
+    // THE NEGATIVE LINE, and it is a separate case rather than a richer
+    // fixture on purpose: this file's whole argument is that a check which
+    // cannot reach a case reads exactly like a check that passes, and every
+    // figure in the row above is positive. Baselined by removing the sign
+    // handling in `quoteLines` — without this row nothing failed.
+    ["confirmation, on a plan", T.customerConfirmationEmail(brand, planBooking, false).html, planBooking.total],
     ["receipt", T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "paid", null).html, invoiceTotals.totalPaid],
   ];
   for (const [name, html, total] of cases) {

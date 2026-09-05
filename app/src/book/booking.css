@@ -558,6 +558,13 @@
   font-size: var(--bk-t-body); font-family: var(--bk-f-body);
   font-variation-settings: "wdth" 96, "wght" 640; font-weight: 400;
   letter-spacing: -.005em; cursor: pointer; width: 100%; text-decoration: none;
+  /* A BUTTON LABEL NEVER WRAPS, and `.inline` never gets squeezed by the
+     field beside it. Both halves of the same defect, found on the plans
+     page's email row: the input is `width: 100%`, so in a flex row it took
+     the space and folded "Send it" onto two lines inside a pill. The promo
+     row on the review step has had the same shape since roadmap 2.7 and
+     survived only because "Apply" is short. */
+  white-space: nowrap;
   transition: transform var(--bk-t-hover) var(--bk-e),
               box-shadow var(--bk-t-hover) var(--bk-e);
 }
@@ -570,7 +577,7 @@
 .bk-btn.primary:hover:not(:disabled) { box-shadow: none; }
 .bk-btn.ghost { box-shadow: none; color: var(--bk-muted); }
 .bk-btn.ghost:hover:not(:disabled) { box-shadow: none; color: var(--bk-text); }
-.bk-btn.inline { width: auto; }
+.bk-btn.inline { width: auto; flex-shrink: 0; }
 /* Destructive. The red is `--bad` and it is FIXED — law 11b, the accent is
    identity and never meaning, so this is the one control on this page whose
    colour is not the tenant's. Two weights, because opening the question and
@@ -806,3 +813,106 @@
    the same signal. Scoped away from .closed on purpose: a ring on a day
    that cannot be booked is a promise the cell does not keep. */
 .bk-cal .cell.today:not(.selected):not(.closed) { box-shadow: inset 0 0 0 1px var(--bk-accent); }
+
+/* ─────────────────────────────────────────────────────────── PLANS
+   Roadmap 2.14 step 3 — the customer's half.
+
+   THE PLAN LIVES BESIDE THE FLOW, NOT INSIDE IT, and that is measured rather
+   than preferred: 7 of 7 sampled detailers and 5 of 6 booking products put a
+   plan on its own page (docs/plans-research-2026-09-04.md), and step 1's
+   budget is 10px of spare room at 1440x900 — the tenant's, not ours. So this
+   sheet gains one page (`/book/:slug/plans`), one member page
+   (`/plan/:id`), and NOTHING that costs a step any height: the door is a link
+   on the step-1 label row, which already exists, and recognition is spent on
+   the step-1 HEADING and the price bar's eyebrow, both of which are lines that
+   are already drawn.
+
+   NO NEW SHAPES. A plan is a `.bk-card` — the same panel a service is — with
+   the price where a service's price sits, so the two pages read as one
+   product. What is new here is only the ROW that carries the name against the
+   figure, and the ruled list of plan facts. */
+/* A RULED LIST, NOT A STACK OF CARDS — the composition law, and this page is
+   the cleanest instance of it in the product. Built as boxed cards first and
+   rejected on sight of the screenshot: four identical full-width panels each
+   ending in a full-width button is the "five identical stacked sections" tell
+   in `docs/design-knowledge.md` §1, and it cost 190px a plan against 96px.
+   The ROW is the button — one tap, nothing nested inside it. */
+.bk-plans { border-top: 1px solid var(--bk-hairline); }
+.bk-plan-row {
+  display: flex; align-items: center; gap: var(--bk-sp-3);
+  padding: var(--bk-sp-4) 0;
+  border-bottom: 1px solid var(--bk-hairline);
+  color: var(--bk-text); text-decoration: none;
+  transition: background var(--bk-t-hover) var(--bk-e);
+}
+.bk-plan-row > div:first-child { flex: 1; min-width: 0; }
+/* The hover reaches past the column's own edge, so the row lights up as a row
+   rather than as a rectangle floating inside one. */
+.bk-plan-row:hover {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .035) 6%,
+              rgba(255, 255, 255, .035) 94%, transparent);
+}
+.bk-plan-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--bk-sp-3);
+}
+/* The figure is the thing plans are compared on, so it lines up down the right
+   edge exactly as a service's does — one glance, not a hunt. */
+.bk-plan-price {
+  font-family: var(--bk-f-num); font-size: var(--bk-t-strong); font-weight: 500;
+  font-variant-numeric: tabular-nums; letter-spacing: -.02em; white-space: nowrap;
+  color: var(--bk-text);
+}
+.bk-plan-meta { margin-top: 3px; }
+.bk-plan-row p { margin-top: 6px; }
+/* The one mark that says the row goes somewhere. It travels on hover because
+   the row is a door, and a door's affordance is direction. */
+.bk-plan-go {
+  flex-shrink: 0; color: var(--bk-muted);
+  transition: transform var(--bk-t-hover) var(--bk-e), color var(--bk-t-hover) var(--bk-e);
+}
+.bk-plan-row:hover .bk-plan-go { transform: translateX(3px); color: var(--bk-accent-text); }
+/* A phone has no room for the price beside a two-word plan name AND a
+   chevron: measured at 320, "Bi-weekly maintenance" and "$120.00 a month"
+   need 300px between them. The head becomes two lines there. */
+@media (max-width: 420px) {
+  .bk-plan-head { display: block; }
+  .bk-plan-price { display: block; margin-top: 3px; }
+}
+
+/* THE STEP-1 DOOR. It rides the row the rail and "Step 1 of 7" already share,
+   so it spends none of W16's budget — the row's height is set by the label,
+   which is 11px type in a 14px line box, and a 13px link fits inside it.
+   `flex-shrink: 0` beside the rail's `flex: 1` means the rail gives up the
+   width, which it can: it is a progress mark, not a measurement. */
+.bk-plans-door {
+  flex-shrink: 0; font-size: var(--bk-t-meta); color: var(--bk-accent-text);
+  text-decoration: underline; text-underline-offset: 3px; white-space: nowrap;
+  /* THE LINE BOX IS PINNED TO THE ROW'S OWN HEIGHT, and this is measured
+     rather than tidy: the row is 13px tall because `.bk-step-label` is 11px
+     type, and dropping a 13px link into it at the inherited leading took step
+     1 from 10px of spare room to 7px. Three pixels of the TENANT'S budget for
+     a link is not a trade worth making — the whole reason this control is on
+     this row is that the row was already drawn.
+     The padding/margin pair is the touch target: 34px of tappable height that
+     costs the layout nothing, because the negative margin gives it back. */
+  line-height: 13px;
+  padding: 10px 0; margin: -10px 0;
+}
+.bk-plans-door:hover { color: var(--bk-text); }
+
+/* A plan's facts on the member's own page — the same ruled-list idiom as the
+   receipt, because a list of records is a ruled list and never a stack of
+   cards (docs/design-system.md § Composition). `.bk-receipt .line` already
+   draws exactly this; this only widens the label column, because "When your
+   next visit is due" is not a price label. */
+.bk-facts .line span:first-child { color: var(--bk-muted); }
+
+/* The one number the member page exists to print. It is the plan's own
+   heading-scale figure, so it takes the display face and the accent — the
+   system's "the thing that has landed", spent once on the page. */
+.bk-owed {
+  font-family: var(--bk-f-num); font-size: var(--bk-t-display); font-weight: 500;
+  font-variant-numeric: tabular-nums; letter-spacing: -.03em; line-height: 1;
+  color: var(--bk-accent-text);
+}

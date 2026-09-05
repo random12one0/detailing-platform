@@ -390,11 +390,16 @@ explaining it; if they still have to ask "so should I?", it failed.
   **`client-list`** (31 checks, new 2026-09-02 — the Clients list's date
   arithmetic and the lapsed filter, which decides who ends up on the end of a
   group text; baselined both ways),
-  **`plans`** (51 checks, new 2026-09-04, roadmap 2.14 — the visits a plan
+  **`plans`** (**the script prints its own figure** — 51 at step 2 and 73
+  after step 3; new 2026-09-04, roadmap 2.14 — the visits a plan
   member is OWED, which is the one number that feature exists to print, and
   `addPeriod` against Postgres's own month-overflow clamp, because the
   accrual writes the grants in SQL and this file predicts the next one.
-  Baselined both ways),
+  **Test 6 is step 3's half and it imports `_shared/pricing.ts` DIRECTLY** —
+  Node 24 strips the types, so the credential-free suite can pin the money
+  path the edge functions actually run: what a plan takes off, that it can
+  never become a surcharge, and that the itemisation still reaches the
+  charged total. Baselined both ways),
   **`setup-progress`** (24 checks, new 2026-09-02 — how many of the seven
   first-run steps are done. That number is printed in TWO places that must
   never disagree, the setup form's progress rule and Business's *Finish
@@ -613,6 +618,23 @@ explaining it; if they still have to ask "so should I?", it failed.
   owner's rule that a customer should never scroll inside a step — and the
   script exits 1 while anything overflows, so it is the definition of done.
   `--lite` runs the `?lite=1` path; `--shots=DIR` saves the PNGs.
+  **IT WALKS FOUR MORE THINGS SINCE ROADMAP 2.14 STEP 3, and three of them are
+  STATES rather than pages** — the flow with `?plan=`, and step 1 for a
+  customer the DEVICE remembers. Neither is reachable by walking, which is the
+  same gap this file records nine times: *the script walks NAVIGATION, and a
+  state you reach by pressing something INSIDE a screen is not navigation.*
+  They were added in the change that BUILT them.
+  **The fourth, `/plan/:memberId`, needs a membership UUID and this script is
+  the customer — no session, no service key.** So `seed-demo.mjs` writes
+  `scripts/demo-refs.json` (gitignored) and the sweep reads it; **missing or
+  stale, the run PRINTS that the page was not measured** rather than passing
+  quietly.
+  **AND TWO OF THEM ARE MEASURED BUT NOT GATED** — the plans page and the
+  member page. W16 is the owner's rule about STEPS, because scrolling inside a
+  form you are halfway through is what loses a booking; a catalogue of plans is
+  a page, its length is the detailer's, and all ten plan pages in the research
+  sample scroll. The number is still printed as `scrolls Npx`, because "it
+  scrolls" and "it scrolls by 600px" are different facts.
   **AND `SLOTPROBE=1` PRINTS THE DAY WALK AND EVERY `available-slots` RESPONSE
   — new 2026-09-03, and it is the thing to reach for FIRST if this script ever
   fails on step 5.** It was added while fixing two races that had made the
@@ -690,6 +712,16 @@ explaining it; if they still have to ask "so should I?", it failed.
   **And pure `#ffffff`/`#000000` are banned in BOTH palettes** — Apple Mail
   treats either as permission to invert the whole email, which is the one way
   to make Apple Mail behave like Gmail.
+- **AN ADJUSTMENT CAN BE NEGATIVE, AND `moneyBlock` DRAWS BY `kind` RATHER
+  THAN BY SIGN — fixed 2026-09-04, and it was older than the item that found
+  it.** A −$120 line with no `kind` printed as a $120 CHARGE while the total
+  was $120 lower, so the column silently stopped adding up. `accept-quote`
+  could already reach it: it pushes a *"Quoted discount"* line whenever a
+  detailer quotes UNDER the original estimate. Roadmap 2.14's plan line made
+  it the ordinary case. **Fixed in `quoteLines`, the one place every
+  adjustment reaches the page** — the same shape as the invoice that missed
+  its total by exactly the promo. **When you add a money line anywhere, set
+  its `kind`; a sign is not a kind.**
 - **THE EMAILS ARE REBUILT AND LIVE (roadmap 2.18, 2026-09-03).** The old
   ~530-line `emailTemplates.ts` is gone. **`_shared/emailKit.ts` is the world** —
   the ground, the design-system tokens, the blocks and the shell, with the
@@ -711,8 +743,11 @@ explaining it; if they still have to ask "so should I?", it failed.
   itemised by name.
 - **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
   (new 2026-09-03, roadmap 2.18). Credential-free, no browser, no dev server. It
-  writes all seventeen emails — twelve kinds plus the branches somebody actually
-  receives — to `email-preview/index.html`, **HTML and .txt side by side**, so a
+  writes all TWENTY emails — fourteen kinds plus the branches somebody actually
+  receives; it was seventeen until roadmap 2.14 step 3 added the plan link, the
+  plan-ended notice and a booking WITH A PLAN ON IT, and the script prints its
+  own count — to
+  `email-preview/index.html`, **HTML and .txt side by side**, so a
   human can look at them. **The first thing in this repo that ever has**, which
   is why 2.12 shipped eleven under-floor headlines and why the invoice defect
   survived eleven test suites. `--accent=#hex` re-renders for another tenant;
@@ -732,6 +767,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   worst logo a detailer can upload** (dark artwork on transparent) — it was
   invisible on the ground until the masthead got its bone plate, and no test in
   this repo can ever measure a PNG's contrast.
+  **AND ONE OF ITS FIXTURES EXISTS ONLY FOR A MINUS SIGN (roadmap 2.14 step
+  3).** Every figure in the original fixture is positive, so the money tie-out
+  could not reach the case where `moneyBlock` draws a negative adjustment as a
+  positive CHARGE — **the check read as passing because it could not reach the
+  defect**, which is this file's most repeated failure in a new place.
+  `customer-confirmation-plan` carries a −$60 plan line and is its own tie-out
+  case. Baselined by removing the sign handling in `quoteLines`: without that
+  row, nothing failed.
   **The rule it is here to enforce, and it is the third rung of the same
   ladder:** a number PRINTED is not a number CHARGED, a number EXPORTED is that
   risk one step later, and **a number INVOICED is it one step further still** —
@@ -880,11 +923,40 @@ explaining it; if they still have to ask "so should I?", it failed.
   and `plan_visits` ride `money`. That pairing is the ONE open question with
   the owner. **The arithmetic is `app/src/lib/plans.js`** and
   `addPeriod` must keep matching Postgres's month-overflow clamp.
-  **STEP 3 — the customer's half — IS NOT BUILT**: the booking page's plan
-  buttons, the welcome-back line, the remembered browser, the "your plan"
-  link and the email nudge. **`get_public_business_profile` returns no plans
-  yet.** And when it does: the plan's effect on the price goes through
-  `_shared/pricing.ts` or it is the travel-fee defect for the third time.
+  **STEP 3 — THE CUSTOMER'S HALF — SHIPPED 2026-09-04 AND 2.14 IS CLOSED.**
+  `/book/:slug/plans` (a ruled list, one row per plan, the row IS the button),
+  `/plan/:memberId` (what they are on, visits waiting, cancel, book — the
+  membership UUID is the credential, the third caller of the `/booking/:id`
+  pattern), `bookings.plan_id`, `plan-link` (three actions: get, cancel, and
+  **EMAIL IN / LINK OUT**, which is the safe twin of the lookup the owner
+  asked for — his version is address enumeration), the browser remembering
+  the last customer AND their plan, and the *"don't lose your link"* nudge on
+  three customer emails.
+  **THE PLAN'S EFFECT ON THE PRICE IS `planLineFor` IN `_shared/pricing.ts`
+  AND IT RIDES `price_adjustments`** — the labelled-amount array the review
+  step, every email, the invoice, the manage page and the booking row already
+  draw. A `plan_discount` column was the obvious build and would have been
+  nine render paths with one forgotten. **The rule: the plan governs the
+  SERVICES; add-ons and travel are always extra; a percentage comes off the
+  whole job.**
+  **AND NOTHING WAS ADDED TO A STEP, WHICH IS THE WHOLE SHAPE OF THE ITEM.**
+  Step 1's ten pixels are the detailer's, so the plans are a PAGE, the door to
+  them rides the row the rail and *"Step 1 of 7"* already share, and the
+  recognition he asked for is spent on step 1's HEADING and the price bar's
+  EYEBROW — two lines that were already drawn. **Every step's spare room is
+  identical to before the item.** The door still cost 3px on its first
+  measurement and needed its line box pinned: *a control that is free in
+  principle is not free until it is measured.*
+  **A PLAN SIGN-UP IS A REQUEST IN EITHER BOOKING MODE**, but an existing
+  member booking their own covered visit is not held up — `create-booking`
+  asks the database, never `booking_mode` alone.
+  **`BookingLink` TAKES AN OPTIONAL `path` NOW** and the Monthly plans screen
+  uses it, so a detailer can share the plans page the way they share the
+  booking link. **And `plan-link`'s `email` action wants roadmap 2.21's
+  throttle** — it is public and it SENDS, so an unthrottled loop is a
+  mail-bomb from the platform's shared sending reputation; it is written into
+  2.21.
+  Full reasoning: DECISIONS.md → "Roadmap 2.14, step 3".
 - **PUSH WORKS END TO END, CONFIRMED BY THE OWNER ON A REAL DEVICE
   2026-09-02.** He was asked to tap the switch and let a booking through; his
   answer was “works”. The browser half is `app/public/sw.js` +
@@ -1037,8 +1109,9 @@ explaining it; if they still have to ask "so should I?", it failed.
 1. `PROJECT-STATE.md` — full state briefing
 2. `docs/HANDOFF.md` — architecture + open threads
 3. `DECISIONS.md` — every judgment call and why. **START AT ITS INDEX, not
-   at the top of the file.** It is ~3,900 lines and reading it end to end is
-   not a thing anyone does; the index block names the five mistakes that have
+   at the top of the file.** It is over 11,000 lines — the figure in this file said
+   ~3,900 until 2026-09-04 and had been stale for a while — and reading it end
+   to end is not a thing anyone does; the index block names the five mistakes that have
    actually cost sessions, and maps "about to touch X" to the two or three
    sections that matter. A decision you did not find is worse than one nobody
    wrote down, because it looks like diligence.

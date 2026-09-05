@@ -18,8 +18,8 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings } from "../_shared/tenant.ts";
 import {
-  computeQuote, matchPriceRules, resolveAddOns, resolvePromo, resolveServices,
-  resolveTravel, whenContextFor,
+  computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
+  resolvePromo, resolveServices, resolveTravel, whenContextFor,
 } from "../_shared/pricing.ts";
 import { localDateTimeToInstant, weekdayOf } from "../_shared/tz.ts";
 
@@ -49,6 +49,9 @@ Deno.serve(async (req) => {
     }
 
     const promo = await resolvePromo(supabase, business.id, body.applied_promo_code);
+    // Roadmap 2.14 step 3. A plan id, never a plan price — the row is read
+    // here and priced by the same engine that will charge it.
+    const plan = await resolvePlan(supabase, business.id, body.plan_id);
     const serviceType = body.service_type === "dropoff" ? "dropoff" : "mobile";
     const travel = resolveTravel(settings, serviceType, body.travel_zone);
     const when = whenContextFor(
@@ -65,6 +68,7 @@ Deno.serve(async (req) => {
       roundingNearest: Number(settings.price_rounding_nearest),
       travelFee: travel.fee,
       adjustments,
+      plan: planInputFor(plan),
     });
 
     return json({
@@ -86,6 +90,11 @@ Deno.serve(async (req) => {
         promo_code: promo ? promo.code : null,
         promo_discount: quote.promoDiscount,
         total: quote.total,
+        // The page prints "your <name> plan applies" from this, so it comes
+        // from the resolved row and is absent when the id did not resolve —
+        // a retired plan must not leave the page claiming one is attached.
+        plan_id: plan ? plan.id : null,
+        plan_name: plan ? plan.name : null,
         total_duration: quote.totalDurationMinutes,
         buffer_minutes: settings.buffer_minutes,
       },

@@ -20,8 +20,8 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings, requireMember } from "../_shared/tenant.ts";
 import {
-  computeQuote, matchPriceRules, resolveAddOns, resolvePromo, resolveServices,
-  resolveTravel, sizeAdjustmentFor, whenContextFor,
+  computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
+  resolvePromo, resolveServices, resolveTravel, sizeAdjustmentFor, whenContextFor,
 } from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
@@ -108,6 +108,14 @@ Deno.serve(async (req) => {
     const promo = await resolvePromo(supabase, business.id, promoCode);
     if (promoCode && !promo) return json({ error: "That promo code is not valid." }, 409);
 
+    // ROADMAP 2.14 STEP 3 — THE PLAN, RESOLVED HERE AND PRICED BY THE SAME
+    // ENGINE. The client sends an id; the name, the kind and the amount all
+    // come off this row, so there is no path by which a page can name its own
+    // discount. Unlike the promo above, an id that does not resolve is NOT an
+    // error — a retired plan should still let somebody book the ordinary way
+    // rather than turning a stale tab into a dead end.
+    const plan = await resolvePlan(supabase, business.id, body.plan_id);
+
     // W9 — the size is whatever key the tenant's own list uses, so it is no
     // longer checked against small/medium/large. It still has to BE one of
     // their sizes: an unknown key would price at zero adjustment and print a
@@ -137,6 +145,7 @@ Deno.serve(async (req) => {
       roundingNearest: Number(settings.price_rounding_nearest),
       travelFee: travel.fee,
       adjustments,
+      plan: planInputFor(plan),
     });
 
     // --- The authoritative slot gate ---------------------------------------
@@ -220,6 +229,34 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ROADMAP 2.14 STEP 3 — A SIGN-UP IS A REQUEST, IN EITHER BOOKING MODE.
+    //
+    // The research's opening finding is that the sale and the schedule are two
+    // acts and nobody joins them: five of the seven sampled detailers set up a
+    // new member by TALKING to them. Pressing a plan button is asking to join,
+    // and the detailer has to agree — so it arrives on the request rail 2.12
+    // already built, even for a business whose ordinary bookings confirm
+    // themselves. It is also the honest reading of the price: the plan rate on
+    // that quote is only true once somebody agrees they are on the plan.
+    //
+    // AN EXISTING MEMBER BOOKING THEIR OWN COVERED VISIT IS NOT A SIGN-UP and
+    // must not be held up — they joined weeks ago. That is the only reason
+    // this asks the question rather than keying off `plan` alone.
+    let planSignup = false;
+    if (!member && plan && customerId) {
+      const { data: already } = await supabase
+        .from("plan_members")
+        .select("id")
+        .eq("business_id", business.id)
+        .eq("customer_id", customerId)
+        .eq("plan_id", plan.id)
+        .eq("status", "active")
+        .maybeSingle();
+      planSignup = !already;
+    } else if (!member && plan) {
+      planSignup = true;
+    }
+
     // --- Insert. The exclusion constraint is the final, unbeatable guard. --
     const { data: booking, error: insertErr } = await supabase
       .from("bookings")
@@ -266,13 +303,21 @@ Deno.serve(async (req) => {
         applied_promo_code: promo ? promo.code : null,
         promo_discount: quote.promoDiscount,
         campaign_id: campaignId,
+        // ROADMAP 2.14 step 3. Explicit, so it beats the auto-link trigger:
+        // somebody switching plans is booking against the one they PRESSED,
+        // not the one they are currently on.
+        plan_id: plan ? plan.id : null,
         // ROADMAP 2.12 — THE ONE LINE THE WHOLE MODE SWITCH COMES DOWN TO.
         // `pending` is not `cancelled`, so the exclusion constraint above has
         // already refused anybody else this slot: a request HOLDS the time,
         // exactly like a confirmed booking, and only the promise differs. An
         // admin logging a booking by hand from the dashboard is never a
         // request — they are the person who would be accepting it.
-        status: !member && settings.booking_mode === "request" ? "pending" : "confirmed",
+        // `planSignup` above is the second thing that makes a booking a
+        // request, and it is mode-independent on purpose.
+        status: !member && (settings.booking_mode === "request" || planSignup)
+          ? "pending"
+          : "confirmed",
       })
       .select()
       .single();

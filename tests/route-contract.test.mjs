@@ -55,6 +55,18 @@ console.log("\ntest 2: config.ts builds those exact paths");
     .replace(/\$\{bookingId\}/g, ":id");
   check("the site URL's path is a served route", routes.includes(toRoute(site)), toRoute(site));
   check("the receipt URL's path is a served route", routes.includes(toRoute(receipt)), toRoute(receipt));
+
+  // ROADMAP 2.14 STEP 3 — two more builders, and both are in exactly the
+  // position `receiptUrl` was in when it silently pointed a customer at the
+  // staff sign-in screen: a URL that only ever appears inside an email, so
+  // nothing in the app ever follows it and no unit test ever would.
+  const plan = config.match(/export function planUrl[\s\S]*?return `([^`]+)`/)?.[1] ?? "";
+  const plans = config.match(/export function plansUrl[\s\S]*?return `([^`]+)`/)?.[1] ?? "";
+  check("planUrl builds /plan/{memberId}", plan.includes("/plan/${memberId}"), plan);
+  check("plansUrl builds /book/{slug}/plans", plans.includes("/book/${slug}/plans"), plans);
+  const toRoute2 = (tpl) => toRoute(tpl).replace(/\$\{memberId\}/g, ":memberId");
+  check("router serves the plan member page", routes.includes(toRoute2(plan)), toRoute2(plan));
+  check("router serves the plans page", routes.includes(toRoute2(plans)), toRoute2(plans));
 }
 
 console.log("\ntest 3: the platform URL is overridable per deployment");
@@ -83,6 +95,15 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
     !/Wrapped|BusinessProvider/.test(bookLine), bookLine.trim());
   check("/booking/:id is not wrapped in the session provider",
     !/Wrapped|BusinessProvider/.test(manageLine), manageLine.trim());
+  // Roadmap 2.14 step 3 — the same rule for the two plan pages. A plan member
+  // is a customer, not staff: waiting on a session they can never have is the
+  // failure this test was written for.
+  const planLine = main.split("\n").find((l) => l.includes('path="/plan/:memberId"')) ?? "";
+  const plansLine = main.split("\n").find((l) => l.includes('path="/book/:slug/plans"')) ?? "";
+  check("/plan/:memberId is not wrapped in the session provider",
+    !!planLine && !/Wrapped|BusinessProvider/.test(planLine), planLine.trim());
+  check("/book/:slug/plans is not wrapped in the session provider",
+    !!plansLine && !/Wrapped|BusinessProvider/.test(plansLine), plansLine.trim());
   const appLine = main.split("\n").find((l) => l.includes('path="/app/*"')) ?? "";
   check("the dashboard at /app/* IS wrapped", /Wrapped|BusinessProvider/.test(appLine), appLine.trim());
   const legacyLine = main.split("\n").find((l) => l.includes('path="/*"')) ?? "";

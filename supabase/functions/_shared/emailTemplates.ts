@@ -195,6 +195,28 @@ function ownWords(brand: TenantBrand, kind: MessageKind): string {
 }
 
 /**
+ * "HERE'S YOUR LINK, DON'T LOSE IT" -- the owner's own ask, roadmap 2.14 round
+ * 4: *"make sure the emails kinda remind them, hey, here's your link, don't
+ * lose it."*
+ *
+ * The link was always in these emails; nothing ever said it was the way back.
+ * The research's finding is that a customer forgetting their booking link is
+ * real and is the DETAILER's problem to solve, and every other route to
+ * solving it -- the QR code, the Google profile, a text message -- is the
+ * detailer distributing a link. This is the one route that costs nobody
+ * anything: the customer already has the email.
+ *
+ * One helper rather than the sentence typed into three templates, for the same
+ * reason `ownWords` is one: copies drift and the third gets forgotten.
+ */
+function keepLink(bookUrl: string): string {
+  return fineBlock(
+    "Keep this email — the link above is how you change or cancel without ringing "
+    + `anyone. To book again any time: ${bookUrl}`,
+  );
+}
+
+/**
  * THE QUOTE'S MONEY LINES, AND THEY HAVE TO REACH THE TOTAL.
  *
  * `subtotal` already contains travel and every surcharge (2.8c), so the named
@@ -222,7 +244,21 @@ function quoteLines(b: BookingEmailData): MoneyLine[] {
   } else lines.push({ label: "Service", amount: base });
 
   if (travel > 0) lines.push({ label: b.travelZone ? `Travel — ${b.travelZone}` : "Travel", amount: travel });
-  for (const a of adjustments) lines.push({ label: String(a.label), amount: Number(a.amount) || 0 });
+  // AN ADJUSTMENT CAN BE NEGATIVE, AND `moneyBlock` DRAWS BY `kind` RATHER
+  // THAN BY SIGN — so a −$120 line with no kind printed as a $120 CHARGE while
+  // the total was $120 lower, and the column silently stopped adding up. It
+  // was already reachable before roadmap 2.14: `accept-quote` pushes a
+  // "Quoted discount" line whenever a detailer quotes UNDER the original
+  // estimate. 2.14's plan line made it the ordinary case rather than the rare
+  // one. Same family as the invoice that missed by exactly the promo — a
+  // number printed is not a number charged — and the fix is at the one place
+  // every adjustment reaches the page.
+  for (const a of adjustments) {
+    const amount = Number(a.amount) || 0;
+    lines.push(amount < 0
+      ? { label: String(a.label), amount: -amount, kind: "discount" }
+      : { label: String(a.label), amount });
+  }
   if (Number(b.siteDiscount) > 0) {
     lines.push({
       label: b.siteDiscountPercent ? `${b.siteDiscountPercent}% sale` : "Sale",
@@ -273,6 +309,7 @@ export function customerConfirmationEmail(
     fineBlock("An estimate. If the vehicle's condition needs more time than expected we'll tell you before we start, never after."),
     ownWords(brand, isRequest ? "request_received" : "confirmation"),
     buttonBlock(brand, isRequest ? "View or change your request" : "View your booking", b.receiptUrl),
+    keepLink(brand.siteUrl),
     isRequest ? noteBlock("Nothing is charged now. We'll email you the moment we've accepted.") : "",
     b.customerNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">Your notes</strong><br>${esc(b.customerNotes)}`, 26) : "",
   ].filter(Boolean);
@@ -375,6 +412,7 @@ export function requestDecisionEmail(
       factsBlock(jobFacts(brand, b)),
       ownWords(brand, "accepted"),
       buttonBlock(brand, "View or change your booking", opts.manageUrl),
+      keepLink(brand.siteUrl),
     ].filter(Boolean)
     : [
       labBlock("Request declined"),
@@ -525,6 +563,7 @@ export function customerReminderEmail(
     factsBlock(jobFacts(brand, b)),
     ownWords(brand, second ? "reminder_2" : "reminder"),
     buttonBlock(brand, "View or change your booking", b.receiptUrl),
+    keepLink(brand.siteUrl),
   ].filter(Boolean);
   return mail(
     `Reminder: your appointment ${dateLong}`,
@@ -654,5 +693,66 @@ export function inviteEmail(
   return mail(
     `Join ${brand.brandName} on the booking dashboard`,
     shell(brand, blocks, `${brand.brandName} invited you to their dashboard.`),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// 11 · CUSTOMER — YOUR PLAN LINK (roadmap 2.14 step 3)
+//
+// THE SAFE HALF OF "TYPE YOUR EMAIL AND IT SHOWS YOU". The owner asked for a
+// lookup that displays a person's plan on the page; that is address
+// enumeration, and the twin that is one word different is EMAIL IN, LINK OUT —
+// nothing is displayed, the link arrives in the inbox that owns the address.
+// `plan-link`'s `email` action returns the same answer whether or not the
+// address is a member, so this email existing at all is the only signal, and
+// it only ever reaches the person entitled to it.
+// ---------------------------------------------------------------------------
+export function planLinkEmail(
+  brand: TenantBrand,
+  opts: { customerName: string; planName: string; planUrl: string; bookUrl: string },
+): Mail {
+  const blocks = [
+    labBlock("Your plan"),
+    headlineBlock("Here's your link"),
+    proseBlock(`Hi ${esc(firstName(opts.customerName))} &mdash; you're on <strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong> with ${esc(brand.brandName)}.`),
+    proseBlock("The button below opens your plan: what you're on, when your next visit is due, and how to book it.", 16),
+    buttonBlock(brand, "Open your plan", opts.planUrl),
+    fineBlock(`Keep this email &mdash; that link is the only way back to your plan. To book any time: ${opts.bookUrl}`),
+  ];
+  return mail(
+    `Your plan with ${brand.brandName}`,
+    shell(brand, blocks, `${opts.planName} — your link is inside.`),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// 12 · OWNER — SOMEBODY LEFT A PLAN (roadmap 2.14 step 3)
+//
+// The customer can end their own plan from their link, which is the same
+// medium they joined in — the thing California's cancellation rule asks for
+// and, more immediately, the thing that stops a cancellation being a phone
+// call the detailer has to answer. **So the detailer has to be TOLD**, or a
+// member quietly disappears from the visits-owed list with no event anywhere.
+// Best-effort, like every send in this product: a dead relay must never leave
+// a customer unable to leave.
+// ---------------------------------------------------------------------------
+export function planCancelledEmail(
+  brand: TenantBrand,
+  opts: { customerName: string; planName: string; startedOn: string; endedOn: string },
+): Mail {
+  const blocks = [
+    labBlock("Plan ended", "bad"),
+    headlineBlock(opts.customerName),
+    proseBlock(`ended their <strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong> from their own plan page. Nothing else has changed &mdash; any booking already in the diary is still there.`),
+    factsBlock([
+      ["Plan", esc(opts.planName)],
+      ["Member since", formatDateLong(String(opts.startedOn).slice(0, 10))],
+      ["Ended", formatDateLong(String(opts.endedOn).slice(0, 10))],
+    ]),
+    fineBlock("They can join again whenever they like; the record of what they were owed is kept either way."),
+  ];
+  return mail(
+    `${opts.customerName} ended their plan`,
+    shell(brand, blocks, `${opts.customerName} ended ${opts.planName}.`),
   );
 }

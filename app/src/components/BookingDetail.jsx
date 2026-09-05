@@ -204,6 +204,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           <span className={`pill ${booking.payment_status}`}>
             {PAY_LABELS[booking.payment_status] ?? booking.payment_status}
           </span>
+          {/* Roadmap 2.14 step 3. The same fact the request card carries, on
+              the record you open from it — a plan booking's price is the
+              member's, and the one thing that explains it is its name. A
+              `tag`, not a `pill`: status and payment are states this job is
+              IN, and the plan is a fact about it. */}
+          {booking.plan?.name && <span className="tag">Plan · {booking.plan.name}</span>}
         </div>
 
         {/* THE ACTION BAR — first, unheaded, and PINNED. Two rows of three:

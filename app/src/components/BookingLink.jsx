@@ -48,7 +48,23 @@ const QUIET = 4;
 // version is the mistake that makes a QR unusable at the one size it matters.
 const PX = 30;
 
-export default function BookingLink({ slug }) {
+export default function BookingLink({
+  slug,
+  // ROADMAP 2.14 STEP 3 — FOUR OPTIONAL PROPS, ONE JOB: point this block at
+  // another public page of the same business. The plans page (`/plans`) needs
+  // every affordance this one already has — it goes in an Instagram bio and on
+  // a card exactly as the booking link does, and a page a detailer cannot
+  // share is a page nobody visits.
+  // **The LABEL and the FOOTNOTE are props and not just the URL**, because a
+  // block headed "Your booking page" printing a /plans address is a control
+  // lying about itself, and "Customers book themselves from here" is not what
+  // happens on the plans page. Every default is exactly what the three
+  // existing callers already rendered.
+  path = "",
+  label = "Your booking page",
+  footnote = "Put this in your bio, on your cards and in your texts. Customers book themselves from here.",
+  shareTitle = "Book with us",
+}) {
   const [copied, setCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -58,7 +74,13 @@ export default function BookingLink({ slug }) {
   // navigator.share only exists in a secure context and mostly on mobile.
   useEffect(() => { setCanShare(typeof navigator !== "undefined" && !!navigator.share); }, []);
 
-  const url = `${window.location.origin}/book/${slug}`;
+  // ROADMAP 2.14 STEP 3 — `path` generalises this ONE line and nothing else.
+  // The plans page (`/book/:slug/plans`) needs every affordance this block
+  // already has: it goes in an Instagram bio and on a card exactly as the
+  // booking link does, and a page a detailer cannot share is a page nobody
+  // visits. Defaults to the booking page, so the three existing callers are
+  // untouched.
+  const url = `${window.location.origin}/book/${slug}${path}`;
   // What a person reads on a card or types into a phone — no scheme noise.
   const pretty = url.replace(/^https?:\/\//, "");
 
@@ -78,7 +100,7 @@ export default function BookingLink({ slug }) {
 
   const share = async () => {
     try {
-      await navigator.share({ title: "Book with us", url });
+      await navigator.share({ title: shareTitle, url });
     } catch { /* the person dismissed the sheet */ }
   };
 
@@ -114,7 +136,10 @@ export default function BookingLink({ slug }) {
       const href = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = href;
-      a.download = `${slug}-booking-qr.png`;
+      // The path in the name too, or a detailer with both codes in their
+      // downloads folder has two files called the same thing and no way to
+      // tell which one goes on the card.
+      a.download = `${slug}${path.split("/").join("-")}-qr.png`;
       a.click();
       // Revoked on the next tick rather than immediately: Safari has not
       // finished reading the URL when click() returns.
@@ -142,7 +167,7 @@ export default function BookingLink({ slug }) {
     /* data-tour — the walkthrough's LAST step (§13b), because the link is the
        thing they have to go and use. */
     <div className="tight" data-tour="link">
-      <span className="label">Your booking page</span>
+      <span className="label">{label}</span>
       <div className="card">
         {/* The address itself, selectable, in the figure face — it is a
             value to be read and checked, not a sentence. */}
@@ -165,7 +190,7 @@ export default function BookingLink({ slug }) {
               ? <><Check size={18} strokeWidth={2} /> Copied</>
               : <><Copy size={18} strokeWidth={2} /> Copy</>}
           </button>
-          <a className="btn" href={`/book/${slug}`} target="_blank" rel="noreferrer">
+          <a className="btn" href={`/book/${slug}${path}`} target="_blank" rel="noreferrer">
             <ExternalLink size={18} strokeWidth={2} /> Open
           </a>
         </div>
@@ -213,10 +238,7 @@ export default function BookingLink({ slug }) {
           </div>
         )}
 
-        <p className="quiet" style={{ marginTop: 10 }}>
-          Put this in your bio, on your cards and in your texts. Customers book
-          themselves from here.
-        </p>
+        <p className="quiet" style={{ marginTop: 10 }}>{footnote}</p>
       </div>
     </div>
   );

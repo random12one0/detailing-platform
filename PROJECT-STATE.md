@@ -4767,10 +4767,122 @@ tick; logging a member needs *Money*. The demo's "Detailer" role can do the
 first and not the second. Should they be the same tick, or should plans get one
 of their own? Nothing is blocked either way.
 
-**STEP 3 IS THE CUSTOMER'S HALF AND IS NOT BUILT** — the booking page's plan
-buttons, the welcome-back line at the top of step 1, the remembered browser, the
-"your plan" link and the email nudge. It is separate because all of it lands on
-the booking page, whose per-step budgets are measured to 10px spare.
-`get_public_business_profile` returns no plans yet, and when it does, **the
-plan's effect on the price goes through `_shared/pricing.ts` or it is the
-travel-fee defect for the third time.**
+~~**STEP 3 IS THE CUSTOMER'S HALF AND IS NOT BUILT**~~ **STEP 3 SHIPPED THE
+SAME DAY — see "ROADMAP 2.14, STEP 3" at the end of this file.** The booking
+page's plan surfaces, the recognition, the remembered browser, the "your plan"
+link and the email nudge are all live, `get_public_business_profile` returns
+`plans`, and the plan's effect on the price is `planLineFor` in
+`_shared/pricing.ts` riding `price_adjustments`. **Every booking step's spare
+room is unchanged.**
+
+## ROADMAP 2.14, STEP 3 — THE CUSTOMER'S HALF OF PLANS, AND 2.14 IS CLOSED (2026-09-04)
+
+**A customer can now see a detailer's plans, ask to join one, be recognised on
+their next visit, and manage their plan from a link.** Step 2 was the
+detailer's half; this is everything the person paying meets. **The item is done
+and Phase 4.3 is closed into it.**
+
+**What exists now**
+
+| | |
+|---|---|
+| `supabase/migrations/20260904004000_plans_customer_half.sql` | `bookings.plan_id`, the auto-link trigger filling both halves, and `get_public_business_profile` returning `plans` |
+| `supabase/functions/plan-link/` | three actions on one function: `get`, `cancel`, `email`. Public, no session |
+| `app/src/book/PlansPage.jsx` | `/book/:slug/plans` — a ruled list, one row per plan, the row IS the button |
+| `app/src/book/PlanMemberPage.jsx` | `/plan/:memberId` — what they are on, visits waiting, next due, cancel, book |
+| `planLineFor` in `_shared/pricing.ts` | the ONLY thing that knows what a plan does to a price |
+| `planLinkEmail` / `planCancelledEmail` | two templates; `render-emails.mjs` now writes **20** — the twentieth is a booking WITH A PLAN, which exists only so the money tie-out can reach a NEGATIVE line |
+| `keepLink()` in `_shared/emailTemplates.ts` | *"here's your link, don't lose it"* on the confirmation, the acceptance and the reminder |
+| `scripts/demo-refs.json` | written by the seed, gitignored — how a script with no session reaches a member's page |
+
+**THE ORGANISING CONSTRAINT WAS A NUMBER, NOT A TASTE.** Step 1 has **ten
+pixels** of spare room at 1440x900 and that room belongs to the detailer's
+catalogue. So nothing was added to a step:
+
+- the plans are a PAGE of their own, which is also what 7 of 7 sampled
+  detailers and 5 of 6 products do;
+- the door to it rides the row the progress rail and *"Step 1 of 7"* already
+  share, and appears on step 1 only;
+- the recognition the owner asked for is spent on **step 1's heading**
+  (*"Welcome back, Marcus"* / *"Let's set up your Bi-weekly maintenance"*) and
+  **the price bar's eyebrow** (*"Bi-weekly maintenance applied"*) — two lines
+  that were already drawn.
+
+**Every step's spare room is identical to before the item.** Measured at all
+four sizes, normal path and `?lite=1`.
+
+**THE THING TO READ BEFORE TOUCHING THE PRICE: a plan is ONE FUNCTION and it
+rides `price_adjustments`.** `planLineFor` returns a labelled negative amount
+and `computeQuote` pushes it into `adjustmentLines` — the array the review
+step, every email, the invoice, the manage page and `bookings.price_adjustments`
+already draw. A `plan_discount` column was the obvious build and would have
+been nine render paths with one forgotten. **The plan governs the SERVICES;
+add-ons and travel are always extra; a percentage comes off the whole job.**
+
+**Four more that are invisible from the code**
+
+- **A plan sign-up is a REQUEST in either booking mode** — the sale and the
+  schedule are two acts, so the detailer has to agree somebody is on their
+  plan. **An existing member booking their own covered visit is not held up**,
+  which is why `create-booking` asks the database rather than keying off the
+  plan. `booking-engine` test 18 pins it on a reserve-mode business.
+- **Email IN, link OUT.** The owner asked for a lookup that displays a
+  customer's plan when they type their address; that is address enumeration.
+  `plan-link`'s `email` action answers identically for an unknown business, a
+  malformed address and a stranger, and only the sending differs.
+- **His customer-account idea shipped as a LINK.** `/plan/:memberId`, the
+  membership UUID as the credential — the third caller of a pattern this
+  product already used twice. **The page computes nothing**: `ledgerFor` from
+  `app/src/lib/plans.js` is the one implementation of the owed figure.
+- **The browser remembers the last customer, and the plan with them.** Name,
+  email and phone pre-fill the contact step; a remembered plan attaches itself.
+  **It is a HINT, never a grant** — the server re-reads the plan and a
+  non-member's booking lands as a request.
+
+**Two defects OLDER than this item were fixed on the way through.** A negative
+`price_adjustments` line printed as a positive CHARGE in every email
+(`moneyBlock` draws by `kind`, not by sign), so the column silently stopped
+adding up — already reachable through `accept-quote` whenever a detailer quoted
+UNDER the estimate. And `.bk-btn` labels could wrap: the review step's promo row
+has had the shape since 2.7 and survived only because *"Apply"* is short.
+
+**THE PLANS PAGE WAS BUILT TWICE AND THE SCREENSHOT IS THE ARGUMENT.** Four
+boxed cards, each ending in a full-width *"Ask about &lt;the name written 40px
+above it&gt;"* — `docs/design-knowledge.md` §1's tell and the owner's copy rule
+in one component. Replaced by a **ruled list**, which is the design system's own
+composition law, and which cost 96px a plan against 190px: the page went from
+311px past the bottom of a laptop to fitting with 24px to spare.
+
+**Verified by looking and by measuring.** `sweep-booking-steps.mjs` gained four
+states — the plans page, the flow with a plan attached, step 1 for a remembered
+customer, and a member's own page — and every step still fits at 1920 / 1440x900
+/ 768x1024 / 392x844 in both paths. `sweep-widths.mjs` clean at all five widths.
+Every credential-free suite passes (`plans` is **73** now, `booking-engine`
+**95** with test 18). All three `plan-link` actions were exercised against the
+live project, including a real send through Resend's simulator and the owner's
+"somebody left" email.
+
+**WHAT 2.14 STILL DOES NOT DO, unchanged from step 2:** price by vehicle size,
+a plan per VEHICLE (`customers` has no vehicles), a bundle of *different* kinds
+of visit counted separately, and the coating-warranty deadline — which is
+roadmap **2.23** and is a date with an escalating reminder, not a cadence.
+**`included_service_ids` still has no UI and no longer needs one**: the plan
+button starts the ordinary flow and the customer picks, which is what the
+auto-link trigger's stated ceiling already assumes.
+
+**AND THE DETAILER CAN SHARE THE PLANS PAGE.** `BookingLink` — the share /
+copy / open / QR block already on Business and Today — took one optional
+`path` prop and appears on the Monthly plans settings screen, where it is
+shown only once a plan is ACTIVE. Without it the single route to
+`/book/:slug/plans` was the door on step 1, which reaches only people who are
+already booking; the owner's original ask was that plans *"show up in the
+booking area, or they could just, like, have it just listed on the website"*,
+and until Phase 3 builds the website this link is the second half of that.
+
+**ONE THREAD THIS ITEM OPENED AND PARKED IN THE RIGHT PLACE:** `plan-link`'s
+`email` action is public and SENDS AN EMAIL, so it wants the same throttle
+roadmap **2.21** is already going to put on `create-booking` — an unthrottled
+loop against a known address is a mail-bomb from the platform's shared sending
+reputation. It cannot leak anything (it answers identically either way, by
+design), so it is a volume problem rather than a disclosure one. Written into
+2.21 rather than left in a session.
