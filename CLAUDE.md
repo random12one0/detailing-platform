@@ -39,6 +39,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   So "main is months behind" is no longer true, and a session that finds them
   apart should say so rather than assume it is normal. See DECISIONS.md, "The
   owner put the redesign on `main` and published it".
+  **AND THEY ARE APART — MEASURED 2026-09-05, `git rev-list --count
+  origin/main..HEAD` = 93, with NOTHING on `main` that is not here.** The
+  sentence above was written on 2026-08-30 when they were the same commit and
+  has been quietly untrue for most of a week, which is the thing it warns
+  about happening to itself. **What that means concretely: everything from
+  roadmap 2.5 onward is on the branch only** — the rebuilt emails, plans,
+  custom roles, request mode, campaigns, the payment handles and now the
+  pricing page — **and `main` still carries the `StepLocation` white-screen
+  crash 2.5 found**, live since 2026-08-31 on the booking page of any tenant
+  offering ONE of mobile and drop-off. **Still not merged, and still for the
+  same reason: there are no detailers on the product, so nothing needs it.**
+  Do not treat the number as a defect; do MEASURE it and say it, because a
+  session that assumes parity will publish one file and break the two it
+  depends on.
 - The owner's live business site (Supabase project `adtlnvihwrcqcasqcjwd`,
   Netlify, Resend domain andrewsdetail.com) takes real customers' money.
   Reads are allowed; writes only with the owner's explicit go-ahead for that
