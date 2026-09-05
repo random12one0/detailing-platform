@@ -394,7 +394,13 @@ h2 {
 h3 { font-size: var(--t-strong); font-weight: 600; }
 p { margin: 0; }
 a { color: var(--accent-text); text-decoration: none; }
-.num { font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+/* A FIGURE NEVER BREAKS ACROSS TWO LINES. Everything wearing `.num` is one
+   thing a person reads as a unit — a price, a count, a phone number — and at
+   392 the support number wrapped after "(562)", which turns one number into
+   two fragments. Measured, not guessed: the shot of the billing screen showed
+   it. Nothing else in the product changes, because every other `.num` is short
+   enough to have never wrapped. */
+.num { font-family: var(--f-num); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; white-space: nowrap; }
 
 /* --------------------------------------------------------------- SPACE */
 /* Flow containers, not per-element margins. Pick by relationship. */

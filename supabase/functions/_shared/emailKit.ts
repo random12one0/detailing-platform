@@ -391,7 +391,31 @@ export interface LegalFooter {
   unsubscribeUrl: string;
 }
 
-function footer(brand: Brand, legal?: LegalFooter): string {
+// `contactEmail` is not on `Brand` — it belongs to `TenantBrand`, which every
+// caller actually passes. Widening the parameter is cheaper than a field on
+// `Brand` that only the footer would ever read.
+/**
+ * THE LAST LINE HAS TO BE TRUE, and for one family of mail it was not.
+ *
+ * *"Reply to reach us"* is honest for every TENANT email — `contactEmail`
+ * becomes Reply-To, so a reply lands in the detailer's own inbox. **The
+ * platform's own billing mail has no such address** (roadmap 2.20 stage 2, and
+ * the owner has not chosen one yet), so a reply goes to the sending address,
+ * which nobody reads. That put the false promise on the two emails where
+ * somebody most needs a person: a declined card, and a booking page going
+ * dark. Found 2026-09-05 with roadmap item L.
+ *
+ * So it says what is actually there: an address if there is one, otherwise the
+ * phone, otherwise nothing at all rather than a promise.
+ */
+function reachUs(brand: Brand & { contactEmail?: string | null }, legal?: LegalFooter): string {
+  const prefix = legal ? "You booked with us before" : "Automated message";
+  if (brand.contactEmail) return `${prefix} &mdash; reply to reach us.`;
+  if (brand.contactPhone) return `${prefix} &mdash; call or text ${esc(brand.contactPhone)} to reach a person.`;
+  return `${prefix}.`;
+}
+
+function footer(brand: Brand & { contactEmail?: string | null }, legal?: LegalFooter): string {
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
   // Centred exactly once, at the end — the composition law, spent here.
   return `<tr><td style="${PAD} padding-top:44px; padding-bottom:44px;">
@@ -403,7 +427,7 @@ function footer(brand: Brand, legal?: LegalFooter): string {
         <div><a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a></div>
         ${legal ? `<div style="padding-top:10px; font-size:11px;">${esc(legal.mailingAddress)}</div>` : ""}
         ${legal ? `<div style="padding-top:10px; font-size:11px;"><a href="${legal.unsubscribeUrl}" class="c-accent" style="color:${brand.accent};">Stop getting emails like this</a></div>` : ""}
-        <div style="padding-top:10px; font-size:11px;">${legal ? "You booked with us before &mdash; reply to reach us." : "Automated message &mdash; reply to reach us."}</div>
+        <div style="padding-top:10px; font-size:11px;">${reachUs(brand, legal)}</div>
       </td></tr>
     </table>
   </td></tr>`;

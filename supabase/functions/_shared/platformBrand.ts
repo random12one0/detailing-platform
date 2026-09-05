@@ -39,15 +39,47 @@ export const PLATFORM_NAME = "Detailing Platform";
 /** The house accent — the same one an unbranded tenant sends with. */
 const PLATFORM_ACCENT = "#38E08B";
 
+/**
+ * HOW A DETAILER REACHES A PERSON, AND IT IS THE OWNER'S OWN MOBILE.
+ *
+ * Roadmap item L, opened 2026-09-05 when an audit found that **the product had
+ * no support contact of any kind** — no email, no phone, no address — while
+ * `/pricing` promised *"no phone call, no email and nobody to talk out of it"*,
+ * which is a promise about CANCELLING and is not an answer to *"I was charged
+ * twice."* He answered with this number the same day.
+ *
+ * **THIS IS THE ONLY PLACE IT IS WRITTEN.** The billing screen does NOT have a
+ * copy — `platform-billing`'s `summary` sends it over the wire, because a
+ * phone number typed into `Billing.jsx` as well would be the fourth instance
+ * this week of a fact in two files, and the one where being wrong means a
+ * detailer whose page is dark dials a stranger.
+ *
+ * **THE ADDRESS IS ON THE PLAIN DOMAIN AND THAT IS NOT AN ACCIDENT.** Mail
+ * goes OUT from `email.detailingplatform.com`, which Resend owns; a mailbox on
+ * `detailingplatform.com` itself is why that sub-name was chosen in the first
+ * place, so the two never collide. He is hosting it on iCloud+, whose custom
+ * domain needs MX records on the plain domain only — **it cannot disturb the
+ * sending sub-name, and the sending sub-name cannot disturb it.**
+ *
+ * `contactEmail` becomes Reply-To on the billing mail, so this address has to
+ * RECEIVE before it is worth having: until the iCloud+ domain is verified,
+ * a detailer's reply bounces. The phone above is the one that works today.
+ */
+export const SUPPORT_PHONE = "(562) 310-1075";
+export const SUPPORT_EMAIL: string | null = "support@detailingplatform.com";
+
 export function platformBrand(siteUrl: string): TenantBrand {
   return {
     ...brandFrom({
       brandName: PLATFORM_NAME,
-      contactPhone: null,
+      contactPhone: SUPPORT_PHONE,
       siteUrl,
       logoUrl: null,
     }, PLATFORM_ACCENT),
-    contactEmail: null,
+    // NULL UNTIL HE HAS AN INBOX. `contactEmail` becomes Reply-To, and setting
+    // it to an address nobody reads is worse than leaving it empty: the footer
+    // reads this and stops promising a reply when there is none.
+    contactEmail: SUPPORT_EMAIL,
     dropoffAddress: null,
     googleReviewUrl: null,
     yelpReviewUrl: null,

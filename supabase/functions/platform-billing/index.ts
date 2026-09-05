@@ -70,6 +70,7 @@ import { json, preflight } from "../_shared/http.ts";
 import { requireMember } from "../_shared/tenant.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
 import { publishableKey, stripe, stripeConfigured, StripeError } from "../_shared/stripe.ts";
+import { SUPPORT_EMAIL, SUPPORT_PHONE } from "../_shared/platformBrand.ts";
 import {
   consentSentence,
   dunningState,
@@ -218,6 +219,15 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
       sub.status === "canceled"
       || (sub.status === "suspended" && !!sub.canceled_at && sub.cancel_at_period_end !== true)
     ),
+    // HOW TO REACH A PERSON, SENT RATHER THAN TYPED INTO THE SCREEN.
+    //
+    // `Billing.jsx` could hold this number in two lines of JSX and that is
+    // exactly what it must not do — it would be the fourth fact in one week
+    // living in two files, and the one where being out of date means a
+    // detailer whose booking page is dark dials somebody else. One constant in
+    // `platformBrand.ts` feeds the billing emails AND this. `email` is null
+    // until the owner has an inbox; the screen renders whichever exists.
+    support: { phone: SUPPORT_PHONE, email: SUPPORT_EMAIL },
   });
 }
 

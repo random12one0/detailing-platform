@@ -257,6 +257,29 @@ export default function Billing() {
   // not work that out for itself — see the header.
   const live = sub && sub.status !== "incomplete" && !data.restartable;
 
+  // HOW TO REACH A PERSON, AND THE NUMBER IS NOT WRITTEN HERE.
+  //
+  // It arrives on `summary` from `_shared/platformBrand.ts`, the same constant
+  // the billing emails sign off with — because the fourth fact typed into two
+  // files this week must not be the one a detailer dials when their booking
+  // page has gone dark. `email` is null until the owner has an inbox, and this
+  // renders whichever exists rather than a heading over nothing.
+  //
+  // IT IS ON THIS SCREEN AND NOT IN THE SETTINGS INDEX because this is where
+  // the question gets asked. *"I was charged twice"* and *"why is my page
+  // off"* are both read on this page, and neither is answerable by a control.
+  function reachUs() {
+    const c = data.support;
+    if (!c || (!c.phone && !c.email)) return null;
+    return (
+      <p className="quiet" style={{ marginTop: "var(--sp-5)" }}>
+        Something not right with a charge?{" "}
+        {c.phone && <>Call or text <span className="num">{c.phone}</span>. </>}
+        {c.email && <>Or email <a href={`mailto:${c.email}`}>{c.email}</a>.</>}
+      </p>
+    );
+  }
+
   return live ? account() : ladder();
 
   // -------------------------------------------------------------------------
@@ -467,6 +490,7 @@ export default function Billing() {
             )}
           </div>
         )}
+        {reachUs()}
       </div>
     );
   }
@@ -639,6 +663,7 @@ export default function Billing() {
             Cancel my subscription
           </button>
         )}
+        {reachUs()}
       </div>
     );
   }

@@ -5804,7 +5804,21 @@ recommendation.
   one live question — how a plan should charge — survives as item A above and
   belongs to 2.20 (payments).
 
-- **L. THERE IS NO WAY FOR A DETAILER TO REACH HIM — no support email, no
+- ~~**L. THERE IS NO WAY FOR A DETAILER TO REACH HIM**~~ **ANSWERED AND BUILT
+  2026-09-05, the same day it was raised.** His mobile and
+  `support@detailingplatform.com` (iCloud+, his choice) are ONE constant in
+  `_shared/platformBrand.ts` — the billing emails sign off with them through
+  the brand's own footer, and the billing screen is SENT them on `summary`
+  rather than holding a copy, because three facts had already been found in
+  two files each that day and this is the one where being stale means a
+  detailer whose page is dark dials a stranger. **The footer also stopped
+  promising a reply it could not deliver**: *"reply to reach us"* is true of
+  tenant mail, where `contactEmail` becomes Reply-To, and was false on the two
+  emails where somebody most needs a person. **STILL OWED BY HIM: the iCloud+
+  custom domain is not set up, so that address does not RECEIVE yet** — the
+  phone is the one that works today, and nothing real has been sent.
+  Original wording below.
+- **L (as raised). THERE IS NO WAY FOR A DETAILER TO REACH HIM — no support email, no
   phone number, no postal address anywhere in the product, found 2026-09-05
   while auditing which facts are typed twice.** `/pricing` promises *"one
   button in your own account… no phone call, no email and nobody to talk out of

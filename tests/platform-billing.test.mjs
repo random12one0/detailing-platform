@@ -48,7 +48,9 @@ import {
 } from "../supabase/functions/_shared/platformBilling.ts";
 import { flatten, verifyWebhook } from "../supabase/functions/_shared/stripe.ts";
 import { billingEmail } from "../supabase/functions/_shared/emailTemplates.ts";
-import { platformBrand, PLATFORM_NAME } from "../supabase/functions/_shared/platformBrand.ts";
+import {
+  platformBrand, PLATFORM_NAME, SUPPORT_EMAIL, SUPPORT_PHONE,
+} from "../supabase/functions/_shared/platformBrand.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -1007,6 +1009,78 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
     "a legal disclosure has no business under a line cap");
   check("and the clamp is not still on them",
     !billing.includes('className="sub clamp2"'));
+}
+
+
+// ─── 19. HOW A DETAILER REACHES A PERSON ──────────────────────────────────
+//
+// Roadmap item L: an audit on 2026-09-05 found the product had NO support
+// contact of any kind — no email, no phone, no address — while `/pricing`
+// promised *"no phone call, no email and nobody to talk out of it"*, which is
+// a promise about CANCELLING and is not an answer to *"I was charged twice."*
+// The owner gave his own mobile the same day and has not chosen an inbox yet.
+//
+// EVERY CHECK HERE IS ABOUT THE NUMBER LIVING IN ONE PLACE. Three separate
+// facts were found in two files each earlier the same day, and this is the one
+// where being out of date means a detailer whose booking page is dark dials a
+// stranger.
+{
+  console.log("\n19. reaching a person");
+
+  const brandSrc = read("supabase/functions/_shared/platformBrand.ts");
+  const digits = (SUPPORT_PHONE.match(/\d/g) || []).join("");
+  check("the support phone is ten digits", digits.length === 10, digits);
+  check("and it is written for a human to read, not as a bare string of digits",
+    /[()\s.-]/.test(SUPPORT_PHONE), SUPPORT_PHONE);
+
+  // THE ONE PLACE. A second copy is the defect, so the test is a search of
+  // every file that could hold one rather than an assertion about this one.
+  for (const f of [
+    "app/src/screens/more/Billing.jsx",
+    "app/src/landing/PricingPage.jsx",
+    "app/src/landing/LandingPage.jsx",
+    "supabase/functions/_shared/emailTemplates.ts",
+    "supabase/functions/platform-billing/index.ts",
+  ]) {
+    check(`${f} does not hold its own copy of the number`,
+      !read(f).includes(digits.slice(0, 6)), f);
+  }
+
+  check("the screen asks the server for it instead",
+    read("app/src/screens/more/Billing.jsx").includes("data.support"));
+  check("and the server sends it from the one constant",
+    read("supabase/functions/platform-billing/index.ts")
+      .includes("support: { phone: SUPPORT_PHONE, email: SUPPORT_EMAIL }"));
+
+  // THE EMAILS SIGN OFF WITH IT TOO — the same constant reaches them through
+  // `platformBrand()`'s `contactPhone`, which the shared footer already
+  // renders. Nothing was added to a template for this.
+  check("the platform brand carries the phone into the emails",
+    brandSrc.includes("contactPhone: SUPPORT_PHONE"));
+
+  // AND THE FOOTER STOPPED PROMISING A REPLY IT CANNOT DELIVER. *"Reply to
+  // reach us"* is true of every TENANT email — `contactEmail` becomes
+  // Reply-To — and was false on the two emails where somebody most needs a
+  // person, because the platform has no inbox yet.
+  const kit = read("supabase/functions/_shared/emailKit.ts");
+  check("the footer's last line is computed rather than fixed",
+    kit.includes("reachUs(brand, legal)"));
+  check("no address means it offers the phone instead of a reply",
+    /if \(brand\.contactEmail\) return/.test(kit) && /call or text/.test(kit));
+  check("and neither means it promises nothing at all",
+    kit.includes("return `${prefix}.`;"));
+
+  // AND HE PICKED AN INBOX THE SAME DAY, so the slot is filled and the
+  // footer's other branch is the live one now.
+  check("there is a support address", !!SUPPORT_EMAIL, String(SUPPORT_EMAIL));
+  check("and it is on the product's own domain rather than a personal one",
+    /@detailingplatform\.com$/.test(SUPPORT_EMAIL || ""), String(SUPPORT_EMAIL));
+  // NOT THE SENDING ADDRESS. Mail goes out from `email.detailingplatform.com`
+  // (Resend owns that sub-name); the mailbox lives on the plain domain, which
+  // is the whole reason the sub-name exists. Setting these equal would point
+  // replies at an automated sender.
+  check("it is not the address the product sends from",
+    !String(SUPPORT_EMAIL).includes("email.detailingplatform.com"), String(SUPPORT_EMAIL));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
