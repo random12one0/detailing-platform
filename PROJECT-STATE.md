@@ -4690,3 +4690,70 @@ DECISIONS.md → "2 December 2026 is the date the whole plan turns on".
 - **THE RISK NOT IN THE ESTIMATE: the discovery rate has not slowed.** The same
   eleven days found a live white-screen crash, an invoice that never added up
   and eleven under-floor email headlines, none of them on any list beforehand.
+
+
+## ROADMAP 2.14, STEP 2 — PLANS ARE BUILT: THE TABLES, THE LEDGER AND THE SCREEN (2026-09-04)
+
+**The detailer's half is done and live on the platform project.** Step 1 was
+four rounds of research; this is the first code. The owner decided the shape
+himself: **a plan is LOGGED, never sold and never billed by us.**
+
+**What exists now**
+
+| | |
+|---|---|
+| `supabase/migrations/20260904002000_plans.sql` | `plans`, `plan_members`, `plan_visits`, `bookings.plan_member_id`, the auto-link trigger, `accrue_plan_visits()`, a nightly `pg_cron` job, and RLS |
+| `app/src/lib/plans.js` | the arithmetic — cadence and price words, the ledger, the visits-owed list. No React |
+| `app/src/screens/more/Plans.jsx` | the settings screen. **Business has NINE rows now**, under *What you sell* |
+| `tests/plans.test.mjs` | 51 checks, credential-free, baselined both ways |
+| `scripts/seed-demo.mjs` | 3 plans, 4 members (3 active, 1 paused), a skipped visit, and the grants come from the real accrual function |
+| `scripts/sweep-widths.mjs` | the row plus **both of its forms** |
+
+**A plan is four fields, and six shapes fall out of them** — a cadence (a count
+and a unit, not a fixed list; both NULL is a real answer and means a member rate
+with no schedule), what is included, how it is priced (a monthly amount, a
+per-visit amount, or a percentage — all three are in the sample), and whether
+there is a term (`term_months` records what was agreed and **nothing acts on
+it**, because six of ten sampled detailers advertise "no contracts" as a
+feature).
+
+**THE ONE THING TO READ BEFORE TOUCHING ANY OF IT: the ledger's two halves live
+in two places on purpose.** OWED is append-only rows in `plan_visits`; **USED is
+`bookings.plan_member_id`, a column** — because cancellation already works
+there. Twelve places in this codebase ask `status <> 'cancelled'` and every one
+is already correct about a plan visit that was called off. The obvious build
+(one ledger with `used` rows) needs a thirteenth rule and a compensating row
+nobody remembers to write.
+
+**Three more that are invisible from the code**
+
+- **Pause is a DATE, not a flag.** `plan_members.accrue_from` exists beside
+  `started_on` so that a member coming back is not backfilled with every visit
+  the pause was meant to skip.
+- **`on delete no action`, not `restrict`,** on `plan_members.plan_id` — the
+  seed deletes the demo business every run and that cascade hits both tables in
+  one statement.
+- **The auto-link trigger over-counts on purpose and it is stated**: a member
+  booking something their plan does not cover has it counted, because
+  `booking_services` rows land after the booking.
+
+**Verified by looking**, at 1920 / 1440 / 768 / 392 / 320, console clean
+(`shots-2.14/`). Three defects came out of that and none of them was reachable
+by any check in the repo: the member editor never named the person it was about,
+"No plans yet" was painted before the first read returned, and at 320 the *how
+often* number box was squeezed to ~40px with its digit behind the padding.
+`composition` caught a fourth, and it was a real design error rather than a
+technicality — both lists were cards, and a member list grows with the business.
+
+**OPEN FOR HIM — one small question.** Defining a plan needs the *Settings*
+tick; logging a member needs *Money*. The demo's "Detailer" role can do the
+first and not the second. Should they be the same tick, or should plans get one
+of their own? Nothing is blocked either way.
+
+**STEP 3 IS THE CUSTOMER'S HALF AND IS NOT BUILT** — the booking page's plan
+buttons, the welcome-back line at the top of step 1, the remembered browser, the
+"your plan" link and the email nudge. It is separate because all of it lands on
+the booking page, whose per-step budgets are measured to 10px spare.
+`get_public_business_profile` returns no plans yet, and when it does, **the
+plan's effect on the price goes through `_shared/pricing.ts` or it is the
+travel-fee defect for the third time.**

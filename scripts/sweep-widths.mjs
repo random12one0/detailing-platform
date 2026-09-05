@@ -150,7 +150,11 @@ const heightFor = (w) => (w >= 1900 ? 1080 : w >= 1024 ? 900 : 844);
 const DESKTOP_SPEC_BUILT = true;
 const BP_SPLIT = 1180;   // --wrap; where the desktop spec's second column engages
 const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that says "a desktop layout exists"
-// TWELVE SETTINGS SCREENS BEHIND TWO DOORS, from roadmap 2.11 step 6 stage 6.
+// THIRTEEN SETTINGS SCREENS BEHIND TWO DOORS. It was twelve until roadmap
+// 2.14 added Monthly plans to Business; the count in a comment is the fourth
+// stale-number family this repo has caught, so the list below is the
+// authority and this sentence follows it.
+// From roadmap 2.11 step 6 stage 6.
 // It was ELEVEN behind one, and the count and the door both had to move or
 // this script would report clean on eighteen screens while never opening the
 // four that had been re-homed and the one that is new. That is the family of
@@ -162,7 +166,8 @@ const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that say
 // Reviews is the twelfth and is new. There is no FAQ row: its storage
 // landed and its screen deliberately did not.
 const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews",
-  "Services & add-ons", "Promo codes & sale", "Hours & days off", "Booking rules"];
+  "Services & add-ons", "Monthly plans", "Promo codes & sale", "Hours & days off",
+  "Booking rules"];
 const GEAR_ROWS = ["Notifications", "Message templates", "Team", "This device"];
 
 // Runs in the page. Boxes are the things with an edge — two of those touching
@@ -657,7 +662,7 @@ for (const w of SIZES) {
   // ---- THE LONG TAIL: 28 of the 56 states, and the half that is skipped at
   // 1440 and 360. Everything above this line runs at every width.
   if (!deep) {
-    console.log(`${"the long tail".padEnd(24)} skipped at ${w} — 12 settings screens, the gear, setup x7, tour x7`);
+    console.log(`${"the long tail".padEnd(24)} skipped at ${w} — 13 settings screens, the gear, setup x7, tour x7`);
     await ctx.close();
     widthMs.push([w, Date.now() - widthStart]);
     continue;
@@ -680,6 +685,31 @@ for (const w of SIZES) {
   } else { console.log(`${"the QR button".padEnd(24)} NO SUCH BUTTON`); found++; }
 
   await walk("Business", BUSINESS_ROWS);
+
+  // MONTHLY PLANS' TWO FORMS ARE THE NINTH INSTANCE OF THE SAME GAP, and this
+  // one was added in the change that BUILT the screen rather than in the item
+  // that later finds it broken (roadmap 2.14). Walking to the screen measures
+  // two lists and two buttons; the plan form is nine controls including a
+  // segmented control beside a number field, and the member form is two
+  // drop-downs, a date and a money field on one row — which is the shape that
+  // breaks at 320, not the list above it.
+  await page.locator(".nav-row", { hasText: "Monthly plans" }).first().click().catch(() => {});
+  await settle(page, 1300);
+  const addPlan = page.getByRole("button", { name: "Add a plan" });
+  if (await addPlan.count()) {
+    await addPlan.first().click();
+    await settle(page, 800);
+    await say("Business · Monthly plans, the plan form");
+  } else { console.log(`${"the Add a plan button".padEnd(24)} NO SUCH BUTTON`); found++; }
+  const logMember = page.getByRole("button", { name: "Log a member" });
+  if (await logMember.count()) {
+    await logMember.first().click();
+    await settle(page, 800);
+    await say("Business · Monthly plans, the member form");
+  } else { console.log(`${"the Log a member button".padEnd(24)} NO SUCH BUTTON`); found++; }
+  // Escape, not the tab — the same reason the Notifications block below gives.
+  await page.keyboard.press("Escape");
+  await settle(page, 800);
 
   // THE SECOND DOOR. The gear is a destination rather than an overlay, so it
   // takes the main area and its own index has to be measured too — until

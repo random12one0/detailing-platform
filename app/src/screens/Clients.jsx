@@ -54,6 +54,10 @@ import { dateLong, money, todayLocal } from "../lib/format.js";
 // on the end of a group text. Part B row 6 was a defect of exactly that kind
 // and nothing could have caught it while it lived in here.
 import { agoWords, arrange, summarise } from "../lib/client-list.js";
+// Roadmap 2.14. The plan's own words for its rhythm, from the one file that
+// knows them — the Plans screen and this record must not describe the same
+// cadence two different ways.
+import { STATUS_WORDS, cadenceWords } from "../lib/plans.js";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import RecordHost from "../components/RecordHost.jsx";
 import { Segmented } from "../components/controls.jsx";
@@ -85,6 +89,12 @@ export default function Clients() {
   const [history, setHistory] = useState(null); // null while the record's list loads
   const [selected, setSelected] = useState(null);
   const [notes, setNotes] = useState("");
+  // WHO IS ON A PLAN — roadmap 2.14, research §3: "a plan badge on the client,
+  // with the cadence". It is in the RECORD rather than in the row on purpose:
+  // the row already carries three cells, and the list of who is on what is the
+  // Plans screen's whole job. What this answers is the question a detailer has
+  // with one customer in front of them.
+  const [planBy, setPlanBy] = useState(new Map());
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -106,7 +116,15 @@ export default function Clients() {
       .is("deleted_at", null)
       .eq("status", "completed")
       .lte("end_at", new Date().toISOString());
-    const [cs, ts] = await Promise.all([q, totalsQ]);
+    // Every live membership for the business, in one read — there are at most
+    // one per customer (`plan_members_one_live`), so this is smaller than the
+    // customer list it is joined to.
+    const plansQ = supabase
+      .from("plan_members")
+      .select("customer_id, status, plans(name, cadence_count, cadence_unit)")
+      .eq("business_id", business.id)
+      .neq("status", "ended");
+    const [cs, ts, pm] = await Promise.all([q, totalsQ, plansQ]);
     // A FAILED READ MUST NOT LOOK LIKE AN EMPTY BUSINESS — the third site of
     // this defect (useBookings, Money's loadExtras, here). The last good list
     // stays drawn and the message goes above it.
@@ -114,6 +132,10 @@ export default function Clients() {
     setError(failed ? (failed.message || "Could not load your customers.") : "");
     if (cs.data) setCustomers(cs.data);
     if (ts.data) setTotals(summarise(ts.data, business.timezone));
+    // NOT part of `failed` above: a business with no plans reads zero rows and
+    // that is the ordinary case, so a plan read that fails must not put an
+    // error banner over a customer list that loaded perfectly well.
+    if (pm.data) setPlanBy(new Map(pm.data.map((r) => [r.customer_id, r])));
     setBusy(false);
   }, [business.id, business.timezone, search]);
 
@@ -302,6 +324,18 @@ export default function Clients() {
                 <span className="quiet">Last visit</span>
                 <span className="v">{facts.last ? dateLong(facts.last) : "No completed visits yet"}</span>
               </div>
+              {planBy.get(open.id) && (
+                <div>
+                  <span className="quiet">Plan</span>
+                  <span className="v">
+                    {planBy.get(open.id).plans?.name ?? "On a plan"}
+                    {" · "}
+                    {planBy.get(open.id).status === "active"
+                      ? cadenceWords(planBy.get(open.id).plans)
+                      : STATUS_WORDS[planBy.get(open.id).status]}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* THE PHONE NUMBER IS NOT PRINTED TWICE. It is the record's

@@ -295,7 +295,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   **AND THE DEFAULT RUN IS TIERED AS OF 2026-09-03, at the owner's push: 203s
   rather than 335s.** Every width walks the CORE — the booking page, the five
   tabs, the job record, the request card, the calendar's day and history,
-  Money's periods and modals, Clients' six. **The long tail — the twelve
+  Money's periods and modals, Clients' six. **The long tail — the THIRTEEN
   settings screens, the gear, setup x7, tour x7 — runs at 320 and 1920 only**,
   the two extremes where every width-specific defect in this repo's history was
   actually found. Measured: a deep width is ~67s, a core-only one ~24s, so the
@@ -390,6 +390,11 @@ explaining it; if they still have to ask "so should I?", it failed.
   **`client-list`** (31 checks, new 2026-09-02 — the Clients list's date
   arithmetic and the lapsed filter, which decides who ends up on the end of a
   group text; baselined both ways),
+  **`plans`** (51 checks, new 2026-09-04, roadmap 2.14 — the visits a plan
+  member is OWED, which is the one number that feature exists to print, and
+  `addPeriod` against Postgres's own month-overflow clamp, because the
+  accrual writes the grants in SQL and this file predicts the next one.
+  Baselined both ways),
   **`setup-progress`** (24 checks, new 2026-09-02 — how many of the seven
   first-run steps are done. That number is printed in TWO places that must
   never disagree, the setup form's progress rule and Business's *Finish
@@ -435,13 +440,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  TWELVE settings screens through TWO DOORS — eight on Business and four behind
+  THIRTEEN settings screens through TWO DOORS — NINE on Business (Monthly plans
+  joined in roadmap 2.14) and four behind
   the header gear (it was eleven behind one until roadmap 2.11 step 6 stage 6,
   and a script that opens one door reports clean on screens it never visits) —
   **the booking link’s QR CODE, which is behind a button and so is a state the
   script has to enter (added 2026-09-02 with it — measuring the Business index
   says nothing about a plate that only exists after a click, which is stage
   6’s own finding for the fifth time)**,
+  **MONTHLY PLANS AND BOTH OF ITS FORMS, WHICH ARE THE NINTH INSTANCE OF THE
+  SAME GAP — and the FIRST time it was added in the change that built the
+  screen rather than in the item that later finds it broken (roadmap 2.14,
+  2026-09-04).** The screen is two lists and two buttons; the plan form is
+  nine controls including a segmented control beside a number field, and that
+  row is what breaks at 320, not the lists above it,
   the client sheet, **the job record in two states
   (added 2026-09-01, roadmap 2.11 step 6 stage 2 — until then the object
   carrying 26 of the product's 126 capabilities had never been swept, so a
@@ -730,8 +742,9 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - **THE FIFTH TAB IS `Business`, THE PLUMBING IS BEHIND A GEAR IN THE HEADER,
   AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
-  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. Eight rows on
-  Business (what changes what a CUSTOMER meets), four behind the gear (what
+  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. NINE rows on
+  Business (what changes what a CUSTOMER meets — Monthly plans joined them in
+  roadmap 2.14, because a plan is an offer with a price), four behind the gear (what
   changes how the app behaves for the detailer), and the test that decides
   which is written into `screens/Business.jsx`’s own header. **Staff get
   THREE rail buttons** — Today, Calendar, Clients — plus the gear.
@@ -827,6 +840,41 @@ explaining it; if they still have to ask "so should I?", it failed.
   `price_adjustments` line so the receipt still reconciles. Saying no to a quote
   is the ordinary `cancel-booking`. Full reasoning and **three questions standing
   for the owner**: DECISIONS.md → "Roadmap 2.12".
+- **A PLAN IS LOGGED, NEVER SOLD, AND ITS LEDGER HAS TWO HALVES IN TWO
+  PLACES — roadmap 2.14 step 2, 2026-09-04.** `plans` (what a detailer
+  offers: a cadence, what is included, how it is priced, whether there is a
+  term), `plan_members` (who is on one, with the price SNAPSHOTTED) and
+  `plan_visits` (the ledger). We take no money, so there is no card, no
+  charge and no status implying one; three statuses, not seven.
+  **OWED IS ROWS IN `plan_visits`; USED IS `bookings.plan_member_id`, A
+  COLUMN — and that split is load-bearing.** Cancellation already works on
+  `bookings`: twelve places ask `status <> 'cancelled'` and every one is
+  already right about a plan visit that was called off. **A session that
+  "tidies" used into a second ledger row needs a thirteenth rule and a
+  compensating row nobody remembers to write.**
+  **PAUSE IS A DATE (`plan_members.accrue_from`), NOT A FLAG.** Accruing from
+  `started_on` backfills every visit the pause was meant to skip the moment
+  the member comes back. **`accrue_plan_visits()` is the only writer of a
+  grant**, idempotent by a partial unique index, on `pg_cron` nightly —
+  `seed-demo.mjs` CALLS it rather than writing grants by hand, so a
+  regression in the accrual shows up as a demo with nobody owed anything.
+  **`on delete no action`, not `restrict`, on `plan_members.plan_id`**: both
+  refuse to delete a plan somebody is on, but deleting a BUSINESS cascades to
+  both tables in one statement in an order Postgres does not promise, and the
+  seed takes that path every run.
+  **The auto-link trigger's ceiling is real and stated**: a member booking
+  something their plan does not cover has it counted, because
+  `booking_services` rows are written AFTER the booking and a BEFORE INSERT
+  trigger cannot see what was bought.
+  **NO NEW PERMISSION KEY** — `plans` writes ride `settings`, `plan_members`
+  and `plan_visits` ride `money`. That pairing is the ONE open question with
+  the owner. **The arithmetic is `app/src/lib/plans.js`** and
+  `addPeriod` must keep matching Postgres's month-overflow clamp.
+  **STEP 3 — the customer's half — IS NOT BUILT**: the booking page's plan
+  buttons, the welcome-back line, the remembered browser, the "your plan"
+  link and the email nudge. **`get_public_business_profile` returns no plans
+  yet.** And when it does: the plan's effect on the price goes through
+  `_shared/pricing.ts` or it is the travel-fee defect for the third time.
 - **PUSH WORKS END TO END, CONFIRMED BY THE OWNER ON A REAL DEVICE
   2026-09-02.** He was asked to tap the switch and let a booking through; his
   answer was “works”. The browser half is `app/public/sw.js` +

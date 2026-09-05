@@ -2574,6 +2574,83 @@ is kept; the entire visual design restarts from scratch.
       in `_shared/emailTemplates.ts`, not new machinery, since every email
       already has the link.
 
+      ---
+
+      **STEP 2 IS DONE — 2026-09-04. THE DETAILER'S HALF: the tables, the
+      ledger and the settings screen.** `20260904002000_plans.sql`,
+      `app/src/lib/plans.js`, `app/src/screens/more/Plans.jsx`,
+      `tests/plans.test.mjs` (51 checks). Applied to the platform project and
+      seeded. Full reasoning: DECISIONS.md → "Roadmap 2.14, step 2".
+
+      **What a cold session must not re-derive:**
+
+      1. **THE LEDGER'S TWO HALVES LIVE IN DIFFERENT PLACES, ON PURPOSE.**
+         OWED is append-only rows in `plan_visits`; USED is
+         `bookings.plan_member_id`, a COLUMN, **because cancellation already
+         works there** — twelve places in this codebase ask
+         `status <> 'cancelled'` and every one is already right about a plan
+         visit that was called off. One ledger table with `used` rows in it is
+         the obvious build and it is wrong. **Do not "tidy" the two halves
+         together.**
+      2. **PAUSE IS A DATE (`plan_members.accrue_from`), NOT A FLAG.**
+         Accruing from `started_on` backfills every skipped visit the moment a
+         paused member returns.
+      3. **`accrue_plan_visits()` IS THE ONLY THING THAT WRITES A GRANT**, it
+         is idempotent by a partial unique index, and `pg_cron` runs it nightly
+         at 00:05 UTC. `seed-demo.mjs` calls it rather than writing grant rows
+         by hand, so a regression in the accrual shows up as a demo with
+         nobody owed anything.
+      4. **THE AUTO-LINK TRIGGER'S CEILING IS KNOWN AND STATED**: a member who
+         books something the plan does not cover has that job counted, because
+         `booking_services` rows are written after the booking and a BEFORE
+         INSERT trigger cannot see what was bought. Clear the link or add an
+         `adjusted` row. **Revisit if a detailer complains, not before.**
+      5. **NO NEW PERMISSION KEY.** `plans` writes ride `settings`,
+         `plan_members`/`plan_visits` ride `money`. **This is the one thing in
+         step 2 handed to the owner rather than decided** — see the question
+         below.
+      6. **NOT BUILT, DELIBERATELY:** price by vehicle size (one jsonb column,
+         append-only, add when asked), a plan per VEHICLE (`customers` has no
+         vehicles; `plan_members_one_live` is the single index that assumes a
+         person), and the coating-warranty deadline (round 2's requirement
+         case — it is a date, an escalating reminder and a last-done stamp, and
+         it is still owed — **and it is roadmap 2.23 now, opened in this same
+         change so it does not die inside this item's prose**).
+
+      **OPEN FOR THE OWNER — one question, and it is small:** should defining a
+      plan and logging a member need the same tick? Today a role with
+      *Settings* can create a plan and a role with *Money* can log who is on
+      one, which is why the demo's "Detailer" can do the first and not the
+      second. The alternative is a fifth tick of its own. Nothing is blocked
+      either way.
+
+      ---
+
+      - [ ] **STEP 3 — THE CUSTOMER'S HALF, all of it on the booking page.**
+            Round 4 is approved and this is what it turns into:
+            **one button per plan** in a section beside the flow (never a step
+            inside it), which starts the ordinary flow with the plan attached
+            and ends as a REQUEST; **the plan's effect on the price runs
+            through `_shared/pricing.ts` and nowhere else** — a plan price
+            drawn on the page and not charged by `computeQuote` is the
+            travel-fee defect for the THIRD time, and
+            `tests/booking-engine.test.mjs` test 17 is the check's shape;
+            **the request card must SAY it is a plan booking** or the detailer
+            quotes it as a one-off; **the browser remembers the last customer
+            on that device** and step 1 shows *"Welcome back, Marcus — your
+            Bi-weekly plan applies"* at the TOP (the reorder is off, his own
+            words); a **"your plan" LINK** — what they are on, when they are
+            next due, cancel, and a book button carrying the plan — never an
+            account and never an email lookup that displays anything
+            (**email IN, link OUT**); and the emails carry the booking link
+            with a nudge, which is a template change in
+            `_shared/emailTemplates.ts`.
+            **`get_public_business_profile` does not return plans yet** — that
+            is step 3's first line. **Re-measure with
+            `node scripts/sweep-booking-steps.mjs`**: the budgets are 10px
+            spare on step 1 at 1440x900, so anything added to a step spends
+            something real.
+
 - [x] 2.15 ~~**Travel priced by measured distance**~~ **REFUSED BY THE OWNER
       2026-08-31, THE SAME DAY IT WAS WRITTEN, AND THE THING HE DESCRIBED
       INSTEAD IS ALREADY BUILT. This item is closed without work.**
@@ -3468,6 +3545,56 @@ is kept; the entire visual design restarts from scratch.
       word "maybe"**, so it is scheduled but he has not said build it.
 
       **Skills: none. `security-review` on where the dump lands.**
+
+- [ ] 2.23 **THE MAINTENANCE DEADLINE — a coating warranty that VOIDS, not a
+      cadence. He handed the design to us on 2026-09-04 and it is still owed.**
+
+      > *"and then there was, like, the requirement case things. And I think you
+      > could probably figure all that out. I don't really know how to do all
+      > that. You could figure out the best way to implement it… and just be
+      > customizable for the detailer who might have a lot of different things."*
+
+      **Opened as its own item on 2026-09-04, at the end of roadmap 2.14 step 2,
+      because it was living inside 2.14's prose and would have died there.** The
+      research recommended exactly this split and 2.14 built cadences without
+      it.
+
+      **WHY IT IS NOT A STRICTER CADENCE, which is the whole point.** A cadence
+      says *"roughly every month"* and nothing happens when it slips. This says
+      **"before 12 October, or something the customer paid $1,500 for is
+      gone."** Ceramic Pro requires an annual inspection by a certified
+      installer for every package; System X requires one professional service a
+      year **within about 30 days of the install anniversary, and missing that
+      window voids the warranty permanently.**
+
+      **The three things it has to be** (`docs/plans-research-2026-09-04.md`
+      round 2 §2, and they are the part that must survive):
+
+      1. a **deadline with a real date**, not an interval;
+      2. an **escalating reminder** as the date approaches — it fires more than
+         once, which is what makes it different from every reminder this product
+         already sends;
+      3. a **record of when the last qualifying service happened**, because the
+         warranty claim depends on proving it.
+
+      **NONE OF THE SIX PANEL PRODUCTS DOES THIS**, and it is the one place a
+      detailing-specific product is plainly better than Jobber. **It is also the
+      one requirement customers do not argue with**, because the consequence is
+      theirs and they already understand it.
+
+      **What 2.14 step 2 leaves it, so it is cheaper than it was.**
+      `plan_members` already carries a member and a status; `plan_visits`
+      already records visits with a `due_on`. The honest question this item has
+      to answer first is whether a maintenance deadline is **a kind of plan** (a
+      plan whose cadence is annual and whose miss has a consequence) or **a
+      thing attached to a BOOKING** (the coating job that started the warranty).
+      **The research leans to the second** — it is a fact about one car and one
+      job, and `plan_members` is per-customer.
+
+      **Do not smuggle it into the cadence fields.** That was considered and
+      rejected in the research, and 2.14 shipped without it on purpose.
+
+      **Skills: `impeccable` for whatever screen it lands on.**
 
 - [x] 2.17 **Motion and shape as a house style — the OWNER asked for this on
       2026-09-01, at the end of roadmap 2.11 step 6 stage 4.** Three named
@@ -4391,6 +4518,8 @@ those are not negotiable by any skill.
 | 2.11 — **DONE 2026-09-02** — dashboard from scratch | `impeccable` — `shape` per screen at step 4, `critique` on each finished screen, `audit` for a11y and responsive. `animate` only if motion changes. `ship-check` at the end | direction-generating skills. **The open question was ANSWERED (A), "the look stays"** — so no direction round, ever, on this item. Steps 1–5 produce FILES; he approves before any code. ~~**Steps 0–5 are done; the list is approved, the desktop layout is specified, every screen is designed and every component is inventoried. Step 6 is next and it is HIS approval gate — nothing is built until he says so**~~ ~~**HE ANSWERED 2026-08-31: approved WITH AMENDMENTS, and he lifted this item's no-schema rule. Step 4b, the phone pass, was added by his answer and is the only thing before code.**~~ **STEP 4b IS DONE TOO** — `docs/dashboard-phone-pass-2026-08-31.md`, every screen's phone form decided again from nothing, and it OVERRIDES step 4 wherever the two disagree about a phone. **AND HE RULED THE PHONE PORTRAIT-ONLY the same day** — *"when someone flips their phone over sideways, I don't want it to completely readjust"* — which withdrew the landscape half of step 4b, took `844` and the `short-screen` check back out of `sweep-widths.mjs`, and closed 2.16 unstarted. **The dashboard readjusts today**, so step 6 still owes one guard: `min-height: 500px` on `theme.css`'s 700px and 560px breakpoints. ~~**Step 6, the build, is the only thing left.**~~ **ALL SEVEN STAGES OF STEP 6 ARE BUILT — the shell and Today, the job record, the calendar, Money, Clients, Business and the twelve settings screens, and first run. The item is closed 2026-09-02.** His asks left the item as roadmap 2.13, 2.14 and 2.15. |
 | 2.17 — motion and shape as a house style | `improve-animations` to audit first, then `animate` to build. `impeccable` — `audit` for reduced motion and `critique` on each screen it touches. **`docs/design-system.md` § Motion is updated BEFORE any code**, because this item deliberately grows a budget that file caps | every direction-generating skill, as everywhere else on this product. **The look is settled — this is motion and one corner token, not a redesign** |
 | 2.18 — the emails, rebuilt from scratch | `impeccable` for the visual half, and only that | direction-generating skills. **Step 1 is RESEARCH and he asked for it by name** — do not start designing templates before the six-product sweep says what the set of emails even is |
+| 2.14 — plans a detailer logs | **Step 1 (research) and step 2 (the tables, the ledger and the settings screen) are DONE 2026-09-04.** `impeccable` for the settings screen and, at step 3, for the booking page's plan section | direction-generating skills. **Step 3 is the CUSTOMER's half and it all lands on the booking page**, whose per-step budgets are measured to 10px spare at 1440x900 — anything added to a step spends something real, so `sweep-booking-steps.mjs` is the definition of done there. **And the plan's effect on the price goes through `_shared/pricing.ts` or it is the travel-fee defect a third time** |
+| 2.23 — the maintenance deadline | `impeccable` for whatever screen it lands on | folding it into a cadence field. **It is a DATE with a consequence, an escalating reminder and a last-done stamp** — 2.14 shipped cadences without it on purpose |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
 | 4 — features + admin | `security-review` (the platform-admin lock especially), `code-review` | design skills |

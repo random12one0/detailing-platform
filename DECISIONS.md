@@ -213,6 +213,8 @@ were made more than once.
 
 - **2 December 2026 is the date the whole plan turns on, and it is his birthday** — told 2026-09-04, three months out, and it **collapses the structure question rather than answering it**: no LLC, no dad on the Stripe account, no guardian, no handover, and **the support ticket the setup file opened with is moot**, because a guardian only exists if an account is opened before 18. **He worked most of it out himself** — sole proprietor alone, EIN alone, licence at 18, a temporary joint bank account swapped later — **and he is right about the bank detail in particular: changing a payout account in Stripe is a settings change that touches no customer, no subscription and no stored card.** **The build is unaffected because Stripe TEST MODE needs no activated account**, so payments can be written and tested now and activated the week of the 2nd. **THE ESTIMATE, measured rather than guessed (`docs/timeline-2026-09-04.md`): eleven consecutive days of work, 214 commits, 104 of them touching code, 28 roadmap items closed and 23 open — and 18–27 sessions of work left before he could sell.** On three honest paces the software lands **late September, mid-to-late October, or late November** — **all of them before 2 December.** **So the software is not the constraint; his birthday is, and the first sales call is realistically the week of 8 December.** **What that slack is FOR: Phase 5**, putting his own detailing business on the platform and running it in parallel — free, needs no legal setup, and it is the best bug-finder available, so that on the first cold call he is selling something he has used daily for six weeks. **Five named risks could move it**, and the honest one is that **the discovery rate has not slowed** — the same eleven days turned up a live white-screen crash, an invoice that never added up and eleven under-floor email headlines, none of which were on any list beforehand.
 
+- **Roadmap 2.14, step 2 - the plans a detailer logs, and the ledger that makes billing additive later** - three tables, one settings screen and the arithmetic in a file a test can reach. **The shape was HIS**, decided in round 3 after four rounds of research: a plan is LOGGED, never sold and never billed by us. **The load-bearing decision is where the two halves of the ledger live**, and it is not the obvious one: OWED is append-only rows in `plan_visits`, but USED is a column on `bookings` (`plan_member_id`) rather than a second ledger row - **because cancellation already works there.** Twelve places in this codebase ask `status <> 'cancelled'` and every one of them is already correct about a plan visit that was called off; a `used` row in a ledger would have needed a thirteenth rule and a compensating row nobody would remember to write. **Pause is a DATE, not a flag** (`accrue_from`): accruing from `started_on` would backfill every visit the pause was meant to skip the moment the member came back, which is the opposite of what pause means to the customer who asked for it. **`on delete no action`, not `restrict`, on `plan_members.plan_id`** - both refuse to delete a plan somebody is on, but deleting a BUSINESS cascades to both tables in one statement in an order Postgres does not promise, and `seed-demo.mjs` takes that path on every run. **The auto-link is a TRIGGER because there are three writers** (the public booking page, the dashboard's New booking modal, and the seed), and its imprecision is stated rather than hidden: a member who books something the plan does not cover has it counted, because `booking_services` rows are written after the booking and a BEFORE INSERT trigger cannot see what was bought. **No new permission key** - `plans` writes ride `settings` (an offer with a price, exactly the catalog's test), `plan_members` and `plan_visits` ride `money` (what somebody pays, exactly what `can("money")` already hides on Clients) - **and that pairing is the one thing in this item put to the owner rather than decided.** **`composition` caught a real design error rather than a technicality**: both lists were cards, and a member list grows with the business - they are ruled rows now, with one editor open at a time replacing the list. **And two defects came out of LOOKING at it, neither of which any check in this repo could see**: the member editor never named the person it was about, and "No plans yet. Most detailers start with one..." was painted before the first read returned - the "a failed read must not look like an empty business" rule one state earlier, because the same sentence is equally untrue while loading. **What step 2 deliberately does NOT do is the customer's half** - the booking page's plan buttons, the welcome-back line, the remembered browser and the "your plan" link - and the reason it is a separate step is that all four are on the booking page, whose step budgets are measured to 10px.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -11383,3 +11385,155 @@ double-bookable in one configuration. **None of those were on any list
 beforehand, and there is no reason to think the next eleven days find nothing.**
 The estimate above contains no allowance for them, which is why the middle
 scenario rather than the fast one is the one to plan against.
+
+## Roadmap 2.14, step 2 - the plans a detailer logs
+
+Step 1 was the research (`docs/plans-research-2026-09-04.md`, four rounds). This
+is the first code. **The owner decided the shape himself** and it is worth
+restating before anything else, because every decision below falls out of it:
+
+> *"we need a way for the detailer within the app to log this customer as a
+> monthly plan, and they could set all the settings - if it's weekly, biweekly,
+> monthly, which tier it is, or if it's a percent discount, if it's a bundle."*
+
+**The plan is LOGGED. It is never sold by us and never billed by us.** We take
+no money, so there is no card, no charge, no dunning and no status implying one.
+
+### What shipped
+
+- `supabase/migrations/20260904002000_plans.sql` - `plans`, `plan_members`,
+  `plan_visits`, `bookings.plan_member_id`, an auto-link trigger, an accrual
+  function and a nightly `pg_cron` job.
+- `app/src/lib/plans.js` - the arithmetic, no React in it.
+- `app/src/screens/more/Plans.jsx` - the settings screen, thirteenth of
+  thirteen, on Business under *What you sell*.
+- `tests/plans.test.mjs` - 51 checks, baselined both ways.
+- `scripts/seed-demo.mjs` - three plans and four members, and the grants come
+  from the real accrual function rather than hand-written rows.
+- `scripts/sweep-widths.mjs` - the row, and **both of its forms**, which are
+  the ninth instance of the same gap and the first time it has been added in
+  the change that built the screen rather than in the item that finds it broken.
+
+### Six plan shapes, four fields, one table
+
+The research found six shapes across ten real detailers' plan pages, and the
+useful finding was that **they are not six features**. Every one falls out of a
+cadence, what is included, how it is priced, and whether there is a term:
+
+| Shape | How it is expressed |
+|---|---|
+| Frequency plan | a cadence, one visit |
+| Visit bundle | a cadence, `visits_per_period > 1` |
+| Tiered membership | several plans with different names and prices |
+| Prepaid block | `price_kind = monthly` plus `term_months` |
+| Discount membership | **no cadence at all**, `price_kind = percent_off` |
+
+**Cadence is a count and a unit, not a list.** The sample uses weekly through
+annual and Tang advertises *"custom schedules - just ask"*; a drop-down of four
+would be wrong for somebody. **Both columns NULL is a real answer**, not a
+missing one - a member rate with no schedule is two of the ten pages.
+
+### The decision that mattered: where the two halves of the ledger live
+
+The owner's own non-negotiable, from round 2: *a member has a ledger of visits
+owed and used*, or adding billing later is a rewrite. The obvious build is one
+ledger table with `granted` and `used` rows. **It is the wrong shape, and the
+reason is a fact about this codebase rather than about ledgers.**
+
+- **OWED is rows** - `plan_visits`, append-only, `delta` rather than a count so
+  a skip is a row instead of an edit. Nothing is ever updated, which is what
+  makes it something a charge could be posted against later.
+- **USED is a column on `bookings`** - `plan_member_id`. **Because cancellation
+  already works there.** Twelve places in this codebase ask
+  `status <> 'cancelled'` and every one of them is already right about a plan
+  visit that was called off. A `used` row in a ledger would have needed a
+  thirteenth rule, and a compensating `+1` row that somebody eventually forgets
+  to write.
+
+`tests/plans.test.mjs` pins that directly: a cancelled booking gives the visit
+back, and a soft-deleted one does not count either.
+
+### Pause is a DATE, not a flag
+
+`plan_members.accrue_from` exists separately from `started_on`, and the
+distinction is the whole of pause. Accruing from `started_on` would **backfill
+every visit the pause was supposed to skip** the moment the member came back -
+the opposite of what pause means to the customer who asked for it. Resuming
+moves `accrue_from` to today; nothing else touches it.
+
+Pause and skip are here at all because **the trade does not use contracts and
+advertises against them** - six of ten sampled plan pages sell "no contracts,
+cancel anytime" as a feature, and we could not enforce a penalty anyway.
+`term_months` records what was agreed and nothing acts on it.
+
+### Three things in the schema that are not obvious from reading it
+
+1. **`on delete no action`, not `restrict`, on `plan_members.plan_id`.** Both
+   refuse to delete a plan somebody is on. But deleting a BUSINESS cascades to
+   both tables in one statement, in an order Postgres does not promise -
+   `restrict` is checked the instant the row goes and errors; `no action` is
+   checked at the end of the statement, by which time there are no orphans.
+   `seed-demo.mjs` deletes the demo business on every single run.
+2. **The auto-link is a TRIGGER because there are three writers** - the public
+   booking page, the dashboard's New booking modal, and the seed - and a rule
+   that lives in one of them is a rule the other two break. **Its imprecision
+   is stated rather than hidden**: a member who books something the plan does
+   not cover has that job counted against the plan, because `booking_services`
+   rows are written AFTER the booking and a BEFORE INSERT trigger cannot see
+   what was bought. The correction is a human one and it exists.
+3. **`plan_members_one_live` is the one line that assumes a plan belongs to a
+   PERSON.** Research section 6 says it belongs to a VEHICLE - Visual prices
+   "per vehicle each visit" - and `customers` has no vehicles. When they
+   arrive, **that index is what moves**, and nothing else in the file cares.
+
+### Permissions: no new key, and this is the one thing put to the owner
+
+`plans` writes ride `settings` (a plan is an offer with a price, which is
+exactly the test `20260904001000_catalog_behind_settings.sql` applied to
+services). `plan_members` and `plan_visits` ride `money` (what somebody pays,
+which is exactly what `can("money")` already hides on Clients).
+
+Adding a fifth key means editing a check constraint on two tables,
+`permissions.js` and the Team screen - and roadmap 2.13's own rule is that
+every permission names a group of policies that predated it. **So no key was
+added on a guess, and the pairing is the open question for the owner.** The
+demo's "Detailer" role has `settings` but not `money`, which is a live example:
+they can define a plan and cannot log who is on one.
+
+### What `composition` caught, and it was a design error rather than a rule
+
+Both lists were cards. **A card is for a small set of objects you act on one at
+a time, and a member list grows with the business** - the same failure as
+Calendar's eighteen `BookingCard`s. They are ruled rows now (`.rows.cols`, the
+Clients grammar), with **one editor open at a time replacing the list** rather
+than opening inside a row, which also means no card is ever mapped over. No
+allowance was added to the test.
+
+### Two defects that only LOOKING found
+
+Neither is reachable by any check in this repo, and both came out of the 1920
+and 1440 screenshots:
+
+- **The member editor never named the person it was about.** The customer
+  picker only renders while logging somebody new, so editing an existing member
+  was five controls about a nameless person.
+- **"No plans yet. Most detailers start with one..." was painted before the
+  first read returned.** It is the "a failed read must not look like an empty
+  business" rule one state earlier - **the same sentence is equally untrue
+  while loading**, and a detailer with three plans met it on every open.
+
+One more came from 320: the "how often" number box was squeezed to about 40px
+by its own flex row and its digit disappeared behind the padding. A control
+showing nothing at all, on the width PRODUCT.md promises.
+
+### What step 2 deliberately does not do
+
+The customer's half - the plan buttons on the booking page, the welcome-back
+line at the top of step 1, the remembered browser, the "your plan" link and the
+email nudge - is **step 3**, and it is separate for a reason rather than for
+length: all of it lands on the booking page, whose per-step budgets are
+**measured** (roadmap 2.7 and 2.8c, binding screen 1440x900 with 10px spare on
+step 1). It is one item's worth of work with its own instrument
+(`sweep-booking-steps.mjs`) and its own tie-out (`booking-engine` test 17,
+because **a plan price shown and not charged by `computeQuote` is the
+travel-fee defect for the third time**).

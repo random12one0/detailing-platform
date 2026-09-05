@@ -41,7 +41,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   CalendarClock, ChevronRight, ClipboardList, Images, ListChecks,
-  MessageSquareQuote, Palette, Store, Tag, Wrench,
+  MessageSquareQuote, Palette, Repeat, Store, Tag, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -90,13 +90,19 @@ export default function Business({ onSetup }) {
 
   // One round trip for every summary line on the screen.
   const load = useCallback(async () => {
-    const [h, s, a, p, g, r] = await Promise.all([
+    const [h, s, a, p, g, r, pl, pm] = await Promise.all([
       supabase.from("business_hours").select("weekday,open_time,close_time").eq("business_id", business.id),
       supabase.from("services").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       supabase.from("add_ons").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       supabase.from("promo_codes").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       supabase.from("gallery_images").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
+      // Roadmap 2.14. TWO counts rather than one, because the row's real
+      // question is whether anybody is ON a plan: a business with three
+      // defined and nobody on them has not started, and "3 plans" says it
+      // has.
+      supabase.from("plans").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
+      supabase.from("plan_members").select("id", { count: "exact", head: true }).eq("business_id", business.id).neq("status", "ended"),
     ]);
     // A null count means the query failed. Keep it null so the row shows a
     // dash rather than asserting zero — a wrong "0 people" reads as a real
@@ -107,6 +113,7 @@ export default function Business({ onSetup }) {
       hoursRows: h.data ?? [],
       services: s.count, addOns: a.count,
       promos: p.count, photos: g.count, reviews: r.count,
+      plans: pl.count, planMembers: pm.count,
       // The setup form's own reading of the same rows. It asks whether ANY
       // day is open, which is the same question the blocking row below asks.
       hoursOpen: (h.data ?? []).some((r) => r.open_time),
@@ -179,6 +186,14 @@ export default function Business({ onSetup }) {
       ["catalog", "Services & add-ons", Wrench,
         blocked === "catalog" ? "Nothing to sell — your booking page is empty"
           : counts ? `${n(counts.services, "service", "services")} · ${n(counts.addOns, "add-on", "add-ons")}` : "…"],
+      // A PLAN IS AN OFFER WITH A PRICE, which is exactly the admission test
+      // this screen applies to the catalog — and step 3 puts the plans on the
+      // booking page, so a customer meets them. The owner named the location
+      // himself: "a way for them to set up their monthly plan within the
+      // website, like in the More page or the business page".
+      ["plans", "Monthly plans", Repeat,
+        counts ? (counts.plans === 0 ? "Not offering one"
+          : `${n(counts.planMembers, "member", "members")} on ${n(counts.plans, "plan", "plans")}`) : "…"],
       ["promos", "Promo codes & sale", Tag,
         counts ? (settings?.site_discount_active
           ? `Site sale on · ${n(counts.promos, "code", "codes")}`

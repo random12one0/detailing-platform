@@ -281,6 +281,76 @@ const customers = await post("/rest/v1/customers", CUSTOMERS.map(([name, phone, 
 })));
 const cust = (name) => customers.find((c) => c.name === name);
 
+// ROADMAP 2.14 — THREE PLANS AND FOUR MEMBERS, and every one of them is here
+// to make a STATE exist rather than to look plausible. The demo is the only
+// business anything in this repo can sign into, so a shape nothing seeds is a
+// shape no check at any width ever renders — the rule roadmap 2.4 wrote for
+// the cancelled booking and 2.12 wrote again for the request queue.
+//
+//   Bi-weekly    a frequency plan, the ordinary case
+//   Monthly      a BUNDLE — two visits a period, which is the only thing that
+//                makes `visits_per_period > 1` reachable
+//   Member rate  NO CADENCE AT ALL, a percentage off. It is a real plan shape
+//                (Mint, Car Detox) and it is the one branch that prints "No
+//                set schedule" instead of a date.
+const planRows = await post("/rest/v1/plans", [
+  {
+    business_id: business.id, name: "Bi-weekly maintenance", sort_order: 0,
+    description: "Exterior wash, wheels and glass every other week, plus a quick interior wipe-down.",
+    cadence_count: 2, cadence_unit: "week", visits_per_period: 1,
+    price_kind: "monthly", price_amount: 120, term_months: null,
+  },
+  {
+    business_id: business.id, name: "Monthly two-visit", sort_order: 1,
+    description: "Two visits a month — one full exterior, one interior refresh.",
+    cadence_count: 1, cadence_unit: "month", visits_per_period: 2,
+    price_kind: "monthly", price_amount: 200, term_months: null,
+  },
+  {
+    business_id: business.id, name: "Member rate", sort_order: 2,
+    description: "No set schedule — book whenever you like and take 10% off every visit.",
+    cadence_count: null, cadence_unit: null, visits_per_period: 1,
+    price_kind: "percent_off", price_amount: 10, term_months: null,
+  },
+]);
+const plan = (name) => planRows.find((p) => p.name === name);
+
+// FOUR MEMBERS, THREE STATUSES. `accrue_from` matches `started_on` because
+// these people joined on those days; the paused one is the state that proves
+// the sweep and the visits-owed chip can tell the difference.
+//
+// INSERTED BEFORE THE BOOKINGS LOOP ON PURPOSE. `bookings_link_plan` is a
+// BEFORE INSERT trigger, so seeding the memberships first is what gives the
+// demo a USED half of the ledger at all — and it exercises the trigger rather
+// than writing the links by hand, which would be a second implementation of
+// the one rule this feature has.
+await post("/rest/v1/plan_members", [
+  {
+    business_id: business.id, plan_id: plan("Bi-weekly maintenance").id,
+    customer_id: cust("Marcus Webb").id, status: "active",
+    started_on: localDate(-84), accrue_from: localDate(-84),
+    price_kind: "monthly", price_amount: 120, notes: "Agreed on the phone. First Tuesday works best.",
+  },
+  {
+    business_id: business.id, plan_id: plan("Monthly two-visit").id,
+    customer_id: cust("Elena Marsh").id, status: "active",
+    started_on: localDate(-70), accrue_from: localDate(-70),
+    price_kind: "monthly", price_amount: 200, notes: null,
+  },
+  {
+    business_id: business.id, plan_id: plan("Member rate").id,
+    customer_id: cust("Dana Ruiz").id, status: "active",
+    started_on: localDate(-30), accrue_from: localDate(-30),
+    price_kind: "percent_off", price_amount: 10, notes: null,
+  },
+  {
+    business_id: business.id, plan_id: plan("Bi-weekly maintenance").id,
+    customer_id: cust("Tom Okafor").id, status: "paused",
+    started_on: localDate(-120), accrue_from: localDate(-120),
+    price_kind: "monthly", price_amount: 120, notes: "Away until the spring.",
+  },
+]);
+
 // A day the business is open (skip its closed weekdays), N days from today.
 function openDay(fromOffset, direction = 1) {
   for (let i = 0; i < 20; i++) {
@@ -467,6 +537,21 @@ for (const p of PLAN) {
   }
 }
 
+// THE GRANTS COME FROM THE REAL FUNCTION, not from hand-written rows. The
+// nightly cron calls exactly this; running it here means the demo's owed
+// figures are whatever the product would actually have computed, and a
+// regression in the accrual shows up as a demo with nobody owed anything.
+await post("/rest/v1/rpc/accrue_plan_visits", {});
+
+// A SKIPPED VISIT, because a ledger with only grants in it never renders the
+// half that matters — pause and skip are the trade's own anti-breakage tools
+// and an 'adjusted' row is the only thing that draws one.
+await post("/rest/v1/plan_visits", [{
+  business_id: business.id,
+  member_id: (await get(`/rest/v1/plan_members?business_id=eq.${business.id}&customer_id=eq.${cust("Elena Marsh").id}&select=id`))[0].id,
+  kind: "adjusted", delta: -1, due_on: localDate(-14), note: "Skipped — away that week",
+}]);
+
 // Expenses across the same months, using the five fixed categories.
 const EXPENSES = [
   [0, "product", "Ceramic coating kit", 189],
@@ -512,6 +597,7 @@ Demo business ready.
   Business : ${business.name} (slug: ${SLUG}, ${TZ})
   Bookings : ${counts.length} (${made} seeded)
   Customers: ${customers.length}   Categories: ${groups.length}   Services: ${services.length}   Expenses: ${EXPENSES.length}   Reviews: ${REVIEWS.length}
+  Plans    : ${planRows.length} (4 members: 3 active, 1 paused)
   Owner    : ${OWNER.email} / ${OWNER.password}
   Staff    : ${STAFF.email} / ${STAFF.password}
 `);

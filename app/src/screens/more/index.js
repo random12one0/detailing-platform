@@ -6,7 +6,9 @@
 // of them imports from the other is a worse shape than a file that just holds
 // it (component inventory §3c).
 //
-// TWELVE, NOT THIRTEEN, and the missing one is the FAQ. Its storage landed in
+// THIRTEEN AS OF ROADMAP 2.14 — "Monthly plans" joined under "What you sell",
+// because a plan is an offer with a price and that is the same admission test
+// the catalog passes. The missing one is still the FAQ. Its storage landed in
 // the same change (`20260902001000_faq_storage.sql`) and its screen waits,
 // which is the owner's own split. A row that opens nothing is the exact defect
 // this stage is repairing on the push switch, so there is no FAQ row until
@@ -18,6 +20,7 @@ import Gallery from "./Gallery.jsx";
 import Reviews from "./Reviews.jsx";
 import Catalog from "./Catalog.jsx";
 import Promos from "./Promos.jsx";
+import Plans from "./Plans.jsx";
 import Hours from "./Hours.jsx";
 import BookingRules from "./BookingRules.jsx";
 import Notifications from "./Notifications.jsx";
@@ -33,6 +36,7 @@ export const SCREENS = {
   reviews: [Reviews, "Reviews"],
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
+  plans: [Plans, "Monthly plans"],
   hours: [Hours, "Hours & days off"],
   rules: [BookingRules, "Booking rules"],
   notifications: [Notifications, "Notifications"],
