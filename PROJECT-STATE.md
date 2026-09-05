@@ -4588,3 +4588,46 @@ legal setup, and being told to stop re-opening a closed decision".
   their browser, welcome-back message at the top of step 1, **no step reorder**,
   one button per plan where a detailer has several, and the emails carry the
   booking link with a "don't lose it" nudge.
+
+### ROUND 6 — PRICING LOCKED, THE SETUP CHECKLIST, AND THE LLC ADVICE REVERSING
+
+**`docs/setup-steps-2026-09-04.md` is the followable version of the legal file**,
+written at his request (*"go here, click these links, this is what I have to do,
+this is why"*). Judgment: DECISIONS.md → "The setup checklist, and the LLC advice
+reversing on one fact about Stripe".
+
+- **PRICING IS LOCKED** — *"I like that pricing. Lock all that in."* $999 / $60 /
+  $600 / $35, three founding spots, month-to-month at $75. **The rest of the
+  structure lands with 2.20 stage 2's checkout**; a third plan with nothing to
+  click is an option that does nothing.
+- **SHIPPED: the annual line reads "2 months free"** rather than "$120 less" —
+  same saving, better framing, still derived from config. **`landing-pricing` is
+  20 checks now**, two of them new and pinning the claim: **whole months, and
+  inside the 15–20% band.** Baselined at `annual: 610`, which prints
+  *"1.8333333333333333 months free"*. **Verified in a browser at 1440 and 392**,
+  one line, no overflow, and a FRESH tab showed no console errors — **the 483
+  `ERR_CONNECTION_REFUSED` in the old tab were it retrying a dev server that had
+  been stopped between sessions, not a page defect.**
+- **THE LLC ADVICE REVERSED ON ONE FACT: a Stripe account CANNOT move between
+  legal entities.** So a sole proprietorship in his dad's name means **every
+  subscriber re-enters their card on his 18th birthday**; an LLC hands over as
+  one document with entity, EIN, bank and Stripe account intact. **The earlier
+  "skip the LLC" weighed $800/year against $1,440 of revenue and never weighed
+  the migration** — the same cost this project had already used, two exchanges
+  earlier, to refuse switching payment providers.
+- **HENCE STEP 0, THE QUESTION NOBODY HAD ASKED: how many months until he turns
+  18?** Under six → **wait, launch billing in his own name, no handover ever.**
+  Longer → the $800 buys a migration he does not have to do. **Neither answer
+  wastes any other step.**
+- **HIS LAKEWOOD EXPERIENCE WAS CORRECT AND APPLIES HERE TOO.** The city's code
+  requires the applicant **and the person principally in charge** to be over 18,
+  so **his dad applies**. The city asks you to phone first — **(562) 866-9771
+  x2622** — which makes one call the fastest way to confirm the whole document.
+- **STRIPE TAX, ANSWERED:** one switch for the ACCOUNT, not per customer; once
+  on it reads each customer's address itself; **but it only charges where a
+  REGISTRATION exists and returns zero otherwise.** **A Texas detailer signing up
+  tomorrow is charged $0 and that is correct. Take the customer.**
+- **THE MOST URGENT ITEM IS ABOUT HIS OTHER BUSINESS:** he mentioned in passing
+  that he makes **~$2,000/month detailing**, which is past the $400
+  self-employment threshold. **Being under 18 exempts nobody.** Recorded because
+  it arrived as an aside.

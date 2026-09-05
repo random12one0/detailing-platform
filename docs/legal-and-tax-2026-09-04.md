@@ -13,6 +13,18 @@ He asked three things at once:
 > *"I gotta figure out everything legally. Do I have to register this anywhere —
 > business, California, whatever? How do I make everything legal and sound?"*
 
+> **THE FOLLOWABLE VERSION OF THIS FILE IS `docs/setup-steps-2026-09-04.md`**,
+> written 2026-09-04 when he asked for *"a plan that's easy for me to follow —
+> go here, click these links, this is what I have to do, this is why."* **Two
+> things in this file were REVISED there and the newer one wins:**
+> **(1) Lakewood's municipal code requires a business-licence applicant, and the
+> person principally in charge, to be over 18** — so his dad applies, which is
+> exactly what he was told when he tried for his detailing business.
+> **(2) The LLC recommendation was made on cost alone and cost alone was the
+> wrong basis** — a **Stripe account cannot move between legal entities**, so a
+> sole proprietorship in his dad's name means every subscriber re-enters a card
+> on his 18th birthday, while an LLC hands over in one document.
+
 **One caveat, said once and not repeated: this is a checklist, not legal
 advice.** Every item below is a real, checkable requirement with a source, and
 none of it replaces **one hour with a CPA and a conversation with his parents**

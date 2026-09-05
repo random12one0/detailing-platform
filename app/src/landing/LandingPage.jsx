@@ -473,10 +473,17 @@ export default function LandingPage() {
                   {founding ? "Take a founding spot" : "Start the website plan"}
                   <span className="ar">→</span>
                 </a>
+                {/* MONTHS, NOT DOLLARS — 2026-09-04. The saving is unchanged
+                    ($120, 16.7%, the industry-standard annual discount); the
+                    framing is what moved. "2 months free" reads faster than
+                    "$120 less" because a month is easier to picture than a
+                    subtraction, and it is how the whole category words it.
+                    Still derived from the config, so the sentence cannot go
+                    stale: change `annual` and the number of months follows. */}
                 <p className="alt">
-                  Or ${PRICING.annual}/year paid once — $
-                  {PRICING.website.monthly * 12 - PRICING.annual} less than
-                  paying monthly.
+                  Or ${PRICING.annual}/year paid once —{" "}
+                  {(PRICING.website.monthly * 12 - PRICING.annual) / PRICING.website.monthly}{" "}
+                  months free.
                 </p>
               </div>
             </article>

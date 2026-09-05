@@ -207,6 +207,8 @@ were made more than once.
 
 - **Pricing, the legal setup, and being told to stop re-opening a closed decision** — he pushed back with *"why do you keep mentioning Paddle? Aren't we just sure on Stripe?"* and **he was right**: it was decided in round 3 and then re-opened twice with "triggers", which reads as indecision and made him re-read the same argument three times. **The question is shut, and the rule that came out of it is worth more than the answer: a session that finds a reason to reconsider a settled decision writes it in the file and keeps working — it does not put the choice back in front of him.** **On pricing, the finding is that he is charging too LITTLE**: a custom site alone is $500–$5,000 from a freelancer and $10k+ from an agency, Housecall Pro is $59/month for software with NO website, and ongoing site upkeep alone benchmarks at $50–$200/month — **so the fix for "make it feel like a good deal" is not a lower number, it is putting the alternative on the page**, and his real differentiator (he edits their site whenever they ask) is currently invisible. **$600/year turns out to be exactly "2 months free" (16.7%), the industry-standard discount** — the most common figure in the category — **so change the WORDS, not the number**, because months-free converts better than dollars or percentages. **Three founding spots, kept**: one is an anecdote rather than an offer, three buys three references and three portfolio sites, and three at $40 covers the ~$45/month of fixed costs. **The best answer on sales tax is not software, it is his calling list** — SaaS is untaxed in ~25 states, and since he cold-calls he can choose them, which means **nothing to calculate, register or file anywhere**; Numeral's free nexus monitoring is the safety net, and Stripe Tax only goes on when a state actually needs it. **California is the one state that creates an obligation immediately** (he lives there; SB 122 lands 1 Jan 2027), which agrees with his own competition-based reason for skipping it — **but the rule is "prefer the untaxed states, never turn away a good customer over paperwork."** **Business setup: sole proprietorship, NOT a California LLC** — $70 to file then **$800 every year regardless of revenue, first-year exemption expired in 2024**, against ~$1,440 of founding-year revenue; **and the LLC decision belongs to his dad**, who already carries the liability by owning the payment account. **A minor CAN be an LLC member in California** (the state sets no age; Texas does) — the problem is contracts, and the standard fix is a manager-managed LLC with the parent as manager. **And two things he asked for turned out to already exist**: Resend emails at 80% and 100% of quota, so the alerting half needs no work, and his own admin dashboard was already roadmap 4.4. **He also told us the 4.4 paragraph was unreadable** — *"I have no idea what this whole paragraph means"* — which is CLAUDE.md's own plain-language rule being broken, and it is fixed in place with both versions kept.
 
+- **The setup checklist, and the LLC advice reversing on one fact about Stripe** — he locked the pricing (*"I like that pricing. Lock all that in."*) and asked for the legal side as something followable: *"go here, click these links, this is what I have to do, this is why."* **`docs/setup-steps-2026-09-04.md`.** **The finding that changed a recommendation: a Stripe account CANNOT move between legal entities** — same entity, ownership transfers to a new individual; different entity, Stripe requires a new account. **So a sole proprietorship in his dad's name means every subscriber re-enters their card on his 18th birthday**, while an LLC hands over as one document with the entity, EIN, bank account and Stripe account all intact. **The earlier "skip the LLC" was decided on the $800 California franchise tax alone, and cost alone was the wrong basis** — the number to weigh it against is not $1,440 of founding revenue, it is what asking fifty subscribers to re-enter a card costs in cancellations. **Hence step 0 of the checklist, which is the question nobody had asked: how many months until he turns 18?** Under six, wait and set everything up in his own name — no LLC, no handover, ever. Longer, the $800 is buying a migration he does not have to do. **His Lakewood experience was correct and it applies here too:** the city's code requires the licence applicant **and the person principally in charge** to be over 18, so his dad applies — and the city asks you to phone before they issue an application, which makes **one five-minute call the fastest way to confirm every assumption on the page.** **Stripe Tax answered exactly:** it is ONE switch for the account, not per customer; once on it reads each customer's address automatically; **but it only charges tax where a REGISTRATION has been added, and returns zero otherwise** — so a Texas detailer signing up tomorrow is charged $0 tax and that is CORRECT. **Take the customer.** **And he is already earning ~$2,000/month detailing**, which is past the $400 self-employment threshold — **the most urgent item on the list is about the business he already runs, not this one.** **Shipped alongside: the annual line now reads "2 months free"** rather than "$120 less", still derived from config, with two new `landing-pricing` checks pinning the claim — whole months, and inside the category's 15–20% band — **baselined at `annual: 610`, which prints "1.8333333333333333 months free".**
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -11135,3 +11137,92 @@ approved on 2026-08-30, not a live surface. `PRODUCT.md` now says to read the
 price from `pricing.js` and never from that file, because the design system's
 "where they disagree, the page is right" rule is about DESIGN and would be
 actively wrong applied to a price.
+
+## The setup checklist, and the LLC advice reversing on one fact about Stripe
+
+He locked the pricing — *"I like that pricing. Lock all that in."* — and asked
+for the legal side as something he could actually follow: *"go here, click these
+links, this is what I have to do, this is why. Because I've never done this and
+I don't know any of it."* That is `docs/setup-steps-2026-09-04.md`.
+
+### The fact that reversed a recommendation
+
+**A Stripe account cannot move between legal entities.** Within the same entity,
+ownership transfers to a new individual — invite them as an Administrator, then
+transfer in Business settings. **Between entities, Stripe almost always requires
+a new account.**
+
+**So the two structures are not "cheap versus expensive". They are "one document
+versus a migration."**
+
+- **Sole proprietorship in his dad's name:** on his 18th birthday the business
+  becomes a different legal person. New EIN, new bank account, **a new Stripe
+  account with every subscriber re-entering their card**, a new city licence,
+  and customer agreements re-signed.
+- **LLC with both of them:** his dad assigns his membership interest. **Same
+  entity, same EIN, same bank, same Stripe account, same subscribers, nothing
+  re-signed.**
+
+**The earlier "sole proprietorship, skip the LLC" was decided on the $800
+California franchise tax against ~$1,440 of founding-year revenue, and that was
+the wrong comparison.** The right one is what asking fifty subscribers to
+re-enter a card costs in cancellations — **which is exactly the cost used, two
+exchanges earlier, to argue against ever switching payment providers. The same
+argument was available and was not applied to the structure question.**
+
+### Which produced the question nobody had asked
+
+**Step 0 of the checklist: how many months until he turns 18?**
+
+- **Under about six:** wait. Keep building, do not launch paid subscriptions,
+  set everything up in his own name the week he turns 18. **No LLC, no
+  dad-entity, no handover ever** — and the product is not finished anyway.
+- **Longer:** the LLC is probably worth it, and it is a CPA question rather than
+  a table.
+
+**Neither answer wastes anything** — the licence, the EIN, the bank account and
+the tax monitor are identical in both worlds.
+
+### His Lakewood experience was correct, and it applies here too
+
+He had been told he could not get a business licence for his detailing business
+because of his age, and assumed it might be different for something online.
+**It is not.** Lakewood's municipal code requires the applicant — **and "the
+manager or other person principally in charge of the operation"** — to be over
+eighteen. **His dad applies and is named as the person in charge.**
+
+**And the city asks you to phone before it hands over an application**, which
+makes **one five-minute call the fastest way to confirm every assumption in that
+document.** The number is in the checklist.
+
+### Stripe Tax, answered precisely
+
+He asked whether it is automatic or something flipped on per customer. **It is
+one switch for the account, not per customer. Once on it reads each customer's
+address by itself. But it only charges tax where a REGISTRATION has been added,
+and returns zero everywhere else.**
+
+**So a detailer in Texas signing up tomorrow is charged $0 in tax, and that is
+correct** — he is not registered in Texas and is nowhere near its threshold.
+**The guidance he needed was "take the customer"**, and a registration only ever
+happens after the free monitor warns that a threshold is close.
+
+### The most urgent item is about the other business
+
+He mentioned in passing that he makes around **$2,000 a month detailing**. **That
+is self-employed income well past the $400 self-employment-tax threshold, and
+being under 18 exempts nobody.** So the first question for the CPA is not about
+this product at all. **Recorded because it arrived as an aside and would
+otherwise die with the conversation.**
+
+### Shipped in the same session
+
+**The annual line now reads "2 months free"** instead of "$120 less than paying
+monthly". The saving is unchanged and is the industry-standard 16.7%; only the
+framing moved, because a month is easier to picture than a subtraction.
+**Still derived from the config**, so it cannot go stale, and **`landing-pricing`
+grew two checks that pin the claim**: the saving must be a **whole number of
+months**, and the discount must sit inside the **15–20% band**. **Baselined by
+setting `annual: 610`, which makes the page advertise *"1.8333333333333333
+months free"*** — a defect that reads like a rounding bug and is actually a
+pricing one.

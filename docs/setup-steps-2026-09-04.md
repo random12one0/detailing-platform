@@ -1,0 +1,299 @@
+# The setup checklist — do these, in this order
+
+> *"Make sure this all could kinda turn into a plan that's easy for me to
+> follow. Kinda like: okay, go here, click these links, this is what I have to
+> do, this is why. Because I've never done this and I don't know any of it."*
+
+**This is that plan.** Every step says what it is, why it exists, what it costs,
+who has to do it, and where to go. **Nothing here is legal or tax advice** —
+it is a list to work through, and step 3 is an hour with a professional who can
+give actual advice.
+
+**Two facts shape the whole list and are worth knowing up front:**
+
+1. **He is under 18, and Lakewood's municipal code requires a business licence
+   applicant to be over 18.** So his dad is on the paperwork. That is not a
+   workaround, it is the rule.
+2. **A Stripe account cannot move between legal entities.** If the business
+   starts in his dad's name and later becomes his, **that is a new Stripe
+   account and every subscriber has to enter their card again.** That one fact
+   changes what structure to pick — see step 4.
+
+---
+
+## STEP 0 — Answer one question first, because it changes steps 4 and 5
+
+**How many months until he turns 18?**
+
+- **Under about six months:** the cheapest path by a distance is **wait**. Keep
+  building, do not launch paid subscriptions, and set everything up in his own
+  name the week he turns 18. **No LLC, no dad-entity, no handover, ever.** The
+  only cost is a few months of not charging — and the product is not finished
+  anyway.
+- **More than about six months:** the business has to start in his dad's name,
+  and step 4 becomes a real decision rather than a formality.
+
+**Nothing below is wasted either way.** Steps 1, 2, 3 and 6 are the same in both
+worlds.
+
+---
+
+## STEP 1 — The sole proprietorship (there is almost nothing to do)
+
+**What it is:** the default. **The moment somebody pays you for work and you did
+not form anything else, you are a sole proprietor.** There is no form, no fee
+and no registration for the structure itself.
+
+**So the honest answer to *"is there anything I have to do, or does it just
+happen?"*: the structure happens by itself. The three things attached to it do
+not.** Those are steps 2, 5 and 6.
+
+**Cost:** $0. **Who:** nobody, it already happened.
+
+**One thing worth saying plainly, because it is true today and not in the
+future:** he is already making around $2,000 a month detailing. **That is
+self-employed income and it has a filing obligation** — self-employment tax
+starts at **$400 of net earnings for the year**, and he is far past that. **Being
+under 18 does not exempt anyone from income tax.** This is the top item for
+step 3, and it is about the detailing business he already runs, not this one.
+
+---
+
+## STEP 2 — The Lakewood business licence (his dad applies)
+
+**What it is:** permission from the city to run a business from an address in
+Lakewood. **A home-based online business still needs one** — the test is whether
+a business operates in the city, not whether customers come to the door.
+
+**Why it matters:** it is the cheapest thing on this list and the easiest to
+forget, and it is the one a city can notice on its own.
+
+**The under-18 part, and it explains what happened with the detailing
+business.** Lakewood's code says the applicant — and *"the manager or other
+person principally in charge of the operation of the business"* — **must be over
+eighteen.** So he was told correctly. **It is not different for this business**,
+and the answer is the same: **his dad applies and is named as the person in
+charge.**
+
+**Where to go:**
+
+- Apply: **https://www.lakewoodca.gov/Business/Start-and-Grow-a-Business/Apply-for-a-business-license**
+- **Call first: (562) 866-9771, extension 2622.** The city asks you to phone and
+  describe the business before they hand over the application, and **five
+  minutes on the phone is the fastest way to confirm every assumption on this
+  page.** Ask specifically: a home-based online software business, no customers
+  visiting, owner under 18 with a parent as applicant.
+- In person if easier: City Hall, 5050 Clark Ave, Lakewood.
+
+**Cost:** typically $25–$100. **Who:** his dad, with him on the call.
+
+---
+
+## STEP 3 — One hour with a CPA (do this before taking money)
+
+**What it is:** a paid appointment with an accountant. **This is the highest-value
+item on the page and the only one that produces actual advice.**
+
+**What to bring — five questions, in this order:**
+
+1. **"I'm 17 and made about $24,000 last year detailing cars. What do I owe and
+   what should I have filed?"** This is the urgent one and it is about the
+   existing business.
+2. **"I'm starting a software business that charges monthly subscriptions. Sole
+   proprietorship or LLC?"** — mention the **$800 California franchise tax**
+   and that his dad would be on it.
+3. **"My dad will own it until I turn 18. What is the cleanest way to hand it
+   over?"** — and mention that **the payment processor cannot transfer between
+   legal entities.**
+4. **"Is a $999 website setup fee taxable in California? What about a $60/month
+   subscription after January 2027?"**
+5. **"Do I need to charge sales tax to customers in other states?"** — the
+   answer today is no, and step 6 is how it stays no.
+
+**Cost:** $150–$400 for an hour, typically. **Who:** him and his dad together.
+
+---
+
+## STEP 4 — Decide the structure (and this got harder since the last answer)
+
+**The earlier recommendation was "sole proprietorship, skip the LLC" and it was
+based on cost alone. Cost alone is not the whole picture, and the missing piece
+is the handover.**
+
+| | Sole proprietorship in dad's name | LLC with both of them |
+|---|---|---|
+| **Cost to start** | $0 | $70 |
+| **Cost every year** | $0 | **$800**, regardless of revenue, no first-year exemption since 2024 |
+| **If the business is sued** | dad's personal assets are exposed | the company's assets, not his |
+| **Handing it over at 18** | **A different legal entity. New EIN, new bank account, NEW STRIPE ACCOUNT — every subscriber re-enters their card — new licence, and customer agreements re-signed.** | **One document.** Same entity, same EIN, same Stripe account, same subscribers, nothing re-signed. |
+
+**So the $800 a year is not only buying liability protection. It is buying a
+handover that is a signature instead of a migration.**
+
+**The recommendation, split by step 0:**
+
+- **Turning 18 within ~6 months → sole proprietorship, and wait to launch
+  billing.** There is never a handover, so the LLC's main advantage does not
+  apply and the $800 is pure cost.
+- **Longer than that → the LLC is probably worth it**, and it is a genuine
+  question for the CPA rather than something to decide from a table. **The
+  number to weigh it against is not $1,440 of founding revenue — it is what it
+  costs to ask fifty subscribers to re-enter a card**, which is some of them
+  leaving.
+
+**If they form the LLC:** California sets **no minimum age** for an LLC member
+or organizer (Texas does; California does not). The obstacle is that a minor's
+signature does not reliably bind, so use one of the standard shapes — **his dad
+as a member who signs everything**, or a **manager-managed LLC with his dad as
+manager**. File at **https://bizfileonline.sos.ca.gov**.
+
+---
+
+## STEP 5 — EIN, bank account, DBA
+
+### EIN — do it, it is free and takes ten minutes
+
+**What it is:** a tax ID number for a business, like a Social Security number
+for the company.
+
+**Why:** a bank will ask for one, and **it keeps his (or his dad's) actual SSN
+off forms that go to other companies.**
+
+**Where:** **https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online** — free, issued immediately.
+**Never pay a site that offers to get one for you.**
+
+**Who:** whoever owns the business. Under 18 that is his dad.
+
+### A business bank account — yes, and it matters more than it sounds
+
+He currently runs everything through his personal account *"because it's
+easiest"*. **That is legal for a sole proprietor and it is the thing that makes
+step 3 expensive** — an accountant separating business from personal
+transactions after the fact bills for that time.
+
+**A minor generally needs a parent as joint owner on a business account.** Since
+his dad is already going to be on the Stripe account, this is the same
+conversation.
+
+**Do it before the first subscription payment**, not after.
+
+### DBA — only if the name is not a person's name
+
+**What it is:** *"doing business as"*. If the business trades as **"Detailing
+Platform"** rather than his dad's own legal name, California requires a
+fictitious business name filing.
+
+**The part that surprises people:** in California it is **a county filing plus a
+notice published in a newspaper** for four weeks.
+
+**Where:** Los Angeles County Registrar-Recorder —
+**https://lavote.gov/home/records/business-filings/fictitious-business-names**
+
+**Cost:** roughly $26 filing plus $40–$80 for the newspaper notice.
+**When:** before using the name on invoices and contracts.
+
+---
+
+## STEP 6 — Sales tax: set the monitor, then forget it
+
+**This is the step he asked to have written down so he would not forget it.**
+
+### What is true today
+
+**Nothing to do.** Selling to detailers in states that do not tax software means
+there is no tax to calculate, collect, register or file. **Anywhere.**
+
+### The free safety net — set this up and leave it
+
+**Numeral offers free nexus monitoring with no time limit.** It watches sales per
+state and emails when a threshold is getting close. **https://www.numeral.com**
+
+**Set it up the same week the first customer pays.** It is the thing that
+remembers, so he does not have to.
+
+### How Stripe Tax actually behaves — this answers the question exactly
+
+> *"Does it just automatically detect, oh, this person's from a state that taxes
+> it, and switch it on for them?"*
+
+**Half yes, and the other half is the important half.**
+
+- **Stripe Tax is one switch, turned on once for the account.** It is not
+  flipped per customer.
+- **Once on, it reads each customer's address automatically** and works out what
+  they owe. Nothing manual per person.
+- **But it only charges tax in places where a REGISTRATION has been added.**
+  Without one, **the calculation returns zero.**
+
+**So concretely: if a detailer in Texas signs up tomorrow, Stripe Tax charges
+them $0 in tax and that is correct** — he is not registered in Texas and is
+nowhere near Texas's threshold, so he does not owe Texas anything. **Registering
+is the manual step, and it only happens after a threshold is crossed, which the
+free monitor warns about first.**
+
+**Take the customer.** One out-of-state customer from a taxing state creates no
+obligation at all.
+
+### When a state does eventually need it
+
+1. The monitor emails a warning.
+2. Register with that state (a form, once).
+3. Add the registration in Stripe's dashboard under **Tax → Locations**. From
+   then on it collects automatically.
+4. File returns — roughly **$75 each** through a filing service.
+
+---
+
+## STEP 7 — When he turns 18
+
+**If they waited (step 0):** everything gets set up in his own name — EIN, bank,
+Stripe, licence. **Nothing to undo.**
+
+**If it started in his dad's name as a sole proprietorship:** this is a
+migration, not a signature. New EIN, new bank account, **a new Stripe account
+with every subscriber re-entering their card**, a new city licence, and customer
+agreements re-signed.
+
+**If it is an LLC:** his dad assigns his membership interest to him, the
+operating agreement is updated, and **the entity, the EIN, the bank account and
+the Stripe account all stay exactly where they are.** Stripe's own rule is that
+ownership can move to a new individual **within the same legal entity** — invite
+him as an Administrator, then transfer ownership in Business settings → Team
+settings — but an account **cannot** usually move to a different entity.
+
+**Ask the CPA about gift tax at step 3** if the handover is a gift rather than a
+sale. There are annual limits, and a business worth less than the annual
+exclusion is almost certainly fine — but "almost certainly" is what an hour with
+a professional turns into "yes".
+
+---
+
+## The order, on one line each
+
+1. **Answer: how many months until 18?** — decides steps 4 and 7.
+2. **Call Lakewood, (562) 866-9771 x2622.** Dad applies. ~$50.
+3. **One hour with a CPA.** Five questions above. ~$150–400.
+4. **Decide sole prop vs LLC** with that advice.
+5. **EIN (free), business bank account (dad joint), DBA if using a business
+   name.**
+6. **Set up the free nexus monitor the week the first customer pays.**
+   Stripe Tax stays off until a state actually needs it.
+7. **At 18:** transfer, or simply start clean.
+
+---
+
+## Sources
+
+- Lakewood municipal code — business permit applicants and the person in charge must be over 18: https://ecode360.com/45609388
+- Lakewood business licence application and process: https://www.lakewoodca.gov/Business/Start-and-Grow-a-Business/Apply-for-a-business-license
+- Lakewood home-occupation licence form: https://www.lakewoodcity.org/files/assets/public/v/1/business/documents/business-licenses/homeoccupationbusinesslicenseapplicationfif.pdf
+- Stripe Tax — it only calculates where an active registration exists: https://docs.stripe.com/tax/set-up
+- Stripe Tax — adding registrations under Tax → Locations: https://docs.stripe.com/tax/registering
+- Stripe — changing the owner of an account (same legal entity): https://support.stripe.com/questions/change-the-owner-of-a-stripe-account
+- Stripe — an account usually cannot transfer to a different legal entity: https://support.stripe.com/questions/transfer-a-stripe-account-to-a-different-entity-due-to-a-business-sale-or-acquisition
+- LLC ownership transfer vs selling a sole proprietorship's assets: https://www.corpnet.com/blog/can-you-transfer-llc-ownership/
+- California LLC $800 annual franchise tax, first-year exemption expired: https://www.llcuniversity.com/california-llc/annual-llc-tax-exemption-ab-85/
+- Minors as LLC members; California sets no age minimum: https://www.nolo.com/legal-encyclopedia/do-llc-members-need-18-years-old-older.html
+- IRS — apply for an EIN online, free: https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online
+- LA County fictitious business name filing: https://lavote.gov/home/records/business-filings/fictitious-business-names
+- Numeral — free nexus monitoring: https://www.numeral.com/blog/anrok-alternatives

@@ -3292,6 +3292,32 @@ is kept; the entire visual design restarts from scratch.
       LLC question belongs to his dad**, who already carries the liability by
       owning the payment account.
 
+      **PRICING IS LOCKED AS OF 2026-09-04** — *"Okay. So I like that pricing.
+      Lock all that in."* **$999 / $60 / $600 / $35, three founding spots, and
+      month-to-month added at $75.** **One piece shipped the same day:** the
+      annual line reads **"2 months free"** instead of "$120 less", still
+      derived from the config, and `landing-pricing` grew two checks that pin
+      the claim — **the saving must be a WHOLE number of months and the discount
+      must sit in the 15–20% band the category uses** (baselined by setting
+      `annual: 610`, which prints *"1.8333333333333333 months free"*). **The
+      rest of the structure lands with 2.20 stage 2's checkout**, because a
+      third plan with nothing to click is an option that does nothing.
+
+      **AND THE FOLLOWABLE SETUP PLAN IS `docs/setup-steps-2026-09-04.md`**,
+      written at his request (*"go here, click these links, this is what I have
+      to do, this is why"*). **Two findings there revise the legal file:**
+      **Lakewood's code requires the licence applicant AND the person
+      principally in charge to be over 18** — which is exactly what he was told
+      when he tried for his detailing business, and it is not different here —
+      **and a STRIPE ACCOUNT CANNOT MOVE BETWEEN LEGAL ENTITIES**, so a sole
+      proprietorship in his dad's name means **every subscriber re-enters their
+      card on his 18th birthday**, while an LLC hands over in one document.
+      **That reopens the LLC question on evidence rather than preference**, and
+      **step 0 of that file is the question that settles it: how many months
+      until he turns 18?** Under six, wait and launch billing in his own name;
+      longer, the $800/year is buying a handover rather than only liability
+      cover.
+
       **THE PRICING STRUCTURE HE ASKED FOR — three ways to pay, which maps onto
       what already exists.** Month-to-month (**does not exist today; the most
       expensive, because he carries all the risk**), annual-paid-monthly

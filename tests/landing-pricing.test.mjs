@@ -49,6 +49,17 @@ console.log("test 1: every number comes from the config");
   check("the page imports the config", /import \{ PRICING \} from ".\/pricing.js"/.test(jsx));
   check("the annual saving is computed, not typed",
     /PRICING\.website\.monthly \* 12 - PRICING\.annual/.test(jsx));
+  // The page says "N months free" (2026-09-04). That sentence is only true
+  // while the saving divides cleanly into whole months — at $60/mo and
+  // $600/yr it is exactly 2. Set annual to $610 and the page would advertise
+  // "1.8333333333333333 months free", which is the kind of defect that looks
+  // like a rounding bug and is actually a pricing one.
+  const monthsFree = (PRICING.website.monthly * 12 - PRICING.annual) / PRICING.website.monthly;
+  check("the annual saving is a whole number of months",
+    Number.isInteger(monthsFree), `${monthsFree} months`);
+  check("the annual discount is inside the 15-20% band the category uses",
+    monthsFree / 12 >= 0.15 && monthsFree / 12 <= 0.20,
+    `${((monthsFree / 12) * 100).toFixed(1)}%`);
 }
 
 console.log("\ntest 2: the founding offer is counted, not declared");
