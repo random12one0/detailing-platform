@@ -2561,6 +2561,19 @@ is kept; the entire visual design restarts from scratch.
         shape. **And the request card must SAY it is a plan booking**, or the
         detailer quotes it as a one-off.
 
+      **HE APPROVED ALL OF ROUND 4 ON 2026-09-04**, so these are decisions now
+      rather than recommendations: **remember the customer in their browser**
+      (*"we should definitely log people, log their browsers and with cookies"*),
+      **the welcome-back message at the top of step 1** (*"a welcome message
+      would be cool"*), **the reorder is off** (*"we won't move the year to the
+      front anymore"*), and **more than one plan button where a detailer has
+      more than one plan** (*"we could even have multiple buttons for it, some
+      people probably have different monthly plans"*). **And the emails should
+      carry the booking link with a nudge** — *"make sure the emails kinda remind
+      them, hey, here's your link, don't lose it"* — which is a template change
+      in `_shared/emailTemplates.ts`, not new machinery, since every email
+      already has the link.
+
 - [x] 2.15 ~~**Travel priced by measured distance**~~ **REFUSED BY THE OWNER
       2026-08-31, THE SAME DAY IT WAS WRITTEN, AND THE THING HE DESCRIBED
       INSTEAD IS ALREADY BUILT. This item is closed without work.**
@@ -3198,6 +3211,12 @@ is kept; the entire visual design restarts from scratch.
         fails because an email did, so nothing on any screen shows it. He is
         staying on the free plan for now, which is fine, and that makes this
         worth more, not less.
+        **HALF OF THIS ALREADY EXISTS (2026-09-04):** he asked whether Resend
+        can warn him about the quota, and **it already emails at 80% and 100% of
+        the limit, on every plan** — so the QUOTA half needs no work at all.
+        **What is left is narrower and still worth it: a send rejected for any
+        OTHER reason** — a bad address, a suppression, a domain problem — which
+        no quota alert covers and which nothing in this product surfaces.
 
       **STILL NEEDS HIM: his dad on the Stripe account** — settled in principle,
       *"my dad signed up and I'll manage it"*, and **whoever owns that account is
@@ -3233,11 +3252,45 @@ is kept; the entire visual design restarts from scratch.
         and, the part that matters, **monitors nexus per state and warns before
         a threshold is crossed**, turning an invisible creeping exposure into an
         alert. **Filing is still not solved** — Stripe hands it to partners.
-      - **THE MERCHANT-OF-RECORD QUESTION IS RE-OPENED WITH A CONCRETE
-        TRIGGER**, not a date: **registered in three or more states, OR Stripe
-        Tax warning about a state he has never filed in.** Before that the extra
-        84¢/detailer/month buys nothing; after it, it buys the thing he
-        actually needs.
+      - ~~**THE MERCHANT-OF-RECORD QUESTION IS RE-OPENED WITH A CONCRETE
+        TRIGGER**~~ **CLOSED BY HIM 2026-09-04: *"Why do you keep mentioning
+        Paddle? Aren't we just sure on Stripe?"* — YES. THE ANSWER IS STRIPE AND
+        THE QUESTION IS SHUT.** He is right to push back: it was answered in
+        round 3 and then re-opened twice with "triggers", which reads as
+        indecision and made him re-read the same argument three times. **A
+        session that finds a reason to reconsider writes it here and keeps
+        working; it does not put the choice back in front of him.** The two
+        reasons that decided it are structural and will not change: **no
+        merchant of record can pay the detailers**, and **Paddle's acceptable-use
+        policy may refuse the $499 hand-built website.**
+
+      **PRICING AND THE LEGAL SETUP EACH GOT THEIR OWN FILE ON 2026-09-04, at
+      his request** (*"can we actually spend some time to think about
+      pricing"*, *"how do I make everything legal and sound"*):
+      **`docs/pricing-2026-09-04.md`** and **`docs/legal-and-tax-2026-09-04.md`**.
+      The headlines a cold session needs:
+      **he is charging too LITTLE, not too much** — a custom site alone is
+      $500–$5,000 from a freelancer and $10k+ from an agency, Housecall Pro is
+      $59/month for software with no website, and ongoing site upkeep alone
+      benchmarks at $50–$200/month;
+      **$600/year is already exactly "2 months free" (16.7%), which is the
+      industry-standard discount** — change the WORDS, not the number, because
+      months-free converts better than a dollar figure;
+      **three founding spots, kept** (one is an anecdote, three is a portfolio,
+      and three at $40 covers the ~$45/month of fixed costs);
+      **and he can avoid sales tax almost entirely by choosing who to cold-call**
+      — SaaS is untaxed in ~25 states, so a calling list of Florida, Georgia,
+      North Carolina, Michigan, Missouri, Virginia, New Jersey and Nevada means
+      **nothing to calculate, register or file anywhere.** **California is the
+      one state that creates an obligation immediately** (he lives there, and SB
+      122 lands 1 Jan 2027), which agrees with his own reason for skipping it.
+      **Do not turn away a good customer over tax** — it is collected FROM the
+      customer and costs him only paperwork.
+      **Business setup: sole proprietorship, NOT a California LLC yet** — $70 to
+      file and then **$800 every year regardless of revenue, with no first-year
+      exemption since 2024**, against ~$1,440 of founding-year revenue. **The
+      LLC question belongs to his dad**, who already carries the liability by
+      owning the payment account.
 
       **THE PRICING STRUCTURE HE ASKED FOR — three ways to pay, which maps onto
       what already exists.** Month-to-month (**does not exist today; the most
@@ -4075,6 +4128,21 @@ is kept; the entire visual design restarts from scratch.
       time**, and **its own route and layout — never a tab inside the detailer
       dashboard**, so it is not one CSS mistake away from a screen a detailer
       opens.
+
+      **HE READ THIS AND THE JARGON MEANT NOTHING TO HIM** — *"I have no idea
+      what that means. I have no idea what this whole paragraph means."*
+      **Fair, and it is CLAUDE.md's own rule being broken.** In plain words,
+      keeping both versions because the next session needs the first:
+      **"impersonation" is the button that lets him see the app exactly as one
+      of his detailers sees it**, so *"my Tuesday hours aren't showing"* takes
+      thirty seconds instead of a twenty-message thread. **"Logged" means the
+      system writes down that he did it — who, when, whose dashboard** — because
+      it is somebody's private business data, and if a detailer ever asks *"were
+      you looking at my numbers?"* he wants a record rather than a memory.
+      **"It should split rather than wait" means this item is scheduled late but
+      some of its pieces are needed early**: the *suspend* button comes free
+      with the billing work, so build that bit then and the rest later, instead
+      of treating the whole dashboard as one job stuck behind Phase 3.
 
 ## Phase 5 — Andrew's Auto Detail becomes tenant #1
 

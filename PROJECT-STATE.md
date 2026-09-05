@@ -4536,3 +4536,55 @@ DESIGN rule and would be actively wrong applied to a price.
   expensive because he carries the risk ($49 founding / $79 list proposed),
   annual-paid-monthly staying $40/$60 and **visually middle but NOT
   pre-selected**, annual-up-front already on the page.
+
+### ROUND 5 — PRICING, THE LEGAL SETUP, AND A CORRECTION HE MADE TO HOW DECISIONS ARE HANDLED
+
+**Two new files: `docs/pricing-2026-09-04.md` and
+`docs/legal-and-tax-2026-09-04.md`.** Judgment in DECISIONS.md → "Pricing, the
+legal setup, and being told to stop re-opening a closed decision".
+
+- **HE TOLD US TO STOP RE-OPENING THE PADDLE QUESTION AND HE WAS RIGHT.**
+  *"Why do you keep mentioning Paddle? Aren't we just sure on Stripe?"* It was
+  decided in round 3 and re-opened twice with "triggers", so he read the same
+  argument three times and concluded nothing was settled. **THE RULE, and it is
+  worth more than the answer: a session that finds a reason to reconsider a
+  settled decision records it in the file and keeps working — it does not put
+  the choice back in front of him.** **Stripe. Closed.**
+- **HE IS CHARGING TOO LITTLE, NOT TOO MUCH.** A custom site alone is
+  $500–$5,000 from a freelancer, $10k+ from an agency; Housecall Pro is $59/month
+  for software with NO website; **ongoing site upkeep alone benchmarks at
+  $50–$200/month**, which is more than his whole monthly fee. **So the fix for
+  "make it feel like a good deal" is putting the alternative on the page, not
+  lowering the number** — and **his real differentiator (he edits their site
+  whenever they ask) is currently invisible.** Raise the list price after three
+  sites exist to point at.
+- **$600/YEAR IS ALREADY EXACTLY "2 MONTHS FREE" (16.7%)**, the industry-standard
+  discount. **Change the words, not the number** — months-free converts better
+  than dollars or percentages.
+- **THREE FOUNDING SPOTS, KEPT.** One is an anecdote, three is a portfolio, and
+  three at $40 covers the ~$45/month of fixed costs. Already the DB default.
+- **THE BEST SALES-TAX TOOL IS HIS CALLING LIST.** SaaS is untaxed in ~25 states
+  and **he chooses who to cold-call** — Florida, Georgia, North Carolina,
+  Michigan, Missouri, Virginia, New Jersey, Nevada means **nothing to calculate,
+  register or file anywhere.** **Numeral's nexus monitoring is FREE** and is the
+  safety net he asked for; Stripe Tax only goes on when a state needs it.
+  **California creates an obligation immediately** (he lives there; SB 122 lands
+  1 Jan 2027), which agrees with his own reason for skipping it. **Guardrail:
+  never turn away a good customer over tax** — it costs him paperwork, not money.
+- **SOLE PROPRIETORSHIP, NOT A CALIFORNIA LLC.** $70 to file then **$800 EVERY
+  YEAR regardless of revenue, no first-year exemption since 2024**, against
+  ~$1,440 of founding-year revenue. **The LLC decision is his dad's**, who
+  already carries the liability by owning the payment account. **A minor CAN be
+  an LLC member in California** — no age minimum in state law; the obstacle is
+  contracts, fixed by a manager-managed LLC with the parent as manager.
+- **TWO THINGS HE ASKED FOR ALREADY EXISTED:** Resend emails at **80% and 100%
+  of quota** on every plan, so that alerting work shrinks to non-quota send
+  failures; and his own admin dashboard was already roadmap 4.4.
+- **AND THE WRITING FAILED HIM ONCE** — *"I have no idea what this whole
+  paragraph means"* about 4.4. **CLAUDE.md's first rule.** Both versions are
+  kept in the roadmap now: the precise one for whoever builds it, a plain one
+  underneath.
+- **HIS BOOKING-PAGE APPROVALS ARE DECISIONS NOW:** remember the customer in
+  their browser, welcome-back message at the top of step 1, **no step reorder**,
+  one button per plan where a detailer has several, and the emails carry the
+  booking link with a "don't lose it" nudge.

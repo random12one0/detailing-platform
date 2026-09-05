@@ -205,6 +205,8 @@ were made more than once.
 
 - **Selling nationwide, and an idea that had to be refused** — the reasoning under the Stripe decision broke, and one thing he asked for is a data leak. *"I'm primarily gonna be selling anywhere in America… if I sell in California, that could potentially be my competition."* **Round 3's "he sells in one state, so the tax is simple" was load-bearing and is now wrong**, and it is marked rather than quietly rewritten. **The threshold that bites is TRANSACTIONS, not revenue**: $100k into a state is ~208 subscribers at $40, but **200 transactions is ~17 subscribers**, because each monthly charge is a separate sale — **except that 17+ states have now dropped the transaction test entirely**, ~14–20 still apply it, and SaaS is taxable in only ~26. **So the exposure is CONCENTRATION, not reach**: a hundred customers spread two per state is nowhere near anything, forty in Texas is a registration. **The recommendation survives for the non-tax reasons** (no merchant of record can pay the detailers; Paddle may refuse the $499) **but the tax problem is now worth instrumenting** — Stripe Tax at the first out-of-state sale, 0.5%, because **it warns before a nexus threshold is crossed**, which converts an invisible creeping exposure into an alert. **The merchant-of-record question re-opens on a concrete trigger, not a date: registered in three or more states, or a warning about a state he has never filed in.** **His "type your email and it shows you" must NOT be built as described** — it is address enumeration, and anyone could learn whether their neighbour uses this detailer — **the safe twin is one word different: email IN, LINK OUT**, which is a third caller of the pattern `/booking/:id` and 2.12's quote acceptance already use. **And the cheapest 90% of "auto-detect" is the BROWSER remembering the last customer on that device**, since most people rebook on the same phone. **Moving the contact step first was declined as a default** because the step budgets were measured (1440x900, 10px spare on step 1) and a reorder means retaking all of them — **show recognition at the top of step 1 instead.** **His own dashboard was already roadmap 4.4 and is now specified** (`docs/platform-admin-2026-09-04.md`): the test for every screen is *what will he otherwise do by hand at 11pm with a SQL query*, impersonation is the biggest time-saver and must be logged, and it **splits — suspend rides along with billing, the list follows, the site columns wait for Phase 3.** **Pricing: three ways to pay**, with month-to-month the most expensive because he carries the risk, and **the setup fee is $999 as of this session** — his call, his reason, verified in a browser.
 
+- **Pricing, the legal setup, and being told to stop re-opening a closed decision** — he pushed back with *"why do you keep mentioning Paddle? Aren't we just sure on Stripe?"* and **he was right**: it was decided in round 3 and then re-opened twice with "triggers", which reads as indecision and made him re-read the same argument three times. **The question is shut, and the rule that came out of it is worth more than the answer: a session that finds a reason to reconsider a settled decision writes it in the file and keeps working — it does not put the choice back in front of him.** **On pricing, the finding is that he is charging too LITTLE**: a custom site alone is $500–$5,000 from a freelancer and $10k+ from an agency, Housecall Pro is $59/month for software with NO website, and ongoing site upkeep alone benchmarks at $50–$200/month — **so the fix for "make it feel like a good deal" is not a lower number, it is putting the alternative on the page**, and his real differentiator (he edits their site whenever they ask) is currently invisible. **$600/year turns out to be exactly "2 months free" (16.7%), the industry-standard discount** — the most common figure in the category — **so change the WORDS, not the number**, because months-free converts better than dollars or percentages. **Three founding spots, kept**: one is an anecdote rather than an offer, three buys three references and three portfolio sites, and three at $40 covers the ~$45/month of fixed costs. **The best answer on sales tax is not software, it is his calling list** — SaaS is untaxed in ~25 states, and since he cold-calls he can choose them, which means **nothing to calculate, register or file anywhere**; Numeral's free nexus monitoring is the safety net, and Stripe Tax only goes on when a state actually needs it. **California is the one state that creates an obligation immediately** (he lives there; SB 122 lands 1 Jan 2027), which agrees with his own competition-based reason for skipping it — **but the rule is "prefer the untaxed states, never turn away a good customer over paperwork."** **Business setup: sole proprietorship, NOT a California LLC** — $70 to file then **$800 every year regardless of revenue, first-year exemption expired in 2024**, against ~$1,440 of founding-year revenue; **and the LLC decision belongs to his dad**, who already carries the liability by owning the payment account. **A minor CAN be an LLC member in California** (the state sets no age; Texas does) — the problem is contracts, and the standard fix is a manager-managed LLC with the parent as manager. **And two things he asked for turned out to already exist**: Resend emails at 80% and 100% of quota, so the alerting half needs no work, and his own admin dashboard was already roadmap 4.4. **He also told us the 4.4 paragraph was unreadable** — *"I have no idea what this whole paragraph means"* — which is CLAUDE.md's own plain-language rule being broken, and it is fixed in place with both versions kept.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -10999,7 +11001,135 @@ still not pre-selected** — pre-selection is the first thing the FTC named in t
 Adobe complaint.
 
 **And the setup fee is $999, done this session on his instruction** — *"things
-that end in ninety nine feel more professional to me."* **The reference
+that end in ninety nine feel more professional to me."*
+
+## Pricing, the legal setup, and being told to stop re-opening a closed decision
+
+### The correction that matters most is about how decisions are handled
+
+> *"Why do you keep mentioning Paddle? Aren't we just sure on Stripe?"*
+
+**He is right and this is the transferable part of the whole exchange.** The
+merchant-of-record question was decided in round 3, then re-opened in round 3's
+own conclusion with a "November review", then re-opened again in round 4 with a
+"concrete trigger". **Each re-opening was defensible on its own and the effect
+was that he read the same argument three times and concluded nothing had been
+decided.**
+
+**The rule: a session that finds a reason to reconsider a settled decision
+records it in the file and keeps working. It does not put the choice back in
+front of him.** A decision reopened without new information is not diligence, it
+is the cost of diligence with none of the benefit. **The Stripe answer is shut**,
+and the two reasons behind it are structural rather than circumstantial: no
+merchant of record can pay the detailers, and Paddle's acceptable-use policy may
+refuse the $499 hand-built website.
+
+### He is charging too little, and the fix is not a smaller number
+
+`docs/pricing-2026-09-04.md`. He asked whether $999 was right and whether he
+should charge less to make it feel like a good deal.
+
+**Against the field, $999 is at the bottom.** A custom site is **$500–$5,000**
+from a freelancer, **$2,000–$8,000** for anything professional, **$10,000+**
+from an agency. **$60/month is below Housecall Pro's $59 for software with no
+website at all**, and **ongoing upkeep of a custom site benchmarks at $50–$200 a
+month on its own** — more than his entire monthly fee.
+
+**So going lower would not make it a better deal, it would make it a less
+credible one.** A detailer comparing a $999 quote against a $3,000 agency quote
+reads a very low number as a difference in seriousness, and he has no case
+studies yet to argue otherwise. **What makes it feel like a good deal is the
+comparison being visible on the page** — and **his actual differentiator, that
+he edits their site whenever they ask, is currently almost invisible.** Nobody
+else in the comparison table does that at any price.
+
+**Raise the list price after three sites exist to point at.** That is a decision
+with evidence; today's would not be.
+
+### The annual price was already textbook and nobody had noticed
+
+$60 × 12 = $720; the annual plan is $600; **the saving is $120, which is 16.7%
+— exactly two months free.** The industry-standard SaaS annual discount is
+**15–20%, most commonly 17%, framed as "2 months free"** — below 15% moves
+nobody and above 30% signals the monthly price was inflated.
+
+**He landed on the standard by accident, so the number does not change. The
+words do:** *"2 months free"* converts better than *"save $120"* or *"save
+17%"*, because a month is easier to picture than a percentage.
+
+### Three founding spots
+
+One is an anecdote rather than an offer — no urgency, and he cannot say
+"our founding customers" about a single person. **Three buys three references,
+three genuinely different sites for the portfolio the list price depends on, and
+covers the platform's ~$45/month of fixed costs.** It is also already the
+database default, and the count is computed rather than typed, so nothing has to
+change. **When the third goes, the offer closes** — raising the cap quietly is
+visible on the page and somebody will notice.
+
+### The best sales-tax tool is his calling list, not software
+
+`docs/legal-and-tax-2026-09-04.md`. He asked whether tax could be automatic and
+which states to skip, and **those turn out to be the same question.**
+
+**SaaS is taxable in 26 states and untaxed in about 25 — and because he
+cold-calls, he chooses.** A calling list of Florida, Georgia, North Carolina,
+Michigan, Missouri, Virginia, New Jersey and Nevada means **nothing to
+calculate, nothing to register, nothing to file, anywhere.** Not less paperwork.
+None.
+
+**The safety net is free: Numeral's nexus monitoring has no time limit** and
+warns as a state's threshold approaches — which is precisely what he asked for
+(*"is there any way I could just track it automatically"*). **Stripe Tax (0.5%)
+only goes on when a state actually needs it**, and filings are ~$75 each.
+
+**California is the one state that creates an obligation immediately** — he
+lives there, so nexus is automatic, and SB 122 makes SaaS taxable on 1 January
+2027. **That agrees with the reason he already had for skipping it: a California
+detailer is a competitor.** Two independent reasons pointing the same way is
+usually a decision.
+
+**And the guardrail against over-optimising: never turn away a good customer
+over sales tax.** It is collected FROM the customer and costs him only
+paperwork. **Prefer the untaxed states when choosing who to call; accept anyone
+who says yes.**
+
+### Sole proprietorship, not a California LLC
+
+**A California LLC is $70 to file and then $800 every year in franchise tax,
+regardless of revenue or activity — and the first-year exemption expired in
+2024.** Founding-year revenue at three customers is about $1,440. **The fee
+would take more than half of it.**
+
+**And the decision is not really his.** His dad owns the payment account, so his
+dad already carries the liability an LLC would limit. **It is his dad's call,
+and it should be made before the first paying customer rather than after.**
+
+**If they do form one, the under-18 part has a standard answer**: California's
+LLC law sets no minimum age for a member or organizer — unlike Texas — and **the
+real obstacle is contracts**, since a minor's signature does not reliably bind.
+The fixes are a multi-member LLC with the parent signing, a manager-managed LLC
+with the parent as manager, or a filed statement of authority.
+
+### Two things he asked for already existed
+
+**Resend already emails at 80% and 100% of quota, on every plan**, so the
+alerting half of that item needs no work — what is left is the narrower case of
+a send rejected for some other reason, which no quota alert covers. **And his
+own admin dashboard was already roadmap 4.4**; he had simply never seen it,
+which is fair for something in Phase 4 of a 3,700-line file.
+
+### And the writing failed him once
+
+> *"You said that you insist on the impersonation gets logged every time. I have
+> no idea what that means. I have no idea what this whole paragraph means."*
+
+**That is CLAUDE.md's first rule being broken** — plain language, define the
+term the first time. The paragraph was written for the next agent and handed to
+the owner unchanged. **Both versions are kept in the roadmap now**, the precise
+one for whoever builds it and a plain one underneath, because deleting the
+technical version would cost the build and deleting the plain one repeats the
+mistake. **The reference
 rendering still shows $900 and that is correct**: it is a snapshot of what he
 approved on 2026-08-30, not a live surface. `PRODUCT.md` now says to read the
 price from `pricing.js` and never from that file, because the design system's
