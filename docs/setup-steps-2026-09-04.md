@@ -21,20 +21,42 @@ give actual advice.
 
 ---
 
-## STEP 0 — Answer one question first, because it changes steps 4 and 5
+## STEP 0 — ANSWERED 2026-09-04: he turns 18 on 2 DECEMBER 2026
 
-**How many months until he turns 18?**
+**That is three months away, and it collapses most of this document.**
 
-- **Under about six months:** the cheapest path by a distance is **wait**. Keep
-  building, do not launch paid subscriptions, and set everything up in his own
-  name the week he turns 18. **No LLC, no dad-entity, no handover, ever.** The
-  only cost is a few months of not charging — and the product is not finished
-  anyway.
-- **More than about six months:** the business has to start in his dad's name,
-  and step 4 becomes a real decision rather than a formality.
+**The whole plan is: build now, set everything up in the first week of December,
+in his own name.**
 
-**Nothing below is wasted either way.** Steps 1, 2, 3 and 6 are the same in both
-worlds.
+- **No LLC.** The $800/year was only ever buying a clean handover, and there is
+  no handover.
+- **No dad on the Stripe account.** He opens it himself at 18. **The support
+  question this file used to open with is now moot** — there is no guardian, so
+  there is nothing to transfer and nothing to ask.
+- **No business licence in his dad's name.** He applies himself in December.
+- **No EIN with his dad as responsible party**, and no form later to change it.
+  He is the responsible party from the start.
+
+**His own reasoning, and it is right:** *"I could be a sole proprietor by
+myself. I can have an EIN by myself. I would just get a business licence once I
+turn eighteen… I'm sure they make bank accounts where I could have a temporary
+one joined to my dad, and it won't be hard to create a new bank account when I'm
+eighteen — I just set it up on my Stripe account as a new bank account and set
+it to go there."*
+
+**Correct on every count**, and the bank detail especially: **changing the payout
+account on a Stripe account is a settings change.** It does not touch customers,
+subscriptions or stored cards. Nothing gets re-entered.
+
+**The one thing NOT to wait for: the software.** Stripe's **test mode** needs no
+activated account and no verified identity, so the entire payments integration
+can be built and tested before December. **Activation — identity, bank details,
+going live — happens the week of the 2nd.**
+
+**And the risk of waiting is close to nil:** he cannot legally be selling before
+then anyway, the product is not finished, and a city is not going to notice a
+17-year-old with no customers. **The only cost of this plan is not charging
+anyone for three months, and there is nobody to charge.**
 
 ---
 
@@ -336,20 +358,35 @@ a professional turns into "yes".
 
 ## The order, on one line each
 
-1. **Answer: how many months until 18?** — decides steps 4 and 7.
-2. **Ask Stripe support one question** (the wording is in step 4) — free, and it
-   decides whether the LLC is needed at all. **Do this BEFORE opening the
-   account.**
-3. **Call Lakewood, (562) 866-9771 x2622.** Dad applies. ~$50.
-4. **One hour with a CPA.** Five questions above. ~$150–400.
-5. **Decide sole prop vs LLC** with Stripe's answer and the CPA's advice.
-6. **EIN (free, no minimum age, dad as responsible party), business bank account
-   (dad joint), DBA if using a business name.**
-7. **Set up the free nexus monitor** the week the first customer pays, and
-   **turn Stripe Tax ON at the same time — it costs nothing until a
-   registration exists.**
-8. **At 18:** remove his dad from the three places that required an adult — or,
-   if Stripe says otherwise, do the transfer step 7 describes.
+**REWRITTEN 2026-09-04 once the birthday was known. Everything legal happens in
+one week in December; everything before then is software.**
+
+### Now → 1 December
+
+1. **Build.** Nothing on the legal list blocks any of it.
+2. **Stripe in TEST MODE** for the payments work — no activation, no identity
+   check, no guardian.
+3. **One hour with a CPA — the one thing worth doing NOW, and it is about the
+   OTHER business.** He is already earning ~$2,000 a month detailing, which is
+   long past the $400 self-employment threshold. **That question does not
+   improve by waiting three months.**
+
+### Week of 2 December — all of it, in his own name
+
+4. **EIN** — free, ten minutes, he is his own responsible party:
+   https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online
+5. **Business bank account** — his own, no joint owner needed.
+6. **Activate Stripe** — identity, bank details, live keys.
+7. **Lakewood business licence** — his own application now that he is 18.
+   **Call first: (562) 866-9771 x2622.** ~$50.
+8. **DBA** if trading as a business name — LA County filing plus the newspaper
+   notice. ~$70–105.
+9. **Turn Stripe Tax ON** (free with no registrations) and **set up the free
+   nexus monitor.**
+
+### Then
+
+10. **First sales calls.** Realistically the week of **8 December**.
 
 ---
 

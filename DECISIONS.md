@@ -211,6 +211,8 @@ were made more than once.
 
 - **The pricing page, and his "set it up right" idea turning out to be mostly correct** — he asked for the plan buttons to land on **a pricing page rather than a signup form** (*"that shouldn't bring you to a sign up or a payment screen"*), which is right for a customer who has not yet chosen between three ways to pay — **and that page is where California's AB 2863 disclosures legally have to sit**, before billing details are taken, so it is the load-bearing half of the checkout rather than decoration in front of it. **He is also right that the landing page's annual line becomes redundant once it exists — but the ORDER matters: the line stays until the page ships**, or the only mention of the annual option disappears before its replacement. **On the structure question he pushed back with an instinct that turned out to be sound**: put his dad only where an adult is genuinely required, and transfer nothing later. **Checked, and most of it holds** — the IRS sets **no minimum age for an EIN** (the parent is named "responsible party", a role changed later by form rather than by re-issuing the EIN), there is no age rule for being a sole proprietor, and **only three things actually need an adult: the Lakewood licence, the bank account and Stripe.** **So the entire LLC question reduces to one free Stripe support ticket** — is the account's legal entity HIM with a guardian attached, in which case 18 removes the guardian and costs nothing, or his DAD, in which case 18 is a new account and every subscriber re-enters a card. **Stripe's public wording (*"a legal guardian must assume the role of owner"*) does not answer it and their docs are silent on turning 18, so this is asked rather than guessed — and asked BEFORE the account exists**, because that is the one order that cannot be undone cheaply. **And he was right about Stripe Tax: turn it on from day one.** Stripe's own pricing page says fees are incurred *"only for transactions in jurisdictions where you have an active tax registration"* — **no registrations, no cost, no monthly minimum** — so enabling it early removes a thing to remember at no price.
 
+- **2 December 2026 is the date the whole plan turns on, and it is his birthday** — told 2026-09-04, three months out, and it **collapses the structure question rather than answering it**: no LLC, no dad on the Stripe account, no guardian, no handover, and **the support ticket the setup file opened with is moot**, because a guardian only exists if an account is opened before 18. **He worked most of it out himself** — sole proprietor alone, EIN alone, licence at 18, a temporary joint bank account swapped later — **and he is right about the bank detail in particular: changing a payout account in Stripe is a settings change that touches no customer, no subscription and no stored card.** **The build is unaffected because Stripe TEST MODE needs no activated account**, so payments can be written and tested now and activated the week of the 2nd. **THE ESTIMATE, measured rather than guessed (`docs/timeline-2026-09-04.md`): eleven consecutive days of work, 214 commits, 104 of them touching code, 28 roadmap items closed and 23 open — and 18–27 sessions of work left before he could sell.** On three honest paces the software lands **late September, mid-to-late October, or late November** — **all of them before 2 December.** **So the software is not the constraint; his birthday is, and the first sales call is realistically the week of 8 December.** **What that slack is FOR: Phase 5**, putting his own detailing business on the platform and running it in parallel — free, needs no legal setup, and it is the best bug-finder available, so that on the first cold call he is selling something he has used daily for six weeks. **Five named risks could move it**, and the honest one is that **the discovery rate has not slowed** — the same eleven days turned up a live white-screen crash, an invoice that never added up and eleven under-floor email headlines, none of which were on any list beforehand.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -11306,3 +11308,78 @@ there is no charge for merely having it enabled.
 **So it goes on with the first subscription and is never thought about again** —
 which is exactly what he has been asking for since he first raised tax: not a
 cheaper answer, an answer he cannot forget to apply.
+
+## 2 December 2026 is the date the whole plan turns on, and it is his birthday
+
+He answered step 0 of the setup checklist: **he turns 18 on 2 December 2026**,
+three months out.
+
+### It collapses the structure question rather than answering it
+
+Every branch of the LLC-versus-sole-proprietorship argument existed because the
+business would have to start in his dad's name and later become his. **At three
+months' distance it does not have to start in anybody's name.**
+
+- **No LLC.** The $800 a year was buying a clean handover; there is no handover.
+- **No guardian on Stripe.** A guardian only exists if an account is opened
+  before 18, so **the support ticket the setup file opened with is moot.**
+- **No licence or EIN in his dad's name**, and no form later to undo either.
+
+**He worked most of this out himself**, and one detail he got right is worth
+keeping because it is the kind of thing that sounds risky and is not:
+**changing the payout bank account on a Stripe account is a settings change.**
+It touches no customer, no subscription and no stored card. *"I just set it up on
+my Stripe account as a new bank account and set it to go there"* — correct.
+
+**And the build is unaffected**, which is the part that makes waiting free:
+**Stripe test mode needs no activated account and no verified identity**, so the
+entire payments integration can be written and tested now, with activation the
+week of the 2nd.
+
+### The estimate, measured rather than guessed
+
+`docs/timeline-2026-09-04.md`. **From git history: eleven consecutive days
+(25 August – 4 September), 214 commits, 104 of them touching `app/`,
+`supabase/`, `scripts/` or `tests/`.** Roadmap: **28 items closed, 23 open.**
+
+**The repository's first 137 commits are from January and February and are the
+Emergent scaffold this project was converted from — not this work.** Anyone
+measuring from the initial commit gets an eight-month project instead of an
+eleven-day one.
+
+**Remaining before he could sell: 18–27 sessions**, sized item by item rather
+than counted, because item size varies from an afternoon (2.16, closed unstarted)
+to four days (2.11).
+
+| Pace | Software finished |
+|---|---|
+| The last eleven days continuing | late September |
+| Realistic with school and detailing | mid-to-late October |
+| A slow stretch | late November |
+
+**All three land before 2 December.** **So the software is not the constraint.
+His birthday is**, and the first sales call is realistically **the week of
+8 December**, once the December setup week is done.
+
+### What the slack is for, and it is worth more than the features it displaces
+
+**Phase 5 — his own detailing business on the platform, running in parallel.**
+It needs no legal setup, costs nothing, and is **the best bug-finder in the
+plan**: real customers, real money, every day. Five to six weeks of it means
+that on the first cold call he is selling a product he has used daily since
+October, with a month of real bookings behind it. **That beats any feature still
+on the list.**
+
+He asked not to count his own testing, which is fair — **but the gap between
+"software done" and "legally able to sell" exists regardless.** The only choice
+is what fills it.
+
+### The risk that is easiest to forget
+
+**The discovery rate has not slowed.** The same eleven days turned up a
+white-screen crash live on `main` for four days, an invoice column that had never
+added up, eleven email headlines under the contrast floor, and a booking page
+double-bookable in one configuration. **None of those were on any list
+beforehand, and there is no reason to think the next eleven days find nothing.**
+The estimate above contains no allowance for them, which is why the middle
+scenario rather than the fast one is the one to plan against.

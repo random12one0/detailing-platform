@@ -3218,6 +3218,22 @@ is kept; the entire visual design restarts from scratch.
         OTHER reason** — a bad address, a suppression, a domain problem — which
         no quota alert covers and which nothing in this product surfaces.
 
+      **HE TURNS 18 ON 2 DECEMBER 2026, AND THAT COLLAPSES THE WHOLE STRUCTURE
+      QUESTION (told 2026-09-04).** Three months out, so: **no LLC, no dad on
+      the Stripe account, no guardian, no handover, and the support question the
+      setup file used to open with is MOOT.** He opens Stripe, the EIN, the bank
+      account and the Lakewood licence himself in the first week of December.
+      **The build is unaffected — Stripe TEST MODE needs no activated account**,
+      so the whole payments integration can be written and tested before then
+      and activated the week of the 2nd. **`docs/setup-steps-2026-09-04.md` is
+      rewritten around that date.**
+      **THE CONSEQUENCE FOR THIS ITEM: stage 2 cannot go live before 2 December
+      whatever happens**, so there is no reason to rush it and every reason to
+      build it properly. **`docs/timeline-2026-09-04.md` has the full estimate:
+      the software lands between late September and late November on three
+      honest paces, and the FIRST SALES CALL IS THE WEEK OF 8 DECEMBER — set by
+      his birthday, not by the code.**
+
       **AND TWO SETUP ANSWERS LANDED 2026-09-04, both from primary sources.**
       **STRIPE TAX GOES ON FROM DAY ONE** — he asked *"there's no point in not
       having it on"* and he is right: Stripe's own pricing page says *"you only

@@ -4660,3 +4660,33 @@ reversing on one fact about Stripe".
   pricing page: fees are incurred *"only for transactions in jurisdictions where
   you have an active tax registration"* — **no registrations, no cost, no
   monthly minimum.** Enabling it early removes a thing to remember at no price.
+
+### ROUND 8 — HE TURNS 18 ON 2 DECEMBER 2026, AND THAT IS THE PROJECT'S REAL DEADLINE
+
+**`docs/timeline-2026-09-04.md` is the measured estimate.** Judgment:
+DECISIONS.md → "2 December 2026 is the date the whole plan turns on".
+
+- **THE STRUCTURE QUESTION COLLAPSED RATHER THAN BEING ANSWERED.** Three months
+  out means **no LLC, no dad on the Stripe account, no guardian, no handover**,
+  and **the Stripe support ticket the setup file opened with is MOOT** — a
+  guardian only exists if an account is opened before 18. **He worked most of it
+  out himself**, including the detail that **changing a payout bank account in
+  Stripe is a settings change** that touches no customer, subscription or stored
+  card. **`docs/setup-steps-2026-09-04.md` is rewritten around one week in
+  December.**
+- **THE BUILD IS UNAFFECTED: Stripe TEST MODE needs no activated account**, so
+  payments can be written and tested now and activated the week of the 2nd.
+- **MEASURED FROM GIT: eleven consecutive days (25 Aug – 4 Sep), 214 commits,
+  104 touching code, 28 roadmap items closed, 23 open.** **The repo's first 137
+  commits are the Jan/Feb Emergent scaffold and are NOT this project** — anyone
+  measuring from the initial commit gets an eight-month project instead of an
+  eleven-day one.
+- **18–27 SESSIONS REMAIN before he could sell.** Software lands **late
+  September / mid-to-late October / late November** on three honest paces —
+  **all before 2 December.** **THE SOFTWARE IS NOT THE CONSTRAINT; HIS BIRTHDAY
+  IS.** First sales call realistically **the week of 8 December**.
+- **WHAT THE SLACK IS FOR: Phase 5**, his own business on the platform in
+  parallel — no legal setup, no cost, and the best bug-finder in the plan.
+- **THE RISK NOT IN THE ESTIMATE: the discovery rate has not slowed.** The same
+  eleven days found a live white-screen crash, an invoice that never added up
+  and eleven under-floor email headlines, none of them on any list beforehand.
