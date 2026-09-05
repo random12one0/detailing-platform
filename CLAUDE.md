@@ -304,6 +304,23 @@ explaining it; if they still have to ask "so should I?", it failed.
   `SettingsHost`, `Sheet`, `controls.jsx` — because the tiering is a bet that
   the long tail is uniform, and a change to the shared container is that bet
   losing. The script prints its own per-width wall clock on every run now.
+  **AND THE ONE THAT COSTS THE MOST WHEN IT IS MISSED — ADDED 2026-09-05, THE
+  FOURTH TIME HE HAS ASKED WHY A SESSION IS SLOW, AND THE FIRST TIME THE ANSWER
+  WAS NOT IN THE SCRIPTS: SETTLE THE ITEM'S FULL SCOPE BEFORE WRITING A LINE OF
+  CODE, FROM THE ROADMAP'S OWN BULLETS RATHER THAN FROM ITS HEADLINE.** Roadmap
+  2.20 stage 1 took 90 minutes, **68 of them waiting**, and the single largest
+  slice was **one item verified TWICE** — its last bullet (*"build one small
+  thing beside it"*) was read as a follow-up, so the headline half was built,
+  fully verified and committed, and the rest then needed the entire battery
+  again. **THE BATTERY IS THE MOST EXPENSIVE THING IN A SESSION** — a full
+  sweep, a `--lite` sweep and `e2e-booking` are ~10 minutes together — so an
+  item whose scope grows after the first green run costs a second one.
+  **The scripts are not the problem any more and that is measured**:
+  `sweep-widths.mjs` has 77 `settle()` sites and zero real fixed sleeps, a core
+  width is 26–30s, and running the suite one extra time now costs more than
+  every optimisation in `docs/verification-speed-2026-09-02.md` returns. **The
+  remaining wins are all in the ORDER things are done, not in the code.** That
+  file's last section has the full accounting and a five-line checklist.
   **AND THE RULE THAT IS WORTH MORE THAN EVERY OTHER LINE IN THIS SECTION, and
   costs nothing: START THE LONG CHECK, WRITE WHILE IT RUNS, THEN READ THE
   RESULT.** **WRITE PROSE — NOT SOURCE. Learned the expensive way 2026-09-04:

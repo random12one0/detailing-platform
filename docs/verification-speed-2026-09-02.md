@@ -364,3 +364,91 @@ design files and CLAUDE.md.
    scope; both were real. **This is the one to bring to him rather than
    decide** — the alternative is filing them and moving on, which is faster per
    session and slower per product.
+## Roadmap 2.20, and the fourth time he has asked: 90 minutes, 68 of them waiting
+
+> *"all of that took an hour and a half to do"* — 2026-09-05, after roadmap
+> 2.20 stage 1.
+
+**THE CODE-SIDE WORK IS DONE AND IT IS WORKING. EVERY MINUTE BELOW WAS LOST TO
+BEHAVIOUR.** That is the whole finding, and it is § 4 of this document being
+proved right rather than a new problem. Verified before writing this rather
+than assumed: `sweep-widths.mjs` has **77 `settle()` call sites and ZERO real
+fixed sleeps** — its one `waitForTimeout` hit is inside the comment that
+describes the old behaviour. A deep width costs 76–81s and a core-only one
+26–30s, which is the same figure this document recorded on 2026-09-03. **The
+scripts did not get slower. The session did.**
+
+### Where the 90 minutes went, from the logs rather than from memory
+
+Session ran 22:40 → 00:10, two commits (23:28 and 00:02).
+
+| | Runs | Wall |
+|---|---|---|
+| Full five-width sweep (245s, 241s, 244s) | **3** | 12 min |
+| The same through `?lite=1` (133s, 131s, 144s) | **3** | 7 min |
+| `e2e-booking.mjs` | **3 + 1 partial** | 12 min |
+| `shoot-dashboard.mjs` | **4** | 10 min |
+| The 8 credentialed suites ×2, the 12 free ones ×4 | 6 | 14 min |
+| `--only` iteration (82s, 74s, 80s, 46s), deploys ×3, seeds ×2, builds ×3 | — | 13 min |
+| **Waiting** | | **~68 min** |
+| **Everything else — reading, deciding, writing code and prose** | | **~22 min** |
+
+**Roughly 35–40 of those 68 minutes bought nothing.**
+
+### The three causes, biggest first
+
+**1. ONE ROADMAP ITEM WAS VERIFIED TWICE BECAUSE ITS SCOPE WAS SETTLED LATE
+(~20 min).** 2.20 stage 1's roadmap entry carries a bullet list, and the last
+bullet — *"build one small thing beside it: make a rejected send visible"* — was
+read as a follow-up rather than as part of the item. The headline half was
+built, verified with a complete battery, and committed; the second half was
+then built and needed **the entire battery again.**
+**The rule this produces, and it is cheap: settle the item's FULL scope from
+the roadmap's own bullets before writing a line, and write it down.** An item
+whose scope grows after the first green run costs a second green run, and the
+battery is the most expensive thing in a session.
+
+**2. THE FULL SWEEP WAS RUN THREE TIMES, AGAINST THIS DOCUMENT'S OWN RULE
+(~13 min).** CLAUDE.md says it in as many words — *the full run is a
+once-per-item cost, not a per-change one* — and it was used as a per-change
+check. `--only <Screen>` at one width answers the same question in 40–80s and
+was used correctly four times; the mistake was reaching for the full run
+between changes instead of only after the last one.
+
+**3. AN EDIT TO `app/src` LANDED WHILE `e2e-booking.mjs` WAS RUNNING (~8 min).**
+The trap this repo already documents, paid for rather than read. It killed the
+run, and proving it was the harness rather than a real defect cost a
+single-tenant control run and a full re-run. Its symptom is now recorded in
+CLAUDE.md, because `e2e-booking` does **not** print *"Execution context was
+destroyed"* the way the sweep does — it prints a null receipt link and five
+failures that read like a broken booking engine.
+
+### What a 90-minute session should have been
+
+Same work, same findings, same commits:
+
+| | |
+|---|---|
+| Read the item and settle its full scope | 8 min |
+| Write all of it — schema, engine, emails, screen, tests | 20 min |
+| Iterate with `--only` at one width | 5 min |
+| **The full battery, ONCE, after the last line of code** | 12 min |
+| Docs and commit, written WHILE the battery ran | 0 min |
+| | **~45–50 min** |
+
+### The rule that keeps not sticking, stated as a checklist
+
+1. **Scope the whole item before writing anything.** From the roadmap's bullets,
+   not from the headline.
+2. **Iterate with `--only <Screen>` at ONE width.** Never the full sweep.
+3. **Run the full battery once, after the last code change.** Background it.
+4. **While it runs, write PROSE only** — DECISIONS, PROJECT-STATE, the roadmap.
+   An edit under `app/src` reloads the page and kills the run.
+5. **Only then commit.**
+
+**This is the fourth time he has asked, and each previous answer made the CODE
+faster.** 463s → 335s → 203s per sweep, and 35 fixed sleeps down to none. The
+code is now a small part of the problem: at 26–30s a core width, running the
+suite one extra time costs more than every optimisation in this document
+returns. **The remaining wins are all in the order operations are done in, not
+in the scripts.**
