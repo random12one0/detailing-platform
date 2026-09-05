@@ -20,6 +20,28 @@ the dashboard can actually be looked at:
 temporary — they reach the demo business only, and they must change before
 there is a real customer. See DECISIONS.md, "A guessable demo login".
 
+**WHERE THE WORK IS, 2026-09-05 (end of the session that finished 2.20 stage 2).**
+**Done and pushed:** the checkout is OUR OWN Payment Element form, not Stripe's
+hosted page — the owner's pick of Stripe's three shapes — proven against real
+Stripe test mode. Three facts that were typed in two files each were collapsed
+(the tie-out test was guarding a function nothing called; `/pricing` and the
+billing screen had two names for one plan; the founding bar spelled out an
+ordinal against a database count), the dunning promise is now pinned across all
+four files that state it, and **roadmap item L is closed**: his mobile and
+`support@detailingplatform.com` live in ONE constant that feeds both the billing
+emails and the billing screen over the wire.
+
+**NEXT: Phase 3, tenant websites, starting at roadmap 3.1 — his choice** over
+Connect and over the platform admin, because the product is sold as a $499
+website build and there is no builder. **The plan already exists** in
+`docs/tenant-websites.md`; 3.1's own entry now says so, and says what the
+enumeration owes. Fable 5.1 is reserved for the default visual world.
+
+**STILL OWED BY HIM, not by a session:** the iCloud+ custom domain (so
+`support@` receives — the phone is the one that works today), Stripe account
+activation in December, and Google sign-in, which is fully built and switched
+off waiting on ten minutes in his Google account.
+
 **State: late beta, pre-revenue — and PUBLIC as of 2026-08-30.** detailingplatform.com serves the redesigned marketing page (roadmap 2.2), on the owner's explicit instruction and against the recommendation to wait. **One of the two consequences of publishing mid-phase is now closed: the dashboard behind it was restyled in roadmap 2.3 (2026-08-30), so a visitor who presses "Get started" no longer meets the old look.** The other stands — billing still charges nobody, **and as of 2026-09-05 it is neither missing code NOR a missing key — it is an unactivated Stripe account.** The keys are set, the webhook is registered, and the whole path was exercised in test mode: a real payment with a test card, four webhook events, and a test-clock run that took a second tenant from past due to a genuinely offline booking page and back. **The checkout is OUR OWN FORM as of the same day** — his choice of Stripe's three shapes: the hosted page at checkout.stripe.com is gone and Stripe's Payment Element is mounted inside our card, styled from the live design tokens. The card fields are still an iframe on Stripe's origin, so no card number reaches this product. Roadmap 2.20 stage 2 built the checkout, the billing screen, the cancel button and the failed-payment behaviour; `stripeConfigured()` is TRUE now, and the only thing between here and real money is activating the account, which is his December job. Note that 2.3 is on the branch and NOT on `main` at the time of writing, so the live site still shows the old dashboard until someone merges. See DECISIONS.md.
 
  The engine works end to end (real bookings have been made), 11 test suites exist, a private Netlify test deploy exists — but transactional email now works (fixed and proven delivered 2026-08-29), the reminder scheduler is now wired and proven (2026-08-29), ~~billing is not implemented ("nothing charges anyone" — DECISIONS.md)~~ **billing is BUILT and switched off — 2026-09-05, roadmap 2.20 stage 2** (three tables, two edge functions, the fifteenth settings screen, our own Payment Element form, 220 credential-free checks; **it HAS talked to Stripe** — a test account, a real $539 subscription and a real dunning run — `docs/setup-steps-2026-09-04.md` step 2b), and signup is brand new. Sources: `docs/HANDOFF.md`, `DECISIONS.md`, git log.

@@ -5463,6 +5463,56 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 3.1 Plan: which pages every tenant gets (home, services, gallery,
       about, reviews, FAQ, contact, booking) and which settings drive each.
       **OWNER approves the plan.**
+
+      **HE CHOSE THIS AS THE NEXT ITEM, 2026-09-05**, over 2.20 stage 3
+      (Connect) and over 4.4, on the reasoning that the product is sold as a
+      **$499 website build** and there is no builder — Connect is a feature a
+      detailer would like, a website is the thing they are paying for.
+
+      **DO NOT WRITE ANOTHER PLAN. His own words when a session started to:**
+      *"Isn't there already a plan. Follow the docs."* **He is right and this
+      is now a rule for this item.** `docs/tenant-websites.md` settles the
+      architecture (fork the presentation, never the engine — confirmed
+      2026-08-29), §4 lists what the kit contains, and §3 names what 3.1 owes:
+      **the enumeration of what a tenant site MUST implement for the
+      dashboard's features to work.** That enumeration is the deliverable.
+      A third planning document is not.
+
+      **AND MOST OF THE CONTRACT ALREADY EXISTS — measured 2026-09-05, not
+      assumed.** `get_public_business_profile(slug)` is one `security definer`
+      RPC returning business, branding, settings, service_groups, services,
+      add_ons, plans, hours, testimonials and gallery for one tenant, filtered
+      on `status = 'active'` so a suspension darkens every site built on it.
+      **`business_branding` already carries `logo_url`, `hero_image_url`,
+      `tagline`, `about_copy` and SIX social links**, and the RPC ships the
+      whole row. `business_domains` exists and is unused, waiting for 3.3.
+      **So 3.1 is mostly a naming exercise over something built, plus a short
+      list of real gaps.** The gaps found on the day, each verified in the
+      migrations rather than inferred:
+      - **FAQ is stored and not exposed.** `business_settings.faqs` and
+        `faq_enabled` landed in `20260902001000_faq_storage.sql`; the RPC's
+        `settings` object lists keys explicitly and does not include either.
+        **There is also no FAQ settings screen** — the owner's own split, and
+        the reason there is no FAQ row in the settings index.
+      - **The payment handles are not exposed.** `pay_cash` / `pay_venmo` /
+        `pay_cashapp` / `pay_zelle` / `pay_paypal` / `pay_other`
+        (`20260904006000_payment_handles.sql`) reach a customer's EMAIL and
+        nothing else. A site's "how to pay" section would need them.
+      - **Five of the six social links cannot be typed in.**
+        `BusinessInfo.jsx` edits `social_instagram` only; facebook, tiktok,
+        youtube, google and yelp are columns with no field.
+      - **Closures are not exposed.** `blockout_dates` and
+        `dropoff_only_periods` drive availability and are invisible to a site
+        that wants to say "closed the week of the 4th".
+
+      **FABLE 5.1 BELONGS HERE AND NOT BEFORE — his instruction, 2026-09-05:**
+      *"maybe using fable when it's needed."* He has weekly Fable usage and
+      asked it be spent where it is genuinely beneficial. **The beneficial use
+      is the DEFAULT VISUAL WORLD for a detailer's site** — one worked example
+      derived from The Thread but for a detailing business rather than a SaaS
+      product, built once and diverged from per client (`tenant-websites.md`
+      §3, "the kit ships a default"). **It is not the contract enumeration**,
+      which is analytical and belongs to whichever model is already running.
 - [ ] 3.2 Build them. **NOTE: this wording predates the owner's 2026-08-29
       decision** — "entirely from tenant configuration, zero hardcoded
       content" describes the shared-system answer he rejected. Under the
