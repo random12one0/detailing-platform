@@ -18,7 +18,10 @@ session; it is written to stand on its own.
 |---|---|---|
 | 1 | **A**, **B** | Both are pure reading and writing. Nothing can break, and they leave two documents the rest of the queue and every later session use |
 | 2 | **C**, **D** | The one real code task, while the owner is most likely to be checking his phone — and the legal content, which needs no verification at all |
-| 3 | **E**, **F**, **G** | Half a feature, two chores and a design doc. Safe to land in any order |
+| 3 | **E**, **F**, **G**, **H** | Half a feature, two chores, a design doc and a pile of tour copy. Safe to land in any order |
+
+**If the boxes all end up ticked, `README.md` §6 says how to choose your own
+work — and what you are not allowed to choose.**
 
 **Nothing in this queue can be merged to `main`.** Every PR targets
 `claude/superbase-access-anj1h7`. Several of them need a laptop session
@@ -279,13 +282,67 @@ Turning it on is the owner's call and needs a secret he has to add.
 
 ---
 
+## H — Roadmap 2.24: write every step of the per-tab guide, as words
+
+- [ ] Done
+
+**The owner asked for this on 2026-09-05**, about the walkthrough that already
+exists: *"it did it for the home page, and then it stopped there. And it was a
+little weird… every time you click on a new tab for the first time, there
+should be a full guide for every single thing inside of that."*
+
+**THE SLOW HALF OF THAT ITEM IS WRITING THE STEPS, AND IT IS ALL WORDS.** Each
+step is one target and one sentence. Working out which controls on Calendar,
+Money, Clients and Business need a sentence — and which are already obvious
+from their own label — is a careful read of five screens' JSX, which is exactly
+what this environment is good at. **The overlay itself is a screen and is not
+this environment's work.**
+
+**READ `app/src/components/Walkthrough.jsx`'s header before writing a word.**
+Its six rules and the owner's three constraints are the specification: one
+sentence a step, one ELEMENT a step, more steps rather than fewer, no sentence
+naming a position or a gesture, and a step whose target is absent is skipped.
+
+**AND THE RULE THIS ITEM ADDS IS THE ONE HE JUST GAVE: only what is NOT
+obviously explainable.** A step that points at a button and reads the button's
+label back is the thing he called weird. It is his own copy rule from
+2026-09-01 — *does the sentence add a fact the control does not already
+carry?* — applied to a tour. **Expect to delete more candidate steps than you
+keep.**
+
+**Definition of done:** `docs/tour-steps-2.24.md` — for each of the five tabs,
+an ordered list of steps, each with the `data-tour` name (say whether it exists
+in the JSX today or has to be added), the one sentence, and whether the target
+is always present or conditional. Plus a short section on the one question the
+item cannot dodge: **what a guide does about states behind a click** — a
+Clients guide that stops at the list has the same shape as his complaint, but
+the lit element is deliberately not clickable, so either the guide advances the
+screen itself or it only covers the resting screen. Give a recommendation.
+
+**Write no code.** Not the overlay, not the `data-tour` attributes.
+
+> **PROMPT**
+>
+> Read docs/cloud/README.md, then CLAUDE.md, then docs/roadmap.md item 2.24 and the whole header comment of app/src/components/Walkthrough.jsx.
+> Task: cloud queue item H — write docs/tour-steps-2.24.md, the step lists for a per-tab guide. WORDS ONLY: no overlay, no data-tour attributes, no JSX.
+> For each of the five tabs, read the screen's JSX and list the steps: the data-tour name (existing or needed), one sentence, and whether the target is always there.
+> Obey Walkthrough.jsx's six rules and the owner's three constraints, and apply his newest one: a step only exists if its sentence adds a fact the control's own label does not already carry. Expect to cut more candidates than you keep.
+> Include a recommendation on states behind a click — a Clients guide that stops at the list repeats the complaint, but the lit element is deliberately not clickable.
+> Finish with the credential-free checks in docs/cloud/README.md §2 and open a PR into claude/superbase-access-anj1h7.
+
+---
+
 ## If the queue runs out
 
-Do not start roadmap **2.20** (taking money). It touches Stripe keys, webhooks
-and two screens, and the roadmap says `security-review` is not optional on any
-stage of it — none of which a session with no database and no browser can
-honour.
+**`README.md` §6 is the permission and the limits — read it before you choose
+anything.** Three tests every self-chosen task must pass, a ranked list of what
+to reach for, a short list of what is off limits whatever the reasoning, and a
+stop rule for when the cloud-shaped work has genuinely run out.
 
-Better use of a spare session: extend **A**. An open-threads list is only worth
-what its accuracy is, and a second pass that checks each entry against the
-current code is worth more than a new feature nobody can verify.
+Two shortcuts worth knowing before you get there:
+
+- **Do not start roadmap 2.20** (taking money). Stripe keys, webhooks and two
+  screens, and `security-review` is not optional on any stage of it.
+- **Extending A is almost always the best spare session.** An open-threads list
+  is worth exactly its accuracy, and a second pass checking each entry against
+  the current code beats a new task nobody can verify.

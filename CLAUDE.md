@@ -1102,6 +1102,16 @@ explaining it; if they still have to ask "so should I?", it failed.
   they run on a bare clone with no `npm install`), `npm run build --prefix app`,
   and `gh`. `docs/cloud/QUEUE.md` is the work that fits inside that. **A cloud
   PR targets `claude/superbase-access-anj1h7`, never `main`.**
+  **THE OWNER STARTS ONE OF THOSE SESSIONS WITH A SINGLE SENTENCE HE HAS
+  MEMORISED — *"Follow `docs/cloud/README.md`."*** That file's first block is
+  therefore a complete brief on its own: read the limits, read CLAUDE.md, take
+  the first unticked task, do one, stop. **Anything a cloud session must know
+  goes in that file, not in a message** — he is away and there is nobody to ask.
+  **§6 is its permission to choose its own work when the queue empties**: three
+  tests (can it be finished here, can it be checked here, would he recognise it
+  as the next thing), a ranked list of what to reach for, a short list of what
+  is off limits whatever the reasoning, and a stop rule — two self-chosen
+  sessions producing only documents means the cloud-shaped work has run out.
 - **Appending to `DECISIONS.md` means adding your section to its index too,
   in the same edit.** `node scripts/decisions-index.mjs` exits 1 if you
   forget, and it is the check that keeps that file usable — an index that has

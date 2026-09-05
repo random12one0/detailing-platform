@@ -1,5 +1,26 @@
 # Working on this repo from Claude Code on the web
 
+> ## IF THE OWNER JUST SAID "FOLLOW `docs/cloud/README.md`", THIS IS YOUR WHOLE BRIEF.
+>
+> He is away from his computer and will not be steering. Do this, in order:
+>
+> 1. **Read this file to the end.** §1 is five things this environment cannot
+>    do, and every one of them removes a kind of work. Do not skip it.
+> 2. **Read `../../CLAUDE.md`.** It is the project's law and it outranks
+>    anything here except §1.
+> 3. **Open `QUEUE.md` and take the FIRST TASK WHOSE BOX IS NOT TICKED.**
+>    Follow its PROMPT block as if he had typed it.
+> 4. **Do that one task and stop.** One task per session — the cloud has no
+>    `/clear`, so a new session from the sidebar is how you get a clean one.
+>    Tick the box and open the PR in the same breath (§4 says what the PR must
+>    say).
+> 5. **If every box is ticked**, go to §6, *When the queue runs out*. Do not
+>    ask him what to do next; he cannot answer.
+>
+> **The one thing you must never do:** open a pull request against `main`. A
+> push to `main` publishes the live site. Everything targets
+> `claude/superbase-access-anj1h7`.
+
 **Read this file first, then `QUEUE.md`, then `../../CLAUDE.md`.**
 
 This folder exists because the owner is away from his machine for a few days
@@ -167,3 +188,77 @@ requires it, but it makes `npm run build` instant instead of a two-minute wait.
 over every tenant's customers — and an environment variable is readable by
 anything that runs in that environment. Whatever a task seems to need them for,
 that part belongs on the laptop.
+
+---
+
+## 6. WHEN THE QUEUE RUNS OUT — choosing your own work
+
+Every box in `QUEUE.md` is ticked and the owner is still away. **You may pick
+your own task. You may not pick any task.** What follows is the whole of the
+permission.
+
+### 6a. THREE TESTS. A task needs all three, and you write the answers down in
+the PR before you start.
+
+1. **CAN IT BE FINISHED HERE?** If the definition of done includes applying a
+   migration, deploying a function, seeing a screen, or asking the owner
+   something — it cannot. That is not a reason to do a worse version of it.
+   Write what you worked out into a document, say what the laptop has to do,
+   and that is the task.
+2. **CAN IT BE CHECKED HERE?** Name, *before* you start, which of the checks in
+   §2 would go red if the work were wrong. **If the honest answer is "none of
+   them", then it is a document, not a change** — so write the document instead
+   of the change. This is the rule that keeps an unattended session from
+   shipping something plausible and unverifiable.
+3. **WOULD HE RECOGNISE IT AS THE NEXT THING?** It has to trace to a line
+   somebody already wrote: an item in `docs/roadmap.md`, an entry in
+   `docs/open-threads.md`, a `ponytail:` comment, or a *"still open"* block in
+   a doc. **Never invent a feature.** He is not here to say no, and "I thought
+   it would be useful" is how an unattended agent spends three days on
+   something nobody wanted.
+
+### 6b. WHAT TO REACH FOR, in this order
+
+1. **Anything `docs/open-threads.md` marks as blocking launch that is not
+   code** — a decision that needs writing up, a document that contradicts
+   another, a policy nobody has written.
+2. **A check that cannot see its own failure.** This repo's most repeated
+   defect is a green check with no subjects. Take one existing suite, break
+   what it guards, confirm it goes red, put it back. If it stays green, that is
+   a real finding and the fix is a task of its own.
+3. **A fact in a document that a script can prove stale.** Every count, every
+   "13 settings screens", every "eight suites". Run the thing, correct the
+   prose. CLAUDE.md has had four of these.
+4. **A `ponytail:` deferral whose stated ceiling has actually been reached.**
+   The comment names the ceiling; check the code against it.
+5. **Reading work the roadmap already asks for** — a research doc, an audit, a
+   comparison. This environment is unusually good at it and the laptop is
+   unusually bad at finding time for it.
+
+### 6c. WHAT IS OFF LIMITS, whatever the reasoning
+
+- **Any screen, any stylesheet, any animation.** `theme.css`, `booking.css`,
+  `landing.css` and every `.jsx` that draws something. You cannot look at it,
+  so you cannot change it. This is §1b and it has no exceptions.
+- **Anything touching a payment key, a webhook, a credential, or roadmap
+  2.20.** `security-review` is not optional on those and it needs a human.
+- **`main`.** Ever. Not a PR, not a push, not a rebase.
+- **Editing an existing migration.** They are append-only.
+- **Adding a dependency.**
+- **A second task in the same session.** Finish, PR, stop.
+
+### 6d. WRITE DOWN WHAT YOU CHOSE
+
+**Append it to `QUEUE.md` as a ticked entry**, under a heading
+`## Chosen by a cloud session — <date>`, with three lines: what you did, which
+check covers it, and what the laptop still has to run. The queue is the record
+of what happened while he was away; a task that only exists in a session
+transcript is a task he will never find.
+
+### 6e. THE STOP RULE
+
+**If two self-chosen sessions in a row produce only documents and no verified
+change, stop choosing.** Write one final note at the top of `QUEUE.md` saying
+so, and leave the rest for the laptop. That pattern is the signal that the work
+which fits this environment has run out — and three days of documents nobody
+asked for is worse than two days of work and a quiet Sunday.

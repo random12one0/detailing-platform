@@ -219,6 +219,8 @@ were made more than once.
 - **Roadmap 2.14, step 3 - the customer's half of plans, and the four decisions that kept it inside a measured budget** - the booking page's plan buttons, the recognition, the remembered browser, the "your plan" link and the email nudge. **The organising constraint was arithmetic, not taste: step 1 has TEN PIXELS of spare room at 1440x900 and that budget is the detailer's catalogue.** So the plans live on a page of their own (`/book/:slug/plans`, which is also what 7 of 7 sampled detailers and 5 of 6 products do), the door to them rides the row the progress rail and "Step 1 of 7" already share, and the recognition the owner asked for is spent on TWO LINES THAT WERE ALREADY DRAWN - step 1's heading becomes *"Welcome back, Marcus"* or *"Let's set up your Bi-weekly maintenance"*, and the price bar's eyebrow says which plan moved the number. **Every step's spare room is identical to before the item.** **The plan's effect on the price is ONE function in `_shared/pricing.ts` and it rides `price_adjustments`** - the array every receipt, email and invoice already itemises - rather than a `plan_discount` column that would have needed adding to nine render paths and forgetting in a tenth. **The rule: the plan governs the SERVICES, extras and travel are always extra, and a percentage comes off the whole job.** **A plan sign-up is a REQUEST in either booking mode**, because the sale and the schedule are two acts and the detailer has to agree somebody is on their plan - but an existing member booking their own covered visit is not held up, which is why `create-booking` asks whether they are already a member rather than keying off the plan alone. **The owner's "type your email and it shows you" was built as its safe twin, EMAIL IN / LINK OUT** - the version he described is address enumeration, and the endpoint answers identically whether or not the address is a member. **His customer-account idea shipped as a LINK** (`/plan/:memberId`, the membership UUID as the credential, the third caller of a pattern this product already used twice) rather than as a second kind of human in `auth.services`. **A defect fixed on the way through that predates this item: a NEGATIVE `price_adjustments` line printed as a positive CHARGE in every email** - `moneyBlock` draws by `kind`, not by sign - which `accept-quote` could already reach whenever a detailer quoted UNDER the estimate. **And the plans page was built as four boxed cards first and rejected on sight of its own screenshot**: four identical full-width panels each ending in a full-width button repeating the name above it, which is `docs/design-knowledge.md` §1's tell and the owner's copy rule in one. The ruled list that replaced it is the composition law's own answer and cost 96px a plan against 190px.
 - **Roadmap 2.19 — a manual re-book email, and the machinery a MANUAL send still needs** — the owner ruled that nothing sends itself: a human picks the names and presses the button, and the reminder is a ROW ON A SCREEN rather than an email to him. What the roadmap entry understated is that CAN-SPAM classifies a message by its PRIMARY PURPOSE, never by what pressed send — so *“we haven’t seen you in a while”* needs a working opt-out and a postal address whether a person or a cron job sent it. **What the manual design removes is the SCHEDULING, not the statute.** So: `customers.unsubscribed_at`, a public two-step opt-out page (a one-click GET link would be pressed by Gmail’s prefetcher and every corporate link scanner, silently opting people out of businesses they still want to hear from), `businesses.mailing_address` as its own field because a mobile detailer has no unit, and a **50-recipient cap** that is ours rather than the law’s — the platform’s whole Resend allowance is **100 emails a day across every tenant**, and one unbounded campaign could stop bookings confirming. **The compose surface selects nobody**: Clients already knew who had lapsed, so the sheet is handed a list a human narrowed and its only job is the words. **And the demo had ZERO lapsed customers**, so the “not seen in 3 months” block `sweep-widths.mjs` has walked at five widths since 2026-09-02 was measuring an empty screen and printing clean — the seventh instance of *a skipped check reads exactly like a passing one*, found by asking the database rather than by reading the sweep’s output. **And it exposed a RACE in `sweep-widths.mjs` that is older than the item**: Monthly plans and Team draw their buttons only after Supabase answers, and both were measured with `settle()` + `count()` — a cap on a repaint, never a wait for a round trip — which `?lite=1` makes WORSE because a page with no animations goes quiet sooner. It printed `NO SUCH BUTTON`, which reads as a renamed control. **A control run proved it was ours, a bisect blamed a file, and a `console.log` probe then passed with that file in place** — which is what a race looks like from the outside. Also recorded there: `campaigns`/`campaign_visits` are tracked marketing LINKS and have nothing to do with this feature, and the opt-out is NOT tamper-proof against the tenant, which is a stated ceiling.
 
+- **Working from the cloud while the owner is away (2026-09-05)** — what a Claude Code web session can and cannot do on THIS repo, settled by reading the docs rather than guessing: no `.env` in the clone and no Supabase on the sandbox allowlist, so **no database**; no Playwright browsers and a blocked CDN, so **no browser and therefore no screens**; and the user-level design skills are not there either. What survives is measured — **all ten credential-free checks run on a bare clone with no `npm install`**, plus the production build and `gh`. He starts a session with one memorised sentence, *“Follow `docs/cloud/README.md`”*, so **that file’s first block is a complete brief and anything a cloud session must know goes in it rather than in a message.** § 6 is its bounded permission to choose its own work when the queue empties: three tests (can it be finished here, can it be CHECKED here — name the check or write a document instead — and would he recognise it as the next thing), a ranked list, an off-limits list no reasoning overrides, and a **stop rule**: two self-chosen sessions producing only documents means the cloud-shaped work has run out.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -12014,3 +12016,82 @@ learned to look for the error boundary.
   mistake. **What the product guarantees is that `send-campaign` honours the
   flag**; what it cannot guarantee is that a detailer will not go around it,
   which is true of every CRM.
+
+## Working from the cloud while the owner is away
+
+**2026-09-05.** He is away from his machine for a few days and does not want the
+project to stop. The ask had three parts and each one turned into a rule.
+
+### 1. WHAT THE CLOUD CAN DO WAS SETTLED BY LOOKING, NOT BY GUESSING
+
+Read from Anthropic's own documentation rather than assumed, because the
+answer removes most of this project's work:
+
+- **`.gitignore` line 96 (`*.env`) means a cloud clone has no credentials**,
+  and `*.supabase.co` is not on the sandbox's default network allowlist either
+  — that list is package registries, GitHub and the big cloud SDKs. **So: no
+  database, no migration, no function deploy, and none of the eight env-backed
+  suites.**
+- **Playwright's browsers are not in the image and their CDN is blocked.** No
+  width sweep, no booking-step sweep, no screenshots. **Therefore no screens**,
+  because CLAUDE.md's rule that visual work is verified by LOOKING has no
+  escape hatch.
+- **The user-level skills are not there** — `impeccable` and the rest live in
+  his `~/.claude`, not the repo — which is a second, independent reason the
+  queue has no design work in it.
+
+**What survives is more than it sounds, and one measured fact makes it
+usable: not one of the ten credential-free checks imports anything outside
+`node:` and this repo, so they all run on a bare clone with no `npm install`
+at all.** Plus `npm run build --prefix app`, and `gh`, which reaches the old
+site's repo — the thing roadmap 4.1 has been waiting for.
+
+### 2. HE STARTS A SESSION WITH ONE MEMORISED SENTENCE, SO THE FILE CARRIES EVERYTHING
+
+He said it plainly: *"I don't want a thing that I have to copy and paste. It's
+going to be simple. So I'm gonna be like, hey, read this file."*
+
+So the opening is **"Follow `docs/cloud/README.md`."** and that file's FIRST
+BLOCK is a complete brief rather than an introduction: read the limits, read
+CLAUDE.md, take the first unticked task in `QUEUE.md`, do one, tick it, PR it,
+stop. **The consequence for every future session is the load-bearing part:
+anything a cloud session needs to know goes in that file and nowhere else.**
+There is no follow-up message coming, because he is not at a keyboard.
+
+**Seven tasks, three days, and the ordering is deliberate**: two pure-reading
+tasks first (nothing can break, and they leave two documents the rest of the
+queue uses), the one real code task on day two when he is most likely to glance
+at his phone, and chores and a design doc on day three.
+
+### 3. IT MAY CHOOSE ITS OWN WORK, AND THE LIMITS ARE THE WHOLE POINT
+
+He asked whether it could *"analyze and do itself and kinda know its
+limitations and continue."* Yes — bounded. `README.md` §6:
+
+**Three tests, all three required, written down before starting.** Can it be
+FINISHED here (if done needs a database, a browser or his answer, it cannot —
+and that is not a reason to ship a worse version). Can it be CHECKED here —
+**name which of the thirteen checks would go red if the work were wrong, and if
+the honest answer is "none", write a document instead of a change.** And would
+he RECOGNISE it as the next thing: it must trace to a roadmap line, an entry in
+`open-threads.md`, or a `ponytail:` comment. **Never invent a feature** — he is
+not there to say no.
+
+**A ranked list of what to reach for** (blocking non-code threads; a check that
+cannot see its own failure; a documented fact a script can prove stale; a
+`ponytail:` ceiling actually reached; reading work the roadmap already asks
+for), **and a short off-limits list that no reasoning overrides**: any screen,
+stylesheet or animation; anything touching a payment key, a webhook or roadmap
+2.20; `main`; editing an existing migration; a new dependency; a second task in
+one session.
+
+**AND A STOP RULE, which is the part most likely to be needed:** if two
+self-chosen sessions in a row produce only documents and no verified change,
+stop choosing and say so at the top of `QUEUE.md`. That pattern means the work
+which fits the environment has run out, and **three days of documents nobody
+asked for is worse than two days of work and a quiet Sunday.**
+
+**Whatever it chooses gets appended to `QUEUE.md` as a ticked entry** with what
+it did, which check covers it, and what the laptop still has to run. The queue
+is the record of what happened while he was away; a task that exists only in a
+session transcript is a task he will never find.

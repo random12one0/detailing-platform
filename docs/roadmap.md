@@ -4344,6 +4344,116 @@ is kept; the entire visual design restarts from scratch.
       comparison was sent to him 2026-09-04. **Still his call.**
 
 
+- [ ] 2.24 **A GUIDE ON EVERY TAB, NOT JUST THE FIRST ONE — the OWNER,
+      2026-09-05, about the walkthrough that already exists.**
+
+      > *"Remember we made a kind of, like, guide that goes step by step and it
+      > kinda highlights things. Well, it did it for the home page, and then it
+      > stopped there. And it was a little weird. What it should do is,
+      > basically, every time you click on a new tab for the first time, there
+      > should be a full guide for every single thing inside of that, that's
+      > not, like, obviously explainable. Don't combine multiple things into one
+      > step and keep it kinda short."*
+
+      **HE IS DESCRIBING A REAL SHAPE, NOT A BUG.** `Walkthrough.jsx` is seven
+      steps and every one of them is at SHELL level — it points at the day, the
+      `+`, a job, and then at the Calendar, Money and Business BUTTONS. It
+      names each tab and stops at the door. So a detailer meets a tour that
+      appears to be about the whole product, gets a real explanation of Today,
+      and then gets four signposts. **"It stopped there" is exactly what it
+      does.**
+
+      **WHAT HE IS ASKING FOR: a guide per TAB, run the first time this device
+      opens that tab.** Not one longer tour — five short ones, each arriving
+      when the detailer is actually looking at the thing.
+
+      ---
+
+      **THE RULES ALREADY EXIST AND ARE NOT UP FOR RE-DECIDING.**
+      `Walkthrough.jsx`'s header carries six of them and
+      `docs/dashboard-screen-designs-2026-08-31.md` §13b carries his original
+      three. **Read that header before writing a word.** The short form:
+
+      - **One sentence a step. One ELEMENT a step.** If a step needs "and", it
+        is two steps — a rule about the sentence as much as the target.
+      - **More steps, where a tour of this app could be three.** His words:
+        *"more steps and not try to combine any things into one step."*
+      - **Targets by `data-tour`, never by position or selector shape**, and no
+        sentence names a POSITION or a GESTURE — the bottom bar is a left rail
+        at a desk, and half the widths are a mouse.
+      - **A step whose target is absent is skipped silently, and the COUNT is
+        worked out first.** A card that promises seven and delivers four is
+        worse than no count; that was measured on a staff login.
+      - **The lit element is not clickable**, and nothing is applied to the
+        element being pointed at — this runs over live data.
+      - **Escape, a visible skip, never returns on its own, re-runnable from
+        the gear.**
+
+      **AND THE ONE NEW RULE IS HIS, AND IT IS THE HARD PART: *"that's not
+      obviously explainable."*** A step that points at a control and reads its
+      label back is what made the tour feel weird. It is the same copy rule he
+      gave on 2026-09-01 — *does the sentence add a fact the control does not
+      already carry?* — pointed at a tour instead of at a screen. **Expect to
+      cut more candidate steps than you keep**, and expect Business's settings
+      rows to produce almost none: a row that says *"Hours & days off"* has
+      already said it.
+
+      ---
+
+      **SIX THINGS TO DECIDE BEFORE ANY CODE, and the fourth is the one that
+      decides the shape of the whole item.**
+
+      1. **Where "seen" lives.** `dp.tour` is one localStorage key today and it
+         is deliberately a fact about this BROWSER rather than this account —
+         two people share one tablet in this trade. Per-tab wants a SET in one
+         key, not five keys.
+      2. **The shell tour gets SHORTER, not deleted.** Its job becomes *here
+         are the five places and the link*; everything it half-explains moves
+         into the tab it belongs to. Otherwise a detailer meets the same
+         sentence twice, which is the complaint arriving from the other side.
+      3. **A tab guide must not fire while the shell tour is running**, or the
+         first tab press puts two overlays on the screen.
+      4. **WHAT A GUIDE DOES ABOUT A STATE BEHIND A CLICK — the real question.**
+         A Clients guide that stops at the list has the same shape as his
+         complaint: the record, the history and the compose sheet are where the
+         screen's meaning is. But rule 1 says the lit element is not clickable,
+         so either **the guide advances the screen itself** (it opens the
+         record, then points inside it — powerful, and it is now driving a
+         screen full of the detailer's real data) or **it only covers the
+         resting screen** (safe, and possibly the same disappointment one level
+         down). **Decide this first; everything else follows from it.**
+      5. **Permissions.** Staff have three tabs. A guide list must count what
+         `can()` actually shows, the same way the shell tour already does.
+      6. **A tab whose honest guide is one step does not get a guide.**
+
+      ---
+
+      **THE STATE TO VERIFY AGAINST IS THE EMPTY DASHBOARD**, which is the
+      opposite of every other screen in this rebuild. A brand-new detailer
+      meets these guides before they have a job, a client or a penny taken, so
+      half the targets will not exist — and rule 4 above is what stops that
+      being five broken tours.
+
+      **`sweep-widths.mjs` is the only thing in this repo that opens the tour
+      at all** — it walks its seven steps at 392 and carries two keyboard
+      assertions there, both of which were FALSE when they were written and
+      then caught the fix being broken in `?lite=1` only. Every new tab guide
+      needs adding to that walk **in the change that builds it**, which is the
+      lesson this repo has now recorded ten times.
+
+      **HALF OF THIS CAN BE DONE WITHOUT A BROWSER, and it is the slow half:**
+      working out which controls on each screen deserve a sentence is a careful
+      read of five files. It is queued as `docs/cloud/QUEUE.md` item **H**,
+      which produces `docs/tour-steps-2.24.md` — the step lists as words. If
+      that document exists when this item starts, the item is the overlay and
+      the sweep, not the writing.
+
+      **Skills: `impeccable`** — it is an overlay drawn over live screens, and
+      the placement rule ("under the hole when the card fits, over it
+      otherwise") is measured rather than guessed. No direction-generating
+      skill.
+
+
 ## Phase 3 — Tenant websites (the biggest new build)
 
       **MEASURED 2026-09-03, when he asked *"there's still no animations on
@@ -4693,6 +4803,7 @@ those are not negotiable by any skill.
 | 2.17 — motion and shape as a house style | `improve-animations` to audit first, then `animate` to build. `impeccable` — `audit` for reduced motion and `critique` on each screen it touches. **`docs/design-system.md` § Motion is updated BEFORE any code**, because this item deliberately grows a budget that file caps | every direction-generating skill, as everywhere else on this product. **The look is settled — this is motion and one corner token, not a redesign** |
 | 2.18 — the emails, rebuilt from scratch | `impeccable` for the visual half, and only that | direction-generating skills. **Step 1 is RESEARCH and he asked for it by name** — do not start designing templates before the six-product sweep says what the set of emails even is |
 | 2.14 — plans a detailer logs | **CLOSED 2026-09-04 — all three steps.** `impeccable` was used on the settings screen and on the booking page's plan surfaces | direction-generating skills. **The item is done; do not reopen it as a design question.** What it left behind for the next session that touches plans: every booking step's spare room is unchanged and measured (10px on step 1 at 1440x900), the plan's effect on the price is `planLineFor` in `_shared/pricing.ts` and rides `price_adjustments`, and `sweep-booking-steps.mjs` now walks the plans page, the plan-attached flow, a remembered customer and a member's own page |
+| 2.24 — a guide on every tab | `impeccable` for the overlay's placement, which is measured rather than guessed. **Read `Walkthrough.jsx`'s header first — six rules and the owner's three constraints are the specification** | writing a step that reads a control's own label back. That is what he called weird, and it is his 2026-09-01 copy rule pointed at a tour. **Also never: a sentence naming a position or a gesture** — the bottom bar is a left rail at a desk |
 | 2.23 — the maintenance deadline | `impeccable` for whatever screen it lands on | folding it into a cadence field. **It is a DATE with a consequence, an escalating reminder and a last-done stamp** — 2.14 shipped cadences without it on purpose |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |
