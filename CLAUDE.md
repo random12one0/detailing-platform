@@ -1865,10 +1865,23 @@ explaining it; if they still have to ask "so should I?", it failed.
   site — the largest being that every customer-facing URL comes from one global
   `PLATFORM_URL`, so a detailer on their own domain still emails links to
   detailingplatform.com.
-  **The default visual world is `docs/design-directions/6-detailer-default.html`**
-  (Fable 5.1, per the roadmap's own split — the world, never the enumeration).
-  **Nothing tests it**: `composition` walks `app/src` plus `5-the-thread.html`
-  by name, so a new page in that folder is held by looking and not by a check.
+  **A TENANT SITE INHERITS OUR METHOD AND NEVER OUR SKIN — the owner's
+  correction, 2026-09-05, after the first worked page came out as our landing
+  page recoloured.** *"It shouldn't look exactly like our landing page, it
+  should genuinely be different. Different colors fonts aesthetic… I more
+  meant like the mentality of how we do things. The scrolling, the inspo."*
+  So: **no Archivo, no JetBrains Mono, no `#0B0D0E`, no accent green, no
+  sixteen tokens, no section order on any tenant page.** What transfers is
+  `docs/tenant-site-research-2026-09-05.md` §1 — research first, the anti-slop
+  floor, the motion mentality, the copy rule, verify by looking. That file's
+  §3 is what six real detailers' sites actually CONTAIN (the vehicle-size
+  price ladder, disclaimers on a service, credentials, an offer strip) and its
+  §5 is what must never be on one (platform branding, SaaS furniture, the
+  trade's own popups). **The worked examples are the THREE in
+  `docs/tenant-sites/`**, deliberately unlike each other, one of them light.
+  **Nothing tests them**: `composition` walks `app/src` plus `5-the-thread.html`
+  by name, so those pages are held by looking and not by a check —
+  `shoot-dashboard.mjs --url <path>.html` photographs one for him.
 
 ## Context (read these, in this order, when new)
 

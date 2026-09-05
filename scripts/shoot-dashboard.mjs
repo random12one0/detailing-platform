@@ -18,11 +18,15 @@
 //   node scripts/shoot-dashboard.mjs --accent Crimson      # retinted, law 11
 //   node scripts/shoot-dashboard.mjs --url pricing         # a PUBLIC page, no login
 //     (drop the leading slash, or set MSYS_NO_PATHCONV=1 — Git Bash rewrites it)
+//   node scripts/shoot-dashboard.mjs --url docs/tenant-sites/a-shop.html
+//     (a local .html file: no dev server and no login — roadmap 3.1)
 //
 // OUT=<dir> chooses where the PNGs go (default ./shots). Prints every console
 // error and warning seen at any width, which is the half that matters.
 // playwright is a devDependency of app/, which is the only npm project here.
 import { createRequire } from "node:module";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -49,13 +53,27 @@ const MORE = argOf("--more");   // comma list of Business settings rows to open
 // conversion, and the error it produces names a path nobody typed. Both
 // `--url /pricing` and `--url pricing` work now; `MSYS_NO_PATHCONV=1` is the
 // other half and is in the usage line above.
+// AND A LOCAL .html FILE IS A PAGE TOO — added 2026-09-05, roadmap 3.1, for
+// the same reason `--url` itself was added a day earlier: the owner is reading
+// these sessions on a phone, and `docs/design-directions/*.html` plus the
+// tenant-site worked examples in `docs/tenant-sites/` are real
+// surfaces that NOTHING in this repo could photograph. They need no dev server
+// and no login, so it skips both. Everything below the `if (PAGE_URL)` branch
+// applies unchanged and is the reason this is one line rather than a fifth
+// browser script: the reveal forcing, the fixed-ground stitch fix and the
+// grow-the-viewport frame are exactly what a page built on the landing world
+// needs, wherever it is served from.
 const PAGE_URL = (() => {
   const raw = argOf("--url");
   if (!raw) return null;
+  if (/^(?:https?|file):\/\//.test(raw)) return raw;
+  if (raw.endsWith(".html")) return pathToFileURL(resolve(raw)).href;
   const cut = raw.replace(/^.*?(?=\/(?:pricing|book|booking|plan|unsubscribe|invite|job|app)\b)/, "");
   const path = cut === raw && !raw.startsWith("/") ? `/${raw}` : cut;
   return path === "/" || path.startsWith("/") ? path : `/${path}`;
 })();
+// An absolute URL is the whole address; a path is one on the dev server.
+const PAGE_TARGET = PAGE_URL && /^(?:https?|file):\/\//.test(PAGE_URL) ? PAGE_URL : `${BASE}${PAGE_URL}`;
 // THE SECOND DOOR, added with it in roadmap 2.11 step 6 stage 6. Four of the
 // twelve settings screens are behind the header gear now, and a screenshot
 // tool that can only reach one door photographs two thirds of the product.
@@ -137,7 +155,7 @@ for (const [w, h] of WIDTHS) {
   // either in front of a person who is not sitting at this machine.
   if (PAGE_URL) {
     const sep = PAGE_URL.includes("?") ? "&" : "?";
-    await page.goto(`${BASE}${PAGE_URL}${LITE ? `${sep}lite=1` : ""}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${PAGE_TARGET}${LITE ? `${sep}lite=1` : ""}`, { waitUntil: "domcontentloaded" });
     await settle(page, 2500);
     // REVEAL EVERYTHING BEFORE SHOOTING, OR THE PICTURE IS MOSTLY EMPTY. The
     // landing surface holds each `data-rv` block at opacity 0 until it enters
@@ -172,7 +190,12 @@ for (const [w, h] of WIDTHS) {
       document.querySelectorAll("[data-rv]").forEach((el) => el.classList.add("in"));
     });
     await settle(page, 600);
-    const name = PAGE_URL.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "home";
+    // A file URL slugged whole gives a 100-character filename carrying the
+    // absolute path of the machine that took it; the basename is the only part
+    // that identifies the page.
+    const name = /^file:\/\//.test(PAGE_URL)
+      ? PAGE_URL.split("/").pop().replace(/\.html$/, "")
+      : PAGE_URL.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "home";
     await page.screenshot({ path: `${OUT}/${w}-${name}.png` });
     console.log(`${w} ${PAGE_URL}`);
     await ctx.close();

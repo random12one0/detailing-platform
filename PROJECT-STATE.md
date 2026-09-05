@@ -5318,7 +5318,7 @@ approves the plan**, and there is exactly one thing to approve — contract §1c
 
 | §| |
 |---|---|
-| **1** | Where the fork line falls, file by file — the engine (one RPC, eleven public functions, five platform pages) and the presentation (everything else) |
+| **1** | Where the fork line falls, file by file — the engine (one RPC, twelve customer-facing public functions, five platform pages) and the presentation (everything else) |
 | **1c** | **The one decision for the owner**: a bespoke site LINKS to `/book/:slug` rather than rebuilding the seven-step flow |
 | **2** | **The twelve implementations a site owes**, each written as *what silently stops working if the site omits it* |
 | **3** | The read contract, key by key, tied to the implementation that consumes it |
@@ -5392,17 +5392,47 @@ Three of the roadmap's four are confirmed; the fourth is wrong; three are new.
 `jsonb_build_object` — plus an FAQ screen. 6e is a decision plus a small
 migration. 6a is 3.3. 6f and 6g are his to answer.
 
-### The default visual world
+### The worked pages — and the correction that replaced the first one
 
-`docs/design-directions/6-detailer-default.html`, built with **Fable 5.1**,
-which is where the roadmap entry had already decided that budget should go
-(*"maybe using fable when it's needed"* — the default world, not the analytical
-enumeration). It is a standalone file in the same folder as the approved
-reference rendering and is read the same way. **Every element whose content
-would really come from the dashboard carries `data-src="table.column"`**, so
-the page doubles as the visual half of contract §3.
+**The first page built was rejected by the owner on sight, and he was right.**
+It was The Thread recoloured — same ground, same two faces, same green, same
+skeleton — because the roadmap entry's phrase *"the kit ships a default"* had
+turned his 2026-08-29 *"that same **research**"* into a default LOOK. His
+correction, 2026-09-05: *"it shouldn't look exactly like our landing page, it
+should genuinely be different… what I meant by default using our design, I more
+meant like the mentality of how we do things. The scrolling, the inspo etc."*
+And: *"make sure it doesn't include anything that doesn't make sense for a
+detailer's website. And include everything they would want — again use inspo
+and research."*
 
-**Note what does NOT cover it: `composition.test.mjs` walks `app/src/screens`,
-`app/src/components` and `app/src/book` plus `5-the-thread.html` by name.** A
-new page in `docs/design-directions/` is scanned by nothing. That is correct
-for a design artifact and it means the file is held by looking, not by a check.
+**So `docs/tenant-site-research-2026-09-05.md` was written from six real
+detailers' live sites, looked at in a browser** — §1 says what transfers (the
+METHOD: research first, the anti-slop floor, the motion mentality, the copy
+rule, verify by looking) and what never does (the skin: ground, faces, tokens,
+accent, section order). §3 is the content inventory — the vehicle-size price
+ladder on 5 of 6, disclaimers on 4 of 6, credentials on 5 of 6, an offer strip
+on 4 of 6 — which **corrected the contract in four places** (the size ladder
+was listed as omittable; it is required) **and found an eighth gap**: there is
+no column for "licensed and insured" or "since 2016". §5 is what must never be
+on a tenant page: platform branding, SaaS furniture, and the trade's own
+popups, which 3 of 6 have and which frequency does not excuse.
+
+**Fable 5.1 was then spent on THREE worked pages in `docs/tenant-sites/`**,
+deliberately unlike each other and unlike us — A, the ceramic-and-correction
+shop (dark, serif-led, expensive); B, the one-van operator (LIGHT, warm paper,
+the person is the pitch); C, the volume shop (loud, industrial, the price
+ladder as the hero). One page is a template; three that disagree can only be
+read as *"pick a direction and build it properly"*. Every element still
+carries `data-src="table.column"`, so each page is the visual half of contract
+§3, and the credentials block on each is marked `PROPOSED` because the schema
+cannot feed it.
+
+**B being light makes an old note a real build**: the booking flow is dark and
+takes one colour from a tenant; a light site hands the customer to a dark form
+mid-purchase. `BookingBusinessContext.jsx` has said *"reopen in phase 3 if a
+bespoke tenant site turns out light"* since 2026-08-30. It has. Contract §8.2.
+
+**Nothing tests these pages**: `composition.test.mjs` walks `app/src` plus
+`5-the-thread.html` by name, so they are held by looking —
+`shoot-dashboard.mjs --url docs/tenant-sites/<x>.html` photographs one at four
+widths with no dev server.

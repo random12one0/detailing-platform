@@ -119,6 +119,19 @@ So the kit ships a **default** built from `docs/references/` and the finished
 design system, and per-client work diverges from it. A client site is not
 designed from nothing each time.
 
+**READ THE QUOTE ABOVE, NOT THIS PARAGRAPH — corrected by him 2026-09-05.** He
+said *"that same **research**"*, and the paragraph above turned it into a
+default LOOK. The first page built from that reading was the platform's own
+landing page recoloured, and he rejected it on sight: *"it shouldn't look
+exactly like our landing page, it should genuinely be different. Different
+colors fonts aesthetic… what I meant by default using our design, I more meant
+like the mentality of how we do things. The scrolling, the inspo etc."* **What
+a client site inherits is the METHOD — the research habit, the anti-slop floor,
+the motion mentality, the copy rule, verify-by-looking — and never the skin.**
+A default look is the cookie-cutter site §1 already rejected. Full reasoning
+and the evidence from six real detailers' sites:
+`docs/tenant-site-research-2026-09-05.md`.
+
 ---
 
 ## 4. What the kit has to contain, from his description

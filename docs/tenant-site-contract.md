@@ -20,8 +20,12 @@ rows; §7 below corrects it rather than leaving two answers in the repo.
 
 **Every claim here was read out of a migration, a function or a component on
 2026-09-05.** Where something is a judgment rather than a reading it says so.
-The worked example of this contract as a page is
-`docs/design-directions/6-detailer-default.html`.
+The worked examples of this contract as pages are the three in
+`docs/tenant-sites/` — deliberately different from each other and from the
+platform's own look, for the reason `docs/tenant-site-research-2026-09-05.md`
+§1 gives: **what a tenant site inherits from us is the method, never the
+skin.** That file is also where the content inventory from six real detailers'
+sites lives, and it corrected this one in four places (its §4).
 
 ---
 
@@ -35,7 +39,8 @@ The worked example of this contract as a page is
 | **How a site writes** | It doesn't. It hands the customer to the platform's booking flow. |
 | **Required of every site** | Twelve implementations, §2. Omit one and a dashboard feature the detailer is paying for silently does nothing. |
 | **The one decision for the owner** | §1c — the booking wizard is engine, so a site links to it rather than rebuilding it |
-| **Blocking gaps** | Seven, §6. Four were already measured in the roadmap (one of those was wrong), three are new. |
+| **Blocking gaps** | Eight, §6. Four were already measured in the roadmap (one of those was wrong), three came from reading the code, one from looking at real detailers' sites. |
+| **What a site inherits from us** | The METHOD — research first, the anti-slop floor, the motion mentality, the copy rule, verify by looking. **Never the skin.** `docs/tenant-site-research-2026-09-05.md` §1 |
 
 ---
 
@@ -121,11 +126,12 @@ the table; option 2 can be revisited per client without changing anything here,
 because both 1 and 2 point at the same URL.
 
 **A consequence worth stating before he agrees:** the booking flow is dark and
-is the one surface a client site cannot restyle. `BookingBusinessContext.jsx`
-already carries the note — *"Reopen in phase 3 if a bespoke tenant site turns
-out light."* So the default world
-(`docs/design-directions/6-detailer-default.html`) is dark, and a client who
-wants a light site is a real design conversation rather than a palette swap.
+today a client site can hand it one colour and nothing else. Since he has ruled
+that sites are genuinely different — and one of the three worked pages is
+light — **the flow will need to take a tenant's GROUND as well as its accent
+before the first light client ships.** §8.2. That is the one place this item
+found where presentation legitimately has to reach into the engine, and it is
+a bounded change: a second corrected value beside `brandVarsFor`, not a fork.
 
 ---
 
@@ -135,6 +141,17 @@ Each entry is a dashboard feature a detailer is paying for. **The "if omitted"
 line is the point of the enumeration**, because every one of these fails
 *silently*: the dashboard screen still works, the setting still saves, and
 nothing anywhere reports that the feature reaches nobody.
+
+**First, the question 3.1's own headline asks — "which pages every tenant
+gets".** Under *fork the presentation*, **the answer is that page structure is
+presentation and the platform does not get to decide it.** Its own list —
+home, services, gallery, about, reviews, FAQ, contact, booking — maps onto the
+twelve below as 2a/2k (home), 2b + 2c (services), 2f (gallery), 2k (about), 2g
+(reviews), 2h (FAQ), 2j + 2k + 2i (contact), 2a (booking), plus **two that list
+had no page for at all: monthly plans (2d) and the site-wide sale (2e)** — both
+built after that list was written. A client can ship all of it as one long
+page, or as nine, or fold "how to pay" into the footer. **What is fixed is that
+each of the twelve appears SOMEWHERE a customer can reach without asking.**
 
 ### 2a. The booking entry point
 **Owes:** a visible, primary route to `/book/:slug`, on every page.
@@ -147,6 +164,16 @@ downstream of it.
 **Owes:** every active service, in its group, with name, description, price,
 `price_is_from` ("from $X"), duration and `features`. Groups keep their order,
 and the page must not contradict their `is_exclusive` / `max_select` shape.
+**AND THE VEHICLE-SIZE LADDER, AND THE NOTES — both added 2026-09-05 from
+research §4a and §4b.** Five of six real detailers print every size's price
+(`$179 sedan / $229 mid-size / $279 oversized`), because "how much" is the
+question the site exists to answer and the honest answer has three numbers in
+it; that is `services.vehicle_size_adjustments` against
+`business_settings.vehicle_sizes`. And four of six carry a disclaimer on the
+service — *"this is not a ceramic coating"*, *"condition may change the
+price"* — which is a detailer managing an expectation before it becomes an
+argument on a driveway; that is `services.notes`, and a site prints it beside
+the service it belongs to.
 **If omitted or hand-typed:** the detailer raises a price in Catalog, the
 booking flow charges the new one, and the site advertises the old one. **This
 is the "a number PRINTED is not a number CHARGED" failure with the two numbers
@@ -155,7 +182,8 @@ has a rule about.
 **Source:** `service_groups`, `services`.
 
 ### 2c. Add-ons
-**Owes:** every active add-on with price and duration.
+**Owes:** every active add-on with price, duration and — same reason as 2b —
+its `notes`.
 **If omitted:** the extras step exists in the flow and nothing sells it.
 **Source:** `add_ons`.
 
@@ -294,10 +322,15 @@ subscription darkens a tenant's site.**
 
 Nothing here is a required implementation, and naming them is what stops a
 later session treating everything in the schema as owed: the water and power
-questions, the vehicle-size table, travel zones, the cancellation window, and
-`min_advance_minutes` / `max_advance_days`. **All of them are consumed inside
-the booking flow, which the site does not own.** A site may mention them;
-nothing breaks if it does not.
+questions, travel zones, the cancellation window, and `min_advance_minutes` /
+`max_advance_days`. **All of them are consumed inside the booking flow, which
+the site does not own.** A site may mention them; nothing breaks if it does
+not.
+
+**The vehicle-size table WAS on this list and was moved to 2b on 2026-09-05.**
+The reasoning — "it is consumed inside the flow" — was true and beside the
+point: real detailers print the ladder because a customer decides whether to
+book from it. Research §4a.
 
 ---
 
@@ -305,6 +338,22 @@ nothing breaks if it does not.
 
 Ordered by what blocks the most. **The roadmap's 3.1 entry listed four; one of
 those was wrong, and three more were found writing this.**
+
+**AND THE GAP LIST WAS THEN CONFIRMED FROM THE OTHER DIRECTION, WHICH IS THE
+PART WORTH TRUSTING.** The first worked page was built in parallel, by a
+different model, from the design system rather than from this file — and it
+annotated every element with the `data-src="table.column"` it would really be
+fed from. **Five of the seven gaps below are columns that page independently
+reached for**: `business_settings.faqs`, `business_settings.pay_*`,
+`blockout_dates`, `businesses.contact_email` and `business_domains.domain`.
+That turns §6 from a list of things somebody noticed into a list of things a
+page built against this contract **could not be drawn without** — and nothing
+coordinated the two halves. (That page was then rejected for its LOOK — it was
+the platform's own page recoloured — and replaced by the three in
+`docs/tenant-sites/`; the finding survives the page.)
+
+**AND AN EIGHTH GAP CAME FROM LOOKING AT REAL DETAILERS' SITES** — §6h, the
+one that blocks a site most after the URL problem.
 
 ### 6a. Every customer-facing URL is hardcoded to the platform — NEW, and the largest
 `supabase/functions/_shared/config.ts` builds `businessSiteUrl`, `receiptUrl`,
@@ -360,9 +409,11 @@ dated 2026-09-05 without being re-read.)*
 site's contact section can print a phone number and no address. Possibly
 deliberate — the RPC's stated rule is "strictly public-safe" and an address in
 public JSON is scrapeable — but nothing says so, and a detailer who wants to be
-emailed has no way to publish it. **A one-line answer from the owner rather
-than a build:** expose it, add a `show_email` flag, or decide the booking form
-is the contact form.
+emailed has no way to publish it. **The default world's "Reach us" block asks
+for it by name**, which is what moved this from a curiosity to a gap. **A
+one-line answer from the owner rather than a build:** expose it, add a
+`show_email` flag so it is the detailer's own choice, or decide the booking
+form is the contact form.
 
 ### 6g. `track-visit`, `campaigns` and `campaign_visits` are dormant — NEW
 A deployed public edge function and two tables with, verified 2026-09-05, **no
@@ -374,8 +425,24 @@ visit happens — but calling it buys nothing until a dashboard screen reads it.
 site into an endpoint whose output nobody can see. Revisit only if the owner
 wants visit numbers.
 
+### 6h. Credentials and trust markers have nowhere to live — NEW, from the research
+Five of six real detailers lead with some of *licensed and insured*, *certified
+Ceramic Pro installer*, *IDA certified*, *est. 1993*, *manufacturer warranties*,
+*5★ across N Google reviews*. **The schema holds none of it.** There is nowhere
+for a detailer to type "insured" or "since 2016", so every bespoke site would
+hard-code it — which is exactly the failure this contract exists to prevent,
+because a lapsed certification then lives in a client's HTML where nothing can
+see it. **Proposed shape: `business_branding.credentials jsonb`, a list of
+`{ label, detail?, year? }`, plus `businesses.established_year`** — the same
+reasoning `faqs` used for being a list on the settings row. Research §4c. The
+three worked pages carry it marked `PROPOSED`, so the argument is visible.
+**Two neighbours deliberately NOT proposed**, so nobody builds half of either:
+bundle offers ("30% off the second detail" — research §4d, a pricing-engine
+change) and gift certificates (§4e, money taken before a service exists).
+
 **Sequencing.** 6b, 6c and 6d are the same change — three keys added to one
 `jsonb_build_object` in a new migration — plus an FAQ settings screen for 6b.
+6h is one more column on the same migration plus a field on `BusinessInfo.jsx`.
 6e is a decision plus a small migration. 6a is roadmap 3.3 and is a build of
 its own. 6f and 6g are questions for the owner, not work.
 
@@ -408,9 +475,17 @@ the current answer lives.
 
 1. **§1c is the owner's approval, and it is the only thing in this file that
    is.** Everything else is a reading of what already exists.
-2. **The default world is dark**, because the booking flow is and a customer
-   crosses between them mid-purchase. A light client site reopens
-   `BookingBusinessContext.jsx`'s own note.
+2. **A light client site is now a real case, not a hypothetical.** The owner
+   ruled on 2026-09-05 that tenant sites are genuinely different from each
+   other and from the platform — different colours, fonts, aesthetic — so one
+   of the three worked pages (`docs/tenant-sites/b-van.html`) is light on
+   purpose, and it hands the customer to a DARK booking flow mid-purchase.
+   `BookingBusinessContext.jsx` has said *"reopen in phase 3 if a bespoke
+   tenant site turns out light"* since 2026-08-30. **This is phase 3 and it has
+   turned out light.** What the booking page can take from a tenant today is
+   ONE colour (`brandVarsFor`); what a light site needs is a ground. That is a
+   3.2 build and it is the one piece of the ENGINE this item has found that
+   presentation genuinely needs to reach.
 3. **§2 is twelve implementations for a site that offers everything.** A
    detailer with no plans, no gallery and no add-ons owes none of those three.
    The contract is "if the dashboard holds it, the site shows it" — never "the

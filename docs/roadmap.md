@@ -5498,9 +5498,11 @@ is kept; the entire visual design restarts from scratch.
         `pay_cashapp` / `pay_zelle` / `pay_paypal` / `pay_other`
         (`20260904006000_payment_handles.sql`) reach a customer's EMAIL and
         nothing else. A site's "how to pay" section would need them.
-      - **Five of the six social links cannot be typed in.**
+      - ~~**Five of the six social links cannot be typed in.**
         `BusinessInfo.jsx` edits `social_instagram` only; facebook, tiktok,
-        youtube, google and yelp are columns with no field.
+        youtube, google and yelp are columns with no field.~~ **WRONG — see
+        the correction below.** It was true on 2026-08-31 and fixed on
+        2026-09-02; four fields are on that screen today.
       - **Closures are not exposed.** `blockout_dates` and
         `dropoff_only_periods` drive availability and are invisible to a site
         that wants to say "closed the week of the 4th".
@@ -5517,12 +5519,30 @@ is kept; the entire visual design restarts from scratch.
       **BUILT 2026-09-05 AND WAITING ON HIS ONE APPROVAL.** The enumeration is
       `docs/tenant-site-contract.md` — twelve implementations a site owes (§2),
       the read contract key by key (§3), what a site may never do (§4) and may
-      omit (§5). The default visual world is
-      `docs/design-directions/6-detailer-default.html` (Fable 5.1). The item
-      stays unticked because its own line says **OWNER approves the plan**, and
-      the thing to approve is contract §1c: **the booking flow is engine, so a
-      bespoke site LINKS to `/book/:slug` rather than rebuilding the seven
-      steps.**
+      omit (§5). The item stays unticked because its own line says **OWNER
+      approves the plan**, and the thing to approve is contract §1c: **the
+      booking flow is engine, so a bespoke site LINKS to `/book/:slug` rather
+      than rebuilding the seven steps.**
+      **THE "DEFAULT VISUAL WORLD" ABOVE WAS THE WRONG READING, AND HE CORRECTED
+      IT THE SAME DAY.** The first page built was The Thread recoloured — same
+      ground, same faces, same green — and he rejected it: *"it shouldn't look
+      exactly like our landing page, it should genuinely be different… what I
+      meant by default using our design, I more meant like the mentality of how
+      we do things. The scrolling, the inspo etc."* His 2026-08-29 words already
+      said it — *"that same RESEARCH"* — and this entry's paraphrase ("the kit
+      ships a default") is what turned a method into a skin. **What a tenant
+      site inherits is the METHOD and never the SKIN**:
+      `docs/tenant-site-research-2026-09-05.md` §1. That file also holds the
+      content inventory from six real detailers' live sites (§3) — his second
+      instruction, *"include everything they would want, nothing that doesn't
+      make sense for a detailer"* — which corrected the contract in four places
+      (§4) and found an eighth gap: credentials and trust markers have no
+      column. **Fable 5.1 was spent on THREE worked pages in `docs/tenant-
+      sites/`, deliberately different from each other and from us** — one
+      example is a template, three that disagree can only be read as "pick a
+      direction and build it properly". One is LIGHT on purpose, which makes
+      the booking flow's "reopen in phase 3 if a tenant site turns out light"
+      note a real 3.2 build (contract §8.2).
       **THREE OF THE FOUR GAPS ABOVE ARE CONFIRMED; THE SOCIAL-LINKS ONE IS
       WRONG.** `BusinessInfo.jsx` has edited four social fields since
       2026-09-02 (stage 6) — the gap was copied out of
