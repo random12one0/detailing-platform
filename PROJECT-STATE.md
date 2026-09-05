@@ -4491,3 +4491,48 @@ settled in principle (*"my dad signed up and I'll manage it"* — and **whoever
 owns that account is the business for chargebacks, refunds and tax**). The
 lock-in question is answered (build both). The merchant-of-record question is
 answered (Stripe).
+
+### ROUND 4 — HE SELLS NATIONWIDE, HIS OWN DASHBOARD IS SPECIFIED, AND $999 SHIPPED
+
+**One code change this session** — the first in four exchanges.
+`PRICING.website.setup` is **$999**, not $900, on his instruction (*"things that
+end in ninety nine feel more professional to me"*). **Verified in a browser at
+1440x900**: struck through beside $499, no overflow, clean console.
+**`docs/design-directions/5-the-thread.html` still shows $900 and that is
+CORRECT** — a snapshot of what he approved on 2026-08-30, not a live surface.
+**PRODUCT.md now says to read the price from `pricing.js` and never from the
+reference rendering**, because "where they disagree, the page is right" is a
+DESIGN rule and would be actively wrong applied to a price.
+
+- **HE IS SELLING ACROSS AMERICA AND DELIBERATELY NOT LOCALLY** (*"if I sell in
+  California, that could potentially be my competition"*), **which breaks round
+  3's "he sells in one state, so tax is simple."** Marked rather than rewritten.
+  **The threshold that bites is TRANSACTIONS, not revenue** — 200 transactions
+  is ~17 subscribers at $40, because each monthly charge is a sale — **but 17+
+  states have dropped that test, ~14–20 keep it, and SaaS is taxable in only
+  ~26**, so **the exposure is CONCENTRATION, not reach.** **The Stripe decision
+  survives on its two non-tax reasons**; what changes is that **Stripe Tax goes
+  on at the first out-of-state sale for its NEXUS WARNINGS**, and **the
+  merchant-of-record question re-opens on a trigger — three state registrations,
+  or a warning about a state he has never filed in — not a date.**
+- **CALIFORNIA INVERTS NOW:** nexus only matters where there is a sale, so
+  avoiding California customers avoids California sales tax entirely.
+  **California INCOME tax is owed regardless and is a different tax.**
+- **HIS OWN DASHBOARD WAS ALREADY ROADMAP 4.4** — he had not seen it — **and is
+  now specified: `docs/platform-admin-2026-09-04.md`.** **The test for every
+  screen: what would he otherwise do by hand at 11pm with a SQL query while a
+  detailer waits on a text?** Impersonation is the biggest time-saver **and must
+  be logged**; **reuse `lib/setup.js`'s seven-step progress** rather than
+  inventing a second completeness number; **the item SPLITS** — suspend rides
+  with 2.20's billing, the list follows, the site columns wait for Phase 3.
+- **"TYPE YOUR EMAIL AND IT SHOWS YOU" MUST NOT BE BUILT AS DESCRIBED — it is
+  address enumeration.** **Email IN, LINK OUT**, which is a third caller of the
+  pattern `/booking/:id` and quote acceptance already use. **And the browser
+  remembering the last customer on that device covers most of "auto-detect" with
+  no lookup at all.** **Reordering the booking steps was declined as a
+  default** — the step budgets were measured (1440x900, 10px spare on step 1) —
+  **show recognition at the top of step 1 instead.**
+- **PRICING STRUCTURE: three ways to pay**, month-to-month being the most
+  expensive because he carries the risk ($49 founding / $79 list proposed),
+  annual-paid-monthly staying $40/$60 and **visually middle but NOT
+  pre-selected**, annual-up-front already on the page.
