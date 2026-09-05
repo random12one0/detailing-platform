@@ -352,6 +352,25 @@ body {
   line-height: 1.1; font-variant-numeric: tabular-nums;
 }
 .figure.lead { font-size: clamp(34px, 5.2vw, 52px); letter-spacing: -0.04em; line-height: 1; }
+/* A LIST PRICE BEING REPLACED BY A REAL ONE — roadmap 2.20 stage 2, and the
+   dashboard had no treatment for this because until the billing screen no
+   figure in it had ever been a discount OF anything. Same shape as the landing
+   page's `.was` and deliberately the same reading: struck, quieter, smaller,
+   before the number that is actually charged. It is drawn only when the two
+   figures DIFFER, so a standard account sees one price and no theatre. */
+/* ANCHORED ON `.card`, WHICH THIS SHEET OWNS — and it took two wrong tries to
+   get there, both of which the tests caught. `.figure .was` matched three of
+   the four sites and the fourth, the struck build fee, sits in a `.muted`
+   paragraph: it printed `$999$499` with no gap, a rule losing silently, which
+   is the lesson already written at `.row-item .sub.clamp2`. Bare `.was` fixed
+   that and failed `composition` 4b instead: theme.css is GLOBAL and
+   `landing.css` has its own `.was`, so a bare declaration here reaches into a
+   scoped sheet. `.card` is the dashboard's own container and every struck
+   price in this product is inside one. */
+.card .was {
+  color: var(--text-muted); text-decoration: line-through; text-decoration-thickness: 1px;
+  margin-right: 0.4em; font-size: 0.78em; font-weight: 400;
+}
 /* The eyebrow. 11px at .22em on the width axis's narrow end — the system's
    own label instance (§ Type, .lab). */
 .label {
@@ -1399,8 +1418,27 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 .warn-box .actions button, .error-box .actions button {
   background: none; border: none; color: var(--accent-text); font-weight: 600;
   cursor: pointer; white-space: nowrap; font-size: var(--t-meta); font-family: var(--f-body);
+  /* IT WAS 55x16 PIXELS — measured, 2026-09-05, in the box that tells a
+     detailer their booking page is offline. This is the ONLY route back, and
+     the persona is a wet thumb in daylight: `.btn.sm`'s 38px is the floor this
+     product already accepts (PRODUCT.md records that exception and why), and
+     nothing here was near it. The two buttons on Booking rules share this rule
+     and had the same problem. */
+  min-height: 38px; padding: 0 10px; border-radius: var(--r-inset);
+  corner-shape: var(--corner);
 }
+.warn-box .actions button:hover { background: var(--accent-quiet); }
 .error-box .actions button { color: inherit; text-decoration: underline; }
+.error-box .actions button:hover { background: color-mix(in srgb, var(--bad) 12%, transparent); }
+/* AND IT DROPS UNDER THE MESSAGE ON A PHONE. At 392 the alarm wrapped to three
+   lines with its remedy pinned top-right, reading as a footnote beside the
+   problem. Below the wrap the action takes the full row instead of competing
+   with the sentence for a 208px column. */
+@media (max-width: 520px) {
+  .warn-box, .error-box { flex-wrap: wrap; }
+  .warn-box .actions, .error-box .actions { margin-left: 0; width: 100%; }
+  .warn-box .actions button, .error-box .actions button { flex: 1; }
+}
 .error-box { border: 1px solid color-mix(in srgb, var(--bad) 55%, transparent); background: color-mix(in srgb, var(--bad) 9%, transparent); color: var(--bad); }
 /* "It worked" is green and "it failed" is red, for every tenant. On the
    accent this box was the same colour as .error-box above it whenever the

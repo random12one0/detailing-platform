@@ -2,6 +2,45 @@
 
 Read before working. These rules survive every `/clear`; chat instructions don't.
 
+## THE OWNER IS AWAY AND ON A PHONE — from 2026-09-05, for about three days
+
+<!-- REMOVE THIS WHOLE SECTION when he says he is back from vacation. He asked
+     for it to live here rather than in a chat message precisely so it survives
+     a /clear, and to be deleted on his word rather than on a date. If a session
+     starts after ~2026-09-09 and he has not said, ASK before assuming. -->
+
+**He is reading this session on a phone, through remote desktop.** His own
+words, 2026-09-05: *"I'm gonna be on mobile using remote desktop to view
+Claude… because of that I can't view the local host browser."*
+
+**SO: NEVER END A MESSAGE BY ASKING HIM TO GO AND LOOK AT SOMETHING.** *"Open
+`localhost:5173`"*, *"have a look at the billing screen"* and *"check
+`email-preview/index.html`"* are all dead ends for the next three days — the
+dev server is on THIS machine and he is not at it. A session that verifies
+something and then describes it in prose has done half the job.
+
+**PUT THE PICTURE IN FRONT OF HIM. `SendUserFile` reaches his phone.**
+
+| To show him | Do this |
+|---|---|
+| Any dashboard screen | `OUT=shots-<item> node scripts/shoot-dashboard.mjs --tab <tab>` or `--gear "<Row>"` / `--more "<Row>"`, then `SendUserFile` the PNGs |
+| The booking page's steps | `node scripts/sweep-booking-steps.mjs --shots=shots-<item>`, then send |
+| An email | `node scripts/render-emails.mjs`, then send the individual `email-preview/*.html` — **the single files, not `index.html`**, which is only an index of links to files he does not have |
+| A long report or a plan | An **Artifact** — it is a URL, so it opens on a phone |
+
+**SEND THE PNGs, NOT A DESCRIPTION OF THEM.** Two or three that answer the
+question, at **392** first because that is the shape he is holding, and 1440
+only when the desk layout is the point. He can see a screenshot; he cannot see
+your `computer{action:"screenshot"}`, which goes to the model and not to him.
+
+**VERIFICATION IS UNCHANGED.** Everything still runs here — the sweeps, the
+suites, the seeds, `e2e-booking`. What changed is only how the RESULT is shown.
+Do not skip a check because he cannot watch it, and do not ask him to run one.
+
+**AND HE CANNOT CLICK THROUGH A DECISION EITHER**, so a question has to be
+answerable in a sentence typed with one thumb. Give him the recommendation
+first and the reasoning after it, per the rule below.
+
 ## Talking to the owner
 
 The owner is not a coder. Explain things in plain language with everyday
@@ -1139,6 +1178,74 @@ explaining it; if they still have to ask "so should I?", it failed.
   unimportable; and importing `config.ts` reads `Deno.env` **at module scope**,
   which made every email unrenderable from `render-emails.mjs` — hence
   `platformBrand.ts` takes `siteUrl` as an argument.
+- **`shoot-dashboard.mjs --url pricing` SHOOTS A PUBLIC PAGE, and two things
+  about it are not obvious — added 2026-09-05 because the owner is reading
+  sessions on a phone and nothing in this repo could photograph `/` or
+  `/pricing` for him** (`sweep-widths.mjs` walks them and only MEASURES;
+  `sweep-booking-steps.mjs --shots` knows the booking flow alone).
+  **DROP THE LEADING SLASH.** Git Bash rewrites `--url /pricing` into
+  `C:/Program Files/Git/pricing` before node sees it — MSYS path conversion —
+  and the error names a path nobody typed. The script normalises both forms
+  now; `MSYS_NO_PATHCONV=1` is the other half.
+  **AND `fullPage: true` IS UNUSABLE ON THE LANDING SURFACE.** It stitches
+  viewport slices and `.ground` is a `position: fixed` layer, so every slice
+  after the first comes back EMPTY: the first shot of `/pricing` was 3,455px
+  tall with the bottom four fifths blank while a live browser at the same
+  moment showed three rungs at `opacity: 1` with real text. **A blank
+  screenshot of a working page is worse than no screenshot** — it is a bug
+  report about something that is not broken, and on this surface it also looks
+  exactly like the `data-rv` reveal defect this repo has already had. The
+  branch grows the viewport to the whole document and takes ONE frame, and
+  forces `.in` on every `[data-rv]` first because a `fullPage` capture never
+  scrolls and so never triggers a reveal.
+- **A STRUCK PRICE IS ONLY EVER A REAL LIST PRICE, ON EVERY SURFACE — the
+  owner, 2026-09-05: *"it should visually show like the discount price vs the
+  regular price for the founder spots."*** He was right about an inconsistency
+  INSIDE `/pricing` rather than a missing feature: the build fee already
+  printed `~~$999~~ $499` and the three rungs under it printed the founding
+  figure alone, so the page taught a reader what a discount looks like and then
+  stopped. **Both `/pricing` and the dashboard's own ladder strike now**, and
+  the dashboard needed a server change to do it — `summary` resolves `quotes`
+  to ONE column, so it returns `list_recurring_cents` / `list_setup_cents`
+  computed by the same `planFor` at `founding: false`.
+  **THE RULE, WHICH IS OLDER THAN THIS ITEM AND DOES NOT SOFTEN ANYWHERE:** a
+  strike is a REAL price the product charges somebody, never an anchor typed in
+  to make the other number look smaller (`LandingPage.jsx` has carried that
+  sentence since 2.2). **The screen's test is whether the two figures DIFFER**,
+  not whether the account is founding, so nothing is struck when there is no
+  saving. `landing-pricing` 6b pins all four figures and the guard;
+  `platform-billing` § 15 pins the server half and that every founding figure
+  really is lower.
+  **AND `theme.css`'s `.was` IS ANCHORED ON `.card`, AFTER TWO WRONG TRIES THE
+  TESTS CAUGHT.** `.figure .was` matched three of the four sites and the fourth
+  printed `$999$499` with no gap — a rule losing silently. Bare `.was` fixed
+  that and failed `composition` 4b, because theme.css is GLOBAL and
+  `landing.css` has its own `.was`.
+  **`seed-demo.mjs` SEEDS THE DEMO AS `plan_tier: 'founding'`** so the struck
+  prices are the DEFAULT swept state — a strike only exists on a founding
+  account, and seeded standard the whole treatment would be measured nowhere.
+  It costs one of the three spots, so `founding_offer()` reads 2 of 3.
+- **A SCREEN WAITING ON AN EDGE FUNCTION IS PERFECTLY QUIET, AND BOTH
+  `settle()`s USED TO RETURN ON IT — fixed 2026-09-05, and it is the widest
+  form yet of "a skipped check reads like a passing one".** No spinner, no
+  animation, a still DOM: `sweep-widths.mjs` and `shoot-dashboard.mjs` both
+  settled on a card reading *"Checking your subscription…"* and the shooter
+  sent the owner a photograph of a loading line. **Both now also wait for
+  `[data-loading]`**, which `Billing.jsx` carries and which costs no pixels.
+  **When you build a screen whose content comes from an edge function rather
+  than from a table, put `data-loading` on its loading state** — the two
+  `settle()`s are the only readers and every browser script in the repo gets it
+  for free. `appear()` remains the right tool for one named control; this is
+  for the whole screen.
+- **AND THE MONEY ON A SCREEN IS A FIGURE — law 8, broken on the first screen
+  built after it was written (2026-09-05).** `docs/design-system.md` law 8:
+  *"A price set in the body face is a bug."* Billing's ladder obeyed it while
+  the `.facts` breakdown four rows below set `$1,059`, `$999` and `$60` in
+  Archivo — one card, two money faces. **`v strong num` is the house spelling**
+  (`SetupForm.jsx`, `Today.jsx`), and the sharpest instance was the early-exit
+  fee at 13px in `--fog` mid-paragraph above a red button: **the largest
+  unexpected number in the product, set as an aside.** A figure a person is
+  about to be charged gets its own row.
 - **AN EXIT-FEE INVOICE IS NOT A RENEWAL, AND UNTIL THE SECURITY REVIEW IT DROVE
   THE DUNNING STATE MACHINE — 2026-09-05, roadmap 2.20 stage 2, and it is the
   one exploitable defect that item produced.** `platform-billing`'s `cancel`

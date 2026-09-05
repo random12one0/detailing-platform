@@ -16,6 +16,8 @@
 //   node scripts/shoot-dashboard.mjs --tab today,money
 //   node scripts/shoot-dashboard.mjs --more "Hours,Team"   # settings sheets
 //   node scripts/shoot-dashboard.mjs --accent Crimson      # retinted, law 11
+//   node scripts/shoot-dashboard.mjs --url pricing         # a PUBLIC page, no login
+//     (drop the leading slash, or set MSYS_NO_PATHCONV=1 — Git Bash rewrites it)
 //
 // OUT=<dir> chooses where the PNGs go (default ./shots). Prints every console
 // error and warning seen at any width, which is the half that matters.
@@ -36,6 +38,24 @@ const WIDTHS = [[1920, 1080], [1440, 900], [768, 1024], [392, 844]];
 const argOf = (f) => { const i = process.argv.indexOf(f); return i > -1 ? process.argv[i + 1] : null; };
 const TABS = (argOf("--tab") || "today,calendar,money,clients,more").split(",");
 const MORE = argOf("--more");   // comma list of Business settings rows to open
+// --url <path> shoots ONE PUBLIC page at the four widths and signs into
+// nothing. Added 2026-09-05 because the owner is reading these sessions on a
+// phone and nothing in this repo could photograph `/` or `/pricing` for him:
+// `sweep-widths.mjs` walks them and only MEASURES, and
+// `sweep-booking-steps.mjs --shots` knows the booking flow alone. One flag
+// rather than a fourth browser script.
+// NORMALISED, because Git Bash on Windows rewrites a bare `/pricing` argument
+// into `C:/Program Files/Git/pricing` before node ever sees it — MSYS path
+// conversion, and the error it produces names a path nobody typed. Both
+// `--url /pricing` and `--url pricing` work now; `MSYS_NO_PATHCONV=1` is the
+// other half and is in the usage line above.
+const PAGE_URL = (() => {
+  const raw = argOf("--url");
+  if (!raw) return null;
+  const cut = raw.replace(/^.*?(?=\/(?:pricing|book|booking|plan|unsubscribe|invite|job|app)\b)/, "");
+  const path = cut === raw && !raw.startsWith("/") ? `/${raw}` : cut;
+  return path === "/" || path.startsWith("/") ? path : `/${path}`;
+})();
 // THE SECOND DOOR, added with it in roadmap 2.11 step 6 stage 6. Four of the
 // twelve settings screens are behind the header gear now, and a screenshot
 // tool that can only reach one door photographs two thirds of the product.
@@ -78,7 +98,13 @@ const settle = (page, cap = 2000) => page.evaluate(async (cap) => {
       await frame();
       const now = performance.now();
       if (now - t0 >= cap) return Math.round(now - t0);
-      if (document.querySelector(".spinner")) { last = now; continue; }
+      // `.spinner` OR `[data-loading]` — a screen whose content comes from an
+      // edge function is QUIET while it waits: no spinner, no animation, a
+      // still DOM, and settle() returns on a card that says "Checking…".
+      // shoot-dashboard.mjs sent the owner a photograph of a loading line
+      // because of exactly this (2026-09-05). The attribute costs no pixels
+      // and every browser script in this repo waits for it now.
+      if (document.querySelector(".spinner, [data-loading]")) { last = now; continue; }
       const busy = document.getAnimations().some((a) => {
         if (a.playState !== "running") return false;
         const t = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();
@@ -105,6 +131,53 @@ for (const [w, h] of WIDTHS) {
     if (m.type() === "error" || m.type() === "warning") problems.push(`${w} ${m.type()}: ${m.text().slice(0, 200)}`);
   });
   page.on("pageerror", (e) => problems.push(`${w} pageerror: ${e.message}`));
+
+  // A PUBLIC PAGE SKIPS THE LOGIN ENTIRELY. `/` and `/pricing` are the two
+  // surfaces a prospect meets, and until this branch nothing here could put
+  // either in front of a person who is not sitting at this machine.
+  if (PAGE_URL) {
+    const sep = PAGE_URL.includes("?") ? "&" : "?";
+    await page.goto(`${BASE}${PAGE_URL}${LITE ? `${sep}lite=1` : ""}`, { waitUntil: "domcontentloaded" });
+    await settle(page, 2500);
+    // REVEAL EVERYTHING BEFORE SHOOTING, OR THE PICTURE IS MOSTLY EMPTY. The
+    // landing surface holds each `data-rv` block at opacity 0 until it enters
+    // the viewport, and a `fullPage` screenshot does NOT scroll — it stitches —
+    // so every section below the fold is captured at the opacity it has never
+    // been moved off. The first shot of /pricing was 4,923px tall with the
+    // bottom four fifths blank, which reads as a broken page rather than as an
+    // unfired animation. **Scrolling through first was tried and is not
+    // enough**: the observer fires per block and the stitch still races it.
+    // `.in` is the class `landing/thread.js` adds, so this is the same end
+    // state, arrived at directly. Same family as the `data-rv` defect this
+    // roadmap item already found — an invisible element still has a full box,
+    // so no geometry check ever reports it.
+    await page.evaluate(() => {
+      document.querySelectorAll("[data-rv]").forEach((el) => el.classList.add("in"));
+    });
+    await settle(page, 1600);
+    // AND `fullPage: true` IS NOT USABLE ON THIS SURFACE. It stitches viewport
+    // slices, and the landing world's `.ground` is a `position: fixed` layer —
+    // so every slice after the first is painted with the fixed layer on top and
+    // comes back empty. Measured, not guessed: the page was verified in a live
+    // browser at the same moment (three rungs, `opacity: 1`, real text, at
+    // y=1230–1628) while the stitched PNG showed 2,800px of nothing under the
+    // fold. **A blank screenshot of a working page is worse than no
+    // screenshot** — it is a bug report about something that is not broken.
+    // Growing the viewport to the whole document and shooting ONE frame has no
+    // seams to get wrong.
+    const full = await page.evaluate(() => document.documentElement.scrollHeight);
+    await page.setViewportSize({ width: w, height: Math.min(full + 40, 15000) });
+    await settle(page, 900);
+    await page.evaluate(() => {
+      document.querySelectorAll("[data-rv]").forEach((el) => el.classList.add("in"));
+    });
+    await settle(page, 600);
+    const name = PAGE_URL.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") || "home";
+    await page.screenshot({ path: `${OUT}/${w}-${name}.png` });
+    console.log(`${w} ${PAGE_URL}`);
+    await ctx.close();
+    continue;
+  }
 
   await page.goto(`${BASE}/app${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
   // Sign in through the real form, so the form itself is exercised too.

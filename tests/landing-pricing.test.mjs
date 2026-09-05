@@ -215,6 +215,43 @@ console.log("\ntest 6: the ladder's RULES, not its figures");
   }
 }
 
+console.log("\ntest 6b: the founding saving is VISIBLE, not only stated");
+{
+  // THE OWNER'S ASK, 2026-09-05: *"it should visually show like the discount
+  // price vs the regular price for the founder spots."* He was looking at the
+  // three rungs, and he was right about an inconsistency INSIDE this page: the
+  // build fee one section above already strikes its list price, and the three
+  // figures underneath it did not — so the page taught the reader that a
+  // struck price is how a discount looks, and then stopped doing it.
+  //
+  // THE RULE IS THE LANDING PAGE'S AND IT DOES NOT SOFTEN HERE: a struck price
+  // is only ever a REAL list price the product charges somebody. An anchor
+  // typed in to make the other number look smaller is the thing this check
+  // exists to make impossible.
+  const struck = [...pcopy.matchAll(/<s className="was">([^<]*)<\/s>/g)].map((m) => m[1].trim());
+  const LIST = [
+    "${listP.setup}", "${listP.annual}", "${listP.monthly}", "${listP.monthToMonth}",
+  ];
+  check("6b-i · the page strikes a list price at all", struck.length >= 4, `${struck.length} struck`);
+  check("6b-ii · every struck price is a real list figure from the config",
+    struck.length > 0 && struck.every((t) => LIST.includes(t)), struck.join(" | "));
+  check("6b-iii · nothing struck is a literal number",
+    !/<s(\s[^>]*)?>\s*\$?\d/.test(pcopy) && !/<del|line-through/.test(pcopy));
+  // AND ONLY WHILE A REAL DISCOUNT IS LIVE. With the spots gone the page shows
+  // standard prices, and a strike still drawn there would be an invented
+  // saving on the one page a customer reads before paying.
+  check("6b-iv · every strike is behind the founding guard",
+    (pcopy.match(/<s className="was">/g) ?? []).length
+      === (pcopy.match(/founding && <s className="was">/g) ?? []).length,
+    "an unguarded strike would advertise a discount nobody is getting");
+  // ALL THREE RUNGS, not just the one somebody remembered. The middle rung is
+  // the one carrying the commitment, so it is also the one a reader studies.
+  for (const fig of ["annual", "monthly", "monthToMonth"]) {
+    check(`6b-v · the ${fig} rung shows what it is discounted from`,
+      pcopy.includes(`<s className="was">$\{listP.${fig}}</s>`), fig);
+  }
+}
+
 console.log("\ntest 7: the AB 2863 disclosures are on the page");
 {
   // California requires the auto-renewal terms, the commitment and the

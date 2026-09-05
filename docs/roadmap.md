@@ -4112,6 +4112,142 @@ is kept; the entire visual design restarts from scratch.
       is true yet. It must never say *"you have no subscription"*, which is the
       mistake roadmap 2.14 made on the plans list.
 
+      **THE `impeccable` AUDIT SCORED IT 23/40 AND FOUND NINE THINGS, AND THE
+      TWO THAT MATTER MOST WERE RULES THIS REPO ALREADY HAD IN WRITING.** Run
+      as two isolated agents — a design review and a mechanical detector pass —
+      neither seeing the other. **The detector found nothing** (zero findings,
+      zero console errors, consent text at 13.31:1 and the warning box at
+      15.32:1 against a 4.5 floor, the selected rung genuinely differing in
+      background, the consent checkbox properly tied to its sentence). Every
+      finding below came from LOOKING and from MEASURING, which is this repo's
+      oldest lesson arriving again.
+
+      1. **ON A PHONE THE TWELVE-MONTH COMMITMENT DID NOT RENDER AT ALL.**
+         `.row-item .sub` is `nowrap` with an ellipsis and 208px wide at 392;
+         the three rung sentences needed 482 / 413 / 268px, so **57%, 50% and
+         22% of each was hidden** — and the half being cut off the middle rung
+         was *"You are committing to twelve months."* **The disclosure the whole
+         AB 2863 and Adobe reading exists to protect, deleted by a CSS rule at
+         the moment of the decision**, reappearing only inside the consent
+         sentence, i.e. after the choice. **NOTHING IN THIS REPO COULD SEE IT:**
+         clipped text has a perfectly normal box, so the width sweep measured it
+         and printed `clean`, and a contrast test measures a colour that IS on
+         screen. Only natural-width against rendered-width finds it.
+         Fixed with `.clamp2` (already in `theme.css` for this, with
+         `Reviews.jsx` as the precedent) **and by cutting the copy**, which is
+         finding 2.
+      2. **ALL THREE RUNG SENTENCES OPENED BY RESTATING THE LABEL ABOVE THEM.**
+         *"One payment, up front"* under **Pay for the year**; *"The same yearly
+         price, spread out"* under **Pay monthly, for a year**; and *"No
+         commitment at all. Stop any month you like."* under **Month to month**
+         at **$75 a month** — two sentences, no new facts. **That is "Mobile —
+         we go to them" three times over**, the owner's own copy rule, on a
+         screen built after the rule was written. The half that survived the cut
+         is the half that was being clipped, which is why one change fixes both.
+      3. **NO MONEY IN EITHER `.facts` BLOCK WAS A FIGURE.** Law 8 says every
+         figure is JetBrains Mono and *"a price set in the body face is a
+         bug"* — and the ladder obeyed it while the breakdown four rows below
+         set `$1,059`, `$999` and `$60` in Archivo. One card, two money faces.
+         `v strong num` is what `SetupForm` and `Today` already use.
+         **The sharpest instance: the early-exit fee** — the single largest
+         unexpected number in this product — **was 13px, in `--fog`,
+         mid-sentence, directly above a red button.** It is a `.facts` row of
+         its own now, with a second row saying why.
+      4. **THE $999 BUILD FEE WAS ONE PRESS PAST THE DECISION.** Every rung
+         printed *"$60 a month"* while the first charge was **$1,059** — the
+         build fee is 94% of it and appeared nowhere on the ladder. That is the
+         same dishonesty the ladder's own *"what leaves the bank, never an
+         effective monthly"* rule refuses, arriving from the other end. One line
+         above the rungs now, read from the server so a founding account sees
+         its own figure.
+      5. **THE BLOCK THAT OPENS DID NOT ANIMATE, AND SWITCHING RUNGS WAS NOT A
+         SWAP.** `document.getAnimations()` 120ms after a rung press reported
+         only `ground-drift` — the instrument saying it shipped dead, on the
+         rule CLAUDE.md says **binds new work today**. And switching rungs
+         replaces every figure and the whole consent sentence inside a frame
+         that stays put, which is the owner's third kind of motion word for
+         word. `.swap` + a key, the same shape `Money` and `Plans` use; no new
+         keyframe and no new duration.
+      6. **THE ONLY ROUTE BACK ONLINE WAS A 55x16-PIXEL TEXT LINK.** Measured,
+         in the box that tells a detailer their booking page is off. At 392 the
+         message wrapped to three lines with the remedy pinned top-right as a
+         footnote; at 1440 there were 380px of empty space between the problem
+         and its fix, **beside a request card carrying a full-width Accept
+         button — so the screen's hierarchy said a booking request outranked the
+         business being switched off.** `.warn-box`/`.error-box .actions button`
+         now takes `.btn.sm`'s 38px floor and, below 520px, drops full-width
+         under the message. **Booking rules' two buttons share that rule and had
+         the same defect**, so they are fixed too.
+      7. **A DISABLED BUTTON THAT SAID NOTHING.** *"Go to payment"* is inert
+         until the tick and nothing said so, which reads as a broken app. The
+         label answers for itself now: *"Tick the box to continue"*.
+      8. **THE CANCEL CONFIRM WAS SILENT ABOUT THE ONE THING SOMEBODY
+         CANCELLING WANTS TO KNOW** — what happens to their work. It covered
+         money completely and said nothing about the booking page, the customer
+         list, or reversibility, while `/pricing` and both billing emails
+         already promise *"nothing is deleted"*. It says it now, at the moment
+         the fear is live.
+      9. **TWO SMALL ONES ON THE INVOICE LIST**: `href="#"` drew a focusable,
+         hover-lit row that navigates nowhere when Stripe supplies neither a
+         hosted URL nor a PDF — it is a plain row now; and `inv.status` fell
+         through to Stripe's own vocabulary, so a real list could print
+         `uncollectible`, `void` or `draft` at a detailer. Mapped, with anything
+         unrecognised saying *"Not paid"* — the safe direction, because it sends
+         them to look rather than reassuring them wrongly.
+
+      **AND THE AUDIT'S OWN SCREENSHOT CAUGHT A GAP IN THE SCREENSHOT TOOL.**
+      `shoot-dashboard.mjs` photographed the words *"Checking your
+      subscription…"*: both `settle()` implementations wait for a `.spinner` and
+      for animations, and **a screen waiting on an edge function is perfectly
+      quiet** — no spinner, no animation, a still DOM. Both now also wait for
+      `[data-loading]`, which the billing screen carries and which costs no
+      pixels. **Every browser script in this repo gets it**, which matters
+      because the next screen backed by an edge function will have the same
+      problem and no way to know it.
+
+      **TWO FINDINGS WERE REFUSED, WITH REASONS.**
+      **"An unrelated SaaS could ship this screen tomorrow."** True, and it is
+      the design system's own instruction: `dashboard-skeletons.md` §3 has the
+      settings screens share ONE skeleton on purpose, and the skill-collision
+      rule forbids reopening the visual direction. Recorded as the auditor's
+      view; **a session that acts on it is redesigning settings, which is a
+      question for the owner and not for this item.**
+      **"Set the consent as four `.facts` rows above a short tick sentence."**
+      Genuinely better to read, and refused because **the words displayed must
+      be byte-for-byte the words stored** — that is the whole design, and
+      splitting the display from the stored sentence reintroduces exactly the
+      drift `consentSentence()` exists to make impossible. **It is a real
+      question and it belongs to the owner**: is a 63-word paragraph the version
+      a person actually read, and would a structured one be more defensible in a
+      dispute or less?
+
+      **AND HE FOUND A TENTH THING BY LOOKING AT THE SCREENSHOTS — 2026-09-05,
+      and it was an inconsistency INSIDE `/pricing` rather than a missing
+      feature.** *"I saw the monthly payment stuff… it should visually show
+      like the discount price vs the regular price for the founder spots."*
+      **He is right, and the page was already doing it one section higher:**
+      the build fee prints `~~$999~~ $499` with `<s className="was">`, and the
+      three rungs underneath it printed the founding figure alone. So the page
+      taught a reader what a discount looks like and then stopped — while the
+      saving on the rungs was stated in PROSE below the ladder, four numbers a
+      reader had to carry back up the page and match by hand.
+      **Fixed on both surfaces, because the dashboard's own ladder had the same
+      gap**: `/pricing`'s three rungs strike their list figure, and
+      `Billing.jsx` does too — its figures come resolved to ONE column from the
+      server, so `summary` now returns `list_recurring_cents` and
+      `list_setup_cents` beside each quote, computed with the same `planFor` at
+      `founding: false`. **The struck number is therefore a real price the
+      product charges somebody, never an anchor typed in to make the other one
+      look smaller** — the rule `LandingPage.jsx` has carried since 2.2, and
+      `landing-pricing` 6b pins it on all four figures plus the guard, so a
+      strike cannot survive the founding spots running out.
+      **The prose sentence went**, under his own copy rule: every number in it
+      is now beside the figure it discounts. What replaced it is the half a
+      strike cannot say — that the price is locked for the life of the account.
+      **`theme.css` had no struck-price treatment at all** before this, because
+      until the billing screen no figure in the dashboard had ever been a
+      discount OF anything.
+
       **WHAT IS STILL NOT DONE, AND IT IS NOT CODE:**
       - **THERE IS NO STRIPE ACCOUNT, SO NOTHING HAS EVER TALKED TO STRIPE.**
         Every pure part is tested and both screens are verified in a browser;
@@ -5463,7 +5599,7 @@ those are not negotiable by any skill.
 | 2.18 — the emails, rebuilt from scratch | `impeccable` for the visual half, and only that | direction-generating skills. **Step 1 is RESEARCH and he asked for it by name** — do not start designing templates before the six-product sweep says what the set of emails even is |
 | 2.14 — plans a detailer logs | **CLOSED 2026-09-04 — all three steps.** `impeccable` was used on the settings screen and on the booking page's plan surfaces | direction-generating skills. **The item is done; do not reopen it as a design question.** What it left behind for the next session that touches plans: every booking step's spare room is unchanged and measured (10px on step 1 at 1440x900), the plan's effect on the price is `planLineFor` in `_shared/pricing.ts` and rides `price_adjustments`, and `sweep-booking-steps.mjs` now walks the plans page, the plan-attached flow, a remembered customer and a member's own page |
 | 2.24 — a guide on every tab | `impeccable` for the overlay's placement, which is measured rather than guessed. **Read `Walkthrough.jsx`'s header first — six rules and the owner's three constraints are the specification** | writing a step that reads a control's own label back. That is what he called weird, and it is his 2026-09-01 copy rule pointed at a tour. **Also never: a sentence naming a position or a gesture** — the bottom bar is a left rail at a desk |
-| 2.20 — taking money | `impeccable` for the pricing page, the checkout and the past-due screens; `security-review` is **not optional** on any stage touching a key or a webhook | direction-generating skills. **Stages 1 and 2 are SHIPPED and neither is a design question any more.** The pricing page is the legally load-bearing half of the checkout, so a session that reshapes it re-reads AB 2863 first: never a pre-selected plan, never a "most popular" badge, never an "effective monthly" as a rung's headline figure. **And on the billing screen: the cancel button stays ONE press behind ONE confirm with the exit fee printed BEFORE it, the consent tick is never folded into the button, and the screen never computes a figure the server did not send.** What is left is stage 3, Connect |
+| 2.20 — taking money | `impeccable` for the pricing page, the checkout and the past-due screens; `security-review` is **not optional** on any stage touching a key or a webhook | direction-generating skills. **Stages 1 and 2 are SHIPPED and neither is a design question any more.** The pricing page is the legally load-bearing half of the checkout, so a session that reshapes it re-reads AB 2863 first: never a pre-selected plan, never a "most popular" badge, never an "effective monthly" as a rung's headline figure. **And on the billing screen: the cancel button stays ONE press behind ONE confirm with the exit fee printed BEFORE it, the consent tick is never folded into the button, and the screen never computes a figure the server did not send.** **The audit's own finding, because it will recur: a sentence carrying a legal disclosure may not sit in a `nowrap` line** — `.row-item .sub` clipped *"You are committing to twelve months"* off a phone entirely, and no check in this repo can see clipped text, because an ellipsis has a perfectly normal box. What is left is stage 3, Connect |
 | 2.25 — the sign-up screen and Google | `impeccable`, five swept widths. **Read the repo before writing anything**: Google sign-in is already built and merely switched off in Supabase, and the landing page already has both buttons | building Google sign-in again. Also never: renaming `Auth.jsx`'s email, password or `form button.btn.primary` selectors without updating `sweep-widths.mjs`, which signs in through them on every run |
 | 2.23 — the maintenance deadline | `impeccable` for whatever screen it lands on | folding it into a cadence field. **It is a DATE with a consequence, an escalating reminder and a last-done stamp** — 2.14 shipped cadences without it on purpose |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |

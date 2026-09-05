@@ -93,6 +93,17 @@ const [business] = await post("/rest/v1/businesses", [{
   slug: SLUG,
   name: "Coastline Auto Detailing",
   timezone: TZ,
+  // FOUNDING, SO THE STRUCK LIST PRICES ARE THE DEFAULT SWEPT STATE — roadmap
+  // 2.20 stage 2, 2026-09-05. The owner asked for the founding saving to be
+  // visible rather than only stated, and a strike is drawn ONLY on a founding
+  // account: seeded standard, the richer geometry (two figures stacked in a
+  // `nowrap` cell on `/pricing`, and a struck price inside a `.figure` on the
+  // billing screen) would exist in no measurement anywhere. *A configuration
+  // nothing seeds is a configuration nothing tests.*
+  // It costs one of the three spots, so `founding_offer()` reads 2 of 3 on the
+  // seeded database — which is also the more interesting state for the strip
+  // that prints the count.
+  plan_tier: "founding",
   // NOT `OWNER.email` — that is a SIGN-IN, and this is a MAILBOX. Found doing
   // roadmap 2.5 (2026-09-04): `notification_emails` is empty on the demo, so
   // every owner alert falls back to this address, and `detailplatform.com` is

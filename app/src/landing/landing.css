@@ -970,6 +970,18 @@
   color: var(--bone);
 }
 .ld .rungfig small { display: block; margin-top: 6px; font-size: 12.5px; color: var(--fog-2); }
+/* THE LIST PRICE, ABOVE THE ONE BEING CHARGED — not inline beside it as on the
+   build fee and the landing page. `.rungfig` is `white-space: nowrap` and
+   right-aligned inside a three-column grid, so an inline pair adds its own
+   width to a cell that cannot wrap, and at 320 that is the column that gives.
+   Stacked, the cell is as wide as the wider of the two and the reading order
+   is still was-then-is. */
+.ld .rungfig .was {
+  display: block; margin-bottom: 4px;
+  color: var(--fog-2); text-decoration: line-through; text-decoration-thickness: 1px;
+  font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
+  font-size: clamp(15px, 1.5vw, 18px); line-height: 1; letter-spacing: -.03em;
+}
 
 /* ── Booking only ─────────────────────────────────────────────────── */
 .ld .onlybar {

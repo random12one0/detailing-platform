@@ -296,7 +296,13 @@ const settle = async (page, cap = 2000) => {
         await frame();
         const now = performance.now();
         if (now - t0 >= cap) return Math.round(now - t0);
-        if (document.querySelector(".spinner")) { last = now; continue; }
+        // `.spinner` OR `[data-loading]` — a screen whose content comes from an
+      // edge function is QUIET while it waits: no spinner, no animation, a
+      // still DOM, and settle() returns on a card that says "Checking…".
+      // shoot-dashboard.mjs sent the owner a photograph of a loading line
+      // because of exactly this (2026-09-05). The attribute costs no pixels
+      // and every browser script in this repo waits for it now.
+      if (document.querySelector(".spinner, [data-loading]")) { last = now; continue; }
         const busy = document.getAnimations().some((a) => {
           if (a.playState !== "running") return false;
           const t = a.effect && a.effect.getComputedTiming && a.effect.getComputedTiming();

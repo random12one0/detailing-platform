@@ -63,6 +63,19 @@ const usd = (cents) =>
 const titleCase = (s) =>
   String(s || "").split(" ").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 
+// STRIPE'S OWN VOCABULARY IS NOT A DETAILER'S. `inv.status` fell through to
+// the raw value, so a real receipt list could print `uncollectible`, `void` or
+// `draft` at somebody who wants to know whether they paid. Anything unmapped
+// says "Not paid", which is the safe direction: it sends them to look rather
+// than reassuring them wrongly.
+const INVOICE_WORDS = {
+  paid: "Paid",
+  open: "Not paid yet",
+  void: "Cancelled — nothing owed",
+  uncollectible: "Written off — nothing owed",
+  draft: "Not sent yet",
+};
+
 const dateLong = (iso) =>
   iso
     ? new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
@@ -73,10 +86,32 @@ const dateLong = (iso) =>
 // has been handed a different product. The order is cheapest-per-month first,
 // which is also least-flexible first, so the ladder reads downward as
 // "commitment buys the discount" — the thing the exit fee is paying for.
+//
+// EACH NOTE ADDS A FACT THE ROW DOES NOT ALREADY CARRY, and the first draft of
+// all three failed that — the owner's own copy rule, 2026-09-01. *"One payment,
+// up front"* under **Pay for the year**, *"The same yearly price, spread out"*
+// under **Pay monthly, for a year**, and *"No commitment at all. Stop any month
+// you like."* under **Month to month** at **$75 a month**: two sentences with
+// nothing in them the label and the figure had not already said. That is
+// *"Mobile — we go to them"* three times over.
+//
+// WHAT SURVIVED IS THE HALF THAT WAS BEING CLIPPED. `.row-item .sub` is
+// `nowrap` with an ellipsis, so at 392 the middle rung read *"The same yearly
+// price, spread out.…"* and **the twelve-month commitment never rendered on a
+// phone at all** — the disclosure the whole AB 2863 reading exists to protect,
+// deleted by a CSS rule at the moment of the decision. `.clamp2` (theme.css,
+// and `Reviews.jsx` is the precedent) gives it two lines; the shorter copy is
+// what makes two lines enough.
+//
+// THE TERM AND THE SHARE COME FROM THE SERVER for the same reason every figure
+// on this screen does: they are the numbers that will be CHARGED.
 const RUNGS = [
-  ["annual-upfront", "Pay for the year", "One payment, up front. No commitment after it — you simply choose again next year."],
-  ["annual-monthly", "Pay monthly, for a year", "The same yearly price, spread out. You are committing to twelve months."],
-  ["monthly", "Month to month", "No commitment at all. Stop any month you like."],
+  ["annual-upfront", "Pay for the year",
+    () => "Nothing to commit to — you choose again next year."],
+  ["annual-monthly", "Pay monthly, for a year",
+    (q) => `${q.term_months} months. Leaving early costs ${Math.round(q.exit_fee_share * 100)}% of what is left.`],
+  ["monthly", "Month to month",
+    () => "Nothing to pay to leave."],
 ];
 
 export default function Billing() {
@@ -132,7 +167,18 @@ export default function Billing() {
   // must NOT say is "you have no subscription": that is the mistake roadmap
   // 2.14 made on the plans list, where a conclusion was painted before the
   // first read returned. This states the only thing that is true yet.
-  if (!data) return <div className="card"><p className="quiet" style={{ margin: 0 }}>Checking your subscription…</p></div>;
+  // `data-loading` IS FOR THE SCRIPTS, and it costs no pixels. Every browser
+  // script in this repo settles on a DOM that has gone quiet, and a screen
+  // waiting on an edge function is perfectly quiet — so a screenshot of this
+  // card is a screenshot of the word "Checking". Both `settle()`s treat the
+  // attribute as "not finished".
+  if (!data) {
+    return (
+      <div className="card" data-loading="">
+        <p className="quiet" style={{ margin: 0 }}>Checking your subscription…</p>
+      </div>
+    );
+  }
 
   const sub = data.subscription;
   const live = sub && sub.status !== "canceled" && sub.status !== "incomplete";
@@ -143,6 +189,11 @@ export default function Billing() {
 
   function ladder() {
     const q = chosen ? data.quotes[chosen] : null;
+    // Identical on all three website rungs, so it is stated once above them
+    // rather than three times inside them. Read from the server, so a founding
+    // account sees its own figure.
+    const buildFee = data.quotes["annual-monthly"]?.setup_cents ?? 0;
+    const listBuildFee = data.quotes["annual-monthly"]?.list_setup_cents ?? 0;
     return (
       <div className="card">
         <p className="quiet" style={{ marginTop: 0 }}>
@@ -155,6 +206,19 @@ export default function Billing() {
         </p>
 
         <div className="section-title">Ways to pay</div>
+        {/* THE BUILD FEE IS 94% OF WHAT LEAVES THE BANK ON DAY ONE AND WAS ONE
+            PRESS PAST THE DECISION. Every rung printed "$60 a month" while the
+            first charge was $1,059 — which is the same dishonesty this ladder's
+            own "what leaves the bank, never an effective monthly" rule exists
+            to refuse, from the other end. It is one line here because it is the
+            same figure on all three rungs. */}
+        {buildFee > 0 && (
+          <p className="muted" style={{ margin: "0 0 var(--sp-3)" }}>
+            Every plan also includes the one-time{" "}
+            {listBuildFee > buildFee && <s className="was">{usd(listBuildFee)}</s>}
+            <span className="num">{usd(buildFee)}</span> build.
+          </p>
+        )}
         <div className="rows">
           {RUNGS.map(([key, name, note]) => {
             const quote = data.quotes[key];
@@ -169,36 +233,57 @@ export default function Billing() {
               >
                 <span className="txt">
                   <span className="nm">{name}</span>
-                  <span className="sub">{note}</span>
+                  <span className="sub clamp2">{note(quote)}</span>
                 </span>
                 {/* WHAT LEAVES THE BANK, never an "effective monthly" — the
                     same rule /pricing is built on. Printing $50/mo beside a
                     plan that takes $600 in one go is the small dishonesty this
-                    whole page is a correction to. */}
-                <span className="figure sm">{usd(quote.recurring_cents)} {per}</span>
+                    whole page is a correction to.
+                    AND THE LIST PRICE BESIDE IT ON A FOUNDING ACCOUNT, which
+                    /pricing does too — a discount nobody can see is a discount
+                    that does no work. `list_recurring_cents` comes from the
+                    server, so it is a real price the product charges somebody
+                    rather than an anchor; the test is whether the two DIFFER,
+                    so a standard account draws nothing. */}
+                <span className="figure sm">
+                  {quote.list_recurring_cents > quote.recurring_cents && (
+                    <s className="was">{usd(quote.list_recurring_cents)}</s>
+                  )}
+                  {usd(quote.recurring_cents)} {per}
+                </span>
               </button>
             );
           })}
         </div>
 
+        {/* IT OPENS, SO IT ANIMATES IN — the standing rule CLAUDE.md says binds
+            new work today, and `document.getAnimations()` 120ms after a rung
+            press reported only `ground-drift`, which is the instrument saying
+            this shipped dead. AND SWITCHING RUNGS IS THE OWNER'S THIRD KIND OF
+            MOTION: the frame stays put while every figure and the whole consent
+            sentence are replaced — *"the GUI doesn't really change, but the
+            actual text inside of it changes"* — which is Money's period switch
+            exactly. `.swap` + a key is the whole mechanism; no new keyframe, no
+            new duration, and the parts stagger 20ms at `--t-exit` for free. */}
         {q && (
-          <>
+          <div className="swap" key={chosen}>
             <div className="section-title">Before you pay</div>
             <div className="facts">
               <div>
                 <span className="quiet">Today</span>
-                <span className="v">{usd(q.first_charge_cents)}</span>
+                <span className="v strong num">{usd(q.first_charge_cents)}</span>
               </div>
               {q.setup_cents > 0 && (
                 <div>
                   <span className="quiet">Of that, the build</span>
-                  <span className="v">{usd(q.setup_cents)} once</span>
+                  <span className="v"><span className="strong num">{usd(q.setup_cents)}</span> once</span>
                 </div>
               )}
               <div>
                 <span className="quiet">Then</span>
                 <span className="v">
-                  {usd(q.recurring_cents)} {q.bill_interval === "year" ? "every year" : "every month"}
+                  <span className="strong num">{usd(q.recurring_cents)}</span>
+                  {" "}{q.bill_interval === "year" ? "every year" : "every month"}
                 </span>
               </div>
               {data.founding && (
@@ -245,18 +330,21 @@ export default function Billing() {
             )}
             {error && <div className="error-box">{error}</div>}
 
+            {/* A DISABLED BUTTON THAT DOES NOT SAY WHY READS AS A BROKEN APP.
+                The label is what tells them, rather than a sentence underneath
+                it — the control answering for itself. */}
             <button
               className="btn primary"
               disabled={!ticked || busy}
               onClick={() => act(() => api.billingCheckout(business.id, "website", chosen))}
             >
-              {busy ? "One moment" : "Go to payment"}
+              {busy ? "One moment" : ticked ? "Go to payment" : "Tick the box to continue"}
             </button>
             <p className="muted" style={{ marginTop: "var(--sp-2)" }}>
               Your card details are entered on Stripe's own page. They never
               reach us.
             </p>
-          </>
+          </div>
         )}
       </div>
     );
@@ -284,6 +372,7 @@ export default function Billing() {
           </div>
         )}
 
+        <div className="section-title">What you pay us</div>
         <div className="facts">
           <div>
             <span className="quiet">Plan</span>
@@ -295,7 +384,8 @@ export default function Billing() {
           <div>
             <span className="quiet">You pay</span>
             <span className="v">
-              {usd(sub.recurring_cents)} {sub.bill_interval === "year" ? "a year" : "a month"}
+              <span className="strong num">{usd(sub.recurring_cents)}</span>
+              {" "}{sub.bill_interval === "year" ? "a year" : "a month"}
             </span>
           </div>
           <div>
@@ -335,24 +425,28 @@ export default function Billing() {
           <>
             <div className="section-title">Payments</div>
             <div className="rows">
-              {data.invoices.map((inv) => (
-                <a
-                  key={inv.id}
-                  className="row-item"
-                  href={inv.hosted_url || inv.pdf_url || "#"}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span className="txt">
-                    <span className="nm">{dateLong(inv.paid_at || inv.created_at)}</span>
-                    <span className="sub">
-                      {inv.status === "paid" ? "Paid" : inv.status === "open" ? "Not paid yet" : inv.status}
+              {data.invoices.map((inv) => {
+                // AN INVOICE WITH NO DOCUMENT BEHIND IT IS NOT A LINK. `href="#"`
+                // drew a focusable, hover-lit row that navigates nowhere — a
+                // control that promises a thing it cannot do, which is the same
+                // defect as a `›` that only peeks.
+                const href = inv.hosted_url || inv.pdf_url || null;
+                const Row = href ? "a" : "div";
+                return (
+                  <Row
+                    key={inv.id}
+                    className="row-item"
+                    {...(href ? { href, target: "_blank", rel: "noreferrer" } : {})}
+                  >
+                    <span className="txt">
+                      <span className="nm">{dateLong(inv.paid_at || inv.created_at)}</span>
+                      <span className="sub">{INVOICE_WORDS[inv.status] ?? "Not paid"}</span>
                     </span>
-                  </span>
-                  <span className="figure sm">{usd(inv.amount_cents)}</span>
-                  <ExternalLink size={16} strokeWidth={2} />
-                </a>
-              ))}
+                    <span className="figure sm">{usd(inv.amount_cents)}</span>
+                    {href && <ExternalLink size={16} strokeWidth={2} />}
+                  </Row>
+                );
+              })}
             </div>
           </>
         )}
@@ -375,15 +469,37 @@ export default function Billing() {
           </>
         ) : confirming ? (
           <>
-            <p className="quiet" style={{ marginTop: 0 }}>
-              {/* WHAT IT COSTS, BEFORE THE PRESS. Discovering an exit fee after
-                  cancelling is the complaint, not the fee. */}
+            {/* THE FEE IS THE LARGEST UNEXPECTED NUMBER IN THIS PRODUCT AND IT
+                WAS SET AT 13px IN GREY, MID-SENTENCE, ABOVE A RED BUTTON. Law 8
+                says a price in the body face is a bug; a price a person is
+                about to be charged, buried in a `.quiet` paragraph, is that bug
+                at the worst moment. It is a `.facts` row of its own now, in the
+                same voice as every other figure on the screen. */}
+            <div className="facts">
+              <div>
+                <span className="quiet">To pay now</span>
+                <span className="v strong num">
+                  {data.exit_fee_cents > 0 ? usd(data.exit_fee_cents) : "Nothing"}
+                </span>
+              </div>
+              {data.exit_fee_cents > 0 && (
+                <div>
+                  <span className="quiet">Why</span>
+                  <span className="v">You committed to {sub.term_months} months</span>
+                </div>
+              )}
+            </div>
+            <p className="quiet" style={{ marginTop: "var(--sp-3)" }}>
               {paidThrough
                 ? `You keep everything until ${dateLong(sub.current_period_end)}, and this month is not refunded.`
                 : "The month you have not paid for is still owed. Cancelling stops us trying the card for anything after it."}
-              {data.exit_fee_cents > 0
-                ? ` Because you committed to ${sub.term_months} months, ${usd(data.exit_fee_cents)} will be charged to your card now.`
-                : " There is nothing else to pay."}
+              {/* THE THING SOMEBODY CANCELLING ACTUALLY WANTS TO KNOW, and the
+                  confirm was silent about it: what happens to their work. The
+                  pricing page already promises it and both billing emails say
+                  it; this is the moment the fear is live. */}
+              {" "}After that your booking page stops taking new bookings.
+              Nothing is deleted — your jobs, your customers and your settings
+              stay, and customers who have already booked keep their own page.
             </p>
             <button
               className="btn danger"

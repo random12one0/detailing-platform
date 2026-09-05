@@ -144,10 +144,31 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
     .single();
   const founding = business?.plan_tier === "founding";
 
+  // AND THE LIST FIGURE BESIDE EACH FOUNDING ONE — the owner's ask, 2026-09-05:
+  // *"it should visually show like the discount price vs the regular price for
+  // the founder spots."* He is right, and the landing page has done it since
+  // 2.2 (`<s className="was">` beside the setup fee and the monthly).
+  //
+  // IT IS COMPUTED HERE RATHER THAN ON THE SCREEN because `quotes` is already
+  // resolved to ONE column by the time the browser sees it — a founding
+  // account is handed founding figures and has no way to know what the list
+  // price was. This is the same `planFor` with `founding: false`, so the struck
+  // number is a REAL price the product charges somebody, never an anchor
+  // invented to make the other one look smaller. That rule is written on
+  // `LandingPage.jsx` and it applies here.
   const quotes: Record<string, unknown> = {};
   for (const term of TERMS) {
     const snap = planFor("website", term, founding);
-    quotes[term] = { ...snap, consent: consentSentence(snap), first_charge_cents: firstChargeCents(snap) };
+    const list = planFor("website", term, false);
+    quotes[term] = {
+      ...snap,
+      consent: consentSentence(snap),
+      first_charge_cents: firstChargeCents(snap),
+      // Equal to the charged figure when there is no founding spot, so the
+      // screen's test is "do these differ" rather than "am I founding".
+      list_recurring_cents: list.recurring_cents,
+      list_setup_cents: list.setup_cents,
+    };
   }
   const bookingSnap = planFor("booking", "monthly", false);
   quotes.booking = {

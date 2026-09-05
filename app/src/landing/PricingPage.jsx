@@ -79,7 +79,15 @@ export default function PricingPage() {
   // here, rather than at each of the eleven places a figure is printed —
   // eleven ternaries is eleven chances to print a founding price beside a
   // list one.
-  const p = founding ? PRICING.founding : { ...PRICING.website, annual: PRICING.annual, monthToMonth: PRICING.monthToMonth };
+  // BOTH COLUMNS, because a founding price means nothing without the one it
+  // replaces. The owner, 2026-09-05: *"it should visually show like the
+  // discount price vs the regular price for the founder spots."* He was right
+  // about an inconsistency INSIDE this page rather than a missing feature —
+  // the build fee below already strikes its list price and the three rungs
+  // under it did not, so the page taught a reader what a discount looks like
+  // and then stopped doing it.
+  const listP = { ...PRICING.website, annual: PRICING.annual, monthToMonth: PRICING.monthToMonth };
+  const p = founding ? PRICING.founding : listP;
   const monthsFree = (p.monthly * 12 - p.annual) / p.monthly;
   // A WORKED EXAMPLE OF THE EXIT FEE, not a second rule: half of the months
   // still to run, shown at the halfway point because "half of what's left"
@@ -179,7 +187,7 @@ export default function PricingPage() {
             <div className="setupfee" data-rv="lift" style={{ "--i": 1 }}>
               <span className="lab">To build it</span>
               <div className="amount">
-                {founding && <s className="was">${PRICING.website.setup}</s>}
+                {founding && <s className="was">${listP.setup}</s>}
                 <span key={p.setup} data-count={p.setup} data-prefix="$">${p.setup}</span>
               </div>
               <p className="fine">
@@ -218,6 +226,12 @@ export default function PricingPage() {
                 </span>
               </div>
               <div className="rungfig">
+                {/* A struck price is ONLY ever the real list figure being
+                    replaced by a real discount — never an anchor invented to
+                    make the other number look smaller. Same rule and same
+                    element as the build fee above and the landing page's own
+                    pair; `landing-pricing` 6b pins it on all four. */}
+                {founding && <s className="was">${listP.annual}</s>}
                 <span className="mono fig">${p.annual}</span>
                 <small>a year</small>
               </div>
@@ -237,6 +251,12 @@ export default function PricingPage() {
                 </span>
               </div>
               <div className="rungfig">
+                {/* A struck price is ONLY ever the real list figure being
+                    replaced by a real discount — never an anchor invented to
+                    make the other number look smaller. Same rule and same
+                    element as the build fee above and the landing page's own
+                    pair; `landing-pricing` 6b pins it on all four. */}
+                {founding && <s className="was">${listP.monthly}</s>}
                 <span className="mono fig">${p.monthly}</span>
                 <small>a month</small>
               </div>
@@ -255,6 +275,12 @@ export default function PricingPage() {
                 </span>
               </div>
               <div className="rungfig">
+                {/* A struck price is ONLY ever the real list figure being
+                    replaced by a real discount — never an anchor invented to
+                    make the other number look smaller. Same rule and same
+                    element as the build fee above and the landing page's own
+                    pair; `landing-pricing` 6b pins it on all four. */}
+                {founding && <s className="was">${listP.monthToMonth}</s>}
                 <span className="mono fig">${p.monthToMonth}</span>
                 <small>a month</small>
               </div>
@@ -268,9 +294,14 @@ export default function PricingPage() {
           <div data-rv="">
           {founding && (
             <p className="standard">
-              Founding prices. The standard ones are ${PRICING.annual} a year,
-              ${PRICING.website.monthly} a month and ${PRICING.monthToMonth} a
-              month, with a ${PRICING.website.setup} build fee.
+              {/* IT USED TO LIST ALL FOUR STANDARD PRICES IN PROSE, and every
+                  one of them is now struck beside the figure it discounts — so
+                  the sentence was four numbers a reader had to carry back up
+                  the page and match by hand. The owner's copy rule: a sentence
+                  that adds no fact the control already carries is deleted.
+                  What a strike cannot say is what survives here. */}
+              The struck prices are the standard ones. Yours is locked for the
+              life of the account and never rises while it stays open.
             </p>
           )}
           </div>

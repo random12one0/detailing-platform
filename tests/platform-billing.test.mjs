@@ -683,5 +683,48 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
     fn.includes("Nothing was charged.") && !fn.includes("(err as Error).message }, 500"));
 }
 
+// ─── 15. THE FOUNDING SAVING IS VISIBLE ON THE DASHBOARD TOO ───────────────
+//
+// The owner, 2026-09-05: *"it should visually show like the discount price vs
+// the regular price for the founder spots."* He was looking at `/pricing`,
+// where `landing-pricing` 6b holds it — but the dashboard's own ladder had the
+// same gap and a harder version of it: `summary` resolves `quotes` to ONE
+// column before the browser sees them, so a founding account is handed
+// founding figures and has no way to know what the list price was.
+{
+  console.log("\n15. the list price beside the founding one");
+
+  const fn = read("supabase/functions/platform-billing/index.ts");
+  check("summary returns the list figure beside each quote",
+    fn.includes("list_recurring_cents: list.recurring_cents")
+      && fn.includes("list_setup_cents: list.setup_cents"));
+  // COMPUTED WITH THE SAME `planFor`, so the struck number is a real price the
+  // product charges somebody — never an anchor typed in to make the other one
+  // look smaller. That rule is written on `LandingPage.jsx` and it does not
+  // soften inside the dashboard.
+  check("it is a real price, from the same function at founding: false",
+    fn.includes('const list = planFor("website", term, false);'));
+
+  const billing = read("app/src/screens/more/Billing.jsx");
+  // THE TEST IS "DO THESE DIFFER", NOT "AM I FOUNDING". A standard account and
+  // a founding one whose ladder happens to match both draw one price and no
+  // theatre; only a genuine saving is ever struck.
+  check("the strike is drawn only when the two figures differ",
+    billing.includes("quote.list_recurring_cents > quote.recurring_cents")
+      && billing.includes("listBuildFee > buildFee"));
+
+  // AND THE ARITHMETIC IT IS ABOUT: every founding figure really is lower than
+  // the list one it will be struck against. A founding "discount" that is not
+  // a discount would print a strike through a smaller number.
+  for (const term of TERMS) {
+    const f = planFor("website", term, true);
+    const l = planFor("website", term, false);
+    check(`the founding ${term} price is genuinely lower than list`,
+      f.recurring_cents < l.recurring_cents, `${f.recurring_cents} vs ${l.recurring_cents}`);
+  }
+  check("and the founding build fee is lower than the list one",
+    planFor("website", "monthly", true).setup_cents < planFor("website", "monthly", false).setup_cents);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
