@@ -919,6 +919,10 @@ export function campaignEmail(brand: TenantBrand, c: CampaignEmailData): Mail {
 
 export interface BillingEmailData {
   kind: "failed" | "suspended";
+  /** WHOSE booking page this is about. NOT `brand.brandName` — that is the
+   *  PLATFORM here, because the masthead and the footer say who SENT the
+   *  email and this says what it is about. */
+  businessName: string;
   /** Where the billing screen is. The one link in the email. */
   billingUrl: string;
   /** What the card was declined for, in dollars — printed, never guessed. */
@@ -935,8 +939,8 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
       ? "Your booking page is offline until this is paid"
       : "We couldn't take this month's payment"),
     proseBlock(down
-      ? `We tried your card several times over the last two weeks and it did not go through, so ${esc(brand.brandName)}'s booking page is no longer accepting new bookings.`
-      : `The ${money(b.amount)} payment for ${esc(brand.brandName)} was declined. We will try the same card again over the next two weeks and email you each time.`),
+      ? `We tried your card several times over the last two weeks and it did not go through, so ${esc(b.businessName)}'s booking page is no longer accepting new bookings.`
+      : `The ${money(b.amount)} payment for ${esc(b.businessName)} was declined. We will try the same card again over the next two weeks and email you each time.`),
     // NOTHING IS DELETED — the sentence both kinds need most.
     proseBlock(down
       ? "Nothing has been deleted. Your jobs, your customers, your settings and your photos are all exactly where you left them, and the page comes back the moment a payment goes through."
@@ -954,8 +958,8 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
 
   return mail(
     down
-      ? `${brand.brandName}'s booking page is offline`
-      : `We couldn't take payment for ${brand.brandName}`,
+      ? `${b.businessName}'s booking page is offline`
+      : `We couldn't take payment for ${b.businessName}`,
     shell(brand, blocks, down
       ? "Nothing has been deleted — update your card to bring the page back."
       : "We'll try again over the next two weeks."),

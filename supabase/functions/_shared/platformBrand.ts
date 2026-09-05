@@ -14,11 +14,13 @@
 // unbranded business, so the colour maths and every contrast check in
 // `tests/email-brand.test.mjs` apply here unchanged.
 //
-// THE TENANT'S NAME STILL APPEARS — as `brandName`, because these emails are
-// ABOUT a business ("Riverside Detail's booking page is offline") and the
-// masthead is where a reader looks to know which of their businesses it is.
-// What makes it OUR email is the sender name and the footer's site, both of
-// which point at the platform.
+// THE FURNITURE IS OURS AND THE TENANT IS IN THE SENTENCE. The first version
+// put the business's name in `brandName`, so the masthead and the footer of an
+// email about somebody's card both read *"Ridgeline Auto Detail"* — which is
+// the same thing the `sender_name` branch was added to stop: an email that
+// looks like it came from you, telling you your own card failed, is what
+// phishing looks like. The business is named in the SUBJECT and in the prose,
+// where it identifies what the email is about rather than who sent it.
 
 import { brandFrom } from "./emailKit.ts";
 import type { TenantBrand } from "./emailTemplates.ts";
@@ -37,10 +39,10 @@ export const PLATFORM_NAME = "Detailing Platform";
 /** The house accent — the same one an unbranded tenant sends with. */
 const PLATFORM_ACCENT = "#38E08B";
 
-export function platformBrand(businessName: string, siteUrl: string): TenantBrand {
+export function platformBrand(siteUrl: string): TenantBrand {
   return {
     ...brandFrom({
-      brandName: businessName,
+      brandName: PLATFORM_NAME,
       contactPhone: null,
       siteUrl,
       logoUrl: null,

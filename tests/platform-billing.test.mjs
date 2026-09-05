@@ -533,10 +533,11 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
 {
   console.log("\n13. the billing emails");
 
-  const brand = platformBrand("Ridgeline Auto Detail", "https://detailingplatform.com");
+  const brand = platformBrand("https://detailingplatform.com");
   const url = "https://detailingplatform.com/app?settings=billing";
-  const late = billingEmail(brand, { kind: "failed", billingUrl: url, amount: 60, reason: "Insufficient funds." });
-  const down = billingEmail(brand, { kind: "suspended", billingUrl: url, amount: 60, reason: null });
+  const B = "Ridgeline Auto Detail";
+  const late = billingEmail(brand, { kind: "failed", businessName: B, billingUrl: url, amount: 60, reason: "Insufficient funds." });
+  const down = billingEmail(brand, { kind: "suspended", businessName: B, billingUrl: url, amount: 60, reason: null });
 
   check("the failed email names the amount", late.html.includes("$60.00"), late.subject);
   check("the failed email promises two weeks of retries", /two weeks/i.test(late.html));
@@ -592,6 +593,14 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   const hook = read("supabase/functions/stripe-webhook/index.ts");
   check("the webhook sends as the platform", hook.includes("senderName: PLATFORM_NAME"));
   check("the platform signs as itself", PLATFORM_NAME === "Detailing Platform");
+  // THE MASTHEAD AND FOOTER SAY WHO SENT IT; THE SUBJECT SAYS WHAT IT IS
+  // ABOUT. An email whose furniture carries the detailer's own name, telling
+  // them their own card failed, is what phishing looks like — the same
+  // argument that put `sender_name` on the From line, one inch lower.
+  check("the platform's own name is the brand on the email",
+    brand.brandName === PLATFORM_NAME, brand.brandName);
+  check("the business is named in the subject, not in the furniture",
+    down.subject.startsWith(B) && late.subject.endsWith(B), down.subject);
   // IT GOES TO THE OWNER'S OWN ADDRESS, never the booking-notification list —
   // a detailer may well have pointed that at a shared inbox or a staff member,
   // and a declined card is not their team's business.

@@ -380,8 +380,9 @@ async function tell(
   const to = business?.contact_email;
   if (!to) return;
 
-  const mail = billingEmail(platformBrand(String(business.name ?? "Your business"), PLATFORM_URL), {
-    kind, billingUrl: BILLING_URL, amount, reason,
+  const mail = billingEmail(platformBrand(PLATFORM_URL), {
+    kind, businessName: String(business.name ?? "Your business"),
+    billingUrl: BILLING_URL, amount, reason,
   });
   await sendTenantEmail({
     businessId, to, subject: mail.subject, html: mail.html, text: mail.text,

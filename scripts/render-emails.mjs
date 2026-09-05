@@ -239,12 +239,12 @@ const EMAILS = [
   // that matters most — *nothing has been deleted* — is the kind of promise
   // that reads as present in the code and turns out to be missing on the page.
   ["platform-payment-failed", "Detailer · a payment did not go through", () => T.billingEmail(
-    platformBrand("Ridgeline Auto Detail", PLATFORM),
-    { kind: "failed", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: "Your card has insufficient funds." },
+    platformBrand(PLATFORM),
+    { kind: "failed", businessName: "Ridgeline Auto Detail", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: "Your card has insufficient funds." },
   )],
   ["platform-suspended", "Detailer · the booking page is offline", () => T.billingEmail(
-    platformBrand("Ridgeline Auto Detail", PLATFORM),
-    { kind: "suspended", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: null },
+    platformBrand(PLATFORM),
+    { kind: "suspended", businessName: "Ridgeline Auto Detail", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: null },
   )],
 ];
 
