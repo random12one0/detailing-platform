@@ -30,11 +30,18 @@ import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { dateLong, money, todayLocal } from "../../lib/format.js";
 import {
-  STATUS_WORDS, cadenceWords, ledgerFor, priceWords, visitWords, visitsOwed,
+  STATUS_WORDS, cadenceWords, ledgerFor, priceWords, termWords, visitWords, visitsOwed,
 } from "../../lib/plans.js";
 import { MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
 
-const PRICE_KINDS = [["monthly", "$ a month"], ["per_visit", "$ a visit"], ["percent_off", "% off"]];
+// FOUR SHAPES, WHICH IS THIS CONTROL'S CEILING (controls.jsx: "two to four
+// mutually exclusive options"). A fifth would have to become a drop-down, and
+// the honest answer would then be that the four cover every plan page in the
+// sample. `total` is the prepaid block — "$1,999 for the year" — which had to
+// be entered as a monthly price until the owner asked whether a detailer is
+// locked into a kind of plan.
+const PRICE_KINDS = [["monthly", "$ / month"], ["per_visit", "$ / visit"],
+  ["total", "$ up front"], ["percent_off", "% off"]];
 const UNITS = [["week", "weeks"], ["month", "months"], ["year", "years"]];
 const STATUSES = [["active", "Active"], ["paused", "Paused"], ["ended", "Ended"]];
 // The status pills reuse the three the product already paints, so no new
@@ -260,10 +267,14 @@ export default function Plans() {
       {/* ALL THREE SHAPES ARE IN THE SAMPLE and forcing one would exclude real
           businesses — a monthly amount, a per-visit amount, and a member rate
           expressed as a percentage. */}
-      <Setting stacked label="How it's priced">
+      <Setting stacked label="How it's priced"
+        help="Up front is a prepaid block — a year, or a set number of visits, paid in one go.">
         <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
           <Segmented label="Price shape" value={planForm.price_kind} options={PRICE_KINDS}
             onChange={(v) => setPlanForm({ ...planForm, price_kind: v })} />
+          {/* Three of the four shapes are money and one is a percentage, so
+              the field follows the shape rather than the shape following the
+              field. */}
           {planForm.price_kind === "percent_off" ? (
             <input type="number" inputMode="numeric" min={0} max={100}
               style={{ flex: "0 0 90px", width: 90 }}
@@ -421,8 +432,13 @@ export default function Plans() {
               so two lists on one screen used the same column for two things.
               The price is what both lists are scanned for; the count is a
               word in the subtitle, where it can say what it counts. */}
+          {/* THE TERM GOES BEFORE THE MEMBER COUNT, and it is here at all
+              because eleven test shapes showed a twelve-month commitment
+              printing nowhere on the screen that lists what you offer. It is a
+              property of the OFFER; the member count is usage. */}
           <span className="c-what">
             {p.cadence_unit && p.visits_per_period > 1 ? `${visitWords(p)} each time · ` : ""}
+            {termWords(p) ? `${termWords(p)} · ` : ""}
             {memberCount(p.id) === 0 ? "nobody on it"
               : `${memberCount(p.id)} ${memberCount(p.id) === 1 ? "member" : "members"}`}
             {p.is_active ? "" : " · hidden"}

@@ -4745,6 +4745,20 @@ often* number box was squeezed to ~40px with its digit behind the padding.
 `composition` caught a fourth, and it was a real design error rather than a
 technicality — both lists were cards, and a member list grows with the business.
 
+**A FOURTH PRICE SHAPE LANDED THE SAME DAY.** He asked whether a detailer is
+locked into a kind of plan, and it was answered by putting **eleven real plan
+shapes into the demo and looking** rather than by reading the schema back to
+him. Ten were right; **a prepaid block had to be entered as a monthly price**,
+so "$1,999 for the year" printed as "$1999.00 a month". `price_kind` is now
+`monthly | per_visit | percent_off | total`. The same eleven rows also showed a
+twelve-month **term printing nowhere**, which is now on the row.
+
+**FOUR LIMITS THAT REMAIN, stated so nobody rediscovers them as bugs:** one
+plan per customer at a time; a bundle of *different* kinds of visit is prose
+rather than separate counts; price by vehicle size is not a plan field (and
+needs none today, because a member's price is snapshotted and editable); and
+what's included is prose rather than catalog rows.
+
 **OPEN FOR HIM — one small question.** Defining a plan needs the *Settings*
 tick; logging a member needs *Money*. The demo's "Detailer" role can do the
 first and not the second. Should they be the same tick, or should plans get one

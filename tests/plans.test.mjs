@@ -22,7 +22,7 @@
 
 import {
   STATUS_WORDS, addPeriod, cadenceWords, ledgerFor, nextDueOn, priceWords,
-  visitWords, visitsOwed,
+  termWords, visitWords, visitsOwed,
 } from "../app/src/lib/plans.js";
 
 let passed = 0, failed = 0;
@@ -86,6 +86,30 @@ const money = (n) => `$${Number(n).toFixed(2).replace(/\.00$/, "")}`;
   check("a percentage", priceWords("percent_off", 15, money) === "15% off");
   check("a plan with no price still says something",
     priceWords("monthly", 0, money) === "$0 a month");
+  // THE FOURTH SHAPE, and it exists because the owner asked whether a detailer
+  // is locked into a kind of plan. A prepaid block had to be entered as a
+  // MONTHLY price until 2026-09-04, so "$1,999 for the year" printed as
+  // "$1999.00 a month" — neither what the detailer means nor what the customer
+  // pays. Found by putting eleven real plan shapes on the screen and LOOKING,
+  // which no check in this file could have done.
+  check("a prepaid block is paid UP FRONT, not monthly",
+    priceWords("total", 1999, money) === "$1999 up front", priceWords("total", 1999, money));
+  check("the four shapes all say something different",
+    new Set(["monthly", "per_visit", "percent_off", "total"]
+      .map((k) => priceWords(k, 50, money))).size === 4);
+
+  // A TERM IS THE COMMITMENT AND IS NOT THE PRICE. A prepaid year is usually
+  // twelve months, but a prepaid block of ten visits has no end date — so the
+  // two are separate fields and one must not be inferred from the other.
+  check("no term is the ordinary answer and says nothing",
+    termWords({}) === null && termWords({ term_months: null }) === null);
+  check("a twelve-month term is a YEAR, in the words a person uses",
+    termWords({ term_months: 12 }) === "1-year term", termWords({ term_months: 12 }));
+  check("twenty-four months is two years", termWords({ term_months: 24 }) === "2-year term");
+  check("a term that is not whole years is counted in months",
+    termWords({ term_months: 3 }) === "3-month term");
+  check("a term of zero is no term, not a 0-month one",
+    termWords({ term_months: 0 }) === null);
 
   check("one visit", visitWords({ visits_per_period: 1 }) === "1 visit");
   check("a bundle", visitWords({ visits_per_period: 2 }) === "2 visits");

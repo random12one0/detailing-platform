@@ -852,6 +852,16 @@ explaining it; if they still have to ask "so should I?", it failed.
   already right about a plan visit that was called off. **A session that
   "tidies" used into a second ledger row needs a thirteenth rule and a
   compensating row nobody remembers to write.**
+  **`price_kind` HAS FOUR VALUES AND THAT IS THE CEILING** — `monthly`,
+  `per_visit`, `percent_off`, `total` (a prepaid block). The fourth arrived
+  hours after the first three, when the owner asked whether a detailer is
+  locked into a kind of plan and eleven real shapes were put on the screen to
+  answer him: *"$1,999 for the year"* had to be entered as a monthly price and
+  printed as **"$1999.00 a month"**. A fifth would have to stop being a
+  segmented control (`controls.jsx`: two to four options).
+  **`term_months` IS SEPARATE FROM `price_kind` AND MUST STAY SO** — a prepaid
+  year is usually twelve months, but a prepaid block of ten visits has no end
+  date; merging them makes one of the two unsayable.
   **PAUSE IS A DATE (`plan_members.accrue_from`), NOT A FLAG.** Accruing from
   `started_on` backfills every visit the pause was meant to skip the moment
   the member comes back. **`accrue_plan_visits()` is the only writer of a

@@ -293,6 +293,13 @@ const cust = (name) => customers.find((c) => c.name === name);
 //   Member rate  NO CADENCE AT ALL, a percentage off. It is a real plan shape
 //                (Mint, Car Detox) and it is the one branch that prints "No
 //                set schedule" instead of a date.
+//   Year up front  PAID UP FRONT, with a TERM — the only seeded row that
+//                reaches `price_kind: 'total'` or `term_months`, and it is
+//                here for the rule roadmap 2.4 wrote about the cancelled
+//                booking and 2.12 wrote again about the request queue: a shape
+//                nothing seeds is a shape nobody ever looks at. It is also the
+//                shape that could not be SAID until the owner asked whether a
+//                detailer is locked into a kind of plan (2026-09-04).
 const planRows = await post("/rest/v1/plans", [
   {
     business_id: business.id, name: "Bi-weekly maintenance", sort_order: 0,
@@ -311,6 +318,12 @@ const planRows = await post("/rest/v1/plans", [
     description: "No set schedule — book whenever you like and take 10% off every visit.",
     cadence_count: null, cadence_unit: null, visits_per_period: 1,
     price_kind: "percent_off", price_amount: 10, term_months: null,
+  },
+  {
+    business_id: business.id, name: "Year up front", sort_order: 3,
+    description: "Twelve monthly details paid in one go, at two months' discount.",
+    cadence_count: 1, cadence_unit: "month", visits_per_period: 1,
+    price_kind: "total", price_amount: 1200, term_months: 12,
   },
 ]);
 const plan = (name) => planRows.find((p) => p.name === name);

@@ -2617,6 +2617,29 @@ is kept; the entire visual design restarts from scratch.
          it is still owed — **and it is roadmap 2.23 now, opened in this same
          change so it does not die inside this item's prose**).
 
+      **A FOURTH PRICE SHAPE LANDED THE SAME DAY**
+      (`20260904003000_plan_price_up_front.sql`), after he asked whether a
+      detailer is locked into a kind of plan. **Answered by putting ELEVEN real
+      shapes into the demo and looking**: tiers, a prepaid year, a weekly
+      two-visit fleet plan, an annual coating check-up, a quarterly and an
+      every-five-weeks. Ten were right; **a prepaid block had to be entered as
+      a MONTHLY price**, so "$1,999 for the year" printed as "$1999.00 a
+      month". `price_kind` is now `monthly | per_visit | percent_off | total`,
+      which is `controls.jsx`'s stated four-option ceiling. The same eleven
+      rows also showed **the term printing nowhere** — `termWords()` now says
+      it on the row, before the member count.
+      **`term_months` STAYS SEPARATE FROM `price_kind`**: a prepaid year is
+      usually twelve months, but a prepaid block of ten visits has no end date,
+      and merging them makes one of the two unsayable.
+
+      **FOUR HONEST LIMITS, none of them hit by those eleven shapes:** one plan
+      per customer at a time (`plan_members_one_live`); a bundle of DIFFERENT
+      kinds of visit is prose, not counted separately; price by vehicle size is
+      not a plan field (and needs none today — a member's price is snapshotted
+      and editable, so the detailer types the right number per person); and
+      what's included is prose rather than catalog rows —
+      `included_service_ids` exists with no UI because step 3 is what needs it.
+
       **OPEN FOR THE OWNER — one question, and it is small:** should defining a
       plan and logging a member need the same tick? Today a role with
       *Settings* can create a plan and a role with *Money* can log who is on

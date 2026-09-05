@@ -51,13 +51,33 @@ export function cadenceWords(plan) {
 }
 
 // A plan's price, expressed the way the detailer chose to express it. All
-// three shapes are in the sample and forcing one would exclude real
-// businesses — see the migration header.
+// FOUR shapes are in the sample and forcing one would exclude real
+// businesses — see the migration headers.
+//
+// `total` arrived after the owner asked whether a detailer is locked into a
+// kind of plan (2026-09-04). A prepaid block — "$1,999 for the year" — had to
+// be entered as a monthly price until then, and the screen printed
+// "$1999.00 a month", which is neither what the detailer means nor what the
+// customer pays.
 export function priceWords(kind, amount, money) {
   const n = Number(amount) || 0;
   if (kind === "percent_off") return `${n}% off`;
   if (kind === "per_visit") return `${money(n)} a visit`;
+  if (kind === "total") return `${money(n)} up front`;
   return `${money(n)} a month`;
+}
+
+// The commitment, if there is one. Separate from the price on purpose: a
+// prepaid year is usually twelve months, but a prepaid block of ten visits
+// has no end date at all, and "paid up front" is a fact about the money while
+// a term is a fact about the commitment. Null is the ordinary answer — six of
+// ten sampled detailers advertise no contract as a selling point.
+export function termWords(plan) {
+  const m = Number(plan?.term_months) || 0;
+  if (!m) return null;
+  if (m === 12) return "1-year term";
+  if (m % 12 === 0) return `${m / 12}-year term`;
+  return `${m}-month term`;
 }
 
 // What a plan grants each time the cadence comes round.
