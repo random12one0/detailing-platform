@@ -1142,6 +1142,27 @@ explaining it; if they still have to ask "so should I?", it failed.
   requires that address anyway. **The owner's 60 seconds:**
   https://dashboard.stripe.com/test/settings/tax
   Test § 16 pins all four.
+  **AND HIS ANSWER TO (1) CREATED A DEAD END, FIXED THE SAME DAY.** He left
+  Stripe's end-of-dunning default alone (*"ima have that the same for now"*), so
+  a subscription is CANCELLED when the retries run out — **and there is then no
+  invoice left to settle.** The suspended screen offered *"Update card"*, which
+  fixes nothing, and the suspended email promised the page comes back *"the
+  moment a payment goes through"*, which a card cannot deliver. **`summary`
+  returns `restartable` now**: the screen shows the ladder again with a line
+  saying the last subscription ended and nothing is owed from before,
+  `checkout` allows that restart (**it answered 409 — a way back that does not
+  work is worse than no way back**), and the email says *"Put your page back
+  online"*. **A DELIBERATE cancellation is told apart by columns that already
+  existed** — our cancel button sets `cancel_at_period_end`, dunning never
+  does — so somebody who quit on purpose is not shouted at. **If the setting is
+  ever changed to "leave unpaid", none of this breaks**: the test is whether a
+  chargeable subscription still exists, so the card comes back by itself.
+  Test § 17.
+  **HIS OTHER TWO ANSWERS, so nobody re-asks:** no business address until
+  December (so Stripe Tax stays off and the NEXUS MONITOR is what is actually
+  deferred), and he rolled the test key — **Stripe lets the old one keep
+  working for a while, so the checkout will start failing when it expires and
+  the new `sk_test_` must go on the Supabase project.**
   **THE ONE RULE THAT OUTRANKS EVERYTHING ELSE HERE: the page PRINTS and the
   server CHARGES, and one pure module does both.**
   `supabase/functions/_shared/platformBilling.ts` holds the price table,

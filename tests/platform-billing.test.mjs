@@ -783,5 +783,56 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
     /changes response shapes between\s*\n\/\/ versions/.test(st) || /unpinned integration/.test(st));
 }
 
+// ─── 17. THE WAY BACK FROM A SUSPENSION ───────────────────────────────────
+//
+// THE OWNER CHOSE, 2026-09-05, TO LEAVE STRIPE'S DEFAULT END-OF-DUNNING
+// BEHAVIOUR ALONE: when the retries run out the subscription is CANCELLED
+// rather than left unpaid. A reasonable call, and it has one sharp consequence
+// the live test-clock run made visible — **there is then no invoice left to
+// settle**, so "Update card" fixes nothing and the suspended email's promise
+// that the page comes back "the moment a payment goes through" cannot be kept
+// by a new card. The way back is picking a plan again.
+{
+  console.log("\n17. coming back from a suspension");
+
+  const fn = read("supabase/functions/platform-billing/index.ts");
+  const billing = read("app/src/screens/more/Billing.jsx");
+
+  check("the server decides whether there is anything left to pay",
+    fn.includes("restartable:"), "the screen must not work this out itself");
+  // TOLD APART FROM A DELIBERATE CANCELLATION BY COLUMNS THAT ALREADY EXIST:
+  // our own cancel button sets `cancel_at_period_end`, and dunning never does.
+  check("a deliberate cancellation is not treated as a suspension",
+    fn.includes('sub.cancel_at_period_end !== true'),
+    "our cancel button sets it; dunning never does");
+  check("the screen shows the ladder when there is nothing left to pay",
+    billing.includes("!data.restartable"));
+  // A WAY BACK THAT ANSWERS 409 IS WORSE THAN NO WAY BACK. `checkout` refused
+  // any row that was not canceled or incomplete, so the restart button would
+  // have been a dead button on the one screen where the business is offline.
+  check("and checkout lets that restart through",
+    fn.includes("if (sub && sub.status !== \"incomplete\" && !restartable)"),
+    "the guard must allow a restart");
+
+  // THE EMAIL MUST NOT NAME THE CARD when a card is not the fix. It cannot know
+  // at send time which end-of-dunning setting is in force, so the sentence has
+  // to be true under both.
+  const brand = platformBrand("https://detailingplatform.com");
+  const down = billingEmail(brand, {
+    kind: "suspended", businessName: "Ridgeline Auto Detail",
+    billingUrl: "https://detailingplatform.com/app?settings=billing", amount: 60, reason: null,
+  });
+  check("the suspended email does not promise a card fixes it",
+    !/update your card/i.test(down.html), "a cancelled subscription has nothing to charge");
+  check("it still says the page comes back", /comes back/i.test(down.text), down.text.slice(0, 160));
+  // And the past-due email, where a card IS the fix, still says so.
+  const late = billingEmail(brand, {
+    kind: "failed", businessName: "Ridgeline Auto Detail",
+    billingUrl: "https://detailingplatform.com/app?settings=billing", amount: 60, reason: null,
+  });
+  check("the past-due email still names the card, because there it IS the fix",
+    /update your card/i.test(late.html));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

@@ -181,7 +181,12 @@ export default function Billing() {
   }
 
   const sub = data.subscription;
-  const live = sub && sub.status !== "canceled" && sub.status !== "incomplete";
+  // `restartable` IS THE SERVER'S ANSWER TO "IS THERE ANYTHING LEFT TO PAY".
+  // A subscription Stripe cancelled at the end of dunning is suspended AND
+  // dead: updating the card fixes nothing, because nothing is going to be
+  // charged. The ladder is the only honest thing to show, and the screen must
+  // not work that out for itself — see the header.
+  const live = sub && sub.status !== "incomplete" && !data.restartable;
 
   return live ? account() : ladder();
 
@@ -196,7 +201,25 @@ export default function Billing() {
     const listBuildFee = data.quotes["annual-monthly"]?.list_setup_cents ?? 0;
     return (
       <div className="card">
-        <p className="quiet" style={{ marginTop: 0 }}>
+        {/* COMING BACK FROM A SUSPENSION IS NOT A FIRST PURCHASE, and the
+            difference is the sentence a person needs most. Their booking page
+            is off RIGHT NOW, and the ladder on its own reads like a shop when
+            what they want to know is whether picking one turns the page back
+            on. `restartable` means the old subscription is gone, so there is
+            nothing to "settle" — starting again is the fix, not a second bill
+            for the same thing. */}
+        {data.restartable && (
+          <div className="error-box" data-billing-dunning="down">
+            <TriangleAlert strokeWidth={2} />
+            <span>
+              <strong>Your booking page is offline.</strong> The last
+              subscription ended after the payments stopped going through.
+              Picking a plan below turns the page back on straight away —
+              nothing was deleted and nothing is owed from before.
+            </span>
+          </div>
+        )}
+        <p className="quiet" style={{ marginTop: data.restartable ? "var(--sp-4)" : 0 }}>
           {/* The one fact the rungs cannot carry: what happens to what is
               already here. A detailer looking at this screen has a dashboard
               full of their own work and no way to know whether paying is what

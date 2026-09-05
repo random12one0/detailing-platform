@@ -943,11 +943,17 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
       : `The ${money(b.amount)} payment for ${esc(b.businessName)} was declined. We will try the same card again over the next two weeks and email you each time.`),
     // NOTHING IS DELETED — the sentence both kinds need most.
     proseBlock(down
-      ? "Nothing has been deleted. Your jobs, your customers, your settings and your photos are all exactly where you left them, and the page comes back the moment a payment goes through."
+      ? "Nothing has been deleted. Your jobs, your customers, your settings and your photos are all exactly where you left them, and the page comes back as soon as this is sorted out."
       : "Nothing is at risk yet, and nothing gets deleted at any point. If it still has not gone through after two weeks, your booking page goes offline until it is paid.",
       16),
     b.reason ? fineBlock(`Your bank said: ${esc(b.reason)}`, 14) : "",
-    buttonBlock(brand, down ? "Update your card and come back" : "Update your card", b.billingUrl),
+    // THE BUTTON DOES NOT NAME THE CARD ON THE SUSPENDED EMAIL, and that is
+    // not vagueness. With Stripe set to CANCEL at the end of dunning — the
+    // owner's choice, 2026-09-05 — there is no invoice left to settle, so a new
+    // card fixes nothing; the way back is picking a plan again. With "leave
+    // unpaid" it really is the card. The billing page shows whichever applies,
+    // and this sentence is true either way.
+    buttonBlock(brand, down ? "Put your page back online" : "Update your card", b.billingUrl),
     // The one fact the button cannot carry: their own customers are not
     // stranded. A detailer's first question when their page goes dark is what
     // happens to the people already booked in.
@@ -961,7 +967,9 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
       ? `${b.businessName}'s booking page is offline`
       : `We couldn't take payment for ${b.businessName}`,
     shell(brand, blocks, down
-      ? "Nothing has been deleted — update your card to bring the page back."
+      // The preheader made the same promise the button used to, and it is the
+      // first thing shown in an inbox. See the button's note above.
+      ? "Nothing has been deleted — open your billing page to bring it back."
       : "We'll try again over the next two weeks."),
   );
 }

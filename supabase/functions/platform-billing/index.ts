@@ -197,6 +197,24 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
     // Whether the last button on the screen can do anything yet. False until
     // the owner's Stripe key is set as a function secret.
     configured: stripeConfigured(),
+    // THERE IS NOTHING LEFT TO PAY, SO "UPDATE CARD" IS A DEAD END.
+    //
+    // The owner chose, 2026-09-05, to leave Stripe's default end-of-dunning
+    // behaviour alone: when the retries run out the subscription is CANCELLED
+    // rather than left unpaid. That is a fine choice and this is its one sharp
+    // consequence — **there is no longer an invoice to settle.** The suspended
+    // screen was still offering "Update card", and the suspended EMAIL still
+    // promises *"the page comes back the moment a payment goes through"*, which
+    // in that state cannot happen: a new card fixes nothing because nothing is
+    // going to be charged. A detailer would update the card, wait, and phone.
+    //
+    // Told apart from a DELIBERATE cancellation by the two columns that already
+    // record the difference: our own cancel button sets `cancel_at_period_end`,
+    // and dunning never does.
+    restartable: !!sub && (
+      sub.status === "canceled"
+      || (sub.status === "suspended" && !!sub.canceled_at && sub.cancel_at_period_end !== true)
+    ),
   });
 }
 
@@ -205,7 +223,17 @@ async function checkout(
   body: Record<string, unknown>,
   sub: Record<string, unknown> | null,
 ) {
-  if (sub && sub.status !== "canceled" && sub.status !== "incomplete") {
+  // A SUSPENDED ROW WHOSE STRIPE SUBSCRIPTION IS GONE MUST BE ALLOWED THROUGH.
+  // With the owner's chosen end-of-dunning setting (cancel rather than leave
+  // unpaid) that is the ordinary way back online, and refusing it here would
+  // have made the restart button on the screen answer 409 — a way back that
+  // does not work is worse than no way back. `restartable` is the same test
+  // `summary` gives the screen, spelled once in each place it is enforced.
+  const restartable = !!sub && (
+    sub.status === "canceled"
+    || (sub.status === "suspended" && !!sub.canceled_at && sub.cancel_at_period_end !== true)
+  );
+  if (sub && sub.status !== "incomplete" && !restartable) {
     return json({ error: "This business already has a subscription." }, 409);
   }
   if (body.consented !== true) {

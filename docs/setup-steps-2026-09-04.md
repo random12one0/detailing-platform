@@ -121,21 +121,34 @@ tenant from past due to offline and back.
 
 **WHAT IS ACTUALLY LEFT, and neither is code:**
 
-1. **Set the business address**, https://dashboard.stripe.com/test/settings/tax
-   — 60 seconds. Stripe Tax refuses to switch on without a head office address,
-   so today every checkout runs with tax calculation OFF and says so. That
-   costs nothing right now (no registrations means no tax to collect) but it is
-   also what turns on the **nexus monitor**, which is the actual reason the
-   research wanted Stripe Tax enabled: it warns before a state threshold is
-   crossed, turning an invisible creeping exposure into an alert.
-2. **Check what happens after the retries**, Settings → Billing →
-   Subscriptions and emails. **Measured on his own account: the default is to
-   CANCEL the subscription**, not to leave it unpaid. The product copes either
-   way now, but "leave unpaid" is the setting that matches what the product
-   says.
-3. **Roll the test secret key** (Developers → API keys), because it was pasted
-   into a chat. It is a test key, so nothing real is at risk — this is hygiene
-   rather than an incident.
+**HE ANSWERED ALL THREE ON 2026-09-05. Two are deferred by his own decision and
+one is done; the notes are kept because each has a consequence in the code.**
+
+1. ~~**Set the business address.**~~ **DEFERRED — his call, and it is the right
+   one:** *"I can do all of that unless I want to officially set everything up
+   which I can't do yet."* He has no registered business address until
+   December. **Consequence, already handled:** Stripe Tax stays off, every
+   checkout runs with tax calculation disabled and SAYS so, and the fallback
+   cannot under-collect because a tax registration requires that address
+   anyway. **What is actually deferred is the NEXUS MONITOR** — the warning
+   before a state threshold is crossed — which is the real reason the research
+   wanted Stripe Tax on. **Do this in the same week as the EIN and the bank
+   account**, not before.
+2. ~~**Change what happens after the retries.**~~ **LEFT AS IT IS — his call:**
+   *"ima have that the same for now."* So the end of dunning CANCELS the
+   subscription rather than leaving it unpaid. **That is fine and it has one
+   sharp consequence the product now handles:** there is no invoice left to
+   settle, so "Update card" would be a dead end. The billing screen shows the
+   plans again with a line explaining why, `checkout` allows the restart, and
+   the suspended email stopped naming the card. **If he ever switches this to
+   "leave unpaid", none of that breaks** — the screen offers the card again on
+   its own, because the test is whether a chargeable subscription still exists.
+3. **DONE — he rolled the test secret key.** **Watch for this:** Stripe lets
+   the old key keep working for a while after a roll, and it still worked when
+   checked. **When it expires the checkout will start failing**, and the fix is
+   to put the new `sk_test_` on the Supabase project — Project Settings → Edge
+   Functions → Secrets → `STRIPE_SECRET_KEY`. **He should do that himself
+   rather than paste it into a chat**, which is what caused the roll.
 
 **In December, one line changes**: replace the two secrets with the live key and
 the live webhook's signing secret. Nothing else moves, because the prices, the

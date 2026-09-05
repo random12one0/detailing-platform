@@ -4336,6 +4336,39 @@ is kept; the entire visual design restarts from scratch.
       **`tests/platform-billing.test.mjs` § 16 pins all four**, and the suite is
       197 checks.
 
+      **HE ANSWERED THE THREE SETUP QUESTIONS THE LIVE RUN PRODUCED, AND ONE
+      OF HIS ANSWERS CREATED A DEAD END WORTH FIXING (2026-09-05).**
+
+      - **No business address until December** — *"I can do all of that unless
+        I want to officially set everything up which I can't do yet."* Correct,
+        and it costs nothing today: Stripe Tax stays off, the checkout says so,
+        and the fallback cannot under-collect. **What is deferred is the NEXUS
+        MONITOR**, which is the actual reason the research wanted Stripe Tax on.
+      - **The retry end-state stays as Stripe's default** — *"ima have that the
+        same for now"* — so a subscription is CANCELLED when the retries run
+        out rather than left unpaid. **THAT IS FINE AND IT BROKE SOMETHING:
+        there is then no invoice left to settle, so the suspended screen's
+        "Update card" fixed nothing and the suspended email's promise that the
+        page comes back *"the moment a payment goes through"* could not be
+        kept.** A detailer would have updated their card, waited, and phoned.
+        **Fixed as a WAY BACK rather than as a warning**: `summary` returns
+        `restartable`, the screen shows the plans again with a red line saying
+        the last subscription ended and that picking one turns the page back on
+        with nothing owed from before, `checkout` allows that restart (it
+        answered 409 before, which is a way back that does not work — worse
+        than none), and the email says *"Put your page back online"* instead of
+        naming a card. **A deliberate cancellation is told apart by columns that
+        already existed**: our own cancel button sets `cancel_at_period_end`
+        and dunning never does. **If he ever switches to "leave unpaid" none of
+        it breaks** — the test is whether a chargeable subscription still
+        exists, so the card comes back on its own.
+      - **He rolled the test key**, which is right because it had been pasted
+        into a chat. **Stripe lets the old one keep working for a while and it
+        still did when checked** — so the checkout will start failing whenever
+        it expires, and the new `sk_test_` needs to go on the Supabase project.
+        **He should set it himself** rather than paste it, which is the whole
+        point of having rolled it.
+
       **WHAT IS STILL NOT DONE, AND IT IS NOT CODE:**
       - ~~**THERE IS NO STRIPE ACCOUNT, SO NOTHING HAS EVER TALKED TO STRIPE.**~~
         **CLOSED THE SAME DAY — he opened a test account and handed over the
