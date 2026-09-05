@@ -111,6 +111,77 @@ charge.**
 
 ---
 
+## STEP 2b — SWITCH THE PAYMENTS ON (added 2026-09-05, and it is the shortest step here)
+
+**The code is finished and it is switched off.** Roadmap 2.20 stage 2 shipped
+the checkout, the billing screen, the cancel button and the failed-payment
+behaviour on 2026-09-05. Everything that can be checked without Stripe has
+been. **Nothing in this product has ever spoken to Stripe, because there is no
+account.**
+
+**This does NOT wait for December.** Stripe test mode needs no activated
+account, no identity check, no bank details and no guardian — you sign up, you
+get a key that starts `sk_test_`, and every card you type is fake. It is about
+ten minutes, and it turns "we believe this works" into "we watched it work".
+
+### What to do, in order
+
+1. **Sign up at https://dashboard.stripe.com/register.** Do NOT complete the
+   activation form (the one asking for identity and a bank account) — that is
+   the December job. Leave the dashboard in **Test mode** (the toggle is top
+   right).
+
+2. **Copy the test secret key.** Developers → API keys → *Secret key*. It
+   starts `sk_test_`. **This is a password: it can charge, refund and read every
+   customer. It never goes in a file in this repo, never in `.env`, and there
+   is no `VITE_` version of it** — a `VITE_` variable is compiled into the
+   public website.
+
+3. **Set it on the Supabase project**, at
+   https://supabase.com/dashboard/project/_/settings/functions → Edge Function
+   Secrets:
+   - `STRIPE_SECRET_KEY` = the `sk_test_…` value.
+
+4. **Add the webhook.** Developers → Webhooks → *Add endpoint*.
+   - **URL**: `https://<project-ref>.supabase.co/functions/v1/stripe-webhook`
+   - **Events**: `checkout.session.completed`,
+     `customer.subscription.updated`, `customer.subscription.deleted`,
+     `invoice.paid`, `invoice.payment_failed`.
+   - Stripe then shows a **signing secret** starting `whsec_`. Set that on
+     Supabase as `STRIPE_WEBHOOK_SECRET`.
+
+   **What the webhook is for, in one sentence:** it is how Stripe tells the
+   product that a payment went through or did not. Without it a card could be
+   charged and the dashboard would never know.
+
+5. **Two dashboard settings that are the retry behaviour** — Settings →
+   Billing → *Subscriptions and emails*:
+   - **Smart Retries / retry schedule**: leave it at the default, which is
+     roughly four attempts over two weeks. **The pricing page promises
+     customers exactly that in print**, so if you change it, the page has to
+     change too.
+   - **"Send emails when card payments fail"**: leave it ON. The product sends
+     its own as well; Stripe's is the backup.
+   - **What happens after the last retry**: set it to leave the subscription
+     **unpaid** rather than cancelling it. That is the signal the product
+     listens for to take the booking page offline, and cancelling instead means
+     nothing ever goes offline.
+
+6. **Test it.** Open the dashboard → the gear → **Your subscription**, pick a
+   plan, tick the box, and pay with Stripe's test card **4242 4242 4242 4242**,
+   any future expiry, any CVC. Then use **4000 0000 0000 0341** — a card that
+   attaches fine and then fails on the charge — to watch the past-due warning
+   appear on Today.
+
+### In December, one line changes
+
+When Stripe is activated (step 6 of the December list), replace
+`STRIPE_SECRET_KEY` with the LIVE key and add the LIVE webhook's signing
+secret. **Nothing else moves**, because the prices, the terms and the words on
+the agreement all live in this repo rather than in Stripe.
+
+---
+
 ## STEP 3 — One hour with a CPA (do this before taking money)
 
 **What it is:** a paid appointment with an accountant. **This is the highest-value
@@ -365,7 +436,11 @@ one week in December; everything before then is software.**
 
 1. **Build.** Nothing on the legal list blocks any of it.
 2. **Stripe in TEST MODE** for the payments work — no activation, no identity
-   check, no guardian.
+   check, no guardian. **THIS IS NOW THE ONE THING BLOCKING A FINISHED
+   FEATURE**, not a preparation for one: roadmap 2.20 stage 2 shipped the whole
+   checkout on 2026-09-05 and it is switched off waiting for a key. **STEP 2b
+   above is the ten minutes**, and doing it turns "we believe this works" into
+   "we watched it work".
 3. **One hour with a CPA — the one thing worth doing NOW, and it is about the
    OTHER business.** He is already earning ~$2,000 a month detailing, which is
    long past the $400 self-employment threshold. **That question does not

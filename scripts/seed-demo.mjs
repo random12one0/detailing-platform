@@ -43,6 +43,12 @@ const post = async (p, b) => {
   return d;
 };
 const del = (p) => fetch(URL_ + p, { method: "DELETE", headers: H });
+// Roadmap 2.20 stage 2 — the subscription seed sets two columns on a business
+// row that already exists (`plan_tier`, and `status` when it is suspended).
+const patch = async (p, b) => {
+  const r = await fetch(URL_ + p, { method: "PATCH", headers: H, body: JSON.stringify(b) });
+  if (r.status >= 300) throw new Error(`${p} -> ${r.status} ${(await r.text()).slice(0, 200)}`);
+};
 
 async function ensureUser({ email, password }) {
   await fetch(`${URL_}/auth/v1/admin/users`, {
@@ -691,6 +697,94 @@ const REVIEWS = [
 await post("/rest/v1/testimonials", REVIEWS.map(([author, rating, source, quote, is_active], i) => ({
   business_id: business.id, author, rating, source, quote, sort_order: i, is_active,
 })));
+
+// ---------------------------------------------------------------------------
+// WHAT THE DETAILER PAYS *US* — roadmap 2.20 stage 2. Off by default.
+//
+// THE DEFAULT IS NO SUBSCRIPTION, AND THAT IS TRUE RATHER THAN LAZY: the demo
+// business does not pay the platform, and every real account in the product
+// today is in exactly this state. It is also the state that renders the
+// screen's harder half — the three rungs, the price breakdown and the consent
+// tick, whose long generated sentence sitting beside a 22px checkbox is the
+// riskiest geometry this item added.
+//
+// `--subscription=past_due|active|suspended` seeds the OTHER half so it can be
+// swept too. `sweep-widths.mjs` measures whichever state it finds and PRINTS
+// `NOT MEASURED` for the one it does not, naming the flag — because a skipped
+// check reads exactly like a passing one, which is this repo's most repeated
+// finding.
+//
+// THE FIGURES ARE SNAPSHOTTED, exactly as a real checkout writes them: the
+// founding monthly ladder, twelve months, half the remainder. Nothing here
+// reads pricing.js, for the same reason the table does not.
+const subArg = (process.argv.find((a) => a.startsWith("--subscription=")) || "").split("=")[1] || "none";
+if (subArg !== "none") {
+  const now = new Date();
+  const iso = (d) => d.toISOString();
+  const plus = (days) => new Date(now.getTime() + days * 86400_000);
+  const suspended = subArg === "suspended";
+  const late = suspended || subArg === "past_due";
+
+  await patch("/rest/v1/businesses?id=eq." + business.id, { plan_tier: "founding" });
+  await post("/rest/v1/platform_subscriptions", [{
+    business_id: business.id,
+    plan: "website",
+    term: "annual-monthly",
+    founding: true,
+    setup_cents: 49900,
+    recurring_cents: 4000,
+    bill_interval: "month",
+    term_months: 12,
+    exit_fee_share: 0.5,
+    // Started five months ago, so the exit fee the cancel confirmation prints
+    // is a real seven-month figure rather than zero — the number is the whole
+    // reason that sentence exists and a demo that shows $0 tests nothing.
+    term_ends_on: iso(plus(213)).slice(0, 10),
+    consented_at: iso(plus(-152)),
+    consent_text:
+      "I understand I am paying $499 once for the build and $40 every month after that, starting today. "
+      + "It renews by itself until I cancel, and I can cancel any time from my own billing page. "
+      + "I am committing to 12 months. If I cancel before that, I pay 50% of the months still to run — "
+      + "for example $120.00 with 6 months left.",
+    stripe_customer_id: "cus_demo_seed",
+    stripe_subscription_id: "sub_demo_seed",
+    status: suspended ? "suspended" : late ? "past_due" : "active",
+    current_period_end: iso(plus(late ? -3 : 12)),
+    card_brand: "visa",
+    card_last4: "4242",
+    card_exp_month: 11,
+    card_exp_year: 2029,
+    dunning_attempts: suspended ? 4 : late ? 1 : 0,
+    last_failure_at: late ? iso(plus(-3)) : null,
+    last_failure_reason: late ? "Your card has insufficient funds." : null,
+    suspended_at: suspended ? iso(plus(-1)) : null,
+  }]);
+
+  // THE RECEIPTS. Mirrored from Stripe by the webhook in production; seeded
+  // here so the Payments list on the billing screen is not an empty block —
+  // a list with nothing in it is a measurement of nothing, which is what the
+  // lapsed-clients block was doing for a fortnight (roadmap 2.19).
+  await post("/rest/v1/platform_invoices", [0, 1, 2, 3, 4].map((i) => ({
+    id: `in_demo_seed_${i}`,
+    business_id: business.id,
+    number: `DP-000${i + 1}`,
+    // The first invoice carries the build fee; the rest are the monthly.
+    amount_cents: i === 4 ? 53900 : 4000,
+    status: i === 0 && late ? "open" : "paid",
+    hosted_url: "https://invoice.stripe.com/i/demo",
+    period_start: iso(plus(-30 * (i + 1))),
+    period_end: iso(plus(-30 * i)),
+    paid_at: i === 0 && late ? null : iso(plus(-30 * i)),
+  })));
+
+  // AND THE PUBLIC PAGE GOES DARK, which is not a second mechanism: suspension
+  // IS `businesses.status = 'paused'`, the column `businessBySlug` and
+  // `get_public_business_profile` already filter on.
+  if (suspended) {
+    await patch("/rest/v1/businesses?id=eq." + business.id, { status: "paused" });
+  }
+  console.log(`  subscription: ${subArg} (founding, annual-monthly, $40/mo)`);
+}
 
 // A blocked-out day so the calendar shows one.
 await post("/rest/v1/blockout_dates", [{

@@ -39,6 +39,12 @@ import { contrastRatio, emailBrandColors, emailDarkBrandColors } from "../supaba
 import { brandFrom, D, htmlToText, L } from "../supabase/functions/_shared/emailKit.ts";
 import * as T from "../supabase/functions/_shared/emailTemplates.ts";
 import { paymentHandles } from "../supabase/functions/_shared/payments.ts";
+// Roadmap 2.20 stage 2. The platform's own identity, which is a constant
+// rather than a database read — see the module's header for why it is still a
+// `TenantBrand`.
+import { platformBrand } from "../supabase/functions/_shared/platformBrand.ts";
+
+const PLATFORM = "https://detailingplatform.com";
 
 const arg = (n, d) => {
   const hit = process.argv.find((a) => a.startsWith(`--${n}=`));
@@ -225,6 +231,21 @@ const EMAILS = [
     unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002",
     mailingAddress: "PO Box 214, Lakewood CA 90713",
   })],
+  // ROADMAP 2.20 STAGE 2 — THE ONLY TWO EMAILS THE PLATFORM SENDS IN ITS OWN
+  // NAME. Every other row on this page is a detailer speaking to somebody;
+  // these two are us telling a detailer their card stopped working, so they
+  // are built on `platformBrand()` rather than on the tenant fixture and they
+  // are rendered here for exactly the reason the campaign is: the sentence
+  // that matters most — *nothing has been deleted* — is the kind of promise
+  // that reads as present in the code and turns out to be missing on the page.
+  ["platform-payment-failed", "Detailer · a payment did not go through", () => T.billingEmail(
+    platformBrand("Ridgeline Auto Detail", PLATFORM),
+    { kind: "failed", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: "Your card has insufficient funds." },
+  )],
+  ["platform-suspended", "Detailer · the booking page is offline", () => T.billingEmail(
+    platformBrand("Ridgeline Auto Detail", PLATFORM),
+    { kind: "suspended", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: null },
+  )],
 ];
 
 const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[object Object\]/], ['href=""', /href=""/]];

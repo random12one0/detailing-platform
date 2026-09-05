@@ -496,6 +496,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   escape order — escape first, THEN newlines to `<br>` — is what stops one
   typed message becoming markup in every copy. Baselined both ways: dropping
   the footer fails 4, dropping the escape fails 2),
+  **`platform-billing`** (**168 checks**, new 2026-09-05, roadmap 2.20 stage 2 —
+  what a DETAILER pays US, and the first suite in this repo where *a number
+  PRINTED is not a number CHARGED* is literally rather than metaphorically
+  true. It ties every rung on `/pricing`, founding and list, to the money
+  `lineItemsFor()` hands Stripe; it pins the SECOND copy of the price table
+  (`_shared/platformBilling.ts` against `app/src/landing/pricing.js`) value by
+  value; it pins the consent sentence's four statutory clauses AND that a plan
+  with no term never invents one; the exit-fee arithmetic including its cap and
+  its zero cases; the Stripe-status map, where an unknown status must produce
+  NULL rather than default either way; and **§ 8, the webhook signature — the
+  only authentication a public write endpoint has.** Seven checks were
+  baselined by breaking what they guard, and one of them was FOUND vacuous that
+  way: *"nothing has been deleted"* passed with the sentence removed from the
+  email, because the hidden preheader also says it),
   **`payments`** (45 checks, new 2026-09-04, roadmap 2.20 stage 1 — the
   detailer's own payment handles. It pins the two things no other check in this
   repo can see. **WHICH EMAILS CARRY THE LIST**: `invoiceEmail` branches on
@@ -580,9 +594,12 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  FOURTEEN settings screens through TWO DOORS — TEN on Business (Monthly plans
-  joined in roadmap 2.14, "How you get paid" in roadmap 2.20) and four behind
-  the header gear (it was eleven behind one until roadmap 2.11 step 6 stage 6,
+  FIFTEEN settings screens through TWO DOORS — TEN on Business (Monthly plans
+  joined in roadmap 2.14, "How you get paid" in roadmap 2.20) and FIVE behind
+  the header gear ("Your subscription" joined in roadmap 2.20 stage 2, and it
+  is walked as its own block rather than in `GEAR_ROWS`: it is owner-only and
+  its content comes from an edge function, so it waits for what the answer
+  draws rather than for a repaint) (it was eleven behind one until roadmap 2.11 step 6 stage 6,
   and a script that opens one door reports clean on screens it never visits) —
   **the booking link’s QR CODE, which is behind a button and so is a state the
   script has to enter (added 2026-09-02 with it — measuring the Business index
@@ -719,6 +736,18 @@ explaining it; if they still have to ask "so should I?", it failed.
   asks about the RIGHT-HAND edge, so it cannot see a bottom-edge failure at any
   size. `sweep-booking-steps.mjs` is the one that asks the bottom question, and
   only of the booking page.
+  **AND THE SUBSCRIPTION SCREEN IS TWO DIFFERENT SCREENS, ONLY ONE OF WHICH
+  EXISTS PER SEED — roadmap 2.20 stage 2.** With no subscription it is the
+  three rungs, the price breakdown and the consent tick (a four-clause
+  generated sentence beside a 22px checkbox — the riskiest geometry that item
+  added); with one it is the account, the invoice list, the cancel confirmation
+  and an error box carrying an action. **The DEFAULT seed has no subscription**,
+  which is both truthful and the harder half; `node scripts/seed-demo.mjs
+  --subscription=past_due|active|suspended` seeds the other. **The block PRINTS
+  `NOT MEASURED` for whichever state it did not find, naming that command** —
+  the rule stage 1 learned four days earlier. Both were measured on 2026-09-05
+  and both are clean; **`suspended` also sets `businesses.status = 'paused'`,
+  which darkens the booking page, so do not leave that seed behind.**
   **The script needs the dev server and the demo login**, like
   `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
   on Windows has it and headless does not, and that one difference is the
@@ -758,6 +787,24 @@ explaining it; if they still have to ask "so should I?", it failed.
   reputation, which they did until this item.
   `--slug=<one>` runs a single tenant, `--keep` leaves the booking behind,
   `--headed` shows the browser.
+  **AND IT REPORTS ONE FAILURE THAT IS NOT A REGRESSION, AS OF 2026-09-05 —
+  READ THE MESSAGE BEFORE BISECTING.** *"the booked day is offered to move
+  within"* fails on whichever tenant's run picks a day the seed has already
+  half filled: `available-slots` has NO exclusion parameter, so it counts the
+  booking BEING MOVED as occupied, and a day whose only free room is that
+  booking's own slot drops out of its own reschedule picker. **Real, in code
+  roadmap 2.20 did not touch, date- and occupancy-dependent, and written up as
+  item F under "Not on the roadmap yet"** — the fix is one optional
+  `exclude_booking_id`, and it is a change to the customer booking path, so it
+  gets its own item.
+  **The reason it used to print TWICE is the transferable part:** the
+  assertions after it asked about the ORIGINAL date whatever day the script had
+  actually clicked, so one root cause produced a second failure — *"16:30 is
+  taken"* against a date the booking had just left — pointing at the slot
+  engine rather than at the one thing that went wrong. It follows the day it
+  clicked now. **A leg that reports the wrong half costs more than one that
+  reports nothing.**
+
 - **The check for anything that changes the BOOKING WIDGET:
   `node scripts/sweep-booking-steps.mjs`.** Same dev server, no login (the page
   is public). It walks every step at all four verification sizes, fills the form
@@ -1017,6 +1064,137 @@ explaining it; if they still have to ask "so should I?", it failed.
   stored with the subscription at the moment of purchase, and consent gathered
   on a marketing page and carried through a signup flow is consent that can be
   lost.
+- **A DETAILER CAN NOW BUY, AND NOTHING HAS EVER TALKED TO STRIPE — roadmap
+  2.20 stage 2's second half, 2026-09-05.** `platform_subscriptions`,
+  `platform_invoices` and `stripe_events` exist and are applied;
+  `platform-billing` (owner-only) and `stripe-webhook` (public) are deployed;
+  `screens/more/Billing.jsx` is the FIFTEENTH settings screen, behind the gear.
+  **`stripeConfigured()` is FALSE on every deployment today** — there is no
+  Stripe account — so the checkout answers **503 "Payments are not switched on
+  yet"** and the screen prints that above the button. Everything else works and
+  is verified.
+  **THE ONE RULE THAT OUTRANKS EVERYTHING ELSE HERE: the page PRINTS and the
+  server CHARGES, and one pure module does both.**
+  `supabase/functions/_shared/platformBilling.ts` holds the price table,
+  `planFor`, `lineItemsFor`, `consentSentence`, `exitFeeCents`, the Stripe
+  status map and the dunning words. **It is the SECOND copy of
+  `app/src/landing/pricing.js`** — a Deno bundle will not follow an import out
+  of `supabase/`, the same wall that forced `_shared/brandColor.js` — and
+  `tests/platform-billing.test.mjs` (168 checks) pins the two tables value by
+  value AND ties every rung to the money on the wire. **This is the first place
+  in the product where "a number PRINTED is not a number CHARGED" is literally
+  true rather than a metaphor.**
+  **THE SCREEN DOES NO ARITHMETIC ABOUT MONEY.** Every figure, the consent
+  sentence and what cancelling costs today come from `platform-billing`'s
+  `summary` action, so the words a detailer reads and the words stored against
+  their subscription are produced by the same call to the same function. `summary`
+  needs no Stripe key, which is the whole reason the screen could be built and
+  looked at months before there is an account. **Do not "simplify" it into a
+  client-side calculation.**
+  **EVERY PRICE IS SNAPSHOTTED ON THE ROW AND NEVER RE-READ.** `pricing.js` is
+  what the page prints today and it will change; a subscriber's price is fixed
+  at the moment they agreed to it. The exit fee is the sharp case —
+  recomputing it from a later config turns a $240 fee into $360.
+  **`consent_text` STORES THE WORDS, NOT A BOOLEAN.** A `true` proves somebody
+  ticked something; the sentence they ticked is what answers a chargeback, and
+  a chargeback is the actual risk the whole AB 2863 / Adobe reading exists to
+  manage. The sentence is GENERATED from the snapshot, so a client cannot post
+  a friendlier one than it showed.
+  **SUSPENSION IS `businesses.status = 'paused'` AND NOTHING ELSE — it was
+  already built.** `businessBySlug` and `get_public_business_profile` filter on
+  `status = 'active'`, so one column darkens the PUBLIC booking page;
+  `businessById` does not, so a customer who already booked keeps the page they
+  cancel and reschedule from, and the dashboard is reached by membership so the
+  detailer keeps every row. **That is the pricing page's printed promise
+  exactly, and it is roadmap 4.4's suspend built once.** The webhook guards it
+  both ways — it only pauses an `active` business and only reactivates one it
+  paused.
+  **THE WEBHOOK IS DEPLOYED WITH `verify_jwt=false` AND THAT IS LOAD-BEARING.**
+  Stripe has no Supabase JWT; with verification on, the gateway rejects every
+  event before the function runs and **the whole dunning mechanism silently
+  does nothing** — unpaid for two weeks, no page ever offline, no error
+  anywhere. It is safe because **the signature IS the authentication**:
+  `verifyWebhook` runs first, over the RAW body (`req.text()`, never
+  `req.json()` — the MAC is over bytes), with a timestamp tolerance, and
+  `stripe_events` is an insert-first idempotency lock because Stripe
+  redelivers. Test § 8 and § 11 pin all of it. `stripe-webhook` is in
+  `deploy-functions.mjs`'s `PUBLIC_FUNCTIONS`; **`platform-billing` is not.**
+  **AN UNKNOWN STRIPE STATUS MAPS TO NULL AND THE CALLER KEEPS WHAT IT HAD.**
+  Defaulting to `active` gives the product away; defaulting to `suspended`
+  takes a paying detailer's site down because Stripe shipped a feature we do
+  not use.
+  **THE PORTAL IS PINNED TO THE CARD-UPDATE FLOW ON PURPOSE.** Stripe's own
+  portal would let somebody cancel from it, skipping the exit fee and our
+  `canceled_at`. **The cancel button stays ours and stays ONE PRESS behind ONE
+  confirm** — AB 2863 requires it and it is the fourth item on the FTC's Adobe
+  list — with the fee printed BEFORE the press. Never move it behind support,
+  a reason picker or a retention offer.
+  **INLINE `price_data`, NEVER STRIPE PRODUCT IDS.** An id puts the amount in
+  another company's admin panel where nothing in this repo can see it. It is
+  also zero Stripe dashboard setup for the owner to get wrong.
+  **AND `_shared/` MODULES A NODE SCRIPT IMPORTS MUST STAY NODE-LOADABLE.**
+  Two ways to break that were hit in one session: a TypeScript **parameter
+  property** (`constructor(msg, readonly status: number)`) cannot be
+  type-STRIPPED, only transformed, so `StripeError` made the signature check
+  unimportable; and importing `config.ts` reads `Deno.env` **at module scope**,
+  which made every email unrenderable from `render-emails.mjs` — hence
+  `platformBrand.ts` takes `siteUrl` as an argument.
+- **AN EXIT-FEE INVOICE IS NOT A RENEWAL, AND UNTIL THE SECURITY REVIEW IT DROVE
+  THE DUNNING STATE MACHINE — 2026-09-05, roadmap 2.20 stage 2, and it is the
+  one exploitable defect that item produced.** `platform-billing`'s `cancel`
+  raises a ONE-OFF Stripe invoice for the early exit and it carries
+  `metadata.business_id`, so the webhook resolved it to a business exactly as it
+  would a monthly renewal. **PAYING it cleared the whole dunning state and
+  brought a SUSPENDED booking page back online with the subscription still
+  unpaid**; and because **a manual invoice has no retry schedule,
+  `next_payment_attempt` is null on its FIRST failure** — the one signal that
+  means "the two weeks are up" — **a declined exit fee took a fully paid
+  detailer offline immediately** and emailed them that their site was down. The
+  second needs no attacker.
+  **`isSubscriptionInvoice()` is the guard and it tests the invoice's own
+  `subscription` field, never the metadata**, so it covers the next one-off
+  somebody adds. **A one-off is still MIRRORED onto the receipts list — it is a
+  real charge — it simply cannot move the account's state.** Test § 14 pins
+  both handlers applying it, and that the guard sits AFTER the mirror.
+  **THE OTHER FINDING IS THE TRANSFERABLE ONE: the portal's lock lived in
+  STRIPE'S DASHBOARD while the file's comment claimed it did not.** `flow_data`
+  decides where a customer LANDS; the portal CONFIGURATION decides what they can
+  reach around it, and that is admin-panel state nothing here can read — **the
+  exact failure this same item had rejected one screen earlier** when it refused
+  to let Stripe's own emails be the only ones sent. `cardOnlyConfiguration()`
+  creates it from code now, with cancel, plan-change and customer-edit off.
+  A portal that offers cancellation is a twelve-month term left without the exit
+  fee ever being charged.
+  **And four smaller ones, all pinned:** `?? "active"` on an unknown Stripe
+  status at checkout (it is `?? "incomplete"` — the safe direction costs a
+  refresh and cannot give the product away); a late `invoice.paid` reviving a
+  CANCELLED subscription, because Stripe promises no event ordering;
+  re-subscribing leaving the previous cycle's `stripe_subscription_id` on the
+  row, which `cancel` and `resume` address Stripe by; and the exit fee recorded
+  AFTER the call that could throw.
+- **THE PLATFORM SENDS TWO EMAILS IN ITS OWN NAME NOW, AND THEY ARE THE ONLY
+  ONES — roadmap 2.20 stage 2.** Thirteen templates are a detailer speaking to
+  somebody; `billingEmail` (`failed` / `suspended`) is us telling a detailer
+  their card stopped working. `_shared/platformBrand.ts` builds a `TenantBrand`
+  for the platform so every block in `emailKit.ts` works unchanged, and
+  **`send-email` takes an optional `sender_name`** — an email from *"Ridgeline
+  Auto Detail"* telling Ridgeline their own card failed reads as phishing. That
+  same flag stops the send being recorded against a CUSTOMER and drops the
+  tenant Reply-To.
+  **WE SEND THEM EVEN THOUGH STRIPE CAN.** `/pricing` prints *"we email you
+  each time"* as a term of the contract, and Stripe's failed-payment emails are
+  a checkbox in another company's dashboard — a printed promise resting on a
+  setting nobody in this repo can read is resting on nothing. **The suspension
+  half Stripe cannot send at all.**
+  **THEY GO TO `businesses.contact_email`, NEVER `notification_emails`** —
+  that list is where BOOKING alerts go and may be a shared inbox or a staff
+  member; a declined card is not their team's business.
+  **AND THE SENTENCE THAT MATTERS MOST IS *"nothing has been deleted"*.** A
+  detailer whose page goes dark assumes their customer list went with it. The
+  check asserting it originally tested the HTML and **passed with the sentence
+  deleted from the body**, because the hidden preheader says it too; it is
+  pointed at the plain-text half now, which `htmlToText` strips the preheader
+  from. Baselining found that, not reading.
 - **A `data-rv` ON A CONDITIONALLY-RENDERED NODE CAN NEVER REVEAL, AND NO
   CHECK IN THIS REPO CAN SEE IT — 2026-09-05.** `landing/thread.js` collects
   its revealables with ONE `querySelectorAll` at mount and that returns a
@@ -1058,10 +1236,12 @@ explaining it; if they still have to ask "so should I?", it failed.
   Get started button too**; what he is right about is the wording.
 - **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
   (new 2026-09-03, roadmap 2.18). Credential-free, no browser, no dev server. It
-  writes all TWENTY-ONE emails — fifteen kinds plus the branches somebody
+  writes all TWENTY-THREE emails — sixteen kinds plus the branches somebody
   actually receives; it was seventeen until roadmap 2.14 step 3 added the plan
-  link, the plan-ended notice and a booking WITH A PLAN ON IT, and twenty until
-  roadmap 2.19 added the re-book email, and the script prints its
+  link, the plan-ended notice and a booking WITH A PLAN ON IT, twenty until
+  roadmap 2.19 added the re-book email, and twenty-one until roadmap 2.20 stage
+  2 added the two the PLATFORM sends in its own name — **the only two on that
+  page not built on a tenant's brand** — and the script prints its
   own count — to
   `email-preview/index.html`, **HTML and .txt side by side**, so a
   human can look at them. **The first thing in this repo that ever has**, which
@@ -1103,9 +1283,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
   stage 6 (2026-09-02).** `screens/More.jsx` is deleted. NINE rows on
   Business (what changes what a CUSTOMER meets — Monthly plans joined them in
-  roadmap 2.14, because a plan is an offer with a price), four behind the gear (what
-  changes how the app behaves for the detailer), and the test that decides
-  which is written into `screens/Business.jsx`’s own header. **Staff get
+  roadmap 2.14, because a plan is an offer with a price), FIVE behind the gear
+  (what changes how the app behaves for the detailer — *Your subscription*
+  joined them in roadmap 2.20 stage 2, and it passes the gear's half of the
+  admission test outright: a card on file changes nothing a customer ever
+  meets), and the test that decides
+  which is written into `screens/Business.jsx`’s own header.
+  **THE SUBSCRIPTION ROW IS THE ONE THAT IS `owner`-ONLY RATHER THAN
+  PERMISSION-GATED**, for the reason roadmap 2.13 refused a `team` tick:
+  whoever can change what the business PAYS can change everything, and there is
+  no tick that means "may cancel our subscription and nothing else". The server
+  enforces it; hiding the row is courtesy. **Staff get
   THREE rail buttons** — Today, Calendar, Clients — plus the gear.
   `components/SettingsHost.jsx` is the container: a PAGE with a back control
   below `--wrap`, the second column at or above it. Anything that walks the

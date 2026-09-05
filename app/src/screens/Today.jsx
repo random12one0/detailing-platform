@@ -37,7 +37,7 @@
 // thing lit" a matter of FORM rather than colour.
 
 import { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, TriangleAlert } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 // ROADMAP 2.19. The nudge counts with the SAME arithmetic the Clients screen
@@ -60,7 +60,7 @@ import RecordHost from "../components/RecordHost.jsx";
 import RequestCard from "../components/RequestCard.jsx";
 
 export default function Today({ refreshKey = 0, onGo }) {
-  const { business, firstName, can } = useBusiness();
+  const { business, firstName, can, subscription } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
   const { bookings, loading, refreshing, error, reload } = useBookings(today, tomorrow);
@@ -275,6 +275,36 @@ export default function Today({ refreshKey = 0, onGo }) {
           requests would get twelve cards, and the answer then is a ruled list
           with the first one open — not a smaller card.
           ponytail: N cards, list-with-one-open if a real queue ever gets long. */}
+      {/* THE CARD STOPPED WORKING — roadmap 2.20 stage 2, and it is FIRST on
+          the screen rather than last for the reason the re-book prompt is last:
+          that one is marketing and this one is the business being switched off.
+          It is the one thing on Today that is not about today.
+
+          IT IS DRAWN HERE AND NOT ONLY BEHIND THE GEAR because a suspended
+          booking page is invisible from every screen a detailer uses — the
+          dashboard keeps working perfectly while nobody can book. The research
+          asked for "visible and annoying but not destructive"; a box at the top
+          of the first screen they open is exactly that, and it costs the screen
+          nothing on the days it says nothing.
+
+          NULL FOR STAFF AND FOR EVERY BUSINESS WITHOUT A SUBSCRIPTION, which is
+          all of them today, so this renders nothing at all until there is
+          something to say. */}
+      {(subscription?.status === "past_due" || subscription?.status === "suspended") && (
+        <div className={subscription.status === "suspended" ? "error-box" : "warn-box"}
+          data-billing-alert={subscription.status}>
+          <TriangleAlert strokeWidth={2} />
+          <span>
+            {subscription.status === "suspended"
+              ? "Your booking page is offline because a payment did not go through. Nothing has been deleted."
+              : "Your last payment did not go through. We will keep trying for two weeks."}
+          </span>
+          <span className="actions">
+            <button onClick={() => onGo?.("billing")}>Fix this</button>
+          </span>
+        </div>
+      )}
+
       {reqError && <div className="error-box">{reqError}</div>}
       {!wide && requests.length > 0 && (
         <div className="tight">

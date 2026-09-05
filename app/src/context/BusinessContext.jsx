@@ -23,6 +23,7 @@ export function BusinessProvider({ children }) {
   const [business, setBusiness] = useState(null);
   const [settings, setSettings] = useState(null);
   const [branding, setBranding] = useState(null);
+  const [subscription, setSubscription] = useState(null);
   const [role, setRole] = useState(null);
   // ROLE IS STILL THE GATE; THESE TWO ARE ITS SHAPE (roadmap 2.13). `owner`
   // means everything and carries neither. Anyone else has the name their
@@ -57,6 +58,7 @@ export function BusinessProvider({ children }) {
     setMemberships([]);
     setSettings(null);
     setBranding(null);
+    setSubscription(null);
     setRole(null);
     setLabel(null);
     setPermissions([]);
@@ -106,14 +108,31 @@ export function BusinessProvider({ children }) {
     setLabel(membership.label || null);
     setPermissions(membership.permissions ?? []);
     setFirstName(membership.first_name || null);
-    const [bizRes, setRes, brandRes] = await Promise.all([
+    // ROADMAP 2.20 STAGE 2 — the subscription joins the three reads that were
+    // already happening rather than becoming a fourth query on the busiest
+    // screen. TWO places need it and neither of them is the billing screen:
+    // the gear row's own summary, and the warning Today draws when a card has
+    // stopped working. A screen that had to fetch it itself would be a screen
+    // that fetches it on every tab press.
+    //
+    // ONLY AN OWNER CAN SEE THE ROW — the policy is `is_business_owner` — so
+    // for anybody else this is `null` and every reader treats that as "nothing
+    // to say", which is exactly right: a staff member is not the person whose
+    // card it is.
+    const [bizRes, setRes, brandRes, subRes] = await Promise.all([
       supabase.from("businesses").select("*").eq("id", membership.business_id).single(),
       supabase.from("business_settings").select("*").eq("business_id", membership.business_id).maybeSingle(),
       supabase.from("business_branding").select("*").eq("business_id", membership.business_id).maybeSingle(),
+      membership.role === "owner"
+        ? supabase.from("platform_subscriptions")
+          .select("status, recurring_cents, bill_interval, current_period_end, cancel_at_period_end")
+          .eq("business_id", membership.business_id).maybeSingle()
+        : Promise.resolve({ data: null }),
     ]);
     setBusiness(bizRes.data ?? null);
     setSettings(setRes.data ?? null);
     setBranding(brandRes.data ?? null);
+    setSubscription(subRes.data ?? null);
     loadedFor.current = session.user.id;
     setLoading(false);
   }, [session]);
@@ -142,6 +161,9 @@ export function BusinessProvider({ children }) {
     business,
     settings,
     branding,
+    // Null for a staff member and for an owner who has never subscribed. Both
+    // mean "draw nothing", which is why no reader has to tell them apart.
+    subscription,
     role,
     label,
     permissions,

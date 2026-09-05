@@ -885,3 +885,79 @@ export function campaignEmail(brand: TenantBrand, c: CampaignEmailData): Mail {
     ),
   );
 }
+
+// ---------------------------------------------------------------------------
+// 14 · DETAILER — THE PLATFORM'S OWN BILLING (roadmap 2.20 stage 2)
+//
+// THE ONLY TEMPLATE IN THIS FILE THAT IS NOT FROM A DETAILER TO SOMEBODY ELSE.
+// The other thirteen carry a tenant's brand because a tenant is speaking. This
+// one is US speaking to the tenant, so `_shared/platformBrand.ts` builds a
+// `TenantBrand` for the platform itself and `send-email` is told the sender
+// name explicitly.
+//
+// IT EXISTS BECAUSE `/pricing` PRINTS A PROMISE AND SOMETHING HAS TO KEEP IT:
+//
+//   "we try the card again over the following two weeks and email you each
+//    time. If it still has not gone through after that, the site goes offline
+//    until it is paid. Nothing is deleted."
+//
+// Stripe can send its own failed-payment emails, and should — but that is a
+// checkbox in another company's dashboard, and a legally load-bearing promise
+// resting on a setting nobody in this repo can read is a promise resting on
+// nothing. Stripe's copy is the belt; this is the braces. **The suspension
+// half it cannot send at all**: Stripe knows a subscription went unpaid and
+// knows nothing about a booking page going dark.
+//
+// ONE TEMPLATE, TWO KINDS, because they are the same email at two moments and
+// splitting them would be two files that have to keep agreeing about what
+// happens next. The difference is one headline and one sentence.
+//
+// **NOTHING IS DELETED — say it in both.** It is the sentence that stops a
+// detailer whose site just went offline from assuming their customer list went
+// with it, and it is the difference between a support email and a panic.
+// ---------------------------------------------------------------------------
+
+export interface BillingEmailData {
+  kind: "failed" | "suspended";
+  /** Where the billing screen is. The one link in the email. */
+  billingUrl: string;
+  /** What the card was declined for, in dollars — printed, never guessed. */
+  amount: number;
+  /** The provider's own reason, when Stripe gave one. */
+  reason?: string | null;
+}
+
+export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
+  const down = b.kind === "suspended";
+  const blocks = [
+    labBlock(down ? "Your site is offline" : "Payment problem", "bad"),
+    headlineBlock(down
+      ? "Your booking page is offline until this is paid"
+      : "We couldn't take this month's payment"),
+    proseBlock(down
+      ? `We tried your card several times over the last two weeks and it did not go through, so ${esc(brand.brandName)}'s booking page is no longer accepting new bookings.`
+      : `The ${money(b.amount)} payment for ${esc(brand.brandName)} was declined. We will try the same card again over the next two weeks and email you each time.`),
+    // NOTHING IS DELETED — the sentence both kinds need most.
+    proseBlock(down
+      ? "Nothing has been deleted. Your jobs, your customers, your settings and your photos are all exactly where you left them, and the page comes back the moment a payment goes through."
+      : "Nothing is at risk yet, and nothing gets deleted at any point. If it still has not gone through after two weeks, your booking page goes offline until it is paid.",
+      16),
+    b.reason ? fineBlock(`Your bank said: ${esc(b.reason)}`, 14) : "",
+    buttonBlock(brand, down ? "Update your card and come back" : "Update your card", b.billingUrl),
+    // The one fact the button cannot carry: their own customers are not
+    // stranded. A detailer's first question when their page goes dark is what
+    // happens to the people already booked in.
+    down
+      ? fineBlock("Customers who have already booked can still see, change and cancel their appointments — only new bookings have stopped.")
+      : "",
+  ].filter(Boolean);
+
+  return mail(
+    down
+      ? `${brand.brandName}'s booking page is offline`
+      : `We couldn't take payment for ${brand.brandName}`,
+    shell(brand, blocks, down
+      ? "Nothing has been deleted — update your card to bring the page back."
+      : "We'll try again over the next two weeks."),
+  );
+}

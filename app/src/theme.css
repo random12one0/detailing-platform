@@ -1142,6 +1142,17 @@ a { color: var(--accent-text); text-decoration: none; }
   overflow: hidden; white-space: normal; text-overflow: clip;
 }
 
+/* A RULED ROW THAT HOLDS A CHOICE — roadmap 2.20 stage 2, and the three ways
+   to pay are the only `.row-item`s in this product that do. Until this rule a
+   rung arrived from /pricing ALREADY CHOSEN and looked identical to the two
+   nobody had picked: the price breakdown below it was the only sign, which is
+   the answer being the only evidence of the question. Same treatment and the
+   same two tokens as `.nav-row[aria-current]`, because it is the same fact —
+   this is the row you are on — and a second visual language for "selected"
+   is how a design system stops being one. */
+.row-item[aria-pressed="true"] { background: var(--surface-lit); }
+.row-item[aria-pressed="true"] .nm { color: var(--accent-text); }
+
 /* A CATEGORY IS A HEADING YOU CAN OPEN, on the one screen that is a menu.
    It takes the .label voice every other group heading on the product uses —
    it IS one — and the rule underneath it is what the customer will be held
@@ -1377,11 +1388,19 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
   border: 1px solid var(--line-2); background: var(--surface); color: var(--text);
 }
 .warn-box svg { color: var(--accent-text); }
-.warn-box .actions { margin-left: auto; display: flex; gap: var(--sp-1); }
-.warn-box .actions button {
+/* ROADMAP 2.20 STAGE 2 — .error-box takes the same actions slot. Until then an
+   error box was always a dead end, which is right for "that save failed" and
+   wrong for "your booking page is offline": the second one has exactly one
+   thing to do about it and burying that behind a gear, a row and a scroll is
+   how a detailer stays offline for a week. The button inherits the box's own
+   colour (--bad on .error-box, the accent on .warn-box) rather than getting a
+   third meaning of its own — law 11b. */
+.warn-box .actions, .error-box .actions { margin-left: auto; display: flex; gap: var(--sp-1); }
+.warn-box .actions button, .error-box .actions button {
   background: none; border: none; color: var(--accent-text); font-weight: 600;
   cursor: pointer; white-space: nowrap; font-size: var(--t-meta); font-family: var(--f-body);
 }
+.error-box .actions button { color: inherit; text-decoration: underline; }
 .error-box { border: 1px solid color-mix(in srgb, var(--bad) 55%, transparent); background: color-mix(in srgb, var(--bad) 9%, transparent); color: var(--bad); }
 /* "It worked" is green and "it failed" is red, for every tenant. On the
    accent this box was the same colour as .error-box above it whenever the

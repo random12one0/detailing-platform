@@ -190,6 +190,17 @@ const settle = (page, cap = 1500) => page.evaluate(async (cap) => {
 // The chips print 12-hour times (`lib/format.js` time12); the engine and the
 // row speak 24-hour. Read the screen and convert, rather than deciding a time
 // up front and hunting for its label — "1:00 PM" is a substring of "11:00 PM".
+// "Sep 8" back into "2026-09-08". The day chips print a short label and carry
+// no date attribute, and adding one to a customer's page for a script's benefit
+// is the wrong trade — the year comes from the date the run already knows, and
+// a December-to-January run would be the only case that needs more than this.
+function dateFromChipLabel(label, near) {
+  const year = Number(near.slice(0, 4));
+  const d = new Date(`${String(label).trim()} ${year} 12:00:00`);
+  if (Number.isNaN(d.getTime())) return near;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 const time24 = (label) => {
   const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(String(label).trim());
   if (!m) return null;
@@ -276,7 +287,10 @@ async function loop({ slug, dashboard }) {
     );
     return;
   }
-  const [DATE] = openDay;
+  // `let`, not `const`: the reschedule leg can legitimately move the booking to
+  // ANOTHER day (see its own comment), and every check after it — the cancel,
+  // and the slot coming back — is about wherever the booking actually is.
+  let [DATE] = openDay;
   // The TIME is not decided here. `available-slots` answers with three lists —
   // all slots, drop-off slots and mobile slots — and the step shows whichever
   // matches the service type the customer ended up with, so a time chosen from
@@ -561,9 +575,32 @@ async function loop({ slug, dashboard }) {
       const wantDay = new Date(`${DATE}T12:00:00`)
         .toLocaleDateString("en-US", { month: "short", day: "numeric" });
       const dayChip = page.locator(".bk-slots").first().locator(".bk-chip", { hasText: wantDay }).first();
-      ok(`the booked day (${wantDay}) is offered to move within`, await dayChip.count() > 0);
-      await (await dayChip.count() ? dayChip : page.locator(".bk-slots").first().locator(".bk-chip").first()).click();
+      // WHY THIS ONE CAN LEGITIMATELY BE ABSENT, and it cost a diagnosis on
+      // 2026-09-05 before it was written down. `available-slots` has NO
+      // exclusion parameter, so it cannot know about the booking being MOVED —
+      // it counts that booking as occupied like any other. If the day's only
+      // remaining room is the slot this booking is already in, the day has
+      // zero free slots FOR ITS OWN OCCUPANT and drops out of its own
+      // reschedule picker. That is real (a customer cannot move within their
+      // own day when they are what fills it) and it is not this leg's subject;
+      // it depends on the date the run happens to pick and on how full the
+      // seed left that day, so it passes most days and fails on the ones where
+      // the booked service is long enough to swallow the rest of the afternoon.
+      // Recorded in docs/roadmap.md under "Not on the roadmap yet".
+      const dayOffered = await dayChip.count() > 0;
+      ok(`the booked day (${wantDay}) is offered to move within`, dayOffered,
+        "available-slots counts this booking as occupied, so a day whose only "
+        + "free room IS this booking's slot drops out of its own picker");
+      await (dayOffered ? dayChip : page.locator(".bk-slots").first().locator(".bk-chip").first()).click();
       await settle(page, 1800);
+      // AND THE ASSERTIONS BELOW FOLLOW THE DAY THAT WAS ACTUALLY CLICKED.
+      // They used to ask about `DATE` whatever happened, so a missing day chip
+      // produced a SECOND failure — "16:30 is taken" against a date the
+      // booking had just left — which points at the slot engine instead of at
+      // the one thing that went wrong. One root cause must print as one
+      // failure, or the next session debugs the wrong half.
+      const movedDate = dayOffered ? DATE : dateFromChipLabel(
+        await page.locator(".bk-slots").first().locator(".bk-chip").first().innerText(), DATE);
       // Whatever it offers, minus the time it is already on — the buffer takes
       // the slots either side of a live booking, so the free time on this day
       // is not the one next to it and picking a number in advance is guesswork.
@@ -595,8 +632,11 @@ async function loop({ slug, dashboard }) {
         ok("it is still a live booking", row?.status === (isRequest && !dashboard ? "pending" : "confirmed"), row?.status);
         free = await slotsOn(DATE);
         ok(`the old time ${TIME} is free again`, free.includes(TIME), free.join(" "));
-        ok(`and ${MOVED} is taken`, !free.includes(MOVED), free.join(" "));
+        const after = movedDate === DATE ? free : await slotsOn(movedDate);
+        ok(`and ${MOVED} is taken${movedDate === DATE ? "" : ` on ${movedDate}`}`,
+          !after.includes(MOVED), after.join(" "));
         TIME = MOVED;
+        DATE = movedDate;
       }
     }
 

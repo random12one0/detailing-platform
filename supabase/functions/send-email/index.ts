@@ -76,7 +76,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { business_id, to, subject, body, text, attachments } = await req.json();
+    const { business_id, to, subject, body, text, attachments, sender_name } = await req.json();
+    // ROADMAP 2.20 STAGE 2. Set only by platform billing mail, and it changes
+    // two things: who the email says it is from, and whether the send result
+    // is recorded against a CUSTOMER. A billing email goes to the detailer, so
+    // there is no customer row it is a fact about — and stamping one because
+    // the detailer's contact address happens to match a customer of their own
+    // would put "this address bounced" on somebody it says nothing about.
+    const fromPlatform = typeof sender_name === "string" && sender_name.trim() !== "";
     if (!business_id || !to || !subject || !body) {
       return json({ error: "business_id, to, subject and body are required" }, 400);
     }
@@ -99,7 +106,7 @@ Deno.serve(async (req) => {
     if (!business) return json({ error: "unknown_business" }, 404);
 
     const payload: Record<string, unknown> = {
-      from: `${String(business.name).replace(/[<>]/g, "")} <${PLATFORM_FROM_ADDRESS}>`,
+      from: `${String(fromPlatform ? sender_name : business.name).replace(/[<>]/g, "")} <${PLATFORM_FROM_ADDRESS}>`,
       to: [to],
       subject,
       html: body,
@@ -113,7 +120,10 @@ Deno.serve(async (req) => {
     // where it actually lived. Every template derives its own text half from
     // its own markup (`emailKit.ts` → `htmlToText`), so the two cannot drift.
     if (text) payload.text = text;
-    if (business.contact_email) payload.reply_to = business.contact_email;
+    // Reply-To is the TENANT's address so a customer's reply reaches the right
+    // detailer — which is exactly wrong for a billing email, where a reply
+    // would go from us to the detailer and straight back to themselves.
+    if (!fromPlatform && business.contact_email) payload.reply_to = business.contact_email;
     if (Array.isArray(attachments) && attachments.length > 0) payload.attachments = attachments;
 
     if (!RESEND_API_KEY) {
@@ -144,13 +154,13 @@ Deno.serve(async (req) => {
       // Resend outage, which is both false and the fastest way to teach a
       // detailer to ignore the flag. The send still failed and is still
       // logged; it is simply not the customer's fault.
-      if (res.status < 500) await markAddress(business_id, to, data);
+      if (res.status < 500 && !fromPlatform) await markAddress(business_id, to, data);
       return json({ error: "Failed to send email", details: data }, res.status);
     }
     // A BOUNCE MUST CLEAR ITSELF, unlike `unsubscribed_at`. Otherwise a
     // detailer who corrects a typo is told forever that the address they just
     // fixed is broken, and the flag becomes something to ignore.
-    await markAddress(business_id, to, null);
+    if (!fromPlatform) await markAddress(business_id, to, null);
     return json({ success: true, id: data.id });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);

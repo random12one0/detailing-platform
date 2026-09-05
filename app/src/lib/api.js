@@ -113,6 +113,22 @@ export const api = {
   // button that writes.
   unsubscribeLookup: (customerId) => callFn("unsubscribe", { action: "get", customer_id: customerId }),
   unsubscribeConfirm: (customerId) => callFn("unsubscribe", { action: "set", customer_id: customerId }),
+
+  // ROADMAP 2.20 STAGE 2 — what the DETAILER pays US. Every other call in this
+  // file is about a detailer's own customers; these five are the other
+  // direction, and they are owner-only on the server rather than in the UI.
+  //
+  // `billingSummary` returns everything the screen prints — the prices, the
+  // exact consent sentence, what cancelling costs today — because the words a
+  // detailer reads and the words stored against their subscription have to be
+  // produced by the same function. There is no arithmetic about money on the
+  // client side of this feature at all.
+  billingSummary: (businessId) => callFn("platform-billing", { business_id: businessId, action: "summary" }),
+  billingCheckout: (businessId, plan, term) =>
+    callFn("platform-billing", { business_id: businessId, action: "checkout", plan, term, consented: true }),
+  billingPortal: (businessId) => callFn("platform-billing", { business_id: businessId, action: "portal" }),
+  billingCancel: (businessId) => callFn("platform-billing", { business_id: businessId, action: "cancel" }),
+  billingResume: (businessId) => callFn("platform-billing", { business_id: businessId, action: "resume" }),
 };
 
 // The times on a day that THIS service type can actually have.

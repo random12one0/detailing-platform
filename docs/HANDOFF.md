@@ -164,6 +164,20 @@ your shell profile, a `.env` you source, or a direnv file. Never commit it.
 That is the complete set — five names, verified against the source. Get the
 values from the dashboard, not from any old chat transcript.
 
+**AND TWO THAT ARE NOT IN ANY FILE AND MUST NOT BE — roadmap 2.20 stage 2.**
+`STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are **Supabase Edge Function
+secrets**, set on the project rather than on a machine: Dashboard → Project
+Settings → Edge Functions → Secrets. Nothing on the list above reaches the
+browser, but a Stripe secret key can charge, refund and read every customer, so
+it does not go in a shell profile, in `.env`, or anywhere a `git add -f` could
+find it — **and there is deliberately no `VITE_STRIPE_*` anything**, because a
+`VITE_` variable is compiled into the public site.
+`tests/platform-billing.test.mjs` § 11 asserts that mechanically.
+**Neither is set today**, so `stripeConfigured()` is false, the checkout answers
+503 and the billing screen prints *"Card payments are not switched on yet"*
+above its button. `docs/setup-steps-2026-09-04.md` step 2b is the ten minutes
+that changes it, and **Stripe test mode needs no activated account.**
+
 ## 4. Run it
 
 ```sh

@@ -30,7 +30,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  Bell, Building2, ChevronRight, Compass, LogOut, MessageSquare, Smartphone, Users, X,
+  Bell, Building2, ChevronRight, Compass, CreditCard, LogOut, MessageSquare, Smartphone, Users, X,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -48,10 +48,33 @@ function describeDevice() {
   return `${where} · ${MAPS_NAME[p.maps] ?? "Maps"} · ${CAL_NAME[p.calendar] ?? "Calendar"}`;
 }
 
-export default function GearMenu({ onClose, onTour }) {
-  const { business, settings, label, role, can, memberships, signOut } = useBusiness();
+// THE SUBSCRIPTION ROW ANSWERS ITSELF LIKE EVERY OTHER ROW: what it is set to,
+// never what it is for. "Manage your billing" would be the label saying itself
+// twice, which is the owner's own copy rule (2026-09-01) — the test is whether
+// the sentence adds a fact the control does not already carry.
+const money0 = (c) => `$${Math.round(c / 100)}`;
+function billingNow(sub) {
+  // Null for a staff member (who never sees this row) and for an owner with no
+  // subscription (who is the whole product today).
+  if (!sub) return "Not set up yet";
+  if (sub.status === "suspended") return "Unpaid — your page is offline";
+  if (sub.status === "past_due") return "A payment did not go through";
+  if (sub.cancel_at_period_end) return "Ending — no further charges";
+  if (sub.status !== "active") return "Not set up yet";
+  const per = sub.bill_interval === "year" ? "a year" : "a month";
+  const next = sub.current_period_end
+    ? new Date(sub.current_period_end).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    : null;
+  return `${money0(sub.recurring_cents)} ${per}${next ? ` · next ${next}` : ""}`;
+}
+
+export default function GearMenu({ onClose, onTour, initial = null }) {
+  const { business, settings, subscription, label, role, can, memberships, signOut } = useBusiness();
   const owner = role === "owner";
-  const [open, setOpen] = useState(null);
+  // `initial` is how /pricing's choice survives the two screens between it and
+  // a card — signup lands on /app?settings=billing&term=..., App.jsx opens the
+  // gear, and this opens the row. Roadmap 2.20 stage 2.
+  const [open, setOpen] = useState(initial);
   const [team, setTeam] = useState(null);
 
   const load = useCallback(async () => {
@@ -80,6 +103,20 @@ export default function GearMenu({ onClose, onTour }) {
       emailsOn === null ? "…" : `${emailsOn} of 5 emails on`, "settings"],
     ["templates", "Message templates", MessageSquare, "Texts you send from a job", null],
     ["team", "Team", Users, team === null ? "—" : `${team} ${team === 1 ? "person" : "people"}`, "owner"],
+    // ROADMAP 2.20 STAGE 2. The row's summary is deliberately the one fact a
+    // detailer opens this screen to check — what is going out and when — and
+    // never "Manage your billing", which is the label saying itself twice
+    // (the owner's copy rule, 2026-09-01). The row comes from
+    // `BusinessContext`'s own load rather than a query of this menu's, because
+    // Today needs the same fact and a gear index that fetched every row's
+    // answer would be a settings menu with five network calls in it.
+    ["billing", "Your subscription", CreditCard, billingNow(subscription), "owner",
+      // BLOCKING, THE SAME CLASS BUSINESS USES FOR AN UNFINISHED SETUP STEP —
+      // `--bad` on the summary and the icon. A card that stopped working is
+      // the one thing in this menu that gets worse while nobody looks at it,
+      // and the gear index is the screen a detailer passes through on the way
+      // to everything else behind it.
+      subscription?.status === "past_due" || subscription?.status === "suspended"],
     ["preferences", "This device", Smartphone, describeDevice(), null],
     // A PICKER WITH ONE CHOICE ON IT IS A CONTROL THAT CANNOT CHANGE
     // ANYTHING. It is absent at one membership, which is every account in the
@@ -128,8 +165,8 @@ export default function GearMenu({ onClose, onTour }) {
       </div>
 
       <div className="card setting-card">
-        {ROWS.map(([key, name, Icon, now]) => (
-          <button className="nav-row" key={key} data-settings-key={key}
+        {ROWS.map(([key, name, Icon, now, , blocking]) => (
+          <button className={`nav-row${blocking ? " blocking" : ""}`} key={key} data-settings-key={key}
             aria-current={open === key ? "true" : undefined}
             onClick={() => (key === "tour" ? onTour?.() : setOpen(key))}>
             <span className="ico"><Icon size={19} strokeWidth={2} /></span>

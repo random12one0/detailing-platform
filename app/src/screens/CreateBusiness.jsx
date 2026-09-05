@@ -35,6 +35,13 @@ const ZONES = [
 export default function CreateBusiness({ onDone }) {
   const params = new URLSearchParams(window.location.search);
   const wantsFounding = params.get("offer") === "founding";
+  // ROADMAP 2.20 STAGE 2. /pricing sends the chosen way to pay through here as
+  // `?term=`, and until this line it died at the signup form — the detailer
+  // chose on the pricing page and then met a dashboard that had never heard of
+  // it. Carrying it means the next screen they see is the one with their own
+  // choice already on it, which is their decision surviving rather than a
+  // default being applied.
+  const term = params.get("term");
 
   const detected = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return "America/Los_Angeles"; }
@@ -78,7 +85,7 @@ export default function CreateBusiness({ onDone }) {
       // Reload rather than patch state: the whole app hangs off the
       // business context, and a fresh load is the honest way to enter it.
       if (onDone) onDone();
-      else window.location.assign("/app");
+      else window.location.assign(term ? `/app?settings=billing&term=${encodeURIComponent(term)}` : "/app");
     } catch (err) {
       const msg = String(err?.message || err);
       setError(

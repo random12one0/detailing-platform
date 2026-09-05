@@ -179,6 +179,10 @@ const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews
   // plan form's segmented-control-beside-a-number-field.
   "Services & add-ons", "Monthly plans", "How you get paid", "Promo codes & sale",
   "Hours & days off", "Booking rules"];
+// "Your subscription" is NOT in this list and that is deliberate: it is
+// owner-only and it is the one settings screen whose content comes from an
+// edge function rather than a table, so it is walked as its own block below
+// with a wait for what the answer draws. Roadmap 2.20 stage 2.
 const GEAR_ROWS = ["Notifications", "Message templates", "Team", "This device"];
 
 // Runs in the page. Boxes are the things with an edge — two of those touching
@@ -969,6 +973,71 @@ for (const w of SIZES) {
   } else { console.log(`${"the Change button".padEnd(24)} NO SUCH BUTTON`); found++; }
   await page.getByRole("button", { name: "Settings", exact: true }).first().click().catch(() => {});
   await settle(page, 1000);
+
+  // THE SUBSCRIPTION SCREEN, AND IT IS TWO DIFFERENT SCREENS — roadmap 2.20
+  // stage 2, added in the change that built it.
+  //
+  // WITH NO SUBSCRIPTION it is the three rungs, a price breakdown and the
+  // consent tick, whose generated sentence — four clauses naming the build
+  // fee, the monthly, the twelve months and the exit fee — sits beside a 22px
+  // checkbox. That paragraph next to that box at 320 is the riskiest geometry
+  // this item added, and it is the state the DEFAULT seed produces because it
+  // is also the truthful one: the demo business does not pay the platform.
+  //
+  // WITH ONE it is the account: the facts list, the card, the invoice list,
+  // the cancel confirmation and — when the seed is `past_due` or `suspended` —
+  // an error box carrying an action, which is CSS this item added.
+  //
+  // BOTH ARE MEASURED AND ONLY ONE PER RUN, so the other PRINTS rather than
+  // being skipped, naming the exact command that would show it. A skipped
+  // check reads exactly like a passing one; one console.log is the whole cure.
+  //   node scripts/seed-demo.mjs --subscription=past_due
+  await page.getByRole("button", { name: "Settings", exact: true }).first().click().catch(() => {});
+  await settle(page, 1000);
+  const billingRow = page.locator('[data-settings-key="billing"]');
+  if (await appear(billingRow)) {
+    await billingRow.first().click();
+    // A SUPABASE-BACKED EDGE FUNCTION, not a table read — settle() is a cap on
+    // a repaint and is not a wait for a network round trip, which this script
+    // has now learned three times. Wait for something the answer draws.
+    await appear(page.locator('[data-billing-rung], .facts'));
+    await settle(page, 1400);
+    await grow();
+    await say("gear · Your subscription");
+
+    const rung = page.locator('[data-billing-rung="annual-monthly"]');
+    if (await rung.count()) {
+      // THE TICK'S OWN STATE. The breakdown and the consent paragraph only
+      // exist after a rung is pressed — the tenth-and-something instance of
+      // "a state you reach by pressing something INSIDE a screen is not
+      // navigation", added here in the change that built it.
+      await rung.first().click();
+      await settle(page, 900);
+      await grow();
+      await say("gear · subscription, a plan chosen");
+    } else {
+      console.log(`${"subscription · the rungs".padEnd(24)} NOT MEASURED — this demo has a subscription. Re-seed without --subscription to see the ladder and the consent tick.`);
+    }
+
+    const cancel = page.locator("[data-billing-cancel]");
+    if (await cancel.count()) {
+      await cancel.first().click();
+      await settle(page, 800);
+      await grow();
+      await say("gear · subscription, cancelling");
+    } else {
+      console.log(`${"subscription · cancelling".padEnd(24)} NOT MEASURED — no live subscription on this demo. node scripts/seed-demo.mjs --subscription=past_due`);
+    }
+
+    if (!(await page.locator("[data-billing-dunning]").count())) {
+      console.log(`${"subscription · past due".padEnd(24)} NOT MEASURED — nothing is overdue on this demo. node scripts/seed-demo.mjs --subscription=past_due`);
+    }
+    await page.keyboard.press("Escape");
+    await settle(page, 800);
+  } else {
+    console.log(`${"Your subscription".padEnd(24)} NO SUCH ROW (gear) — owner-only, so a staff session is expected to miss it`);
+    found++;
+  }
 
   // FIRST RUN — THE SETUP FORM'S SEVEN STEPS AND THE WALKTHROUGH'S SEVEN,
   // added 2026-09-02 with roadmap 2.11 step 6 stage 7. It is the same finding

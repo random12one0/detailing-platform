@@ -44,7 +44,21 @@ export default function App() {
   // THE GEAR IS A DESTINATION, NOT AN OVERLAY (GearMenu.jsx says why). It
   // lives beside `tab` rather than in it, so closing it puts the detailer
   // back on the screen they were on rather than on Today.
-  const [gear, setGear] = useState(false);
+  // ROADMAP 2.20 STAGE 2 — `?settings=billing`. The ONE deep link into the
+  // settings half of this shell, and it exists because /pricing → signup →
+  // dashboard is three screens between choosing a plan and paying for it: a
+  // detailer who lands on Today after all that has to find a gear, a row and a
+  // rung again, having already chosen. Read ONCE, at mount, so pressing the
+  // gear afterwards behaves normally.
+  const deepLink = useRef(new URLSearchParams(window.location.search).get("settings"));
+  const [gear, setGear] = useState(() => deepLink.current === "billing");
+  // WHICH settings screen the gear should land on, when something sent the
+  // detailer there rather than them pressing the gear. Today's past-due box is
+  // the only sender today; `key` on GearMenu turns it into a fresh mount, so
+  // the row opens without the menu having to accept a controlled `open` prop
+  // it does not otherwise need.
+  const [gearScreen, setGearScreen] = useState(() =>
+    deepLink.current === "billing" ? "billing" : null);
   // FIRST RUN — ONE STATE, TWO SEPARATE THINGS (screen designs §13, and the
   // owner kept them two on purpose). "setup" is the stepped form, "tour" is
   // the walkthrough; neither is a mode the shell has to know anything else
@@ -146,7 +160,7 @@ export default function App() {
           {/* The plumbing. It is pressed to go in and pressed again to come
               back out, which is why it is aria-pressed rather than a link. */}
           <button className={`btn icon ghost${gear ? " on" : ""}`} aria-label="Settings"
-            aria-pressed={gear} onClick={() => setGear((g) => !g)}>
+            aria-pressed={gear} onClick={() => { setGearScreen(null); setGear((g) => !g); }}>
             <Settings strokeWidth={2} />
           </button>
         </div>
@@ -168,10 +182,24 @@ export default function App() {
             }} />
           )
           : gear
-            ? <GearMenu onClose={() => setGear(false)} onTour={() => { setGear(false); setFirstRun("tour"); }} />
+            ? (
+              <GearMenu
+                key={gearScreen ?? "index"}
+                initial={gearScreen}
+                onClose={() => setGear(false)}
+                onTour={() => { setGear(false); setFirstRun("tour"); }}
+              />
+            )
             : (
               <Active refreshKey={rev} onSetup={() => setFirstRun("setup")} intent={intent}
-                onGo={(t, why = null) => { setTab(t); setIntent(why); setGear(false); }} />
+                onGo={(t, why = null) => {
+                  // ROADMAP 2.20 STAGE 2 — "billing" is the one destination
+                  // that is a SETTINGS SCREEN rather than a tab. Today's
+                  // past-due box is what sends it, and a box that names the
+                  // fix has to be able to reach it.
+                  if (t === "billing") { setGearScreen("billing"); setGear(true); return; }
+                  setTab(t); setIntent(why); setGear(false);
+                }} />
             )}
       </main>
       <nav className="tabbar">

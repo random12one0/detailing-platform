@@ -3246,6 +3246,12 @@ is kept; the entire visual design restarts from scratch.
 
 - [ ] 2.20 **TAKING MONEY — the OWNER asked for this on 2026-09-04, and the
       research is done: `docs/payments-research-2026-09-04.md`.**
+      **STAGES 1 AND 2 ARE BUILT (2026-09-04 and 2026-09-05). STAGE 3, Stripe
+      Connect so a detailer can take cards, is the whole of what is left, and
+      it is what unlocks charging for a monthly plan (2.14).** Stage 2 is
+      finished in code and **switched off waiting for a Stripe key** — test
+      mode needs no activated account, `docs/setup-steps-2026-09-04.md` step 2b
+      is the ten minutes.
 
       > *"We need to figure out payment cuz at least I need a way for my
       > customers to pay me."*
@@ -3882,7 +3888,11 @@ is kept; the entire visual design restarts from scratch.
       before deciding cost two minutes and turned a documented gap into a
       closed one.**
 
-      **STILL OPEN ON STAGE 2, and none of it needs a Stripe key:**
+      ~~**STILL OPEN ON STAGE 2, and none of it needs a Stripe key:**~~
+      **BUILT 2026-09-05 — STAGE 2 IS COMPLETE IN CODE AND CANNOT BE SWITCHED
+      ON UNTIL HE OPENS A STRIPE ACCOUNT.** The four bullets below are kept
+      because the reasoning in them is what the build followed; what each one
+      became is under it.
       - **The checkout itself**, and the express affirmative tick with it.
         **The tick is deliberately NOT on the pricing page**: consent has to be
         captured and STORED with the subscription at the moment of purchase,
@@ -3897,6 +3907,219 @@ is kept; the entire visual design restarts from scratch.
       - `/pricing` carries `?term=annual-upfront|annual-monthly|monthly`
         through to `/app`, where **nothing reads it yet**. The checkout is what
         reads it.
+
+      **WHAT SHIPPED, 2026-09-05:**
+
+      - **`20260905000000_platform_billing.sql`** — three tables, applied.
+        `platform_subscriptions` (one row per business, `business_id` IS the
+        primary key), `platform_invoices` (Stripe's own invoices, mirrored),
+        `stripe_events` (webhook idempotency). **Select-only policies,
+        owner-only, no write policy on any of the three**: a row here says
+        money moved and the only writer is the service role, because the
+        authority for every value is Stripe's event stream. A client that
+        could write `status = 'active'` could give itself a free subscription
+        with one PATCH.
+      - **EVERY PRICE IS SNAPSHOTTED ON THE ROW AND NEVER RE-READ.**
+        `pricing.js` is what the page PRINTS today and it will change — the
+        founding ladder ends, the list price moves — while a subscriber's price
+        is fixed at the moment they agreed to it. The exit fee is the sharp
+        case: recomputing it from a later config is how a $240 fee becomes
+        $360.
+      - **`consented_at` + `consent_text`, and it stores THE WORDS, not a
+        boolean.** A `true` proves somebody ticked something; the sentence they
+        ticked is what answers a chargeback, which is the entire reason the fee
+        is defensible (the FTC sued Adobe over the PRESENTATION of an identical
+        fee). **The sentence is GENERATED from the snapshot** by
+        `consentSentence()` — the screen prints it and the server stores it,
+        the same function over the same values, so a client cannot post a
+        friendlier sentence than the one it showed.
+      - **`_shared/platformBilling.ts`** — the arithmetic, dependency-free and
+        pure: the price table, `planFor`, `lineItemsFor`, `consentSentence`,
+        `exitFeeCents`, the Stripe-status mapping and the dunning words. **It
+        is the SECOND copy of the price table** (a Deno bundle will not follow
+        an import out of `supabase/`, the same wall that forced
+        `_shared/brandColor.js`), so it is pinned value by value against
+        `pricing.js` — CLAUDE.md allows one copy and charges a test for it.
+      - **`_shared/stripe.ts`** — ~100 lines instead of the Stripe SDK: form
+        encoding, one `fetch`, and the webhook signature. **No new dependency**,
+        and the API version is pinned rather than floating.
+      - **INLINE `price_data`, NOT STRIPE PRODUCT IDS.** The obvious build
+        stores `price_1Abc…` and the amount then lives in another company's
+        admin panel where nothing in this repo can see it. Inline means the
+        number on the card comes from this repo, testable end to end — **and
+        it is zero Stripe dashboard setup for the owner to get wrong.**
+      - **`platform-billing`** (owner-only, four actions plus `summary`) and
+        **`stripe-webhook`** (public, `verify_jwt=false`, signature-verified).
+      - **THE PORTAL IS PINNED TO ONE FLOW.** Stripe's customer portal will
+        happily let somebody cancel from it, which would skip the exit fee and
+        skip our own `canceled_at`. `flow_data: payment_method_update` means
+        the portal only ever updates the card; **the cancel button stays ours
+        and stays one press behind one confirm**, which is the fourth item on
+        the FTC's Adobe list.
+      - **`screens/more/Billing.jsx`** — the FIFTEENTH settings screen, behind
+        the gear (a card on file changes nothing a customer meets) and
+        `owner`-only rather than permission-gated. Two states: the three rungs
+        + breakdown + consent tick when there is no subscription, and plan /
+        price / next charge / card / invoices / cancel when there is.
+        **The screen does NO arithmetic about money** — every figure and the
+        consent sentence come from `summary`, which needs no Stripe key, which
+        is why the whole screen could be built and looked at today.
+      - **A PAST-DUE BOX ON TODAY, first on the screen.** The research asked
+        for *"visible and annoying but not destructive"*. A suspended booking
+        page is otherwise invisible from every screen a detailer uses — the
+        dashboard keeps working perfectly while nobody can book.
+        `.error-box` gained the `.actions` slot `.warn-box` already had, so the
+        box that names the problem can also reach the fix.
+      - **SUSPENSION IS `businesses.status = 'paused'` AND NOTHING ELSE, which
+        was already built.** `businessBySlug` and `get_public_business_profile`
+        both filter on `status = 'active'`, so one column darkens the PUBLIC
+        booking page — while `businessById` does not, so **an existing
+        customer keeps the page they cancel and reschedule from**, and the
+        detailer keeps every screen and every row. That is the printed promise
+        exactly, and it is roadmap 4.4's suspend mechanism built once.
+      - **TWO NEW EMAILS AND THEY ARE THE FIRST THE PLATFORM SENDS IN ITS OWN
+        NAME.** `billingEmail` (failed / suspended), `_shared/platformBrand.ts`,
+        and `send-email` gained a `sender_name` branch — an email from
+        *"Ridgeline Auto Detail"* telling Ridgeline their card failed reads as
+        phishing. **Stripe can send failed-payment emails and should, but that
+        is a checkbox in another company's dashboard**, and a printed promise
+        resting on a setting nobody in this repo can read is resting on
+        nothing. Stripe's copy is the belt; ours is the braces — and the
+        SUSPENSION half Stripe cannot send at all.
+      - **`tests/platform-billing.test.mjs` — 168 checks, credential-free**,
+        seven of them baselined by breaking what they guard. **The tie-out is
+        the point**: every rung on `/pricing`, founding and list, against the
+        money handed to Stripe. This is the first place in the product where
+        *a number PRINTED is not a number CHARGED* is literally true rather
+        than a metaphor.
+      - **`sweep-widths.mjs` walks it, and `seed-demo.mjs` gained
+        `--subscription=past_due|active|suspended`.** The two states are two
+        different screens and only one exists per seed, so **the other PRINTS
+        `NOT MEASURED` naming the exact command that would show it** — the rule
+        this item's own first half learned four days ago.
+
+      **WHAT IT FOUND, and three of the five were invisible until something
+      was looked at or broken:**
+
+      1. **THE CONSENT SENTENCE RENDERED AS UNREADABLE SMALL CAPS.** It was in
+         a `<label className="field">`, and `label.field > span` is the
+         uppercase, 0.22em-tracked, muted micro-label every settings field
+         uses — so the one sentence on the screen that must be READ, and that
+         gets quoted back in a card dispute, was set as an eyebrow.
+         `.confirm-box` is the house pattern for exactly this. **No test in
+         this repo could have seen it and every geometry check passed**: it was
+         the right words at the wrong size.
+      2. **A CHOSEN RUNG LOOKED IDENTICAL TO THE TWO NOBODY PICKED.** There is
+         no `aria-pressed` styling in `theme.css` — `.nav-row[aria-current]`
+         was the only selected-state language — so a detailer arriving from
+         `/pricing` with a term already chosen saw the price breakdown as the
+         only evidence of their own choice. Same two tokens as the nav row,
+         because a second visual language for "selected" is how a design
+         system stops being one.
+      3. **"NEXT CHARGE" ON A DATE LAST WEEK.** Stripe leaves
+         `current_period_end` where it was while it retries, so a past-due
+         account read *Next charge — September 2* with September 2 behind it,
+         and the cancel confirmation promised *"you keep everything until"* the
+         same past date. **The date was right and the word in front of it was
+         not.** Only visible by seeding a past-due subscription and looking.
+      4. **A CHECK THAT PASSED WITH THE SENTENCE DELETED FROM THE EMAIL.**
+         *"Nothing has been deleted"* is the sentence that stops a detailer
+         whose page went dark assuming their customer list went with it — and
+         the check asserting it tested the HTML, where the hidden PREHEADER
+         says it too. Removing it from the body left the check green.
+         Re-pointed at the plain-text half, which `htmlToText` strips the
+         preheader from. **Found by baselining, not by reading.** Same family
+         as `landing-pricing` 1 and `email-brand` 7a-ii, in a fourth place.
+      5. **`StripeError` COULD NOT BE IMPORTED BY THE TEST.** It used a
+         TypeScript PARAMETER PROPERTY (`constructor(msg, readonly status)`),
+         and Node's type STRIPPING only removes annotations — it cannot
+         transform one. **The credential-free suite would have been unable to
+         pin the signature check that is the only thing standing between a
+         public webhook and the open internet.** Anything under `_shared/` that
+         a test or `render-emails.mjs` imports must stay strippable, and must
+         not touch `Deno` at module scope: `platformBrand.ts` takes `siteUrl`
+         as an argument for that second reason, because importing `config.ts`
+         would have made every email unrenderable from Node.
+
+      **THE SECURITY REVIEW FOUND ONE EXPLOITABLE DEFECT AND FIVE THINGS WORTH
+      FIXING, AND THE EXPLOITABLE ONE WAS IN THE PART THAT LOOKED FINISHED.**
+      Everything the review was pointed at first — the webhook signature, the
+      owner check, the RLS, the escaping, the key — came back clean and the
+      reasoning is in DECISIONS.md. What it found was a ROUTING mistake:
+
+      1. **AN EXIT-FEE INVOICE DROVE THE DUNNING STATE MACHINE, IN BOTH
+         DIRECTIONS.** `cancel` raises a ONE-OFF Stripe invoice for the early
+         exit, and it carries `metadata.business_id` so the webhook resolved it
+         to a business exactly as a renewal. So **paying an exit fee cleared
+         the whole dunning state and brought a SUSPENDED booking page back
+         online with the subscription still unpaid** — cancel, pay $240, serve
+         customers again while owing $600. And in the other direction, worse
+         because it needs no attacker: **a manual invoice has no retry
+         schedule, so `next_payment_attempt` is null on its FIRST failure**,
+         which is the exact signal that means "two weeks are up" — a fully
+         paid detailer whose card expired while cancelling had their booking
+         page taken offline immediately and got the *"your site is offline"*
+         email. Fixed with `isSubscriptionInvoice()`, tested against the
+         invoice's own `subscription` field rather than the metadata so it
+         covers the next one-off somebody adds. **A one-off is still MIRRORED
+         onto the receipts list** — it is a real charge — it simply cannot move
+         the account's state.
+      2. **THE PORTAL'S LOCK WAS IN STRIPE'S DASHBOARD, NOT IN THIS REPO** —
+         and the file's own comment claimed otherwise, which is the same defect
+         stage 1's review found in `payments.ts` (*"the behaviour is right and
+         the comment was wrong"*), here with the comment right and the code
+         short. `flow_data` decides where a customer LANDS; the portal
+         CONFIGURATION decides what they can reach around it, and that is
+         dashboard state nothing here can read — **the precise failure this
+         item had already refused for the dunning emails.** A portal that
+         offers cancellation lets somebody leave a twelve-month term without
+         the exit fee ever being charged. `cardOnlyConfiguration()` now creates
+         that configuration from code with cancel, plan-change and
+         customer-edit all off, found again by a metadata tag.
+      3. **`?? "active"` ON AN UNKNOWN STRIPE STATUS AT CHECKOUT** — one line
+         contradicting the module's own stated rule three files away. It is
+         `?? "incomplete"` now: the safe direction costs a detailer a refresh
+         and cannot give the product away.
+      4. **A LATE `invoice.paid` COULD REVIVE A CANCELLED SUBSCRIPTION.**
+         Stripe does not promise event ordering. Guarded on the row's status
+         and on the invoice belonging to the LIVE subscription.
+      5. **RE-SUBSCRIBING LEFT THE PREVIOUS CYCLE'S COLUMNS ON THE ROW** —
+         including `stripe_subscription_id`, which `cancel` and `resume`
+         address Stripe by, so in the window before the new
+         `checkout.session.completed` landed they would have acted on the
+         subscription that had already ended.
+      6. **THE EXIT FEE WAS RECORDED AFTER THE CALL THAT COULD THROW**, so a
+         failure between the charge and the cancellation left money taken off a
+         card with nothing saying what for. Recorded the moment it is taken
+         now; the idempotency keys mean a retry reuses the same invoice item
+         rather than charging twice.
+
+      All six are pinned by `tests/platform-billing.test.mjs` § 14, **baselined
+      by putting two of them back**. And a seventh came out of re-opening the
+      screen after the redeploy rather than out of the review: **a cold edge
+      function took five seconds and the screen drew NOTHING for all of it** —
+      it now says *"Checking your subscription…"*, which is the only thing that
+      is true yet. It must never say *"you have no subscription"*, which is the
+      mistake roadmap 2.14 made on the plans list.
+
+      **WHAT IS STILL NOT DONE, AND IT IS NOT CODE:**
+      - **THERE IS NO STRIPE ACCOUNT, SO NOTHING HAS EVER TALKED TO STRIPE.**
+        Every pure part is tested and both screens are verified in a browser;
+        the three calls that leave the building have never been made.
+        **Stripe TEST MODE needs no activated account and no guardian** — a
+        signup and an `sk_test_` key is ten minutes — so this can be exercised
+        end to end long before 2 December. Until then `stripeConfigured()` is
+        false, `checkout` answers **503 "Payments are not switched on yet."**
+        and the screen says so above the button.
+      - **THREE SETUP STEPS ON THE SUPABASE PROJECT AND IN STRIPE**:
+        `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and the webhook endpoint
+        registered in Stripe pointing at `stripe-webhook`. **The retry schedule
+        and Stripe's own failed-payment emails are DASHBOARD SETTINGS**, not
+        code — `docs/setup-steps-2026-09-04.md` carries the click-by-click.
+      - **PLAN SWITCHING DOES NOT EXIST.** A detailer on month-to-month cannot
+        move to annual without cancelling and starting again. Deliberate: it is
+        proration, a new term start and a new consent, and nobody has asked for
+        it.
 
       **PRICING IS LOCKED AS OF 2026-09-04** — *"Okay. So I like that pricing.
       Lock all that in."* **$999 / $60 / $600 / $35, three founding spots, and
@@ -5079,6 +5302,34 @@ itself. **None is scheduled and none should be started without him saying
 where it goes.** Each says what it is, what happens if it is skipped, and the
 recommendation.
 
+- **F. A CUSTOMER CANNOT MOVE THEIR BOOKING TO ANOTHER TIME ON THE SAME DAY
+  WHEN THEIR OWN BOOKING IS WHAT FILLS IT — found 2026-09-05, while running
+  `e2e-booking` for roadmap 2.20 stage 2, and it is in code that item did not
+  touch.** `available-slots` has **no exclusion parameter**, so it cannot know
+  about the booking being MOVED: it counts that booking as occupied exactly
+  like any other. If the day's only remaining room is the slot the booking is
+  already in, the day has zero free slots **for its own occupant** and drops
+  out of its own reschedule picker. The customer can still move to another
+  day, so nothing is broken — they simply cannot do the most obvious thing,
+  which is shift an hour later.
+  **IT IS DATE- AND OCCUPANCY-DEPENDENT, WHICH IS WHY NOTHING CAUGHT IT FOR
+  MONTHS.** It only bites when the booked service is long enough to swallow
+  what is left of that day, so the e2e passed on most dates and failed on
+  2026-09-05 because the run picked a Tuesday the demo seed had already half
+  filled. **Reproduced twice; the demo's other tenant passed the same check in
+  the same run**, which is what proved it was the day rather than the code.
+  **The fix is one optional parameter** — `exclude_booking_id` on
+  `available-slots`, passed by `ManageBookingPage`'s `loadSlots` — and it is
+  small. It is not scheduled because it is a change to the customer booking
+  path, which is the one place in this product where a small change deserves
+  its own item and its own `e2e-booking` run.
+  **`e2e-booking` reports it as ONE failure with the diagnosis printed**, which
+  it did not before: the day-chip assertion is followed by a move, and the
+  script used to assert about the ORIGINAL date whatever day it had actually
+  clicked — so one root cause printed as two failures, the second pointing at
+  the slot engine. It follows the day it clicked now. **A leg that reports the
+  wrong half is worse than one that reports nothing.**
+
 - **A. TAKING MONEY — ANSWERED 2026-09-04. IT IS ROADMAP 2.20 NOW**, researched
   (`docs/payments-research-2026-09-04.md`) and scoped in three stages. He
   confirmed the priority himself: the recurring one, detailers paying him,
@@ -5190,7 +5441,7 @@ those are not negotiable by any skill.
 | 2.18 — the emails, rebuilt from scratch | `impeccable` for the visual half, and only that | direction-generating skills. **Step 1 is RESEARCH and he asked for it by name** — do not start designing templates before the six-product sweep says what the set of emails even is |
 | 2.14 — plans a detailer logs | **CLOSED 2026-09-04 — all three steps.** `impeccable` was used on the settings screen and on the booking page's plan surfaces | direction-generating skills. **The item is done; do not reopen it as a design question.** What it left behind for the next session that touches plans: every booking step's spare room is unchanged and measured (10px on step 1 at 1440x900), the plan's effect on the price is `planLineFor` in `_shared/pricing.ts` and rides `price_adjustments`, and `sweep-booking-steps.mjs` now walks the plans page, the plan-attached flow, a remembered customer and a member's own page |
 | 2.24 — a guide on every tab | `impeccable` for the overlay's placement, which is measured rather than guessed. **Read `Walkthrough.jsx`'s header first — six rules and the owner's three constraints are the specification** | writing a step that reads a control's own label back. That is what he called weird, and it is his 2026-09-01 copy rule pointed at a tour. **Also never: a sentence naming a position or a gesture** — the bottom bar is a left rail at a desk |
-| 2.20 — taking money | `impeccable` for the pricing page, the checkout and the past-due screens; `security-review` is **not optional** on any stage touching a key or a webhook | direction-generating skills. **Stage 2's pricing page is SHIPPED and is not a design question any more** — it is the legally load-bearing half of the checkout, so a session that reshapes it re-reads AB 2863 first. Never a pre-selected plan, never a "most popular" badge, never an "effective monthly" as a rung's headline figure |
+| 2.20 — taking money | `impeccable` for the pricing page, the checkout and the past-due screens; `security-review` is **not optional** on any stage touching a key or a webhook | direction-generating skills. **Stages 1 and 2 are SHIPPED and neither is a design question any more.** The pricing page is the legally load-bearing half of the checkout, so a session that reshapes it re-reads AB 2863 first: never a pre-selected plan, never a "most popular" badge, never an "effective monthly" as a rung's headline figure. **And on the billing screen: the cancel button stays ONE press behind ONE confirm with the exit fee printed BEFORE it, the consent tick is never folded into the button, and the screen never computes a figure the server did not send.** What is left is stage 3, Connect |
 | 2.25 — the sign-up screen and Google | `impeccable`, five swept widths. **Read the repo before writing anything**: Google sign-in is already built and merely switched off in Supabase, and the landing page already has both buttons | building Google sign-in again. Also never: renaming `Auth.jsx`'s email, password or `form button.btn.primary` selectors without updating `sweep-widths.mjs`, which signs in through them on every run |
 | 2.23 — the maintenance deadline | `impeccable` for whatever screen it lands on | folding it into a cadence field. **It is a DATE with a consequence, an escalating reminder and a last-done stamp** — 2.14 shipped cadences without it on purpose |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |

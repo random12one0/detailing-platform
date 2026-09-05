@@ -6,6 +6,13 @@
 // of them imports from the other is a worse shape than a file that just holds
 // it (component inventory §3c).
 //
+// FIFTEEN AS OF ROADMAP 2.20 STAGE 2 — "Your subscription" joined the GEAR,
+// not Business, and that is the admission test working rather than a
+// coincidence: a card on file changes nothing a customer ever meets. It is
+// also the only one of the fifteen that is owner-only rather than
+// permission-gated, for the reason 2.13 refused a `team` tick — whoever can
+// change what the business PAYS can change everything.
+//
 // FOURTEEN AS OF ROADMAP 2.20 — "How you get paid" joined under "What you
 // sell". Every handle typed on it is printed in a customer's email and
 // nowhere else, which is Business's admission test passed outright.
@@ -26,6 +33,7 @@ import Catalog from "./Catalog.jsx";
 import Promos from "./Promos.jsx";
 import Plans from "./Plans.jsx";
 import Payments from "./Payments.jsx";
+import Billing from "./Billing.jsx";
 import Hours from "./Hours.jsx";
 import BookingRules from "./BookingRules.jsx";
 import Notifications from "./Notifications.jsx";
@@ -48,6 +56,7 @@ export const SCREENS = {
   notifications: [Notifications, "Notifications"],
   templates: [MessageTemplates, "Message templates"],
   team: [Team, "Team"],
+  billing: [Billing, "Your subscription"],
   preferences: [Preferences, "This device"],
   // A picker, not a form — it does not share the settings skeleton and is not
   // one of the twelve. It is only ever offered when the account has more than

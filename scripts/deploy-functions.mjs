@@ -48,6 +48,17 @@ const PUBLIC_FUNCTIONS = new Set([
   // asked to acquire one in order to leave. Same credential as the three
   // above — the row's own UUID.
   "unsubscribe",
+  // ROADMAP 2.20 STAGE 2 — Stripe's webhook. It MUST be public and this is the
+  // one entry in this list where that is load-bearing rather than convenient:
+  // Stripe has no Supabase JWT to present, so with `verify_jwt` on, the
+  // gateway rejects every event before the function runs and the whole dunning
+  // mechanism silently does nothing — a subscription that goes unpaid for two
+  // weeks and a booking page that never goes offline, with no error anywhere.
+  // It is SAFE because the signature is the authentication: `verifyWebhook`
+  // runs before anything else in that file, over the RAW body, with a
+  // timestamp tolerance, and `tests/platform-billing.test.mjs` § 8 pins all
+  // three. `platform-billing` is NOT here — it is the detailer's own session.
+  "stripe-webhook",
 ]);
 
 // fileURLToPath, not .pathname: on Windows .pathname yields "/D:/..." which

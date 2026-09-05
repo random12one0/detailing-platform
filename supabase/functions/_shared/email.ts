@@ -79,6 +79,15 @@ export async function sendTenantEmail(opts: {
   /** The plain-text alternative. Every template derives one; see emailKit. */
   text?: string;
   attachments?: Attachment[];
+  /**
+   * ROADMAP 2.20 STAGE 2 — the one direction that is not a detailer speaking.
+   *
+   * Present ONLY for platform billing mail, where the sender is us rather than
+   * the tenant. It swaps the `From:` display name and tells `send-email` this
+   * is not a message to a customer, so the bounce flag stays off a row that
+   * merely shares an address with the detailer's own contact email.
+   */
+  senderName?: string;
 }): Promise<boolean> {
   try {
     const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
@@ -94,6 +103,7 @@ export async function sendTenantEmail(opts: {
         body: opts.html,
         text: opts.text,
         attachments: opts.attachments,
+        sender_name: opts.senderName,
       }),
     });
     if (!res.ok) console.error("send-email relay failed:", await res.text());
