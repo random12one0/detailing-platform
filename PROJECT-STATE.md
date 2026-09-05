@@ -4759,7 +4759,10 @@ rather than separate counts; price by vehicle size is not a plan field (and
 needs none today, because a member's price is snapshotted and editable); and
 what's included is prose rather than catalog rows.
 
-**OPEN FOR HIM — one small question.** Defining a plan needs the *Settings*
+**ANSWERED 2026-09-04 — LEAVE IT AS IT IS.** He was given the question below
+with the recommendation to leave the permission split alone, and said *"I
+don't really have any question for me... That's fine."* **No fifth permission
+key.** The question, kept because the reasoning is the useful part: Defining a plan needs the *Settings*
 tick; logging a member needs *Money*. The demo's "Detailer" role can do the
 first and not the second. Should they be the same tick, or should plans get one
 of their own? Nothing is blocked either way.

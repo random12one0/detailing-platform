@@ -2640,7 +2640,14 @@ is kept; the entire visual design restarts from scratch.
       what's included is prose rather than catalog rows —
       `included_service_ids` exists with no UI because step 3 is what needs it.
 
-      **OPEN FOR THE OWNER — one question, and it is small:** should defining a
+      ~~**OPEN FOR THE OWNER — one question, and it is small:**~~
+      **ANSWERED 2026-09-04: LEAVE IT.** He was asked whether defining a plan
+      and logging a member should need the same tick, with the recommendation
+      to leave the split as it is; his answer was *"I don't really have any
+      question for me, but it'd be recommended we added this. That's fine."*
+      **So the split stands** — `settings` defines a plan, `money` logs a
+      member — and there is no fifth permission key. Reopen only if he asks.
+      For the record, the question was: should defining a
       plan and logging a member need the same tick? Today a role with
       *Settings* can create a plan and a role with *Money* can log who is on
       one, which is why the demo's "Detailer" can do the first and not the
