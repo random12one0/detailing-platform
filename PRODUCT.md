@@ -60,10 +60,11 @@ correction that matters most; the ordering within it has since moved."
 
 ## Capabilities and Constraints
 
-- React/Vite SPA in `app/` serving three surfaces from one bundle: marketing `/`, dashboard `/app/*`, booking `/book/:slug`, receipt `/booking/:id`.
+- React/Vite SPA in `app/` serving three surfaces from one bundle: marketing `/` and `/pricing`, dashboard `/app/*`, booking `/book/:slug`, receipt `/booking/:id`.
 - 18 Supabase edge functions; migrations in `supabase/migrations/` applied in filename order via Management API scripts.
 - Founding offer is counted in the database (`founding_offer()`), never declared; the page fails closed to standard pricing.
-- Pricing lives in `app/src/landing/pricing.js` only; tests enforce no hardcoded prices, no urgency theater, no free-trial claims.
+- Pricing lives in `app/src/landing/pricing.js` only — including the TERM and the EXIT-FEE SHARE, because the checkout will charge what `/pricing` prints; tests enforce no hardcoded prices, no urgency theater, no free-trial claims, and the ladder's own rules (a whole number of months free inside 15-20%, a no-commitment premium inside 20-30%, in both the list and founding columns).
+- **`/pricing` is the legally load-bearing half of the checkout, not decoration in front of it.** California's AB 2863 wants the auto-renewal terms, the twelve-month commitment and the early-exit fee clear and conspicuous BEFORE billing details are taken, and there are none on that page. **Nothing on it is pre-selected and it has no selection state at all** — the FTC's Adobe complaint was about presentation, not the fee. Never a "most popular" badge; never an "effective monthly" as a plan's headline figure.
 - Known open threads (do not rediscover): email produces nothing in Resend (root cause unfound); pg_cron/reminder scheduling never wired; five deferred dashboard items; vCard export unverified on real Android.
 - Standing constraints: develop on `claude/superbase-access-anj1h7`; `main` deploys to production; `reference/` is read-only; the old business's Supabase/Netlify/Resend are untouchable.
 

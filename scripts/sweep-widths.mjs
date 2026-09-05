@@ -192,6 +192,23 @@ const CHECK = () => {
   const boxy = (el) => el.matches(".card, .sunken, .setting-card, .bk-card");
   const name = (el) => el.tagName.toLowerCase()
     + (typeof el.className === "string" && el.className ? "." + el.className.trim().split(/\s+/).join(".") : "");
+  // AN ELEMENT AN ANCESTOR ALREADY CLIPS CANNOT BE OFF THE SCREEN, because
+  // nobody can see the part that is. Added 2026-09-05 with the pricing page,
+  // which is the FIRST page carrying the landing surface's `.ground` that
+  // this script has ever walked: two drifting lights at 76vmax and a dot
+  // lattice at inset -8% each reported ~150px past the right edge at 320,
+  // inside a `position: fixed` layer with `overflow: hidden` over them.
+  // Three false positives, and a false positive is not a smaller problem
+  // than a false negative here — a check that cries wolf on every run is a
+  // check somebody starts passing over, and then it stops being read at all.
+  // This CANNOT hide a real defect: a defect is content sticking out where
+  // it can be seen, and clipped is the definition of cannot be.
+  const clipped = (el) => {
+    for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+      if (/hidden|clip/.test(getComputedStyle(a).overflowX)) return true;
+    }
+    return false;
+  };
   for (const el of document.querySelectorAll("body *")) {
     if (!el.getClientRects().length) continue;
     const cs = getComputedStyle(el);
@@ -200,7 +217,7 @@ const CHECK = () => {
     if (!r.width || !r.height) continue;
     const txt = (el.textContent || "").trim().slice(0, 26);
     const past = Math.round(r.right - vw);
-    if (past > 1) out.push(`past-viewport  +${past}px  ${name(el)}  «${txt}»`);
+    if (past > 1 && !clipped(el)) out.push(`past-viewport  +${past}px  ${name(el)}  «${txt}»`);
     // Outside its own parent's content box. Skipped where the answer would be
     // a lie rather than a defect: a parent that scrolls sideways on purpose, a
     // parent with no box at all (`display: contents` — .bk-step is one, and it
@@ -289,6 +306,25 @@ const settle = async (page, cap = 2000) => {
   return ms;
 };
 
+// --- WAIT FOR THE CONTROL, DO NOT COUNT IT ------------------------------
+// `settle()` is a cap on a REPAINT. It is not a wait for a network round
+// trip, and `?lite=1` makes that worse rather than better: with nothing
+// animating the DOM goes quiet sooner, so settle returns earlier. Anything a
+// Supabase read draws — Monthly plans, Team's members, the Clients list, the
+// pricing page's founding strip — has to wait for the element itself.
+//
+// AT MODULE SCOPE, AND THAT IS THE POINT OF THIS MOVE (2026-09-05). It was
+// declared inside the width loop immediately above the settings walk, so a
+// `const`'s temporal dead zone put it out of reach of every caller earlier in
+// the same loop — the Clients block two hundred lines above it, and then the
+// pricing block six hundred lines above that. The helper written to fix this
+// race has now twice been unreachable at a site that still had it. Nothing in
+// it closes over anything, so there was never a reason for it to be in there.
+const appear = async (loc, ms = 6000) => {
+  try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
+  catch { return false; }
+};
+
 // --- ONE SIGN-IN, NOT FIVE --------------------------------------------------
 // The form was filled in again at every width. It is the same account and the
 // same session; Playwright can carry it across contexts.
@@ -353,6 +389,48 @@ for (const w of SIZES) {
   await page.goto(`${BASE}/book/demo-detail${LITE}`, { waitUntil: "domcontentloaded" });
   await settle(page, 3200);
   await say("book · step 1");
+
+  // THE LANDING PAGE, and it had NEVER BEEN MEASURED BY ANYTHING until
+  // 2026-09-05 — the page a visitor meets first, and the only surface in the
+  // product no script had ever opened. It went in beside the pricing page
+  // because that is the item that noticed, and it was measured before being
+  // added rather than after: clean at all five widths, so adding it changes
+  // no verdict today and catches the next change to it.
+  await page.goto(`${BASE}/${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+  await settle(page, 2600);
+  await say("landing");
+
+  // THE PRICING PAGE (roadmap 2.20 stage 2). Public, no session, so it is
+  // measured here beside the booking page rather than after the sign-in.
+  //
+  // ADDED IN THE CHANGE THAT BUILT IT, which is the only part of this worth
+  // a comment: nine of the states in this file were added by the LATER item
+  // that found them broken. It is also the first thing a visitor who presses
+  // any plan button on the landing page now sees.
+  //
+  // The ladder is what this measures. It is three rows of a sentence, a mono
+  // figure and a button, and it changes shape twice on the way down to 320 —
+  // so a clean run at 1440 says nothing about it. The founding strip only
+  // exists while spots remain, so its absence is PRINTED rather than skipped:
+  // a page measuring one section short is byte-identical to one measuring
+  // clean.
+  await page.goto(`${BASE}/pricing${LITE}`, { waitUntil: "domcontentloaded" });
+  // THE STRIP IS A SUPABASE READ AND THE LADDER IS NOT, so they are waited
+  // for differently. `appear()` rather than settle-then-count on the strip:
+  // it lost that race at the FIRST width of the first full run and printed
+  // NOT MEASURED, which is the `else` doing exactly the job it was added for.
+  await appear(page.locator(".rung"));
+  await appear(page.locator(".offerbar"));
+  await settle(page, 2400);
+  await say("pricing");
+  const rungs = await page.locator(".rung").count();
+  if (rungs !== 3) {
+    console.log(`${"pricing · the ladder".padEnd(24)} NOT MEASURED — expected 3 rungs, found ${rungs}`);
+    found++;
+  }
+  if (!(await page.locator(".offerbar").count())) {
+    console.log(`${"pricing · the offer".padEnd(24)} NOT MEASURED — no founding strip. Either the lookup lost a race or all three spots are taken; public.founding_offer() answers it.`);
+  }
 
   await page.goto(`${BASE}/app${LITE}`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
@@ -602,11 +680,6 @@ for (const w of SIZES) {
       await settle(page, 700);
     }
   }
-
-  const appear = async (loc, ms = 6000) => {
-    try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
-    catch { return false; }
-  };
 
   // AND THE CLIENTS BLOCK IS THE SIXTH PLACE, FOUND 2026-09-04 BY A NEW CHECK
   // REFUSING TO GO QUIET.

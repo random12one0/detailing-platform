@@ -90,14 +90,29 @@ export function initThread() {
     const stage = document.querySelector(".ld .stage");
     const jobsHold = document.querySelector(".ld .jobshold");
 
+    /* THIS MODULE RUNS ON EVERY `.ld` PAGE, NOT ONLY THE LANDING ONE — the
+       pricing page is the second (roadmap 2.20 stage 2) and there will be
+       more. Such a page wants the reveals, the counters, the nav, the
+       pointer light and the weighted scroll; it has no thread section, no
+       dashboard and no comparison table.
+       A second, smaller init for it was the alternative and was rejected
+       for the reason this repo keeps recording: the reveal system would
+       then exist twice, and the second copy is the one that rots. So the
+       thread-specific work is guarded and everything else is shared.
+       THE FAILURE THIS PREVENTS IS NOT A BLANK SECTION. `initThread` is
+       wrapped in a try/catch whose net puts the whole page into `.lite`,
+       so one null here would silently cost the new page every animation it
+       has and nothing anywhere would report it. */
+    const HAS_THREAD = !!threadWrap;
+
     /* Created here, not rendered by React — see the header note 3. */
     const thread = document.createElement("div");
     thread.className = "thread";
-    lft.appendChild(thread);
-    cleanup.push(() => { thread.remove(); jobsEl.replaceChildren(); });
+    if (HAS_THREAD) lft.appendChild(thread);
+    cleanup.push(() => { thread.remove(); if (jobsEl) jobsEl.replaceChildren(); });
 
     const bubs = [], rows = [];
-    JOBS.forEach((j, i) => {
+    (HAS_THREAD ? JOBS : []).forEach((j, i) => {
       const b = document.createElement("div");
       b.className = "bub";
       b.innerHTML = '<span></span><span class="t"></span>';
@@ -150,6 +165,7 @@ export function initThread() {
     const pinZones = [];
     function computePinZones() {
       pinZones.length = 0;
+      if (!HAS_THREAD) return;
       const r = threadWrap.getBoundingClientRect();
       const top = r.top + window.scrollY;
       /* Starts a third of a screen EARLY, so you decelerate into the lock
@@ -164,6 +180,7 @@ export function initThread() {
        than duplicated: one set of bubbles, one source of truth. */
     const PHONE = window.matchMedia("(max-width: 820px)");
     function placeThread() {
+      if (!HAS_THREAD) return;
       const host = PHONE.matches ? jobsHold : lft;
       if (thread.parentNode !== host) host.appendChild(thread);
     }
@@ -176,7 +193,7 @@ export function initThread() {
        separate columns on purpose. */
     function alignBubbles() {
       const onPhone = PHONE.matches;
-      const hb = onPhone ? jobsHold.getBoundingClientRect() : null;
+      const hb = onPhone && jobsHold ? jobsHold.getBoundingClientRect() : null;
       for (let i = 0; i < bubs.length; i++) {
         if (onPhone) {
           bubs[i].style.position = "absolute";
@@ -203,9 +220,11 @@ export function initThread() {
       /* How far the dashboard has to travel to sit in the middle of the
          screen once the thread's column has emptied. Zero once the columns
          have stacked on a phone, because it is already centred there. */
-      rgt.style.setProperty("--shift", "0px");
-      const d = rgt.getBoundingClientRect();
-      rgt.style.setProperty("--shift", (window.innerWidth / 2 - (d.left + d.width / 2)).toFixed(1) + "px");
+      if (rgt) {
+        rgt.style.setProperty("--shift", "0px");
+        const d = rgt.getBoundingClientRect();
+        rgt.style.setProperty("--shift", (window.innerWidth / 2 - (d.left + d.width / 2)).toFixed(1) + "px");
+      }
       cacheReveals();
       computePinZones();
     }
@@ -261,7 +280,10 @@ export function initThread() {
     }
 
     const scrubs = [];
-    const addScrub = (el, fn) => scrubs.push({ el, fn });
+    /* A NULL TARGET IS A SECTION THIS PAGE DOES NOT HAVE, not a mistake.
+       One guard here instead of one per caller, and a caller that grows a
+       typo still fails at the querySelector that returned null. */
+    const addScrub = (el, fn) => { if (el) scrubs.push({ el, fn }); };
 
     addScrub(threadWrap, (el) => {
       const p = pinProgress(el, stage.getBoundingClientRect().height);
@@ -306,7 +328,7 @@ export function initThread() {
         ? "Morning, Andrew · nothing booked"
         : "Morning, Andrew · " + landed + " of " + landed + " still to do";
     }
-    if (LITE) { setSummary(JOBS.length, TOTAL); dash.style.setProperty("--f0", "1"); }
+    if (LITE && HAS_THREAD) { setSummary(JOBS.length, TOTAL); dash.style.setProperty("--f0", "1"); }
 
     /* The ruled rows light themselves on a touch screen, where there is no
        cursor to do it. Only registered when the device cannot hover, so a
@@ -517,8 +539,13 @@ export function initThread() {
       "Nobody else's name on it.",
       "No commission, ever.",
     ];
+    /* The hero's headline, so a page without a hero has no tail — and the
+       whole reason for the guard: this threw on /pricing, the catch put the
+       WHOLE PAGE into `.lite`, and the only symptom was a pricing page with
+       no motion and one line in the console. */
     const tw = id("tw");
-    if (LITE) {
+    if (!tw) { /* no hero on this page */ }
+    else if (LITE) {
       tw.textContent = TAILS[0];
     } else {
       let wi = 0, ci = 0, del = false, twTimer = 0;

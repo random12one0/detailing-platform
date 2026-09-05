@@ -3769,6 +3769,135 @@ is kept; the entire visual design restarts from scratch.
       **Skills: `impeccable`** — it is a new customer-facing screen and the
       swept widths apply.
 
+      **THE PRICING PAGE SHIPPED 2026-09-05. The CHECKOUT and the detailer's
+      billing page did NOT — stage 2 is half done.** Built:
+
+      - **`/pricing`** (`app/src/landing/PricingPage.jsx`, a route in
+        `main.jsx`, public and outside `BusinessProvider`). Four skeletons,
+        none of them the landing page's asymmetric pair: a head with the offer
+        as a full-width strip, a split plan head over a **ruled ladder of
+        three rungs**, a horizontal bar for booking-only, and a two-column
+        definition list for the terms.
+      - **THE LADDER'S SHAPE IS A LEGAL DECISION, not a visual one.** Three
+        cards side by side is a named anti-slop tell AND it is the layout that
+        invites a highlighted middle — which is a pre-selection in everything
+        but name. **There is no selection state on the page at all**: every
+        option is its own button, so there is nothing that could be defaulted.
+        No "most popular" either, which would be a pre-selection in disguise
+        and a claim we cannot substantiate with no customers.
+      - **THE HEADLINE FIGURE ON EACH RUNG IS WHAT LEAVES THE BANK** —
+        $600 a year / $60 a month / $75 a month — never an "effective
+        monthly". Printing *$50/mo* on a plan that takes $600 in one go is the
+        small dishonesty this page is a correction to. The saving is stated in
+        MONTHS FREE, which is the locked framing and is the only one that
+        works for both columns: $400/$40 is 2 months free exactly as
+        $600/$60 is, where an effective monthly would have been $33.33.
+      - **`pricing.js` gains `monthToMonth: 75`, `founding.annual: 400`,
+        `founding.monthToMonth: 50` and `term: { months: 12, exitFeeShare:
+        0.5 }`.** The founding ladder follows the LIST ladder's own two rules
+        rather than being a second set of opinions — 2 months free, +25% for
+        no commitment — so both are derived. **The term and the fee are in
+        the config, not in the copy**, because the checkout will CHARGE what
+        this page PRINTS and two files reading one number is the only way
+        those can never disagree.
+      - **The eight AB 2863 disclosures**, at reading size (16px on
+        `--bone-2`, not the 13px `--fog-2` fine-print ramp) and in the terms
+        list rather than scattered: auto-renewal and its frequency, what will
+        be charged, which plan is a commitment, the exit fee **with a worked
+        example**, that cancelling is one button, that the build fee is
+        separate and stops being refundable when work starts, what a failed
+        payment costs, and what leaving takes with you.
+      - **THE PAGE NOW PROMISES DUNNING BEHAVIOUR THE CHECKOUT MUST HONOUR** —
+        *"we try the card again over the following two weeks and email you
+        each time. If it still has not gone through after that, the site goes
+        offline until it is paid. Nothing is deleted."* That is round 3's
+        3–4 retries over 10–14 days plus his own ruling on non-payment, and
+        **it is now a printed promise rather than a plan.** The checkout that
+        lands next is bound by it.
+      - **Every plan button on the landing page points at `/pricing`** — the
+        nav pill, the hero, both plan cards and both closing calls. Only
+        *Sign in* still goes to `/app`. **The annual line went with it**, which
+        was the ordering he called out, and its "2 months free" checks moved
+        to the new page rather than being dropped.
+      - **`sweep-widths.mjs` walks it at all five widths, added in the change
+        that built it.** Clean at 1920 / 1440 / 392 / 360 / 320, normal and
+        `--lite`, zero console errors at any size.
+      - **`tests/landing-pricing.test.mjs` is 58 checks** (was 21), and
+        **thirteen of them were baselined by breaking what they guard.**
+
+      **FOUR DEFECTS CAME OUT OF BUILDING IT AND THREE WERE INVISIBLE TO
+      EVERY EXISTING CHECK.**
+
+      1. **`tests/landing-pricing.test.mjs`'s own pricing-section slice was
+         EMPTY, and had been since it was written.** It looked for
+         `aria-labelledby="price"`; the section is `aria-labelledby="prh"`, so
+         `indexOf` returned −1 and `slice(-1, <smaller>)` gave the empty
+         string. **"No hardcoded prices in the pricing section" passed by
+         having no subjects for the whole life of the check** — in the one
+         test guarding the numbers a customer is charged. Same shape as
+         `email-brand` 7a-ii in 2.18. Anchored on the section's own `id` now,
+         with a HAS-SUBJECTS assertion above it.
+      2. **A `data-rv` on a conditionally-rendered node is invisible for
+         ever.** `thread.js` collects its revealables with ONE
+         `querySelectorAll` at mount and that list is STATIC, so the founding
+         strip — which React adds only when the offer lookup answers — was
+         never given `.in` and sat at opacity 0. **The element carrying the
+         whole scarcity claim was invisible in the normal path.**
+         **Nothing in this repo could see it**: `?lite=1` reveals everything
+         so the lite path looked right, an opacity-0 element still has a full
+         box so the width sweep measured it and printed `clean`, and no
+         contrast test can measure a colour nobody is shown. The landing page
+         has never had this bug **by luck, not by rule** — its founding flag
+         sits inside an unconditional `.plan` that carries the `data-rv` — so
+         the rule is now a check (8e), against both pages.
+      3. **The founding strip lost the settle-then-count race at the first
+         width of the very first full run**, and it was caught only because
+         its `if` had an `else` that printed `NOT MEASURED`. Fixed with
+         `appear()` — **and `appear()` had to be hoisted to module scope to be
+         callable at all.** It was declared inside the width loop above the
+         settings walk, so a `const`'s temporal dead zone put it out of reach
+         of every earlier caller. **That is the SECOND time the helper written
+         to fix this race has been unreachable at a site that still had it**
+         (the Clients block was the first, 2026-09-04). It is at module scope
+         now and cannot happen a third time.
+      4. **`sweep-widths.mjs` reported three false positives on the ground.**
+         The pricing page is the FIRST page carrying the landing surface's
+         `.ground` that this script has ever walked, and its two drifting
+         lights (76vmax) and dot lattice (inset −8%) each measured ~150px past
+         the right edge at 320 — inside a `position: fixed` layer with
+         `overflow: hidden` over them. `past-viewport` now skips anything an
+         ancestor already clips. **This cannot hide a real defect**: a defect
+         is content sticking out where it can be SEEN, and clipped is the
+         definition of cannot be. It can and did stop the check crying wolf on
+         every run, which is how a check stops being read.
+
+      **AND THE LANDING PAGE JOINED THE SWEEP TOO — the gap this item found
+      and then closed.** Until 2026-09-05 no script in this repo had ever
+      measured the page a visitor meets FIRST: this sweep walks the dashboard
+      and the booking page, and `/` is neither. It was left out of the first
+      draft on the reasoning that a pre-existing gap belongs to an item that
+      can act on what it reports — then it was simply MEASURED, came back
+      **clean at all five widths**, and adding it became one line that changes
+      no verdict today and catches the next change to that page. **Measuring
+      before deciding cost two minutes and turned a documented gap into a
+      closed one.**
+
+      **STILL OPEN ON STAGE 2, and none of it needs a Stripe key:**
+      - **The checkout itself**, and the express affirmative tick with it.
+        **The tick is deliberately NOT on the pricing page**: consent has to be
+        captured and STORED with the subscription at the moment of purchase,
+        and consent collected on a marketing page and then carried through a
+        signup flow is consent that can be lost. The disclosure is what AB
+        2863 requires *before* billing details; the tick belongs where the
+        card is.
+      - **The detailer's own billing page** behind the header gear,
+        `owner`-only — plan, price, next charge, card, invoices and the cancel
+        button the statute requires.
+      - **The dunning behaviour the page now promises** (above).
+      - `/pricing` carries `?term=annual-upfront|annual-monthly|monthly`
+        through to `/app`, where **nothing reads it yet**. The checkout is what
+        reads it.
+
       **PRICING IS LOCKED AS OF 2026-09-04** — *"Okay. So I like that pricing.
       Lock all that in."* **$999 / $60 / $600 / $35, three founding spots, and
       month-to-month added at $75.** **One piece shipped the same day:** the
@@ -4644,6 +4773,72 @@ is kept; the entire visual design restarts from scratch.
       otherwise") is measured rather than guessed. No direction-generating
       skill.
 
+- [ ] 2.25 **THE SIGN-UP / SIGN-IN SCREEN, AND GOOGLE — the OWNER asked on
+      2026-09-05.**
+
+      > *"can we put on the list to improve the sign up / log in page cuz it
+      > looks pretty buns. also we should have a log in and sign up button for
+      > the landing page. also add google log in support"*
+
+      **TWO OF THE THREE ARE ALREADY BUILT, and a session that starts by
+      writing code will build them a second time.** Checked in the repo and
+      against the live project on the day he asked, not inferred:
+
+      - **GOOGLE SIGN-IN IS FULLY WRITTEN AND SWITCHED OFF.**
+        `app/src/screens/Auth.jsx` has `withGoogle()` calling
+        `signInWithOAuth({ provider: "google" })`, Google's own marque as
+        inline SVG in their brand colours, and `useEnabledProviders()`, which
+        reads GoTrue's `/auth/v1/settings` so **the button appears the moment
+        Google is enabled and never before** — no rebuild, and no button that
+        leads to *"provider is not enabled"*. **Measured 2026-09-05: that
+        endpoint returns `google: false`, `email` the only provider on.**
+        So this is **not a code task**. It is a Google Cloud OAuth client
+        (client id + secret, with Supabase's callback URL as the authorised
+        redirect) pasted into Supabase → Authentication → Providers. **That is
+        the owner's ten minutes, and it needs his Google account** — write him
+        the click-by-click, do not try to do it for him.
+        **The one thing to CHECK once it is on** rather than assume: a Google
+        sign-up lands a session with no business, and `App.jsx` is supposed to
+        send that to business creation. The email path does; nothing has ever
+        exercised the OAuth path.
+      - **THE LANDING PAGE ALREADY HAS BOTH BUTTONS** — the nav carries
+        *Sign in* (→ `/app`) and *Get started* (→ `/pricing` since 2.20 stage
+        2). **What is true in his complaint is the WORDING**: "Get started"
+        does not read as "sign up", and the pair does not look like a pair.
+        That is a label-and-treatment decision, not a missing feature. Do not
+        add a third button.
+      - **THE SCREEN ITSELF IS THE REAL WORK, and he is right about it.**
+        `Auth.jsx` is built out of `theme.css`'s `.card`, `.field` and `.btn`
+        — the DASHBOARD's chrome — while everything a prospect sees up to that
+        moment is the landing world: Archivo worked across its width axis, the
+        drifting ground, the glass nav, the accent. **It is the one screen
+        where the two worlds meet, and it currently just stops.** A visitor
+        goes landing → pricing → *this*, and it is the last impression before
+        they hand over money.
+
+      **Watch out — this is why it is its own item and not a quick pass.**
+      `landing.css` is scoped to `.ld` and `theme.css` is GLOBAL and reaches
+      into it; nine class names are already renamed to survive that collision,
+      and the list is in `landing.css`'s header. **Bringing the landing world
+      to the auth screen means either putting `.ld` on it — which drags the
+      whole ground, nav and type scale onto a screen that has none of them —
+      or a small, deliberate third surface.** Read that header before
+      choosing, and remember the rule it states: *no selector in `theme.css`
+      may be able to match an element on a `.ld` page.*
+      **`Auth.jsx` is also the screen `sweep-widths.mjs` signs in through on
+      every run**, so it addresses `input[type=email]`,
+      `input[type=password]` and `form button.btn.primary` by selector — a
+      rename that misses those turns every browser check in the repo red at
+      once, and the failure prints as `NO SUCH BUTTON`.
+      **And it is reachable by nothing else in the sweep**: it is measured
+      only as a step on the way in, never as a screen, so **add it as its own
+      swept state in the change that redesigns it** — the eleventh time this
+      same gap would otherwise be found later.
+
+      **Skills: `impeccable`.** A customer-facing screen, so the five swept
+      widths apply. Anti-slop floor as usual, and the design system outranks
+      any skill's opinion.
+
 
 ## Phase 3 — Tenant websites (the biggest new build)
 
@@ -4995,6 +5190,8 @@ those are not negotiable by any skill.
 | 2.18 — the emails, rebuilt from scratch | `impeccable` for the visual half, and only that | direction-generating skills. **Step 1 is RESEARCH and he asked for it by name** — do not start designing templates before the six-product sweep says what the set of emails even is |
 | 2.14 — plans a detailer logs | **CLOSED 2026-09-04 — all three steps.** `impeccable` was used on the settings screen and on the booking page's plan surfaces | direction-generating skills. **The item is done; do not reopen it as a design question.** What it left behind for the next session that touches plans: every booking step's spare room is unchanged and measured (10px on step 1 at 1440x900), the plan's effect on the price is `planLineFor` in `_shared/pricing.ts` and rides `price_adjustments`, and `sweep-booking-steps.mjs` now walks the plans page, the plan-attached flow, a remembered customer and a member's own page |
 | 2.24 — a guide on every tab | `impeccable` for the overlay's placement, which is measured rather than guessed. **Read `Walkthrough.jsx`'s header first — six rules and the owner's three constraints are the specification** | writing a step that reads a control's own label back. That is what he called weird, and it is his 2026-09-01 copy rule pointed at a tour. **Also never: a sentence naming a position or a gesture** — the bottom bar is a left rail at a desk |
+| 2.20 — taking money | `impeccable` for the pricing page, the checkout and the past-due screens; `security-review` is **not optional** on any stage touching a key or a webhook | direction-generating skills. **Stage 2's pricing page is SHIPPED and is not a design question any more** — it is the legally load-bearing half of the checkout, so a session that reshapes it re-reads AB 2863 first. Never a pre-selected plan, never a "most popular" badge, never an "effective monthly" as a rung's headline figure |
+| 2.25 — the sign-up screen and Google | `impeccable`, five swept widths. **Read the repo before writing anything**: Google sign-in is already built and merely switched off in Supabase, and the landing page already has both buttons | building Google sign-in again. Also never: renaming `Auth.jsx`'s email, password or `form button.btn.primary` selectors without updating `sweep-widths.mjs`, which signs in through them on every run |
 | 2.23 — the maintenance deadline | `impeccable` for whatever screen it lands on | folding it into a cadence field. **It is a DATE with a consequence, an escalating reminder and a last-done stamp** — 2.14 shipped cadences without it on purpose |
 | 2.12 — request-vs-reserve, accept, quotes | none — this is engine, schema and edge-function work, not a visual item. `impeccable` only if it adds a screen 2.11 did not already design | design skills. **Do not start it inside 2.11**: 2.11 leaves the accept state designed and empty on purpose |
 | 3 — tenant websites | `frontend-design` for page structure and hierarchy only; `ship-check` before calling it done | inventing color or type — those come from the system, not the skill |

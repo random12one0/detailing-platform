@@ -42,6 +42,7 @@ Routes (`app/src/main.jsx`, verified by `tests/route-contract.test.mjs`):
 | Route | What | Session context |
 |---|---|---|
 | `/` | Marketing landing (`landing/LandingPage.jsx` 597 lines + `landing/thread.js` 682, restyled in 2.2) | none |
+| `/pricing` | **Every plan and all three ways to pay, plus the AB 2863 disclosures (`landing/PricingPage.jsx`, roadmap 2.20 stage 2, 2026-09-05).** Every plan button on `/` comes here; only *Sign in* still goes to `/app` | none |
 | `/book/:slug` | Customer booking wizard (`book/BookingPage.jsx` + 6 step components) | none — own `BookingBusinessContext` from slug |
 | `/booking/:id` | Receipt / cancel / reschedule (`book/ManageBookingPage.jsx`); UUID is the credential | none |
 | `/invite/:token` | Staff invite acceptance | `BusinessProvider` |
@@ -5157,3 +5158,116 @@ No injection reaches the email (19 hostile inputs, all refused a link and all es
   detailer has typed one in.
 - **Stage 2 needs him** — his dad on the Stripe account, and whoever owns it is
   the business for chargebacks, refunds and tax. Unchanged by this session.
+
+
+## ROADMAP 2.20, STAGE 2 — THE PRICING PAGE (2026-09-05)
+
+**Stage 2 is half built. The pricing page shipped; the checkout and the
+detailer's billing page did not**, and neither needed a Stripe key.
+
+His ask, in his own words: *"When you say take founding spot, that shouldn't
+bring you to a sign up or a payment screen. That should take you to a pricing
+page… it shows basically all my options."*
+
+### What is on it
+
+- **`/pricing`** — public, outside `BusinessProvider`, in the landing world
+  (`.ld`, the same ground and nav). Four skeletons, none of them the landing
+  page's asymmetric pair, because law 1 is about sections and a second page
+  repeating the first is that law failing across two pages: a head with the
+  founding offer as a full-width strip, a split plan head over a **ruled
+  ladder of three rungs**, a horizontal bar for booking-only, and a two-column
+  definition list for the terms.
+- **The three ways to pay**: annual paid up front (**$600/yr**, or **$400**
+  founding), annual paid monthly (**$60**, **$40**) and month-to-month
+  (**$75**, **$50**), plus the one-time build fee (**$999**, **$499** struck).
+  Booking-only stays $35 with no build fee and no term.
+- **Eight disclosures at reading size** — 16px on `--bone-2`, not the 13px
+  fine-print ramp — covering auto-renewal and its frequency, what is charged,
+  which plan is a commitment, the exit fee with a worked example, that
+  cancelling is one button, that the build fee is separate and stops being
+  refundable when work starts, what a failed payment costs, and what leaving
+  takes with you.
+
+### The three things a session must not undo
+
+1. **NOTHING IS PRE-SELECTED, and the ladder's shape is what guarantees it.**
+   Three cards side by side invites a highlighted middle, which is a
+   pre-selection in everything but name and the first item in the FTC's June
+   2024 Adobe complaint — which was about the PRESENTATION of an exit fee, not
+   the fee. There is no selection state on the page at all, so there is
+   nothing to default. No "most popular" either.
+2. **THE PAGE IS THE LEGALLY LOAD-BEARING HALF OF THE CHECKOUT.** AB 2863
+   wants the terms clear and conspicuous BEFORE billing details are taken;
+   there are no billing details here, which is why this is where "before"
+   happens. Moving a disclosure onto the checkout breaks the ordering.
+3. **THE HEADLINE FIGURE ON EACH RUNG IS WHAT LEAVES THE BANK** — never an
+   effective monthly. And the saving is in MONTHS FREE, which is the only
+   framing that works for both columns: as effective monthlies the founding
+   annual is **$33.33**.
+
+### Four defects, three invisible to every check that existed
+
+- **`tests/landing-pricing.test.mjs`'s pricing-section slice had been EMPTY
+  since it was written** — wrong `aria-labelledby`, `indexOf` → −1,
+  `slice(-1, …)` → `""`. *"No hardcoded prices"* passed by having no subjects,
+  in the test guarding the numbers a customer is charged.
+- **A `data-rv` on a conditionally-rendered node can never reveal.**
+  `thread.js` captures its revealables with one `querySelectorAll` at mount and
+  that list is STATIC, so the founding strip — added when the offer lookup
+  answers — sat at opacity 0 permanently. **`?lite=1` reveals everything so the
+  lite path looked right; an opacity-0 element has a full box so the sweep
+  printed `clean`; no contrast test can measure a colour nobody is shown.**
+- **The strip lost the settle-then-count race at the first width**, caught only
+  by its `else` printing `NOT MEASURED`. **Fixing it needed `appear()` hoisted
+  to module scope — the second time that helper has been unreachable at a site
+  that had the race it was written for.**
+- **The sweep cried wolf on the landing ground**, the first `.ground` page it
+  has ever walked: `past-viewport` now skips anything an ancestor clips.
+
+### Verified
+
+Full sweep **clean at 1920 / 1440 / 392 / 360 / 320**, normal and `--lite`,
+exit 0. Zero console errors at all five sizes.
+`tests/landing-pricing.test.mjs` is **58 checks** (was 21) and **thirteen were
+baselined by breaking what they guard**. All eleven credential-free suites
+pass.
+
+### Left open, deliberately
+
+- **The checkout, and the express-affirmative tick with it.** The tick is not
+  on the pricing page on purpose: consent must be stored with the subscription
+  at the moment of purchase, and consent gathered on a marketing page and
+  carried through a signup flow can be lost.
+- **The detailer's billing page** behind the gear, owner-only.
+- **The page now PROMISES dunning behaviour nothing implements** — two weeks of
+  retries with an email each time, then the site goes offline until paid,
+  nothing deleted. That was a plan; it is a printed promise now and the
+  checkout is bound by it.
+- ~~**The landing page is still swept by nothing.**~~ **CLOSED IN THE SAME
+  SESSION.** It had never been measured by anything — this sweep walks the
+  dashboard and the booking page, and `/` is neither. Measured with the sweep's
+  own four checks before being added: **clean at all five widths**, so it went
+  in as one line, changes no verdict today, and catches the next change to it.
+- **`?term=` reaches `/app` and nothing reads it yet.** The checkout will.
+
+## ROADMAP 2.25 — HIS SIGN-UP-SCREEN ASK, AND WHAT WAS ALREADY BUILT (2026-09-05)
+
+He asked mid-session for a better sign-up/login page, login and sign-up
+buttons on the landing page, and Google sign-in. **Two of the three already
+exist**, checked against the repo and the live project rather than assumed:
+
+- **Google sign-in is fully written and switched OFF.** `Auth.jsx` calls
+  `signInWithOAuth`, carries Google's marque, and asks GoTrue's
+  `/auth/v1/settings` so the button cannot appear before the provider is
+  enabled. **That endpoint answers `google: false`.** It is a Google Cloud
+  OAuth client plus a Supabase toggle — **his ten minutes, not code.**
+- **The landing nav already has both buttons.** What is true is the wording:
+  *Get started* does not read as *sign up*.
+- **The screen itself is the real item.** It is built from the dashboard's
+  chrome while everything before it is the landing world, and it is the last
+  impression before somebody hands over money.
+
+Queued as roadmap **2.25** with both traps written down: `theme.css` is global
+and leaks into `.ld` (nine class names are already renamed for it), and
+`Auth.jsx` is the screen `sweep-widths.mjs` signs in through on every run.

@@ -14,7 +14,16 @@
 //     file cannot know that number, so it states the starting figure.
 //   · every price comes from ./pricing.js, never from the markup —
 //     tests/landing-pricing.test.mjs pins that.
-//   · the calls to action point at /app, not at #price.
+//   · THE CALLS TO ACTION POINT AT /pricing (roadmap 2.20 stage 2,
+//     2026-09-05) — not at #price as the reference has it, and no longer at
+//     /app?plan=… as this file had it until then. The owner's words:
+//     "when you say take founding spot, that shouldn't bring you to a sign
+//     up or a payment screen. That should take you to a pricing page." A
+//     visitor who has not chosen between three ways to pay is not ready for
+//     a signup form, and /pricing is also where California's AB 2863
+//     disclosures have to sit — before any billing detail is asked for.
+//     Only "Sign in" still goes to /app. tests/route-contract.test.mjs
+//     fails if a plan button drifts back.
 //
 // The nine sections and their skeletons (law 1 — no two alike):
 //   1 hero .............. left-heavy asymmetric, one floating object
@@ -61,16 +70,7 @@ export default function LandingPage() {
 
   return (
     <div className="ld">
-      {/* One continuous ground under the whole page: two slow lights, a dot
-          lattice, the pointer light and grain. This is law 2 — something is
-          always animating — in its cheap form: transform and opacity only,
-          no renderer, no canvas. */}
-      <div className="ground" id="ground" aria-hidden="true">
-        <b></b><b></b>
-        <span className="dots"></span>
-        <span className="cursor" id="cursorGlow"></span>
-        <i></i>
-      </div>
+      <Ground />
 
       <nav className="nav" id="nav" aria-label="Main">
         <span className="nav__g"><i></i></span>
@@ -78,7 +78,7 @@ export default function LandingPage() {
         <a className="lk hide-s" href="#get">What you get</a>
         <a className="lk hide-s" href="#price">Pricing</a>
         <a className="lk" href="/app">Sign in</a>
-        <a className="cta sm" href="/app?plan=website">Get started<span className="ar">→</span></a>
+        <a className="cta sm" href="/pricing">Get started<span className="ar">→</span></a>
       </nav>
 
       <main id="top">
@@ -107,7 +107,7 @@ export default function LandingPage() {
                 your prices, your hours.
               </p>
               <div className="ctas" data-rv="" style={{ "--i": 3 }}>
-                <a className="cta" href="/app?plan=website" data-glow="">
+                <a className="cta" href="/pricing" data-glow="">
                   See it with your name on it<span className="ar">→</span>
                 </a>
                 <span className="fine">
@@ -465,25 +465,33 @@ export default function LandingPage() {
                 </p>
               )}
               <div className="pfoot">
-                <a
-                  className="cta block"
-                  href={founding ? "/app?plan=website&offer=founding" : "/app?plan=website"}
-                  data-glow=""
-                >
+                <a className="cta block" href="/pricing" data-glow="">
                   {founding ? "Take a founding spot" : "Start the website plan"}
                   <span className="ar">→</span>
                 </a>
-                {/* MONTHS, NOT DOLLARS — 2026-09-04. The saving is unchanged
-                    ($120, 16.7%, the industry-standard annual discount); the
-                    framing is what moved. "2 months free" reads faster than
-                    "$120 less" because a month is easier to picture than a
-                    subtraction, and it is how the whole category words it.
-                    Still derived from the config, so the sentence cannot go
-                    stale: change `annual` and the number of months follows. */}
+                {/* THE ANNUAL LINE MOVED TO /pricing ON 2026-09-05, and the
+                    ORDER was the load-bearing half of the owner's own
+                    instruction: "you don't even need to say six hundred a
+                    year paid once, because that'll be shown inside the
+                    pricing page" — so it stayed here until the page that
+                    carries it existed, or the only mention of the annual
+                    option would have disappeared before its replacement.
+                    Two plans on this page, three ways to pay on that one.
+                    The "2 months free" framing and the check that keeps it
+                    honest (a WHOLE number of months, inside the 15-20% band
+                    the category uses) went with it —
+                    tests/landing-pricing.test.mjs now reads PricingPage.jsx
+                    for both.
+                    AND THE PRICE ITSELF IS GONE FROM THIS LINE, not just the
+                    sentence: he said "you don't even need to SAY six hundred a
+                    year paid once", so a teaser reading "from $600 a year"
+                    would have kept the exact thing he asked us to drop. What
+                    stays is the FACT the card cannot carry on its own — this
+                    card quotes one of three ways to pay, and without a pointer
+                    the landing page presents that one as the only one. */}
                 <p className="alt">
-                  Or ${PRICING.annual}/year paid once —{" "}
-                  {(PRICING.website.monthly * 12 - PRICING.annual) / PRICING.website.monthly}{" "}
-                  months free.
+                  Three ways to pay.{" "}
+                  <a className="softlink" href="/pricing">See them all</a>
                 </p>
               </div>
             </article>
@@ -502,7 +510,7 @@ export default function LandingPage() {
                 you have — or run from your bio until you want one.
               </p>
               <div className="pfoot">
-                <a className="cta gh block" href="/app?plan=booking" data-glow="">Start with booking</a>
+                <a className="cta gh block" href="/pricing#booking" data-glow="">Start with booking</a>
               </div>
             </article>
           </div>
@@ -527,7 +535,7 @@ export default function LandingPage() {
             behaviour free, and it survives every script on the page failing.
             The first two are open on load, so the section never reads as
             eight closed doors. */}
-        <section className="faq wrap" aria-labelledby="faqh">
+        <section className="faq wrap" id="faq" aria-labelledby="faqh">
           <span className="lab" data-rv="">Before you ask</span>
           <h2 className="disp" id="faqh" style={{ marginTop: 14 }}>
             <span className="mask"><span>Questions.</span></span>
@@ -583,25 +591,51 @@ export default function LandingPage() {
               Whatever they find is your website. Might as well be a good one.
             </p>
             <div className="ctas" data-rv="" style={{ "--i": 3 }}>
-              <a
-                className="cta"
-                href={founding ? "/app?plan=website&offer=founding" : "/app?plan=website"}
-                data-glow=""
-              >
+              <a className="cta" href="/pricing" data-glow="">
                 {founding ? "Take a founding spot" : "Start the website plan"}
                 <span className="ar">→</span>
               </a>
-              <a className="softlink" href="/app?plan=booking">Or just the booking page<span className="ar">→</span></a>
+              <a className="softlink" href="/pricing#booking">Or just the booking page<span className="ar">→</span></a>
             </div>
           </div>
         </section>
 
         {/* ══ 9 · FOOTER ════════════════════════════════════════════════ */}
-        <footer className="wrap foot" data-rv="">
-          <span className="mk">Detailing Platform</span>
-          <span>Built for the people who never rush a car.</span>
-        </footer>
+        <Foot />
       </main>
     </div>
+  );
+}
+
+/* ── Shared by every `.ld` page ───────────────────────────────────────
+   THE PRICING PAGE IS THE SECOND ONE (roadmap 2.20 stage 2), and these two
+   are exported rather than copied for the ordinary reason: the ground is
+   law 2 in its cheap form and the footer is the page's only mono facts, so
+   a copy that drifts means one page quietly stops carrying the system.
+   The NAV is deliberately not here — the pricing page's differs, because a
+   "Get started" button on the page you get started from is a button that
+   points at itself. */
+
+/* One continuous ground under the whole page: two slow lights, a dot
+   lattice, the pointer light and grain. Law 2 — something is always
+   animating — in its cheap form: transform and opacity only, no renderer,
+   no canvas. The ids are what thread.js binds the pointer light to. */
+export function Ground() {
+  return (
+    <div className="ground" id="ground" aria-hidden="true">
+      <b></b><b></b>
+      <span className="dots"></span>
+      <span className="cursor" id="cursorGlow"></span>
+      <i></i>
+    </div>
+  );
+}
+
+export function Foot() {
+  return (
+    <footer className="wrap foot" data-rv="">
+      <span className="mk">Detailing Platform</span>
+      <span>Built for the people who never rush a car.</span>
+    </footer>
   );
 }

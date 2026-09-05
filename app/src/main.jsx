@@ -13,6 +13,7 @@ import PlansPage from "./book/PlansPage.jsx";
 import PlanMemberPage from "./book/PlanMemberPage.jsx";
 import UnsubscribePage from "./book/UnsubscribePage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
+import PricingPage from "./landing/PricingPage.jsx";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
 // "Degradation"). `.lite` on <html> makes every animation render the end
@@ -56,6 +57,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         {/* detailingplatform.com/ is the marketing site: someone typing the
             domain should meet the product, not a login form. */}
         <Route path="/" element={<LandingPage />} />
+        {/* ROADMAP 2.20 STAGE 2. Every plan button on the landing page comes
+            here now instead of going straight to the signup form — the
+            owner's ask, and also where California's AB 2863 disclosures have
+            to live, because they must be clear and conspicuous BEFORE any
+            billing detail is asked for. tests/route-contract.test.mjs pins
+            that this route exists and that the landing page points at it;
+            a plan button that quietly goes back to /app?plan= is the exact
+            thing he objected to, and it is one character of drift away. */}
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/book/:slug" element={<BookingPage />} />
         {/* ROADMAP 2.14 STEP 3. The plans a detailer sells live BESIDE the
             booking flow, never as a step inside it — 7 of 7 sampled detailers

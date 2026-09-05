@@ -220,6 +220,8 @@ were made more than once.
 - **Roadmap 2.19 — a manual re-book email, and the machinery a MANUAL send still needs** — the owner ruled that nothing sends itself: a human picks the names and presses the button, and the reminder is a ROW ON A SCREEN rather than an email to him. What the roadmap entry understated is that CAN-SPAM classifies a message by its PRIMARY PURPOSE, never by what pressed send — so *“we haven’t seen you in a while”* needs a working opt-out and a postal address whether a person or a cron job sent it. **What the manual design removes is the SCHEDULING, not the statute.** So: `customers.unsubscribed_at`, a public two-step opt-out page (a one-click GET link would be pressed by Gmail’s prefetcher and every corporate link scanner, silently opting people out of businesses they still want to hear from), `businesses.mailing_address` as its own field because a mobile detailer has no unit, and a **50-recipient cap** that is ours rather than the law’s — the platform’s whole Resend allowance is **100 emails a day across every tenant**, and one unbounded campaign could stop bookings confirming. **The compose surface selects nobody**: Clients already knew who had lapsed, so the sheet is handed a list a human narrowed and its only job is the words. **And the demo had ZERO lapsed customers**, so the “not seen in 3 months” block `sweep-widths.mjs` has walked at five widths since 2026-09-02 was measuring an empty screen and printing clean — the seventh instance of *a skipped check reads exactly like a passing one*, found by asking the database rather than by reading the sweep’s output. **And it exposed a RACE in `sweep-widths.mjs` that is older than the item**: Monthly plans and Team draw their buttons only after Supabase answers, and both were measured with `settle()` + `count()` — a cap on a repaint, never a wait for a round trip — which `?lite=1` makes WORSE because a page with no animations goes quiet sooner. It printed `NO SUCH BUTTON`, which reads as a renamed control. **A control run proved it was ours, a bisect blamed a file, and a `console.log` probe then passed with that file in place** — which is what a race looks like from the outside. Also recorded there: `campaigns`/`campaign_visits` are tracked marketing LINKS and have nothing to do with this feature, and the opt-out is NOT tamper-proof against the tenant, which is a stated ceiling.
 
 - **Roadmap 2.20, stage 1 — the detailer's own payment handles** — the half of "taking money" that needs no processor, no key and no webhook: the detailer types their Venmo, Cash App, PayPal, Zelle and cash, and the customer's emails print them. **The scope in the roadmap is ROUND 3's and it contradicts round 2's, which is still quoted in three files**: round 2 said the UNPAID INVOICE ONLY; round 3 moved it to the confirmation and the reminder as well, on the owner's own trade knowledge (*"they don't leave a client's house until it's paid"*), because the unpaid invoice is a rare document. **The receipt still carries nothing** — that is his complaint about his old site and it is the point of the branch. **A FIFTH email carries them and the roadmap's wording would have missed it**: in request mode the ACCEPTED-request email is the confirmation, so following "the confirmation and the reminder" literally gives every request-mode tenant handles on no email at all. **A link is built only from a plain username or a pasted `https:` URL** — a wrong payment link sends money to the wrong person and is invisible from every screen — so a phone number, an email address or `javascript:` is printed and not linked, and a typed Zelle handle never links because Zelle has no username to build a link FROM — though a URL the detailer PASTES links in any field, which the module's own header denied until a security review ran the code instead of reading the comment. **No preview on the settings screen and no QR upload**, both refused with reasons. **Two defects came out of LOOKING**: the paired Venmo/Cash App row clips a handle at 392, and a payment handle is the one value where reading half is reading none; and the Business row summary was truncated to "…something els…". **Its other half shipped too: a rejected email send is now a fact about the CUSTOMER rather than an entry in a log** — `customers.email_failed_at`, stamped by `send-email` and **cleared by the next successful send**, because an opt-out is permanent and a bounce must not be, or a detailer who fixes a typo is told forever that the address they corrected is broken. The three places that ask *can we email this person* now agree, and only `send-campaign`'s is enforcement. **And adding the seeded bounce to the width sweep with an `else` that prints `NOT MEASURED` uncovered a race OLDER than the item**: the whole Clients block was `settle()` + `count()`, so in `--lite` six of its measurements had been silently ceasing to exist at three of five widths. *A guard that skips is byte-identical to a guard that passes; give every new one an `else`.*
+- **Roadmap 2.20, stage 2 — the pricing page, and why it is not decoration** — the owner's *"that shouldn't bring you to a sign up"*, built as `/pricing`. **The page is the legally load-bearing half of the checkout**: California's AB 2863 wants the auto-renewal terms, the twelve-month commitment and the early-exit fee clear and conspicuous BEFORE billing details are taken, so eight disclosures sit in a definition list at reading size rather than in a fine-print ramp. **The three ways to pay are a ruled LADDER and that shape is a legal decision, not a visual one** — three cards side by side invites a highlighted middle, which is a pre-selection in everything but name and the first item in the FTC's Adobe complaint; there is no selection state on the page at all, so nothing can be defaulted. **Each rung's headline figure is what leaves the BANK**, never an effective monthly. **The tick is deliberately at the checkout and not here** — consent must be stored with the subscription, and consent gathered on a marketing page and carried through a signup flow is consent that can be lost. **The founding ladder is DERIVED**: $400 and $50 follow the list ladder's own two rules (2 months free, +25% for no commitment), and the test pins the RULES rather than the figures. **Three of the four defects it produced were invisible to every check this repo had** — the test's own pricing-section slice had been EMPTY since it was written, a `data-rv` on a node the offer lookup adds can never reveal and left the scarcity claim at opacity 0 in the normal path only, and the width sweep reported three false positives on the landing ground the first time it ever walked a page carrying one. **And `appear()` was unreachable at its new caller for the SECOND time** — a `const` inside the width loop — so it is at module scope now.
+- **Roadmap 2.25 — Google sign-in was already built, and two of his three asks were already done** — he asked for a better sign-up screen, login/sign-up buttons on the landing page and Google sign-in; **checking the repo and the live project first turned a three-part build into a one-part one**. `Auth.jsx` already calls `signInWithOAuth`, already carries Google's marque, and already asks GoTrue's `/auth/v1/settings` so the button cannot appear before the provider is on — and that endpoint answers `google: false`, so it is a Supabase toggle plus a Google Cloud OAuth client, which is HIS ten minutes and not code. The landing nav already has both buttons; what is true is the WORDING. **The real work is the screen**, which is built from the dashboard's chrome while everything before it is the landing world — and the trap is `theme.css` being global, which is why nine class names on the landing page are already renamed.
 
 - **Working from the cloud while the owner is away (2026-09-05)** — what a Claude Code web session can and cannot do on THIS repo, settled by reading the docs rather than guessing: no `.env` in the clone and no Supabase on the sandbox allowlist, so **no database**; no Playwright browsers and a blocked CDN, so **no browser and therefore no screens**; and the user-level design skills are not there either. What survives is measured — **all ten credential-free checks run on a bare clone with no `npm install`**, plus the production build and `gh`. He starts a session with one memorised sentence, *“Follow `docs/cloud/README.md`”*, so **that file’s first block is a complete brief and anything a cloud session must know goes in it rather than in a message.** § 6 is its bounded permission to choose its own work when the queue empties: three tests (can it be finished here, can it be CHECKED here — name the check or write a document instead — and would he recognise it as the next thing), a ranked list, an off-limits list no reasoning overrides, and a **stop rule**: two self-chosen sessions producing only documents means the cloud-shaped work has run out.
 
@@ -12376,3 +12378,240 @@ site that still had it. It is declared once, high up, now.
   needs the module the app cannot import, so the honest options are a preview
   that costs a second implementation, or an edge function that answers it.
   Neither is worth building until a real detailer has typed a handle in.
+
+
+## Roadmap 2.20, stage 2 — the pricing page
+
+Written 2026-09-05. Stage 2 is the checkout; this is the half in front of it,
+and the owner asked for it in his own words:
+
+> *"When you say take founding spot, that shouldn't bring you to a sign up or
+> a payment screen. That should take you to a pricing page… it shows basically
+> all my options and all the different things, and they click the one that
+> they want."*
+
+### It is not decoration in front of a checkout
+
+Every plan button on the landing page went straight to
+`/app?plan=website&offer=founding`, which is a signup form. Somebody who has
+not yet chosen between three ways to pay is not ready for one. That is his
+complaint and it would have been enough on its own.
+
+**But the statute is the reason this page has to exist before the checkout
+does, rather than after it.** California's **AB 2863**, in force 1 July 2025,
+requires the auto-renewal terms, any minimum term and any early-cancellation
+fee to be **clear and conspicuous BEFORE billing details are taken**. There is
+no billing detail on this page, which is exactly why it is where "before"
+happens. **A session that treats this as the pretty page in front of the real
+one will move a disclosure onto the checkout and break the ordering the law
+cares about.**
+
+### Nothing is pre-selected, and the LADDER is how that is guaranteed
+
+The FTC sued Adobe in June 2024 over an early-termination fee, and it sued
+over the **presentation**: a pre-selected plan, the commitment buried in fine
+print and hover icons, and an obstructed cancellation. The fee itself was
+never the problem. So the three items the complaint named are the three things
+this page is built around.
+
+**Three cards side by side would have been the obvious layout and it is the
+wrong one twice over.** It is a named anti-slop tell
+(`docs/design-knowledge.md` §1), and — the reason that actually decided it —
+**it is the layout that invites a highlighted middle.** A highlighted middle
+is a pre-selection in everything but name. So the three ways to pay are a
+**ruled ladder**: three rows of equals, nowhere to put a badge, and nothing to
+stack the deck with.
+
+**There is no selection state on the page at all.** Each option is its own
+link. That is stronger than "we chose a sensible default of none", because
+there is no default to drift: a later session cannot accidentally reintroduce
+one without first inventing the state to hold it, and `tests/landing-pricing`
+7b fails if it does. There is no *"most popular"* either — with no customers
+it is both a pre-selection in disguise and a claim we cannot substantiate.
+
+**The roadmap said "annual-paid-monthly should be the visual middle".** It is,
+and "visual middle" is read here as POSITION only. It is second of three
+because the ladder runs cheapest-per-year to dearest, which is also where it
+would sit if nobody had an opinion.
+
+### The headline figure is what leaves the bank
+
+The pricing research's ladder is expressed as effective monthlies — $50 / $60 /
+$75 — and putting **$50/mo** on a plan that takes $600 in one payment is the
+small dishonesty this whole page is a correction to. So each rung's big mono
+figure is the actual charge: **$600 a year**, **$60 a month**, **$75 a
+month**.
+
+**The saving is stated in MONTHS FREE, and that is not only the locked
+framing — it is the only one that works for both price columns.** $600 on $60
+is two months free; $400 on $40 is two months free. As effective monthlies
+they are $50 and **$33.33**, and a founding visitor would have met a repeating
+decimal on the page that exists to make the offer feel considered.
+
+### The founding ladder is derived, not decided
+
+`docs/pricing-2026-09-04.md` locked `$999 / $60 / $600 / $35` and added
+month-to-month at `$75`. It also names founding equivalents in passing —
+$400 / $40 / $50 — and those are **not a second set of opinions**: they are
+the list ladder's own two rules applied to the founding monthly. Two months
+free ($480 − $400 = $80 = 2 × $40) and a 25% no-commitment premium
+($40 → $50).
+
+**So the test pins the RULES rather than the figures**, in both columns: the
+annual saving must be a whole number of months inside the 15–20% band the
+category uses, the month-to-month premium must be inside the 20–30% band, the
+ladder must be in order, and every founding price must be genuinely below its
+list price. The owner can move a number and be told whether the ladder still
+makes sense, rather than being told the number changed.
+
+### The tick is at the checkout, on purpose
+
+The roadmap says *"an explicit tick before payment"* and there is no tick on
+this page. **That is a decision and not an omission.** Express affirmative
+consent has to be captured and STORED with the subscription at the moment of
+purchase; consent collected on a marketing page and then carried through a
+signup flow is consent that can be lost, and a record of consent that cannot
+be produced later is worth nothing. The DISCLOSURE is what the statute
+requires before billing details, and the disclosure is here in full.
+
+### The page now promises dunning behaviour nothing implements
+
+*"We try the card again over the following two weeks and email you each time.
+If it still has not gone through after that, the site goes offline until it is
+paid. Nothing is deleted."*
+
+That is round 3's research (3–4 retries over 10–14 days, then pause rather
+than cancel) joined to the owner's own ruling on non-payment (*"if they just
+stop paying, then yes, their site will go down"*). **It was a plan; it is a
+printed promise now.** The checkout that lands next is bound by it, and that
+is written into the roadmap rather than left in this file.
+
+### Four defects, and three of them no existing check could see
+
+**1. The test's own pricing-section slice had been empty since it was
+written.** It looked for `aria-labelledby="price"`; the section is
+`aria-labelledby="prh"`, so `indexOf` returned −1 and
+`slice(-1, <something smaller>)` returns the empty string. *"No hardcoded
+prices in the pricing section"* passed by having **no subjects** for the whole
+life of the check — in the one test guarding the numbers a customer is
+charged. Identical in shape to `email-brand` 7a-ii in 2.18. It is anchored on
+the section's own `id` now and has a HAS-SUBJECTS assertion above it, which is
+the pattern 2.18 already established and this file failed to apply everywhere.
+
+**2. A `data-rv` on a conditionally-rendered node can never reveal.**
+`thread.js` collects its revealables with ONE `querySelectorAll` at mount, and
+that returns a **static** NodeList. The founding strip renders only when the
+offer lookup answers — after mount — so it was in no list, was never given
+`.in`, and sat at **opacity 0 permanently**. The element carrying the entire
+scarcity claim was invisible.
+
+**Nothing in this repo could have caught it**, and that is the part worth
+keeping:
+
+- `?lite=1` reveals everything, so the lite path looked correct;
+- an opacity-0 element still has a full box, so `sweep-widths.mjs` measured it
+  and printed `clean`;
+- no contrast test can measure a colour nobody is ever shown.
+
+**The landing page has never had this bug by luck rather than by rule** — its
+founding flag and lock line sit inside `.plan`, which is unconditional and
+carries the `data-rv` itself. The rule is now a check (`landing-pricing` 8e)
+and it is run against both pages: **put the reveal on a wrapper that is always
+mounted.**
+
+**3. The founding strip lost the settle-then-count race** at the first width
+of the very first full sweep, and it was caught **only** because its `if` had
+an `else` printing `NOT MEASURED` — the rule this file added on 2026-09-04,
+doing its job eight days later. `settle()` is a cap on a repaint and never a
+wait for a round trip.
+
+**And fixing it needed `appear()` HOISTED, which is the second time that
+helper has been unreachable at a site that had the race it was written for.**
+It was declared inside the width loop, immediately above the settings walk, so
+a `const`'s temporal dead zone put it out of reach of every earlier caller —
+the Clients block two hundred lines above it in 2026-09-04, and now the
+pricing block six hundred lines above that. It closes over nothing, so there
+was never a reason for it to be inside the loop. **It is at module scope now
+and cannot happen a third time.**
+
+**4. `sweep-widths.mjs` cried wolf on the landing ground.** The pricing page is
+the first page carrying `.ld`'s `.ground` that this script has ever walked, and
+the two drifting lights (76vmax) and the dot lattice (inset −8%) each measured
+~150px past the right edge at 320 — inside a `position: fixed` layer with
+`overflow: hidden` over them. `past-viewport` now skips anything an ancestor
+already clips horizontally.
+
+**That weakens nothing**: a defect is content sticking out where it can be
+SEEN, and clipped is the definition of cannot be. What it prevents is the
+check reporting three false positives on every run, which is how a check stops
+being read at all — and a check nobody reads is the same as no check.
+
+### What was deliberately left
+
+**The landing page had never been swept by anything, and this item closed
+that.** The width sweep walks the dashboard and the booking page; `/` is
+neither, so the page a visitor meets FIRST had never been measured. The first
+draft of this section argued for leaving it — a pre-existing gap belongs to an
+item that can act on what it reports — and that argument was wrong in the
+cheapest possible way: **measuring it took two minutes.** It came back clean at
+all five widths with the sweep's own four checks, so adding it was one line
+that changes no verdict today and catches the next change to that page.
+**The transferable half: "this gap belongs to a later item" is a decision that
+should be made AFTER measuring, not instead of it.** Deferring a fix is
+reasonable; deferring the measurement that would tell you whether there is
+anything to fix is just not looking.
+
+**And `?term=` reaches `/app` where nothing reads it.** The pricing page hands
+the chosen term forward so the choice survives the step after it; `Auth.jsx`
+already switches to "create an account" on the presence of `plan`, and the
+checkout is what will read `term`.
+
+
+## Roadmap 2.25 — two of the three asks were already built
+
+Written 2026-09-05, answering the owner mid-session:
+
+> *"can we put on the list to improve the sign up / log in page cuz it looks
+> pretty buns. also we should have a log in and sign up button for the landing
+> page. also add google log in support"*
+
+**Checking the repo and the live project before writing anything turned a
+three-part build into a one-part one**, and that is the whole reason this
+section exists — the next session to pick 2.25 up would otherwise build Google
+sign-in a second time.
+
+**Google sign-in is fully written and switched off.** `app/src/screens/Auth.jsx`
+has `withGoogle()` calling `supabase.auth.signInWithOAuth({ provider:
+"google" })`, Google's own marque as inline SVG in their brand colours because
+their guidelines require it be shown as issued, and `useEnabledProviders()`,
+which reads GoTrue's `/auth/v1/settings` so **the button appears the moment
+Google is enabled and never before** — no rebuild, and no button leading to
+*"provider is not enabled"*. **Measured on the day he asked: that endpoint
+returns `google: false`, with `email` the only provider on.**
+
+So it is not a code task. It is a Google Cloud OAuth client pasted into
+Supabase → Authentication → Providers, which needs his Google account and is
+about ten minutes. **The one thing to verify once it is on, rather than
+assume:** a Google sign-up produces a session with no business, and `App.jsx`
+is supposed to route that to business creation. The email path does; nothing
+has ever exercised the OAuth path.
+
+**The landing page already has both buttons** — *Sign in* → `/app` and
+*Get started* → `/pricing`. What is true in his complaint is the **wording**:
+"Get started" does not read as "sign up", and the two do not look like a pair.
+A label and treatment decision, not a missing feature.
+
+**The screen itself is the real item and he is right about it.** `Auth.jsx` is
+built from `theme.css`'s `.card`, `.field` and `.btn` — the DASHBOARD's
+chrome — while everything a prospect meets up to that moment is the landing
+world. It is the one screen where the two surfaces meet, and it is the last
+impression before somebody hands over money.
+
+**Two traps are written into the roadmap entry rather than left to be
+rediscovered.** `theme.css` is GLOBAL and reaches into `.ld`; nine class names
+on the landing page are already renamed to survive that, and the list is in
+`landing.css`'s header. And **`Auth.jsx` is the screen `sweep-widths.mjs` signs
+in through on every run**, addressing `input[type=email]`,
+`input[type=password]` and `form button.btn.primary` by selector — a rename
+that misses those turns every browser check in the repo red at once, printing
+`NO SUCH BUTTON`, which reads as a product bug rather than a harness one.

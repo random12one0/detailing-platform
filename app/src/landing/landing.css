@@ -843,3 +843,221 @@
 .lite .ld .float, .lite .ld .widget-hold { transform: none !important; }
 .lite .ld .vsrow { --rp: 1; }
 .lite .ld .end::before { transform: translateX(-50%); opacity: 1; }
+
+/* ══ /pricing ═════════════════════════════════════════════════════════
+   ROADMAP 2.20 STAGE 2. The second `.ld` page, and it shares this file
+   rather than opening a third stylesheet: it is the same world, the same
+   ground, the same nav and the same two faces. What it must NOT share is a
+   SKELETON — law 1 is about sections, and a pricing page that repeats the
+   landing page's asymmetric pair is that law failing across two pages
+   instead of inside one. So: a strip, a split head over a ruled ladder, a
+   horizontal bar, and a definition list.
+
+   THE LADDER IS THE ONE THAT MATTERS, and its shape is a legal decision as
+   much as a visual one. Three CARDS side by side is the named tell
+   (docs/design-knowledge.md §1) AND it is the layout that invites a
+   highlighted middle — which is a pre-selection in everything but name, and
+   pre-selection is the first item in the FTC's Adobe complaint. Three ruled
+   rungs read as a list of equals, cost nothing to stack at 320, and have
+   nowhere to put a "most popular" badge. */
+
+/* The nav is fixed, so the first section owes it its own height plus the
+   gutter it floats in. The hero's clamp is the landing page's and is far
+   too tall for a page whose whole job is to be read. */
+.ld .phead { padding: clamp(104px,14vh,150px) 0 clamp(26px,4vh,44px); }
+.ld .backlink {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--fog-2);
+  transition: color var(--t-hover) linear;
+}
+.ld .backlink:hover { color: var(--bone-2); }
+/* One arrow glyph in the markup, pointed the other way — a second character
+   for "back" is a second thing to keep in step with the first. */
+.ld .backlink .ar.back { display: inline-block; transform: rotate(180deg); transition: transform var(--t-hover) var(--e-out); }
+.ld .backlink:hover .ar.back { transform: rotate(180deg) translateX(3px); }
+.ld .phead .lab { display: block; margin-top: 22px; }
+.ld .phead .lede { max-width: 52ch; }
+
+/* The offer, as a strip rather than a badge: it is a fact about the whole
+   page — every figure below it changes — so it cannot sit on one plan. */
+.ld .offerbar {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px;
+  margin-top: 30px; padding: 15px 18px;
+  border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
+  background: rgba(56,224,139,.075);
+  box-shadow: inset 0 0 0 1px rgba(56,224,139,.26);
+}
+.ld .offerbar b {
+  color: var(--ac); font-variation-settings: "wdth" 84, "wght" 700;
+  font-size: 11.5px; letter-spacing: .17em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.ld .offerbar span { color: var(--bone-2); font-size: 14.5px; line-height: 1.5; flex: 1 1 22ch; }
+
+/* ── The website plan ─────────────────────────────────────────────── */
+.ld .planblock { padding: clamp(40px,7vh,74px) 0 clamp(30px,5vh,54px); }
+.ld .planhead {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,300px);
+  gap: clamp(22px,3.4vw,46px); align-items: start;
+}
+.ld .planhead .lede { margin-top: 14px; max-width: 46ch; }
+/* THE BUILD FEE GETS ITS OWN PANEL because it is the number nobody expects.
+   Three monthly figures under one four-figure one-off is exactly how a
+   price page ends up technically honest and practically misleading. */
+.ld .setupfee {
+  border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
+  padding: 18px 20px 20px;
+  background: linear-gradient(172deg, var(--ink-2), var(--ink-1));
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.ld .setupfee .amount {
+  font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
+  font-size: clamp(34px,4.4vw,46px); line-height: 1; letter-spacing: -.05em;
+  margin-top: 12px;
+}
+.ld .setupfee .was {
+  color: var(--fog-2); text-decoration: line-through; text-decoration-thickness: 1px;
+  margin-right: .28em; font-size: .55em;
+}
+.ld .setupfee .fine { margin-top: 12px; }
+
+/* What you get. A hairline-ruled pair of columns with an accent tick drawn
+   in CSS — not the landing page's numbered rail, because these five are a
+   set and not a sequence, and numbered markers on a non-sequence is one of
+   the named tells. */
+.ld .incl {
+  list-style: none; margin: clamp(26px,4vh,40px) 0 0; padding: 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0 clamp(24px,4vw,54px);
+}
+.ld .incl li {
+  position: relative; padding: 13px 0 13px 26px;
+  border-top: 1px solid var(--line);
+  color: var(--bone-2); font-size: 15.5px; line-height: 1.45;
+}
+.ld .incl li::before {
+  content: ""; position: absolute; left: 2px; top: 19px;
+  width: 9px; height: 5px;
+  border-left: 1.5px solid var(--ac); border-bottom: 1.5px solid var(--ac);
+  transform: rotate(-45deg);
+}
+
+.ld .laddercap { display: block; margin: clamp(34px,5vh,52px) 0 0; }
+
+/* ── The three rungs ──────────────────────────────────────────────── */
+.ld .ladder {
+  list-style: none; margin: 18px 0 0; padding: 0;
+  border-top: 1px solid var(--line-2);
+}
+.ld .rung {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto auto;
+  gap: clamp(16px,3vw,40px); align-items: center;
+  padding: clamp(20px,2.6vh,26px) 0;
+  border-bottom: 1px solid var(--line);
+}
+.ld .rung .rt {
+  display: block; font-variation-settings: "wdth" 104, "wght" 660;
+  font-size: clamp(17px,1.9vw,21px); letter-spacing: -.015em; color: var(--bone);
+}
+.ld .rung .rw {
+  display: block; margin-top: 7px; max-width: 52ch;
+  color: var(--fog); font-size: 14.5px; line-height: 1.5;
+}
+.ld .rungfig { text-align: right; white-space: nowrap; }
+.ld .rungfig .fig {
+  font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
+  font-size: clamp(28px,3.4vw,40px); line-height: 1; letter-spacing: -.05em;
+  color: var(--bone);
+}
+.ld .rungfig small { display: block; margin-top: 6px; font-size: 12.5px; color: var(--fog-2); }
+
+/* ── Booking only ─────────────────────────────────────────────────── */
+.ld .onlybar {
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(0,300px);
+  gap: clamp(22px,3.4vw,46px); align-items: center;
+  padding: clamp(40px,7vh,80px) 0;
+}
+.ld .onlybar .lede { max-width: 44ch; }
+.ld .onlybar .fine { margin-top: 14px; max-width: 46ch; }
+.ld .onlybuy {
+  border-radius: var(--ld-r-panel); corner-shape: var(--ld-corner);
+  padding: clamp(20px,2.6vw,26px);
+  background: rgba(255,255,255,.02);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.ld .onlybuy .amount {
+  font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
+  font-size: clamp(36px,4.6vw,50px); line-height: 1; letter-spacing: -.05em;
+}
+.ld .onlybuy .amount small {
+  font-family: "Archivo", sans-serif; font-size: 14px; letter-spacing: 0;
+  color: var(--fog); font-variation-settings: "wght" 400;
+}
+.ld .onlybuy .then { color: var(--fog-2); font-size: 12.5px; margin-top: 9px; }
+.ld .onlybuy .cta { margin-top: 20px; }
+
+/* ── Before you pay ───────────────────────────────────────────────── */
+.ld .legal { padding: clamp(50px,8vh,96px) 0 clamp(30px,5vh,50px); }
+/* Capped, so the hairlines end where the words do. At full --wrap the
+   longest answer ends around 700px and the rules ran to 1180 — 480px of
+   ruled nothing beside the one block on this page somebody has to read. */
+.ld .legal dl { margin: clamp(28px,5vh,46px) 0 0; max-width: 940px; }
+.ld .legal dl > div {
+  display: grid; grid-template-columns: minmax(0,15rem) minmax(0,1fr);
+  gap: 8px clamp(24px,4vw,54px);
+  padding: 17px 0; border-top: 1px solid var(--line);
+}
+.ld .legal dl > div:last-child { border-bottom: 1px solid var(--line); }
+.ld .legal dt {
+  font-variation-settings: "wdth" 104, "wght" 640;
+  font-size: 16px; letter-spacing: -.01em; color: var(--bone);
+}
+/* AT READING SIZE, NOT IN FINE PRINT. That is the disclosure requirement,
+   and it is why this is 16px on --bone-2 rather than the 13px --fog-2 ramp
+   every other secondary line on these pages uses. */
+.ld .legal dd { margin: 0; color: var(--bone-2); font-size: 16px; line-height: 1.55; max-width: 62ch; }
+
+.ld .closer { padding: 0 0 clamp(40px,7vh,80px); }
+.ld .closer p {
+  color: var(--fog); font-size: clamp(16px,1.6vw,19px); line-height: 1.55;
+  max-width: 52ch; padding-top: clamp(24px,4vh,38px); border-top: 1px solid var(--line);
+}
+
+/* ── Narrow ───────────────────────────────────────────────────────────
+   The rung is the one that has to change SHAPE rather than shrink: a 40px
+   mono figure, a sentence and a button cannot share a line on a phone, and
+   squeezing them is how a price ends up wrapping mid-figure. Below 760 the
+   button goes full width under its own row and the figure sits beside the
+   name, where a price belongs. */
+@media (max-width: 900px) {
+  .ld .planhead, .ld .onlybar { grid-template-columns: 1fr; }
+  .ld .onlybar { gap: 26px; }
+}
+@media (max-width: 780px) {
+  .ld .incl { grid-template-columns: 1fr; }
+  .ld .legal dl > div { grid-template-columns: 1fr; gap: 6px; }
+}
+@media (max-width: 760px) {
+  .ld .rung {
+    grid-template-columns: minmax(0,1fr) auto;
+    gap: 14px 18px; align-items: baseline;
+  }
+  .ld .rung .rungwhat { grid-column: 1; }
+  .ld .rungfig { grid-column: 2; text-align: right; }
+  .ld .rung .cta { grid-column: 1 / -1; justify-content: center; width: 100%; }
+}
+/* THE 320 FLOOR. The rung's name at 17px wants about 150px before it wraps
+   to three lines and the mono figure is 84px wide, against the 280px that
+   320 minus two 20px gutters leaves. So below 400 the figure takes its own
+   line above the sentence, where it has the full width and cannot squeeze
+   the words. */
+@media (max-width: 400px) {
+  .ld .rung { grid-template-columns: 1fr; gap: 10px; }
+  .ld .rungfig { grid-column: 1; text-align: left; }
+  .ld .rungfig small { display: inline; margin-left: 8px; }
+  .ld .offerbar { padding: 13px 15px; }
+}
+/* What the founding prices are a discount FROM. One sentence rather than a
+   strike on each of the three figures — the ladder is already three rows of
+   numbers and a fourth struck one on each would be four. */
+.ld .standard { margin-top: 20px; color: var(--fog-2); font-size: 13.5px; line-height: 1.5; max-width: 60ch; }

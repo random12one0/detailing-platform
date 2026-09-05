@@ -409,7 +409,18 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, `landing-pricing`, `route-contract`, **`money-export`**,
+  `design-contrast`, **`landing-pricing`** (**58 checks** — 21 until roadmap
+  2.20 stage 2 on 2026-09-05, and its FIRST check had been vacuous since the
+  day it was written: the pricing-section slice looked for
+  `aria-labelledby="price"` when the section is `"prh"`, so `indexOf` returned
+  −1, `slice(-1, <smaller>)` gave `""`, and *"no hardcoded prices in the
+  pricing section"* passed by having NO SUBJECTS — in the one test guarding the
+  numbers a customer is charged. Same shape as `email-brand` 7a-ii. It now
+  covers the pricing page too: the ladder's pricing RULES rather than its
+  figures, the AB 2863 disclosures, that nothing is pre-selected, and that the
+  landing page's plan buttons still point at `/pricing`. Thirteen of them were
+  baselined by breaking what they guard),
+  `route-contract`, **`money-export`**,
   **`email-brand`** (**189** checks — 97 when it was written and grown in roadmap
   2.12, which found what it could not see: it pinned the colour ENGINE and never
   looked at what the templates DID with the answer, so **every email headline in
@@ -595,6 +606,19 @@ explaining it; if they still have to ask "so should I?", it failed.
   walk uses "I'll do this later" throughout and never presses Continue, which
   is the one that writes; `seed-demo.mjs` pins the demo at 6 of 7 so the row
   it opens the form from is always there)**,
+  **THE LANDING PAGE — added 2026-09-05, and until that day the page a
+  visitor meets FIRST had never been measured by anything in this repo.** It
+  was measured BEFORE being added rather than after: clean at all five widths,
+  so it changed no verdict on the day and catches the next change to it. The
+  gap existed because this script walks the DASHBOARD and the booking page, and
+  `/` is neither,
+  **THE PRICING PAGE, `/pricing` (added 2026-09-05, roadmap 2.20 stage 2, in
+  the change that built it).** Public, so it is walked before the sign-in
+  beside the booking page. Its ladder changes shape twice between 1440 and 320,
+  and the founding strip is a SUPABASE READ — so the strip is waited for with
+  `appear()` and its absence PRINTS rather than skipping. It lost that race at
+  the first width of its very first full run and the `else` is the only reason
+  anybody knows,
   **NOTIFICATIONS' "YOUR OWN WORDS" EDITOR, WHICH IS A STATE BEHIND A BUTTON
   (added 2026-09-03, roadmap 2.18 — the SEVENTH time this same gap has been
   found).** Twelve rows collapse to an "Add a line" button and the textarea,
@@ -907,7 +931,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   immediately before the settings walk**, so a `const`'s temporal dead zone put
   it out of reach of the Clients block two hundred lines earlier — the helper
   written to fix this exact race could not have been called at the site that
-  still had it. It is declared once, high up, now.
+  still had it.
+  **"HIGH UP" WAS NOT HIGH ENOUGH AND IT HAPPENED AGAIN — 2026-09-05.** It was
+  still inside the width LOOP, so the pricing block six hundred lines above it
+  could not call it either, and that block then lost the same race. **It is at
+  MODULE scope now**, beside `settle()`. It closes over nothing and never
+  needed to be in the loop. A helper that exists to fix a race is worthless at
+  every call site that lexically precedes it, and this is the second time that
+  sentence has had to be written.
 - **A REJECTED SEND IS A FACT ABOUT THE CUSTOMER, NOT AN ENTRY IN A LOG —
   roadmap 2.20, 2026-09-04.** `sendTenantEmail` is best-effort by design (an
   email failure must never fail a booking), so until this item a provider
@@ -936,6 +967,81 @@ explaining it; if they still have to ask "so should I?", it failed.
   the only place in the product that prints a customer's email. **The job
   record does not print one at all**; if it ever does, the line belongs there
   too. The QUOTA half needed nothing — Resend already emails at 80% and 100%.
+- **THE PRICING PAGE IS THE LEGALLY LOAD-BEARING HALF OF THE CHECKOUT, NOT
+  DECORATION IN FRONT OF IT — roadmap 2.20 stage 2, 2026-09-05.** `/pricing`
+  (`app/src/landing/PricingPage.jsx`) carries the two plans, the three ways to
+  pay and the founding price. **California's AB 2863 requires the
+  auto-renewal terms, the twelve-month commitment and the early-exit fee to be
+  clear and conspicuous BEFORE billing details are taken**, and there are no
+  billing details on this page — which is exactly why it is where "before"
+  happens. **A session that moves a disclosure onto the checkout breaks the
+  ordering the statute cares about.**
+  **NOTHING IS PRE-SELECTED AND THE LADDER'S SHAPE IS WHAT GUARANTEES IT.**
+  The FTC sued Adobe in June 2024 over the PRESENTATION of an exit fee, not the
+  fee: a pre-selected plan, the commitment in fine print, an obstructed
+  cancellation. Three cards side by side invites a highlighted middle, which is
+  a pre-selection in everything but name — so the three ways to pay are three
+  RULED RUNGS and **there is no selection state on the page at all**. Do not
+  "improve" it into a radio group with a sensible default, and never add
+  *"most popular"*: with no customers it is a claim we cannot substantiate as
+  well as a pre-selection in disguise. `landing-pricing` 7b fails on both.
+  **EVERY FIGURE, INCLUDING THE TERM AND THE FEE, COMES FROM `pricing.js`** —
+  `term: { months: 12, exitFeeShare: 0.5 }` — because the checkout will CHARGE
+  what this page PRINTS. **And each rung's headline figure is what leaves the
+  BANK**, never an "effective monthly": $600 a year, not $50 a month. The
+  saving is in MONTHS FREE, which is also the only framing that works for both
+  columns — as an effective monthly the founding annual is $33.33.
+  **THE FOUNDING LADDER IS DERIVED, NOT DECIDED**: $400 and $50 are the list
+  ladder's own two rules (2 months free, +25% for no commitment) applied to
+  $40, and the test pins the RULES so the owner is told whether a new number
+  still makes sense rather than that it changed.
+  **THE PAGE NOW PROMISES DUNNING BEHAVIOUR NOTHING IMPLEMENTS** — two weeks of
+  retries with an email each time, then the site goes offline until paid,
+  nothing deleted. That was research plus his ruling on non-payment; it is a
+  printed promise now and the checkout is bound by it.
+  **The tick is deliberately at the CHECKOUT and not here**: consent has to be
+  stored with the subscription at the moment of purchase, and consent gathered
+  on a marketing page and carried through a signup flow is consent that can be
+  lost.
+- **A `data-rv` ON A CONDITIONALLY-RENDERED NODE CAN NEVER REVEAL, AND NO
+  CHECK IN THIS REPO CAN SEE IT — 2026-09-05.** `landing/thread.js` collects
+  its revealables with ONE `querySelectorAll` at mount and that returns a
+  **static** NodeList, so a node React adds later — when the founding lookup
+  answers — is in no list, is never given `.in`, and sits at **opacity 0 for
+  ever**. On the pricing page's first run that was the strip carrying the whole
+  scarcity claim.
+  **Why nothing caught it, which is the transferable part:** `?lite=1` reveals
+  everything, so the lite path looked right; **an opacity-0 element still has a
+  full box**, so `sweep-widths.mjs` measured it and printed `clean`; and no
+  contrast test can measure a colour nobody is shown. **PUT THE REVEAL ON A
+  WRAPPER THAT IS ALWAYS MOUNTED.** The landing page has never had this bug by
+  LUCK — its founding flag sits inside an unconditional `.plan` that carries
+  the `data-rv` — so `landing-pricing` 8e now holds the rule against both.
+  **And `initThread()` runs on EVERY `.ld` page now**, guarded rather than
+  copied: a second reveal system is the copy that rots. Its try/catch net puts
+  the WHOLE PAGE into `.lite` on any throw, so one unguarded `null` costs a new
+  page every animation it has and reports one line in the console.
+- **`sweep-widths.mjs` SKIPS ANYTHING AN ANCESTOR ALREADY CLIPS — 2026-09-05,
+  and it is a false-POSITIVE fix, which this file has not needed before.** The
+  pricing page is the first page carrying the landing surface's `.ground` that
+  the script has ever walked, and its two drifting lights (76vmax) and dot
+  lattice (inset −8%) each measured ~150px past the right edge at 320 — inside
+  a `position: fixed` layer with `overflow: hidden` over them. **This cannot
+  hide a real defect**: a defect is content sticking out where it can be SEEN,
+  and clipped is the definition of cannot be. It stops the check crying wolf on
+  every run, and a check nobody reads is the same as no check.
+- **GOOGLE SIGN-IN IS ALREADY BUILT AND IS SWITCHED OFF — do not build it
+  again (roadmap 2.25, measured 2026-09-05).** `app/src/screens/Auth.jsx` has
+  `withGoogle()` calling `signInWithOAuth`, Google's marque as inline SVG, and
+  `useEnabledProviders()`, which reads GoTrue's `/auth/v1/settings` so **the
+  button appears the moment the provider is enabled and never before** — no
+  rebuild, and no button leading to "provider is not enabled". That endpoint
+  answers `google: false` today, with `email` the only provider on, so this is
+  a Google Cloud OAuth client plus a Supabase toggle: **the owner's ten
+  minutes, not a code task.** The one thing to CHECK once it is on rather than
+  assume: a Google sign-up lands a session with no business, and nothing has
+  ever exercised that path. **The landing page already has both a Sign in and a
+  Get started button too**; what he is right about is the wording.
 - **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
   (new 2026-09-03, roadmap 2.18). Credential-free, no browser, no dev server. It
   writes all TWENTY-ONE emails — fifteen kinds plus the branches somebody
