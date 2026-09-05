@@ -4853,9 +4853,10 @@ in one component. Replaced by a **ruled list**, which is the design system's own
 composition law, and which cost 96px a plan against 190px: the page went from
 311px past the bottom of a laptop to fitting with 24px to spare.
 
-**Verified by looking and by measuring.** `sweep-booking-steps.mjs` gained four
+**Verified by looking and by measuring.** `sweep-booking-steps.mjs` gained five
 states — the plans page, the flow with a plan attached, step 1 for a remembered
-customer, and a member's own page — and every step still fits at 1920 / 1440x900
+customer, both at once (the returning member, which is the ordinary case), and
+a member's own page — and every step still fits at 1920 / 1440x900
 / 768x1024 / 392x844 in both paths. `sweep-widths.mjs` clean at all five widths.
 Every credential-free suite passes (`plans` is **73** now, `booking-engine`
 **95** with test 18). All three `plan-link` actions were exercised against the

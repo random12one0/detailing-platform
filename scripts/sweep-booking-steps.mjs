@@ -357,6 +357,21 @@ for (const size of SIZES) {
       phone: "5551234567", planId: null,
     }))})` },
   );
+  // BOTH AT ONCE, which is the state the owner's own sentence describes —
+  // *"Welcome back, Marcus — your Bi-weekly plan applies"* — and it is a third
+  // heading, not either of the two above: the NAME wins and the plan is named
+  // in the price bar instead. A returning member is the ordinary case for this
+  // whole feature, so it is the one that must not be the unmeasured one.
+  if (planId) {
+    await first(
+      "1/N known + plan",
+      `${BASE}/book/${SLUG}?plan=${planId}${LITE ? "&lite=1" : ""}`,
+      { before: `localStorage.setItem("bk.customer", ${JSON.stringify(JSON.stringify({
+        slug: SLUG, name: "Alexandrina Featherstone", email: "casey@example.com",
+        phone: "5551234567", planId: null,
+      }))})` },
+    );
+  }
   if (REFS?.planMemberId) {
     await first("your plan", `${BASE}/plan/${REFS.planMemberId}${LITE ? "?lite=1" : ""}`, { gate: false });
   } else {

@@ -618,9 +618,11 @@ explaining it; if they still have to ask "so should I?", it failed.
   owner's rule that a customer should never scroll inside a step — and the
   script exits 1 while anything overflows, so it is the definition of done.
   `--lite` runs the `?lite=1` path; `--shots=DIR` saves the PNGs.
-  **IT WALKS FOUR MORE THINGS SINCE ROADMAP 2.14 STEP 3, and three of them are
-  STATES rather than pages** — the flow with `?plan=`, and step 1 for a
-  customer the DEVICE remembers. Neither is reachable by walking, which is the
+  **IT WALKS FIVE MORE THINGS SINCE ROADMAP 2.14 STEP 3, and three of them are
+  STATES rather than pages** — the flow with `?plan=`, step 1 for a customer
+  the DEVICE remembers, and BOTH AT ONCE, which is the returning member and
+  therefore the ordinary case for the whole feature. None is reachable by
+  walking, which is the
   same gap this file records nine times: *the script walks NAVIGATION, and a
   state you reach by pressing something INSIDE a screen is not navigation.*
   They were added in the change that BUILT them.

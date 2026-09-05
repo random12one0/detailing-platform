@@ -423,10 +423,17 @@ function BookingFlow() {
   // is drawn in the bar and on the receipt. A retired plan is absent from this
   // list, so it correctly stops being named at all.
   const attachedPlan = planId ? plans.find((p) => p.id === planId) ?? null : null;
-  const recognition = attachedPlan
-    ? { kind: "plan", text: attachedPlan.name }
-    : known?.name
-      ? { kind: "name", text: known.name.trim().split(" ")[0] }
+  // THE NAME WINS WHERE WE HAVE ONE, and that is what makes this his own
+  // approved sentence rather than half of it. He asked for *"Welcome back,
+  // Marcus — your Bi-weekly plan applies"*; the name goes in the heading and
+  // the plan is already named in the price bar, beside the number it moved.
+  // A stranger arriving straight from a plan button has no name to use, so
+  // they get the plan instead — which is the other half of the same sentence,
+  // and the only half that is true of them.
+  const recognition = known?.name
+    ? { kind: "name", text: known.name.trim().split(" ")[0] }
+    : attachedPlan
+      ? { kind: "plan", text: attachedPlan.name }
       : null;
 
   return (

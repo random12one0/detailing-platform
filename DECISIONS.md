@@ -11645,6 +11645,14 @@ three answers came out of that:
 1440x900, 47px at 392x844, and so on down. The plan-attached step 1 has 25px at
 392 (its heading wraps to two lines) and the same 10px at 1440.
 
+**THE NAME WINS WHERE THERE IS ONE.** The heading has three states and the
+owner's own sentence is the third: *"Welcome back, Marcus — your Bi-weekly plan
+applies"* is the NAME in the heading and the PLAN in the price bar, not one or
+the other. A stranger arriving straight from a plan button has no name, so they
+get the plan — the only half of that sentence that is true of them.
+`sweep-booking-steps.mjs` walks all three, because a returning member is the
+ordinary case for this whole feature and it must not be the unmeasured one.
+
 ### The price: one function, and it rides a rail that already exists
 
 **`planLineFor` in `_shared/pricing.ts` is the only thing in this product that
