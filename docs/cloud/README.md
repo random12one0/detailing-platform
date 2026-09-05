@@ -79,8 +79,14 @@ PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --prefix app
 ```
 
 **Everything else needs no install whatsoever.** Verified 2026-09-05: not one
-of the eleven credential-free checks imports anything outside `node:` and this
-repo. They run on a bare clone.
+of the **twelve** credential-free checks imports anything outside `node:` and
+this repo. They run on a bare clone. (Eleven until roadmap 2.20 stage 2 added
+`tests/platform-billing.test.mjs` the same day — it imports two `_shared/*.ts`
+modules directly, which Node 24 type-strips, so it stays credential-free and
+runs here. **Anything under `_shared/` that a test imports must therefore stay
+strippable and must not touch `Deno` at module scope**: a TypeScript parameter
+property and a top-level `Deno.env.get` each broke that once on the day it was
+written.)
 
 ### 1d. There is no `/clear`.
 
@@ -104,7 +110,7 @@ that would replace its judgement are not either.
 
 | | |
 |---|---|
-| **The eleven credential-free checks** | zero install, no network, no browser. This is the real safety net |
+| **The twelve credential-free checks** | zero install, no network, no browser. This is the real safety net |
 | **The production build** | `npm run build --prefix app` — catches every import, syntax and module error a screenshot never would |
 | **`gh`** | pre-installed and authenticated through a proxy. **`random12one0/carwebitebooking` (the old live site) is readable**, which is what roadmap 4.1 needs |
 | **Reading and writing** | the whole repo, including `reference/`, `DECISIONS.md` and the research docs |

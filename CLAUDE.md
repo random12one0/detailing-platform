@@ -1281,9 +1281,12 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - **THE FIFTH TAB IS `Business`, THE PLUMBING IS BEHIND A GEAR IN THE HEADER,
   AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
-  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. NINE rows on
-  Business (what changes what a CUSTOMER meets — Monthly plans joined them in
-  roadmap 2.14, because a plan is an offer with a price), FIVE behind the gear
+  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. **TEN rows on
+  Business** (what changes what a CUSTOMER meets — Monthly plans joined them in
+  roadmap 2.14, because a plan is an offer with a price, and *How you get paid*
+  in 2.20 stage 1; **this said NINE until 2026-09-05 and was counted from the
+  file that day** — ten plus the five below is the fifteen the sweep walks),
+  FIVE behind the gear
   (what changes how the app behaves for the detailer — *Your subscription*
   joined them in roadmap 2.20 stage 2, and it passes the gear's half of the
   admission test outright: a card on file changes nothing a customer ever

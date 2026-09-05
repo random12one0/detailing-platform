@@ -4095,7 +4095,17 @@ is kept; the entire visual design restarts from scratch.
          rather than charging twice.
 
       All six are pinned by `tests/platform-billing.test.mjs` § 14, **baselined
-      by putting two of them back**. And a seventh came out of re-opening the
+      by putting two of them back**.
+      **AND THE RLS WAS PROVED AGAINST THE LIVE DATABASE RATHER THAN READ OFF
+      THE MIGRATION, 2026-09-05.** Signed in as a real owner through the anon
+      key: reading every subscription in the table returns `[]` (no
+      cross-tenant leak); inserting one is refused **403 `42501`**; and
+      `PATCH ... status=active` against another business's row answers
+      **200 with zero rows and leaves the row `incomplete`** — which is the
+      result worth writing down, because a 200 looks like a success and is
+      what "RLS on, no UPDATE policy" actually returns. `stripe_events` reads
+      back empty for an authenticated user rather than erroring, which is the
+      same shape and is also correct. And a seventh came out of re-opening the
       screen after the redeploy rather than out of the review: **a cold edge
       function took five seconds and the screen drew NOTHING for all of it** —
       it now says *"Checking your subscription…"*, which is the only thing that
@@ -4221,6 +4231,18 @@ is kept; the entire visual design restarts from scratch.
       public gets**, so that a loop cannot spend the project's function
       invocations. Include it when the ceiling is built; do not design anything
       special for it.
+
+      **AND `stripe-webhook` JOINED THE LIST ON 2026-09-05 (roadmap 2.20 stage
+      2), with the SMALLEST claim of the four and one thing that must not be
+      done to it.** It is public and it writes, but the Stripe signature is
+      checked before any database work and an unsigned POST cannot even consume
+      an event id — so a flood costs function invocations and nothing else, the
+      same blunt per-IP ceiling as `unsubscribe`. **What must NOT happen is a
+      per-caller throttle keyed on anything Stripe controls**: every legitimate
+      event comes from Stripe's own address range in bursts, and throttling
+      them means a payment that succeeded is never recorded, which presents as
+      a paying detailer's booking page going offline. **Exempt it from any
+      per-caller rule and give it only the ceiling.**
 
       **Skills: none — this is engine work. `security-review` before it ships.**
 
