@@ -60,6 +60,7 @@
 // noticed, because it was in no list anything runs. Rewritten 2026-09-04.
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
@@ -200,11 +201,28 @@ const undeliverable = (addr) =>
   /(^|\.)(test|invalid|localhost|example)$|^example\.(com|net|org)$/
     .test(String(addr).split("@").pop()?.toLowerCase() ?? "");
 
+// Started BEFORE the browser opens, so anything saved from here on is a
+// mid-run edit. `source-guard.mjs` explains why that matters.
+const changedSince = watchSource();
 const browser = await chromium.launch({ headless: !HEADED });
-for (const tenant of TENANTS) await loop(tenant);
+// THE CRASH PATH IS THE POINT. On 2026-09-04 this script did not fail, it
+// THREW — "Cannot navigate to invalid URL" out of a null receipt link — so a
+// diagnosis wired only into the summary below would have printed nothing on
+// the one run that needed it.
+try {
+  for (const tenant of TENANTS) await loop(tenant);
+} catch (e) {
+  await browser.close();
+  console.error(`\n${pass} passed, ${fail} failed — then the run threw:\n${e?.message ?? e}`);
+  await reportSourceMoved(changedSince, false);
+  process.exit(1);
+}
 await browser.close();
 
 console.log(`\n${pass} passed, ${fail} failed`);
+// Unconditional: see sweep-widths.mjs and source-guard.mjs's header. A pass
+// that reloaded mid-run is the case worth shouting about, not the quiet one.
+await reportSourceMoved(changedSince, !fail);
 process.exit(fail ? 1 : 0);
 
 // ===========================================================================

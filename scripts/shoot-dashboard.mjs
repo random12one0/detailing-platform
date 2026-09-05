@@ -21,7 +21,12 @@
 // error and warning seen at any width, which is the half that matters.
 // playwright is a devDependency of app/, which is the only npm project here.
 import { createRequire } from "node:module";
+import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
+
+// Started BEFORE the browser opens, so anything saved from here on is a
+// mid-run edit. `source-guard.mjs` explains why that matters.
+const changedSince = watchSource();
 import { mkdirSync } from "node:fs";
 
 const OUT = process.env.OUT || "shots";
@@ -173,3 +178,8 @@ for (const [w, h] of WIDTHS) {
 }
 await browser.close();
 console.log(problems.length ? problems.join("\n") : "console clean at every width");
+// UNCONDITIONAL HERE, UNLIKE THE OTHER THREE. This script has no pass or
+// fail to hang the message off — a page that reloaded mid-run still produces
+// perfectly valid-looking PNGs of the wrong thing, which is worse than a
+// failure because nothing about the output says so.
+await reportSourceMoved(changedSince, true);

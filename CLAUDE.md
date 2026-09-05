@@ -350,6 +350,28 @@ explaining it; if they still have to ask "so should I?", it failed.
   write, the Vite `page reload`, and the log's own mtime. **`--slug=<one>`
   re-runs a single tenant in ~90s and is the cheapest control**; the leg passed
   39/39 alone and 82/82 on a clean full re-run.
+  **AND AS OF 2026-09-05 THE SCRIPTS SAY IT THEMSELVES — `scripts/source-guard.mjs`.**
+  All four browser scripts note the time before the browser opens and, at the
+  end, name any file under `app/src` saved since. **The paragraph you are
+  reading was already here when this happened for the second time in two days,
+  which is the evidence that a warning in a 1,200-line file is not a fix.** The
+  guard does not prevent the mistake; it removes the eight minutes of
+  diagnosing it.
+  **IT REPORTS ON A PASS TOO, AND THAT IS THE LOAD-BEARING HALF — LEARNED BY
+  BASELINING IT RATHER THAN BY DESIGNING IT.** The first version fired only on
+  a failure, reasoning that a clean run needs no excuse. Baselining it — an
+  edit dropped 25 seconds into a real run — killed that in one go: **the page
+  reloaded and the run still finished with zero geometry problems and printed
+  `clean`**, so the guard was silent on a run nobody should trust.
+  **A MID-RUN RELOAD DOES NOT RELIABLY FAIL A RUN**, which is the fact worth
+  carrying: every check this sweep owns asks whether something is off an edge,
+  and a screen that never opened has no edges to be off. The damage is not a
+  red run, it is a green one that measured less than it claims — this repo's
+  oldest failure mode wearing a green tick. A false clean is worse than a
+  failure, because a failure at least makes somebody look.
+  **It is a diagnosis and never a gate** — it cannot change an exit code. A
+  check that started failing for procedural reasons would be worse than the
+  problem it names. Plain Node, no hook, portable to another agent.
   Same trap from the other side: a second agent or session working in this same
   directory does it to you without your knowing, so a sweep that dies mid-run
   is worth a `git status` before it is worth a bisect. The owner asked a second time during roadmap 2.12 why a session

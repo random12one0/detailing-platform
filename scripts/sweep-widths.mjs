@@ -64,7 +64,12 @@
 // Share button it adds is what pushed Open off the screen. A sweep that does
 // not stub it closes a real bug as "does not reproduce".
 import { createRequire } from "node:module";
+import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
+
+// Started BEFORE the browser opens, so anything saved from here on is a
+// mid-run edit. `source-guard.mjs` explains why that matters.
+const changedSince = watchSource();
 
 const WIDTHS = (process.argv.slice(2).filter((a) => /^\d+$/.test(a)).map(Number));
 // ?lite=1 is the reduced-motion path. It has its own stylesheet rules, so a
@@ -1038,4 +1043,10 @@ if (narrow && !DESKTOP_SPEC_BUILT) {
   console.log(`  ...but the content column is still narrow at ${narrow} desktop width${narrow === 1 ? "" : "s"}`
     + ` — see dead-width above. That is roadmap 2.11's desktop layout, not yet built.`);
 }
+// UNCONDITIONAL, AND THAT IS THE WHOLE POINT — baselining proved the first
+// version wrong. A reload mid-walk makes states quietly fail to OPEN, and a
+// state that never opened has no geometry to be wrong, so it reads as a pass:
+// the baseline run reloaded, lost two states and still printed `clean`.
+// A false clean is worse than a failure, because nothing makes anybody look.
+await reportSourceMoved(changedSince, !found);
 process.exit(found ? 1 : 0);

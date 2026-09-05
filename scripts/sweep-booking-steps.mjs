@@ -34,7 +34,12 @@
 // for W16. Needs the dev server on :5173 and the seeded demo business, like
 // sweep-widths.mjs — but no login, because this page is public.
 import { createRequire } from "node:module";
+import { reportSourceMoved, watchSource } from "./source-guard.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
+
+// Started BEFORE the browser opens, so anything saved from here on is a
+// mid-run edit. `source-guard.mjs` explains why that matters.
+const changedSince = watchSource();
 
 const args = process.argv.slice(2).filter((a) => /^\d+x\d+$/.test(a));
 // The four verification sizes from CLAUDE.md § Design, and all four earned
@@ -397,4 +402,5 @@ await browser.close();
 console.log(failing
   ? `\n${failing} step${failing === 1 ? "" : "s"} do not fit — W16 is not met`
   : `\nevery step fits at ${SIZES.map((s) => `${s.width}x${s.height}`).join(", ")}`);
+await reportSourceMoved(changedSince, !failing);
 process.exit(failing ? 1 : 0);

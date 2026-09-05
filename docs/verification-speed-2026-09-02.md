@@ -436,6 +436,47 @@ Same work, same findings, same commits:
 | Docs and commit, written WHILE the battery ran | 0 min |
 | | **~45–50 min** |
 
+### What was built instead of a fourth paragraph
+
+**He asked whether the mistake would happen again, and the honest answer was
+no — because two of the three mistakes above were ALREADY written in CLAUDE.md
+before the session started.** Adding a fourth warning to a 1,200-line file, as
+the fix for a problem two existing warnings had failed to prevent, deserves
+scepticism rather than a promise.
+
+So `scripts/source-guard.mjs` exists. All four browser scripts note the time
+before the browser opens and, at the end, name any file under `app/src` saved
+since. **It does not prevent the mistake; it deletes the cost of diagnosing
+it** — the eight minutes above become one line of output, and it works for any
+future session including one driven by a different agent.
+
+**BASELINING IT IMMEDIATELY FOUND A FLAW IN ITS OWN DESIGN, which is the part
+worth keeping.** The first version reported only on a failure — "a clean run
+needs no excuse". A real baseline run, with an edit dropped in at 25 seconds,
+proved that exactly wrong: **the page reloaded and the run still finished with
+zero geometry problems and printed `clean`**, so the guard was silent on
+precisely the run whose result was worthless.
+
+**A mid-run reload does not reliably FAIL a run.** Every check that sweep owns
+asks whether something is off an edge, and a screen that never opened has no
+edges to be off. So the damage is not a red run — it is a green one that
+measured less than it claims. The guard reports unconditionally now and says in
+as many words that a clean result from such a run must not be signed off.
+
+*Which is the same finding this repo has recorded a dozen times, arriving
+inside the tool built to catch it: a skipped check reads exactly like a passing
+one.*
+
+**AND THE WRITE-UP OF THIS ITSELF HAD TO BE CORRECTED, WHICH IS WORTH ONE
+LINE.** The first draft of the paragraph above claimed the baseline run visibly
+lost two states to the reload, citing `job record · tomorrow` → *"no tomorrow
+to open (is the demo seeded?)"*. **It did not.** Those lines appear in an
+unedited run at the same hour and are the demo's own trading day — checked
+after the fact, at 00:20, against a clean run. The argument for reporting
+unconditionally never needed them. **Reading damage into an ordinary line is
+the same mistake as reading a defect into a reloaded run**, one level up, and
+it was made while writing the tool built to prevent it.
+
 ### The rule that keeps not sticking, stated as a checklist
 
 1. **Scope the whole item before writing anything.** From the roadmap's bullets,
