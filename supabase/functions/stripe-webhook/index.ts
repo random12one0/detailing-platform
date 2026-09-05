@@ -199,6 +199,28 @@ async function subscriptionChanged(sub: Obj): Promise<void> {
   if (mapped) patch.status = mapped;
   if (mapped === "canceled") patch.canceled_at = new Date().toISOString();
 
+  // THE CARD IS CAPTURED HERE NOW, AND IT HAD TO MOVE WHEN THE PAYMENT FORM
+  // DID (2026-09-05). With Stripe's hosted page the card arrived on
+  // `checkout.session.completed`, which is the ONE event our own Payment
+  // Element never produces — so the first subscription bought through the new
+  // form went `active` with **"Card · None on file"** on the billing screen.
+  // Found by reading the row after a real payment, not by reading the code.
+  //
+  // `default_payment_method` is set because `subscribe` passes
+  // `save_default_payment_method: on_subscription`, and it arrives as an ID, so
+  // it costs one call — the same shape as the decline reason two functions
+  // down. Best-effort: a card we cannot name must never stop the status being
+  // recorded, and it is only fetched when the row has nothing better.
+  const pmId = typeof sub.default_payment_method === "string" ? sub.default_payment_method : null;
+  if (pmId) {
+    try {
+      const pm = await stripe(`/payment_methods/${pmId}`);
+      Object.assign(patch, cardFrom(pm));
+    } catch (e) {
+      console.error("could not read the card on file:", e);
+    }
+  }
+
   await supabase.from("platform_subscriptions").update(patch).eq("business_id", businessId);
 
   if (mapped === "suspended") await suspend(businessId, null, 0);

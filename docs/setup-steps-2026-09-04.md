@@ -143,12 +143,16 @@ one is done; the notes are kept because each has a consequence in the code.**
    the suspended email stopped naming the card. **If he ever switches this to
    "leave unpaid", none of that breaks** — the screen offers the card again on
    its own, because the test is whether a chargeable subscription still exists.
-3. **DONE — he rolled the test secret key.** **Watch for this:** Stripe lets
-   the old key keep working for a while after a roll, and it still worked when
-   checked. **When it expires the checkout will start failing**, and the fix is
-   to put the new `sk_test_` on the Supabase project — Project Settings → Edge
-   Functions → Secrets → `STRIPE_SECRET_KEY`. **He should do that himself
-   rather than paste it into a chat**, which is what caused the roll.
+3. ~~**Roll the test secret key.**~~ **NOT DOING IT, AND THAT IS HIS CALL, NOT
+   AN OVERSIGHT:** *"I didn't reset it and cuz it's just a sandbox one I'm fine
+   with it being in the chat history."* **He is right, and the reasoning is
+   worth keeping so nobody re-raises it:** a `sk_test_` key reaches test mode
+   only. It cannot touch a real card, a real customer or a real payout; the
+   worst somebody could do with it is create and delete fake data in a sandbox.
+   **The rule that DOES still bind is about the LIVE key**, which is a
+   different object entirely: it never appears in a chat, a file, a commit or a
+   log — it goes straight into Supabase's own secrets page in December and
+   nowhere else. **Do not nag him about the test key again.**
 
 **In December, one line changes**: replace the two secrets with the live key and
 the live webhook's signing secret. Nothing else moves, because the prices, the

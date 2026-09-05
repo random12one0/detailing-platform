@@ -13144,3 +13144,94 @@ account and no guardian**, so a signup and an `sk_test_` key — ten minutes —
 would close that gap long before 2 December. Until then `stripeConfigured()` is
 false, the checkout answers 503 *"Payments are not switched on yet"*, and the
 screen says so above the button rather than letting somebody press it.
+
+### The checkout is ours now, and the card fields are still Stripe's
+
+Stripe offers three shapes and the owner picked the third, 2026-09-05: *"then
+an option to just I make / we make the like gui think so I chose that one so it
+can look like the rest of the website."*
+
+1. a hosted page at `checkout.stripe.com` — what stage 2 shipped
+2. that page in an iframe on ours
+3. **Elements** — the card fields are Stripe's, everything around them is ours
+
+**He is right, and the reason is sharper than taste.** The hosted page is
+white, it is titled with the STRIPE ACCOUNT'S name rather than the product's —
+the screenshot proves it, the mandate line reads *"you allow Detailing platform
+sandbox to charge your card"* — and it arrives at the exact moment a detailer
+is deciding whether to trust us with a card. Handing that moment to a page that
+looks like somebody else's is the one place in the product where the seam is
+most expensive.
+
+**WHAT DID NOT CHANGE, AND MUST NOT: the card fields are still an iframe on
+Stripe's origin.** No card number reaches this product, this server, this repo
+or any log, so the PCI position is identical to the hosted page. What we gained
+is the frame around it; what we did not gain is any exposure. The sentence
+under the button says so in the detailer's own words, and it now matters more
+than it did when the fields were on another site.
+
+**And the money is still decided in the same place.** `planFor` writes the
+snapshot and `consentSentence` writes the words before a single Stripe object
+exists; `price_data.unit_amount` is sent from this repo on every call. Only the
+surface moved.
+
+#### Four things the swap actually cost, none of them guessable
+
+1. **`payment_behavior: "default_incomplete"` is the whole mechanism.** Stripe
+   creates the subscription without attempting payment and returns a client
+   secret; the browser confirms it against the Payment Element; the webhook we
+   already had turns `invoice.paid` into an active row. **Nothing new listens.**
+2. **`items[0][price_data][product_data]` is accepted by Checkout Sessions and
+   REJECTED by the Subscriptions API** — *"Did you mean product?"*. So
+   `productFor()` finds-or-creates a Product by `metadata.tag === "dp-line"`,
+   the same shape the portal configuration already uses. A Product carries only
+   the NAME on the receipt; the amount never lives in Stripe.
+3. **The build fee moved from a second line item to `add_invoice_items`**,
+   which Stripe appends to the subscription's first invoice. One charge, one
+   amount, exactly as before — $539 in test mode, proven.
+4. **THE CARD DETAILS CAME BACK NULL, and the cause is structural.** The
+   account screen's *"visa ···· 4242"* was filled from
+   `checkout.session.completed`, **and with our own form no such event ever
+   fires.** `subscriptionChanged` now reads `default_payment_method` and
+   fetches the card itself. This is the failure mode to expect from every
+   hosted-page thing removed later: the code did not break, an event simply
+   stopped arriving, and nothing says so.
+
+#### The appearance is READ OFF THE PAGE, not typed out
+
+Stripe's Appearance API takes concrete values — it cannot resolve `var()`
+inside an iframe on another origin — so the obvious version is a second
+hand-written copy of the palette, which is the drift the design system exists
+to prevent. `appearanceFromTokens()` reads the computed values off `<html>` at
+mount time, so the form follows `theme.css`, follows a token rename, and
+follows **the tenant's own accent**, which `lib/theme.js` writes onto the root
+at runtime and no hardcoded copy could ever know about. The 392 screenshot is
+the proof: the demo tenant's blue is on Stripe's tab, its focus ring and its
+labels, in the uppercase tracked voice every other field in the product uses.
+
+#### No npm package, and that is not austerity
+
+Stripe REQUIRES their script be loaded from `js.stripe.com` and forbids
+bundling a copy — it is how PCI scope stays off the server. `@stripe/stripe-js`
+is a ~2 KB wrapper around exactly the injection in `lib/stripejs.js`, and this
+frontend's dependency list is four packages on purpose.
+
+#### What is still Stripe's, visibly
+
+The payment-method tabs are Stripe's and carry Stripe's promotions — a green
+**"$5 back"** badge on Bank, Klarna's pink mark, Cash App. They are switched on
+in the Stripe dashboard, not in this repo, and they are the loudest off-brand
+thing left on the screen. **Left alone deliberately**: restricting to cards is
+one dashboard setting away and costs conversion, and that is the owner's call
+to make with real numbers, not this session's to make with none.
+
+#### The limit of the proof, stated plainly
+
+**The browser tool cannot type into a cross-origin iframe**, so no session has
+typed a card number into this form. What IS proven: the form mounts, is styled,
+and measures clean at 320/360/392/1440/1920; the server returns a real client
+secret for a real $539 subscription; and **that same PaymentIntent, confirmed
+server-side with `pm_card_visa`, went `succeeded` → webhook → row `active`,
+`$539 paid`, card `visa ···· 4242 · 9/2027`.** What is NOT proven is
+`stripe.confirmPayment` itself — Stripe's own function, called with its own
+elements instance — and 3-D Secure, which needs a human at a real browser.

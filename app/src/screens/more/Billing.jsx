@@ -47,9 +47,10 @@
 //     offer, whatever a future session thinks of. The exit fee is printed
 //     BEFORE the press, not discovered after it.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CreditCard, ExternalLink, TriangleAlert } from "lucide-react";
 import { api } from "../../lib/api.js";
+import { appearanceFromTokens, loadStripeJs } from "../../lib/stripejs.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 
 const usd = (cents) =>
@@ -130,6 +131,12 @@ export default function Billing() {
   });
   const [ticked, setTicked] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  // THE PAYMENT STEP. Null until they press the button; then it holds what
+  // Stripe needs and the Payment Element is mounted into the card below.
+  const [pay, setPay] = useState(null);   // { clientSecret, publishableKey, amountCents, returnUrl }
+  const [paying, setPaying] = useState(false);
+  const elementRef = useRef(null);
+  const stripeRef = useRef(null);         // { stripe, elements }
 
   const load = useCallback(async () => {
     try {
@@ -158,6 +165,68 @@ export default function Billing() {
       setBusy(false);
     }
   };
+
+  // MOUNTING IS AN EFFECT, NOT A RENDER. Stripe's Element attaches itself to a
+  // real DOM node and owns an iframe inside it, so React must have finished
+  // putting that node on the page first — and it must never be mounted twice.
+  useEffect(() => {
+    if (!pay || !elementRef.current || stripeRef.current) return;
+    let dead = false;
+    (async () => {
+      try {
+        const Stripe = await loadStripeJs();
+        if (dead) return;
+        const stripe = Stripe(pay.publishableKey);
+        const elements = stripe.elements({
+          clientSecret: pay.clientSecret,
+          appearance: appearanceFromTokens(),
+        });
+        elements.create("payment", { layout: "tabs" }).mount(elementRef.current);
+        stripeRef.current = { stripe, elements };
+      } catch (e) {
+        if (!dead) setError(String(e.message || e));
+      }
+    })();
+    return () => { dead = true; };
+  }, [pay]);
+
+  // STEP ONE: ask the server for a payment. It writes the consent and the
+  // snapshot first, so this cannot happen without them.
+  async function start() {
+    setBusy(true);
+    setError("");
+    try {
+      const r = await api.billingSubscribe(business.id, "website", chosen);
+      setPay({
+        clientSecret: r.client_secret,
+        publishableKey: r.publishable_key,
+        amountCents: r.amount_cents,
+        returnUrl: r.return_url,
+      });
+    } catch (e) {
+      setError(String(e.message || e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // STEP TWO: confirm it. Stripe handles 3-D Secure inside its own iframe and
+  // redirects to `returnUrl` when it is done; the webhook is what actually
+  // turns the row active, so this screen only has to survive the round trip.
+  async function confirm() {
+    if (!stripeRef.current) return;
+    setPaying(true);
+    setError("");
+    const { error: err } = await stripeRef.current.stripe.confirmPayment({
+      elements: stripeRef.current.elements,
+      confirmParams: { return_url: pay.returnUrl },
+    });
+    // ONLY REACHED WHEN THE PAYMENT DID NOT LEAVE THE PAGE — a card declined
+    // outright, or details Stripe would not accept. Anything that succeeds or
+    // needs authentication has already navigated away by now.
+    if (err) setError(err.message || "That card was refused.");
+    setPaying(false);
+  }
 
   if (error && !data) return <div className="card"><div className="error-box">{error}</div></div>;
   // ONE LINE RATHER THAN NOTHING, AND RATHER THAN A CONCLUSION. This screen's
@@ -256,7 +325,7 @@ export default function Billing() {
               >
                 <span className="txt">
                   <span className="nm">{name}</span>
-                  <span className="sub clamp2">{note(quote)}</span>
+                  <span className="sub full">{note(quote)}</span>
                 </span>
                 {/* WHAT LEAVES THE BANK, never an "effective monthly" — the
                     same rule /pricing is built on. Printing $50/mo beside a
@@ -345,6 +414,17 @@ export default function Billing() {
               <span>{q.consent}</span>
             </label>
 
+            {/* THE CARD FORM, IN OUR CARD. It appears in place rather than on
+                another site, which is the whole of what changed on 2026-09-05.
+                It is only drawn once Stripe has been asked for a payment, so
+                the ladder is never cluttered by a form nobody opened. */}
+            {pay && (
+              <>
+                <div className="section-title">Card details</div>
+                <div ref={elementRef} data-billing-card="" style={{ marginBottom: "var(--sp-4)" }} />
+              </>
+            )}
+
             {!data.configured && (
               <div className="warn-box">
                 <TriangleAlert strokeWidth={2} />
@@ -355,18 +435,36 @@ export default function Billing() {
 
             {/* A DISABLED BUTTON THAT DOES NOT SAY WHY READS AS A BROKEN APP.
                 The label is what tells them, rather than a sentence underneath
-                it — the control answering for itself. */}
+                it — the control answering for itself. And once the form is up
+                the label carries the FIGURE, because the last thing a person
+                reads before paying should be what leaves their account. */}
             <button
               className="btn primary"
-              disabled={!ticked || busy}
-              onClick={() => act(() => api.billingCheckout(business.id, "website", chosen))}
+              disabled={!ticked || busy || paying}
+              onClick={pay ? confirm : start}
             >
-              {busy ? "One moment" : ticked ? "Go to payment" : "Tick the box to continue"}
+              {busy || paying
+                ? "One moment"
+                : !ticked
+                  ? "Tick the box to continue"
+                  : pay
+                    ? `Pay ${usd(pay.amountCents)}`
+                    : "Continue to payment"}
             </button>
-            <p className="muted" style={{ marginTop: "var(--sp-2)" }}>
-              Your card details are entered on Stripe's own page. They never
-              reach us.
-            </p>
+            {/* THE SENTENCE THAT MATTERS MOST NOW THAT THE FORM IS ON OUR OWN
+                PAGE: those fields are Stripe's iframe, so the number is typed
+                straight to them and never touches this product. Somebody
+                meeting a card form on our site is entitled to know that.
+                **It only appears once there ARE fields.** It said "the card
+                fields above" while nothing was above it, which is a sentence
+                pointing at something that does not exist — and on the one
+                screen where a reader is deciding whether to trust us. */}
+            {pay && (
+              <p className="muted" style={{ marginTop: "var(--sp-2)" }}>
+                The card fields above are Stripe's own — your number is sent
+                straight to them and never reaches us.
+              </p>
+            )}
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@
 // ownership check.
 //
 //   summary   -> everything the billing screen prints, computed server-side
-//   checkout  -> a Stripe Checkout URL for a business with no subscription
+//   subscribe -> OUR OWN payment form: a Stripe client secret to confirm
 //   portal    -> a Stripe-hosted page for updating the CARD, and only the card
 //   cancel    -> stop the renewal, charging the early-exit fee if one is owed
 //   resume    -> undo a cancellation before the period actually ends
@@ -69,7 +69,7 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { requireMember } from "../_shared/tenant.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
-import { stripe, stripeConfigured, StripeError } from "../_shared/stripe.ts";
+import { publishableKey, stripe, stripeConfigured, StripeError } from "../_shared/stripe.ts";
 import {
   consentSentence,
   dunningState,
@@ -88,6 +88,9 @@ import {
 // in both cases — a detailer who abandoned the card form should land where
 // they can try again rather than on a tab that says nothing about it.
 const RETURN_URL = `${PLATFORM_URL}/app?settings=billing`;
+
+type Obj = Record<string, unknown>;
+const asObj = (v: unknown): Obj => (v && typeof v === "object" ? v as Obj : {});
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -109,7 +112,7 @@ Deno.serve(async (req) => {
 
     switch (String(body.action || "")) {
       case "summary":   return await summary(businessId, sub);
-      case "checkout":  return await checkout(businessId, body, sub);
+      case "subscribe": return await subscribe(businessId, body, sub);
       case "portal":    return await portal(sub);
       case "cancel":    return await cancel(businessId, sub);
       case "resume":    return await resume(businessId, sub);
@@ -218,7 +221,7 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
   });
 }
 
-async function checkout(
+async function subscribe(
   businessId: string,
   body: Record<string, unknown>,
   sub: Record<string, unknown> | null,
@@ -275,74 +278,122 @@ async function checkout(
     customerId = String(created.id);
   }
 
-  const base: Record<string, unknown> = {
-    mode: "subscription",
+  // ─────────────────────────────────────────────────────────────────────────
+  // OUR OWN PAYMENT FORM, NOT STRIPE'S HOSTED PAGE — the owner's choice,
+  // 2026-09-05. Stripe offers three shapes and he picked the third:
+  //
+  //   1. a hosted page at checkout.stripe.com  (what this was until now)
+  //   2. that page embedded in an iframe
+  //   3. Elements — the fields are Stripe's, everything around them is ours
+  //
+  // *"so it can look like the rest of the website."* He is right, and the
+  // reason is sharper than taste: the hosted page is white, it is titled with
+  // the Stripe account's name rather than the product's, and it appears at the
+  // exact moment a detailer is deciding whether to trust us with a card.
+  //
+  // WHAT DOES NOT CHANGE, AND MUST NOT: the CARD FIELDS THEMSELVES ARE STILL
+  // STRIPE'S IFRAME. No card number ever reaches this product, this server or
+  // this repo, so the PCI position is identical to the hosted page. What we
+  // gained is the frame around it; what we did not gain is any exposure.
+  //
+  // AND THE MONEY IS DECIDED IN EXACTLY THE SAME PLACE. `planFor` produced the
+  // snapshot above, `consentSentence` produced the words, and both are already
+  // written before a single Stripe object exists. Only the surface changed.
+  //
+  // `default_incomplete` IS THE WHOLE MECHANISM: Stripe creates the
+  // subscription without attempting payment and hands back a client secret,
+  // the browser confirms it against the Payment Element, and the webhook we
+  // already have turns `invoice.paid` into an active row. Nothing new listens.
+  const productId = await productFor(planLabel(snapshot));
+
+  const params: Record<string, unknown> = {
     customer: customerId,
-    line_items: lineItemsFor(snapshot),
-    success_url: `${RETURN_URL}&checkout=done`,
-    cancel_url: `${RETURN_URL}&checkout=abandoned`,
-    // The webhook is handed the business by Stripe rather than looking it up
-    // from a customer id, so an event can be acted on with one read.
-    subscription_data: {
-      metadata: { business_id: businessId, term, plan: snapshot.plan },
-    },
+    items: [{
+      price_data: {
+        currency: "usd",
+        unit_amount: snapshot.recurring_cents,
+        recurring: { interval: snapshot.bill_interval },
+        // A PRODUCT ID RATHER THAN `product_data`, WHICH THE CHECKOUT SESSION
+        // ACCEPTED AND THIS ENDPOINT DOES NOT — measured, not assumed: it
+        // answers *"Received unknown parameter: items[0][price_data]
+        // [product_data]. Did you mean product?"*. The AMOUNT still comes from
+        // this repo on every call; only the NAME lives in Stripe.
+        product: productId,
+      },
+    }],
+    payment_behavior: "default_incomplete",
+    // Saves the card as the subscription's default when the first payment
+    // succeeds, which is what makes every renewal after it work.
+    payment_settings: { save_default_payment_method: "on_subscription" },
+    // `confirmation_secret` is the newer field and needs a 2025+ API version;
+    // this integration is pinned to 2024-06-20, where the same value lives at
+    // `latest_invoice.payment_intent.client_secret`. The pin and this expand
+    // must move together — see _shared/stripe.ts.
+    expand: ["latest_invoice.payment_intent"],
     metadata: { business_id: businessId, term, plan: snapshot.plan },
   };
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // STRIPE TAX IS ON, AND IT CANNOT BE ALLOWED TO TAKE THE CHECKOUT DOWN.
-  //
-  // The owner's decision (`docs/payments-research-2026-09-04.md`, round 2):
-  // *"there's no point in not having it on"* — and he is right, because
-  // Stripe charges for it only in jurisdictions where there is an active
-  // registration, so with none it is free and it monitors nexus per state.
-  //
-  // WHAT THE RESEARCH DID NOT SAY, found the first time a real key was used
-  // (2026-09-05): **`automatic_tax` requires a head office address on the
-  // Stripe account and refuses the whole session without one, in test mode
-  // too** — *"You must have a valid head office address to enable automatic
-  // tax calculation."* That is a dashboard setting, and this item has already
-  // refused twice to let one of those be load-bearing (the dunning emails, the
-  // portal configuration). A checkout that 400s until somebody visits an admin
-  // panel is the same mistake a third time.
-  //
-  // SO IT FALLS BACK, AND THE FALLBACK CANNOT UNDER-COLLECT. **You cannot hold
-  // a tax registration without a head office address** — Stripe requires one to
-  // register — so this error is reachable ONLY in the state where automatic tax
-  // would compute zero anyway. It is loud rather than silent: the reason is
-  // logged and returned to the screen.
-  let session: Record<string, unknown>;
+  // THE BUILD FEE IS A ONE-OFF ON THE FIRST INVOICE. On the hosted page it was
+  // simply a second line item; here it is `add_invoice_items`, which Stripe
+  // appends to the subscription's first invoice — so the customer is charged
+  // one amount, once, exactly as before.
+  if (snapshot.setup_cents > 0) {
+    params.add_invoice_items = [{
+      price_data: {
+        currency: "usd",
+        unit_amount: snapshot.setup_cents,
+        product: await productFor("Website build — one-off"),
+      },
+    }];
+  }
+
+  // Stripe Tax, with the same fallback and for the same reason as before: it
+  // refuses without a head office address on the account, that is a dashboard
+  // setting, and a checkout must not depend on one. See the note on
+  // `taxNote()` below.
+  let subscription: Record<string, unknown>;
   let taxOff: string | null = null;
-  const key = `co:${businessId}:${term}:${Date.now()}`;
+  const key = `sub:${businessId}:${term}:${Date.now()}`;
   try {
-    session = await stripe("/checkout/sessions", {
-      ...base,
-      automatic_tax: { enabled: true },
-      customer_update: { address: "auto" },
+    subscription = await stripe("/subscriptions", {
+      ...params, automatic_tax: { enabled: true },
     }, { idempotencyKey: key });
   } catch (err) {
     const msg = err instanceof StripeError ? err.message : String(err);
     if (!/head office address/i.test(msg)) throw err;
     taxOff = "No head office address on the Stripe account, so tax is not being calculated.";
     console.error(`automatic_tax refused: ${msg}`);
-    session = await stripe("/checkout/sessions", base, { idempotencyKey: `${key}:notax` });
+    subscription = await stripe("/subscriptions", params, { idempotencyKey: `${key}:notax` });
   }
 
-  // The row goes in BEFORE they reach the card form. See the header.
+  const invoice = asObj(subscription.latest_invoice);
+  const intent = asObj(invoice.payment_intent);
+  const clientSecret = typeof intent.client_secret === "string" ? intent.client_secret : null;
+  if (!clientSecret) {
+    // Reachable when the first invoice needs no payment at all. Nothing in this
+    // product's pricing produces that today, and a screen that silently draws
+    // an empty card form would be the worst way to find out it can.
+    console.error("no client secret on the first invoice", { subscription: subscription.id });
+    return json({ error: "Stripe did not ask for a payment. Nothing was charged." }, 502);
+  }
+
+  // The row goes in BEFORE the card form is drawn. See the header.
   const now = new Date();
   // THE PREVIOUS CYCLE'S COLUMNS ARE CLEARED IN THE SAME WRITE. This row is
   // reused when somebody cancels and comes back, and a stale
   // `stripe_subscription_id` is not cosmetic: `cancel` and `resume` address
-  // Stripe by it, so in the window before `checkout.session.completed` lands
-  // they would act on the subscription that was already ended.
+  // Stripe by it.
   await supabase.from("platform_subscriptions").upsert({
     business_id: businessId,
     ...snapshot,
     consented_at: now.toISOString(),
     consent_text: consent,
     stripe_customer_id: customerId,
-    stripe_session_id: String(session.id),
-    stripe_subscription_id: null,
+    stripe_session_id: null,
+    // WRITTEN NOW RATHER THAN WAITING FOR THE WEBHOOK, because with our own
+    // form the subscription exists before the card is even typed — and if the
+    // person closes the tab, `cancel` has to be able to find it.
+    stripe_subscription_id: String(subscription.id),
     status: "incomplete",
     term_ends_on: termEndDate(now, snapshot.term_months),
     cancel_at_period_end: false,
@@ -355,7 +406,39 @@ async function checkout(
     current_period_end: null,
   }, { onConflict: "business_id" });
 
-  return json({ url: session.url, label: planLabel(snapshot), tax_off: taxOff });
+  return json({
+    client_secret: clientSecret,
+    publishable_key: publishableKey(),
+    label: planLabel(snapshot),
+    amount_cents: firstChargeCents(snapshot),
+    return_url: `${RETURN_URL}&checkout=done`,
+    tax_off: taxOff,
+  });
+
+}
+
+/**
+ * A Stripe Product for a line on the invoice, created once and found again.
+ *
+ * THE AMOUNT NEVER LIVES HERE. `price_data.unit_amount` is sent from this repo
+ * on every call, so the chain from `pricing.js` to the card is unbroken; a
+ * Product carries only the NAME a detailer reads on their receipt. That is the
+ * whole reason the hosted page could use `product_data` and this endpoint has
+ * to use `product` — a difference in Stripe's API, not in where the money is
+ * decided.
+ *
+ * Found by metadata rather than stored in a column, for the same reason the
+ * portal configuration is: one extra GET on a screen somebody opens twice a
+ * year, against a migration for one string.
+ */
+const PRODUCT_TAG = "dp-line";
+async function productFor(name: string): Promise<string> {
+  const list = await stripe("/products?limit=100&active=true");
+  const found = (list.data as Record<string, unknown>[] | undefined)?.find((p) =>
+    p.name === name && (p.metadata as Record<string, unknown> | undefined)?.tag === PRODUCT_TAG);
+  if (found) return String(found.id);
+  const made = await stripe("/products", { name, metadata: { tag: PRODUCT_TAG } });
+  return String(made.id);
 }
 
 // The portal configuration this product uses, tagged so it can be found again.

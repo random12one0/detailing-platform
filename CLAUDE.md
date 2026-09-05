@@ -1137,7 +1137,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   registered at the same version, and the two must move together.
   **(4) Stripe Tax refuses the WHOLE session without a head office address**,
   in test mode too — a dashboard setting, which this item has now refused three
-  times to let be load-bearing. `checkout` falls back without automatic tax and
+  times to let be load-bearing. `subscribe` falls back without automatic tax and
   returns the reason; the fallback cannot under-collect, because a registration
   requires that address anyway. **The owner's 60 seconds:**
   https://dashboard.stripe.com/test/settings/tax
@@ -1150,7 +1150,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   moment a payment goes through"*, which a card cannot deliver. **`summary`
   returns `restartable` now**: the screen shows the ladder again with a line
   saying the last subscription ended and nothing is owed from before,
-  `checkout` allows that restart (**it answered 409 — a way back that does not
+  `subscribe` allows that restart (**it answered 409 — a way back that does not
   work is worse than no way back**), and the email says *"Put your page back
   online"*. **A DELIBERATE cancellation is told apart by columns that already
   existed** — our cancel button sets `cancel_at_period_end`, dunning never
@@ -1160,9 +1160,54 @@ explaining it; if they still have to ask "so should I?", it failed.
   Test § 17.
   **HIS OTHER TWO ANSWERS, so nobody re-asks:** no business address until
   December (so Stripe Tax stays off and the NEXUS MONITOR is what is actually
-  deferred), and he rolled the test key — **Stripe lets the old one keep
-  working for a while, so the checkout will start failing when it expires and
-  the new `sk_test_` must go on the Supabase project.**
+  deferred), and he DECIDED NOT to roll the test key that was pasted
+  into the chat — *"it's just a sandbox one, I'm fine with it being in the chat
+  history"* — **which is correct and is not to be re-raised.** A `sk_test_` key
+  reaches test mode only: no real card, no real customer, no real payout.
+  **The LIVE key is a different object and the rule is absolute**: it never
+  appears in a chat, a file, a commit or a log, and goes straight onto
+  Supabase's secrets page in December.
+  **THE CHECKOUT IS OURS AND THE CARD FIELDS ARE STRIPE'S — his choice between
+  Stripe's three shapes, 2026-09-05.** *"An option to just I make / we make the
+  like gui thing, so I chose that one so it can look like the rest of the
+  website."* The hosted page at `checkout.stripe.com` is gone: `subscribe`
+  (renamed from `checkout`) creates a Subscription with
+  `payment_behavior: "default_incomplete"`, hands back a client secret, and
+  `Billing.jsx` mounts Stripe's **Payment Element** inside our own card.
+  **THE CARD FIELDS ARE STILL AN IFRAME ON STRIPE'S ORIGIN, so the PCI position
+  is IDENTICAL** — no card number reaches this product, this server, this repo
+  or any log. Only the frame moved, and the sentence under the button says so.
+  - **`app/src/lib/stripejs.js` injects `js.stripe.com/v3` and there is no npm
+    package on purpose.** Stripe REQUIRES the script come from their origin and
+    forbids bundling a copy; `@stripe/stripe-js` is a ~2 KB wrapper around
+    exactly that injection, and this frontend is four dependencies.
+  - **`appearanceFromTokens()` READS THE LIVE PAGE.** Stripe's Appearance API
+    takes concrete values — it cannot resolve `var()` across origins — so the
+    obvious version is a second hand-written palette, which is the drift the
+    design system exists to prevent. Reading `getComputedStyle(<html>)` at
+    mount means the form follows a token rename and follows **the tenant's own
+    accent**, which `lib/theme.js` writes at runtime.
+  - **`product_data` is accepted by Checkout Sessions and REJECTED by the
+    Subscriptions API.** `productFor()` finds-or-creates a Product by
+    `metadata.tag === "dp-line"`. **The Product carries only the NAME;
+    `unit_amount` is still sent from this repo on every call.**
+  - **THE CARD DETAILS CAME BACK NULL, and it is the failure mode to expect
+    from every hosted page removed later**: they were filled from
+    `checkout.session.completed`, **and with our own form that event never
+    fires**. `subscriptionChanged` reads `default_payment_method` and fetches
+    the card itself. Nothing broke; an event simply stopped arriving.
+  - **STILL STRIPE'S, VISIBLY:** the payment-method tabs carry Stripe's own
+    promotions (a green *"$5 back"* on Bank, Klarna, Cash App). Dashboard
+    settings, not repo settings, **left alone deliberately** — restricting to
+    cards costs conversion and is his call with real numbers.
+  - **THE LIMIT OF THE PROOF:** the browser tool cannot type into a
+    cross-origin iframe, so **no session has typed a card number into this
+    form.** Proven: it mounts, is styled from live tokens, measures clean at
+    all five widths, and `subscribe` returns a real secret for a real $539 —
+    and that same PaymentIntent, confirmed server-side with `pm_card_visa`,
+    went `succeeded` → webhook → `active`, `$539 paid`, `visa ···· 4242`.
+    **Unproven: `stripe.confirmPayment` and 3-D Secure**, which need a human at
+    a real browser. Test § 18.
   **THE ONE RULE THAT OUTRANKS EVERYTHING ELSE HERE: the page PRINTS and the
   server CHARGES, and one pure module does both.**
   `supabase/functions/_shared/platformBilling.ts` holds the price table,
@@ -1170,7 +1215,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   status map and the dunning words. **It is the SECOND copy of
   `app/src/landing/pricing.js`** — a Deno bundle will not follow an import out
   of `supabase/`, the same wall that forced `_shared/brandColor.js` — and
-  `tests/platform-billing.test.mjs` (168 checks) pins the two tables value by
+  `tests/platform-billing.test.mjs` (220 checks) pins the two tables value by
   value AND ties every rung to the money on the wire. **This is the first place
   in the product where "a number PRINTED is not a number CHARGED" is literally
   true rather than a metaphor.**

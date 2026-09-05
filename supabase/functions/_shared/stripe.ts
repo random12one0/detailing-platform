@@ -28,6 +28,19 @@ const API_VERSION = "2024-06-20";
 
 export const stripeKey = () => Deno.env.get("STRIPE_SECRET_KEY") || "";
 export const webhookSecret = () => Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
+/**
+ * THE PUBLISHABLE KEY, AND IT IS SERVED RATHER THAN BUILT IN.
+ *
+ * `pk_test_…` / `pk_live_…` are public by design — they identify the account to
+ * Stripe.js and can do nothing on their own. The obvious home is a `VITE_`
+ * variable, and it is the wrong one here for two reasons: a `VITE_STRIPE_*`
+ * anything is one careless rename away from a SECRET key being compiled into
+ * the bundle, and `tests/platform-billing.test.mjs` § 11 asserts that no Stripe
+ * key appears in `app/` at all — a rule worth keeping absolute rather than
+ * qualifying. Handing it back from `summary`, which the billing screen already
+ * calls, costs nothing and keeps the frontend free of Stripe entirely.
+ */
+export const publishableKey = () => Deno.env.get("STRIPE_PUBLISHABLE_KEY") || "";
 
 /** True when this deployment can actually talk to Stripe. */
 export const stripeConfigured = () => stripeKey().startsWith("sk_");

@@ -4362,12 +4362,100 @@ is kept; the entire visual design restarts from scratch.
         and dunning never does. **If he ever switches to "leave unpaid" none of
         it breaks** — the test is whether a chargeable subscription still
         exists, so the card comes back on its own.
-      - **He rolled the test key**, which is right because it had been pasted
-        into a chat. **Stripe lets the old one keep working for a while and it
-        still did when checked** — so the checkout will start failing whenever
-        it expires, and the new `sk_test_` needs to go on the Supabase project.
-        **He should set it himself** rather than paste it, which is the whole
-        point of having rolled it.
+      - **The key was NOT rolled, and this file said it was for a few hours.**
+        He first answered *"I did the 3rd thing"* and then corrected it:
+        *"just hold on the key for now, I didn't reset it, and cuz it's just a
+        sandbox one I'm fine with it being in the chat history."* **That is his
+        call to make and it is a reasonable one** — a `sk_test_` key moves no
+        real money and the account is not activated. **What it becomes when he
+        activates in December is a different key entirely**: the live
+        `sk_live_` must never be pasted anywhere, and rolling this test key is
+        then worth doing on the same day, because a leaked test key on an
+        activated account still reads customer records.
+
+      **AND THEN THE CHECKOUT ITSELF WAS REPLACED — 2026-09-05, his choice
+      between Stripe's three shapes.** *"In stripe it gave me 3 options… their
+      own hosted link. Then an option to embed it in my website. Then an option
+      to just I make / we make the like gui thing — so I chose that one so it
+      can look like the rest of the website."*
+
+      **He picked the right one, and the reason is sharper than taste.** The
+      hosted page is white, it is titled with the STRIPE ACCOUNT'S name rather
+      than the product's, and it arrives at the exact moment a detailer is
+      deciding whether to trust us with a card. The screenshot proves the
+      naming: the mandate line on the real form reads *"you allow Detailing
+      platform sandbox to charge your card"*.
+
+      **WHAT DID NOT CHANGE: the card fields are still an iframe on Stripe's
+      own origin.** No card number reaches this product, this server, this repo
+      or any log — the PCI position is IDENTICAL to the hosted page. What moved
+      is the frame around the fields. The sentence under the button says so,
+      and it matters more now than it did when the fields were on another site.
+
+      - **`platform-billing`'s `checkout` action became `subscribe`.** It
+        creates a Subscription with `payment_behavior: "default_incomplete"` —
+        Stripe makes the subscription without attempting payment and returns a
+        client secret — and hands back `{ client_secret, publishable_key,
+        amount_cents, return_url }`. The browser confirms it against the
+        Payment Element. **The webhook we already had turns `invoice.paid` into
+        an active row; nothing new listens.**
+      - **`app/src/lib/stripejs.js`** injects `js.stripe.com/v3` once. **No npm
+        package, and that is not austerity**: Stripe REQUIRES the script be
+        loaded from their origin and forbids bundling a copy, which is how PCI
+        scope stays off the server. `@stripe/stripe-js` is a ~2 KB wrapper
+        around exactly that injection.
+      - **`appearanceFromTokens()` READS THE LIVE PAGE rather than restating
+        the palette.** Stripe's Appearance API takes concrete values — it
+        cannot resolve `var()` inside an iframe on another origin — so the
+        obvious version is a second hand-written copy of the design tokens,
+        which is the drift the whole system exists to prevent. Reading the
+        computed values off `<html>` at mount time means the form follows
+        `theme.css`, follows a token rename, and follows **the tenant's own
+        accent**, which `lib/theme.js` writes onto the root at runtime and no
+        hardcoded copy could ever know about.
+
+      **THREE THINGS THE SWAP COST THAT NO AMOUNT OF READING WOULD HAVE
+      PRODUCED:**
+
+      1. **`items[0][price_data][product_data]` is accepted by Checkout
+         Sessions and REJECTED by the Subscriptions API** — *"Did you mean
+         product?"*. `productFor()` now finds-or-creates a Stripe Product by
+         `metadata.tag === "dp-line"`, the same find-by-tag shape the portal
+         configuration already uses. **A Product carries only the NAME on the
+         receipt; `unit_amount` is still sent from this repo on every call, so
+         the chain from `pricing.js` to the card is unbroken.**
+      2. **The build fee moved from a second line item to
+         `add_invoice_items`**, which Stripe appends to the subscription's
+         first invoice. One charge, one amount, exactly as before.
+      3. **THE CARD DETAILS CAME BACK NULL, and the cause is structural.** The
+         account screen's *"visa ···· 4242"* was filled from
+         `checkout.session.completed` — **and with our own form no such event
+         ever fires.** `subscriptionChanged` now reads `default_payment_method`
+         and fetches the card itself. **This is the failure mode to expect from
+         every hosted-page thing removed later**: the code did not break, an
+         event simply stopped arriving, and nothing said so.
+
+      **WHAT IS STILL STRIPE'S, VISIBLY.** The payment-method tabs carry
+      Stripe's own promotions — a green **"$5 back"** badge on Bank, Klarna's
+      pink mark, Cash App Pay. They are switched on in the Stripe dashboard,
+      not in this repo, and they are the loudest off-brand thing left on the
+      screen. **Left alone deliberately**: restricting to cards is one setting
+      away and costs conversion, which is a decision for real numbers.
+
+      **THE LIMIT OF THE PROOF, STATED PLAINLY.** The browser tool cannot type
+      into a cross-origin iframe, so **no session has typed a card number into
+      this form**. What IS proven: it mounts, it is styled from the live
+      tokens, and it measures clean at 320/360/392/1440/1920; `subscribe`
+      returns a real client secret for a real $539 subscription; and **that
+      same PaymentIntent, confirmed server-side with `pm_card_visa`, went
+      `succeeded` → webhook → row `active`, `$539 paid`, card `visa ···· 4242 ·
+      9/2027`.** What is NOT proven is `stripe.confirmPayment` itself —
+      Stripe's own function, called with its own elements instance — and 3-D
+      Secure, which needs a human at a real browser. **That is the one thing on
+      this item waiting for him rather than for a session.**
+
+      **`platform-billing.test.mjs` § 18 covers the form**; the suite is 220
+      checks.
 
       **WHAT IS STILL NOT DONE, AND IT IS NOT CODE:**
       - ~~**THERE IS NO STRIPE ACCOUNT, SO NOTHING HAS EVER TALKED TO STRIPE.**~~

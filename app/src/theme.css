@@ -1156,6 +1156,20 @@ a { color: var(--accent-text); text-decoration: none; }
 /* Written as `.clamp2` first and it did nothing: `.row-item .sub` is two
    selectors and sets `white-space: nowrap`, so it won. A rule that loses
    silently is indistinguishable from a rule that is not there. */
+/* A SENTENCE THAT MUST BE READ IN FULL, AT EVERY WIDTH — roadmap 2.20 stage 2.
+   `.clamp2` was enough for the three "ways to pay" rungs at 392, where the card
+   is 318px wide, and NOT at 320, where it is 246px and *"12 months. Leaving
+   early costs 50% of what is left"* needs three lines. It rendered as *"Leaving
+   early cos…"* — the twelve-month commitment clipped off the narrowest screen
+   this product supports, which is the SAME defect the audit found at 392, one
+   width down and hiding behind the fix for it.
+   **A clamp is a cap, and a legal disclosure has no business under a cap.** A
+   rung is three fixed sentences rather than somebody's typed content, so the
+   row can be as tall as the words need. Nothing in this repo can see this
+   failing: clipped text has a perfectly normal box. */
+.row-item .sub.full {
+  white-space: normal; overflow: visible; text-overflow: clip;
+}
 .row-item .sub.clamp2 {
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
   overflow: hidden; white-space: normal; text-overflow: clip;

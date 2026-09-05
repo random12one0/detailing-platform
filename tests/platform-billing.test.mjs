@@ -669,9 +669,18 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // A REUSED ROW MUST NOT CARRY THE LAST SUBSCRIPTION'S ID. `cancel` and
   // `resume` address Stripe by it, so in the window before
   // `checkout.session.completed` lands they would act on the ended one.
+  // THE ID IS NOW WRITTEN RATHER THAN NULLED, and that is the payment form
+  // changing rather than the rule relaxing. With Stripe's hosted page the
+  // subscription did not exist until they finished paying, so the only honest
+  // value was null. With our own form it exists BEFORE the card is typed — so
+  // if somebody closes the tab, `cancel` has to be able to find it. Everything
+  // else about the previous cycle is still cleared in the same write.
   check("re-subscribing clears the previous cycle",
-    fn.includes("stripe_subscription_id: null,")
-      && fn.includes("exit_fee_charged_cents: null,"));
+    fn.includes("stripe_subscription_id: String(subscription.id),")
+      && fn.includes("exit_fee_charged_cents: null,")
+      && fn.includes("suspended_at: null,")
+      && fn.includes("canceled_at: null,")
+      && fn.includes("dunning_attempts: 0,"));
 
   // MONEY THAT HAS LEFT A CARD IS RECORDED BEFORE ANYTHING THAT CAN THROW.
   check("the exit fee is recorded the moment it is taken",
@@ -832,6 +841,90 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   });
   check("the past-due email still names the card, because there it IS the fix",
     /update your card/i.test(late.html));
+}
+
+// ─── 18. OUR OWN PAYMENT FORM ─────────────────────────────────────────────
+//
+// The owner picked Stripe's third option on 2026-09-05 — not their hosted
+// page, not that page in an iframe, but Elements, where the card fields are
+// Stripe's and everything around them is ours: *"so it can look like the rest
+// of the website."* What must not change is where a card number goes.
+{
+  console.log("\n18. our own payment form");
+
+  const fn = read("supabase/functions/platform-billing/index.ts");
+  const billing = read("app/src/screens/more/Billing.jsx");
+  const loader = read("app/src/lib/stripejs.js");
+  const hook = read("supabase/functions/stripe-webhook/index.ts");
+
+  // THE MECHANISM. `default_incomplete` is what makes Stripe hand back a
+  // client secret instead of charging; without it the subscription tries to
+  // pay itself and there is nothing for the form to confirm.
+  check("the subscription is created without attempting payment",
+    fn.includes('payment_behavior: "default_incomplete"'));
+  // THE EXPAND AND THE PINNED API VERSION MOVE TOGETHER. `confirmation_secret`
+  // is the newer field; at 2024-06-20 the value lives on the payment intent,
+  // and § 16 already measured that the newer default carries neither.
+  check("it expands the field this API version actually has",
+    fn.includes('expand: ["latest_invoice.payment_intent"]'));
+  check("and the card is kept for the renewals",
+    fn.includes('save_default_payment_method: "on_subscription"'));
+  // THE BUILD FEE STILL RIDES THE FIRST INVOICE. On the hosted page it was a
+  // second line item; here it is add_invoice_items, and the customer is
+  // charged one amount once either way.
+  check("the build fee is a one-off on the first invoice",
+    fn.includes("params.add_invoice_items = [{"));
+  check("a missing client secret fails loudly rather than drawing an empty form",
+    fn.includes("no client secret on the first invoice"));
+
+  // WHERE THE CARD NUMBER GOES HAS NOT CHANGED. Stripe.js must be loaded from
+  // their domain — bundling or self-hosting a copy is what puts a site into
+  // PCI scope, and Stripe forbids it.
+  check("Stripe.js is loaded from Stripe, never bundled",
+    loader.includes('const SRC = "https://js.stripe.com/v3/"'));
+  check("and no npm package was added for it",
+    !read("app/package.json").includes("@stripe/"));
+  check("the screen says the fields are Stripe's own",
+    /card fields above are Stripe's own/.test(billing));
+  // AND ONLY WHEN THERE ARE FIELDS. It said "the card fields above" with
+  // nothing above it, on the one screen where a reader is deciding whether to
+  // trust us with a card.
+  check("but only once the form exists",
+    billing.indexOf("{pay && (\n              <p") > 0
+      || /\{pay && \([\s\S]{0,120}card fields above/.test(billing),
+    "the sentence must not point at a form that is not there");
+
+  // THE LOOK IS READ OFF THE LIVE PAGE. Stripe's Appearance API cannot resolve
+  // var() inside a cross-origin iframe, so the alternative is a hand-written
+  // second copy of the palette — the drift the design system exists to stop.
+  check("the form's colours come from the live tokens",
+    loader.includes("getComputedStyle(document.documentElement)"));
+  check("so it follows the tenant's own accent too",
+    loader.includes('v("--accent"'), "lib/theme.js writes that onto the root at runtime");
+
+  // THE PUBLISHABLE KEY IS SERVED, NOT BUILT IN — so § 11's rule that no
+  // Stripe key appears anywhere in app/ stays absolute.
+  check("the publishable key is served by the server",
+    fn.includes("publishable_key: publishableKey()"));
+  check("and there is still no VITE_STRIPE anything",
+    !read("app/src/lib/stripejs.js").includes("VITE_") && !billing.includes("VITE_"));
+
+  // THE CARD DETAILS ARE CAPTURED ON A SUBSCRIPTION EVENT NOW. The hosted page
+  // delivered them on `checkout.session.completed`, which our own form never
+  // produces — the first real subscription bought through it went active
+  // showing "None on file".
+  check("the card is captured from the subscription, not only from a checkout",
+    hook.includes("sub.default_payment_method === \"string\""),
+    "our own form never fires checkout.session.completed");
+
+  // THE DISCLOSURE IS NOT UNDER A CLAMP. `.clamp2` was enough at 392 and not
+  // at 320, where the card is 246px and the commitment needs three lines.
+  const theme = read("app/src/theme.css");
+  check("the rung sentences wrap rather than clamp",
+    billing.includes('className="sub full"') && theme.includes(".row-item .sub.full"),
+    "a legal disclosure has no business under a line cap");
+  check("and the clamp is not still on them",
+    !billing.includes('className="sub clamp2"'));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

@@ -124,8 +124,13 @@ export const api = {
   // produced by the same function. There is no arithmetic about money on the
   // client side of this feature at all.
   billingSummary: (businessId) => callFn("platform-billing", { business_id: businessId, action: "summary" }),
-  billingCheckout: (businessId, plan, term) =>
-    callFn("platform-billing", { business_id: businessId, action: "checkout", plan, term, consented: true }),
+  // OUR OWN FORM SINCE 2026-09-05, so this returns a client secret to confirm
+  // rather than a URL to leave for. The owner picked Stripe's Elements option
+  // over their hosted page — *"so it can look like the rest of the website"* —
+  // and the card fields are still Stripe's iframe, so nothing about where a
+  // card number goes has changed.
+  billingSubscribe: (businessId, plan, term) =>
+    callFn("platform-billing", { business_id: businessId, action: "subscribe", plan, term, consented: true }),
   billingPortal: (businessId) => callFn("platform-billing", { business_id: businessId, action: "portal" }),
   billingCancel: (businessId) => callFn("platform-billing", { business_id: businessId, action: "cancel" }),
   billingResume: (businessId) => callFn("platform-billing", { business_id: businessId, action: "resume" }),
