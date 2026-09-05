@@ -11760,6 +11760,16 @@ research sample scroll. The number is still printed, because "it scrolls" and
 
 **Price by vehicle size, a plan per vehicle, and the coating-warranty deadline
 are all still not built** — the same four limits step 2 recorded, unchanged.
+
+**AND ONE NEW EDGE, STATED SO NOBODY REDISCOVERS IT AS A BUG: somebody
+SWITCHING plans.** A customer who is an active member of plan A and presses
+plan B's button gets a booking with `plan_id = B` (what they asked for, and
+what the price was quoted from) and `plan_member_id` pointing at their live A
+membership (whose ledger the visit comes off, because that is the plan they are
+actually on). Both are true statements and neither is a mistake — and it
+arrives as a REQUEST with *"Plan · B"* on the card, so the detailer is the one
+who decides whether to move them. `plan_members_one_live` means they cannot be
+on both at once, which is what makes "whose ledger" answerable at all.
 **`included_service_ids` still has no UI**: step 3 was named as the thing that
 needed it, and it turned out not to — the plan button starts the ordinary flow
 and the customer picks what they want, which is what the auto-link trigger's
