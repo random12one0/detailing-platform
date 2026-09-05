@@ -4631,3 +4631,32 @@ reversing on one fact about Stripe".
   that he makes **~$2,000/month detailing**, which is past the $400
   self-employment threshold. **Being under 18 exempts nobody.** Recorded because
   it arrived as an aside.
+
+### ROUND 7 — A PRICING PAGE, AND THE LLC QUESTION REDUCED TO ONE FREE TICKET
+
+- **THE PLAN BUTTONS SHOULD LAND ON A PRICING PAGE, NOT A SIGNUP FORM** — his
+  ask, and it is right: a customer who has not chosen between three ways to pay
+  is not ready for a form. **AND THAT PAGE IS WHERE AB 2863's DISCLOSURES
+  LEGALLY SIT** — auto-renewal terms, the twelve-month commitment and the exit
+  fee, all before billing details — **so it is the load-bearing half of the
+  checkout, not decoration in front of it.** Part of 2.20 stage 2. **He is right
+  that the landing page's annual line becomes redundant — but the LINE STAYS
+  UNTIL THE PAGE SHIPS**, or the only mention of the annual option vanishes
+  before its replacement.
+- **HIS "SET IT UP RIGHT SO I DON'T NEED AN LLC" INSTINCT SURVIVED CHECKING.**
+  **The IRS sets no minimum age for an EIN** (a parent is named *responsible
+  party* — a role on a form, changeable later without a new EIN), there is no
+  age rule for being a sole proprietor, and **only three things genuinely need
+  an adult: the Lakewood licence, the bank account and Stripe.** Three roles, not
+  a whole business, and at 18 they come off.
+- **SO THE WHOLE LLC QUESTION REDUCES TO ONE FREE STRIPE SUPPORT TICKET.**
+  Their wording — *"a legal guardian must assume the role of owner"* — does not
+  say whose legal entity the account is, and their docs are silent on turning
+  18. **Entity = him → 18 removes the guardian, $800/year saved. Entity = dad →
+  new account, every subscriber re-enters a card.** **Exact wording to send is
+  in `docs/setup-steps-2026-09-04.md`, and it must be asked BEFORE the account
+  is opened** — the one ordering mistake here that cannot be undone cheaply.
+- **STRIPE TAX GOES ON FROM DAY ONE, and he was right about why.** Stripe's own
+  pricing page: fees are incurred *"only for transactions in jurisdictions where
+  you have an active tax registration"* — **no registrations, no cost, no
+  monthly minimum.** Enabling it early removes a thing to remember at no price.

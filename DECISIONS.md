@@ -209,6 +209,8 @@ were made more than once.
 
 - **The setup checklist, and the LLC advice reversing on one fact about Stripe** — he locked the pricing (*"I like that pricing. Lock all that in."*) and asked for the legal side as something followable: *"go here, click these links, this is what I have to do, this is why."* **`docs/setup-steps-2026-09-04.md`.** **The finding that changed a recommendation: a Stripe account CANNOT move between legal entities** — same entity, ownership transfers to a new individual; different entity, Stripe requires a new account. **So a sole proprietorship in his dad's name means every subscriber re-enters their card on his 18th birthday**, while an LLC hands over as one document with the entity, EIN, bank account and Stripe account all intact. **The earlier "skip the LLC" was decided on the $800 California franchise tax alone, and cost alone was the wrong basis** — the number to weigh it against is not $1,440 of founding revenue, it is what asking fifty subscribers to re-enter a card costs in cancellations. **Hence step 0 of the checklist, which is the question nobody had asked: how many months until he turns 18?** Under six, wait and set everything up in his own name — no LLC, no handover, ever. Longer, the $800 is buying a migration he does not have to do. **His Lakewood experience was correct and it applies here too:** the city's code requires the licence applicant **and the person principally in charge** to be over 18, so his dad applies — and the city asks you to phone before they issue an application, which makes **one five-minute call the fastest way to confirm every assumption on the page.** **Stripe Tax answered exactly:** it is ONE switch for the account, not per customer; once on it reads each customer's address automatically; **but it only charges tax where a REGISTRATION has been added, and returns zero otherwise** — so a Texas detailer signing up tomorrow is charged $0 tax and that is CORRECT. **Take the customer.** **And he is already earning ~$2,000/month detailing**, which is past the $400 self-employment threshold — **the most urgent item on the list is about the business he already runs, not this one.** **Shipped alongside: the annual line now reads "2 months free"** rather than "$120 less", still derived from config, with two new `landing-pricing` checks pinning the claim — whole months, and inside the category's 15–20% band — **baselined at `annual: 610`, which prints "1.8333333333333333 months free".**
 
+- **The pricing page, and his "set it up right" idea turning out to be mostly correct** — he asked for the plan buttons to land on **a pricing page rather than a signup form** (*"that shouldn't bring you to a sign up or a payment screen"*), which is right for a customer who has not yet chosen between three ways to pay — **and that page is where California's AB 2863 disclosures legally have to sit**, before billing details are taken, so it is the load-bearing half of the checkout rather than decoration in front of it. **He is also right that the landing page's annual line becomes redundant once it exists — but the ORDER matters: the line stays until the page ships**, or the only mention of the annual option disappears before its replacement. **On the structure question he pushed back with an instinct that turned out to be sound**: put his dad only where an adult is genuinely required, and transfer nothing later. **Checked, and most of it holds** — the IRS sets **no minimum age for an EIN** (the parent is named "responsible party", a role changed later by form rather than by re-issuing the EIN), there is no age rule for being a sole proprietor, and **only three things actually need an adult: the Lakewood licence, the bank account and Stripe.** **So the entire LLC question reduces to one free Stripe support ticket** — is the account's legal entity HIM with a guardian attached, in which case 18 removes the guardian and costs nothing, or his DAD, in which case 18 is a new account and every subscriber re-enters a card. **Stripe's public wording (*"a legal guardian must assume the role of owner"*) does not answer it and their docs are silent on turning 18, so this is asked rather than guessed — and asked BEFORE the account exists**, because that is the one order that cannot be undone cheaply. **And he was right about Stripe Tax: turn it on from day one.** Stripe's own pricing page says fees are incurred *"only for transactions in jurisdictions where you have an active tax registration"* — **no registrations, no cost, no monthly minimum** — so enabling it early removes a thing to remember at no price.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -11226,3 +11228,81 @@ months**, and the discount must sit inside the **15–20% band**. **Baselined by
 setting `annual: 610`, which makes the page advertise *"1.8333333333333333
 months free"*** — a defect that reads like a rounding bug and is actually a
 pricing one.
+
+## The pricing page, and his "set it up right" idea turning out to be mostly correct
+
+### The plan buttons should not land on a signup form
+
+> *"When you say take founding spot, that shouldn't bring you to a sign up or a
+> payment screen. That should take you to a pricing page… it shows basically all
+> my options and all the different things, and they click the one that they
+> want."*
+
+**Right, and for a reason that got stronger the moment the pricing structure
+grew.** The landing page's plan buttons currently go to
+`/app?plan=website&offer=founding` — a signup form. **A customer who has not yet
+chosen between three ways to pay is not ready for a form**, and once
+month-to-month, annual-paid-monthly and annual-up-front all exist, the landing
+page cannot carry them without becoming a pricing table pretending to be a hero
+section.
+
+**And the page is not decoration in front of the checkout — it is the legally
+load-bearing half of it.** California's AB 2863 requires the auto-renewal terms,
+the twelve-month commitment and the early-exit fee to be **clear and conspicuous
+before billing information is taken.** That is this page. Neither plan
+pre-selected — the first item in the FTC's Adobe complaint — and an explicit tick
+before payment.
+
+**He is also right that the landing page's annual line becomes redundant once it
+exists. The ORDER is the part worth writing down: the line stays until the page
+ships.** Removing it first would delete the only place the annual option is
+mentioned, in exchange for nothing.
+
+### His structure instinct was sound, and it survives checking
+
+> *"I feel like there's gotta be a way that I don't need an LLC but I could
+> transfer stuff over to me. I just have to set it up right — like, I don't set
+> it up as my dad being there, but for the things that need his age, I do it."*
+
+**That is the correct strategy and most of it works.** The list of things that
+genuinely require an adult is shorter than it looks:
+
+- **Being a sole proprietor: no minimum age.** It can be his.
+- **An EIN: the IRS sets no minimum age either.** A parent is named as
+  *responsible party*, which is **a role on a form, not ownership**, and it can
+  be changed later without re-issuing the EIN.
+- **The Lakewood licence, a bank account, and Stripe: an adult is required.**
+
+**So three roles, not a whole business, and at 18 those three come off.**
+
+### Which reduces the entire LLC question to one free support ticket
+
+**Stripe's published wording is *"a legal guardian must assume the role of owner
+of your account"*, and their documentation says nothing about turning 18.** That
+single ambiguity is the whole decision:
+
+- **Legal entity is HIM, guardian attached** → 18 removes the guardian, the
+  account continues, **the LLC is unnecessary and the $800 a year is saved.**
+- **Legal entity is his DAD** → 18 means a new account and every subscriber
+  re-enters a card, and the LLC earns its fee.
+
+**So it is asked, not guessed** — the exact wording to send is in
+`docs/setup-steps-2026-09-04.md` — **and it is asked BEFORE the account is
+opened**, because that is the one ordering mistake here that cannot be undone
+cheaply. **This is the same shape as every good finding in this project: the
+expensive decision turned out to rest on one checkable fact, and checking it is
+free.**
+
+### And he was right about Stripe Tax
+
+> *"Should I turn on Stripe Tax from the start? There's no point in not having
+> it on."*
+
+**Confirmed from Stripe's own pricing page: fees are incurred *"only for
+transactions in jurisdictions where you have an active tax registration."***
+**With no registrations it costs nothing**, there is no monthly minimum, and
+there is no charge for merely having it enabled.
+
+**So it goes on with the first subscription and is never thought about again** —
+which is exactly what he has been asking for since he first raised tax: not a
+cheaper answer, an answer he cannot forget to apply.

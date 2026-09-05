@@ -3218,6 +3218,25 @@ is kept; the entire visual design restarts from scratch.
         OTHER reason** — a bad address, a suppression, a domain problem — which
         no quota alert covers and which nothing in this product surfaces.
 
+      **AND TWO SETUP ANSWERS LANDED 2026-09-04, both from primary sources.**
+      **STRIPE TAX GOES ON FROM DAY ONE** — he asked *"there's no point in not
+      having it on"* and he is right: Stripe's own pricing page says *"you only
+      incur fees for transactions in jurisdictions where you have an active tax
+      registration"*, **so with no registrations it costs nothing**, there is no
+      monthly minimum, and switching it on early removes a thing to remember.
+      **AND HIS "SET IT UP RIGHT SO I DON'T NEED AN LLC" IDEA IS MOSTLY
+      CORRECT** — the IRS sets **no minimum age for an EIN** (a parent is named
+      "responsible party", a role that can later be changed by form rather than
+      by getting a new EIN), there is no age rule for being a sole proprietor,
+      and only three things genuinely need an adult: the **Lakewood licence**,
+      the **bank account** and **Stripe**. **The whole question therefore
+      reduces to one Stripe support ticket** — whether the account's legal
+      entity is HIM with a guardian attached (18 removes the guardian, free) or
+      his DAD (18 means a new account and every subscriber re-entering a card).
+      **Nobody should guess it and nobody has to; the exact wording to send is
+      in `docs/setup-steps-2026-09-04.md` step 4, and it must be asked BEFORE
+      the account is opened.**
+
       **STILL NEEDS HIM: his dad on the Stripe account** — settled in principle,
       *"my dad signed up and I'll manage it"*, and **whoever owns that account is
       the business for chargebacks, refunds and tax**, so he should know what he
@@ -3291,6 +3310,33 @@ is kept; the entire visual design restarts from scratch.
       exemption since 2024**, against ~$1,440 of founding-year revenue. **The
       LLC question belongs to his dad**, who already carries the liability by
       owning the payment account.
+
+      **STAGE 2 STARTS WITH A PRICING PAGE, NOT A CHECKOUT — his ask,
+      2026-09-04.** *"When you say take founding spot, that shouldn't bring you
+      to a sign up or a payment screen. That should take you to a pricing page…
+      it shows basically all my options and all the different things, and they
+      click the one that they want."*
+
+      **A real route** — the landing page's plan buttons currently go straight to
+      `/app?plan=website&offer=founding`, which is a signup form, and a customer
+      who has not yet chosen between three ways to pay is not ready for one.
+      **It carries every option in one place**: the two plans, the three ways to
+      pay, the founding price while spots remain, and what each one includes.
+      **AND IT IS WHERE THE DISCLOSURES LIVE.** California's AB 2863 requires the
+      auto-renewal terms, the twelve-month commitment and the early-exit fee to
+      be clear and conspicuous **BEFORE billing details are taken** — so this
+      page is not decoration in front of the checkout, **it is the legally
+      load-bearing half of it.** Neither plan pre-selected (the Adobe complaint's
+      first item), and an explicit tick before payment.
+
+      **HE ALSO SAID THE LANDING PAGE'S ANNUAL LINE BECOMES REDUNDANT** once this
+      exists — *"you don't even need to say six hundred a year paid once, because
+      that'll be shown inside the pricing page."* **Correct, and the order
+      matters: the line stays until the page ships**, or the only place that
+      mentions the annual option disappears before its replacement exists.
+
+      **Skills: `impeccable`** — it is a new customer-facing screen and the
+      swept widths apply.
 
       **PRICING IS LOCKED AS OF 2026-09-04** — *"Okay. So I like that pricing.
       Lock all that in."* **$999 / $60 / $600 / $35, three founding spots, and

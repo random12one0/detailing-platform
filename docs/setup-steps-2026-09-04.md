@@ -130,6 +130,56 @@ is the handover.**
 **So the $800 a year is not only buying liability protection. It is buying a
 handover that is a signature instead of a migration.**
 
+### But there is a third option, and it may cost nothing — HIS idea, and it is a good one
+
+> *"I feel like there's gotta be a way that I don't need an LLC but I could
+> transfer stuff over to me. I just have to set it up right — like, I don't set
+> it up as my dad being there, but for the things that need his age, I do it."*
+
+**That is the right instinct, and most of it works.** The trick is to be precise
+about *which* things actually require an adult, because it is fewer than it
+looks:
+
+| | Whose name can it be in? | Is an adult required? |
+|---|---|---|
+| **Being a sole proprietor** | **His.** There is no minimum age to be one | no |
+| **EIN** | **The business's** — and **the IRS sets no minimum age for an EIN** | **the parent is named as "responsible party"**, which is a role on the form, not ownership. It can be changed later with a form rather than a new EIN |
+| **Lakewood business licence** | **Dad's.** The city code requires it | **yes** |
+| **Bank account** | joint or custodial | **yes** |
+| **Stripe** | **This is the one that decides everything** — see below | **yes** |
+
+**So the shape he described is: the business is HIS sole proprietorship, and his
+dad appears only as guardian, co-signer or responsible party where the rules
+demand an adult.** At 18, those three roles come off and nothing else moves.
+
+### The one question that decides whether that works — and it is free to ask
+
+**Stripe's published wording is *"a legal guardian must assume the role of owner
+of your account"*, and their documentation does not say what happens at 18.**
+That is the whole question, because:
+
+- **If the account's legal entity is HIM** (his name, his sole proprietorship,
+  with his dad added as guardian for consent), then **turning 18 removes a
+  guardian and changes nothing else.** Same account, same subscribers, **free.**
+- **If Stripe treats the guardian as the account's legal entity**, then it is
+  his dad's account, and 18 means a new one — every subscriber re-enters a card.
+
+**Nobody should guess this, and nobody has to.** **Ask Stripe support directly,
+before opening the account:**
+
+> *"I am 17 and starting a sole proprietorship. My parent will be added as the
+> guardian on the account. When I turn 18, can the guardian be removed and the
+> account continue as mine — or does Stripe treat this as a change of legal
+> entity requiring a new account?"*
+
+**Their answer decides step 4, and it costs one support ticket.** If the answer
+is "the account continues as yours", **the LLC stops being necessary and the
+$800 a year is saved** — which is exactly what he was reaching for.
+
+**Until that answer arrives, this stays a fork rather than a decision.** Do not
+open the Stripe account first and find out afterwards; that is the one order
+that cannot be undone cheaply.
+
 **The recommendation, split by step 0:**
 
 - **Turning 18 within ~6 months → sole proprietorship, and wait to launch
@@ -211,6 +261,22 @@ state and emails when a threshold is getting close. **https://www.numeral.com**
 **Set it up the same week the first customer pays.** It is the thing that
 remembers, so he does not have to.
 
+### Turn Stripe Tax on from day one — it is free until it does something
+
+He asked *"should I turn on Stripe Tax then from the start? There's no point in
+not having it on."* **Correct, and it is confirmed by Stripe's own pricing
+page:** *"You only incur fees for transactions in jurisdictions where you have
+an active tax registration."*
+
+**With no registrations, Stripe Tax costs nothing.** There is no monthly minimum
+and no charge for simply having it enabled. **So switch it on with the first
+subscription and never think about it again** — the day a registration is
+finally added, it starts collecting correctly on its own, and only then does the
+0.5% begin.
+
+**That is one fewer thing to remember**, which was the whole point of the
+question.
+
 ### How Stripe Tax actually behaves — this answers the question exactly
 
 > *"Does it just automatically detect, oh, this person's from a state that taxes
@@ -271,14 +337,19 @@ a professional turns into "yes".
 ## The order, on one line each
 
 1. **Answer: how many months until 18?** — decides steps 4 and 7.
-2. **Call Lakewood, (562) 866-9771 x2622.** Dad applies. ~$50.
-3. **One hour with a CPA.** Five questions above. ~$150–400.
-4. **Decide sole prop vs LLC** with that advice.
-5. **EIN (free), business bank account (dad joint), DBA if using a business
-   name.**
-6. **Set up the free nexus monitor the week the first customer pays.**
-   Stripe Tax stays off until a state actually needs it.
-7. **At 18:** transfer, or simply start clean.
+2. **Ask Stripe support one question** (the wording is in step 4) — free, and it
+   decides whether the LLC is needed at all. **Do this BEFORE opening the
+   account.**
+3. **Call Lakewood, (562) 866-9771 x2622.** Dad applies. ~$50.
+4. **One hour with a CPA.** Five questions above. ~$150–400.
+5. **Decide sole prop vs LLC** with Stripe's answer and the CPA's advice.
+6. **EIN (free, no minimum age, dad as responsible party), business bank account
+   (dad joint), DBA if using a business name.**
+7. **Set up the free nexus monitor** the week the first customer pays, and
+   **turn Stripe Tax ON at the same time — it costs nothing until a
+   registration exists.**
+8. **At 18:** remove his dad from the three places that required an adult — or,
+   if Stripe says otherwise, do the transfer step 7 describes.
 
 ---
 
