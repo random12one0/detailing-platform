@@ -111,7 +111,39 @@ charge.**
 
 ---
 
-## STEP 2b — SWITCH THE PAYMENTS ON (added 2026-09-05, and it is the shortest step here)
+## STEP 2b — ~~SWITCH THE PAYMENTS ON~~ **DONE 2026-09-05, and two minutes are left**
+
+**He did it the same day and handed over the test keys, so steps 1-4 below are
+history.** The webhook was registered through the API rather than the dashboard,
+both secrets are on the Supabase project, and the whole thing was exercised end
+to end — a real Checkout paid with a test card, and a test-clock run that took a
+tenant from past due to offline and back.
+
+**WHAT IS ACTUALLY LEFT, and neither is code:**
+
+1. **Set the business address**, https://dashboard.stripe.com/test/settings/tax
+   — 60 seconds. Stripe Tax refuses to switch on without a head office address,
+   so today every checkout runs with tax calculation OFF and says so. That
+   costs nothing right now (no registrations means no tax to collect) but it is
+   also what turns on the **nexus monitor**, which is the actual reason the
+   research wanted Stripe Tax enabled: it warns before a state threshold is
+   crossed, turning an invisible creeping exposure into an alert.
+2. **Check what happens after the retries**, Settings → Billing →
+   Subscriptions and emails. **Measured on his own account: the default is to
+   CANCEL the subscription**, not to leave it unpaid. The product copes either
+   way now, but "leave unpaid" is the setting that matches what the product
+   says.
+3. **Roll the test secret key** (Developers → API keys), because it was pasted
+   into a chat. It is a test key, so nothing real is at risk — this is hygiene
+   rather than an incident.
+
+**In December, one line changes**: replace the two secrets with the live key and
+the live webhook's signing secret. Nothing else moves, because the prices, the
+terms and the agreement all live in this repo rather than in Stripe.
+
+---
+
+## STEP 2b, AS ORIGINALLY WRITTEN (kept — the reasoning is what made the early test possible)
 
 **The code is finished and it is switched off.** Roadmap 2.20 stage 2 shipped
 the checkout, the billing screen, the cancel button and the failed-payment

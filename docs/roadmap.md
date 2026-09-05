@@ -4248,8 +4248,104 @@ is kept; the entire visual design restarts from scratch.
       until the billing screen no figure in the dashboard had ever been a
       discount OF anything.
 
+      **AND IT HAS NOW TALKED TO STRIPE — 2026-09-05, the same day, because the
+      owner opened a test account and handed over the keys.** Everything below
+      was MEASURED against real Stripe with a real test key, not reasoned about.
+      **Three of the findings were things no amount of reading could have
+      produced, and two of them were bugs.**
+
+      **THE SETUP, and it needed no dashboard visit at all.** The webhook
+      endpoint was registered through the API (`POST /v1/webhook_endpoints`,
+      six events, `api_version=2024-06-20`), which hands back the signing
+      secret — so `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` went straight
+      onto the Supabase project as function secrets and never touched a file.
+      **No redeploy was needed**: Supabase reads function secrets at runtime, so
+      `stripeConfigured()` went from false to true on the already-deployed code.
+
+      **THE HAPPY PATH, END TO END.** A real Checkout session, paid with
+      `4242 4242 4242 4242` in a real browser. Stripe's own page printed
+      **$539.00 today, then $40.00 per month** — which is `$499` build plus the
+      first `$40`, exactly what `/pricing` prints and exactly what the billing
+      screen printed. **That is the tie-out closing in the real world**, and it
+      is the first time in this product's life that a number PRINTED and a
+      number CHARGED have been compared by Stripe rather than by a test.
+      Four webhook events arrived and were recorded; the row came back
+      `active` with the price snapshotted, the term ending 2027-09-05, the card
+      `visa ···· 4242`, the consent sentence stored, and the `$539` invoice
+      mirrored onto the receipts list with a working link to Stripe's own copy.
+
+      **THE DUNNING PATH, ON A TEST CLOCK, WHICH IS THE PART THAT TAKES A
+      BUSINESS OFFLINE.** A second tenant, a good card swapped for
+      `pm_card_chargeCustomerFail`, and the clock advanced two months. It
+      behaved exactly as the pricing page promises: the renewal failed →
+      `past_due`, **booking page still up** through the retry window → retries
+      exhausted → `suspended`, `businesses.status = 'paused'`, **booking page
+      offline**, and the detailer emailed at each step.
+
+      **1. STRIPE'S DEFAULT END-OF-DUNNING IS A CANCELLATION, NOT `unpaid` —
+      and this file's own mapping deliberately refuses to suspend on a
+      cancellation.** The setup notes tell the owner to set "leave the
+      subscription unpaid" in the dashboard, and on a fresh account it is not
+      that. The run survived it **by event ordering**: the final
+      `invoice.payment_failed` (which suspends) landed two seconds AFTER the
+      cancellation, so the row ended `suspended`. **The other order gives a row
+      that says `canceled` while the booking page is genuinely dark** — and
+      `dunningState()` returned `level: "ok"` for `canceled`, so the detailer
+      would have met an offline booking page and a billing screen with nothing
+      on it. **`suspended_at` outranks the word now.** The page being off is a
+      fact about US and that column is where it is recorded.
+
+      **2. `invoice.charge` IS AN ID, NOT AN OBJECT, so the decline reason was
+      ALWAYS null.** The code read `asObj(invoice.charge).outcome
+      .seller_message` on an unexpanded invoice, which is `{}` — so
+      `last_failure_reason` never populated and the email never printed the one
+      line a detailer can act on. **It looked completely correct.** One extra
+      call on a failure now fetches the charge, and it prefers
+      `failure_message` (*"Your card was declined"*, written for a person) over
+      `outcome.seller_message`, which is frequently *"The bank did not return
+      any further details"* — worse than nothing on a screen. Verified by
+      re-attempting the real failed invoice: `"Your card was declined."` is in
+      the row.
+
+      **3. THE PINNED API VERSION IS LOAD-BEARING, AND THAT IS NOW MEASURED
+      RATHER THAN ASSERTED.** `_shared/stripe.ts` pins `2024-06-20` on the
+      reasoning that an unpinned integration breaks on a date nobody chose.
+      Fetching the same invoice both ways proved it stronger than that: **at
+      `2024-06-20` it carries `charge` and `payment_intent`; at this account's
+      newer default it carries NEITHER.** Every reason lookup would find
+      nothing, silently. The webhook endpoint is registered at the same version
+      on purpose, and the two must move together.
+
+      **4. STRIPE TAX REFUSES THE WHOLE SESSION WITHOUT A HEAD OFFICE ADDRESS,
+      in test mode too** — *"You must have a valid head office address to enable
+      automatic tax calculation."* The research said Stripe Tax is free until
+      there is a registration and should be on from day one, which is true
+      about the FEE and silent about this. **It is a dashboard setting, and
+      this item has now refused three times to let one be load-bearing** (the
+      dunning emails, the portal configuration, this). `checkout` tries with
+      automatic tax, and on that specific error retries without it and RETURNS
+      the reason. **The fallback cannot under-collect**: a tax registration
+      requires a head office address, so the error is reachable only in the
+      state where automatic tax would compute zero anyway.
+      **What the owner should do, and it is 60 seconds:** set the business
+      address at
+      https://dashboard.stripe.com/test/settings/tax — it is what turns the
+      nexus monitor on, which is the actual reason the research wanted Stripe
+      Tax enabled.
+
+      **`tests/platform-billing.test.mjs` § 16 pins all four**, and the suite is
+      197 checks.
+
       **WHAT IS STILL NOT DONE, AND IT IS NOT CODE:**
-      - **THERE IS NO STRIPE ACCOUNT, SO NOTHING HAS EVER TALKED TO STRIPE.**
+      - ~~**THERE IS NO STRIPE ACCOUNT, SO NOTHING HAS EVER TALKED TO STRIPE.**~~
+        **CLOSED THE SAME DAY — he opened a test account and handed over the
+        keys, and the whole thing was exercised end to end. See the live-run
+        section above.** What is left of this bullet is the LIVE half: the
+        account is not activated, so no real money can move until he does that
+        in December. The test keys and the test webhook are set on the Supabase
+        project; swapping them for live ones is the only change.
+      - ~~**THERE IS NO STRIPE ACCOUNT.**~~ (original wording kept below because
+        the reasoning about test mode is what made the early test possible.)
         Every pure part is tested and both screens are verified in a browser;
         the three calls that leave the building have never been made.
         **Stripe TEST MODE needs no activated account and no guardian** — a

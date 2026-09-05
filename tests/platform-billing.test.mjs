@@ -726,5 +726,62 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
     planFor("website", "monthly", true).setup_cents < planFor("website", "monthly", false).setup_cents);
 }
 
+// ─── 16. WHAT A REAL STRIPE TEST CLOCK TAUGHT, PINNED ─────────────────────
+//
+// Everything here is a fact measured against Stripe on 2026-09-05 with a real
+// test key and a test clock — a subscription taken out, a card swapped for one
+// that declines, and the clock advanced two months until the retries ran out.
+// None of it was visible from the code, and two of the three were wrong.
+{
+  console.log("\n16. what the live dunning run found");
+
+  // THE END OF DUNNING IS A CANCELLATION ON A FRESH ACCOUNT, not `unpaid`.
+  // Stripe's default is to cancel the subscription when retries are exhausted,
+  // and that event can land BEFORE or AFTER the final `invoice.payment_failed`
+  // that suspends us. Measured order on the real run: cancel first, suspend
+  // second — so the row said `suspended`. The other order says `canceled`
+  // while the booking page is genuinely dark.
+  const dark = dunningState({ status: "canceled", dunning_attempts: 3, suspended_at: "2026-09-05T17:00:09Z" });
+  check("a cancelled subscription whose page we darkened still shows as down",
+    dark.level === "down", dark.level);
+  check("and it still says the page is offline", /offline/i.test(dark.headline), dark.headline);
+  // The other direction: a payment that lands makes it active again, and an
+  // active row must never be shown as down whatever `suspended_at` still says.
+  check("a paid-up subscription is never shown as down",
+    dunningState({ status: "active", dunning_attempts: 0, suspended_at: "2026-09-05T17:00:09Z" }).level === "ok");
+  // And a deliberate cancellation, which never went through dunning, stays
+  // quiet — roadmap 4.4's admin screen turns those off, not this mechanism.
+  check("a deliberate cancellation says nothing",
+    dunningState({ status: "canceled", dunning_attempts: 0, suspended_at: null }).level === "ok");
+
+  const hook = read("supabase/functions/stripe-webhook/index.ts");
+  // `invoice.charge` IS AN ID, NOT AN OBJECT. The first version read
+  // `asObj(invoice.charge).outcome.seller_message`, which is `{}` on an
+  // unexpanded invoice — so the reason was ALWAYS null and the email never
+  // printed the one line a detailer can act on. It looked correct.
+  check("the decline reason is fetched, not read off an id",
+    hook.includes("await stripe(`/charges/${invoice.charge}`)"),
+    "invoice.charge is a string on an unexpanded invoice");
+  // COMMENTS STRIPPED: the paragraph above the code names `seller_message`
+  // first while explaining why it comes second, and a check a comment can fail
+  // is a check that gets deleted rather than fixed. Same technique as 7a.
+  const hookCode2 = hook.replace(/^[ 	]*\/\/.*$/gm, "");
+  check("it prefers the words written for a person",
+    hookCode2.indexOf("failure_message") < hookCode2.indexOf("seller_message"),
+    "seller_message is often 'the bank did not return any further details'");
+  check("and failing to read it never blocks the suspension",
+    /could not read why the card was refused/.test(hook));
+
+  // THE PINNED API VERSION IS LOAD-BEARING AND THAT IS NOW MEASURED RATHER
+  // THAN ASSUMED. At 2024-06-20 an invoice carries `charge` and
+  // `payment_intent`; at this account's newer default it carries neither, and
+  // every reason lookup would find nothing. The webhook endpoint is registered
+  // at the same version on purpose.
+  const st = read("supabase/functions/_shared/stripe.ts");
+  check("the Stripe API version is pinned", /API_VERSION = "2024-06-20"/.test(st));
+  check("and the pin is explained as load-bearing rather than tidy",
+    /changes response shapes between\s*\n\/\/ versions/.test(st) || /unpinned integration/.test(st));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

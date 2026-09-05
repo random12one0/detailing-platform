@@ -344,7 +344,17 @@ export interface DunningState {
  */
 export function dunningState(sub: DunningRow | null): DunningState {
   if (!sub) return { level: "ok", headline: "", detail: "" };
-  if (sub.status === "suspended") {
+  // `suspended_at` OUTRANKS THE WORD, and a real test-clock run is what showed
+  // why (2026-09-05). Stripe's default end-of-dunning behaviour on a fresh
+  // account is to CANCEL the subscription rather than mark it unpaid, and the
+  // cancellation event can land AFTER the final `invoice.payment_failed` that
+  // suspended us — so the row ends up saying `canceled` while
+  // `businesses.status` is `paused` and the booking page is genuinely offline.
+  // Keying only on the word gave `level: "ok"`: a dark booking page and a
+  // billing screen with nothing on it, which is the silent failure this whole
+  // item keeps designing against. The page being off is a fact about US;
+  // `suspended_at` is where we record it.
+  if (sub.status === "suspended" || (sub.suspended_at && sub.status !== "active")) {
     return {
       level: "down",
       headline: "Your booking page is offline",

@@ -247,7 +247,7 @@ async function checkout(
     customerId = String(created.id);
   }
 
-  const session = await stripe("/checkout/sessions", {
+  const base: Record<string, unknown> = {
     mode: "subscription",
     customer: customerId,
     line_items: lineItemsFor(snapshot),
@@ -259,11 +259,46 @@ async function checkout(
       metadata: { business_id: businessId, term, plan: snapshot.plan },
     },
     metadata: { business_id: businessId, term, plan: snapshot.plan },
-    // Stripe Tax from day one: it costs nothing until there is a registration
-    // to calculate against, and switching it on later means remembering to.
-    automatic_tax: { enabled: true },
-    customer_update: { address: "auto" },
-  }, { idempotencyKey: `co:${businessId}:${term}:${Date.now()}` });
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STRIPE TAX IS ON, AND IT CANNOT BE ALLOWED TO TAKE THE CHECKOUT DOWN.
+  //
+  // The owner's decision (`docs/payments-research-2026-09-04.md`, round 2):
+  // *"there's no point in not having it on"* — and he is right, because
+  // Stripe charges for it only in jurisdictions where there is an active
+  // registration, so with none it is free and it monitors nexus per state.
+  //
+  // WHAT THE RESEARCH DID NOT SAY, found the first time a real key was used
+  // (2026-09-05): **`automatic_tax` requires a head office address on the
+  // Stripe account and refuses the whole session without one, in test mode
+  // too** — *"You must have a valid head office address to enable automatic
+  // tax calculation."* That is a dashboard setting, and this item has already
+  // refused twice to let one of those be load-bearing (the dunning emails, the
+  // portal configuration). A checkout that 400s until somebody visits an admin
+  // panel is the same mistake a third time.
+  //
+  // SO IT FALLS BACK, AND THE FALLBACK CANNOT UNDER-COLLECT. **You cannot hold
+  // a tax registration without a head office address** — Stripe requires one to
+  // register — so this error is reachable ONLY in the state where automatic tax
+  // would compute zero anyway. It is loud rather than silent: the reason is
+  // logged and returned to the screen.
+  let session: Record<string, unknown>;
+  let taxOff: string | null = null;
+  const key = `co:${businessId}:${term}:${Date.now()}`;
+  try {
+    session = await stripe("/checkout/sessions", {
+      ...base,
+      automatic_tax: { enabled: true },
+      customer_update: { address: "auto" },
+    }, { idempotencyKey: key });
+  } catch (err) {
+    const msg = err instanceof StripeError ? err.message : String(err);
+    if (!/head office address/i.test(msg)) throw err;
+    taxOff = "No head office address on the Stripe account, so tax is not being calculated.";
+    console.error(`automatic_tax refused: ${msg}`);
+    session = await stripe("/checkout/sessions", base, { idempotencyKey: `${key}:notax` });
+  }
 
   // The row goes in BEFORE they reach the card form. See the header.
   const now = new Date();
@@ -292,7 +327,7 @@ async function checkout(
     current_period_end: null,
   }, { onConflict: "business_id" });
 
-  return json({ url: session.url, label: planLabel(snapshot) });
+  return json({ url: session.url, label: planLabel(snapshot), tax_off: taxOff });
 }
 
 // The portal configuration this product uses, tagged so it can be found again.

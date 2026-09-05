@@ -281,14 +281,36 @@ async function invoiceFailed(invoice: Obj): Promise<void> {
   // failed renewals, and treating it as one takes a paid-up detailer offline.
   if (!isSubscriptionInvoice(invoice)) return;
 
-  // The bank's own words when Stripe passed one on. Printed to the detailer
-  // verbatim: "your card was declined" helps nobody, "insufficient funds" is
-  // something they can act on in thirty seconds.
-  const reason = String(
-    asObj(invoice.last_finalization_error).message
-      ?? asObj(asObj(invoice.charge).outcome).seller_message
-      ?? "",
-  ).slice(0, 200) || null;
+  // THE BANK'S OWN WORDS, AND THEY COST ONE EXTRA CALL BECAUSE `charge` IS AN
+  // ID RATHER THAN AN OBJECT. This read `asObj(invoice.charge).outcome
+  // .seller_message` and always produced null — `invoice.charge` is the STRING
+  // `ch_...` unless the object was expanded, so `asObj` returned `{}` and the
+  // reason silently vanished. Found against a real failed renewal on a Stripe
+  // test clock (2026-09-05), not by reading the code: it looked correct and the
+  // email simply never printed the one line a detailer can act on.
+  //
+  // `failure_message` is what a person should read ("Your card was declined",
+  // "Your card has insufficient funds"); `outcome.seller_message` is written
+  // for the merchant and is often *"The bank did not return any further
+  // details"*, which is worse than nothing on a screen. Prefer the first.
+  //
+  // ONE CALL, ONLY ON A FAILURE, AND IT IS BEST-EFFORT: a reason we cannot
+  // fetch must never stop the account being marked past due.
+  let reason: string | null = null;
+  try {
+    const inline = asObj(invoice.last_finalization_error).message;
+    if (typeof inline === "string" && inline) {
+      reason = inline;
+    } else if (typeof invoice.charge === "string" && invoice.charge) {
+      const charge = await stripe(`/charges/${invoice.charge}`);
+      reason = (charge.failure_message as string)
+        ?? (asObj(charge.outcome).seller_message as string)
+        ?? null;
+    }
+  } catch (e) {
+    console.error("could not read why the card was refused:", e);
+  }
+  reason = reason ? String(reason).slice(0, 200) : null;
   const amount = Number(invoice.amount_due ?? 0) / 100;
 
   // NO MORE ATTEMPTS SCHEDULED IS THE MOMENT THE PROMISE FIRES. Stripe sets

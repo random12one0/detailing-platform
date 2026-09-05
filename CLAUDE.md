@@ -1108,10 +1108,40 @@ explaining it; if they still have to ask "so should I?", it failed.
   `platform_invoices` and `stripe_events` exist and are applied;
   `platform-billing` (owner-only) and `stripe-webhook` (public) are deployed;
   `screens/more/Billing.jsx` is the FIFTEENTH settings screen, behind the gear.
-  **`stripeConfigured()` is FALSE on every deployment today** — there is no
-  Stripe account — so the checkout answers **503 "Payments are not switched on
-  yet"** and the screen prints that above the button. Everything else works and
-  is verified.
+  ~~**`stripeConfigured()` is FALSE on every deployment today**~~ **IT IS TRUE
+  AS OF 2026-09-05 — the owner opened a Stripe TEST account and the whole thing
+  was exercised end to end**: a real Checkout session paid with `4242…`, four
+  webhook events, the row `active` with the price snapshotted and the consent
+  stored, and a test-clock run that took a second tenant from `past_due` to
+  `suspended` with its booking page genuinely offline. `STRIPE_SECRET_KEY` and
+  `STRIPE_WEBHOOK_SECRET` are **Supabase function secrets on the platform
+  project** (never in a file), and the webhook endpoint was registered through
+  the API rather than the dashboard. **The account is not ACTIVATED**, so no
+  real money can move; swapping the test keys for live ones in December is the
+  only change.
+  **FOUR THINGS THE LIVE RUN TAUGHT THAT NO AMOUNT OF READING WOULD HAVE:**
+  **(1) Stripe's default end-of-dunning is a CANCELLATION, not `unpaid`** — the
+  setup notes tell the owner to change that, and on a fresh account it is not
+  changed. The run survived only by event ordering, and the other order left a
+  row saying `canceled` while the page was dark and `dunningState()` said
+  nothing was wrong. **`suspended_at` outranks the status word now.**
+  **(2) `invoice.charge` IS AN ID, so the decline reason was ALWAYS null** —
+  `asObj(invoice.charge)` on an unexpanded invoice is `{}`. It looked correct
+  and the email simply never printed the line a detailer can act on. One extra
+  call fetches the charge, preferring `failure_message` over
+  `outcome.seller_message`, which is often *"the bank did not return any
+  further details"*.
+  **(3) THE PINNED API VERSION IS LOAD-BEARING AND IT IS NOW MEASURED: at
+  `2024-06-20` an invoice carries `charge` and `payment_intent`; at this
+  account's newer default it carries NEITHER.** The webhook endpoint is
+  registered at the same version, and the two must move together.
+  **(4) Stripe Tax refuses the WHOLE session without a head office address**,
+  in test mode too — a dashboard setting, which this item has now refused three
+  times to let be load-bearing. `checkout` falls back without automatic tax and
+  returns the reason; the fallback cannot under-collect, because a registration
+  requires that address anyway. **The owner's 60 seconds:**
+  https://dashboard.stripe.com/test/settings/tax
+  Test § 16 pins all four.
   **THE ONE RULE THAT OUTRANKS EVERYTHING ELSE HERE: the page PRINTS and the
   server CHARGES, and one pure module does both.**
   `supabase/functions/_shared/platformBilling.ts` holds the price table,
