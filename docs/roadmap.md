@@ -5595,6 +5595,20 @@ is kept; the entire visual design restarts from scratch.
       invite). **Four numbers across the top and no charts** — he has fewer than
       ten customers and every trend line is noise.
 
+      **THE PLATFORM SETTINGS HALF NOW HAS A SPECIFIC JOB — HIS OWN PRICES,
+      2026-09-05.** *"Everything that could be a changeable fact should be
+      linked to Supabase."* **The audit that answered him is in DECISIONS.md**;
+      what lands HERE is the one case a database genuinely wins: `PRICING` is
+      typed twice on purpose (a Deno bundle cannot import out of `supabase/`,
+      the wall that forced `_shared/brandColor.js`) and 241 checks are what keep
+      the copies equal. **A `platform_prices` row makes them one.** It is
+      deliberately NOT built ahead of this item: until there is a screen, a
+      price change is a SQL statement, which is no more owner-editable than a
+      file. **The risk is already contained either way** — every price is
+      snapshotted onto `platform_subscriptions` at purchase and never re-read,
+      so an edit cannot re-price somebody who already bought. **Build the table
+      and the editor together, or neither.**
+
       **AND IT SHOULD SPLIT AND MOVE EARLIER.** 2.20 stage 2 needs *suspend*
       anyway, and the day he has three paying customers he needs the list.
       Order: suspend + the detailer's own billing page ride along with billing;
@@ -5789,6 +5803,28 @@ recommendation.
   **DONE 2026-09-04 — 2.14 shipped and 4.3 is ticked and struck through.** Its
   one live question — how a plan should charge — survives as item A above and
   belongs to 2.20 (payments).
+
+- **L. THERE IS NO WAY FOR A DETAILER TO REACH HIM — no support email, no
+  phone number, no postal address anywhere in the product, found 2026-09-05
+  while auditing which facts are typed twice.** `/pricing` promises *"one
+  button in your own account… no phone call, no email and nobody to talk out of
+  it"*, which is a good promise about CANCELLING and is not an answer to
+  *"my card was charged twice"*. The two billing emails go out with no reply
+  path either. **The day money starts moving, an unanswered billing email
+  becomes a chargeback** — DECISIONS.md said so before any of this was built,
+  and then nothing was built for it. **Recommendation: one `support@` address
+  in the billing emails' footer and on the billing screen, before the first
+  real charge — not a help centre.** It is his to choose because it is his
+  inbox that receives it.
+- **M. THERE IS NO `/terms` AND NO `/privacy` ROUTE.** The entire legal surface
+  of the product is 80 lines of JSX inside `PricingPage.jsx` — the AB 2863
+  disclosure, the refundability of the build fee, what happens when you leave.
+  **That block is correct and well-placed** (the statute wants it before
+  billing details, not on a page nobody opens); the gap is that there is
+  nothing to LINK to from an email footer, from Stripe's own receipts, or from
+  the footer of the marketing page. **Recommendation: Phase 7, alongside the
+  Resend domain and the SPF record** — it is launch paperwork, and the
+  disclosure that legally matters already exists.
 
 ## Standing owner jobs
 

@@ -159,7 +159,7 @@ export default function PricingPage() {
               <span>
                 {offer.left} of {offer.total} spots left. It is locked for the
                 life of the account and never rises while that account stays
-                open. When the third one goes, this page shows the standard
+                open. When the last one goes, this page shows the standard
                 prices instead.
               </span>
             </p>
@@ -218,7 +218,7 @@ export default function PricingPage() {
           <ul className="ladder">
             <li className="rung" data-rv="">
               <div className="rungwhat">
-                <span className="rt">Annual, paid up front</span>
+                <span className="rt">Pay for the year</span>
                 <span className="rw">
                   One payment for the year — {monthsFree} months free against
                   paying monthly. No term and no exit fee: the year is already
@@ -242,7 +242,7 @@ export default function PricingPage() {
 
             <li className="rung" data-rv="" style={{ "--i": 1 }}>
               <div className="rungwhat">
-                <span className="rt">Annual, paid monthly</span>
+                <span className="rt">Pay monthly, for a year</span>
                 <span className="rw">
                   ${p.monthly * 12} over {PRICING.term.months} months. This one
                   is a {PRICING.term.months}-month commitment, and leaving

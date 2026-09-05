@@ -43,7 +43,7 @@ import { PRICING } from "../app/src/landing/pricing.js";
 // run — not a description of them.
 import {
   PRICES, TERMS, consentSentence, dunningState, exitFeeCents, exitFeeCentsFor,
-  firstChargeCents, isPlan, isTerm, lineItemsFor, ourStatus, planFor, planLabel,
+  BUILD_FEE_LINE, firstChargeCents, isPlan, isTerm, linesFor, ourStatus, planFor, planLabel,
   termEndDate, wholeMonthsBetween,
 } from "../supabase/functions/_shared/platformBilling.ts";
 import { flatten, verifyWebhook } from "../supabase/functions/_shared/stripe.ts";
@@ -112,16 +112,16 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
 
     for (const term of TERMS) {
       const snap = planFor("website", term, founding);
-      const items = lineItemsFor(snap);
-      const recurring = items.find((i) => i.price_data.recurring);
-      const oneOff = items.find((i) => !i.price_data.recurring);
+      const lines = linesFor(snap);
+      const recurring = lines.find((l) => l.interval !== null);
+      const oneOff = lines.find((l) => l.interval === null);
 
       check(`${who} · ${term} · the recurring line is what the rung prints`,
-        recurring.price_data.unit_amount === Math.round(printed[term] * 100),
-        `${usd(recurring.price_data.unit_amount)} vs $${printed[term]}`);
+        recurring.cents === Math.round(printed[term] * 100),
+        `${usd(recurring.cents)} vs $${printed[term]}`);
 
       check(`${who} · ${term} · the setup fee is its own line`,
-        oneOff && oneOff.price_data.unit_amount === Math.round(p.setup * 100),
+        oneOff && oneOff.cents === Math.round(p.setup * 100),
         JSON.stringify(oneOff));
 
       check(`${who} · ${term} · first charge = setup + first period`,
@@ -129,13 +129,20 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
         usd(firstChargeCents(snap)));
 
       check(`${who} · ${term} · the interval matches the figure`,
-        recurring.price_data.recurring.interval === (term === "annual-upfront" ? "year" : "month"));
+        recurring.interval === (term === "annual-upfront" ? "year" : "month"));
 
-      check(`${who} · ${term} · every line is a whole number of cents in usd`,
-        items.every((i) => Number.isInteger(i.price_data.unit_amount)
-          && i.price_data.unit_amount > 0
-          && i.price_data.currency === "usd"),
-        JSON.stringify(items));
+      check(`${who} · ${term} · every line is a whole number of cents`,
+        lines.every((l) => Number.isInteger(l.cents) && l.cents > 0),
+        JSON.stringify(lines));
+
+      // THE NAMES ARE PART OF THE TIE-OUT, not decoration. A receipt row that
+      // says something the screen never said is the same defect as a price
+      // that does — and the build fee's wording was typed out in two files
+      // until `BUILD_FEE_LINE` existed.
+      check(`${who} · ${term} · the recurring line is named for the plan`,
+        recurring.name === planLabel(snap), recurring.name);
+      check(`${who} · ${term} · the build fee's row says what it is`,
+        oneOff.name === BUILD_FEE_LINE, oneOff.name);
     }
   }
 
@@ -149,7 +156,7 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
     JSON.stringify(b));
   check("booking-only ignores a term it was handed", b.term === "monthly", b.term);
   check("booking-only is never founding", b.founding === false);
-  check("booking-only sends exactly one line item", lineItemsFor(b).length === 1);
+  check("booking-only sends exactly one line", linesFor(b).length === 1);
 }
 
 // ─── 3. THE FOUNDING LADDER IS DERIVED, NOT A SECOND SET OF OPINIONS ───────
@@ -395,14 +402,32 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   check("false and zero are NOT dropped",
     decodeURIComponent(enc({ a: false, b: 0 })) === "a=false&b=0", enc({ a: false, b: 0 }));
 
-  // The real payload, end to end.
-  const wire = decodeURIComponent(enc({ line_items: lineItemsFor(planFor("website", "annual-monthly", true)) }));
-  check("the real line items encode the founding monthly price",
-    wire.includes("line_items[0][price_data][unit_amount]=4000"), wire);
-  check("the real line items encode the build fee",
-    wire.includes("line_items[1][price_data][unit_amount]=49900"), wire);
-  check("the real line items encode the interval",
-    wire.includes("line_items[0][price_data][recurring][interval]=month"), wire);
+  // THE REAL PAYLOAD, END TO END — and it is the SUBSCRIPTION's shape now,
+  // not a Checkout session's. The build fee moved from `line_items[1]` to
+  // `add_invoice_items[0]` when the hosted page went (2026-09-05), which is a
+  // different nesting for the same money; the amounts are still `linesFor`'s.
+  const lines = linesFor(planFor("website", "annual-monthly", true));
+  const recurring = lines.find((l) => l.interval !== null);
+  const oneOff = lines.find((l) => l.interval === null);
+  const wire = decodeURIComponent(enc({
+    items: [{ price_data: { currency: "usd", unit_amount: recurring.cents,
+      recurring: { interval: recurring.interval }, product: "prod_x" } }],
+    add_invoice_items: [{ price_data: { currency: "usd", unit_amount: oneOff.cents,
+      product: "prod_y" } }],
+    payment_behavior: "default_incomplete",
+    expand: ["latest_invoice.payment_intent"],
+  }));
+  check("the real payload encodes the founding monthly price",
+    wire.includes("items[0][price_data][unit_amount]=4000"), wire);
+  check("the real payload encodes the build fee as an added invoice item",
+    wire.includes("add_invoice_items[0][price_data][unit_amount]=49900"), wire);
+  check("the real payload encodes the interval",
+    wire.includes("items[0][price_data][recurring][interval]=month"), wire);
+  // A BARE STRING IN AN ARRAY, which `expand` is and no other field here is.
+  // Stripe drops the whole expansion if it arrives as `expand=...` — and
+  // without it there is no client secret and the form never draws.
+  check("expand encodes as an indexed array, not a bare key",
+    wire.includes("expand[0]=latest_invoice.payment_intent"), wire);
 }
 
 // ─── 10. THE SEAM: THE PAGE, THE SCREEN AND THE SERVER USE ONE VOCABULARY ──
@@ -429,6 +454,39 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   const rungKeys = [...billing.matchAll(/^\s*\["([a-z-]+)",/gm)].map((m) => m[1]);
   check("every rung on the screen is a term the server accepts",
     rungKeys.length === TERMS.length && rungKeys.every(isTerm), rungKeys.join(","));
+
+  // THE SAME KEY IS NOT ENOUGH — THE SAME WORDS HAVE TO BE ON THE RUNG.
+  // `Billing.jsx`'s own header says *"the rungs carry the same words as
+  // /pricing. A detailer who chose 'pay for the year' there and meets
+  // 'annual-upfront' here has been handed a different product."* **It was not
+  // true**: /pricing said *"Annual, paid up front"* and *"Annual, paid
+  // monthly"* while the dashboard said *"Pay for the year"* and *"Pay monthly,
+  // for a year"* — two names for one plan across the exact seam a person walks
+  // through with a card out. Found 2026-09-05 while auditing which facts are
+  // typed twice; the dashboard's plainer wording won, and NOTHING RE-READS
+  // THE OTHER FILE, so only a check can hold them together.
+  const RUNG_NAMES = {
+    "annual-upfront": "Pay for the year",
+    "annual-monthly": "Pay monthly, for a year",
+    "monthly": "Month to month",
+  };
+  for (const term of TERMS) {
+    check(`/pricing's rung for "${term}" is called "${RUNG_NAMES[term]}"`,
+      pricingPage.includes(`<span className="rt">${RUNG_NAMES[term]}</span>`), term);
+    check(`and the billing screen calls it the same thing`,
+      billing.includes(`["${term}", "${RUNG_NAMES[term]}"`), term);
+  }
+
+  // AND THE SPOTS SENTENCE CANNOT NAME A NUMBER. `founding_total` is a column
+  // somebody edits (`update platform_settings set founding_total = <n>`) and
+  // the page said *"when the THIRD one goes"* — true only while the cap is 3,
+  // and silently wrong the moment it is not. Same defect class as the price
+  // table: a fact in two places where one of them is a database.
+  check("the founding bar never spells the cap out in words",
+    !/\bthe (?:first|second|third|fourth|fifth) one goes\b/.test(pricingPage),
+    "an ordinal is hardcoded against a count that comes from the database");
+  check("and it still says what happens when they run out",
+    pricingPage.includes("this page shows the standard"));
 
   check("isTerm refuses anything else", !isTerm("annual") && !isTerm("") && !isTerm(null));
   check("isPlan is closed too", isPlan("website") && isPlan("booking") && !isPlan("pro"));
@@ -873,7 +931,7 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // second line item; here it is add_invoice_items, and the customer is
   // charged one amount once either way.
   check("the build fee is a one-off on the first invoice",
-    fn.includes("params.add_invoice_items = [{"));
+    fn.includes("params.add_invoice_items = await Promise.all(oneOffs"));
   check("a missing client secret fails loudly rather than drawing an empty form",
     fn.includes("no client secret on the first invoice"));
 

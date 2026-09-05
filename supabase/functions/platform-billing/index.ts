@@ -77,7 +77,7 @@ import {
   firstChargeCents,
   isPlan,
   isTerm,
-  lineItemsFor,
+  linesFor,
   planFor,
   planLabel,
   termEndDate,
@@ -304,21 +304,28 @@ async function subscribe(
   // subscription without attempting payment and hands back a client secret,
   // the browser confirms it against the Payment Element, and the webhook we
   // already have turns `invoice.paid` into an active row. Nothing new listens.
-  const productId = await productFor(planLabel(snapshot));
+  // EVERY AMOUNT AND EVERY NAME COMES FROM `linesFor`, WHICH IS THE FILE THE
+  // TIE-OUT TEST READS. Building them here instead is what let § 2 go on
+  // passing against `lineItemsFor` after nothing called it — so this endpoint
+  // TRANSLATES and decides nothing. `product` is the one thing it adds,
+  // because an id has to be fetched and a pure module cannot fetch.
+  const lines = linesFor(snapshot);
+  const recurring = lines.find((l) => l.interval !== null)!;
+  const oneOffs = lines.filter((l) => l.interval === null);
 
   const params: Record<string, unknown> = {
     customer: customerId,
     items: [{
       price_data: {
         currency: "usd",
-        unit_amount: snapshot.recurring_cents,
-        recurring: { interval: snapshot.bill_interval },
+        unit_amount: recurring.cents,
+        recurring: { interval: recurring.interval },
         // A PRODUCT ID RATHER THAN `product_data`, WHICH THE CHECKOUT SESSION
         // ACCEPTED AND THIS ENDPOINT DOES NOT — measured, not assumed: it
         // answers *"Received unknown parameter: items[0][price_data]
         // [product_data]. Did you mean product?"*. The AMOUNT still comes from
         // this repo on every call; only the NAME lives in Stripe.
-        product: productId,
+        product: await productFor(recurring.name),
       },
     }],
     payment_behavior: "default_incomplete",
@@ -337,14 +344,14 @@ async function subscribe(
   // simply a second line item; here it is `add_invoice_items`, which Stripe
   // appends to the subscription's first invoice — so the customer is charged
   // one amount, once, exactly as before.
-  if (snapshot.setup_cents > 0) {
-    params.add_invoice_items = [{
+  if (oneOffs.length) {
+    params.add_invoice_items = await Promise.all(oneOffs.map(async (l) => ({
       price_data: {
         currency: "usd",
-        unit_amount: snapshot.setup_cents,
-        product: await productFor("Website build — one-off"),
+        unit_amount: l.cents,
+        product: await productFor(l.name),
       },
-    }];
+    })));
   }
 
   // Stripe Tax, with the same fallback and for the same reason as before: it

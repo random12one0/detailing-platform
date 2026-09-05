@@ -13235,3 +13235,87 @@ server-side with `pm_card_visa`, went `succeeded` → webhook → row `active`,
 `$539 paid`, card `visa ···· 4242 · 9/2027`.** What is NOT proven is
 `stripe.confirmPayment` itself — Stripe's own function, called with its own
 elements instance — and 3-D Secure, which needs a human at a real browser.
+
+### "Everything that could change should be in the database" — what the audit found, and where he is right
+
+His ask, 2026-09-05: *"Those facts should be linked in database — basically
+everything that could be a changeable fact should be linked to Supabase."*
+
+**He is right about the FAILURE and wrong about the CURE, and the audit is what
+separates them.** The failure he is pointing at is drift: the same fact typed in
+several files, and one of them wrong. **That is real and it was already
+happening in three places.** The cure is not "put it in the database" — it is
+"one source per fact", and a database is only sometimes the cheapest source.
+
+#### What was actually broken, all three found by looking rather than reasoning
+
+1. **THE TIE-OUT TEST WAS GUARDING DEAD CODE — the worst of the three, and my
+   own change caused it.** `lineItemsFor()` built Stripe Checkout `line_items`,
+   and when the hosted page was replaced the same afternoon, **nothing called
+   it any more**. `platform-billing` still IMPORTED it; § 2 — *"what the page
+   prints is what the card is charged"*, the rule this whole item says outranks
+   every other rule — went on passing against a function no request could
+   reach, while the amounts that actually charge a card were typed out in the
+   endpoint. **A test guarding dead code reads exactly like coverage.**
+   `linesFor()` replaces it, describes the MONEY rather than Stripe's
+   parameters, and the endpoint now translates and decides nothing.
+2. **Two names for one plan across the seam a person walks with a card out.**
+   `/pricing` said *"Annual, paid up front"* and *"Annual, paid monthly"*; the
+   billing screen said *"Pay for the year"* and *"Pay monthly, for a year"* —
+   **and `Billing.jsx`'s own header asserted they carried the same words.** A
+   comment is not a mechanism. The dashboard's plainer wording won and § 10
+   pins both files to it.
+3. **The founding bar spelled out a number that lives in the database.**
+   *"When the THIRD one goes, this page shows the standard prices instead"* —
+   beside a count read from `platform_settings.founding_total`, a column
+   somebody edits with one UPDATE. Raise the cap to five and the page says the
+   third is the last. **"The last one" is true at every cap**, and a check now
+   refuses any ordinal there. **This is his point exactly, and note the
+   direction: the fix was to stop typing the fact, not to fetch it again.**
+
+Also collapsed: `"Website build — one-off"` was typed in two server files and is
+now `BUILD_FEE_LINE`, pinned as part of the tie-out — **because a receipt row
+that says something the screen never said is the same defect as a price that
+does.**
+
+#### Where a database EARNS its place, and where it does not
+
+The test is not *"could this change?"* — everything could. It is **"who changes
+it, how often, and what does a wrong value cost?"**
+
+- **PRICES: yes, eventually, and it is the only strong case.** The table is
+  typed twice on purpose — a Deno bundle cannot import out of `supabase/`, the
+  same wall that forced `_shared/brandColor.js` — and 241 checks are what keeps
+  the copies equal. **A `platform_prices` row would make them one.** But it buys
+  him nothing he can USE until roadmap 4.4 builds a screen to edit it; until
+  then a price change is a SQL statement, which is not more owner-editable than
+  a file. **So: build it WITH 4.4's platform settings screen, not before.**
+  **And the risk is already contained** — every price is snapshotted onto
+  `platform_subscriptions` at purchase and never re-read, so a price edit can
+  never re-price somebody who already bought.
+- **THE REPEATED PROMISES: no — one module, not one row.** *"Two weeks of
+  retries, then the site goes offline"* and *"nothing is deleted"* are typed in
+  four and five places across the pricing page, the dunning words and the two
+  billing emails. **That is genuine drift risk and a database does not fix it
+  better than one exported constant does** — with the added cost that a row can
+  be edited into disagreeing with what the code actually DOES. The promise is
+  enforced by `dunningState()`; the words should live beside it.
+- **MARKETING COPY, THE FAQ AND THE COMPARISON TABLE: no.** Eight FAQ answers
+  and five claims, changed a few times a year, always with a person reading
+  them first. A CMS for one author is a second system to maintain.
+- **THE LEGAL DISCLOSURE: NO, AND THIS ONE IS A DELIBERATE REFUSAL.** The
+  AB 2863 block on `/pricing` is 80 lines of JSX and it belongs there.
+  **Editable legal text is a liability, not a feature**: a typo in an
+  auto-renewal disclosure is the exact thing the FTC sued Adobe over, and git
+  history — who changed it, when, reviewed by whom — is the audit trail that
+  argument needs. A database row has none of that.
+
+#### Two gaps the audit found that are neither
+
+- **There is no support email, phone number or postal address anywhere in the
+  product** — while `/pricing` promises *"one button in your own account… no
+  phone call, no email and nobody to talk out of it"* and the billing emails
+  give a detailer no reply path. **Nothing to move to a database; something to
+  decide before anyone pays.**
+- **There is no `/terms` or `/privacy` route at all.** The whole legal surface
+  is inside the pricing page.

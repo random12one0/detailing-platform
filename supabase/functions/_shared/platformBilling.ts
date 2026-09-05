@@ -152,38 +152,48 @@ export function planLabel(s: Snapshot): string {
 }
 
 /**
- * Stripe Checkout `line_items`, in subscription mode.
+ * EVERY LINE THE CARD IS CHARGED, and this is the tie-out's subject.
  *
- * The setup fee is a SECOND, one-time line rather than an amount folded into
- * the first charge. Stripe adds a one-time price in a subscription checkout to
- * the first invoice, so the money is identical either way — and the invoice
- * then says `Website build — $999` on its own row, which is the difference
- * between a detailer reading their receipt and a detailer emailing about it.
- * It also keeps the recurring amount equal to the number the page printed,
- * which is what the tie-out test can actually check.
+ * It used to return Stripe Checkout `line_items` and **the checkout stopped
+ * using it on 2026-09-05** when the hosted page was replaced with our own
+ * form. Nothing broke and nothing said so: `platform-billing` still IMPORTED
+ * it, this file still exported it, and § 2 — *"what the page prints is what
+ * the card is charged"*, the one rule that outranks every other rule here —
+ * went on passing against a function no request could reach. **A test guarding
+ * dead code reads exactly like coverage.** So the shape moved to what the
+ * Subscriptions API actually takes, and both callers were pointed at it.
+ *
+ * IT DESCRIBES THE MONEY, NOT STRIPE'S PARAMETERS. A recurring line and a
+ * one-off line are two different Stripe fields now (`items` and
+ * `add_invoice_items`), and `product` must be an id the caller has fetched —
+ * so translating is the endpoint's job and DECIDING is this file's. The names
+ * are here for the same reason the amounts are: a receipt that says something
+ * different from the screen is the same bug as a price that does.
+ *
+ * The build fee stays its own line rather than folded into the first charge.
+ * The money is identical; the invoice saying `Website build — $999` on its own
+ * row is the difference between a detailer reading their receipt and a
+ * detailer emailing about it.
  */
-export function lineItemsFor(s: Snapshot): Array<Record<string, unknown>> {
-  const items: Array<Record<string, unknown>> = [{
-    quantity: 1,
-    price_data: {
-      currency: "usd",
-      unit_amount: s.recurring_cents,
-      recurring: { interval: s.bill_interval },
-      product_data: { name: planLabel(s) },
-    },
-  }];
+export type Line = {
+  name: string;
+  cents: number;
+  /** `null` is the one-off build fee — an `add_invoice_items` entry. */
+  interval: "month" | "year" | null;
+};
+
+export function linesFor(s: Snapshot): Line[] {
+  const lines: Line[] = [
+    { name: planLabel(s), cents: s.recurring_cents, interval: s.bill_interval },
+  ];
   if (s.setup_cents > 0) {
-    items.push({
-      quantity: 1,
-      price_data: {
-        currency: "usd",
-        unit_amount: s.setup_cents,
-        product_data: { name: "Website build — one-off" },
-      },
-    });
+    lines.push({ name: BUILD_FEE_LINE, cents: s.setup_cents, interval: null });
   }
-  return items;
+  return lines;
 }
+
+/** The words on the build fee's own invoice row, in ONE place. */
+export const BUILD_FEE_LINE = "Website build — one-off";
 
 /** What leaves the bank on day one. The tie-out test's subject. */
 export const firstChargeCents = (s: Snapshot) => s.setup_cents + s.recurring_cents;
