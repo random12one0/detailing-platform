@@ -70,3 +70,12 @@ export function plansUrl(slug: string): string {
 // deliverability decision, not a URL one.
 export const PLATFORM_FROM_ADDRESS =
   Deno.env.get("PLATFORM_FROM_ADDRESS") || "bookings@email.detailingplatform.com";
+
+// ROADMAP 2.19 — a customer's own opt-out page. Same access model as
+// receiptUrl and planUrl above: the row's UUID is the credential, so there is
+// no token to sign, expire or leak. MUST MATCH app/src/main.jsx — the comment
+// at the top of this file records what it cost the last time one of these
+// paths and the router disagreed.
+export function unsubscribeUrl(customerId: string): string {
+  return `${PLATFORM_URL}/unsubscribe/${customerId}`;
+}

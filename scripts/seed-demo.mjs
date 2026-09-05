@@ -101,6 +101,20 @@ const [business] = await post("/rest/v1/businesses", [{
   contact_phone: "562-555-0180",
   dropoff_address: "1450 Marina Blvd, Long Beach, CA",
   service_area: "Long Beach & South Bay",
+  // ROADMAP 2.19. Without this the compose sheet refuses to send and draws its
+  // "add a mailing address first" state instead — which is a real state worth
+  // seeing, but not the one every width sweep should be measuring. It is a
+  // separate line from `dropoff_address` above for the reason the column
+  // exists: a mobile detailer has no unit, so this is often a PO box.
+  mailing_address: "PO Box 214, Long Beach, CA 90802",
+  // NULL ON PURPOSE, AND SPELLED OUT BECAUSE THE DEFAULT IS INVISIBLE.
+  // Today's re-book prompt hides itself for 30 days after a send, so a session
+  // that tests `send-campaign` against the demo stamps this column and **takes
+  // the nudge out of every width sweep from then on** — a state that stops
+  // being rendered without anything failing, which is this repo's most
+  // repeated defect. If the prompt ever goes missing from a screenshot, read
+  // this column before reading Today.jsx.
+  last_campaign_at: null,
 }]);
 
 await post("/rest/v1/business_users", [
@@ -274,10 +288,47 @@ const CUSTOMERS = [
   ["Sam Delgado", "562-555-0355", "sam.delgado@example.com", "77 Ocean Ter, Seal Beach, CA"],
   ["Aisha Rahman", "562-555-0402", "aisha.rahman@example.com", "219 Walnut Ave, Long Beach, CA"],
   ["Chris Vogel", "562-555-0447", "chris.vogel@example.com", "5 Anchor Ct, San Pedro, CA"],
+  // ─── ROADMAP 2.19: FIVE PEOPLE WHO HAVE NOT BEEN BACK ────────────────────
+  //
+  // AND THE DEMO HAD NONE, WHICH IS THE FINDING RATHER THAN THE FIX. Every one
+  // of the eight above has a booking in the last few days, so
+  // `arrange(..., { lapsed: true })` returned an EMPTY LIST — which means the
+  // "Clients · not seen in 3 months" block that `sweep-widths.mjs` has walked
+  // at five widths since 2026-09-02 was measuring a screen with nothing on it,
+  // and printing clean. Same family as every other entry in CLAUDE.md's
+  // verification section: *a skipped check reads exactly like a passing one.*
+  // The chip, the two action buttons, the compose sheet and Today's re-book
+  // prompt are all downstream of this list having rows in it.
+  //
+  // They are NEW people rather than the existing eight moved backwards,
+  // because the recency of those eight is what Today, the calendar, Money and
+  // the plans all draw — pushing one of them into the past to make this state
+  // exist would take four other states away.
+  //
+  //   Owen Brady      NO EMAIL ADDRESS, which is the ordinary case in this
+  //                   trade — most customers are a name and a phone number —
+  //                   and is the only reason "text those ones instead" is ever
+  //                   drawn.
+  //   Ruth Calloway   ASKED NOT TO GET MARKETING EMAIL. The only row
+  //                   `send-campaign`'s opt-out filter has anything to exclude,
+  //                   and the only reason the sheet's "1 asked not to get
+  //                   these" line exists.
+  //   Grace Lindqvist a LONG name, on purpose: the compose sheet lists
+  //                   recipients as wrapping chips and the longest one is what
+  //                   decides whether that wall fits at 320.
+  ["Nadia Fischer", "562-555-0511", "nadia.fischer@example.com", "18 Palm Ct, Long Beach, CA"],
+  ["Owen Brady", "562-555-0566", null, "402 Redondo Ave, Long Beach, CA"],
+  ["Grace Lindqvist", "562-555-0604", "grace.lindqvist@example.com", "77 Termino Ave, Long Beach, CA"],
+  ["Ruth Calloway", "562-555-0649", "ruth.calloway@example.com", "9 Bluff Park Rd, Long Beach, CA"],
+  ["Victor Salas", "562-555-0683", "victor.salas@example.com", "236 Orizaba Ave, Long Beach, CA"],
 ];
 const customers = await post("/rest/v1/customers", CUSTOMERS.map(([name, phone, email, address]) => ({
   business_id: business.id, name, phone, email, address,
   notes: name === "Dana Ruiz" ? "Gate code 4471. Friendly dog in the yard." : null,
+  // Roadmap 2.19. See the list above for why one of them is opted out.
+  unsubscribed_at: name === "Ruth Calloway"
+    ? new Date(Date.now() - 40 * 86_400_000).toISOString()
+    : null,
 })));
 const cust = (name) => customers.find((c) => c.name === name);
 
@@ -485,6 +536,16 @@ const PLAN = [
   { day: openDay(-108, -1), time: "13:00", who: "Elena Marsh", service: "Express Wash", size: "small", status: "completed", paid: 65 },
   { day: openDay(-132, -1), time: "10:00", who: "Chris Vogel", service: "Ceramic Coating", size: "medium", status: "completed", paid: 650 },
   { day: openDay(-140, -1), time: "14:30", who: "Tom Okafor", service: "Express Wash", size: "large", status: "completed", paid: 95 },
+  // ROADMAP 2.19 — THE FIVE WHO HAVE NOT BEEN BACK. Each has exactly ONE
+  // completed job and it is past `LAPSED_DAYS` (90, `app/src/lib/client-list.js`),
+  // so each one falls into the "Not seen in 3 months" list and stays there.
+  // 118 is the nearest to the line on purpose: a seed that put everybody at
+  // 200 days would never notice the filter drifting by a month.
+  { day: openDay(-118, -1), time: "09:00", who: "Nadia Fischer", service: "Express Wash", size: "small", status: "completed", paid: 65 },
+  { day: openDay(-146, -1), time: "11:00", who: "Owen Brady", service: "Interior Deep Clean", size: "medium", status: "completed", paid: 165 },
+  { day: openDay(-171, -1), time: "13:30", who: "Grace Lindqvist", service: "Full Interior Detail", size: "large", status: "completed", paid: 260 },
+  { day: openDay(-198, -1), time: "10:00", who: "Ruth Calloway", service: "Express Wash", size: "medium", status: "completed", paid: 80 },
+  { day: openDay(-223, -1), time: "15:00", who: "Victor Salas", service: "Ceramic Coating", size: "medium", status: "completed", paid: 640 },
   // ONE CANCELLED AND ONE NO-SHOW, added in roadmap 2.4. Until then the demo
   // had NEITHER — twenty-one bookings, every one confirmed or completed — so
   // the whole family of "Cancelled" and "No-show" styling could not be seen
@@ -632,6 +693,10 @@ await post("/rest/v1/blockout_dates", [{
       businessId: business.id,
       planId: planRows[0].id,
       planMemberId: demoMember?.id ?? null,
+      // ROADMAP 2.19 — the opt-out page needs a customer UUID and the sweep
+      // that measures it is the CUSTOMER: no session, no service key. Same
+      // reason `planMemberId` is here.
+      customerId: cust("Marcus Webb")?.id ?? null,
     }, null, 2)}\n`,
   );
 }

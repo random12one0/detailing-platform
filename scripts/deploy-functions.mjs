@@ -42,6 +42,12 @@ const PUBLIC_FUNCTIONS = new Set([
   // link-out lookup behind it. Same access model again: the membership UUID
   // is the credential, and a plan member has no session and never will.
   "plan-link",
+  // Roadmap 2.19 — the opt-out at the bottom of the one commercial email this
+  // product sends. It MUST be public: the person pressing it is a customer
+  // who never had a session and, if the law is to mean anything, must not be
+  // asked to acquire one in order to leave. Same credential as the three
+  // above — the row's own UUID.
+  "unsubscribe",
 ]);
 
 // fileURLToPath, not .pathname: on Windows .pathname yields "/D:/..." which

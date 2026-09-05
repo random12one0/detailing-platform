@@ -4887,3 +4887,148 @@ loop against a known address is a mail-bomb from the platform's shared sending
 reputation. It cannot leak anything (it answers identically either way, by
 design), so it is a volume problem rather than a disclosure one. Written into
 2.21 rather than left in a session.
+
+## ROADMAP 2.19 — A DETAILER CAN WRITE TO THEIR OLD CUSTOMERS, AND NOTHING SENDS ITSELF (2026-09-05)
+
+**A detailer can now narrow their Clients list, write one email and send it to
+the people on it — and Today asks the question that starts that, once a month
+at most.** The item is done.
+
+**What exists now**
+
+| | |
+|---|---|
+| `supabase/migrations/20260904005000_campaign_emails.sql` | `customers.unsubscribed_at`, `businesses.mailing_address`, `businesses.last_campaign_at` |
+| `_shared/emailTemplates.ts` → `campaignEmail` | the 13th template, and the only COMMERCIAL one |
+| `_shared/emailKit.ts` → `shell(..., legal?)` | an optional footer carrying the postal address and the opt-out. Absent from every other template |
+| `supabase/functions/send-campaign/` | session + `marketing` permission; decides who actually gets an email |
+| `supabase/functions/unsubscribe/` | public, two actions, the customer's UUID as the credential |
+| `app/src/book/UnsubscribePage.jsx` | `/unsubscribe/:customerId` — the opt-out a person presses |
+| `app/src/components/CampaignModal.jsx` | the compose sheet, at every width |
+| `app/src/screens/Today.jsx` | the re-book prompt, the last row on the screen |
+| `tests/campaign.test.mjs` | 16 checks — the legal floor and the injection boundary |
+
+**HALF OF IT ALREADY EXISTED AND THAT SHAPED THE WHOLE ITEM.** Clients has
+known who has lapsed since 2.11 step 6 stage 5 and `client-list.test.mjs` is 31
+checks on that arithmetic. **The compose surface therefore selects nobody** —
+it is handed a list a human already narrowed with the chip or the search field,
+and its only job is the words and the send. The only change to the selection
+was widening WHEN the action row appears: a set narrowed by typing a name is as
+much a chosen set as one narrowed by the chip.
+
+---
+
+### THE THING A COLD SESSION WOULD GET WRONG
+
+**A MANUAL SEND IS STILL A COMMERCIAL EMAIL.** The roadmap entry says a human
+picking named recipients is *"much closer to transactional, so most of that
+machinery goes away."* The SCHEDULING machinery goes away. **CAN-SPAM
+classifies a message by its PRIMARY PURPOSE, never by what pressed send**, so
+this email needs a working opt-out and a postal address exactly as an automated
+blast would. Both are built and both are pinned. **Do not "simplify" either
+away on the grounds that a person pressed the button.**
+
+**The opt-out is TWO steps on purpose.** A one-click GET link is pressed by
+Gmail's prefetcher and by every corporate link scanner and antivirus proxy that
+opens URLs in incoming mail — each of which would silently opt a customer out
+of a business they still want to hear from. The link READS; a human presses the
+button that WRITES.
+
+**`mailing_address` is not `dropoff_address`.** A mobile detailer has no unit —
+the owner's own business is mobile — so borrowing that field would leave it
+empty for exactly the people this product is for. A PO box is the ordinary
+answer. It is printed on nothing except this email.
+
+**The opt-out does NOT stop transactional mail**, and the test asserts it in
+both directions: the campaign carries the two footer lines, a booking
+confirmation carries neither.
+
+---
+
+### THE CAP IS ABOUT BOOKINGS, NOT ABOUT SPAM
+
+`send-campaign` sends **50 at most**, sequentially, 550ms apart.
+
+- **The gap is Resend's rate limit** (2 requests a second). This is the only
+  place in the repo that sends in a loop.
+- **The cap is the free plan's DAILY allowance: 100 emails a day across every
+  tenant**, and the transactional set spends ~5 per booking. An unbounded
+  campaign could eat the day and make bookings stop confirming — which would
+  present to the owner as "the booking page is broken", not as "the campaign
+  was too big". **It goes up when the platform stops sharing a Resend account**
+  (2.18's open thread, priced in 2.20).
+
+---
+
+### AND THE DEMO HAD ZERO LAPSED CUSTOMERS
+
+Every one of the demo's eight customers had a booking in the last few days, so
+`arrange(..., { lapsed: true })` returned an **empty list** — which means the
+`Clients · not seen in 3 months` block `sweep-widths.mjs` has walked at five
+widths since 2026-09-02 was measuring a screen with nothing on it and printing
+`clean`. **A skipped check reads exactly like a passing one**, in its widest
+form yet: the chip's list, both action buttons, the compose sheet and Today's
+prompt are all downstream of that list having rows.
+
+`seed-demo.mjs` now seeds **five people who have not been back** — 119 to 223
+days, each with exactly one completed job. They are NEW customers rather than
+existing ones moved backwards, because the recency of the original eight is
+what Today, the calendar, Money and the plans all draw. One has no email
+address, one has opted out, one has a long name for the chip wall at 320.
+
+---
+
+### VERIFIED BY RUNNING IT
+
+- **A real send** through Resend's `delivered@resend.dev` simulator, with the
+  project's edge-function logs read to prove `send-email` was actually reached:
+  `sent: 1, no_email: 1, unsubscribed: 1` from three chosen ids.
+- **The opt-out pressed, then the same campaign re-sent**: `sent: 0,
+  unsubscribed: 2`. The flag is honoured by the server, not by the browser.
+- Both bad-id shapes 404; an empty subject and an empty recipient list are
+  refused with sentences a person can act on.
+- `sweep-widths.mjs` clean at all five widths, with the compose sheet added as
+  its own state — the TENTH time a state behind a button inside a screen had to
+  be added by hand, and the first time in a while it was added in the change
+  that built it.
+- Screenshots at 1920 / 1440x900 / 768x1024 / 392x844 / 320x760 of Today, the
+  lapsed list, the compose sheet and the opt-out page. Console clean apart from
+  the two React Router v7 future-flag warnings the whole app already prints.
+- Every credential-free suite passes; `route-contract` is **27** now (the
+  opt-out link exists nowhere except at the bottom of an email, which is the
+  exact shape of the defect that test was written for) and `render-emails.mjs`
+  writes **21**.
+
+---
+
+### WHAT THIS ITEM DELIBERATELY DOES NOT DO
+
+- **No schedule, no automation, no segments.** The owner drew that line and it
+  is the reason this was cheap.
+- **No send history.** Pressing send twice sends twice; the button disables
+  while it is working and that is the whole guard. A record of what went to
+  whom is a table and a screen, and nobody has asked for one.
+- **No text messages.** *"Text these N"* still hands the numbers to the phone's
+  own messages app, which is what the architecture doc settled.
+
+### AND A RACE IN `sweep-widths.mjs` THAT THIS ITEM EXPOSED RATHER THAN CAUSED
+
+The first full `--lite` sweep of 2.19 failed at 320 with `the Add a plan button
+NO SUCH BUTTON`, while the same block passed in isolation.
+
+**Monthly plans and Team's member list draw their buttons only after Supabase
+answers, and both were measured with `settle(page, N)` then `.count()`.**
+`settle()` is a cap on a repaint, never a wait for a round trip — and `?lite=1`
+makes it worse, because a page with no animations goes quiet sooner. Two extra
+reads on Today were enough to tip it over about half the time. Fixed with an
+`appear(locator)` helper that waits for the control; **use it for anything a
+database read draws.**
+
+**The debugging is the part worth keeping.** A control run — this item's source
+stashed, the same sweep re-run — proved in one pass that the failure was ours.
+A bisect then blamed `Today.jsx`, and the next run, with a `console.log` probe
+added, **passed with `Today.jsx` still in place.** Three written-down theories
+were all wrong; one probe settled it. And `git stash pop` on Windows rewrote 47
+untouched files to CRLF on the way back, which turned `composition` 8e-iv red
+in a file the item never opened — the same invisible-byte trap CLAUDE.md
+already records, reached by a new door.

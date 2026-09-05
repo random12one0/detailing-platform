@@ -38,7 +38,12 @@
 
 import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
+// ROADMAP 2.19. The nudge counts with the SAME arithmetic the Clients screen
+// filters with — `tests/client-list.test.mjs` is 31 checks on it — rather than
+// a second rule in SQL that would drift from the chip it sends you to.
+import { arrange, summarise } from "../lib/client-list.js";
 import { useBookings, usePendingRequests } from "../hooks/useBookings.js";
 import { useWide } from "../hooks/useWide.js";
 import { api } from "../lib/api.js";
@@ -54,8 +59,8 @@ import QuoteModal from "../components/QuoteModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
 import RequestCard from "../components/RequestCard.jsx";
 
-export default function Today({ refreshKey = 0 }) {
-  const { business, firstName } = useBusiness();
+export default function Today({ refreshKey = 0, onGo }) {
+  const { business, firstName, can } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
   const { bookings, loading, refreshing, error, reload } = useBookings(today, tomorrow);
@@ -78,6 +83,13 @@ export default function Today({ refreshKey = 0 }) {
   // exit and the reload waits for it: --t-exit (180ms), not --t-reveal, because
   // this is a thing the detailer does several times in a row.
   const [leavingId, setLeavingId] = useState(null);
+  // ROADMAP 2.19 — HOW MANY PEOPLE HAVE NOT BEEN BACK. The owner's own words
+  // for what this feature is: *"maybe, like, remind deals. Like, hey, do you
+  // want to send out email to some of your old people?"* — and the line he
+  // drew with them is that the reminder is A ROW ON A SCREEN. It is never an
+  // email to the detailer, because the product does not send anything nobody
+  // asked it to, and that includes to him.
+  const [lapsedCount, setLapsedCount] = useState(0);
 
   // A booking made from the header's + has to reach the day it landed on.
   // refreshKey ALONE on purpose: reload's identity changes whenever the hook's
@@ -126,6 +138,46 @@ export default function Today({ refreshKey = 0 }) {
       .catch(() => live && setSlots(null));
     return () => { live = false; };
   }, [wide, business, today]);
+
+  // THE RE-BOOK PROMPT'S COUNT, and the two things that stop it being asked.
+  //
+  // A PROMPT THAT NEVER GOES QUIET BECOMES WALLPAPER, so it steps back for a
+  // month after a send — `businesses.last_campaign_at`, stamped by
+  // `send-campaign`. The detailer answered the question; asking it again
+  // tomorrow is how a useful row turns into one nobody reads.
+  //
+  // AND IT NEEDS `marketing` — the permission that has meant "promo codes and
+  // campaign links" since roadmap 2.13. A member who cannot send the email
+  // must not be handed the prompt to send it, and the read is not made either.
+  const mayEmail = can("marketing");
+  const askedRecently = business.last_campaign_at
+    && Date.now() - new Date(business.last_campaign_at).getTime() < 30 * 86_400_000;
+  useEffect(() => {
+    if (!mayEmail || askedRecently) { setLapsedCount(0); return; }
+    let live = true;
+    // The same two reads the Clients screen makes, minus the columns only that
+    // screen prints. `end_at <= now` is the second half of "completed": a job
+    // marked done early, or seeded into next week, is not a past visit.
+    Promise.all([
+      supabase.from("customers").select("phone").eq("business_id", business.id),
+      supabase.from("bookings")
+        .select("customer_phone, end_at")
+        .eq("business_id", business.id)
+        .is("deleted_at", null)
+        .eq("status", "completed")
+        .lte("end_at", new Date().toISOString()),
+    ]).then(([cs, ts]) => {
+      // A FAILED READ IS ZERO, NOT A GUESS. This row is an invitation, so the
+      // safe failure is silence — the four other places in this repo where a
+      // dropped connection printed as "nothing here" were all screens where
+      // the emptiness was a LIE the detailer would act on.
+      if (!live || cs.error || ts.error) return;
+      setLapsedCount(
+        arrange(cs.data, summarise(ts.data, business.timezone), { lapsed: true, today }).length,
+      );
+    });
+    return () => { live = false; };
+  }, [business.id, business.timezone, mayEmail, askedRecently, today]);
 
   // Accept and decline are the same shape: answer, let the card go, refresh
   // both lists — an accepted request becomes a job, and if it is today's it
@@ -321,6 +373,24 @@ export default function Today({ refreshKey = 0 }) {
             <span className="sub">
               {tomorrows.length} job{tomorrows.length === 1 ? "" : "s"}, first at {time12(tomorrows[0].start_time)}
             </span>
+          </span>
+          <ChevronRight size={18} strokeWidth={2} />
+        </button>
+      )}
+
+      {/* THE RE-BOOK PROMPT — roadmap 2.19, and it is LAST on purpose. Today
+          is the day's work; people who have not been back are not today's
+          work, and a prompt above the rail would be the product interrupting a
+          detailer's morning with marketing. It reads as the last line of the
+          screen, which is what it is.
+          THREE, NOT ONE. The same floor the Clients screen's own sort control
+          uses: below it a detailer can see the answer without being told, and
+          a prompt about one person is noise wearing a number. */}
+      {lapsedCount >= 3 && (
+        <button className="row-item" onClick={() => onGo?.("clients", "lapsed")}>
+          <span className="txt">
+            <span className="nm">{lapsedCount} haven't been in for 3 months</span>
+            <span className="sub">Write to them</span>
           </span>
           <ChevronRight size={18} strokeWidth={2} />
         </button>

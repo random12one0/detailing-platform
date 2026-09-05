@@ -370,7 +370,28 @@ function masthead(brand: Brand): string {
   </td></tr>`;
 }
 
-function footer(brand: Brand): string {
+/**
+ * WHAT A MARKETING EMAIL HAS TO CARRY THAT A TRANSACTIONAL ONE DOES NOT —
+ * roadmap 2.19.
+ *
+ * A booking confirmation is transactional: the customer asked for it, and it
+ * is exempt from the opt-out requirement. A *"we haven't seen you in a while"*
+ * email is commercial, and CAN-SPAM decides that by the message's PRIMARY
+ * PURPOSE — never by whether a person or a schedule pressed send. So the one
+ * template a detailer composes themselves carries both of the things the
+ * statute requires, in the footer where the identity already is.
+ *
+ * It is optional on `shell` so no other template gains a line: passing nothing
+ * renders the footer that has always been there, byte for byte.
+ */
+export interface LegalFooter {
+  /** The business's postal address. `send-campaign` refuses to send without one. */
+  mailingAddress: string;
+  /** Where "stop these emails" goes. One click, then one confirming press. */
+  unsubscribeUrl: string;
+}
+
+function footer(brand: Brand, legal?: LegalFooter): string {
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
   // Centred exactly once, at the end — the composition law, spent here.
   return `<tr><td style="${PAD} padding-top:44px; padding-bottom:44px;">
@@ -380,7 +401,9 @@ function footer(brand: Brand): string {
         <div class="c-ink2" style="color:${L.ink2}; font-weight:bold;">${esc(brand.brandName)}</div>
         ${brand.contactPhone ? `<div>${esc(brand.contactPhone)}</div>` : ""}
         <div><a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a></div>
-        <div style="padding-top:10px; font-size:11px;">Automated message &mdash; reply to reach us.</div>
+        ${legal ? `<div style="padding-top:10px; font-size:11px;">${esc(legal.mailingAddress)}</div>` : ""}
+        ${legal ? `<div style="padding-top:10px; font-size:11px;"><a href="${legal.unsubscribeUrl}" class="c-accent" style="color:${brand.accent};">Stop getting emails like this</a></div>` : ""}
+        <div style="padding-top:10px; font-size:11px;">${legal ? "You booked with us before &mdash; reply to reach us." : "Automated message &mdash; reply to reach us."}</div>
       </td></tr>
     </table>
   </td></tr>`;
@@ -427,7 +450,13 @@ function darkStyle(brand: Brand): string {
 </style>`;
 }
 
-export function shell(brand: Brand, blocks: string[], preheader: string): string {
+export function shell(
+  brand: Brand,
+  blocks: string[],
+  preheader: string,
+  /** Roadmap 2.19 — the marketing footer. Absent for every other template. */
+  legal?: LegalFooter,
+): string {
   return `<!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="UTF-8">
@@ -444,7 +473,7 @@ ${darkStyle(brand)}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${L.ground}" class="bg-ground" style="max-width:600px; background-color:${L.ground};">
       ${masthead(brand)}
       ${blocks.join("\n      ")}
-      ${footer(brand)}
+      ${footer(brand, legal)}
     </table>
   </td></tr>
 </table>

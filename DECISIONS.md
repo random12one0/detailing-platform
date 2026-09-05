@@ -217,6 +217,8 @@ were made more than once.
 
 
 - **Roadmap 2.14, step 3 - the customer's half of plans, and the four decisions that kept it inside a measured budget** - the booking page's plan buttons, the recognition, the remembered browser, the "your plan" link and the email nudge. **The organising constraint was arithmetic, not taste: step 1 has TEN PIXELS of spare room at 1440x900 and that budget is the detailer's catalogue.** So the plans live on a page of their own (`/book/:slug/plans`, which is also what 7 of 7 sampled detailers and 5 of 6 products do), the door to them rides the row the progress rail and "Step 1 of 7" already share, and the recognition the owner asked for is spent on TWO LINES THAT WERE ALREADY DRAWN - step 1's heading becomes *"Welcome back, Marcus"* or *"Let's set up your Bi-weekly maintenance"*, and the price bar's eyebrow says which plan moved the number. **Every step's spare room is identical to before the item.** **The plan's effect on the price is ONE function in `_shared/pricing.ts` and it rides `price_adjustments`** - the array every receipt, email and invoice already itemises - rather than a `plan_discount` column that would have needed adding to nine render paths and forgetting in a tenth. **The rule: the plan governs the SERVICES, extras and travel are always extra, and a percentage comes off the whole job.** **A plan sign-up is a REQUEST in either booking mode**, because the sale and the schedule are two acts and the detailer has to agree somebody is on their plan - but an existing member booking their own covered visit is not held up, which is why `create-booking` asks whether they are already a member rather than keying off the plan alone. **The owner's "type your email and it shows you" was built as its safe twin, EMAIL IN / LINK OUT** - the version he described is address enumeration, and the endpoint answers identically whether or not the address is a member. **His customer-account idea shipped as a LINK** (`/plan/:memberId`, the membership UUID as the credential, the third caller of a pattern this product already used twice) rather than as a second kind of human in `auth.services`. **A defect fixed on the way through that predates this item: a NEGATIVE `price_adjustments` line printed as a positive CHARGE in every email** - `moneyBlock` draws by `kind`, not by sign - which `accept-quote` could already reach whenever a detailer quoted UNDER the estimate. **And the plans page was built as four boxed cards first and rejected on sight of its own screenshot**: four identical full-width panels each ending in a full-width button repeating the name above it, which is `docs/design-knowledge.md` §1's tell and the owner's copy rule in one. The ruled list that replaced it is the composition law's own answer and cost 96px a plan against 190px.
+- **Roadmap 2.19 — a manual re-book email, and the machinery a MANUAL send still needs** — the owner ruled that nothing sends itself: a human picks the names and presses the button, and the reminder is a ROW ON A SCREEN rather than an email to him. What the roadmap entry understated is that CAN-SPAM classifies a message by its PRIMARY PURPOSE, never by what pressed send — so *“we haven’t seen you in a while”* needs a working opt-out and a postal address whether a person or a cron job sent it. **What the manual design removes is the SCHEDULING, not the statute.** So: `customers.unsubscribed_at`, a public two-step opt-out page (a one-click GET link would be pressed by Gmail’s prefetcher and every corporate link scanner, silently opting people out of businesses they still want to hear from), `businesses.mailing_address` as its own field because a mobile detailer has no unit, and a **50-recipient cap** that is ours rather than the law’s — the platform’s whole Resend allowance is **100 emails a day across every tenant**, and one unbounded campaign could stop bookings confirming. **The compose surface selects nobody**: Clients already knew who had lapsed, so the sheet is handed a list a human narrowed and its only job is the words. **And the demo had ZERO lapsed customers**, so the “not seen in 3 months” block `sweep-widths.mjs` has walked at five widths since 2026-09-02 was measuring an empty screen and printing clean — the seventh instance of *a skipped check reads exactly like a passing one*, found by asking the database rather than by reading the sweep’s output. **And it exposed a RACE in `sweep-widths.mjs` that is older than the item**: Monthly plans and Team draw their buttons only after Supabase answers, and both were measured with `settle()` + `count()` — a cap on a repaint, never a wait for a round trip — which `?lite=1` makes WORSE because a page with no animations goes quiet sooner. It printed `NO SUCH BUTTON`, which reads as a renamed control. **A control run proved it was ours, a bisect blamed a file, and a `console.log` probe then passed with that file in place** — which is what a race looks like from the outside. Also recorded there: `campaigns`/`campaign_visits` are tracked marketing LINKS and have nothing to do with this feature, and the opt-out is NOT tamper-proof against the tenant, which is a stated ceiling.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -11783,3 +11785,232 @@ needed it, and it turned out not to — the plan button starts the ordinary flow
 and the customer picks what they want, which is what the auto-link trigger's
 stated ceiling already assumes. Narrowing the discount to covered services is a
 change to make when a detailer complains, not before.
+
+## Roadmap 2.19 — "want to email some of your old customers?"
+
+**2026-09-05.** The owner decided the shape of this on 2026-09-03 and his
+sentence is the whole specification:
+
+> *"Don't have one that automatically messaged on the email. Just have it,
+> like, the business person whoever is running it could send out email to
+> someone that they want. And maybe, like, remind deals. Like, hey, do you
+> want to send out email to some of your old people? I don't know."*
+
+**Nothing sends itself. The nudge is a row on a screen.** Both halves of that
+were already written into the roadmap and neither was reopened.
+
+---
+
+### 1. What already existed, and what was actually missing
+
+**Half the item was built in September 2026 and nobody had noticed.** The
+Clients screen has known who has lapsed since roadmap 2.11 step 6 stage 5;
+`app/src/lib/client-list.js` holds the arithmetic, `tests/client-list.test.mjs`
+is 31 checks on it, and the screen already offered *"Text these 12"* off the
+back of the filter. **What was missing was somewhere to write to them and a
+prompt that asks the question.** So the compose surface selects nobody: it is
+handed a list a human already narrowed and its only job is the words and the
+send.
+
+**The one change to the selection was widening WHEN the action row appears.**
+It used to require the chip. A set narrowed by TYPING A NAME is as much a
+chosen set as one narrowed by the chip — and the owner's ask is *"someone that
+they want"* — so a detailer writing to three people searches for them rather
+than unticking two hundred. One condition (`lapsed || search`) covers both
+controls, because both cut the same list.
+
+---
+
+### 2. THE PART THE ROADMAP ENTRY UNDERSTATED, AND IT IS THE LOAD-BEARING ONE
+
+The roadmap says a human picking named recipients is *"much closer to
+transactional, so most of that machinery goes away."* **The scheduling
+machinery goes away. The statute does not.**
+
+**CAN-SPAM classifies a message by its PRIMARY PURPOSE, not by what pressed
+send.** *"We haven't seen you in a while, come back"* is a commercial message
+whether a person or a cron job sent it, and every commercial message needs:
+
+- **a working opt-out**, honoured for at least 30 days after the send, and
+- **a valid physical postal address** in the message itself.
+
+There is no version of this feature without both. They are built:
+
+| | |
+|---|---|
+| The opt-out flag | `customers.unsubscribed_at` — a timestamp, so the date of the decision survives |
+| The opt-out page | `/unsubscribe/:customerId` + the public `unsubscribe` edge function |
+| The address | `businesses.mailing_address`, its own field on Business info |
+| Where they appear | `shell`'s optional `legal` argument, in the footer, on this template ONLY |
+
+**THE OPT-OUT IS TWO STEPS AND THAT IS THE WHOLE REASON IT IS A PAGE.** A bare
+link that unsubscribed on load gets pressed by things that are not people:
+Gmail prefetches, and corporate link scanners and antivirus proxies open every
+URL in an incoming message. Each one would quietly opt a customer out of a
+business they still want to hear from, and nobody would ever find out. So the
+link only READS (`action: "get"`) and a human presses the button that writes
+(`action: "set"`).
+
+**IT MUST NOT BE THE `dropoff_address`.** A mobile detailer has no unit — the
+owner's own business is mobile — so that field is empty for exactly the people
+this product is for, and a PO box or a private mailbox is the ordinary answer.
+Separate column, separate field, printed on nothing else.
+
+**AND THE OPT-OUT DOES NOT STOP TRANSACTIONAL MAIL.** A confirmation, reminder
+or receipt for a booking the customer made is exempt and must still reach them
+— unsubscribing from marketing must never become a way to stop finding out when
+the detailer is arriving. `tests/campaign.test.mjs` asserts both directions:
+the campaign carries the two lines, and a booking confirmation carries neither.
+
+---
+
+### 3. THE CAP IS OURS, NOT THE LAW'S — AND IT IS ABOUT BOOKINGS, NOT SPAM
+
+`send-campaign` sends at most **50** recipients per press, sequentially, with a
+550ms gap.
+
+**The gap is Resend's rate limit** (2 requests a second; this is the only place
+in the repo that ever sends in a loop, and a burst would start 429-ing at the
+third recipient — failing sends nobody would ever look for).
+
+**The cap is the free plan's daily allowance.** Resend free is 3,000 emails a
+month and **100 A DAY across every tenant on the platform**, and the
+transactional set spends about five per booking. One unbounded campaign could
+eat the day and make bookings stop confirming — a far worse failure than a
+capped campaign, and it would present as "the booking page is broken." **It
+goes up when the platform has its own Resend account**, which is roadmap 2.18's
+open thread and is priced in 2.20.
+
+---
+
+### 4. THE DEMO HAD NO LAPSED CUSTOMERS, WHICH IS THE FINDING RATHER THAN THE FIX
+
+Every one of the demo's eight customers had a booking in the last few days, so
+`arrange(..., { lapsed: true })` returned an **empty list**. That means the
+`Clients · not seen in 3 months` block `sweep-widths.mjs` has walked at five
+widths since 2026-09-02 was measuring a screen with nothing on it — and
+printing `clean`.
+
+**It is the same family as every other entry in CLAUDE.md's verification
+section: a skipped check reads exactly like a passing one.** The chip's list,
+both action buttons, the compose sheet and Today's prompt are all downstream of
+that list having rows in it, so none of them could have been seen at any width.
+Found by asking the database what the filter returns, not by reading the
+sweep's output.
+
+**Five new customers were seeded rather than eight existing ones moved
+backwards**, because the recency of those eight is what Today, the calendar,
+Money and the plans all draw: pushing one into the past to make this state
+exist would take four other states away. One has **no email address** (the
+ordinary case in this trade, and the only reason *"text those ones instead"* is
+ever drawn), one has **opted out** (the only row the filter has anything to
+exclude), and one has a **long name**, because the compose sheet lists
+recipients as wrapping chips and the longest one is what decides whether that
+wall fits at 320.
+
+---
+
+### 5. Where it landed
+
+| | |
+|---|---|
+| The migration | `20260904005000_campaign_emails.sql` — three columns, each a legal or product floor |
+| The email | `campaignEmail` in `_shared/emailTemplates.ts`, the 13th template and the only commercial one |
+| The legal footer | `shell(brand, blocks, preheader, legal?)` in `_shared/emailKit.ts` — optional, so no other template gained a byte |
+| The send | `supabase/functions/send-campaign/` — session, `marketing` permission, three recipient rules |
+| The opt-out | `supabase/functions/unsubscribe/` + `app/src/book/UnsubscribePage.jsx` |
+| The compose surface | `app/src/components/CampaignModal.jsx` — a `<Sheet>` at every width |
+| The prompt | the last row on Today, `app/src/screens/Today.jsx` |
+| Pinned by | `tests/campaign.test.mjs` (16 checks) and `tests/route-contract.test.mjs` (24 to 27) |
+
+**Four smaller calls worth knowing:**
+
+- **The subject is also the headline.** A detailer typing this is writing one
+  sentence about why they are getting in touch; making them type it twice is
+  how a compose form gets abandoned halfway.
+- **The greeting is ours and the words are theirs.** A detailer writing to
+  fourteen people cannot write fourteen names, and the name is most of what
+  separates this from a blast. Their paragraph is escaped BEFORE its newlines
+  become `<br>` — the order `ownWords` already uses, and the wrong order looks
+  identical while letting one typed message inject markup into every copy.
+- **The prompt goes quiet for 30 days after a send** (`businesses.last_campaign_at`,
+  stamped by the function). A prompt that never goes quiet becomes wallpaper,
+  and this one sits under the day's work rather than over it: people who have
+  not been back are not today's work, and a marketing row above the rail would
+  be the product interrupting a detailer's morning.
+- **`last_campaign_at` is on `businesses`, not `business_settings`**, because
+  since roadmap 2.13 that table needs the `settings` permission and the prompt
+  belongs to whoever holds `marketing`. A member given promotions and nothing
+  else would have found the row invisible.
+
+**Verified by running it, not by reasoning about it.** A real send through
+Resend's `delivered@resend.dev` simulator, with the edge-function logs read to
+prove `send-email` was actually reached (`sent: 1, no_email: 1,
+unsubscribed: 1`); the opt-out pressed, and the same campaign re-sent to
+confirm the newly opted-out customer was excluded (`sent: 0, unsubscribed: 2`);
+both bad-id shapes 404.
+
+### 6. A RACE IN `sweep-widths.mjs` THAT 2.19 EXPOSED RATHER THAN CAUSED
+
+**The first full `--lite` run of this item failed at 320 with `the Add a plan
+button NO SUCH BUTTON` — and the same block passed when run in isolation.** It
+took a control run to sort out, and the control is the part worth copying.
+
+**WHAT THE CONTROL SAID.** Stashing this item's source and re-running the same
+five-width `--lite` sweep passed. So the failure was ours. Bisecting one file
+at a time landed on `Today.jsx` — and then, on the very next run with a
+`console.log` probe added, **it passed with `Today.jsx` in place.** That is the
+signature of a race, not a defect: adding five `await`s of probe work was
+enough to change the outcome.
+
+**THE ACTUAL FAULT IS OLDER THAN THIS ITEM AND IS IN THE SCRIPT.** Monthly
+plans and Team's member list both draw their buttons only after Supabase
+answers, and both were measured with `settle(page, N)` followed by
+`.count()`. **`settle()` is a CAP on a repaint — `sweep-booking-steps.mjs`'s
+own header already says in as many words that it is not a wait for a network
+round trip.** And `?lite=1` makes it *worse*, not better: with no animations
+running the DOM goes quiet sooner, so settle returns earlier and the count is
+taken before the rows exist.
+
+**2.19's contribution was two extra Supabase reads on Today**, which added
+enough latency to push it over about half the time. The race was already there
+and a full `--lite` sweep-widths run appears not to have been taken since
+roadmap 2.14 added those buttons.
+
+**The fix is a helper, `appear(locator)`, that WAITS for the control instead of
+counting it**, used at all three sites. And the reason it mattered enough to
+chase: **the failure printed `NO SUCH BUTTON`, which reads as a renamed
+control** — the same family as the crash that printed `clean` until `say()`
+learned to look for the error boundary.
+
+**Two process notes, both of which cost time here:**
+
+- **`git stash` on Windows with `core.autocrlf=true` rewrites the working tree
+  to CRLF on the way back**, and `composition` 8e-iv is a byte-exact
+  `includes()` containing `\n` — so popping the control's stash turned a green
+  suite red in a file the item had not touched. CLAUDE.md already records this
+  shape for scripted Python edits; **`git stash pop` is a second way in.** Fix
+  is `sed -i 's/\r$//'` on the files with real changes and `git checkout --` on
+  the ones where only the line endings moved.
+- **A flaky failure is worth one probe before one theory.** Three plausible
+  explanations were written down and all three were wrong; a `console.log` of
+  the page's URL, heading and node counts answered it in one run — and answered
+  it by *passing*, which was itself the finding.
+
+### 7. TWO SCHEMA FACTS A NEXT SESSION WOULD GET WRONG
+
+- **`campaigns` and `campaign_visits` ARE NOT THIS FEATURE.** They have existed
+  since `20260827000200_tenant_data.sql` and they are tracked marketing LINKS —
+  a slug, a destination and an optional promo code, counted by the `track-visit`
+  edge function. Nothing in roadmap 2.19 touches them, and a session that finds
+  `campaigns` and assumes it is the email history will wire the wrong table.
+  **This item deliberately has no history table at all.**
+- **THE OPT-OUT IS NOT TAMPER-PROOF AGAINST THE TENANT, and that is a stated
+  ceiling rather than an oversight.** `customers_tenant_all` is `for all to
+  authenticated` scoped to the business, so any member can update any column on
+  their own customers — including clearing `unsubscribed_at`. The alternative is
+  making one column on a tenant's own customer record un-writable by that
+  tenant, which needs a trigger and a second story about who may correct a
+  mistake. **What the product guarantees is that `send-campaign` honours the
+  flag**; what it cannot guarantee is that a detailer will not go around it,
+  which is true of every CRM.

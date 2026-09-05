@@ -11,6 +11,7 @@ import BookingPage from "./book/BookingPage.jsx";
 import ManageBookingPage from "./book/ManageBookingPage.jsx";
 import PlansPage from "./book/PlansPage.jsx";
 import PlanMemberPage from "./book/PlanMemberPage.jsx";
+import UnsubscribePage from "./book/UnsubscribePage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
@@ -66,6 +67,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             same access model as /booking/:id above — this is what the owner's
             customer-account idea shipped as instead of an auth system. */}
         <Route path="/plan/:memberId" element={<PlanMemberPage />} />
+        {/* ROADMAP 2.19. The opt-out at the bottom of the one commercial email
+            this product sends. Same credential as the two routes above — the
+            row's own UUID — and it MUST match `unsubscribeUrl()` in
+            supabase/functions/_shared/config.ts, whose header records what it
+            cost the last time one of these pairs drifted apart. */}
+        <Route path="/unsubscribe/:customerId" element={<UnsubscribePage />} />
 
         {/* --- Signed-in. ---------------------------------------------- */}
         <Route path="/invite/:token" element={<Wrapped><AcceptInvite /></Wrapped>} />

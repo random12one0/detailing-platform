@@ -144,15 +144,32 @@ const invoiceRows = [
 ];
 const invoiceTotals = { chargesSubtotal: 345, discountsTotal: -15, tipTotal: 30, totalPaid: 360 };
 
-// FOUR, NOT SEVENTEEN. Each one is a different SHAPE — the mark-and-facts
-// layout, the money column, the single-figure layout, and the owner's
-// decide-now layout. Sending all of them buries the differences in an inbox
-// and spends sending reputation on duplicates.
+// FIVE, NOT TWENTY-ONE. Each one is a different SHAPE — the mark-and-facts
+// layout, the money column, the single-figure layout, the owner's decide-now
+// layout, and (roadmap 2.19) the only one with a LEGAL FOOTER under it.
+// Sending all of them buries the differences in an inbox and spends sending
+// reputation on duplicates.
+//
+// THE FIFTH EARNS ITS PLACE BY THIS FILE'S OWN RULE. The campaign email is the
+// only commercial message the product sends, so it is the only one carrying a
+// postal address and an opt-out link in the footer — and a footer is exactly
+// the thing a rendering cannot vouch for: Outlook's Word engine, Gmail's
+// dark-mode inversion and Apple Mail all treat a small link on a tinted ground
+// differently, and the opt-out has to be legible in every one of them or it
+// does not count as an opt-out.
 const ALL = {
   confirmation: ["Customer · booking confirmed", () => T.customerConfirmationEmail(brand, booking, false)],
   receipt: ["Customer · receipt", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "paid", "Paid by card on the day.")],
   quote: ["Customer · quote offered", () => T.requestDecisionEmail(brand, booking, "quote", { manageUrl: booking.receiptUrl, quotedAmount: 395, quotedNote: "The pet hair on this one is a bigger job than the photos suggested." })],
   owner: ["Owner · new request waiting", () => T.ownerNewBookingEmail(brand, booking, true)],
+  campaign: ["Customer · the detailer reaching out", () => T.campaignEmail(brand, {
+    customerName: "Dana Ortiz",
+    subject: "Time to get it looking right again?",
+    message: "It's been a few months since we last took care of your car.\n\nIf you'd like it back to how it looked when you drove it away, booking takes about a minute — just use the button below and pick a time that suits you.",
+    bookUrl: brand.siteUrl,
+    unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002",
+    mailingAddress: "PO Box 214, Lakewood CA 90713",
+  })],
 };
 
 const only = arg("only");

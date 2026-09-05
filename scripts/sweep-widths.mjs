@@ -615,6 +615,24 @@ for (const w of SIZES) {
       await chip.first().click();
       await settle(page, 700);
       await say("Clients · not seen in 3 months");
+      // THE COMPOSE SHEET — roadmap 2.19, and it is the same gap CLAUDE.md
+      // records under half a dozen different ordinals: *the script walks
+      // NAVIGATION, and a state you reach by pressing something INSIDE a
+      // screen is not navigation.* Added in the change that BUILT it, not by
+      // the item that later finds it broken.
+      // It is the narrowest thing on this screen: two fields, a paragraph of
+      // fine print and a WRAPPING WALL OF NAME CHIPS, one per recipient — and
+      // a chip wall is the control most likely to run past an edge at 320.
+      {
+        const write = page.getByRole("button", { name: /^Email these \d+$/ });
+        if (await write.count()) {
+          await write.first().click();
+          await settle(page, 900);
+          await say("Clients · writing to them");
+          await page.keyboard.press("Escape");
+          await settle(page, 600);
+        }
+      }
       await chip.first().click();
       await settle(page, 500);
     }
@@ -646,6 +664,27 @@ for (const w of SIZES) {
   // it is the second column and the index stays put. Escape closes it at both
   // widths (SettingsHost), so the next row click lands either way, and
   // `grow()` no-ops where there is no sheet to drag.
+  // A CONTROL THAT ONLY EXISTS AFTER A DATABASE READ NEEDS A WAIT, NOT A
+  // SETTLE — roadmap 2.19, and it is this script's own lesson arriving in a
+  // third place.
+  //
+  // `settle()` is a CAP on a repaint; the header of `sweep-booking-steps.mjs`
+  // already says in as many words that it is not a wait for a network round
+  // trip. Monthly plans and Team's member list both draw their buttons only
+  // after Supabase answers, so `settle(...)` followed by `count()` is a race —
+  // and **`?lite=1` makes it MORE likely, not less**, because with no
+  // animations running the DOM goes quiet sooner and settle returns earlier.
+  //
+  // IT LOST THE RACE ABOUT HALF THE TIME AND PRINTED `NO SUCH BUTTON`, which
+  // reads as a renamed control rather than as a timing failure — the same
+  // family as the crash that printed `clean` until `say()` learned to look for
+  // the error boundary. Found because roadmap 2.19 added two reads to Today
+  // and the extra latency tipped it over; the race was already there.
+  const appear = async (loc, ms = 6000) => {
+    try { await loc.first().waitFor({ state: "attached", timeout: ms }); return true; }
+    catch { return false; }
+  };
+
   const walk = async (label, rows) => {
     for (const key of rows) {
       const row = page.locator(".nav-row", { hasText: key });
@@ -696,13 +735,13 @@ for (const w of SIZES) {
   await page.locator(".nav-row", { hasText: "Monthly plans" }).first().click().catch(() => {});
   await settle(page, 1300);
   const addPlan = page.getByRole("button", { name: "Add a plan" });
-  if (await addPlan.count()) {
+  if (await appear(addPlan)) {
     await addPlan.first().click();
     await settle(page, 800);
     await say("Business · Monthly plans, the plan form");
   } else { console.log(`${"the Add a plan button".padEnd(24)} NO SUCH BUTTON`); found++; }
   const logMember = page.getByRole("button", { name: "Log a member" });
-  if (await logMember.count()) {
+  if (await appear(logMember)) {
     await logMember.first().click();
     await settle(page, 800);
     await say("Business · Monthly plans, the member form");
@@ -776,7 +815,10 @@ for (const w of SIZES) {
   await page.getByRole("button", { name: "Team" }).first().click().catch(() => {});
   await settle(page, 1200);
   const change = page.getByRole("button", { name: "Change" });
-  const changes = await change.count();
+  // The member list is a database read too — same race, same fix as the two
+  // plan buttons above. `count()` is taken AFTER the wait, because the block
+  // wants the LAST member rather than the first.
+  const changes = (await appear(change)) ? await change.count() : 0;
   if (changes > 0) {
     await change.nth(changes - 1).click();
     await settle(page, 700);

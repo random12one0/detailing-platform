@@ -405,7 +405,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   never disagree, the setup form's progress rule and Business's *Finish
   setting up* row, and five of the seven are DERIVED from the database rather
   than stored. Baselined at 11 failures with the derivation removed, which is
-  the state that tells a fully configured business it has done nothing)
+  the state that tells a fully configured business it has done nothing),
+  **`campaign`** (16 checks, new 2026-09-05, roadmap 2.19 — the ONE commercial
+  email this product sends. It pins the two things that make it legal to send
+  at all (a postal address and a working opt-out in the footer) AND that no
+  transactional template grew either, because an unsubscribe link on a booking
+  confirmation invites a customer to switch off the reminders for a job they
+  have already booked. Its other half is the injection boundary: this is the
+  only template whose body is TYPED BY A HUMAN and delivered to fifty, so the
+  escape order — escape first, THEN newlines to `<br>` — is what stops one
+  typed message becoming markup in every copy. Baselined both ways: dropping
+  the footer fails 4, dropping the escape fails 2)
   from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
   root `.env` — and one of them is new: **`request-mode`** (45 checks, roadmap 2.12,
@@ -416,6 +426,30 @@ explaining it; if they still have to ask "so should I?", it failed.
   receipt's itemisation still adding up to what is charged. Baselined by deleting
   the `price_adjustments` line from `accept-quote`, which fails it by exactly the
   quote.
+- **`settle()` IS A CAP ON A REPAINT AND IS NOT A WAIT FOR A NETWORK ROUND
+  TRIP — and `sweep-widths.mjs` had three places that forgot it until roadmap
+  2.19.** Monthly plans and Team's member list draw their buttons only after
+  Supabase answers, and both were `settle(page, N)` then `.count()`. **`?lite=1`
+  makes that race WORSE, not better**: with nothing animating the DOM goes quiet
+  sooner, so settle returns earlier. `appear(locator)` in that script waits for
+  the control instead of counting it — **use it for anything a database read
+  draws.** The failure printed `NO SUCH BUTTON`, which reads as a renamed
+  control rather than as a race, and that is the same family as the crash that
+  printed `clean`.
+  **THE DEBUGGING IS THE TRANSFERABLE PART: run the control BEFORE the theory.**
+  Stashing the item's source and re-running the same sweep proved the failure
+  was ours in one run; a bisect then blamed one file; and the very next run,
+  with a `console.log` probe added, PASSED with that file still in place —
+  which is what a race looks like from the outside. Three plausible
+  explanations were written down first and all three were wrong.
+- **`git stash pop` ON WINDOWS REWRITES THE WORKING TREE TO CRLF, and that is
+  a second way into the invisible-byte trap already recorded below.**
+  `core.autocrlf` is `true` here, so a stash round-trip taken to run a control
+  turned `composition` 8e-iv red in a file the session had not touched — that
+  check is a byte-exact `includes()` containing `\n`. **Fix: `sed -i 's/\r$//'`
+  the files with real changes, and `git checkout --` the ones where only the
+  line endings moved** (`git diff --numstat` lists only the former, so
+  `comm -23` against `git status` names the latter).
 - **PATCH SOURCE FILES WITH `sed`, OR WITH PYTHON OPENED `newline=""` — never
   plain `open(p, "w")` on Windows.** Python reads LF and writes `os.linesep`,
   so a scripted edit silently converts the WHOLE FILE to CRLF; git's autocrlf
@@ -743,11 +777,46 @@ explaining it; if they still have to ask "so should I?", it failed.
   column** — the amount is baked into `subtotal` at booking time — so the site
   sale and the rounding are drawn by `reconcile`, and only the promo is
   itemised by name.
+- **THERE IS EXACTLY ONE COMMERCIAL EMAIL AND IT OBEYS A DIFFERENT SET OF
+  RULES — roadmap 2.19, 2026-09-05.** Twelve of the thirteen templates are
+  TRANSACTIONAL: the customer asked for them by booking something. The
+  thirteenth, `campaignEmail`, is a detailer picking names off their own
+  Clients list and typing a sentence. **CAN-SPAM classifies a message by its
+  PRIMARY PURPOSE, never by what pressed send**, so it needs a postal address
+  and a working opt-out exactly as an automated blast would — the roadmap
+  entry's *"most of that machinery goes away"* is true of the SCHEDULING and
+  false of the statute. Both ride `shell`'s optional `legal` argument, which
+  is absent everywhere else; `tests/campaign.test.mjs` asserts the campaign has
+  them AND that a booking confirmation does not.
+  **NOTHING SENDS IT. That is the owner's line and it is the whole design** —
+  no cron, no segments, and the *"14 haven't been back"* nudge is a ROW ON
+  TODAY, never an email to the detailer. **If the nudge ever becomes an email,
+  re-read this paragraph.**
+  **THE OPT-OUT IS TWO STEPS ON PURPOSE.** A one-click GET link is followed by
+  Gmail's prefetcher and by every corporate link scanner — each would silently
+  opt a customer out of a business they still want. `/unsubscribe/:customerId`
+  READS; a human presses the button that WRITES.
+  **`businesses.mailing_address` IS NOT `dropoff_address`** — a mobile detailer
+  has no unit, which is exactly who this product is for — and `send-campaign`
+  refuses to send without it.
+  **THE 50-PER-PRESS CAP IS ABOUT BOOKINGS, NOT SPAM.** Resend's free plan is
+  **100 emails A DAY ACROSS EVERY TENANT** and the transactional set spends ~5
+  a booking, so an unbounded campaign could stop confirmations going out — and
+  it would present as *"the booking page is broken"*. The 550ms gap is Resend's
+  2-per-second rate limit; this is the only place in the repo that sends in a
+  loop. **Raise the cap when the platform has its own Resend account** (2.18's
+  open thread, priced in 2.20).
+  **AND THE DEMO HAD ZERO LAPSED CUSTOMERS UNTIL THIS ITEM**, so the
+  `Clients · not seen in 3 months` block the width sweep has walked since
+  2026-09-02 was measuring an empty screen and printing `clean`. Five are
+  seeded now — one with no email, one opted out, one with a long name for the
+  chip wall at 320. Same family as everything else in this section.
 - **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
   (new 2026-09-03, roadmap 2.18). Credential-free, no browser, no dev server. It
-  writes all TWENTY emails — fourteen kinds plus the branches somebody actually
-  receives; it was seventeen until roadmap 2.14 step 3 added the plan link, the
-  plan-ended notice and a booking WITH A PLAN ON IT, and the script prints its
+  writes all TWENTY-ONE emails — fifteen kinds plus the branches somebody
+  actually receives; it was seventeen until roadmap 2.14 step 3 added the plan
+  link, the plan-ended notice and a booking WITH A PLAN ON IT, and twenty until
+  roadmap 2.19 added the re-book email, and the script prints its
   own count — to
   `email-preview/index.html`, **HTML and .txt side by side**, so a
   human can look at them. **The first thing in this repo that ever has**, which
@@ -1021,6 +1090,18 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - One queue prompt per session; commit before the next; `/clear` and
   restart a session that goes sideways.
+- **A SESSION RUNNING IN THE CLOUD IS A DIFFERENT ENVIRONMENT AND MOST OF THIS
+  FILE'S VERIFICATION DOES NOT EXIST THERE — `docs/cloud/README.md`, written
+  2026-09-05.** `.env` is gitignored so a cloud clone has no credentials, and
+  `*.supabase.co` is not on the sandbox's network allowlist either, so there is
+  no database, no migration, no function deploy and none of the eight
+  env-backed suites. Playwright's browsers are not in the image and their CDN
+  is blocked, so there is **no browser and therefore no visual verification at
+  all** — a cloud session does not build screens. What survives is the ten
+  credential-free checks (they import nothing outside `node:` and this repo, so
+  they run on a bare clone with no `npm install`), `npm run build --prefix app`,
+  and `gh`. `docs/cloud/QUEUE.md` is the work that fits inside that. **A cloud
+  PR targets `claude/superbase-access-anj1h7`, never `main`.**
 - **Appending to `DECISIONS.md` means adding your section to its index too,
   in the same edit.** `node scripts/decisions-index.mjs` exits 1 if you
   forget, and it is the check that keeps that file usable — an index that has

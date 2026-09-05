@@ -67,6 +67,18 @@ console.log("\ntest 2: config.ts builds those exact paths");
   const toRoute2 = (tpl) => toRoute(tpl).replace(/\$\{memberId\}/g, ":memberId");
   check("router serves the plan member page", routes.includes(toRoute2(plan)), toRoute2(plan));
   check("router serves the plans page", routes.includes(toRoute2(plans)), toRoute2(plans));
+
+  // ROADMAP 2.19 — and this one is the sharpest case this test has ever had.
+  // The other builders point at pages a customer can also reach some other
+  // way; the opt-out link exists NOWHERE except at the bottom of a marketing
+  // email. If it drifted, the symptom would be a customer pressing
+  // "stop these emails", landing on the staff sign-in screen, and the business
+  // still emailing them — which is the failure this test was written for, with
+  // a legal obligation attached.
+  const unsub = config.match(/export function unsubscribeUrl[\s\S]*?return `([^`]+)`/)?.[1] ?? "";
+  check("unsubscribeUrl builds /unsubscribe/{customerId}", unsub.includes("/unsubscribe/${customerId}"), unsub);
+  const toRoute3 = (tpl) => toRoute(tpl).replace(/\$\{customerId\}/g, ":customerId");
+  check("router serves the opt-out page", routes.includes(toRoute3(unsub)), toRoute3(unsub));
 }
 
 console.log("\ntest 3: the platform URL is overridable per deployment");
@@ -104,6 +116,13 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
     !!planLine && !/Wrapped|BusinessProvider/.test(planLine), planLine.trim());
   check("/book/:slug/plans is not wrapped in the session provider",
     !!plansLine && !/Wrapped|BusinessProvider/.test(plansLine), plansLine.trim());
+  // Roadmap 2.19. Somebody unsubscribing is the LEAST likely person in the
+  // product to have a session, and making them wait on one would be a page
+  // that never resolves for exactly the people the law says must be able to
+  // leave.
+  const unsubLine = main.split("\n").find((l) => l.includes('path="/unsubscribe/:customerId"')) ?? "";
+  check("/unsubscribe/:customerId is not wrapped in the session provider",
+    !!unsubLine && !/Wrapped|BusinessProvider/.test(unsubLine), unsubLine.trim());
   const appLine = main.split("\n").find((l) => l.includes('path="/app/*"')) ?? "";
   check("the dashboard at /app/* IS wrapped", /Wrapped|BusinessProvider/.test(appLine), appLine.trim());
   const legacyLine = main.split("\n").find((l) => l.includes('path="/*"')) ?? "";

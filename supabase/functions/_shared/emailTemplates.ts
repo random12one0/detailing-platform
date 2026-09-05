@@ -756,3 +756,68 @@ export function planCancelledEmail(
     shell(brand, blocks, `${opts.customerName} ended ${opts.planName}.`),
   );
 }
+
+// ---------------------------------------------------------------------------
+// 13 · CUSTOMER — THE DETAILER REACHING OUT (roadmap 2.19)
+//
+// THE ONLY EMAIL IN THIS FILE THE PRODUCT NEVER SENDS BY ITSELF. Every other
+// template above is triggered by something that happened — a booking, a
+// cancellation, a payment, a cron sweep. This one exists because a detailer
+// picked some names off their own Clients list, typed a sentence and pressed
+// send. The owner drew that line himself (2026-09-03): *"Don't have one that
+// automatically messaged… just have it, like, the business person whoever is
+// running it could send out email to someone that they want."*
+//
+// AND IT IS THE ONLY COMMERCIAL ONE, WHICH IS WHY IT LOOKS DIFFERENT AT THE
+// BOTTOM. CAN-SPAM classifies a message by its primary purpose, not by what
+// pressed the button, so *"we haven't seen you in a while"* needs a postal
+// address and a working opt-out whether a human or a schedule sent it. Both
+// land in the footer through `shell`'s optional `legal` argument, and no other
+// template gains a byte.
+//
+// THE SUBJECT IS THE HEADLINE, ON PURPOSE. A detailer writing this is typing
+// one sentence about why they are getting in touch; making them type it twice
+// — once for the subject line and once for the top of the email — is the kind
+// of form that gets abandoned halfway. One field, two jobs.
+//
+// THE GREETING IS OURS AND THE WORDS ARE THEIRS. A detailer composing to
+// fourteen people cannot write fourteen names, and the name is most of what
+// separates this from a blast. Their paragraph is escaped before its newlines
+// become `<br>` — the same order `ownWords` uses, and for the same reason:
+// the other way round lets a typed message inject markup into every copy.
+// ---------------------------------------------------------------------------
+export interface CampaignEmailData {
+  customerName: string;
+  /** The detailer's own subject line. Also the headline. */
+  subject: string;
+  /** The detailer's own words, as typed — plain text, newlines and all. */
+  message: string;
+  /** Where "Book again" goes: the business's booking page. */
+  bookUrl: string;
+  /** The customer's own opt-out link. Required — see the header above. */
+  unsubscribeUrl: string;
+  /** The business's postal address. Required, same reason. */
+  mailingAddress: string;
+}
+
+export function campaignEmail(brand: TenantBrand, c: CampaignEmailData): Mail {
+  const words = esc(String(c.message).trim()).split(/\r?\n\s*/).join("<br>");
+  const blocks = [
+    labBlock("Checking in"),
+    headlineBlock(c.subject),
+    proseBlock(`Hello ${esc(firstName(c.customerName))},`),
+    proseBlock(words, 10),
+    buttonBlock(brand, "Book again", c.bookUrl),
+  ];
+  return mail(
+    c.subject,
+    shell(
+      brand,
+      blocks,
+      // The preheader is the start of what they actually wrote, not a
+      // restatement of the subject sitting next to it in the inbox.
+      String(c.message).trim().replace(/\s+/g, " ").slice(0, 90),
+      { mailingAddress: c.mailingAddress, unsubscribeUrl: c.unsubscribeUrl },
+    ),
+  );
+}

@@ -52,6 +52,15 @@ export const api = {
   inviteUser: (businessId, email, role, label, permissions) =>
     callFn("invite-user", { business_id: businessId, email, role, label, permissions }),
 
+  // ROADMAP 2.19 — the detailer emailing customers they picked themselves.
+  // The browser sends the ids it chose and the words it typed; WHO ACTUALLY
+  // GETS AN EMAIL is decided on the server, because two of the three rules
+  // (an address, and not having opted out) are promises to the customer rather
+  // than to the detailer, and a promise honoured only by the UI is not
+  // honoured. The counts come back so the screen can say what happened.
+  sendCampaign: (businessId, customerIds, subject, message) =>
+    callFn("send-campaign", { business_id: businessId, customer_ids: customerIds, subject, message }),
+
   // PUSH, THE BROWSER HALF (roadmap 2.11 step 6 stage 6). All three of these
   // functions already existed and nothing in `app/` had ever called one.
   // `pushPublicKey` is a probe rather than a build-time VITE_ variable so the
@@ -96,6 +105,14 @@ export const api = {
   // email and it shows you") is address enumeration.
   emailPlanLink: (businessSlug, email) =>
     callFn("plan-link", { action: "email", business_slug: businessSlug, email }),
+
+  // ROADMAP 2.19 — the opt-out at the bottom of a marketing email. The
+  // customer's own UUID is the credential, the fourth caller of the pattern
+  // /booking/:id started. TWO CALLS RATHER THAN ONE LINK: mail scanners and
+  // prefetchers follow links, so the link only READS, and a person presses the
+  // button that writes.
+  unsubscribeLookup: (customerId) => callFn("unsubscribe", { action: "get", customer_id: customerId }),
+  unsubscribeConfirm: (customerId) => callFn("unsubscribe", { action: "set", customer_id: customerId }),
 };
 
 // The times on a day that THIS service type can actually have.

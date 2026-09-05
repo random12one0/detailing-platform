@@ -51,6 +51,13 @@ export default function App() {
   // about, so one nullable string holds both.
   const [firstRun, setFirstRun] = useState(null);
   const [tab, setTab] = useState("today");
+  // WHAT A SCREEN WAS OPENED *FOR* — roadmap 2.19, and it is one string
+  // because there is one case. Today's re-book prompt has to land on Clients
+  // with the "not seen in 3 months" filter already on: sending somebody to a
+  // list of two hundred names after telling them fourteen need attention is
+  // handing them the question again instead of the answer.
+  // CLEARED BY ANY TAB PRESS below, so it survives exactly one arrival.
+  const [intent, setIntent] = useState(null);
   // A booking made from the header has to reach the screen that is showing.
   // A counter, not a remount: remounting would replace the screen with a
   // spinner, which is the very thing §1a of the screen designs forbids.
@@ -162,7 +169,10 @@ export default function App() {
           )
           : gear
             ? <GearMenu onClose={() => setGear(false)} onTour={() => { setGear(false); setFirstRun("tour"); }} />
-            : <Active refreshKey={rev} onSetup={() => setFirstRun("setup")} />}
+            : (
+              <Active refreshKey={rev} onSetup={() => setFirstRun("setup")} intent={intent}
+                onGo={(t, why = null) => { setTab(t); setIntent(why); setGear(false); }} />
+            )}
       </main>
       <nav className="tabbar">
         {visibleTabs.map((t) => (
@@ -176,7 +186,10 @@ export default function App() {
              has to include the bar that is already on the screen. */
           <button key={t.key} data-tour={t.key}
             className={!gear && firstRun !== "setup" && activeTab.key === t.key ? "active" : ""}
-            onClick={() => { setTab(t.key); setGear(false); if (firstRun === "setup") setFirstRun(null); }}>
+            onClick={() => {
+              setTab(t.key); setGear(false); setIntent(null);
+              if (firstRun === "setup") setFirstRun(null);
+            }}>
             <t.Icon size={21} strokeWidth={1.75} />
             {t.label}
           </button>

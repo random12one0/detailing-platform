@@ -17,6 +17,7 @@ export default function BusinessInfo() {
     contact_email: business.contact_email || "",
     contact_phone: business.contact_phone || "",
     dropoff_address: business.dropoff_address || "",
+    mailing_address: business.mailing_address || "",
     service_area: business.service_area || "",
     timezone: business.timezone,
   });
@@ -91,6 +92,7 @@ export default function BusinessInfo() {
         contact_email: nn(biz.contact_email),
         contact_phone: nn(biz.contact_phone),
         dropoff_address: nn(biz.dropoff_address),
+        mailing_address: nn(biz.mailing_address),
         service_area: nn(biz.service_area),
         timezone: biz.timezone.trim(),
       }).eq("id", business.id),
@@ -145,6 +147,17 @@ export default function BusinessInfo() {
       </div>
       <label className="field"><span>Drop-off address</span>
         <input value={biz.dropoff_address} onChange={(e) => setBiz({ ...biz, dropoff_address: e.target.value })} /></label>
+      {/* ROADMAP 2.19. NOT the drop-off address, and not decoration: a
+          marketing email has to carry a postal address by law, and
+          `send-campaign` refuses to send without one. A mobile detailer has no
+          unit, so this is often a PO box — which is why it cannot borrow the
+          field above it. It is printed on nothing else. */}
+      <label className="field"><span>Mailing address</span>
+        <input value={biz.mailing_address} onChange={(e) => setBiz({ ...biz, mailing_address: e.target.value })}
+          placeholder="e.g. PO Box 214, Lakewood CA 90713" /></label>
+      <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
+        Only ever printed at the bottom of an email you send your old customers. The law asks for it.
+      </p>
       <label className="field"><span>Service area (shown on your site)</span>
         <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })} placeholder="e.g. Lakewood, California" /></label>
       <label className="field">

@@ -19,6 +19,10 @@ export interface Business {
   contact_phone: string | null;
   dropoff_address: string | null;
   service_area: string | null;
+  // ROADMAP 2.19. The postal address a marketing email is legally required to
+  // carry, and deliberately NOT `dropoff_address` — a mobile detailer has no
+  // unit, and this may be a PO box.
+  mailing_address: string | null;
 }
 
 export interface BusinessSettings {
@@ -144,7 +148,7 @@ export async function businessBySlug(slug: unknown): Promise<Business | null> {
   if (typeof slug !== "string" || !slug.trim()) return null;
   const { data } = await supabase
     .from("businesses")
-    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area")
+    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address")
     .eq("slug", slug.trim().toLowerCase())
     .eq("status", "active")
     .maybeSingle();
@@ -154,7 +158,7 @@ export async function businessBySlug(slug: unknown): Promise<Business | null> {
 export async function businessById(id: string): Promise<Business | null> {
   const { data } = await supabase
     .from("businesses")
-    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area")
+    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address")
     .eq("id", id)
     .maybeSingle();
   return (data as Business) ?? null;

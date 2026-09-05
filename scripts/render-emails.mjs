@@ -190,6 +190,19 @@ const EMAILS = [
   ["customer-confirmation-plan", "Customer · booking confirmed, on a plan", () => T.customerConfirmationEmail(brand, planBooking, false)],
   ["customer-plan-link", "Customer · your plan link", () => T.planLinkEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", planUrl: "https://detailingplatform.com/plan/9c1f2b64-0000-4000-8000-000000000001", bookUrl: brand.siteUrl })],
   ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", startedOn: "2026-03-02", endedOn: "2026-09-04" })],
+  // ROADMAP 2.19. THE ONLY COMMERCIAL EMAIL IN THE SET, and the only one a
+  // human composes — so it is the only one whose footer carries a postal
+  // address and an opt-out. It is rendered here for the reason every other row
+  // is: the two lines the law asks for are exactly the kind of thing that
+  // looks present in the code and turns out to be missing on the page.
+  ["customer-campaign", "Customer · the detailer reaching out", () => T.campaignEmail(brand, {
+    customerName: "Dana Ortiz",
+    subject: "Time to get it looking right again?",
+    message: "It's been a few months since we last took care of your car.\n\nIf you'd like it back to how it looked when you drove it away, booking takes about a minute — just use the button below and pick a time that suits you.",
+    bookUrl: brand.siteUrl,
+    unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002",
+    mailingAddress: "PO Box 214, Lakewood CA 90713",
+  })],
 ];
 
 const ROT = [["undefined", /undefined/], ["NaN", /NaN/], ["[object Object]", /\[object Object\]/], ['href=""', /href=""/]];
@@ -310,7 +323,15 @@ for (const [file, label, render] of EMAILS) {
   const html = T.customerConfirmationEmail(brand, booking, false).html
     + T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "paid", "Paid by card.").html
     + T.cancellationEmail(brand, booking, false).html
-    + T.requestDecisionEmail(brand, booking, "quote", { manageUrl: booking.receiptUrl, quotedAmount: 395 }).html;
+    + T.requestDecisionEmail(brand, booking, "quote", { manageUrl: booking.receiptUrl, quotedAmount: 395 }).html
+    // ROADMAP 2.19 — and this one is here for a reason the other four are not:
+    // it is the ONLY template that adds elements to the footer, so it is the
+    // only one that could ship a coloured line with no dark-mode class in the
+    // one part of the email every other template shares.
+    + T.campaignEmail(brand, {
+      customerName: "Dana Ortiz", subject: "A while since we saw you", message: "Come back any time.",
+      bookUrl: brand.siteUrl, unsubscribeUrl: "https://example.org/u/1", mailingAddress: "PO Box 214",
+    }).html;
   // Every inline `color:` / `background-color:` outside the <style> block, with
   // the tag it sits on. Anything carrying a colour must also carry a class.
   const body = html.slice(html.indexOf("</style>"));

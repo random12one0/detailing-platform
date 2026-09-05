@@ -59,6 +59,7 @@ import { agoWords, arrange, summarise } from "../lib/client-list.js";
 // cadence two different ways.
 import { STATUS_WORDS, cadenceWords } from "../lib/plans.js";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
+import CampaignModal from "../components/CampaignModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
 import { Segmented } from "../components/controls.jsx";
 
@@ -73,14 +74,21 @@ const HISTORY_CAP = 50;
 const shortDate = (d) => new Date(`${d}T12:00:00`)
   .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
-export default function Clients() {
-  const { business, can } = useBusiness();
+// `intent` is App's one-word answer to "what was this screen opened for" —
+// "lapsed" when Today's re-book prompt sent them here (roadmap 2.19). It is
+// read once, on arrival: turning the chip off has to stick.
+export default function Clients({ intent = null }) {
+  // `reloadBusiness` is here for one line: a send stamps
+  // `businesses.last_campaign_at`, and that is what Today's nudge reads to
+  // know it can stop asking. Without it the prompt is still there when the
+  // detailer taps back, having just done the thing it asked for.
+  const { business, can, reload: reloadBusiness } = useBusiness();
   // Lifetime spend is money, not rank — roadmap 2.13.
   const owner = can("money");
   const today = todayLocal(business.timezone);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
-  const [lapsed, setLapsed] = useState(false);
+  const [lapsed, setLapsed] = useState(intent === "lapsed");
   const [customers, setCustomers] = useState([]);
   const [totals, setTotals] = useState(new Map());
   const [error, setError] = useState("");
@@ -95,6 +103,11 @@ export default function Clients() {
   // Plans screen's whole job. What this answers is the question a detailer has
   // with one customer in front of them.
   const [planBy, setPlanBy] = useState(new Map());
+  // ROADMAP 2.19. The customers a compose sheet is open over, or null. A
+  // snapshot of the list at the moment the button was pressed — re-reading
+  // `rows` while somebody is typing would let a background refresh change who
+  // they are writing to.
+  const [writing, setWriting] = useState(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -173,6 +186,18 @@ export default function Clients() {
   // app, which is where a detailer writes to a customer anyway.
   const smsHref = `sms:${rows.map((r) => r.c.phone).filter(Boolean).join(",")}`;
 
+  // A LIST SOMEBODY NARROWED IS A LIST SOMEBODY CHOSE — roadmap 2.19. Either
+  // control does it, and the actions below act on whatever is left.
+  const narrowed = lapsed || !!search.trim();
+  // AND THE TWO BUTTONS BELOW CARRY DIFFERENT NUMBERS, WHICH IS THE HONEST
+  // ANSWER RATHER THAN AN INCONSISTENCY. A text reaches everyone on the list —
+  // every customer has a phone number, it is the one required field. An email
+  // reaches only those with an address who have not opted out, and in this
+  // trade that is routinely fewer. "Email these 5" over a list where 3 get one
+  // is the same defect this repo chases everywhere else: a number printed that
+  // is not the number acted on.
+  const emailable = rows.filter((r) => (r.c.email || "").trim() && !r.c.unsubscribed_at).length;
+
   const capped = !search.trim() && customers.length >= ROW_CAP;
 
   const list = (
@@ -225,9 +250,22 @@ export default function Clients() {
           here first and it restated the chip that is switched on directly
           above it. The count that is NEW lives in the masthead, where every
           count on this screen lives, and the button carries the number it is
-          about to act on. */}
-      {lapsed && rows.length > 0 && (
-        <div className="row" style={{ justifyContent: "flex-end" }}>
+          about to act on.
+          ROADMAP 2.19 PUT EMAIL BESIDE TEXT, AND WIDENED WHEN THE ROW APPEARS.
+          The owner's ask is *"send out email to someone that they want"* — and
+          a set narrowed by TYPING A NAME is as much a chosen set as one
+          narrowed by the chip, so a detailer wanting to write to three people
+          searches for them rather than unticking two hundred. Both controls
+          cut the same list, which is why one condition covers both.
+          Email is `marketing` — the permission whose own words have said
+          "promo codes and campaign links" since roadmap 2.13. */}
+      {narrowed && rows.length > 0 && (
+        <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
+          {can("marketing") && emailable > 0 && (
+            <button className="btn sm inline" onClick={() => setWriting(rows.map((r) => r.c))}>
+              Email these {emailable}
+            </button>
+          )}
           <a className="btn sm inline" href={smsHref}>Text these {rows.length}</a>
         </div>
       )}
@@ -392,6 +430,15 @@ export default function Clients() {
           <BookingDetail booking={selected} onClose={() => setSelected(null)}
             onChanged={() => { setSelected(null); load(); if (open) openCustomer(open); }} />
         </RecordHost>
+      )}
+
+      {/* ROADMAP 2.19. A FORM YOU COMMIT, so it is a sheet at every width —
+          RecordHost's own rule, and the same one new-booking, finalize and the
+          quote already follow. It closes itself; the reload is the dashboard
+          nudge finding out it has been answered. */}
+      {writing && (
+        <CampaignModal people={writing} onClose={() => setWriting(null)}
+          onSent={reloadBusiness} />
       )}
     </div>
   );

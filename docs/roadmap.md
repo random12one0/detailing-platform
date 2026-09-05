@@ -3153,7 +3153,7 @@ is kept; the entire visual design restarts from scratch.
       and **his verdict on the light-first sends**, which nobody has confirmed
       in Gmail dark mode yet.
 
-- [ ] 2.19 **"Want to email some of your old customers?" — MANUAL, with a
+- [x] 2.19 **"Want to email some of your old customers?" — MANUAL, with a
       nudge. The OWNER decided the shape on 2026-09-03**, answering the
       research's recommendation that an automated re-book campaign be its own
       item.
@@ -3185,6 +3185,64 @@ is kept; the entire visual design restarts from scratch.
 
       **Skills: `impeccable`** — it is a new screen. No direction-generating
       skill.
+
+      ---
+
+      **BUILT 2026-09-05, AND ONE PARAGRAPH ABOVE THIS WAS WRONG.**
+
+      *"Most of that machinery goes away"* is true of the SCHEDULING and false
+      of the statute. **CAN-SPAM classifies a message by its PRIMARY PURPOSE,
+      never by what pressed send** — so a detailer hand-picking fourteen names
+      needs a working opt-out and a valid postal address exactly as an
+      automated blast would. What the manual design actually removes is the
+      cron job, the segments and the reputation problem of a scheduled send.
+      Both legal requirements are built and pinned by `tests/campaign.test.mjs`;
+      do not remove either on the grounds that a human pressed the button.
+
+      | | |
+      |---|---|
+      | The migration | `20260904005000_campaign_emails.sql` — `customers.unsubscribed_at`, `businesses.mailing_address`, `businesses.last_campaign_at` |
+      | The email | `campaignEmail`, the 13th template and the only commercial one |
+      | The legal footer | `shell(brand, blocks, preheader, legal?)` — optional, so no other template gained a byte |
+      | The send | `supabase/functions/send-campaign/` — `marketing` permission, three recipient rules, **50 per press** |
+      | The opt-out | `supabase/functions/unsubscribe/` + `/unsubscribe/:customerId` |
+      | Compose | `app/src/components/CampaignModal.jsx`, a `<Sheet>` at every width |
+      | The prompt | the LAST row on Today, quiet for 30 days after a send |
+
+      **THE CAP IS ABOUT BOOKINGS, NOT SPAM.** Resend's free plan is **100
+      emails A DAY across every tenant** and the transactional set spends ~5 a
+      booking, so an unbounded campaign could stop confirmations going out —
+      which would present as *"the booking page is broken"*. 50 per press, 550ms
+      apart (Resend's 2-per-second limit). **It goes up when the platform has
+      its own Resend account** — 2.18's open thread, priced in 2.20.
+
+      **THE COMPOSE SURFACE SELECTS NOBODY, because the selection existed.**
+      It is handed the list the chip or the search field already narrowed. The
+      only selection change was widening WHEN the action row appears: a set
+      narrowed by typing a name is as much a chosen set as one narrowed by the
+      chip, which is what *"someone that they want"* asks for.
+
+      **AND THE DEMO HAD ZERO LAPSED CUSTOMERS.** All eight had a booking in
+      the last few days, so the `Clients · not seen in 3 months` block
+      `sweep-widths.mjs` has walked at five widths since 2026-09-02 was
+      measuring an EMPTY screen and printing `clean` — *a skipped check reads
+      exactly like a passing one*, again. Five lapsed customers are seeded now
+      (one with no email, one opted out, one with a long name for the chip wall
+      at 320). Full reasoning: DECISIONS.md → "Roadmap 2.19".
+
+      **STILL OPEN AND NOT CODE:** no send history, so pressing send twice
+      sends twice (the button disables while it works, and that is the whole
+      guard) · `formatDateLong`'s `en-US` and the SPF/DMARC threads from 2.18
+      are unchanged · **and the owner has not seen this email in a real
+      inbox**, which is the same gap 2.18 closed for the transactional twelve.
+
+      **AND IT EXPOSED A RACE IN `sweep-widths.mjs` OLDER THAN ITSELF.**
+      Monthly plans and Team draw their buttons only after Supabase answers and
+      were measured with `settle()` + `count()` — a cap on a repaint, not a wait
+      for a round trip, and `?lite=1` makes it WORSE because a page with no
+      animations goes quiet sooner. Fixed with an `appear(locator)` helper.
+      **A full `--lite` sweep-widths run appears not to have been taken since
+      roadmap 2.14 added those buttons.**
 
 - [ ] 2.20 **TAKING MONEY — the OWNER asked for this on 2026-09-04, and the
       research is done: `docs/payments-research-2026-09-04.md`.**
@@ -3610,6 +3668,16 @@ is kept; the entire visual design restarts from scratch.
       so this is a volume problem rather than a disclosure one — but it is the
       same fix in the same place. **The other two actions are keyed on an
       unguessable UUID and need nothing.**
+
+      **AND `unsubscribe` JOINED THE LIST ON 2026-09-05 (roadmap 2.19), with a
+      smaller claim on it.** It is public and it WRITES, but it writes one
+      boolean fact about one customer and the caller already has to hold that
+      customer's UUID — so the worst outcome is somebody who was already sent
+      the link using it, which is the link's whole purpose. **It needs no
+      per-caller limit; it wants the same blunt per-IP ceiling everything
+      public gets**, so that a loop cannot spend the project's function
+      invocations. Include it when the ceiling is built; do not design anything
+      special for it.
 
       **Skills: none — this is engine work. `security-review` before it ships.**
 

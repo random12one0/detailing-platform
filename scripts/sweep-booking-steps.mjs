@@ -377,6 +377,17 @@ for (const size of SIZES) {
   } else {
     console.log("your plan            NOT MEASURED — no scripts/demo-refs.json; run node scripts/seed-demo.mjs");
   }
+  // ROADMAP 2.19 — the opt-out page. Same shape as the plan page above and
+  // here for the same reason: a customer-facing page whose only door is a link
+  // inside an email, so nothing else in this repo ever opens it. NOT GATED, in
+  // the same way the plans page is not — it is a page rather than a step, and
+  // W16 is the owner's rule about steps. It is three elements and should never
+  // scroll; the number is printed either way.
+  if (REFS?.customerId) {
+    await first("stop these emails", `${BASE}/unsubscribe/${REFS.customerId}${LITE ? "?lite=1" : ""}`, { gate: false });
+  } else {
+    console.log("stop these emails    NOT MEASURED — no scripts/demo-refs.json; run node scripts/seed-demo.mjs");
+  }
 
   if (errors.length) { failing++; console.log(`  console: ${errors.length} error(s)\n  ${errors.join("\n  ")}`); }
   await ctx.close();
