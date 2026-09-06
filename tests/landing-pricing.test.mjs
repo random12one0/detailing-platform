@@ -481,5 +481,51 @@ console.log("\ntest 10: the two documents and the support line");
     "the dunning promise is on the pricing page too, and the two must say the same thing");
 }
 
+
+// ══ ROADMAP 7.5 — WHAT GOOGLE AND A SHARED LINK SHOW ══════════════════
+// None of this is a layout problem, which is why every check in this repo
+// passed for months while the page had no description at all and a link
+// shared in a text rendered as a bare URL.
+console.log("\ntest 11: the page describes itself");
+{
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync("app/index.html", "utf8");
+  const meta = (name) =>
+    (html.match(new RegExp(`<meta (?:name|property)="${name}" content="([^"]*)"`)) ?? [])[1] ?? "";
+
+  check("11a · there is a description at all", meta("description").length > 60,
+    `${meta("description").length} chars`);
+  check("11b · and Open Graph, so a shared link is a card rather than a URL",
+    meta("og:title").length > 10 && meta("og:description").length > 40
+      && meta("og:type") === "website");
+  // An og:url that is not absolute is one a crawler cannot resolve.
+  check("11c · og:url is absolute", /^https:\/\/[a-z.]+\//.test(meta("og:url")), meta("og:url"));
+
+  // NO og:image ON PURPOSE — a white-label platform has no logo by design, and
+  // `summary_large_image` promises a picture and draws an empty box when there
+  // is none. The two must stay consistent: adding one without the other is the
+  // failure this pins.
+  const hasImage = /property="og:image"/.test(html);
+  check("11d · the card type matches whether there is an image",
+    hasImage ? meta("twitter:card") === "summary_large_image" : meta("twitter:card") === "summary",
+    `image: ${hasImage}, card: ${meta("twitter:card")}`);
+
+  // The same never-defaults the page itself has obeyed since 2.2. Metadata is
+  // where SaaS-speak survives longest, because nobody looks at it.
+  const banned = ["unlock", "supercharge", "streamline", "seamless", "all-in-one",
+                  "revolutioni", "cutting-edge", "empower"];
+  const hits = banned.filter((w) =>
+    new RegExp(w, "i").test(`${meta("description")} ${meta("og:title")} ${meta("og:description")}`));
+  check("11e · no SaaS-speak in the metadata either", hits.length === 0, hits.join(", "));
+
+  // PRODUCT.md § Positioning, in its order: the website leads and the
+  // dashboard is not an accessory. A description that sold the booking engine
+  // first would be selling the commodity half.
+  check("11f · the website leads, as the positioning says",
+    meta("description").toLowerCase().indexOf("website")
+      < meta("description").toLowerCase().indexOf("dashboard"),
+    meta("description"));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

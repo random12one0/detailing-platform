@@ -31,8 +31,47 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap" />
-    <!-- Generic platform title; the business's own name renders in-app from the database. -->
+    <!-- Generic platform title; the business's own name renders in-app from the database.
+         `BookingBusinessContext` sets `document.title` to the detailer's own name
+         the moment their profile loads, so a customer's tab says who they are. -->
     <title>Detailing Platform</title>
+
+    <!-- ROADMAP 7.5 — WHAT GOOGLE AND A TEXT MESSAGE SHOW.
+
+         Until 2026-09-06 there was no description and no Open Graph at all,
+         so Google wrote its own snippet out of whatever it found and a link
+         shared in a text or on Facebook appeared as a bare URL with no title
+         card. Neither is a layout problem, which is why every check in this
+         repo passed while it was true.
+
+         ONE index.html SERVES ALL THREE SURFACES — the marketing page, a
+         tenant booking page and the dashboard — so what is written here
+         describes the marketing page, which is the only one anybody shares
+         to be read. **A shared BOOKING link therefore shows this card rather
+         than the detailer's**, and that cannot be fixed from here: a crawler
+         does not run the JavaScript that knows whose page it is. Prerendering
+         those routes is its own item and is written into the roadmap.
+
+         THE COPY IS PRODUCT.md § Positioning IN ITS ORDER: the website
+         leads, the dashboard is not an accessory, and the two are one
+         purchase. No SaaS-speak — `tests/landing-pricing.test.mjs` has
+         refused "streamline" and its family on the page itself since 2.2 and
+         now refuses them here.
+
+         AND THERE IS NO og:image, WHICH IS DELIBERATE RATHER THAN FORGOTTEN.
+         This is a white-label platform with no logo by design, and a card
+         image invented tonight is a brand decision made by a session. Without
+         one, `summary` is the correct card type: `summary_large_image`
+         promises a picture and renders an empty box when there is none. -->
+    <meta name="description" content="A custom website for one detailing business, and the dashboard that runs it. Your prices, your hours and your customers live in the same place, and changing one on your phone changes the site." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Detailing Platform" />
+    <meta property="og:url" content="https://detailingplatform.com/" />
+    <meta property="og:title" content="A website for your detailing business, and the dashboard that runs it" />
+    <meta property="og:description" content="One build, one price. The website is yours and custom; the dashboard takes the bookings, keeps the calendar and changes the site from your phone." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="A website for your detailing business, and the dashboard that runs it" />
+    <meta name="twitter:description" content="One build, one price. The website is yours and custom; the dashboard takes the bookings, keeps the calendar and changes the site from your phone." />
   </head>
   <body>
     <div id="root"></div>

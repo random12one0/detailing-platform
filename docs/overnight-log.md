@@ -950,6 +950,54 @@ three times before that was the answer.
 
 ---
 
+## Roadmap 7.5 — what Google and a shared link show
+
+**What changed.** The site had no description and no share card at all: Google
+wrote its own snippet out of whatever it found, and a link you texted somebody
+appeared as a bare web address with no picture, no title and no sentence. Both
+are now there.
+
+**None of it is a layout problem, which is why nothing in this repo had ever
+noticed.** Every check here asks about pixels.
+
+**The words are your positioning in your own order** — the website first, the
+dashboard as half of the same thing rather than an extra. *"A custom website
+for one detailing business, and the dashboard that runs it. Your prices, your
+hours and your customers live in the same place, and changing one on your phone
+changes the site."* A check now fails if anyone ever puts "seamless",
+"all-in-one" or "streamline" in there.
+
+**I deliberately did not make a share IMAGE.** The card is set to the kind that
+shows no picture, because the kind that shows one draws an empty grey box when
+there isn't one. Inventing a logo tonight would be a brand decision made by a
+machine, on a product that has no logo on purpose. **When you want one, it is
+one image and one line.**
+
+**And one honest limit, so nobody reports it as a bug later.** One file
+describes all three kinds of page here, so **a detailer texting their booking
+link to a customer gets OUR card, not theirs** — an advert for us on their
+message. It cannot be fixed from inside the app: the thing that reads those
+cards never runs the code that knows whose page it is. It is written up as item
+Q in the roadmap's unscheduled list, and my recommendation there is to do it
+when the first real tenant site exists, because the same piece of work covers
+both.
+
+**What I verified.** Six new checks (`landing-pricing` **86/86**), three
+baselined by breaking what they guard — including one that fails if an image
+is ever added without changing the card type, in both directions. The tags
+survive the production build (checked in `app/dist/index.html`, not just the
+source).
+
+**Roadmap 7.2 (error monitoring) and 7.4 (your pricing sanity check) I
+skipped**, both for the reason written in their own lines: 7.2's whole value is
+proving that private details are stripped before anything is sent, and it needs
+a key only you can make — **ten minutes and a free account**. 7.4 says OWNER in
+its first word; two things have changed in your favour since it was written,
+though: the founding count now reads **3 of 3** rather than 2, and you can
+change every price yourself from the back office.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

@@ -6344,13 +6344,29 @@ is kept; the entire visual design restarts from scratch.
       node that never revealed and no other check in the repo can see one.
 - [ ] 7.2 Sentry error monitoring with PII scrubbing, proven with a fake
       record. **OWNER supplies the DSN.**
+
+      **SKIPPED 2026-09-06 AND LOGGED — the item's own line says why.** Every
+      part of it that could be built without the DSN would be built UNPROVEN:
+      the whole value is the scrubbing, *"proven with a fake record"* is this
+      item's own acceptance test, and a scrubber nothing has watched is
+      exactly the kind of check this repo refuses to count. It would also add
+      the fifth dependency to a frontend that has four. **One free Sentry
+      project and one DSN is his ten minutes**, the same shape as the Google
+      sign-in item (2.25).
 - [ ] 7.3 Final end-to-end pass as a brand-new business AND as staff,
       written to docs/final-pass.md, every rough edge ranked:
       blocks-launch / embarrassing / cosmetic.
 - [ ] 7.4 **OWNER: founding-offer pricing sanity check** ($499 setup /
       $40 mo, counted spots) before the first sales call.
 
-- [ ] 7.5 **`app/index.html` has no meta description and no Open Graph tags.**
+      **OWNER — skipped 2026-09-06 and logged.** It is marked OWNER in its own
+      first word. Two things that were not true when it was written now are:
+      the counted spots read **3 of 3** rather than 2 (roadmap 6.2 stopped the
+      demo consuming one), and **he can change every figure himself** from the
+      back office without a developer (4.4 stage 4), so this is now a decision
+      he can act on in the same minute he makes it.
+
+- [x] 7.5 ~~**`app/index.html` has no meta description and no Open Graph tags.**~~
       Noticed 2026-08-31 while running `ship-check` over roadmap 2.6; not
       fixed there because it is a content decision, not a layout one. The
       consequence is real and only affects the PUBLIC surfaces: Google writes
@@ -6361,6 +6377,25 @@ is kept; the entire visual design restarts from scratch.
       order (the website leads, the dashboard is not an accessory), and never
       generic SaaS-speak. Needs an OG image too, which is the part that needs
       the owner: there is no logo, by design.
+
+      **BUILT 2026-09-06, AND THE IMAGE IS DELIBERATELY STILL ABSENT.** A
+      description, five Open Graph tags and three Twitter ones, with the copy
+      taken from PRODUCT.md § Positioning in its order — the website leads,
+      the dashboard is not an accessory. Six checks in `landing-pricing`
+      (**86**), three baselined.
+      **`summary`, NOT `summary_large_image`**: the large card promises a
+      picture and draws an empty box when there is none, so the card type and
+      the image have to move together — which is what 11d pins, in both
+      directions. **An OG image invented tonight would be a brand decision
+      made by a session**, on a white-label platform that has no logo on
+      purpose.
+      **AND THE LIMIT IS WORTH KNOWING BEFORE SOMEBODY REPORTS IT AS A BUG:
+      one `index.html` serves all three surfaces, so a shared BOOKING link
+      shows the platform's card rather than the detailer's.** It cannot be
+      fixed from here — a crawler does not run the JavaScript that knows whose
+      page it is — and prerendering those routes is its own item (item Q
+      below). The TITLE is already right on a booking page, because
+      `BookingBusinessContext` sets `document.title` for a real visitor.
 
 ## Not on the roadmap yet — found 2026-09-04, awaiting the owner
 
@@ -6510,7 +6545,10 @@ recommendation.
   in the billing emails' footer and on the billing screen, before the first
   real charge — not a help centre.** It is his to choose because it is his
   inbox that receives it.
-- **M. THERE IS NO `/terms` AND NO `/privacy` ROUTE.** The entire legal surface
+- **M. ~~THERE IS NO `/terms` AND NO `/privacy` ROUTE.~~ CLOSED 2026-09-06 BY
+  ROADMAP 7.1.** Both exist, both are public, and the footer of every marketing
+  page links them beside a support policy. The original finding, kept because
+  its reasoning is still the reason the AB 2863 block did NOT move:** The entire legal surface
   of the product is 80 lines of JSX inside `PricingPage.jsx` — the AB 2863
   disclosure, the refundability of the build fee, what happens when you leave.
   **That block is correct and well-placed** (the statute wants it before
@@ -6519,6 +6557,25 @@ recommendation.
   the footer of the marketing page. **Recommendation: Phase 7, alongside the
   Resend domain and the SPF record** — it is launch paperwork, and the
   disclosure that legally matters already exists.
+- **Q. A SHARED BOOKING LINK SHOWS THE PLATFORM'S CARD, NOT THE DETAILER'S —
+  found 2026-09-06 while doing roadmap 7.5.** One `index.html` serves the
+  marketing page, every tenant booking page and the dashboard, so the Open
+  Graph tags added by 7.5 describe the platform — and a detailer texting
+  `/book/their-slug` to a customer gets a card headlined *"A website for your
+  detailing business"*, which is an advert for us on their message.
+  **It cannot be fixed from the app.** A crawler does not run the JavaScript
+  that knows whose page it is; the TITLE is already right for a human, because
+  `BookingBusinessContext` sets `document.title` the moment the profile loads,
+  but a scraper never gets there.
+  **The fix is prerendering those routes**, which on Netlify is either an edge
+  function that rewrites the head per slug or a build step that emits one HTML
+  file per tenant. The first is small and reads the same public RPC the page
+  does; the second does not survive a detailer changing their name.
+  **What it costs to skip:** every shared booking link and every Google result
+  for a tenant page carries our words instead of theirs. It matters the day a
+  detailer has customers, which is after 5.2 — **recommendation: after the
+  first tenant site is real, not before**, because the same edge function is
+  what a tenant site would need anyway.
 - **O. GOOGLE CALENDAR SYNC PER TENANT IS AN OAUTH FLOW, NOT A PORT — roadmap
   4.2, 2026-09-05.** The old site's `create-calendar-event` signs a JWT for ONE
   Google service account and writes to ONE calendar id, both of them

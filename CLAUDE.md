@@ -493,7 +493,7 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, **`landing-pricing`** (**80 checks — 65 until roadmap 4.4 stage 4, 72 until 6.2, 80 until 7.1; measured 2026-09-06, this said 58 and was stale within a day of being written** — 21 until roadmap
+  `design-contrast`, **`landing-pricing`** (**86 checks — 65 until roadmap 4.4 stage 4, 72 until 6.2, 80 until 7.1, 86 until 7.5; measured 2026-09-06, this said 58 and was stale within a day of being written** — 21 until roadmap
   2.20 stage 2 on 2026-09-05, and its FIRST check had been vacuous since the
   day it was written: the pricing-section slice looked for
   `aria-labelledby="price"` when the section is `"prh"`, so `indexOf` returned
