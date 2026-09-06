@@ -1,0 +1,128 @@
+/* ROADMAP 4.4 — the back office's own stylesheet.
+ *
+ * ITS OWN, and every class is prefixed `pa-`. 4.4's security requirement is
+ * "its own route and layout — never a tab inside the detailer dashboard", and
+ * a shared stylesheet is the quiet way that requirement gets broken: the
+ * moment this screen reuses `.card`, `.nav-row` and `.btn`, a change made for
+ * a detailer's screen lands here and a change made here lands on theirs. **A
+ * screen that can see every business must not be one CSS mistake away from a
+ * screen a detailer opens** — that includes the mistake of sharing a selector.
+ *
+ * IT DOES REUSE THE TOKENS, and that is the opposite of a contradiction. The
+ * ground, the type and the accent come from `theme.css`'s custom properties,
+ * so this looks like the same product and follows the tenant-agnostic
+ * palette. What it does not share is a single RULE.
+ *
+ * AND IT IS DELIBERATELY PLAIN. This is a tool for one person who opens it to
+ * answer a question and closes it again; the design system's motion, reveal
+ * and squircle work is for screens a customer or a detailer lives in. There
+ * is no animation here on purpose — nothing on this page is being introduced
+ * to anybody. */
+
+.pa {
+  min-height: 100dvh;
+  background: var(--bg, #0B0D0E);
+  color: var(--text, #E9EDEF);
+  font-family: var(--f-body, system-ui);
+  padding: 24px 16px 96px;
+}
+.pa-wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+.pa-h1 {
+  font-family: var(--f-display, var(--f-body));
+  font-size: clamp(28px, 6vw, 40px); font-weight: 700; letter-spacing: -0.02em; margin: 0;
+}
+.pa-h2 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+.pa-quiet { color: var(--text-muted, #8A9296); font-size: 14px; margin: 0; }
+.pa-top { display: flex; flex-direction: column; gap: 14px; }
+
+/* FOUR FIGURES AND NO CHART. They wrap to two rows on a phone rather than
+   scrolling sideways: this is read at a glance and a number you have to swipe
+   to is a number nobody reads. */
+.pa-nums { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.pa-nums > div {
+  background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
+  border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;
+}
+.pa-num { font-family: var(--f-num, ui-monospace, monospace); font-size: 24px; font-weight: 600; }
+.pa-lab { color: var(--text-muted, #8A9296); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.pa-tools { display: flex; flex-direction: column; gap: 10px; }
+.pa-input {
+  width: 100%; min-height: 44px; padding: 0 14px;
+  background: var(--surface-sunken, #0F1315); color: inherit;
+  border: 1px solid var(--hairline, #23292C); border-radius: 10px;
+  font: inherit; font-size: 15px;
+}
+.pa-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pa-chip {
+  min-height: 36px; padding: 0 12px; border-radius: 999px;
+  background: transparent; color: var(--text-muted, #8A9296);
+  border: 1px solid var(--hairline, #23292C); font: inherit; font-size: 13px;
+  font-weight: 600; cursor: pointer;
+}
+.pa-chip.on { background: var(--surface-lit, #1C2124); color: var(--text, #E9EDEF); }
+
+.pa-list {
+  background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
+  border-radius: 12px; overflow: hidden;
+}
+.pa-row { display: flex; align-items: center; gap: 8px; padding: 0 12px 0 0; border-top: 1px solid var(--hairline, #23292C); }
+.pa-row:first-child { border-top: 0; }
+.pa-row.on { background: var(--surface-lit, #1C2124); }
+.pa-rowbtn {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+  background: none; border: 0; color: inherit; font: inherit; text-align: left;
+  padding: 12px; cursor: pointer;
+}
+.pa-name { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+/* THE ONE LINE THAT ANSWERS THE QUESTION HE OPENED THIS FOR, so it wraps
+   rather than truncating: an ellipsis here would hide the half about whether
+   they are paying, which is usually the half being looked for. */
+.pa-sub { font-size: 13px; color: var(--text-muted, #8A9296); line-height: 1.4; }
+.pa-tag {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 5px;
+  background: var(--surface-lit, #1C2124); color: var(--text-2, #B9C1C5);
+}
+/* `--bad` is the product's fixed red — meaning, never the tenant's accent
+   (design-system law 11b). A suspended business is a state, not an identity. */
+.pa-tag.bad { background: color-mix(in srgb, var(--bad, #E5484D) 22%, transparent); color: var(--bad, #E5484D); }
+.pa-link { color: var(--accent-text, #38E08B); font-size: 13px; text-decoration: none; white-space: nowrap; }
+.pa-link:hover { text-decoration: underline; }
+
+.pa-panel {
+  background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
+  border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;
+}
+.pa-field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--text-muted, #8A9296); }
+.pa-field textarea {
+  background: var(--surface-sunken, #0F1315); color: var(--text, #E9EDEF);
+  border: 1px solid var(--hairline, #23292C); border-radius: 10px;
+  padding: 10px 12px; font: inherit; font-size: 15px; resize: vertical;
+}
+.pa-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.pa-btn {
+  min-height: 40px; padding: 0 14px; border-radius: 10px;
+  background: var(--surface-lit, #1C2124); color: var(--text, #E9EDEF);
+  border: 1px solid var(--hairline, #23292C); font: inherit; font-size: 14px;
+  font-weight: 600; cursor: pointer;
+}
+.pa-btn:disabled { opacity: 0.5; cursor: default; }
+/* THE ONE BUTTON THAT LOOKS DIFFERENT, because it is the one that signs him
+   out of his own account and into somebody else's. */
+.pa-btn.warn { border-color: color-mix(in srgb, var(--bad, #E5484D) 45%, transparent); color: var(--bad, #E5484D); }
+.pa-lab2 { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted, #8A9296); }
+.pa-log { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-muted, #8A9296); display: grid; gap: 3px; }
+
+.pa-ok, .pa-bad { border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.pa-ok  { background: color-mix(in srgb, var(--ac, #3DD68C) 14%, transparent); color: var(--ac, #3DD68C); }
+.pa-bad { background: color-mix(in srgb, var(--bad, #E5484D) 14%, transparent); color: var(--bad, #E5484D); }
+
+/* Below 361px the product has a layout of its own (theme.css § THE 320 FLOOR)
+   and this screen obeys the same floor: the figures go one per row rather
+   than two 130px cards that cannot hold "$1,059". */
+@media (max-width: 360px) {
+  .pa-nums { grid-template-columns: 1fr; }
+  .pa { padding: 18px 12px 96px; }
+}

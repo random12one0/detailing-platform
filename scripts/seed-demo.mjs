@@ -873,6 +873,45 @@ await post("/rest/v1/blockout_dates", [{
 // is added there beside the screenshot folders): it is regenerated on every
 // seed, and a stale copy points at a member the database no longer has, which
 // is exactly the failure the sweep prints as "not measured".
+// ROADMAP 4.4 — A PLATFORM ADMIN, ONLY WHEN ASKED FOR, AND NEVER THE DEMO
+// OWNER. `node scripts/seed-demo.mjs --platform-admin`.
+//
+// The back office can see EVERY tenant, so the account that reaches it is the
+// most valuable credential in the product — and the demo login is deliberately
+// guessable and sits on the live site (DECISIONS.md, "A guessable demo login,
+// on purpose and temporarily"). **Making `demo@detailplatform.com` an admin
+// would put every detailer's data behind `demo123`.** So this is a separate
+// account, off by default, with a RANDOM password that exists only in the
+// gitignored refs file beside the ids the sweeps already read from it.
+//
+// OPT-IN RATHER THAN AUTOMATIC, because a seed that quietly creates an
+// all-seeing account every time somebody re-seeds the demo is a credential
+// nobody remembers exists. `--platform-admin` is a decision each time, and
+// the note on the row says to delete it before launch.
+let adminCreds = null;
+if (process.argv.includes("--platform-admin")) {
+  const password = `a${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}A1!`;
+  const email = "demo-admin@detailplatform.com";
+  await fetch(`${URL_}/auth/v1/admin/users`, {
+    method: "POST", headers: H,
+    body: JSON.stringify({ email, password, email_confirm: true }),
+  });
+  // The account may already exist from a previous run with a different
+  // password; the PUT below is what makes the password in the refs file true.
+  const all = await (await fetch(`${URL_}/auth/v1/admin/users?per_page=200`, { headers: H })).json();
+  const existing = (all.users ?? []).find((u) => u.email === email);
+  if (!existing) throw new Error("could not create the platform-admin account");
+  await fetch(`${URL_}/auth/v1/admin/users/${existing.id}`, {
+    method: "PUT", headers: H, body: JSON.stringify({ password, email_confirm: true }),
+  });
+  await del(`/rest/v1/platform_admins?user_id=eq.${existing.id}`);
+  await post("/rest/v1/platform_admins", [{
+    user_id: existing.id, email, note: "Seeded for verification — delete before launch.",
+  }]);
+  adminCreds = { email, password };
+  console.log(`  Platform admin seeded: ${email}`);
+}
+
 {
   const [demoMember] = await get(
     `/rest/v1/plan_members?business_id=eq.${business.id}&status=eq.active&select=id,plan_id&limit=1`,
@@ -889,6 +928,11 @@ await post("/rest/v1/blockout_dates", [{
       // that measures it is the CUSTOMER: no session, no service key. Same
       // reason `planMemberId` is here.
       customerId: cust("Marcus Webb")?.id ?? null,
+      // ROADMAP 4.4 — only present after `--platform-admin`, and the sweep
+      // PRINTS `NOT MEASURED` naming that command when it is absent rather
+      // than skipping the back office quietly. A skipped check reads exactly
+      // like a passing one.
+      platformAdmin: adminCreds,
     }, null, 2)}\n`,
   );
 }

@@ -233,6 +233,8 @@ were made more than once.
 
 - **Roadmap 3.3 — a detailer's own web address, and the seam that was in the emails** — the roadmap entry named the INBOUND half (a customer arriving on the detailer's address); **the outbound half was bigger and the entry did not know about it**, found five days later writing the 3.1 contract: every customer-facing URL came from one global `PLATFORM_URL`, so a detailer on their own domain still emailed *view, change or cancel* links to detailingplatform.com. **THE DECISION THE WHOLE ITEM RESTS ON IS WHAT A STORED DOMAIN MEANS: a hostname that resolves to THIS APP**, not "the detailer's website" — the receipt, plan and opt-out pages are pages OUR app serves, so pointing them at a bespoke site replaces one visible seam with a **404**, and an embarrassing link is cheap while a customer who cannot open their own booking is not. Everything else follows from that sentence. **The `site` argument is REQUIRED rather than defaulted**, and the default was written first and deleted: it keeps every existing call working AND lets a call site forget the tenant while looking correct, which is a skipped thing reading exactly like a passing one; required, a forgotten argument is `undefined` in a URL and `render-emails.mjs` has failed on that string since 2.18. **Which of several verified domains wins is a RULE, so it is in SQL** (`business_canonical_host`) — four call sites deciding for themselves is one link in one email pointing somewhere else. **Verification is a FETCH of a marker file, not a tick**, because the question is not "do you own this" but "does this actually reach us"; the marker is deliberately NOT a secret (anyone can serve it and thereby harm only themselves; the UNIQUE column is what stops them taking somebody else's domain) — **and the whole check would have been decoration without one line: `verified_at` is revoked from `authenticated` at COLUMN level, because RLS chooses rows and says nothing about columns.** **The hostname changes exactly ONE route** and a test pins the count at one: every other path serves the same thing on either host, so no link already in a customer's inbox changes meaning. `lib/host.js` is an allowlist of ours rather than a lookup, so the marketing page pays no round trip to answer a question that is almost always no, and an unrecognised host falls back to it. **One step is OURS and the screen says so in as many words** — adding the Netlify alias cannot be done from the app, and *Add* plus *Check* without that sentence is the push-switch defect one screen over. **And a Windows trap: `perl -pi -e` rewrites a file as CRLF even when the substitution matches NOTHING**, and a `python - <<'PY'` heredoc through the Bash tool can arrive mangled so a `.replace()` silently does nothing while the command reports success — assert inside the script or grep afterwards.
 
+- **Roadmap 4.4 stage 1 — the back office, and the policy clause that is deliberately absent** — the list, one business's page, four of the six actions and the whole security floor. **THE DECISION THE ITEM RESTS ON IS AN ABSENCE: no RLS policy anywhere gained an `or public.is_platform_admin()` clause and none may ever gain one.** The obvious build adds it to the twenty tenant policies so the admin screens can use `supabase.from()`; it works on day one and puts a cross-tenant escape hatch into twenty policies that are otherwise provably per-business — **the one place in the product where a mistake exposes every tenant at once**, so the wrong version's blast radius is everything, and nothing about the failure is loud. Instead the back office reads NOTHING through RLS: every byte comes from one gated edge function under the service role, and the test walks EVERY migration and fails if any `create policy` mentions the admin check. **`platform_admins` and `platform_admin_events` have RLS forced and NO POLICIES**, which is the strongest statement available rather than an omission. **404 and never 403**, from the server and the screen, because a 403 tells a curious detailer the endpoint exists and that one row is all that stands in the way — proven on deploy, not reasoned about. **The impersonation audit row can veto its own action**: best-effort everywhere else, fatal here, because "it did not get written" is not an answer to give a detailer who asks whether somebody looked at their numbers. **The back office and the detailer print the same setup number** — the server sends `setupProgress`'s inputs, not its answer — which also made the *setup unfinished* filter real rather than silently matching nothing. **The seeded admin is never the demo owner**, whose password is `demo123` and is on the live site. **And four of the suite's first-run failures were TEST bugs, two of them the comment-vacuity trap** — one on the page's own header promising it sits outside `BusinessProvider`, one on a SQL `comment on column` string naming both the column and the function it must never be in: **stripping comments is not enough for SQL, because a comment-on is a string literal.**
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -13798,3 +13800,109 @@ file is left unchanged, and the command reports success. It happened three
 times in one session and twice was invisible until a `grep` was run afterwards.
 **Assert inside the script or verify with `grep` after every scripted edit**,
 and prefer a byte-exact editing tool that fails loudly.
+
+## Roadmap 4.4 stage 1 — the back office, and the policy clause that is deliberately absent
+
+**2026-09-05, overnight.** The list, one business's page, four of the six
+actions, and the whole security floor. Specified in
+`docs/platform-admin-2026-09-04.md`, which was itself written because he asked
+for the thing and asked to be educated about it.
+
+### The decision the whole item rests on
+
+**No row-level security policy anywhere gained an `or public.is_platform_admin()`
+clause, and none may ever gain one.**
+
+The obvious build adds that to the twenty tenant policies and lets the admin
+screens use `supabase.from()` like every other screen in the product. It works
+on the first day. It also puts a cross-tenant escape hatch into twenty policies
+that are otherwise provably per-business — and **this is the one place in the
+product where a mistake exposes every tenant at once**, so the blast radius of
+the wrong version is everything.
+
+One typo, one copied line, one policy rewritten by a later migration for an
+unrelated reason, and a detailer's browser reads somebody else's customers.
+Nothing about the failure is loud: the admin screens would keep working and so
+would everyone else's.
+
+**So the back office reads nothing through RLS at all.** Every byte comes from
+the `platform-admin` edge function, running as the service role after checking
+`platform_admins`. The tenant policies still say exactly what they said before
+— one business, always — and there is literally no path by which a signed-in
+browser reaches another tenant's rows.
+
+**The cost is honest and small**: the admin screen cannot use `supabase.from()`
+and has to go through one function, which is a slightly longer edge function
+and a permanently smaller attack surface. `tests/platform-admin.test.mjs` § 1
+walks every migration in the repo and fails if any `create policy` so much as
+mentions the admin check, so the next session that reaches for the easy shape
+is told rather than trusted.
+
+### Two tables with no policies at all
+
+`platform_admins` and `platform_admin_events` have RLS **forced** and **no
+policies**. That is not an omission; with RLS forced and nothing granted, the
+`authenticated` role can neither read nor write them by any query. A detailer
+cannot discover who the admins are, cannot make themselves one, and cannot
+forge or delete an audit row. The service role bypasses RLS, so the edge
+function reads them and nothing else does.
+
+### 404, never 403
+
+A signed-in detailer who types `/admin` gets *"Page not found"*, and the server
+gives the same answer. A 403 tells a curious person that the endpoint exists
+and that one row somewhere is all that stands between them and it. Proven on
+deploy rather than reasoned about: the demo owner's session gets 404, anon gets
+401 at the gateway.
+
+### The audit row that can veto its own action
+
+`logIt` is best-effort everywhere except impersonation. Refusing to suspend a
+non-paying business because an audit row would not insert is the wrong trade;
+refusing to hand out a link that signs somebody in as a detailer is the right
+one. **"It did not get written" is not an answer to give a detailer who asks
+whether somebody looked at their numbers**, so the impersonate branch writes
+the record first and returns 500 if it cannot.
+
+Every write is logged, not only impersonation, and that costs nothing. A log
+that covers one action tells you what somebody did on the day you happened to
+think about that action.
+
+### The same setup number as the detailer
+
+The list sends `setupProgress`'s **inputs** rather than its answer, and the
+screen runs `app/src/lib/setup.js` — the same function the detailer's own
+Business screen runs. The spec asked for this explicitly and the reason is
+practical: two numbers about the same thing is how a support call starts with
+an argument about whose screen is right.
+
+It also made a filter real. *"Setup unfinished"* is one of the four the spec
+names, and a filter whose input the server never sends is a filter that quietly
+matches nothing — which on screen reads exactly like "everybody has finished".
+
+### The seeded admin is never the demo owner
+
+`seed-demo.mjs --platform-admin` creates a separate account with a random
+password written to the gitignored refs file. **The demo login is deliberately
+guessable and lives on the live site**, so making it an admin would put every
+detailer's data behind `demo123`. It is opt-in rather than automatic because a
+seed that quietly creates an all-seeing account on every run is a credential
+nobody remembers exists.
+
+### And four test bugs on the first run, two of them the same trap
+
+The suite reported five failures and every one was a defect in the test:
+
+- the `tier` branch's log check matched non-greedily to the first `return
+  json`, which is its 400 for an unknown value, and stopped before the log;
+- `pa-num` matched its own container `pa-nums`, counting five figures where
+  there are four;
+- **the "not wrapped in BusinessProvider" check failed on the page's own header
+  comment saying it sits outside `BusinessProvider`**;
+- **the "not in the public profile" check failed on a SQL `comment on column`
+  string that names both the column and the function it must never appear in.**
+
+The last two are the vacuity trap `booking-core` recorded hours earlier in the
+same night, and the second of them is a new variant: **stripping comments is
+not enough for SQL, because a `comment on ... is '…'` is a string literal.**
+The strip helper removes both now.

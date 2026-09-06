@@ -15,6 +15,7 @@ import UnsubscribePage from "./book/UnsubscribePage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
 import { isPlatformHost } from "./lib/host.js";
 import PricingPage from "./landing/PricingPage.jsx";
+import AdminPage from "./admin/AdminPage.jsx";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
 // "Degradation"). `.lite` on <html> makes every animation render the end
@@ -96,6 +97,18 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/unsubscribe/:customerId" element={<UnsubscribePage />} />
 
         {/* --- Signed-in. ---------------------------------------------- */}
+        {/* ROADMAP 4.4 — THE BACK OFFICE, AND IT IS DELIBERATELY NOT
+            `<Wrapped>`. `BusinessProvider` answers "which business is this
+            person in"; this screen is about ALL of them and has no current
+            one, so wrapping it would make it wait on a membership it never
+            uses — and, worse, would put a screen that can see every tenant
+            inside the same context tree as the one a detailer opens. 4.4's
+            own security requirement is "its own route and layout"; this line
+            and `admin/admin.css` are the two halves of it.
+            The GATE is not here and must never be: it is `platform_admins`,
+            read by the edge function under the service role. A route guard in
+            the browser is a suggestion. */}
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/invite/:token" element={<Wrapped><AcceptInvite /></Wrapped>} />
         <Route path="/job/:id" element={<Wrapped><JobPage /></Wrapped>} />
         {/* The dashboard lives under /app: one URL, five tabs via internal

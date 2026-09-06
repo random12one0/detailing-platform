@@ -637,7 +637,31 @@ explaining it; if they still have to ask "so should I?", it failed.
   `email-brand` 7a-iii shape. Baselined four ways: a builder falling back to
   `PLATFORM_URL`, one call site forgetting the tenant, the column revoke
   dropped, and the by-host lookup no longer filtering on verified, each failing
-  exactly the check that names it)
+  exactly the check that names it),
+  **`vcard`** (34 checks, new 2026-09-05, roadmap 4.2 — the customer's contact
+  card, attached to the detailer's booking alert. It is the PRICE OF A SECOND
+  COPY: `_shared/vcard.ts` and `app/src/lib/platform.js` build the same card
+  for two audiences and neither can import the other, the same wall that
+  forced `_shared/brandColor.js`. This runs both on the same eight customers
+  and fails on one differing character. It also pins the FORMAT, because a
+  vCard a phone silently refuses is invisible from every screen — the escaping
+  especially: an unescaped comma inside `ADR` ends the field and the phone
+  drops the rest of the address with no error. Baselined by removing the
+  escaping, which fails 6 including the cross-copy check),
+  **`platform-admin`** (34 checks, new 2026-09-05, roadmap 4.4 — **the one
+  screen where a bug exposes every tenant at once**, and the file exists
+  because most of what it guards is the ABSENCE of something no behavioural
+  test can see. § 1 walks EVERY migration and fails if any `create policy`
+  mentions the admin check; § 5 fails on a single `supabase.from()` in the
+  back office; § 6 walks all of `app/src` for `admin_notes_platform`, which is
+  the platform's private note about a detailer and which `businesses`' own
+  `for all` policy WOULD return to that detailer's `select *`. Baselined three
+  ways: the cross-tenant policy, an optional audit row, and the screen reading
+  the database directly. **Four of its checks were TEST bugs on the first run
+  and two were the comment-vacuity trap** — one failing on the page's own
+  header saying "It sits OUTSIDE `BusinessProvider`", one on a SQL `comment on
+  column` string that names both the column and the function it must never be
+  in. Strip comments AND string literals before reading a file as text)
   from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
   root `.env` — and one of them is new: **`request-mode`** (51 checks — 45 when written, roadmap 2.12,
@@ -2057,6 +2081,45 @@ explaining it; if they still have to ask "so should I?", it failed.
   **The lift changed no behaviour and that was MEASURED rather than asserted**:
   every spare-room figure `sweep-booking-steps.mjs` printed afterwards is
   identical to the ones this file records.
+
+- **THE PLATFORM BACK OFFICE EXISTS AT `/admin`, AND THE RULE THAT PROTECTS IT
+  IS ABOUT WHAT IS *NOT* IN THE SCHEMA — roadmap 4.4 stage 1, 2026-09-05.**
+  **NO ROW-LEVEL SECURITY POLICY ANYWHERE HAS AN "OR A PLATFORM ADMIN"
+  CLAUSE, AND NONE MAY EVER GAIN ONE.** The obvious build adds that to the
+  twenty tenant policies so the admin screens can use `supabase.from()` like
+  every other screen; it works on day one and puts a cross-tenant escape hatch
+  into twenty policies that are otherwise provably per-business. **One typo,
+  one copied line, one policy rewritten by a later migration, and a detailer's
+  browser reads somebody else's customers.** Instead the back office reads
+  NOTHING through RLS — every byte comes from the `platform-admin` edge
+  function under the service role — and `tests/platform-admin.test.mjs` § 1
+  walks EVERY migration in the repo and fails if any `create policy` so much
+  as mentions the admin check.
+  **`platform_admins` AND `platform_admin_events` HAVE RLS FORCED AND NO
+  POLICIES AT ALL**, which is not an oversight but the strongest statement
+  available: a detailer cannot discover who the admins are, cannot make
+  themselves one, and cannot forge or delete an audit row.
+  **A NON-ADMIN GETS 404, NEVER 403**, from the server and from the screen. A
+  403 tells a curious detailer the endpoint exists and that one row is all
+  that stands between them and it. Proven live on deploy: demo owner → 404,
+  anon → 401.
+  **IMPERSONATION LOGS BEFORE IT ACTS AND A FAILED LOG STOPS IT** — the only
+  place in that function where an audit failure is fatal, because everywhere
+  else refusing to suspend a non-paying business over a log write is the wrong
+  trade, and here *"it did not get written"* is not an answer to give a
+  detailer who asks.
+  **THE ADMIN ACCOUNT IS SEEDED ONLY BY `seed-demo.mjs --platform-admin` AND
+  IS NEVER THE DEMO OWNER.** The demo login is deliberately guessable and
+  lives on the live site; making it an admin would put every detailer's data
+  behind `demo123`. The seeded account's random password lands in the
+  gitignored `scripts/demo-refs.json`.
+  **THE BACK OFFICE AND THE DETAILER PRINT THE SAME SETUP NUMBER** — the
+  server sends `setupProgress`'s inputs and the screen runs
+  `app/src/lib/setup.js`. Two numbers about the same thing is how a support
+  call starts with an argument.
+  **`app/src/admin/admin.css` SHARES NO RULE WITH `theme.css`, only its
+  tokens.** 4.4's requirement is "its own route and layout", and a shared
+  selector is the quiet way that gets broken.
 
 - **A DETAILER CAN HAVE THEIR OWN WEB ADDRESS NOW, AND THE ONE THING TO GET
   RIGHT IS WHAT `business_domains.domain` MEANS — roadmap 3.3, 2026-09-05. It

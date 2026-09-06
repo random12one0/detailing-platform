@@ -565,6 +565,76 @@ recommendation each:
 
 ---
 
+## Roadmap 4.4 stage 1 — your own dashboard for managing detailers
+
+**The thing you asked for in your own words** — *"I need to have a dashboard
+myself where I can manage all of the detailers… I don't really know what
+features I need"* — and the specification that answered it
+(`docs/platform-admin-2026-09-04.md`) is now partly built.
+
+**Go to `/admin`.** You get four numbers across the top (businesses, how many
+are not suspended, what you are earning a month, founding spots left), a
+searchable list of every detailer with the four filters the spec named, and —
+when you tap one — their setup progress, how they take bookings, their people,
+their own web address, **a free-text notes box**, and the actions.
+
+**The actions, each one there because the alternative is me editing the
+database by hand for you:** suspend or restore (their booking page goes dark,
+nothing is deleted — the same mechanism the unpaid-card work already built),
+mark or release a founding spot, and **open their dashboard as them** — which
+the research says is the single biggest time-saver in any back office. *"My
+Tuesday hours aren't showing"* becomes thirty seconds instead of a
+twenty-message thread.
+
+**The security is the part I want you to know about, because it is the one
+screen where a mistake shows every detailer's data to the wrong person.**
+
+- **Who is allowed in is a row in the database**, not a setting in the browser
+  and not something in a config file. A detailer signed in and typing the
+  address gets **"Page not found"** — I proved that live, not by reasoning:
+  the demo owner's account gets a 404 from the server.
+- **It says "not found" rather than "you are not allowed"** on purpose. The
+  second one tells a curious person that the page exists and that one row is
+  all that stands between them and it.
+- **I refused the easy way to build it.** The quick version tells the database
+  "or let an admin see everything" on all twenty tables. It works immediately
+  and it puts a hole in twenty places that are otherwise provably locked to one
+  business — one typo later and a detailer sees somebody else's customers.
+  Instead the back office reads *nothing* directly; it all comes through one
+  gated function. **The test walks every database change in the repo and fails
+  if anybody ever adds that shortcut.**
+- **Opening somebody's dashboard is written down before it happens — who, when,
+  whose — and if the record cannot be written the action does not happen.**
+  Everywhere else a failed log is just a note in the server log; here it is the
+  whole point. If a detailer ever asks "were you looking at my numbers?", you
+  want a record rather than a memory. You can see that history on their page.
+- **Your notes on a detailer are yours.** The detailer cannot see them, they
+  are not on their website, and the test proves no screen they can open reads
+  them.
+
+**One thing you need to do before you can use it: you do not have an account on
+the platform yet.** There are no real users on the project at all — only test
+ones. Sign up at detailingplatform.com and tell me, and I will add you as an
+admin (one line). I did **not** make the demo login an admin, deliberately:
+that password is `demo123` and it is on the live site, so making it an admin
+would put every detailer's data behind it.
+
+**What I verified and what it printed.** `tests/platform-admin.test.mjs` —
+**34 passed, 0 failed** — baselined three ways, each restored: adding the
+cross-tenant shortcut to one policy fails it, making the audit optional fails
+it, letting the screen read the database directly fails it. Four of its checks
+were **test** bugs on the first run, and two of those were the same
+comment-matching trap I hit earlier tonight — a check failing on the sentence
+that promises the very thing it checks. The screen itself: measured clean at
+1440, 392 and 320, **no console errors**, and the live calls returned real data
+(14 businesses, the demo's setup showing *6 of 7* — the same number the
+detailer sees on their own screen, because both run the same function).
+
+**Still to build (stage 2):** creating a business by hand for in-person
+sign-ups, resending a stuck invite, and the website columns.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

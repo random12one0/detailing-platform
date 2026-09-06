@@ -5961,6 +5961,57 @@ is kept; the entire visual design restarts from scratch.
       the database, with a security test proving a business owner gets
       nothing.
 
+      **STAGE 1 SHIPPED 2026-09-05 — the list, one business's page, four of
+      the six actions, and the whole security floor.** `/admin` with its own
+      layout, `platform-admin` (member-gated in the DATABASE),
+      `20260906001000_platform_admin.sql`, `tests/platform-admin.test.mjs`
+      (34 checks, baselined three ways).
+
+      **THE DECISION THE WHOLE THING RESTS ON IS ABOUT WHAT IS NOT THERE: NO
+      RLS POLICY ANYWHERE GAINED AN "OR A PLATFORM ADMIN" CLAUSE.** The
+      obvious build adds that to the twenty tenant policies and lets the admin
+      screens use `supabase.from()` like every other screen. It works on the
+      first day and it puts a cross-tenant escape hatch into twenty policies
+      that are otherwise provably per-business — **one typo, one copied line,
+      one policy rewritten later, and a detailer's browser reads somebody
+      else's customers.** Instead the back office reads NOTHING through RLS:
+      every byte comes from the edge function under the service role, the
+      tenant policies still say one business always, and **§ 1 of the test
+      walks every migration in the repo and fails if any policy ever mentions
+      the admin check.**
+      `platform_admins` and `platform_admin_events` have RLS forced and **no
+      policies at all**, which is the strongest statement available: a
+      detailer cannot discover who the admins are, cannot make themselves one,
+      and cannot forge or delete an audit row.
+      **Proven live on deploy:** the demo owner signed in gets **404**, anon
+      gets 401 — and a 404 rather than a 403 on purpose, because a 403 tells a
+      curious detailer the endpoint exists and that one row is all that stands
+      between them and it.
+
+      **IMPERSONATION LOGS BEFORE IT ACTS AND A FAILED LOG STOPS IT.**
+      Everywhere else in that function a failed audit row is a console line —
+      refusing to suspend a non-paying business over a log write is the wrong
+      trade — and here it is the opposite: *"it did not get written"* is not an
+      answer to give a detailer who asks whether somebody looked at their
+      numbers.
+
+      **THE BACK OFFICE AND THE DETAILER SEE THE SAME SETUP NUMBER.** The
+      server sends `setupProgress`'s INPUTS and the screen runs
+      `app/src/lib/setup.js` — the spec's own instruction, and the reason is
+      that two numbers about the same thing is how a support call starts with
+      an argument.
+
+      **THE ADMIN ACCOUNT IS SEEDED ONLY ON REQUEST AND IS NEVER THE DEMO
+      OWNER.** `seed-demo.mjs --platform-admin` makes a separate account with
+      a random password written to the gitignored refs file. The demo login is
+      deliberately guessable and lives on the live site; **making it an admin
+      would put every detailer's data behind `demo123`.**
+
+      **STILL TO BUILD (stage 2):** manual business creation for in-person
+      onboarding, resend-an-invite, and the site columns. Platform settings is
+      the `platform_prices` row this entry describes below, and it is still
+      correct that the table and the editor ship together or neither.
+
       **SPECIFIED 2026-09-04: `docs/platform-admin-2026-09-04.md`.** The owner
       asked for it in his own words — *"I need to have a dashboard myself where
       I can manage all of the detailers… I don't really know what features I
