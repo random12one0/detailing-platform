@@ -835,6 +835,27 @@ explaining it; if they still have to ask "so should I?", it failed.
   plain panel underneath it left nine of twelve presets under the text floor
   on a selected chip (worst 3.92:1). The tint percentages in `theme.css` and
   the 20% in `lib/theme.js` must move together or this exits 1.**
+- **THE CHECK AFTER ANY EDGE-FUNCTION CHANGE, AND BEFORE BELIEVING ANY
+  BROWSER RESULT: `node scripts/check-deployed.mjs`.** There is no CI here and
+  `deploy-functions.mjs` is run by hand, so **what is RUNNING drifts from the
+  repo silently** — and a function whose deploy never happened looks exactly
+  like one that deployed: the code is in git, every test that reads the SOURCE
+  passes, and only the copy at the gateway is wrong. **Found 28 of 28 stale on
+  2026-09-06, gaps up to 36 hours**, which is the whole argument for it.
+  **The reason they go stale in bulk:** a change to a widely-imported
+  `_shared` module changes the BUNDLE of every function importing it, while
+  only the function named on the deploy command is rebuilt — so `send-owner-
+  reminders` gets the new `emailTemplates.ts` and twenty-seven others keep the
+  old one. It compares GIT COMMIT times, not mtimes (a branch checkout moves
+  every mtime), follows `_shared` imports transitively, exits 1, and writes
+  nothing. **Deploy, then re-run the env-backed battery** — until you do,
+  every one of those green suites was green against the OLD copy.
+  **The database needs no equivalent**: `apply-migrations.mjs` has no tracking
+  table, but a missing table or function fails loudly at first use where a
+  stale edge function does not. Verified once by hand on 2026-09-06 (every
+  object of all 48 migrations against `information_schema`, all present; the
+  two apparent gaps are objects later migrations drop on purpose) and not kept
+  as a script.
 - **The check for anything that changes a LAYOUT:
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real

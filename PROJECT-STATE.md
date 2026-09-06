@@ -6039,6 +6039,44 @@ closed had named the wrong screens** — it said Calendar was the same shape
 (it is not; a month grid is drawn either way) and never mentioned Today, which
 was the worst of the five.
 
+### `scripts/check-deployed.mjs` — deployed vs source, and it found 28 of 28 stale
+
+**There is no CI here and `deploy-functions.mjs` is run by hand, so the copy
+answering requests drifts from the repo silently.** It found every one of the
+28 functions stale on 2026-09-06, gaps up to 36 hours. **Nothing was broken and
+that is the point**: a function whose deploy never happened looks exactly like
+one that deployed — the code is in git, every test that reads the SOURCE
+passes, and only the copy at the gateway is wrong.
+
+**Why almost everything went stale at once:** a change to a widely-imported
+`_shared` module (`emailTemplates.ts`, when `maintenanceDueEmail` was added)
+changes the BUNDLE of every function that imports it, while only the function
+named on the deploy command is rebuilt. Most of those bundle changes cannot
+alter behaviour — the check is deliberately conservative in that direction,
+because "this bundle differs" is checkable and "this difference matters" is
+not.
+
+**It compares git commit times, not file mtimes**, because a working-tree
+mtime changes on any branch checkout and would call everything stale. The
+question it asks is: *was this deployed after the last commit touching its own
+directory or any `_shared` module it imports, transitively.* Exit 1 on any
+stale or never-deployed function; it reads only.
+
+**It baselined itself**: red for a real reason, green after one
+`deploy-functions.mjs` run, and the whole env-backed battery re-run against the
+new code afterwards (8 suites, e2e-booking 82/82, sweep-booking-steps,
+render-emails 25).
+
+**THE DATABASE WAS CHECKED THE SAME WAY AND IS CLEAN.** `apply-migrations.mjs`
+has no tracking table by design ("a migration-tracking table arrives with the
+Supabase CLI workflow in a later phase"), so every table, function and added
+column the 48 migrations claim was compared against `information_schema`.
+Everything exists. Two apparent gaps are correct: `monthly_plans` is dropped by
+`20260827001000_phase2_cleanup_and_storage.sql` and `founding_spots_left()` by
+`20260828001100_founding_offer_shape.sql`. **That check was NOT kept** — the
+database fails loudly at first use where a stale function does not, so it is a
+five-minute throwaway rather than a script to maintain.
+
 ### `composition` 8e-iv normalises the separator, and why every multi-line needle should
 
 A byte-exact `includes()` containing `\n` is a check whose colour depends on

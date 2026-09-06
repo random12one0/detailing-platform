@@ -1686,6 +1686,48 @@ is your call and not mine.
 
 ---
 
+## What is running was not what is in the repo
+
+**Every one of the 28 pieces of server code was out of date, and nothing
+anywhere said so.**
+
+I went looking for it because of the lesson from an hour earlier: the three
+broken scripts had all been broken silently, so I asked what else I had been
+*assuming* rather than checking. The honest answer was **whether the code I
+wrote tonight is actually the code answering requests.** Writing a file and
+running its tests proves the file; it does not prove that the copy on the
+server was replaced.
+
+**It had not been, and the gaps were up to a day and a half old.** When I
+finish a feature I deploy the piece I changed — but those pieces share common
+modules, so a change to the shared email file changes the bundle of nearly
+everything, and only the one I named got rebuilt. Nothing fails. Nothing turns
+red. The old copy just keeps answering.
+
+**What I did:** wrote a check (`scripts/check-deployed.mjs`) that asks, for
+each piece, *was this deployed after the last change to anything it is built
+from* — following the shared modules, using commit history rather than file
+dates so switching branches cannot fool it. It printed **28 stale**. Then I
+deployed everything and it printed **all 28 functions are current**.
+
+**It proved itself on the way past**, which is better than a made-up test: I
+watched it go red for a real reason and green after the real fix.
+
+**Then I re-ran everything against the new code**, because until now every
+test had been passing against the OLD copy: 8 database-backed suites green,
+the booking run **82 of 82**, every booking step fitting at four sizes, all 25
+emails rendered.
+
+**And I checked the database the same way** — there is no record anywhere of
+which database changes have been applied, so I compared every table, column
+and function the 48 change-files claim to create against what actually exists.
+**Everything is there.** Two looked missing and both are deliberate: a table
+and a function that later changes delete on purpose. No action needed, and I
+did not keep that one as a permanent check — the database, unlike the server
+code, fails loudly the moment something is missing.
+
+---
+
 ## What I did not do, and why
 
 Three things on the roadmap I deliberately left, so you know they were seen
