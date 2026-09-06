@@ -63,6 +63,28 @@
 }
 .pa-chip.on { background: var(--surface-lit, #1C2124); color: var(--text, #E9EDEF); }
 
+/* NEEDS A LOOK — `docs/platform-admin-audit-2026-09-06.md` Q3.
+
+   IT BORROWS THE LIST’S OWN SHAPE ON PURPOSE. A different-looking panel
+   would read as a notification bar, which is a thing you dismiss; this is a
+   short version of the list below it, which is a thing you work through.
+   The left edge is the only difference and it is `--bad`, the product’s
+   fixed red — never the accent, because the accent is identity and this is
+   meaning (design-system law 11b). */
+.pa-attn {
+  background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
+  border-left: 3px solid var(--bad, #E5484D);
+  border-radius: 12px; overflow: hidden; margin-bottom: 14px;
+}
+.pa-attn > .pa-lab2 { padding: 10px 12px 0; }
+.pa-attn-row {
+  width: 100%; display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+  background: none; border: 0; border-top: 1px solid var(--hairline, #23292C);
+  color: inherit; font: inherit; text-align: left; padding: 10px 12px; cursor: pointer;
+}
+.pa-attn-row:first-of-type { border-top: 0; }
+.pa-attn-row:hover { background: var(--surface-lit, #1C2124); }
+
 .pa-list {
   background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
   border-radius: 12px; overflow: hidden;

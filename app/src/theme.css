@@ -565,7 +565,13 @@ a { color: var(--accent-text); text-decoration: none; }
    the label did not, which at 392 made ADD the widest thing in the record —
    heavier than Mark completed, for a control that is used once a job. */
 .photo-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
-.photo-head > .btn { flex: 0 0 auto; }
+/* **`.btn` IS `width: 100%` BY DEFAULT IN THIS SYSTEM** (line ~1307), which
+   is right for a stacked action but wrong beside a label: with `flex: 0 0
+   auto` the button still demanded the whole container and hung 48-60px past
+   it. The sweep caught it at every width and on every job record — 96
+   `past-parent` reports from one missing declaration. `width: auto` is the
+   fix; the flex shorthand alone was not. */
+.photo-head > .btn { flex: 0 0 auto; width: auto; }
 
 .photo-strip {
   display: flex; gap: var(--sp-2); overflow-x: auto; padding-bottom: 2px;

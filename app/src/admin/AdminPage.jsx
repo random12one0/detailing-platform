@@ -27,6 +27,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { money } from "../lib/format.js";
 import { setupProgress } from "../lib/setup.js";
+import { needsALook } from "../lib/attention.js";
 import "./admin.css";
 
 const call = async (body) => {
@@ -251,6 +252,16 @@ export default function AdminPage() {
       || `${r.name} ${r.slug} ${r.owner_email ?? ""}`.toLowerCase().includes(needle));
   }, [state.rows, q, filter]);
 
+  // ── NEEDS A LOOK ──────────────────────────────────────────────────────
+  // `docs/platform-admin-audit-2026-09-06.md` Q3. The rules are in
+  // `lib/attention.js` so a test can run them with no browser: they decide
+  // what the owner is SHOWN, and a wrong threshold means a failing tenant
+  // never surfaces and nothing anywhere says so.
+  //
+  // FROM `state.rows` AND NOT `rows`: a search or a chip is a question about
+  // part of the list; this is a question about all of it.
+  const attention = useMemo(() => needsALook(state.rows), [state.rows]);
+
   if (state.status === "loading") {
     return <div className="pa" data-loading="1"><div className="pa-wrap"><p className="pa-quiet">Loading…</p></div></div>;
   }
@@ -285,15 +296,33 @@ export default function AdminPage() {
       <div className="pa-wrap">
         <header className="pa-top">
           <h1 className="pa-h1">Detailers</h1>
-          {/* FOUR FIGURES ACROSS THE TOP AND NOTHING ELSE — the spec's own
-              limit. Monthly recurring revenue is normalised to a month, so a
-              yearly subscriber counts as a twelfth rather than as twelve
-              months of income this month. */}
+          {/* SIX FIGURES SINCE 2026-09-06, AND THE FOUR-FIGURE RULE IS
+              DELIBERATELY RETIRED. The spec's own limit was four and it was
+              right for what this page was — an administrative tool. The
+              owner asked for the opposite: *"I don't wanna have anything
+              that's could be visible hidden."*
+
+              **THE TWO NEW ONES ARE ABOUT THE PRODUCT, NOT THE BUSINESS**,
+              which is why they earn a place beside four that are about the
+              business. Businesses, suspended, MRR and founding spots all
+              answer "how is my company doing". Jobs and money THROUGH the
+              platform this month answer "is the thing I built actually
+              carrying work" — the number to have in front of you on a sales
+              call, and it was unanswerable here until now.
+
+              Monthly recurring revenue is normalised to a month, so a yearly
+              subscriber counts as a twelfth rather than as twelve months of
+              income this month. The two new figures are the CALENDAR month,
+              not a rolling thirty days, because this page is read beside an
+              invoice and a bank statement and both of those are calendar
+              months. */}
           <div className="pa-nums">
             <div><span className="pa-num">{t.businesses ?? 0}</span><span className="pa-lab">businesses</span></div>
             <div><span className="pa-num">{t.active ?? 0}</span><span className="pa-lab">not suspended</span></div>
             <div><span className="pa-num">{money((t.mrr_cents ?? 0) / 100)}</span><span className="pa-lab">a month</span></div>
             <div><span className="pa-num">{t.founding_left ?? 0}</span><span className="pa-lab">founding spots left</span></div>
+            <div><span className="pa-num">{t.jobs_month ?? 0}</span><span className="pa-lab">jobs this month</span></div>
+            <div><span className="pa-num">{money(t.revenue_month ?? 0)}</span><span className="pa-lab">through the platform</span></div>
           </div>
         </header>
 
@@ -439,6 +468,22 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* ABOVE THE LIST AND BELOW THE FIGURES, and absent when empty —
+            §1a's rule reaches this page too: an empty section is not drawn,
+            and "nothing needs attention" is a sentence that trains you to
+            stop reading the place where things needing attention appear. */}
+        {attention.length > 0 && (
+          <div className="pa-attn">
+            <div className="pa-lab2">Needs a look</div>
+            {attention.map((r) => (
+              <button key={r.id} className="pa-attn-row" onClick={() => openBusiness(r.id)}>
+                <span className="pa-name">{r.name}</span>
+                <span className="pa-sub">{r.why.join(" · ")}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="pa-list">
           {rows.map((r) => (
             <div key={r.id} className={`pa-row ${open === r.id ? "on" : ""}`}>
@@ -467,6 +512,17 @@ export default function AdminPage() {
                     ? "never booked"
                     : `${r.bookings_total} booking${r.bookings_total === 1 ? "" : "s"}, last ${ago(r.last_booking_at)}`}
                   {r.requests_waiting > 0 ? ` · ${r.requests_waiting} waiting` : ""}
+                </span>
+                {/* THE SECOND LINE, ADDED 2026-09-06. The line above answers
+                    "who are they and are they alive"; this one answers the
+                    question actually asked first about any tenant — **is
+                    this working for them.** The server already had every
+                    figure on it and the screen was throwing them away, which
+                    is the audit's Tier 1 in one line of markup. */}
+                <span className="pa-sub">
+                  {r.jobs_month ?? 0} job{(r.jobs_month ?? 0) === 1 ? "" : "s"} this month
+                  {" · "}{money(r.revenue_month ?? 0)} taken
+                  {" · "}{r.customers ?? 0} customer{(r.customers ?? 0) === 1 ? "" : "s"}
                 </span>
               </button>
               <a className="pa-link" href={`/book/${r.slug}`} target="_blank" rel="noreferrer">their page</a>

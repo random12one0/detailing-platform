@@ -198,10 +198,32 @@ console.log("\n7. and the things the spec refused");
   check("no refunds or card handling — Stripe's dashboard is better at those",
     !/refund|dispute|card_number/i.test(strip(fn)),
     "show the state, link out for the action");
-  check("FOUR figures and no more",
+  // **THE FOUR-FIGURE RULE WAS RETIRED BY THE OWNER ON 2026-09-06** and this
+  // check now guards the new limit instead of the old one. His instruction:
+  // *"I don't wanna have anything that's, like, could be visible hidden."*
+  //
+  // The original four were right for what this page WAS — an administrative
+  // tool. The two added are about the PRODUCT rather than the business: jobs
+  // and money carried through the platform this month, which is what says
+  // whether the thing works at all and was unanswerable here before.
+  //
+  // **A CEILING IS STILL CHECKED, because the reasoning behind the original
+  // rule has not gone away** — a strip of figures stops being read somewhere
+  // around eight, and "show me everything" taken literally is the wall of
+  // fields `docs/platform-admin-audit-2026-09-06.md` warns against in its
+  // first paragraph. Eight is the ceiling; six is what is drawn.
+  const figures = (p.match(/pa-num"/g) ?? []).length;
+  check("six figures across the top, and never more than eight",
     // `pa-num"` WITH THE QUOTE: the wrapper is `pa-nums`, and matching the
-    // bare prefix counted the container as a fifth figure.
-    (p.match(/pa-num"/g) ?? []).length === 4, `${(p.match(/pa-num"/g) ?? []).length} figures`);
+    // bare prefix counted the container as an extra figure.
+    figures === 6, `${figures} figures`);
+  check("and the two new ones are about the product, not the business",
+    /jobs this month/.test(p) && /through the platform/.test(p),
+    "the other four all answer 'how is my company doing'; these answer 'is it carrying work'");
+
+  // NO CHART STILL HOLDS. More figures is not more decoration, and the
+  // original reasoning is untouched by the owner's change: below ten
+  // customers every trend line is noise.
 }
 
 // ─── 8. Stage 3: the site columns ─────────────────────────────────────────
