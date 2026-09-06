@@ -5418,14 +5418,40 @@ on a tenant page: platform branding, SaaS furniture, and the trade's own
 popups, which 3 of 6 have and which frequency does not excuse.
 
 **Fable 5.1 was then spent on THREE worked pages in `docs/tenant-sites/`**,
-deliberately unlike each other and unlike us — A, the ceramic-and-correction
-shop (dark, serif-led, expensive); B, the one-van operator (LIGHT, warm paper,
-the person is the pitch); C, the volume shop (loud, industrial, the price
-ladder as the hero). One page is a template; three that disagree can only be
-read as *"pick a direction and build it properly"*. Every element still
-carries `data-src="table.column"`, so each page is the visual half of contract
-§3, and the credentials block on each is marked `PROPOSED` because the schema
-cannot feed it.
+deliberately unlike each other and unlike us. One page is a template; three
+that disagree can only be read as *"pick a direction and build it properly"*.
+Every element carries `data-src="table.column"` checked against the
+migrations (173 / 180 / 193 seams), so each page is the visual half of
+contract §3, and the credentials block on each is marked `PROPOSED` because
+the schema cannot feed it.
+
+| | File | Business | Faces | World |
+|---|---|---|---|---|
+| A | `a-shop.html` | Sable Paintworks, Scottsdale | Bodoni Moda + Newsreader | dark, warm black and gilt; the ceramic-and-correction shop that charges $1,850 and looks like it |
+| B | `b-van.html` | Tolliver Mobile Detailing, Tacoma | Schibsted Grotesk + Literata | **LIGHT**, warm paper, rust; one person and a van, the About section is the pitch |
+| C | `c-volume.html` | Two Bay Detail Co., Portland | Big Shoulders Display + Barlow | soot and safety orange, hazard stripes; the three-size price table IS the hero |
+
+**Each was verified by a second pass and then by looking, and the second pass
+earned its keep.** Found and fixed: A's sale band had no vertical padding once
+it wrapped on a phone; A's empty fifth star was 1.56:1; C's hero accent word
+was under 3:1 on 43% of its pixels over the photo and its open pill was
+2.48:1; B's accent had to darken to clear 4.5:1 on its second paper. The
+`impeccable` hook then caught what the builders and the verifiers both missed:
+**four side-tab accent borders** (a thick colour on one edge of a card — the
+anti-slop floor's most recognisable tell) across B and C, removed; its
+"marquee" on A is a 9s specular sheen that rests 60% of its cycle and is off
+under `.lite`, kept as domain-appropriate and recorded as an ignore with that
+reason. **And two of the three had picked the same reading serif** — B's
+Newsreader is Literata now — which is the convergence CLAUDE.md warns models
+drift into, arriving on the item whose whole brief was "genuinely different".
+All three: console clean at 1920/1440/768/392 in both paths, zero unclipped
+overflow at 320, contrast measured on the shipped pairs.
+
+**B's answer to the light-to-dark handover, for the record:** the booking CTA
+is the page's ONLY dark surface, at the point of decision, in the brand colour
+the flow retints to, with one sentence in the detailer's voice — so the dark
+form reads as that card opened. What no tenant page can fix from inside itself
+is the form's chrome; contract §8.2 stands as a 3.2 build.
 
 **B being light makes an old note a real build**: the booking flow is dark and
 takes one colour from a tenant; a light site hands the customer to a dark form

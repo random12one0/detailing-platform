@@ -5540,9 +5540,16 @@ is kept; the entire visual design restarts from scratch.
       column. **Fable 5.1 was spent on THREE worked pages in `docs/tenant-
       sites/`, deliberately different from each other and from us** — one
       example is a template, three that disagree can only be read as "pick a
-      direction and build it properly". One is LIGHT on purpose, which makes
-      the booking flow's "reopen in phase 3 if a tenant site turns out light"
-      note a real 3.2 build (contract §8.2).
+      direction and build it properly": `a-shop.html` (Sable Paintworks —
+      Bodoni Moda, warm black, gilt), `b-van.html` (Tolliver Mobile Detailing
+      — Schibsted Grotesk + Literata, warm paper, rust, **LIGHT**) and
+      `c-volume.html` (Two Bay Detail Co. — Big Shoulders, soot, safety
+      orange, the price table as the hero). All three verified by a second
+      pass and by looking; the second pass found four contrast failures and
+      the design hook found four side-tab borders, all fixed. B being light
+      makes the booking flow's "reopen in phase 3 if a tenant site turns out
+      light" note a real 3.2 build (contract §8.2). The full account is
+      PROJECT-STATE's ROADMAP 3.1 section.
       **THREE OF THE FOUR GAPS ABOVE ARE CONFIRMED; THE SOCIAL-LINKS ONE IS
       WRONG.** `BusinessInfo.jsx` has edited four social fields since
       2026-09-02 (stage 6) — the gap was copied out of
