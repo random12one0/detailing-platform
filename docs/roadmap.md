@@ -6698,6 +6698,34 @@ is kept; the entire visual design restarts from scratch.
       is a byte-exact multi-line needle, and one `git stash` round-trip on
       Windows turned it red on untouched code. It normalises the separator
       now, re-baselined by deleting the nesting it guards.
+- [x] 4.4b ~~**THE BACK OFFICE HAD NO DOOR**~~ **FIXED 2026-09-06.** The owner
+      opened /admin on the live site and got *Something went wrong · Request
+      failed (401)*. The page had never had a sign-in of its own: it called
+      the endpoint on mount and treated NO SESSION and A BROKEN REQUEST as the
+      same thing, so the only way in was knowing to sign in at /app first —
+      knowledge the product should not require anybody to have. **I hit the
+      identical 401 while testing this page the day before, worked around it
+      by signing in elsewhere, and wrote it down as a quirk instead of reading
+      it as the defect it was.**
+
+      **THE TWO REFUSALS ARE NOW DIFFERENT AND MUST STAY THAT WAY.** A
+      signed-out visitor gets a login; a signed-in NON-ADMIN still gets *Page
+      not found*. Collapsing them either way is a real fault — show the login
+      to a detailer and the page starts hinting there is a gate worth getting
+      past; show *not found* to the signed-out owner and there is no door at
+      all. `tests/platform-admin.test.mjs` 2b-i/ii/iii, baselined: deleting
+      the session check turns 2b-i red.
+
+      **The cost accepted deliberately:** a login box does disclose that
+      something lives at /admin. The gate is the `platform_admins` row either
+      way — the form authenticates, it does not authorise — and a failed
+      attempt says *"That email and password do not match"* rather than which
+      half was wrong, the same rule the password-reset screen follows.
+
+      **And the owner has his own admin account now**, created with a random
+      password generated and discarded unread; he sets his own through the
+      reset flow, so no password was ever handled for him.
+
 - [ ] 7.4 **OWNER: founding-offer pricing sanity check** ($499 setup /
       $40 mo, counted spots) before the first sales call.
 

@@ -166,8 +166,19 @@ export default function AdminPage() {
   const [pt, setPt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  const [gate, setGate] = useState({ email: "", password: "" });
 
   const load = useCallback(async () => {
+    // **NO SESSION IS NOT AN ERROR, IT IS A LOCKED DOOR** — and until
+    // 2026-09-06 this page treated the two the same. Opening /admin in a
+    // browser that had never signed in called the endpoint with no token,
+    // got a 401, and drew *Something went wrong · Request failed (401)*.
+    // The owner hit it on the live site and had no way in: the back office
+    // has never had a door of its own, and the only way to reach it was to
+    // know to sign in at /app first — which is knowledge the product should
+    // not require anybody to have.
+    const { data: sess } = await supabase.auth.getSession();
+    if (!sess?.session) { setState({ status: "anon" }); return; }
     try {
       const r = await call({ action: "list" });
       setState({ status: "ready", ...r });
@@ -265,6 +276,58 @@ export default function AdminPage() {
   if (state.status === "loading") {
     return <div className="pa" data-loading="1"><div className="pa-wrap"><p className="pa-quiet">Loading…</p></div></div>;
   }
+  // ── THE DOOR ──────────────────────────────────────────────────────────
+  // **A SIGNED-OUT VISITOR GETS A LOGIN; A SIGNED-IN NON-ADMIN STILL GETS
+  // 404, and keeping those two different is the whole care in this screen.**
+  //
+  // The rule this page has always followed is that a detailer who wanders
+  // here is told *Page not found* rather than *you are not an admin* —
+  // naming the gate invites somebody to go looking for the row. That is
+  // untouched: it is about somebody who HAS an account.
+  //
+  // What changes is the signed-out case. A login box here does disclose
+  // that something lives at /admin, which is a real cost and is accepted
+  // deliberately: **the owner needs a door, and the alternative was that the
+  // only way in was knowing to sign in on a different page first.** The gate
+  // is the `platform_admins` row either way — this form authenticates, it
+  // does not authorise, and signing in with a perfectly good detailer
+  // account still lands on *Page not found*.
+  if (state.status === "anon") {
+    return (
+      <div className="pa"><div className="pa-wrap pa-gate">
+        <h1 className="pa-h1">Sign in</h1>
+        <form className="pa-panel" onSubmit={async (e) => {
+          e.preventDefault();
+          setBusy(true);
+          setMsg(null);
+          const { error } = await supabase.auth.signInWithPassword({
+            email: gate.email.trim(), password: gate.password,
+          });
+          setBusy(false);
+          // ONE MESSAGE FOR BOTH WRONG-EMAIL AND WRONG-PASSWORD, which is
+          // the same reason the password-reset screen says the same thing
+          // whether or not an address exists: telling them which half was
+          // wrong is address enumeration with a friendly face.
+          if (error) { setMsg({ ok: false, text: "That email and password do not match." }); return; }
+          setState({ status: "loading" });
+          load();
+        }}>
+          <label className="pa-field"><span>Email</span>
+            <input className="pa-input" type="email" autoComplete="username" required
+              value={gate.email} onChange={(e) => setGate({ ...gate, email: e.target.value })} /></label>
+          <label className="pa-field"><span>Password</span>
+            <input className="pa-input" type="password" autoComplete="current-password" required
+              value={gate.password} onChange={(e) => setGate({ ...gate, password: e.target.value })} /></label>
+          {msg && !msg.ok && <p className="pa-bad">{msg.text}</p>}
+          <div className="pa-btns">
+            <button className="pa-btn" type="submit" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
+            <a className="pa-link" href="/reset">Forgot your password?</a>
+          </div>
+        </form>
+      </div></div>
+    );
+  }
+
   // THE SAME ANSWER THE SERVER GIVES, and deliberately not "you are not an
   // admin". This page's existence is not a secret worth keeping on its own,
   // but naming the gate invites somebody to go looking for the row.

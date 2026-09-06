@@ -98,6 +98,26 @@ console.log("\n2. the gate is a table, not a claim and not an env var");
   check("a non-admin gets 404, not 403",
     /if \(!admin\) return json\(\{ error: "Not found" \}, 404\)/.test(f),
     "a 403 tells a curious detailer the endpoint exists and that one row is all that stands in the way");
+  // ── THE DOOR, added 2026-09-06 ────────────────────────────────────────
+  // **THE TWO REFUSALS MUST STAY DIFFERENT.** A signed-out visitor gets a
+  // login; a signed-in NON-ADMIN still gets *Page not found*. Collapsing
+  // them either way is a real fault: show the login to a signed-in detailer
+  // and the page starts hinting there is a gate to get past; show *not
+  // found* to a signed-out owner and the back office has no door at all,
+  // which is what he hit on the live site.
+  check("2b-i · a signed-out visitor is offered a login, not an error",
+    /status: "anon"/.test(page) && /getSession\(\)[\s\S]{0,200}status: "anon"/.test(page),
+    "a 401 drew \"Something went wrong\" and left the owner with no way in");
+  check("2b-ii · and a signed-in non-admin still gets Page not found",
+    /state\.status === "denied"[\s\S]{0,400}Page not found/.test(page),
+    "the two refusals answer different questions and must not collapse");
+  // ONE MESSAGE FOR BOTH HALVES. Saying which of the email or the password
+  // was wrong is address enumeration with a friendly face — the same rule
+  // the password-reset screen follows.
+  check("2b-iii · a failed sign-in does not say WHICH half was wrong",
+    /That email and password do not match/.test(page)
+      && !/(no account|unknown email|wrong password)/i.test(page));
+
   check("and the SCREEN says the same thing", /Page not found/.test(page),
     "two different answers from the server and the page is the server's answer leaking");
 }
