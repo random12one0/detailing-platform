@@ -28,6 +28,8 @@ something and then describes it in prose has done half the job.
 | An email | `node scripts/render-emails.mjs`, then send the individual `email-preview/*.html` — **the single files, not `index.html`**, which is only an index of links to files he does not have |
 | A long report or a plan | An **Artifact** — it is a URL, so it opens on a phone |
 
+**A FULL-PAGE SHOT DOES NOT REACH THE PHONE — measured 2026-09-05.** `SendUserFile` returned 400 on a 392x15,965 PNG (1.9 MiB) AND on the same frame as a 0.6 MiB JPEG, then delivered four 392x844 crops of 40 KB each. The limit is the image's HEIGHT, not its bytes. So for him: viewport-sized crops down the page (a one-off Playwright script scrolling to 0 / 20 / 45 / 70% is enough), never the stitched full-page file the sweeps write.
+
 **SEND THE PNGs, NOT A DESCRIPTION OF THEM.** Two or three that answer the
 question, at **392** first because that is the shape he is holding, and 1440
 only when the desk layout is the point. He can see a screenshot; he cannot see

@@ -184,7 +184,7 @@ for (const [w, h] of WIDTHS) {
     // Growing the viewport to the whole document and shooting ONE frame has no
     // seams to get wrong.
     const full = await page.evaluate(() => document.documentElement.scrollHeight);
-    await page.setViewportSize({ width: w, height: Math.min(full + 40, 15000) });
+    await page.setViewportSize({ width: w, height: Math.min(full + 40, 24000) });
     await settle(page, 900);
     await page.evaluate(() => {
       document.querySelectorAll("[data-rv]").forEach((el) => el.classList.add("in"));

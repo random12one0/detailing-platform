@@ -1,0 +1,967 @@
+<!doctype html>
+<!--
+  WORLD C — "the volume shop". Roadmap 3.1, 2026-09-05.
+  One of three worked examples of a DETAILER'S OWN website, built to
+  docs/tenant-site-contract.md §2 (all twelve implementations) and
+  docs/tenant-site-research-2026-09-05.md §3 (what real detailers' sites carry).
+
+  WHAT THIS IS NOT: the platform's landing page recoloured. No Archivo, no
+  JetBrains Mono, no #0B0D0E, no platform green, none of its tokens, section
+  order or components. What transfers is the METHOD — reveal-on-scroll with one
+  arrival per screen, parts on different timelines, every section a different
+  skeleton, the copy rule, the contrast floors, and one implementation of
+  degradation for both `prefers-reduced-motion` and `.lite`.
+
+  THE WORLD: two bays, a queue, six cars a day. Trade signage, not a showroom.
+  Type:    Big Shoulders Display (condensed industrial, 700/900) for the shouting;
+           Barlow (plain DIN-ish grotesk) for everything a person reads.
+  Ground:  soot (#15130F) and bone (#F2EEE4) in hard slabs; one saturated colour,
+           safety orange, doing all the work.
+  Accent:  ONE custom property, `--hot` = business_branding.primary_color.
+           Everything orange derives from it. On a light slab, words use
+           `--hot-ink` (color-mix of --hot with black) because the raw accent is
+           2.48:1 on bone — measured, not assumed. A retint is still one value.
+
+  SEAMS: every element whose content really comes from the detailer's dashboard
+  carries data-src="<table>.<column>", names taken from supabase/migrations/.
+  Open with ?seams=1 to label every seam; the control is the slim strip at the
+  very top of the page (in flow, so it can never cover content on a phone).
+
+  THE SITE-WIDE SALE (contract §2e) is the <aside id="sale"> directly under this
+  comment. It renders only while business_settings.site_discount_active is true;
+  a per-client build REMOVES THAT ONE ELEMENT when the sale is off and nothing
+  else moves — the header below it has its own top edge.
+
+  BOOKING MODE (contract §2l): the live wording is `reserve` ("Book a bay"). The
+  `request` wording is present as a commented block beside EACH of the three
+  booking controls (header, hero, #book); a per-client build swaps the block in.
+  There is no toggle on purpose — a site that can say both is a site that will
+  say the wrong one.
+
+  CREDENTIALS (research §4c): our schema cannot feed "licensed and insured",
+  "est. 2017" or "9,000 cars". They are marked
+  data-src="business_branding.credentials (PROPOSED — research §4c)" and this page
+  is part of the argument for adding that column.
+
+  NOT FED BY THE RPC TODAY (contract §6): faqs / faq_enabled (§6b), the pay_*
+  handles (§6c), contact_email (§6f — deliberately NOT printed; the phone is the
+  contact). They are drawn here against the columns that exist in the schema.
+
+  IMAGERY: Unsplash URLs layered over CSS-drawn treatments (gradient, hazard
+  stripe, halftone). With the network off every image area is a deliberate
+  surface, never a grey box or a broken icon.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two Bay Detail Co. — Portland</title>
+<meta name="description" content="Two bays, six cars a day. Full details from $179, add-ons priced on the board, monthly wash club. Book a bay online or call (503) 555-0142.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Barlow:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script>
+/* Decided before first paint so nothing flashes. `?lite=1` outranks the media
+   query in BOTH directions (`?lite=0` forces motion on). `.js` is what lets the
+   reveal system hide anything at all: with scripting off nothing is ever hidden. */
+(function () {
+  var h = document.documentElement, q = new URLSearchParams(location.search);
+  h.className += " js";
+  var lite = q.has("lite") ? q.get("lite") !== "0" : (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  if (lite) h.className += " lite";
+  if (q.has("seams")) h.className += " seams-on" + (q.get("seams") === "0" ? "" : " seams");
+})();
+</script>
+<style>
+/* ───────────────────────── tokens ───────────────────────── */
+:root {
+  /* the accent — business_branding.primary_color. ONE property. */
+  --hot: #FF6A13;
+  /* derived, never set directly: words in the accent on a LIGHT slab */
+  --hot-ink: color-mix(in srgb, var(--hot) 62%, #000);
+
+  --soot: #15130F;
+  --soot-2: #221F19;
+  --soot-rule: #3A352C;
+  --bone: #F2EEE4;
+  --bone-2: #E6E0D2;
+  --bone-rule: #C9C2B1;
+  --mute-on-soot: #B9B2A4;
+  --mute-on-bone: #5E5849;
+
+  --display: "Big Shoulders Display", "Impact", "Haettenschweiler", sans-serif;
+  --text: "Barlow", "Helvetica Neue", Helvetica, sans-serif;
+
+  --wrap: 1280px;
+  --gutter: clamp(16px, 4vw, 56px);
+  --t-in: 620ms;
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+
+/* ───────────────────────── base ───────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--soot); color: var(--bone); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html.lite { scroll-behavior: auto; }
+body { margin: 0; font: 400 17px/1.5 var(--text); overflow-x: clip; }
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+h1, h2, h3 { margin: 0; font-family: var(--display); font-weight: 900; line-height: .9; text-transform: uppercase; letter-spacing: .005em; }
+p { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+button { font: inherit; }
+:focus-visible { outline: 3px solid var(--hot); outline-offset: 3px; }
+.bone :focus-visible { outline-color: var(--soot); }
+.wrap { width: min(var(--wrap), 100% - 2 * var(--gutter)); margin-inline: auto; }
+.num { font-variant-numeric: tabular-nums lining-nums; }
+.kick { font: 600 12px/1 var(--text); letter-spacing: .18em; text-transform: uppercase; }
+.soot .kick { color: var(--hot); }
+.bone .kick { color: var(--hot-ink); }
+.bone { background: var(--bone); color: var(--soot); }
+.soot { background: var(--soot); color: var(--bone); }
+.hotslab { background: var(--hot); color: var(--soot); }
+section { padding-block: clamp(56px, 9vw, 128px); }
+.big { font-family: var(--display); font-weight: 900; text-transform: uppercase; line-height: .88; }
+
+/* the one button shape on the page */
+.btn { display: inline-flex; align-items: center; gap: .6em; padding: .8em 1.4em .72em; font: 900 clamp(18px, 2vw, 24px)/1 var(--display); text-transform: uppercase; letter-spacing: .02em; text-decoration: none; border: 3px solid var(--hot); background: var(--hot); color: var(--soot); transition: transform 160ms var(--ease), background 160ms; }
+.btn:hover { background: transparent; color: var(--hot); }
+.bone .btn:hover { color: var(--hot-ink); border-color: var(--hot-ink); }
+.btn:active { transform: translateY(2px); }
+.btn.ghost { background: transparent; color: var(--bone); border-color: var(--bone); }
+.btn.ghost:hover { background: var(--bone); color: var(--soot); }
+.bone .btn.ghost { color: var(--soot); border-color: var(--soot); }
+.bone .btn.ghost:hover { background: var(--soot); color: var(--bone); }
+.btn .arrow { display: inline-block; transition: transform 160ms var(--ease); }
+.btn:hover .arrow { transform: translateX(4px); }
+
+/* ───────────────────────── seams chrome ───────────────────────── */
+.chrome { display: none; font: 600 12px/1 var(--text); letter-spacing: .08em; text-transform: uppercase; background: repeating-linear-gradient(-45deg, #000 0 8px, #ffe600 8px 16px); padding: 3px; }
+.chrome > div { background: #111; color: #ffe600; display: flex; gap: 12px; align-items: center; justify-content: center; padding: 8px 12px; flex-wrap: wrap; text-align: center; }
+.chrome button { background: #ffe600; color: #111; border: 0; padding: 6px 10px; font: 700 12px/1 var(--text); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.seams-on .chrome { display: block; }
+.seams [data-src] { outline: 1px dashed var(--hot); outline-offset: 2px; position: relative; }
+.seams [data-src]::before { content: attr(data-src); position: absolute; left: 0; top: -1.15em; z-index: 6; font: 600 10px/1.2 var(--text); letter-spacing: 0; text-transform: none; background: #ffe600; color: #111; padding: 1px 5px; white-space: nowrap; pointer-events: none; max-width: 100vw; overflow: hidden; text-overflow: ellipsis; }
+
+/* ───────────────────────── reveal system (ONE implementation) ───────────────────────── */
+/* A section is a group; its parts carry .rv and a --i stagger index. Nothing is
+   hidden unless scripting is on AND lite is off; under .lite every rule below
+   is inert, so the end state is the only state. */
+.js:not(.lite) [data-rv]:not(.in) .rv { opacity: 0; }
+.js:not(.lite) [data-rv].in .rv { animation: rise var(--t-in) var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.js:not(.lite) [data-rv].in .rv.x { animation-name: slide; }
+.js:not(.lite) [data-rv].in .rv.xr { animation-name: slide-r; }
+.js:not(.lite) [data-rv].in .rv.lift { animation-name: lift; animation-duration: 900ms; }
+.js:not(.lite) [data-rv].in .rv.wipe { animation-name: wipe; animation-duration: 800ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes slide { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: none; } }
+@keyframes slide-r { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes lift { from { opacity: 0; transform: translateY(60px) skewY(2deg); } to { opacity: 1; transform: none; } }
+@keyframes wipe { from { opacity: 0; transform: scaleX(0); transform-origin: left; } to { opacity: 1; transform: none; transform-origin: left; } }
+.lite * { transition: none !important; animation: none !important; }
+
+/* ───────────────────────── 0. sale band ───────────────────────── */
+#sale { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; padding: 10px var(--gutter); font: 900 clamp(15px, 1.6vw, 22px)/1.1 var(--display); text-transform: uppercase; letter-spacing: .03em; }
+#sale .pct { font-size: 1.6em; line-height: .8; padding-right: 14px; border-right: 1px solid var(--soot); }
+#sale a { font: 600 13px/1 var(--text); letter-spacing: .1em; white-space: nowrap; }
+@media (max-width: 560px) { #sale { grid-template-columns: auto 1fr; } #sale a { grid-column: 2; justify-self: start; } }
+
+/* ───────────────────────── 1. top ───────────────────────── */
+#top { border-bottom: 3px solid var(--hot); }
+#top .wrap { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: clamp(12px, 2vw, 32px); padding-block: 14px; }
+.logo { width: 52px; height: 52px; display: grid; place-items: center; background: var(--hot); color: var(--soot); font: 900 26px/1 var(--display); position: relative; overflow: hidden; }
+.logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.wordmark { font: 900 clamp(20px, 2.4vw, 30px)/1 var(--display); text-transform: uppercase; text-decoration: none; letter-spacing: .01em; }
+.wordmark small { display: block; font: 400 12px/1.2 var(--text); letter-spacing: .1em; text-transform: uppercase; color: var(--mute-on-soot); margin-top: 3px; }
+.phone { font: 900 clamp(22px, 2.6vw, 34px)/1 var(--display); letter-spacing: .02em; text-decoration: none; white-space: nowrap; }
+.phone:hover { color: var(--hot); }
+.phone small { display: block; font: 600 11px/1 var(--text); letter-spacing: .16em; color: var(--hot); margin-bottom: 4px; }
+@media (max-width: 700px) {
+  #top .wrap { grid-template-columns: auto 1fr auto; }
+  #top .btn { grid-column: 1 / -1; justify-content: center; }
+  .wordmark small { display: none; }
+}
+@media (max-width: 380px) { .phone { font-size: 20px; } }
+
+/* ───────────────────────── 2. hero ───────────────────────── */
+#hero { position: relative; padding: 0; overflow: hidden; isolation: isolate; }
+.hero-img { position: absolute; inset: 0; z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(21,19,15,.55) 0%, rgba(21,19,15,.68) 55%, var(--soot) 100%),
+    url("https://images.unsplash.com/photo-1694025900981-4437a2d09b71?w=1800&q=70&auto=format&fit=crop") center 40% / cover no-repeat,
+    radial-gradient(120% 80% at 70% 20%, color-mix(in srgb, var(--hot) 45%, var(--soot)) 0%, var(--soot) 60%);
+}
+.hero-img::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(242,238,228,.07) 1px, transparent 1.4px); background-size: 6px 6px; mix-blend-mode: screen; }
+.hero-in { padding-block: clamp(72px, 12vw, 160px) clamp(40px, 6vw, 72px); }
+.hero-in h1 { font-size: clamp(56px, 13.5vw, 196px); max-width: 12ch; }
+/* the accent word sits on its own soot plate: measured at 1440 over the sample
+   photo, raw --hot on the photo was median 3.69:1 with 43% of pixels under 3:1
+   (soap highlights are white). A tenant can upload any hero image, so the
+   plate is what makes the word 6.47:1 whatever the photo is. */
+.hero-in h1 em { font-style: normal; color: var(--hot); background: var(--soot); padding: 0 .08em; margin-inline: -.04em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.tagline { font: 400 clamp(19px, 2.2vw, 28px)/1.3 var(--text); max-width: 34ch; margin-top: clamp(16px, 2vw, 28px); }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; margin-top: clamp(24px, 3vw, 40px); }
+.hero-cta .or { color: var(--mute-on-soot); font-size: 15px; }
+.hero-cta .phone { font-size: clamp(24px, 3vw, 40px); }
+.hazard { height: 14px; background: repeating-linear-gradient(-45deg, var(--hot) 0 22px, var(--soot) 22px 44px); }
+.stats { display: flex; flex-wrap: wrap; border-block: 1px solid var(--soot-rule); }
+.stats li { flex: 1 1 180px; padding: 18px var(--gutter) 18px 0; border-right: 1px solid var(--soot-rule); margin-right: var(--gutter); }
+.stats li:last-child { border-right: 0; margin-right: 0; }
+.stats b { display: block; font: 900 clamp(30px, 3.6vw, 48px)/1 var(--display); }
+.stats span { font: 600 12px/1.3 var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--mute-on-soot); }
+@media (max-width: 700px) { .stats { border: 0; } .stats li { flex-basis: 45%; border: 0; border-top: 1px solid var(--soot-rule); margin-right: 0; padding-inline: 0 12px; } }
+
+/* ───────────────────────── 3. the board ───────────────────────── */
+#board .head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 24px; margin-bottom: clamp(24px, 3vw, 40px); }
+#board h2 { font-size: clamp(56px, 10vw, 140px); }
+#board .head p { max-width: 36ch; color: var(--mute-on-bone); }
+.sizekey { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--soot); margin-bottom: 28px; }
+.sizekey div { background: var(--bone); padding: 12px 14px; }
+.sizekey b { display: block; font: 900 22px/1 var(--display); text-transform: uppercase; }
+.sizekey span { font-size: 13px; color: var(--mute-on-bone); }
+.group { margin-top: clamp(28px, 4vw, 48px); }
+.group-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 18px; padding-bottom: 10px; border-bottom: 4px solid var(--soot); }
+.group-h h3 { font-size: clamp(30px, 4vw, 52px); }
+.rule-tag { font: 600 12px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; padding: 6px 9px 5px; background: var(--soot); color: var(--bone); }
+.rule-tag.any { background: transparent; color: var(--soot); outline: 2px solid var(--soot); outline-offset: -2px; }
+.group-h .desc { flex-basis: 100%; color: var(--mute-on-bone); font-size: 15px; }
+.svc { border-bottom: 1px solid var(--bone-rule); }
+.svc summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr repeat(3, minmax(96px, 150px)); align-items: center; gap: 12px 8px; padding: 18px 0; }
+.svc summary::-webkit-details-marker { display: none; }
+.svc summary:hover .sname { color: var(--hot-ink); }
+.sname { font: 900 clamp(26px, 3.2vw, 40px)/1 var(--display); text-transform: uppercase; display: flex; align-items: center; gap: 12px; }
+.sname .tri { width: 0; height: 0; border: 9px solid transparent; border-left: 14px solid var(--soot); border-right: 0; transition: transform 200ms var(--ease); flex: none; }
+.svc[open] .tri { transform: rotate(90deg); }
+.smeta { font-size: 14px; color: var(--mute-on-bone); margin-top: 6px; display: flex; gap: 14px; flex-wrap: wrap; }
+.price { text-align: right; font: 900 clamp(26px, 3vw, 40px)/1 var(--display); }
+.price small { display: block; font: 600 10px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--mute-on-bone); margin-bottom: 6px; }
+.price .from { font-size: .5em; letter-spacing: .04em; margin-right: 3px; vertical-align: .55em; }
+.svc-body { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr); gap: 24px 48px; padding: 4px 0 28px; }
+.svc-body p { max-width: 40ch; }
+.feat { columns: 2; column-gap: 32px; font-size: 15px; }
+.feat li { break-inside: avoid; padding: 5px 0 5px 18px; position: relative; border-bottom: 1px dotted var(--bone-rule); }
+.feat li::after { content: ""; position: absolute; left: 0; top: 11px; width: 9px; height: 9px; background: var(--hot); }
+.note { grid-column: 1 / -1; display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: var(--bone-2); font-size: 15px; line-height: 1.45; }
+.note b { font: 700 11px/1.4 var(--text); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; padding-top: 3px; }
+@media (max-width: 720px) {
+  .svc summary { grid-template-columns: 1fr 1fr 1fr; }
+  .svc summary > div:first-child { grid-column: 1 / -1; }
+  .price { text-align: left; }
+  .svc-body { grid-template-columns: 1fr; }
+  .feat { columns: 1; }
+  #board .head { grid-template-columns: 1fr; }
+}
+@media (max-width: 420px) { .sizekey { grid-template-columns: 1fr; } .sizekey b { display: inline; margin-right: 8px; } }
+
+/* ───────────────────────── 4. add-ons ───────────────────────── */
+#addons .lead { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 24px 64px; align-items: start; }
+#addons h2 { font-size: clamp(48px, 7vw, 96px); }
+#addons .lead p { color: var(--mute-on-soot); max-width: 40ch; align-self: end; }
+.menu { columns: 2; column-gap: 64px; margin-top: clamp(28px, 4vw, 48px); }
+.menu li { break-inside: avoid; padding: 14px 0; border-top: 1px solid var(--soot-rule); }
+.menu .row { display: flex; align-items: baseline; gap: 8px; }
+.menu .nm { font: 900 clamp(22px, 2.4vw, 30px)/1 var(--display); text-transform: uppercase; }
+.menu .dots { flex: 1; border-bottom: 3px dotted var(--soot-rule); transform: translateY(-6px); min-width: 24px; }
+.menu .pr { font: 900 clamp(22px, 2.4vw, 30px)/1 var(--display); color: var(--hot); white-space: nowrap; }
+.menu .pr small { font: 600 12px/1 var(--text); letter-spacing: .08em; color: var(--mute-on-soot); margin-left: 8px; }
+.menu .desc { font-size: 15px; color: var(--mute-on-soot); margin-top: 6px; max-width: 42ch; }
+.menu .nt { font-size: 14px; font-style: italic; margin-top: 6px; }
+@media (max-width: 800px) { #addons .lead { grid-template-columns: 1fr; } .menu { columns: 1; } }
+
+/* ───────────────────────── 5. plans (the orange slab) ───────────────────────── */
+#plans h2 { font-size: clamp(54px, 9vw, 130px); }
+#plans .intro { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 20px 40px; }
+#plans .intro p { max-width: 38ch; font-weight: 600; }
+.rungs { margin-top: clamp(28px, 4vw, 56px); border-top: 5px solid var(--soot); }
+.rung { display: grid; grid-template-columns: minmax(180px, 2fr) minmax(0, 3fr) auto; gap: 8px 32px; align-items: center; padding: 22px 0; border-bottom: 3px solid var(--soot); }
+.rung .amt { font: 900 clamp(48px, 7vw, 104px)/.85 var(--display); letter-spacing: -.01em; }
+.rung .amt small { display: block; font: 600 12px/1.4 var(--text); letter-spacing: .14em; text-transform: uppercase; margin-top: 8px; }
+.rung h3 { font-size: clamp(28px, 3.4vw, 44px); }
+.rung .cad { display: flex; flex-wrap: wrap; gap: 6px 16px; font: 600 13px/1.2 var(--text); letter-spacing: .1em; text-transform: uppercase; margin-top: 8px; }
+.rung .cad li::before { content: "■ "; font-size: .7em; vertical-align: .15em; }
+.rung .incl { margin-top: 10px; font-size: 16px; max-width: 48ch; }
+.rung .btn { border-color: var(--soot); background: var(--soot); color: var(--bone); }
+.rung .btn:hover { background: transparent; color: var(--soot); }
+@media (max-width: 760px) { .rung { grid-template-columns: 1fr; } .rung .btn { justify-self: start; } }
+@media (max-width: 560px) { #plans .intro { grid-template-columns: 1fr; } }
+.hotslab :focus-visible { outline-color: var(--soot); }
+
+/* ───────────────────────── 6. the work ───────────────────────── */
+#work h2 { font-size: clamp(48px, 8vw, 110px); }
+#work .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px 32px; margin-bottom: clamp(20px, 3vw, 36px); }
+#work .head p { color: var(--mute-on-soot); max-width: 40ch; }
+.ba { position: relative; aspect-ratio: 16 / 9; max-height: 640px; overflow: hidden; --pos: 50%; background: var(--soot-2); }
+.ba .pane { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.ba .before { background-image: linear-gradient(rgba(21,19,15,.15), rgba(21,19,15,.15)), url("https://images.unsplash.com/photo-1770936450010-6837d6933caa?w=1600&q=70&auto=format&fit=crop"), repeating-linear-gradient(45deg, #2c2822 0 14px, #221F19 14px 28px); }
+.ba .after { background-image: url("https://images.unsplash.com/photo-1787510119655-f2572af4457a?w=1600&q=70&auto=format&fit=crop"), radial-gradient(80% 80% at 30% 30%, color-mix(in srgb, var(--hot) 35%, var(--soot-2)), var(--soot-2)); clip-path: inset(0 0 0 var(--pos)); }
+.ba .tag { position: absolute; top: 16px; font: 900 clamp(18px, 2.4vw, 30px)/1 var(--display); text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px 6px; background: var(--soot); color: var(--bone); }
+.ba .tag.b { left: 16px; }
+.ba .tag.a { right: 16px; background: var(--hot); color: var(--soot); }
+.ba .bar { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 4px; background: var(--hot); transform: translateX(-50%); pointer-events: none; }
+.ba .bar::after { content: "◀ ▶"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 56px; height: 56px; display: grid; place-items: center; background: var(--hot); color: var(--soot); font: 700 13px/1 var(--text); letter-spacing: .1em; border-radius: 50%; box-shadow: 0 0 0 4px var(--soot); }
+.ba input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+.ba .cap { position: absolute; left: 16px; right: 16px; bottom: 14px; font: 600 13px/1.3 var(--text); letter-spacing: .06em; color: var(--bone); text-shadow: 0 1px 2px var(--soot), 0 0 12px var(--soot); }
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(260px, 32%); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; margin-top: 12px; scrollbar-color: var(--hot) var(--soot-2); }
+.rail figure { margin: 0; scroll-snap-align: start; }
+.rail .ph { aspect-ratio: 4 / 3; background-size: cover; background-position: center; background-color: var(--soot-2); }
+.rail figcaption { font-size: 14px; color: var(--mute-on-soot); padding: 8px 0 0; border-top: 3px solid var(--hot); margin-top: 8px; }
+@media (max-width: 600px) { .rail { grid-auto-columns: 78%; } }
+
+/* ───────────────────────── 7. the word ───────────────────────── */
+#word { position: relative; overflow: hidden; }
+#word .grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 40px 64px; align-items: start; }
+#word h2 { font-size: clamp(48px, 7vw, 96px); margin-bottom: 20px; }
+.lead-q { font: 400 clamp(24px, 3.2vw, 40px)/1.2 var(--text); max-width: 26ch; }
+.lead-q::before { content: "“"; font-family: var(--display); font-weight: 900; font-size: 2.6em; line-height: 0; color: var(--hot-ink); vertical-align: -.35em; margin-right: .1em; }
+.who { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; font: 600 13px/1.3 var(--text); letter-spacing: .1em; text-transform: uppercase; }
+.stars { color: var(--hot-ink); letter-spacing: .08em; font-size: 15px; }
+.src { color: var(--mute-on-bone); }
+.qs { border-top: 4px solid var(--soot); }
+.qs li { padding: 18px 0; border-bottom: 1px solid var(--bone-rule); }
+.qs p { font-size: 17px; max-width: 38ch; }
+.qs .who { margin-top: 10px; }
+.outs { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.outs .btn { font-size: 18px; }
+@media (max-width: 820px) { #word .grid { grid-template-columns: 1fr; } }
+
+/* ───────────────────────── 8. the shop ───────────────────────── */
+#shop .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px clamp(32px, 5vw, 80px); align-items: center; }
+.shop-ph { aspect-ratio: 4 / 5; max-height: 640px; background:
+    linear-gradient(200deg, transparent 55%, color-mix(in srgb, var(--hot) 70%, transparent) 100%),
+    url("https://images.unsplash.com/photo-1682795735660-a789079d5623?w=1200&q=70&auto=format&fit=crop") center / cover no-repeat,
+    repeating-linear-gradient(90deg, var(--soot-2) 0 40px, var(--soot) 40px 80px);
+  position: relative; }
+.shop-ph::after { content: "BAY 1 · BAY 2"; position: absolute; left: 0; bottom: 0; padding: 10px 14px 8px; background: var(--hot); color: var(--soot); font: 900 20px/1 var(--display); letter-spacing: .06em; }
+#shop h2 { font-size: clamp(48px, 7vw, 104px); }
+#shop .copy { margin-top: 20px; display: grid; gap: 14px; font-size: clamp(17px, 1.4vw, 19px); max-width: 48ch; }
+.creds { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 8px; }
+.creds li { font: 600 12px/1 var(--text); letter-spacing: .12em; text-transform: uppercase; padding: 10px 12px 9px; border: 2px solid var(--hot); color: var(--hot); }
+.creds li b { color: var(--bone); font-weight: 600; }
+@media (max-width: 760px) { #shop .grid { grid-template-columns: 1fr; } .shop-ph { aspect-ratio: 16 / 10; max-height: 360px; } }
+
+/* ───────────────────────── 9. hours / where / pay ───────────────────────── */
+#hours h2 { font-size: clamp(48px, 7vw, 96px); margin-bottom: clamp(20px, 3vw, 36px); }
+#hours .board { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0; border: 4px solid var(--soot); }
+#hours .cell { padding: clamp(18px, 2.4vw, 32px); border-right: 4px solid var(--soot); }
+#hours .cell:last-child { border-right: 0; }
+#hours h3 { font-size: 30px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.pill { font: 700 12px/1 var(--text); letter-spacing: .12em; text-transform: uppercase; padding: 7px 10px 6px; background: var(--soot); color: var(--bone); }
+/* hot-ink, not raw --hot: the raw accent as a FILL on bone is 2.48:1 against a 3:1 UI floor; hot-ink is 5.60:1 both as the fill and under bone words */
+.pill.open { background: var(--hot-ink); color: var(--bone); }
+.week li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--bone-rule); font-size: 16px; }
+.week li.today { font-weight: 600; background: var(--bone-2); margin-inline: -10px; padding-inline: 10px; }
+.week li.closed span:last-child { color: var(--mute-on-bone); }
+.where dt { font: 600 12px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--hot-ink); margin-top: 16px; }
+.where dt:first-child { margin-top: 0; }
+.where dd { margin: 6px 0 0; }
+.pay li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--bone-rule); }
+.pay li b { font: 600 13px/1.4 var(--text); letter-spacing: .12em; text-transform: uppercase; }
+.pay a { color: var(--hot-ink); font-weight: 600; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.pay li span { text-align: right; }
+@media (max-width: 900px) { #hours .board { grid-template-columns: 1fr; } #hours .cell { border-right: 0; border-bottom: 4px solid var(--soot); } #hours .cell:last-child { border-bottom: 0; } }
+
+/* ───────────────────────── 10. faq ───────────────────────── */
+#faq .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 24px 64px; }
+#faq h2 { font-size: clamp(48px, 7vw, 96px); position: sticky; top: 24px; }
+.qa { border-top: 3px solid var(--hot); }
+.qa summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 18px 0; font: 600 clamp(18px, 1.6vw, 22px)/1.25 var(--text); }
+.qa summary::-webkit-details-marker { display: none; }
+.qa summary::after { content: "+"; font: 900 32px/1 var(--display); color: var(--hot); transition: transform 200ms var(--ease); flex: none; }
+.qa[open] summary::after { transform: rotate(45deg); }
+.qa { border-bottom: 1px solid var(--soot-rule); }
+.qa p { padding: 0 0 20px; color: var(--mute-on-soot); max-width: 56ch; }
+@media (max-width: 760px) { #faq .wrap { grid-template-columns: 1fr; } #faq h2 { position: static; } }
+
+/* ───────────────────────── 11. book ───────────────────────── */
+#book { padding-block: clamp(64px, 10vw, 140px); text-align: center; position: relative; overflow: hidden; }
+#book::before { content: ""; position: absolute; inset: auto 0 0; height: 14px; background: repeating-linear-gradient(-45deg, var(--hot) 0 22px, var(--soot) 22px 44px); }
+#book h2 { font-size: clamp(64px, 15vw, 220px); line-height: .82; }
+#book h2 em { font-style: normal; color: var(--hot); }
+#book p { margin: 20px auto 0; max-width: 40ch; color: var(--mute-on-soot); font-size: clamp(17px, 1.6vw, 21px); }
+#book .cta { margin-top: clamp(24px, 3vw, 40px); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px 28px; }
+#book .btn { font-size: clamp(24px, 3vw, 40px); padding: .7em 1.2em .62em; }
+
+/* ───────────────────────── 12. footer ───────────────────────── */
+footer { background: var(--soot-2); padding-block: 48px 36px; border-top: 1px solid var(--soot-rule); }
+footer .grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px 48px; }
+footer .fname { font: 900 34px/1 var(--display); text-transform: uppercase; }
+footer p, footer li { font-size: 15px; color: var(--mute-on-soot); }
+footer address { font-style: normal; margin-top: 12px; }
+footer .kick { display: block; margin-bottom: 12px; }
+.social li { padding: 4px 0; }
+.social a { text-decoration: none; font: 900 22px/1.1 var(--display); text-transform: uppercase; color: var(--bone); }
+.social a:hover { color: var(--hot); }
+footer .fine { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--soot-rule); font-size: 13px; }
+@media (max-width: 700px) { footer .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- artifact-only chrome: shown only with ?seams in the URL; in flow, never fixed -->
+<div class="chrome" id="chrome" role="region" aria-label="Design artifact controls">
+  <div>
+    <span>Seam labels: every element the detailer edits shows its table.column</span>
+    <button type="button" id="seamsBtn" aria-pressed="false">Toggle seams</button>
+  </div>
+</div>
+
+<!-- 2e · THE SITE-WIDE SALE. Rendered only while business_settings.site_discount_active is true.
+     When the sale is off, a per-client build removes THIS ONE ELEMENT; #top has its own top edge. -->
+<aside id="sale" class="hotslab" data-src="business_settings.site_discount_active" aria-label="Current offer">
+  <span class="pct num" data-src="business_settings.site_discount_percent">15%</span>
+  <span data-src="business_settings.site_discount_label">Spring tune-up — 15% off every full detail through May</span>
+  <!-- fallback when site_discount_label is empty: "15% off" from site_discount_percent -->
+  <a href="#board">See the board ↓</a>
+</aside>
+
+<!-- 2k · identity + the phone, at the very top (6/6 real sites do this) -->
+<header id="top" class="soot">
+  <div class="wrap">
+    <a class="logo" href="#" aria-label="Two Bay Detail Co. home" data-src="business_branding.logo_url">2B<img src="https://images.unsplash.com/photo-1705054780982-de950da197d4?w=160&h=160&q=60&auto=format&fit=crop" alt="" onerror="this.remove()"></a>
+    <a class="wordmark" href="#" data-src="businesses.name">Two Bay Detail Co.<small data-src="businesses.service_area">Portland · Gresham · Happy Valley</small></a>
+    <a class="phone num" href="tel:+15035550142" data-src="businesses.contact_phone"><small>Call the shop</small>(503) 555-0142</a>
+    <!-- 2a · booking entry point. `reserve` wording live. -->
+    <a class="btn" href="/book/two-bay" data-src="businesses.slug">Book a bay <span class="arrow">→</span></a>
+    <!-- request mode — swap in for a `request` tenant (business_settings.booking_mode):
+    <a class="btn" href="/book/two-bay" data-src="businesses.slug">Request a slot <span class="arrow">→</span></a>
+    -->
+  </div>
+</header>
+
+<!-- 2k · hero -->
+<section id="hero" class="soot" data-rv aria-labelledby="h1">
+  <div class="hero-img" role="img" aria-label="A detailer rinsing a car in the bay" data-src="business_branding.hero_image_url"></div>
+  <div class="wrap hero-in">
+    <h1 id="h1" class="rv lift" style="--i:0" data-src="businesses.name">Two Bay <em>Detail</em> Co.</h1>
+    <p class="tagline rv" style="--i:2" data-src="business_branding.tagline">Six cars a day, two bays, one price board. Drop it off in the morning and drive it home clean.</p>
+    <div class="hero-cta rv" style="--i:4">
+      <a class="btn" href="/book/two-bay" data-src="businesses.slug">Book a bay <span class="arrow">→</span></a>
+      <!-- request mode:
+      <a class="btn" href="/book/two-bay" data-src="businesses.slug">Request a slot <span class="arrow">→</span></a>
+      -->
+      <span class="or">or</span>
+      <a class="phone num" href="tel:+15035550142" data-src="businesses.contact_phone">(503) 555-0142</a>
+    </div>
+  </div>
+  <div class="hazard rv wipe" style="--i:5" aria-hidden="true"></div>
+  <!-- research §4c: the trade's trust markers. Nothing in the schema holds these yet. -->
+  <div class="wrap">
+    <ul class="stats" data-src="business_branding.credentials (PROPOSED — research §4c)">
+      <li class="rv x" style="--i:6"><b class="num">4.9★</b><span>312 Google reviews</span></li>
+      <li class="rv x" style="--i:7"><b class="num">9,000+</b><span>cars through the bays</span></li>
+      <li class="rv x" style="--i:8"><b class="num">Est. 2017</b><span>same shop, same crew</span></li>
+      <li class="rv x" style="--i:9"><b>Insured</b><span>licensed &amp; insured in Oregon</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2b · THE BOARD — the service catalog with the full vehicle-size ladder (research §4a) and notes (§4b) -->
+<section id="board" class="bone" data-rv aria-labelledby="board-h">
+  <div class="wrap">
+    <div class="head">
+      <h2 id="board-h" class="rv lift" style="--i:0">The board</h2>
+      <p class="rv" style="--i:2">Three prices on every line, one for each size of car. What you see here is what the bay charges.</p>
+    </div>
+
+    <div class="sizekey rv" style="--i:3" data-src="business_settings.vehicle_sizes">
+      <div><b>Small</b><span>Coupe, sedan, hatchback</span></div>
+      <div><b>Medium</b><span>Small SUV, crossover, wagon</span></div>
+      <div><b>Large</b><span>Truck, large SUV, van</span></div>
+    </div>
+
+    <!-- group 1: is_exclusive = true, max_select = 1 -->
+    <div class="group" data-src="service_groups.name">
+      <div class="group-h rv x" style="--i:4">
+        <h3>Full details</h3>
+        <span class="rule-tag" data-src="service_groups.is_exclusive">Pick one</span>
+        <p class="desc" data-src="service_groups.description">Every full detail includes the wash. Pick the one that matches how the car looks today.</p>
+      </div>
+
+      <details class="svc rv x" style="--i:5" data-src="services.id">
+        <summary>
+          <div>
+            <div class="sname" data-src="services.name"><span class="tri" aria-hidden="true"></span>Express detail</div>
+            <div class="smeta"><span data-src="services.duration_minutes">1 h 15 min</span><span>in and out before lunch</span></div>
+          </div>
+          <div class="price num" data-src="services.price"><small>Small</small>$89</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Medium</small>$109</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Large</small>$129</div>
+        </summary>
+        <div class="svc-body">
+          <p data-src="services.description">The weekly-driver reset. Foam wash, wheels, glass, a quick interior and a spray wax so the water beads for a month.</p>
+          <ul class="feat" data-src="services.features">
+            <li>Two-bucket hand wash</li><li>Wheels and wheel wells</li><li>Tyre dressing</li><li>Door jambs</li>
+            <li>Glass inside and out</li><li>Vacuum seats, floors, boot</li><li>Dash and console wipe</li><li>Spray wax, 30-day</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="svc rv x" style="--i:6" data-src="services.id">
+        <summary>
+          <div>
+            <div class="sname" data-src="services.name"><span class="tri" aria-hidden="true"></span>Full detail</div>
+            <div class="smeta"><span data-src="services.duration_minutes">3 h</span><span>the one most people book</span></div>
+          </div>
+          <div class="price num" data-src="services.price"><small>Small</small>$179</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Medium</small>$229</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Large</small>$279</div>
+        </summary>
+        <div class="svc-body">
+          <p data-src="services.description">Outside decontaminated and sealed, inside shampooed. This is the detail that makes a three-year-old car feel like the day you bought it.</p>
+          <ul class="feat" data-src="services.features">
+            <li>Everything in the express</li><li>Iron and tar removal</li><li>Clay bar the paint</li><li>Paint sealant, 6-month</li>
+            <li>Trim and plastics restored</li><li>Carpet and mat shampoo</li><li>Seat shampoo or leather clean</li><li>Leather conditioned</li>
+            <li>Headliner spot clean</li><li>Vents and crevices blown out</li><li>Odour neutraliser</li><li>Engine bay wipe-down</li>
+          </ul>
+          <div class="note" data-src="services.notes"><b>Please read</b><span>The sealant on this detail is a paint sealant, not a ceramic coating. Ask about coating at the counter.</span></div>
+        </div>
+      </details>
+
+      <details class="svc rv x" style="--i:7" data-src="services.id">
+        <summary>
+          <div>
+            <div class="sname" data-src="services.name"><span class="tri" aria-hidden="true"></span>Interior reset</div>
+            <div class="smeta"><span data-src="services.duration_minutes">2 h 30 min</span><span>kids, dogs, job sites</span></div>
+          </div>
+          <div class="price num" data-src="services.price_is_from"><small>Small</small><span class="from">from</span>$149</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Medium</small><span class="from">from</span>$189</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Large</small><span class="from">from</span>$229</div>
+        </summary>
+        <div class="svc-body">
+          <p data-src="services.description">Inside only, and all of it. Seats out of the way, carpets extracted, every vent and seam. Bring it in ugly.</p>
+          <ul class="feat" data-src="services.features">
+            <li>Full vacuum including under seats</li><li>Hot-water carpet extraction</li><li>Seats shampooed or leather cleaned</li><li>Door panels and pockets</li>
+            <li>Dash, console, cup holders</li><li>Steering wheel deep clean</li><li>Glass inside</li><li>Odour neutraliser</li>
+          </ul>
+          <div class="note" data-src="services.notes"><b>Please read</b><span>Priced from. Heavy pet hair, sand, mould or biohazard is quoted at the counter before we start — the condition of the car can change the price.</span></div>
+        </div>
+      </details>
+    </div>
+
+    <!-- group 2: is_exclusive = false, max_select = null -->
+    <div class="group" data-src="service_groups.name">
+      <div class="group-h rv x" style="--i:8">
+        <h3>Protection</h3>
+        <span class="rule-tag any" data-src="service_groups.is_exclusive">Add any</span>
+        <p class="desc" data-src="service_groups.description">Stack these on top of a full detail, or book one on its own.</p>
+      </div>
+
+      <details class="svc rv x" style="--i:9" data-src="services.id">
+        <summary>
+          <div>
+            <div class="sname" data-src="services.name"><span class="tri" aria-hidden="true"></span>Spray sealant</div>
+            <div class="smeta"><span data-src="services.duration_minutes">30 min</span></div>
+          </div>
+          <div class="price num" data-src="services.price"><small>Small</small>$49</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Medium</small>$59</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Large</small>$69</div>
+        </summary>
+        <div class="svc-body">
+          <p data-src="services.description">A silica sealant applied to clean paint. Water sheets off, dirt lets go, the wash takes half the time.</p>
+          <ul class="feat" data-src="services.features">
+            <li>Paint, glass and wheels</li><li>Cures in the bay, drive in an hour</li><li>4–6 months of protection</li>
+          </ul>
+          <div class="note" data-src="services.notes"><b>Please read</b><span>This is not a ceramic coating. It is a sealant that lasts a season, not a coating that lasts years.</span></div>
+        </div>
+      </details>
+
+      <details class="svc rv x" style="--i:10" data-src="services.id">
+        <summary>
+          <div>
+            <div class="sname" data-src="services.name"><span class="tri" aria-hidden="true"></span>Clay &amp; polish</div>
+            <div class="smeta"><span data-src="services.duration_minutes">2 h</span></div>
+          </div>
+          <div class="price num" data-src="services.price"><small>Small</small>$129</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Medium</small>$159</div>
+          <div class="price num" data-src="services.vehicle_size_adjustments"><small>Large</small>$199</div>
+        </summary>
+        <div class="svc-body">
+          <p data-src="services.description">One-step machine polish after a clay bar. Takes the haze and the light swirls out of the paint so it reads deep again.</p>
+          <ul class="feat" data-src="services.features">
+            <li>Clay bar decontamination</li><li>One-step machine polish</li><li>Panel wipe and inspection</li><li>Sealant to lock it in</li>
+          </ul>
+          <div class="note" data-src="services.notes"><b>Please read</b><span>One step removes light swirls. Deep scratches and bird-etching need paint correction, which we quote after seeing the car.</span></div>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- 2c · add-ons -->
+<section id="addons" class="soot" data-rv aria-labelledby="addons-h">
+  <div class="wrap">
+    <div class="lead">
+      <h2 id="addons-h" class="rv lift" style="--i:0">Add-ons</h2>
+      <p class="rv" style="--i:2">Tell us at the counter or tick them when you book. Same price either way.</p>
+    </div>
+    <ul class="menu" data-src="add_ons.id">
+      <li class="rv" style="--i:3">
+        <div class="row"><span class="nm" data-src="add_ons.name">Pet hair removal</span><span class="dots" aria-hidden="true"></span><span class="pr num" data-src="add_ons.price">$40<small data-src="add_ons.duration_minutes">+30 min</small></span></div>
+        <p class="desc" data-src="add_ons.description">Rubber blade and compressed air, seat by seat.</p>
+        <p class="nt" data-src="add_ons.notes">Heavy hair — huskies, shepherds, the back of a work truck — is quoted on arrival.</p>
+      </li>
+      <li class="rv" style="--i:4">
+        <div class="row"><span class="nm" data-src="add_ons.name">Engine bay</span><span class="dots" aria-hidden="true"></span><span class="pr num" data-src="add_ons.price">$35<small data-src="add_ons.duration_minutes">+20 min</small></span></div>
+        <p class="desc" data-src="add_ons.description">Degreased, rinsed, dressed. Electrics covered.</p>
+      </li>
+      <li class="rv" style="--i:5">
+        <div class="row"><span class="nm" data-src="add_ons.name">Headlight restore</span><span class="dots" aria-hidden="true"></span><span class="pr num" data-src="add_ons.price">$60<small data-src="add_ons.duration_minutes">+45 min</small></span></div>
+        <p class="desc" data-src="add_ons.description">Both lenses wet-sanded, polished and sealed.</p>
+        <p class="nt" data-src="add_ons.notes">Cracked or fogged-inside lenses can't be restored — we'll tell you before we start.</p>
+      </li>
+      <li class="rv" style="--i:6">
+        <div class="row"><span class="nm" data-src="add_ons.name">Odour bomb</span><span class="dots" aria-hidden="true"></span><span class="pr num" data-src="add_ons.price">$25<small data-src="add_ons.duration_minutes">+15 min</small></span></div>
+        <p class="desc" data-src="add_ons.description">Ozone treatment with the vents running. Smoke, milk, gym bag.</p>
+      </li>
+      <li class="rv" style="--i:7">
+        <div class="row"><span class="nm" data-src="add_ons.name">Excess mud &amp; sand</span><span class="dots" aria-hidden="true"></span><span class="pr num" data-src="add_ons.price">$30<small data-src="add_ons.duration_minutes">+20 min</small></span></div>
+        <p class="nt" data-src="add_ons.notes">Added at the counter when the floor needs a scrape before it can be vacuumed. You'll know if this is you.</p>
+      </li>
+      <li class="rv" style="--i:8">
+        <div class="row"><span class="nm" data-src="add_ons.name">Glass water-spot removal</span><span class="dots" aria-hidden="true"></span><span class="pr num" data-src="add_ons.price">$45<small data-src="add_ons.duration_minutes">+30 min</small></span></div>
+        <p class="desc" data-src="add_ons.description">Mineral spots polished off every window.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2d · monthly plans — the orange slab. Wording per app/src/lib/plans.js: priceWords, cadenceWords, termWords, visitWords -->
+<section id="plans" class="hotslab" data-rv aria-labelledby="plans-h">
+  <div class="wrap">
+    <div class="intro">
+      <h2 id="plans-h" class="rv lift" style="--i:0">Wash club</h2>
+      <p class="rv" style="--i:2">Regulars pay less and skip the queue. Pick a plan, book your visits like any other job.</p>
+    </div>
+    <ul class="rungs" data-src="plans.id">
+      <li class="rung rv" style="--i:3">
+        <div class="amt num" data-src="plans.price_amount">$59<small data-src="plans.price_kind">a month</small></div>
+        <div>
+          <h3 data-src="plans.name">Express club</h3>
+          <ul class="cad">
+            <li data-src="plans.cadence_count">Monthly</li>
+            <li data-src="plans.visits_per_period">2 visits</li>
+            <li data-src="plans.term_months">No contract</li>
+          </ul>
+          <p class="incl" data-src="plans.description">Two express details every month. Book them whenever suits — they don't have to be two weeks apart.</p>
+        </div>
+        <a class="btn" href="/book/two-bay/plans" data-src="businesses.slug">Join <span class="arrow">→</span></a>
+      </li>
+      <li class="rung rv" style="--i:5">
+        <div class="amt num" data-src="plans.price_amount">$899<small data-src="plans.price_kind">up front</small></div>
+        <div>
+          <h3 data-src="plans.name">Detail year</h3>
+          <ul class="cad">
+            <li data-src="plans.cadence_count">Quarterly</li>
+            <li data-src="plans.visits_per_period">1 visit</li>
+            <li data-src="plans.term_months">1-year term</li>
+          </ul>
+          <p class="incl" data-src="plans.description">Four full details, one a season, paid once. Works out under $225 a detail on a small car and you never think about it again.</p>
+        </div>
+        <a class="btn" href="/book/two-bay/plans" data-src="businesses.slug">Join <span class="arrow">→</span></a>
+      </li>
+      <li class="rung rv" style="--i:7">
+        <div class="amt num" data-src="plans.price_amount">15%<small data-src="plans.price_kind">off</small></div>
+        <div>
+          <h3 data-src="plans.name">Fleet rate</h3>
+          <ul class="cad">
+            <li data-src="plans.cadence_count">No set schedule</li>
+            <li data-src="plans.term_months">No contract</li>
+          </ul>
+          <p class="incl" data-src="plans.description">Three or more vehicles under one name. Fifteen percent off every job on the board, whenever they come in.</p>
+        </div>
+        <a class="btn" href="/book/two-bay/plans" data-src="businesses.slug">Join <span class="arrow">→</span></a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2f · gallery, with the before/after kind rendered as a PAIR -->
+<section id="work" class="soot" data-rv aria-labelledby="work-h">
+  <div class="wrap">
+    <div class="head">
+      <h2 id="work-h" class="rv lift" style="--i:0">The work</h2>
+      <p class="rv" style="--i:2">Drag the bar. Same seat, same afternoon.</p>
+    </div>
+    <div class="ba rv" style="--i:3" data-src="gallery_images.kind" id="ba">
+      <div class="pane before" role="img" aria-label="Before: stained fabric seats" data-src="gallery_images.before_url"></div>
+      <div class="pane after" role="img" aria-label="After: clean leather interior" data-src="gallery_images.after_url"></div>
+      <div class="bar" aria-hidden="true"></div>
+      <span class="tag b" aria-hidden="true">Before</span>
+      <span class="tag a" aria-hidden="true">After</span>
+      <input type="range" min="0" max="100" value="50" aria-label="Compare before and after" id="baRange">
+      <p class="cap" data-src="gallery_images.caption">Interior reset on a 2016 Grand Vitara — 2 h 40 min.</p>
+    </div>
+    <div class="rail" data-src="gallery_images.sort_order" aria-label="More photos from the bays">
+      <figure class="rv xr" style="--i:4">
+        <div class="ph" role="img" aria-label="Foam wash in bay 1" data-src="gallery_images.image_url" style="background-image:url('https://images.unsplash.com/photo-1694678505383-676d78ea3b96?w=900&q=70&auto=format&fit=crop'),linear-gradient(160deg,#2c2822,#15130F)"></div>
+        <figcaption data-src="gallery_images.caption">Foam stage, bay 1. Every car starts here.</figcaption>
+      </figure>
+      <figure class="rv xr" style="--i:5">
+        <div class="ph" role="img" aria-label="Detailer wiping a dashboard" data-src="gallery_images.image_url" style="background-image:url('https://images.unsplash.com/photo-1771491237218-cbd4a707497e?w=900&q=70&auto=format&fit=crop'),linear-gradient(200deg,#2c2822,#15130F)"></div>
+        <figcaption data-src="gallery_images.caption">Dash and vents on a full detail.</figcaption>
+      </figure>
+      <figure class="rv xr" style="--i:6">
+        <div class="ph" role="img" aria-label="Microfibre towel on polished paint" data-src="gallery_images.image_url" style="background-image:url('https://images.unsplash.com/photo-1761934657948-708146148588?w=900&q=70&auto=format&fit=crop'),linear-gradient(120deg,#2c2822,#15130F)"></div>
+        <figcaption data-src="gallery_images.caption">Sealant wipe-down after clay &amp; polish.</figcaption>
+      </figure>
+      <figure class="rv xr" style="--i:7">
+        <div class="ph" role="img" aria-label="Car being rinsed with a hose" data-src="gallery_images.image_url" style="background-image:url('https://images.unsplash.com/photo-1694025909289-fb9dd4660e97?w=900&q=70&auto=format&fit=crop'),linear-gradient(240deg,#2c2822,#15130F)"></div>
+        <figcaption data-src="gallery_images.caption">Rinse, bay 2. Six of these a day.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 2g · reviews -->
+<section id="word" class="bone" data-rv aria-labelledby="word-h">
+  <div class="wrap grid">
+    <div>
+      <h2 id="word-h" class="rv lift" style="--i:0">The word</h2>
+      <blockquote class="rv" style="--i:2" data-src="testimonials.id">
+        <p class="lead-q" data-src="testimonials.quote">Dropped the truck at 7:30, picked it up at lunch, and the dog hair I'd given up on was just gone. Board price, no surprises.</p>
+        <div class="who">
+          <span data-src="testimonials.author">Marcus H.</span>
+          <span class="stars num" aria-label="5 out of 5 stars" data-src="testimonials.rating">★★★★★</span>
+          <span class="src" data-src="testimonials.source">Google</span>
+        </div>
+      </blockquote>
+      <div class="outs rv" style="--i:4">
+        <a class="btn ghost" href="https://g.page/r/two-bay-detail/review" rel="noopener" data-src="business_settings.google_review_url">Google reviews <span class="arrow">↗</span></a>
+        <a class="btn ghost" href="https://www.yelp.com/biz/two-bay-detail-portland" rel="noopener" data-src="business_settings.yelp_review_url">Yelp <span class="arrow">↗</span></a>
+      </div>
+    </div>
+    <ul class="qs" data-src="testimonials.sort_order">
+      <li class="rv xr" style="--i:3">
+        <p data-src="testimonials.quote">Interior reset on a minivan with three kids in it. I don't know what they did. It smells like a car again.</p>
+        <div class="who"><span data-src="testimonials.author">Dana R.</span><span class="stars" aria-label="5 out of 5 stars" data-src="testimonials.rating">★★★★★</span><span class="src" data-src="testimonials.source">Yelp</span></div>
+      </li>
+      <li class="rv xr" style="--i:4">
+        <p data-src="testimonials.quote">Fleet rate on our four vans. They text when each one's done and the invoice matches the board every time.</p>
+        <div class="who"><span data-src="testimonials.author">Priya S., Shah Plumbing</span><span class="stars" aria-label="5 out of 5 stars" data-src="testimonials.rating">★★★★★</span><span class="src" data-src="testimonials.source">Google</span></div>
+      </li>
+      <li class="rv xr" style="--i:5">
+        <p data-src="testimonials.quote">Honest about what the polish would and wouldn't fix. Took the four-star option instead of upselling me.</p>
+        <div class="who"><span data-src="testimonials.author">Ali N.</span><span class="stars" aria-label="4 out of 5 stars" data-src="testimonials.rating">★★★★☆</span><span class="src" data-src="testimonials.source">Facebook</span></div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2k · about, the detailer's own copy; research §4c credentials -->
+<section id="shop" class="soot" data-rv aria-labelledby="shop-h">
+  <div class="wrap grid">
+    <div class="shop-ph rv" style="--i:1" role="img" aria-label="Two cars in the bays" data-src="business_branding.hero_image_url"></div>
+    <div>
+      <span class="kick rv" style="--i:0">4410 NE Sandy Blvd</span>
+      <h2 id="shop-h" class="rv lift" style="--i:1">The shop</h2>
+      <div class="copy rv" style="--i:3" data-src="business_branding.about_copy">
+        <p>Two bays on Sandy since 2017. We're not a showroom and we don't pretend to be one — we're the place you drop the car on the way to work and pick it up clean on the way home.</p>
+        <p>Every price is on the board out front and on this page, by the size of the car. If something about your car changes the price, you hear it from us at the counter before a hose is touched, not on the invoice.</p>
+        <p>Same crew of four since the start. Ray runs bay 1, Teo runs bay 2, and Andrea is who you'll talk to at the counter.</p>
+      </div>
+      <ul class="creds rv" style="--i:5" data-src="business_branding.credentials (PROPOSED — research §4c)">
+        <li>Licensed &amp; insured</li>
+        <li>IDA member <b>since 2019</b></li>
+        <li>Est. <b>2017</b></li>
+        <li><b>4.9★</b> · 312 reviews</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 2j · hours + where + 2i · how to pay -->
+<section id="hours" class="bone" data-rv aria-labelledby="hours-h">
+  <div class="wrap">
+    <h2 id="hours-h" class="rv lift" style="--i:0">Hours, where, how to pay</h2>
+    <div class="board">
+      <div class="cell rv" style="--i:2">
+        <h3>Hours <span class="pill" id="openPill" data-src="business_hours.weekday">—</span></h3>
+        <ul class="week num" id="week" data-tz="America/Los_Angeles" data-src="businesses.timezone">
+          <li data-wd="1" data-open="07:30" data-close="18:00"><span>Mon</span><span data-src="business_hours.open_time">7:30 am – 6:00 pm</span></li>
+          <li data-wd="2" data-open="07:30" data-close="18:00"><span>Tue</span><span data-src="business_hours.open_time">7:30 am – 6:00 pm</span></li>
+          <li data-wd="3" data-open="07:30" data-close="18:00"><span>Wed</span><span data-src="business_hours.open_time">7:30 am – 6:00 pm</span></li>
+          <li data-wd="4" data-open="07:30" data-close="18:00"><span>Thu</span><span data-src="business_hours.open_time">7:30 am – 6:00 pm</span></li>
+          <li data-wd="5" data-open="07:30" data-close="18:00"><span>Fri</span><span data-src="business_hours.open_time">7:30 am – 6:00 pm</span></li>
+          <li data-wd="6" data-open="08:00" data-close="16:00"><span>Sat</span><span data-src="business_hours.close_time">8:00 am – 4:00 pm</span></li>
+          <li data-wd="0" class="closed"><span>Sun</span><span data-src="business_hours.close_time">Closed</span></li>
+        </ul>
+      </div>
+      <div class="cell rv" style="--i:3">
+        <h3>Where</h3>
+        <dl class="where">
+          <dt data-src="business_settings.dropoff_enabled">Drop off at the shop</dt>
+          <dd data-src="businesses.dropoff_address">4410 NE Sandy Blvd, Portland, OR 97213<br>Street parking out front; leave the keys at the counter.</dd>
+          <dt data-src="business_settings.mobile_enabled">Or we come to you</dt>
+          <dd><span data-src="businesses.service_area">Portland, Gresham, Troutdale, Happy Valley</span> — anywhere inside <span data-src="business_settings.travel_radius_miles">20 miles</span> of the shop. Mobile jobs need a driveway and a tap.</dd>
+        </dl>
+      </div>
+      <div class="cell rv" style="--i:4">
+        <h3>How to pay</h3>
+        <!-- 2i · linking rule is _shared/payments.ts: a plain username links, a phone number or email prints as typed -->
+        <ul class="pay">
+          <li data-src="business_settings.pay_cash"><b>Cash</b><span>at the counter</span></li>
+          <li data-src="business_settings.pay_venmo"><b>Venmo</b><span><a href="https://venmo.com/u/twobaydetail" rel="noopener">@twobaydetail</a></span></li>
+          <li data-src="business_settings.pay_cashapp"><b>Cash App</b><span><a href="https://cash.app/$TwoBayDetail" rel="noopener">$TwoBayDetail</a></span></li>
+          <li data-src="business_settings.pay_zelle"><b>Zelle</b><span class="num">(503) 555-0142</span></li>
+          <li data-src="business_settings.pay_paypal"><b>PayPal</b><span><a href="https://paypal.me/twobaydetail" rel="noopener">paypal.me/twobaydetail</a></span></li>
+          <li data-src="business_settings.pay_other"><b>Card</b><span>tap or chip at the counter</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2h · FAQ — rendered only while business_settings.faq_enabled is true -->
+<section id="faq" class="soot" data-rv aria-labelledby="faq-h" data-src="business_settings.faq_enabled">
+  <div class="wrap">
+    <h2 id="faq-h" class="rv lift" style="--i:0">Questions</h2>
+    <div data-src="business_settings.faqs">
+      <details class="qa rv x" style="--i:1">
+        <summary>How long will you have the car?</summary>
+        <p>The board says how long each job takes. Drop-offs go into the queue in order, so a 7:30 drop for a full detail is ready by lunch; an afternoon drop is ready the next morning.</p>
+      </details>
+      <details class="qa rv x" style="--i:2">
+        <summary>Which size is my car?</summary>
+        <p>Small is a coupe, sedan or hatchback. Medium is a crossover, small SUV or wagon. Large is a truck, three-row SUV or van. If you're on the line, we'll go with the cheaper one.</p>
+      </details>
+      <details class="qa rv x" style="--i:3">
+        <summary>Can the price change after I book?</summary>
+        <p>Only for the things the board marks "priced from", and only after we've looked at the car with you. Nothing is added after the work starts.</p>
+      </details>
+      <details class="qa rv x" style="--i:4">
+        <summary>Do you do ceramic coating?</summary>
+        <p>Not on the board. Our sealants last a season; a coating is a two-day job we quote separately. Ask at the counter and we'll tell you honestly whether your paint is ready for one.</p>
+      </details>
+      <details class="qa rv x" style="--i:5">
+        <summary>What if I need to cancel?</summary>
+        <p>Cancel or move it from the link in your confirmation email. Up to 24 hours before, no charge. Same-day, we ask that you call so the slot can go to the next car in the queue.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- 2a · the booking moment -->
+<section id="book" class="soot" data-rv aria-labelledby="book-h">
+  <div class="wrap">
+    <span class="kick rv" style="--i:0">Two bays · six cars a day</span>
+    <h2 id="book-h" class="rv lift" style="--i:1">Get in <em>the queue</em></h2>
+    <p class="rv" style="--i:3" data-src="business_settings.booking_mode">Pick a day and a time, pay at the counter. You'll get a text the moment the car is done.</p>
+    <div class="cta rv" style="--i:4">
+      <a class="btn" href="/book/two-bay" data-src="businesses.slug">Book a bay <span class="arrow">→</span></a>
+      <a class="phone num" href="tel:+15035550142" data-src="businesses.contact_phone">(503) 555-0142</a>
+    </div>
+    <!-- request mode — swap the paragraph and the button for a `request` tenant:
+    <p class="rv" style="--i:3" data-src="business_settings.booking_mode">Pick a day and a time and we'll confirm it within the hour. Nothing is charged until the car is done.</p>
+    <div class="cta rv" style="--i:4">
+      <a class="btn" href="/book/two-bay" data-src="businesses.slug">Request a slot <span class="arrow">→</span></a>
+      <a class="phone num" href="tel:+15035550142" data-src="businesses.contact_phone">(503) 555-0142</a>
+    </div>
+    -->
+  </div>
+</section>
+
+<!-- 2k · contact and social. contact_email is NOT in the RPC (contract §6f) and is deliberately not printed. -->
+<footer>
+  <div class="wrap grid">
+    <div>
+      <p class="fname" data-src="businesses.name">Two Bay Detail Co.</p>
+      <address>
+        <span data-src="businesses.dropoff_address">4410 NE Sandy Blvd, Portland, OR 97213</span><br>
+        <a class="num" href="tel:+15035550142" data-src="businesses.contact_phone">(503) 555-0142</a>
+      </address>
+    </div>
+    <div>
+      <span class="kick">Follow the bays</span>
+      <ul class="social">
+        <li><a href="https://instagram.com/twobaydetail" rel="noopener" data-src="business_branding.social_instagram">Instagram</a></li>
+        <li><a href="https://facebook.com/twobaydetail" rel="noopener" data-src="business_branding.social_facebook">Facebook</a></li>
+        <li><a href="https://tiktok.com/@twobaydetail" rel="noopener" data-src="business_branding.social_tiktok">TikTok</a></li>
+        <li><a href="https://youtube.com/@twobaydetail" rel="noopener" data-src="business_branding.social_youtube">YouTube</a></li>
+      </ul>
+    </div>
+    <div>
+      <span class="kick">Quick</span>
+      <ul class="social">
+        <li><a href="#board">The board</a></li>
+        <li><a href="#plans">Wash club</a></li>
+        <li><a href="/book/two-bay" data-src="businesses.slug">Book a bay</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap fine">
+    <p>© 2026 <span data-src="businesses.name">Two Bay Detail Co.</span> · Prices on this page are the prices charged at the bay for the size of car shown.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var html = document.documentElement;
+  var LITE = html.classList.contains("lite");
+
+  /* seams chrome — only wired when ?seams is present */
+  var btn = document.getElementById("seamsBtn");
+  if (btn) {
+    var sync = function () { btn.setAttribute("aria-pressed", String(html.classList.contains("seams"))); };
+    btn.addEventListener("click", function () { html.classList.toggle("seams"); sync(); });
+    sync();
+  }
+
+  /* reveal — one observer, one class, one arrival per section. Under .lite the
+     class is added for nothing: every rule that could animate is inert. */
+  var groups = document.querySelectorAll("[data-rv]");
+  if (LITE || !("IntersectionObserver" in window)) {
+    groups.forEach(function (g) { g.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.05 });
+    /* ONE arrival per screen: the first section in view arrives at load; every
+       other section joins the observer only on the first scroll (or after the
+       arrival has landed), so a tall viewport that shows two sections at once
+       still sees one thing move. Measured at 768x1024, where hero + board both
+       fit: without this, two groups animate at 120ms. */
+    var first = null, rest = [];
+    groups.forEach(function (g) {
+      var r = g.getBoundingClientRect();
+      if (!first && r.top < innerHeight * .9 && r.bottom > 0) { first = g; g.classList.add("in"); } else rest.push(g);
+    });
+    var started = false;
+    var start = function () { if (started) return; started = true; rest.forEach(function (g) { io.observe(g); }); };
+    if (first) { addEventListener("scroll", start, { once: true, passive: true }); setTimeout(start, 1000); } else start();
+  }
+
+  /* before / after — the range drives one custom property; CSS does the clipping */
+  var ba = document.getElementById("ba"), range = document.getElementById("baRange");
+  if (ba && range) {
+    var set = function () { ba.style.setProperty("--pos", range.value + "%"); };
+    range.addEventListener("input", set);
+    set();
+  }
+
+  /* open / closed now — from business_hours in the business's own timezone.
+     Presentation only: availability is the booking flow's, never the site's. */
+  var week = document.getElementById("week"), pill = document.getElementById("openPill");
+  if (week && pill) {
+    try {
+      var tz = week.getAttribute("data-tz");
+      var parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
+      var get = function (t) { var p = parts.find(function (x) { return x.type === t; }); return p ? p.value : ""; };
+      var wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
+      var now = (get("hour") % 24) + ":" + get("minute");
+      var row = week.querySelector('[data-wd="' + wd + '"]');
+      var open = false;
+      if (row) {
+        row.classList.add("today");
+        var o = row.getAttribute("data-open"), c = row.getAttribute("data-close");
+        var hm = function (s) { var a = s.split(":"); return (+a[0]) * 60 + (+a[1]); };
+        open = !!(o && c) && hm(now) >= hm(o) && hm(now) < hm(c);
+      }
+      pill.textContent = open ? "Open now" : "Closed now";
+      pill.classList.toggle("open", open);
+    } catch (err) { pill.textContent = "Hours"; }
+  }
+})();
+</script>
+</body>
+</html>

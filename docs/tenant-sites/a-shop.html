@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sable Paintworks — paint correction and ceramic coating, Scottsdale</title>
+<!--
+  ============================================================================
+  WORLD A — "the shop that does ceramic and correction"
+  docs/tenant-sites/a-shop.html · roadmap 3.1 · 2026-09-05
+
+  WHAT THIS IS
+  A worked example of a DETAILER'S OWN public website, built against
+  docs/tenant-site-contract.md §2 (all twelve implementations) and the content
+  inventory in docs/tenant-site-research-2026-09-05.md §3. It is a design
+  artifact: one file, no build, no framework, no CDN scripts; opens from file://.
+
+  It is NOT the platform's marketing page recoloured. It inherits the METHOD
+  (research §1: arrival, one arrival per screen, parts on different timelines,
+  every section a different skeleton, the copy rule, the contrast floors, one
+  degradation implementation) and none of the SKIN.
+
+  FACES (Google Fonts, both serif on purpose — worlds B and C are grotesk-led)
+    display  Bodoni Moda   — a Didone; the high-contrast hairlines are the
+                              register this end of the trade charges for.
+                              Headlines, prices, pull quotes.
+    text     Newsreader    — a text serif with an optical-size axis, so it
+                              stays readable at 16px where Bodoni would not.
+                              Body, labels (tracked uppercase), UI.
+    Offline both fall back to Georgia / Times, which keeps the serif register.
+
+  PALETTE (warm near-black, never the platform's #0B0D0E)
+    --ground  #0F0D0B   the floor
+    --ground-2 #161310  raised
+    --ground-3 #1E1A16  panel
+    --rule    #2F2924   hairline
+    --ink     #EFE7DA   primary text
+    --ink-2   #B8AC9B   secondary text
+    --ink-3   #998D7C   muted text — still 5.2:1 on a panel
+    --gilt    #C9A96A   THE ONE ACCENT. business_branding.primary_color lands
+                        here and nowhere else (contract §2k, law 11b).
+
+  SECTION ORDER (each a different skeleton)
+    1  strip     phone · open/closed state — thin, ruled
+    2  nav       wordmark · links · Book
+    3  sale      the site-wide sale band (contract §2e) — CONDITIONAL, see below
+    4  hero      two columns: headline + CTAs, then the plate; credentials ledger
+    5  work      gallery: one before/after comparison plate + three singles
+    6  menu      the catalog: groups, rows, inclusion lists, the size ladder
+    7  extras    add-ons as a two-column ruled ledger
+    8  plans     two plan cards, two price shapes, deliberately unequal widths
+    9  words     one pull quote + a rail of three; Google/Yelp links
+    10 about     portrait + the detailer's own copy
+    11 faq       details/summary
+    12 visit     hours (with state) · where we work · how to pay — three unequal columns
+    13 foot      contact · socials · Book again · seams toggle
+
+  THE SALE BAND (contract §2e)
+    <aside class="sale"> under the nav is rendered ONLY when
+    business_settings.site_discount_active is true. A per-client build removes
+    the whole <aside id="sale"> element when it is false — nothing else on the
+    page references it, and the nav's bottom hairline is what the hero sits on
+    either way, so the page reads right present AND absent. Text comes from
+    site_discount_label; the fallback is "N% off" from site_discount_percent.
+
+  BOOKING MODE (contract §2a, §2l)
+    Every Book control links to /book/{businesses.slug}. The wording shipped
+    live is RESERVE mode ("Book a slot", "your time is held the moment you
+    book"). The REQUEST-mode wording is beside each one as a commented block
+    marked "booking_mode = request"; a per-client build swaps it in. There is
+    deliberately NO toggle — a site that says "Book instantly" to a
+    request-mode detailer makes a promise the detailer then answers for.
+
+  SEAMS
+    Every element whose content really comes from the dashboard carries
+    data-src="table.column", names taken from supabase/migrations/. Add
+    ?seams=1 to the URL (or press the control in the footer) to label every
+    seam on the page. It is artifact chrome and is styled to look like it.
+    Under 640px the labels flow above their content instead of overlaying it.
+
+  DEGRADATION
+    ONE implementation: a `.lite` class on <html>, set by the script from
+    ?lite=1 (which outranks the media query in BOTH directions — ?lite=0 turns
+    motion on for a reduced-motion user who asks) or from
+    prefers-reduced-motion. There is no @media (prefers-reduced-motion) block
+    in this stylesheet on purpose; a second implementation is the one that rots.
+
+  WHAT THE SCHEMA CANNOT FEED (marked on the page)
+    - Credentials / trust markers (licensed, insured, certified installer,
+      years, star rating): data-src="business_branding.credentials (PROPOSED —
+      research §4c)". This page is part of the argument for adding the column.
+    - FAQ and the payment handles are stored but NOT in the RPC today
+      (contract §6b, §6c); marked with their real columns.
+    - The open/closed state is COMPUTED here from `hours` in
+      business.timezone — presentation, not availability logic. The booking
+      flow still owns which slots exist.
+    - No business email: contract §6f. The contact block prints phone only.
+
+  IMAGERY
+    Unsplash URLs layered over a CSS-drawn plate (gradient + lacquer sheen +
+    grain), so with the network off — or a tenant who has uploaded nothing —
+    each picture slot is a deliberate surface rather than a broken image.
+  ============================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+/* ── tokens ─────────────────────────────────────────────────────────── */
+:root{
+  --ground:#0F0D0B; --ground-2:#161310; --ground-3:#1E1A16;
+  --rule:#2F2924; --rule-2:#3D3630;
+  --ink:#EFE7DA; --ink-2:#B8AC9B; --ink-3:#998D7C;
+  --gilt:#C9A96A;              /* ← business_branding.primary_color */
+  --gilt-ink:#0F0D0B;          /* text on a gilt fill */
+  --display:"Bodoni Moda",Georgia,"Times New Roman",serif;
+  --text:"Newsreader",Georgia,"Times New Roman",serif;
+  --gutter:clamp(18px,4vw,64px);
+  --wrap:1280px;
+  --ease:cubic-bezier(.2,.7,.15,1);
+  --t:.75s;
+}
+*{box-sizing:border-box}
+html{background:var(--ground);color:var(--ink);scroll-behavior:smooth}
+html.lite{scroll-behavior:auto}
+body{margin:0;font:400 17px/1.55 var(--text);font-optical-sizing:auto;-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3,h4{font-family:var(--display);font-weight:500;margin:0;line-height:1.05;letter-spacing:-.005em}
+p,figure{margin:0}
+ul,ol,dl{margin:0;padding:0}
+li{list-style:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--gilt);outline-offset:3px}
+
+.wrap{width:min(100% - 2*var(--gutter),var(--wrap));margin-inline:auto}
+.label{font:500 12px/1.2 var(--text);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+.label.gilt{color:var(--gilt)}
+.money{font-family:var(--display);font-weight:500;font-variant-numeric:lining-nums tabular-nums}
+.rule-x{border:0;border-top:1px solid var(--rule);margin:0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border:1px solid var(--gilt);background:var(--gilt);color:var(--gilt-ink);font:500 15px/1 var(--text);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;transition:transform .18s var(--ease),background .18s;white-space:nowrap}
+.btn:hover{background:#D9BC80;transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--gilt)}
+.btn.ghost:hover{background:rgba(201,169,106,.09)}
+.btn small{font-size:11px;letter-spacing:.14em;opacity:.8}
+
+/* ── plates (every picture slot) ─────────────────────────────────────
+   The photograph is the TOP layer of the background stack; with it gone
+   the lacquer sheen, the floor gradient and the grain remain. */
+.plate{position:relative;overflow:hidden;background-color:var(--ground-2);
+  background-image:
+    linear-gradient(180deg,rgba(15,13,11,.05) 0%,rgba(15,13,11,.55) 100%),
+    var(--photo,none),
+    radial-gradient(120% 70% at 30% 0%,rgba(201,169,106,.16),transparent 60%),
+    radial-gradient(90% 50% at 75% 100%,rgba(201,169,106,.08),transparent 60%),
+    linear-gradient(165deg,#221D18 0%,#120F0D 55%,#191512 100%);
+  background-size:cover;background-position:center}
+.plate::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.028) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+.plate::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 35%,rgba(239,231,218,.07) 48%,transparent 60%)}
+
+/* ── reveal system (one mechanism) ───────────────────────────────────
+   [data-rv]        rises 18px
+   [data-rv="x"]    slides in from the left
+   [data-rv="plate"] is unveiled by a clip from its left edge
+   [data-rv="stagger"] its children arrive one after another, --i from the
+                    script; the parent itself carries no transform. */
+[data-rv]{opacity:0;transform:translateY(18px);transition:opacity var(--t) var(--ease),transform var(--t) var(--ease);transition-delay:var(--d,0ms)}
+[data-rv="x"]{transform:translateX(-26px)}
+[data-rv="plate"]{transform:none;opacity:1;clip-path:inset(0 100% 0 0);transition:clip-path 1.1s var(--ease)}
+[data-rv="stagger"]{opacity:1;transform:none;transition:none}
+[data-rv="stagger"]>*{opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease);transition-delay:calc(var(--d,0ms) + var(--i,0)*70ms)}
+[data-rv].in,[data-rv="stagger"].in>*{opacity:1;transform:none}
+[data-rv="plate"].in{clip-path:inset(0 0 0 0)}
+/* the whole degradation, once */
+html.lite [data-rv],html.lite [data-rv]>*{opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important;animation:none!important}
+html.lite .hero .plate::after,html.lite .ba-handle{animation:none!important}
+
+/* ── 1 · strip ───────────────────────────────────────────────────────── */
+.strip{border-bottom:1px solid var(--rule);background:var(--ground)}
+.strip .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:38px;font-size:13px;color:var(--ink-2)}
+.strip a{text-decoration:none}
+.strip a:hover{color:var(--ink)}
+.strip .state{display:inline-flex;align-items:center;gap:8px}
+.strip .state::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.strip .state.open::before{background:var(--gilt);box-shadow:0 0 0 3px rgba(201,169,106,.18)}
+
+/* ── 2 · nav ─────────────────────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:20;background:rgba(15,13,11,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule)}
+.nav .wrap{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;min-height:72px}
+.mark{display:flex;align-items:center;gap:12px;text-decoration:none}
+.mark .mono{width:38px;height:38px;border:1px solid var(--gilt);display:grid;place-items:center;font:500 18px/1 var(--display);color:var(--gilt);position:relative;flex:none}
+.mark .mono img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mark .name{font:500 20px/1 var(--display);letter-spacing:.01em}
+.nav nav{display:flex;justify-content:center;gap:clamp(14px,2.4vw,34px)}
+.nav nav a{font-size:14px;letter-spacing:.04em;text-decoration:none;color:var(--ink-2);padding:6px 0;border-bottom:1px solid transparent}
+.nav nav a:hover{color:var(--ink);border-color:var(--gilt)}
+.nav .cta{display:flex;align-items:center;gap:18px}
+.nav .cta .tel{font-family:var(--display);font-size:17px;text-decoration:none;color:var(--ink)}
+.nav .cta .btn{padding:11px 18px;font-size:13px}
+.nav .burger{display:none;width:40px;height:40px;border:1px solid var(--rule-2);align-items:center;justify-content:center}
+.nav .burger span,.nav .burger span::before,.nav .burger span::after{display:block;width:18px;height:1px;background:var(--ink);position:relative;content:""}
+.nav .burger span::before{position:absolute;top:-6px}
+.nav .burger span::after{position:absolute;top:6px}
+
+/* ── 3 · sale ────────────────────────────────────────────────────────── */
+.sale{background:var(--gilt);color:var(--gilt-ink)}
+.sale .wrap{display:flex;justify-content:center;align-items:center;gap:14px;min-height:40px;padding:10px 0;font-size:14px;letter-spacing:.02em;text-align:center;flex-wrap:wrap}
+.sale b{font:500 13px/1 var(--text);letter-spacing:.18em;text-transform:uppercase}
+.sale a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+
+/* ── 4 · hero ────────────────────────────────────────────────────────── */
+.hero{padding:clamp(40px,7vw,96px) 0 0}
+.hero .grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,6fr);gap:clamp(28px,5vw,72px);align-items:end}
+.hero h1{font-size:clamp(44px,6.6vw,104px);font-weight:400;line-height:.98;letter-spacing:-.015em;text-wrap:balance}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--gilt)}
+.hero .lede{margin-top:26px;max-width:46ch;font-size:clamp(17px,1.4vw,20px);font-weight:300;color:var(--ink-2)}
+.hero .actions{margin-top:34px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.hero .actions .or{font-style:italic;color:var(--ink-3);font-size:15px}
+.hero .actions .tel{text-decoration:none;font-family:var(--display);font-size:22px;color:var(--ink)}
+.hero .promise{margin-top:14px;font-size:14px;color:var(--ink-3)}
+.hero .plate{aspect-ratio:4/5;max-height:640px;width:100%}
+.hero .plate::after{animation:sheen 9s var(--ease) infinite}
+@keyframes sheen{0%,60%{transform:translateX(-60%)}100%{transform:translateX(60%)}}
+.hero .plate .cap{position:absolute;left:18px;bottom:16px;right:18px;display:flex;justify-content:space-between;gap:12px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);z-index:1}
+.ledger{margin-top:clamp(36px,5vw,64px);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);display:grid;grid-template-columns:repeat(4,1fr)}
+.ledger>div{padding:18px 20px 18px 0;border-left:1px solid var(--rule);padding-left:20px}
+.ledger>div:first-child{border-left:0;padding-left:0}
+.ledger b{display:block;font:500 clamp(20px,2vw,26px)/1.1 var(--display);margin-bottom:6px}
+.ledger b i{font-style:normal;color:var(--gilt)}
+.ledger span{font-size:13px;color:var(--ink-3)}
+
+/* ── section heads ───────────────────────────────────────────────────── */
+.sec{padding:clamp(64px,9vw,128px) 0}
+.sec-head{display:grid;gap:14px;margin-bottom:clamp(32px,4vw,56px)}
+.sec-head h2{font-size:clamp(34px,4.4vw,64px);font-weight:400;letter-spacing:-.012em;text-wrap:balance}
+.sec-head p{max-width:56ch;color:var(--ink-2);font-weight:300;font-size:18px}
+.sec-head.split{grid-template-columns:1fr auto;align-items:end}
+.sec-head.split p{grid-column:1/-1}
+
+/* ── 5 · work ────────────────────────────────────────────────────────── */
+.work{background:var(--ground-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.gal{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:minmax(120px,auto);gap:14px}
+.ba{grid-column:1/9;grid-row:span 3;aspect-ratio:16/10}
+.gal .single{position:relative}
+.gal .s1{grid-column:9/13;grid-row:span 2;aspect-ratio:4/5}
+.gal .s2{grid-column:9/13;grid-row:span 1;aspect-ratio:4/2.2}
+.gal .s3{grid-column:1/5;aspect-ratio:4/3}
+.gal .s4{grid-column:5/13;aspect-ratio:16/6}
+.gal figcaption{position:absolute;left:16px;bottom:14px;z-index:1;font-size:13px;color:var(--ink-2);font-style:italic}
+/* before / after — the range input drives --cut; native control, no library */
+.ba{--cut:52%;position:relative;overflow:hidden;background:var(--ground-3)}
+.ba .after,.ba .before{position:absolute;inset:0}
+.ba .before{clip-path:inset(0 calc(100% - var(--cut)) 0 0)}
+.ba .before.plate{--photo:url("https://images.unsplash.com/photo-1780558852671-e47265577239?auto=format&fit=crop&w=1400&q=70");filter:saturate(.5) contrast(.9) brightness(.85)}
+.ba .after.plate{--photo:url("https://images.unsplash.com/photo-1723155175248-f0837fb0026f?auto=format&fit=crop&w=1400&q=70")}
+.ba .tag{position:absolute;top:14px;z-index:2;padding:6px 10px;font:500 11px/1 var(--text);letter-spacing:.18em;text-transform:uppercase;background:rgba(15,13,11,.72);color:var(--ink);border:1px solid var(--rule-2)}
+.ba .tag.b{left:14px}.ba .tag.a{right:14px;color:var(--gilt)}
+.ba-handle{position:absolute;top:0;bottom:0;left:var(--cut);width:1px;background:var(--gilt);z-index:2;pointer-events:none}
+.ba-handle::after{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%);border:1px solid var(--gilt);border-radius:50%;background:rgba(15,13,11,.8);
+  background-image:linear-gradient(90deg,transparent 46%,var(--gilt) 46% 54%,transparent 54%);background-size:12px 1px;background-repeat:no-repeat;background-position:center}
+.ba input[type=range]{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;z-index:3;-webkit-appearance:none;appearance:none;background:transparent}
+.ba input[type=range]:focus-visible{opacity:1;outline:2px solid var(--gilt);outline-offset:-2px}
+.ba input[type=range]:focus-visible::-webkit-slider-thumb{-webkit-appearance:none;width:44px;height:100%;background:transparent}
+.ba .cap{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;font-size:13px;font-style:italic;color:var(--ink-2)}
+.gal .s1.plate{--photo:url("https://images.unsplash.com/photo-1705079483667-844c6e5c6085?auto=format&fit=crop&w=900&q=70")}
+.gal .s2.plate{--photo:url("https://images.unsplash.com/photo-1661300379478-2b8d4c8d5205?auto=format&fit=crop&w=900&q=70")}
+.gal .s3.plate{--photo:url("https://images.unsplash.com/photo-1608506375591-b90e1f955e4b?auto=format&fit=crop&w=900&q=70")}
+.gal .s4.plate{--photo:url("https://images.unsplash.com/photo-1669882571612-4a9c7822cd4c?auto=format&fit=crop&w=1400&q=70")}
+
+/* ── 6 · menu ────────────────────────────────────────────────────────── */
+.group{margin-top:clamp(40px,5vw,72px)}
+.group-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--gilt)}
+.group-head h3{font-size:clamp(24px,2.6vw,34px);font-weight:400}
+.group-head .pick{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gilt);white-space:nowrap}
+.group-head .pick.any{color:var(--ink-3)}
+.svc{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,4fr) minmax(200px,3fr);gap:clamp(20px,3vw,48px);padding:clamp(26px,3vw,40px) 0;border-bottom:1px solid var(--rule)}
+.svc h4{font-size:clamp(24px,2.4vw,32px);font-weight:400;line-height:1.1}
+.svc .meta{margin-top:10px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.svc .desc{margin-top:16px;color:var(--ink-2);max-width:48ch;font-weight:300}
+.svc .note{margin-top:18px;padding:12px 14px;border-left:2px solid var(--gilt);background:var(--ground-2);font-size:14px;line-height:1.5;color:var(--ink-2)}
+.svc .note b{font-weight:500;color:var(--ink);font-style:italic}
+.feat{columns:2;column-gap:24px;font-size:14.5px;color:var(--ink-2)}
+.feat li{break-inside:avoid;padding:5px 0 5px 16px;position:relative;border-bottom:1px dotted var(--rule)}
+.feat li::before{content:"";position:absolute;left:0;top:13px;width:6px;height:1px;background:var(--gilt)}
+.feat-title{display:block;margin-bottom:8px}
+.ladder{display:grid;gap:0;align-self:start;border-top:1px solid var(--rule-2)}
+.ladder>div{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.ladder dt{font-size:14px;color:var(--ink-2)}
+.ladder dt small{display:block;font-size:12px;color:var(--ink-3);font-style:italic}
+.ladder dd{margin:0;font-size:clamp(22px,2vw,28px)}
+.ladder .from{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding:10px 0 0}
+.svc .book{margin-top:22px}
+.svc .book a{font-size:14px;text-decoration:none;color:var(--gilt);border-bottom:1px solid var(--gilt);padding-bottom:2px}
+.svc .book a:hover{color:var(--ink);border-color:var(--ink)}
+
+/* ── 7 · extras ──────────────────────────────────────────────────────── */
+.extras{background:var(--ground-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.extras .sec-head{grid-template-columns:minmax(0,1fr) minmax(0,2fr);align-items:start;gap:32px}
+.addons{display:grid;grid-template-columns:1fr 1fr;column-gap:clamp(24px,5vw,80px)}
+.addon{display:grid;grid-template-columns:1fr auto;gap:8px 18px;padding:18px 0;border-bottom:1px solid var(--rule);align-items:baseline}
+.addon h4{font-size:20px;font-weight:400;font-family:var(--display)}
+.addon .price{font-size:22px;text-align:right}
+.addon .mins{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);text-align:right}
+.addon p{grid-column:1/-1;font-size:14.5px;color:var(--ink-2);font-weight:300}
+.addon .note{grid-column:1/-1;font-size:13px;font-style:italic;color:var(--ink-3)}
+.addon .note::before{content:"— "}
+
+/* ── 8 · plans ───────────────────────────────────────────────────────── */
+.plans .sec-head{text-align:center;justify-items:center}
+.plan-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:16px;align-items:stretch}
+.plan{position:relative;border:1px solid var(--rule-2);padding:clamp(26px,3vw,40px);background:var(--ground-2);display:flex;flex-direction:column;gap:18px}
+.plan.lead{background:linear-gradient(160deg,#1E1A16,#141110);border-color:var(--gilt)}
+.plan h3{font-size:clamp(26px,2.6vw,36px);font-weight:400}
+.plan .price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.plan .price .money{font-size:clamp(40px,4vw,56px);line-height:1;color:var(--gilt)}
+.plan .price span{font-size:15px;color:var(--ink-2)}
+.plan .cad{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.plan ul{border-top:1px solid var(--rule);padding-top:14px;display:grid;gap:8px;font-size:15px;color:var(--ink-2)}
+.plan ul li{padding-left:16px;position:relative}
+.plan ul li::before{content:"";position:absolute;left:0;top:11px;width:6px;height:1px;background:var(--gilt)}
+.plan .term{font-size:14px;font-style:italic;color:var(--ink-3);margin-top:auto}
+.plan .btn{align-self:flex-start}
+
+/* ── 9 · words ───────────────────────────────────────────────────────── */
+.words{background:var(--ground-2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.words .grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(32px,5vw,80px)}
+.pull{position:relative;padding-top:20px}
+.pull::before{content:"\201C";position:absolute;top:-34px;left:-6px;font:400 160px/1 var(--display);color:var(--gilt);opacity:.35}
+.pull blockquote{margin:0;font:400 clamp(26px,3vw,42px)/1.18 var(--display);letter-spacing:-.01em;text-wrap:pretty}
+.pull blockquote em{color:var(--gilt);font-style:italic}
+.pull .who{margin-top:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.stars{color:var(--gilt);letter-spacing:.12em;font-size:14px}
+.who b{font-weight:500}
+.who span{font-size:13px;color:var(--ink-3)}
+.rail{display:grid;gap:0;border-top:1px solid var(--rule)}
+.rail li{padding:20px 0;border-bottom:1px solid var(--rule)}
+.rail blockquote{margin:0 0 10px;font-size:16px;color:var(--ink-2);font-weight:300}
+.rail .who{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;font-size:14px}
+.words .out{margin-top:24px;display:flex;gap:22px;flex-wrap:wrap;font-size:14px}
+.words .out a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule-2);padding-bottom:2px}
+.words .out a:hover{color:var(--gilt);border-color:var(--gilt)}
+
+/* ── 10 · about ──────────────────────────────────────────────────────── */
+.about .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,5vw,80px);align-items:center}
+.about .plate{aspect-ratio:4/5;--photo:url("https://images.unsplash.com/photo-1632823469901-5d2cfff5ba50?auto=format&fit=crop&w=900&q=70")}
+.about .copy p+p{margin-top:1em}
+.about .copy p{color:var(--ink-2);font-size:18px;font-weight:300;max-width:58ch}
+.about .copy p:first-of-type{font-family:var(--display);font-size:clamp(22px,2vw,28px);color:var(--ink);line-height:1.3;font-weight:400}
+.about .sig{margin-top:28px;font:italic 400 26px/1 var(--display);color:var(--gilt)}
+
+/* ── 11 · faq ────────────────────────────────────────────────────────── */
+.faq .grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:clamp(24px,5vw,80px);align-items:start}
+.faq details{border-bottom:1px solid var(--rule)}
+.faq details:first-of-type{border-top:1px solid var(--rule)}
+.faq summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;padding:20px 0;font:400 clamp(18px,1.6vw,22px)/1.3 var(--display)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:300 26px/1 var(--display);color:var(--gilt);transition:transform .3s var(--ease)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq .a{padding:0 0 22px;color:var(--ink-2);font-weight:300;max-width:62ch}
+.faq details[open] .a{animation:faq-in .4s var(--ease) both}
+@keyframes faq-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* ── 12 · visit ──────────────────────────────────────────────────────── */
+.visit{background:var(--ground-2);border-top:1px solid var(--rule)}
+.visit .grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,5fr) minmax(0,3fr);gap:clamp(28px,4vw,64px)}
+.visit h3{font-size:clamp(22px,2vw,28px);font-weight:400;margin-bottom:18px}
+.hours{border-top:1px solid var(--rule-2)}
+.hours>div{display:grid;grid-template-columns:1fr auto;padding:9px 0;border-bottom:1px solid var(--rule);font-size:15px;color:var(--ink-2)}
+.hours>div.today{color:var(--ink)}
+.hours>div.today dt::after{content:" · today";font-style:italic;color:var(--gilt);font-size:13px}
+.hours dd{margin:0;font-variant-numeric:tabular-nums}
+.hours dd.closed{color:var(--ink-3);font-style:italic}
+.visit .now{margin-top:14px;font-size:14px;color:var(--ink-3)}
+.visit .now b{color:var(--gilt);font-weight:500}
+.where p{color:var(--ink-2);font-weight:300}
+.where p+p{margin-top:12px}
+.where .addr{font-family:var(--display);font-size:22px;color:var(--ink);font-weight:400;line-height:1.25}
+.where .modes{margin-top:18px;display:grid;gap:10px}
+.where .modes li{padding-left:18px;position:relative;font-size:15px;color:var(--ink-2)}
+.where .modes li::before{content:"";position:absolute;left:0;top:11px;width:8px;height:1px;background:var(--gilt)}
+.pay{display:grid;gap:0;border-top:1px solid var(--rule-2)}
+.pay>div{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:15px;align-items:baseline}
+.pay dt{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);min-width:64px}
+.pay dd{margin:0;color:var(--ink-2)}
+.pay dd a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule-2)}
+.pay dd a:hover{border-color:var(--gilt)}
+
+/* ── 13 · foot ───────────────────────────────────────────────────────── */
+.foot{border-top:1px solid var(--rule);padding:clamp(48px,6vw,80px) 0 32px}
+.foot .grid{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,3fr) minmax(0,3fr);gap:clamp(28px,4vw,64px);align-items:start}
+.foot .again h2{font-size:clamp(30px,3.6vw,52px);font-weight:400;letter-spacing:-.012em;margin-bottom:18px}
+.foot .again .btn{margin-top:6px}
+.foot .again .promise{margin-top:14px;font-size:14px;color:var(--ink-3)}
+.foot h4{font:500 12px/1.2 var(--text);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+.foot ul{display:grid;gap:8px;font-size:15px}
+.foot ul a{color:var(--ink-2);text-decoration:none}
+.foot ul a:hover{color:var(--gilt)}
+.foot .tel{font-family:var(--display);font-size:24px;color:var(--ink);text-decoration:none}
+.foot .base{margin-top:clamp(36px,5vw,64px);padding-top:18px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ink-3)}
+.foot .base .mark .name{font-size:16px}
+
+/* ── seams (artifact chrome, ?seams=1) ───────────────────────────────── */
+.seam-ctl{font:500 11px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;color:var(--ink-3);border:1px dashed var(--rule-2);padding:7px 10px;background:var(--ground)}
+.seam-ctl:hover{color:var(--gilt);border-color:var(--gilt)}
+html.seams body{padding-bottom:56px}
+html.seams [data-src]{outline:1px dashed #6FB7D9;outline-offset:-1px;position:relative}
+html.seams [data-src]::before{content:attr(data-src);position:absolute;top:0;left:0;z-index:30;font:500 10px/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:0;text-transform:none;color:#0F0D0B;background:#6FB7D9;padding:2px 5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;box-sizing:border-box}
+html.seams .plate::before{z-index:30}
+html.seams .seam-bar{display:flex}
+.seam-bar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:40;justify-content:space-between;align-items:center;gap:12px;padding:10px var(--gutter);background:#6FB7D9;color:#0F0D0B;font:500 12px/1.2 ui-monospace,Menlo,Consolas,monospace}
+.seam-bar button{text-decoration:underline;text-underline-offset:2px}
+
+/* ── responsive ──────────────────────────────────────────────────────── */
+@media (max-width:1100px){
+  .svc{grid-template-columns:minmax(0,1fr) minmax(200px,220px);grid-template-areas:"a c" "b c"}
+  .svc>.a{grid-area:a}.svc>.b{grid-area:b}.svc>.c{grid-area:c}
+  .feat{columns:2}
+}
+@media (max-width:900px){
+  .nav .wrap{grid-template-columns:auto 1fr auto}
+  .nav nav{display:none}
+  .nav .cta .tel{display:none}
+  .nav .burger{display:flex}
+  .nav.open nav{display:grid;grid-column:1/-1;gap:0;padding:6px 0 16px;justify-content:start}
+  .nav.open nav a{padding:10px 0;font-size:17px;border-bottom:1px solid var(--rule)}
+  .hero .grid{grid-template-columns:1fr}
+  .hero .plate{aspect-ratio:16/10;max-height:460px}
+  .ledger{grid-template-columns:1fr 1fr}
+  .ledger>div:nth-child(3){border-left:0;padding-left:0}
+  .ledger>div:nth-child(n+3){border-top:1px solid var(--rule)}
+  .gal{grid-template-columns:1fr 1fr;grid-auto-rows:auto}
+  .ba{grid-column:1/-1;grid-row:auto}
+  .gal .s1{grid-column:1/2;grid-row:auto;aspect-ratio:4/4}
+  .gal .s2{grid-column:2/3;grid-row:auto;aspect-ratio:4/4}
+  .gal .s3{grid-column:1/2;aspect-ratio:4/3}
+  .gal .s4{grid-column:2/3;aspect-ratio:4/3}
+  .extras .sec-head{grid-template-columns:1fr}
+  .addons{grid-template-columns:1fr}
+  .plan-grid{grid-template-columns:1fr}
+  .words .grid,.about .grid,.faq .grid{grid-template-columns:1fr}
+  .visit .grid{grid-template-columns:1fr 1fr}
+  .visit .grid>:last-child{grid-column:1/-1}
+  .foot .grid{grid-template-columns:1fr 1fr}
+  .foot .grid>:first-child{grid-column:1/-1}
+}
+@media (max-width:640px){
+  /* seams on a phone flow ABOVE their content instead of overlaying it — a label must never cover a price */
+  html.seams [data-src]::before{position:static;display:inline;white-space:normal;overflow-wrap:anywhere;grid-column:1/-1}
+  html.seams .nav{position:static}   /* the labelled nav is tall; it must not stick */
+  html.seams .btn{display:inline-block}   /* so a label wraps inside the button instead of beside its text */
+  .strip .wrap{font-size:12px}
+  .strip .area{display:none}
+  .nav .wrap{min-height:64px;gap:14px}
+  .mark .name{font-size:18px}
+  .nav .cta .btn{padding:10px 14px;font-size:12px}
+  .hero h1{font-size:clamp(40px,12vw,56px)}
+  .hero .actions .tel{font-size:20px}
+  .svc{grid-template-columns:1fr;grid-template-areas:"a" "c" "b"}
+  .feat{columns:1}
+  .ladder{margin-top:4px}
+  .visit .grid{grid-template-columns:1fr}
+  .foot .grid{grid-template-columns:1fr}
+  .sec-head.split{grid-template-columns:1fr}
+  .group-head{flex-direction:column;align-items:flex-start;gap:6px}
+  .gal{gap:10px}
+  .gal .s1,.gal .s2,.gal .s3,.gal .s4{grid-column:1/-1;aspect-ratio:16/9}
+}
+@media (max-width:360px){
+  .strip a{white-space:nowrap}
+  .nav .mark .mono{display:none}   /* 320px: name + Book + menu do not fit beside the monogram; the foot still carries logo_url */
+  .ledger{grid-template-columns:1fr}
+  .ledger>div{border-left:0;padding-left:0;border-top:1px solid var(--rule)}
+  .ledger>div:first-child{border-top:0}
+  .hero .actions{flex-direction:column;align-items:flex-start}
+  .btn{padding:13px 18px;font-size:14px}
+  .nav .cta .btn{padding:9px 11px;font-size:11px}
+  .mark .name{font-size:16px}
+  .plan .price .money{font-size:36px}
+}
+</style>
+</head>
+<body>
+
+<!-- 1 · STRIP — the phone is the first thing on every real site (research §3, 6/6) -->
+<div class="strip">
+  <div class="wrap">
+    <a href="tel:+14805550142" data-src="businesses.contact_phone">(480) 555-0142</a>
+    <span class="state" id="state" aria-live="polite" data-src="business_hours.open_time / close_time · computed in businesses.timezone">Checking hours…</span>
+    <span class="area" data-src="businesses.service_area">Scottsdale · Paradise Valley · North Phoenix</span>
+  </div>
+</div>
+
+<!-- 2 · NAV -->
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Sable Paintworks, home">
+      <span class="mono" data-src="business_branding.logo_url">S<!-- <img src="{{ business_branding.logo_url }}" alt=""> --></span>
+      <span class="name" data-src="businesses.name">Sable Paintworks</span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="#work">The work</a>
+      <a href="#menu">Services</a>
+      <a href="#plans">Plans</a>
+      <a href="#words">Reviews</a>
+      <a href="#about">About</a>
+      <a href="#visit">Visit</a>
+    </nav>
+    <div class="cta">
+      <a class="tel" href="tel:+14805550142" data-src="businesses.contact_phone">(480) 555-0142</a>
+      <!-- 2a · the booking entry point. RESERVE wording live. -->
+      <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · business_settings.booking_mode = reserve">Book a slot</a>
+      <!-- booking_mode = request — swap the line above for:
+      <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · business_settings.booking_mode = request">Request a slot</a>
+      -->
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- 3 · SALE — contract §2e. REMOVE THIS WHOLE <aside> when site_discount_active is false. -->
+<aside class="sale" id="sale" data-src="business_settings.site_discount_active · site_discount_label (fallback: site_discount_percent → 'N% off')">
+  <div class="wrap">
+    <b>This month</b>
+    <span>Fifteen percent off any correction booked before the 30th — the price you see at checkout already has it taken off.</span>
+    <a href="/book/sable-paintworks">Book a slot</a><!-- booking_mode = request: "Request a slot" -->
+  </div>
+</aside>
+
+<main id="top">
+
+<!-- 4 · HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="grid">
+      <div data-rv="stagger">
+        <p class="label gilt" data-src="businesses.service_area">Scottsdale, Arizona</p>
+        <h1 style="margin-top:18px" data-src="business_branding.tagline">Paint corrected. <em>Then protected</em> for years, not weeks.</h1>
+        <p class="lede">A two-bay unit, one car at a time. Multi-stage machine polishing under proper light, then a professional ceramic coating with the paperwork to back it.</p>
+        <div class="actions">
+          <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book a slot</a>
+          <span class="or">or call</span>
+          <a class="tel" href="tel:+14805550142" data-src="businesses.contact_phone">(480) 555-0142</a>
+        </div>
+        <p class="promise" data-src="business_settings.booking_mode = reserve">Your time is held the moment you book. Change or cancel from the link in your confirmation.</p>
+        <!-- booking_mode = request — swap the .promise line for:
+        <p class="promise" data-src="business_settings.booking_mode = request">Send a request and we confirm the day within one working day. Nothing is charged until we do.</p>
+        -->
+      </div>
+      <figure class="plate" data-rv="plate" style="--photo:url('https://images.unsplash.com/photo-1723155175248-f0837fb0026f?auto=format&fit=crop&w=1200&q=72');--d:180ms" data-src="business_branding.hero_image_url" aria-label="A black coupe on the polished floor of the unit, under the inspection lights">
+        <figcaption class="cap"><span>Bay two</span><span>Two-stage correction, 5-year coating</span></figcaption>
+      </figure>
+    </div>
+
+    <!-- credentials: research §4c — NO column holds these today -->
+    <div class="ledger" data-rv="stagger" style="--d:420ms" data-src="business_branding.credentials (PROPOSED — research §4c)">
+      <div><b>Since <i>2016</i></b><span>Ten years, two bays, one owner</span></div>
+      <div><b>Licensed <i>&amp;</i> insured</b><span>Garage-keepers cover on every car in the unit</span></div>
+      <div><b>Accredited <i>installer</i></b><span>Gtechniq and CarPro coatings, with the manufacturer's warranty</span></div>
+      <div><b>4.9 <i>★</i></b><span>Across 212 Google reviews</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · THE WORK — gallery, with the before/after PAIR as a pair (contract §2f) -->
+<section class="sec work" id="work">
+  <div class="wrap">
+    <header class="sec-head split" data-rv>
+      <h2>The work, before the words.</h2>
+      <p class="label">Drag the line</p>
+      <p>Everything below was done in this unit. The comparison is one car, one panel, the same light.</p>
+    </header>
+
+    <div class="gal">
+      <!-- gallery_images.kind = before_after → before_url + after_url rendered as ONE plate -->
+      <div class="ba" data-rv="plate" data-src="gallery_images (kind = before_after): before_url · after_url · caption">
+        <div class="after plate" role="img" aria-label="After: black paint with a deep, swirl-free reflection"></div>
+        <div class="before plate" role="img" aria-label="Before: the same panel with swirl marks and a hazy finish"></div>
+        <span class="tag b">Before</span><span class="tag a">After</span>
+        <div class="ba-handle" aria-hidden="true"></div>
+        <input type="range" min="4" max="96" value="52" id="cut" aria-label="Compare before and after: slide left to show more of the after, right for the before">
+        <p class="cap" data-src="gallery_images.caption">2019 BMW M4 — two-stage correction, 5-year ceramic. Bonnet, same angle, same lamp.</p>
+      </div>
+      <figure class="plate single s1" data-rv style="--d:120ms" data-src="gallery_images (kind = single): image_url · caption"><figcaption>Interior reset, saddle leather</figcaption></figure>
+      <figure class="plate single s2" data-rv style="--d:220ms" data-src="gallery_images (kind = single): image_url · caption"><figcaption>Wheels off, barrels coated</figcaption></figure>
+      <figure class="plate single s3" data-rv style="--d:80ms" data-src="gallery_images (kind = single): image_url · caption"><figcaption>Foam pre-wash, bay one</figcaption></figure>
+      <figure class="plate single s4" data-rv style="--d:180ms" data-src="gallery_images (kind = single): image_url · caption"><figcaption>Delivery day</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · SERVICES — the catalog (contract §2b). Groups keep their order and their pick rule.
+     booking_mode = request: every "Book this" below reads "Request this" (§2l). -->
+<section class="sec menu" id="menu">
+  <div class="wrap">
+    <header class="sec-head" data-rv>
+      <p class="label gilt">Services</p>
+      <h2>Three ways to correct. Two ways to keep it that way.</h2>
+      <p>Every price is printed for all three sizes because that is the question you came with. What counts as which size is under each ladder.</p>
+    </header>
+
+    <!-- GROUP 1 · is_exclusive = true, max_select = 1 -->
+    <div class="group" data-src="service_groups: name · description · is_exclusive = true · max_select = 1">
+      <div class="group-head" data-rv="x">
+        <h3 data-src="service_groups.name">Correction &amp; coating</h3>
+        <span class="pick" data-src="service_groups.is_exclusive · max_select">Choose one</span>
+      </div>
+
+      <article class="svc" data-rv="stagger" data-src="services (row)">
+        <div class="a">
+          <h4 data-src="services.name">Two-stage correction, five-year ceramic</h4>
+          <p class="meta"><span data-src="services.duration_minutes">Three days</span> · <span data-src="services.allows_dropoff">Drop-off at the unit</span></p>
+          <p class="desc" data-src="services.description">Heavy cut to remove the defects, then a refining polish to bring the gloss back, then a two-layer ceramic coating with a 5-year manufacturer warranty registered in your name.</p>
+          <p class="note" data-src="services.notes"><b>Read first.</b> Price assumes paint in fair condition. Heavy defects, a previous coating or repainted panels are assessed at drop-off and can change the price — we tell you before we start.</p>
+          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+        </div>
+        <div class="b">
+          <span class="label feat-title">What's included</span>
+          <ul class="feat" data-src="services.features">
+            <li>Snow-foam pre-wash and two-bucket hand wash</li>
+            <li>Iron and tar decontamination</li>
+            <li>Clay treatment, full body</li>
+            <li>Wheels off, barrels and calipers cleaned</li>
+            <li>Paint depth readings on every panel</li>
+            <li>Heavy-cut compounding stage</li>
+            <li>Refining polish stage</li>
+            <li>Panel wipe and inspection under sun-match lamps</li>
+            <li>Two layers of ceramic, cured in the unit overnight</li>
+            <li>Glass and trim cleaned and dressed</li>
+            <li>Tyres dressed, satin finish</li>
+            <li>Warranty registered and care sheet handed over</li>
+          </ul>
+        </div>
+        <dl class="ladder c" data-src="services.price · services.vehicle_size_adjustments · business_settings.vehicle_sizes">
+          <div><dt>Sedan<small>Coupe, sedan, hatchback</small></dt><dd class="money">$1,850</dd></div>
+          <div><dt>Mid-size<small>Small SUV, crossover, wagon</small></dt><dd class="money">$2,150</dd></div>
+          <div><dt>Oversized<small>Truck, large SUV, van</small></dt><dd class="money">$2,450</dd></div>
+          <div class="from" data-src="services.price_is_from = true">From — condition assessed at drop-off</div>
+        </dl>
+      </article>
+
+      <article class="svc" data-rv="stagger" data-src="services (row)">
+        <div class="a">
+          <h4 data-src="services.name">Single-stage correction, two-year ceramic</h4>
+          <p class="meta"><span data-src="services.duration_minutes">Two days</span> · <span data-src="services.allows_dropoff">Drop-off at the unit</span></p>
+          <p class="desc" data-src="services.description">One machine-polishing pass that removes most light swirls and restores clarity, sealed under a single-layer ceramic with a 2-year warranty. The right call for a car under three years old.</p>
+          <p class="note" data-src="services.notes"><b>Read first.</b> A single stage removes around 70–80% of defects. If you want it perfect, that is the two-stage above — we will say so at the inspection rather than sell you the wrong one.</p>
+          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+        </div>
+        <div class="b">
+          <span class="label feat-title">What's included</span>
+          <ul class="feat" data-src="services.features">
+            <li>Snow-foam pre-wash and two-bucket hand wash</li>
+            <li>Iron and tar decontamination</li>
+            <li>Clay treatment, full body</li>
+            <li>Wheel faces cleaned and coated</li>
+            <li>One-step polish, all panels</li>
+            <li>Panel wipe and inspection</li>
+            <li>One layer of ceramic, cured overnight</li>
+            <li>Glass cleaned inside and out</li>
+            <li>Tyres dressed</li>
+            <li>Warranty registered and care sheet handed over</li>
+          </ul>
+        </div>
+        <dl class="ladder c" data-src="services.price · services.vehicle_size_adjustments · business_settings.vehicle_sizes">
+          <div><dt>Sedan<small>Coupe, sedan, hatchback</small></dt><dd class="money">$1,150</dd></div>
+          <div><dt>Mid-size<small>Small SUV, crossover, wagon</small></dt><dd class="money">$1,350</dd></div>
+          <div><dt>Oversized<small>Truck, large SUV, van</small></dt><dd class="money">$1,550</dd></div>
+          <div class="from" data-src="services.price_is_from = true">From — condition assessed at drop-off</div>
+        </dl>
+      </article>
+
+      <article class="svc" data-rv="stagger" data-src="services (row)">
+        <div class="a">
+          <h4 data-src="services.name">Gloss enhancement, twelve-month sealant</h4>
+          <p class="meta"><span data-src="services.duration_minutes">One day</span> · <span data-src="services.allows_dropoff · allows_mobile">Drop-off, or we come to you</span></p>
+          <p class="desc" data-src="services.description">A light finishing polish to lift gloss and clear the haze, sealed with a polymer paint sealant. For a car that is already in good shape and wants to look its best for a season.</p>
+          <p class="note" data-src="services.notes"><b>This is not a ceramic coating.</b> A sealant lasts about a year and carries no warranty. If you want years of protection, choose one of the two coatings above.</p>
+          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+        </div>
+        <div class="b">
+          <span class="label feat-title">What's included</span>
+          <ul class="feat" data-src="services.features">
+            <li>Snow-foam pre-wash and hand wash</li>
+            <li>Iron decontamination</li>
+            <li>Light clay treatment</li>
+            <li>Finishing polish, all panels</li>
+            <li>Polymer sealant applied by hand</li>
+            <li>Glass cleaned inside and out</li>
+            <li>Tyres and trim dressed</li>
+          </ul>
+        </div>
+        <dl class="ladder c" data-src="services.price · services.vehicle_size_adjustments · business_settings.vehicle_sizes">
+          <div><dt>Sedan<small>Coupe, sedan, hatchback</small></dt><dd class="money">$479</dd></div>
+          <div><dt>Mid-size<small>Small SUV, crossover, wagon</small></dt><dd class="money">$549</dd></div>
+          <div><dt>Oversized<small>Truck, large SUV, van</small></dt><dd class="money">$629</dd></div>
+        </dl>
+      </article>
+    </div>
+
+    <!-- GROUP 2 · is_exclusive = false, max_select = null -->
+    <div class="group" data-src="service_groups: name · description · is_exclusive = false · max_select = null">
+      <div class="group-head" data-rv="x">
+        <h3 data-src="service_groups.name">Maintenance</h3>
+        <span class="pick any" data-src="service_groups.is_exclusive = false">Add any, or both</span>
+      </div>
+
+      <article class="svc" data-rv="stagger" data-src="services (row)">
+        <div class="a">
+          <h4 data-src="services.name">Maintenance wash</h4>
+          <p class="meta"><span data-src="services.duration_minutes">90 minutes</span> · <span data-src="services.allows_dropoff · allows_mobile">Drop-off, or we come to you</span></p>
+          <p class="desc" data-src="services.description">The safe wash a coated car needs and a drive-through cannot give it. pH-neutral, two buckets, dried with filtered air, coating topped up.</p>
+          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+        </div>
+        <div class="b">
+          <span class="label feat-title">What's included</span>
+          <ul class="feat" data-src="services.features">
+            <li>Snow-foam pre-wash</li>
+            <li>Two-bucket hand wash, pH-neutral</li>
+            <li>Wheel faces and barrels</li>
+            <li>Air-dried, no towels on the paint</li>
+            <li>Ceramic top-up spray</li>
+            <li>Glass, exterior</li>
+            <li>Tyres dressed</li>
+            <li>Interior vacuum and wipe-down</li>
+          </ul>
+        </div>
+        <dl class="ladder c" data-src="services.price · services.vehicle_size_adjustments · business_settings.vehicle_sizes">
+          <div><dt>Sedan<small>Coupe, sedan, hatchback</small></dt><dd class="money">$89</dd></div>
+          <div><dt>Mid-size<small>Small SUV, crossover, wagon</small></dt><dd class="money">$109</dd></div>
+          <div><dt>Oversized<small>Truck, large SUV, van</small></dt><dd class="money">$129</dd></div>
+        </dl>
+      </article>
+
+      <article class="svc" data-rv="stagger" data-src="services (row)">
+        <div class="a">
+          <h4 data-src="services.name">Interior reset</h4>
+          <p class="meta"><span data-src="services.duration_minutes">Three hours</span> · <span data-src="services.allows_dropoff">Drop-off at the unit</span></p>
+          <p class="desc" data-src="services.description">Everything out, everything cleaned, everything put back. Steam on the hard surfaces, extraction on the soft ones, leather fed rather than shined.</p>
+          <p class="note" data-src="services.notes"><b>Read first.</b> Pet hair, sand and biological contamination are quoted after inspection — they can double the time, and we would rather tell you than surprise you.</p>
+          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+        </div>
+        <div class="b">
+          <span class="label feat-title">What's included</span>
+          <ul class="feat" data-src="services.features">
+            <li>Full vacuum including boot and under seats</li>
+            <li>Steam clean of vents, consoles, switchgear</li>
+            <li>Hot-water extraction of carpets and mats</li>
+            <li>Leather cleaned and conditioned</li>
+            <li>Fabric seats shampooed</li>
+            <li>Glass, interior</li>
+            <li>Door shuts and sills</li>
+            <li>Odour neutralised, not perfumed</li>
+          </ul>
+        </div>
+        <dl class="ladder c" data-src="services.price · services.vehicle_size_adjustments · business_settings.vehicle_sizes">
+          <div><dt>Sedan<small>Coupe, sedan, hatchback</small></dt><dd class="money">$179</dd></div>
+          <div><dt>Mid-size<small>Small SUV, crossover, wagon</small></dt><dd class="money">$229</dd></div>
+          <div><dt>Oversized<small>Truck, large SUV, van</small></dt><dd class="money">$279</dd></div>
+          <div class="from" data-src="services.price_is_from = true">From — condition assessed at drop-off</div>
+        </dl>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · ADD-ONS (contract §2c) -->
+<section class="sec extras" id="extras">
+  <div class="wrap">
+    <header class="sec-head" data-rv>
+      <div><p class="label gilt">Add-ons</p><h2 style="margin-top:12px">While it's here.</h2></div>
+      <p>Each one is priced on its own and added to whatever you book. The minutes are what they add to the day.</p>
+    </header>
+    <div class="addons" data-rv="stagger" data-src="add_ons (rows)">
+      <div class="addon" data-src="add_ons: name · price · duration_minutes · description · notes">
+        <h4 data-src="add_ons.name">Wheels off, barrels coated</h4>
+        <span class="money price" data-src="add_ons.price">$220</span>
+        <p data-src="add_ons.description">All four wheels removed, cleaned inside and out, ceramic-coated front and back so brake dust rinses off.</p>
+        <span class="mins" data-src="add_ons.duration_minutes">+ 90 min</span>
+        <span class="note" data-src="add_ons.notes">Only with a drop-off booking; the car needs to be on the lift.</span>
+      </div>
+      <div class="addon" data-src="add_ons: name · price · duration_minutes · description · notes">
+        <h4 data-src="add_ons.name">Glass coating</h4>
+        <span class="money price" data-src="add_ons.price">$140</span>
+        <p data-src="add_ons.description">Windscreen and side glass polished and coated. Rain sheets off above about 40 mph and the wipers stop chattering.</p>
+        <span class="mins" data-src="add_ons.duration_minutes">+ 45 min</span>
+      </div>
+      <div class="addon" data-src="add_ons: name · price · duration_minutes · description · notes">
+        <h4 data-src="add_ons.name">Leather coating</h4>
+        <span class="money price" data-src="add_ons.price">$190</span>
+        <p data-src="add_ons.description">A breathable coating on seats and door cards that stops dye transfer from jeans and keeps the grain matte.</p>
+        <span class="mins" data-src="add_ons.duration_minutes">+ 60 min</span>
+        <span class="note" data-src="add_ons.notes">Needs clean leather first — pairs with the interior reset.</span>
+      </div>
+      <div class="addon" data-src="add_ons: name · price · duration_minutes · description · notes">
+        <h4 data-src="add_ons.name">Engine bay</h4>
+        <span class="money price" data-src="add_ons.price">$95</span>
+        <p data-src="add_ons.description">Degreased, rinsed with care around electrics, plastics dressed to a satin finish.</p>
+        <span class="mins" data-src="add_ons.duration_minutes">+ 45 min</span>
+      </div>
+      <div class="addon" data-src="add_ons: name · price · duration_minutes · description · notes">
+        <h4 data-src="add_ons.name">Headlight restoration</h4>
+        <span class="money price" data-src="add_ons.price">$120</span>
+        <p data-src="add_ons.description">Yellowed lenses wet-sanded, polished clear and coated against UV, the pair.</p>
+        <span class="mins" data-src="add_ons.duration_minutes">+ 60 min</span>
+        <span class="note" data-src="add_ons.notes">Restores hazing and yellowing. A cracked or internally fogged lens cannot be restored.</span>
+      </div>
+      <div class="addon" data-src="add_ons: name · price · duration_minutes · description · notes">
+        <h4 data-src="add_ons.name">Paint protection film, front edge</h4>
+        <span class="money price" data-src="add_ons.price">$390</span>
+        <p data-src="add_ons.description">Clear film on the bonnet's leading edge, mirror caps and door edges — the places stones find first.</p>
+        <span class="mins" data-src="add_ons.duration_minutes">+ 150 min</span>
+        <span class="note" data-src="add_ons.notes">Applied over a fresh correction only; not over an old coating.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · PLANS (contract §2d) — two price_kind shapes, printed in the shape each names -->
+<section class="sec plans" id="plans">
+  <div class="wrap">
+    <header class="sec-head" data-rv>
+      <p class="label gilt">Monthly plans</p>
+      <h2>Keep it the way it left.</h2>
+      <p>A coating only stays glossy if it is washed properly. Members get a standing slot and we keep the record, so the warranty stays valid.</p>
+    </header>
+    <div class="plan-grid" data-rv="stagger">
+      <article class="plan lead" data-src="plans (row): name · description · price_kind = monthly · price_amount · cadence_count · cadence_unit · visits_per_period · term_months · included_service_ids">
+        <p class="cad" data-src="plans.cadence_count · cadence_unit · visits_per_period">Every month · one visit</p>
+        <h3 data-src="plans.name">Maintenance member</h3>
+        <p class="price" data-src="plans.price_kind = monthly · price_amount"><span class="money">$149</span><span>a month</span></p>
+        <p style="color:var(--ink-2);font-weight:300" data-src="plans.description">A maintenance wash on a standing day each month, at the unit or at your place, and a coating inspection twice a year.</p>
+        <ul data-src="plans.included_service_ids → services.name">
+          <li>Maintenance wash, every month</li>
+          <li>Ceramic top-up on every visit</li>
+          <li>Coating inspection and touch-up, twice a year</li>
+          <li>Members' price on any add-on</li>
+        </ul>
+        <p class="term" data-src="plans.term_months">Six-month minimum, then month to month.</p>
+        <a class="btn" href="/book/sable-paintworks/plans" data-src="businesses.slug → /book/:slug/plans">Join this plan</a>
+      </article>
+      <article class="plan" data-src="plans (row): name · description · price_kind = total · price_amount · cadence_count · cadence_unit · visits_per_period · term_months · included_service_ids">
+        <p class="cad" data-src="plans.cadence_count · cadence_unit · visits_per_period">Every three months · one visit</p>
+        <h3 data-src="plans.name">Coating care year</h3>
+        <p class="price" data-src="plans.price_kind = total · price_amount"><span class="money">$1,299</span><span>up front, for the year</span></p>
+        <p style="color:var(--ink-2);font-weight:300" data-src="plans.description">Four quarterly visits that keep a coated car under warranty — the deep clean, the decontamination and the top-up the manufacturer asks for.</p>
+        <ul data-src="plans.included_service_ids → services.name">
+          <li>Maintenance wash, quarterly</li>
+          <li>Iron decontamination each visit</li>
+          <li>Coating top-up, both layers</li>
+          <li>Warranty log kept and signed</li>
+        </ul>
+        <p class="term" data-src="plans.term_months">Twelve months, paid once.</p>
+        <a class="btn ghost" href="/book/sable-paintworks/plans" data-src="businesses.slug → /book/:slug/plans">Join this plan</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · REVIEWS (contract §2g) -->
+<section class="sec words" id="words">
+  <div class="wrap">
+    <div class="grid">
+      <div class="pull" data-rv data-src="testimonials (row): author · quote · rating · source">
+        <blockquote data-src="testimonials.quote">I stood in the unit with a torch looking for a swirl and <em>could not find one.</em> He walked me round the car for twenty minutes before he'd take the money.</blockquote>
+        <div class="who">
+          <span class="stars" data-src="testimonials.rating" aria-label="5 out of 5">★★★★★</span>
+          <b data-src="testimonials.author">Daniel R.</b>
+          <span data-src="testimonials.source">Google · Porsche 992, two-stage and coating</span>
+        </div>
+        <p class="out">
+          <a href="https://g.page/r/example/review" data-src="business_settings.google_review_url">Read the rest on Google</a>
+          <a href="https://www.yelp.com/biz/example" data-src="business_settings.yelp_review_url">Or on Yelp</a>
+        </p>
+      </div>
+      <ul class="rail" data-rv="stagger" style="--d:200ms" data-src="testimonials (rows)">
+        <li data-src="testimonials (row)">
+          <blockquote data-src="testimonials.quote">Booked online on a Tuesday night, dropped it Friday, picked up Monday. Nobody chased me and nobody upsold me.</blockquote>
+          <div class="who"><span class="stars" data-src="testimonials.rating">★★★★★</span><b data-src="testimonials.author">Priya S.</b><span data-src="testimonials.source">Google</span></div>
+        </li>
+        <li data-src="testimonials (row)">
+          <blockquote data-src="testimonials.quote">Honest about what a single stage would and wouldn't fix on a black car. Went two-stage on his advice and it was the right call.</blockquote>
+          <div class="who"><span class="stars" data-src="testimonials.rating">★★★★★</span><b data-src="testimonials.author">Marcus T.</b><span data-src="testimonials.source">Yelp</span></div>
+        </li>
+        <li data-src="testimonials (row)">
+          <blockquote data-src="testimonials.quote">Third year on the maintenance plan. The coating still beads like the day it was done and I have never once washed the car myself.</blockquote>
+          <div class="who"><span class="stars" data-src="testimonials.rating" aria-label="4 out of 5">★★★★☆</span><b data-src="testimonials.author">Elena V.</b><span data-src="testimonials.source">Google</span></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · ABOUT (contract §2k) -->
+<section class="sec about" id="about">
+  <div class="wrap">
+    <div class="grid">
+      <figure class="plate" data-rv="plate" aria-label="The owner, wet-sanding a panel under the lamp" data-src="business_branding.hero_image_url (second use) — or a gallery single"></figure>
+      <div class="copy" data-rv="stagger" style="--d:160ms" data-src="business_branding.about_copy">
+        <p>I started polishing cars in a rented single bay in 2016 because nobody in the valley would take the time on my own.</p>
+        <p>Ten years on it is still one car at a time. Every correction is measured before it starts — paint depth on every panel, written down — because the difference between a good finish and a burnt edge is a number. I do the machine work myself; the two people who work with me do the wash, the wheels and the interiors, and they are better at them than I am.</p>
+        <p>We are not the cheapest and we are not trying to be. We are the shop people bring the car to after somebody cheaper has had a go.</p>
+        <p class="sig">— Tom Ashby</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · FAQ (contract §2h) — rendered ONLY when faq_enabled; not in the RPC yet (§6b) -->
+<section class="sec faq" id="faq" data-src="business_settings.faq_enabled = true · business_settings.faqs (not in the RPC yet — contract §6b)">
+  <div class="wrap">
+    <div class="grid">
+      <header class="sec-head" data-rv>
+        <p class="label gilt">Questions</p>
+        <h2>Asked most weeks.</h2>
+      </header>
+      <div data-rv="stagger" style="--d:120ms" data-src="business_settings.faqs[] → {question, answer}">
+        <details>
+          <summary>How long does a ceramic coating actually last?</summary>
+          <div class="a">The two-year and five-year figures are the manufacturer's warranty terms, and we register them in your name. Washed properly — pH-neutral, no automatic washes — they routinely outlast them. Washed badly, nothing lasts.</div>
+        </details>
+        <details>
+          <summary>Do I need to leave the car with you?</summary>
+          <div class="a">For a correction, yes — two or three days, because the coating cures in the unit overnight and cannot be rushed. Maintenance washes and the gloss enhancement we can do at your place within about fifteen miles.</div>
+        </details>
+        <details>
+          <summary>Can you quote from photos?</summary>
+          <div class="a">Roughly. The ladder on this page is the honest starting point; the exact number depends on paint condition, which we measure at drop-off. If it needs to change we say so before a pad touches the car, and you can walk away.</div>
+        </details>
+        <details>
+          <summary>Is a ceramic coating the same as paint protection film?</summary>
+          <div class="a">No. A coating is a hard, thin layer that resists chemicals and UV and makes the car easier to keep clean; it will not stop a stone chip. Film is a physical layer that does. Many of our customers coat the whole car and film the front edge.</div>
+        </details>
+        <details>
+          <summary>What if I need to move my slot?</summary>
+          <div class="a">The link in your confirmation email lets you change or cancel it yourself, up to 24 hours before. Inside 24 hours, call us — we can usually do something.</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 · VISIT — hours with state (§2j), where we work (§2j), how to pay (§2i) -->
+<section class="sec visit" id="visit">
+  <div class="wrap">
+    <div class="grid">
+      <div data-rv="x">
+        <h3>Hours</h3>
+        <dl class="hours" id="hours" data-src="business_hours: weekday · open_time · close_time">
+          <div data-wd="1"><dt>Monday</dt><dd data-open="08:00" data-close="18:00">8:00 – 6:00</dd></div>
+          <div data-wd="2"><dt>Tuesday</dt><dd data-open="08:00" data-close="18:00">8:00 – 6:00</dd></div>
+          <div data-wd="3"><dt>Wednesday</dt><dd data-open="08:00" data-close="18:00">8:00 – 6:00</dd></div>
+          <div data-wd="4"><dt>Thursday</dt><dd data-open="08:00" data-close="18:00">8:00 – 6:00</dd></div>
+          <div data-wd="5"><dt>Friday</dt><dd data-open="08:00" data-close="18:00">8:00 – 6:00</dd></div>
+          <div data-wd="6"><dt>Saturday</dt><dd data-open="09:00" data-close="14:00">9:00 – 2:00</dd></div>
+          <div data-wd="0"><dt>Sunday</dt><dd class="closed">Closed</dd></div>
+        </dl>
+        <p class="now" id="now" data-src="computed from business_hours in businesses.timezone">Times shown in <span data-src="businesses.timezone">Arizona time</span>.</p>
+      </div>
+      <div class="where" data-rv style="--d:120ms">
+        <h3>Where</h3>
+        <p class="addr" data-src="businesses.dropoff_address">Unit 4, 7120 E Redfield Road<br>Scottsdale, AZ 85260</p>
+        <p style="margin-top:10px;font-size:14px;color:var(--ink-3)">Behind the tyre place; ring the bell at bay two.</p>
+        <ul class="modes">
+          <li data-src="business_settings.dropoff_enabled = true · businesses.dropoff_address">Drop-off at the unit for every service. Loan car by arrangement for two-day and three-day jobs.</li>
+          <li data-src="business_settings.mobile_enabled = true · travel_radius_miles · businesses.service_area">We come to you for maintenance and enhancement work within <b data-src="business_settings.travel_radius_miles">15 miles</b> — <span data-src="businesses.service_area">Scottsdale, Paradise Valley and north Phoenix</span>. <span data-src="business_settings.travel_fee">Travel is added at checkout.</span></li>
+        </ul>
+      </div>
+      <div data-rv style="--d:240ms">
+        <h3>How to pay</h3>
+        <!-- §2i: cash is a boolean; five handles. Linking rule belongs to _shared/payments.ts —
+             only a plain username or a pasted https URL becomes a link; a phone number is printed as typed. -->
+        <dl class="pay" data-src="business_settings.pay_cash · pay_venmo · pay_cashapp · pay_zelle · pay_paypal · pay_other (not in the RPC yet — contract §6c)">
+          <div data-src="business_settings.pay_cash = true"><dt>Cash</dt><dd>At the counter</dd></div>
+          <div data-src="business_settings.pay_venmo"><dt>Venmo</dt><dd><a href="https://venmo.com/u/sablepaintworks">@sablepaintworks</a></dd></div>
+          <div data-src="business_settings.pay_cashapp"><dt>Cash App</dt><dd><a href="https://cash.app/$SablePaint">$SablePaint</a></dd></div>
+          <div data-src="business_settings.pay_zelle"><dt>Zelle</dt><dd>(480) 555-0142</dd></div>
+          <div data-src="business_settings.pay_paypal"><dt>PayPal</dt><dd><a href="https://paypal.me/sablepaintworks">paypal.me/sablepaintworks</a></dd></div>
+          <div data-src="business_settings.pay_other"><dt>Card</dt><dd>Tap or chip at the counter</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- 13 · FOOT — contact, socials, the booking entry point again -->
+<footer class="foot" id="contact">
+  <div class="wrap">
+    <div class="grid">
+      <div class="again" data-rv>
+        <h2>Two bays. One car at a time. <br>Pick your day.</h2>
+        <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · booking_mode = reserve">Book a slot</a>
+        <p class="promise" data-src="business_settings.booking_mode = reserve">Held the moment you book. Nothing to pay until the car is done.</p>
+        <!-- booking_mode = request — swap the two lines above for:
+        <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · booking_mode = request">Request a slot</a>
+        <p class="promise" data-src="business_settings.booking_mode = request">We answer every request within a working day. Nothing is confirmed, or charged, until we do.</p>
+        -->
+      </div>
+      <div data-rv style="--d:120ms">
+        <h4>Talk to us</h4>
+        <ul>
+          <li><a class="tel" href="tel:+14805550142" data-src="businesses.contact_phone">(480) 555-0142</a></li>
+          <li><span data-src="businesses.dropoff_address">Unit 4, 7120 E Redfield Rd, Scottsdale</span></li>
+          <li><span style="color:var(--ink-3);font-style:italic" data-src="businesses.contact_email (not in the RPC — contract §6f)">Email is answered from the booking form.</span></li>
+        </ul>
+      </div>
+      <div data-rv style="--d:220ms">
+        <h4>Elsewhere</h4>
+        <ul data-src="business_branding.social_*">
+          <li><a href="https://instagram.com/sablepaintworks" data-src="business_branding.social_instagram">Instagram</a></li>
+          <li><a href="https://facebook.com/sablepaintworks" data-src="business_branding.social_facebook">Facebook</a></li>
+          <li><a href="https://tiktok.com/@sablepaintworks" data-src="business_branding.social_tiktok">TikTok</a></li>
+          <li><a href="https://youtube.com/@sablepaintworks" data-src="business_branding.social_youtube">YouTube</a></li>
+          <li><a href="https://g.page/r/example/review" data-src="business_settings.google_review_url">Google reviews</a></li>
+          <li><a href="https://www.yelp.com/biz/example" data-src="business_settings.yelp_review_url">Yelp</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="base">
+      <a class="mark" href="#top"><span class="mono" data-src="business_branding.logo_url">S</span><span class="name" data-src="businesses.name">Sable Paintworks</span></a>
+      <span>© <span id="yr">2026</span> <span data-src="businesses.name">Sable Paintworks</span> · Scottsdale, Arizona</span>
+      <button class="seam-ctl" id="seams" aria-pressed="false">Show data seams</button>
+    </div>
+  </div>
+</footer>
+
+<div class="seam-bar" id="seambar" role="status"><span id="seamcount">Seams shown</span><button id="seamsoff">Hide seams</button></div>
+
+<script>
+/* ── degradation: ONE decision, on <html>. ?lite=1 outranks the media query
+   in both directions; the CSS has no reduced-motion block of its own. */
+(function () {
+  const html = document.documentElement;
+  const qs = new URLSearchParams(location.search);
+  const forced = qs.get("lite");
+  const mq = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  const apply = () => html.classList.toggle("lite", forced === "1" || (forced !== "0" && !!(mq && mq.matches)));
+  apply();
+  mq && mq.addEventListener && mq.addEventListener("change", apply);
+
+  /* ── seams (artifact chrome) */
+  const setSeams = (on) => {
+    html.classList.toggle("seams", on);
+    document.getElementById("seams").setAttribute("aria-pressed", String(on));
+    document.getElementById("seamcount").textContent = on ? document.querySelectorAll("[data-src]").length + " seams labelled · table.column from supabase/migrations" : "";
+  };
+  setSeams(qs.get("seams") === "1");
+  document.getElementById("seams").addEventListener("click", () => setSeams(!html.classList.contains("seams")));
+  document.getElementById("seamsoff").addEventListener("click", () => setSeams(false));
+
+  /* ── nav on a phone */
+  const nav = document.getElementById("nav"), burger = document.getElementById("burger");
+  burger.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    burger.setAttribute("aria-expanded", String(open));
+  });
+  nav.querySelectorAll("nav a").forEach(a => a.addEventListener("click", () => { nav.classList.remove("open"); burger.setAttribute("aria-expanded", "false"); }));
+
+  /* ── reveal: one observer, one class. A stagger parent numbers its children.
+     Everything above the fold is already inside the observer's margin, so the
+     hero is ONE arrival on load; below it each section arrives once, as it is
+     approached, and never re-hides. */
+  document.querySelectorAll('[data-rv="stagger"]').forEach(p => [...p.children].forEach((c, i) => c.style.setProperty("--i", i)));
+  const rv = document.querySelectorAll("[data-rv]");
+  if (html.classList.contains("lite") || !("IntersectionObserver" in window)) {
+    rv.forEach(n => n.classList.add("in"));
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }, { rootMargin: "0px 0px -12% 0px", threshold: 0.05 });
+    rv.forEach(n => io.observe(n));
+  }
+
+  /* ── before / after: the native range drives --cut */
+  const cut = document.getElementById("cut"), ba = cut.closest(".ba");
+  const setCut = () => ba.style.setProperty("--cut", cut.value + "%");
+  cut.addEventListener("input", setCut); setCut();
+
+  /* ── open / closed, computed from the printed hours in the business's own
+     timezone. Presentation only — which slots exist is the booking flow's. */
+  const TZ = "America/Phoenix";                                  /* businesses.timezone */
+  const rows = [...document.querySelectorAll("#hours > div")];
+  const state = document.getElementById("state"), now = document.getElementById("now");
+  const fmt12 = (hm) => { const [h, m] = hm.split(":").map(Number); const ap = h >= 12 ? "pm" : "am"; const hh = ((h + 11) % 12) + 1; return hh + (m ? ":" + String(m).padStart(2, "0") : "") + " " + ap; };
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "short", hour: "numeric", minute: "numeric", hour12: false }).formatToParts(new Date());
+    const get = (t) => (parts.find(p => p.type === t) || {}).value;
+    const wd = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
+    const mins = (Number(get("hour")) % 24) * 60 + Number(get("minute"));
+    const toMin = (hm) => { const [h, m] = hm.split(":").map(Number); return h * 60 + m; };
+    const byWd = {}; rows.forEach(r => { byWd[r.dataset.wd] = r; r.classList.toggle("today", Number(r.dataset.wd) === wd); });
+    const today = byWd[wd] && byWd[wd].querySelector("dd[data-open]");
+    if (today && mins >= toMin(today.dataset.open) && mins < toMin(today.dataset.close)) {
+      state.textContent = "Open now · until " + fmt12(today.dataset.close); state.classList.add("open");
+      now.innerHTML = "<b>Open now</b> · closes at " + fmt12(today.dataset.close) + ". Times in Arizona.";
+    } else {
+      let next = null, d = wd, hops = 0;
+      while (!next && hops < 8) { const r = byWd[d]; const dd = r && r.querySelector("dd[data-open]"); if (dd && (hops > 0 || mins < toMin(dd.dataset.open))) next = { r, dd, hops }; d = (d + 1) % 7; hops++; }
+      const when = next ? (next.hops === 0 ? "today" : next.hops === 1 ? "tomorrow" : next.r.querySelector("dt").firstChild.textContent) + " at " + fmt12(next.dd.dataset.open) : "";
+      state.textContent = "Closed · opens " + when;
+      now.innerHTML = "<b>Closed now</b> · opens " + when + ". Times in Arizona.";
+    }
+  } catch (e) { state.textContent = "Hours below"; }
+
+  document.getElementById("yr").textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
