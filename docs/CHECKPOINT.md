@@ -63,6 +63,20 @@ parked for the owner", with a recommendation attached to each.
 
 ---
 
+## The testing loop
+
+**Planned 2026-09-06 at the owner's request, not yet run.**
+`docs/testing/LOOP.md` is the protocol; `docs/testing/FINDINGS.md` is the
+catalogue it fills. It is a session that does nothing but use the product as
+ten detailers, seven customers, the owner and an adversary — cataloguing
+friction, risk and breakage, fixing what it can, and proving it broke nothing.
+
+**It exists because of a pattern in what he has actually found:** the 401 with
+no way in, no *Sign in* on a phone, *2 of 7 done*, 28 stale functions. **Three
+of those four passed every check in this repo while being wrong**, because
+every check asks a question somebody already thought of. The loop's job is to
+arrive somewhere as a person, with an intention, and notice.
+
 ## The process failure this checkpoint exists to correct
 
 **2026-09-06: the session drifted from the roadmap into reacting to whatever
