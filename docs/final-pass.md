@@ -207,7 +207,7 @@ while setup is unfinished. It is the screen they open every morning.
 
 ## Cosmetic
 
-### 5. `Business` says "2 of 7 done" before anything has been done
+### 5. `Business` says "2 of 7 done" before anything has been done — LEFT ALONE, 2026-09-06
 
 The two are the weekday hours every new business is given (`newBusiness.ts`,
 Mon–Fri 09:00–17:00) and the contact email that came in with the invite. Both
@@ -215,7 +215,20 @@ are true — the progress is derived from the database exactly as it should be �
 but *2 of 7* on a business created ten seconds ago reads like a head start
 nobody earned.
 
-### 6. A doc figure has drifted: the staff tour is 3 steps, not 4
+**DELIBERATELY NOT FIXED, and the finding's own middle sentence is why.** The
+only fix is to stop counting a default as done — and the hours ARE set, the
+email IS set, and a booking page will use both this afternoon. **The number
+would have to be made wrong in order to feel right**, on a screen whose whole
+job is telling a detailer what a customer can already see. A progress count
+that under-reports is the same class of statement as one that over-reports,
+and this repo refuses the second everywhere else.
+
+If it is ever worth changing, the change is to the DEFAULTS rather than the
+arithmetic: a new business that arrives with no hours would read *0 of 7*
+honestly. That is a different decision — it makes a brand-new booking page
+refuse every time until somebody sets hours — and it belongs to the owner.
+
+### 6. ~~A doc figure has drifted: the staff tour is 3 steps, not 4~~ FIXED — AND WENT STALE AGAIN THE SAME DAY
 
 CLAUDE.md says *"7 for an owner with jobs, 6 on an empty one, 4 for staff."*
 Measured here: **6 for an empty owner (correct) and 3 for a staff member with
@@ -223,6 +236,15 @@ one permission tick.** The tour counts what that dashboard actually has, so 4
 was measured against a differently-permissioned staff member. Not a defect —
 the count is doing its job — but the sentence in CLAUDE.md is a figure, and
 figures in that file have gone stale five times before.
+
+**Corrected to 3 the same day — and roadmap 2.24 cut the shell tour from seven
+steps to four a few hours later and made all three numbers wrong again.**
+Re-measured 2026-09-06 by this script, at 392 and 1440, both identical:
+**4 for an owner, 2 for a staff member with one permission tick.** The line
+now says so and says what to do about it: the tour's length is a measurement,
+and nothing that touches `TOURS` should leave it unmeasured. Seventh stale
+figure in that file, and the second time this single sentence has gone stale
+in one day — which is the finding, more than either number was.
 
 ---
 

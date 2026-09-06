@@ -1813,10 +1813,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   that question.
   **AND THE TOUR IS SIX TOURS SINCE 2026-09-06 (roadmap 2.24).** `TOURS` in `Walkthrough.jsx`: a shortened SHELL tour (four steps, still ending on the link) plus one per tab for Today, Money, Clients and Business — **and none for Calendar**, because every candidate step there was a control reading its own label back. A tab's guide arrives the first time THIS BROWSER opens that tab (`dp.tours`, one key holding a list of names, and the old `dp.tour` still counts as having seen the shell), never while the first run is up, on a 900ms timer so it plans against a drawn screen, and **a guide whose plan comes out shorter than two steps does not run and does not mark itself seen** — so it arrives the first day there is something to point at. **`sweep-widths.mjs` seeds all five as SEEN at sign-in** and clears them for the block that walks them: every width is a fresh browser, so otherwise the guides fire in the middle of the other fifty measurements and swallow the clicks. **STAFF GET THE TOUR AND NOT THE FORM.** They are not setting up a business. **AND `final-pass.mjs` NEEDS THE OPPOSITE TREATMENT FROM THE SWEEP — it was BROKEN from the day the guides shipped until 2026-09-06 and nobody re-ran it.** It builds a business minutes old, so it meets every guide, and `.tourblock` swallows pointer events: the first tab press after the shell tour died on *"intercepts pointer events"* and the pass never reached three of the five screens. **The note written the night the guides shipped said to add them to every script that walks the product and then named only `sweep-widths.mjs`, so only that one was fixed** — the rule is the general one. The sweep SEEDS them as seen (it measures an experienced account); this script must MEET them (a guide arriving unasked on four of five tabs is what a final pass exists to see), so it photographs each one, notes its caption, skips it, and measures the screen only afterwards.
   The tour re-runs from *Show me around* behind the gear, and it counts what
-  THIS dashboard has: 7 for an owner with jobs, 6 on an empty one, and 3 for a staff member with one permission tick — **this said 4 until
-  roadmap 7.3 MEASURED it on 2026-09-06**; the tour counts what that dashboard
-  actually has, so 4 was taken against a differently-permissioned member. The
-  sixth stale figure found in this file.
+  THIS dashboard has. **MEASURED 2026-09-06 BY `final-pass.mjs` ON A BUSINESS
+  MINUTES OLD, at 392 and 1440, both the same: 4 for an owner and 2 for a
+  staff member with one permission tick.** Every figure in this sentence has
+  now been wrong twice. It said *7 / 6 / 4* until 7.3 measured the staff
+  number at **3** (the count is per-dashboard, so 4 had been taken against a
+  differently-permissioned member) — and then **roadmap 2.24 cut the shell
+  tour from seven steps to four the same day and made all three wrong again**,
+  because the four tab guides took over what the long version was half-
+  explaining. The seventh stale figure found in this file, and the second
+  time this one line has gone stale in a day: **the tour's length is a
+  measurement, and nothing that changes `TOURS` should leave it unmeasured.**
   **The empty dashboard is the state to verify against**, not the seeded demo —
   the opposite of every other screen in this rebuild.
 - **A DETAILER NAMES THE ROLE AND TICKS WHAT IT CAN DO — roadmap 2.13,

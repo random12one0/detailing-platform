@@ -1652,8 +1652,29 @@ and I proved it still fails for the real reason by breaking the code it
 guards and watching it go red.
 
 **Verified:** every suite green — 21 without credentials, 8 against the
-database — the width sweep clean at 1920, 1440, 392, 360 and 320, and no
-browser console errors on any screen of the walk-through.
+database — the booking run 82 of 82, the width sweep clean at 1920, 1440,
+392, 360 and 320, and no browser console errors on any screen of the
+walk-through.
+
+### The last two small things from that walk-through are closed too
+
+**One I fixed and one I deliberately did not.**
+
+**Fixed:** a figure in my own notes said the opening tour was 6 steps for you
+and 3 for an employee. It is **4 and 2** — I shortened that tour the same day
+I measured it and made my own note wrong within hours. Measured again
+tonight, and the note now says what to do about it rather than just carrying
+a new number.
+
+**Not fixed, on purpose:** the Business screen says *2 of 7 done* on a
+business ten seconds old, which reads like a head start nobody earned. The
+two are your working hours and your email — and both are genuinely set, and a
+customer's booking page will use both this afternoon. **The only way to make
+it read better is to make it untrue**, on the one screen whose job is telling
+you what a customer can already see. If you want it to start at zero, the
+honest way is to stop giving a new business default hours — but that means a
+brand-new booking page turns everybody away until somebody sets them, which
+is your call and not mine.
 
 ---
 
