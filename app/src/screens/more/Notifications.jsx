@@ -12,6 +12,7 @@
 import { useEffect, useState } from "react";
 import { Mail, X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
+import { api } from "../../lib/api.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { DurationChoice, Group, HourChoice, Setting, Switch } from "../../components/controls.jsx";
 import { disablePush, enablePush, pushState } from "../../lib/push.js";
@@ -51,6 +52,9 @@ export default function Notifications() {
   const [newEmail, setNewEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  // ROADMAP 4.2 — "what does my customer actually get?"
+  const [previewing, setPreviewing] = useState(false);
+  const [preview, setPreview] = useState(null);   // {ok, text}
   // THE SWITCH READS THE DEVICE, NOT THE DATABASE — the whole of the repair.
   // `push_enabled` is a business-wide preference (the edge functions read it
   // before they send); whether THIS phone is registered is a fact about this
@@ -115,6 +119,26 @@ export default function Notifications() {
   // to it, which the old copy did not make clear.
   const primary = business.contact_email;
 
+  // ROADMAP 4.2. THE SERVER PICKS THE RECIPIENTS AND THE PRICES, and nothing
+  // about either is decided here: a preview a client could aim is a way to
+  // make this platform email a stranger with a real business's branding on
+  // it, and a preview priced in the browser would be showing a number this
+  // business does not charge.
+  const sendPreview = async () => {
+    setPreviewing(true);
+    setPreview(null);
+    try {
+      const r = await api.previewEmails(business.id);
+      setPreview({
+        ok: true,
+        text: `Sent to ${(r.to || []).join(", ")} — two emails: the one your customer gets, and the one you get.`,
+      });
+    } catch (e) {
+      setPreview({ ok: false, text: e.message });
+    }
+    setPreviewing(false);
+  };
+
   return (
     <>
       <Group title="What your customers get"
@@ -123,6 +147,27 @@ export default function Notifications() {
           <Switch key={k} label={label} help={help}
             checked={form[k]} onChange={(v) => set(k, v)} />
         ))}
+        {/* ROADMAP 4.2 — "WHAT DOES MY CUSTOMER ACTUALLY GET?" The old site
+            answered it and the rebuild dropped the answer, so until now the
+            only way to find out was to make a real booking and delete it —
+            leaving a row, an email to a real address and a hole in the
+            calendar.
+            HERE rather than on Message templates, which is the SMS surface:
+            these three switches ARE the emails, and the question arrives
+            while somebody is looking at them.
+            THE SENTENCE UNDER IT IS NOT A RESTATEMENT OF THE BUTTON. It
+            answers the two things a person hesitates over before pressing an
+            unfamiliar Send: who receives it, and whether it books anything. */}
+        <div className="btnrow" style={{ marginTop: "var(--sp-3)" }}>
+          <button className="btn" disabled={previewing} onClick={sendPreview}>
+            {previewing ? "Sending…" : "Send me a sample"}
+          </button>
+        </div>
+        <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
+          A made-up booking, priced from your own services, sent to you and
+          nobody else. Nothing is saved and no time is taken.
+        </p>
+        {preview && <div className={preview.ok ? "ok-box" : "error-box"}>{preview.text}</div>}
       </Group>
 
       <Group title="What you get" blurb="Email you when…">

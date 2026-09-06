@@ -68,6 +68,12 @@ export const api = {
   verifyDomain: (businessId, domainId) =>
     callFn("verify-domain", { business_id: businessId, domain_id: domainId }),
 
+  // ROADMAP 4.2 — "what does my customer actually get?", answered without
+  // making a real booking and deleting it. The server picks the recipients
+  // (this business's own alert addresses) and prices the sample from the real
+  // catalog, so there is nothing to pass but the business.
+  previewEmails: (businessId) => callFn("preview-emails", { business_id: businessId }),
+
   // ROADMAP 2.19 — the detailer emailing customers they picked themselves.
   // The browser sends the ids it chose and the words it typed; WHO ACTUALLY
   // GETS AN EMAIL is decided on the server, because two of the three rules

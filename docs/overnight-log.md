@@ -413,6 +413,66 @@ file it was read from, in both codebases.
 
 ---
 
+## Roadmap 4.2, part 1 — the contact card and "what does my customer get?"
+
+**Two of the four things 4.2 names, both confirmed missing by last night's
+audit and both now back.**
+
+### The customer's contact card on your booking alert
+
+Your old site attached a contact card (.vcf) to the email that told you a
+booking had come in, so one tap put the customer in your phone. The rebuild
+dropped it. **It is back, and it was about an hour** — the platform already
+knew how to build a contact card (the *Save contact* button on a job) and the
+email helper already knew how to carry an attachment; only the attaching was
+missing.
+
+It goes on **your** copy only — a customer does not need a contact card for
+themselves — and only when there is a phone number or an email on it, because
+a card with a name and no way to reach them wastes the tap.
+
+### "Send me a sample" on the Notifications screen
+
+The other thing your old site had: a way to see exactly what a customer
+receives **without making a real booking and deleting it**. Press it and you
+get two emails — the one your customer gets and the one you get — made up from
+a sample customer but **priced from your own real services**, sent to your own
+address and nobody else's, with `[Preview]` on the subject. Nothing is saved
+and no time is taken out of your calendar.
+
+**The judgement call, and I want to be straight about the trade.** The obvious
+build is a flag on the booking engine that says "send the emails, skip the
+save". I refused it: that is four new branches through **the single most
+important function in the product** — past the slot check, the promo limit,
+the customer record and the insert — every one of them a path no test walks,
+to save a customer nothing. **A booking engine that is a little bit
+conditional is how a booking engine starts being wrong.** So it is its own
+small function that runs the same pricing engine.
+
+**What that costs, stated honestly: the sample does not exercise the actual
+saving of a booking.** It exercises everything you are really asking about —
+your branding, your colour, your logo, your prices, your wording — and nothing
+about whether a row lands in the database. The end-to-end test is what covers
+that, and it passed 82/82 tonight.
+
+**What I verified and what it printed.**
+- `node tests/vcard.test.mjs` — **34 passed, 0 failed** (new). It also pins the
+  two copies of the card-builder together: the email's and the dashboard's are
+  separate files by necessity (an edge function cannot import from the app),
+  so the test runs both on the same eight customers and fails if one character
+  differs. Baselined by removing the escaping: 6 failures, including the
+  cross-copy check.
+- **A real call to the new function returned `200 {"success":true,"sent":2,"to":["demo@example.com"],"total":65}`** — signed in as the demo owner exactly
+  as the dashboard does, two emails built and accepted by the relay, priced $65
+  from the demo's own first service. (That address is on a reserved test
+  domain, so nothing left the provider — by design, so the demos cannot damage
+  the sending reputation your real business shares.)
+- `node scripts/e2e-booking.mjs` — **82 passed, 0 failed**, both tenants, with
+  the contact card now riding the owner alert.
+- Nine credential-free suites green, including `email-brand`'s 189.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

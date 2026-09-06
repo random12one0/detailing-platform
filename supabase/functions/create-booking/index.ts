@@ -28,6 +28,7 @@ import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.t
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
+import { vcardAttachment } from "../_shared/vcard.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { localDateTimeToInstant, timeStrIn, weekdayOf } from "../_shared/tz.ts";
 
@@ -397,9 +398,29 @@ Deno.serve(async (req) => {
     }
     if (settings.email_owner_new_booking) {
       const msg = ownerNewBookingEmail(brand, emailData, isRequest);
+      // ROADMAP 4.2 — THE CUSTOMER'S CONTACT CARD RIDES THE ALERT. The old
+      // site did this and the conversion dropped it. One tap and the customer
+      // is in the detailer's phone, which is how this trade actually works;
+      // without it they retype a number off an email while standing at a car.
+      // Only on the DETAILER's copy, and only where there is something to
+      // save — a card with a name and no way to reach them is a contact that
+      // wastes the tap.
+      const card = (booking.customer_phone || booking.customer_email)
+        ? [vcardAttachment({
+          name: booking.customer_name,
+          phone: booking.customer_phone,
+          email: booking.customer_email,
+          address: booking.customer_address,
+          // Whose customer this is, so a phone book full of them still says.
+          org: `${business.name} customer`,
+        })]
+        : undefined;
       // Every configured recipient, not just one address.
       for (const to of ownerRecipients(business, settings)) {
-        await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
+        await sendTenantEmail({
+          businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text,
+          attachments: card,
+        });
       }
     }
     try {
