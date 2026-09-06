@@ -1138,6 +1138,40 @@ your eye rather than my guess.
 
 ---
 
+## A customer can now move their booking an hour later
+
+**What changed.** When a customer opens their own booking to change the time,
+the day they are already on is offered properly. It was not before: **their own
+booking was counted as something in the way of itself.** If the job filled most
+of what was left of that day, the day showed as fully booked *to the person who
+holds the only booking on it* — so they could move to another day, but not an
+hour later, which is the thing people actually want.
+
+**Why nobody spotted it.** It only bites when the job is long enough to swallow
+the rest of the day, so it depends on the date and on how busy that day already
+is. The end-to-end check caught it on one day and passed on the same code the
+day before, and it was written down but never fixed.
+
+**What I verified, and what it printed.** A five-and-a-half hour job at 8am on
+a day that runs 8 till 6:
+- counting its own booking: **0 free times** — the day cannot be moved within
+  at all;
+- excluding it: **10 free times**, including its own 8am back.
+A malformed id changes nothing, and the booking is still checked on the way in,
+so nothing can be moved into a slot somebody else has.
+
+**And fixing it broke the check that found it — which is worth knowing.** The
+end-to-end run asserted "the old time is free again" after a move. That was
+only ever true because the picker could not offer a nearby time: the booking
+was blocking its own neighbourhood. Now the nearest offer is usually the next
+half hour, and a booking that moves from 8:00 to 8:30 makes 8:00 genuinely
+unbookable — a new job starting there would run into it. **The assumption
+broke, not the product.** The check now asks the question it always meant, and
+the full run is **82 of 82 on both demo businesses**, which is the first time
+it has been completely green since that finding was written down.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

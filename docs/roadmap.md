@@ -6438,7 +6438,32 @@ itself. **None is scheduled and none should be started without him saying
 where it goes.** Each says what it is, what happens if it is skipped, and the
 recommendation.
 
-- **F. A CUSTOMER CANNOT MOVE THEIR BOOKING TO ANOTHER TIME ON THE SAME DAY
+- **F. ~~A CUSTOMER CANNOT MOVE THEIR BOOKING~~ BUILT 2026-09-06.**
+  `available-slots` takes an optional `exclude_booking_id` and
+  `ManageBookingPage`'s reschedule picker passes the booking's own id — the one
+  call in the product where availability means *what is free FOR THIS BOOKING*
+  rather than *what is free*, because its own slot is free for it.
+  **Proven against the live function rather than reasoned about:** a
+  330-minute booking at 08:00 on an 08:00–18:00 day gave **0 free times
+  counting itself and 10 excluding itself**, with its own 08:00 among them; a
+  malformed id changes nothing. `tests/booking-core.test.mjs` § 12 (five
+  checks, three baselined) pins the shape check, that the exclusion narrows the
+  BOOKINGS query and nothing else, and that **no other caller passes it** —
+  every other one is asking what is free, and a second caller would offer
+  somebody a time another booking already has.
+  **AND FIXING IT BROKE THE TEST THAT FOUND IT, which is the part worth
+  keeping.** `e2e-booking` asserted *"the old time is free again"* after a
+  move. Until now the only times ever OFFERED for a move were far from where
+  the booking already was — because it blocked its own neighbourhood — so the
+  old slot was always free afterwards. With the fix the picker's first
+  different chip is the ADJACENT half hour, and a booking that moves 08:00 →
+  08:30 makes 08:00 genuinely unbookable. **The assumption broke, not the
+  product**, and asserting the old way would have been asserting the engine is
+  wrong. The check asks the question it always meant now — free, or covered by
+  where the booking went — and the full run is **82/82 on both tenants**.
+  The finding as written:
+
+  **F. A CUSTOMER CANNOT MOVE THEIR BOOKING TO ANOTHER TIME ON THE SAME DAY
   WHEN THEIR OWN BOOKING IS WHAT FILLS IT — found 2026-09-05, while running
   `e2e-booking` for roadmap 2.20 stage 2, and it is in code that item did not
   touch.** `available-slots` has **no exclusion parameter**, so it cannot know

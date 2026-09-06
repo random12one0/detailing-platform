@@ -107,6 +107,14 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
       const end = new Date(Date.now() + 45 * 86400_000).toISOString().slice(0, 10);
       const r = await api.availableSlots(slug, {
         start_date: today, end_date: end, duration_minutes: durationMinutes,
+        // ITEM F — THE ONE CALL IN THE PRODUCT THAT MUST NOT COUNT THIS
+        // BOOKING. Everywhere else availability means "what is free"; here it
+        // means "what is free FOR THIS BOOKING", and its own slot is free for
+        // it. Without this a customer whose service fills what is left of the
+        // day is refused by themselves: the day drops out of its own
+        // reschedule picker and moving an hour later is impossible while
+        // moving to another day works, which reads as nothing being wrong.
+        exclude_booking_id: booking.id,
       });
       setDays(r.days ?? {});
       setMode("reschedule");

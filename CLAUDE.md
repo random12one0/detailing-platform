@@ -601,7 +601,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   compose sheet's, and `send-campaign`'s filter, which is the enforcement —
   have to agree, so the predicate is written out once here. Baselined by
   ignoring the bounce, which fails 2),
-  **`booking-core`** (**147 checks — the script prints its own figure**, new
+  **`booking-core`** (**190 checks — the script prints its own figure**, new
   2026-09-05, roadmap 3.2(a) — `app/src/book/core.js`, the module every tenant
   site's own booking form drives. Until that item the group rules were a
   closure inside `BookingPage`'s `setForm`, the step gating was an IIFE and
@@ -1019,7 +1019,18 @@ explaining it; if they still have to ask "so should I?", it failed.
   reputation, which they did until this item.
   `--slug=<one>` runs a single tenant, `--keep` leaves the booking behind,
   `--headed` shows the browser.
-  **AND IT REPORTS ONE FAILURE THAT IS NOT A REGRESSION, AS OF 2026-09-05 —
+  **~~AND IT REPORTS ONE FAILURE THAT IS NOT A REGRESSION~~ — FIXED 2026-09-06,
+  AND THE SUITE IS 82/82 ON BOTH TENANTS AGAIN.** `available-slots` takes an
+  optional `exclude_booking_id` now (item F) and the reschedule picker passes
+  the booking's own id, so a booking no longer blocks its own move.
+  **FIXING IT BROKE THE ASSERTION THAT FOUND IT, and that is the transferable
+  half:** *"the old time is free again"* held only because the picker could
+  never offer a nearby slot — the booking blocked its own neighbourhood — so
+  the first different chip is now the ADJACENT half hour and a move 08:00 →
+  08:30 makes 08:00 genuinely unbookable. **The assumption broke, not the
+  product.** The check asks *free, or covered by where it went* now. The
+  original entry, because the diagnosis is still the shape to look for:
+  **IT REPORTED ONE FAILURE THAT WAS NOT A REGRESSION, AS OF 2026-09-05 —
   READ THE MESSAGE BEFORE BISECTING.** *"the booked day is offered to move
   within"* fails on whichever tenant's run picks a day the seed has already
   half filled: `available-slots` has NO exclusion parameter, so it counts the

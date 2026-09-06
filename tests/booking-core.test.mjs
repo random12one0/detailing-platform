@@ -571,5 +571,52 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
   check("the attribution reaches the submit", /campaignSlug, visitorId: visitor/.test(page));
 }
 
+
+// ─── § 12. A booking must not block its own move (item F) ─────────────────
+// Found by `e2e-booking` on 2026-09-05 and fixed 2026-09-06. `available-slots`
+// had no exclusion parameter, so it counted the booking BEING MOVED exactly
+// like any other: if the day's only remaining room was that booking's own
+// slot, the day had zero free slots **for its own occupant** and dropped out
+// of its own reschedule picker. The customer could still move to another DAY,
+// so nothing looked broken — they simply could not do the obvious thing.
+//
+// PROVEN AGAINST THE LIVE FUNCTION rather than reasoned about: a 330-minute
+// booking at 08:00 on an 08:00–18:00 day gave **0 free times counting itself
+// and 10 excluding itself**, with its own 08:00 among them.
+console.log("\n12. a booking does not block its own move");
+{
+  const { readFileSync } = await import("node:fs");
+  const strip = (t) => t.replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const fn = strip(readFileSync("supabase/functions/available-slots/index.ts", "utf8"));
+  const manage = strip(readFileSync("app/src/book/ManageBookingPage.jsx", "utf8"));
+
+  check("the endpoint takes an exclusion", /exclude_booking_id/.test(fn));
+  // A PUBLIC ENDPOINT, so the id is shape-checked and otherwise ignored. The
+  // worst a wrong one can do is hide a booking from a COUNT — this returns
+  // times and never rows — and the slot is still validated on the way in.
+  check("only a uuid-shaped one is honoured",
+    /\/\^\[0-9a-f-\]\{36\}\$\/i\.test\(body\.exclude_booking_id\)/.test(fn)
+      && /\? body\.exclude_booking_id[\s\S]{0,20}: null/.test(fn),
+    "anything else must be ignored, not passed through to a query");
+  // ONLY THE BOOKINGS QUERY. A blockout or a drop-off window has no id to
+  // exclude, and applying it there would silently widen availability.
+  check("it narrows the bookings query and nothing else",
+    /if \(excludeId\) q = q\.neq\("id", excludeId\);/.test(fn)
+      && (fn.match(/excludeId/g) ?? []).length === 3,
+    `${(fn.match(/excludeId/g) ?? []).length} uses`);
+
+  check("the reschedule picker passes the booking's own id",
+    /exclude_booking_id: booking\.id/.test(manage));
+  // AND NOWHERE ELSE. Every other caller is asking "what is free"; only this
+  // one is asking "what is free FOR THIS BOOKING". A second caller passing it
+  // would be offering somebody a time another booking already has.
+  const others = ["app/src/book/steps/StepWhen.jsx", "app/src/components/NewBookingModal.jsx",
+                  "app/src/screens/more/BookingRules.jsx", "app/src/screens/Today.jsx"];
+  check("and no other caller does",
+    others.every((f) => !/exclude_booking_id/.test(readFileSync(f, "utf8"))),
+    others.filter((f) => /exclude_booking_id/.test(readFileSync(f, "utf8"))).join(", "));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

@@ -648,7 +648,27 @@ async function loop({ slug, dashboard }) {
         ok(`the row moved to ${MOVED}`, localOf(row).time === MOVED, localOf(row).time);
         ok("it is still a live booking", row?.status === (isRequest && !dashboard ? "pending" : "confirmed"), row?.status);
         free = await slotsOn(DATE);
-        ok(`the old time ${TIME} is free again`, free.includes(TIME), free.join(" "));
+        // THE OLD TIME IS ONLY FREE IF THE NEW ONE DOES NOT COVER IT, and
+        // that stopped being automatic on 2026-09-06. Until item F was fixed,
+        // a booking counted itself as occupied, so the only times ever
+        // OFFERED for a move were far from where it already was; now its own
+        // day is open to it and the picker's first different chip is usually
+        // the ADJACENT half hour. A booking that moved 08:00 → 08:30 makes
+        // 08:00 genuinely unbookable — a new job starting there would run
+        // into it — so asserting the old slot is free again would be
+        // asserting the engine is wrong.
+        //
+        // **The assumption broke, not the product**, and this is the second
+        // time this file has reported a working booking engine as broken. So
+        // the check now asks the question it always meant: is the time free,
+        // OR is it covered by where the booking went?
+        const covered = (a, b) => {
+          const mins = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+          return Math.abs(mins(a) - mins(b)) < (service?.duration_minutes ?? 60);
+        };
+        ok(`the old time ${TIME} is free again, or the move covers it`,
+          free.includes(TIME) || covered(TIME, MOVED),
+          `moved to ${MOVED}, ${service?.duration_minutes ?? 60} min; free: ${free.join(" ")}`);
         const after = movedDate === DATE ? free : await slotsOn(movedDate);
         ok(`and ${MOVED} is taken${movedDate === DATE ? "" : ` on ${movedDate}`}`,
           !after.includes(MOVED), after.join(" "));

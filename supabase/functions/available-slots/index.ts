@@ -134,15 +134,45 @@ Deno.serve(async (req) => {
     const rangeStartUtc = new Date(localDateTimeToInstant(tz, days[0], "00:00").getTime() - 36 * 3600_000);
     const rangeEndUtc = new Date(localDateTimeToInstant(tz, days[days.length - 1], "00:00").getTime() + 60 * 3600_000);
 
+    // ITEM F — A BOOKING BEING MOVED MUST NOT BLOCK ITS OWN MOVE.
+    //
+    // Without this, a customer trying to shift an hour later is refused by
+    // their own booking: this counts it as occupied exactly like any other,
+    // so if the day's only remaining room IS that slot, the day has zero free
+    // slots **for its own occupant** and drops out of its own reschedule
+    // picker. They can still move to another DAY, so nothing looks broken —
+    // they simply cannot do the most obvious thing.
+    //
+    // IT WENT UNSEEN FOR MONTHS BECAUSE IT IS DATE- AND OCCUPANCY-DEPENDENT:
+    // it only bites when the booked service is long enough to swallow what is
+    // left of that day. `e2e-booking` failed on it on 2026-09-05 and passed
+    // on the same code the day before.
+    //
+    // THE PARAMETER IS A UUID OR IT IS IGNORED. It is a public endpoint, and
+    // the worst a wrong id can do is hide one booking from an availability
+    // count — it cannot reveal anything, because this returns times and never
+    // rows. **The slot is still validated server-side on the way in**
+    // (`validateSlot`, and the exclusion constraint underneath it), so a
+    // client that excluded somebody else's booking would be offered a time
+    // the reschedule then refuses.
+    const excludeId = typeof body.exclude_booking_id === "string"
+        && /^[0-9a-f-]{36}$/i.test(body.exclude_booking_id)
+      ? body.exclude_booking_id
+      : null;
+
     const [bookingsRes, blockoutsRes, dropoffRes, overridesRes, hoursRes] = await Promise.all([
-      supabase
-        .from("bookings")
-        .select("start_at, end_at")
-        .eq("business_id", business.id)
-        .neq("status", "cancelled")
-        .is("deleted_at", null)
-        .gte("start_at", rangeStartUtc.toISOString())
-        .lte("start_at", rangeEndUtc.toISOString()),
+      (() => {
+        let q = supabase
+          .from("bookings")
+          .select("start_at, end_at")
+          .eq("business_id", business.id)
+          .neq("status", "cancelled")
+          .is("deleted_at", null)
+          .gte("start_at", rangeStartUtc.toISOString())
+          .lte("start_at", rangeEndUtc.toISOString());
+        if (excludeId) q = q.neq("id", excludeId);
+        return q;
+      })(),
       supabase
         .from("blockout_dates")
         .select("all_day, start_time, end_time, start_date, end_date")
