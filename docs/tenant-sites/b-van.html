@@ -1,0 +1,1037 @@
+<!doctype html>
+<!--
+  WORLD B — "the one-van operator".  Roadmap 3.1, worked example 2 of 3.
+  ==========================================================================
+  A car detailer's OWN public site. One person, a van, a pressure washer and
+  a list of regulars. The person is the product, so the About section carries
+  more weight here than in the other two worlds, and the ground is LIGHT on
+  purpose: warm paper, so it reads as a workshop notebook and never as a SaaS
+  page. Worlds A (dark serif, expensive) and C (loud industrial) are the
+  other two lanes; this one stays out of both.
+
+  WHAT IS INHERITED FROM THE PLATFORM: the METHOD only — research first, the
+  anti-slop floor, things arrive from somewhere, one arrival per screen, parts
+  on different timelines, the copy rule, contrast floors measured on the pairs
+  shipped, `.lite` + reduced-motion from one implementation. NOT the skin: no
+  Archivo, no JetBrains Mono, no #0B0D0E, no platform green, none of its
+  sixteen tokens, none of its section order or component shapes.
+  (docs/tenant-site-research-2026-09-05.md §1; the owner's correction.)
+
+  FACES  Schibsted Grotesk (the workmanlike grotesk — headings, prices, UI)
+         Literata (a real text serif with optical sizes — the reading copy,
+         and the About section in particular). Both Google Fonts; offline the
+         stacks fall to Georgia / Helvetica and the page still reads.
+
+  PALETTE (all custom properties, defined once, below)
+         --paper #F3ECDD   the ground — warm, not white
+         --paper-2 #E8DFC9 a band; --paper-3 #DED3B8 tape and rules
+         --ink #221E18     text; --ink-2 #5A5248 secondary text
+         --brand #A8401A   THE ONE ACCENT — business_branding.primary_color.
+                           Retint = change this value and nothing else.
+         --night #1E1A16   ONE dark surface, used ONLY on the booking card.
+                           See "the handover", next.
+
+  THE HANDOVER — contract §8.2, and this page is the evidence for it.
+         The booking flow the customer leaves for is DARK and a tenant site
+         cannot restyle it (it takes one accent, not a ground). A light site
+         therefore sends the customer from a light page to a dark form
+         mid-purchase. What this page does about it:
+         1. The booking entry point is itself a DARK card — the only dark
+            thing on the page — placed at the point of decision. So the
+            customer meets the dark surface BEFORE they leave, on a page
+            they already trust, and the form they land on reads as "that
+            card, opened" rather than as a different website.
+         2. The card is retinted with the same --brand the form will be
+            retinted with (brandVarsFor), so the one colour that carries
+            across the seam is the detailer's.
+         3. The card says so in the detailer's own voice — "the booking
+            page is dark; it's still me" — one sentence, because a
+            customer who is warned is not surprised.
+         What this does NOT solve, and cannot from inside a tenant site:
+         the form's OWN chrome (its buttons, its calendar) is the
+         platform's dark design. Contract §8.2 stands: the flow needs to
+         take a tenant's ground as well as its accent before the first
+         light client ships. This page is what that client looks like.
+
+  THE SITE-WIDE SALE — contract §2e.
+         <aside id="sale"> right under the top bar, fed by
+         business_settings.site_discount_label, falling back to "N% off"
+         from site_discount_percent. When site_discount_active is false the
+         WHOLE <aside id="sale"> element is removed (not hidden — hidden
+         leaves an empty band's margins behind). Everything below it is
+         laid out independently, so its absence changes nothing else.
+         Verified both ways by deleting the node in the console.
+
+  BOOKING MODE — contract §2l.
+         The live wording is `reserve` ("Book a time"). The `request`
+         wording is present as a clearly marked commented block a
+         per-client build swaps in — inside the dark card, and a second
+         one-line swap on the top-bar button. Not a toggle on purpose: a
+         site has one mode, set in the dashboard.
+
+  SEAMS  Every element whose content really comes from the dashboard carries
+         data-src="table.column", names taken from supabase/migrations/ and
+         from contract §3 (the keys the profile RPC returns). `?seams=1`
+         labels every one, in flow (never overlaid), so it cannot cover
+         content on a phone. It is artifact chrome and is obviously so.
+
+  NOT FED BY THE SCHEMA TODAY (marked in the markup, not hidden):
+         - credentials / trust markers (licensed, insured, since 2019, the
+           star total): data-src="business_branding.credentials (PROPOSED —
+           research §4c)". Contract §6h.
+         - FAQ: business_settings.faqs exists but the RPC does not return
+           it yet (contract §6b). Marked with its real column.
+         - How to pay: business_settings.pay_* exist, not in the RPC yet
+           (§6c). Marked with the real columns; the LINKING rule belongs to
+           _shared/payments.ts, so handles here are printed, not linked,
+           except the two that module would link (a plain username).
+         - An email address: businesses.contact_email is not in the RPC
+           (§6f) and is deliberately not printed.
+         - The hours' open/closed state is computed on the page from
+           business_hours + businesses.timezone — no arithmetic about money
+           or availability, only "is the clock inside these hours".
+
+  MOTION  One implementation. `.js:not(.lite) [data-rv]` starts offset and
+         transitions in when an IntersectionObserver marks it `.in`; children
+         inside `.kids` stagger on their own delays so a section's parts
+         never move as one block. `<html class="lite">` is set by the script
+         in <head> from `?lite=1` (which outranks the media query — `?lite=0`
+         forces motion even under reduced-motion) or from
+         prefers-reduced-motion; under `.lite` nothing is offset, nothing
+         transitions, and the observer is never created. No second
+         @media (prefers-reduced-motion) block exists in this file.
+
+  IMAGERY Unsplash URLs layered OVER a CSS-drawn treatment on every photo
+         surface, so offline the page shows a deliberate paper-and-ink
+         surface rather than a broken image. No grey boxes.
+
+  DEMO BUSINESS  "Tolliver Mobile Detailing", Sam Tolliver, Tacoma WA.
+         Invented; every figure would come from the dashboard.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tolliver Mobile Detailing — Tacoma, WA</title>
+<meta name="description" content="One van, one guy, your driveway. Mobile car detailing in Tacoma, Puyallup, Lakewood and Gig Harbor.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&display=swap">
+<style>
+/* ── tokens ─────────────────────────────────────────────────────────── */
+:root{
+  --paper:#F3ECDD; --paper-2:#E8DFC9; --paper-3:#DED3B8;
+  --ink:#221E18; --ink-2:#5A5248; --rule:#C9BDA3;
+  --brand:#A8401A;                 /* business_branding.primary_color */
+  --brand-ink:#FFFFFF;             /* words ON the brand fill */
+  --night:#1E1A16; --night-ink:#F3ECDD; --night-2:#6E665C;
+  --grot:"Schibsted Grotesk",Helvetica,Arial,sans-serif;
+  --serif:"Literata",Georgia,"Times New Roman",serif;
+  --gut:clamp(16px,4vw,48px);
+  --wrap:1180px;
+  --r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+.lite html,html.lite{scroll-behavior:auto}
+body{
+  background:var(--paper);color:var(--ink);
+  font:400 17px/1.55 var(--serif);
+  /* the paper: a faint fibre + a warm vignette, so it is a surface, not a fill */
+  background-image:
+    radial-gradient(120% 80% at 50% -10%,rgba(255,250,235,.9),transparent 60%),
+    repeating-linear-gradient(0deg,rgba(90,82,72,.035) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(90deg,rgba(90,82,72,.02) 0 1px,transparent 1px 5px);
+  overflow-x:clip;
+}
+a{color:inherit}
+img{display:block;max-width:100%}
+ul{list-style:none}
+h1,h2,h3,h4,.grot{font-family:var(--grot);letter-spacing:-.01em}
+h2{font-size:clamp(1.9rem,3.6vw,2.9rem);font-weight:800;line-height:1.02}
+h3{font-size:1.25rem;font-weight:700;line-height:1.15}
+.eyebrow{font:700 .78rem/1 var(--grot);letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.wrap{width:min(var(--wrap),100% - 2*var(--gut));margin-inline:auto}
+section{padding-block:clamp(56px,9vw,120px)}
+.lede{font-size:1.2rem;color:var(--ink-2);max-width:56ch}
+.fine{font-size:.95rem;color:var(--ink-2)}
+strong{font-weight:600}
+.num{font-family:var(--grot);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* buttons — squared-off, a workshop stamp rather than a pill */
+.btn{display:inline-flex;align-items:center;gap:.5em;font:700 1rem/1 var(--grot);
+  padding:.9em 1.25em;border-radius:var(--r);text-decoration:none;border:2px solid transparent;
+  transition:transform .18s ease,background-color .18s ease,color .18s ease}
+.btn:active{transform:translateY(1px)}
+.btn-brand{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn-brand:hover{background:color-mix(in oklab,var(--brand),var(--ink) 12%)}
+.btn-line{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-line:hover{background:var(--ink);color:var(--paper)}
+.btn-paper{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.btn-paper:hover{background:#fff}
+:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
+.night :focus-visible{outline-color:var(--night-ink)}
+
+/* ── top bar ────────────────────────────────────────────────────────── */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.top .wrap{display:flex;align-items:center;gap:16px;min-height:64px}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;font:800 1.05rem/1 var(--grot);letter-spacing:-.02em}
+.logo{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;
+  font:800 .95rem/1 var(--grot);flex:none;background-size:cover;background-position:center}
+.top .phone{margin-left:auto;font:700 1rem/1 var(--grot);text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:.4em}
+.top .phone svg{width:16px;height:16px}
+.top .btn{padding:.7em 1em}
+@media (max-width:640px){
+  .top .wrap{gap:12px}
+  .top .phone span{display:none}
+  .top .btn{padding:.7em .9em;white-space:nowrap}
+  .mark .name{font-size:.9rem;white-space:nowrap}
+}
+@media (max-width:520px){ .top .btn .long{display:none} }
+@media (max-width:360px){ .mark .name{display:none} }
+
+/* ── the sale band — masking tape ───────────────────────────────────── */
+.sale{background:var(--paper-3);border-block:1px solid var(--rule);
+  background-image:repeating-linear-gradient(-45deg,transparent 0 22px,rgba(34,30,24,.05) 22px 24px)}
+.sale .wrap{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4em 1.2em;padding-block:10px;font-family:var(--grot)}
+.sale b{font-weight:800}
+.sale .fine{font-size:.9rem}
+
+/* ── hero ───────────────────────────────────────────────────────────── */
+.hero{padding-top:clamp(40px,6vw,80px)}
+.hero .grid{display:grid;grid-template-columns:7fr 5fr;gap:clamp(24px,5vw,72px);align-items:center}
+.hero h1{font-size:clamp(2.7rem,6.4vw,5.6rem);font-weight:800;line-height:.96;letter-spacing:-.035em;margin:.25em 0 .35em}
+.hero h1 em{font-style:normal;color:var(--brand)}
+.tagline{font:italic 500 clamp(1.25rem,2.1vw,1.6rem)/1.3 var(--serif);color:var(--ink-2);max-width:26ch}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px 14px;align-items:center;margin-top:28px}
+.hero .cta .fine{width:100%;margin-top:2px}
+/* the photo — taped to the page */
+.snap{position:relative;padding:12px 12px 40px;background:#FBF7EC;box-shadow:0 1px 0 rgba(34,30,24,.15),0 14px 30px -18px rgba(34,30,24,.45);
+  transform:rotate(1.4deg)}
+.snap .ph{aspect-ratio:4/5;background-color:var(--paper-3);background-size:cover;background-position:center;
+  background-image:var(--img),
+    linear-gradient(160deg,#C9BDA3,#8E8474 55%,#4E463C);
+}
+.snap .cap{position:absolute;left:14px;bottom:12px;font:italic 400 .95rem/1 var(--serif);color:var(--ink-2)}
+.tape{position:absolute;width:88px;height:26px;background:rgba(222,211,184,.85);
+  box-shadow:0 1px 2px rgba(34,30,24,.15);transform:rotate(-6deg)}
+.tape.tl{left:-24px;top:-10px}.tape.br{right:-22px;bottom:22px;transform:rotate(8deg)}
+@media (max-width:820px){
+  .hero .grid{grid-template-columns:1fr}
+  .snap{width:min(380px,100%);margin:24px auto 0;transform:rotate(-1.2deg)}
+}
+@media (max-width:400px){ .tape.br{right:-6px} .tape.tl{left:-8px} }
+
+/* credentials — a stat row under the hero (PROPOSED column) */
+.cred{display:flex;flex-wrap:wrap;gap:0;margin-top:clamp(40px,6vw,72px);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.cred li{flex:1 1 180px;padding:16px 18px 16px 0;font-family:var(--grot);display:grid;gap:4px}
+.cred li+li{border-left:1px solid var(--rule);padding-left:18px}
+.cred b{font-size:1.15rem;font-weight:800;letter-spacing:-.01em}
+.cred span{font-size:.85rem;color:var(--ink-2)}
+@media (max-width:640px){
+  .cred li{flex-basis:calc(50% - 1px)}
+  .cred li:nth-child(3){border-left:0;padding-left:0;border-top:1px solid var(--rule)}
+  .cred li:nth-child(4){border-top:1px solid var(--rule)}
+}
+@media (max-width:360px){
+  .cred li{flex-basis:100%;border-left:0!important;padding-left:0!important}
+  .cred li+li{border-top:1px solid var(--rule)}
+}
+
+/* ── about — the person ─────────────────────────────────────────────── */
+.about{background:var(--paper-2);border-block:1px solid var(--rule)}
+.about .grid{display:grid;grid-template-columns:minmax(240px,4fr) 7fr;gap:clamp(28px,6vw,96px);align-items:start}
+.about .snap{transform:rotate(-2deg);position:sticky;top:96px}
+.about .snap .ph{aspect-ratio:3/4;background-image:var(--img),linear-gradient(200deg,#8E8474,#4E463C 60%,#221E18)}
+.about h2{margin:.35em 0 .6em}
+.about .copy{font-size:clamp(1.1rem,1.5vw,1.28rem);line-height:1.6;max-width:62ch}
+.about .copy p+p{margin-top:1.1em}
+.about .copy p:first-of-type::first-letter{font:800 3.6em/.78 var(--grot);float:left;margin:.08em .1em 0 0;color:var(--brand)}
+.pull{margin:1.6em 0;font:700 clamp(1.25rem,2.2vw,1.7rem)/1.2 var(--grot);letter-spacing:-.02em;max-width:24ch}
+.sig{margin-top:1.4em;font:italic 500 1.3rem/1.2 var(--serif)}
+@media (max-width:820px){
+  .about .grid{grid-template-columns:1fr}
+  .about .snap{position:static;width:min(300px,100%);margin:0 auto 8px}
+}
+
+/* ── the menu — service catalog ─────────────────────────────────────── */
+.menu h2{margin:.3em 0 .5em}
+.sizes{display:flex;flex-wrap:wrap;gap:8px 18px;margin:20px 0 8px;font-family:var(--grot);font-size:.9rem;color:var(--ink-2)}
+.sizes li b{color:var(--ink);font-weight:700}
+.group{margin-top:clamp(36px,5vw,56px)}
+.group-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+.group-head h3{font-size:1.45rem;font-weight:800}
+.pick{font:700 .72rem/1 var(--grot);letter-spacing:.12em;text-transform:uppercase;padding:.45em .6em;border:1.5px solid var(--ink);border-radius:3px}
+.group-head .fine{flex-basis:100%}
+.svc{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.6fr) auto;gap:16px clamp(20px,3vw,40px);padding:26px 0;border-bottom:1px solid var(--rule)}
+.svc .name h4{font-size:1.35rem;font-weight:800;letter-spacing:-.02em}
+.svc .name .dur{display:block;margin-top:6px;font:500 .9rem/1 var(--grot);color:var(--ink-2)}
+.svc .name p{margin-top:12px;font-size:1.02rem;color:var(--ink-2)}
+.feat{columns:2;column-gap:22px;font:400 .95rem/1.45 var(--grot)}
+.feat li{break-inside:avoid;padding:3px 0 3px 16px;position:relative}
+.feat li::before{content:"";position:absolute;left:0;top:.72em;width:8px;height:2px;background:var(--brand)}
+.ladder{display:grid;grid-auto-rows:min-content;gap:0;min-width:150px;border:1.5px solid var(--ink);border-radius:var(--r);overflow:hidden;align-self:start;font-family:var(--grot)}
+.ladder li{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 12px}
+.ladder li+li{border-top:1px solid var(--rule)}
+.ladder .sz{font-size:.85rem;color:var(--ink-2)}
+.ladder .num{font-size:1.15rem;font-weight:800}
+.ladder .from{font-size:.75rem;color:var(--ink-2);font-weight:500}
+.note{grid-column:1/-1;display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--paper-2);
+  font:italic 400 .98rem/1.45 var(--serif);color:var(--ink)}
+.note b{font:700 .72rem/1.6 var(--grot);letter-spacing:.1em;text-transform:uppercase;font-style:normal;color:var(--brand);flex:none;padding-top:.15em}
+@media (max-width:900px){
+  .svc{grid-template-columns:minmax(0,1fr) auto}
+  .svc .feats{grid-column:1/-1}
+}
+@media (max-width:520px){
+  .svc{grid-template-columns:1fr}
+  .ladder{width:100%}
+  .feat{columns:1}
+}
+
+/* ── extras — a receipt ─────────────────────────────────────────────── */
+.extras{background:var(--night);color:var(--night-ink);position:relative}
+.extras h2{margin:.3em 0 .2em}
+.extras .lede{color:#CFC6B4}
+.extras .eyebrow{color:color-mix(in oklab,var(--brand),#fff 38%)}
+.receipt{margin-top:36px;columns:2;column-gap:clamp(28px,5vw,72px)}
+.receipt li{break-inside:avoid;padding:14px 0;border-bottom:1px dashed var(--night-2)}
+.receipt .line{display:flex;align-items:baseline;gap:8px;font-family:var(--grot)}
+.receipt .line .n{font-weight:700;font-size:1.08rem}
+.receipt .line .lead{flex:1;border-bottom:2px dotted var(--night-2);min-width:16px;transform:translateY(-.3em)}
+.receipt .line .num{font-size:1.1rem}
+.receipt .dur{font:500 .82rem/1 var(--grot);color:#CFC6B4;margin-top:6px}
+.receipt .why{margin-top:8px;font:italic 400 .95rem/1.45 var(--serif);color:#CFC6B4}
+@media (max-width:700px){ .receipt{columns:1} }
+
+/* ── plans — two tickets ────────────────────────────────────────────── */
+.plans .lede{margin-top:.6em}
+.tickets{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,36px);margin-top:36px}
+.ticket{position:relative;background:#FBF7EC;border:1.5px solid var(--ink);border-radius:var(--r);
+  display:grid;grid-template-columns:1fr auto}
+.ticket .body{padding:22px 22px 24px}
+.ticket .stub{writing-mode:vertical-rl;transform:rotate(180deg);border-left:2px dashed var(--rule);padding:16px 12px;
+  font:700 .75rem/1 var(--grot);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;justify-content:center;gap:10px}
+.ticket h3{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+.ticket .price{margin:12px 0 6px;font-family:var(--grot)}
+.ticket .price .num{font-size:2.3rem;letter-spacing:-.03em;line-height:1;font-variant-numeric:lining-nums}
+.ticket .price .shape{font-size:1rem;color:var(--ink-2);font-weight:500}
+.ticket .cad{font:500 .92rem/1.35 var(--grot);color:var(--ink-2)}
+.ticket .inc{margin-top:16px;font-size:1rem}
+.ticket .inc li{padding:4px 0 4px 18px;position:relative}
+.ticket .inc li::before{content:"";position:absolute;left:0;top:.75em;width:9px;height:9px;border:2px solid var(--brand);border-radius:2px}
+.ticket .term{margin-top:14px;font:italic 400 .92rem/1.4 var(--serif);color:var(--ink-2)}
+.plans .cta{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
+@media (max-width:760px){ .tickets{grid-template-columns:1fr} }
+
+/* ── gallery ────────────────────────────────────────────────────────── */
+.gallery{background:var(--paper-2);border-block:1px solid var(--rule)}
+.gallery .head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 24px;margin-bottom:28px}
+.ba{position:relative;aspect-ratio:16/9;border:1.5px solid var(--ink);border-radius:var(--r);overflow:hidden;background:var(--paper-3);--x:52%}
+.ba .ph{position:absolute;inset:0;background-size:cover;background-position:center}
+.ba .after{background-image:var(--img),linear-gradient(135deg,#4E463C,#221E18)}
+.ba .before{background-image:var(--img),linear-gradient(135deg,#C9BDA3,#8E8474);clip-path:inset(0 calc(100% - var(--x)) 0 0)}
+.ba .seam{position:absolute;top:0;bottom:0;left:var(--x);width:2px;background:var(--paper);transform:translateX(-1px);pointer-events:none}
+.ba .seam::after{content:"";position:absolute;top:50%;left:50%;width:36px;height:36px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);transform:translate(-50%,-50%);
+  background-image:linear-gradient(90deg,transparent 0 11px,var(--ink) 11px 13px,transparent 13px 21px,var(--ink) 21px 23px,transparent 23px)}
+.ba input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.ba .tag{position:absolute;top:12px;padding:.35em .6em;font:700 .72rem/1 var(--grot);letter-spacing:.12em;text-transform:uppercase;background:var(--paper);color:var(--ink);border-radius:3px;pointer-events:none}
+.ba .tag.b{left:12px}.ba .tag.a{right:12px}
+.ba .cap{position:absolute;left:12px;bottom:12px;padding:.4em .7em;background:rgba(34,30,24,.75);color:var(--night-ink);font:italic 400 .9rem/1.2 var(--serif);border-radius:3px;pointer-events:none;max-width:calc(100% - 24px)}
+.shots{display:grid;grid-template-columns:2fr 1fr 1fr;grid-auto-rows:220px;gap:14px;margin-top:14px}
+.shots .ph{border:1.5px solid var(--ink);border-radius:var(--r);background-size:cover;background-position:center;position:relative;overflow:hidden;
+  background-image:var(--img),linear-gradient(150deg,#C9BDA3,#8E8474 50%,#4E463C)}
+.shots .ph:first-child{grid-row:span 2}
+.shots .cap{position:absolute;left:10px;bottom:10px;padding:.35em .6em;background:rgba(34,30,24,.75);color:var(--night-ink);font:italic 400 .85rem/1.2 var(--serif);border-radius:3px}
+@media (max-width:700px){
+  .shots{grid-template-columns:1fr 1fr;grid-auto-rows:160px}
+  .shots .ph:first-child{grid-column:span 2;grid-row:span 1}
+}
+
+/* ── reviews — index cards ──────────────────────────────────────────── */
+.reviews .head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px 24px}
+.reviews .out{display:flex;flex-wrap:wrap;gap:8px 18px;font:700 .95rem/1 var(--grot)}
+.reviews .out a{text-decoration:none;border-bottom:2px solid var(--brand);padding-bottom:2px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:22px;margin-top:36px;align-items:start}
+.card{background:#FBF7EC;border:1px solid var(--rule);padding:22px 22px 18px;box-shadow:0 10px 24px -18px rgba(34,30,24,.5);
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(181,71,27,.16) 27px 28px);background-position:0 54px}
+.card:nth-child(odd){transform:rotate(-.8deg)}
+.card:nth-child(even){transform:rotate(.7deg);margin-top:18px}
+.stars{font:700 .9rem/1 var(--grot);letter-spacing:.1em;color:var(--brand)}
+.card blockquote{margin:12px 0 14px;font:400 1.08rem/1.5 var(--serif)}
+.card footer{display:flex;justify-content:space-between;gap:10px;font:700 .85rem/1.2 var(--grot)}
+.card footer span{color:var(--ink-2);font-weight:500}
+
+/* ── the booking card — THE DARK ONE ────────────────────────────────── */
+.book{padding-block:clamp(40px,7vw,96px)}
+.night{position:relative;background:var(--night);color:var(--night-ink);border-radius:10px;overflow:hidden;
+  padding:clamp(28px,5vw,64px);display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.9fr);gap:clamp(24px,4vw,56px);align-items:center;
+  box-shadow:0 30px 60px -30px rgba(34,30,24,.6)}
+.night::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(60% 90% at 100% 0%,color-mix(in srgb,var(--brand) 28%,transparent),transparent 60%)}
+.night>*{position:relative}
+.night>.tape{position:absolute}
+.night .eyebrow{color:color-mix(in oklab,var(--brand),#fff 38%)}
+.night h2{margin:.35em 0 .5em;font-size:clamp(2rem,4.2vw,3.4rem);letter-spacing:-.03em;line-height:.98}
+.night p{max-width:44ch;font-size:1.12rem;color:#CFC6B4}
+.night p b{color:var(--night-ink);font-weight:600}
+.night .go{display:grid;gap:14px;justify-items:start}
+.night .go .btn{font-size:1.1rem;padding:1em 1.4em}
+.night .go .fine{color:#CFC6B4}
+.night .go .alt{font:700 1rem/1 var(--grot);color:var(--night-ink);text-decoration:none;border-bottom:2px solid color-mix(in oklab,var(--brand),#fff 38%);padding-bottom:3px}
+.night .tape{background:color-mix(in srgb,var(--brand) 70%,var(--night));opacity:.9}
+.night .tape.tr{right:26px;top:20px;transform:rotate(6deg)}
+@media (max-width:760px){ .night{grid-template-columns:1fr} }
+
+/* ── faq ────────────────────────────────────────────────────────────── */
+.faq .grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(20px,5vw,72px);align-items:start}
+.faq details{border-top:1px solid var(--rule)}
+.faq details:last-child{border-bottom:1px solid var(--rule)}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;align-items:center;padding:18px 0;font:700 1.1rem/1.3 var(--grot)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-weight:400;font-size:1.5rem;line-height:1;color:var(--brand);transition:transform .2s ease}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq .a{padding:0 0 20px;max-width:60ch;color:var(--ink-2)}
+@media (max-width:760px){ .faq .grid{grid-template-columns:1fr} }
+
+/* ── practical — hours, area, pay, contact ──────────────────────────── */
+.practical{background:var(--paper-2);border-top:1px solid var(--rule)}
+.practical .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(24px,4vw,48px)}
+.practical h3{padding-bottom:10px;border-bottom:2px solid var(--ink);margin-bottom:14px}
+.state{display:inline-flex;align-items:center;gap:8px;margin-bottom:12px;padding:.4em .7em .4em .55em;border-radius:3px;font:700 .82rem/1 var(--grot);letter-spacing:.06em;text-transform:uppercase;background:var(--paper);border:1.5px solid var(--ink)}
+.state::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ink-2)}
+.state.open::before{background:var(--brand)}
+.hours li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font:500 .95rem/1.3 var(--grot);border-bottom:1px dashed var(--rule)}
+.hours li .num{font-weight:500}
+.hours li.today{font-weight:700}
+.hours li.today .num{font-weight:700}
+.hours li .closed{color:var(--ink-2)}
+.area p{margin-bottom:10px}
+.area .modes{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.area .modes li{font:700 .8rem/1 var(--grot);letter-spacing:.06em;text-transform:uppercase;padding:.5em .7em;background:var(--paper);border:1.5px solid var(--ink);border-radius:3px}
+.pay li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed var(--rule);font:500 .95rem/1.3 var(--grot)}
+.pay li b{font-weight:700}
+.pay li .h{color:var(--ink-2)}
+.pay a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--brand);text-underline-offset:3px}
+.say .big{font:800 1.5rem/1 var(--grot);letter-spacing:-.02em;text-decoration:none;display:inline-block;margin-bottom:12px}
+.social{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:6px}
+.social a{font:700 .95rem/1 var(--grot);text-decoration:none;border-bottom:2px solid var(--brand);padding-bottom:3px}
+@media (max-width:900px){ .practical .grid{grid-template-columns:1fr 1fr} }
+@media (max-width:520px){ .practical .grid{grid-template-columns:1fr} }
+
+/* ── footer ─────────────────────────────────────────────────────────── */
+.foot{padding:28px 0 40px;border-top:1px solid var(--rule);background:var(--paper-2)}
+.foot .wrap{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between;font:500 .9rem/1.4 var(--grot);color:var(--ink-2)}
+
+/* ── motion — ONE implementation ────────────────────────────────────── */
+.js:not(.lite) [data-rv]{opacity:0;transform:translateY(22px);
+  transition:opacity .7s ease,transform .8s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--d,0)*90ms)}
+.js:not(.lite) [data-rv="left"]{transform:translateX(-28px)}
+.js:not(.lite) [data-rv="right"]{transform:translateX(28px)}
+.js:not(.lite) [data-rv="snap"]{transform:translate(24px,10px) rotate(4deg) scale(.97)}
+.js:not(.lite) .about [data-rv="snap"]{transform:translate(-20px,12px) rotate(-5deg) scale(.97)}
+.js:not(.lite) [data-rv="drop"]{transform:translateY(-16px)}
+.js:not(.lite) [data-rv].in{opacity:1;transform:none}
+/* the snap keeps its resting tilt after arriving */
+.js:not(.lite) .hero [data-rv="snap"].in{transform:rotate(1.4deg)}
+.js:not(.lite) .about [data-rv="snap"].in{transform:rotate(-2deg)}
+@media (max-width:820px){ .js:not(.lite) .hero [data-rv="snap"].in{transform:rotate(-1.2deg)} }
+/* children arrive on their own clocks, never as one block */
+.js:not(.lite) .kids>*{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .6s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--k,0)*70ms + var(--d,0)*90ms)}
+.js:not(.lite) .in .kids>*,.js:not(.lite) .in.kids>*{opacity:1;transform:none}
+.kids>:nth-child(1){--k:0}.kids>:nth-child(2){--k:1}.kids>:nth-child(3){--k:2}.kids>:nth-child(4){--k:3}
+.kids>:nth-child(5){--k:4}.kids>:nth-child(6){--k:5}.kids>:nth-child(7){--k:6}.kids>:nth-child(8){--k:7}
+.kids>:nth-child(9){--k:8}.kids>:nth-child(10){--k:9}.kids>:nth-child(11){--k:10}.kids>:nth-child(12){--k:11}
+/* the index cards keep their tilt when in */
+.js:not(.lite) .cards>.card{transform:translateY(14px) rotate(0)}
+.js:not(.lite) .in .cards>.card:nth-child(odd){transform:rotate(-.8deg)}
+.js:not(.lite) .in .cards>.card:nth-child(even){transform:rotate(.7deg)}
+.lite *{transition-duration:0s!important;animation:none!important}
+
+/* ── seams — artifact chrome, ?seams=1 ──────────────────────────────── */
+.seambar{display:none}
+.seams .seambar{display:block;background:#1a1a1a;color:#fff;font:600 12px/1.4 ui-monospace,Consolas,monospace;padding:8px var(--gut);border-bottom:3px solid #F5C400}
+.seams .seambar b{color:#F5C400}
+.seams [data-src]{outline:1.5px dashed #B5471B;outline-offset:2px}
+.seams .top .wrap{flex-wrap:wrap;padding-block:8px}
+.seams .ladder li,.seams .receipt .line,.seams .pay li,.seams .hours li{flex-wrap:wrap}
+.seams [data-src]::before{content:attr(data-src);display:inline-block;font:600 10px/1.4 ui-monospace,Consolas,monospace;
+  background:#1a1a1a;color:#F5C400;padding:1px 6px;border-radius:3px;margin:0 6px 2px 0;vertical-align:middle;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+.seams [role="img"][data-src]::before{position:absolute;left:6px;top:6px;z-index:2}
+</style>
+<script>
+/* Runs before first paint. Decides .lite once, from one place:
+   ?lite=1 outranks the media query; ?lite=0 outranks it the other way. */
+(function(){
+  var h=document.documentElement,q=new URLSearchParams(location.search);
+  var mq=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)");
+  var lite=q.get("lite")==="1"||(q.get("lite")!=="0"&&mq&&mq.matches);
+  if(lite)h.classList.add("lite");
+  if(q.get("seams")==="1")h.classList.add("seams");
+  h.classList.add("js");
+  if(mq&&q.get("lite")===null&&mq.addEventListener)mq.addEventListener("change",function(e){h.classList.toggle("lite",e.matches)});
+})();
+</script>
+</head>
+<body>
+
+<div class="seambar" role="note">SEAM VIEW — every labelled element is fed from the column shown. <b id="seamcount"></b> Labels are in flow and never overlay content. Remove <b>?seams=1</b> to hide.</div>
+
+<!-- ── top bar: name, PHONE (6/6 real sites), book ─────────────────── -->
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Tolliver Mobile Detailing, home">
+      <span class="logo" role="img" aria-label="Tolliver Mobile Detailing logo" data-src="business_branding.logo_url">T</span>
+      <span class="name" data-src="businesses.name">Tolliver Mobile Detailing</span>
+    </a>
+    <a class="phone" href="tel:+12535550148" aria-label="Call (253) 555-0148" data-src="businesses.contact_phone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+      <span>(253) 555-0148</span>
+    </a>
+    <!-- reserve mode. In request mode the label is "Request a time" (business_settings.booking_mode). -->
+    <a class="btn btn-brand" href="/book/tolliver-mobile" data-src="businesses.slug">Book<span class="long"> a time</span></a>
+  </div>
+</header>
+
+<!-- ── the site-wide sale. REMOVE THIS WHOLE <aside> when site_discount_active is false. ── -->
+<aside class="sale" id="sale" aria-label="Current offer">
+  <div class="wrap">
+    <b data-src="business_settings.site_discount_label">September: $20 off any full detail.</b>
+    <span class="fine">Comes off automatically when you book — no code.</span>
+    <!-- fallback when site_discount_label is empty: <b data-src="business_settings.site_discount_percent">10% off</b> -->
+  </div>
+</aside>
+
+<main id="top">
+
+<!-- ── hero ────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="wrap">
+    <div class="grid">
+      <div data-rv="left">
+        <p class="eyebrow" data-src="businesses.service_area">Tacoma · Puyallup · Lakewood · Gig Harbor</p>
+        <h1><span data-src="businesses.name">Tolliver Mobile Detailing</span></h1>
+        <p class="tagline" data-src="business_branding.tagline">One van, one guy, your driveway. I bring the water.</p>
+        <div class="cta kids">
+          <a class="btn btn-brand" href="/book/tolliver-mobile" data-src="businesses.slug">Book a time</a>
+          <a class="btn btn-line" href="tel:+12535550148" data-src="businesses.contact_phone">Call Sam</a>
+          <p class="fine">Prices are on this page, all three sizes. No quote needed for a standard car.</p>
+        </div>
+      </div>
+      <figure class="snap" data-rv="snap" style="--d:2">
+        <span class="tape tl"></span>
+        <div class="ph" role="img" aria-label="Sam washing a black hatchback in a driveway" data-src="business_branding.hero_image_url"
+             style="--img:url('https://images.unsplash.com/photo-1694678505383-676d78ea3b96?auto=format&fit=crop&w=1000&q=70')"></div>
+        <figcaption class="cap">Thursday, a regular's Golf. North End.</figcaption>
+        <span class="tape br"></span>
+      </figure>
+    </div>
+
+    <!-- credentials / trust markers: 5 of 6 real sites lead with these; the schema cannot feed them yet -->
+    <ul class="cred kids" data-rv aria-label="Credentials">
+      <li data-src="business_branding.credentials (PROPOSED — research §4c)"><b>Licensed &amp; insured</b><span>WA UBI on file · $1M liability</span></li>
+      <li data-src="business_branding.credentials (PROPOSED — research §4c)"><b>Since 2019</b><span>Same van, same phone number</span></li>
+      <li data-src="business_branding.credentials (PROPOSED — research §4c)"><b>4.9 ★ on Google</b><span>212 reviews</span></li>
+      <li data-src="business_branding.credentials (PROPOSED — research §4c)"><b>Water &amp; power on board</b><span>Nothing to plug in</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── about — the person IS the pitch, so this gets the room ──────── -->
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="grid">
+      <figure class="snap" data-rv="snap">
+        <span class="tape tl"></span>
+        <div class="ph" role="img" aria-label="Sam Tolliver crouched by a wheel with a pressure washer wand" data-src="business_branding.hero_image_url"
+             style="--img:url('https://images.unsplash.com/photo-1676035292418-9feb467a8617?auto=format&fit=crop&w=800&q=70')"></div>
+        <figcaption class="cap">Me, most days.</figcaption>
+      </figure>
+      <div data-rv="right">
+        <p class="eyebrow">Who's turning up</p>
+        <h2>It's just me. That's the point.</h2>
+        <div class="copy" data-src="business_branding.about_copy">
+          <p>I'm Sam. I started washing cars in my parents' driveway in Fife the summer I was sixteen, mostly to pay for the car I was washing. Six years and one very tired van later, it's the whole job. I don't have a crew, I don't subcontract, and I'm not going to send someone you've never met to your house. If you book me, I'm the one who shows up.</p>
+          <p>The van carries its own water and power, so I can work anywhere I can park — a driveway, an apartment lot, the street outside your office. I use pH-neutral soap, two buckets, and a proper extractor for interiors rather than a shop vac and hope. It takes longer than a drive-through. That's the difference you're paying for.</p>
+          <p class="pull">If I wouldn't hand the keys back to my mum, I'm not done yet.</p>
+          <p>Most of my week is regulars — people I've seen every four or six weeks for years. I'd like you to be one of them, but I'd rather you book once, see the car, and decide. Text me a photo if you're not sure what it needs. I'll tell you honestly, including when the cheaper option is the right one.</p>
+          <p class="sig">— Sam Tolliver</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── the menu: services, grouped, with the size ladder and the notes ── -->
+<section class="menu" id="services">
+  <div class="wrap">
+    <div data-rv>
+      <p class="eyebrow">What it costs</p>
+      <h2>The menu, with all three sizes.</h2>
+      <p class="lede">Every price below is the price. The only thing that moves it is the size of the car and, very occasionally, its condition — which I'll tell you about before I start, never after.</p>
+      <ul class="sizes" aria-label="Vehicle sizes">
+        <li data-src="business_settings.vehicle_sizes[small]"><b>Small</b> · coupe, sedan, hatchback</li>
+        <li data-src="business_settings.vehicle_sizes[medium]"><b>Medium</b> · small SUV, crossover, wagon</li>
+        <li data-src="business_settings.vehicle_sizes[large]"><b>Large</b> · truck, large SUV, van</li>
+      </ul>
+    </div>
+
+    <!-- group 1: is_exclusive — pick one -->
+    <div class="group" data-rv>
+      <div class="group-head">
+        <h3 data-src="service_groups.name">Full details</h3>
+        <span class="pick" data-src="service_groups.is_exclusive">Pick one</span>
+        <p class="fine" data-src="service_groups.description">These overlap, so you choose one. If you're not sure which, the middle one is right for most cars most of the time.</p>
+      </div>
+
+      <article class="svc kids">
+        <div class="name">
+          <h4 data-src="services.name">The Maintenance Wash</h4>
+          <span class="dur" data-src="services.duration_minutes">About 1 hour</span>
+          <p data-src="services.description">For a car that's looked after and needs to stay that way. The one my regulars are on.</p>
+        </div>
+        <ul class="feat feats" data-src="services.features">
+          <li>Pre-rinse and snow foam</li><li>Two-bucket hand wash</li><li>Wheels, tyres and arches</li>
+          <li>Door jambs</li><li>Towel dry, no air-blade swirls</li><li>Tyre dressing</li>
+          <li>Interior vacuum</li><li>Dash and console wipe</li><li>Glass inside and out</li>
+        </ul>
+        <ul class="ladder" aria-label="Price by vehicle size">
+          <li data-src="services.price"><span class="sz">Small</span><span class="num">$79</span></li>
+          <li data-src="services.vehicle_size_adjustments[medium].price"><span class="sz">Medium</span><span class="num">$99</span></li>
+          <li data-src="services.vehicle_size_adjustments[large].price"><span class="sz">Large</span><span class="num">$119</span></li>
+        </ul>
+      </article>
+
+      <article class="svc kids">
+        <div class="name">
+          <h4 data-src="services.name">Inside &amp; Out</h4>
+          <span class="dur" data-src="services.duration_minutes">About 2½ hours</span>
+          <p data-src="services.description">The wash above, plus a real interior: seats out of the way, carpets extracted, plastics fed. This is the one people mean when they say "a detail".</p>
+        </div>
+        <ul class="feat feats" data-src="services.features">
+          <li>Everything in the Maintenance Wash</li><li>Clay bar decontamination</li><li>Iron remover on paint and wheels</li>
+          <li>Spray sealant (3–4 months)</li><li>Carpets and mats shampooed &amp; extracted</li><li>Cloth seats extracted</li>
+          <li>Leather cleaned and conditioned</li><li>Vents, seams and cup holders detailed</li><li>Boot / trunk and spare well</li>
+          <li>Headliner spot-cleaned</li><li>Interior glass polished</li><li>Light odour treatment</li>
+        </ul>
+        <ul class="ladder" aria-label="Price by vehicle size">
+          <li data-src="services.price"><span class="sz">Small</span><span class="num">$179</span></li>
+          <li data-src="services.vehicle_size_adjustments[medium].price"><span class="sz">Medium</span><span class="num">$229</span></li>
+          <li data-src="services.vehicle_size_adjustments[large].price"><span class="sz">Large</span><span class="num">$279</span></li>
+        </ul>
+        <p class="note" data-src="services.notes"><b>Please read</b><span>The sealant is a spray sealant, not a ceramic coating — expect three to four months, not three years. Heavy pet hair, sand, or anything growing changes the price; I'll say so before I start, and you can say no.</span></p>
+      </article>
+
+      <article class="svc kids">
+        <div class="name">
+          <h4 data-src="services.name">The Whole Thing</h4>
+          <span class="dur" data-src="services.duration_minutes">Most of a day — 5 to 6 hours</span>
+          <p data-src="services.description">Inside &amp; Out plus a one-step machine polish to take the swirls and light scratches out of the paint. For a car you're selling, or one you've just bought and want to start over with.</p>
+        </div>
+        <ul class="feat feats" data-src="services.features">
+          <li>Everything in Inside &amp; Out</li><li>Paint measured before polishing</li><li>One-step machine polish, all panels</li>
+          <li>Headlights polished</li><li>Exhaust tips polished</li><li>Trim restored</li>
+          <li>Engine bay wiped down</li><li>Sealant applied after polishing</li><li>Photos before and after, sent to you</li>
+        </ul>
+        <ul class="ladder" aria-label="Price by vehicle size">
+          <li data-src="services.price_is_from"><span class="sz">Small</span><span class="num">$349</span><span class="from">from</span></li>
+          <li data-src="services.vehicle_size_adjustments[medium].price"><span class="sz">Medium</span><span class="num">$419</span><span class="from">from</span></li>
+          <li data-src="services.vehicle_size_adjustments[large].price"><span class="sz">Large</span><span class="num">$489</span><span class="from">from</span></li>
+        </ul>
+        <p class="note" data-src="services.notes"><b>Please read</b><span>"From" because polishing depends on the paint. A one-step takes out most swirls, not deep scratches or anything you can catch a fingernail in. I'll look at it, tell you what's realistic, and you decide.</span></p>
+      </article>
+    </div>
+
+    <!-- group 2: NOT exclusive — stack any of these on a full detail -->
+    <div class="group" data-rv>
+      <div class="group-head">
+        <h3 data-src="service_groups.name">Interior only</h3>
+        <span class="pick" data-src="service_groups.max_select">Any of these, together or alone</span>
+        <p class="fine" data-src="service_groups.description">When the outside is fine and the inside isn't. Book them on their own or stack them with a full detail.</p>
+      </div>
+
+      <article class="svc kids">
+        <div class="name">
+          <h4 data-src="services.name">Carpet &amp; seat extraction</h4>
+          <span class="dur" data-src="services.duration_minutes">About 1½ hours</span>
+          <p data-src="services.description">Hot-water extraction on carpets, mats and cloth seats. The one for spills, kids and dogs.</p>
+        </div>
+        <ul class="feat feats" data-src="services.features">
+          <li>Full vacuum first</li><li>Pre-treat stains</li><li>Hot-water extraction, carpets and seats</li>
+          <li>Mats done outside the car</li><li>Left damp, dry in a few hours with the windows cracked</li>
+        </ul>
+        <ul class="ladder" aria-label="Price by vehicle size">
+          <li data-src="services.price"><span class="sz">Small</span><span class="num">$129</span></li>
+          <li data-src="services.vehicle_size_adjustments[medium].price"><span class="sz">Medium</span><span class="num">$149</span></li>
+          <li data-src="services.vehicle_size_adjustments[large].price"><span class="sz">Large</span><span class="num">$179</span></li>
+        </ul>
+        <p class="note" data-src="services.notes"><b>Please read</b><span>Extraction lifts what's in the fabric; it doesn't un-dye it. Old coffee comes out. Old bleach doesn't.</span></p>
+      </article>
+
+      <article class="svc kids">
+        <div class="name">
+          <h4 data-src="services.name">Leather clean &amp; condition</h4>
+          <span class="dur" data-src="services.duration_minutes">About 45 minutes</span>
+          <p data-src="services.description">Proper leather cleaner, a soft brush, then a conditioner that doesn't leave the seats shiny.</p>
+        </div>
+        <ul class="feat feats" data-src="services.features">
+          <li>All leather surfaces, seats and door cards</li><li>Seams and perforations brushed out</li><li>Matte-finish conditioner</li>
+        </ul>
+        <ul class="ladder" aria-label="Price by vehicle size">
+          <li data-src="services.price"><span class="sz">Small</span><span class="num">$89</span></li>
+          <li data-src="services.vehicle_size_adjustments[medium].price"><span class="sz">Medium</span><span class="num">$89</span></li>
+          <li data-src="services.vehicle_size_adjustments[large].price"><span class="sz">Large</span><span class="num">$109</span></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── add-ons — a receipt on the one dark band ────────────────────── -->
+<section class="extras" id="extras">
+  <div class="wrap">
+    <div data-rv>
+      <p class="eyebrow">Add to any booking</p>
+      <h2>Extras</h2>
+      <p class="lede">Each one adds its time to the visit, so the total on the booking page will move with it.</p>
+    </div>
+    <ul class="receipt kids" data-rv>
+      <li data-src="add_ons">
+        <div class="line"><span class="n" data-src="add_ons.name">Pet hair removal</span><span class="lead"></span><span class="num" data-src="add_ons.price">$40</span></div>
+        <div class="dur" data-src="add_ons.duration_minutes">+30 min</div>
+        <p class="why" data-src="add_ons.notes">Priced for a normal amount of dog. A car that has been a dog bed for a year is a conversation first.</p>
+      </li>
+      <li data-src="add_ons">
+        <div class="line"><span class="n" data-src="add_ons.name">Headlight restoration</span><span class="lead"></span><span class="num" data-src="add_ons.price">$69</span></div>
+        <div class="dur" data-src="add_ons.duration_minutes">+45 min</div>
+        <p class="why" data-src="add_ons.notes">Wet-sanded and polished, then sealed. Lasts a year or two, not forever — the plastic is what it is.</p>
+      </li>
+      <li data-src="add_ons">
+        <div class="line"><span class="n" data-src="add_ons.name">Engine bay</span><span class="lead"></span><span class="num" data-src="add_ons.price">$59</span></div>
+        <div class="dur" data-src="add_ons.duration_minutes">+30 min</div>
+        <p class="why" data-src="add_ons.notes">Degreased, rinsed carefully, dressed. Not for anything with an exposed air filter or an old alternator; I'll check first.</p>
+      </li>
+      <li data-src="add_ons">
+        <div class="line"><span class="n" data-src="add_ons.name">Odour treatment</span><span class="lead"></span><span class="num" data-src="add_ons.price">$35</span></div>
+        <div class="dur" data-src="add_ons.duration_minutes">+20 min</div>
+        <p class="why" data-src="add_ons.notes">An ozone treatment with the car closed up. Works on smoke and damp; won't fix something still wet under the carpet.</p>
+      </li>
+      <li data-src="add_ons">
+        <div class="line"><span class="n" data-src="add_ons.name">Child seat clean</span><span class="lead"></span><span class="num" data-src="add_ons.price">$25</span></div>
+        <div class="dur" data-src="add_ons.duration_minutes">+20 min</div>
+        <p class="why" data-src="add_ons.notes">Cover off, washed and dried, straps wiped (never soaked — the manufacturers are strict about that).</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── plans — two tickets, two different price_kind shapes ────────── -->
+<section class="plans" id="plans">
+  <div class="wrap">
+    <div data-rv>
+      <p class="eyebrow">Regulars</p>
+      <h2>Get on the list.</h2>
+      <p class="lede">Most of my week is people I see on a rhythm. A plan gets you a standing slot and a lower price, and I'll remind you a week before each visit.</p>
+    </div>
+    <div class="tickets kids" data-rv>
+      <article class="ticket" data-src="plans">
+        <div class="body">
+          <h3 data-src="plans.name">Every four weeks</h3>
+          <p class="price"><span class="num" data-src="plans.price_amount">$69</span> <span class="shape" data-src="plans.price_kind">a month</span></p>
+          <p class="cad" data-src="plans.cadence_count">One Maintenance Wash every 4 weeks · any size</p>
+          <ul class="inc" data-src="plans.included_service_ids">
+            <li>The Maintenance Wash, each visit</li>
+            <li>A standing day and time that's yours</li>
+            <li>Extras at the usual price, added when you like</li>
+          </ul>
+          <p class="term" data-src="plans.term_months">No term. Stop any time and the next visit just doesn't happen.</p>
+        </div>
+        <div class="stub"><span data-src="plans.visits_per_period">1 visit / 4 wk</span></div>
+      </article>
+      <article class="ticket" data-src="plans">
+        <div class="body">
+          <h3 data-src="plans.name">A year of clean</h3>
+          <p class="price"><span class="num" data-src="plans.price_amount">$1,499</span> <span class="shape" data-src="plans.price_kind">up front</span></p>
+          <p class="cad" data-src="plans.cadence_count">Twelve visits over 12 months: one Inside &amp; Out a month</p>
+          <ul class="inc" data-src="plans.included_service_ids">
+            <li>Inside &amp; Out, monthly</li>
+            <li>Pet hair and odour treatment included</li>
+            <li>Roughly two visits free against the list price</li>
+          </ul>
+          <p class="term" data-src="plans.term_months">Twelve months, paid once. Missed a month? It rolls forward — visits don't expire until the year does.</p>
+        </div>
+        <div class="stub"><span data-src="plans.visits_per_period">12 visits / 12 mo</span></div>
+      </article>
+    </div>
+    <div class="cta" data-rv>
+      <a class="btn btn-line" href="/book/tolliver-mobile/plans" data-src="businesses.slug">See the plans and join one</a>
+      <p class="fine">No card on this page. A plan is set up between us on the first visit, and you pay the way you'd pay for anything else.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── gallery — before/after PAIR, then a few singles ─────────────── -->
+<section class="gallery" id="work">
+  <div class="wrap">
+    <div class="head" data-rv>
+      <div>
+        <p class="eyebrow">The work</p>
+        <h2>Drag it.</h2>
+      </div>
+      <p class="fine">Same car, same afternoon, same phone camera. No filters — I wouldn't know how.</p>
+    </div>
+    <div class="ba" data-rv data-src="gallery_images (kind = before_after)">
+      <div class="ph after" role="img" aria-label="After: the same interior, extracted and dressed" data-src="gallery_images.after_url"
+           style="--img:url('https://images.unsplash.com/photo-1625690180114-5530b1304127?auto=format&fit=crop&w=1400&q=70')"></div>
+      <div class="ph before" role="img" aria-label="Before: a stained cloth back seat" data-src="gallery_images.before_url"
+           style="--img:url('https://images.unsplash.com/photo-1770936450010-6837d6933caa?auto=format&fit=crop&w=1400&q=70')"></div>
+      <span class="seam" aria-hidden="true"></span>
+      <span class="tag b">Before</span><span class="tag a">After</span>
+      <span class="cap" data-src="gallery_images.caption">Back seat of a family estate after two winters. Extraction, then leather conditioner on the fronts.</span>
+      <input type="range" min="0" max="100" value="52" aria-label="Drag to compare before and after">
+    </div>
+    <div class="shots kids" data-rv>
+      <div class="ph" role="img" aria-label="Sam wiping down a dashboard" data-src="gallery_images.image_url"
+           style="--img:url('https://images.unsplash.com/photo-1771491237218-cbd4a707497e?auto=format&fit=crop&w=1200&q=70')"><span class="cap" data-src="gallery_images.caption">Dash, vents, the bits behind the wheel.</span></div>
+      <div class="ph" role="img" aria-label="A restored headlight" data-src="gallery_images.image_url"
+           style="--img:url('https://images.unsplash.com/photo-1557551220-8afdb8e9fdf7?auto=format&fit=crop&w=800&q=70')"><span class="cap" data-src="gallery_images.caption">Headlight, after.</span></div>
+      <div class="ph" role="img" aria-label="Water sheeting off a freshly sealed bonnet" data-src="gallery_images.image_url"
+           style="--img:url('https://images.unsplash.com/photo-1694025893767-9a212606fbc5?auto=format&fit=crop&w=800&q=70')"><span class="cap" data-src="gallery_images.caption">Sealant doing its thing.</span></div>
+      <div class="ph" role="img" aria-label="The van, parked outside a brick building" data-src="gallery_images.image_url"
+           style="--img:url('https://images.unsplash.com/photo-1775637483809-3bdb2a80fb77?auto=format&fit=crop&w=800&q=70')"><span class="cap" data-src="gallery_images.caption">The van. You'll hear it before you see it.</span></div>
+      <div class="ph" role="img" aria-label="A wet sponge on a car door" data-src="gallery_images.image_url"
+           style="--img:url('https://images.unsplash.com/photo-1694678505383-676d78ea3b96?auto=format&fit=crop&w=800&q=70')"><span class="cap" data-src="gallery_images.caption">Two buckets. Always two.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── reviews — index cards ───────────────────────────────────────── -->
+<section class="reviews" id="reviews">
+  <div class="wrap">
+    <div class="head" data-rv>
+      <div>
+        <p class="eyebrow">Regulars, in their words</p>
+        <h2>What people say.</h2>
+      </div>
+      <p class="out">
+        <a href="https://g.page/r/tolliver-mobile/review" data-src="business_settings.google_review_url">All 212 on Google</a>
+        <a href="https://www.yelp.com/biz/tolliver-mobile-detailing-tacoma" data-src="business_settings.yelp_review_url">On Yelp</a>
+      </p>
+    </div>
+    <div class="cards kids" data-rv>
+      <article class="card" data-src="testimonials">
+        <p class="stars" aria-label="5 out of 5 stars" data-src="testimonials.rating">★★★★★</p>
+        <blockquote data-src="testimonials.quote">He did my daughter's car after she'd had it at college for three years. I genuinely didn't recognise the inside. He also told me the headlights weren't worth doing yet, which nobody else would have.</blockquote>
+        <footer><b data-src="testimonials.author">Marisol V.</b><span data-src="testimonials.source">Google</span></footer>
+      </article>
+      <article class="card" data-src="testimonials">
+        <p class="stars" aria-label="5 out of 5 stars" data-src="testimonials.rating">★★★★★</p>
+        <blockquote data-src="testimonials.quote">Been on the four-week plan for two years. Shows up when he says, parks where I ask, and the car's done before my second coffee.</blockquote>
+        <footer><b data-src="testimonials.author">Derek O.</b><span data-src="testimonials.source">Google</span></footer>
+      </article>
+      <article class="card" data-src="testimonials">
+        <p class="stars" aria-label="4 out of 5 stars" data-src="testimonials.rating">★★★★☆</p>
+        <blockquote data-src="testimonials.quote">Great job on the truck. Only reason it's not five is he was about 20 minutes late — texted ahead, though, which I appreciated.</blockquote>
+        <footer><b data-src="testimonials.author">Priya N.</b><span data-src="testimonials.source">Yelp</span></footer>
+      </article>
+      <article class="card" data-src="testimonials">
+        <p class="stars" aria-label="5 out of 5 stars" data-src="testimonials.rating">★★★★★</p>
+        <blockquote data-src="testimonials.quote">Sold the car for $1,200 more than the trade-in offer after Sam did the whole thing. The dealer asked who'd detailed it.</blockquote>
+        <footer><b data-src="testimonials.author">Tom &amp; Alicia R.</b><span data-src="testimonials.source">Google</span></footer>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ── THE BOOKING CARD — the one dark surface. See the header comment: "the handover". ── -->
+<section class="book" id="book">
+  <div class="wrap">
+    <div class="night" data-rv>
+      <span class="tape tr"></span>
+      <div class="kids">
+        <p class="eyebrow">Ready?</p>
+        <h2>Pick a day. I'll be there.</h2>
+        <p>You'll choose the car, the service and a time on the next page. <b>It's dark on purpose — that's the booking page, and it's still me.</b> Nothing is charged until I've done the work.</p>
+      </div>
+      <div class="go kids" style="--d:2">
+        <!-- reserve mode (live) -->
+        <a class="btn btn-paper" href="/book/tolliver-mobile" data-src="businesses.slug">Book a time</a>
+        <p class="fine" data-src="business_settings.booking_mode">The slot is yours the moment you pick it — you'll get a text and an email with the details.</p>
+        <!-- ── booking_mode = "request" — a per-client build swaps THIS block in for the two lines above. ──
+        <a class="btn btn-paper" href="/book/tolliver-mobile" data-src="businesses.slug">Send me a request</a>
+        <p class="fine" data-src="business_settings.booking_mode">It's a request, not a booking yet: I'll look at the car and the day, then confirm by text, usually within a couple of hours. The time is held for you while I do.</p>
+        ─────────────────────────────────────────────────────────────────────────────────── -->
+        <a class="alt" href="tel:+12535550148" data-src="businesses.contact_phone">Or just call — (253) 555-0148</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── faq — only when business_settings.faq_enabled ──────────────── -->
+<section class="faq" id="faq" data-src="business_settings.faq_enabled">
+  <div class="wrap">
+    <div class="grid">
+      <div data-rv>
+        <p class="eyebrow">Before you ask</p>
+        <h2>The things people text me.</h2>
+        <p class="lede">If yours isn't here, the number's at the top.</p>
+      </div>
+      <div class="kids" data-rv data-src="business_settings.faqs">
+        <details data-src="business_settings.faqs[].q">
+          <summary>Do I need to be home?</summary>
+          <div class="a" data-src="business_settings.faqs[].a">No. Leave it unlocked or leave a key somewhere we've agreed, and I'll text you when I'm done. Most of my regulars are at work.</div>
+        </details>
+        <details data-src="business_settings.faqs[].q">
+          <summary>Do you need my water or power?</summary>
+          <div class="a" data-src="business_settings.faqs[].a">No. The van has a 400-litre tank and a generator. If you'd rather I used your tap to save me a refill, tell me on the day — it's not required.</div>
+        </details>
+        <details data-src="business_settings.faqs[].q">
+          <summary>What if it's raining?</summary>
+          <div class="a" data-src="business_settings.faqs[].a">Interiors go ahead regardless. For a wash or a polish I'll move you to the next dry day I have, and I'll text the evening before rather than the morning of.</div>
+        </details>
+        <details data-src="business_settings.faqs[].q">
+          <summary>Apartment lots, offices, the street?</summary>
+          <div class="a" data-src="business_settings.faqs[].a">All fine as long as I can park the van within a hose-length of the car and I'm not going to flood somebody's doorway. Some managed lots ask for notice — check with your building first.</div>
+        </details>
+        <details data-src="business_settings.faqs[].q">
+          <summary>How far do you go?</summary>
+          <div class="a" data-src="business_settings.faqs[].a">About twenty miles from Tacoma. Puyallup, Lakewood, University Place, Gig Harbor and Federal Way are all normal. Beyond that I'll come for a full detail or a plan, not for a wash on its own.</div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── practical: hours (with state), where, how to pay, say hi ─────── -->
+<section class="practical" id="contact">
+  <div class="wrap">
+    <div class="grid kids" data-rv>
+      <div class="hrs">
+        <h3>Hours</h3>
+        <span class="state" id="state" data-src="business_hours + businesses.timezone">Checking…</span>
+        <ul class="hours" id="hours" data-src="business_hours" data-tz="America/Los_Angeles">
+          <li data-day="1" data-open="" data-close=""><span>Monday</span><span class="closed">Closed</span></li>
+          <li data-day="2" data-open="08:00" data-close="17:00"><span>Tuesday</span><span class="num">8 am – 5 pm</span></li>
+          <li data-day="3" data-open="08:00" data-close="17:00"><span>Wednesday</span><span class="num">8 am – 5 pm</span></li>
+          <li data-day="4" data-open="08:00" data-close="17:00"><span>Thursday</span><span class="num">8 am – 5 pm</span></li>
+          <li data-day="5" data-open="08:00" data-close="17:00"><span>Friday</span><span class="num">8 am – 5 pm</span></li>
+          <li data-day="6" data-open="08:00" data-close="15:00"><span>Saturday</span><span class="num">8 am – 3 pm</span></li>
+          <li data-day="0" data-open="" data-close=""><span>Sunday</span><span class="closed">Closed</span></li>
+        </ul>
+      </div>
+      <div class="area">
+        <h3>Where I go</h3>
+        <p data-src="businesses.service_area">Tacoma and about twenty miles around it: Puyallup, Lakewood, University Place, Gig Harbor, Federal Way, Fife.</p>
+        <p class="fine" data-src="business_settings.travel_radius_miles">Twenty miles is the line; past it I'll come for a full detail or a plan.</p>
+        <ul class="modes" aria-label="Where the work happens">
+          <li data-src="business_settings.mobile_enabled">I come to you</li>
+          <!-- dropoff_enabled is false for this tenant, so there is no second chip and no businesses.dropoff_address. -->
+        </ul>
+      </div>
+      <div class="pay">
+        <h3>How to pay</h3>
+        <ul>
+          <li data-src="business_settings.pay_cash"><b>Cash</b><span class="h">on the day</span></li>
+          <li data-src="business_settings.pay_venmo"><b>Venmo</b><a href="https://venmo.com/tolliverdetail">@tolliverdetail</a></li>
+          <li data-src="business_settings.pay_cashapp"><b>Cash App</b><a href="https://cash.app/$tolliverdetail">$tolliverdetail</a></li>
+          <li data-src="business_settings.pay_zelle"><b>Zelle</b><span class="h">(253) 555-0148</span></li>
+          <li data-src="business_settings.pay_paypal"><b>PayPal</b><span class="h">sam@tolliverdetail.com</span></li>
+          <li data-src="business_settings.pay_other"><b>Card</b><span class="h">tap on the van</span></li>
+        </ul>
+        <p class="fine" style="margin-top:10px">Pay after, never before. I'll send an invoice so you have it in writing.</p>
+      </div>
+      <div class="say">
+        <h3>Say hi</h3>
+        <a class="big" href="tel:+12535550148" data-src="businesses.contact_phone">(253) 555-0148</a>
+        <p class="fine">Text is best while I'm working. I'll answer between cars.</p>
+        <ul class="social">
+          <li><a href="https://instagram.com/tolliverdetail" data-src="business_branding.social_instagram">Instagram</a></li>
+          <li><a href="https://facebook.com/tolliverdetail" data-src="business_branding.social_facebook">Facebook</a></li>
+          <li><a href="https://tiktok.com/@tolliverdetail" data-src="business_branding.social_tiktok">TikTok</a></li>
+          <li><a href="https://youtube.com/@tolliverdetail" data-src="business_branding.social_youtube">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span><b data-src="businesses.name">Tolliver Mobile Detailing</b> · Tacoma, WA · <span data-src="business_branding.credentials (PROPOSED — research §4c)">licensed &amp; insured</span></span>
+    <span>© <span id="yr">2026</span> Sam Tolliver. Photos are of real cars, with permission.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var html=document.documentElement,LITE=html.classList.contains("lite");
+
+  /* ── reveals: one observer, one class ─────────────────────────────── */
+  var rv=[].slice.call(document.querySelectorAll("[data-rv]"));
+  if(LITE||!("IntersectionObserver" in window)){
+    rv.forEach(function(n){n.classList.add("in")});
+  }else{
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}});
+    },{rootMargin:"0px 0px -12% 0px",threshold:.08});
+    rv.forEach(function(n){io.observe(n)});
+    /* THE NET. An observer's first frame can be computed against a viewport
+       that is still being resized (device emulation, a rotating phone, a
+       window restored from minimised), and then nothing on screen ever
+       arrives — an opacity-0 element still has a full box, so no geometry
+       check can see it. So after load, and on every resize, anything whose
+       box is already inside the viewport is revealed by measurement. */
+    var sweep=function(){var vh=innerHeight;rv.forEach(function(n){
+      if(n.classList.contains("in"))return;var r=n.getBoundingClientRect();
+      if(r.top<vh*.9&&r.bottom>0){n.classList.add("in");io.unobserve(n)}})};
+    addEventListener("load",function(){setTimeout(sweep,250)});
+    addEventListener("resize",sweep);
+    setTimeout(sweep,600);
+  }
+
+  /* ── before / after ───────────────────────────────────────────────── */
+  var ba=document.querySelector(".ba");
+  if(ba){var r=ba.querySelector("input");
+    var set=function(){ba.style.setProperty("--x",r.value+"%")};
+    r.addEventListener("input",set);set();}
+
+  /* ── hours: open / closed, from business_hours in the business's timezone ── */
+  var list=document.getElementById("hours"),state=document.getElementById("state");
+  if(list&&state){
+    try{
+      var tz=list.getAttribute("data-tz"),now=new Date();
+      var parts=new Intl.DateTimeFormat("en-US",{timeZone:tz,weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(now);
+      var get=function(t){var p=parts.filter(function(x){return x.type===t})[0];return p?p.value:""};
+      var dow={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[get("weekday")];
+      var mins=(parseInt(get("hour"),10)%24)*60+parseInt(get("minute"),10);
+      var rows={};[].forEach.call(list.children,function(li){rows[li.getAttribute("data-day")]=li});
+      var toMin=function(s){if(!s)return null;var a=s.split(":");return parseInt(a[0],10)*60+parseInt(a[1],10)};
+      var fmt=function(m){var h=Math.floor(m/60),mm=m%60,ap=h>=12?"pm":"am";h=h%12||12;return h+(mm?":"+(mm<10?"0":"")+mm:"")+" "+ap};
+      var names=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+      var today=rows[dow];if(today)today.classList.add("today");
+      var o=today?toMin(today.getAttribute("data-open")):null,c=today?toMin(today.getAttribute("data-close")):null;
+      if(o!==null&&c!==null&&mins>=o&&mins<c){
+        state.textContent="Open now · until "+fmt(c);state.classList.add("open");
+      }else{
+        var msg="Closed";
+        if(o!==null&&mins<o){msg+=" · opens "+fmt(o)+" today"}
+        else{for(var i=1;i<=7;i++){var d=(dow+i)%7,li=rows[d];var oo=li?toMin(li.getAttribute("data-open")):null;
+          if(oo!==null){msg+=" · opens "+(i===1?"tomorrow":names[d])+" "+fmt(oo);break}}}
+        state.textContent=msg;
+      }
+    }catch(e){state.textContent="Hours below";}
+  }
+
+  /* ── seams chrome ─────────────────────────────────────────────────── */
+  if(html.classList.contains("seams")){
+    var sc=document.getElementById("seamcount");
+    if(sc)sc.textContent=document.querySelectorAll("[data-src]").length+" labelled.";
+  }
+  var y=document.getElementById("yr");if(y)y.textContent=new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
