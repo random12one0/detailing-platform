@@ -201,6 +201,12 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {/* THE DOT LATTICE — a real element rather than a third pseudo-element,
+          because `.app-shell` has only `::before` and `::after` and both are
+          spent (the two lights, and the grain). It draws nothing interactive
+          and reads nothing; `aria-hidden` keeps it out of the tree entirely.
+          theme.css § the dot lattice has the reasoning and the measurements. */}
+      <div className="app-dots" aria-hidden="true" />
       <header className="topbar">
         {/* The business's own name from the database — never a hardcoded brand. */}
         <div className="brand">{business.name}</div>

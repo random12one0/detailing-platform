@@ -23,7 +23,7 @@
 // "you are not an admin" tells a curious detailer that this page exists and
 // that the only thing between them and it is a row somewhere.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase.js";
 import { money } from "../lib/format.js";
 import { setupProgress } from "../lib/setup.js";
@@ -154,6 +154,58 @@ const JOBS = [
   ["send-owner-reminders", "Reminders", 45 * 60_000],
   ["accrue-plan-visits", "Plan visits", 36 * 3_600_000],
 ];
+
+// THE GROUND — four fixed layers under everything, and the reason it exists at
+// all is in `admin.css` § the ground: this screen had a flat colour and the
+// owner said so in as many words.
+//
+// **IT IS THIS FILE'S OWN COPY, deliberately.** `landing/LandingPage.jsx`
+// exports a `Ground` with the same four layers and `theme.css` draws two of
+// them as pseudo-elements on the shell. Importing the landing page's one here
+// would tie the back office's appearance to a marketing page's markup, and
+// roadmap 4.4's rule is that this screen shares no rule with the rest — the
+// point of which is that a change made for somebody else's screen must not
+// land on the one that can see every business. Twelve lines is the price, and
+// the vocabulary is what is shared rather than the code.
+//
+// The pointer light is the only part that needs JavaScript, and it is written
+// against the ELEMENT rather than through React state on purpose: a mousemove
+// that re-renders this component would re-render the whole detailer list on
+// every pixel of travel. Two custom properties and a class, set directly.
+function Ground() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    // A COARSE POINTER HAS NO CURSOR TO FOLLOW, so on a phone this listener
+    // would run on every scroll-drag and light nothing. The CSS hides the
+    // layer too; this stops the work as well as the drawing.
+    if (!el || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    let raf = 0, x = 0, y = 0;
+    const move = (e) => {
+      x = e.clientX; y = e.clientY;
+      if (raf) return;
+      // ONE WRITE PER FRAME. A mousemove fires far faster than the screen
+      // repaints, and setting a custom property per event is the cheapest way
+      // to make a smooth effect stutter.
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        el.style.setProperty("--gx", `${x}px`);
+        el.style.setProperty("--gy", `${y}px`);
+        el.classList.add("awake");
+      });
+    };
+    window.addEventListener("pointermove", move, { passive: true });
+    return () => { window.removeEventListener("pointermove", move); cancelAnimationFrame(raf); };
+  }, []);
+  return (
+    <div className="pa-ground" ref={ref} aria-hidden="true">
+      <b /><b />
+      <span className="dots" />
+      <span className="cursor" />
+      <i />
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const [state, setState] = useState({ status: "loading" });
@@ -326,7 +378,7 @@ export default function AdminPage() {
   // account still lands on *Page not found*.
   if (state.status === "anon") {
     return (
-      <div className="pa"><div className="pa-wrap pa-gate">
+      <div className="pa"><Ground /><div className="pa-wrap pa-gate">
         {/* IT SAYS WHERE YOU ARE — testing loop F-021, 2026-09-06. An
             unlabelled "Sign in" card pinned to the top-left of an empty page
             is what the owner meets when he opens his own back office cold,
@@ -375,7 +427,7 @@ export default function AdminPage() {
   // but naming the gate invites somebody to go looking for the row.
   if (state.status === "denied") {
     return (
-      <div className="pa"><div className="pa-wrap">
+      <div className="pa"><Ground /><div className="pa-wrap">
         <h1 className="pa-h1">Page not found</h1>
         <p className="pa-quiet">There is nothing at this address.</p>
       </div></div>
@@ -383,7 +435,7 @@ export default function AdminPage() {
   }
   if (state.status === "error") {
     return (
-      <div className="pa"><div className="pa-wrap">
+      <div className="pa"><Ground /><div className="pa-wrap">
         <h1 className="pa-h1">Something went wrong</h1>
         <p className="pa-quiet">{state.error}</p>
       </div></div>
@@ -429,6 +481,7 @@ export default function AdminPage() {
 
   return (
     <div className="pa">
+      <Ground />
       <div className="pa-wrap">
         {/* THE BAR. It exists so the screen still says where you are once the
             strip has scrolled away, and so the two PLATFORM-level actions —

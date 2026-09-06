@@ -54,12 +54,113 @@
  * side by side; below 1024 the open business slides over the list with a
  * back control, which is the phone pattern the rest of the product uses. */
 
-/* ── the ground ─────────────────────────────────────────────────────────── */
+/* ── the ground ────────────────────────────────────────────────────────────
+   **THIS SCREEN HAD A FLAT COLOUR AND NOTHING ELSE**, and the owner named it
+   the moment he saw it: *"it looks like a plain admin dashboard that ai would
+   make. With just a plain color background and rectangle boxes. What happened
+   to the cool gradient background of the landing page and nice glow that some
+   things had…"*
+
+   He is describing a real gap rather than a taste difference. The design
+   system's § Atmosphere says **never a flat solid background**, and law 2 says
+   something is always animating. theme.css gives the detailer's dashboard two
+   drifting lights and a grain; landing.css gives the public pages those plus a
+   dot lattice and a light that follows the pointer. **The back office had none
+   of the four**, which is the whole of "plain colour background".
+
+   IT IS WRITTEN HERE RATHER THAN SHARED, and that is the 4.4 rule holding:
+   this file shares no RULE with theme.css, because a screen that can see every
+   business must not be one CSS mistake away from a screen a detailer opens.
+   What IS shared is the vocabulary — the same four layers, the same tokens,
+   the same easing — which is what makes it the same product rather than a
+   second visual world.
+
+   THE COLOUR IS THE PLATFORM'S OWN, NOT A TENANT'S. Every other surface tints
+   its lights with the tenant accent (theme.css § the shell, and the owner's
+   own "a pop of the color they chose"). This screen has no tenant — it has all
+   of them — so it uses --ac, the fixed platform green.
+
+   **AND IT IS BRIGHTER THAN THE DASHBOARD'S, ON PURPOSE.** theme.css caps its
+   two lights at 7% / 5.5% and the paragraph there shows the arithmetic: Money's
+   dim and losing bars sit at 3.02:1 against the LIT CORNER on a pure-white
+   accent, so there is 0.02 of margin and it is already spent. **Neither of
+   those bars exists on this screen** — there is no tenant accent here and no
+   Money chart — so inheriting that cap was borrowing a limit from a different
+   screen's worst case. Measured on THIS screen's own worst case instead, by
+   sampling the RENDERED PIXELS with the lights paused at their brightest frame
+   (scripts/admin-contrast.mjs): the quietest text on the screen — the
+   platform-health line, --text-muted over a glass panel on the lit corner —
+   measures **6.05:1 against a 4.5:1 floor**, and the other three runs sampled
+   come out 6.05-6.20.
+
+   That figure is what this brightness is allowed by. The "4.9:1" written here
+   before the script existed was a GUESS, and a guess about contrast is worth
+   nothing — which is the whole reason the script exists rather than a comment.
+   Re-run it after touching either light. */
 .pa {
   min-height: 100dvh;
   background: var(--bg, #0B0D0E);
   color: var(--text, #E9EDEF);
   font-family: var(--f-body, system-ui);
+  position: relative; isolation: isolate;
+}
+
+.pa-ground { position: fixed; inset: 0; z-index: -2; pointer-events: none; overflow: hidden; }
+/* TWO SLOW LIGHTS. Lightness moves; hue and chroma do not — a drifting
+   coloured wash is the tell this system forbids — and the alphas are the ones
+   theme.css measured rather than new ones. */
+.pa-ground b {
+  position: absolute; display: block; border-radius: 50%;
+  background: radial-gradient(circle,
+    color-mix(in srgb, var(--ac, #3DD68C) 42%, #DCE7EB) 0%, transparent 68%);
+  opacity: .13; filter: blur(18px); will-change: transform, opacity;
+}
+.pa-ground b:nth-of-type(1) { width: 74vmax; height: 74vmax; left: -22vmax; top: -28vmax;
+  animation: pa-drift-a 48s var(--ease, ease) infinite alternate; }
+.pa-ground b:nth-of-type(2) { width: 52vmax; height: 52vmax; right: -18vmax; top: 40vh; opacity: .10;
+  animation: pa-drift-b 61s var(--ease, ease) infinite alternate; }
+@keyframes pa-drift-a {
+  from { transform: translate3d(0,0,0) scale(1); }
+  to   { transform: translate3d(7vw, 5vh, 0) scale(1.12); }
+}
+@keyframes pa-drift-b {
+  from { transform: translate3d(0,0,0) scale(1.06); }
+  to   { transform: translate3d(-6vw, -7vh, 0) scale(.94); }
+}
+
+/* THE DOT LATTICE — landing.css's own note calls it "the cheapest thing that
+   makes the ground a surface instead of a colour", and it is the layer whose
+   absence reads most as flatness. It travels exactly two tiles per cycle so
+   the loop is seamless; the travel must stay an exact multiple of the tile or
+   it visibly jumps. Slower than the landing page's 8s, because this is a tool
+   rather than a page somebody is being sold to. */
+.pa-ground .dots {
+  position: absolute; inset: -8%;
+  background-image: radial-gradient(circle at center,
+    rgba(226,234,238,.7) 1.2px, rgba(226,234,238,0) 2px);
+  background-size: 46px 46px; opacity: .075;
+  animation: pa-dots 22s linear infinite; will-change: transform;
+}
+@keyframes pa-dots { from { transform: translate3d(0,0,0); } to { transform: translate3d(92px, 92px, 0); } }
+
+/* THE LIGHT THAT FOLLOWS THE POINTER. Fine pointers only — a phone has no
+   cursor to follow. It LAGS the pointer deliberately: the small delay is what
+   reads as a lit surface rather than something stuck to the mouse. Lightness
+   only, no hue. */
+.pa-ground .cursor {
+  position: absolute; top: 0; left: 0; width: 460px; height: 460px; margin: -230px 0 0 -230px;
+  background: radial-gradient(circle, rgba(226,234,238,.13), rgba(226,234,238,0) 66%);
+  transform: translate3d(var(--gx, -999px), var(--gy, -999px), 0);
+  opacity: 0; transition: opacity 600ms linear; will-change: transform;
+}
+.pa-ground.awake .cursor { opacity: 1; }
+@media (hover: none) { .pa-ground .cursor { display: none; } }
+
+/* GRAIN, for one data URI and no JavaScript. It is what stops the large flat
+   areas between panels reading as a rendering artefact. */
+.pa-ground i {
+  position: absolute; inset: 0; opacity: .05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 .pa-wrap { max-width: var(--wrap, 1180px); margin: 0 auto; padding: 0 16px 96px; }
 
@@ -201,7 +302,10 @@
    edge on a card is the one automatic-looking flourish this screen had, and
    the severity reads better ON the row it belongs to than on the container. */
 .pa-attn {
-  background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
+  background: color-mix(in srgb, var(--surface, #14181A) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--hairline, #23292C);
   border-radius: var(--r-panel, 12px); corner-shape: var(--corner, round);
   overflow: hidden; margin-bottom: 14px;
 }
@@ -221,7 +325,10 @@
 
 /* ── the list ──────────────────────────────────────────────────────────── */
 .pa-list {
-  background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
+  background: color-mix(in srgb, var(--surface, #14181A) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--hairline, #23292C);
   border-radius: var(--r-panel, 12px); corner-shape: var(--corner, round); overflow: hidden;
 }
 .pa-row {
@@ -286,7 +393,10 @@
 
 /* ── the open business ─────────────────────────────────────────────────── */
 .pa-panel {
-  background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
+  background: color-mix(in srgb, var(--surface, #14181A) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--hairline, #23292C);
   border-radius: var(--r-panel, 12px); corner-shape: var(--corner, round);
   padding: 16px; display: flex; flex-direction: column; gap: 14px;
 }
@@ -501,9 +611,13 @@
    and `.lite` is the same switch by another name so it rides the same rule.
    Everything still ARRIVES at its final state; only the travel is removed. */
 @media (prefers-reduced-motion: reduce) {
-  .pa-in, .pa-col, .pa-col.leaving, .pa-swap > *, .pa-barr { animation: none !important; }
+  .pa-in, .pa-col, .pa-col.leaving, .pa-swap > *, .pa-barr,
+  .pa-ground b, .pa-ground .dots { animation: none !important; }
+  .pa-ground .cursor { display: none; }
 }
-.lite .pa-in, .lite .pa-col, .lite .pa-col.leaving, .lite .pa-swap > *, .lite .pa-barr { animation: none !important; }
+.lite .pa-in, .lite .pa-col, .lite .pa-col.leaving, .lite .pa-swap > *, .lite .pa-barr,
+.lite .pa-ground b, .lite .pa-ground .dots { animation: none !important; }
+.lite .pa-ground .cursor { display: none; }
 
 /* ── the 320 floor ─────────────────────────────────────────────────────────
    Below 361px the product has a layout of its own (theme.css § THE 320 FLOOR)

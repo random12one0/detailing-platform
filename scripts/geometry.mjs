@@ -42,13 +42,38 @@ export const GEOMETRY_PROBE = () => {
     return el.tagName.toLowerCase() + (cls ? "." + cls : "");
   };
 
+  // **ANYTHING AN ANCESTOR ALREADY CLIPS IS NOT OFF THE SCREEN**, and this
+  // probe shipped without it and immediately cried wolf on the very first
+  // screen it met with a ground: the two drifting lights are 74vmax and the
+  // dot lattice is `inset: -8%`, so both measured 150-360px past the right
+  // edge while sitting inside a `.pa-ground` with `overflow: hidden`.
+  //
+  // **`sweep-widths.mjs` had already found and fixed this exact thing** on
+  // 2026-09-05, on the pricing page, for the same reason — the first page
+  // carrying the landing surface's ground that it had ever walked. Writing a
+  // second probe without reading the first one's hard-won exception
+  // reintroduced the bug, which is its own small lesson about copying a
+  // pattern instead of the file.
+  //
+  // It cannot hide a real defect: a defect is content sticking out where it
+  // can be SEEN, and clipped is the definition of cannot be. And a check that
+  // cries wolf on every run is one somebody starts skipping, which is the
+  // failure this repo has paid for more than once.
+  const clipped = (el) => {
+    for (let p = el.parentElement; p && p !== document.documentElement; p = p.parentElement) {
+      const pcs = getComputedStyle(p);
+      if (/hidden|auto|scroll|clip/.test(pcs.overflowX + " " + pcs.overflowY)) return true;
+    }
+    return false;
+  };
+
   for (const el of document.querySelectorAll("body *")) {
     const cs = getComputedStyle(el);
     if (cs.display === "none" || cs.visibility === "hidden") continue;
     const r = el.getBoundingClientRect();
     if (r.width === 0 || r.height === 0) continue;
 
-    if (r.right > vw + 1) {
+    if (r.right > vw + 1 && !clipped(el)) {
       out.push(named(el) + " is " + Math.round(r.right - vw) + "px past the right edge");
     }
 

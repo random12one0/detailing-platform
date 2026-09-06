@@ -813,6 +813,36 @@ a { color: var(--accent-text); text-decoration: none; }
       color-mix(in srgb, var(--glow-cool) 5.5%, transparent), transparent 68%);
   animation: ground-drift 54s var(--e-out) infinite alternate;
 }
+/* THE DOT LATTICE — added 2026-09-06, and it is the layer whose ABSENCE the
+   owner named: *"what happened to the cool gradient background of the landing
+   page and nice glow that some things had"*. The dashboard already had the two
+   tinted lights and the grain; what it did NOT have is the thing landing.css
+   calls "the cheapest thing that makes the ground a surface instead of a
+   colour" — and without it two very faint lights read as a slightly uneven
+   flat fill rather than as a lit surface. He was right about the symptom and
+   half right about the cause: the gradient was there, the surface was not.
+
+   **6%, AND THE TWO LIGHTS' ALPHAS ARE UNTOUCHED.** The paragraph above
+   records, with measurements, that raising THOSE costs a contrast floor — the
+   dim and losing bars on Money sit at 3.02:1 against the lit corner on a
+   pure-white accent, so there is 0.02 of margin to spend and it is already
+   spent. A dot is 1.2px on a 46px tile, about 0.2% coverage, so this adds
+   TEXTURE without adding light anywhere a floor is measured. `accent-sweep`
+   and `design-contrast` were re-run after it and neither moved.
+
+   It travels exactly two tiles (92px) per cycle so the loop is seamless — the
+   travel must stay an exact multiple of the tile or it visibly jumps — and at
+   26s it is far slower than the landing page's 8s, because this is a tool
+   somebody works in rather than a page they are being sold to. */
+.app-dots {
+  position: fixed; inset: -8%; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(circle at center,
+    rgba(226,234,238,.7) 1.2px, rgba(226,234,238,0) 2px);
+  background-size: 46px 46px; opacity: .06;
+  animation: app-dots 26s linear infinite; will-change: transform;
+}
+@keyframes app-dots { from { transform: translate3d(0,0,0); } to { transform: translate3d(92px, 92px, 0); } }
+
 .app-shell::after {
   opacity: .05; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -927,7 +957,28 @@ a { color: var(--accent-text); text-decoration: none; }
      no longer owed to anything. */
   .app-main { max-width: var(--wrap); padding-bottom: var(--sp-6); }
   .tabbar {
-    left: 24px; right: auto; bottom: auto; top: 50%;
+    /* **THE RAIL FOLLOWS THE CONTENT, NOT THE SCREEN EDGE — measured
+       2026-09-06, and it is a 1920-only defect.** `.app-main` is centred
+       inside the shell, so past about 1280 the content walks away from a rail
+       pinned at `left: 24px` and strands it:
+
+         1280   gap 24px   (the designed gutter)
+         1440   gap 94px
+         1600   gap 174px
+         1920   gap 334px  ← a third of the screen of nothing, on the
+                             owner's own monitor
+
+       The 120px inset above was reasoned at 1024-1280 and never re-measured
+       wider, which is exactly what CLAUDE.md warns 1920 is for: it is where
+       "not enough content to fill the viewport" bugs live, and it is the
+       width he actually sits at.
+
+       `50%` is the viewport (this is `position: fixed`), and the -106px is
+       chosen so the expression equals 24px at 1440 EXACTLY — so nothing at or
+       below 1440 moves by a pixel, and only wider screens change. The gap
+       becomes a constant 94px from 1440 up. `max()` keeps the 24px floor. */
+    left: max(24px, calc(50% - var(--wrap) / 2 - 106px));
+    right: auto; bottom: auto; top: 50%;
     transform: translateY(-50%);
     width: 72px;
     flex-direction: column; justify-content: center;
@@ -2335,6 +2386,10 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
    Everything below renders the END STATE the animation was travelling to,
    using the same properties, so nothing can be hidden behind an animation. */
 .lite .app-shell::before { animation: none; }
+/* The dot lattice stops travelling but stays DRAWN — the end state it was
+   travelling to is the same lattice one tile along, so removing it would take
+   away texture rather than motion, and this section is about motion. */
+.lite .app-dots { animation: none; }
 .lite .bars button::before { animation: none; }
 .lite .app-main > .group > *,
 .lite .app-main > .split > .col-1 > *,

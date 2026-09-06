@@ -562,3 +562,88 @@ F-042  trap           The scroll-into-view added in pass 002 for F-015 became
        figures. **A fix written for a layout outlives the layout.**
        Fixed: yes — it now runs only below 1024, where the panel really is
        somewhere else. Check: § 11k.
+
+## Pass 008 · the atmosphere, and the desk · 2026-09-06
+
+The owner, looking at the rebuilt back office:
+
+> *"it looks like a plain admin dashboard that ai would make. With just a plain
+> color background and rectangle boxes. What happened to the cool gradient
+> background of the landing page and nice glow that some things had as well as
+> different types of ways of showing info besides a default box."*
+
+F-043  embarrassing   **The rail was stranded 334px from the content at 1920.**
+       `.app-main` is centred inside the shell, so past about 1280 the content
+       walks away from a tab rail pinned at `left: 24px`. Measured: 24px at
+       1280, 94px at 1440, 174px at 1600, **334px at 1920** — which is the
+       owner's own monitor, and exactly what CLAUDE.md says 1920 is for. The
+       120px inset was reasoned at 1024-1280 and never re-measured wider.
+       Fixed: the rail follows the content above 1440 and the expression
+       equals today's 24px AT 1440 exactly, so nothing at or below that width
+       moves by a pixel. Gap is a constant 94px from 1440 up.
+
+F-044  embarrassing   **The back office had no ground at all** — no lights, no
+       grain, no dot lattice, no pointer light. That is the whole of "plain
+       colour background", and it is a straight violation of the design
+       system's § Atmosphere ("never a flat solid background") and law 2
+       ("something is always animating") on the one screen nobody had looked
+       at. Its panels were opaque rectangles on top of it, which is the other
+       half of what he described.
+       Fixed: all four layers, in `pa-` spellings so the 4.4 no-shared-rule
+       requirement holds, plus glass on the three panel surfaces so the ground
+       stays visible through them.
+
+F-045  trap           **The back office inherited a contrast cap that belongs
+       to a different screen.** `theme.css` holds its two lights at 7% / 5.5%
+       because Money's dim and losing bars measure 3.02:1 against the lit
+       corner — 0.02 of margin, already spent. **Neither of those exists in
+       the back office**: no tenant accent, no Money chart. Copying the cap
+       made the new ground so faint it barely read, which is how a correct
+       number produces a wrong result.
+       Fixed: raised to 13% / 10% and MEASURED on this screen's own worst case
+       rather than assumed — `scripts/admin-contrast.mjs` samples the rendered
+       pixels with the lights paused at their brightest frame. The quietest
+       text comes out **6.05:1 against a 4.5:1 floor** (others 6.05-6.20). The
+       "4.9:1" first written into the comment was a guess and was corrected to
+       the measurement.
+
+F-046  embarrassing   **The detailer dashboard had the two lights and the
+       grain but never the dot lattice** — the layer `landing.css` calls "the
+       cheapest thing that makes the ground a surface instead of a colour".
+       Without it two very faint lights read as an uneven flat fill. He was
+       right about the symptom and half right about the cause: the gradient
+       was there, the surface was not.
+       Fixed: added at 6%, and the two lights' alphas deliberately untouched —
+       a dot is 1.2px on a 46px tile, about 0.2% coverage, so it adds texture
+       without adding light where a floor is measured. `accent-sweep` and
+       `design-contrast` re-run and neither moved.
+
+F-047  not-a-defect   **The new geometry probe cried wolf on the first screen
+       it met that had a ground**, reporting the two 74vmax lights and the
+       dot lattice as 150-360px past the right edge — all of them inside a
+       `.pa-ground` with `overflow: hidden`.
+       **`sweep-widths.mjs` had already found and fixed this exact thing** on
+       2026-09-05, on the pricing page, for the same reason. Writing a second
+       probe from the PATTERN instead of from the FILE reintroduced a solved
+       bug. Kept for that lesson. Fixed: `geometry.mjs` walks ancestors for a
+       clipping container before reporting a viewport overflow.
+
+### Still open from that message — NOT built this pass
+
+He asked for three things and this pass did one and a half. Written down so
+the next pass starts here rather than rediscovering it:
+
+- **The dashboard's glow is still much fainter than the back office's**, and
+  deliberately: its cap is real and is pinned by measurements across twelve
+  tenant accents. Raising it needs the same rendered-pixel measurement done
+  per accent, which is `accent-sweep`'s territory and its own pass.
+- **"Different tabs to show things like a calendar maybe to show upcoming
+  payments and a money dashboard that shows lots of info on money and
+  revenue"** — nothing built. It is a second and third VIEW of the back
+  office, and the audit's Q4 (am I being paid) and Q7 (how is the business
+  doing) are the shapes it should follow.
+- **"An advanced option in the money section that shows all the stuff my admin
+  dashboard that my company uses right now"** — nothing built, and it needs
+  `reference/` read first: that is the snapshot of his live business's own
+  admin, and the point is to carry over what it shows without carrying over
+  how it looks.
