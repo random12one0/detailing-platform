@@ -567,5 +567,48 @@ console.log("\ntest 11: the page describes itself");
     meta("description"));
 }
 
+// ══ THE PHONE'S WAY IN — 2026-09-06 ═══════════════════════════════════
+// **Below 470px every nav link was hidden and NOTHING replaced them**, so a
+// phone had the wordmark, *Sign up*, and no way to sign in at all. The owner
+// found it on the live site. The roadmap's own 2.25 note claimed the
+// opposite — it was written from the markup instead of measured.
+//
+// The reason they were hidden is still true and is why the replacement is a
+// BUTTON and not more links: the pill wrapped to two lines and broke the
+// wordmark across *DETAILING / PLATFORM*.
+console.log("\ntest 11: a phone can reach the nav");
+{
+  const { readFileSync } = await import("node:fs");
+  const ld = readFileSync("app/src/landing/LandingPage.jsx", "utf8");
+  const css = readFileSync("app/src/landing/landing.css", "utf8");
+
+  check("11a · there is a menu button",
+    /className="burger"/.test(ld) && /aria-expanded=\{navOpen\}/.test(ld),
+    "a phone had no way to sign in from the landing page at all");
+  check("11b · and it carries the three links the pill drops",
+    /navmenu[\s\S]{0,400}What you get[\s\S]{0,200}Pricing[\s\S]{0,200}Sign in/.test(ld));
+
+  // **SIGN UP STAYS OUTSIDE THE MENU.** The one action a first-time visitor
+  // is here to take does not go behind something they must discover.
+  const menu = ld.slice(ld.indexOf('id="navmenu"'), ld.indexOf('id="navmenu"') + 600);
+  check("11c · Sign up is NOT hidden behind the menu",
+    !/Sign up/.test(menu), "the primary action never goes behind a hamburger");
+
+  // **THE CLASS DRIVES DISPLAY, NOT THE `hidden` ATTRIBUTE.** `hidden` is
+  // only `display: none` from the user-agent sheet, so an author
+  // `display: flex` beats it — which it did, and the menu stood open at
+  // every width below 470 until a test asked whether Escape CLOSED it.
+  check("11d · the open state is a class, not the hidden attribute alone",
+    /\.navmenu\.on \{[\s\S]{0,60}display: flex/.test(css)
+      && /\.ld \.navmenu \{ display: none; \}/.test(css),
+    "an author display rule silently beats [hidden] and the menu never shut");
+
+  // The burger must not exist while the links do — two ways to the same
+  // three links on one screen is a nav answering its own question twice.
+  check("11e · the button only exists once the links are gone",
+    /\.ld \.nav \.burger \{ display: none; \}/.test(css)
+      && /max-width: 470px[\s\S]{0,900}\.burger \{[\s\S]{0,40}display: flex/.test(css));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

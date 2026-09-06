@@ -6726,6 +6726,53 @@ is kept; the entire visual design restarts from scratch.
       password generated and discarded unread; he sets his own through the
       reset flow, so no password was ever handled for him.
 
+- [x] 2.26 ~~**A PHONE COULD NOT SIGN IN, AND THE OWNER COULD NOT REACH HIS
+      OWN BACK OFFICE**~~ **BOTH FIXED 2026-09-06**, both found by him using
+      the live site.
+
+      **THE NAV.** Below 470px every `.lk` was hidden — *What you get*,
+      *Pricing* AND *Sign in* — leaving the wordmark and *Sign up*. **So a
+      phone had no way to sign in from the landing page at all.** 2.25's own
+      note in this file claims the opposite (*"at 392 the nav is the
+      wordmark, this and Sign in"*): **it was written from the markup and
+      never measured.** The measurement is now in
+      `tests/landing-pricing.test.mjs` § 11.
+
+      **THE REASON THEY WERE HIDDEN IS STILL TRUE**, and it is why the
+      replacement is a BUTTON rather than more links: the pill wrapped to two
+      lines and broke the wordmark across *DETAILING / PLATFORM*. A 32px
+      square costs less width than the word *Menu*. **Sign up stays outside
+      it** — the one action a first-time visitor came to take does not go
+      behind something they have to discover. Measured at 1440, 620, 469,
+      392 and 320: shut at rest, opens with three links, pill stays 56px,
+      Escape closes it.
+
+      **AND THE BUG THAT CAUGHT ITSELF ONLY BECAUSE THE TEST ASKED THE SECOND
+      QUESTION.** `hidden` is only `display: none` from the user-agent sheet,
+      so the rule's own `display: flex` beat it and the menu stood open at
+      every width below 470 whether or not anybody had pressed the button. A
+      test that only asked *does it open* would have passed. It asked *does
+      Escape CLOSE it*, and the answer was no — because it had never shut.
+
+      **THE BACK OFFICE DOOR.** `/admin` was a URL you had to know. The gear
+      now carries **The website business** for platform admins only, beside
+      *Switch business* because it is the same kind of act — leaving this
+      business for another context. It is a full navigation, not a settings
+      panel: the back office is a different application on a different route.
+
+      **`whoami` IS THE CHEAPEST QUESTION IN `platform-admin` AND MUST NEVER
+      ANSWER "no".** It is safe only because a non-admin gets the same 404
+      the shared gate gives every other action; an `{admin:false}` would turn
+      a silent endpoint into one that confirms itself to anybody who asks.
+      Two checks pin that, both baselined.
+
+      **Verified on the demo, admin and non-admin:** the row appears, goes to
+      /admin and lands on *Detailers*; a plain detailer's gear does not carry
+      it. **Two temporal-dead-zone bugs were found by running it rather than
+      by reading it** — the state declared below the list that used it, and
+      `action` used one line before it was declared. Both threw; neither was
+      visible in the diff.
+
 - [ ] 7.4 **OWNER: founding-offer pricing sanity check** ($499 setup /
       $40 mo, counted spots) before the first sales call.
 

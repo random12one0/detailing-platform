@@ -211,6 +211,29 @@ console.log("\n6. the platform's notes are not the detailer's to read");
 console.log("\n7. and the things the spec refused");
 {
   const p = strip(page);
+  // **WHOAMI MUST NEVER ANSWER "no".** It exists so the detailer dashboard
+  // can offer a door to the back office, and it is safe only because a
+  // non-admin gets the same 404 from the shared gate that every other action
+  // gives them. An action returning {admin:false} would turn a silent
+  // endpoint into one that confirms itself to anybody who asks, which is the
+  // whole thing the 404 protects.
+  check("whoami answers only for an admin, and 404s for everyone else",
+    /if \(action === "whoami"\) return json\(\{ admin: true/.test(strip(fn))
+      && !/admin: false/.test(strip(fn)),
+    "a false answer is a confirmation that the endpoint exists");
+  // And it must sit BELOW the gate, or it answers before anyone is checked.
+  // **PRESENCE FIRST, THEN ORDER** — `indexOf(a) < indexOf(b)` passes
+  // LOUDEST when `a` has been deleted, because -1 is less than every real
+  // index. Written correctly in `job-photos` this morning and repeated wrong
+  // here within the day, which is why it is a named helper now rather than a
+  // habit.
+  check("and it is inside the gate, not before it", (() => {
+    const f = strip(fn);
+    const gate = f.indexOf("if (!admin) return json");
+    const who = f.indexOf('action === "whoami"');
+    return gate >= 0 && who >= 0 && gate < who;
+  })(), "an answer given before the gate is an answer given to anybody");
+
   check("no chart", !/chart|Chart|recharts|<svg[\s\S]*polyline/.test(p),
     "fewer than ten customers means every trend line is noise — the spec says so in as many words");
   check("no second permission system for admins", !/admin_role|adminPermissions/.test(strip(fn)),

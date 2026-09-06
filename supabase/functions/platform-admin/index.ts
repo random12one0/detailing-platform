@@ -83,6 +83,22 @@ Deno.serve(async (req) => {
 
     const action = String(body.action || "");
 
+    // **THE CHEAPEST QUESTION IN THIS FUNCTION, and it exists so the
+    // DETAILER'S dashboard can offer a way through to the back office.**
+    // Until now /admin was a URL you had to know, which is why the owner
+    // could not find his own way in.
+    //
+    // It answers nothing a non-admin could not already work out: they get
+    // the same 404 from the gate above that every other action gives them,
+    // so this adds no new disclosure. **What it must never become is an
+    // action that returns `{admin:false}` instead of 404** — that would
+    // turn a silent endpoint into one that confirms itself to anybody who
+    // asks, which is the whole thing the 404 is protecting.
+    //
+    // No table reads: the gate has already done the only query that matters.
+    if (action === "whoami") return json({ admin: true, email: admin.email ?? null });
+
+
     // --- JOB 1: who are my customers and what state are they in? ----------
     if (action === "list") {
       // ONE ROUND TRIP PER TABLE, joined in memory. There are fewer than ten

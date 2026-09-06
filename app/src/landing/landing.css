@@ -316,11 +316,56 @@
 /* On a real phone the pill wrapped to two lines — the mark broke across
    "DETAILING / PLATFORM" and "Sign in" broke in half. Below 470 the pill
    carries the mark and the one action, and nothing else. */
+/* THE BURGER IS ABSENT UNTIL THE LINKS GO, which is the only rule that
+   matters here: two ways to reach the same three links on one screen is a
+   nav that answers its own question twice. */
+.ld .nav .burger { display: none; }
+.ld .navmenu { display: none; }
+
 @media (max-width: 470px) {
   .ld .nav .lk { display: none; }
   .ld .nav .mk { font-size: 11px; letter-spacing: .16em; }
   .ld .nav { padding: 9px 9px 9px 15px; }
   .ld .nav .cta.sm { padding: 9px 15px; font-size: 13px; }
+
+  /* 32px square: at or above the product's tap floor, and narrower than
+     any word would be. Two bars rather than three — at this size the third
+     is a smudge, and two already reads as a menu. */
+  .ld .nav .burger {
+    display: flex; flex-direction: column; justify-content: center; gap: 5px;
+    width: 32px; height: 32px; flex: none; padding: 0 6px;
+    background: none; border: 0; cursor: pointer;
+  }
+  .ld .nav .burger i {
+    display: block; height: 1.5px; width: 100%; border-radius: 2px;
+    background: var(--fog); transition: background var(--t-hover) linear;
+  }
+  .ld .nav .burger[aria-expanded="true"] i { background: var(--bone); }
+
+  /* It hangs UNDER the pill rather than inside it — the pill is a fixed
+     floating element and growing it is what wrapped the wordmark in the
+     first place. Same glass as the pill so it reads as one object. */
+  /* **THE CLASS DRIVES DISPLAY, NOT THE `hidden` ATTRIBUTE.** `hidden` is
+     only `display: none` from the user-agent sheet, so this rule's own
+     `display: flex` beat it and the menu stood open at every width below
+     470 whether or not anybody had pressed the button. Caught by testing
+     that Escape CLOSED it — the menu had never been shut, so nothing could
+     close it. `hidden` stays on the element for assistive tech; it is no
+     longer what does the hiding. */
+  .ld .navmenu.on {
+    display: flex; flex-direction: column; gap: 2px;
+    position: fixed; z-index: 39; left: 50%; transform: translateX(-50%);
+    top: 62px; width: min(calc(100vw - 24px), 320px);
+    padding: 6px; border-radius: 14px;
+    background: rgba(10, 13, 15, .92);
+    border: 1px solid rgba(255, 255, 255, .08);
+    backdrop-filter: blur(14px);
+  }
+  .ld .navmenu .lk {
+    display: block; padding: 13px 14px; border-radius: 10px;
+    font-size: 15px; color: var(--bone);
+  }
+  .ld .navmenu .lk:active { background: rgba(255, 255, 255, .06); }
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────────── */

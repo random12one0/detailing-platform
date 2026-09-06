@@ -81,6 +81,16 @@ export default function LandingPage() {
   const setup = founding ? P.founding.setup : P.website.setup;
   const monthly = founding ? P.founding.monthly : P.website.monthly;
 
+  // The phone nav. Closed on Escape as well as on a link, because it
+  // covers the top of the page and a visitor who opened it by accident
+  // should not have to find the button again.
+  const [navOpen, setNavOpen] = useState(false);
+  useEffect(() => {
+    const k = (e) => e.key === "Escape" && setNavOpen(false);
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, []);
+
   return (
     <div className="ld">
       <Ground />
@@ -105,7 +115,36 @@ export default function LandingPage() {
             NO THIRD BUTTON, which the roadmap entry asks for in as many
             words: he already has both, and what was missing was the word. */}
         <a className="cta sm" href="/pricing">Sign up<span className="ar">→</span></a>
+
+        {/* ── THE PHONE'S WAY IN, 2026-09-06 ────────────────────────────
+            **Below 470px every `.lk` was hidden and NOTHING replaced them**,
+            so a phone had the wordmark and *Sign up* and no way to sign in
+            at all. The owner found it; the roadmap note above claims the
+            opposite because it was written from the markup rather than
+            measured.
+
+            THE REASON THEY WERE HIDDEN IS STILL TRUE and is why this is a
+            button rather than more links: the pill wrapped to two lines and
+            broke the wordmark across *DETAILING / PLATFORM*. A 32px square
+            costs less width than the word *Menu*, and far less than three
+            links.
+
+            **SIGN UP STAYS OUTSIDE IT.** The one action a first-time visitor
+            is here to take does not go behind a menu they have to discover;
+            what goes inside is everything else. */}
+        <button className="burger" type="button" aria-label={navOpen ? "Close menu" : "Menu"}
+          aria-expanded={navOpen} aria-controls="navmenu"
+          onClick={() => setNavOpen((v) => !v)}>
+          <i></i><i></i>
+        </button>
       </nav>
+
+      {/* Outside the <nav> so the pill's own width never has to hold it. */}
+      <div id="navmenu" className={`navmenu${navOpen ? " on" : ""}`} hidden={!navOpen}>
+        <a className="lk" href="#get" onClick={() => setNavOpen(false)}>What you get</a>
+        <a className="lk" href="#price" onClick={() => setNavOpen(false)}>Pricing</a>
+        <a className="lk" href="/app">Sign in</a>
+      </div>
 
       <main id="top">
 

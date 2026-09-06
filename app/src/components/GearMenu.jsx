@@ -30,7 +30,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  Bell, Building2, ChevronRight, Compass, CreditCard, KeyRound, LogOut, MessageSquare, Smartphone, Users, X,
+  Bell, Building2, ChevronRight, Compass, CreditCard, KeyRound, LogOut, MessageSquare, Shield, Smartphone, Users, X,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -77,6 +77,34 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
   // gear, and this opens the row. Roadmap 2.20 stage 2.
   const [open, setOpen] = useState(initial);
   const [team, setTeam] = useState(null);
+  // ASKED ONCE, WHEN THE GEAR OPENS, and never on a dashboard load. Almost
+  // nobody is a platform admin, the answer never changes within a session,
+  // and the gear is a screen a detailer passes through rather than sits on.
+  // **A 404 IS THE ORDINARY ANSWER HERE**, not an error: it is what every
+  // detailer gets, and it means exactly one thing — draw no row.
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const jwt = data?.session?.access_token;
+        if (!jwt) return;
+        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/platform-admin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${jwt}`,
+          },
+          body: JSON.stringify({ action: "whoami" }),
+        });
+        if (live && res.ok) setIsPlatformAdmin(true);
+      } catch { /* offline, or the function is down: draw no row */ }
+    })();
+    return () => { live = false; };
+  }, []);
+
 
   const load = useCallback(async () => {
     // business_users is keyed (business_id, user_id) and has NO id column, so
@@ -137,6 +165,19 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
     ...(memberships.length > 1
       ? [["switch", "Switch business", Building2, `${memberships.length} businesses`, null]]
       : []),
+    // **THE WAY THROUGH TO THE PLATFORM BACK OFFICE, for the one person who
+    // has one.** It sits beside *Switch business* because it is the same
+    // kind of act — leaving this business for another context — and it is
+    // absent for everybody else by the same rule that keeps a one-membership
+    // account from seeing a picker with one choice on it.
+    //
+    // The owner runs a detailing business AND the platform, so signing in
+    // lands him on HIS dashboard, which is right: that is the account he
+    // uses every morning. The back office is a door off it, not the front
+    // one.
+    ...(isPlatformAdmin
+      ? [["platform", "The website business", Shield, "Every detailer, and what they pay", null]]
+      : []),
   ].filter(([, , , , needs]) => !needs || (needs === "owner" ? owner : can(needs)));
 
   const account = (
@@ -189,7 +230,16 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
         {ROWS.map(([key, name, Icon, now, , blocking]) => (
           <button className={`nav-row${blocking ? " blocking" : ""}`} key={key} data-settings-key={key}
             aria-current={open === key ? "true" : undefined}
-            onClick={() => (key === "tour" ? onTour?.() : setOpen(key))}>
+            onClick={() => {
+              // A FULL NAVIGATION, not a settings screen. The back office is
+              // a different application on a different route — it does not
+              // share this shell, this tab bar or this business context, and
+              // pretending it is one more settings panel would put a second
+              // product inside a sheet.
+              if (key === "platform") { window.location.href = "/admin"; return; }
+              if (key === "tour") { onTour?.(); return; }
+              setOpen(key);
+            }}>
             <span className="ico"><Icon size={19} strokeWidth={2} /></span>
             <span className="txt">
               <span className="name">{name}</span>
