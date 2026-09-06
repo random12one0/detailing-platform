@@ -9,6 +9,55 @@ Working branch: `claude/superbase-access-anj1h7`. Nothing merges or pushes to
 
 ---
 
+## Where things stand — read this first
+
+**The roadmap is finished except for the parts that need you.** Everything
+below is one entry per item, oldest first; this is the summary.
+
+### Shipped
+
+| | |
+|---|---|
+| **Your back office** (4.4) | The list, one detailer's page, sign somebody up by hand, resend an invite, the website column, and **your own prices — editable without me** |
+| **Moving your business over** (5.1) | Written and tested; **it cannot run until you send one key** — question 4 |
+| **The demo** (6.2) | Stopped eating one of your three founding spots; the reset is now checked rather than hoped |
+| **Terms, privacy and support** (7.1) | Plain English, and a support line inside the product too |
+| **A full pass as a brand-new detailer** (7.3) | Found four things; **three are already fixed** |
+| **Google and share cards** (7.5) | The site now has a description and a proper card when you send the link |
+| **The spam filter** (2.21) | You asked for it; a script can no longer fill your week for free |
+| **The maintenance deadline** (2.23) | The coating-warranty thing you handed me — a date with a consequence, four reminders, and proof it was done |
+| **A guide on every tab** (2.24) | Your complaint that the tour "stopped there" — five short guides now, one per tab |
+| **The password reset** | Did not exist at all. The one thing that would have stopped a real detailer |
+| **Five smaller gaps** | A booking can be moved an hour later; a support address in the app; a detailer can take their data; you find out if a scheduled job stops; the questions to ask before building a site |
+
+### The six questions, in the order I would answer them
+
+1. **Question 0** — two or three detailer sites whose look you like. This is
+   the one that unblocks real client websites, and nothing else can.
+2. **Question 6** — when should a customer pay you? That is the last big
+   feature and I should not guess it.
+3. **Question 4** — the old site's database key, when you are ready to move.
+4. **Question 5** — where nightly backups should go.
+5. **Questions 1, 2 and 3** — smaller: whether a detailer's email goes on
+   their website, campaign links, and whether the price editor should refuse a
+   ladder that breaks your own rules.
+
+### What is left that does not need you
+
+**Almost nothing** — which is why the questions are the list. The three items
+still open are the sign-up screen's LOOK (2.25, waiting on your eye rather
+than your permission), the demo's own website (6.1, same reason), and error
+monitoring (7.2, needs a key from you).
+
+### The checks, as of the last commit
+
+21 credential-free suites green, 8 more that need the database green, the
+booking run **82 of 82** on both demo businesses, every booking step fitting
+at four sizes, all 25 emails rendered, and the layout sweep clean at 1920,
+1440, 392, 360 and 320 — with animations on and off.
+
+---
+
 ## Roadmap 3.2(a) — the headless booking core
 
 **What changed.** `app/src/book/core.js` is new: 29 exports, no React, no
