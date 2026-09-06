@@ -354,6 +354,65 @@ site.
 
 ---
 
+## Roadmap 4.1 — auditing the old site for anything the rebuild dropped
+
+**What changed.** `docs/reference-audit-2026-09-05.md`. Every one of the old
+site's fourteen edge functions, twenty-six migrations and public sections read
+against this platform — by NAME first and then by BEHAVIOUR, because a matching
+name proves nothing. That is exactly how the campaign tables survived the
+rebuild as three empty tables and got counted as kept.
+
+**THE ONE REAL FIND, AND IT IS THE ONE THING IN TONIGHT'S WORK I MOST WANT YOU
+TO SEE: there is no way to reset a password, and no way to change one either.**
+
+- A detailer who forgets their password cannot ask for a reset link. Nothing in
+  the app can send one.
+- A detailer who wants to *change* their password — after sharing it with
+  somebody, after a staff member leaves — has no screen to do it on.
+- If somebody sent them a reset link by hand, it would sign them in and then
+  give them nowhere to type a new password. That is the confusing kind of
+  broken rather than the obvious kind.
+
+**Your old site had the second half and never had the first**, and that was
+fine: you were the only user and could have it done from the Supabase dashboard
+if you ever needed it. **It stops being fine at the second detailer**, whose
+support channel then becomes texting you at whatever hour they locked
+themselves out — and the admin screen that would let you do it for them
+(roadmap 4.4) is the last thing in Phase 4.
+
+**I did NOT build it tonight, on purpose.** It is the sign-in surface, it is
+the one thing in the product where a mistake locks everybody out rather than
+one person, and you should know it is being added before it is. **It is one
+screen and two calls — I can do it in well under an hour whenever you say go.**
+It is written up as item **N** in the roadmap's unscheduled list and §A1 of the
+audit.
+
+**The other result is the more useful one and it is the point of doing this
+properly: sixteen things that LOOK dropped and are not.** The review-request
+email, tips and upsells, the canned text messages, the vCard builder, hours
+overrides, the wrap-up nudge, the $5 rounding (now settable per detailer), the
+order the discounts apply in, the finalize-payment columns, every field of the
+old CMS. All read in both codebases and listed with where each one lives now,
+**so nobody ever audits them again and rebuilds one.**
+
+**And it sized roadmap 4.2 for you**, which was the other thing worth having:
+- **The vCard on your booking-alert email is about an hour**, not a feature.
+  The platform already builds vCards and the email helper already takes
+  attachments — only the attaching is missing. It is also the most useful thing
+  on that list for a business run off a phone, so I would do it first.
+- **Google Calendar sync is the one that needs a decision from you**, not a
+  port. Your old one used a single service account for your own calendar; per
+  detailer it becomes each of them granting access to theirs, which is a
+  different and larger thing.
+- **`completed_washes_count` on the customers table is a third of the loyalty
+  feature with nothing writing it** — already flagged as dead back in roadmap
+  2.11. Either the rest gets built or the column should go.
+
+**Verified:** nothing to run — it is an audit, and every claim in it names the
+file it was read from, in both codebases.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

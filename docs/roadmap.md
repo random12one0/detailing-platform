@@ -5843,8 +5843,42 @@ is kept; the entire visual design restarts from scratch.
 
 ## Phase 4 — Feature restoration + platform admin
 
-- [ ] 4.1 Audit `reference/` (the old site's code) for anything dropped
-      silently beyond the known list.
+- [x] 4.1 ~~Audit `reference/` (the old site's code) for anything dropped
+      silently beyond the known list.~~ **DONE 2026-09-05 —
+      `docs/reference-audit-2026-09-05.md`.** Every one of the old site's
+      fourteen edge functions, twenty-six migrations and public sections read
+      against the platform by NAME and then by BEHAVIOUR, because a matching
+      name proves nothing — that is exactly how the campaign tables survived
+      the conversion as three empty tables and were counted as kept.
+
+      **THE ONE GENUINE FIND, AND IT IS NOT A FEATURE: THERE IS NO WAY TO
+      RESET OR EVEN CHANGE A PASSWORD.** `resetPasswordForEmail` appears
+      nowhere in `app/src`; neither does `updateUser`; there is no
+      `/reset-password` route. A detailer who forgets their password cannot ask
+      for a link, and one who wants to CHANGE it — after sharing it, after a
+      staff member leaves — has no screen to do it on. **A recovery link
+      triggered by hand would sign them in and still leave them unable to set a
+      password**, which is the confusing kind of broken. The old site had the
+      landing page (`pages/ResetPasswordPage.jsx`) and never had a way to
+      request one, because Andrew was the only user and could ask somebody to
+      do it in the Supabase dashboard — **an excuse that does not survive a
+      second detailer**, whose support channel is then "email the developer",
+      at whatever hour. It is **item G under "Not on the roadmap yet"**.
+
+      **THE OTHER RESULT IS THE MORE USEFUL ONE: §C, SIXTEEN THINGS THAT LOOK
+      DROPPED AND ARE NOT**, each read in both codebases — the review-request
+      email, tips and upsells, the canned SMS, the vCard builder itself, hours
+      overrides, the wrap-up nudge, the $5 rounding (now per-tenant), the
+      discount ORDER, the finalize-payment columns, the CMS singleton's every
+      field. **Nothing in that section should ever be re-audited**, which is
+      what the file is for.
+
+      **AND IT SIZED 4.2**: the vCard is an HOUR (the platform already builds
+      one and `sendTenantEmail` already takes attachments — only the attaching
+      is missing), while Google Calendar is the one needing a real decision,
+      because per-tenant it is an OAuth flow rather than the old service
+      account. `customers.completed_washes_count` needs a decision either way:
+      build the loyalty half that writes it, or drop it.
 - [ ] 4.2 Re-add as per-tenant features: referral/loyalty, Google Calendar
       sync, owner test-booking preview, vCard on owner emails.
 
@@ -6143,6 +6177,31 @@ recommendation.
   the footer of the marketing page. **Recommendation: Phase 7, alongside the
   Resend domain and the SPF record** — it is launch paperwork, and the
   disclosure that legally matters already exists.
+- **N. THERE IS NO WAY TO RESET — OR EVEN CHANGE — A PASSWORD. Found
+  2026-09-05 by roadmap 4.1's audit of `reference/`, and it is the only genuine
+  gap that audit found.** `resetPasswordForEmail` appears nowhere in
+  `app/src`; neither does `updateUser`; there is no `/reset-password` route.
+  A detailer who forgets their password cannot ask for a link, and one who
+  wants to CHANGE it — after sharing it, after a staff member leaves — has no
+  screen to do it on. **A recovery link triggered by hand would sign them in
+  and STILL leave them unable to set a password**, because
+  `detectSessionInUrl` is on by default and there is no screen to land on:
+  the confusing kind of broken rather than the obvious kind.
+  **The old site had exactly the half this one is missing the other of** —
+  `reference/frontend/src/pages/ResetPasswordPage.jsx` is a complete landing
+  page and nothing in that repo ever requested a link, because Andrew was the
+  only user and could have it done in the Supabase dashboard. **That stops
+  working at the second detailer**, whose support channel becomes "email the
+  developer" at whatever hour, and 4.4's platform admin — the screen that
+  would let the owner do it for them — is the last item in Phase 4.
+  **Skipped:** a detailer locked out of their own business until somebody
+  answers a text, and no way for anyone to rotate a shared password.
+  **Recommendation: build it, and it is small** — a *Forgot your password?*
+  link on `Auth.jsx`, a `/reset-password` route lifted from the old page, and a
+  *Change password* screen behind the gear. One screen and two calls. It is an
+  AUTH surface, which is the only reason it was written here rather than built
+  on the night it was found. Full account: `docs/reference-audit-2026-09-05.md`
+  § A1.
 
 ## Standing owner jobs
 
