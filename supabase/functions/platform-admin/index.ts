@@ -99,10 +99,23 @@ Deno.serve(async (req) => {
         // spec says earns its place — a detailer with no booking in three
         // weeks is on holiday or leaving, and both are worth knowing before
         // the card fails.
-        supabase.from("bookings").select("business_id, start_at, created_at, status")
+        // MONEY COLUMNS ADDED 2026-09-06 (`docs/platform-admin-audit-2026-09-06.md`
+        // Q1). The list already carried "when did they last book"; what it
+        // could not answer was the first question anybody asks about a
+        // tenant — **is this working for them.** `final_amount` is what was
+        // actually charged and `total_price` is what was quoted, and the
+        // difference between the two is the whole reason this repo has a
+        // rule about a number PRINTED not being a number CHARGED.
+        supabase.from("bookings")
+          .select("business_id, start_at, created_at, status, total_price, final_amount")
           .is("deleted_at", null),
         supabase.from("business_users").select("business_id, email, role"),
       ]);
+      // One more whole-table read, same shape as the six below it: how many
+      // people each detailer has on their books. It answers "are they using
+      // it" better than any other single number, because a detailer with
+      // sixty customers is not leaving.
+      const { data: custAll } = await supabase.from("customers").select("business_id");
       // THE SITE COLUMN IS A LIST QUESTION BEFORE IT IS A PAGE ONE. The
       // filter he actually wants is "who am I still owing a website", and a
       // filter whose input the server never sends matches nothing — which
@@ -157,11 +170,33 @@ Deno.serve(async (req) => {
       const members = byBiz(users.data);
       const subByBiz = new Map((subs.data ?? []).map((s) => [s.business_id, s]));
 
+      const nCustomers = new Map<string, number>();
+      for (const c of custAll ?? []) nCustomers.set(c.business_id, (nCustomers.get(c.business_id) ?? 0) + 1);
+
       const now = Date.now();
+      // THE MONTH IS THE CALENDAR MONTH, not the last thirty days. A back
+      // office is read beside an invoice and a bank statement, and both of
+      // those are calendar months; a rolling window would quietly disagree
+      // with every other number he compares it against.
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0, 0, 0, 0);
+      const monthAgo = monthStart.getTime();
+
       const rows = (biz.data ?? []).map((b) => {
         const bs = bookings.get(b.id) ?? [];
         const last = bs.reduce<string | null>((a, r) => (!a || r.created_at > a ? r.created_at : a), null);
         const live = bs.filter((r) => r.status !== "cancelled");
+        // **WHAT WAS CHARGED, FALLING BACK TO WHAT WAS QUOTED.** A job that
+        // has not been finalised has no `final_amount` yet, and treating
+        // that as zero would make every busy detailer look idle until they
+        // did their paperwork. The fallback is named here rather than
+        // buried, because it is the reason this figure can differ from the
+        // detailer's own Money screen by the value of un-finalised work.
+        const paid = (r: { final_amount: number | null; total_price: number | null }) =>
+          Number(r.final_amount ?? r.total_price ?? 0);
+        const done = live.filter((r) => r.status === "completed");
+        const monthJobs = done.filter((r) => r.start_at && Date.parse(r.start_at) >= monthAgo);
         const days = last ? Math.floor((now - Date.parse(last)) / 86_400_000) : null;
         const owner = (members.get(b.id) ?? []).find((m) => m.role === "owner");
         return {
@@ -174,6 +209,12 @@ Deno.serve(async (req) => {
           created_at: b.created_at,
           has_note: !!(b.admin_notes_platform || "").trim(),
           bookings_total: live.length,
+          jobs_done: done.length,
+          jobs_cancelled: bs.length - live.length,
+          revenue_month: monthJobs.reduce((a, r) => a + paid(r), 0),
+          revenue_total: done.reduce((a, r) => a + paid(r), 0),
+          jobs_month: monthJobs.length,
+          customers: nCustomers.get(b.id) ?? 0,
           last_booking_at: last,
           days_since_booking: days,
           requests_waiting: bs.filter((r) => r.status === "pending").length,
@@ -237,6 +278,19 @@ Deno.serve(async (req) => {
           active: rows.filter((r) => r.status === "active").length,
           mrr_cents: mrrCents,
           founding_left: Number(founding?.left ?? 0),
+          // ADDED 2026-09-06. **The proof the thing works**, and the number
+          // to have in front of you on a sales call: how much work the
+          // platform actually carried this month, across everybody. The
+          // four above are about the BUSINESS; this one is about the
+          // PRODUCT, which is a different question and was unanswerable.
+          suspended: rows.filter((r) => r.status === "paused").length,
+          jobs_month: rows.reduce((a, r) => a + r.jobs_month, 0),
+          revenue_month: rows.reduce((a, r) => a + r.revenue_month, 0),
+          customers: rows.reduce((a, r) => a + r.customers, 0),
+          // Signed up this calendar month — churn needs a cancelled-at
+          // history nothing records yet, and a half of a pair is worse than
+          // neither: "3 joined" beside nothing reads as "and none left".
+          new_month: rows.filter((r) => Date.parse(r.created_at) >= monthAgo).length,
         },
       });
     }

@@ -6077,6 +6077,53 @@ Everything exists. Two apparent gaps are correct: `monthly_plans` is dropped by
 database fails loudly at first use where a stale function does not, so it is a
 five-minute throwaway rather than a script to maintain.
 
+### JOB PHOTOS — the bucket, the budget, and the one permission asymmetry
+
+`docs/detailer-dashboard-audit-2026-09-06.md` §3.1, built 2026-09-06 on the
+owner's instruction. `job_photos` + the `job-photos` bucket +
+`app/src/lib/photo-rules.js` (pure) + `photos.js` (I/O) + `JobPhotos.jsx` +
+`tests/job-photos.test.mjs` (44).
+
+**THE BUCKET IS PRIVATE AND `business-media` IS NOT, and that difference is
+load-bearing.** A logo is ON the booking page; a before-photo is a stranger's
+car outside their own house. Job photos are served through signed URLs that
+expire in an hour. **Publishing one to the marketing gallery COPIES the file
+into `business-media`** rather than flipping the private one public — one
+photo, chosen by a person, and the original stays private even if the gallery
+copy is later deleted.
+
+**ANY MEMBER MAY ADD, ONLY `settings` MAY DELETE — the only asymmetry of its
+kind in the product.** Taking the photo is DOING THE JOB and the person
+holding the camera is usually staff with no settings permission; gating it
+like `business-media` would mean the only person who can photograph a car is
+the one who is not there. But a photo is evidence, and deleting evidence is
+not part of doing the job. Both the storage policy and the row policy carry it.
+
+**THE OWNER'S CONDITION WAS "WITHOUT GOING OVER OUR LIMIT", AND THE RESIZE IS
+WHAT KEEPS IT — not the cap.** A phone photo is 3-5 MB and the free plan is
+1 GB across every tenant, so raw uploads exhaust it in ~250 photos and the
+failure lands on a detailer mid-job. The client resizes to 1600px / JPEG 0.8
+before upload: 200-400 KB, **a 10x multiplier on every limit**, invisible on a
+phone or a website. On top of that `job_photo_budget()` gives each business
+250 MB (~800 photos), read from `platform_settings.prices.photoCapMb` **so the
+back office can raise it without a deploy**, and the screen warns at 80%
+rather than only refusing at 100%.
+
+**WHEN 1 GB RUNS OUT: Cloudflare R2** — 10 GB free permanently and, the part
+that matters for images, **zero egress**. Researched 2026-09-06; it needs a
+key from the owner and nothing else in the design changes, because every
+upload already goes through one function.
+
+**TWO THINGS THE TESTS DID NOT CATCH AND THE BROWSER DID.** The screen crashed
+on first open — `budgetState(null)` — because a default parameter fires for
+`undefined` and not for `null`, and the component holds the budget as null
+until the read returns. React took the whole job record down behind the error
+boundary. **And one check was vacuous in the newly-recorded `indexOf` family**:
+`indexOf(a) < indexOf(b)` passes hardest when `a` has been DELETED, because
+-1 is less than everything — so "nothing is uploaded without being shrunk
+first" stayed green with the resize removed. Both fixed; the order checks now
+assert presence first, via a `before()` helper.
+
 ### `composition` 8e-iv normalises the separator, and why every multi-line needle should
 
 A byte-exact `includes()` containing `\n` is a check whose colour depends on

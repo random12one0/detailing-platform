@@ -1729,6 +1729,105 @@ code, fails loudly the moment something is missing.
 
 ---
 
+## Photos on the job — built 2026-09-06
+
+**The biggest thing missing from a detailer's dashboard, and you said build
+it.** Your gallery was only ever for the public website; there has never
+been anywhere to put the car that is actually in front of you.
+
+**What a detailer now gets**, on any job: **Before**, **After** and
+**Damage**, each with an Add button. On a phone it opens the back camera
+rather than the photo library, because the person pressing it is standing
+beside the car. Tap a photo to see it full size. One button puts it on your
+public website; another deletes it.
+
+**Damage is not decoration.** *"That scratch was already there"* is the
+argument this feature exists to end, and a detailer needs to find that photo
+later without scrolling a whole job.
+
+### Three judgement calls I made alone
+
+**1 · Anyone on the job can add a photo; only an owner can delete one.** This
+is the only place in the product where those two differ. Taking the photo IS
+doing the job, and the person holding the camera is usually an employee with
+no settings access — gating it the same way would mean the only person who
+can photograph a car is the one who is not there. But a photo is evidence,
+and deleting evidence is not part of doing the job.
+
+**2 · Job photos are private; your marketing gallery stays public.** A
+before-photo is a stranger's car outside their own house, often with the
+house in shot. Those are served through links that expire after an hour, so
+a URL copied out of the page is not a permanent public window into somebody's
+driveway. **Publishing one to your website COPIES it** into the public
+gallery rather than flipping the private one open — one photo, chosen by a
+person.
+
+**3 · Your "without going over our limit" is kept by the resize, not by the
+cap.** A phone photo is 3-5 MB and the free storage plan is 1 GB across every
+detailer — unresized, that is about 250 photos before the whole thing is
+full and a detailer gets an error mid-job. **Every photo is shrunk in the
+browser before it is sent: about 300 KB instead of 4 MB, and you cannot see
+the difference on a phone or a website.** That is ten times more photos for
+free. On top of it each detailer has an allowance (250 MB, roughly 800
+photos) which **you can raise from your own back office without me**, and the
+screen warns at 80% rather than only refusing at 100%.
+
+**When it does fill up: Cloudflare R2.** Free forever, 10 GB instead of 1,
+and — the part that matters — no charge for people looking at the images.
+That is the one to sign up for when the time comes; it needs a key from you
+and nothing else changes.
+
+### Two bugs the checks did not catch, and one check that was lying
+
+**The screen crashed the first time I opened it.** The whole job record
+vanished. The allowance is empty for a moment while it loads, and my code
+handled "not set" but not "set to nothing" — a distinction that only exists
+in code. **The test had asked the wrong one of those two questions.** Both
+are asked now.
+
+**And one of my own checks was fake.** It was supposed to prove that no photo
+is ever uploaded without being shrunk first. I deleted the shrinking to make
+sure it went red, and it stayed green — because of how the check asked the
+question, deleting the code entirely made it *more* satisfied. Same trap I
+hit three times overnight. Fixed, and it now goes red properly.
+
+**I also broke my own rule and wasted a check.** I edited a file while the
+layout sweep was running, which is written down in my notes as the thing not
+to do, and the sweep correctly threw its own results away. Re-run cleanly.
+
+---
+
+## What SMS would actually cost you
+
+You asked for the number before deciding.
+
+**Per message: about half a cent to a cent.** Telnyx is $0.004 a message,
+Twilio $0.0079 — Twilio is roughly twice the price for the same thing. On top
+of either, the phone networks add about **$0.003 a message** in their own
+fees, which everybody pays and nobody advertises. A phone number to send from
+costs about **$1 a month**.
+
+**So, honestly: a detailer doing 30 jobs a month, with a confirmation, a
+reminder and a thank-you on each, sends 90 messages — about **$1 a month** in
+traffic, plus the number.** Ten detailers is roughly **$10-15 a month all
+in.**
+
+**That is small enough that it is not really a money decision.** The real
+costs are the two nobody quotes: **registering the number for business
+texting** (US carriers now require it, it takes a week or two and involves
+paperwork about who you are and what you will send), and **consent** — you
+have to be able to show a customer agreed to be texted, and every message
+needs a way to stop them.
+
+**My recommendation, unchanged: do not buy SMS yet.** Do the free version
+first — a button that opens your own phone's messaging app with the message
+already written. No provider, no monthly fee, no registration, no consent
+problem, and it covers most of the value because the detailer is holding
+their phone anyway. **Buy the real thing when a detailer asks for automatic
+texts**, which is a much better moment to spend money than a guess.
+
+---
+
 ## What I did not do, and why
 
 Three things on the roadmap I deliberately left, so you know they were seen

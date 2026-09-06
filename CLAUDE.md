@@ -856,6 +856,29 @@ explaining it; if they still have to ask "so should I?", it failed.
   object of all 48 migrations against `information_schema`, all present; the
   two apparent gaps are objects later migrations drop on purpose) and not kept
   as a script.
+- **JOB PHOTOS ARE THE ONE PLACE WHERE ADDING AND DELETING NEED DIFFERENT
+  PERMISSIONS.** Any member of a business may add a photo to a job; only
+  `settings` may delete one. Taking the photo is DOING THE JOB and the person
+  holding the camera is usually staff — but a photo is evidence. Both the
+  storage policy and the row policy carry it, and `tests/job-photos.test.mjs`
+  § 4 pins both. **And the `job-photos` bucket is PRIVATE where
+  `business-media` is public**: a logo is on the booking page, a before-photo
+  is a stranger's car outside their own house. Publishing to the gallery
+  COPIES the file rather than making the private one public. If that bucket
+  ever flips public, every photo in the product becomes readable by URL and
+  nothing on any screen would change.
+- **THE RESIZE IS WHAT KEEPS THE STORAGE PROMISE, NOT THE CAP.** A phone photo
+  is 3-5 MB against a 1 GB free plan shared by every tenant — about 250 photos
+  before it is full. `photo-rules.js` resizes to 1600px / JPEG 0.8 in the
+  browser first: 200-400 KB, a 10x multiplier, invisible on a phone. **Never
+  upload a raw camera file**, and never record the ORIGINAL size against the
+  budget — either one makes the whole allowance a fiction.
+- **`indexOf(a) < indexOf(b)` PASSES LOUDEST WHEN `a` HAS BEEN DELETED.** -1 is
+  less than every real index, so an ordering check written that way is at its
+  greenest exactly when the thing it guards is gone. Found again 2026-09-06 in
+  `job-photos` 4j by baselining. **Every order check must assert PRESENCE
+  first** — `job-photos` has a `before()` helper for it. Fourth member of this
+  family after the three import-shadowing ones.
 - **The check for anything that changes a LAYOUT:
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
