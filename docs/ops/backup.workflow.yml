@@ -1,0 +1,129 @@
+# A nightly copy of the whole database, kept for free.
+#
+# The owner asked for "the best way to have nightly backups for completely
+# free". This is it: GitHub already hosts the code, Actions gives 2,000 free
+# minutes a month on a private repository, and this job uses about one.
+#
+# WHY NOT SUPABASE'S OWN BACKUPS: the free plan has none. They begin on the
+# Pro plan, so until this repo is paying for one, an accidental `delete from
+# bookings` is unrecoverable. That is the gap this closes.
+#
+# WHY pg_dump AND NOT THE SUPABASE CLI: the CLI on a runner pulls a ~1.7 GB
+# Docker image on every single run — minutes of the free allowance, every
+# night, for identical output. `postgresql-client` installs in seconds.
+#
+# ---------------------------------------------------------------------------
+# THE DUMP IS ENCRYPTED BEFORE IT IS STORED, and that is not belt-and-braces.
+# This file contains **every customer of every detailer** — names, phone
+# numbers, home addresses, email addresses. A GitHub artifact is private to
+# people with access to the repository, which is the right audience today and
+# is one mis-click away from not being. Symmetric GPG with a passphrase that
+# lives only in the repository secrets means the artifact is useless to anyone
+# who gets it without also getting the secret.
+#
+# **If the passphrase is lost, so is every backup.** Keep it in a password
+# manager, not in this repo and not in a note on the same laptop.
+# ---------------------------------------------------------------------------
+#
+# SECRETS THIS NEEDS (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL    the Postgres connection string — Supabase dashboard →
+#                      Project Settings → Database → Connection string → URI.
+#                      Use the SESSION POOLER URI: the direct one is IPv6-only
+#                      and a GitHub runner has no IPv6, which fails with a
+#                      "network unreachable" that reads like a wrong password.
+#   BACKUP_PASSPHRASE  anything long and random. This is the only key to every
+#                      backup this job will ever make.
+
+name: Nightly database backup
+
+on:
+  schedule:
+    # 09:10 UTC — early morning in California, after the night's bookings have
+    # landed and before anybody is working. The odd minute is deliberate:
+    # GitHub's scheduler queues everything set to :00, so an on-the-hour job
+    # can be delayed by many minutes on a busy night.
+    - cron: "10 9 * * *"
+  workflow_dispatch:        # so a restore drill can be run on demand
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the secrets exist before doing anything else
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          # A BACKUP JOB THAT SILENTLY DOES NOTHING IS WORSE THAN NO BACKUP
+          # JOB, because the green tick is read as "there is a backup". Fail
+          # loudly and early instead.
+          test -n "$DB_URL" || { echo "::error::SUPABASE_DB_URL is not set"; exit 1; }
+          test -n "$PASSPHRASE" || { echo "::error::BACKUP_PASSPHRASE is not set"; exit 1; }
+
+      - name: Install the Postgres client
+        run: |
+          sudo apt-get update -qq
+          # The server is Postgres 17; pg_dump refuses to dump a server newer
+          # than itself, and the runner's default client is older.
+          sudo apt-get install -y -qq postgresql-client-17 \
+            || sudo apt-get install -y -qq postgresql-client
+
+      - name: Dump
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          # --no-owner / --no-privileges: the roles on a restore target are not
+          # the roles here, and a dump that only restores onto an identical
+          # project is a dump that fails on the day it is needed.
+          pg_dump "$DB_URL" \
+            --no-owner --no-privileges \
+            --format=plain \
+            --file=backup.sql
+          ls -l backup.sql
+          # A DUMP THAT IS SUSPICIOUSLY SMALL IS A FAILED DUMP THAT EXITED 0.
+          # An empty or truncated file is the failure mode that looks most
+          # like success, so it is checked rather than assumed.
+          test "$(stat -c%s backup.sql)" -gt 20000 \
+            || { echo "::error::dump is only $(stat -c%s backup.sql) bytes — treating as a failure"; exit 1; }
+          grep -q "CREATE TABLE public.bookings" backup.sql \
+            || { echo "::error::dump has no bookings table — wrong database or a partial dump"; exit 1; }
+
+      - name: Encrypt
+        env:
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          gpg --batch --yes --symmetric --cipher-algo AES256 \
+              --passphrase "$PASSPHRASE" \
+              --output "backup-$(date -u +%Y-%m-%d).sql.gpg" backup.sql
+          # The plaintext must not survive into the artifact step.
+          shred -u backup.sql
+          ls -l *.sql.gpg
+
+      - name: Keep it
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: "*.sql.gpg"
+          # 90 is the maximum GitHub allows and it costs nothing on a private
+          # repository within the free storage allowance.
+          retention-days: 90
+          if-no-files-found: error
+
+# ---------------------------------------------------------------------------
+# TO RESTORE (write this down somewhere that is not this repository):
+#
+#   1. Download the artifact from the Actions run and unzip it.
+#   2. gpg --batch --passphrase '<BACKUP_PASSPHRASE>' \
+#          --decrypt backup-YYYY-MM-DD.sql.gpg > backup.sql
+#   3. psql "<connection string of a FRESH project>" -f backup.sql
+#
+# **RESTORE INTO A FRESH PROJECT, never over the live one.** A restore over a
+# running database is how a bad night becomes an unrecoverable one, and the
+# whole point of having this file is that there is a way back.
+#
+# A restore has never been rehearsed. `workflow_dispatch` above exists so that
+# the drill can be run without waiting for a night — and a backup nobody has
+# ever restored is a backup nobody should count on.
+# ---------------------------------------------------------------------------

@@ -550,6 +550,53 @@ a { color: var(--accent-text); text-decoration: none; }
   .emptyscreen { min-height: 58vh; justify-content: center; }
 }
 
+/* ------------------------------------------------------- JOB PHOTOS
+   `docs/detailer-dashboard-audit-2026-09-06.md` §3.1. Before, after and
+   damage, on the job record.
+
+   A ROW THAT SCROLLS SIDEWAYS RATHER THAN A GRID THAT WRAPS. Four photos
+   of one car are one thought; wrapping them into a block makes a job record
+   mostly photographs, and the record is read far more often for its money
+   and its notes than for its pictures. THE 320 FLOOR is why the thumb is
+   72px: five fit across a 320px screen inside the card's padding, and a
+   detailer scanning a job wants to see that photos EXIST more than they
+   want to see what is in them — tapping does that. */
+/* The label and its Add button. A bare .row let the button take every pixel
+   the label did not, which at 392 made ADD the widest thing in the record —
+   heavier than Mark completed, for a control that is used once a job. */
+.photo-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
+.photo-head > .btn { flex: 0 0 auto; }
+
+.photo-strip {
+  display: flex; gap: var(--sp-2); overflow-x: auto; padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.photo-strip::-webkit-scrollbar { display: none; }
+.photo-thumb {
+  flex: 0 0 auto; width: 72px; height: 72px; padding: 0;
+  border: 1px solid var(--hairline); border-radius: var(--r-2);
+  background: var(--sunken); overflow: hidden; cursor: pointer;
+  display: grid; place-items: center;
+}
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* THE FULL VIEW IS NOT A SHEET AND NOT A CARD. Everything else that opens
+   over a screen in this product is a container with a heading; a photograph
+   is the content, so the ground goes dark and the picture is the only lit
+   thing. `max-height: 78vh` leaves the buttons on screen at 844px, which is
+   the phone the whole product is measured against. */
+.photo-view {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-3); padding: var(--sp-3);
+  background: rgba(0, 0, 0, 0.86);
+}
+.photo-view img {
+  max-width: 100%; max-height: 78vh; object-fit: contain;
+  border-radius: var(--r-2);
+}
+
 /* A boundary INSIDE a group — the device that replaces a second box. */
 .rule { height: 1px; background: var(--hairline); border: 0; margin: var(--sp-3) 0; }
 .rule.tight { margin: var(--sp-2) 0; }

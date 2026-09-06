@@ -24,6 +24,7 @@ import { supabase } from "../lib/supabase.js";
 import { fillTemplate } from "../lib/templates.js";
 import { dateLong, mapsUrl, money, time12 } from "../lib/format.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
+import JobPhotos from "./JobPhotos.jsx";
 import FinalizeModal from "./FinalizeModal.jsx";
 import QuoteModal from "./QuoteModal.jsx";
 import Sheet from "./Sheet.jsx";
@@ -352,6 +353,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 </button>
               ) : null}
             </div>
+
+            {/* PHOTOS SIT ABOVE THE NOTES AND BELOW THE MONEY, which is the
+                order a job is read in: what it costs, what it looked like,
+                what was said about it. `docs/detailer-dashboard-audit-
+                2026-09-06.md` §3.1. */}
+            <JobPhotos booking={booking} />
 
             {(booking.customer_notes || booking.admin_notes) && (
               <>

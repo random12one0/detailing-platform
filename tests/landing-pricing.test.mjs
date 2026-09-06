@@ -449,6 +449,31 @@ console.log("\ntest 10: the two documents and the support line");
   check("10c · and so does the phone number",
     phoneIn(support) && phoneIn(support) === phoneIn(brand), `${phoneIn(support)} vs ${phoneIn(brand)}`);
 
+  // ── THE ACCESS DISCLOSURE ────────────────────────────────────────────
+  // **THIS IS A CONDITION, NOT A PARAGRAPH.** The owner asked on 2026-09-06
+  // for a back office that shows him everything about a detailer and their
+  // clients, and his own condition was that it be said out loud in the fine
+  // print. **The build was done on the strength of the disclosure**, so if
+  // the disclosure is ever edited away the product is quietly doing
+  // something a detailer was never told about. That is what these pin.
+  const priv = legal.slice(legal.indexOf("export const PRIVACY"));
+  check("10b-i · the privacy page says we can see it",
+    /Who else can see it/.test(priv) && /We can\./.test(priv),
+    "the back office shows a detailer's figures and customers on the strength of this");
+  check("10b-ii · and says plainly that nothing is sold",
+    /sold, rented or handed to an advertiser/.test(priv),
+    "a disclosure that only admits access invites the worst reading of it");
+
+  // **IT SITS DIRECTLY AFTER THE PARAGRAPH IT CORRECTS.** The section above
+  // it tells a detailer their customers' details are "yours to look after",
+  // which reads as "and nobody else's". Three screens away in the terms, that
+  // sentence would be doing the misleading.
+  check("10b-iii · it comes straight after the customers paragraph",
+    priv.indexOf("What we hold about your customers") >= 0
+      && priv.indexOf("Who else can see it") > priv.indexOf("What we hold about your customers")
+      && priv.indexOf("Who else can see it") < priv.indexOf("Card details"),
+    "a thing a reader will assume wrongly is disclosed where they assume it");
+
   // A POLICY, NOT A LINK. "Contact us" under a footer says nothing about who
   // picks it up or how long you wait, which is the whole question somebody
   // handing over a business is asking.

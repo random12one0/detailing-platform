@@ -64,6 +64,23 @@ export const PRIVACY = {
      "Your name, your business, your email address and phone number, and everything you set up — services, prices, opening hours, the wording of your emails. If you subscribe, the plan you chose and the invoices you have paid."],
     ["What we hold about your customers",
      "Whatever they type into your booking page: name, phone, email, the address you are going to, the vehicle, and anything they write in the notes. It is their information and it is yours to look after — we hold it for you and we do not use it for anything else."],
+    // **THE DISCLOSURE THE OWNER ASKED FOR, 2026-09-06.** He wants his back
+    // office to show him everything about a detailer and their clients, and
+    // his own condition was that it be said out loud: *"it could be disclosed
+    // in like the ToS or on the fine print that I do have the ability to see
+    // information about the detailer and their clients."*
+    //
+    // **IT IS HERE RATHER THAN IN THE TERMS, and immediately after the
+    // paragraph above, on purpose.** The sentence before this one says a
+    // customer's details are "yours to look after" — which a detailer reads
+    // as "and nobody else's". Leaving the correction three screens away in a
+    // contract would make that sentence do the misleading. A thing a reader
+    // will assume wrongly is disclosed where they assume it.
+    //
+    // It says WHO, WHAT and WHAT NOT, because a disclosure that only admits
+    // access invites the worst reading of it.
+    ["Who else can see it — us",
+     "We can. Running the platform means we hold the keys to the database it lives in, so the person who runs this service can see what is in your account: your bookings, your figures, and your customers' details. We look when we are fixing something, when you ask us for help, and to keep an eye on whether your booking page is working. **Nothing here is ever sold, rented or handed to an advertiser, and no customer list is used to sell anything to anybody.** If that is not a trade you want, this is the paragraph to read twice before you sign up."],
     ["Card details",
      "We never see them. The card fields on the payment screen belong to Stripe and are served by Stripe; the number goes from the browser to them and never touches this product, this server or any log we keep."],
     ["The four companies involved",
