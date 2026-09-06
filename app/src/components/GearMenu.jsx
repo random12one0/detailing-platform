@@ -37,6 +37,7 @@ import { useBusiness } from "../context/BusinessContext.jsx";
 import SettingsHost from "./SettingsHost.jsx";
 import { detectPlatform, loadPrefs, PLATFORMS } from "../lib/platform.js";
 import { roleName } from "../lib/permissions.js";
+import { SUPPORT_EMAIL, SUPPORT_SHORT } from "../lib/support.js";
 
 // The device row answers itself like every other row: what it will open.
 const MAPS_NAME = { apple: "Apple Maps", google: "Google Maps", waze: "Waze" };
@@ -147,6 +148,21 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
               the way they typed it — the whole point of 2.13 is that "staff"
               is no longer the product's to decide. */}
           <div className="body">Signed in as {roleName(role, label)}.</div>
+          {/* ITEM G — until 2026-09-06 there was no help text, no address and
+              no way to ask a question from anywhere inside the dashboard.
+              Roadmap 7.1 put a support policy in the marketing page's FOOTER,
+              which is the one surface a detailer never looks at again once
+              they have signed up.
+              ONE ADDRESS AND A PROMISE ABOUT TIME, which is that item's own
+              recommendation and the whole of it: he has fewer than ten
+              customers, and the honest answer to "where do I go" is his
+              inbox. It is in the ACCOUNT block rather than a row of its own
+              because it is not a screen — a row that opens a page to show one
+              mailto is a row that wastes the tap it cost. */}
+          <p className="quiet" style={{ margin: "2px 0 10px" }}>
+            {SUPPORT_SHORT}{" "}
+            <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+          </p>
           <button className="btn" onClick={signOut}>
             <LogOut strokeWidth={2} /> Sign out
           </button>

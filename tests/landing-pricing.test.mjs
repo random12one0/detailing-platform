@@ -427,6 +427,10 @@ console.log("\ntest 10: the two documents and the support line");
 {
   const { readFileSync } = await import("node:fs");
   const legal = readFileSync("app/src/landing/legal.js", "utf8");
+  // THE ADDRESS MOVED TO `lib/support.js` ON 2026-09-06 (item G) — the
+  // dashboard needs the same one, and `legal.js` re-exports it. These checks
+  // follow it to its one home rather than to the file that forwards it.
+  const support = readFileSync("app/src/lib/support.js", "utf8");
   const legalPage = readFileSync("app/src/landing/LegalPage.jsx", "utf8");
   const brand = readFileSync("supabase/functions/_shared/platformBrand.ts", "utf8");
 
@@ -441,9 +445,9 @@ console.log("\ntest 10: the two documents and the support line");
   const emailIn = (src) => (src.match(/support@[a-z.]+/) ?? [])[0];
   const phoneIn = (src) => (src.match(/\(\d{3}\) \d{3}-\d{4}/) ?? [])[0];
   check("10b · the support address matches the one the emails send from",
-    emailIn(legal) && emailIn(legal) === emailIn(brand), `${emailIn(legal)} vs ${emailIn(brand)}`);
+    emailIn(support) && emailIn(support) === emailIn(brand), `${emailIn(support)} vs ${emailIn(brand)}`);
   check("10c · and so does the phone number",
-    phoneIn(legal) && phoneIn(legal) === phoneIn(brand), `${phoneIn(legal)} vs ${phoneIn(brand)}`);
+    phoneIn(support) && phoneIn(support) === phoneIn(brand), `${phoneIn(support)} vs ${phoneIn(brand)}`);
 
   // A POLICY, NOT A LINK. "Contact us" under a footer says nothing about who
   // picks it up or how long you wait, which is the whole question somebody
@@ -451,7 +455,7 @@ console.log("\ntest 10: the two documents and the support line");
   check("10d · the footer carries the support policy and both documents",
     /SUPPORT_LINE/.test(jsx) && /href="\/terms"/.test(jsx) && /href="\/privacy"/.test(jsx));
   check("10e · and the line says how long an answer takes",
-    /same working day/i.test(legal), "a promise with no time in it is not a policy");
+    /same working day/i.test(support), "a promise with no time in it is not a policy");
 
   // THE SENTENCE THAT MAKES THESE HONEST. The roadmap calls them placeholders
   // and says the owner supplies real legal text later; a reader who finds that
@@ -475,6 +479,17 @@ console.log("\ntest 10: the two documents and the support line");
 
   // The commitments these pages restate are ones `/pricing` already PRINTS, so
   // restating them invents nothing — but they must not drift apart.
+  // ITEM G — the marketing footer is the one surface a detailer never looks
+  // at again once they have signed up, so the address has to be INSIDE the
+  // product too. One address and a promise about time, in the gear's account
+  // block: not a help centre, not a ticket form.
+  check("10i · the dashboard carries it too, where a stuck detailer is",
+    /SUPPORT_SHORT/.test(readFileSync("app/src/components/GearMenu.jsx", "utf8"))
+      && /mailto:\$\{SUPPORT_EMAIL\}/.test(readFileSync("app/src/components/GearMenu.jsx", "utf8")),
+    "7.1 put it in the marketing footer only, which is nowhere a customer goes");
+  check("10j · and reads it from the one home, not a second copy",
+    /from "\.\.\/lib\/support\.js"/.test(readFileSync("app/src/components/GearMenu.jsx", "utf8"))
+      && /from "\.\.\/lib\/support\.js"/.test(legal));
   check("10h · the terms restate the printed promises rather than new ones",
     /two weeks/i.test(legal) && /Nothing is deleted/i.test(legal)
       && /two weeks/i.test(pcopy) && /nothing is deleted/i.test(pcopy),

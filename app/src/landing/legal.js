@@ -20,14 +20,11 @@
 // for the wall that already forced two price tables: a Deno bundle cannot
 // import out of `supabase/`. `tests/landing-pricing.test.mjs` pins them equal.
 
-export const SUPPORT_EMAIL = "support@detailingplatform.com";
-export const SUPPORT_PHONE = "(562) 310-1075";
-
-// The one sentence that goes under every marketing page. It is a POLICY —
-// how to reach a person and how long it takes — rather than a link, because
-// "contact us" under a footer is not a support policy.
-export const SUPPORT_LINE =
-  "Questions and problems go to one person, and you get an answer the same working day.";
+// MOVED TO `lib/support.js` ON 2026-09-06 (item G) — the dashboard needs the
+// same address, and a second copy is a second thing to keep in step with the
+// one the emails send from. Re-exported here so the pages that already read
+// it from this file keep working.
+export { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_LINE } from "../lib/support.js";
 
 export const NOT_YET_LAWYERED =
   "Written in plain English by the person who built this, and not yet reviewed by a lawyer. "

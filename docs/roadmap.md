@@ -6545,7 +6545,24 @@ recommendation.
   item for SMS. **Skipped:** a real gap against competitors, and it costs money
   per message. **Recommendation: ask him, do not schedule it — it is a
   per-tenant cost decision, not a technical one.**
-- **G. A DETAILER WHO GETS STUCK HAS NOWHERE TO GO.** No help text, no support
+- **G. ~~A DETAILER WHO GETS STUCK HAS NOWHERE TO GO~~ BUILT 2026-09-06, in
+  the smallest useful version this entry itself recommended.** One address and
+  a promise about TIME, in the gear's account block, above Sign out: *"Stuck on
+  something? One person answers, same working day."*
+  **IN THE ACCOUNT BLOCK RATHER THAN A ROW OF ITS OWN** — a row that opens a
+  page to show one `mailto:` is a row that wastes the tap it cost.
+  **AND `app/src/lib/support.js` IS THE ONE HOME.** 7.1 had put the address in
+  `landing/legal.js` for the marketing footer, which is the single surface a
+  detailer never looks at again once they have signed up; the dashboard needs
+  the same one, and `legal.js` re-exports it. `landing-pricing` 10b/10c pin it
+  against `_shared/platformBrand.ts` — the third copy the Deno wall forces and
+  the only one allowed — and 10i/10j pin that the dashboard carries it and
+  reads it from that one home.
+  **No help centre, no ticket form, no chat widget:** he has fewer than ten
+  customers and the honest answer to *"where do I go"* is his inbox.
+  The finding as written:
+
+  **G. A DETAILER WHO GETS STUCK HAS NOWHERE TO GO.** No help text, no support
   address, no way to ask a question from inside the dashboard. 7.1 mentions a
   support policy in the FOOTER of the marketing page only. **Recommendation:
   smallest useful version in Phase 7 — one support email address, shown in the

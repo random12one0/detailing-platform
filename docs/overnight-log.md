@@ -1172,6 +1172,33 @@ it has been completely green since that finding was written down.
 
 ---
 
+## A detailer who gets stuck now has somewhere to go
+
+**What changed.** One line in the settings, above Sign out: *"Stuck on
+something? One person answers, same working day."* with your support address
+beside it.
+
+**Why it needed doing.** There was no help text, no address and no way to ask a
+question from anywhere inside the dashboard. Earlier tonight I put a support
+line in the footer of the marketing page — which is the one page a detailer
+never looks at again after they sign up.
+
+**Why it is a line and not a row.** A row that opens a page to show one email
+address is a row that wastes the tap it cost. And no help centre, no ticket
+form, no chat widget: you have fewer than ten customers, and the honest answer
+to "where do I go" is your inbox.
+
+**One thing to know: that promise is now printed in two places.** *"An answer
+the same working day"* is on the marketing page and inside the product. If that
+is not the promise you want to make, it is one line —
+`app/src/lib/support.js` — and both change together.
+
+**What I verified.** The line reads correctly at 392 and 320, the address is
+the same one your emails send from (a check now fails if the two ever drift),
+no console errors, sweep clean.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*
