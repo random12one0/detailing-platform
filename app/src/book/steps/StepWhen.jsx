@@ -7,16 +7,21 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { api, slotsForType } from "../../lib/api.js";
-import { time12, todayLocal } from "../../lib/format.js";
+import { api } from "../../lib/api.js";
+import { time12 } from "../../lib/format.js";
+import {
+  businessToday, dayIsOpen, dayRefusesMode, monthGrid, monthHasNothing,
+  monthRange, shiftMonth, slotsForType,
+} from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
-const pad = (n) => String(n).padStart(2, "0");
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
 
 export default function StepWhen({ form, setForm, durationMinutes }) {
   const { slug, business } = useBookingBusiness();
-  const today = todayLocal(business.timezone);
+  // THE BUSINESS'S TODAY, never the customer's — somebody booking from
+  // another state must not be shown yesterday.
+  const today = businessToday(business.timezone);
   // A stable key for the selection, so the calendar reloads when the services
   // change but not on every render. The ids themselves are a new array each
   // time the parent renders.
@@ -28,10 +33,8 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
   const [error, setError] = useState("");
 
   const [y, m] = month.split("-").map(Number);
-  const monthStart = `${month}-01`;
-  const monthEnd = `${month}-${pad(new Date(y, m, 0).getDate())}`;
-  // Never ask for days in the past.
-  const rangeStart = monthStart < today ? today : monthStart;
+  // Never ask for days in the past — the clamp is the core's.
+  const { start: rangeStart, end: monthEnd } = monthRange(month, today);
 
   const load = useCallback(async () => {
     if (!durationMinutes) return;
@@ -58,17 +61,10 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
 
   useEffect(() => { load(); }, [load]);
 
-  const cells = useMemo(() => {
-    const firstDow = new Date(y, m - 1, 1).getDay();
-    const count = new Date(y, m, 0).getDate();
-    const out = Array.from({ length: firstDow }, () => null);
-    for (let d = 1; d <= count; d++) out.push(`${month}-${pad(d)}`);
-    return out;
-  }, [month, y, m]);
+  const cells = useMemo(() => monthGrid(month), [month]);
 
   const moveMonth = (delta) => {
-    const dt = new Date(y, m - 1 + delta, 1);
-    setMonth(`${dt.getFullYear()}-${pad(dt.getMonth() + 1)}`);
+    setMonth(shiftMonth(month, delta));
     setForm((f) => ({ ...f, bookingDate: "", startTime: "" }));
   };
 
@@ -81,8 +77,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
   const daySlots = form.bookingDate ? allowed(form.bookingDate) : [];
   const day = form.bookingDate ? days?.[form.bookingDate] : null;
   // Named for what it is: this day cannot take the service type they picked.
-  const wrongMode = !!day
-    && ((form.serviceType === "mobile" && day.dropoff_only) || (form.serviceType !== "mobile" && day.mobile_only));
+  const wrongMode = dayRefusesMode(day, form.serviceType);
 
   return (
     <>
@@ -118,7 +113,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
             // still worth opening: greyed out it says only "closed", while
             // opening it says which way it is restricted and that going back
             // a step fixes it. The submit gate is validateSlot either way.
-            const open = (days?.[date]?.slots ?? []).length > 0;
+            const open = dayIsOpen(days?.[date]);
             return (
               <div
                 key={date}
@@ -143,7 +138,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
 
       {error && <div className="bk-error">{error}</div>}
 
-      {!loading && !error && Object.values(days ?? {}).every((d) => (d.slots ?? []).length === 0) && (
+      {!loading && !error && monthHasNothing(days) && (
         <div className="bk-note" style={{ marginTop: 12 }}>
           No open times this month. Try the next month
           {business.phone ? `, or call ${business.phone}` : ""}.

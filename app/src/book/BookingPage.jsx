@@ -1,8 +1,17 @@
 // Public booking page — /book/:slug. One page, every business, driven
 // entirely by that business's configuration.
 //
+// ROADMAP 3.2 — THE RULES ARE NOT IN THIS FILE ANY MORE. The step sequence,
+// the group rules, the mode limit, the step gating, both money payloads and
+// what the device remembers all live in `./core.js`, which has no React and
+// no markup in it, because every website-package tenant now draws its own
+// booking form and the rules must not fork with the presentation. What is
+// left here is the presentation: React state, wording, layout and motion.
+// THIS PAGE IS ALSO THE CORE'S ONLY REAL TEST — a rule it stops calling is a
+// rule that starts rotting.
+//
 // The steps live in ./steps; this file owns the flow, the server quote, and
-// submission. HOW MANY there are is not fixed — see stepsFor() below.
+// submission. HOW MANY there are is not fixed — see core.js's stepsFor().
 //
 // THE OLD CRASH: the previous widget called calculate-booking, swallowed any
 // failure with a console.error, and left its price state stale or null. The
@@ -17,6 +26,11 @@ import { ArrowLeft } from "lucide-react";
 import { api } from "../lib/api.js";
 import { duration, money } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
+import {
+  bookingRequest, canAdvance as coreCanAdvance, initialForm, modeLimitFor,
+  offersBothModes, quoteKey as coreQuoteKey, quoteRequest, recallCustomer,
+  rememberCustomer, stepsFor, toggleService as coreToggleService,
+} from "./core.js";
 import StepServices from "./steps/StepServices.jsx";
 import StepExtras from "./steps/StepExtras.jsx";
 import StepVehicle from "./steps/StepVehicle.jsx";
@@ -27,57 +41,10 @@ import StepReview from "./steps/StepReview.jsx";
 import BookingConfirmed from "./BookingConfirmed.jsx";
 import "./booking.css";
 
-// Roadmap 2.7, W19: "add-ons get their own step, in the same format as the
-// services step." Extras sits directly after Services because the two are the
-// same question asked twice — what do you want, and anything else — and the
-// vehicle is a fact about the car rather than another thing to buy.
-//
-// The list is BUILT, not fixed, and only for the reason W19 forces: a business
-// with no add-ons configured would otherwise get an empty seventh step, and
-// "Step 3 of 7" would be a lie for every one of them. Nothing else about the
-// flow is conditional.
-const stepsFor = (addOns) =>
-  ["Services", ...(addOns.length ? ["Extras"] : []), "Vehicle", "Location", "When", "Details", "Review"];
-
-// ROADMAP 2.14 STEP 3 — THE BROWSER REMEMBERS THE LAST CUSTOMER ON THIS
-// DEVICE, AND THE OWNER ASKED FOR IT IN THOSE WORDS: *"we should definitely
-// log people, log their browsers and with cookies."*
-//
-// It is the cheapest 90% of the problem the customer-account idea was really
-// about. Most people rebook on the phone they booked on, so remembering three
-// fields removes all the typing an account would have removed — with no
-// password, no lookup endpoint and no security surface. A new device simply
-// fills the form in as it always did, which is the whole failure mode.
-//
-// THE PLAN IS REMEMBERED TOO, and that is what makes the "auto-detect" he was
-// reaching for work without anybody typing an address: if the last booking on
-// this device carried a plan, the next one starts with it attached. **It is a
-// HINT, never a grant** — `create-booking` re-reads the plan from the database
-// and, if the customer is not actually a member, the booking arrives as a
-// REQUEST for the detailer to look at. So the worst a stale or borrowed device
-// can do is ask.
-//
-// Wrapped both ways: `localStorage` throws outright in some embedded and
-// privacy contexts, and a booking page that cannot render because a
-// convenience threw is a far worse defect than a form nobody pre-filled.
-const REMEMBER_KEY = "bk.customer";
-function recall(slug) {
-  try {
-    const raw = JSON.parse(localStorage.getItem(REMEMBER_KEY) || "null");
-    return raw && raw.slug === slug ? raw : null;
-  } catch { return null; }
-}
-function remember(slug, form, planId) {
-  try {
-    localStorage.setItem(REMEMBER_KEY, JSON.stringify({
-      slug,
-      name: form.customerName.trim(),
-      email: form.customerEmail.trim(),
-      phone: form.customerPhone.trim(),
-      planId: planId || null,
-    }));
-  } catch { /* a device that will not remember is not an error */ }
-}
+// Roadmap 2.7, W19 (the step sequence), and roadmap 2.14 step 3 (what the
+// device remembers) both moved into ./core.js in roadmap 3.2, with their
+// reasoning. A tenant site's own form needs the same order and the same
+// recognition, and neither can be re-derived from looking at a screenshot.
 
 export default function BookingPage() {
   const { slug } = useParams();
@@ -98,38 +65,17 @@ function BookingFlow() {
   // recognition must not change under the customer mid-flow, and this page
   // WRITES that key on submit — reading it every render would rename the
   // heading the instant they book.
-  const [known] = useState(() => recall(slug));
+  const [known] = useState(() => recallCustomer(slug));
   // The plan this booking is against, if any. The URL wins — that is somebody
   // who just pressed a plan button, or came in from their own plan link — and
   // the remembered device is the fallback that needs no typing.
   const planId = params.get("plan") || known?.planId || "";
 
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState({
-    serviceIds: [],
-    addOns: [],
-    vehicleSize: "",
-    vehicleModel: "",
-    vehicleCondition: "",
-    serviceType: "",
-    customerAddress: "",
-    travelZone: "",
-    // W22 — two answers where there was one, because water and power vary
-    // independently. False is a real answer here, not a missing one: the
-    // question is only ever drawn where the detailer asks it.
-    hasWater: false,
-    hasPower: false,
-    bookingDate: "",
-    startTime: "",
-    // Pre-filled from this device's last booking, so a returning customer
-    // never retypes their own name. Empty for everybody else, exactly as
-    // before.
-    customerName: known?.name ?? "",
-    customerPhone: known?.phone ?? "",
-    customerEmail: known?.email ?? "",
-    customerNotes: "",
-    promoCode: "",
-  });
+  // The shape AND the three tenant defaults are the core's. Pre-filled from
+  // this device's last booking, so a returning customer never retypes their
+  // own name; empty for everybody else, exactly as before.
+  const [form, setForm] = useState(() => initialForm(settings, known));
   const [quote, setQuote] = useState(null);
   const [quoteError, setQuoteError] = useState("");
   const [quoting, setQuoting] = useState(false);
@@ -139,29 +85,24 @@ function BookingFlow() {
   const [confirmed, setConfirmed] = useState(null);
   const topRef = useRef(null);
 
-  // Default the service type once settings are known: if only one mode is
-  // offered, it is chosen for the customer and that step is skipped.
+  // THE TENANT'S OWN DEFAULTS ARRIVE LATE, so they are re-applied once — the
+  // profile is a round trip and the form mounts before it lands. Three
+  // separate effects did this until roadmap 3.2; the rules themselves (a
+  // single mode is chosen for the customer, the first travel zone and the
+  // first vehicle size are the ordinary case) are `initialForm`'s now.
+  //
+  // ONCE, and latched in a ref rather than guarded on the fields being empty:
+  // "small" is a legitimate value AND the fallback, so a guard cannot tell
+  // "still unset" from "the tenant's first size really is small". It cannot
+  // overwrite anything a customer typed, because the page draws a spinner
+  // until this moment.
+  const defaultsApplied = useRef(false);
   useEffect(() => {
-    if (status !== "ready" || form.serviceType) return;
-    setForm((f) => ({ ...f, serviceType: settings.mobile_enabled ? "mobile" : "dropoff" }));
-  }, [status, settings, form.serviceType]);
-
-  // The first travel zone is the default, the same way the first vehicle size
-  // is: a detailer’s list is in their own order and the first entry is the
-  // ordinary case.
-  useEffect(() => {
-    if (status !== "ready" || form.travelZone) return;
-    const z = settings.travel_zones?.[0]?.key;
-    if (z) setForm((f) => ({ ...f, travelZone: z }));
-  }, [status, settings, form.travelZone]);
-
-  // W9 — the sizes are the tenant's own list, so the default is THEIR first
-  // one. Hardcoding "small" was safe while every business had our three; it is
-  // a broken quote the moment a detailer names their base size anything else.
-  useEffect(() => {
-    if (status !== "ready" || form.vehicleSize) return;
-    setForm((f) => ({ ...f, vehicleSize: settings.vehicle_sizes[0]?.key ?? "small" }));
-  }, [status, settings, form.vehicleSize]);
+    if (status !== "ready" || defaultsApplied.current) return;
+    defaultsApplied.current = true;
+    const d = initialForm(settings, null);
+    setForm((f) => ({ ...f, serviceType: d.serviceType, travelZone: d.travelZone, vehicleSize: d.vehicleSize }));
+  }, [status, settings]);
 
   const selectedServices = useMemo(
     () => services.filter((s) => form.serviceIds.includes(s.id)),
@@ -173,19 +114,11 @@ function BookingFlow() {
   );
 
   // --- The server quote. Errors are STATE, not a console line. ------------
-  // ROADMAP 2.8c WIDENED THIS KEY, and that is the visible half of the whole
-  // pricing change: the total now depends on WHEN the job is (a weekend or
-  // evening rate, a short-notice fee), on WHERE it is (the travel area) and on
-  // whether anybody travels at all. So the quote re-runs when the customer
-  // picks a day, a time, an area or a way of working — not only when they
-  // change what they are buying.
-  // ROADMAP 2.14 joins the key too, and it is the same argument: a plan
-  // changes what the job costs, so the ONE server quote has to be the thing
-  // that says so. Nothing on this page computes a plan price.
-  const quoteKey = JSON.stringify([
-    form.serviceIds, form.addOns, form.vehicleSize, promoState.applied,
-    form.serviceType, form.travelZone, form.bookingDate, form.startTime, planId,
-  ]);
+  // WHAT THE PRICE DEPENDS ON is `core.js`'s `quoteKey`, with the reasoning:
+  // roadmap 2.8c put the day, the time, the travel area and the way of
+  // working into it, and 2.14 the plan. Nothing on this page computes any
+  // part of a price, plan discounts included.
+  const quoteKey = coreQuoteKey(form, { planId, promoApplied: promoState.applied });
   const fetchQuote = useCallback(async () => {
     if (form.serviceIds.length === 0) {
       setQuote(null);
@@ -195,20 +128,7 @@ function BookingFlow() {
     setQuoting(true);
     setQuoteError("");
     try {
-      const r = await api.calculateBooking(slug, {
-        service_ids: form.serviceIds,
-        add_ons: form.addOns,
-        vehicle_size: form.vehicleSize,
-        applied_promo_code: promoState.applied || undefined,
-        service_type: form.serviceType || undefined,
-        travel_zone: form.travelZone || undefined,
-        // Undefined until step 5. A time-based rule that cannot be evaluated
-        // does not apply, so the price starts without it and the surcharge
-        // appears with the day it depends on.
-        booking_date: form.bookingDate || undefined,
-        start_time: form.startTime || undefined,
-        plan_id: planId || undefined,
-      });
+      const r = await api.calculateBooking(slug, quoteRequest(form, { planId, promoApplied: promoState.applied }));
       if (!r?.quote) throw new Error("We couldn't work out a price for that selection.");
       setQuote(r.quote);
     } catch (e) {
@@ -233,21 +153,9 @@ function BookingFlow() {
     }
   };
 
-  // ROADMAP 2.8c — A SERVICE CAN RULE OUT A WAY OF WORKING. A ceramic coating
-  // needs a garage and a controlled environment, so it cannot be done in a
-  // driveway; the reverse exists too. Until now this was only ever a fact
-  // about the business or about a date.
-  //
-  // Every chosen service has to allow the mode, so this is an AND across the
-  // selection, and the service that rules it out is named — "you can't do
-  // that" without saying why is the thing that makes a form feel broken.
-  const blocksMobile = selectedServices.find((s) => s.allows_mobile === false);
-  const blocksDropoff = selectedServices.find((s) => s.allows_dropoff === false);
-  const modeLimit = blocksMobile
-    ? { only: "dropoff", because: blocksMobile.name }
-    : blocksDropoff
-      ? { only: "mobile", because: blocksDropoff.name }
-      : null;
+  // ROADMAP 2.8c — a service can rule out a way of working; the rule and its
+  // reasoning are `core.js`'s `modeLimitFor`.
+  const modeLimit = modeLimitFor(selectedServices);
 
   // If the selection narrows the mode, the form follows it rather than
   // leaving a choice that is going to be refused at submit.
@@ -257,73 +165,16 @@ function BookingFlow() {
   }, [modeLimit, form.serviceType]);
 
   // --- Step gating ---------------------------------------------------------
-  const bothModes = settings.mobile_enabled && settings.dropoff_enabled && !modeLimit;
-  const canAdvance = (() => {
-    switch (STEPS[step]) {
-      case "Services": return form.serviceIds.length > 0 && !!quote && !quoting;
-      case "Vehicle": return !!quote && !quoting;
-      case "Location":
-        if (form.serviceType === "mobile" && !form.customerAddress.trim()) return false;
-        // W22 — where a resource is REQUIRED, the customer cannot walk past
-        // the question. This is the courteous half: it stops them filling in
-        // four more steps before being told no. The half that holds is in
-        // _shared/slotValidation.ts, on the server.
-        if (form.serviceType === "mobile") {
-          if (settings.water_requirement === "required" && !form.hasWater) return false;
-          if (settings.power_requirement === "required" && !form.hasPower) return false;
-        }
-        return true;
-      case "When": return !!form.bookingDate && !!form.startTime;
-      case "Details":
-        return form.customerName.trim() && form.customerPhone.trim() && form.customerEmail.trim();
-      default: return true;
-    }
-  })();
+  const bothModes = offersBothModes(settings, modeLimit);
+  const canAdvance = coreCanAdvance(STEPS[step], { form, settings, quote, quoting });
 
-  // W25 — THE CATEGORY'S RULE, APPLIED. A category with max_select 1 is
-  // "pick one from this category": choosing a second one swaps the first out
-  // rather than refusing the tap, because a control that does nothing when
-  // pressed reads as broken. Written as a cap rather than as a boolean so
-  // "up to two" needs no second implementation.
-  //
-  // THIS IS THE COURTESY COPY OF THE RULE, NOT THE ENFORCEMENT. The real one
-  // is in create-booking, for the reason W4 found the hard way in roadmap 2.7:
-  // a restriction that only exists in React is a restriction a stale page, a
-  // second tab or a crafted request walks straight past.
-  const toggleService = (id) => setForm((f) => {
-    if (f.serviceIds.includes(id)) return { ...f, serviceIds: f.serviceIds.filter((x) => x !== id) };
-    const groupOf = (sid) => services.find((s) => s.id === sid)?.group_id ?? null;
-    const catOf = (sid) => { const g = groupOf(sid); return g ? serviceGroups.find((x) => x.id === g) : null; };
-    const gid = groupOf(id);
-    const cat = catOf(id);
-
-    // ROADMAP 2.8c — A CATEGORY THAT IS THE WHOLE BOOKING. The owner asked for
-    // this and a real menu proved it: Oregon Detail Co publishes complete
-    // packages AND standalone interior and exterior work as three categories,
-    // and with each obeying its own "pick one" a customer could book $1,645 of
-    // work the $625 package already contained. A complete package supersedes
-    // the parts, and only the CATEGORY knows that.
-    //
-    // Symmetric, and deliberately so: picking the package clears everything,
-    // and picking anything else clears the package. A tap always does what it
-    // looks like it does — the alternative is a control that goes dead, which
-    // reads as broken and is the same complaint (W25) this whole thread began
-    // with.
-    if (cat?.is_exclusive) return { ...f, serviceIds: [id] };
-    let ids = [...f.serviceIds, id].filter((x) => !catOf(x)?.is_exclusive || x === id);
-
-    const cap = cat?.max_select ?? null;
-    if (cap) {
-      const siblings = ids.filter((x) => groupOf(x) === gid);
-      const over = siblings.length - cap;
-      // Oldest out first, so the one just tapped always survives.
-      if (over > 0) {
-        const drop = new Set(siblings.slice(0, over));
-        ids = ids.filter((x) => !drop.has(x));
-      }
-    }
-    return { ...f, serviceIds: ids };
-  });
+  // W25 and roadmap 2.8c's exclusive category — both are `core.js`'s
+  // `toggleService`, with the reasoning. This page only decides that a tap
+  // means "toggle".
+  const toggleService = (id) => setForm((f) => ({
+    ...f,
+    serviceIds: coreToggleService(f.serviceIds, id, { services, serviceGroups }),
+  }));
 
   const go = (delta) => {
     setStep((s) => Math.max(0, Math.min(STEPS.length - 1, s + delta)));
@@ -339,38 +190,12 @@ function BookingFlow() {
     setSubmitting(true);
     setSubmitError("");
     try {
-      const r = await api.createBooking(slug, {
-        customer_name: form.customerName.trim(),
-        customer_phone: form.customerPhone.trim(),
-        customer_email: form.customerEmail.trim(),
-        customer_address: form.customerAddress.trim() || null,
-        service_type: form.serviceType,
-        travel_zone: form.travelZone || null,
-        vehicle_size: form.vehicleSize,
-        vehicle_model: form.vehicleModel.trim() || null,
-        vehicle_condition: form.vehicleCondition || null,
-        service_ids: form.serviceIds,
-        add_ons: form.addOns,
-        booking_date: form.bookingDate,
-        start_time: form.startTime,
-        // Both new columns and the old one. The old pair is what every
-        // already-deployed function still reads; the migration is append-only
-        // and this is the pass that writes alongside it, not the one that
-        // retires it.
-        has_water: form.hasWater,
-        has_power: form.hasPower,
-        has_water_electric: form.hasWater && form.hasPower,
-        customer_notes: form.customerNotes.trim() || null,
-        applied_promo_code: promoState.applied || null,
-        // An id. The name, the kind and the amount all come off the plan row
-        // on the server — this page never names its own discount.
-        plan_id: planId || null,
-      });
+      const r = await api.createBooking(slug, bookingRequest(form, { planId, promoApplied: promoState.applied }));
       // Remembered only once the booking actually landed: a device that
       // remembers an abandoned form is remembering somebody who left.
       // `quote.plan_id` rather than `planId` on purpose — it is the id the
       // SERVER resolved, so a retired plan is not carried forward.
-      remember(slug, form, quote?.plan_id);
+      rememberCustomer(slug, form, quote?.plan_id);
       setConfirmed(r.booking);
     } catch (e) {
       // A 409 here means the slot went while they were filling the form, or

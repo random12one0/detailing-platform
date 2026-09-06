@@ -21,6 +21,7 @@
 //        it is what makes a "from" price honest rather than evasive.
 
 import { money } from "../../lib/format.js";
+import { VEHICLE_CONDITIONS, vehicleSizeExtra, vehicleSizesMatter } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 // Past this many sizes the cards become a drop-down. MEASURED, not chosen,
@@ -40,26 +41,15 @@ import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 // at five or more.
 const SIZE_CARD_CEILING = 4;
 
-// The four-way scale the real forms use. Words, not numbers, so it reads as
-// a description of the car rather than as a grade.
-const CONDITION = [
-  ["light", "Light"],
-  ["moderate", "Moderate"],
-  ["heavy", "Heavy"],
-  ["extreme", "Extreme"],
-];
-
 export default function StepVehicle({ form, setForm, selectedServices }) {
   const { settings } = useBookingBusiness();
   const sizes = settings.vehicle_sizes;
 
-  // The extra a size costs across the chosen services (0 when unconfigured).
-  const sizeExtra = (key) =>
-    selectedServices.reduce(
-      (sum, s) => sum + (Number(s.vehicle_size_adjustments?.[key]?.price) || 0),
-      0,
-    );
-  const sizesMatter = sizes.some((s) => sizeExtra(s.key) !== 0);
+  // The size arithmetic and the four-way condition scale are `core.js`'s —
+  // they decide what reaches `bookings`. The CEILING above stays here,
+  // because it is a height measurement taken against this page's own type.
+  const sizeExtra = (key) => vehicleSizeExtra(selectedServices, key);
+  const sizesMatter = vehicleSizesMatter(sizes, selectedServices);
   const asList = sizes.length > SIZE_CARD_CEILING;
   const pick = (key) => setForm((f) => ({ ...f, vehicleSize: key }));
 
@@ -128,7 +118,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
         <div className="bk-field">
           <span>How dirty is the inside?</span>
           <div className="bk-chips">
-            {CONDITION.map(([key, label]) => (
+            {VEHICLE_CONDITIONS.map(({ key, label }) => (
               <button
                 key={key}
                 type="button"

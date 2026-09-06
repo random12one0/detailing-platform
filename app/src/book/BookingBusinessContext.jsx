@@ -8,7 +8,8 @@
 // dashboard uses, so a business can never configure an unreadable page.
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { supabase } from "../lib/supabase.js";
+import { bookingTransport } from "../lib/api.js";
+import { normalizeProfile } from "./core.js";
 import { brandVarsFor } from "../lib/theme.js";
 
 const Ctx = createContext(null);
@@ -31,17 +32,22 @@ export const useBookingBusiness = () => useContext(Ctx);
 export function BookingBusinessProvider({ slug, children }) {
   const [state, setState] = useState({ status: "loading", profile: null, error: null });
 
+  // ROADMAP 3.2 — through the headless core's transport, exactly as a tenant
+  // site's own form does. The RPC name and its shape are stated in ONE place
+  // now; this file just decides what to render while it is in flight.
   useEffect(() => {
     let cancelled = false;
     setState({ status: "loading", profile: null, error: null });
-    supabase
-      .rpc("get_public_business_profile", { p_slug: slug })
-      .then(({ data, error }) => {
+    bookingTransport.profile(slug).then(
+      (data) => {
         if (cancelled) return;
-        if (error) setState({ status: "error", profile: null, error: error.message });
-        else if (!data) setState({ status: "not_found", profile: null, error: null });
+        if (!data) setState({ status: "not_found", profile: null, error: null });
         else setState({ status: "ready", profile: data, error: null });
-      });
+      },
+      (error) => {
+        if (!cancelled) setState({ status: "error", profile: null, error: error.message });
+      },
+    );
     return () => { cancelled = true; };
   }, [slug]);
 
@@ -61,67 +67,24 @@ export function BookingBusinessProvider({ slug, children }) {
     [profile],
   );
 
-  const value = useMemo(() => {
-    const settings = profile?.settings ?? {};
-    return {
-      status: state.status,
-      error: state.error,
-      slug,
-      business: profile?.business ?? null,
-      branding: profile?.branding ?? null,
-      // Sensible fallbacks so a half-configured business still renders.
-      settings: {
-        mobile_enabled: settings.mobile_enabled ?? true,
-        dropoff_enabled: settings.dropoff_enabled ?? true,
-        ask_water_electric: settings.ask_water_electric ?? true,
-        // W22 — two resources, three states each. The fallback is the old
-        // boolean's meaning, so a business whose settings row predates the
-        // migration still gets the page it had.
-        water_requirement: settings.water_requirement
-          ?? ((settings.ask_water_electric ?? true) ? "ask" : "not_needed"),
-        power_requirement: settings.power_requirement
-          ?? ((settings.ask_water_electric ?? true) ? "ask" : "not_needed"),
-        ask_vehicle_condition: settings.ask_vehicle_condition ?? true,
-        // W9 — the detailer's own list. Falling back to our three keeps a
-        // half-configured business bookable.
-        vehicle_sizes: Array.isArray(settings.vehicle_sizes) && settings.vehicle_sizes.length
-          ? settings.vehicle_sizes
-          : [
-            { key: "small", label: "Small", examples: "Coupe, sedan, hatchback" },
-            { key: "medium", label: "Medium", examples: "Small SUV, crossover, wagon" },
-            { key: "large", label: "Large", examples: "Truck, large SUV, van" },
-          ],
-        slot_interval_minutes: settings.slot_interval_minutes ?? 30,
-        travel_fee: settings.travel_fee ?? null,
-        // Roadmap 2.8c — the detailer's own travel areas. Empty means the flat
-        // travel fee above still applies to every mobile job, which is every
-        // tenant on migration day.
-        travel_zones: Array.isArray(settings.travel_zones) ? settings.travel_zones : [],
-        min_advance_minutes: settings.min_advance_minutes ?? 120,
-        // Roadmap 2.12 — 'reserve' is the fallback as well as the schema
-        // default: an unreadable value must never make a page promise LESS
-        // than the business actually delivers.
-        booking_mode: settings.booking_mode === "request" ? "request" : "reserve",
-        google_review_url: settings.google_review_url ?? null,
-        yelp_review_url: settings.yelp_review_url ?? null,
-      },
-      services: profile?.services ?? [],
-      // W25 — the categories, each with its own max_select. The booking page
-      // groups by these; group_label is the fallback for a service that has
-      // no group_id yet.
-      serviceGroups: profile?.service_groups ?? [],
-      addOns: profile?.add_ons ?? [],
-      // ROADMAP 2.14 STEP 3 — the detailer's active plans, and an empty array
-      // for the great majority of tenants who run none. Every plan surface on
-      // this page is gated on `plans.length`, so a business without them sees
-      // exactly the page it saw before this item.
-      plans: profile?.plans ?? [],
-      hours: profile?.hours ?? [],
-      testimonials: profile?.testimonials ?? [],
-      gallery: profile?.gallery ?? [],
-      brandVars,
-    };
-  }, [state, profile, slug, brandVars]);
+  // ROADMAP 3.2 — EVERY FALLBACK MOVED INTO `core.js`'s `normalizeProfile`,
+  // unchanged. They are not tidiness: 'reserve' as the booking-mode fallback
+  // is what stops an unreadable value making a page promise LESS than the
+  // business delivers, and the water/power pair falls back to the old single
+  // boolean's meaning so a settings row predating that migration still gets
+  // the page it had. A tenant site that re-derives them by hand gets a
+  // subtly different page for exactly the businesses least able to spot it.
+  //
+  // ROADMAP 2.14 STEP 3 — `plans` is an empty array for the great majority of
+  // tenants who run none, and every plan surface on this page is gated on
+  // `plans.length`, so a business without them sees the page it always saw.
+  const value = useMemo(() => ({
+    status: state.status,
+    error: state.error,
+    slug,
+    ...normalizeProfile(profile),
+    brandVars,
+  }), [state, profile, slug, brandVars]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

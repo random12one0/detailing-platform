@@ -24,6 +24,7 @@
 import { useState } from "react";
 import { Eye } from "lucide-react";
 import { duration, money } from "../../lib/format.js";
+import { groupServices } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepServices({ selected, onToggle }) {
@@ -44,34 +45,11 @@ export default function StepServices({ selected, onToggle }) {
     );
   }
 
-  // W25 — GROUP BY group_id, falling back to group_label. The categories come
-  // from the service_groups table now, in the detailer's own order, and each
-  // one carries its own rule: max_select 1 is "pick one from this category",
-  // null is "pick as many as you like".
-  //
-  // The fallback matters and is not belt-and-braces: a service written before
-  // the migration, or by a detailer who has not made categories yet, has a
-  // label and no id, and it still has to appear. Reading id first and label
-  // second is what makes the two coexist.
-  const groups = [];
-  const bucket = (key, name, rule, extra) => {
-    let g = groups.find((x) => x.key === key);
-    if (!g) groups.push((g = { key, name, rule, items: [], ...extra }));
-    return g;
-  };
-  for (const s of services) {
-    const cat = s.group_id ? serviceGroups.find((g) => g.id === s.group_id) : null;
-    if (cat) {
-      bucket(cat.id, cat.name, cat.max_select ?? null,
-        { exclusive: !!cat.is_exclusive, blurb: cat.description || "" }).items.push(s);
-    } else {
-      bucket(s.group_label || "", s.group_label || "", null, {}).items.push(s);
-    }
-  }
-  // The detailer's own category order, with anything ungrouped last — an
-  // ungrouped service is one they have not filed yet, not the headline.
-  const order = new Map(serviceGroups.map((g, i) => [g.id, i]));
-  groups.sort((a, b) => (order.get(a.key) ?? 998) - (order.get(b.key) ?? 999));
+  // W25 — grouped by the detailer's own categories, in the detailer's own
+  // order, with anything ungrouped last. The rule and its `group_label`
+  // fallback are `core.js`'s `groupServices`, because a tenant site draws the
+  // same menu from the same profile.
+  const groups = groupServices(services, serviceGroups);
   const showHeadings = groups.length > 1 || (groups[0]?.name ?? "") !== "";
   // THE INTRO LINE IS DROPPED WHERE THE CATEGORIES ALREADY SAY IT, and that
   // is a height decision as much as a copy one. With every category labelled

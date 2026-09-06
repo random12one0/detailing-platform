@@ -7,22 +7,30 @@
 // go straight to the database through RLS — deliberately not over-engineered.
 
 import { supabase } from "./supabase.js";
+import { createBookingTransport, postFunction, slotsForType as coreSlotsForType } from "../book/core.js";
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// ROADMAP 3.2 — THE FOUR PUBLIC BOOKING CALLS COME FROM THE HEADLESS CORE
+// NOW, and that is what stops the core being a second, untested copy of
+// itself. Every tenant site drives `book/core.js`; so does this dashboard and
+// so does `/book/:slug`, so every e2e run and every width sweep exercises the
+// exact module a client's site will ship. A core nothing here calls is a core
+// that rots.
+//
+// It sends no JWT and needs none: all four functions are deployed
+// `verify_jwt=false` and not one of them reads an Authorization header — they
+// authorise by slug and recompute everything server-side.
+export const bookingTransport = createBookingTransport({ supabaseUrl: SUPABASE_URL, anonKey: ANON_KEY });
+
+// Everything else in this file is a detailer acting on their own business, so
+// it carries the session. The HTTP shape itself is the core's — one
+// implementation of "call an edge function", used by both.
 async function callFn(name, body) {
   const { data: sessionData } = await supabase.auth.getSession();
   const jwt = sessionData?.session?.access_token;
-  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${name}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-      ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
-    },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json().catch(() => null);
-  if (!res.ok) throw new Error(data?.error || `Request failed (${res.status})`);
-  return data;
+  return postFunction(SUPABASE_URL, ANON_KEY, name, body, jwt);
 }
 
 // The .ics endpoint is a plain GET the browser can open directly, so the
@@ -31,8 +39,9 @@ export const icsUrl = (bookingId, audience = "owner") =>
   `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/booking-ics?id=${bookingId}&audience=${audience}&apikey=${import.meta.env.VITE_SUPABASE_ANON_KEY}`;
 
 export const api = {
-  // Booking writes — the one write path.
-  createBooking: (businessSlug, payload) => callFn("create-booking", { business_slug: businessSlug, ...payload }),
+  // Booking writes — the one write path. Through the core's transport, like
+  // every tenant site.
+  createBooking: (businessSlug, payload) => bookingTransport.createBooking(businessSlug, payload),
   updateBooking: (businessId, payload) => callFn("update-booking", { business_id: businessId, ...payload }),
   softDeleteBooking: (businessId, bookingId) =>
     callFn("update-booking", { business_id: businessId, booking_id: bookingId, soft_delete: true }),
@@ -43,8 +52,8 @@ export const api = {
   respondToBooking: (businessId, bookingId, action, extra = {}) =>
     callFn("respond-to-booking", { business_id: businessId, booking_id: bookingId, action, ...extra }),
   // Reads / utilities.
-  availableSlots: (businessSlug, payload) => callFn("available-slots", { business_slug: businessSlug, ...payload }),
-  calculateBooking: (businessSlug, payload) => callFn("calculate-booking", { business_slug: businessSlug, ...payload }),
+  availableSlots: (businessSlug, payload) => bookingTransport.availableSlots(businessSlug, payload),
+  calculateBooking: (businessSlug, payload) => bookingTransport.calculateBooking(businessSlug, payload),
   createBusiness: (payload) => callFn("create-business", payload),
   sendInvoice: (businessId, bookingId) => callFn("send-invoice", { business_id: businessId, booking_id: bookingId }),
   sendReminder: (businessId, bookingId, target) =>
@@ -72,10 +81,7 @@ export const api = {
   // --- Public, customer-facing. No session; the unguessable booking UUID is
   // the credential, the same access model the receipt endpoint already used.
   validatePromo: (businessSlug, code, customerEmail, customerPhone) =>
-    callFn("validate-promo-code", {
-      business_slug: businessSlug, code,
-      customer_email: customerEmail || null, customer_phone: customerPhone || null,
-    }),
+    bookingTransport.validatePromo(businessSlug, code, customerEmail, customerPhone),
   bookingReceipt: (bookingId) => callFn("get-booking-receipt", { id: bookingId }),
 
   // The founding offer's cap and how many spots are actually left, counted
@@ -148,8 +154,9 @@ export const api = {
 // `validateSlot` on the server is the gate either way; this is so the UI does
 // not OFFER a time it is going to refuse. Pass the day object from
 // `days[date]`, or the single-day response, which has the same shape.
-export function slotsForType(day, serviceType) {
-  if (!day) return [];
-  const blocked = serviceType === "mobile" ? day.dropoff_slots : day.mobile_slots;
-  return (day.slots ?? []).filter((t) => !(blocked ?? []).includes(t));
-}
+//
+// ROADMAP 3.2 — IT LIVES IN `book/core.js` NOW and this is only the name the
+// three dashboard callers already import. A tenant site's own form asks the
+// same question of the same payload, so the answer cannot live in the
+// dashboard's API module.
+export const slotsForType = coreSlotsForType;

@@ -600,7 +600,28 @@ explaining it; if they still have to ask "so should I?", it failed.
   three places that ask *can we email this person* — the Clients count, the
   compose sheet's, and `send-campaign`'s filter, which is the enforcement —
   have to agree, so the predicate is written out once here. Baselined by
-  ignoring the bounce, which fails 2)
+  ignoring the bounce, which fails 2),
+  **`booking-core`** (**147 checks — the script prints its own figure**, new
+  2026-09-05, roadmap 3.2(a) — `app/src/book/core.js`, the module every tenant
+  site's own booking form drives. Until that item the group rules were a
+  closure inside `BookingPage`'s `setForm`, the step gating was an IIFE and
+  both money payloads were object literals typed at their call sites, so **the
+  only way to exercise any of it was to click through `/book/:slug`** — which
+  means a client's bespoke form got to reimplement all of it from a
+  screenshot. Every check is a sentence the NEXT booking form still has to be
+  true of. Its § 1 is the unusual one: it reads the file as TEXT and fails on
+  any `import`, any JSX, any `import.meta.env`, any React hook and any
+  `localStorage` outside the two wrapped helpers — the properties that make it
+  droppable into a site built on Astro, Alpine or nothing. **Two of those
+  checks were vacuous on their first run in a new way worth knowing: they
+  matched the file's own header prose promising "no React, no
+  `import.meta.env`", so the check failed on the sentence advertising the
+  thing it checks for.** Strip comments before reading a file as text.
+  Baselined eight ways, each restored: the exclusive category, the
+  `booking_mode` fallback, the day in the quote key, `has_water_electric`,
+  the category cap's eviction order, `modeLimitFor` naming its service,
+  `offersBothModes` forgetting `modeLimit` — which is the roadmap 2.5
+  white-screen bug in test form — and the remembered customer's slug scope)
   from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
   root `.env` — and one of them is new: **`request-mode`** (51 checks — 45 when written, roadmap 2.12,

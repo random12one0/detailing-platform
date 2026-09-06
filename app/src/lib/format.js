@@ -1,4 +1,5 @@
 import { mapsUrlFor } from "./platform.js";
+import { businessToday } from "../book/core.js";
 // THE SIGN GOES BEFORE THE SYMBOL. "$-189.00" was what a net-negative week
 // printed the first time roadmap 2.7 gave the Money screen a week to look at
 // (W6), and it reads as a corrupted figure rather than a loss. Nothing was
@@ -52,7 +53,10 @@ export const localTime = (iso, tz) => {
   return `${parts.hour === "24" ? "00" : parts.hour}:${parts.minute}`;
 };
 
-export const todayLocal = (tz) => localDate(new Date().toISOString(), tz);
+// ROADMAP 3.2 — one implementation, in `book/core.js`, because a tenant
+// site's own booking form needs the business's today and has no access to
+// this file.
+export const todayLocal = businessToday;
 
 export const addDays = (dateStr, n) => {
   const [y, m, d] = dateStr.split("-").map(Number);
