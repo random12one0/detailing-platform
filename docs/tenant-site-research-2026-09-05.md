@@ -237,3 +237,66 @@ Roundups, read and then discounted as evidence — every entry is described as
 "clean, modern, high-quality imagery", which distinguishes nothing:
 
 - [CyberOptik — 20 best auto detailing websites of 2026](https://www.cyberoptik.net/blog/best-auto-detailing-websites-success-secrets/)
+
+---
+
+## 7. HIS VERDICT ON THE THREE PAGES — they read as AI, and as the wrong trade
+
+**2026-09-05, after seeing the screenshots:** *"From the screenshots I saw. All
+3 look very ai and not even like the vibe for detailing but it's fine for now."*
+
+**"Fine for now" is a deferral, not an acceptance.** The pages stay as they are
+and nothing is being rebuilt on the strength of this. But **they must not be
+used as the taste reference for a real client's site** until it is fixed —
+whoever builds the first one would inherit the exact look he has just
+rejected, and §6's whole argument was that these three are what a build starts
+from.
+
+### What this proves about the floor
+
+**Every one of the three passes every mechanical check this repo owns** — no
+Inter/Roboto/Arial/system-ui/Space Grotesk, no purple-blue gradient, no three
+evenly spaced cards, no numbered markers on non-sequences, contrast measured on
+every shipped pair, 320 clean, console clean. **And they still look AI.** So:
+
+**The anti-slop floor is a list of NEVERS and a list of nevers cannot produce a
+vibe.** `docs/design-knowledge.md` §1 and the never-defaults in `CLAUDE.md`
+catch the tells of a few years ago. They do not catch **the current house style
+of AI design output**, which is roughly: an editorial serif, ruled rows, wide
+letter-spaced small-caps labels, generous whitespace, a muted "sophisticated"
+palette, and stock photography in neat rectangles. **Two of the three pages are
+squarely that.** Passing the floor is necessary and is nowhere near sufficient.
+
+### Three candidate causes, and the honest confidence on each
+
+1. **One brief produced one family — high confidence, and it is my fault
+   rather than the models'.** All three agents got the same required section
+   list, the same content inventory, the same seam-annotation requirement and
+   the same method file; only the palette and type register differed. So the
+   three came out as **three colourways of one page**, which reads as a
+   template — the exact thing three examples existed to disprove. *Varying the
+   paint while fixing the skeleton does not produce variety.*
+2. **The vibe gap is MATERIAL, not layout — high confidence.** Detailing sells
+   gloss, depth, reflection, water, and the difference between before and
+   after. The six real sites lead with **one specific car, huge**. These three
+   lead with TYPE and use photography as decoration inside fixed rectangles.
+   No quality of typesetting reads as "detailing" when the page's material is
+   paper and rules.
+3. **Stock photography is itself a tell — medium confidence.** Unsplash's "car
+   detailing" set is recognisable, and every AI-built site uses it. A real
+   detailer's site is carried by their own photographs of their own work, which
+   is what `gallery_images` exists for.
+
+### What would settle it, and it costs him one message
+
+`docs/references/TASTE-NOTES.md` exists because he once walked through sites he
+liked **in his own words**, and that file is described in this repo as primary
+evidence. **There is no equivalent for detailer sites** — §2 above is my
+reading of six sites, not his.
+
+**So the cheapest possible fix is him naming two or three detailer sites whose
+VIBE he likes** (not their layout, not their content — the feel), and one
+sentence each on why. That is a TASTE-NOTES pass for this trade, and everything
+else follows from it. **Do not start redesigning these three before that
+exists** — a fourth attempt guessing at his taste is how this item has already
+burned two.

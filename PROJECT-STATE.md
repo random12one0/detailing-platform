@@ -5524,3 +5524,39 @@ golf-course QR is the case named in its own comment), and the old admin had a
 working feature the conversion lost, and it belongs on Phase 4's restoration
 list.** *"Nothing calls it" had been measured in `app/` only, while the
 reference implementation of this whole product sat unread in the same repo.*
+
+### AND HE REJECTED HOW ALL THREE LOOK (2026-09-05)
+
+*"All 3 look very ai and not even like the vibe for detailing but it's fine for
+now."*
+
+**They pass every mechanical check this repo owns** — every never-default,
+every contrast floor, 320, the console, the lite path — **and still read as
+AI.** That is the finding, and it is bigger than this item: **the anti-slop
+floor is a list of NEVERS, and a list of nevers cannot produce a vibe.** It
+catches the tells of a few years ago and not the current house style of AI
+design output (editorial serif, ruled rows, wide letter-spaced small-caps
+labels, generous whitespace, a muted "sophisticated" palette, stock photos in
+neat rectangles). Two of the three are squarely that.
+
+**"Fine for now" is a deferral, not an acceptance.** The pages stay, nothing is
+rebuilt, and **they must not be used as the taste reference for a real
+client's site** — whoever built the first one would inherit exactly the look he
+just rejected.
+
+**The transferable cause, which is mine rather than the models':** three agents
+given ONE brief produce ONE family. Same section list, same content inventory,
+same seam requirement, same method file; only palette and type register varied.
+So three examples came out as three colourways of one page — the template that
+three examples existed to disprove. *Varying the paint while fixing the
+skeleton does not produce variety.*
+
+**What unblocks it costs him one message, not a fourth attempt:** two or three
+detailer sites whose VIBE he likes, one sentence each. That is a
+`docs/references/TASTE-NOTES.md` pass for this trade, which has never existed —
+the current §2 of the research file is my reading of six sites, not his.
+Full diagnosis: `docs/tenant-site-research-2026-09-05.md` §7.
+
+**The structural half is untouched by this.** The contract, the read and write
+seams, the built-in booking form and the twelve implementations are sound, and
+they are what 3.2 builds against.

@@ -5570,6 +5570,20 @@ is kept; the entire visual design restarts from scratch.
       makes the booking flow's "reopen in phase 3 if a tenant site turns out
       light" note a real 3.2 build (contract §8.2). The full account is
       PROJECT-STATE's ROADMAP 3.1 section.
+
+      **AND HE REJECTED HOW ALL THREE LOOK — 2026-09-05:** *"All 3 look very ai
+      and not even like the vibe for detailing but it's fine for now."*
+      **They pass every check this repo owns and still read as AI**, which is
+      the finding: the anti-slop floor is a list of NEVERS and a list of nevers
+      cannot produce a vibe. **"Fine for now" is a deferral — the pages stay,
+      nothing is rebuilt, and they must NOT be used as the taste reference for
+      a real client's site.** Diagnosis and the three candidate causes:
+      `docs/tenant-site-research-2026-09-05.md` §7. **What unblocks it is his
+      taste rather than a fourth attempt** — two or three detailer sites whose
+      vibe he likes, a sentence each, which is a `TASTE-NOTES` pass for this
+      trade and has never existed. **The structural half is unaffected**: the
+      contract, the seams, the built-in booking form and the twelve
+      implementations are all sound and are what 3.2 builds against.
       **THREE OF THE FOUR GAPS ABOVE ARE CONFIRMED; THE SOCIAL-LINKS ONE IS
       WRONG.** `BusinessInfo.jsx` has edited four social fields since
       2026-09-02 (stage 6) — the gap was copied out of

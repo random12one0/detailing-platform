@@ -120,6 +120,27 @@ explaining it; if they still have to ask "so should I?", it failed.
   at. The reference rendering is `docs/design-directions/5-the-thread.html`,
   the page the owner approved; **where the document and that page disagree,
   the page is right.** See `DESIGN.md`.
+- **THE THREE TENANT PAGES PASSED EVERY CHECK IN THIS REPO AND HE STILL SAID
+  THEY LOOK AI — 2026-09-05: *"All 3 look very ai and not even like the vibe
+  for detailing but it's fine for now."*** They clear every never-default,
+  every contrast floor, 320, the console and the lite path. **So the
+  anti-slop floor is a list of NEVERS and a list of nevers cannot produce a
+  vibe.** §1 and the never-defaults catch the tells of a few years ago; they do
+  not catch the CURRENT house style of AI design output — editorial serif,
+  ruled rows, wide letter-spaced small-caps labels, generous whitespace, a
+  muted "sophisticated" palette, stock photos in neat rectangles. **Two of the
+  three are squarely that.**
+  **"Fine for now" is a deferral: do not rebuild them, and do NOT use them as
+  the taste reference for a real client's site.** The diagnosis and the three
+  candidate causes are `docs/tenant-site-research-2026-09-05.md` §7. The one
+  that transfers beyond this item: **three agents given one brief produce one
+  family** — same section list, same content, same seams, only the paint
+  varied, so three examples came out as three colourways of one page. *Varying
+  the palette while fixing the skeleton does not produce variety.*
+  **What unblocks it is HIS taste, not another attempt**: two or three detailer
+  sites whose VIBE he likes, a sentence each — a `TASTE-NOTES.md` pass for this
+  trade, which has never existed. **A fourth guess is how this item already
+  burned two.**
 - **NO FABLE FOR BUILDING PAGES — the owner, 2026-09-05: *"No more fable when
   making pages."*** It built the three tenant-site worlds in
   `docs/tenant-sites/` and then the booking form inside each of them, and that
