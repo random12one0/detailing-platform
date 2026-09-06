@@ -269,9 +269,21 @@ Deno.serve(async (req) => {
       const { data: beats } = await supabase.from("job_heartbeats")
         .select("job, ran_at, detail").order("job");
 
+      // THE PHOTO STORE — added 2026-09-06 with the share rule. A detailer's
+      // allowance is the whole store divided by a hundred, so **the total is
+      // the only thing the owner can actually decide**, and he cannot decide
+      // it without seeing it.
+      //
+      // `committed` is the number that goes wrong first and the one nothing
+      // else would ever show: the store can be 4% USED and 140% PROMISED at
+      // the same time, and only the second predicts the morning a detailer
+      // cannot upload. Past a hundred businesses the shares stop fitting.
+      const { data: store } = await supabase.rpc("photo_store_state");
+
       return json({
         prices: { current: ps?.prices ?? null, built_in: PRICES, updated_at: ps?.updated_at ?? null },
         heartbeats: beats ?? [],
+        photo_store: store?.[0] ?? null,
         rows,
         totals: {
           businesses: rows.length,

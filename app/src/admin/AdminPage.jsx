@@ -285,6 +285,10 @@ export default function AdminPage() {
     );
   }
 
+  // MB UNDER A GIGABYTE, GB OVER IT. "0.01 GB used" is a number nobody can
+  // picture; "10 MB" is. One decimal either way — a back office is read at a
+  // glance and a second decimal is noise on a figure that moves in megabytes.
+  const gb = (b) => (b >= 1024 ** 3 ? `${(b / 1024 ** 3).toFixed(1)} GB` : `${Math.round(b / 1024 / 1024)} MB`);
   const t = state.totals ?? {};
   const b = detail?.business;
   const progress = detail && b
@@ -334,6 +338,23 @@ export default function AdminPage() {
             return `${label} ${beat ? (stale(key, win) ? `LAST RAN ${since(beat.ran_at)}` : `ran ${since(beat.ran_at)}`) : "have never reported"}`;
           }).join(" · ")}
         </p>
+
+        {/* THE PHOTO STORE, on its own line beside the jobs one. A
+            detailer's allowance is this divided by a hundred, so the total
+            is the only figure he can decide — and **what has been PROMISED
+            is the half that goes wrong first**: the store can be 4% used and
+            140% promised at once, and only the second predicts the morning
+            somebody cannot upload. It turns `pa-bad` on that, not on usage. */}
+        {state.photo_store && (
+          <p className={state.photo_store.committed_bytes > state.photo_store.total_bytes ? "pa-bad" : "pa-quiet"}>
+            {`Photos: ${gb(state.photo_store.used_bytes)} used of ${gb(state.photo_store.total_bytes)}`}
+            {` · ${gb(state.photo_store.share_bytes)} each for ${state.photo_store.businesses} `}
+            {state.photo_store.businesses === 1 ? "detailer" : "detailers"}
+            {state.photo_store.committed_bytes > state.photo_store.total_bytes
+              ? ` · PROMISED ${gb(state.photo_store.committed_bytes)} — more than exists`
+              : ` · ${gb(state.photo_store.committed_bytes)} promised`}
+          </p>
+        )}
 
         <div className="pa-tools">
           <input className="pa-input" value={q} placeholder="Search a name, a link or an email"

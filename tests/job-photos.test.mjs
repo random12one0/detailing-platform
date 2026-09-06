@@ -198,5 +198,61 @@ console.log("\n4. the promises");
     /bytes: blob\.size/.test(add), "recording the original size makes the budget a fiction");
 }
 
+// ─── 5. The allowance is a SHARE of a known total ─────────────────────────
+// The owner, 2026-09-06: *"we should just make it decided by 100 and that's
+// how much each person had."*
+//
+// **A FLAT PER-TENANT CAP NEVER ADDS UP TO ANYTHING**, which is why this
+// replaced one. Four detailers at the old 250 MB already exceeded the whole
+// free plan, so the number on the screen promised storage that did not exist
+// — and the failure would have landed on whichever detailer uploaded last,
+// mid-job, with a message about THEIR allowance that was nothing to do with
+// them. A share of a known total cannot lie that way.
+console.log("\n5. the allowance is a share of the whole store");
+{
+  const share = read("supabase/migrations/20260906011000_photo_share.sql");
+  // **SQL COMMENTS STRIPPED, and this check failed on its own prose first.**
+  // The header of that migration quotes the very string it forbids — it has
+  // to, because the comment exists to explain the bug. The strip() helper
+  // at the top of this file only knows JS comments; SQL says --. Eighth
+  // instance of a check reading the paragraph that explains it.
+  const col = read("supabase/migrations/20260906011100_photo_total_column.sql")
+    .replace(/^\s*--.*$/gm, "");
+
+  check("5a · the divisor is a hundred, and it is his number",
+    /photo_tenant_share\(\)[\s\S]{0,120}select 100/.test(share), "the owner said 100");
+  check("5b · a detailer's cap is DERIVED from the total, never stored beside it",
+    /photo_total_bytes\(\) \/ public\.photo_tenant_share\(\)/.test(share),
+    "two numbers that must agree are one number or they will disagree");
+
+  // **THE TOTAL LIVES IN A COLUMN AND MUST NEVER GO BACK INTO `prices`.**
+  // `platform-admin`'s price action does `update ... set prices = pricesFrom(body)`,
+  // which REBUILDS the object from the fields it knows — so any unrelated key
+  // inside it is deleted the first time the owner edits a price, every
+  // allowance silently resets to the default, and no screen says a word.
+  // Found by reading the write path before shipping; proved by wiping
+  // `prices` to null and watching the store state not move.
+  check("5c · the total is a COLUMN, not a key inside prices",
+    /add column if not exists photo_total_gb/.test(col));
+  check("5d · and nothing reads it out of the prices jsonb any more",
+    !/prices\s*->\s*'photoTotalGb'/.test(col) && /select s\.photo_total_gb/.test(col),
+    "pricesFrom() rebuilds that object and would delete it on the next price edit");
+
+  // The default is what is TRUE today, not what we hope. Supabase's free plan
+  // is 1 GB; R2's is 10. Defaulting to 10 before R2 exists would be the same
+  // over-promise this whole change removed.
+  check("5e · the default total is the storage that actually exists today",
+    /photo_total_gb numeric not null default 1\b/.test(col),
+    "a default of 10 would promise storage nobody has connected yet");
+
+  // WHAT IS PROMISED, NOT WHAT IS USED. Storage can be 4% used and 140%
+  // promised at the same time, and only the second predicts the morning
+  // somebody cannot upload.
+  check("5f · the back office can see what has been COMMITTED, not just used",
+    /committed_bytes/.test(share) && /businesses\)\s*\*/.test(share));
+  check("5g · and the store-wide view is not reachable from a browser",
+    /revoke all on function public\.photo_store_state\(\) from public, anon, authenticated/.test(share));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
