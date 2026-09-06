@@ -5522,7 +5522,12 @@ is kept; the entire visual design restarts from scratch.
         `dropoff_only_periods` drive availability and are invisible to a site
         that wants to say "closed the week of the 4th".
 
-      **FABLE 5.1 BELONGS HERE AND NOT BEFORE — his instruction, 2026-09-05:**
+      ~~**FABLE 5.1 BELONGS HERE AND NOT BEFORE**~~ **— SPENT AND CLOSED.** It
+      built the three worlds and the booking form in each, and he then ruled
+      **"No more fable when making pages"** (2026-09-05). Whichever model the
+      session is already running builds pages from here; see CLAUDE.md § Design.
+      The original instruction, kept for the reasoning:
+      **his instruction, 2026-09-05:**
       *"maybe using fable when it's needed."* He has weekly Fable usage and
       asked it be spent where it is genuinely beneficial. **The beneficial use
       is the DEFAULT VISUAL WORLD for a detailer's site** — one worked example

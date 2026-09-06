@@ -48,6 +48,8 @@
     5  work      gallery: one before/after comparison plate + three singles
     6  menu      the catalog: groups, rows, inclusion lists, the size ladder
     7  extras    add-ons as a two-column ruled ledger
+    7b book      THE BOOKING FORM, built into the page — step one live, the
+                 other six shown as rungs; price bar beside it
     8  plans     two plan cards, two price shapes, deliberately unequal widths
     9  words     one pull quote + a rail of three; Google/Yelp links
     10 about     portrait + the detailer's own copy
@@ -63,19 +65,47 @@
     either way, so the page reads right present AND absent. Text comes from
     site_discount_label; the fallback is "N% off" from site_discount_percent.
 
+  BOOKING — BUILT IN (contract §1c, the owner's ruling 2026-09-05)
+    The customer books ON THIS PAGE, in section 7b, in this site's own design
+    — "it should be built into the website with the detailer's website
+    design. Like how it is on my website." His own site's BookingWidget.jsx
+    is a section of the marketing page, drawn from the site's own UI kit,
+    talking straight to the shared edge functions. So is this one. Every
+    Book control on the page goes to #book; nothing links out.
+
+    THE FORM IS PRESENTATION AND IS FORKED PER CLIENT; THE RULES ARE NOT.
+    Every price comes from `calculate-booking` and every open slot from
+    `available-slots` — a site that computes either will offer a time the
+    server refuses or a price it will not charge. The few lines of inline JS
+    under the price bar here are a STAND-IN so the artifact answers a click;
+    a shipped site posts the picked ids to calculate-booking and prints the
+    reply. Step one is built and works (the exclusive group picks one, the
+    other adds any, the bar updates). Steps two to seven are drawn as rungs
+    so the whole flow's shape is visible without seven steps of form:
+    Services → Extras → Vehicle → Location → When → Details → Review.
+
+    The alternative is still real: a detailer who takes booking only and has
+    no website gets the platform's own /book/:slug. ONE commented block at
+    the top of section 7b shows that version. There is no toggle.
+
   BOOKING MODE (contract §2a, §2l)
-    Every Book control links to /book/{businesses.slug}. The wording shipped
-    live is RESERVE mode ("Book a slot", "your time is held the moment you
-    book"). The REQUEST-mode wording is beside each one as a commented block
-    marked "booking_mode = request"; a per-client build swaps it in. There is
-    deliberately NO toggle — a site that says "Book instantly" to a
-    request-mode detailer makes a promise the detailer then answers for.
+    The wording shipped live is RESERVE mode ("Book a slot", "your time is
+    held the moment you book"). The REQUEST-mode wording is beside each one
+    as a commented block marked "booking_mode = request"; a per-client build
+    swaps it in. There is deliberately NO toggle — a site that says "Book
+    instantly" to a request-mode detailer makes a promise the detailer then
+    answers for.
 
   SEAMS
     Every element whose content really comes from the dashboard carries
-    data-src="table.column", names taken from supabase/migrations/. Add
-    ?seams=1 to the URL (or press the control in the footer) to label every
-    seam on the page. It is artifact chrome and is styled to look like it.
+    data-src="table.column", names taken from supabase/migrations/ — the READ
+    half of the contract. The form is the WRITE half: every element that
+    would CALL the engine carries data-fn="<edge function>", the exact
+    directory name under supabase/functions/ — calculate-booking on the price
+    bar, available-slots on the When rung, validate-promo-code on the promo
+    field, create-booking on the final button. Add ?seams=1 to the URL (or
+    press the control in the footer) to label both kinds: blue for a read,
+    amber for a call. It is artifact chrome and is styled to look like it.
     Under 640px the labels flow above their content instead of overlaying it.
 
   DEGRADATION
@@ -309,6 +339,46 @@ html.lite .hero .plate::after,html.lite .ba-handle{animation:none!important}
 .addon .note{grid-column:1/-1;font-size:13px;font-style:italic;color:var(--ink-3)}
 .addon .note::before{content:"— "}
 
+/* ── 7b · book — the form, in this site's own ledger idiom ───────────────
+   Rows are the menu's rows again; the mark is a native radio / checkbox
+   with appearance:none. Nothing here is a card with an accent edge. */
+.book{border-top:1px solid var(--rule)}
+.book .grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(28px,5vw,80px);align-items:start}
+.book form{min-width:0}
+.step-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--gilt)}
+.step-head h3{font-size:clamp(24px,2.6vw,34px);font-weight:400}
+.book fieldset{border:0;margin:0;padding:0;min-width:0}
+.book legend{display:flex;justify-content:space-between;gap:12px;width:100%;padding:24px 0 6px;font:500 12px/1.2 var(--text);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-3)}
+.book legend b{font-weight:500;color:var(--gilt)}
+.book legend b.any{color:var(--ink-3)}
+.pick{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 16px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--rule);cursor:pointer}
+.pick input{appearance:none;-webkit-appearance:none;margin:0;width:16px;height:16px;border:1px solid var(--ink-3);background:var(--ground);position:relative;top:2px;cursor:pointer;transition:background .18s,border-color .18s}
+.pick input[type=radio]{border-radius:50%}
+.pick input:checked{border-color:var(--gilt);background:var(--gilt);box-shadow:inset 0 0 0 3px var(--ground)}
+.pick .name{font:400 clamp(18px,1.8vw,22px)/1.2 var(--display);transition:color .18s}
+.pick:hover .name,.pick input:checked~.name{color:var(--gilt)}
+.pick .meta{grid-column:2;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.pick .price{font-size:clamp(20px,1.8vw,24px);text-align:right;white-space:nowrap;grid-row:span 2}
+.pick .price small{display:block;font:italic 400 12px/1.3 var(--text);letter-spacing:0;color:var(--ink-3)}
+.book .side{position:sticky;top:96px}
+.bar{padding:22px 24px;border:1px solid var(--rule-2);background:var(--ground-2);display:grid;gap:12px}
+.bar .row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.bar .est{font-size:clamp(36px,3.4vw,48px);line-height:1;color:var(--gilt)}
+.bar .est small{font:italic 300 15px/1 var(--text);color:var(--ink-2);margin-right:6px}
+.bar .time{font-family:var(--display);font-size:22px;color:var(--ink)}
+.bar .what{font-size:14.5px;color:var(--ink-2);font-weight:300;min-height:1.5em;text-wrap:pretty}
+.bar .acts{display:flex;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid var(--rule)}
+.bar .btn:disabled{background:transparent;border-color:var(--rule-2);color:var(--ink-3);cursor:not-allowed;transform:none}
+.bar .fine{font-size:13px;color:var(--ink-3);font-style:italic}
+.rungs{margin-top:22px;border-top:1px solid var(--rule-2)}
+.rungs li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:2px 12px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--rule);color:var(--ink-3)}
+.rungs i{font:400 18px/1 var(--display);font-style:normal;font-variant-numeric:lining-nums tabular-nums}
+.rungs b{font-weight:400;font-size:16px;color:var(--ink-2)}
+.rungs em{font-style:normal;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gilt)}
+.rungs span{grid-column:2/-1;font-size:13px;font-weight:300;font-style:italic}
+.rungs .now i{color:var(--gilt)}
+.rungs .now b{color:var(--ink);font-weight:500}
+
 /* ── 8 · plans ───────────────────────────────────────────────────────── */
 .plans .sec-head{text-align:center;justify-items:center}
 .plan-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:16px;align-items:stretch}
@@ -410,6 +480,9 @@ html.seams body{padding-bottom:56px}
 html.seams [data-src]{outline:1px dashed #6FB7D9;outline-offset:-1px;position:relative}
 html.seams [data-src]::before{content:attr(data-src);position:absolute;top:0;left:0;z-index:30;font:500 10px/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:0;text-transform:none;color:#0F0D0B;background:#6FB7D9;padding:2px 5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;box-sizing:border-box}
 html.seams .plate::before{z-index:30}
+/* the WRITE half: an element that would call an edge function */
+html.seams [data-fn]{outline:1px dashed #F0B26B;outline-offset:-1px;position:relative}
+html.seams [data-fn]::after{content:"fn · " attr(data-fn);position:absolute;top:0;right:0;z-index:30;font:500 10px/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:0;text-transform:none;font-style:normal;color:#0F0D0B;background:#F0B26B;padding:2px 5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;box-sizing:border-box}
 html.seams .seam-bar{display:flex}
 .seam-bar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:40;justify-content:space-between;align-items:center;gap:12px;padding:10px var(--gutter);background:#6FB7D9;color:#0F0D0B;font:500 12px/1.2 ui-monospace,Menlo,Consolas,monospace}
 .seam-bar button{text-decoration:underline;text-underline-offset:2px}
@@ -441,6 +514,8 @@ html.seams .seam-bar{display:flex}
   .extras .sec-head{grid-template-columns:1fr}
   .addons{grid-template-columns:1fr}
   .plan-grid{grid-template-columns:1fr}
+  .book .grid{grid-template-columns:minmax(0,1fr)}
+  .book .side{position:static}
   .words .grid,.about .grid,.faq .grid{grid-template-columns:1fr}
   .visit .grid{grid-template-columns:1fr 1fr}
   .visit .grid>:last-child{grid-column:1/-1}
@@ -450,6 +525,7 @@ html.seams .seam-bar{display:flex}
 @media (max-width:640px){
   /* seams on a phone flow ABOVE their content instead of overlaying it — a label must never cover a price */
   html.seams [data-src]::before{position:static;display:inline;white-space:normal;overflow-wrap:anywhere;grid-column:1/-1}
+  html.seams [data-fn]::after{position:static;display:inline;white-space:normal;overflow-wrap:anywhere;grid-column:1/-1}
   html.seams .nav{position:static}   /* the labelled nav is tall; it must not stick */
   html.seams .btn{display:inline-block}   /* so a label wraps inside the button instead of beside its text */
   .strip .wrap{font-size:12px}
@@ -480,6 +556,9 @@ html.seams .seam-bar{display:flex}
   .nav .cta .btn{padding:9px 11px;font-size:11px}
   .mark .name{font-size:16px}
   .plan .price .money{font-size:36px}
+  .bar{padding:18px 16px}
+  .bar .acts{flex-direction:column}
+  .bar .acts .btn{justify-content:center}
 }
 </style>
 </head>
@@ -512,9 +591,9 @@ html.seams .seam-bar{display:flex}
     <div class="cta">
       <a class="tel" href="tel:+14805550142" data-src="businesses.contact_phone">(480) 555-0142</a>
       <!-- 2a · the booking entry point. RESERVE wording live. -->
-      <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · business_settings.booking_mode = reserve">Book a slot</a>
+      <a class="btn" href="#book" data-src="business_settings.booking_mode = reserve">Book a slot</a>
       <!-- booking_mode = request — swap the line above for:
-      <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · business_settings.booking_mode = request">Request a slot</a>
+      <a class="btn" href="#book" data-src="business_settings.booking_mode = request">Request a slot</a>
       -->
       <button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Menu"><span></span></button>
     </div>
@@ -526,7 +605,7 @@ html.seams .seam-bar{display:flex}
   <div class="wrap">
     <b>This month</b>
     <span>Fifteen percent off any correction booked before the 30th — the price you see at checkout already has it taken off.</span>
-    <a href="/book/sable-paintworks">Book a slot</a><!-- booking_mode = request: "Request a slot" -->
+    <a href="#book">Book a slot</a><!-- booking_mode = request: "Request a slot" -->
   </div>
 </aside>
 
@@ -541,7 +620,7 @@ html.seams .seam-bar{display:flex}
         <h1 style="margin-top:18px" data-src="business_branding.tagline">Paint corrected. <em>Then protected</em> for years, not weeks.</h1>
         <p class="lede">A two-bay unit, one car at a time. Multi-stage machine polishing under proper light, then a professional ceramic coating with the paperwork to back it.</p>
         <div class="actions">
-          <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book a slot</a>
+          <a class="btn" href="#book">Book a slot</a>
           <span class="or">or call</span>
           <a class="tel" href="tel:+14805550142" data-src="businesses.contact_phone">(480) 555-0142</a>
         </div>
@@ -615,7 +694,7 @@ html.seams .seam-bar{display:flex}
           <p class="meta"><span data-src="services.duration_minutes">Three days</span> · <span data-src="services.allows_dropoff">Drop-off at the unit</span></p>
           <p class="desc" data-src="services.description">Heavy cut to remove the defects, then a refining polish to bring the gloss back, then a two-layer ceramic coating with a 5-year manufacturer warranty registered in your name.</p>
           <p class="note" data-src="services.notes"><b>Read first.</b> Price assumes paint in fair condition. Heavy defects, a previous coating or repainted panels are assessed at drop-off and can change the price — we tell you before we start.</p>
-          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+          <p class="book"><a href="#book" data-pick="s1">Book this</a></p>
         </div>
         <div class="b">
           <span class="label feat-title">What's included</span>
@@ -648,7 +727,7 @@ html.seams .seam-bar{display:flex}
           <p class="meta"><span data-src="services.duration_minutes">Two days</span> · <span data-src="services.allows_dropoff">Drop-off at the unit</span></p>
           <p class="desc" data-src="services.description">One machine-polishing pass that removes most light swirls and restores clarity, sealed under a single-layer ceramic with a 2-year warranty. The right call for a car under three years old.</p>
           <p class="note" data-src="services.notes"><b>Read first.</b> A single stage removes around 70–80% of defects. If you want it perfect, that is the two-stage above — we will say so at the inspection rather than sell you the wrong one.</p>
-          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+          <p class="book"><a href="#book" data-pick="s2">Book this</a></p>
         </div>
         <div class="b">
           <span class="label feat-title">What's included</span>
@@ -679,7 +758,7 @@ html.seams .seam-bar{display:flex}
           <p class="meta"><span data-src="services.duration_minutes">One day</span> · <span data-src="services.allows_dropoff · allows_mobile">Drop-off, or we come to you</span></p>
           <p class="desc" data-src="services.description">A light finishing polish to lift gloss and clear the haze, sealed with a polymer paint sealant. For a car that is already in good shape and wants to look its best for a season.</p>
           <p class="note" data-src="services.notes"><b>This is not a ceramic coating.</b> A sealant lasts about a year and carries no warranty. If you want years of protection, choose one of the two coatings above.</p>
-          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+          <p class="book"><a href="#book" data-pick="s3">Book this</a></p>
         </div>
         <div class="b">
           <span class="label feat-title">What's included</span>
@@ -713,7 +792,7 @@ html.seams .seam-bar{display:flex}
           <h4 data-src="services.name">Maintenance wash</h4>
           <p class="meta"><span data-src="services.duration_minutes">90 minutes</span> · <span data-src="services.allows_dropoff · allows_mobile">Drop-off, or we come to you</span></p>
           <p class="desc" data-src="services.description">The safe wash a coated car needs and a drive-through cannot give it. pH-neutral, two buckets, dried with filtered air, coating topped up.</p>
-          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+          <p class="book"><a href="#book" data-pick="s4">Book this</a></p>
         </div>
         <div class="b">
           <span class="label feat-title">What's included</span>
@@ -741,7 +820,7 @@ html.seams .seam-bar{display:flex}
           <p class="meta"><span data-src="services.duration_minutes">Three hours</span> · <span data-src="services.allows_dropoff">Drop-off at the unit</span></p>
           <p class="desc" data-src="services.description">Everything out, everything cleaned, everything put back. Steam on the hard surfaces, extraction on the soft ones, leather fed rather than shined.</p>
           <p class="note" data-src="services.notes"><b>Read first.</b> Pet hair, sand and biological contamination are quoted after inspection — they can double the time, and we would rather tell you than surprise you.</p>
-          <p class="book"><a href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug">Book this</a></p>
+          <p class="book"><a href="#book" data-pick="s5">Book this</a></p>
         </div>
         <div class="b">
           <span class="label feat-title">What's included</span>
@@ -814,6 +893,101 @@ html.seams .seam-bar{display:flex}
         <p data-src="add_ons.description">Clear film on the bonnet's leading edge, mirror caps and door edges — the places stones find first.</p>
         <span class="mins" data-src="add_ons.duration_minutes">+ 150 min</span>
         <span class="note" data-src="add_ons.notes">Applied over a fresh correction only; not over an old coating.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7b · BOOK — the form, built into the page (contract §1c, the owner's ruling 2026-09-05).
+     Step one is live; the other six are drawn as rungs. Every price on a shipped site comes
+     from calculate-booking and every open slot from available-slots — the inline tally below
+     is a stand-in so this artifact answers a click. -->
+<!-- BOOKING-ONLY CUSTOMER (no website): the platform still serves /book/:slug, and this whole
+     section is replaced by the link-out it used to be —
+<section class="sec book" id="book">
+  <div class="wrap">
+    <header class="sec-head" data-rv>
+      <p class="label gilt">Book</p>
+      <h2>Pick your day.</h2>
+      <p>Nothing is charged when you book. You pay when the car is done.</p>
+    </header>
+    <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · business_settings.booking_mode = reserve">Book a slot</a>
+  </div>
+</section>
+-->
+<section class="sec book" id="book">
+  <div class="wrap">
+    <header class="sec-head" data-rv>
+      <p class="label gilt">Book</p>
+      <h2>Pick the work. Then the day.</h2>
+      <p>Seven short steps, on this page. Nothing is charged when you book — you pay when the car is done.</p>
+    </header>
+    <div class="grid">
+      <form id="bookform" data-rv="stagger" aria-labelledby="stephead" onsubmit="return false">
+        <div class="step-head">
+          <h3 id="stephead">Services</h3>
+          <span class="label gilt">Step 1 of 7</span>
+        </div>
+        <fieldset data-src="service_groups.is_exclusive = true · max_select = 1">
+          <legend><span data-src="service_groups.name">Correction &amp; coating</span><b data-src="service_groups.is_exclusive">Choose one</b></legend>
+          <label class="pick" data-src="services (row)">
+            <input type="radio" name="g1" id="s1" value="s1" data-name="Two-stage correction, five-year ceramic" data-price="1850" data-mins="1440" data-from="1">
+            <span class="name" data-src="services.name">Two-stage correction, five-year ceramic</span>
+            <span class="money price" data-src="services.price · services.vehicle_size_adjustments">$1,850<small data-src="services.price_is_from">from</small></span>
+            <span class="meta" data-src="services.duration_minutes">Three days</span>
+          </label>
+          <label class="pick" data-src="services (row)">
+            <input type="radio" name="g1" id="s2" value="s2" data-name="Single-stage correction, two-year ceramic" data-price="1150" data-mins="960" data-from="1">
+            <span class="name" data-src="services.name">Single-stage correction, two-year ceramic</span>
+            <span class="money price" data-src="services.price · services.vehicle_size_adjustments">$1,150<small data-src="services.price_is_from">from</small></span>
+            <span class="meta" data-src="services.duration_minutes">Two days</span>
+          </label>
+          <label class="pick" data-src="services (row)">
+            <input type="radio" name="g1" id="s3" value="s3" data-name="Gloss enhancement, twelve-month sealant" data-price="479" data-mins="480">
+            <span class="name" data-src="services.name">Gloss enhancement, twelve-month sealant</span>
+            <span class="money price" data-src="services.price · services.vehicle_size_adjustments">$479</span>
+            <span class="meta" data-src="services.duration_minutes">One day</span>
+          </label>
+        </fieldset>
+        <fieldset data-src="service_groups.is_exclusive = false · max_select = null">
+          <legend><span data-src="service_groups.name">Maintenance</span><b class="any" data-src="service_groups.is_exclusive = false">Add any</b></legend>
+          <label class="pick" data-src="services (row)">
+            <input type="checkbox" name="g2" id="s4" value="s4" data-name="Maintenance wash" data-price="89" data-mins="90">
+            <span class="name" data-src="services.name">Maintenance wash</span>
+            <span class="money price" data-src="services.price · services.vehicle_size_adjustments">$89</span>
+            <span class="meta" data-src="services.duration_minutes">90 minutes</span>
+          </label>
+          <label class="pick" data-src="services (row)">
+            <input type="checkbox" name="g2" id="s5" value="s5" data-name="Interior reset" data-price="179" data-mins="180" data-from="1">
+            <span class="name" data-src="services.name">Interior reset</span>
+            <span class="money price" data-src="services.price · services.vehicle_size_adjustments">$179<small data-src="services.price_is_from">from</small></span>
+            <span class="meta" data-src="services.duration_minutes">Three hours</span>
+          </label>
+        </fieldset>
+      </form>
+
+      <div class="side" data-rv style="--d:160ms">
+        <!-- the price bar: on a shipped site every figure here is calculate-booking's reply -->
+        <aside class="bar" data-fn="calculate-booking" aria-live="polite" aria-label="Your estimate">
+          <div class="row"><span class="label">Estimate</span><span class="label">Time</span></div>
+          <div class="row"><span class="money est" id="est">—</span><span class="time" id="tm">—</span></div>
+          <p class="what" id="what">Pick a service to see a price.</p>
+          <div class="acts">
+            <button type="button" class="btn ghost" disabled>Back</button>
+            <button type="button" class="btn" id="next" disabled>Continue <small>→ Extras</small></button>
+          </div>
+          <p class="fine">Sedan figures — the size ladder is step 3. Nothing is charged when you book.</p>
+        </aside>
+        <!-- the other six, as rungs. Steps that call the engine say which function. -->
+        <ol class="rungs" aria-label="The seven steps">
+          <li class="now"><i>1</i><b>Services</b><em>Now</em></li>
+          <li><i>2</i><b>Extras</b><span data-src="add_ons.name · add_ons.price · add_ons.duration_minutes">The six add-ons above, any number of them.</span></li>
+          <li><i>3</i><b>Vehicle</b><span data-src="business_settings.vehicle_sizes · services.vehicle_size_adjustments">Sedan, mid-size or oversized — the ladder reprices.</span></li>
+          <li><i>4</i><b>Location</b><span data-src="business_settings.dropoff_enabled · mobile_enabled · travel_radius_miles · travel_fee">The unit, or your address inside fifteen miles.</span></li>
+          <li data-fn="available-slots"><i>5</i><b>When</b><span data-src="business_hours · services.duration_minutes">A calendar of open days, then the times still free.</span></li>
+          <li><i>6</i><b>Details</b><span data-src="customers.name · email · phone">Name, phone, email, anything we should know.</span></li>
+          <li><i>7</i><b>Review</b><span><span data-fn="validate-promo-code" data-src="promo_codes.code">A promo code if you have one,</span> the itemised total, and <span data-fn="create-booking">the one button</span>.</span></li>
+        </ol>
       </div>
     </div>
   </div>
@@ -994,10 +1168,10 @@ html.seams .seam-bar{display:flex}
     <div class="grid">
       <div class="again" data-rv>
         <h2>Two bays. One car at a time. <br>Pick your day.</h2>
-        <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · booking_mode = reserve">Book a slot</a>
+        <a class="btn" href="#book" data-src="booking_mode = reserve">Book a slot</a>
         <p class="promise" data-src="business_settings.booking_mode = reserve">Held the moment you book. Nothing to pay until the car is done.</p>
         <!-- booking_mode = request — swap the two lines above for:
-        <a class="btn" href="/book/sable-paintworks" data-src="businesses.slug → /book/:slug · booking_mode = request">Request a slot</a>
+        <a class="btn" href="#book" data-src="booking_mode = request">Request a slot</a>
         <p class="promise" data-src="business_settings.booking_mode = request">We answer every request within a working day. Nothing is confirmed, or charged, until we do.</p>
         -->
       </div>
@@ -1047,7 +1221,7 @@ html.seams .seam-bar{display:flex}
   const setSeams = (on) => {
     html.classList.toggle("seams", on);
     document.getElementById("seams").setAttribute("aria-pressed", String(on));
-    document.getElementById("seamcount").textContent = on ? document.querySelectorAll("[data-src]").length + " seams labelled · table.column from supabase/migrations" : "";
+    document.getElementById("seamcount").textContent = on ? document.querySelectorAll("[data-src]").length + " reads (table.column, supabase/migrations) · " + document.querySelectorAll("[data-fn]").length + " calls (fn, supabase/functions)" : "";
   };
   setSeams(qs.get("seams") === "1");
   document.getElementById("seams").addEventListener("click", () => setSeams(!html.classList.contains("seams")));
@@ -1106,6 +1280,26 @@ html.seams .seam-bar{display:flex}
       now.innerHTML = "<b>Closed now</b> · opens " + when + ". Times in Arizona.";
     }
   } catch (e) { state.textContent = "Hours below"; }
+
+  /* ── the form, step one. STAND-IN maths: a shipped site posts the picked ids
+     to calculate-booking and prints its reply — it never adds these up itself.
+     ponytail: sedan base price only; sizes, add-ons, travel and promo are the
+     later steps and the server's. */
+  const form = document.getElementById("bookform"), est = document.getElementById("est"), tm = document.getElementById("tm"), what = document.getElementById("what"), next = document.getElementById("next");
+  const money = (n) => "$" + n.toLocaleString("en-US");
+  const span = (m) => { const d = Math.floor(m / 480), h = Math.floor(m % 480 / 60), mm = m % 60; return [d && d + (d > 1 ? " days" : " day"), h && h + (h > 1 ? " hrs" : " hr"), mm && mm + " min"].filter(Boolean).join(" "); };
+  const tally = () => {
+    const on = [...form.querySelectorAll("input:checked")];
+    let p = 0, m = 0, from = false;
+    on.forEach(i => { p += +i.dataset.price; m += +i.dataset.mins; from = from || i.dataset.from === "1"; });
+    est.innerHTML = on.length ? (from ? "<small>from</small>" : "") + money(p) : "—";
+    tm.textContent = on.length ? span(m) : "—";
+    what.textContent = on.length ? on.map(i => i.dataset.name).join(" · ") : "Pick a service to see a price.";
+    next.disabled = !on.length;
+  };
+  form.addEventListener("change", tally); tally();
+  /* "Book this" on the menu picks that row here, then the anchor scrolls to it */
+  document.querySelectorAll("[data-pick]").forEach(a => a.addEventListener("click", () => { const i = document.getElementById(a.dataset.pick); if (i) { i.checked = true; tally(); } }));
 
   document.getElementById("yr").textContent = new Date().getFullYear();
 })();

@@ -38,6 +38,22 @@
   There is no toggle on purpose — a site that can say both is a site that will
   say the wrong one.
 
+  THE FORM IS IN THE PAGE (contract §1c, the owner's ruling 2026-09-05: "built
+  into the website with the detailer's website design"). <section id="book"> IS
+  the booking form, drawn in this site's own type and colour — step one live,
+  the other six as ghosted rungs on the rail. THE FORM IS PRESENTATION AND IS
+  FORKED PER CLIENT; THE RULES ARE NOT. Every price comes from
+  `calculate-booking` and every open slot from `available-slots` — a site that
+  computes either will offer a time the server refuses or a price it will not
+  charge. This page's board prints a whole price table, which is exactly why
+  the temptation to add the numbers up in the page is strongest here: the
+  inline sum in the script below exists so a static artifact can show the bar
+  moving, and a real build replaces it with the function's answer. Elements
+  that would CALL the engine carry data-fn="<edge function>" (a directory under
+  supabase/functions/); ?seams=1 labels those too. The link-out version of the
+  section — what a booking-only customer with no website gets — is kept as one
+  commented block under the form.
+
   CREDENTIALS (research §4c): our schema cannot feed "licensed and insured",
   "est. 2017" or "9,000 cars". They are marked
   data-src="business_branding.credentials (PROPOSED — research §4c)" and this page
@@ -140,6 +156,8 @@ section { padding-block: clamp(56px, 9vw, 128px); }
 .chrome button { background: #ffe600; color: #111; border: 0; padding: 6px 10px; font: 700 12px/1 var(--text); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
 .seams-on .chrome { display: block; }
 .seams [data-src] { outline: 1px dashed var(--hot); outline-offset: 2px; position: relative; }
+.seams [data-fn] { outline: 1px dashed #7CF1FF; outline-offset: 4px; }
+.seams [data-fn]::after { content: "→ " attr(data-fn); position: absolute; right: 0; top: -1.15em; z-index: 6; font: 600 10px/1.2 var(--text); letter-spacing: 0; text-transform: none; background: #7CF1FF; color: #111; padding: 1px 5px; white-space: nowrap; pointer-events: none; }
 .seams [data-src]::before { content: attr(data-src); position: absolute; left: 0; top: -1.15em; z-index: 6; font: 600 10px/1.2 var(--text); letter-spacing: 0; text-transform: none; background: #ffe600; color: #111; padding: 1px 5px; white-space: nowrap; pointer-events: none; max-width: 100vw; overflow: hidden; text-overflow: ellipsis; }
 
 /* ───────────────────────── reveal system (ONE implementation) ───────────────────────── */
@@ -371,14 +389,81 @@ section { padding-block: clamp(56px, 9vw, 128px); }
 .qa p { padding: 0 0 20px; color: var(--mute-on-soot); max-width: 56ch; }
 @media (max-width: 760px) { #faq .wrap { grid-template-columns: 1fr; } #faq h2 { position: static; } }
 
-/* ───────────────────────── 11. book ───────────────────────── */
-#book { padding-block: clamp(64px, 10vw, 140px); text-align: center; position: relative; overflow: hidden; }
-#book::before { content: ""; position: absolute; inset: auto 0 0; height: 14px; background: repeating-linear-gradient(-45deg, var(--hot) 0 22px, var(--soot) 22px 44px); }
-#book h2 { font-size: clamp(64px, 15vw, 220px); line-height: .82; }
+/* ───────────────────────── 11. book — the form, in the page ───────────────────────── */
+#book { padding-block: clamp(64px, 10vw, 140px) 0; position: relative; }
+#book .head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px 40px; }
+#book h2 { font-size: clamp(56px, 11vw, 160px); line-height: .82; }
 #book h2 em { font-style: normal; color: var(--hot); }
-#book p { margin: 20px auto 0; max-width: 40ch; color: var(--mute-on-soot); font-size: clamp(17px, 1.6vw, 21px); }
-#book .cta { margin-top: clamp(24px, 3vw, 40px); display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px 28px; }
-#book .btn { font-size: clamp(24px, 3vw, 40px); padding: .7em 1.2em .62em; }
+#book .head p { max-width: 34ch; color: var(--mute-on-soot); font-size: clamp(17px, 1.4vw, 19px); }
+/* the rail — seven rungs, one lit. This flow IS a sequence, so the numbers are earned. */
+.stepline { margin-top: clamp(24px, 3vw, 44px); }
+.steps { display: flex; margin-top: 10px; border-top: 4px solid var(--soot-rule); }
+.steps li { flex: 1 1 0; min-width: 0; padding: 12px 12px 0 0; margin-top: -4px; border-top: 4px solid transparent; color: var(--mute-on-soot); font: 600 12px/1.2 var(--text); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.steps li b { display: block; font: 900 28px/1 var(--display); margin-bottom: 4px; }
+.steps li.now { color: var(--bone); border-top-color: var(--hot); }
+.steps li.now b { color: var(--hot); }
+@media (max-width: 720px) {
+  .steps li:not(.now) { flex: 0 0 auto; padding-right: 16px; }
+  .steps li:not(.now) span { display: none; }
+}
+/* 320: seven rungs in 288px. Measured — six ghost rungs at 28px numbers ran 31px past the edge. */
+@media (max-width: 480px) { .steps li:not(.now) { padding-right: 10px; } .steps li:not(.now) b { font-size: 20px; padding-top: 4px; } }
+/* step one */
+.bk { margin-top: clamp(28px, 4vw, 48px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px clamp(32px, 5vw, 72px); align-items: start; }
+.bk fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.bk legend { display: block; width: 100%; padding: 0; }
+.fh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 16px; padding-bottom: 10px; border-bottom: 4px solid var(--bone); }
+.fh h3 { font-size: clamp(28px, 3.4vw, 44px); }
+.fh .rule-tag { background: var(--bone); color: var(--soot); }
+.fh .rule-tag.any { background: transparent; color: var(--bone); outline-color: var(--bone); }
+.vh { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--soot-rule); margin-top: 16px; }
+.seg label { position: relative; background: var(--soot); padding: 14px 10px 12px; cursor: pointer; text-align: center; }
+.seg b { display: block; font: 900 24px/1 var(--display); text-transform: uppercase; }
+.seg span { display: block; font-size: 13px; color: var(--mute-on-soot); margin-top: 4px; }
+.seg label:has(:checked) { background: var(--hot); color: var(--soot); }
+.seg label:has(:checked) span { color: var(--soot); }
+.seg label:has(:focus-visible) { outline: 3px solid var(--bone); outline-offset: -3px; z-index: 1; }
+.opt { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 4px 14px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--soot-rule); cursor: pointer; }
+.opt .box { width: 28px; height: 28px; border: 3px solid var(--bone); grid-row: 1 / span 2; }
+.opt:has(:checked) .box { background: var(--hot); border-color: var(--hot); box-shadow: inset 0 0 0 5px var(--soot); }
+.opt .onm { font: 900 clamp(24px, 2.6vw, 34px)/1 var(--display); text-transform: uppercase; }
+.opt:hover .onm, .opt:has(:checked) .onm { color: var(--hot); }
+.opt .odur { grid-column: 2; font-size: 14px; color: var(--mute-on-soot); }
+.opt .opr { grid-row: 1 / span 2; grid-column: 3; font: 900 clamp(24px, 2.6vw, 34px)/1 var(--display); text-align: right; white-space: nowrap; }
+.opt .opr .from { font-size: .5em; letter-spacing: .04em; margin-right: 3px; vertical-align: .55em; }
+.opt:has(:focus-visible) { outline: 3px solid var(--hot); outline-offset: 3px; }
+/* the six rungs not built: ghosted, disabled, still carrying their seams */
+.ahead { margin-top: 36px; padding: 16px 18px 18px; border: 2px dashed var(--soot-rule); color: var(--mute-on-soot); }
+.ahead .kick { color: var(--mute-on-soot); }
+.ahead p { font-size: 15px; margin-top: 8px; max-width: 44ch; }
+.ahead .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.ahead label { position: relative; flex: 1 1 200px; display: grid; gap: 6px; font: 600 12px/1 var(--text); letter-spacing: .14em; text-transform: uppercase; }
+.ahead input { font: 600 17px/1 var(--text); padding: 12px 12px; background: transparent; color: var(--bone); border: 2px dashed var(--soot-rule); min-width: 0; }
+.ahead .btn { position: relative; align-self: end; font-size: 18px; background: transparent; color: var(--mute-on-soot); border-color: var(--soot-rule); cursor: not-allowed; }
+/* the till — the running total, stuck to the bottom of the screen while you pick */
+.till { position: sticky; bottom: 0; z-index: 3; margin-top: clamp(28px, 4vw, 48px); background: var(--soot-2); }
+.till::before { content: ""; display: block; height: 14px; background: repeating-linear-gradient(-45deg, var(--hot) 0 22px, var(--soot) 22px 44px); }
+.till .wrap { position: relative; display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 10px clamp(20px, 3vw, 48px); align-items: center; padding-block: 14px 16px; }
+.till .tl b { display: block; font: 900 clamp(34px, 4vw, 56px)/1 var(--display); color: var(--hot); margin-top: 4px; }
+.till .tl b .from { font-size: .45em; letter-spacing: .04em; margin-right: 4px; vertical-align: .6em; }
+.till .honest { font-size: 14px; color: var(--mute-on-soot); max-width: 30ch; }
+.till .btn { font-size: clamp(18px, 2vw, 24px); }
+.till .btn:disabled { background: transparent; color: var(--mute-on-soot); border-color: var(--soot-rule); cursor: not-allowed; transform: none; }
+.till .btn:disabled .arrow { transform: none; }
+@media (max-width: 900px) {
+  .bk { grid-template-columns: 1fr; }
+  .till .wrap { grid-template-columns: 1fr 1fr; }
+  .till .honest { grid-column: 1 / -1; max-width: none; }
+  .till .btn { grid-column: 1 / -1; justify-content: center; }
+}
+@media (max-width: 560px) {
+  #book .head { grid-template-columns: 1fr; }
+  .seg { grid-template-columns: 1fr; }
+  .seg label { text-align: left; display: flex; align-items: baseline; gap: 10px; }
+  .seg span { margin: 0; }
+  .till .tl b { font-size: 30px; }
+}
 
 /* ───────────────────────── 12. footer ───────────────────────── */
 footer { background: var(--soot-2); padding-block: 48px 36px; border-top: 1px solid var(--soot-rule); }
@@ -399,7 +484,7 @@ footer .fine { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--
 <!-- artifact-only chrome: shown only with ?seams in the URL; in flow, never fixed -->
 <div class="chrome" id="chrome" role="region" aria-label="Design artifact controls">
   <div>
-    <span>Seam labels: every element the detailer edits shows its table.column</span>
+    <span>Seam labels: table.column on what the detailer edits; → function on what calls the engine</span>
     <button type="button" id="seamsBtn" aria-pressed="false">Toggle seams</button>
   </div>
 </div>
@@ -839,9 +924,125 @@ footer .fine { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--
   </div>
 </section>
 
-<!-- 2a · the booking moment -->
+<!-- 2a · THE BOOKING MOMENT — the form, built into the page (contract §1c, the
+     owner's ruling). Step one is live: the same `services` rows as THE BOARD,
+     grouped the way service_groups says, priced by the size the customer picks.
+     Steps two to seven are the rail and the ghosted rung under Protection.
+     The inline arithmetic is for this static artifact only — in a real build
+     the till prints calculate-booking's answer and nothing else. -->
 <section id="book" class="soot" data-rv aria-labelledby="book-h">
   <div class="wrap">
+    <div class="head">
+      <div>
+        <span class="kick rv" style="--i:0">Two bays · six cars a day</span>
+        <h2 id="book-h" class="rv lift" style="--i:1">Get in <em>the queue</em></h2>
+      </div>
+      <p class="rv" style="--i:3" data-src="business_settings.booking_mode">Pick the job, pick a day and a time, pay at the counter. You'll get a text the moment the car is done.</p>
+      <!-- request mode — swap the paragraph for a `request` tenant:
+      <p class="rv" style="--i:3" data-src="business_settings.booking_mode">Pick the job, pick a day and a time, and we'll confirm it within the hour.</p>
+      -->
+    </div>
+
+    <div class="stepline rv" style="--i:4">
+      <span class="kick">Step 1 of 7 · Services</span>
+    </div>
+    <ol class="steps rv" style="--i:4" aria-label="Booking steps">
+      <li class="now" aria-current="step"><b class="num">01</b><span>Services</span></li>
+      <li data-src="add_ons.id"><b class="num">02</b><span>Extras</span></li>
+      <li><b class="num">03</b><span>Vehicle</span></li>
+      <li data-src="business_settings.mobile_enabled"><b class="num">04</b><span>Location</span></li>
+      <li data-fn="available-slots"><b class="num">05</b><span>When</span></li>
+      <li><b class="num">06</b><span>Details</span></li>
+      <li data-fn="create-booking"><b class="num">07</b><span>Review</span></li>
+    </ol>
+
+    <form id="bkform" class="bk" novalidate>
+      <div class="rv x" style="--i:5">
+        <fieldset data-src="business_settings.vehicle_sizes">
+          <legend><div class="fh"><h3>Size of car</h3><span class="rule-tag">Sets the price</span></div></legend>
+          <div class="seg">
+            <label><input class="vh" type="radio" name="size" value="small" checked><b>Small</b><span>Coupe, sedan, hatchback</span></label>
+            <label><input class="vh" type="radio" name="size" value="medium"><b>Medium</b><span>Small SUV, crossover, wagon</span></label>
+            <label><input class="vh" type="radio" name="size" value="large"><b>Large</b><span>Truck, large SUV, van</span></label>
+          </div>
+        </fieldset>
+
+        <!-- group 1: is_exclusive = true, max_select = 1 → radios. A picked one can be un-picked. -->
+        <fieldset style="margin-top:36px" data-src="service_groups.name">
+          <legend><div class="fh"><h3>Full details</h3><span class="rule-tag" data-src="service_groups.is_exclusive">Pick one</span></div></legend>
+          <label class="opt" data-src="services.id">
+            <input class="vh" type="radio" name="full" value="express" data-price="89" data-adj='{"small":0,"medium":20,"large":40}' data-min="75">
+            <span class="box" aria-hidden="true"></span>
+            <span class="onm" data-src="services.name">Express detail</span>
+            <span class="odur" data-src="services.duration_minutes">1 h 15 min</span>
+            <span class="opr num" data-src="services.vehicle_size_adjustments">$<span class="n">89</span></span>
+          </label>
+          <label class="opt" data-src="services.id">
+            <input class="vh" type="radio" name="full" value="full" data-price="179" data-adj='{"small":0,"medium":50,"large":100}' data-min="180">
+            <span class="box" aria-hidden="true"></span>
+            <span class="onm" data-src="services.name">Full detail</span>
+            <span class="odur" data-src="services.duration_minutes">3 h</span>
+            <span class="opr num" data-src="services.vehicle_size_adjustments">$<span class="n">179</span></span>
+          </label>
+          <label class="opt" data-src="services.id">
+            <input class="vh" type="radio" name="full" value="interior" data-price="149" data-adj='{"small":0,"medium":40,"large":80}' data-min="150" data-from>
+            <span class="box" aria-hidden="true"></span>
+            <span class="onm" data-src="services.name">Interior reset</span>
+            <span class="odur" data-src="services.duration_minutes">2 h 30 min · priced from, quoted at the counter</span>
+            <span class="opr num" data-src="services.price_is_from"><span class="from">from</span>$<span class="n">149</span></span>
+          </label>
+        </fieldset>
+      </div>
+
+      <div class="rv xr" style="--i:6">
+        <!-- group 2: is_exclusive = false, max_select = null → checkboxes -->
+        <fieldset data-src="service_groups.name">
+          <legend><div class="fh"><h3>Protection</h3><span class="rule-tag any" data-src="service_groups.is_exclusive">Add any</span></div></legend>
+          <label class="opt" data-src="services.id">
+            <input class="vh" type="checkbox" name="svc" value="sealant" data-price="49" data-adj='{"small":0,"medium":10,"large":20}' data-min="30">
+            <span class="box" aria-hidden="true"></span>
+            <span class="onm" data-src="services.name">Spray sealant</span>
+            <span class="odur" data-src="services.duration_minutes">30 min</span>
+            <span class="opr num" data-src="services.vehicle_size_adjustments">$<span class="n">49</span></span>
+          </label>
+          <label class="opt" data-src="services.id">
+            <input class="vh" type="checkbox" name="svc" value="clay" data-price="129" data-adj='{"small":0,"medium":30,"large":70}' data-min="120">
+            <span class="box" aria-hidden="true"></span>
+            <span class="onm" data-src="services.name">Clay &amp; polish</span>
+            <span class="odur" data-src="services.duration_minutes">2 h</span>
+            <span class="opr num" data-src="services.vehicle_size_adjustments">$<span class="n">129</span></span>
+          </label>
+        </fieldset>
+
+        <!-- steps 2–7 are not built here. This is the last rung, ghosted, so the
+             reader sees where the promo code and the confirm live and what they call. -->
+        <fieldset class="ahead" disabled aria-label="Step 7, review — not built in this artifact">
+          <span class="kick">Step 7 · Review — what the end looks like</span>
+          <p>Add-ons (step 2) come off the same menu as above. Open days and times (step 5) come from the shop's calendar, never from this page. At review, a code and one press:</p>
+          <div class="row">
+            <label data-fn="validate-promo-code">Promo code<input type="text" placeholder="SPRING15" data-src="promo_codes.code"></label>
+            <button type="button" class="btn" data-fn="create-booking">Book the bay <span class="arrow">→</span></button>
+          </div>
+        </fieldset>
+      </div>
+    </form>
+  </div>
+
+  <!-- the till. calculate-booking answers this; the page only draws the answer. -->
+  <div class="till rv" style="--i:7">
+    <div class="wrap" data-fn="calculate-booking">
+      <div class="tl"><span class="kick">Estimate</span><b class="num" id="tillPrice" aria-live="polite">$—</b></div>
+      <div class="tl"><span class="kick">Time in the bay</span><b class="num" id="tillTime">—</b></div>
+      <p class="honest">Nothing is charged when you book. You pay at the counter when the car is done.</p>
+      <button type="submit" form="bkform" class="btn" id="tillNext" disabled>Next: extras <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- LINK-OUT VERSION — what a booking-only customer gets: a detailer who takes
+       booking and has no website is served the platform's own flow at /book/:slug,
+       and a site that chooses NOT to carry the form links to it like this.
+       Not a toggle; a per-client build ships one or the other.
+  <div class="wrap" style="text-align:center">
     <span class="kick rv" style="--i:0">Two bays · six cars a day</span>
     <h2 id="book-h" class="rv lift" style="--i:1">Get in <em>the queue</em></h2>
     <p class="rv" style="--i:3" data-src="business_settings.booking_mode">Pick a day and a time, pay at the counter. You'll get a text the moment the car is done.</p>
@@ -849,14 +1050,8 @@ footer .fine { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--
       <a class="btn" href="/book/two-bay" data-src="businesses.slug">Book a bay <span class="arrow">→</span></a>
       <a class="phone num" href="tel:+15035550142" data-src="businesses.contact_phone">(503) 555-0142</a>
     </div>
-    <!-- request mode — swap the paragraph and the button for a `request` tenant:
-    <p class="rv" style="--i:3" data-src="business_settings.booking_mode">Pick a day and a time and we'll confirm it within the hour. Nothing is charged until the car is done.</p>
-    <div class="cta rv" style="--i:4">
-      <a class="btn" href="/book/two-bay" data-src="businesses.slug">Request a slot <span class="arrow">→</span></a>
-      <a class="phone num" href="tel:+15035550142" data-src="businesses.contact_phone">(503) 555-0142</a>
-    </div>
-    -->
   </div>
+  -->
 </section>
 
 <!-- 2k · contact and social. contact_email is NOT in the RPC (contract §6f) and is deliberately not printed. -->
@@ -937,6 +1132,35 @@ footer .fine { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--
     var set = function () { ba.style.setProperty("--pos", range.value + "%"); };
     range.addEventListener("input", set);
     set();
+  }
+
+  /* step one of the form. This sum is the ARTIFACT's stand-in so the till can
+     be seen moving; a real build sends {service_ids, vehicle_size} to
+     calculate-booking and prints quote.total / quote.total_duration. */
+  var form = document.getElementById("bkform"), tp = document.getElementById("tillPrice"), tt = document.getElementById("tillTime"), next = document.getElementById("tillNext");
+  if (form && tp && tt && next) {
+    var dur = function (m) { var h = Math.floor(m / 60), r = m % 60; return [h ? h + " h" : "", r ? r + " min" : ""].filter(Boolean).join(" "); };
+    var priceFor = function (i, size) { var adj = {}; try { adj = JSON.parse(i.getAttribute("data-adj") || "{}"); } catch (err) {} return (+i.getAttribute("data-price")) + (+(adj[size] || 0)); };
+    var tally = function () {
+      var sz = form.querySelector('input[name="size"]:checked'), size = sz ? sz.value : "small";
+      var total = 0, mins = 0, n = 0, from = false;
+      form.querySelectorAll(".opt input").forEach(function (i) {
+        var p = priceFor(i, size);
+        i.closest(".opt").querySelector(".n").textContent = p;
+        if (i.type === "radio") i.setAttribute("data-was", i.checked ? "1" : "0");
+        if (i.checked) { n++; total += p; mins += +i.getAttribute("data-min"); if (i.hasAttribute("data-from")) from = true; }
+      });
+      tp.innerHTML = n ? (from ? '<span class="from">from</span>' : "") + "$" + total : "$—";
+      tt.textContent = n ? dur(mins) : "—";
+      next.disabled = !n;
+    };
+    /* "pick one" is a radio group, and a picked one can be un-picked */
+    form.querySelectorAll('.opt input[type="radio"]').forEach(function (r) {
+      r.addEventListener("click", function () { if (r.getAttribute("data-was") === "1") { r.checked = false; tally(); } });
+    });
+    form.addEventListener("change", tally);
+    form.addEventListener("submit", function (e) { e.preventDefault(); });
+    tally();
   }
 
   /* open / closed now — from business_hours in the business's own timezone.

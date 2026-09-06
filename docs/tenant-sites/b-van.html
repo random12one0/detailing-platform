@@ -28,30 +28,42 @@
          --ink #221E18     text; --ink-2 #5A5248 secondary text
          --brand #A8401A   THE ONE ACCENT — business_branding.primary_color.
                            Retint = change this value and nothing else.
-         --night #1E1A16   ONE dark surface, used ONLY on the booking card.
-                           See "the handover", next.
+         --night #1E1A16   ONE dark surface: the Extras receipt band. Nothing
+                           else on the page is dark any more — see next.
 
-  THE HANDOVER — contract §8.2, and this page is the evidence for it.
-         The booking flow the customer leaves for is DARK and a tenant site
-         cannot restyle it (it takes one accent, not a ground). A light site
-         therefore sends the customer from a light page to a dark form
-         mid-purchase. What this page does about it:
-         1. The booking entry point is itself a DARK card — the only dark
-            thing on the page — placed at the point of decision. So the
-            customer meets the dark surface BEFORE they leave, on a page
-            they already trust, and the form they land on reads as "that
-            card, opened" rather than as a different website.
-         2. The card is retinted with the same --brand the form will be
-            retinted with (brandVarsFor), so the one colour that carries
-            across the seam is the detailer's.
-         3. The card says so in the detailer's own voice — "the booking
-            page is dark; it's still me" — one sentence, because a
-            customer who is warned is not surprised.
-         What this does NOT solve, and cannot from inside a tenant site:
-         the form's OWN chrome (its buttons, its calendar) is the
-         platform's dark design. Contract §8.2 stands: the flow needs to
-         take a tenant's ground as well as its accent before the first
-         light client ships. This page is what that client looks like.
+  THE FORM IS ON THE PAPER — the owner's answer to contract §1c, 2026-09-05.
+         §1c asked where a customer actually books and recommended linking
+         out to /book/:slug. He chose the third answer: "it's up to the
+         detailer's choice but I think it should be built into the website
+         with the detailer's website design. Like how it is on my website."
+         His own site is the spec: reference/frontend/src/components/
+         BookingWidget.jsx is rendered inline on the marketing page, built
+         from the site's own UI kit, talking straight to the edge functions.
+         So <section id="book"> IS the booking form — step one live, the
+         other six drawn as the perforated strip this page already uses for
+         tickets — in Schibsted Grotesk and Literata on warm paper, with the
+         same rust the rest of the page carries.
+         What this replaced: a DARK "booking card" that linked out, the only
+         dark card on the page, placed at the point of decision so that the
+         platform's dark form read as "that card, opened". That card, its
+         "it's dark on purpose" sentence and the --night rules that drew it
+         are gone; there is no jump to a different surface any more, so the
+         light-site-to-dark-form handover of contract §8.2 is not a
+         workaround here — it does not exist. This page is the reason.
+         THE RULE THAT MUST SURVIVE EVERY FORK: the form is presentation and
+         is forked per client; the rules are not. Every price comes from
+         `calculate-booking` and every open slot from `available-slots` — a
+         site that computes either will offer a time the server refuses or
+         a price it will not charge. The few lines of inline JS under the
+         price bar exist ONLY so this static artifact moves when a row is
+         picked; a shipped site replaces them with the fetch and keeps the
+         markup. Every element that would call the engine carries
+         data-fn="<edge function>" (a directory under supabase/functions/),
+         and ?seams=1 labels those beside the data-src reads.
+         THE ALTERNATIVE IS KEPT: "it's up to the detailer's choice", and the
+         platform still serves /book/:slug for a booking-only customer with
+         no website. The link-out version of this section is one commented
+         block at the end of <section id="book">. Not a toggle on purpose.
 
   THE SITE-WIDE SALE — contract §2e.
          <aside id="sale"> right under the top bar, fed by
@@ -62,18 +74,27 @@
          laid out independently, so its absence changes nothing else.
          Verified both ways by deleting the node in the console.
 
-  BOOKING MODE — contract §2l.
-         The live wording is `reserve` ("Book a time"). The `request`
-         wording is present as a clearly marked commented block a
-         per-client build swaps in — inside the dark card, and a second
-         one-line swap on the top-bar button. Not a toggle on purpose: a
-         site has one mode, set in the dashboard.
+  BOOKING MODE — contract §2l, and on a one-van operator it is the wording
+         that matters most. The live wording is `reserve`: the final button
+         RESERVES the slot ("Reserve this time") and the price bar says the
+         slot is yours the moment you pick it. The `request` wording is a
+         clearly marked commented block a per-client build swaps in — the
+         final button ASKS for the slot ("Send the request") and the line
+         under the price bar says the time is held while Sam confirms —
+         plus a one-line swap on the top-bar button. Not a toggle on
+         purpose: a site has one mode, set in the dashboard.
 
   SEAMS  Every element whose content really comes from the dashboard carries
          data-src="table.column", names taken from supabase/migrations/ and
-         from contract §3 (the keys the profile RPC returns). `?seams=1`
-         labels every one, in flow (never overlaid), so it cannot cover
-         content on a phone. It is artifact chrome and is obviously so.
+         from contract §3 (the keys the profile RPC returns). The form is
+         the WRITE half of the contract: its controls keep their data-src
+         (services.*, service_groups.is_exclusive, add_ons.*) and the
+         elements that would CALL the engine carry data-fn — calculate-
+         booking on the price bar, available-slots on the When step,
+         validate-promo-code on the promo field, create-booking on the
+         final button. `?seams=1` labels every one of both kinds, in flow
+         (never overlaid), so it cannot cover content on a phone. It is
+         artifact chrome and is obviously so.
 
   NOT FED BY THE SCHEMA TODAY (marked in the markup, not hidden):
          - credentials / trust markers (licensed, insured, since 2019, the
@@ -167,10 +188,7 @@ strong{font-weight:600}
 .btn-brand:hover{background:color-mix(in oklab,var(--brand),var(--ink) 12%)}
 .btn-line{border-color:var(--ink);color:var(--ink);background:transparent}
 .btn-line:hover{background:var(--ink);color:var(--paper)}
-.btn-paper{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-.btn-paper:hover{background:#fff}
 :focus-visible{outline:3px solid var(--brand);outline-offset:3px}
-.night :focus-visible{outline-color:var(--night-ink)}
 
 /* ── top bar ────────────────────────────────────────────────────────── */
 .top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 92%,transparent);
@@ -363,26 +381,67 @@ strong{font-weight:600}
 .card footer{display:flex;justify-content:space-between;gap:10px;font:700 .85rem/1.2 var(--grot)}
 .card footer span{color:var(--ink-2);font-weight:500}
 
-/* ── the booking card — THE DARK ONE ────────────────────────────────── */
-.book{padding-block:clamp(40px,7vw,96px)}
-.night{position:relative;background:var(--night);color:var(--night-ink);border-radius:10px;overflow:hidden;
-  padding:clamp(28px,5vw,64px);display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.9fr);gap:clamp(24px,4vw,56px);align-items:center;
-  box-shadow:0 30px 60px -30px rgba(34,30,24,.6)}
-.night::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(60% 90% at 100% 0%,color-mix(in srgb,var(--brand) 28%,transparent),transparent 60%)}
-.night>*{position:relative}
-.night>.tape{position:absolute}
-.night .eyebrow{color:color-mix(in oklab,var(--brand),#fff 38%)}
-.night h2{margin:.35em 0 .5em;font-size:clamp(2rem,4.2vw,3.4rem);letter-spacing:-.03em;line-height:.98}
-.night p{max-width:44ch;font-size:1.12rem;color:#CFC6B4}
-.night p b{color:var(--night-ink);font-weight:600}
-.night .go{display:grid;gap:14px;justify-items:start}
-.night .go .btn{font-size:1.1rem;padding:1em 1.4em}
-.night .go .fine{color:#CFC6B4}
-.night .go .alt{font:700 1rem/1 var(--grot);color:var(--night-ink);text-decoration:none;border-bottom:2px solid color-mix(in oklab,var(--brand),#fff 38%);padding-bottom:3px}
-.night .tape{background:color-mix(in srgb,var(--brand) 70%,var(--night));opacity:.9}
-.night .tape.tr{right:26px;top:20px;transform:rotate(6deg)}
-@media (max-width:760px){ .night{grid-template-columns:1fr} }
+/* ── the booking form — on the paper, in this site's own hand ────────── */
+.book{padding-block:clamp(40px,7vw,96px);border-top:1px solid var(--rule)}
+.book h2{margin:.3em 0 .4em}
+.book .lede b{color:var(--ink);font-weight:600}
+.bk{--pad:clamp(14px,3vw,24px);margin-top:32px;background:#FBF7EC;border:1.5px solid var(--ink);border-radius:var(--r);
+  box-shadow:0 1px 0 rgba(34,30,24,.15),0 18px 36px -24px rgba(34,30,24,.45)}
+/* the step rail — a margin note, not a progress widget */
+.rail{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;padding:14px var(--pad);border-bottom:2px dashed var(--rule)}
+.rail .now{font:italic 500 1.1rem/1 var(--serif);color:var(--ink);white-space:nowrap}
+.rail ol,.stubs{list-style:none}
+.rail ol{display:flex;flex-wrap:wrap;gap:4px 12px;counter-reset:s;font:500 .88rem/1.3 var(--grot);color:var(--ink-2)}
+.rail li{counter-increment:s;white-space:nowrap}
+.rail li::before{content:counter(s) " ";font-weight:700}
+.rail li[aria-current]{color:var(--ink);font-weight:700;text-decoration:underline;text-decoration-color:var(--brand);text-decoration-thickness:2px;text-underline-offset:4px}
+/* step one — the same rows as the menu, with a box to tick */
+.step{padding:10px var(--pad) 6px}
+.grp{border:0;min-width:0;padding:0;margin:0 0 6px}
+.grp legend{display:block;width:100%;padding:12px 0 8px;border-bottom:2px solid var(--ink)}
+.grp legend h3{display:inline;font-size:1.15rem;margin-right:10px}
+.grp legend .fine{display:block;margin-top:6px;font-size:.9rem}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 14px;align-items:start;padding:14px var(--pad);margin-inline:calc(-1*var(--pad));
+  border-bottom:1px solid var(--rule);cursor:pointer;transition:background-color .18s ease}
+.grp .row:last-child{border-bottom:0}
+.row.on{background:var(--paper-2)}
+.row input{appearance:none;-webkit-appearance:none;width:22px;height:22px;margin:2px 0 0;border:2px solid var(--ink);border-radius:3px;background:var(--paper);
+  cursor:pointer;display:grid;place-items:center;flex:none}
+.row input[type="radio"]{border-radius:50%}
+.row input::before{content:"";width:10px;height:10px;background:var(--brand);border-radius:inherit;transform:scale(0)}
+.js:not(.lite) .row input::before{transition:transform .15s ease}
+.row input:checked::before{transform:scale(1)}
+.row .what{display:grid;gap:3px;min-width:0}
+.row .what .nm{font:800 1.15rem/1.15 var(--grot);letter-spacing:-.02em}
+.row .what .dur{font:500 .85rem/1.2 var(--grot);color:var(--ink-2)}
+.row .amt{font-family:var(--grot);text-align:right;display:grid;gap:2px;justify-items:end}
+.row .amt .num{font-size:1.15rem;font-weight:800}
+.row .amt .from{font-size:.72rem;color:var(--ink-2);font-weight:500}
+.row .amt .sz{font-size:.78rem;color:var(--ink-2);font-weight:500;white-space:nowrap}
+/* the price bar — sticks to the bottom of the screen while step one scrolls */
+.bar{position:sticky;bottom:0;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:12px var(--pad);
+  background:var(--paper-2);border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+.bar .est{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-family:var(--grot);margin:0}
+.bar .est .t{font:500 .88rem/1.2 var(--grot);color:var(--ink-2)}
+.bar .est .num{font-size:1.65rem;letter-spacing:-.02em;line-height:1;font-variant-numeric:lining-nums}
+.bar .fine{flex:1 1 240px;font-size:.9rem;margin:0}
+.bar .fine b{color:var(--ink);font-weight:600}
+.bar .btn{margin-left:auto}
+@media (max-width:560px){ .bar .btn{width:100%;justify-content:center;margin-left:0} }
+/* the other six — perforated stubs, "and then these" */
+.then{padding:16px var(--pad) var(--pad)}
+.then-h{font:italic 400 1rem/1.3 var(--serif);color:var(--ink-2)}
+.stubs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-top:12px;border:1.5px solid var(--ink);border-radius:var(--r);overflow:hidden;background:var(--paper)}
+.stub{padding:12px 12px 14px;margin:-2px 0 0 -2px;border-top:2px dashed var(--rule);border-left:2px dashed var(--rule);
+  font-family:var(--grot);display:grid;gap:5px;align-content:start;justify-items:start;min-width:0}
+.stub b{font-size:.95rem;font-weight:800;letter-spacing:-.01em}
+.stub b::before{content:attr(data-n) " · ";color:var(--brand)}
+.stub span{font-size:.82rem;line-height:1.35;color:var(--ink-2)}
+.stub .fld{margin-top:3px;padding:.45em .6em;border:1.5px solid var(--ink-2);border-radius:3px;background:#FBF7EC;color:var(--ink-2);font-size:.8rem}
+.stub .go{margin-top:3px;padding:.55em .7em;background:var(--brand);color:var(--brand-ink);border-radius:3px;font:700 .8rem/1 var(--grot)}
+@media (max-width:980px){ .stubs{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (max-width:520px){ .stubs{grid-template-columns:1fr 1fr} }
+@media (max-width:360px){ .stubs{grid-template-columns:1fr} }
 
 /* ── faq ────────────────────────────────────────────────────────────── */
 .faq .grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:clamp(20px,5vw,72px);align-items:start}
@@ -459,6 +518,12 @@ strong{font-weight:600}
 .seams [data-src]::before{content:attr(data-src);display:inline-block;font:600 10px/1.4 ui-monospace,Consolas,monospace;
   background:#1a1a1a;color:#F5C400;padding:1px 6px;border-radius:3px;margin:0 6px 2px 0;vertical-align:middle;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
 .seams [role="img"][data-src]::before{position:absolute;left:6px;top:6px;z-index:2}
+.seams .row::before,.seams .grp legend::before{grid-column:1/-1;display:block;width:max-content;margin-bottom:6px}
+/* the WRITE half: elements that would call an edge function */
+.seams [data-fn]{outline:1.5px solid #1a1a1a;outline-offset:3px}
+.seams [data-fn]::after{content:"fn " attr(data-fn);display:inline-block;font:600 10px/1.4 ui-monospace,Consolas,monospace;
+  background:#F5C400;color:#1a1a1a;padding:1px 6px;border-radius:3px;margin:2px 0 0 6px;vertical-align:middle;white-space:nowrap;letter-spacing:0}
+.seams .bar::after{flex-basis:100%;width:max-content;margin:0}
 </style>
 <script>
 /* Runs before first paint. Decides .lite once, from one place:
@@ -476,7 +541,7 @@ strong{font-weight:600}
 </head>
 <body>
 
-<div class="seambar" role="note">SEAM VIEW — every labelled element is fed from the column shown. <b id="seamcount"></b> Labels are in flow and never overlay content. Remove <b>?seams=1</b> to hide.</div>
+<div class="seambar" role="note">SEAM VIEW — a dashed outline is READ from the column shown; a solid outline with <b>fn</b> CALLS the edge function named. <b id="seamcount"></b> Labels are in flow and never overlay content. Remove <b>?seams=1</b> to hide.</div>
 
 <!-- ── top bar: name, PHONE (6/6 real sites), book ─────────────────── -->
 <header class="top">
@@ -489,8 +554,8 @@ strong{font-weight:600}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
       <span>(253) 555-0148</span>
     </a>
-    <!-- reserve mode. In request mode the label is "Request a time" (business_settings.booking_mode). -->
-    <a class="btn btn-brand" href="/book/tolliver-mobile" data-src="businesses.slug">Book<span class="long"> a time</span></a>
+    <!-- reserve mode. In request mode the label is "Request a time" (business_settings.booking_mode). Points at the form on this page, not at /book/:slug. -->
+    <a class="btn btn-brand" href="#book">Book<span class="long"> a time</span></a>
   </div>
 </header>
 
@@ -514,7 +579,7 @@ strong{font-weight:600}
         <h1><span data-src="businesses.name">Tolliver Mobile Detailing</span></h1>
         <p class="tagline" data-src="business_branding.tagline">One van, one guy, your driveway. I bring the water.</p>
         <div class="cta kids">
-          <a class="btn btn-brand" href="/book/tolliver-mobile" data-src="businesses.slug">Book a time</a>
+          <a class="btn btn-brand" href="#book">Book a time</a>
           <a class="btn btn-line" href="tel:+12535550148" data-src="businesses.contact_phone">Call Sam</a>
           <p class="fine">Prices are on this page, all three sizes. No quote needed for a standard car.</p>
         </div>
@@ -844,27 +909,99 @@ strong{font-weight:600}
   </div>
 </section>
 
-<!-- ── THE BOOKING CARD — the one dark surface. See the header comment: "the handover". ── -->
+<!-- ── THE BOOKING FORM — built into the page, in this site's own design. See the header comment: "the form is on the paper". ──
+     Step one is live; the other six are drawn, not built. The price bar's arithmetic is ARTIFACT ONLY —
+     on a shipped site every figure in it comes from calculate-booking and nothing on the page adds prices up. -->
 <section class="book" id="book">
   <div class="wrap">
-    <div class="night" data-rv>
-      <span class="tape tr"></span>
-      <div class="kids">
-        <p class="eyebrow">Ready?</p>
-        <h2>Pick a day. I'll be there.</h2>
-        <p>You'll choose the car, the service and a time on the next page. <b>It's dark on purpose — that's the booking page, and it's still me.</b> Nothing is charged until I've done the work.</p>
-      </div>
-      <div class="go kids" style="--d:2">
-        <!-- reserve mode (live) -->
-        <a class="btn btn-paper" href="/book/tolliver-mobile" data-src="businesses.slug">Book a time</a>
-        <p class="fine" data-src="business_settings.booking_mode">The slot is yours the moment you pick it — you'll get a text and an email with the details.</p>
-        <!-- ── booking_mode = "request" — a per-client build swaps THIS block in for the two lines above. ──
-        <a class="btn btn-paper" href="/book/tolliver-mobile" data-src="businesses.slug">Send me a request</a>
-        <p class="fine" data-src="business_settings.booking_mode">It's a request, not a booking yet: I'll look at the car and the day, then confirm by text, usually within a couple of hours. The time is held for you while I do.</p>
-        ─────────────────────────────────────────────────────────────────────────────────── -->
-        <a class="alt" href="tel:+12535550148" data-src="businesses.contact_phone">Or just call — (253) 555-0148</a>
-      </div>
+    <div data-rv>
+      <p class="eyebrow">Ready?</p>
+      <h2>Book it here.</h2>
+      <p class="lede">Seven short steps, all on this page. Pick the work first — the size of the car, where it is and when come after. <b>Nothing is charged when you book.</b> You pay after, the way you'd pay for anything.</p>
     </div>
+
+    <form class="bk" data-rv aria-labelledby="bk-now" onsubmit="return false">
+      <div class="rail">
+        <span class="now" id="bk-now">Step 1 of 7</span>
+        <ol aria-label="The steps, in order">
+          <li aria-current="step">Services</li><li>Extras</li><li>Vehicle</li><li>Location</li><li>When</li><li>Details</li><li>Review</li>
+        </ol>
+      </div>
+
+      <div class="step">
+        <!-- group 1: is_exclusive — radios, so the browser holds the "pick one" rule. A second click on a picked radio unpicks it (script below). -->
+        <fieldset class="grp" data-src="service_groups">
+          <legend>
+            <h3 data-src="service_groups.name">Full details</h3><span class="pick" data-src="service_groups.is_exclusive">Pick one</span>
+          </legend>
+          <label class="row" data-src="services">
+            <input type="radio" name="full" value="maintenance-wash" data-price="79" data-min="60">
+            <span class="what"><span class="nm" data-src="services.name">The Maintenance Wash</span><span class="dur" data-src="services.duration_minutes">About 1 hour</span></span>
+            <span class="amt"><span class="num" data-src="services.price">$79</span><span class="sz" data-src="services.vehicle_size_adjustments">small · to $119 large</span></span>
+          </label>
+          <label class="row" data-src="services">
+            <input type="radio" name="full" value="inside-and-out" data-price="179" data-min="150">
+            <span class="what"><span class="nm" data-src="services.name">Inside &amp; Out</span><span class="dur" data-src="services.duration_minutes">About 2½ hours</span></span>
+            <span class="amt"><span class="num" data-src="services.price">$179</span><span class="sz" data-src="services.vehicle_size_adjustments">small · to $279 large</span></span>
+          </label>
+          <label class="row" data-src="services">
+            <input type="radio" name="full" value="the-whole-thing" data-price="349" data-min="330" data-from="1">
+            <span class="what"><span class="nm" data-src="services.name">The Whole Thing</span><span class="dur" data-src="services.duration_minutes">Most of a day — 5 to 6 hours</span></span>
+            <span class="amt"><span class="num" data-src="services.price_is_from">$349</span><span class="from">from</span><span class="sz" data-src="services.vehicle_size_adjustments">small · to $489 large</span></span>
+          </label>
+        </fieldset>
+
+        <!-- group 2: NOT exclusive — checkboxes, any number, alone or on top of a full detail -->
+        <fieldset class="grp" data-src="service_groups">
+          <legend>
+            <h3 data-src="service_groups.name">Interior only</h3><span class="pick" data-src="service_groups.max_select">Any of these</span>
+            <span class="fine" data-src="service_groups.description">Alone, or on top of a full detail.</span>
+          </legend>
+          <label class="row" data-src="services">
+            <input type="checkbox" name="interior" value="extraction" data-price="129" data-min="90">
+            <span class="what"><span class="nm" data-src="services.name">Carpet &amp; seat extraction</span><span class="dur" data-src="services.duration_minutes">About 1½ hours</span></span>
+            <span class="amt"><span class="num" data-src="services.price">$129</span><span class="sz" data-src="services.vehicle_size_adjustments">small · to $179 large</span></span>
+          </label>
+          <label class="row" data-src="services">
+            <input type="checkbox" name="interior" value="leather" data-price="89" data-min="45">
+            <span class="what"><span class="nm" data-src="services.name">Leather clean &amp; condition</span><span class="dur" data-src="services.duration_minutes">About 45 minutes</span></span>
+            <span class="amt"><span class="num" data-src="services.price">$89</span><span class="sz" data-src="services.vehicle_size_adjustments">small · to $109 large</span></span>
+          </label>
+        </fieldset>
+      </div>
+
+      <!-- the price bar. Every figure here is calculate-booking's answer on a shipped site. -->
+      <div class="bar" data-fn="calculate-booking" aria-live="polite">
+        <p class="est"><span class="t">Estimate</span><b class="num" id="est">$—</b><span class="t" id="dur">pick a service to start</span></p>
+        <p class="fine">For a small car — the size is step 3. <b>Nothing is charged when you book.</b></p>
+        <button type="button" class="btn btn-brand" id="next">Next: Extras</button>
+      </div>
+
+      <div class="then">
+        <p class="then-h">…and then, in order:</p>
+        <ol class="stubs" aria-label="The remaining steps">
+          <li class="stub" data-src="add_ons"><b data-n="2">Extras</b><span>Pet hair, headlights, engine bay, odour, a child seat. Any, or none.</span></li>
+          <li class="stub" data-src="business_settings.vehicle_sizes"><b data-n="3">Vehicle</b><span>Small, medium or large. The estimate settles here.</span></li>
+          <li class="stub" data-src="business_settings.mobile_enabled"><b data-n="4">Location</b><span>Where the car will be. Twenty miles from Tacoma.</span></li>
+          <li class="stub" data-fn="available-slots"><b data-n="5">When</b><span>Only the days and times with room for that much work.</span></li>
+          <li class="stub"><b data-n="6">Details</b><span>Name, phone, email, a note for me.</span><span class="fld" data-fn="validate-promo-code">Promo code</span></li>
+          <!-- reserve mode (live) -->
+          <li class="stub"><b data-n="7">Review</b><span data-src="business_settings.booking_mode">Everything on one page. The slot is yours the moment you press this.</span><span class="go" data-fn="create-booking">Reserve this time</span></li>
+          <!-- ── booking_mode = "request" — a per-client build swaps THIS stub in for the Review stub above. ──
+          <li class="stub"><b data-n="7">Review</b><span data-src="business_settings.booking_mode">Everything on one page. It's a request, not a booking yet — the time is held while I look at the car and the day, then I confirm by text.</span><span class="go" data-fn="create-booking">Send the request</span></li>
+          ─────────────────────────────────────────────────────────────────────────────────── -->
+        </ol>
+      </div>
+    </form>
+
+    <!-- ── THE ALTERNATIVE — link out to /book/:slug. "It's up to the detailer's choice": this is what a
+         BOOKING-ONLY customer with no website gets, and a per-client build that wants it swaps this block
+         in for the whole <form class="bk"> above. Not a toggle on purpose.
+    <div class="cta" data-rv>
+      <a class="btn btn-brand" href="/book/tolliver-mobile" data-src="businesses.slug">Book a time</a>
+      <p class="fine" data-src="business_settings.booking_mode">The slot is yours the moment you pick it — you'll get a text and an email with the details.</p>
+    </div>
+    ─────────────────────────────────────────────────────────────────────────────────── -->
   </div>
 </section>
 
@@ -1025,10 +1162,36 @@ strong{font-weight:600}
     }catch(e){state.textContent="Hours below";}
   }
 
+  /* ── the booking form, step one — ARTIFACT ONLY ───────────────────────
+     On a shipped site the bar is filled by calculate-booking and nothing on
+     the page adds prices up. This exists so the artifact moves when a row is
+     picked: it sums the SMALL-size figures the rows already print. */
+  var bk=document.querySelector(".bk");
+  if(bk){
+    var est=document.getElementById("est"),dur=document.getElementById("dur");
+    var hrs=function(m){var h=Math.floor(m/60),r=m%60;
+      if(!h)return "about "+r+" min";
+      return "about "+h+(r===30?"½":"")+" hr"+(h>1||r===30?"s":"")+(r&&r!==30?" "+r+" min":"")};
+    var upd=function(){var p=0,m=0,n=0,from=false;
+      [].forEach.call(bk.querySelectorAll(".row input"),function(i){
+        i.closest(".row").classList.toggle("on",i.checked);
+        if(i.checked){n++;p+=+i.getAttribute("data-price");m+=+i.getAttribute("data-min");if(i.hasAttribute("data-from"))from=true}});
+      est.textContent=n?(from?"from $":"$")+p:"$—";
+      dur.textContent=n?hrs(m):"pick a service to start"};
+    bk.addEventListener("change",upd);
+    /* a radio that is already picked unpicks on a second click — a customer can want an interior-only visit */
+    bk.addEventListener("click",function(e){var i=e.target;if(!i||i.type!=="radio")return;
+      if(i.getAttribute("data-was")==="1"){i.checked=false;upd()}
+      [].forEach.call(bk.querySelectorAll("input[type=radio]"),function(r){r.setAttribute("data-was",r.checked?"1":"0")})});
+    document.getElementById("next").addEventListener("click",function(){
+      bk.querySelector(".then").scrollIntoView({behavior:LITE?"auto":"smooth",block:"nearest"})});
+    upd();
+  }
+
   /* ── seams chrome ─────────────────────────────────────────────────── */
   if(html.classList.contains("seams")){
     var sc=document.getElementById("seamcount");
-    if(sc)sc.textContent=document.querySelectorAll("[data-src]").length+" labelled.";
+    if(sc)sc.textContent=document.querySelectorAll("[data-src]").length+" read from a column, "+document.querySelectorAll("[data-fn]").length+" call an edge function.";
   }
   var y=document.getElementById("yr");if(y)y.textContent=new Date().getFullYear();
 })();

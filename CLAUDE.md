@@ -120,6 +120,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   at. The reference rendering is `docs/design-directions/5-the-thread.html`,
   the page the owner approved; **where the document and that page disagree,
   the page is right.** See `DESIGN.md`.
+- **NO FABLE FOR BUILDING PAGES — the owner, 2026-09-05: *"No more fable when
+  making pages."*** It built the three tenant-site worlds in
+  `docs/tenant-sites/` and then the booking form inside each of them, and that
+  is where it stops. **Whichever model the session is already running builds
+  and verifies pages from here.** The roadmap 3.1 entry's *"Fable 5.1 belongs
+  here"* is spent and superseded; do not re-read it as a standing instruction.
+  His earlier *"maybe using fable when it's needed"* is not a contradiction —
+  it was permission for one job, and he has now closed it.
 - **The skill-collision rule is BACK ON.** Appliers and auditors only —
   `impeccable`, `animate`, `ship-check`. No direction-generating skill
   (`frontend-design`, `tastemaker`, `great-design`, `scrollcraft`) runs
