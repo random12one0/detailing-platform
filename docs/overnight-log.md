@@ -1424,6 +1424,51 @@ first now.
 
 ---
 
+## The guide on every tab — the thinking is done, the building is not
+
+**What changed.** `docs/tour-steps-2.24.md`: exactly what each of the five
+guides would say, step by step, and the decisions behind them. **I did not
+build the overlay**, and the roadmap itself splits the job that way — with this
+written, the rest is mechanical.
+
+**Your complaint was that the guide "did it for the home page and then it
+stopped there."** It is worse than it sounds: four of its seven steps are
+signposts pointing at the tabs, so it explains one screen and then names the
+other four. The fix is five short guides, each arriving the first time you open
+that tab.
+
+**The question I had to settle, and how.** Should a guide OPEN things — a
+client's record, a job — and point inside them? **No.** The tour is drawn over
+your real bookings, and the reason it never lets you click the thing it is
+pointing at is so the product cannot act on your data. A tour that opens
+records is the same risk with our hand on it instead of yours, and if you press
+Escape halfway you are left in a record you never opened. Where the meaning
+really is behind a click, one sentence says what is behind it.
+
+**What I cut, which is the part worth knowing.** You said steps should only
+exist for things that are not obviously explainable, and applying that
+honestly killed a lot:
+- **The Calendar gets no guide at all.** Every step I could write for it was a
+  control reading its own label back — "Month / History", arrows either side of
+  a month name. The one thing that is not obvious (a day opens beside the month
+  rather than replacing it) is something you learn by pressing a day.
+- **Business gets two steps out of thirteen rows.** A row that says "Hours &
+  days off" has already said it.
+- **Today, Money and Clients get four, three and three**, and I have written
+  down which single step on each earns its place — on Money it is that *Net*
+  means after expenses, which is the one word on that screen somebody can
+  misread in their own favour.
+
+**Sixteen short steps across five arrivals**, against the seven you have now —
+which is what you asked for: more steps, none of them combining two things.
+
+**Why I stopped there.** Building it is five sets of markers on live screens
+plus the overlay logic, and it wants a fresh session rather than the end of a
+long one. Everything it needs is written down, including the eleven new markers
+and what each guide does on a brand-new dashboard with nothing on it.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

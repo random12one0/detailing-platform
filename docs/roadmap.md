@@ -5384,7 +5384,40 @@ is kept; the entire visual design restarts from scratch.
       comparison was sent to him 2026-09-04. **Still his call.**
 
 
-- [ ] 2.24 **A GUIDE ON EVERY TAB, NOT JUST THE FIRST ONE — the OWNER,
+- [ ] 2.24 **A GUIDE ON EVERY TAB — THE WRITING HALF IS DONE
+      (`docs/tour-steps-2.24.md`, 2026-09-06). WHAT IS LEFT IS THE OVERLAY AND
+      THE SWEEP**, which is exactly the split this entry itself describes.
+
+      **THE DECISION IT SAID TO SETTLE FIRST IS SETTLED: a guide never advances
+      the screen.** The choice was whether a Clients guide opens a record and
+      points inside it. It does not, and not for convenience:
+      **rule 1 — the lit element is not clickable — exists because this runs
+      over live data**, and a tour that drives the screen is the same risk with
+      OUR hand on it instead of the detailer's; a tour dismissed with Escape
+      after opening a job has moved somebody into a record they did not choose;
+      and **it is not the complaint** — he said it *"did it for the home page,
+      and then it stopped there"*, which is about four steps being signposts to
+      doors, not about the guide failing to walk through them. Where a screen's
+      meaning really is behind a click, one SENTENCE says what is behind it.
+
+      **THE FILTER CUT MORE THAN IT KEPT, as the entry predicted.** Calendar
+      gets **no guide at all** — every candidate step was a control reading its
+      own label back, and decision 6 says a tab whose honest guide is one step
+      does not get one. Business gets **two** steps out of thirteen rows.
+      Today, Money and Clients get four, three and three. **Sixteen short steps
+      across five arrivals**, against the seven-step tour it replaces, which is
+      what *"more steps and not try to combine any things into one step"*
+      asked for.
+
+      **AND THE SHELL TOUR GOES FROM SEVEN STEPS TO FOUR**, keeping the link
+      last (§13b) — otherwise a detailer meets the same sentence twice, which
+      is his complaint arriving from the other side.
+
+      The document also lists the eleven new `data-tour` targets the build
+      needs and what each guide does on an empty dashboard. **The original
+      entry, which is still the rulebook for the overlay:**
+
+      - [ ] 2.24 **A GUIDE ON EVERY TAB, NOT JUST THE FIRST ONE — the OWNER,
       2026-09-05, about the walkthrough that already exists.**
 
       > *"Remember we made a kind of, like, guide that goes step by step and it

@@ -321,6 +321,15 @@ screen itself or it only covers the resting screen. Give a recommendation.
 
 **Write no code.** Not the overlay, not the `data-tour` attributes.
 
+**~~QUEUED~~ DONE 2026-09-06 — `docs/tour-steps-2.24.md` exists**, written on
+the machine rather than in the cloud because that night's session reached it
+with the roadmap's own items finished. **The question this item could not
+dodge is answered there: a guide never advances the screen**, and the reason
+is that rule 1 exists because this runs over live data — driving the screen
+is that risk with our hand on it instead of the detailer's. Calendar gets no
+guide at all. **Take this task off the queue; what is left of 2.24 is the
+overlay and the sweep, which need a browser and so are not cloud work.**
+
 > **PROMPT**
 >
 > Read docs/cloud/README.md, then CLAUDE.md, then docs/roadmap.md item 2.24 and the whole header comment of app/src/components/Walkthrough.jsx.
