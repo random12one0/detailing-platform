@@ -5670,9 +5670,52 @@ is kept; the entire visual design restarts from scratch.
       His constraint is unchanged and is the reason the contract exists: *"a
       lot of the features of the admin dashboard need some features on the
       website to work."* See `docs/tenant-websites.md` §3.
-- [ ] 3.3 Custom domains: hostname→business lookup + the Netlify alias
+- [x] 3.3 ~~Custom domains: hostname→business lookup + the Netlify alias
       process, so website-package customers can use their own domain.
-      Booking-only customers stay on `detailingplatform.com/book/name`.
+      Booking-only customers stay on `detailingplatform.com/book/name`.~~
+      **SHIPPED 2026-09-05, BOTH HALVES.** `20260906000000_custom_domains.sql`,
+      `_shared/tenantSite.ts`, `verify-domain`, `app/src/lib/host.js`, a
+      seventeenth settings screen (**Your web address**), and
+      `docs/custom-domains.md` for the one step that is not code.
+
+      **THE OUTBOUND HALF WAS THE BIGGER ONE AND THIS ENTRY DID NOT KNOW IT** —
+      see the note below, written while building 3.1. All five URL builders in
+      `_shared/config.ts` now take the tenant's own origin as a **required
+      first argument**, resolved by `siteFor()` from
+      `business_canonical_host`. **A default was considered and rejected**: it
+      keeps every existing call working AND lets a call site forget the tenant
+      while looking correct, which is this repo's most repeated failure wearing
+      a new hat. Required, a forgotten argument puts `undefined` in a link, and
+      `render-emails.mjs` already fails on that string.
+
+      **WHAT `business_domains.domain` MEANS IS THE ONE THING TO GET RIGHT: a
+      hostname that RESOLVES TO THIS APP**, normally a subdomain aliased onto
+      our Netlify site. It is NOT "the detailer's website". The receipt, plan
+      and opt-out pages the platform emails are pages OUR app serves, so
+      pointing them at a host that does not serve them replaces one visible
+      seam with a 404 — which is worse, because a customer who cannot open
+      their own booking has lost it.
+
+      **SO VERIFICATION IS A FETCH, NOT A TICK.** `verify-domain` GETs
+      `/platform-host.txt` from the address itself and requires a marker only
+      this app serves. Nothing a detailer types can make that true. And
+      `verified_at` is **revoked from `authenticated` at column level**,
+      because RLS chooses ROWS and not columns — without that, a detailer
+      stamps their own row and the fetch is decoration.
+
+      **THE HOSTNAME CHANGES EXACTLY ONE ROUTE**, and `tests/custom-domains.test.mjs`
+      § 7 pins that it stays one. `/` is our marketing page on our hosts and
+      that detailer's booking page on theirs; every other path serves the same
+      thing on either, because the alias points at this same site. An
+      unrecognised host that resolves to no business falls back to the
+      marketing page — the safe direction the day somebody buys a second
+      platform domain and forgets `lib/host.js`.
+
+      **ONE STEP IS OURS AND THE SCREEN SAYS SO IN AS MANY WORDS.** Adding the
+      alias in Netlify cannot be done from the app, and a screen offering *Add*
+      and *Check* without saying that leaves a detailer pressing Check for ever
+      — the push-switch defect stage 6 spent a pass removing, one screen over.
+      Automating it needs a Netlify token behind the platform admin of 4.4.
 
       **THAT SPLIT IS NOW LOAD-BEARING FOR MORE THAN DOMAINS — 3.1, 2026-09-05.**
       The owner's *"it's up to the detailer's choice"* lands exactly on it:

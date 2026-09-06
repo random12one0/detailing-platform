@@ -231,6 +231,8 @@ were made more than once.
 
 - **Roadmap 3.2 — the headless booking core, five closed gaps and the kit brief** — the owner's 3.1 amendment means every website-package tenant draws its OWN booking form, so **the FORM forks per client and the RULES must not fork with it.** `app/src/book/core.js` is those rules with no page around them: no React, no markup, no CSS and **no `import` statement of any kind**, because a tenant site may be built on anything and one import makes it undroppable. **The decision that makes it real is that it is WIRED THROUGH rather than written BESIDE** — `BookingPage.jsx` lost ~200 lines, `lib/api.js`'s four public booking calls go through the core's own transport, and the context and three steps call it; *a core the product does not itself run is a core that rots*, and the next person to find it wrong would be a client's agent. **It was proven a LIFT rather than a rewrite by MEASUREMENT** — every spare-room figure `sweep-booking-steps.mjs` printed afterwards is identical to the recorded ones. **Its test's § 1 reads the file as TEXT** and fails on any import, JSX, Vite env, React hook or unwrapped `localStorage`; **two of those checks were vacuous on their first run by matching the file's own header prose promising the very thing they check for** — strip comments before reading a file as text. (b) closes five of the contract's eight §6 gaps in one migration and **DROPS two dead columns**, `business_branding.social_google`/`social_yelp`, which shadowed the live settings pair — *a shadowing column is worse than a missing one*, and they were measured null on all six rows before the drop. **6f and 6g were left as questions for the owner rather than guessed at.** (c) is `docs/tenant-site-kit.md`, **a POINTER and never a summary** — a kit that restates the contract is a second copy of it, and the older copy goes stale silently; its §5 says in his own words that the three worked pages are the STRUCTURAL range and NOT the taste reference. **And the item found a live defect it did not cause, by LOOKING**: the plan form's four-option price control ran 28px past its row at 392 — the owner's own phone width — clean at 320, 360 and 1920 and invisible to every check, because the settings walk is tiered to 320/1920 and § THE 320 FLOOR only reaches 360. *A fix written inside `max-width: 360px` is a fix that does not exist at 392*, which this file had already recorded once for `.btnrow`.
 
+- **Roadmap 3.3 — a detailer's own web address, and the seam that was in the emails** — the roadmap entry named the INBOUND half (a customer arriving on the detailer's address); **the outbound half was bigger and the entry did not know about it**, found five days later writing the 3.1 contract: every customer-facing URL came from one global `PLATFORM_URL`, so a detailer on their own domain still emailed *view, change or cancel* links to detailingplatform.com. **THE DECISION THE WHOLE ITEM RESTS ON IS WHAT A STORED DOMAIN MEANS: a hostname that resolves to THIS APP**, not "the detailer's website" — the receipt, plan and opt-out pages are pages OUR app serves, so pointing them at a bespoke site replaces one visible seam with a **404**, and an embarrassing link is cheap while a customer who cannot open their own booking is not. Everything else follows from that sentence. **The `site` argument is REQUIRED rather than defaulted**, and the default was written first and deleted: it keeps every existing call working AND lets a call site forget the tenant while looking correct, which is a skipped thing reading exactly like a passing one; required, a forgotten argument is `undefined` in a URL and `render-emails.mjs` has failed on that string since 2.18. **Which of several verified domains wins is a RULE, so it is in SQL** (`business_canonical_host`) — four call sites deciding for themselves is one link in one email pointing somewhere else. **Verification is a FETCH of a marker file, not a tick**, because the question is not "do you own this" but "does this actually reach us"; the marker is deliberately NOT a secret (anyone can serve it and thereby harm only themselves; the UNIQUE column is what stops them taking somebody else's domain) — **and the whole check would have been decoration without one line: `verified_at` is revoked from `authenticated` at COLUMN level, because RLS chooses rows and says nothing about columns.** **The hostname changes exactly ONE route** and a test pins the count at one: every other path serves the same thing on either host, so no link already in a customer's inbox changes meaning. `lib/host.js` is an allowlist of ours rather than a lookup, so the marketing page pays no round trip to answer a question that is almost always no, and an unrecognised host falls back to it. **One step is OURS and the screen says so in as many words** — adding the Netlify alias cannot be done from the app, and *Add* plus *Check* without that sentence is the push-switch defect one screen over. **And a Windows trap: `perl -pi -e` rewrites a file as CRLF even when the substitution matches NOTHING**, and a `python - <<'PY'` heredoc through the Bash tool can arrive mangled so a `.replace()` silently does nothing while the command reports success — assert inside the script or grep afterwards.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -13668,3 +13670,131 @@ layout into a desk one. On a `max-width` rule the guard does nothing — 844px
 already fails `max-width: 700px`. **A guard copied without its reason is
 decoration**, and a comment claiming a protection the query cannot give is
 worse than no comment.
+
+## Roadmap 3.3 — a detailer's own web address, and the seam that was in the emails
+
+**2026-09-05, overnight.** The roadmap entry named the inbound half — a
+customer arriving on the detailer's address. **The outbound half was bigger and
+this entry did not know about it**, because it was found five days later while
+writing the 3.1 contract: every customer-facing URL the platform emits came
+from one global `PLATFORM_URL`.
+
+### The decision the whole item rests on: what a stored domain MEANS
+
+`business_domains.domain` is **a hostname that resolves to THIS APP** — in
+practice a subdomain the detailer has aliased onto our Netlify site. It is
+**not** "the detailer's website", and the difference is the difference between
+the feature working and the feature losing bookings.
+
+The tempting reading is the other one. A website-package detailer has a
+bespoke site on their apex; surely their emails should link there. But the
+links in question are the receipt page, the plan page and the opt-out page,
+**all of which are pages our app serves and their site does not**. Pointing
+those at their apex replaces one visible seam with a 404 — and an embarrassing
+link is cheap while a customer who cannot open their own booking is not.
+
+Everything else follows from that one sentence: the verification is a fetch
+rather than a promise, the settings screen says "usually a subdomain", and the
+runbook's step 2 exists at all.
+
+### Why the `site` argument is required rather than defaulted
+
+All five builders in `_shared/config.ts` take the tenant's origin as a required
+first argument. The alternative — `site = PLATFORM_URL` — was written first and
+then deleted. It has one real advantage: every existing call keeps working
+untouched, so a thirteen-call-site change becomes a one-file change. **And it
+makes a call site that forgets the tenant keep the seam while looking
+correct**, which is this repo's most repeated failure mode in a new hat: a
+skipped thing reading exactly like a passing one.
+
+Required, a forgotten argument is `undefined` in a URL — and
+`scripts/render-emails.mjs` has failed on the literal string "undefined" in a
+rendered email since roadmap 2.18. **The loud version was already paid for.**
+
+### Why the "which domain wins" rule is in SQL
+
+A detailer may verify more than one address (an apex and a subdomain). The
+emails must pick exactly one, and every email in a batch must pick the same
+one. `business_canonical_host` orders by `created_at` and takes one; four call
+sites each deciding for themselves is a rule that forks, and the symptom would
+be one link in one email pointing somewhere else — invisible until a customer
+mentions it.
+
+### Why verification fetches, and why the marker is not a secret
+
+`verify-domain` GETs `/platform-host.txt` from the address itself and requires
+a marker only this app serves. From the moment a row is verified the platform
+writes that address into every one of the detailer's customer emails, so the
+question is not "does this person own this domain" but **"does this address
+actually reach us"** — and only a fetch can answer that.
+
+The marker is a constant, not a per-tenant token, and the reasoning is written
+into the function. Anybody can serve the same three words from their own
+server and pass, which lets somebody point a hostname they own at a page they
+control and have this platform email their own customers a link to it — a
+person harming only themselves. **What it cannot do is take somebody else's
+domain**, because the column is UNIQUE and an unverified row resolves nothing.
+A signed per-tenant token would add a step the detailer has to copy across
+without closing a hole they can reach.
+
+**And the check would have been decoration without one line of SQL.**
+`verified_at` is revoked from `authenticated` at column level, because RLS
+chooses which ROWS a detailer may write and says nothing about which COLUMNS —
+so anybody with the `settings` permission could otherwise stamp their own row
+and skip the fetch entirely. A column grant is the only mechanism Postgres has
+for this, and it leaves the service role untouched, which is exactly the split
+wanted.
+
+### Why the hostname changes exactly one route
+
+`/` is the marketing page on our hosts and the detailer's booking page on
+theirs. **Every other path serves the same thing on either host**, because the
+alias points at this same site — which means no link already sitting in a
+customer's inbox changes meaning, and the whole feature is additive.
+`tests/custom-domains.test.mjs` § 7 pins the count of hostname branches at
+one, because the second one is where this gets complicated.
+
+`lib/host.js` is an ALLOWLIST of our own hosts rather than a database lookup.
+The obvious version asks "is this host a tenant?" on every visit, which puts a
+round trip in front of the marketing page for the overwhelming majority of
+visitors, to answer a question that is almost always no. And an unrecognised
+host that resolves to no business falls back to the marketing page — the safe
+direction the day somebody buys a second platform domain and forgets this file.
+
+### The step that is not code, and saying so
+
+Adding the alias in Netlify cannot be done from the app. **A screen offering
+*Add* and *Check it* without saying that leaves a detailer pressing Check for
+ever and concluding the product is broken** — which is the push-switch defect
+roadmap 2.11 stage 6 spent a whole pass removing, one screen over. So the
+screen carries a numbered three-step list with step 2 in bold as ours, and
+`docs/custom-domains.md` is the runbook. Automating it means a Netlify account
+token as a function secret behind roadmap 4.4's platform admin; a token nobody
+is watching is a bigger surface than the feature is worth for the first handful
+of detailers.
+
+### The demo is seeded UNVERIFIED, on purpose
+
+`seed-demo.mjs` adds one address and leaves `verified_at` null. Two reasons,
+and the second matters more: the interesting state of the screen is the
+half-finished one (the three-step list only exists then, so a verified seed
+would measure an empty screen at every width and print `clean`), **and a
+verified demo would make every URL in every demo email point at a host that
+does not exist.**
+
+### The Windows trap this item walked into
+
+`perl -pi -e` rewrites a file as CRLF on Windows, exactly as plain
+`open(p, "w")` in Python does — **and it does it even when the substitution
+matches nothing**, so a no-op edit still converts the file. Three were
+converted. `git diff --numstat` showed only the real line changes because
+`core.autocrlf` normalises on the way in, so nothing was committed wrong; a
+byte-exact check would have gone red in a file the session had barely touched,
+which is the diagnosis CLAUDE.md already records twice.
+
+**The second half cost more.** A `python - <<'PY'` heredoc through the Bash
+tool sometimes arrives mangled, so a multi-line `.replace()` finds nothing, the
+file is left unchanged, and the command reports success. It happened three
+times in one session and twice was invisible until a `grep` was run afterwards.
+**Assert inside the script or verify with `grep` after every scripted edit**,
+and prefer a byte-exact editing tool that fails loudly.

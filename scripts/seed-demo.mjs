@@ -241,6 +241,19 @@ await post("/rest/v1/business_branding", [{
   ],
 }]);
 
+// ROADMAP 3.3 — ONE ADDED, UNVERIFIED ADDRESS, AND UNVERIFIED IS THE POINT.
+// The "Your web address" screen has two states and the interesting one is the
+// half-finished one: a row plus the numbered three-step list that says which
+// of the three is OURS. A verified seed would draw a tick and hide the list at
+// every width, which is the empty-screen defect wearing a green badge — and it
+// would ALSO make the demo's emails link to a host that does not exist.
+// `verified_at` stays null, so `business_canonical_host` returns nothing and
+// every URL in the demo is the platform's, exactly as it is in production.
+await post("/rest/v1/business_domains", [{
+  business_id: business.id,
+  domain: "book.coastlineautodetailing.example",
+}]);
+
 // Open Tue–Sat, closed Sun/Mon — so the calendar shows real closed days.
 //
 // EXCEPT THAT THE CLOSED DAYS ARE DERIVED FROM TODAY, and that is the point of

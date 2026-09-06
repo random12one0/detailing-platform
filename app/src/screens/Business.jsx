@@ -45,7 +45,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  CalendarClock, ChevronRight, ClipboardList, HelpCircle, Images, ListChecks,
+  CalendarClock, ChevronRight, ClipboardList, Globe, HelpCircle, Images, ListChecks,
   MessageSquareQuote, Palette, Repeat, Store, Tag, Wallet, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
@@ -137,7 +137,7 @@ export default function Business({ onSetup }) {
 
   // One round trip for every summary line on the screen.
   const load = useCallback(async () => {
-    const [h, s, a, p, g, r, pl, pm] = await Promise.all([
+    const [h, s, a, p, g, r, pl, pm, dm] = await Promise.all([
       supabase.from("business_hours").select("weekday,open_time,close_time").eq("business_id", business.id),
       supabase.from("services").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       supabase.from("add_ons").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
@@ -150,6 +150,13 @@ export default function Business({ onSetup }) {
       // has.
       supabase.from("plans").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       supabase.from("plan_members").select("id", { count: "exact", head: true }).eq("business_id", business.id).neq("status", "ended"),
+      // ROADMAP 3.3. The verified address itself rather than a count: this
+      // row's whole question is "what do my customers see", and the answer is
+      // a string. Ordered the same way `business_canonical_host` orders, which
+      // is what the EMAILS use — a row naming a different one of two verified
+      // domains than the emails do would be worse than silence.
+      supabase.from("business_domains").select("domain").eq("business_id", business.id)
+        .not("verified_at", "is", null).order("created_at").limit(1),
     ]);
     // A null count means the query failed. Keep it null so the row shows a
     // dash rather than asserting zero — a wrong "0 people" reads as a real
@@ -164,6 +171,7 @@ export default function Business({ onSetup }) {
       // The setup form's own reading of the same rows. It asks whether ANY
       // day is open, which is the same question the blocking row below asks.
       hoursOpen: (h.data ?? []).some((r) => r.open_time),
+      domain: dm.data?.[0]?.domain ?? null,
     });
   }, [business.id]);
 
@@ -239,6 +247,13 @@ export default function Business({ onSetup }) {
       // wrong.
       ["faq", "Common questions", HelpCircle,
         settings ? describeFaq(settings) : "…"],
+      // ROADMAP 3.3. Under "Your page" for the same reason everything else
+      // here is: what it changes is the address a CUSTOMER meets, in their own
+      // confirmation email. THE SUMMARY IS THE ADDRESS ITSELF where there is
+      // one, and the platform path where there is not — never "0 domains",
+      // which tells a detailer nothing about what their customers see.
+      ["domain", "Your web address", Globe,
+        counts ? (counts.domain ?? `detailingplatform.com/book/${business.slug}`) : "…"],
     ]],
     ["What you sell", [
       ["catalog", "Services & add-ons", Wrench,

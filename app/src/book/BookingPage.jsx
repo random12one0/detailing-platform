@@ -24,6 +24,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "../lib/api.js";
+import { tenantHost } from "../lib/host.js";
 import { duration, money } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import {
@@ -46,16 +47,28 @@ import "./booking.css";
 // reasoning. A tenant site's own form needs the same order and the same
 // recognition, and neither can be re-derived from looking at a screenshot.
 
-export default function BookingPage() {
+// ROADMAP 3.3 — `byHost` is the same page reached from `/` on a detailer's
+// own verified address. Nothing below this line knows the difference: the
+// context resolves the business either way and hands the flow the SAME slug.
+// `notFound` is what to draw when the host resolves to no business. On the
+// slug path that is the page's own "this link doesn't match a business"
+// message, which is the truth. On the HOST path the router hands in the
+// marketing page instead, and that is the safe direction rather than a
+// nicety: the day somebody buys a second platform domain and forgets to add
+// it to `lib/host.js`, `/` shows the product rather than a dead end.
+export default function BookingPage({ byHost = false, notFound = null }) {
   const { slug } = useParams();
   return (
-    <BookingBusinessProvider slug={slug}>
-      <BookingFlow />
+    <BookingBusinessProvider
+      slug={byHost ? undefined : slug}
+      host={byHost ? tenantHost() : undefined}
+    >
+      <BookingFlow notFound={notFound} />
     </BookingBusinessProvider>
   );
 }
 
-function BookingFlow() {
+function BookingFlow({ notFound = null }) {
   const ctx = useBookingBusiness();
   const { status, business, branding, settings, services, serviceGroups, addOns, plans, brandVars, slug } = ctx;
   const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
@@ -210,6 +223,7 @@ function BookingFlow() {
     return <div className="bk" style={brandVars}><div className="bk-center"><div className="bk-spinner" /></div></div>;
   }
   if (status === "not_found") {
+    if (notFound) return notFound;
     return (
       <div className="bk" style={brandVars}>
         <div className="bk-center">

@@ -76,6 +76,28 @@ export function createBookingTransport({ supabaseUrl, anonKey }) {
       if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
       return data ?? null;
     },
+    // ROADMAP 3.3 — THE SAME PROFILE, FOUND BY HOSTNAME. A detailer who has
+    // pointed their own address at this app is served from `/` on it, and a
+    // bespoke site hosted anywhere can use this instead of hard-coding a slug
+    // it would then have to keep in step with the dashboard.
+    // **Only a VERIFIED domain resolves** — an unverified row is a claim, and
+    // serving a business from a claim would let anybody who can type a
+    // hostname decide what that hostname shows.
+    async profileByHost(host) {
+      const res = await fetch(`${supabaseUrl}/rest/v1/rpc/get_public_business_profile_by_host`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
+        },
+        body: JSON.stringify({ p_host: host }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+      return data ?? null;
+    },
     // THE ONLY PLACE A PRICE EVER COMES FROM. A site that adds up service
     // prices itself has forked the pricing engine, which is the one thing
     // docs/tenant-site-contract.md forbids outright.

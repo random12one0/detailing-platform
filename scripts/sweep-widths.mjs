@@ -179,7 +179,13 @@ const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that say
 // product, and 320 is where that is decided. The demo is seeded with a
 // deliberately long question for exactly that reason: a screen swept empty
 // prints `clean` and means nothing.
+// "YOUR WEB ADDRESS" IS ROADMAP 3.3, added in the change that BUILT it. Its
+// own geometry risk is the numbered three-step list that only exists while a
+// domain is added and unverified — a state behind a state, which is the gap
+// this file records ten times. `seed-demo.mjs` seeds exactly that row so the
+// list is drawn at every width rather than measured as an empty screen.
 const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews", "Common questions",
+  "Your web address",
   // "How you get paid" is roadmap 2.20 stage 1, and it is added in the change
   // that BUILT it rather than in the item that later finds it broken — which
   // is the whole lesson of the nine times this same gap has been recorded.

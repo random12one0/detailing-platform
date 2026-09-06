@@ -5678,3 +5678,132 @@ and the sweep printed both rather than skipping them: `job record · to do`
 the run was at 23:40 local) and `job record · tomorrow` (tomorrow is a Sunday
 and the demo is closed Sundays). The record itself WAS measured in its request
 and finished states. Pre-existing and date-dependent; not a regression.
+
+## ROADMAP 3.3 — A DETAILER'S OWN WEB ADDRESS, BOTH HALVES (2026-09-05)
+
+**The entry in the roadmap named the smaller half.** *"Hostname→business
+lookup + the Netlify alias process"* is the INBOUND direction — a customer
+arriving on the detailer's address. The OUTBOUND direction is bigger and was
+found while writing the 3.1 contract (§6a): every customer-facing URL the
+platform emits came from one global `PLATFORM_URL`, so a detailer on
+`coastlinedetail.com` still sent confirmation emails whose *view, change or
+cancel* link went to detailingplatform.com. **That is the one seam a customer
+can see, in the one artifact the detailer did not write.**
+
+### What `business_domains.domain` means, which is the whole item
+
+**A hostname that RESOLVES TO THIS APP** — normally a subdomain the detailer
+has aliased onto our Netlify site. **Not "the detailer's website".**
+
+The reason is not pedantry. The receipt page, the plan page and the opt-out
+page are pages OUR app serves. Moving those links onto a host that does not
+serve them replaces one visible seam with a **404** — and a customer who
+cannot open their own booking has lost it. A visible seam is embarrassing; a
+dead link costs money.
+
+`business_domains` had existed since the first tenant migration
+(`20260827000100_tenant_core.sql:121`) with **no reader and no writer at
+all**, and its RLS was already complete. So the migration added only the two
+things that were missing: the two lookups, and a lock.
+
+### The outbound half
+
+All five builders in `_shared/config.ts` — `businessSiteUrl`, `receiptUrl`,
+`planUrl`, `plansUrl`, `unsubscribeUrl` — take the tenant's origin as a
+**required first argument**. `siteFor()` (`_shared/tenantSite.ts`) resolves it
+in one cached query per invocation and returns `PLATFORM_URL` for every tenant
+without a verified domain, **which is all of them today** — the property that
+made it safe to change thirteen call sites in one night.
+
+**A DEFAULT WAS CONSIDERED AND REJECTED.** `site = PLATFORM_URL` keeps every
+existing call working untouched — and lets a call site that FORGETS the tenant
+keep the seam while looking correct. That is this repo's most repeated failure
+in a new hat. Required, a forgotten argument is `undefined` in the URL, and
+`scripts/render-emails.mjs` already fails on the string "undefined" appearing
+anywhere in a rendered email.
+
+**WHICH of several verified domains wins is a rule, so it lives in SQL.**
+`business_canonical_host` orders by `created_at` and takes one. Four call
+sites each deciding for themselves is a rule that forks, and the symptom would
+be one email in a batch pointing somewhere else.
+
+### The inbound half
+
+`get_public_business_profile_by_host(host)` **delegates to the by-slug
+function** rather than restating it — a second copy of what a public profile
+contains is the thing that goes stale the next time a key is added, which is
+exactly the gap 3.2(b) had just spent a migration closing.
+
+**Only a VERIFIED domain resolves.** An unverified row is a claim; serving a
+business from a claim would let anybody who can type a hostname into their own
+settings screen decide what that hostname shows.
+
+In the app, `lib/host.js` answers one question on one route. **`/` is the only
+path where the hostname changes the answer** — our marketing page on our
+hosts, that detailer's booking page on theirs. Every other path serves the
+same thing on either, because the alias points at this same site, so no
+existing link in anybody's inbox changes meaning. `tests/custom-domains.test.mjs`
+§ 7 pins the count at one.
+
+**IT IS AN ALLOWLIST OF OURS, NOT A LOOKUP.** The obvious version asks the
+database "is this host a tenant?" on every visit — a round trip in front of
+the marketing page for the 99% of visitors who are on it, to answer a question
+that is almost always no. And a host we do not recognise that resolves to no
+business falls back to the marketing page: the safe direction the day somebody
+buys a second platform domain and forgets to add it here.
+
+### Verification is a fetch, not a tick
+
+`verify-domain` GETs `https://<host>/platform-host.txt` and requires a marker
+back that only this app serves. `app/public/platform-host.txt` is a real
+static file, and Netlify serves a real file ahead of the SPA's catch-all
+rewrite.
+
+**AND `verified_at` IS REVOKED FROM `authenticated` AT COLUMN LEVEL.** RLS
+decides which ROWS a detailer may update and says nothing about which COLUMNS.
+Without that one line, anybody with the `settings` permission could stamp
+their own row and the fetch above would be decoration. It is the only
+mechanism Postgres has for this, and it leaves the service role — the edge
+function — unaffected, which is exactly the split wanted.
+
+**The marker is deliberately not a secret**, and the reasoning is written into
+the function: anybody can serve the same three words from their own server and
+"pass", which lets somebody point a hostname they own at a page they control
+and email their own customers a link to it — a person harming only themselves.
+What it cannot do is take somebody ELSE's domain, because the column is
+UNIQUE. A signed per-tenant token would add a step the detailer has to copy
+without closing a hole they can reach.
+
+### One step is ours, and the screen says so
+
+Adding the alias in Netlify cannot be done from the app. **A screen offering
+*Add* and *Check it* without saying that leaves a detailer pressing Check for
+ever and concluding the product is broken** — the push-switch defect roadmap
+2.11 stage 6 spent a pass removing, one screen over. So the screen carries a
+numbered three-step list (a real sequence, which is the one case the design
+system allows numbering) with step 2 in bold as ours. `docs/custom-domains.md`
+is the runbook. Automating it needs a Netlify account token behind roadmap
+4.4's platform admin, and a token nobody is watching is a bigger surface than
+the feature is worth for the first handful of detailers.
+
+### What was measured
+
+`sweep-widths.mjs` clean at 1920, 1440, 392, 360 and 320, with **Your web
+address** walked at both extremes; `--lite` clean; `sweep-booking-steps.mjs`
+exit 0; `e2e-booking.mjs` on both tenants; `render-emails.mjs` renders all 23;
+fourteen credential-free suites green, including the new `custom-domains` (59
+checks, baselined four ways) and `route-contract`, which **failed first and
+was right to** — it pins that `config.ts`'s paths match the router's, and
+`${PLATFORM_URL}` becoming `${site}` is exactly the change it watches for. It
+gained a check that the builders still reduce to a path, so the comparison can
+never go vacuous.
+
+### And a Windows trap this session walked into
+
+`perl -pi -e` **rewrites a file as CRLF on Windows**, the same way
+CLAUDE.md already records for `python open(p, "w")`. Three files were
+converted; `git diff --numstat` showed only the real line changes because
+`core.autocrlf` normalises on the way in, so nothing was committed wrong — but
+a byte-exact check (`composition` 8e-iv) would have gone red in a file the
+session had barely touched. **Add `perl -pi` to the list of things that must
+not touch a source file on this machine**, and `sed -i 's/\r$//'` is the fix.

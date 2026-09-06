@@ -41,6 +41,7 @@ import { businessById, businessBySlug, getSettings } from "../_shared/tenant.ts"
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { planCancelledEmail, planLinkEmail } from "../_shared/emailTemplates.ts";
 import { businessSiteUrl, planUrl } from "../_shared/config.ts";
+import { siteFor } from "../_shared/tenantSite.ts";
 
 // The member, their plan and the two halves of the ledger. `plan_visits` is
 // the OWED half and `bookings.plan_member_id` the USED half — they live apart
@@ -110,14 +111,19 @@ Deno.serve(async (req) => {
 
       const settings = await getSettings(business.id);
       const brand = await buildBrand(business, settings);
+      // ROADMAP 3.3 — one lookup, cached for this invocation, feeding both
+      // links in the email. A plan link that arrives on the platform domain
+      // while everything else in the same email is on the detailer's is a
+      // worse seam than having none at all.
+      const site = await siteFor(supabase, business.id);
       const name = (customers ?? []).find((c: { id: string }) => c.id === member.customer_id)?.name ?? "";
       // deno-lint-ignore no-explicit-any
       const planName = String((member as any).plan?.name ?? "your plan");
       const msg = planLinkEmail(brand, {
         customerName: name,
         planName,
-        planUrl: planUrl(member.id),
-        bookUrl: businessSiteUrl(business.slug),
+        planUrl: planUrl(site, member.id),
+        bookUrl: businessSiteUrl(site, business.slug),
       });
       await sendTenantEmail({
         businessId: business.id, to: email, subject: msg.subject, html: msg.html, text: msg.text,
@@ -206,7 +212,7 @@ Deno.serve(async (req) => {
       used,
       customer_name: customer?.name ?? "",
       business: { slug: business.slug, name: business.name, phone: business.contact_phone },
-      book_url: businessSiteUrl(business.slug),
+      book_url: businessSiteUrl(await siteFor(supabase, business.id), business.slug),
     });
   } catch (err) {
     console.error("plan-link error:", err);

@@ -218,6 +218,98 @@ comment claiming a protection the code cannot give is worse than no comment.
 
 ---
 
+## Roadmap 3.3 — a detailer's own web address
+
+**The roadmap entry named the smaller half.** It said *"hostname→business
+lookup + the Netlify alias process"* — a customer arriving on the detailer's
+address. The bigger half is the other direction, found five days ago writing
+the 3.1 contract: **every link the platform emails on a detailer's behalf said
+detailingplatform.com**, even for a detailer on their own domain. That is the
+one place a customer can see that their detailer is using somebody else's
+system. Both halves shipped.
+
+**What a detailer sees now.** A new **Business → Your web address** screen:
+type `book.yourdetailing.com`, press Add, press *Check it*. Once it is live,
+their booking page answers at that address AND every link in every customer
+email uses it — confirmations, reminders, receipts, the plan page, the opt-out.
+The old detailingplatform.com link keeps working; nothing already in a
+customer's inbox breaks.
+
+**One step is yours and cannot be automated yet, and the screen says so.**
+The address has to be added as an alias in Netlify before it can answer at
+all, and that is a dashboard action. `docs/custom-domains.md` is the runbook —
+three steps, with step 2 marked as ours. **I made the screen say that out
+loud** rather than leave a detailer pressing *Check it* for ever, which is the
+defect roadmap 2.11 spent a pass removing one screen over. Automating it needs
+a Netlify account token behind the platform admin of roadmap 4.4.
+
+**Judgement calls made alone.**
+1. **A stored address means "a hostname that points at our app" — not "the
+   detailer's website".** This is the whole item and I want it flagged. The
+   receipt page, the plan page and the opt-out page are pages OUR app serves; a
+   website-package detailer's bespoke site does not have them. So pointing
+   those links at their main site would swap one embarrassing seam for a **404
+   on a customer's own booking**, which is much worse. Hence "usually a
+   subdomain" on the screen and in the runbook.
+2. **The address is PROVED, not claimed.** *Check it* fetches a marker file
+   from the address itself; nothing a detailer types can make that true. And
+   one line of the migration stops a detailer marking their own address as
+   verified — without it the check would have been decoration.
+3. **The "site" argument is required everywhere rather than defaulted.** A
+   default would have kept every existing line working and let one forgotten
+   spot quietly keep the old seam. Required, a forgotten one produces an
+   obviously broken link that an existing test already fails on.
+4. **The demo's seeded address is deliberately NOT verified**, so the demo's
+   emails keep pointing at the platform — a verified fake address would make
+   every demo email link to a host that does not exist.
+
+**What I verified and what it printed.**
+- `node tests/custom-domains.test.mjs` — **59 passed, 0 failed** (new).
+  Baselined four ways, each restored: a URL builder falling back to the global
+  → 1 fail; one call site forgetting the tenant → 1; the column lock removed →
+  1; the lookup no longer requiring verification → 1.
+- `route-contract` **failed first and was right to** — it pins that the URL
+  builders' paths match the router's routes, and the change it caught is
+  exactly the one it watches for. Updated and given one more check so it can
+  never go vacuous: **28 passed, 0 failed**, baselined by breaking a path.
+- `node scripts/e2e-booking.mjs` — **82 passed, 0 failed**, both tenants, a
+  fully clean run. (The reschedule check that failed earlier tonight passed
+  here, which confirms it is the date-and-occupancy dependence CLAUDE.md
+  describes rather than anything moving.)
+- `node scripts/sweep-widths.mjs` — exit 0, **clean at 1920, 1440, 392, 360 and
+  320**, with the new screen walked at both extremes.
+- `node scripts/render-emails.mjs` — all 23 emails render, no `undefined`
+  anywhere, which is the check that would catch a forgotten address.
+- The two new database lookups smoke-tested with the anon key exactly as a
+  browser would: an unknown host returns nothing, and a business with no
+  verified address returns nothing.
+- Ten edge functions redeployed; `verify-domain` is member-gated
+  (`verify_jwt=true`).
+- `--lite` sweep and the booking-step sweep: below.
+
+**And a second thing found by LOOKING that no check could see.** I shot the
+new screen at 392 and `book.coastlineautodetailing.example` was printing
+straight over the *Check it* button beside it, with the line underneath cut off
+mid-word. **Every geometry check said `clean`** — overlapping text is not
+outside its parent, not past an edge and not two boxes touching. Two causes,
+both fixed: a hostname has no spaces so it had nowhere to break, and this row
+needed the same phone treatment the FAQ row got earlier tonight. The CSS rule
+is now shared by both lists rather than copied, and re-shot it reads properly:
+address on its own line, full sentence underneath, controls below.
+
+**And a Windows trap worth recording, because it nearly cost real time.**
+`perl -pi -e` rewrites a whole file with Windows line endings — **even when the
+search matches nothing**, so a no-op edit still converts the file. Three files
+were converted. Nothing was committed wrong (git normalises these on the way
+in) but a byte-exact check would have gone red in a file I had barely touched,
+which is a diagnosis this repo has already paid for twice. Worse: a scripted
+edit piped through the shell sometimes arrived mangled, so the edit silently
+did nothing while the command reported success — that happened three times and
+twice I only caught it by grepping afterwards. Both are now written into
+CLAUDE.md with the fix.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

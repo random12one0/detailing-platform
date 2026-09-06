@@ -416,9 +416,20 @@ those was wrong, and three more were found writing this.**
 > `faqFor()` are the two rules a site would otherwise re-derive, and
 > `tests/booking-core.test.mjs` § 14 pins them.
 >
-> **WHAT IS STILL OPEN: 6a (roadmap 3.3, a build of its own), 6f and 6g** —
-> and 6f and 6g are questions for the owner rather than work. Both are written
-> up in `docs/overnight-log.md`.
+> **AND 6a CLOSED THE SAME NIGHT, IN ROADMAP 3.3.** All five URL builders in
+> `_shared/config.ts` take the tenant's own origin as a required first
+> argument; `siteFor()` resolves it from `business_canonical_host`; and a
+> detailer sets and proves their address on the new **Your web address**
+> settings screen. **`business_domains.domain` is a hostname that RESOLVES TO
+> THIS APP** — not "the detailer's website" — because the receipt, plan and
+> opt-out pages the platform emails are pages this app serves, and pointing
+> them at a host that does not serve them replaces a visible seam with a 404.
+> `verify-domain` proves it by fetching a marker file from the address itself.
+> Runbook: `docs/custom-domains.md`.
+>
+> **WHAT IS STILL OPEN: 6f and 6g — and both are questions for the owner
+> rather than work.** Written up in `docs/overnight-log.md` with a
+> recommendation each.
 
 **AND THE GAP LIST WAS THEN CONFIRMED FROM THE OTHER DIRECTION, WHICH IS THE
 PART WORTH TRUSTING.** The first worked page was built in parallel, by a

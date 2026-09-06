@@ -27,6 +27,7 @@ import { validateSlot } from "../_shared/slotValidation.ts";
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
+import { siteFor } from "../_shared/tenantSite.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { localDateTimeToInstant, timeStrIn, weekdayOf } from "../_shared/tz.ts";
 
@@ -385,7 +386,7 @@ Deno.serve(async (req) => {
       promoCode: promo ? promo.code : null,
       promoDiscount: quote.promoDiscount,
       total: quote.total,
-      receiptUrl: receiptUrl(business.slug, booking.id),
+      receiptUrl: receiptUrl(await siteFor(supabase, business.id), booking.id),
     };
 
     const isRequest = booking.status === "pending";

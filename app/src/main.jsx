@@ -13,6 +13,7 @@ import PlansPage from "./book/PlansPage.jsx";
 import PlanMemberPage from "./book/PlanMemberPage.jsx";
 import UnsubscribePage from "./book/UnsubscribePage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
+import { isPlatformHost } from "./lib/host.js";
 import PricingPage from "./landing/PricingPage.jsx";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
@@ -55,8 +56,18 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Routes>
         {/* --- Public. No session. ------------------------------------- */}
         {/* detailingplatform.com/ is the marketing site: someone typing the
-            domain should meet the product, not a login form. */}
-        <Route path="/" element={<LandingPage />} />
+            domain should meet the product, not a login form.
+            ROADMAP 3.3 — AND `/` IS THE ONLY PATH WHERE THE HOSTNAME CHANGES
+            THE ANSWER. A detailer who has pointed their own address at this
+            app gets THEIR booking page there; everything else in this router
+            serves the same thing on either host, because the tenant's domain
+            is aliased onto this same site. A customer who types the address
+            on a business card must not meet our marketing page.
+            `isPlatformHost` is an allowlist of OURS rather than a lookup, so
+            the marketing page pays no round trip to answer a question that is
+            almost always no — and an unrecognised host that resolves to no
+            business falls back to this page, which is the safe direction. */}
+        <Route path="/" element={isPlatformHost() ? <LandingPage /> : <BookingPage byHost notFound={<LandingPage />} />} />
         {/* ROADMAP 2.20 STAGE 2. Every plan button on the landing page comes
             here now instead of going straight to the signup form — the
             owner's ask, and also where California's AB 2863 disclosures have

@@ -33,6 +33,7 @@ import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.t
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
+import { siteFor } from "../_shared/tenantSite.ts";
 import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
 
 Deno.serve(async (req) => {
@@ -117,7 +118,7 @@ Deno.serve(async (req) => {
       promoCode: booking.applied_promo_code,
       promoDiscount: Number(booking.promo_discount) || 0,
       total: quoted,
-      receiptUrl: receiptUrl(business.slug, booking.id),
+      receiptUrl: receiptUrl(await siteFor(supabase, business.id), booking.id),
     };
 
     if (booking.customer_email && settings.email_customer_confirmation) {

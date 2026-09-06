@@ -61,6 +61,13 @@ export const api = {
   inviteUser: (businessId, email, role, label, permissions) =>
     callFn("invite-user", { business_id: businessId, email, role, label, permissions }),
 
+  // ROADMAP 3.3 — does this hostname actually reach us? The row itself is
+  // written straight through RLS from the settings screen; only `verified_at`
+  // comes from here, because the proof is a FETCH of a marker file from the
+  // address and a client cannot perform its own proof.
+  verifyDomain: (businessId, domainId) =>
+    callFn("verify-domain", { business_id: businessId, domain_id: domainId }),
+
   // ROADMAP 2.19 — the detailer emailing customers they picked themselves.
   // The browser sends the ids it chose and the words it typed; WHO ACTUALLY
   // GETS AN EMAIL is decided on the server, because two of the three rules

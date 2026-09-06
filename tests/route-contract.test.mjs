@@ -48,13 +48,31 @@ console.log("\ntest 2: config.ts builds those exact paths");
   check("receiptUrl builds /booking/{bookingId}", receipt.includes("/booking/${bookingId}"), receipt);
 
   // The generated path, with the placeholders filled, must match a route.
+  //
+  // ROADMAP 3.3 — `${site}` JOINED `${PLATFORM_URL}` HERE, and the two are the
+  // same thing for this test's purposes: the ORIGIN is now per-tenant (a
+  // detailer's own verified address, or the platform's) while the PATH is what
+  // this file exists to pin. Stripping both leaves the path, which is the only
+  // half the router serves. **If a builder ever stops stripping to a path that
+  // starts with `/`, that is this check going vacuous** — so the assertion
+  // below demands exactly that.
   const toRoute = (tpl) => tpl
     .replace(/\$\{PLATFORM_URL\}/g, "")
+    .replace(/\$\{site\}/g, "")
     .replace(/\$\{businessSiteUrl\([^)]*\)\}/g, "")
     .replace(/\$\{slug\}/g, ":slug")
     .replace(/\$\{bookingId\}/g, ":id");
   check("the site URL's path is a served route", routes.includes(toRoute(site)), toRoute(site));
   check("the receipt URL's path is a served route", routes.includes(toRoute(receipt)), toRoute(receipt));
+  // ROADMAP 3.3 — THE CHECK THAT THE CHECKS ABOVE HAVE SUBJECTS. Every builder
+  // must reduce to a bare path, because the moment one reduces to something
+  // else — a new origin variable this helper does not know about — the
+  // `routes.includes()` above becomes a comparison against a string that can
+  // never match, or worse, against `""`, which is the vacuity this repo has
+  // already shipped twice. Same shape as `email-brand` 7a-iii.
+  check("every builder reduces to a path, so the checks above have subjects",
+    [site, receipt].every((t) => toRoute(t).startsWith("/") && !toRoute(t).includes("${")),
+    [toRoute(site), toRoute(receipt)].join(" · "));
 
   // ROADMAP 2.14 STEP 3 — two more builders, and both are in exactly the
   // position `receiptUrl` was in when it silently pointed a customer at the

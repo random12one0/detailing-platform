@@ -4,6 +4,7 @@
 
 import { SERVICE_ROLE_KEY, SUPABASE_URL, supabase } from "./db.ts";
 import { businessSiteUrl } from "./config.ts";
+import { siteFor } from "./tenantSite.ts";
 import type { Business } from "./tenant.ts";
 import type { BusinessSettings } from "./tenant.ts";
 import type { TenantBrand } from "./emailTemplates.ts";
@@ -33,7 +34,11 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
     brandName: business.name,
     contactEmail: business.contact_email,
     contactPhone: business.contact_phone,
-    siteUrl: businessSiteUrl(business.slug),
+    // ROADMAP 3.3 — the tenant's OWN origin where one is verified, and
+    // PLATFORM_URL for everybody else. This is the choke point every email's
+    // brand passes through, so a detailer on their own domain gets their own
+    // domain in the masthead link of all sixteen templates at once.
+    siteUrl: businessSiteUrl(await siteFor(supabase, business.id), business.slug),
     // FIRST TIME IN THE PRODUCT'S LIFE THAT AN EMAIL CARRIES THE LOGO. The
     // column has existed since the first migration and is already drawn on
     // three customer-facing pages; `buildBrand` had simply never read it.

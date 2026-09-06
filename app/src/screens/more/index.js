@@ -17,6 +17,12 @@
 // sell". Every handle typed on it is printed in a customer's email and
 // nowhere else, which is Business's admission test passed outright.
 //
+// SEVENTEEN AS OF ROADMAP 3.3 — "Your web address" joined under "Your page".
+// `business_domains` had existed since the first tenant migration with no
+// reader and no writer at all; this is the writer. It is on Business rather
+// than the gear because what it changes is the address a CUSTOMER meets, in
+// their own confirmation email.
+//
 // SIXTEEN AS OF ROADMAP 3.2(b) — "Common questions" joined under "Your page",
 // and it is the one this file has carried a note about since stage 6. The
 // storage landed then with no writer and no reader on purpose (the owner's
@@ -34,6 +40,7 @@ import Appearance from "./Appearance.jsx";
 import Gallery from "./Gallery.jsx";
 import Reviews from "./Reviews.jsx";
 import Faq from "./Faq.jsx";
+import WebAddress from "./WebAddress.jsx";
 import Catalog from "./Catalog.jsx";
 import Promos from "./Promos.jsx";
 import Plans from "./Plans.jsx";
@@ -53,6 +60,7 @@ export const SCREENS = {
   gallery: [Gallery, "Photo gallery"],
   reviews: [Reviews, "Reviews"],
   faq: [Faq, "Common questions"],
+  domain: [WebAddress, "Your web address"],
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
   plans: [Plans, "Monthly plans"],

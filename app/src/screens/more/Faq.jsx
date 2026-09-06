@@ -154,7 +154,7 @@ export default function Faq() {
           <p className="body">Nothing here yet — your website has no questions section.</p>
         )}
 
-        <div className={`rows faq-rows${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
+        <div className={`rows rows-stack${busy ? " refreshing" : ""}`} aria-busy={busy || undefined}>
           {rows.map((r, i) => (
             <div className="row-item" key={r.key} style={{ cursor: "default", opacity: enabled ? 1 : 0.5 }}>
               <button className="txt"

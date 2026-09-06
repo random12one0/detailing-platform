@@ -46,6 +46,7 @@ import { businessById, can, getSettings, requireMember } from "../_shared/tenant
 import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
 import { campaignEmail } from "../_shared/emailTemplates.ts";
 import { businessSiteUrl, unsubscribeUrl } from "../_shared/config.ts";
+import { siteFor } from "../_shared/tenantSite.ts";
 
 /** See the fourth rule above. Raise it when the platform stops sharing a
  *  3,000-a-month, 100-a-day allowance with the transactional set. */
@@ -119,7 +120,11 @@ Deno.serve(async (req) => {
 
     const settings = await getSettings(business.id);
     const brand = await buildBrand(business, settings);
-    const bookUrl = businessSiteUrl(business.slug);
+    // ROADMAP 3.3. The opt-out below takes the same origin, and it has to:
+    // an unsubscribe link on a different domain from the rest of the email is
+    // exactly what a phishing filter is looking for.
+    const site = await siteFor(supabase, business.id);
+    const bookUrl = businessSiteUrl(site, business.slug);
 
     let sent = 0;
     let failed = 0;
@@ -131,7 +136,7 @@ Deno.serve(async (req) => {
         bookUrl,
         // EACH RECIPIENT'S OWN LINK. One shared link would unsubscribe
         // whoever pressed it last, or nobody — the opt-out has to know who.
-        unsubscribeUrl: unsubscribeUrl(c.id),
+        unsubscribeUrl: unsubscribeUrl(site, c.id),
         mailingAddress,
       });
       const ok = await sendTenantEmail({

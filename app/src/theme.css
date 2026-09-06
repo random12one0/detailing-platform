@@ -2712,14 +2712,22 @@ button.warn-box:hover { border-color: var(--fog-2); }
   color: var(--text); text-align: left; cursor: pointer; font: inherit;
 }
 .row-item:first-child { border-top: 0; }
-/* ROADMAP 3.2(b) — THE FAQ IS THE ONLY LIST IN THIS PRODUCT WITH THREE
-   CONTROLS ON A ROW (up, down, delete), and its text is a whole QUESTION
-   rather than a name. Measured at 392: the question column falls to about
-   200px, "Do you need my water?" wraps to two lines and its answer is clamped
-   beside three buttons — legible, and tighter than anything else here. On a
-   phone the three go on their own line and the question takes the full width.
-   SCOPED, because `.row-item` is shared with Reviews, Promos and Gallery, all
-   of which carry two controls beside a short name and are right as they are.
+/* A ROW WHOSE TEXT IS LONGER THAN A NAME. Two lists have one — the FAQ, whose
+   text is a whole QUESTION beside three controls (roadmap 3.2b), and the web
+   address, whose text is a HOSTNAME beside two (roadmap 3.3). Everything else
+   in this product puts a short name beside two controls and is right as it is,
+   which is why this is a class and not a change to `.row-item`.
+   ROADMAP 3.3 ADDED THE WRAP, and it is unconditional because it is not about
+   width: `.row-item .txt` already carries `min-width: 0`, so the flex item
+   SHRINKS — but `.nm` has no clip, so an unbreakable string paints straight
+   over the button beside it. `book.coastlineautodetailing.example` did exactly
+   that at 392, and **every geometry check said `clean`**, because overlapping
+   text is not outside its parent, not past an edge and not two boxes touching.
+   A hostname has no spaces in it; it needs somewhere to break.
+   Measured at 392 for the FAQ: the question column falls to about 200px, "Do
+   you need my water?" wraps to two lines and its answer is clamped beside
+   three buttons — legible, and tighter than anything else here. On a phone the
+   controls go on their own line and the text takes the full width.
    NO `and (min-height: 500px)` HERE, AND THAT IS DELIBERATE RATHER THAN
    FORGOTTEN — it was written in and then taken out. The five rules that carry
    that guard are `min-width` rules: without it they FIRE on a sideways phone
@@ -2728,9 +2736,10 @@ button.warn-box:hover { border-color: var(--fog-2); }
    does nothing at all — 844 already fails `max-width: 700px` — so writing it
    would be a comment claiming a protection the query cannot give.
    **A GUARD COPIED WITHOUT ITS REASON IS DECORATION.** */
+.rows-stack .row-item .nm { overflow-wrap: anywhere; }
 @media (max-width: 700px) {
-  .faq-rows .row-item { flex-wrap: wrap; }
-  .faq-rows .row-item > .txt { flex: 1 0 100%; }
+  .rows-stack .row-item { flex-wrap: wrap; }
+  .rows-stack .row-item > .txt { flex: 1 0 100%; }
 
   /* AND THE PLAN FORM'S PRICE SHAPE, WHICH IS A REAL DEFECT THIS ITEM FOUND
      IN PASSING AND DID NOT CAUSE — proven by re-running the same sweep with

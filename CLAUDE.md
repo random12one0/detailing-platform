@@ -621,7 +621,23 @@ explaining it; if they still have to ask "so should I?", it failed.
   `booking_mode` fallback, the day in the quote key, `has_water_electric`,
   the category cap's eviction order, `modeLimitFor` naming its service,
   `offersBothModes` forgetting `modeLimit` — which is the roadmap 2.5
-  white-screen bug in test form — and the remembered customer's slug scope)
+  white-screen bug in test form — and the remembered customer's slug scope),
+  **`custom-domains`** (**59 checks — the script prints its own figure**, new
+  2026-09-05, roadmap 3.3 — a detailer's own web address. **Most of it reads
+  source as TEXT, and that is the point**: the defect this item can produce is
+  a `site` argument forgotten at one of thirteen call sites, which fails
+  nothing — that one email keeps working, on the wrong domain, and the only
+  person who ever sees it is a customer. Nothing but reading the source can see
+  an argument that was not passed. § 2 pins that the THREE normalisations of a
+  hostname — the browser's, the edge function's and SQL's — agree, because the
+  three disagreeing means a detailer is told a working address does not work;
+  § 5 pins that verification is a FETCH of a marker file and that `verified_at`
+  is revoked at column level; § 7 pins that the hostname changes EXACTLY ONE
+  route. Two of its checks exist only to prove the others have subjects — the
+  `email-brand` 7a-iii shape. Baselined four ways: a builder falling back to
+  `PLATFORM_URL`, one call site forgetting the tenant, the column revoke
+  dropped, and the by-host lookup no longer filtering on verified, each failing
+  exactly the check that names it)
   from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
   root `.env` — and one of them is new: **`request-mode`** (51 checks — 45 when written, roadmap 2.12,
@@ -656,6 +672,24 @@ explaining it; if they still have to ask "so should I?", it failed.
   the files with real changes, and `git checkout --` the ones where only the
   line endings moved** (`git diff --numstat` lists only the former, so
   `comm -23` against `git status` names the latter).
+- **AND `perl -pi -e` IS THE SAME TRAP — added 2026-09-05, roadmap 3.3.** It
+  rewrites the whole file as CRLF on Windows exactly as plain `open(p, "w")`
+  does, **and it does so even when the substitution matches nothing**, which is
+  the part that makes it worse: a no-op edit still converts the file. Three
+  files were converted in one session. `git diff --numstat` showed only the
+  real line changes, because `core.autocrlf` normalises on the way in, so
+  nothing was committed wrong — but a byte-exact check would have gone red in a
+  file the session had barely touched, which is precisely the diagnosis this
+  file already records twice. `sed -i 's/\r$//'` is the fix, and
+  `grep -qU $'\r' <file>` is how to find them.
+  **THE SECOND HALF IS WORSE AND IS WHAT COST THE TIME: a `python - <<'PY'`
+  heredoc through the Bash tool sometimes delivers a MANGLED script**, so a
+  multi-line `.replace()` silently finds nothing and the file is left
+  unchanged while the command reports success. It happened three times in one
+  session and twice the failure was invisible until a `grep` was run
+  afterwards. **Assert inside the script (`assert old in s`) or verify with
+  `grep` after every scripted edit** — and prefer the Edit tool, which is
+  byte-exact and fails loudly.
 - **PATCH SOURCE FILES WITH `sed`, OR WITH PYTHON OPENED `newline=""` — never
   plain `open(p, "w")` on Windows.** Python reads LF and writes `os.linesep`,
   so a scripted edit silently converts the WHOLE FILE to CRLF; git's autocrlf
@@ -685,12 +719,15 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  SIXTEEN settings screens through TWO DOORS — ELEVEN on Business (Monthly plans
+  SEVENTEEN settings screens through TWO DOORS — TWELVE on Business (Monthly plans
   joined in roadmap 2.14, "How you get paid" in roadmap 2.20, **"Common
   questions" in roadmap 3.2(b)** — its own geometry risk is the row of THREE
   icon buttons beside a two-line question, one more control on a `.row-item`
   than anything else in the product, and the demo is seeded with a deliberately
-  long question so 320 has something to break) and FIVE behind
+  long question so 320 has something to break — **and "Your web address" in
+  roadmap 3.3**, whose risk is the numbered three-step list that ONLY exists
+  while a domain is added and unverified, which is why `seed-demo.mjs` seeds
+  exactly that state) and FIVE behind
   the header gear ("Your subscription" joined in roadmap 2.20 stage 2, and it
   is walked as its own block rather than in `GEAR_ROWS`: it is owner-only and
   its content comes from an edge function, so it waits for what the answer
@@ -1540,13 +1577,15 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - **THE FIFTH TAB IS `Business`, THE PLUMBING IS BEHIND A GEAR IN THE HEADER,
   AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
-  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. **ELEVEN rows on
+  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. **TWELVE rows on
   Business** (what changes what a CUSTOMER meets — Monthly plans joined them in
   roadmap 2.14, because a plan is an offer with a price, *How you get paid*
   in 2.20 stage 1, and ***Common questions* in roadmap 3.2(b), which is the
   ninth row `Business.jsx`'s own header designed in stage 6 and deliberately
-  did not build**; **this said NINE until 2026-09-05 and TEN for a few hours
-  after** — eleven plus the five below is the sixteen the sweep walks),
+  did not build**, and ***Your web address* in roadmap 3.3** — the one that
+  decides which domain a CUSTOMER's confirmation email links to; **this said
+  NINE until 2026-09-05 and then TEN and ELEVEN within hours** — twelve plus
+  the five below is the seventeen the sweep walks),
   FIVE behind the gear
   (what changes how the app behaves for the detailer — *Your subscription*
   joined them in roadmap 2.20 stage 2, and it passes the gear's half of the
@@ -1986,6 +2025,45 @@ explaining it; if they still have to ask "so should I?", it failed.
   **The lift changed no behaviour and that was MEASURED rather than asserted**:
   every spare-room figure `sweep-booking-steps.mjs` printed afterwards is
   identical to the ones this file records.
+
+- **A DETAILER CAN HAVE THEIR OWN WEB ADDRESS NOW, AND THE ONE THING TO GET
+  RIGHT IS WHAT `business_domains.domain` MEANS — roadmap 3.3, 2026-09-05. It
+  is a HOSTNAME THAT RESOLVES TO THIS APP**, normally a subdomain the detailer
+  has aliased onto our Netlify site. **It is not "the detailer's website".**
+  The receipt, the plan page and the opt-out are pages OUR app serves, so
+  pointing them at a host that does not serve them replaces one visible seam
+  with a 404 — worse, because a customer who cannot open their own booking has
+  lost it.
+  **ALL FIVE URL BUILDERS IN `_shared/config.ts` TAKE THE SITE AS A REQUIRED
+  FIRST ARGUMENT.** Until 3.3 they were built from one global `PLATFORM_URL`,
+  which is contract §6a. **A default was considered and rejected**: it keeps
+  every existing call working AND lets a call site forget the tenant while
+  looking correct. Required, a forgotten argument puts `undefined` in a link,
+  and `render-emails.mjs` already fails on that string. `siteFor()`
+  (`_shared/tenantSite.ts`) resolves it — one query per invocation, cached —
+  and returns `PLATFORM_URL` for every tenant without a verified domain, which
+  is all of them today. **WHICH of several verified domains wins is
+  `business_canonical_host` in SQL, never a rule at four call sites.**
+  **VERIFICATION IS A FETCH, NOT A TICK.** `verify-domain` GETs
+  `/platform-host.txt` from the address itself and requires a marker only this
+  app serves; `app/public/platform-host.txt` is a real file Netlify serves
+  ahead of the SPA's catch-all rewrite. **And `verified_at` is REVOKED FROM
+  `authenticated` AT COLUMN LEVEL** — RLS chooses rows and not columns, so
+  without that revoke a detailer stamps their own row and the fetch is
+  decoration.
+  **THE HOSTNAME CHANGES EXACTLY ONE ROUTE AND MUST KEEP CHANGING ONE.** `/`
+  is the marketing page on our hosts and a detailer's booking page on theirs;
+  every other path serves the same thing on either, because the alias points
+  at this same site. `app/src/lib/host.js` is an ALLOWLIST of ours rather than
+  a lookup, so the marketing page pays no round trip to answer a question that
+  is almost always no — and an unrecognised host resolving to no business
+  falls back to the marketing page. `tests/custom-domains.test.mjs` § 7 pins
+  the count at one.
+  **ONE STEP IS OURS AND CANNOT BE DONE FROM THE APP**: adding the alias in
+  Netlify. The screen says so in as many words, because *Add* and *Check*
+  without it leaves a detailer pressing Check for ever. Runbook:
+  `docs/custom-domains.md`. Automating it needs a Netlify token behind roadmap
+  4.4's platform admin.
 
 - **THE BRIEF A FRESH AGENT IS POINTED AT TO BUILD A CLIENT'S SITE IS
   `docs/tenant-site-kit.md` — roadmap 3.2(c).** It is a POINTER and never a

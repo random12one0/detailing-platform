@@ -29,7 +29,13 @@ export const useBookingBusiness = () => useContext(Ctx);
 // The ground value still comes from lib/theme.js, so the colour the accent
 // is corrected against can never drift from the colour the page paints.
 
-export function BookingBusinessProvider({ slug, children }) {
+// ROADMAP 3.3 — `host` is the other way in. Exactly one of `slug` and `host`
+// is given: a customer arriving at `/book/:slug` is found by slug, and one
+// arriving at `/` on the detailer's own verified address is found by host.
+// The RESOLVED profile's own slug is what everything downstream uses, so the
+// quote and the submit are identical on both paths — a page that knew its
+// business but not its slug would call `calculate-booking` with `undefined`.
+export function BookingBusinessProvider({ slug, host, children }) {
   const [state, setState] = useState({ status: "loading", profile: null, error: null });
 
   // ROADMAP 3.2 — through the headless core's transport, exactly as a tenant
@@ -38,7 +44,7 @@ export function BookingBusinessProvider({ slug, children }) {
   useEffect(() => {
     let cancelled = false;
     setState({ status: "loading", profile: null, error: null });
-    bookingTransport.profile(slug).then(
+    (host ? bookingTransport.profileByHost(host) : bookingTransport.profile(slug)).then(
       (data) => {
         if (cancelled) return;
         if (!data) setState({ status: "not_found", profile: null, error: null });
@@ -49,7 +55,7 @@ export function BookingBusinessProvider({ slug, children }) {
       },
     );
     return () => { cancelled = true; };
-  }, [slug]);
+  }, [slug, host]);
 
   const profile = state.profile;
 
@@ -81,7 +87,10 @@ export function BookingBusinessProvider({ slug, children }) {
   const value = useMemo(() => ({
     status: state.status,
     error: state.error,
-    slug,
+    // The RESOLVED slug wins. On the host path there is no slug in the URL at
+    // all, and every write below — the quote, the availability call, the
+    // submit — is addressed by slug.
+    slug: profile?.business?.slug ?? slug ?? null,
     ...normalizeProfile(profile),
     brandVars,
   }), [state, profile, slug, brandVars]);

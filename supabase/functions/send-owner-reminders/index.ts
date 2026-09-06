@@ -20,6 +20,7 @@ import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.t
 import { customerReminderEmail, formatTime12hr, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
+import { siteFor } from "../_shared/tenantSite.ts";
 import { dateStrIn, hourIn, timeStrIn } from "../_shared/tz.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -31,7 +32,11 @@ async function biz(id: string): Promise<Business> {
   return bizCache.get(id)!;
 }
 
-function emailDataFor(business: Business, b: BookingRow) {
+// ROADMAP 3.3 made this ASYNC, and that is the only reason it is: the
+// receipt link now depends on whether this business has a verified domain of
+// its own, which is a database fact rather than a constant. `siteFor` caches
+// per invocation, so the sweep of every due reminder still costs one query.
+async function emailDataFor(business: Business, b: BookingRow) {
   const tz = business.timezone;
   return {
     id: b.id,
@@ -57,7 +62,7 @@ function emailDataFor(business: Business, b: BookingRow) {
     promoCode: b.applied_promo_code,
     promoDiscount: Number(b.promo_discount) || 0,
     total: Number(b.total_price),
-    receiptUrl: receiptUrl(business.slug, b.id),
+    receiptUrl: receiptUrl(await siteFor(supabase, business.id), b.id),
   };
 }
 
@@ -71,7 +76,7 @@ async function sendCustomerReminder(b: BookingRow, second = false) {
   if (!settings.email_customer_reminder) return;
   if (second && !settings.customer_reminder_2_enabled) return;
   const brand = await buildBrand(business, settings);
-  const msg = customerReminderEmail(brand, emailDataFor(business, b), second);
+  const msg = customerReminderEmail(brand, await emailDataFor(business, b), second);
   await sendTenantEmail({ businessId: business.id, to: b.customer_email, subject: msg.subject, html: msg.html, text: msg.text });
 }
 
@@ -79,7 +84,7 @@ async function sendOwnerReminder(b: BookingRow) {
   const business = await biz(b.business_id);
   const settings = await getSettings(business.id);
   const brand = await buildBrand(business, settings);
-  const data = emailDataFor(business, b);
+  const data = await emailDataFor(business, b);
   // The owner reminder reuses the owner notification layout — same info, new
   // subject line.
   const msg = ownerNewBookingEmail(brand, data);
@@ -256,7 +261,7 @@ Deno.serve(async (req) => {
           tag: `booking-${b.id}`,
         });
         const brand = await buildBrand(business, settings);
-        const msg = staleRequestEmail(brand, emailDataFor(business, b), waited);
+        const msg = staleRequestEmail(brand, await emailDataFor(business, b), waited);
         for (const to of ownerRecipients(business, settings)) {
           await sendTenantEmail({ businessId: business.id, to, subject: msg.subject, html: msg.html, text: msg.text });
         }
