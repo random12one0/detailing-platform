@@ -28,6 +28,7 @@ below is one entry per item, oldest first; this is the summary.
 | **The maintenance deadline** (2.23) | The coating-warranty thing you handed me — a date with a consequence, four reminders, and proof it was done |
 | **A guide on every tab** (2.24) | Your complaint that the tour "stopped there" — five short guides now, one per tab |
 | **The password reset** | Did not exist at all. The one thing that would have stopped a real detailer |
+| **What is actually running** | All 28 pieces of server code were out of date by up to a day and a half, silently. Now current, with a check so it cannot happen unnoticed again |
 | **Five smaller gaps** | A booking can be moved an hour later; a support address in the app; a detailer can take their data; you find out if a scheduled job stops; the questions to ask before building a site |
 
 ### The six questions, in the order I would answer them
