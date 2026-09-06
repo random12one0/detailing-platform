@@ -1,7 +1,18 @@
 # The tenant-site kit
 
-**Roadmap 3.2(c), 2026-09-05.** The brief a fresh coding agent is pointed at
-to build one detailer's website.
+**Roadmap 3.2(c) and 3.4, 2026-09-05.** The brief a fresh coding agent is
+pointed at to build one detailer's website.
+
+**3.4 IS THIS FILE AND NOT A SECOND ONE.** That item was written on
+2026-08-29 and describes exactly this — *"open an agent pointed at this repo
+and have it already know everything needed to build a client's website
+properly"*. Its own list is answered section by section below, with two
+corrections its wording predates: **the platform's landing page is NOT the
+worked example** (§1 and §5 — a tenant site inherits our method and never
+our skin, his ruling of 2026-09-05), and **the design system is
+deliberately not on the reading list** for the same reason. Writing a
+second kit to satisfy the older wording would be the third-plan mistake
+this file's own opening warns about.
 
 **It is a POINTER, not a summary.** Every fact in this repo has exactly one
 home and none of them is here — the files below are the sources, this is the
@@ -37,6 +48,8 @@ The one rule under all of it: **fork the presentation, never the engine.**
 |---|---|---|
 | 1 | `docs/tenant-site-contract.md` | **The contract.** §2 is the twelve things a site owes, each written as *what silently stops working if you omit it*. §3 is the read contract key by key. §4 is what a site may never do. §5 is what it may omit. **Non-negotiable.** |
 | 2 | `docs/tenant-site-research-2026-09-05.md` §1 | **The method** — what a tenant site inherits from us, which is a way of working and never a look. |
+| 2b | `docs/references/TASTE-NOTES.md` | **The owner's own words on how a page MOVES**, verbatim, after scrolling seven sites he chose. See §5b below — it is the single most useful file here and the easiest to misread. |
+| 2c | `docs/references/ANALYSIS.md` | Why each of those seven works, read at code level. Long; skim the site that is closest to the register you are building in. |
 | 3 | `docs/tenant-site-research-2026-09-05.md` §3 and §5 | **The content inventory.** §3 is what six real detailers' live sites actually carry. §5 is what must never be on one. |
 | 4 | `docs/design-knowledge.md` §1 + `CLAUDE.md` § Design never-defaults | **The anti-slop floor.** A floor, not a direction — see §5 below, which is the most important thing in this file. |
 | 5 | `app/src/book/core.js` | **The headless booking core.** Its header is the whole API. |
@@ -172,9 +185,70 @@ another one, the skeletons have to differ first.
 **No Fable for building pages** — the owner, 2026-09-05: *"No more fable when
 making pages."* Whichever model is already running builds and verifies.
 
+### 5b. The one taste file that does exist, and how to read it
+
+`docs/references/TASTE-NOTES.md` is the owner's own words, verbatim, after
+scrolling seven sites he picked himself. **It is the only record in this repo
+of how a page MOVES** — a screenshot is a still and the code analysis beside it
+cannot watch a page — and §1 of the research says the motion mentality is
+precisely what transfers to a tenant site.
+
+**Read it for MOTION and never for LOOK.** The seven are product and agency
+sites, not detailers: their palettes, their type and their subject matter are
+all wrong for this trade, and copying them is the same mistake as copying our
+landing page. What is right is the vocabulary — *"there's a velocity to the
+scroll"*, *"that first main page turns into a rectangle and then completely
+forms into another part of the website"*, and the complaint that follows it
+about blockiness and unreadable type.
+
+**One line in it is worth the whole file for this problem**, and it is the
+answer to the AI-slop verdict in §5: *"I also like how each section looks
+different, you know, and they all don't look the same."* Every page rejected
+so far has had one section shape repeated down the page in three colours.
+
+**What it does NOT contain is the thing §5 says would unblock a client's
+site**: two or three DETAILER sites whose vibe he likes. That pass has never
+been done for this trade.
+
 ---
 
-## 6. Verify by LOOKING, and the three things that are not optional
+## 6. What a client actually gets to change
+
+The contract fixes what a site must IMPLEMENT (§2) and forbids what it must
+never do (§4). Everything else is the client's, and this is the split to hold
+in your head when they ask for something:
+
+| They ask for | The answer |
+|---|---|
+| A different look, type, colour, section order, motion | **Yes, entirely.** That is the whole product. Nothing is shared with us or with any other client's site. |
+| A section the contract does not mention — a team page, a fleet page, an area map | **Yes.** The contract is a floor, not a ceiling. Anything with no tenant data behind it is just a page. |
+| To leave something out | **Check contract §5 first.** Some omissions are free; twelve of them break a dashboard feature silently, which is what §2 enumerates. |
+| A price, service, hour or plan hard-coded into the site | **No, and this is the one hard no.** It comes from the profile or it is not on the page. |
+| A booking step that behaves differently | **The FORM is yours; the RULES are not.** Draw it however you like and take every rule from `core.js` (§3). |
+| A new field on the business itself | **A schema change, not a site change.** It belongs in the dashboard so every client gets it — that is a conversation with the owner, not a local addition. |
+
+**A site carries no client content of its own.** Names, prices, hours,
+services, photos, reviews, FAQ, credentials and the payment methods all come
+from the profile, live, so a change made in the dashboard changes the site with
+no code edit. That is the feature the product is sold on, and it is the reason
+the "hard no" above is hard.
+
+**AND THIS KIT BUILDS THE FIRST CLIENT SITE, NOT ONLY LATER ONES.** The owner,
+2026-08-29: *"Phase 3, we will build it, and then the first customer site will
+be built by our bot."* Nothing is sold before this exists, so there is no
+hand-built site to be inconsistent with and no gap between what the sales page
+promises and what is here.
+
+**NOT BUILT, AND WORTH KNOWING ABOUT: the intake form.** The owner described it
+2026-08-29 — a short set of questions a detailer answers about their website,
+*with examples to choose from*, "because most of them will not know what they
+want in the abstract". It is not scheduled. Until it exists, the brief for a
+client's site comes from the owner in his own words, and §5 above is the part
+of that conversation to make sure actually happens.
+
+---
+
+## 7. Verify by LOOKING, and the three things that are not optional
 
 Nothing in this repo tests a tenant site — `composition.test.mjs` walks
 `app/src` and one named HTML file, so a site is held by looking at it.
@@ -194,15 +268,18 @@ Nothing in this repo tests a tenant site — `composition.test.mjs` walks
 
 ---
 
-## 7. What is still open, and what to do about it
+## 8. What is still open, and what to do about it
 
-- **The detailer's own domain (contract §6a).** Every customer-facing URL the
-  platform emits — the "view, change or cancel" link on a confirmation email,
-  the receipt, the plan link — comes from one global `PLATFORM_URL`. So a
-  detailer on `coastlinedetail.com` still sends emails pointing at
-  detailingplatform.com. **Roadmap 3.3.** Until it ships, a site on a custom
-  domain has a visible seam in the one artifact the detailer did not write.
-  Say so when you hand a site over; do not paper over it.
+- ~~**The detailer's own domain (contract §6a).**~~ **CLOSED — roadmap 3.3,
+  2026-09-05.** Every emailed link now uses the detailer's own address once
+  they have one. **The thing to know when handing over a site: the address we
+  store is a hostname that resolves to OUR APP — normally
+  `book.theirdomain.com` aliased onto our hosting — and not the address their
+  bespoke site lives on.** The receipt, plan and opt-out pages are pages our
+  app serves; pointing those at their site would turn a visible seam into a
+  404. So a website-package client typically has two: their own apex for the
+  site you are building, and a `book.` subdomain for us. Runbook:
+  `docs/custom-domains.md`.
 - **A light site sends the customer to a dark booking form**, if you link out
   to `/book/:slug` rather than building the form in. Building it in — which is
   what the owner asked for — makes this a non-issue, which is the other reason
@@ -217,3 +294,8 @@ Nothing in this repo tests a tenant site — `composition.test.mjs` walks
 - **The intake form** — the questions a detailer answers so an agent has a
   brief, with examples to pick from, "because most of them will not know what
   they want in the abstract". Described by the owner 2026-08-29, not scheduled.
+  §6 says what to do until it exists.
+- **A `TASTE-NOTES` pass for THIS trade** — two or three detailer sites whose
+  vibe the owner likes, a sentence each. §5 is the whole argument for why this
+  is the thing that unblocks a real client's site, and §5b is why the existing
+  taste file is not it.

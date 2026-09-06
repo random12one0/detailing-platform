@@ -310,6 +310,50 @@ CLAUDE.md with the fix.
 
 ---
 
+## Roadmap 3.4 — the build kit
+
+**Ticked without writing a new file, and that was the whole judgement.** 3.4
+and 3.2(c) describe the same thing from two different dates: *"open an agent
+pointed at this repo and have it already know everything needed to build a
+client's website properly"*. `docs/tenant-site-kit.md` already was that.
+**Writing a second kit to satisfy the older wording is exactly the third-plan
+mistake you named** — *"Isn't there already a plan. Follow the docs."*
+
+**So I read 3.4's own list against the file and filled what was genuinely
+missing**, which was worth doing:
+
+- **`docs/references/TASTE-NOTES.md` is now on the reading list, and it is the
+  best thing in it.** Your own words, verbatim, after scrolling seven sites you
+  picked — the only record anywhere of how those pages MOVE, because a
+  screenshot is a still. The kit's new §5b says how to read it: **for motion,
+  never for look**, since those seven are software and agency sites and copying
+  their look is the same mistake as copying our landing page. One line in it
+  answers the "it all looks AI" problem better than anything I could write:
+  *"I also like how each section looks different, you know, and they all don't
+  look the same."* Every page you have rejected so far has one section shape
+  repeated down the page in three colours.
+- **A new §6: what a client actually gets to change** — a plain table of yes /
+  check-the-contract / no, with the one hard no being a price, service, hour or
+  plan typed into a site instead of read from the dashboard.
+- **Two of 3.4's own bullets are out of date and the kit says so rather than
+  quietly dropping them.** It asked for the design system and the landing page
+  as the worked example; both predate your correction that a tenant site
+  inherits our method and never our skin. The kit now tells an agent *not* to
+  read the design system, and why.
+
+**Nothing to verify beyond reading it** — it is prose pointing at files that
+were all checked tonight.
+
+**One thing 3.4 named that stays unbuilt, as its own entry always said: the
+intake form** — the short set of questions a detailer answers about their
+website, with examples to pick from, "because most of them will not know what
+they want in the abstract". It is not scheduled and I have not scheduled it.
+The kit's §6 says what to do until it exists. It and the taste pass in the
+question below are the two things that would most improve a real client's
+site.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*
@@ -348,6 +392,33 @@ at was checked above. Roadmap 3.2 is ticked; `PROJECT-STATE.md` has the full
 account.
 
 ---
+
+### 0. The one that actually blocks a real client's site — two or three detailer sites you like
+
+**This is the most valuable five minutes you could spend on Phase 3**, and it
+is the only thing in this list I would ask for before anything else.
+
+**What it is.** You said the three example pages *"look very ai and not even
+like the vibe for detailing"*, and you were right. They pass every mechanical
+check this repo owns — every banned font, every contrast floor, every width —
+which is the finding: **a list of things never to do cannot produce a vibe.**
+Meanwhile there IS a file of your own taste notes in the repo
+(`docs/references/TASTE-NOTES.md`) and it is genuinely useful — but it is about
+seven software and agency sites, not detailers.
+
+**What I need from you: two or three real detailer websites whose *feel* you
+like, and one sentence each on why.** Not "make it look like this" — the
+sentence is the part that transfers. Even *"this one feels expensive and the
+photos are huge"* is enough to work from; the three attempts so far had nothing
+of yours to aim at.
+
+**What happens if you don't.** Nothing breaks — the structure, the contract,
+the booking form and the kit are all sound and are what a site is built
+against. But a fourth attempt at the LOOK would be a fourth guess, and two
+guesses have already been spent. **My recommendation: send the links whenever
+you next see one you like, one at a time is fine.** I will write them into a
+taste file for this trade and the next page starts from your taste instead of
+from a list of nevers.
 
 ### 1. Should a detailer's own email address go on their website? (contract §6f)
 

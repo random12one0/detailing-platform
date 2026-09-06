@@ -5735,7 +5735,38 @@ is kept; the entire visual design restarts from scratch.
       `business_domains` has existed since the first tenant migration and
       nothing has ever read it.
 
-- [ ] 3.4 **The tenant-site build kit** — promoted 2026-08-29 from a
+- [x] 3.4 **CLOSED 2026-09-05 — IT IS `docs/tenant-site-kit.md`, WHICH 3.2(c)
+      BUILT, AND NOT A SECOND FILE.** This item and 3.2(c) describe the same
+      deliverable from two different dates, and **writing a second kit to
+      satisfy the older wording is the third-plan mistake the owner named**
+      (*"Isn't there already a plan. Follow the docs."*). What closing it
+      actually took was reading this item's own list against that file and
+      filling what was genuinely missing:
+      **`docs/references/TASTE-NOTES.md` and `ANALYSIS.md` joined the reading
+      order** — his own words, verbatim, on how seven sites he picked MOVE,
+      which is the one thing a screenshot cannot carry and which research §1
+      says is exactly what transfers. It is now §1 rows 2b/2c with a §5b on how
+      to read it: **for MOTION and never for LOOK**, because the seven are
+      product and agency sites. One line in it is worth the rest for this
+      problem — *"I also like how each section looks different, and they all
+      don't look the same"* — which is the answer to why every page rejected so
+      far has one section shape repeated in three colours.
+      **A new §6 answers "what is customisable, and how"**, this item's fourth
+      bullet, as a table of what a client may change and the one hard no (a
+      price, service, hour or plan hard-coded into a site).
+      **TWO OF THIS ITEM'S OWN BULLETS ARE SUPERSEDED AND THE KIT SAYS SO
+      RATHER THAN QUIETLY DROPPING THEM**: *"the finished design system"* and
+      *"the landing page as the worked example"* both predate his 2026-09-05
+      correction that a tenant site inherits our METHOD and never our SKIN. The
+      kit's §1 tells an agent NOT to read `docs/design-system.md`, and says why.
+      **The intake form stays unbuilt and unscheduled**, as this entry always
+      said; §6 says what to do until it exists, and the kit's §8 lists it beside
+      the `TASTE-NOTES` pass for this trade — the two things that would most
+      improve a real client's site and that neither 3.2 nor 3.4 could do alone.
+
+      The original entry follows.
+
+      **The tenant-site build kit** — promoted 2026-08-29 from a
       parked note to a real item, on the owner's description. What they
       asked for: open an agent pointed at this repo and have it already
       know everything needed to build a client's website properly — the
