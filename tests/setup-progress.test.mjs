@@ -45,7 +45,14 @@ const EMPTY = { business: {}, branding: {}, settings: {}, counts: { services: 0,
 const ESTABLISHED = {
   business: { contact_phone: "555-0100", contact_email: "a@b.c" },
   branding: { primary_color: "#38E08B" },
-  settings: { setup: { done: [], seen: true, dismissed: false } },
+  // **THE TWO MARKS COME FROM THE BACKFILL**
+  // (`20260906009000_backfill_setup_marks.sql`), not from the form. Since
+  // 2026-09-06 `hours` and `contact` do not derive — both are SEEDED at birth,
+  // so the database cannot tell answered from born — and this business has a
+  // phone and real hours, which is exactly the evidence that migration looks
+  // for. Without them here this fixture would be asserting the new lie in the
+  // other direction.
+  settings: { setup: { done: ["hours", "contact"], seen: true, dismissed: false } },
   counts: { services: 6, addOns: 3, promos: 2, hoursOpen: true },
 };
 
@@ -88,16 +95,29 @@ console.log("\ntest 4: each derivable step is derived from its own fact, and onl
   check("services counts services", one({ counts: { ...EMPTY.counts, services: 1 } }).done.has("services"));
   check("add-ons count add-ons", one({ counts: { ...EMPTY.counts, addOns: 1 } }).done.has("addons"));
   check("promos count promo codes", one({ counts: { ...EMPTY.counts, promos: 1 } }).done.has("promos"));
-  check("hours count an open day", one({ counts: { ...EMPTY.counts, hoursOpen: true } }).done.has("hours"));
-  check("a phone alone answers contact", one({ business: { contact_phone: "1" } }).done.has("contact"));
-  check("an email alone answers contact", one({ business: { contact_email: "a@b.c" } }).done.has("contact"));
+  // **THE TWO THAT MUST NOT DERIVE, and they are asserted in the negative**
+  // because that is the whole of the owner's finding: `newBusiness.ts` seeds
+  // weekdays 09:00-17:00 and the invite supplies `contact_email`, so a
+  // business ten seconds old answered two questions nobody had asked it.
+  check("an open day does NOT answer hours — it is seeded at birth",
+    !one({ counts: { ...EMPTY.counts, hoursOpen: true } }).done.has("hours"));
+  check("an email does NOT answer contact — it comes with the invite",
+    !one({ business: { contact_email: "a@b.c" } }).done.has("contact"));
+  check("nor does a phone on its own, which is the same question",
+    !one({ business: { contact_phone: "1" } }).done.has("contact"));
+  // And the mark is the only thing that answers either, from any of the four
+  // callers — the form, Business, and the back office's two views.
+  check("a stored mark answers hours",
+    one({ settings: { setup: { done: ["hours"] } } }).done.has("hours"));
+  check("a stored mark answers contact",
+    one({ settings: { setup: { done: ["contact"] } } }).done.has("contact"));
   check("a colour answers colour", one({ branding: { primary_color: "#fff" } }).done.has("colour"));
   // Each of those changed exactly one fact, so each must move the count by
   // exactly one. A derivation that reached across steps would show up here.
   const single = [
     one({ counts: { ...EMPTY.counts, services: 1 } }),
     one({ counts: { ...EMPTY.counts, addOns: 1 } }),
-    one({ business: { contact_phone: "1" } }),
+    one({ settings: { setup: { done: ["contact"] } } }),
     one({ branding: { primary_color: "#fff" } }),
   ];
   check("one fact moves the count by one", single.every((p) => p.count === 1),
@@ -122,7 +142,10 @@ console.log("\ntest 6: the stored list and the derived facts are a union, never 
   // A skipped step leaves a HOLE and the hole is the feature (§1b): skipping
   // must never mark anything done, and marking must never un-mark a derived
   // fact.
-  const p = setupProgress({ ...ESTABLISHED, settings: { setup: { done: ["where"] } } });
+  // The two marks ESTABLISHED carries ride along: this replaces its settings
+  // wholesale, and since 2026-09-06 dropping them drops two real answers
+  // rather than testing the union.
+  const p = setupProgress({ ...ESTABLISHED, settings: { setup: { done: ["where", "hours", "contact"] } } });
   check("stored plus derived is all seven", p.count === 7, `saw ${p.count}`);
   const skipped = setupProgress({ ...EMPTY, settings: { setup: { done: [] } } });
   check("skipping everything marks nothing", skipped.count === 0);

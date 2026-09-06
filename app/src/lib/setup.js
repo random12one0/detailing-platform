@@ -57,15 +57,41 @@ export const STEPS = [
 // both default to true, so "I do both" and "nobody has been asked" are the
 // same two rows. It is the only step that stays open until somebody answers
 // it, which is correct — it changes what the booking page asks the customer.
+// **TWO OF THE SEVEN STOPPED DERIVING ON 2026-09-06, AND THE OWNER ASKED FOR
+// IT DIRECTLY** after `docs/final-pass.md` finding 5: a business ten seconds
+// old read *2 of 7 done*. The two were `hours` and `contact`, and the reason
+// they were wrong is the same reason and it is structural rather than a
+// miscount:
+//
+// **BOTH ARE SEEDED AT BIRTH, so derivation cannot tell ANSWERED from BORN.**
+// `newBusiness.ts` gives every business weekdays 09:00-17:00 so its booking
+// page can be booked from the first second, and `contact_email` arrives with
+// the invite. Reading the database therefore says *yes* about a question
+// nobody has been asked. The other five cannot be seeded — a service, an
+// add-on, a promo code and a colour only exist because somebody made one —
+// so they still derive, which is the whole point of deriving.
+//
+// **A COUNT CANNOT RESCUE IT EITHER**, which is why the fix is not "compare
+// against the default": `platform-admin`'s LIST view has only the number of
+// open days, not the times, and Tue-Sat is five days exactly as Mon-Fri is.
+// A rule that needs the times would be answerable in three of the four places
+// that ask, and three of four is how the two figures start disagreeing.
+//
+// **THE BUSINESSES THAT PREDATE THE TRACKING ARE BACKFILLED**
+// (`20260906009000_backfill_setup_marks.sql`) rather than told they are at
+// zero. That is the same objection this file already records against a purely
+// stored count, and it applies to a rule change exactly as it applied to the
+// original: telling a configured business it has done nothing is both false
+// and insulting.
 export function setupProgress({ business, branding, settings, counts }) {
   const marked = new Set(settings?.setup?.done ?? []);
   const has = {
     services: (counts?.services ?? 0) > 0,
     addons: (counts?.addOns ?? 0) > 0,
     promos: (counts?.promos ?? 0) > 0,
-    hours: !!counts?.hoursOpen,
+    hours: false,
     where: false,
-    contact: !!(business?.contact_phone || business?.contact_email),
+    contact: false,
     colour: !!branding?.primary_color,
   };
   const done = new Set(STEPS.filter(([k]) => marked.has(k) || has[k]).map(([k]) => k));
