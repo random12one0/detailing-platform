@@ -1856,9 +1856,31 @@ explaining it; if they still have to ask "so should I?", it failed.
   `create-booking` recomputes every quote server-side whatever the client sent.
   **A site therefore needs no change to the engine — it needs permission not to
   reimplement it.**
-  **THE ONE THING STANDING WITH THE OWNER is contract §1c**: a bespoke site
-  LINKS to `/book/:slug` rather than rebuilding the seven-step flow. Do not
-  build against the other answer before he says so.
+  **THE BOOKING FORM IS BUILT INTO EACH TENANT SITE, IN THAT SITE'S OWN
+  DESIGN — his ruling 2026-09-05, and it OVERTURNED the recommendation that
+  the site should link out to `/book/:slug`.** *"It's up to the detailer's
+  choice but I think it should be built into the website with the detailer's
+  website design. Like how it is on my website."* **His site is the spec and
+  it is in this repo**: `reference/frontend/src/components/BookingWidget.jsx`
+  is 1,581 lines in the SITE's own components folder, built from the SITE's
+  own UI kit, rendered inline by `App.js:73`. Not a link, not a page, not an
+  iframe.
+  **SO THE FORK LINE SITS ONE LEVEL UP FROM WHERE IT LOOKS: the FORM is
+  presentation and forks per client; the RULES never do.** That is safe only
+  because `create-booking` recomputes every quote through `_shared/pricing.ts`
+  whatever the client sent, `validateSlot` gates every time and the exclusion
+  constraint is in the database — **so a bespoke form cannot mis-charge or
+  double-book; it can only OFFER a slot the server then refuses**, which costs
+  a customer their booking and is the harder failure to see. **A site ASKS and
+  never computes**: every price from `calculate-booking`, every open time from
+  `available-slots`.
+  **3.2's biggest job is now a HEADLESS BOOKING CORE** — the step sequence,
+  the group rules, the open days, the quote call and the submit, lifted out of
+  `BookingPage.jsx` and its six step components into one module with no markup
+  and no CSS. Without it, *fork the presentation* becomes *fork the rules*.
+  **`/book/:slug` stays** and is what a **booking-only** detailer gets — the
+  split 3.3 already draws between website-package and booking-only customers,
+  and *"it's up to the detailer's choice"* is the other half of his ruling.
   **AND THE 3.1 ROADMAP ENTRY'S FOURTH GAP IS WRONG — the four measured gaps
   are three.** "Five of six social links cannot be typed in" was true on
   2026-08-31 and fixed on 2026-09-02, then copied forward unread. **A gap list

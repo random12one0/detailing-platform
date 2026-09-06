@@ -5462,3 +5462,65 @@ bespoke tenant site turns out light"* since 2026-08-30. It has. Contract §8.2.
 `5-the-thread.html` by name, so they are held by looking —
 `shoot-dashboard.mjs --url docs/tenant-sites/<x>.html` photographs one at four
 widths with no dev server.
+
+
+### HIS ANSWER TO §1c, AND IT OVERTURNED THE RECOMMENDATION (2026-09-05)
+
+**The one thing 3.1 was holding was where a customer actually books.** The
+contract recommended LINKING OUT to `/book/:slug`, on the reasoning that the
+seven steps are the most rule-dense surface in the product and a copy per
+client is a second version of every rule.
+
+**He chose the third option instead:** *"It's up to the detailer's choice but I
+think it should be built into the website with the detailer's website design.
+Like how it is on my website."*
+
+**HIS OWN SITE IS THE SPEC AND IT WAS READ RATHER THAN IMAGINED — this is the
+part to carry forward.** `reference/frontend/src/components/BookingWidget.jsx`
+is **1,581 lines living in the SITE's own components folder**, built out of the
+SITE's own UI kit (`@/components/ui/button`, `input`, `label`, `textarea`,
+`calendar`), animated with the site's own `framer-motion`, and rendered inline
+by `App.js:73` as `<BookingWidget />` on the marketing page itself. It calls
+the Supabase edge functions directly. **Not a link, not a page, not an
+iframe — a section of the site wearing the site's design.**
+
+**THE FORK LINE MOVES UP ONE LEVEL AND THAT IS THE WHOLE OF HIS ANSWER.** The
+FORM is presentation and is forked per client; the RULES are not, and never
+were client-side: `create-booking` recomputes every quote through
+`_shared/pricing.ts` whatever the client sent, `validateSlot` gates every time,
+and the exclusion constraint is in the database. **A bespoke form cannot
+mis-charge or double-book.** What it can do is OFFER something the server then
+refuses — a closed day, a mobile-only service, a size that moves the price —
+which costs a customer their booking rather than costing the detailer money,
+and is the harder failure to notice.
+
+**SO 3.2 GAINED ITS BIGGEST JOB: A HEADLESS BOOKING CORE.** One
+dependency-free module with no markup and no CSS — the step sequence, what is
+selectable under the group rules, what is open, the `calculate-booking` call,
+the submit — lifted out of `BookingPage.jsx` and its six step components, which
+already contain it. Every site writes its own markup against it. Without that,
+*fork the presentation* quietly becomes *fork the rules*.
+
+**WHAT THIS DISSOLVED.** §8.2 — the light-site-to-dark-form handover — was
+going to be a 3.2 build teaching the booking page to take a tenant's ground.
+There is no crossing now; the form is on the tenant's own ground in the
+tenant's own type. **A seam that needed a feature to hide it stopped existing
+when the seam was removed instead.**
+
+**WHAT IT SHARPENED.** Contract §5 all but emptied. Everything on it was
+excused by one sentence — *"consumed inside the booking flow, which the site
+does not own"* — and both halves of that failed on the same day: the
+vehicle-size ladder left because real detailers print it, and then the site
+turned out to own the flow. *A blanket reason covering a whole list is a reason
+nobody re-examines per item.*
+
+**AND READING HIS SITE CORRECTED §6g, WHICH THIS FILE HAD WRONG.** Campaign
+tracking was recorded as dormant — no caller in `app/`, no reader anywhere,
+"leave it that way". True of the platform and false of the product it was
+built from: `App.js:29/54` calls `trackVisit()` on every page load,
+`lib/campaign.js` stores the campaign and auto-applies its promo code (a
+golf-course QR is the case named in its own comment), and the old admin had a
+**Campaign Links** section in `MoreScreen.jsx` that read them back. **It is a
+working feature the conversion lost, and it belongs on Phase 4's restoration
+list.** *"Nothing calls it" had been measured in `app/` only, while the
+reference implementation of this whole product sat unread in the same repo.*

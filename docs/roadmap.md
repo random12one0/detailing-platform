@@ -5460,9 +5460,24 @@ is kept; the entire visual design restarts from scratch.
       yes: it is the stage we have not reached.** New components already ship
       their entrance and exit (2.12's request card does); the retrofit is what
       is left.
-- [ ] 3.1 Plan: which pages every tenant gets (home, services, gallery,
+- [x] 3.1 ~~Plan: which pages every tenant gets (home, services, gallery,
       about, reviews, FAQ, contact, booking) and which settings drive each.
-      **OWNER approves the plan.**
+      **OWNER approves the plan.**~~ **APPROVED 2026-09-05, WITH ONE AMENDMENT
+      THAT OVERTURNED THE RECOMMENDATION.** The deliverables are
+      `docs/tenant-site-contract.md` (the enumeration), the three worked pages
+      in `docs/tenant-sites/`, and `docs/tenant-site-research-2026-09-05.md`.
+      **His amendment: the booking form is BUILT INTO each tenant site in that
+      site's own design**, not linked out to `/book/:slug` as §1c recommended —
+      *"it's up to the detailer's choice but I think it should be built into
+      the website with the detailer's website design. Like how it is on my
+      website."* **His own site is the spec and it was read**:
+      `reference/frontend/src/components/BookingWidget.jsx` is 1,581 lines in
+      the SITE's components folder, built from the SITE's UI kit, rendered
+      inline by `App.js:73`. So the fork line moves up one level — the FORM is
+      presentation, the RULES stay central — and **3.2's biggest job is now a
+      headless booking core** so ten clients do not mean ten re-derivations of
+      the rules. `/book/:slug` stays for booking-only detailers, which is the
+      split 3.3 already draws.
 
       **HE CHOSE THIS AS THE NEXT ITEM, 2026-09-05**, over 2.20 stage 3
       (Connect) and over 4.4, on the reasoning that the product is sold as a
@@ -5565,13 +5580,31 @@ is kept; the entire visual design restarts from scratch.
       (§6f, a question for him); and `track-visit` + `campaigns` +
       `campaign_visits` are dormant with no caller and no reader (§6g,
       recommended to stay dormant).
-- [ ] 3.2 **Build the tenant-site kit against the contract.** Close
-      `docs/tenant-site-contract.md` §6's gaps, then produce the default world
-      and the brief that lets a fresh agent build a client's site from it. A
-      site's CONTENT comes entirely from tenant configuration — a price changed
-      in the dashboard changes the live site with no code edit — while its
-      PRESENTATION is bespoke per client. The required implementations are §2
-      of the contract; the read surface is §3.
+- [ ] 3.2 **Build the tenant-site kit against the contract.** Three parts, in
+      this order:
+      **(a) THE HEADLESS BOOKING CORE — the biggest single job, and it exists
+      because of his 3.1 amendment.** Every website-package site now draws its
+      own booking form; his own weighs 1,581 lines. So lift the logic out of
+      `app/src/book/BookingPage.jsx` and its six step components into ONE
+      dependency-free module with **no markup and no CSS in it**: the step
+      sequence, which services are selectable under the group rules, which days
+      and times are open, the `calculate-booking` call, the submit. Each site
+      then writes its own markup, type, colour and motion against that core.
+      **It is a lift, not an invention** — the logic is already written and
+      already correct. Without it, *fork the presentation* becomes *fork the
+      rules*, which is the ceiling `docs/tenant-websites.md` §3 exists to
+      avoid.
+      **(b) Close `docs/tenant-site-contract.md` §6's gaps.** 6b, 6c, 6d and
+      6h are one migration (three RPC keys plus `business_branding.credentials`
+      and `businesses.established_year`) plus an FAQ settings screen and a
+      credentials field on `BusinessInfo.jsx`. 6e is a decision plus a small
+      migration.
+      **(c) The kit brief** that lets a fresh agent build a client's site: the
+      contract, the research file's method (§1) and content inventory (§3), and
+      the three worked pages as the range rather than as a template.
+      A site's CONTENT comes entirely from tenant configuration — a price
+      changed in the dashboard changes the live site with no code edit — while
+      its PRESENTATION, **now including the form**, is bespoke per client.
       **This wording replaced the original on 2026-09-05, which is what 3.1
       owed.** It used to read "entirely from tenant configuration, zero
       hardcoded content" and its own note said that predated the owner's
@@ -5582,6 +5615,13 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 3.3 Custom domains: hostname→business lookup + the Netlify alias
       process, so website-package customers can use their own domain.
       Booking-only customers stay on `detailingplatform.com/book/name`.
+
+      **THAT SPLIT IS NOW LOAD-BEARING FOR MORE THAN DOMAINS — 3.1, 2026-09-05.**
+      The owner's *"it's up to the detailer's choice"* lands exactly on it:
+      a **website-package** customer gets the booking form built into their own
+      site (contract §1c), and a **booking-only** customer keeps `/book/:slug`
+      on our domain. So this line already names the two products; it just did
+      not know it was naming two booking shapes as well.
 
       **THIS WORDING COVERS ONLY THE INBOUND HALF, AND THE OUTBOUND HALF IS
       BIGGER — found 2026-09-05 writing the 3.1 contract (§6a).**
@@ -5675,6 +5715,20 @@ is kept; the entire visual design restarts from scratch.
       silently beyond the known list.
 - [ ] 4.2 Re-add as per-tenant features: referral/loyalty, Google Calendar
       sync, owner test-booking preview, vCard on owner emails.
+
+      **AND CAMPAIGN LINKS — added 2026-09-05, found by reading `reference/`
+      for roadmap 3.1.** This list was built from what the conversion was known
+      to have dropped; campaign tracking was not on it because
+      `track-visit`, `campaigns` and `campaign_visits` all still EXIST in this
+      product, which made them look kept. **They are not wired to anything.**
+      On his own site they are a working feature end to end:
+      `reference/frontend/src/App.js:29/54` calls `trackVisit()` on every page
+      load, `lib/campaign.js` stores the campaign and auto-applies its promo
+      code (its own comment names a golf-course QR as the real case), and the
+      old admin's `MoreScreen.jsx` had a **Campaign Links** section that read
+      them back. **A tenant site is the natural caller** (3.2 wires it); the
+      SCREEN that reads it is this item. *A surviving table is not a surviving
+      feature.*
 - [x] 4.3 ~~Monthly plans — needs a design conversation first: the old one
       was a discount with no billing behind it.~~ **CLOSED INTO 2.14, WHICH
       SHIPPED IT 2026-09-04.** Four rounds of research, three tables, a

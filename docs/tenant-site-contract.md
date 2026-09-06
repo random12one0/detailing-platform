@@ -36,9 +36,9 @@ sites lives, and it corrected this one in four places (its §4).
 | **What a site may change** | Layout, sections, wording, imagery, palette, motion, typography, page count, domain |
 | **What a site may never contain** | Any business logic — prices, availability, slot maths, discounts, validation, the booking write |
 | **How a site reads a tenant** | **One** call: `get_public_business_profile(slug)`. Nothing else. |
-| **How a site writes** | It doesn't. It hands the customer to the platform's booking flow. |
+| **How a site writes** | Only through the public edge functions — `create-booking` is the one write. It never touches a table. |
 | **Required of every site** | Twelve implementations, §2. Omit one and a dashboard feature the detailer is paying for silently does nothing. |
-| **The one decision for the owner** | §1c — the booking wizard is engine, so a site links to it rather than rebuilding it |
+| **Where the customer books** | **ANSWERED by the owner, §1c: the form is BUILT INTO the site, in the site's own design** — his own site is the spec. `/book/:slug` stays for booking-only detailers. |
 | **Blocking gaps** | Eight, §6. Four were already measured in the roadmap (one of those was wrong), three came from reading the code, one from looking at real detailers' sites. |
 | **What a site inherits from us** | The METHOD — research first, the anti-slop floor, the motion mentality, the copy rule, verify by looking. **Never the skin.** `docs/tenant-site-research-2026-09-05.md` §1 |
 
@@ -75,7 +75,7 @@ origin can already call them, today, with no change:
 | `plan-link` | A plan member's page, cancel, and email-in / link-out |
 | `booking-ics` | Add to calendar (a plain GET) |
 | `unsubscribe` | The opt-out on the one commercial email |
-| `track-visit` | Records a visit. **Deployed and nothing has ever called it** — §6g. |
+| `track-visit` | Records a visit. Nothing in `app/` calls it — **but his own site does, on every page load** — §6g. |
 
 **The platform's own customer-facing pages**, all in `app/src/main.jsx`:
 `/book/:slug`, `/book/:slug/plans`, `/booking/:id`, `/plan/:memberId`,
@@ -96,42 +96,70 @@ type, its colour, its motion, how many pages it is, and what domain it lives
 on. This is the part a client perceives as "custom" and it contains no rule
 anyone can get wrong.
 
-### 1c. THE ONE DECISION FOR THE OWNER — where the customer actually books
+**AND SINCE 2026-09-05 THAT INCLUDES THE BOOKING FORM ITSELF** — the owner's
+ruling, §1c. The form is drawn by the site, in the site's own design; the
+rules under it stay central. A form is presentation because every rule it
+appears to enforce is re-enforced on the server.
 
-The booking flow is **seven steps** (`app/src/book/BookingPage.jsx` plus its
-step components), and the steps are not decoration: they enforce exclusive
-service groups, per-service weekday availability, vehicle-size price
+### 1c. ANSWERED BY THE OWNER — the form is BUILT INTO the site
+
+**His ruling, 2026-09-05:** *"It's up to the detailer's choice but I think it
+should be built into the website with the detailer's website design. Like how
+it is on my website."*
+
+**This overturned the recommendation that stood here, which was to link out to
+`/book/:slug`.** That argument was that the seven steps are the most rule-dense
+surface in the product — exclusive groups, per-service weekdays, vehicle-size
 adjustments, the condition question, travel zones, drop-off-only periods,
-request-vs-reserve mode and plan membership. It is the most rule-dense surface
-in the product, and its layout is measured to the pixel (`W16`: a customer must
-never scroll inside a step; step 1 has **10px** of spare room at 1440x900).
+request mode, plan membership — so a copy per client is a second version of
+every rule. **He is right anyway, and his own site is why.**
 
-Three ways a bespoke site can offer booking:
+**HIS SITE IS THE SPEC AND IT WAS READ RATHER THAN IMAGINED.**
+`reference/frontend/src/components/BookingWidget.jsx` is **1,581 lines living
+in the SITE's own components folder**, built from the SITE's own UI kit
+(`@/components/ui/button`, `input`, `label`, `textarea`, `calendar`), animated
+with the site's own `framer-motion`, and rendered inline by `App.js:73` as
+`<BookingWidget />` on the marketing page itself. It calls the Supabase edge
+functions directly. **It is not a link, not a separate page and not an
+iframe — it is a section of the site, wearing the site's design.**
 
-1. **Link out to the platform's flow** — the site's "Book" button goes to
-   `/book/:slug`, which already retints itself to the tenant's accent
-   (`brandVarsFor` in `app/src/lib/theme.js`) and already sets the tenant's
-   name as the page title. **Recommended.**
-2. **Embed it in an iframe** — keeps the customer on the client's domain and
-   costs postMessage plumbing for height, plus W16 stops being enforceable
-   because the step's viewport is no longer the screen.
-3. **Rebuild the seven steps per client** — this is forking the engine wearing
-   a presentation costume, and it is exactly the ceiling
-   `docs/tenant-websites.md` §3 exists to avoid.
+**SO THE FORK LINE MOVES UP ONE LEVEL, and that is the whole content of his
+answer.** The FORM is presentation and is forked per client. The RULES are
+not, and they never were client-side anyway: `create-booking` recomputes every
+quote through `_shared/pricing.ts` whatever the client sent, `validateSlot`
+gates every time, and the exclusion constraint is in the database. **A bespoke
+form cannot mis-charge or double-book. What it can do is OFFER something the
+server will refuse** — a closed day, a service that cannot be mobile, a size
+that changes the price — which is a broken promise to a customer rather than a
+broken booking.
 
-**Recommendation: (1).** The cost is a domain change mid-flow, and §6a is what
-removes even that — once `business_domains` is read, the flow can be served at
-`coastlinedetail.com/book` and the customer never leaves. Option 3 is not on
-the table; option 2 can be revisited per client without changing anything here,
-because both 1 and 2 point at the same URL.
+**What that risk costs, and the recommendation that follows.** Ten clients
+means ten forms, and 1,581 lines is what one really weighs. So **3.2 should
+extract a headless booking core**: one dependency-free module that owns the
+step sequence, which services are selectable under the group rules, which days
+and times are open, the call to `calculate-booking`, and the submit — with **no
+markup and no CSS in it at all**. Each site then writes its own markup, type,
+colour and motion against that core. That is *fork the presentation, never the
+engine* honoured exactly, with the line drawn where he has just put it, and it
+is the difference between a per-client design pass and a per-client
+reimplementation of the rules. It is a bounded job — the logic already exists
+inside `BookingPage.jsx` and its six step components and has to be lifted out,
+not invented.
 
-**A consequence worth stating before he agrees:** the booking flow is dark and
-today a client site can hand it one colour and nothing else. Since he has ruled
-that sites are genuinely different — and one of the three worked pages is
-light — **the flow will need to take a tenant's GROUND as well as its accent
-before the first light client ships.** §8.2. That is the one place this item
-found where presentation legitimately has to reach into the engine, and it is
-a bounded change: a second corrected value beside `brandVarsFor`, not a fork.
+**AND "IT'S UP TO THE DETAILER'S CHOICE" IS THE OTHER HALF.** `/book/:slug`
+does not go away: it stays as the platform's own flow, and it is what a
+**booking-only** customer gets — the split roadmap 3.3 already draws between
+website-package customers and the ones who just want a booking link on
+`detailingplatform.com/book/name`. So there are two shapes, the detailer picks,
+and the built-in form is the default for anyone buying a website.
+
+**ONE PROBLEM DISAPPEARED WITH THIS ANSWER.** §8.2 used to be a real build: the
+platform's flow is dark, a tenant site can hand it one colour, and world B is
+light — so a customer crossed from a light page to a dark form mid-purchase.
+**There is no crossing now.** The form is on the tenant's own ground in the
+tenant's own type. `BookingBusinessContext.jsx`'s note — *"reopen in phase 3 if
+a bespoke tenant site turns out light"* — is answered by removing the seam
+rather than by theming it.
 
 ---
 
@@ -153,12 +181,26 @@ built after that list was written. A client can ship all of it as one long
 page, or as nine, or fold "how to pay" into the footer. **What is fixed is that
 each of the twelve appears SOMEWHERE a customer can reach without asking.**
 
-### 2a. The booking entry point
-**Owes:** a visible, primary route to `/book/:slug`, on every page.
+### 2a. The booking form — REWRITTEN 2026-09-05 by the owner's ruling, §1c
+**Owes:** **the form itself, built into the site in the site's own design** —
+the step sequence (Services → Extras where the tenant has add-ons → Vehicle →
+Location → When → Details → Review), the running estimate, and the submit. Plus
+a visible, primary route to it from every page.
 **If omitted:** the product does not function. Everything else on this list is
 downstream of it.
-**Source:** the slug. The dashboard prints the URL and a QR from
-`components/BookingLink.jsx` (`window.location.origin` + `/book/` + slug).
+**Source:** the same profile every other row reads, plus the public functions —
+`calculate-booking` for the price, `available-slots` for the times,
+`validate-promo-code` for a code, `create-booking` for the write.
+**THE RULE UNDER IT, AND IT IS THE ONE THAT MATTERS:** the form ASKS and never
+computes. Every figure comes from `calculate-booking` and every open time from
+`available-slots`. **A site that adds the prices up itself will one day print a
+number the server does not charge; a site that works out which days are open
+will offer a time the server refuses.** The server is the gate either way, so
+this costs a customer their booking rather than costing the detailer money —
+which is the failure that is harder to notice.
+**A booking-only detailer keeps `/book/:slug` instead** and owes nothing here;
+that is the other half of his ruling and the split roadmap 3.3 already draws.
+The dashboard prints that URL and a QR from `components/BookingLink.jsx`.
 
 ### 2b. The service catalog
 **Owes:** every active service, in its group, with name, description, price,
@@ -311,6 +353,15 @@ subscription darkens a tenant's site.**
 - **No availability logic.** `available-slots` owns hours, blockouts,
   drop-off-only periods, per-service weekdays, buffers and the exclusion
   constraint. A site that computes an open day will offer one that is closed.
+
+**THESE THREE GOT SHARPER ON 2026-09-05, NOT SOFTER.** They were written when a
+site was going to be a page of content that linked to our flow, where breaking
+them took effort. **Now every website-package site draws the form** (§1c), so
+the temptation is in front of it constantly: the prices are already on the
+page, the hours are already on the page, and adding them up or reading them is
+a few lines. **Do not.** The gap between a site that asks and a site that
+computes is invisible on the day it is written and shows up as a customer being
+offered a time that is refused.
 - **No service key, ever.** A site ships the anon key, which is public by
   design and is what every public function expects.
 - **No customer data.** The profile carries none, and a site has no way to ask
@@ -320,17 +371,31 @@ subscription darkens a tenant's site.**
 
 ## 5. What a site may omit
 
-Nothing here is a required implementation, and naming them is what stops a
-later session treating everything in the schema as owed: the water and power
-questions, travel zones, the cancellation window, and `min_advance_minutes` /
-`max_advance_days`. **All of them are consumed inside the booking flow, which
-the site does not own.** A site may mention them; nothing breaks if it does
-not.
+**THIS SECTION ALL BUT EMPTIED ON 2026-09-05 AND THE REASON IS WORTH READING,
+because it is the same mistake twice.** Everything that was here was excused
+with one sentence — *"it is consumed inside the booking flow, which the site
+does not own."* Both halves of that turned out wrong on the same day. The
+vehicle-size table left first, because real detailers print the ladder on the
+page and a customer decides from it (research §4a). Then the owner ruled that
+**the site DOES own the flow** (§1c), and the excuse stopped covering anything
+at all.
 
-**The vehicle-size table WAS on this list and was moved to 2b on 2026-09-05.**
-The reasoning — "it is consumed inside the flow" — was true and beside the
-point: real detailers print the ladder because a customer decides whether to
-book from it. Research §4a.
+So: **the water and power questions, travel zones, the cancellation window,
+`min_advance_minutes` and `max_advance_days` are now the site's business**,
+because the site draws the steps that ask them. They are not listed under §2
+as separate implementations — they are inside 2a, the form — but a site that
+omits the ones its tenant has configured is asking a customer to find out
+later.
+
+**What a site may still genuinely omit** is short and honest: nothing in the
+profile is decoration, but a detailer who has not configured a thing owes no
+section for it — no plans, no gallery, no add-ons, no FAQ, no sale. **The
+contract is "if the dashboard holds it, the site shows it", never "the site
+must have twelve sections."**
+
+*The transferable bit: a blanket reason that covers a whole list is a reason
+nobody re-examines per item. This list had one, and it was load-bearing for
+six things and true of none.*
 
 ---
 
@@ -415,15 +480,30 @@ one-line answer from the owner rather than a build:** expose it, add a
 `show_email` flag so it is the detailer's own choice, or decide the booking
 form is the contact form.
 
-### 6g. `track-visit`, `campaigns` and `campaign_visits` are dormant — NEW
-A deployed public edge function and two tables with, verified 2026-09-05, **no
-caller in `app/` and no reader anywhere.**
-`dashboard-feature-inventory-2026-08-31.md` §3 already listed it as
-built-with-no-door. **A tenant site is the natural caller** — it is where a
-visit happens — but calling it buys nothing until a dashboard screen reads it.
-**Recommendation: leave it dormant and say so here**, so 3.2 does not wire a
-site into an endpoint whose output nobody can see. Revisit only if the owner
-wants visit numbers.
+### 6g. Campaign links are a feature the platform DROPPED, not a dead end — CORRECTED
+**This section said "leave it dormant" and that was wrong.** It was written
+from the platform's side, where `track-visit` has no caller in `app/` and
+nothing reads `campaigns` or `campaign_visits` — all true. **Then his own site
+was read for §1c and both halves turned out to be live there:**
+`reference/frontend/src/App.js:29` imports `trackVisit` and calls it at line 54
+on every page load, `lib/campaign.js` stores the campaign and auto-applies its
+promo code (the comment names a golf-course QR as the real case), and the old
+admin had a **"Campaign Links"** section in `MoreScreen.jsx` that read them
+back. **End to end, in production, on the business this product was built
+from.**
+
+So this is not something nobody wants — it is a working feature the conversion
+lost, and the tenant sites are exactly where it would come back, because a
+tenant site is where a visit happens. **Recommendation: 3.2 wires the sites to
+call it (one function call and a stored visitor id), and the dashboard screen
+that reads it belongs on Phase 4's restoration list** beside referral/loyalty
+and the calendar sync — it is the same kind of item and was missed there.
+**Not built now**, because a site writing rows no screen shows is the
+half-feature this section was originally right to refuse.
+
+*The lesson is about the evidence, not the feature: "nothing calls it" was
+measured in `app/` only, and the reference implementation of this entire
+product was sitting unread in the same repo.*
 
 ### 6h. Credentials and trust markers have nowhere to live — NEW, from the research
 Five of six real detailers lead with some of *licensed and insured*, *certified
@@ -473,19 +553,22 @@ the current answer lives.
 
 ## 8. Open, and honest about it
 
-1. **§1c is the owner's approval, and it is the only thing in this file that
-   is.** Everything else is a reading of what already exists.
-2. **A light client site is now a real case, not a hypothetical.** The owner
-   ruled on 2026-09-05 that tenant sites are genuinely different from each
-   other and from the platform — different colours, fonts, aesthetic — so one
-   of the three worked pages (`docs/tenant-sites/b-van.html`) is light on
-   purpose, and it hands the customer to a DARK booking flow mid-purchase.
-   `BookingBusinessContext.jsx` has said *"reopen in phase 3 if a bespoke
-   tenant site turns out light"* since 2026-08-30. **This is phase 3 and it has
-   turned out light.** What the booking page can take from a tenant today is
-   ONE colour (`brandVarsFor`); what a light site needs is a ground. That is a
-   3.2 build and it is the one piece of the ENGINE this item has found that
-   presentation genuinely needs to reach.
+1. **§1c is ANSWERED, and it is the only owner decision this file was
+   holding.** He chose the form built into the site, against the
+   recommendation, with his own site as the evidence. Everything else here is
+   a reading of what already exists.
+2. ~~**A light client site hands the customer to a dark booking flow.**~~
+   **DISSOLVED BY HIS ANSWER, same day.** This was going to be a 3.2 build —
+   teach the booking page to take a tenant's ground and not just its accent —
+   because world B is light and the flow is dark. With the form built into the
+   site there is no crossing to theme. **Kept rather than deleted because the
+   shape is worth recognising: a seam that needed a feature to hide it stopped
+   existing when the seam was removed instead.** The note in
+   `BookingBusinessContext.jsx` can be closed when 3.2 lands.
+   **What replaces it as the real risk is the opposite one:** every
+   website-package client now carries a booking form, and his own weighs 1,581
+   lines. §1c's headless-core recommendation is the answer, and it is the
+   biggest single thing 3.2 has to build.
 3. **§2 is twelve implementations for a site that offers everything.** A
    detailer with no plans, no gallery and no add-ons owes none of those three.
    The contract is "if the dashboard holds it, the site shows it" — never "the

@@ -108,6 +108,18 @@ tenant site is only finished when it implements the pieces those features need
 in order to function. A site may look like anything; it may not omit the parts
 the dashboard drives. That list is what roadmap 3.1 has to enumerate.
 
+**ENUMERATED 2026-09-05: `docs/tenant-site-contract.md`. And his sentence above
+turned out to reach further than it reads** — when 3.1 asked where a customer
+actually books, he answered *"it should be built into the website with the
+detailer's website design. Like how it is on my website"*, and his own site
+settles it: `reference/frontend/src/components/BookingWidget.jsx` is 1,581
+lines inside the SITE's components folder, built from the SITE's UI kit,
+rendered inline on the marketing page. **So the booking FORM is presentation
+and forks per client; the rules underneath it do not.** The engine is the one
+public RPC and the public edge functions, and it recomputes every price and
+every slot whatever a site sends — which is precisely what makes forking the
+form safe. Contract §1c.
+
 On the starting point:
 
 > "When we first start, it's still gonna have that kind of information of a
