@@ -685,8 +685,12 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  FIFTEEN settings screens through TWO DOORS — TEN on Business (Monthly plans
-  joined in roadmap 2.14, "How you get paid" in roadmap 2.20) and FIVE behind
+  SIXTEEN settings screens through TWO DOORS — ELEVEN on Business (Monthly plans
+  joined in roadmap 2.14, "How you get paid" in roadmap 2.20, **"Common
+  questions" in roadmap 3.2(b)** — its own geometry risk is the row of THREE
+  icon buttons beside a two-line question, one more control on a `.row-item`
+  than anything else in the product, and the demo is seeded with a deliberately
+  long question so 320 has something to break) and FIVE behind
   the header gear ("Your subscription" joined in roadmap 2.20 stage 2, and it
   is walked as its own block rather than in `GEAR_ROWS`: it is owner-only and
   its content comes from an edge function, so it waits for what the answer
@@ -1536,11 +1540,13 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - **THE FIFTH TAB IS `Business`, THE PLUMBING IS BEHIND A GEAR IN THE HEADER,
   AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
-  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. **TEN rows on
+  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. **ELEVEN rows on
   Business** (what changes what a CUSTOMER meets — Monthly plans joined them in
-  roadmap 2.14, because a plan is an offer with a price, and *How you get paid*
-  in 2.20 stage 1; **this said NINE until 2026-09-05 and was counted from the
-  file that day** — ten plus the five below is the fifteen the sweep walks),
+  roadmap 2.14, because a plan is an offer with a price, *How you get paid*
+  in 2.20 stage 1, and ***Common questions* in roadmap 3.2(b), which is the
+  ninth row `Business.jsx`'s own header designed in stage 6 and deliberately
+  did not build**; **this said NINE until 2026-09-05 and TEN for a few hours
+  after** — eleven plus the five below is the sixteen the sweep walks),
   FIVE behind the gear
   (what changes how the app behaves for the detailer — *Your subscription*
   joined them in roadmap 2.20 stage 2, and it passes the gear's half of the
@@ -1956,6 +1962,40 @@ explaining it; if they still have to ask "so should I?", it failed.
   **Nothing tests them**: `composition` walks `app/src` plus `5-the-thread.html`
   by name, so those pages are held by looking and not by a check —
   `shoot-dashboard.mjs --url <path>.html` photographs one for him.
+
+- **THE RULES OF THE BOOKING FLOW LIVE IN `app/src/book/core.js` NOW, AND
+  `/book/:slug` IS ONLY ONE OF ITS CALLERS — roadmap 3.2(a), 2026-09-05.** The
+  step sequence, the profile's fallbacks, the tenant's own defaults, the group
+  rules, the mode limit, the calendar, which times a customer can have, the
+  step gating, both money payloads and what the device remembers. **No React,
+  no markup, no CSS and NO `import` STATEMENT OF ANY KIND**, because a tenant
+  site may be built on anything and one import makes it undroppable.
+  `tests/booking-core.test.mjs` § 1 enforces every one of those properties by
+  reading the file as text.
+  **IT IS WIRED THROUGH, NOT WRITTEN BESIDE, and that is the whole design.**
+  `lib/api.js`'s four public booking calls go through the core's own transport
+  and `postFunction` is the HTTP shape of EVERY edge call in that file, so the
+  core is exercised by every run of every suite. **A core the product does not
+  itself run is a core that rots**, and the next person to find it wrong is a
+  client's agent. **So a rule added to the booking flow goes in `core.js` and
+  the page calls it** — a rule that lives in a step component again is a rule
+  the next bespoke site re-derives from a screenshot.
+  **What is deliberately NOT in it: wording, formatting, headings, height
+  budgets, the four-card vehicle ceiling.** Those are measured against OUR page
+  at OUR sizes and are wrong for somebody else's type.
+  **The lift changed no behaviour and that was MEASURED rather than asserted**:
+  every spare-room figure `sweep-booking-steps.mjs` printed afterwards is
+  identical to the ones this file records.
+
+- **THE BRIEF A FRESH AGENT IS POINTED AT TO BUILD A CLIENT'S SITE IS
+  `docs/tenant-site-kit.md` — roadmap 3.2(c).** It is a POINTER and never a
+  summary: every fact has one home and none of them is that file, because a kit
+  that restates the contract is a second copy of the contract and the older one
+  goes stale silently. **Its §5 is the part that matters most and it is the
+  owner's ruling**: the three pages in `docs/tenant-sites/` are the STRUCTURAL
+  range and NOT the taste reference. **A session that hands that file to an
+  agent has handed over everything; a session that summarises it has forked
+  it.**
 
 ## Context (read these, in this order, when new)
 

@@ -404,6 +404,22 @@ six things and true of none.*
 Ordered by what blocks the most. **The roadmap's 3.1 entry listed four; one of
 those was wrong, and three more were found writing this.**
 
+> **FIVE OF THE EIGHT ARE CLOSED AS OF ROADMAP 3.2(b), 2026-09-05.**
+> `20260905001000_tenant_site_contract_gaps.sql` publishes the FAQ (6b), the
+> payment handles (6c), the closures (6d) and `credentials` +
+> `established_year` (6h) on `get_public_business_profile`, and DROPS the two
+> dead shadowing branding columns (6e). The two writing halves shipped with
+> it: a **Common questions** settings screen — the ninth row `Business.jsx`'s
+> own header designed and stage 6 deliberately did not build — and a
+> credentials editor plus a *Detailing since* field on **Business info**.
+> `app/src/book/core.js` normalises all of it, `paymentMethods()` and
+> `faqFor()` are the two rules a site would otherwise re-derive, and
+> `tests/booking-core.test.mjs` § 14 pins them.
+>
+> **WHAT IS STILL OPEN: 6a (roadmap 3.3, a build of its own), 6f and 6g** —
+> and 6f and 6g are questions for the owner rather than work. Both are written
+> up in `docs/overnight-log.md`.
+
 **AND THE GAP LIST WAS THEN CONFIRMED FROM THE OTHER DIRECTION, WHICH IS THE
 PART WORTH TRUSTING.** The first worked page was built in parallel, by a
 different model, from the design system rather than from this file — and it

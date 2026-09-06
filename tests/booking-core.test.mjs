@@ -18,10 +18,11 @@
 
 import {
   DEFAULT_VEHICLE_SIZES, REMEMBER_KEY, VEHICLE_CONDITIONS, bookingRequest,
-  canAdvance, dayIsOpen, dayRefusesMode, groupServices, initialForm,
+  canAdvance, dayIsOpen, dayRefusesMode, faqFor, groupServices, initialForm,
   modeLimitFor, monthGrid, monthHasNothing, monthRange, normalizeProfile,
-  normalizeSettings, offersBothModes, quoteKey, quoteRequest, recallCustomer,
-  rememberCustomer, shiftMonth, slotsForType, stepsFor, toggleService,
+  normalizeSettings, offersBothModes, paymentMethods, quoteKey, quoteRequest,
+  recallCustomer, rememberCustomer, shiftMonth, slotsForType, stepsFor,
+  toggleService,
 } from "../app/src/book/core.js";
 
 let passed = 0, failed = 0;
@@ -439,6 +440,58 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
   check("a storage that throws on write is swallowed", threw === false);
   check("junk in storage is nobody, not a crash",
     recallCustomer("acme", { getItem: () => "{not json" }) === null);
+}
+
+// ─── 14. What roadmap 3.2(b) opened up — contract §6b, §6c, §6d, §6h ──────
+// These four reach NO screen in this product. They exist because a tenant
+// site draws an FAQ section, a "how to pay" section, a closure notice and a
+// row of trust badges, and until 3.2(b) the one public read surface published
+// none of them — so a bespoke site would have hard-coded all four, which is
+// the exact failure the contract exists to prevent.
+{
+  const p = normalizeProfile({
+    business: { slug: "s", name: "N", established_year: 2016 },
+    branding: { credentials: [{ label: "Licensed & insured" }] },
+    settings: {
+      faq_enabled: true,
+      faqs: [{ q: "Do you need my water?", a: "No." }, { q: "  ", a: "orphan" }, { q: "Why?", a: "  " }],
+      pay_cash: true, pay_venmo: "@x", pay_paypal: "https://paypal.me/x",
+    },
+    closures: [{ kind: "closed", name: "Fourth of July", start_date: "2026-07-04" }],
+  });
+
+  check("the FAQ survives the profile", p.settings.faqs.length === 3);
+  check("the flag survives it too", p.settings.faq_enabled === true);
+  check("credentials ride on branding", p.branding.credentials[0].label === "Licensed & insured");
+  check("the year rides on the business", p.business.established_year === 2016);
+  check("closures are their own top-level list", p.closures.length === 1);
+  check("a profile with no closures is an empty list, not undefined",
+    Array.isArray(normalizeProfile({}).closures) && normalizeProfile({}).closures.length === 0);
+
+  check("faqFor drops a question with no answer and an answer with no question",
+    faqFor(p.settings).length === 1, JSON.stringify(faqFor(p.settings)));
+  check("THE SWITCH IS NOT THE LIST BEING EMPTY — off means draw nothing",
+    faqFor({ ...p.settings, faq_enabled: false }).length === 0,
+    "'I have not written any yet' and 'I do not want this section' are different answers");
+  check("a business that never touched the FAQ draws nothing",
+    faqFor({}).length === 0);
+  check("faq_enabled defaults to FALSE, so the section is opt-in",
+    normalizeSettings({}).faq_enabled === false);
+  check("a garbage faqs value is an empty list rather than a crash",
+    normalizeSettings({ faqs: "yes" }).faqs.length === 0);
+
+  const pay = paymentMethods(p.settings);
+  check("only the methods that are actually set come back",
+    pay.map((m) => m.key).join() === "venmo,paypal,cash", JSON.stringify(pay));
+  check("CASH IS LAST, as it is in the email's own list",
+    pay.at(-1).key === "cash");
+  check("cash has no handle", pay.at(-1).handle === null);
+  check("a handle comes back EXACTLY as typed",
+    pay.find((m) => m.key === "paypal").handle === "https://paypal.me/x");
+  check("NOTHING HERE BECOMES A LINK", pay.every((m) => !("href" in m) && !("url" in m)),
+    "a wrong payment link sends somebody's money to the wrong person, and _shared/payments.ts is the one place that decides");
+  check("a business that takes nothing yet gets an empty list",
+    paymentMethods({}).length === 0);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

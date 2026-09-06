@@ -229,6 +229,8 @@ were made more than once.
 
 - **Roadmap 3.1 — the tenant-site contract, and the four gaps that were three** — the item's own entry said *"DO NOT WRITE ANOTHER PLAN"*, so the work was the one thing `docs/tenant-websites.md` §3 says is still owed: **what a bespoke site MUST implement for the dashboard's features to work.** That is `docs/tenant-site-contract.md` — twelve implementations, the read contract key by key, and what a site may never do. **The enumeration is two-way and only one direction had been written down**: `dashboard-feature-inventory-2026-08-31.md` §5 asked "is this editable in the dashboard?", which is the wrong half of the owner's own constraint. **Every one of the twelve fails SILENTLY** — the screen still works, the setting still saves, nothing reports that the feature reaches nobody — and the sharpest is the catalog, where a site with hard-coded prices is *a number printed is not a number charged* **with the two numbers in two different codebases**. **Most of the contract turned out to already exist and to be origin-agnostic**: one `security definer` RPC, `Access-Control-Allow-Origin: *` on every public function, a public-read media bucket — so the fork line is a thing to write down before somebody crosses it, not a thing to build. **THE ROADMAP'S FOURTH GAP IS WRONG and how it got there is the lesson**: "five of six social links cannot be typed in" was true on 2026-08-31, fixed on 2026-09-02, and copied into a roadmap entry dated 2026-09-05 without being re-read — *a gap list rots exactly like a stale count.* What is really broken there is `branding.social_google` / `social_yelp`, dead columns shadowing the live `settings.*_review_url` pair. **Three more gaps were found, one bigger than any of the four**: every customer-facing URL comes from one global `PLATFORM_URL`, so a detailer on their own domain still emails links to detailingplatform.com (the real content of 3.3, whose wording covers only the inbound half); `businesses.contact_email` is not in the profile; and `track-visit` + `campaigns` + `campaign_visits` looked dormant — **a finding this item later CORRECTED by reading `reference/`: they are live end to end on his own business** (`App.js` calls `trackVisit()` on every page load, the old admin had a Campaign Links screen), so it is a feature the conversion lost and it is on Phase 4's restoration list. *"Nothing calls it" had been measured in `app/` only.* **The one thing put to the owner rather than decided was where the customer actually books, and HE OVERTURNED THE RECOMMENDATION.** It was to LINK OUT to `/book/:slug` rather than rebuild seven rule-dense steps per client; he chose *"built into the website with the detailer's website design. Like how it is on my website"* — and his site settles it, `BookingWidget.jsx` being 1,581 lines inside the SITE's own components folder, rendered inline by `App.js:73`. **The fork line moves up one level: the FORM is presentation, the RULES stay central**, which is safe only because `create-booking` recomputes every quote and `validateSlot` gates every time — so a bespoke form cannot mis-charge, only offer a slot the server refuses. **3.2 therefore gains a headless booking core.** **Fable 5.1 was spent on a "default visual world" that he REJECTED the same day — it was our landing page recoloured — and his correction is the load-bearing part: a tenant site inherits our METHOD (research first, the anti-slop floor, the motion mentality) and never our SKIN.** Six real detailers' sites were then looked at (`docs/tenant-site-research-2026-09-05.md`), their content inventory corrected the contract in four places and found an eighth gap (credentials have no column), and Fable built THREE worked pages in `docs/tenant-sites/` deliberately unlike each other, one of them light. **That light page was going to force a 3.2 build — teaching the dark booking flow to take a tenant's ground — and his §1c answer dissolved it instead**: with the form on the tenant's own page there is no crossing to theme. *A seam that needed a feature to hide it stopped existing when the seam was removed.* **AND HE REJECTED HOW ALL THREE WORKED PAGES LOOK** — *"all 3 look very ai and not even like the vibe for detailing but it's fine for now"* — **though they pass every mechanical check in this repo, which is the finding that outlives the item: the anti-slop floor is a list of NEVERS, and a list of nevers cannot produce a vibe.** "Fine for now" is a deferral, so the pages stay and are NOT the taste reference for a client's site. *Three agents given ONE brief produce ONE family — varying the palette while fixing the skeleton does not produce variety.* What unblocks it is two or three detailer sites whose vibe HE likes, which is a TASTE-NOTES pass this trade has never had.
 
+- **Roadmap 3.2 — the headless booking core, five closed gaps and the kit brief** — the owner's 3.1 amendment means every website-package tenant draws its OWN booking form, so **the FORM forks per client and the RULES must not fork with it.** `app/src/book/core.js` is those rules with no page around them: no React, no markup, no CSS and **no `import` statement of any kind**, because a tenant site may be built on anything and one import makes it undroppable. **The decision that makes it real is that it is WIRED THROUGH rather than written BESIDE** — `BookingPage.jsx` lost ~200 lines, `lib/api.js`'s four public booking calls go through the core's own transport, and the context and three steps call it; *a core the product does not itself run is a core that rots*, and the next person to find it wrong would be a client's agent. **It was proven a LIFT rather than a rewrite by MEASUREMENT** — every spare-room figure `sweep-booking-steps.mjs` printed afterwards is identical to the recorded ones. **Its test's § 1 reads the file as TEXT** and fails on any import, JSX, Vite env, React hook or unwrapped `localStorage`; **two of those checks were vacuous on their first run by matching the file's own header prose promising the very thing they check for** — strip comments before reading a file as text. (b) closes five of the contract's eight §6 gaps in one migration and **DROPS two dead columns**, `business_branding.social_google`/`social_yelp`, which shadowed the live settings pair — *a shadowing column is worse than a missing one*, and they were measured null on all six rows before the drop. **6f and 6g were left as questions for the owner rather than guessed at.** (c) is `docs/tenant-site-kit.md`, **a POINTER and never a summary** — a kit that restates the contract is a second copy of it, and the older copy goes stale silently; its §5 says in his own words that the three worked pages are the STRUCTURAL range and NOT the taste reference. **And the item found a live defect it did not cause, by LOOKING**: the plan form's four-option price control ran 28px past its row at 392 — the owner's own phone width — clean at 320, 360 and 1920 and invisible to every check, because the settings walk is tiered to 320/1920 and § THE 320 FLOOR only reaches 360. *A fix written inside `max-width: 360px` is a fix that does not exist at 392*, which this file had already recorded once for `.btnrow`.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -13523,3 +13525,146 @@ while fixing the skeleton does not produce variety.* **What unblocks it is his
 taste, not a fourth guess**: two or three detailer sites whose vibe he likes, a
 sentence each — a TASTE-NOTES pass for this trade, which has never existed.
 Research file §7.
+
+## Roadmap 3.2 — the headless booking core, five closed gaps and the kit brief
+
+**2026-09-05, overnight, on `claude/superbase-access-anj1h7`.** Three parts,
+each committed on its own; nothing merged to `main`.
+
+### (a) Why the core is wired THROUGH and not written BESIDE
+
+The obvious build is a new module next to the booking page: lift the rules out,
+leave the page alone, ship. **That version is worthless within a month.** A
+module nothing in the product calls is a module nobody notices going wrong, and
+the person who eventually notices is an agent building a paying client's
+website — at which point the cost of the drift is a real site, not a red test.
+
+So `BookingPage.jsx` lost about two hundred lines and calls the core for every
+rule it used to own; `lib/api.js`'s four public booking calls go through the
+core's own transport and `postFunction` is the HTTP shape of every edge call in
+that file; and `BookingBusinessContext`, `StepServices`, `StepVehicle` and
+`StepWhen` all call it. **The trade taken deliberately: a much wider blast
+radius on one change**, paid for with the whole battery — `sweep-widths` and
+its `--lite` twin, `sweep-booking-steps`, `e2e-booking` on both tenants, and
+thirteen credential-free suites.
+
+**The proof it was a lift and not a rewrite is a MEASUREMENT rather than a
+claim.** `sweep-booking-steps.mjs` prints the spare room under every step at
+four sizes, and every figure afterwards is identical to the ones CLAUDE.md
+records — step 1 at 10px on 1440x900 and 47px at 392, step 4 at 74px and 52px,
+step 3 at 111px and 118px. Those numbers are a fingerprint of the rendered
+flow; unchanged, they say the presentation is the same shape it was.
+
+**What is deliberately NOT in the core: wording, formatting, headings, height
+budgets, the four-card vehicle ceiling.** All of those are measured against our
+page at our sizes and are wrong for somebody else's type and layout. The line
+is: if a bespoke site would get it WRONG by re-deriving it, it is a rule; if a
+bespoke site would legitimately want it DIFFERENT, it is presentation.
+
+**Three defaulting `useEffect`s became one, latched in a ref.** Not tidiness:
+`"small"` is both a legitimate vehicle size AND the fallback, so once the
+tenant's defaults live in `initialForm` an is-it-still-empty guard cannot tell
+"unset" from "the tenant's first size really is small". A ref fires it once, at
+the moment the profile lands, when the page has been showing a spinner and
+there is nothing a customer could have typed.
+
+**The test's section 1 is the unusual part and it earned its place
+immediately.** It reads `core.js` as TEXT and fails on any `import`, JSX,
+`import.meta.env`, React hook or unwrapped `localStorage` — the properties that
+make the file droppable into a site built on Astro, Alpine or nothing, none of
+which any behavioural test can see. **Two of its checks were vacuous on their
+first run in a shape this repo had not met before: they matched the file's OWN
+HEADER PROSE, which promises "no React, no `import.meta.env`".** A check failed
+on the sentence advertising the thing it checks for. Strip comments before
+reading a file as text.
+
+### (b) Five of the eight section-6 gaps, and one thing removed
+
+6b (FAQ), 6c (payment handles), 6d (closures) and 6h (credentials +
+`established_year`) are published on `get_public_business_profile`, with the
+writing halves that make them real: a **Common questions** settings screen —
+the ninth Business row `Business.jsx`'s own header designed in stage 6 and
+deliberately did not build — and a credentials editor plus a *Detailing since*
+field on Business info.
+
+**The FAQ's wait ended for a reason that was not "we got round to it".** Its
+storage landed on 2026-09-02 with "no writer and no reader on purpose", which
+was the owner's split and was sound. What changed is contract 6b: a tenant site
+draws an FAQ section, so 3.2 had to publish the column anyway — and **a column
+a site can read that a detailer cannot fill in is the same defect as a row that
+opens nothing**, which is what stage 6 spent a pass removing.
+
+**6e is the only thing this item deleted.** `business_branding.social_google`
+and `social_yelp` shadowed the live `business_settings.google_review_url` /
+`yelp_review_url` pair; Business info had save code for them and no input, so
+they had only ever been written empty. **Measured before the drop, not
+assumed:** null on all six rows in the product. *A shadowing column is worse
+than a missing one* — the next session to want "the Google review link" reads
+whichever it finds first and ships a page that silently shows nothing.
+
+**Two gaps were NOT decided.** 6f (should a detailer's email be published?) is
+a scraping decision about their inbox, not a schema one; 6g (campaign links) is
+a working feature on his own site that the rebuild dropped, and the screen that
+reads it back is already roadmap 4.2 — a site writing rows no screen shows is
+the half-feature 6g was right to refuse the first time. Both are written up
+with a recommendation in `docs/overnight-log.md`.
+
+**A judgement inside 6h:** a credential is `{label, detail?}` and nothing else.
+The migration's comment allows an optional `year` and the editor does not write
+one, because `detail` already says "Since 2021" and a third input on a 320px
+screen buys nothing. `established_year` is a COLUMN rather than a credential
+entry, because "since 2016" goes in a masthead, an about paragraph and a
+footer, and reading it out of a list means three places agreeing on which entry
+it is.
+
+### (c) Why the kit brief is a pointer
+
+`docs/tenant-site-kit.md` is a reading order, the decisions already made, and
+the three things that are not optional when verifying. **No fact in it has a
+second home.** The owner's own rule, when a session started writing a third
+plan: *"Isn't there already a plan. Follow the docs."* A kit that restates the
+contract is a second copy of the contract, and the older one goes stale without
+anybody noticing — which is the failure mode this repo has already recorded for
+stale counts and for a rotted gap list.
+
+**Its section 5 is the load-bearing part and it exists because of his verdict
+on the three worked pages.** They are the STRUCTURAL range — three section
+skeletons, three worlds, one of them light — and explicitly **not** the taste
+reference: *"All 3 look very ai and not even like the vibe for detailing but
+it's fine for now."* An agent handed that file cannot mistake them for a
+template, which is exactly what would otherwise happen on the first paying
+client's site.
+
+### And a live defect the item found and did not cause
+
+**The plan form's price-shape control ran 28px past its own row at 392** — four
+labels, the widest segmented control in the product, with `white-space: nowrap`
+buttons. **Clean at 320, clean at 360, clean at 1920, broken at 392, in both
+the normal and the `?lite=1` path.**
+
+**Why nothing had ever seen it, which is the transferable half.** The fourteen
+settings screens run at 320 and 1920 only — the tiering CLAUDE.md describes as
+"a bet that the long tail is uniform" — and the 320 FLOOR turns every segmented
+control into a full-width grid below 361px. **392 is the one width where the
+control is too wide AND the floor does not reach**, and it is the owner's own
+phone.
+
+**It was proven not to be this item's fault before being fixed**, by re-running
+the same sweep with tonight's only other CSS rule disabled and watching it fail
+identically — CLAUDE.md's *run the control before the theory*, and it cost one
+sweep.
+
+**This is the SECOND time this exact shape has been recorded.** `theme.css`'s
+own `.btnrow` note says the rule "moved out to the unconditional block above
+when a real day on Today showed the same row failing at 392, where this media
+query never ran." The general form, now that it has arrived twice: **a fix
+written inside `max-width: 360px` is a fix that does not exist at 392.**
+
+**And a smaller correction that is worth more than the fix.** The rule written
+for the FAQ row carried `and (min-height: 500px)`, copied from the five rules
+this repo already has. It was taken out: those five are `min-width` rules,
+where the guard stops them firing on a sideways phone and turning a phone
+layout into a desk one. On a `max-width` rule the guard does nothing — 844px
+already fails `max-width: 700px`. **A guard copied without its reason is
+decoration**, and a comment claiming a protection the query cannot give is
+worse than no comment.

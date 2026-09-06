@@ -33,14 +33,19 @@
 //                of them (architecture audit §2c items 2 and 3). What a staff
 //                session can actually use is behind the gear.
 //
-// EIGHT ROWS, NOT THE NINE §10 DESIGNED. The ninth is FAQ, whose storage
-// landed in this change and whose screen is deliberately later — the owner's
-// own split. A row that opens nothing is the defect this stage is repairing
-// on the push switch, so there is no FAQ row until there is a FAQ screen.
+// ELEVEN ROWS AS OF ROADMAP 3.2(b), AND THE NINTH §10 DESIGNED IS FINALLY ONE
+// OF THEM. Stage 6 shipped eight and deliberately left FAQ out: its storage
+// landed in that same change and its screen did not, the owner's own split,
+// and a row that opens nothing is the defect that stage was repairing on the
+// push switch. What closed it is not this screen changing its mind — it is
+// contract §6b: a TENANT SITE draws an FAQ section, so 3.2(b) published the
+// column on the public profile, and a column a site can read that a detailer
+// cannot fill in is that same defect one level down.
+// (Monthly plans joined in 2.14 and How you get paid in 2.20 stage 1.)
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  CalendarClock, ChevronRight, ClipboardList, Images, ListChecks,
+  CalendarClock, ChevronRight, ClipboardList, HelpCircle, Images, ListChecks,
   MessageSquareQuote, Palette, Repeat, Store, Tag, Wallet, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
@@ -103,6 +108,18 @@ const describePayment = (s) => {
   // something els…". A summary that has to be truncated is not a summary; the
   // two it names are the two the email prints first.
   return `${on[0]}, ${on[1]} & ${on.length - 2} more`;
+};
+
+// ROADMAP 3.2(b). Two facts, not one: how many questions, AND whether the
+// section is switched on. They are separate columns on purpose (a detailer
+// halfway through writing an FAQ has not decided to publish it), so a summary
+// that printed only the count would tell somebody with six questions and the
+// switch off that nothing was wrong.
+const describeFaq = (s) => {
+  const list = Array.isArray(s?.faqs) ? s.faqs.filter((f) => f?.q && f?.a) : [];
+  if (list.length === 0) return "Nothing on your website yet";
+  const many = `${list.length} question${list.length === 1 ? "" : "s"}`;
+  return s?.faq_enabled ? many : `${many} · hidden`;
 };
 
 const humanNotice = (mins) => {
@@ -211,6 +228,17 @@ export default function Business({ onSetup }) {
       ["gallery", "Photo gallery", Images, counts ? n(counts.photos, "photo", "photos") : "…"],
       ["reviews", "Reviews", MessageSquareQuote,
         counts ? (counts.reviews ? n(counts.reviews, "review", "reviews") : "Nothing from a customer yet") : "…"],
+      // ROADMAP 3.2(b) — the NINTH row this screen's own header designed and
+      // deliberately did not build, because its screen did not exist. It does
+      // now. Under "Your page" and not the gear: an FAQ is read by a
+      // CUSTOMER, which is this screen's admission test passed outright.
+      //
+      // THE SUMMARY SAYS THE SWITCH, not just the count. A detailer with six
+      // questions and the section switched off is one press from a page that
+      // shows none of them, and "6 questions" would tell them nothing is
+      // wrong.
+      ["faq", "Common questions", HelpCircle,
+        settings ? describeFaq(settings) : "…"],
     ]],
     ["What you sell", [
       ["catalog", "Services & add-ons", Wrench,

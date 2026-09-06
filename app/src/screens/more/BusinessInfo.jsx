@@ -3,6 +3,7 @@
 // hero are REAL file uploads to Supabase Storage (no more pasting URLs).
 
 import { useState } from "react";
+import { X } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { uploadBusinessPhoto } from "../../lib/upload.js";
@@ -20,6 +21,11 @@ export default function BusinessInfo() {
     mailing_address: business.mailing_address || "",
     service_area: business.service_area || "",
     timezone: business.timezone,
+    // ROADMAP 3.2(b). Its own column rather than a credential entry, because
+    // "since 2016" is a fact a site puts in a masthead, an about paragraph
+    // AND a footer — reading it out of a list means three places agreeing on
+    // which entry it is.
+    established_year: business.established_year ?? "",
   });
   // THE TWO COLOUR PICKERS ARE GONE (roadmap 2.11 step 6, stage 6). A tenant
   // has ONE accent — law 11 — and it is set on "Your colour", which is the
@@ -37,9 +43,15 @@ export default function BusinessInfo() {
     social_facebook: branding?.social_facebook || "",
     social_tiktok: branding?.social_tiktok || "",
     social_youtube: branding?.social_youtube || "",
-    social_google: branding?.social_google || "",
-    social_yelp: branding?.social_yelp || "",
   });
+  // ROADMAP 3.2(b), contract §6h. Five of the six real detailers studied lead
+  // with *licensed and insured*, *certified Ceramic Pro installer*, *IDA
+  // certified*, *est. 1993*. The schema held none of it, so every bespoke
+  // site would have hard-coded it — and a lapsed certification would then
+  // live in a client's HTML where nothing in this repo can see it.
+  const [creds, setCreds] = useState(() =>
+    (Array.isArray(branding?.credentials) ? branding.credentials : [])
+      .map((c) => ({ label: c?.label ?? "", detail: c?.detail ?? "" })));
   const [reviews, setReviews] = useState({
     google_review_url: settings?.google_review_url || "",
     yelp_review_url: settings?.yelp_review_url || "",
@@ -95,6 +107,8 @@ export default function BusinessInfo() {
         mailing_address: nn(biz.mailing_address),
         service_area: nn(biz.service_area),
         timezone: biz.timezone.trim(),
+        established_year: /^\d{4}$/.test(String(biz.established_year).trim())
+          ? Number(biz.established_year) : null,
       }).eq("id", business.id),
       supabase.from("business_branding").upsert({
         business_id: business.id,
@@ -106,8 +120,19 @@ export default function BusinessInfo() {
         social_facebook: nn(brand.social_facebook),
         social_tiktok: nn(brand.social_tiktok),
         social_youtube: nn(brand.social_youtube),
-        social_google: nn(brand.social_google),
-        social_yelp: nn(brand.social_yelp),
+        // ROADMAP 3.2(b). `social_google` and `social_yelp` are GONE — dead
+        // columns that shadowed `business_settings.google_review_url` /
+        // `yelp_review_url` five lines below, saved from here with no input
+        // and therefore always empty. A shadowing column is worse than a
+        // missing one: the next reader takes whichever they find first.
+        // Rows with an empty label are dropped rather than stored: a blank
+        // badge on a website is a gap where a claim should be.
+        credentials: creds
+          .filter((c) => c.label.trim())
+          .map((c) => ({
+            label: c.label.trim(),
+            ...(c.detail.trim() ? { detail: c.detail.trim() } : {}),
+          })),
       }),
       supabase.from("business_settings").update({
         google_review_url: nn(reviews.google_review_url),
@@ -158,8 +183,16 @@ export default function BusinessInfo() {
       <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
         Only ever printed at the bottom of an email you send your old customers. The law asks for it.
       </p>
-      <label className="field"><span>Service area (shown on your site)</span>
-        <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })} placeholder="e.g. Lakewood, California" /></label>
+      <div className="grid2">
+        <label className="field"><span>Service area (shown on your site)</span>
+          <input value={biz.service_area} onChange={(e) => setBiz({ ...biz, service_area: e.target.value })} placeholder="e.g. Lakewood, California" /></label>
+        {/* ROADMAP 3.2(b). Four digits, and the save drops anything else
+            rather than arguing with it — the column's own check constraint is
+            the half that holds. */}
+        <label className="field"><span>Detailing since</span>
+          <input value={biz.established_year} inputMode="numeric" maxLength={4} placeholder="e.g. 2016"
+            onChange={(e) => setBiz({ ...biz, established_year: e.target.value })} /></label>
+      </div>
       <label className="field">
         <span>Timezone</span>
         {/* Every booking time, reminder and calendar date is computed in this
@@ -180,6 +213,42 @@ export default function BusinessInfo() {
         <label className="field"><span>Hero photo</span>
           {brand.hero_image_url && <img src={brand.hero_image_url} alt="hero" style={{ height: 48, marginBottom: 6, borderRadius: 8, objectFit: "cover" }} />}
           <input type="file" accept="image/*" onChange={(e) => upload(e, "hero_image_url", "branding")} /></label>
+      </div>
+
+      {/* ROADMAP 3.2(b), contract §6h. THE DESTINATION IS THE NON-OBVIOUS
+          FACT, so it keeps its sentence — the same call Reviews made. These
+          appear nowhere in this product: they are for the website, which is
+          still being built, and a detailer who types in three badges and goes
+          looking for them has been misled by a missing clause. */}
+      <div className="section-title">What customers should know</div>
+      <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
+        Licences, certifications, warranties. They go on your website — that
+        part is still being built.
+      </p>
+      {creds.map((c, i) => (
+        <div className="grid2" key={i}>
+          <label className="field"><span>{i === 0 ? "What it is" : ""}</span>
+            <input value={c.label} placeholder="e.g. Licensed & insured"
+              onChange={(e) => setCreds(creds.map((x, j) => (j === i ? { ...x, label: e.target.value } : x)))} /></label>
+          {/* NOT "A line about it (optional)". Measured at 392: the pair's
+              columns are about 150px, that label wraps to two lines and the
+              LEFT one does not — so the first row's two inputs sat a line
+              apart while every row under it lined up. The word was carrying
+              nothing the empty field does not already say. */}
+          <label className="field"><span>{i === 0 ? "A line about it" : ""}</span>
+            <span className="row" style={{ display: "flex", gap: "var(--sp-2)", alignItems: "center" }}>
+              <input value={c.detail} placeholder="e.g. Fully covered on your property"
+                onChange={(e) => setCreds(creds.map((x, j) => (j === i ? { ...x, detail: e.target.value } : x)))} />
+              <button className="btn sm inline icon ghost" aria-label={`Remove ${c.label || "this line"}`}
+                onClick={() => setCreds(creds.filter((_, j) => j !== i))}><X strokeWidth={2} /></button>
+            </span>
+          </label>
+        </div>
+      ))}
+      <div className="btnrow">
+        <button className="btn" onClick={() => setCreds([...creds, { label: "", detail: "" }])}>
+          Add a line
+        </button>
       </div>
 
       <div className="section-title">Links</div>

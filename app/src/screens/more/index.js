@@ -17,18 +17,23 @@
 // sell". Every handle typed on it is printed in a customer's email and
 // nowhere else, which is Business's admission test passed outright.
 //
+// SIXTEEN AS OF ROADMAP 3.2(b) — "Common questions" joined under "Your page",
+// and it is the one this file has carried a note about since stage 6. The
+// storage landed then with no writer and no reader on purpose (the owner's
+// own split); what turned the wait into a GAP is contract §6b — a tenant site
+// draws an FAQ section, so 3.2(b) had to publish the column on the public
+// profile anyway, and a column a site can read that a detailer cannot fill in
+// is the same defect as a row that opens nothing, one level down.
+//
 // THIRTEEN AS OF ROADMAP 2.14 — "Monthly plans" joined under "What you sell",
 // because a plan is an offer with a price and that is the same admission test
-// the catalog passes. The missing one is still the FAQ. Its storage landed in
-// the same change (`20260902001000_faq_storage.sql`) and its screen waits,
-// which is the owner's own split. A row that opens nothing is the exact defect
-// this stage is repairing on the push switch, so there is no FAQ row until
-// there is a FAQ screen.
+// the catalog passes.
 
 import BusinessInfo from "./BusinessInfo.jsx";
 import Appearance from "./Appearance.jsx";
 import Gallery from "./Gallery.jsx";
 import Reviews from "./Reviews.jsx";
+import Faq from "./Faq.jsx";
 import Catalog from "./Catalog.jsx";
 import Promos from "./Promos.jsx";
 import Plans from "./Plans.jsx";
@@ -47,6 +52,7 @@ export const SCREENS = {
   appearance: [Appearance, "Your colour"],
   gallery: [Gallery, "Photo gallery"],
   reviews: [Reviews, "Reviews"],
+  faq: [Faq, "Common questions"],
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
   plans: [Plans, "Monthly plans"],

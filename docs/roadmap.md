@@ -5599,7 +5599,46 @@ is kept; the entire visual design restarts from scratch.
       (§6f, a question for him); and `track-visit` + `campaigns` +
       `campaign_visits` are dormant with no caller and no reader (§6g,
       recommended to stay dormant).
-- [ ] 3.2 **Build the tenant-site kit against the contract.** Three parts, in
+- [x] 3.2 **Build the tenant-site kit against the contract.** **SHIPPED
+      2026-09-05.** All three parts, and the deliverables are
+      `app/src/book/core.js` (a), `20260905001000_tenant_site_contract_gaps.sql`
+      plus a **Common questions** settings screen and a credentials editor (b),
+      and `docs/tenant-site-kit.md` (c).
+
+      **(a) THE CORE IS WIRED THROUGH, NOT WRITTEN BESIDE — the one judgement
+      that decides whether this item was worth doing.** `BookingPage.jsx` lost
+      ~200 lines, `lib/api.js`'s four public booking calls go through the
+      core's own transport, and the booking context and three step components
+      call it. **A core the product does not itself run is a core that rots**,
+      and the next person to find it wrong would be a client's agent rather
+      than us. `tests/booking-core.test.mjs` is 164 checks, baselined eleven
+      ways; its § 1 reads the file as TEXT and fails on any `import`, any JSX,
+      any `import.meta.env`, any React hook and any unwrapped `localStorage`,
+      because those are the properties that make it droppable into a site
+      built on anything.
+      **Proof it was a LIFT and not a rewrite: every spare-room figure
+      `sweep-booking-steps.mjs` printed afterwards is identical to the ones
+      CLAUDE.md records** — step 1 at 10px spare on 1440x900, step 4 at 74px,
+      step 3 at 111px — and `e2e-booking` was 81/1 on both tenants with the one
+      failure being the documented `exclude_booking_id` gap.
+
+      **(b) FIVE OF THE EIGHT §6 GAPS ARE CLOSED, AND ONE COLUMN PAIR WAS
+      REMOVED.** 6b (FAQ), 6c (payment handles), 6d (closures) and 6h
+      (credentials + `established_year`) are on the public profile; **6e's two
+      dead `business_branding` social columns are DROPPED**, measured null on
+      all six rows before the drop, because a shadowing column is worse than a
+      missing one. **6a is roadmap 3.3 and 6f/6g are questions for the owner**,
+      written up in `docs/overnight-log.md` rather than guessed at.
+
+      **(c) THE KIT BRIEF IS A POINTER, NOT A SUMMARY** — the owner's own rule
+      when a session started writing a third plan (*"Isn't there already a
+      plan. Follow the docs."*). Its §5 is the load-bearing part: **the three
+      pages in `docs/tenant-sites/` are the STRUCTURAL range and NOT the taste
+      reference**, and it says so in his own words.
+
+      The original wording follows.
+
+      Three parts, in
       this order:
       **(a) THE HEADLESS BOOKING CORE — the biggest single job, and it exists
       because of his 3.1 amendment.** Every website-package site now draws its

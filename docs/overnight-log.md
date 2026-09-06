@@ -78,9 +78,220 @@ draws a spinner until the moment it fires.
 
 ---
 
+## Roadmap 3.2(b) — closing the contract's §6 gaps
+
+**What changed.** One migration
+(`20260905001000_tenant_site_contract_gaps.sql`) and the two writing halves
+that go with it.
+
+- **§6b, the FAQ.** Its storage landed in September 2 with, in that file's own
+  words, *"no writer and no reader on purpose"* — your split. The reader is now
+  the public profile and the writer is a new **Common questions** settings
+  screen, the ninth row `Business.jsx`'s own header designed in stage 6 and
+  deliberately did not build. Sixteen settings screens now.
+- **§6c, the payment handles.** Six columns that reached a customer's email and
+  nothing else. On the profile now, plus `paymentMethods()` in the core so a
+  site does not re-derive the order — and **nothing in the core turns a handle
+  into a link**, because a wrong payment link sends somebody's money to the
+  wrong person and `_shared/payments.ts` is the one place allowed to decide.
+- **§6d, the closures.** Upcoming only, capped at 60, as a new `closures` key.
+  A site can now *say* "closed the week of the 4th" rather than leaving a
+  customer to find it in the date picker. It cannot decide whether a day is
+  bookable — `available-slots` still owns that and always did.
+- **§6h, credentials.** `business_branding.credentials` and
+  `businesses.established_year`, with an editor on Business info. Five of the
+  six real detailers studied lead with *licensed and insured* or a
+  certification and the schema held none of it, so every bespoke site would
+  have hard-coded it — and a lapsed certification would then live in a
+  client's HTML where nothing here can see it.
+- **§6e, the one thing this took AWAY.** `business_branding.social_google` and
+  `social_yelp` are dropped. They shadowed the live
+  `business_settings.google_review_url` / `yelp_review_url` pair and had save
+  code on Business info with no input, so they had only ever been written
+  empty. **Measured before dropping, not assumed:** all six rows in the
+  product were null in both.
+
+**Judgement calls made alone.**
+1. **Dropped the two dead columns rather than leaving them.** A shadowing
+   column is worse than a missing one — the next session to want "the Google
+   review link" reads whichever it finds first and ships a page that silently
+   shows nothing. It also breaks the Business info save if the code is left
+   behind, which is why both moved in one change.
+2. **`established_year` is its own column, not a credential entry.** "Since
+   2016" goes in a masthead, an about paragraph *and* a footer; reading it out
+   of a list means three places agreeing on which entry it is.
+3. **A credential is `{label, detail?}` and nothing else.** The migration's
+   comment allows an optional `year`, and the editor does not write one — a
+   third input on a 320px screen for something `detail` already says
+   ("Since 2021").
+4. **`faq_enabled` stays separate from the list being empty**, and the core's
+   `faqFor()` is the one function that reads both, so the flag cannot be
+   forgotten at one of the two call sites a site ends up with.
+
+**What I verified and what it printed.**
+- Migration applied on the second attempt. The first failed loudly with
+  `syntax error at or near "union"` — an `order by … limit` cannot sit
+  directly before `union all` — and nothing ran, because the batch is parsed
+  before any of it executes. Restructured to one `order by` over the union.
+- The live RPC, read with the anon key exactly as a tenant site would:
+  `business` now carries `established_year`, `branding` carries `credentials`
+  and **no longer carries `social_google` / `social_yelp`**, `settings` carries
+  `faqs`, `faq_enabled` and all six `pay_*`, and `closures` came back with the
+  demo's real seeded blockout (`Equipment servicing`, 2026-09-09).
+- `node tests/booking-core.test.mjs` — **164 passed, 0 failed** (147 → 164).
+  New § 14 baselined: `faqFor` ignoring the switch → 1 fail, cash moved off the
+  end of the payment list → 3, closures dropped from the profile → the suite
+  will not even load.
+- The credential-free suite, all green again: composition 74, design-contrast,
+  landing-pricing 65, route-contract 27, money-export 16, email-brand 189,
+  client-list 31, plans 73, setup-progress 24, campaign 16, platform-billing
+  263, payments 45, booking-core 164.
+- `npm run build --prefix app` — built in 4.02s, no errors.
+- `seed-demo.mjs` now seeds five FAQs, three credentials and 2019 as the
+  established year, **and that is not decoration**: a settings screen swept
+  empty is the one state whose layout cannot go wrong, and this repo's most
+  repeated finding is that such a screen prints `clean` and means nothing. The
+  last FAQ is deliberately long enough to wrap at 320 with all three of its
+  icon buttons still on the line.
+- `sweep-widths.mjs` walks **Common questions** as of this change — added in
+  the change that BUILT it, not by the item that later finds it broken.
+- **`sweep-widths.mjs` — exit 0, clean at 1920, 1440, 392, 360 and 320**, 256s,
+  with Common questions walked clean at both extremes.
+- **`sweep-widths.mjs --lite` — exit 0, clean at all five widths.**
+- **`sweep-booking-steps.mjs` — exit 0**, every step fits at all four sizes,
+  every figure still identical to the recorded ones.
+- **`e2e-booking.mjs` — 81 passed, 1 failed**, the same documented
+  `exclude_booking_id` gap. Worth noting: it PASSED on the second tenant this
+  time and failed on the first, which is the occupancy-dependence CLAUDE.md
+  describes rather than anything moving.
+- **Two states went unmeasured for reasons of the CLOCK, not the code**, and
+  the sweep printed both rather than skipping them: `job record · to do`
+  ("none on the rail at this hour" — the demo trades 08:00–18:00 and the run
+  was at 23:40 local) and `job record · tomorrow` (tomorrow is a Sunday and the
+  demo is closed Sundays). The job record itself WAS measured in its request
+  and finished states. Pre-existing and date-dependent.
+
+**And one thing I found by LOOKING that no check could see.** I shot the new
+screen at 392 and the row was tight: the FAQ is the only list in this product
+with THREE controls on a row (up, down, delete) and its text is a whole
+question rather than a name, so the question fell to about 200px, wrapped to
+two lines, and its answer was clamped beside three buttons. **Every check said
+`clean`** — nothing was off an edge, outside its box or touching. Fixed with
+six lines of CSS scoped to `.faq-rows`: on a phone the three controls take
+their own line and the question takes the full width. It carries
+`and (min-height: 500px)`, because the rule SPENDS height and your
+portrait-only ruling says rotating a phone must change nothing — the sixth
+instance of that guard, and the first written with it on the first line rather
+than added afterwards. Re-shot: the question is one line and the answer gets
+two full-width lines. Re-swept at 392, 360 and 320 with the full settings walk
+and in the animations-off path.
+
+**And running THAT deeper sweep turned up a real defect on your own phone width
+that this item did not cause.** On Monthly plans, the *How it's priced* control
+— `$ / month · $ / visit · $ up front · % off` — sits **28 pixels past the edge
+of its own row at 392**. Clean at 320, clean at 360, clean at 1920, broken at
+392, in both paths.
+
+**Why nothing had ever seen it, in plain terms.** To keep sessions fast, the
+fourteen settings screens are only measured at the two extreme widths, 320 and
+1920 — the bet being that if a screen survives both ends it survives the
+middle. And there is a special set of rules for screens narrower than 361px
+that already stacks a control like this. So 392 is the exact width where the
+control is too wide AND the narrow-screen rules do not reach — and it is the
+width of the phone you are reading this on.
+
+**I proved it was not mine before touching it**, by re-running the same sweep
+with tonight's only other CSS rule switched off and watching it fail
+identically. Then fixed it the way the file already fixes this: on a phone the
+four labels take a full-width row of their own.
+
+**This is the second time this exact shape has bitten**, and `theme.css` says
+so in its own words about a different control. The rule worth carrying: *a fix
+written for screens under 361px is a fix that does not exist at 392.*
+
+**One correction to my own work while I was there.** The FAQ rule I wrote first
+carried `and (min-height: 500px)`, copied from the five rules in this repo that
+have it. I took it out. Those five are the opposite kind of rule, where the
+guard stops a phone turning into a desk layout when you rotate it; on mine it
+does literally nothing. A guard copied without its reason is decoration, and a
+comment claiming a protection the code cannot give is worse than no comment.
+
+---
+
 ## Questions parked for the owner
 
-*(appended as they arise — nothing here blocks the next item)*
+*(nothing here blocks the next item — I kept going)*
+
+## Roadmap 3.2(c) — the kit brief
+
+**What changed.** `docs/tenant-site-kit.md` — the file a fresh coding agent is
+pointed at to build one client's website.
+
+**It is a POINTER, not a summary, and that was the main decision.** Your own
+rule when a session started writing a third plan: *"Isn't there already a plan.
+Follow the docs."* So it is a reading order, the decisions already made, and
+the three things that are not optional when verifying — no fact in it has a
+second home. A kit that restates the contract is a second copy of the
+contract, and the older one then goes stale without anybody noticing.
+
+**Its §5 exists because of your verdict on the three pages, and it is the part
+I most want to be right about.** It says plainly that
+`docs/tenant-sites/a-shop.html`, `b-van.html` and `c-volume.html` are the
+**structural** range — three section skeletons, three worlds, one of them light
+— and are **NOT the taste reference**, in your own words: *"All 3 look very ai
+and not even like the vibe for detailing but it's fine for now."* It says why
+(a list of NEVERS cannot produce a vibe) and what would settle it (two or three
+detailer sites whose vibe you like, a sentence each). An agent handed that file
+cannot mistake those pages for a template.
+
+It also carries the two things a bespoke site most needs to be told: **a site
+never prints a price it worked out itself**, and the reassurance under that —
+`create-booking` recomputes every quote server-side, so a bespoke form
+**cannot mis-charge and cannot double-book**. The worst it can do is offer a
+slot the server then refuses, which is exactly why the availability rules are
+in the core.
+
+**Nothing to verify beyond reading it** — it is prose, and every file it points
+at was checked above. Roadmap 3.2 is ticked; `PROJECT-STATE.md` has the full
+account.
+
+---
+
+### 1. Should a detailer's own email address go on their website? (contract §6f)
+
+**What it is.** Every tenant site reads one function that hands it everything
+public about the business — name, phone, hours, prices. It hands over the
+**phone number and not the email address**, so a site's "contact us" section
+can print a number to call and no address to write to.
+
+**Why it was left alone rather than just switched on.** An email address
+published in plain text on a public page gets harvested by spam bots within
+days; a phone number mostly does not. That is a business decision about your
+detailers' inboxes, not a schema one, so I did not make it.
+
+**Three ways it can go:** publish it for everybody; add a *Show my email on my
+website* switch so each detailer chooses; or decide the booking form IS the
+contact form and never publish it.
+
+**My recommendation: the switch**, defaulted OFF. It costs one migration and
+one row on a settings screen, it lets a detailer who wants to be emailed be
+emailed, and nobody gets their inbox published without asking for it. Say
+"switch" and I will build it.
+
+### 2. Campaign links — a working feature the rebuild dropped (contract §6g, roadmap 4.2)
+
+**What it is.** On your own site today, a link with a tag on the end — the one
+you print on a golf-course QR code — is remembered when somebody lands, and the
+discount code attached to it is filled in for them automatically when they
+book. The tables for it still exist in this product and **nothing calls them.**
+
+**No decision needed to keep going** — I have left it alone and it is already
+written into roadmap 4.2, where the screen that reads the numbers back
+belongs. The reason I am flagging it: a tenant site is the natural place to
+call it from, so if you want it, 3.2 is cheaper than 4.2 for the half that
+lives on the site. **My recommendation: leave it for 4.2.** A site that writes
+rows no screen ever shows is a half-feature, and the contract already refused
+that once.
 
 ---
 

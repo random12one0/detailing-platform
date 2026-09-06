@@ -5560,3 +5560,121 @@ Full diagnosis: `docs/tenant-site-research-2026-09-05.md` §7.
 **The structural half is untouched by this.** The contract, the read and write
 seams, the built-in booking form and the twelve implementations are sound, and
 they are what 3.2 builds against.
+
+## ROADMAP 3.2 — THE HEADLESS BOOKING CORE, FIVE CLOSED GAPS AND THE KIT BRIEF (2026-09-05)
+
+**Shipped in one night, in three parts, on `claude/superbase-access-anj1h7`.**
+Nothing merged to `main`; nothing touched the live business project.
+
+### (a) `app/src/book/core.js` — the rules, with no page around them
+
+The owner's 3.1 amendment is what forced this: every website-package tenant
+draws its OWN booking form in that site's own design, so **the FORM forks per
+client and the RULES must not fork with it.** The core is the step sequence,
+the profile's fallbacks, the tenant's own defaults, the service group rules,
+the mode limit, the vehicle-size arithmetic, the calendar, which times a
+customer can actually have, the step gating, both money payloads, and what the
+device remembers — **29 exports, no React, no markup, no CSS and no `import`
+statement of any kind**, so it drops into a site built on Astro, Alpine,
+Eleventy or nothing.
+
+**THE DECISION THAT MAKES IT REAL: it is wired THROUGH, not written BESIDE.**
+`BookingPage.jsx` lost ~200 lines, `lib/api.js`'s four public booking calls go
+through the core's own transport, and `BookingBusinessContext`, `StepServices`,
+`StepVehicle` and `StepWhen` all call it. A core the product does not itself
+run is a core that rots — and the next person to find it wrong would be a
+client's agent, not us. The cost is a wide blast radius for one change; the
+battery below is what paid for it.
+
+**THE PROOF THAT IT WAS A LIFT AND NOT A REWRITE, and it is the strongest
+evidence available:** every spare-room figure `sweep-booking-steps.mjs` printed
+afterwards is IDENTICAL to the ones CLAUDE.md records — step 1 at 10px spare on
+1440x900 and 47px at 392, step 4 at 74px and 52px, step 3 at 111px and 118px.
+
+**One structural change made alone.** Three `useEffect`s applied the tenant's
+defaults as the profile arrived; they are one effect now, latched in a ref.
+Not tidiness: `"small"` is both a legitimate vehicle size AND the fallback, so
+once the defaults live in `initialForm` an is-it-still-empty guard cannot tell
+"unset" from "the tenant's first size really is small". It cannot overwrite
+anything a customer typed, because the page draws a spinner until it fires.
+
+**`tests/booking-core.test.mjs` — 164 checks, baselined eleven ways.** Its § 1
+is the unusual one: it reads the file as TEXT and fails on any import, JSX,
+`import.meta.env`, React hook or unwrapped `localStorage`. **Two of those
+checks were vacuous on their first run in a new way worth recording — they
+matched the file's own header prose promising "no React, no
+`import.meta.env`", so a check failed on the sentence advertising the thing it
+checks for.** Strip comments before reading a file as text.
+
+### (b) `20260905001000_tenant_site_contract_gaps.sql` — five of the eight §6 gaps
+
+- **6b, the FAQ.** Stored since 2026-09-02 with "no writer and no reader on
+  purpose" — the owner's split. Both halves closed together: the RPC publishes
+  `faqs` / `faq_enabled`, and **Common questions** is the sixteenth settings
+  screen and the ninth Business row `Business.jsx`'s own header designed in
+  stage 6 and deliberately did not build.
+- **6c, the payment handles.** Six columns that reached an email and nothing
+  else. `paymentMethods()` in the core keeps the order the emails use — and
+  **nothing in the core turns a handle into a link**, because a wrong payment
+  link sends somebody's money to the wrong person and `_shared/payments.ts` is
+  the one place allowed to decide.
+- **6d, the closures.** Upcoming only, capped at 60, as a new `closures` key. A
+  site can now SAY "closed the week of the 4th"; `available-slots` still owns
+  whether a day is bookable and always did.
+- **6h, credentials.** `business_branding.credentials` (`{label, detail?}`) and
+  `businesses.established_year`, with an editor on Business info.
+- **6e, THE ONE THING THIS TOOK AWAY.** `business_branding.social_google` and
+  `social_yelp` are DROPPED — dead columns shadowing the live
+  `business_settings.google_review_url` / `yelp_review_url` pair, with save code
+  on Business info and no input, so always written empty. **Measured null on
+  all six rows before dropping, not assumed.** A shadowing column is worse than
+  a missing one: the next reader takes whichever they find first.
+
+**6a is roadmap 3.3. 6f and 6g are questions for the owner rather than work**,
+and both are written up in `docs/overnight-log.md` with a recommendation.
+
+**The migration failed loudly on its first apply** — `syntax error at or near
+"union"`, because an `order by … limit` cannot sit directly before `union all`
+— and nothing ran, because the batch is parsed before any of it executes.
+
+**`seed-demo.mjs` seeds five FAQs, three credentials and 2019**, and that is
+not decoration: a settings screen swept empty is the one state whose layout
+cannot go wrong, and a screen nothing seeds prints `clean` and means nothing.
+The last FAQ is deliberately long enough to wrap at 320 with all three of its
+icon buttons still on the line. `sweep-widths.mjs` walks the screen as of the
+change that BUILT it.
+
+### (c) `docs/tenant-site-kit.md` — a pointer, not a summary
+
+The owner's own rule when a session started writing a third plan: *"Isn't there
+already a plan. Follow the docs."* Every fact has one home and none of them is
+this file — it is the reading order, the decisions already made, and the three
+things that are not optional when verifying.
+
+**Its §5 is the load-bearing part and it exists because of his verdict on the
+three worked pages.** They are the **STRUCTURAL range** — three section
+skeletons, three worlds, one of them light — and explicitly **NOT the taste
+reference**: *"All 3 look very ai and not even like the vibe for detailing but
+it's fine for now."* The kit says so in his words, says why (a list of NEVERS
+cannot produce a vibe), and names what would settle it (two or three sites
+whose vibe he likes, a sentence each). It also carries the standing rule that
+**a site never prints a price it worked out itself**, and the reassurance under
+it: `create-booking` recomputes every quote server-side, so a bespoke form
+**cannot mis-charge and cannot double-book** — it can only offer a slot the
+server then refuses, which is why the availability rules are in the core.
+
+### What was measured
+
+`sweep-widths.mjs` — **exit 0, clean at 1920, 1440, 392, 360 and 320**, 256s,
+with **Common questions** walked at both extremes. `sweep-booking-steps.mjs` —
+exit 0, every step fits at all four sizes. `e2e-booking.mjs` — 81/1 on both
+tenants, the one failure being the documented `exclude_booking_id` gap
+(unscheduled item F). Thirteen credential-free suites green. `npm run build`
+clean.
+
+**Two states went unmeasured for reasons of the clock rather than the code**,
+and the sweep printed both rather than skipping them: `job record · to do`
+("none on the rail at this hour" — the demo's trading day is 08:00–18:00 and
+the run was at 23:40 local) and `job record · tomorrow` (tomorrow is a Sunday
+and the demo is closed Sundays). The record itself WAS measured in its request
+and finished states. Pre-existing and date-dependent; not a regression.

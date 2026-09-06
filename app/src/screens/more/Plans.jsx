@@ -270,7 +270,12 @@ export default function Plans() {
           expressed as a percentage. */}
       <Setting stacked label="How it's priced"
         help="Up front is a prepaid block — a year, or a set number of visits, paid in one go.">
-        <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+        {/* `planprice` is a HOOK FOR ONE CSS RULE and carries no styling of
+            its own: four labels beside a money field is the widest segmented
+            control in the product and it ran 28px past this row at 392 —
+            found 2026-09-05 by running the settings walk at a width the
+            tiered sweep never walks deeply. theme.css, § the 700px block. */}
+        <div className="row planprice" style={{ gap: 8, flexWrap: "wrap" }}>
           <Segmented label="Price shape" value={planForm.price_kind} options={PRICE_KINDS}
             onChange={(v) => setPlanForm({ ...planForm, price_kind: v })} />
           {/* Three of the four shapes are money and one is a percentage, so

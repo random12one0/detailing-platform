@@ -2712,6 +2712,51 @@ button.warn-box:hover { border-color: var(--fog-2); }
   color: var(--text); text-align: left; cursor: pointer; font: inherit;
 }
 .row-item:first-child { border-top: 0; }
+/* ROADMAP 3.2(b) — THE FAQ IS THE ONLY LIST IN THIS PRODUCT WITH THREE
+   CONTROLS ON A ROW (up, down, delete), and its text is a whole QUESTION
+   rather than a name. Measured at 392: the question column falls to about
+   200px, "Do you need my water?" wraps to two lines and its answer is clamped
+   beside three buttons — legible, and tighter than anything else here. On a
+   phone the three go on their own line and the question takes the full width.
+   SCOPED, because `.row-item` is shared with Reviews, Promos and Gallery, all
+   of which carry two controls beside a short name and are right as they are.
+   NO `and (min-height: 500px)` HERE, AND THAT IS DELIBERATE RATHER THAN
+   FORGOTTEN — it was written in and then taken out. The five rules that carry
+   that guard are `min-width` rules: without it they FIRE on a sideways phone
+   (844px wide) and turn a phone layout into a desk one, which is exactly what
+   the owner's portrait-only ruling forbids. On a `max-width` rule the guard
+   does nothing at all — 844 already fails `max-width: 700px` — so writing it
+   would be a comment claiming a protection the query cannot give.
+   **A GUARD COPIED WITHOUT ITS REASON IS DECORATION.** */
+@media (max-width: 700px) {
+  .faq-rows .row-item { flex-wrap: wrap; }
+  .faq-rows .row-item > .txt { flex: 1 0 100%; }
+
+  /* AND THE PLAN FORM'S PRICE SHAPE, WHICH IS A REAL DEFECT THIS ITEM FOUND
+     IN PASSING AND DID NOT CAUSE — proven by re-running the same sweep with
+     the rule above disabled and watching it fail identically.
+     `$ / month · $ / visit · $ up front · % off` is the widest segmented
+     control in the product, its buttons are `white-space: nowrap`, and it
+     measured **28px past its own row at 392** — the owner's own phone width.
+     **NOTHING HAD EVER SEEN IT**, and the reason is the tiering: the fourteen
+     settings screens run at 320 and 1920 only, § THE 320 FLOOR turns every
+     segmented control into a full-width grid below 361px, and 392 is the one
+     width where the control is too wide AND the floor does not reach. Clean at
+     360, clean at 320, clean at 1920, broken at 392, in both paths.
+     **This is the SECOND time this exact shape has been recorded** — see the
+     `.btnrow` note in § THE 320 FLOOR, which moved out of that block "when a
+     real day on Today showed the same row failing at 392, where this media
+     query never ran." The transferable form: **a fix written inside
+     `max-width: 360px` is a fix that does not exist at 392.**
+     The treatment is the floor's own idiom rather than a new one. */
+  .planprice > .segmented {
+    flex: 1 0 100%;
+    display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; width: 100%;
+  }
+  .planprice > .segmented button {
+    white-space: normal; padding: 8px 6px; line-height: 1.2; text-wrap: balance;
+  }
+}
 /* THE HOVER NUDGE, ANSWERED — the question roadmap 2.3 left open and 2.6
    closed. It used to animate the ROW's padding-left, which the design hook
    flags as layout thrash, and the obvious rewrite was rejected because it was

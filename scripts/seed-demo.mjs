@@ -118,6 +118,10 @@ const [business] = await post("/rest/v1/businesses", [{
   contact_phone: "562-555-0180",
   dropoff_address: "1450 Marina Blvd, Long Beach, CA",
   service_area: "Long Beach & South Bay",
+  // ROADMAP 3.2(b), contract §6h. The about copy has said "since 2019" in
+  // prose since the demo was written; this is the same fact as a COLUMN, so a
+  // tenant site can print it without parsing a sentence.
+  established_year: 2019,
   // ROADMAP 2.19. Without this the compose sheet refuses to send and draws its
   // "add a mailing address first" state instead — which is a real state worth
   // seeing, but not the one every width sweep should be measuring. It is a
@@ -171,6 +175,20 @@ await post("/rest/v1/business_settings", [{
   pay_zelle: "(562) 555-0142",
   pay_other: "Apple Pay, or a check made out to Andrew's Auto Detail",
   pay_cash: true,
+  // ROADMAP 3.2(b), AND THE SAME REASONING ONE SCREEN OVER: the FAQ screen
+  // swept empty is the one state whose layout cannot go wrong, and this repo's
+  // most repeated finding is that a screen nothing seeds prints `clean` and
+  // means nothing. Its geometry risk is the row of THREE icon buttons — up,
+  // down, delete — beside a question, so the LAST one is deliberately long
+  // enough to wrap at 320 with all three still on the line.
+  faq_enabled: true,
+  faqs: [
+    { q: "Do you need my water?", a: "No — the van carries its own water and power. If you have a tap we'll happily use it, but nothing depends on it." },
+    { q: "How long does a full detail take?", a: "Three to five hours for most cars. We'll tell you the number when you book, and we don't leave until it's done." },
+    { q: "What if it rains?", a: "We'll call you the morning of and move it, no charge. Rescheduling is one tap on the link in your confirmation email." },
+    { q: "Do I need to be there the whole time?", a: "No. Leave the keys and go — most customers are at work. We'll text you when we're finished." },
+    { q: "Can you get the dog hair out of the back of a wagon that has never once been vacuumed?", a: "Usually, yes. Pick Heavy or Extreme when you book so we bring the right tools, and we'll tell you honestly if anything won't come out." },
+  ],
   // FIRST RUN, PINNED (roadmap 2.11 step 6, stage 7). `seen` so the setup
   // form never ambushes the demo — it is a fully set-up business, which is
   // the whole point of it — and `done` EMPTY so Business still carries the
@@ -210,6 +228,17 @@ await post("/rest/v1/business_branding", [{
   primary_color: "#0ea5e9", secondary_color: "#0ea5e9",
   tagline: "Showroom clean, at your door.",
   about_copy: "Family-run mobile detailing serving Long Beach since 2019.",
+  // ROADMAP 3.2(b), contract §6h. Three of the four shapes the research found
+  // on real detailers' sites — an insurance claim, a manufacturer
+  // certification, a warranty — because "a configuration nothing seeds is a
+  // configuration nothing tests" applies to the editor's own rows as much as
+  // to the site that will draw them. The third has no `detail`, which is the
+  // case that decides whether the row still lines up.
+  credentials: [
+    { label: "Licensed & insured", detail: "Fully covered on your property" },
+    { label: "Certified Ceramic Pro installer", detail: "Since 2021" },
+    { label: "Two-year coating warranty" },
+  ],
 }]);
 
 // Open Tue–Sat, closed Sun/Mon — so the calendar shows real closed days.

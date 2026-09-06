@@ -130,7 +130,55 @@ export function normalizeSettings(raw) {
     booking_mode: settings.booking_mode === "request" ? "request" : "reserve",
     google_review_url: settings.google_review_url ?? null,
     yelp_review_url: settings.yelp_review_url ?? null,
+    // ROADMAP 3.2(b) — contract §6b and §6c. Neither reaches this booking
+    // page; both exist because a TENANT SITE draws an FAQ section and a "how
+    // to pay" section and had no way to read either.
+    //
+    // `faq_enabled` is separate from an empty list and stays separate: "I have
+    // not written any yet" and "I do not want this section on my page" are two
+    // different answers, and a site that infers the second from the first
+    // removes a section the detailer is halfway through filling in.
+    faqs: Array.isArray(settings.faqs) ? settings.faqs : [],
+    faq_enabled: settings.faq_enabled ?? false,
+    pay_cash: settings.pay_cash ?? false,
+    pay_venmo: settings.pay_venmo ?? null,
+    pay_cashapp: settings.pay_cashapp ?? null,
+    pay_zelle: settings.pay_zelle ?? null,
+    pay_paypal: settings.pay_paypal ?? null,
+    pay_other: settings.pay_other ?? null,
   };
+}
+
+// Which ways to pay this detailer actually accepts, in the order the emails
+// print them — a site's "how to pay" section, from the same six columns
+// `_shared/payments.ts` reads.
+//
+// **A HANDLE IS NEVER TURNED INTO A LINK HERE, and that is the rule rather
+// than an omission.** A wrong payment link sends somebody's money to the
+// wrong person and is invisible from every screen in this product. The one
+// place that decides what may become a link is `_shared/payments.ts`; a site
+// prints what it is given.
+export function paymentMethods(settings) {
+  const s = normalizeSettings(settings);
+  const out = [];
+  if (s.pay_venmo) out.push({ key: "venmo", label: "Venmo", handle: s.pay_venmo });
+  if (s.pay_cashapp) out.push({ key: "cashapp", label: "Cash App", handle: s.pay_cashapp });
+  if (s.pay_zelle) out.push({ key: "zelle", label: "Zelle", handle: s.pay_zelle });
+  if (s.pay_paypal) out.push({ key: "paypal", label: "PayPal", handle: s.pay_paypal });
+  if (s.pay_other) out.push({ key: "other", label: "Also", handle: s.pay_other });
+  // Cash is last for the same reason it is last in the email's own list: it is
+  // what happens once everything above it has been agreed. It has no handle.
+  if (s.pay_cash) out.push({ key: "cash", label: "Cash", handle: null });
+  return out;
+}
+
+// The FAQ a site should draw, or an empty list. ONE function so the enabled
+// flag cannot be forgotten at one of the two call sites a site ends up with
+// (the section, and the anchor in its nav).
+export function faqFor(settings) {
+  const s = normalizeSettings(settings);
+  if (!s.faq_enabled) return [];
+  return s.faqs.filter((f) => f && String(f.q ?? "").trim() && String(f.a ?? "").trim());
 }
 
 export function normalizeProfile(profile) {
@@ -143,6 +191,13 @@ export function normalizeProfile(profile) {
     addOns: profile?.add_ons ?? [],
     plans: profile?.plans ?? [],
     hours: profile?.hours ?? [],
+    // ROADMAP 3.2(b) — contract §6d. Upcoming only, and the ONE thing a site
+    // must not do with them is decide whether a day is bookable:
+    // `available-slots` already applies these server-side and is the only
+    // thing that knows about the buffer, the per-day cap and the repeat rule.
+    // A site SAYS "closed the week of the 4th" so a customer is not left to
+    // discover it in the date picker.
+    closures: profile?.closures ?? [],
     testimonials: profile?.testimonials ?? [],
     gallery: profile?.gallery ?? [],
   };

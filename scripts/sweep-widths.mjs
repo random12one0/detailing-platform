@@ -169,9 +169,17 @@ const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that say
 //
 // BUSINESS holds what changes what a CUSTOMER meets; the GEAR holds the
 // plumbing. "Maps, calendar & contacts" is called "This device" now.
-// Reviews is the twelfth and is new. There is no FAQ row: its storage
-// landed and its screen deliberately did not.
-const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews",
+// Reviews is the twelfth and is new.
+//
+// "COMMON QUESTIONS" IS ROADMAP 3.2(b), added in the change that BUILT it.
+// This comment said "there is no FAQ row: its storage landed and its screen
+// deliberately did not" from stage 6 until then. Its own geometry risk is the
+// row of THREE icon buttons beside a two-line question — up, down, delete —
+// which is one more control on a `.row-item` than anything else in the
+// product, and 320 is where that is decided. The demo is seeded with a
+// deliberately long question for exactly that reason: a screen swept empty
+// prints `clean` and means nothing.
+const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews", "Common questions",
   // "How you get paid" is roadmap 2.20 stage 1, and it is added in the change
   // that BUILT it rather than in the item that later finds it broken — which
   // is the whole lesson of the nine times this same gap has been recorded.
