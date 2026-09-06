@@ -550,7 +550,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   path the edge functions actually run: what a plan takes off, that it can
   never become a surcharge, and that the itemisation still reaches the
   charged total. Baselined both ways),
-  **`setup-progress`** (**32 checks** — 24 until roadmap 7.3's final pass added § 4, the first run when nobody follows the path; new 2026-09-02 — how many of the seven
+  **`setup-progress`** (**45 checks** — 24 until roadmap 7.3's final pass added § 4 (the first run when nobody follows the path) and 32 until 2.24 added § 5 (a guide on every tab, whose 5b is the guard that matters: **a step whose `data-tour` no screen carries is silently dropped from every plan and nothing anywhere says so**); new 2026-09-02 — how many of the seven
   first-run steps are done. That number is printed in TWO places that must
   never disagree, the setup form's progress rule and Business's *Finish
   setting up* row, and five of the seven are DERIVED from the database rather
@@ -928,6 +928,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   `booking_mode: "request"`, two pending requests, one already quoted) — it is the
   only business this script can log into, so a reserve-mode demo would mean the
   request queue is never rendered at any width by anything.
+  **THE FOUR TAB GUIDES (added 2026-09-06 with roadmap 2.24, in the change
+  that built them)** — each arrives by itself the first time the browser opens
+  that tab, which is why the block presses the tab and waits rather than
+  asking for anything: the arrival IS the behaviour. **Calendar is
+  deliberately absent and a run reporting it missing would be reporting the
+  design as a defect.** The step COUNT is printed rather than asserted, because
+  how many steps a guide has depends on what the dashboard holds and pinning a
+  number would make a seed change look like a broken tour,
   **and TWO KEYBOARD ASSERTIONS on the walkthrough at 392 — the only thing in
   that script that is not about an edge.** They are there because the overlay
   claims `aria-modal` and its own rule says the lit element is not clickable,
@@ -1795,7 +1803,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   `mobile_enabled` and `dropoff_enabled` both default to true — which is why
   the seeded demo reads *6 of 7 done* and its row stays until somebody answers
   that question.
-  **STAFF GET THE TOUR AND NOT THE FORM.** They are not setting up a business.
+  **AND THE TOUR IS SIX TOURS SINCE 2026-09-06 (roadmap 2.24).** `TOURS` in `Walkthrough.jsx`: a shortened SHELL tour (four steps, still ending on the link) plus one per tab for Today, Money, Clients and Business — **and none for Calendar**, because every candidate step there was a control reading its own label back. A tab's guide arrives the first time THIS BROWSER opens that tab (`dp.tours`, one key holding a list of names, and the old `dp.tour` still counts as having seen the shell), never while the first run is up, on a 900ms timer so it plans against a drawn screen, and **a guide whose plan comes out shorter than two steps does not run and does not mark itself seen** — so it arrives the first day there is something to point at. **`sweep-widths.mjs` seeds all five as SEEN at sign-in** and clears them for the block that walks them: every width is a fresh browser, so otherwise the guides fire in the middle of the other fifty measurements and swallow the clicks. **STAFF GET THE TOUR AND NOT THE FORM.** They are not setting up a business.
   The tour re-runs from *Show me around* behind the gear, and it counts what
   THIS dashboard has: 7 for an owner with jobs, 6 on an empty one, and 3 for a staff member with one permission tick — **this said 4 until
   roadmap 7.3 MEASURED it on 2026-09-06**; the tour counts what that dashboard

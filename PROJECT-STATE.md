@@ -6126,7 +6126,31 @@ period control is drawn after the money read, so a run printed `NO SUCH PERIOD`
 three times at 1440 — which reads as three renamed controls rather than one
 slow query. `appear()`, as for Monthly plans and Team.
 
-### 2.24 — the writing half only
+### 2.24 — BUILT, both halves
+
+The step lists, the overlay, eleven markers and the sweep. **`TOURS` is six
+lists and Calendar is not one of them.** A tab's guide arrives the first time
+THIS BROWSER opens that tab (`dp.tours`, one key holding a list of names),
+never while the first run is up, on a 900ms timer so it plans against a drawn
+screen, and **a plan shorter than two steps does not run and does not mark
+itself seen** — so it arrives the first day there is something to point at.
+
+**FOUR THINGS THE WRITING COULD NOT HAVE FOUND:** the `rail` step pointed at
+the same element as `job` (two names, one element — the other side of a rule
+this repo only stated one way round); the plan was computed before the screen
+had drawn, so Today planned *1 of 1* on a dashboard with two waiting requests
+and a finished job; `!gear` was the wrong guard, because pressing a tab is how
+you LEAVE the gear; and the last step said *Next* and then closed, which was
+harmless only while every dashboard had all seven steps.
+
+**The sweep seeds all five as SEEN at sign-in and gives them back for the
+block that walks them** — every width is a fresh browser, so otherwise the
+guides fire in the middle of the other fifty measurements and swallow the
+clicks. **And `settle()` was the wrong instrument a FIFTH time**, returning
+after 130ms of quiet and printing NOT MEASURED about four guides on a 900ms
+timer.
+
+### The writing half, for the record
 
 `docs/tour-steps-2.24.md`. **The decision the entry said to settle first is
 settled: a guide never advances the screen** — rule 1 exists because this runs
