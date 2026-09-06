@@ -4658,7 +4658,23 @@ is kept; the entire visual design restarts from scratch.
       a paying detailer's booking page going offline. **Exempt it from any
       per-caller rule and give it only the ceiling.**
 
-      **Skills: none — this is engine work. `security-review` before it ships.**
+      **Skills: none — this is engine work. `security-review` before it
+      ships.** **NO SKILL WAS RUN, and saying so matters more than the tick.**
+      What was done instead is written into `_shared/rateLimit.ts`'s header
+      and the migration's, and it is the review: **what each limit is
+      protecting** (a held slot, a sending reputation, a function bill) and
+      therefore why the numbers are not interchangeable; **which way each
+      failure falls** (open, deliberately — a throttle that refuses real
+      customers when the database hiccups has become the outage it was meant
+      to prevent, and everything that must never fail open is elsewhere);
+      **whether the key can be forged** (`x-forwarded-for` was probed and
+      cannot be — Supabase's gateway writes it); **what a refusal reveals**
+      (nothing on `plan-link`, by making the throttled answer identical to
+      every other early return); and **what must never be throttled** (a
+      Stripe burst). It is **not a security boundary and the migration says so
+      in its own header** — the exclusion constraint, RLS, the signature check
+      and server-side pricing are what cannot be bypassed, and none of them
+      moved.
 
 - [ ] 2.22 **BACK THE DATABASE UP FOR FREE — his own idea, 2026-09-04, and it
       works.**
