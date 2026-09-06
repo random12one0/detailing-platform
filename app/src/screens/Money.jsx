@@ -314,7 +314,7 @@ export default function Money() {
           what every dashboard that does this does. Changing the length keeps
           you on the current one rather than trying to map "three months ago"
           onto weeks. */}
-      <div className="moneyhead">
+      <div className="moneyhead" data-tour="period">
         <Segmented label="Time range" value={kind} options={PERIOD_KINDS}
           onChange={(k) => { setKind(k); setOffset(0); }} />
         {/* Lifetime does not step: there is only one of it. */}
@@ -343,7 +343,7 @@ export default function Money() {
               spare at every width, and it says which period it takes to
               anyone listening to the screen rather than looking at it. */}
           {exportable && (
-            <button className="btn sm inline export" onClick={sendToAccountant}
+            <button className="btn sm inline export" data-tour="export" onClick={sendToAccountant}
               aria-label={`Export ${period.label}`}>
               <Download strokeWidth={2} /> Export
             </button>
@@ -369,8 +369,12 @@ export default function Money() {
       {/* The OUTER div keeps this block's place in the screen's arrival; the
           inner one is the swap. See theme.css § A CONTENT SWAP for why it is
           nested rather than given a higher specificity. */}
+      {/* data-tour on the SWAP's wrapper rather than on the swap itself: the
+          swap is keyed and React replaces it on every period change, and an
+          attribute on a node that is replaced is one the tour's static lookup
+          can miss. The wrapper is always the same element. */}
       <div>
-      <div className="swap" key={`${kind}|${offset}`}>
+      <div className="swap" key={`${kind}|${offset}`} data-tour="net">
         <span className="label">
           {kind === "all" ? "Net, all time" : offset === 0 ? `Net this ${NOUN[kind]}` : `Net that ${NOUN[kind]}`}
         </span>

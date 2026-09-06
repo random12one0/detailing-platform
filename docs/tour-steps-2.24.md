@@ -123,7 +123,7 @@ The shell tour already introduced the day itself, so this one starts inside it.
 | # | Target | Sentence | If absent |
 |---|---|---|---|
 | 1 | `job` | Open a job to see everything about it — the car, the price, the notes. | Skipped on an empty day |
-| 2 | `rail` (the day's thread) | The line runs through the day in order. Where it stops is where you are. | Skipped when nothing is booked |
+| ~~2~~ | ~~`rail`~~ | **CUT AT BUILD TIME.** `.dayrail` IS the thread and it already carries `job` — a second name on the same element would light the same thing twice. | — |
 | 3 | `requests` | Somebody asked for a time. Nothing is confirmed until you answer. | Skipped in reserve mode, and when nothing is waiting |
 | 4 | `wrapup` | When a job is done, this is where the money gets written down. | Skipped when nothing is finished |
 
@@ -229,6 +229,12 @@ and this lesson is now recorded ten times.
 ---
 
 ## The count, honestly
+
+**Measured after the build rather than predicted:** on the seeded demo at 392
+an owner meets **2 + 3 + 2 + 2 = 9 steps** across four arrivals — Today's
+`requests`/`wrapup` and Clients' `compose` are all conditional and only two of
+the three were on screen. The prediction below was written before the `rail`
+step was cut and assumed every conditional target present:
 
 An owner with a seeded dashboard meets **4 + 4 + 3 + 3 + 2 = 16 steps** across
 five arrivals, none longer than four.

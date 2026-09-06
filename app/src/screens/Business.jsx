@@ -344,7 +344,7 @@ export default function Business({ onSetup }) {
       </div>
 
       {setupOpen && (
-        <div className="card setting-card">
+        <div className="card setting-card" data-tour="setup">
           <button className="nav-row" onClick={() => onSetup?.()}>
             <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
             <span className="txt">
@@ -366,8 +366,14 @@ export default function Business({ onSetup }) {
           <span className="label">{title}</span>
           <div className="card setting-card">
             {rows.map(([key, name, Icon, now, swatch]) => (
+              // ROADMAP 2.24 — one row on this screen is worth a tour step,
+              // and it is the one that decides whether the booking page works
+              // at all. Every other row is a label and a live summary, and a
+              // tour that read them back is exactly the weirdness he
+              // complained about.
               <button className={`nav-row${blocked === key ? " blocking" : ""}`} key={key}
                 data-settings-key={key}
+                data-tour={key === "catalog" ? "catalog" : undefined}
                 aria-current={open === key ? "true" : undefined}
                 onClick={() => setOpen(key)}>
                 <span className="ico">

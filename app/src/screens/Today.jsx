@@ -326,8 +326,11 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       )}
 
       {reqError && <div className="error-box">{reqError}</div>}
+      {/* data-tour — roadmap 2.24. The requests block only exists in request
+          mode with something waiting, which is exactly the conditional the
+          tour's plan step is built to drop. */}
       {!wide && requests.length > 0 && (
-        <div className="tight">
+        <div className="tight" data-tour="requests">
           <h2 className="label">
             {requests.length === 1 ? "Waiting on you" : `Waiting on you · ${requests.length}`}
           </h2>
@@ -391,7 +394,10 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           {runRows(needsPay, "landed")}
           {still.length > 0 && <h2 className="label">Still to do</h2>}
           {runRows(still, "")}
-          {settled.length > 0 && <h2 className="label">Done</h2>}
+          {/* data-tour — roadmap 2.24. "wrapup" and not "done": every name in
+              the tour is unique across the whole app, because two elements
+              answering one selector is a silently wrong target. */}
+          {settled.length > 0 && <h2 className="label" data-tour="wrapup">Done</h2>}
           {settled.map((b) => (
             <button className="settled-row paid" key={b.id} onClick={() => setSelected(b)}>
               <span className="nm">{b.customer_name}</span>

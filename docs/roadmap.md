@@ -5397,9 +5397,56 @@ is kept; the entire visual design restarts from scratch.
       comparison was sent to him 2026-09-04. **Still his call.**
 
 
-- [ ] 2.24 **A GUIDE ON EVERY TAB — THE WRITING HALF IS DONE
-      (`docs/tour-steps-2.24.md`, 2026-09-06). WHAT IS LEFT IS THE OVERLAY AND
-      THE SWEEP**, which is exactly the split this entry itself describes.
+- [x] 2.24 ~~**A GUIDE ON EVERY TAB**~~ **BUILT 2026-09-06 — the step lists
+      (`docs/tour-steps-2.24.md`), the overlay, the eleven markers and the
+      sweep.** `tests/setup-progress.test.mjs` § 5, thirteen checks, four
+      baselined.
+
+      **`TOURS` IS SIX LISTS AND CALENDAR IS NOT ONE OF THEM.** Every
+      candidate step for it was a control reading its own label back, and
+      decision 6 says a tab whose honest guide is one step does not get one.
+      **The shell tour went from seven steps to four**, keeping the link last
+      (§13b) — otherwise a detailer meets the same sentence twice.
+
+      **AND FOUR THINGS CAME OUT OF BUILDING IT THAT THE WRITING COULD NOT
+      HAVE FOUND.**
+      **(1) The `rail` step was cut**: `.dayrail` IS the thread and already
+      carries `job`, so a second name on it would light the same element
+      twice — the "two names, one element" side of a rule this file only
+      stated the other way round.
+      **(2) The plan was computed on a screen that had not drawn yet.** A
+      guide starts when a tab is pressed and works out its steps at mount;
+      Today planned *1 of 1* on a dashboard with two waiting requests and a
+      finished job, because neither block existed when it counted. It starts
+      on a 900ms timer now, which is also the kinder order — an overlay on a
+      loading screen is pointing at a spinner.
+      **(3) `!gear` was the wrong guard.** Pressing a tab is how you LEAVE the
+      gear, so reading it there reads the state the press is ending, and a
+      detailer whose first visit to Clients came from settings got nothing.
+      **(4) The last step said "Next" and then closed** — a pre-existing
+      defect, harmless while every dashboard had all seven steps and ordinary
+      the moment plans are short.
+
+      **THE SWEEP WALKS ALL FOUR GUIDES AND MARKS THEM SEEN FIRST.** Each
+      width is a fresh browser, so the guides fired in the middle of the other
+      fifty measurements and swallowed the clicks — it broke the run at the
+      first width the day they shipped. They are seeded as seen at sign-in
+      (the ordinary state of any account that has used the product once) and
+      given back for the block that walks them. **And `settle()` was the wrong
+      instrument a fifth time**: it returns after 130ms of quiet, long before
+      a guide on a 900ms timer, and printed NOT MEASURED about four guides
+      that were about to appear.
+
+      Measured at every width and in `--lite`: Money 3, Clients 2, Business 2,
+      Today 2 at 392 and **none at 1920**, where its two conditional targets
+      are absent and decision 6 correctly refuses to run one step. **It leaves
+      without being marked seen**, so it arrives the first day there is
+      something to point at.
+
+      **THE ORIGINAL ENTRY, which is still the rulebook:**
+
+      - [ ] 2.24 **A GUIDE ON EVERY TAB — the step lists are
+      `docs/tour-steps-2.24.md`.**
 
       **THE DECISION IT SAID TO SETTLE FIRST IS SETTLED: a guide never advances
       the screen.** The choice was whether a Clients guide opens a record and

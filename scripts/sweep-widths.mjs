@@ -503,6 +503,26 @@ for (const w of SIZES) {
     signedIn = await ctx.storageState();
   }
   await page.waitForSelector(".tabbar", { timeout: 30000 });
+  // ROADMAP 2.24 — MARK EVERY GUIDE AS SEEN BEFORE MEASURING ANYTHING.
+  //
+  // A tab guide arrives the first time THIS BROWSER opens that tab, and
+  // every width here is a fresh browser — so without this the script is
+  // racing an overlay on four of the five tabs, and an overlay that
+  // deliberately swallows pointer events. It broke the run at the first
+  // width the day the guides shipped.
+  //
+  // **CLEARED AGAIN, DELIBERATELY, in the block that walks them at the end.**
+  // Seeding this is not "turning the feature off for the tests": it is the
+  // ordinary state of every account that has already used the product once,
+  // which is what the other fifty measurements are about.
+  await page.evaluate(() => {
+    try {
+      localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "money", "clients", "business"]));
+      localStorage.setItem("dp.tour", "1");
+    } catch { /* private mode */ }
+  });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".tabbar", { timeout: 30000 });
   await settle(page, 2200);
 
   // Once per width, not once per screen — every dashboard screen is inside the
@@ -1220,6 +1240,48 @@ for (const w of SIZES) {
       await say(`tour · step ${k}`);
       await page.locator(".tourcard button.primary").click();
       await settle(page, 1000);
+    }
+
+    // ROADMAP 2.24 — THE FOUR TAB GUIDES, walked in the change that built
+    // them. This script is the only thing in the repo that opens a tour at
+    // all, and a guide it does not walk is one no width ever measures.
+    //
+    // EACH ONE ARRIVES BY ITSELF the first time this browser opens that tab,
+    // which is why the loop presses the tab and then waits rather than
+    // asking for anything: the arrival IS the behaviour. **Calendar is
+    // deliberately absent** — it has no guide, and a run that reported one
+    // missing would be reporting the design as a defect.
+    //
+    // The count is PRINTED rather than asserted: how many steps a guide has
+    // depends on what this dashboard holds, and pinning a number here would
+    // make a seed change look like a broken tour.
+    // The guides were marked seen at sign-in so they could not interrupt the
+    // fifty measurements above; this is where they are given back.
+    await page.evaluate(() => { try { localStorage.removeItem("dp.tours"); } catch { /* private mode */ } });
+    for (const [tab, name] of [["Today", "today"], ["Money", "money"], ["Clients", "clients"], ["Business", "business"]]) {
+      const btn = page.getByRole("button", { name: tab, exact: true }).first();
+      if (!(await btn.count())) continue;   // staff have three tabs
+      await btn.click();
+      // `settle()` IS THE WRONG INSTRUMENT AGAIN, and this is the fifth time
+      // in this file. The guide is started on a 900ms timer — deliberately,
+      // so it plans against a drawn screen rather than a loading one — and
+      // settle returns as soon as the DOM has been quiet for 130ms, which on
+      // a cached tab is long before that. It reported NOT MEASURED four times
+      // about four guides that were about to appear.
+      await page.locator(".tourcard").first().waitFor({ timeout: 4000 }).catch(() => {});
+      await settle(page, 800);
+      if (!(await page.locator(".tourcard").count())) {
+        console.log(`${("guide · " + name).padEnd(24)} NOT MEASURED — no guide arrived; it has been seen on this profile, or every target is absent`);
+        continue;
+      }
+      const steps = await page.locator(".tourcard .label").first().innerText().catch(() => "?");
+      console.log(`${("guide · " + name).padEnd(24)} ${steps.replace(/\s+/g, " ")}`);
+      for (let k = 1; k <= 5; k++) {
+        if (!(await page.locator(".tourcard").count())) break;
+        await say(`guide · ${name} ${k}`);
+        await page.locator(".tourcard button.primary").click();
+        await settle(page, 900);
+      }
     }
   }
 

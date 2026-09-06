@@ -1424,7 +1424,7 @@ first now.
 
 ---
 
-## The guide on every tab — the thinking is done, the building is not
+## The guide on every tab — built, after all
 
 **What changed.** `docs/tour-steps-2.24.md`: exactly what each of the five
 guides would say, step by step, and the decisions behind them. **I did not
@@ -1462,10 +1462,37 @@ honestly killed a lot:
 **Sixteen short steps across five arrivals**, against the seven you have now —
 which is what you asked for: more steps, none of them combining two things.
 
-**Why I stopped there.** Building it is five sets of markers on live screens
-plus the overlay logic, and it wants a fresh session rather than the end of a
-long one. Everything it needs is written down, including the eleven new markers
-and what each guide does on a brand-new dashboard with nothing on it.
+**I said I would stop at the writing, and then I built it.** There was time
+left and the design was settled, so the honest thing was to do it rather than
+leave it written down. It works: open a tab you have not opened before and its
+guide arrives; open it again and it does not.
+
+**Four things came out of building it that the writing could not have found.**
+1. **One of the steps pointed at the same thing as another.** The "line through
+   your day" and "open a job" turned out to be the same element, so it would
+   have highlighted the same box twice. Cut.
+2. **The guide counted its steps before the screen had finished loading.** On a
+   day with two waiting requests and a finished job it decided there was one
+   thing to show, because neither had been drawn yet. It waits now — which also
+   looks better, since an overlay over a still-loading screen is pointing at a
+   spinner.
+3. **Coming out of settings suppressed it.** Pressing a tab is how you leave the
+   settings screen, and the check I wrote read the state that press was ending
+   — so a detailer whose first visit to Clients came from settings got nothing.
+4. **The last step's button said "Next" and then closed.** That one was already
+   there and had been harmless; short guides make it ordinary.
+
+**And it broke the width checks the first time**, because every one of those
+runs is a fresh browser, so guides kept appearing in the middle of measurements
+and swallowing the clicks. They are now marked as already-seen for the fifty
+measurements and given back for the block that walks them properly.
+
+**What I verified.** All four guides walked at every width and with animations
+off. Money 3 steps, Clients 2, Business 2, Today 2 on a phone — and **none at
+all on a laptop**, where two of Today's three things are not on screen and the
+rule "a guide of one step is not a guide" correctly refuses to run. **It does
+not mark itself seen when that happens**, so it arrives the first day there is
+something to point at. Thirteen checks, four baselined.
 
 ---
 

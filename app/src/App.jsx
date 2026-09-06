@@ -11,7 +11,7 @@ import Clients from "./screens/Clients.jsx";
 import Business from "./screens/Business.jsx";
 import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
-import Walkthrough from "./components/Walkthrough.jsx";
+import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
 
 const TABS = [
   { key: "today", label: "Today", Icon: Sun, el: Today },
@@ -30,9 +30,29 @@ const TABS = [
 // business there: it is a fact about this browser, not about the account. A
 // second device gets the tour once, which is right — it is a tour of a
 // SCREEN, and that screen is a different shape on a phone and at a desk.
+// ROADMAP 2.24 — ONE KEY HOLDING A LIST OF NAMES, not five keys.
+//
+// Five would be five things to clear, and a detailer who wanted the guides
+// again would have to know all five names. One means *Show me around* can
+// offer "start again" and mean it. The old single key is still read on the
+// way in, so a browser that has already seen the shell tour is not shown it
+// twice the day this ships.
 const TOUR_KEY = "dp.tour";
-const tourSeen = () => { try { return !!localStorage.getItem(TOUR_KEY); } catch { return false; } };
-const markTourSeen = () => { try { localStorage.setItem(TOUR_KEY, "1"); } catch { /* private mode */ } };
+const TOURS_KEY = "dp.tours";
+const seenTours = () => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(TOURS_KEY) || "[]");
+    const list = Array.isArray(raw) ? raw : [];
+    return localStorage.getItem(TOUR_KEY) ? [...new Set([...list, "shell"])] : list;
+  } catch { return []; }
+};
+const markTourSeen = (name = "shell") => {
+  try {
+    localStorage.setItem(TOURS_KEY, JSON.stringify([...new Set([...seenTours(), name])]));
+    if (name === "shell") localStorage.setItem(TOUR_KEY, "1");
+  } catch { /* private mode */ }
+};
+const tourSeen = (name = "shell") => seenTours().includes(name);
 
 export default function App() {
   const { session, business, settings, role, can, loading, signOut } = useBusiness();
@@ -64,6 +84,10 @@ export default function App() {
   // the walkthrough; neither is a mode the shell has to know anything else
   // about, so one nullable string holds both.
   const [firstRun, setFirstRun] = useState(null);
+  // ROADMAP 2.24 — which TAB guide is on screen, separate from `firstRun`
+  // because they are different lifetimes: the first run happens once ever,
+  // and a tab guide happens once per tab and can arrive months later.
+  const [tabTour, setTabTour] = useState(null);
   const [tab, setTab] = useState("today");
   // WHAT A SCREEN WAS OPENED *FOR* — roadmap 2.19, and it is one string
   // because there is one case. Today's re-book prompt has to land on Clients
@@ -232,6 +256,35 @@ export default function App() {
             onClick={() => {
               setTab(t.key); setGear(false); setIntent(null);
               if (firstRun === "setup") setFirstRun(null);
+              // ROADMAP 2.24 — the guide for a tab arrives the first time
+              // this browser opens it, and only then.
+              //
+              // **NEVER WHILE ANOTHER TOUR IS ON SCREEN.** The shell tour's
+              // own steps move tabs, so without this the first move would put
+              // a second overlay on top of the first — and the setup form is
+              // the same problem one screen earlier.
+              //
+              // The plan is worked out by `Walkthrough` itself, which drops a
+              // step whose target is absent — so a guide is only STARTED here
+              // and its length is decided there.
+              // AND NOT ON THE SAME TICK AS THE TAB PRESS. The tour works out
+              // its plan when it MOUNTS — dropping any step whose target is
+              // absent — and a screen that has just been switched to has not
+              // finished its own read yet. **Measured: Today planned "1 of 1"
+              // on a dashboard with two waiting requests and a finished job**,
+              // because neither block was drawn when the tour counted. Also
+              // the kinder order: an overlay on a still-loading screen is
+              // pointing at a spinner.
+              // NOT `!gear`. Pressing a tab is how you LEAVE the gear — the
+              // line above sets it false — so reading it here reads the state
+              // the press is ending, and a detailer whose first visit to
+              // Clients came from the settings screen got no guide at all.
+              // `firstRun` is the one that has to be checked from before,
+              // because a guide arriving the instant the setup form is
+              // dismissed is the two-overlays problem this guard exists for.
+              if (!firstRun && TOURS[t.key] && !tourSeen(t.key)) {
+                setTimeout(() => setTabTour((cur) => cur ?? t.key), 900);
+              }
             }}>
             <t.Icon size={21} strokeWidth={1.75} />
             {t.label}
@@ -249,7 +302,18 @@ export default function App() {
       {firstRun === "tour" && (
         <Walkthrough
           onGo={(t) => { setTab(t); setGear(false); }}
-          onClose={() => { markTourSeen(); setFirstRun(null); }} />
+          onClose={() => { markTourSeen("shell"); setFirstRun(null); }} />
+      )}
+      {/* ROADMAP 2.24 — a tab's own guide. `key` so switching tabs while one
+          is up remounts rather than re-plans, and `onGo` is absent: a tab
+          guide is already on the screen it is about. */}
+      {!firstRun && tabTour && (
+        <Walkthrough key={tabTour} tour={tabTour}
+          // NOT MARKED SEEN when it leaves for want of steps — decision 6.
+          // A detailer whose Today is empty today gets the guide the first
+          // day there is a job on it.
+          onEmpty={() => setTabTour(null)}
+          onClose={() => { markTourSeen(tabTour); setTabTour(null); }} />
       )}
     </div>
   );

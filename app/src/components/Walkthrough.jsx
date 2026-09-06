@@ -66,23 +66,74 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 // elements answering one selector, and querySelector would pick whichever
 // came first in the document. Every name in this list is unique across the
 // whole app, which is what makes rule 2 safe.
-const STEPS = [
-  // THE FIRST STEP NAMES ITS TAB, and that is not decoration: the tour is
-  // re-runnable from the gear, and the gear TAKES THE MAIN AREA — so a tour
-  // started from there had no Today on the page and silently skipped its own
-  // first step. Observed, not reasoned about. Saying which screen it starts
-  // on makes it deterministic from wherever it was asked for.
-  ["day", "Every morning starts here.", "today"],
-  ["new", "A job booked over the phone goes in here."],
-  // "Open", not "Tap": at 1180 and above this is a mouse, and a sentence that
-  // names the GESTURE is wrong on half the widths the product supports for
-  // the same reason phone pass §15 says a step must not name a position.
-  ["job", "Open a job to see everything about it."],
-  ["calendar", "Your whole month lives here."],
-  ["money", "What you have made, month by month."],
-  ["business", "Everything a customer sees is set here."],
-  ["link", "Send this link to a customer.", "business"],
-];
+// ROADMAP 2.24 — ONE TOUR BECAME SIX, and the step lists are
+// `docs/tour-steps-2.24.md` rather than a decision made here. The owner:
+// *"it did it for the home page, and then it stopped there… every time you
+// click on a new tab for the first time, there should be a full guide for
+// every single thing inside of that, that's not, like, obviously
+// explainable."*
+//
+// **THE SHELL TOUR GOT SHORTER, NOT DELETED.** Its job is now *here are the
+// places, and here is the link*; everything it half-explained moved into the
+// tab it belongs to. Without that a detailer meets the same sentence twice,
+// which is his complaint arriving from the other side.
+//
+// **AND CALENDAR HAS NO TOUR AT ALL.** Every candidate step was a control
+// reading its own label back — "Month / History", arrows either side of a
+// month name — and the one fact that is not obvious (a day opens BESIDE the
+// month rather than replacing it) is a thing you learn by pressing a day.
+// A tab whose honest guide is one step does not get one, and padding this
+// list to make a fifth tour is exactly the weirdness he complained about.
+export const TOURS = {
+  shell: [
+    // THE FIRST STEP NAMES ITS TAB, and that is not decoration: the tour is
+    // re-runnable from the gear, and the gear TAKES THE MAIN AREA — so a tour
+    // started from there had no Today on the page and silently skipped its own
+    // first step. Observed, not reasoned about.
+    ["day", "Every morning starts here.", "today"],
+    ["new", "A job booked over the phone goes in here."],
+    ["business", "Everything a customer sees is set here."],
+    ["link", "Send this link to a customer.", "business"],
+  ],
+  today: [
+    // "Open", not "Tap": at 1180 and above this is a mouse, and a sentence
+    // that names the GESTURE is wrong on half the widths the product
+    // supports.
+    ["job", "Open a job to see everything about it — the car, the price, the notes."],
+    // NO SEPARATE "rail" STEP, though the step list drafted one. `.dayrail`
+    // IS the thread and it already carries `job` — a second name on the same
+    // element would light the same thing twice, which is the "two names, one
+    // element" side of the rule this file already states the other way
+    // round. Corrected in `docs/tour-steps-2.24.md` too.
+    ["requests", "Somebody asked for a time. Nothing is confirmed until you answer."],
+    ["wrapup", "When a job is done, this is where the money gets written down."],
+  ],
+  money: [
+    ["period", "Week, month, year — every figure on this screen follows this."],
+    // THE ONE STEP ON THIS SCREEN THAT EARNS ITS PLACE. "Net" is the single
+    // word here a detailer can misread in their own favour, and the
+    // consequence of misreading it is thinking they earned more than they did.
+    ["net", "What is left after expenses, not what came in."],
+    ["export", "One file for your accountant, for whatever period you are looking at."],
+  ],
+  clients: [
+    ["client", "Open somebody to see everything they have ever booked."],
+    // AND THIS IS THE WHOLE FEATURE. The lapsed list is the thing this screen
+    // does that a notebook cannot, and nothing on the screen says so.
+    ["sort", "Sort by who has not been back — that is the list worth a text message."],
+    ["compose", "Write to everybody on the list you are looking at, in one go."],
+  ],
+  business: [
+    ["setup", "Everything with a number beside it is something a customer can already see."],
+    ["catalog", "What you charge for, and what it costs. This is the one that decides whether the booking page works."],
+  ],
+};
+
+// A GUIDE OF ONE STEP IS NOT A GUIDE (decision 6). On a brand-new dashboard
+// three of Today's four targets do not exist and two of Clients' three do
+// not, so those two tabs stay quiet until there is something to point at —
+// which is right: there is nothing there to explain.
+export const MIN_STEPS = 2;
 
 const PAD = 16;    // the card's clearance from the edge of the screen
 const GAP = 12;    // between the hole and the card
@@ -96,7 +147,10 @@ const HALO = 8;    // how far the hole is drawn outside the element itself
 const SETTLED_FRAMES = 12;
 const GIVE_UP_MS = 1500;
 
-export default function Walkthrough({ onGo, onClose }) {
+// `tour` names which of the six lists to run. It defaults to the shell so
+// the gear's *Show me around* keeps meaning what it meant.
+export default function Walkthrough({ tour = "shell", onGo, onClose, onEmpty }) {
+  const STEPS = TOURS[tour] ?? TOURS.shell;
   const [i, setI] = useState(0);
   const [box, setBox] = useState(null);
   const [leaving, setLeaving] = useState(false);
@@ -147,7 +201,11 @@ export default function Walkthrough({ onGo, onClose }) {
   // screen we just arrived at. That second half is the empty dashboard's
   // missing job, which is the case §1c wrote this rule for.
   useEffect(() => {
-    live.current.onGo?.(STEPS[0][2]);
+    // ONLY THE SHELL TOUR MOVES TABS. A tab guide is already on the screen
+    // it is about — it was started BY arriving there — and calling `onGo`
+    // with an undefined tab would send the shell somewhere it did not ask
+    // to go.
+    if (STEPS[0][2]) live.current.onGo?.(STEPS[0][2]);
     let on = true;
     let tries = 0;
     const tick = () => {
@@ -155,7 +213,18 @@ export default function Walkthrough({ onGo, onClose }) {
       const there = (name) => !!document.querySelector(`[data-tour="${name}"]`);
       // Nothing can be decided until the screen the tour starts on is drawn.
       if (!there(STEPS[0][0]) && ++tries <= 90) { requestAnimationFrame(tick); return; }
-      setPlan(STEPS.filter(([k, , t]) => (t ? there(t) : there(k))));
+      const kept = STEPS.filter(([k, , t]) => (t ? there(t) : there(k)));
+      // DECISION 6 — A GUIDE OF ONE STEP IS NOT A GUIDE. On a dashboard with
+      // nothing on it three of Today's targets are absent, and one lonely
+      // caption over an empty screen is the weirdness this whole item is
+      // about. **It leaves WITHOUT being marked seen**, so the guide arrives
+      // the first day there is something to point at — which is the honest
+      // reading of "there is nothing there to explain": not never, yet.
+      //
+      // The shell tour is exempt: it points at the rail and the link, which
+      // every dashboard has.
+      if (tour !== "shell" && kept.length < MIN_STEPS) { live.current.onEmpty?.(); return; }
+      setPlan(kept);
     };
     tick();
     return () => { on = false; };
@@ -171,8 +240,8 @@ export default function Walkthrough({ onGo, onClose }) {
   // started — so focus was being yanked back out of the card, and the trap
   // silently did nothing. Both effects are therefore mount-only and read the
   // current callbacks through here.
-  const live = useRef({ next, onGo, close });
-  live.current = { next, onGo, close };
+  const live = useRef({ next, onGo, close, onEmpty });
+  live.current = { next, onGo, close, onEmpty };
 
   // ESCAPE OUT, AND TAB STAYS IN. The second half is not decoration: this
   // element says `aria-modal="true"`, which tells a screen reader the rest of
@@ -344,7 +413,13 @@ export default function Walkthrough({ onGo, onClose }) {
         <div className="btnrow">
           <button className="btn sm inline ghost" onClick={close}>Skip the tour</button>
           <button className="btn sm inline primary" onClick={next}>
-            {i + 1 === STEPS.length ? "Done" : "Next"}
+            {/* THE PLAN'S LENGTH, NOT THE LIST'S. A step whose target is
+                absent is dropped from the plan, so on a dashboard missing
+                one this said "Next" on the last step and then closed —
+                which reads as the tour breaking. Harmless while every
+                dashboard had all seven; per-tab guides make a short plan
+                the ordinary case. */}
+            {i + 1 === (plan ?? STEPS).length ? "Done" : "Next"}
           </button>
         </div>
       </div>

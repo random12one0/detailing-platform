@@ -194,5 +194,87 @@ console.log("\n4. the first run, when nobody follows the path");
     /\) : \([\s\S]{0,220}<BookingLink/.test(today));
 }
 
+
+// ─── 5. Roadmap 2.24: a guide on every tab ────────────────────────────────
+// The owner: *"it did it for the home page, and then it stopped there."* Four
+// of the shell tour's seven steps were signposts pointing at tabs, so it
+// explained one screen and named the other four.
+console.log("\n5. a guide on every tab");
+{
+  const wt = read("app/src/components/Walkthrough.jsx");
+  const app = strip(read("app/src/App.jsx"));
+  const src = strip(wt);
+
+  // EVERY TARGET MUST EXIST SOMEWHERE. A `data-tour` name no screen carries is
+  // a step silently dropped from every plan — the tour still runs, one caption
+  // shorter, and nothing anywhere says so. This is the vacuity guard for the
+  // step lists themselves.
+  const names = [...src.matchAll(/\["([a-z]+)", "/g)].map((m) => m[1]);
+  check("5a · the step lists have subjects", names.length >= 10, `${names.length}`);
+  const markers = new Set();
+  for (const f of ["App.jsx", "screens/Today.jsx", "screens/Money.jsx", "screens/Clients.jsx",
+                   "screens/Business.jsx", "components/BookingLink.jsx"]) {
+    for (const m of read(`app/src/${f}`).matchAll(/data-tour=(?:"([a-z]+)"|\{key === "([a-z]+)"|\{rowIndex === 0 \? "([a-z]+)")/g)) {
+      markers.add(m[1] ?? m[2] ?? m[3]);
+    }
+  }
+  // The rail's five tab buttons carry `data-tour={t.key}`, which is where
+  // `today`, `calendar`, `money`, `clients` and `business` come from.
+  for (const k of ["today", "calendar", "money", "clients", "business"]) markers.add(k);
+  const orphans = names.filter((n) => !markers.has(n));
+  check("5b · every step points at a marker some screen actually carries",
+    orphans.length === 0, orphans.join(", "));
+
+  // ONE ELEMENT, ONE NAME. `Walkthrough.jsx`'s own header: two elements
+  // answering one selector is a silently wrong target, and the same is true of
+  // one element answering two names — it would be lit twice in one tour.
+  const dupes = names.filter((n, i) => names.indexOf(n) !== i);
+  check("5c · no name is used by two steps", dupes.length === 0, dupes.join(", "));
+
+  // CALENDAR HAS NO GUIDE, and that is decision 6 rather than an omission:
+  // every candidate step was a control reading its own label back.
+  check("5d · Calendar has no guide at all", !/^\s{2}calendar: \[/m.test(src),
+    "padding a fifth tour to be tidy is the weirdness he complained about");
+
+  // THE SHELL TOUR GOT SHORTER, NOT DELETED, or a detailer meets the same
+  // sentence twice — his complaint arriving from the other side.
+  const shell = src.slice(src.indexOf("shell: ["), src.indexOf("today: ["));
+  check("5e · the shell tour is four steps", (shell.match(/\["/g) ?? []).length === 4,
+    `${(shell.match(/\["/g) ?? []).length}`);
+  check("5f · and still ends on the link", /\["link", [\s\S]{0,80}\],\s*\],/.test(src),
+    "screen designs §13b: it is the one thing they have to go and use");
+
+  // ONE KEY HOLDING A LIST, not five keys — and the old single key is still
+  // read, so a browser that has seen the shell tour is not shown it twice the
+  // day this ships.
+  check("5g · one key holds the set", /TOURS_KEY = "dp.tours"/.test(app)
+    && /JSON\.stringify\(\[\.\.\.new Set/.test(app));
+  check("5h · and the old key still counts as having seen the shell",
+    /localStorage\.getItem\(TOUR_KEY\) \? \[\.\.\.new Set\(\[\.\.\.list, "shell"\]\)\]/.test(app));
+
+  // NEVER TWO OVERLAYS. The shell tour's own steps move tabs, and the setup
+  // form is the same problem one screen earlier.
+  check("5i · a guide never fires while the first run is up",
+    /if \(!firstRun && TOURS\[t\.key\] && !tourSeen\(t\.key\)\)/.test(app));
+  // NOT `!gear`: pressing a tab is how you LEAVE the gear, so reading it there
+  // reads the state the press is ending.
+  check("5j · and is not blocked by the gear it is leaving",
+    !/!firstRun && !gear && TOURS/.test(app));
+
+  // DECISION 6, and the half that matters: leaving for want of steps must not
+  // mark it seen, or a detailer whose Today is empty today never gets it.
+  check("5k · a guide of one step does not run",
+    /tour !== "shell" && kept\.length < MIN_STEPS/.test(src));
+  check("5l · and leaves without being marked seen",
+    /onEmpty=\{\(\) => setTabTour\(null\)\}/.test(app)
+      && /onClose=\{\(\) => \{ markTourSeen\(tabTour\)/.test(app));
+
+  // The plan drops absent targets, so the button on the last step has to read
+  // the PLAN's length — it said "Next" and then closed, which reads as the
+  // tour breaking.
+  check("5m · the last step says Done, however short the plan is",
+    /i \+ 1 === \(plan \?\? STEPS\)\.length \? "Done"/.test(src));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

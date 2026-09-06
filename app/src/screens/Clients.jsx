@@ -236,8 +236,16 @@ export default function Clients({ intent = null }) {
           can see for yourself, at two hundred it is the screen's second job. */}
       {customers.length > 0 && (
         <div className="clientfilters">
+          {/* data-tour — roadmap 2.24. On the wrapper rather than the control:
+              `Segmented` is a shared component and marking it there would put
+              the same name on Money's period control too, which is the "two
+              elements answering one selector" defect the tour's own header
+              warns about. It is conditional (three customers), and a step whose
+              target is absent is dropped from the plan. */}
           {customers.length >= 3 && (
-            <Segmented label="Sort by" value={sort} options={SORTS} onChange={setSort} />
+            <span data-tour="sort">
+              <Segmented label="Sort by" value={sort} options={SORTS} onChange={setSort} />
+            </span>
           )}
           {/* These words and LAPSED_DAYS in lib/client-list.js are two
               halves of one fact and must move together. Written out rather
@@ -268,7 +276,7 @@ export default function Clients({ intent = null }) {
       {narrowed && rows.length > 0 && (
         <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
           {can("marketing") && emailable > 0 && (
-            <button className="btn sm inline" onClick={() => setWriting(rows.map((r) => r.c))}>
+            <button className="btn sm inline" data-tour="compose" onClick={() => setWriting(rows.map((r) => r.c))}>
               Email these {emailable}
             </button>
           )}
@@ -311,8 +319,13 @@ export default function Clients({ intent = null }) {
       <div>
       <div className={`rows cols clients swap${busy ? " refreshing" : ""}`}
         key={`${sort}|${lapsed}`} aria-busy={busy || undefined}>
-        {rows.map(({ c, visits, spend, last }) => (
-          <button key={c.id} className="row-item" onClick={() => openCustomer(c)}
+        {rows.map(({ c, visits, spend, last }, rowIndex) => (
+          // THE FIRST ROW ONLY. Marking every row would put one tour name on
+          // fifty elements, and the tour's own header is explicit that two
+          // elements answering one selector is a silently wrong target —
+          // `querySelector` takes whichever comes first in the document.
+          <button key={c.id} className="row-item" data-tour={rowIndex === 0 ? "client" : undefined}
+            onClick={() => openCustomer(c)}
             aria-label={`${c.name}, last visit ${agoWords(last, today).toLowerCase()}, ${owner ? money(spend) : `${visits} visits`}, ${c.phone}`}>
             <span className="c-who nm">{c.name}</span>
             <span className="c-sub">

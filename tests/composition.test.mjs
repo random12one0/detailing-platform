@@ -579,8 +579,13 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
   // test today: **an OR across independent subjects is not a check on either
   // of them.** Every site is named and asserted on its own.
   const WRAPPED = [
+    // The needle stops before the closing `>` since 2026-09-06: roadmap 2.24
+    // added `data-tour="net"` to this element, and a byte-exact needle that
+    // includes the end of the tag turns red for an attribute that has nothing
+    // to do with the rule. **What the rule is about is the NESTING** — an
+    // outer <div> above the keyed swap — and that is all it should pin.
     ["app/src/screens/Money.jsx", "the period's figures",
-      '      <div>\n      <div className="swap" key={`${kind}|${offset}`}>'],
+      '      <div>\n      <div className="swap" key={`${kind}|${offset}`}'],
     ["app/src/screens/Money.jsx", "the period's context block",
       '        <div>\n        <div className="sunken swap" key={`ctx-${kind}|${offset}`}>'],
     ["app/src/screens/Clients.jsx", "the sorted list",
