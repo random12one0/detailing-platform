@@ -38,6 +38,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, businessBySlug, getSettings } from "../_shared/tenant.ts";
+import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { planCancelledEmail, planLinkEmail } from "../_shared/emailTemplates.ts";
 import { businessSiteUrl, planUrl } from "../_shared/config.ts";
@@ -83,6 +84,20 @@ Deno.serve(async (req) => {
     // ------------------------------------------------------------------
     if (action === "email") {
       const email = String(body.email || "").trim().toLowerCase();
+      // ROADMAP 2.21. This action is public, takes an address, and SENDS — so
+      // an unthrottled loop against a known customer's address is a mail-bomb
+      // from the detailer's own sending reputation, which is the platform's
+      // shared one. It cannot LEAK anything (it answers identically either
+      // way, by design), so this is a volume problem rather than a disclosure
+      // one — which is why the refusal is the same cheerful `ok` as every
+      // other early return here rather than a 429. **A different answer when
+      // throttled would tell a caller their address was worth throttling.**
+      // The other two actions are keyed on an unguessable UUID and need
+      // nothing.
+      const allowed = await withinLimits(supabase, [
+        { bucket: "planlink:ip", key: ipOf(req), ...LIMITS.planLinkPerIp },
+        { bucket: "planlink:email", key: email, ...LIMITS.planLinkPerEmail },
+      ]);
       const business = await businessBySlug(body.business_slug);
       // THE SAME ANSWER EITHER WAY, and the early returns below are all of
       // them. An unknown business, a malformed address and an address that is
@@ -90,6 +105,7 @@ Deno.serve(async (req) => {
       // whole point, because the difference between them is the fact worth
       // stealing.
       const ok = json({ success: true, sent: true });
+      if (!allowed) return ok;
       if (!business || !email.includes("@")) return ok;
 
       const { data: customers } = await supabase

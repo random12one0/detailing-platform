@@ -1315,6 +1315,60 @@ customer yet, and a screen with an empty examples section is half a feature.
 
 ---
 
+## The spam filter you asked for
+
+**What changed.** Booking your page is no longer free for a script. You said
+*"and yes we should have a small spam filter"* on the 4th, and this is the
+small version: a limit on how many bookings can come from one phone number or
+one address in an hour, an invisible trap field that only a robot fills in, and
+a blunt ceiling on the four pages of ours that anybody on the internet can
+reach.
+
+**Why it mattered more than it sounds.** Since requests were added, **a request
+holds the slot** — so filling your entire week cost a script nothing, and every
+held slot is a real customer turned away. There was no limit of any kind on
+that page.
+
+**No captcha, deliberately.** Those little "click all the traffic lights"
+puzzles cost a real customer far more than they cost an attacker, and the whole
+rule about your booking form is that a customer never has to fight it.
+
+**The decision I got wrong first, and how it showed up.** I started by counting
+every attempt — including the ones the calendar refused. It sounds stricter, and
+it is wrong twice: a script posting rubbish never takes a slot, and our own test
+suite, which deliberately tries a dozen bookings it EXPECTS to be refused, spent
+the whole allowance on bookings that were never made and then **reported the
+booking engine as broken — thirty-two failures behind one limit.** The count is
+now taken at the last moment, when a slot is actually about to be taken.
+
+**Three things worth knowing.**
+- **You are exempt.** A booking typed in by you or your staff is never counted:
+  somebody entering a morning's phone bookings is the one person who honestly
+  looks like a script.
+- **The trap field is invisible to screen readers too**, not just parked
+  off-screen where somebody using one could still land in it. Refusing a real
+  customer's booking because of the software they use would be far worse than
+  the problem it prevents.
+- **If the counter itself breaks, the booking goes through.** A filter that can
+  turn customers away when the database hiccups has become the outage it was
+  meant to stop.
+
+**What I verified, and what it printed.** Against the live functions: twelve
+bookings in a row from one phone gave `200 409 409 409 409 409 409 409 409 409
+429 429` — the throttle kicking in exactly where it should; a robot filling the
+trap got a cheerful "success" and **no booking was written**; eight rapid plan-
+link requests all got the same answer, so nobody can learn anything from being
+throttled; and the counters cannot be read from a browser. Thirty-three checks,
+four baselined by breaking what they guard. The full booking end-to-end run is
+still 82 of 82.
+
+**And one thing to know if you ever see it:** the address-based limit counts
+this machine's tests too, so a session that books dozens of times in an hour
+can trip it. All three test suites clear their own counter before they start —
+written down so nobody diagnoses it as a bug.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

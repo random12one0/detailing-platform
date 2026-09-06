@@ -99,6 +99,19 @@ const daysOut = (n) => {
 // Fixtures
 // ---------------------------------------------------------------------------
 
+// ROADMAP 2.21 — CLEAR THE THROTTLE THIS SUITE IS ABOUT TO SPEND.
+//
+// `create-booking` counts bookings per address, and a suite books more times
+// in two minutes than a real customer does in a year — from one address, over
+// and over, all day. **Without this the suite starts failing at whichever
+// booking crosses the line and reports it as a broken engine**, which is what
+// happened the first time it ran after the filter shipped: a 429 in the
+// middle of test 2 and thirty-two cascading failures behind it.
+//
+// It clears rather than exempting: the limits stay set by what a real
+// customer does, and the harness pays for its own noise.
+await svc.del("/rest/v1/rate_hits?bucket=like.booking%25");
+
 console.log("setup: two businesses with services, hours, promos");
 
 const PASSWORD = "Phase2-engine-test-pw!";

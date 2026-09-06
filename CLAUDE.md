@@ -660,6 +660,26 @@ explaining it; if they still have to ask "so should I?", it failed.
   empty hash and calls a working link bad. And the gear row is gated by
   NOTHING: a password belongs to the person, not the business, and staff are
   exactly who is handed one by somebody else. Baselined four ways),
+  **`spam-filter`** (33 checks, new 2026-09-06, roadmap 2.21 — the throttle
+  and honeypot on the four public endpoints. **The behaviour was proven
+  against the deployed functions**; what this file holds is the half a live
+  probe cannot see. **The booking limits sit at the LAST MOMENT before the
+  insert, not at the top**, because the threat is holding SLOTS and only a
+  created booking holds one — counting refusals throttles a script that took
+  nothing AND made `booking-engine`, which deliberately exercises a dozen
+  refusals, report a 429 as a broken engine with 32 failures behind it. **A
+  member is exempt from both checks** and the check for that had to name both
+  separately, because "`!member` … later a `withinLimits`" passed with the
+  exemption stripped off the second one. **`stripe-webhook` gets the ceiling
+  and NOTHING keyed on anything Stripe controls** — a per-caller rule there
+  turns a normal burst of events into a payment never recorded, which
+  presents as a paying detailer going offline. **And the three suites that
+  book clear their own counters first**: they book more in two minutes than a
+  real customer does in a year, from one address, so an unexplained 429 in a
+  session is this and not a regression. Baselined four ways, and TWO of its
+  checks were vacuous on the first run — `indexOf("withinLimits")` finds the
+  IMPORT, at the top of the file, so both ordering checks passed with the
+  whole block moved to the end),
   **`legacy-import`** (47 checks, new 2026-09-06, roadmap 5.1 — the old
   site's rows becoming this platform's. **It exists because the import cannot
   be RUN**: the access token in `.env` answers 403 for project

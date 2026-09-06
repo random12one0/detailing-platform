@@ -24,6 +24,7 @@ import {
   resolvePromo, resolveServices, resolveTravel, sizeAdjustmentFor, whenContextFor,
 } from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
+import { ipOf, LIMITS, looksAutomated, withinLimits } from "../_shared/rateLimit.ts";
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { customerConfirmationEmail, ownerNewBookingEmail } from "../_shared/emailTemplates.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -44,6 +45,41 @@ Deno.serve(async (req) => {
     // Admin caller? Verified against business_users for THIS business; a
     // stray JWT from some other business's staff gets no admin powers here.
     const member = await requireMember(req, business.id);
+
+    // --- ROADMAP 2.21: THE SPAM FILTER -------------------------------------
+    //
+    // TWO CHECKS IN TWO PLACES, and which one is where is the whole design.
+    //
+    // HERE: the honeypot, and the blunt ceiling every public endpoint gets.
+    // This one counts EVERY call, valid or not, and exists so a flood cannot
+    // spend the project's function invocations.
+    //
+    // AND THE BOOKING LIMITS ARE FURTHER DOWN, IMMEDIATELY BEFORE THE INSERT.
+    // **The threat this item names is holding SLOTS** — since roadmap 2.12 a
+    // request holds one — and only a booking that actually gets created holds
+    // anything. Counting refusals against a caller looked stricter and was
+    // wrong twice over: a script posting rubbish holds nothing and would have
+    // been throttled for it, while `booking-engine`, which deliberately
+    // exercises a dozen REFUSALS, spent the whole budget on bookings that were
+    // never made and then reported a 429 as a broken engine.
+    //
+    // A MEMBER IS EXEMPT FROM BOTH. A detailer typing in the bookings they
+    // took on the phone all morning is the one caller who legitimately looks
+    // like a script, and they are verified against `business_users` for THIS
+    // business above.
+    if (!member) {
+      // THE HONEYPOT ANSWERS 200 AND WRITES NOTHING. A refusal a script can
+      // see is a refusal it can tune against; a booking that simply never
+      // appears teaches it nothing. A real customer cannot reach this branch
+      // — the field is hidden and the widget leaves it empty.
+      if (looksAutomated(body)) {
+        console.warn("honeypot filled; dropping", { business: business.slug });
+        return json({ success: true, booking: null });
+      }
+      if (!await withinLimits(supabase, [
+        { bucket: "public:ip", key: ipOf(req), ...LIMITS.publicCeiling },
+      ])) return json({ error: "Too many requests" }, 429);
+    }
 
     // --- Required fields ---------------------------------------------------
     if (!body.customer_name?.trim()) return json({ error: "Customer name is required" }, 400);
@@ -257,6 +293,21 @@ Deno.serve(async (req) => {
       planSignup = !already;
     } else if (!member && plan) {
       planSignup = true;
+    }
+
+    // --- ROADMAP 2.21: the booking limits, at the last moment before a slot
+    // is actually taken. Everything above this line refuses, computes or
+    // reads; nothing has been written, so a refusal here cannot leave the
+    // half-written row the item warns about — and the exclusion constraint
+    // makes a half-written booking an occupied slot nobody owns.
+    if (!member && !await withinLimits(supabase, [
+      { bucket: "booking:ip", key: ipOf(req), ...LIMITS.bookingPerIp },
+      { bucket: "booking:phone", key: String(body.customer_phone ?? "").replace(/\D/g, ""), ...LIMITS.bookingPerPhone },
+    ])) {
+      // 429 AND A SENTENCE A PERSON COULD ACT ON, modelled on the existing
+      // 409 for an overlapping slot: the one human who ever sees this is a
+      // detailer testing their own page.
+      return json({ error: "That is a lot of bookings at once. Give it a few minutes and try again." }, 429);
     }
 
     // --- Insert. The exclusion constraint is the final, unbeatable guard. --

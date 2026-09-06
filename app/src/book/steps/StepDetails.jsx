@@ -28,6 +28,23 @@ export default function StepDetails({ form, setForm }) {
         <textarea value={form.customerNotes} placeholder="Gate codes, pet hair, problem areas…"
           onChange={(e) => setForm((f) => ({ ...f, customerNotes: e.target.value }))} />
       </label>
+      {/* ROADMAP 2.21 — THE HONEYPOT. A person never sees this and never
+          fills it; a bot that completes every input it finds completes this
+          one, and `create-booking` drops the booking without saying so.
+
+          IT IS HIDDEN THE WAY A SCREEN READER ALSO UNDERSTANDS — `hidden`
+          plus `aria-hidden` plus `tabIndex={-1}` — rather than with
+          off-screen positioning, because a field parked at -9999px is one a
+          screen-reader user CAN reach and be confused by, and refusing a
+          real customer's booking for using assistive technology would be a
+          far worse bug than the one this prevents.
+
+          `autoComplete="off"` matters too: a browser that helpfully fills a
+          field called "website" from a saved profile would turn a real
+          customer into a dropped booking. */}
+      <input type="text" name="website" tabIndex={-1} aria-hidden="true" hidden
+        autoComplete="off" value={form.website ?? ""}
+        onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))} />
     </>
   );
 }

@@ -280,6 +280,8 @@ export function initialForm(settings, known) {
     customerEmail: known?.email ?? "",
     customerNotes: "",
     promoCode: "",
+    // The honeypot's resting value. Empty is what a person leaves it as.
+    website: "",
   };
 }
 
@@ -570,6 +572,17 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
     // a crafted value attributes to nothing rather than to somebody else's.
     campaign_slug: campaignSlug || null,
     visitor_id: visitorId || null,
+    // ROADMAP 2.21 — THE HONEYPOT, CARRIED RATHER THAN INVENTED HERE. The
+    // form renders a field a person cannot see and never fills; a bot that
+    // completes every input it finds completes this one, and
+    // `create-booking` drops the booking without saying so.
+    //
+    // IT IS IN THE CORE because a tenant site that builds its own form gets
+    // it for free by using this payload — and a site that leaves the field
+    // out simply sends an empty string, which is the passing value. **A
+    // spam filter a bespoke form can forget is a spam filter one tenant does
+    // not have.**
+    website: form.website || "",
   };
 }
 

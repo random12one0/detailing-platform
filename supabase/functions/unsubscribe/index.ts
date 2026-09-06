@@ -32,6 +32,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -39,6 +40,16 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
 
   try {
+    // ROADMAP 2.21 — THE BLUNT CEILING AND NOTHING DESIGNED FOR THIS
+    // ENDPOINT. It is public and it writes, but it writes one boolean about
+    // one customer whose UUID the caller already holds, so the worst outcome
+    // is somebody who was already sent the link using it — which is the link's
+    // whole purpose. What the ceiling stops is a loop spending the project's
+    // function invocations.
+    if (!await withinLimits(supabase, [
+      { bucket: "public:ip", key: ipOf(req), ...LIMITS.publicCeiling },
+    ])) return json({ error: "Too many requests" }, 429);
+
     const { action, customer_id: id } = await req.json();
     if (!UUID.test(String(id ?? ""))) return json({ error: "Not found" }, 404);
     if (action !== "get" && action !== "set") {

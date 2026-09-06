@@ -262,6 +262,18 @@ async function loop({ slug, dashboard }) {
   // row and the cleanup would delete a row the next run is still using.
   const PHONE = `555-01${String(Date.now() % 100).padStart(2, "0")}`;
 
+  // ROADMAP 2.21 — CLEAR THE THROTTLE THIS RUN IS ABOUT TO SPEND.
+  //
+  // `create-booking` counts bookings per address, and this books more times in
+  // two minutes than a real customer does in a year, from one address, all day.
+  // **Without it the run starts failing at whichever booking crosses the line
+  // and reports it as a broken engine** — which is exactly what happened to
+  // `booking-engine` the first time it ran after the filter shipped: a 429 in
+  // the middle of test 2 and thirty-two cascading failures behind it.
+  //
+  // It clears rather than exempting: the limits stay set by what a real
+  // customer does, and the harness pays for its own noise.
+  await db.del("/rest/v1/rate_hits?bucket=like.booking%25");
   const biz = (await db.get(`/rest/v1/businesses?slug=eq.${slug}&select=id,name,contact_email,timezone`)).data?.[0];
   if (!biz) {
     fail++;

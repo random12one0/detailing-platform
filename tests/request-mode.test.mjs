@@ -101,6 +101,19 @@ const daysOut = (n) => {
 const near = (a, b) => Math.abs(Number(a) - Number(b)) < 0.005;
 
 // ---------------------------------------------------------------------------
+// ROADMAP 2.21 — CLEAR THE THROTTLE THIS RUN IS ABOUT TO SPEND.
+//
+// `create-booking` counts bookings per address, and this books more times in
+// two minutes than a real customer does in a year, from one address, all day.
+// **Without it the run starts failing at whichever booking crosses the line
+// and reports it as a broken engine** — which is exactly what happened to
+// `booking-engine` the first time it ran after the filter shipped: a 429 in
+// the middle of test 2 and thirty-two cascading failures behind it.
+//
+// It clears rather than exempting: the limits stay set by what a real
+// customer does, and the harness pays for its own noise.
+await svc.del("/rest/v1/rate_hits?bucket=like.booking%25");
+
 console.log("setup: one business that takes requests");
 
 const owner = await ensureUser("phase2-owner-r@engine.test", "Phase2-request-test-pw!");

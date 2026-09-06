@@ -4543,7 +4543,68 @@ is kept; the entire visual design restarts from scratch.
       permission: whoever can change what the business pays can change
       everything.
 
-- [ ] 2.21 **A SMALL SPAM FILTER ON THE BOOKING PAGE — the OWNER said yes on
+- [x] 2.21 ~~**A SMALL SPAM FILTER ON THE BOOKING PAGE**~~ **BUILT
+      2026-09-06.** `20260906007000_rate_limits.sql` (a counter per bucket, key
+      and fixed window), `_shared/rateLimit.ts`, a honeypot in
+      `book/core.js`'s own payload, and the four endpoints this entry named.
+      `tests/spam-filter.test.mjs` — 33 checks, four baselined.
+
+      **TWO CHECKS IN TWO PLACES, AND WHERE EACH ONE SITS IS THE WHOLE
+      DESIGN.** The blunt ceiling is at the top and counts EVERY call, so a
+      flood cannot spend the project's function invocations. **The booking
+      limits are at the last moment before the insert**, because the threat
+      this item names is holding SLOTS — and only a booking that is actually
+      created holds one.
+      **Counting refusals looked stricter and was wrong twice over.** A script
+      posting rubbish holds nothing and would have been throttled for it; and
+      `booking-engine`, which deliberately exercises a dozen REFUSALS, spent
+      the whole budget on bookings that were never made and then **reported a
+      429 as a broken engine — 32 cascading failures behind one throttle.**
+      That is this repo's own recurring shape: a harness reporting a working
+      product as broken.
+
+      **A MEMBER IS EXEMPT.** A detailer typing in the bookings they took on
+      the phone all morning is the one caller who legitimately looks like a
+      script, and they are already verified against `business_users` for THIS
+      business.
+
+      **THE HONEYPOT ANSWERS 200 AND WRITES NOTHING.** A refusal a script can
+      see is one it can tune against. It is hidden the way a SCREEN READER also
+      understands (`hidden`, `aria-hidden`, `tabIndex={-1}`, `autoComplete=
+      "off"`) rather than parked off-screen: refusing a real customer's booking
+      because they use assistive technology would be far worse than the problem
+      it prevents. **It lives in `core.js`'s payload**, so a tenant site that
+      builds its own form gets it for free — *a spam filter a bespoke form can
+      forget is a spam filter one tenant does not have* — and a site that omits
+      the field sends an empty string, which passes.
+
+      **`plan-link`'s THROTTLED ANSWER IS ITS ORDINARY ONE**, not a 429: it
+      answers identically either way by design, and a different answer when
+      throttled would tell a caller their address was worth throttling.
+      **`stripe-webhook` GOT THE CEILING AND NOTHING ELSE**, as this entry
+      required — a per-caller rule keyed on anything Stripe controls turns a
+      normal burst of events into a payment that is never recorded, which
+      presents as a paying detailer's page going dark.
+
+      **THE COUNTER DECIDES BY THE WRITE ITSELF** (`on conflict … returning`),
+      because check-then-increment is a race that will be lost on the one
+      endpoint somebody is hammering; it **counts refused attempts too**, so a
+      loop over the limit stays over it; it cleans up its own old rows per key;
+      and it **fails open** — a throttle that refuses real customers when the
+      database hiccups has become the outage it was meant to prevent.
+
+      **AND `x-forwarded-for` CANNOT BE SPOOFED HERE — measured, not
+      assumed.** A probe sending its own header was counted against the
+      machine's REAL address: Supabase's gateway writes it. That is the
+      difference between a throttle and a formality.
+
+      **Proven against the deployed functions:** twelve tries from one phone
+      gave `200 409 409 409 409 409 409 409 409 409 429 429`; a filled honeypot
+      gave 200 with no row written; eight `plan-link` calls were byte-identical;
+      `rate_hits` is empty from a browser. **And the three suites that book now
+      clear their own counters first** — they book more in two minutes than a
+      real customer does in a year, from one address.
+ — the OWNER said yes on
       2026-09-04** (*"and yes we should have a small spam filter"*), answering
       gap C below.
 

@@ -51,6 +51,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json } from "../_shared/http.ts";
+import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
 import { stripe, verifyWebhook, webhookSecret, StripeError } from "../_shared/stripe.ts";
 import { ourStatus } from "../_shared/platformBilling.ts";
@@ -69,6 +70,22 @@ Deno.serve(async (req) => {
   // No preflight: a browser never calls this, and answering OPTIONS would only
   // advertise it.
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
+
+  // ROADMAP 2.21 — THE CEILING ONLY, AND ONE THING THAT MUST NOT BE DONE
+  // HERE. The signature is checked before any database work and an unsigned
+  // POST cannot even consume an event id, so a flood costs function
+  // invocations and nothing else.
+  //
+  // **NO PER-CALLER THROTTLE KEYED ON ANYTHING STRIPE CONTROLS.** Every
+  // legitimate event arrives from their address range IN BURSTS — a
+  // subscription cycle is four or five events in a second — and throttling
+  // those means a payment that succeeded is never recorded, which presents as
+  // a paying detailer's booking page going offline. The ceiling below is
+  // deliberately far above any burst Stripe produces, and it is the same one
+  // every public endpoint gets rather than a rule invented for this one.
+  if (!await withinLimits(supabase, [
+    { bucket: "public:ip", key: ipOf(req), ...LIMITS.publicCeiling },
+  ])) return json({ error: "Too many requests" }, 429);
 
   // RAW FIRST. The signature is over bytes — see _shared/stripe.ts.
   const raw = await req.text();
