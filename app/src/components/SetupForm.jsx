@@ -291,12 +291,20 @@ export default function SetupForm({ onClose }) {
   // Without it the form is a first run every morning: `seen` is the only
   // thing App.jsx's auto-open reads, and finishing all seven steps does not
   // set it. Found by running the whole form through once and then reloading.
+  // ON CLOSE, NOT ON MOUNT — changed 2026-09-06 by roadmap 7.3's final pass,
+  // finding 2. Marking it on mount meant the form was "seen" the instant it
+  // appeared, so **tapping a rail button in the first ten seconds dismissed
+  // it, marked it done with, and took the tour that follows it away for
+  // ever** — the first-run experience an entire roadmap stage was spent on,
+  // lost by one curious tap, silently.
+  //
+  // The mount-write existed for a real reason and that reason survives: a
+  // form somebody FINISHED must not open again tomorrow, and finishing all
+  // seven steps does not set `seen` by itself. `close()` covers exactly that
+  // — it runs when the last step is done and when the quit button is
+  // pressed — and does NOT run when somebody navigates away, which is the
+  // one case that should still be waiting for them.
   const marked = useRef(false);
-  useEffect(() => {
-    if (marked.current || !settings || settings.setup?.seen) return;
-    marked.current = true;
-    patchSetup({ seen: true });
-  }, [settings]);
 
   const go = async (n, mark) => {
     if (busy) return;
@@ -323,6 +331,7 @@ export default function SetupForm({ onClose }) {
   // `Sheet.jsx` has used exactly this leaving-then-unmount pattern since it
   // was written, and reusing it is one less mechanic in the product.
   const close = useCallback(() => {
+    if (!marked.current) { marked.current = true; patchSetup({ seen: true }); }
     setLeaving(true);
     setTimeout(() => onClose?.(), 180);   // --t-exit
   }, [onClose]);

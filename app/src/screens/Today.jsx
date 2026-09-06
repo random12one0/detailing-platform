@@ -37,7 +37,7 @@
 // thing lit" a matter of FORM rather than colour.
 
 import { useEffect, useState } from "react";
-import { ChevronRight, TriangleAlert } from "lucide-react";
+import { ChevronRight, ListChecks, TriangleAlert } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 // ROADMAP 2.19. The nudge counts with the SAME arithmetic the Clients screen
@@ -59,7 +59,7 @@ import QuoteModal from "../components/QuoteModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
 import RequestCard from "../components/RequestCard.jsx";
 
-export default function Today({ refreshKey = 0, onGo }) {
+export default function Today({ refreshKey = 0, onGo, onSetup }) {
   const { business, firstName, can, subscription, siteOrigin } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
@@ -78,6 +78,26 @@ export default function Today({ refreshKey = 0, onGo }) {
   const [busyId, setBusyId] = useState(null);
   const [slots, setSlots] = useState(null);
   const [quoting, setQuoting] = useState(null);
+  // ROADMAP 7.3's FINAL PASS, finding 4: **Today offered the booking link
+  // before there was anything to book.** Copy, Open and a QR code, with
+  // nothing saying the page behind them has no services on it — so the first
+  // thing the product invites a new detailer to do is share a link that
+  // cannot take a booking. (The booking page itself is honest about it; by
+  // then the card is already in somebody's hand.)
+  //
+  // ONE COUNT, NOT `setupProgress`. Business prints *N of 7* and needs six
+  // reads to do it; the question HERE is narrower and is the only one that
+  // decides whether the link works at all — **is there a service on the
+  // page.** A third copy of the seven-step arithmetic on the screen a
+  // detailer opens every morning would be six queries for a sentence.
+  const [sellable, setSellable] = useState(null);
+  useEffect(() => {
+    let live = true;
+    supabase.from("services").select("id", { count: "exact", head: true })
+      .eq("business_id", business.id).eq("is_active", true)
+      .then(({ count }) => { if (live) setSellable(count ?? 0); });
+    return () => { live = false; };
+  }, [business.id, refreshKey]);
   // ANSWERING A REQUEST MAKES A CARD LEAVE, AND IT HAS TO LEAVE RATHER THAN
   // VANISH — CLAUDE.md's standing rule since 2026-09-01. The card carries the
   // exit and the reload waits for it: --t-exit (180ms), not --t-reveal, because
@@ -386,8 +406,37 @@ export default function Today({ refreshKey = 0, onGo }) {
           and it never restates the masthead's own "nothing booked". */}
       {empty && tomorrows.length === 0 && requests.length === 0 && (
         <div className="tight">
-          <p className="body">Your booking link is how a day gets filled.</p>
-          <BookingLink slug={business.slug} origin={siteOrigin} />
+          {sellable === 0 ? (
+            // THE LINK IS NOT SHOWN AT ALL HERE, rather than shown with a
+            // warning beside it. A caveat under a Copy button is a caveat
+            // nobody reads; the honest screen offers the one thing that has
+            // to happen first, and the link comes back by itself the moment
+            // there is a service to sell.
+            <>
+              <p className="body">Nobody can book yet — your page has no services on it.</p>
+              <div className="card setting-card">
+                <button className="nav-row" onClick={() => onSetup?.()}>
+                  <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
+                  <span className="txt">
+                    <span className="name">Finish setting up</span>
+                    {/* SHORT ENOUGH TO FIT AT 392, which the first version was
+                        not — `.now` ellipsised it to "…your link start…", and a
+                        sentence that ends in an ellipsis is a sentence nobody
+                        finishes reading. It still adds a fact the heading does
+                        not carry: WHICH part of setup is the one blocking the
+                        link. */}
+                    <span className="now">Your services come first</span>
+                  </span>
+                  <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="body">Your booking link is how a day gets filled.</p>
+              <BookingLink slug={business.slug} origin={siteOrigin} />
+            </>
+          )}
         </div>
       )}
 

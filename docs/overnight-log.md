@@ -1094,6 +1094,50 @@ No console errors, clean at 1440, 392 and 320.
 
 ---
 
+## Fixing two of the things the final pass found
+
+**What changed.** Two of the three "embarrassing" findings from a few hours
+earlier.
+
+**1. A new detailer can no longer lose their whole first run with one tap.**
+The seven-step setup form was being marked "done with" the instant it
+appeared — so tapping any button along the bottom to have a look around closed
+it, and the guided tour that follows it never came, that day or ever. It is
+marked done with when you actually CLOSE it now. Walked the whole sequence to
+be sure: first sign-in shows the form, tapping a tab leaves it alone, **the
+next sign-in has it waiting again**, walking through it hands over to the tour,
+and after that you are never asked again.
+
+**The first version of this fix was worse, and the checks caught it.** I made
+the tour appear for any owner whose device had not seen it — which fixed the
+finding and also showed a six-step tour to established detailers on every new
+phone or browser. The width sweep failed at its first screen because of it. The
+version that shipped touches nobody who has already finished setting up.
+
+**2. Today no longer offers your booking link before anything can be booked.**
+With no services on the page it now says *"Nobody can book yet — your page has
+no services on it"* and offers **Finish setting up**; the link comes back by
+itself the moment you add one service. I deliberately did not put a warning
+next to the Copy button — a caveat under a button is a caveat nobody reads.
+
+**What I verified, and what it printed.** Both states in a real browser
+(*"Nobody can book yet…"* with nothing listed, the booking link with one
+service listed), the row opens the setup form, **no console errors**, and the
+sweep clean at every width. Eight new checks, baselined by putting the old
+behaviour back.
+
+**And one small thing found by looking rather than measuring:** the first
+version of that new line was cut off on a phone — *"…and your link start…"* —
+so it is shorter now. The geometry check called it clean, because a truncated
+line is inside its box.
+
+**The third finding I left**, and it is the biggest job of the three: an empty
+dashboard leaves most of a laptop screen blank. That is a design question about
+what those screens should show a detailer who has nothing yet, and it is worth
+your eye rather than my guess.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

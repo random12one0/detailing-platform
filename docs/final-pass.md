@@ -49,7 +49,26 @@ Supabase does the sending; what is missing is a link on the sign-in screen, a
 
 ## Embarrassing
 
-### 2. One tap during first run ends both the setup form and the tour, for good
+*(Two of these three were fixed the same day. They are kept, struck, for the
+same reason as the one above.)*
+
+### 2. ~~One tap during first run ends both the setup form and the tour, for good~~ FIXED
+
+**Fixed 2026-09-06 in `SetupForm.jsx`, and not where it looked.** `setup.seen`
+is written when the form CLOSES now rather than when it mounts — which is what
+the mount-write was reaching for anyway: a form somebody FINISHED must not
+reopen tomorrow, and one they walked away from is not finished. Walked
+end to end: first sign-in shows the form, tapping a tab leaves it with `seen`
+still false, **the next sign-in has it waiting again**, walking all seven steps
+hands over to the tour and sets `seen`, and the sign-in after that asks
+nothing. Four checks in `tests/setup-progress.test.mjs` § 4, baselined by
+putting the mount-write back.
+**The version I tried first was worse and the sweep caught it:** letting an
+owner fall through to the tour whenever this device had not seen it fixed the
+finding and gave the tour to every established owner on every new browser —
+which broke the width sweep at its first width, because that is a fresh browser
+each time. **The narrower fix touches nobody who has already finished setting
+up.** The finding as written:
 
 The sequence a new owner is designed to get is: the seven-step form, then the
 guided tour. Confirmed working — walking every step lands on **"1 of 6"** of
@@ -83,7 +102,18 @@ yet — they appear on their own when bookings come in."*, *"$0.00 · No
 comparison yet · Nothing recorded in September 2026."* **The problem is the
 proportion, not the copy.**
 
-### 4. Today offers the booking link before there is anything to book
+### 4. ~~Today offers the booking link before there is anything to book~~ FIXED
+
+**Fixed 2026-09-06.** With no active services Today says *"Nobody can book yet
+— your page has no services on it"* and offers **Finish setting up · Your
+services come first**, which opens the form; the link comes back by itself the
+moment there is one service. **The link is not shown with a warning beside
+it** — a caveat under a Copy button is a caveat nobody reads. It asks ONE
+question (is there a service) rather than repeating Business's seven-step
+arithmetic, which would be six queries for a sentence on the screen a detailer
+opens every morning. Verified in a browser in both states, no console errors,
+and the first subtitle I wrote was **truncated at 392** and had to get shorter.
+The finding as written:
 
 A brand-new Today is the heading, *"Morning · nothing booked"*, and the booking
 link with **Copy**, **Open** and **Generate QR code** — with nothing saying the

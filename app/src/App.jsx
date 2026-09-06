@@ -105,9 +105,24 @@ export default function App() {
   const autoOpened = useRef(false);
   useEffect(() => {
     if (!business || started.current) return;
+    // WAIT FOR WHAT THE DECISION NEEDS, AND ONLY FOR THAT. An owner's branch
+    // reads `settings`; a staff member may never be allowed to (Notifications
+    // needs the `settings` permission to READ it), so gating both on it would
+    // take the tour away from the people most likely to be new. The latch was
+    // set before this check until 2026-09-06: a settings fetch that answered
+    // one tick after the business did meant an owner got NO first run at all,
+    // silently and only sometimes.
+    if (role === "owner" && !settings) return;
     started.current = true;
     if (role === "owner") {
-      if (settings && !settings.setup?.seen && !settings.setup?.dismissed) {
+      // ROADMAP 7.3's FINAL PASS, finding 2, fixed 2026-09-06 — but in
+      // `SetupForm`, not here. `setup.seen` used to be written when the form
+      // MOUNTED, so tapping a rail button in the first ten seconds dismissed
+      // the form, marked it seen and lost the tour with it, for ever. It is
+      // written when the form CLOSES now, which is what the mount-write was
+      // reaching for anyway: a form that was FINISHED must not reopen
+      // tomorrow, and one that was walked away from is not finished.
+      if (!settings.setup?.seen && !settings.setup?.dismissed) {
         autoOpened.current = true;
         setFirstRun("setup");
       }

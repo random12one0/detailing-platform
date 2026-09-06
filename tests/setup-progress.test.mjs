@@ -20,6 +20,17 @@
 
 import { setupProgress, STEPS } from "../app/src/lib/setup.js";
 
+import { readFileSync } from "node:fs";
+
+// Comments out before anything reads source as text — this repo has been
+// caught seven times in two days by a check failing, or passing, on the prose
+// that explains it.
+const strip = (t) => t
+  .replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "")
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .replace(/^\s*\/\/.*$/gm, "");
+const read = (f) => readFileSync(f, "utf8");
+
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
   if (cond) { passed++; console.log(`  ok   ${name}`); }
@@ -132,6 +143,55 @@ console.log("\ntest 7: it survives everything the caller can hand it");
   for (const s of shapes) { try { setupProgress(s); } catch (e) { threw = e.message; } }
   check("no shape of missing data throws", threw === null, threw ?? "");
   check("missing data means nothing is done", setupProgress({}).count === 0);
+}
+
+
+// ─── 4. The first run survives being interrupted ──────────────────────────
+// ROADMAP 7.3's FINAL PASS, findings 2 and 4 — both fixed 2026-09-06, and both
+// are about what a screen does when the person does not follow the path.
+console.log("\n4. the first run, when nobody follows the path");
+{
+  const app = strip(read("app/src/App.jsx"));
+  const form = strip(read("app/src/components/SetupForm.jsx"));
+  const today = strip(read("app/src/screens/Today.jsx"));
+
+  // FINDING 2. `setup.seen` was written when the form MOUNTED, so tapping a
+  // rail button in the first ten seconds dismissed it, marked it done with,
+  // and took the tour that follows it away for ever. It is written on CLOSE
+  // now — which is what the mount-write was reaching for anyway: a form
+  // somebody FINISHED must not reopen tomorrow, and one they walked away from
+  // is not finished.
+  check("4a · the form is marked seen when it CLOSES, not when it appears",
+    /const close = useCallback\(\(\) => \{[\s\S]{0,160}patchSetup\(\{ seen: true \}\)/.test(form)
+      && !/useEffect\(\(\) => \{[\s\S]{0,200}patchSetup\(\{ seen: true \}\)/.test(form),
+    "on mount, one tab press loses the whole first run");
+  check("4b · and it is still marked exactly once",
+    /if \(!marked\.current\) \{ marked\.current = true;/.test(form));
+  check("4c · the form still wins when it is genuinely unfinished",
+    /!settings\.setup\?\.seen && !settings\.setup\?\.dismissed[\s\S]{0,120}setFirstRun\("setup"\)/.test(app));
+  // The latch used to be set BEFORE the branch that needs `settings`, so a
+  // settings fetch answering one tick after the business did meant an owner
+  // got no first run at all — silently, and only sometimes.
+  check("4d · the decision waits for what it reads, and only for that",
+    /if \(role === "owner" && !settings\) return;[\s\S]{0,60}started\.current = true;/.test(app),
+    "staff may never be allowed to read settings, so gating both on it removes their tour");
+  // FINDING 4. Copy, Open and a QR code, with nothing saying the page behind
+  // them has no services on it — the first thing the product invited a new
+  // detailer to do was share a link that cannot take a booking.
+  check("4e · Today does not offer the booking link with nothing to book",
+    /sellable === 0 \?/.test(today) && /Nobody can book yet/.test(today),
+    "a caveat under a Copy button is a caveat nobody reads");
+  check("4f · it offers the way out of that instead",
+    /onSetup\?\.\(\)/.test(today) && /Finish setting up/.test(today));
+  // ONE COUNT, NOT `setupProgress`. Business prints "N of 7" and needs six
+  // reads for it; the question here is the narrower one that actually decides
+  // whether the link works, on the screen a detailer opens every morning.
+  check("4g · and asks the one question that decides it, not all seven",
+    /from\("services"\)[\s\S]{0,160}count: "exact", head: true/.test(today)
+      && !/setupProgress/.test(today),
+    "a third copy of the seven-step arithmetic here would be six queries for a sentence");
+  check("4h · the link comes back on its own once there is a service",
+    /\) : \([\s\S]{0,220}<BookingLink/.test(today));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
