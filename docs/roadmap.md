@@ -4676,7 +4676,17 @@ is kept; the entire visual design restarts from scratch.
       and server-side pricing are what cannot be bypassed, and none of them
       moved.
 
-- [ ] 2.22 **BACK THE DATABASE UP FOR FREE — his own idea, 2026-09-04, and it
+- [~] 2.22 **BACK THE DATABASE UP FOR FREE — WRITTEN AND DOCUMENTED
+      2026-09-06, WAITING ON TWO SECRETS.** GitHub Actions, nightly, encrypted,
+      free; the workflow is `docs/ops/backup.workflow.yml` and the ten-minute
+      switch-on is `docs/ops/backups.md`. **It is not ticked because it has
+      never run** — a backup nobody has restored is a backup nobody should
+      count on, and this one has not even fired once.
+      **The workflow file is not under .github/ on purpose:** GitHub refuses a
+      push that creates one unless the token carries the `workflow` scope, and
+      this session's does not. The owner moves it into place.
+
+      **BACK THE DATABASE UP FOR FREE — his own idea, 2026-09-04, and it — his own idea, 2026-09-04, and it
       works.**
 
       **SKIPPED 2026-09-06 AND LOGGED, on this entry's own words: *"on his
