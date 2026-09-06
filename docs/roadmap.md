@@ -6639,7 +6639,31 @@ recommendation.
   **Recommendation: one paragraph of answer from him, then it is a normal
   build — and if the answer is "not yet", DROP `completed_washes_count`**,
   because a column nothing maintains is what this repo flags everywhere else.
-- **N. RANKED *BLOCKS LAUNCH* BY ROADMAP 7.3's FINAL PASS, 2026-09-06.** It
+- **N. ~~RANKED *BLOCKS LAUNCH*~~ BUILT 2026-09-06, HOURS AFTER THE PASS THAT
+  RANKED IT.** *"I forgot my password"* on the sign-in screen, `/reset` where
+  the emailed link lands, and *Your password* behind the gear for the ordinary
+  case. `tests/password-reset.test.mjs` (18 checks, four baselined).
+  **Exercised against a REAL recovery link** rather than described: a new
+  password saved, signed straight into the dashboard, the new password proved
+  against the auth API, **and the same link then refused with "That link has
+  expired"** — which is the ordinary second case, because a link works once and
+  mail scanners follow them. The settings screen changed a password at 1440 and
+  the next sign-in used the new one.
+  **THREE THINGS IN IT ARE INVISIBLE FROM THE SCREEN and are what the test
+  holds.** The confirmation says *"If we have an account for…"* and **never
+  reports the error**, because "no account with that email" turns a sign-in
+  form into a way of asking which addresses are customers of ours — the same
+  reasoning that made `plan-link` take an email IN and send a link OUT. The
+  page **never reads the URL hash itself**: `detectSessionInUrl` has already
+  consumed and cleared it before React mounts, so a page that looks would find
+  an empty hash and call a working link bad. And the gear row is gated by
+  **nothing**, because a password belongs to the PERSON rather than the
+  business — staff are exactly the people handed one by somebody else.
+  **Both screens ask for it twice**, because the failure being fixed is a
+  lockout and a typo makes another one, from the page that was the way back.
+  The original finding follows:
+
+  **N. RANKED *BLOCKS LAUNCH* BY ROADMAP 7.3's FINAL PASS, 2026-09-06.** It
   was written down and left unranked; the pass confirmed it by looking (no
   *forgot your password* on the sign-in screen, and no `resetPasswordForEmail`
   or `updateUser` anywhere in `app/src`) and ranked it: **it is the one finding

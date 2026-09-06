@@ -648,6 +648,18 @@ explaining it; if they still have to ask "so should I?", it failed.
   especially: an unescaped comma inside `ADR` ends the field and the phone
   drops the rest of the address with no error. Baselined by removing the
   escaping, which fails 6 including the cross-copy check),
+  **`password-reset`** (18 checks, new 2026-09-06 — the way back in after a
+  forgotten password, which **did not exist at all** until roadmap 7.3's final
+  pass ranked its absence *blocks launch*. The flow itself was proved in a
+  browser against a real recovery link; **what this file holds is the three
+  things a browser cannot see.** The confirmation says the same thing whether
+  or not the address exists — reporting the error there is address enumeration
+  with a friendly face, the same reasoning that shaped `plan-link`. The reset
+  page **never reads the URL hash**, because `detectSessionInUrl` has already
+  consumed and cleared it before React mounts, so a page that looks finds an
+  empty hash and calls a working link bad. And the gear row is gated by
+  NOTHING: a password belongs to the person, not the business, and staff are
+  exactly who is handed one by somebody else. Baselined four ways),
   **`legacy-import`** (47 checks, new 2026-09-06, roadmap 5.1 — the old
   site's rows becoming this platform's. **It exists because the import cannot
   be RUN**: the access token in `.env` answers 403 for project
@@ -1694,8 +1706,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   decides which domain a CUSTOMER's confirmation email links to; **this said
   NINE until 2026-09-05 and then TEN and ELEVEN within hours** — twelve plus
   the five below is the seventeen the sweep walks),
-  FIVE behind the gear
-  (what changes how the app behaves for the detailer — *Your subscription*
+  SIX behind the gear
+  (what changes how the app behaves for the detailer — *Your password* joined
+  on 2026-09-06 with the item that built it, and it is the one row gated by
+  NOTHING, because a password belongs to the person rather than the business — *Your subscription*
   joined them in roadmap 2.20 stage 2, and it passes the gear's half of the
   admission test outright: a card on file changes nothing a customer ever
   meets), and the test that decides

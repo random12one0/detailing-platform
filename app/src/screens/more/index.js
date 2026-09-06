@@ -59,6 +59,7 @@ import Notifications from "./Notifications.jsx";
 import MessageTemplates from "./MessageTemplates.jsx";
 import Team from "./Team.jsx";
 import Preferences from "./Preferences.jsx";
+import Password from "./Password.jsx";
 import SwitchBusiness from "./SwitchBusiness.jsx";
 
 export const SCREENS = {
@@ -79,6 +80,7 @@ export const SCREENS = {
   templates: [MessageTemplates, "Message templates"],
   team: [Team, "Team"],
   billing: [Billing, "Your subscription"],
+  password: [Password, "Your password"],
   preferences: [Preferences, "This device"],
   // A picker, not a form — it does not share the settings skeleton and is not
   // one of the twelve. It is only ever offered when the account has more than

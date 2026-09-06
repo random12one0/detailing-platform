@@ -30,7 +30,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  Bell, Building2, ChevronRight, Compass, CreditCard, LogOut, MessageSquare, Smartphone, Users, X,
+  Bell, Building2, ChevronRight, Compass, CreditCard, KeyRound, LogOut, MessageSquare, Smartphone, Users, X,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -117,6 +117,11 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
       // and the gear index is the screen a detailer passes through on the way
       // to everything else behind it.
       subscription?.status === "past_due" || subscription?.status === "suspended"],
+    // ITEM N, the ordinary half. `null` rather than a permission: a password
+    // belongs to the PERSON, not the business, so every member gets it —
+    // staff included, who are exactly the people handed a password by
+    // somebody else and told to change it.
+    ["password", "Your password", KeyRound, "Change your sign-in password", null],
     ["preferences", "This device", Smartphone, describeDevice(), null],
     // A PICKER WITH ONE CHOICE ON IT IS A CONTROL THAT CANNOT CHANGE
     // ANYTHING. It is absent at one membership, which is every account in the

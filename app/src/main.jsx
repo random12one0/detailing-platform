@@ -16,6 +16,7 @@ import LandingPage from "./landing/LandingPage.jsx";
 import { isPlatformHost } from "./lib/host.js";
 import PricingPage from "./landing/PricingPage.jsx";
 import LegalPage from "./landing/LegalPage.jsx";
+import ResetPassword from "./screens/ResetPassword.jsx";
 import AdminPage from "./admin/AdminPage.jsx";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
@@ -83,6 +84,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             visitor deciding whether to sign up is exactly who reads these. */}
         <Route path="/terms" element={<LegalPage which="terms" />} />
         <Route path="/privacy" element={<LegalPage which="privacy" />} />
+        {/* ITEM N — where the emailed recovery link lands. Outside
+            `Wrapped`: the person arriving has a session but may have no
+            business loaded yet, and `BusinessProvider` would make them wait
+            on a membership they are not using. */}
+        <Route path="/reset" element={<ResetPassword />} />
         <Route path="/book/:slug" element={<BookingPage />} />
         {/* ROADMAP 2.14 STEP 3. The plans a detailer sells live BESIDE the
             booking flow, never as a step inside it — 7 of 7 sampled detailers

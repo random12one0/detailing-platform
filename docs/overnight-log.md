@@ -1053,6 +1053,47 @@ thing with what I would do about each.
 
 ---
 
+## The password reset — the one thing the final pass said would stop a customer
+
+**What changed.** Three things that did not exist at all:
+- **"I forgot my password"** on the sign-in screen.
+- **`/reset`**, where the emailed link lands.
+- **"Your password"** in the settings, for changing it while signed in.
+
+**Why I built it tonight rather than parking it.** The final pass an hour
+earlier found exactly one thing that would stop a real detailer using the
+product, and this was it: someone who forgot their password could not get back
+into their own business, and the only fix was you editing the database by hand.
+That is not a support answer.
+
+**What I verified, and what it printed.** I made a real reset link — the same
+one Supabase would have emailed — and used it in a browser:
+- it landed on the new page and offered the form;
+- two passwords that did not match were refused: *"Those two do not match."*;
+- saving took me **straight into the dashboard**, signed in;
+- signing in again from scratch with the new password: **OK**;
+- **opening the same link a second time said "That link has expired"** rather
+  than failing when you press save. That is the ordinary second case — a reset
+  link works once, and some email systems follow links before you do.
+- changing the password from the settings screen worked, and the next sign-in
+  used the new one.
+
+No console errors, clean at 1440, 392 and 320.
+
+**Three decisions worth knowing about.**
+1. **The message never says whether the address exists.** It says *"If we have
+   an account for that email, the link is on its way."* Saying "no account with
+   that email" would turn the sign-in form into a way of finding out which of a
+   list of addresses is one of our customers.
+2. **Staff can change their own password**, with no permission needed. A
+   password belongs to the person, not the business — and staff are exactly the
+   people who get handed one by somebody else and should change it.
+3. **Both screens ask for it twice.** The problem being fixed is being locked
+   out, and a typo in a new password locks you out again — from the page that
+   was supposed to be the way back.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

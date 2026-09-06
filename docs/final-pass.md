@@ -20,7 +20,17 @@ makes us look unfinished; *cosmetic* means only we would notice.
 
 ## Blocks launch
 
-### 1. There is no way to reset a password, or to change one
+*(The one item here was fixed the same day; it is kept, struck, because a pass
+that quietly deletes what it found cannot be checked afterwards.)*
+
+### 1. ~~There is no way to reset a password, or to change one~~ FIXED the same day
+
+**Built 2026-09-06, hours after this pass ranked it** — *I forgot my password*
+on the sign-in screen, `/reset` where the emailed link lands, and *Your
+password* behind the gear. Exercised against a real recovery link: saved,
+signed in, the new password proved against the auth API, and the same link then
+refused as expired. `tests/password-reset.test.mjs`, 18 checks, four baselined.
+**The finding is kept because the reasoning is the useful part:**
 
 Confirmed by reading the sign-in screen: no *forgot your password* link, and
 nothing anywhere in `app/src` calls `resetPasswordForEmail` or `updateUser`.
@@ -119,7 +129,9 @@ figures in that file have gone stale five times before.
   subscription, This device, Show me around. Staff: Message templates, This
   device, Show me around — and *Message templates* is deliberately open to
   staff (they send those texts from a job), which is written into
-  `GearMenu.jsx`'s own header rather than being an accident.
+  `GearMenu.jsx`'s own header rather than being an accident. **Both lists were
+  measured BEFORE finding 1 was fixed; *Your password* joined the gear for
+  both people a few hours later.**
 - **No console errors anywhere**, at either width, for either person.
 - **The empty booking page** of a business with no services: an honest
   sentence, no crash.

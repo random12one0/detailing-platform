@@ -40,18 +40,36 @@ function GoogleMark() {
 export default function Auth() {
   // Arriving from a pricing button means you came to start, not to sign in.
   const params = new URLSearchParams(window.location.search);
+  // THREE MODES, NOT TWO. "reset" is asking for the email; it is a mode of
+  // this form rather than a page of its own because it is the same card, the
+  // same field and the same button, and a second screen would be a second
+  // place to keep the Google branch and the layout in step.
   const [mode, setMode] = useState(params.has("plan") || params.has("offer") ? "up" : "in");
+  const [sent, setSent] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const providers = useEnabledProviders();
   const creating = mode === "up";
+  const resetting = mode === "reset";
 
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
     setError("");
+    if (resetting) {
+      // THE ANSWER IS THE SAME WHETHER OR NOT THE ADDRESS EXISTS, and that is
+      // the whole reason this branch returns early instead of showing the
+      // error. "No account with that email" turns a sign-in form into a way
+      // of asking which of a list of addresses is a customer of ours.
+      await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset`,
+      });
+      setSent(true);
+      setBusy(false);
+      return;
+    }
     const { error: err } = creating
       ? await supabase.auth.signUp({ email, password })
       : await supabase.auth.signInWithPassword({ email, password });
@@ -77,14 +95,18 @@ export default function Auth() {
   return (
     <div className="center" style={{ minHeight: "100dvh", padding: 16 }}>
       <form onSubmit={submit} style={{ width: "100%", maxWidth: 380 }} className="card">
-        <h1 style={{ marginBottom: 4 }}>{creating ? "Create your account" : "Sign in"}</h1>
+        <h1 style={{ marginBottom: 4 }}>
+          {resetting ? "Reset your password" : creating ? "Create your account" : "Sign in"}
+        </h1>
         <p className="quiet" style={{ marginBottom: 16 }}>
-          {creating
-            ? "Your business details come next."
-            : "Welcome back."}
+          {resetting
+            ? "We'll email you a link. It works once and lasts an hour."
+            : creating
+              ? "Your business details come next."
+              : "Welcome back."}
         </p>
 
-        {providers.google && (
+        {providers.google && !resetting && (
           <>
             <button type="button" className="btn oauth" onClick={withGoogle} disabled={busy}>
               <GoogleMark />
@@ -98,24 +120,49 @@ export default function Auth() {
           <span>Email</span>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
         </label>
-        <label className="field">
-          <span>Password</span>
-          <input
-            type="password" value={password} minLength={creating ? 8 : undefined}
-            onChange={(e) => setPassword(e.target.value)} required
-            autoComplete={creating ? "new-password" : "current-password"}
-          />
-        </label>
+        {!resetting && (
+          <label className="field">
+            <span>Password</span>
+            <input
+              type="password" value={password} minLength={creating ? 8 : undefined}
+              onChange={(e) => setPassword(e.target.value)} required
+              autoComplete={creating ? "new-password" : "current-password"}
+            />
+          </label>
+        )}
         {error && <div className="error-box">{error}</div>}
-        <button className="btn primary" disabled={busy}>
-          {busy ? (creating ? "Creating…" : "Signing in…") : (creating ? "Create account" : "Sign in")}
+        {sent && (
+          <div className="ok-box">
+            If we have an account for {email}, the link is on its way. Check
+            spam if it is not there in a minute.
+          </div>
+        )}
+        <button className="btn primary" disabled={busy || (resetting && sent)}>
+          {busy
+            ? (resetting ? "Sending…" : creating ? "Creating…" : "Signing in…")
+            : resetting ? (sent ? "Link sent" : "Email me a link")
+              : creating ? "Create account" : "Sign in"}
         </button>
         <button
           type="button" className="btn ghost" style={{ marginTop: 10 }}
-          onClick={() => { setMode(creating ? "in" : "up"); setError(""); }}
+          onClick={() => { setMode(mode === "in" ? "up" : "in"); setError(""); setSent(false); }}
         >
-          {creating ? "I already have an account" : "Create an account"}
+          {mode === "in" ? "Create an account" : "I already have an account"}
         </button>
+        {/* ITEM N, RANKED *BLOCKS LAUNCH* BY ROADMAP 7.3's FINAL PASS: until
+            2026-09-06 a detailer who forgot their password could not get
+            back in at all, and the only remedy was the platform owner
+            editing the auth table. It is offered on SIGN IN only — on the
+            create-account form it is an answer to a question nobody has
+            asked yet. */}
+        {mode === "in" && (
+          <button
+            type="button" className="btn ghost sm" style={{ marginTop: 6 }}
+            onClick={() => { setMode("reset"); setError(""); setSent(false); }}
+          >
+            I forgot my password
+          </button>
+        )}
       </form>
     </div>
   );

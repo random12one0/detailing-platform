@@ -202,7 +202,12 @@ const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews
 // owner-only and it is the one settings screen whose content comes from an
 // edge function rather than a table, so it is walked as its own block below
 // with a wait for what the answer draws. Roadmap 2.20 stage 2.
-const GEAR_ROWS = ["Notifications", "Message templates", "Team", "This device"];
+// "Your password" joined 2026-09-06 with the item that built it — the way
+// back in after a forgotten password, ranked *blocks launch* by roadmap
+// 7.3's final pass. Its own geometry risk is small (two fields and a
+// button); it is here because a settings screen this list does not name is a
+// screen no width ever opens.
+const GEAR_ROWS = ["Notifications", "Message templates", "Team", "Your password", "This device"];
 
 // Runs in the page. Boxes are the things with an edge — two of those touching
 // is the defect; two paragraphs touching is just text.
