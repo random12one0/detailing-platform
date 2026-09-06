@@ -6567,7 +6567,39 @@ recommendation.
   support policy in the FOOTER of the marketing page only. **Recommendation:
   smallest useful version in Phase 7 — one support email address, shown in the
   gear, and it is his inbox.**
-- **H. AND A DETAILER WHO LEAVES CANNOT TAKE THEIR DATA.** 4.4 can suspend a
+- **H. ~~A DETAILER WHO LEAVES CANNOT TAKE THEIR DATA~~ BUILT 2026-09-06,
+  folded into 4.4 exactly as this entry recommended.**
+  `20260906005000_export_business.sql` + an `export` action + *Export
+  everything* on a business's page, which hands over one JSON file.
+  **THE TABLES ARE DISCOVERED, NOT LISTED.** A hand-written list of twenty-odd
+  tables goes stale the first time somebody adds one, and **the failure is
+  silent**: the export succeeds, the file looks complete, and the missing table
+  is found by the person who no longer has it. The function asks the catalog
+  for every table with a `business_id` — the same definition of *belongs to a
+  business* every RLS policy already uses — so **a table added tomorrow is
+  exported tomorrow, with nobody remembering.** Measured on the demo: **31
+  tables, 31 bookings, 13 customers, 88 KB.**
+  **TWO THINGS ARE OURS AND DO NOT LEAVE IN IT:** `platform_admin_events` (the
+  record of what we did to their account, including who signed in as them) and
+  `businesses.admin_notes_platform` (the private note about the customer, on a
+  row they otherwise own entirely — which is exactly how it would slip out).
+  **`platform_subscriptions` and `platform_invoices` ARE in**: what they paid
+  us is their record too, and it is the half an accountant asks for.
+  **THE SECURITY FLOOR HOLDS, PROVEN LIVE:** the RPC is service-role only, so a
+  signed-in admin's own browser calling it directly gets **403**; the export
+  goes through the gate like everything else (a detailer gets 404, anon 401);
+  and it is LOGGED even though it writes nothing, with the table count rather
+  than the file, because *who took a copy and when* is exactly what a detailer
+  is entitled to ask. It is DOWNLOADED rather than displayed — a screen that
+  prints every customer is a screen somebody leaves open.
+  **AND PRESSING THE BUTTON FOUND A DEFECT NOTHING ELSE HAD:** every
+  confirmation on `/admin` was set and then wiped by the refresh that followed
+  it, in the same tick — *"Saved."*, *"Suspended"*, *"Invite sent to…"*, none
+  of them ever on screen long enough to read. The action worked, the list
+  refreshed, and the only thing missing was the sentence saying so.
+  The finding as written:
+
+  **H. AND A DETAILER WHO LEAVES CANNOT TAKE THEIR DATA.** 4.4 can suspend a
   business; nothing exports one. **Skipped:** it is also the answer to a
   customer-data deletion request, which is the one legal ask that arrives
   without warning. **Recommendation: fold "export a business" into 4.4** —

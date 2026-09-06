@@ -426,6 +426,33 @@ Deno.serve(async (req) => {
       return json({ success: true, site_url: full });
     }
 
+    // ITEM H — EVERYTHING THEY OWN, AS ONE FILE.
+    //
+    // `/terms` says *"your customer list, your bookings and your history
+    // belong to you, and you can have a copy of them at any time by asking"*,
+    // and until now nothing could produce one. **It is also the answer to a
+    // customer-data deletion request, which is the one legal ask that arrives
+    // without warning.**
+    //
+    // THE TABLES ARE DISCOVERED IN SQL, NOT LISTED HERE. A hand-written list
+    // goes stale the first time somebody adds a table, and the failure is
+    // SILENT — the export succeeds, the file looks complete, and the missing
+    // table is found by the person who no longer has it. `export_business()`
+    // asks the catalog for every table with a `business_id`, which is the
+    // same definition of "belongs to a business" that every RLS policy uses.
+    if (action === "export") {
+      const { data, error } = await supabase.rpc("export_business", { p_business_id: id });
+      if (error) throw error;
+      if (!data) return json({ error: "No such business" }, 404);
+      // LOGGED LIKE EVERY OTHER WRITE, even though it writes nothing: this is
+      // the single call in the product that returns every customer and every
+      // price of one business at once, and "who took a copy, and when" is
+      // exactly the question a detailer is entitled to ask. The row carries
+      // the SIZE rather than the file.
+      await logIt(admin, "export", biz, { tables: Object.keys(data.tables ?? {}).length });
+      return json({ success: true, export: data });
+    }
+
     if (action === "tier") {
       const tier = String(body.plan_tier || "");
       if (!["founding", "standard"].includes(tier)) return json({ error: "Unknown plan tier" }, 400);

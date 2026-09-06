@@ -152,10 +152,13 @@ export default function AdminPage() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  const openBusiness = async (id) => {
+  // `keepMsg` is passed when this is a REFRESH after an action rather than a
+  // person opening a business. Without it the confirmation was drawn and
+  // wiped in the same breath — see `act`.
+  const openBusiness = async (id, keepMsg = false) => {
     setOpen(id);
     setDetail(null);
-    setMsg(null);
+    if (!keepMsg) setMsg(null);
     try {
       const d = await call({ action: "get", business_id: id });
       setDetail(d);
@@ -171,9 +174,25 @@ export default function AdminPage() {
     setMsg(null);
     try {
       const r = await call(body);
+      // THE MESSAGE IS SET AFTER THE REFRESH, and it was set before until
+      // 2026-09-06 — when `openBusiness` cleared it two lines later, so
+      // **every confirmation on this screen was drawn and wiped in the same
+      // tick.** "Saved.", "Suspended", "Invite sent to…": none of them was
+      // ever on screen long enough to read. Found by pressing a button and
+      // looking at what happened, which is the only thing that could have
+      // found it — the action worked, the list refreshed, and the only thing
+      // missing was the sentence saying so.
+      // SHOWN AT ONCE AND KEPT THROUGH THE REFRESH. It was set before the
+      // reload until 2026-09-06, and `openBusiness` cleared it two lines
+      // later — so **every confirmation on this screen was drawn and wiped in
+      // the same tick**: "Saved.", "Suspended", "Invite sent to…", none of
+      // them ever on screen long enough to read. Found by pressing a button
+      // and looking, which is the only thing that could have found it: the
+      // action worked, the list refreshed, and the only thing missing was the
+      // sentence saying so.
       setMsg({ ok: true, text: after(r) });
       await load();
-      if (open) await openBusiness(open);
+      if (open) await openBusiness(open, true);
     } catch (e) {
       setMsg({ ok: false, text: e.message });
     }
@@ -473,6 +492,25 @@ export default function AdminPage() {
                       EDITING THE DATABASE BY HAND. That is the admission
                       test, and it is why there is no button here for
                       anything Stripe's own dashboard does better. */}
+                  {/* ITEM H — the file a detailer gets when they ask for
+                      their data, and the file that answers a deletion
+                      request. It is downloaded rather than shown: it is every
+                      customer and every booking they have, and a screen that
+                      prints that is a screen somebody leaves open. */}
+                  <button className="pa-btn" disabled={busy}
+                    onClick={() => act({ action: "export", business_id: b.id }, (r) => {
+                      const url = URL.createObjectURL(
+                        new Blob([JSON.stringify(r.export, null, 2)], { type: "application/json" }));
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `${b.slug}-${new Date().toISOString().slice(0, 10)}.json`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      const n = Object.keys(r.export?.tables ?? {}).length;
+                      return `Downloaded — ${n} tables, everything they own.`;
+                    })}>
+                    Export everything
+                  </button>
                   <button className="pa-btn" disabled={busy}
                     onClick={() => act(
                       { action: b.status === "paused" ? "restore" : "suspend", business_id: b.id },

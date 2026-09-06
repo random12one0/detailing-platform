@@ -1199,6 +1199,48 @@ no console errors, sweep clean.
 
 ---
 
+## A detailer can take their data with them now
+
+**What changed.** **Export everything** on a business's page in your back
+office. One press hands you a file with everything that business owns:
+customers, bookings, prices, hours, plans, expenses, photos, their invoices
+from us. The demo came out as **31 tables, 31 bookings, 13 customers, 88 KB**.
+
+**Why it needed doing.** Two promises were unkept. Your terms page — written a
+few hours ago — says a detailer's customer list and history belong to them and
+they can have a copy by asking, and nothing could produce one. **And this is
+the answer to a "delete my data" request**, which is the one legal letter that
+arrives without warning: you cannot hand something over or wipe it if you
+cannot see all of it in one place.
+
+**The decision that makes it stay correct.** It does not use a list of tables I
+typed out. It asks the database which tables belong to a business and exports
+those. **A list would go stale the first time we add a table — and silently**:
+the export would succeed, the file would look complete, and the missing part
+would be discovered by the person who no longer has their copy. This way, a
+table added next month is in next month's export with nobody remembering.
+
+**Two things are yours and deliberately stay out of it:** the record of what
+you did to their account (including if you ever signed in as them), and your
+own private note about them. Their invoices from us **are** in it — what they
+paid you... paid *us*, rather, is their record too, and it is the half an
+accountant asks for.
+
+**What I verified, and what it printed.** The export ran as the admin account
+(31 tables), a detailer asking for it got **404**, nobody at all got **401**,
+and **a signed-in admin's own browser calling the underlying function directly
+got 403** — the same floor the rest of that screen stands on. The download
+works in a real browser and saves as `their-address-2026-09-06.json`. Every
+export is written into the log with the size, never the contents.
+
+**And pressing the button found something nothing else could have.** Every
+confirmation message on that screen — *"Saved."*, *"Suspended"*, *"Invite sent
+to…"* — was being drawn and wiped in the same instant by the refresh that
+followed it. **The actions all worked; the sentence saying so was never on
+screen long enough to read.** Fixed, and there is now a check for it.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

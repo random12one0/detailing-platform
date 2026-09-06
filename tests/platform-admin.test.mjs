@@ -256,5 +256,66 @@ console.log("\n8. their site");
     "the previous address is the useful half, and `biz` must select it or every entry says null");
 }
 
+
+// ─── 9. Item H: everything they own, as one file ──────────────────────────
+// `/terms` says a detailer's list, bookings and history are theirs and they
+// can have a copy by asking, and nothing could produce one. It is also the
+// answer to a customer-data deletion request — the one legal ask that arrives
+// without warning.
+console.log("\n9. taking their data with them");
+{
+  const mig = strip(read("supabase/migrations/20260906005000_export_business.sql"));
+  const f = strip(fn);
+  const p = strip(page);
+
+  // THE TABLES ARE DISCOVERED, NOT LISTED. A hand-written list goes stale the
+  // first time somebody adds a table, and the failure is SILENT: the export
+  // succeeds, the file looks complete, and the missing table is found by the
+  // person who no longer has it.
+  check("9a · the tables are discovered from the catalog",
+    /information_schema\.columns/.test(mig) && /column_name = ''/.test(mig),
+    "a hand-written list of twenty tables is a list that goes stale silently");
+  check("9b · by the same rule every RLS policy uses — a `business_id`",
+    /business_id/.test(read("supabase/migrations/20260906005000_export_business.sql")));
+
+  // TWO THINGS ARE OURS AND MUST NOT LEAVE IN IT: the audit trail of what the
+  // platform owner did to their account, and the platform's private note about
+  // them. Both sit inside the same shapes as their own data, which is exactly
+  // how they would slip out.
+  const raw = read("supabase/migrations/20260906005000_export_business.sql");
+  check("9c · the audit log is excluded by name",
+    /c\.table_name <> 'platform_admin_events'/.test(raw));
+  check("9d · and the platform's private note is stripped from the row",
+    /- 'admin_notes_platform'/.test(raw));
+
+  // THE SAME SECURITY FLOOR AS EVERYTHING ELSE HERE. One call returns every
+  // customer, every booking and every price of one business — the exact shape
+  // § 1 exists to keep out of a browser.
+  check("9e · the function is service-role only",
+    /revoke all on function public\.export_business\(uuid\) from public, anon, authenticated/.test(raw)
+      && /grant execute on function public\.export_business\(uuid\) to service_role/.test(raw),
+    "proven live: a signed-in admin's browser calling the RPC directly gets 403");
+
+  check("9f · the back office reaches it through the gate, like every other action",
+    /action === "export"[\s\S]{0,400}supabase\.rpc\("export_business"/.test(f));
+  // Logged even though it writes nothing: "who took a copy, and when" is
+  // exactly what a detailer is entitled to ask. The row carries the SIZE, not
+  // the file.
+  check("9g · and it is written down, with the size rather than the contents",
+    /logIt\(admin, "export", biz, \{ tables: Object\.keys/.test(f));
+
+  // DOWNLOADED, NOT DISPLAYED. It is every customer and every booking they
+  // have, and a screen that prints that is a screen somebody leaves open.
+  check("9h · the screen hands over a file rather than drawing it",
+    /URL\.createObjectURL/.test(p) && /a\.download = /.test(p)
+      && !/<pre>\{JSON\.stringify\(r\.export/.test(p));
+
+  // FOUND BY PRESSING A BUTTON AND LOOKING. Every confirmation on this screen
+  // was set and then wiped by the refresh that followed it, in the same tick.
+  check("9i · a confirmation survives the refresh that follows it",
+    /openBusiness\(open, true\)/.test(p) && /if \(!keepMsg\) setMsg\(null\)/.test(p),
+    "the action worked, the list refreshed, and the only thing missing was the sentence saying so");
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
