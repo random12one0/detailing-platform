@@ -1484,7 +1484,16 @@ explaining it; if they still have to ask "so should I?", it failed.
   **`seed-demo.mjs` SEEDS THE DEMO AS `plan_tier: 'founding'`** so the struck
   prices are the DEFAULT swept state — a strike only exists on a founding
   account, and seeded standard the whole treatment would be measured nowhere.
-  It costs one of the three spots, so `founding_offer()` reads 2 of 3.
+  **IT USED TO COST ONE OF THE THREE SPOTS AND NO LONGER DOES — roadmap 6.2,
+  2026-09-06.** `businesses.is_demo` is excluded from `founding_offer()` AND
+  from `claim_founding_spot()` (they must move together, or the page
+  advertises a spot the claim then refuses), so the demo still renders the
+  struck founding prices and `founding_offer()` reads **3 of 3**. The roadmap
+  had required this since it was written and the product had been quietly
+  breaking it: the public page prints that answer, so a demo in the count told
+  every visitor *"2 of 3 left"* when three were — harmless while nobody has
+  signed up, and **a false scarcity claim the day a real detailer takes the
+  second**. `seed-two-tenants.mjs` marks its two as well.
 - **A SCREEN WAITING ON AN EDGE FUNCTION IS PERFECTLY QUIET, AND BOTH
   `settle()`s USED TO RETURN ON IT — fixed 2026-09-05, and it is the widest
   form yet of "a skipped check reads like a passing one".** No spinner, no

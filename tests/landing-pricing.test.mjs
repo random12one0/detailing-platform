@@ -370,5 +370,56 @@ console.log("\ntest 8: the plan buttons lead to the pricing page");
   }
 }
 
+
+// ══ ROADMAP 6.2 — A DEMO MUST NOT CONSUME A FOUNDING SPOT ═════════════
+// The page PRINTS `founding_offer()`'s answer, so a seeded business inside
+// that count tells every visitor a spot is gone. Harmless while nobody has
+// signed up; **a false scarcity claim the day a real detailer takes the
+// second** — the exact class of statement test 7b already refuses ("most
+// popular" with no customers).
+console.log("\ntest 9: the founding count ignores demo businesses");
+{
+  const { readdirSync, readFileSync } = await import("node:fs");
+  const migrations = readdirSync("supabase/migrations").filter((f) => f.endsWith(".sql")).sort();
+  // THE LAST DEFINITION WINS, because these files are append-only and are
+  // applied in order. Reading the first one would pin a rule a later
+  // migration has already replaced — which is how a check keeps passing about
+  // code nothing runs.
+  const lastDefining = (needle) => {
+    let out = null;
+    for (const f of migrations) {
+      const sql = readFileSync(`supabase/migrations/${f}`, "utf8");
+      if (!sql.includes(needle)) continue;
+      // BOUNDED TO THE FUNCTION'S OWN BODY. Slicing to the end of the file
+      // was the first version and it was VACUOUS: `founding_offer` and
+      // `claim_founding_spot` live in the same migration, so 9b passed on
+      // 9c's text with `not is_demo` deleted from the count. Found by
+      // baselining, not by reading — the check looked right.
+      const body = sql.slice(sql.lastIndexOf(needle));
+      const end = body.indexOf("$$;");
+      out = end === -1 ? body : body.slice(0, end);
+    }
+    return out;
+  };
+  const offer = lastDefining("create or replace function public.founding_offer()");
+  const claim = lastDefining("create or replace function public.claim_founding_spot(");
+  check("9a · the count has a definition to read", !!offer && !!claim);
+  check("9b · the remaining count ignores demos",
+    /plan_tier = 'founding'[\s\S]{0,120}not is_demo/.test(offer ?? ""));
+  // THEY MUST MOVE TOGETHER. A count that excludes demos beside a claim that
+  // does not would advertise a spot and then refuse it, which is worse than
+  // either being wrong alone.
+  check("9c · and so does the claim, or the page offers a spot the claim refuses",
+    /plan_tier = 'founding'[\s\S]{0,120}not is_demo/.test(claim ?? ""));
+  const seed = readFileSync("scripts/seed-demo.mjs", "utf8");
+  check("9d · the seeded demo says it is one",
+    /is_demo:\s*true/.test(seed) && /is_demo:\s*true/.test(readFileSync("scripts/seed-two-tenants.mjs", "utf8")));
+  // The demo stays FOUNDING on purpose (roadmap 2.20 stage 2): a strike is
+  // only drawn on a founding account, so seeded standard the whole treatment
+  // would be measured nowhere.
+  check("9e · and is still founding, so the struck prices stay the swept state",
+    /plan_tier:\s*"founding"/.test(seed));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

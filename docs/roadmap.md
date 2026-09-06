@@ -6261,8 +6261,51 @@ is kept; the entire visual design restarts from scratch.
       detailer; build its full site from tenant config only. Real stock
       photography — **OWNER supplies photos if sourcing fails; never gray
       boxes.**
+
+      **HALF OF IT HAS EXISTED SINCE 2026-08-30 AND THE OTHER HALF IS BLOCKED
+      ON HIS TASTE — 2026-09-06.** Coastline Auto Detailing is invented,
+      obviously fictional, marked `is_demo`, and its BOOKING page is already
+      drawn from tenant config alone. What is not built is its own marketing
+      SITE, and that is exactly what `docs/tenant-site-research-2026-09-05.md`
+      §7 is open about: **three pages passed every check in this repo and he
+      still said they look AI**, so a fourth guess is how this item burns a
+      third attempt. **What unblocks it is two or three detailer sites whose
+      vibe he likes** — question 0 in `docs/overnight-log.md`.
 - [ ] 6.2 Seed ~3 months of obviously-fictional history + a reset script
       proven to restore exact state. Must not consume a founding spot.
+
+      **THE FOUNDING HALF WAS BEING BROKEN AND IS FIXED — 2026-09-06.**
+      `20260906004000_demo_businesses.sql` adds `businesses.is_demo` and
+      excludes it from **both** `founding_offer()` and
+      `claim_founding_spot()`. They had to move together: a count that
+      ignores demos beside a claim that does not would advertise a spot and
+      then refuse it.
+      **The requirement has been in this line since the roadmap was written
+      and the product started breaking it on 2026-09-05**, when 2.20 stage 2
+      seeded the demo as `founding` so the struck prices would be the default
+      swept state. That reasoning is still right and the demo is still
+      founding; what changed is that **the public page stopped printing "2 of
+      3 left" when three were.** Harmless while nobody has signed up, and **a
+      false scarcity claim the day a real detailer takes the second** — the
+      class of statement `/pricing` refuses everywhere else. Measured:
+      `founding_offer()` now answers `{"left":3,"total":3}` with the demo
+      still `plan_tier = 'founding'`.
+
+      **AND "PROVEN TO RESTORE EXACT STATE" IS NOW A CHECK RATHER THAN A
+      PRINTED NUMBER.** *Exact* is the wrong word and the seed says so: every
+      date is relative to today (that is the point — the demo has a today, a
+      tomorrow and a history whichever day it runs) and every id is generated.
+      **What is restorable is the SHAPE**, and `seed-demo.mjs` now reads back
+      what it wrote and exits 1 on any mismatch. It already PRINTED its counts;
+      a printed count is one nobody reads on a green run, and a half-finished
+      seed printed a smaller number and the word "ready" in the same breath —
+      whose first symptom is a sweep reporting `NO SUCH ROW` on a screen that
+      is merely empty. Baselined: an expectation off by one prints *"expenses:
+      wrote 12, meant 13"* and stops.
+
+      **The ~3 months was already there and is nearer eight** — 31 bookings
+      spread back 223 days, including the five lapsed clients roadmap 2.19
+      needed.
 
 ## Phase 7 — Launch readiness
 

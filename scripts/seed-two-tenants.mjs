@@ -88,6 +88,11 @@ for (const t of TENANTS) {
   await del(`/rest/v1/businesses?slug=eq.${t.slug}`);
   const biz = (await post("/rest/v1/businesses", [{
     slug: t.slug, name: t.name, timezone: t.timezone,
+    // ROADMAP 6.2 — a demo is never counted against the founding cap. These
+    // two are standard-tier today, so it changes nothing yet; marking them is
+    // what stops the next person who makes one founding from quietly telling
+    // every visitor a spot is gone.
+    is_demo: true,
     contact_phone: t.contact_phone, contact_email: t.contact_email,
     service_area: t.service_area, dropoff_address: t.dropoff_address,
   }]))[0];

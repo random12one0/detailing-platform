@@ -100,10 +100,16 @@ const [business] = await post("/rest/v1/businesses", [{
   // `nowrap` cell on `/pricing`, and a struck price inside a `.figure` on the
   // billing screen) would exist in no measurement anywhere. *A configuration
   // nothing seeds is a configuration nothing tests.*
-  // It costs one of the three spots, so `founding_offer()` reads 2 of 3 on the
-  // seeded database — which is also the more interesting state for the strip
-  // that prints the count.
+  // IT USED TO COST ONE OF THE THREE SPOTS, and roadmap 6.2 stopped that on
+  // 2026-09-06: *"must not consume a founding spot"*, which the roadmap has
+  // said since it was written and the product had been quietly breaking. The
+  // public page prints `founding_offer()`'s answer, so a demo in that count
+  // told every visitor "2 of 3 left" when three were — harmless today and a
+  // FALSE SCARCITY CLAIM the day a real detailer takes the second.
+  // `is_demo` is what the count now ignores, so the strike still renders and
+  // the number is true.
   plan_tier: "founding",
+  is_demo: true,
   // NOT `OWNER.email` — that is a SIGN-IN, and this is a MAILBOX. Found doing
   // roadmap 2.5 (2026-09-04): `notification_emails` is empty on the demo, so
   // every owner alert falls back to this address, and `detailplatform.com` is
@@ -935,6 +941,47 @@ if (process.argv.includes("--platform-admin")) {
       platformAdmin: adminCreds,
     }, null, 2)}\n`,
   );
+}
+
+// ROADMAP 6.2 — "a reset script proven to restore exact state".
+//
+// **EXACT is the wrong word and it is worth saying why rather than quietly
+// doing something weaker.** Every date here is relative to TODAY (that is the
+// whole point: the demo has a today, a tomorrow and a history no matter which
+// day it is run) and every id is generated, so no two runs can be identical.
+// **What is restorable is the SHAPE**, and that is what a re-seed has to be
+// trusted for: the same number of bookings, customers, services, plans and
+// expenses, every time.
+//
+// AND IT ASSERTS RATHER THAN PRINTS. This script already printed its counts,
+// and a printed count is a count nobody reads on a green run — a half-finished
+// seed (one refused insert, one 409) prints a smaller number and the word
+// "ready" in the same breath, and the first symptom is a sweep reporting `NO
+// SUCH ROW` on a screen that is simply empty. **A skipped check reads exactly
+// like a passing one** is this repo's most repeated finding; a printed one is
+// the same failure with more characters.
+const readBack = async (table) =>
+  (await get(`/rest/v1/${table}?business_id=eq.${business.id}&select=id`)).length;
+
+const owed = {
+  bookings: made,
+  customers: customers.length,
+  services: services.length,
+  add_ons: addOns.length,
+  expenses: EXPENSES.length,
+  plans: planRows.length,
+  testimonials: REVIEWS.length,
+};
+const wrong = [];
+for (const [table, expected] of Object.entries(owed)) {
+  const actual = await readBack(table);
+  if (actual !== expected) wrong.push(`${table}: wrote ${actual}, meant ${expected}`);
+}
+if (wrong.length) {
+  console.error("\nThe seed did NOT restore the demo's shape:");
+  for (const w of wrong) console.error(`  ! ${w}`);
+  console.error("Re-run it. A half-seeded demo makes every sweep report a screen that is simply empty.");
+  process.exit(1);
 }
 
 const counts = await get(`/rest/v1/bookings?business_id=eq.${business.id}&select=id`);

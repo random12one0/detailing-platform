@@ -853,6 +853,53 @@ own text says happens only on your sign-off.
 
 ---
 
+## Roadmap 6.2 — the demo stops eating one of your three founding spots
+
+**What changed.** Your landing page and pricing page print how many founding
+spots are left, counted from the accounts themselves rather than typed in — so
+it can never advertise a spot that is gone. **The demo business was being
+counted.** Every visitor has been told *"2 of 3 left"* when three are.
+
+**Why it mattered less than it will.** Nobody has signed up, so today it is an
+understatement that costs nothing. The day a real detailer takes the second
+spot, the page says one is left while two are — and a scarcity claim that is
+not true is exactly the kind of sentence the pricing page refuses everywhere
+else (it has no "most popular" for the same reason).
+
+**The fix, and the small judgement call in it.** A new *this is a demo* mark on
+the business, which the count ignores — rather than excluding the demo by its
+web address inside the database, which would break silently the moment a second
+demo exists or the first is renamed. Roadmap 6.1 is a second demo. **The demo
+still shows the founding prices**, which is deliberate: the crossed-out
+"regular price" you asked for only appears on a founding account, so seeded any
+other way it would be photographed nowhere.
+
+**And "a reset script proven to restore exact state", which the roadmap asks
+for, is now actually proven.** *Exact* is impossible on purpose — every date is
+worked out from today, so the demo always has a today and a tomorrow — but the
+SHAPE is: the same number of bookings, customers, services, plans and expenses
+every time. The seed now reads back what it wrote and **stops with an error**
+if anything is short. It used to print the numbers, and a printed number on a
+green run is one nobody reads: a half-finished seed printed a smaller figure
+and the word "ready" in the same breath, and the first thing you'd notice is a
+screen that looks empty for no reason.
+
+**What I verified, and what it printed.** After the change,
+`founding_offer()` answers **`{"left":3,"total":3}`** with the demo still
+marked founding. Five new checks in `landing-pricing` (**72/72**), and
+**baselining caught one of them being useless** — the check that the COUNT
+ignores demos was reading the text of the function next to it, so it passed
+with the rule deleted. It reads only its own function now. The seed's own check
+was baselined too: expecting one expense too many prints *"expenses: wrote 12,
+meant 13"* and stops.
+
+**Roadmap 6.1 — the demo's own website — is the one thing here I did not
+build**, and it is question 0 below: three attempts at a detailer site have
+passed every check in this repo and you still said they look AI, so a fourth
+guess is not the answer.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*
