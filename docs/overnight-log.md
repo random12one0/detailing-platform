@@ -1284,6 +1284,37 @@ no information in it about something that runs four times an hour.
 
 ---
 
+## The questions to ask a detailer before building their site
+
+**What changed.** `docs/tenant-site-intake.md` — the twelve questions you ask
+somebody who has just bought a website, and the reasoning for each.
+
+**The thing that makes it worth having.** You said most detailers *"will not
+know what they want in the abstract"*, and the obvious version of this is a
+questionnaire asking for their services, prices and hours. **That would be
+asking them to type their business in twice** — they already did it in their
+dashboard — **and it would create a second copy that goes stale the day they
+change a price on their phone**, which is the one thing we promise them.
+
+So every question in it is one the database cannot answer: how they started,
+what they refuse to do, what they are proud of that a customer would not know,
+what annoys them about their current site, and what they actually want somebody
+to DO on it. That last one has a real consequence — if the honest answer is
+*"ring me"*, the site is shaped around a phone number and the booking form is
+secondary.
+
+**The half I did not build, on purpose.** You asked for questions *with
+examples to choose from*. The three example pages we have passed every check in
+this repo and you still said they look AI — so putting them in front of a
+paying detailer would be asking them to pick from three things we already know
+are wrong. **That is question 0 below**, and it is the one thing that unblocks
+this.
+
+**And it is a document rather than a screen** because there is no website
+customer yet, and a screen with an empty examples section is half a feature.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

@@ -6648,7 +6648,30 @@ recommendation.
   `sendTenantEmail` is best-effort. **Pro is ~$20/month.** **Recommendation: the SPF record
   and the Resend account belong in Phase 7; the `en-US` is a one-line fix
   whenever a tenant outside the US exists.**
-- **J. THE WEBSITE INTAKE FORM IS DESCRIBED IN 3.4 AND SCHEDULED NOWHERE.** His
+- **J. ~~THE WEBSITE INTAKE FORM IS DESCRIBED IN 3.4 AND SCHEDULED
+  NOWHERE~~ — THE QUESTIONS HALF IS WRITTEN: `docs/tenant-site-intake.md`
+  (2026-09-06). THE EXAMPLES HALF IS BLOCKED ON HIS TASTE.**
+  **THE RULE THAT SHAPES IT: only ask what the product does not already know.**
+  Half of what a site needs is in the database because the detailer typed it
+  into their dashboard — services, prices, hours, travel area, colour, gallery,
+  reviews, FAQs, payment handles, all twelve of contract § 2 — so **an intake
+  that asks for services is one that asks them to type their business in twice,
+  and creates a second copy that goes stale the day they change a price in
+  their pocket**, which is the one thing this product promises they can do.
+  Every one of the twelve questions is one the database cannot answer: their
+  story, what they refuse to do, what they are proud of, what they dislike
+  about their current site, and what they actually want a visitor to DO.
+  **THE EXAMPLES ARE NOT BUILT AND MUST NOT BE FAKED.** He asked for questions
+  *"with examples to choose from"*; the three worked pages in
+  `docs/tenant-sites/` passed every check here and **he still said they look
+  AI**, so showing them would be asking a detailer to pick from three things we
+  already know are wrong. Question 0 in `docs/overnight-log.md` is what unblocks
+  it.
+  **It is deliberately a document rather than a screen**: there is no website
+  customer yet, and a screen with an empty examples section is half a feature.
+  The finding as written:
+
+  **J. THE WEBSITE INTAKE FORM IS DESCRIBED IN 3.4 AND SCHEDULED NOWHERE.** His
   own words: most detailers *"will not know what they want in the abstract"*.
   **Recommendation: make it a 3.1 deliverable** — it is the input to every
   bespoke site and it is the first thing a new website customer meets.

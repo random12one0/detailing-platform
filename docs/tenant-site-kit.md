@@ -239,6 +239,12 @@ be built by our bot."* Nothing is sold before this exists, so there is no
 hand-built site to be inconsistent with and no gap between what the sales page
 promises and what is here.
 
+**THE QUESTIONS ARE WRITTEN NOW — `docs/tenant-site-intake.md` (2026-09-06),
+and its § 1 is the part that matters: only ask what the product does not
+already know, because half of what a site needs is in the database and an
+intake that asks for it again creates a second copy that goes stale. The
+EXAMPLES half is still blocked on the owner's taste.** The original note:
+
 **NOT BUILT, AND WORTH KNOWING ABOUT: the intake form.** The owner described it
 2026-08-29 — a short set of questions a detailer answers about their website,
 *with examples to choose from*, "because most of them will not know what they
