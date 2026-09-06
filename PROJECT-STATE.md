@@ -6023,7 +6023,13 @@ three of five screens were never reached. It now photographs each guide, notes
 its caption, skips it, and measures the screen only afterwards. **The rule
 generalises: the guides go into EVERY script that walks the product, in the
 change that builds them** — 2.24's own note said this and then named only the
-sweep, which is why only the sweep was fixed.
+sweep, which is why only the sweep was fixed. **`shoot-dashboard.mjs` was the
+THIRD, and the only one found by acting on the rule rather than by another
+accident: with it written down, every script that signs into the dashboard was
+run.** It takes the sweep's treatment (pictures of the product must not have an
+overlay across them). Clean: `accent-sweep.mjs`; not applicable:
+`shoot-manage.mjs` (takes a booking id, never reaches a tab), `e2e-booking.mjs`
+and `sweep-booking-steps.mjs` (public booking page, no guides).
 
 **It also measures fill now**: the deepest drawn edge inside `.app-main`
 against the viewport, desk widths only, printing THIN below 45%. Baseline

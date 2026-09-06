@@ -217,6 +217,28 @@ for (const [w, h] of WIDTHS) {
     signedIn = await ctx.storageState();
   }
   await page.waitForSelector(".tabbar", { timeout: 30000 });
+  // ROADMAP 2.24 — MARK EVERY GUIDE SEEN BEFORE ANYTHING IS PHOTOGRAPHED.
+  //
+  // A tab guide arrives the first time THIS BROWSER opens that tab and
+  // `.tourblock` swallows pointer events, so this script died on its first
+  // press of Clients. **THE THIRD SCRIPT BROKEN BY THE GUIDES AND THE THIRD
+  // FOUND SEPARATELY** — the sweep was fixed the day they shipped,
+  // `final-pass.mjs` and this one were not, because 2.24's note named only
+  // the sweep. The rule is: EVERY script that walks the product, in the
+  // change that builds the guide.
+  //
+  // This one takes the SWEEP's treatment rather than the final pass's: these
+  // are pictures of the product, and an overlay across the middle of every
+  // one of them is not a picture of the product. (`final-pass.mjs` does the
+  // opposite on purpose — meeting the guides unasked is what it is for.)
+  await page.evaluate(() => {
+    try {
+      localStorage.setItem("dp.tours", JSON.stringify(["shell", "today", "money", "clients", "business"]));
+      localStorage.setItem("dp.tour", "1");
+    } catch { /* private mode */ }
+  });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForSelector(".tabbar", { timeout: 30000 });
   await settle(page, 2500);
 
   if (ACCENT) {

@@ -1643,6 +1643,14 @@ have already been seen, because it is measuring an experienced account; this
 one must meet them, because meeting them IS what it is for. It now
 photographs each guide, writes down what it said, and steps past it.
 
+**Then I checked the rest instead of assuming, and found a third one.** The
+script that takes the product's screenshots was broken the same way and in
+the same place. That one gets the opposite treatment — a guide sitting across
+the middle of a screenshot is not a screenshot of your product. **One feature
+quietly broke three scripts, and I found each of them separately.** The two
+that were left had been broken for hours without anything going red, which is
+the part worth remembering.
+
 **A second broken check, found the same way.** One of the source checks
 compares a chunk of code letter for letter, and a routine Git operation on
 Windows silently rewrites every line ending in a file. It went red on code

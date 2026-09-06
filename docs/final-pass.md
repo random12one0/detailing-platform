@@ -177,6 +177,17 @@ noted, and then skipped — the path a detailer in a hurry takes — and the
 screen is measured only after it is gone, or every number above would have
 been a number about an overlay.
 
+**AND THEN A THIRD SCRIPT, found by acting on the rule instead of waiting for
+the next accident.** With the general rule written down, every script in the
+repo that signs into the dashboard was run: `shoot-dashboard.mjs` died on the
+same press of Clients. It takes the sweep's treatment rather than this one's —
+these are pictures of the product, and an overlay across the middle of every
+one of them is not a picture of the product. `accent-sweep.mjs` was clean,
+`shoot-manage.mjs` takes a booking id and never reaches a tab, and
+`e2e-booking.mjs` and `sweep-booking-steps.mjs` drive the public booking page,
+where there are no guides. **Three scripts broken by one feature, each found
+separately — which is the actual lesson, more than any one of the fixes.**
+
 ### 4. ~~Today offers the booking link before there is anything to book~~ FIXED
 
 **Fixed 2026-09-06.** With no active services Today says *"Nobody can book yet
