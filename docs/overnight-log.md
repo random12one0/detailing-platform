@@ -796,6 +796,63 @@ mispriced; the sentence just stopped sounding like it meant it.
 
 ---
 
+## Roadmap 5.1 — moving your own business onto the platform
+
+**What changed.** The program that copies your old site's data into the
+platform: `scripts/import-legacy.mjs`, the rules it follows in
+`scripts/legacy-map.mjs`, 47 checks over those rules, and a plain-language plan
+in `docs/migration-plan-2026-09-06.md`.
+
+**I could not run it, and that is the honest headline.** The key in this repo
+opens the PLATFORM's database and answers **403** for the old site's. So the
+program has never touched real data. **Question 4 below is the one thing it
+needs from you.**
+
+**So I split it in the way that makes the untested half harmless.** A plumbing
+failure is loud — a refused login, a run that stops. **A mapping failure
+imports perfectly and is wrong**: every job seven hours early, a discount
+charged as an extra, a total that no longer adds up. You would have to
+disbelieve your own records to notice. So all the *rules* live in one file that
+needs no database at all, and that file is fully tested; the part that fetches
+and inserts is deliberately thin.
+
+**The one that would have bitten.** Your old bookings store a date and a time
+and **no timezone**, because that site only ever served you. This platform
+stores an exact moment. Read them the wrong way and every job in eight months
+of history moves seven or eight hours — a five o'clock job lands on the
+next day. Six of the checks are about nothing else, including one that proves a
+January booking sits an hour further from UTC than a July one, which is exactly
+what a lazier version gets wrong.
+
+**Three more I found and refused to paper over:**
+- **Your old add-ons table did two jobs** — real extras, and discounts. On
+  the platform an add-on is something a customer PAYS for, so a $25 discount
+  imported as an add-on charges the next customer $25. Those rows are refused
+  and listed by name.
+- **Your old monthly plans do not convert.** An old plan is a discount with no
+  price; a plan here needs a cadence and what the member pays. They are
+  different objects, and anyone on one would be moved across by hand.
+- **Old booking links keep working.** Where both databases use the same kind of
+  id I kept it, so every `/booking/…` link you have ever emailed a customer
+  opens the right job on the new platform — and re-running the import
+  updates rows instead of doubling your history.
+
+**What I verified, and what it printed.** `tests/legacy-import.test.mjs`
+**47/47**, and **four of them baselined by breaking what they guard**: reading
+the date and time as UTC fails 5 checks, dropping the discount's label fails 1,
+copying the promo twice fails 2 (including the one that proves the total still
+adds up), and removing the vocabulary guard fails 1. The program's four
+refusals were exercised for real — no business named, an unknown business,
+a business that already has bookings, and a source database that is not the old
+site — each printing a sentence that says what to do rather than a stack
+trace.
+
+**Roadmap 5.2 and 5.3 are yours and I skipped them:** 5.2 is you using the
+platform daily for a week, and 5.3 points andrewsdetail.com at it, which its
+own text says happens only on your sign-off.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*
@@ -922,6 +979,29 @@ already overruled a "sensible" number once for a good reason ($999 rather than
 $900 because it reads more professional). A form that refuses your own decision
 is a form you stop trusting. If you would rather it refused, say **"refuse"**
 and it is a ten-minute change.
+
+### 4. The old site's database key — the one thing blocking the move
+
+**What this is.** To copy your bookings, customers and history onto the
+platform, the program has to be able to READ the old site's database. The key
+saved in this project only opens the new one; the old one refuses it. The key I
+need is on the old project's own settings page, under API — the
+"service role" one.
+
+**What happens if you send it.** I run the copy in report-only mode first: it
+prints how many customers, how many bookings, what it refused and why, and
+changes nothing. You read that, and only then do we run it for real.
+**Nothing is ever written to the old site** — it is read-only there, and
+your live bookings carry on exactly as they are.
+
+**What happens if you don't.** Nothing breaks; the platform simply starts
+empty when you switch, and eight months of history stays on the old site.
+
+**My recommendation: send it when you are ready to start using the platform
+yourself, not before.** It is a full-access key, so paste it into the terminal
+for the one command rather than into a file — and if you would rather not
+hand it over at all, the alternative is you running the two commands yourself
+from the plan in `docs/migration-plan-2026-09-06.md`.
 
 ---
 

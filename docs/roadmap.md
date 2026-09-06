@@ -6204,10 +6204,56 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 5.1 Migration script: copy customers, bookings, services, history
       from the old project into the platform as a new business. Test on a
       copy first.
+
+      **BUILT 2026-09-06 AND IT CANNOT BE RUN FROM THIS MACHINE — the box
+      stays unticked for that reason and no other.** `scripts/legacy-map.mjs`
+      (the rules), `scripts/import-legacy.mjs` (dry-run by default),
+      `tests/legacy-import.test.mjs` (47 checks, four baselined) and
+      `docs/migration-plan-2026-09-06.md`. **The access token in `.env`
+      answers 403 for project `adtlnvihwrcqcasqcjwd`**, so the source database
+      is unreachable; what is owed is one credential and it is the owner's.
+
+      **THE MAPPING IS SEPARATED FROM THE PLUMBING BECAUSE THE MAPPING IS WHAT
+      CAN BE WRONG.** A plumbing failure is loud — a 401, a constraint, a run
+      that stops. A mapping failure imports cleanly and is WRONG: every job
+      seven hours early, a discount charged as an extra, a total that no longer
+      adds up to its own lines. **The owner would have to disbelieve his own
+      records to find it.** So `legacy-map.mjs` is a pure function over plain
+      objects and is fully tested with no database at either end.
+
+      **THE CLOCK IS THE RISK.** The old `bookings` table stores a DATE and a
+      TIME with no zone, because that site served one business in one place;
+      this platform stores an instant. **Reading the pair as UTC moves eight
+      months of history by seven or eight hours** — a 17:00 job lands on the
+      next day. The conversion goes through `_shared/tz.ts`, the same code the
+      product books with, and one check proves a January booking is an hour
+      further from UTC than a July one, which is exactly what a fixed offset
+      gets wrong.
+
+      **IDS ARE PRESERVED WHERE BOTH SIDES USE UUIDS** — bookings, packages,
+      add-ons, promo codes — so the run is IDEMPOTENT (a dry run, a fix and a
+      real run cost nothing) and **every `/booking/:id` link the old site ever
+      emailed still opens the right job here.** `customers.id` was a bigint,
+      so that one map is built in memory and is why customers insert first.
+
+      **AND FOUR THINGS DELIBERATELY DO NOT COME ACROSS**, each printed on
+      every run rather than dropped quietly: the referral columns (4.2 item P
+      is open — what a referral EARNS is a decision nobody has made), the old
+      `add_ons` rows that are really DISCOUNTS (**a $25 discount imported as an
+      add-on charges the next customer $25**), `monthly_plans` (a discount with
+      no price is not this platform's plan — 4.3 closed into 2.14 for that
+      reason), and `line_items` (a money line here needs a KIND, and one the
+      receipt cannot draw is a total that stops adding up).
 - [ ] 5.2 Parallel run: real bookings stay on the old site while **OWNER
       uses the platform daily** and reports everything missing or wrong.
+      **OWNER — skipped 2026-09-06 and logged.** It is the owner working on
+      the platform for a week; nothing here can do it for him, and 5.1 above
+      is what makes it possible.
 - [ ] 5.3 Domain cutover (andrewsdetail.com → platform) — LAST, only on
       owner sign-off. Nothing on the old site is decommissioned before.
+      **OWNER — skipped 2026-09-06 and logged.** Its own text says "only on
+      owner sign-off", and it points the live business's domain at this
+      product.
 
 ## Phase 6 — The demo business
 

@@ -648,6 +648,21 @@ explaining it; if they still have to ask "so should I?", it failed.
   especially: an unescaped comma inside `ADR` ends the field and the phone
   drops the rest of the address with no error. Baselined by removing the
   escaping, which fails 6 including the cross-copy check),
+  **`legacy-import`** (47 checks, new 2026-09-06, roadmap 5.1 — the old
+  site's rows becoming this platform's. **It exists because the import cannot
+  be RUN**: the access token in `.env` answers 403 for project
+  `adtlnvihwrcqcasqcjwd`, so `scripts/import-legacy.mjs`'s I/O half has never
+  executed, and the mapping was split into `scripts/legacy-map.mjs` — a pure
+  function over plain objects — precisely so the half that can be WRONG is
+  checkable without either database. **A plumbing failure is loud; a mapping
+  failure imports cleanly and is wrong.** § 1 is six checks about nothing but
+  the CLOCK: the old `bookings` table stores a date and a time with NO ZONE,
+  this platform stores an instant, and reading the pair as UTC moves eight
+  months of history by seven or eight hours. One check proves a January
+  booking is an hour further from UTC than a July one, which is what a fixed
+  offset gets wrong. Baselined four ways: the UTC read fails 5, the money
+  line's missing `kind` fails 1, the promo copied twice fails 2, the
+  vocabulary guard removed fails 1),
   **`platform-admin`** (**40 checks** — 34 at stage 1, new 2026-09-05, roadmap 4.4 — **the one
   screen where a bug exposes every tenant at once**, and the file exists
   because most of what it guards is the ABSENCE of something no behavioural
