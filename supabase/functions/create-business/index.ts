@@ -16,6 +16,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { createBusinessRow } from "../_shared/newBusiness.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -29,63 +30,36 @@ Deno.serve(async (req) => {
     if (userErr || !user) return json({ error: "Unauthorized" }, 401);
 
     const body = await req.json();
-    const name = String(body.name || "").trim();
-    const slug = String(body.slug || "").trim().toLowerCase();
-    const timezone = String(body.timezone || "").trim();
 
-    if (!name) return json({ error: "A business name is required." }, 400);
-    if (!/^[a-z0-9][a-z0-9-]{1,62}$/.test(slug)) {
-      return json({ error: "Choose a web address using lowercase letters, numbers and dashes." }, 400);
-    }
-    if (!timezone) {
-      return json({ error: "Choose your timezone — every booking time depends on it." }, 400);
-    }
-    // Validate against the real tz database before writing (the database
-    // trigger would also reject it; this returns a friendlier message).
-    try {
-      new Intl.DateTimeFormat("en-US", { timeZone: timezone });
-    } catch {
-      return json({ error: `"${timezone}" is not a recognized timezone.` }, 400);
-    }
+    // ROADMAP 4.4 STAGE 2 — THE ROW AND ITS DEFAULTS MOVED TO
+    // `_shared/newBusiness.ts`, unchanged. The back office can now create a
+    // business by hand for in-person onboarding, and a second copy of "what a
+    // new business is" is where two kinds of business start to differ
+    // quietly: one with no settings row renders a dashboard of nulls, one
+    // with no hours has a booking page that can never be booked. Neither
+    // throws.
+    const made = await createBusinessRow(supabase, {
+      name: body.name,
+      slug: body.slug,
+      timezone: body.timezone,
+      // SIGNUP'S OWN FALLBACK, which the shared helper deliberately does not
+      // have: here there is a session, so the caller's own address is the
+      // sensible default. The back office has no session to fall back to.
+      contact_email: body.contact_email?.trim() || user.email || null,
+      contact_phone: body.contact_phone,
+      dropoff_address: body.dropoff_address,
+      service_area: body.service_area,
+    });
+    if (made.error || !made.business) return json({ error: made.error }, made.status ?? 400);
+    const business = made.business;
 
-    const { data: existing } = await supabase.from("businesses").select("id").eq("slug", slug).maybeSingle();
-    if (existing) return json({ error: "That web address is already taken." }, 409);
-
-    const { data: business, error } = await supabase
-      .from("businesses")
-      .insert({
-        name,
-        slug,
-        timezone,
-        contact_email: body.contact_email?.trim() || user.email || null,
-        contact_phone: body.contact_phone?.trim() || null,
-        dropoff_address: body.dropoff_address?.trim() || null,
-        service_area: body.service_area?.trim() || null,
-      })
-      .select()
-      .single();
-    if (error) throw error;
-
-    // Owner membership, default settings and branding so the dashboard has
-    // something coherent to render on first load — plus a working week, so
-    // the booking page has open days from the moment it exists. A new
-    // business with no hours is a booking page that can never be booked,
-    // which is a confusing first impression to hand someone.
-    const WEEKDAY_HOURS = [1, 2, 3, 4, 5].map((weekday) => ({
-      business_id: business.id, weekday, open_time: "09:00", close_time: "17:00",
-    }));
-    const WEEKEND_CLOSED = [0, 6].map((weekday) => ({
-      business_id: business.id, weekday, open_time: null, close_time: null,
-    }));
-
-    await Promise.all([
-      supabase.from("business_users").insert({
-        business_id: business.id, user_id: user.id, role: "owner", email: user.email,
-      }),
-      supabase.from("business_settings").insert({ business_id: business.id }),
-      supabase.from("business_branding").insert({ business_id: business.id }),
-      supabase.from("business_hours").insert([...WEEKDAY_HOURS, ...WEEKEND_CLOSED]),
-    ]);
+    // THE OWNER IS THE ONE THING THE HELPER REFUSES TO GUESS. Signup makes
+    // the caller the owner because they are standing here with a session;
+    // the back office cannot, because the person it signs up may have no
+    // account at all and gets an invite instead.
+    await supabase.from("business_users").insert({
+      business_id: business.id, user_id: user.id, role: "owner", email: user.email,
+    });
 
     // The offer is granted by the database or not at all.
     let founding = false;

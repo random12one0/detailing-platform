@@ -126,3 +126,15 @@
   .pa-nums { grid-template-columns: 1fr; }
   .pa { padding: 18px 12px 96px; }
 }
+
+/* The invite link, read out loud to somebody standing next to you. It wraps
+   rather than scrolling: a link you have to swipe along is a link you read
+   out wrong. */
+.pa-ok code {
+  display: block; margin-top: 6px;
+  font-family: var(--f-num, ui-monospace, monospace); font-size: 12px;
+  overflow-wrap: anywhere; opacity: 0.9;
+}
+/* The one input reused inside a field, so the create form does not need a
+   second input rule. */
+.pa-field .pa-input { margin: 0; }

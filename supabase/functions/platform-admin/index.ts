@@ -30,6 +30,10 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
+import { createBusinessRow } from "../_shared/newBusiness.ts";
+import { businessById, getSettings } from "../_shared/tenant.ts";
+import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
+import { inviteEmail } from "../_shared/emailTemplates.ts";
 
 interface Admin { id: string; email: string }
 
@@ -256,6 +260,56 @@ Deno.serve(async (req) => {
     }
 
     // --- JOB 3: do the thing without asking a developer -------------------
+
+    // CREATE A BUSINESS BY HAND — for in-person onboarding: he signs somebody
+    // up at their shop rather than sending them to a form. It is the one
+    // action here that does not take a `business_id`, so it sits above the
+    // lookup below.
+    //
+    // THE ROW AND ITS DEFAULTS COME FROM `_shared/newBusiness.ts`, the same
+    // helper signup uses, and that is the whole reason the helper exists: a
+    // second copy of "what a new business is" is where two KINDS of business
+    // start to differ quietly — one with no settings row renders a dashboard
+    // of nulls, one with no hours has a booking page that can never be
+    // booked, and neither throws.
+    if (action === "create") {
+      const made = await createBusinessRow(supabase, {
+        name: body.name, slug: body.slug, timezone: body.timezone,
+        contact_email: body.owner_email, contact_phone: body.contact_phone,
+      });
+      if (made.error || !made.business) return json({ error: made.error }, made.status ?? 400);
+      const created = made.business;
+
+      // NO MEMBERSHIP, AN INVITE. The person being signed up at their own
+      // counter may have no account at all, and `business_users.user_id`
+      // references `auth.users` — there is nobody to point it at. The invite
+      // is the path that already exists and already ends in an owner, so the
+      // dashboard they eventually open is identical to a self-signup's.
+      const email = String(body.owner_email || "").trim().toLowerCase();
+      let invite = null;
+      if (email && email.includes("@")) {
+        const { data: row } = await supabase.from("business_invites")
+          .insert({ business_id: created.id, email, role: "owner", invited_by: admin.id })
+          .select().single();
+        if (row) {
+          const settings = await getSettings(created.id);
+          const business = (await businessById(created.id))!;
+          const brand = await buildBrand(business, settings);
+          const link = `${PLATFORM_URL}/invite/${row.token}`;
+          const msg = inviteEmail(brand, { role: "owner", label: null, link, expiresAt: row.expires_at });
+          const sent = await sendTenantEmail({
+            businessId: created.id, to: email, subject: msg.subject, html: msg.html, text: msg.text,
+          });
+          // THE LINK COMES BACK EITHER WAY. He is standing next to them: if
+          // the email is slow or the address was mistyped, reading the link
+          // off his own screen is the whole point of doing this in person.
+          invite = { email, link, emailed: sent, expires_at: row.expires_at };
+        }
+      }
+      await logIt(admin, "create", created, { slug: created.slug, invited: email || null });
+      return json({ success: true, business: created, invite });
+    }
+
     const id = String(body.business_id || "");
     if (!id) return json({ error: "business_id is required" }, 400);
     const { data: biz } = await supabase
@@ -300,6 +354,34 @@ Deno.serve(async (req) => {
       // standard IS releasing their spot and there is nothing else to do.
       await logIt(admin, "tier", biz, { from: biz.plan_tier, to: tier });
       return json({ success: true, plan_tier: tier });
+    }
+
+    // RESEND AN INVITE — "the support request that otherwise needs him to open
+    // the auth table", in the spec's own words. It supersedes any live invite
+    // for that address rather than adding a second, because two live links to
+    // the same account is a support call about which one to use.
+    if (action === "resend_invite") {
+      const email = String(body.email || "").trim().toLowerCase();
+      if (!email.includes("@")) return json({ error: "A valid email address is required." }, 400);
+      await supabase.from("business_invites")
+        .update({ revoked_at: new Date().toISOString() })
+        .eq("business_id", id).eq("email", email)
+        .is("accepted_at", null).is("revoked_at", null);
+      const role = body.role === "staff" ? "staff" : "owner";
+      const { data: row, error: invErr } = await supabase.from("business_invites")
+        .insert({ business_id: id, email, role, invited_by: admin.id })
+        .select().single();
+      if (invErr) throw invErr;
+      const settings = await getSettings(id);
+      const business = (await businessById(id))!;
+      const brand = await buildBrand(business, settings);
+      const link = `${PLATFORM_URL}/invite/${row.token}`;
+      const msg = inviteEmail(brand, { role, label: null, link, expiresAt: row.expires_at });
+      const sent = await sendTenantEmail({
+        businessId: id, to: email, subject: msg.subject, html: msg.html, text: msg.text,
+      });
+      await logIt(admin, "resend_invite", biz, { email, role, emailed: sent });
+      return json({ success: true, invite: { email, link, emailed: sent, expires_at: row.expires_at } });
     }
 
     if (action === "impersonate") {

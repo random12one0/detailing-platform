@@ -630,8 +630,50 @@ that promises the very thing it checks. The screen itself: measured clean at
 (14 businesses, the demo's setup showing *6 of 7* — the same number the
 detailer sees on their own screen, because both run the same function).
 
-**Still to build (stage 2):** creating a business by hand for in-person
-sign-ups, resending a stuck invite, and the website columns.
+**Still to build (stage 3):** the website columns.
+
+---
+
+## Roadmap 4.4 stage 2 — signing somebody up at their shop, and resending a stuck invite
+
+**What changed.** Two buttons on `/admin`, and one shared definition behind
+them. **Create and invite** takes a name, a booking address, the owner's email
+and a timezone, makes the business, and emails that person their invite.
+**Resend invite** on any business's page makes a fresh link and sends it again.
+Before tonight the first was a line of SQL typed into a console and the second
+meant opening the accounts table.
+
+**The judgement call: I did not copy the signup code.** "What a new business
+is" lived in one place — the signup function — because signing up was the only
+way one could ever exist. Adding a second way is exactly how two kinds of
+business quietly start to differ: one created by hand with no settings row
+shows a dashboard of blanks, one with no opening hours has a booking page
+nobody can book. **Neither of those breaks loudly.** So both doors now call the
+same `_shared/newBusiness.ts`, which also gives a new business a working week
+(Mon–Fri, 9–5, weekends closed) from its first second — not because that is
+right for every detailer, but because a booking page with no open days looks
+identical to a broken one, and that is a poor thing to hand somebody at their
+own counter.
+
+**The one thing that helper refuses to do is pick the owner.** At signup the
+person is standing there with an account; from the back office they may have no
+account at all. That is why the invite is the other half of this and not a
+separate feature.
+
+**What I verified, and what it printed.** Both actions run live as the seeded
+admin account:
+- `create` → `200 {"success":true,"business":{…"slug":"inperson-gh9d2"…}}`
+- `resend` → `200 {"success":true,"invite":{"email":"delivered@resend.dev",
+  "link":"https://detailingplatform.com/invite/9502c185…","emailed":true}}`
+- the test business deleted afterwards → `204`, then the list came back empty.
+
+`tests/platform-admin.test.mjs` **34/34**, `tests/composition.test.mjs`
+**74/74**, `npm run build` clean. The new form measured at **1440 clean, 392
+clean, 320 clean, no console errors**, and I looked at the screenshots rather
+than trusting the geometry check — that check cannot see text printed on top of
+a button, which it proved three times earlier tonight.
+
+**No questions parked.**
 
 ---
 

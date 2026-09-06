@@ -67,8 +67,25 @@ const FILTERS = [
   ["quiet", "Quiet 30 days", (r) => r.bookings_total > 0 && (r.days_since_booking ?? 0) >= 30],
 ];
 
+// The same shape the database's own check constraint allows, applied while he
+// types so the refusal is never a Postgres error message.
+const slugify = (v) => String(v || "").toLowerCase().trim()
+  .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 62);
+
+// A DEFAULT TIMEZONE RATHER THAN A BLANK, because a business quietly running
+// on the wrong clock books every job at the wrong time and nothing shows it
+// until a customer turns up three hours early. His own zone is the right
+// guess for somebody he is standing next to.
+const BLANK_NEW = {
+  name: "", slug: "", slugTouched: false, owner_email: "",
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Los_Angeles",
+};
+
 export default function AdminPage() {
   const [state, setState] = useState({ status: "loading" });
+  const [adding, setAdding] = useState(false);
+  const [form, setForm] = useState(BLANK_NEW);
+  const [invite, setInvite] = useState(null);
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(null);      // business id
@@ -188,6 +205,56 @@ export default function AdminPage() {
         </div>
 
         {msg && <div className={msg.ok ? "pa-ok" : "pa-bad"}>{msg.text}</div>}
+        {/* THE LINK IS SHOWN, NOT ONLY EMAILED, and that is the whole point of
+            signing somebody up in person: he is standing next to them, so if
+            the email is slow or the address was mistyped, reading it off his
+            own screen finishes the job. */}
+        {invite && (
+          <div className="pa-ok">
+            {invite.emailed ? "Invite emailed to " : "Could not email "}{invite.email}.
+            Their link, in case you want to read it out: <code>{invite.link}</code>
+          </div>
+        )}
+
+        {/* ADDING A BUSINESS BY HAND — in-person onboarding, the spec's own
+            case. Behind a button because it is the rarest action on this
+            screen and a form always open is a form always in the way. */}
+        <div className="pa-btns">
+          <button className="pa-btn" onClick={() => { setAdding(!adding); setInvite(null); }}>
+            {adding ? "Never mind" : "Add a detailer"}
+          </button>
+        </div>
+        {adding && (
+          <div className="pa-panel">
+            <label className="pa-field"><span>Business name</span>
+              <input className="pa-input" value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value, slug: form.slugTouched ? form.slug : slugify(e.target.value) })} /></label>
+            <label className="pa-field"><span>Their booking address</span>
+              <input className="pa-input" value={form.slug} placeholder="riverside-detail"
+                onChange={(e) => setForm({ ...form, slug: e.target.value, slugTouched: true })} /></label>
+            <label className="pa-field"><span>Owner's email — the invite goes here</span>
+              <input className="pa-input" value={form.owner_email} inputMode="email"
+                onChange={(e) => setForm({ ...form, owner_email: e.target.value })} /></label>
+            {/* TYPED, NOT PICKED, and only here. The signup form has a real
+                timezone picker; this is one field on one screen used by one
+                person who knows what he is doing, and a second copy of that
+                picker is a second thing to keep in step. */}
+            <label className="pa-field"><span>Timezone</span>
+              <input className="pa-input" value={form.timezone}
+                onChange={(e) => setForm({ ...form, timezone: e.target.value })} /></label>
+            <div className="pa-btns">
+              <button className="pa-btn" disabled={busy || !form.name.trim() || !form.slug.trim()}
+                onClick={() => act({ action: "create", ...form }, (r) => {
+                  setAdding(false);
+                  setForm(BLANK_NEW);
+                  if (r.invite) setInvite(r.invite);
+                  return `${r.business.name} created.`;
+                })}>
+                Create and invite
+              </button>
+            </div>
+          </div>
+        )}
 
         {rows.length === 0 && <p className="pa-quiet">Nobody matches that.</p>}
 
@@ -296,6 +363,27 @@ export default function AdminPage() {
                     Open their dashboard
                   </button>
                 </div>
+
+                {/* RESEND AN INVITE — "the support request that otherwise
+                    needs him to open the auth table". One button per person
+                    who has not accepted yet, rather than a form, because the
+                    address is already known and retyping it is how the wrong
+                    one gets sent. */}
+                {detail.members.length === 0 && (
+                  <div className="pa-btns">
+                    <button className="pa-btn" disabled={busy}
+                      onClick={() => {
+                        const email = prompt("Which address should the invite go to?", b.contact_email || "");
+                        if (!email) return;
+                        act({ action: "resend_invite", business_id: b.id, email }, (r) => {
+                          setInvite(r.invite);
+                          return r.invite.emailed ? `Invite sent to ${email}.` : `Could not email ${email} — the link is above.`;
+                        });
+                      }}>
+                      Resend the owner's invite
+                    </button>
+                  </div>
+                )}
 
                 {detail.events?.length > 0 && (
                   <>

@@ -6007,10 +6007,39 @@ is kept; the entire visual design restarts from scratch.
       deliberately guessable and lives on the live site; **making it an admin
       would put every detailer's data behind `demo123`.**
 
-      **STILL TO BUILD (stage 2):** manual business creation for in-person
-      onboarding, resend-an-invite, and the site columns. Platform settings is
-      the `platform_prices` row this entry describes below, and it is still
-      correct that the table and the editor ship together or neither.
+      **STAGE 2 SHIPPED 2026-09-05 — create a business by hand, and resend an
+      invite.** Both are the same support call from two sides: somebody signed
+      up at their shop who should not be sent to a form, and somebody whose
+      invite went to spam. Until now the first was `insert into businesses`
+      typed into a SQL console and the second was opening the auth table.
+
+      **THE DEFINITION OF "A NEW BUSINESS" MOVED INTO
+      `_shared/newBusiness.ts` RATHER THAN BEING COPIED.** It lived inside
+      `create-business/index.ts` and nowhere else, because signup was the only
+      way a business could come into existence; the back office is a second
+      way, and **a second copy is where two kinds of business start to
+      differ** — quietly. A business created by hand with no `business_settings`
+      row renders a dashboard of nulls; one with no `business_hours` has a
+      booking page that can never be booked, which is a strange thing to hand
+      somebody at their own counter. **Neither throws.**
+      **WHAT THE HELPER REFUSES TO GUESS IS THE OWNER.** Signup makes the
+      caller the owner because they are standing there with a session; the back
+      office cannot, because the person being signed up may not have an account
+      at all. So membership stays in `create-business` and the invite is what
+      carries it — which is exactly why *resend an invite* is the other half of
+      this stage rather than a separate feature.
+
+      **BOTH WERE EXERCISED LIVE AS THE SEEDED ADMIN, NOT REASONED ABOUT:**
+      `create` returned `{"success":true,...,"slug":"inperson-gh9d2"}`, `resend`
+      returned a real `/invite/9502c185…` link with `emailed: true` to
+      `delivered@resend.dev`, and the test business was then deleted (204, then
+      an empty list). The form measures clean at 1440, 392 and 320 with no
+      console errors.
+
+      **STILL TO BUILD (stage 3):** the site columns and platform settings.
+      Platform settings is the `platform_prices` row this entry describes
+      below, and it is still correct that the table and the editor ship
+      together or neither.
 
       **SPECIFIED 2026-09-04: `docs/platform-admin-2026-09-04.md`.** The owner
       asked for it in his own words — *"I need to have a dashboard myself where
