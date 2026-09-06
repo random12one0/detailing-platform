@@ -1797,6 +1797,71 @@ to do, and the sweep correctly threw its own results away. Re-run cleanly.
 
 ---
 
+## Your back office — built 2026-09-06
+
+**It was a good admin tool and almost no dashboard.** Every button on it
+*changed* a detailer's account — suspend, mark founding, edit prices. Almost
+nothing told you how one was *doing*.
+
+**The sharp part of the fix cost nothing.** Your browser was already being
+sent each detailer's full booking history, their subscription and their
+invoices — and the screen was throwing all three away. So every business row
+now carries a second line: **jobs this month, money taken, customers.** No new
+database work at all.
+
+**And a new block at the top: "Needs a look."** Never taken a booking, gone
+quiet three weeks, payment failed, cancelling at the end of the term, setup
+abandoned, no website. Worst first, eight at most, and it disappears when
+there is nothing wrong. **That is the difference between a dashboard you read
+and one you search.**
+
+**Two figures added to the top strip** — jobs and money through the platform
+this month. The old rule was four figures and no more, and I retired it
+because you told me to. The other four are about *your company*; these two
+are about *whether the thing you built is carrying work*, which is the number
+for a sales call and was not answerable here before.
+
+### Three calls I made inside it
+
+**Never booked and gone quiet never both appear.** One is a detailer who
+never started and one is a detailer who stopped — opposite conversations, and
+saying both is the same fact twice.
+
+**A suspended business is never reported as quiet.** Telling you *"no booking
+in 60 days"* about an account you switched off yourself is the list reporting
+your own decision back at you.
+
+**"Setup unfinished" means below 4 of 7, not below 7.** One of the seven
+steps is one many detailers never press, and a list that nags a working
+business forever is a list you stop reading — which is the only way a thing
+like this actually fails.
+
+### One thing you should know before you look at it
+
+**Right now it says "0 jobs this month, $0.00 through the platform", and that
+is true rather than broken.** The demo's finished jobs run January to August
+and none has landed in September yet — I checked the database rather than
+assuming. **But it means that on the 1st of any month those two figures read
+zero**, which will look like a fault the first time you see it. If that
+bothers you, last month's numbers beside them fixes it and takes ten minutes.
+
+### What I did NOT put on it, and it needs your call
+
+You said you should be able to see everything, and you were right that it
+should be disclosed — **so it is, in the privacy page, in plain words, right
+under the paragraph a detailer would otherwise read the wrong way.** It says
+we can see their bookings, their figures and their customers' details, why we
+look, and that nothing is ever sold or handed to an advertiser.
+
+**What I built stops at counts, totals and dates.** There is no screen that
+browses a detailer's individual customers by name and phone number — you can
+still get that any time with the export button, which is a deliberate act
+with a reason attached. **That was my judgement, not your instruction**, and
+if you want the full customer list on the page say so and I will add it — the
+disclosure already covers it.
+
+---
+
 ## What SMS would actually cost you
 
 You asked for the number before deciding.
