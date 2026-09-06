@@ -128,8 +128,8 @@ const userB = await ensureUser("phase1-owner-b@isolation.test", PASSWORD);
 await svc.del("/rest/v1/businesses?slug=in.(phase1-a,phase1-b)");
 
 const bizRes = await svc.post("/rest/v1/businesses", [
-  { slug: "phase1-a", name: "Phase1 Detailing A", timezone: "America/Los_Angeles" },
-  { slug: "phase1-b", name: "Phase1 Detailing B", timezone: "America/New_York" },
+  { is_demo: true, slug: "phase1-a", name: "Phase1 Detailing A", timezone: "America/Los_Angeles" },
+  { is_demo: true, slug: "phase1-b", name: "Phase1 Detailing B", timezone: "America/New_York" },
 ]);
 if (bizRes.status !== 201) {
   console.error("business setup failed:", bizRes.status, JSON.stringify(bizRes.data));

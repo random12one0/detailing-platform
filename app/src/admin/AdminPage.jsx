@@ -201,6 +201,19 @@ export default function AdminPage() {
     setOpen(id);
     setDetail(null);
     if (!keepMsg) setMsg(null);
+    // TAKE HIM TO WHAT HE OPENED — testing loop F-015, 2026-09-06. The panel
+    // renders BELOW the whole list, so at fifteen tenants it was already off
+    // the bottom of the screen and at a hundred it is a hundred rows down:
+    // pressing a detailer's name appeared to do nothing at all. Only on a
+    // fresh open, never on the refresh after an action — that would drag him
+    // away from the button he just pressed. `requestAnimationFrame` because
+    // the panel does not exist until this render lands.
+    if (!keepMsg) {
+      requestAnimationFrame(() => {
+        document.querySelector(".pa-row.on ~ .pa-panel, .pa-list ~ .pa-panel")
+          ?.scrollIntoView({ block: "start", behavior: "smooth" });
+      });
+    }
     try {
       const d = await call({ action: "get", business_id: id });
       setDetail(d);
@@ -295,7 +308,17 @@ export default function AdminPage() {
   if (state.status === "anon") {
     return (
       <div className="pa"><div className="pa-wrap pa-gate">
-        <h1 className="pa-h1">Sign in</h1>
+        {/* IT SAYS WHERE YOU ARE — testing loop F-021, 2026-09-06. An
+            unlabelled "Sign in" card pinned to the top-left of an empty page
+            is what the owner meets when he opens his own back office cold,
+            and it is indistinguishable from a half-built screen. It discloses
+            nothing the box itself did not already disclose: anybody reading
+            this has typed /admin and been shown a login. */}
+        <p className="pa-lab2">Detailing Platform</p>
+        <h1 className="pa-h1">The back office</h1>
+        <p className="pa-quiet" style={{ marginTop: -4, marginBottom: 18 }}>
+          Sign in with the account that runs the platform.
+        </p>
         <form className="pa-panel" onSubmit={async (e) => {
           e.preventDefault();
           setBusy(true);
@@ -384,11 +407,18 @@ export default function AdminPage() {
               invoice and a bank statement and both of those are calendar
               months. */}
           <div className="pa-nums">
-            <div><span className="pa-num">{t.businesses ?? 0}</span><span className="pa-lab">businesses</span></div>
+            {/* THE FIGURES ARE REAL DETAILERS, AND THE LABEL SAYS SO WHEN
+                THERE IS ANYTHING ELSE IN THE LIST — testing loop F-014. */}
+            <div><span className="pa-num">{t.businesses ?? 0}</span>
+              <span className="pa-lab">{t.demo ? `detailers · ${t.demo} demo` : "detailers"}</span></div>
             <div><span className="pa-num">{t.active ?? 0}</span><span className="pa-lab">not suspended</span></div>
             <div><span className="pa-num">{money((t.mrr_cents ?? 0) / 100)}</span><span className="pa-lab">a month</span></div>
             <div><span className="pa-num">{t.founding_left ?? 0}</span><span className="pa-lab">founding spots left</span></div>
-            <div><span className="pa-num">{t.jobs_month ?? 0}</span><span className="pa-lab">jobs this month</span></div>
+            {/* IT COUNTS FINISHED JOBS — testing loop F-016. Unlabelled, "0
+                jobs this month" sat beside a row reading "30 bookings, last
+                today" and read as a broken number; both were right and the
+                tile was not saying which question it answered. */}
+            <div><span className="pa-num">{t.jobs_month ?? 0}</span><span className="pa-lab">jobs finished this month</span></div>
             <div><span className="pa-num">{money(t.revenue_month ?? 0)}</span><span className="pa-lab">through the platform</span></div>
           </div>
         </header>
@@ -413,9 +443,19 @@ export default function AdminPage() {
             {`Photos: ${gb(state.photo_store.used_bytes)} used of ${gb(state.photo_store.total_bytes)}`}
             {` · ${gb(state.photo_store.share_bytes)} each for ${state.photo_store.businesses} `}
             {state.photo_store.businesses === 1 ? "detailer" : "detailers"}
+            {/* THE PROMISED TOTAL IS PRINTED ONLY WHEN IT IS THE PROBLEM —
+                testing loop F-017, 2026-09-06. Under the ceiling it is
+                exactly `share x businesses`, which the two figures beside it
+                have just stated — so it added nothing AND read as an
+                arithmetic error, because both halves are rounded
+                independently: 10.24 MB a head became "10 MB each for 15
+                detailers · 154 MB promised", and 10 x 15 is 150. Two
+                roundings that disagree inside one sentence is a number
+                nobody trusts afterwards, including the ones that are right.
+                Over the ceiling it is the whole point, so it stays there,
+                where the sentence says why it does not match. */}
             {state.photo_store.committed_bytes > state.photo_store.total_bytes
-              ? ` · PROMISED ${gb(state.photo_store.committed_bytes)} — more than exists`
-              : ` · ${gb(state.photo_store.committed_bytes)} promised`}
+              && ` · PROMISED ${gb(state.photo_store.committed_bytes)} — more than exists`}
           </p>
         )}
 
@@ -574,6 +614,9 @@ export default function AdminPage() {
               <button className="pa-rowbtn" onClick={() => (open === r.id ? setOpen(null) : openBusiness(r.id))}>
                 <span className="pa-name">
                   {r.name}
+                  {/* NOT A CUSTOMER — testing loop F-014, and it goes FIRST
+                      because it changes what every figure after it means. */}
+                  {r.is_demo && <span className="pa-tag">demo</span>}
                   {r.status === "paused" && <span className="pa-tag bad">suspended</span>}
                   {r.plan_tier === "founding" && <span className="pa-tag">founding</span>}
                   {r.has_note && <span className="pa-tag">note</span>}
@@ -604,7 +647,11 @@ export default function AdminPage() {
                     figure on it and the screen was throwing them away, which
                     is the audit's Tier 1 in one line of markup. */}
                 <span className="pa-sub">
-                  {r.jobs_month ?? 0} job{(r.jobs_month ?? 0) === 1 ? "" : "s"} this month
+                  {/* "finished", for the reason the tile above carries —
+                      testing loop F-016. On this line the contradiction is
+                      sharper still, because the words "3 bookings, last
+                      today" are four characters to the left of it. */}
+                  {r.jobs_month ?? 0} finished this month
                   {" · "}{money(r.revenue_month ?? 0)} taken
                   {" · "}{r.customers ?? 0} customer{(r.customers ?? 0) === 1 ? "" : "s"}
                 </span>
@@ -628,8 +675,11 @@ export default function AdminPage() {
                       starts with an argument. */}
                   {progress ? `Setup ${progress.count} of ${progress.total}` : ""}
                   {" · "}{detail.settings?.booking_mode === "request" ? "takes requests" : "books directly"}
-                  {" · "}{detail.counts.services} services
-                  {" · "}{detail.members.length} people
+                  {/* Pluralised, like the two lines above it — testing loop
+                      F-008. "1 services" on a screen that says "1 customer"
+                      four rows up. */}
+                  {" · "}{detail.counts.services} service{detail.counts.services === 1 ? "" : "s"}
+                  {" · "}{detail.members.length} {detail.members.length === 1 ? "person" : "people"}
                 </p>
 
                 {/* THEIR SITE — the spec's one column that is specific to

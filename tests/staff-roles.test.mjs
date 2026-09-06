@@ -88,7 +88,7 @@ const owner2 = await ensureUser("roles-owner2@staff.test", PW);
 
 await svc.del("/rest/v1/businesses?slug=eq.roles-a");
 const biz = (await svc.post("/rest/v1/businesses", [{
-  slug: "roles-a", name: "Roles Test Detailing", timezone: "America/Los_Angeles",
+  is_demo: true, slug: "roles-a", name: "Roles Test Detailing", timezone: "America/Los_Angeles",
   contact_email: "owner@roles.test",
 }])).data[0];
 await svc.post("/rest/v1/business_users", [

@@ -154,7 +154,21 @@ Deno.serve(async (req) => {
       // Resend outage, which is both false and the fastest way to teach a
       // detailer to ignore the flag. The send still failed and is still
       // logged; it is simply not the customer's fault.
-      if (res.status < 500 && !fromPlatform) await markAddress(business_id, to, data);
+      // **AND 429 IS NOT THE ADDRESS EITHER — testing loop F-025, 2026-09-06.**
+      // The paragraph above is right about 5xx and stopped one status short.
+      // Resend's free plan is **100 emails a day across every tenant** and the
+      // transactional set spends about five per booking, so the platform's
+      // twenty-first booking of the day is refused — with a 429, which is
+      // under 500, so every customer emailed after the cap was being stamped
+      // `email_failed_at` and told, permanently, that their address bounced.
+      //
+      // That is worse than the outage case the 5xx rule exists to prevent,
+      // because it is **self-inflicted, arrives on the busiest days, and is
+      // enforcement rather than display**: `send-campaign` filters on this
+      // column, so a good day's customers quietly stop being reachable.
+      // 408 for the same reason — a timeout is our side of the wire.
+      const ourFault = res.status >= 500 || res.status === 429 || res.status === 408;
+      if (!ourFault && !fromPlatform) await markAddress(business_id, to, data);
       return json({ error: "Failed to send email", details: data }, res.status);
     }
     // A BOUNCE MUST CLEAR ITSELF, unlike `unsubscribed_at`. Otherwise a

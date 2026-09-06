@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
       // and building it now would be guessing at a shape nothing has measured.
       const [biz, subs, book, users] = await Promise.all([
         supabase.from("businesses")
-          .select("id, slug, name, status, plan_tier, contact_email, contact_phone, created_at, admin_notes_platform, site_url, site_updated_at")
+          .select("id, slug, name, status, plan_tier, is_demo, contact_email, contact_phone, created_at, admin_notes_platform, site_url, site_updated_at")
           .order("created_at", { ascending: false }),
         supabase.from("platform_subscriptions")
           .select("business_id, status, recurring_cents, bill_interval, current_period_end, suspended_at, cancel_at_period_end"),
@@ -198,6 +198,15 @@ Deno.serve(async (req) => {
       monthStart.setDate(1);
       monthStart.setHours(0, 0, 0, 0);
       const monthAgo = monthStart.getTime();
+      // AND IT HAS AN END — testing loop F-018, 2026-09-06. The filter was
+      // `start_at >= monthAgo` with nothing above it, so a completed job
+      // DATED next month counted as this month's takings. A detailer who
+      // finalises early, or a job rescheduled forward and then marked done,
+      // is enough — and the figure that goes wrong is the one on the tile
+      // the owner reads as "how much work the platform carried".
+      const monthEnd = new Date(monthStart);
+      monthEnd.setMonth(monthEnd.getMonth() + 1);
+      const monthTo = monthEnd.getTime();
 
       const rows = (biz.data ?? []).map((b) => {
         const bs = bookings.get(b.id) ?? [];
@@ -212,7 +221,11 @@ Deno.serve(async (req) => {
         const paid = (r: { final_amount: number | null; total_price: number | null }) =>
           Number(r.final_amount ?? r.total_price ?? 0);
         const done = live.filter((r) => r.status === "completed");
-        const monthJobs = done.filter((r) => r.start_at && Date.parse(r.start_at) >= monthAgo);
+        const monthJobs = done.filter((r) => {
+          if (!r.start_at) return false;
+          const t = Date.parse(r.start_at);
+          return t >= monthAgo && t < monthTo;
+        });
         const days = last ? Math.floor((now - Date.parse(last)) / 86_400_000) : null;
         const owner = (members.get(b.id) ?? []).find((m) => m.role === "owner");
         return {
@@ -221,6 +234,17 @@ Deno.serve(async (req) => {
           name: b.name,
           status: b.status,
           plan_tier: b.plan_tier,
+          // WHETHER THIS IS A REAL DETAILER — testing loop F-014, 2026-09-06.
+          // The column has existed since roadmap 6.2 (it is what keeps the
+          // demo out of the founding count) and this screen never asked for
+          // it, so three seeded demos AND every fixture the database-backed
+          // suites leave behind were listed as ordinary detailers. The
+          // headline read "Detailers 15" on a platform with none, and NEEDS
+          // A LOOK — the one list here whose whole job is to be short — was
+          // eight rows of test businesses. A back office that cannot tell a
+          // fixture from a customer cannot answer the question it exists
+          // for.
+          is_demo: !!b.is_demo,
           owner_email: owner?.email ?? b.contact_email ?? null,
           created_at: b.created_at,
           has_note: !!(b.admin_notes_platform || "").trim(),
@@ -296,14 +320,27 @@ Deno.serve(async (req) => {
       // cannot upload. Past a hundred businesses the shares stop fitting.
       const { data: store } = await supabase.rpc("photo_store_state");
 
+      // The detailers, as opposed to everything else in the table — testing
+      // loop F-014. Seeded demos and the fixtures the database-backed suites
+      // leave behind are all real rows with real bookings, and every tile on
+      // this screen was counting them.
+      const real = rows.filter((r) => !r.is_demo);
+
       return json({
         prices: { current: ps?.prices ?? null, built_in: PRICES, updated_at: ps?.updated_at ?? null },
         heartbeats: beats ?? [],
         photo_store: store?.[0] ?? null,
         rows,
+        // EVERY TILE COUNTS REAL DETAILERS ONLY — testing loop F-014. The
+        // rows still carry the demos and the fixtures, because he does open
+        // the demo and does want to see a suite's leftovers; what he must
+        // never be told is that he has fifteen customers. `founding_left`
+        // already excluded them at the database (roadmap 6.2) and was the
+        // only figure on this screen that did.
         totals: {
-          businesses: rows.length,
-          active: rows.filter((r) => r.status === "active").length,
+          businesses: real.length,
+          active: real.filter((r) => r.status === "active").length,
+          demo: rows.length - real.length,
           mrr_cents: mrrCents,
           founding_left: Number(founding?.left ?? 0),
           // ADDED 2026-09-06. **The proof the thing works**, and the number
@@ -311,14 +348,14 @@ Deno.serve(async (req) => {
           // platform actually carried this month, across everybody. The
           // four above are about the BUSINESS; this one is about the
           // PRODUCT, which is a different question and was unanswerable.
-          suspended: rows.filter((r) => r.status === "paused").length,
-          jobs_month: rows.reduce((a, r) => a + r.jobs_month, 0),
-          revenue_month: rows.reduce((a, r) => a + r.revenue_month, 0),
-          customers: rows.reduce((a, r) => a + r.customers, 0),
+          suspended: real.filter((r) => r.status === "paused").length,
+          jobs_month: real.reduce((a, r) => a + r.jobs_month, 0),
+          revenue_month: real.reduce((a, r) => a + r.revenue_month, 0),
+          customers: real.reduce((a, r) => a + r.customers, 0),
           // Signed up this calendar month — churn needs a cancelled-at
           // history nothing records yet, and a half of a pair is worse than
           // neither: "3 joined" beside nothing reads as "and none left".
-          new_month: rows.filter((r) => Date.parse(r.created_at) >= monthAgo).length,
+          new_month: real.filter((r) => Date.parse(r.created_at) >= monthAgo).length,
         },
       });
     }

@@ -121,11 +121,11 @@ const userB = await ensureUser("phase2-owner-b@engine.test", PASSWORD);
 await svc.del("/rest/v1/businesses?slug=in.(engine-a,engine-b)");
 const bizRes = await svc.post("/rest/v1/businesses", [
   {
-    slug: "engine-a", name: "Engine Test Detailing A", timezone: "America/Los_Angeles",
+    is_demo: true, slug: "engine-a", name: "Engine Test Detailing A", timezone: "America/Los_Angeles",
     contact_email: "owner-a@engine.test", contact_phone: "555-0001", dropoff_address: "1 A St, Los Angeles, CA",
   },
   {
-    slug: "engine-b", name: "Engine Test Detailing B", timezone: "America/New_York",
+    is_demo: true, slug: "engine-b", name: "Engine Test Detailing B", timezone: "America/New_York",
     contact_email: "owner-b@engine.test", contact_phone: "555-0002", dropoff_address: "2 B Ave, New York, NY",
   },
 ]);
@@ -850,6 +850,75 @@ console.log("test 18: a plan reaches the price, the row and the request rail");
 
   await svc.del(`/rest/v1/bookings?business_id=eq.${A.id}&customer_phone=eq.555-0914`);
   await svc.del(`/rest/v1/plans?id=eq.${plan.id}`);
+}
+
+// ─── FAILURE PATHS: WHAT THIS FUNCTION DOES WHEN SOMETHING GOES WRONG ─────
+//
+// Testing loop passes 004 and 005, 2026-09-06. Everything above this asks what
+// `create-booking` does when it WORKS. Three defects lived in the other half,
+// and none of them is reachable from a browser, a suite or a screen: one needs
+// a dropped TCP response, one needs a child insert to fail, and one is only
+// visible to a stranger reading an error body.
+//
+// Read as text, because that is the only instrument there is. `node --strip`
+// cannot be pointed at a Deno function that imports `_shared`, and the
+// conditions cannot be produced on a connection that works.
+{
+  console.log("\ntest 18: create-booking's failure paths");
+  const { readFileSync } = await import("node:fs");
+  const strip = (s) => s
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+  const cb = strip(readFileSync("supabase/functions/create-booking/index.ts", "utf8"));
+  const cbiz = strip(readFileSync("supabase/functions/create-business/index.ts", "utf8"));
+
+  // 18a — F-022. THE OVERLAP MAY BE THEIR OWN BOOKING. The request lands, the
+  // row is written, the response is lost, the customer presses Confirm again
+  // — and until this, the second press collided with the booking they had
+  // just made and told them a stranger had taken the slot. They then book a
+  // second time (a double booking and a wasted morning) or abandon a job that
+  // is on the calendar and will be waited for.
+  check("18a · a 23P01 checks whether the clash is the caller's own booking",
+    /insertErr\.code === "23P01"[\s\S]{0,2400}?\.eq\("customer_phone", String\(body\.customer_phone\)\.trim\(\)\)/.test(cb),
+    "same business, same instant, same phone, not cancelled");
+  check("18b · and returns it as a booking rather than a conflict",
+    /if \(mine\) \{[\s\S]{0,400}?return json\(\{ booking: mine/.test(cb));
+  // The retry must be INDISTINGUISHABLE from the first press — same key, so
+  // the confirmation page and the emails behave identically.
+  check("18c · in the same shape a fresh booking returns",
+    /return json\(\{ booking: mine, duplicate: true \}\);/.test(cb));
+  // AND THE CLASH THAT REALLY IS SOMEBODY ELSE STILL SAYS SO.
+  check("18d · a genuine clash is still a 409 with a sentence",
+    /That time was just taken by another booking[\s\S]{0,80}?409\);/.test(cb));
+
+  // 18e — F-023. A raw Postgres string names columns, constraints and checks,
+  // and this endpoint is public.
+  check("18e · a database error is never handed to the caller",
+    !/return json\(\{ error: insertErr\.message \}/.test(cb)
+      && /console\.error\("Booking insert failed:", insertErr\)/.test(cb));
+
+  // 18f — F-024. A booking with no `booking_services` rows is a receipt with
+  // a total and no lines: every itemisation in the product reads that table,
+  // and `reconcile()` would draw the whole price as an unexplained remainder.
+  // Invisible from every screen — the booking exists, the slot is held, the
+  // detailer sees the job — so the first person to find out is the customer
+  // reading their own receipt.
+  check("18f · a lost service line is noticed",
+    /const \{ error: svcErr \} = await supabase\.from\("booking_services"\)\.insert\(/.test(cb)
+      && /if \(svcErr\) \{[\s\S]{0,200}?HAS NO SERVICE LINES/.test(cb));
+  check("18g · and so is a lost add-on line",
+    /const \{ error: addErr \} = await supabase\.from\("booking_add_ons"\)\.insert\(/.test(cb)
+      && /if \(addErr\) console\.error/.test(cb));
+
+  // 18h — F-026. The one write in the product where losing the error locks
+  // somebody out of their own business for ever: the row exists holding their
+  // slug, they are not a member of it, the dashboard sends them back to the
+  // create form, and the form then refuses the name — taken, by them,
+  // invisibly.
+  check("18h · a failed owner membership is not ignored",
+    /const \{ error: memberErr \} = await supabase\.from\("business_users"\)\.insert\(\{/.test(cbiz));
+  check("18i · and the half-made business is taken back",
+    /if \(memberErr\) \{[\s\S]{0,300}?from\("businesses"\)\.delete\(\)\.eq\("id", business\.id\)/.test(cbiz));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

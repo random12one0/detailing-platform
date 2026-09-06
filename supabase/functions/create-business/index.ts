@@ -57,9 +57,29 @@ Deno.serve(async (req) => {
     // the caller the owner because they are standing here with a session;
     // the back office cannot, because the person it signs up may have no
     // account at all and gets an invite instead.
-    await supabase.from("business_users").insert({
+    // **AND ITS ERROR IS READ — testing loop F-026, 2026-09-06.** It was
+    // discarded, and this is the one write in the product where losing it
+    // locks somebody out of their own business permanently:
+    //
+    //   the `businesses` row exists, holding their name and their slug —
+    //   and possibly a founding spot — and they are not a member of it. The
+    //   dashboard renders `<CreateBusiness />` whenever there is no business
+    //   for the session, so the very next thing they see is the form they
+    //   just filled in. Filling it in again fails on the slug, which is
+    //   taken — **by them, invisibly**. There is no screen anywhere that can
+    //   show them what happened and no button that can undo it.
+    //
+    // Nothing was written before this except the business and its defaults,
+    // all of which cascade, so the honest answer is to take it back and let
+    // them try again with the name they wanted.
+    const { error: memberErr } = await supabase.from("business_users").insert({
       business_id: business.id, user_id: user.id, role: "owner", email: user.email,
     });
+    if (memberErr) {
+      console.error("owner membership failed; rolling back the business:", memberErr);
+      await supabase.from("businesses").delete().eq("id", business.id);
+      return json({ error: "We could not finish setting up your business. Please try again." }, 500);
+    }
 
     // The offer is granted by the database or not at all.
     let founding = false;

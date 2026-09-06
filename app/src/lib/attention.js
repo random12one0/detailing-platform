@@ -65,6 +65,15 @@ export function reasonsFor(r) {
 export function needsALook(rows) {
   const out = [];
   for (const r of rows ?? []) {
+    // A DEMO OR A TEST FIXTURE NEVER NEEDS A LOOK — testing loop F-014,
+    // 2026-09-06. Every one of them trips at least two of these reasons by
+    // construction (never booked, setup unfinished, no website), so on the
+    // day the loop started this list was **eight rows of test businesses**
+    // and nothing else. A list that is meant to be short and is always full
+    // of the same names is a list somebody stops reading, which is worse
+    // than not having one — and it is exactly the O6 question this screen
+    // exists to answer: whether silence means healthy.
+    if (r.is_demo) continue;
     const why = reasonsFor(r);
     if (why.length) out.push({ ...r, why });
   }

@@ -119,7 +119,7 @@ console.log("setup: one business that takes requests");
 const owner = await ensureUser("phase2-owner-r@engine.test", "Phase2-request-test-pw!");
 await svc.del("/rest/v1/businesses?slug=eq.engine-r");
 const bizRes = await svc.post("/rest/v1/businesses", [{
-  slug: "engine-r", name: "Engine Test Requests", timezone: "America/Los_Angeles",
+  is_demo: true, slug: "engine-r", name: "Engine Test Requests", timezone: "America/Los_Angeles",
   contact_email: "owner-r@engine.test", contact_phone: "555-0003",
   dropoff_address: "3 R Rd, Los Angeles, CA",
 }]);

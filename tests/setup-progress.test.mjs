@@ -299,5 +299,75 @@ console.log("\n5. a guide on every tab");
     /i \+ 1 === \(plan \?\? STEPS\)\.length \? "Done"/.test(src));
 }
 
+// ── 6 · THE FORM MUST NOT ANSWER FOR THE DETAILER ────────────────────────
+//
+// Testing loop pass 001, 2026-09-06. Two defects, one shape, both found by
+// walking the form as a brand-new detailer who pressed the obvious button.
+//
+// **F-001 — the hours draft was never seeded and Continue upserts it.**
+// `commit("hours")` writes all seven weekdays from `draft.hours`, which was a
+// hardcoded Mon-Fri 09:00-17:00. A detailer who had set Tue-Sat 08:00-18:00
+// and later came back to finish setting up — which is the RESUMABLE promise
+// this form is built on — pressed Continue on the hours step and silently got
+// the default back. Their booking page then sells slots they cannot work and
+// refuses the days they can, and nothing on any screen reports it.
+//
+// **F-002 — Continue marked a step done with nothing on screen.** Seven taps
+// of the primary button reported 7 of 7 on a business with no hours of its
+// own, no phone number and no answer to "where does the work happen". That
+// number is printed on Business AND on the platform back office, so it told
+// the owner a detailer was set up who had answered one question. It is
+// `docs/final-pass.md` finding 5 inverted, with the same cause: right about
+// the DATA, wrong about the QUESTION.
+{
+  console.log("\ntest 6: the form only claims what it was told");
+  const form = strip(read("app/src/components/SetupForm.jsx"));
+
+  // 6a — the guard sits before the WRITE, not merely before the mark:
+  // commit("hours") and commit("contact") both write unconditionally, so an
+  // untouched draft reaching either of them IS the data loss.
+  check("6a · an untouched step is neither committed nor marked",
+    /if \(answered\(key\)\) \{[\s\S]{0,400}?const problem = await commit\(key\)/.test(form),
+    "go(i+1,true) must gate commit() on answered(), not only patchSetup()");
+
+  // 6b — the four derivable steps stay markable, because lib/setup.js can see
+  // their answer in the database and marking them is at worst redundant. The
+  // three that are SEEDED at birth are the ones where a mark is the only
+  // evidence a human answered anything.
+  check("6b · and the four derivable steps are exempt",
+    /DERIVED = new Set\(\["services", "addons", "promos", "colour"\]\)/.test(form)
+      && /answered = \(key\) => DERIVED\.has\(key\) \|\| touched\.has\(key\)/.test(form));
+
+  // 6c — `touched` is set by the editors, through the one setter they all
+  // already route through. Anything else marking it — mounting, arriving,
+  // seeding — puts the defect straight back while looking correct.
+  check("6c · touched is recorded by the editors and by nothing else",
+    /const put = \(key\) => \(v\) => \{[\s\S]{0,240}?setTouched\(/.test(form)
+      && (form.match(/setTouched\(/g) ?? []).length === 1);
+
+  // 6d — the hours draft is READ before it can be written. The two editors
+  // beside it were seeded from the first version; hours was missed precisely
+  // because it always exists, so nothing about it ever looked empty.
+  check("6d · the hours editor opens on the hours that are set",
+    /from\("business_hours"\)[\s\S]{0,200}?\.eq\("business_id", business\.id\)/.test(form)
+      && /hours: \{[\s\S]{0,200}?days: open\.map/.test(form));
+  check("6e · and seeding does not count as answering",
+    !/seededHours[\s\S]{0,700}?setTouched/.test(form),
+    "the seed uses setDraft directly; routing it through put() would re-arm F-002");
+
+  // 6f — F-003. A detailer who chose a plan on /pricing is sent to the
+  // billing screen, and the first-run form used to render straight over it
+  // with the tour over that. Closing both left them on Today, never
+  // subscribed, with nothing on any screen saying so — Today warns on
+  // `past_due` and `suspended` and has no word for "never started".
+  const app6 = strip(read("app/src/App.jsx"));
+  check("6f · a pending billing link outranks the first run",
+    /if \(deepLink\.current === "billing"\) return;/.test(app6));
+  check("6g · and it is read before either branch opens anything",
+    app6.indexOf('deepLink.current === "billing") return') > 0
+      && app6.indexOf('deepLink.current === "billing") return')
+         < app6.indexOf('setFirstRun("setup")'));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

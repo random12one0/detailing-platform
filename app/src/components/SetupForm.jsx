@@ -172,7 +172,33 @@ export default function SetupForm({ onClose }) {
     where: "both",
     contact: { phone: "", email: "" },
   });
-  const put = (key) => (v) => setDraft((d) => ({ ...d, [key]: v }));
+  // WHICH STEPS THE DETAILER ACTUALLY TOUCHED — testing loop F-002,
+  // 2026-09-06. `go(i + 1, true)` used to append the step's key to
+  // `setup.done` whatever was on screen, so tapping the primary button seven
+  // times — the obvious thing to do, and what "Continue" invites — reported
+  // **7 of 7 done** on a business with no hours of its own, no phone number
+  // and no answer to "where does the work happen". That number is printed on
+  // Business AND on the platform back office, so it told the owner a
+  // detailer was set up when they had answered one question.
+  //
+  // It is `docs/final-pass.md` finding 5 ("2 of 7 on a brand-new business")
+  // inverted, and it has the same cause: a count that is arithmetically
+  // right about the DATA and wrong about the QUESTION.
+  //
+  // ONLY THE THREE UNDERIVABLE STEPS NEED THIS. `lib/setup.js` derives
+  // services, add-ons, promo codes and colour from rows that only exist
+  // because somebody made them, so marking those is at worst redundant.
+  // `hours`, `where` and `contact` are all seeded or defaulted at birth —
+  // that is exactly why they stopped deriving on 2026-09-06 — so for them
+  // the mark IS the answer, and a mark nobody earned is a lie about the one
+  // thing the stored list exists to record.
+  const [touched, setTouched] = useState(() => new Set());
+  const put = (key) => (v) => {
+    setTouched((t) => (t.has(key) ? t : new Set([...t, key])));
+    setDraft((d) => ({ ...d, [key]: v }));
+  };
+  const DERIVED = new Set(["services", "addons", "promos", "colour"]);
+  const answered = (key) => DERIVED.has(key) || touched.has(key);
 
   const load = useCallback(async () => {
     setCounts(await loadSetupCounts(business.id));
@@ -201,6 +227,49 @@ export default function SetupForm({ onClose }) {
         : settings?.dropoff_enabled ? "dropoff" : "mobile",
     }));
   }, [business.contact_phone, business.contact_email, settings?.mobile_enabled, settings?.dropoff_enabled]);
+
+  // AND THE THIRD, WHICH WAS MISSING AND DESTROYED DATA — testing loop
+  // F-001, 2026-09-06. The comment above says "the two editors whose answer
+  // may already exist"; hours ALWAYS already exist, because
+  // `newBusiness.ts` seeds all seven weekdays at birth. Left unseeded, this
+  // editor opened on a hardcoded Mon-Fri 09:00-17:00 whatever the detailer
+  // had set, and `commit("hours")` upserts every weekday from it — so a
+  // detailer who had set Tue-Sat 08:00-18:00, then came back to finish
+  // setting up (which is the RESUMABLE promise at the top of this file) and
+  // pressed Continue, silently got the default back. Their booking page then
+  // sells slots they cannot work and refuses the days they can, and nothing
+  // on any screen reports it.
+  //
+  // The editor holds ONE open and ONE close for every open day, so a
+  // business with genuinely different times per day cannot be represented
+  // here — the first open day's times are shown, which is what the Hours
+  // settings screen would also show first. That is a display limit and no
+  // longer a data-loss one: `touched` below is what stops Continue writing a
+  // shape the detailer never looked at.
+  const seededHours = useRef(false);
+  useEffect(() => {
+    if (seededHours.current) return;
+    let live = true;
+    (async () => {
+      const { data } = await supabase.from("business_hours")
+        .select("weekday,open_time,close_time").eq("business_id", business.id);
+      if (!live || !data?.length) return;
+      seededHours.current = true;
+      const open = data.filter((r) => r.open_time && r.close_time)
+        .sort((a, b) => a.weekday - b.weekday);
+      if (!open.length) return;
+      const hhmm = (t) => String(t).slice(0, 5);
+      setDraft((d) => ({
+        ...d,
+        hours: {
+          days: open.map((r) => r.weekday),
+          open: hhmm(open[0].open_time),
+          close: hhmm(open[0].close_time),
+        },
+      }));
+    })();
+    return () => { live = false; };
+  }, [business.id]);
 
   const progress = setupProgress({ business, branding, settings, counts });
 
@@ -313,11 +382,17 @@ export default function SetupForm({ onClose }) {
     try {
       if (mark) {
         const key = STEPS[i][0];
-        const problem = await commit(key);
-        if (problem) { setErr(problem); return; }
-        const done = [...new Set([...(settings?.setup?.done ?? []), key])];
-        await patchSetup({ done });
-        await load();
+        // COMMIT ONLY WHAT WAS TOUCHED. `commit("hours")` and
+        // `commit("contact")` both WRITE unconditionally, so passing an
+        // untouched draft through them is the data loss F-001 describes —
+        // the guard has to sit before the write, not before the mark.
+        if (answered(key)) {
+          const problem = await commit(key);
+          if (problem) { setErr(problem); return; }
+          const done = [...new Set([...(settings?.setup?.done ?? []), key])];
+          await patchSetup({ done });
+          await load();
+        }
       }
       if (n >= STEPS.length) { close(); return; }
       setDir(n > i ? 1 : -1);

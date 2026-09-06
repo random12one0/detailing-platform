@@ -102,9 +102,9 @@ const PW = "Phase2-tz-test-pw!";
 const owner = await ensureUser("tz-owner@tz.test", PW);
 await svc.del("/rest/v1/businesses?slug=in.(tz-ny,tz-phx,tz-den)");
 const bizzes = (await svc.post("/rest/v1/businesses", [
-  { slug: "tz-ny", name: "TZ New York", timezone: "America/New_York", contact_email: "ny@tz.test" },
-  { slug: "tz-phx", name: "TZ Phoenix", timezone: "America/Phoenix", contact_email: "phx@tz.test" },
-  { slug: "tz-den", name: "TZ Denver", timezone: "America/Denver", contact_email: "den@tz.test" },
+  { is_demo: true, slug: "tz-ny", name: "TZ New York", timezone: "America/New_York", contact_email: "ny@tz.test" },
+  { is_demo: true, slug: "tz-phx", name: "TZ Phoenix", timezone: "America/Phoenix", contact_email: "phx@tz.test" },
+  { is_demo: true, slug: "tz-den", name: "TZ Denver", timezone: "America/Denver", contact_email: "den@tz.test" },
 ])).data;
 const NY = bizzes.find((b) => b.slug === "tz-ny");
 const PHX = bizzes.find((b) => b.slug === "tz-phx");

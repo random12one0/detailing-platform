@@ -63,19 +63,51 @@ parked for the owner", with a recommendation attached to each.
 
 ---
 
-## The testing loop
+## The testing loop — ONE LAP RUN, 2026-09-06
 
-**Planned 2026-09-06 at the owner's request, not yet run.**
-`docs/testing/LOOP.md` is the protocol; `docs/testing/FINDINGS.md` is the
-catalogue it fills. It is a session that does nothing but use the product as
-ten detailers, seven customers, the owner and an adversary — cataloguing
-friction, risk and breakage, fixing what it can, and proving it broke nothing.
+`docs/testing/LOOP.md` is the protocol, `docs/testing/FINDINGS.md` the
+catalogue, and **`docs/testing/REPORT.md` is the thing to read** — its first
+section is what needs the owner and nothing else can move without him.
 
-**It exists because of a pattern in what he has actually found:** the 401 with
-no way in, no *Sign in* on a phone, *2 of 7 done*, 28 stale functions. **Three
-of those four passed every check in this repo while being wrong**, because
-every check asks a question somebody already thought of. The loop's job is to
-arrive somewhere as a person, with an intention, and notice.
+**Six passes: D1 (a brand-new detailer), O2 (the back office), A1-A5 (the
+adversary), C7 (a customer on a bad connection), the code's own failure paths,
+and §5 — two detailers signed in at once, in two browsers, which §5 calls
+mandatory every lap and which had never been done.**
+
+**Thirty-three findings, nineteen fixed in the pass that found them, six of
+them blocks-launch.** Five of those six were invisible from every screen in
+the product AND from every check in this repo, which is the pattern §0 of
+LOOP.md predicts:
+
+- Pressing **Continue** on the setup form's hours step **destroyed a
+  detailer's real hours** — the editor opened on a hardcoded Mon-Fri 9-5 and
+  wrote it over the top (F-001).
+- **Continue marked a question answered with nothing on screen**, so seven
+  taps reported *7 of 7 done* on a business that had answered one. The *"2 of
+  7"* defect the owner found, inverted (F-002).
+- A detailer who **chose a paid plan never saw the payment screen**, and no
+  screen has a word for "never subscribed" (F-003).
+- **A dropped reply made a real booking look failed**, and the retry told the
+  customer a stranger had taken their slot (F-022).
+- **Our own daily email cap marked real customers as bounced, permanently** —
+  a 429 was being read as "this address is wrong" (F-025).
+- **A failed membership insert locked somebody out of their own business for
+  ever**, with no screen able to show it and no button able to undo it
+  (F-026).
+
+Plus the back office, which **could not tell a test business from a real
+detailer**: the headline read *"Detailers 15"* on a platform with none, and
+*Needs a look* was eight rows of fixtures (F-014).
+
+**Two new scripts, both committed and reproducible:**
+`scripts/adversary-probe.mjs` (50 checks — nothing leaks to a stranger) and
+`scripts/two-detailers.mjs` (25 checks — nothing of one detailer ever reaches
+the other, in two live browsers). The second exists because
+`seed-two-tenants.mjs` makes two businesses and **no logins**, so §5's own
+first instruction was not possible with the fixture §5 names (F-031).
+
+**`docs/testing/REPORT.md` §5 is the brainstorm** the owner asked for: fifty
+ideas, each citing the finding or the moment that motivated it, costs named.
 
 ## The process failure this checkpoint exists to correct
 

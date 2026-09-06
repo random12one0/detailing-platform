@@ -151,5 +151,40 @@ console.log("\n7. a half-populated row");
     !reasonsFor({ bookings_total: 5 }).some((w) => /no booking in/.test(w)));
 }
 
+// ─── 8. A demo or a fixture never needs a look ────────────────────────────
+// Testing loop F-014, 2026-09-06. This list fails in exactly two ways and
+// both are silent — it misses the thing that mattered, or it cries wolf until
+// nobody reads it — and on the day the loop started it was doing the second
+// one completely: **eight rows, all of them test businesses.** Every seeded
+// demo and every fixture the database-backed suites leave behind trips at
+// least two of these reasons by construction (never booked, setup unfinished,
+// no website), so the one list on the screen whose whole job is to be short
+// was full of the same names every morning.
+console.log("\n8. demos and fixtures");
+{
+  const fixture = {
+    id: "f", name: "TZ Denver", is_demo: true,
+    bookings_total: 0, jobs_month: 0, setup_count: 1, setup_total: 7,
+    site_url: null, domains: 0,
+  };
+  const real = { ...fixture, id: "r", name: "Ridgeline Auto Detail", is_demo: false };
+
+  // The reasons themselves are unchanged — a fixture LOOKS exactly like a
+  // struggling detailer, which is the whole problem and is why the filter has
+  // to be on identity rather than on the symptoms.
+  check("8a · a fixture would otherwise qualify", reasonsFor(fixture).length > 0,
+    `${reasonsFor(fixture).length} reasons`);
+  check("8b · and the same row as a real detailer does appear",
+    needsALook([real]).some((r) => r.id === "r"));
+  check("8c · but the demo one is dropped",
+    !needsALook([fixture]).some((r) => r.id === "f"));
+  check("8d · and dropping it does not drop the real one beside it",
+    needsALook([fixture, real]).length === 1 && needsALook([fixture, real])[0].id === "r");
+  // A row with no `is_demo` at all — an older server, a field dropped — must
+  // be treated as REAL. Guessing the other way hides a live detailer.
+  check("8e · a row with no is_demo field is a real detailer",
+    needsALook([{ ...real, is_demo: undefined }]).length === 1);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

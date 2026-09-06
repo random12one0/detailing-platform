@@ -260,8 +260,11 @@ console.log("\n7. and the things the spec refused");
     // `pa-num"` WITH THE QUOTE: the wrapper is `pa-nums`, and matching the
     // bare prefix counted the container as an extra figure.
     figures === 6, `${figures} figures`);
+  // The jobs label gained the word "finished" on 2026-09-06 — testing loop
+  // F-016, and § 11i is where the reason lives. The claim here is unchanged:
+  // these two are about the PRODUCT rather than the company.
   check("and the two new ones are about the product, not the business",
-    /jobs this month/.test(p) && /through the platform/.test(p),
+    /jobs finished this month/.test(p) && /through the platform/.test(p),
     "the other four all answer 'how is my company doing'; these answer 'is it carrying work'");
 
   // NO CHART STILL HOLDS. More figures is not more decoration, and the
@@ -439,6 +442,86 @@ console.log("\n10. the jobs that nobody watches");
     /insert into public\.job_heartbeats[\s\S]{0,240}on conflict \(job\) do nothing/
       .test(read("supabase/migrations/20260906006100_seed_job_heartbeats.sql")),
     "a monitor that cries on the day it is installed is one somebody ignores by the end of the week");
+}
+
+// ─── 11. THE BACK OFFICE COUNTS DETAILERS, NOT ROWS ───────────────────────
+//
+// Testing loop pass 002, 2026-09-06. `businesses.is_demo` has existed since
+// roadmap 6.2 — it is what keeps the seeded demo out of the founding count —
+// and **this screen never asked the server for it.** So three demos and every
+// fixture the database-backed suites leave behind were listed and counted as
+// ordinary detailers: the headline read **"Detailers 15"** on a platform with
+// none, and NEEDS A LOOK was eight rows of test businesses.
+//
+// The rows still CARRY them, deliberately: he does open the demo, and a
+// suite's leftovers are worth seeing. What must never happen again is a
+// FIGURE that includes them, because every figure on this screen is read as
+// an answer about customers.
+console.log("\n11. demos are marked and never counted");
+{
+  const f = strip(fn);
+  const p = strip(page);
+
+  check("11a · the server asks for is_demo", /\bis_demo\b/.test(f)
+    && /select\("id, slug, name, status, plan_tier, is_demo/.test(f));
+  check("11b · and sends it on every row", /is_demo: !!b\.is_demo,/.test(f));
+
+  // ONE derived list, used by every tile. A tile filtering for itself is a
+  // tile the next one forgets to copy.
+  check("11c · the tiles are computed from the real detailers only",
+    /const real = rows\.filter\(\(r\) => !r\.is_demo\);/.test(f));
+  const tiles = f.slice(f.indexOf("totals: {"), f.indexOf("new_month:") + 90);
+  check("11d · and no tile is computed from the raw rows",
+    tiles.length > 100 && !/\brows\.(filter|reduce)\b/.test(tiles),
+    tiles.match(/rows\.(filter|reduce)/g)?.join(", ") ?? "");
+  check("11e · except the demo count itself, which is the difference",
+    /demo: rows\.length - real\.length,/.test(f));
+
+  // THE SCREEN SAYS SO. A number that silently means something narrower than
+  // its label is the same defect one layer up.
+  check("11f · a demo row is tagged in the list", /r\.is_demo && <span className="pa-tag">demo<\/span>/.test(p));
+  check("11g · and the headline says how many were left out",
+    /t\.demo \? `detailers · \$\{t\.demo\} demo` : "detailers"/.test(p));
+
+  // ─── the month has an end (F-018) ───────────────────────────────────────
+  // `start_at >= monthStart` with nothing above it counted a completed job
+  // dated NEXT month as this month's takings.
+  check("11h · this month has an upper bound as well as a lower one",
+    /const monthTo = monthEnd\.getTime\(\);/.test(f)
+      && /t >= monthAgo && t < monthTo/.test(f));
+
+  // ─── the tile says what it counts (F-016) ───────────────────────────────
+  // "0 jobs this month" sat beside a row reading "30 bookings, last today".
+  // Both were right; together they read as a broken number.
+  check("11i · the jobs tile says the jobs are finished ones",
+    /jobs finished this month/.test(p));
+
+  // ─── the photo line stops contradicting itself (F-017) ──────────────────
+  // "10 MB each for 15 detailers · 154 MB promised" — two independent
+  // roundings of the same arithmetic, printed side by side. Under the ceiling
+  // the promised figure is exactly share x businesses and says nothing new;
+  // over it, it is the whole point.
+  check("11j · the promised total is printed only when it is over the ceiling",
+    /committed_bytes > state\.photo_store\.total_bytes\s*&& ` · PROMISED/.test(p));
+
+  // ─── clicking a detailer goes to the detailer (F-015) ───────────────────
+  // The panel renders below the whole list, so pressing a name looked like it
+  // did nothing at fifteen tenants and will be a hundred rows down at a
+  // hundred.
+  check("11k · opening a business scrolls its panel into view",
+    /scrollIntoView\(\{ block: "start"/.test(p));
+  check("11l · but a refresh after an action does not move him",
+    /if \(!keepMsg\) \{\s*requestAnimationFrame/.test(p));
+
+  // ─── the door says where it is (F-021) ──────────────────────────────────
+  check("11m · the signed-out door names itself",
+    /The back office<\/h1>/.test(p));
+  // And still never says WHY a signed-in stranger was refused — the 404 rule
+  // this file has held since stage 1.
+  check("11n · and still tells a signed-in non-admin nothing",
+    !/not an admin|permission|platform_admins/i.test(strip(page).slice(
+      strip(page).indexOf('status === "denied"'),
+      strip(page).indexOf('status === "denied"') + 400)));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

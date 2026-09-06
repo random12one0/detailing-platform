@@ -671,7 +671,20 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   check("send-email can send as the platform", relay.includes("sender_name"));
   check("a platform send does not stamp a bounce on a customer",
     relay.includes("!fromPlatform) await markAddress")
-      && relay.includes("res.status < 500 && !fromPlatform"));
+      && relay.includes("!ourFault && !fromPlatform"));
+  // **AND NEITHER DOES OUR OWN DAILY CAP — testing loop F-025, 2026-09-06.**
+  // This check pinned `res.status < 500` until then, which is one status too
+  // narrow: Resend's free plan is 100 emails a DAY ACROSS EVERY TENANT and
+  // the transactional set spends about five a booking, so the platform's
+  // twenty-first booking of the day is refused with a **429** — under 500, so
+  // every customer emailed after the cap was stamped `email_failed_at` and
+  // told permanently that their address had bounced. It is worse than the
+  // provider-outage case the 5xx rule was written for, because it is
+  // self-inflicted, arrives on the BUSIEST days, and `send-campaign` filters
+  // on that column — so a good day's customers quietly stop being reachable.
+  check("nor does our own rate limit or a timeout",
+    /const ourFault = res\.status >= 500 \|\| res\.status === 429 \|\| res\.status === 408;/.test(relay),
+    "a 429 is our quota, not their address");
   check("a platform send does not reply-to the tenant",
     relay.includes("!fromPlatform && business.contact_email"));
   const hook = read("supabase/functions/stripe-webhook/index.ts");

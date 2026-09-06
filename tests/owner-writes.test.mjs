@@ -76,7 +76,7 @@ const owner = await ensureUser("owner-writes@owner.test", PW);
 
 await svc.del("/rest/v1/businesses?slug=eq.owner-writes");
 const biz = (await svc.post("/rest/v1/businesses", [{
-  slug: "owner-writes", name: "Owner Writes Detailing", timezone: "America/Denver",
+  is_demo: true, slug: "owner-writes", name: "Owner Writes Detailing", timezone: "America/Denver",
   contact_email: "owner@ownerwrites.test",
 }])).data[0];
 await svc.post("/rest/v1/business_users", [
@@ -255,7 +255,7 @@ console.log("test 6: writes are still scoped — the same owner JWT cannot cross
   // The positive case must not have been bought by loosening isolation.
   await svc.del("/rest/v1/businesses?slug=eq.owner-writes-other");
   const other = (await svc.post("/rest/v1/businesses", [{
-    slug: "owner-writes-other", name: "Someone Else", timezone: "America/New_York",
+    is_demo: true, slug: "owner-writes-other", name: "Someone Else", timezone: "America/New_York",
     contact_email: "other@ownerwrites.test",
   }])).data[0];
 

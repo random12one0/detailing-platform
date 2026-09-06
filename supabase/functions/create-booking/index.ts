@@ -377,14 +377,71 @@ Deno.serve(async (req) => {
 
     if (insertErr) {
       if (insertErr.code === "23P01") {
+        // **THE OVERLAP MAY BE THEIR OWN BOOKING, AND UNTIL 2026-09-06 THIS
+        // TOLD THEM A STRANGER HAD TAKEN IT** — testing loop F-022, found by
+        // walking C7, the customer on a bad connection.
+        //
+        // The shape: the request reaches here, the row is written, and the
+        // RESPONSE is lost on the way back. The page shows an error, clears
+        // `submitting`, and the customer presses Confirm again — which is
+        // exactly what anybody would do. The second attempt collides with
+        // **the booking they just made**, and the sentence below sends them
+        // off to pick a different time for a job that is already on the
+        // detailer's calendar. They either book a second slot (a double
+        // booking, and a wasted morning for the detailer) or give up on one
+        // that is confirmed and will be waited for.
+        //
+        // Nothing else in the stack can see this. The button's `submitting`
+        // flag is per-page-load, the exclusion constraint cannot know who is
+        // asking, and every check in the repo runs on a connection that does
+        // not drop.
+        //
+        // So: idempotency by natural key. Same business, same instant, same
+        // phone, not cancelled — that is not a clash, it is the same booking
+        // arriving twice, and the honest answer is the row itself. Phone
+        // rather than email because `create-booking` already requires a phone
+        // and already scopes the customer upsert by it; email is optional.
+        const { data: mine } = await supabase
+          .from("bookings")
+          .select("*")
+          .eq("business_id", business.id)
+          .eq("start_at", check.startAt!.toISOString())
+          .eq("customer_phone", String(body.customer_phone).trim())
+          .neq("status", "cancelled")
+          .is("deleted_at", null)
+          .maybeSingle();
+        if (mine) {
+          // The SAME shape a fresh booking returns, so the confirmation page
+          // and the emails behave identically — a retry must be
+          // indistinguishable from the first press, including for the
+          // customer who never knew there was one.
+          return json({ booking: mine, duplicate: true });
+        }
         return json({ error: "That time was just taken by another booking. Please choose a different time." }, 409);
       }
+      // **NOT `insertErr.message`.** That is a Postgres string — it names
+      // columns, constraints and checks — and this endpoint is public, so it
+      // was being handed to a stranger on a booking page. It is also
+      // meaningless to the one person who ever reads it. The detail belongs
+      // in the log, where the owner can reach it and a visitor cannot.
       console.error("Booking insert failed:", insertErr);
-      return json({ error: insertErr.message }, 500);
+      return json({ error: "We could not save that booking. Please try again in a moment." }, 500);
     }
 
     // Children: chosen services (price/duration snapshotted) + add-ons.
-    await supabase.from("booking_services").insert(
+    // **THE ERROR IS READ NOW — testing loop F-024, 2026-09-06.** It was
+    // discarded, and a booking with no `booking_services` rows is not a
+    // half-broken booking, it is a receipt with a total and no lines: the
+    // confirmation email, the invoice and the manage page all itemise from
+    // this table, and `reconcile()` would draw the entire price as an
+    // unexplained remainder. It is also invisible — the booking exists, the
+    // slot is held, the detailer sees the job — so the first person to find
+    // out is the customer reading their own receipt.
+    //
+    // It cannot be UNDONE here (deleting the booking would give the slot away
+    // to somebody mid-form), so what it does is SAY SO, loudly, in the one
+    // place the owner can reach.
+    const { error: svcErr } = await supabase.from("booking_services").insert(
       services.map((s) => ({
         business_id: business.id,
         booking_id: booking.id,
@@ -394,10 +451,17 @@ Deno.serve(async (req) => {
         duration_at_booking: Number(s.duration_minutes) + sizeAdjustmentFor(s, vehicleSize).duration_minutes,
       })),
     );
+    if (svcErr) {
+      console.error(
+        `BOOKING ${booking.id} HAS NO SERVICE LINES — its receipt will not itemise:`,
+        svcErr,
+      );
+    }
     if (addOns.length) {
-      await supabase.from("booking_add_ons").insert(
+      const { error: addErr } = await supabase.from("booking_add_ons").insert(
         addOns.map((a) => ({ business_id: business.id, booking_id: booking.id, add_on_id: a.id })),
       );
+      if (addErr) console.error(`BOOKING ${booking.id} lost its add-on lines:`, addErr);
     }
 
     // Promo usage counter — best-effort, never fails the booking.

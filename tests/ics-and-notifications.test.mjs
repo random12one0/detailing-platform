@@ -58,12 +58,12 @@ const owner = await ensureUser("ics-owner@ics.test", PW);
 await svc.del("/rest/v1/businesses?slug=in.(ics-a,ics-phx,ics-new)");
 
 const [A] = (await svc.post("/rest/v1/businesses", [{
-  slug: "ics-a", name: "ICS Test Detailing", timezone: "America/New_York",
+  is_demo: true, slug: "ics-a", name: "ICS Test Detailing", timezone: "America/New_York",
   contact_email: "primary@ics.test", contact_phone: "555-7000",
   dropoff_address: "9 Shop Lane, Brooklyn, NY",
 }])).data;
 const [PHX] = (await svc.post("/rest/v1/businesses", [{
-  slug: "ics-phx", name: "ICS Phoenix", timezone: "America/Phoenix", contact_email: "phx@ics.test",
+  is_demo: true, slug: "ics-phx", name: "ICS Phoenix", timezone: "America/Phoenix", contact_email: "phx@ics.test",
 }])).data;
 await svc.post("/rest/v1/business_users", [{ business_id: A.id, user_id: owner.id, role: "owner" }]);
 await svc.post("/rest/v1/business_settings", [{ business_id: A.id }, { business_id: PHX.id }]);
@@ -198,6 +198,15 @@ console.log("\ntest 6: signup requires a timezone");
   const created = (await svc.get(`/rest/v1/businesses?slug=eq.ics-new&select=id,timezone`)).data[0];
   const setRow = (await svc.get(`/rest/v1/business_settings?business_id=eq.${created.id}&select=business_id`)).data;
   check("signup also creates default settings", setRow.length === 1);
+  // NOT A DETAILER — testing loop F-014, 2026-09-06. This is the one fixture
+  // in the suites that goes through `create-business` rather than a direct
+  // insert, so it cannot carry `is_demo` in its payload (the function does
+  // not take one, correctly — a signup must not be able to hide itself from
+  // the back office). It is marked afterwards instead, because a suite that
+  // leaves a real-looking business behind is a row the owner then has to
+  // recognise as ours on a screen whose job is to tell him about his
+  // customers.
+  await svc.patch(`/rest/v1/businesses?slug=eq.ics-new`, { is_demo: true });
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

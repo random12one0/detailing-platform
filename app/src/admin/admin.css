@@ -66,7 +66,7 @@
 /* THE SIGN-IN GATE. Narrow, because a login is one thought and a form the
    width of a 1440px back office reads as a page that failed to load its
    content. Nothing else about the page changes. */
-.pa-gate { max-width: 380px; }
+.pa-gate { max-width: 380px; margin: 12vh auto 0; }
 .pa-gate .pa-field { display: block; margin-bottom: 12px; }
 .pa-gate .pa-btns { align-items: center; gap: 14px; }
 

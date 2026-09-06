@@ -16,6 +16,13 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
     })
     : "";
 
+  // The vehicle, in the customer's own words where they gave any. The size
+  // label comes from the tenant's own list, so a detailer who renamed
+  // "Medium" to "Crossover" sees their word here too.
+  const sizeLabel = (settings?.vehicle_sizes ?? [])
+    .find((s) => s.key === form.vehicleSize)?.label ?? "";
+  const vehicleLine = [form.vehicleModel?.trim(), sizeLabel].filter(Boolean).join(" · ");
+
   return (
     <>
       {/* The appointment is the one lit object on this screen — it is the
@@ -33,6 +40,32 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             : `Drop-off${business.dropoff_address ? ` — ${business.dropoff_address}` : ""}`}
         </p>
       </div>
+
+      {/* WHO WE ARE COMING TO, AND WHAT IN — testing loop F-007, 2026-09-06.
+          This step is headed "Check everything over" and, until now, showed
+          none of what a person would actually check: the name, the phone,
+          the email and the vehicle were typed two steps earlier and never
+          shown again. The phone and the email are the two that decide
+          whether the confirmation and the reminder ever arrive, and a
+          transposed digit in either is invisible until the day of the job.
+
+          IT RIDES THE APPOINTMENT CARD RATHER THAN A CARD OF ITS OWN, and
+          that is a height decision as much as a design one: step 7 is the
+          second-tightest step on a phone and its spare room belongs to the
+          TENANT — a detailer with six services, an add-on, a travel fee and
+          a promo already has a longer receipt than the demo does. Two muted
+          lines cost ~34px; a second `.bk-receipt` cost ~56px with its own
+          padding and rule.
+
+          NO EDITING HERE. The back arrow already goes to the step that owns
+          each field, and a second set of inputs is a second place the same
+          value can be typed differently. */}
+      <p className="bk-muted" style={{ marginTop: 10 }}>
+        {[form.customerName, vehicleLine].filter(Boolean).join(" · ")}
+      </p>
+      <p className="bk-muted" style={{ marginTop: 2 }}>
+        {[form.customerPhone, form.customerEmail].filter(Boolean).join(" · ")}
+      </p>
 
       {/* The money is a receipt — ruled rows, mono figures, a dashed rule
           before the total — not another card. */}

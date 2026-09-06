@@ -138,6 +138,22 @@ export default function App() {
     // silently and only sometimes.
     if (role === "owner" && !settings) return;
     started.current = true;
+    // A PENDING BILLING LINK OUTRANKS THE FIRST RUN — testing loop F-003,
+    // 2026-09-06. `CreateBusiness` sends a detailer who chose a plan to
+    // `/app?settings=billing&term=…`, and the gear below does open on
+    // billing — and then this effect opened the setup form ON TOP of it, and
+    // the tour on top of that. Closing both leaves them on Today with the
+    // URL still saying `settings=billing`, `platform_subscriptions` empty,
+    // and NOTHING on any screen saying so: Today warns on `past_due` and
+    // `suspended`, never on "never subscribed". So somebody who picked a
+    // plan, read the terms and pressed Choose this arrives at a free product
+    // and is never asked again.
+    //
+    // Deferring rather than cancelling: `setup.seen` is written by the form
+    // when it CLOSES, so a form that never opened is not marked, and the
+    // next load offers it. Pay first, set up second — which is also the
+    // order they chose.
+    if (deepLink.current === "billing") return;
     if (role === "owner") {
       // ROADMAP 7.3's FINAL PASS, finding 2, fixed 2026-09-06 — but in
       // `SetupForm`, not here. `setup.seen` used to be written when the form
