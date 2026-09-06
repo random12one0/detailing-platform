@@ -1073,3 +1073,52 @@
    strike on each of the three figures — the ladder is already three rows of
    numbers and a fourth struck one on each would be four. */
 .ld .standard { margin-top: 20px; color: var(--fog-2); font-size: 13.5px; line-height: 1.5; max-width: 60ch; }
+
+/* ── ROADMAP 7.1 — /terms and /privacy ─────────────────────────────────
+   A ruled list of "here is a thing, here is what it means", which is the
+   same shape as the pricing page's rungs minus the figure column. It is
+   NOT `.rung`: that is a three-column grid built around a right-aligned
+   `nowrap` price, and reusing it here would mean carrying an empty third
+   column through every breakpoint of a page that has no numbers on it. */
+.ld .legal { margin: 26px 0 0; border-top: 1px solid var(--line-2); }
+.ld .legalrow {
+  display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: clamp(10px, 3vw, 40px);
+  padding: clamp(18px, 2.4vh, 24px) 0;
+  border-bottom: 1px solid var(--line);
+}
+.ld .legalrow dt {
+  font-variation-settings: "wdth" 104, "wght" 660;
+  font-size: clamp(16px, 1.7vw, 19px); letter-spacing: -.015em; color: var(--bone);
+}
+.ld .legalrow dd {
+  margin: 0; max-width: 60ch;
+  color: var(--fog); font-size: 14.5px; line-height: 1.6;
+}
+.ld .legalnote {
+  margin: 22px 0 0; max-width: 60ch;
+  color: var(--fog-2); font-size: 13.5px; line-height: 1.6;
+}
+.ld .legalnote .lk { font-size: inherit; }
+
+/* THE TERM STACKS ON A PHONE and the rule stays: at 520 a 15rem column beside
+   a paragraph leaves both too narrow to read, which is the one thing a page
+   made entirely of prose cannot afford. No `min-height` guard is needed here
+   because nothing about this rule spends HEIGHT — it gives height back. */
+@media (max-width: 640px) {
+  .ld .legalrow { grid-template-columns: 1fr; gap: 8px; }
+}
+
+/* The support line takes the footer's whole width below the two things that
+   were already there, rather than becoming a third baseline-aligned item: it
+   is a sentence, and a sentence in a `space-between` row wraps into a shape
+   that reads as a mistake. */
+.ld .foot { row-gap: 10px; }
+.ld .footsup { flex-basis: 100%; color: var(--fog-2); line-height: 1.6; }
+.ld .footsup a { color: var(--fog); border-bottom: 1px solid var(--line-2); }
+.ld .footsup a:hover { color: var(--bone-2); }
+/* The address in the note is the one thing on these pages a reader is meant
+   to ACT on, so it is drawn like the footer's rather than inheriting the
+   paragraph — `.lk` alone is the nav's treatment and disappears in body copy. */
+.ld .legalnote a { color: var(--fog); border-bottom: 1px solid var(--line-2); }
+.ld .legalnote a:hover { color: var(--bone-2); }

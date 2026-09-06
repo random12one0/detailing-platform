@@ -421,5 +421,65 @@ console.log("\ntest 9: the founding count ignores demo businesses");
     /plan_tier:\s*"founding"/.test(seed));
 }
 
+
+// ══ ROADMAP 7.1 — /terms, /privacy, and the support policy ════════════
+console.log("\ntest 10: the two documents and the support line");
+{
+  const { readFileSync } = await import("node:fs");
+  const legal = readFileSync("app/src/landing/legal.js", "utf8");
+  const legalPage = readFileSync("app/src/landing/LegalPage.jsx", "utf8");
+  const brand = readFileSync("supabase/functions/_shared/platformBrand.ts", "utf8");
+
+  check("10a · both routes exist and are public",
+    /path="\/terms"/.test(main) && /path="\/privacy"/.test(main)
+      && !/Wrapped><LegalPage/.test(main),
+    "a visitor deciding whether to sign up is exactly who reads these");
+
+  // THE SUPPORT CONTACT IS A SECOND COPY, for the wall that already forced two
+  // price tables: a Deno bundle cannot import out of `supabase/`. Same
+  // permission, same price — a test that pins them equal.
+  const emailIn = (src) => (src.match(/support@[a-z.]+/) ?? [])[0];
+  const phoneIn = (src) => (src.match(/\(\d{3}\) \d{3}-\d{4}/) ?? [])[0];
+  check("10b · the support address matches the one the emails send from",
+    emailIn(legal) && emailIn(legal) === emailIn(brand), `${emailIn(legal)} vs ${emailIn(brand)}`);
+  check("10c · and so does the phone number",
+    phoneIn(legal) && phoneIn(legal) === phoneIn(brand), `${phoneIn(legal)} vs ${phoneIn(brand)}`);
+
+  // A POLICY, NOT A LINK. "Contact us" under a footer says nothing about who
+  // picks it up or how long you wait, which is the whole question somebody
+  // handing over a business is asking.
+  check("10d · the footer carries the support policy and both documents",
+    /SUPPORT_LINE/.test(jsx) && /href="\/terms"/.test(jsx) && /href="\/privacy"/.test(jsx));
+  check("10e · and the line says how long an answer takes",
+    /same working day/i.test(legal), "a promise with no time in it is not a policy");
+
+  // THE SENTENCE THAT MAKES THESE HONEST. The roadmap calls them placeholders
+  // and says the owner supplies real legal text later; a reader who finds that
+  // out at the bottom has read the whole thing on a wrong assumption.
+  check("10f · both pages say a lawyer has not seen this yet, at the TOP",
+    /NOT_YET_LAWYERED/.test(legalPage)
+      && legalPage.indexOf("NOT_YET_LAWYERED", legalPage.indexOf("<main")) < legalPage.indexOf("<dl"),
+    "it is above the sections, not a footnote");
+
+  // THE RULE THE FILE EXISTS TO HOLD. Borrowed boilerplate is worse than
+  // nothing: it is a promise the owner has not made, in language he cannot
+  // check. Every line in there is a fact about what this product does.
+  const invented = ["arbitration", "governing law", "class action", "warrant",
+                    "indemnif", "limitation of liability", "jurisdiction"];
+  // COMMENTS OUT FIRST — and this failed on its own file's header, which says
+  // in as many words that boilerplate "about arbitration and governing law" is
+  // what the file refuses to contain. **Seventh instance of that trap in two
+  // days.** A check reading source as text reads the prose explaining it too.
+  const hits = invented.filter((w) => new RegExp(w, "i").test(noComments(legal)));
+  check("10g · nothing is invented that nobody has decided", hits.length === 0, hits.join(", "));
+
+  // The commitments these pages restate are ones `/pricing` already PRINTS, so
+  // restating them invents nothing — but they must not drift apart.
+  check("10h · the terms restate the printed promises rather than new ones",
+    /two weeks/i.test(legal) && /Nothing is deleted/i.test(legal)
+      && /two weeks/i.test(pcopy) && /nothing is deleted/i.test(pcopy),
+    "the dunning promise is on the pricing page too, and the two must say the same thing");
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

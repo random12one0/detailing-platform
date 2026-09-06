@@ -461,6 +461,26 @@ for (const w of SIZES) {
     console.log(`${"pricing · the offer".padEnd(24)} NOT MEASURED — no founding strip. Either the lookup lost a race or all three spots are taken; public.founding_offer() answers it.`);
   }
 
+  // ROADMAP 7.1 — /terms and /privacy, walked in the change that built them.
+  // They are prose in a two-column grid that collapses at 640, a width this
+  // list does not visit, so what is watched here is the 320 floor and the
+  // desk's 15rem term column. **Their rows reveal on SCROLL** — eight or nine
+  // sections is more than a fold — and an unrevealed node still has a full
+  // box, so the count below asks whether the sections EXIST rather than
+  // whether they are visible; the reveal itself is the one thing this script
+  // cannot see (`data-rv`, roadmap 2.20 stage 2).
+  for (const doc of ["terms", "privacy"]) {
+    await page.goto(`${BASE}/${doc}${LITE}`, { waitUntil: "domcontentloaded" });
+    await appear(page.locator(".legalrow"));
+    await settle(page, 1200);
+    await say(doc);
+    const rows = await page.locator(".legalrow").count();
+    if (rows < 5) {
+      console.log(`${(doc + " · the sections").padEnd(24)} NOT MEASURED — expected the ruled list, found ${rows} rows`);
+      found++;
+    }
+  }
+
   await page.goto(`${BASE}/app${LITE}`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
   if (await page.locator("input[type=email]").count()) {

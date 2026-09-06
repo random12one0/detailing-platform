@@ -6309,8 +6309,39 @@ is kept; the entire visual design restarts from scratch.
 
 ## Phase 7 — Launch readiness
 
-- [ ] 7.1 /terms and /privacy placeholders + support policy in the footer.
-      **OWNER supplies real legal text later.**
+- [x] 7.1 ~~/terms and /privacy placeholders + support policy in the footer.~~
+      **BUILT 2026-09-06.** `app/src/landing/LegalPage.jsx` (one component,
+      two routes — they are the same page with different words), the content in
+      `app/src/landing/legal.js`, and the support policy in `Foot()`, which
+      every marketing page already renders.
+
+      **"PLACEHOLDER" IS THE ROADMAP'S WORD AND IT IS NOT BOILERPLATE.** The
+      tempting build is two pages of borrowed text about arbitration, governing
+      law and limitation of liability — clauses nobody here has decided, on a
+      product with no lawyer yet. **That is worse than nothing: it is a promise
+      the owner has not made, in language he cannot check**, and check 10g
+      fails on any of those words appearing.
+      So every line is a FACT about what this product does, and most of them
+      are commitments `/pricing` has been printing in public since 2026-09-05 —
+      the twelve-month term, the exit fee, two weeks of retries, that nothing
+      is deleted. Writing those down invents nothing; 10h pins that the two
+      pages keep saying the same thing. **Both pages say at the TOP that a
+      lawyer has not seen them**, above the sections rather than in a footnote,
+      because a reader who learns that at the bottom has read the whole thing
+      on a wrong assumption.
+
+      **THE FOOTER LINE IS A POLICY, NOT A "CONTACT US".** Who picks it up and
+      how long you wait is the question somebody handing over a business is
+      actually asking, and both fit on one line. `SUPPORT_EMAIL` there is the
+      second copy of `_shared/platformBrand.ts`'s — the wall that already
+      forced two price tables — and 10b/10c pin them equal, address and phone.
+
+      Six new checks in `landing-pricing` (**80**), three baselined by breaking
+      what they guard. `sweep-widths.mjs` walks both pages at every width, added
+      in the change that built them. Measured clean at 1440, 392 and 320 with
+      no console errors, and **every `data-rv` row reaches opacity 1 after a
+      scroll** — checked explicitly, because this surface has already shipped a
+      node that never revealed and no other check in the repo can see one.
 - [ ] 7.2 Sentry error monitoring with PII scrubbing, proven with a fake
       record. **OWNER supplies the DSN.**
 - [ ] 7.3 Final end-to-end pass as a brand-new business AND as staff,

@@ -493,7 +493,7 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, **`landing-pricing`** (**67 checks — 65 until roadmap 4.4 stage 4; measured 2026-09-05, this said 58 and was stale within a day of being written** — 21 until roadmap
+  `design-contrast`, **`landing-pricing`** (**80 checks — 65 until roadmap 4.4 stage 4, 72 until 6.2, 80 until 7.1; measured 2026-09-06, this said 58 and was stale within a day of being written** — 21 until roadmap
   2.20 stage 2 on 2026-09-05, and its FIRST check had been vacuous since the
   day it was written: the pricing-section slice looked for
   `aria-labelledby="price"` when the section is `"prh"`, so `indexOf` returned
@@ -729,6 +729,26 @@ explaining it; if they still have to ask "so should I?", it failed.
   afterwards. **Assert inside the script (`assert old in s`) or verify with
   `grep` after every scripted edit** — and prefer the Edit tool, which is
   byte-exact and fails loudly.
+- **AND THE DETECTOR MATTERS AS MUCH AS THE RULE — added 2026-09-06, roadmap
+  7.1, after the same scripted edit failed THREE TIMES on an anchor that
+  plainly matched.** `core.autocrlf` is `true`, so **every file git checked out
+  is CRLF in the working tree while every file this session WRITES is LF** —
+  they are mixed, permanently, and which one a given file is depends only on
+  whether anybody has rewritten it. A Python edit that reads with
+  `newline=""` gets `\r\n` from an untouched file, so a needle joined with
+  `\n` is not in it and the assert fires on text you can see with your own
+  eyes. **Build the needle with the file's own separator**
+  (`nl = "\r\n" if "\r\n" in s else "\n"`).
+  **`cat -A` THROUGH THIS BASH TOOL DOES NOT SHOW IT** — it printed `$` at the
+  end of every line of a file that was genuinely CRLF, which is what sent three
+  attempts looking at the wrong thing. **`grep -qU $'\r' <file>` is the one
+  that answers correctly**, and this file already recommended it; use nothing
+  else.
+  **AND THE EDIT TOOL WROTE CRLF INTO A FILE THAT WAS LF** (`LandingPage.jsx`,
+  measured before and after). Harmless where nothing byte-exact reads the file,
+  and it is precisely how `composition` 8e-iv has twice gone red somewhere
+  nobody had touched. **After an Edit-tool change to a source file, run
+  `grep -qU $'\r'` and `sed -i 's/\r$//'` if it fires.**
 - **PATCH SOURCE FILES WITH `sed`, OR WITH PYTHON OPENED `newline=""` — never
   plain `open(p, "w")` on Windows.** Python reads LF and writes `os.linesep`,
   so a scripted edit silently converts the WHOLE FILE to CRLF; git's autocrlf
@@ -814,6 +834,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   so it changed no verdict on the day and catches the next change to it. The
   gap existed because this script walks the DASHBOARD and the booking page, and
   `/` is neither,
+  **`/terms` AND `/privacy` (added 2026-09-06, roadmap 7.1, in the change that
+  built them)** — public, prose in a two-column grid that collapses at 640,
+  which is a width this list does not visit, so what is watched is the 320
+  floor and the desk's term column. **Their rows reveal on SCROLL and an
+  unrevealed node still has a full box**, so the sweep asks whether the
+  sections EXIST rather than whether they are visible; whether they ever
+  reveal is the one thing it cannot see, and that was checked by hand at all
+  three widths when they were built,
   **THE PRICING PAGE, `/pricing` (added 2026-09-05, roadmap 2.20 stage 2, in
   the change that built it).** Public, so it is walked before the sign-in
   beside the booking page. Its ladder changes shape twice between 1440 and 320,

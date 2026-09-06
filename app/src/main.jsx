@@ -15,6 +15,7 @@ import UnsubscribePage from "./book/UnsubscribePage.jsx";
 import LandingPage from "./landing/LandingPage.jsx";
 import { isPlatformHost } from "./lib/host.js";
 import PricingPage from "./landing/PricingPage.jsx";
+import LegalPage from "./landing/LegalPage.jsx";
 import AdminPage from "./admin/AdminPage.jsx";
 
 // DEGRADATION — ONE code path, for the whole app (docs/design-system.md,
@@ -78,6 +79,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             a plan button that quietly goes back to /app?plan= is the exact
             thing he objected to, and it is one character of drift away. */}
         <Route path="/pricing" element={<PricingPage />} />
+        {/* ROADMAP 7.1 — public, and deliberately NOT behind the app. A
+            visitor deciding whether to sign up is exactly who reads these. */}
+        <Route path="/terms" element={<LegalPage which="terms" />} />
+        <Route path="/privacy" element={<LegalPage which="privacy" />} />
         <Route path="/book/:slug" element={<BookingPage />} />
         {/* ROADMAP 2.14 STEP 3. The plans a detailer sells live BESIDE the
             booking flow, never as a step inside it — 7 of 7 sampled detailers

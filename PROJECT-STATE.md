@@ -5892,3 +5892,95 @@ The new check asserting no `PRICING.` is left in either page failed on its own
 explanatory comment — the sentence saying "a leftover `PRICING.` would be a bug"
 contains the pattern. `landing-pricing` strips comments before reading source as
 text now. **Five instances in two days, in four different test files.**
+
+## ROADMAP 5.1, 6.2 AND 7.1 — THE MOVE, THE DEMO, AND THE TWO DOCUMENTS (2026-09-06)
+
+### 5.1 — the import from the old site, built and unrunnable here
+
+`scripts/legacy-map.mjs` (the rules), `scripts/import-legacy.mjs` (dry-run by
+default), `tests/legacy-import.test.mjs` (47 checks) and
+`docs/migration-plan-2026-09-06.md`. **The box is unticked because the source
+database cannot be reached: the access token in `.env` answers 403 for project
+`adtlnvihwrcqcasqcjwd`.** What is owed is one credential and it is the owner's
+(question 4 in the overnight log).
+
+**THE SPLIT IS THE POINT.** A plumbing failure is loud; **a mapping failure
+imports cleanly and is wrong** — every job seven hours early, a discount charged
+as an extra, a total that no longer adds up — and the owner would have to
+disbelieve his own records to find it. So every rule is a pure function over
+plain objects and is fully tested with no database at either end; the fetching
+and inserting is deliberately thin.
+
+**THE CLOCK.** The old `bookings` table stores a DATE and a TIME with no zone,
+because that site served one business in one place; this platform stores an
+instant. **Reading the pair as UTC moves eight months of history by seven or
+eight hours.** It goes through `_shared/tz.ts`, and one check proves a January
+booking sits an hour further from UTC than a July one — what a fixed offset
+gets wrong.
+
+**IDS ARE PRESERVED WHERE BOTH SIDES USE UUIDS**, so the run is idempotent and
+**every `/booking/:id` link the old site ever emailed still opens the right job
+here.** `customers.id` was a bigint, which is why customers insert first.
+
+**Four things deliberately do not come across**, printed on every run: the
+referral columns (4.2 item P), the old `add_ons` rows that are really DISCOUNTS
+(**a $25 discount imported as an add-on charges the next customer $25**),
+`monthly_plans` (a discount with no price is not this platform's plan), and
+`line_items` (a money line needs a KIND).
+
+### 6.2 — the demo stopped eating a founding spot
+
+`businesses.is_demo`, excluded from **both** `founding_offer()` and
+`claim_founding_spot()` — they had to move together, or the page advertises a
+spot the claim then refuses. **The roadmap had required this since it was
+written and the product started breaking it on 2026-09-05**, when 2.20 stage 2
+seeded the demo as `founding` so the struck prices would be the swept default.
+That reasoning still stands and the demo is still founding; the public page
+simply stopped printing *"2 of 3 left"* when three were. Measured:
+`founding_offer()` answers `{"left":3,"total":3}`.
+
+**A flag rather than a slug**, because excluding `'demo-detail'` by name inside
+a SQL function breaks the day a second demo exists — and 6.1 is a second demo.
+
+**And "proven to restore exact state" is a CHECK now.** *Exact* is impossible
+by design (dates are relative to today, ids are generated); the SHAPE is what
+is restorable, and `seed-demo.mjs` reads back what it wrote and exits 1 on a
+mismatch. It already PRINTED its counts, and a printed count is one nobody
+reads on a green run.
+
+**6.1 — the demo's own marketing site — is left, blocked on the owner's
+taste** (question 0). Three attempts have passed every check in this repo and
+he still said they look AI.
+
+### 7.1 — /terms, /privacy, and the support policy
+
+`LegalPage.jsx` (one component, two routes), the content in `legal.js`, the
+support line in `Foot()`.
+
+**"PLACEHOLDER" DOES NOT MEAN BOILERPLATE.** Arbitration, governing law,
+limitation of liability — clauses nobody here has decided, on a product with no
+lawyer — are **a promise the owner has not made in language he cannot check**,
+and check 10g fails on any of those words. Every line is a fact about what this
+product does, most of them commitments `/pricing` has printed since 2026-09-05,
+and 10h pins the two pages together. **Both say at the TOP that a lawyer has
+not seen them.**
+
+**The footer line is a POLICY** — who picks it up and how long you wait —
+rather than a "contact us". `SUPPORT_EMAIL` there is the second copy of
+`_shared/platformBrand.ts`'s and 10b/10c pin them equal.
+
+`sweep-widths.mjs` walks both pages at every width, added in the change that
+built them. Clean at 1440/392/320, no console errors, and **every `data-rv` row
+reaches opacity 1 after a scroll** — checked directly, because this surface has
+already shipped a node that never revealed and no other check can see one.
+
+### And the invisible-byte trap, in a new place
+
+`core.autocrlf` is true, so **every file git checked out is CRLF while every
+file this session writes is LF** — mixed, permanently. A scripted edit whose
+needle is joined with `\n` is simply not in an untouched file, and the assert
+fires on text you can see with your own eyes. **`cat -A` through the Bash tool
+did not show it** (it printed `$` at the end of every line of a genuinely CRLF
+file); **`grep -qU $'\r'` did.** The Edit tool also wrote CRLF into a file that
+was LF, which is exactly how `composition` 8e-iv has twice gone red in a file
+nobody had touched.

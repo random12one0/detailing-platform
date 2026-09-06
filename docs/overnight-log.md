@@ -900,6 +900,56 @@ guess is not the answer.
 
 ---
 
+## Roadmap 7.1 — a terms page, a privacy page, and a support line
+
+**What changed.** `/terms` and `/privacy` exist, and every page on the
+marketing side now carries one line at the bottom saying how to reach a person
+and how long an answer takes, with both documents beside it.
+
+**The judgement call, and it is the whole item.** The roadmap calls these
+placeholders and says you supply real legal text later. **The obvious build is
+two pages of borrowed boilerplate** — arbitration, governing law, limitation of
+liability — **and I refused it.** Those are promises you have not made, in
+language neither of us can check, sitting on a public page under your name.
+A check now fails if any of those words ever appear.
+
+**So every line is something this product actually does**, and most of it is
+already printed on your pricing page: the twelve-month plan, the exit fee, two
+weeks of retries before a page goes offline, nothing ever deleted. Writing
+those down invents nothing, and a check pins that the two pages keep saying the
+same thing. The privacy page is the honest list of where information goes:
+Supabase, Netlify, Resend, Stripe, and nobody else — and that card numbers
+never reach us at all, which is true and is worth a visitor knowing.
+
+**Both pages say, at the top, that a lawyer has not seen them yet.** At the top
+rather than the bottom, because somebody who finds that out at the end has read
+the whole thing on a wrong assumption. When you have the real text, it drops
+into one file.
+
+**The footer line is a policy rather than a "contact us" link** — who picks it
+up and how long you wait is what somebody handing over their business actually
+wants to know. It says: *"Questions and problems go to one person, and you get
+an answer the same working day."* **If that is not the promise you want to
+make, it is one line to change** — `SUPPORT_LINE` in
+`app/src/landing/legal.js`.
+
+**What I verified, and what it printed.** Both pages measured **clean at 1440,
+392 and 320** with **no console errors**, and I checked something a screenshot
+cannot show: every section on both pages reaches full opacity after a scroll.
+This surface has shipped a section before that stayed invisible for ever and
+passed every check in the repo, so it is now asked directly — `unrevealed 0` at
+all three widths. Six new checks (`landing-pricing` **80/80**), three of them
+baselined by breaking what they guard, and the width sweep walks both pages
+from now on. `composition` 74/74, build clean.
+
+**One thing found on the way that cost time and is now written down:** on this
+machine files that come from git are stored with different invisible
+line-ending characters than files I write, and the tool I was using to check
+could not see the difference. An edit that plainly matched the file failed
+three times before that was the answer.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

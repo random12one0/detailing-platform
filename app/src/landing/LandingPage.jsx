@@ -41,6 +41,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api.js";
 import { PRICING, livePricing } from "./pricing.js";
+import { SUPPORT_EMAIL, SUPPORT_LINE } from "./legal.js";
 import { initThread } from "./thread.js";
 import "./landing.css";
 
@@ -648,6 +649,18 @@ export function Foot() {
     <footer className="wrap foot" data-rv="">
       <span className="mk">Detailing Platform</span>
       <span>Built for the people who never rush a car.</span>
+      {/* ROADMAP 7.1 — THE SUPPORT POLICY, not a "contact us" link. What a
+          person wants to know before handing a business over is who picks it
+          up and how long they wait, and both fit on one line. The two
+          documents sit beside it because this is where a reader looks for
+          them, and a page that cannot be found is a page that was not
+          published. */}
+      <span className="footsup">
+        {SUPPORT_LINE}{" "}
+        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+        {" · "}<a href="/terms">Terms</a>
+        {" · "}<a href="/privacy">Privacy</a>
+      </span>
     </footer>
   );
 }
