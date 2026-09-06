@@ -22,7 +22,7 @@ below is one entry per item, oldest first; this is the summary.
 | **Moving your business over** (5.1) | Written and tested; **it cannot run until you send one key** — question 4 |
 | **The demo** (6.2) | Stopped eating one of your three founding spots; the reset is now checked rather than hoped |
 | **Terms, privacy and support** (7.1) | Plain English, and a support line inside the product too |
-| **A full pass as a brand-new detailer** (7.3) | Found four things; **three are already fixed** |
+| **A full pass as a brand-new detailer** (7.3) | Found six things; **five are fixed and the sixth is refused with reasons** — and re-running it found the walk-through script itself had been broken since the tab guides shipped |
 | **Google and share cards** (7.5) | The site now has a description and a proper card when you send the link |
 | **The spam filter** (2.21) | You asked for it; a script can no longer fill your week for free |
 | **The maintenance deadline** (2.23) | The coating-warranty thing you handed me — a date with a consequence, four reminders, and proof it was done |

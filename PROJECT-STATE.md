@@ -5985,12 +5985,62 @@ file); **`grep -qU $'\r'` did.** The Edit tool also wrote CRLF into a file that
 was LF, which is exactly how `composition` 8e-iv has twice gone red in a file
 nobody had touched.
 
-## THE NIGHT OF 2026-09-06 — SIX UNSCHEDULED ITEMS AND TWO FINDINGS FIXED
+## THE NIGHT OF 2026-09-06 — SIX UNSCHEDULED ITEMS, AND EVERY FINAL-PASS FINDING CLOSED
 
 Roadmap 7.3's final pass produced a ranked list, and the rest of the night was
 spent closing it and the unscheduled list behind it. What follows is only the
 part a later session needs; the reasoning is in DECISIONS.md and the plain-
 language account is `docs/overnight-log.md`.
+
+**ALL SIX FINDINGS ARE NOW CLOSED — five fixed, one refused with reasons
+(`docs/final-pass.md` finding 5).**
+
+### `.emptyscreen`, and the three operational facts behind it
+
+**`.emptyscreen` is worn BESIDE `.tight`, never instead of it, and it never
+sets `display`.** Those blocks are already a column with a gap; a second
+`display` here would silently take the gap away from whichever rule lost. It
+adds nothing below 1024px — the phone was measured as reading fine and the
+reason is structural: the sentence belongs at the top where the thumb is.
+At a desk it is `min-height: 58vh` and `justify-content: center`, **the
+vertical only**. Worn by Today's and Clients' empty blocks.
+
+**MONEY DOES NOT WEAR IT AND MUST NOT.** Money is not an *empty whole screen*
+(screen designs §1a) but the *One* case — it draws its period control, figures
+and export with zeros in them. Centring it moves a CONTROL to the middle of
+the page on the day there is no money and back on the day there is, and a
+screen that rearranges itself as data arrives is the worse fault. It measures
+THIN at 40% and that is correct.
+
+**`final-pass.mjs` NEEDS THE OPPOSITE TOUR TREATMENT FROM `sweep-widths.mjs`,
+and it was broken from the day the guides shipped until 2026-09-06.** The
+sweep seeds `dp.tours` as SEEN at sign-in because it measures fifty layouts
+for an experienced account; this script builds a business minutes old and must
+MEET every guide, because a guide arriving unasked on four of five tabs is
+what a final pass exists to see. `.tourblock` swallows pointer events, so the
+first tab press after the shell tour died on *"intercepts pointer events"* and
+three of five screens were never reached. It now photographs each guide, notes
+its caption, skips it, and measures the screen only afterwards. **The rule
+generalises: the guides go into EVERY script that walks the product, in the
+change that builds them** — 2.24's own note said this and then named only the
+sweep, which is why only the sweep was fixed.
+
+**It also measures fill now**: the deepest drawn edge inside `.app-main`
+against the viewport, desk widths only, printing THIN below 45%. Baseline
+(fix stashed) → after: Today 28% → 76%, Clients 33% → 89%, Money 40% →
+unchanged, Calendar 88% and Business 140% both untouched. **The finding it
+closed had named the wrong screens** — it said Calendar was the same shape
+(it is not; a month grid is drawn either way) and never mentioned Today, which
+was the worst of the five.
+
+### `composition` 8e-iv normalises the separator, and why every multi-line needle should
+
+A byte-exact `includes()` containing `\n` is a check whose colour depends on
+`core.autocrlf` rather than on the rule it guards. One `git stash` round-trip
+taken to baseline something else turned it red on untouched code — the second
+time. **A check a git command can redden is a check nobody believes the next
+time it is red.** It reads `.replace(/\r\n/g, "\n")` before matching now, and
+was re-baselined by deleting the nesting it guards.
 
 ### Item N — the way back in (was ranked *blocks launch*)
 
