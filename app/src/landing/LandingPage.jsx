@@ -40,7 +40,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "../lib/api.js";
-import { PRICING } from "./pricing.js";
+import { PRICING, livePricing } from "./pricing.js";
 import { initThread } from "./thread.js";
 import "./landing.css";
 
@@ -59,14 +59,26 @@ export default function LandingPage() {
     return () => { live = false; };
   }, []);
   const founding = offer && offer.left > 0;
+  // ROADMAP 4.4 STAGE 4 — the prices come from the database when the owner has
+  // overridden them, and from `pricing.js` otherwise, which is the ordinary
+  // case and the fallback for anything malformed. **Every figure on this page
+  // reads `P`**; a `PRICING.` left behind would print one number from the file
+  // beside another from the row, which is worse than either.
+  const [P, setP] = useState(PRICING);
+  useEffect(() => {
+    let live = true;
+    api.platformPrices().then((raw) => { if (live) setP(livePricing(raw)); });
+    return () => { live = false; };
+  }, []);
+
 
   // The page's whole motion system, mounted once and torn down on the way
   // out — this is a route in an SPA, so every listener and timer it opens
   // has to close again.
   useEffect(() => initThread(), []);
 
-  const setup = founding ? PRICING.founding.setup : PRICING.website.setup;
-  const monthly = founding ? PRICING.founding.monthly : PRICING.website.monthly;
+  const setup = founding ? P.founding.setup : P.website.setup;
+  const monthly = founding ? P.founding.monthly : P.website.monthly;
 
   return (
     <div className="ld">
@@ -441,7 +453,7 @@ export default function LandingPage() {
                 {/* The list price is struck ONLY while a genuine founding
                     discount is live — never an anchor invented to make a
                     number look smaller. */}
-                {founding && <s className="was">${PRICING.website.setup}</s>}
+                {founding && <s className="was">${P.website.setup}</s>}
                 <span key={setup} data-count={setup} data-prefix="$">${setup}</span>
                 <small> to build it</small>
               </div>
@@ -450,7 +462,7 @@ export default function LandingPage() {
                     here as well as the .28em margin on .was, and without it
                     the struck price sits noticeably tighter. */}
                 then ${monthly}/month{" "}
-                {founding && <s className="was">${PRICING.website.monthly}</s>}
+                {founding && <s className="was">${P.website.monthly}</s>}
               </div>
               <p>
                 A site built for you under your own name, and the dashboard that
@@ -499,8 +511,8 @@ export default function LandingPage() {
             <article className="plan" data-rv="lift" style={{ "--i": 1 }}>
               <span className="lab">Booking page only</span>
               <div className="amount">
-                <span data-count={PRICING.bookingOnly.monthly} data-prefix="$">
-                  ${PRICING.bookingOnly.monthly}
+                <span data-count={P.bookingOnly.monthly} data-prefix="$">
+                  ${P.bookingOnly.monthly}
                 </span>
                 <small>/month</small>
               </div>

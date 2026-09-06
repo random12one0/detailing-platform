@@ -86,6 +86,40 @@ const BLANK_NEW = {
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Los_Angeles",
 };
 
+// THE FOUNDING LADDER FOLLOWS THE LIST LADDER'S OWN TWO RULES rather than
+// being a second set of opinions — $600 is two months free on $60 exactly as
+// $400 is on $40, and $75 is the same 25% no-commitment premium as $50.
+// `pricing.js` says so and `tests/landing-pricing.test.mjs` pins the RULES
+// rather than the figures, so the owner is told whether a NEW number still
+// makes sense rather than that it changed.
+//
+// SO THE SCREEN SAYS WHAT THE RULES WOULD GIVE AND REFUSES NOTHING. They are
+// his prices and his positioning — $999 rather than $900 was his own call —
+// and a form that will not save a number he chose is a form he stops using.
+// What it must not do is let him change one figure and quietly leave the page
+// promising "two months free" about a ladder that no longer offers it.
+const ladderSays = (monthly) => {
+  const m = Number(monthly);
+  if (!Number.isFinite(m) || m <= 0) return null;
+  return { annual: Math.round(m * 10), monthToMonth: Math.round(m * 1.25) };
+};
+
+const NUM = (v) => (v === "" || v === null || v === undefined ? NaN : Number(v));
+
+// The row's shape is `platformBilling.ts`'s `PRICES`, which is the CHARGING
+// side's spelling. The pricing page keeps its own dialect (`annual` and
+// `monthToMonth` at the top level) and converts; this screen edits the row.
+const priceFields = [
+  ["website", "setup", "Build fee"],
+  ["website", "monthly", "Monthly, on the year"],
+  ["website", "annual", "A year up front"],
+  ["website", "monthToMonth", "Month to month"],
+  ["founding", "setup", "Founding build fee"],
+  ["founding", "monthly", "Founding monthly"],
+  ["founding", "annual", "Founding year up front"],
+  ["founding", "monthToMonth", "Founding month to month"],
+];
+
 export default function AdminPage() {
   const [state, setState] = useState({ status: "loading" });
   const [adding, setAdding] = useState(false);
@@ -97,6 +131,8 @@ export default function AdminPage() {
   const [detail, setDetail] = useState(null);
   const [note, setNote] = useState("");
   const [site, setSite] = useState("");
+  const [pricing, setPricing] = useState(false);
+  const [pt, setPt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
 
@@ -104,6 +140,10 @@ export default function AdminPage() {
     try {
       const r = await call({ action: "list" });
       setState({ status: "ready", ...r });
+      // SEEDED FROM WHAT IS LIVE, which is the built-in table until he
+      // overrides it. An empty form beside a page already printing $60 would
+      // invite him to fill it in from memory.
+      setPt(structuredClone(r.prices?.current ?? r.prices?.built_in ?? null));
     } catch (e) {
       // 404 IS THE ORDINARY CASE HERE, not an error: everybody who is not an
       // admin gets one, including a detailer who typed the URL.
@@ -264,6 +304,74 @@ export default function AdminPage() {
         )}
 
         {rows.length === 0 && <p className="pa-quiet">Nobody matches that.</p>}
+
+        {/* WHAT WE CHARGE — roadmap 4.4's "platform settings", and it has
+            exactly one job. Behind a button for the same reason the add form
+            is: it is the rarest thing on this screen. */}
+        <div className="pa-btns">
+          <button className="pa-btn" onClick={() => setPricing(!pricing)}>
+            {pricing ? "Hide the prices" : "What we charge"}
+          </button>
+        </div>
+        {pricing && pt && (
+          <div className="pa-panel">
+            <p className="pa-quiet">
+              {state.prices?.current
+                ? `Your own prices, saved ${ago(state.prices.updated_at)}.`
+                : "The built-in prices. Nothing has been overridden."}
+              {" "}An edit only changes what the NEXT detailer is offered —
+              everybody already paying keeps the price they agreed to.
+            </p>
+            <div className="pa-grid">
+            {priceFields.map(([group, key, label]) => (
+              <label className="pa-field" key={`${group}.${key}`}><span>{label}</span>
+                <input className="pa-input" inputMode="decimal" value={pt[group]?.[key] ?? ""}
+                  onChange={(e) => setPt({ ...pt, [group]: { ...pt[group], [key]: NUM(e.target.value) } })} /></label>
+            ))}
+            <label className="pa-field"><span>Booking only, a month</span>
+              <input className="pa-input" inputMode="decimal" value={pt.bookingOnly?.monthly ?? ""}
+                onChange={(e) => setPt({ ...pt, bookingOnly: { monthly: NUM(e.target.value) } })} /></label>
+            <label className="pa-field"><span>The commitment, in months</span>
+              <input className="pa-input" inputMode="numeric" value={pt.term?.months ?? ""}
+                onChange={(e) => setPt({ ...pt, term: { ...pt.term, months: NUM(e.target.value) } })} /></label>
+            <label className="pa-field"><span>Early exit — the share of what is left</span>
+              <input className="pa-input" inputMode="decimal" value={pt.term?.exitFeeShare ?? ""}
+                onChange={(e) => setPt({ ...pt, term: { ...pt.term, exitFeeShare: NUM(e.target.value) } })} /></label>
+            </div>
+
+            {/* THE RULES, SAID OUT LOUD RATHER THAN ENFORCED. The pricing page
+                prints "two months free" and "no commitment costs 25% more"
+                as sentences; a monthly changed without its ladder leaves the
+                page making a promise the numbers no longer keep. */}
+            {["website", "founding"].map((g) => {
+              const says = ladderSays(pt[g]?.monthly);
+              if (!says) return null;
+              const off = says.annual !== Number(pt[g]?.annual) || says.monthToMonth !== Number(pt[g]?.monthToMonth);
+              return !off ? null : (
+                <p className="pa-quiet" key={g}>
+                  On ${pt[g].monthly} a month the ladder's own rules give{" "}
+                  <strong>${says.annual}</strong> a year (two months free) and{" "}
+                  <strong>${says.monthToMonth}</strong> month to month (25% more for no
+                  commitment). Yours say ${pt[g].annual} and ${pt[g].monthToMonth}, so the
+                  pricing page will say "{Math.round(((pt[g].monthly * 12 - pt[g].annual) / pt[g].monthly) * 10) / 10} months free".
+                </p>
+              );
+            })}
+
+            <div className="pa-btns">
+              <button className="pa-btn" disabled={busy}
+                onClick={() => act({ action: "prices", prices: pt }, () => "Saved — that is what the next detailer is offered.")}>
+                Save these prices
+              </button>
+              {state.prices?.current && (
+                <button className="pa-btn" disabled={busy}
+                  onClick={() => act({ action: "prices", prices: null }, () => "Back to the built-in prices.")}>
+                  Back to the built-in prices
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="pa-list">
           {rows.map((r) => (

@@ -50,6 +50,58 @@ export const PRICES = {
   term: { months: 12, exitFeeShare: 0.5 },
 } as const;
 
+export type PriceTable = {
+  website: { setup: number; monthly: number; annual: number; monthToMonth: number };
+  bookingOnly: { monthly: number };
+  founding: { setup: number; monthly: number; annual: number; monthToMonth: number };
+  term: { months: number; exitFeeShare: number };
+};
+
+/**
+ * ROADMAP 4.4 STAGE 4 — the owner's own prices, out of
+ * `platform_settings.prices`, with the table above as the default AND as the
+ * fallback.
+ *
+ * IT VALIDATES EVERY FIELD AND FALLS BACK WHOLE, NEVER FIELD BY FIELD. A
+ * half-applied override is the worst of the three outcomes: it charges a
+ * number nobody chose, made of one row's monthly and one file's annual, and
+ * it looks exactly like a working price. So one bad value discards the whole
+ * object and the product charges what it charged yesterday.
+ *
+ * THE FLOOR IS `> 0` AND NOT `>= 0` FOR EVERY PRICE EXCEPT THE SETUP FEE.
+ * A free plan is a decision with consequences all through the checkout — a
+ * $0 subscription is not a subscription Stripe will bill — and it is not one
+ * a JSON blob should be able to make by accident. A setup fee of zero IS a
+ * real offer ("no build fee this month"), so it is the one figure allowed to
+ * be nothing.
+ */
+export function pricesFrom(raw: unknown, fallback: PriceTable = PRICES as unknown as PriceTable): PriceTable {
+  const money = (v: unknown, min = 0.01) =>
+    typeof v === "number" && Number.isFinite(v) && v >= min && v < 100_000 ? v : null;
+  try {
+    const r = raw as PriceTable;
+    if (!r || typeof r !== "object") return fallback;
+    const ladder = (l: PriceTable["website"] | undefined) => {
+      if (!l || typeof l !== "object") return null;
+      const setup = money(l.setup, 0), monthly = money(l.monthly);
+      const annual = money(l.annual), monthToMonth = money(l.monthToMonth);
+      return setup === null || monthly === null || annual === null || monthToMonth === null
+        ? null : { setup, monthly, annual, monthToMonth };
+    };
+    const website = ladder(r.website);
+    const founding = ladder(r.founding);
+    const booking = money(r.bookingOnly?.monthly);
+    const months = r.term?.months;
+    const share = r.term?.exitFeeShare;
+    if (!website || !founding || booking === null) return fallback;
+    if (!Number.isInteger(months) || months < 0 || months > 60) return fallback;
+    if (typeof share !== "number" || !(share >= 0 && share <= 1)) return fallback;
+    return { website, founding, bookingOnly: { monthly: booking }, term: { months, exitFeeShare: share } };
+  } catch {
+    return fallback;
+  }
+}
+
 export const TERMS = ["annual-upfront", "annual-monthly", "monthly"] as const;
 export type Term = (typeof TERMS)[number];
 export const PLANS = ["website", "booking"] as const;
@@ -86,21 +138,21 @@ const cents = (dollars: number) => Math.round(dollars * 100);
  * normalises anything it is handed to `monthly` rather than rejecting it,
  * because the alternative is a 400 on a plan that only has one shape.
  */
-export function planFor(plan: Plan, term: Term, founding: boolean): Snapshot {
+export function planFor(plan: Plan, term: Term, founding: boolean, table: PriceTable = PRICES as unknown as PriceTable): Snapshot {
   if (plan === "booking") {
     return {
       plan: "booking",
       term: "monthly",
       founding: false, // the founding ladder is the website plan's; see pricing.js
       setup_cents: 0,
-      recurring_cents: cents(PRICES.bookingOnly.monthly),
+      recurring_cents: cents(table.bookingOnly.monthly),
       bill_interval: "month",
       term_months: 0,
       exit_fee_share: 0,
     };
   }
 
-  const p = founding ? PRICES.founding : PRICES.website;
+  const p = founding ? table.founding : table.website;
   const base = { plan: "website" as const, term, founding, setup_cents: cents(p.setup) };
 
   // ONLY annual-paid-monthly CARRIES A COMMITMENT. The other two are the
@@ -111,8 +163,8 @@ export function planFor(plan: Plan, term: Term, founding: boolean): Snapshot {
       ...base,
       recurring_cents: cents(p.monthly),
       bill_interval: "month",
-      term_months: PRICES.term.months,
-      exit_fee_share: PRICES.term.exitFeeShare,
+      term_months: table.term.months,
+      exit_fee_share: table.term.exitFeeShare,
     };
   }
   if (term === "annual-upfront") {

@@ -38,11 +38,11 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-import { PRICING } from "../app/src/landing/pricing.js";
+import { PRICING, livePricing } from "../app/src/landing/pricing.js";
 // Node 24 strips the types, so these are the SAME modules the edge functions
 // run — not a description of them.
 import {
-  PRICES, TERMS, consentSentence, dunningState, exitFeeCents, exitFeeCentsFor,
+  PRICES, pricesFrom, TERMS, consentSentence, dunningState, exitFeeCents, exitFeeCentsFor,
   BUILD_FEE_LINE, firstChargeCents, isPlan, isTerm, linesFor, ourStatus, planFor, planLabel,
   termEndDate, wholeMonthsBetween,
 } from "../supabase/functions/_shared/platformBilling.ts";
@@ -796,7 +796,14 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // look smaller. That rule is written on `LandingPage.jsx` and it does not
   // soften inside the dashboard.
   check("it is a real price, from the same function at founding: false",
-    fn.includes('const list = planFor("website", term, false);'));
+    fn.includes('const list = planFor("website", term, false, table);'));
+  // AND FROM THE SAME TABLE AS THE CHARGED ONE. Roadmap 4.4 stage 4 made the
+  // price table overridable; a struck figure computed from the FILE beside a
+  // charged figure from the ROW would print a discount nobody is getting.
+  check("both figures come from one table",
+    fn.includes("const table = await priceTable();")
+      && fn.includes('planFor("website", term, founding, table)')
+      && fn.includes('planFor(plan, term, business?.plan_tier === "founding", await priceTable())'));
 
   const billing = read("app/src/screens/more/Billing.jsx");
   // THE TEST IS "DO THESE DIFFER", NOT "AM I FOUNDING". A standard account and
@@ -1081,6 +1088,87 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // replies at an automated sender.
   check("it is not the address the product sends from",
     !String(SUPPORT_EMAIL).includes("email.detailingplatform.com"), String(SUPPORT_EMAIL));
+}
+
+
+// ─── 19. The owner's own prices (roadmap 4.4 stage 4) ─────────────────────
+// `platform_settings.prices` overrides the built-in table, and the whole
+// design rests on one sentence: a table the PAGE would accept and the CHECKOUT
+// would refuse must not be able to exist. There are two validators for the
+// same wall that forced two price tables — a Deno bundle cannot import out of
+// `supabase/` — so this runs both on the same inputs.
+console.log("\n19. the owner's own prices");
+{
+  const good = {
+    website: { setup: 900, monthly: 55, annual: 550, monthToMonth: 69 },
+    bookingOnly: { monthly: 30 },
+    founding: { setup: 450, monthly: 35, annual: 350, monthToMonth: 44 },
+    term: { months: 12, exitFeeShare: 0.5 },
+  };
+
+  check("a good table is taken by the charging side",
+    pricesFrom(good).website.monthly === 55 && pricesFrom(good).term.exitFeeShare === 0.5);
+  check("and by the page, in the page's own dialect",
+    livePricing(good).website.monthly === 55 && livePricing(good).annual === 550
+      && livePricing(good).monthToMonth === 69 && livePricing(good).bookingOnly.monthly === 30);
+
+  // NULL IS THE ORDINARY ANSWER AND IT MEANS THE FILES. This is the state the
+  // product ships in and the state it returns to when anything is wrong.
+  check("null falls back to the built-in table on both sides",
+    pricesFrom(null).website.monthly === PRICES.website.monthly
+      && livePricing(null).website.monthly === PRICING.website.monthly);
+
+  // A HALF-APPLIED OVERRIDE IS THE WORST OF THE THREE OUTCOMES: one row's
+  // monthly beside one file's annual is a price nobody chose, and it looks
+  // exactly like a working one. So one bad field discards the whole object.
+  const bad = [
+    ["a missing ladder", { ...good, founding: undefined }],
+    ["a missing figure", { ...good, website: { setup: 900, monthly: 55, annual: 550 } }],
+    ["a price as a string", { ...good, website: { ...good.website, monthly: "55" } }],
+    ["a negative price", { ...good, website: { ...good.website, monthly: -55 } }],
+    ["a free plan", { ...good, website: { ...good.website, monthly: 0 } }],
+    ["a fractional term", { ...good, term: { months: 12.5, exitFeeShare: 0.5 } }],
+    ["an exit share over 1", { ...good, term: { months: 12, exitFeeShare: 1.5 } }],
+    ["not an object at all", "$60 a month"],
+  ];
+  for (const [what, table] of bad) {
+    check(`${what} falls back WHOLE, on both sides`,
+      pricesFrom(table).website.monthly === PRICES.website.monthly
+        && livePricing(table).website.monthly === PRICING.website.monthly);
+  }
+
+  // THE ONE FIGURE ALLOWED TO BE NOTHING. "No build fee this month" is a real
+  // offer; a $0 subscription is not a subscription Stripe will bill.
+  const freeSetup = { ...good, website: { ...good.website, setup: 0 } };
+  check("a zero setup fee is a real offer and is kept",
+    pricesFrom(freeSetup).website.setup === 0 && livePricing(freeSetup).website.setup === 0);
+
+  // AND IT REACHES THE MONEY. `planFor` is what the card is charged from, so
+  // an override that stopped at the summary would print one number and charge
+  // another — this repo's oldest rule, in the one module where the two halves
+  // are literally the same function.
+  check("an override reaches the charged figure",
+    planFor("website", "annual-monthly", false, pricesFrom(good)).recurring_cents === 5500
+      && planFor("website", "annual-upfront", false, pricesFrom(good)).recurring_cents === 55000
+      && planFor("booking", "monthly", false, pricesFrom(good)).recurring_cents === 3000);
+  check("and the founding column with it",
+    planFor("website", "annual-monthly", true, pricesFrom(good)).recurring_cents === 3500
+      && planFor("website", "annual-monthly", true, pricesFrom(good)).setup_cents === 45000);
+  check("the term and the exit share ride the same table",
+    planFor("website", "annual-monthly", false, pricesFrom({ ...good, term: { months: 6, exitFeeShare: 0.25 } })).term_months === 6);
+  check("with no table it still charges the built-in figures",
+    planFor("website", "annual-monthly", false).recurring_cents === PRICES.website.monthly * 100);
+
+  // The back office cannot save a table the checkout would refuse, because it
+  // asks the SAME function rather than a second validator.
+  const admin = read("supabase/functions/platform-admin/index.ts");
+  check("the editor validates with `pricesFrom`, not a second opinion",
+    admin.includes("const parsed = pricesFrom(body.prices, SENTINEL);"));
+  check("and clearing it back to the files is a real button",
+    admin.includes("let value: PriceTable | null = null;")
+      && read("app/src/admin/AdminPage.jsx").includes('action: "prices", prices: null'));
+  check("the whole table is written into the audit, not a flag",
+    admin.includes('await logIt(admin, "prices", null, { to: value });'));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

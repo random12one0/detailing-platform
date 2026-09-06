@@ -5807,3 +5807,88 @@ converted; `git diff --numstat` showed only the real line changes because
 a byte-exact check (`composition` 8e-iv) would have gone red in a file the
 session had barely touched. **Add `perl -pi` to the list of things that must
 not touch a source file on this machine**, and `sed -i 's/\r$//'` is the fix.
+
+## ROADMAP 4.4 — THE PLATFORM BACK OFFICE, ALL FOUR STAGES (2026-09-05)
+
+`/admin`, its own route and its own layout, gated in the DATABASE. Stage 1 is
+written up in CLAUDE.md and DECISIONS.md; what follows is what stages 2-4 added
+and the three facts a later session most needs.
+
+### Stage 2 — creating a business by hand, and resending an invite
+
+`_shared/newBusiness.ts` is now what "a new business" MEANS, and both doors call
+it: signup and the back office. It had lived inside `create-business/index.ts`
+because signup was the only way a business could come into existence. **A second
+copy is where two KINDS of business start to differ**, and quietly: no
+`business_settings` row renders a dashboard of nulls, no `business_hours` is a
+booking page that can never be booked, and **neither throws**. New businesses
+get Mon-Fri 09:00-17:00 from their first second for that reason.
+
+**THE HELPER REFUSES TO GUESS THE OWNER.** Signup makes the caller the owner
+because they have a session; the back office cannot, because the person being
+signed up at their own counter may have no account at all. Membership stays in
+`create-business`, and the INVITE carries it — which is why *resend an invite*
+is the other half of this stage rather than a separate feature. The link is
+SHOWN as well as emailed, because he is standing next to them.
+
+### Stage 3 — the site column
+
+`businesses.site_url` and `site_updated_at`, plus a *No website yet* filter (a
+work queue, not a statistic — he builds these by hand). The spec's four facts
+were one already-answerable (`business_domains`, roadmap 3.3) and three that
+nothing in the schema held.
+
+**THE ADDRESS IS NOT `business_domains.domain` AND MUST NOT BE MERGED WITH IT.**
+That column means a hostname that RESOLVES TO THIS APP; a detailer's own website
+may live anywhere, and putting one in that table points a customer's own booking
+link at a 404 — 3.3's own named failure. Both new columns are **revoked from
+`authenticated` at column level** and the timestamp is the server's, because a
+record its subject can edit is not a record.
+
+### Stage 4 — platform settings, which is his own prices
+
+`platform_settings.prices jsonb` + `public.platform_prices()` + *What we charge*
+on `/admin`. The price table is typed twice on purpose (a Deno bundle cannot
+import out of `supabase/`) and 263 checks kept the copies equal; **one row makes
+them one number.**
+
+**NULL MEANS THE FILES, AND THAT IS WHAT IT SHIPS AS.** Every failure — a null
+column, an unparseable object, a missing key, a price that is not positive —
+resolves to the built-in table, which is what the product charged yesterday, and
+**it falls back WHOLE rather than field by field**: one row's monthly beside one
+file's annual is a price nobody chose that looks exactly like a working one. A
+seeded copy of the current table was refused as a third place the same numbers
+would live.
+
+`pricesFrom` (Deno) and `livePricing` (browser) are two validators for the same
+reason there are two tables, and `platform-billing` § 19 runs both on the same
+inputs. **Every figure on `LandingPage.jsx` and `PricingPage.jsx` reads `P`, not
+`PRICING`** — twenty call sites — and two checks fail on one leftover.
+
+**The editor warns and never refuses** when a typed ladder breaks its own two
+rules. **Question 3 in `docs/overnight-log.md` asks the owner whether he wants
+it to refuse instead.**
+
+### What was measured
+
+Live as the seeded admin: `create` 200 (`inperson-gh9d2`), `resend` 200 with a
+real invite link and `emailed: true`, `site` storing a scheme-less hostname with
+its scheme and 400 on rubbish, and a price override of `$900/$55/$550/$69`
+reaching the public pricing page complete — including the sentences it derives
+(*"$420 over 12 months"*, *"walking away halfway through costs $105"*) — and the
+detailer's own billing screen charging `$3500`/mo with `$5500` struck, with the
+AB 2863 consent sentence regenerated to match. *Back to the built-in prices*
+restored `$4000/$6000/$49900` exactly. A detailer gets 404 on every action.
+
+`platform-admin` 40/40 (six new checks, all six baselined), `platform-billing`
+283/283 (twenty new, four baselined), `landing-pricing` 67/67 (two new, one
+baselined), `composition` 74/74, `custom-domains` 59/59, `booking-core`
+185/185, `route-contract` 28/28, build clean, `/admin` clean at 1440/392/320 in
+every state.
+
+### And the comment-vacuity trap struck a fifth time
+
+The new check asserting no `PRICING.` is left in either page failed on its own
+explanatory comment — the sentence saying "a leftover `PRICING.` would be a bug"
+contains the pattern. `landing-pricing` strips comments before reading source as
+text now. **Five instances in two days, in four different test files.**

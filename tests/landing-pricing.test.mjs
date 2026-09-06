@@ -38,6 +38,19 @@ const pjsx = await readFile("app/src/landing/PricingPage.jsx", "utf8");
 const main = await readFile("app/src/main.jsx", "utf8");
 const cfg = await readFile("app/src/landing/pricing.js", "utf8");
 const api = await readFile("app/src/lib/api.js", "utf8");
+
+// COMMENTS OUT, BEFORE ANY CHECK READS SOURCE AS TEXT. Written 2026-09-05
+// after a new check failed on its own subject's PROSE: the comment above
+// `const [P, setP]` explains that a leftover `PRICING.` would be a bug, and
+// the check looking for leftover `PRICING.`s found that sentence. Same trap
+// as `email-brand` 7a-ii and `booking-core` § 1 — the file advertising the
+// property fails the check for it.
+const noComments = (t) => t
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "")
+  .replace(/^\s*\/\/.*$/gm, "");
+const jsxCode = noComments(jsx);
+const pjsxCode = noComments(pjsx);
 const sql = await readFile(
   "supabase/migrations/20260828001100_founding_offer_shape.sql", "utf8");
 const { PRICING } = await import("../app/src/landing/pricing.js");
@@ -74,7 +87,12 @@ const pricingSection = pricingStart < 0 ? ""
 // word "pre-selected" inside the comment explaining why nothing on the page
 // is pre-selected. A check a comment can FAIL is a check a comment can also
 // PASS, which is the worse half.
-const pcopy = pjsx.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\/\/.*$/gm, "");
+// AND THE INDENTED ONES TOO. This stripped `//` only at column 0 until
+// 2026-09-05, so a comment inside the component — explaining that "$500 a
+// year on $55 a month" prints an awkward saving — failed 5b as two
+// hardcoded prices. A check a comment can fail is a check a comment can
+// also pass, and this file already says so two lines up.
+const pcopy = noComments(pjsx);
 
 console.log("test 1: every number comes from the config");
 {
@@ -84,7 +102,17 @@ console.log("test 1: every number comes from the config");
     `pricing section slice is ${pricingSection.length} chars`);
   const literals = [...pricingSection.matchAll(/\$(\d[\d,]*)/g)].map((m) => m[0]);
   check("no hardcoded prices in the pricing section", literals.length === 0, literals.join(" "));
-  check("the page imports the config", /import \{ PRICING \} from ".\/pricing.js"/.test(jsx));
+  // THE IMPORT IS NOW THE DEFAULT AND THE FALLBACK rather than the only
+  // source — roadmap 4.4 stage 4 lets the owner override the table from the
+  // back office — so the page reads `P`, seeded from `PRICING`.
+  check("the page imports the config", /import \{ PRICING, livePricing \} from ".\/pricing.js"/.test(jsx));
+  // AND NOTHING READS THE FILE DIRECTLY ANY MORE. A single `PRICING.` left
+  // behind would print one number from the file beside another from the
+  // database — a page that is half overridden, which is worse than either
+  // table on its own and invisible until somebody overrides.
+  check("every figure comes from the live table, not the file",
+    !/PRICING\./.test(jsxCode.slice(jsxCode.indexOf("export default function"))),
+    (jsxCode.match(/PRICING\.[a-zA-Z.]+/g) ?? []).join(", "));
   // MOVED TO THE PRICING PAGE, 2026-09-05, and this check moved with it —
   // the owner's own instruction ("you don't even need to say six hundred a
   // year paid once, because that'll be shown inside the pricing page"). The
@@ -152,7 +180,7 @@ console.log("\ntest 4: the copy stays plain and true");
   // discounts the build fee AND the monthly, and the approved page strikes
   // both. Each must still be a real price out of pricing.js.
   const struck = [...copy.matchAll(/<s className="was">([^<]*)<\/s>/g)].map((m) => m[1].trim());
-  const LIST = ["${PRICING.website.setup}", "${PRICING.website.monthly}"];
+  const LIST = ["${P.website.setup}", "${P.website.monthly}"];
   check("any struck price is the real list price, from config",
     struck.length > 0 && struck.every((t) => LIST.includes(t)), struck.join(" | "));
   // `<s` alone also matches <span>; anchor on the real element.
@@ -171,13 +199,16 @@ console.log("\ntest 5: the pricing page reads every figure from the config");
   check("5a · the page slice HAS subjects", pcopy.length > 3000, `${pcopy.length} chars`);
   const literals = [...pcopy.matchAll(/\$(\d[\d,]*)/g)].map((m) => m[0]);
   check("5b · no hardcoded prices anywhere on it", literals.length === 0, literals.join(" "));
-  check("5c · it imports the config", /import \{ PRICING \} from ".\/pricing.js"/.test(pjsx));
+  check("5c · it imports the config", /import \{ PRICING, livePricing \} from ".\/pricing.js"/.test(pjsx));
+  check("5c-ii · and reads the live table everywhere, not the file",
+    !/PRICING\./.test(pjsxCode.slice(pjsxCode.indexOf("export default function"))),
+    (pjsxCode.match(/PRICING\.[a-zA-Z.]+/g) ?? []).join(", "));
   // THE TERM AND THE FEE ARE MONEY TOO. The checkout will charge what this
   // page prints, so a typed "12 months" or a typed "half" is the same class
   // of defect as a typed price — worse, because it is the half a customer
   // disputes.
-  check("5d · the term comes from the config", /PRICING\.term\.months/.test(pjsx));
-  check("5e · the exit fee comes from the config", /PRICING\.term\.exitFeeShare/.test(pjsx));
+  check("5d · the term comes from the config", /P\.term\.months/.test(pjsx));
+  check("5e · the exit fee comes from the config", /P\.term\.exitFeeShare/.test(pjsx));
 }
 
 console.log("\ntest 6: the ladder's RULES, not its figures");

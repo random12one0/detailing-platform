@@ -235,6 +235,8 @@ were made more than once.
 
 - **Roadmap 4.4 stage 1 — the back office, and the policy clause that is deliberately absent** — the list, one business's page, four of the six actions and the whole security floor. **THE DECISION THE ITEM RESTS ON IS AN ABSENCE: no RLS policy anywhere gained an `or public.is_platform_admin()` clause and none may ever gain one.** The obvious build adds it to the twenty tenant policies so the admin screens can use `supabase.from()`; it works on day one and puts a cross-tenant escape hatch into twenty policies that are otherwise provably per-business — **the one place in the product where a mistake exposes every tenant at once**, so the wrong version's blast radius is everything, and nothing about the failure is loud. Instead the back office reads NOTHING through RLS: every byte comes from one gated edge function under the service role, and the test walks EVERY migration and fails if any `create policy` mentions the admin check. **`platform_admins` and `platform_admin_events` have RLS forced and NO POLICIES**, which is the strongest statement available rather than an omission. **404 and never 403**, from the server and the screen, because a 403 tells a curious detailer the endpoint exists and that one row is all that stands in the way — proven on deploy, not reasoned about. **The impersonation audit row can veto its own action**: best-effort everywhere else, fatal here, because "it did not get written" is not an answer to give a detailer who asks whether somebody looked at their numbers. **The back office and the detailer print the same setup number** — the server sends `setupProgress`'s inputs, not its answer — which also made the *setup unfinished* filter real rather than silently matching nothing. **The seeded admin is never the demo owner**, whose password is `demo123` and is on the live site. **And four of the suite's first-run failures were TEST bugs, two of them the comment-vacuity trap** — one on the page's own header promising it sits outside `BusinessProvider`, one on a SQL `comment on column` string naming both the column and the function it must never be in: **stripping comments is not enough for SQL, because a comment-on is a string literal.**
 
+- **Roadmap 4.4 stages 2–4 — the rest of the back office, and the one row that made two price tables one number** — creating a business by hand, resending an invite, the site column, and his own prices. **One definition of "a new business", not two**: it lived in `create-business` because signup was the only way one could exist, and a second copy is where two KINDS of business start to differ — no settings row is a dashboard of nulls, no hours is a booking page that can never be booked, and neither throws. **The helper refuses to guess the OWNER**, which is why the invite is the other half of that stage. **The site address is deliberately NOT `business_domains.domain`** — that column means a hostname that RESOLVES TO THIS APP, so conflating them points a customer's own booking at a 404 — and both new columns are revoked from `authenticated`, because **a record its subject can edit is not a record**. **And platform settings turned out to be one row**: the price table is typed twice on purpose and 263 checks keep the copies equal, so `platform_settings.prices` makes them one number. **NULL means the files and that is what it ships as** — a seeded copy would be a third place the same numbers live and would silently become the stale one that wins — so every failure resolves to what the product charged yesterday, and **it falls back WHOLE, never field by field**, because one row's monthly beside one file's annual is a price nobody chose that looks exactly like a working one. Two validators, one test running both on the same inputs, because **a table the PAGE would accept and the CHECKOUT would refuse must not be able to exist**. **The form warns and never refuses** — they are his prices, and he overruled the rounder number once on purpose. **And the check guarding the twenty converted call sites failed on its own explanatory comment**, the fifth comment-vacuity instance in two days.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -13906,3 +13908,138 @@ The last two are the vacuity trap `booking-core` recorded hours earlier in the
 same night, and the second of them is a new variant: **stripping comments is
 not enough for SQL, because a `comment on ... is '…'` is a string literal.**
 The strip helper removes both now.
+
+## Roadmap 4.4 stages 2–4 — the rest of the back office, and the one row that made two price tables one number
+
+**Stage 1 built the list, one business's page and the security floor. What was
+left was three jobs the spec names and one it names badly.**
+
+### Stage 2 — creating a business by hand, and resending an invite
+
+**THE DEFINITION OF "A NEW BUSINESS" MOVED INTO `_shared/newBusiness.ts` RATHER
+THAN BEING COPIED.** It had lived inside `create-business/index.ts` and nowhere
+else, because signup was the only way a business could come into existence. The
+back office is a second way, and **a second copy is where two KINDS of business
+start to differ** — quietly, which is the whole problem. A business created by
+hand with no `business_settings` row renders a dashboard of nulls; one with no
+`business_hours` has a booking page that can never be booked, which is a strange
+thing to hand somebody at their own counter. **Neither throws**, so the drift
+would be found by a detailer rather than by a test.
+
+**WHAT THE HELPER REFUSES TO GUESS IS THE OWNER.** Signup makes the caller the
+owner because they are standing there with a session; the back office cannot,
+because the person being signed up may have no account at all and
+`business_users.user_id` references `auth.users` — there is nobody to point it
+at. So membership stays in `create-business`, and the INVITE is what carries
+it. That is why *resend an invite* is the other half of this stage rather than a
+separate feature: it is the same path, used when the first email went to spam.
+
+**And the invite LINK is shown on screen, not only emailed.** The whole point of
+signing somebody up in person is that he is standing next to them; if the email
+is slow or the address was mistyped, reading it off his own screen finishes the
+job.
+
+### Stage 3 — the site column, and the field it must not reuse
+
+The spec asks for four facts: *do they have a website, what is its address, is a
+custom domain pointed at it, and when was it last touched.* **Only the third was
+already answerable** — roadmap 3.3 built `business_domains` the night before.
+The other three are facts about work done OUTSIDE this product, and nothing in
+the schema held them, so `businesses.site_url` and `site_updated_at`.
+
+**THE ADDRESS IS DELIBERATELY NOT `business_domains.domain`, AND THAT IS THE
+DECISION.** That column has a precise meaning from 3.3: **a hostname that
+RESOLVES TO THIS APP**, normally a subdomain aliased onto our Netlify site, so a
+receipt stops carrying our brand. A detailer's own website is a different
+artifact that may live anywhere. **Putting one into that table points a
+customer's own booking link at a page that does not exist** — 3.3's own header
+warns about exactly this, and it is worse than the seam it would be trying to
+remove, because a customer who cannot open their booking has lost it.
+`tests/platform-admin.test.mjs` § 8 fails if the site action ever writes that
+table.
+
+**BOTH COLUMNS ARE REVOKED FROM `authenticated` AT COLUMN LEVEL**, the mechanism
+3.3 used for `verified_at`: RLS chooses ROWS and says nothing about COLUMNS, and
+`businesses` carries an owner update policy. The address is not a secret from
+the detailer — it is their own website — but *when did we last touch it* is the
+platform's record of its own work, and **a record its subject can edit is not a
+record.** The timestamp is the server's clock for the same reason.
+
+**One filter came with it, and it is the one a normal SaaS back office would not
+have:** *No website yet*. He BUILDS these sites by hand, so that is a work queue
+rather than a statistic.
+
+**And the audit's `from` was null on its first live run** — the per-business
+lookup selected five columns and `site_url` was not one of them. The entry
+looked complete and recorded nothing useful. The check now pins the select as
+well as the log line.
+
+### Stage 4 — platform settings, which is HIS OWN PRICES
+
+The owner, 2026-09-05: *"Everything that could be a changeable fact should be
+linked to Supabase."* The audit that answered him found almost nothing that
+qualifies — most of what looks like a constant in this repo is a RULE. **The
+price table is the exception, and it wins for a better reason than editing
+convenience: it is typed twice on purpose** (`app/src/landing/pricing.js` and
+`supabase/functions/_shared/platformBilling.ts`, because a Deno bundle cannot
+import out of `supabase/` — the wall that forced `_shared/brandColor.js`), and
+263 checks exist to keep the copies equal. **One row makes them one number.**
+
+**NULL MEANS THE FILES, AND THAT IS THE STATE IT SHIPS IN.** Not an empty
+object, not a seeded copy of the current table. A seeded copy would be a THIRD
+place the same numbers live, and the moment the files changed it would be the
+stale one that wins — silently, because it is the one with authority.
+
+**SO THE FAILURE MODE IS YESTERDAY'S BEHAVIOUR.** A null column, a read that
+errors, an unparseable object, a missing key, a price that is not a positive
+number: every one of those resolves to the built-in table, which is what the
+product charged before anybody touched it. **The alternative is a checkout
+pricing from a half-read object**, and this repo's oldest rule is that a number
+PRINTED is not a number CHARGED — here they are the same number, which is the
+whole point of the row, so a broken override must charge nothing new rather than
+charge something wrong.
+
+**AND IT FALLS BACK WHOLE, NEVER FIELD BY FIELD.** A half-applied override is
+the worst of the three outcomes: one row's monthly beside one file's annual is a
+price nobody chose, and it looks exactly like a working price.
+
+**THE TWO VALIDATORS ARE THE PRICE OF THE TWO TABLES.** `pricesFrom` (Deno) and
+`livePricing` (browser) spell the same rules, and `tests/platform-billing.test.mjs`
+§ 19 runs both on the same eleven inputs — **a table the PAGE would accept and
+the CHECKOUT would refuse must not be able to exist.** The editor validates by
+calling `pricesFrom` itself rather than holding a third opinion.
+
+**EVERY FIGURE ON BOTH PUBLIC PAGES NOW READS `P`.** Twenty call sites across
+`LandingPage.jsx` and `PricingPage.jsx`, and two checks fail on a single
+`PRICING.` left behind, because a half-converted page prints one number from the
+file beside another from the database — worse than either table alone, and
+invisible until somebody overrides. **Both were baselined by putting one back.**
+**And the check that guards it failed on its own explanatory comment the first
+time it ran** — the sentence saying "a leftover `PRICING.` would be a bug"
+contains `PRICING.`. That is the fifth instance of the comment-vacuity trap in
+two days, and `landing-pricing` now strips comments before reading source as
+text.
+
+**THE FORM WARNS AND NEVER REFUSES.** The founding ladder follows the list
+ladder's own two rules — two months free, +25% for no commitment — and typing a
+monthly without its ladder leaves the pricing page deriving an odd saving
+(*"2.9 months free"* rather than *"2 months free"*; nothing is mispriced,
+because the page COMPUTES that sentence). The screen says what the rules would
+give and saves what he typed. **They are his prices and his positioning** — he
+overruled the rounder number once already, on purpose, because *"things that end
+in ninety nine feel more professional to me"* — and a form that will not save a
+number he chose is a form he stops using. **Whether he would rather it refused is
+question 3 in `docs/overnight-log.md`.**
+
+**AN EDIT CANNOT RE-PRICE ANYBODY WHO ALREADY BOUGHT**, and that needed no new
+work: 2.20 stage 2 already snapshots every figure onto `platform_subscriptions`
+at purchase and never re-reads it. The exit fee is the sharp case that rule was
+written for — recomputing it from a later config turns a $240 fee into $360.
+
+**Proven live rather than reasoned about.** An override of `$900/$55/$550/$69`
+(founding `$450/$35/$350/$44`) reached the public pricing page complete,
+including every sentence it derives; the detailer's own billing screen charged
+`$3500`/mo with `$5500` struck and `$45000` setup, and the AB 2863 consent
+sentence regenerated to match; rubbish returned 400 with a plain sentence; *Back
+to the built-in prices* restored `$4000/$6000/$49900` exactly; a detailer got
+404.

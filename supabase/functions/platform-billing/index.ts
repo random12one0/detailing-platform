@@ -80,6 +80,8 @@ import {
   isTerm,
   linesFor,
   planFor,
+  pricesFrom,
+  type PriceTable,
   planLabel,
   termEndDate,
   TERMS,
@@ -140,6 +142,23 @@ Deno.serve(async (req) => {
  * trip the first time somebody's card is declined and they want to see what
  * the other ways to pay would cost.
  */
+// ROADMAP 4.4 STAGE 4 — the owner's own prices, if he has set any.
+//
+// NOT CACHED, ON PURPOSE. A module-level cache lives as long as the warm
+// isolate, so an edit made in the back office would keep charging the old
+// figure for an unpredictable few minutes — which is indistinguishable from
+// the edit not having saved, and is the one failure that would make him stop
+// trusting the screen. It is one indexed read of a one-row table.
+//
+// `pricesFrom` decides what a bad row means, and it means the FILES: this
+// returns the built-in table for a null column, an unparseable object, a
+// missing key or a price that is not a positive number. The product then
+// charges what it charged yesterday rather than something nobody chose.
+async function priceTable(): Promise<PriceTable> {
+  const { data } = await supabase.from("platform_settings").select("prices").limit(1).maybeSingle();
+  return pricesFrom(data?.prices);
+}
+
 async function summary(businessId: string, sub: Record<string, unknown> | null) {
   const { data: business } = await supabase
     .from("businesses")
@@ -160,10 +179,11 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
   // number is a REAL price the product charges somebody, never an anchor
   // invented to make the other one look smaller. That rule is written on
   // `LandingPage.jsx` and it applies here.
+  const table = await priceTable();
   const quotes: Record<string, unknown> = {};
   for (const term of TERMS) {
-    const snap = planFor("website", term, founding);
-    const list = planFor("website", term, false);
+    const snap = planFor("website", term, founding, table);
+    const list = planFor("website", term, false, table);
     quotes[term] = {
       ...snap,
       consent: consentSentence(snap),
@@ -174,7 +194,7 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
       list_setup_cents: list.setup_cents,
     };
   }
-  const bookingSnap = planFor("booking", "monthly", false);
+  const bookingSnap = planFor("booking", "monthly", false, table);
   quotes.booking = {
     ...bookingSnap,
     consent: consentSentence(bookingSnap),
@@ -267,7 +287,7 @@ async function subscribe(
     .select("id, name, slug, plan_tier, contact_email")
     .eq("id", businessId)
     .single();
-  const snapshot = planFor(plan, term, business?.plan_tier === "founding");
+  const snapshot = planFor(plan, term, business?.plan_tier === "founding", await priceTable());
   const consent = consentSentence(snapshot);
 
   if (!stripeConfigured()) {

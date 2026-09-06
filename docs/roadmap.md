@@ -5954,7 +5954,7 @@ is kept; the entire visual design restarts from scratch.
       plan should CHARGE — which is roadmap 2.20 (payments), not this.** We
       log a plan and never bill it, which is the owner's own decision.
       **Do not reopen this as a second plans item.**
-- [ ] 4.4 Platform admin area: business list + search, per-business
+- [x] 4.4 Platform admin area: business list + search, per-business
       actions (founding mark, suspend, plan tier, open-their-dashboard),
       manual business creation for in-person onboarding, platform
       settings, basic counts. Locked by a platform_admins table checked in
@@ -6077,9 +6077,60 @@ is kept; the entire visual design restarts from scratch.
       saying *No website yet*, so the screen appeared to contradict itself.
       `.pa-input::placeholder` is dimmed.
 
-      **STILL TO BUILD (stage 4):** platform settings — the `platform_prices`
-      row this entry describes below, and it is still correct that the table
-      and the editor ship together or neither.
+      **STAGE 4 SHIPPED 2026-09-05 — platform settings, which is HIS OWN
+      PRICES and nothing else.** `platform_settings.prices jsonb` (the table
+      already existed for the founding cap), `public.platform_prices()` for the
+      public pages, `pricesFrom()` in `_shared/platformBilling.ts`,
+      `livePricing()` in `app/src/landing/pricing.js`, a `prices` action, and
+      *What we charge* on `/admin`. **The table and the editor shipped
+      together, as this entry required.**
+
+      **NULL MEANS THE FILES, AND THAT IS WHAT IT SHIPS AS.** Not a seeded copy
+      of the current table: a seeded copy is a THIRD place the same numbers
+      live, and the moment the files changed it would be the stale one that
+      wins — silently, because it is the one with authority. **So the failure
+      mode is yesterday's behaviour**: a null column, an unparseable object, a
+      missing key or a price that is not a positive number all resolve to the
+      built-in table, on both sides.
+
+      **AND IT FALLS BACK WHOLE, NEVER FIELD BY FIELD.** A half-applied
+      override is the worst of the three outcomes — one row's monthly beside
+      one file's annual is a price nobody chose and it looks exactly like a
+      working one. One bad figure discards the object.
+
+      **THE TWO VALIDATORS ARE THE PRICE OF THE TWO TABLES.** `pricesFrom`
+      (Deno) and `livePricing` (browser) spell the same rules because a Deno
+      bundle cannot import out of `supabase/` — the wall that forced
+      `_shared/brandColor.js` — and **§ 19 runs both on the same eleven inputs**
+      so a table the PAGE would accept and the CHECKOUT would refuse cannot
+      exist. **The editor validates with `pricesFrom` itself**, not a third
+      opinion.
+
+      **EVERY FIGURE ON BOTH PUBLIC PAGES NOW READS `P`, NOT `PRICING`** —
+      twenty call sites — and two checks fail on a single `PRICING.` left
+      behind in either component, because a half-converted page prints one
+      number from the file beside another from the database. **Both were
+      baselined by putting one back.**
+
+      **Exercised live end to end:** an override of `$900/$55/$550/$69` (and
+      founding `$450/$35/$350/$44`) reached the public pricing page complete —
+      including the sentences it derives, *"$420 over 12 months"* and *"walking
+      away halfway through costs $105"* — and the detailer's own billing screen
+      charged **$3500/mo with $5500 struck and $45000 setup**, with the AB 2863
+      consent sentence regenerated to match. Rubbish → 400 with a plain
+      sentence. *Back to the built-in prices* → `$4000/$6000/$49900` exactly. A
+      detailer → 404.
+      `platform-billing` **283/283**, `landing-pricing` **67/67**,
+      `platform-admin` **40/40**, build clean, `/admin` clean at 1440/392/320.
+
+      **THE ONE THING IT REFUSES TO DO IS REFUSE.** The founding ladder's two
+      rules (two months free, +25% for no commitment) are printed as a WARNING
+      beside the fields and the form saves anyway — they are the owner's prices
+      and his positioning, and `$999` rather than `$900` was his own call
+      against the rounder number. **Question 3 in `docs/overnight-log.md` asks
+      whether he wants it to refuse instead.**
+
+      **WITH THIS, 4.4 IS COMPLETE.**
 
       **SPECIFIED 2026-09-04: `docs/platform-admin-2026-09-04.md`.** The owner
       asked for it in his own words — *"I need to have a dashboard myself where

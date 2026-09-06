@@ -493,7 +493,7 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, **`landing-pricing`** (**65 checks — measured 2026-09-05; this said 58 and was stale within a day of being written** — 21 until roadmap
+  `design-contrast`, **`landing-pricing`** (**67 checks — 65 until roadmap 4.4 stage 4; measured 2026-09-05, this said 58 and was stale within a day of being written** — 21 until roadmap
   2.20 stage 2 on 2026-09-05, and its FIRST check had been vacuous since the
   day it was written: the pricing-section slice looked for
   `aria-labelledby="price"` when the section is `"prh"`, so `indexOf` returned
@@ -566,7 +566,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   escape order — escape first, THEN newlines to `<br>` — is what stops one
   typed message becoming markup in every copy. Baselined both ways: dropping
   the footer fails 4, dropping the escape fails 2),
-  **`platform-billing`** (**263 checks — measured 2026-09-05; this said 168 and the file said 220 sixty lines further down, which is the same suite counted twice and wrong twice**, new 2026-09-05, roadmap 2.20 stage 2 —
+  **`platform-billing`** (**283 checks — 263 until roadmap 4.4 stage 4 added § 19; measured 2026-09-05, this said 168 and the file said 220 sixty lines further down, which is the same suite counted twice and wrong twice**, new 2026-09-05, roadmap 2.20 stage 2 —
   what a DETAILER pays US, and the first suite in this repo where *a number
   PRINTED is not a number CHARGED* is literally rather than metaphorically
   true. It ties every rung on `/pricing`, founding and list, to the money
@@ -648,7 +648,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   especially: an unescaped comma inside `ADR` ends the field and the phone
   drops the rest of the address with no error. Baselined by removing the
   escaping, which fails 6 including the cross-copy check),
-  **`platform-admin`** (34 checks, new 2026-09-05, roadmap 4.4 — **the one
+  **`platform-admin`** (**40 checks** — 34 at stage 1, new 2026-09-05, roadmap 4.4 — **the one
   screen where a bug exposes every tenant at once**, and the file exists
   because most of what it guards is the ABSENCE of something no behavioural
   test can see. § 1 walks EVERY migration and fails if any `create policy`
@@ -2120,6 +2120,38 @@ explaining it; if they still have to ask "so should I?", it failed.
   **`app/src/admin/admin.css` SHARES NO RULE WITH `theme.css`, only its
   tokens.** 4.4's requirement is "its own route and layout", and a shared
   selector is the quiet way that gets broken.
+  **STAGES 2-4 CLOSED IT THE SAME NIGHT, and three things in them bind future
+  work.**
+  **(1) `_shared/newBusiness.ts` IS WHAT "A NEW BUSINESS" MEANS, AND BOTH DOORS
+  CALL IT.** Signup and the back office; a second copy is where two KINDS of
+  business start to differ, and quietly — no `business_settings` row is a
+  dashboard of nulls, no `business_hours` is a booking page that can never be
+  booked, and **neither throws**. **It refuses to guess the OWNER** (the person
+  signed up in person may have no account at all), which is why the invite is
+  the other half of that stage rather than a separate feature.
+  **(2) `businesses.site_url` IS NOT `business_domains.domain` AND MUST NEVER BE
+  MERGED WITH IT.** That column means a hostname that RESOLVES TO THIS APP
+  (roadmap 3.3); a detailer's own website may live anywhere, and putting one in
+  that table points a customer's own booking link at a 404. Both new columns are
+  revoked from `authenticated` at column level, because **a record its subject
+  can edit is not a record**.
+  **(3) `platform_settings.prices` CAN NOW OVERRIDE THE PRICE TABLE, AND NULL
+  MEANS THE FILES.** That is the state it ships in and the state everything
+  broken resolves to: an unparseable object, a missing key or a price that is
+  not a positive number all fall back to `pricing.js` / `platformBilling.ts`,
+  **WHOLE and never field by field** — one row's monthly beside one file's
+  annual is a price nobody chose that looks exactly like a working one. **A
+  seeded copy of the current table was refused**: it would be a third place the
+  same numbers live and would silently become the stale one that wins.
+  `pricesFrom` (Deno) and `livePricing` (browser) are the two validators the two
+  tables already cost us, and `platform-billing` § 19 runs BOTH on the same
+  inputs so a table the page would accept and the checkout would refuse cannot
+  exist. **Every figure on `LandingPage.jsx` and `PricingPage.jsx` reads `P`,
+  not `PRICING`** — a single leftover prints one number from the file beside
+  another from the database, and two checks fail on one.
+  **The editor WARNS and never refuses** when a typed ladder breaks its own two
+  rules (two months free, +25% for no commitment); question 3 in
+  `docs/overnight-log.md` asks the owner whether he wants it to refuse.
 
 - **A DETAILER CAN HAVE THEIR OWN WEB ADDRESS NOW, AND THE ONE THING TO GET
   RIGHT IS WHAT `business_domains.domain` MEANS — roadmap 3.3, 2026-09-05. It

@@ -53,7 +53,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "../lib/api.js";
-import { PRICING } from "./pricing.js";
+import { PRICING, livePricing } from "./pricing.js";
 import { initThread } from "./thread.js";
 import { Ground, Foot } from "./LandingPage.jsx";
 import "./landing.css";
@@ -72,6 +72,18 @@ export default function PricingPage() {
     return () => { live = false; };
   }, []);
   const founding = offer && offer.left > 0;
+  // ROADMAP 4.4 STAGE 4 — the prices come from the database when the owner has
+  // overridden them, and from `pricing.js` otherwise, which is the ordinary
+  // case and the fallback for anything malformed. **Every figure on this page
+  // reads `P`**; a `PRICING.` left behind would print one number from the file
+  // beside another from the row, which is worse than either.
+  const [P, setP] = useState(PRICING);
+  useEffect(() => {
+    let live = true;
+    api.platformPrices().then((raw) => { if (live) setP(livePricing(raw)); });
+    return () => { live = false; };
+  }, []);
+
 
   useEffect(() => initThread(), []);
 
@@ -86,14 +98,20 @@ export default function PricingPage() {
   // the build fee below already strikes its list price and the three rungs
   // under it did not, so the page taught a reader what a discount looks like
   // and then stopped doing it.
-  const listP = { ...PRICING.website, annual: PRICING.annual, monthToMonth: PRICING.monthToMonth };
-  const p = founding ? PRICING.founding : listP;
-  const monthsFree = (p.monthly * 12 - p.annual) / p.monthly;
+  const listP = { ...P.website, annual: P.annual, monthToMonth: P.monthToMonth };
+  const p = founding ? P.founding : listP;
+  // ROUNDED TO ONE DECIMAL, AND ONLY SINCE ROADMAP 4.4 STAGE 4 MADE THE TABLE
+  // EDITABLE. The saving has always been COMPUTED rather than typed, which is
+  // what keeps this sentence true when a price changes — but the built-in
+  // ladder makes it a whole 2, and an owner-typed one need not: $500 a year on
+  // $55 a month is 2.909090909090909, and that is what a `${}` prints.
+  // Nothing is mispriced; the page just stops sounding like it means it.
+  const monthsFree = Math.round(((p.monthly * 12 - p.annual) / p.monthly) * 10) / 10;
   // A WORKED EXAMPLE OF THE EXIT FEE, not a second rule: half of the months
   // still to run, shown at the halfway point because "half of what's left"
   // is the sentence people misread as "half the whole thing".
   const exitAtHalfway =
-    p.monthly * (PRICING.term.months / 2) * PRICING.term.exitFeeShare;
+    p.monthly * (P.term.months / 2) * P.term.exitFeeShare;
 
   // Where a chosen option goes TODAY: the signup form, carrying the choice.
   // There is no checkout yet (roadmap 2.20 stage 2's second half, which
@@ -247,8 +265,8 @@ export default function PricingPage() {
               <div className="rungwhat">
                 <span className="rt">Pay monthly, for a year</span>
                 <span className="rw">
-                  ${p.monthly * 12} over {PRICING.term.months} months. This one
-                  is a {PRICING.term.months}-month commitment, and leaving
+                  ${p.monthly * 12} over {P.term.months} months. This one
+                  is a {P.term.months}-month commitment, and leaving
                   early costs half of the months still to run. The other two
                   do not.
                 </span>
@@ -331,8 +349,8 @@ export default function PricingPage() {
           </div>
           <div className="onlybuy" data-rv="lift" style={{ "--i": 1 }}>
             <div className="amount">
-              <span data-count={PRICING.bookingOnly.monthly} data-prefix="$">
-                ${PRICING.bookingOnly.monthly}
+              <span data-count={P.bookingOnly.monthly} data-prefix="$">
+                ${P.bookingOnly.monthly}
               </span>
               <small>a month</small>
             </div>
@@ -379,7 +397,7 @@ export default function PricingPage() {
             <div data-rv="" style={{ "--i": 2 }}>
               <dt>Only one plan is a commitment</dt>
               <dd>
-                Annual paid monthly means {PRICING.term.months} months. The
+                Annual paid monthly means {P.term.months} months. The
                 other two have no term of any kind: the up-front year is
                 already paid for, and month to month ends whenever you say so.
               </dd>
@@ -388,7 +406,7 @@ export default function PricingPage() {
               <dt>Leaving that one early</dt>
               <dd>
                 You pay half of the months still to run, charged that day to
-                the card on file. On {PRICING.term.months} months at $
+                the card on file. On {P.term.months} months at $
                 {p.monthly} a month, walking away halfway through costs $
                 {exitAtHalfway}. Nothing else, and nothing after it.
               </dd>

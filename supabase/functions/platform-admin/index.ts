@@ -31,6 +31,7 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
 import { createBusinessRow } from "../_shared/newBusiness.ts";
+import { PRICES, pricesFrom, type PriceTable } from "../_shared/platformBilling.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
 import { inviteEmail } from "../_shared/emailTemplates.ts";
@@ -211,7 +212,15 @@ Deno.serve(async (req) => {
         .filter((s) => s.status === "active" || s.status === "trialing")
         .reduce((a, s) => a + Math.round(Number(s.recurring_cents || 0) / (s.bill_interval === "year" ? 12 : 1)), 0);
 
+      // WHAT WE CHARGE, AND WHAT WE WOULD CHARGE WITH NOTHING SET. Both, so
+      // the screen can say which one is live rather than showing four numbers
+      // whose origin is invisible — and so *back to the built-in prices* has
+      // something to show before it is pressed.
+      const { data: ps } = await supabase.from("platform_settings")
+        .select("prices, updated_at").limit(1).maybeSingle();
+
       return json({
+        prices: { current: ps?.prices ?? null, built_in: PRICES, updated_at: ps?.updated_at ?? null },
         rows,
         totals: {
           businesses: rows.length,
@@ -290,6 +299,39 @@ Deno.serve(async (req) => {
     // start to differ quietly — one with no settings row renders a dashboard
     // of nulls, one with no hours has a booking page that can never be
     // booked, and neither throws.
+    // WHAT WE CHARGE — roadmap 4.4's "platform settings", which has exactly
+    // one job. The price table is typed twice on purpose (a Deno bundle
+    // cannot import out of `supabase/`), and one row makes the two copies one
+    // number. It takes no `business_id`: this is the platform's own setting.
+    //
+    // NULL PUTS THE FILES BACK, and that is a real button rather than a
+    // theoretical state — it is the whole safety net. If a typed table ever
+    // looks wrong, one press restores what the product charged before anybody
+    // touched it.
+    if (action === "prices") {
+      let value: PriceTable | null = null;
+      if (body.prices !== null && body.prices !== undefined) {
+        // `pricesFrom` already decides what a usable table is, and reusing it
+        // here is the point: the screen cannot save a table the checkout
+        // would silently reject and fall back from. A SECOND validator is how
+        // those two answers drift.
+        const SENTINEL = {} as unknown as PriceTable;
+        const parsed = pricesFrom(body.prices, SENTINEL);
+        if (parsed === SENTINEL) {
+          return json({ error: "Those prices do not add up — every figure must be a number, and only the setup fee may be zero." }, 400);
+        }
+        value = parsed;
+      }
+      const { error } = await supabase.from("platform_settings").update({ prices: value }).eq("id", true);
+      if (error) throw error;
+      // THE WHOLE TABLE IS IN THE LOG, not a "changed" flag. This is the only
+      // write in this back office that decides what somebody's card is
+      // charged, and "he changed the prices on the 6th" is not an answer to
+      // give anybody who asks which price they were shown.
+      await logIt(admin, "prices", null, { to: value });
+      return json({ success: true, prices: value, built_in: PRICES });
+    }
+
     if (action === "create") {
       const made = await createBusinessRow(supabase, {
         name: body.name, slug: body.slug, timezone: body.timezone,

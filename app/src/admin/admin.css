@@ -147,3 +147,10 @@
 .pa-input::placeholder, .pa-field textarea::placeholder {
   color: var(--text-muted, #8A9296); opacity: 0.55;
 }
+
+/* ELEVEN NUMBERS, NOT ELEVEN ROWS. At a desk a full-width field holding "55"
+   reads as unfinished, and stacked it made the price editor taller than the
+   screen it is read on. `auto-fit` does the whole job with NO media query,
+   which also means there is nothing here for a sideways phone to trip over —
+   the five-instance trap `theme.css` records. */
+.pa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }

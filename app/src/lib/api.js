@@ -110,6 +110,17 @@ export const api = {
     if (error) throw error;
     return { total: Number(data?.total ?? 0), left: Number(data?.left ?? 0) };
   },
+  // ROADMAP 4.4 STAGE 4 — the owner's own prices, if he has overridden the
+  // built-in table. Null is the ordinary answer and means the files decide;
+  // `livePricing` in `landing/pricing.js` turns whatever comes back into a
+  // usable table or falls back whole. A failure resolves to null rather than
+  // throwing, because a marketing page that cannot reach the server must still
+  // print a price.
+  platformPrices: async () => {
+    const { data, error } = await supabase.rpc("platform_prices");
+    if (error) return null;
+    return data ?? null;
+  },
   cancelBooking: (bookingId) => callFn("cancel-booking", { booking_id: bookingId }),
   // Roadmap 2.12. Saying NO to a quote is cancelBooking above — a customer who
   // won't pay the price is cancelling, and the slot has to go back either way.

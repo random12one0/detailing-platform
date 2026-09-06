@@ -725,6 +725,77 @@ a button, which it proved three times earlier tonight.
 
 ---
 
+## Roadmap 4.4 stage 4 — your own prices, editable without a developer
+
+**What changed.** *What we charge* on `/admin`: the eleven figures behind the
+pricing page and the checkout, in one form. Saving them changes what the next
+detailer is offered, everywhere at once — the marketing page, the pricing page,
+the price a card is charged and the sentence somebody ticks when they buy.
+**Everybody already paying keeps the price they agreed to**, because every
+figure is copied onto their subscription the day they buy and is never read
+again.
+
+**Why this one setting and not a settings screen.** Your words on 2026-09-05
+were *"everything that could be a changeable fact should be linked to
+Supabase"*, and the honest answer from the audit was that almost nothing in
+this product qualifies — most of what looks like a setting is a rule. **The
+prices are the exception, and for a better reason than convenience:** they are
+typed out twice on purpose (once for the website, once for the part that talks
+to the card machine, because the two halves cannot share a file), and about 260
+checks exist purely to keep the two copies identical. **One row in the database
+makes them one number.**
+
+**The safety net, which is the part I would want you to know.** Leaving the
+form blank — or a number that makes no sense, or the database being
+unreachable — all mean exactly one thing: **the built-in prices, which are what
+the product charged yesterday.** It never uses half of your table and half of
+the file; one bad figure discards the whole thing. And there is a **Back to the
+built-in prices** button, which is a real one press undo.
+
+**What I verified, and what it printed.** Live, end to end:
+- saving `$900 / $55 / $550 / $69` and the founding column at `$450 / $35 /
+  $350 / $44` → the public pricing page then printed **every one of them**,
+  including the sentences it works out for itself: *"$420 over 12 months"*,
+  *"walking away halfway through costs $105"*, and the build-fee paragraph.
+  **Nothing was left at the old price.**
+- the detailer's own billing screen with the same override: **$3500 a month
+  charged, $5500 struck through, $45000 build fee** — and the consent sentence
+  they tick regenerated to match (*"$450 once for the build and $35 every month
+  after that"*).
+- typing rubbish → **400, "Those prices do not add up — every figure must be a
+  number, and only the setup fee may be zero."**
+- pressing *Back to the built-in prices* → back to `$4000 / $6000 / $49900`
+  exactly.
+- a detailer trying it → **404**, the same as every other admin action.
+
+`platform-billing` **283/283** (twenty new checks, four of them baselined by
+breaking what they guard), `landing-pricing` **67/67**, `platform-admin`
+**40/40**, `composition` 74/74, build clean, and `/admin` measured clean at
+1440/392/320 with no console errors in both states.
+
+**Two judgement calls I made alone.**
+1. **The form warns and never refuses.** Your ladder has two rules — a year up
+   front is two months free, and month-to-month costs 25% more — and if you
+   type numbers that break them, the screen says so and still saves. They are
+   your prices and your positioning ($999 rather than $900 was your own call);
+   a form that will not save a number you chose is a form you stop using.
+2. **Nothing is seeded into the database.** The row starts empty, so the files
+   stay in charge until you deliberately change something. Copying the current
+   prices in would have created a third place the same numbers live, and the
+   moment the files changed it would be the stale one that wins.
+
+**And one real defect the override let me find.** The pricing page WORKS OUT
+the saving rather than having "two months free" typed into it — which is what
+keeps that sentence true when a price changes — but with a year price that is
+not a whole number of months it printed `2.909090909090909`. It rounds to one
+decimal now, and the warning in the editor tells you exactly what the page will
+say (*"the pricing page will say '2.9 months free'"*). Nothing was ever
+mispriced; the sentence just stopped sounding like it meant it.
+
+**One question parked — question 3 below.**
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*
@@ -826,6 +897,31 @@ call it from, so if you want it, 3.2 is cheaper than 4.2 for the half that
 lives on the site. **My recommendation: leave it for 4.2.** A site that writes
 rows no screen ever shows is a half-feature, and the contract already refused
 that once.
+
+### 3. Should the price editor refuse a ladder that breaks your own two rules?
+
+**What this is.** Your pricing has two rules baked into the words on the page:
+a year paid up front is **two months free**, and month-to-month costs **25%
+more** because there is no commitment. `$600` and `$75` are those rules applied
+to `$60`, and the founding column's `$400` and `$50` are the same rules applied
+to `$40`. Nothing is hard-coded — the page *works out* the saving and prints
+it.
+
+**So if you type a year price that is not ten months' worth, the page does not
+lie — it just says something odd.** With `$55` a month and `$500` a year it
+prints *"2.9 months free"* instead of *"2 months free"*. Nothing is broken and
+nobody is overcharged; it simply stops being a round, confident sentence.
+
+**What happens either way.** Leave it as I built it: the editor prints a line
+telling you what the rules would give and saves whatever you typed. Or I make
+it refuse — you would then have to keep the ladder in step, and the page can
+never say "2.9 months free".
+
+**My recommendation: leave it warning.** They are your prices, and you have
+already overruled a "sensible" number once for a good reason ($999 rather than
+$900 because it reads more professional). A form that refuses your own decision
+is a form you stop trusting. If you would rather it refused, say **"refuse"**
+and it is a ten-minute change.
 
 ---
 
