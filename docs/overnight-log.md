@@ -1369,6 +1369,61 @@ written down so nobody diagnoses it as a bug.
 
 ---
 
+## The maintenance deadline — the one you handed me to figure out
+
+**What changed.** A new screen, **Maintenance deadlines**, under Business next
+to Monthly plans. You put in whose car it is, what is owed in your own words —
+*"Ceramic Pro annual inspection"* — which car, and the date it has to be done
+by. The customer then gets reminded at **60 days, 30 days, 14 days, and again
+the day before**, each one with your booking link in it.
+
+**Why it is a different thing from a monthly plan, which is the whole point.**
+A plan says *"roughly every month"*, and nothing happens if it slips. This says
+**"before 12 October, or the thing your customer paid $1,500 for is gone."**
+Ceramic Pro requires a yearly inspection by a certified installer; System X
+gives about thirty days either side of the anniversary and then the warranty is
+void, permanently. **None of the six competitors we looked at does this**, and
+it is the one thing customers never argue about, because the consequence is
+theirs.
+
+**The four decisions I made, since you said to figure it out.**
+1. **It belongs to a car, not to a plan.** Somebody with two coated cars has
+   two deadlines and no plan at all.
+2. **It is the only email in the product that goes more than once.** Everything
+   else fires once because the job happens whether or not you read the email. A
+   warranty does not.
+3. **You type what it is called.** No dropdown of coating brands — that would
+   be us deciding which manufacturers exist — and the email adds nothing to
+   your words. A warranty is a contract between your customer and a
+   manufacturer, and a sentence we invent about what it covers is one we cannot
+   stand behind.
+4. **The customer is the one reminded, not you.** They are the one who loses
+   something, you have the whole list on your screen, and the email that
+   actually gets the job booked is the one with your booking link in it. It
+   obeys the same *"email my customers"* switch as everything else — if you
+   turn customer email off, this goes quiet too.
+
+**Two things that will not go wrong, and are worth knowing why.** A deadline
+you add eight days before it is due sends ONE email, not three catching up. And
+if the email fails, the reminder is not marked as sent — so it tries again,
+rather than a warranty being lost because one email bounced at four in the
+morning.
+
+**What I verified, and what it printed.** A real deadline 20 days out fired the
+**30-day** reminder and not the 60-day one; running the sweep again the same
+day sent **nothing**; a deadline 200 days out was untouched. Thirty-seven
+checks including the leap-year arithmetic, three baselined by breaking them.
+Both ends of the reminder — the two-months-out one and the day-before one —
+are rendered so I could look at them.
+
+**And two things only looking could have found.** The rows first laid out as
+four stacked fragments on a phone with two naked icons underneath, and the line
+under each deadline first read *"Marcus Webb · 2021 Tacoma …"* — clipping off
+**the date, which is the one fact the row exists to carry.** The timing comes
+first now.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

@@ -660,6 +660,21 @@ explaining it; if they still have to ask "so should I?", it failed.
   empty hash and calls a working link bad. And the gear row is gated by
   NOTHING: a password belongs to the person, not the business, and staff are
   exactly who is handed one by somebody else. Baselined four ways),
+  **`maintenance`** (37 checks, new 2026-09-06, roadmap 2.23 — a coating
+  warranty that VOIDS. **It pins the two copies of the deadline arithmetic**:
+  `app/src/lib/maintenance.js` is what the screen runs and
+  `_shared/maintenance.ts` is what the sweep runs, and a drift means the
+  screen says *due in 3 days* about something the email has already called
+  missed — the customer believes whichever reached them first. Seventeen
+  deadlines through both. **The escalation is the part with teeth**: one
+  added INSIDE the window fires the stage the DATE has reached and never
+  catches up on the earlier ones (a first word about a warranty must not be
+  three emails at once), a stage already sent never fires again (the sweep
+  runs every fifteen minutes), and nothing fires once it is missed, met or
+  cancelled. Baselined three ways, and **three of its checks were vacuous on
+  the first run in one shape**: `indexOf` on a name that also appears in an
+  IMPORT compares against the import, so the check passed with the code moved
+  anywhere at all),
   **`spam-filter`** (33 checks, new 2026-09-06, roadmap 2.21 — the throttle
   and honeypot on the four public endpoints. **The behaviour was proven
   against the deployed functions**; what this file holds is the half a live
@@ -721,7 +736,13 @@ explaining it; if they still have to ask "so should I?", it failed.
   quote.
 - **`settle()` IS A CAP ON A REPAINT AND IS NOT A WAIT FOR A NETWORK ROUND
   TRIP — and `sweep-widths.mjs` had three places that forgot it until roadmap
-  2.19.** Monthly plans and Team's member list draw their buttons only after
+  2.19. A FOURTH SURFACED ON 2026-09-06: MONEY'S PERIOD CONTROL.** It is drawn
+  after the money read, the block was settle-then-count, and a full run lost
+  the race at 1440 and printed **`NO SUCH PERIOD` three times** — which reads
+  as three renamed controls rather than as one slow query, exactly as this
+  entry already warns. `appear()` again. **Anything a DATABASE READ draws is
+  `appear()`, and the list of places that forgot only ever grows by being
+  run.** Monthly plans and Team's member list draw their buttons only after
   Supabase answers, and both were `settle(page, N)` then `.count()`. **`?lite=1`
   makes that race WORSE, not better**: with nothing animating the DOM goes quiet
   sooner, so settle returns earlier. `appear(locator)` in that script waits for
@@ -810,7 +831,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
   needs the dev server running and the demo business seeded — it drives a real
   browser. It walks every dashboard screen, all
-  SEVENTEEN settings screens through TWO DOORS — TWELVE on Business (Monthly plans
+  NINETEEN settings screens through TWO DOORS — THIRTEEN on Business (**this said TWELVE until *Maintenance deadlines* joined on 2026-09-06, roadmap 2.23 — a date with a consequence rather than a rhythm, beside Monthly plans so the difference is obvious**) (Monthly plans
   joined in roadmap 2.14, "How you get paid" in roadmap 2.20, **"Common
   questions" in roadmap 3.2(b)** — its own geometry risk is the row of THREE
   icon buttons beside a two-line question, one more control on a `.row-item`
@@ -1728,8 +1749,8 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 - **THE FIFTH TAB IS `Business`, THE PLUMBING IS BEHIND A GEAR IN THE HEADER,
   AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
-  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. **TWELVE rows on
-  Business** (what changes what a CUSTOMER meets — Monthly plans joined them in
+  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. **THIRTEEN rows on
+  Business** (*Maintenance deadlines* joined 2026-09-06, roadmap 2.23) (what changes what a CUSTOMER meets — Monthly plans joined them in
   roadmap 2.14, because a plan is an offer with a price, *How you get paid*
   in 2.20 stage 1, and ***Common questions* in roadmap 3.2(b), which is the
   ninth row `Business.jsx`'s own header designed in stage 6 and deliberately

@@ -55,6 +55,7 @@ import { useWide } from "../hooks/useWide.js";
 import SettingsHost from "../components/SettingsHost.jsx";
 import BookingLink from "../components/BookingLink.jsx";
 import { setupProgress } from "../lib/setup.js";
+import { stateOf } from "../lib/maintenance.js";
 import { brandVarsFor } from "../lib/theme.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -138,7 +139,7 @@ export default function Business({ onSetup }) {
 
   // One round trip for every summary line on the screen.
   const load = useCallback(async () => {
-    const [h, s, a, p, g, r, pl, pm, dm, cp, cv] = await Promise.all([
+    const [h, s, a, p, g, r, pl, pm, dm, cp, cv, md] = await Promise.all([
       supabase.from("business_hours").select("weekday,open_time,close_time").eq("business_id", business.id),
       supabase.from("services").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       supabase.from("add_ons").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
@@ -165,6 +166,14 @@ export default function Business({ onSetup }) {
         .eq("business_id", business.id).eq("is_active", true),
       supabase.from("campaign_visits").select("id", { count: "exact", head: true })
         .eq("business_id", business.id),
+      // ROADMAP 2.23. THE COUNT THAT MATTERS IS WHAT IS ABOUT TO BE LOST, not
+      // how many deadlines exist: a detailer with nine warranties on the books
+      // and none due this quarter needs to see "nothing due", and "9
+      // deadlines" would read as nine things wanting attention. Anything not
+      // cancelled and not already covered, inside the first reminder window.
+      supabase.from("maintenance_deadlines")
+        .select("due_on, last_done_on, repeat_months, cancelled_at")
+        .eq("business_id", business.id).is("cancelled_at", null),
     ]);
     // A null count means the query failed. Keep it null so the row shows a
     // dash rather than asserting zero — a wrong "0 people" reads as a real
@@ -181,6 +190,11 @@ export default function Business({ onSetup }) {
       hoursOpen: (h.data ?? []).some((r) => r.open_time),
       domain: dm.data?.[0]?.domain ?? null,
       campaigns: cp.count, campaignVisits: cv.count,
+      // Counted through the SAME function the screen and the reminder use, so
+      // three places can never disagree about whether one is missed.
+      deadlinesSoon: (md.data ?? []).filter((d) => ["due", "missed"].includes(stateOf(d))).length,
+      deadlinesMissed: (md.data ?? []).filter((d) => stateOf(d) === "missed").length,
+      deadlines: (md.data ?? []).length,
     });
   }, [business.id]);
 
@@ -286,6 +300,23 @@ export default function Business({ onSetup }) {
       ["plans", "Monthly plans", Repeat,
         counts ? (counts.plans === 0 ? "Not offering one"
           : `${n(counts.planMembers, "member", "members")} on ${n(counts.plans, "plan", "plans")}`) : "…"],
+      // ROADMAP 2.23. Under "What you sell" beside plans, because it is the
+      // same kind of object from the customer's side — work that is owed —
+      // and because the difference between them is exactly what the two rows
+      // sitting together makes obvious: a plan is a rhythm, this is a date
+      // with a consequence.
+      //
+      // IT IS THE ONE ROW HERE THAT CAN SHOUT WITHOUT BLOCKING A BOOKING, and
+      // that is deliberate: a missed warranty costs a CUSTOMER something,
+      // which is worth more than tidiness. `--bad` is the product's fixed red
+      // and never the tenant's accent (law 11b).
+      ["maintenance", "Maintenance deadlines", CalendarClock,
+        counts ? (counts.deadlines === 0 ? "Nothing has a deadline"
+          : counts.deadlinesSoon === 0 ? `${n(counts.deadlines, "deadline", "deadlines")}, none due`
+            : counts.deadlinesMissed
+              ? `${counts.deadlinesMissed} missed`
+              : `${n(counts.deadlinesSoon, "deadline", "deadlines")} coming up`) : "…",
+        counts ? counts.deadlinesMissed > 0 : false],
       // ROADMAP 2.20 STAGE 1. Under "What you sell" rather than "Your page"
       // because it is about the money on the job, and LAST in the group for
       // the same reason cash is last in the email's own list: it is what

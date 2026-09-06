@@ -4692,7 +4692,68 @@ is kept; the entire visual design restarts from scratch.
 
       **Skills: none. `security-review` on where the dump lands.**
 
-- [ ] 2.23 **THE MAINTENANCE DEADLINE — a coating warranty that VOIDS, not a
+- [x] 2.23 ~~**THE MAINTENANCE DEADLINE**~~ **BUILT 2026-09-06.**
+      `20260906008000_maintenance_deadlines.sql`, `app/src/lib/maintenance.js`
+      + `_shared/maintenance.ts`, the escalation pass in
+      `send-owner-reminders`, `maintenanceDueEmail`, and **Maintenance
+      deadlines** on Business beside Monthly plans.
+      `tests/maintenance.test.mjs` — 37 checks, three baselined.
+
+      **THE HONEST QUESTION THIS ITEM SAID TO ANSWER FIRST: it is attached to a
+      CUSTOMER AND A CAR, not to a plan.** The research leans that way and the
+      reason is concrete — a customer with two coated cars has two deadlines
+      and no plan at all, and `plan_members` is per-customer with a price on
+      it. **Not smuggled into the cadence fields**, which this entry and the
+      research both refused in advance.
+
+      **IT IS THE ONLY EMAIL IN THIS PRODUCT THAT ESCALATES**, at 60, 30, 14
+      and 1 days. Every other reminder fires once because the job happens
+      whether or not anybody reads it; a warranty does not. **A deadline added
+      INSIDE the window starts at the stage the DATE has reached**, never at
+      the beginning — a customer's first word from us about their warranty must
+      not be three emails at once — and `reminded_stage` means a sweep running
+      every fifteen minutes cannot send the same step twice.
+
+      **OPEN, MET AND MISSED ARE ALL DERIVED; ONLY "the detailer says it no
+      longer applies" IS STORED.** A stored status is a second answer that goes
+      wrong the moment somebody backdates a service, **and backdating is the
+      ordinary case** — the inspection is recorded after it is done. The word
+      is **missed**, never "overdue": a warranty does not become overdue, it
+      becomes gone.
+
+      **THE CUSTOMISABLE PART HE ASKED FOR IS THE LABEL**, and the product
+      never invents one: a dropdown of coating brands would be this product
+      deciding which manufacturers exist. The email adds nothing to the
+      detailer's own words either — a warranty is a contract between the
+      customer and a manufacturer, and a sentence we invent about what it
+      covers is one we cannot stand behind.
+
+      **The customer is the one told, not the detailer**: the customer is who
+      loses something, the detailer has the whole list on their own screen, and
+      the email that books the job is the one with the booking link in it. It
+      obeys the SAME `email_customer_reminder` switch as every other customer
+      reminder — a product that decides an email is too important to be
+      switched off has stopped being theirs — and the same three ways to be
+      unreachable (no address, opted out, bounced) that Clients and
+      `send-campaign` already ask about. **The stage is stamped only after a
+      successful send**, so a bounced relay is not a warranty lost to one
+      failed email at four in the morning.
+
+      **Verified live**: a deadline 20 days out fired the **30-day** step and
+      not the 60-day one, a second sweep the same day sent nothing, and a
+      200-day one was untouched. Sweep clean at every width with the new
+      screen walked; `render-emails` renders **both ends** of the escalation
+      (60 days and the day before), because rendering only one leaves the half
+      that matters unlooked-at.
+      **And two things were found by LOOKING**: `rows-stack` wrapped every
+      child onto its own line at 392, turning each deadline into four
+      fragments with two naked icons underneath; and with the customer's name
+      first the sub-line clipped to *"Marcus Webb · 2021 Tacoma …"*, losing the
+      one fact the row exists to carry. The timing comes first now.
+
+      **THE ORIGINAL ENTRY:**
+
+      - [ ] 2.23 **THE MAINTENANCE DEADLINE — a coating warranty that VOIDS, not a
       cadence. He handed the design to us on 2026-09-04 and it is still owed.**
 
       > *"and then there was, like, the requirement case things. And I think you

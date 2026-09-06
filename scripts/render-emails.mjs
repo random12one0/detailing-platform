@@ -217,6 +217,12 @@ const EMAILS = [
   // whenever a detailer quoted UNDER the estimate.
   ["customer-confirmation-plan", "Customer · booking confirmed, on a plan", () => T.customerConfirmationEmail(brand, planBooking, false)],
   ["customer-plan-link", "Customer · your plan link", () => T.planLinkEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", planUrl: "https://detailingplatform.com/plan/9c1f2b64-0000-4000-8000-000000000001", bookUrl: brand.siteUrl })],
+  // ROADMAP 2.23 — BOTH ENDS OF THE ESCALATION, because they are different
+  // emails: the first is a note two months out and the last is the day
+  // before. Rendering only one would leave the half that actually matters
+  // unlooked-at, which is this script's whole reason for existing.
+  ["customer-maintenance-far", "Customer · maintenance due (60 days)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: "12 October 2026", daysLeft: 60, bookUrl: brand.siteUrl })],
+  ["customer-maintenance-last", "Customer · maintenance due (tomorrow)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: "12 October 2026", daysLeft: 1, bookUrl: brand.siteUrl })],
   ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", startedOn: "2026-03-02", endedOn: "2026-09-04" })],
   // ROADMAP 2.19. THE ONLY COMMERCIAL EMAIL IN THE SET, and the only one a
   // human composes — so it is the only one whose footer carries a postal

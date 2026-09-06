@@ -196,7 +196,11 @@ const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews
   // is the whole lesson of the nine times this same gap has been recorded.
   // Its own risk is the paired Venmo / Cash App row at 320, exactly like the
   // plan form's segmented-control-beside-a-number-field.
-  "Services & add-ons", "Monthly plans", "How you get paid", "Promo codes & sale",
+  // "Maintenance deadlines" joined 2026-09-06 with roadmap 2.23, in the change
+  // that built it. Its own geometry risk is the `.pair` at the bottom of the
+  // form — a date input beside a number input, which is the same shape that
+  // breaks first on the plan form at 320.
+  "Services & add-ons", "Monthly plans", "Maintenance deadlines", "How you get paid", "Promo codes & sale",
   "Hours & days off", "Booking rules"];
 // "Your subscription" is NOT in this list and that is deliberate: it is
 // owner-only and it is the one settings screen whose content comes from an
@@ -647,6 +651,14 @@ for (const w of SIZES) {
   // label, "Week" the widest period LABEL ("Aug 30 – Sep 5"), and Lifetime is
   // the one that draws no stepper at all.
   await page.getByRole("button", { name: "Money", exact: true }).first().click();
+  // THE PERIOD CONTROL IS DRAWN AFTER THE MONEY READ, so `settle()` is the
+  // wrong instrument for it — a cap on a repaint, never a wait for a network
+  // round trip. This block was settle-then-count until 2026-09-06 and it lost
+  // the race at 1440 in a full run, printing **NO SUCH PERIOD three times**,
+  // which reads as three renamed controls rather than as one slow query.
+  // Third instance of exactly this in this file (Monthly plans, Team, and now
+  // Money) — `appear()` is the tool and it is at module scope for this reason.
+  await appear(page.getByRole("radio", { name: "Month", exact: true }));
   await settle(page, 1600);
   for (const k of ["Week", "6 months", "Lifetime"]) {
     const chip = page.getByRole("radio", { name: k, exact: true });

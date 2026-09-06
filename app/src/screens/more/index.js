@@ -60,6 +60,7 @@ import MessageTemplates from "./MessageTemplates.jsx";
 import Team from "./Team.jsx";
 import Preferences from "./Preferences.jsx";
 import Password from "./Password.jsx";
+import Maintenance from "./Maintenance.jsx";
 import SwitchBusiness from "./SwitchBusiness.jsx";
 
 export const SCREENS = {
@@ -73,6 +74,7 @@ export const SCREENS = {
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
   plans: [Plans, "Monthly plans"],
+  maintenance: [Maintenance, "Maintenance deadlines"],
   payments: [Payments, "How you get paid"],
   hours: [Hours, "Hours & days off"],
   rules: [BookingRules, "Booking rules"],

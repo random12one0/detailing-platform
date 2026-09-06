@@ -973,3 +973,59 @@ export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {
       : "We'll try again over the next two weeks."),
   );
 }
+
+// ---------------------------------------------------------------------------
+// 17 · CUSTOMER — YOUR WARRANTY HAS A DEADLINE (roadmap 2.23)
+//
+// **THE ONLY EMAIL IN THIS PRODUCT THAT ESCALATES.** Every other reminder
+// fires once, because the thing it is about happens whether or not anybody
+// reads it. A ceramic-coating warranty does not: miss the window and
+// something the customer paid $1,500 for is gone, permanently. So it goes
+// four times over two months and the words get shorter and plainer each
+// time.
+//
+// IT IS SENT TO THE CUSTOMER, NOT THE DETAILER, and that is deliberate: the
+// customer is the one who loses something, and the detailer already sees
+// every deadline on their own screen. It also happens to be the version that
+// books the job — the button is the booking link.
+//
+// **IT NEVER NAMES A PRICE OR A PRODUCT WE HAVE NOT BEEN TOLD ABOUT.** The
+// label is the detailer's own words ("Ceramic Pro annual inspection"), and
+// this template adds nothing to it: a warranty is a contract between the
+// customer and a coating manufacturer, and a sentence we invent about what
+// it covers is a sentence we cannot stand behind.
+// ---------------------------------------------------------------------------
+export interface MaintenanceEmailData {
+  customerName: string;
+  label: string;
+  vehicle?: string | null;
+  dueOn: string;      // as the detailer's timezone sees it, already formatted
+  daysLeft: number;
+  bookUrl: string;
+}
+
+export function maintenanceDueEmail(brand: TenantBrand, m: MaintenanceEmailData): Mail {
+  const what = m.vehicle ? `${esc(m.label)} on your ${esc(m.vehicle)}` : esc(m.label);
+  // THE URGENCY IS THE FACT, NOT AN ADJECTIVE. "Two weeks left" is true and
+  // acts on somebody; "Don't miss out!" is the SaaS-speak the design system
+  // bans on every other surface and there is no reason email is different.
+  const lead = m.daysLeft <= 1
+    ? "Tomorrow is the last day"
+    : m.daysLeft <= 14
+      ? `${m.daysLeft} days left`
+      : `Due ${m.dueOn}`;
+  const blocks = [
+    labBlock("Maintenance due"),
+    headlineBlock(lead),
+    proseBlock(`Hi ${esc(firstName(m.customerName))} &mdash; your <strong class="c-ink" style="color:${G.ink};">${what}</strong> is due by <strong class="c-ink" style="color:${G.ink};">${esc(m.dueOn)}</strong>.`),
+    proseBlock("Book it below and we'll take care of it.", 16),
+    buttonBlock(brand, "Book it in", m.bookUrl),
+    fineBlock("If you have already had this done elsewhere, let us know and we will mark it off."),
+  ];
+  return mail(
+    m.daysLeft <= 1
+      ? `Last day: ${m.label}`
+      : `${m.label} is due ${m.dueOn}`,
+    shell(brand, blocks, `${lead} to book your ${m.label}.`),
+  );
+}

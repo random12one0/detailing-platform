@@ -17,9 +17,10 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
 import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
-import { customerReminderEmail, formatTime12hr, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
+import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
-import { receiptUrl } from "../_shared/config.ts";
+import { businessSiteUrl, receiptUrl } from "../_shared/config.ts";
+import { STAGES, stageDue } from "../_shared/maintenance.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
 import { dateStrIn, hourIn, timeStrIn } from "../_shared/tz.ts";
 
@@ -269,6 +270,79 @@ Deno.serve(async (req) => {
         results.push({ id: b.id, kind: "request_nudge", sent: true });
       } catch (e) {
         results.push({ id: b.id, kind: "request_nudge", sent: false, error: String(e) });
+      }
+    }
+
+    // --- ROADMAP 2.23: MAINTENANCE DEADLINES, THE ONLY THING HERE THAT
+    // ESCALATES. -----------------------------------------------------------
+    //
+    // Every other reminder in this sweep fires once, because the job happens
+    // whether or not anybody reads the email. **A ceramic-coating warranty
+    // does not**: miss the window and something the customer paid $1,500 for
+    // is gone, permanently. So this one goes at 60, 30, 14 and 1 days, and
+    // `reminded_stage` on the row is what stops a re-run of the sweep sending
+    // the same step twice.
+    //
+    // IT ASKS FOR THE NEXT SIXTY DAYS AND DECIDES IN CODE. The stages, "is
+    // this met" and "which step is due" all live in `_shared/maintenance.ts`
+    // beside the screen's copy of the same arithmetic, so the email can never
+    // call something missed that the detailer's screen still calls due.
+    //
+    // THE CUSTOMER IS THE ONE TOLD, not the detailer: the customer is who
+    // loses something, the detailer has the whole list on their own screen,
+    // and the email that gets the job booked is the one with the booking link
+    // in it.
+    {
+      const horizon = new Date(Date.now() + STAGES[0] * 86_400_000).toISOString().slice(0, 10);
+      const { data: deadlines } = await supabase
+        .from("maintenance_deadlines")
+        .select("id, business_id, customer_id, label, vehicle, due_on, repeat_months, last_done_on, reminded_stage, cancelled_at")
+        .is("cancelled_at", null)
+        .lte("due_on", horizon)
+        .gte("due_on", new Date().toISOString().slice(0, 10));
+      for (const d of deadlines ?? []) {
+        const stage = stageDue(d);
+        if (stage === null) continue;
+        try {
+          const business = await biz(d.business_id);
+          const settings = await getSettings(business.id);
+          // THE SAME SWITCH THAT SILENCES EVERY OTHER CUSTOMER REMINDER. A
+          // detailer who turned customer email off did not mean "except this
+          // one", and a product that decides an email is too important to be
+          // switched off has stopped being theirs.
+          if (!settings.email_customer_reminder) continue;
+          const { data: customer } = await supabase
+            .from("customers")
+            .select("name, email, unsubscribed_at, email_failed_at")
+            .eq("id", d.customer_id).maybeSingle();
+          // THE SAME THREE WAYS TO BE UNREACHABLE the Clients count and
+          // `send-campaign` already ask about (roadmap 2.20): no address,
+          // opted out, bounced. A fourth opinion here is how they drift.
+          if (!customer?.email || customer.unsubscribed_at || customer.email_failed_at) continue;
+          const brand = await buildBrand(business, settings);
+          const site = await siteFor(supabase, business.id);
+          const msg = maintenanceDueEmail(brand, {
+            customerName: customer.name ?? "there",
+            label: d.label,
+            vehicle: d.vehicle,
+            dueOn: formatDateLong(d.due_on),
+            daysLeft: STAGES[stage],
+            bookUrl: businessSiteUrl(site, business.slug),
+          });
+          await sendTenantEmail({
+            businessId: business.id, to: customer.email,
+            subject: msg.subject, html: msg.html, text: msg.text,
+          });
+          // STAMPED AFTER THE SEND AND ONLY ON SUCCESS — `sendTenantEmail`
+          // throws on a hard failure, so a bounced relay leaves the stage
+          // where it was and the next sweep tries again. The alternative is a
+          // warranty lost because one email failed at four in the morning.
+          await supabase.from("maintenance_deadlines")
+            .update({ reminded_stage: stage + 1 }).eq("id", d.id);
+          results.push({ id: d.id, kind: "maintenance", sent: true });
+        } catch (e) {
+          results.push({ id: d.id, kind: "maintenance", sent: false, error: String(e) });
+        }
       }
     }
 

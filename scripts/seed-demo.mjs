@@ -772,6 +772,44 @@ await post("/rest/v1/testimonials", REVIEWS.map(([author, rating, source, quote,
   business_id: business.id, author, rating, source, quote, sort_order: i, is_active,
 })));
 
+// ROADMAP 2.23 — THREE MAINTENANCE DEADLINES, ONE IN EACH STATE THAT DRAWS
+// DIFFERENTLY.
+//
+// Seeded in the change that built the screen, for the reason this repo has
+// now recorded a dozen times: **an empty screen measures clean and says
+// nothing.** The lapsed-clients block was walked at five widths for a
+// fortnight with no lapsed clients in it, and the founding strike would have
+// been photographed nowhere if the demo were seeded standard.
+//
+// MISSED, DUE AND MET, because those are the three that render differently:
+// a red pill, a plain row and a "Done" pill, and the sort that puts the lost
+// one first. **The missed one also makes Business's row shout in `--bad`**,
+// which is the one row on that screen allowed to without blocking a booking
+// — a swept state rather than a theoretical one.
+// `iso`/`plus` live inside the subscription block below, so this has its own.
+const deadlineDay = (n) => new Date(Date.now() + n * 86400_000).toISOString().slice(0, 10);
+await post("/rest/v1/maintenance_deadlines", [
+  {
+    business_id: business.id, customer_id: cust("Marcus Webb")?.id,
+    label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma",
+    // PostgREST refuses a batch whose objects have different keys, so all
+    // three carry every column — nulls where the state does not use them.
+    due_on: deadlineDay(-9), repeat_months: 12, reminded_stage: 4, last_done_on: null,
+  },
+  {
+    business_id: business.id, customer_id: cust("Elena Marsh")?.id,
+    // A LONG LABEL ON PURPOSE, the same trick the FAQ seed uses: the row has
+    // a two-line name beside two icon buttons, and 320 is where that breaks.
+    label: "System X five-year warranty — yearly professional service",
+    vehicle: "2019 Civic", due_on: deadlineDay(24), repeat_months: 12, reminded_stage: 1, last_done_on: null,
+  },
+  {
+    business_id: business.id, customer_id: cust("Tom Okafor")?.id,
+    label: "Gtechniq annual check", vehicle: "2023 Bronco",
+    due_on: deadlineDay(300), repeat_months: 12, reminded_stage: 0, last_done_on: deadlineDay(-60),
+  },
+]);
+
 // ---------------------------------------------------------------------------
 // WHAT THE DETAILER PAYS *US* — roadmap 2.20 stage 2. Off by default.
 //
