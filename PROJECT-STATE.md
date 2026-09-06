@@ -6077,3 +6077,89 @@ joined with `\n` is simply not in an untouched file. **`cat -A` through the
 Bash tool did not show it; `grep -qU $'\r'` did.** The Edit tool also wrote
 CRLF into a file that was LF. Build every scripted needle with the file's own
 separator.
+
+## THE SAME NIGHT, PART TWO — PHASE 2's LEFTOVERS (2026-09-06)
+
+With Phases 3–7 and the unscheduled list closed, the remaining roadmap items
+were Phase 2's. Three shipped, two were skipped with reasons, one produced its
+design document.
+
+### 2.21 — the small spam filter
+
+A counter per (bucket, key, fixed window), `_shared/rateLimit.ts`, a honeypot in
+`book/core.js`'s own payload, and the four public endpoints the entry named.
+
+**TWO CHECKS IN TWO PLACES, AND WHERE EACH SITS IS THE WHOLE DESIGN.** The
+blunt ceiling is at the top and counts every call; **the booking limits are at
+the last moment before the insert**, because the threat is holding SLOTS and
+only a created booking holds one. **Counting refusals looked stricter and was
+wrong twice**: a script posting rubbish holds nothing, and `booking-engine` —
+which deliberately exercises a dozen refusals — spent the whole budget on
+bookings that were never made and reported a 429 as a broken engine, 32
+cascading failures behind one throttle.
+
+`stripe-webhook` got the ceiling and **nothing keyed on anything Stripe
+controls**; `plan-link`'s throttled answer is its ordinary one, because a 429
+would tell a caller their address was worth throttling. The counter decides by
+the write itself, counts refused attempts, cleans up per key and **fails open**.
+**`x-forwarded-for` cannot be spoofed here — measured**: a probe's own header
+was counted against the machine's real address.
+
+**The three suites that book clear their own counters first**, so an
+unexplained 429 in a session is that and not a regression.
+
+### 2.23 — the maintenance deadline
+
+A warranty that VOIDS, not a cadence. Its own table (**attached to a CUSTOMER
+AND A CAR, not a plan** — two coated cars is two deadlines and no plan at all),
+the arithmetic in two pinned copies, the escalation pass in the sweep, one
+email template and a screen on Business.
+
+**It is the only email in the product that escalates** — 60, 30, 14, 1 — and a
+deadline added INSIDE the window starts at the stage the DATE has reached, so a
+customer's first word about their warranty is never three emails at once.
+**Open, met and missed are all derived**; only "the detailer says it no longer
+applies" is stored, because backdating a service is the ordinary case.
+
+**And the full sweep caught a FOURTH `settle()` race on the way past**: Money's
+period control is drawn after the money read, so a run printed `NO SUCH PERIOD`
+three times at 1440 — which reads as three renamed controls rather than one
+slow query. `appear()`, as for Monthly plans and Team.
+
+### 2.24 — the writing half only
+
+`docs/tour-steps-2.24.md`. **The decision the entry said to settle first is
+settled: a guide never advances the screen** — rule 1 exists because this runs
+over live data, and driving the screen is that risk with our hand on it; a tour
+dismissed with Escape after opening a job has moved somebody into a record they
+did not choose; and the complaint was four signposts, not a failure to walk
+through doors.
+
+**The filter cut more than it kept, as predicted.** Calendar gets **no guide**;
+Business gets two steps out of thirteen rows. Cloud queue item H is closed.
+**What is left is the overlay and the sweep.**
+
+### 2.25 — two of the three
+
+*Get started* is **Sign up** (same destination — re-pointing it is a funnel
+decision and his), and Google is written down as
+`docs/google-sign-in-setup.md` rather than attempted. **The screen itself is
+deliberately not rebuilt**: it is the last impression before somebody pays and
+a taste call in the one area this repo has already recorded two AI-looking
+guesses.
+
+### 2.22 — skipped on its own words
+
+*"On his word 'maybe', so it is scheduled but he has not said build it."* Two
+of the three things it needs are his accounts, and its own acceptance test
+needs a scratch project. **Writing the workflow anyway would put a nightly
+failing job in the repo**, which is how somebody learns to ignore a red mark.
+
+### What is actually left
+
+- **2.20 stage 3, Stripe Connect** — the biggest remaining feature, and it
+  needs Connect switched on in his Stripe account plus his answer on WHEN a
+  customer pays. Questions 5 and 6 in the overnight log.
+- **2.24's overlay**, **2.25's screen**, **6.1's demo site** (taste),
+  **5.1's run** (credential), **7.2** (DSN), and the two 4.2 items.
+- Everything else on the roadmap is ticked.

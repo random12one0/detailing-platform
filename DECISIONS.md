@@ -237,6 +237,8 @@ were made more than once.
 
 - **Roadmap 4.4 stages 2–4 — the rest of the back office, and the one row that made two price tables one number** — creating a business by hand, resending an invite, the site column, and his own prices. **One definition of "a new business", not two**: it lived in `create-business` because signup was the only way one could exist, and a second copy is where two KINDS of business start to differ — no settings row is a dashboard of nulls, no hours is a booking page that can never be booked, and neither throws. **The helper refuses to guess the OWNER**, which is why the invite is the other half of that stage. **The site address is deliberately NOT `business_domains.domain`** — that column means a hostname that RESOLVES TO THIS APP, so conflating them points a customer's own booking at a 404 — and both new columns are revoked from `authenticated`, because **a record its subject can edit is not a record**. **And platform settings turned out to be one row**: the price table is typed twice on purpose and 263 checks keep the copies equal, so `platform_settings.prices` makes them one number. **NULL means the files and that is what it ships as** — a seeded copy would be a third place the same numbers live and would silently become the stale one that wins — so every failure resolves to what the product charged yesterday, and **it falls back WHOLE, never field by field**, because one row's monthly beside one file's annual is a price nobody chose that looks exactly like a working one. Two validators, one test running both on the same inputs, because **a table the PAGE would accept and the CHECKOUT would refuse must not be able to exist**. **The form warns and never refuses** — they are his prices, and he overruled the rounder number once on purpose. **And the check guarding the twenty converted call sites failed on its own explanatory comment**, the fifth comment-vacuity instance in two days.
 
+- **The night of 2026-09-06 — seven decisions that outlive the items they were made in** — fourteen items from roadmap 4.4 stage 2 to 2.25, and the reasoning worth keeping. **A price row ships as NULL and every failure resolves to it, WHOLE rather than field by field** — one row's monthly beside one file's annual is a price nobody chose that looks like a working one, and a seeded copy would be a third home that silently becomes the stale winner. **Where a throttle sits decides what it protects**: the booking limits are at the last moment before the insert because the threat is holding SLOTS, and counting refusals throttled a script that took nothing while a test suite reported a 429 as a broken engine. **A monitor that only appears when unhappy cannot be believed**, so the heartbeat line always prints and a job that never reported counts as stale. **Discovery beats a list where the failure is silent** — the export asks the catalog rather than naming twenty tables. **A guide never drives the screen**, because the rule against clicking the lit element exists for live data. **A placeholder is not boilerplate**: no arbitration, no governing law, and both pages say at the TOP that no lawyer has seen them. **And the comment-vacuity trap has a second form** — `indexOf` finds the IMPORT, so three ordering checks passed with the code moved anywhere at all, every one found by baselining and none by reading.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -14043,3 +14045,87 @@ including every sentence it derives; the detailer's own billing screen charged
 sentence regenerated to match; rubbish returned 400 with a plain sentence; *Back
 to the built-in prices* restored `$4000/$6000/$49900` exactly; a detailer got
 404.
+
+## The night of 2026-09-06 — seven decisions that outlive the items they were made in
+
+Fourteen items shipped between roadmap 4.4 stage 2 and roadmap 2.25. Most of
+the reasoning lives in the items' own roadmap entries and in PROJECT-STATE.
+**These seven are the ones a later session will otherwise re-decide.**
+
+### 1. A number a page PRINTS and a card is CHARGED can be one row, and NULL must mean the files
+
+`platform_settings.prices` overrides the price table. **It ships as NULL and
+every failure resolves to NULL's meaning** — an unparseable object, a missing
+key, a price that is not positive. **A seeded copy of the current table was
+refused**: it would be a third place the same numbers live and would silently
+become the stale one that wins.
+
+**And it falls back WHOLE, never field by field.** One row's monthly beside one
+file's annual is a price nobody chose that looks exactly like a working one.
+
+### 2. Where a throttle sits decides what it is protecting
+
+`create-booking`'s booking limits are at the LAST MOMENT before the insert, not
+at the top, **because the threat is holding SLOTS and only a created booking
+holds one.** Counting refusals looked stricter and was wrong twice over: a
+script posting rubbish holds nothing, and the test suite that deliberately
+exercises refusals spent the whole budget on bookings that were never made.
+
+**The blunt ceiling is a different tool for a different threat** — spending
+function invocations — so it is at the top and counts everything.
+
+### 3. A monitor that only appears when it is unhappy cannot be believed
+
+`job_heartbeats` prints on `/admin` whether or not anything is wrong, because
+"healthy" and "no longer wired up" are otherwise the same picture. **A job that
+has never reported counts as stale**, since that is what a dropped table looks
+like — and the migration seeds both rows at install, because a monitor that
+cries on the day it goes in is one somebody ignores by the end of the week.
+
+**It records that a job RAN, not that it worked**, and the sweep stamps itself
+from the EDGE FUNCTION rather than the cron statement: the cron's own job is a
+`net.http_post`, which succeeds the moment the request is queued.
+
+### 4. Discovery beats a list where the failure is silent
+
+`export_business()` asks the catalog for every table with a `business_id`
+rather than naming twenty. **A hand-written list goes stale the first time
+somebody adds a table, and the export still succeeds** — the file looks
+complete and the missing part is found by the person who no longer has their
+copy.
+
+### 5. A guide never drives the screen
+
+Roadmap 2.24's own "decide this first". The lit element is not clickable
+because the tour runs over live data; **a tour that drives the screen is that
+risk with our hand on it instead of the detailer's**, and one dismissed with
+Escape after opening a job has moved somebody into a record they did not
+choose. Where a screen's meaning is behind a click, a SENTENCE says what is
+behind it.
+
+### 6. A placeholder is not boilerplate
+
+`/terms` and `/privacy` say what the product actually does, and **not one word
+about arbitration, governing law or limitation of liability** — clauses nobody
+here has decided, on a public page under the owner's name. A check fails on any
+of them. Both pages say at the TOP that a lawyer has not seen them, because a
+reader who learns that at the bottom has read the whole thing on a wrong
+assumption.
+
+### 7. The comment-vacuity trap has a second form, and `indexOf` is it
+
+Seven instances in two days of a check failing on the prose that explains it,
+**and then three more of a new shape**: `indexOf("withinLimits")`,
+`indexOf("maintenanceDueEmail")` and `indexOf("sendTenantEmail")` all find the
+IMPORT at the top of the file, so every ordering check built on them passed
+with the code moved anywhere at all. **Strip imports before comparing
+positions, and scope the slice to the block.** All three were found by
+baselining and none by reading.
+
+### And the mechanical one that cost the most time
+
+`core.autocrlf` leaves git-checked-out files CRLF while files a session writes
+are LF — **mixed, permanently**. A scripted edit whose needle is joined with
+`\n` is simply not in an untouched file, and **`cat -A` through the Bash tool
+does not show it while `grep -qU $'\r'` does.** Build every needle with the
+file's own separator.
