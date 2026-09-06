@@ -1241,6 +1241,49 @@ screen long enough to read.** Fixed, and there is now a check for it.
 
 ---
 
+## If the automatic jobs stop, you now find out
+
+**What changed.** Two things run on a schedule without anybody watching: the
+sweep that sends your morning alerts and reminders (every fifteen minutes), and
+the nightly job that credits monthly-plan members with the visit they are owed.
+**If either stopped, nothing anywhere would have said so** — the first sign
+would be a detailer mentioning their alerts went quiet, or a plan member
+noticing they are short a wash.
+
+Your back office now carries one line under the four numbers: *"Reminders ran 4
+minutes ago · Plan visits ran 9 hours ago"*. It turns red the moment either one
+is overdue.
+
+**This has already bitten this product twice**, which is why it was worth an
+hour: the email service was dead for an entire stretch of the build and the
+only trace was a line in a log nobody reads, and the push-notification keys had
+never been set, so that feature silently did nothing for its whole life.
+
+**Two decisions worth knowing.**
+1. **The stamp is written by the job itself, not by the scheduler.** The
+   scheduler's own task is "send a request", which succeeds the instant the
+   request goes out — stamping there would tell you the alarm clock works and
+   nothing about whether anybody got up. The one that broke before was the
+   second half.
+2. **The line is shown whether or not anything is wrong.** A warning you only
+   ever see when it is angry is one you cannot tell apart from a warning that
+   stopped working. And a job that has *never* reported counts as broken,
+   because that is also what it looks like if somebody deletes the table.
+
+**What it cannot tell you**, said plainly because the difference matters: it
+knows a job RAN, not that every email got through. A single bounced email must
+never stop a booking, so that stays best-effort. What it catches is the job not
+running at all — the failure that had no witness.
+
+**What I verified, and what it printed.** Three states, by looking: healthy
+(*"ran just now"*, quiet), stopped two hours ago (**red**, *"Reminders LAST RAN
+2 hours ago"*), and never reported (**red**, *"Plan visits have never
+reported"*). Ten new checks, three baselined by breaking what they guard. And
+the first version said *"Reminders LAST RAN today"*, which is a sentence with
+no information in it about something that runs four times an hour.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

@@ -493,7 +493,7 @@ explaining it; if they still have to ask "so should I?", it failed.
 
 
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, **`landing-pricing`** (**86 checks — 65 until roadmap 4.4 stage 4, 72 until 6.2, 80 until 7.1, 86 until 7.5; measured 2026-09-06, this said 58 and was stale within a day of being written** — 21 until roadmap
+  `design-contrast`, **`landing-pricing`** (**88 checks — 65 until roadmap 4.4 stage 4, 72 until 6.2, 80 until 7.1, 86 until 7.5, 88 with item G; measured 2026-09-06, this said 58 and was stale within a day of being written** — 21 until roadmap
   2.20 stage 2 on 2026-09-05, and its FIRST check had been vacuous since the
   day it was written: the pricing-section slice looked for
   `aria-labelledby="price"` when the section is `"prh"`, so `indexOf` returned
@@ -550,7 +550,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   path the edge functions actually run: what a plan takes off, that it can
   never become a surcharge, and that the itemisation still reaches the
   charged total. Baselined both ways),
-  **`setup-progress`** (24 checks, new 2026-09-02 — how many of the seven
+  **`setup-progress`** (**32 checks** — 24 until roadmap 7.3's final pass added § 4, the first run when nobody follows the path; new 2026-09-02 — how many of the seven
   first-run steps are done. That number is printed in TWO places that must
   never disagree, the setup form's progress rule and Business's *Finish
   setting up* row, and five of the seven are DERIVED from the database rather
@@ -675,7 +675,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   offset gets wrong. Baselined four ways: the UTC read fails 5, the money
   line's missing `kind` fails 1, the promo copied twice fails 2, the
   vocabulary guard removed fails 1),
-  **`platform-admin`** (**40 checks** — 34 at stage 1, new 2026-09-05, roadmap 4.4 — **the one
+  **`platform-admin`** (**59 checks** — 34 at stage 1, 40 at stage 3, 49 with item H's export, 59 with item D's heartbeats; new 2026-09-05, roadmap 4.4 — **the one
   screen where a bug exposes every tenant at once**, and the file exists
   because most of what it guards is the ABSENCE of something no behavioural
   test can see. § 1 walks EVERY migration and fails if any `create policy`

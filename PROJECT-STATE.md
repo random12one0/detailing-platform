@@ -5984,3 +5984,96 @@ did not show it** (it printed `$` at the end of every line of a genuinely CRLF
 file); **`grep -qU $'\r'` did.** The Edit tool also wrote CRLF into a file that
 was LF, which is exactly how `composition` 8e-iv has twice gone red in a file
 nobody had touched.
+
+## THE NIGHT OF 2026-09-06 — SIX UNSCHEDULED ITEMS AND TWO FINDINGS FIXED
+
+Roadmap 7.3's final pass produced a ranked list, and the rest of the night was
+spent closing it and the unscheduled list behind it. What follows is only the
+part a later session needs; the reasoning is in DECISIONS.md and the plain-
+language account is `docs/overnight-log.md`.
+
+### Item N — the way back in (was ranked *blocks launch*)
+
+*I forgot my password* on the sign-in screen, `/reset`, and *Your password*
+behind the gear. **Nothing in `app/src` called `resetPasswordForEmail` or
+`updateUser` before this**, so a detailer who forgot theirs could not get in
+and the only remedy was editing the auth table.
+**Three things in it are invisible from the screen and are what
+`tests/password-reset.test.mjs` holds**: the confirmation says the same thing
+whether or not the address exists (reporting the error is address enumeration
+with a friendly face); the page **never reads the URL hash**, because
+`detectSessionInUrl` has already consumed and cleared it before React mounts;
+and the gear row is gated by NOTHING, because a password belongs to the person
+rather than the business.
+Proven against a real recovery link: saved, signed in, the new password proved
+against the auth API, and the same link then refused as expired.
+
+### Final pass finding 2 — one tap used to lose the whole first run
+
+`setup.seen` was written when the form MOUNTED, so tapping a rail button in the
+first ten seconds dismissed it, marked it done with, and took the tour with it
+for ever. **It is written on CLOSE now** — which is what the mount-write was
+reaching for anyway: a form somebody FINISHED must not reopen tomorrow, and one
+they walked away from is not finished.
+**THE FIRST VERSION OF THE FIX WAS WORSE AND THE SWEEP CAUGHT IT.** Letting an
+owner fall through to the tour whenever this device had not seen it also gave a
+six-step tour to every established owner on every new browser — which broke
+`sweep-widths` at its first width, because that is a fresh context each time.
+
+### Final pass finding 4 — Today offered the link before there was anything to book
+
+With no active services Today says *"Nobody can book yet"* and offers *Finish
+setting up*; the link returns by itself with one service. **The link is not
+shown with a warning beside it** — a caveat under a Copy button is a caveat
+nobody reads. It asks ONE question (is there a service) rather than a third
+copy of the seven-step arithmetic, which would be six queries for a sentence.
+
+### Item F — a booking no longer blocks its own move
+
+`available-slots` takes an optional `exclude_booking_id`; the reschedule picker
+passes the booking's own id. **Proven:** a 330-minute booking at 08:00 on an
+08:00–18:00 day gave 0 free times counting itself and 10 excluding itself.
+**AND FIXING IT BROKE THE ASSERTION THAT FOUND IT** — *"the old time is free
+again"* held only because the picker could never offer a nearby slot, so a move
+08:00 → 08:30 now makes 08:00 genuinely unbookable. The assumption broke, not
+the product. `e2e-booking` is **82/82 on both tenants**, its first fully green
+run since that finding was written down.
+
+### Item G — a support address inside the product
+
+One line in the gear's account block. `app/src/lib/support.js` is the one home;
+`landing/legal.js` re-exports it. 7.1 had put it in the marketing footer only,
+which is the one surface a detailer never looks at again after signing up.
+
+### Item H — a detailer can take their data
+
+`export_business()` + an `export` action + *Export everything*. **The tables
+are DISCOVERED from the catalog, not listed**: a hand-written list goes stale
+the first time somebody adds a table and the failure is silent. 31 tables on
+the demo. `platform_admin_events` and `admin_notes_platform` stay out;
+`platform_subscriptions`/`platform_invoices` go in. The RPC is service-role
+only — **a signed-in admin's own browser calling it directly gets 403.**
+**AND PRESSING THE BUTTON FOUND A DEFECT NOTHING ELSE HAD:** every confirmation
+on `/admin` was set and then wiped by the refresh that followed it, in the same
+tick. The actions all worked; the sentence saying so was never readable.
+
+### Item D — a heartbeat on the scheduled jobs
+
+`job_heartbeats`, `note_heartbeat()`, and one line on `/admin` that goes red
+past a job's window. **The sweep stamps itself from the EDGE FUNCTION, not the
+cron statement**: the cron's own job is a `net.http_post`, which succeeds the
+moment the request is queued, so a stamp there proves the scheduler is alive
+and says nothing about the thing it calls — the half that broke in 0.2.
+**It records that a job RAN, not that it worked**, which is stated rather than
+hidden. A job that has never reported counts as stale (that is what a dropped
+table looks like), and a second migration seeds both rows at install so it does
+not cry on the day it goes in.
+
+### And the invisible-byte trap, twice more
+
+`core.autocrlf` leaves git-checked-out files CRLF while files this session
+writes are LF — **mixed, permanently** — so a scripted edit whose needle is
+joined with `\n` is simply not in an untouched file. **`cat -A` through the
+Bash tool did not show it; `grep -qU $'\r'` did.** The Edit tool also wrote
+CRLF into a file that was LF. Build every scripted needle with the file's own
+separator.
