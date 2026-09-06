@@ -120,6 +120,36 @@ const priceFields = [
   ["founding", "monthToMonth", "Founding month to month"],
 ];
 
+// ITEM D — HOW LONG IS TOO LONG, PER JOB, IN ONE PLACE.
+//
+// The reminder sweep is scheduled every fifteen minutes and the accrual once
+// a night, so the windows are three missed runs and a day and a half: long
+// enough that a slow run or a clock skew is not an alarm, short enough that
+// a detailer has not yet noticed their alerts stopped.
+//
+// **IT IS SHOWN WHETHER OR NOT ANYTHING IS WRONG.** A monitor that only
+// appears when it is unhappy is a monitor nobody believes when it does — you
+// cannot tell "healthy" from "not wired up any more".
+// `ago()` bottoms out at "today", which is useless about a job that runs
+// every fifteen minutes — "Reminders LAST RAN today" is a sentence with no
+// information in it, and that is what the first version printed. Minutes and
+// hours here, and `ago()` beyond a day.
+const since = (iso) => {
+  const ms = Date.now() - Date.parse(iso);
+  if (ms < 90_000) return "just now";
+  if (ms < 3_600_000) return `${Math.round(ms / 60_000)} minutes ago`;
+  if (ms < 86_400_000) {
+    const h = Math.round(ms / 3_600_000);
+    return `${h} hour${h === 1 ? "" : "s"} ago`;
+  }
+  return ago(iso);
+};
+
+const JOBS = [
+  ["send-owner-reminders", "Reminders", 45 * 60_000],
+  ["accrue-plan-visits", "Plan visits", 36 * 3_600_000],
+];
+
 export default function AdminPage() {
   const [state, setState] = useState({ status: "loading" });
   const [adding, setAdding] = useState(false);
@@ -199,6 +229,14 @@ export default function AdminPage() {
     setBusy(false);
   };
 
+  // A JOB THAT HAS NEVER REPORTED IS TREATED AS STALE, not as fine. The row
+  // is absent before a job has run once — which is also what it looks like
+  // after somebody drops the table.
+  const stale = (key, windowMs) => {
+    const beat = (state.heartbeats ?? []).find((h) => h.job === key);
+    return !beat || Date.now() - Date.parse(beat.ran_at) > windowMs;
+  };
+
   const rows = useMemo(() => {
     // THE SAME FUNCTION THE DETAILER'S OWN SCREEN RUNS. The server sends the
     // INPUTS rather than an answer, so the back office and the detailer can
@@ -258,6 +296,15 @@ export default function AdminPage() {
             <div><span className="pa-num">{t.founding_left ?? 0}</span><span className="pa-lab">founding spots left</span></div>
           </div>
         </header>
+
+        {/* Under the figures, above everything he came here to do. One line,
+            and it goes `pa-bad` rather than quiet when a job has stopped. */}
+        <p className={JOBS.some(([k, , win]) => stale(k, win)) ? "pa-bad" : "pa-quiet"}>
+          {JOBS.map(([key, label, win]) => {
+            const beat = (state.heartbeats ?? []).find((h) => h.job === key);
+            return `${label} ${beat ? (stale(key, win) ? `LAST RAN ${since(beat.ran_at)}` : `ran ${since(beat.ran_at)}`) : "have never reported"}`;
+          }).join(" · ")}
+        </p>
 
         <div className="pa-tools">
           <input className="pa-input" value={q} placeholder="Search a name, a link or an email"

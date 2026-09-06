@@ -335,6 +335,25 @@ Deno.serve(async (req) => {
       const key = `${r.kind}_${r.sent ? "sent" : "failed"}`;
       summary[key] = (summary[key] ?? 0) + 1;
     }
+    // ITEM D — THE HEARTBEAT, AND IT IS STAMPED HERE RATHER THAN IN THE CRON
+    // STATEMENT. The scheduled job is a `net.http_post`, which succeeds the
+    // moment the request is queued: stamping there would prove the scheduler
+    // is alive and say nothing about whether the thing it calls still works —
+    // which is the more likely of the two to break, and the one that broke in
+    // roadmap 0.2 (a dead email relay whose only evidence was a console line
+    // inside a function).
+    //
+    // AT THE END, so a stamp means the whole sweep got this far, and
+    // BEST-EFFORT, because a heartbeat that could fail a sweep would be a
+    // monitor that causes the outage it watches for.
+    try {
+      await supabase.rpc("note_heartbeat", {
+        p_job: "send-owner-reminders",
+        p_detail: { count: results.length, summary },
+      });
+    } catch (e) {
+      console.error("heartbeat failed", e);
+    }
     return json({ success: true, count: results.length, summary });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);

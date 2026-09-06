@@ -6520,7 +6520,41 @@ recommendation.
   take a detailer's calendar offline. **Recommendation: a small Phase 7 item —
   a per-IP and per-phone throttle in the edge function is most of it; no
   captcha, which costs the customer more than it costs the attacker.**
-- **D. IF THE REMINDER CRON STOPS, NOBODY FINDS OUT.** `pg_cron` runs the
+- **D. ~~IF THE REMINDER CRON STOPS, NOBODY FINDS OUT~~ BUILT 2026-09-06.**
+  `job_heartbeats` (one row per job, upserted — *when did it last run* is the
+  whole question), `note_heartbeat()`, and one line on `/admin` under the four
+  figures: *"Reminders ran 4 minutes ago · Plan visits ran 9 hours ago"*, which
+  goes `pa-bad` when a job is past its window (three missed runs for the sweep,
+  a day and a half for the accrual).
+  **THE SWEEP STAMPS ITSELF FROM THE EDGE FUNCTION, NOT FROM THE CRON
+  STATEMENT, and that is the load-bearing choice.** The scheduled job is a
+  `net.http_post`, which succeeds the moment the request is queued: a stamp
+  there proves the SCHEDULER is alive and says nothing about whether the thing
+  it calls still works — **which is the more likely of the two to break, and
+  the one that broke in roadmap 0.2.**
+  **IT RECORDS THAT A JOB RAN, NOT THAT IT WORKED**, and the difference is
+  stated rather than hidden: it cannot see a bounced email, because
+  `sendTenantEmail` is best-effort by design and must stay that way. What it
+  can see is the thing nothing else can — **that the job is not running at
+  all**, the failure with no other witness.
+  **SHOWN WHETHER OR NOT ANYTHING IS WRONG**, because a monitor that only
+  appears when it is unhappy cannot be told apart from one that is no longer
+  wired up. **A job that has never reported counts as STALE**, since that is
+  also what a dropped table looks like — and a second migration seeds both rows
+  at install, because a monitor that cries on the day it goes in is one
+  somebody ignores by the end of the week.
+  **The heartbeat is best-effort inside the sweep**: one that could fail a
+  sweep would be a monitor causing the outage it watches for.
+  Verified in three states by looking — healthy, stopped two hours ago, never
+  reported — and the first version printed *"Reminders LAST RAN today"*,
+  because `ago()` bottoms out at a day and says nothing about a job that runs
+  every fifteen minutes. Ten checks in `tests/platform-admin.test.mjs` § 10,
+  three baselined.
+  **7.2 (Sentry) is still open and is still the owner's DSN**; this is the half
+  that needed no key.
+  The finding as written:
+
+  **D. IF THE REMINDER CRON STOPS, NOBODY FINDS OUT.** `pg_cron` runs the
   reminder sweep; a failure is silent, and the same family of invisible failure
   has already bitten twice (the dead email relay in 0.2, VAPID keys never set).
   7.2 adds Sentry for the FRONT END. **Recommendation: fold a heartbeat into

@@ -317,5 +317,64 @@ console.log("\n9. taking their data with them");
     "the action worked, the list refreshed, and the only thing missing was the sentence saying so");
 }
 
+
+// ─── 10. Item D: if a scheduled job stops, somebody finds out ─────────────
+// `pg_cron` posts to the reminder sweep every fifteen minutes and accrues plan
+// visits once a night, and **a failure of either was completely silent**. This
+// product has been bitten twice by that exact shape — a dead email relay for
+// the whole of roadmap 0.2, and VAPID keys that were never set — and both
+// times the only evidence was a console line inside an edge function.
+console.log("\n10. the jobs that nobody watches");
+{
+  const raw = read("supabase/migrations/20260906006000_job_heartbeats.sql");
+  const sweep = strip(read("supabase/functions/send-owner-reminders/index.ts"));
+  const f = strip(fn);
+  const p = strip(page);
+
+  check("10a · there is a heartbeat table at all", /create table if not exists public\.job_heartbeats/.test(raw));
+  // RLS FORCED, NO POLICIES — the `platform_admins` rule. Nothing a detailer's
+  // browser does needs to know whether our crons are healthy.
+  check("10b · and it is unreachable from any browser",
+    /alter table public\.job_heartbeats force  ?row level security/.test(raw)
+      && !/create policy[^;]*job_heartbeats/.test(raw),
+    "the back office reads it under the service role, like everything else on that screen");
+
+  // THE LOAD-BEARING CHOICE. The cron's own statement is a `net.http_post`,
+  // which succeeds the moment the request is queued: stamping there would
+  // prove the SCHEDULER is alive and say nothing about the thing it calls —
+  // which is the more likely of the two to break, and the one that broke.
+  check("10c · the sweep stamps itself from the function, not from the cron",
+    /note_heartbeat[\s\S]{0,120}send-owner-reminders/.test(sweep)
+      && !/note_heartbeat[\s\S]{0,200}net\.http_post/.test(raw),
+    "a stamp in the cron statement proves the scheduler ran, not that the sweep worked");
+  // BEST-EFFORT: a heartbeat that could fail a sweep would be a monitor that
+  // causes the outage it watches for.
+  check("10d · and a failed heartbeat cannot fail the sweep",
+    /try \{[\s\S]{0,240}note_heartbeat[\s\S]{0,200}catch/.test(sweep));
+  check("10e · at the END of the run, so a stamp means it got that far",
+    sweep.indexOf("note_heartbeat") > sweep.indexOf("const summary"));
+
+  check("10f · the back office is sent them", /from\("job_heartbeats"\)/.test(f)
+    && /heartbeats: beats \?\? \[\]/.test(f));
+  // SHOWN WHETHER OR NOT ANYTHING IS WRONG. A monitor that only appears when
+  // it is unhappy cannot be told apart from one that is no longer wired up.
+  check("10g · and the screen prints it either way", /JOBS\.map\(/.test(p)
+    && /pa-bad" : "pa-quiet"/.test(p));
+  // A job that has never reported is what a dropped table looks like too.
+  check("10h · a job that has never reported counts as stale",
+    /return !beat \|\| Date\.now\(\) - Date\.parse\(beat\.ran_at\) > windowMs;/.test(p));
+  // `ago()` bottoms out at "today", which says nothing about a job that runs
+  // every fifteen minutes — "Reminders LAST RAN today" is what the first
+  // version printed.
+  check("10i · in minutes and hours, not \"today\"",
+    /minutes ago/.test(p) && /hour\$\{h === 1 \? "" : "s"\} ago/.test(p));
+  // And the day it was installed it must not cry about a nightly job that has
+  // simply not come round yet.
+  check("10j · both jobs are seeded when the watching starts",
+    /insert into public\.job_heartbeats[\s\S]{0,240}on conflict \(job\) do nothing/
+      .test(read("supabase/migrations/20260906006100_seed_job_heartbeats.sql")),
+    "a monitor that cries on the day it is installed is one somebody ignores by the end of the week");
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

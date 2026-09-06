@@ -219,8 +219,18 @@ Deno.serve(async (req) => {
       const { data: ps } = await supabase.from("platform_settings")
         .select("prices, updated_at").limit(1).maybeSingle();
 
+      // ITEM D — WHETHER THE SCHEDULED JOBS ARE STILL RUNNING. A failure of
+      // either is completely silent: no screen changes and nobody is told,
+      // and the first symptom is a detailer saying their morning alert
+      // stopped. This product has been bitten twice by exactly that shape
+      // (a dead email relay, VAPID keys never set) and both times the
+      // evidence was a console line inside a function.
+      const { data: beats } = await supabase.from("job_heartbeats")
+        .select("job, ran_at, detail").order("job");
+
       return json({
         prices: { current: ps?.prices ?? null, built_in: PRICES, updated_at: ps?.updated_at ?? null },
+        heartbeats: beats ?? [],
         rows,
         totals: {
           businesses: rows.length,
