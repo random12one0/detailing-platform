@@ -61,6 +61,11 @@ export default function BookingLink({
   // happens on the plans page. Every default is exactly what the three
   // existing callers already rendered.
   path = "",
+  // ROADMAP 3.3 — the detailer's own verified address, or nothing. Passed in
+  // rather than looked up here, because this component is rendered in four
+  // places and a lookup in each of them is four round trips for one fact the
+  // screen above already has.
+  origin = "",
   label = "Your booking page",
   footnote = "Put this in your bio, on your cards and in your texts. Customers book themselves from here.",
   shareTitle = "Book with us",
@@ -80,7 +85,13 @@ export default function BookingLink({
   // booking link does, and a page a detailer cannot share is a page nobody
   // visits. Defaults to the booking page, so the three existing callers are
   // untouched.
-  const url = `${window.location.origin}/book/${slug}${path}`;
+  // ROADMAP 3.3 — THE ORIGIN IS THE DETAILER'S WHERE THEY HAVE ONE. The
+  // dashboard is always on detailingplatform.com (that is where they sign
+  // in), so `window.location.origin` would hand somebody with their own
+  // verified address a link on OUR domain to print on a card — while every
+  // email the platform sends them uses theirs. The two disagreeing is worse
+  // than neither being custom.
+  const url = `${origin || window.location.origin}/book/${slug}${path}`;
   // What a person reads on a card or types into a phone — no scheme noise.
   const pretty = url.replace(/^https?:\/\//, "");
 
@@ -139,7 +150,11 @@ export default function BookingLink({
       // The path in the name too, or a detailer with both codes in their
       // downloads folder has two files called the same thing and no way to
       // tell which one goes on the card.
-      a.download = `${slug}${path.split("/").join("-")}-qr.png`;
+      // ROADMAP 4.2 — and `path` is a QUERY STRING now, not just a sub-page.
+      // `?c=golf-flyer` in a filename is a file Windows refuses to save and
+      // macOS quietly renames, so everything but a word character becomes a
+      // hyphen rather than only the slashes.
+      a.download = `${slug}${path.replace(/[^\w-]+/g, "-").replace(/-+$/, "")}-qr.png`;
       a.click();
       // Revoked on the next tick rather than immediately: Safari has not
       // finished reading the URL when click() returns.

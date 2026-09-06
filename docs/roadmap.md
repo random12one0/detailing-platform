@@ -5882,6 +5882,57 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 4.2 Re-add as per-tenant features: referral/loyalty, Google Calendar
       sync, owner test-booking preview, vCard on owner emails.
 
+      **THREE OF THE FIVE SHIPPED 2026-09-05; TWO ARE BLOCKED ON THE OWNER AND
+      ARE WHY THIS BOX IS STILL UNTICKED.**
+
+      **DONE — the vCard on the owner's alert.** 4.1's audit sized it at an
+      hour and it was: the platform already built vCards for the dashboard's
+      *Save contact* button and `sendTenantEmail` already took attachments, so
+      only the attaching was missing. `_shared/vcard.ts` is a second copy of
+      `app/src/lib/platform.js`'s builder — the wall that forced
+      `_shared/brandColor.js` — and `tests/vcard.test.mjs` is the price: it
+      runs both on the same eight customers and fails on one differing
+      character.
+
+      **DONE — the owner's preview, AS ITS OWN FUNCTION, and that is a
+      deliberate refusal.** The old site's shape was `preview: true` threading
+      past `create-booking`'s slot gate, promo limit, customer upsert and
+      insert — **four new branches through the most important function in the
+      product, none of them walked by any test, to save a customer nothing.**
+      `preview-emails` runs the SAME pricing engine on the tenant's own first
+      service and sends both emails to their own addresses with `[Preview]` on
+      the subject. **What it does not exercise is the insert**, and
+      `e2e-booking` is what covers that.
+
+      **DONE — campaign links, which were 60% BUILT AND REACHED NOBODY.**
+      `create-booking` already resolved `campaign_slug` → `campaign_id` and
+      stored it (line 307); `track-visit` was already complete and public;
+      `campaigns` and `campaign_visits` already had `marketing`-gated RLS. What
+      was missing was every caller. Now: `?c=slug` on a booking link is
+      recorded and **auto-applies the campaign's promo code**, which is the
+      feature — *a code somebody has to remember off a sign is a code nobody
+      uses* — the slug and a per-device visitor id ride the submit, and
+      **Campaign links** is the eighteenth settings screen, showing two numbers
+      per row and no chart.
+      **AND IT CLOSED A 3.3 LOOSE END ON THE WAY**: `BookingLink` built its URL
+      from `window.location.origin`, which is always detailingplatform.com
+      because that is where a detailer signs in — so somebody with their own
+      verified address would have printed OUR domain on a card while every
+      email they send uses theirs. `siteOrigin` is on `BusinessContext` now,
+      read once for all four callers.
+
+      **BLOCKED — Google Calendar sync.** The old `create-calendar-event` signs
+      a JWT for ONE Google service account writing to ONE calendar. Per tenant
+      that is not a port: every detailer would have to grant access to their
+      own calendar, which is an OAuth consent flow, a client registration and a
+      token store. **It is a question for the owner, not a build**, and it is
+      item O under "Not on the roadmap yet".
+
+      **BLOCKED — referral / loyalty.** The old site had four columns and no
+      logic; `customers.completed_washes_count` came across and roadmap 2.11
+      already found it dead. **What a referral EARNS is a business decision**
+      and inventing one is exactly what this repo forbids. Item P.
+
       **AND CAMPAIGN LINKS — added 2026-09-05, found by reading `reference/`
       for roadmap 3.1.** This list was built from what the conversion was known
       to have dropped; campaign tracking was not on it because
@@ -6177,6 +6228,37 @@ recommendation.
   the footer of the marketing page. **Recommendation: Phase 7, alongside the
   Resend domain and the SPF record** — it is launch paperwork, and the
   disclosure that legally matters already exists.
+- **O. GOOGLE CALENDAR SYNC PER TENANT IS AN OAUTH FLOW, NOT A PORT — roadmap
+  4.2, 2026-09-05.** The old site's `create-calendar-event` signs a JWT for ONE
+  Google service account and writes to ONE calendar id, both of them
+  environment variables. **That shape cannot serve ten detailers**: each one
+  would have to grant this platform access to their OWN calendar, which means
+  a Google Cloud OAuth client, a consent screen Google has to review because
+  calendar scope is sensitive, a refresh-token store per tenant, and a
+  reconnect path for when a token is revoked. **Skipped:** a real convenience
+  the trade expects — a job that does not appear in the calendar they already
+  live in is a job they check the app for.
+  **Recommendation: ask him whether it is worth it before anyone builds it.**
+  The cheap 80% already exists and nobody has said it is not enough — every
+  booking email carries an `.ics` attachment, which adds the job to whatever
+  calendar they use in one tap, and `booking-ics` has been live since Phase 0.
+  The expensive 20% is that it stays in step when a booking MOVES.
+- **P. WHAT DOES A REFERRAL EARN? — roadmap 4.2, 2026-09-05.** The old site
+  added `customers.referral_code`, `customers.referred_by`,
+  `bookings.referral_code_used` and `completed_washes_count` **and no logic at
+  all** — nothing granted anything. `completed_washes_count` came across into
+  this platform and roadmap 2.11 stage 5 found it dead there too, so a third of
+  a feature has been carried twice.
+  **This is a business decision and inventing one is exactly what this repo
+  forbids.** The questions are small and only he can answer them: does a
+  referral give the NEW customer a discount, the EXISTING one a credit, or
+  both? How much, and is it a percentage or an amount? Does a loyalty count
+  ("every fifth wash") exist at all, and is it per detailer? **Skipped:** the
+  most common growth feature in the trade, and four columns that look like it
+  is half-built.
+  **Recommendation: one paragraph of answer from him, then it is a normal
+  build — and if the answer is "not yet", DROP `completed_washes_count`**,
+  because a column nothing maintains is what this repo flags everywhere else.
 - **N. THERE IS NO WAY TO RESET — OR EVEN CHANGE — A PASSWORD. Found
   2026-09-05 by roadmap 4.1's audit of `reference/`, and it is the only genuine
   gap that audit found.** `resetPasswordForEmail` appears nowhere in

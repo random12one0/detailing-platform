@@ -70,7 +70,7 @@ const planToForm = (p) => ({
 });
 
 export default function Plans() {
-  const { business, can } = useBusiness();
+  const { business, can, siteOrigin } = useBusiness();
   // Logging a member records what somebody pays, so the database gates it on
   // the same tick that hides lifetime spend on Clients. A role that can read
   // this screen but not write it gets the lists and no forms — rather than
@@ -545,6 +545,7 @@ export default function Plans() {
               The footnote is where the fact the label does NOT carry goes. */}
           <BookingLink
             slug={business.slug}
+            origin={siteOrigin}
             path="/plans"
             label="Your plans page"
             footnote="Put this in your bio and in your texts. It lists what you offer and lets people ask to join."

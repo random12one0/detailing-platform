@@ -184,8 +184,13 @@ const MIN_DESK_COL = 1000; // the spec requires 1180; 1000 is the floor that say
 // domain is added and unverified — a state behind a state, which is the gap
 // this file records ten times. `seed-demo.mjs` seeds exactly that row so the
 // list is drawn at every width rather than measured as an empty screen.
+// "CAMPAIGN LINKS" IS ROADMAP 4.2, added in the change that built it. Its own
+// geometry risk is the row: a campaign nobody has opened prints a SENTENCE
+// rather than two numbers ("Nobody has opened it yet"), beside a worded button
+// and an icon button, which is why the demo seeds one of each and why this
+// screen is on `.rows-stack`.
 const BUSINESS_ROWS = ["Business info", "Your colour", "Photo gallery", "Reviews", "Common questions",
-  "Your web address",
+  "Your web address", "Campaign links",
   // "How you get paid" is roadmap 2.20 stage 1, and it is added in the change
   // that BUILT it rather than in the item that later finds it broken — which
   // is the whole lesson of the nine times this same gap has been recorded.

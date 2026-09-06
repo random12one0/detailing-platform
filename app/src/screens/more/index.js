@@ -17,6 +17,12 @@
 // sell". Every handle typed on it is printed in a customer's email and
 // nowhere else, which is Business's admission test passed outright.
 //
+// EIGHTEEN AS OF ROADMAP 4.2 — "Campaign links" joined under "Your page". It
+// is a feature the rebuild LOST rather than a new one: `campaigns`,
+// `campaign_visits` and `track-visit` all survived the conversion with
+// nothing calling them, which is how three empty tables got counted as kept.
+// *A surviving table is not a surviving feature.*
+//
 // SEVENTEEN AS OF ROADMAP 3.3 — "Your web address" joined under "Your page".
 // `business_domains` had existed since the first tenant migration with no
 // reader and no writer at all; this is the writer. It is on Business rather
@@ -41,6 +47,7 @@ import Gallery from "./Gallery.jsx";
 import Reviews from "./Reviews.jsx";
 import Faq from "./Faq.jsx";
 import WebAddress from "./WebAddress.jsx";
+import Campaigns from "./Campaigns.jsx";
 import Catalog from "./Catalog.jsx";
 import Promos from "./Promos.jsx";
 import Plans from "./Plans.jsx";
@@ -61,6 +68,7 @@ export const SCREENS = {
   reviews: [Reviews, "Reviews"],
   faq: [Faq, "Common questions"],
   domain: [WebAddress, "Your web address"],
+  campaigns: [Campaigns, "Campaign links"],
   catalog: [Catalog, "Services & add-ons"],
   promos: [Promos, "Promo codes & sale"],
   plans: [Plans, "Monthly plans"],

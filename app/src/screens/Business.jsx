@@ -46,6 +46,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   CalendarClock, ChevronRight, ClipboardList, Globe, HelpCircle, Images, ListChecks,
+  QrCode,
   MessageSquareQuote, Palette, Repeat, Store, Tag, Wallet, Wrench,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
@@ -130,14 +131,14 @@ const humanNotice = (mins) => {
 };
 
 export default function Business({ onSetup }) {
-  const { business, settings, branding, role, reload: reloadTenant } = useBusiness();
+  const { business, settings, branding, role, siteOrigin, reload: reloadTenant } = useBusiness();
   const wide = useWide();
   const [open, setOpen] = useState(null);
   const [counts, setCounts] = useState(null);
 
   // One round trip for every summary line on the screen.
   const load = useCallback(async () => {
-    const [h, s, a, p, g, r, pl, pm, dm] = await Promise.all([
+    const [h, s, a, p, g, r, pl, pm, dm, cp, cv] = await Promise.all([
       supabase.from("business_hours").select("weekday,open_time,close_time").eq("business_id", business.id),
       supabase.from("services").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
       supabase.from("add_ons").select("id", { count: "exact", head: true }).eq("business_id", business.id).eq("is_active", true),
@@ -157,6 +158,13 @@ export default function Business({ onSetup }) {
       // domains than the emails do would be worse than silence.
       supabase.from("business_domains").select("domain").eq("business_id", business.id)
         .not("verified_at", "is", null).order("created_at").limit(1),
+      // ROADMAP 4.2. ACTIVE links only — a campaign turned off is not a
+      // campaign running, and a row summary that counted it would tell a
+      // detailer a flyer is live when it is not.
+      supabase.from("campaigns").select("id", { count: "exact", head: true })
+        .eq("business_id", business.id).eq("is_active", true),
+      supabase.from("campaign_visits").select("id", { count: "exact", head: true })
+        .eq("business_id", business.id),
     ]);
     // A null count means the query failed. Keep it null so the row shows a
     // dash rather than asserting zero — a wrong "0 people" reads as a real
@@ -172,6 +180,7 @@ export default function Business({ onSetup }) {
       // day is open, which is the same question the blocking row below asks.
       hoursOpen: (h.data ?? []).some((r) => r.open_time),
       domain: dm.data?.[0]?.domain ?? null,
+      campaigns: cp.count, campaignVisits: cv.count,
     });
   }, [business.id]);
 
@@ -254,6 +263,16 @@ export default function Business({ onSetup }) {
       // which tells a detailer nothing about what their customers see.
       ["domain", "Your web address", Globe,
         counts ? (counts.domain ?? `detailingplatform.com/book/${business.slug}`) : "…"],
+      // ROADMAP 4.2 — a feature the rebuild LOST, not a new one. Under "Your
+      // page" because what it changes is what a CUSTOMER meets: a link of
+      // their own with the discount already applied. The summary is the one
+      // question a detailer has — did the flyer bring anybody — so it counts
+      // LIVE links, never rows: a campaign turned off is not a campaign
+      // running.
+      ["campaigns", "Campaign links", QrCode,
+        counts ? (counts.campaigns
+          ? `${n(counts.campaigns, "link", "links")} · ${n(counts.campaignVisits, "open", "opens")}`
+          : "Nothing tracked yet") : "…"],
     ]],
     ["What you sell", [
       ["catalog", "Services & add-ons", Wrench,
@@ -309,7 +328,7 @@ export default function Business({ onSetup }) {
       {/* FIRST ON A PHONE, AND ONLY ON A PHONE. At a desk it is the second
           column's resting content, so rendering it here as well would print
           the most-shared thing the business owns twice on one screen. */}
-      {!wide && <BookingLink slug={business.slug} />}
+      {!wide && <BookingLink slug={business.slug} origin={siteOrigin} />}
 
       {GROUPS.map(([title, rows]) => (
         <div className="tight" key={title}>
@@ -350,7 +369,7 @@ export default function Business({ onSetup }) {
       // so closing one re-reads them — that is what makes a row answer itself
       // correctly the moment you come back out of it.
       onClose={() => { setOpen(null); load(); reloadTenant(); }}
-      empty={<BookingLink slug={business.slug} />}
+      empty={<BookingLink slug={business.slug} origin={siteOrigin} />}
     >
       {index}
     </SettingsHost>

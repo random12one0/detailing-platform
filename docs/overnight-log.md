@@ -473,6 +473,80 @@ that, and it passed 82/82 tonight.
 
 ---
 
+## Roadmap 4.2, part 2 — campaign links, and why the box is still unticked
+
+**Your golf-course QR code works again.** Make a link on the new **Business →
+Campaign links** screen, print the QR on a flyer, and whoever scans it lands on
+your booking page **with the discount already applied**. You can then see that
+the flyer was opened forty times and produced three bookings.
+
+**It was 60% built and reaching nobody**, which is the interesting part. The
+booking engine already knew how to attribute a booking to a campaign, the
+tracking function was already written and public, and the tables already had
+the right permissions. **Every single caller was missing** — nothing on the
+booking page ever passed a campaign, and there was no screen to make one or
+read the numbers. That is the "a surviving table is not a surviving feature"
+trap the audit named, in its most complete form.
+
+**Two judgement calls.**
+1. **The discount is chosen from your existing promo codes, not typed into the
+   campaign.** A campaign that invented its own code would be a second place
+   discounts are defined, and the one that is not on the Promo codes screen is
+   the one nobody remembers to turn off.
+2. **A code somebody has already typed by hand is never overwritten** by the
+   campaign's. Replacing a code a customer entered with one they never saw is
+   the version of this that loses trust.
+
+**And it closed a loose end from last night's custom-domains work.** The
+booking link this screen shares — and the three other places in the dashboard
+that show one — built its address from the browser's own, which is always
+detailingplatform.com because that is where you sign in. So a detailer with
+their own web address would have printed OUR domain on a card while every
+email they send uses theirs. Now all four read the verified address.
+
+**What I verified and what it printed.** `booking-core` **185 passed, 0
+failed** (164 → 185), baselined two ways: dropping the campaign memory fails 1,
+dropping the attribution from the booking fails 3. The sweep walks the new
+screen — `Business · Campaign links   clean`. `sweep-widths` clean at all five
+widths and in the animations-off path; `sweep-booking-steps` exit 0, every step
+still fits.
+
+**And one thing the end-to-end run taught me about the test rather than the
+product.** It came back **77 passed, 0 failed** where the earlier run tonight
+said 82 — no failures, five fewer checks. **Fewer checks with zero failures is
+this repo's oldest trap wearing a green tick**, so I chased it: the second
+business's email leg had skipped, printing *"needs SUPABASE_ACCESS_TOKEN and
+SUPABASE_PROJECT_REF"* — while the FIRST business's identical leg had just
+passed in the same run, so that message could not be true.
+
+It was a rate limit. Reading Supabase's logs needs an API call, and after a
+night of about twelve deploys and two migrations they started refusing. **The
+message named the wrong one of the two reasons it can fail**, which is the
+thing worth fixing: it says which now. Re-run on its own,
+`--slug=demo-riverside` passes **39 of 39**, including both emails. Nothing was
+wrong with the product.
+
+**WHY 4.2's BOX IS STILL UNTICKED — the two that are yours to answer**, both
+written up as items **O** and **P** in the roadmap's unscheduled list with a
+recommendation each:
+
+- **Google Calendar sync.** Your old one used a single Google account writing
+  to a single calendar — yours. Per detailer that is not a port: each one has
+  to grant us access to their own calendar, which needs a Google app review,
+  a token store and a reconnect path. **My recommendation: ask whether it is
+  worth it before anyone builds it**, because the cheap 80% already ships —
+  every booking email carries a calendar attachment that adds the job in one
+  tap. The expensive 20% is that it keeps up when a booking MOVES.
+- **Referral / loyalty: what does a referral actually earn?** Your old site had
+  the columns and no logic — nothing ever granted anything — and one of those
+  columns came across here and has been dead ever since. Does the new customer
+  get a discount, the existing one a credit, or both? How much? Is there a
+  "every fifth wash" count? **One paragraph from you and it is a normal build.
+  If the answer is "not yet", say so and I will drop the dead column**, because
+  a column nothing maintains is exactly what this repo flags everywhere else.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

@@ -60,7 +60,7 @@ import RecordHost from "../components/RecordHost.jsx";
 import RequestCard from "../components/RequestCard.jsx";
 
 export default function Today({ refreshKey = 0, onGo }) {
-  const { business, firstName, can, subscription } = useBusiness();
+  const { business, firstName, can, subscription, siteOrigin } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
   const { bookings, loading, refreshing, error, reload } = useBookings(today, tomorrow);
@@ -387,7 +387,7 @@ export default function Today({ refreshKey = 0, onGo }) {
       {empty && tomorrows.length === 0 && requests.length === 0 && (
         <div className="tight">
           <p className="body">Your booking link is how a day gets filled.</p>
-          <BookingLink slug={business.slug} />
+          <BookingLink slug={business.slug} origin={siteOrigin} />
         </div>
       )}
 

@@ -351,6 +351,21 @@ await post("/rest/v1/promo_codes", [
   { business_id: business.id, code: "SUMMER10", type: "percentage", value: 10, once_per_customer: false },
 ]);
 
+// ROADMAP 4.2 — TWO CAMPAIGN LINKS, AND ONE OF THEM IS TURNED OFF. The screen
+// has three states worth measuring and one of them only exists when a link has
+// never been opened, so: one live link with a discount on it, one switched off.
+// A screen swept with an empty list is the one state whose layout cannot go
+// wrong, which is this repo's most repeated finding.
+//
+// NO seeded VISITS on purpose. The row reads "Nobody has opened it yet" until
+// somebody really does, which is both the honest state for a demo and the
+// harder one to draw — a count is a number, and that sentence is a sentence
+// that has to fit beside two buttons at 320.
+await post("/rest/v1/campaigns", [
+  { business_id: business.id, slug: "golf-course-flyer", name: "Golf course flyer", promo_code: "SUMMER10", is_active: true },
+  { business_id: business.id, slug: "spring-postcard", name: "Spring postcard", promo_code: null, is_active: false },
+]);
+
 const svc = (name) => services.find((s) => s.name === name);
 const CUSTOMERS = [
   ["Marcus Webb", "562-555-0142", "marcus.webb@example.com", "1420 Pine Ave, Long Beach, CA"],

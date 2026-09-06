@@ -137,14 +137,31 @@ async function fn(name, body) {
 // The ONLY place a failed send is visible. `logs.all` speaks microseconds and
 // returns newest first. Returns null when the management credentials are
 // absent, so the email leg says "skipped" rather than "passed".
+// WHY IT COULD NOT READ THE LOGS, kept beside the null it returns. There are
+// TWO ways to get nothing — no credentials, and the Management API refusing —
+// and until 2026-09-05 the skip line named only the first. A run right after
+// ten deploys and two migrations hit a rate limit, printed *"needs
+// SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF"* on the SECOND tenant while
+// the first tenant's identical leg had just passed in the same process, and
+// sent a session looking at its environment. **A leg that reports the wrong
+// half costs more than one that reports nothing** — this file already carries
+// that sentence about the reschedule check.
+let logsWhy = "";
 async function logs(table, sinceMicros) {
-  if (!MGMT || !REF) return null;
+  if (!MGMT || !REF) {
+    logsWhy = "SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF are not set";
+    return null;
+  }
   const sql = `select timestamp, event_message from ${table} order by timestamp desc limit 100`;
   const res = await fetch(
     `https://api.supabase.com/v1/projects/${REF}/analytics/endpoints/logs.all?sql=${encodeURIComponent(sql)}`,
     { headers: { Authorization: `Bearer ${MGMT}` } },
   );
-  if (!res.ok) return null;
+  if (!res.ok) {
+    logsWhy = `the Management API answered ${res.status} — often a rate limit right after a batch of deploys; re-run this leg on its own with --slug=<one>`;
+    return null;
+  }
+  logsWhy = "";
   const body = await res.json().catch(() => null);
   return (body?.result ?? []).filter((r) => Number(r.timestamp) >= sinceMicros);
 }
@@ -463,7 +480,7 @@ async function loop({ slug, dashboard }) {
         await new Promise((r) => setTimeout(r, 2500));
       }
       if (edge === null) {
-        console.log("  skip  edge-function logs need SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF");
+        console.log(`  skip  could not read the edge-function logs — ${logsWhy}`);
       } else {
         const said = ((await logs("function_logs", t0)) ?? []).map((r) => r.event_message).join("\n");
         const sends = edge.filter((r) => /\/send-email/.test(r.event_message));

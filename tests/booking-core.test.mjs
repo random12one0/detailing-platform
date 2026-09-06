@@ -18,11 +18,11 @@
 
 import {
   DEFAULT_VEHICLE_SIZES, REMEMBER_KEY, VEHICLE_CONDITIONS, bookingRequest,
-  canAdvance, dayIsOpen, dayRefusesMode, faqFor, groupServices, initialForm,
+  campaignFor, canAdvance, dayIsOpen, dayRefusesMode, faqFor, groupServices, initialForm,
   modeLimitFor, monthGrid, monthHasNothing, monthRange, normalizeProfile,
   normalizeSettings, offersBothModes, paymentMethods, quoteKey, quoteRequest,
   recallCustomer, rememberCustomer, shiftMonth, slotsForType, stepsFor,
-  toggleService,
+  toggleService, visitorIdFor,
 } from "../app/src/book/core.js";
 
 let passed = 0, failed = 0;
@@ -52,8 +52,22 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
   check("no Vite env", !src.includes("import.meta.env"),
     "the caller passes its own URL and key");
   check("no React", !/\buse(State|Effect|Memo|Callback|Ref)\b/.test(src));
-  check("localStorage is reached ONLY through the two wrapped helpers",
-    (src.match(/localStorage/g) ?? []).length === 2,
+  // EVERY STORAGE READ IS INJECTABLE AND WRAPPED, and this check counts the
+  // IDIOM rather than the occurrences. It used to assert "exactly two", which
+  // is a proxy that broke the moment roadmap 4.2 added two more legitimate
+  // helpers — a check that fails on correct new code teaches people to edit
+  // the check. What actually matters is that no line reaches for the global
+  // directly (a site that wants to pass its own store can), and that every one
+  // is inside a try: `localStorage` THROWS outright in a private window and in
+  // some embedded webviews, and a booking page that cannot render because a
+  // convenience threw is far worse than a form nobody pre-filled.
+  const stores = src.match(/localStorage/g) ?? [];
+  const idiom = src.match(/storage \?\? globalThis\.localStorage/g) ?? [];
+  check("every localStorage reference is the injectable idiom",
+    stores.length > 0 && stores.length === idiom.length,
+    `${stores.length} references, ${idiom.length} of them injectable`);
+  check("...and there is a catch for each of them",
+    (src.match(/\} catch/g) ?? []).length >= idiom.length,
     "it throws outright in a private window and in some embedded webviews");
 }
 
@@ -492,6 +506,69 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
     "a wrong payment link sends somebody's money to the wrong person, and _shared/payments.ts is the one place that decides");
   check("a business that takes nothing yet gets an empty list",
     paymentMethods({}).length === 0);
+}
+
+// ─── 15. Which printed link brought them — roadmap 4.2 ───────────────────
+// A working feature the rebuild lost: `campaigns`, `campaign_visits` and
+// `track-visit` all survived the conversion with nothing calling them. **A
+// surviving table is not a surviving feature.**
+{
+  const store = () => {
+    const m = new Map();
+    return { getItem: (k) => m.get(k) ?? null, setItem: (k, v) => m.set(k, v), _m: m };
+  };
+
+  const s1 = store();
+  const a = visitorIdFor(s1);
+  check("a visitor id is minted on first sight", !!a && a.length > 8, a);
+  check("...AND IT IS THE SAME ONE NEXT TIME", visitorIdFor(s1) === a,
+    "a new id per visit makes 'forty scans, three bookings' uncountable");
+  check("a different browser is a different visitor", visitorIdFor(store()) !== a);
+  check("a storage that throws still yields an id",
+    !!visitorIdFor({ getItem() { throw new Error("x"); }, setItem() { throw new Error("x"); } }),
+    "the SCAN is what the detailer printed and paid for — a private window still counts as one");
+
+  const s2 = store();
+  check("the campaign comes off the URL", campaignFor("?c=golf-flyer", s2) === "golf-flyer");
+  check("...and is remembered for the booking two days later",
+    campaignFor("", s2) === "golf-flyer",
+    "a scan on Saturday and a booking on Monday are one story");
+  check("a NEW campaign in the URL replaces the remembered one",
+    campaignFor("?c=spring", s2) === "spring", "they just scanned the new one");
+  check("it is lower-cased, like the column's own check constraint",
+    campaignFor("?c=GOLF", store()) === "golf");
+  check("no campaign anywhere is an empty string, not undefined",
+    campaignFor("", store()) === "");
+  check("other query parameters are ignored",
+    campaignFor("?plan=abc&lite=1", store()) === "");
+  check("a storage that throws still reads the URL",
+    campaignFor("?c=golf", { getItem() { throw new Error("x"); }, setItem() { throw new Error("x"); } }) === "golf");
+
+  const form = initialForm({}, null);
+  const b = bookingRequest({ ...form, serviceIds: ["s"], customerName: "A", customerPhone: "1", customerEmail: "a@b.c" },
+    { campaignSlug: "golf-flyer", visitorId: "v1" });
+  check("the booking carries the campaign SLUG, never an id",
+    b.campaign_slug === "golf-flyer" && !("campaign_id" in b),
+    "create-booking resolves it against THIS business's campaigns, so a crafted value attributes to nothing");
+  check("and the visitor id", b.visitor_id === "v1");
+  check("neither is invented when there is no campaign",
+    bookingRequest(form, {}).campaign_slug === null && bookingRequest(form, {}).visitor_id === null);
+}
+
+// ─── 16. The page wires it once, and does not overwrite a typed code ──────
+{
+  const { readFileSync } = await import("node:fs");
+  const page = readFileSync("app/src/book/BookingPage.jsx", "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  check("the visit is recorded", /api\.trackVisit\(/.test(page));
+  check("ONCE, latched in a ref", /visitLogged\.current/.test(page),
+    "status and slug both settle after the profile lands; a visit counted twice is a scan that did not happen");
+  check("only when there IS a campaign", /!campaignSlug/.test(page));
+  check("A TYPED CODE IS NEVER OVERWRITTEN", /p\.applied \? p :/.test(page),
+    "replacing a code somebody entered by hand with one they never saw is the version that loses trust");
+  check("a failed visit cannot fail a booking", /\.catch\(\(\) =>/.test(page),
+    "this runs before the customer has chosen anything");
+  check("the attribution reaches the submit", /campaignSlug, visitorId: visitor/.test(page));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

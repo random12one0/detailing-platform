@@ -929,6 +929,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   item F under "Not on the roadmap yet"** — the fix is one optional
   `exclude_booking_id`, and it is a change to the customer booking path, so it
   gets its own item.
+  **AND THE EMAIL LEG CAN SKIP FOR A SECOND REASON THAT ITS OWN MESSAGE USED
+  TO GET WRONG — fixed 2026-09-05.** `logs()` returns null both when the
+  Management API credentials are absent AND when the API refuses, and the skip
+  line named only the first. After a night of ~12 function deploys and two
+  migrations, a run hit a rate limit and printed *"needs SUPABASE_ACCESS_TOKEN
+  and SUPABASE_PROJECT_REF"* **on the SECOND tenant, in the same process where
+  the FIRST tenant's identical leg had just passed** — which sends a session to
+  look at its environment. The line says which reason now. **The tell that it
+  is a rate limit and not a regression: the run reports 77 rather than 82 with
+  ZERO failures**, and `--slug=demo-riverside` alone passes 39/39. Count the
+  checks, not just the failures.
   **The reason it used to print TWICE is the transferable part:** the
   assertions after it asked about the ORIGINAL date whatever day the script had
   actually clicked, so one root cause produced a second failure — *"16:30 is

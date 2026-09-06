@@ -28,9 +28,10 @@ import { tenantHost } from "../lib/host.js";
 import { duration, money } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import {
-  bookingRequest, canAdvance as coreCanAdvance, initialForm, modeLimitFor,
-  offersBothModes, quoteKey as coreQuoteKey, quoteRequest, recallCustomer,
-  rememberCustomer, stepsFor, toggleService as coreToggleService,
+  bookingRequest, campaignFor, canAdvance as coreCanAdvance, initialForm,
+  modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
+  recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
+  visitorIdFor,
 } from "./core.js";
 import StepServices from "./steps/StepServices.jsx";
 import StepExtras from "./steps/StepExtras.jsx";
@@ -79,6 +80,11 @@ function BookingFlow({ notFound = null }) {
   // WRITES that key on submit — reading it every render would rename the
   // heading the instant they book.
   const [known] = useState(() => recallCustomer(slug));
+  // ROADMAP 4.2 — WHICH PRINTED LINK BROUGHT THEM. Read once, for the same
+  // reason `known` is: the URL is the truth at arrival and the remembered
+  // value is what makes a booking two days after the scan still count.
+  const [visitor] = useState(() => visitorIdFor());
+  const [campaignSlug] = useState(() => campaignFor(globalThis.location?.search));
   // The plan this booking is against, if any. The URL wins — that is somebody
   // who just pressed a plan button, or came in from their own plan link — and
   // the remembered device is the fallback that needs no typing.
@@ -116,6 +122,38 @@ function BookingFlow({ notFound = null }) {
     const d = initialForm(settings, null);
     setForm((f) => ({ ...f, serviceType: d.serviceType, travelZone: d.travelZone, vehicleSize: d.vehicleSize }));
   }, [status, settings]);
+
+  // ROADMAP 4.2 — THE VISIT, RECORDED ONCE, AND THE CODE APPLIED WITHOUT
+  // ANYBODY TYPING IT. The detailer's own comment on the old site names a
+  // golf-course QR as the real case, and **a promo code somebody has to
+  // remember off a sign is a code nobody uses** — the auto-apply is the
+  // feature, the counting is the report on it.
+  //
+  // WHOLLY BEST-EFFORT. Every failure path here is a no-op: no campaign, a
+  // dead function, a blocked request, a code that has since been retired. A
+  // booking must never depend on an analytics call, and this one runs before
+  // the customer has chosen anything.
+  //
+  // ONCE PER PAGE, latched in a ref — `status` and `slug` both settle after
+  // the profile lands, and a visit counted twice is a scan that did not
+  // happen.
+  const visitLogged = useRef(false);
+  useEffect(() => {
+    if (status !== "ready" || !slug || !campaignSlug || visitLogged.current) return;
+    visitLogged.current = true;
+    api.trackVisit(slug, {
+      visitor_id: visitor,
+      slug: campaignSlug,
+      referrer: globalThis.document?.referrer || null,
+      path: globalThis.location?.pathname || null,
+    }).then((r) => {
+      // The code goes on ONLY if the campaign carries one and the customer
+      // has not typed their own. Overwriting a code somebody entered by hand
+      // with one they never saw is the version of this that loses trust.
+      const code = r?.campaign?.promo_code;
+      if (code) setPromoState((p) => (p.applied ? p : { checking: false, error: "", applied: code }));
+    }).catch(() => { /* a visit nobody counted is not a booking lost */ });
+  }, [status, slug, campaignSlug, visitor]);
 
   const selectedServices = useMemo(
     () => services.filter((s) => form.serviceIds.includes(s.id)),
@@ -203,7 +241,14 @@ function BookingFlow({ notFound = null }) {
     setSubmitting(true);
     setSubmitError("");
     try {
-      const r = await api.createBooking(slug, bookingRequest(form, { planId, promoApplied: promoState.applied }));
+      const r = await api.createBooking(slug, bookingRequest(form, {
+        planId, promoApplied: promoState.applied,
+        // ROADMAP 4.2 — the attribution, resolved server-side against this
+        // business's own campaigns. Sent on every booking; null on almost all
+        // of them, which is what makes the ones that are not null worth
+        // counting.
+        campaignSlug, visitorId: visitor,
+      }));
       // Remembered only once the booking actually landed: a device that
       // remembers an abandoned form is remembering somebody who left.
       // `quote.plan_id` rather than `planId` on purpose — it is the id the

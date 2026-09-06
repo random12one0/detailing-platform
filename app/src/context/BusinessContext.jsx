@@ -24,6 +24,10 @@ export function BusinessProvider({ children }) {
   const [settings, setSettings] = useState(null);
   const [branding, setBranding] = useState(null);
   const [subscription, setSubscription] = useState(null);
+  // ROADMAP 3.3 — the origin a CUSTOMER sees, which is not the one this
+  // dashboard is served from: a detailer signs in at detailingplatform.com
+  // whatever address their booking page answers on.
+  const [siteOrigin, setSiteOrigin] = useState("");
   const [role, setRole] = useState(null);
   // ROLE IS STILL THE GATE; THESE TWO ARE ITS SHAPE (roadmap 2.13). `owner`
   // means everything and carries neither. Anyone else has the name their
@@ -119,7 +123,7 @@ export function BusinessProvider({ children }) {
     // for anybody else this is `null` and every reader treats that as "nothing
     // to say", which is exactly right: a staff member is not the person whose
     // card it is.
-    const [bizRes, setRes, brandRes, subRes] = await Promise.all([
+    const [bizRes, setRes, brandRes, subRes, domRes] = await Promise.all([
       supabase.from("businesses").select("*").eq("id", membership.business_id).single(),
       supabase.from("business_settings").select("*").eq("business_id", membership.business_id).maybeSingle(),
       supabase.from("business_branding").select("*").eq("business_id", membership.business_id).maybeSingle(),
@@ -128,11 +132,22 @@ export function BusinessProvider({ children }) {
           .select("status, recurring_cents, bill_interval, current_period_end, cancel_at_period_end")
           .eq("business_id", membership.business_id).maybeSingle()
         : Promise.resolve({ data: null }),
+      // ROADMAP 3.3 — the detailer's own verified address, if they have one.
+      // HERE rather than in the four screens that draw a booking link: it is
+      // one fact, and four lookups for one fact is four ways for two screens
+      // to disagree about which domain a customer sees. Ordered the same way
+      // `business_canonical_host` orders, which is what the EMAILS use — a
+      // link on a card that named a different one of two verified domains
+      // than the confirmation email does would be worse than neither.
+      supabase.from("business_domains").select("domain")
+        .eq("business_id", membership.business_id)
+        .not("verified_at", "is", null).order("created_at").limit(1),
     ]);
     setBusiness(bizRes.data ?? null);
     setSettings(setRes.data ?? null);
     setBranding(brandRes.data ?? null);
     setSubscription(subRes.data ?? null);
+    setSiteOrigin(domRes.data?.[0]?.domain ? `https://${domRes.data[0].domain}` : "");
     loadedFor.current = session.user.id;
     setLoading(false);
   }, [session]);
@@ -161,6 +176,10 @@ export function BusinessProvider({ children }) {
     business,
     settings,
     branding,
+    // ROADMAP 3.3. An empty string for every business without a verified
+    // address of its own, which is all of them today — and every reader
+    // treats that as "use the platform's", so nothing had to learn about it.
+    siteOrigin,
     // Null for a staff member and for an owner who has never subscribed. Both
     // mean "draw nothing", which is why no reader has to tell them apart.
     subscription,

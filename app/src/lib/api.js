@@ -53,6 +53,10 @@ export const api = {
     callFn("respond-to-booking", { business_id: businessId, booking_id: bookingId, action, ...extra }),
   // Reads / utilities.
   availableSlots: (businessSlug, payload) => bookingTransport.availableSlots(businessSlug, payload),
+  // ROADMAP 4.2 — a printed link, and whether it brought anybody. Public and
+  // best-effort: the booking page calls it before the customer has chosen
+  // anything, so nothing may depend on the answer.
+  trackVisit: (businessSlug, payload) => bookingTransport.trackVisit(businessSlug, payload),
   calculateBooking: (businessSlug, payload) => bookingTransport.calculateBooking(businessSlug, payload),
   createBusiness: (payload) => callFn("create-business", payload),
   sendInvoice: (businessId, bookingId) => callFn("send-invoice", { business_id: businessId, booking_id: bookingId }),

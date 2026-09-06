@@ -107,6 +107,14 @@ export function createBookingTransport({ supabaseUrl, anonKey }) {
     // live behind it.
     availableSlots: (slug, payload) => call("available-slots", { business_slug: slug, ...payload }),
     createBooking: (slug, payload) => call("create-booking", { business_slug: slug, ...payload }),
+    // ROADMAP 4.2 — A PRINTED LINK, AND WHETHER IT BROUGHT ANYBODY.
+    // Records the visit and hands back the campaign, INCLUDING its promo code
+    // so the form can apply it without the customer typing anything. That
+    // auto-apply is the whole feature: the detailer's own comment on the old
+    // site names a golf-course QR code as the real case, and a code somebody
+    // has to remember off a sign is a code nobody uses.
+    // Best-effort, always: a booking must never depend on an analytics call.
+    trackVisit: (slug, payload) => call("track-visit", { business_slug: slug, ...payload }),
     validatePromo: (slug, code, customerEmail, customerPhone) =>
       call("validate-promo-code", {
         business_slug: slug, code,
@@ -534,7 +542,7 @@ export const quoteKey = (form, { planId, promoApplied } = {}) => JSON.stringify(
 // come off the plan row on the server — a site never names its own discount,
 // and `create-booking` re-reads the plan, so a stale or borrowed device can
 // only ask.
-export function bookingRequest(form, { planId, promoApplied } = {}) {
+export function bookingRequest(form, { planId, promoApplied, campaignSlug, visitorId } = {}) {
   return {
     customer_name: form.customerName.trim(),
     customer_phone: form.customerPhone.trim(),
@@ -557,6 +565,11 @@ export function bookingRequest(form, { planId, promoApplied } = {}) {
     customer_notes: form.customerNotes?.trim() || null,
     applied_promo_code: promoApplied || null,
     plan_id: planId || null,
+    // ROADMAP 4.2 — which printed link this came from. A SLUG, never an id:
+    // `create-booking` resolves it against this business's own campaigns, so
+    // a crafted value attributes to nothing rather than to somebody else's.
+    campaign_slug: campaignSlug || null,
+    visitor_id: visitorId || null,
   };
 }
 
@@ -574,6 +587,54 @@ export function bookingRequest(form, { planId, promoApplied } = {}) {
 // ---------------------------------------------------------------------------
 
 export const REMEMBER_KEY = "bk.customer";
+export const VISITOR_KEY = "bk.visitor";
+export const CAMPAIGN_KEY = "bk.campaign";
+
+// ROADMAP 4.2 — WHICH PRINTED LINK BROUGHT THIS PERSON.
+//
+// A stable id for THIS BROWSER, so a visit and the booking that follows it a
+// week later are one story rather than two. It is not an identity: nothing is
+// looked up by it, it is never sent to a third party, and clearing site data
+// is a complete opt-out. It exists so "forty scans, three bookings" can be
+// counted at all.
+export function visitorIdFor(storage) {
+  try {
+    const store = storage ?? globalThis.localStorage;
+    let id = store.getItem(VISITOR_KEY);
+    if (!id) {
+      id = (globalThis.crypto?.randomUUID?.() ?? `v${Date.now()}${Math.random().toString(36).slice(2)}`);
+      store.setItem(VISITOR_KEY, id);
+    }
+    return id;
+  } catch {
+    // A private window still gets a visit recorded — it simply cannot be
+    // joined to the booking. A per-session id beats no id: the SCAN is what
+    // the detailer printed and paid for.
+    return `t${Date.now()}${Math.random().toString(36).slice(2)}`;
+  }
+}
+
+// The campaign this visit belongs to. The URL wins — they just scanned it —
+// and the remembered one is what makes a booking two days later still count.
+//
+// `?c=` rather than a path. The old site used a bare `/{slug}`, which needed
+// a list of reserved words (`admin`, `booking`, `reset-password`…) and grew a
+// new way to break every time a route was added. A query parameter cannot
+// collide with anything.
+export function campaignFor(search, storage) {
+  const fromUrl = new URLSearchParams(search || "").get("c");
+  const slug = String(fromUrl || "").trim().toLowerCase();
+  try {
+    const store = storage ?? globalThis.localStorage;
+    if (slug) {
+      store.setItem(CAMPAIGN_KEY, slug);
+      return slug;
+    }
+    return store.getItem(CAMPAIGN_KEY) || "";
+  } catch {
+    return slug;
+  }
+}
 
 export function recallCustomer(slug, storage) {
   try {
