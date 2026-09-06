@@ -9,152 +9,410 @@
  * screen a detailer opens** — that includes the mistake of sharing a selector.
  *
  * IT DOES REUSE THE TOKENS, and that is the opposite of a contradiction. The
- * ground, the type and the accent come from `theme.css`'s custom properties,
- * so this looks like the same product and follows the tenant-agnostic
- * palette. What it does not share is a single RULE.
+ * ground, the type, the radii, the easing and the three durations come from
+ * `theme.css`'s custom properties, so this looks like the same product and
+ * obeys the same laws. What it does not share is a single RULE.
  *
- * AND IT IS DELIBERATELY PLAIN. This is a tool for one person who opens it to
- * answer a question and closes it again; the design system's motion, reveal
- * and squircle work is for screens a customer or a detailer lives in. There
- * is no animation here on purpose — nothing on this page is being introduced
- * to anybody. */
+ * ── 2026-09-06: "DELIBERATELY PLAIN" IS RETIRED, ON THE OWNER'S WORD ───────
+ *
+ * This file used to end its header with: *"it is deliberately plain… there is
+ * no animation here on purpose — nothing on this page is being introduced to
+ * anybody."* He read the rebuilt screen and said the opposite:
+ *
+ *   *"I wasn't very happy with my admin dashboard of all the detailers and
+ *   stuff… I want everything to feel very professional and I want the layout
+ *   to be nice and easy to navigate with like animations and what not."*
+ *
+ * **The old reasoning was wrong in a specific way worth keeping**, because it
+ * is a trap any internal tool falls into: it assumed motion is for INTRODUCING
+ * things, so a screen with an audience of one needs none. Motion's other job
+ * is telling you WHERE SOMETHING CAME FROM, and that job gets harder as a
+ * screen gets denser, not easier. This is the densest screen in the product
+ * and the one where losing your place costs the most — a hundred detailers,
+ * one of them open.
+ *
+ * SO THE THREE KINDS OF MOTION THE PRODUCT ALREADY HAS APPLY HERE TOO, in
+ * their own `pa-` spellings and at the system's own three durations:
+ *   ARRIVES  the page's own first paint, staggered (`pa-arrive`)
+ *   OPENS    a business opening in the second column (`pa-col-in/out`)
+ *   SWAPS    one business replaced by another in a frame that stays put
+ *            (`.pa-swap > *`, the parts on different timelines — a whole
+ *            block changing opacity at once is what a page reload looks
+ *            like, which is the note the owner rejected in September)
+ *
+ * ── LAYOUT: TWO COLUMNS AT A DESK ─────────────────────────────────────────
+ *
+ * The old file was one 900px column at every width, so on his own 1920px
+ * monitor the screen was a narrow ribbon with two thirds of it empty, and the
+ * open business rendered BELOW the whole list — at fifteen tenants already
+ * off the bottom, at a hundred a hundred rows down (testing loop F-015).
+ *
+ * `docs/platform-admin-audit-2026-09-06.md` §6 is the shape: the strip, then
+ * needs-a-look, then the list, then one business open in four blocks —
+ * money, use, site, controls LAST, because he opens a business to LOOK far
+ * more often than to ACT. At `--wrap` the list and the open business are
+ * side by side; below 1024 the open business slides over the list with a
+ * back control, which is the phone pattern the rest of the product uses. */
 
+/* ── the ground ─────────────────────────────────────────────────────────── */
 .pa {
   min-height: 100dvh;
   background: var(--bg, #0B0D0E);
   color: var(--text, #E9EDEF);
   font-family: var(--f-body, system-ui);
-  padding: 24px 16px 96px;
 }
-.pa-wrap { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+.pa-wrap { max-width: var(--wrap, 1180px); margin: 0 auto; padding: 0 16px 96px; }
+
+/* THE BAR. Slim, sticky and quiet — it exists so the screen says where you
+   are when the strip has scrolled away, and so signing out is not hidden. It
+   is NOT a nav: there is one page here and inventing tabs for it would be
+   furniture pretending to be structure. */
+.pa-bar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 0 12px; margin-bottom: 18px;
+  background: color-mix(in srgb, var(--bg, #0B0D0E) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--hairline, #23292C);
+}
+.pa-mark {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-muted, #8A9296);
+}
+.pa-mark b { color: var(--text, #E9EDEF); font-weight: 700; }
+.pa-bar-r { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 
 .pa-h1 {
   font-family: var(--f-display, var(--f-body));
-  font-size: clamp(28px, 6vw, 40px); font-weight: 700; letter-spacing: -0.02em; margin: 0;
+  font-size: var(--t-title, clamp(22px, 2.8vw, 30px));
+  font-weight: 700; letter-spacing: -0.022em; margin: 0;
 }
-.pa-h2 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
-.pa-quiet { color: var(--text-muted, #8A9296); font-size: 14px; margin: 0; }
-.pa-top { display: flex; flex-direction: column; gap: 14px; }
-
-/* FOUR FIGURES AND NO CHART. They wrap to two rows on a phone rather than
-   scrolling sideways: this is read at a glance and a number you have to swipe
-   to is a number nobody reads. */
-.pa-nums { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-.pa-nums > div {
-  background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
-  border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px;
+.pa-h2 { font-size: var(--t-strong, 17px); font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+.pa-quiet { color: var(--text-muted, #8A9296); font-size: var(--t-meta, 13px); margin: 0; }
+.pa-lab2 {
+  font-size: var(--t-label, 11px); letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--text-muted, #8A9296); font-weight: 600;
 }
-.pa-num { font-family: var(--f-num, ui-monospace, monospace); font-size: 24px; font-weight: 600; }
-.pa-lab { color: var(--text-muted, #8A9296); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
 
-.pa-tools { display: flex; flex-direction: column; gap: 10px; }
+/* ── the strip · audit Q7 ───────────────────────────────────────────────────
+   NOT SIX IDENTICAL CARDS. Six equal boxes is a wall of fields wearing a grid,
+   and it is the thing the audit's first paragraph warns against. There is a
+   LEAD figure — the one he opens the page to see — set large against the
+   ground with no box at all, and the rest are a ruled row beside it. Border,
+   fill and radius are spent on the ONE thing that needs lifting, which is the
+   design system's own rule about not making everything a card. */
+.pa-strip {
+  display: grid; grid-template-columns: minmax(180px, 0.9fr) 3fr;
+  gap: 22px; align-items: center;
+  padding: 4px 0 22px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--hairline, #23292C);
+}
+.pa-lead { display: flex; flex-direction: column; gap: 2px; }
+.pa-lead .pa-num {
+  font-family: var(--f-num, ui-monospace, monospace);
+  font-size: var(--t-display, clamp(30px, 4.6vw, 44px));
+  font-weight: 600; letter-spacing: -0.03em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.pa-lead .pa-lab { margin-top: 4px; }
+
+.pa-figs { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 1px;
+  background: var(--hairline, #23292C); border: 1px solid var(--hairline, #23292C);
+  border-radius: var(--r-panel, 12px); corner-shape: var(--corner, round); overflow: hidden; }
+.pa-fig { background: var(--surface, #14181A); padding: 11px 13px; display: flex; flex-direction: column; gap: 1px; }
+.pa-num {
+  font-family: var(--f-num, ui-monospace, monospace); font-size: 20px; font-weight: 600;
+  letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.15;
+}
+.pa-lab { color: var(--text-muted, #8A9296); font-size: var(--t-label, 11px); letter-spacing: 0.07em; text-transform: uppercase; line-height: 1.3; }
+/* THE ONE FIGURE THAT IS ALLOWED A COLOUR, and only when it is not zero:
+   the platform's fixed red, because a spot running out is meaning. */
+.pa-fig.low .pa-num { color: var(--bad, #E2705F); }
+
+/* PLATFORM HEALTH — the scheduled jobs and the photo store. Two facts that
+   are silent everywhere else in the product, so they sit on their own rule
+   under the figures rather than floating between sections. Quiet by default
+   and loud only when something has actually stopped. */
+.pa-health {
+  display: flex; flex-wrap: wrap; gap: 4px 18px;
+  padding: 0 0 16px; margin-bottom: 4px;
+  border-bottom: 1px solid var(--hairline, #23292C);
+}
+.pa-health > p { margin: 0; }
+
+/* ── the split ─────────────────────────────────────────────────────────────
+   The list is a RAIL and the open business is the page. Below 1024 they are
+   one column and the second one covers the first, which is the shape every
+   other screen in this product uses on a phone. */
+.pa-split { display: grid; grid-template-columns: 1fr; gap: 18px; align-items: start; }
+/* **BELOW 1024 THE OPEN BUSINESS REPLACES THE LIST, it does not sit under
+   it.** Stacked, the back control was a button that undid nothing you could
+   see and the list stayed above the thing you had just opened — so a phone
+   had no sense of having gone anywhere, which is half of what "easy to
+   navigate" means. Two levels, list then detail, is the shape every other
+   screen in this product uses on a phone. */
+@media (max-width: 1023px) {
+  .pa-split.open .pa-rail { display: none; }
+}
+@media (min-width: 1024px) {
+  .pa-split { grid-template-columns: minmax(300px, 360px) 1fr; gap: 22px; }
+  /* THE RAIL STAYS PUT WHILE THE PAGE SCROLLS. At a hundred detailers the
+     alternative is scrolling the list back up every time you finish reading
+     one, which is the navigation complaint in miniature. `--wrap` guarantees
+     room; the max-height keeps it from outrunning the viewport. */
+  .pa-rail { position: sticky; top: 62px; max-height: calc(100dvh - 80px); overflow-y: auto;
+    overscroll-behavior: contain; padding-right: 2px; }
+}
+
+/* ── tools ─────────────────────────────────────────────────────────────── */
+.pa-tools { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
 .pa-input {
   width: 100%; min-height: 44px; padding: 0 14px;
   background: var(--surface-sunken, #0F1315); color: inherit;
-  border: 1px solid var(--hairline, #23292C); border-radius: 10px;
-  font: inherit; font-size: 15px;
+  border: 1px solid var(--hairline, #23292C);
+  border-radius: var(--r-inset, 8px); corner-shape: var(--corner, round);
+  font: inherit; font-size: var(--t-body, 15px);
+  transition: border-color var(--t-hover, 180ms) var(--ease, ease);
 }
+.pa-input:focus-visible { outline: none; border-color: var(--accent-text, #38E08B); }
 .pa-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .pa-chip {
-  min-height: 36px; padding: 0 12px; border-radius: 999px;
+  min-height: 34px; padding: 0 11px; border-radius: var(--r-pill, 100px);
   background: transparent; color: var(--text-muted, #8A9296);
-  border: 1px solid var(--hairline, #23292C); font: inherit; font-size: 13px;
+  border: 1px solid var(--hairline, #23292C); font: inherit; font-size: var(--t-meta, 13px);
   font-weight: 600; cursor: pointer;
+  transition: background var(--t-hover, 180ms) var(--ease, ease), color var(--t-hover, 180ms) var(--ease, ease);
 }
-.pa-chip.on { background: var(--surface-lit, #1C2124); color: var(--text, #E9EDEF); }
+.pa-chip:hover { color: var(--text, #E9EDEF); }
+.pa-chip.on { background: var(--surface-lit, #1C2124); color: var(--text, #E9EDEF); border-color: transparent; }
 
-/* THE SIGN-IN GATE. Narrow, because a login is one thought and a form the
-   width of a 1440px back office reads as a page that failed to load its
-   content. Nothing else about the page changes. */
+/* ── the sign-in gate ──────────────────────────────────────────────────── */
 .pa-gate { max-width: 380px; margin: 12vh auto 0; }
 .pa-gate .pa-field { display: block; margin-bottom: 12px; }
 .pa-gate .pa-btns { align-items: center; gap: 14px; }
 
-/* NEEDS A LOOK — `docs/platform-admin-audit-2026-09-06.md` Q3.
-
-   IT BORROWS THE LIST’S OWN SHAPE ON PURPOSE. A different-looking panel
-   would read as a notification bar, which is a thing you dismiss; this is a
-   short version of the list below it, which is a thing you work through.
-   The left edge is the only difference and it is `--bad`, the product’s
-   fixed red — never the accent, because the accent is identity and this is
-   meaning (design-system law 11b). */
+/* ── needs a look · audit Q3 ───────────────────────────────────────────────
+   IT BORROWS THE LIST'S OWN SHAPE ON PURPOSE. A different-looking panel would
+   read as a notification bar, which is a thing you dismiss; this is a short
+   version of the list below it, which is a thing you work through.
+   The colour is `--bad`, the product's fixed red — never the accent, because
+   the accent is identity and this is meaning (design-system law 11b).
+   THE RED IS A DOT PER ROW rather than a rail down the panel: a thick coloured
+   edge on a card is the one automatic-looking flourish this screen had, and
+   the severity reads better ON the row it belongs to than on the container. */
 .pa-attn {
   background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
-  border-left: 3px solid var(--bad, #E5484D);
-  border-radius: 12px; overflow: hidden; margin-bottom: 14px;
+  border-radius: var(--r-panel, 12px); corner-shape: var(--corner, round);
+  overflow: hidden; margin-bottom: 14px;
 }
-.pa-attn > .pa-lab2 { padding: 10px 12px 0; }
+.pa-attn > .pa-lab2 { display: block; padding: 11px 13px 3px; }
 .pa-attn-row {
-  width: 100%; display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
+  width: 100%; display: grid; grid-template-columns: 7px 1fr; gap: 10px; align-items: start;
   background: none; border: 0; border-top: 1px solid var(--hairline, #23292C);
-  color: inherit; font: inherit; text-align: left; padding: 10px 12px; cursor: pointer;
+  color: inherit; font: inherit; text-align: left; padding: 9px 13px; cursor: pointer;
+  transition: background var(--t-hover, 180ms) var(--ease, ease);
+}
+.pa-attn-row::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--bad, #E2705F); margin-top: 6px;
 }
 .pa-attn-row:first-of-type { border-top: 0; }
 .pa-attn-row:hover { background: var(--surface-lit, #1C2124); }
 
+/* ── the list ──────────────────────────────────────────────────────────── */
 .pa-list {
   background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
-  border-radius: 12px; overflow: hidden;
+  border-radius: var(--r-panel, 12px); corner-shape: var(--corner, round); overflow: hidden;
 }
-.pa-row { display: flex; align-items: center; gap: 8px; padding: 0 12px 0 0; border-top: 1px solid var(--hairline, #23292C); }
+.pa-row {
+  display: flex; align-items: stretch; gap: 0;
+  border-top: 1px solid var(--hairline, #23292C);
+  position: relative;
+  transition: background var(--t-hover, 180ms) var(--ease, ease);
+}
 .pa-row:first-child { border-top: 0; }
+.pa-row:hover { background: color-mix(in srgb, var(--surface-lit, #1C2124) 60%, transparent); }
+/* WHICH ONE IS OPEN, said twice: the surface lifts AND a marker sits in the
+   gutter. On the rail the row is the only thing that tells you what the
+   column on the right is about, so one signal is not enough — a lifted
+   background alone is invisible against a hover. */
 .pa-row.on { background: var(--surface-lit, #1C2124); }
+.pa-row.on::before {
+  content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px;
+  background: var(--accent-text, #38E08B); border-radius: 0 2px 2px 0;
+}
 .pa-rowbtn {
   flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; align-items: flex-start;
   background: none; border: 0; color: inherit; font: inherit; text-align: left;
-  padding: 12px; cursor: pointer;
+  padding: 11px 12px; cursor: pointer;
 }
-.pa-name { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-/* THE ONE LINE THAT ANSWERS THE QUESTION HE OPENED THIS FOR, so it wraps
-   rather than truncating: an ellipsis here would hide the half about whether
-   they are paying, which is usually the half being looked for. */
-.pa-sub { font-size: 13px; color: var(--text-muted, #8A9296); line-height: 1.4; }
+.pa-name {
+  font-size: var(--t-body, 15px); font-weight: 600; display: flex; align-items: center;
+  gap: 6px; flex-wrap: wrap; letter-spacing: -0.005em;
+}
+/* THE LINE THAT ANSWERS THE QUESTION HE OPENED THIS FOR, so it wraps rather
+   than truncating: an ellipsis here would hide the half about whether they
+   are paying, which is usually the half being looked for. */
+.pa-sub { font-size: var(--t-meta, 13px); color: var(--text-muted, #8A9296); line-height: 1.42; }
+.pa-sub .pa-em { color: var(--text-2, #B9C1C5); font-weight: 600; }
 .pa-tag {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-  padding: 2px 6px; border-radius: 5px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 4px;
   background: var(--surface-lit, #1C2124); color: var(--text-2, #B9C1C5);
 }
+.pa-row.on .pa-tag { background: var(--surface-sunken, #0F1315); }
 /* `--bad` is the product's fixed red — meaning, never the tenant's accent
    (design-system law 11b). A suspended business is a state, not an identity. */
-.pa-tag.bad { background: color-mix(in srgb, var(--bad, #E5484D) 22%, transparent); color: var(--bad, #E5484D); }
-.pa-link { color: var(--accent-text, #38E08B); font-size: 13px; text-decoration: none; white-space: nowrap; }
+.pa-tag.bad { background: color-mix(in srgb, var(--bad, #E2705F) 22%, transparent); color: var(--bad, #E2705F); }
+.pa-tag.dim { background: transparent; color: var(--text-muted, #8A9296); border: 1px solid var(--hairline, #23292C); }
+.pa-link { color: var(--accent-text, #38E08B); font-size: var(--t-meta, 13px); text-decoration: none; white-space: nowrap; }
 .pa-link:hover { text-decoration: underline; }
+/* THE ROW IS `align-items: stretch`, so a bare <a> beside the button
+   stretches to the row height and its TEXT sits at the top of that box —
+   which reads as the link belonging to the row above. Found by looking; no
+   geometry check can see it, because a stretched box is inside every edge it
+   is supposed to be inside. It is styled by DESCENDANT rather than by adding
+   a class, so the markup keeps one link element and there is no second class
+   to forget on the next one. */
+.pa-row > .pa-link { display: flex; align-items: center; padding: 0 12px; flex: none; }
 
+/* THE TREND ARROW — idea 27. Meaning, so it takes the fixed pair and never
+   the accent. "new" is deliberately neutral: a detailer's first month has no
+   trend and an up-arrow on it would be a claim nothing supports. */
+.pa-tr { font-family: var(--f-num, ui-monospace, monospace); font-size: 12px; font-weight: 600; }
+.pa-tr.up   { color: var(--ac, #3DD68C); }
+.pa-tr.down { color: var(--bad, #E2705F); }
+.pa-tr.flat, .pa-tr.new { color: var(--text-muted, #8A9296); }
+
+/* ── the open business ─────────────────────────────────────────────────── */
 .pa-panel {
   background: var(--surface, #14181A); border: 1px solid var(--hairline, #23292C);
-  border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;
+  border-radius: var(--r-panel, 12px); corner-shape: var(--corner, round);
+  padding: 16px; display: flex; flex-direction: column; gap: 14px;
 }
-.pa-field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--text-muted, #8A9296); }
+.pa-phead { display: flex; align-items: flex-start; gap: 12px; }
+.pa-phead .pa-h2 { flex: 1; min-width: 0; }
+.pa-back {
+  display: none; background: none; border: 0; color: var(--text-muted, #8A9296);
+  font: inherit; font-size: var(--t-meta, 13px); cursor: pointer; padding: 2px 0;
+}
+@media (max-width: 1023px) { .pa-back { display: block; } }
+
+/* A BLOCK INSIDE THE OPEN BUSINESS. Ruled, not boxed — a card inside a card
+   is the flattening the design system warns about, and there are four of
+   these. The rule and the label do the separating. */
+.pa-block { display: flex; flex-direction: column; gap: 9px; padding-top: 13px; border-top: 1px solid var(--hairline, #23292C); }
+.pa-block:first-of-type { padding-top: 0; border-top: 0; }
+
+/* THE FACT ROWS. Label left, value right, hairline between — a receipt shape,
+   because that is what reading a tenant's month actually is. Tabular figures
+   so the column of numbers lines up, which is the whole reason to draw it
+   this way rather than as sentences. */
+.pa-facts { display: grid; gap: 0; }
+.pa-fact {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 14px;
+  padding: 7px 0; border-top: 1px dashed color-mix(in srgb, var(--hairline, #23292C) 80%, transparent);
+  font-size: var(--t-meta, 13px);
+}
+.pa-fact:first-child { border-top: 0; }
+.pa-fact > span:first-child { color: var(--text-muted, #8A9296); }
+.pa-fact > span:last-child {
+  font-family: var(--f-num, ui-monospace, monospace); font-variant-numeric: tabular-nums;
+  color: var(--text, #E9EDEF); font-weight: 600; text-align: right;
+}
+.pa-fact.words > span:last-child { font-family: var(--f-body, system-ui); font-weight: 500; }
+
+/* THE STATE LINE — one sentence with a dot, for whether they are paying and
+   whether their page works. The three tones are the product's fixed
+   meanings and never the accent. */
+.pa-state { display: flex; align-items: center; gap: 8px; font-size: var(--t-meta, 13px); }
+.pa-state::before { content: ""; width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--text-muted, #8A9296); }
+.pa-state.good::before { background: var(--ac, #3DD68C); }
+.pa-state.warn::before { background: #E0B341; }
+.pa-state.bad::before  { background: var(--bad, #E2705F); }
+.pa-state b { font-weight: 600; }
+.pa-state span { color: var(--text-muted, #8A9296); }
+
+/* THE SIX-MONTH BARS. Not a chart library and not a sparkline: six months is
+   too few for a line to mean anything, and a bar per month is readable at a
+   glance and honest about how coarse it is. Empty months are DRAWN as empty
+   — a gap is the story on a detailer who stopped. */
+/* THE SIX-MONTH BARS. Not a chart library and not a sparkline: six months
+   is too few for a line to mean anything, and a bar per month is readable at
+   a glance and honest about how coarse it is. **Empty months are drawn as
+   empty** — a gap is the whole story on a detailer who stopped, and building
+   the spine from the CLOCK rather than from the data is what keeps that gap
+   visible (`lib/adminInsight.js`).
+
+   IT IS AN <svg> BECAUSE CSS PERCENTAGE HEIGHTS COULD NOT HOLD IT. Two
+   attempts — a grid with `align-items: end`, then flex with `height: 100%` —
+   both left every bar at its 2px floor and the row overflowing its own label
+   by 18px, because a percentage height needs a DEFINITE parent height and a
+   track sized from its content does not have one. In an SVG the geometry is
+   arithmetic in the viewBox and there is nothing left to resolve. */
+/* CAPPED, because `preserveAspectRatio="none"` stretches the bars sideways
+   to whatever width they are given — and across a 750px column a six-month
+   chart 72px tall reads as five squat blocks rather than as bars. The cap is
+   what keeps the proportion honest; the block around it is free to be wide. */
+.pa-bars { display: block; width: 100%; max-width: 430px; height: 72px; overflow: visible; }
+.pa-barr { fill: var(--surface-lit, #1C2124); }
+.pa-barr.has { fill: color-mix(in srgb, var(--accent-text, #38E08B) 45%, var(--surface-lit, #1C2124)); }
+/* THE MONTH YOU ARE IN, lit — it is the one the figures below are about, and
+   without it the reader has to count along from the labels. **Only when there
+   is something in it**: a lit 2px floor on an empty September reads as a
+   quiet month that had work in it, which is the opposite of what it means. */
+.pa-barr.now.has { fill: var(--accent-text, #38E08B); }
+.pa-barlabs { display: flex; gap: 0; margin-top: 5px; max-width: 430px; }
+.pa-barlabs span {
+  flex: 1 1 0; min-width: 0;
+  font-family: var(--f-num, ui-monospace, monospace); font-size: 10px; text-align: center;
+  color: var(--text-muted, #8A9296); letter-spacing: 0.02em;
+}
+/* The last label sits under a bar that is 8 units wide in a 10-unit slot, so
+   the row of labels is 2 units wider than the row of bars; nudging the whole
+   strip by that fraction is what keeps "Sep" under the September bar. */
+.pa-barlabs { padding-right: calc(100% / 30); }
+
+/* WHAT WE STILL OWE THEM — idea 25. A checklist, so it reads as work
+   outstanding rather than as a defect in their account. */
+.pa-owed { display: grid; gap: 5px; }
+.pa-owed div { display: flex; align-items: center; gap: 8px; font-size: var(--t-meta, 13px); color: var(--text-2, #B9C1C5); }
+.pa-owed div::before {
+  content: ""; width: 13px; height: 13px; flex: none;
+  border: 1px solid var(--text-muted, #8A9296); border-radius: 3px;
+}
+.pa-owed.done div { color: var(--text-muted, #8A9296); }
+
+/* ── forms and controls ────────────────────────────────────────────────── */
+.pa-field { display: flex; flex-direction: column; gap: 5px; font-size: var(--t-meta, 13px); color: var(--text-muted, #8A9296); }
 .pa-field textarea {
   background: var(--surface-sunken, #0F1315); color: var(--text, #E9EDEF);
-  border: 1px solid var(--hairline, #23292C); border-radius: 10px;
-  padding: 10px 12px; font: inherit; font-size: 15px; resize: vertical;
+  border: 1px solid var(--hairline, #23292C);
+  border-radius: var(--r-inset, 8px); corner-shape: var(--corner, round);
+  padding: 10px 12px; font: inherit; font-size: var(--t-body, 15px); resize: vertical;
 }
 .pa-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .pa-btn {
-  min-height: 40px; padding: 0 14px; border-radius: 10px;
+  min-height: 38px; padding: 0 13px;
+  border-radius: var(--r-inset, 8px); corner-shape: var(--corner, round);
   background: var(--surface-lit, #1C2124); color: var(--text, #E9EDEF);
-  border: 1px solid var(--hairline, #23292C); font: inherit; font-size: 14px;
+  border: 1px solid var(--hairline, #23292C); font: inherit; font-size: var(--t-meta, 13px);
   font-weight: 600; cursor: pointer;
+  transition: background var(--t-hover, 180ms) var(--ease, ease), border-color var(--t-hover, 180ms) var(--ease, ease);
 }
+.pa-btn:hover:not(:disabled) { background: var(--surface-sunken, #0F1315); border-color: var(--text-muted, #8A9296); }
 .pa-btn:disabled { opacity: 0.5; cursor: default; }
 /* THE ONE BUTTON THAT LOOKS DIFFERENT, because it is the one that signs him
    out of his own account and into somebody else's. */
-.pa-btn.warn { border-color: color-mix(in srgb, var(--bad, #E5484D) 45%, transparent); color: var(--bad, #E5484D); }
-.pa-lab2 { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted, #8A9296); }
-.pa-log { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-muted, #8A9296); display: grid; gap: 3px; }
+.pa-btn.warn { border-color: color-mix(in srgb, var(--bad, #E2705F) 45%, transparent); color: var(--bad, #E2705F); }
+.pa-log { margin: 0; padding-left: 16px; font-size: var(--t-meta, 13px); color: var(--text-muted, #8A9296); display: grid; gap: 3px; }
 
-.pa-ok, .pa-bad { border-radius: 10px; padding: 10px 12px; font-size: 14px; }
-.pa-ok  { background: color-mix(in srgb, var(--ac, #3DD68C) 14%, transparent); color: var(--ac, #3DD68C); }
-.pa-bad { background: color-mix(in srgb, var(--bad, #E5484D) 14%, transparent); color: var(--bad, #E5484D); }
-
-/* Below 361px the product has a layout of its own (theme.css § THE 320 FLOOR)
-   and this screen obeys the same floor: the figures go one per row rather
-   than two 130px cards that cannot hold "$1,059". */
-@media (max-width: 360px) {
-  .pa-nums { grid-template-columns: 1fr; }
-  .pa { padding: 18px 12px 96px; }
+.pa-ok, .pa-bad {
+  border-radius: var(--r-inset, 8px); corner-shape: var(--corner, round);
+  padding: 10px 12px; font-size: var(--t-meta, 13px);
 }
+.pa-ok  { background: color-mix(in srgb, var(--ac, #3DD68C) 14%, transparent); color: var(--ac, #3DD68C); }
+.pa-bad { background: color-mix(in srgb, var(--bad, #E2705F) 14%, transparent); color: var(--bad, #E2705F); }
 
 /* The invite link, read out loud to somebody standing next to you. It wraps
    rather than scrolling: a link you have to swipe along is a link you read
@@ -164,8 +422,6 @@
   font-family: var(--f-num, ui-monospace, monospace); font-size: 12px;
   overflow-wrap: anywhere; opacity: 0.9;
 }
-/* The one input reused inside a field, so the create form does not need a
-   second input rule. */
 .pa-field .pa-input { margin: 0; }
 
 /* A PLACEHOLDER THAT READS AS A VALUE IS WORSE THAN NO PLACEHOLDER, and the
@@ -182,4 +438,82 @@
    screen it is read on. `auto-fit` does the whole job with NO media query,
    which also means there is nothing here for a sideways phone to trip over —
    the five-instance trap `theme.css` records. */
-.pa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.pa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+
+/* THE RESTING STATE. The right-hand column is never blank at a desk: an empty
+   half-screen reads as a page that failed to load, which is the same defect
+   the sign-in gate had. It says what the column is for. */
+.pa-rest {
+  display: none; border: 1px dashed var(--hairline, #23292C);
+  border-radius: var(--r-panel, 12px); corner-shape: var(--corner, round);
+  padding: 34px 22px; text-align: center; color: var(--text-muted, #8A9296);
+  font-size: var(--t-meta, 13px);
+}
+@media (min-width: 1024px) { .pa-rest { display: block; } }
+
+/* ══ MOTION ═══════════════════════════════════════════════════════════════
+   Three kinds, matching the product's own three, at the product's own three
+   durations. `pa-`-prefixed keyframes because this file shares no rule with
+   `theme.css` — and that includes not reusing its animation names, which
+   would be a shared rule wearing a different hat. */
+
+/* 1 · THE PAGE ARRIVES. One stagger, capped — `dashboard-skeletons.md` §4's
+   arrival budget: a screen's first paint is ONE stagger, not one per block.
+   `--i` is set inline per child. */
+@keyframes pa-arrive { from { opacity: 0; transform: translate3d(0, 10px, 0); } }
+.pa-in { animation: pa-arrive var(--t-reveal, 420ms) var(--ease, ease) both; animation-delay: calc(var(--i, 0) * 45ms); }
+
+/* 2 · A BUSINESS OPENS, from the side it came from. THE AXIS IS THE ORIGIN —
+   the second column travels X because the column edge is where it came from;
+   the page travels Y because a page is read downward. On a phone the panel
+   covers the list, so it comes from the right there too and leaves the same
+   way. */
+@keyframes pa-col-in  { from { opacity: 0; transform: translate3d(14px, 0, 0); } }
+@keyframes pa-col-out { to   { opacity: 0; transform: translate3d(14px, 0, 0); } }
+.pa-col { animation: pa-col-in var(--t-reveal, 420ms) var(--ease, ease) both; }
+.pa-col.leaving { animation: pa-col-out var(--t-exit, 180ms) var(--ease, ease) both; }
+
+/* 3 · A SWAP — one business replaced by another in a frame that stays exactly
+   where it is. **The frame itself carries NO animation**: a whole block
+   changing opacity at once is precisely what a page reload looks like, which
+   is the note the owner rejected on sight. The PARTS move, on different
+   timelines, at the exit duration rather than the reveal one — 420ms is right
+   for a screen you meet once and is a gate on a thing you do fifty times in a
+   sitting. Stagger 20ms, capped at 160ms. */
+.pa-swap > * { animation: pa-arrive var(--t-exit, 180ms) var(--ease, ease) both; animation-delay: calc(var(--j, 0) * 20ms); }
+.pa-swap > *:nth-child(n + 9) { animation-delay: 160ms; }
+
+/* THE BARS GROW, and only on arrival — a figure that re-animates every time
+   anything near it changes is the "nothing animates twice" rule Money learned
+   the hard way. They are inside `.pa-swap`, so a new business regrows them
+   and a note being saved does not. */
+@keyframes pa-bar-rise { from { transform: scaleY(0.02); opacity: 0; } }
+/* `transform-box: fill-box` is what makes `transform-origin: bottom` mean the
+   bottom of the RECT rather than the bottom of the SVG's viewport — without
+   it every bar grows from the floor of the chart and the short ones appear to
+   slide rather than rise. */
+.pa-barr { transform-box: fill-box; transform-origin: bottom;
+  animation: pa-bar-rise var(--t-reveal, 420ms) var(--ease, ease) both;
+  animation-delay: calc(var(--b, 0) * 40ms); }
+
+/* THE DEGRADATION RULE, and it is ONE implementation for this file — the
+   design system forbids a second `prefers-reduced-motion` block per surface,
+   and `.lite` is the same switch by another name so it rides the same rule.
+   Everything still ARRIVES at its final state; only the travel is removed. */
+@media (prefers-reduced-motion: reduce) {
+  .pa-in, .pa-col, .pa-col.leaving, .pa-swap > *, .pa-barr { animation: none !important; }
+}
+.lite .pa-in, .lite .pa-col, .lite .pa-col.leaving, .lite .pa-swap > *, .lite .pa-barr { animation: none !important; }
+
+/* ── the 320 floor ─────────────────────────────────────────────────────────
+   Below 361px the product has a layout of its own (theme.css § THE 320 FLOOR)
+   and this screen obeys the same floor: the strip stacks, and the figures go
+   two-up rather than three 100px cards that cannot hold "$1,059". */
+@media (max-width: 760px) {
+  .pa-strip { grid-template-columns: 1fr; gap: 16px; align-items: stretch; }
+}
+@media (max-width: 360px) {
+  .pa-wrap { padding: 0 12px 96px; }
+  .pa-figs { grid-template-columns: repeat(2, 1fr); }
+  .pa-panel { padding: 13px; }
+}

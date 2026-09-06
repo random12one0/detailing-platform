@@ -454,3 +454,111 @@ F-033  risk           The seeded pair has almost nothing in it: after
 | | What is needed | Unblocks |
 |---|---|---|
 | **P-13** | The email ceiling, and it is a decision rather than a defect (F-028). Resend's free plan sends **100 emails a day across every detailer on the platform**, and one booking spends about five — so roughly **twenty bookings a day** platform-wide before confirmations, reminders and receipts stop going out. Four detailers doing five jobs a day reach it. On the day it happens the symptom is "the booking page is broken". Recommendation: move the platform onto Resend's own paid tier (**$20/month, 50,000 emails**) before the third detailer signs up, not after — it is the cheapest line item in the product and it is the one that fails on a good day. | Every detailer past about the fourth |
+
+## Pass 007 · O2 again, the back office as a DESIGN object · dimension WIDTH · 2026-09-06
+
+The owner, after reading pass 002's fixes:
+
+> *"I wasn't very happy with my admin dashboard of all the detailers and
+> stuff… I want everything to feel very professional and I want the layout to
+> be nice and easy to navigate with like animations and what not."*
+> *"You can overrule some decisions I made if you think another way is
+> generally better."*
+
+Pass 002 fixed what the back office SAID. This pass is about what it IS. The
+shape it follows is `docs/platform-admin-audit-2026-09-06.md` §6, which had
+been written and never built.
+
+F-034  embarrassing   **The loop's own report told him four things were
+       unbuilt that are built.** Ideas 01, 03, 06 and 11 — texting from the
+       detailer's own phone, the map link, "on my way", and the water/power
+       answer on the job card — are all in the product, and two of them are
+       better than the idea was. The mistake has one cause and it is worth
+       naming: `docs/detailer-dashboard-audit-2026-09-06.md` §3.3 and §3.4
+       *recommend* those things, and the recommendation was read as a
+       statement that they were still outstanding. **A recommendation is not
+       a status.** Checking one against the source is the cheapest
+       verification available and it was skipped in the one document written
+       to be acted on.
+       Fixed: yes — `docs/ideas.md` marks them `[!] already existed`, with
+       what the audit really still asks for in each case.
+
+F-035  embarrassing   **The back office was one 900px column at every width.**
+       On the owner's own 1920px monitor that is a narrow ribbon with two
+       thirds of the screen empty, and it is the same fact that put the open
+       business below the entire list (F-015). Every other screen in this
+       product has a desk layout; this one had never been given one.
+       Fixed: yes — a two-column split at `--wrap`, the list a rail and the
+       open business the page. Check: tests/platform-admin.test.mjs § 12a-12b.
+
+F-036  embarrassing   **On a phone the open business sat UNDER the list
+       rather than replacing it**, so the back control undid nothing you could
+       see and there was no sense of having gone anywhere. Half of "easy to
+       navigate" is knowing which of two places you are in.
+       Fixed: yes — two levels below 1024, list then detail, which is the
+       shape the rest of the product already uses. Check: § 12c-12e.
+
+F-037  embarrassing   **`admin.css` argued in writing that it should not be
+       designed.** Its header said the screen was *"deliberately plain"* and
+       that *"there is no animation here on purpose — nothing on this page is
+       being introduced to anybody."*
+       **The reasoning is wrong in a way worth keeping**, because it is the
+       trap every internal tool falls into: it treats motion as INTRODUCTION,
+       so a screen with an audience of one needs none. Motion's other job is
+       saying where a thing came from, and that job gets harder as a screen
+       gets denser — and this is the densest screen in the product and the one
+       where losing your place costs the most.
+       Fixed: yes — the product's own three kinds of motion, in this file's
+       own `pa-` spellings and at the system's own three durations. A prose
+       decision that has been reversed leaves nothing behind that can fail,
+       so § 12 exists to stop the next session restoring it because the
+       comment sounded reasonable.
+
+F-038  blocks-launch  **The payload's Tier 1 was still being discarded.** Every
+       `get` sends 200 bookings, the subscription, 24 invoices, the domains
+       and five counts; the screen drew the service count and the people count
+       and threw the rest away. That is the audit's §3 in full and the owner's
+       complaint in his own words — *"I don't wanna have anything that's, like,
+       could be visible hidden."*
+       Fixed: yes. Six months of finished work, the trend against last month,
+       takings, average job, cancel rate, requests waiting, last booking,
+       the subscription in words, whether the page can actually be booked, and
+       what he still owes them. No new endpoint, no new query, no migration —
+       `app/src/lib/adminInsight.js` is arithmetic over what was already
+       there. Check: tests/admin-insight.test.mjs, 57 checks, baselined five
+       ways.
+
+F-039  risk           **"Is their page bookable" was not a question anything
+       asked.** It is not "do they have services" — it is services AND an open
+       day AND not suspended, and a detailer whose page cannot take a booking
+       is losing money silently while neither of them finds out. That is the
+       worst shape a defect can have in this product and there was no signal
+       for it anywhere.
+       Fixed: yes, and each missing piece is named rather than the first one —
+       "not bookable" is not an instruction; the missing piece is.
+
+F-040  cosmetic       A bare `<a>` beside the row button stretched to the row
+       height, so "their page" sat at the TOP of each row and read as
+       belonging to the row above. Found by looking. No geometry check can see
+       it: a stretched box is inside every edge it is supposed to be inside.
+       Fixed: yes.
+
+F-041  not-a-defect   **The six-month chart took three attempts, and the two
+       failures are the useful part.** As a grid with `align-items: end`, then
+       as flex with `height: 100%`, every bar collapsed to its 2px floor AND
+       the row overflowed 18px above its own container, straight through its
+       label. The cause is the same both times: **a percentage height only
+       resolves against a DEFINITE parent height**, and a track sized from its
+       content has none. It is drawn as an `<svg>` now, where the geometry is
+       arithmetic in the viewBox and there is nothing left to resolve.
+       Kept for the reasoning, and because both failures were found by
+       MEASURING the live boxes rather than by reading the CSS — the container
+       at y=1790 and the bar at y=1772 is a fact no amount of reading the
+       stylesheet would have produced.
+
+F-042  trap           The scroll-into-view added in pass 002 for F-015 became
+       wrong the moment the layout changed: at a desk both columns are on
+       screen, and opening a detailer threw the page down past its own
+       figures. **A fix written for a layout outlives the layout.**
+       Fixed: yes — it now runs only below 1024, where the panel really is
+       somewhere else. Check: § 11k.

@@ -256,10 +256,17 @@ console.log("\n7. and the things the spec refused");
   // fields `docs/platform-admin-audit-2026-09-06.md` warns against in its
   // first paragraph. Eight is the ceiling; six is what is drawn.
   const figures = (p.match(/pa-num"/g) ?? []).length;
-  check("six figures across the top, and never more than eight",
-    // `pa-num"` WITH THE QUOTE: the wrapper is `pa-nums`, and matching the
-    // bare prefix counted the container as an extra figure.
-    figures === 6, `${figures} figures`);
+  // SEVEN SINCE 2026-09-06's REBUILD — one LEAD figure plus six — and the
+  // ceiling is what this check is really for. A strip of figures stops being
+  // read somewhere around eight, and "show me everything" taken literally is
+  // the wall of fields `docs/platform-admin-audit-2026-09-06.md` warns
+  // against in its first paragraph. What changed is the HIERARCHY, not the
+  // budget: the lead is set against the ground with no box, the other six are
+  // a ruled row, and six equal cards is a wall wearing a grid.
+  check("seven figures across the top, and never more than eight",
+    figures === 7 && figures <= 8, `${figures} figures`);
+  check("and exactly one of them is the lead",
+    (p.match(/className="pa-lead"/g) ?? []).length === 1);
   // The jobs label gained the word "finished" on 2026-09-06 — testing loop
   // F-016, and § 11i is where the reason lives. The claim here is unchanged:
   // these two are about the PRODUCT rather than the company.
@@ -508,10 +515,19 @@ console.log("\n11. demos are marked and never counted");
   // The panel renders below the whole list, so pressing a name looked like it
   // did nothing at fifteen tenants and will be a hundred rows down at a
   // hundred.
-  check("11k · opening a business scrolls its panel into view",
-    /scrollIntoView\(\{ block: "start"/.test(p));
+  // **11k CHANGED SHAPE WITH THE LAYOUT, 2026-09-06, and the new rule is the
+  // stronger one.** The original was written when the whole screen was one
+  // column and the open business rendered below the entire list. The rebuild
+  // put it BESIDE the list at a desk, and the scroll then fought the layout
+  // it was written for — opening a detailer threw the page down past its own
+  // figures. So the rule is no longer "scroll to it"; it is "scroll only
+  // where it is somewhere else".
+  check("11k · the scroll only happens where the panel is not already beside the list",
+    /matchMedia\("\(min-width: 1024px\)"\)\.matches/.test(p)
+      && /window\.scrollTo\(\{ top: 0/.test(p),
+    "at a desk the two columns are both on screen and any scroll is wrong");
   check("11l · but a refresh after an action does not move him",
-    /if \(!keepMsg\) \{\s*requestAnimationFrame/.test(p));
+    /if \(!keepMsg && !window\.matchMedia/.test(p));
 
   // ─── the door says where it is (F-021) ──────────────────────────────────
   check("11m · the signed-out door names itself",
@@ -522,6 +538,117 @@ console.log("\n11. demos are marked and never counted");
     !/not an admin|permission|platform_admins/i.test(strip(page).slice(
       strip(page).indexOf('status === "denied"'),
       strip(page).indexOf('status === "denied"') + 400)));
+}
+
+// ─── 12. THE LAYOUT AND THE MOTION ────────────────────────────────────────
+//
+// The owner, 2026-09-06, after reading the rebuilt screen:
+//
+//   *"I wasn't very happy with my admin dashboard of all the detailers and
+//   stuff… I want everything to feel very professional and I want the layout
+//   to be nice and easy to navigate with like animations and what not."*
+//
+// **This section exists because the file it guards used to argue the
+// opposite in writing.** `admin.css`'s header said the screen was
+// "deliberately plain" and that "there is no animation here on purpose —
+// nothing on this page is being introduced to anybody", which is a trap any
+// internal tool falls into: it treats motion as INTRODUCTION, so a screen
+// with an audience of one needs none. Motion's other job is saying where
+// something came from, and that job gets harder as a screen gets denser.
+//
+// A prose decision that has been reversed leaves nothing behind that can
+// fail. These checks are what stops the next session restoring the old one
+// because the comment sounded reasonable.
+console.log("\n12. the layout, and the motion the owner asked for");
+{
+  const p = strip(page);
+  const css = strip(read("app/src/admin/admin.css"));
+
+  // ── LAYOUT ───────────────────────────────────────────────────────────
+  // TWO COLUMNS AT A DESK. One 900px column at 1920 is a narrow ribbon with
+  // two thirds of the screen empty, and it is what put the open business a
+  // hundred rows below the list (F-015).
+  check("12a · the list and the open business are a two-column split",
+    /\.pa-split \{[\s\S]{0,200}?grid-template-columns: 1fr;/.test(css)
+      && /@media \(min-width: 1024px\)[\s\S]{0,300}?\.pa-split \{ grid-template-columns: minmax\(/.test(css));
+  check("12b · and the width is the product's own, not a second opinion",
+    /max-width: var\(--wrap/.test(css) && !/max-width: 900px/.test(css));
+  // ON A PHONE IT IS TWO LEVELS, not one long page. Stacked, the back control
+  // undid nothing you could see.
+  check("12c · below 1024 the open business replaces the list",
+    /@media \(max-width: 1023px\)[\s\S]{0,160}?\.pa-split\.open \.pa-rail \{ display: none; \}/.test(css));
+  check("12d · and the split knows when something is open",
+    /"pa-split" \+ \(open \? " open" : ""\)/.test(p));
+  check("12e · with a way back that only exists where it means something",
+    /className="pa-back"/.test(p)
+      && /@media \(max-width: 1023px\) \{ \.pa-back \{ display: block; \} \}/.test(css));
+  // THE RIGHT-HAND COLUMN IS NEVER BLANK. An empty half-screen reads as a
+  // page that failed to load — the same defect the sign-in gate had.
+  check("12f · the resting state says what the column is for",
+    /className="pa-rest"/.test(p) && /\.pa-rest \{/.test(css));
+
+  // ── MOTION ───────────────────────────────────────────────────────────
+  // The product's three kinds, in this file's own spellings. It shares no
+  // RULE with theme.css — and that includes not borrowing its keyframe names,
+  // which would be a shared rule wearing a different hat.
+  for (const [name, why] of [
+    ["pa-arrive", "the page's own first paint"],
+    ["pa-col-in", "a business opening"],
+    ["pa-col-out", "and closing"],
+    ["pa-bar-rise", "the bars growing"],
+  ]) {
+    check(`12g · ${name} exists — ${why}`, new RegExp("@keyframes " + name + "\\b").test(css));
+  }
+  // **A FALLBACK IS NOT A NEW NUMBER.** The first version of this check read
+  // `!/animation:[^;]*\d+ms/` and failed on `var(--t-reveal, 420ms)`, which is
+  // the correct spelling — the fallback is what keeps this file readable if a
+  // token is renamed. The rule is that no duration exists OUTSIDE a `var()`,
+  // so strip the var() calls and there should be no ms left at all.
+  const noVars = css.replace(/var\([^()]*\)/g, "TOKEN");
+  check("12h · every duration is a token, never a number typed here",
+    !/animation(-duration)?:[^;]*\d+ms/.test(noVars),
+    (noVars.match(/animation[^;]*\d+ms/g) ?? []).join(" | "));
+  // A STAGGER STEP is a per-screen decision, unlike a duration: the design
+  // system fixes three durations and deliberately fixes no step.
+  check("12h-ii · and the stagger steps are the only bare numbers",
+    (css.match(/animation-delay: calc\(var\([^)]*\) \* \d+ms\)/g) ?? []).length >= 3);
+
+  // **THE SWAP CARRIES NO ANIMATION OF ITS OWN.** A whole block changing
+  // opacity at once is what a page reload looks like, and it is the exact
+  // note the owner rejected on sight in September. The PARTS move.
+  check("12i · a swap animates its parts, never the frame",
+    /\.pa-swap > \* \{ animation:/.test(css) && !/^\.pa-swap \{[^}]*animation/m.test(css));
+  check("12j · and the frame is re-keyed so the swap actually runs",
+    /className="pa-swap" key=\{b\.id\}/.test(p));
+
+  // AN EXIT IS A DELAYED UNMOUNT and the duration lives in one place.
+  check("12k · closing animates out through the shared hook",
+    /useLeaving\(\(\) => setOpen\(null\)\)/.test(p) && /\.pa-col\.leaving \{ animation: pa-col-out/.test(css));
+  check("12l · and no second copy of the exit duration",
+    !/setTimeout\([^)]*18\d\)/.test(p));
+
+  // ONE DEGRADATION IMPLEMENTATION PER SURFACE — the design system forbids a
+  // second `prefers-reduced-motion` block, and `.lite` is the same switch by
+  // another name.
+  check("12m · reduced motion is handled once",
+    (css.match(/@media \(prefers-reduced-motion/g) ?? []).length === 1);
+  check("12n · and ?lite=1 rides the same rule",
+    /\.lite \.pa-in, \.lite \.pa-col/.test(css));
+
+  // ── THE CHART ────────────────────────────────────────────────────────
+  // It is an <svg> because CSS percentage heights could not hold it: twice,
+  // every bar collapsed to its 2px floor and the row overflowed its own label
+  // by 18px, because a percentage height needs a DEFINITE parent height.
+  check("12o · the six-month chart is drawn with explicit coordinates",
+    /<svg className="pa-bars"/.test(p) && /viewBox=\{/.test(p));
+  check("12p · and no percentage height is left inside it",
+    !/pa-bar[^r][\s\S]{0,200}?height: 100%/.test(css));
+  // A MONTH WITH NO WORK IS NEVER THE LIT ONE, even when it is this month.
+  check("12q · an empty month is not lit", /\.pa-barr\.now\.has \{ fill:/.test(css));
+  // AND THE EMPTY MONTHS ARE DRAWN AT ALL — the spine comes from the clock,
+  // not from the data, which is what keeps a gap visible.
+  check("12r · the spine is built from the calendar, not from the bookings",
+    /for \(let i = months - 1; i >= 0; i--\)/.test(strip(read("app/src/lib/adminInsight.js"))));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

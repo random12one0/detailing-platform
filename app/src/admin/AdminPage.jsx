@@ -28,6 +28,10 @@ import { supabase } from "../lib/supabase.js";
 import { money } from "../lib/format.js";
 import { setupProgress } from "../lib/setup.js";
 import { needsALook } from "../lib/attention.js";
+import {
+  billingState, bookability, daysSince, monthlySeries, owedByUs, trend, workload,
+} from "../lib/adminInsight.js";
+import { useLeaving } from "../hooks/useLeaving.js";
 import "./admin.css";
 
 const call = async (body) => {
@@ -159,6 +163,13 @@ export default function AdminPage() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(null);      // business id
+  // ANYTHING THAT OPENS, ANIMATES OUT — roadmap 2.17's law, applied to this
+  // screen on 2026-09-06 when the owner said the back office did not feel
+  // finished. React unmounts the instant the caller stops rendering, so an
+  // exit has to be a delayed unmount; `useLeaving` owns the 180ms and the
+  // reduced-motion bypass, and a fourth caller rolling its own `setTimeout`
+  // is how the pattern forks.
+  const [leaving, startClose] = useLeaving(() => setOpen(null));
   const [detail, setDetail] = useState(null);
   const [note, setNote] = useState("");
   const [site, setSite] = useState("");
@@ -208,11 +219,19 @@ export default function AdminPage() {
     // fresh open, never on the refresh after an action — that would drag him
     // away from the button he just pressed. `requestAnimationFrame` because
     // the panel does not exist until this render lands.
-    if (!keepMsg) {
-      requestAnimationFrame(() => {
-        document.querySelector(".pa-row.on ~ .pa-panel, .pa-list ~ .pa-panel")
-          ?.scrollIntoView({ block: "start", behavior: "smooth" });
-      });
+    // **AND ONLY WHERE THE PANEL IS SOMEWHERE ELSE.** This was written for
+    // F-015, when the whole screen was one column and the open business
+    // rendered below the entire list — at fifteen tenants already off the
+    // bottom. At a desk the two-column layout put it beside the list instead,
+    // and the scroll then FOUGHT the new layout: opening a detailer threw the
+    // page down past its own figures and left the rail scrolled to wherever
+    // the panel happened to line up. The fix and the layout are the same fix;
+    // what is left is the phone, where the panel really is elsewhere.
+    // On a phone the rail is REPLACED rather than scrolled past, so the top
+    // of the page is already the top of the business you just opened — and
+    // arriving halfway down one is what a stacked layout used to do.
+    if (!keepMsg && !window.matchMedia("(min-width: 1024px)").matches) {
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
     }
     try {
       const d = await call({ action: "get", business_id: id });
@@ -380,12 +399,55 @@ export default function AdminPage() {
   const progress = detail && b
     ? setupProgress({ business: b, branding: detail.branding, settings: detail.settings, counts: detail.counts })
     : null;
+  // **THE AUDIT'S TIER 1 — the payload already carried all of this and the
+  // screen threw it away.** 200 bookings, the subscription, the invoices, the
+  // domains and the counts arrive with every `get`, and until 2026-09-06 the
+  // only ones drawn were the service count and the people count. That is the
+  // owner's own complaint in his own words: *"I don't wanna have anything
+  // that's, like, could be visible hidden."*
+  //
+  // No new endpoint, no new query, no migration. `lib/adminInsight.js` is
+  // pure arithmetic over what is already here, and it is its own file for the
+  // same reason `lib/setup.js` is: every figure below is one he will compare
+  // against something else, so the sums have to be checkable without a DOM.
+  //
+  // **PLAIN CONSTS, NOT `useMemo` — and that is a correctness rule here, not
+  // a style one.** These sit BELOW the four early returns this component makes
+  // (loading, anon, denied, error), so a hook here would run on some renders
+  // and not others: React counts them and throws *"Rendered more hooks than
+  // during the previous render"*, which is exactly what signing in did on the
+  // first attempt at this block. They are also not worth memoising — one pass
+  // over at most 200 rows, and only while a business is open.
+  const series = detail ? monthlySeries(detail.bookings) : [];
+  const move = trend(series);
+  const work = detail ? workload(detail.bookings) : null;
+  const bookable = detail && b ? bookability({ business: b, counts: detail.counts, settings: detail.settings }) : null;
+  const billing = detail ? billingState(detail.subscription) : null;
+  const owed = detail && b ? owedByUs({ business: b, domains: detail.domains, counts: detail.counts }) : [];
+  const peak = Math.max(1, ...series.map((m) => m.jobs));
+  const quiet = daysSince(work?.lastBooked);
 
   return (
     <div className="pa">
       <div className="pa-wrap">
-        <header className="pa-top">
-          <h1 className="pa-h1">Detailers</h1>
+        {/* THE BAR. It exists so the screen still says where you are once the
+            strip has scrolled away, and so the two PLATFORM-level actions —
+            adding a detailer, and what we charge — stop sitting in the middle
+            of the list they have nothing to do with. They are about the
+            company; everything below the strip is about one detailer. */}
+        <div className="pa-bar">
+          <span className="pa-mark"><b>Detailing Platform</b> · back office</span>
+          <span className="pa-bar-r">
+            <button className="pa-btn" onClick={() => { setPricing(!pricing); setAdding(false); setInvite(null); }}>
+              {pricing ? "Close" : "What we charge"}
+            </button>
+            <button className="pa-btn" onClick={() => { setAdding(!adding); setPricing(false); setInvite(null); }}>
+              {adding ? "Never mind" : "Add a detailer"}
+            </button>
+          </span>
+        </div>
+
+        <header className="pa-strip pa-in" style={{ "--i": 0 }}>
           {/* SIX FIGURES SINCE 2026-09-06, AND THE FOUR-FIGURE RULE IS
               DELIBERATELY RETIRED. The spec's own limit was four and it was
               right for what this page was — an administrative tool. The
@@ -406,25 +468,45 @@ export default function AdminPage() {
               not a rolling thirty days, because this page is read beside an
               invoice and a bank statement and both of those are calendar
               months. */}
-          <div className="pa-nums">
+          {/* NOT SIX EQUAL BOXES — the audit's first paragraph warns against a
+              wall of fields, and six identical cards is a wall wearing a grid.
+              **MRR is the lead** because it is the figure he opens this page
+              to see, and it is set against the ground with no box at all
+              while the rest are a ruled row: border, fill and radius spent on
+              the ONE thing that needs lifting rather than stamped on all six,
+              which is what flattens a hierarchy. */}
+          <div className="pa-lead">
+            <span className="pa-num">{money((t.mrr_cents ?? 0) / 100)}</span>
+            <span className="pa-lab">a month, recurring</span>
+          </div>
+          <div className="pa-figs">
             {/* THE FIGURES ARE REAL DETAILERS, AND THE LABEL SAYS SO WHEN
                 THERE IS ANYTHING ELSE IN THE LIST — testing loop F-014. */}
-            <div><span className="pa-num">{t.businesses ?? 0}</span>
+            <div className="pa-fig"><span className="pa-num">{t.businesses ?? 0}</span>
               <span className="pa-lab">{t.demo ? `detailers · ${t.demo} demo` : "detailers"}</span></div>
-            <div><span className="pa-num">{t.active ?? 0}</span><span className="pa-lab">not suspended</span></div>
-            <div><span className="pa-num">{money((t.mrr_cents ?? 0) / 100)}</span><span className="pa-lab">a month</span></div>
-            <div><span className="pa-num">{t.founding_left ?? 0}</span><span className="pa-lab">founding spots left</span></div>
+            <div className="pa-fig"><span className="pa-num">{t.active ?? 0}</span><span className="pa-lab">not suspended</span></div>
+            {/* THE ONE FIGURE ALLOWED A COLOUR, and only at zero: an offer
+                that has run out changes what the landing page advertises, so
+                it is meaning rather than decoration. */}
+            <div className={`pa-fig ${(t.founding_left ?? 0) === 0 ? "low" : ""}`}>
+              <span className="pa-num">{t.founding_left ?? 0}</span><span className="pa-lab">founding spots left</span></div>
             {/* IT COUNTS FINISHED JOBS — testing loop F-016. Unlabelled, "0
                 jobs this month" sat beside a row reading "30 bookings, last
                 today" and read as a broken number; both were right and the
                 tile was not saying which question it answered. */}
-            <div><span className="pa-num">{t.jobs_month ?? 0}</span><span className="pa-lab">jobs finished this month</span></div>
-            <div><span className="pa-num">{money(t.revenue_month ?? 0)}</span><span className="pa-lab">through the platform</span></div>
+            <div className="pa-fig"><span className="pa-num">{t.jobs_month ?? 0}</span><span className="pa-lab">jobs finished this month</span></div>
+            <div className="pa-fig"><span className="pa-num">{money(t.revenue_month ?? 0)}</span><span className="pa-lab">through the platform</span></div>
+            <div className="pa-fig"><span className="pa-num">{t.customers ?? 0}</span><span className="pa-lab">customers on the platform</span></div>
           </div>
         </header>
 
-        {/* Under the figures, above everything he came here to do. One line,
-            and it goes `pa-bad` rather than quiet when a job has stopped. */}
+        {/* PLATFORM HEALTH, on its own rule under the strip. It used to be two
+            loose paragraphs wedged between the figures and the list, aligned
+            to nothing and reading as stray debug text — which is exactly what
+            it is not: a scheduled job that has stopped is silent everywhere
+            else in the product, and this line is the only place it surfaces.
+            It goes `pa-bad` rather than quiet when one has. */}
+        <div className="pa-health pa-in" style={{ "--i": 1 }}>
         <p className={JOBS.some(([k, , win]) => stale(k, win)) ? "pa-bad" : "pa-quiet"}>
           {JOBS.map(([key, label, win]) => {
             const beat = (state.heartbeats ?? []).find((h) => h.job === key);
@@ -458,7 +540,19 @@ export default function AdminPage() {
               && ` · PROMISED ${gb(state.photo_store.committed_bytes)} — more than exists`}
           </p>
         )}
+        </div>
 
+        {/* THE SPLIT — `docs/platform-admin-audit-2026-09-06.md` §6's shape.
+            The list is a RAIL and the open business is the page. Until
+            2026-09-06 the whole screen was one 900px column at every width,
+            so on a 1920px monitor it was a narrow ribbon with two thirds of
+            it empty AND the open business rendered below the entire list —
+            already off the bottom at fifteen tenants, a hundred rows down at
+            a hundred (testing loop F-015). Below 1024 they are one column and
+            the open business covers the list, which is the phone pattern the
+            rest of the product uses. */}
+        <div className={"pa-split" + (open ? " open" : "")}>
+        <div className="pa-rail pa-in" style={{ "--i": 2 }}>
         <div className="pa-tools">
           <input className="pa-input" value={q} placeholder="Search a name, a link or an email"
             onChange={(e) => setQ(e.target.value)} />
@@ -470,6 +564,80 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {rows.length === 0 && <p className="pa-quiet">Nobody matches that.</p>}
+
+        {/* ABOVE THE LIST AND BELOW THE FIGURES, and absent when empty —
+            §1a's rule reaches this page too: an empty section is not drawn,
+            and "nothing needs attention" is a sentence that trains you to
+            stop reading the place where things needing attention appear. */}
+        {attention.length > 0 && (
+          <div className="pa-attn">
+            <div className="pa-lab2">Needs a look</div>
+            {attention.map((r) => (
+              <button key={r.id} className="pa-attn-row" onClick={() => openBusiness(r.id)}>
+                <span className="pa-name">{r.name}</span>
+                <span className="pa-sub">{r.why.join(" · ")}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="pa-list">
+          {rows.map((r) => (
+            <div key={r.id} className={`pa-row ${open === r.id ? "on" : ""}`}>
+              <button className="pa-rowbtn" onClick={() => (open === r.id ? startClose() : openBusiness(r.id))}>
+                <span className="pa-name">
+                  {r.name}
+                  {/* NOT A CUSTOMER — testing loop F-014, and it goes FIRST
+                      because it changes what every figure after it means. */}
+                  {r.is_demo && <span className="pa-tag">demo</span>}
+                  {r.status === "paused" && <span className="pa-tag bad">suspended</span>}
+                  {r.plan_tier === "founding" && <span className="pa-tag">founding</span>}
+                  {r.has_note && <span className="pa-tag">note</span>}
+                </span>
+                {/* WHAT HE WOULD OTHERWISE QUERY, on one line: who they are,
+                    whether they are paying, and when they last did any work.
+                    "Last activity" is the column the spec says earns its
+                    place — no booking in three weeks is a holiday or a
+                    leaver, and both are worth knowing before the card
+                    fails. */}
+                <span className="pa-sub">
+                  {r.owner_email ?? "no owner account"}
+                  {" · "}{r.subscription?.status ?? "no subscription"}
+                  {/* WRITTEN AS A SENTENCE, not as fields joined by commas.
+                      `N bookings, last never` was the first version and it
+                      printed "1 bookings" and "0 bookings, last never" — two
+                      figures where the answer is one fact, and the one that
+                      matters most (nobody has ever booked) said the least. */}
+                  {" · "}{r.bookings_total === 0
+                    ? "never booked"
+                    : `${r.bookings_total} booking${r.bookings_total === 1 ? "" : "s"}, last ${ago(r.last_booking_at)}`}
+                  {r.requests_waiting > 0 ? ` · ${r.requests_waiting} waiting` : ""}
+                </span>
+                {/* THE SECOND LINE, ADDED 2026-09-06. The line above answers
+                    "who are they and are they alive"; this one answers the
+                    question actually asked first about any tenant — **is
+                    this working for them.** The server already had every
+                    figure on it and the screen was throwing them away, which
+                    is the audit's Tier 1 in one line of markup. */}
+                <span className="pa-sub">
+                  {/* "finished", for the reason the tile above carries —
+                      testing loop F-016. On this line the contradiction is
+                      sharper still, because the words "3 bookings, last
+                      today" are four characters to the left of it. */}
+                  <b className="pa-em">{r.jobs_month ?? 0} finished</b> this month
+                  {" · "}{money(r.revenue_month ?? 0)} taken
+                  {" · "}{r.customers ?? 0} customer{(r.customers ?? 0) === 1 ? "" : "s"}
+                </span>
+              </button>
+              <a className="pa-link" href={`/book/${r.slug}`} target="_blank" rel="noreferrer">their page</a>
+            </div>
+          ))}
+        </div>
+
+        </div>{/* .pa-rail */}
+
+        <div className="pa-main pa-in" style={{ "--i": 3 }}>
         {msg && <div className={msg.ok ? "pa-ok" : "pa-bad"}>{msg.text}</div>}
         {/* THE LINK IS SHOWN, NOT ONLY EMAILED, and that is the whole point of
             signing somebody up in person: he is standing next to them, so if
@@ -483,13 +651,9 @@ export default function AdminPage() {
         )}
 
         {/* ADDING A BUSINESS BY HAND — in-person onboarding, the spec's own
-            case. Behind a button because it is the rarest action on this
-            screen and a form always open is a form always in the way. */}
-        <div className="pa-btns">
-          <button className="pa-btn" onClick={() => { setAdding(!adding); setInvite(null); }}>
-            {adding ? "Never mind" : "Add a detailer"}
-          </button>
-        </div>
+            case. The button moved to the bar in 2026-09-06's rebuild: it is a
+            PLATFORM action and it was sitting in the middle of the list of
+            detailers it has nothing to do with. The form still opens here. */}
         {adding && (
           <div className="pa-panel">
             <label className="pa-field"><span>Business name</span>
@@ -522,16 +686,8 @@ export default function AdminPage() {
           </div>
         )}
 
-        {rows.length === 0 && <p className="pa-quiet">Nobody matches that.</p>}
-
-        {/* WHAT WE CHARGE — roadmap 4.4's "platform settings", and it has
-            exactly one job. Behind a button for the same reason the add form
-            is: it is the rarest thing on this screen. */}
-        <div className="pa-btns">
-          <button className="pa-btn" onClick={() => setPricing(!pricing)}>
-            {pricing ? "Hide the prices" : "What we charge"}
-          </button>
-        </div>
+        {/* WHAT WE CHARGE — roadmap 4.4's "platform settings", and its button
+            is in the bar for the same reason the add one is. */}
         {pricing && pt && (
           <div className="pa-panel">
             <p className="pa-quiet">
@@ -592,96 +748,165 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ABOVE THE LIST AND BELOW THE FIGURES, and absent when empty —
-            §1a's rule reaches this page too: an empty section is not drawn,
-            and "nothing needs attention" is a sentence that trains you to
-            stop reading the place where things needing attention appear. */}
-        {attention.length > 0 && (
-          <div className="pa-attn">
-            <div className="pa-lab2">Needs a look</div>
-            {attention.map((r) => (
-              <button key={r.id} className="pa-attn-row" onClick={() => openBusiness(r.id)}>
-                <span className="pa-name">{r.name}</span>
-                <span className="pa-sub">{r.why.join(" · ")}</span>
-              </button>
-            ))}
+        {/* THE RESTING STATE. At a desk the right-hand column is never blank:
+            an empty half-screen reads as a page that failed to load, which is
+            the same defect the sign-in gate had before this pass. */}
+        {!open && !adding && !pricing && (
+          <div className="pa-rest">
+            {rows.length
+              ? "Pick a detailer to see how they are doing."
+              : "No detailers yet. Add one from the bar above."}
           </div>
         )}
-
-        <div className="pa-list">
-          {rows.map((r) => (
-            <div key={r.id} className={`pa-row ${open === r.id ? "on" : ""}`}>
-              <button className="pa-rowbtn" onClick={() => (open === r.id ? setOpen(null) : openBusiness(r.id))}>
-                <span className="pa-name">
-                  {r.name}
-                  {/* NOT A CUSTOMER — testing loop F-014, and it goes FIRST
-                      because it changes what every figure after it means. */}
-                  {r.is_demo && <span className="pa-tag">demo</span>}
-                  {r.status === "paused" && <span className="pa-tag bad">suspended</span>}
-                  {r.plan_tier === "founding" && <span className="pa-tag">founding</span>}
-                  {r.has_note && <span className="pa-tag">note</span>}
-                </span>
-                {/* WHAT HE WOULD OTHERWISE QUERY, on one line: who they are,
-                    whether they are paying, and when they last did any work.
-                    "Last activity" is the column the spec says earns its
-                    place — no booking in three weeks is a holiday or a
-                    leaver, and both are worth knowing before the card
-                    fails. */}
-                <span className="pa-sub">
-                  {r.owner_email ?? "no owner account"}
-                  {" · "}{r.subscription?.status ?? "no subscription"}
-                  {/* WRITTEN AS A SENTENCE, not as fields joined by commas.
-                      `N bookings, last never` was the first version and it
-                      printed "1 bookings" and "0 bookings, last never" — two
-                      figures where the answer is one fact, and the one that
-                      matters most (nobody has ever booked) said the least. */}
-                  {" · "}{r.bookings_total === 0
-                    ? "never booked"
-                    : `${r.bookings_total} booking${r.bookings_total === 1 ? "" : "s"}, last ${ago(r.last_booking_at)}`}
-                  {r.requests_waiting > 0 ? ` · ${r.requests_waiting} waiting` : ""}
-                </span>
-                {/* THE SECOND LINE, ADDED 2026-09-06. The line above answers
-                    "who are they and are they alive"; this one answers the
-                    question actually asked first about any tenant — **is
-                    this working for them.** The server already had every
-                    figure on it and the screen was throwing them away, which
-                    is the audit's Tier 1 in one line of markup. */}
-                <span className="pa-sub">
-                  {/* "finished", for the reason the tile above carries —
-                      testing loop F-016. On this line the contradiction is
-                      sharper still, because the words "3 bookings, last
-                      today" are four characters to the left of it. */}
-                  {r.jobs_month ?? 0} finished this month
-                  {" · "}{money(r.revenue_month ?? 0)} taken
-                  {" · "}{r.customers ?? 0} customer{(r.customers ?? 0) === 1 ? "" : "s"}
-                </span>
-              </button>
-              <a className="pa-link" href={`/book/${r.slug}`} target="_blank" rel="noreferrer">their page</a>
-            </div>
-          ))}
-        </div>
-
         {open && (
-          <div className="pa-panel">
+          <div className={`pa-panel pa-col ${leaving ? "leaving" : ""}`}>
             {!detail && <p className="pa-quiet">Loading…</p>}
+            {/* THE SWAP — one business replaced by another in a frame that
+                stays exactly where it is. The `key` is what re-runs it, and
+                the frame itself carries NO animation: a whole block changing
+                opacity at once is what a page reload looks like, which is the
+                version the owner rejected on sight in September. The PARTS
+                move, on different timelines, at the exit duration. */}
             {detail && b && (
-              <>
-                <h2 className="pa-h2">{b.name}</h2>
-                <p className="pa-quiet">
-                  {/* THE SAME SEVEN-STEP NUMBER THE DETAILER SEES, from
-                      `lib/setup.js`. The spec is explicit: surface that
-                      rather than invent a second completeness figure, because
-                      two numbers about the same thing is how a support call
-                      starts with an argument. */}
-                  {progress ? `Setup ${progress.count} of ${progress.total}` : ""}
-                  {" · "}{detail.settings?.booking_mode === "request" ? "takes requests" : "books directly"}
-                  {/* Pluralised, like the two lines above it — testing loop
-                      F-008. "1 services" on a screen that says "1 customer"
-                      four rows up. */}
-                  {" · "}{detail.counts.services} service{detail.counts.services === 1 ? "" : "s"}
-                  {" · "}{detail.members.length} {detail.members.length === 1 ? "person" : "people"}
-                </p>
+              <div className="pa-swap" key={b.id}>
+                <div className="pa-phead" style={{ "--j": 0 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h2 className="pa-h2">{b.name}</h2>
+                    <p className="pa-quiet" style={{ marginTop: 2 }}>{b.slug}</p>
+                  </div>
+                  {/* THE WAY BACK, and only where there is one: below 1024 the
+                      open business covers the list, so without this the only
+                      exit is the browser's own. At a desk both are on screen
+                      and a back control would undo nothing. */}
+                  <button className="pa-back" onClick={startClose}>&larr; All detailers</button>
+                </div>
 
+                {/* ── IS THIS WORKING FOR THEM? · audit Q1 and Q2 ──────────
+                    The first block, because it is the first question anybody
+                    asks about a tenant and the screen could not answer it at
+                    all. Six months of BARS rather than a line: six points is
+                    too few for a line to mean anything, and the empty months
+                    are drawn as empty because a gap is the whole story on a
+                    detailer who stopped. */}
+                <div className="pa-block" style={{ "--j": 1 }}>
+                  <span className="pa-lab2">Their work</span>
+                  {/* **DRAWN AS SVG, WITH EXPLICIT COORDINATES.** It was six
+                      divs with percentage heights first, and it did not work
+                      twice: a percentage height only resolves against a
+                      DEFINITE parent height, and inside a flex/grid track
+                      whose size comes from its content there is nothing for
+                      it to be a percentage of — so every bar collapsed to its
+                      2px floor and the row overflowed 18px upward, straight
+                      through its own label. Measured, both times, rather than
+                      reasoned about.
+                      An SVG has no such ambiguity: y and height are numbers
+                      in the viewBox, and `preserveAspectRatio="none"` lets
+                      the bars stretch sideways to whatever width the column
+                      is while the vertical scale stays 1:1 (the viewBox
+                      height and the element height are both 54).
+                      `aria-hidden` because the figures underneath say the
+                      same thing in words — a screen reader reading out six
+                      unlabelled rectangles is worse than silence. */}
+                  <svg className="pa-bars" viewBox={`0 0 ${series.length * 10 - 2} 72`}
+                    preserveAspectRatio="none" height="72" aria-hidden="true">
+                    {series.map((m, i) => {
+                      const h = Math.max(2, Math.round((m.jobs / peak) * 66));
+                      return (
+                        <rect key={m.key} className={"pa-barr" + (m.jobs ? " has" : "") + (i === series.length - 1 ? " now" : "")}
+                          x={i * 10 + 3.4} y={72 - h} width="3.2" height={h} rx="0.8" style={{ "--b": i }}>
+                          <title>{m.label + ": " + m.jobs + " finished, " + money(m.revenue)}</title>
+                        </rect>
+                      );
+                    })}
+                  </svg>
+                  <div className="pa-barlabs">
+                    {series.map((m) => <span key={m.key}>{m.label}</span>)}
+                  </div>
+                  <div className="pa-facts">
+                    <div className="pa-fact"><span>Finished this month</span><span>
+                      {move.now}{" "}
+                      {/* THE TREND — idea 27. "4 jobs" is a number with
+                          nothing to compare it to. A first month gets no
+                          arrow: a zero baseline makes any start an enormous
+                          rise, which is a claim nothing supports. */}
+                      <b className={"pa-tr " + move.direction}>
+                        {move.direction === "up" ? "\u25B2 " + move.pct + "%"
+                          : move.direction === "down" ? "\u25BC " + Math.abs(move.pct) + "%"
+                          : move.direction === "new" ? "first month" : "\u2014"}
+                      </b>
+                    </span></div>
+                    <div className="pa-fact"><span>Taken, all time</span><span>{money(work?.revenue ?? 0)}</span></div>
+                    <div className="pa-fact"><span>Average job</span><span>{money(work?.average ?? 0)}</span></div>
+                    {work?.cancelRate !== null && work?.cancelRate !== undefined && (
+                      <div className="pa-fact"><span>Cancelled</span><span>{work.cancelRate}%</span></div>
+                    )}
+                    {work?.pending > 0 && (
+                      <div className="pa-fact"><span>Requests waiting</span><span>{work.pending}</span></div>
+                    )}
+                    <div className="pa-fact words"><span>Last booking taken</span>
+                      <span>{ago(work?.lastBooked)}{quiet !== null && quiet >= 21 ? " \u2014 quiet" : ""}</span></div>
+                  </div>
+                </div>
+
+                {/* ── ARE THEY PAYING, AND DOES THEIR PAGE WORK? · Q4 and Q5 ─
+                    Both are answers rather than figures, so both are a
+                    sentence with a dot. **Bookable is not "do they have
+                    services"** — it is services AND open days AND not
+                    suspended. A detailer whose page cannot take a booking is
+                    losing money silently while neither of them finds out,
+                    which is the worst shape a defect can have here. */}
+                <div className="pa-block" style={{ "--j": 2 }}>
+                  <span className="pa-lab2">Account and page</span>
+                  <p className={"pa-state " + (billing?.tone ?? "")}>
+                    <b>{billing?.label}</b>{billing?.detail ? <span>{billing.detail}</span> : null}
+                  </p>
+                  <p className={"pa-state " + (bookable?.ok ? "good" : "bad")}>
+                    <b>{bookable?.ok ? "Page can be booked" : "Page cannot be booked"}</b>
+                    <span>{bookable?.ok
+                      ? (bookable.mode === "request" ? "takes requests" : "books directly")
+                      : bookable?.reasons.join(", ")}</span>
+                  </p>
+                  <div className="pa-facts">
+                    <div className="pa-fact"><span>Services</span><span>{detail.counts.services}</span></div>
+                    <div className="pa-fact"><span>Add-ons</span><span>{detail.counts.addOns}</span></div>
+                    <div className="pa-fact"><span>Promo codes</span><span>{detail.counts.promos}</span></div>
+                    <div className="pa-fact"><span>Gallery photos</span><span>{detail.counts.photos}</span></div>
+                    <div className="pa-fact"><span>People on the account</span><span>{detail.members.length}</span></div>
+                  </div>
+                </div>
+
+                {/* ── WHAT WE STILL OWE THEM · idea 25 ───────────────────────
+                    He is the constraint on every website-plan customer and
+                    there was no list anywhere of what is outstanding. These
+                    are things HE does, which is why they are deliberately not
+                    part of the detailer's own seven-step setup. */}
+                <div className="pa-block" style={{ "--j": 3 }}>
+                  <span className="pa-lab2">
+                    {owed.length ? "What they still need from you" : "Nothing outstanding from you"}
+                  </span>
+                  {owed.length ? (
+                    <div className="pa-owed">
+                      {owed.map((o) => <div key={o.key}>{o.what}</div>)}
+                    </div>
+                  ) : (
+                    <p className="pa-quiet">Site built, domain pointed here, photos in.</p>
+                  )}
+                  {progress && progress.count < progress.total && (
+                    <p className="pa-quiet">
+                      Their own setup is at {progress.count} of {progress.total}.
+                    </p>
+                  )}
+                </div>
+
+                <div className="pa-block" style={{ "--j": 4 }}>
+                  {/* THE OLD SUMMARY LINE IS GONE — it read "Setup 3 of 7 ·
+                      books directly · 7 services · 1 person", and every one of
+                      those four facts is now a row in the two blocks above,
+                      with the setup number said in words next to what is
+                      missing. Two places saying the same thing is how they
+                      start to disagree, and it is the reason the audit insists
+                      this screen prints the DETAILER's own seven-step figure
+                      rather than inventing a second completeness number. */}
                 {/* THEIR SITE — the spec's one column that is specific to
                     this product, because he builds these by hand: *do they
                     have one, what is its address, is a custom domain pointed
@@ -814,10 +1039,15 @@ export default function AdminPage() {
                     </ul>
                   </>
                 )}
-              </>
+                {/* the controls block closes here — it is LAST because he opens
+                    a business to LOOK far more often than to ACT (audit §6) */}
+                </div>
+              </div>
             )}
           </div>
         )}
+        </div>{/* .pa-main */}
+        </div>{/* .pa-split */}
       </div>
     </div>
   );

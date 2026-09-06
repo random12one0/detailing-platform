@@ -109,6 +109,54 @@ first instruction was not possible with the fixture §5 names (F-031).
 **`docs/testing/REPORT.md` §5 is the brainstorm** the owner asked for: fifty
 ideas, each citing the finding or the moment that motivated it, costs named.
 
+## The back office was rebuilt — pass 007, 2026-09-06
+
+The owner, after reading the loop's first report: *"I wasn't very happy with
+my admin dashboard of all the detailers and stuff… I want everything to feel
+very professional and I want the layout to be nice and easy to navigate with
+like animations and what not."* Plus, explicitly: *"you can overrule some
+decisions I made if you think another way is generally better."*
+
+Pass 002 fixed what that screen SAID. Pass 007 is what it IS, and it follows
+`docs/platform-admin-audit-2026-09-06.md` §6 — a shape that had been written
+and never built.
+
+- **Two columns at a desk.** It was ONE 900px column at every width, so on his
+  own 1920px monitor it was a ribbon with two thirds of the screen empty, and
+  that is the same fact that put the open business below the whole list.
+- **Two levels on a phone.** The open business replaces the list instead of
+  sitting under it, so the back control means something.
+- **The payload's Tier 1 is finally drawn.** Six months of finished work as a
+  chart, the trend against last month, takings, average job, cancel rate,
+  requests waiting, the subscription in words, **whether their page can
+  actually be booked**, and what HE still owes them. No new endpoint, no new
+  query, no migration — `app/src/lib/adminInsight.js` is arithmetic over data
+  the screen was already receiving and discarding.
+- **Motion**, in the product's own three kinds and three durations.
+
+**`admin.css` used to argue against all of this in writing** — *"deliberately
+plain… there is no animation here on purpose"* — and the reasoning is worth
+keeping because it is the trap every internal tool falls into: it treats
+motion as INTRODUCTION, so a screen with an audience of one needs none.
+Motion's other job is saying where a thing came from, and that gets harder as
+a screen gets denser. A reversed prose decision leaves nothing behind that can
+fail, so `tests/platform-admin.test.mjs` § 12 (18 checks, 8 baselined) exists
+to stop the next session restoring it because the comment sounded reasonable.
+
+**`scripts/shoot-admin.mjs` is new and it is why this went unlooked-at for so
+long**: nothing in the repo could photograph `/admin` — the dashboard shooter
+signs in as a DETAILER and `--url` shoots a PUBLIC page, so the back office
+fell between the two.
+
+**And one correction the loop owes him: its first report named four ideas as
+unbuilt that are built** — texting from the detailer's own phone, the map
+link, "on my way", and the water/power answer on the job card. The cause is
+worth stating: the detailer audit RECOMMENDS those things, and a
+recommendation was read as a status. `docs/ideas.md` marks them `[!]`.
+
+**The ideas list lives in `docs/ideas.md`** — fifty of them with a tickbox
+each, and it is the single home; `docs/testing/REPORT.md` §5 points at it.
+
 ## The process failure this checkpoint exists to correct
 
 **2026-09-06: the session drifted from the roadmap into reacting to whatever

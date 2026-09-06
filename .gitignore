@@ -149,3 +149,5 @@ screenshots/
 # leaves them here. Regenerated on every seed and specific to whichever
 # database was seeded, which is exactly why it is not committed.
 scripts/demo-refs.json
+shots-admin/
+shots-admin-lite/
