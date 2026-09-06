@@ -1926,6 +1926,52 @@ project is the thing you would actually be doing in an emergency, so practising
 it on the same kind of thing is worth more than a tidier file somewhere else.
 Say **"second Supabase"** or **"private repo"** and I will build it.
 
+### 6. ~~When should a customer pay you?~~ ANSWERED 2026-09-06 (roadmap 2.20 stage 3)
+
+**I asked the wrong question and he said so.** He read it as *do I take a
+deposit for building somebody a website* — his own selling — when it was
+about what a DETAILER'S customer does on a booking page. His answer, once
+the subject was straightened out:
+
+> *"It should just be a switch. It should be like, hey, they have to pay
+> upfront, a deposit, or pay later. There should be an option for the
+> detailers... that should all be customizable by the detailer."*
+
+**THE DECISION: three modes, chosen per detailer, and the default is PAY
+AFTER.** Not a rule the platform imposes.
+
+| Mode | What the customer meets |
+|---|---|
+| **After the job** (default) | The booking page takes no money. What every detailer does today, including him. |
+| **Deposit** | A set amount or a percentage at booking, credited against the total. |
+| **In full** | The whole price at booking. |
+
+**And it applies to more than the base job** — *"there should be options to
+pay for other stuff upfront too"* — so the setting has to reach add-ons and
+plans, not just the service price.
+
+**HIS OWN DEFAULT IS PAY-AFTER, and he said why**: *"my knowledge was that
+people pay after the service is done"*, and a detailer can always ask for
+money on the driveway themselves. **The research disagrees with him about
+the trade's norm** — mobile detailers overwhelmingly take a deposit, usually
+15% or a flat $25-$100, non-refundable inside 24 hours and credited to the
+total, and the reason is no-shows rather than non-payment. **That
+disagreement is not a problem, because he made it a switch**: the default
+matches how he works, and a detailer who has been burned by no-shows turns
+the deposit on without asking anybody.
+
+**BUY-NOW-PAY-LATER IS DROPPED, and he is right.** I raised Affirm/Klarna/
+Afterpay because he described exactly how it works — the merchant is paid in
+full up front and the provider carries the credit risk. His answer was that
+it *"probably wouldn't really apply here"*, and it does not: it solves
+"the customer cannot afford it today", which is a problem for a $3,000 sofa
+and not for a $250 detail. **It stays written down here and is not built.**
+
+**Still needed from him either way:** Stripe Connect switched on. Ten
+minutes, and it gets a click-by-click like the Google one.
+
+**The original question, which was aimed at the wrong person:**
+
 ### 6. When should a customer pay you? (roadmap 2.20 stage 3)
 
 **What this is.** The last big piece of taking money: letting your customers
