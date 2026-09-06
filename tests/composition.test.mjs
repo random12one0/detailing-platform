@@ -597,7 +597,15 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
       '          <div className="card" key={m.user_id}>\n            <div className="swap" key={open ? "edit" : "view"}>'],
   ];
   for (const [f, what, needle] of WRAPPED) {
-    const src = await readFile(f, "utf8");
+    // **THE SEPARATOR IS NORMALISED, and this is a fix rather than a
+    // convenience.** These are the only multi-line needles in this file, and
+    // a multi-line needle written with \n is a check that passes or fails on
+    // `core.autocrlf` — not on the rule. Measured 2026-09-06: one `git stash`
+    // round-trip on a Windows checkout turned Clients.jsx CRLF and this line
+    // went red while the nesting it guards was untouched. A check that can be
+    // reddened by a git operation is a check nobody will trust the next time
+    // it is red.
+    const src = (await readFile(f, "utf8")).replace(/\r\n/g, "\n");
     check(`8e-iv · ${f.split("/").pop()}: ${what} is nested, not a .col-1 child`,
       src.includes(needle));
   }

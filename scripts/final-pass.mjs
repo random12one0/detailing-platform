@@ -217,12 +217,67 @@ async function walk(who, creds, width) {
   for (const tab of tabs) {
     await page.getByRole("button", { name: tab, exact: true }).first().click();
     await page.waitForTimeout(1400);
+    // ROADMAP 2.24 ARRIVED AFTER THIS SCRIPT AND BROKE IT, and the lesson is
+    // the one `docs/tour-steps-2.24.md` had already written down ten times:
+    // **the guides are added to every script that walks the product in the
+    // change that builds them.** `sweep-widths.mjs` was fixed the day they
+    // shipped and this one was not re-run — so the first tab press after the
+    // shell tour hit `.tourblock intercepts pointer events` and the whole
+    // pass died at Clients. Found 2026-09-06 while measuring something else.
+    //
+    // **THE SWEEP SEEDS THEM AS SEEN AND THIS SCRIPT MUST NOT.** The sweep
+    // is measuring fifty layouts for an account that has used the product
+    // before; this one is the brand-new detailer, and a guide that arrives
+    // unasked on four of five tabs is exactly what this pass exists to see.
+    // So it is photographed and noted, then skipped — the path a detailer in
+    // a hurry takes — and the screen is measured AFTER it is gone, or every
+    // number below would be a number about an overlay.
+    const guide = page.locator(".tourblock");
+    if (await guide.count()) {
+      await page.screenshot({ path: `${OUT}/${who}-${width}-${tab.toLowerCase().replace(/\W+/g, "")}-guide.png` });
+      const cap = (await guide.first().innerText()).split(/\n/).slice(0, 2).join(" · ");
+      notes.push(`${who} @${width}: ${tab} opens a guide — "${cap}"`);
+      const skip = page.getByRole("button", { name: "Skip the tour" });
+      if (await skip.count()) await skip.click();
+      else await page.keyboard.press("Escape");
+      await page.waitForTimeout(700);
+    }
     const shot = `${OUT}/${who}-${width}-${tab.toLowerCase().replace(/\W+/g, "")}.png`;
     await page.screenshot({ path: shot });
     // AN EMPTY SCREEN WITH NOTHING TO SAY IS THE DEFECT THIS PASS IS LOOKING
     // FOR, so the amount of text on it is recorded rather than eyeballed.
     const text = (await page.evaluate(() => document.querySelector(".app-main")?.innerText ?? "")).trim();
     notes.push(`${who} @${width}: ${tab} — ${text.length} chars, first line "${text.split("\n")[0] ?? ""}"`);
+    // FINDING 3 GETS A NUMBER RATHER THAN AN EYE. A char count says there
+    // are words on the screen; it cannot say they sit in a 260px stripe at
+    // the top of a 900px viewport, which is what a brand-new Clients did at
+    // 1440 and what `docs/final-pass.md` finding 3 is. The measurement is
+    // the deepest bottom edge of anything drawn inside the main area.
+    //
+    // **ONLY AT A DESK.** The phone was measured as reading fine and the
+    // reason is not incidental — the sentence belongs at the top where the
+    // thumb is, so the same number at 392 would be a finding about the
+    // correct behaviour.
+    if (width >= 1024) {
+      const fill = await page.evaluate(() => {
+        const m = document.querySelector(".app-main");
+        if (!m) return null;
+        let bottom = 0;
+        for (const el of m.querySelectorAll("*")) {
+          const r = el.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) bottom = Math.max(bottom, r.bottom);
+        }
+        return { bottom: Math.round(bottom), vh: window.innerHeight };
+      });
+      if (fill) {
+        const pct = Math.round((fill.bottom / fill.vh) * 100);
+        // 45% is where a screen stops reading as a screen and starts reading
+        // as one that has not finished loading. It is a threshold and not a
+        // law: what it does is put the word THIN in the notes so a human
+        // ranks it, which is what this whole script is for.
+        notes.push(`${who} @${width}: ${tab} — ${pct < 45 ? "THIN, " : ""}content ends ${fill.bottom}px down ${fill.vh}px (${pct}%)`);
+      }
+    }
   }
 
   // The gear, which both roles have.

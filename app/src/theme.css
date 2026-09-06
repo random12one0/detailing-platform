@@ -526,6 +526,30 @@ a { color: var(--accent-text); text-decoration: none; }
   align-self: flex-start; margin-top: 3px;
 }
 
+/* AN EMPTY WHOLE SCREEN, AT A DESK. `docs/final-pass.md` finding 3: a
+   brand-new Clients at 1440x900 ended 260px down a 900px viewport, with a
+   1,144px column and nothing in it. The words were checked one at a time and
+   are right; the PROPORTION was the finding.
+
+   ONLY THE VERTICAL IS TOUCHED, and that is the whole restraint here. The
+   block stays left-aligned on the same column every other screen uses —
+   centring the text would be a different-looking product, not a fuller
+   screen. And nothing changes below 1024px: the phone was measured as
+   reading fine, because the sentence is at the top where the thumb is
+   (dashboard-phone-pass §8's rule about the half that is usually empty).
+
+   58vh rather than a fixed height: the masthead and the rail are different
+   heights at different widths, and a fixed number would be right at exactly
+   one of them. */
+/* IT ADDS NOTHING BELOW 1024px AND IT NEVER SETS `display`. It is worn
+   beside `.tight`, which is already the column-with-a-gap every one of
+   these blocks uses — a second `display` here would silently take the gap
+   away from whichever rule lost. */
+.emptyscreen { }
+@media (min-width: 1024px) {
+  .emptyscreen { min-height: 58vh; justify-content: center; }
+}
+
 /* A boundary INSIDE a group — the device that replaces a second box. */
 .rule { height: 1px; background: var(--hairline); border: 0; margin: var(--sp-3) 0; }
 .rule.tight { margin: var(--sp-2) 0; }

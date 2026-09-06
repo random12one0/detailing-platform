@@ -42,9 +42,10 @@
 //                thing in the row. A history row is date · what · total.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Mail, Phone } from "lucide-react";
+import { ChevronRight, ListChecks, Mail, Phone } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
+import BookingLink from "../components/BookingLink.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
 import { dateLong, money, todayLocal } from "../lib/format.js";
 // THE ARITHMETIC IS IN ITS OWN FILE so `tests/client-list.test.mjs` can import
@@ -77,12 +78,26 @@ const shortDate = (d) => new Date(`${d}T12:00:00`)
 // `intent` is App's one-word answer to "what was this screen opened for" —
 // "lapsed" when Today's re-book prompt sent them here (roadmap 2.19). It is
 // read once, on arrival: turning the chip off has to stick.
-export default function Clients({ intent = null }) {
+export default function Clients({ intent = null, onSetup = null, refreshKey = 0 }) {
   // `reloadBusiness` is here for one line: a send stamps
   // `businesses.last_campaign_at`, and that is what Today's nudge reads to
   // know it can stop asking. Without it the prompt is still there when the
   // detailer taps back, having just done the thing it asked for.
-  const { business, can, reload: reloadBusiness } = useBusiness();
+  const { business, can, reload: reloadBusiness, siteOrigin } = useBusiness();
+  // IS THERE ANYTHING TO SELL — a deliberate second copy of Today's read
+  // (`Today.jsx`, `sellable`) and not a shared hook, because the whole of
+  // it is one head-count against one table with one filter, and the two
+  // can only ever drift to the same answer. A hook would be a file, an
+  // import on two screens and a refactor of a verified one, to save five
+  // lines.
+  const [sellable, setSellable] = useState(null);
+  useEffect(() => {
+    let live = true;
+    supabase.from("services").select("id", { count: "exact", head: true })
+      .eq("business_id", business.id).eq("is_active", true)
+      .then(({ count }) => { if (live) setSellable(count ?? 0); });
+    return () => { live = false; };
+  }, [business.id, refreshKey]);
   // Lifetime spend is money, not rank — roadmap 2.13.
   const owner = can("money");
   const today = todayLocal(business.timezone);
@@ -300,8 +315,46 @@ export default function Clients({ intent = null }) {
           Keyed on the sort AND the lapsed filter — both re-order or re-cut the
           same list, which is one kind of change wearing two controls.
           See theme.css § A CONTENT SWAP. */}
+      {/* AN EMPTY SCREEN IS ONE SENTENCE AND ONE WAY FORWARD (screen
+          designs §1a) — and until 2026-09-06 this one was a sentence on its
+          own. `docs/final-pass.md` finding 3 is what it looked like from a
+          chair: everything on a 1440x900 Clients ended 260px down, which
+          reads as an app that has not loaded rather than a list with nobody
+          on it yet.
+
+          THE WAY FORWARD IS THE SAME QUESTION TODAY ASKS, and the same two
+          answers, because the honest answer to *where are my customers* is
+          the thing that produces one. A link that cannot take a booking is
+          finding 4 again, so the service count decides which half is drawn
+          — and while the count is still `null` NEITHER is, rather than
+          flashing the wrong one on every arrival.
+
+          The words are this screen's own and are not Today's: §1a's *never
+          the same fact twice* is about one screen, but a detailer who meets
+          both in the same ten minutes should not read one sentence on two
+          tabs. */}
       {customers.length === 0 && !busy && !error && (
-        <p className="body">No customers yet — they appear on their own when bookings come in.</p>
+        <div className="tight emptyscreen">
+          <p className="body">No customers yet — they appear on their own when bookings come in.</p>
+          {sellable === 0 && (
+            <div className="card setting-card">
+              <button className="nav-row" onClick={() => onSetup?.()}>
+                <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
+                <span className="txt">
+                  <span className="name">Finish setting up</span>
+                  <span className="now">Your services come first</span>
+                </span>
+                <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
+              </button>
+            </div>
+          )}
+          {sellable > 0 && (
+            <>
+              <p className="body">Send this to the next person who asks.</p>
+              <BookingLink slug={business.slug} origin={siteOrigin} />
+            </>
+          )}
+        </div>
       )}
       {customers.length > 0 && rows.length === 0 && (
         <p className="body">Everyone has been in within three months.</p>

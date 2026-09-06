@@ -411,7 +411,11 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           button for typing one in by hand. One sentence and one way forward,
           and it never restates the masthead's own "nothing booked". */}
       {empty && tomorrows.length === 0 && requests.length === 0 && (
-        <div className="tight">
+        /* `emptyscreen` — `docs/final-pass.md` finding 3, measured
+           2026-09-06: a brand-new Today ended 256px down a 900px viewport,
+           which reads as a screen still loading rather than a day with
+           nothing on it. Only the vertical changes and only at a desk. */
+        <div className="tight emptyscreen">
           {sellable === 0 ? (
             // THE LINK IS NOT SHOWN AT ALL HERE, rather than shown with a
             // warning beside it. A caveat under a Copy button is a caveat

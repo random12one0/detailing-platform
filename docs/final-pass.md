@@ -49,7 +49,7 @@ Supabase does the sending; what is missing is a link on the sign-in screen, a
 
 ## Embarrassing
 
-*(Two of these three were fixed the same day. They are kept, struck, for the
+*(All three were fixed the same day. They are kept, struck, for the
 same reason as the one above.)*
 
 ### 2. ~~One tap during first run ends both the setup form and the tour, for good~~ FIXED
@@ -89,7 +89,55 @@ in the first ten seconds.
 leave `seen` alone. The Business row already nags; the tour then still arrives
 next time.
 
-### 3. An empty dashboard leaves most of a laptop screen blank
+### 3. ~~An empty dashboard leaves most of a laptop screen blank~~ FIXED
+
+**Fixed 2026-09-06, and the first thing the fix did was prove the finding was
+written from a screenshot rather than a number.** `final-pass.mjs` now
+measures how far down the viewport anything is drawn, at desk widths only,
+and prints THIN below 45%. Measured on a brand-new business at 1440x900:
+
+| | before | after |
+|---|---|---|
+| **Today** | THIN, 256px of 900 (28%) | 685px (76%) |
+| **Clients** | THIN, 300px of 900 (33%) | 800px (89%) |
+| **Money** | THIN, 357px of 900 (40%) | **unchanged, deliberately** |
+| Calendar | 794px (88%) | 794px (88%) |
+| Business | 1258px (140%) | 1258px (140%) |
+
+**THE FINDING NAMED THE WRONG SCREENS.** It said Clients, and *"Money and
+Calendar are the same shape"*. Calendar is **not** — it fills 88% of the
+viewport, because a month grid is drawn whether or not anything is on it.
+**Today was thin and the finding did not mention it at all**, at 28%, the
+worst of the five. Three sentences of looking, three screens named, two of
+them wrong in one direction or the other.
+
+**MONEY IS LEFT ALONE AND THAT IS §1a, NOT AN OVERSIGHT.** An *empty whole
+screen* is "one sentence and one way forward"; Money is not one. It draws its
+period control, its figures and its export with zeros in them, which is the
+**One** rule — *"the screen looks like the screen, with one row on it. Never
+a special layout for one."* Centring a screen that has a CONTROL at the top
+would move that control into the middle of the page on the day a detailer has
+no money yet and put it back the day they do. A screen that rearranges itself
+as data arrives is a worse fault than a short one.
+
+**What the fix is:** one class, `.emptyscreen`, worn beside the `.tight` those
+blocks already use. It sets nothing below 1024px and it never sets `display`;
+at a desk it gives the block `min-height: 58vh` and centres it in that. **Only
+the vertical.** The block stays left-aligned on the same column as every other
+screen — centring the text would be a different-looking product rather than a
+fuller screen — and the phone is untouched, because it was measured as reading
+fine and the reason is not incidental: the sentence belongs at the top where
+the thumb is.
+
+**And Clients gained the half of §1a it never had.** *"No customers yet — they
+appear on their own when bookings come in."* is one sentence and NO way
+forward, on a screen whose whole question is *where are my customers*. It now
+asks the same question Today asks — is there anything to sell — and gives the
+same two answers: **Finish setting up** when there are no services, the
+booking link when there are. While the count is still unknown it draws
+neither, rather than flashing the wrong one on every arrival.
+
+The finding as written:
 
 Clients at 1440x900: everything on the page ends **260px down a 900px
 viewport**, and the content column is 1,144px wide with nothing in it. Money
@@ -101,6 +149,33 @@ The words themselves are good and were checked one at a time: *"No customers
 yet — they appear on their own when bookings come in."*, *"$0.00 · No
 comparison yet · Nothing recorded in September 2026."* **The problem is the
 proportion, not the copy.**
+
+---
+
+### 3b. THE PASS ITSELF WAS BROKEN AND HAD BEEN SINCE THE DAY THE TAB GUIDES SHIPPED
+
+**Found 2026-09-06 while trying to measure finding 3, which is the only reason
+it was found at all.** Roadmap 2.24 put a guided overlay on four of the five
+tabs, arriving the first time a browser opens each one. `final-pass.mjs` walks
+a business that is minutes old, so it meets every one of them — and
+`.tourblock` deliberately swallows pointer events. The first tab press after
+the shell tour died with *"`<div class="tourblock">` intercepts pointer
+events"*, and the whole pass ended at Clients.
+
+**`sweep-widths.mjs` was fixed the day the guides shipped and this script was
+not re-run.** `docs/tour-steps-2.24.md` had already written the rule down —
+*"each new guide is added to `sweep-widths.mjs` in the change that builds
+it"* — and named only that one script, so that is the one that got fixed. The
+rule is about every script that walks the product.
+
+**The two scripts need OPPOSITE fixes, which is why one cannot be copied to
+the other.** The sweep seeds the guides as already seen, because it is
+measuring fifty layouts for an account that has used the product before. This
+script must not: **a guide arriving unasked on four of five tabs is exactly
+what a final pass exists to see.** Each one is now photographed, its caption
+noted, and then skipped — the path a detailer in a hurry takes — and the
+screen is measured only after it is gone, or every number above would have
+been a number about an overlay.
 
 ### 4. ~~Today offers the booking link before there is anything to book~~ FIXED
 

@@ -6647,6 +6647,47 @@ is kept; the entire visual design restarts from scratch.
       **And a doc figure drifted, found by measuring:** CLAUDE.md says the tour
       is *"4 for staff"*; it is **3** for a member with one permission tick,
       and **6 for an empty owner**, which is right.
+
+      **ALL FOUR FINDINGS ARE NOW CLOSED — the last one 2026-09-06.** Finding
+      3, the blank laptop screen, was the one left open because it had no
+      *what I would do* line: I did not know the fix when I wrote it.
+      `.emptyscreen` is the fix — worn beside the `.tight` those blocks
+      already use, setting nothing below 1024px and never setting `display`,
+      giving the block `min-height: 58vh` and centring it there at a desk.
+      **Only the vertical**; the phone is untouched because it was measured as
+      reading fine. Measured before and after on a business minutes old:
+      **Today 28% → 76%, Clients 33% → 89%.**
+
+      **THE FINDING NAMED THE WRONG SCREENS AND MEASURING IS WHAT SHOWED IT.**
+      It said Calendar was the same shape; Calendar fills **88%**, because a
+      month grid is drawn whether or not anything is on it. **Today was the
+      worst of the five at 28% and the finding did not mention it.** The
+      measurement now lives in the script — deepest drawn edge against the
+      viewport, desk widths only, the word THIN below 45% — so the next one is
+      a number rather than a screenshot. **Money is left THIN deliberately
+      (§1a):** it is not an empty screen but the *One* case, and centring a
+      screen with a control at the top would move that control to the middle
+      on the day there is no money and back the day there is.
+      **Clients also gained the half of §1a it never had** — one sentence and
+      NO way forward, on the screen whose whole question is where the
+      customers are. It now asks Today's question and gives Today's two
+      answers.
+
+      **AND THE SCRIPT ITSELF HAD BEEN BROKEN SINCE THE TAB GUIDES SHIPPED,
+      found only because something else was being measured.** `.tourblock`
+      swallows pointer events and this script builds a business minutes old,
+      so the first tab press after the shell tour died on *"intercepts pointer
+      events"* and three of five screens were never reached. **2.24's own note
+      said to add the guides to every script that walks the product and then
+      named only `sweep-widths.mjs`** — so only that one was fixed. The two
+      need opposite treatment and that is why it could not be copied: the
+      sweep seeds them SEEN, this one must MEET them. Each guide is now
+      photographed, its caption noted, then skipped.
+
+      **A second broken check came out of the same hour:** `composition` 8e-iv
+      is a byte-exact multi-line needle, and one `git stash` round-trip on
+      Windows turned it red on untouched code. It normalises the separator
+      now, re-baselined by deleting the nesting it guards.
 - [ ] 7.4 **OWNER: founding-offer pricing sanity check** ($499 setup /
       $40 mo, counted spots) before the first sales call.
 

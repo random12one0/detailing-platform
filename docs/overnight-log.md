@@ -1586,6 +1586,77 @@ say which one.
 
 ---
 
+## The blank laptop screen — and a broken check found underneath it
+
+**The last open finding from the walk-through as a brand-new detailer.** It
+was ranked *embarrassing*: on a laptop, a dashboard with nothing in it yet
+used about a quarter of the screen and left the rest white. On a phone it
+always read fine.
+
+**What I changed.** Two screens now stand in the middle of the space they
+have instead of hugging the top, at desk sizes only — the phone is untouched
+on purpose, because there the sentence belongs at the top where your thumb
+is. And **Clients gained the thing it was missing**: it used to say *"No
+customers yet — they appear on their own when bookings come in"* and then
+offer nothing to do about it, on the one screen whose entire question is
+*where are my customers*. It now offers the same next step Today does —
+**Finish setting up** if there are no services yet, your booking link if
+there are.
+
+**What it actually printed**, on a business a few minutes old at 1440x900:
+
+```
+before   Today 256px of 900 (28%)   Clients 300px (33%)   Money 357px (40%)
+after    Today 685px      (76%)     Clients 800px (89%)   Money unchanged
+```
+
+**I left Money alone deliberately**, and it is the judgement call in this
+item. Money is not an empty screen — it draws its period control, its figures
+and its export button with zeros in them. Centring it would move a CONTROL to
+the middle of the page on the day you have no money recorded and shove it
+back to the top the day you do. **A screen that rearranges itself as data
+arrives is a worse fault than a short one**, and the design rules already say
+so in as many words.
+
+**The finding I wrote was wrong about which screens.** It named Clients and
+said Money and Calendar looked the same. Calendar is fine — 88% — because a
+month grid gets drawn whether or not anything is on it. **And Today, which I
+did not mention at all, was the worst of the five at 28%.** That is what
+comes of writing a finding from a screenshot; the measurement is now in the
+script, so next time it is a number.
+
+### AND THE THING THAT MATTERS MORE THAN ANY OF THAT
+
+**The walk-through script had been broken since the night I built the tab
+guides, and I only found it because I went looking for something else.**
+
+The guides pop up the first time a browser opens each tab. That script builds
+a brand-new business every run, so it meets all of them — and the guide
+deliberately blocks clicks while it is up. The script died on its first tab
+press and never reached three of the five screens.
+
+I fixed the width sweep the day the guides shipped and did not re-run this
+one. **My own note that night said to add the guides to every script that
+walks the product, and then named only the sweep — so that is the only one I
+fixed.** The two even need opposite treatment: the sweep pretends the guides
+have already been seen, because it is measuring an experienced account; this
+one must meet them, because meeting them IS what it is for. It now
+photographs each guide, writes down what it said, and steps past it.
+
+**A second broken check, found the same way.** One of the source checks
+compares a chunk of code letter for letter, and a routine Git operation on
+Windows silently rewrites every line ending in a file. It went red on code
+nobody had touched. **A check that a Git command can turn red is a check
+nobody believes the next time it is red**, so it now ignores line endings —
+and I proved it still fails for the real reason by breaking the code it
+guards and watching it go red.
+
+**Verified:** every suite green — 21 without credentials, 8 against the
+database — the width sweep clean at 1920, 1440, 392, 360 and 320, and no
+browser console errors on any screen of the walk-through.
+
+---
+
 ## What I did not do, and why
 
 Three things on the roadmap I deliberately left, so you know they were seen

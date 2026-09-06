@@ -764,6 +764,14 @@ explaining it; if they still have to ask "so should I?", it failed.
   the files with real changes, and `git checkout --` the ones where only the
   line endings moved** (`git diff --numstat` lists only the former, so
   `comm -23` against `git status` names the latter).
+  **AND THE SECOND HALF OF THAT FIX IS IN THE CHECK, added 2026-09-06 after it
+  happened a second time.** A multi-line byte-exact needle written with `\n`
+  is a check whose colour depends on `core.autocrlf`, not on the rule it
+  guards — 8e-iv went red again, on untouched code, after a stash taken to
+  baseline something else. **A check a git command can redden is a check
+  nobody believes the next time it is red.** `composition` 8e-iv now reads
+  `.replace(/\r\n/g, "\n")` before matching, and was re-baselined by deleting
+  the nesting it guards. Every multi-line needle anywhere should do the same.
 - **AND `perl -pi -e` IS THE SAME TRAP — added 2026-09-05, roadmap 3.3.** It
   rewrites the whole file as CRLF on Windows exactly as plain `open(p, "w")`
   does, **and it does so even when the substitution matches nothing**, which is
@@ -1803,7 +1811,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   `mobile_enabled` and `dropoff_enabled` both default to true — which is why
   the seeded demo reads *6 of 7 done* and its row stays until somebody answers
   that question.
-  **AND THE TOUR IS SIX TOURS SINCE 2026-09-06 (roadmap 2.24).** `TOURS` in `Walkthrough.jsx`: a shortened SHELL tour (four steps, still ending on the link) plus one per tab for Today, Money, Clients and Business — **and none for Calendar**, because every candidate step there was a control reading its own label back. A tab's guide arrives the first time THIS BROWSER opens that tab (`dp.tours`, one key holding a list of names, and the old `dp.tour` still counts as having seen the shell), never while the first run is up, on a 900ms timer so it plans against a drawn screen, and **a guide whose plan comes out shorter than two steps does not run and does not mark itself seen** — so it arrives the first day there is something to point at. **`sweep-widths.mjs` seeds all five as SEEN at sign-in** and clears them for the block that walks them: every width is a fresh browser, so otherwise the guides fire in the middle of the other fifty measurements and swallow the clicks. **STAFF GET THE TOUR AND NOT THE FORM.** They are not setting up a business.
+  **AND THE TOUR IS SIX TOURS SINCE 2026-09-06 (roadmap 2.24).** `TOURS` in `Walkthrough.jsx`: a shortened SHELL tour (four steps, still ending on the link) plus one per tab for Today, Money, Clients and Business — **and none for Calendar**, because every candidate step there was a control reading its own label back. A tab's guide arrives the first time THIS BROWSER opens that tab (`dp.tours`, one key holding a list of names, and the old `dp.tour` still counts as having seen the shell), never while the first run is up, on a 900ms timer so it plans against a drawn screen, and **a guide whose plan comes out shorter than two steps does not run and does not mark itself seen** — so it arrives the first day there is something to point at. **`sweep-widths.mjs` seeds all five as SEEN at sign-in** and clears them for the block that walks them: every width is a fresh browser, so otherwise the guides fire in the middle of the other fifty measurements and swallow the clicks. **STAFF GET THE TOUR AND NOT THE FORM.** They are not setting up a business. **AND `final-pass.mjs` NEEDS THE OPPOSITE TREATMENT FROM THE SWEEP — it was BROKEN from the day the guides shipped until 2026-09-06 and nobody re-ran it.** It builds a business minutes old, so it meets every guide, and `.tourblock` swallows pointer events: the first tab press after the shell tour died on *"intercepts pointer events"* and the pass never reached three of the five screens. **The note written the night the guides shipped said to add them to every script that walks the product and then named only `sweep-widths.mjs`, so only that one was fixed** — the rule is the general one. The sweep SEEDS them as seen (it measures an experienced account); this script must MEET them (a guide arriving unasked on four of five tabs is what a final pass exists to see), so it photographs each one, notes its caption, skips it, and measures the screen only afterwards.
   The tour re-runs from *Show me around* behind the gear, and it counts what
   THIS dashboard has: 7 for an owner with jobs, 6 on an empty one, and 3 for a staff member with one permission tick — **this said 4 until
   roadmap 7.3 MEASURED it on 2026-09-06**; the tour counts what that dashboard
