@@ -91,7 +91,20 @@ export default function LandingPage() {
         <a className="lk hide-s" href="#get">What you get</a>
         <a className="lk hide-s" href="#price">Pricing</a>
         <a className="lk" href="/app">Sign in</a>
-        <a className="cta sm" href="/pricing">Get started<span className="ar">→</span></a>
+        {/* ROADMAP 2.25 — "Get started" until 2026-09-06, and the owner is
+            right that the pair did not read as a pair: at 392 the nav is the
+            wordmark, this and *Sign in*, and one of the two did not name an
+            account action at all.
+
+            THE DESTINATION IS UNCHANGED AND THE LABEL IS NOT A LIE. It still
+            goes to `/pricing`, whose rungs go on to account creation —
+            choosing what you are signing up for IS the first step of signing
+            up. Re-pointing it straight at the form would be a funnel
+            decision, and it is his to make, not a rename's to smuggle.
+
+            NO THIRD BUTTON, which the roadmap entry asks for in as many
+            words: he already has both, and what was missing was the word. */}
+        <a className="cta sm" href="/pricing">Sign up<span className="ar">→</span></a>
       </nav>
 
       <main id="top">

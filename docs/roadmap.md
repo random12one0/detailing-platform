@@ -5526,7 +5526,35 @@ is kept; the entire visual design restarts from scratch.
       otherwise") is measured rather than guessed. No direction-generating
       skill.
 
-- [ ] 2.25 **THE SIGN-UP / SIGN-IN SCREEN, AND GOOGLE — the OWNER asked on
+- [ ] 2.25 **TWO OF THE THREE ARE DONE — 2026-09-06. WHAT IS LEFT IS THE
+      SCREEN ITSELF.**
+
+      - **The landing pair now reads as a pair.** *Get started* is **Sign up**,
+        same destination, no third button — which this entry asks for in as
+        many words. At 392 the nav is the wordmark, *Sign in* and *Sign up*,
+        and one of the two used not to name an account action at all.
+        **The destination is deliberately unchanged**: it still goes to
+        `/pricing`, whose rungs go on to account creation, and choosing what
+        you are signing up for IS the first step of signing up. Re-pointing it
+        at the form is a funnel decision and it is his, not a rename's to
+        smuggle.
+      - **Google is written down for him: `docs/google-sign-in-setup.md`**, the
+        click-by-click this entry asked for rather than an attempt to do it for
+        him. Re-measured 2026-09-06: `/auth/v1/settings` still answers
+        `google: false`, so the button is still correctly hidden. **The runbook
+        ends on the one thing to CHECK rather than assume** — a Google sign-up
+        lands a session with no business, and nothing has ever walked that
+        path.
+      - **THE SCREEN IS STILL OWED**, and it is the real work: `Auth.jsx` is
+        the dashboard's chrome on a marketing journey, and it is the last
+        impression before somebody hands over money. Everything this entry says
+        about it still stands, including the two traps — `theme.css` is global
+        and reaches into `.ld`, and `sweep-widths.mjs` signs in through this
+        screen by selector on every run.
+
+      **THE ORIGINAL ENTRY:**
+
+      - [ ] 2.25 **THE SIGN-UP / SIGN-IN SCREEN, AND GOOGLE — the OWNER asked on
       2026-09-05.**
 
       > *"can we put on the list to improve the sign up / log in page cuz it

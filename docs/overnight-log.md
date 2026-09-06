@@ -1469,6 +1469,47 @@ and what each guide does on a brand-new dashboard with nothing on it.
 
 ---
 
+## The sign-up screen and Google — two of the three, and the third is honest work
+
+You asked for three things: a log-in and sign-up button on the landing page,
+Google sign-in, and the sign-up page itself to stop looking *"pretty buns"*.
+
+**1. The pair now reads as a pair.** *Get started* is now **Sign up**. On a
+phone the top bar is your name, **Sign in**, **Sign up** — which is what you
+were describing. I did NOT add a third button and I did NOT change where it
+goes: it still opens the pricing page, whose buttons carry on into creating an
+account. Choosing what you are signing up for is the first step of signing up,
+and moving that button straight to the form is a decision about your funnel
+rather than a rename — yours to make, and one line if you want it.
+
+**2. Google is written down for you, not attempted for me.** The code has been
+finished for a while: the button is in the sign-in screen, in Google's own
+colours, and it **appears by itself the moment you switch Google on** — no
+rebuild and no deploy from me. What is missing is a Google account credential
+that only you can create. `docs/google-sign-in-setup.md` is the click-by-click:
+about ten minutes, two browser tabs, and it ends with the one thing to check
+rather than assume — signing up with a brand-new Google account should land you
+in "create your business", and that particular path has never been walked by
+anybody.
+
+**If you would rather not bother, nothing breaks.** Email and password works,
+and now so does forgetting one.
+
+**3. The screen itself I have NOT rebuilt**, and I want to be straight about
+why. You are right about it: the sign-in page is built out of the dashboard's
+parts while everything a visitor sees on the way there is the marketing world —
+different typeface treatment, different background, different feel. It is the
+one screen where the two meet and it currently just stops. **But it is also the
+last thing somebody sees before handing over money, and it is a taste decision
+in a place where you have already told me twice that my taste guesses come out
+looking AI.** Doing it at four in the morning without your eye on it is how
+that happens a third time.
+
+It is the top of the list for a session where you can look at two versions and
+say which one.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*
