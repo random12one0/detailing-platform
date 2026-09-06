@@ -868,6 +868,27 @@ explaining it; if they still have to ask "so should I?", it failed.
   asks about the RIGHT-HAND edge, so it cannot see a bottom-edge failure at any
   size. `sweep-booking-steps.mjs` is the one that asks the bottom question, and
   only of the booking page.
+  **AND IT IS BLIND TO TEXT PRINTED ON TOP OF A CONTROL — measured 2026-09-05,
+  after it called the same defect `clean` THREE TIMES IN ONE NIGHT**: a
+  hostname painted over its own *Check it* button, a question painted over
+  three icon buttons, and a sentence pulled by a negative margin straight
+  through a *Send me a sample* button. All three were found by LOOKING at a
+  screenshot.
+  **The reason is the shape of the gap rather than an oversight: every check
+  here asks about an EDGE** — the viewport's, a parent's, a scroller's, the
+  space between two boxes — **and overlapping text is inside every edge it is
+  supposed to be inside.** `.row-item .txt` even carries `min-width: 0`, so the
+  flex item genuinely shrinks; the TEXT paints outside the box it was given
+  because nothing clips it.
+  **AN INTERSECTION CHECK WAS BUILT AND THEN DELETED, AND THAT IS THE USEFUL
+  HALF.** Narrowed hard — controls only, no ancestor/descendant pairs, both
+  `position: static`, 4px of slack — it still reported **449 problems at 392px
+  alone**, almost all of them boxes that overlap while the words inside them do
+  not. That is the pricing-page lesson at ten times the volume: *a check that
+  cries wolf on every run is a check somebody starts passing over, and then it
+  stops being read at all.* **Do not re-add it without a way to compare
+  rendered GLYPHS rather than boxes.** Until then, overlap is a LOOKING check
+  — which is one more reason the screenshot pass is not optional.
   **AND THE SUBSCRIPTION SCREEN IS TWO DIFFERENT SCREENS, ONLY ONE OF WHICH
   EXISTS PER SEED — roadmap 2.20 stage 2.** With no subscription it is the
   three rungs, the price breakdown and the consent tick (a four-clause

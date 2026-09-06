@@ -526,6 +526,24 @@ thing worth fixing: it says which now. Re-run on its own,
 `--slug=demo-riverside` passes **39 of 39**, including both emails. Nothing was
 wrong with the product.
 
+**AND THE SAME KIND OF DEFECT CAUGHT ME A THIRD TIME TONIGHT, which is worth
+more than the three fixes.** The new *Send me a sample* button had its
+explanatory sentence printed straight through it — I had copied a small
+negative margin that works under a text field, and a button row does not have
+the margin it was cancelling. Every automated check said `clean`.
+
+**So I built the check that would have caught all three, measured it, and
+threw it away.** The width sweep's four checks all ask about an EDGE — is
+something off the screen, outside its parent, scrolling sideways, touching the
+box below — and **text printed on top of something is inside every edge it is
+supposed to be inside.** I wrote an overlap check, narrowed it hard, and it
+reported **449 problems at one width**, almost all of them boxes that overlap
+while the words inside them do not. A check that cries wolf on every run is a
+check people start skipping, so it is gone and the finding is written into
+CLAUDE.md instead: **overlap is something only looking can catch**, which is
+one more reason I screenshot every screen I touch rather than trusting a green
+run.
+
 **WHY 4.2's BOX IS STILL UNTICKED — the two that are yours to answer**, both
 written up as items **O** and **P** in the roadmap's unscheduled list with a
 recommendation each:

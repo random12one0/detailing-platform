@@ -163,7 +163,15 @@ export default function Notifications() {
             {previewing ? "Sending…" : "Send me a sample"}
           </button>
         </div>
-        <p className="muted" style={{ marginTop: "calc(-1 * var(--sp-2))" }}>
+        {/* NO NEGATIVE MARGIN HERE, and that is the correction rather than
+            the original. The `calc(-1 * var(--sp-2))` pull-up this repo uses
+            to tuck a note under a FIELD is measured against a field's own
+            bottom margin; a `.btnrow` does not have one, so the same value
+            pulled this sentence straight THROUGH the button. Caught by
+            looking — every geometry check printed `clean`, because overlapping
+            text is not past an edge, not outside its parent and not two boxes
+            touching. */}
+        <p className="muted">
           A made-up booking, priced from your own services, sent to you and
           nobody else. Nothing is saved and no time is taken.
         </p>
