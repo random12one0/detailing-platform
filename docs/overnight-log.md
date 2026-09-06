@@ -634,6 +634,54 @@ detailer sees on their own screen, because both run the same function).
 
 ---
 
+## Roadmap 4.4 stage 3 — the website column
+
+**What changed.** Each detailer's page in the back office now has **their
+website** on it: the address, when it was last touched, and whether a custom
+address is pointed at their booking page. There is a new filter on the list —
+**No website yet** — which is really a work queue, because you build these by
+hand.
+
+**Where the facts came from, and the one judgement call.** You asked for four
+things: do they have a site, what is its address, is a custom domain pointed at
+it, and when was it last touched. **Only the third already existed** — roadmap
+3.3 built that table last night. The other three are facts about work done
+outside the product, so they are two new columns on the business.
+
+**I deliberately did not reuse the custom-domain field for the address.** That
+field means something narrower than it sounds: a web address that points AT
+this app, which is how a customer's receipt stops saying detailingplatform.com.
+A detailer's actual website can live anywhere. Putting one in the other's box
+would point a customer's own booking link at a page that does not exist — the
+exact failure last night's item warns about — so they are two separate lines on
+the screen and a check now fails if the site button ever writes to that table.
+
+**A record you can edit is not a record**, so the detailer can read both new
+columns and write neither (the same lock roadmap 3.3 put on "verified"), and
+"last touched" is stamped by the server rather than typed into a box.
+
+**What I verified, and what it printed.** Live as the seeded admin account:
+saving a bare `ridgelineautodetail.com` stored `https://ridgelineautodetail.com`
+(without the `https://` an address in a link is treated as relative — it would
+have opened `/admin/ridgelineautodetail.com`, which fails by going somewhere
+plausible rather than by erroring); rubbish returned **400 "That is not a web
+address."**; clearing it put the field back to empty; and the audit line
+recorded the address it had before, which needed one more column in the
+lookup — the first version logged `from: null` every time.
+`tests/platform-admin.test.mjs` **40/40** with six new checks, **each one
+baselined by breaking the thing it guards**, `composition` 74/74,
+`custom-domains` 59/59, `booking-core` 185/185, build clean.
+
+**And LOOKING caught what the measurement could not, for the fourth time
+tonight.** Every width measured clean — but the greyed example address in the
+empty box read as a real value, sitting directly above the line saying *No
+website yet*, so the screen appeared to argue with itself. The placeholder is
+dimmed now.
+
+**No questions parked.**
+
+---
+
 ## Roadmap 4.4 stage 2 — signing somebody up at their shop, and resending a stuck invite
 
 **What changed.** Two buttons on `/admin`, and one shared definition behind

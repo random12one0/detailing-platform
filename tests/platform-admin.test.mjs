@@ -204,5 +204,57 @@ console.log("\n7. and the things the spec refused");
     (p.match(/pa-num"/g) ?? []).length === 4, `${(p.match(/pa-num"/g) ?? []).length} figures`);
 }
 
+// ─── 8. Stage 3: the site columns ─────────────────────────────────────────
+// The spec's one product-specific column — *do they have one, what is its
+// address, is a custom domain pointed at it, when was it last touched.* Three
+// of those four are the platform's own record of work done OUTSIDE this
+// product, which is what every check here is about: a record its subject can
+// edit, or a date its subject can type, is not a record.
+console.log("\n8. their site");
+{
+  const site = strip(read("supabase/migrations/20260906002000_site_columns.sql"));
+  const f = strip(fn);
+  const p = strip(page);
+
+  check("the site columns are revoked from `authenticated` at column level",
+    /revoke\s+update\s*\(\s*site_url\s*,\s*site_updated_at\s*\)\s+on\s+public\.businesses\s+from\s+authenticated/i.test(site),
+    "RLS chooses ROWS and says nothing about COLUMNS, and `businesses` carries an owner update policy — without this a detailer stamps their own 'last touched'");
+
+  // THE TIMESTAMP IS THE SERVER'S. A date the caller sends is a date somebody
+  // typed, and the whole value of this column is that it was not.
+  check("`site_updated_at` is the server's clock, never the caller's",
+    /site_updated_at: full \? new Date\(\)/.test(f) && !/site_updated_at: body\./.test(f),
+    "a typed date is not a record of when work happened");
+
+  // A BARE HOSTNAME PUT IN AN `href` IS A RELATIVE LINK — /admin/ridgeline.com
+  // — which fails by going somewhere plausible rather than by erroring.
+  check("a bare hostname gets a scheme before it is stored",
+    /`https:\/\/\$\{url\}`/.test(f),
+    "without it the screen's link is relative and lands inside /admin");
+
+  // ROADMAP 3.3'S OWN NAMED FAILURE, FROM THE OTHER SIDE.
+  // `business_domains.domain` means a hostname that RESOLVES TO THIS APP; a
+  // detailer's website may live anywhere. Writing one into that table points a
+  // customer's own receipt at a 404.
+  check("the site action never writes `business_domains`",
+    !/action === "site"[\s\S]{0,900}business_domains/.test(f),
+    "a host that does not serve this app in that table sends a customer's own booking to a 404");
+
+  // The trap § 4 already holds for the setup filter, in a second place: a
+  // filter whose input the server never sends matches nothing, which reads
+  // exactly like nobody qualifying — here, like everybody already having a
+  // website.
+  check("the *no website yet* filter has its input",
+    /"nosite"[\s\S]{0,160}!r\.site_url/.test(p)
+      && /site_url: b\.site_url/.test(f)
+      && /admin_notes_platform, site_url, site_updated_at/.test(f),
+    "the list's own select must carry the column the filter reads");
+
+  check("the site is written down like every other action, with what it was before",
+    /logIt\(admin, "site", biz, \{ from: biz\.site_url/.test(f)
+      && /select\("id, name, slug, status, plan_tier, site_url"\)/.test(f),
+    "the previous address is the useful half, and `biz` must select it or every entry says null");
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

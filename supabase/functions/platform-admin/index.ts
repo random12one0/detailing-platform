@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
       // and building it now would be guessing at a shape nothing has measured.
       const [biz, subs, book, users] = await Promise.all([
         supabase.from("businesses")
-          .select("id, slug, name, status, plan_tier, contact_email, contact_phone, created_at, admin_notes_platform")
+          .select("id, slug, name, status, plan_tier, contact_email, contact_phone, created_at, admin_notes_platform, site_url, site_updated_at")
           .order("created_at", { ascending: false }),
         supabase.from("platform_subscriptions")
           .select("business_id, status, recurring_cents, bill_interval, current_period_end, suspended_at, cancel_at_period_end"),
@@ -102,6 +102,13 @@ Deno.serve(async (req) => {
           .is("deleted_at", null),
         supabase.from("business_users").select("business_id, email, role"),
       ]);
+      // THE SITE COLUMN IS A LIST QUESTION BEFORE IT IS A PAGE ONE. The
+      // filter he actually wants is "who am I still owing a website", and a
+      // filter whose input the server never sends matches nothing — which
+      // reads exactly like "everybody has one". One more whole-table read of
+      // a table with fewer rows than there are businesses.
+      const { data: domAll } = await supabase.from("business_domains")
+        .select("business_id, domain, verified_at");
 
       // THE SEVEN-STEP SETUP PROGRESS, PER BUSINESS, AND IT IS HERE BECAUSE
       // THE LIST HAS A FILTER FOR IT. "Setup unfinished" is one of the four
@@ -171,6 +178,17 @@ Deno.serve(async (req) => {
           requests_waiting: bs.filter((r) => r.status === "pending").length,
           subscription: subByBiz.get(b.id) ?? null,
           booking_mode: setBy.get(b.id)?.booking_mode ?? "reserve",
+          site_url: b.site_url ?? null,
+          site_updated_at: b.site_updated_at ?? null,
+          // The domain that WINS is decided in SQL (`business_canonical_host`)
+          // and never by a rule at four call sites; this is the list's
+          // one-line summary of the same rows, so it prefers a verified one
+          // exactly as that function does.
+          domain: (() => {
+            const ds = (domAll ?? []).filter((d) => d.business_id === b.id);
+            return (ds.find((d) => d.verified_at) ?? ds[0])?.domain ?? null;
+          })(),
+          domain_verified: (domAll ?? []).some((d) => d.business_id === b.id && d.verified_at),
           // The INPUTS to `setupProgress`, never its answer — see above.
           setup_inputs: {
             counts: {
@@ -313,7 +331,7 @@ Deno.serve(async (req) => {
     const id = String(body.business_id || "");
     if (!id) return json({ error: "business_id is required" }, 400);
     const { data: biz } = await supabase
-      .from("businesses").select("id, name, slug, status, plan_tier").eq("id", id).maybeSingle();
+      .from("businesses").select("id, name, slug, status, plan_tier, site_url").eq("id", id).maybeSingle();
     if (!biz) return json({ error: "No such business" }, 404);
 
     if (action === "note") {
@@ -341,6 +359,29 @@ Deno.serve(async (req) => {
       // rather than a second one.**
       await logIt(admin, action, biz, { from: biz.status, to: status });
       return json({ success: true, status });
+    }
+
+    // THEIR WEBSITE — the one fact in this back office that is about work
+    // done OUTSIDE the product. Everything else here is a row a detailer's
+    // own use of the app produced; this is the platform owner's record of a
+    // site he built by hand, which is why the columns are revoked from
+    // `authenticated` and why the timestamp is the SERVER's rather than a
+    // date typed into a box.
+    if (action === "site") {
+      const url = String(body.site_url || "").trim();
+      // A BARE HOSTNAME IS WHAT SOMEBODY TYPES, and `href`ing it without a
+      // scheme makes a RELATIVE link — /admin/ridgeline.com — which fails by
+      // going somewhere plausible rather than by erroring. Store it whole.
+      const full = !url ? null : /^https?:\/\//i.test(url) ? url : `https://${url}`;
+      if (full) {
+        try { new URL(full); } catch { return json({ error: "That is not a web address." }, 400); }
+      }
+      const { error } = await supabase.from("businesses")
+        .update({ site_url: full, site_updated_at: full ? new Date().toISOString() : null })
+        .eq("id", id);
+      if (error) throw error;
+      await logIt(admin, "site", biz, { from: biz.site_url ?? null, to: full });
+      return json({ success: true, site_url: full });
     }
 
     if (action === "tier") {

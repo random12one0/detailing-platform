@@ -138,3 +138,12 @@
 /* The one input reused inside a field, so the create form does not need a
    second input rule. */
 .pa-field .pa-input { margin: 0; }
+
+/* A PLACEHOLDER THAT READS AS A VALUE IS WORSE THAN NO PLACEHOLDER, and the
+   site field is where it bites: the example address sat directly above the
+   line saying *No website yet*, so the screen appeared to contradict itself.
+   Found by LOOKING — the geometry sweep called it clean, as it always does
+   for anything inside its own box. */
+.pa-input::placeholder, .pa-field textarea::placeholder {
+  color: var(--text-muted, #8A9296); opacity: 0.55;
+}

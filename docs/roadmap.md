@@ -6036,10 +6036,50 @@ is kept; the entire visual design restarts from scratch.
       an empty list). The form measures clean at 1440, 392 and 320 with no
       console errors.
 
-      **STILL TO BUILD (stage 3):** the site columns and platform settings.
-      Platform settings is the `platform_prices` row this entry describes
-      below, and it is still correct that the table and the editor ship
-      together or neither.
+      **STAGE 3 SHIPPED 2026-09-05 — the site columns.**
+      `20260906002000_site_columns.sql` adds `businesses.site_url` and
+      `site_updated_at`, the `site` action sets them, and the business page
+      draws them beside the domains 3.3 already built. **One filter came with
+      it — *No website yet* — and it is the one this product needs that a
+      normal SaaS back office would not: he BUILDS these by hand, so that is a
+      work queue rather than a statistic.**
+
+      **THE COLUMN THE SPEC ASKS FOR IS FOUR FACTS AND ONLY ONE OF THEM WAS
+      ALREADY ANSWERABLE.** *Do they have one, what is its address, is a custom
+      domain pointed at it, when was it last touched.* Roadmap 3.3 answered the
+      third; the other three are facts about work done OUTSIDE this product and
+      nothing in the schema held them.
+      **AND THE ADDRESS IS DELIBERATELY NOT `business_domains.domain`.** That
+      column has a precise meaning — a hostname that RESOLVES TO THIS APP, so a
+      receipt stops carrying our brand — and a detailer's website is a
+      different artifact that may live anywhere. **Conflating them puts a host
+      in that table which does not serve this app, which is 3.3's own named
+      failure: a customer opens their booking and gets a 404.** The test fails
+      if the site action ever writes that table.
+
+      **BOTH COLUMNS ARE REVOKED FROM `authenticated`, the same mechanism 3.3
+      used for `verified_at`**: RLS chooses rows and says nothing about
+      columns, `businesses` carries an owner update policy, and **a record its
+      subject can edit is not a record.** The timestamp is the server's clock
+      for the same reason — a date typed into a box is not a record of when
+      work happened.
+
+      **Exercised live as the seeded admin:** `site` 200 storing
+      `https://ridgelineautodetail.com` from a bare hostname typed without one
+      (a scheme-less address in an `href` is a RELATIVE link — `/admin/…` —
+      which fails by going somewhere plausible), `400 That is not a web
+      address.` on rubbish, cleared back to null, and the audit row carrying
+      the PREVIOUS address, which needed the lookup's own select widening.
+      Six new checks, **all six baselined by breaking what they guard**;
+      `platform-admin` **40/40**. Measured clean at 1440/392/320 in both
+      states, **and LOOKING found what the sweep could not**: the example
+      address in the empty field read as a real value directly above the line
+      saying *No website yet*, so the screen appeared to contradict itself.
+      `.pa-input::placeholder` is dimmed.
+
+      **STILL TO BUILD (stage 4):** platform settings — the `platform_prices`
+      row this entry describes below, and it is still correct that the table
+      and the editor ship together or neither.
 
       **SPECIFIED 2026-09-04: `docs/platform-admin-2026-09-04.md`.** The owner
       asked for it in his own words — *"I need to have a dashboard myself where

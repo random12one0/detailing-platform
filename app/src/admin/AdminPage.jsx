@@ -56,8 +56,12 @@ const ago = (iso) => {
   return `${Math.round(d / 365)} years ago`;
 };
 
-// THE FOUR FILTERS THE SPEC NAMES AND NO MORE. Each one is a question he would
-// otherwise answer with a query; a fifth would be a filter nobody presses.
+// THE FOUR FILTERS THE SPEC NAMES, AND ONE THE SITE COLUMN ADDS. Each is a
+// question he would otherwise answer with a query. *No website yet* is not a
+// fifth idea — it is the site column's own filter, and it is the one this
+// product needs that a normal SaaS back office would not: he BUILDS these
+// sites by hand, so "who am I still owing one" is a work queue rather than a
+// statistic. Anything past these would be a filter nobody presses.
 const FILTERS = [
   ["all", "Everyone", () => true],
   ["past_due", "Past due", (r) => ["past_due", "unpaid", "suspended"].includes(r.subscription?.status)
@@ -65,6 +69,7 @@ const FILTERS = [
   ["unfinished", "Setup unfinished", (r) => r.setup && r.setup.count < r.setup.total],
   ["never", "No bookings ever", (r) => r.bookings_total === 0],
   ["quiet", "Quiet 30 days", (r) => r.bookings_total > 0 && (r.days_since_booking ?? 0) >= 30],
+  ["nosite", "No website yet", (r) => !r.site_url],
 ];
 
 // The same shape the database's own check constraint allows, applied while he
@@ -91,6 +96,7 @@ export default function AdminPage() {
   const [open, setOpen] = useState(null);      // business id
   const [detail, setDetail] = useState(null);
   const [note, setNote] = useState("");
+  const [site, setSite] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
 
@@ -114,6 +120,7 @@ export default function AdminPage() {
       const d = await call({ action: "get", business_id: id });
       setDetail(d);
       setNote(d.business?.admin_notes_platform ?? "");
+      setSite(d.business?.site_url ?? "");
     } catch (e) {
       setMsg({ ok: false, text: e.message });
     }
@@ -309,10 +316,39 @@ export default function AdminPage() {
                   {" · "}{detail.settings?.booking_mode === "request" ? "takes requests" : "books directly"}
                   {" · "}{detail.counts.services} services
                   {" · "}{detail.members.length} people
-                  {detail.domains?.length
-                    ? ` · ${detail.domains[0].domain}${detail.domains[0].verified_at ? "" : " (unverified)"}`
-                    : " · no address of their own"}
                 </p>
+
+                {/* THEIR SITE — the spec's one column that is specific to
+                    this product, because he builds these by hand: *do they
+                    have one, what is its address, is a custom domain pointed
+                    at it, and when was it last touched.* Three of those four
+                    are facts about work done OUTSIDE the product and live on
+                    `businesses`; the fourth is `business_domains`, which
+                    roadmap 3.3 already built and which means something
+                    narrower — a hostname that resolves to THIS app, so the
+                    receipt and the plan page stop carrying our brand. They
+                    are drawn as two lines rather than one because conflating
+                    them is how a host that does not serve this app ends up in
+                    that table. */}
+                <label className="pa-field"><span>Their website</span>
+                  <input className="pa-input" value={site} placeholder="ridgelineautodetail.com"
+                    onChange={(e) => setSite(e.target.value)} /></label>
+                <p className="pa-quiet">
+                  {b.site_url
+                    ? <>Last touched {ago(b.site_updated_at)} · <a className="pa-link" href={b.site_url} target="_blank" rel="noreferrer">open it</a></>
+                    : "No website yet"}
+                  {" · "}
+                  {detail.domains?.length
+                    ? detail.domains.map((d) => `${d.domain}${d.verified_at ? " (pointed here)" : " (not verified)"}`).join(", ")
+                    : "booking page on our address"}
+                </p>
+                <div className="pa-btns">
+                  <button className="pa-btn" disabled={busy}
+                    onClick={() => act({ action: "site", business_id: b.id, site_url: site },
+                      (r) => (r.site_url ? `Saved — ${r.site_url}` : "Cleared."))}>
+                    Save their website
+                  </button>
+                </div>
 
                 <label className="pa-field"><span>Your notes</span>
                   <textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)}
