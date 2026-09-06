@@ -6353,9 +6353,41 @@ is kept; the entire visual design restarts from scratch.
       the fifth dependency to a frontend that has four. **One free Sentry
       project and one DSN is his ten minutes**, the same shape as the Google
       sign-in item (2.25).
-- [ ] 7.3 Final end-to-end pass as a brand-new business AND as staff,
+- [x] 7.3 ~~Final end-to-end pass as a brand-new business AND as staff,
       written to docs/final-pass.md, every rough edge ranked:
-      blocks-launch / embarrassing / cosmetic.
+      blocks-launch / embarrassing / cosmetic.~~ **DONE 2026-09-06 —
+      `docs/final-pass.md`, walked by `scripts/final-pass.mjs`**, which builds
+      its own throwaway tenant on the platform project, signs in as both
+      people at 392 and 1440, and deletes the business AND both logins again.
+
+      **ONE BLOCKS-LAUNCH FINDING, and it was already known and unranked: there
+      is no way to reset a password.** No link on the sign-in screen and no
+      `resetPasswordForEmail` anywhere in `app/src`. **It is the one thing that
+      stops a real detailer using the product**, and it will happen to the
+      first person who signs up and comes back in a fortnight. Item N gets a
+      rank from this pass.
+
+      **THREE EMBARRASSING ONES, and the first is the interesting one: TAPPING
+      A RAIL BUTTON DURING FIRST RUN ENDS BOTH THE SETUP FORM AND THE TOUR, FOR
+      GOOD.** Navigating away writes `setup.seen`, and an owner's tour only
+      follows a form that auto-opened — so the sequence a whole roadmap stage
+      was spent on can be lost by one curious tap in the first ten seconds.
+      Both remain reachable (*Finish setting up*, *Show me around*), neither is
+      offered again. Then: an empty dashboard leaves **most of a laptop screen
+      blank** (Clients at 1440 ends 260px down a 900px viewport), and **Today
+      offers the booking link before there is anything to book** — the booking
+      page itself is honest about it, Today is silent.
+
+      **WHY A NEW BUSINESS RATHER THAN THE DEMO:** every other browser script
+      here drives `demo-detail`, which has 31 bookings and four plans. **A
+      screen that is handsome with data and blank without it is a screen nobody
+      has seen the way its first user will**, and three of the findings are
+      invisible to every automated check in this repo because they are about
+      proportion, sequence, and what a screen does not say.
+
+      **And a doc figure drifted, found by measuring:** CLAUDE.md says the tour
+      is *"4 for staff"*; it is **3** for a member with one permission tick,
+      and **6 for an empty owner**, which is right.
 - [ ] 7.4 **OWNER: founding-offer pricing sanity check** ($499 setup /
       $40 mo, counted spots) before the first sales call.
 
@@ -6607,7 +6639,15 @@ recommendation.
   **Recommendation: one paragraph of answer from him, then it is a normal
   build — and if the answer is "not yet", DROP `completed_washes_count`**,
   because a column nothing maintains is what this repo flags everywhere else.
-- **N. THERE IS NO WAY TO RESET — OR EVEN CHANGE — A PASSWORD. Found
+- **N. RANKED *BLOCKS LAUNCH* BY ROADMAP 7.3's FINAL PASS, 2026-09-06.** It
+  was written down and left unranked; the pass confirmed it by looking (no
+  *forgot your password* on the sign-in screen, and no `resetPasswordForEmail`
+  or `updateUser` anywhere in `app/src`) and ranked it: **it is the one finding
+  in that whole pass that stops a real detailer using the product**, and it
+  will happen to the first person who signs up and comes back a fortnight
+  later. Supabase does the sending; what is missing is a link on the sign-in
+  screen, a `/reset` route, and one row behind the gear.
+  **N. THERE IS NO WAY TO RESET — OR EVEN CHANGE — A PASSWORD. Found
   2026-09-05 by roadmap 4.1's audit of `reference/`, and it is the only genuine
   gap that audit found.** `resetPasswordForEmail` appears nowhere in
   `app/src`; neither does `updateUser`; there is no `/reset-password` route.

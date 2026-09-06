@@ -1731,7 +1731,10 @@ explaining it; if they still have to ask "so should I?", it failed.
   that question.
   **STAFF GET THE TOUR AND NOT THE FORM.** They are not setting up a business.
   The tour re-runs from *Show me around* behind the gear, and it counts what
-  THIS dashboard has: 7 for an owner with jobs, 6 on an empty one, 4 for staff.
+  THIS dashboard has: 7 for an owner with jobs, 6 on an empty one, and 3 for a staff member with one permission tick — **this said 4 until
+  roadmap 7.3 MEASURED it on 2026-09-06**; the tour counts what that dashboard
+  actually has, so 4 was taken against a differently-permissioned member. The
+  sixth stale figure found in this file.
   **The empty dashboard is the state to verify against**, not the seeded demo —
   the opposite of every other screen in this rebuild.
 - **A DETAILER NAMES THE ROLE AND TICKS WHAT IT CAN DO — roadmap 2.13,

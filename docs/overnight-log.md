@@ -998,6 +998,61 @@ change every price yourself from the back office.
 
 ---
 
+## Roadmap 7.3 — the final pass, as a brand-new detailer and as staff
+
+**What changed.** `scripts/final-pass.mjs` and `docs/final-pass.md`. The script
+builds its own throwaway business on the platform, signs in as a new owner and
+as a staff member at both sizes, walks every screen either of them can reach,
+photographs it, and deletes the business and both logins again.
+
+**Why not the demo.** Everything else in this repo tests against a business
+with 31 bookings, 13 customers and four plans. **What a real detailer meets on
+their first morning is the opposite of that**, and a screen that looks good
+full and blank empty is a screen nobody has ever seen the way its first user
+will.
+
+### The one thing that would stop a real customer
+
+**There is no way to reset a password.** No "forgot your password" on the
+sign-in screen, and nothing in the app that can send a reset. A detailer who
+forgets theirs cannot get back in, and the only fix is you editing the
+database. It was already written down but never ranked — **this is the single
+finding from the whole pass that blocks going live**, and it will happen to the
+first person who signs up and comes back two weeks later. Supabase already does
+the sending; it needs a link, a page and one row in the settings.
+
+### Three that work but make us look unfinished
+
+1. **One tap in the first ten seconds can lose the whole first-run
+   experience.** New detailers get the seven-step setup form and then the
+   guided tour — I confirmed both work. But tapping any button along the bottom
+   *while the form is open* closes it for good, and the tour then never
+   arrives. Both are still findable afterwards (*Finish setting up* on
+   Business, *Show me around* in the settings) but neither is offered again.
+   The fix is small: only mark it "seen" when they actually finish it.
+2. **An empty dashboard is mostly empty screen on a laptop.** Clients at
+   laptop size stops 260 pixels down a 900-pixel window. On a phone it reads
+   fine. The words are good — *"No customers yet — they appear on their own
+   when bookings come in."* — it is the proportion.
+3. **Today offers your booking link before there is anything to book.** Copy,
+   Open and a QR code, with nothing saying the page has no services on it yet.
+   The booking page itself is honest (*"hasn't listed any services online
+   yet"*, no crash), so nobody is misled for long — but the first thing we
+   invite a new detailer to do is share a link that cannot take a booking. I
+   would put the same *Finish setting up* row on Today.
+
+### And what was right
+
+Both rails exactly as designed (five tabs for you, three for staff), the
+settings rows right for each, **no console errors anywhere**, the empty booking
+page honest, and the setup form running all seven steps into the tour.
+
+**Nothing here is fixed yet** — 7.3's job is the list, ranked, and the fixes
+are decisions about scope you have not made. `docs/final-pass.md` has the whole
+thing with what I would do about each.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*

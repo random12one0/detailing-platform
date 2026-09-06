@@ -1,0 +1,142 @@
+# The final pass — roadmap 7.3
+
+Walked 2026-09-06 as a **brand-new business** and as **staff**, at 392 and
+1440, by `scripts/final-pass.mjs`. It builds its own throwaway tenant on the
+platform project (never the owner's live business), signs in as both people,
+and deletes it again.
+
+**Why a new business rather than the demo.** Every other browser script in this
+repo drives `demo-detail`: 31 bookings, 13 customers, six services, four plans
+and a subscription. **The state a real detailer meets on their first morning is
+the exact opposite**, and a screen that is handsome with data and blank without
+it is a screen nobody has seen the way its first user will. CLAUDE.md already
+says this about the walkthrough; nothing had ever done it for the whole app.
+
+**Ranking, as the roadmap asks:** *blocks launch* means a detailer would be
+stuck or a customer would lose something; *embarrassing* means it works and
+makes us look unfinished; *cosmetic* means only we would notice.
+
+---
+
+## Blocks launch
+
+### 1. There is no way to reset a password, or to change one
+
+Confirmed by reading the sign-in screen: no *forgot your password* link, and
+nothing anywhere in `app/src` calls `resetPasswordForEmail` or `updateUser`.
+**A detailer who forgets their password cannot get back in**, and the only
+remedy is the platform owner editing the auth table by hand.
+
+It is already written up as **item N** in the roadmap's unscheduled list, where
+it is unranked. This pass ranks it: **it is the one thing here that stops a
+real customer using the product**, and it will happen to the first detailer who
+signs up on a Tuesday and comes back in a fortnight.
+
+Supabase does the sending; what is missing is a link on the sign-in screen, a
+`/reset` route, and one row behind the gear for changing it while signed in.
+
+---
+
+## Embarrassing
+
+### 2. One tap during first run ends both the setup form and the tour, for good
+
+The sequence a new owner is designed to get is: the seven-step form, then the
+guided tour. Confirmed working — walking every step lands on **"1 of 6"** of
+the tour.
+
+**But the form is dismissed by navigating away from it.** Tapping any rail
+button during first run closes it and writes `business_settings.setup.seen`,
+and because an owner's tour only follows a form that *auto-opened*, the tour
+never arrives — and never will, because `seen` is now true and the branch that
+decides this runs once per sign-in.
+
+Nothing is broken and both are reachable afterwards: *Finish setting up* on
+Business, and *Show me around* in the gear. **But the first-run experience an
+entire roadmap stage was spent on can be lost by one curious tap**, silently,
+in the first ten seconds.
+
+*What I would do:* if the form is closed by navigation rather than finished,
+leave `seen` alone. The Business row already nags; the tour then still arrives
+next time.
+
+### 3. An empty dashboard leaves most of a laptop screen blank
+
+Clients at 1440x900: everything on the page ends **260px down a 900px
+viewport**, and the content column is 1,144px wide with nothing in it. Money
+and Calendar are the same shape. On a phone it reads fine — the sentence is at
+the top where the thumb is — and at a desk it reads as an app that has not
+loaded.
+
+The words themselves are good and were checked one at a time: *"No customers
+yet — they appear on their own when bookings come in."*, *"$0.00 · No
+comparison yet · Nothing recorded in September 2026."* **The problem is the
+proportion, not the copy.**
+
+### 4. Today offers the booking link before there is anything to book
+
+A brand-new Today is the heading, *"Morning · nothing booked"*, and the booking
+link with **Copy**, **Open** and **Generate QR code** — with nothing saying the
+page behind it has no services on it yet.
+
+**The booking page itself is honest** — *"Final Pass Detailing hasn't listed
+any services online yet"*, no crash, no console errors, measured at 392 and
+1440 — so nobody is misled for long. But the first thing the product invites a
+detailer to do is share a link that cannot take a booking, and the setup
+prompt that would stop them is one tab away on Business.
+
+*What I would do:* the same *Finish setting up* row Business carries, on Today,
+while setup is unfinished. It is the screen they open every morning.
+
+---
+
+## Cosmetic
+
+### 5. `Business` says "2 of 7 done" before anything has been done
+
+The two are the weekday hours every new business is given (`newBusiness.ts`,
+Mon–Fri 09:00–17:00) and the contact email that came in with the invite. Both
+are true — the progress is derived from the database exactly as it should be —
+but *2 of 7* on a business created ten seconds ago reads like a head start
+nobody earned.
+
+### 6. A doc figure has drifted: the staff tour is 3 steps, not 4
+
+CLAUDE.md says *"7 for an owner with jobs, 6 on an empty one, 4 for staff."*
+Measured here: **6 for an empty owner (correct) and 3 for a staff member with
+one permission tick.** The tour counts what that dashboard actually has, so 4
+was measured against a differently-permissioned staff member. Not a defect —
+the count is doing its job — but the sentence in CLAUDE.md is a figure, and
+figures in that file have gone stale five times before.
+
+---
+
+## What was checked and was right
+
+- **The rails.** Owner: Today, Calendar, Money, Clients, Business. Staff:
+  Today, Calendar, Clients. Exactly `TAB_NEEDS`.
+- **The gear.** Owner: Notifications, Message templates, Team, Your
+  subscription, This device, Show me around. Staff: Message templates, This
+  device, Show me around — and *Message templates* is deliberately open to
+  staff (they send those texts from a job), which is written into
+  `GearMenu.jsx`'s own header rather than being an accident.
+- **No console errors anywhere**, at either width, for either person.
+- **The empty booking page** of a business with no services: an honest
+  sentence, no crash.
+- **The setup form runs all seven steps** and hands over to the tour.
+
+---
+
+## How to run it again
+
+```bash
+node scripts/final-pass.mjs           # build the fixture, walk it, delete it
+node scripts/final-pass.mjs --keep    # leave it behind, with both passwords
+```
+
+It prints one line per screen — the rail it found, how much text each screen
+carries and its first line — and writes a screenshot per screen to
+`shots-final/`. **The lines are the check and the screenshots are the point:**
+every finding above except the password one was found by looking, and three of
+them are invisible to every automated check in this repo, because they are
+about proportion, sequence and what a screen does not say.
