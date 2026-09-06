@@ -1510,6 +1510,31 @@ say which one.
 
 ---
 
+## What I did not do, and why
+
+Three things on the roadmap I deliberately left, so you know they were seen
+rather than missed.
+
+**Backing up the database (2.22).** Your own idea, and it does work — but its
+line in the roadmap says *"on his word 'maybe', so it is scheduled but he has
+not said build it."* Two of the three things it needs are yours and cannot be
+guessed: **where the copies land** (a second Supabase account, or a private
+repository) and the key to write there. And its own test — *a backup nobody has
+restored is not a backup* — needs a spare project to restore into. **Question 5
+below is the one sentence I need.** It is about twenty minutes once you answer.
+
+**Taking cards from your customers (2.20 stage 3).** The big one that is left,
+and the thing that would finally let a monthly plan actually charge. It needs
+Stripe Connect switched on in your Stripe account, and it needs a decision from
+you about WHEN a customer pays — deposit up front, the whole thing up front, or
+on the day. That is a business decision I should not make for you, and it is
+worth its own session.
+
+**The sign-up screen's look (2.25).** Explained above — it is a taste call and
+I would rather show you two versions than guess a third time.
+
+---
+
 ## Questions parked for the owner
 
 *(nothing here blocks the next item — I kept going)*
@@ -1659,6 +1684,49 @@ yourself, not before.** It is a full-access key, so paste it into the terminal
 for the one command rather than into a file — and if you would rather not
 hand it over at all, the alternative is you running the two commands yourself
 from the plan in `docs/migration-plan-2026-09-06.md`.
+
+### 5. Where should the nightly database backup go? (roadmap 2.22)
+
+**What this is.** Supabase's free plan keeps no backups at all. Your idea was
+to make our own for free, and it works: something runs every night, takes a
+copy of the whole database, and puts it somewhere else.
+
+**What I need from you is one sentence: where.** The two sensible answers are
+**a second free Supabase account** (a project that does nothing but hold
+copies) or **a private GitHub repository**. Either is free. Whichever you pick,
+I need a key with permission to write there, and it must be private —
+**the file is your customers' names, phone numbers and home addresses**, and a
+public copy of it would be the worst single thing that could happen to this
+product.
+
+**And it is not done until one has been restored**, which needs a spare project
+to restore into — say the word and I will do that as part of it.
+
+**My recommendation: the second Supabase account.** A restore into a Supabase
+project is the thing you would actually be doing in an emergency, so practising
+it on the same kind of thing is worth more than a tidier file somewhere else.
+Say **"second Supabase"** or **"private repo"** and I will build it.
+
+### 6. When should a customer pay you? (roadmap 2.20 stage 3)
+
+**What this is.** The last big piece of taking money: letting your customers
+pay you by card through your own booking page. The plumbing is understood and
+free for us to run — the card fees land on you, the same as any card machine.
+
+**What I need is the rule, and it is a business decision.** Do they pay
+**a deposit** when they book, **the whole thing** when they book, or **nothing
+until the job is done**? Your own words about your current site were that
+nobody leaves a client's house until it is paid, which suggests the third — but
+a deposit is what stops a no-show costing you a morning.
+
+**My recommendation: nothing up front to begin with, and a deposit as a switch
+you can turn on later.** It matches how you already work, it is the smallest
+change to a booking page that currently promises nothing about money, and a
+deposit rule you have not tested on real customers is a rule that can lose you
+bookings quietly. Say **"none"**, **"deposit"** or **"full"**.
+
+**One thing you would have to do either way:** switch on Stripe Connect in your
+Stripe account. Ten minutes, and I will write it out like I did for Google.
 
 ---
 

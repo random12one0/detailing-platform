@@ -4663,6 +4663,19 @@ is kept; the entire visual design restarts from scratch.
 - [ ] 2.22 **BACK THE DATABASE UP FOR FREE — his own idea, 2026-09-04, and it
       works.**
 
+      **SKIPPED 2026-09-06 AND LOGGED, on this entry's own words: *"on his
+      word 'maybe', so it is scheduled but he has not said build it."*** Two
+      of the three things it needs are his and neither can be guessed:
+      **where the dump lands** (a second Supabase project or a private repo,
+      both on his accounts) and **the credential to write there**. And its own
+      acceptance test — *"a backup nobody has restored is not a backup"* —
+      needs a scratch project to restore INTO, which is his account again.
+      **Writing the workflow file anyway would put a scheduled job in the repo
+      that fails every night until he answers**, which is the shape of thing
+      that teaches somebody to ignore a red mark. It is a twenty-minute job
+      the day he says yes, and the gotcha that would otherwise cost an
+      afternoon is already written down above.
+
       > *"Supabase's free plan — like, I guess I got backups, but I haven't had a
       > problem, I've been working with it for over a year… Maybe I could create
       > another Supabase account and we could, like, do our own type of backing
