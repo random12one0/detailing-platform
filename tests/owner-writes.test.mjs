@@ -297,6 +297,66 @@ console.log("test 7: no owner-writable table is missing from this suite");
   check("every owner-writable table is exercised above", missing.length === 0, missing.join(", "));
 }
 
+// ─── COLUMNS AN OWNER MAY NOT WRITE, ASKED OF THE DATABASE ────────────────
+//
+// **EVERY COLUMN-LEVEL REVOKE IN THIS REPO WAS A NO-OP UNTIL 2026-09-07, AND
+// TWO FILES DESCRIBED THEM AS WORKING.** A `revoke update (col)` does nothing
+// while the role still holds TABLE-level `UPDATE`, which Supabase grants by
+// default — Postgres checks the table grant and never looks at the column
+// list. `custom-domains` § 5 "pinned" one of them BY READING THE MIGRATION
+// TEXT, so it passed identically before and after the hole was closed, which
+// is exactly how nobody noticed.
+//
+// **SO THIS ASKS THE DATABASE WHAT AN OWNER CAN ACTUALLY DO**, with a real
+// session, by trying it. No source-reading check can see a grant.
+console.log("\ncolumns an owner may not write, measured rather than read");
+{
+  const before = (await svc.get(`/rest/v1/businesses?id=eq.${biz.id}&select=*`)).data[0];
+  const FORBIDDEN = [
+    // A business the platform SUSPENDED for non-payment reopening its own
+    // booking page. The whole dunning mechanism rests on this column.
+    ["status", "active"],
+    // Giving yourself the founding price.
+    ["plan_tier", "founding"],
+    // Taking yourself out of the founding count the pricing page prints.
+    ["is_demo", true],
+    // The platform's private note ABOUT them.
+    ["admin_notes_platform", "edited by the tenant"],
+    // Roadmap 3.3 — a hostname that resolves to this app.
+    ["site_url", "https://elsewhere.test"],
+  ];
+  for (const [col, value] of FORBIDDEN) {
+    const r = await rest("PATCH", `/rest/v1/businesses?id=eq.${biz.id}`,
+      { key: ANON, jwt: owner.jwt, body: { [col]: value } });
+    const after = (await svc.get(`/rest/v1/businesses?id=eq.${biz.id}&select=*`)).data[0];
+    check(`businesses.${col} is not writable by its own owner`,
+      String(after[col]) === String(before[col]), `${r.status} → ${after[col]}`);
+  }
+
+  // AND THE OTHER HALF: the columns an owner MUST still be able to write, or
+  // the fix has broken the settings screen instead of the hole. Roadmap 8.13
+  // added the last one.
+  const ALLOWED = { name: "Renamed By Owner", service_area: "Everywhere", closed_until: "2026-12-25" };
+  const ok = await rest("PATCH", `/rest/v1/businesses?id=eq.${biz.id}`,
+    { key: ANON, jwt: owner.jwt, body: ALLOWED });
+  const after = (await svc.get(`/rest/v1/businesses?id=eq.${biz.id}&select=*`)).data[0];
+  check("but the columns the settings screen writes still are",
+    ok.status < 300 && after.name === ALLOWED.name && after.service_area === ALLOWED.service_area
+      && String(after.closed_until).slice(0, 10) === ALLOWED.closed_until,
+    `${ok.status} ${JSON.stringify({ n: after.name, s: after.service_area, c: after.closed_until })}`);
+
+  // ROADMAP 3.3's SHARPEST CASE. `verify-domain` GETs `/platform-host.txt`
+  // from the address itself; a detailer who can stamp their own row makes that
+  // fetch decoration, which is that migration's own sentence about itself.
+  const dom = (await svc.post("/rest/v1/business_domains",
+    [{ business_id: biz.id, domain: "owner-writes-probe.test" }])).data[0];
+  const stamp = await rest("PATCH", `/rest/v1/business_domains?id=eq.${dom.id}`,
+    { key: ANON, jwt: owner.jwt, body: { verified_at: new Date().toISOString() } });
+  const domAfter = (await svc.get(`/rest/v1/business_domains?id=eq.${dom.id}&select=verified_at`)).data[0];
+  check("business_domains.verified_at cannot be stamped by the detailer",
+    domAfter.verified_at === null, `${stamp.status} → ${domAfter.verified_at}`);
+}
+
 await svc.del(`/rest/v1/businesses?id=eq.${biz.id}`);
 
 console.log(`\n${passed} passed, ${failed} failed`);
