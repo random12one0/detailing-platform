@@ -191,6 +191,84 @@ a 900px fold.
 
 ---
 
+## 4c. HE LOOKED AT THEM AND SAID THE BACKGROUND IS THE TELL — 2026-09-07
+
+His words, unprompted, while the three were being built:
+
+> *"What I think sells the website a lot is also the background. Because right
+> now, what I'm looking at, a lot of this is like a very plain colored black
+> background. You know, maybe some kind of gradient animation, a little
+> pattern, something just to make it feel more professional. It not just looks
+> very cookie cutter… That's what I kinda get the AI, not really professional,
+> and not nice to look at idea from. Now there's obviously more than just the
+> background, but try to think about what would make this really sell the
+> professional nice, sleek, and well built website. And that's not just some
+> basic thing that AI put together really fast."*
+
+**HE IS RIGHT AND THE REPO'S OWN DESIGN RULES ALREADY SAID SO**, which is the
+uncomfortable part: `CLAUDE.md`'s frontend guidance is *"create atmosphere and
+depth rather than defaulting to solid colours — layer CSS gradients, use
+geometric patterns, or add contextual effects."* All three pages shipped with
+a flat `background: var(--ink)` and passed every check in this repo. **§ 3 is
+five things his references SHARE; a flat ground is not on that list because it
+is not a thing they share — it is a thing none of them has.** A list of what
+to include cannot catch what everybody omits.
+
+**THE FIX IS THREE LAYERS AND THE ANSWER COMES FROM WHAT THE PAGE *IS*.** The
+same instruction, three grounds, deliberately not one recipe painted three
+colours — which is this folder's oldest failure:
+
+| | its ground | what was added |
+|---|---|---|
+| **i · Apex** | lit glass | two wide blue glows that drift, a 1px diagonal lattice at 2%, grain |
+| **j · Northside** | ruled paper | a 27px ledger grid and a warm wash; the DARK bands get an orange floodlight that drifts |
+| **k · Cedar** | painted metal | a screen-print halftone, a slow sheen across the paint, heavier grain |
+
+Every layer is under 10%, the grain is always its own non-moving layer (noise
+that drifts reads as compression, not as surface), and the drift stops under
+`prefers-reduced-motion`. Each page also gained ONE orchestrated arrival — a
+staggered rise per section — plus shadows and a hover on anything that is an
+object rather than a rule.
+
+### AND FOUR MORE LESSONS, ALL FOUND BY MEASURING OR BY LOOKING
+
+**5 · A GRADIENT BEHIND TEXT IS A NEW GROUND, AND EVERY RATIO HAS TO BE TAKEN
+AGAIN.** Five tokens across the three pages failed the moment the ground
+stopped being flat — while still reading correct against the token they were
+corrected on. The sharpest is k's `--on-red-dim`: **5.04:1 on `--red` and
+4.30:1 on the lit paint**, so a change that touched no colour at all broke a
+corrected one for the second time on that page. The measurement composites
+every layer at its own peak at one pixel, because a 1px lattice line landing
+on a 1px control edge is exactly the case that fails. Same sentence
+`scripts/accent-sweep.mjs` exists for: *correcting a colour against one ground
+buys a floor on that ground and nowhere else.*
+
+**6 · A DRIFTING LAYER NEEDS `overflow: hidden`, AND THE DIRECTION OF ONE
+NUMBER DECIDES WHETHER ANYBODY FINDS OUT.** The glow layers scale to ~1.07 at
+the end of their travel and reach past their own box. Site j's drifts RIGHT
+and made the page scroll sideways; site i's identical layer drifts LEFT, where
+an overflow makes no scrollbar at all. **The same defect, reported on one page
+and silent on the other.** Both are clipped deliberately now.
+
+**7 · A MARKER CLASS A SCRIPT WRITES ONTO ARBITRARY ELEMENTS MUST BE
+NAMESPACED — and this one broke a hero with nothing reporting it.** The reveal
+added a class called `in`; site j's hero is `<div class="wrap in">` with
+`.hero .in{display:grid}` behind it, so the two divs INSIDE the hero were
+handed the grid rule. The kicker collapsed to a 122px column, the headline
+moved 160px right and the photograph lost a third of its width. **No console
+error, no sideways scroll, every reveal fired, every contrast figure still
+correct** — the page was simply the wrong shape, which only looking at it can
+find. It is `rv-in` now. The control that proved it in one run was rendering
+the committed file beside the edited one and printing both geometries.
+
+**8 · THE HIDDEN STATE OF A REVEAL IS ADDED BY SCRIPT, NEVER BY THE
+STYLESHEET.** If the CSS hid those nodes and the JS failed, the page would be
+blank. That is `data-rv` on the pricing page all over again — this time the
+`.rv-on` class is only ever added once the observer exists, and any throw
+removes it.
+
+---
+
 ## 5. What to do with it
 
 **Wait for his better batch before building.** He said so in the same breath as

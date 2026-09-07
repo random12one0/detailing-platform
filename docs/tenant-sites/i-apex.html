@@ -69,7 +69,30 @@
       kicker blue #0B4FBF on --paper #FFFFFF ......  7.28:1
       --blue-ink  #06121F on --blue  #5A9BFF ......  6.79:1
       --edge      #6B7382 on --ink   #0A0C10 ......  4.10:1  (control edges)
-      --edge-paper#8A929E on --paper #FFFFFF ......  3.14:1  (control edges)
+      --edge-paper#747B86 on --paper #FFFFFF ......  4.27:1  (control edges)
+
+  ── AND AGAIN, AGAINST THE BLENDED GROUND, AFTER THE ATMOSPHERE LANDED ───
+  He asked for a ground with something in it (2026-09-07) and **a gradient
+  behind text changes the pixels that text sits on**, so every figure above
+  became a figure about a colour that is no longer under anything. These are
+  re-measured at the WORST POINT of the layer stack — every gradient, rule
+  and grain layer at its own peak, composited at one pixel, which is
+  pessimistic on purpose because a 1px lattice line landing on a 1px control
+  edge is exactly the case that fails.
+      --ink-fg    #E9EDF2 on the lit dark  #1F2939 . 12.45:1
+      --dim       #9AA4B2 on the lit dark  #1F2939 .  5.80:1
+      --blue      #5A9BFF on the lit dark  #1F2939 .  5.27:1
+      --edge      #6B7382 on the lit dark  #1F2939 .  3.07:1  (control edges)
+      --paper-fg  #12161C on the dotted    #D9DFE9 . 13.55:1
+      --paper-dim #545C68 on the dotted    #D9DFE9 .  5.04:1
+      --edge-paper#747B86 on the dotted    #D9DFE9 .  3.19:1  (control edges)
+  **`--edge-paper` WAS #8A929E AND THE ATMOSPHERE BROKE IT — 2.34:1 on the
+  blended ground against a 3:1 floor, while still reading 3.14:1 against the
+  token it was corrected on.** Nothing on the screen changed colour; the
+  ground under it did. That is the same sentence `scripts/accent-sweep.mjs`
+  exists for: *correcting a colour against one ground buys a floor on that
+  ground and nowhere else.* Found by re-running the calculator over the
+  composited layers, not by looking.
 
   **AND THE FIRST VERSION OF THIS FILE FAILED TWO OF THEM UNDER A COMMENT
   CLAIMING IT PASSED — the same defect as site 1, one page later.** `--edge`
@@ -98,7 +121,7 @@
      quiet. The first version of this file used one token at 1.93:1 for both,
      under a comment claiming 3.06 — the exact defect, in the exact place, one
      page later. */
-  --edge:#6B7382; --edge-paper:#8A929E;
+  --edge:#6B7382; --edge-paper:#747B86;
   --rule:#242B35; --rule-paper:#DDE1E7;
   /* ANTON IS THE DISPLAY FACE AND IT IS ONLY EVER CAPS AT SIZE. It has one
      weight and a very tight condensed fit — which is the point: it does the
@@ -123,8 +146,67 @@ a{color:inherit}
    The device none of the eight earlier pages used. A band is a whole
    section's ground, and the text colours come with it, so nothing has to be
    remembered at the call site. */
-.band{background:var(--ink);color:var(--ink-fg)}
+
+/* ══ AND THE GROUND IS NOT FLAT, WHICH IS HIS OWN CORRECTION — 2026-09-07 ══
+   *"A lot of this is like a very plain colored black background… maybe some
+   kind of gradient animation, a little pattern, something just to make it
+   feel more professional. That's what I kinda get the AI, not really
+   professional idea from."*
+   He is right and this repo's own design knowledge already said so:
+   **"create atmosphere and depth rather than defaulting to solid colours."**
+   A flat #000 is the single cheapest tell that nobody spent time on a page.
+
+   THREE LAYERS, AND EACH ONE IS DOING A DIFFERENT JOB:
+     1 · two wide radial GLOWS, which give the band a light source and stop it
+         reading as a fill. They drift, slowly, so the page is alive without
+         anything moving that a reader has to track.
+     2 · a 1px diagonal LATTICE at about 2%, which is what makes a large dark
+         area feel like a surface instead of an absence.
+     3 · GRAIN — an SVG turbulence, inline as a data URI so it costs no
+         request — because a perfectly smooth gradient is its own tell on a
+         real screen (banding), and a little noise is what photographs have.
+
+   **EVERY GLOW IS UNDER 8% AND THE CONTRAST IS RE-MEASURED AGAINST THE
+   BLENDED GROUND, NOT THE TOKEN.** A gradient behind text changes the pixels
+   that text sits on, so the ratios in the header were re-computed after this
+   landed — see the second block there. That is the same reasoning
+   `scripts/accent-sweep.mjs` uses for the dashboard: correcting a colour
+   against one ground buys a floor on that ground and nowhere else. */
+/* `overflow: hidden` because the glow layer is `scale(1.06)` at the end of
+   its drift and reaches past its own box. This page happens to drift LEFT,
+   where an overflow makes no scrollbar — site j's drifts right and failed
+   the sideways check. Clipped on purpose rather than by luck. */
+.band{background:var(--ink);color:var(--ink-fg);position:relative;isolation:isolate;overflow:hidden}
+.band::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(78% 62% at 12% 0%, rgba(90,155,255,.075), transparent 62%),
+    radial-gradient(64% 58% at 92% 108%, rgba(90,155,255,.05), transparent 60%),
+    repeating-linear-gradient(58deg, rgba(233,237,242,.022) 0 1px, transparent 1px 9px);
+  animation:drift 34s ease-in-out infinite alternate;
+}
 .band.paper{background:var(--paper);color:var(--paper-fg)}
+.band.paper::before{
+  background:
+    radial-gradient(70% 54% at 88% 0%, rgba(11,79,191,.055), transparent 60%),
+    radial-gradient(56% 46% at 4% 100%, rgba(11,79,191,.032), transparent 62%),
+    radial-gradient(circle at 1px 1px, rgba(18,22,28,.055) 1px, transparent 1px) 0 0/22px 22px;
+  animation-duration:44s;
+}
+/* THE GRAIN IS ITS OWN LAYER so it never moves with the glows — noise that
+   drifts reads as a video artefact rather than as a surface. */
+.band::after{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E");
+}
+.band.paper::after{opacity:.34}
+@keyframes drift{
+  from{transform:translate3d(0,0,0) scale(1)}
+  to{transform:translate3d(-2.5%,1.5%,0) scale(1.06)}
+}
+/* MOTION IS A PREFERENCE, AND THE PAGE HAS TO BE FINISHED WITHOUT IT. The
+   glows and the grain stay; only the drift stops. */
+@media (prefers-reduced-motion:reduce){ .band::before{animation:none} }
 .band.paper .dim{color:var(--paper-dim)}
 .dim{color:var(--dim)}
 .band{padding:74px 0}
@@ -150,7 +232,13 @@ p{margin:0 0 16px;max-width:62ch}
 .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:58% 50%}
 .hero::after{
   content:"";position:absolute;inset:0;
-  background:linear-gradient(178deg,rgba(10,12,16,.86) 0%,rgba(10,12,16,.30) 38%,rgba(10,12,16,.55) 72%,rgba(10,12,16,.97) 100%);
+  /* THE SCRIM IS A GRADIENT SO THE CAR KEEPS ITS HIGHLIGHTS — a flat 60%
+     black over a photograph is what makes a hero look like a template — and
+     a wide blue bloom sits over it so the type has a light behind it rather
+     than a hole. */
+  background:
+    radial-gradient(74% 58% at 22% 76%, rgba(90,155,255,.16), transparent 66%),
+    linear-gradient(178deg,rgba(10,12,16,.88) 0%,rgba(10,12,16,.32) 36%,rgba(10,12,16,.58) 70%,rgba(10,12,16,.97) 100%);
 }
 .hero .wrap{position:relative;z-index:1;width:100%;padding-bottom:38px;padding-top:26px}
 .topbar{position:absolute;top:0;left:0;right:0;z-index:2}
@@ -185,9 +273,22 @@ p{margin:0 0 16px;max-width:62ch}
    Not three icon cards. A photograph, the name over it, the price under it,
    the way a showroom board is read. */
 .wall{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:34px}
-.plate{background:var(--paper-2);border:1px solid var(--rule-paper);border-radius:4px;overflow:hidden;display:flex;flex-direction:column}
+/* DEPTH, AND IT IS THE OTHER HALF OF HIS NOTE. A card with a 1px border and
+   nothing else is the flat-black problem at card scale: the shadow is what
+   says somebody chose to put this object on that surface. */
+.plate{
+  background:var(--paper-2);border:1px solid var(--rule-paper);border-radius:6px;
+  overflow:hidden;display:flex;flex-direction:column;
+  box-shadow:0 1px 2px rgba(18,22,28,.05), 0 12px 28px -14px rgba(18,22,28,.28);
+}
 .plate .shot{aspect-ratio:4/3;overflow:hidden;background:var(--paper-2)}
-.plate .shot img{width:100%;height:100%;object-fit:cover}
+.plate .shot img{width:100%;height:100%;object-fit:cover;transform:scale(1.001)}
+@media (prefers-reduced-motion:no-preference){
+  .plate{transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s ease}
+  .plate .shot img{transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+  .plate:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(18,22,28,.06), 0 22px 44px -18px rgba(18,22,28,.34)}
+  .plate:hover .shot img{transform:scale(1.045)}
+}
 .plate .body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1}
 .plate h3{margin-bottom:8px}
 .plate .body p{font-size:15px;color:var(--paper-dim);margin-bottom:14px}
@@ -284,8 +385,33 @@ footer .mark{margin-bottom:10px}
   .topbar .tel{display:none} /* the number is in the footer and on the button */
 }
 @media (prefers-reduced-motion:no-preference){
-  .btn{transition:transform .12s ease}
+  .btn{transition:transform .12s ease, box-shadow .12s ease}
   .btn:hover{transform:translateY(-1px)}
+  /* ── ONE ORCHESTRATED ARRIVAL PER SECTION ────────────────────────────
+     The other half of "it looks like AI put it together fast": nothing on the
+     page acknowledges that a person is moving through it. A staggered rise as
+     each band comes into view is the highest-value motion there is — one
+     well-orchestrated reveal beats a dozen scattered micro-interactions.
+
+     **THE HIDDEN STATE IS ADDED BY SCRIPT, NEVER BY THE STYLESHEET.** If the
+     CSS hid these and the JS failed, the page would be blank — which is
+     exactly the `data-rv` defect this repo already shipped once on its own
+     pricing page, where a node added after mount sat at opacity 0 for ever.
+     No JS, or a thrown error, and everything is simply visible. */
+  /* **THE REVEALED STATE IS `rv-in`, NOT `in`, AND THAT COST A BROKEN HERO.**
+     The first version added a class called `in` — and this page's own hero is
+     `<div class="wrap in">` with `.hero .in{display:grid;…}` behind it. So the
+     reveal handed the grid rule to the two divs INSIDE the hero as well: the
+     kicker collapsed to a 122px column, the headline moved 160px right, and
+     the photograph lost a third of its width. **Nothing reported it.** No
+     console error, no sideways scroll, every reveal fired, and every contrast
+     figure was still correct — the page was simply the wrong shape, which is
+     the one thing only looking at it can find.
+     The general rule: a marker class a script writes onto arbitrary elements
+     has to be namespaced, because it is being applied to markup that was not
+     written with it in mind. */
+  .rv-on [data-rv]{opacity:0;transform:translateY(14px)}
+  .rv-on [data-rv].rv-in{opacity:1;transform:none;transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.3,1)}
 }
 </style>
 </head>
@@ -547,6 +673,37 @@ footer .mark{margin-bottom:10px}
 </footer>
 
 <script>
+  /* THE REVEAL. Guarded end to end: the hidden class is only added once the
+     observer exists, and anything that throws leaves the page fully visible
+     rather than half-drawn. */
+  (function () {
+    try {
+      if (!("IntersectionObserver" in window)) return;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var items = document.querySelectorAll(".band > .wrap > *, .stats .stat");
+      if (!items.length) return;
+      document.documentElement.classList.add("rv-on");
+      var i = 0;
+      items.forEach(function (el) { el.setAttribute("data-rv", ""); });
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var el = e.target;
+          // Staggered within a section, capped: past about four steps a
+          // reveal stops reading as choreography and starts reading as lag.
+          var sibs = [].slice.call(el.parentElement.children).indexOf(el);
+          el.style.transitionDelay = Math.min(sibs, 4) * 55 + "ms";
+          el.classList.add("rv-in");
+          io.unobserve(el);
+        });
+      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+      items.forEach(function (el) { io.observe(el); i++; });
+    } catch (e) {
+      // A page that cannot animate is a page. A page that is invisible is not.
+      document.documentElement.classList.remove("rv-on");
+    }
+  }());
+
   /* Demo only. A live build re-quotes through `calculate-booking` — this
      exists so the page can be LOOKED AT with something in it, and it is the
      one place a real build deletes rather than edits. */

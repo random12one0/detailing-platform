@@ -55,8 +55,31 @@
       --ink-dim #ADA69B on --ink   #17140F .........  7.61:1
       --hot     #FF8A3D on --ink   #17140F .........  7.83:1
       --on-hot  #2B0E00 on --hot   #FF8A3D .........  7.68:1
-      --edge-p  #8C8880 on --paper #FFFFFF .........  3.53:1  (control edges)
-      --edge-i  #6E6960 on --ink   #17140F .........  3.37:1  (control edges)
+      --edge-p  #827E76 on --paper #FFFFFF .........  4.04:1  (control edges)
+      --edge-i  #878179 on --ink   #17140F .........  4.76:1  (control edges)
+
+  ── AND AGAIN, AGAINST THE BLENDED GROUND, AFTER THE ATMOSPHERE LANDED ───
+  He asked for a ground with something in it (2026-09-07) and **a gradient
+  behind text changes the pixels that text sits on**, so every figure above
+  became a figure about a colour that is no longer under anything. These are
+  re-measured at the WORST POINT of the layer stack — every gradient, rule
+  and grain layer at its own peak, composited at one pixel, which is
+  pessimistic on purpose because a 1px lattice line landing on a 1px control
+  edge is exactly the case that fails.
+      --fg      #14120F on the ruled paper #E7E3DF  14.63:1
+      --dim     #55524C on the ruled paper #E7E3DF   6.09:1
+      --hot-ink #A33500 on the ruled paper #E7E3DF   5.36:1
+      --edge-p  #827E76 on the ruled paper #E7E3DF   3.16:1  (control edges)
+      --ink-fg  #F5F2EC on the floodlit    #443021  11.08:1
+      --ink-dim #ADA69B on the floodlit    #443021   5.13:1
+      --hot     #FF8A3D on the floodlit    #443021   5.28:1
+      --edge-i  #878179 on the floodlit    #443021   3.21:1  (control edges)
+  **BOTH EDGE TOKENS FAILED THE MOMENT THE GROUND STOPPED BEING FLAT** —
+  #8C8880 fell to 2.76:1 where the grid lines cross, and #6E6960 to 2.27:1
+  under the orange flood — both against a 3:1 floor, and both still reading
+  3.53 and 3.37 against the tokens they were corrected on. **The floodlight
+  is the sharper case: it LIGHTENS the dark band, so the edge drawn to be
+  visible on near-black disappears into a lit near-brown.**
   **EVERY FIGURE ABOVE WAS RE-WRITTEN FROM THE MEASUREMENT.** The ten typed
   from judgement before running the calculator were all within about a point
   and every one of them was WRONG — which is precisely how site 1 shipped a
@@ -75,7 +98,7 @@
   --hot:#FF8A3D;        /* orange on the dark ground */
   --hot-ink:#A33500;    /* the same orange as WORDS on white, corrected */
   --on-hot:#2B0E00;     /* what goes ON the orange */
-  --edge-p:#8C8880; --edge-i:#6E6960;      /* control edges — 3:1 */
+  --edge-p:#827E76; --edge-i:#878179;      /* control edges — 3:1 */
   --rule-p:#E2E0DC; --rule-i:#2E2A23;      /* decorative hairlines */
   /* Bebas Neue is caps-only by design, which is exactly the "huge, heavy,
      condensed" job of the references and cannot drift into being a body face.
@@ -91,9 +114,66 @@ body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--body);fo
 img{max-width:100%;display:block}
 a{color:inherit}
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 22px}
+/* ══ THE GROUND IS NOT FLAT — HIS CORRECTION, 2026-09-07 ══════════════════
+   *"A very plain colored black background… maybe a gradient animation, a
+   little pattern, something just to make it feel more professional."*
+   Same instruction as site i and a DIFFERENT ANSWER, because this page is a
+   FIXTURE LIST and site i is a spec sheet. A ledger's ground is RULED — so
+   the light bands get a faint 27px grid and a warm wash from the top right,
+   which is the texture the noun already implied and which none of the other
+   ten pages in this folder has.
+
+   THE WASH IS UNDER 4% ON PURPOSE AND THE RATIOS BELOW WERE RE-COMPUTED
+   AGAINST THE BLENDED GROUND. A gradient behind text changes the pixels the
+   text sits on, and this page's tightest figure — `--hot-ink` as words — is
+   the one that loses when paper gets warmer. See the second token block.
+
+   THE DARK SURFACES DRIFT AND THE PAPER DOES NOT. Motion on a ledger reads
+   as a glitch; motion in the floodlit half reads as light. */
 .band{padding:70px 0;background:var(--paper);color:var(--fg)}
+/* **`overflow: hidden` IS LOAD-BEARING AND WAS FOUND BY MEASURING.** The
+   flood layer is `scale(1.07)` at the far end of its drift, so it reaches
+   3.5% past its own box on every side — and to the RIGHT that is a page that
+   scrolls sideways, which is one of the four things `sweep-widths.mjs` fails
+   a run for. Site i's identical layer drifts LEFT and so never showed it:
+   the same defect, invisible on one page and reported on the other by the
+   direction of one number. */
+.band, .hero, .score, footer{position:relative;isolation:isolate;overflow:hidden}
+.band::before, .hero::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(62% 48% at 96% -8%, rgba(255,138,61,.038), transparent 64%),
+    radial-gradient(46% 40% at 2% 106%, rgba(23,20,15,.028), transparent 66%),
+    linear-gradient(rgba(23,20,15,.028) 1px, transparent 1px) 0 0/100% 27px,
+    linear-gradient(90deg, rgba(23,20,15,.028) 1px, transparent 1px) 0 0/27px 100%;
+}
 .band.dark{background:var(--ink);color:var(--ink-fg)}
 .band.dark .dim{color:var(--ink-dim)}
+/* The floodlight. Two blooms in the accent, wide and low, so the dark half
+   reads as a lit yard rather than as a fill. */
+.band.dark::before, .score::before, footer::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(70% 66% at 8% -10%, rgba(255,138,61,.10), transparent 62%),
+    radial-gradient(56% 52% at 98% 110%, rgba(255,138,61,.055), transparent 60%),
+    repeating-linear-gradient(90deg, rgba(245,242,236,.02) 0 1px, transparent 1px 27px);
+  animation:flood 40s ease-in-out infinite alternate;
+}
+@keyframes flood{
+  from{transform:translate3d(0,0,0) scale(1)}
+  to{transform:translate3d(3%,-2%,0) scale(1.07)}
+}
+/* GRAIN, ITS OWN LAYER, NEVER MOVING — a perfectly smooth gradient bands on
+   a real screen, and noise is what a photograph has. Inline SVG turbulence,
+   so it costs no request. */
+.band::after, .hero::after, .score::after, footer::after{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.34;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E");
+}
+.band.dark::after, .score::after, footer::after{opacity:.5}
+@media (prefers-reduced-motion:reduce){
+  .band.dark::before, .score::before, footer::before{animation:none}
+}
 .band.tight{padding:44px 0}
 .dim{color:var(--dim)}
 
@@ -120,7 +200,10 @@ p{margin:0 0 15px;max-width:60ch}
    and over it on a phone, so the picture is never decoration. */
 .hero{padding:38px 0 12px}
 .hero .in{display:grid;grid-template-columns:1.02fr .98fr;gap:38px;align-items:center}
-.hero .shot{border-radius:8px;overflow:hidden;aspect-ratio:5/4;background:var(--paper-2)}
+/* DEPTH IS THE OTHER HALF OF HIS NOTE. A photograph with a 1px edge and
+   nothing under it is the flat-ground problem at card scale. */
+.hero .shot{border-radius:8px;overflow:hidden;aspect-ratio:5/4;background:var(--paper-2);
+  box-shadow:0 2px 6px rgba(23,20,15,.06), 0 26px 50px -22px rgba(23,20,15,.34)}
 .hero .shot img{width:100%;height:100%;object-fit:cover}
 .hero h1{max-width:11ch}
 .hero .sub{font-size:clamp(15.5px,1.7vw,19px);margin:16px 0 22px;max-width:40ch;color:var(--dim)}
@@ -203,8 +286,35 @@ footer .dim{color:var(--ink-dim)}
   .wrap{padding:0 15px}
 }
 @media (prefers-reduced-motion:no-preference){
-  .btn{transition:transform .12s ease}
-  .btn:hover{transform:translateY(-1px)}
+  .btn{transition:transform .12s ease, box-shadow .12s ease}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px -6px rgba(255,138,61,.55)}
+  .hero .shot{transition:transform .5s cubic-bezier(.2,.7,.3,1)}
+  .hero .shot img{transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+  .hero .shot:hover img{transform:scale(1.04)}
+  /* ── ONE ORCHESTRATED ARRIVAL PER SECTION ────────────────────────────
+     A staggered rise as each band comes into view. One well-orchestrated
+     reveal beats a dozen scattered micro-interactions, and nothing on the
+     page acknowledging that a person is moving through it is the other half
+     of "it looks like AI put it together fast".
+
+     **THE HIDDEN STATE IS ADDED BY SCRIPT, NEVER BY THE STYLESHEET**, so no
+     JS — or a throw — leaves the page fully visible rather than blank. That
+     is the `data-rv` defect this repo already shipped once, where a node
+     added after mount sat at opacity 0 for ever. */
+  /* **THE REVEALED STATE IS `rv-in`, NOT `in`, AND THAT COST A BROKEN HERO.**
+     The first version added a class called `in` — and this page's own hero is
+     `<div class="wrap in">` with `.hero .in{display:grid;…}` behind it. So the
+     reveal handed the grid rule to the two divs INSIDE the hero as well: the
+     kicker collapsed to a 122px column, the headline moved 160px right, and
+     the photograph lost a third of its width. **Nothing reported it.** No
+     console error, no sideways scroll, every reveal fired, and every contrast
+     figure was still correct — the page was simply the wrong shape, which is
+     the one thing only looking at it can find.
+     The general rule: a marker class a script writes onto arbitrary elements
+     has to be namespaced, because it is being applied to markup that was not
+     written with it in mind. */
+  .rv-on [data-rv]{opacity:0;transform:translateY(14px)}
+  .rv-on [data-rv].rv-in{opacity:1;transform:none;transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.3,1)}
 }
 </style>
 </head>
@@ -379,6 +489,34 @@ footer .dim{color:var(--ink-dim)}
 </footer>
 
 <script>
+  /* THE REVEAL. Guarded end to end: the hidden class is added only once the
+     observer exists, and anything that throws restores full visibility. */
+  (function () {
+    try {
+      if (!("IntersectionObserver" in window)) return;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var items = document.querySelectorAll(".band > .wrap > *, .hero .in > *, .score .wrap > *");
+      if (!items.length) return;
+      document.documentElement.classList.add("rv-on");
+      items.forEach(function (el) { el.setAttribute("data-rv", ""); });
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var el = e.target;
+          // Capped at four steps: past that a reveal stops reading as
+          // choreography and starts reading as lag.
+          var i = [].slice.call(el.parentElement.children).indexOf(el);
+          el.style.transitionDelay = Math.min(i, 4) * 55 + "ms";
+          el.classList.add("rv-in");
+          io.unobserve(el);
+        });
+      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+      items.forEach(function (el) { io.observe(el); });
+    } catch (e) {
+      document.documentElement.classList.remove("rv-on");
+    }
+  }());
+
   /* Demo only — a live build re-quotes through `calculate-booking`. This is
      the one block a real build deletes rather than edits. */
   (function () {

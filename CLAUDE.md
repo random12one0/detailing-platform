@@ -240,6 +240,31 @@ explaining it; if they still have to ask "so should I?", it failed.
   photograph at scale" is a claim about the FOLD** — k's headline pushed its
   photo to 815px down a 900px screen and the rule was true of the file and
   false of the page.
+  **AND HE THEN LOOKED AT THEM AND NAMED THE TELL HIMSELF — § 4c of that file,
+  2026-09-07:** *"a lot of this is like a very plain colored black background…
+  maybe a gradient animation, a little pattern, something just to make it feel
+  more professional. That's what I kinda get the AI, not really professional
+  idea from."* **He is right and the frontend guidance in the global rules
+  already said it** — *create atmosphere and depth rather than defaulting to
+  solid colours* — and all three pages shipped a flat `background: var(--ink)`
+  and passed every check in this repo. **§ 3 is what his references SHARE, and
+  a flat ground is not on that list because it is a thing none of them has: a
+  list of what to include cannot catch what everybody omits.** All three have
+  layered grounds now, one per page and deliberately not one recipe painted
+  three colours (lit glass, ruled paper, painted metal), plus one orchestrated
+  arrival each. **Four more rules came out of it and they bind the next page:**
+  **a gradient behind text is a NEW GROUND and every ratio has to be taken
+  again** — five tokens across the three failed the moment the ground stopped
+  being flat while still reading correct against the token they were corrected
+  on; **a drifting layer needs `overflow: hidden`**, and whether anybody finds
+  out depends on the SIGN of one number (j's drifts right and scrolled the
+  page sideways, i's identical layer drifts left and was silent); **a marker
+  class a script writes onto arbitrary elements must be namespaced** — a reveal
+  class called `in` met `<div class="wrap in">` and `.hero .in{display:grid}`,
+  and broke j's whole hero with no console error, no sideways scroll, every
+  reveal firing and every contrast figure still correct, found only by LOOKING;
+  and **the hidden state of a reveal is added by script, never by the
+  stylesheet**, or a failed script is a blank page.
   **ALL FIVE ARE BUILT** (`docs/tenant-sites/d-ridgeline`, `e-kiln`, `f-sudsy`,
   `g-estate`, `h-fleet`) **and § 5 of that file ranks what actually produced
   the variety, which is NOT the family pair.** In order: (1) the **TENSION**

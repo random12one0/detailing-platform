@@ -62,10 +62,10 @@
   --red:#A81F14;        /* the painted ground */
   --red-2:#8E1810;      /* the same paint, one step down, for a nested block */
   --on-red:#FFF6F4;     /* what goes ON the paint */
-  --on-red-dim:#F6CDC7; /* the quiet voice on the paint — 5.04:1, see below */
+  --on-red-dim:#F9DAD6; /* the quiet voice on the paint — 5.58:1, see below */
   --paper:#FBFAF8; --paper-2:#F0EEEA; --fg:#161310; --dim:#54504A;
   --red-ink:#8E1810;    /* the same red as WORDS on paper */
-  --edge-r:#E7A79F; --edge-p:#8B857D;   /* control edges — 3:1 */
+  --edge-r:#E7A79F; --edge-p:#837D76;   /* control edges — 3:1 */
   --rule-r:#C0524A; --rule-p:#DEDAD3;   /* decorative hairlines */
   /* Saira Condensed at 700/800 is the "huge, heavy, condensed" face; Karla
      is a grotesque with real, slightly odd numerals that keep a price list
@@ -80,16 +80,36 @@
    about a point. Site 1 in this folder shipped a comment claiming 4.5:1 over
    a token at 3.93.
      --on-red     #FFF6F4 on --red   #A81F14 ....... 6.88:1
-     --on-red-dim #F6CDC7 on --red   #A81F14 ....... 5.04:1
-     --on-red-dim #F6CDC7 on --red-2 #8E1810 ....... 6.33:1
+     --on-red-dim #F9DAD6 on --red   #A81F14 ....... 5.58:1
+     --on-red-dim #F9DAD6 on --red-2 #8E1810 ....... 7.01:1
      --on-red     #FFF6F4 on --red-2 #8E1810 ....... 8.63:1
      --fg         #161310 on --paper #FBFAF8 ...... 17.74:1
      --dim        #54504A on --paper #FBFAF8 ....... 7.67:1
      --dim        #54504A on --paper-2 #F0EEEA ..... 6.91:1
      --red-ink    #8E1810 on --paper #FBFAF8 ....... 8.80:1
      --edge-r     #E7A79F on --red   #A81F14 ....... 3.63:1  (control edge)
-     --edge-p     #8B857D on --paper #FBFAF8 ....... 3.50:1  (control edge)
+     --edge-p     #837D76 on --paper #FBFAF8 ....... 3.90:1  (control edge)
    A DECORATIVE HAIRLINE IS A DIFFERENT TOKEN and is allowed to be quiet.
+
+   ── AND AGAIN, AGAINST THE BLENDED GROUND, AFTER THE PAINT GOT A SURFACE ─
+   He asked for a ground with something in it (2026-09-07) and **a sheen over
+   a ground changes the pixels the text sits on**, so every figure above
+   became a figure about a colour that is no longer under anything. These are
+   measured at the WORST POINT of the layer stack — every gradient and the
+   grain at its own peak, composited at one pixel.
+     --on-red     #FFF6F4 on the lit paint  #B03429 . 5.87:1
+     --on-red-dim #F9DAD6 on the lit paint  #B03429 . 4.76:1
+     --edge-r     #E7A79F on the lit paint  #B03429 . 3.10:1  (control edge)
+     --fg         #161310 on the washed     #E9E2E0  14.48:1
+     --dim        #54504A on the washed     #E9E2E0 . 6.26:1
+     --red-ink    #8E1810 on the washed     #E9E2E0 . 7.18:1
+     --edge-p     #837D76 on the washed     #E9E2E0 . 3.18:1  (control edge)
+   **`--on-red-dim` FAILED FOR THE SECOND TIME, AND FOR A NEW REASON.** At
+   #F6CDC7 it read 5.04:1 on the token and **4.30:1 on the lit paint** — the
+   sheen lightens the ground under exactly the text that had the least room,
+   so a change that touched no colour at all broke a corrected one. #F9DAD6
+   now. `--edge-p` went the same way at 2.86:1 where a halftone dot lands on
+   a 1px border.
 
    **AND `--on-red-dim` FAILED ON ITS FIRST RUN AT 4.41:1** — #F0BDB6, drawing
    the kickers, the stat labels, the table headings and every form label on
@@ -105,8 +125,61 @@ body{margin:0;background:var(--red);color:var(--on-red);font-family:var(--body);
 img{max-width:100%;display:block}
 a{color:inherit}
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 22px}
+/* ══ THE PAINT HAS A SURFACE — HIS CORRECTION, 2026-09-07 ════════════════
+   *"A very plain colored background… maybe a gradient animation, a little
+   pattern, something just to make it feel more professional. That's what I
+   kinda get the AI, not really professional idea from."*
+   Third page, third answer, and the answer comes from what the page IS. Site
+   i is lit glass, site j is ruled paper; this one is PAINTED, so its ground
+   is a screen-print: a coarse halftone at 3%, a slow sheen across the top
+   like light moving over a wall, and real grain. A perfectly flat #A81F14 is
+   a fill; paint has a surface, and the surface is the whole difference
+   between a designed page and a `background-color`.
+
+   THE SHEEN IS THE ONLY THING THAT MOVES AND IT MOVES ONCE A MINUTE. On a
+   ground this saturated anything faster reads as a video artefact.
+
+   **EVERY FIGURE IN THE TOKEN BLOCK WAS RE-COMPUTED AGAINST THE LIGHTEST
+   POINT OF THIS GRADIENT, NOT AGAINST `--red`.** A sheen over a ground
+   changes the pixels the text sits on, and `--on-red-dim` is this page's
+   tightest ratio — it was 4.41:1 once already under a comment claiming
+   4.55, which is why the rule in CLAUDE.md is that the contrast comment is
+   written AFTER the calculator runs. See the second block under the tokens.
+
+   IT IS `position: fixed` ON PURPOSE. A painted wall does not scroll with
+   what is hung on it, and one layer for the whole page costs one element. */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(58% 42% at 14% -6%, rgba(255,246,244,.055), transparent 62%),
+    radial-gradient(52% 46% at 96% 104%, rgba(0,0,0,.10), transparent 64%),
+    radial-gradient(circle at 2px 2px, rgba(0,0,0,.055) 1.4px, transparent 1.6px) 0 0/13px 13px;
+  animation:sheen 58s ease-in-out infinite alternate;
+}
+/* GRAIN IS ITS OWN LAYER AND NEVER MOVES — noise that drifts reads as
+   compression, not as paint. Inline SVG turbulence, so it costs no request. */
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.075'/%3E%3C/svg%3E");
+}
+@keyframes sheen{
+  from{transform:translate3d(0,0,0) scale(1)}
+  to{transform:translate3d(4%,2%,0) scale(1.09)}
+}
+@media (prefers-reduced-motion:reduce){ body::before{animation:none} }
+
 .band{padding:70px 0}
-.band.paper{background:var(--paper);color:var(--fg)}
+/* The paper bands sit ON the paint, so they get their own quiet version of
+   it rather than a hole cut in the page: a faint red wash and the same
+   halftone at a third of the strength. */
+.band.paper{background:var(--paper);color:var(--fg);position:relative;isolation:isolate}
+.band.paper::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(64% 50% at 98% -6%, rgba(168,31,20,.045), transparent 62%),
+    radial-gradient(48% 44% at 0% 106%, rgba(22,19,16,.03), transparent 66%),
+    radial-gradient(circle at 2px 2px, rgba(22,19,16,.035) 1.2px, transparent 1.4px) 0 0/14px 14px;
+}
 .band.paper .dim{color:var(--dim)}
 .dim{color:var(--on-red-dim)}
 .band.tight{padding:44px 0}
@@ -137,7 +210,10 @@ p{margin:0 0 15px;max-width:60ch}
 .hero{padding:30px 0 8px}
 .hero h1{max-width:16ch;margin-bottom:16px}
 .hero .sub{font-size:clamp(16px,1.9vw,21px);max-width:42ch;margin:0 0 24px;color:var(--on-red)}
-.plate{border-radius:10px;overflow:hidden;aspect-ratio:16/7;background:var(--red-2);margin-top:30px}
+/* DEPTH — the other half of his note. The plate is an object held against
+   the paint, and a shadow is what says somebody put it there. */
+.plate{border-radius:10px;overflow:hidden;aspect-ratio:16/7;background:var(--red-2);margin-top:30px;
+  box-shadow:0 3px 8px rgba(0,0,0,.20), 0 34px 60px -26px rgba(0,0,0,.5)}
 .plate img{width:100%;height:100%;object-fit:cover}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 27px;
@@ -227,8 +303,35 @@ footer{background:var(--red-2);padding:38px 0 50px;font-size:14.5px}
 }
 @media (max-width:380px){ .wrap{padding:0 15px} .figs{grid-template-columns:1fr 1fr} }
 @media (prefers-reduced-motion:no-preference){
-  .btn{transition:transform .12s ease}
-  .btn:hover{transform:translateY(-1px)}
+  .btn{transition:transform .12s ease, box-shadow .12s ease}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px -8px rgba(0,0,0,.55)}
+  .plate img{transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+  .plate:hover img{transform:scale(1.035)}
+  .slot{transition:background .2s ease}
+  .slot:hover{background:rgba(168,31,20,.035)}
+  /* ── ONE ORCHESTRATED ARRIVAL PER SECTION ────────────────────────────
+     One well-orchestrated reveal beats a dozen scattered micro-interactions,
+     and a page that never acknowledges somebody moving through it is the
+     other half of "it looks like AI put it together fast".
+
+     **THE HIDDEN STATE IS ADDED BY SCRIPT, NEVER BY THE STYLESHEET**, so no
+     JS — or a throw — leaves the page fully visible rather than blank. That
+     is the `data-rv` defect this repo already shipped once, where a node
+     added after mount sat at opacity 0 for ever. */
+  /* **THE REVEALED STATE IS `rv-in`, NOT `in`, AND THAT COST A BROKEN HERO.**
+     The first version added a class called `in` — and this page's own hero is
+     `<div class="wrap in">` with `.hero .in{display:grid;…}` behind it. So the
+     reveal handed the grid rule to the two divs INSIDE the hero as well: the
+     kicker collapsed to a 122px column, the headline moved 160px right, and
+     the photograph lost a third of its width. **Nothing reported it.** No
+     console error, no sideways scroll, every reveal fired, and every contrast
+     figure was still correct — the page was simply the wrong shape, which is
+     the one thing only looking at it can find.
+     The general rule: a marker class a script writes onto arbitrary elements
+     has to be namespaced, because it is being applied to markup that was not
+     written with it in mind. */
+  .rv-on [data-rv]{opacity:0;transform:translateY(14px)}
+  .rv-on [data-rv].rv-in{opacity:1;transform:none;transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.3,1)}
 }
 </style>
 </head>
@@ -432,6 +535,34 @@ footer{background:var(--red-2);padding:38px 0 50px;font-size:14.5px}
 </footer>
 
 <script>
+  /* THE REVEAL. Guarded end to end: the hidden class is added only once the
+     observer exists, and anything that throws restores full visibility. */
+  (function () {
+    try {
+      if (!("IntersectionObserver" in window)) return;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var items = document.querySelectorAll(".band > .wrap > *, .hero .wrap > *, .day .slot");
+      if (!items.length) return;
+      document.documentElement.classList.add("rv-on");
+      items.forEach(function (el) { el.setAttribute("data-rv", ""); });
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var el = e.target;
+          // Capped at four steps: past that a reveal stops reading as
+          // choreography and starts reading as lag.
+          var i = [].slice.call(el.parentElement.children).indexOf(el);
+          el.style.transitionDelay = Math.min(i, 4) * 55 + "ms";
+          el.classList.add("rv-in");
+          io.unobserve(el);
+        });
+      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+      items.forEach(function (el) { io.observe(el); });
+    } catch (e) {
+      document.documentElement.classList.remove("rv-on");
+    }
+  }());
+
   /* Demo only — a live build re-quotes through `calculate-booking`. */
   (function () {
     var base = { "Morning wash": 110, "Correction & protect": 720, "Interior deep clean": 295 };
