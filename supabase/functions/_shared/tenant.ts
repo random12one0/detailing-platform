@@ -32,8 +32,11 @@ export interface BusinessSettings {
   max_advance_days: number | null;
   slot_interval_minutes: number;
   max_bookings_per_day: number | null;
-  mobile_enabled: boolean;
-  dropoff_enabled: boolean;
+  // Nullable since roadmap 8.4: null means nobody has been asked, and the
+  // whole booking engine already refuses on that — slotValidation turns down
+  // every service type and available-slots returns no slots.
+  mobile_enabled: boolean | null;
+  dropoff_enabled: boolean | null;
   travel_radius_miles: number | null;
   travel_fee: number | null;
   ask_water_electric: boolean;
@@ -95,6 +98,15 @@ export interface BusinessSettings {
 
 // Missing settings row → every default the schema declares. Fetched fresh per
 // request (no caching) so a settings edit takes effect immediately.
+//
+// **AND THE SCHEMA STOPPED DECLARING TWO OF THEM — roadmap 8.4.**
+// `mobile_enabled` and `dropoff_enabled` were `not null default true` and are
+// now nullable with no default, so this fallback has to say null as well. It
+// said `true` for both, which meant a business with NO SETTINGS ROW AT ALL —
+// the one case this branch exists for — would have been treated as offering
+// everything, which is the assumption the migration removed, surviving in the
+// one place nobody would look for it. Null here also makes the fallback agree
+// with what an inserted row now holds.
 export async function getSettings(businessId: string): Promise<BusinessSettings> {
   const { data } = await supabase
     .from("business_settings")
@@ -109,8 +121,8 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
     max_advance_days: null,
     slot_interval_minutes: 30,
     max_bookings_per_day: null,
-    mobile_enabled: true,
-    dropoff_enabled: true,
+    mobile_enabled: null,
+    dropoff_enabled: null,
     travel_radius_miles: null,
     travel_fee: null,
     ask_water_electric: true,

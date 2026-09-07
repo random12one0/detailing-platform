@@ -30,13 +30,15 @@
 // the edge, which is why Share already takes its own line.
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Copy, Download, ExternalLink, QrCode, Share2 } from "lucide-react";
+import { Check, Copy, Download, ExternalLink, QrCode, Share2, TriangleAlert } from "lucide-react";
 // Zero dependencies of its own, and the reason it is a library rather than
 // 250 lines here: a QR is Reed-Solomon over GF(256) plus mask selection, and
 // I have no way to check that a hand-rolled one SCANS. A code that looks
 // right and does not scan is the “printed but not charged” family of defect
 // this repo already has a rule about. The owner asked for it 2026-09-02.
 import qrcode from "qrcode-generator";
+import { useBusiness } from "../context/BusinessContext.jsx";
+import { bookable } from "../book/core.js";
 
 // 4 modules of clear margin is the spec’s own figure, not a taste choice —
 // below it a scanner cannot find the code’s edge against whatever it is
@@ -70,6 +72,13 @@ export default function BookingLink({
   footnote = "Put this in your bio, on your cards and in your texts. Customers book themselves from here.",
   shareTitle = "Book with us",
 }) {
+  // Roadmap 8.4 — whether this link can actually take a booking. `settings`
+  // is null for the moment before the context resolves, and `bookable` says
+  // no to that; the warning would flash on every load. Absent settings is not
+  // an answer, so it draws nothing until there is one.
+  const { settings } = useBusiness();
+  const linkWorks = !settings || bookable(settings);
+
   const [copied, setCopied] = useState(false);
   const [canShare, setCanShare] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
@@ -184,6 +193,34 @@ export default function BookingLink({
     <div className="tight" data-tour="link">
       <span className="label">{label}</span>
       <div className="card">
+        {/* **THE WARNING GOES HERE AND NOWHERE ELSE — roadmap 8.4, and this
+            is the half he called load-bearing.** A detailer who has not
+            answered *where do you work* has a link that cannot take a
+            booking: the server refuses every service type and the page tells
+            the customer they are still setting up. Sharing it before then
+            sends people to a dead end, **which is worse than the default it
+            replaces** — the old `not null default true` at least kept the
+            page working, by guessing.
+
+            **ONE GUARD IN THE SHARED COMPONENT, not one per caller.** This
+            block is rendered in six places — Today, Business twice, Campaigns, Clients
+            and Plans — and a warning added to the screen somebody happened to
+            be looking at is four screens still handing out a dead link. The
+            question is a property of the LINK, so it belongs to the thing
+            that draws the link.
+
+            It reads the context rather than taking a prop: every caller is
+            inside `BusinessProvider`, and a sixth would have to remember. */}
+        {!linkWorks && (
+          <div className="error-box" style={{ marginBottom: "var(--sp-3)" }}>
+            <TriangleAlert size={18} strokeWidth={2} />
+            <span>
+              <strong>This link can’t take a booking yet.</strong> Answer{" "}
+              <em>where you work</em> in your setup — until then anyone who opens it is
+              told you are still setting up.
+            </span>
+          </div>
+        )}
         {/* The address itself, selectable, in the figure face — it is a
             value to be read and checked, not a sentence. */}
         <div className="booking-link">{pretty}</div>

@@ -144,8 +144,19 @@ export function normalizeSettings(raw) {
   const settings = raw ?? {};
   const askWaterElectric = settings.ask_water_electric ?? true;
   return {
-    mobile_enabled: settings.mobile_enabled ?? true,
-    dropoff_enabled: settings.dropoff_enabled ?? true,
+    // **NOT `?? true` — ROADMAP 8.4.** These two are the only settings in this
+    // function whose absence is an ANSWER rather than a gap. Since the schema
+    // stopped defaulting them, `null` means nobody has been asked, and
+    // defaulting to true here would have put the assumption back one layer
+    // below the migration that removed it — a booking page offering both
+    // modes for a business the server refuses every service type for, which
+    // is the contract's own worst case: *a site can only offer a slot the
+    // server then refuses*, and the customer loses the booking.
+    // They stay NULL rather than becoming false, because a bespoke site has
+    // to be able to tell "not offered" from "not set up" to say the right
+    // thing; `bookable()` below is that question asked once.
+    mobile_enabled: settings.mobile_enabled ?? null,
+    dropoff_enabled: settings.dropoff_enabled ?? null,
     ask_water_electric: askWaterElectric,
     water_requirement: settings.water_requirement ?? (askWaterElectric ? "ask" : "not_needed"),
     power_requirement: settings.power_requirement ?? (askWaterElectric ? "ask" : "not_needed"),
@@ -379,6 +390,24 @@ export function modeLimitFor(selectedServices) {
 // found in StepLocation.
 export const offersBothModes = (settings, modeLimit) =>
   !!settings?.mobile_enabled && !!settings?.dropoff_enabled && !modeLimit;
+
+// **CAN THIS BUSINESS BE BOOKED AT ALL — roadmap 8.4, and it is the question
+// every tenant site has to ask before it draws a form.**
+//
+// A detailer who has not answered *where do you work* has neither mode on, and
+// the server already refuses on both counts: `slotValidation` turns down every
+// service type, and `available-slots` skips every slot. So the engine is safe
+// without this — what this is for is SAYING SO. Without it a customer meets a
+// calendar with no times in it and concludes the detailer is booked solid,
+// which is the worst reading available: it is a lost customer who thinks they
+// were too late rather than one who knows to come back.
+//
+// It is deliberately not `mobile === false && dropoff === false`. A detailer
+// who genuinely turned both off is in the same position as one who never
+// answered — nothing can be booked either way — and a customer does not care
+// which. The DETAILER's screen is where the two are told apart.
+export const bookable = (settings) =>
+  !!settings?.mobile_enabled || !!settings?.dropoff_enabled;
 
 // ---------------------------------------------------------------------------
 // The vehicle.

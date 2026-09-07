@@ -105,8 +105,14 @@ export default function BookingRules() {
     customer_reminder_lead_minutes: settings?.customer_reminder_lead_minutes ?? 1440,
     customer_reminder_2_enabled: settings?.customer_reminder_2_enabled ?? false,
     customer_reminder_2_lead_minutes: settings?.customer_reminder_2_lead_minutes ?? 120,
-    mobile_enabled: settings?.mobile_enabled ?? true,
-    dropoff_enabled: settings?.dropoff_enabled ?? true,
+    // **NOT `?? true` — roadmap 8.4.** Every other fallback on this form is a
+    // sensible default for a value nobody has an opinion about; these two are
+    // the one question where "no value" is an ANSWER, and defaulting them
+    // would show both switches on for a business that has never been asked —
+    // the assumption put back one layer under the migration that removed it.
+    // `null` stays null, so `mode` below has nothing selected.
+    mobile_enabled: settings?.mobile_enabled ?? null,
+    dropoff_enabled: settings?.dropoff_enabled ?? null,
     ask_water_electric: settings?.ask_water_electric ?? true,
     water_requirement: settings?.water_requirement ?? "ask",
     power_requirement: settings?.power_requirement ?? "ask",
@@ -141,8 +147,14 @@ export default function BookingRules() {
   };
 
   // "What you offer" as one value, so both-off is unrepresentable.
-  const mode = form.mobile_enabled && form.dropoff_enabled ? "both"
-    : form.mobile_enabled ? "mobile" : "dropoff";
+  // **AND `null` IS A FOURTH READING, NOT A FOURTH OPTION — roadmap 8.4.** A
+  // business that has never answered gets no selection at all rather than a
+  // guess; the control still offers exactly three, because "I have not
+  // decided" is not something a detailer should be able to choose ON PURPOSE.
+  // It is a state you arrive in and leave, never one you pick.
+  const mode = form.mobile_enabled == null && form.dropoff_enabled == null ? null
+    : form.mobile_enabled && form.dropoff_enabled ? "both"
+      : form.mobile_enabled ? "mobile" : "dropoff";
   const setMode = (m) => setForm((f) => ({
     ...f,
     mobile_enabled: m === "mobile" || m === "both",

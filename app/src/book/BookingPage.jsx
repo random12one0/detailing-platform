@@ -28,7 +28,7 @@ import { tenantHost } from "../lib/host.js";
 import { duration, money } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import {
-  bookingRequest, campaignFor, canAdvance as coreCanAdvance, initialForm,
+  bookable, bookingRequest, campaignFor, canAdvance as coreCanAdvance, initialForm,
   modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
   recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
   visitorIdFor,
@@ -290,6 +290,46 @@ function BookingFlow({ notFound = null }) {
   }
   if (confirmed) {
     return <BookingConfirmed booking={confirmed} form={form} />;
+  }
+  // **STILL SETTING UP — roadmap 8.4, and it is an EXPLANATION rather than a
+  // gate.** The gate already exists and needs no code: with neither mode
+  // answered, `slotValidation` refuses every service type and `available-slots`
+  // skips every slot, so nothing can be booked here whatever this page draws.
+  //
+  // What that produced without this block is the worst reading available — a
+  // customer walking four steps to a calendar with **no times in it**, and
+  // concluding the detailer is booked solid. That is a lost customer who
+  // thinks they were too late, rather than one who knows to come back. Saying
+  // it at the top costs them four steps less and says the true thing.
+  //
+  // It is NOT `status: "not_found"`: the business exists, the page is theirs,
+  // and their branding is on it. A 404 here would also be the wrong answer for
+  // the detailer, who is midway through setting up and needs their link to
+  // look like something rather than like a mistake.
+  if (!bookable(settings)) {
+    return (
+      <div className="bk" style={brandVars}>
+        <div className="bk-center">
+          <h1>{business?.name} isn’t taking bookings online yet</h1>
+          <p className="bk-muted">
+            They’re still setting this page up. Check back shortly — or get in touch with
+            them directly.
+          </p>
+          {/* **`business.phone`, NOT `contact_phone` — and the email is not
+              here at all.** The public profile renames it (`'phone',
+              b.contact_phone` in the RPC) and carries no address: that is
+              tenant-site-contract §6f, an open question with the owner about
+              whether a detailer's email belongs on a public page. The first
+              version of this block read both column names straight off
+              `businesses` and rendered NOTHING — a fallback that looks like a
+              feature and can never fire, found by opening the page rather
+              than by any check. */}
+          {business?.phone && (
+            <p className="bk-muted"><a href={`tel:${business.phone}`}>{business.phone}</a></p>
+          )}
+        </div>
+      </div>
+    );
   }
 
   const stepName = STEPS[step];

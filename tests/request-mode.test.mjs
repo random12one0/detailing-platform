@@ -127,9 +127,13 @@ const R = bizRes.data[0];
 await svc.post("/rest/v1/business_users", [{ business_id: R.id, user_id: owner.id, role: "owner" }]);
 // buffer 0 so two adjacent test days never argue with each other, and no
 // rounding so every figure below is exact arithmetic rather than nearly.
+// The two modes are spelled out since roadmap 8.4 — they are nullable with
+// no default now, and NULL means nobody has been asked, which makes the
+// fixture unbookable. See tests/booking-engine.test.mjs for the full note.
 await svc.post("/rest/v1/business_settings", [{
   business_id: R.id, slot_interval_minutes: 60, buffer_minutes: 0,
   price_rounding_nearest: 1, booking_mode: "reserve",
+  mobile_enabled: true, dropoff_enabled: true,
 }]);
 await svc.post(
   "/rest/v1/business_hours",

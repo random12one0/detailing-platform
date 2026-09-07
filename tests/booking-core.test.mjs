@@ -24,6 +24,11 @@ import {
   recallCustomer, rememberCustomer, shiftMonth, slotsForType, stepsFor,
   toggleService, visitorIdFor,
 } from "../app/src/book/core.js";
+import { readFileSync, readdirSync } from "node:fs";
+const read = (p) => readFileSync(p, "utf8");
+// Comments out, and single-quoted strings left alone: these are JS/SQL
+// files, and the SQL stripper pairs apostrophes across hundreds of lines.
+const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|--).*$/gm, "");
 
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
@@ -129,6 +134,13 @@ const svc = (id, extra = {}) => ({ id, name: id, price: 100, duration_minutes: 6
   const s = {
     vehicle_sizes: [{ key: "compact" }, { key: "truck" }],
     travel_zones: [{ key: "north", fee: 0 }, { key: "far", fee: 40 }],
+    // **SPELLED OUT SINCE ROADMAP 8.4.** This fixture used to omit both modes
+    // and still get "mobile", because `normalizeSettings` defaulted them to
+    // true — so the check below was really testing the assumption the schema
+    // has now dropped. A fixture that has not answered is a different case and
+    // it is the one immediately after this block.
+    mobile_enabled: true,
+    dropoff_enabled: true,
   };
   const f = initialForm(s, null);
   check("the FIRST vehicle size is the default", f.vehicleSize === "compact", f.vehicleSize);
@@ -616,6 +628,123 @@ console.log("\n12. a booking does not block its own move");
   check("and no other caller does",
     others.every((f) => !/exclude_booking_id/.test(readFileSync(f, "utf8"))),
     others.filter((f) => /exclude_booking_id/.test(readFileSync(f, "utf8"))).join(", "));
+}
+
+// ─── 13. NOTHING IS ASSUMED AT SIGNUP ─────────────────────────────────────
+// ROADMAP 8.4 — *"the brand shouldn't assume anything… everything should just
+// be blank off start."*
+//
+// `mobile_enabled` and `dropoff_enabled` were `boolean not null default true`,
+// so **"I do both" and "nobody has ever been asked" were the identical two
+// rows.** The migration makes them nullable with no default, which creates the
+// third state; his ruling is that a business in it **cannot be booked**.
+//
+// **MOST OF WHAT THIS SECTION GUARDS IS AN ABSENCE, and that is why it exists
+// rather than a behavioural test.** The enforcement needed no code — it falls
+// out of arithmetic already in the engine — so there is nothing to break
+// loudly. A session that "tidies" either expression below turns an unfinished
+// business back into one that quietly takes bookings it cannot honour.
+console.log("\n13. nothing is assumed at signup (roadmap 8.4)");
+{
+  const mig = read("supabase/migrations/20260907000100_no_assumed_service_modes.sql");
+  const core = strip(read("app/src/book/core.js"));
+  const validation = strip(read("supabase/functions/_shared/slotValidation.ts"));
+  const slots = strip(read("supabase/functions/available-slots/index.ts"));
+  const tenant = strip(read("supabase/functions/_shared/tenant.ts"));
+  const page = strip(read("app/src/book/BookingPage.jsx"));
+  const link = strip(read("app/src/components/BookingLink.jsx"));
+  const setupForm = strip(read("app/src/components/SetupForm.jsx"));
+  const rules = strip(read("app/src/screens/more/BookingRules.jsx"));
+  const seed = strip(read("scripts/seed-demo.mjs"));
+
+  // ── THE THIRD STATE EXISTS ────────────────────────────────────────────
+  check("13a · the migration drops both the default and the not-null",
+    /alter column mobile_enabled\s+drop default/.test(mig)
+      && /alter column mobile_enabled\s+drop not null/.test(mig)
+      && /alter column dropoff_enabled\s+drop default/.test(mig)
+      && /alter column dropoff_enabled\s+drop not null/.test(mig));
+  // The original definition must not come back in a later migration.
+  const MIGS = readdirSync("supabase/migrations").filter((f) => f.endsWith(".sql"));
+  const reintroduced = MIGS.filter((f) => f > "20260907000100"
+    && /(mobile|dropoff)_enabled[^;]*default true/i.test(strip(read(`supabase/migrations/${f}`))));
+  check("13a-ii · and nothing later puts the default back", reintroduced.length === 0,
+    `offenders: ${reintroduced.join(", ")}`);
+
+  // ── THE ENFORCEMENT, WHICH IS ARITHMETIC AND NOT A RULE ───────────────
+  // Both of these read as ordinary feature code. Neither mentions signup,
+  // setup or roadmap 8.4, and both are the ONLY reason an unanswered business
+  // cannot be booked. They are pinned here because nothing else can see them.
+  check("13b · slotValidation refuses a mode that is not enabled",
+    /serviceType === "mobile" && !settings\.mobile_enabled/.test(validation)
+      && /serviceType === "dropoff" && !settings\.dropoff_enabled/.test(validation),
+    "with both null this refuses every service type, which is the gate");
+  check("13b-ii · available-slots drops a slot that can be neither",
+    /const isDropoff = !settings\.mobile_enabled/.test(slots)
+      && /const isMobile = !settings\.dropoff_enabled/.test(slots)
+      && /if \(isDropoff && isMobile\) continue;/.test(slots),
+    "with both null every slot is both, so the day comes back empty");
+
+  // ── AND NOTHING PUTS THE ASSUMPTION BACK ONE LAYER DOWN ───────────────
+  // This is the failure this item is most likely to have: the schema stops
+  // assuming and a `?? true` somewhere restores it, so the browser offers
+  // what the server refuses — the tenant-site contract's own worst case,
+  // where a form can only offer a slot the server then turns down.
+  check("13c · the booking core does not default the two modes",
+    /mobile_enabled: settings\.mobile_enabled \?\? null/.test(core)
+      && /dropoff_enabled: settings\.dropoff_enabled \?\? null/.test(core));
+  check("13c-ii · the server's missing-row fallback does not either",
+    /mobile_enabled: null/.test(tenant) && /dropoff_enabled: null/.test(tenant));
+  check("13c-iii · the settings form does not pre-tick them",
+    /mobile_enabled: settings\?\.mobile_enabled \?\? null/.test(rules)
+      && /form\.mobile_enabled == null && form\.dropoff_enabled == null \? null/.test(rules));
+  // **SCOPED TO THE EXPRESSION, because `: null,` appears all over a form.**
+  // The first version tested the whole file for that string and passed with
+  // the fallback restored to `"mobile"` — greenest exactly when the thing it
+  // guards is gone, which is this repo's most repeated shape of vacuity.
+  const wAt = setupForm.indexOf("where: settings?.mobile_enabled");
+  const whereExpr = wAt < 0 ? "" : setupForm.slice(wAt, setupForm.indexOf("}));", wAt));
+  check("13c-iv · and the setup form's own question opens with no answer",
+    wAt > 0
+      && /mobile_enabled \? "mobile"/.test(whereExpr)
+      && /:\s*null,\s*$/.test(whereExpr.trimEnd()),
+    "it fell through to \"mobile\", which is an answer to the one question this item is about");
+
+  // ── THE TWO EXPLANATIONS, WHICH ARE THE ONLY NEW BEHAVIOUR ────────────
+  check("13d · `bookable` is exported from the core, for tenant sites too",
+    /export const bookable = \(settings\) =>/.test(core)
+      && /!!settings\?\.mobile_enabled \|\| !!settings\?\.dropoff_enabled/.test(core));
+  check("13d-ii · the booking page says it instead of showing an empty calendar",
+    /if \(!bookable\(settings\)\)/.test(page) && /isn.t taking bookings online yet/.test(page));
+  // NOT a 404: the business exists and the page is theirs.
+  check("13d-iii · and it is not turned into a not-found",
+    !/bookable[\s\S]{0,200}status === "not_found"/.test(page));
+  check("13e · the detailer is warned where the link is SHARED",
+    /const \{ settings \} = useBusiness\(\)/.test(link)
+      && /bookable\(settings\)/.test(link)
+      && /can.t take a booking yet/.test(link));
+  // ONE GUARD, NOT ONE PER CALLER. If the warning ever moves out of
+  // BookingLink into the screens, four of the five stop having it.
+  // **DISCOVERED, NOT LISTED — and the first version WAS listed and was short
+  // by one.** It named four files; `Campaigns.jsx` renders the block too, so
+  // the check asserting "none of the callers has its own copy" was not asking
+  // about one of them. A hand-written list of call sites rots the moment
+  // somebody adds a call site, which is the whole reason the guard lives in
+  // the shared component rather than in the screens.
+  const callers = readdirSync("app/src/screens", { recursive: true })
+    .map((f) => `app/src/screens/${String(f).split("\\").join("/")}`)
+    .filter((f) => f.endsWith(".jsx") && /<BookingLink/.test(read(f)));
+  check("13e-ii · the check has subjects — the link really is shared in several places",
+    callers.length >= 5, `found: ${callers.join(", ") || "none"}`);
+  check("13e-iii · and none of them carries its own copy of the warning",
+    !callers.some((f) => /can.t take a booking yet/.test(read(f))),
+    "a warning per screen is four screens that will drift");
+
+  // ── THE SEED THAT WOULD HAVE BROKEN QUIETLY ───────────────────────────
+  // It got a bookable demo for free from the default. Without an explicit
+  // answer the demo comes back from a re-seed with an empty calendar and
+  // every booking suite fails for a reason nothing points at.
+  check("13f · the demo answers the question explicitly",
+    /mobile_enabled: true, dropoff_enabled: true,/.test(seed));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

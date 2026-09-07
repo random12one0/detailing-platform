@@ -243,6 +243,8 @@ were made more than once.
 
 - **Roadmap 8.3 — the routing complaint, and the money defect underneath it** — he asked for routing (*"if someone clicked sign in, it should detect if they already logged in"*) and the tracing found that the billing screen called subscribe with the plan as a LITERAL STRING, so a detailer who pressed Start with booking on /pricing — 35 dollars, no build fee, no term — would have been subscribed to the website plan at 60 with a 999 build fee attached. **A number PRINTED is not a number CHARGED, with the two numbers three screens apart.** The server was never wrong about any of it, which is the shape worth remembering: 284 checks passed throughout, because every one asks what the server COMPUTES and none asked which plan the browser REQUESTS. Four gaps that are one gap: the screen could not sell the booking plan at all; signup carried the term and redirected only when there was one, and the booking plan has no term; a detailer who ALREADY had an account lost the choice entirely (nobody walks that path, because whoever is testing has just made an account); and two sentences went false the moment a second plan appeared. **One module returning one string** — the server already keys quotes by term-or-booking and the screen state was already a key in that space, so the marketing page, the signup redirect and a press on a row produce the same value. **It validates and never defaults**, because a fallback would put a pre-selected plan back one screen after /pricing exists to refuse one. **And the booking plan is not a fourth rung** — those are ways to pay for one product and this is a different product, which the RUNGS note had already warned about. What he actually asked for was already true and is recorded rather than rebuilt. Its check scrapes every /app link the pricing page writes and asserts each parses to a plan the server quotes; nine breaks, all caught; and its first version went RED ON PROSE — a link inside a comment, and a template whose interpolation contains quotes.
 
+- **Roadmap 8.4 — nothing is assumed at signup, and the enforcement was already there** — *the brand should not assume anything, everything should just be blank off start.* The two service-mode columns were not-null default true, so **I do both and nobody has ever been asked were the identical two rows**; they are nullable with no default now and existing rows are untouched. **The finding that shaped the item is that the gate needed NO CODE**: with both null, slotValidation refuses every service type and available-slots skips every slot, so the refusal falls out of arithmetic nobody wrote for the purpose. Proven on one throwaway tenant, one day, one column: **0 slots unanswered, 19 the moment one mode was answered, 0 again on revert** — and a security review then enumerated every write path that creates or moves a booking, including the dashboard modal, and found none bypassing the gate. **So the product owed an EXPLANATION rather than enforcement.** A third column (modes_answered) was refused: it would keep the booleans looking honest while putting the answer somewhere the two enforcement sites cannot see. **The booking page explains rather than 404s** — without it a customer walks four steps to an empty calendar and concludes the detailer is booked solid, which is a lost customer who thinks they were too late. **The warning lives in BookingLink and not on a screen**, because the question is a property of the link and the block is rendered in six places. **It broke three fixtures and that is the evidence it works** — the demo seed and two suites all relied on the default. **And three of my own mistakes were found by LOOKING**: a contact fallback reading column names the public profile does not carry, so it could never render; a hand-written list of call sites short by one; and a check that passed with the defect restored because  appears all over a form.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -14425,3 +14427,96 @@ other side.** The scrape read the raw file, so it picked up a
 rungs' own template, whose `${founding ? "…" : ""}` contains quotes that end a
 naive match halfway through. **Strip comments before reading a file as text —
 and when the text is a template, expand it rather than match it.**
+
+## Roadmap 8.4 — nothing is assumed at signup, and the enforcement was already there
+
+**His instruction:** *"The brand shouldn't assume anything… everything should
+just be blank off start."* **His ruling on the consequence, given separately: a
+business that has not answered is NOT BOOKABLE**, its page says the detailer is
+still setting up, and the load-bearing half is the warning on the dashboard.
+
+`mobile_enabled` and `dropoff_enabled` were `boolean not null default true`, so
+**"I do both" and "nobody has ever been asked" were the identical two rows.**
+No screen could tell them apart because there was nothing to tell apart — which
+is why `app/src/lib/setup.js` records *where you work* as the one first-run step
+that can never be derived. The migration makes them nullable with no default and
+that is the whole of the schema change; **existing rows are untouched**, so no
+live booking page moved.
+
+### The finding that shaped the item: the gate needed no code
+
+**With both columns NULL the product already refuses everything**, by arithmetic
+nobody wrote for this purpose:
+
+* `_shared/slotValidation.ts` turns down `mobile` when `mobile_enabled` is falsy
+  and `dropoff` when `dropoff_enabled` is falsy — with both null, **every
+  service type is refused**, and that function is the gate `create-booking`,
+  `reschedule-booking` and `update-booking` all pass through.
+* `available-slots` computes `isDropoff = !mobile_enabled || …`,
+  `isMobile = !dropoff_enabled || …`, and skips any slot where both are true.
+  With both null that is every slot, so **the day comes back empty.**
+
+**Proven rather than reasoned about**, on one throwaway tenant, one day, one
+column changed: **0 slots unanswered → 19 the moment `mobile_enabled` was set
+true → 0 again on revert.** The security review then enumerated every write path
+that creates or moves a booking — including the dashboard's own New Booking
+modal, which goes through the same edge function — and found none that bypasses
+`validateSlot`.
+
+**So what the product owed was not enforcement but an EXPLANATION at both ends**,
+and that is all the new behaviour is.
+
+### The decisions
+
+**A THIRD COLUMN WAS REFUSED.** `modes_answered boolean` would have kept the two
+booleans looking honest while putting the real answer somewhere else — and then
+both enforcement sites would have had to learn about it, or go on believing a
+`true` that means nothing. Three states in the column that already decides is
+one fact in one place.
+
+**THE BOOKING PAGE EXPLAINS, IT DOES NOT 404.** The business exists, the page is
+theirs and their branding is on it. Without the message a customer walks four
+steps to a calendar with no times in it and concludes the detailer is **booked
+solid** — a lost customer who thinks they were too late rather than one who
+knows to come back.
+
+**THE WARNING LIVES IN `BookingLink`, NOT ON A SCREEN.** The question is a
+property of the LINK, and the block is rendered in six places; a warning added
+to whichever screen somebody was looking at is five screens still handing out a
+dead link.
+
+**`bookable()` IS IN THE CORE, so a tenant site gets the same answer.** It is
+deliberately not `mobile === false && dropoff === false`: a detailer who turned
+both off is in the same position as one who never answered, and a customer does
+not care which. The DETAILER's screen is where the two are told apart.
+
+### What it broke, which is the evidence it works
+
+**Three fixtures relied on the default and each failed loudly**: `seed-demo.mjs`
+(which would have come back from a re-seed with an empty calendar and taken
+every booking suite with it), `tests/booking-engine.test.mjs` (which collapsed
+at test 1 with *"Mobile service is not available"* — reading as a broken engine
+rather than as a fixture that never answered), and `tests/booking-core.test.mjs`'s
+own default-service-type check. All three now state what they mean. **A fixture
+that depended on an assumption is exactly what should break when the assumption
+is removed.**
+
+### Three mistakes of mine, all found by looking rather than by a check
+
+**A fallback that could never fire.** The "still setting up" page offered the
+detailer's phone and email read straight off `businesses` — but the public
+profile renames the phone (`'phone', b.contact_phone`) and carries no email at
+all (contract §6f, an open question with the owner). It rendered nothing. Found
+by opening the page; no check in this repo could have seen it.
+
+**A hand-written list of call sites that was short by one.** The check asserting
+*"no caller carries its own copy of the warning"* named four files, and
+`Campaigns.jsx` renders the block too — so it was not asking about one of them.
+It DISCOVERS the callers now. A listed set of call sites rots the moment
+somebody adds a call site, which is the same reason the guard is in the shared
+component.
+
+**And a check that was vacuous on its first baseline**: `/: null,/` over the
+whole of `SetupForm.jsx` passed with the fallback restored to `"mobile"`,
+because `: null,` appears all over a form. It is scoped to the `where:`
+expression now. Eleven breaks, every one caught.

@@ -165,6 +165,17 @@ await post("/rest/v1/business_settings", [{
   business_id: business.id,
   buffer_minutes: 45, min_advance_minutes: 120, slot_interval_minutes: 30,
   cancellation_window_hours: 24,
+  // **SPELLED OUT SINCE ROADMAP 8.4, AND THE SEED BREAKS WITHOUT IT.** These
+  // two used to be `not null default true`, so this insert got a bookable
+  // business for free; they are nullable with no default now, and NULL means
+  // nobody has been asked — which makes the business unbookable on purpose.
+  // Left implicit, the demo would come back from a re-seed with an empty
+  // calendar and `e2e-booking`, `sweep-booking-steps` and every screen that
+  // needs a booking would fail for a reason nothing points at.
+  // **The demo answers BOTH**, which is what makes it the tenant that
+  // exercises the two-choice location step; `demo-riverside` is the
+  // single-mode one, and `seed-two-tenants.mjs` has always been explicit.
+  mobile_enabled: true, dropoff_enabled: true,
   google_review_url: "https://example.com/google-review",
   yelp_review_url: "https://example.com/yelp-review",
   // ROADMAP 2.20 STAGE 1, AND ONE OF EVERY KIND THE FEATURE CAN PRODUCE —

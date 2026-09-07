@@ -135,9 +135,16 @@ await svc.post("/rest/v1/business_users", [
   { business_id: A.id, user_id: userA.id, role: "owner" },
   { business_id: B.id, user_id: userB.id, role: "owner" },
 ]);
+// **THE TWO MODES ARE SPELLED OUT SINCE ROADMAP 8.4.** They were
+// `not null default true`, so these fixtures got a bookable business for
+// free; they are nullable with no default now, and NULL means nobody has
+// been asked — which makes a business unbookable on purpose. Left implicit,
+// this whole suite collapses at test 1 with an empty slot grid and then
+// "Mobile service is not available", which reads as a broken engine rather
+// than as a fixture that never answered the question.
 await svc.post("/rest/v1/business_settings", [
-  { business_id: A.id, slot_interval_minutes: 30, buffer_minutes: 60 },
-  { business_id: B.id, slot_interval_minutes: 60, buffer_minutes: 60 },
+  { business_id: A.id, slot_interval_minutes: 30, buffer_minutes: 60, mobile_enabled: true, dropoff_enabled: true },
+  { business_id: B.id, slot_interval_minutes: 60, buffer_minutes: 60, mobile_enabled: true, dropoff_enabled: true },
 ]);
 // Open every day 08:00-18:00 for both.
 await svc.post(

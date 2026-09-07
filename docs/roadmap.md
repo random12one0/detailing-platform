@@ -6975,7 +6975,7 @@ works**, which is one line at the end rather than a pause in the middle.
       built three times.
       `platform-billing` § 20, nine breaks all caught.
 
-- [ ] 8.4 **Assume nothing at signup.** *"The brand shouldn't assume anything…
+- [x] 8.4 **Assume nothing at signup.** **DONE 2026-09-07.** *"The brand shouldn't assume anything…
       everything should just be blank off start."*
 
       **This is a migration, not a form change.** `mobile_enabled` and
@@ -6990,6 +6990,29 @@ works**, which is one line at the end rather than a pause in the middle.
       a detailer who shares their link before finishing setup would otherwise
       send people to a dead end, and that is worse than the default it
       replaces.
+
+      **WHAT SHIPPED, AND THE FINDING THAT SHAPED IT: THE GATE NEEDED NO
+      CODE.** `20260907000100_no_assumed_service_modes.sql` makes both columns
+      nullable with no default and leaves every existing row alone. With both
+      NULL the product already refuses everything, by arithmetic nobody wrote
+      for the purpose — `slotValidation` turns down every service type, and
+      `available-slots` skips every slot. **Proven on one throwaway tenant,
+      one day, one column: 0 slots unanswered → 19 the moment `mobile_enabled`
+      was set → 0 again on revert**, and `security-review` enumerated every
+      write path that creates or moves a booking (the dashboard's own New
+      Booking modal included) and found none that bypasses it.
+      **So the new behaviour is EXPLANATION, not enforcement**: the booking
+      page says the detailer is still setting up rather than 404-ing or
+      showing an empty calendar, and the warning sits in `BookingLink` — the
+      block is rendered in SIX places, so a warning on a screen is five
+      screens still handing out a dead link. `bookable()` is exported from
+      `book/core.js`, so a tenant site gets the same answer.
+      **A THIRD COLUMN WAS REFUSED** (`modes_answered`): it would keep the two
+      booleans looking honest while putting the real answer somewhere the two
+      enforcement sites cannot see.
+      **IT BROKE THREE FIXTURES AND THAT IS THE EVIDENCE IT WORKS** — the demo
+      seed and two suites all relied on the old default and now state what
+      they mean. `booking-core` § 13, eleven breaks all caught.
 
 - [ ] 8.5 **The founding spot is claimed at payment, not at signup.**
       *"It should not be taken until they pay, obviously."*

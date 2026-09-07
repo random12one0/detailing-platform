@@ -223,8 +223,18 @@ export default function SetupForm({ onClose }) {
     setDraft((d) => ({
       ...d,
       contact: { phone: business.contact_phone || "", email: business.contact_email || "" },
+      // **NOTHING IS PRE-SELECTED UNTIL SOMEBODY ANSWERS — roadmap 8.4, and
+      // this is the exact line his instruction was about.** It used to fall
+      // through to `"mobile"`, so the one question the whole item exists for
+      // opened with an answer already in it, on a business that had never
+      // been asked. Now `null` is a real state in the schema, so a business
+      // that has not answered shows nothing selected and the step cannot be
+      // completed by pressing Continue at it — which is testing-loop F-002's
+      // rule applied to the step F-002 was found on.
       where: settings?.mobile_enabled && settings?.dropoff_enabled ? "both"
-        : settings?.dropoff_enabled ? "dropoff" : "mobile",
+        : settings?.dropoff_enabled ? "dropoff"
+          : settings?.mobile_enabled ? "mobile"
+            : null,
     }));
   }, [business.contact_phone, business.contact_email, settings?.mobile_enabled, settings?.dropoff_enabled]);
 
