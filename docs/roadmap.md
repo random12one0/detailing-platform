@@ -6893,8 +6893,8 @@ made automatically, he clicks it whenever he likes, and the loop carries on
 without him — and **P-12's deletion waits on his confirmation that the login
 works**, which is one line at the end rather than a pause in the middle.
 
-- [ ] 8.1 **Record the review, and write his guide.** Two halves, both
-      documents. First: his verdict on all fifty ideas into `docs/ideas.md`
+- [x] 8.1 **Record the review, and write his guide.** **DONE 2026-09-07.**
+      Two halves, both documents. First: his verdict on all fifty ideas into `docs/ideas.md`
       with a verified status on every line, the not-published status fact into
       `docs/CHECKPOINT.md`, his eleven questions verbatim into
       `docs/overnight-log.md`, and this phase into the roadmap. Second, and
@@ -6911,6 +6911,31 @@ works**, which is one line at the end rather than a pause in the middle.
       found the same way (tips, the custom invoice line), and his own
       recollection was wrong twice the other way (deposits, deleting a
       customer). Every status is now grepped rather than remembered.
+
+      **THE FIRST HALF WAS ALREADY DONE AND WAS VERIFIED RATHER THAN ASSUMED:**
+      `docs/ideas.md` carries all fifty-one with a status and its own header
+      saying every one was read out of the code on 2026-09-06;
+      `docs/CHECKPOINT.md` line 197 carries *the platform is NOT published* in
+      his own words; questions 7 to 17 are in `docs/overnight-log.md` verbatim,
+      unanswered, because he asked for them to be saved rather than answered
+      (that is 8.20, and it runs last).
+      **THE SECOND HALF IS THE ARTIFACT, AND IT IS PUBLISHED:**
+      https://claude.ai/code/artifact/297f47c7-3cc2-49cd-9eec-82abb7222b55 —
+      *Only you can do these*. **TWELVE tasks in the order to do them**, each
+      with what it costs, the click path, and **one line saying what breaks if
+      he skips it**, which is the part that makes a checklist worth reading.
+      Grouped by WHEN rather than by system: four free ones now that are the
+      only things that can tell him something has broken; four before the first
+      real detailer (the master password, Resend's 100-a-day cap, SMTP for the
+      four already-written auth emails, Google sign-in); two in December
+      (the live Stripe keys, which never touch a chat or a file, and the Tax
+      address); one per detailer (the Netlify alias, which cannot be automated
+      without putting a token to the whole site inside the product); and
+      **Google Business Profile started early because Google is the slow part**
+      — two reviews, about three weeks, nearly all of it waiting.
+      **AN ARTIFACT RATHER THAN A FILE BECAUSE IT IS A URL AND OPENS ON HIS
+      PHONE**, which is his own reason and is the shape of this whole week: he
+      is on a phone through remote desktop and cannot open a local file.
 
 - [x] 8.2 **His own login, and the back-office door.** **DONE 2026-09-07.**
       **OWNER supplies the password**; the email is `andrew@detailingplatform.com`
