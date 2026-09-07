@@ -142,14 +142,18 @@ console.log("2. the failures a person who cannot read it would never see");
 // ─── 3. The machinery, which decides whether any of it is reachable ───────
 console.log("3. the plumbing");
 {
-  const i18n = strip(readFileSync(path.join(ROOT, "app/src/lib/i18n.js"), "utf8"));
+  // ROADMAP 8.17 STAGE 2B — THE STORE MOVED AND THESE CHECKS FOLLOWED IT.
+  // `localeStore.js` is now the one implementation and BOTH scopes are built
+  // from it, so every check below covers the dashboard's language as well as
+  // the customer's — which is strictly more than they used to.
+  const i18n = strip(readFileSync(path.join(ROOT, "app/src/lib/localeStore.js"), "utf8"));
   const picker = strip(readFileSync(path.join(BOOK, "LanguagePicker.jsx"), "utf8"));
   const page = strip(readFileSync(path.join(BOOK, "BookingPage.jsx"), "utf8"));
 
   // A MISSING TRANSLATION MUST RENDER ENGLISH. This is the whole reason the
   // English is the key, and it is one `||` away from rendering nothing.
   check("3a · an untranslated key falls back to the English",
-    /const table = CATALOGUES\[locale\];/.test(i18n)
+    /const table = catalogues\[locale\];/.test(i18n)
     && /\(table && table\[english\]\) \|\| english/.test(i18n));
 
   // `es-US`, NEVER `es-ES` — see the header of i18n.js. This one is invisible
@@ -188,6 +192,7 @@ console.log("3. the plumbing");
   check("3f · changing language notifies rather than reloads",
     /for \(const fn of listeners\) fn\(\)/.test(i18n)
     && !/location\.reload/.test(i18n));
+
 }
 
 // ─── 4. Nothing was left behind in English ────────────────────────────────

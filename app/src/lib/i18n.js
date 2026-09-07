@@ -43,68 +43,30 @@
 // lookup, an interpolation and a change event.
 
 const KEY = "dp.lang";
-export const LOCALES = ["en", "es"];
-/** What a person sees in the picker, in their own language, never translated. */
-export const LOCALE_NAMES = { en: "English", es: "Español" };
 
 import { es } from "./strings/es.js";
+import { LOCALES, LOCALE_NAMES, makeLocale } from "./localeStore.js";
 
-const CATALOGUES = { en: null, es };
+export { LOCALES, LOCALE_NAMES };
 
-// `localStorage` throws outright in some embedded contexts, so every access is
-// wrapped — the same rule the booking page's remembered-customer helpers
-// follow, and the reason `booking-core` allows exactly two wrapped call sites.
-const read = () => {
-  try { return localStorage.getItem(KEY); } catch { return null; }
-};
-const write = (v) => {
-  try { localStorage.setItem(KEY, v); } catch { /* private window; the choice just does not persist */ }
-};
+// ROADMAP 8.17 STAGE 2B — THE STORE MOVED TO `localeStore.js` AND NOTHING
+// ELSE CHANGED. The dashboard needed a language of its own, and two copies of
+// forty lines of change-notification is the thing that rots — see that file's
+// header for why the two scopes must not share a key.
+//
+// **THIS ONE DETECTS FROM THE BROWSER AND THE DASHBOARD'S DOES NOT.** A
+// customer arrives cold from a link with no session and no account, so the
+// browser's own language is the only thing about them we know, and getting it
+// right without being asked is most of the value. A detailer signed up in
+// English and would otherwise find their back office in a language they never
+// chose because of a laptop somebody else set up.
+const scope = makeLocale(KEY, { en: null, es }, true);
 
-/**
- * REMEMBERED, THEN THE BROWSER, THEN ENGLISH.
- *
- * A customer arrives cold from a link with no session and no account, so the
- * browser's own language is the only thing about them we know — and getting it
- * right without being asked is most of the value. `navigator.languages` is
- * ordered by preference and is what to read; `navigator.language` alone
- * ignores somebody whose second choice is the one we speak.
- */
-function detect() {
-  const saved = read();
-  if (saved && LOCALES.includes(saved)) return saved;
-  const list = (typeof navigator !== "undefined" && navigator.languages)
-    || [typeof navigator !== "undefined" ? navigator.language : ""];
-  for (const tag of list) {
-    const base = String(tag || "").toLowerCase().split("-")[0];
-    if (LOCALES.includes(base)) return base;
-  }
-  return "en";
-}
-
-let locale = detect();
-const listeners = new Set();
-
-export const getLocale = () => locale;
-
-export function setLocale(next) {
-  if (!LOCALES.includes(next) || next === locale) return;
-  locale = next;
-  write(next);
-  // THE WHOLE PAGE RE-RENDERS RATHER THAN RELOADING. A reload is two lines
-  // shorter and would throw away a half-filled booking form, which is the one
-  // thing this page exists not to do.
-  for (const fn of listeners) fn();
-}
-
-export function subscribe(fn) {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
-}
-
+export const getLocale = scope.getLocale;
+export const setLocale = scope.setLocale;
+export const subscribe = scope.subscribe;
 /** What `Intl` should be given. See the `es-US` note in the header. */
-export const intlLocale = () => (locale === "es" ? "es-US" : "en-US");
-
+export const intlLocale = scope.intlLocale;
 /**
  * THE LOOKUP.
  *
@@ -113,11 +75,4 @@ export const intlLocale = () => (locale === "es" ? "es-US" : "en-US");
  * "off" — so `tests/spanish.test.mjs` compares the placeholder sets of every
  * pair rather than trusting them to survive.
  */
-export function t(english, vars) {
-  const table = CATALOGUES[locale];
-  let out = (table && table[english]) || english;
-  if (vars) {
-    for (const [k, v] of Object.entries(vars)) out = out.split(`{${k}}`).join(String(v));
-  }
-  return out;
-}
+export const t = scope.t;

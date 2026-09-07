@@ -7724,8 +7724,46 @@ works**, which is one line at the end rather than a pause in the middle.
       one failed on the catalogue's own comment saying the word `usted` it
       forbids, one could not see a key split across a `+`, and one could not
       see two labels looked up through a variable.
-      **WHAT STAGE 2B STILL OWES**: the detailer's dashboard, and with it the
-      five templates their side of the product sends.
+      **WHAT STAGE 2B STILL OWES, MEASURED RATHER THAN ESTIMATED — 2026-09-07.**
+      **1,270 candidate strings across `app/src` outside the booking surface**,
+      and two of those groups are NOT this item's:
+      · **`admin/AdminPage.jsx` — 103. The owner's own back office, and it
+        stays English.** He runs it, he reads English, and it is the one screen
+        where a machine translation buys nothing and risks a misread about
+        somebody's money.
+      · **`landing/` — 175, of which `legal.js` is 17. THE TERMS AND THE
+        PRIVACY PAGE MUST NOT BE MACHINE-TRANSLATED**, by anybody, ever: they
+        are a contract, they carry the AB 2863 disclosures, and a translation
+        nobody qualified has read is a liability rather than a feature. The
+        marketing copy around them is a separate decision and is his.
+      That leaves **~990 in the dashboard proper**, and the shape of it decides
+      how it is staged: **the daily loop is about 230** (Today, Calendar,
+      Money, Clients, the job record, the day sheet, the finalize sheet, the
+      rail and the gear) and **the nineteen settings screens are about 700** —
+      `BookingRules` alone is 92, `Catalog` 59, `Plans` 48, `Billing` 45,
+      `Notifications` 45.
+      **BUT THE PICKER IS GLOBAL, SO THE HALF-WAY POINT IS NOT SHIPPABLE.**
+      Stage 1b established the rule and it binds here: *a control must not
+      promise a language the surface cannot speak.* A dashboard picker with the
+      daily loop translated and the settings screens in English is the
+      two-language product this whole item exists to avoid — so **2b is all
+      ~990 or none of it**, and the picker ships in the same change.
+      **THE ONE DESIGN DECISION IS ALREADY MADE AND WRITTEN DOWN**, in
+      `app/src/lib/localeStore.js`: **the dashboard needs its own key,
+      `dp.lang.app`, and must NOT share `dp.lang`.** A detailer previews their
+      own booking page, and one shared key would turn their back office Spanish
+      the moment they pressed ES to see what a customer sees — the same rule
+      `format.js`'s `duration()` and `lib/plans.js` each already carry, one
+      level up. **And the dashboard must not detect from the browser** (the
+      booking page must): a detailer signed up in English and finding their own
+      back office in a language they never chose, because of a laptop somebody
+      else set up, is a worse first morning than an English one they can
+      switch. That file is a FACTORY for exactly that second scope, and
+      `spanish` § 3 now reads it rather than `i18n.js`, so every plumbing check
+      covers both scopes the day the second one exists.
+      **AND THE FIVE DETAILER-FACING EMAIL TEMPLATES GO WITH IT**, not before:
+      translating that audience's mail while their dashboard is English is
+      worse than either.
 
 - [x] 8.18 **Two logins at once.** *"Maybe there's an account switcher — like
       how on Chrome you could log into multiple Google accounts and switch
