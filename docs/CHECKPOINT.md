@@ -183,6 +183,24 @@ see what it cost.
 
 ## Standing facts a new session gets wrong
 
+- **THE PLATFORM IS NOT PUBLISHED. It is in development and testing, and every
+  business in the database is a fixture.** The owner, 2026-09-06:
+  > *"I'm not gonna be publishing till, like, December for three months… that's
+  > why everything in my database is just tests and fake detailers."*
+
+  **He will say when that changes.** Until he does:
+  - **There are no real detailers and no real customer data on the platform
+    project.** A tenant you find there is a seed, a test-suite fixture or a
+    demo. The back office marks them; `businesses.is_demo` is the column.
+  - **A live defect harms nobody today.** That is not licence to ship one — it
+    is the reason several findings are *scheduled* rather than emergencies.
+    The email cap (P-13), the founding spots (P-09) and the seeded admin
+    account (P-12) are all in that group, and **each has a trigger condition he
+    named** rather than a date.
+  - **It does not weaken any check.** The gate runs the same; the difference is
+    only in how urgent a finding is, never in whether it is recorded or fixed.
+  - The owner's **live business** (`andrewsdetail.com`, Supabase project
+    `adtlnvihwrcqcasqcjwd`) is a separate thing entirely and remains read-only.
 - **`main` is the deploy.** Push to it and detailingplatform.com rebuilds.
   There is no separate publish step.
 - **The overnight guardrails were for one night** (2026-09-05/06) and are spent.

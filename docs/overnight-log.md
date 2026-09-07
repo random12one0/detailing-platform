@@ -2158,6 +2158,77 @@ bookings quietly. Say **"none"**, **"deposit"** or **"full"**.
 Stripe account. Ten minutes, and I will write it out like I did for Google.
 
 ---
+---
+
+## The eleven he asked while reviewing the ideas list — 2026-09-06
+
+**He asked for these to be parked, not answered.** His instruction, verbatim:
+
+> *"By the way, all these questions I have, just save it for now. Okay? Don't
+> answer it. I have the next [session] answer it when it finishes all the stuff
+> that I told it to do."*
+
+So they are recorded here in **his own words**, and a later session answers
+them in the format the questions above use — what it is, what happens if you
+don't, a recommendation, and the one word to type back. **Do not answer them
+inside a build session**; they are a session of their own, after the work.
+
+Numbered 7 onward, continuing the run above.
+
+### 7. "Day sheet works with no signal — I don't know what that means." (idea 08)
+
+### 8. "Local business markup on every tenant site — I don't know what that means." (idea 15)
+
+### 9. "What do you mean by rotating between Google and Facebook?" (idea 14)
+
+His own setup is the context for the answer: *"the way I have it is there's an
+email that gets sent, and it sends them some stuff with a Google and Yelp
+link, because those are what I have."*
+
+### 10. "An onboarding checklist per detailer — I don't know what that means. Maybe you can explain that." (idea 25)
+
+**Note for whoever answers: this one was BUILT on the day he asked** (loop pass
+008). It is the *"What they still need from you"* block on an open business in
+the back office. He needs it described, not built.
+
+### 11. "Notes with a follow-up date — I don't know if that field exists." (idea 26)
+
+Half an answer is already known: the note field exists as one free-text blob on
+`businesses.admin_notes_platform`; a date does not.
+
+### 12. "Is the one export we have not enough?" (idea 30)
+
+### 13. "Cloudflare Turnstile — I don't know what that means." (idea 32)
+
+### 14. "Buy three and get the fourth — I don't know what that means." (idea 47)
+
+He worked out the answer himself mid-sentence and said yes to it, so this one
+may need nothing more than confirming his reading was right.
+
+### 15. "The booking page as a home-screen icon — I don't know what that means." (idea 48)
+
+### 16. "Can people link their Google Business Profile to our website and have it so our website could auto-update the Google Business Profile?" (idea 13)
+
+**This is the only one of the eleven that is a genuine research question rather
+than a definition.** He was more enthusiastic about this idea than any other:
+*"If so, that would be awesome. I love the idea. So even when they upload
+photos to here, it just goes to the Google Business photo. If they change times
+here, it goes to the Google Business Profile."* Whether the WRITE half is
+achievable on the free API is the thing to find out.
+
+### 17. F-029 and F-030 — "I don't know what that means either."
+
+Two findings from the testing loop he could not read:
+
+- **F-029** — a manually-sent reminder can go out twice if its "already sent"
+  marker fails to save. One duplicate email, nothing lost.
+- **F-030** — the back office loads whole tables and joins them in memory.
+  Correct today with fifteen businesses; at a hundred detailers averaging five
+  hundred bookings it is one request carrying fifty thousand rows.
+
+Both are low priority and neither blocks anything. They are here because he
+asked what they meant, not because they need a decision.
+
 
 ## Judgement calls made alone
 

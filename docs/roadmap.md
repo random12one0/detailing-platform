@@ -6814,6 +6814,247 @@ is kept; the entire visual design restarts from scratch.
       below). The TITLE is already right on a booking page, because
       `BookingBusinessContext` sets `document.title` for a real visitor.
 
+
+## Phase 8 — the owner's review of the testing loop (2026-09-06)
+
+He read `docs/testing/REPORT.md` and `docs/ideas.md` end to end and gave a
+verdict on nearly every line, plus thirteen requirements that were on neither.
+**The verdicts live in `docs/ideas.md`; the work lives here.** His three
+standing instructions shape the whole phase:
+
+> *"Each one of these should have their own session… it shouldn't just be, like,
+> done very quickly. It should be done with the proper checks."*
+> *"All these questions I have, just save it for now. Don't answer it."*
+> *"I want to run /loop and for it to execute the whole plan until everything is
+> done tested and working properly."*
+
+**There is no duration target on this phase, in either direction.** He
+corrected a draft that put one in: *"it shouldn't aim towards a time goal or
+anything — I'm just saying if I see it done in like a few hours I know that it
+wasn't executed properly."* An item is done when it is built, its own check
+exists AND has been baselined by breaking what it guards, the standing gate is
+green, anything visual has been LOOKED at, and nothing is left hanging.
+
+- [ ] 8.1 **Record the review, and write his guide.** Two halves, both
+      documents. First: his verdict on all fifty ideas into `docs/ideas.md`
+      with a verified status on every line, the not-published status fact into
+      `docs/CHECKPOINT.md`, his eleven questions verbatim into
+      `docs/overnight-log.md`, and this phase into the roadmap. Second, and
+      **he asked for it by name**: an **Artifact** that is a step-by-step
+      guide to everything only HE can do — GitHub secrets, Stripe live keys,
+      Resend, Cloudflare R2, the Sentry DSN, DNS, and the Supabase auth
+      settings that live in a dashboard rather than in this repo. An artifact
+      rather than a file because it is a URL and opens on his phone.
+      **No code.**
+
+      **Why the verified status matters more than it sounds:** this list has
+      misreported what is built THREE times, in both directions — the loop's
+      own report named four built things as missing (F-034), two more were
+      found the same way (tips, the custom invoice line), and his own
+      recollection was wrong twice the other way (deposits, deleting a
+      customer). Every status is now grepped rather than remembered.
+
+- [ ] 8.2 **His own login, and the back-office door.** **OWNER supplies the
+      password**; the email is `andrew@detailingplatform.com` and he said so
+      twice. Create the account properly and send him a set-password link.
+      **Then diagnose what he actually hit:** *"it just kinda logged me in
+      without doing anything… that thing was a little glitchy."*
+
+      **It is not a glitch and the cause is known.** `/admin` and `/app` are
+      the same origin sharing one Supabase session key in localStorage, so
+      `AdminPage.jsx:243` finds a live session and **never renders the sign-in
+      form at all**. The security posture is correct — the real gate is
+      `platform_admins` under the service role, answering 404 for both "no
+      token" and "not an admin". What is missing is any acknowledgement of who
+      you are: **no "signed in as…", no sign-out**, and impersonation silently
+      replaces that same session, which is why `/admin` shows *Page not found*
+      afterwards.
+
+      Also **R9, and it is a discoverability bug rather than a CSS one**: he
+      could not find impersonation on a phone. It is not hidden at any width —
+      no media query touches `.pa-btn` — but it lives INSIDE the open-business
+      panel, so a phone must open a detailer first, and it **409s when the
+      business has no owner account**, which is true of several fixtures.
+
+      **P-12 unblocks on this and not before:** `demo-admin@detailplatform.com`
+      can be deleted once he confirms he can sign in as himself.
+
+- [ ] 8.3 **Signup and routing.** *"If someone's clicked sign in, it should
+      detect if they already logged in. If it is, then it doesn't take them to
+      the payment page."* Plus two things nobody had noticed, found while
+      tracing that path:
+      **`plan=` is written by all four pricing buttons and read by nothing**,
+      so a booking-only signup ($35) is indistinguishable downstream from a
+      website signup; and **a signed-in detailer who presses "Choose this"
+      lands on the dashboard with the entire choice discarded** —
+      `App.jsx:73` reads only `?settings`. That is testing-loop F-003 again
+      from the other side.
+
+- [ ] 8.4 **Assume nothing at signup.** *"The brand shouldn't assume anything…
+      everything should just be blank off start."*
+
+      **This is a migration, not a form change.** `mobile_enabled` and
+      `dropoff_enabled` are `boolean not null default true`
+      (`20260827000100_tenant_core.sql:72-73`), so *"I do both"* and *"nobody
+      has been asked"* are the identical two rows — which is exactly why
+      `lib/setup.js:55-59` records that step as underivable.
+
+      **HE DECIDED THE CONSEQUENCE, 2026-09-06: a business that has not
+      answered is NOT BOOKABLE.** The booking page says the detailer is still
+      setting up. **The load-bearing half is the warning on the dashboard** —
+      a detailer who shares their link before finishing setup would otherwise
+      send people to a dead end, and that is worse than the default it
+      replaces.
+
+- [ ] 8.5 **The founding spot is claimed at payment, not at signup.**
+      *"It should not be taken until they pay, obviously."*
+
+      **HE DECIDED THE SHAPE after being shown why it is not a one-line move:
+      claim on INTENT TO PAY.** The price is snapshotted *before* Stripe is
+      ever contacted — `platform-billing`'s `subscribe` reads
+      `business.plan_tier === "founding"`, hands it to `planFor`, and stores
+      the result — so a webhook-time claim would **quote and charge list
+      prices and then stamp a founding flag on a standard-priced
+      subscription.** The claim therefore moves into `subscribe`, immediately
+      before `planFor`, so the price and the claim are decided in the same
+      breath and can never disagree.
+
+      **Deliberately NOT built: a reservation, a TTL, or a re-quote path.** An
+      abandoned `default_incomplete` checkout holds a spot until released by
+      hand, which `platform-admin`'s `tier` action already does in one click.
+      His earlier "hold it 14 days" was withdrawn once the cost was clear.
+
+- [ ] 8.6 **The email safety net.** Two things, one subsystem.
+      **R1, and it is his most specific new requirement:** *"a tracker inside
+      my dashboard that shows me how many emails get sent a day, and gives me
+      warnings when we're getting close to that hundred a day limit — and then
+      I'll update and say okay, upgrade it, and then don't give me this warning
+      again."* Nothing counts sends today.
+      **R2, and he believes it already works:** *"I'll get an email if someone
+      signs up and whatnot. I hope you set that all up."* **Nothing in this
+      product emails him about anything** — not a signup, not a first payment,
+      not a churn, not a failed send, not a dead cron job.
+      Pairs with idea 23's dead-man's switch (8.12).
+
+- [ ] 8.7 **Small corrections.** Five unrelated things, none of which justifies
+      a session alone, each with its own check.
+      F-009 the pricing page painting list prices for a second before the
+      founding ones land — *"you said it's fixable, so just fix it."*
+      F-010 the cold quote's five seconds — *"it shouldn't take that long"*;
+      measure against the DEPLOYED function, not a dev server.
+      F-018 back-office months on UTC — *"it should just use whatever they set
+      it to"*; **and the third clock nobody noticed**, the per-business chart,
+      which runs on the ADMIN's browser-local time (`adminInsight.js:59-80`).
+      Idea 45, the print stylesheet — *"if someone presses control-P it formats
+      correctly."*
+      Idea 11's real gap: water and power on the **day-sheet row and in the
+      owner's booking email**, not only on the job record.
+
+- [ ] 8.8 **RESEARCH: the advanced money view.** **OWNER approval gate — no
+      code.** He asked for this twice, emphatically: an advanced money
+      breakdown on the DETAILER's dashboard behind a button, showing
+      *"all the stuff I am able to see"* on andrewsdetail.com, **"but not in
+      the same format… thought through, and not just plain boxes."**
+
+      **Half the research is already done and is in this repo.**
+      `reference/frontend/src/components/RevenueAndCustomers.jsx` (1,049 lines)
+      IS his live dashboard. Its figures: Total/Net Revenue · **Net Profit** ·
+      Revenue by Month · Revenue Trend · Booked upfront · **Base quotes vs
+      Extra Earned at Service Time** · Upsell Revenue · **Total Tips, Avg Tip,
+      Tip Rate** · **Hourly Wage** · Jobs Completed · Avg Ticket · Total
+      Expenses **By Category** · Total Customers · **New vs Returning** ·
+      **Top Spender** · Most Popular Days.
+
+      The platform already has: Collected, Expenses, Avg job, Jobs done,
+      Quoted up front, Added on site. **Genuinely missing:** Net Profit,
+      tips in every form, Hourly Wage, expenses by category, revenue by
+      month/trend, new vs returning, top spender, most popular days.
+      The other half of the research is what an ACCOUNTANT would want, which
+      he asked for by name.
+
+- [ ] 8.9 **BUILD the advanced money view.** A `lib/` module in the shape of
+      `lib/adminInsight.js` — pure, testable, no React — plus a screen behind
+      a button. **Prerequisite: the CUSTOMER-entered tip.** Three of his six
+      money figures are tip figures, and only the detailer-entered half exists
+      (`booking_line_items.category='tip'`, `FinalizeModal.jsx:31`).
+
+- [ ] 8.10 **Multiple cars.** His longest single answer — see `docs/ideas.md`
+      37/38 for it verbatim. A per-business setting for how many vehicles one
+      booking may hold; duration that does not simply multiply, because the
+      setup time is not repeated; two cars across two days inside one booking.
+      **And separately, the dealership case, which is manual by his
+      instruction:** above the limit it is a phone deal, so the detailer needs
+      a way to LOG a bulk job — *"I did ten cars for this company and made this
+      much"* — **with no automatic pricing, because those deals carry
+      discounts.**
+      **ABSENT structurally:** `bookings` carries singular `vehicle_size` and
+      `vehicle_model`, `booking_services` has no vehicle column, there is no
+      `vehicles` table. The largest item in this phase.
+
+- [ ] 8.11 **Delete a customer.** *"There should be an option where if you
+      click on a customer, they just delete their info… is that not already an
+      option? I have that on my business."* **It is not** — no control in
+      `Clients.jsx`, no endpoint. The export half exists
+      (`20260906005000_export_business.sql`); this is the other half of the
+      same request, and it is the one item in this phase with a legal edge.
+
+- [ ] 8.12 **Ops: Sentry, backups, uptime, and a dead-man's switch.**
+      **OWNER supplies:** the Sentry DSN (already 7.2), two GitHub secrets for
+      backups (already 2.22). Free tiers for the other two — UptimeRobot (50
+      monitors) on the landing page and one booking page, healthchecks.io (20
+      checks) on the cron jobs, which he agreed to sight-unseen: *"I don't know
+      what that means, but if you think it would be good, then sure."*
+      8.1's guide is what tells him which values to fetch.
+
+- [ ] 8.13 **Closed until I say it's open.** A detailer-facing pause that keeps
+      the site up and says when they are back. Today `businesses.status =
+      'paused'` does darken the page but **only the platform admin can set
+      it**, and the page then 404s rather than explaining. A detailer's only
+      workaround is a date-range blockout.
+
+- [ ] 8.14 **Promo codes on our own checkout.** *"We should set up a promo code
+      system within the buying process. I'm sure Stripe supports that."* It
+      does; the product does not — no `coupon`, `promotion_code` or `discounts`
+      anywhere in `platform-billing`. The founding tier is a different price
+      table, not a redeemable code. `security-review` is not optional.
+
+- [ ] 8.15 **Referral links and loyalty.** Ideas 17 and 47, both of which he
+      wants **as opt-in settings with automatic emails**. Both were
+      deliberately DROPPED in `20260827001000` for having zero rows, and
+      re-adding them is already the substance of roadmap 4.2 — so this item
+      and 4.2 should be reconciled rather than run twice.
+
+- [ ] 8.16 **Google Business Profile.** The idea he was most enthusiastic
+      about, and he asked for more than the idea offered: **two-way sync**, so
+      photos uploaded to the platform appear on GBP and hours changed here
+      change there. Free API, needs an OAuth client. **Research whether the
+      WRITE half is achievable before designing anything** — that is his
+      question 16 in `docs/overnight-log.md`.
+
+- [ ] 8.17 **Spanish.** *"A lot of detailers speak Spanish… make sure you don't
+      do bad translating."* And the limit he named himself: *"I can't check
+      that sadly, because I don't speak Spanish."* i18n from nothing — no
+      library, `lang="en"` hardcoded, 20+ `"en-US"` call sites, every string
+      inline in JSX and in the email templates. Large.
+
+- [ ] 8.18 **Two logins at once.** *"Maybe there's an account switcher — like
+      how on Chrome you could log into multiple Google accounts and switch
+      between accounts."* **Different from what exists**: `SwitchBusiness.jsx`
+      switches between memberships on ONE login; his ask is two separate
+      accounts, both signed in.
+
+- [ ] 8.19 **Mileage per job, and "on my way" on the booking screen.** Two
+      small detailer-facing additions. Idea 07 — *"they could have a way to log
+      mileage, I think that'd be cool"* — has no column anywhere. R7 puts the
+      existing text preset on the booking screen as well as the job record.
+
+- [ ] 8.20 **Answer his eleven questions.** `docs/overnight-log.md` questions 7
+      to 17, recorded verbatim at his instruction: *"just save it for now,
+      don't answer it — I have the next [session] answer it when it finishes
+      all the stuff that I told it to do."* **So this item runs LAST**, and it
+      is a writing session, not a build one. Two of them are already half
+      answered: question 10 describes something built on the day he asked
+      (8.1's onboarding checklist), and question 16 is the research inside 8.16.
 ## Not on the roadmap yet — found 2026-09-04, awaiting the owner
 
 **These are gaps in the PLAN, not bugs in the code.** They were found while
@@ -7213,6 +7454,97 @@ recommendation.
   on the night it was found. Full account: `docs/reference-audit-2026-09-05.md`
   § A1.
 
+- **R. WHAT HE TURNED DOWN ON 2026-09-06, AND WHY IT IS WRITTEN DOWN.**
+  Reviewing the fifty ideas he declined eight outright, deferred four and left
+  six unanswered. **They are recorded rather than deleted for the reason this
+  whole section exists: a decision nobody wrote down gets re-proposed**, and
+  re-proposing something the owner already refused costs his patience rather
+  than a session.
+
+  **Declined outright.** *Weather on the day sheet* (02) — *"detailers could
+  figure out their schedule themselves, and I don't think there should be
+  auto-blocking if it's rain"*; reconsider only if genuinely free.
+  *A waitlist* (04) — *"if a time's blocked it might not open… I don't think
+  it's gonna be useful"*. *Voice notes* (09). *A generated before-and-after
+  card* (16). *Seasonal campaign templates* (20). *A weekly digest to him*
+  (21) — *"I could just see things"*; *note that the signup notification he
+  ASSUMED existed is a separate thing and IS scheduled, as 8.6*. *A warning
+  when a detailer changes their service area* (40) — *"we don't have anything
+  about what area of the service… that costs money, so I don't wanna do it"*.
+  *A supplies ledger* (46) — *"too hard to calculate how much product you use
+  per job"*.
+
+  **Deferred, with the condition he named.** *A rain-day button* (39) — wants
+  SMS first, and texts people personally today. *A staff member who leaves
+  mid-week* (41) — there is no job assignment in the product at all;
+  *"that's something we have to build out thoroughly"*. *A damage-claim photo
+  set* (42) — *"I don't know if we need that"*. **SMS itself** — see S below.
+
+  **Unanswered, and needing one word each:** gift certificates (18), a
+  voicemail-greeting link (19), notes with a follow-up date (26), a
+  Wave/QuickBooks export (30), a "detailers near you" index (50), and the day
+  in driving order (10), whose answer transcribed ambiguously as "now".
+
+- **S. SMS: A DECISION, NOT A BUILD, AND THE PER-MESSAGE PRICE IS THE WRONG
+  THING TO LOOK AT.** He asked for the cheapest way to do it, so it was
+  researched on 2026-09-06 rather than guessed.
+
+  **The messages are nearly free and the registration is not.** Per message in
+  the US: Telnyx $0.004, Plivo $0.005, AWS SNS $0.0058, Twilio $0.0083 — plus
+  a carrier surcharge of $0.003–$0.005 on **every** message whoever you use,
+  because AT&T, T-Mobile and Verizon levy it rather than the vendor. So the
+  whole spread between cheapest and dearest is under half a cent.
+
+  **What costs money is A2P 10DLC**, which US carriers require before any
+  business may send application messages to a mobile: a brand at $4 for a sole
+  proprietor (~$44–48 standard), a campaign at ~$15 one-off, then **$1.50–$10
+  a month per campaign**, and **one to four weeks of review**. For one
+  detailer sending ~150 texts a month that is roughly **$19 up front and
+  $5–12 a month**, and up to a month of waiting — which **directly
+  contradicts the "bookable the same day" promise** the D1 testing pass
+  verified.
+
+  **Three architectures, and it is his call:** the platform sends from one
+  number (cheapest and instant, but every detailer's texts come from OUR
+  number and carriers dislike one campaign spanning unrelated businesses);
+  each detailer registers their own brand (correct, their own number, but a
+  form and a month of waiting per detailer); or **Telnyx Hosted SMS**, where a
+  detailer **keeps their existing mobile number** for calls and only its SMS
+  routes through the platform — so texts come from the number their customers
+  already have. Needs a signed letter of authorisation and a recent bill, and
+  still needs 10DLC.
+
+  **A fourth option costs nothing and is already built** — the button that
+  opens the detailer's own messaging app with the text written. It cannot send
+  AUTOMATICALLY, which is exactly what the reminders, the review ask (14) and
+  the rain-day button (39) would want.
+
+  **Recommendation: build none of it now.** Put Hosted SMS in front of him as
+  a costed decision when he is closer to publishing, and keep the free path as
+  the only sending mechanism until then. **Nothing here changes before
+  December**, which is his own stated timeline.
+
+- **T. "NORMAL WEBSITE STUFF" — HE ASKED FOR RESEARCH, NOT A FEATURE.**
+  *"All those common things that websites have, like email confirmations…
+  two-factor authentication or setting up with passkeys, and just kind of
+  normal website stuff. If you do some research into it, do more than what I
+  just said here — research into all the things that normal websites have,
+  from sign up to just daily usability, to make it official."*
+
+  **The starting facts, verified 2026-09-06:** there is **no email
+  confirmation, no two-factor and no passkey support**, and the only auth is
+  an email and a password with a client-side `minLength=8`. Google sign-in is
+  fully coded and merely switched off in Supabase. **And there is no
+  `supabase/config.toml` in this repo at all**, so every GoTrue setting lives
+  in a dashboard where nothing version-controls it or can check it — which is
+  its own finding and is the reason a research pass should cover *what the
+  settings currently are*, not only what they could be.
+
+  **It is deliberately not a roadmap item yet** because the output is a
+  document he reads and rules on, not code. **Recommendation: run it as a
+  research session after Phase 8's build items**, so it can also report on
+  whatever the auth work in 8.2 turns up.
+
 ## Standing owner jobs
 
 - Pick and approve at every **OWNER** checkpoint — the plan stalls without
@@ -7248,3 +7580,4 @@ those are not negotiable by any skill.
 | 5 — Andrew's migration | `security-review`, `code-review`. Real customer data — no shortcuts | anything that writes to the old project without an explicit go-ahead |
 | 6 — demo business | `ship-check` | gray placeholder boxes; the owner's rule is real photography or ask |
 | 7 — launch readiness | `ship-check`, `security-review`, `code-review` at high effort | shipping anything the owner has not seen at 392px |
+| 8 — his review of the testing loop | `ponytail` throughout, as always. `security-review` is **not optional** on 8.2 (auth), 8.4 (a migration that decides who can be booked), 8.5 (money) and 8.14 (Stripe). `impeccable` for anything a person looks at, `animate` only where motion changes. **8.1, 8.8 and 8.20 produce DOCUMENTS and stop for him** — no code in any of them | direction-generating skills, as everywhere on this product. **Also never: bundling two items into one iteration to make progress look faster.** He asked for the opposite in as many words, and this repo's oldest failure is a green run that measured less than it claims. **And never a duration target** — he corrected a draft that had one: *"it shouldn't aim towards a time goal… if I see it done in like a few hours I know that it wasn't executed properly."* How long it takes is an output of doing each item properly |
