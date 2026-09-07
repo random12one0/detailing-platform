@@ -507,9 +507,69 @@ for (const w of SIZES) {
     }
   }
 
+  // ── THE WAY IN, AT THIS WIDTH ─────────────────────────────────────────
+  // A throwaway signed-out context, because the block below only meets the
+  // sign-in form on the FIRST width — every later one restores the saved
+  // session and goes straight to the dashboard. See the note down there.
+  {
+    const anon = await browser.newContext({
+      // `heightFor(w)`, the same rule the main context uses — 1080 at 1920 and
+      // 900 at a laptop, never the phone's 844 at a desk width.
+      viewport: { width: w, height: heightFor(w) }, deviceScaleFactor: 1,
+    });
+    const p2 = await anon.newPage();
+    p2.setDefaultTimeout(15000);
+    try {
+      await p2.goto(`${BASE}/app${LITE}`, { waitUntil: "domcontentloaded" });
+      await p2.waitForSelector("input[type=email]", { timeout: 20000 });
+      await settle(p2);
+      found += await say("the way in", p2);
+      const make = p2.locator("form button.btn").filter({ hasText: "Create an account" });
+      if (await make.count()) {
+        await make.click();
+        await settle(p2);
+        found += await say("the way in · new account", p2);
+      } else {
+        console.log(`${"the way in · new account".padEnd(24)} NOT MEASURED — no "Create an account" button`);
+        found++;
+      }
+      const forgot = p2.locator("form button.btn").filter({ hasText: "I already have an account" });
+      if (await forgot.count()) await forgot.click();
+      const reset = p2.locator("form button.btn").filter({ hasText: "I forgot my password" });
+      if (await reset.count()) {
+        await reset.click();
+        await settle(p2);
+        found += await say("the way in · reset", p2);
+      } else {
+        console.log(`${"the way in · reset".padEnd(24)} NOT MEASURED — no "I forgot my password" button`);
+        found++;
+      }
+    } catch (e) {
+      console.log(`${"the way in".padEnd(24)} NOT MEASURED — ${String(e.message).slice(0, 80)}`);
+      found++;
+    } finally {
+      await anon.close();
+    }
+  }
+
   await page.goto(`${BASE}/app${LITE}`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("input[type=email], .tabbar", { timeout: 30000 });
   if (await page.locator("input[type=email]").count()) {
+    // **THE WAY IN, MEASURED — roadmap 2.25, and until this block NOTHING in
+    // this repo had ever looked at it.** This script has walked past the
+    // sign-in form on every run since it was written: it fills the two fields
+    // and presses the button, which exercises the PATH and measures none of
+    // the geometry. It is the first screen anybody meets, it is the one a
+    // detailer lands on from a password-reset email, and it is the only screen
+    // in the product that was never swept at any width.
+    // **AND IT IS MEASURED AT EVERY WIDTH, WHICH TOOK A SECOND CONTEXT.**
+    // The obvious place is right here, and right here it runs ONCE: the first
+    // width signs in through the real form and every later width restores the
+    // saved session, so `input[type=email]` is on screen exactly one time in
+    // a five-width run. **A layout measured at one width is the thing this
+    // whole script exists to disbelieve.** So the page is walked in a
+    // throwaway signed-out context of its own, per width, and this block —
+    // which is genuinely signed out — is where that happens.
     await page.fill("input[type=email]", "demo@detailplatform.com");
     // Must match scripts/seed-demo.mjs, same as shoot-dashboard.mjs.
     await page.fill("input[type=password]", "demo123");

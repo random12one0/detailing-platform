@@ -112,5 +112,92 @@ console.log("\n3. the failure this screen exists to fix");
     /Back to sign in/.test(reset));
 }
 
+// ─── 4. THE WAY IN — the page itself ──────────────────────────────────────
+// ROADMAP 2.25. The owner, seeing it for the first time: *"the sign in page
+// needs a face lift with proper spacing, the nice background glow and proper
+// spacing etc."*
+//
+// **THE PART THAT IS NOT TASTE, AND THE REASON THESE ARE CHECKS AT ALL: FIVE
+// BROWSER SCRIPTS SIGN IN THROUGH THIS FORM.** `sweep-widths`,
+// `shoot-dashboard`, `final-pass`, `two-detailers` and `e2e-booking` all fill
+// `input[type=email]` and `input[type=password]` and press
+// `form button.btn.primary`. Renaming any of the three does not break a test
+// with a useful message — it breaks every browser run in the repo at once,
+// with a timeout. CLAUDE.md says so in as many words; this is that sentence
+// with teeth.
+console.log("\n4. the way in (roadmap 2.25)");
+{
+  const css = readFileSync("app/src/theme.css", "utf8");
+
+  check("4a · the three selectors five scripts sign in through still exist",
+    /type="email"/.test(auth) && /type="password"/.test(auth)
+      && /className="btn primary"/.test(auth),
+    "renaming one of these times out every browser script in the repo");
+  // AND THE SUBMIT IS STILL INSIDE THE FORM. `form button.btn.primary` is a
+  // DESCENDANT selector: moving the button out of the <form> keeps it looking
+  // right and makes every script fail to find it.
+  const formAt = auth.indexOf("<form onSubmit={submit}");
+  const btnAt = auth.indexOf('className="btn primary"', formAt);
+  check("4a-ii · and the submit button is still inside the form",
+    formAt > 0 && btnAt > formAt && auth.indexOf("</form>", formAt) > btnAt);
+
+  // ── THE GROUND IS SHARED, NEVER COPIED ────────────────────────────────
+  // A `.authpage` with its own gradients is the two-grounds failure the
+  // design system exists to prevent, and it drifts the first time either is
+  // touched.
+  check("4b · the sign-in page carries the same ground as the dashboard",
+    /\.app-shell, \.authpage \{/.test(css)
+      && /\.app-shell::before, \.authpage::before \{/.test(css));
+  check("4b-ii · and it is the same lattice element, not a second one",
+    /className="app-dots"/.test(auth));
+  // The desk rail's inset belongs to the dashboard alone — this page has no
+  // rail, and inheriting 120px of left padding would shove the card sideways
+  // at every desk width.
+  // **THE RULE, NOT THE FIRST BREAKPOINT THAT MATCHES.** The first version
+  // sliced from `indexOf("@media (min-width: 1024px)")` — and theme.css has
+  // more than one of those, the first being about `.emptyscreen` four hundred
+  // lines earlier. It was reading a block that could never contain the thing
+  // it was asserting about, so it passed with the padding genuinely leaked.
+  const railLine = css.split(/\r?\n/).find((l) => /padding-left:\s*120px/.test(l)) ?? "";
+  check("4b-iii · but not the rail's padding",
+    railLine.includes(".app-shell") && !railLine.includes("authpage"),
+    `the rail rule reads: ${railLine.trim() || "not found"}`);
+
+  // ── THE RHYTHM, WHICH WAS THE ACTUAL COMPLAINT ────────────────────────
+  // The two inputs used to be stacked with no gap at all: `label.field` onto
+  // `label.field`, while every other form in the product wraps them in
+  // `.fields`, the one class that owns that spacing.
+  check("4c · the fields use the product's own rhythm class",
+    /<div className="fields">/.test(auth));
+  check("4c-ii · and the card is not spaced by numbers invented here",
+    /\.authpage \.card > \* \+ \* \{ margin-top: var\(--sp-4\); \}/.test(css));
+
+  // ── IT SAYS WHERE YOU ARE ─────────────────────────────────────────────
+  // An unlabelled card on an empty page is the defect the back office's own
+  // door had (testing loop F-021). This is the first screen anybody meets.
+  check("4d · the page names the product",
+    /className="authmark"/.test(auth) && /Detailing Platform/.test(auth));
+
+  // ── THE GOOGLE BUTTON IS BUILT AND SELF-ENABLING ──────────────────────
+  // Drawn from GoTrue's own settings endpoint, so it appears the moment the
+  // provider is switched on and never before — no rebuild, and never a button
+  // leading to "provider is not enabled". **Nobody should build this again**;
+  // 2.25 records that it already exists and is waiting on a Google Cloud
+  // client only the owner can make.
+  check("4e · Google is offered the moment the provider is on, and not before",
+    /providers\.google && !resetting/.test(auth)
+      && /auth\/v1\/settings/.test(auth));
+  check("4e-ii · and it uses Google's own marque rather than a tinted one",
+    /#4285F4/.test(auth) && /#EA4335/.test(auth));
+
+  // ── THE THREE WAYS ON ARE A LADDER ────────────────────────────────────
+  // All three used to be the same bold row, which made every option look
+  // equally likely on the screen somebody meets first.
+  check("4f · signing in is the primary and the others are not",
+    /className="btn primary"/.test(auth)
+      && /className="authalt"/.test(auth)
+      && /className="btn ghost sm"/.test(auth));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

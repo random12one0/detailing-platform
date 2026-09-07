@@ -5640,7 +5640,7 @@ is kept; the entire visual design restarts from scratch.
 
       **THE ORIGINAL ENTRY:**
 
-      - [ ] 2.25 **THE SIGN-UP / SIGN-IN SCREEN, AND GOOGLE — the OWNER asked on
+      - [x] 2.25 **THE SIGN-UP / SIGN-IN SCREEN — BUILT 2026-09-07. GOOGLE IS PARKED ON HIM. The OWNER asked on
       2026-09-05.**
 
       > *"can we put on the list to improve the sign up / log in page cuz it
@@ -5697,6 +5697,45 @@ is kept; the entire visual design restarts from scratch.
       `input[type=password]` and `form button.btn.primary` by selector — a
       rename that misses those turns every browser check in the repo red at
       once, and the failure prints as `NO SUCH BUTTON`.
+      **THE SCREEN IS BUILT — 2026-09-07, after he saw it: *"the sign in page
+      needs a face lift with proper spacing, the nice background glow and
+      proper spacing etc."*** It took the third-surface option this entry
+      describes, and the deciding detail is that **the ground is SHARED BY
+      SELECTOR, never copied**: `.app-shell, .authpage { … }` and the same for
+      both pseudo-elements, so the lights, the drift, the grain and the
+      lattice are defined once. A `.authpage` with its own gradients is the
+      two-grounds failure the design system exists to prevent. `.ld` was not
+      put on it, exactly as this entry warns.
+      **THE COMPLAINT WAS RHYTHM MORE THAN DECORATION.** The form stacked
+      `label.field` straight onto `label.field` with no gap at all, while
+      every other form in the product wraps them in `.fields` — the one class
+      that owns that spacing. It also never named the product, which is the
+      same defect the back office's own door had (testing loop F-021), on the
+      first screen anybody meets. And the three ways on were three identical
+      bold rows; they are a ladder now.
+      **THE THREE SELECTORS ARE UNTOUCHED AND NOW HAVE TEETH.**
+      `tests/password-reset.test.mjs` § 4 is 11 checks, ten breaks all caught,
+      and 4a-ii is the one worth naming: `form button.btn.primary` is a
+      DESCENDANT selector, so moving the button out of the `<form>` leaves the
+      page looking perfect and times out every browser script in the repo.
+      **AND THE PAGE IS SWEPT AT LAST — at every width, which took a second
+      context.** This script has filled that form on every run since it was
+      written and measured none of it. The obvious place to add the
+      measurement runs ONCE: the first width signs in through the real form
+      and every later width restores the saved session, so the form is on
+      screen exactly one time in a five-width run. **A layout measured at one
+      width is the thing this script exists to disbelieve**, so it walks a
+      throwaway signed-out context per width — sign in, create an account, and
+      the reset form, which are three different shapes.
+      **WHAT IS LEFT IS GOOGLE, AND IT IS HIS.** He asked for it directly on
+      2026-09-07 — *"I don't see the Google button can you please ship it"* —
+      and it cannot be shipped from here: it needs a Google Cloud project, a
+      consent screen and an OAuth client under HIS Google account. The button
+      is written, self-enabling, and verified still waiting (`google: false`
+      on 2026-09-07). `docs/google-sign-in-setup.md` went to his phone.
+      **The landing page's wording half is already done** — the nav reads
+      *Sign in* and *Sign up*, since 2026-09-06.
+
       **And it is reachable by nothing else in the sweep**: it is measured
       only as a step on the way in, never as a screen, so **add it as its own
       swept state in the change that redesigns it** — the eleventh time this

@@ -93,18 +93,26 @@ export default function Auth() {
   };
 
   return (
-    <div className="center" style={{ minHeight: "100dvh", padding: 16 }}>
-      <form onSubmit={submit} style={{ width: "100%", maxWidth: 380 }} className="card">
-        <h1 style={{ marginBottom: 4 }}>
-          {resetting ? "Reset your password" : creating ? "Create your account" : "Sign in"}
-        </h1>
-        <p className="quiet" style={{ marginBottom: 16 }}>
-          {resetting
-            ? "We'll email you a link. It works once and lasts an hour."
-            : creating
-              ? "Your business details come next."
-              : "Welcome back."}
-        </p>
+    // ROADMAP 2.25 — the ground, the mark and the rhythm. `.authpage` shares
+    // `.app-shell`'s lights, drift and grain by SELECTOR rather than by a
+    // second copy of them (theme.css says why), and `.app-dots` is the same
+    // element the dashboard renders. Before this the first screen anybody
+    // meets was a flat fill with an unlabelled card on it.
+    <div className="authpage">
+      <div className="app-dots" aria-hidden="true" />
+      <div className="authwrap">
+        <div className="authmark">
+          <span className="label">Detailing Platform</span>
+          <b>{resetting ? "Reset your password" : creating ? "Create your account" : "Welcome back"}</b>
+        </div>
+        <form onSubmit={submit} className="card">
+          <p className="quiet lede">
+            {resetting
+              ? "We'll email you a link. It works once and lasts an hour."
+              : creating
+                ? "Your business details come next."
+                : "Sign in to your dashboard."}
+          </p>
 
         {providers.google && !resetting && (
           <>
@@ -116,20 +124,25 @@ export default function Auth() {
           </>
         )}
 
-        <label className="field">
-          <span>Email</span>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
-        </label>
-        {!resetting && (
+        {/* `.fields` IS THE RHYTHM AND IT WAS THE WHOLE COMPLAINT. Every other
+            form in the product wraps its labels in this; this one stacked them
+            directly, so the two inputs touched. One class, not a margin. */}
+        <div className="fields">
           <label className="field">
-            <span>Password</span>
-            <input
-              type="password" value={password} minLength={creating ? 8 : undefined}
-              onChange={(e) => setPassword(e.target.value)} required
-              autoComplete={creating ? "new-password" : "current-password"}
-            />
+            <span>Email</span>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
           </label>
-        )}
+          {!resetting && (
+            <label className="field">
+              <span>Password</span>
+              <input
+                type="password" value={password} minLength={creating ? 8 : undefined}
+                onChange={(e) => setPassword(e.target.value)} required
+                autoComplete={creating ? "new-password" : "current-password"}
+              />
+            </label>
+          )}
+        </div>
         {error && <div className="error-box">{error}</div>}
         {sent && (
           <div className="ok-box">
@@ -143,12 +156,18 @@ export default function Auth() {
             : resetting ? (sent ? "Link sent" : "Email me a link")
               : creating ? "Create account" : "Sign in"}
         </button>
-        <button
-          type="button" className="btn ghost" style={{ marginTop: 10 }}
-          onClick={() => { setMode(mode === "in" ? "up" : "in"); setError(""); setSent(false); }}
-        >
-          {mode === "in" ? "Create an account" : "I already have an account"}
-        </button>
+        {/* A LADDER, NOT THREE EQUAL BUTTONS. Signing in is the primary,
+            making an account is a real alternative and keeps its border, and
+            the forgotten-password line is a last resort and is quiet. All
+            three used to be the same bold row, which made every option look
+            equally likely on the screen somebody meets first. */}
+        <div className="authalt">
+          <button
+            type="button" className="btn"
+            onClick={() => { setMode(mode === "in" ? "up" : "in"); setError(""); setSent(false); }}
+          >
+            {mode === "in" ? "Create an account" : "I already have an account"}
+          </button>
         {/* ITEM N, RANKED *BLOCKS LAUNCH* BY ROADMAP 7.3's FINAL PASS: until
             2026-09-06 a detailer who forgot their password could not get
             back in at all, and the only remedy was the platform owner
@@ -157,13 +176,15 @@ export default function Auth() {
             asked yet. */}
         {mode === "in" && (
           <button
-            type="button" className="btn ghost sm" style={{ marginTop: 6 }}
+            type="button" className="btn ghost sm"
             onClick={() => { setMode("reset"); setError(""); setSent(false); }}
           >
             I forgot my password
           </button>
         )}
-      </form>
+        </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -772,7 +772,17 @@ a { color: var(--accent-text); text-decoration: none; }
 .dayrail > *:nth-child(n+5) { animation-delay: 160ms; }
 
 /* --------------------------------------------------------------- SHELL */
-.app-shell {
+/* **AND THE SIGN-IN PAGE SHARES IT — roadmap 2.25.** The owner asked for
+   *"the nice background glow"* on a page that had a flat near-black fill and
+   nothing else: it is the first screen anybody meets and the only one in the
+   product with no atmosphere at all. **It is the SAME rule rather than a
+   second copy** — the lights, the drift, the grain and the lattice are all
+   defined once and this selector list is what lets a second container use
+   them. A `.authpage` with its own gradients is the two-grounds failure the
+   design system exists to prevent, and it would drift the first time either
+   is touched. `.app-shell`'s desk rail padding is deliberately NOT shared:
+   that rule lives in the 1024 media query and names `.app-shell` alone. */
+.app-shell, .authpage {
   display: flex; flex-direction: column; min-height: 100dvh;
   position: relative; isolation: isolate;
 }
@@ -810,11 +820,11 @@ a { color: var(--accent-text); text-decoration: none; }
    in it" is: at 7% over near-black a light this pale is a cast ON the ground
    rather than a colour ON the screen. Law 11b is not in play — this is
    identity, not meaning. */
-.app-shell::before,
-.app-shell::after {
+.app-shell::before, .authpage::before,
+.app-shell::after, .authpage::after {
   content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
 }
-.app-shell::before {
+.app-shell::before, .authpage::before {
   /* The two near-whites are the ones that were here, kept as the base so the
      lights stay distinguishable — one warm, one cool — after the tint. */
   --glow-warm: color-mix(in srgb, var(--accent) 55%, #E0E9ED);
@@ -876,7 +886,7 @@ a { color: var(--accent-text); text-decoration: none; }
 }
 @keyframes app-dots { from { transform: translate3d(0,0,0); } to { transform: translate3d(92px, 92px, 0); } }
 
-.app-shell::after {
+.app-shell::after, .authpage::after {
   opacity: .05; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
@@ -2820,6 +2830,51 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 /* Third-party sign-in. The marque keeps its own colours, so the button is a
    neutral surface rather than the accent — an accent-filled button with
    Google's four colours inside it looks like a mistake. */
+/* ------------------------------------------------ THE WAY IN (roadmap 2.25)
+   The owner, after seeing it: *"the sign in page needs a face lift with
+   proper spacing, the nice background glow and proper spacing etc."*
+
+   **WHAT WAS ACTUALLY WRONG WAS RHYTHM, NOT DECORATION.** The form stacked
+   `label.field` straight onto `label.field` with no gap at all — every other
+   form in the product wraps them in `.fields`, which is the one class that
+   owns that spacing — so the two inputs touched and the card read as a
+   dense block. The glow is the other half and it is inherited above, not
+   invented here.
+
+   AND IT SAYS WHERE YOU ARE. An unlabelled card on an empty page is the
+   same defect the back office's own door had (testing loop F-021): this is
+   the first screen anybody meets, including a detailer following a link
+   from an email, and nothing on it named the product. */
+.authpage {
+  align-items: center; justify-content: center;
+  /* The safe-area insets matter here more than anywhere: this is the one
+     screen somebody meets on a phone before the app shell exists. */
+  padding: var(--sp-5) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom));
+}
+.authwrap { width: 100%; max-width: 400px; }
+/* The mark sits ABOVE the card rather than inside it, so the card stays one
+   job — the form — and the page still introduces itself. */
+.authmark { text-align: center; margin-bottom: var(--sp-4); }
+.authmark b {
+  display: block; font-family: var(--f-display, var(--f-body));
+  font-size: var(--t-title); font-weight: 700; letter-spacing: -0.022em;
+  color: var(--text);
+}
+.authpage .card { padding: var(--sp-5); }
+/* One rhythm for the whole card: the heading block, the fields, the buttons.
+   `--sp-4` is what `.fields` already uses between two inputs, so nothing on
+   this page is spaced to a number that exists only here. */
+.authpage .card > * + * { margin-top: var(--sp-4); }
+.authpage h1 { margin: 0; }
+.authpage .lede { margin-top: 6px; }
+/* The three ways on are a LADDER, not three equal buttons. Sign in is the
+   primary; making an account is a real alternative and keeps a border; the
+   forgotten-password line is a last resort and is quiet. Three identical
+   bold rows is what it was, and it made every option look equally likely. */
+.authalt { display: flex; flex-direction: column; gap: var(--sp-2); }
+.authpage .btn.ghost.sm { color: var(--text-muted); }
+.authpage .btn.ghost.sm:hover:not(:disabled) { color: var(--text); }
+
 .btn.oauth {
   width: 100%; gap: 10px;
   background: var(--surface-lit); border: 1px solid var(--line-2); color: var(--text);

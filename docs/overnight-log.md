@@ -2313,6 +2313,58 @@ and this is email. Ten characters for the minimum, which is long enough to
 matter and short enough that nobody writes it on a sticky note. **Say
 "do 8.6's two settings" and they go in with that item.**
 
+## Three things waiting on you — 2026-09-07
+
+**None of these blocks the loop.** Everything around them is built; each is a
+value or an account only you can produce. They are here so they survive a
+clear, and so nobody re-derives them.
+
+### A. The Resend key, for our own password emails
+
+**What it unlocks: two things at once.** The cap disappears (Supabase's own
+mailer does two emails an hour for the whole platform), and Supabase will
+finally let us install a designed email — it **refuses template changes
+outright** while the default mailer is on: *"not available for free tier
+projects using the default email provider."*
+
+**The email is already built and rendered** with the same kit as your booking
+confirmations, and checked: no pure white or black, the reset link survives,
+nothing broken. `scripts/auth-emails.mjs --apply` installs all four the moment
+SMTP is on.
+
+**Why I could not do it myself:** the key is a Supabase function secret, and
+the Management API returns secrets as HASHES, not values. There is no way to
+read it back. Tried and measured, not assumed.
+
+**The three-minute version, with no key in a chat** — Supabase →
+Authentication → Emails → SMTP Settings:
+
+    Host      smtp.resend.com
+    Port      465
+    Username  resend
+    Password  a Resend API key (make a fresh one; revocable any time)
+    Sender    accounts@email.detailingplatform.com
+    Name      Detailing Platform
+
+### B. A Google Cloud OAuth client, for the Google button
+
+**The button is written and has been for a while.** `Auth.jsx` asks GoTrue
+which providers are on and draws it the moment Google is enabled — no deploy,
+and never a button that leads to *"provider is not enabled"*. Verified again
+2026-09-07: that endpoint still answers `google: false`.
+
+**It cannot be done from here.** It needs a Google Cloud project, a consent
+screen and an OAuth client under YOUR Google account. `docs/google-sign-in-setup.md`
+is the click-by-click. Paste the client id and secret into Supabase and the
+button appears by itself.
+
+### C. `git push origin main`
+
+Five commits are sitting on this machine — 8.2 through 8.5 and the sign-in
+page. The push was refused by a permission prompt, not by anything in the
+repo. Nothing is broken until it lands; the live site is simply one item
+behind.
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

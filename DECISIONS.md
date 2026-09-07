@@ -247,6 +247,8 @@ were made more than once.
 
 - **Roadmap 8.5 — the founding spot moves to the moment of payment, and the review found two ways it could still go wrong** — *it should not be taken until they pay, obviously.* It was claimed at SIGNUP, so three people who made an account and never came back consumed the whole offer. **His own decision is what makes it one line wide: claim on INTENT TO PAY, immediately above planFor** — the price is snapshotted there and never re-read, so a claim at the WEBHOOK would quote and charge LIST prices and then stamp a founding flag on a standard-priced subscription. Proven against the deployed function: signing up while asking for it leaves 3 of 3, pressing subscribe charges 539 dollars — the founding price — and drops it to 2. **The security review then found two ways it could still go wrong, both mine and neither visible from any screen.** The BOOKING plan has no founding price (planFor hard-codes it), so a 35-dollar checkout took one of three spots, decremented the count the landing page prints, and wrote a subscription saying founding false at the list price — the claim and the price disagreeing, one line under the comment saying that cannot happen. And **claim_founding_spot conflated the offer is full with you already have one**, which was harmless while nothing ever asked twice and bit the moment the claim moved to a button two tabs can press: the second caller is told no and quotes LIST prices to a business that genuinely holds a spot. **The transferable half is the same in both — a value that was safe because nothing ever asked it twice stops being safe when the question moves to a button.** A give-back now releases a claim THIS call made on the three failure paths that matter, and refuses to touch a business that has actually paid. **What is NOT fixed is his decision rather than a defect**: one account can still hold all three by abandoning three checkouts, which is the cost of claiming at intent with no TTL. And two lessons from the checks: **a helper existing proves nothing** (the release check passed with the call removed from the path that needed it), and a check went red on the migration comment explaining the lock it was asserting about.
 
+- **Roadmap 2.25 — the way in, and the auth emails Supabase would not let us install** — *the sign in page needs a face lift with proper spacing, the nice background glow and proper spacing etc.* **The ground is SHARED BY SELECTOR rather than copied** — one rule serving two containers, because a second set of gradients is the two-grounds failure the design system exists to prevent; .ld was deliberately NOT put on it, which the roadmap entry warns against. **The complaint was rhythm more than decoration**: the form stacked label onto label with NO GAP while every other form in the product wraps them in .fields, the one class that owns that spacing. It also never named the product — the same defect the back office door had — on the first screen anybody meets. **The part that is not taste: FIVE browser scripts sign in through this form**, and form button.btn.primary is a DESCENDANT selector, so moving the button out of the form leaves the page looking perfect and times out every browser run in the repo. **And the page had never been measured at all**; fixing that took a throwaway signed-out context PER WIDTH, because the obvious place runs once — the first width signs in and every later one restores the session, and a layout measured at one width is what this script exists to disbelieve. **The two email asks turned out to be one**: Supabase refuses template changes outright while the default mailer is on, so the design is unreachable until custom SMTP exists. The four templates are rendered with the product own kit and install on one command; the placeholder surviving esc() is the thing worth asserting rather than eyeballing. **GoTrue sends HTML only** — the single email in this repo with no plain-text half, and that is the auth server rather than us. **And the Resend key could not be fetched because the Management API returns secrets as HASHES**, measured rather than assumed. Google stays parked: the button is written and self-enabling, and what is missing is an OAuth client under his own Google account.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -14610,3 +14612,99 @@ already-held question is asked before the `for update`, and the migration's
 header explains in a comment what that lock is for — so reading the raw file
 put the words before the code and failed a correct file. Strip comments; this
 file has now recorded that trap more times than any other.
+
+## Roadmap 2.25 — the way in, and the auth emails Supabase would not let us install
+
+**His words, seeing the sign-in page for the first time:** *"the sign in page
+needs a face lift with proper spacing, the nice background glow and proper
+spacing etc."* He is right, and the roadmap entry had already said so: it is the
+one screen where the marketing world and the dashboard world meet, a visitor
+goes landing → pricing → *this*, and it is the last impression before they hand
+over money.
+
+### The screen
+
+**THE GROUND IS SHARED BY SELECTOR, NEVER COPIED.** `.app-shell, .authpage { … }`
+and the same for both pseudo-elements, so the two drifting lights, the drift,
+the grain and the dot lattice are defined once and serve two containers. A
+`.authpage` with its own gradients is the two-grounds failure the design system
+exists to prevent, and it drifts the first time either is touched. **`.ld` was
+NOT put on it** — the entry warns that dragging the landing world's nav, type
+scale and ground onto a screen that has none of them is the other wrong answer,
+and the third-surface option is what it recommends.
+
+**THE COMPLAINT WAS RHYTHM MORE THAN DECORATION.** The form stacked
+`label.field` straight onto `label.field` **with no gap at all**, while every
+other form in the product wraps them in `.fields` — the one class that owns
+that spacing. One class, not a margin. The card's own spacing is `--sp-4`, the
+same step `.fields` uses, so nothing on the page is spaced to a number that
+exists only there.
+
+**IT NOW SAYS WHERE YOU ARE.** An unlabelled card on an empty page is exactly
+the defect the back office's door had (testing loop F-021), and this is the
+first screen anybody meets — including a detailer arriving from a password-reset
+email, who has no other clue what they are looking at.
+
+**AND THE THREE WAYS ON ARE A LADDER.** Signing in is the primary, making an
+account keeps a border, and *I forgot my password* is quiet. All three used to
+be the same bold row, which made every option look equally likely.
+
+### The part that is not taste
+
+**FIVE BROWSER SCRIPTS SIGN IN THROUGH THIS FORM** — `sweep-widths`,
+`shoot-dashboard`, `final-pass`, `two-detailers` and `e2e-booking` — by
+`input[type=email]`, `input[type=password]` and `form button.btn.primary`.
+Renaming one does not fail a test with a useful message; it times out every
+browser run in the repo at once. CLAUDE.md says so in prose and § 4 of
+`password-reset.test.mjs` is that sentence with teeth. **4a-ii is the one worth
+naming**: `form button.btn.primary` is a DESCENDANT selector, so moving the
+button out of the `<form>` leaves the page looking perfect and breaks
+everything.
+
+### The page had never been measured, and fixing that took a second context
+
+This script has filled that form on every run since it was written and measured
+none of its geometry. **The obvious place to add the measurement runs ONCE**:
+the first width signs in through the real form and every later width restores
+the saved session, so the form is on screen exactly one time in a five-width
+run. **A layout measured at one width is the thing this script exists to
+disbelieve.** So it walks a throwaway signed-out context per width, through
+three different shapes — sign in, create an account, and the reset form, which
+has no password field.
+
+### The auth emails: built, and refused
+
+He also asked to send the password email ourselves and to make it look
+professional. **Those turned out to be one ask.** Supabase answers the template
+API with *"Email template modification is not available for free tier projects
+using the default email provider"* — so the design is unreachable until custom
+SMTP is configured, and the two-an-hour cap and the plain email are the same
+blocker wearing two hats.
+
+**`scripts/auth-emails.mjs` renders all four with the product's own kit** —
+the same `shell()`, blocks and palette as the other twenty-five — so they cannot
+drift into a second look, and `--apply` installs them the moment SMTP lands. The
+one thing worth asserting rather than eyeballing is that GoTrue's
+`{{ .ConfirmationURL }}` survives rendering: `esc()` would turn the braces into
+entities and produce a beautiful email with a dead button.
+
+**AND ONE LIMIT THAT IS THE AUTH SERVER'S, NOT OURS:** GoTrue sends HTML only.
+Every other email in this repo carries a plain-text alternative derived by
+`htmlToText`; there is no field for one here. It is the single exception to that
+rule and it is worth knowing before somebody "fixes" it.
+
+**WHY THE KEY COULD NOT BE FETCHED, measured rather than assumed:** the Resend
+key is a Supabase function secret, and the Management API returns secrets as
+**hashes**, not values. There is no way to read one back, so this genuinely
+needs the owner — five fields in a dashboard, or the key pasted once.
+
+### Google
+
+He asked for it directly — *"I don't see the Google button can you please ship
+it"* — and it cannot be shipped from here. The button is written, uses Google's
+own marque, and draws itself from GoTrue's settings endpoint so it appears the
+moment the provider is enabled and never before; verified again on 2026-09-07
+that the endpoint still answers `google: false`. What is missing is a Google
+Cloud project, a consent screen and an OAuth client under HIS Google account.
+**Refusing to build it a second time is the point of the roadmap entry**, and
+§ 4e pins that it stays self-enabling so nobody does.
