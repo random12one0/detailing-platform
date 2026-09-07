@@ -17,6 +17,8 @@
 // would offer a slot too short for the second and lose the booking at the
 // submit — which is the one failure this page exists to prevent.
 
+import { intlLocale, t } from "../../lib/i18n.js";
+import { useLocale } from "../../hooks/useLocale.js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { api } from "../../lib/api.js";
@@ -27,14 +29,32 @@ import {
 } from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
-const DOW = ["S", "M", "T", "W", "T", "F", "S"];
-const ORDINALS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
+// **THE WEEKDAY LETTERS, THE MONTH NAMES AND THE DATES ARE `Intl`'s JOB, NOT
+// THE CATALOGUE'S — roadmap 8.17.** Translating "Mon" by hand is inventing a
+// second, worse copy of something every browser already ships correctly, and
+// it is the half of a translation most likely to be quietly wrong.
+// `intlLocale()` answers `es-US` rather than `es-ES`, so the 12-hour clock and
+// month-before-day ordering survive; only the words change.
+//
+// The letters are DERIVED rather than typed: a hard-coded `["S","M","T",…]`
+// is English by construction, and Spanish's own initials are L M M J V S D —
+// a different set in a different order, with two Ms and two Ss that only the
+// order tells apart.
+const dow = (locale) => {
+  // 2024-01-07 is a Sunday, which is the column this grid starts on.
+  const base = Date.UTC(2024, 0, 7);
+  return Array.from({ length: 7 }, (_, i) =>
+    new Intl.DateTimeFormat(locale, { weekday: "narrow", timeZone: "UTC" })
+      .format(new Date(base + i * 86_400_000)));
+};
 // Just enough of a date to recognise a day already chosen, on a chip that has
 // to stay one line at 320.
-const shortDay = (d) =>
-  new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+const shortDay = (d, locale) =>
+  new Date(`${d}T12:00:00`).toLocaleDateString(locale, { month: "short", day: "numeric" });
 
 export default function StepWhen({ form, setForm, durationMinutes, durations }) {
+  useLocale();
+  const loc = intlLocale();
   const { slug, business } = useBookingBusiness();
   // THE BUSINESS'S TODAY, never the customer's — somebody booking from
   // another state must not be shown yesterday.
@@ -91,7 +111,7 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
       });
       setDays(r.days ?? {});
     } catch (e) {
-      setError(e.message || "Could not load available times.");
+      setError(e.message || t("Could not load available times."));
       setDays({});
     }
     setLoading(false);
@@ -124,11 +144,11 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
         // it, because the one thing a customer needs on this step is to see
         // that the second car is not on the same afternoon as the first.
         <div className="bk-field">
-          <span>Pick a time for each car</span>
+          <span>{t("Pick a time for each car")}</span>
           <div className="bk-chips">
             {Array.from({ length: legCount }, (_, i) => {
               const d = i === 0 ? form.bookingDate : (form.extraVehicles[i - 1]?.date || "");
-              const t = i === 0 ? form.startTime : (form.extraVehicles[i - 1]?.time || "");
+              const time = i === 0 ? form.startTime : (form.extraVehicles[i - 1]?.time || "");
               return (
                 <button
                   key={i}
@@ -137,8 +157,8 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
                   aria-pressed={which === i}
                   onClick={() => setLeg(i)}
                 >
-                  {`${ORDINALS[i] ?? `#${i + 1}`} car`}
-                  {d && t ? ` · ${shortDay(d)} ${time12(t)}` : ""}
+                  {t("Car {n}", { n: i + 1 })}
+                  {d && time ? ` · ${shortDay(d, loc)} ${time12(time)}` : ""}
                 </button>
               );
             })}
@@ -151,18 +171,18 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
           the same reason .bk-step-head exists in BookingPage.jsx. */}
       <div className="bk-cal-block">
         <div className="bk-row between">
-          <button className="bk-btn ghost inline" onClick={() => moveMonth(-1)} aria-label="Previous month"
+          <button className="bk-btn ghost inline" onClick={() => moveMonth(-1)} aria-label={t("Previous month")}
             disabled={month <= today.slice(0, 7)}>
             <ChevronLeft size={20} strokeWidth={1.75} />
           </button>
-          <h2>{new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" })}</h2>
-          <button className="bk-btn ghost inline" onClick={() => moveMonth(1)} aria-label="Next month">
+          <h2>{new Date(y, m - 1, 1).toLocaleDateString(loc, { month: "long", year: "numeric" })}</h2>
+          <button className="bk-btn ghost inline" onClick={() => moveMonth(1)} aria-label={t("Next month")}>
             <ChevronRight size={20} strokeWidth={1.75} />
           </button>
         </div>
 
         <div className="bk-cal">
-          {DOW.map((d, i) => (
+          {dow(loc).map((d, i) => (
             <div key={i} className="bk-dow">{d}</div>
           ))}
         </div>
@@ -205,35 +225,42 @@ export default function StepWhen({ form, setForm, durationMinutes, durations }) 
 
       {!loading && !error && monthHasNothing(days) && (
         <div className="bk-note" style={{ marginTop: 12 }}>
-          No open times this month. Try the next month
-          {business.phone ? `, or call ${business.phone}` : ""}.
+          {business.phone
+            ? t("No open times this month. Try the next month, or call {phone}.",
+              { phone: business.phone })
+            : t("No open times this month. Try the next month.")}
         </div>
       )}
 
       {legDate && (
         <>
           <div className="bk-step-label" style={{ marginTop: 18 }}>
-            Times on {new Date(`${legDate}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+            {t("Times on {date}", {
+              date: new Date(`${legDate}T12:00:00`)
+                .toLocaleDateString(loc, { weekday: "long", month: "long", day: "numeric" }),
+            })}
           </div>
           {wrongMode && (
             <div className="bk-note">
               {form.serviceType === "mobile"
-                ? `${business.name} is taking drop-offs only that day — go back a step to change how it’s done, or pick another day.`
-                : `${business.name} is coming to customers that day rather than taking drop-offs — go back a step, or pick another day.`}
+                ? t("{business} is taking drop-offs only that day — go back a step to change how it’s done, or pick another day.",
+                  { business: business.name })
+                : t("{business} is coming to customers that day rather than taking drop-offs — go back a step, or pick another day.",
+                  { business: business.name })}
             </div>
           )}
           <div className="bk-slots">
-            {daySlots.map((t) => (
+            {daySlots.map((slot) => (
               <button
-                key={t}
-                className={`bk-chip ${legTime === t ? "selected" : ""}`}
-                onClick={() => setLegWhen(legDate, t)}
+                key={slot}
+                className={`bk-chip ${legTime === slot ? "selected" : ""}`}
+                onClick={() => setLegWhen(legDate, slot)}
               >
-                {time12(t)}
+                {time12(slot)}
               </button>
             ))}
           </div>
-          {daySlots.length === 0 && !wrongMode && <p className="bk-muted">Nothing open that day.</p>}
+          {daySlots.length === 0 && !wrongMode && <p className="bk-muted">{t("Nothing open that day.")}</p>}
         </>
       )}
     </>

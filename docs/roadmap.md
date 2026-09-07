@@ -7596,11 +7596,63 @@ works**, which is one line at the end rather than a pause in the middle.
       and the waiting is the long pole; building first is a finished feature
       nobody can switch on.
 
-- [ ] 8.17 **Spanish.** *"A lot of detailers speak Spanish… make sure you don't
+- [~] 8.17 **Spanish.** *"A lot of detailers speak Spanish… make sure you don't
       do bad translating."* And the limit he named himself: *"I can't check
       that sadly, because I don't speak Spanish."* i18n from nothing — no
       library, `lang="en"` hardcoded, 20+ `"en-US"` call sites, every string
       inline in JSX and in the email templates. Large.
+      **STAGE 1 DONE 2026-09-07 — THE WHOLE CUSTOMER-FACING BOOKING JOURNEY.**
+      *(Full reasoning: DECISIONS.md → "Roadmap 8.17".)* The seven steps, the
+      price bar, the confirmation, the receipt page a customer reaches from
+      their email, and the opt-out. **One complete journey rather than a
+      fraction of everything**: book, then change or cancel, then stop the
+      marketing.
+      **MEASURED FIRST, WHICH IS WHY IT IS STAGED.** ~2,600 candidate strings
+      across the product; **148 of them are the entire booking surface.** A
+      whole audience for 6% of the work, and the dashboard's ~1,500 are stage
+      2.
+      **HIS SECOND SENTENCE IS THE DESIGN BRIEF, NOT A FOOTNOTE.** Nobody who
+      can approve this can read the output, so the question is not *how do we
+      translate well* — it is **what makes a wrong translation cheap to find
+      and cheap to fix.** Four answers: **the ENGLISH IS THE KEY**, so an
+      untranslated string renders correct English rather than
+      `book.services.title`; **a copy edit that orphans its translation fails a
+      check** rather than going quiet; **English is never taken away** — the
+      picker is on the page, so a confusing line is an annoyance somebody
+      switches out of; and **`es-US`, never `es-ES`**, which keeps `$1,234.50`,
+      the 12-hour clock and month-before-day.
+      **NO LIBRARY.** `t()` is a lookup, an interpolation and a change event;
+      i18next is larger than everything a booking page needs and this frontend
+      has four dependencies.
+      **THE CALENDAR'S WORDS COME FROM `Intl`, NOT THE CATALOGUE** — month
+      names, dates, and the weekday initials DERIVED rather than typed, because
+      a hard-coded `["S","M","T"…]` is English by construction and Spanish's
+      own are L M M J V S D, a different set in a different order.
+      **AND THE PICKER COST 25px OF EVERY STEP UNTIL IT WAS MEASURED.** A chip
+      carries `min-height: 44px` — the tap floor — against a 19px masthead, so
+      it took the header from 19 to 44 and put EIGHT steps past the bottom of a
+      392 screen, including two that had been fitting with nine pixels to
+      spare. Every step's spare room is the DETAILER's budget (W16). Fixed with
+      negative block margins so the control keeps its full tap area while the
+      row keeps its height: **the whole feature now costs 1px** — three cars is
+      15px spare against the 16 recorded before it.
+      **AND IT BROKE `sweep-booking-steps.mjs` IN A WAY THAT READ AS A PRODUCT
+      BUG.** That script clicked `.bk-chip` first, the picker is chips too and
+      sits above everything, so it pressed a language button and then failed
+      one step later on a Continue that would not enable. Scoped to
+      `.bk-slots .bk-chip`. **Same family as the auth-form selectors CLAUDE.md
+      guards: a script reaching for "the first X on the page" breaks the day a
+      second X is drawn above it.**
+      `tests/spanish.test.mjs` — **23 checks, ten baselined**, and § 4 is the
+      one that matters: it reads the booking surface for hard-coded English,
+      because a forgotten string is invisible in English, invisible to him, and
+      first met by a customer.
+      **WHAT STAGE 1B AND 2 STILL OWE**, named rather than implied: the
+      monthly-plan pages (`/book/:slug/plans`, `/plan/:memberId`), whose text
+      is a SENTENCE GENERATOR in `lib/plans.js` rather than strings; the
+      thirteen email templates; and the detailer's dashboard. The plan pages
+      carry no picker, so they promise nothing they cannot do — and § 4b fails
+      if one ever appears there.
 
 - [ ] 8.18 **Two logins at once.** *"Maybe there's an account switcher — like
       how on Chrome you could log into multiple Google accounts and switch

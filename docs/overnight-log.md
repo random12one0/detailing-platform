@@ -2731,6 +2731,47 @@ one a much smaller job afterwards. They are worth deciding together.
 Full detail, with Google's own pages linked:
 `docs/google-business-profile-research-2026-09-07.md`.
 
+## The booking page speaks Spanish now — and the way I built it is because of what you said
+
+You asked for Spanish and then said the thing that actually mattered: *"I can't
+check that sadly, because I don't speak Spanish."*
+
+**That sentence changed the whole design.** There is no point being careful if
+nobody who can approve it can read it — some of the Spanish will be wrong and
+there is nobody in between it and a customer. So I built it so that **being
+wrong is cheap to find and cheap to fix** instead:
+
+- **The English sentence IS the identifier.** So anything I miss shows up as
+  correct English, not as `book.services.title` or a blank space.
+- **There is a plain EN / ES switch on the page**, and English never goes away.
+  Somebody who cannot make sense of a line presses two letters and carries on
+  booking instead of giving up.
+- **A check fails if I change an English sentence and forget its Spanish**, and
+  another fails if I leave any English behind on those pages at all.
+- **It picks the language from the customer's own phone** without anybody
+  choosing anything, which is what most people will get.
+
+**What it covers:** the whole booking journey — all seven steps, the price, the
+confirmation, the page they change or cancel from, and the "stop emailing me"
+page. That is one complete thing.
+
+**What it does not cover, and I want you to know it.** Your detailers' own
+words stay in English: service names, descriptions, add-ons, area names. I
+cannot translate something I have never seen. So a Spanish customer gets a
+Spanish FORM around an English MENU. It is still worth it — the confusing part
+of a form is never the name of the thing you are picking, it is knowing what
+step you are on and what goes in the box.
+
+**Still to do:** the monthly-plan pages, the emails, and your own dashboard.
+The plan pages deliberately have no language switch, so they do not promise
+something they cannot do.
+
+**One thing worth telling you because it is the kind of thing you notice.** My
+first version of the language switch pushed every step down by 25 pixels, which
+put eight of the seven-step screens past the bottom of a phone — the exact rule
+you set about never scrolling inside a step. I only found it because I measured
+rather than looked. It costs one pixel now.
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

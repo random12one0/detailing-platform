@@ -265,6 +265,8 @@ were made more than once.
 
 - **Roadmap 8.14 — a promo code makes a different `Snapshot`, and there is no Stripe coupon** — *"we should set up a promo code system within the buying process. I'm sure Stripe supports that."* It does, and using it would put the money inside Stripe where nothing in this repo can see it — the same reasoning that already refused Product IDs for the amounts. **So a code produces a discounted `Snapshot`**, and the invoice lines, the label, the consent sentence, the exit fee, the first charge and the row are all right by construction rather than by six call sites remembering. **The price of that is stated: a discount lasts as long as the subscription does** — an inline `unit_amount` recurs for ever, so *first month free* needs a Stripe coupon and is not built; money off the build fee is naturally one-off. **Refused on a founding account by default**, because three spots exist and are already discounted. **The redemption is one SQL statement and sits above the snapshot** (roadmap 8.5's finding applied, not re-learned), proven by firing two at a one-use code at once. **The test found a real defect and then a second one in its own fix**: `subscribe` claims the founding spot at intent to pay, so a code could be quoted fine and refused at the till — and the prediction written to close that called `founding_spots_left()`, which has not existed since roadmap 6.2, so PostgREST answered PGRST202 and it silently fell through to *not founding*. A missing RPC is a silent `false`. **The back office creates and switches off, never edits, and he types DOLLARS while the column stores CENTS — converted on the SERVER**, because a screen that multiplies by 100 is a screen that can forget to.
 
+- **Roadmap 8.17 — Spanish, and "I can't check that" is the design brief** — nobody who can approve this product can read the output, so the question is never *how do we translate well* but **what makes a wrong translation cheap to find and cheap to fix.** Four answers shape everything: **the ENGLISH IS THE KEY**, so an untranslated string renders correct English rather than a debug identifier; a copy edit that orphans its translation FAILS a check rather than going quiet; **English is never taken away**, so a confusing line is an annoyance somebody switches out of; and **`es-US` never `es-ES`**, which keeps `$1,234.50` and the 12-hour clock. **Staged from a MEASUREMENT**: ~2,600 candidate strings in the product, 148 of them the whole booking journey — a complete audience for 6% of the work. No library, because `t()` is a lookup, an interpolation and a change event. The calendar's words come from `Intl` and its weekday initials are DERIVED, because Spanish's are L M M J V S D — a different set in a different order. **And the picker cost 25px of every step until it was measured**: a chip's 44px tap floor against a 19px masthead put eight steps past the bottom of a 392 screen; negative block margins keep the tap area and give the row its height back, and the whole feature now costs 1px. It also broke the booking sweep by being the first `.bk-chip` on the page — which failed one step later, reading as a broken form rather than a renamed handle.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15538,3 +15540,119 @@ code set in the numeral face two hundred lines below the strip turned it red
 about a figure that is not in the strip at all; it counts inside the header
 now. A check that pins a spelling goes red on a correct change; one left
 pointing at deleted code goes vacuous, which is worse.
+
+
+## Roadmap 8.17 — Spanish, and "I can't check that" is the design brief
+
+> *"A lot of detailers speak Spanish… make sure you don't do bad translating."*
+> *"I can't check that sadly, because I don't speak Spanish."*
+
+**The second sentence is not a footnote, it is the whole specification.**
+Nobody who can approve this product can read the output. So no amount of care
+answers *is the Spanish good*, and the question that CAN be answered is: **what
+makes a translation that is wrong cheap to find and cheap to fix**, because
+some of it will be wrong and there is nobody in between it and a customer.
+
+### FOUR ANSWERS, AND THEY DECIDE THE WHOLE SHAPE
+
+**1 · THE ENGLISH IS THE KEY.** `t("Choose your services")`, not
+`t("book.services.title")`. A key nobody translated then renders the correct
+ENGLISH, so the worst case is a page in two languages rather than a page with
+debug text on it. There are also no key names to invent, mistype, or leave
+describing something the copy stopped saying.
+
+**2 · THE COST OF THAT IS MADE LOUD.** Editing an English sentence silently
+orphans its Spanish. `tests/spanish.test.mjs` § 1c fails on any `es` entry
+whose English no longer exists in the source, which turns an invisible
+regression into a red line.
+
+**3 · ENGLISH IS NEVER TAKEN AWAY.** The picker is on the page and the choice
+is remembered per device, so a confusing Spanish string is an annoyance
+somebody presses two letters to leave — the only honest thing to build when the
+person accountable for the words cannot read them.
+
+**4 · `es-US`, NEVER `es-ES`.** The audience is Spanish speakers in the United
+States. That keeps `$1,234.50` rather than `1234,50 US$`, the 12-hour clock,
+and month-before-day — three things a customer would read as WRONG rather than
+as translated.
+
+### IT IS STAGED FROM A MEASUREMENT RATHER THAN FROM A FEELING
+
+The census: **~2,600 candidate strings across the product, and 148 of them are
+the entire customer-facing booking surface.** A whole audience for six per cent
+of the work. Stage 1 is therefore the seven steps, the price bar, the
+confirmation, the receipt page a customer reaches from their email, and the
+opt-out — **one complete journey** rather than a fraction of everything.
+
+**Half a journey would have been worse than none.** So the monthly-plan pages
+are excluded AND carry no picker: they stay wholly English, which is a page in
+one language, and § 4b fails if a picker ever appears on one. They are excluded
+for a real reason — almost everything a person reads there is a SENTENCE BUILT
+BY `lib/plans.js` ("every 2 weeks", "1 visit each time", "$60 a month"), so
+translating them means translating a generator, where word order and agreement
+are the whole problem.
+
+### NO LIBRARY, AND THE CALENDAR'S WORDS COME FROM `Intl`
+
+This frontend has four dependencies. What a booking page needs is a lookup, an
+interpolation and a change event; i18next and react-intl are each larger than
+that.
+
+Month names, dates and the weekday initials come from `Intl` rather than the
+catalogue, because hand-translating "Mon" is inventing a second, worse copy of
+something every browser ships correctly. **The initials are DERIVED rather than
+typed**: a hard-coded `["S","M","T","W","T","F","S"]` is English by
+construction, and Spanish's own are **L M M J V S D** — a different set, in a
+different order, with two Ms and two Ss that only the order tells apart.
+
+### THE PICKER COST 25 PIXELS OF EVERY STEP, AND ONLY MEASURING FOUND IT
+
+A chip carries `min-height: 44px` — the tap-target floor, which is not
+negotiable — and the masthead's own content is a 19px line. Putting the picker
+in that row took the header from 19px to 44px and **put EIGHT steps past the
+bottom of a 392 screen**, including two that had been fitting with nine pixels
+to spare. W16 is the owner's rule that a customer never scrolls inside a step,
+and every step's spare room is the DETAILER's budget.
+
+Two versions were wrong before the third was right: full words ("English" /
+"Español") wrapped the masthead onto a second line; two-letter chips fixed the
+wrapping and still cost 25px because of the tap floor. **Negative block margins
+are the answer** — the control keeps its full 44px tap area while the row keeps
+its own height, overhanging into the header's existing padding. The whole
+feature now costs **one pixel**: three cars is 15px spare against the 16
+recorded before it.
+
+**Shrinking the chip would have paid for a layout with an accessibility floor,
+which is the one trade this repo never makes.**
+
+### AND IT BROKE A BROWSER SCRIPT IN A WAY THAT READ AS A PRODUCT BUG
+
+`sweep-booking-steps.mjs` clicked `.bk-chip` first to pick a time. The picker
+is chips too and sits in the masthead above everything, so the script pressed a
+language button — and did not fail there. It failed one step later, on a
+Continue that would not enable, **which reads as a broken booking form rather
+than as a renamed handle.** Scoped to `.bk-slots .bk-chip`.
+
+**The same family as the auth-form selectors CLAUDE.md guards:** a script
+reaching for *the first X on the page* is a script that breaks the day a second
+X is drawn above it.
+
+### ONE FORMATTER NEEDED AN ARGUMENT RATHER THAN A LOCALE
+
+`duration()` draws "3 hr 30 min" and is shared with the DASHBOARD. Reading the
+active locale inside it would mean a detailer who previewed their own booking
+page in Spanish came back to `3 h 30 min` scattered through an otherwise
+English back office — one screen in two languages, the exact thing this item
+avoids. So the language is an explicit second argument, English by default, and
+§ 5 fails on a booking-surface call that forgets it. Same reasoning that made
+`_shared/config.ts`'s `site` argument required in roadmap 3.3.
+
+### THE LIMIT, STATED RATHER THAN DISCOVERED
+
+**The detailer's own words are not translated and cannot be.** Service names,
+descriptions, add-ons, travel areas, renamed vehicle sizes, their business
+name. A Spanish customer meets a **Spanish form around an English menu**.
+
+That is still worth having: the confusing part of a booking form is never the
+noun you are choosing between, it is knowing what step you are on and what goes
+in the box.

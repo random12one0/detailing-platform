@@ -268,10 +268,19 @@ for (const size of SIZES) {
           // The slots come from a REMOTE edge function. `settle()` is a CAP,
           // and 900ms is a fine cap on a repaint but not on a network round
           // trip, so wait for the chip itself and let settle finish the job.
-          await page.locator(".bk-chip").first()
+          // **`.bk-slots .bk-chip`, NOT `.bk-chip` — roadmap 8.17.** The
+          // language picker is chips too, and it sits in the MASTHEAD, so
+          // `.bk-chip` first is now "English" and this loop clicked a language
+          // button instead of a time. It did not fail there: it failed one
+          // step later on a Continue that would not enable, which reads as a
+          // broken booking form rather than as a renamed handle. **The same
+          // family as the auth-form selectors CLAUDE.md guards** — a script
+          // reaching for "the first X on the page" is a script that breaks the
+          // day a second X is drawn above it.
+          await page.locator(".bk-slots .bk-chip").first()
             .waitFor({ state: "attached", timeout: 4000 }).catch(() => {});
           await settle(page, 900);
-          const got = await page.locator(".bk-chip").count();
+          const got = await page.locator(".bk-slots .bk-chip").count();
           if (process.env.SLOTPROBE) console.log("      day", d, "->", got, "chips");
           if (got) { picked = true; break; }
         }
@@ -288,7 +297,7 @@ for (const size of SIZES) {
         );
       }
       await say(`${n}/${total} ${h.slice(0, 12)} + slots`);
-      await page.locator(".bk-chip").first().click();
+      await page.locator(".bk-slots .bk-chip").first().click();
       await settle(page, 400);
     }
     for (const [sel, value] of [

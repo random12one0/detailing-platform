@@ -23,12 +23,16 @@
 // their branding to do it would be the one moment in the product where the
 // tenant's colour is used to make something harder.
 
+import { t } from "../lib/i18n.js";
+import { useLocale } from "../hooks/useLocale.js";
+import LanguagePicker from "./LanguagePicker.jsx";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../lib/api.js";
 import "./booking.css";
 
 export default function UnsubscribePage() {
+  useLocale();
   const { customerId } = useParams();
   // "loading" | "ready" | "done" | "not_found"
   const [state, setState] = useState({ status: "loading", name: "", first: null });
@@ -70,9 +74,9 @@ export default function UnsubscribePage() {
     return (
       <div className="bk">
         <div className="bk-center">
-          <h1>This link has expired</h1>
+          <h1>{t("This link has expired")}</h1>
           <p className="bk-muted">
-            Reply to the email you got instead — it reaches the business directly.
+            {t("Reply to the email you got instead — it reaches the business directly.")}
           </p>
         </div>
       </div>
@@ -83,15 +87,15 @@ export default function UnsubscribePage() {
     return (
       <div className="bk">
         <div className="bk-center">
-          <h1>Done</h1>
+          <h1>{t("Done")}</h1>
           {/* THE ONE THING SOMEBODY WOULD OTHERWISE GET WRONG. An opt-out here
               is about marketing, and a customer who read this as "I will no
               longer be told when my detailer is coming" would be badly served
               by their own choice. Transactional mail is exempt from opt-out
               for exactly this reason. */}
           <p className="bk-muted">
-            {state.name} won't email you about coming back again. If you book with
-            them, you'll still get the confirmation and reminder for that booking.
+            {t("{business} won't email you about coming back again. If you book with them, you'll still get the confirmation and reminder for that booking.",
+              { business: state.name })}
           </p>
         </div>
       </div>
@@ -101,17 +105,24 @@ export default function UnsubscribePage() {
   return (
     <div className="bk">
       <div className="bk-center">
-        <h1>Stop these emails?</h1>
+        <LanguagePicker />
+        <h1>{t("Stop these emails?")}</h1>
+        {/* **THE GREETING IS INSIDE THE SENTENCE, NOT GLUED TO ITS FRONT.**
+            English can prepend "Maria, this…"; Spanish wants the name
+            somewhere the English never puts it, and a translation that cannot
+            move a name is a translation that reads as a machine's. Two whole
+            sentences, one with the name in it and one without. */}
         <p className="bk-muted">
-          {state.first ? `${state.first}, this ` : "This "}
-          stops {state.name} emailing you about coming back. Anything to do with a
-          booking you make — the confirmation, the reminder, the receipt — still
-          reaches you.
+          {state.first
+            ? t("{name}, this stops {business} emailing you about coming back. Anything to do with a booking you make — the confirmation, the reminder, the receipt — still reaches you.",
+              { name: state.first, business: state.name })
+            : t("This stops {business} emailing you about coming back. Anything to do with a booking you make — the confirmation, the reminder, the receipt — still reaches you.",
+              { business: state.name })}
         </p>
         {error && <div className="bk-error">{error}</div>}
         <div className="bk-actions" style={{ marginTop: 24 }}>
           <button className="bk-btn primary" disabled={busy} onClick={stop}>
-            {busy ? "One moment…" : "Yes, stop them"}
+            {busy ? t("One moment…") : t("Yes, stop them")}
           </button>
         </div>
       </div>

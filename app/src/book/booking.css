@@ -925,3 +925,39 @@
   font-variant-numeric: tabular-nums; letter-spacing: -.03em; line-height: 1;
   color: var(--bk-accent-text);
 }
+
+/* ── THE LANGUAGE PICKER — roadmap 8.17 ──────────────────────────────────
+   Two word-chips in the masthead, pushed to the trailing edge so the
+   business's own name and logo keep the leading one. It uses `.bk-chip word`
+   rather than a shape of its own: this page already has exactly one control
+   that means "one of these", and inventing a second spelling for the same
+   idea is how a booking page starts looking like two pages.
+
+   `margin-left: auto` rather than `justify-content`, because `.inner` is the
+   masthead's own flex row and changing its distribution would move the logo
+   too. Below the wrap it drops under the name — a phone masthead is already
+   two lines with a tagline on it, and a third short line is cheaper than
+   squeezing a business name. */
+/* **THE NEGATIVE BLOCK MARGINS ARE THE WHOLE FIX, AND THEY ARE A MEASUREMENT
+   RATHER THAN A TRICK.** A chip carries `min-height: 44px` — the tap-target
+   floor, which is not negotiable — and the masthead's own content is a 19px
+   line. So putting a chip in that row took the header from 19px to 44px and
+   spent 25px of EVERY step's spare room: the 3-car case went from 16px spare
+   to 9px over, and W16 is the owner's rule that a customer never scrolls
+   inside a step. Measured on the running page, not reasoned about.
+
+   The margins let the control keep its full 44px tap area while the ROW keeps
+   its own height — the chips overhang into the header's existing padding,
+   which is 16px a side. The flex row still reserves their WIDTH, so nothing
+   overlaps. Shrinking the chip instead would have paid for a layout with an
+   accessibility floor, which is the one trade this repo never makes. */
+.bk-lang {
+  display: flex; gap: 6px; margin-left: auto; flex: none;
+  align-self: center; margin-top: -12px; margin-bottom: -12px;
+}
+/* **NO WRAP RULE, AND THAT IS THE POINT.** The first version let the masthead
+   wrap below 480 so the two chips took a line of their own; measured, that
+   line cost about 40px on EVERY step and put eight of them past the bottom of
+   a 392 screen — W16 broken by a control of ours spending the detailer's
+   budget. Two-letter chips fit beside the business name at 320, so there is
+   nothing to wrap. */

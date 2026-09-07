@@ -21,6 +21,8 @@
 // would have armed exactly the overflow above for every tenant who filled
 // it in.
 
+import { getLocale, t } from "../../lib/i18n.js";
+import { useLocale } from "../../hooks/useLocale.js";
 import { useState } from "react";
 import { Eye } from "lucide-react";
 import { duration, money } from "../../lib/format.js";
@@ -29,6 +31,7 @@ import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepServices({ selected, onToggle }) {
   const { services, serviceGroups, business } = useBookingBusiness();
+  useLocale();
   // Which cards are showing their full details. Plain state rather than
   // <details>: the eye has to sit ON the name row to cost zero height, and
   // a <summary> is a row of its own by construction.
@@ -39,8 +42,8 @@ export default function StepServices({ selected, onToggle }) {
   if (services.length === 0) {
     return (
       <div className="bk-note">
-        {business.name} hasn’t listed any services online yet.
-        {business.phone ? ` Please call ${business.phone} to book.` : ""}
+        {t("{business} hasn’t listed any services online yet.", { business: business.name })}
+        {business.phone ? ` ${t("Please call {phone} to book.", { phone: business.phone })}` : ""}
       </div>
     );
   }
@@ -63,7 +66,7 @@ export default function StepServices({ selected, onToggle }) {
   const allPickOne = groups.length > 0 && groups.every((g) => g.rule === 1 || g.exclusive);
   const intro = allPickOne && showHeadings
     ? null
-    : "Choose one or more. You can add extras next.";
+    : t("Choose one or more. You can add extras next.");
 
   return (
     // W18, and it was a structural bug rather than a taste note. His words:
@@ -90,8 +93,8 @@ export default function StepServices({ selected, onToggle }) {
                     exclusive category swaps HARDER — it clears the whole
                     basket — so it has the most to say up front. */}
                 {g.exclusive
-                  ? <span className="bk-group-rule"> · complete on its own</span>
-                  : g.rule === 1 && <span className="bk-group-rule"> · choose one</span>}
+                  ? <span className="bk-group-rule"> · {t("complete on its own")}</span>
+                  : g.rule === 1 && <span className="bk-group-rule"> · {t("choose one")}</span>}
               </div>
               {/* Optional, and empty for every tenant who has not written one:
                   a line here is 19px off a step whose budget is already the
@@ -126,10 +129,10 @@ export default function StepServices({ selected, onToggle }) {
                           menu studied publishes a floor rather than a promise,
                           because how dirty the car is decides the hours. */}
                       <span className="bk-price">
-                        {s.price_is_from && <span className="bk-from">from </span>}
+                        {s.price_is_from && <span className="bk-from">{t("from")} </span>}
                         {money(s.price)}
                       </span>
-                      <span className="bk-muted">about {duration(s.duration_minutes)}</span>
+                      <span className="bk-muted">{t("about {time}", { time: duration(s.duration_minutes, getLocale()) })}</span>
                     </span>
                   </button>
                   {hasMore && (
@@ -138,7 +141,7 @@ export default function StepServices({ selected, onToggle }) {
                       className={`bk-peek ${shown ? "on" : ""}`}
                       aria-expanded={shown}
                       aria-controls={`svc-more-${s.id}`}
-                      aria-label={`What's included in ${s.name}`}
+                      aria-label={t("What's included in {service}", { service: s.name })}
                       onClick={() => peek(s.id)}
                     >
                       <Eye size={18} strokeWidth={2} />

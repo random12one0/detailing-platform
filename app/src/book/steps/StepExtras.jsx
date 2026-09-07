@@ -12,18 +12,21 @@
 // The step only exists when the business has add-ons; the flow is built in
 // BookingPage.jsx.
 
+import { t } from "../../lib/i18n.js";
+import { useLocale } from "../../hooks/useLocale.js";
 import { money } from "../../lib/format.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepExtras({ selected, onToggle }) {
   const { addOns } = useBookingBusiness();
+  useLocale();
 
   return (
     // One flow container, one flex child of .bk-wrap. Without it every card
     // is its own page section at the 26px SECTION gap — the W18 defect, and
     // the same cause as .bk-step-head and .bk-cal-block.
     <div className="bk-choices">
-      <p className="bk-muted">Optional. Skip it if you don’t need any.</p>
+      <p className="bk-muted">{t("Optional. Skip it if you don’t need any.")}</p>
       {addOns.map((a) => {
         const on = selected.includes(a.id);
         return (

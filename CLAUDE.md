@@ -819,7 +819,24 @@ explaining it; if they still have to ask "so should I?", it failed.
   guard matching on email OR phone, so one household address joined two
   different people. **It clears its own `rate_hits` first**, like every other
   suite here that books)
-  **`promo-checkout`** (**102 checks with credentials, 40 without** — the
+  **`spanish`** (**23 checks**, new 2026-09-07, roadmap 8.17 — SPANISH ON THE
+  CUSTOMER-FACING BOOKING SURFACE, and every check in it is shaped by his own
+  limit: *"I can't check that sadly, because I don't speak Spanish."* Nobody
+  who can approve this can read the output, so it never asks whether the
+  Spanish is GOOD; it asks the five things that are answerable and that would
+  otherwise reach a customer with nobody in between. **§ 4 is the one that
+  matters — it reads the booking surface for hard-coded English**, because a
+  string somebody forgot to wrap is invisible in English, invisible to him, and
+  first met by a customer. **§ 5 is the same question for a FORMATTER**:
+  `duration(210)` is not prose, it returns "3 hr 30 min", and a booking call
+  site that forgets the language argument puts English inside a Spanish
+  sentence. Also pinned: no placeholder dropped or invented in translation, no
+  entry copied across untranslated, the register never drifting into `usted`,
+  and the English FALLBACK, which is one `||` away from rendering nothing. Ten
+  breaks all caught. **Its own extractor read a doc comment's `t("…")` EXAMPLE
+  as a real call site on the first run** — the comment-vacuity trap, arriving
+  in the one file that reads source as text for a living)
+  and **`promo-checkout`** (**102 checks with credentials, 40 without** — the
   script prints its own figure, new
   2026-09-07, roadmap 8.14 — A PROMO CODE ON *OUR* CHECKOUT, which is the third
   place in this product where *a number PRINTED is not a number CHARGED* is
@@ -2339,6 +2356,48 @@ explaining it; if they still have to ask "so should I?", it failed.
   BEFORE IT SUSPECTS THE DIFF.** This one arrived in the middle of an unrelated
   item, twenty minutes after three functions had deployed cleanly, and it looks
   exactly like a change having broken the world.
+
+- **THE CUSTOMER-FACING BOOKING SURFACE SPEAKS SPANISH — roadmap 8.17 stage
+  1, 2026-09-07 — AND HIS SECOND SENTENCE IS THE DESIGN BRIEF.** *"I can't
+  check that sadly, because I don't speak Spanish."* Nobody who can approve
+  this can read the output, so the question is never *how do we translate well*
+  but **what makes a wrong translation cheap to find and cheap to fix.**
+  **THE ENGLISH IS THE KEY.** `t("Choose your services")`, never
+  `t("book.services.title")` — an untranslated key then renders correct English
+  instead of a debug identifier. **Do not "improve" it into namespaced keys.**
+  The cost is that a copy edit orphans its translation, and `spanish` § 1c
+  fails on exactly that.
+  **`es-US`, NEVER `es-ES`.** It keeps `$1,234.50`, the 12-hour clock and
+  month-before-day — three things a customer reads as WRONG rather than as
+  translated.
+  **NO LIBRARY** (`t()` is a lookup, an interpolation and a change event, and
+  this frontend has four dependencies), and **the calendar's month names, dates
+  and weekday initials come from `Intl`** — the initials DERIVED, because a
+  hard-coded `["S","M","T"…]` is English by construction and Spanish's are
+  L M M J V S D.
+  **ENGLISH IS NEVER TAKEN AWAY**: the picker is on the page, so a confusing
+  line is an annoyance somebody switches out of rather than a wall.
+  **STAGE 1 IS THE WHOLE BOOKING JOURNEY AND NOTHING ELSE, MEASURED:** ~2,600
+  candidate strings in the product, **148 of them the entire booking surface.**
+  The plan pages, the thirteen emails and the dashboard are stages 1b and 2 —
+  **and the plan pages carry NO PICKER on purpose**, so they promise nothing
+  they cannot do; § 4b fails if one appears there.
+  **AND THE PICKER COST 25px OF EVERY STEP UNTIL IT WAS MEASURED.** A chip's
+  `min-height: 44px` tap floor against a 19px masthead put EIGHT steps past the
+  bottom of a 392 screen — W16, whose spare room is the DETAILER's budget.
+  Negative block margins keep the tap area and give the row its height back;
+  the whole feature costs **1px**. **Do not shrink the chip instead** — that
+  pays for a layout with an accessibility floor.
+  **IT ALSO BROKE `sweep-booking-steps.mjs` IN A WAY THAT READ AS A PRODUCT
+  BUG**: the picker is the first `.bk-chip` on the page, so the script pressed
+  a language button and failed ONE STEP LATER on a Continue that would not
+  enable. Scoped to `.bk-slots .bk-chip`. Same family as the auth-form
+  selectors above — **a script reaching for "the first X on the page" breaks
+  the day a second X is drawn above it.**
+  **`duration()` TAKES A LANGUAGE ARGUMENT, ENGLISH BY DEFAULT, AND MUST NOT
+  READ THE LOCALE ITSELF** — it is shared with the dashboard, and `dp.lang` is
+  a per-DEVICE choice a CUSTOMER makes, so a detailer who previewed their own
+  page in Spanish would come back to `3 h 30 min` in an English back office.
 
 - **A DETAILER CAN TYPE A PROMO CODE AT OUR CHECKOUT — roadmap 8.14,
   2026-09-07 — AND THE ONE THING TO UNDERSTAND IS THAT THERE IS NO STRIPE

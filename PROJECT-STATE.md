@@ -76,6 +76,18 @@ checks, thirteen baselined; it found `subscribe` claiming the founding spot
 AFTER the quote was given (so a code could be accepted and then refused half a
 second later) and then found the fix for that calling an RPC renamed in 6.2,
 which PostgREST answers as a silent false.
+**8.17's STAGE 1 IS SPANISH ON THE WHOLE CUSTOMER BOOKING JOURNEY**, and it
+is staged from a census rather than a feeling: ~2,600 candidate strings in the
+product, **148 of them the entire booking surface** — a complete audience for
+six per cent of the work. His own limit shaped every decision (*"I can't check
+that sadly, because I don't speak Spanish"*): the ENGLISH is the key, so an
+untranslated string renders English rather than a debug identifier; a copy edit
+that orphans its translation fails a check; the picker stays on the page so
+English is never taken away; and `es-US` keeps dollars and the 12-hour clock.
+The picker itself cost 25px of every step until it was measured — eight steps
+went past the bottom of a 392 screen — and now costs one. `tests/spanish.test.mjs`,
+23 checks, ten baselined. Stages 1b and 2 are the plan pages, the emails and
+the dashboard, and the plan pages deliberately carry no picker.
 **AND THE ITEM TURNED UP A LIVE SECURITY HOLE, which has its own commit.**
 Every column-level `revoke update (col)` in this repo was a no-op, because a
 table-level `UPDATE` grant overrides it — so a detailer with the `settings`

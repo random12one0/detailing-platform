@@ -33,6 +33,8 @@
 // every business until a detailer says otherwise, and at 1 this file renders
 // exactly what it rendered before the item.
 
+import { t } from "../../lib/i18n.js";
+import { useLocale } from "../../hooks/useLocale.js";
 import { money } from "../../lib/format.js";
 import {
   maxVehicles, setVehicleCount, VEHICLE_CONDITIONS, vehicleCount,
@@ -57,9 +59,9 @@ import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 // at five or more.
 const SIZE_CARD_CEILING = 4;
 
-const ORDINALS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
 
 export default function StepVehicle({ form, setForm, selectedServices }) {
+  useLocale();
   const { settings } = useBookingBusiness();
   const sizes = settings.vehicle_sizes;
 
@@ -102,7 +104,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
     <>
       {cap > 1 && (
         <div className="bk-field">
-          <span>How many vehicles?</span>
+          <span>{t("How many vehicles?")}</span>
           <div className="bk-chips">
             {Array.from({ length: cap }, (_, i) => i + 1).map((n) => (
               <button
@@ -127,7 +129,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
         // here, beside the count it depends on, rather than on the step where
         // the days are picked.
         <div className="bk-field">
-          <span>All on one day?</span>
+          <span>{t("All on one day?")}</span>
           <div className="bk-chips">
             <button
               type="button"
@@ -135,7 +137,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
               aria-pressed={!form.splitDays}
               onClick={() => setForm((f) => ({ ...f, splitDays: false }))}
             >
-              Same day
+              {t("Same day")}
             </button>
             <button
               type="button"
@@ -143,7 +145,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
               aria-pressed={!!form.splitDays}
               onClick={() => setForm((f) => ({ ...f, splitDays: true }))}
             >
-              Different days
+              {t("Different days")}
             </button>
           </div>
         </div>
@@ -155,7 +157,15 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
         // own setting and the owner's own sentence.
         Array.from({ length: count }, (_, i) => (
           <div className="bk-field" key={i}>
-            <span>{ORDINALS[i] ?? `#${i + 1}`} vehicle</span>
+            {/* **"Vehicle 1" RATHER THAN "1st vehicle" SINCE ROADMAP 8.17,
+                and the reason is the translation rather than the English.** An
+                English ordinal is not a placeholder any other language can
+                use — "1.º vehículo" is stilted and "Vehículo 1st" is wrong —
+                so the ORDINAL had to stop being interpolated. This is my own
+                micro-copy from 8.10 rather than anything he ruled on, and
+                "Vehicle 2" is at least as clear as "2nd vehicle" on a row that
+                repeats. */}
+            <span>{t("Vehicle {n}", { n: i + 1 })}</span>
             {/* Two fields where there are two. A business whose services
                 price every size the same asks no size question at all, and a
                 lone input in a two-column grid would sit at half width for
@@ -163,7 +173,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
             <div className={sizesMatter ? "bk-vehicle" : ""}>
               {sizesMatter && (
                 <select
-                  aria-label={`${ORDINALS[i] ?? `#${i + 1}`} vehicle size`}
+                  aria-label={t("Vehicle {n} size", { n: i + 1 })}
                   value={at(i).size}
                   onChange={(e) => edit(i, { size: e.target.value })}
                 >
@@ -176,9 +186,9 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
                   version below keeps the fuller example, which is what makes
                   the field obviously optional. */}
               <input
-                aria-label={`${ORDINALS[i] ?? `#${i + 1}`} vehicle, what it is`}
+                aria-label={t("Vehicle {n}, what it is", { n: i + 1 })}
                 value={at(i).model ?? ""}
-                placeholder="Make and model"
+                placeholder={t("Make and model")}
                 onChange={(e) => edit(i, { model: e.target.value })}
               />
             </div>
@@ -189,14 +199,14 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
           {sizesMatter ? (
             asList ? (
               <label className="bk-field">
-                <span>Vehicle size</span>
+                <span>{t("Vehicle size")}</span>
                 <select value={form.vehicleSize} onChange={(e) => pick(e.target.value)}>
                   {sizeOptions}
                 </select>
               </label>
             ) : (
               <div className="bk-choices">
-                <p className="bk-muted">Bigger vehicles take longer, so pricing varies.</p>
+                <p className="bk-muted">{t("Bigger vehicles take longer, so pricing varies.")}</p>
                 {sizes.map((s) => {
                   const extra = sizeExtra(s.key);
                   return (
@@ -214,7 +224,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
                           <h3>{s.label}</h3>
                           {s.examples && <p className="bk-muted">{s.examples}</p>}
                         </div>
-                        <span className="bk-price">{extra > 0 ? `+${money(extra)}` : "Included"}</span>
+                        <span className="bk-price">{extra > 0 ? `+${money(extra)}` : t("Included")}</span>
                       </div>
                     </div>
                   );
@@ -222,14 +232,14 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
               </div>
             )
           ) : (
-            <p className="bk-muted">One price for every vehicle.</p>
+            <p className="bk-muted">{t("One price for every vehicle.")}</p>
           )}
 
           <label className="bk-field">
-            <span>What are you bringing? (optional)</span>
+            <span>{t("What are you bringing? (optional)")}</span>
             <input
               value={form.vehicleModel}
-              placeholder="e.g. 2019 Honda Civic"
+              placeholder={t("e.g. 2019 Honda Civic")}
               onChange={(e) => setForm((f) => ({ ...f, vehicleModel: e.target.value }))}
             />
           </label>
@@ -242,7 +252,7 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
           price — the review step says so in as many words. */}
       {settings.ask_vehicle_condition && (
         <div className="bk-field">
-          <span>How dirty is the inside?</span>
+          <span>{t("How dirty is the inside?")}</span>
           <div className="bk-chips">
             {VEHICLE_CONDITIONS.map(({ key, label }) => (
               <button
@@ -255,12 +265,17 @@ export default function StepVehicle({ form, setForm, selectedServices }) {
                   vehicleCondition: f.vehicleCondition === key ? "" : key,
                 }))}
               >
-                {label}
+                {/* **THE LABEL COMES FROM `core.js`, WHICH MAY NOT IMPORT
+                    ANYTHING — and English-as-key is what makes that free.**
+                    `t("Light")` needs no plumbing back into a module that has
+                    to stay droppable into somebody else's site; the constant
+                    keeps saying English and the render site translates it. */}
+                {t(label)}
               </button>
             ))}
           </div>
           <p className="bk-muted" style={{ marginTop: 6 }}>
-            It doesn’t change your price — it tells us what to bring.
+            {t("It doesn’t change your price — it tells us what to bring.")}
           </p>
         </div>
       )}

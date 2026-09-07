@@ -20,6 +20,9 @@
 // is gated on `quote` existing, and a failed calculation surfaces with a
 // retry instead of being silently ignored.
 
+import { getLocale, t } from "../lib/i18n.js";
+import { useLocale } from "../hooks/useLocale.js";
+import LanguagePicker from "./LanguagePicker.jsx";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -77,6 +80,9 @@ export default function BookingPage({ byHost = false, notFound = null }) {
 }
 
 function BookingFlow({ notFound = null }) {
+  // Every component that renders translated text subscribes; see
+  // `hooks/useLocale.js` for why one call at the root is not enough.
+  useLocale();
   const ctx = useBookingBusiness();
   const { status, business, branding, settings, services, serviceGroups, addOns, plans, brandVars, slug } = ctx;
   const STEPS = useMemo(() => stepsFor(addOns), [addOns]);
@@ -187,11 +193,11 @@ function BookingFlow({ notFound = null }) {
     setQuoteError("");
     try {
       const r = await api.calculateBooking(slug, quoteRequest(form, { planId, promoApplied: promoState.applied }));
-      if (!r?.quote) throw new Error("We couldn't work out a price for that selection.");
+      if (!r?.quote) throw new Error(t("We couldn't work out a price for that selection."));
       setQuote(r.quote);
     } catch (e) {
       setQuote(null);
-      setQuoteError(e.message || "We couldn't work out a price just now.");
+      setQuoteError(e.message || t("We couldn't work out a price just now."));
     }
     setQuoting(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -207,7 +213,7 @@ function BookingFlow({ notFound = null }) {
       await api.validatePromo(slug, code, form.customerEmail, form.customerPhone);
       setPromoState({ checking: false, error: "", applied: code });
     } catch (e) {
-      setPromoState({ checking: false, error: e.message || "That code isn't valid.", applied: null });
+      setPromoState({ checking: false, error: e.message || t("That code isn't valid."), applied: null });
     }
   };
 
@@ -242,7 +248,7 @@ function BookingFlow({ notFound = null }) {
   const submit = async () => {
     // Belt and braces: never submit without a server quote.
     if (!quote) {
-      setSubmitError("We couldn't confirm the price. Please go back a step and try again.");
+      setSubmitError(t("We couldn't confirm the price. Please go back a step and try again."));
       return;
     }
     setSubmitting(true);
@@ -291,7 +297,7 @@ function BookingFlow({ notFound = null }) {
     } catch (e) {
       // A 409 here means the slot went while they were filling the form, or
       // a rule rejected it. Say so plainly and send them back to pick again.
-      setSubmitError(e.message || "We couldn't complete that booking.");
+      setSubmitError(e.message || t("We couldn't complete that booking."));
       setSubmitting(false);
     }
   };
@@ -305,8 +311,8 @@ function BookingFlow({ notFound = null }) {
     return (
       <div className="bk" style={brandVars}>
         <div className="bk-center">
-          <h1>Page not found</h1>
-          <p className="bk-muted">This booking link doesn’t match a business.</p>
+          <h1>{t("Page not found")}</h1>
+          <p className="bk-muted">{t("This booking link doesn’t match a business.")}</p>
         </div>
       </div>
     );
@@ -315,8 +321,8 @@ function BookingFlow({ notFound = null }) {
     return (
       <div className="bk" style={brandVars}>
         <div className="bk-center">
-          <h1>Something went wrong</h1>
-          <p className="bk-muted">Please refresh and try again.</p>
+          <h1>{t("Something went wrong")}</h1>
+          <p className="bk-muted">{t("Please refresh and try again.")}</p>
         </div>
       </div>
     );
@@ -442,6 +448,13 @@ function BookingFlow({ notFound = null }) {
             <h1>{business.name}</h1>
             {branding?.tagline && <div className="tagline brand">{branding.tagline}</div>}
           </div>
+          {/* ROADMAP 8.17 — IN THE MASTHEAD, WHICH IS THE ONE PLACE ON THIS
+              PAGE THAT COSTS A STEP NOTHING. Every step's spare room is the
+              detailer's budget (W16) and step 1's is TEN PIXELS at 1440x900,
+              so a language control anywhere inside `.bk-wrap` would be height
+              taken from a tenant's catalogue. The header is drawn once, above
+              the flow, and does not move between steps. */}
+          <LanguagePicker />
         </div>
       </header>
 
@@ -459,7 +472,7 @@ function BookingFlow({ notFound = null }) {
                 <span key={s} className={i < step ? "done" : i === step ? "current" : ""} />
               ))}
             </div>
-            <div className="bk-step-label">Step {step + 1} of {STEPS.length}</div>
+            <div className="bk-step-label">{t("Step {n} of {total}", { n: step + 1, total: STEPS.length })}</div>
             {/* THE DOOR TO THE PLANS, AND IT COSTS THE STEP NOTHING. It rides
                 the row the rail and the step label already share, so its
                 height is the label's height — which matters, because step 1's
@@ -469,7 +482,7 @@ function BookingFlow({ notFound = null }) {
                 form they are most of the way through. */}
             {step === 0 && plans.length > 0 && !attachedPlan && (
               <Link className="bk-plans-door" to={`/book/${slug}/plans`}>
-                {plans.length === 1 ? "See the plan" : "See the plans"}
+                {plans.length === 1 ? t("See the plan") : t("See the plans")}
               </Link>
             )}
           </div>
@@ -553,7 +566,7 @@ function BookingFlow({ notFound = null }) {
       <div className="bk-bar">
         <div className="inner">
           {step > 0 && (
-            <button className="bk-btn ghost back" onClick={() => go(-1)} aria-label="Back a step">
+            <button className="bk-btn ghost back" onClick={() => go(-1)} aria-label={t("Back a step")}>
               <ArrowLeft size={20} strokeWidth={2} />
             </button>
           )}
@@ -572,13 +585,15 @@ function BookingFlow({ notFound = null }) {
                     The receipt on the review step itemises the same plan by
                     name, so the customer is told twice and charged once. */}
                 <div className="bk-muted">
-                  {quote.plan_name ? `${quote.plan_name} applied` : "Estimated total"}
-                  {quote.total_duration ? ` · ${duration(quote.total_duration)}` : ""}
+                  {quote.plan_name
+                    ? t("{plan} applied", { plan: quote.plan_name })
+                    : t("Estimated total")}
+                  {quote.total_duration ? ` · ${duration(quote.total_duration, getLocale())}` : ""}
                 </div>
                 <strong>{money(quote.total)}</strong>
               </>
             ) : (
-              <span className="bk-muted">{quoting ? "Working out your price…" : "Choose a service to start"}</span>
+              <span className="bk-muted">{quoting ? t("Working out your price…") : t("Choose a service to start")}</span>
             )}
           </div>
           {isLast ? (
@@ -595,12 +610,12 @@ function BookingFlow({ notFound = null }) {
                server actually wrote, and is right either way. */
             <button className="bk-btn primary" disabled={submitting || !quote} onClick={submit}>
               {settings.booking_mode === "request" || attachedPlan
-                ? (submitting ? "Sending…" : "Request this time")
-                : (submitting ? "Booking…" : "Confirm booking")}
+                ? (submitting ? t("Sending…") : t("Request this time"))
+                : (submitting ? t("Booking…") : t("Confirm booking"))}
             </button>
           ) : (
             <button className="bk-btn primary" disabled={!canAdvance} onClick={() => go(1)}>
-              Continue
+              {t("Continue")}
             </button>
           )}
         </div>
@@ -616,18 +631,18 @@ function headingFor(stepName, bothModes, settings, serviceType, recognition) {
       // plan booking says what is being set up, a returning customer gets
       // their name. Everybody else meets the question this step has always
       // asked.
-      if (recognition?.kind === "plan") return `Let’s set up your ${recognition.text}`;
-      if (recognition?.kind === "name") return `Welcome back, ${recognition.text}`;
-      return "What can we do for you?";
-    case "Extras": return "Anything to add?";
-    case "Vehicle": return "Tell us about the vehicle";
+      if (recognition?.kind === "plan") return t("Let’s set up your {plan}", { plan: recognition.text });
+      if (recognition?.kind === "name") return t("Welcome back, {name}", { name: recognition.text });
+      return t("What can we do for you?");
+    case "Extras": return t("Anything to add?");
+    case "Vehicle": return t("Tell us about the vehicle");
     // Not `settings.mobile_enabled` any more: roadmap 2.8c lets a SERVICE
     // narrow the mode, and by the time this renders form.serviceType is
     // already the only one left. Ask the question that matches it.
-    case "Location": return bothModes ? "Where should we do it?"
-      : serviceType === "mobile" ? "Where are you?" : "Drop-off details";
-    case "When": return "Pick a time";
-    case "Details": return "How do we reach you?";
-    default: return "Check everything over";
+    case "Location": return bothModes ? t("Where should we do it?")
+      : serviceType === "mobile" ? t("Where are you?") : t("Drop-off details");
+    case "When": return t("Pick a time");
+    case "Details": return t("How do we reach you?");
+    default: return t("Check everything over");
   }
 }

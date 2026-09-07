@@ -1,19 +1,22 @@
 // Confirmation screen — shown straight after booking, and the same
 // information the confirmation email carries.
 
+import { intlLocale, t } from "../lib/i18n.js";
+import { useLocale } from "../hooks/useLocale.js";
 import { Check, Clock } from "lucide-react";
 import { icsUrl } from "../lib/api.js";
 import { money, time12 } from "../lib/format.js";
 import { useBookingBusiness } from "./BookingBusinessContext.jsx";
 
 export default function BookingConfirmed({ booking, form }) {
+  useLocale();
   const { business, branding, brandVars } = useBookingBusiness();
   // ROADMAP 2.12 — THE SCREEN MAKES THE SAME PROMISE THE EMAIL JUST MADE, and
   // it reads the status the server actually wrote rather than the setting,
   // because those are two reads that can disagree. What does NOT change: the
   // time is held either way, so nothing about the appointment card moves.
   const isRequest = booking.status === "pending";
-  const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString("en-US", {
+  const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(intlLocale(), {
     weekday: "long", month: "long", day: "numeric",
   });
 
@@ -24,7 +27,7 @@ export default function BookingConfirmed({ booking, form }) {
           {branding?.logo_url && <img src={branding.logo_url} alt="" />}
           <div>
             <h1>{business.name}</h1>
-            <div className="tagline">{isRequest ? "Request received" : "Booking confirmed"}</div>
+            <div className="tagline">{isRequest ? t("Request received") : t("Booking confirmed")}</div>
           </div>
         </div>
       </header>
@@ -44,41 +47,43 @@ export default function BookingConfirmed({ booking, form }) {
               ? <Clock size={30} strokeWidth={2.5} />
               : <Check size={30} strokeWidth={2.5} />}
           </div>
-          <h1>{isRequest ? "We’re holding your time" : "You’re booked"}</h1>
+          <h1>{isRequest ? t("We’re holding your time") : t("You’re booked")}</h1>
           <p className="bk-muted" style={{ marginTop: 6 }}>
             {isRequest
-              ? `Nobody else can take it while we look at your request. We’ll email ${form.customerEmail} as soon as it’s accepted.`
-              : `We’ve emailed your confirmation to ${form.customerEmail}.`}
+              ? t("Nobody else can take it while we look at your request. We’ll email {email} as soon as it’s accepted.",
+                { email: form.customerEmail })
+              : t("We’ve emailed your confirmation to {email}.", { email: form.customerEmail })}
           </p>
         </div>
 
         <div className="bk-card">
-          <div className="bk-step-label">{isRequest ? "What you asked for" : "Your appointment"}</div>
+          <div className="bk-step-label">{isRequest ? t("What you asked for") : t("Your appointment")}</div>
           <h3>{dateLabel}</h3>
           <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
           <p className="bk-muted" style={{ marginTop: 6 }}>
             {form.serviceType === "mobile"
-              ? `We’ll come to ${form.customerAddress}`
+              ? t("We’ll come to {address}", { address: form.customerAddress })
               : business.dropoff_address
-                ? `Drop off at ${business.dropoff_address}`
-                : "Drop-off — we’ll confirm the address"}
+                ? t("Drop off at {address}", { address: business.dropoff_address })
+                : t("Drop-off — we’ll confirm the address")}
           </p>
           <div className="bk-row between" style={{ marginTop: 10 }}>
-            <span>Estimated total</span>
+            <span>{t("Estimated total")}</span>
             <strong className="bk-price">{money(booking.total_price)}</strong>
           </div>
         </div>
 
         <a className="bk-btn primary" href={icsUrl(booking.id, "customer")}>
-          Add to my calendar
+          {t("Add to my calendar")}
         </a>
         <a className="bk-btn" style={{ marginTop: 10 }} href={booking.receipt_url}>
-          {isRequest ? "View, change or cancel this request" : "View, change or cancel this booking"}
+          {isRequest ? t("View, change or cancel this request") : t("View, change or cancel this booking")}
         </a>
 
         {business.phone && (
           <p className="bk-muted" style={{ marginTop: 18, textAlign: "center" }}>
-            Questions? Call <a href={`tel:${business.phone}`} style={{ color: "var(--bk-accent-text)" }}>{business.phone}</a>
+            {t("Questions? Call")}{" "}
+            <a href={`tel:${business.phone}`} style={{ color: "var(--bk-accent-text)" }}>{business.phone}</a>
           </p>
         )}
       </div>

@@ -10,6 +10,9 @@
 // That is a display convenience only — cancel-booking re-checks the window
 // itself, so a stale page cannot cancel late.
 
+import { intlLocale, t } from "../lib/i18n.js";
+import { useLocale } from "../hooks/useLocale.js";
+import LanguagePicker from "./LanguagePicker.jsx";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CalendarClock, Check, Phone, X } from "lucide-react";
@@ -19,6 +22,7 @@ import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessCo
 import "./booking.css";
 
 export default function ManageBookingPage() {
+  useLocale();
   const { id } = useParams();
   // ROADMAP 8.10 — `group` is the OTHER appointments this customer made in
   // the same go, and it is empty for every booking that is not one of a pair.
@@ -43,8 +47,8 @@ export default function ManageBookingPage() {
     return (
       <div className="bk">
         <div className="bk-center">
-          <h1>Booking not found</h1>
-          <p className="bk-muted">This link may be out of date, or the booking was removed.</p>
+          <h1>{t("Booking not found")}</h1>
+          <p className="bk-muted">{t("This link may be out of date, or the booking was removed.")}</p>
         </div>
       </div>
     );
@@ -98,7 +102,8 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
 
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
 
-  const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString("en-US", {
+  const loc = intlLocale();
+  const dateLabel = new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(loc, {
     weekday: "long", month: "long", day: "numeric",
   });
 
@@ -122,7 +127,7 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
       setDays(r.days ?? {});
       setMode("reschedule");
     } catch (e) {
-      setError(e.message || "Could not load available times.");
+      setError(e.message || t("Could not load available times."));
     }
     setBusy(false);
   };
@@ -186,15 +191,16 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
           {branding?.logo_url && <img src={branding.logo_url} alt="" />}
           <div>
             <h1>{business.name}</h1>
-            <div className="tagline">{isRequest ? "Your request" : "Your booking"}</div>
+            <div className="tagline">{isRequest ? t("Your request") : t("Your booking")}</div>
           </div>
+          <LanguagePicker />
         </div>
       </header>
 
       <div className="bk-wrap" style={{ paddingBottom: 40 }}>
         <div className="bk-card" style={{ marginTop: 18 }}>
           <div className="bk-step-label">
-            {isCancelled ? "Cancelled" : isRequest ? "Waiting to be accepted" : "Confirmed"}
+            {isCancelled ? t("Cancelled") : isRequest ? t("Waiting to be accepted") : t("Confirmed")}
           </div>
           <h3 style={{ textDecoration: isCancelled ? "line-through" : "none" }}>{dateLabel}</h3>
           <p className="bk-muted">{time12(booking.start_time)} – {time12(booking.end_time)}</p>
@@ -207,7 +213,7 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
               the booking they are looking at. */}
           {(booking.vehicles ?? []).length > 0 && (
             <p className="bk-muted" style={{ marginTop: 6 }}>
-              {`${(booking.vehicles ?? []).length + 1} vehicles — `}
+              {`${t("{n} vehicles", { n: (booking.vehicles ?? []).length + 1 })} — `}
               {[
                 [booking.vehicle_model, booking.vehicle_size_label].filter(Boolean).join(" "),
                 ...[...(booking.vehicles ?? [])]
@@ -218,16 +224,20 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
           )}
           <p className="bk-muted" style={{ marginTop: 6 }}>
             {booking.service_type === "mobile"
-              ? `We come to ${booking.customer_address || "you"}`
-              : `Drop-off${business.dropoff_address ? ` at ${business.dropoff_address}` : ""}`}
+              ? (booking.customer_address
+                ? t("We come to {address}", { address: booking.customer_address })
+                : t("We come to you"))
+              : (business.dropoff_address
+                ? t("Drop-off at {address}", { address: business.dropoff_address })
+                : t("Drop-off"))}
           </p>
           <div className="bk-row between" style={{ marginTop: 10 }}>
-            <span>Estimated total</span>
+            <span>{t("Estimated total")}</span>
             <strong className="bk-price">{money(booking.final_amount ?? booking.total_price)}</strong>
           </div>
           {isRequest && !isCancelled && (
             <p className="bk-muted" style={{ marginTop: 8 }}>
-              This time is held for you while {business.name} looks at it.
+              {t("This time is held for you while {business} looks at it.", { business: business.name })}
             </p>
           )}
         </div>
@@ -244,24 +254,26 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
         {group.length > 0 && (
           <div className="bk-card" style={{ marginTop: 14 }}>
             <div className="bk-step-label">
-              {`Also booked — ${group.length === 1 ? "1 more car" : `${group.length} more cars`}`}
+              {group.length === 1
+                ? t("Also booked — 1 more car")
+                : t("Also booked — {n} more cars", { n: group.length })}
             </div>
             {group.map((g) => (
               <a className="bk-row between" key={g.id} href={`/booking/${g.id}`}
                 style={{ marginTop: 8, textDecoration: "none", color: "inherit" }}>
                 <span>
-                  {new Date(`${g.booking_date}T12:00:00`).toLocaleDateString("en-US", {
+                  {new Date(`${g.booking_date}T12:00:00`).toLocaleDateString(loc, {
                     weekday: "short", month: "long", day: "numeric",
                   })} · {time12(g.start_time)}
                   <span className="bk-muted">
-                    {` — ${[g.vehicle_model, g.vehicle_size_label].filter(Boolean).join(" ") || "Vehicle"}`}
+                    {` — ${[g.vehicle_model, g.vehicle_size_label].filter(Boolean).join(" ") || t("Vehicle")}`}
                   </span>
                 </span>
                 <span className="bk-price">{money(g.total_price)}</span>
               </a>
             ))}
             <p className="bk-muted" style={{ marginTop: 10 }}>
-              Each one can be changed or cancelled on its own.
+              {t("Each one can be changed or cancelled on its own.")}
             </p>
           </div>
         )}
@@ -272,9 +284,9 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
             customer working out which they are being asked to agree to. */}
         {quote !== null && !isCancelled && !isPast && (
           <div className="bk-card" style={{ marginTop: 14 }}>
-            <div className="bk-step-label">A price from {business.name}</div>
+            <div className="bk-step-label">{t("A price from {business}", { business: business.name })}</div>
             <div className="bk-row between" style={{ marginTop: 6 }}>
-              <span>Their price</span>
+              <span>{t("Their price")}</span>
               <strong className="bk-price">{money(quote)}</strong>
             </div>
             {booking.quoted_note && (
@@ -282,10 +294,10 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
             )}
             <button className="bk-btn primary" style={{ marginTop: 14 }}
               disabled={busy} onClick={acceptQuote}>
-              <Check size={18} strokeWidth={2} /> {busy ? "Saving…" : `Accept ${money(quote)}`}
+              <Check size={18} strokeWidth={2} /> {busy ? t("Saving…") : t("Accept {amount}", { amount: money(quote) })}
             </button>
             <p className="bk-muted" style={{ marginTop: 10 }}>
-              Not for you? Cancel below and the time goes back.
+              {t("Not for you? Cancel below and the time goes back.")}
             </p>
           </div>
         )}
@@ -294,22 +306,22 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
 
         {isCancelled ? (
           <div className="bk-note">
-            This booking is cancelled. You’re welcome to book again any time.
+            {t("This booking is cancelled. You’re welcome to book again any time.")}
             <div style={{ marginTop: 10 }}>
-              <a className="bk-btn primary" href={`/book/${slug}`}>Book again</a>
+              <a className="bk-btn primary" href={`/book/${slug}`}>{t("Book again")}</a>
             </div>
           </div>
         ) : isPast ? (
-          <div className="bk-note">This appointment has already happened.</div>
+          <div className="bk-note">{t("This appointment has already happened.")}</div>
         ) : mode === "reschedule" ? (
           <>
-            <div className="bk-step-label" style={{ marginTop: 18 }}>Pick a new time</div>
-            {openDates.length === 0 && <p className="bk-muted">No open times in the next few weeks.</p>}
+            <div className="bk-step-label" style={{ marginTop: 18 }}>{t("Pick a new time")}</div>
+            {openDates.length === 0 && <p className="bk-muted">{t("No open times in the next few weeks.")}</p>}
             <div className="bk-slots" style={{ marginBottom: 12 }}>
               {openDates.slice(0, 14).map((d) => (
                 <button key={d} className={`bk-chip ${pick.date === d ? "selected" : ""}`}
                   onClick={() => setPick({ date: d, time: "" })}>
-                  {new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {new Date(`${d}T12:00:00`).toLocaleDateString(loc, { month: "short", day: "numeric" })}
                 </button>
               ))}
             </div>
@@ -326,28 +338,33 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
             <div className="bk-actions">
               <button className="bk-btn primary"
                 disabled={busy || !pick.date || !pick.time} onClick={doReschedule}>
-                {busy ? "Moving…" : "Move my booking"}
+                {busy ? t("Moving…") : t("Move my booking")}
               </button>
               <button className="bk-btn ghost" onClick={() => setMode(null)}>
-                Never mind
+                {t("Never mind")}
               </button>
             </div>
           </>
         ) : confirmCancel ? (
           <div className="bk-note">
             <p className="bk-body">
-              Cancel your appointment on <strong>{dateLabel}</strong> at{" "}
-              <strong>{time12(booking.start_time)}</strong>? The time goes back to
-              whoever wants it, so we may not be able to give it back.
+              {/* **THE DATE AND THE TIME ARE PLACEHOLDERS, NOT MARKUP GLUED
+                  INTO A SENTENCE.** English puts them mid-clause; Spanish does
+                  not, and a translation that cannot move them is a translation
+                  that reads as a machine's. The bold is lost, and that is the
+                  trade — a sentence in the right order matters more here than
+                  two emphasised words. */}
+              {t("Cancel your appointment on {date} at {time}? The time goes back to whoever wants it, so we may not be able to give it back.",
+                { date: dateLabel, time: time12(booking.start_time) })}
             </p>
             {/* Ringed, not bare: this is the button that actually does it. */}
             <button className="bk-btn danger" style={{ marginTop: 12 }}
               disabled={busy} onClick={doCancel}>
-              {busy ? "Cancelling…" : "Yes, cancel it"}
+              {busy ? t("Cancelling…") : t("Yes, cancel it")}
             </button>
             <button className="bk-btn ghost" style={{ marginTop: 8 }} disabled={busy}
               onClick={() => setConfirmCancel(false)}>
-              Keep my booking
+              {t("Keep my booking")}
             </button>
           </div>
         ) : (
@@ -359,11 +376,11 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
               // The button would be refused by the server, so it isn't drawn.
               // The phone number is the thing that actually helps now.
               <div className="bk-note">
-                Changes and cancellations close {windowHours} hours before your
-                appointment, so this one is now locked in.
+                {t("Changes and cancellations close {hours} hours before your appointment, so this one is now locked in.",
+                  { hours: windowHours })}
                 {noteCarriesContact
-                  ? " Get in touch and we'll sort it out:"
-                  : " Please get in touch and we'll sort it out."}
+                  ? ` ${t("Get in touch and we'll sort it out:")}`
+                  : ` ${t("Please get in touch and we'll sort it out.")}`}
                 {/* Telling someone to make contact without giving them a way
                     to do it is not help. Whatever the business has, show it. */}
                 {noteCarriesContact && (
@@ -389,12 +406,12 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
               // choose between two things the page is equally insisting on.
               // Seen in the first screenshot of a quote on this page.
               <button className={`bk-btn${quote === null ? " primary" : ""}`} disabled={busy} onClick={loadSlots}>
-                <CalendarClock size={18} strokeWidth={2} /> {busy ? "Loading…" : "Change the time"}
+                <CalendarClock size={18} strokeWidth={2} /> {busy ? t("Loading…") : t("Change the time")}
               </button>
             )}
 
             <a className="bk-btn" href={icsUrl(booking.id, "customer")}>
-              <Check size={18} strokeWidth={2} /> Add to my calendar
+              <Check size={18} strokeWidth={2} /> {t("Add to my calendar")}
             </a>
 
             {/* The whole row goes when the window is closed, and the "Call"
@@ -408,11 +425,11 @@ function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
               <div className="bk-exits">
                 <button className="bk-btn danger bare" disabled={busy}
                   onClick={() => setConfirmCancel(true)}>
-                  <X size={18} strokeWidth={2} /> {isRequest ? "Cancel this request" : "Cancel this booking"}
+                  <X size={18} strokeWidth={2} /> {isRequest ? t("Cancel this request") : t("Cancel this booking")}
                 </button>
                 {business.phone && (
                   <a className="bk-btn ghost" href={`tel:${business.phone}`}>
-                    <Phone size={18} strokeWidth={2} /> Call {business.phone}
+                    <Phone size={18} strokeWidth={2} /> {t("Call")} {business.phone}
                   </a>
                 )}
               </div>

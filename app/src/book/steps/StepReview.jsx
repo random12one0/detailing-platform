@@ -5,13 +5,17 @@
 // entirely rather than letting the customer submit something we can't
 // price — the failure mode the old widget had.
 
+import { getLocale, intlLocale, t } from "../../lib/i18n.js";
+import { useLocale } from "../../hooks/useLocale.js";
 import { duration, money, time12 } from "../../lib/format.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 export default function StepReview({ form, setForm, quote, services, addOns, promoState, onApplyPromo }) {
+  useLocale();
+  const loc = intlLocale();
   const { business, settings } = useBookingBusiness();
   const dateLabel = form.bookingDate
-    ? new Date(`${form.bookingDate}T12:00:00`).toLocaleDateString("en-US", {
+    ? new Date(`${form.bookingDate}T12:00:00`).toLocaleDateString(loc, {
       weekday: "long", month: "long", day: "numeric",
     })
     : "";
@@ -33,7 +37,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
     ? { date: form.bookingDate, time: form.startTime }
     : (form.extraVehicles?.[i - 1] ?? { date: "", time: "" }));
   const longDay = (d) => (d
-    ? new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric" })
+    ? new Date(`${d}T12:00:00`).toLocaleDateString(loc, { weekday: "short", month: "long", day: "numeric" })
     : "");
 
   return (
@@ -41,7 +45,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
       {/* The appointment is the one lit object on this screen — it is the
           thing being created. Everything else is paper. */}
       <div className="bk-card selected">
-        <div className="bk-step-label">{legs ? "Your appointments" : "When"}</div>
+        <div className="bk-step-label">{legs ? t("Your appointments") : t("When")}</div>
         {legs ? (
           // TWO LINES PER CAR, NOT ONE. Appended to the date with an em-dash,
           // "Tue, September 8 · 8:00 AM — Ford F-150 · Small" wraps mid-name
@@ -62,14 +66,20 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             <h3>{dateLabel}</h3>
             <p className="bk-muted">
               {time12(form.startTime)}
-              {quote?.total_duration ? ` · about ${duration(quote.total_duration)}` : ""}
+              {quote?.total_duration
+                ? ` · ${t("about {time}", { time: duration(quote.total_duration, getLocale()) })}`
+                : ""}
             </p>
           </>
         )}
         <p className="bk-muted" style={{ marginTop: 6 }}>
           {form.serviceType === "mobile"
-            ? `We come to you${form.customerAddress ? ` — ${form.customerAddress}` : ""}`
-            : `Drop-off${business.dropoff_address ? ` — ${business.dropoff_address}` : ""}`}
+            ? (form.customerAddress
+              ? t("We come to you — {address}", { address: form.customerAddress })
+              : t("We come to you"))
+            : (business.dropoff_address
+              ? t("Drop-off — {address}", { address: business.dropoff_address })
+              : t("Drop-off"))}
         </p>
       </div>
 
@@ -113,7 +123,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
           <div className="line" key={s.id}>
             <span>{s.name}</span>
             <span className="bk-price">
-              {s.price_is_from && <span className="bk-from">from </span>}
+              {s.price_is_from && <span className="bk-from">{t("from")} </span>}
               {money(s.price)}
             </span>
           </div>
@@ -126,7 +136,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         ))}
         {!legs && quote?.vehicle_size_fee > 0 && (
           <div className="line dim">
-            <span>Vehicle size</span>
+            <span>{t("Vehicle size")}</span>
             <span className="bk-price">{money(quote.vehicle_size_fee)}</span>
           </div>
         )}
@@ -137,7 +147,11 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             picked where they picked one. */}
         {!legs && quote?.travel_fee > 0 && (
           <div className="line dim">
-            <span>{quote.travel_zone ? `Travel — ${quote.travel_zone}` : "Travel"}</span>
+            {/* The AREA is the detailer's own word for a place and stays as
+                they typed it; only the label around it moves. */}
+            <span>{quote.travel_zone
+              ? t("Travel — {zone}", { zone: quote.travel_zone })
+              : t("Travel")}</span>
             <span className="bk-price">{money(quote.travel_fee)}</span>
           </div>
         )}
@@ -152,13 +166,14 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         ))}
         {!legs && quote?.site_discount > 0 && (
           <div className="line dim">
-            <span>{settings.site_discount_label || `${quote.site_discount_percent}% off`}</span>
+            <span>{settings.site_discount_label
+              || t("{percent}% off", { percent: quote.site_discount_percent })}</span>
             <span className="bk-price">-{money(quote.site_discount)}</span>
           </div>
         )}
         {!legs && quote?.promo_discount > 0 && (
           <div className="line dim">
-            <span>Promo {quote.promo_code}</span>
+            <span>{t("Promo {code}", { code: quote.promo_code })}</span>
             <span className="bk-price">-{money(quote.promo_discount)}</span>
           </div>
         )}
@@ -166,7 +181,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             this line, a customer doing the arithmetic watches $1 vanish. */}
         {!legs && quote && quote.total !== quote.subtotal - (quote.promo_discount || 0) && (
           <div className="line dim">
-            <span>Rounding</span>
+            <span>{t("Rounding")}</span>
             <span className="bk-price">
               {quote.total > quote.subtotal - (quote.promo_discount || 0) ? "+" : "-"}
               {money(Math.abs(quote.total - (quote.subtotal - (quote.promo_discount || 0))))}
@@ -174,7 +189,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
           </div>
         )}
         <div className="line total">
-          <strong>Estimated total</strong>
+          <strong>{t("Estimated total")}</strong>
           <strong className="bk-price" style={{ fontSize: "1.3rem" }}>{money(quote?.total ?? 0)}</strong>
         </div>
         <p className="bk-muted" style={{ marginTop: 10 }}>
@@ -184,28 +199,28 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
               one, because two paragraphs saying the same thing is worse than
               one saying the sharper version. */}
           {services.some((s) => s.price_is_from)
-            ? "Some of this is priced from — we’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra."
-            : "An estimate. If the vehicle needs more work, we’ll ask before doing anything extra."}
+            ? t("Some of this is priced from — we’ll confirm once we’ve seen the vehicle, and we’ll ask before doing anything extra.")
+            : t("An estimate. If the vehicle needs more work, we’ll ask before doing anything extra.")}
         </p>
       </div>
 
       {/* Promo entry rides under the receipt as a plain row, not a box. */}
       <div>
-        <div className="bk-step-label" style={{ marginBottom: 8 }}>Promo code</div>
+        <div className="bk-step-label" style={{ marginBottom: 8 }}>{t("Promo code")}</div>
         <div className="bk-row" style={{ gap: 8 }}>
           <input
             value={form.promoCode}
-            placeholder="Have a code?"
+            placeholder={t("Have a code?")}
             onChange={(e) => setForm((f) => ({ ...f, promoCode: e.target.value.toUpperCase() }))}
           />
           <button className="bk-btn inline" onClick={onApplyPromo} disabled={promoState.checking || !form.promoCode.trim()}>
-            {promoState.checking ? "Checking" : "Apply"}
+            {promoState.checking ? t("Checking") : t("Apply")}
           </button>
         </div>
         {promoState.error && <div className="bk-error" style={{ marginBottom: 0, marginTop: 8 }}>{promoState.error}</div>}
         {promoState.applied && (
           <p className="bk-muted" style={{ marginTop: 8, color: "var(--bk-accent-text)" }}>
-            {promoState.applied} applied.
+            {t("{code} applied.", { code: promoState.applied })}
           </p>
         )}
       </div>

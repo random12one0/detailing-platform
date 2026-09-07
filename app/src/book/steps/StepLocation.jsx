@@ -24,6 +24,8 @@
 // of exactly this shape — a restriction printed on the page that nothing on
 // the way in ever read.
 
+import { t } from "../../lib/i18n.js";
+import { useLocale } from "../../hooks/useLocale.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 import { money } from "../../lib/format.js";
 
@@ -42,6 +44,7 @@ import { money } from "../../lib/format.js";
 // anyway — and the "which service decided" message this file was written to
 // print was unreachable in every configuration that did not crash.
 export default function StepLocation({ form, setForm, modeLimit }) {
+  useLocale();
   const { settings, business } = useBookingBusiness();
   const both = settings.mobile_enabled && settings.dropoff_enabled && !modeLimit;
   const isMobile = form.serviceType === "mobile";
@@ -62,7 +65,7 @@ export default function StepLocation({ form, setForm, modeLimit }) {
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setForm((f) => ({ ...f, serviceType: "mobile" })); } }}
           >
             <div className="bk-row between">
-              <h3>We come to you</h3>
+              <h3>{t("We come to you")}</h3>
               {/* ROADMAP 2.8c — ONLY when there are no travel areas. With areas
                   set, the fee comes from the one the customer picks (0 here, 40
                   there) and this flat number is simply a different, wrong price
@@ -71,9 +74,16 @@ export default function StepLocation({ form, setForm, modeLimit }) {
                 <span className="bk-price">+{money(settings.travel_fee)}</span>
               )}
             </div>
+            {/* THE DETAILER'S OWN SERVICE AREA IS NOT TRANSLATED and cannot
+                be — it is a place name they typed. So it is a PLACEHOLDER
+                inside one sentence rather than two sentences glued together:
+                Spanish puts the preposition somewhere English does not, and a
+                translation that cannot move the area is a translation that
+                reads as a machine's. */}
             <p className="bk-muted">
-              We bring everything to your home or work
-              {business.service_area ? ` in ${business.service_area}` : ""}.
+              {business.service_area
+                ? t("We bring everything to your home or work in {area}.", { area: business.service_area })
+                : t("We bring everything to your home or work.")}
             </p>
           </div>
           <div
@@ -82,11 +92,11 @@ export default function StepLocation({ form, setForm, modeLimit }) {
             onClick={() => setForm((f) => ({ ...f, serviceType: "dropoff" }))}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setForm((f) => ({ ...f, serviceType: "dropoff" })); } }}
           >
-            <h3>Drop it off</h3>
+            <h3>{t("Drop it off")}</h3>
             <p className="bk-muted">
               {business.dropoff_address
-                ? `Bring your vehicle to ${business.dropoff_address}.`
-                : "Bring your vehicle to us — we’ll confirm the address."}
+                ? t("Bring your vehicle to {address}.", { address: business.dropoff_address })
+                : t("Bring your vehicle to us — we’ll confirm the address.")}
             </p>
           </div>
         </>
@@ -98,15 +108,18 @@ export default function StepLocation({ form, setForm, modeLimit }) {
           {modeLimit && (
             <strong style={{ display: "block", marginBottom: 4 }}>
               {modeLimit.only === "dropoff"
-                ? `${modeLimit.because} has to be done at our place.`
-                : `${modeLimit.because} is only done at your address.`}
+                ? t("{service} has to be done at our place.", { service: modeLimit.because })
+                : t("{service} is only done at your address.", { service: modeLimit.because })}
             </strong>
           )}
           {isMobile
-            ? `${business.name} comes to you${business.service_area ? ` — serving ${business.service_area}` : ""}.`
+            ? (business.service_area
+              ? t("{business} comes to you — serving {area}.",
+                { business: business.name, area: business.service_area })
+              : t("{business} comes to you.", { business: business.name }))
             : business.dropoff_address
-              ? `Drop your vehicle at ${business.dropoff_address}.`
-              : "Drop-off only — we’ll confirm the address with you."}
+              ? t("Drop your vehicle at {address}.", { address: business.dropoff_address })
+              : t("Drop-off only — we’ll confirm the address with you.")}
         </div>
       )}
 
@@ -120,7 +133,7 @@ export default function StepLocation({ form, setForm, modeLimit }) {
               never sees this, and their flat fee applies as before. */}
           {settings.travel_zones.length > 0 && (
             <label className="bk-field" style={{ marginTop: 14 }}>
-              <span>Which area are you in?</span>
+              <span>{t("Which area are you in?")}</span>
               {/* Mapped, so it is a list of unknown length rather than a
                   two-to-four choice — the case a drop-down is for
                   (composition.test.mjs test 2). */}
@@ -135,10 +148,10 @@ export default function StepLocation({ form, setForm, modeLimit }) {
             </label>
           )}
           <label className="bk-field" style={{ marginTop: 14 }}>
-            <span>Where should we come?</span>
+            <span>{t("Where should we come?")}</span>
             <input
               value={form.customerAddress}
-              placeholder="Street address, city"
+              placeholder={t("Street address, city")}
               onChange={(e) => setForm((f) => ({ ...f, customerAddress: e.target.value }))}
             />
           </label>
@@ -147,21 +160,21 @@ export default function StepLocation({ form, setForm, modeLimit }) {
             need={settings.water_requirement}
             checked={form.hasWater}
             onChange={(v) => setForm((f) => ({ ...f, hasWater: v }))}
-            label="I can provide access to a water tap"
-            required="Without it we can't do this job at your address."
+            label={t("I can provide access to a water tap")}
+            required={t("Without it we can't do this job at your address.")}
             // The "either way" line is the same sentence for both resources,
             // so it is printed under the FIRST one that is merely asked about
             // and not repeated. A `required` line is specific to its own
             // resource and always shows.
-            optional={settings.water_requirement === "ask" ? ASK_HELP : null}
+            optional={settings.water_requirement === "ask" ? askHelp() : null}
           />
           <Resource
             need={settings.power_requirement}
             checked={form.hasPower}
             onChange={(v) => setForm((f) => ({ ...f, hasPower: v }))}
-            label="I can provide access to a power outlet"
-            required="Without it we can't do this job at your address."
-            optional={settings.water_requirement === "ask" ? null : ASK_HELP}
+            label={t("I can provide access to a power outlet")}
+            required={t("Without it we can't do this job at your address.")}
+            optional={settings.water_requirement === "ask" ? null : askHelp()}
           />
         </>
       )}
@@ -169,7 +182,11 @@ export default function StepLocation({ form, setForm, modeLimit }) {
   );
 }
 
-const ASK_HELP = "Let us know either way — it just changes what we bring.";
+// **A FUNCTION, NOT A CONSTANT — roadmap 8.17.** A module-level string is
+// evaluated once at import, so it would be frozen in whatever language the tab
+// opened in and would not change when somebody switches. That is invisible in
+// English and invisible to anybody who does not read the other language.
+const askHelp = () => t("Let us know either way — it just changes what we bring.");
 
 // One resource, one question. 'not_needed' draws nothing at all — a question
 // whose answer changes nothing is a question that should not be asked.

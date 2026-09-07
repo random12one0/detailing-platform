@@ -22,10 +22,34 @@ export const time12 = (hhmm) => {
 // total") needed a FOURTH: the service card said "2h 30m", the review step
 // said "about 2.5 hours", and the price bar would have invented its own.
 // Two and a half hours is never "2.5" out loud.
-export const duration = (mins) => {
+/**
+ * ROADMAP 8.17 — A SECOND ARGUMENT, ENGLISH BY DEFAULT, AND IT IS EXPLICIT
+ * RATHER THAN READ FROM THE ACTIVE LOCALE ON PURPOSE.
+ *
+ * `dp.lang` is a per-DEVICE setting a CUSTOMER makes on a booking page, and
+ * this same function draws the durations in the detailer's dashboard. Reading
+ * the locale in here would mean a detailer who previewed their own page in
+ * Spanish came back to `3 h 30 min` scattered through an otherwise English
+ * back office — one screen in two languages, which is the exact thing the
+ * whole item is trying not to produce.
+ *
+ * So the BOOKING surface passes the language and everything else does not.
+ * `tests/spanish.test.mjs` § 5 fails on a call under `app/src/book` that
+ * forgets it, because a forgotten argument here is a fragment of English in a
+ * Spanish sentence and nothing else can see it — the same reasoning that made
+ * `_shared/config.ts`'s `site` argument required in roadmap 3.3.
+ */
+export const duration = (mins, lang = "en") => {
   const total = Math.max(0, Math.round(Number(mins) || 0));
   const h = Math.floor(total / 60);
   const m = total % 60;
+  // Spanish writes `h` with no plural and keeps `min` — the abbreviations are
+  // what a person reads on any Spanish-language schedule.
+  if (lang === "es") {
+    if (!h) return `${m} min`;
+    if (!m) return `${h} h`;
+    return `${h} h ${m} min`;
+  }
   if (!h) return `${m} min`;
   if (!m) return `${h} hr${h > 1 ? "s" : ""}`;
   return `${h} hr ${m} min`;
