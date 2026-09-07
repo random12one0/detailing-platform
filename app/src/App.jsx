@@ -13,6 +13,7 @@ import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
 import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
 import { impersonation } from "./lib/impersonation.js";
+import { planChoice } from "./lib/planChoice.js";
 
 const TABS = [
   { key: "today", label: "Today", Icon: Sun, el: Today },
@@ -71,7 +72,18 @@ export default function App() {
   // detailer who lands on Today after all that has to find a gear, a row and a
   // rung again, having already chosen. Read ONCE, at mount, so pressing the
   // gear afterwards behaves normally.
-  const deepLink = useRef(new URLSearchParams(window.location.search).get("settings"));
+  // **AND A PLAN CHOSEN ON `/pricing` IS THE SAME DEEP LINK — roadmap 8.3.**
+  // It used to read `?settings` and nothing else, so a detailer who was
+  // ALREADY SIGNED IN and pressed a rung on the pricing page arrived here with
+  // `?plan=website&term=annual-upfront` in the address bar and landed on
+  // Today, the entire choice discarded. Signing up carried it (through
+  // `CreateBusiness`); having an account already did not — the one case
+  // nobody walks, because whoever is testing has just made an account.
+  // Reproduced before it was fixed, at 392, on the seeded demo.
+  const deepLink = useRef(
+    new URLSearchParams(window.location.search).get("settings")
+    || (planChoice(window.location.search) ? "billing" : null),
+  );
   const [gear, setGear] = useState(() => deepLink.current === "billing");
   // WHICH settings screen the gear should land on, when something sent the
   // detailer there rather than them pressing the gear. Today's past-due box is

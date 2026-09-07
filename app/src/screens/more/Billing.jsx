@@ -52,6 +52,7 @@ import { CreditCard, ExternalLink, TriangleAlert } from "lucide-react";
 import { api } from "../../lib/api.js";
 import { appearanceFromTokens, loadStripeJs } from "../../lib/stripejs.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
+import { planAndTerm, planChoice } from "../../lib/planChoice.js";
 
 const usd = (cents) =>
   `$${(cents / 100).toLocaleString("en-US", {
@@ -125,10 +126,12 @@ export default function Billing() {
   // signup, and a detailer who has already chosen should not choose twice —
   // carrying THEIR choice forward is the opposite of a pre-selected default.
   // With no term in the URL, nothing is selected.
-  const [chosen, setChosen] = useState(() => {
-    const t = new URLSearchParams(window.location.search).get("term");
-    return RUNGS.some(([k]) => k === t) ? t : null;
-  });
+  // **AND `?plan=booking` IS A CHOICE TOO — roadmap 8.3.** This read `?term=`
+  // alone, which is every way to pay for the WEBSITE plan and none of the
+  // booking one. `planChoice` returns a `quotes` key, which is exactly what
+  // this state already holds, so the marketing page, the signup redirect and
+  // a press on a row all produce the same value.
+  const [chosen, setChosen] = useState(() => planChoice(window.location.search));
   const [ticked, setTicked] = useState(false);
   const [confirming, setConfirming] = useState(false);
   // THE PAYMENT STEP. Null until they press the button; then it holds what
@@ -196,7 +199,15 @@ export default function Billing() {
     setBusy(true);
     setError("");
     try {
-      const r = await api.billingSubscribe(business.id, "website", chosen);
+      // **THE PLAN COMES FROM WHAT THEY CHOSE — roadmap 8.3.** This was the
+      // literal string `"website"`, so a detailer who picked the $35 booking
+      // plan on `/pricing` would have been subscribed to the $60 one with a
+      // $999 build fee on top. The server was never wrong about it — `subscribe`
+      // validates the plan and `planFor` has always taken `"booking"` — so the
+      // wrong number was created in this one argument, three screens after the
+      // page that printed the right one.
+      const { plan, term } = planAndTerm(chosen);
+      const r = await api.billingSubscribe(business.id, plan, term);
       setPay({
         clientSecret: r.client_secret,
         publishableKey: r.publishable_key,
@@ -329,7 +340,11 @@ export default function Billing() {
             same figure on all three rungs. */}
         {buildFee > 0 && (
           <p className="muted" style={{ margin: "0 0 var(--sp-3)" }}>
-            Every plan also includes the one-time{" "}
+            {/* "EVERY PLAN" WENT FALSE THE MOMENT THE BOOKING ROW LANDED
+                BELOW — roadmap 8.3. It has no build fee, so a sentence
+                claiming all of them do would be wrong about the cheapest
+                thing on the screen. "These" names the three it sits above. */}
+            Every one of these also includes the one-time{" "}
             {listBuildFee > buildFee && <s className="was">{usd(listBuildFee)}</s>}
             <span className="num">{usd(buildFee)}</span> build.
           </p>
@@ -371,6 +386,49 @@ export default function Billing() {
           })}
         </div>
 
+        {/* ── THE OTHER PLAN ────────────────────────────────────────────────
+            ROADMAP 8.3, AND IT IS NOT A FOURTH RUNG ON PURPOSE. The three
+            above are ways to pay for ONE product; this is a different product.
+            Putting it in that list is the exact mistake the RUNGS note warns
+            about — *"a detailer who chose 'pay for the year' there and meets
+            'annual-upfront' here has been handed a different product"* — and
+            `/pricing` keeps them apart for the same reason, as "Plan two"
+            under its own heading.
+
+            **UNTIL THIS BLOCK THE SCREEN COULD NOT SELL IT AT ALL.** The
+            server has returned `quotes.booking` since the day the screen
+            shipped and nothing drew it, so a detailer who pressed *Start with
+            booking* on the pricing page arrived at a ladder containing only
+            the plan they had just declined.
+
+            The words are the pricing page's own, shortened to what this row
+            does not already say: no build fee and no term is the whole
+            difference in money, and "keep the website you have" is the whole
+            difference in product. */}
+        {data.quotes.booking && (
+          <>
+            <div className="section-title">Or just the booking page</div>
+            <div className="rows">
+              <button
+                className="row-item"
+                data-billing-rung="booking"
+                aria-pressed={chosen === "booking"}
+                onClick={() => { setChosen("booking"); setTicked(false); }}
+              >
+                <span className="txt">
+                  <span className="nm">Booking page only</span>
+                  <span className="sub full">
+                    No build fee and no term. Keep the website you have.
+                  </span>
+                </span>
+                <span className="figure sm">
+                  {usd(data.quotes.booking.recurring_cents)} a month
+                </span>
+              </button>
+            </div>
+          </>
+        )}
+
         {/* IT OPENS, SO IT ANIMATES IN — the standing rule CLAUDE.md says binds
             new work today, and `document.getAnimations()` 120ms after a rung
             press reported only `ground-drift`, which is the instrument saying
@@ -401,7 +459,13 @@ export default function Billing() {
                   {" "}{q.bill_interval === "year" ? "every year" : "every month"}
                 </span>
               </div>
-              {data.founding && (
+              {/* NOT ON THE BOOKING PLAN — roadmap 8.3. `data.founding` is a
+                  fact about the ACCOUNT, but the founding ladder only ever
+                  discounted the website plan: `planFor("booking", …)` takes
+                  no founding argument and $35 is $35 either way. Printing
+                  "Founding price · locked" beside it would promise a discount
+                  that does not exist on the thing being bought. */}
+              {data.founding && chosen !== "booking" && (
                 <div>
                   <span className="quiet">Founding price</span>
                   <span className="v">Locked for as long as you stay</span>

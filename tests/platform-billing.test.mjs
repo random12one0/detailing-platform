@@ -39,6 +39,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { PRICING, livePricing } from "../app/src/landing/pricing.js";
+import { planAndTerm, planChoice, planQuery } from "../app/src/lib/planChoice.js";
 // Node 24 strips the types, so these are the SAME modules the edge functions
 // run — not a description of them.
 import {
@@ -1182,6 +1183,134 @@ console.log("\n19. the owner's own prices");
       && read("app/src/admin/AdminPage.jsx").includes('action: "prices", prices: null'));
   check("the whole table is written into the audit, not a flag",
     admin.includes('await logIt(admin, "prices", null, { to: value });'));
+}
+
+// ─── 20. THE CHOICE MADE ON `/pricing` REACHES THE THING THAT CHARGES ─────
+// ROADMAP 8.3. The owner's complaint was routing — *"if someone's clicked
+// sign in, it should detect if they already logged in"* — and the defect
+// underneath it was money.
+//
+// **`Billing.jsx` CALLED `subscribe` WITH THE LITERAL STRING `"website"`.** So
+// a detailer who pressed *Start with booking* on `/pricing`, where the page
+// says $35 a month with no build fee, would have been subscribed to the
+// website plan: $60 a month with a $999 build attached. **The server was
+// never wrong** — `subscribe` validates the plan, `planFor` has always taken
+// `"booking"`, and `summary` has always returned a `quotes.booking` the screen
+// simply never drew. The wrong number was created in ONE ARGUMENT, three
+// screens after the page that printed the right one.
+//
+// So this section is the tie-out for the one path § 1–§ 19 could not see: not
+// what the server computes, but **which plan the browser asks it for.**
+console.log("\n20. the plan chosen on /pricing is the plan charged for (roadmap 8.3)");
+{
+  const pricePage = read("app/src/landing/PricingPage.jsx");
+  const billing = read("app/src/screens/more/Billing.jsx");
+  const createBiz = read("app/src/screens/CreateBusiness.jsx");
+  const app = read("app/src/App.jsx");
+
+  // ── THE REGRESSION GUARD, FIRST AND BLUNTEST ─────────────────────────
+  check("20a · the billing screen no longer hardcodes a plan",
+    !/billingSubscribe\([^)]*["']website["']/.test(billing),
+    "this is the whole defect: a literal plan name at the call site");
+  check("20a-ii · it sends what was chosen",
+    /const \{ plan, term \} = planAndTerm\(chosen\)/.test(billing)
+      && /billingSubscribe\(business\.id, plan, term\)/.test(billing));
+
+  // ── EVERY BUTTON ON /pricing PRODUCES A KEY THE SERVER QUOTES ────────
+  // The sharp one. `summary` keys its quotes by term plus "booking", and the
+  // screen's `chosen` is a key in that space — so a URL the marketing page
+  // writes that does not parse to one of those is a button that leads
+  // nowhere, silently.
+  // **COMMENTS OUT FIRST, AND THE TEMPLATE EXPANDED RATHER THAN READ.** The
+  // first version of this scraped the raw file and failed on two things that
+  // are not links: a `/app?settings=billing&term=` inside a COMMENT — the
+  // vacuity trap from the other side, a check going RED on prose — and the
+  // interpolation in the rungs' own template, whose `${founding ? "…" : ""}`
+  // contains quotes that end a naive match halfway through.
+  const src = pricePage.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const raws = [...src.matchAll(/["'`]\/app\?([^"'`]*)/g)].map((m) => m[1]);
+  // Everything from the first `$` is interpolation. A link carrying `${term}`
+  // is really three links, so it is expanded into the three real values.
+  const hrefs = raws.flatMap((raw) => {
+    const base = raw.split("$")[0];
+    return raw.includes("${term}")
+      ? TERMS.map((t) => base + t)
+      : [base.replace(/[&?]$/, "")];
+  });
+  check("20b · the check has subjects — /pricing does write plan links",
+    hrefs.length >= 4, `found: ${hrefs.join(" | ") || "none"}`);
+  const KEYS = [...TERMS, "booking"];
+  for (const h of hrefs) {
+    check(`20b-ii · /app?${h} → a quoted plan (${planChoice(h)})`, KEYS.includes(planChoice(h)));
+  }
+
+  // ── AND THE KEY MAPS TO THE RIGHT MONEY ──────────────────────────────
+  // `planAndTerm` is what stands between the key and `subscribe`. Run it into
+  // the SAME `planFor` the edge function runs.
+  for (const key of KEYS) {
+    const { plan, term } = planAndTerm(key);
+    const snap = planFor(plan, term, false);
+    check(`20c · ${key} → ${plan}/${term}`, isPlan(plan) && isTerm(term));
+    if (key === "booking") {
+      check("20c-ii · booking is the booking price, with no build fee",
+        snap.recurring_cents === PRICING.bookingOnly.monthly * 100 && snap.setup_cents === 0,
+        `${snap.recurring_cents} / ${snap.setup_cents}`);
+      check("20c-iii · and no term, so nothing to leave early",
+        !snap.term_months);
+    } else {
+      check(`20c-iv · ${key} is the website plan`, plan === "website" && term === key);
+    }
+  }
+  // THE ONE THAT WOULD HAVE CAUGHT THE DEFECT ON ITS OWN: the two plans must
+  // not cost the same, or every check above passes while the wrong one is
+  // charged.
+  const bk = planFor("booking", "monthly", false);
+  const web = planFor("website", "monthly", false);
+  check("20c-v · the two plans really are different money",
+    bk.recurring_cents !== web.recurring_cents && web.setup_cents > 0 && bk.setup_cents === 0);
+
+  // ── NOTHING IS PRE-SELECTED BY A URL ─────────────────────────────────
+  // `/pricing`'s whole shape refuses a pre-selected plan (AB 2863, and the
+  // FTC's Adobe complaint). A parser that DEFAULTED would put one back, one
+  // screen later, from a query string anybody can type.
+  check("20d · no plan, no selection", planChoice("") === null);
+  check("20d-ii · an unknown plan selects nothing", planChoice("plan=free&term=forever") === null);
+  check("20d-iii · an unknown term selects nothing", planChoice("plan=website&term=weekly") === null);
+  // `?offer=founding` is deliberately not read for price — the database
+  // decides who is founding, and `create-business` already refuses to believe
+  // that parameter. It must not become a selection either.
+  check("20d-iv · the founding flag alone selects nothing", planChoice("offer=founding") === null);
+
+  // ── AND IT SURVIVES THE TWO SCREENS BETWEEN THE PAGE AND THE PAYMENT ──
+  // Signing up carried the term and dropped the plan, and only redirected
+  // when there WAS a term — so `/app?plan=booking`, which has no term because
+  // the plan has no commitment, reached a plain dashboard with nothing
+  // carried. Already having an account carried nothing at all.
+  check("20e · signup carries the whole choice, not just the term",
+    /planChoice\(window\.location\.search\)/.test(createBiz)
+      && /settings=billing&\$\{planQuery\(choice\)\}/.test(createBiz)
+      && !/get\("term"\)/.test(createBiz),
+    "the redirect used to fire only when a term was present");
+  check("20e-ii · and a detailer who is already signed in lands on billing too",
+    /planChoice\(window\.location\.search\) \? "billing" : null/.test(app),
+    "App.jsx read ?settings and nothing else, so the choice was discarded");
+  check("20e-iii · the billing screen restores it from the URL",
+    /useState\(\(\) => planChoice\(window\.location\.search\)\)/.test(billing));
+  // ROUND TRIP: what signup writes is what the billing screen reads back.
+  for (const key of KEYS) {
+    check(`20e-iv · ${key} survives the redirect`, planChoice(planQuery(key)) === key);
+  }
+
+  // ── THE TWO SENTENCES THAT WENT FALSE WHEN A SECOND PLAN APPEARED ────
+  check("20f · the build fee no longer claims to be on every plan",
+    !/Every plan also includes the one-time/.test(billing),
+    "the booking plan has none, and it is now on the same screen");
+  check("20f-ii · and the founding line is not printed against it",
+    /data\.founding && chosen !== "booking"/.test(billing),
+    "$35 is $35 either way — planFor takes no founding argument for booking");
+  check("20g · the booking plan is drawn, and not as a fourth way to pay",
+    /data-billing-rung="booking"/.test(billing)
+      && /Or just the booking page/.test(billing));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

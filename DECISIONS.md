@@ -241,6 +241,8 @@ were made more than once.
 
 - **Roadmap 8.2 — the back office's own door, and a published password for the account that can see every tenant** — his report was *"it just kinda logged me in without doing anything"*, and it was never a glitch: /admin and /app are one origin sharing one session, so a browser already signed into the dashboard never met the sign-in form. The gate was right and the ACKNOWLEDGEMENT was missing. **A second Supabase client with its own storage key was the proper shape and was refused** — two identities on one origin is a state you can be in and forget, and the audit row is what makes impersonation answerable to a detailer. **So it is one note in one browser, matched on the signed-in ADDRESS rather than on a clock** (a TTL is a guess about how long somebody looks at a dashboard, and every wrong guess either hides the warning or follows him home), **authorising nothing** — the 404 still answers everybody without a  row. **R9 was two things and only one was discoverability**: the impersonate button answers 409 where a business has no owner account, so it is disabled with the reason and the invite that fixes it rides the same test. **And the item found something it was not looking for: two screenshot scripts carried a FIXED password for an account in `platform_admins`, on the live project, in a PUBLIC repo, and left it standing.** Random per run and torn down now. **Four lessons from the checks: the subject list is what INSERTS rather than what MENTIONS (the adversary probe failed a security check for testing the same rule); `strip()` is a SQL stripper whose quote rule silently deleted a real subject from a large .mjs file; two existing checks were written as CHARACTER WINDOWS and went red on a change that did exactly what they guard; and a check on a variable NAME is greenest when the only thing left using it is the line that sets it.** Parked on him: whether that mailbox actually delivers, and that GoTrue is still on Supabase's built-in test mailer at two emails an hour.
 
+- **Roadmap 8.3 — the routing complaint, and the money defect underneath it** — he asked for routing (*"if someone clicked sign in, it should detect if they already logged in"*) and the tracing found that the billing screen called subscribe with the plan as a LITERAL STRING, so a detailer who pressed Start with booking on /pricing — 35 dollars, no build fee, no term — would have been subscribed to the website plan at 60 with a 999 build fee attached. **A number PRINTED is not a number CHARGED, with the two numbers three screens apart.** The server was never wrong about any of it, which is the shape worth remembering: 284 checks passed throughout, because every one asks what the server COMPUTES and none asked which plan the browser REQUESTS. Four gaps that are one gap: the screen could not sell the booking plan at all; signup carried the term and redirected only when there was one, and the booking plan has no term; a detailer who ALREADY had an account lost the choice entirely (nobody walks that path, because whoever is testing has just made an account); and two sentences went false the moment a second plan appeared. **One module returning one string** — the server already keys quotes by term-or-booking and the screen state was already a key in that space, so the marketing page, the signup redirect and a press on a row produce the same value. **It validates and never defaults**, because a fallback would put a pre-selected plan back one screen after /pricing exists to refuse one. **And the booking plan is not a fourth rung** — those are ways to pay for one product and this is a different product, which the RUNGS note had already warned about. What he actually asked for was already true and is recorded rather than rebuilt. Its check scrapes every /app link the pricing page writes and asserts each parses to a plan the server quotes; nine breaks, all caught; and its first version went RED ON PROSE — a link inside a comment, and a template whose interpolation contains quotes.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -14328,3 +14330,98 @@ not on the roadmap is work nobody can see the cost of.
 **`password_min_length` is 6** on the project that hosts the back office. Raising
 it invalidates nobody's existing password; it only binds the next one set. Also
 8.6, also his to approve, and the recommendation is 10.
+
+## Roadmap 8.3 — the routing complaint, and the money defect underneath it
+
+**He asked for routing:** *"If someone's clicked sign in, it should detect if
+they already logged in. If it is, then it doesn't take them to the payment
+page."* **What the tracing found was that the billing screen could only sell
+one of the two plans, and would have charged for the wrong one.**
+
+`Billing.jsx` called `api.billingSubscribe(business.id, "website", chosen)` —
+the plan as a **literal string**. So a detailer who pressed *Start with
+booking* on `/pricing`, where the page prints **$35 a month, no build fee, no
+term**, would have been subscribed to the website plan: **$60 a month with a
+$999 build fee attached.** *A number PRINTED is not a number CHARGED*, this
+repo's oldest rule, with the two numbers three screens apart.
+
+**THE SERVER WAS NEVER WRONG ABOUT ANY OF IT, and that is the shape worth
+remembering.** `subscribe` validates the plan with `isPlan` and defaults
+safely, `planFor` has taken `"booking"` since it was written, and `summary`
+has returned a `quotes.booking` on every call the screen ever made. **Every
+one of the 284 checks in `platform-billing` passed throughout**, because they
+all ask what the server computes and none of them asked *which plan the
+browser requests*. The defect lived in the one argument no test had a reason
+to look at.
+
+### The four gaps, which are one gap
+
+1. **The screen could not sell the booking plan at all** — no control for it,
+   so a detailer arriving from *Start with booking* met a ladder containing
+   only the plan they had just declined.
+2. **Signup dropped it.** `CreateBusiness` read `?term=` and redirected only
+   when there WAS one — and the booking plan has no term, because it has no
+   commitment. So `/app?plan=booking` carried nothing at all. **The one signup
+   that line could not see was the cheap one.**
+3. **Already having an account dropped it too.** `App.jsx` read `?settings`
+   and nothing else, so a signed-in detailer pressing a rung landed on Today
+   with the whole choice discarded. **Nobody walks this path**, because
+   whoever is testing has just made an account. Reproduced at 392 on the
+   seeded demo before it was touched.
+4. And the two sentences that went false the moment a second plan appeared:
+   *"Every plan also includes the one-time build"* (the booking plan has none)
+   and the founding-price row (`planFor` takes no founding argument for
+   booking — $35 is $35 either way, so it promised a discount that does not
+   exist on the thing being bought).
+
+### The decisions
+
+**ONE MODULE, RETURNING ONE STRING.** `app/src/lib/planChoice.js` is the whole
+mechanism. The server already keys its quotes by
+`annual-upfront | annual-monthly | monthly | booking`, and the billing screen's
+`chosen` state was already a key in that space — so **a choice made on the
+marketing page, a choice restored after signup and a choice made by pressing a
+row are the same value**, and there is nothing to convert. Three screens
+parsing the same three query parameters for themselves is the drift this file
+records under a dozen other names.
+
+**IT VALIDATES AND NEVER DEFAULTS.** These values come out of a URL anybody can
+type, and a parser that fell back to a sensible plan would put a **pre-selected
+plan** back one screen after `/pricing`'s entire shape exists to refuse one
+(AB 2863, and the FTC's Adobe complaint). Unknown plan, unknown term, or
+`?offer=founding` alone all select nothing. `?offer=` is deliberately not read
+for price at all — the database decides who is founding, and `create-business`
+already refuses to believe that parameter.
+
+**THE BOOKING PLAN IS NOT A FOURTH RUNG.** The three above it are ways to pay
+for ONE product; this is a different product, and the RUNGS note already warned
+about exactly this — *"a detailer who chose 'pay for the year' there and meets
+'annual-upfront' here has been handed a different product."* `/pricing` keeps
+them apart for the same reason, as "Plan two" under its own heading, so the
+billing screen does too, with that page's own words shortened to the two facts
+the row does not already carry.
+
+**WHAT HE ASKED FOR WAS ALREADY TRUE AND IS RECORDED AS SUCH RATHER THAN
+REBUILT.** Pressing *Sign in* while signed in goes to the dashboard: plain
+`/app` has no plan in it, so nothing sends anybody to payment. Only a plan link
+opens billing now, which is the behaviour his sentence asks for from the other
+side. **This list has misreported what is built three times** (8.1's own
+finding), so it was checked in a browser rather than reasoned about.
+
+### The check, and what writing it taught
+
+`tests/platform-billing.test.mjs` § 20 — the tie-out for the one path the other
+nineteen sections could not see: not what the server computes, but **which plan
+the browser asks it for.** Its sharpest check scrapes every `/app?…` link
+`/pricing` writes and asserts each one parses to a key the server actually
+quotes, so a new button with a bad parameter fails loudly instead of leading
+nowhere. Nine breaks, every one caught, including *"make the two plans cost the
+same"* — without that one, every other check passes while the wrong plan is
+charged.
+
+**AND ITS FIRST VERSION WENT RED ON PROSE, which is the vacuity trap from the
+other side.** The scrape read the raw file, so it picked up a
+`/app?settings=billing&term=` inside a COMMENT and the interpolation in the
+rungs' own template, whose `${founding ? "…" : ""}` contains quotes that end a
+naive match halfway through. **Strip comments before reading a file as text —
+and when the text is a template, expand it rather than match it.**

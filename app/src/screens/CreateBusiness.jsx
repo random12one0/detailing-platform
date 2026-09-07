@@ -11,6 +11,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api.js";
 import { supabase } from "../lib/supabase.js";
+import { planChoice, planQuery } from "../lib/planChoice.js";
 
 const slugify = (name) =>
   name.toLowerCase().trim()
@@ -41,7 +42,12 @@ export default function CreateBusiness({ onDone }) {
   // it. Carrying it means the next screen they see is the one with their own
   // choice already on it, which is their decision surviving rather than a
   // default being applied.
-  const term = params.get("term");
+  // **AND IT IS THE WHOLE CHOICE NOW, NOT JUST THE TERM — roadmap 8.3.** This
+  // read `?term=` alone, and the redirect below only fired when there WAS one,
+  // so `/app?plan=booking` — the $35 plan, which has no term because it has no
+  // commitment — arrived at a plain dashboard with nothing carried at all. The
+  // booking plan was the one signup this line could not see.
+  const choice = planChoice(window.location.search);
 
   const detected = useMemo(() => {
     try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return "America/Los_Angeles"; }
@@ -85,7 +91,7 @@ export default function CreateBusiness({ onDone }) {
       // Reload rather than patch state: the whole app hangs off the
       // business context, and a fresh load is the honest way to enter it.
       if (onDone) onDone();
-      else window.location.assign(term ? `/app?settings=billing&term=${encodeURIComponent(term)}` : "/app");
+      else window.location.assign(choice ? `/app?settings=billing&${planQuery(choice)}` : "/app");
     } catch (err) {
       const msg = String(err?.message || err);
       setError(

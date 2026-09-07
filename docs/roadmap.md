@@ -6936,7 +6936,7 @@ works**, which is one line at the end rather than a pause in the middle.
       being safe the day one real person signs up. The `platform_admins` row
       says so in its own note.
 
-- [ ] 8.3 **Signup and routing.** *"If someone's clicked sign in, it should
+- [x] 8.3 **Signup and routing.** **DONE 2026-09-07.** *"If someone's clicked sign in, it should
       detect if they already logged in. If it is, then it doesn't take them to
       the payment page."* Plus two things nobody had noticed, found while
       tracing that path:
@@ -6946,6 +6946,34 @@ works**, which is one line at the end rather than a pause in the middle.
       lands on the dashboard with the entire choice discarded** —
       `App.jsx:73` reads only `?settings`. That is testing-loop F-003 again
       from the other side.
+
+      **WHAT IT ACTUALLY FOUND WAS MONEY.** `Billing.jsx` called
+      `billingSubscribe` with the plan as a **literal `"website"`**, so a
+      detailer who pressed *Start with booking* — $35 a month, no build fee,
+      no term — would have been subscribed to the **$60 plan with a $999 build
+      fee** attached. **The server was never wrong**: `subscribe` validates the
+      plan, `planFor` has always taken `"booking"`, and `summary` has always
+      returned a `quotes.booking` the screen never drew. All 284 checks in
+      `platform-billing` passed throughout, because every one asks what the
+      server COMPUTES and none asked which plan the browser REQUESTS.
+      **AND THE ROADMAP WAS HALF WRONG ABOUT `plan=`** — it was read by
+      `PricingPage`'s own comment and by nothing downstream, but `?term=` DID
+      survive signup. The gap was the plan, and the booking plan has no term,
+      so it was the one signup that carried nothing at all.
+      **WHAT SHIPPED.** `app/src/lib/planChoice.js` — one module returning one
+      string, in the key space the server already quotes in, so the marketing
+      page, the signup redirect and a press on a row produce the same value.
+      It **validates and never defaults**, because a fallback would put a
+      pre-selected plan back one screen after `/pricing`'s whole shape exists
+      to refuse one. The booking plan is drawn on the billing screen as its own
+      block and **deliberately not a fourth rung** — those are ways to pay for
+      one product and this is a different product. Two sentences that went
+      false with a second plan on the page were fixed with it.
+      **AND HIS OWN ASK WAS ALREADY TRUE** — plain `/app` goes to the
+      dashboard, and only a plan link opens billing. Checked in a browser
+      rather than reasoned about, because this list has misreported what is
+      built three times.
+      `platform-billing` § 20, nine breaks all caught.
 
 - [ ] 8.4 **Assume nothing at signup.** *"The brand shouldn't assume anything…
       everything should just be blank off start."*
@@ -7034,6 +7062,18 @@ works**, which is one line at the end rather than a pause in the middle.
       -8% is 31px at 392 against 92px of drift, so the loop was ALSO not
       seamless on a phone, which is the same mistake pointing the other way.
       `composition` test 10 (5 checks, baselined three ways) holds it.
+
+      **AND ONE THING THAT LOOKS LIKE A DEFECT AND IS NOT — written down so
+      the next session does not chase it.** `shoot-dashboard` and `shoot-admin`
+      report **2 console errors** on any screen that opens the gear. They are
+      `platform-admin` answering **404**, which is the ordinary answer for a
+      detailer: `GearMenu` asks *am I a platform admin* so it can draw the back
+      office row, and 404 means draw nothing (its own header says so). There
+      are TWO because React StrictMode double-invokes effects in development;
+      production makes one. **Nothing to fix — but "console clean" is a signal
+      people act on, and this one is permanently 2 on half the screens.** If it
+      is ever worth silencing, silence it in the SHOOTERS, not by removing the
+      probe.
 
 - [ ] 8.8 **RESEARCH: the advanced money view.** **OWNER approval gate — no
       code.** He asked for this twice, emphatically: an advanced money
