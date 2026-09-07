@@ -432,8 +432,21 @@ a { color: var(--accent-text); text-decoration: none; }
   background: var(--surface-lit);
   border-color: var(--line-2);
 }
+/* **THE HORIZONTAL OVERHANG IS A LENGTH — fixed 2026-09-07, and it is the
+   SAME MISTAKE as the dot lattice on the same day, which is why it is now a
+   rule and not two fixes.** It was `-7%`, a percentage of the CARD, so it grew
+   with the card: 24.8px on a 356px card against the 18px of padding
+   `.app-main` has to absorb it, leaving ~6px that reached the document and
+   made the whole dashboard draggable sideways on a phone. **No check in this
+   repo could see it** — `sweep-widths.mjs` asks about right edges and parent
+   boxes, and this is a `::after` that sticks out of a card whose ancestors all
+   have `overflow: visible`, so the overflow propagates to `html` without any
+   single element ever being past anything. 14px keeps the bloom well inside
+   the column's padding at every width, and the gradient is transparent by 74%
+   so nothing visible is lost. Vertical stays a percentage: it costs nothing,
+   because the page scrolls that way anyway. */
 .lit::after, .card.attend::after {
-  content: ""; position: absolute; inset: -22% -7%;
+  content: ""; position: absolute; inset: -22% -14px;
   z-index: -1; pointer-events: none; border-radius: 50%;
   background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 15%, transparent), transparent 74%);
 }
@@ -834,8 +847,28 @@ a { color: var(--accent-text); text-decoration: none; }
    travel must stay an exact multiple of the tile or it visibly jumps — and at
    26s it is far slower than the landing page's 8s, because this is a tool
    somebody works in rather than a page they are being sold to. */
+/* **AND THE OVERHANG IS A FIXED LENGTH INSIDE A FRAME THAT CLIPS IT — fixed
+   2026-09-07, roadmap 8.2's verification, one day after it shipped.** It was
+   one element at `inset: -8%`, which is wrong in both directions at once and
+   the two are the same mistake: **a percentage cannot cover a fixed travel.**
+   At 392px, -8% is 31px against 92px of travel, so the loop was NOT seamless
+   on a phone — a 70px band with no dots in it, exactly what the paragraph
+   above says must never happen; at every width it stuck out past the viewport
+   with nothing clipping it, and `sweep-widths.mjs` reported **+35px past the
+   viewport on every dashboard screen at 392, plus 6px of sideways drag**, a
+   phone able to be dragged off its own layout. Nobody re-ran the sweep the
+   night the lattice landed, so it went to production and into a checkpoint
+   that says the sweep is clean.
+   So: the element is now a frame at `inset: 0` that CLIPS, and the pattern is
+   its `::before`, overhanging by a fixed 96px — one tile past the 92px travel,
+   at every width. The animation, the tile, the alpha and the 26s are
+   untouched. */
 .app-dots {
-  position: fixed; inset: -8%; z-index: -1; pointer-events: none;
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  overflow: hidden;
+}
+.app-dots::before {
+  content: ""; position: absolute; inset: -96px;
   background-image: radial-gradient(circle at center,
     rgba(226,234,238,.7) 1.2px, rgba(226,234,238,0) 2px);
   background-size: 46px 46px; opacity: .06;
@@ -908,6 +941,41 @@ a { color: var(--accent-text); text-decoration: none; }
   color: var(--accent-text);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
 }
+
+/* ------------------------------------------------- THE PLATFORM VIEW STRIP
+   ROADMAP 8.2. Only ever drawn when the back office has signed this browser
+   in as a detailer, which is a state no detailer can reach and no sweep
+   walks. App.jsx carries the reasoning for why it exists at all.
+
+   --bad AND NOT THE ACCENT, under law 11b: the accent is the TENANT'S
+   identity, and this strip's whole job is to say that the identity around it
+   is not yours. § 1c's own meaning for --bad is "this needs fixing", and
+   being signed in as somebody else is a state you undo rather than a state
+   you sit in.
+
+   IT TAKES THE STICK FROM THE HEADER RATHER THAN STACKING ON IT. Two sticky
+   elements at top: 0 fight, and offsetting the header by this strip's height
+   means writing that height down — it wraps at 320 and the number would be
+   wrong there. So while it is up, the header scrolls with the page: the
+   warning outranks a sticky business name for as long as it is showing. */
+.impbar {
+  position: sticky; top: 0; z-index: 31;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-3); flex-wrap: wrap;
+  padding: calc(var(--sp-2) + env(safe-area-inset-top)) var(--sp-4) var(--sp-2);
+  background: color-mix(in srgb, var(--bad) 20%, var(--ink-0));
+  border-bottom: 1px solid color-mix(in srgb, var(--bad) 45%, transparent);
+  font-size: var(--t-meta); color: var(--text);
+}
+.impbar b { font-variation-settings: "wght" 680; }
+.impbar button {
+  flex: none; min-height: 32px; padding: 0 12px;
+  border-radius: var(--r-inset); corner-shape: var(--corner);
+  border: 1px solid color-mix(in srgb, var(--bad) 55%, transparent);
+  background: transparent; color: var(--text); font: inherit; cursor: pointer;
+}
+.impbar button:hover { background: color-mix(in srgb, var(--bad) 22%, transparent); }
+.app-shell:has(.impbar) .topbar { position: static; }
 
 .topbar {
   position: sticky; top: 0; z-index: 30;
@@ -2389,7 +2457,7 @@ input[type="color"] { padding: 4px; min-height: 42px; cursor: pointer; }
 /* The dot lattice stops travelling but stays DRAWN — the end state it was
    travelling to is the same lattice one tile along, so removing it would take
    away texture rather than motion, and this section is about motion. */
-.lite .app-dots { animation: none; }
+.lite .app-dots::before { animation: none; }
 .lite .bars button::before { animation: none; }
 .lite .app-main > .group > *,
 .lite .app-main > .split > .col-1 > *,

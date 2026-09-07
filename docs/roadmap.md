@@ -6873,9 +6873,10 @@ works**, which is one line at the end rather than a pause in the middle.
       recollection was wrong twice the other way (deposits, deleting a
       customer). Every status is now grepped rather than remembered.
 
-- [ ] 8.2 **His own login, and the back-office door.** **OWNER supplies the
-      password**; the email is `andrew@detailingplatform.com` and he said so
-      twice. Create the account properly and send him a set-password link.
+- [x] 8.2 **His own login, and the back-office door.** **DONE 2026-09-07.**
+      **OWNER supplies the password**; the email is `andrew@detailingplatform.com`
+      and he said so twice. Create the account properly and send him a
+      set-password link.
       **Then diagnose what he actually hit:** *"it just kinda logged me in
       without doing anything… that thing was a little glitchy."*
 
@@ -6897,6 +6898,43 @@ works**, which is one line at the end rather than a pause in the middle.
 
       **P-12 unblocks on this and not before:** `demo-admin@detailplatform.com`
       can be deleted once he confirms he can sign in as himself.
+
+      **WHAT SHIPPED.** The bar says who you are and has a sign-out.
+      `app/src/lib/impersonation.js` is one note in one browser, written before
+      the jump: the dashboard draws a strip saying whose account this is, and
+      `/admin` explains itself instead of 404-ing at the person who left
+      through its own door. **It is matched on the signed-in ADDRESS rather
+      than on a clock, and it authorises nothing** — a signed-in non-admin
+      with no note still gets *Page not found*. R9's real half is fixed: the
+      impersonate button is disabled where there is no owner account, with the
+      reason, and the invite that fixes it rides the same test.
+      `tests/platform-admin.test.mjs` § 13 is 29 checks, sixteen of them
+      baselined by breaking what they guard. `shoot-admin.mjs` walks the
+      impersonation and adds 320.
+
+      **AND IT FOUND SOMETHING IT WAS NOT LOOKING FOR, ranked blocks-launch:**
+      two screenshot scripts carried a FIXED password for an account in
+      `platform_admins`, created it on the live platform project and left it
+      standing — **in a public repository**. The account is gone;
+      `scripts/admin-account.mjs` generates a password per run and tears the
+      account down afterwards.
+
+      ~~**PARKED ON HIM:** whether `andrew@detailingplatform.com` receives
+      mail, and P-12's confirmation.~~ **HE ANSWERED THE SAME DAY AND
+      REPLACED THE QUESTION** — *"clear all logons, have my login for like the
+      master login be email is demo@demo.com and password is demo."* So
+      `demo@demo.com` is the ONE row in `platform_admins`; it was **proved to
+      sign in and reach the back office BEFORE anything else was removed**,
+      then the other three rows were revoked and the two accounts that existed
+      only to be admins were deleted. **P-12 is closed by that.** The demo
+      DETAILER login (`demo@detailplatform.com` / `demo123`) is untouched on
+      purpose — every sweep, every shooter and `e2e-booking` sign in with it.
+      **AND IT IS A LAUNCH BLOCKER, recorded rather than argued:** that
+      password is on the account that can read every detailer, at a public
+      address. It is safe today for the reason he has already given — there
+      are no real detailers and every business is a fixture — and it stops
+      being safe the day one real person signs up. The `platform_admins` row
+      says so in its own note.
 
 - [ ] 8.3 **Signup and routing.** *"If someone's clicked sign in, it should
       detect if they already logged in. If it is, then it doesn't take them to
@@ -6954,6 +6992,19 @@ works**, which is one line at the end rather than a pause in the middle.
       product emails him about anything** — not a signup, not a first payment,
       not a churn, not a failed send, not a dead cron job.
       Pairs with idea 23's dead-man's switch (8.12).
+      **AND TWO SETTINGS FOUND BY 8.2 LAND HERE, because they are email and
+      because adjacent work that is not on the roadmap is work nobody can see
+      the cost of.** `smtp_host` is null on the platform project, so every
+      password-reset email — the durable way into the back office AND the only
+      way any detailer recovers an account — goes through **Supabase's
+      built-in testing mailer at two emails an hour across the whole
+      platform**, which Supabase document as not for production. Resend
+      already sends everything else the product sends; pointing GoTrue at it
+      needs the API key, which is a Supabase function secret. **And
+      `password_min_length` is 6** on the project that hosts the account which
+      can see every tenant — raising it binds only the next password anybody
+      sets. Both are dashboard settings, so both are his to approve:
+      `docs/overnight-log.md` question 19, recommendation attached.
 
 - [ ] 8.7 **Small corrections.** Five unrelated things, none of which justifies
       a session alone, each with its own check.
@@ -6968,6 +7019,21 @@ works**, which is one line at the end rather than a pause in the middle.
       correctly."*
       Idea 11's real gap: water and power on the **day-sheet row and in the
       owner's booking email**, not only on the job record.
+
+      **A SIXTH ARRIVED AND WAS DONE EARLY, 2026-09-07 — it is here for the
+      record rather than as work.** 8.2's verification found the width sweep
+      **red on every dashboard screen at 392**: the dot lattice shipped on
+      2026-09-06 with `inset: -8%` on an unclipped `position: fixed` layer, so
+      it measured 35px past the viewport and the phone could be dragged 6px
+      sideways off its own layout. **It reached production because nobody
+      re-ran the sweep the night it landed**, and `docs/CHECKPOINT.md` still
+      says the sweep is clean. It was fixed rather than filed for one reason:
+      a red gate that every later item runs against is a gate everybody learns
+      to ignore, which is this repo's oldest failure. **The rule underneath is
+      worth more than the fix — a percentage cannot cover a fixed travel**:
+      -8% is 31px at 392 against 92px of drift, so the loop was ALSO not
+      seamless on a phone, which is the same mistake pointing the other way.
+      `composition` test 10 (5 checks, baselined three ways) holds it.
 
 - [ ] 8.8 **RESEARCH: the advanced money view.** **OWNER approval gate — no
       code.** He asked for this twice, emphatically: an advanced money

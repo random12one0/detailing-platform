@@ -2230,6 +2230,89 @@ Both are low priority and neither blocks anything. They are here because he
 asked what they meant, not because they need a decision.
 
 
+## Two from roadmap 8.2 — 2026-09-07
+
+### 18. ~~Does `andrew@detailingplatform.com` actually receive email?~~ ANSWERED 2026-09-07 — he replaced the whole question
+
+**He chose a master login instead:** *"clear all logons, have my login for like
+the master login be email is demo@demo.com and password is demo."* So there is
+now exactly ONE way into the back office and it is that. Everything below is
+kept because it is what the question WAS, and because the mailbox question
+comes back the moment he wants a real address on it.
+
+**What was done.** `demo@demo.com` was created with that password, made the
+only row in `platform_admins`, and **proved to work before anything else was
+removed** — it signs in and the back office answers 200 with all fourteen
+businesses. Then the other three admin rows were revoked
+(`demo-admin@detailplatform.com`, `ramdom12one0@gmail.com`,
+`andrew@detailingplatform.com`) and the two accounts that existed ONLY to be
+admins were deleted outright. **That closes P-12.** His own two addresses keep
+their accounts and simply stop being admins.
+
+**The demo DETAILER login was deliberately left alone** —
+`demo@detailplatform.com` / `demo123`. Every sweep, every screenshot script and
+the whole booking end-to-end run signs in with it; deleting it would take the
+verification suite down with it. It is a tenant login and reaches no other
+business.
+
+**AND THIS IS A LAUNCH BLOCKER, WRITTEN DOWN RATHER THAN ARGUED.** `demo@demo.com`
+/ `demo` is the account that can read every detailer on the platform, at a
+public address. Today that is fine and it is fine for a specific reason he has
+already given: **there are no real detailers and everything in the database is a
+fixture.** It stops being fine the day one real person signs up. The note on the
+row says so, and roadmap 8.2 carries it as the thing to change before December.
+
+### 18b. The original question, if a real address is ever put back on it
+
+**What this is.** Your back-office account exists and is a platform admin —
+that part is done, and it was already there from the night before. What I
+cannot do is choose your password for you, so the way in is a link emailed to
+that address, and **I have sent one.** It takes you to a page where you type
+the password you want.
+
+**Why I am asking rather than just telling you it works.** The domain's mail
+records point at iCloud, so somebody set that mailbox up deliberately — but
+"the records are right" and "the message arrived" are different facts, and only
+you can see the inbox. **If nothing turned up, say so** and I will set a
+temporary password for you to change on the way in.
+
+**The link expires in about an hour, which does not matter.** Go to
+**detailingplatform.com/admin** and press *Forgot your password?* whenever you
+like — it sends a fresh one, for ever, and needs nobody to run anything.
+
+**And you have TWO back-office accounts, on purpose for now.** Your Gmail
+address is also a platform admin, from the night before. I left it because it
+is the one address I can be sure reaches you — if the domain mailbox turns out
+to be fine, say so and I will remove the Gmail one, so there is one door
+instead of two. **The seeded `demo-admin@detailplatform.com` account comes out
+the moment you tell me you are in** (that is P-12); it exists so scripts could
+photograph the back office, and it should not outlive that.
+
+**Nothing is waiting on this.** The work carried on.
+
+### 19. Two settings on the sign-in system that are mine to recommend and yours to approve
+
+**What this is.** Both live in Supabase's own control panel rather than in our
+code, so they are not something a session can just fix.
+
+**One: the password emails are going out through Supabase's practice mailer.**
+It is capped at **two emails an hour for the whole platform**, and Supabase say
+in as many words that it is for testing. That is the same mailer every detailer
+will use when they forget their password. **We already pay for Resend and it
+already sends every other email in the product** — pointing this at Resend
+means the messages come from your own domain and the cap disappears. It needs
+the Resend key, which is stored on the server, so it is about twenty minutes.
+
+**Two: the shortest allowed password is six characters** — on the same system
+that holds the account which can see every detailer on the platform. Raising it
+changes nothing for anyone who already has a password; it only applies to the
+next one somebody sets.
+
+**My recommendation: do both, and put them in 8.6** — that is the email item,
+and this is email. Ten characters for the minimum, which is long enough to
+matter and short enough that nobody writes it on a sticky note. **Say
+"do 8.6's two settings" and they go in with that item.**
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

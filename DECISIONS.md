@@ -239,6 +239,8 @@ were made more than once.
 
 - **The night of 2026-09-06 — seven decisions that outlive the items they were made in** — fourteen items from roadmap 4.4 stage 2 to 2.25, and the reasoning worth keeping. **A price row ships as NULL and every failure resolves to it, WHOLE rather than field by field** — one row's monthly beside one file's annual is a price nobody chose that looks like a working one, and a seeded copy would be a third home that silently becomes the stale winner. **Where a throttle sits decides what it protects**: the booking limits are at the last moment before the insert because the threat is holding SLOTS, and counting refusals throttled a script that took nothing while a test suite reported a 429 as a broken engine. **A monitor that only appears when unhappy cannot be believed**, so the heartbeat line always prints and a job that never reported counts as stale. **Discovery beats a list where the failure is silent** — the export asks the catalog rather than naming twenty tables. **A guide never drives the screen**, because the rule against clicking the lit element exists for live data. **A placeholder is not boilerplate**: no arbitration, no governing law, and both pages say at the TOP that no lawyer has seen them. **And the comment-vacuity trap has a second form** — `indexOf` finds the IMPORT, so three ordering checks passed with the code moved anywhere at all, every one found by baselining and none by reading.
 
+- **Roadmap 8.2 — the back office's own door, and a published password for the account that can see every tenant** — his report was *"it just kinda logged me in without doing anything"*, and it was never a glitch: /admin and /app are one origin sharing one session, so a browser already signed into the dashboard never met the sign-in form. The gate was right and the ACKNOWLEDGEMENT was missing. **A second Supabase client with its own storage key was the proper shape and was refused** — two identities on one origin is a state you can be in and forget, and the audit row is what makes impersonation answerable to a detailer. **So it is one note in one browser, matched on the signed-in ADDRESS rather than on a clock** (a TTL is a guess about how long somebody looks at a dashboard, and every wrong guess either hides the warning or follows him home), **authorising nothing** — the 404 still answers everybody without a  row. **R9 was two things and only one was discoverability**: the impersonate button answers 409 where a business has no owner account, so it is disabled with the reason and the invite that fixes it rides the same test. **And the item found something it was not looking for: two screenshot scripts carried a FIXED password for an account in `platform_admins`, on the live project, in a PUBLIC repo, and left it standing.** Random per run and torn down now. **Four lessons from the checks: the subject list is what INSERTS rather than what MENTIONS (the adversary probe failed a security check for testing the same rule); `strip()` is a SQL stripper whose quote rule silently deleted a real subject from a large .mjs file; two existing checks were written as CHARACTER WINDOWS and went red on a change that did exactly what they guard; and a check on a variable NAME is greenest when the only thing left using it is the line that sets it.** Parked on him: whether that mailbox actually delivers, and that GoTrue is still on Supabase's built-in test mailer at two emails an hour.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -14129,3 +14131,200 @@ are LF — **mixed, permanently**. A scripted edit whose needle is joined with
 `\n` is simply not in an untouched file, and **`cat -A` through the Bash tool
 does not show it while `grep -qU $'\r'` does.** Build every needle with the
 file's own separator.
+
+## Roadmap 8.2 — the back office's own door, and the published password nobody was looking for
+
+**The item he asked for was his own login and an explanation of *"it just kinda
+logged me in without doing anything… that thing was a little glitchy."* The
+diagnosis was already written down and was not redone.** `/admin` and `/app`
+are one origin sharing one Supabase session in localStorage, so a browser that
+had signed into the dashboard first never met the sign-in form at all. The
+security posture was right — the gate is a `platform_admins` row read under the
+service role, 404 to everybody else — and **what was missing was
+acknowledgement**: no name, no sign-out, and an impersonation that swapped the
+session in silence and then answered *Page not found* when he came back to see
+what had happened.
+
+**THE ALTERNATIVE WAS A SECOND SESSION AND IT WAS REFUSED.** The "proper"
+shape is a second Supabase client with its own `storageKey`, so the admin stays
+signed in underneath and impersonation restores cleanly. It is a much larger
+change, and the reason not to take it is not only size: **two identities on one
+origin is a state you can be in and forget**, and the audit row is what makes
+impersonation accountable to a detailer who asks. One session that plainly says
+whose it is beats two that quietly do not. The upgrade path is open if
+impersonation ever becomes something done many times an hour.
+
+**SO THE WHOLE MECHANISM IS ONE NOTE IN ONE BROWSER**
+(`app/src/lib/impersonation.js`), written before the jump and read in two
+places: the dashboard draws a strip saying whose account this is, and `/admin`
+explains itself instead of 404-ing at the person who walked out through its own
+door. Three decisions inside it are worth keeping.
+
+**It is matched on the ADDRESS, never on a clock.** A TTL is a guess about how
+long somebody looks at a detailer's dashboard, and every wrong guess either
+hides the warning mid-session or follows him back into his own account. If the
+signed-in address is the one the note names, this is that jump; if it is not, it
+is over. Nothing to expire, and no state to keep in step.
+
+**It authorises nothing, and the 404 stays a 404.** The note is localStorage, so
+a detailer who forges one changes what their own screen says and nothing else —
+the server still refuses, and every byte of that page comes from the server. The
+module cannot call anything; a check asserts it has no `fetch`, no Supabase and
+no imports. **A signed-in non-admin with no note still gets *Page not found*,**
+which is the rule that has protected this screen since 4.4: naming the gate
+sends a curious detailer looking for the row.
+
+**And the note goes before the sign-out, not after.** If the sign-out throws, a
+surviving note tells the next person on that browser they are impersonating
+somebody they are not.
+
+**R9 — he could not find impersonation on a phone — turned out to be two
+different things and only one was discoverability.** The button is not hidden at
+any width; it lives inside the open-business panel, so a phone has to open a
+detailer first. The half that was a real defect is that **it answers 409 when
+the business has no owner account**, which is true of several fixtures and of
+every business added from that screen before its invite is accepted — a button
+that is always there and sometimes refuses is a button you learn not to trust.
+It is disabled without an owner row now, with a sentence saying why, **and the
+invite that fixes it is offered by the same test** (`!ownerMember`, not "the
+members list is empty" — a business with two staff and no owner is exactly the
+case where an invite is still owed). Saying there is no account and offering no
+way to make one is half an answer.
+
+### The finding this item did not go looking for
+
+**`shoot-admin.mjs` and `admin-contrast.mjs` each carried a fixed password for
+`shoot-admin@detailplatform.com`, created that account on the live platform
+project, added it to `platform_admins`, and left both behind when the run
+ended. This repository is public.** So the password of an account that reads
+every business through the back office was on the internet, beside the URL it
+works at. **CLAUDE.md already had the sentence and it had only ever been
+applied to the demo detailer** — *"making `demo@detailplatform.com` an admin
+would put every detailer's data behind `demo123`"* — and a screenshot script is
+that sentence with a longer password.
+
+The account and its row were removed. `scripts/admin-account.mjs` is now the one
+way a script gets an admin: **the password is random per run and never leaves
+memory, and the row and the account are dropped when the run ends.** Each half
+covers the other's failure — a killed run leaves an account whose password
+nobody knows *and* no admin row, which is an ordinary signed-up user belonging
+to no business. The teardown never throws, because it runs in a `finally` where
+a throw would replace the real failure with itself.
+
+**The one deliberate exception is written down rather than silent.**
+`seed-demo.mjs --platform-admin` leaves a standing account on purpose: opt-in,
+random password, landing only in the gitignored refs file, and P-12 is the item
+that deletes it. An exemption nobody can see is how the next one gets added
+beside it.
+
+### Four things the checks taught while being written
+
+**The subject list is what INSERTS a row, never what MENTIONS the table.** The
+first version read the words `platform_admins` and swept in
+`adversary-probe.mjs`, which names that table precisely *because* it must never
+be readable — a file failing a security check for testing the same rule. The
+name is not the deed.
+
+**`strip()` is a SQL stripper and it silently ate a genuine subject.** Its
+single-quote rule pairs an apostrophe in one string with an apostrophe hundreds
+of lines later, so on a large `.mjs` file it deletes the code in between:
+`seed-demo.mjs` dropped out of the subject list entirely and every check below
+passed by never seeing it. Comments only, for JavaScript. **This is the vacuity
+family again, in a new place — the fourth shape after the three
+import-shadowing ones.**
+
+**Two existing checks were written by PROXIMITY and both went red on a change
+that did exactly what they guard.** `"denied"[\s\S]{0,400}Page not found` broke
+because this item put the impersonation case between the two, and *"a failed
+sign-in does not say which half was wrong"* broke on the sentence *"there is no
+account to open their dashboard as"* — a business with no owner row, nowhere
+near a sign-in form. **A window measured in characters is a check whose colour
+depends on how much prose sits inside the branch.** Both are scoped to their
+own branch now, which makes them stronger rather than looser.
+
+**And two of the new checks were vacuous on their first baseline.** `/state\.me/`
+over the whole file passed with the address never drawn, because `state.me` is
+also where it is *put on the state* two hundred lines up — **a check on a
+variable's name is greenest when the only thing using it is the line that sets
+it.** And `{!ownerMember && (` appears twice, adjacent, so testing for the guard
+passed with either half deleted; it is counted now. Sixteen breaks, every one
+caught.
+
+**Plus a plain bug worth one line: bcrypt takes 72 bytes.** `A1!` and two UUIDs
+is 75, so GoTrue refused to create the account and the only thing printed was
+*"could not create the shooter's admin account"* — which reads as a permissions
+problem. The helper reports the status and the body now.
+
+### He replaced the question with a master login — same day
+
+**His instruction:** *"clear all logons, have my login for like the master
+login be email is demo@demo.com and password is demo."* So `platform_admins`
+has exactly one row and that is it.
+
+**The ORDER is the part worth keeping: the new way in was proved before any
+old one was taken away.** `demo@demo.com` was created, made an admin, and then
+made to actually sign in and fetch the back office — 200, fourteen businesses —
+and only then were the other three rows revoked and the two admin-only accounts
+deleted. Reversing those two steps is how somebody locks themselves out of the
+one screen that can fix it, and there is no second door: `platform_admins` has
+RLS forced and no policies, so nothing with a user's token can add a row back.
+
+**Two things it settles.** **P-12 is closed** — the seeded
+`demo-admin@detailplatform.com` is gone, along with `shoot-admin`. And the
+mailbox question below is moot until somebody puts a real address back on it.
+
+**AND IT IS A LAUNCH BLOCKER, RECORDED RATHER THAN ARGUED.** `demo` is on the
+account that reads every detailer, at a public URL. It is safe today for a
+reason he has already given twice — there are no real detailers and every
+business in that project is a fixture — and it stops being safe the day one
+real person signs up. **The note on the row itself says so**, which is the
+only place a future session is certain to look. **What must NOT happen is a
+session tidying it away on its own initiative**: he chose it, and changing it
+without him locks him out.
+
+**The demo DETAILER login is a different object and was deliberately left
+alone.** `demo@detailplatform.com` / `demo123` reaches one business and is what
+`sweep-widths`, `shoot-dashboard`, `shoot-admin`, `final-pass` and
+`e2e-booking` all sign in with. "Clear all logons" cannot include it without
+taking the verification suite down, and that is worth saying out loud rather
+than assuming.
+
+**One process note, because it cost real confusion.** A Bash call reported as
+REJECTED had still run part of its pipeline: the `sed` that restored a defect
+for baselining took effect anyway, so a check that had genuinely passed was
+later found green against a file carrying the defect again. (The owner said
+afterwards the rejection was accidental, which is beside the point — the tool
+said the command did not run and part of it had.) **After any interrupted or
+rejected command, read the files it named before trusting either the code or
+the check.** Here the tell was a stylesheet whose COMMENT described the fix
+while the value beside it was still the old one.
+
+### What WAS parked on him, before he answered
+
+**His account already existed.** A session on 2026-09-06 created
+`andrew@detailingplatform.com`, added the admin row, and signed into it a minute
+later — so a password he did not choose may exist for it. **It was deliberately
+NOT rotated.** `scripts/platform-admin-add.mjs` sends a set-password link and
+never touches an existing account's password, and rotating blind would remove a
+working way in before the replacement one is known to arrive. Which brings the
+real question:
+
+**Nobody has proved that `andrew@detailingplatform.com` receives mail.** The
+domain's MX records point at iCloud custom-domain hosting, which is a strong
+signal he set it up on purpose, but a recovery link sent to an address that does
+not deliver is a set-password link nobody can use. That is the one sentence he
+has to answer, and the loop does not wait on it.
+
+**And the mailer under all of it is Supabase's built-in testing one.**
+`smtp_host` is null on the platform project and `rate_limit_email_sent` is **2
+an hour, across every tenant** — so *"Forgot your password?"*, which is the
+durable way into the back office and the only way any detailer recovers an
+account, runs on a mailer Supabase documents as not for production. Resend is
+already wired for everything the product sends; pointing GoTrue at it needs the
+API key, which lives as a Supabase function secret. **Written into roadmap 8.6**
+rather than done here, because 8.6 is the email item and adjacent work that is
+not on the roadmap is work nobody can see the cost of.
+
+**`password_min_length` is 6** on the project that hosts the back office. Raising
+it invalidates nobody's existing password; it only binds the next one set. Also
+8.6, also his to approve, and the recommendation is 10.

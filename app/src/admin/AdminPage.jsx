@@ -32,6 +32,7 @@ import {
   billingState, bookability, daysSince, monthlySeries, owedByUs, trend, workload,
 } from "../lib/adminInsight.js";
 import { useLeaving } from "../hooks/useLeaving.js";
+import { beginImpersonation, endImpersonation, impersonation } from "../lib/impersonation.js";
 import "./admin.css";
 
 const call = async (body) => {
@@ -242,9 +243,16 @@ export default function AdminPage() {
     // not require anybody to have.
     const { data: sess } = await supabase.auth.getSession();
     if (!sess?.session) { setState({ status: "anon" }); return; }
+    // WHO THIS BROWSER IS SIGNED IN AS — roadmap 8.2. It is carried on every
+    // state below because both of them need it: `ready` prints it, and
+    // `denied` has to ask whether this is an impersonation before it answers
+    // 404 to the person who started one.
+    const me = sess.session.user?.email ?? "";
     try {
       const r = await call({ action: "list" });
-      setState({ status: "ready", ...r });
+      // `me` AFTER the spread: `r` is a server payload and a key collision
+      // would quietly replace who you are with whatever the server sent.
+      setState({ status: "ready", ...r, me });
       // SEEDED FROM WHAT IS LIVE, which is the built-in table until he
       // overrides it. An empty form beside a page already printing $60 would
       // invite him to fill it in from memory.
@@ -252,7 +260,7 @@ export default function AdminPage() {
     } catch (e) {
       // 404 IS THE ORDINARY CASE HERE, not an error: everybody who is not an
       // admin gets one, including a detailer who typed the URL.
-      setState({ status: /Not found/i.test(e.message) ? "denied" : "error", error: e.message });
+      setState({ status: /Not found/i.test(e.message) ? "denied" : "error", me, error: e.message });
     }
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -426,6 +434,39 @@ export default function AdminPage() {
   // admin". This page's existence is not a secret worth keeping on its own,
   // but naming the gate invites somebody to go looking for the row.
   if (state.status === "denied") {
+    // …EXCEPT TO THE PERSON WHO WALKED OUT THROUGH THIS SCREEN'S OWN DOOR —
+    // roadmap 8.2. *Open their dashboard* swaps this browser's session for the
+    // detailer's, so coming back here is a non-admin arriving at /admin and
+    // the honest answer really is 404. The owner met exactly that and read it,
+    // reasonably, as the back office breaking.
+    //
+    // **THIS DISCLOSES NOTHING.** The breadcrumb only exists in the browser
+    // that pressed the button, and it is only believed when the address it
+    // names is the address currently signed in. A detailer who forges one
+    // changes what their own screen says and nothing else — the server still
+    // answers 404, and every byte of this page comes from the server.
+    const imp = impersonation(state.me);
+    if (imp) {
+      return (
+        <div className="pa"><Ground /><div className="pa-wrap pa-gate">
+          <p className="pa-lab2">Detailing Platform</p>
+          <h1 className="pa-h1">You are signed in as {imp.business || imp.as}</h1>
+          {/* THE SAME SENTENCE THE DASHBOARD STRIP USES. Two wordings for one
+              state is how somebody ends up wondering whether they are two
+              different states. */}
+          <p className="pa-quiet" style={{ marginTop: 8 }}>
+            The back office opened their dashboard with their own account, so this browser is
+            them until you sign out. Anything you change is theirs.
+          </p>
+          <div className="pa-btns" style={{ marginTop: 16 }}>
+            <button className="pa-btn" disabled={busy} onClick={() => { setBusy(true); signOutNow(); }}>
+              Sign out and come back
+            </button>
+            <a className="pa-link" href="/app">Stay on their dashboard</a>
+          </div>
+        </div></div>
+      );
+    }
     return (
       <div className="pa"><Ground /><div className="pa-wrap">
         <h1 className="pa-h1">Page not found</h1>
@@ -448,6 +489,24 @@ export default function AdminPage() {
   const gb = (b) => (b >= 1024 ** 3 ? `${(b / 1024 ** 3).toFixed(1)} GB` : `${Math.round(b / 1024 / 1024)} MB`);
   const t = state.totals ?? {};
   const b = detail?.business;
+  // THE ONLY ACCOUNT `impersonate` CAN SIGN IN AS — roadmap 8.2, R9's second
+  // half. The server looks up the OWNER row and answers 409 when there is not
+  // one, which is true of several fixtures and of every business added from
+  // this screen before its invite is accepted. A button that is always there
+  // and sometimes answers *That business has no owner account* is a button
+  // that teaches you not to trust it; the screen already knows, because the
+  // members list arrives with the business.
+  const ownerMember = detail?.members?.find((m) => m.role === "owner") ?? null;
+
+  // ONE WAY OUT, CALLED FROM TWO PLACES. The breadcrumb is dropped FIRST: if
+  // the sign-out throws, the note has to go anyway — a stale one would tell
+  // the next person on this browser that they are impersonating somebody they
+  // are not.
+  async function signOutNow() {
+    endImpersonation();
+    await supabase.auth.signOut();
+    window.location.href = "/admin";
+  }
   const progress = detail && b
     ? setupProgress({ business: b, branding: detail.branding, settings: detail.settings, counts: detail.counts })
     : null;
@@ -489,7 +548,27 @@ export default function AdminPage() {
             of the list they have nothing to do with. They are about the
             company; everything below the strip is about one detailer. */}
         <div className="pa-bar">
-          <span className="pa-mark"><b>Detailing Platform</b> · back office</span>
+          {/* IT SAYS WHO YOU ARE, AND IT LETS YOU STOP BEING THEM — roadmap
+              8.2. This screen had no account of its own until 2026-09-06 and
+              then had a door with nothing on the other side of it: no name,
+              no sign-out. The address matters here more than it does in the
+              dashboard, because there are two ways to arrive holding somebody
+              else's session — an impersonation, and simply having signed into
+              /app on this browser first. */}
+          <span className="pa-mark">
+            <b>Detailing Platform</b> · back office
+            {/* THE IDENTITY STAYS ON THE LEFT WITH ITS OWN WAY OUT, and the
+                two PLATFORM actions stay on the right. Sign out beside the
+                name is one cluster answering one question; a third button in
+                the right-hand group would be a third thing to read at 320,
+                where those two already wrap. */}
+            {state.me && (
+              <span className="pa-who">
+                {state.me}
+                <button type="button" className="pa-link" onClick={signOutNow}>Sign out</button>
+              </span>
+            )}
+          </span>
           <span className="pa-bar-r">
             <button className="pa-btn" onClick={() => { setPricing(!pricing); setAdding(false); setInvite(null); }}>
               {pricing ? "Close" : "What we charge"}
@@ -952,6 +1031,19 @@ export default function AdminPage() {
                 </div>
 
                 <div className="pa-block" style={{ "--j": 4 }}>
+                  {/* **R9'S OTHER HALF, AND IT REALLY WAS DISCOVERABILITY —
+                      roadmap 8.2.** The owner could not find *Open their
+                      dashboard* on a phone. It is not hidden at any width: it
+                      is the last thing in the last block, which is right —
+                      he opens a detailer to LOOK far more often than to ACT
+                      (audit §6) — but this was the ONE block on the panel with
+                      no heading, while *Their work*, *Account and page* and
+                      *What they still need from you* all have one. On a phone
+                      the panel replaces the list, so you scroll past three
+                      labelled sections into an unlabelled wall of fields with
+                      no word to scan for. **The fix is the word, not moving
+                      the buttons.** */}
+                  <span className="pa-lab2">What you can do</span>
                   {/* THE OLD SUMMARY LINE IS GONE — it read "Setup 3 of 7 ·
                       books directly · 7 services · 1 person", and every one of
                       those four facts is now a row in the two blocks above,
@@ -1049,10 +1141,14 @@ export default function AdminPage() {
                       the button says out loud that it is written down. The
                       server refuses the action outright if the audit row will
                       not insert. */}
-                  <button className="pa-btn warn" disabled={busy}
+                  <button className="pa-btn warn" disabled={busy || !ownerMember}
                     onClick={() => {
                       if (!confirm(`Sign in as ${b.name}? You will be signed out of your own account, and this is written down: who, when, and whose dashboard.`)) return;
                       act({ action: "impersonate", business_id: b.id }, (r) => {
+                        // WRITTEN BEFORE THE JUMP, because after it this
+                        // browser is somebody else and has no way of knowing
+                        // it used to be us. `lib/impersonation.js` says why.
+                        beginImpersonation({ as: r.as, business: b.name });
                         if (r.url) window.location.href = r.url;
                         return `Signing in as ${r.as}…`;
                       });
@@ -1060,13 +1156,26 @@ export default function AdminPage() {
                     Open their dashboard
                   </button>
                 </div>
+                {!ownerMember && (
+                  <p className="pa-quiet">
+                    Nobody has accepted the owner invite for this business yet, so there is no
+                    account to open their dashboard as.
+                  </p>
+                )}
 
                 {/* RESEND AN INVITE — "the support request that otherwise
                     needs him to open the auth table". One button per person
                     who has not accepted yet, rather than a form, because the
                     address is already known and retyping it is how the wrong
                     one gets sent. */}
-                {detail.members.length === 0 && (
+                {/* `!ownerMember` RATHER THAN AN EMPTY MEMBERS LIST — the
+                    question is whether anybody OWNS this business, and a
+                    business carrying two staff and no owner is the case where
+                    an invite is most obviously still owed. It is also the
+                    same test the button above is disabled by, so the screen
+                    cannot say "no account to open" and offer no way to fix
+                    it. */}
+                {!ownerMember && (
                   <div className="pa-btns">
                     <button className="pa-btn" disabled={busy}
                       onClick={() => {

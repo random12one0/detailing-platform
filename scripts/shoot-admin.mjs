@@ -27,6 +27,7 @@ import { createRequire } from "node:module";
 // AND IT MEASURES, not only photographs — see scripts/geometry.mjs for why
 // this screen needs its own copy of the three questions the width sweep asks.
 import { measure } from "./geometry.mjs";
+import { dropAdmin, makeAdmin } from "./admin-account.mjs";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
 
 const BASE = process.env.BASE || "http://localhost:5173";
@@ -36,35 +37,21 @@ const URL_ = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_ROLE_K
 if (!URL_ || !KEY) { console.error("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"); process.exit(1); }
 
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
-const EMAIL = "shoot-admin@detailplatform.com";
-const PW = "Aa1!shoot-admin-back-office";
-
-// The admin account, made and re-made every run. The password is reset each
-// time because the row may survive from a previous lap: a sign-in that quietly
-// fails would leave every shot below being a photograph of a login form, which
-// is the "a skipped check reads like a passing one" failure in picture form.
-{
-  await fetch(`${URL_}/auth/v1/admin/users`, {
-    method: "POST", headers: H,
-    body: JSON.stringify({ email: EMAIL, password: PW, email_confirm: true }),
-  });
-  const all = await (await fetch(`${URL_}/auth/v1/admin/users?per_page=200`, { headers: H })).json();
-  const user = (all.users ?? []).find((u) => u.email === EMAIL);
-  if (!user) { console.error("could not create the shooter's admin account"); process.exit(1); }
-  await fetch(`${URL_}/auth/v1/admin/users/${user.id}`, {
-    method: "PUT", headers: H, body: JSON.stringify({ password: PW, email_confirm: true }),
-  });
-  await fetch(`${URL_}/rest/v1/platform_admins?user_id=eq.${user.id}`, { method: "DELETE", headers: H });
-  await fetch(`${URL_}/rest/v1/platform_admins`, {
-    method: "POST", headers: H,
-    body: JSON.stringify([{ user_id: user.id, email: EMAIL, note: "Screenshot script only — safe to delete." }]),
-  });
-}
+// THE ADMIN ACCOUNT IS MADE FOR THIS RUN AND REMOVED AT THE END OF IT —
+// roadmap 8.2. It used to be a fixed password written into this file, in a
+// PUBLIC repository, for the one account that can see every tenant.
+// `scripts/admin-account.mjs` has the finding and the reasoning.
+const acct = await makeAdmin(URL_, KEY);
+if (!acct) { console.error("could not create the shooter's admin account"); process.exit(1); }
+const EMAIL = acct.email, PW = acct.password;
 
 // WHICH BUSINESS TO OPEN. The seeded demo, because it is the only one with
 // enough bookings for the six-month bars to have anything in them — a
 // screenshot of an empty chart says nothing about whether the chart works.
 const pick = process.env.SLUG || "demo-detail";
+// Which width walks the impersonation. One by default: it is a flow, and
+// walking it five times means five audit rows and five re-signs-in per run.
+const IMP = process.env.IMP === "all" ? "all" : Number(process.env.IMP || 392);
 
 mkdirSync(OUT, { recursive: true });
 
@@ -84,7 +71,11 @@ const browser = await chromium.launch();
 const shots = [];
 let bad = 0;
 try {
-  for (const [w, h] of [[1920, 1080], [1440, 900], [768, 1024], [392, 844]]) {
+  // **320 JOINED ON 2026-09-07, WITH ROADMAP 8.2.** It is the narrowest
+  // SUPPORTED width and the bar now carries an email address that wraps onto
+  // its own line — which is exactly the kind of change that is fine at 392 and
+  // breaks at 320. Nothing had ever measured this screen there.
+  for (const [w, h] of [[1920, 1080], [1440, 900], [768, 1024], [392, 844], [320, 844]]) {
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
     const page = await ctx.newPage();
     const url = `${BASE}/admin${LITE ? "?lite=1" : ""}`;
@@ -127,6 +118,79 @@ try {
       await page.screenshot({ path: openShot });
       shots.push(openShot);
       bad += await measure(page, "a business open");
+
+      // ── THE IMPERSONATION, WHICH IS THREE SCREENS AND NOT A BUTTON ──
+      // ROADMAP 8.2. Pressing *Open their dashboard* swaps this browser's
+      // session for the detailer's, so what it produces is a state you can
+      // only reach by DOING it — the gap this repo has now found nine times:
+      // *the script walks navigation, and a state you reach by pressing
+      // something inside a screen is not navigation.* Added in the change
+      // that built it.
+      //
+      // It runs at ONE width by default because it is a flow rather than a
+      // layout, and the two screens it draws are both a paragraph and a
+      // button; `IMP=all` walks it at every width if a layout question comes
+      // up. The confirm() is answered before the click, not after — a dialog
+      // handler registered late leaves Playwright hanging on the alert.
+      if (IMP === "all" || w === IMP) {
+        // **THE MAGIC LINK COMES BACK POINTING AT PRODUCTION AND THAT IS NOT A
+        // BUG IN THE PRODUCT.** `platform-admin` builds it with
+        // `redirectTo: ${PLATFORM_URL}/app`, so following it from a dev
+        // browser signs you in on detailingplatform.com — a DIFFERENT ORIGIN.
+        // The first run of this leg did exactly that and reported *"the
+        // dashboard SAYS NOTHING"* and three geometry problems, all of them
+        // true of the live build and none of them of the code being tested.
+        // The tell is that the shot was right and the measurements were
+        // impossible.
+        //
+        // **THE SERVER IS NOT CHANGED TO FIX THIS.** A redirect target the
+        // caller supplies is a client-controlled destination on an auth link,
+        // which is the one place not to take a shortcut. The rewrite is here,
+        // in the harness, where it belongs — and `http://localhost:5173/**` is
+        // already in the project's redirect allow-list, so the patched link is
+        // one Supabase would have accepted anyway.
+        // **A PREDICATE, NOT A GLOB.** `"**/auth/v1/verify*"` matched
+        // NOTHING — Playwright's glob gives `?` its own meaning, so the
+        // pattern never reaches a URL with a query string, and the run then
+        // reported *"the dashboard SAYS NOTHING"* plus three geometry
+        // problems: a perfect description of the LIVE site, measured because
+        // the jump had quietly gone to production. A route that matches
+        // nothing is silent, which is this repo's oldest failure shape.
+        await page.route((u) => u.pathname.endsWith("/auth/v1/verify"), async (route) => {
+          const u = new URL(route.request().url());
+          u.searchParams.set("redirect_to", `${BASE}/app`);
+          await route.fulfill({ status: 302, headers: { location: u.toString() }, body: "" });
+        });
+        page.once("dialog", (d) => d.accept());
+        const go = page.locator(".pa-btn.warn");
+        if (await go.count() && await go.isEnabled()) {
+          await go.click();
+          // The magic link is a real navigation to the auth endpoint and back.
+          await page.waitForURL(/\/app/, { timeout: 20_000 }).catch(() => {});
+          await settle(page, 14_000);
+          const impShot = `${OUT}/${w}-impersonating${LITE ? "-lite" : ""}.png`;
+          await page.screenshot({ path: impShot });
+          shots.push(impShot);
+          bad += await measure(page, "the dashboard, impersonating");
+          const strip = await page.locator(".impbar").count();
+          console.log(`  ${String(w).padStart(4)}px: the dashboard ${strip ? "says whose it is" : "SAYS NOTHING — no .impbar"}`);
+          if (!strip) bad++;
+
+          // AND BACK TO /admin, WHICH IS THE HALF HE ACTUALLY REPORTED.
+          await page.goto(`${BASE}/admin${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+          await settle(page, 14_000);
+          const backShot = `${OUT}/${w}-impersonating-admin${LITE ? "-lite" : ""}.png`;
+          await page.screenshot({ path: backShot });
+          shots.push(backShot);
+          bad += await measure(page, "/admin while impersonating");
+          const said = await page.locator(".pa-h1").first().textContent().catch(() => "");
+          const explained = /signed in as/i.test(said ?? "");
+          console.log(`  ${String(w).padStart(4)}px: /admin ${explained ? "explains itself" : `SAYS "${said}" — the 404 with no way back`}`);
+          if (!explained) bad++;
+        } else {
+          console.log(`  ${String(w).padStart(4)}px: NOT MEASURED — no enabled "Open their dashboard" on ${pick}`);
+        }
+      }
     } else {
       console.log(`  ${w}px: NOT MEASURED — no row matching "${pick}"`);
     }
@@ -144,6 +208,7 @@ try {
   }
 } finally {
   await browser.close();
+  await dropAdmin(URL_, KEY, acct.id);
 }
 
 console.log(`\n${shots.length} shots → ${OUT}/`);

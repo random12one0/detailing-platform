@@ -108,15 +108,29 @@ console.log("\n2. the gate is a table, not a claim and not an env var");
   check("2b-i · a signed-out visitor is offered a login, not an error",
     /status: "anon"/.test(page) && /getSession\(\)[\s\S]{0,200}status: "anon"/.test(page),
     "a 401 drew \"Something went wrong\" and left the owner with no way in");
+  // **SCOPED TO THE BRANCH, NOT MEASURED IN CHARACTERS.** This was
+  // `"denied"[\s\S]{0,400}Page not found` and roadmap 8.2 pushed the two 500
+  // apart by adding the impersonation case between them — a check that went
+  // red on a change that did exactly what it guards. A proximity window is a
+  // check whose colour depends on how much prose sits inside the branch.
+  const denied = page.slice(page.indexOf('state.status === "denied"'),
+    page.indexOf('state.status === "error"'));
   check("2b-ii · and a signed-in non-admin still gets Page not found",
-    /state\.status === "denied"[\s\S]{0,400}Page not found/.test(page),
+    denied.includes("Page not found"),
     "the two refusals answer different questions and must not collapse");
   // ONE MESSAGE FOR BOTH HALVES. Saying which of the email or the password
   // was wrong is address enumeration with a friendly face — the same rule
   // the password-reset screen follows.
+  // **ALSO SCOPED, AND FOR A SHARPER REASON:** the words this forbids are
+  // ordinary English. Read against the whole file it failed on *"there is no
+  // account to open their dashboard as"* — a sentence about a BUSINESS with
+  // no owner row, nowhere near a sign-in form. A rule about what one form
+  // says has to be read against that form.
+  const gate = page.slice(page.indexOf('state.status === "anon"'),
+    page.indexOf('state.status === "denied"'));
   check("2b-iii · a failed sign-in does not say WHICH half was wrong",
-    /That email and password do not match/.test(page)
-      && !/(no account|unknown email|wrong password)/i.test(page));
+    /That email and password do not match/.test(gate)
+      && !/(no account|unknown email|wrong password)/i.test(gate));
 
   check("and the SCREEN says the same thing", /Page not found/.test(page),
     "two different answers from the server and the page is the server's answer leaking");
@@ -649,6 +663,205 @@ console.log("\n12. the layout, and the motion the owner asked for");
   // not from the data, which is what keeps a gap visible.
   check("12r · the spine is built from the calendar, not from the bookings",
     /for \(let i = months - 1; i >= 0; i--\)/.test(strip(read("app/src/lib/adminInsight.js"))));
+}
+
+// ─── 13. THE DOOR: WHO YOU ARE, AND WHEN YOU ARE SOMEBODY ELSE ────────────
+// ROADMAP 8.2. The owner's report was *"it just kinda logged me in without
+// doing anything… that thing was a little glitchy."* It was not a glitch:
+// /admin and /app are one origin sharing one Supabase session, so a browser
+// that had signed into the dashboard already never saw a sign-in form. The
+// gate was right and the ACKNOWLEDGEMENT was missing — no name, no way out,
+// and an impersonation that swapped the session in silence and then answered
+// *Page not found* when he came back.
+//
+// **NONE OF THIS IS THE GATE AND NO CHECK HERE MAY IMPLY IT IS.** The gate is
+// § 1 to § 6: a `platform_admins` row read under the service role, 404 to
+// everybody else. What follows guards the things a browser says about itself,
+// and the one that would be a real hole if it were done the obvious way — a
+// screenshot script publishing a password for the all-seeing account.
+console.log("\n13. the back office's own door (roadmap 8.2)");
+{
+  const p13 = strip(page);
+  const app = strip(read("app/src/App.jsx"));
+  const impCode = strip(read("app/src/lib/impersonation.js"));
+  const css = read("app/src/admin/admin.css");
+  const theme = read("app/src/theme.css");
+
+  // ── IT SAYS WHO YOU ARE, AND LETS YOU STOP BEING THEM ────────────────
+  // **THE RENDERING EXPRESSION, NOT THE NAME.** The first version of this read
+  // `/state\.me/` over the whole file and passed with the address never drawn:
+  // `state.me` is also where it is PUT on the state, two hundred lines up. A
+  // check on a variable's name is greenest when the only thing using it is the
+  // line that sets it.
+  check("13a · the bar prints the signed-in address",
+    /\{state\.me && \(/.test(p13) && /\{state\.me\}/.test(p13) && /className="pa-who"/.test(p13));
+  check("13a-ii · and the address is the session's own, not a guess",
+    /sess\.session\.user\?\.email/.test(p13));
+  check("13b · there is a sign out",
+    /function signOutNow/.test(p13) && /supabase\.auth\.signOut\(\)/.test(p13));
+  // THE NOTE GOES FIRST. If the sign-out throws, a surviving note tells the
+  // next person on this browser they are impersonating somebody they are not.
+  const so = p13.indexOf("function signOutNow");
+  const endAt = p13.indexOf("endImpersonation()", so);
+  const outAt = p13.indexOf("supabase.auth.signOut()", so);
+  check("13b-ii · signing out drops the impersonation note before it signs out",
+    so >= 0 && endAt > so && outAt > so && endAt < outAt,
+    "the note has to be cleared even if the sign-out fails");
+
+  // ── THE 404 IS STILL THE 404 ─────────────────────────────────────────
+  // The reason this page answers *Page not found* rather than *you are not an
+  // admin* is that naming the gate sends a curious detailer looking for the
+  // row. 8.2 added ONE exception and it must stay one.
+  check("13c · a signed-in non-admin still gets Page not found",
+    /Page not found/.test(p13));
+  check("13c-ii · and the only thing that changes it is this browser's own note",
+    /const imp = impersonation\(state\.me\)/.test(p13));
+
+  // ── THE NOTE AUTHORISES NOTHING ──────────────────────────────────────
+  // It is localStorage in one browser. A detailer who writes one by hand
+  // changes what their own screen says and nothing else — so this module must
+  // never ask the server anything.
+  check("13d · impersonation.js talks to nobody",
+    !/fetch\(|supabase|^import /m.test(impCode),
+    "a note that can call the server is no longer a note");
+  // MATCHED ON THE ADDRESS, NEVER ON A CLOCK. A TTL is a guess about how long
+  // somebody looks at a dashboard, and every wrong guess either hides the
+  // warning mid-session or follows him back into his own account.
+  check("13d-ii · it is believed only while that address is the one signed in",
+    /rec\.as === String\(email\)\.toLowerCase\(\)/.test(impCode));
+  check("13d-iii · and no session means no note",
+    /if \(!email\) return null;/.test(impCode));
+
+  // ── WRITTEN BEFORE THE JUMP ──────────────────────────────────────────
+  // After `window.location.href` this browser is somebody else and has no way
+  // of knowing it used to be us, so a note written afterwards is never
+  // written at all.
+  const bi = p13.indexOf("beginImpersonation(");
+  const jump = p13.indexOf("window.location.href = r.url");
+  check("13e · the note is written before the browser becomes the detailer",
+    bi >= 0 && jump >= 0 && bi < jump,
+    "beginImpersonation must precede the navigation");
+
+  // ── NOT OFFERED WHERE THE SERVER WILL REFUSE IT ──────────────────────
+  // R9's second half: `impersonate` answers 409 when the business has no owner
+  // row, which is true of several fixtures and of every business added from
+  // this screen before its invite is accepted.
+  check("13f · the owner account is looked up before the button is drawn",
+    /const ownerMember = detail\?\.members\?\.find/.test(p13));
+  check("13f-ii · and the button is disabled without one",
+    /disabled=\{busy \|\| !ownerMember\}/.test(p13));
+  // **`{!ownerMember && (` APPEARS TWICE** — once over the sentence saying why
+  // the button is off, once over the invite that fixes it — so testing for the
+  // guard passes with either half deleted. Ask about the invite itself and the
+  // guard nearest to it, and assert the OLD guard is gone: an empty members
+  // list is not the same question as a business with no owner.
+  // COUNTED, because `lastIndexOf` from the invite still finds the OTHER
+  // guard when the invite's own is replaced — the two blocks are adjacent, so
+  // proximity cannot tell them apart. Exactly two, and the invite present.
+  const guards = (p13.match(/\{!ownerMember && \(/g) ?? []).length;
+  check("13f-iii · the invite that fixes it is offered by the same test",
+    guards === 2
+      && p13.includes("Resend the owner's invite")
+      && !/detail\.members\.length === 0/.test(p13),
+    "saying there is no account and offering no way to make one is half an answer");
+  check("13g · the server is still the one that refuses",
+    /has no owner account to sign in as/.test(strip(fn)));
+
+  // ── AND THE DASHBOARD SAYS IT TOO ────────────────────────────────────
+  // The half of the complaint that lives outside /admin: he lands on somebody
+  // else's dashboard, with this product's own chrome around it, and every
+  // switch he touches is theirs.
+  check("13h · the dashboard draws a strip while impersonating",
+    /className="impbar"/.test(app));
+  check("13h-ii · from the note, checked against the live session",
+    /impersonation\(session\?\.user\?\.email\)/.test(app));
+  check("13h-iii · and it carries a way out", /await signOut\(\)/.test(app));
+  // **EVERY SIGN-OUT DROPS THE NOTE, not only the two the back office draws.**
+  // The gear sign-out is the exit somebody takes when they have forgotten they
+  // are impersonating, and a note that outlives its session asserts something
+  // that stopped being true. One place, because all three exits route through
+  // it. Raised by the item's own security review and fixed rather than filed.
+  const ctx = strip(read("app/src/context/BusinessContext.jsx"));
+  const sOut = ctx.indexOf("signOut: () =>");
+  check("13h-iv · the app's own sign-out drops the note too",
+    sOut > 0
+      && ctx.indexOf("endImpersonation()", sOut) > sOut
+      && ctx.indexOf("endImpersonation()", sOut) < ctx.indexOf("supabase.auth.signOut()", sOut),
+    "and before the sign-out, so a throw cannot leave the note behind");
+  // LAW 11b: the accent is the TENANT'S identity, and this strip exists to say
+  // the identity around it is not yours — so it takes the fixed pair.
+  const at = theme.indexOf(".impbar {");
+  const impbar = at < 0 ? "" : theme.slice(at, at + 900);
+  check("13i · the strip is drawn in --bad, never the tenant's accent",
+    at >= 0 && /--bad/.test(impbar) && !/var\(--accent/.test(impbar));
+
+  // ── THE ONE THAT WOULD HAVE BEEN A REAL HOLE ─────────────────────────
+  // Found 2026-09-07 while doing the rest of this item: two scripts carried a
+  // FIXED password for `shoot-admin@detailplatform.com`, created it on the
+  // live platform project, added it to `platform_admins` and left it there —
+  // in a PUBLIC repository. CLAUDE.md already had the sentence and it had only
+  // ever been applied to the demo detailer: *"making demo@… an admin would put
+  // every detailer's data behind demo123."*
+  // **THE SUBJECT LIST IS "WHAT INSERTS A ROW", NEVER "WHAT MENTIONS THE
+  // TABLE".** The first version of this check read the word `platform_admins`
+  // and swept in `adversary-probe.mjs`, which names the table precisely
+  // BECAUSE it must never be readable — a file failing a security check for
+  // testing that same rule. The name is not the deed.
+  // **`strip` IS A SQL STRIPPER AND IT SILENTLY ATE THIS LIST.** Its
+  // single-quote rule pairs the apostrophe in one string with the apostrophe
+  // in another hundreds of lines later, so on a big .mjs file it deletes the
+  // code in between — `seed-demo.mjs` dropped out of the subject list
+  // entirely and every check below passed by never seeing it. Comments only,
+  // for JavaScript.
+  const stripJs = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const scripts = readdirSync("scripts").filter((f) => f.endsWith(".mjs"));
+  const inserts = scripts.filter((f) => /rest\/v1\/platform_admins/.test(stripJs(read(`scripts/${f}`))));
+  check("13j · the check has subjects — some script does create an admin",
+    inserts.length > 0,
+    "with nothing to read, every check below passes by having no subjects");
+  // NOT A REGRESSION CHECK ON THE LEAKED STRING ITSELF: the only copy left is
+  // the sentence in `admin-account.mjs` explaining what happened, so a check
+  // for the string would fail on its own write-up. That is the comment-vacuity
+  // trap this file has already been bitten by twice, from the other side.
+  // The rule is about the SHAPE — a password that came out of the file.
+  const madeUp = (f) => /crypto\.randomUUID\(\)|Math\.random\(\)/.test(stripJs(read(`scripts/${f}`)));
+  for (const f of inserts) {
+    check(`13k · ${f} generates the password it uses, never writes one down`, madeUp(f));
+  }
+  // AND A TEMPORARY ADMIN DOES NOT SURVIVE THE RUN. A standing all-seeing
+  // account between runs is the same risk with a password nobody has typed
+  // yet. The subject here is anything driving a browser at /admin.
+  const temps = scripts.filter((f) => /makeAdmin\(/.test(stripJs(read(`scripts/${f}`))) && f !== "admin-account.mjs");
+  check("13l · the check has subjects — something does sign in at /admin",
+    temps.length >= 2, `found: ${temps.join(", ") || "none"}`);
+  for (const f of temps) {
+    check(`13l-ii · ${f} removes the admin it made`, /dropAdmin\(/.test(stripJs(read(`scripts/${f}`))));
+  }
+  // **THE ONE DELIBERATE EXCEPTION IS WRITTEN DOWN RATHER THAN SILENT.**
+  // `seed-demo.mjs --platform-admin` leaves a standing account on purpose —
+  // it is opt-in, its password is random and lands only in the gitignored
+  // refs file, and P-12 is the item that deletes it. An exemption nobody can
+  // see is how the next one gets added beside it.
+  check("13l-iii · the one admin that is meant to persist says so on its own row",
+    /delete it before launch|delete before launch/i.test(read("scripts/seed-demo.mjs")));
+  // The teardown never throws, because it runs where a throw would replace the
+  // real failure with itself.
+  check("13m · the teardown cannot become the error",
+    /export async function dropAdmin[\s\S]*?try \{[\s\S]*?\} catch/.test(read("scripts/admin-account.mjs")));
+  // AND THE ONE ACCOUNT THAT BELONGS TO A REAL PERSON IS NEVER GIVEN A
+  // PASSWORD BY US — the owner's own instruction for this item.
+  const add = strip(read("scripts/platform-admin-add.mjs"));
+  check("13n · adding a real admin never sets or resets their password",
+    !/method: "PUT"/.test(add) && /auth\/v1\/recover/.test(add),
+    "an existing account must be left exactly as it is");
+
+  // The identity line is its own row rather than a third button: an email is
+  // the one string here that cannot be shortened without lying, and 320 is
+  // where the two controls opposite it already wrap.
+  check("13o · the address is set as prose, not as a tracked-out label",
+    /\.pa-who \{[\s\S]*?letter-spacing: 0;[\s\S]*?text-transform: none;/.test(css));
+  check("13o-ii · and it can break rather than push the bar sideways",
+    /\.pa-who \{[\s\S]*?overflow-wrap: anywhere;/.test(css));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

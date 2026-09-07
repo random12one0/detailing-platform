@@ -12,6 +12,7 @@ import Business from "./screens/Business.jsx";
 import GearMenu from "./components/GearMenu.jsx";
 import SetupForm from "./components/SetupForm.jsx";
 import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
+import { impersonation } from "./lib/impersonation.js";
 
 const TABS = [
   { key: "today", label: "Today", Icon: Sun, el: Today },
@@ -198,6 +199,11 @@ export default function App() {
   const visibleTabs = TABS.filter((t) => !TAB_NEEDS[t.key] || can(TAB_NEEDS[t.key]));
   const activeTab = visibleTabs.find((t) => t.key === tab) ?? visibleTabs[0];
   const Active = activeTab.el;
+  // Null for every real detailer, on every render, at the cost of one
+  // localStorage read — so there is no state, no effect and nothing to keep
+  // in step. It is checked against the LIVE session's address, which is what
+  // makes a note left behind by a previous sign-in impossible to believe.
+  const imp = impersonation(session?.user?.email);
 
   return (
     <div className="app-shell">
@@ -207,6 +213,32 @@ export default function App() {
           and reads nothing; `aria-hidden` keeps it out of the tree entirely.
           theme.css § the dot lattice has the reasoning and the measurements. */}
       <div className="app-dots" aria-hidden="true" />
+      {/* YOU ARE NOT YOURSELF — roadmap 8.2. The back office's *Open their
+          dashboard* swaps this browser's session for the detailer's, and
+          until this strip existed it did so in total silence: the same
+          chrome, the same tabs, somebody else's customers and money, and
+          every switch you touch theirs. That is the half of the owner's
+          *"it just kinda logged me in without doing anything"* that lives
+          out here rather than at /admin.
+
+          It renders from a note the back office wrote in THIS browser, and
+          only while the signed-in address is the one that note names — see
+          `lib/impersonation.js`. A detailer can never see it: nothing has
+          written the note in their browser, and forging one would only make
+          their own screen say something untrue. */}
+      {imp && (
+        <div className="impbar" role="status">
+          <span>Platform view — signed in as <b>{imp.business || imp.as}</b>. Anything you change is theirs.</span>
+          {/* `signOut` drops the note itself — every sign-out does, not just
+              this one, because the ordinary gear sign-out is the exit
+              somebody takes when they have forgotten they are impersonating.
+              See BusinessContext. */}
+          <button type="button" onClick={async () => {
+            await signOut();
+            window.location.href = "/admin";
+          }}>Leave</button>
+        </div>
+      )}
       <header className="topbar">
         {/* The business's own name from the database — never a hardcoded brand. */}
         <div className="brand">{business.name}</div>

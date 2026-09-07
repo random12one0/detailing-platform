@@ -730,5 +730,57 @@ console.log("\ntest 8: the corner and the second column's motion (roadmap 2.17)"
   }
 }
 
+// ─── 10. A DRIFTING LAYER IS CLIPPED, AND ITS OVERHANG IS A LENGTH ────────
+// Added 2026-09-07 after the dot lattice shipped with `inset: -8%` and was
+// wrong in both directions at once, which turns out to be the SAME mistake:
+// **a percentage cannot cover a fixed travel.** The layer moves 92px, so at
+// 392px a -8% overhang is 31px and the loop is not seamless on a phone; at
+// every width the layer stuck out past the viewport with nothing clipping it,
+// and the width sweep reported +35px and 6px of sideways drag on every
+// dashboard screen. It reached production because nobody re-ran the sweep the
+// night it landed — so this is the cheap always-on half of that check.
+console.log("\ntest 10: a layer that drifts is clipped, and overhangs by a length");
+{
+  const css = (await readFile("app/src/theme.css", "utf8")).replace(/\/\*[\s\S]*?\*\//g, "");
+  // SUBJECTS FIRST. With no drifting layer every check below passes by having
+  // nothing to read, which is this repo's most repeated failure.
+  const drifters = [...css.matchAll(/([.#][\w-]+(?:::before|::after)?)\s*\{([^}]*animation:[^}]*translate|[^}]*animation:\s*(app-dots|ground-drift)[^}]*)\}/g)];
+  check("10a · the check has subjects — something drifts", drifters.length > 0);
+  // THE FRAME CLIPS. `.app-dots` is fixed, so no ancestor can clip it: the
+  // element itself has to be the frame and the pattern has to be inside it.
+  check("10b · the dot lattice is a frame at inset 0 that clips",
+    /\.app-dots \{[^}]*inset: 0[^}]*overflow: hidden/.test(css.replace(/\s+/g, " ")));
+  check("10c · and the pattern that moves is inside it",
+    /\.app-dots::before \{[^}]*position: absolute/.test(css.replace(/\s+/g, " ")));
+  // A LENGTH, NEVER A PERCENTAGE, and at least the travel.
+  const before = css.slice(css.indexOf(".app-dots::before"), css.indexOf(".app-dots::before") + 400);
+  const inset = before.match(/inset:\s*(-?\d+)px/);
+  // `[^}]*` cannot cross the `from` block's own closing brace, so the first
+  // version of this found nothing and printed `undefinedpx of travel` — a
+  // check that fails for its own reasons is a check nobody believes twice.
+  const travel = css.match(/@keyframes app-dots[\s\S]*?to \{[^}]*translate3d\((\d+)px/);
+  check("10d · its overhang is a length, not a percentage",
+    !!inset && !/inset:\s*-?[\d.]+%/.test(before));
+  // **THE GENERAL RULE, ADDED WHEN THE SAME MISTAKE TURNED UP A SECOND TIME
+  // IN ONE DAY.** `.card.attend::after` — the accent bloom under the lit card
+  // — was `inset: -22% -7%`, and 7% of a 356px card is 24.8px against the
+  // 18px of padding `.app-main` has to absorb it, so ~6px reached `html` and
+  // the whole dashboard could be dragged sideways on a phone.
+  // **A NEGATIVE HORIZONTAL OVERHANG MUST BE A LENGTH.** Vertically a
+  // percentage is fine — the page scrolls that way anyway — but horizontally
+  // it scales with a box whose width is the thing that varies, so it is
+  // correct at the width it was eyeballed at and wrong at the others.
+  const insets = [...css.matchAll(/inset:\s*([^;{}]+);/g)].map((m) => m[1].trim().split(/\s+/));
+  const horizontal = (v) => (v.length === 1 ? [v[0]] : v.length === 3 ? [v[1]] : [v[1], v[3] ?? v[1]]);
+  const offenders = insets
+    .filter((v) => horizontal(v).some((h) => /^-[\d.]+%$/.test(h)))
+    .map((v) => v.join(" "));
+  check("10f · no negative horizontal inset is a percentage", offenders.length === 0,
+    `offenders: ${offenders.join(" | ")}`);
+  check("10e · and it covers the whole travel",
+    !!inset && !!travel && Math.abs(Number(inset[1])) >= Number(travel[1]),
+    `overhang ${inset?.[1]}px against ${travel?.[1]}px of travel`);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

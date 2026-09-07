@@ -23,30 +23,19 @@
 
 import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("./../app/node_modules/playwright/index.js");
+import { dropAdmin, makeAdmin } from "./admin-account.mjs";
 
 const BASE = process.env.BASE || "http://localhost:5173";
 const URL_ = process.env.SUPABASE_URL, KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!URL_ || !KEY) { console.error("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY"); process.exit(1); }
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
-const EMAIL = "shoot-admin@detailplatform.com";
-const PW = "Aa1!shoot-admin-back-office";
-
-{
-  await fetch(`${URL_}/auth/v1/admin/users`, {
-    method: "POST", headers: H, body: JSON.stringify({ email: EMAIL, password: PW, email_confirm: true }),
-  });
-  const all = await (await fetch(`${URL_}/auth/v1/admin/users?per_page=200`, { headers: H })).json();
-  const user = (all.users ?? []).find((u) => u.email === EMAIL);
-  if (!user) { console.error("no admin account"); process.exit(1); }
-  await fetch(`${URL_}/auth/v1/admin/users/${user.id}`, {
-    method: "PUT", headers: H, body: JSON.stringify({ password: PW, email_confirm: true }),
-  });
-  await fetch(`${URL_}/rest/v1/platform_admins?user_id=eq.${user.id}`, { method: "DELETE", headers: H });
-  await fetch(`${URL_}/rest/v1/platform_admins`, {
-    method: "POST", headers: H,
-    body: JSON.stringify([{ user_id: user.id, email: EMAIL, note: "Screenshot script only — safe to delete." }]),
-  });
-}
+// Made for this run, removed at the end of it — roadmap 8.2. The fixed
+// password that used to be on this line was a published credential for the
+// account that can read every tenant; `scripts/admin-account.mjs` has the
+// finding.
+const acct = await makeAdmin(URL_, KEY);
+if (!acct) { console.error("no admin account"); process.exit(1); }
+const EMAIL = acct.email, PW = acct.password;
 
 // The WCAG relative-luminance formula, on sRGB 0-255.
 const lum = ([r, g, b]) => {
@@ -124,6 +113,15 @@ spots.forEach((sp, i) => {
   console.log(`  ${sp.label.padEnd(30)} ${r.toFixed(2)}:1   text ${sp.color}  ground rgb(${bg.join(",")})`);
 });
 await browser.close();
+// BEFORE THE EXIT BELOW, NOT AFTER IT — this script ends with a `process.exit`
+// on a failure, and a teardown written under it would run on a pass and never
+// on a fail, leaving the all-seeing account behind on exactly the runs
+// somebody is going to re-run several times.
+// ponytail: no try/finally around the browser section, so a THROW above this
+// line leaves the admin row standing until somebody runs this or shoot-admin
+// again — both re-create and re-drop it. Wrap the whole script if that ever
+// stops being true, which it will the day something else reads that row.
+await dropAdmin(URL_, KEY, acct.id);
 
 const FLOOR = 4.5;
 console.log(`\nworst: ${worst.label} at ${worst.r.toFixed(2)}:1 against a ${FLOOR}:1 floor`);

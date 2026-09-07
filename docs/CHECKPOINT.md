@@ -25,6 +25,17 @@ byte for byte**, so the live site is running everything below.
 392 / 360 / 320 · 25 emails rendered · all 28 edge functions current with the
 repo (`node scripts/check-deployed.mjs`).
 
+**BOTH OF THOSE LAST TWO WERE UNTRUE WITHIN THE HOUR, AND THAT IS THE POINT OF
+WRITING IT DOWN — corrected 2026-09-07 by roadmap 8.2's own verification.**
+The width sweep was **red on every dashboard screen at 392**: the dot lattice
+shipped the same night with `inset: -8%` on an unclipped fixed layer, 35px past
+the viewport and 6px of sideways drag on a phone. And **four edge functions
+were stale**, all four changed by the testing-loop commit — so three of the six
+*blocks-launch* fixes that lap found were committed, pushed to `main`, and not
+actually running. **Neither was a new mistake; both were a check not re-run
+after the change that broke it.** A checkpoint states what was true when it was
+written, so **re-run the gate rather than reading this line**.
+
 ---
 
 ## What is next — in roadmap order

@@ -170,7 +170,7 @@
    furniture pretending to be structure. */
 .pa-bar {
   position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   padding: 14px 0 12px; margin-bottom: 18px;
   background: color-mix(in srgb, var(--bg, #0B0D0E) 88%, transparent);
   backdrop-filter: blur(10px);
@@ -181,7 +181,24 @@
   color: var(--text-muted, #8A9296);
 }
 .pa-mark b { color: var(--text, #E9EDEF); font-weight: 700; }
-.pa-bar-r { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+/* WHO IS SIGNED IN — roadmap 8.2. Its OWN line under the mark rather than a
+   third thing in the bar's right-hand group: an email is long, it is the one
+   string here that cannot be shortened without lying, and at 320 the two
+   buttons opposite already wrap. It also drops the mark's uppercase and
+   tracking, because an address is read character by character and letter-
+   spaced capitals are the worst possible setting for one. */
+.pa-who {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin-top: 3px;
+  font-size: var(--t-meta, 13px); font-weight: 500;
+  letter-spacing: 0; text-transform: none;
+  color: var(--text-muted, #8A9296);
+  overflow-wrap: anywhere;
+}
+/* `.pa-link` is written for an <a>; sign out WRITES, so it is a button and
+   needs the browser's own button paint taken off it. */
+button.pa-link { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+.pa-bar-r { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
 .pa-h1 {
   font-family: var(--f-display, var(--f-body));

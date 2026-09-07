@@ -2296,6 +2296,23 @@ explaining it; if they still have to ask "so should I?", it failed.
   else refusing to suspend a non-paying business over a log write is the wrong
   trade, and here *"it did not get written"* is not an answer to give a
   detailer who asks.
+  **THE MASTER LOGIN IS `demo@demo.com` / `demo` AS OF 2026-09-07, AND IT IS
+  THE ONLY ROW IN `platform_admins` — the owner's own instruction, roadmap
+  8.2:** *"clear all logons, have my login for like the master login be email
+  is demo@demo.com and password is demo."* Everything below about the seeded
+  admin still describes the MECHANISM and is why it is safe to have one, but
+  the account it names is gone: `demo-admin@detailplatform.com` and
+  `shoot-admin@detailplatform.com` are deleted, and his two own addresses were
+  revoked as admins. **P-12 is closed.**
+  **IT IS A LAUNCH BLOCKER AND THE ROW'S OWN NOTE SAYS SO.** That password is
+  on the account that reads every detailer, at a public address. It is safe
+  only while every business in the database is a fixture, which is the state
+  he has described and the state it is in; **the day a real detailer signs up
+  it has to change.** Do not quietly "improve" it before then either — he
+  chose it, and a session that swaps it locks him out of his own back office.
+  **AND `demo@detailplatform.com` / `demo123` IS A DIFFERENT THING AND STAYS**
+  — the demo DETAILER, which every sweep, every shooter and `e2e-booking` sign
+  in with. Deleting it takes the verification suite down.
   **THE ADMIN ACCOUNT IS SEEDED ONLY BY `seed-demo.mjs --platform-admin` AND
   IS NEVER THE DEMO OWNER.** The demo login is deliberately guessable and
   lives on the live site; making it an admin would put every detailer's data

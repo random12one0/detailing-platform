@@ -241,6 +241,23 @@ const CHECK = () => {
     }
     return false;
   };
+  // **DOES THE PAGE SCROLL SIDEWAYS AT ALL — added 2026-09-07, and until then
+  // this script asked every question about a horizontal edge EXCEPT the one a
+  // person actually experiences.** Every check below is about ONE element:
+  // past the viewport, past its parent, scrolling inside itself. A decorative
+  // `::after` that sticks out of a card whose ancestors are all
+  // `overflow: visible` is past NOTHING — pseudo-elements are not in
+  // `querySelectorAll`, its parent chain never clips, and no single box is
+  // ever outside another — **while the overflow propagates all the way to
+  // `html` and the phone really can be dragged off its own layout.** The lit
+  // card's accent bloom did exactly that at 392 and every run said `clean`.
+  // `geometry.mjs`, the admin shooter's own copy of these questions, has had
+  // this line from the day it was written; the primary instrument did not.
+  // It is FIRST because when it fires it is the summary of whatever the
+  // element checks below are about to say, and often of something they cannot
+  // say at all.
+  const drag = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+  if (drag > 1) out.push(`page-scrolls   +${drag}px  the whole page can be dragged sideways`);
   for (const el of document.querySelectorAll("body *")) {
     if (!el.getClientRects().length) continue;
     const cs = getComputedStyle(el);

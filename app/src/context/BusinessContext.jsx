@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { supabase } from "../lib/supabase.js";
 import { can as canDo } from "../lib/permissions.js";
 import { applyDashboardAccent } from "../lib/theme.js";
+import { endImpersonation } from "../lib/impersonation.js";
 
 // WHICH BUSINESS THIS BROWSER LAST CHOSE. localStorage rather than the
 // database: it is a fact about this DEVICE, not about the account — the same
@@ -205,7 +206,14 @@ export function BusinessProvider({ children }) {
     },
     loading: session === undefined || loading,
     reload,
-    signOut: () => supabase.auth.signOut(),
+    // **EVERY SIGN-OUT DROPS THE IMPERSONATION NOTE, not just the two the
+    // back office draws.** Roadmap 8.2: the note is a fact about the session
+    // in this browser, so it has to die with the session — and the ordinary
+    // gear sign-out is the exit somebody actually takes when they have
+    // forgotten they are impersonating. Left behind, it is a note asserting
+    // something that stopped being true, which is the one state
+    // `lib/impersonation.js` is written to make impossible.
+    signOut: () => { endImpersonation(); return supabase.auth.signOut(); },
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
