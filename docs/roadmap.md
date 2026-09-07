@@ -8453,6 +8453,94 @@ recommendation.
   detailers.
 - Never start sales calls until Phase 7 is checked off (your own rule).
 
+
+## Phase 9 — the website intake (2026-09-07, his ask)
+
+**His own words, and both halves arrived in the same conversation:**
+
+> *"The form for someone buying a website… my hope is to get everything that
+> they need for you to build an actually pristine and good-looking website
+> almost first try. Having me be a guide there — a list of a ton of different
+> car detailing websites that I think are good and look nice… but also for the
+> customer: which one is your favorite?… Do some research into all of the
+> questions that we should ask them… It could be even something as niche as: do
+> you want scrolling effects — and we show an example of scrolling effects
+> versus just a static page."*
+
+> *"I want every single website to have some advanced feature inside of it.
+> Something that is a kind of eye-catcher, and is not just some really aesthetic
+> website. One example is when you scroll and the picture actually stays in the
+> same place visually."*
+
+**THE RESEARCH IS DONE — `docs/tenant-site-intake-research-2026-09-07.md`.**
+Nothing below should be started without reading it, and `docs/tenant-site-intake.md`
+is still the question list rather than a thing to rewrite.
+
+- [x] 9.0 **RESEARCH: what to ask, and what an eye-catcher should be.**
+      **DONE 2026-09-07.** Eight published intake templates, the preference-
+      testing literature, and the current state of scroll-driven CSS. Four
+      findings decide the build:
+      **(1) SHOW, NEVER DESCRIBE — AND THE DIFFERENCE HAS TO BE OBVIOUS.**
+      NN/g's finding is that a non-designer cannot see a small difference and
+      asking them to *"will most likely just confuse participants and waste
+      your time."* So every visual choice is between two things that look
+      plainly different, and **never more than three side by side** — past
+      three, people fatigue and pick at random. That is a hard constraint on
+      the gallery screen.
+      **(2) EVERY PUBLISHED TEMPLATE BREAKS OUR ONE RULE.** They all ask for
+      services, prices and hours; the dashboard already holds those, and a
+      second copy goes stale the day a price changes on a phone. The intake
+      file's § 1 stands and it is the thing that makes ours different.
+      **(3) THE EYE-CATCHER SHOULD BE A REAL NUMBER, NOT AN EFFECT.** Every
+      scroll trick in the catalogue can be bought from a template shop. **One
+      thing cannot: a live figure out of their own booking engine** —
+      *"Next opening: Thursday 8:00 AM · 3 left this week"* — because a
+      template site has no calendar behind it. `available-slots` already
+      answers it publicly with no login, so it is one existing endpoint and no
+      new backend. **Recommendation: every site gets ONE motion effect chosen
+      by the detailer AND the live band. The motion is taste; the band is the
+      reason the page exists.**
+      **(4) THE MOTION RULES ARE NOT OPTIONAL** and are in the research file:
+      `transform`/`opacity` only, `IntersectionObserver` never a scroll
+      listener, never `background-attachment: fixed` (it fails outright on iOS,
+      which is most of the traffic), and **CSS scroll-driven animations are NOT
+      Baseline** — about 83%, because Firefox does not ship them on by
+      default — so they need `@supports` with the static page as the fallback.
+
+- [ ] 9.1 **OWNER: the gallery.** **The only thing blocking the rest**, and
+      nobody else can do it: it is his taste, which is the entire point of
+      `docs/TASTE-NOTES.md`. **What is needed per entry is small — a link and
+      one line on what he likes about it.** Ten to twenty is plenty; the form
+      never shows more than three at once. The five he sent on 2026-09-07 are
+      the start.
+      **AND IT MUST NOT LIVE IN THIS REPO.** `random12one0/detailing-platform`
+      is PUBLIC and other designers' work does not go in it — so the gallery is
+      a table and a storage bucket, managed from the back office. That is the
+      right home anyway: he will keep adding to it, and a list he can edit
+      without a developer is a list that stays current.
+
+- [ ] 9.2 **The gallery, in the back office and on the intake.** A
+      `site_examples` table (link, screenshot, his one line, on/off), the
+      screens to manage it, and the customer-facing browse-and-favourite.
+      **No typing on this screen at all.**
+
+- [ ] 9.3 **The intake itself — four screens, inside the dashboard.** Not a
+      public page: they are signed in, we already know their business, the
+      uploads have somewhere to go, and every question the database can answer
+      disappears by construction. (1) the gallery, (2) three visual either/ors
+      shown as real rendered examples — movement or stillness, photographs big
+      or facts big, dark or light — (3) the nine questions that need sentences,
+      **saved as they type**, and (4) the uploads, on their own screen and
+      resumable.
+      **NOTHING BLOCKS ON IT.** Their booking page already works; a
+      half-finished intake leaves them with a working booking page and a note
+      saying what is still needed, never a dead end.
+
+- [ ] 9.4 **The advanced feature, built once and configurable.** The catalogue
+      is in the research file with what each one costs. The live-availability
+      band is the one every site gets; the motion effect is the one the
+      detailer picked in 9.3.
+
 ## Which skills each phase uses
 
 The end-of-session handoff prompt reads this table. `ponytail` is always on.
@@ -8481,3 +8569,4 @@ those are not negotiable by any skill.
 | 6 — demo business | `ship-check` | gray placeholder boxes; the owner's rule is real photography or ask |
 | 7 — launch readiness | `ship-check`, `security-review`, `code-review` at high effort | shipping anything the owner has not seen at 392px |
 | 8 — his review of the testing loop | `ponytail` throughout, as always. `security-review` is **not optional** on 8.2 (auth), 8.4 (a migration that decides who can be booked), 8.5 (money) and 8.14 (Stripe). `impeccable` for anything a person looks at, `animate` only where motion changes. **8.1, 8.8 and 8.20 produce DOCUMENTS and stop for him** — no code in any of them | direction-generating skills, as everywhere on this product. **Also never: bundling two items into one iteration to make progress look faster.** He asked for the opposite in as many words, and this repo's oldest failure is a green run that measured less than it claims. **And never a duration target** — he corrected a draft that had one: *"it shouldn't aim towards a time goal… if I see it done in like a few hours I know that it wasn't executed properly."* How long it takes is an output of doing each item properly |
+| 9 — the website intake | `ponytail`. **9.0 is a DOCUMENT and it is done.** `impeccable` on 9.2 and 9.3, because a form somebody abandons halfway is the failure mode. `animate` on 9.4, and it is the one item in the product where motion is the deliverable rather than the polish | **direction-generating design skills, as everywhere.** And never: asking for anything the dashboard already holds — services, prices, hours, the accent — which is the one rule that makes this intake different from every published template |

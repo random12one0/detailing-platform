@@ -128,3 +128,38 @@ described.
 
 **Until then this file is the whole of it**, and it is enough to brief a first
 client site properly.
+
+---
+
+## 6. UNBLOCKED — 2026-09-07
+
+**He answered question 0 and then widened the ask.** Five reference sites on
+2026-09-07 (`docs/TASTE-NOTES.md`), and then: *"having me be a guide there — a
+list of a ton of different car detailing websites that I think are good and look
+nice… but also for the customer: which one is your favorite?"*
+
+**So the examples half is no longer blocked, and it is now a SCREEN rather than
+a paragraph in this file.** The research behind it is
+`docs/tenant-site-intake-research-2026-09-07.md`; the build is roadmap phase 9.
+
+**What that research changes about the questions above** — the list itself
+stands, and these are the deltas:
+
+- **Q4 becomes a yes/no.** The product stores FAQs now, so the question is
+  whether that section appears on the site, not what goes in it. Same for
+  reviews. He named both.
+- **Q7 splits.** *What have you got* is a question; the UPLOAD is a separate
+  screen, because a phone full of photographs is not something anybody does
+  inside a form.
+- **Q8 asks for a VECTOR file** if one exists, with one line saying why — it is
+  the difference between a crisp mark and a blurry one on a phone, and it is the
+  most common asset problem in every onboarding guide read.
+- **Five questions are added:** the gallery itself; three visual either/ors
+  shown as real rendered pages rather than described (movement or stillness,
+  photographs big or facts big, dark or light); what a customer must be able to
+  do without scrolling; a refusal list; and whose phone rings.
+
+**And one finding from the research binds every visual question here:** a
+non-designer cannot see a small difference, so each either/or has to be between
+two things that look plainly different — and **never more than three options
+side by side**, because past three people fatigue and pick at random.
