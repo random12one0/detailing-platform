@@ -7924,13 +7924,37 @@ works**, which is one line at the end rather than a pause in the middle.
       for him rather than a guess, because a fourth control on a compact list
       row is a design change he did not ask for.
 
-- [ ] 8.20 **Answer his eleven questions.** `docs/overnight-log.md` questions 7
+- [x] 8.20 **Answer his eleven questions.** **DONE 2026-09-07 — and it ran
+      last, which is what he asked for.** `docs/overnight-log.md` questions 7
       to 17, recorded verbatim at his instruction: *"just save it for now,
       don't answer it — I have the next [session] answer it when it finishes
-      all the stuff that I told it to do."* **So this item runs LAST**, and it
-      is a writing session, not a build one. Two of them are already half
-      answered: question 10 describes something built on the day he asked
-      (8.1's onboarding checklist), and question 16 is the research inside 8.16.
+      all the stuff that I told it to do."*
+      **ALL ELEVEN ARE ANSWERED IN `docs/overnight-log.md`** and published as a
+      page he can open on his phone:
+      https://claude.ai/code/artifact/c71fe47b-3776-4fca-90fb-a097c3748fba
+      **NINE OF THE ELEVEN WERE ASKING WHAT A PHRASE MEANT, NOT FOR A
+      DECISION**, so every answer is what the thing is, then what I would do,
+      and the page can be skimmed by VERDICT alone — that is what carries the
+      structure rather than numbering, because these are not a sequence.
+      **FOUR NEED A WORD BACK AND THE PAGE SAYS SO AT THE TOP**: Facebook as a
+      third review link (one settings field), buy-three-get-the-fourth (he
+      already said yes to the idea and it needs a place on the list), the
+      offline day sheet (worth it, after launch), and the two Google
+      applications, which are his to start.
+      **THREE ARE HONEST NOs, WHICH IS THE PART THAT MAKES THE REST WORTH
+      READING.** Rotating review platforms halves the reviews on the one that
+      decides whether anybody finds a detailer, and cannot know which site a
+      customer actually uses. A second accountant export is a second set of
+      numbers that has to keep agreeing with the first for ever, and the value
+      of the one that exists is that its column adds up to the Money screen —
+      **so the answer to "is the one export we have not enough" is yes, it is
+      enough.** And Turnstile costs every real customer a third-party script
+      for a problem the honeypot and the throttle have not let happen yet.
+      Two were already half answered when the list was written and both are
+      confirmed: question 10 describes the *What they still need from you*
+      block built on the day he asked, and question 16 is 8.16's research —
+      the write half works, and the cost is two Google reviews and about three
+      weeks of waiting rather than code.
 ## Not on the roadmap yet — found 2026-09-04, awaiting the owner
 
 **These are gaps in the PLAN, not bugs in the code.** They were found while

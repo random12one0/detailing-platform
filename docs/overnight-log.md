@@ -2200,60 +2200,201 @@ inside a build session**; they are a session of their own, after the work.
 
 Numbered 7 onward, continuing the run above.
 
-### 7. "Day sheet works with no signal — I don't know what that means." (idea 08)
+### ALL ELEVEN ANSWERED — 2026-09-07, roadmap 8.20
 
-### 8. "Local business markup on every tenant site — I don't know what that means." (idea 15)
+*"Just save it for now, don't answer it — I have the next one answer it when it
+finishes all the stuff that I told it to do."* It has. Nine of the eleven were
+asking what a phrase MEANT rather than for a decision; each answer below says
+what it is, then what I would do, and only four of them actually need a word
+back from you. **Nothing here is built.** Also published as a page you can open
+on your phone:
+https://claude.ai/code/artifact/c71fe47b-3776-4fca-90fb-a097c3748fba
+
+### 7. "Day sheet works with no signal." (idea 08)
+
+**What it means.** Today's list keeps working when the phone has no bars — the
+names, the addresses, the numbers to ring, what was booked. The screen draws
+from a copy kept on the device instead of asking the internet.
+
+**What it does NOT mean:** you could not TAKE a booking or mark one paid while
+offline. Anything that writes still needs signal, and pretending otherwise is
+how two people end up in the same slot.
+
+**My recommendation: worth doing, after launch.** It is a real problem for a
+mobile detailer — an underground car park, a rural driveway — and it is a
+medium-sized job rather than a small one. Nothing else waits on it.
+
+### 8. "Local business markup on every tenant site." (idea 15)
+
+**What it means.** A block of hidden text on a detailer's website that tells
+Google, in Google's own format, *this is a car detailing business, here is the
+address, the phone, the hours, the price range, the rating.* Google reads it and
+shows the rich result — stars, hours, a map pin — instead of a plain blue link.
+Nobody sees it on the page.
+
+**Cost: small.** It is generated from what is already in the database, so it
+costs one block per site and no maintenance.
+
+**My recommendation: yes, and build it into the site template rather than as its
+own job** — so every site a detailer gets has it from day one and nobody has to
+remember. It also happens to be groundwork for the Google Business Profile work.
 
 ### 9. "What do you mean by rotating between Google and Facebook?" (idea 14)
 
-His own setup is the context for the answer: *"the way I have it is there's an
-email that gets sent, and it sends them some stuff with a Google and Yelp
-link, because those are what I have."*
+**What it meant.** Asking different customers for reviews on different
+platforms — one gets a Google link, the next gets Facebook — so both profiles
+grow and neither gets a suspicious burst of reviews in one week.
 
-### 10. "An onboarding checklist per detailer — I don't know what that means. Maybe you can explain that." (idea 25)
+**My recommendation: don't.** Two reasons. Google is the one that decides
+whether people find a detailer at all, so splitting the ask halves the reviews
+on the one that matters most. And you cannot know which platform a given
+customer actually uses, so half the asks land on a site they have no account
+for.
 
-**Note for whoever answers: this one was BUILT on the day he asked** (loop pass
-008). It is the *"What they still need from you"* block on an open business in
-the back office. He needs it described, not built.
+**What is already built is the better version of the same idea**, and it is your
+own setup: the thank-you email carries whichever review links that detailer has
+filled in, and it draws none if they have filled in none. Google and Yelp today.
+**If you want Facebook as a third, that is one field on a settings screen** —
+say the word and it is a small job.
 
-### 11. "Notes with a follow-up date — I don't know if that field exists." (idea 26)
+### 10. "An onboarding checklist per detailer." (idea 25)
 
-Half an answer is already known: the note field exists as one free-text blob on
-`businesses.admin_notes_platform`; a date does not.
+**What it means — and it is already built** (2026-09-06). Open a detailer in
+your back office and there is a block headed *What they still need from you*: no
+website built yet, a domain added but not pointed at us, no gallery photos.
+
+**It is YOUR list about them, not theirs about themselves.** The detailer has
+their own separate *finish setting up* row on their own dashboard. This one
+exists because with twenty detailers you will not remember which three are
+waiting on you.
+
+**Nothing to decide.** Go and look at it next time you open the back office.
+
+### 11. "Notes with a follow-up date." (idea 26)
+
+**Half of it exists.** Each detailer has a private notes box in your back office
+— they cannot see it. What does not exist is a DATE on it, so there is nothing
+that can tell you *this one is due today*.
+
+**What the idea would add:** put "chase on the 14th" on a note, and the back
+office shows you what is due when you open it.
+
+**My recommendation: park it.** With fewer than ten detailers you will remember.
+It becomes worth building at about the point you stop remembering, and it is
+small enough to build then rather than now.
 
 ### 12. "Is the one export we have not enough?" (idea 30)
 
-### 13. "Cloudflare Turnstile — I don't know what that means." (idea 32)
+**Short answer: it is enough. I would not build a second one.**
 
-### 14. "Buy three and get the fourth — I don't know what that means." (idea 47)
+**What you have.** One CSV: every job and every expense in one list, with the
+Amount column adding up to exactly the Net figure on your Money screen, and a
+Miles column since today. It opens in Excel, Numbers and Google Sheets, and it
+imports into Wave and QuickBooks after a one-off mapping the accountant does
+once and never again.
 
-He worked out the answer himself mid-sentence and said yes to it, so this one
-may need nothing more than confirming his reading was right.
+**What idea 30 would have added** is skipping that one mapping step. That is the
+whole difference.
 
-### 15. "The booking page as a home-screen icon — I don't know what that means." (idea 48)
+**The reason not to:** a second export is a second set of numbers that has to
+keep agreeing with the first one, for ever, and the value of the export is that
+its column adds up to the screen. **Revisit only if a real detailer's accountant
+says it does not work** — which is a specific complaint you would hear.
 
-### 16. "Can people link their Google Business Profile to our website and have it so our website could auto-update the Google Business Profile?" (idea 13)
+### 13. "Cloudflare Turnstile." (idea 32)
 
-**This is the only one of the eleven that is a genuine research question rather
-than a definition.** He was more enthusiastic about this idea than any other:
-*"If so, that would be awesome. I love the idea. So even when they upload
-photos to here, it just goes to the Google Business photo. If they change times
-here, it goes to the Google Business Profile."* Whether the WRITE half is
-achievable on the free API is the thing to find out.
+**What it means.** A free, invisible check on the booking form that tells a bot
+from a person without making anybody click pictures of traffic lights.
 
-### 17. F-029 and F-030 — "I don't know what that means either."
+**Why I would not add it yet.** The booking page already has two layers: a
+honeypot (a field only a bot fills in) and a rate limit, both built in roadmap
+2.21 and both invisible to a customer. Turnstile is the layer above those, and
+it costs every real customer a third-party script loading on the page.
 
-Two findings from the testing loop he could not read:
+**My recommendation: not now.** Add it the first time a detailer actually gets
+junk bookings — you would hear about that immediately, and it is a
+half-day job at that point.
 
-- **F-029** — a manually-sent reminder can go out twice if its "already sent"
-  marker fails to save. One duplicate email, nothing lost.
-- **F-030** — the back office loads whole tables and joins them in memory.
-  Correct today with fifteen businesses; at a hundred detailers averaging five
-  hundred bookings it is one request carrying fifty thousand rows.
+### 14. "Buy three and get the fourth." (idea 47)
 
-Both are low priority and neither blocks anything. They are here because he
-asked what they meant, not because they need a decision.
+**Your own reading was right**, and you said so mid-sentence: a customer who has
+booked a set number of times automatically gets the next one discounted or free,
+instead of you noticing and texting them a promo code by hand. And you were
+right that it belongs in settings, per detailer, so each one chooses the number
+and the reward.
 
+**One thing worth knowing:** it needs the product to recognise the same person
+across bookings, which it already does — that is what the Clients list is, and
+it matches on phone and email.
+
+**Not built.** It belongs beside Promo codes on the Business tab. **Say the word
+and it goes on the roadmap.**
+
+### 15. "The booking page as a home-screen icon." (idea 48)
+
+**What it means.** Pressing *Add to Home Screen* in a phone browser puts an icon
+on the home screen that opens the page full-screen, with no browser bars —
+looks like an app, is not one, and needs no app store.
+
+**Half of it is already there and you use it.** Your DASHBOARD is set up this
+way, and it has to be: iPhones only allow push notifications for a site that has
+been added to the home screen. That is why the notifications switch appears only
+on a phone that has done it.
+
+**For a CUSTOMER'S booking page I would skip it.** Somebody books a detail every
+few weeks; nobody keeps an icon for that. The effort is better spent on the
+booking link being easy to send.
+
+### 16. "Can people link their Google Business Profile… and have it auto-update?" (idea 13)
+
+**Yes. The write half is achievable, and almost none of the cost is code** —
+full working in `docs/google-business-profile-research-2026-09-07.md`.
+
+**The cost is Google's time, not ours.** Two separate approvals, in order: an
+API access request reviewed by a person ("within 14 days"), then an OAuth app
+verification (3–5 business days) because the permission is a sensitive one. A
+brand-new Google Cloud project has **zero** quota for these APIs until the first
+one clears — not a small quota, none. Both need `detailingplatform.com` live
+with a working mailbox on that domain.
+
+**One more fact that belongs on the settings screen rather than in a surprise:**
+each detailer's own profile has to be verified and about sixty days old, or it
+will not connect. That is about them, not us, and the first one to try it should
+be told rather than shown a failure that looks like our bug.
+
+**My recommendation: start both applications as soon as the domain has a
+mailbox, and build nothing until they clear.** It is task 12 on your setup page.
+It also unblocks Google Calendar, which needs the same per-detailer token store.
+
+### 17. F-029 and F-030.
+
+**F-029 — a reminder can send twice.** If you press *send reminder* by hand and
+the little "already sent" mark fails to save, the same reminder can go out
+again. One duplicate email; nothing is lost and no money moves. **A one-line fix
+next time anybody is in that file** — not worth a trip of its own.
+
+**F-030 — the back office will get slow, eventually.** It loads whole tables and
+joins them up in your browser. That is correct and fast with fifteen businesses.
+At a hundred detailers averaging five hundred bookings it is one request
+carrying fifty thousand rows: the page gets slow, then stops loading.
+
+**It is a real ceiling and it is a hundred-detailer problem.** You will feel it
+coming — the back office will take a second, then two. **My recommendation: fix
+it when you notice it**, not before, because the shape of the fix depends on
+which screen is actually slow and today nothing is.
+
+### The four that want a word from you
+
+Everything above is answered. These are the only ones where a sentence from you
+changes what gets built:
+
+1. **Facebook as a third review link** (Q9) — one settings field. Yes or no.
+2. **Buy three, get the fourth** (Q14) — you already said yes to the idea; it
+   needs to go on the roadmap. Say when.
+3. **Offline day sheet** (Q7) — worth doing, after launch. Confirm "after
+   launch" and I will schedule it there.
+4. **Google Business Profile** (Q16) — nothing to decide, but the two
+   applications are yours to start and they are the long pole.
 
 ## Two from roadmap 8.2 — 2026-09-07
 
