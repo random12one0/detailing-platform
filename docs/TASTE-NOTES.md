@@ -141,6 +141,56 @@ already said. **Nothing in this file relaxes those.**
 
 ---
 
+## 4b. THREE PAGES ARE NOW BUILT ON THIS — i, j, k — AND WHAT THEY TAUGHT
+
+`docs/tenant-sites/i-apex.html`, `j-northside.html`, `k-cedar.html`, built
+2026-09-07 after he said *"also make the websites"*. All three follow § 3; the
+guard against them becoming one family is that each resolves the SAME house
+rules against a **different tension** and a **different noun**, which
+`docs/tenant-site-briefs-2026-09-07.md` § 5 already measured as the thing that
+actually produces variety.
+
+| | tension | noun | ground | accent | display |
+|---|---|---|---|---|---|
+| **i · Apex Auto Spa** | loud without reading as a chain | a **showroom wall** | ink → white, dark first | electric blue | Anton / Barlow |
+| **j · Northside Detail Co.** | a one-van shop that must look permanent | a **scoreboard** | white → ink, **light first** | orange | Bebas Neue / Sora |
+| **k · Cedar & Chrome** | booked out without being smug | a **day's schedule** | **painted red**, white bands cut in | the ground itself | Saira Condensed / Karla |
+
+**Three different KINDS of ground**, which is the rule sites 1 and 2 broke by
+both arriving dark with nothing asking for it.
+
+### FOUR THINGS THEY TAUGHT THAT ARE NOT IN § 3
+
+**1 · ALT TEXT DOES NOT MENTION BADGES, AND A CONTACT SHEET COSTS ONE MINUTE.**
+Site j's first hero was chosen from a description reading *"man in blue crew
+neck t-shirt standing beside black car"*. It is a **Bugatti**, and the
+detailer's shirt carries another company's mark legibly. On a one-van mobile
+page in Columbus that contradicts the only claim the page makes, and the shirt
+is the same defect site 2 already shipped. **Render every candidate to a
+contact sheet and look at it before choosing one.** Doing that also caught a
+Range Rover wordmark across a grille and a Lamborghini caliper badge in the
+existing photo bank.
+
+**2 · A CONTRAST COMMENT IS WRITTEN AFTER THE RUN, NEVER BEFORE.** All three
+pages had their ratios typed from judgement first, and on all three the
+calculator disagreed with every figure. Two were genuine failures under a
+comment claiming a pass: i's form-input border at **1.93:1** where it claimed
+3.06, and k's quiet text on the paint at **4.41:1** where it claimed 4.55.
+That is site 1's defect twice more, in the two pages written to avoid it.
+
+**3 · A DECORATIVE HAIRLINE AND A CONTROL'S EDGE ARE TWO TOKENS.** All three
+pages now carry `--edge*` (3:1, borders of things you type in or press) beside
+`--rule*` (quiet, separating rows and cards). One token for both is how a form
+ends up outlined at 1.29:1.
+
+**4 · "A PHOTOGRAPH AT SCALE" IS A CLAIM ABOUT THE FOLD, NOT THE MARKUP.**
+k's headline ran to five lines and pushed its photograph to 815px down a 900px
+screen: the rule was true of the file and false of what anybody saw. Measured
+on all three now — the first photograph starts at 0px, 239px and 616px against
+a 900px fold.
+
+---
+
 ## 5. What to do with it
 
 **Wait for his better batch before building.** He said so in the same breath as

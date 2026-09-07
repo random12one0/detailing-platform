@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apex Auto Spa — Reno, NV</title>
+<!--
+  ══════════════════════════════════════════════════════════════════════════
+  TENANT SITE i — APEX AUTO SPA
+  ══════════════════════════════════════════════════════════════════════════
+  Roadmap 3.2(c) / 8.17-era. **THE FIRST SITE BUILT AFTER HE SENT REFERENCES
+  HE ACTUALLY LIKES** (docs/TASTE-NOTES.md, 2026-09-07). Everything before this
+  was a guess; five of those guesses are in this folder and three of them he
+  called "very ai".
+
+  WHAT CHANGED, AND IT IS THE WHOLE BRIEF — TASTE-NOTES § 3:
+    1 · a REAL CAR PHOTOGRAPH is the hero, at scale
+    2 · the headline is HUGE, HEAVY, CONDENSED CAPS — and NEVER a serif
+    3 · ONE saturated accent, used loudly
+    4 · the page SWITCHES GROUND between sections — black band, white band
+    5 · NUMBERS everywhere, as decoration as much as information
+
+  Points 2 and 4 are the two the rejected pages got wrong: they were
+  serif-led and each committed to a single ground, which reads as tasteful and
+  a bit dead.
+
+  ── THE TENSION THIS PAGE HAS TO RESOLVE ────────────────────────────────
+  **Loud and confident without reading as a national chain.** The reference
+  sites are unmistakably commercial; the trap on the other side is a page that
+  could be any franchise in any city. What keeps it local is that every
+  specific on it is a fact only this shop could state — the street, the year,
+  the two people, the actual ceramic brand, the real hours.
+
+  ── WHAT THIS PAGE *IS*, IN ONE NOUN ─────────────────────────────────────
+  **A SHOWROOM WALL.** Big lit photographs in a row with the price under each,
+  the way a dealer's board works. That noun decides the section order, and the
+  section order is what the 2026 slop recipe actually is:
+      hero photo → the wall (services as PLATES, price under each)
+      → the ladder by vehicle size → who does it → the numbers → book.
+  No three-up icon cards, no logo soup, no FAQ accordion.
+
+  ── ITS REFUSAL LIST ─────────────────────────────────────────────────────
+  · No serif anywhere. (The family he rejected twice.)
+  · No second accent. Blue does every job a colour does on this page.
+  · No stock "team in matching polos". The people are named or absent.
+  · No icons standing in for photographs.
+
+  ── AND THE SET RULE, WHICH ONLY LOOKING AT THE SET CAN ENFORCE ──────────
+  Sites 1 and 2 in this folder both came out dark with nothing asking for it.
+  **No two share a KIND of ground.** This one alternates ink and white, which
+  none of the eight before it does.
+
+  ── EVERY PRICE ON THIS PAGE IS MARKED, AND NONE OF IT IS COMPUTED HERE ──
+  `docs/tenant-site-contract.md`: a site that hard-codes a price is *a number
+  PRINTED is not a number CHARGED* with the two numbers in two codebases,
+  where nothing can see both. Every figure below carries a `data-from`
+  attribute naming the endpoint it belongs to, and the demo values are
+  placeholders a live build replaces.
+
+  CONTRAST, COMPUTED OUT OF THIS FILE RATHER THAN ASSUMED (WCAG 2.1 relative
+  luminance; 4.5:1 for text, 3:1 for a control's edge):
+      --ink-fg    #E9EDF2 on --ink   #0A0C10 ...... 16.65:1
+      --dim       #9AA4B2 on --ink   #0A0C10 ......  7.76:1
+      --blue      #5A9BFF on --ink   #0A0C10 ......  7.05:1
+      --dim       #9AA4B2 on --ink-2 #141821 ......  7.04:1
+      --paper-fg  #12161C on --paper #FFFFFF ...... 18.15:1
+      --paper-dim #545C68 on --paper #FFFFFF ......  6.76:1
+      --paper-dim #545C68 on --paper-2 #F1F3F6 ....  6.08:1
+      kicker blue #0B4FBF on --paper #FFFFFF ......  7.28:1
+      --blue-ink  #06121F on --blue  #5A9BFF ......  6.79:1
+      --edge      #6B7382 on --ink   #0A0C10 ......  4.10:1  (control edges)
+      --edge-paper#8A929E on --paper #FFFFFF ......  3.14:1  (control edges)
+
+  **AND THE FIRST VERSION OF THIS FILE FAILED TWO OF THEM UNDER A COMMENT
+  CLAIMING IT PASSED — the same defect as site 1, one page later.** `--edge`
+  was #3A424E at **1.93:1** and drew the form inputs' borders; `--edge-paper`
+  was #C3C9D2 at **1.67:1** and drew the ghost button's. Both are control
+  edges and both needed 3:1. Found by computing the ratios out of this file
+  minutes after writing it, which is the only reason it is not in the
+  screenshot. A decorative hairline is a DIFFERENT token now (`--rule`), and
+  it is allowed to be quiet.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────────────────────────
+   Defined once. A colour that appears as a literal further down is a colour
+   nobody measured. */
+:root{
+  --ink:#0A0C10; --ink-2:#141821; --ink-fg:#E9EDF2; --dim:#9AA4B2;
+  --paper:#FFFFFF; --paper-2:#F1F3F6; --paper-fg:#12161C; --paper-dim:#545C68;
+  --blue:#5A9BFF; --blue-ink:#06121F;
+  /* **A DECORATIVE HAIRLINE IS NOT A CONTROL'S EDGE, AND THEY ARE TWO TOKENS
+     HERE BECAUSE SITE 1 IN THIS FOLDER GOT IT WRONG.** `--edge`/`--edge-paper`
+     draw the border of something you can TYPE IN or PRESS and must clear 3:1;
+     `--rule`/`--rule-paper` separate rows and cards and are allowed to be
+     quiet. The first version of this file used one token at 1.93:1 for both,
+     under a comment claiming 3.06 — the exact defect, in the exact place, one
+     page later. */
+  --edge:#6B7382; --edge-paper:#8A929E;
+  --rule:#242B35; --rule-paper:#DDE1E7;
+  /* ANTON IS THE DISPLAY FACE AND IT IS ONLY EVER CAPS AT SIZE. It has one
+     weight and a very tight condensed fit — which is the point: it does the
+     "huge, heavy, condensed" job of the references and cannot be talked into
+     being a body face. Barlow carries everything a person reads. */
+  --display:"Anton",'Arial Narrow',system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,sans-serif;
+  --wrap:1180px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ink);color:var(--ink-fg);
+  font-family:var(--body);font-size:17px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 22px}
+
+/* ── THE GROUND SWITCH — TASTE-NOTES § 3.4 ─────────────────────────────
+   The device none of the eight earlier pages used. A band is a whole
+   section's ground, and the text colours come with it, so nothing has to be
+   remembered at the call site. */
+.band{background:var(--ink);color:var(--ink-fg)}
+.band.paper{background:var(--paper);color:var(--paper-fg)}
+.band.paper .dim{color:var(--paper-dim)}
+.dim{color:var(--dim)}
+.band{padding:74px 0}
+.band.tight{padding:46px 0}
+
+/* ── TYPE ──────────────────────────────────────────────────────────────── */
+.kicker{
+  font-family:var(--body);font-weight:700;font-size:12px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--blue);margin:0 0 10px;
+}
+.band.paper .kicker{color:#0B4FBF} /* 7.28:1 on white — the blue is corrected per ground, measured not guessed */
+h1,h2,h3{font-family:var(--display);font-weight:400;text-transform:uppercase;margin:0;line-height:.92;letter-spacing:.005em}
+h1{font-size:clamp(46px,10.5vw,132px)}
+h2{font-size:clamp(32px,5.4vw,62px)}
+h3{font-size:clamp(19px,2.2vw,26px)}
+p{margin:0 0 16px;max-width:62ch}
+
+/* ── HERO — A REAL PHOTOGRAPH, FULL BLEED, WITH THE TYPE ON IT ─────────
+   TASTE-NOTES § 3.1 and § 3.2 together. The scrim is a gradient rather than a
+   flat wash so the car keeps its highlights: a flat 60% black over a
+   photograph is what makes a hero look like a template. */
+.hero{position:relative;min-height:min(88vh,760px);display:flex;align-items:flex-end;overflow:hidden}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:58% 50%}
+.hero::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(178deg,rgba(10,12,16,.86) 0%,rgba(10,12,16,.30) 38%,rgba(10,12,16,.55) 72%,rgba(10,12,16,.97) 100%);
+}
+.hero .wrap{position:relative;z-index:1;width:100%;padding-bottom:38px;padding-top:26px}
+.topbar{position:absolute;top:0;left:0;right:0;z-index:2}
+.topbar .wrap{display:flex;align-items:center;gap:16px;padding-top:20px;padding-bottom:20px}
+.mark{font-family:var(--display);font-size:23px;letter-spacing:.02em;text-transform:uppercase}
+.mark span{color:var(--blue)}
+.topbar .tel{margin-left:auto;font-weight:600;font-size:15px;text-decoration:none;white-space:nowrap}
+.hero h1{max-width:14ch}
+.hero .sub{font-size:clamp(16px,2vw,21px);font-weight:500;margin:14px 0 22px;max-width:44ch;color:var(--ink-fg)}
+
+/* ── BUTTONS ───────────────────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:52px;padding:0 26px;border-radius:3px;border:0;cursor:pointer;
+  font-family:var(--body);font-weight:700;font-size:15px;letter-spacing:.04em;
+  text-transform:uppercase;text-decoration:none;background:var(--blue);color:var(--blue-ink);
+}
+.btn.ghost{background:transparent;color:var(--ink-fg);border:1px solid var(--edge)}
+.band.paper .btn.ghost{color:var(--paper-fg);border-color:var(--edge-paper)}
+.btnrow{display:flex;gap:12px;flex-wrap:wrap}
+
+/* ── THE NUMBERS — TASTE-NOTES § 3.5 ───────────────────────────────────
+   Four of his five references carry a strip like this, and it is the one
+   thing on a template a real detailer can genuinely fill in. Every figure
+   here is a fact about the SHOP, never about the platform. */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.stat{background:var(--ink);padding:22px 18px}
+.stat b{display:block;font-family:var(--display);font-size:clamp(30px,4.4vw,46px);line-height:1;color:var(--blue)}
+.stat span{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:8px;font-weight:600}
+
+/* ── THE WALL — services as PLATES, which is the page's noun ───────────
+   Not three icon cards. A photograph, the name over it, the price under it,
+   the way a showroom board is read. */
+.wall{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:34px}
+.plate{background:var(--paper-2);border:1px solid var(--rule-paper);border-radius:4px;overflow:hidden;display:flex;flex-direction:column}
+.plate .shot{aspect-ratio:4/3;overflow:hidden;background:var(--paper-2)}
+.plate .shot img{width:100%;height:100%;object-fit:cover}
+.plate .body{padding:18px 18px 20px;display:flex;flex-direction:column;flex:1}
+.plate h3{margin-bottom:8px}
+.plate .body p{font-size:15px;color:var(--paper-dim);margin-bottom:14px}
+.plate .price{margin-top:auto;display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--rule-paper);padding-top:14px}
+.plate .price b{font-family:var(--display);font-size:31px;line-height:1}
+.plate .price span{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--paper-dim);font-weight:600}
+
+/* ── THE LADDER — by vehicle size, which is what this trade actually
+   publishes (docs/tenant-site-research-2026-09-05.md § 3) and what
+   `calculate-booking` already computes. */
+.ladder{width:100%;border-collapse:collapse;margin-top:26px;font-variant-numeric:tabular-nums}
+.ladder th,.ladder td{text-align:left;padding:15px 12px;border-bottom:1px solid var(--rule)}
+.ladder th{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.ladder td:first-child{font-weight:600}
+.ladder td:not(:first-child),.ladder th:not(:first-child){text-align:right;font-family:var(--display);font-size:22px}
+.ladder th:not(:first-child){font-family:var(--body);font-size:12px}
+
+/* ── PEOPLE ────────────────────────────────────────────────────────────── */
+.two{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:center}
+.two img{border-radius:4px}
+.creds{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px}
+.creds li{display:flex;gap:11px;font-size:15px;align-items:flex-start}
+.creds li::before{content:"";flex:none;width:9px;height:9px;margin-top:7px;background:var(--blue);border-radius:1px}
+.band.paper .creds li::before{background:#0B4FBF}
+
+/* ── REVIEWS ───────────────────────────────────────────────────────────── */
+.reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:30px}
+.review{border:1px solid var(--rule);border-radius:4px;padding:20px}
+.stars{color:var(--blue);letter-spacing:.16em;font-size:15px;margin-bottom:10px}
+.review p{font-size:15.5px;margin-bottom:12px}
+.review cite{font-style:normal;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);font-weight:600}
+
+/* ── THE BOOKING FORM, BUILT IN ────────────────────────────────────────
+   His ruling, 2026-09-05: *"it should be built into the website with the
+   detailer's website design. Like how it is on my website."* Not a link, not
+   an iframe. The RULES stay in `app/src/book/core.js`; only the presentation
+   forks. */
+.form{margin-top:30px;display:grid;gap:18px;max-width:720px}
+.f label{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:7px}
+.band.paper .f label{color:var(--paper-dim)}
+.f input,.f select{
+  width:100%;min-height:52px;padding:12px 14px;font:inherit;font-size:16px;
+  background:var(--ink-2);color:var(--ink-fg);border:1px solid var(--edge);border-radius:3px;
+}
+.f input:focus-visible,.f select:focus-visible,.btn:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.quote{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  border-top:1px solid var(--rule-paper);padding-top:18px;
+}
+.quote b{font-family:var(--display);font-size:42px;line-height:1;color:var(--blue)}
+.note{font-size:13.5px;color:var(--dim);max-width:66ch}
+
+/* ── FOOTER ────────────────────────────────────────────────────────────── */
+footer{background:var(--ink);border-top:1px solid var(--rule);padding:40px 0 54px;font-size:14.5px}
+.frow{display:flex;gap:36px;flex-wrap:wrap;justify-content:space-between}
+footer .mark{margin-bottom:10px}
+
+/* ── WIDTHS. 320 is the narrowest SUPPORTED width (PRODUCT.md). ────────── */
+@media (max-width:900px){
+  .wall{grid-template-columns:1fr 1fr}
+  .reviews{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr;gap:26px}
+  .stats{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .band{padding:52px 0}
+  .wall{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .hero{min-height:min(92vh,680px)}
+  /* **THE LADDER STOPS BEING A TABLE BELOW 560, AND THAT IS A MEASUREMENT.**
+     Four columns of tabular figures want more width than a phone has: at 392
+     it ran 36px past the right edge and at 320 it ran 102px, and the page
+     scrolled sideways — measured, not reasoned about. A horizontal scroller
+     was the cheaper fix and is the wrong one for a PRICE table, which is the
+     thing on this page a person is deciding on.
+     So each size becomes its own block with its three figures labelled — the
+     320-floor idiom this product already uses everywhere else (a pair becomes
+     a stack), and the labels come from `data-h` so the words exist once. */
+  .ladder,.ladder tbody,.ladder tr,.ladder td{display:block;width:100%}
+  .ladder thead{display:none}
+  .ladder tr{border-bottom:1px solid var(--rule);padding:14px 0}
+  .ladder td{border:0;padding:4px 0;display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+  .ladder td:first-child{display:block;margin-bottom:8px}
+  .ladder td:not(:first-child)::before{
+    content:attr(data-h);font-family:var(--body);font-size:12px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--dim);font-weight:700;
+  }
+  .ladder td:not(:first-child){text-align:right;font-size:22px}
+}
+@media (max-width:380px){
+  .wrap{padding:0 16px}
+  .stats{grid-template-columns:1fr 1fr}
+  .topbar .tel{display:none} /* the number is in the footer and on the button */
+}
+@media (prefers-reduced-motion:no-preference){
+  .btn{transition:transform .12s ease}
+  .btn:hover{transform:translateY(-1px)}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="mark">Apex<span>.</span></div>
+    <a class="tel" href="tel:+17755550142">(775) 555-0142</a>
+  </div>
+</header>
+
+<!-- ═══ HERO — the photograph IS the design (TASTE-NOTES § 3.1) ═══ -->
+<section class="hero">
+  <img src="https://images.unsplash.com/photo-1689182358896-2514cd65dfff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=2000"
+       alt="A detailer washing a red sports car under garage lights">
+  <div class="wrap">
+    <p class="kicker">Reno &amp; Sparks · since 2016</p>
+    <h1>We make it look like the day you bought it</h1>
+    <p class="sub">Two of us, one bay on Kietzke Lane, and a booking page that
+      gives you a real price before you commit to anything.</p>
+    <div class="btnrow">
+      <a class="btn" href="#book">Book a slot</a>
+      <a class="btn ghost" href="#prices">See prices</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THE NUMBERS (TASTE-NOTES § 3.5) — every one a fact about the shop ═══ -->
+<div class="stats">
+  <div class="stat"><b>9</b><span>Years on Kietzke</span></div>
+  <div class="stat"><b>4,180</b><span>Cars through the bay</span></div>
+  <div class="stat"><b>4.9</b><span>Google, 213 reviews</span></div>
+  <div class="stat"><b>2</b><span>People, both named below</span></div>
+</div>
+
+<!-- ═══ THE WALL — the page's noun. Plates, not icon cards. ═══ -->
+<section class="band paper" id="prices">
+  <div class="wrap">
+    <p class="kicker">What we do</p>
+    <h2>Three jobs. Pick the one that matches the car.</h2>
+    <p class="dim" style="margin-top:14px">Prices below are for a mid-size car.
+      A truck or a three-row SUV costs more, and the table under this says
+      exactly how much — no “call for a quote”.</p>
+
+    <div class="wall">
+      <article class="plate">
+        <div class="shot">
+          <img src="https://images.unsplash.com/photo-1641494639501-b0bd9fb90ecc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900"
+               alt="A car being washed by hand, foam over the front wing">
+        </div>
+        <div class="body">
+          <h3>Maintenance wash</h3>
+          <p>Hand wash, wheels, tyres dressed, glass, a quick vacuum. About 90
+            minutes. The one to book every few weeks.</p>
+          <div class="price"><b data-from="calculate-booking">$95</b><span>from</span></div>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="shot">
+          <img src="https://images.unsplash.com/photo-1771491237218-cbd4a707497e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900"
+               alt="A detailer spraying and wiping the dashboard of a car interior">
+        </div>
+        <div class="body">
+          <h3>Full interior</h3>
+          <p>Every seam, every vent, seats extracted, carpets shampooed, glass
+            done last. Four to five hours, and pet hair is extra.</p>
+          <div class="price"><b data-from="calculate-booking">$260</b><span>from</span></div>
+        </div>
+      </article>
+      <article class="plate">
+        <div class="shot">
+          <img src="https://images.unsplash.com/photo-1761934657948-708146148588?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900"
+               alt="A plush microfibre towel laid on the glossy black paint of a car bonnet">
+        </div>
+        <div class="body">
+          <h3>Paint correction &amp; ceramic</h3>
+          <p>One or two machine stages depending on what the paint needs, then
+            a nine-hour cure. Booked as a full day.</p>
+          <div class="price"><b data-from="calculate-booking">$690</b><span>from</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THE LADDER — the trade's own way of pricing, and what the engine
+     already computes. `vehicle_size_fee` per size, from the profile. ═══ -->
+<section class="band">
+  <div class="wrap">
+    <p class="kicker">By vehicle size</p>
+    <h2>The bigger it is, the longer it takes</h2>
+    <table class="ladder">
+      <thead>
+        <tr><th scope="col">Size</th><th scope="col">Wash</th><th scope="col">Interior</th><th scope="col">Correction</th></tr>
+      </thead>
+      <tbody data-from="get_public_business_profile.vehicle_sizes + calculate-booking">
+        <tr><td>Coupe / sedan<br><span class="dim" style="font-weight:400;font-size:14px">Civic, 3-Series, Camry</span></td><td data-h="Wash">$95</td><td data-h="Interior">$260</td><td data-h="Correction">$690</td></tr>
+        <tr><td>Crossover / small SUV<br><span class="dim" style="font-weight:400;font-size:14px">RAV4, CX-5, Forester</span></td><td data-h="Wash">$115</td><td data-h="Interior">$300</td><td data-h="Correction">$760</td></tr>
+        <tr><td>Truck / large SUV<br><span class="dim" style="font-weight:400;font-size:14px">F-150, Tahoe, Sequoia</span></td><td data-h="Wash">$140</td><td data-h="Interior">$355</td><td data-h="Correction">$860</td></tr>
+        <tr><td>Three-row / van<br><span class="dim" style="font-weight:400;font-size:14px">Suburban, Odyssey, Sprinter</span></td><td data-h="Wash">$165</td><td data-h="Interior">$410</td><td data-h="Correction">$960</td></tr>
+      </tbody>
+    </table>
+    <p class="note" style="margin-top:18px">
+      Every figure on this page comes from the booking engine, not from this
+      file — pick a service and a size on the form below and you get the real
+      total before you enter a card. <strong>Heavy pet hair, sand, smoke or
+      spilled milk is quoted after we see it</strong>, and we will always ask
+      before doing anything extra.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ WHO — the people, named, because that is what stops a page reading
+     as a franchise. Two of his five references end on a person or a phone. ═══ -->
+<section class="band paper">
+  <div class="wrap two">
+    <div>
+      <p class="kicker">Who does it</p>
+      <h2>Marco and Dee. That is the whole shop.</h2>
+      <p style="margin-top:14px">Marco opened the bay in 2016 after nine years
+        at a Reno dealership doing lot prep. Dee runs the interiors and does
+        every extraction herself. If you book, one of those two people is the
+        one working on your car — there is nobody else to hand it to.</p>
+      <ul class="creds">
+        <li>IDA Certified Detailer (Marco, 2019)</li>
+        <li>Gtechniq Accredited — Crystal Serum Light</li>
+        <li>Licensed and insured in Washoe County · WC-2016-4471</li>
+        <li>Water reclaimed on site; nothing goes down the storm drain</li>
+      </ul>
+    </div>
+    <!-- Swapped after looking: the first choice here was a race car in full
+         number-99 livery, which is a real photograph of a real thing and the
+         wrong thing to put beside "Marco and Dee, that is the whole shop". -->
+    <img src="https://images.unsplash.com/photo-1658244546876-d82cbf1a1c9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1100"
+         alt="A hand guiding a rotary polisher across the bonnet of a dark car">
+  </div>
+</section>
+
+<!-- ═══ REVIEWS — with a rating, which three of the five references carry ═══ -->
+<section class="band tight">
+  <div class="wrap">
+    <p class="kicker">4.9 on Google · 213 reviews</p>
+    <h2>What people say after</h2>
+    <div class="reviews">
+      <blockquote class="review">
+        <div class="stars" aria-label="Five out of five">★★★★★</div>
+        <p>“Booked it on my phone at eleven at night and got a real price on
+          the screen. No calling round for quotes. Truck came back better than
+          the day I picked it up.”</p>
+        <cite>Alonso R. · F-150</cite>
+      </blockquote>
+      <blockquote class="review">
+        <div class="stars" aria-label="Five out of five">★★★★★</div>
+        <p>“Two kids and a dog. Dee spent five hours on the back seats and I
+          genuinely cannot tell anyone ever sat there.”</p>
+        <cite>Priya M. · Odyssey</cite>
+      </blockquote>
+      <blockquote class="review">
+        <div class="stars" aria-label="Four out of five">★★★★☆</div>
+        <p>“Correction took the whole day like they said it would. Swirls under
+          the shop lights are gone. Only marking it four because parking on
+          Kietzke is a nightmare.”</p>
+        <cite>Ben T. · GR86</cite>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BOOK — the form is IN the page, in this page's own design ═══ -->
+<section class="band paper" id="book">
+  <div class="wrap">
+    <p class="kicker">Book it</p>
+    <h2>Real price, then a real slot</h2>
+    <p style="margin-top:14px;max-width:60ch">Nothing here is a request for a
+      call back. Pick what you want and the total appears; pick a time and it
+      is held while you finish.</p>
+
+    <form class="form" onsubmit="return false">
+      <div class="f">
+        <label for="svc">What do you want done</label>
+        <!-- SERVICES come from `get_public_business_profile`. A hard-coded
+             list here goes stale the day the detailer edits their catalogue,
+             and nothing on any screen would say so. -->
+        <select id="svc" data-from="get_public_business_profile.services">
+          <option>Maintenance wash</option>
+          <option>Full interior</option>
+          <option>Paint correction &amp; ceramic</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <div class="f">
+          <label for="size">Vehicle size</label>
+          <select id="size" data-from="get_public_business_profile.vehicle_sizes">
+            <option>Coupe / sedan</option>
+            <option>Crossover / small SUV</option>
+            <option>Truck / large SUV</option>
+            <option>Three-row / van</option>
+          </select>
+        </div>
+        <div class="f">
+          <label for="when">Day</label>
+          <!-- OPEN DAYS AND TIMES come from `available-slots` and nothing
+               else: the buffer, the lead time, the day-off rules and the
+               travel time are all decided there. A site that filters its own
+               calendar offers slots the server then refuses, which costs a
+               customer their booking and is invisible from every screen. -->
+          <select id="when" data-from="available-slots">
+            <option>Tue 9 Sep — 8:00 AM</option>
+            <option>Tue 9 Sep — 11:30 AM</option>
+            <option>Wed 10 Sep — 8:00 AM</option>
+            <option>Thu 11 Sep — 1:00 PM</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="f"><label for="nm">Your name</label><input id="nm" autocomplete="name"></div>
+        <div class="f"><label for="ph">Phone</label><input id="ph" type="tel" autocomplete="tel"></div>
+      </div>
+      <div class="quote">
+        <div>
+          <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--paper-dim)">Your total</div>
+          <div class="note" style="margin-top:4px">Worked out by <code>calculate-booking</code>. This page computes nothing.</div>
+        </div>
+        <b data-from="calculate-booking">$95</b>
+      </div>
+      <div class="btnrow">
+        <button class="btn" type="submit">Confirm this booking</button>
+        <a class="btn ghost" href="tel:+17755550142">Or call (775) 555-0142</a>
+      </div>
+      <p class="note">
+        We hold the slot the moment you confirm. You will get an email with a
+        link to move or cancel it yourself, and a reminder the day before.
+      </p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap frow">
+    <div>
+      <div class="mark">Apex<span>.</span></div>
+      <p class="dim" style="margin:0">4120 Kietzke Lane, Reno NV 89502<br>
+        Tue–Sat, 8:00 AM – 5:30 PM · closed Sun &amp; Mon</p>
+    </div>
+    <div>
+      <p class="dim" style="margin:0">
+        <a href="tel:+17755550142">(775) 555-0142</a><br>
+        <a href="mailto:book@apexautospa.example">book@apexautospa.example</a>
+      </p>
+    </div>
+    <div>
+      <p class="dim" style="margin:0;max-width:34ch;font-size:13.5px">
+        Estimates are for a vehicle in ordinary condition. Excessive pet hair,
+        sand, smoke damage or biological spills are quoted on inspection.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* Demo only. A live build re-quotes through `calculate-booking` — this
+     exists so the page can be LOOKED AT with something in it, and it is the
+     one place a real build deletes rather than edits. */
+  (function () {
+    var base = { "Maintenance wash": 95, "Full interior": 260, "Paint correction & ceramic": 690 };
+    var add  = { "Coupe / sedan": 0, "Crossover / small SUV": 20, "Truck / large SUV": 45, "Three-row / van": 70 };
+    var svc = document.getElementById("svc"), size = document.getElementById("size");
+    var out = document.querySelector(".quote b");
+    function draw() {
+      var n = (base[svc.value] || 0) + (add[size.value] || 0);
+      out.textContent = "$" + n;
+    }
+    svc.addEventListener("change", draw);
+    size.addEventListener("change", draw);
+    draw();
+  }());
+</script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cedar &amp; Chrome — three cars a day, Bend OR</title>
+<!--
+  ══════════════════════════════════════════════════════════════════════════
+  TENANT SITE k — CEDAR & CHROME
+  ══════════════════════════════════════════════════════════════════════════
+  The third page built to `docs/TASTE-NOTES.md` § 3, and the one that had to
+  work hardest not to become sites i and j again.
+
+  ── THE TENSION ──────────────────────────────────────────────────────────
+  **Booked out, without being smug about it.** A shop that only takes three
+  cars a day has one real message — you cannot just turn up — and the whole
+  risk is that saying it sounds like bragging. The page answers it by being
+  USEFUL about the constraint instead of proud of it: it shows the day, so
+  you can see for yourself which of the three is left.
+
+  ── WHAT THIS PAGE *IS*, IN ONE NOUN ─────────────────────────────────────
+  **A DAY'S SCHEDULE.** Three slots, in order, each one a job with a time and
+  a length. That noun decides everything:
+      the day → what fits in each slot → the ladder → the shop → book.
+  There is no services SECTION, because on this page a service is a slot.
+
+  ── HOW IT DIFFERS FROM i AND j, DELIBERATELY ────────────────────────────
+  **The ground is PAINTED.** i alternates ink and white starting dark; j
+  alternates white and ink starting light; this one's dominant ground is a
+  colour, with white bands cut into it — a third KIND, which is the rule that
+  came out of sites 1 and 2 both arriving dark with nothing asking for it.
+  The accent is therefore the ground itself, which is also why this page has
+  no second colour to spend.
+  i is a showroom wall (Anton, blue). j is a scoreboard (Bebas, orange).
+  This is a schedule (Saira Condensed, red-as-ground).
+
+  ── ITS REFUSAL LIST ─────────────────────────────────────────────────────
+  · No serif. · No "limited availability" banner — the schedule IS that, and
+    a countdown is the one thing that would make the constraint read as a
+    sales tactic. · No before/after slider: everybody has one.
+  · No photograph of a car this shop would never see. Site j's first hero was
+    a Bugatti on a one-van mobile page and it contradicted the only claim the
+    page was making.
+
+  ── PRICES ───────────────────────────────────────────────────────────────
+  Every figure carries `data-from` naming the endpoint that owns it. A rate
+  typed into a tenant's HTML is *a number PRINTED is not a number CHARGED*
+  with the two numbers in two codebases (docs/tenant-site-contract.md).
+
+  CONTRAST, COMPUTED OUT OF THIS FILE AND THEN RE-WRITTEN FROM THE
+  MEASUREMENT (4.5:1 text, 3:1 control edges) — see the block under the
+  tokens for the figures, which are printed there so they sit beside the
+  values they describe rather than at the top of a file nobody scrolls back
+  to.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;500;700&family=Saira+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* THE GROUND IS THE COLOUR. Everything else is cut out of it. */
+  --red:#A81F14;        /* the painted ground */
+  --red-2:#8E1810;      /* the same paint, one step down, for a nested block */
+  --on-red:#FFF6F4;     /* what goes ON the paint */
+  --on-red-dim:#F6CDC7; /* the quiet voice on the paint — 5.04:1, see below */
+  --paper:#FBFAF8; --paper-2:#F0EEEA; --fg:#161310; --dim:#54504A;
+  --red-ink:#8E1810;    /* the same red as WORDS on paper */
+  --edge-r:#E7A79F; --edge-p:#8B857D;   /* control edges — 3:1 */
+  --rule-r:#C0524A; --rule-p:#DEDAD3;   /* decorative hairlines */
+  /* Saira Condensed at 700/800 is the "huge, heavy, condensed" face; Karla
+     is a grotesque with real, slightly odd numerals that keep a price list
+     from looking like a spreadsheet. Neither is a never-default and neither
+     appears on the eight pages before this one. */
+  --display:"Saira Condensed",'Arial Narrow',system-ui,sans-serif;
+  --body:"Karla",system-ui,-apple-system,sans-serif;
+  --wrap:1120px;
+}
+/* MEASURED, NOT ASSUMED — the figures below were re-written from the
+   calculator after the first set, typed from judgement, were all wrong by
+   about a point. Site 1 in this folder shipped a comment claiming 4.5:1 over
+   a token at 3.93.
+     --on-red     #FFF6F4 on --red   #A81F14 ....... 6.88:1
+     --on-red-dim #F6CDC7 on --red   #A81F14 ....... 5.04:1
+     --on-red-dim #F6CDC7 on --red-2 #8E1810 ....... 6.33:1
+     --on-red     #FFF6F4 on --red-2 #8E1810 ....... 8.63:1
+     --fg         #161310 on --paper #FBFAF8 ...... 17.74:1
+     --dim        #54504A on --paper #FBFAF8 ....... 7.67:1
+     --dim        #54504A on --paper-2 #F0EEEA ..... 6.91:1
+     --red-ink    #8E1810 on --paper #FBFAF8 ....... 8.80:1
+     --edge-r     #E7A79F on --red   #A81F14 ....... 3.63:1  (control edge)
+     --edge-p     #8B857D on --paper #FBFAF8 ....... 3.50:1  (control edge)
+   A DECORATIVE HAIRLINE IS A DIFFERENT TOKEN and is allowed to be quiet.
+
+   **AND `--on-red-dim` FAILED ON ITS FIRST RUN AT 4.41:1** — #F0BDB6, drawing
+   the kickers, the stat labels, the table headings and every form label on
+   the painted ground. Real text, under a comment claiming 4.55. It is #F6CDC7
+   now. That is the third page in this folder where the FIRST set of ratios
+   was typed from judgement and the calculator disagreed with all of them;
+   the rule that comes out of it is that a contrast comment is written AFTER
+   the run, never before. */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--red);color:var(--on-red);font-family:var(--body);
+  font-size:17px;line-height:1.58;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 22px}
+.band{padding:70px 0}
+.band.paper{background:var(--paper);color:var(--fg)}
+.band.paper .dim{color:var(--dim)}
+.dim{color:var(--on-red-dim)}
+.band.tight{padding:44px 0}
+
+h1,h2,h3{font-family:var(--display);font-weight:800;text-transform:uppercase;margin:0;line-height:.92;letter-spacing:-.005em}
+/* **CAPPED AT 100, NOT 128, AND THE REASON IS THE FOLD.** At 128 the
+   headline ran to five lines and pushed the photograph to 815px down a
+   900px screen — so the page's own rule (TASTE-NOTES § 3.1, a real car
+   photograph AT SCALE, in five of his five references) was true of the
+   markup and false of what anybody saw. Found by looking at the shot, not
+   by reading the CSS. */
+h1{font-size:clamp(44px,8vw,100px)}
+h2{font-size:clamp(32px,5.4vw,60px)}
+h3{font-size:clamp(20px,2.2vw,26px)}
+p{margin:0 0 15px;max-width:60ch}
+.kicker{font-weight:700;font-size:11.5px;letter-spacing:.17em;text-transform:uppercase;margin:0 0 10px;color:var(--on-red-dim)}
+.band.paper .kicker{color:var(--red-ink)}
+
+.topbar .wrap{display:flex;align-items:center;gap:16px;padding-top:22px}
+.mark{font-family:var(--display);font-weight:800;font-size:23px;letter-spacing:.03em;text-transform:uppercase}
+.topbar .tel{margin-left:auto;font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
+
+/* ── HERO — the photograph sits INSIDE the paint rather than under it ──
+   TASTE-NOTES § 3.1 (a real car photograph at scale) resolved a third way:
+   full bleed in i, a card on white in j, and here a wide plate held in the
+   coloured ground, which is DETAILED.NY's shape and the reason the paint
+   reads as a design rather than as a background. */
+.hero{padding:30px 0 8px}
+.hero h1{max-width:16ch;margin-bottom:16px}
+.hero .sub{font-size:clamp(16px,1.9vw,21px);max-width:42ch;margin:0 0 24px;color:var(--on-red)}
+.plate{border-radius:10px;overflow:hidden;aspect-ratio:16/7;background:var(--red-2);margin-top:30px}
+.plate img{width:100%;height:100%;object-fit:cover}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 27px;
+  border:0;border-radius:2px;cursor:pointer;background:var(--on-red);color:var(--red-2);
+  font-family:var(--body);font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--on-red);border:1px solid var(--edge-r)}
+.band.paper .btn{background:var(--red-ink);color:var(--paper)}
+.band.paper .btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--edge-p)}
+.btnrow{display:flex;gap:11px;flex-wrap:wrap}
+
+/* ── THE DAY — the noun, made literal. Three slots, in order. ─────────── */
+.day{margin-top:30px;border-top:1px solid var(--rule-p)}
+.slot{display:grid;grid-template-columns:118px 1fr 200px;gap:24px;padding:26px 0;border-bottom:1px solid var(--rule-p);align-items:start}
+.slot .t{font-family:var(--display);font-weight:800;font-size:clamp(26px,3vw,36px);line-height:1;color:var(--red-ink)}
+.slot .t small{display:block;font-family:var(--body);font-weight:500;font-size:12.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--dim);margin-top:7px}
+.slot h3{margin-bottom:7px}
+.slot .w p{font-size:15.5px;color:var(--dim);margin:0 0 10px}
+.slot ul{margin:0;padding-left:18px;font-size:15px;color:var(--dim)}
+.slot .p{text-align:right}
+.slot .p b{font-family:var(--display);font-weight:800;font-size:clamp(30px,3.4vw,40px);line-height:1;display:block}
+.slot .p span{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.taken{opacity:.55}
+.taken .p b{text-decoration:line-through}
+
+/* ── THE NUMBERS (§ 3.5) — inside the paint, so they read as the shop's
+   own claim rather than as a widget bolted under the fold. */
+.figs{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:34px}
+.figs b{display:block;font-family:var(--display);font-weight:800;font-size:clamp(32px,4.6vw,50px);line-height:1}
+.figs span{display:block;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--on-red-dim);margin-top:6px;font-weight:700}
+
+/* ── LADDER ────────────────────────────────────────────────────────────── */
+.ladder{width:100%;border-collapse:collapse;margin-top:22px;font-variant-numeric:tabular-nums}
+.ladder th,.ladder td{text-align:left;padding:14px 12px;border-bottom:1px solid var(--rule-r)}
+.ladder th{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--on-red-dim);font-weight:700}
+.ladder td:first-child{font-weight:700}
+.ladder td:not(:first-child),.ladder th:not(:first-child){text-align:right}
+.ladder td:not(:first-child){font-family:var(--display);font-weight:700;font-size:23px}
+
+/* ── THE SHOP ──────────────────────────────────────────────────────────── */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.two img{border-radius:8px}
+.creds{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:9px}
+.creds li{display:flex;gap:11px;font-size:15px;align-items:flex-start}
+.creds li::before{content:"";flex:none;width:9px;height:9px;margin-top:7px;background:var(--red-ink);border-radius:1px}
+
+/* ── FORM ──────────────────────────────────────────────────────────────── */
+.form{margin-top:26px;display:grid;gap:16px;max-width:700px}
+.f label{display:block;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-bottom:6px;color:var(--on-red-dim)}
+.f input,.f select{width:100%;min-height:52px;padding:12px 14px;font:inherit;font-size:16px;
+  background:var(--red-2);color:var(--on-red);border:1px solid var(--edge-r);border-radius:2px}
+.f input:focus-visible,.f select:focus-visible,.btn:focus-visible{outline:3px solid var(--on-red);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quote{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-top:1px solid var(--rule-r);padding-top:16px}
+.quote b{font-family:var(--display);font-weight:800;font-size:44px;line-height:1}
+.note{font-size:13.5px;color:var(--on-red-dim);max-width:64ch}
+.band.paper .note{color:var(--dim)}
+
+footer{background:var(--red-2);padding:38px 0 50px;font-size:14.5px}
+.frow{display:flex;gap:34px;flex-wrap:wrap;justify-content:space-between}
+
+@media (max-width:900px){
+  .two{grid-template-columns:1fr;gap:24px}
+  .figs{grid-template-columns:1fr 1fr}
+  .slot{grid-template-columns:106px 1fr;gap:16px}
+  .slot .p{grid-column:2;text-align:left}
+  .slot .p b{display:inline;margin-right:8px}
+}
+@media (max-width:560px){
+  .band{padding:50px 0}
+  .grid2{grid-template-columns:1fr}
+  .plate{aspect-ratio:4/3}
+  /* THE SLOT STOPS BEING COLUMNS. Measured: a time, a job and a price do not
+     share 348px, and the price wrapped under the bullet list where it read as
+     part of it. Same 320-floor idiom the rest of this product uses. */
+  .slot{grid-template-columns:1fr;gap:10px}
+  .slot .p{grid-column:1}
+  /* And the ladder becomes blocks, labels from `data-h`. */
+  .ladder,.ladder tbody,.ladder tr,.ladder td{display:block;width:100%}
+  .ladder thead{display:none}
+  .ladder tr{border-bottom:1px solid var(--rule-r);padding:14px 0}
+  .ladder td{border:0;padding:4px 0;display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+  .ladder td:first-child{display:block;margin-bottom:8px}
+  .ladder td:not(:first-child)::before{content:attr(data-h);font-family:var(--body);font-size:11.5px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--on-red-dim);font-weight:700}
+  .ladder td:not(:first-child){font-size:22px}
+}
+@media (max-width:380px){ .wrap{padding:0 15px} .figs{grid-template-columns:1fr 1fr} }
+@media (prefers-reduced-motion:no-preference){
+  .btn{transition:transform .12s ease}
+  .btn:hover{transform:translateY(-1px)}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="mark">Cedar &amp; Chrome</div>
+    <a class="tel" href="tel:+15415550119">(541) 555-0119</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <p class="kicker">Bend, Oregon · one bay on Century Drive</p>
+    <h1>Three cars a day. That is the whole business.</h1>
+    <p class="sub">Not a volume shop. Every slot below is a real block of hours
+      with one car in it, and when they are gone they are gone.</p>
+    <div class="btnrow">
+      <a class="btn" href="#book">Take a slot</a>
+      <a class="btn ghost" href="#day">See today</a>
+    </div>
+    <div class="plate">
+      <img src="https://images.unsplash.com/photo-1658244546876-d82cbf1a1c9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=2000"
+           alt="A rotary polisher being worked slowly across the bonnet of a dark car">
+    </div>
+    <div class="figs">
+      <div><b>3</b><span>Cars a day, never four</span></div>
+      <div><b>6–9</b><span>Hours on each one</span></div>
+      <div><b>11</b><span>Years, same bay</span></div>
+      <div><b>4.9</b><span>Google · 96 reviews</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THE DAY — the noun, made literal ═══ -->
+<section class="band paper" id="day">
+  <div class="wrap">
+    <p class="kicker">A Tuesday, start to finish</p>
+    <h2>What fits in a day, and what it costs</h2>
+    <p class="dim" style="margin-top:12px">Three slots. The middle one is the
+      long one, because a full correction cannot be done around anything else.
+      Prices shown are for a mid-size car — the table underneath says what a
+      truck costs.</p>
+
+    <div class="day">
+      <article class="slot">
+        <div class="t">8:00<small>2–3 hours</small></div>
+        <div class="w">
+          <h3>Morning wash</h3>
+          <p>The one most people book. Out by eleven and clean for a fortnight.</p>
+          <ul>
+            <li>Two-bucket hand wash, wheels and arches first</li>
+            <li>Tar and iron off the paint, not just the surface dirt</li>
+            <li>Glass inside and out, tyres dressed matte</li>
+          </ul>
+        </div>
+        <div class="p"><b data-from="calculate-booking">$110</b><span>from</span></div>
+      </article>
+
+      <article class="slot">
+        <div class="t">11:30<small>5–6 hours</small></div>
+        <div class="w">
+          <h3>Correction &amp; protect</h3>
+          <p>The slot the shop exists for. One or two machine stages depending
+            on what the paint actually needs, then sealed.</p>
+          <ul>
+            <li>Paint read under two lights before anything is touched</li>
+            <li>Compound and polish, or polish alone if that is all it needs</li>
+            <li>Two-year ceramic, or a six-month sealant if you would rather</li>
+          </ul>
+        </div>
+        <div class="p"><b data-from="calculate-booking">$720</b><span>from</span></div>
+      </article>
+
+      <article class="slot taken">
+        <div class="t">2:30<small>3–4 hours</small></div>
+        <div class="w">
+          <h3>Interior deep clean <span class="dim" style="font-family:var(--body);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">— taken today</span></h3>
+          <p>Extraction, every seam, headliner if it needs it. Booked out until
+            the 18th; the form below shows the next one that is actually free.</p>
+          <ul>
+            <li>Seats and carpets hot-water extracted, not just shampooed</li>
+            <li>Vents, seat rails and seat-belt webbing done by hand</li>
+            <li>Leather cleaned and fed, plastics left matte</li>
+          </ul>
+        </div>
+        <div class="p"><b data-from="calculate-booking">$295</b><span>from</span></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THE LADDER, back on the paint ═══ -->
+<section class="band tight">
+  <div class="wrap">
+    <p class="kicker">By vehicle size</p>
+    <h2>What a bigger car adds</h2>
+    <table class="ladder">
+      <thead><tr><th scope="col">Vehicle</th><th scope="col">Wash</th><th scope="col">Correction</th><th scope="col">Interior</th></tr></thead>
+      <tbody data-from="get_public_business_profile.vehicle_sizes + calculate-booking">
+        <tr><td>Coupe or sedan</td><td data-h="Wash">$110</td><td data-h="Correction">$720</td><td data-h="Interior">$295</td></tr>
+        <tr><td>Crossover</td><td data-h="Wash">$130</td><td data-h="Correction">$790</td><td data-h="Interior">$330</td></tr>
+        <tr><td>Truck or large SUV</td><td data-h="Wash">$155</td><td data-h="Correction">$880</td><td data-h="Interior">$385</td></tr>
+        <tr><td>Three-row or van</td><td data-h="Wash">$180</td><td data-h="Correction">$980</td><td data-h="Interior">$440</td></tr>
+      </tbody>
+    </table>
+    <p class="note" style="margin-top:16px">
+      <strong>Heavy pet hair, sand, smoke or a spill is quoted after we see
+      it</strong>, and we ask before doing anything that changes the price.
+      Every figure here is worked out by the booking engine, not typed into
+      this page.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ THE SHOP ═══ -->
+<section class="band paper">
+  <div class="wrap two">
+    <img src="https://images.unsplash.com/photo-1771491237209-b89bc7290588?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+         alt="Hands wiping down the wooden dashboard trim of an older car">
+    <div>
+      <p class="kicker">The bay</p>
+      <h2>Eleven years, one roller door, no second location</h2>
+      <p style="margin-top:12px">Ana took the lease in 2015 and has never taken
+        a fourth car in a day. That is not a marketing line — it is why the
+        11:30 slot can run to six hours without anybody being rushed out of it.</p>
+      <ul class="creds">
+        <li>IDA Certified Detailer · Skills Validated (Ana, 2018)</li>
+        <li>Gyeon Certified Detailer — two-year coatings</li>
+        <li>Licensed in Deschutes County · DC-2015-0881, insured to $2M</li>
+        <li>Closed-loop water; the wash bay drains to a separator, not the street</li>
+      </ul>
+      <div class="btnrow" style="margin-top:22px"><a class="btn" href="#book">Take a slot</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BOOK ═══ -->
+<section class="band" id="book">
+  <div class="wrap">
+    <p class="kicker">Book it</p>
+    <h2>The next slots that are genuinely free</h2>
+    <form class="form" onsubmit="return false">
+      <div class="f">
+        <label for="svc">Which slot</label>
+        <select id="svc" data-from="get_public_business_profile.services">
+          <option>Morning wash</option><option>Correction &amp; protect</option><option>Interior deep clean</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <div class="f"><label for="size">Vehicle</label>
+          <select id="size" data-from="get_public_business_profile.vehicle_sizes">
+            <option>Coupe or sedan</option><option>Crossover</option>
+            <option>Truck or large SUV</option><option>Three-row or van</option>
+          </select></div>
+        <div class="f"><label for="when">Day and time</label>
+          <!-- OPEN TIMES from `available-slots` and nothing else. On a page
+               whose whole argument is scarcity, a slot this file invented and
+               the server then refuses is the worst failure available: it
+               costs a customer their booking and is invisible from every
+               screen the detailer has. -->
+          <select id="when" data-from="available-slots">
+            <option>Wed 10 Sep — 8:00 AM</option><option>Thu 11 Sep — 11:30 AM</option>
+            <option>Fri 12 Sep — 8:00 AM</option><option>Mon 15 Sep — 2:30 PM</option>
+          </select></div>
+      </div>
+      <div class="grid2">
+        <div class="f"><label for="nm">Your name</label><input id="nm" autocomplete="name"></div>
+        <div class="f"><label for="ph">Phone</label><input id="ph" type="tel" autocomplete="tel"></div>
+      </div>
+      <div class="quote">
+        <div><div style="font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700">Your total</div>
+          <div class="note" style="margin-top:4px">From <code>calculate-booking</code>. This page works nothing out.</div></div>
+        <b data-from="calculate-booking">$110</b>
+      </div>
+      <div class="btnrow">
+        <button class="btn" type="submit">Take this slot</button>
+        <a class="btn ghost" href="tel:+15415550119">Or call (541) 555-0119</a>
+      </div>
+      <p class="note">The slot is held the moment you confirm. You get an email
+        with a link to move or cancel it yourself, and a reminder the day before.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap frow">
+    <div>
+      <div class="mark">Cedar &amp; Chrome</div>
+      <p class="dim" style="margin:6px 0 0">1180 SW Century Drive, Bend OR 97702<br>
+        Tue–Sat · three slots a day · closed Sun &amp; Mon</p>
+    </div>
+    <div><p class="dim" style="margin:0">
+      <a href="tel:+15415550119">(541) 555-0119</a><br>
+      <a href="mailto:book@cedarandchrome.example">book@cedarandchrome.example</a></p></div>
+    <div><p class="dim" style="margin:0;max-width:32ch;font-size:13px">
+      Prices are for a vehicle in ordinary condition. Excessive pet hair, sand,
+      smoke damage or biological spills are quoted on inspection.</p></div>
+  </div>
+</footer>
+
+<script>
+  /* Demo only — a live build re-quotes through `calculate-booking`. */
+  (function () {
+    var base = { "Morning wash": 110, "Correction & protect": 720, "Interior deep clean": 295 };
+    var add = { "Coupe or sedan": 0, "Crossover": 20, "Truck or large SUV": 45, "Three-row or van": 70 };
+    var svc = document.getElementById("svc"), size = document.getElementById("size");
+    var out = document.querySelector(".quote b");
+    function draw() { out.textContent = "$" + ((base[svc.value] || 0) + (add[size.value] || 0)); }
+    svc.addEventListener("change", draw); size.addEventListener("change", draw); draw();
+  }());
+</script>
+</body>
+</html>

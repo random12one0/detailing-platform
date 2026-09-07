@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northside Detail Co. — mobile detailing, Columbus OH</title>
+<!--
+  ══════════════════════════════════════════════════════════════════════════
+  TENANT SITE j — NORTHSIDE DETAIL CO.
+  ══════════════════════════════════════════════════════════════════════════
+  Built to `docs/TASTE-NOTES.md` § 3, like site i, and deliberately NOT like
+  it. The rule that made the earlier set fail was three agents given one brief
+  producing one family; the guard is that each page resolves the SAME house
+  rules against a different tension and a different noun.
+
+  ── THE TENSION ──────────────────────────────────────────────────────────
+  **A one-van operation that has to look like it will still be there next
+  year.** A solo mobile detailer's real problem is not taste, it is doubt: the
+  customer is handing over a driveway and a set of keys to somebody with no
+  shopfront. Everything loud on this page is loud about CONTINUITY.
+
+  ── WHAT THIS PAGE *IS*, IN ONE NOUN ─────────────────────────────────────
+  **A SCOREBOARD.** It keeps score, in public, and the score is the argument.
+  That noun decides the order:
+      the count first → hero → the run of work (a fixture list, not cards)
+      → the ladder → the van and the man → book.
+  **The numbers come BEFORE the hero**, which none of the other eight pages
+  does and which is the whole difference between "we are good" and "here is
+  the evidence".
+
+  ── HOW IT DIFFERS FROM SITE i, ON PURPOSE ───────────────────────────────
+  i starts DARK and alternates to white; **this starts LIGHT.** i is a
+  showroom wall of plates; this is a fixture list of dates. i is blue; this is
+  orange. i is Anton (a poster face); this is Bebas Neue over Sora.
+  **No two pages in this folder share a KIND of ground** — the rule that came
+  out of sites 1 and 2 both coming out dark with nothing asking for it.
+
+  ── ITS REFUSAL LIST ─────────────────────────────────────────────────────
+  · No serif. · No second accent. · No "our process in four steps" —
+    the fixture list already IS the process, in dates.
+  · No hero with an empty driveway. A van with nobody in it is a business
+    that might not exist.
+
+  ── PRICES ───────────────────────────────────────────────────────────────
+  Every figure carries `data-from` naming the endpoint that owns it. A rate
+  typed into a tenant's HTML is *a number PRINTED is not a number CHARGED*
+  with the two numbers in two codebases (docs/tenant-site-contract.md).
+
+  CONTRAST, COMPUTED OUT OF THIS FILE (4.5:1 text, 3:1 control edges):
+      --fg      #14120F on --paper #FFFFFF ........ 18.70:1
+      --dim     #55524C on --paper #FFFFFF .........  7.78:1
+      --dim     #55524C on --paper-2 #F4F3F1 .......  7.02:1
+      --hot-ink #A33500 on --paper #FFFFFF .........  6.85:1  (orange as WORDS)
+      --ink-fg  #F5F2EC on --ink   #17140F ........ 16.44:1
+      --ink-dim #ADA69B on --ink   #17140F .........  7.61:1
+      --hot     #FF8A3D on --ink   #17140F .........  7.83:1
+      --on-hot  #2B0E00 on --hot   #FF8A3D .........  7.68:1
+      --edge-p  #8C8880 on --paper #FFFFFF .........  3.53:1  (control edges)
+      --edge-i  #6E6960 on --ink   #17140F .........  3.37:1  (control edges)
+  **EVERY FIGURE ABOVE WAS RE-WRITTEN FROM THE MEASUREMENT.** The ten typed
+  from judgement before running the calculator were all within about a point
+  and every one of them was WRONG — which is precisely how site 1 shipped a
+  comment claiming 4.5:1 over a token at 3.93.
+  A DECORATIVE HAIRLINE IS A DIFFERENT TOKEN (`--rule`) and is allowed to be
+  quiet — site 1 in this folder conflated the two and shipped form borders at
+  1.29:1, and site i's first draft did it again at 1.93:1.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF; --paper-2:#F4F3F1; --fg:#14120F; --dim:#55524C;
+  --ink:#17140F; --ink-fg:#F5F2EC; --ink-dim:#ADA69B;
+  --hot:#FF8A3D;        /* orange on the dark ground */
+  --hot-ink:#A33500;    /* the same orange as WORDS on white, corrected */
+  --on-hot:#2B0E00;     /* what goes ON the orange */
+  --edge-p:#8C8880; --edge-i:#6E6960;      /* control edges — 3:1 */
+  --rule-p:#E2E0DC; --rule-i:#2E2A23;      /* decorative hairlines */
+  /* Bebas Neue is caps-only by design, which is exactly the "huge, heavy,
+     condensed" job of the references and cannot drift into being a body face.
+     Sora carries everything a person reads: a geometric grotesque with real
+     numerals, and not one of the never-defaults. */
+  --display:"Bebas Neue",'Arial Narrow',system-ui,sans-serif;
+  --body:"Sora",system-ui,-apple-system,sans-serif;
+  --wrap:1150px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--fg);font-family:var(--body);font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 22px}
+.band{padding:70px 0;background:var(--paper);color:var(--fg)}
+.band.dark{background:var(--ink);color:var(--ink-fg)}
+.band.dark .dim{color:var(--ink-dim)}
+.band.tight{padding:44px 0}
+.dim{color:var(--dim)}
+
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;line-height:.9;letter-spacing:.012em}
+h1{font-size:clamp(50px,11vw,140px)}
+h2{font-size:clamp(34px,5.8vw,66px)}
+h3{font-size:clamp(21px,2.3vw,28px)}
+p{margin:0 0 15px;max-width:60ch}
+.kicker{font-weight:700;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--hot-ink);margin:0 0 10px}
+.band.dark .kicker{color:var(--hot)}
+
+/* ── THE SCORE, FIRST — the noun, above the fold, before the picture ────
+   TASTE-NOTES § 3.5. Four of his five references carry a strip like this and
+   all four bury it; putting it first is this page's own answer to its own
+   tension, because the doubt it has to settle is "will you still be here". */
+.score{background:var(--ink);color:var(--ink-fg);padding:26px 0}
+.score .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.score b{display:block;font-family:var(--display);font-size:clamp(34px,5vw,54px);line-height:1;color:var(--hot)}
+.score span{display:block;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);margin-top:6px;font-weight:600}
+
+/* ── HERO — the photograph at scale, on the LIGHT ground ───────────────
+   A card rather than a full bleed, which is DETAILED.NY's shape and keeps
+   this page light where site i's is dark. The type sits beside it at a desk
+   and over it on a phone, so the picture is never decoration. */
+.hero{padding:38px 0 12px}
+.hero .in{display:grid;grid-template-columns:1.02fr .98fr;gap:38px;align-items:center}
+.hero .shot{border-radius:8px;overflow:hidden;aspect-ratio:5/4;background:var(--paper-2)}
+.hero .shot img{width:100%;height:100%;object-fit:cover}
+.hero h1{max-width:11ch}
+.hero .sub{font-size:clamp(15.5px,1.7vw,19px);margin:16px 0 22px;max-width:40ch;color:var(--dim)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 28px;
+  border:0;border-radius:2px;cursor:pointer;background:var(--hot);color:var(--on-hot);
+  font-family:var(--body);font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--edge-p)}
+.band.dark .btn.ghost{color:var(--ink-fg);border-color:var(--edge-i)}
+.btnrow{display:flex;gap:11px;flex-wrap:wrap}
+
+/* ── THE FIXTURE LIST — the noun made literal. Real dates, real cars, real
+   totals. Not "our process": what was actually done, most recent first. */
+.fixtures{margin-top:28px;border-top:1px solid var(--rule-i)}
+.fx{display:grid;grid-template-columns:112px 1fr auto;gap:18px;align-items:baseline;
+    padding:16px 0;border-bottom:1px solid var(--rule-i)}
+.fx .d{font-family:var(--display);font-size:20px;color:var(--hot);letter-spacing:.04em}
+.fx .w{font-size:15.5px}
+.fx .w small{display:block;color:var(--ink-dim);font-size:13.5px;margin-top:3px}
+.fx .n{font-family:var(--display);font-size:26px;font-variant-numeric:tabular-nums}
+
+/* ── THE LADDER ────────────────────────────────────────────────────────── */
+.ladder{width:100%;border-collapse:collapse;margin-top:24px;font-variant-numeric:tabular-nums}
+.ladder th,.ladder td{text-align:left;padding:15px 12px;border-bottom:1px solid var(--rule-p)}
+.ladder th{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.ladder td:first-child{font-weight:600}
+.ladder td:not(:first-child),.ladder th:not(:first-child){text-align:right}
+.ladder td:not(:first-child){font-family:var(--display);font-size:24px}
+
+/* ── THE VAN AND THE MAN ───────────────────────────────────────────────── */
+.two{display:grid;grid-template-columns:.95fr 1.05fr;gap:40px;align-items:center}
+.two img{border-radius:8px}
+.creds{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:9px}
+.creds li{display:flex;gap:11px;font-size:15px;align-items:flex-start}
+.creds li::before{content:"";flex:none;width:8px;height:8px;margin-top:8px;background:var(--hot-ink);border-radius:50%}
+.band.dark .creds li::before{background:var(--hot)}
+
+/* ── FORM ──────────────────────────────────────────────────────────────── */
+.form{margin-top:26px;display:grid;gap:16px;max-width:700px}
+.f label{display:block;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:6px}
+.f input,.f select{width:100%;min-height:52px;padding:12px 14px;font:inherit;font-size:16px;
+  background:var(--paper);color:var(--fg);border:1px solid var(--edge-p);border-radius:2px}
+.f input:focus-visible,.f select:focus-visible,.btn:focus-visible{outline:3px solid var(--hot-ink);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quote{display:flex;align-items:baseline;justify-content:space-between;gap:16px;border-top:1px solid var(--rule-p);padding-top:16px}
+.quote b{font-family:var(--display);font-size:44px;line-height:1;color:var(--hot-ink)}
+.note{font-size:13.5px;color:var(--dim);max-width:64ch}
+
+footer{background:var(--ink);color:var(--ink-fg);padding:38px 0 50px;font-size:14px}
+footer .dim{color:var(--ink-dim)}
+.frow{display:flex;gap:34px;flex-wrap:wrap;justify-content:space-between}
+.mark{font-family:var(--display);font-size:24px;letter-spacing:.05em}
+.mark em{font-style:normal;color:var(--hot)}
+
+@media (max-width:900px){
+  .hero .in{grid-template-columns:1fr;gap:24px}
+  .two{grid-template-columns:1fr;gap:24px}
+  .score .wrap{grid-template-columns:1fr 1fr;gap:18px}
+}
+@media (max-width:560px){
+  .band{padding:50px 0}
+  .grid2{grid-template-columns:1fr}
+  /* THE FIXTURE LIST STOPS BEING THREE COLUMNS. Measured: 112px of date plus
+     a car plus a total does not share 348px, and the total wrapped under the
+     description where it read as part of it. */
+  .fx{grid-template-columns:1fr auto;gap:6px 14px}
+  .fx .d{grid-column:1/-1}
+  /* And the ladder becomes blocks, the same 320-floor idiom the rest of this
+     product uses: a pair becomes a stack. */
+  .ladder,.ladder tbody,.ladder tr,.ladder td{display:block;width:100%}
+  .ladder thead{display:none}
+  .ladder tr{border-bottom:1px solid var(--rule-p);padding:14px 0}
+  .ladder td{border:0;padding:4px 0;display:flex;justify-content:space-between;align-items:baseline;gap:14px}
+  .ladder td:first-child{display:block;margin-bottom:8px}
+  .ladder td:not(:first-child)::before{content:attr(data-h);font-family:var(--body);font-size:11.5px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+  .ladder td:not(:first-child){font-size:22px}
+}
+@media (max-width:380px){
+  .wrap{padding:0 15px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .btn{transition:transform .12s ease}
+  .btn:hover{transform:translateY(-1px)}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ THE SCORE, BEFORE ANYTHING ELSE — this page's own decision ═══ -->
+<section class="score">
+  <div class="wrap">
+    <div><b>1,914</b><span>Cars since 2019</span></div>
+    <div><b>4.9</b><span>Google · 168 reviews</span></div>
+    <div><b>11</b><span>Days booked ahead</span></div>
+    <div><b>0</b><span>Jobs subcontracted</span></div>
+  </div>
+</section>
+
+<section class="hero">
+  <div class="wrap in">
+    <div>
+      <p class="kicker">Mobile · Clintonville, Worthington, Westerville</p>
+      <h1>We come to your driveway</h1>
+      <p class="sub">One van, one person, water and power on board. Book a slot
+        and I turn up — there is nobody else to send.</p>
+      <div class="btnrow">
+        <a class="btn" href="#book">Check my slots</a>
+        <a class="btn ghost" href="#prices">What it costs</a>
+      </div>
+    </div>
+    <div class="shot">
+      <!-- **THE FIRST PHOTOGRAPH HERE WAS A BUGATTI, AND IT FAILED TWICE
+           OVER — found by LOOKING at the rendered page, not by reading the
+           alt text.** A hypercar on a one-van mobile detailer's page in
+           Columbus contradicts the only claim the page is making, and the
+           detailer's shirt carried another company's mark legibly, which on
+           a client's site reads as an endorsement they never gave — the exact
+           defect site 2 in this folder already shipped once.
+           **Alt text does not mention badges.** Every candidate is rendered
+           to a contact sheet and looked at now, before one is chosen. -->
+      <img src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1400"
+           alt="A machine polisher being worked along the front wing of a dark car">
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THE FIXTURE LIST — the noun, made literal ═══ -->
+<section class="band dark tight">
+  <div class="wrap">
+    <p class="kicker">Recently</p>
+    <h2>The last eight jobs, in order</h2>
+    <p class="dim" style="margin-top:12px">Not a gallery. What was booked, what
+      it was, and what it came to — so you can see whether the price you are
+      about to be quoted is the price other people actually paid.</p>
+    <div class="fixtures" data-from="the detailer's own completed bookings">
+      <div class="fx"><span class="d">Fri 5 Sep</span><span class="w">Full interior<small>2021 Odyssey · two kids, one retriever</small></span><span class="n">$340</span></div>
+      <div class="fx"><span class="d">Thu 4 Sep</span><span class="w">Maintenance wash<small>2019 Model 3 · fortnightly customer</small></span><span class="n">$105</span></div>
+      <div class="fx"><span class="d">Wed 3 Sep</span><span class="w">Wash + engine bay<small>2016 Tacoma · pre-sale</small></span><span class="n">$185</span></div>
+      <div class="fx"><span class="d">Wed 3 Sep</span><span class="w">Full interior<small>2014 Forester · smoke removal, quoted after inspection</small></span><span class="n">$395</span></div>
+      <div class="fx"><span class="d">Tue 2 Sep</span><span class="w">Maintenance wash<small>2022 CX-5</small></span><span class="n">$115</span></div>
+      <div class="fx"><span class="d">Sat 30 Aug</span><span class="w">Wash + wax<small>2008 Miata · owner's 40th, done at 7am</small></span><span class="n">$165</span></div>
+      <div class="fx"><span class="d">Fri 29 Aug</span><span class="w">Full interior<small>2020 Transit · trade van, four seats</small></span><span class="n">$310</span></div>
+      <div class="fx"><span class="d">Thu 28 Aug</span><span class="w">Maintenance wash<small>2017 Accord</small></span><span class="n">$95</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHAT IT COSTS ═══ -->
+<section class="band" id="prices">
+  <div class="wrap">
+    <p class="kicker">What it costs</p>
+    <h2>Three jobs, priced by how big the vehicle is</h2>
+    <table class="ladder">
+      <thead><tr><th scope="col">Vehicle</th><th scope="col">Wash</th><th scope="col">Wash + wax</th><th scope="col">Full interior</th></tr></thead>
+      <tbody data-from="get_public_business_profile.vehicle_sizes + calculate-booking">
+        <tr><td>Sedan or coupe</td><td data-h="Wash">$95</td><td data-h="Wash + wax">$155</td><td data-h="Full interior">$275</td></tr>
+        <tr><td>Crossover</td><td data-h="Wash">$115</td><td data-h="Wash + wax">$180</td><td data-h="Full interior">$310</td></tr>
+        <tr><td>Truck or large SUV</td><td data-h="Wash">$140</td><td data-h="Wash + wax">$215</td><td data-h="Full interior">$365</td></tr>
+        <tr><td>Van or three-row</td><td data-h="Wash">$165</td><td data-h="Wash + wax">$250</td><td data-h="Full interior">$420</td></tr>
+      </tbody>
+    </table>
+    <p class="note" style="margin-top:16px">
+      There is no travel charge inside the 43214, 43085 and 43081 zip codes.
+      Outside them it is <strong data-from="get_public_business_profile.travel_zones">$25</strong>,
+      and the booking page tells you before you confirm.
+      <strong>Heavy pet hair, sand, smoke or a spill is quoted after I see it</strong>
+      — I will always ask before doing anything extra.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ THE VAN AND THE MAN ═══ -->
+<section class="band dark">
+  <div class="wrap two">
+    <img src="https://images.unsplash.com/photo-1771491237225-01931a752f58?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200"
+         alt="A detailer working inside a car, cleaning around the dashboard">
+    <div>
+      <p class="kicker">Who turns up</p>
+      <h2>Ray. Since 2019, and it has only ever been Ray.</h2>
+      <p style="margin-top:12px">Six years, one van, no crew and no
+        subcontractors — which is the reason the booking page will not sell you
+        a slot I cannot personally work. If the calendar says Thursday at nine,
+        that is me at nine.</p>
+      <ul class="creds">
+        <li>IDA Certified Detailer, 2021</li>
+        <li>$1M general liability · certificate on request</li>
+        <li>400-gallon tank and a 6.5kW generator — I need nothing from you</li>
+        <li>Rinseless wash where water is short; nothing runs into the street</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BOOK ═══ -->
+<section class="band" id="book">
+  <div class="wrap">
+    <p class="kicker">Book it</p>
+    <h2>Pick a slot. It is held the moment you confirm.</h2>
+    <form class="form" onsubmit="return false">
+      <div class="f">
+        <label for="svc">What do you want done</label>
+        <select id="svc" data-from="get_public_business_profile.services">
+          <option>Maintenance wash</option><option>Wash + wax</option><option>Full interior</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <div class="f"><label for="size">Vehicle</label>
+          <select id="size" data-from="get_public_business_profile.vehicle_sizes">
+            <option>Sedan or coupe</option><option>Crossover</option>
+            <option>Truck or large SUV</option><option>Van or three-row</option>
+          </select></div>
+        <div class="f"><label for="when">Slot</label>
+          <!-- OPEN TIMES from `available-slots` and nothing else. The buffer,
+               the lead time, the days off and the travel time are decided
+               there; a site that filters its own calendar offers slots the
+               server then refuses, which costs a customer their booking and
+               is invisible from every screen. -->
+          <select id="when" data-from="available-slots">
+            <option>Mon 15 Sep — 8:00 AM</option><option>Mon 15 Sep — 12:30 PM</option>
+            <option>Tue 16 Sep — 8:00 AM</option><option>Wed 17 Sep — 2:00 PM</option>
+          </select></div>
+      </div>
+      <div class="grid2">
+        <div class="f"><label for="nm">Your name</label><input id="nm" autocomplete="name"></div>
+        <div class="f"><label for="ad">Where the car will be</label><input id="ad" autocomplete="street-address"></div>
+      </div>
+      <div class="quote">
+        <div><div style="font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--dim)">Your total</div>
+          <div class="note" style="margin-top:4px">From <code>calculate-booking</code>. This page works nothing out.</div></div>
+        <b data-from="calculate-booking">$95</b>
+      </div>
+      <div class="btnrow">
+        <button class="btn" type="submit">Book this slot</button>
+        <a class="btn ghost" href="tel:+16145550188">Or text (614) 555-0188</a>
+      </div>
+      <p class="note">You get an email straight away with a link to move or
+        cancel it yourself, and a reminder the evening before.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap frow">
+    <div>
+      <div class="mark">Northside<em>.</em></div>
+      <p class="dim" style="margin:6px 0 0">Mobile only — Clintonville, Worthington,<br>Westerville and Upper Arlington</p>
+    </div>
+    <div><p class="dim" style="margin:0">
+      <a href="tel:+16145550188">(614) 555-0188</a><br>
+      <a href="mailto:ray@northsidedetail.example">ray@northsidedetail.example</a><br>Mon–Sat, 7:30 AM – 6:00 PM</p></div>
+    <div><p class="dim" style="margin:0;max-width:32ch;font-size:13px">
+      Prices are for a vehicle in ordinary condition. Excessive pet hair, sand,
+      smoke damage or biological spills are quoted on inspection.</p></div>
+  </div>
+</footer>
+
+<script>
+  /* Demo only — a live build re-quotes through `calculate-booking`. This is
+     the one block a real build deletes rather than edits. */
+  (function () {
+    var base = { "Maintenance wash": 95, "Wash + wax": 155, "Full interior": 275 };
+    var add = { "Sedan or coupe": 0, "Crossover": 20, "Truck or large SUV": 45, "Van or three-row": 70 };
+    var svc = document.getElementById("svc"), size = document.getElementById("size");
+    var out = document.querySelector(".quote b");
+    function draw() { out.textContent = "$" + ((base[svc.value] || 0) + (add[size.value] || 0)); }
+    svc.addEventListener("change", draw); size.addEventListener("change", draw); draw();
+  }());
+</script>
+</body>
+</html>

@@ -226,6 +226,20 @@ explaining it; if they still have to ask "so should I?", it failed.
   "Warm Editorial"**, which is the diagnosis this repo already wrote, now with
   a name. `docs/tenant-site-briefs-2026-09-07.md` is the five briefs built on
   it — a different pair, skeleton and intent each.
+  **AND THREE MORE ARE BUILT ON HIS OWN REFERENCES — `i-apex`, `j-northside`,
+  `k-cedar`, 2026-09-07, at his ask *"also make the websites"*.** They follow
+  `docs/TASTE-NOTES.md` § 3 rather than the guesses below, and § 4b of that
+  file is the table of what each one resolves. **Four rules came out of
+  building them and they bind the next page:** alt text does not mention
+  badges, so **render every candidate photo to a contact sheet and LOOK at it**
+  (site j's first hero was a Bugatti with another firm's logo on the
+  detailer's shirt); **a contrast comment is written AFTER the calculator
+  runs, never before** — all three had every figure wrong when typed from
+  judgement and two were real failures under a comment claiming a pass; **a
+  decorative hairline and a control's edge are two tokens**; and **"a
+  photograph at scale" is a claim about the FOLD** — k's headline pushed its
+  photo to 815px down a 900px screen and the rule was true of the file and
+  false of the page.
   **ALL FIVE ARE BUILT** (`docs/tenant-sites/d-ridgeline`, `e-kiln`, `f-sudsy`,
   `g-estate`, `h-fleet`) **and § 5 of that file ranks what actually produced
   the variety, which is NOT the family pair.** In order: (1) the **TENSION**
