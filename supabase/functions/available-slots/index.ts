@@ -243,6 +243,13 @@ Deno.serve(async (req) => {
     const advanceMs = settings.min_advance_minutes * 60_000;
     const buffer = settings.buffer_minutes;
 
+    // ROADMAP 8.13 — the detailer's own return date, as a business-local
+    // `YYYY-MM-DD` string or null. Null is every business that has never gone
+    // away, which is all of them until one does.
+    const closedUntil: string | null = business.closed_until
+      ? String(business.closed_until).slice(0, 10)
+      : null;
+
     const dayResults: Record<string, DayResult> = {};
     for (const date of days) {
       const closed: DayResult = {
@@ -251,6 +258,25 @@ Deno.serve(async (req) => {
       };
 
       if (date < todayLocal || (maxDateStr && date > maxDateStr)) {
+        dayResults[date] = closed;
+        continue;
+      }
+
+      // ROADMAP 8.13 — THE DETAILER IS AWAY. Every day up to their return date
+      // is closed, and the day they are BACK is bookable: `closed_until` is the
+      // day they open again, not the last day they are shut.
+      //
+      // **IT IS COMPARED AS TWO BUSINESS-LOCAL DATE STRINGS**, which is the
+      // whole of the timezone question here — `date` and `closedUntil` are
+      // both `YYYY-MM-DD` in the tenant's own zone, so this needs no offset
+      // arithmetic and cannot drift the way F-018's three clocks did.
+      //
+      // AND IT IS INSIDE THE DAY LOOP RATHER THAN A 400 AT THE TOP. A page
+      // asking for a month gets a month of closed days and can draw a calendar
+      // that says so; an error would give a tenant site nothing to render but a
+      // failure, which is how "closed for two weeks" becomes "this business is
+      // broken".
+      if (closedUntil && date < closedUntil) {
         dayResults[date] = closed;
         continue;
       }

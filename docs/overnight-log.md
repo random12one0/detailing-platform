@@ -2485,6 +2485,45 @@ their email address for ever in a suppression list — which is the opposite of
 "delete their info". You said delete, so it deletes. Say the word if you would
 rather keep a permanent do-not-email list instead.
 
+## Two more built, and one thing I found that you should know about
+
+**"Closed until I say it's open" is done (roadmap 8.13).** It's on Business →
+Booking rules, at the top of *When you can be booked*: pick the day you're
+back. Your page stays up and tells customers when you return instead of
+disappearing, and **it reopens itself on the day** — no switch to remember.
+There's an optional line for your own words ("back on the 14th, call me for
+anything urgent"). Measured: 16 open days become 10 while you're away, and 16
+again the moment the date passes.
+
+**I deliberately did NOT reuse the "paused" switch the back office has.** That
+one is what we use to darken a page when a subscription goes unpaid, and if it
+were also your holiday switch, pressing Reopen would put your page back online
+while the bill was still outstanding. Yours is a separate thing.
+
+### And a real security hole, found while building it — already fixed
+
+Every one of the permission rules in this database that said *"a detailer may
+not edit this column"* **was doing nothing at all.** It is a Postgres detail:
+those rules only apply if the broader "you may edit this table" permission is
+taken away first, and it never was. Two of our own files described them as
+working.
+
+So until tonight, any detailer could have edited, directly:
+
+- **their own account status** — meaning a business we'd switched off for an
+  unpaid bill could switch itself back on. That's the one that costs money.
+- **their pricing tier** — giving themselves the founding price.
+- **whether they count as a demo** — taking themselves out of the "3 founding
+  spots left" number on the public pricing page.
+- **our private note about them** in the back office.
+- **their custom web address, and whether it was verified** — which made the
+  verification check decoration.
+
+Nobody has done any of this: there are no detailers on the product. It is
+closed now, proven by trying each one before and after, and the check that
+guards it asks the database by attempting the edit rather than reading the
+migration — which is exactly why the old one never noticed.
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

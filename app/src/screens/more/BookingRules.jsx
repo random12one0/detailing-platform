@@ -138,6 +138,12 @@ export default function BookingRules() {
     // ROADMAP 8.10. 1 is the schema default and the answer for every business
     // that has never been asked, and at 1 the customer never sees a count
     // control at all — the whole feature is off until this moves.
+    // ROADMAP 8.13 — these two live on `businesses`, not `business_settings`,
+    // so the save below writes two tables. They are in this form rather than
+    // on a control of their own because a detailer going away on Friday
+    // should not have to learn a second way of saving.
+    closed_until: business?.closed_until ? String(business.closed_until).slice(0, 10) : "",
+    closed_note: business?.closed_note ?? "",
     max_vehicles_per_booking: settings?.max_vehicles_per_booking ?? 1,
     extra_vehicle_minutes_saved: settings?.extra_vehicle_minutes_saved ?? 15,
   }));
@@ -280,7 +286,19 @@ export default function BookingRules() {
       max_vehicles_per_booking: Number(form.max_vehicles_per_booking) || 1,
       extra_vehicle_minutes_saved: Number(form.extra_vehicle_minutes_saved) || 0,
     }).eq("business_id", business.id);
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
+
+    // ROADMAP 8.13 — the second table. `businesses` is where the pause lives,
+    // deliberately NOT `status`: that column is billing's suspension, and one
+    // column with two meanings would let a detailer switch their own page back
+    // on while their subscription was unpaid.
+    const { error: bizErr } = await supabase.from("businesses").update({
+      closed_until: form.closed_until || null,
+      // An empty note is null, not "", so the booking page's `&&` draws
+      // nothing rather than an empty paragraph.
+      closed_note: form.closed_note?.trim() || null,
+    }).eq("id", business.id);
+    const failed = error ?? bizErr;
+    setMsg(failed ? { ok: false, text: failed.message } : { ok: true, text: "Saved." });
     if (!error) { reload(); refreshSlotCount(); }
     setBusy(false);
   };
@@ -410,7 +428,9 @@ export default function BookingRules() {
             why the second row only exists once the first is above one. */}
         <Setting label="Cars in one booking"
           help="Above ten is a phone call, not a booking form.">
-          <Stepper value={form.max_vehicles_per_booking} min={1} max={10} suffix="cars"
+          {/* "1 cars" — found by looking at the screen, not by a check. */}
+          <Stepper value={form.max_vehicles_per_booking} min={1} max={10}
+            suffix={Number(form.max_vehicles_per_booking) === 1 ? "car" : "cars"}
             onChange={(v) => set("max_vehicles_per_booking", v)} />
         </Setting>
 
@@ -426,6 +446,47 @@ export default function BookingRules() {
       </Group>
 
       <Group title="When you can be booked">
+        {/* ROADMAP 8.13 — CLOSED UNTIL I SAY IT'S OPEN, and it is FIRST in
+            this group because when you are away nothing else in it applies.
+
+            **A DATE, NOT A SWITCH, and that is the whole design.** *"Says when
+            they are back"* was the ask, and a date does two things a flag
+            cannot: the customer is told when to come back instead of meeting
+            a page that reads as *gone*, and **the detailer is reopened
+            automatically** — a date in the past is not closed, so a holiday
+            ends by itself rather than waiting to be remembered.
+
+            IT IS NOT `businesses.status`. That column is billing's
+            suspension; one column with two meanings would let a detailer
+            reopen a page the platform had darkened for non-payment. */}
+        <Setting label="Closed until"
+          help={form.closed_until
+            ? "Your page stays up and tells customers when you're back. It reopens itself on the day."
+            : "Going away? Pick the day you're back and the page says so instead of taking bookings."}
+          stacked>
+          <div className="row" style={{ gap: 8, alignItems: "center" }}>
+            <input type="date" value={form.closed_until}
+              min={todayLocal(business.timezone)}
+              onChange={(e) => set("closed_until", e.target.value)} />
+            {form.closed_until && (
+              <button className="btn sm" onClick={() => {
+                set("closed_until", "");
+                set("closed_note", "");
+              }}>Open now</button>
+            )}
+          </div>
+        </Setting>
+
+        {/* Only once there is something to say it about. A note field on a
+            business that is open is a question nobody has an answer to. */}
+        {form.closed_until && (
+          <Setting label="Anything to tell them" stacked>
+            <input value={form.closed_note} maxLength={200}
+              placeholder="Back on the 14th — call for anything urgent"
+              onChange={(e) => set("closed_note", e.target.value)} />
+          </Setting>
+        )}
+
         <Setting label="Gap between jobs"
           help="Held after every booking, to pack up and drive."
           stacked>

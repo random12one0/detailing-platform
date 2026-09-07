@@ -257,6 +257,8 @@ were made more than once.
 
 - **Roadmap 8.11 — delete a customer, which is forget the person and keep the money** — *"there should be an option where if you click on a customer, they just delete their info."* **The two obvious builds are both wrong in opposite directions.** Deleting the bookings destroys the detailer's own takings and `money-export`'s tie-out with them, and no law asks for that; deleting only the `customers` row forgets NOTHING, because `bookings` carries the name, number, address and notes **denormalised on every row** and the screen still prints them. **So the bookings stay and are ANONYMISED in place** — every money column identical to the cent, everything that says who it was cleared, including `admin_notes` (the likeliest home of *"gate code 4471"*) and not including `vehicle_model`, which detached from a person is just what the job WAS. **The photos are the half SQL cannot do**: the FILES are removed before the rows that name them, because the other order loses the paths for ever, and a failed removal aborts the whole deletion. **The count reported comes from STORAGE rather than SQL**, because a `remove` that matched nothing returns an empty list and no error. **Owner only, and that is not the usual permission question** — no tick means *may erase a person*, so it belongs to the owner the way the subscription row does, proven against a staff member holding EVERY tick; `forget_customer` is revoked from `authenticated`, so the edge function is the only door, proven by refusing the OWNER's direct RPC. **The ceiling is stated: deleting the row destroys the opt-out**, and keeping a suppression row means keeping the address for ever. **Four things the checks caught and reading could not:** `[].every()` is true, so three checks reported ok about a deletion that had failed; **an authenticated GET on a deleted storage object still answers 200 from cache**, so "the file is gone" has to ask the bucket what it holds; PostgREST drops a bulk-insert row whose keys differ, which presented as the OWNER being refused rather than as a broken fixture; and the bucket's mime allowlist made the test file never exist, which made its deletion trivially true.
 
+- **Roadmap 8.13 — closed until I say it's open, and why it is not `status`** — *"a detailer-facing pause that keeps the site up and says when they are back."* **The whole decision is the column it is NOT.** `stripe-webhook` uses `businesses.status` for SUSPENSION, so letting a detailer set it themselves means one who closed for a fortnight presses Reopen and **switches their own booking page back on with their subscription unpaid**; one column with two meanings, and the one that loses is the one the platform relies on to be paid. `closed_until` and `closed_note` are their own pair and the two states stack with no rule: closed is open-but-not-taking-bookings, suspended is dark, both is dark. **A DATE, NOT A FLAG**, because a flag reads as *gone* and is the state a detailer forgets to switch off — a date tells the customer when to come back AND reopens the business by itself once it passes. The day named is the day they are BACK, compared as two business-local date strings in all three places that ask, so there is no offset arithmetic to drift. **The page explains ABOVE the still-setting-up screen**, because somebody away and half configured should get the more useful answer; and the sentence under the heading was written and then CUT on looking at it — the first half repeated the heading and the second described our own plumbing. **Proven as behaviour: 16 open days → 10 while closed → 16 again once the date passes.** **Baselining found two vacuous checks in a file written to avoid them**: a return-day check whose escape hatch for a non-trading day passed for a return day the closure itself had shut, and a clock stub that replaced `Date.now` while the code reads `new Date()`, so two timezones agreed and it read as the zone being ignored.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15133,3 +15135,77 @@ asserts its own success now.
 refused with a 415 — which made the file never exist, which made "the file is
 gone" trivially true. The `setup ·` check that asserts the file really is in
 the bucket is the only reason that was visible.
+
+## Roadmap 8.13 — closed until I say it's open, and why it is not `status`
+
+*"A detailer-facing pause that keeps the site up and says when they are
+back."* Before this the only pause was the platform admin setting
+`businesses.status = 'paused'`, and the page then 404'd: a customer met *page
+not found* about a business that exists and is back in nine days. A detailer's
+only workaround was a date-range blockout, which makes a different promise —
+*those days are full*, not *I am away*.
+
+### The whole decision is that it is NOT `businesses.status`
+
+The obvious build lets a detailer set that column themselves. **It collides
+head-on with billing.** `stripe-webhook` uses `status` for SUSPENSION — its own
+header says *"it only pauses an `active` business and only reactivates one it
+paused"* — so a detailer who closed for a fortnight would press Reopen and
+**switch their own booking page back on while their subscription was unpaid.**
+One column, two meanings, and the one that loses is the one the platform relies
+on to be paid.
+
+So `closed_until` and `closed_note` are their own pair, `status` is untouched,
+and **the two states stack with no rule needed**: closed is
+open-but-not-taking-bookings, suspended is dark, and both is dark. The test
+asserts the second half by suspending a closed business and watching the public
+profile stop resolving.
+
+*(That is also the item where the real security hole turned up: the detailer
+could edit `status` directly anyway, because every column-level revoke in this
+repo was a no-op. Its own commit and its own DECISIONS entry.)*
+
+### A date, not a flag, and it does two things a flag cannot
+
+*"Says when they are back"* was the ask. A flag makes the page say *closed*
+with no end, which reads as **gone** — and it is the state a detailer forgets
+to switch off. A date tells the customer when to come back **and reopens the
+detailer automatically**: one already past is not closed, so a holiday ends by
+itself.
+
+**The day named is the day they are BACK**, not the last day shut, because
+that is how a person says it. Strictly-greater-than, in three places, and all
+three compare two business-local `YYYY-MM-DD` strings — no offset arithmetic
+and nothing that can drift the way F-018's three clocks did.
+
+### The page explains, above the still-setting-up screen
+
+A detailer who is away AND half configured should be told the more specific,
+more useful thing — a return date — rather than *"isn't taking bookings online
+yet"*, which reads as never. That ordering is pinned, because it is the sort of
+thing a later edit reverses without noticing.
+
+**And the heading carries the whole message.** A sentence under it — *"You can
+book from then — the page will be back on by itself"* — was written and then
+cut on looking at it: the first half repeats the heading and the second
+describes our own plumbing, which is not a fact a customer has any use for. His
+copy rule, twice over. What is worth reading there is the detailer's own note.
+
+### Proven as behaviour, and two of the checks were vacuous
+
+Against the deployed function: **16 open days → 10 while closed → 16 again once
+the return date passes.** The self-reopening is the half that would otherwise
+be taken on trust.
+
+**Baselining found two vacuous checks in a file written to avoid them.** The
+return-day check had an escape hatch — `|| open === false` — for a day the
+business does not trade, and that clause passes for a return day the closure
+ITSELF has shut, which is the exact defect the check exists to catch. Flipping
+`<` to `<=` in `available-slots` left it green. It compares the same day with
+and without the closure now.
+
+**And § 3's clock stub replaced `Date.now` while `businessToday` builds its
+date with `new Date()`**, so the two timezones returned the same answer and it
+read as the timezone being ignored — when it was the STUB that was. The whole
+constructor is replaced instead. *A test that stubs a clock has to stub the
+clock the code actually reads.*

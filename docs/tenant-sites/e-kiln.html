@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kiln &amp; Coat — paint correction and ceramic coating, Tempe AZ</title>
+<meta name="description" content="Correction and coating, by appointment, one car at a time. Five-year warranty with the conditions written out before you book.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  SITE 2 OF FIVE — brief: docs/tenant-site-briefs-2026-09-07.md § 3, Site 2.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE PAIRING IS CINEMATIC DARK × EDITORIAL MINIMALISM (Runway/ElevenLabs ×
+  Linear/Stripe), and the TENSION IS THE BRIEF: coating photography wants to
+  be enormous and dark, while a job that costs four figures wants a page that
+  reads as precise rather than as a film trailer.
+
+  IT RESOLVES AS: the images are given the whole width and nothing is written
+  on top of them, and every word on the page is set in one narrow, ruthlessly
+  plain column that never moves. Big picture, small type, and the two never
+  overlap. That is the opposite of the glassmorphism-over-hero recipe, which
+  is what the pairing exists to keep this page away from.
+
+  **DELIBERATELY UNLIKE SITE 1, WHICH IS THE POINT OF PAIRING AT ALL.**
+  d-ridgeline.html is a monospace logbook with a status strip first, a rate
+  table second and no photographs above the fold. This is a picture, then a
+  warranty, then a ladder. Same twelve obligations, different skeleton, and if
+  a third site comes out with either of these section orders the pairing was
+  ignored — this repo's recorded failure was three agents producing one family
+  with only the paint varied.
+
+  THE SECTION ORDER IS ITSELF AN ARGUMENT: the WARRANTY comes before the
+  prices. On a $2,400 coating what the customer is actually buying is the
+  guarantee, and every real coating site in the research sample buries it in
+  small print at the bottom. Putting the conditions where they can be read
+  before booking is the one thing this page does that its competitors do not.
+
+  WHAT IT IS NOT (docs/design-knowledge.md, researched 2026-09-07): no centred
+  hero of eyebrow + huge headline + subhead + two CTAs, no three-up cards, no
+  logo soup, no pricing toggle, no FAQ accordion — that SEQUENCE is the 2026
+  tell and each of its parts is defensible alone, which is why a per-element
+  audit passes a page that is still that page. No glassmorphism over the
+  photographs, no gradient wash, no "transform your vehicle".
+
+  THE FLOOR (docs/tenant-site-contract.md): a ladder by vehicle size, real
+  credentials, a disclaimer on a service, real photographs, the booking form
+  BUILT IN in this site's own design, and **a site ASKS and never computes** —
+  every price from `calculate-booking`, every open time from
+  `available-slots`. THE FIGURES BELOW ARE PLACEHOLDERS so the page can be
+  designed; on a live copy each one comes from
+  `get_public_business_profile`, because a rate typed into a tenant's HTML is
+  a number the detailer changes in their dashboard and not here, and the two
+  then disagree with nothing able to see both.
+
+  Photographs: Unsplash — Vitali Adutskevich (B7hVEFTFUWs, gAm_dPRQqvQ),
+  Clarity Coat (qu9XY-kl1oU).
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Instrument Sans for everything, worked hard across its range — one
+     variable face at 300 against 600, which is the weight-extreme remedy
+     rather than 400-against-600. Not Inter, not Roboto, not Space Grotesk,
+     and not site 1's pairing. -->
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+/* ───────────────────────────────────────────────────────────────────────────
+   TOKENS. Cinematic dark: a true black ground so a photograph is the only
+   light on the page. The accent is a cold cyan-white — the colour of a shop
+   inspection lamp — used on ONE thing per screen and never as decoration.
+
+   Contrast is MEASURED, not assumed. Every value below carries its ratio
+   against the ground it lands on; site 1 shipped a token whose comment said
+   it passed and which was 3.93:1.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --void:   #050506;   /* the ground */
+  --panel:  #0d0e10;
+  --line:   #1c1e22;   /* a decorative ruling, never a control's edge */
+  /* EVERY RATIO BELOW IS MEASURED, on the ground AND on the panel, and the
+     lower of the two is the one quoted. Site 1 shipped a token whose comment
+     said it passed at a number nobody had computed; it was 3.93:1. */
+  --edge:   #5c6169;   /* control edges · 3.10:1 · needs 3.0, not 4.5 */
+  --type:   #e8eaee;   /* body     · 16.03:1 */
+  --type-2: #a2a8b2;   /* quiet    ·  8.07:1 */
+  --type-3: #7e8590;   /* quietest ·  5.19:1 — all small text, so 4.5 not 3.0 */
+  --beam:   #7fe3ff;   /* the one accent · 13.18:1 */
+  --beam-in:#04202b;   /* ink ON the accent · 11.50:1 */
+
+  --f: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --f-d: "Instrument Serif", Georgia, serif;
+  --col: 34rem;        /* the text column, and it never changes width */
+  --t: 300ms cubic-bezier(.16,.84,.24,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0; background: var(--void); color: var(--type);
+  font-family: var(--f); font-optical-sizing: auto;
+  font-size: clamp(16px, .55vw + 14px, 17.5px); line-height: 1.6; font-weight: 400;
+}
+
+/* THE ONE COLUMN. Everything that is words lives here and it does not move
+   between sections — the discipline half of the pairing. */
+.col { width: min(var(--col), 100% - 2.5rem); margin-inline: auto; }
+.wide { width: min(76rem, 100% - 2.5rem); margin-inline: auto; }
+
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -.022em; line-height: 1.12; }
+h1 { font-size: clamp(2rem, 4.6vw, 2.9rem); font-weight: 400; }
+h2 { font-size: clamp(1.35rem, 2.4vw, 1.7rem); }
+h3 { font-size: 1rem; font-weight: 600; }
+p { margin: 1rem 0 0; }
+.quiet { color: var(--type-2); }
+.lab {
+  font-size: .68rem; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--type-3);
+}
+em.d { font-family: var(--f-d); font-style: italic; font-weight: 400; letter-spacing: 0; }
+
+a { color: var(--beam); text-underline-offset: .18em; }
+
+/* ── Masthead: a thin line of type. Nothing else. ──────────────────────── */
+header {
+  position: fixed; inset: 0 0 auto 0; z-index: 30;
+  padding-block: 1rem;
+  background: linear-gradient(to bottom, rgba(5,5,6,.92), rgba(5,5,6,0));
+}
+header .wide { display: flex; align-items: center; gap: 1.5rem; }
+.mark { font-weight: 600; letter-spacing: -.02em; color: var(--type); text-decoration: none; font-size: .98rem; }
+header nav { margin-left: auto; display: flex; gap: 1.4rem; }
+header nav a { font-size: .8rem; color: var(--type-2); text-decoration: none; transition: color var(--t); }
+header nav a:hover, header nav a:focus-visible { color: var(--type); }
+
+/* ── THE PLATE. A photograph at full width with NOTHING written on it. The
+      restraint IS the design: text over a hero is the recipe this page is
+      built to avoid, and a coating photo has no room for words anyway. ──── */
+.plate img {
+  display: block; width: 100%; height: min(74vh, 640px);
+  object-fit: cover; object-position: center 58%;
+}
+.plate figcaption {
+  margin: .8rem auto 0; width: min(76rem, 100% - 2.5rem);
+  font-size: .74rem; color: var(--type-3);
+}
+.plate { margin: 0; padding-top: 3.5rem; }
+
+section { padding-block: clamp(3.4rem, 7vw, 6rem); }
+section + section { border-top: 1px solid var(--line); }
+
+/* ── The warranty, which is the thing being bought ─────────────────────── */
+.terms { margin: 1.8rem 0 0; padding: 0; list-style: none; counter-reset: t; }
+.terms li {
+  counter-increment: t; padding: 1rem 0 1rem 2.6rem; position: relative;
+  border-top: 1px solid var(--line);
+}
+.terms li:last-child { border-bottom: 1px solid var(--line); }
+/* Numbers here are NOT decoration on a non-sequence: warranty conditions are
+   referred to by number in the certificate, so they are numbered. */
+.terms li::before {
+  content: counter(t, decimal-leading-zero);
+  position: absolute; left: 0; top: 1rem;
+  font-size: .72rem; font-weight: 600; letter-spacing: .06em; color: var(--beam);
+  font-variant-numeric: tabular-nums;
+}
+.terms strong { font-weight: 600; }
+
+/* ── The ladder. Rows, not a table: three sizes and four services would be a
+      wall, and the customer picks the SERVICE first. ─────────────────────── */
+.rung { border-top: 1px solid var(--line); padding: 1.35rem 0; }
+.rung:last-of-type { border-bottom: 1px solid var(--line); }
+.rung .top { display: flex; align-items: baseline; gap: 1rem; }
+.rung .from { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rung .sizes {
+  display: flex; flex-wrap: wrap; gap: .35rem 1.4rem; margin-top: .55rem;
+  font-size: .82rem; color: var(--type-2); font-variant-numeric: tabular-nums;
+}
+.rung .sizes b { font-weight: 600; color: var(--type); }
+.rung p { margin-top: .5rem; font-size: .92rem; }
+
+/* ── The form ──────────────────────────────────────────────────────────── */
+.book { border: 1px solid var(--line); background: var(--panel); padding: clamp(1.1rem, 3vw, 1.9rem); margin-top: 1.8rem; }
+.grp { margin-top: 1.5rem; }
+.grp:first-child { margin-top: 0; }
+.opts { display: grid; gap: .5rem; margin-top: .7rem; }
+.opt {
+  display: flex; align-items: baseline; gap: .8rem; width: 100%;
+  padding: .78rem .9rem; background: transparent; color: var(--type);
+  border: 1px solid var(--edge); font: inherit; text-align: left; cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+}
+.opt:hover, .opt:focus-visible { border-color: var(--beam); }
+.opt[aria-pressed="true"] { border-color: var(--beam); background: rgba(127,227,255,.07); }
+.opt .amt { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--beam); font-size: .9rem; }
+.slots { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .7rem; }
+.slot {
+  padding: .5rem .72rem; background: transparent; color: var(--type);
+  border: 1px solid var(--edge); font: inherit; font-size: .85rem;
+  font-variant-numeric: tabular-nums; cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+}
+.slot:hover, .slot:focus-visible { border-color: var(--beam); }
+.slot[aria-pressed="true"] { border-color: var(--beam); background: rgba(127,227,255,.1); }
+label.f { display: block; margin-top: .8rem; font-size: .85rem; color: var(--type-2); }
+label.f input, label.f textarea {
+  display: block; width: 100%; margin-top: .3rem;
+  background: var(--void); color: var(--type); border: 1px solid var(--edge);
+  padding: .65rem .75rem; font: inherit; font-size: .95rem;
+}
+.sum { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+       margin-top: 1.6rem; padding-top: 1rem; border-top: 1px solid var(--edge); }
+.sum .fig { font-size: 1.45rem; font-weight: 600; color: var(--beam); font-variant-numeric: tabular-nums; }
+.cta {
+  display: block; width: 100%; margin-top: 1rem; padding: .9rem 1.2rem;
+  background: var(--beam); color: var(--beam-in); border: 0; font: inherit;
+  font-weight: 600; font-size: .95rem; cursor: pointer;
+  transition: filter var(--t), transform var(--t);
+}
+.cta:hover { filter: brightness(1.06); }
+.cta:active { transform: translateY(1px); }
+
+.facts { margin: 1.6rem 0 0; padding: 0; list-style: none; }
+.facts li { display: grid; grid-template-columns: 8.5rem 1fr; gap: 1rem;
+            padding: .65rem 0; border-top: 1px solid var(--line); font-size: .93rem; }
+.facts li:last-child { border-bottom: 1px solid var(--line); }
+.facts .k { color: var(--type-3); }
+@media (max-width: 460px) { .facts li { grid-template-columns: 1fr; gap: .1rem; } }
+
+footer { padding-block: 3rem 4rem; color: var(--type-3); font-size: .88rem; }
+
+/* ONE arrival, staggered, transform and opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-in] { opacity: 0; transform: translateY(14px); animation: in .7s cubic-bezier(.16,.84,.24,1) forwards; }
+  [data-in="2"] { animation-delay: .1s; }
+  [data-in="3"] { animation-delay: .2s; }
+}
+@keyframes in { to { opacity: 1; transform: none; } }
+:focus-visible { outline: 2px solid var(--beam); outline-offset: 2px; }
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="wide">
+    <a class="mark" href="#top">Kiln &amp; Coat</a>
+    <nav>
+      <a href="#warranty">Warranty</a>
+      <a href="#prices">Prices</a>
+      <a href="#book">Book</a>
+    </nav>
+  </div>
+</header>
+
+<!-- THE PICTURE FIRST, AND NOTHING WRITTEN ON IT. -->
+<figure class="plate" id="top">
+  <img alt="A detailer working a rotary polisher across a dark car panel under shop lighting"
+       src="https://images.unsplash.com/photo-1658244500543-47f32dc51dc2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=2000">
+  <figcaption>Stage two, 3M Perfect-It on a Porsche Guards Red · Tempe, August</figcaption>
+</figure>
+
+<section>
+  <div class="col" data-in>
+    <p class="lab">Tempe, Arizona · by appointment</p>
+    <h1 style="margin-top:1.1rem">
+      One car at a time, for as long as it takes.
+    </h1>
+    <p class="quiet">
+      Kiln &amp; Coat is a two-bay shop that does paint correction and ceramic
+      coating and nothing else. No wash queue, no waiting room, no monthly
+      plan. A coating booking takes the bay for two or three days and I only
+      take one at a time, which is why the calendar below is as short as it is.
+    </p>
+    <p class="quiet">
+      Everything on this page is <em class="d">what you are buying</em> —
+      starting with the warranty, because on a job this size that is the
+      product and the paintwork is the delivery.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     THE WARRANTY BEFORE THE PRICES. On a four-figure coating this is what is
+     being bought, and every competitor in the research sample puts it in
+     small print at the bottom. Numbered because a certificate refers to them
+     by number — a sequence, not decoration on a non-sequence.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="warranty">
+  <div class="col">
+    <p class="lab">The warranty</p>
+    <h2 style="margin-top:.8rem">Five years, and here is exactly what voids it</h2>
+    <p class="quiet">
+      Written out before you book rather than handed over afterwards. If any of
+      this is a problem, it is better that you know now.
+    </p>
+    <ol class="terms">
+      <li><strong>An annual inspection, within thirty days of the anniversary.</strong>
+        Booked here, takes an hour, and it is free for the life of the warranty.
+        Miss the window and the coating is still on the car — the warranty is not.</li>
+      <li><strong>No automatic car washes.</strong> Not the touchless ones either.
+        Hand wash, two buckets, pH-neutral soap; I will show you and give you the
+        first bottle.</li>
+      <li><strong>Damage is not covered, and neither is wear.</strong> Stone chips,
+        scratches, kerbed wheels and clear-coat failure that was already there are
+        outside it. What IS covered is the coating losing its hydrophobic
+        behaviour or its gloss before the five years are up.</li>
+      <li><strong>It is on the car, not on you.</strong> The warranty transfers with
+        the vehicle if you sell it. Tell me and I will reissue the certificate in
+        the new name.</li>
+    </ol>
+    <p class="quiet" style="font-size:.9rem">
+      The certificate is a PDF and a card for the glovebox, both issued the day you
+      collect. Terms are Gtechniq's; I am an accredited installer and the claim
+      goes through me.
+    </p>
+  </div>
+</section>
+
+<figure class="plate">
+  <img loading="lazy" alt="Close inspection of a car's paint surface under a hand-held work lamp"
+       src="https://images.unsplash.com/photo-1658244546876-d82cbf1a1c9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=2000">
+  <figcaption>Inspection pass under 6500K before the coating goes on</figcaption>
+</figure>
+
+<section id="prices">
+  <div class="col">
+    <p class="lab">Prices</p>
+    <h2 style="margin-top:.8rem">Four things, priced by the size of the car</h2>
+    <p class="quiet">
+      A price is a starting point on a job like this. Anything above it is
+      agreed with you after I have looked at the paint, in daylight, with you
+      standing there — never afterwards.
+    </p>
+
+    <div class="rung">
+      <div class="top"><h3>Enhancement polish</h3><span class="from">from $480</span></div>
+      <div class="sizes"><span>Coupe <b>$480</b></span><span>SUV <b>$580</b></span><span>Truck <b>$660</b></span></div>
+      <p class="quiet">One stage. Takes out about 60% of what you can see. A day.</p>
+    </div>
+
+    <div class="rung">
+      <div class="top"><h3>Two-stage correction</h3><span class="from">from $980</span></div>
+      <div class="sizes"><span>Coupe <b>$980</b></span><span>SUV <b>$1,180</b></span><span>Truck <b>$1,340</b></span></div>
+      <p class="quiet">Cut and refine. 85–95%, measured with a paint gauge as I go. Two days.</p>
+    </div>
+
+    <div class="rung">
+      <div class="top"><h3>Ceramic coating, 5 year</h3><span class="from">from $1,450</span></div>
+      <div class="sizes"><span>Coupe <b>$1,450</b></span><span>SUV <b>$1,690</b></span><span>Truck <b>$1,880</b></span></div>
+      <p class="quiet">Includes the correction above it. Three days, and the car stays overnight.</p>
+    </div>
+
+    <div class="rung">
+      <div class="top"><h3>Annual inspection</h3><span class="from">no charge</span></div>
+      <div class="sizes"><span>Any size · one hour · warranty condition 01</span></div>
+      <p class="quiet">Booked the same way as everything else. Bring the card.</p>
+    </div>
+
+    <!-- THE DISCLAIMER, which every real coating site has and no generated one
+         does. It is the sentence that stops an argument in the bay. -->
+    <p class="quiet" style="margin-top:1.6rem; font-size:.9rem">
+      <strong>Paint too thin to correct is refused, not attempted.</strong> If the
+      gauge says a panel has been through it before and there is not enough clear
+      coat left, I will coat it as it is and tell you why, or send you away with
+      no charge. Chasing a swirl through the last two microns of clear is how a
+      panel ends up needing paint.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     THE FORM, deliberately SHORT. A shop that takes one car at a time does
+     not need a seven-step flow; it needs a service, a size, a day and a
+     phone number. The core's rules are the same rules whatever the form
+     looks like.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="book">
+  <div class="col">
+    <p class="lab">Book</p>
+    <h2 style="margin-top:.8rem">Four questions</h2>
+    <p class="quiet">
+      The day you pick is held — the bay cannot take anybody else while it is
+      yours. I will call before I take a deposit, and I do not take one for a
+      polish.
+    </p>
+
+    <form class="book" onsubmit="return false">
+      <div class="grp">
+        <p class="lab">What</p>
+        <!-- SERVICES from get_public_business_profile; the amounts shown here
+             are that profile's, never this file's. -->
+        <div class="opts">
+          <button type="button" class="opt" aria-pressed="false"><span>Enhancement polish</span><span class="amt">$580</span></button>
+          <button type="button" class="opt" aria-pressed="true"><span>Ceramic coating, 5 year</span><span class="amt">$1,690</span></button>
+          <button type="button" class="opt" aria-pressed="false"><span>Two-stage correction</span><span class="amt">$1,180</span></button>
+          <button type="button" class="opt" aria-pressed="false"><span>Annual inspection</span><span class="amt">$0</span></button>
+        </div>
+      </div>
+
+      <div class="grp">
+        <p class="lab">Size</p>
+        <div class="opts">
+          <button type="button" class="opt" aria-pressed="false"><span>Coupe or saloon</span><span class="amt">$1,450</span></button>
+          <button type="button" class="opt" aria-pressed="true"><span>SUV or crossover</span><span class="amt">$1,690</span></button>
+          <button type="button" class="opt" aria-pressed="false"><span>Truck or van</span><span class="amt">$1,880</span></button>
+        </div>
+      </div>
+
+      <div class="grp">
+        <p class="lab">When it comes in</p>
+        <!-- OPEN DAYS from available-slots and nowhere else: the buffer, the
+             blockouts, the per-day cap and the minimum notice all live behind
+             that one call, and a shop that takes one car at a time has very
+             few of them. -->
+        <p class="quiet" style="font-size:.85rem; margin-top:.55rem">Next three, drop-off 08:00</p>
+        <div class="slots">
+          <button type="button" class="slot" aria-pressed="false">Mon 15 Sep</button>
+          <button type="button" class="slot" aria-pressed="true">Thu 18 Sep</button>
+          <button type="button" class="slot" aria-pressed="false">Tue 23 Sep</button>
+        </div>
+      </div>
+
+      <div class="grp">
+        <p class="lab">You</p>
+        <label class="f">Name<input type="text" autocomplete="name" placeholder="Your name"></label>
+        <label class="f">Mobile<input type="tel" autocomplete="tel" placeholder="For the day before"></label>
+        <label class="f">The car<input type="text" placeholder="Year, make, colour"></label>
+        <label class="f">Anything I should look at<textarea rows="2" placeholder="Scratches, a respray, a panel you are worried about"></textarea></label>
+      </div>
+
+      <div class="sum">
+        <span>Estimate</span>
+        <span class="fig">$1,690.00</span>
+      </div>
+      <p class="quiet" style="font-size:.76rem; margin-top:.45rem">
+        From <code>calculate-booking</code>. Nothing on this page works out a price.
+      </p>
+      <button type="submit" class="cta">Hold the bay</button>
+    </form>
+  </div>
+</section>
+
+<figure class="plate">
+  <img loading="lazy" alt="A coating being levelled to an even finish across a panel"
+       src="https://images.unsplash.com/photo-1632605192331-085fa2082575?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=2000">
+  <figcaption>Levelling pass · the last thing that happens before it sits overnight</figcaption>
+</figure>
+
+<section>
+  <div class="col">
+    <p class="lab">The shop</p>
+    <ul class="facts">
+      <li><span class="k">Trading</span><span>Since 2018. Two bays, one pair of hands.</span></li>
+      <li><span class="k">Accredited</span><span>Gtechniq Accredited Installer #4471 · IDA Skills-Validated</span></li>
+      <li><span class="k">Insured</span><span>$5M garage keepers. Certificate emailed on request.</span></li>
+      <li><span class="k">Lighting</span><span>Scangrip 6500K, two towers. Correction is checked under it, not under the sun.</span></li>
+      <li><span class="k">Address</span><span>1180 W Kiln Rd, Tempe AZ · drop-off only, no waiting room</span></li>
+      <li><span class="k">Payment</span><span>Card or transfer on collection. No deposit on a polish.</span></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="col">
+    <p style="margin:0">
+      Kiln &amp; Coat · 1180 W Kiln Rd, Tempe AZ ·
+      <a href="tel:+16025550188">602 555 0188</a>
+    </p>
+    <p style="margin-top:1rem">
+      Photographs by <a href="https://unsplash.com/@vadutskevich">Vitali Adutskevich</a>
+      and <a href="https://unsplash.com/@claritycoat">Clarity Coat</a> on
+      <a href="https://unsplash.com/">Unsplash</a>. This page is a design artefact
+      for the detailing platform: the booking form is drawn in its real shape, and
+      on a live copy every price and every open day comes from the platform's own
+      endpoints rather than from this file.
+    </p>
+  </div>
+</footer>
+
+<script>
+// One behaviour: the option groups act like the radio groups they are.
+// No framework and no build step — a tenant site may be built on anything.
+for (const group of document.querySelectorAll(".opts, .slots")) {
+  group.addEventListener("click", (e) => {
+    const btn = e.target.closest("[aria-pressed]");
+    if (!btn || !group.contains(btn)) return;
+    for (const b of group.querySelectorAll("[aria-pressed]")) b.setAttribute("aria-pressed", "false");
+    btn.setAttribute("aria-pressed", "true");
+    // A live copy re-quotes here, through calculate-booking.
+  });
+}
+</script>
+</body>
+</html>

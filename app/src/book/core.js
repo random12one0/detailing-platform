@@ -457,6 +457,25 @@ export const offersBothModes = (settings, modeLimit) =>
 // who genuinely turned both off is in the same position as one who never
 // answered — nothing can be booked either way — and a customer does not care
 // which. The DETAILER's screen is where the two are told apart.
+// ROADMAP 8.13 — IS THE DETAILER AWAY, AND UNTIL WHEN.
+//
+// *"A detailer-facing pause that keeps the site up and says when they are
+// back."* Null is every business that has never gone away.
+//
+// **IT IS COMPARED AS TWO BUSINESS-LOCAL DATE STRINGS AND NEVER AS DATES.**
+// `businessToday(tz)` already gives `YYYY-MM-DD` in the tenant's own zone and
+// `closed_until` is the same shape, so `<` on the strings IS the comparison —
+// no offset arithmetic, nothing that can drift the way F-018's three clocks
+// did, and the same answer `available-slots` computes server-side.
+//
+// **STRICTLY LESS THAN: the day they are back is a day they take bookings.**
+// A detailer typing "back on the 14th" means the 14th is open.
+export function closedUntil(business, timezone) {
+  const until = business?.closed_until ? String(business.closed_until).slice(0, 10) : null;
+  if (!until) return null;
+  return businessToday(timezone) < until ? until : null;
+}
+
 export const bookable = (settings) =>
   !!settings?.mobile_enabled || !!settings?.dropoff_enabled;
 

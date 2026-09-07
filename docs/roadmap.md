@@ -7392,11 +7392,44 @@ works**, which is one line at the end rather than a pause in the middle.
       what that means, but if you think it would be good, then sure."*
       8.1's guide is what tells him which values to fetch.
 
-- [ ] 8.13 **Closed until I say it's open.** A detailer-facing pause that keeps
+- [x] 8.13 **Closed until I say it's open.** A detailer-facing pause that keeps
       the site up and says when they are back. Today `businesses.status =
       'paused'` does darken the page but **only the platform admin can set
       it**, and the page then 404s rather than explaining. A detailer's only
       workaround is a date-range blockout.
+      **DONE 2026-09-07.** *(Full reasoning: DECISIONS.md → "Roadmap 8.13".)*
+      **IT IS NOT `status`, AND THAT IS THE WHOLE DECISION.** The obvious build
+      lets a detailer set that column themselves and it collides head-on with
+      billing: `stripe-webhook` uses `status` for SUSPENSION, so a detailer who
+      closed for a fortnight would press Reopen and **switch their own booking
+      page back on with their subscription unpaid.** One column, two meanings,
+      and the one that loses is the one the platform relies on to be paid. So
+      `businesses.closed_until` and `closed_note` are their own pair, `status`
+      is untouched, and the two states stack with no rule: closed is
+      open-but-not-taking-bookings, suspended is dark, both is dark.
+      **A DATE, NOT A FLAG, AND IT DOES TWO THINGS A FLAG CANNOT.** *"Says when
+      they are back"* was the ask — a flag makes the page read as *gone* — and
+      **a date REOPENS THEM**: one already past is not closed, so a holiday
+      ends by itself instead of waiting to be remembered. The day named is the
+      day they are BACK, so a detailer typing "back on the 14th" is bookable on
+      the 14th.
+      **THE PAGE STAYS UP AND EXPLAINS**, above the still-setting-up screen: a
+      detailer who is away AND half configured should be told the more useful
+      thing. **And the heading carries the whole message** — a sentence under
+      it saying *"you can book from then, the page will be back on by itself"*
+      was written and cut, because the first half repeats the heading and the
+      second describes our own plumbing.
+      **PROVEN AS BEHAVIOUR, against the deployed function: 16 open days → 10
+      while closed → 16 again once the return date passes.**
+      `tests/closed-until.test.mjs` — 26 checks, eleven baselined by breaking
+      what they guard. **Two of its own checks were vacuous and baselining
+      found both**: one had an escape hatch for a day the business does not
+      trade, which passed for a return day the closure itself had shut — the
+      exact defect it existed to catch — and it compares the same day with and
+      without the closure now. And § 3's clock stub replaced `Date.now` while
+      `businessToday` uses `new Date()`, so the two timezones reported the same
+      answer and it read as the zone being ignored when it was the STUB that
+      was.
 
 - [ ] 8.14 **Promo codes on our own checkout.** *"We should set up a promo code
       system within the buying process. I'm sure Stripe supports that."* It

@@ -766,7 +766,19 @@ explaining it; if they still have to ask "so should I?", it failed.
   guard matching on email OR phone, so one household address joined two
   different people. **It clears its own `rate_hits` first**, like every other
   suite here that books)
-  from repo root — credential-free, all must pass. **`forget-customer` (33
+  from repo root — credential-free, all must pass. **`closed-until` (26 checks,
+  new 2026-09-07, roadmap 8.13) is HALF credential-free** — its § 3 (the clock)
+  and § 5 (the source) run anywhere, and § 1, 2 and 4 print SKIPPED without
+  `.env` rather than passing. **The one thing it exists to protect is that the
+  detailer's pause is NOT `businesses.status`**: that column is billing's
+  suspension, so one column with two meanings would let a detailer reopen a
+  page the platform had darkened for non-payment, and § 4 asks the live
+  database whether the two states still stack. Eleven breaks, all caught — and
+  **two of its own checks were vacuous, both found by baselining**: a
+  return-day check whose escape hatch for a non-trading day passed for a return
+  day the closure itself had shut, and a clock stub that replaced `Date.now`
+  while `businessToday` reads `new Date()`, so two timezones agreed and it read
+  as the zone being ignored. **`forget-customer` (33
   checks, new 2026-09-07, roadmap 8.11) is env-backed and belongs with the
   suites below** — A CUSTOMER ASKING TO BE FORGOTTEN, whose whole design is
   *forget the person, keep the money.* The two obvious builds are wrong in

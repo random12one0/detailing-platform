@@ -23,6 +23,12 @@ export interface Business {
   // carry, and deliberately NOT `dropoff_address` — a mobile detailer has no
   // unit, and this may be a PO box.
   mailing_address: string | null;
+  // ROADMAP 8.13 — the day the detailer is back, in their own timezone, or
+  // null. NOT `status`: that column is billing's suspension, and one column
+  // with two meanings would let a detailer switch their own page back on while
+  // their subscription was unpaid.
+  closed_until?: string | null;
+  closed_note?: string | null;
 }
 
 export interface BusinessSettings {
@@ -175,11 +181,16 @@ export async function getSettings(businessId: string): Promise<BusinessSettings>
   };
 }
 
+// ROADMAP 8.13 — BOTH SELECTS CARRY `closed_until` NOW, and the list is what
+// every public endpoint sees. `available-slots` reads it to close the days
+// before a detailer is back; `status` is untouched, because that column is
+// billing's suspension and one column with two meanings would let a detailer
+// reopen a page the platform had darkened for non-payment.
 export async function businessBySlug(slug: unknown): Promise<Business | null> {
   if (typeof slug !== "string" || !slug.trim()) return null;
   const { data } = await supabase
     .from("businesses")
-    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address")
+    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address, closed_until, closed_note")
     .eq("slug", slug.trim().toLowerCase())
     .eq("status", "active")
     .maybeSingle();
@@ -189,7 +200,7 @@ export async function businessBySlug(slug: unknown): Promise<Business | null> {
 export async function businessById(id: string): Promise<Business | null> {
   const { data } = await supabase
     .from("businesses")
-    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address")
+    .select("id, slug, name, status, timezone, contact_email, contact_phone, dropoff_address, service_area, mailing_address, closed_until, closed_note")
     .eq("id", id)
     .maybeSingle();
   return (data as Business) ?? null;

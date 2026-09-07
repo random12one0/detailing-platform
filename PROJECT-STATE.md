@@ -21,7 +21,7 @@ temporary — they reach the demo business only, and they must change before
 there is a real customer. See DECISIONS.md, "A guessable demo login".
 
 **WHERE THE WORK IS, 2026-09-07 (overnight, Phase 8).** Roadmap **8.2 through
-8.8, 8.10 and 8.11 are done and committed**; 8.9 is blocked on two questions in
+8.8 and 8.10 through 8.13 are done and committed**; 8.9 is blocked on two questions in
 `docs/money-view-research-2026-09-07.md` § 6. **8.10 was the largest item in
 the phase** and it turned on being THREE facts rather than one feature: cars on
 one VISIT are one booking with `booking_vehicles` for 2..N, cars on two DAYS
@@ -41,6 +41,21 @@ included — are gone. Owner only, because no permission tick means *may
 erase a person*. `tests/forget-customer.test.mjs`, 33 checks, thirteen
 baselined; three of its own checks were vacuous on the first run and one
 measured an HTTP cache rather than the bucket.
+**8.13 is a detailer-facing pause** — `closed_until` and `closed_note` on
+`businesses`, deliberately NOT `status`, which is billing's suspension: one
+column with two meanings would let a detailer reopen a page the platform had
+darkened for non-payment. A date rather than a flag, so it says when they are
+back AND reopens them by itself. Proven as behaviour — 16 open days, 10 while
+closed, 16 again once the date passes.
+**AND THE ITEM TURNED UP A LIVE SECURITY HOLE, which has its own commit.**
+Every column-level `revoke update (col)` in this repo was a no-op, because a
+table-level `UPDATE` grant overrides it — so a detailer with the `settings`
+permission could edit `status` (reopening a page suspended for non-payment),
+`plan_tier`, `is_demo`, `admin_notes_platform`, `site_url` and
+`business_domains.verified_at`. Measured, closed, and pinned by asking the
+database rather than by reading the migration, which is how it hid: the
+`custom-domains` check that "pinned" one of these read the migration TEXT and
+passed identically before and after.
 **AND THE SESSION IS NOT MEANT TO STOP ANY MORE** — see `docs/standing-work.md`
 and CLAUDE.md's "A SESSION IS NOT MEANT TO STOP". He has permitted building
 anything a session is ~90% sure improves the product, without asking, and asked

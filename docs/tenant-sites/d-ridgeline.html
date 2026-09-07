@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ridgeline Mobile Detail — Sonoma County</title>
+<meta name="description" content="One van, one detailer, your driveway. Booked by the half hour, priced by the vehicle, and the schedule is public.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  SITE 1 OF FIVE — ROADMAP: none; the owner's direct instruction, 2026-09-07.
+  Brief: docs/tenant-site-briefs-2026-09-07.md § 3, Site 1.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE PAIRING IS TERMINAL-CORE × WARM EDITORIAL, and it is a PAIR because a
+  single named family is a style to copy and every agent copies it the same
+  way. This project's own recorded failure was three agents given one brief
+  producing one family — same section list, same seams, only the paint varied.
+  A pair has to be RESOLVED, and the resolution is what makes this page
+  somebody's rather than anybody's.
+
+  HOW IT RESOLVES HERE: every FACT is set like a terminal readout — monospace,
+  aligned columns, no ornament, times and prices in a fixed grid — and every
+  SENTENCE is set like a letter, in a warm serif at a comfortable measure.
+  The page is a logbook a person wrote in. Nothing is centred, there is no
+  hero image, and no card has a shadow.
+
+  WHAT IT IS DELIBERATELY NOT (docs/design-knowledge.md, researched 2026-09-07
+  — the CURRENT house style of AI output, which the older never-defaults list
+  is too old to catch): no centred hero of eyebrow + huge headline + subhead +
+  two CTAs, no three-up feature cards, no logo soup, no pricing toggle, no FAQ
+  accordion. **That SEQUENCE is the 2026 tell, and every element in it is
+  defensible on its own**, which is exactly why a per-element audit passes a
+  page that is still that page. There is also no glassmorphism, no gradient
+  blob, and no indigo-to-violet anything.
+
+  THE FLOOR IT SHARES WITH THE PLATFORM (docs/tenant-site-contract.md):
+    · a price ladder BY VEHICLE SIZE, real credentials, a disclaimer on a
+      service — what six real detailers' sites actually contain;
+    · real photographs, never a grey box (~40% of people look at images first
+      and the trade's product IS the photograph);
+    · the booking form is BUILT IN, in this site's own design;
+    · A SITE ASKS AND NEVER COMPUTES. Every price comes from
+      `calculate-booking`, every open time from `available-slots`. A price
+      typed into this file is "a number printed is not a number charged" with
+      the two numbers in two codebases and nothing able to see both.
+
+  THIS FILE IS A DESIGN ARTEFACT, not a running site: the booking form is
+  drawn in its real shape and marked where the core's calls go. Nothing here
+  computes a price.
+
+  **AND THE FIGURES IN THE RATE TABLE ARE PLACEHOLDERS, NOT AN EXCEPTION TO
+  THE RULE ABOVE.** On a live copy every one of them comes from
+  `get_public_business_profile` — the same rows the platform's own booking page
+  reads — because a rate typed into a tenant's HTML is a number the detailer
+  changes in their dashboard and does not change here, and the two then
+  disagree with nothing able to see both. They are written out here so the
+  TABLE can be designed; a build that ships them is the defect the contract
+  names.
+
+  Photographs: Unsplash, credited at the foot. Luay Barani (5SmPnmCjwcU,
+  pdMgepnEapo, kSaVTbId4bE).
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- TERMINAL-CORE: IBM Plex Mono, the face that IS a readout rather than one
+     imitating it. WARM EDITORIAL: Newsreader, a screen serif with real warmth
+     at a long measure. Neither is on the never-default list, and the pairing
+     is the brief. -->
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&display=swap" rel="stylesheet">
+
+<style>
+/* ───────────────────────────────────────────────────────────────────────────
+   TOKENS. Nothing here is borrowed from the platform: no Archivo, no
+   JetBrains Mono, no #0B0D0E, no accent green. A tenant site inherits our
+   METHOD and never our skin (the owner's ruling, 2026-09-05).
+
+   The ground is a warm off-black that reads as paper left in a workshop, and
+   the one accent is a signal amber — the colour of a work lamp, not of a SaaS
+   brand. One dominant colour carrying the page plus one sharp accent used
+   sparingly, per docs/design-knowledge.md.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --ink:      #16130f;   /* the ground */
+  --ink-2:    #1e1a15;   /* a panel */
+  --rule:     #2f2920;   /* a decorative hairline — NEVER a control's edge */
+  /* AN INPUT'S BORDER IS A UI COMPONENT AND NEEDS 3:1, which `--rule` does
+     not come close to (1.20:1 on the panel — it is a ruling, not an edge).
+     Measured, not assumed: #6b655c is 3.00:1 there. */
+  --edge:     #6b655c;
+  --paper:    #efe7d8;   /* body text  · 15.07:1 on the ground */
+  --paper-2:  #b6ab97;   /* quiet text ·  8.17:1 */
+  /* WAS #7d7263 AND IT FAILED, at 3.93:1 on the ground and 3.67:1 on the
+     panel, under a comment claiming it passed — caught by measuring this file
+     rather than by reading it, which is this repo's most repeated defect
+     arriving in a page written the same hour. Every use of this token is
+     SMALL text (labels, captions, table headings), so it needs the full
+     4.5:1 and not the large-text 3:1. */
+  --paper-3:  #8f8475;   /* quietest  ·  5.05:1 ground, 4.72:1 panel */
+  --amber:    #f0a24a;   /* the one accent */
+  --amber-in: #2a1c0c;   /* ink ON amber */
+  --measure:  62ch;
+
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --f-text: "Newsreader", Georgia, "Times New Roman", serif;
+
+  --t: 220ms cubic-bezier(.2,.7,.3,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--f-text);
+  font-size: clamp(17px, 1.05vw + 13px, 19px);
+  line-height: 1.62;
+  font-weight: 300;
+  /* THE ATMOSPHERE IS A PRINTED GRID, not a gradient blob. Two hairline
+     rulings at 1px, offset, so the page reads as engineering paper somebody
+     has been writing on. It is the only decoration in the file. */
+  background-image:
+    linear-gradient(to right, rgba(240,162,74,.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(240,162,74,.03) 1px, transparent 1px);
+  background-size: 96px 100%, 100% 96px;
+}
+
+.wrap { width: min(1120px, 100% - 2.5rem); margin-inline: auto; }
+
+/* ── The readout voice ─────────────────────────────────────────────────── */
+.mono {
+  font-family: var(--f-mono);
+  font-size: .78em;
+  letter-spacing: .04em;
+  font-variant-numeric: tabular-nums;
+}
+.lab {
+  font-family: var(--f-mono);
+  font-size: .7rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--paper-3);
+}
+
+/* ── Masthead. NOT a hero: a nameplate and a status line. ──────────────── */
+header.plate {
+  border-bottom: 1px solid var(--rule);
+  padding-block: 1.15rem;
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--ink) 92%, transparent);
+  backdrop-filter: blur(6px);
+}
+.plate .wrap { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
+.mark {
+  font-family: var(--f-mono); font-weight: 600;
+  font-size: 1rem; letter-spacing: -.01em; color: var(--paper);
+  text-decoration: none;
+}
+.mark b { color: var(--amber); font-weight: 600; }
+.plate nav { margin-left: auto; display: flex; gap: 1.35rem; }
+.plate nav a {
+  font-family: var(--f-mono); font-size: .74rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--paper-2); text-decoration: none;
+  padding-block: .3rem; border-bottom: 1px solid transparent;
+  transition: color var(--t), border-color var(--t);
+}
+.plate nav a:hover, .plate nav a:focus-visible { color: var(--paper); border-color: var(--amber); }
+
+/* ── THE STATUS STRIP. This is the first thing on the page instead of a
+      headline, because for a one-van mobile detailer the useful fact is
+      WHERE THE VAN IS THIS WEEK. It is a readout: nothing here is a
+      sentence. ─────────────────────────────────────────────────────────── */
+.strip { border-bottom: 1px solid var(--rule); background: var(--ink-2); }
+.strip .wrap {
+  display: grid; gap: 0;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+}
+.cell {
+  padding: 1.05rem 1.2rem 1.15rem;
+  border-right: 1px solid var(--rule);
+}
+.cell:last-child { border-right: 0; }
+.cell .v {
+  display: block; margin-top: .35rem;
+  font-family: var(--f-mono); font-size: 1.02rem; font-weight: 500;
+  color: var(--paper); font-variant-numeric: tabular-nums;
+}
+.cell .v.on { color: var(--amber); }
+
+/* ── Sections ──────────────────────────────────────────────────────────── */
+section { padding-block: clamp(3.2rem, 6vw, 5.4rem); border-bottom: 1px solid var(--rule); }
+h1, h2, h3 { font-weight: 400; letter-spacing: -.015em; margin: 0; }
+h1 { font-size: clamp(2.1rem, 5.2vw, 3.35rem); line-height: 1.08; max-width: 18ch; }
+h2 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.15; }
+h3 { font-size: 1.06rem; }
+p { max-width: var(--measure); }
+.lede { font-size: 1.12em; color: var(--paper); }
+.quiet { color: var(--paper-2); }
+
+/* The one asymmetric layout in the file: a label column and a content
+   column, which is how a logbook is ruled. It stacks below 860. */
+.ruled { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 2.4rem; }
+@media (max-width: 860px) { .ruled { grid-template-columns: 1fr; gap: 1rem; } }
+
+/* ── The price ladder. A TABLE, because it is one. ─────────────────────── */
+table.ladder { width: 100%; border-collapse: collapse; margin-top: 1.4rem; }
+.ladder caption {
+  text-align: left; padding-bottom: .9rem;
+  font-family: var(--f-mono); font-size: .7rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--paper-3);
+}
+.ladder th, .ladder td { padding: .82rem .6rem; border-bottom: 1px solid var(--rule); text-align: right; }
+.ladder th:first-child, .ladder td:first-child { text-align: left; padding-left: 0; }
+.ladder td:last-child, .ladder th:last-child { padding-right: 0; }
+.ladder thead th {
+  font-family: var(--f-mono); font-weight: 500; font-size: .7rem;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--paper-3);
+  border-bottom-color: var(--paper-3);
+}
+.ladder tbody th { font-family: var(--f-text); font-weight: 400; font-size: 1.02rem; }
+.ladder tbody th small { display: block; font-size: .8rem; color: var(--paper-2); font-style: italic; }
+.ladder td { font-family: var(--f-mono); font-size: .92rem; font-variant-numeric: tabular-nums; }
+.ladder tbody tr:hover td, .ladder tbody tr:hover th { background: rgba(240,162,74,.045); }
+@media (max-width: 620px) {
+  .ladder thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .ladder tr { display: grid; grid-template-columns: 1fr auto auto; gap: .3rem 1rem;
+               align-items: baseline; padding-block: .75rem; border-bottom: 1px solid var(--rule); }
+  .ladder th, .ladder td { border: 0; padding: 0; }
+  .ladder tbody th { grid-column: 1 / -1; }
+  .ladder td::before { content: attr(data-l) "  "; color: var(--paper-3); font-size: .74rem; }
+}
+
+/* ── Photographs. Full-bleed, captioned like plates in a book. ─────────── */
+figure { margin: 0; }
+figure img {
+  display: block; width: 100%; height: auto; aspect-ratio: 3 / 2;
+  object-fit: cover; filter: saturate(.82) contrast(1.05);
+}
+figcaption {
+  margin-top: .6rem; font-family: var(--f-mono); font-size: .72rem;
+  letter-spacing: .04em; color: var(--paper-3);
+}
+.plates { display: grid; gap: 1.6rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+
+/* ── The booking form, in this site's own clothes ──────────────────────── */
+.form { border: 1px solid var(--rule); background: var(--ink-2); padding: clamp(1.2rem, 3vw, 2rem); }
+.step { border-top: 1px solid var(--rule); padding-top: 1.3rem; margin-top: 1.3rem; }
+.step:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+.choices { display: grid; gap: .55rem; margin-top: .85rem; }
+.choice {
+  display: flex; align-items: baseline; gap: .9rem; width: 100%;
+  background: transparent; color: var(--paper); text-align: left;
+  border: 1px solid var(--edge); padding: .8rem .95rem;
+  font: inherit; cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+}
+.choice:hover, .choice:focus-visible { border-color: var(--amber); }
+.choice[aria-pressed="true"] { border-color: var(--amber); background: rgba(240,162,74,.08); }
+.choice .n { font-family: var(--f-mono); font-size: .82rem; color: var(--paper-2); }
+.choice .p { margin-left: auto; font-family: var(--f-mono); font-size: .88rem; color: var(--amber); font-variant-numeric: tabular-nums; }
+.times { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .85rem; }
+.time {
+  font-family: var(--f-mono); font-size: .82rem; font-variant-numeric: tabular-nums;
+  background: transparent; color: var(--paper); border: 1px solid var(--edge);
+  padding: .5rem .7rem; cursor: pointer; transition: border-color var(--t), background var(--t);
+}
+.time:hover, .time:focus-visible { border-color: var(--amber); }
+.time[aria-pressed="true"] { border-color: var(--amber); background: rgba(240,162,74,.1); }
+.field { display: block; margin-top: .9rem; }
+.field > span { display: block; margin-bottom: .35rem; }
+.field input, .field textarea {
+  width: 100%; background: var(--ink); color: var(--paper);
+  border: 1px solid var(--edge); padding: .7rem .8rem; font: inherit;
+  font-family: var(--f-mono); font-size: .88rem;
+}
+.field input:focus-visible, .field textarea:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+.total {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  border-top: 1px solid var(--paper-3); margin-top: 1.4rem; padding-top: 1rem;
+}
+.total .fig { font-family: var(--f-mono); font-size: 1.5rem; color: var(--amber); font-variant-numeric: tabular-nums; }
+.go {
+  display: inline-block; margin-top: 1.1rem; width: 100%;
+  background: var(--amber); color: var(--amber-in); border: 0;
+  font-family: var(--f-mono); font-size: .86rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: .95rem 1.2rem; cursor: pointer;
+  transition: filter var(--t), transform var(--t);
+}
+.go:hover { filter: brightness(1.08); }
+.go:active { transform: translateY(1px); }
+
+/* ── Odds and ends ─────────────────────────────────────────────────────── */
+.note { border-left: 2px solid var(--amber); padding-left: .95rem; color: var(--paper-2); font-style: italic; }
+ul.plain { list-style: none; padding: 0; margin: .8rem 0 0; }
+ul.plain li { padding: .5rem 0; border-bottom: 1px solid var(--rule); display: flex; gap: .9rem; align-items: baseline; }
+ul.plain li:last-child { border-bottom: 0; }
+ul.plain .k { font-family: var(--f-mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--paper-3); min-width: 7.5rem; }
+blockquote { margin: 0; font-size: 1.08em; }
+blockquote cite { display: block; margin-top: .6rem; font-style: normal; font-family: var(--f-mono); font-size: .74rem; letter-spacing: .06em; color: var(--paper-3); }
+footer { padding-block: 2.6rem 3.4rem; color: var(--paper-3); }
+footer a { color: var(--paper-2); }
+a { color: var(--amber); }
+
+/* ── Motion: ONE orchestrated arrival, staggered, transform and opacity
+      only. A page that animates in twenty places is a page that fidgets. ── */
+@media (prefers-reduced-motion: no-preference) {
+  [data-rise] { opacity: 0; transform: translateY(12px); animation: rise .62s cubic-bezier(.2,.7,.3,1) forwards; }
+  [data-rise="1"] { animation-delay: .04s; }
+  [data-rise="2"] { animation-delay: .12s; }
+  [data-rise="3"] { animation-delay: .2s; }
+  [data-rise="4"] { animation-delay: .28s; }
+}
+@keyframes rise { to { opacity: 1; transform: none; } }
+
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+</style>
+</head>
+
+<body>
+
+<header class="plate">
+  <div class="wrap">
+    <a class="mark" href="#top">RIDGELINE<b>/</b>MOBILE</a>
+    <nav>
+      <a href="#rates">Rates</a>
+      <a href="#week">This week</a>
+      <a href="#work">Work</a>
+      <a href="#book">Book</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     THE STATUS STRIP, and it is the first thing instead of a headline.
+     For a one-van operator the question a returning customer actually has is
+     "can he come this week", and that is a readout, not a slogan.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<div class="strip" id="top">
+  <div class="wrap">
+    <div class="cell"><span class="lab">Van</span><span class="v on">Out — Windsor</span></div>
+    <div class="cell"><span class="lab">Next open</span><span class="v">Thu 09:30</span></div>
+    <div class="cell"><span class="lab">Booked through</span><span class="v">Fri 12 Sep</span></div>
+    <div class="cell"><span class="lab">Water / power</span><span class="v">Carried</span></div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap ruled">
+    <div class="lab" data-rise="1">Sonoma County · since 2017</div>
+    <div>
+      <h1 data-rise="1">One van, one detailer, and your own driveway.</h1>
+      <p class="lede" data-rise="2" style="margin-top:1.3rem">
+        I am Dale. I do three cars a day, four days a week, and I bring my own
+        water and power so nothing of mine plugs into anything of yours. If the
+        strip above says the van is out, that is where it is.
+      </p>
+      <p class="quiet" data-rise="3">
+        Everything below is what it costs and when I can come. There is no
+        package with a name, no membership, and nothing that has to be quoted
+        over the phone unless your car genuinely needs looking at first — in
+        which case I will say so rather than guess at a number.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     THE RATES, AND THEY ARE THE SECOND THING ON THE PAGE.
+     Research §3: a price ladder BY VEHICLE SIZE is what six real detailers'
+     sites contain, and it is what the trade's customers look for first.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="rates">
+  <div class="wrap ruled">
+    <div class="lab">Rates</div>
+    <div>
+      <h2>What it costs, by what you drive</h2>
+      <p class="quiet">
+        Prices are for a car in ordinary condition. Everything takes as long as
+        it takes; the times are what I actually block out.
+      </p>
+
+      <table class="ladder">
+        <caption>Sonoma County · effective Sep 2026</caption>
+        <thead>
+          <tr>
+            <th scope="col">Service</th>
+            <th scope="col">Sedan</th>
+            <th scope="col">SUV</th>
+            <th scope="col">Truck / van</th>
+            <th scope="col">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Outside only<small>Wash, wheels, glass, dressed tyres</small></th>
+            <td data-l="Sedan">$75</td><td data-l="SUV">$90</td><td data-l="Truck">$105</td><td data-l="Time">1h 15</td>
+          </tr>
+          <tr>
+            <th scope="row">Inside only<small>Vacuum, panels, glass, mats out</small></th>
+            <td data-l="Sedan">$110</td><td data-l="SUV">$135</td><td data-l="Truck">$155</td><td data-l="Time">2h</td>
+          </tr>
+          <tr>
+            <th scope="row">The full thing<small>Both, plus sealant on the paint</small></th>
+            <td data-l="Sedan">$195</td><td data-l="SUV">$235</td><td data-l="Truck">$270</td><td data-l="Time">3h 30</td>
+          </tr>
+          <tr>
+            <th scope="row">Seats or carpet shampooed<small>Added to any of the above</small></th>
+            <td data-l="Sedan">$70</td><td data-l="SUV">$85</td><td data-l="Truck">$95</td><td data-l="Time">+1h</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- A DISCLAIMER ON A SERVICE, which the research found on every real
+           site and on none of the generated ones. It is not small print; it
+           is the sentence that stops an argument in a driveway. -->
+      <p class="note" style="margin-top:1.6rem">
+        Pet hair, sand and smoke are charged on top and I will tell you the
+        number before I start, not after. If a car turns out to be a two-hour
+        job dressed as a one-hour job, you get a call, not a surprise.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     WHERE THE VAN IS. The section a national chain cannot have.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="week">
+  <div class="wrap ruled">
+    <div class="lab">This week</div>
+    <div>
+      <h2>Where the van is</h2>
+      <p class="quiet">
+        I work one town a day so I am not driving across the county between
+        jobs. If yours is not listed, ask — I will usually make it fit.
+      </p>
+      <ul class="plain mono" style="margin-top:1.2rem">
+        <li><span class="k">Mon</span><span>Healdsburg &amp; Geyserville</span></li>
+        <li><span class="k">Tue</span><span>Windsor</span></li>
+        <li><span class="k">Wed</span><span>Santa Rosa — north</span></li>
+        <li><span class="k">Thu</span><span>Santa Rosa — south &amp; Rohnert Park</span></li>
+        <li><span class="k">Fri</span><span>Sebastopol, Graton, Forestville</span></li>
+        <li><span class="k">Sat</span><span>Whoever booked first</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     THE FORM. Built in, in this site's own clothes — his ruling, 2026-09-05.
+     Marked throughout with which core call feeds which control, because the
+     RULES never fork even though the FORM does.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="book">
+  <div class="wrap ruled">
+    <div class="lab">Book</div>
+    <div>
+      <h2>Pick a job, pick a time</h2>
+      <p class="quiet" style="margin-bottom:1.6rem">
+        Four things and you are done. The time you pick is held for you — I do
+        not double-book and I do not take deposits.
+      </p>
+
+      <form class="form" onsubmit="return false">
+        <div class="step">
+          <span class="lab">01 — What</span>
+          <!-- SERVICES come from get_public_business_profile. The prices on
+               these rows are the PROFILE's, and the total below is
+               calculate-booking's — never this page's arithmetic. -->
+          <div class="choices">
+            <button type="button" class="choice" aria-pressed="false">
+              <span class="n">A</span><span>Outside only</span><span class="p">from $75</span>
+            </button>
+            <button type="button" class="choice" aria-pressed="true">
+              <span class="n">B</span><span>The full thing</span><span class="p">from $195</span>
+            </button>
+            <button type="button" class="choice" aria-pressed="false">
+              <span class="n">C</span><span>Inside only</span><span class="p">from $110</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="lab">02 — What you drive</span>
+          <div class="choices">
+            <button type="button" class="choice" aria-pressed="false"><span class="n">S</span><span>Sedan or coupe</span><span class="p">$195</span></button>
+            <button type="button" class="choice" aria-pressed="true"><span class="n">M</span><span>SUV or crossover</span><span class="p">$235</span></button>
+            <button type="button" class="choice" aria-pressed="false"><span class="n">L</span><span>Truck or van</span><span class="p">$270</span></button>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="lab">03 — When</span>
+          <!-- TIMES come from available-slots and from nothing else. A site
+               that works out its own opening hours has forked the engine:
+               the buffer, the blockouts, the per-day cap and the minimum
+               notice all live behind that one call. -->
+          <p class="quiet mono" style="margin:.8rem 0 0">THU 11 SEP · WINDSOR</p>
+          <div class="times">
+            <button type="button" class="time" aria-pressed="false">08:00</button>
+            <button type="button" class="time" aria-pressed="true">09:30</button>
+            <button type="button" class="time" aria-pressed="false">13:00</button>
+            <button type="button" class="time" aria-pressed="false">15:30</button>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="lab">04 — Where to come</span>
+          <label class="field"><span class="quiet">Address</span>
+            <input type="text" placeholder="Street, town" autocomplete="street-address"></label>
+          <label class="field"><span class="quiet">Name</span>
+            <input type="text" placeholder="Your name" autocomplete="name"></label>
+          <label class="field"><span class="quiet">Mobile</span>
+            <input type="tel" placeholder="For the day-before text" autocomplete="tel"></label>
+          <label class="field"><span class="quiet">Anything I should know</span>
+            <textarea rows="2" placeholder="Gate code, dog, where to park"></textarea></label>
+        </div>
+
+        <div class="total">
+          <span>Estimated total</span>
+          <span class="fig">$235.00</span>
+        </div>
+        <p class="quiet mono" style="font-size:.74rem; margin-top:.5rem">
+          FROM CALCULATE-BOOKING · NOT COMPUTED ON THIS PAGE
+        </p>
+        <button type="submit" class="go">Hold this time</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap ruled">
+    <div class="lab">Work</div>
+    <div>
+      <h2>Three from last month</h2>
+      <p class="quiet">Nothing staged, nothing borrowed. These are cars from the driveways above.</p>
+      <div class="plates" style="margin-top:1.6rem">
+        <figure>
+          <img loading="lazy" alt="Dashboard and centre console of a classic car being cleaned by hand"
+               src="https://images.unsplash.com/photo-1771491237218-cbd4a707497e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080">
+          <figcaption>1972 coupe · interior · 4h</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" alt="A detailer cleaning a car dashboard with a soft brush"
+               src="https://images.unsplash.com/photo-1771491237209-b89bc7290588?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080">
+          <figcaption>Vents and seams · brush, not spray</figcaption>
+        </figure>
+        <figure>
+          <img loading="lazy" alt="Working on a car's interior dashboard and instrument panel"
+               src="https://images.unsplash.com/photo-1771491237225-01931a752f58?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080">
+          <figcaption>Instrument binnacle · Windsor, Aug</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap ruled">
+    <div class="lab">Who I am</div>
+    <div>
+      <!-- CREDENTIALS, which the research found on every real detailer's site
+           and on none of the generated ones. Specific and checkable. -->
+      <ul class="plain">
+        <li><span class="k">Trading</span><span>Nine years, Sonoma County. Sole trader, no crew.</span></li>
+        <li><span class="k">Insured</span><span>$2M general liability + garage keepers. Certificate on request.</span></li>
+        <li><span class="k">Trained</span><span>IDA Certified Detailer, 2021. Gtechniq accredited installer.</span></li>
+        <li><span class="k">Water</span><span>Own 65-gallon tank and a 2kW inverter. Nothing plugs into your house.</span></li>
+        <li><span class="k">Payment</span><span>Card, cash or Venmo, on the day, after you have looked at it.</span></li>
+      </ul>
+
+      <blockquote style="margin-top:2.2rem">
+        “He turned up at the time he said, worked in the rain under his own
+        canopy, and the truck looked better than the day I bought it. He also
+        told me the headliner stain would not come out instead of charging me
+        to try.”
+        <cite>— M. Okonjo, Windsor · F-150 · August</cite>
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap ruled">
+    <div class="lab">Ridgeline</div>
+    <div>
+      <p class="mono" style="margin:0">
+        RIDGELINE MOBILE DETAIL · SONOMA COUNTY, CA<br>
+        <a href="tel:+17075550142">707 555 0142</a> · <a href="mailto:dale@ridgeline.example">dale@ridgeline.example</a>
+      </p>
+      <p class="quiet" style="margin-top:1.2rem; font-size:.9em">
+        Photographs by <a href="https://unsplash.com/@luaybarani">Luay Barani</a> on
+        <a href="https://unsplash.com/">Unsplash</a>. This page is a design
+        artefact for the detailing platform — the booking form is drawn in its
+        real shape and every price and time on a live copy comes from the
+        platform's own endpoints, never from this file.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// The only script on the page, and it does one thing: make the choice groups
+// behave like the radio groups they are. No framework, no build step — a
+// tenant site may be built on anything, including nothing.
+for (const group of document.querySelectorAll(".choices, .times")) {
+  group.addEventListener("click", (e) => {
+    const btn = e.target.closest("[aria-pressed]");
+    if (!btn || !group.contains(btn)) return;
+    for (const b of group.querySelectorAll("[aria-pressed]")) b.setAttribute("aria-pressed", "false");
+    btn.setAttribute("aria-pressed", "true");
+    // A live copy re-quotes here — calculate-booking, never local arithmetic.
+  });
+}
+</script>
+</body>
+</html>

@@ -28,7 +28,8 @@ import { tenantHost } from "../lib/host.js";
 import { duration, money } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import {
-  bookable, bookingRequests, campaignFor, canAdvance as coreCanAdvance, groupedWith, initialForm,
+  bookable, bookingRequests, campaignFor, canAdvance as coreCanAdvance, closedUntil,
+  groupedWith, initialForm,
   modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
   recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
   visitorIdFor,
@@ -338,6 +339,46 @@ function BookingFlow({ notFound = null }) {
   // and their branding is on it. A 404 here would also be the wrong answer for
   // the detailer, who is midway through setting up and needs their link to
   // look like something rather than like a mistake.
+  // ROADMAP 8.13 — THE DETAILER IS AWAY, AND THE PAGE SAYS SO AND WHEN THEY
+  // ARE BACK. Before this the only pause was the platform admin darkening the
+  // whole business, and the page then 404'd: a customer met "page not found"
+  // about a business that exists and is coming back in nine days.
+  //
+  // **IT IS ABOVE `bookable()` ON PURPOSE.** A detailer who has not finished
+  // setting up AND is away should be told the more specific, more useful
+  // thing — a return date — rather than "isn't taking bookings online yet",
+  // which reads as never.
+  //
+  // The note is the detailer's own words and React escapes it; it is the same
+  // human-typed, customer-facing boundary `campaignEmail` lives on.
+  const away = closedUntil(business, business?.timezone);
+  if (away) {
+    const backOn = new Date(`${away}T12:00:00`).toLocaleDateString("en-US", {
+      weekday: "long", month: "long", day: "numeric",
+    });
+    return (
+      <div className="bk" style={brandVars}>
+        <div className="bk-center">
+          <h1>{business?.name} is closed until {backOn}</h1>
+          {/* NO SENTENCE UNDER THE HEADING. "You can book from then — the page
+              will be back on by itself" was there and it failed his own copy
+              rule twice over: the heading already says when they can book, and
+              the second half describes OUR plumbing, which is not a fact a
+              customer has any use for. What is worth reading here is the
+              detailer's own note, below. */}
+          {business?.closed_note && (
+            <p className="bk-body" style={{ marginTop: 10 }}>{business.closed_note}</p>
+          )}
+          {business?.phone && (
+            <p className="bk-muted" style={{ marginTop: 10 }}>
+              <a href={`tel:${business.phone}`}>{business.phone}</a>
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (!bookable(settings)) {
     return (
       <div className="bk" style={brandVars}>
