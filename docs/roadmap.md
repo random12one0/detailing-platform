@@ -7675,8 +7675,57 @@ works**, which is one line at the end rather than a pause in the middle.
       new ones were vacuous on the first run** — one read the file's own IMPORT
       of `LanguagePicker` rather than the markup, and one counted generators
       with a threshold that stayed green with one of five broken.
-      **WHAT STAGE 2 STILL OWES**: the thirteen email templates and the
-      detailer's dashboard.
+      **STAGE 2A DONE 2026-09-07 — THE CUSTOMER'S EMAILS.**
+      **THE LANGUAGE CANNOT BE READ OFF A BROWSER, BECAUSE THERE IS NO
+      BROWSER.** An email is sent hours later by an edge function, so the
+      choice is stored: `bookings.lang`, `en` by default, check-constrained to
+      the two the product actually has. **A fact about the BOOKING and never
+      about the customer** — a household shares an address, and the person who
+      booked is the person who chose.
+      **`_shared/i18n.ts` AND `_shared/strings/es.ts` ARE A SECOND
+      IMPLEMENTATION, AND THE CATALOGUE IS NOT A COPY.** A Deno bundle will not
+      follow an import out of `supabase/` — the wall that already forced
+      `_shared/brandColor.js` and `_shared/vcard.ts` — so the MECHANISM is
+      duplicated while the strings are entirely different: email copy against
+      page copy. Two files with the same job would drift; two files with
+      different jobs are just two files.
+      **TEN CUSTOMER TEMPLATES, AND NOT ONE OF THE DETAILER'S.** The
+      confirmation, the request received, the accepted / declined / quoted
+      answer, the reminder, the receipt or invoice, the cancellation, the
+      reschedule, the thank-you, the plan link, the maintenance nudge and the
+      campaign's CHROME. **The owner's booking alert, the stale-request nudge,
+      the invite, the plan-ended notice and the platform's billing mail stay
+      English on purpose**: their audience runs a business on this product and
+      their language is the dashboard's question. A Spanish booking turning a
+      detailer's own alerts Spanish while their dashboard stays English is
+      worse than either. That is why the shared helpers — `jobFacts`,
+      `vehicleFact`, `quoteLines`, `paymentBlock`, `keepLink`, `reconcile`,
+      `formatDateLong` — take the language as an ARGUMENT rather than reading
+      `b.lang` themselves: two of them are shared with the owner's templates.
+      **AND THE DETAILER'S OWN WORDS ARE NEVER TOUCHED.** Service names, plan
+      names, their message templates, the campaign body they typed, the invoice
+      line items and the customer's own notes all pass through as written.
+      **`shell`'s FOURTH ARGUMENT IS AN OBJECT NOW**, because `legal` was a
+      fourth positional and `lang` would have been a fifth — the two things a
+      template can silently forget, told apart only by their order. It also
+      sets `<html lang>`, which is what a screen reader pronounces.
+      **THE MAINTENANCE NUDGE AND THE CAMPAIGN HAVE NO BOOKING**, so
+      `langForCustomer()` reads the person's most recent one; English for
+      anybody who has never booked.
+      **AND THE DEPLOY SCRIPT ONLY READ THE TOP LEVEL OF `_shared`**, so
+      `i18n.ts` deployed and the catalogue it imports did not — a bundle error
+      naming a path nobody wrote, on every function in the repo. It recurses
+      now. Same shape as the esm.sh outage: it looks exactly like a diff having
+      broken the world.
+      `spanish` is **58 checks with credentials and 50 without**; § 6 reads the
+      templates and § 7 asks the live column what it refuses. Nine breaks all
+      caught, and **four of the new checks were wrong on their first run** —
+      one walked for `.js` in a directory of `.ts` and found no senders at all,
+      one failed on the catalogue's own comment saying the word `usted` it
+      forbids, one could not see a key split across a `+`, and one could not
+      see two labels looked up through a variable.
+      **WHAT STAGE 2B STILL OWES**: the detailer's dashboard, and with it the
+      five templates their side of the product sends.
 
 - [x] 8.18 **Two logins at once.** *"Maybe there's an account switcher — like
       how on Chrome you could log into multiple Google accounts and switch

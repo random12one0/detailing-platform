@@ -16,7 +16,9 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
-import { buildBrand, extraVehiclesFor, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
+import {
+  buildBrand, extraVehiclesFor, langForCustomer, ownerRecipients, sendTenantEmail,
+} from "../_shared/email.ts";
 import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { businessSiteUrl, receiptUrl } from "../_shared/config.ts";
@@ -41,6 +43,11 @@ async function emailDataFor(business: Business, b: BookingRow) {
   const tz = business.timezone;
   return {
     id: b.id,
+    // ROADMAP 8.17 STAGE 2A — this sweep sends the CUSTOMER's reminder and
+    // the CUSTOMER's thank-you as well as the owner's own nudges, and the
+    // templates decide which audience they are for. Carrying the language
+    // here means the customer's two get it and the owner's ignore it.
+    lang: b.lang,
     customerName: b.customer_name,
     customerPhone: b.customer_phone,
     customerEmail: b.customer_email,
@@ -324,14 +331,18 @@ Deno.serve(async (req) => {
           if (!customer?.email || customer.unsubscribed_at || customer.email_failed_at) continue;
           const brand = await buildBrand(business, settings);
           const site = await siteFor(supabase, business.id);
+          // ROADMAP 8.17 — a deadline belongs to a CUSTOMER rather than to
+          // one booking, so the language comes from the last thing they told
+          // us. English for anybody who has never booked.
+          const lang = await langForCustomer(d.customer_id);
           const msg = maintenanceDueEmail(brand, {
             customerName: customer.name ?? "there",
             label: d.label,
             vehicle: d.vehicle,
-            dueOn: formatDateLong(d.due_on),
+            dueOn: formatDateLong(d.due_on, lang),
             daysLeft: STAGES[stage],
             bookUrl: businessSiteUrl(site, business.slug),
-          });
+          }, lang);
           await sendTenantEmail({
             businessId: business.id, to: customer.email,
             subject: msg.subject, html: msg.html, text: msg.text,

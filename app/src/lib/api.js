@@ -144,8 +144,12 @@ export const api = {
   // EMAIL IN, LINK OUT. It answers the same way whether or not the address
   // belongs to a member — the version the owner first described ("type your
   // email and it shows you") is address enumeration.
-  emailPlanLink: (businessSlug, email) =>
-    callFn("plan-link", { action: "email", business_slug: businessSlug, email }),
+  // ROADMAP 8.17 STAGE 2A — the language goes with the ask. This email is
+  // triggered by somebody typing their address into the plans page, so there
+  // is no booking to read it off and the browser that asked is the only thing
+  // that knows.
+  emailPlanLink: (businessSlug, email, lang) =>
+    callFn("plan-link", { action: "email", business_slug: businessSlug, email, lang }),
 
   // ROADMAP 2.19 — the opt-out at the bottom of a marketing email. The
   // customer's own UUID is the credential, the fourth caller of the pattern

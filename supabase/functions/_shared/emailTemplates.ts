@@ -52,6 +52,7 @@ import {
   shell,
 } from "./emailKit.ts";
 import { type PaymentHandle, paymentHandles, type PaymentSettings } from "./payments.ts";
+import { T } from "./i18n.ts";
 
 export { formatDateLong, formatTime12hr, money };
 export { paymentHandles };
@@ -94,6 +95,30 @@ export type TenantBrand = Brand & {
 
 export interface BookingEmailData {
   id: string;
+  /**
+   * ROADMAP 8.17 STAGE 2A — WHAT LANGUAGE THIS CUSTOMER'S EMAILS GO OUT IN,
+   * from `bookings.lang`, chosen on the booking page.
+   *
+   * **OPTIONAL, AND ABSENT MEANS ENGLISH**, which is what every booking made
+   * before this column existed was written in — so no existing sender is
+   * wrong by not knowing about it.
+   *
+   * **AND THE DETAILER-FACING TEMPLATES IGNORE IT ON PURPOSE.** The owner's
+   * booking alert, the stale-request nudge and the owner's half of the
+   * cancellation go to somebody who runs a business on this product, and
+   * their language is the DASHBOARD's question — stage 2b. A Spanish booking
+   * must not turn a detailer's own alerts Spanish while their dashboard stays
+   * English. That is why the shared helpers below take the language as an
+   * ARGUMENT rather than reading `b.lang` themselves: the customer templates
+   * pass it and the owner templates do not.
+   *
+   * **A CUSTOMER TEMPLATE THAT FORGETS IT PRODUCES A PERFECTLY VALID ENGLISH
+   * EMAIL** to somebody who asked for Spanish, and nothing on any screen
+   * reports that — the same invisible shape as `extraVehicles` below. So
+   * `tests/spanish.test.mjs` § 6 DISCOVERS the customer templates and the
+   * senders by reading the source rather than trusting a list in a comment.
+   */
+  lang?: string | null;
   customerName: string;
   customerPhone: string;
   customerEmail: string | null;
@@ -191,13 +216,14 @@ const sizeDisplay = (s: string) =>
 //
 // One vehicle renders byte-identically to what it always did, so nothing
 // about an ordinary booking's email moves.
-const vehicleFact = (b: BookingEmailData): [string, string] => {
+const vehicleFact = (b: BookingEmailData, lang?: unknown): [string, string] => {
+  const tt = T(lang);
   const one = (size: string, model?: string | null) =>
     `${esc(sizeDisplay(size))}${model ? ` &middot; ${esc(model)}` : ""}`;
   const extras = b.extraVehicles ?? [];
-  if (!extras.length) return ["Vehicle", one(b.vehicleSize, b.vehicleModel)];
+  if (!extras.length) return [tt("Vehicle"), one(b.vehicleSize, b.vehicleModel)];
   return [
-    `Vehicles (${extras.length + 1})`,
+    tt("Vehicles ({count})", { count: extras.length + 1 }),
     [one(b.vehicleSize, b.vehicleModel), ...extras.map((v) => one(v.size, v.model))].join("<br>"),
   ];
 };
@@ -271,27 +297,40 @@ function ownWords(brand: TenantBrand, kind: MessageKind): string {
  * NOTHING IS RENDERED WHEN NOTHING IS SET, which is every business on the day
  * this shipped. An empty heading over an empty list is worse than silence.
  */
-function paymentBlock(brand: TenantBrand, lead = ""): string {
+function paymentBlock(brand: TenantBrand, lead = "", lang?: unknown): string {
   const rows = brand.payment ?? [];
   if (rows.length === 0) return "";
   // NO LEAD ON THE INVOICE. That email's heading is already "Amount due" and
   // its money column is directly above this list, so a sentence here could
   // only restate one of them — which is the owner's own copy rule, 2026-09-01.
-  return labBlock("How to pay") + (lead ? fineBlock(lead, 10) : "") + factsBlock(
+  const tt = T(lang);
+  return labBlock(tt("How to pay")) + (lead ? fineBlock(lead, 10) : "") + factsBlock(
     rows.map((r) => [
-      r.label,
+      // ROADMAP 8.17 — **THE LABEL GOES THROUGH THE LOOKUP AND THE HANDLE
+      // NEVER DOES.** Venmo, Cash App, PayPal and Zelle are brand names and
+      // are not in the catalogue, so they pass through untouched; "Other" and
+      // "Cash" are our two words and are translated. The HANDLE is what the
+      // detailer typed — a username, a phone number, a sentence about a
+      // cheque — and translating a person's own words is the one thing this
+      // feature must never do. The exception is `On the day`, which is a
+      // sentinel this product writes rather than anything they typed.
+      tt(r.label),
       r.href
         ? `<a href="${esc(r.href)}" target="_blank" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(r.handle)}</a>`
-        : `<span class="c-ink" style="color:${G.ink};">${esc(r.handle)}</span>`,
+        : `<span class="c-ink" style="color:${G.ink};">${esc(r.handle === "On the day" ? tt("On the day") : r.handle)}</span>`,
     ] as [string, string]),
   );
 }
 
-function keepLink(bookUrl: string): string {
-  return fineBlock(
-    "Keep this email — the link above is how you change or cancel without ringing "
-    + `anyone. To book again any time: ${bookUrl}`,
-  );
+function keepLink(bookUrl: string, lang?: unknown): string {
+  // ONE STRING LITERAL, NOT TWO JOINED BY `+`. The key is the whole sentence,
+  // and an extractor reading source as text sees only the first fragment of a
+  // concatenation — so the catalogue and the call site would disagree about
+  // what the key even is. Found by the check that compares them.
+  return fineBlock(T(lang)(
+    "Keep this email — the link above is how you change or cancel without ringing anyone. To book again any time: {url}",
+    { url: bookUrl },
+  ));
 }
 
 /**
@@ -303,14 +342,19 @@ function keepLink(bookUrl: string): string {
  * the order the engine applies them: the site sale against the base, the promo
  * against what is left.
  */
-function quoteLines(b: BookingEmailData): MoneyLine[] {
+function quoteLines(b: BookingEmailData, lang?: unknown): MoneyLine[] {
+  // THE LABELS ARE OURS AND THE SERVICE NAMES ARE THE DETAILER'S. Only the
+  // handful of words this file invents — Service, Travel, Sale, Promo — are
+  // looked up; a machine translation of a business's own name for its own work
+  // is the single most embarrassing thing this feature could do.
+  const tt = T(lang);
   const travel = Number(b.travelFee) || 0;
   const adjustments = b.adjustments ?? [];
   const named = travel + adjustments.reduce((s, a) => s + (Number(a.amount) || 0), 0);
   // `subtotal` is post-site-discount, so the base has to be reconstructed
   // before the site line can be shown coming off it.
   const base = Number(b.subtotal) + (Number(b.siteDiscount) || 0) - named;
-  const services = [...b.serviceNames, ...b.addOnNames.map((a) => `${a} (add-on)`)];
+  const services = [...b.serviceNames, ...b.addOnNames.map((a) => tt("{name} (add-on)", { name: a }))];
 
   const lines: MoneyLine[] = [];
   if (services.length === 1) lines.push({ label: services[0], amount: base });
@@ -319,9 +363,14 @@ function quoteLines(b: BookingEmailData): MoneyLine[] {
     // and carries what it came to. Better an honest single line than a made-up
     // split across three.
     lines.push({ label: services.join(", "), amount: base });
-  } else lines.push({ label: "Service", amount: base });
+  } else lines.push({ label: tt("Service"), amount: base });
 
-  if (travel > 0) lines.push({ label: b.travelZone ? `Travel — ${b.travelZone}` : "Travel", amount: travel });
+  if (travel > 0) {
+    lines.push({
+      label: b.travelZone ? tt("Travel — {zone}", { zone: b.travelZone }) : tt("Travel"),
+      amount: travel,
+    });
+  }
   // AN ADJUSTMENT CAN BE NEGATIVE, AND `moneyBlock` DRAWS BY `kind` RATHER
   // THAN BY SIGN — so a −$120 line with no kind printed as a $120 CHARGE while
   // the total was $120 lower, and the column silently stopped adding up. It
@@ -339,24 +388,39 @@ function quoteLines(b: BookingEmailData): MoneyLine[] {
   }
   if (Number(b.siteDiscount) > 0) {
     lines.push({
-      label: b.siteDiscountPercent ? `${b.siteDiscountPercent}% sale` : "Sale",
+      label: b.siteDiscountPercent
+        ? tt("{percent}% sale", { percent: b.siteDiscountPercent })
+        : tt("Sale"),
       amount: Number(b.siteDiscount), kind: "discount",
     });
   }
   if (b.promoCode && Number(b.promoDiscount) > 0) {
-    lines.push({ label: `Promo ${b.promoCode}`, amount: Number(b.promoDiscount), kind: "discount" });
+    lines.push({
+      label: tt("Promo {code}", { code: b.promoCode }),
+      amount: Number(b.promoDiscount), kind: "discount",
+    });
   }
   // The engine ROUNDS the total to the business's own nearest-N after both
   // discounts, so even a fully itemised column can miss by a couple of
   // dollars. `reconcile` draws that rather than leaving a gap.
-  return reconcile(lines, Number(b.total));
+  return reconcile(lines, Number(b.total), lang);
 }
 
-const jobFacts = (brand: TenantBrand, b: BookingEmailData): [string, string][] => [
-  ["Where", esc(jobAddress(brand, b))],
-  [b.serviceType === "mobile" ? "We come to you" : "Drop-off", b.serviceType === "mobile" ? "Yes" : "At our unit"],
-  vehicleFact(b),
-];
+const jobFacts = (
+  brand: TenantBrand,
+  b: BookingEmailData,
+  lang?: unknown,
+): [string, string][] => {
+  const tt = T(lang);
+  return [
+    [tt("Where"), esc(jobAddress(brand, b))],
+    [
+      b.serviceType === "mobile" ? tt("We come to you") : tt("Drop-off"),
+      b.serviceType === "mobile" ? tt("Yes") : tt("At our unit"),
+    ],
+    vehicleFact(b, lang),
+  ];
+};
 
 // ---------------------------------------------------------------------------
 // 1 · CUSTOMER — BOOKING CONFIRMED / REQUEST RECEIVED
@@ -372,37 +436,46 @@ export function customerConfirmationEmail(
   b: BookingEmailData,
   isRequest = false,
 ): Mail {
-  const dateLong = formatDateLong(b.dateStr);
+  // ROADMAP 8.17 STAGE 2A. `tt` is bound once, at the top, and everything a
+  // reader sees goes through it. The detailer's own words — service names, the
+  // paragraph in `ownWords`, their notes — never do.
+  const tt = T(b.lang);
+  const dateLong = formatDateLong(b.dateStr, b.lang);
   const blocks = [
-    labBlock(isRequest ? "Request received" : "Booking confirmed"),
-    headlineBlock(isRequest ? "We're holding your time" : "You're all set"),
+    labBlock(isRequest ? tt("Request received") : tt("Booking confirmed")),
+    headlineBlock(isRequest ? tt("We're holding your time") : tt("You're all set")),
     proseBlock(isRequest
-      ? `Thanks, ${esc(firstName(b.customerName))} &mdash; we've got your request and nobody else can take this time while we look at it. You'll hear from us shortly.`
-      : `Thanks, ${esc(firstName(b.customerName))}. Here's everything for your appointment.`),
+      ? tt("Thanks, {first} — we've got your request and nobody else can take this time while we look at it. You'll hear from us shortly.",
+        { first: esc(firstName(b.customerName)) })
+      : tt("Thanks, {first}. Here's everything for your appointment.",
+        { first: esc(firstName(b.customerName)) })),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
-    factsBlock(jobFacts(brand, b)),
+    factsBlock(jobFacts(brand, b, b.lang)),
     ruleBlock(34),
-    labBlock("What we're doing"),
-    moneyBlock(brand, quoteLines(b), { label: "Estimated total", amount: Number(b.total) }),
-    fineBlock("An estimate. If the vehicle's condition needs more time than expected we'll tell you before we start, never after."),
+    labBlock(tt("What we're doing")),
+    moneyBlock(brand, quoteLines(b, b.lang), { label: tt("Estimated total"), amount: Number(b.total) }),
+    fineBlock(tt("An estimate. If the vehicle's condition needs more time than expected we'll tell you before we start, never after.")),
     // ROADMAP 2.20 STAGE 1, AND NOT ON THE REQUEST BRANCH. A request is not a
     // booking yet — that branch's own note says "nothing is charged now" — so
     // telling somebody how to pay for a job nobody has accepted is the same
     // mistake as printing payment methods on a receipt, one step earlier.
     // The accepted-request email carries them instead.
-    isRequest ? "" : paymentBlock(brand, "Nothing to pay now — this is for when the work is done."),
+    isRequest ? "" : paymentBlock(brand, tt("Nothing to pay now — this is for when the work is done."), b.lang),
     ownWords(brand, isRequest ? "request_received" : "confirmation"),
-    buttonBlock(brand, isRequest ? "View or change your request" : "View your booking", b.receiptUrl),
-    keepLink(brand.siteUrl),
-    isRequest ? noteBlock("Nothing is charged now. We'll email you the moment we've accepted.") : "",
-    b.customerNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">Your notes</strong><br>${esc(b.customerNotes)}`, 26) : "",
+    buttonBlock(brand, isRequest ? tt("View or change your request") : tt("View your booking"), b.receiptUrl),
+    keepLink(brand.siteUrl, b.lang),
+    isRequest ? noteBlock(tt("Nothing is charged now. We'll email you the moment we've accepted.")) : "",
+    b.customerNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(tt("Your notes"))}</strong><br>${esc(b.customerNotes)}`, 26) : "",
   ].filter(Boolean);
 
   return mail(
-    isRequest ? `Request received — ${dateLong}` : `Booking confirmed — ${dateLong}`,
+    isRequest
+      ? tt("Request received — {date}", { date: dateLong })
+      : tt("Booking confirmed — {date}", { date: dateLong }),
     shell(brand, blocks, isRequest
-      ? "We're holding your time while we look at it."
-      : `${dateLong} at ${formatTime12hr(b.startTime)}.`),
+      ? tt("We're holding your time while we look at it.")
+      : tt("{date} at {time}.", { date: dateLong, time: formatTime12hr(b.startTime) }),
+      { lang: b.lang }),
   );
 }
 
@@ -482,54 +555,58 @@ export function requestDecisionEmail(
   kind: "accepted" | "declined" | "quote",
   opts: { manageUrl: string; quotedAmount?: number; quotedNote?: string | null } = { manageUrl: "" },
 ): Mail {
-  const dateLong = formatDateLong(b.dateStr);
+  const tt = T(b.lang);
+  const dateLong = formatDateLong(b.dateStr, b.lang);
   const when = `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`;
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
 
   const blocks = kind === "quote"
     ? [
-      labBlock("Quote"),
-      headlineBlock("Here's your price"),
-      proseBlock(`We've had a look at what you asked for on ${when}, and here's what we can do it for.`),
-      markBlock(brand, [money(Number(opts.quotedAmount ?? 0)), "Our price for this job"]),
+      labBlock(tt("Quote")),
+      headlineBlock(tt("Here's your price")),
+      proseBlock(tt("We've had a look at what you asked for on {when}, and here's what we can do it for.", { when })),
+      markBlock(brand, [money(Number(opts.quotedAmount ?? 0)), tt("Our price for this job")]),
       opts.quotedNote ? proseBlock(esc(opts.quotedNote), 22) : "",
-      noteBlock(`We're still holding ${esc(dateLong)} at ${formatTime12hr(b.startTime)} for you. <strong class="c-ink2" style="color:${G.ink2};">Nothing is charged until you say yes.</strong>`),
+      noteBlock(`${esc(tt("We're still holding {date} at {time} for you.", { date: dateLong, time: formatTime12hr(b.startTime) }))} <strong class="c-ink2" style="color:${G.ink2};">${esc(tt("Nothing is charged until you say yes."))}</strong>`),
       ownWords(brand, "quote"),
-      buttonBlock(brand, "See it and say yes", opts.manageUrl),
+      buttonBlock(brand, tt("See it and say yes"), opts.manageUrl),
     ].filter(Boolean)
     : kind === "accepted"
     ? [
-      labBlock("Request accepted"),
-      headlineBlock("You're booked in"),
-      proseBlock(`Good news &mdash; we've accepted your request for ${when}. It's in the diary.`),
+      labBlock(tt("Request accepted")),
+      headlineBlock(tt("You're booked in")),
+      proseBlock(tt("Good news — we've accepted your request for {when}. It's in the diary.", { when }).replace("—", "&mdash;")),
       markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
-      factsBlock(jobFacts(brand, b)),
+      factsBlock(jobFacts(brand, b, b.lang)),
       // ROADMAP 2.20 STAGE 1, AND THIS IS THE CONFIRMATION FOR HALF THE
       // TENANTS. In request mode the customer's first email says "we're
       // holding your time" and explicitly charges nothing; THIS is the one
       // that says the job is happening. Leaving it out because the roadmap's
       // sentence says "the confirmation" would give every request-mode
       // business no payment handles on the only email that confirms anything.
-      paymentBlock(brand, "Nothing to pay now — this is for when the work is done."),
+      paymentBlock(brand, tt("Nothing to pay now — this is for when the work is done."), b.lang),
       ownWords(brand, "accepted"),
-      buttonBlock(brand, "View or change your booking", opts.manageUrl),
-      keepLink(brand.siteUrl),
+      buttonBlock(brand, tt("View or change your booking"), opts.manageUrl),
+      keepLink(brand.siteUrl, b.lang),
     ].filter(Boolean)
     : [
-      labBlock("Request declined"),
-      headlineBlock("We can't make that one"),
-      proseBlock(`We're sorry &mdash; we can't take ${when}, so we've let that time go.`),
-      proseBlock(`If another day works, we'd still love to see you &mdash; <a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>.`),
+      labBlock(tt("Request declined")),
+      headlineBlock(tt("We can't make that one")),
+      proseBlock(tt("We're sorry — we can't take {when}, so we've let that time go.", { when }).replace("—", "&mdash;")),
+      proseBlock(tt("If another day works, we'd still love to see you — {link}.", {
+        link: `<a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>`,
+      }).replace("—", "&mdash;")),
       ownWords(brand, "declined"),
     ].filter(Boolean);
 
   const subject = kind === "accepted"
-    ? `You're booked in — ${dateLong}`
+    ? tt("You're booked in — {date}", { date: dateLong })
     : kind === "declined"
-    ? `About your request for ${dateLong}`
-    : `Your price: ${money(Number(opts.quotedAmount ?? 0))} for ${dateLong}`;
+    ? tt("About your request for {date}", { date: dateLong })
+    : tt("Your price: {amount} for {date}",
+      { amount: money(Number(opts.quotedAmount ?? 0)), date: dateLong });
 
-  return mail(subject, shell(brand, blocks, subject));
+  return mail(subject, shell(brand, blocks, subject, { lang: b.lang }));
 }
 
 // ---------------------------------------------------------------------------
@@ -555,32 +632,37 @@ export function invoiceEmail(
   paymentStatus: string,
   paymentNotes: string | null,
 ): Mail {
+  const tt = T(b.lang);
   const ref = String(b.id).split("-")[0].toUpperCase();
   const paid = String(paymentStatus).toLowerCase() === "paid";
-  const dateLong = formatDateLong(b.dateStr);
+  const dateLong = formatDateLong(b.dateStr, b.lang);
 
   const lines = reconcile(
     rows.map((r) => ({
+      // THE ROW LABELS ARE THE DETAILER'S OWN LINE ITEMS and stay as typed.
       label: r.qty > 1 ? `${r.label} ×${r.qty}` : r.label,
       amount: Math.abs(Number(r.lineTotal)),
       kind: (r.kind === "discount" || Number(r.lineTotal) < 0 ? "discount" : "charge") as MoneyLine["kind"],
     })),
     Number(totals.totalPaid),
+    b.lang,
   );
 
   const blocks = [
-    labBlock(paid ? "Receipt" : "Invoice"),
-    headlineBlock(paid ? "Paid in full" : "Amount due"),
+    labBlock(paid ? tt("Receipt") : tt("Invoice")),
+    headlineBlock(paid ? tt("Paid in full") : tt("Amount due")),
     proseBlock(paid
-      ? `Thanks, ${esc(firstName(b.customerName))} &mdash; here's your receipt for the work on ${esc(dateLong)}.`
-      : `Hi ${esc(firstName(b.customerName))}, here's the invoice for the work on ${esc(dateLong)}.`),
+      ? tt("Thanks, {first} — here's your receipt for the work on {date}.",
+        { first: esc(firstName(b.customerName)), date: esc(dateLong) }).replace("—", "&mdash;")
+      : tt("Hi {first}, here's the invoice for the work on {date}.",
+        { first: esc(firstName(b.customerName)), date: esc(dateLong) })),
     factsBlock([
-      ["Reference", `<span class="c-ink" style="font-family:'SF Mono',Menlo,Consolas,monospace;">${esc(ref)}</span>`],
-      vehicleFact(b),
-      ["Service", b.serviceType === "mobile" ? "Mobile" : "Drop-off"],
+      [tt("Reference"), `<span class="c-ink" style="font-family:'SF Mono',Menlo,Consolas,monospace;">${esc(ref)}</span>`],
+      vehicleFact(b, b.lang),
+      [tt("Service"), b.serviceType === "mobile" ? tt("Mobile") : tt("Drop-off")],
     ]),
     ruleBlock(34),
-    labBlock("The work"),
+    labBlock(tt("The work")),
     // NAMED, NOT PRICED. The prices of the individual services are not what was
     // charged — `total_price` is, and the customer's confirmation email already
     // itemises how that figure was reached. Printing per-service prices here
@@ -588,35 +670,38 @@ export function invoiceEmail(
     // which is exactly the shape that kept this invoice wrong.
     b.serviceNames.length || b.addOnNames.length
       ? proseBlock(
-        [...b.serviceNames, ...b.addOnNames.map((a) => `${a} (add-on)`)]
+        [...b.serviceNames, ...b.addOnNames.map((a) => tt("{name} (add-on)", { name: a }))]
           .map((sv) => `<div style="padding:4px 0;">${esc(sv)}</div>`).join(""),
         12,
       )
       : "",
     ruleBlock(26),
-    labBlock(paid ? "What you paid" : "What is due"),
+    labBlock(paid ? tt("What you paid") : tt("What is due")),
     moneyBlock(brand, lines, {
-      label: paid ? "Total paid" : "Amount due",
+      label: paid ? tt("Total paid") : tt("Amount due"),
       amount: Number(totals.totalPaid),
     }),
     // ROADMAP 2.20 STAGE 1 — AND `paid` IS THE WHOLE POINT OF THE BRANCH.
     // The owner's complaint about his own old site was that its invoice listed
     // the payments he accepts for money the customer had already handed over.
     // A receipt proves; an invoice asks. Only the one that asks says how.
-    paid ? "" : paymentBlock(brand),
-    paymentNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">Notes</strong><br>${esc(paymentNotes)}`, 26) : "",
+    paid ? "" : paymentBlock(brand, "", b.lang),
+    paymentNotes ? proseBlock(`<strong class="c-ink" style="color:${G.ink};">${esc(tt("Notes"))}</strong><br>${esc(paymentNotes)}`, 26) : "",
     ownWords(brand, paid ? "receipt" : "invoice"),
-    buttonBlock(brand, "View this online", b.receiptUrl),
-    fineBlock("Keep this for your records. Reply to this email if anything looks wrong."),
+    buttonBlock(brand, tt("View this online"), b.receiptUrl),
+    fineBlock(tt("Keep this for your records. Reply to this email if anything looks wrong.")),
   ].filter(Boolean);
 
   return mail(
     paid
-      ? `Receipt — ${money(Number(totals.totalPaid))} — ${brand.brandName}`
-      : `Invoice — ${money(Number(totals.totalPaid))} due — ${brand.brandName}`,
+      ? tt("Receipt — {amount} — {brand}",
+        { amount: money(Number(totals.totalPaid)), brand: brand.brandName })
+      : tt("Invoice — {amount} due — {brand}",
+        { amount: money(Number(totals.totalPaid)), brand: brand.brandName }),
     shell(brand, blocks, paid
-      ? `Paid in full — ${money(Number(totals.totalPaid))}.`
-      : `${money(Number(totals.totalPaid))} due.`),
+      ? tt("Paid in full — {amount}.", { amount: money(Number(totals.totalPaid)) })
+      : tt("{amount} due.", { amount: money(Number(totals.totalPaid)) }),
+      { lang: b.lang }),
   );
 }
 
@@ -626,27 +711,32 @@ export function invoiceEmail(
 // Five of six products send one; ours already did. The old referral & loyalty
 // blurb stays gone (the referral system was removed platform-wide).
 // ---------------------------------------------------------------------------
-export function followupEmail(brand: TenantBrand, name: string): Mail {
+export function followupEmail(brand: TenantBrand, name: string, lang?: unknown): Mail {
+  // THE LANGUAGE IS AN ARGUMENT HERE RATHER THAN A FIELD, because this one
+  // takes a NAME rather than a booking — it is sent after a job, from the
+  // sweep, and the sender is the one holding the row that knows.
+  const tt = T(lang);
   const links = [
-    brand.googleReviewUrl ? ["Leave a Google review", brand.googleReviewUrl] : null,
-    brand.yelpReviewUrl ? ["Leave a Yelp review", brand.yelpReviewUrl] : null,
+    brand.googleReviewUrl ? [tt("Leave a Google review"), brand.googleReviewUrl] : null,
+    brand.yelpReviewUrl ? [tt("Leave a Yelp review"), brand.yelpReviewUrl] : null,
   ].filter(Boolean) as [string, string][];
 
   const blocks = [
-    labBlock("Thank you"),
-    headlineBlock("Thanks for trusting us with it"),
-    proseBlock(`Hello ${esc(firstName(name))}, thank you for choosing ${esc(brand.brandName)}. We appreciate the opportunity to take care of your vehicle.`),
+    labBlock(tt("Thank you")),
+    headlineBlock(tt("Thanks for trusting us with it")),
+    proseBlock(tt("Hello {first}, thank you for choosing {brand}. We appreciate the opportunity to take care of your vehicle.",
+      { first: esc(firstName(name)), brand: esc(brand.brandName) })),
     links.length
-      ? proseBlock("If you were happy with the work, a quick review genuinely helps us.", 22)
+      ? proseBlock(tt("If you were happy with the work, a quick review genuinely helps us."), 22)
       : "",
     ownWords(brand, "followup"),
     ...links.map(([label, href]) => buttonBlock(brand, label, href)),
-    links.length ? fineBlock("It takes about a minute, and it is the single biggest thing that helps a small business like ours.") : "",
+    links.length ? fineBlock(tt("It takes about a minute, and it is the single biggest thing that helps a small business like ours.")) : "",
   ].filter(Boolean);
 
   return mail(
-    `Thank you for choosing ${brand.brandName}`,
-    shell(brand, blocks, `Thank you from ${brand.brandName}`),
+    tt("Thank you for choosing {brand}", { brand: brand.brandName }),
+    shell(brand, blocks, tt("Thank you from {brand}", { brand: brand.brandName }), { lang }),
   );
 }
 
@@ -660,21 +750,25 @@ export function customerReminderEmail(
    *  in which paragraph the detailer gets to attach — same facts, same job. */
   second = false,
 ): Mail {
-  const dateLong = formatDateLong(b.dateStr);
+  const tt = T(b.lang);
+  const dateLong = formatDateLong(b.dateStr, b.lang);
   const blocks = [
-    labBlock("Reminder"),
-    headlineBlock("See you soon"),
-    proseBlock(`Hi ${esc(firstName(b.customerName))}, a quick reminder about your appointment with ${esc(brand.brandName)}.`),
+    labBlock(tt("Reminder")),
+    headlineBlock(tt("See you soon")),
+    proseBlock(tt("Hi {first}, a quick reminder about your appointment with {brand}.",
+      { first: esc(firstName(b.customerName)), brand: esc(brand.brandName) })),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
-    factsBlock(jobFacts(brand, b)),
-    paymentBlock(brand, "For when the work is done."),
+    factsBlock(jobFacts(brand, b, b.lang)),
+    paymentBlock(brand, tt("For when the work is done."), b.lang),
     ownWords(brand, second ? "reminder_2" : "reminder"),
-    buttonBlock(brand, "View or change your booking", b.receiptUrl),
-    keepLink(brand.siteUrl),
+    buttonBlock(brand, tt("View or change your booking"), b.receiptUrl),
+    keepLink(brand.siteUrl, b.lang),
   ].filter(Boolean);
   return mail(
-    `Reminder: your appointment ${dateLong}`,
-    shell(brand, blocks, `Reminder: ${dateLong} at ${formatTime12hr(b.startTime)}`),
+    tt("Reminder: your appointment {date}", { date: dateLong }),
+    shell(brand, blocks,
+      tt("Reminder: {date} at {time}", { date: dateLong, time: formatTime12hr(b.startTime) }),
+      { lang: b.lang }),
   );
 }
 
@@ -686,7 +780,14 @@ export function customerReminderEmail(
 // set that spends it.
 // ---------------------------------------------------------------------------
 export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOwner: boolean): Mail {
-  const dateLong = formatDateLong(b.dateStr);
+  // **ONE TEMPLATE, TWO AUDIENCES, AND ONLY ONE OF THEM GETS SPANISH.** The
+  // owner's half goes to somebody who runs a business on this product; their
+  // language is the dashboard's question (stage 2b), and a Spanish booking
+  // must not turn a detailer's own alerts Spanish while their dashboard stays
+  // English. So `lang` is `undefined` on that branch, which is English.
+  const lang = forOwner ? undefined : b.lang;
+  const tt = T(lang);
+  const dateLong = formatDateLong(b.dateStr, lang);
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
   const blocks = forOwner
     ? [
@@ -699,15 +800,24 @@ export function cancellationEmail(brand: TenantBrand, b: BookingEmailData, forOw
       ]),
     ]
     : [
-      labBlock("Cancelled", "bad"),
-      headlineBlock("Your booking is cancelled"),
-      proseBlock(`Hi ${esc(firstName(b.customerName))}, your booking with ${esc(brand.brandName)} for <strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong> at <strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong> has been cancelled.`),
-      proseBlock(`We'd love to see you another time &mdash; you can book again at <a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>.`),
+      labBlock(tt("Cancelled"), "bad"),
+      headlineBlock(tt("Your booking is cancelled")),
+      proseBlock(tt("Hi {first}, your booking with {brand} for {date} at {time} has been cancelled.", {
+        first: esc(firstName(b.customerName)),
+        brand: esc(brand.brandName),
+        date: `<strong class="c-ink" style="color:${G.ink};">${esc(dateLong)}</strong>`,
+        time: `<strong class="c-ink" style="color:${G.ink};">${formatTime12hr(b.startTime)}</strong>`,
+      })),
+      proseBlock(tt("We'd love to see you another time — you can book again at {link}.", {
+        link: `<a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a>`,
+      }).replace("—", "&mdash;")),
       ownWords(brand, "cancelled"),
     ].filter(Boolean);
   return mail(
-    forOwner ? `Cancelled — ${b.customerName} — ${dateLong}` : `Your booking has been cancelled`,
-    shell(brand, blocks, `Cancelled: ${dateLong}`),
+    forOwner
+      ? `Cancelled — ${b.customerName} — ${dateLong}`
+      : tt("Your booking has been cancelled"),
+    shell(brand, blocks, tt("Cancelled: {date}", { date: dateLong }), { lang }),
   );
 }
 
@@ -725,23 +835,30 @@ export function rescheduleEmail(
   oldStartTime: string,
   forOwner: boolean,
 ): Mail {
-  const dateLong = formatDateLong(b.dateStr);
-  const oldLong = formatDateLong(oldDateStr);
+  // See `cancellationEmail` above: one template, two audiences, and the
+  // detailer's half stays English until stage 2b.
+  const lang = forOwner ? undefined : b.lang;
+  const tt = T(lang);
+  const dateLong = formatDateLong(b.dateStr, lang);
+  const oldLong = formatDateLong(oldDateStr, lang);
   const blocks = [
-    labBlock("Rescheduled"),
-    headlineBlock(forOwner ? b.customerName : "Your booking has moved"),
+    labBlock(tt("Rescheduled")),
+    headlineBlock(forOwner ? b.customerName : tt("Your booking has moved")),
     proseBlock(forOwner
       ? `<strong class="c-ink" style="color:${G.ink};">${esc(b.customerName)}</strong> moved their booking.`
-      : `Hi ${esc(firstName(b.customerName))}, your booking with ${esc(brand.brandName)} has been moved.`),
+      : tt("Hi {first}, your booking with {brand} has been moved.",
+        { first: esc(firstName(b.customerName)), brand: esc(brand.brandName) })),
     proseBlock(`<span style="color:${G.fog2}; text-decoration:line-through;">${esc(oldLong)} at ${formatTime12hr(oldStartTime)}</span>`, 24),
     markBlock(brand, [dateLong, `${formatTime12hr(b.startTime)} &ndash; ${formatTime12hr(b.endTime)}`]),
-    factsBlock(jobFacts(brand, b)),
+    factsBlock(jobFacts(brand, b, lang)),
     forOwner ? "" : ownWords(brand, "rescheduled"),
-    buttonBlock(brand, forOwner ? "Open the job" : "View your booking", b.receiptUrl),
+    buttonBlock(brand, forOwner ? "Open the job" : tt("View your booking"), b.receiptUrl),
   ].filter(Boolean);
   return mail(
-    forOwner ? `Rescheduled — ${b.customerName} — now ${dateLong}` : "Your booking has been rescheduled",
-    shell(brand, blocks, `Rescheduled to ${dateLong}`),
+    forOwner
+      ? `Rescheduled — ${b.customerName} — now ${dateLong}`
+      : tt("Your booking has been rescheduled"),
+    shell(brand, blocks, tt("Rescheduled to {date}", { date: dateLong }), { lang }),
   );
 }
 
@@ -817,18 +934,29 @@ export function inviteEmail(
 export function planLinkEmail(
   brand: TenantBrand,
   opts: { customerName: string; planName: string; planUrl: string; bookUrl: string },
+  lang?: unknown,
 ): Mail {
+  // **THE LANGUAGE COMES FROM THE REQUEST, NOT FROM A ROW.** This email is
+  // sent from the plans PAGE — somebody typed their address into the box — so
+  // there is no booking to read it off, and the browser that asked is the only
+  // thing that knows. `plan-link` passes what the page sent.
+  const tt = T(lang);
   const blocks = [
-    labBlock("Your plan"),
-    headlineBlock("Here's your link"),
-    proseBlock(`Hi ${esc(firstName(opts.customerName))} &mdash; you're on <strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong> with ${esc(brand.brandName)}.`),
-    proseBlock("The button below opens your plan: what you're on, when your next visit is due, and how to book it.", 16),
-    buttonBlock(brand, "Open your plan", opts.planUrl),
-    fineBlock(`Keep this email &mdash; that link is the only way back to your plan. To book any time: ${opts.bookUrl}`),
+    labBlock(tt("Your plan")),
+    headlineBlock(tt("Here's your link")),
+    proseBlock(tt("Hi {first} — you're on {plan} with {brand}.", {
+      first: esc(firstName(opts.customerName)),
+      plan: `<strong class="c-ink" style="color:${G.ink};">${esc(opts.planName)}</strong>`,
+      brand: esc(brand.brandName),
+    }).replace("—", "&mdash;")),
+    proseBlock(tt("The button below opens your plan: what you're on, when your next visit is due, and how to book it."), 16),
+    buttonBlock(brand, tt("Open your plan"), opts.planUrl),
+    fineBlock(tt("Keep this email — that link is the only way back to your plan. To book any time: {url}",
+      { url: opts.bookUrl }).replace("—", "&mdash;")),
   ];
   return mail(
-    `Your plan with ${brand.brandName}`,
-    shell(brand, blocks, `${opts.planName} — your link is inside.`),
+    tt("Your plan with {brand}", { brand: brand.brandName }),
+    shell(brand, blocks, tt("{plan} — your link is inside.", { plan: opts.planName }), { lang }),
   );
 }
 
@@ -907,14 +1035,20 @@ export interface CampaignEmailData {
   mailingAddress: string;
 }
 
-export function campaignEmail(brand: TenantBrand, c: CampaignEmailData): Mail {
+export function campaignEmail(brand: TenantBrand, c: CampaignEmailData, lang?: unknown): Mail {
+  // **ONLY THE CHROME.** The subject, the headline and the body are the
+  // detailer's own words, in whatever language they typed them — translating a
+  // person's own message is the one thing this feature must never do. What we
+  // wrote is the greeting, the button, and the footer's legal half, and those
+  // follow the reader.
+  const tt = T(lang);
   const words = esc(String(c.message).trim()).split(/\r?\n\s*/).join("<br>");
   const blocks = [
-    labBlock("Checking in"),
+    labBlock(tt("Checking in")),
     headlineBlock(c.subject),
-    proseBlock(`Hello ${esc(firstName(c.customerName))},`),
+    proseBlock(tt("Hello {first},", { first: esc(firstName(c.customerName)) })),
     proseBlock(words, 10),
-    buttonBlock(brand, "Book again", c.bookUrl),
+    buttonBlock(brand, tt("Book again"), c.bookUrl),
   ];
   return mail(
     c.subject,
@@ -924,7 +1058,7 @@ export function campaignEmail(brand: TenantBrand, c: CampaignEmailData): Mail {
       // The preheader is the start of what they actually wrote, not a
       // restatement of the subject sitting next to it in the inbox.
       String(c.message).trim().replace(/\s+/g, " ").slice(0, 90),
-      { mailingAddress: c.mailingAddress, unsubscribeUrl: c.unsubscribeUrl },
+      { legal: { mailingAddress: c.mailingAddress, unsubscribeUrl: c.unsubscribeUrl }, lang },
     ),
   );
 }
@@ -1093,28 +1227,37 @@ export interface MaintenanceEmailData {
   bookUrl: string;
 }
 
-export function maintenanceDueEmail(brand: TenantBrand, m: MaintenanceEmailData): Mail {
-  const what = m.vehicle ? `${esc(m.label)} on your ${esc(m.vehicle)}` : esc(m.label);
+export function maintenanceDueEmail(brand: TenantBrand, m: MaintenanceEmailData, lang?: unknown): Mail {
+  // The label and the vehicle are the DETAILER's own words and the customer's
+  // own car; only the sentence around them is ours.
+  const tt = T(lang);
+  const what = m.vehicle
+    ? tt("{label} on your {vehicle}", { label: esc(m.label), vehicle: esc(m.vehicle) })
+    : esc(m.label);
   // THE URGENCY IS THE FACT, NOT AN ADJECTIVE. "Two weeks left" is true and
   // acts on somebody; "Don't miss out!" is the SaaS-speak the design system
   // bans on every other surface and there is no reason email is different.
   const lead = m.daysLeft <= 1
-    ? "Tomorrow is the last day"
+    ? tt("Tomorrow is the last day")
     : m.daysLeft <= 14
-      ? `${m.daysLeft} days left`
-      : `Due ${m.dueOn}`;
+      ? tt("{days} days left", { days: m.daysLeft })
+      : tt("Due {date}", { date: m.dueOn });
   const blocks = [
-    labBlock("Maintenance due"),
+    labBlock(tt("Maintenance due")),
     headlineBlock(lead),
-    proseBlock(`Hi ${esc(firstName(m.customerName))} &mdash; your <strong class="c-ink" style="color:${G.ink};">${what}</strong> is due by <strong class="c-ink" style="color:${G.ink};">${esc(m.dueOn)}</strong>.`),
-    proseBlock("Book it below and we'll take care of it.", 16),
-    buttonBlock(brand, "Book it in", m.bookUrl),
-    fineBlock("If you have already had this done elsewhere, let us know and we will mark it off."),
+    proseBlock(tt("Hi {first} — your {what} is due by {date}.", {
+      first: esc(firstName(m.customerName)),
+      what: `<strong class="c-ink" style="color:${G.ink};">${what}</strong>`,
+      date: `<strong class="c-ink" style="color:${G.ink};">${esc(m.dueOn)}</strong>`,
+    }).replace("—", "&mdash;")),
+    proseBlock(tt("Book it below and we'll take care of it."), 16),
+    buttonBlock(brand, tt("Book it in"), m.bookUrl),
+    fineBlock(tt("If you have already had this done elsewhere, let us know and we will mark it off.")),
   ];
   return mail(
     m.daysLeft <= 1
-      ? `Last day: ${m.label}`
-      : `${m.label} is due ${m.dueOn}`,
-    shell(brand, blocks, `${lead} to book your ${m.label}.`),
+      ? tt("Last day: {label}", { label: m.label })
+      : tt("{label} is due {date}", { label: m.label, date: m.dueOn }),
+    shell(brand, blocks, tt("{lead} to book your {label}.", { lead, label: m.label }), { lang }),
   );
 }

@@ -48,6 +48,19 @@ const walk = (d, o = []) => {
   }
   return o;
 };
+// ROADMAP 8.17 STAGE 2A — the edge functions are TypeScript, and § 6 walks
+// them. `walk` above collects `.js`/`.jsx` only, so calling it on
+// `supabase/functions` returned NOTHING and the sender check announced it had
+// no subjects rather than passing quietly — which is the only reason it was
+// noticed.
+const walkTs = (d, o = []) => {
+  for (const f of readdirSync(d)) {
+    const p = path.join(d, f);
+    if (statSync(p).isDirectory()) walkTs(p, o);
+    else if (/\.ts$/.test(f)) o.push(p);
+  }
+  return o;
+};
 // **COMMENTS COME OUT FIRST.** A doc comment carrying `t("Choose your
 // services")` as an EXAMPLE was read as a real call site on the first run of
 // the extractor this check is built on — the comment-vacuity trap this repo
@@ -328,6 +341,235 @@ console.log("5. the formatters the booking surface calls");
     /export const duration = \(mins, lang = "en"\)/.test(fmt));
   check("5c-ii · and the formatter never reads the active locale itself",
     !/getLocale/.test(fmt));
+}
+
+
+// ─── 6. THE EMAILS ────────────────────────────────────────────────────────
+//
+// **AN EMAIL CANNOT BE CORRECTED AFTER IT IS SENT**, which makes every failure
+// in this section worse than the same failure on a page. And the language
+// cannot be read off the browser, because there is no browser: it is on the
+// BOOKING (`bookings.lang`), chosen on the form and carried by every sender.
+//
+// § 6f and § 6h are the two no other check can make. A customer template that
+// forgets `tt` sends a perfectly valid ENGLISH email to somebody who asked for
+// Spanish, and a sender that forgets `lang` does the same from one function
+// while the other seven are right — neither shows up on any screen, in any
+// render, or in any contrast measurement.
+console.log("6. the emails, where a mistake cannot be taken back");
+{
+  const SHARED = path.join(ROOT, "supabase/functions/_shared");
+  const KIT = strip(readFileSync(path.join(SHARED, "emailKit.ts"), "utf8"));
+  const TPL = strip(readFileSync(path.join(SHARED, "emailTemplates.ts"), "utf8"));
+  // The email catalogue is a SECOND file and deliberately not the page one: a
+  // Deno bundle cannot import out of `supabase/`, and the two hold almost no
+  // sentences in common. Read as TEXT rather than imported, because Node will
+  // not load a `.ts` module that imports another `.ts` module.
+  const CAT = readFileSync(path.join(SHARED, "strings/es.ts"), "utf8");
+  check("6a · the check has subjects — the email kit and catalogue were read",
+    TPL.length > 5000 && CAT.length > 2000, `${TPL.length} / ${CAT.length}`);
+
+  // ── the call sites and the catalogue agree ────────────────────────────
+  const TT = /\btt\(\s*"((?:[^"\\]|\\.)*)"/g;
+  // `T(lang)("…")` is the one shape that is not `tt(` — the footer calls it
+  // inline because it has no local binding.
+  const INLINE = /T\(lang\)\(\s*"((?:[^"\\]|\\.)*)"/g;
+  const mailKeys = new Set();
+  for (const src of [TPL, KIT]) {
+    for (const m of src.matchAll(TT)) mailKeys.add(m[1]);
+    for (const m of src.matchAll(INLINE)) mailKeys.add(m[1]);
+  }
+  check("6b · the check has subjects — the templates look words up",
+    mailKeys.size > 60, `${mailKeys.size} keys`);
+
+  const ENTRY = /^\s*"((?:[^"\\]|\\.)*)"\s*:/gm;
+  const catKeys = new Set();
+  for (const m of CAT.matchAll(ENTRY)) catKeys.add(m[1]);
+  check("6b-ii · and the catalogue has entries to compare against",
+    catKeys.size > 60, `${catKeys.size} entries`);
+
+  const missing = [...mailKeys].filter((k) => !catKeys.has(k));
+  check("6c · every looked-up sentence has a Spanish entry",
+    missing.length === 0, missing.slice(0, 4).join(" · "));
+  // AN ORPHAN IS A SENTENCE SOMEBODY EDITED IN ENGLISH. The Spanish is then
+  // silently unused and the email goes out half translated.
+  // **TWO ENTRIES NO EXTRACTOR CAN FOLLOW**, the same shape as the four
+  // vehicle conditions in § 1: `paymentBlock` calls `tt(r.label)` on a value
+  // rather than a literal, so "Other" and "Cash" are used and unfindable.
+  // Venmo, Cash App, PayPal and Zelle are brand names and are deliberately not
+  // in the catalogue at all.
+  const DYNAMIC_MAIL = ["Other", "Cash"];
+  check("6c-i · the check has subjects — the two dynamic labels are catalogued",
+    DYNAMIC_MAIL.every((k) => catKeys.has(k)));
+  for (const k of DYNAMIC_MAIL) mailKeys.add(k);
+  const orphans = [...catKeys].filter((k) => !mailKeys.has(k));
+  check("6c-ii · and no Spanish entry describes English that is gone",
+    orphans.length === 0, orphans.slice(0, 4).join(" · "));
+
+  // ── a placeholder dropped is a price that vanishes ────────────────────
+  const bad = [];
+  let pairs = 0;
+  for (const k of catKeys) {
+    const at = CAT.indexOf(`"${k}"`);
+    if (at < 0) continue;
+    const after = CAT.slice(at + k.length + 2);
+    const v = after.match(/^\s*:\s*"((?:[^"\\]|\\.)*)"/)
+      || after.match(/^\s*:\s*\r?\n\s*"((?:[^"\\]|\\.)*)"/);
+    if (!v) continue;
+    pairs++;
+    if (holes(k) !== holes(v[1])) bad.push(`${k.slice(0, 34)} → ${holes(v[1]) || "(none)"}`);
+  }
+  check("6d · the check has subjects — the catalogue's pairs were read",
+    pairs > 60, `${pairs} pairs`);
+  check("6d-ii · no placeholder is dropped or invented in translation",
+    bad.length === 0, bad.slice(0, 3).join(" · "));
+
+  // ── the register, chosen once and kept ────────────────────────────────
+  // The page catalogue chose `tú`, and an email that switches to the formal
+  // register reads as a different company writing.
+  // **`strip(CAT)`, BECAUSE THE FILE'S OWN COMMENT SAYS THE WORD.** The first
+  // version read the raw text and failed on the header sentence explaining the
+  // rule it exists to enforce — the comment-vacuity trap in reverse, and this
+  // repo's seventh instance of it.
+  check("6e · the register never drifts into usted",
+    !/\busted\b|\bustedes\b/i.test(strip(CAT)));
+
+  // ── EVERY CUSTOMER TEMPLATE ───────────────────────────────────────────
+  // A template that is customer-facing and forgets `tt` sends an English email
+  // to somebody who asked for Spanish, and nothing else in this repo can see
+  // that.
+  const CUSTOMER = [
+    "customerConfirmationEmail", "requestDecisionEmail", "invoiceEmail",
+    "followupEmail", "customerReminderEmail", "planLinkEmail",
+    "maintenanceDueEmail",
+  ];
+  const bodyOf = (name) => {
+    const at = TPL.indexOf(`export function ${name}(`);
+    if (at < 0) return "";
+    const next = TPL.indexOf("\nexport function ", at + 10);
+    return TPL.slice(at, next > at ? next : TPL.length);
+  };
+  check("6f · the check has subjects — every named template was found",
+    CUSTOMER.every((n) => bodyOf(n).length > 200),
+    CUSTOMER.filter((n) => bodyOf(n).length <= 200).join(" · "));
+  const untranslated = CUSTOMER.filter((n) => !/\bT\(/.test(bodyOf(n)));
+  check("6f-ii · every customer template binds the language",
+    untranslated.length === 0, untranslated.join(" · "));
+  // AND PASSES IT TO THE SHELL, which owns `<html lang>` and the footer. An
+  // email that is Spanish everywhere except its last three lines is the
+  // two-language document this whole item exists to avoid.
+  const noShell = CUSTOMER.filter((n) => !/shell\([\s\S]*?\{ lang/.test(bodyOf(n)));
+  check("6f-iii · and hands it to the shell, which owns the footer",
+    noShell.length === 0, noShell.join(" · "));
+
+  // ── AND THE DETAILER'S OWN MAIL IS UNTOUCHED ──────────────────────────
+  // Their language is the dashboard's question (stage 2b). A Spanish booking
+  // must not turn a detailer's own alerts Spanish while their dashboard stays
+  // English — that is worse than either.
+  const OWNER = ["ownerNewBookingEmail", "staleRequestEmail", "inviteEmail",
+    "planCancelledEmail", "billingEmail", "platformAlertEmail"];
+  check("6g · the check has subjects — every owner template was found",
+    OWNER.every((n) => bodyOf(n).length > 150),
+    OWNER.filter((n) => bodyOf(n).length <= 150).join(" · "));
+  const leaked = OWNER.filter((n) => /\bT\(/.test(bodyOf(n)));
+  check("6g-ii · and none of the detailer's own mail is translated",
+    leaked.length === 0, leaked.join(" · "));
+
+  // ── EVERY SENDER, DISCOVERED BY WHAT IT BUILDS ────────────────────────
+  // A `BookingEmailData` is recognised by its `dateStr:` line — the same way
+  // `multi-vehicle` finds them — because a hand-written caller list in this
+  // repo has already been short by one.
+  const FN = path.join(ROOT, "supabase/functions");
+  const senders = [];
+  for (const f of walkTs(FN)) {
+    if (!f.endsWith("index.ts")) continue;
+    const src = strip(readFileSync(f, "utf8"));
+    if (!/\bdateStr:\s/.test(src)) continue;
+    senders.push([path.basename(path.dirname(f)), src]);
+  }
+  check("6h · the check has subjects — the senders were discovered",
+    senders.length >= 6, `${senders.length}: ${senders.map((x) => x[0]).join(", ")}`);
+  // `preview-emails` builds a fixture for the back office rather than sending
+  // to anybody, so it is the one that legitimately has no row to read.
+  const forgot = senders
+    .filter(([name]) => name !== "preview-emails")
+    .filter(([, src]) => !/\blang[,:]/.test(src))
+    .map(([name]) => name);
+  check("6h-ii · and every one of them carries the language",
+    forgot.length === 0, forgot.join(" · "));
+
+  // ── THE COLUMN, AND WHAT IT REFUSES ───────────────────────────────────
+  const MIG = readFileSync(
+    path.join(ROOT, "supabase/migrations/20260907007000_booking_language.sql"), "utf8");
+  check("6i · the column exists, defaults to English and cannot hold a typo",
+    /add column if not exists lang text not null default 'en'/.test(MIG)
+    && /check \(lang in \('en', 'es'\)\)/.test(MIG));
+  // **NARROWED AT THE DOOR RATHER THAN PASSED THROUGH.** The column is
+  // check-constrained, so a client posting `"fr"` would fail the INSERT and
+  // take a real booking down over a preference.
+  const CREATE = strip(readFileSync(path.join(FN, "create-booking/index.ts"), "utf8"));
+  check("6j · create-booking narrows the language rather than trusting it",
+    /const lang = langOf\(body\.lang\)/.test(CREATE));
+  const CORE = strip(readFileSync(path.join(ROOT, "app/src/book/core.js"), "utf8"));
+  check("6k · the booking core sends it, and still imports nothing",
+    /lang: lang \|\| null/.test(CORE) && !/^\s*import /m.test(CORE));
+}
+
+// ─── 7. The column, asked rather than read ────────────────────────────────
+//
+// § 6i reads the MIGRATION. This asks the live database, because a migration
+// in the repo and a column on the server are two different facts — and the one
+// that matters is whether a typo'd language can actually be stored. If it can,
+// every lookup falls through to English and the email goes out in the wrong
+// language looking perfectly correct.
+console.log("7. what the language column actually refuses");
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.log("  SKIPPED — needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
+} else {
+  const URL_ = process.env.SUPABASE_URL;
+  const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
+  const rest = (p, init = {}) =>
+    fetch(`${URL_}/rest/v1/${p}`, { ...init, headers: { ...H, ...(init.headers || {}) } });
+  const [biz] = await rest("businesses?slug=eq.demo-detail&select=id").then((r) => r.json());
+  const [row] = await rest(
+    `bookings?business_id=eq.${biz?.id}&deleted_at=is.null&select=id,lang&limit=1`,
+  ).then((r) => r.json());
+  check("7a · the check has a subject — a demo booking was found", !!row?.id);
+  if (row?.id) {
+    const before = row.lang;
+    const set = (v) => rest(`bookings?id=eq.${row.id}`, {
+      method: "PATCH", body: JSON.stringify({ lang: v }),
+    }).then((r) => r.status);
+    try {
+      check("7b · Spanish is accepted", await set("es") < 300);
+      const [after] = await rest(`bookings?id=eq.${row.id}&select=lang`).then((r) => r.json());
+      check("7b-ii · and stored as asked", after?.lang === "es");
+      check("7c · English is accepted", await set("en") < 300);
+      // THE ONE THAT MATTERS. A stored "fr" is a booking whose every email
+      // falls through to English while the row says otherwise — a silent
+      // wrong answer nobody could ever see, which is the failure this whole
+      // item is shaped around.
+      check("7d · a language this product does not have is refused",
+        await set("fr") >= 400);
+      check("7d-ii · and so is an empty one", await set("") >= 400);
+      // EVERY EXISTING BOOKING IS ENGLISH, which is what they were written in.
+      const [{ count: nonEn } = {}] = [{ count: null }];
+      const others = await rest(
+        `bookings?business_id=eq.${biz.id}&lang=neq.en&select=id&limit=5`,
+      ).then((r) => r.json());
+      check("7e · nothing was migrated into a language nobody chose",
+        Array.isArray(others) && others.filter((o) => o.id !== row.id).length === 0,
+        `${nonEn ?? (Array.isArray(others) ? others.length : "?")}`);
+    } finally {
+      await rest(`bookings?id=eq.${row.id}`, {
+        method: "PATCH", body: JSON.stringify({ lang: before ?? "en" }),
+      });
+      const [back] = await rest(`bookings?id=eq.${row.id}&select=lang`).then((r) => r.json());
+      check("7f · the demo booking is put back as it was",
+        (back?.lang ?? null) === (before ?? null));
+    }
+  }
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

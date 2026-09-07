@@ -43,7 +43,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, can, getSettings, requireMember } from "../_shared/tenant.ts";
-import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, langForCustomer, sendTenantEmail } from "../_shared/email.ts";
 import { campaignEmail } from "../_shared/emailTemplates.ts";
 import { businessSiteUrl, unsubscribeUrl } from "../_shared/config.ts";
 import { siteFor } from "../_shared/tenantSite.ts";
@@ -129,6 +129,9 @@ Deno.serve(async (req) => {
     let sent = 0;
     let failed = 0;
     for (const c of recipients) {
+      // ROADMAP 8.17 — ONLY THE CHROME FOLLOWS THE READER. The subject and
+      // the message are the detailer's own words in whatever language they
+      // typed them; the greeting, the button and the legal footer are ours.
       const mail = campaignEmail(brand, {
         customerName: c.name,
         subject,
@@ -138,7 +141,7 @@ Deno.serve(async (req) => {
         // whoever pressed it last, or nobody — the opt-out has to know who.
         unsubscribeUrl: unsubscribeUrl(site, c.id),
         mailingAddress,
-      });
+      }, await langForCustomer(c.id));
       const ok = await sendTenantEmail({
         businessId: business.id,
         to: String(c.email).trim(),

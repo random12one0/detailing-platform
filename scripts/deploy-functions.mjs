@@ -83,8 +83,25 @@ const targets = process.argv.length > 2 ? process.argv.slice(2) : all;
 // implementations against each other. Filtering to .ts would have left
 // `email.ts` importing a file that was never uploaded, which breaks every
 // function that sends mail at RUNTIME rather than at deploy time.
-const sharedFiles = (await readdir(path.join(fnRoot, "_shared")))
-  .filter((f) => f.endsWith(".ts") || f.endsWith(".js"));
+//
+// **AND IT RECURSES, SINCE ROADMAP 8.17 STAGE 2A PUT A FILE IN
+// `_shared/strings/`.** The old version read the top level only, so
+// `i18n.ts` deployed and the catalogue it imports did not — and the failure
+// is a BUNDLE error naming a path nobody wrote, on every function in the
+// repo, twenty minutes after an unrelated change. That is the same shape as
+// the esm.sh outage this repo already spent a session on: it looks exactly
+// like a diff having broken the world.
+const sharedRoot = path.join(fnRoot, "_shared");
+async function sharedUnder(dir, prefix = "") {
+  const out = [];
+  for (const d of await readdir(dir, { withFileTypes: true })) {
+    const rel = prefix ? `${prefix}/${d.name}` : d.name;
+    if (d.isDirectory()) out.push(...await sharedUnder(path.join(dir, d.name), rel));
+    else if (d.name.endsWith(".ts") || d.name.endsWith(".js")) out.push(rel);
+  }
+  return out;
+}
+const sharedFiles = await sharedUnder(sharedRoot);
 
 for (const fn of targets) {
   const indexSrc = await readFile(path.join(fnRoot, fn, "index.ts"), "utf8");
@@ -101,7 +118,7 @@ for (const fn of targets) {
   );
   form.append("file", new Blob([rewritten], { type: "application/typescript" }), "index.ts");
   for (const sf of sharedFiles) {
-    const content = await readFile(path.join(fnRoot, "_shared", sf), "utf8");
+    const content = await readFile(path.join(sharedRoot, sf), "utf8");
     form.append("file", new Blob([content], {
       type: sf.endsWith(".js") ? "application/javascript" : "application/typescript",
     }), `_shared/${sf}`);

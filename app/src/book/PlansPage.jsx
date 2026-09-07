@@ -61,7 +61,9 @@ function PlansInner() {
     // found — see the endpoint's header. A failure is swallowed for the same
     // reason: "we couldn't find that" and "we couldn't send" are two different
     // sentences, and only one of them is safe to say.
-    try { await api.emailPlanLink(slug, email.trim()); } catch { /* same answer either way */ }
+    try {
+      await api.emailPlanLink(slug, email.trim(), lang);
+    } catch { /* same answer either way */ }
     setLookup({ sending: false, sent: true });
   };
 

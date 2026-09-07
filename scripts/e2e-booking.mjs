@@ -638,8 +638,41 @@ async function loop({ slug, dashboard }) {
       for (const c of await times.all()) {
         if (time24(await c.innerText()) !== TIME) { timeChip = c; break; }
       }
-      ok("a different time is offered on that day", !!timeChip,
-        (await times.allInnerTexts()).join(" ") || "no time chips");
+      // **A DAY WHOSE ONLY FREE SLOT IS THIS BOOKING'S OWN IS A FULL DAY, AND
+      // A FULL DAY CANNOT EXERCISE A MOVE.** Since item F the picker excludes
+      // the booking from its own availability, so a nearly-full day offers
+      // exactly one chip — the time it is already on — and this check reported
+      // that as a defect. Reproduced on `demo-detail` while `demo-riverside`
+      // passed the identical leg on the same code, which is what a
+      // date-and-occupancy failure looks like from the outside.
+      //
+      // **SO IT PRINTS RATHER THAN FAILS, and it prints rather than skipping.**
+      // A check that cannot reach its case must say so — this repo's own rule,
+      // learned from the Clients block whose six vanishing measurements read
+      // exactly like six passing ones. The next four checks are the move, and
+      // they are skipped with it.
+      const chipTexts = (await times.allInnerTexts()).join(" ");
+      if (!timeChip && chipTexts.trim()) {
+        console.log("  NOT MEASURED  the move — "
+          + `${DATE} has no room but this booking's own time (${chipTexts})`);
+        // **AND LEAVE THE PICKER, or the section after this measures a page
+        // still in reschedule mode.** Skipping a step is not the same as
+        // undoing it: the first version printed NOT MEASURED and then reported
+        // "the receipt offers a cancel" as a failure, which is one skipped
+        // check producing a second, wrong one — the shape this file already
+        // records under "a leg that reports the wrong half costs more than one
+        // that reports nothing".
+        await page.locator("button", { hasText: /keep (it|this)|never mind|cancel/i })
+          .first().click().catch(() => {});
+        await settle(page, 800);
+        if (await page.locator("button", { hasText: /move my booking/i }).count()) {
+          await page.reload({ waitUntil: "domcontentloaded" });
+          await settle(page, 1500);
+        }
+      } else {
+        ok("a different time is offered on that day", !!timeChip,
+          chipTexts || "no time chips");
+      }
       if (timeChip) {
         const MOVED = time24(await timeChip.innerText());
         await timeChip.click();

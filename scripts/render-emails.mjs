@@ -51,6 +51,15 @@ const arg = (n, d) => {
   return hit ? hit.slice(n.length + 3) : d;
 };
 const ACCENT = arg("accent", "#38E08B");
+// ROADMAP 8.17 STAGE 2A — RENDER THE CUSTOMER'S SET IN SPANISH.
+//
+// **THE ONLY WAY ANYBODY IS EVER GOING TO LOOK AT THESE.** Nobody who can
+// approve this product reads Spanish, and an email cannot be corrected after
+// it is sent, so the least this script can do is put every one of them on a
+// page beside its English twin. Every assertion below runs on the Spanish
+// render too — the money still has to reach its total, the colours still have
+// to clear their floors, and `undefined` is still a defect in either language.
+const LANG = arg("lang", "en");
 const OUT = arg("out", "email-preview");
 
 // THE WORST LOGO A DETAILER CAN UPLOAD: dark artwork on a transparent ground,
@@ -114,6 +123,7 @@ const brand = {
 //   + tip 30                   = 375  (final_amount)
 const booking = {
   id: "7f3ab210-55c1-4e0a-9d2e-31b6c4a90e77",
+  lang: LANG,
   customerName: "Dana Ortiz",
   customerPhone: "(720) 555-0188",
   customerEmail: "dana.ortiz@example.com",
@@ -222,7 +232,7 @@ const EMAILS = [
   ["customer-invoice", "Customer · invoice (unpaid)", () => T.invoiceEmail(brand, booking, invoiceRows, invoiceTotals, "unpaid", null)],
   ["customer-reschedule", "Customer · rescheduled", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", false)],
   ["customer-cancellation", "Customer · cancelled", () => T.cancellationEmail(brand, booking, false)],
-  ["customer-followup", "Customer · thank-you and review request", () => T.followupEmail(brand, "Dana Ortiz")],
+  ["customer-followup", "Customer · thank-you and review request", () => T.followupEmail(brand, "Dana Ortiz", LANG)],
   ["owner-new-booking", "Owner · new booking", () => T.ownerNewBookingEmail(brand, booking, false)],
   ["owner-new-request", "Owner · new request waiting", () => T.ownerNewBookingEmail(brand, booking, true)],
   // ROADMAP 8.10. Its own entry rather than a change to the one above,
@@ -252,13 +262,13 @@ const EMAILS = [
   // exactly like a check that passes. `accept-quote` could already produce one
   // whenever a detailer quoted UNDER the estimate.
   ["customer-confirmation-plan", "Customer · booking confirmed, on a plan", () => T.customerConfirmationEmail(brand, planBooking, false)],
-  ["customer-plan-link", "Customer · your plan link", () => T.planLinkEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", planUrl: "https://detailingplatform.com/plan/9c1f2b64-0000-4000-8000-000000000001", bookUrl: brand.siteUrl })],
+  ["customer-plan-link", "Customer · your plan link", () => T.planLinkEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", planUrl: "https://detailingplatform.com/plan/9c1f2b64-0000-4000-8000-000000000001", bookUrl: brand.siteUrl }, LANG)],
   // ROADMAP 2.23 — BOTH ENDS OF THE ESCALATION, because they are different
   // emails: the first is a note two months out and the last is the day
   // before. Rendering only one would leave the half that actually matters
   // unlooked-at, which is this script's whole reason for existing.
-  ["customer-maintenance-far", "Customer · maintenance due (60 days)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: "12 October 2026", daysLeft: 60, bookUrl: brand.siteUrl })],
-  ["customer-maintenance-last", "Customer · maintenance due (tomorrow)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: "12 October 2026", daysLeft: 1, bookUrl: brand.siteUrl })],
+  ["customer-maintenance-far", "Customer · maintenance due (60 days)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: "12 October 2026", daysLeft: 60, bookUrl: brand.siteUrl }, LANG)],
+  ["customer-maintenance-last", "Customer · maintenance due (tomorrow)", () => T.maintenanceDueEmail(brand, { customerName: "Dana Ortiz", label: "Ceramic Pro annual inspection", vehicle: "2021 Tacoma", dueOn: "12 October 2026", daysLeft: 1, bookUrl: brand.siteUrl }, LANG)],
   ["owner-plan-cancelled", "Owner · a plan ended", () => T.planCancelledEmail(brand, { customerName: "Dana Ortiz", planName: "Bi-weekly maintenance", startedOn: "2026-03-02", endedOn: "2026-09-04" })],
   // ROADMAP 2.19. THE ONLY COMMERCIAL EMAIL IN THE SET, and the only one a
   // human composes — so it is the only one whose footer carries a postal
@@ -272,7 +282,7 @@ const EMAILS = [
     bookUrl: brand.siteUrl,
     unsubscribeUrl: "https://detailingplatform.com/unsubscribe/9c1f2b64-0000-4000-8000-000000000002",
     mailingAddress: "PO Box 214, Lakewood CA 90713",
-  })],
+  }, LANG)],
   // ROADMAP 2.20 STAGE 2 — THE ONLY TWO EMAILS THE PLATFORM SENDS IN ITS OWN
   // NAME. Every other row on this page is a detailer speaking to somebody;
   // these two are us telling a detailer their card stopped working, so they
@@ -462,7 +472,7 @@ a{color:${brand.accentDark};font-weight:600}.t{font-weight:400;font-size:12px;co
 Light: words <code>${brand.accent}</code>, fill <code>${brand.accentFill}</code>, ink <code>${brand.accentInk}</code>.
 Dark: words <code>${brand.accentDark}</code>, fill <code>${brand.accentFillDark}</code>, ink <code>${brand.accentInkDark}</code>.
 Every file below is LIGHT by default and swaps to dark under <code>prefers-color-scheme</code> &mdash;
-switch your OS theme to see the other one. Re-run with <code>--accent=#hex</code>, <code>--logo</code>.</p>
+switch your OS theme to see the other one. Re-run with <code>--accent=#hex</code>, <code>--logo</code>, <code>--lang=es</code>.</p>
 <ul>${cards.join("\n")}</ul></body></html>`);
 
 console.log(`\n${EMAILS.length} emails → ${OUT}/index.html  (accent ${ACCENT})`);

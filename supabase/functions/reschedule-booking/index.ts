@@ -97,6 +97,10 @@ Deno.serve(async (req) => {
     const brand = await buildBrand(business, settings);
     const emailData = {
       id: booking.id,
+      // ROADMAP 8.17 STAGE 2A — the language this customer chose, from
+      // `bookings.lang`. Absent means English, which is what every booking
+      // made before that column existed was written in.
+      lang: booking.lang,
       customerName: booking.customer_name,
       customerPhone: booking.customer_phone,
       customerEmail: booking.customer_email,

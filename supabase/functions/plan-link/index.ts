@@ -36,6 +36,7 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
+import { langOf } from "../_shared/i18n.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, businessBySlug, getSettings } from "../_shared/tenant.ts";
 import { ipOf, LIMITS, withinLimits } from "../_shared/rateLimit.ts";
@@ -140,7 +141,11 @@ Deno.serve(async (req) => {
         planName,
         planUrl: planUrl(site, member.id),
         bookUrl: businessSiteUrl(site, business.slug),
-      });
+      // ROADMAP 8.17 — FROM THE REQUEST, because this one is triggered by
+      // somebody typing their address into the plans page: there is no
+      // booking to read it off and the browser that asked is the only thing
+      // that knows. Narrowed by `langOf`, so a crafted value is English.
+      }, langOf((body as { lang?: unknown }).lang));
       await sendTenantEmail({
         businessId: business.id, to: email, subject: msg.subject, html: msg.html, text: msg.text,
       });

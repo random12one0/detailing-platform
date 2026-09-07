@@ -95,6 +95,37 @@ export async function extraVehiclesFor(bookingId: string): Promise<{ size: strin
   }));
 }
 
+/**
+ * ROADMAP 8.17 STAGE 2A — WHAT LANGUAGE TO WRITE TO A CUSTOMER IN WHEN THERE
+ * IS NO BOOKING IN FRONT OF YOU.
+ *
+ * The maintenance nudge and the detailer's campaign are both addressed to a
+ * CUSTOMER rather than to a booking, so there is no `bookings.lang` at the
+ * call site. Their most recent booking is where the answer is: it is the last
+ * time this person told us anything, and the choice is a fact about how they
+ * read rather than about that one appointment.
+ *
+ * **ENGLISH FOR ANYBODY WHO HAS NEVER BOOKED**, which is the honest answer and
+ * also the safe one — the worst case is an email in the language the product
+ * was written in.
+ *
+ * One function rather than the same query at two call sites, for the reason
+ * `extraVehiclesFor` above is one: a third caller copies whichever version it
+ * finds, and the one it finds is not necessarily the corrected one.
+ */
+export async function langForCustomer(customerId: string | null | undefined): Promise<string> {
+  if (!customerId) return "en";
+  const { data } = await supabase
+    .from("bookings")
+    .select("lang")
+    .eq("customer_id", customerId)
+    .is("deleted_at", null)
+    .order("start_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data?.lang === "es" ? "es" : "en";
+}
+
 export function ownerRecipients(business: Business, settings: BusinessSettings): string[] {
   const list = (settings.notification_emails ?? []).map((e) => String(e).trim()).filter(Boolean);
   if (list.length) return [...new Set(list)];

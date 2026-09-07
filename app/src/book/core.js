@@ -665,7 +665,7 @@ export const quoteKey = (form, { planId, promoApplied } = {}) => JSON.stringify(
 // come off the plan row on the server — a site never names its own discount,
 // and `create-booking` re-reads the plan, so a stale or borrowed device can
 // only ask.
-export function bookingRequest(form, { planId, promoApplied, campaignSlug, visitorId } = {}) {
+export function bookingRequest(form, { planId, promoApplied, campaignSlug, visitorId, lang } = {}) {
   return {
     customer_name: form.customerName.trim(),
     customer_phone: form.customerPhone.trim(),
@@ -694,6 +694,13 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
     // a crafted value attributes to nothing rather than to somebody else's.
     campaign_slug: campaignSlug || null,
     visitor_id: visitorId || null,
+    // ROADMAP 8.17 STAGE 2A — THE LANGUAGE THIS FORM WAS FILLED IN IN, so the
+    // confirmation, the reminder, the receipt and any reschedule notice reach
+    // this person in it. **AN OPTION RATHER THAN A READ**, because this module
+    // may not import anything at all — a tenant's own site drops it in beside
+    // whatever it uses for language, and `getLocale()` is ours. Absent is
+    // English, and the server narrows it anyway.
+    lang: lang || null,
     // ROADMAP 2.21 — THE HONEYPOT, CARRIED RATHER THAN INVENTED HERE. The
     // form renders a field a person cannot see and never fills; a bot that
     // completes every input it finds completes this one, and

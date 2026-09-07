@@ -22,6 +22,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
+import { langOf } from "../_shared/i18n.ts";
 import { businessBySlug, getSettings, requireMember } from "../_shared/tenant.ts";
 import {
   computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
@@ -46,6 +47,14 @@ Deno.serve(async (req) => {
     const business = await businessBySlug(body.business_slug);
     if (!business) return json({ error: "unknown_business" }, 404);
     const settings = await getSettings(business.id);
+
+    // ROADMAP 8.17 STAGE 2A — NARROWED HERE, NOT PASSED THROUGH. The column
+    // is check-constrained to the two languages this product has, so a client
+    // posting anything else would fail the INSERT and take a real booking down
+    // over a preference. `langOf` answers "en" to everything it does not
+    // recognise, which is the only safe direction: the worst case is an email
+    // in the language the product was written in.
+    const lang = langOf(body.lang);
 
     // Admin caller? Verified against business_users for THIS business; a
     // stray JWT from some other business's staff gets no admin powers here.
@@ -425,6 +434,15 @@ Deno.serve(async (req) => {
         has_power: body.has_power === undefined ? null : body.has_power === true,
         has_water_electric: body.has_water_electric === true
           || (body.has_water === true && body.has_power === true),
+        // ROADMAP 8.17 STAGE 2A — WHAT LANGUAGE THIS PERSON FILLED THE FORM
+        // IN, so their confirmation, reminder, receipt and reschedule notice
+        // all reach them in it. It is a fact about the BOOKING rather than
+        // about the customer: a household shares an address and the person who
+        // booked is the person who chose. The column is check-constrained, so
+        // `lang` is narrowed to the two the product actually has rather than
+        // passed through — a client posting anything else would fail the
+        // insert and take a real booking down with it.
+        lang,
         customer_notes: body.customer_notes?.trim() || null,
         admin_notes: member ? body.admin_notes?.trim() || null : null,
         subtotal: quote.subtotalAfterSite,
@@ -585,6 +603,8 @@ Deno.serve(async (req) => {
       customerPhone: booking.customer_phone,
       customerEmail: booking.customer_email,
       customerAddress: booking.customer_address,
+      // ROADMAP 8.17 STAGE 2A — the language the form was filled in in.
+      lang,
       dateStr: String(body.booking_date),
       startTime: timeStrIn(tz, check.startAt!),
       endTime: timeStrIn(tz, check.endAt!),

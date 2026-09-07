@@ -89,6 +89,7 @@
 // not a number charged, and an invoice reaches the one person who checks it
 // against a card statement.
 
+import { T, intlLocale, langOf } from "./i18n.ts";
 import {
   emailBrandColors,
   emailDarkBrandColors,
@@ -159,9 +160,13 @@ export const formatTime12hr = (time24: string): string => {
   return `${hour}:${String(m).padStart(2, "0")} ${period}`;
 };
 
-export const formatDateLong = (dateStr: string): string => {
+// ROADMAP 8.17 STAGE 2A — the language is an ARGUMENT, English by default, so
+// every detailer-facing template is unchanged by not passing one. `es-US`
+// rather than `es-ES` keeps month-before-day, which a US reader would
+// otherwise take as a wrong date rather than as a translated one.
+export const formatDateLong = (dateStr: string, lang?: unknown): string => {
   const [y, m, d] = String(dateStr).split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString(intlLocale(lang), {
     weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: "UTC",
   });
 };
@@ -277,12 +282,15 @@ export interface MoneyLine {
  * drawn plainly. **An unexplained gap is the defect; a line saying "a discount
  * was applied" is not.**
  */
-export function reconcile(lines: MoneyLine[], total: number): MoneyLine[] {
+export function reconcile(lines: MoneyLine[], total: number, lang?: unknown): MoneyLine[] {
+  const tt = T(lang);
   const drawn = lines.reduce((s, l) => s + (l.kind === "discount" ? -Math.abs(l.amount) : l.amount), 0);
   const gap = Math.round((Number(total) - drawn) * 100) / 100;
   if (Math.abs(gap) < 0.01) return lines;
   return [...lines, {
-    label: gap < 0 ? "Discount applied" : "Adjustment",
+    // ROADMAP 8.17 — THE LINE THIS FUNCTION DRAWS IS THE ONE NOBODY WROTE, so
+    // it is the easiest to leave in English inside a Spanish money column.
+    label: gap < 0 ? tt("Discount applied") : tt("Adjustment"),
     amount: Math.abs(gap),
     kind: gap < 0 ? "discount" : "charge",
   }];
@@ -408,14 +416,26 @@ export interface LegalFooter {
  * So it says what is actually there: an address if there is one, otherwise the
  * phone, otherwise nothing at all rather than a promise.
  */
-function reachUs(brand: Brand & { contactEmail?: string | null }, legal?: LegalFooter): string {
-  const prefix = legal ? "You booked with us before" : "Automated message";
-  if (brand.contactEmail) return `${prefix} &mdash; reply to reach us.`;
-  if (brand.contactPhone) return `${prefix} &mdash; call or text ${esc(brand.contactPhone)} to reach a person.`;
+function reachUs(
+  brand: Brand & { contactEmail?: string | null },
+  legal?: LegalFooter,
+  lang?: unknown,
+): string {
+  const tt = T(lang);
+  const prefix = legal ? tt("You booked with us before") : tt("Automated message");
+  if (brand.contactEmail) return tt("{prefix} — reply to reach us.", { prefix }).replace("—", "&mdash;");
+  if (brand.contactPhone) {
+    return tt("{prefix} — call or text {phone} to reach a person.",
+      { prefix, phone: esc(brand.contactPhone) }).replace("—", "&mdash;");
+  }
   return `${prefix}.`;
 }
 
-function footer(brand: Brand & { contactEmail?: string | null }, legal?: LegalFooter): string {
+function footer(
+  brand: Brand & { contactEmail?: string | null },
+  legal?: LegalFooter,
+  lang?: unknown,
+): string {
   const host = brand.siteUrl.replace(/^https?:\/\//, "");
   // Centred exactly once, at the end — the composition law, spent here.
   return `<tr><td style="${PAD} padding-top:44px; padding-bottom:44px;">
@@ -426,8 +446,8 @@ function footer(brand: Brand & { contactEmail?: string | null }, legal?: LegalFo
         ${brand.contactPhone ? `<div>${esc(brand.contactPhone)}</div>` : ""}
         <div><a href="${brand.siteUrl}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(host)}</a></div>
         ${legal ? `<div style="padding-top:10px; font-size:11px;">${esc(legal.mailingAddress)}</div>` : ""}
-        ${legal ? `<div style="padding-top:10px; font-size:11px;"><a href="${legal.unsubscribeUrl}" class="c-accent" style="color:${brand.accent};">Stop getting emails like this</a></div>` : ""}
-        <div style="padding-top:10px; font-size:11px;">${reachUs(brand, legal)}</div>
+        ${legal ? `<div style="padding-top:10px; font-size:11px;"><a href="${legal.unsubscribeUrl}" class="c-accent" style="color:${brand.accent};">${esc(T(lang)("Stop getting emails like this"))}</a></div>` : ""}
+        <div style="padding-top:10px; font-size:11px;">${reachUs(brand, legal, lang)}</div>
       </td></tr>
     </table>
   </td></tr>`;
@@ -474,15 +494,32 @@ function darkStyle(brand: Brand): string {
 </style>`;
 }
 
+/**
+ * ROADMAP 8.17 STAGE 2A — THE FOURTH ARGUMENT IS AN OBJECT NOW, and that is
+ * the whole reason it changed shape. `legal` was a fourth POSITIONAL and
+ * `lang` would have been a fifth, so the two things a template can silently
+ * forget would have been distinguished only by their order — and an email that
+ * is Spanish everywhere except its footer is exactly the two-language document
+ * this item exists to avoid.
+ *
+ * `lang` also sets `<html lang>`, which is not decoration: it is what tells a
+ * screen reader which language to pronounce, and a Spanish email announced as
+ * English is unintelligible rather than merely wrong.
+ */
 export function shell(
   brand: Brand,
   blocks: string[],
   preheader: string,
-  /** Roadmap 2.19 — the marketing footer. Absent for every other template. */
-  legal?: LegalFooter,
+  opts: {
+    /** Roadmap 2.19 — the marketing footer. Absent for every other template. */
+    legal?: LegalFooter;
+    /** Roadmap 8.17 — the customer's own language. Absent means English. */
+    lang?: unknown;
+  } = {},
 ): string {
+  const { legal, lang } = opts;
   return `<!DOCTYPE html>
-<html lang="en"><head>
+<html lang="${langOf(lang)}"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light dark">
@@ -497,7 +534,7 @@ ${darkStyle(brand)}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${L.ground}" class="bg-ground" style="max-width:600px; background-color:${L.ground};">
       ${masthead(brand)}
       ${blocks.join("\n      ")}
-      ${footer(brand, legal)}
+      ${footer(brand, legal, lang)}
     </table>
   </td></tr>
 </table>

@@ -270,6 +270,10 @@ function BookingFlow({ notFound = null }) {
         // of them, which is what makes the ones that are not null worth
         // counting.
         campaignSlug, visitorId: visitor,
+        // ROADMAP 8.17 STAGE 2A — read at SUBMIT rather than at render, so it
+        // is whatever the person had chosen when they actually pressed the
+        // button. Their emails follow it from here.
+        lang: getLocale(),
       });
       let r = null;
       for (let i = 0; i < payloads.length; i++) {
