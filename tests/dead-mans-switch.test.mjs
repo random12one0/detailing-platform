@@ -197,13 +197,35 @@ if (!URL_ || !SERVICE) {
   // chose for exactly this — so the send is genuinely exercised against the
   // provider and reaches nobody. Restored in the `finally` below whatever
   // happens, because leaving it would silence every real alert afterwards.
-  const settingsBefore = (await rest("platform_settings?select=owner_email,healthcheck_url")
+  const settingsBefore = (await rest("platform_settings?select=owner_email,healthcheck_url,email_daily_cap")
     .then((r) => r.json()))[0];
+
+  // **UNLESS THE DAY'S EMAILS ARE GONE, IN WHICH CASE THE SIMULATOR CANNOT BE
+  // REACHED EITHER AND EVERY CHECK BELOW WOULD GO RED ABOUT THE FEATURE
+  // WORKING.** Resend's free plan is 100 a day across every tenant (roadmap
+  // 8.6), a night of building spends them, and the switch then does exactly
+  // the right thing: the send fails, `release_job_alerts` re-arms the
+  // stoppage, and nothing is marked — which is the behaviour § 1d exists to
+  // protect, reported as four failures.
+  //
+  // So on a spent day it sends to a domain `send-email` refuses as
+  // undeliverable, which answers 200 without touching the provider. The path
+  // is exercised end to end; what is NOT measured is the provider leg, and
+  // that PRINTS rather than passing quietly.
+  const today = new Date().toISOString().slice(0, 10);
+  const spentRow = (await rest(`platform_email_days?day=eq.${today}&select=sent`)
+    .then((r) => r.json()))[0];
+  const spent = (spentRow?.sent ?? 0) >= (settingsBefore?.email_daily_cap ?? 100);
+  const ALERT_TO = spent ? "watcher@example.com" : "delivered@resend.dev";
+  if (spent) {
+    console.log(`  NOT MEASURED  the provider leg — ${spentRow?.sent} emails sent today against a`
+      + ` cap of ${settingsBefore?.email_daily_cap}. The relay is exercised, Resend is not.`);
+  }
   const setSettings = (patch) =>
     rest("platform_settings?id=eq.true", { method: "PATCH", body: JSON.stringify(patch) });
 
   try {
-    await setSettings({ owner_email: "delivered@resend.dev" });
+    await setSettings({ owner_email: ALERT_TO });
 
     // THE REAL JOBS' STATE IS RECORDED FIRST AND ASSERTED UNCHANGED AT THE
     // END. This test calls the live watcher, so a genuinely stale production

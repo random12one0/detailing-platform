@@ -1462,10 +1462,16 @@ console.log("\n21. the founding spot is taken at payment (roadmap 8.5)");
   // the shape of half this file's history.
   const fiveOhTwo = sub.indexOf("Stripe did not ask for a payment");
   const backAt = sub.lastIndexOf("await giveBack();", fiveOhTwo);
+  // **RE-POINTED BY ROADMAP 8.14, WHICH GAVE `giveBack` A SECOND THING TO
+  // UNDO.** It was an early `return` when the founding spot was all it
+  // handled; a promo redemption is taken in the same breath and has to come
+  // back on the same paths, so the guard is now an `if` block. The property is
+  // unchanged and only the spelling moved — a check that pins a spelling goes
+  // red on a correct change, and one left pointing at deleted code goes
+  // vacuous, which is worse.
   check("21i · a failed checkout releases the spot it took",
     /const giveBack = async \(\) => \{/.test(sub)
-      && /if \(!claimedNow\) return;/.test(sub)
-      && /release_founding_spot/.test(sub)
+      && /claimedNow[\s\S]{0,160}release_founding_spot/.test(sub)
       && fiveOhTwo > 0 && backAt > 0 && fiveOhTwo - backAt < 200,
     "the 502 returns with a spot taken for a payment Stripe never asked for");
   check("21i-ii · and only a claim made in THIS call",

@@ -6,6 +6,7 @@
 // ownership check.
 //
 //   summary   -> everything the billing screen prints, computed server-side
+//   promo     -> what a typed code would do, BEFORE anybody is charged
 //   subscribe -> OUR OWN payment form: a Stripe client secret to confirm
 //   portal    -> a Stripe-hosted page for updating the CARD, and only the card
 //   cancel    -> stop the renewal, charging the early-exit fee if one is owed
@@ -65,6 +66,7 @@
 // ONE CLICK, which is the fourth item on the FTC's Adobe list.
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { withinLimits } from "../_shared/rateLimit.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { requireMember } from "../_shared/tenant.ts";
@@ -72,6 +74,7 @@ import { PLATFORM_URL } from "../_shared/config.ts";
 import { publishableKey, stripe, stripeConfigured, StripeError } from "../_shared/stripe.ts";
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from "../_shared/platformBrand.ts";
 import {
+  applyPromo,
   consentSentence,
   dunningState,
   exitFeeCents,
@@ -83,6 +86,9 @@ import {
   pricesFrom,
   type PriceTable,
   planLabel,
+  type Promo,
+  type PromoResult,
+  promoProblem,
   termEndDate,
   TERMS,
 } from "../_shared/platformBilling.ts";
@@ -115,6 +121,7 @@ Deno.serve(async (req) => {
 
     switch (String(body.action || "")) {
       case "summary":   return await summary(businessId, sub);
+      case "promo":     return await quotePromo(businessId, body);
       case "subscribe": return await subscribe(businessId, body, sub);
       case "portal":    return await portal(sub);
       case "cancel":    return await cancel(businessId, sub);
@@ -248,7 +255,121 @@ async function summary(businessId: string, sub: Record<string, unknown> | null) 
     // `platformBrand.ts` feeds the billing emails AND this. `email` is null
     // until the owner has an inbox; the screen renders whichever exists.
     support: { phone: SUPPORT_PHONE, email: SUPPORT_EMAIL },
+    // ROADMAP 8.14. `setup_cents` and `recurring_cents` on the row are the
+    // DISCOUNTED figures, so without this the screen can print what somebody
+    // pays and never why. Null when no code was used.
+    promo: sub?.promo_code
+      ? {
+        code: sub.promo_code as string,
+        off_setup_cents: (sub.promo_off_setup_cents as number) ?? 0,
+        off_recurring_cents: (sub.promo_off_recurring_cents as number) ?? 0,
+      }
+      : null,
   });
+}
+
+/**
+ * WHAT A TYPED CODE WOULD DO, ASKED BEFORE ANYBODY IS CHARGED — roadmap 8.14.
+ *
+ * **IT REDEEMS NOTHING.** A code that counted against `max_redemptions` on
+ * every keystroke would be exhausted by three people thinking about it, and
+ * the count is what makes a limited offer limited. The redemption happens in
+ * `subscribe`, one line above the snapshot, in the same breath as the price.
+ *
+ * **AND THE SCREEN DOES NO ARITHMETIC WITH THE ANSWER.** It gets the finished
+ * figures and the finished consent sentence back, exactly as `summary` already
+ * works, because the whole point of the snapshot approach is that the words a
+ * detailer ticks and the money they are charged come from one function over
+ * one object.
+ *
+ * THE FOUNDING TIER IS READ FROM THE DATABASE HERE TOO. Quoting against
+ * `founding: false` when the business holds a spot would print the wrong
+ * saving and then refuse at the till, which is the worst order to discover a
+ * rule in.
+ */
+async function quotePromo(businessId: string, body: Record<string, unknown>) {
+  // THE ENUMERATION GUARD, AND THIS IS THE RIGHT PLACE FOR IT rather than a
+  // vaguer error message. The caller is a signed-in owner, so this is not an
+  // open endpoint — but it is the only one in the product that answers
+  // "does this string exist", and 30 an hour is far more than a person typing
+  // a code off a text message and far less than a list.
+  if (!await withinLimits(supabase, [{
+    bucket: "promo_quote",
+    key: businessId,
+    windowSeconds: 3600,
+    limit: 30,
+  }])) {
+    return json({ error: "Too many tries. Give it a few minutes." }, 429);
+  }
+
+  const typed = String(body.code ?? "").trim().toUpperCase();
+  if (!typed) return json({ error: "Type a code first." }, 400);
+
+  const plan = isPlan(body.plan) ? body.plan : "website";
+  const term = isTerm(body.term) ? body.term : "annual-monthly";
+  const { data: business } = await supabase
+    .from("businesses").select("plan_tier").eq("id", businessId).single();
+
+  // **IT QUOTES AGAINST WHAT PRESSING SUBSCRIBE WOULD DO, NOT AGAINST TODAY —
+  // and the first version did not, which is a defect this item's own test
+  // found rather than a hypothetical.** `subscribe` CLAIMS a founding spot at
+  // intent to pay, so a business that is not founding when it asks is founding
+  // half a second later. Quoting against `plan_tier` alone meant a code could
+  // be accepted here and then refused at the till with *"that code cannot be
+  // used with the founding price"* — the code working and then not working,
+  // between two presses, with nothing on the screen having changed.
+  //
+  // The prediction is read-only and claims nothing, so it can be wrong in
+  // exactly one way: somebody else takes the last spot in the seconds between.
+  // The till is the authority and says so; being wrong the other way — quoting
+  // list and charging founding — would print a saving that is smaller than the
+  // one taken, which is the direction that generates a complaint.
+  //
+  // **`founding_offer()`, NOT `founding_spots_left()`.** The first version
+  // called the latter, which has not existed since roadmap 6.2 renamed it —
+  // PostgREST answered PGRST202, `left` came back undefined, and the
+  // prediction silently fell through to "not founding", so the fix looked
+  // applied and changed nothing. Found by the test comparing the quote against
+  // the charge rather than by reading. A missing RPC is a silent `false` here,
+  // which is exactly the shape this repo keeps re-finding.
+  let willBeFounding = business?.plan_tier === "founding";
+  if (!willBeFounding && plan !== "booking") {
+    const { data: offer } = await supabase.rpc("founding_offer");
+    const left = (offer as { left?: number } | null)?.left;
+    willBeFounding = typeof left === "number" && left > 0;
+  }
+  const snapshot = planFor(plan, term, willBeFounding, await priceTable());
+
+  const promo = await promoRow(typed);
+  const problem = promoProblem(promo, snapshot);
+  if (problem) return json({ ok: false, code: typed, problem });
+
+  const applied = applyPromo(snapshot, promo!);
+  return json({
+    ok: true,
+    code: typed,
+    label: applied.label,
+    off_setup_cents: applied.off_setup_cents,
+    off_recurring_cents: applied.off_recurring_cents,
+    // What the screen prints. Both, so it can strike one through the other
+    // without recomputing either.
+    was_cents: firstChargeCents(snapshot),
+    amount_cents: firstChargeCents(applied.snapshot),
+    recurring_cents: applied.snapshot.recurring_cents,
+    setup_cents: applied.snapshot.setup_cents,
+    consent: consentSentence(applied.snapshot),
+  });
+}
+
+/**
+ * One code, or null. Upper-cased and trimmed by the caller, because the column
+ * is constrained to that shape and a lower-case lookup finds nothing while
+ * looking exactly like a code that does not exist.
+ */
+async function promoRow(code: string) {
+  const { data } = await supabase
+    .from("platform_promo_codes").select("*").eq("code", code).maybeSingle();
+  return (data as unknown as Promo | null) ?? null;
 }
 
 async function subscribe(
@@ -346,8 +467,13 @@ async function subscribe(
     claimedNow = founding;
   }
 
-  const snapshot = planFor(plan, term, founding, await priceTable());
-  const consent = consentSentence(snapshot);
+  const listSnapshot = planFor(plan, term, founding, await priceTable());
+
+  // Declared above `giveBack` because `giveBack` has to be able to hand it
+  // back, and below the founding claim because whether the code is even
+  // allowed depends on whether this business now holds a spot.
+  let promoResult: PromoResult | null = null;
+  let promoTaken: string | null = null;
 
   // **GIVING THE SPOT BACK WHEN THE CHECKOUT DIES AFTER THE CLAIM.** The claim
   // is intent-to-pay, so everything below can still fail with a spot already
@@ -356,10 +482,56 @@ async function subscribe(
   // `release_founding_spot` refuses outright to touch a business with a live
   // subscription, because that business has bought at that price.
   const giveBack = async () => {
-    if (!claimedNow) return;
-    claimedNow = false;
-    await supabase.rpc("release_founding_spot", { p_business_id: businessId });
+    if (claimedNow) {
+      claimedNow = false;
+      await supabase.rpc("release_founding_spot", { p_business_id: businessId });
+    }
+    // ROADMAP 8.14 — THE SAME UNDO FOR THE SAME REASON. A redemption is taken
+    // at intent to pay, so every failure below can leave one spent on a
+    // checkout that never happened — and on a code with `max_redemptions = 1`
+    // that is the whole offer, burned by a declined card.
+    if (promoTaken) {
+      const code = promoTaken;
+      promoTaken = null;
+      await supabase.rpc("release_promo_code", { p_code: code });
+    }
   };
+
+  // ── THE PROMO CODE, DECIDED IN THE SAME BREATH AS THE PRICE ─────────────
+  // Roadmap 8.14, and the placement is roadmap 8.5's finding applied rather
+  // than re-learned: **the price is snapshotted here and never re-read**, so a
+  // code resolved anywhere later would charge one number and record another.
+  //
+  // **THE ROW IS READ, THEN THE REDEMPTION IS CLAIMED IN ONE STATEMENT.** The
+  // read is what produces a sentence a person can act on; the claim is what
+  // makes `max_redemptions` mean anything when two people press subscribe at
+  // once. `promoProblem` can therefore pass and `redeem_promo_code` still say
+  // no, which is not a contradiction — it is the last one going in the half
+  // second between.
+  const typedCode = String(body.promo_code ?? "").trim().toUpperCase();
+  if (typedCode) {
+    const promo = await promoRow(typedCode);
+    const problem = promoProblem(promo, listSnapshot);
+    if (problem) {
+      await giveBack();
+      return json({ error: problem }, 400);
+    }
+    const { data: took } = await supabase.rpc("redeem_promo_code", { p_code: typedCode });
+    if (took !== true) {
+      await giveBack();
+      return json({ error: "That code has just run out." }, 409);
+    }
+    promoTaken = typedCode;
+    promoResult = applyPromo(listSnapshot, promo!);
+  }
+
+  // FROM HERE DOWN NOTHING KNOWS A CODE WAS USED, AND THAT IS THE DESIGN.
+  // `snapshot` is what the card is charged, what the consent sentence
+  // describes, what the invoice lines are built from and what the exit fee is
+  // computed against — so a discount that is IN it cannot be forgotten by any
+  // of them.
+  const snapshot = promoResult ? promoResult.snapshot : listSnapshot;
+  const consent = consentSentence(snapshot);
 
   // A Stripe customer per business, reused if this is a second attempt.
   let customerId = (sub?.stripe_customer_id as string) || null;
@@ -500,6 +672,13 @@ async function subscribe(
     ...snapshot,
     consented_at: now.toISOString(),
     consent_text: consent,
+    // ALWAYS WRITTEN, NEVER CONDITIONALLY. This row is reused when somebody
+    // cancels and comes back, and a stale code left on a restart would record
+    // a discount against prices nobody was charged — the same trap the
+    // previous cycle's `stripe_subscription_id` had.
+    promo_code: promoResult ? typedCode : null,
+    promo_off_setup_cents: promoResult?.off_setup_cents ?? 0,
+    promo_off_recurring_cents: promoResult?.off_recurring_cents ?? 0,
     stripe_customer_id: customerId,
     stripe_session_id: null,
     // WRITTEN NOW RATHER THAN WAITING FOR THE WEBHOOK, because with our own

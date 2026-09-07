@@ -251,6 +251,151 @@ export const BUILD_FEE_LINE = "Website build — one-off";
 export const firstChargeCents = (s: Snapshot) => s.setup_cents + s.recurring_cents;
 
 // ---------------------------------------------------------------------------
+// PROMO CODES — ROADMAP 8.14
+//
+// *"We should set up a promo code system within the buying process. I'm sure
+// Stripe supports that."* It does, and this does not use it — see the
+// migration for the whole argument. The short version: a Stripe `coupon`
+// computes the money INSIDE STRIPE, where nothing in this repo can see it,
+// and the loudest rule in this file is that the page PRINTS and the server
+// CHARGES from one place.
+//
+// **SO A CODE PRODUCES A DIFFERENT `Snapshot` AND NOTHING ELSE CHANGES.**
+// That object already decides `linesFor`, `planLabel`, `consentSentence`,
+// `exitFeeCents` and the row — so a discounted snapshot makes every one of
+// them right by construction, INCLUDING the sentence the detailer ticks and
+// the sentence quoted back in a card dispute. A `discount_cents` field
+// threaded through six call sites is the version where one of them forgets.
+//
+// **THE CEILING, STATED: a discount here lasts as long as the subscription
+// does.** An inline `price_data.unit_amount` recurs at that amount for ever,
+// so *first month free* and *20% off for a year* are not expressible and need
+// a Stripe coupon with a `duration`. Money off the BUILD FEE is naturally
+// one-off, because that line only ever appears on the first invoice.
+// ---------------------------------------------------------------------------
+
+/** One row of `platform_promo_codes`, as the endpoint reads it. */
+export interface Promo {
+  code: string;
+  kind: "percent" | "amount";
+  /** 1..100 for `percent`; CENTS for `amount`. */
+  value: number;
+  off_setup: boolean;
+  off_recurring: boolean;
+  stacks_with_founding: boolean;
+  max_redemptions: number | null;
+  redeemed: number;
+  expires_at: string | null;
+  active: boolean;
+}
+
+export interface PromoResult {
+  /** The snapshot to charge, snapshot and consent alike. */
+  snapshot: Snapshot;
+  off_setup_cents: number;
+  off_recurring_cents: number;
+  /** One line a detailer reads on the checkout, e.g. "$200 off the build". */
+  label: string;
+}
+
+/**
+ * STRIPE WILL NOT TAKE A PAYMENT BELOW FIFTY CENTS, and a first invoice that
+ * asks for nothing at all is worse than a refusal: `default_incomplete`
+ * returns no client secret, the screen has no card to draw, and the
+ * subscription goes active with no payment method saved — a free customer with
+ * no way to ever charge them. `platform-billing` already answers 502 on that
+ * path with a comment saying nothing in this product's pricing can reach it.
+ * A promo code is the first thing that could, so it is refused here instead.
+ */
+export const STRIPE_MIN_CHARGE_CENTS = 50;
+
+const off = (p: Promo, cents: number) =>
+  p.kind === "percent"
+    ? Math.round(cents * (p.value / 100))
+    // Never more than there is: a $200 code against a $35 line takes $35, not
+    // a negative invoice line.
+    : Math.min(p.value, cents);
+
+/**
+ * Why this code cannot be used, in words a detailer reads — or `null`.
+ *
+ * **IT DISTINGUISHES "EXPIRED" FROM "NOT A CODE", DELIBERATELY.** The stricter
+ * choice is one message for everything, so nobody can learn which strings
+ * exist; the caller here is an owner who has already signed in and already has
+ * a business, `max_redemptions` bounds what finding a code is worth, and a
+ * checkout that says *"that code is not valid"* about a code somebody was
+ * genuinely handed last week is a support call and an abandoned sale. The
+ * enumeration guard is the rate limit on the endpoint, which is the right
+ * place for it.
+ */
+export function promoProblem(p: Promo | null, s: Snapshot, now: Date = new Date()): string | null {
+  if (!p) return "We do not recognise that code.";
+  if (!p.active) return "That code is no longer being accepted.";
+  if (p.expires_at && new Date(p.expires_at) <= now) return "That code has expired.";
+  if (p.max_redemptions !== null && p.redeemed >= p.max_redemptions) {
+    return "That code has been used as many times as it can be.";
+  }
+  // DEFENCE IN DEPTH BEHIND THE TABLE'S OWN CHECKS. These are constraints in
+  // the migration too; a hand-written row or a later migration that relaxes
+  // one must not become a negative invoice.
+  if (!(p.value > 0)) return "That code is not set up correctly.";
+  if (p.kind === "percent" && p.value > 100) return "That code is not set up correctly.";
+  if (!p.off_setup && !p.off_recurring) return "That code is not set up correctly.";
+  // THE FOUNDING STACK. False by default: the founding ladder is already a
+  // discount, there are three spots, and a code stacked on one is the price
+  // for the life of that account.
+  if (s.founding && !p.stacks_with_founding) {
+    return "That code cannot be used with the founding price.";
+  }
+  const r = discountOf(p, s);
+  if (r.off_setup_cents === 0 && r.off_recurring_cents === 0) {
+    // e.g. a build-fee code against the booking plan, which has no build fee.
+    return "That code has nothing to take off this plan.";
+  }
+  if (firstChargeCents(r.snapshot) < STRIPE_MIN_CHARGE_CENTS) {
+    return "That code would take the first payment below the smallest amount we can charge.";
+  }
+  return null;
+}
+
+/** The arithmetic, with no opinion about whether the code may be used. */
+function discountOf(p: Promo, s: Snapshot): PromoResult {
+  const offSetup = p.off_setup ? off(p, s.setup_cents) : 0;
+  const offRecurring = p.off_recurring ? off(p, s.recurring_cents) : 0;
+  const snapshot: Snapshot = {
+    ...s,
+    setup_cents: s.setup_cents - offSetup,
+    recurring_cents: s.recurring_cents - offRecurring,
+  };
+  const bits: string[] = [];
+  if (offSetup > 0) bits.push(`${money(offSetup)} off the build`);
+  if (offRecurring > 0) {
+    bits.push(`${money(offRecurring)} off every ${s.bill_interval}, for as long as you stay`);
+  }
+  return {
+    snapshot,
+    off_setup_cents: offSetup,
+    off_recurring_cents: offRecurring,
+    label: bits.length ? `${p.code} — ${bits.join(" and ")}` : p.code,
+  };
+}
+
+/**
+ * THE ONE PLACE A CODE BECOMES MONEY.
+ *
+ * Throws if the code cannot be used, because every caller has already had to
+ * ask `promoProblem` in order to say something useful to the detailer — and a
+ * version that silently returned the undiscounted snapshot would charge full
+ * price against a screen that had just printed a discount.
+ */
+export function applyPromo(s: Snapshot, p: Promo, now: Date = new Date()): PromoResult {
+  const problem = promoProblem(p, s, now);
+  if (problem) throw new Error(problem);
+  return discountOf(p, s);
+}
+
+
+// ---------------------------------------------------------------------------
 // CONSENT — AB 2863's "express affirmative consent"
 
 /**

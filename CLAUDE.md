@@ -819,6 +819,22 @@ explaining it; if they still have to ask "so should I?", it failed.
   guard matching on email OR phone, so one household address joined two
   different people. **It clears its own `rate_hits` first**, like every other
   suite here that books)
+  **`promo-checkout`** (**81 checks with credentials, 40 without**, new
+  2026-09-07, roadmap 8.14 — A PROMO CODE ON *OUR* CHECKOUT, which is the third
+  place in this product where *a number PRINTED is not a number CHARGED* is
+  literally true and the first where the difference IS the feature. **§ 1 and
+  § 2 are credential-free; § 3 and § 4 ask the database and the deployed
+  endpoint** and print SKIPPED without `.env`. What it holds: **the discount
+  has to reach the invoice lines, the consent sentence, the exit fee and the
+  row** — it does, because a code produces a different `Snapshot` and all four
+  read one — and **a one-use code cannot be taken twice**, asked by firing two
+  redemptions at once rather than by reading the SQL. § 4 builds a throwaway
+  business with `is_demo: true` (which keeps it out of the founding COUNT) and
+  drives a real quote and a real `subscribe`. Ten breaks all caught, **two of
+  them applied to the live database** — and **one of its own checks was
+  vacuous, found by baselining**: it tested that `withinLimits` and the bucket
+  name APPEARED, and `if (false && !await withinLimits(...))` keeps every one
+  of those characters while gating nothing)
   and **`dead-mans-switch`** (**43 checks with credentials, 26 without**, new
   2026-09-07, roadmap 8.12 — WHETHER ANYBODY IS TOLD WHEN A SCHEDULED JOB
   STOPS. `job_heartbeats` has recorded the answer since 7.3 and nothing ever
@@ -1795,9 +1811,17 @@ explaining it; if they still have to ask "so should I?", it failed.
   prices are the DEFAULT swept state — a strike only exists on a founding
   account, and seeded standard the whole treatment would be measured nowhere.
   **IT USED TO COST ONE OF THE THREE SPOTS AND NO LONGER DOES — roadmap 6.2,
-  2026-09-06.** `businesses.is_demo` is excluded from `founding_offer()` AND
-  from `claim_founding_spot()` (they must move together, or the page
-  advertises a spot the claim then refuses), so the demo still renders the
+  2026-09-06.** `businesses.is_demo` is excluded from the COUNT in
+  `founding_offer()` AND in `claim_founding_spot()` (they must move together,
+  or the page advertises a spot the claim then refuses). **PRECISION ADDED
+  2026-09-07, because this sentence read as more than it says and 8.14's test
+  proved it: a demo business is excluded from the COUNT, not from being
+  GRANTED the tier.** `claim_founding_spot` happily sets `plan_tier =
+  'founding'` on one — which is what `seed-demo.mjs` deliberately does so the
+  struck prices are the swept state — it simply does not count it against the
+  three. A fixture created with `is_demo: true` therefore comes back FOUNDING
+  from `subscribe`, and a test that assumed otherwise measures the wrong
+  ladder, so the demo still renders the
   struck founding prices and `founding_offer()` reads **3 of 3**. The roadmap
   had required this since it was written and the product had been quietly
   breaking it: the public page prints that answer, so a demo in the count told
