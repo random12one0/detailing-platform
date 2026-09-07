@@ -288,4 +288,66 @@ export const es = {
     "Esto hace que {business} deje de escribirte para invitarte a volver. Todo lo relacionado con una reserva que hagas — la confirmación, el recordatorio, el recibo — te sigue llegando.",
   "One moment…": "Un momento…",
   "Yes, stop them": "Sí, deténlos",
+  // ── ROADMAP 8.17 STAGE 1B — THE MONTHLY-PLAN PAGES ─────────────────────
+  // `/book/:slug/plans` and `/plan/:memberId`. They are the rest of the same
+  // customer journey stage 1 translated: a person who books in Spanish and is
+  // then handed a plan link should not meet an English page at the end of it.
+  //
+  // THE PICKER IS ON BOTH OF THEM NOW. It was deliberately absent while they
+  // were English-only — a control promising a language the page cannot speak
+  // is worse than no control — and it arrives in the same change that makes
+  // the promise true.
+  //
+  // WHAT IS *NOT* HERE: the cadence, the price shape, the term and the visit
+  // count. Those are COMPUTED — a number in the middle of a sentence — so they
+  // live in `lib/plans.js` beside their English, exactly as `duration()` does
+  // in `format.js`. A catalogue keyed on English cannot hold a template.
+  "This link doesn’t match a business.": "Este enlace no corresponde a ningún negocio.",
+  "Plans": "Planes",
+  // "Regulars get looked after" is an idiom, not a sentence to carry across
+  // word for word: what it MEANS is that coming back regularly is rewarded.
+  "Regulars get looked after": "Cuidamos a los clientes de siempre",
+  "No plans just now": "Por ahora no hay planes",
+  "{name} isn’t running any plans at the moment.":
+    "{name} no tiene planes disponibles en este momento.",
+  "Call {phone} if you’d like a regular slot.":
+    "Llama al {phone} si quieres un espacio fijo.",
+  "{visits} each time": "{visits} cada vez",
+  "Already on a plan?": "¿Ya tienes un plan?",
+  // An EXAMPLE address, so the example itself changes with the language —
+  // "you@example.com" reads as a real address somebody typed to a Spanish
+  // speaker, not as a hint.
+  "you@example.com": "tu@ejemplo.com",
+  "If that address is on a plan with us, your link is on its way. Check your inbox.":
+    "Si ese correo tiene un plan con nosotros, tu enlace ya va en camino. Revisa tu bandeja de entrada.",
+  "Sending": "Enviando",
+  "Send it": "Enviar",
+  "We’ll email your plan link rather than showing it here.":
+    "Te enviamos el enlace de tu plan por correo en vez de mostrarlo aquí.",
+  "Book a one-off instead": "Mejor reservar una sola vez",
+
+  // ── The member's own page ──────────────────────────────────────────────
+  "Plan not found": "No encontramos el plan",
+  "This link may be out of date. Ask your detailer to send it again.":
+    "Puede que este enlace ya no sirva. Pídele a tu detallador que te lo mande otra vez.",
+  "We couldn’t end that just now.": "No pudimos terminarlo en este momento.",
+  "Your plan": "Tu plan",
+  "Visits waiting for you": "Visitas que te esperan",
+  "Book whenever suits — these don’t expire while your plan is running.":
+    "Reserva cuando te acomode — no vencen mientras tu plan siga activo.",
+  "You paid": "Pagaste",
+  "You pay": "Pagas",
+  "Member since": "Miembro desde",
+  "Next visit due": "Próxima visita",
+  "Ended": "Terminado",
+  "Visits used": "Visitas usadas",
+  "This plan has ended, {first}.": "Este plan ya terminó, {first}.",
+  "This plan has ended.": "Este plan ya terminó.",
+  "You can still book any time, and {name} can put you back on a plan whenever you like.":
+    "Puedes reservar cuando quieras, y {name} te puede volver a poner en un plan cuando gustes.",
+  "Book my next visit": "Reservar mi próxima visita",
+  "Ending…": "Terminando…",
+  "Yes, end {name}": "Sí, terminar {name}",
+  "Keep it": "Conservarlo",
+  "End this plan": "Terminar este plan",
 };

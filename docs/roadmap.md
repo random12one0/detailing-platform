@@ -7647,12 +7647,36 @@ works**, which is one line at the end rather than a pause in the middle.
       one that matters: it reads the booking surface for hard-coded English,
       because a forgotten string is invisible in English, invisible to him, and
       first met by a customer.
-      **WHAT STAGE 1B AND 2 STILL OWE**, named rather than implied: the
-      monthly-plan pages (`/book/:slug/plans`, `/plan/:memberId`), whose text
-      is a SENTENCE GENERATOR in `lib/plans.js` rather than strings; the
-      thirteen email templates; and the detailer's dashboard. The plan pages
-      carry no picker, so they promise nothing they cannot do — and § 4b fails
-      if one ever appears there.
+      **STAGE 1B DONE 2026-09-07 — THE MONTHLY-PLAN PAGES.**
+      `/book/:slug/plans` and `/plan/:memberId`, which are the rest of the same
+      journey: somebody who books in Spanish and is then handed a plan link
+      should not meet an English page at the end of it.
+      **THEIR TEXT IS COMPUTED, NOT LOOKED UP, WHICH IS WHY THEY WERE THEIR OWN
+      STAGE.** "Every 2 weeks", "1 visit each time", "12-month term", "$60 a
+      month" come out of `lib/plans.js` — a sentence generator, with a number
+      in the middle of it, that a catalogue keyed on English cannot hold. So
+      the four generators plus `statusWords` take a LANGUAGE, and their Spanish
+      sits beside their English in that file, exactly as `duration()` does in
+      `format.js`. `dateLong()` took the same treatment.
+      **AND ENGLISH IS THE DEFAULT ON EVERY ONE OF THEM, BECAUSE THAT MODULE IS
+      SHARED WITH THE DASHBOARD.** `dp.lang` is a per-device choice a CUSTOMER
+      makes on a booking page; a generator that read the locale itself would
+      turn a detailer's own back office Spanish the moment they previewed their
+      own page in it. § 4e is that rule with teeth.
+      **THE PICKER ARRIVED WITH THE TRANSLATION, NOT BEFORE IT.** It was
+      deliberately absent while those pages were English-only — a control
+      promising a language the page cannot speak leaves the chrome switching
+      and the page in English — so § 4b flipped its sign: it used to fail if a
+      picker appeared there and now fails if one is missing. **These pages are
+      reached from an EMAIL**, so a customer can land on one in a browser that
+      has never chosen a language, and with no picker they would have no way to
+      ask.
+      `spanish` is **31 checks**; seven more breaks baselined, and **two of the
+      new ones were vacuous on the first run** — one read the file's own IMPORT
+      of `LanguagePicker` rather than the markup, and one counted generators
+      with a threshold that stayed green with one of five broken.
+      **WHAT STAGE 2 STILL OWES**: the thirteen email templates and the
+      detailer's dashboard.
 
 - [x] 8.18 **Two logins at once.** *"Maybe there's an account switcher — like
       how on Chrome you could log into multiple Google accounts and switch

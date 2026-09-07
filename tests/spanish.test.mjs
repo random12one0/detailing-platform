@@ -191,22 +191,25 @@ console.log("4. what is still hard-coded on the booking surface");
   // their confirmation email, and the opt-out. That is one complete journey:
   // book, then change or cancel, then stop the marketing.
   //
-  // **THE MONTHLY-PLAN PAGES ARE NOT IN IT, AND THAT IS A SCOPE DECISION
-  // RATHER THAN AN OVERSIGHT.** Almost everything a person reads on
-  // `/plan/:memberId` is a SENTENCE BUILT BY `lib/plans.js` — "every 2 weeks",
-  // "1 visit each time", "12-month term", "$60 a month" — assembled from
-  // fragments in a module the dashboard shares. Translating those means
-  // translating a sentence GENERATOR, where word order and agreement are the
-  // whole problem, and half of it would be worse than none.
+  // **THE MONTHLY-PLAN PAGES ARE IN IT AS OF STAGE 1B**, and the exclusion
+  // that used to be here is worth keeping as a record of what the work was.
+  // Almost everything a person reads on `/plan/:memberId` is a SENTENCE BUILT
+  // BY `lib/plans.js` — "every 2 weeks", "1 visit each time", "12-month term",
+  // "$60 a month" — assembled from fragments in a module the DASHBOARD shares.
+  // So there was no string to look up: the generators take a language now,
+  // English by default, and their Spanish sits beside their English in that
+  // file rather than in the catalogue, exactly as `duration()` does.
   //
-  // **SO THE PICKER IS NOT ON THOSE PAGES EITHER.** They stay wholly in
-  // English, which is a page in one language rather than a page in two, and
-  // nothing there promises Spanish. This list is what stage 1b has to take.
-  const STAGE_1B = ["PlansPage.jsx", "PlanMemberPage.jsx"];
+  // **AND THE PICKER ARRIVED WITH THE TRANSLATION, NOT BEFORE IT.** While
+  // those pages were English-only they deliberately carried none — a control
+  // promising a language the page cannot speak leaves the chrome switching and
+  // the page itself in English, which is the two-language screen this whole
+  // design avoids. § 4b is that rule with its sign flipped: now that the pages
+  // can speak it, a page that does NOT offer the choice is the defect.
+  const PLAN_PAGES = ["PlansPage.jsx", "PlanMemberPage.jsx"];
   const left = [];
   for (const p of walk(BOOK)) {
     if (p.endsWith("core.js")) continue;      // no imports allowed; see § 1d
-    if (STAGE_1B.some((f) => p.endsWith(f))) continue;
     const src = strip(readFileSync(p, "utf8"));
     for (const m of src.match(/>[^<>{}\n][^<>{}]*</g) ?? []) {
       const text = m.slice(1, -1).trim();
@@ -226,14 +229,74 @@ console.log("4. what is still hard-coded on the booking surface");
   check("4a · no hard-coded English prose is left in the booking surface",
     left.length === 0, left.slice(0, 5).join(" · "));
 
-  // **AN EXCLUSION HAS TO BE HONEST BOTH WAYS.** A page left out of § 4a must
-  // not offer a language it does not have — a picker there would switch the
-  // chrome around it and leave the page itself in English, which is the exact
-  // two-language screen this whole design avoids.
-  const promises = STAGE_1B.filter((f) =>
-    /LanguagePicker/.test(readFileSync(path.join(BOOK, f), "utf8")));
-  check("4b · and the pages left out do not offer a language they do not have",
-    promises.length === 0, promises.join(" · "));
+  // **AND A PAGE THAT CAN SPEAK IT HAS TO OFFER IT.** The plan pages are
+  // reached from an EMAIL rather than from the booking flow, so a customer can
+  // land on one in a browser that has never chosen a language — with no picker
+  // there, somebody who reads Spanish has no way to ask for it and no way back
+  // to the page that would have let them.
+  // **`<LanguagePicker` AND NOT `LanguagePicker`.** The bare name is also the
+  // IMPORT at the top of the file, so the first version of this check passed
+  // with the control deleted from the markup — `indexOf` on a name that also
+  // appears in an import, which is this repo's most repeated test defect, and
+  // baselining is what caught it here.
+  const silent = PLAN_PAGES.filter((f) =>
+    !/<LanguagePicker/.test(strip(readFileSync(path.join(BOOK, f), "utf8"))));
+  check("4b · the check has subjects — both plan pages were read",
+    PLAN_PAGES.every((f) => readFileSync(path.join(BOOK, f), "utf8").length > 500));
+  check("4b-ii · and each of them offers the choice it can now honour",
+    silent.length === 0, silent.join(" · "));
+
+  // **THE GENERATORS TAKE THE LANGUAGE AT EVERY CALL SITE ON THESE PAGES.**
+  // This is § 5's argument one file over: `cadenceWords(plan)` is not prose,
+  // it is a call that returns "Every 2 weeks", so § 4a cannot see a forgotten
+  // argument — the page renders a fragment of English inside a Spanish
+  // sentence and nothing reports it.
+  const GEN = ["cadenceWords", "priceWords", "termWords", "visitWords", "statusWords"];
+  const bare = [];
+  for (const f of PLAN_PAGES) {
+    const src = strip(readFileSync(path.join(BOOK, f), "utf8"));
+    for (const g of GEN) {
+      const re = new RegExp(`\\b${g}\\(([^)]*)\\)`, "g");
+      for (const m of src.matchAll(re)) {
+        if (!/\blang\b/.test(m[1])) bare.push(`${f}: ${m[0].slice(0, 40)}`);
+      }
+    }
+  }
+  check("4c · the check has subjects — the generators are called here",
+    PLAN_PAGES.some((f) => GEN.some((g) =>
+      strip(readFileSync(path.join(BOOK, f), "utf8")).includes(`${g}(`))));
+  check("4c-ii · and every one of them is given the language",
+    bare.length === 0, bare.slice(0, 4).join(" · "));
+
+  // AND `dateLong` IS THE SAME SHAPE — a date formatter shared with the
+  // dashboard, so it takes the language rather than reading it.
+  const memberSrc = strip(readFileSync(path.join(BOOK, "PlanMemberPage.jsx"), "utf8"));
+  const dates = [...memberSrc.matchAll(/dateLong\(([^)]*)\)/g)];
+  check("4d · the check has subjects — dateLong is called on the member page",
+    dates.length >= 2, `${dates.length} calls`);
+  check("4d-ii · and every call passes the language",
+    dates.every((m) => /\blang\b/.test(m[1])),
+    dates.filter((m) => !/\blang\b/.test(m[1])).map((m) => m[0]).join(" · "));
+
+  // AND THE GENERATORS THEMSELVES NEVER READ THE LOCALE. `lib/plans.js` is
+  // shared with the detailer's dashboard and `dp.lang` is a per-device choice
+  // a CUSTOMER makes, so a generator that reached for it would turn a
+  // detailer's own back office Spanish the moment they previewed their page.
+  const PLANS = strip(readFileSync(new URL("../app/src/lib/plans.js", import.meta.url), "utf8"));
+  check("4e · the plan generators never read the active locale",
+    !/getLocale|useLocale|dp\.lang|from "\.\/i18n/.test(PLANS));
+  // **EVERY EXPORTED GENERATOR, DISCOVERED BY NAME RATHER THAN COUNTED.** A
+  // threshold passes with one of them broken — the first version asked for
+  // "at least four" of five and stayed green when `priceWords` lost its
+  // default, which is a dashboard rendering Spanish for a detailer who never
+  // asked. Each one has to carry it, and a sixth generator is covered the day
+  // somebody writes it.
+  const takesLang = [...PLANS.matchAll(/export function (\w+Words)\(([^)]*)\)/g)];
+  check("4e-ii · the check has subjects — the generators were found",
+    takesLang.length >= 4, `${takesLang.length} generators`);
+  const noDefault = takesLang.filter((m) => !/lang = "en"/.test(m[2])).map((m) => m[1]);
+  check("4e-iii · and every one defaults to English, so the dashboard is unaffected",
+    noDefault.length === 0, noDefault.join(" · "));
 }
 
 // ─── 5. The formatters, which produce English without any string ─────────

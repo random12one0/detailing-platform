@@ -24,11 +24,19 @@ import { useParams } from "react-router-dom";
 import { CalendarClock, X } from "lucide-react";
 import { api } from "../lib/api.js";
 import { dateLong, money } from "../lib/format.js";
-import { STATUS_WORDS, cadenceWords, ledgerFor, priceWords, termWords, visitWords } from "../lib/plans.js";
+import { cadenceWords, ledgerFor, priceWords, statusWords, termWords, visitWords } from "../lib/plans.js";
+import { t } from "../lib/i18n.js";
+import { useLocale } from "../hooks/useLocale.js";
+import LanguagePicker from "./LanguagePicker.jsx";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import "./booking.css";
 
 export default function PlanMemberPage() {
+  // ROADMAP 8.17 STAGE 1B — the outer half of this page renders before the
+  // provider lands, so it needs the hook too. Every component that draws
+  // translated text calls `useLocale()`; one call at a root works only until
+  // somebody memoises a child, silently, in the language nobody here reads.
+  useLocale();
   const { memberId } = useParams();
   const [state, setState] = useState({ status: "loading", data: null });
 
@@ -51,8 +59,8 @@ export default function PlanMemberPage() {
     return (
       <div className="bk">
         <div className="bk-center">
-          <h1>Plan not found</h1>
-          <p className="bk-muted">This link may be out of date. Ask your detailer to send it again.</p>
+          <h1>{t("Plan not found")}</h1>
+          <p className="bk-muted">{t("This link may be out of date. Ask your detailer to send it again.")}</p>
         </div>
       </div>
     );
@@ -68,6 +76,7 @@ export default function PlanMemberPage() {
 }
 
 function PlanInner({ data, onChanged }) {
+  const lang = useLocale();
   const { status: brandStatus, business, branding, brandVars, slug } = useBookingBusiness();
   const { member, plan, visits, used: usedBookings, customer_name: customerName } = data;
   const [busy, setBusy] = useState(false);
@@ -93,7 +102,7 @@ function PlanInner({ data, onChanged }) {
       await api.cancelPlanMember(member.id);
       await onChanged();
     } catch (e) {
-      setError(e.message || "We couldn’t end that just now.");
+      setError(e.message || t("We couldn’t end that just now."));
     }
     setBusy(false);
     setConfirmEnd(false);
@@ -116,8 +125,9 @@ function PlanInner({ data, onChanged }) {
           {branding?.logo_url && <img src={branding.logo_url} alt="" />}
           <div>
             <h1>{business.name}</h1>
-            <div className="tagline">Your plan</div>
+            <div className="tagline">{t("Your plan")}</div>
           </div>
+          <LanguagePicker />
         </div>
       </header>
 
@@ -125,12 +135,12 @@ function PlanInner({ data, onChanged }) {
         {/* THE ONE LIT OBJECT: the plan itself. Everything under it is paper —
             the same composition the review step uses for the appointment. */}
         <div className={`bk-card${ended ? "" : " selected"}`}>
-          <div className="bk-step-label">{ended ? "Ended" : STATUS_WORDS[member.status]}</div>
+          <div className="bk-step-label">{statusWords(ended ? "ended" : member.status, lang)}</div>
           <h3 style={{ marginTop: 4 }}>{plan.name}</h3>
           <p className="bk-muted" style={{ marginTop: 4 }}>
-            {cadenceWords(plan)}
-            {plan.cadence_unit ? ` · ${visitWords(plan)} each time` : ""}
-            {termWords(plan) ? ` · ${termWords(plan)}` : ""}
+            {cadenceWords(plan, lang)}
+            {plan.cadence_unit ? ` · ${t("{visits} each time", { visits: visitWords(plan, lang) })}` : ""}
+            {termWords(plan, lang) ? ` · ${termWords(plan, lang)}` : ""}
           </p>
           {plan.description && <p className="bk-muted" style={{ marginTop: 10 }}>{plan.description}</p>}
         </div>
@@ -142,37 +152,37 @@ function PlanInner({ data, onChanged }) {
             Here it is the customer's copy of that. */}
         {!ended && owed > 0 && (
           <div>
-            <div className="bk-step-label" style={{ marginBottom: 6 }}>Visits waiting for you</div>
+            <div className="bk-step-label" style={{ marginBottom: 6 }}>{t("Visits waiting for you")}</div>
             <div className="bk-owed">{owed}</div>
             <p className="bk-muted" style={{ marginTop: 8 }}>
-              Book whenever suits — these don’t expire while your plan is running.
+              {t("Book whenever suits — these don’t expire while your plan is running.")}
             </p>
           </div>
         )}
 
         <div className="bk-receipt bk-facts">
           <div className="line">
-            <span>{ended ? "You paid" : "You pay"}</span>
-            <span className="bk-price">{priceWords(member.price_kind, member.price_amount, money)}</span>
+            <span>{ended ? t("You paid") : t("You pay")}</span>
+            <span className="bk-price">{priceWords(member.price_kind, member.price_amount, money, lang)}</span>
           </div>
           <div className="line">
-            <span>Member since</span>
-            <span>{dateLong(member.started_on)}</span>
+            <span>{t("Member since")}</span>
+            <span>{dateLong(member.started_on, lang)}</span>
           </div>
           {nextDue && (
             <div className="line">
-              <span>Next visit due</span>
-              <span>{dateLong(nextDue)}</span>
+              <span>{t("Next visit due")}</span>
+              <span>{dateLong(nextDue, lang)}</span>
             </div>
           )}
           {ended && member.ended_on && (
             <div className="line">
-              <span>Ended</span>
-              <span>{dateLong(member.ended_on)}</span>
+              <span>{t("Ended")}</span>
+              <span>{dateLong(member.ended_on, lang)}</span>
             </div>
           )}
           <div className="line">
-            <span>Visits used</span>
+            <span>{t("Visits used")}</span>
             <span>{used}</span>
           </div>
         </div>
@@ -181,8 +191,11 @@ function PlanInner({ data, onChanged }) {
 
         {ended ? (
           <div className="bk-note">
-            This plan has ended{customerName ? `, ${customerName.split(" ")[0]}` : ""}. You can still book any time,
-            and {business.name} can put you back on a plan whenever you like.
+            {customerName
+              ? t("This plan has ended, {first}.", { first: customerName.split(" ")[0] })
+              : t("This plan has ended.")}{" "}
+            {t("You can still book any time, and {name} can put you back on a plan whenever you like.",
+              { name: business.name })}
           </div>
         ) : (
           <div className="bk-actions">
@@ -190,22 +203,22 @@ function PlanInner({ data, onChanged }) {
                 is the plan's — computed by the same engine that will charge
                 it, never by this page. */}
             <a className="bk-btn primary" href={`/book/${slug}?plan=${plan.id}`}>
-              <CalendarClock size={20} strokeWidth={2} /> Book my next visit
+              <CalendarClock size={20} strokeWidth={2} /> {t("Book my next visit")}
             </a>
             <div className="bk-exits">
               {confirmEnd ? (
                 <>
                   <button className="bk-btn danger" disabled={busy} onClick={endPlan}>
-                    {busy ? "Ending…" : `Yes, end ${plan.name}`}
+                    {busy ? t("Ending…") : t("Yes, end {name}", { name: plan.name })}
                   </button>
                   <button className="bk-btn ghost" disabled={busy} onClick={() => setConfirmEnd(false)}>
-                    Keep it
+                    {t("Keep it")}
                   </button>
                 </>
               ) : (
                 <>
                   <button className="bk-btn danger bare" onClick={() => setConfirmEnd(true)}>
-                    <X size={20} strokeWidth={2} /> End this plan
+                    <X size={20} strokeWidth={2} /> {t("End this plan")}
                   </button>
                   {business.phone && (
                     <a className="bk-btn ghost" href={`tel:${business.phone}`}>{business.phone}</a>

@@ -37,16 +37,45 @@ export function addPeriod(date, count, unit) {
 }
 
 // --- Words ------------------------------------------------------------------
+//
+// ROADMAP 8.17 STAGE 1B — EVERY GENERATOR BELOW TAKES A LANGUAGE AND NONE OF
+// THEM READS ONE.
+//
+// These four are the reason the plan pages could not simply be wrapped in
+// `t()`: their text is COMPUTED — a cadence, a price shape, a term, a count —
+// so there is no sentence to look up. The Spanish lives beside the English
+// here rather than in `strings/es.js`, exactly as `duration()` does in
+// `format.js`, because a catalogue keyed on English cannot hold a template
+// that has a number in the middle of it.
+//
+// **AND THE LANGUAGE IS AN ARGUMENT, ENGLISH BY DEFAULT.** This module is
+// shared with the DETAILER's dashboard (`screens/more/Plans.jsx`,
+// `screens/Clients.jsx`) and `dp.lang` is a per-device choice a CUSTOMER makes
+// on a booking page. A generator that read the locale itself would turn a
+// detailer's own back office Spanish the moment they previewed their page in
+// it — the same defect `duration()` is written to avoid, one file over.
+// `tests/spanish.test.mjs` § 5 fails on any read of the locale in here.
+//
+// **NOTHING IN THIS FILE IMPORTS ANYTHING**, and that is deliberate: it is
+// the module a tenant's own site can drop in beside `book/core.js`.
 
 // The cadence as a detailer says it. Named intervals get their name; anything
 // else is counted out. A plan with no cadence is a discount membership, and
 // saying so is the honest answer rather than leaving the line blank.
-export function cadenceWords(plan) {
+export function cadenceWords(plan, lang = "en") {
   const n = plan?.cadence_count, u = plan?.cadence_unit;
-  if (!n || !u) return "No set schedule";
-  if (n === 1) return { week: "Weekly", month: "Monthly", year: "Yearly" }[u];
-  if (n === 2 && u === "week") return "Every 2 weeks";
-  if (n === 3 && u === "month") return "Quarterly";
+  const es = lang === "es";
+  if (!n || !u) return es ? "Sin horario fijo" : "No set schedule";
+  if (n === 1) {
+    return es
+      ? { week: "Semanal", month: "Mensual", year: "Anual" }[u]
+      : { week: "Weekly", month: "Monthly", year: "Yearly" }[u];
+  }
+  if (n === 2 && u === "week") return es ? "Cada 2 semanas" : "Every 2 weeks";
+  if (n === 3 && u === "month") return es ? "Trimestral" : "Quarterly";
+  // Spanish pluralises the NOUN, so the unit words are spelled out rather than
+  // built by adding an "s" the way the English branch can.
+  if (es) return `Cada ${n} ${{ week: "semanas", month: "meses", year: "años" }[u]}`;
   return `Every ${n} ${u}s`;
 }
 
@@ -59,12 +88,13 @@ export function cadenceWords(plan) {
 // be entered as a monthly price until then, and the screen printed
 // "$1999.00 a month", which is neither what the detailer means nor what the
 // customer pays.
-export function priceWords(kind, amount, money) {
+export function priceWords(kind, amount, money, lang = "en") {
   const n = Number(amount) || 0;
-  if (kind === "percent_off") return `${n}% off`;
-  if (kind === "per_visit") return `${money(n)} a visit`;
-  if (kind === "total") return `${money(n)} up front`;
-  return `${money(n)} a month`;
+  const es = lang === "es";
+  if (kind === "percent_off") return es ? `${n}% de descuento` : `${n}% off`;
+  if (kind === "per_visit") return es ? `${money(n)} por visita` : `${money(n)} a visit`;
+  if (kind === "total") return es ? `${money(n)} por adelantado` : `${money(n)} up front`;
+  return es ? `${money(n)} al mes` : `${money(n)} a month`;
 }
 
 // The commitment, if there is one. Separate from the price on purpose: a
@@ -72,21 +102,35 @@ export function priceWords(kind, amount, money) {
 // has no end date at all, and "paid up front" is a fact about the money while
 // a term is a fact about the commitment. Null is the ordinary answer — six of
 // ten sampled detailers advertise no contract as a selling point.
-export function termWords(plan) {
+export function termWords(plan, lang = "en") {
   const m = Number(plan?.term_months) || 0;
   if (!m) return null;
-  if (m === 12) return "1-year term";
-  if (m % 12 === 0) return `${m / 12}-year term`;
-  return `${m}-month term`;
+  const es = lang === "es";
+  if (m === 12) return es ? "Contrato de 1 año" : "1-year term";
+  if (m % 12 === 0) {
+    return es ? `Contrato de ${m / 12} años` : `${m / 12}-year term`;
+  }
+  return es ? `Contrato de ${m} meses` : `${m}-month term`;
 }
 
 // What a plan grants each time the cadence comes round.
-export function visitWords(plan) {
+export function visitWords(plan, lang = "en") {
   const v = Number(plan?.visits_per_period) || 1;
+  if (lang === "es") return v === 1 ? "1 visita" : `${v} visitas`;
   return v === 1 ? "1 visit" : `${v} visits`;
 }
 
 export const STATUS_WORDS = { active: "Active", paused: "Paused", ended: "Ended" };
+const STATUS_WORDS_ES = { active: "Activo", paused: "En pausa", ended: "Terminado" };
+
+// **A FUNCTION RATHER THAN A SECOND EXPORTED OBJECT**, so a call site cannot
+// index the English one by accident and get a correct-looking wrong answer.
+// `STATUS_WORDS` stays exported because the dashboard reads it directly and
+// this stage is not the dashboard's.
+export function statusWords(status, lang = "en") {
+  const table = lang === "es" ? STATUS_WORDS_ES : STATUS_WORDS;
+  return table[status] ?? STATUS_WORDS[status] ?? status;
+}
 
 // --- The ledger -------------------------------------------------------------
 

@@ -55,9 +55,16 @@ export const duration = (mins, lang = "en") => {
   return `${h} hr ${m} min`;
 };
 
-export const dateLong = (dateStr) => {
+// ROADMAP 8.17 STAGE 1B — the language is an ARGUMENT and this must never
+// read the active locale itself. Same rule as `duration()` above and for the
+// same reason: this is shared with the DASHBOARD, and `dp.lang` is a
+// per-device choice a CUSTOMER makes on a booking page — so a detailer who
+// previewed their own page in Spanish would come back to Spanish dates in
+// their back office. English by default, so every existing call site is
+// unchanged. `es-US` rather than `es-ES` keeps month-before-day.
+export const dateLong = (dateStr, lang = "en") => {
   const [y, m, d] = String(dateStr).split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+  return new Date(y, m - 1, d).toLocaleDateString(lang === "es" ? "es-US" : "en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",

@@ -29,6 +29,9 @@ import { ArrowLeft, ChevronRight } from "lucide-react";
 import { api } from "../lib/api.js";
 import { money } from "../lib/format.js";
 import { cadenceWords, priceWords, termWords, visitWords } from "../lib/plans.js";
+import { t } from "../lib/i18n.js";
+import { useLocale } from "../hooks/useLocale.js";
+import LanguagePicker from "./LanguagePicker.jsx";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import "./booking.css";
 
@@ -42,6 +45,12 @@ export default function PlansPage() {
 }
 
 function PlansInner() {
+  // ROADMAP 8.17 STAGE 1B. The picker is HERE NOW, and until this stage it was
+  // deliberately absent: a control that promises a language the page cannot
+  // speak is worse than no control. `tests/spanish.test.mjs` § 4b used to fail
+  // if one appeared and now fails if this page carries hard-coded English
+  // instead — the promise and the delivery moved together.
+  const lang = useLocale();
   const { status, business, branding, brandVars, plans, slug } = useBookingBusiness();
   const [email, setEmail] = useState("");
   const [lookup, setLookup] = useState({ sending: false, sent: false });
@@ -63,8 +72,8 @@ function PlansInner() {
     return (
       <div className="bk" style={brandVars}>
         <div className="bk-center">
-          <h1>Page not found</h1>
-          <p className="bk-muted">This link doesn’t match a business.</p>
+          <h1>{t("Page not found")}</h1>
+          <p className="bk-muted">{t("This link doesn’t match a business.")}</p>
         </div>
       </div>
     );
@@ -77,20 +86,21 @@ function PlansInner() {
           {branding?.logo_url && <img src={branding.logo_url} alt="" />}
           <div>
             <h1>{business.name}</h1>
-            <div className="tagline">Plans</div>
+            <div className="tagline">{t("Plans")}</div>
           </div>
+          <LanguagePicker />
         </div>
       </header>
 
       <div className="bk-wrap">
         <div className="bk-step-head">
-          <h2>{plans.length ? "Regulars get looked after" : "No plans just now"}</h2>
+          <h2>{plans.length ? t("Regulars get looked after") : t("No plans just now")}</h2>
         </div>
 
         {plans.length === 0 ? (
           <div className="bk-note">
-            {business.name} isn’t running any plans at the moment.
-            {business.phone ? ` Call ${business.phone} if you’d like a regular slot.` : ""}
+            {t("{name} isn’t running any plans at the moment.", { name: business.name })}
+            {business.phone ? ` ${t("Call {phone} if you’d like a regular slot.", { phone: business.phone })}` : ""}
           </div>
         ) : (
           // A COLLECTION OF RECORDS IS A RULED LIST, NEVER A STACK OF CARDS —
@@ -116,12 +126,12 @@ function PlansInner() {
                     {/* The figure is the thing plans are compared on, so it
                         rides the name's own line and lines up down the right
                         edge — the same move the service card makes. */}
-                    <span className="bk-plan-price">{priceWords(p.price_kind, p.price_amount, money)}</span>
+                    <span className="bk-plan-price">{priceWords(p.price_kind, p.price_amount, money, lang)}</span>
                   </div>
                   <div className="bk-muted bk-plan-meta">
-                    {cadenceWords(p)}
-                    {p.cadence_unit ? ` · ${visitWords(p)} each time` : ""}
-                    {termWords(p) ? ` · ${termWords(p)}` : ""}
+                    {cadenceWords(p, lang)}
+                    {p.cadence_unit ? ` · ${t("{visits} each time", { visits: visitWords(p, lang) })}` : ""}
+                    {termWords(p, lang) ? ` · ${termWords(p, lang)}` : ""}
                   </div>
                   {p.description && <p className="bk-muted">{p.description}</p>}
                 </div>
@@ -135,10 +145,10 @@ function PlansInner() {
             and the sentence below is the same one whether or not it belongs to
             a member. */}
         <div>
-          <div className="bk-step-label" style={{ marginBottom: 8 }}>Already on a plan?</div>
+          <div className="bk-step-label" style={{ marginBottom: 8 }}>{t("Already on a plan?")}</div>
           {lookup.sent ? (
             <p className="bk-muted">
-              If that address is on a plan with us, your link is on its way. Check your inbox.
+              {t("If that address is on a plan with us, your link is on its way. Check your inbox.")}
             </p>
           ) : (
             <>
@@ -146,7 +156,7 @@ function PlansInner() {
                 <input
                   type="email"
                   value={email}
-                  placeholder="you@example.com"
+                  placeholder={t("you@example.com")}
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 <button
@@ -154,11 +164,11 @@ function PlansInner() {
                   onClick={sendLink}
                   disabled={lookup.sending || !email.trim().includes("@")}
                 >
-                  {lookup.sending ? "Sending" : "Send it"}
+                  {lookup.sending ? t("Sending") : t("Send it")}
                 </button>
               </div>
               <p className="bk-muted" style={{ marginTop: 8 }}>
-                We’ll email your plan link rather than showing it here.
+                {t("We’ll email your plan link rather than showing it here.")}
               </p>
             </>
           )}
@@ -166,7 +176,7 @@ function PlansInner() {
 
         <div>
           <Link className="bk-btn ghost inline" to={`/book/${slug}`}>
-            <ArrowLeft size={20} strokeWidth={2} /> Book a one-off instead
+            <ArrowLeft size={20} strokeWidth={2} /> {t("Book a one-off instead")}
           </Link>
         </div>
       </div>
