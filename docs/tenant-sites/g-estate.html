@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estate Detail Co. — a working index of cars we have looked after</title>
+<meta name="description" content="Classic and collector cars, by appointment. Every car we have worked on, numbered, with what was done to it.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  SITE 4 OF FIVE — brief: docs/tenant-site-briefs-2026-09-07.md § 3, Site 4.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE PAIRING IS WARM EDITORIAL × CULT/INDIE (Notion/Resend × Criterion/
+  Letterboxd), and this is the RISKIEST of the five: two of the three tenant
+  pages the owner rejected as *"very ai"* were squarely Warm Editorial — the
+  editorial serif, the generous whitespace, the muted palette and, most of
+  all, **the wide letter-spaced small-caps labels**, which are banned outright
+  in this file and appear nowhere in it.
+
+  THE CRITERION HALF IS WHAT SAVES IT, AND THE TENSION IS THE BRIEF: *the one
+  page here allowed to be beautiful, built so it cannot drift into the
+  rejected page.* A Criterion spine is not a mood, it is a CATALOGUE — numbers,
+  dense captions, a year, a running order. So this page is an INDEX of cars,
+  in the shape of a printed catalogue somebody keeps adding to. The prices are
+  fine print at the back, where a catalogue puts them, and the "booking" is a
+  REQUEST, because you do not put a 1967 car in a calendar slot.
+
+  IT IS LIGHT-GROUNDED, and that is a rule rather than a taste: sites 1 and 2
+  both came out dark although neither brief asked for it, which is the
+  distributional pull the whole exercise exists to fight (briefs § 5). No two
+  of the five share a KIND of ground — warm off-black, true black, painted
+  yellow, and this one, which is card stock.
+
+  WHAT IT IS NOT: no centred hero of eyebrow + headline + subhead + two CTAs,
+  no three-up cards, no logo soup, no pricing toggle, no FAQ accordion — the
+  2026 tell is that SEQUENCE, and each part of it is defensible alone. No
+  full-width hero photograph. No "since 1998" badge. No small-caps labels.
+
+  THE FLOOR (docs/tenant-site-contract.md): a ladder by vehicle size, real
+  credentials, a disclaimer on a service, real photographs, the form BUILT IN
+  in this site's own design, and **a site ASKS and never computes**. The
+  figures are placeholders so the page can be designed; on a live copy each
+  comes from `get_public_business_profile` and any total from
+  `calculate-booking`.
+
+  Contrast is MEASURED and quoted in the token block, never asserted.
+
+  Photographs: Unsplash — Joey Banks (QuCcmm4c5QI), atelierbyvineeth
+  (EdRDVxg4ApQ), Daniel Salcius (T3GYNtIGApU).
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- A high-contrast pairing: a hairline grotesque for the catalogue apparatus
+     (numbers, years, captions) against a warm text serif for the writing.
+     Not the platform's faces, not sites 1–3's, and not on any never-default
+     list. -->
+<link href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,300;0,400;0,600;1,300&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ───────────────────────────────────────────────────────────────────────────
+   TOKENS. Card stock, printer's ink, and one red that only ever appears on a
+   catalogue number — the Criterion device, and the only colour on the page.
+
+   MEASURED (each against the ground it lands on; the lower of two is quoted):
+     ink   #1b1a17 — 15.58 card / 14.36 card-2
+     mid   #55524a —  6.98 card /  6.44 card-2
+     red   #a51c1c —  6.75 card /  6.23 card-2
+     card  #f6f2e9 on ink #1b1a17 — 15.58
+     edge  #878276 — 3.43 card / 3.16 card-2 (control edges need 3, not
+           4.5). **It was #8d887c and that was 2.91 on card-2** — passing on
+           one ground and failing on the other, which is the shape of mistake
+           site 1 shipped and this block exists to prevent.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --card: #f6f2e9;
+  --card-2: #eee9dc;
+  --ink:  #1b1a17;
+  --mid:  #55524a;
+  --red:  #a51c1c;
+  --edge: #878276;
+  --hair: #d6cfbe;
+  --t: 200ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0; background: var(--card); color: var(--ink);
+  font-family: "Bitter", Georgia, serif; font-weight: 300;
+  font-size: clamp(16px, .5vw + 14px, 17px); line-height: 1.58;
+}
+
+.w { width: min(1100px, 100% - 2.2rem); margin-inline: auto; }
+.n { font-family: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif; }
+
+h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.14; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.7rem); }
+h2 { font-size: clamp(1.25rem, 2.4vw, 1.6rem); }
+h3 { font-size: 1.02rem; font-weight: 600; }
+p { margin: .85rem 0 0; max-width: 60ch; }
+.mid { color: var(--mid); }
+
+/* ── The head. A catalogue masthead: a name, a running number, a date. ──── */
+.head { border-bottom: 2px solid var(--ink); }
+.head .w { display: flex; align-items: flex-end; gap: 1.2rem; padding-block: 1.1rem .8rem; flex-wrap: wrap; }
+.head .name { font-size: 1.35rem; letter-spacing: -.01em; }
+.head .iss { font-family: "Barlow Condensed", sans-serif; font-size: .95rem; color: var(--mid); letter-spacing: .02em; }
+.head nav { margin-left: auto; display: flex; gap: 1.1rem; font-family: "Barlow Condensed", sans-serif; font-size: 1rem; }
+.head nav a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color var(--t); }
+.head nav a:hover, .head nav a:focus-visible { border-color: var(--red); }
+
+section { padding-block: clamp(2.2rem, 4.5vw, 3.4rem); border-bottom: 1px solid var(--hair); }
+
+/* ── THE INDEX. This is the page. Each car is an entry with a number, a
+      photograph, a year, and a dense caption saying what was done. ──────── */
+.entry {
+  display: grid; grid-template-columns: 3.6rem minmax(0, 22rem) minmax(0, 1fr);
+  gap: 0 1.5rem; align-items: start;
+  padding: 1.5rem 0; border-top: 1px solid var(--hair);
+}
+.entry:first-of-type { border-top: 2px solid var(--ink); }
+.entry .num {
+  font-family: "Barlow Condensed", sans-serif; font-size: 1.5rem;
+  color: var(--red); font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.entry img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.entry .t { font-size: 1.12rem; font-weight: 400; }
+.entry .yr { font-family: "Barlow Condensed", sans-serif; color: var(--mid); font-size: 1rem; }
+.entry .cap { margin-top: .5rem; font-size: .95rem; color: var(--mid); }
+.entry .did {
+  margin-top: .7rem; padding-top: .55rem; border-top: 1px solid var(--hair);
+  font-family: "Barlow Condensed", sans-serif; font-size: .98rem; color: var(--ink);
+  display: flex; flex-wrap: wrap; gap: .2rem 1.1rem;
+}
+.entry .did span::before { content: "· "; color: var(--red); }
+@media (max-width: 780px) {
+  .entry { grid-template-columns: 2.6rem minmax(0, 1fr); }
+  .entry img { grid-column: 2; margin-bottom: .8rem; }
+  .entry .body { grid-column: 2; }
+}
+
+/* ── The fine print, which is where a catalogue puts its prices. ───────── */
+.fine { background: var(--card-2); }
+.fine table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .95rem; }
+.fine th, .fine td { padding: .55rem .5rem; text-align: right; border-bottom: 1px solid var(--hair); }
+.fine th:first-child, .fine td:first-child { text-align: left; padding-left: 0; }
+.fine td:last-child, .fine th:last-child { padding-right: 0; }
+.fine thead th { font-family: "Barlow Condensed", sans-serif; font-weight: 600; color: var(--mid); border-bottom-color: var(--ink); }
+.fine tbody th { font-weight: 400; }
+.fine td { font-family: "Barlow Condensed", sans-serif; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) {
+  .fine thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .fine tr { display: grid; grid-template-columns: 1fr auto auto; gap: .2rem .9rem; padding-block: .6rem; border-bottom: 1px solid var(--hair); }
+  .fine th, .fine td { border: 0; padding: 0; }
+  .fine tbody th { grid-column: 1 / -1; }
+  .fine td::before { content: attr(data-l) " "; color: var(--mid); }
+}
+
+/* ── The request. Not a calendar: you do not put a 1967 car in a slot. ─── */
+.req { border: 1px solid var(--ink); padding: clamp(1rem, 3vw, 1.7rem); margin-top: 1.2rem; background: var(--card); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+@media (max-width: 560px) { .pair { grid-template-columns: 1fr; } }
+label.f { display: block; margin-top: .9rem; font-family: "Barlow Condensed", sans-serif; font-size: 1rem; color: var(--mid); }
+label.f input, label.f textarea, label.f select {
+  display: block; width: 100%; margin-top: .25rem; font: inherit;
+  font-family: "Bitter", Georgia, serif; font-size: .97rem;
+  background: var(--card); color: var(--ink); border: 1px solid var(--edge);
+  padding: .6rem .7rem;
+}
+.send {
+  margin-top: 1.2rem; width: 100%; font: inherit;
+  font-family: "Barlow Condensed", sans-serif; font-size: 1.1rem; letter-spacing: .01em;
+  background: var(--ink); color: var(--card); border: 0; padding: .8rem 1rem; cursor: pointer;
+  transition: background var(--t);
+}
+.send:hover { background: var(--red); }
+
+.who { list-style: none; padding: 0; margin-top: 1rem; }
+.who li { display: grid; grid-template-columns: 9rem 1fr; gap: 1rem; padding: .55rem 0; border-bottom: 1px solid var(--hair); font-size: .96rem; }
+.who .k { font-family: "Barlow Condensed", sans-serif; color: var(--mid); }
+@media (max-width: 460px) { .who li { grid-template-columns: 1fr; gap: .1rem; } }
+
+footer { padding-block: 2.2rem 3rem; font-size: .9rem; color: var(--mid); }
+a { color: var(--red); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .entry { opacity: 0; transform: translateY(10px); animation: up .55s ease forwards; }
+  .entry:nth-of-type(2) { animation-delay: .07s; }
+  .entry:nth-of-type(3) { animation-delay: .14s; }
+}
+@keyframes up { to { opacity: 1; transform: none; } }
+:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+</style>
+</head>
+
+<body>
+
+<div class="head">
+  <div class="w">
+    <span class="name">Estate Detail Co.</span>
+    <span class="iss">Ashford, Kent · index of works · no. 214 and counting</span>
+    <nav>
+      <a href="#index">The index</a>
+      <a href="#rates">Rates</a>
+      <a href="#ask">Ask</a>
+    </nav>
+  </div>
+</div>
+
+<section>
+  <div class="w">
+    <h1>We keep a list of every car we have looked after.</h1>
+    <p class="mid">
+      Two hundred and fourteen of them since 2009, each with a number, what
+      came in, what was done and what was left alone. It is the closest thing
+      we have to an advertisement, and it is the only thing we would ask you to
+      read before handing over a car you cannot replace.
+    </p>
+    <p class="mid">
+      We take one car at a time and we do not work to a day rate. If something
+      needs a week, it takes a week.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     THE INDEX — the page. Numbered because a catalogue IS a sequence, which
+     is the one case the never-defaults allow numbered markers.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<section id="index">
+  <div class="w">
+    <h2>Recently</h2>
+
+    <div class="entry">
+      <div class="num">212</div>
+      <img loading="lazy" alt="A dark green classic coupe photographed from the front three-quarter"
+           src="https://images.unsplash.com/photo-1517703499713-8aa43b3e4800?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900">
+      <div class="body">
+        <div class="t">Jaguar E-Type Series 1 <span class="yr">· 1964</span></div>
+        <p class="cap">
+          Off the road for eleven years, then a rolling restoration that stopped
+          short of the paint. Owner asked us not to make it look new, which is
+          the correct instruction and a rarer one than you would think.
+        </p>
+        <div class="did">
+          <span>Nine days</span><span>Single-stage by hand</span>
+          <span>Chrome de-oxidised, not replated</span><span>Leather fed twice</span>
+          <span>Original patina kept</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="num">213</div>
+      <img loading="lazy" alt="Close view of a vintage car's headlamp and chrome trim"
+           src="https://images.unsplash.com/photo-1766232146511-ddaae17c8676?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900">
+      <div class="body">
+        <div class="t">Alvis TD21 Drophead <span class="yr">· 1959</span></div>
+        <p class="cap">
+          In for the chrome and the hood. We refused the paint correction: the
+          car had been through it twice already and the gauge said there was
+          nothing left to take.
+        </p>
+        <div class="did">
+          <span>Four days</span><span>Chrome only</span>
+          <span>Mohair hood cleaned and re-proofed</span><span>No machine polishing</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="num">214</div>
+      <img loading="lazy" alt="A classic sports car parked on grass in daylight"
+           src="https://images.unsplash.com/photo-1581139197558-1d32dd5d6232?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=900">
+      <div class="body">
+        <div class="t">Chevrolet Corvette Stingray <span class="yr">· 1967</span></div>
+        <p class="cap">
+          A US import with a respray of unknown age. Two stages on the flat
+          panels, one on the arches, and a coating the owner will bring back
+          every August.
+        </p>
+        <div class="did">
+          <span>Six days</span><span>Two-stage, measured</span>
+          <span>Glass-fibre body — no rotary</span><span>Coated, 5 year</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- The prices are fine print at the back, which is where a catalogue puts
+     them. They are still complete and still by vehicle size. -->
+<section class="fine" id="rates">
+  <div class="w">
+    <h2>Rates</h2>
+    <p class="mid">
+      A starting point. Nothing here is a quote until we have seen the car, and
+      we will tell you the number before anything is touched.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Work</th>
+          <th scope="col">Small</th>
+          <th scope="col">Saloon</th>
+          <th scope="col">Estate / large</th>
+          <th scope="col">Days</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Sympathetic clean and protect</th>
+          <td data-l="Small">£420</td><td data-l="Saloon">£520</td><td data-l="Large">£620</td><td data-l="Days">2</td>
+        </tr>
+        <tr>
+          <th scope="row">Single-stage correction</th>
+          <td data-l="Small">£880</td><td data-l="Saloon">£1,050</td><td data-l="Large">£1,240</td><td data-l="Days">4</td>
+        </tr>
+        <tr>
+          <th scope="row">Two-stage, measured</th>
+          <td data-l="Small">£1,480</td><td data-l="Saloon">£1,760</td><td data-l="Large">£2,050</td><td data-l="Days">6</td>
+        </tr>
+        <tr>
+          <th scope="row">Chrome, brightwork and leather</th>
+          <td data-l="Small">£340</td><td data-l="Saloon">£400</td><td data-l="Large">£460</td><td data-l="Days">1–2</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- THE DISCLAIMER, and on this kind of car it is the most important
+         sentence on the page. -->
+    <p class="mid" style="margin-top:1.3rem">
+      <strong>We refuse work more often than we quote for it.</strong> Original
+      paint that has been polished before, cellulose, thin lacquer over
+      aluminium and anything with filler under it are told no, in writing, with
+      the gauge readings attached. There is no charge for being told no.
+    </p>
+  </div>
+</section>
+
+<!-- A REQUEST, not a booking. You do not put a 1967 car into a calendar slot;
+     the platform's request mode is exactly this shape and the rules are the
+     core's whatever the form looks like. -->
+<section id="ask">
+  <div class="w">
+    <h2>Ask about a car</h2>
+    <p class="mid">
+      Tell us what it is and what is bothering you. We answer every one, usually
+      the same evening, and we will say if it is not a job for us.
+    </p>
+
+    <form class="req" onsubmit="return false">
+      <div class="pair">
+        <label class="f">The car
+          <input type="text" placeholder="Make, model, year"></label>
+        <label class="f">Roughly what it needs
+          <!-- SERVICES from get_public_business_profile. The request lands as
+               a pending booking; `create-booking` prices it server-side and a
+               quote comes back by email — the platform's request mode. -->
+          <select>
+            <option>I am not sure — please look</option>
+            <option>Sympathetic clean and protect</option>
+            <option>Single-stage correction</option>
+            <option>Two-stage, measured</option>
+            <option>Chrome, brightwork and leather</option>
+          </select></label>
+      </div>
+      <div class="pair">
+        <label class="f">Your name<input type="text" autocomplete="name"></label>
+        <label class="f">Telephone<input type="tel" autocomplete="tel"></label>
+      </div>
+      <label class="f">Email<input type="email" autocomplete="email"></label>
+      <label class="f">Anything we should know
+        <textarea rows="3" placeholder="History, previous work, what you would rather we left alone"></textarea></label>
+      <button type="submit" class="send">Send it over</button>
+      <p class="mid" style="font-size:.85rem">
+        No price is shown here on purpose: a number before we have seen the car
+        would be a guess. Ours comes back to you in writing.
+      </p>
+    </form>
+  </div>
+</section>
+
+<section>
+  <div class="w">
+    <h2>Who we are</h2>
+    <ul class="who">
+      <li><span class="k">Since</span><span>2009. Two of us, one unit, one car at a time.</span></li>
+      <li><span class="k">Insured</span><span>£250,000 per vehicle, agreed value, road risk included. Certificate sent with every quote.</span></li>
+      <li><span class="k">Trained</span><span>IDA Certified Detailer · Gtechniq accredited · Furniture Clinic leather, 2019</span></li>
+      <li><span class="k">Storage</span><span>Alarmed, dehumidified, CCTV. Cars stay inside from the moment they arrive.</span></li>
+      <li><span class="k">Transport</span><span>Enclosed collection within 150 miles, at cost.</span></li>
+      <li><span class="k">Where</span><span>Unit 6, Bilting Farm, Ashford, Kent. By appointment only.</span></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="w">
+    <p style="margin:0">
+      Estate Detail Co. · Unit 6, Bilting Farm, Ashford, Kent ·
+      <a href="tel:+441233555019">01233 555019</a>
+    </p>
+    <p>
+      Photographs by <a href="https://unsplash.com/@joeyabanks">Joey Banks</a>,
+      <a href="https://unsplash.com/@atelierbyvineeth">atelierbyvineeth</a> and
+      <a href="https://unsplash.com/@dsalcius">Daniel Salcius</a> on
+      <a href="https://unsplash.com/">Unsplash</a>. This page is a design
+      artefact for the detailing platform: the request form is drawn in its real
+      shape, and on a live copy every figure comes from the platform's own
+      endpoints rather than from this file.
+    </p>
+  </div>
+</footer>
+</body>
+</html>

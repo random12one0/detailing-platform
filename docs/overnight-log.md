@@ -2524,6 +2524,35 @@ closed now, proven by trying each one before and after, and the check that
 guards it asks the database by attempting the edit rather than reading the
 migration — which is exactly why the old one never noticed.
 
+## The five websites are built — and one question that is actually worth your time
+
+You asked me to research what people like the look of, research what makes
+Claude build better websites, and then build five sites from it. All five are
+in `docs/tenant-sites/` (`d-ridgeline`, `e-kiln`, `f-sudsy`, `g-estate`,
+`h-fleet`) and I have sent you the phone shots.
+
+**The research turned up one thing that is worth more than the five pages.**
+The advice everyone gives is "name an aesthetic" — and that is exactly what
+produced the three pages you said looked AI. What actually works is naming a
+**tension the page has to resolve** ("loud and cheap without becoming a
+voucher"), and naming **what the page IS in one noun** — a logbook, a
+catalogue, a shopfront sign, a cost table. The noun decides the section order,
+and the section order is what makes a page look AI-generated. Not the fonts.
+
+**And the pages caught me out once, which is the useful part.** The first two
+both came out DARK, with nothing in either brief asking for it — that is the
+pull towards the average that the whole exercise is about, and neither page
+failed a single check we have. It is only visible when you put them side by
+side. The last three are light, and no two of the five now share the same kind
+of background.
+
+### THE ONE THING I NEED FROM YOU
+
+**Which of the five is closest — even roughly, even "none of them but the
+yellow one is the least wrong"?** One sentence. Everything about a client's
+site is unblocked by that and by nothing else. A sixth attempt without it is a
+sixth guess, and this repo has already recorded that guessing burned two.
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

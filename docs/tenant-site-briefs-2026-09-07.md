@@ -149,4 +149,94 @@ individuals, no price that is not per vehicle.
 
 ## 5. What the pairing actually produced
 
-*(Filled in as each one is built. Empty is honest.)*
+### After 1 and 2 (built and LOOKED at, 2026-09-07)
+
+**IT WORKED, and the two pages are not relatives.** Ridgeline is an asymmetric
+ruled logbook — a status strip before any headline, a monospace rate table, no
+photograph above the fold, an amber work-lamp accent on warm off-black. Kiln is
+full-bleed photographs with nothing written on them, one narrow column of plain
+type that never moves, the WARRANTY before the prices, cyan on true black.
+Different section order, different type, different colour, different form
+shape. That is the outcome `tenant-site-research-2026-09-05.md` § 7 said the
+old brief could not produce.
+
+**BUT THE MECHANISM IS NOT THE ONE I EXPECTED, AND THIS IS THE FINDING.**
+Naming two families did almost nothing on its own — *"Terminal-Core × Warm
+Editorial"* is still two adjectives. **What did the work was the sentence
+underneath each pair naming the TENSION to resolve**: *dense and utilitarian
+but warm enough to hand over your car*, and *photography that wants to be
+enormous against a price that wants to read as precise*. A tension has a wrong
+answer and a right one, so it forces a decision; a pair of labels can be
+satisfied by a palette. **Write the tension, not just the pair.**
+
+**AND THEY BOTH CAME OUT DARK, WHICH IS A REAL CONVERGENCE AND IS THE THING TO
+FIX NEXT.** Nothing in either brief said dark; both agents (me, twice) reached
+for it anyway, which is the distributional pull the whole exercise is about.
+Two of the three EXISTING pages have the same problem — the owner's *"all 3
+look very ai"* was partly this.
+
+**So sites 3, 4 and 5 carry an added constraint, and it is not a preference:**
+
+- **AT LEAST TWO OF THE REMAINING THREE ARE LIGHT-GROUNDED.** Site 3 (Sudsy)
+  and site 4 (Estate) are the obvious ones — a walk-up express wash is a
+  daylight business, and a Criterion-style catalogue is printed on paper.
+- **NO TWO OF THE FIVE SHARE A GROUND.** Not "a different dark", a different
+  KIND of ground: paper, newsprint, a saturated flat colour, a true black.
+- **AND CHECK IT BY LOOKING AT THE FIVE THUMBNAILS SIDE BY SIDE**, which is the
+  only test that catches this. Neither page fails any check in this repo, and
+  the convergence is invisible from inside either one.
+
+### After all five (built and LOOKED at, 2026-09-07)
+
+**FIVE GROUNDS, FIVE SKELETONS, AND NOT A FAMILY BETWEEN THEM.**
+
+| # | File | Ground | The page IS | The form |
+|---|---|---|---|---|
+| 1 | `d-ridgeline` | warm off-black | a status strip and a rate table | four steps, monospace |
+| 2 | `e-kiln` | true black | full-bleed plates and a WARRANTY | four questions, one column |
+| 3 | `f-sudsy` | painted yellow / paper | a shopfront price sign | four controls, black on yellow |
+| 4 | `g-estate` | card stock | a numbered CATALOGUE of cars | a request, no price at all |
+| 5 | `h-fleet` | cool paper / ink blue | a per-vehicle cost TABLE | "how many", not "when" |
+
+**No two share a section order and no two share a ground.** The old failure —
+*three agents given one brief produce one family, same seams, only the paint
+varied* — did not happen.
+
+**WHAT ACTUALLY DID THE WORK, RANKED, because this is the part that transfers
+to the sixth site:**
+
+1. **The TENSION sentence.** *"Loud and cheap without becoming a voucher."*
+   *"Photography that wants to be enormous against a price that wants to read
+   as precise."* A tension has a wrong answer, so it forces a decision. The
+   family names alone are two adjectives and can be satisfied by a palette.
+2. **Naming what the page IS, in one noun.** A logbook. A catalogue. A
+   shopfront sign. A cost table. That noun decides the section order, and the
+   section order is what the 2026 slop recipe actually is.
+3. **A per-site REFUSAL LIST**, each item pointing at something the page would
+   otherwise drift into. Site 4's *no wide letter-spaced small-caps labels* is
+   the sharpest, because it names the exact tell the owner rejected.
+4. **The family pair, last.** Useful as a shorthand once the three above
+   exist; nearly useless on its own.
+
+**AND THE CONVERGENCE HAD TO BE CAUGHT BY LOOKING AT THE SET.** Sites 1 and 2
+both came out dark with nothing in either brief asking for it, and neither page
+fails a single check in this repo. It is invisible from inside either one. The
+rule that came out of it — *no two share a KIND of ground, and at least two are
+light* — is in each of sites 3, 4 and 5's own headers so a future edit cannot
+lose it.
+
+**WHAT IS STILL UNPROVEN, and it is the whole item:** whether the OWNER likes
+any of them. These are five research-led attempts rather than another guess,
+which is the thing CLAUDE.md said was missing — but his taste is still the only
+test that counts, and one sentence from him about which of the five is closest
+is worth more than a sixth.
+
+### A third thing, from measuring rather than from looking
+
+**Site 1 shipped a colour token whose comment said it cleared 4.5:1 and which
+was 3.93:1**, plus form borders at 1.29:1 — a control edge needs 3:1 and
+`--rule` is a decorative hairline. Both found by computing the ratios out of
+the file, minutes after writing it, in a page whose header talks about
+accessibility floors. **Every tenant site gets its contrast computed, not
+asserted**, and the numbers go in the token block so the next reader inherits a
+measurement instead of a claim.

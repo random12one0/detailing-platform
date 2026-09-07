@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fleet &amp; Yard — per-vehicle detailing for fleets and dealerships</title>
+<meta name="description" content="Per-vehicle pricing, published turnaround times, invoiced monthly on 30-day terms. Tell us how many and we will come back with a number.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  SITE 5 OF FIVE — brief: docs/tenant-site-briefs-2026-09-07.md § 3, Site 5.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE PAIRING IS EDITORIAL MINIMALISM × TERMINAL-CORE (Stripe/Vercel ×
+  Raycast/Warp), and the TENSION IS THE BRIEF: **the buyer is a manager with a
+  spreadsheet, not a car enthusiast.** The page has to look like an operations
+  tool and still be a marketing site.
+
+  IT RESOLVES AS: the PAGE IS THE TABLE. A per-vehicle cost table a person
+  could genuinely paste into a spreadsheet, turnaround times as a schedule,
+  the account terms in plain sight, and an enquiry that asks HOW MANY rather
+  than offering a calendar. Everything is aligned to one grid and every figure
+  is tabular. There is exactly one photograph and it is a strip, not a hero —
+  because a fleet manager is not buying a beautiful car, they are buying
+  fifty ordinary ones being off the road for four hours.
+
+  **THIS IS THE PLATFORM'S OWN BULK-JOB CASE (roadmap 8.10) SEEN FROM THE
+  CUSTOMER'S SIDE.** Above the vehicle limit a booking form is the wrong tool
+  and it becomes a phone call — so this page's job is to make the phone call
+  short by publishing everything the caller would otherwise have to ask.
+
+  THE FIFTH GROUND, and the constraint is deliberate: no two of the five share
+  a KIND of ground. Warm off-black (1), true black (2), painted yellow (3),
+  card stock (4), and this one — cool paper with a single ink blue, the colour
+  of a printed ledger. Sites 1 and 2 both came out dark although neither brief
+  asked for it, which is the distributional pull recorded in briefs § 5.
+
+  WHAT IT IS NOT: no centred hero of eyebrow + headline + subhead + two CTAs,
+  no three-up cards, no logo soup, no pricing toggle, no FAQ accordion — the
+  2026 tell is that SEQUENCE. No photography of one beautiful car. No
+  testimonials from individuals. No price that is not per vehicle.
+
+  THE FLOOR (docs/tenant-site-contract.md): a ladder by vehicle size, real
+  credentials, a disclaimer on a service, a real photograph, the enquiry BUILT
+  IN in this site's own design, and **a site ASKS and never computes**. The
+  figures are placeholders so the page can be designed; on a live copy each
+  comes from `get_public_business_profile`.
+
+  Contrast is MEASURED and quoted in the token block, never asserted.
+
+  Photograph: Unsplash — Arjun Myanger (fa0W_PffNd4).
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- A neutral grotesque for prose against a true mono for every figure — the
+     ops-console pairing. Not the platform's faces and not sites 1–4's. -->
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ───────────────────────────────────────────────────────────────────────────
+   TOKENS. Cool paper and one ink blue. The blue is the ONLY colour and it is
+   never decorative — it marks a figure that changes, and nothing else.
+
+   MEASURED (each against every ground it lands on; the lower is quoted):
+     ink   #101418 — 18.01 paper / 16.61 shade
+     mid   #4a5560 —  7.41 paper /  6.83 shade
+     blue  #0b4fa8 —  7.58 paper /  6.99 shade
+     edge  #7b8794 —  3.56 paper /  3.29 shade  (control edges need 3, not 4.5)
+     white on blue (the button) — 7.78
+     rule  #d5dae0 — decorative only, never a control's edge
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --paper: #fbfcfd;
+  --shade: #f0f3f6;
+  --ink:   #101418;
+  --mid:   #4a5560;
+  --blue:  #0b4fa8;
+  --edge:  #7b8794;
+  --rule:  #d5dae0;
+  --t: 160ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: "Public Sans", ui-sans-serif, system-ui, sans-serif; font-weight: 400;
+  font-size: clamp(15.5px, .45vw + 14px, 16.5px); line-height: 1.55;
+}
+.m { font-family: "Roboto Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+.w { width: min(1140px, 100% - 2rem); margin-inline: auto; }
+
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -.018em; line-height: 1.15; }
+h1 { font-size: clamp(1.75rem, 3.4vw, 2.4rem); font-weight: 700; }
+h2 { font-size: clamp(1.15rem, 2vw, 1.4rem); }
+p { margin: .8rem 0 0; max-width: 62ch; }
+.mid { color: var(--mid); }
+.k { font-family: "Roboto Mono", monospace; font-size: .7rem; letter-spacing: .08em;
+     text-transform: uppercase; color: var(--mid); }
+
+/* ── Bar ───────────────────────────────────────────────────────────────── */
+.bar { border-bottom: 1px solid var(--rule); background: var(--paper); }
+.bar .w { display: flex; align-items: center; gap: 1.2rem; padding-block: .85rem; }
+.bar .nm { font-weight: 700; letter-spacing: -.02em; }
+.bar nav { margin-left: auto; display: flex; gap: 1.2rem; }
+.bar a { font-size: .85rem; color: var(--mid); text-decoration: none; transition: color var(--t); }
+.bar a:hover, .bar a:focus-visible { color: var(--blue); }
+
+section { padding-block: clamp(2.2rem, 4.5vw, 3.4rem); border-bottom: 1px solid var(--rule); }
+
+/* ── The lead. Two columns: the claim, and the four numbers behind it. ─── */
+.lead { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+@media (max-width: 820px) { .lead { grid-template-columns: 1fr; gap: 1.6rem; } }
+.stats { border-top: 2px solid var(--ink); }
+.stat { display: flex; align-items: baseline; gap: 1rem; padding: .7rem 0; border-bottom: 1px solid var(--rule); }
+.stat .v { margin-left: auto; font-family: "Roboto Mono", monospace; font-weight: 600;
+           font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+
+/* ── THE TABLE. The page. Aligned, tabular, paste-able. ───────────────── */
+table.grid { width: 100%; border-collapse: collapse; margin-top: 1.1rem; }
+.grid th, .grid td { padding: .6rem .55rem; text-align: right; border-bottom: 1px solid var(--rule); }
+.grid th:first-child, .grid td:first-child { text-align: left; padding-left: 0; }
+.grid td:last-child, .grid th:last-child { padding-right: 0; }
+.grid thead th {
+  font-family: "Roboto Mono", monospace; font-weight: 500; font-size: .7rem;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--mid);
+  border-bottom: 2px solid var(--ink);
+}
+.grid tbody th { font-weight: 400; }
+.grid td { font-family: "Roboto Mono", monospace; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.grid tbody tr:hover { background: var(--shade); }
+.grid td.b { color: var(--blue); font-weight: 500; }
+@media (max-width: 700px) {
+  .grid thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .grid tr { display: grid; grid-template-columns: 1fr auto auto auto; gap: .2rem .8rem;
+             padding-block: .6rem; border-bottom: 1px solid var(--rule); }
+  .grid th, .grid td { border: 0; padding: 0; }
+  .grid tbody th { grid-column: 1 / -1; font-weight: 600; }
+  .grid td::before { content: attr(data-l) " "; color: var(--mid); font-size: .72rem; }
+}
+
+/* ── The schedule ──────────────────────────────────────────────────────── */
+.sched { list-style: none; padding: 0; margin-top: 1rem; border-top: 2px solid var(--ink); }
+.sched li { display: grid; grid-template-columns: 9rem 1fr auto; gap: 1rem;
+            padding: .65rem 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.sched .n { font-family: "Roboto Mono", monospace; font-size: .85rem; color: var(--mid); }
+.sched .t { font-family: "Roboto Mono", monospace; font-size: .9rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .sched li { grid-template-columns: 1fr auto; } .sched .n { grid-column: 1 / -1; } }
+
+/* ── One strip of photograph. Not a hero. ─────────────────────────────── */
+.strip img { display: block; width: 100%; height: clamp(140px, 20vw, 230px); object-fit: cover; }
+.strip figcaption { padding-top: .5rem; font-size: .78rem; color: var(--mid); }
+.strip { margin: 0; }
+
+/* ── The enquiry. HOW MANY, not when. ─────────────────────────────────── */
+.enq { background: var(--shade); border: 1px solid var(--rule); padding: clamp(1rem, 3vw, 1.7rem); margin-top: 1.2rem; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+@media (max-width: 620px) { .two { grid-template-columns: 1fr; } }
+label.f { display: block; margin-top: .85rem; }
+label.f > span { display: block; font-family: "Roboto Mono", monospace; font-size: .7rem;
+                 letter-spacing: .08em; text-transform: uppercase; color: var(--mid); margin-bottom: .28rem; }
+label.f input, label.f select, label.f textarea {
+  display: block; width: 100%; font: inherit; font-size: .95rem;
+  background: var(--paper); color: var(--ink); border: 1px solid var(--edge);
+  padding: .58rem .7rem;
+}
+.est { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+       margin-top: 1.3rem; padding-top: .9rem; border-top: 2px solid var(--ink); }
+.est .v { font-family: "Roboto Mono", monospace; font-size: 1.4rem; font-weight: 600;
+          color: var(--blue); font-variant-numeric: tabular-nums; }
+.send {
+  display: block; width: 100%; margin-top: .9rem; font: inherit; font-weight: 600; font-size: .95rem;
+  background: var(--blue); color: #ffffff; border: 0; padding: .8rem 1rem; cursor: pointer;
+  transition: filter var(--t);
+}
+.send:hover { filter: brightness(1.1); }
+
+.terms { list-style: none; padding: 0; margin-top: 1rem; }
+.terms li { display: grid; grid-template-columns: 10rem 1fr; gap: 1rem; padding: .6rem 0;
+            border-bottom: 1px solid var(--rule); font-size: .95rem; }
+@media (max-width: 480px) { .terms li { grid-template-columns: 1fr; gap: .1rem; } }
+
+footer { padding-block: 2rem 3rem; font-size: .88rem; color: var(--mid); }
+a { color: var(--blue); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+</style>
+</head>
+
+<body>
+
+<div class="bar">
+  <div class="w">
+    <span class="nm">Fleet &amp; Yard</span>
+    <nav>
+      <a href="#rates">Per vehicle</a>
+      <a href="#turn">Turnaround</a>
+      <a href="#terms">Account</a>
+      <a href="#enq">Get a number</a>
+    </nav>
+  </div>
+</div>
+
+<section>
+  <div class="w lead">
+    <div>
+      <h1>Detailing priced per vehicle, invoiced once a month.</h1>
+      <p class="mid">
+        We do forecourts, hire fleets and service departments across Greater
+        Manchester. You tell us how many and how often; we publish what each one
+        costs and how long it is off the road, and we send one invoice on the
+        last working day of the month.
+      </p>
+      <p class="mid">
+        Everything on this page is what you would otherwise have to ring up and
+        ask. The only thing we cannot publish is your discount, because that
+        depends on volume and we would rather agree it with you than print a
+        number we do not mean.
+      </p>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="mid">Vehicles a week</span><span class="v">180–240</span></div>
+      <div class="stat"><span class="mid">Bays</span><span class="v">6</span></div>
+      <div class="stat"><span class="mid">Same-day capacity</span><span class="v">40</span></div>
+      <div class="stat"><span class="mid">Invoice terms</span><span class="v">30 days</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- THE TABLE. Every figure is per vehicle, which is the brief's refusal:
+     "no price that is not per vehicle". -->
+<section id="rates">
+  <div class="w">
+    <h2>Per vehicle</h2>
+    <p class="mid">
+      Ex VAT, per vehicle, collected and returned on site. The blue column is
+      the one that moves with volume.
+    </p>
+    <table class="grid">
+      <thead>
+        <tr>
+          <th scope="col">Specification</th>
+          <th scope="col">Car</th>
+          <th scope="col">Van / SUV</th>
+          <th scope="col">LCV 3.5t</th>
+          <th scope="col">At 50+/mo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Forecourt prep</th>
+          <td data-l="Car">£38</td><td data-l="Van">£46</td><td data-l="LCV">£58</td><td data-l="50+/mo" class="b">£31</td>
+        </tr>
+        <tr>
+          <th scope="row">Handover valet</th>
+          <td data-l="Car">£62</td><td data-l="Van">£74</td><td data-l="LCV">£92</td><td data-l="50+/mo" class="b">£51</td>
+        </tr>
+        <tr>
+          <th scope="row">De-fleet / end of lease</th>
+          <td data-l="Car">£95</td><td data-l="Van">£112</td><td data-l="LCV">£140</td><td data-l="50+/mo" class="b">£78</td>
+        </tr>
+        <tr>
+          <th scope="row">Livery removal (per panel)</th>
+          <td data-l="Car">£28</td><td data-l="Van">£28</td><td data-l="LCV">£28</td><td data-l="50+/mo" class="b">£24</td>
+        </tr>
+        <tr>
+          <th scope="row">Smoke or biohazard</th>
+          <td data-l="Car">£145</td><td data-l="Van">£165</td><td data-l="LCV">£195</td><td data-l="50+/mo" class="b">quoted</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- THE DISCLAIMER, in the language this buyer actually cares about. -->
+    <p class="mid" style="margin-top:1.3rem">
+      <strong>A vehicle we cannot bring back to spec is reported, not
+      invoiced.</strong> Cigarette burns, cut headlining, water damage and paint
+      past correction are photographed, written up against the registration and
+      sent back to you the same day. You pay for the inspection and nothing else.
+    </p>
+  </div>
+</section>
+
+<figure class="strip">
+  <img alt="A row of white vans parked in line at a depot, seen from above"
+       src="https://images.unsplash.com/photo-1775865937358-c7d2972e78ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=2000">
+  <div class="w"><figcaption>Thursday collection, 22 units. One photograph on this page, because you are not buying a photograph.</figcaption></div>
+</figure>
+
+<section id="turn">
+  <div class="w">
+    <h2>Turnaround</h2>
+    <p class="mid">Published, and we report against it every month.</p>
+    <ul class="sched">
+      <li><span>Forecourt prep</span><span class="n">Collected before 09:00, back same day</span><span class="t">4 hr</span></li>
+      <li><span>Handover valet</span><span class="n">Booked slot, on your site or ours</span><span class="t">2 hr</span></li>
+      <li><span>De-fleet</span><span class="n">Includes the written condition report</span><span class="t">6 hr</span></li>
+      <li><span>Livery removal</span><span class="n">Heat and adhesive remover, no blades</span><span class="t">1–3 hr</span></li>
+      <li><span>Smoke or biohazard</span><span class="n">Ozone, then sealed 12 hours</span><span class="t">2 days</span></li>
+    </ul>
+    <p class="mid" style="margin-top:1.1rem">
+      Last month we hit the published time on <span class="m">96.4%</span> of
+      <span class="m">812</span> vehicles. The eleven we missed are on the
+      monthly report with the reason against each registration.
+    </p>
+  </div>
+</section>
+
+<!-- THE ENQUIRY. It asks HOW MANY, not when. That is roadmap 8.10's bulk case
+     from the customer's side: above the vehicle limit a calendar is the wrong
+     tool and it becomes a conversation. -->
+<section id="enq">
+  <div class="w">
+    <h2>Get a number</h2>
+    <p class="mid">
+      Tell us the shape of the work. We come back the same working day with a
+      per-vehicle rate and a collection pattern, in writing, with no visit
+      needed unless you want one.
+    </p>
+
+    <form class="enq" onsubmit="return false">
+      <div class="two">
+        <label class="f"><span>Company</span><input type="text" autocomplete="organization"></label>
+        <label class="f"><span>Site postcode</span><input type="text" autocomplete="postal-code" placeholder="M17 8AA"></label>
+      </div>
+      <div class="two">
+        <label class="f"><span>Vehicles per month</span>
+          <input type="number" min="1" inputmode="numeric" placeholder="50"></label>
+        <label class="f"><span>Mostly</span>
+          <!-- SERVICES from get_public_business_profile. -->
+          <select>
+            <option>Forecourt prep</option>
+            <option>Handover valet</option>
+            <option>De-fleet / end of lease</option>
+            <option>A mix — please advise</option>
+          </select></label>
+      </div>
+      <div class="two">
+        <label class="f"><span>Your name</span><input type="text" autocomplete="name"></label>
+        <label class="f"><span>Email</span><input type="email" autocomplete="email"></label>
+      </div>
+      <label class="f"><span>Anything else</span>
+        <textarea rows="3" placeholder="Collection windows, keys, site access, existing supplier"></textarea></label>
+
+      <div class="est">
+        <span class="k">Indicative, 50 cars a month</span>
+        <span class="v">£1,550<span style="font-size:.8rem; font-weight:400; color:var(--mid)"> / mo</span></span>
+      </div>
+      <p class="mid" style="font-size:.8rem; margin-top:.4rem">
+        Indicative only, and worked out by the platform rather than by this
+        page. Your rate comes back in writing.
+      </p>
+      <button type="submit" class="send">Send the enquiry</button>
+    </form>
+  </div>
+</section>
+
+<section id="terms">
+  <div class="w">
+    <h2>Account</h2>
+    <ul class="terms">
+      <li><span class="k">Terms</span><span>30 days from invoice date. One invoice a month, itemised by registration.</span></li>
+      <li><span class="k">Purchase orders</span><span>Quoted on every line if you use them. We will not invoice without one if you say so.</span></li>
+      <li><span class="k">Insurance</span><span>£10M public liability, £250k motor trade road risk. Certificates on the account file.</span></li>
+      <li><span class="k">Compliance</span><span>Waste carrier licence CBDU244711. Interceptor serviced quarterly, certificates on request.</span></li>
+      <li><span class="k">Staff</span><span>Employed, not subcontracted. DBS checked, uniformed, named on the collection sheet.</span></li>
+      <li><span class="k">Reporting</span><span>Monthly: vehicles done, time against published, exceptions with photographs.</span></li>
+      <li><span class="k">Notice</span><span>30 days, either way, no minimum term. We would rather you could leave.</span></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="w">
+    <p style="margin:0">
+      Fleet &amp; Yard Ltd · Unit 12, Trafford Park, Manchester M17 ·
+      <a href="tel:+441615550142">0161 555 0142</a> · Company 09442117
+    </p>
+    <p>
+      Photograph by <a href="https://unsplash.com/@arjun_myanger">Arjun Myanger</a>
+      on <a href="https://unsplash.com/">Unsplash</a>. This page is a design
+      artefact for the detailing platform: the enquiry form is drawn in its real
+      shape, and on a live copy every figure comes from the platform's own
+      endpoints rather than from this file.
+    </p>
+  </div>
+</footer>
+</body>
+</html>

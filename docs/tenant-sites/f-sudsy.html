@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUDSY — $45, thirty minutes, Reseda Blvd</title>
+<meta name="description" content="Express wash and vac. Forty-five dollars, thirty minutes, no appointment needed but you can grab one.">
+
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  SITE 3 OF FIVE — brief: docs/tenant-site-briefs-2026-09-07.md § 3, Site 3.
+  ═══════════════════════════════════════════════════════════════════════════
+
+  THE PAIRING IS NEON BRUTALIST × CULT/INDIE (The Verge/Pitchfork ×
+  A24/Letterboxd).
+
+  **THE TENSION IS THE BRIEF, AND WRITING THE TENSION IS WHAT ACTUALLY MADE
+  SITES 1 AND 2 DIFFERENT** — naming two families did almost nothing on its
+  own (see the briefs' § 5). Here it is: **loud, fast and cheap without
+  becoming a discount-voucher site.** Brutalist gives it the shouting; the
+  A24 half is what stops it looking like a coupon — one saturated colour used
+  like ink, hard edges, no gradient anywhere, and copy that is dry rather than
+  excited.
+
+  IT RESOLVES AS: the PRICE AND THE CLOCK ARE THE PAGE. The first thing is
+  "$45 / 30 MINUTES" at the size of a shopfront sign, in flat black on flat
+  yellow. Everything after it is a list. There is no founder story, no
+  testimonial carousel, no whitespace luxury and no serif.
+
+  **AND IT IS LIGHT-GROUNDED ON PURPOSE.** Sites 1 and 2 both came out dark
+  although neither brief asked for it — the distributional pull the whole
+  exercise exists to fight, recorded in the briefs' § 5 the moment it was
+  spotted. Two of the remaining three are light, and NO TWO OF THE FIVE SHARE
+  A KIND OF GROUND: warm off-black (1), true black (2), painted yellow and
+  paper (3).
+
+  WHAT IT IS NOT: no centred hero of eyebrow + huge headline + subhead + two
+  CTAs, no three-up cards, no logo soup, no pricing toggle, no FAQ accordion —
+  that SEQUENCE is the 2026 tell and each part is defensible alone, which is
+  why a per-element audit passes a page that is still that page.
+
+  THE FLOOR (docs/tenant-site-contract.md): a ladder by vehicle size, real
+  credentials, a disclaimer on a service, real photographs, the form BUILT IN
+  in this site's own design, and **a site ASKS and never computes**. THE
+  FIGURES HERE ARE PLACEHOLDERS so the page can be designed; on a live copy
+  every one comes from `get_public_business_profile` and the total from
+  `calculate-booking`, because a rate typed into a tenant's HTML is a number
+  the detailer changes in their dashboard and not here.
+
+  Contrast is MEASURED and quoted below, never asserted: site 1 shipped a
+  token whose comment claimed 4.5:1 and which was 3.93:1.
+
+  Photograph: Unsplash — Jan Kopřiva (sh_7sFEFICI).
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ONE FAMILY, WORKED HARD ACROSS ITS RANGE — 400 against 900, which is the
+     weight-extreme remedy rather than 400-against-600. Archivo Expanded for
+     the shopfront numbers, the same family narrow for everything else.
+     Not Inter, not Roboto, not Space Grotesk, and not sites 1 or 2. -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+
+<style>
+/* ───────────────────────────────────────────────────────────────────────────
+   TOKENS. A painted ground, not a lit one: this is a shopfront in daylight.
+
+   MEASURED CONTRAST (the lower of the two grounds each colour lands on):
+     ink    #14120c on yellow #ffd400 — 13.08:1
+     ink    #14120c on paper  #f4f1e8 — 16.58:1
+     grey   #57534a on paper  #f4f1e8 —  6.78:1
+     paper  #f4f1e8 on ink    #14120c — 16.58:1
+     yellow #ffd400 on ink    #14120c — 13.08:1  (the bar, and the button)
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --yellow: #ffd400;   /* the ink colour, used like paint */
+  --paper:  #f4f1e8;
+  --ink:    #14120c;
+  --grey:   #57534a;   /* 6.78:1 on paper — the only quiet colour there is */
+  --hair:   #14120c;   /* every rule is FULL STRENGTH. No 8% greys here. */
+  --t: 120ms linear;   /* fast, and linear — nothing here eases */
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  font-variation-settings: "wdth" 92, "wght" 500;
+  font-size: clamp(16px, .5vw + 14px, 17px); line-height: 1.45;
+}
+
+.w { width: min(1080px, 100% - 2rem); margin-inline: auto; }
+
+/* Everything is a hard-edged block. No radius anywhere in this file — that is
+   the brutalist half, and it is also the thing that stops it reading as a
+   voucher, which is always rounded. */
+h1, h2, h3, p, ul { margin: 0; }
+h2 {
+  font-variation-settings: "wdth" 74, "wght" 800;
+  font-size: clamp(1.5rem, 3.4vw, 2.2rem); line-height: 1;
+  text-transform: uppercase; letter-spacing: -.01em;
+}
+h3 { font-variation-settings: "wdth" 84, "wght" 700; font-size: 1.05rem; }
+.grey { color: var(--grey); }
+
+/* ── Bar. Black, full width, one line. ─────────────────────────────────── */
+.bar { background: var(--ink); color: var(--paper); }
+.bar .w { display: flex; align-items: center; gap: 1rem; padding-block: .7rem; }
+.bar .name { font-variation-settings: "wdth" 68, "wght" 900; font-size: 1.15rem; letter-spacing: -.02em; }
+.bar nav { margin-left: auto; display: flex; gap: 1rem; }
+.bar a { color: var(--paper); text-decoration: none; font-size: .8rem;
+         font-variation-settings: "wdth" 88, "wght" 700; text-transform: uppercase; letter-spacing: .04em; }
+.bar a:hover, .bar a:focus-visible { background: var(--yellow); color: var(--ink); }
+
+/* ── THE SIGN. The price and the clock, at shopfront size, and they ARE the
+      first thing on the page. No headline above them, because "$45, thirty
+      minutes" IS the headline for this business. ────────────────────────── */
+.sign { background: var(--yellow); color: var(--ink); border-bottom: 4px solid var(--ink); }
+/* THE SIGN USES ITS WIDTH. At 1440 the figure alone left two thirds of the
+   yellow empty — a lot of painted nothing, which is the dead-width complaint
+   this repo already gates the dashboard on. Found by looking at the render,
+   not by any check. Above 780 the figure and the fine print sit side by side
+   and share the same baseline grid; below it they stack, which is the phone
+   shape and the one the sign was drawn for. */
+.sign .w { padding-block: clamp(2rem, 5vw, 3.4rem); }
+@media (min-width: 780px) {
+  .sign .w {
+    display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 0 clamp(2rem, 5vw, 4rem); align-items: end;
+  }
+  /* THE FIGURE AND ITS LINE ARE ONE THING and share the left column — the
+     first attempt made them two grid items, which put "THIRTY MINUTES" alone
+     in the right-hand column, baseline-aligned with nothing. Looked at, not
+     reasoned about. */
+  .sign .fine { margin-top: 0; align-self: end; padding-bottom: .5rem; font-size: 1.05rem; max-width: 38ch; }
+}
+.sign .fig {
+  font-variation-settings: "wdth" 62, "wght" 900;
+  font-size: clamp(4.2rem, 17vw, 11rem); line-height: .82;
+  letter-spacing: -.045em; display: block;
+}
+.sign .sub {
+  font-variation-settings: "wdth" 76, "wght" 800;
+  font-size: clamp(1.1rem, 3.4vw, 1.9rem); text-transform: uppercase;
+  letter-spacing: -.005em; margin-top: .4rem; display: block;
+}
+.sign .fine { margin-top: 1.1rem; max-width: 46ch; font-size: .95rem; }
+
+section { padding-block: clamp(2.4rem, 5vw, 3.6rem); border-bottom: 3px solid var(--hair); }
+
+/* ── The list. A list, because that is what "what you get" is. ─────────── */
+ul.get { list-style: none; padding: 0; margin-top: 1.2rem; columns: 2; column-gap: 2.5rem; }
+ul.get li { break-inside: avoid; padding: .5rem 0; border-bottom: 1px solid var(--hair); }
+ul.get li::before { content: "→ "; font-variation-settings: "wght" 900; }
+@media (max-width: 620px) { ul.get { columns: 1; } }
+
+/* ── The ladder. Flat rows, price hard right, no card. ─────────────────── */
+.rows { margin-top: 1.2rem; border-top: 3px solid var(--hair); }
+.row {
+  display: flex; align-items: baseline; gap: 1rem;
+  padding: .85rem 0; border-bottom: 1px solid var(--hair);
+}
+.row .p {
+  margin-left: auto; font-variation-settings: "wdth" 70, "wght" 900;
+  font-size: 1.25rem; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.row .m { font-size: .88rem; color: var(--grey); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.row .n { font-variation-settings: "wdth" 88, "wght" 700; }
+
+/* ── The form. Yellow block, black controls, no shadows, no radius. ─────── */
+.form { background: var(--yellow); border: 4px solid var(--ink); padding: clamp(1rem, 3vw, 1.6rem); margin-top: 1.3rem; }
+.pick { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
+.pick button {
+  font: inherit; font-variation-settings: "wdth" 86, "wght" 700; font-size: .9rem;
+  background: var(--paper); color: var(--ink); border: 2px solid var(--ink);
+  padding: .55rem .8rem; cursor: pointer; transition: background var(--t), color var(--t);
+}
+.pick button:hover, .pick button:focus-visible { background: var(--ink); color: var(--yellow); }
+.pick button[aria-pressed="true"] { background: var(--ink); color: var(--yellow); }
+.lab {
+  font-variation-settings: "wdth" 90, "wght" 800; font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .1em;
+}
+.blk { margin-top: 1.1rem; }
+.blk:first-child { margin-top: 0; }
+label.f { display: block; margin-top: .55rem; }
+label.f input {
+  display: block; width: 100%; margin-top: .25rem; font: inherit; font-size: .95rem;
+  background: var(--paper); color: var(--ink); border: 2px solid var(--ink); padding: .55rem .7rem;
+}
+.tot { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+       margin-top: 1.3rem; border-top: 3px solid var(--ink); padding-top: .8rem; }
+.tot .v { font-variation-settings: "wdth" 68, "wght" 900; font-size: 2rem; font-variant-numeric: tabular-nums; }
+.go {
+  display: block; width: 100%; margin-top: .9rem; font: inherit;
+  font-variation-settings: "wdth" 74, "wght" 900; font-size: 1.05rem;
+  text-transform: uppercase; letter-spacing: .01em;
+  background: var(--ink); color: var(--yellow); border: 0; padding: .95rem 1rem; cursor: pointer;
+}
+.go:hover { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 4px var(--ink); }
+
+/* ── One photograph, and it is a band rather than a hero. ──────────────── */
+.band img { display: block; width: 100%; height: clamp(180px, 30vw, 320px); object-fit: cover; }
+.band figcaption { padding: .5rem 0; font-size: .8rem; color: var(--grey); }
+.band { margin: 0; border-bottom: 3px solid var(--hair); }
+
+.facts { list-style: none; padding: 0; margin-top: 1.1rem; }
+.facts li { display: flex; gap: 1rem; padding: .5rem 0; border-bottom: 1px solid var(--hair); }
+.facts b { font-variation-settings: "wdth" 88, "wght" 800; min-width: 7rem; }
+@media (max-width: 460px) { .facts li { flex-direction: column; gap: .1rem; } }
+
+footer { padding-block: 2rem 3rem; font-size: .9rem; }
+a { color: var(--ink); }
+
+/* NO ENTRANCE ANIMATION AT ALL, and that is a decision rather than an
+   omission: a page whose whole promise is "you will be out in thirty minutes"
+   should not make anybody wait 600ms to read it. */
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+</style>
+</head>
+
+<body>
+
+<div class="bar">
+  <div class="w">
+    <span class="name">SUDSY</span>
+    <nav>
+      <a href="#what">What</a>
+      <a href="#more">More</a>
+      <a href="#slot">Grab a slot</a>
+    </nav>
+  </div>
+</div>
+
+<!-- THE SIGN. Price and clock, first, at shopfront size. -->
+<div class="sign">
+  <div class="w">
+    <div>
+      <span class="fig">$45</span>
+      <span class="sub">Thirty minutes. In and out.</span>
+    </div>
+    <p class="fine">
+      Outside washed, wheels done, inside vacuumed, glass and mats. Reseda
+      Blvd, seven days, 8 till 6. Turn up, or grab a slot below and skip the
+      queue.
+    </p>
+  </div>
+</div>
+
+<section id="what">
+  <div class="w">
+    <h2>What forty-five dollars gets</h2>
+    <ul class="get">
+      <li>Hand wash, two buckets</li>
+      <li>Wheels and tyres, dressed</li>
+      <li>Vacuum front and back</li>
+      <li>Mats out, beaten, back in</li>
+      <li>Glass inside and out</li>
+      <li>Door shuts and sills wiped</li>
+      <li>Dash and console</li>
+      <li>Towel dried, not blown</li>
+    </ul>
+    <!-- THE DISCLAIMER. Every real site in the research sample has one; the
+         generated ones never did. It is the sentence that stops an argument
+         at the counter. -->
+    <p class="grey" style="margin-top:1.2rem; max-width:60ch">
+      <b>Thirty minutes is thirty minutes.</b> If your car needs longer than
+      that we will say so before we start and you can take the wash or book the
+      full detail instead. We do not do half of it and charge you for all of it.
+    </p>
+  </div>
+</section>
+
+<figure class="band">
+  <img alt="A car under bright lights in a wash bay, water running off the bonnet"
+       src="https://images.unsplash.com/photo-1575844611398-2a68400b437c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=2000">
+  <div class="w"><figcaption>Bay 2, a Tuesday. Nothing is staged on this page.</figcaption></div>
+</figure>
+
+<section id="more">
+  <div class="w">
+    <h2>If you want more than that</h2>
+    <p class="grey" style="margin-top:.6rem; max-width:60ch">
+      Same bay, longer in it. Prices are by what you drive because a truck holds
+      about twice the sand a sedan does.
+    </p>
+    <div class="rows">
+      <div class="row"><span class="n">Express wash &amp; vac</span><span class="m">30 min</span><span class="p">$45</span></div>
+      <div class="row"><span class="n">— SUV or crossover</span><span class="m">35 min</span><span class="p">$55</span></div>
+      <div class="row"><span class="n">— Truck or van</span><span class="m">40 min</span><span class="p">$65</span></div>
+      <div class="row"><span class="n">Add: seats shampooed</span><span class="m">+45 min</span><span class="p">$60</span></div>
+      <div class="row"><span class="n">Add: pet hair</span><span class="m">+30 min</span><span class="p">$35</span></div>
+      <div class="row"><span class="n">Full inside &amp; out</span><span class="m">2 hr</span><span class="p">$150</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- THE FORM. Four controls. A walk-up wash does not need seven steps; it
+     needs what, what you drive, when, and a phone number. The RULES are the
+     same rules whatever the form looks like — core.js decides them. -->
+<section id="slot">
+  <div class="w">
+    <h2>Grab a slot</h2>
+    <p class="grey" style="margin-top:.6rem; max-width:56ch">
+      Optional. Walk-ins are fine and always have been — a slot just means you
+      are next when you arrive.
+    </p>
+
+    <form class="form" onsubmit="return false">
+      <div class="blk">
+        <span class="lab">What</span>
+        <!-- SERVICES from get_public_business_profile. -->
+        <div class="pick">
+          <button type="button" aria-pressed="true">Express $45</button>
+          <button type="button" aria-pressed="false">Express, SUV $55</button>
+          <button type="button" aria-pressed="false">Express, truck $65</button>
+          <button type="button" aria-pressed="false">Full $150</button>
+        </div>
+      </div>
+
+      <div class="blk">
+        <span class="lab">Add</span>
+        <div class="pick">
+          <button type="button" aria-pressed="false">Seats $60</button>
+          <button type="button" aria-pressed="false">Pet hair $35</button>
+        </div>
+      </div>
+
+      <div class="blk">
+        <span class="lab">Today</span>
+        <!-- OPEN TIMES from available-slots and nothing else: the buffer, the
+             blockouts, the per-day cap and the minimum notice all live behind
+             that call. -->
+        <div class="pick">
+          <button type="button" aria-pressed="false">11:00</button>
+          <button type="button" aria-pressed="true">11:30</button>
+          <button type="button" aria-pressed="false">13:00</button>
+          <button type="button" aria-pressed="false">14:30</button>
+          <button type="button" aria-pressed="false">16:00</button>
+        </div>
+      </div>
+
+      <div class="blk">
+        <span class="lab">You</span>
+        <label class="f"><span class="grey" style="font-size:.85rem">Name</span>
+          <input type="text" autocomplete="name" placeholder="First name is fine"></label>
+        <label class="f"><span class="grey" style="font-size:.85rem">Mobile</span>
+          <input type="tel" autocomplete="tel" placeholder="We text when the bay is free"></label>
+      </div>
+
+      <div class="tot">
+        <span class="lab">Total</span>
+        <span class="v">$45.00</span>
+      </div>
+      <p style="margin-top:.4rem; font-size:.75rem">
+        From <code>calculate-booking</code>. This page works out nothing.
+      </p>
+      <button type="submit" class="go">Hold it</button>
+    </form>
+  </div>
+</section>
+
+<section>
+  <div class="w">
+    <h2>The place</h2>
+    <ul class="facts">
+      <li><b>Where</b><span>18422 Reseda Blvd, Northridge CA. Second driveway past the tyre shop.</span></li>
+      <li><b>Open</b><span>Seven days, 08:00–18:00. Last wash 17:30 and we mean it.</span></li>
+      <li><b>Since</b><span>2015. Same two bays, same family.</span></li>
+      <li><b>Insured</b><span>$1M general liability. Certificate on the wall by the till.</span></li>
+      <li><b>Water</b><span>Reclaim system — about 85% of what we use is recycled.</span></li>
+      <li><b>Pay</b><span>Card, cash, or tap. No membership, no subscription, no upsell.</span></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="w">
+    <p><b>SUDSY</b> · 18422 Reseda Blvd, Northridge CA · <a href="tel:+18185550166">818 555 0166</a></p>
+    <p class="grey" style="margin-top:.8rem">
+      Photograph by <a href="https://unsplash.com/@jxk">Jan Kopřiva</a> on
+      <a href="https://unsplash.com/">Unsplash</a>. This page is a design
+      artefact for the detailing platform: the booking form is drawn in its real
+      shape, and on a live copy every price and every open time comes from the
+      platform's own endpoints rather than from this file.
+    </p>
+  </div>
+</footer>
+
+<script>
+// One behaviour. "Add" is a multi-select because add-ons are; everything else
+// is a radio group. No framework, no build step.
+for (const group of document.querySelectorAll(".pick")) {
+  const multi = group.previousElementSibling?.textContent.trim() === "Add";
+  group.addEventListener("click", (e) => {
+    const b = e.target.closest("button[aria-pressed]");
+    if (!b || !group.contains(b)) return;
+    if (multi) {
+      b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    } else {
+      for (const x of group.querySelectorAll("button[aria-pressed]")) x.setAttribute("aria-pressed", "false");
+      b.setAttribute("aria-pressed", "true");
+    }
+    // A live copy re-quotes here, through calculate-booking.
+  });
+}
+</script>
+</body>
+</html>

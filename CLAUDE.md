@@ -194,6 +194,27 @@ explaining it; if they still have to ask "so should I?", it failed.
   "Warm Editorial"**, which is the diagnosis this repo already wrote, now with
   a name. `docs/tenant-site-briefs-2026-09-07.md` is the five briefs built on
   it — a different pair, skeleton and intent each.
+  **ALL FIVE ARE BUILT** (`docs/tenant-sites/d-ridgeline`, `e-kiln`, `f-sudsy`,
+  `g-estate`, `h-fleet`) **and § 5 of that file ranks what actually produced
+  the variety, which is NOT the family pair.** In order: (1) the **TENSION**
+  sentence, because a tension has a wrong answer and forces a decision while
+  two adjectives can be satisfied by a palette; (2) naming what the page **IS**
+  in one noun — a logbook, a catalogue, a shopfront sign, a cost table — which
+  is what decides the SECTION ORDER, and the section order is what the 2026
+  slop recipe actually is; (3) a per-site **refusal list**; (4) the family
+  pair, last and nearly useless alone.
+  **AND THE ONE FAILURE HAD TO BE CAUGHT BY LOOKING AT THE SET.** Sites 1 and 2
+  both came out DARK with nothing in either brief asking for it, and neither
+  page fails a single check in this repo — it is invisible from inside either
+  one. The rule that came out of it is in each later site's own header: **no
+  two share a KIND of ground, and at least two are light.** Five grounds now:
+  warm off-black, true black, painted yellow, card stock, cool paper.
+  **EVERY SITE'S CONTRAST IS COMPUTED AND QUOTED IN ITS TOKEN BLOCK.** Site 1
+  shipped a token whose comment claimed it cleared 4.5:1 and which was 3.93:1,
+  plus form borders at 1.29:1 — a decorative hairline is not a control's edge,
+  which needs 3:1. Both found by computing the ratios out of the file minutes
+  after writing it. **What is still unproven is the only thing that counts:
+  whether HE likes any of them.**
   **And the aggregate-preference numbers in the same section are a FLOOR, not
   a brief**: clean, fast, responsive, real reviews, transparent pricing, images
   first. A page built to satisfy only those is the centred-hero recipe again.
