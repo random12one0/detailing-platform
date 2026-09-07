@@ -86,7 +86,6 @@ export default function CreateBusiness({ onDone }) {
         slug: effectiveSlug,
         timezone,
         // A request, not a fact — the server decides whether a spot is free.
-        claim_founding: wantsFounding,
       });
       // Reload rather than patch state: the whole app hangs off the
       // business context, and a fresh load is the honest way to enter it.
@@ -116,7 +115,13 @@ export default function CreateBusiness({ onDone }) {
           <div className="lit" style={{ padding: 12, marginBottom: 16, borderRadius: 10 }}>
             <span className="label">Founding price</span>
             <p className="quiet" style={{ marginTop: 4 }}>
-              {spots.left} of {spots.total} left. It locks to this account when you create it.
+              {/* **"WHEN YOU CREATE IT" WENT FALSE WITH ROADMAP 8.5** — the
+                  spot is taken at the moment somebody pays, not at signup, so
+                  this sentence was a printed promise the product had stopped
+                  keeping. Saying WHEN it is taken is the whole point of a
+                  count that is running down while somebody reads it. */}
+              {spots.left} of {spots.total} left. Yours when you pay — creating an account
+              does not hold one.
             </p>
           </div>
         )}

@@ -279,6 +279,17 @@ async function subscribe(
   const plan = isPlan(body.plan) ? body.plan : "website";
   const term = isTerm(body.term) ? body.term : "annual-monthly";
 
+  // **THE 503 MOVED ABOVE THE CLAIM — roadmap 8.5.** It used to sit below the
+  // snapshot, with a note saying everything above it still runs "which is what
+  // makes the screen testable". That reasoning is spent — Stripe is configured
+  // — and it stopped being harmless the moment a founding SPOT was taken here:
+  // claiming one and then answering *payments are not switched on yet* burns a
+  // spot on a payment that could never have happened, and the only way back is
+  // the back office releasing it by hand.
+  if (!stripeConfigured()) {
+    return json({ error: "Payments are not switched on yet." }, 503);
+  }
+
   // FOUNDING IS THE DATABASE'S ANSWER, NEVER THE BROWSER'S. `create-business`
   // already refuses to believe `?offer=founding`; believing it here would put
   // the price back in the query string one step later.
@@ -287,25 +298,83 @@ async function subscribe(
     .select("id, name, slug, plan_tier, contact_email")
     .eq("id", businessId)
     .single();
-  const snapshot = planFor(plan, term, business?.plan_tier === "founding", await priceTable());
+
+  // ── THE FOUNDING SPOT IS TAKEN HERE, AND ONLY HERE — roadmap 8.5 ────────
+  // The owner: *"it should not be taken until they pay, obviously."* It used
+  // to be claimed at SIGNUP, by `create-business`, so three people who made an
+  // account and never came back consumed the whole offer.
+  //
+  // **IT IS ONE LINE ABOVE `planFor` FOR A REASON THAT IS NOT TIDINESS.** The
+  // price is snapshotted here and never re-read, so a claim made LATER — at
+  // the webhook, say, when the money actually lands — would quote and charge
+  // LIST prices and then stamp a founding flag on a standard-priced
+  // subscription. The claim and the price have to be decided in the same
+  // breath or they can disagree, and the row would then say founding while the
+  // detailer pays $60 a month for ever.
+  //
+  // **INTENT TO PAY, NOT PAYMENT.** This runs when the button is pressed, and
+  // an abandoned `default_incomplete` checkout therefore holds a spot until
+  // somebody releases it — which `platform-admin`'s `tier` action already does
+  // in one click. A reservation with a TTL, and a re-quote path for when the
+  // spot evaporates between quoting and paying, were both considered and
+  // refused: they are a great deal of machinery for three spots.
+  //
+  // **AND IT IS ATTEMPTED FOR EVERYONE, not only for somebody who arrived
+  // with `?offer=founding`.** The offer is *the first three detailers who pay*,
+  // so who saw which page is not what decides it; the database counting spots
+  // is. It is skipped when the business already holds one, because
+  // `claim_founding_spot` would otherwise count this business against its own
+  // cap on a retry after a declined card.
+  // **AND NOT FOR THE BOOKING PLAN, WHICH HAS NO FOUNDING PRICE.** `planFor`
+  // hard-codes `founding: false` for it — the founding ladder only ever
+  // discounted the website plan, and $35 is $35 either way. Claiming here
+  // would take one of three spots, decrement the count the landing page
+  // prints to every visitor, and snapshot a subscription that says
+  // `founding: false` at the list price: **the claim and the price
+  // disagreeing, which is the exact failure the paragraph above says cannot
+  // happen.** Found by this item's own security review, not by reading.
+  const eligible = plan !== "booking";
+  let founding = business?.plan_tier === "founding";
+  // Whether THIS call took the spot, as opposed to finding one already held.
+  // Only a spot taken here may be given back on a failure below.
+  let claimedNow = false;
+  if (eligible && !founding) {
+    const { data: granted } = await supabase.rpc("claim_founding_spot", {
+      p_business_id: businessId,
+    });
+    founding = granted === true;
+    claimedNow = founding;
+  }
+
+  const snapshot = planFor(plan, term, founding, await priceTable());
   const consent = consentSentence(snapshot);
 
-  if (!stripeConfigured()) {
-    // A deployment with no key is the state this was BUILT in, and it must
-    // fail out loud rather than half-write a subscription. Everything above
-    // this line still runs, which is what makes the screen testable.
-    return json({ error: "Payments are not switched on yet." }, 503);
-  }
+  // **GIVING THE SPOT BACK WHEN THE CHECKOUT DIES AFTER THE CLAIM.** The claim
+  // is intent-to-pay, so everything below can still fail with a spot already
+  // taken — and nothing releases one automatically. It undoes only a claim
+  // THIS call made: a business that already held the tier keeps it, and
+  // `release_founding_spot` refuses outright to touch a business with a live
+  // subscription, because that business has bought at that price.
+  const giveBack = async () => {
+    if (!claimedNow) return;
+    claimedNow = false;
+    await supabase.rpc("release_founding_spot", { p_business_id: businessId });
+  };
 
   // A Stripe customer per business, reused if this is a second attempt.
   let customerId = (sub?.stripe_customer_id as string) || null;
   if (!customerId) {
-    const created = await stripe("/customers", {
-      name: business?.name,
-      email: business?.contact_email || undefined,
-      metadata: { business_id: businessId, slug: business?.slug },
-    }, { idempotencyKey: `cust:${businessId}` });
-    customerId = String(created.id);
+    try {
+      const created = await stripe("/customers", {
+        name: business?.name,
+        email: business?.contact_email || undefined,
+        metadata: { business_id: businessId, slug: business?.slug },
+      }, { idempotencyKey: `cust:${businessId}` });
+      customerId = String(created.id);
+    } catch (err) {
+      await giveBack();
+      throw err;
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -339,6 +408,11 @@ async function subscribe(
   // passing against `lineItemsFor` after nothing called it — so this endpoint
   // TRANSLATES and decides nothing. `product` is the one thing it adds,
   // because an id has to be fetched and a pure module cannot fetch.
+  // ponytail: `productFor` is awaited while `params` is built, outside any
+  // try, so a Stripe outage THERE still leaves a claimed spot behind — as does
+  // a failed final upsert. Both are rarer than the three paths `giveBack`
+  // covers and both are one click in the back office (`platform-admin`'s
+  // `tier`). Wrap the whole post-claim body if that stops being true.
   const lines = linesFor(snapshot);
   const recurring = lines.find((l) => l.interval !== null)!;
   const oneOffs = lines.filter((l) => l.interval === null);
@@ -397,7 +471,7 @@ async function subscribe(
     }, { idempotencyKey: key });
   } catch (err) {
     const msg = err instanceof StripeError ? err.message : String(err);
-    if (!/head office address/i.test(msg)) throw err;
+    if (!/head office address/i.test(msg)) { await giveBack(); throw err; }
     taxOff = "No head office address on the Stripe account, so tax is not being calculated.";
     console.error(`automatic_tax refused: ${msg}`);
     subscription = await stripe("/subscriptions", params, { idempotencyKey: `${key}:notax` });
@@ -411,6 +485,7 @@ async function subscribe(
     // product's pricing produces that today, and a screen that silently draws
     // an empty card form would be the worst way to find out it can.
     console.error("no client secret on the first invoice", { subscription: subscription.id });
+    await giveBack();
     return json({ error: "Stripe did not ask for a payment. Nothing was charged." }, 502);
   }
 

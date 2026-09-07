@@ -7014,7 +7014,7 @@ works**, which is one line at the end rather than a pause in the middle.
       seed and two suites all relied on the old default and now state what
       they mean. `booking-core` § 13, eleven breaks all caught.
 
-- [ ] 8.5 **The founding spot is claimed at payment, not at signup.**
+- [x] 8.5 **The founding spot is claimed at payment, not at signup.** **DONE 2026-09-07.**
       *"It should not be taken until they pay, obviously."*
 
       **HE DECIDED THE SHAPE after being shown why it is not a one-line move:
@@ -7031,6 +7031,32 @@ works**, which is one line at the end rather than a pause in the middle.
       abandoned `default_incomplete` checkout holds a spot until released by
       hand, which `platform-admin`'s `tier` action already does in one click.
       His earlier "hold it 14 days" was withdrawn once the cost was clear.
+
+      **PROVEN AGAINST THE DEPLOYED FUNCTION**: signing up while asking for the
+      offer as loudly as the old client did returns `founding: false` and
+      leaves the count at 3 of 3; pressing subscribe charges **$539 — the
+      founding price** — flips the tier and drops it to 2.
+      **AND `security-review` FOUND TWO WAYS IT COULD STILL GO WRONG, both
+      introduced by the move and neither visible from any screen.** The
+      BOOKING plan has no founding price (`planFor` hard-codes it), so a $35
+      checkout took one of three spots, decremented the count the landing page
+      prints to every visitor, and wrote a subscription saying `founding:
+      false` at the list price — **the claim and the price disagreeing, one
+      line under the comment saying that cannot happen.** And
+      `claim_founding_spot` conflated *the offer is full* with *you already
+      have one*, which was harmless while nothing ever asked twice and bit the
+      moment the claim moved to a button two tabs can press: the second caller
+      is told no and quotes LIST prices to a business that genuinely holds a
+      spot. `20260907000200` fixes the second and adds
+      `release_founding_spot`, which gives back a claim the call itself made
+      on the three failure paths that matter and refuses to touch a business
+      that has actually paid.
+      **THE KNOWN PRICE OF HIS SHAPE, written down rather than argued:** one
+      account can create three businesses, press subscribe on each, abandon
+      all three, and hold the whole offer until somebody releases it. That is
+      what *claim on intent to pay with no TTL* costs, and it is one click per
+      spot in the back office.
+      `platform-billing` § 21, nine breaks all caught.
 
 - [ ] 8.6 **The email safety net.** Two things, one subsystem.
       **R1, and it is his most specific new requirement:** *"a tracker inside

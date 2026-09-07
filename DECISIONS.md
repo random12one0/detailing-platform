@@ -245,6 +245,8 @@ were made more than once.
 
 - **Roadmap 8.4 — nothing is assumed at signup, and the enforcement was already there** — *the brand should not assume anything, everything should just be blank off start.* The two service-mode columns were not-null default true, so **I do both and nobody has ever been asked were the identical two rows**; they are nullable with no default now and existing rows are untouched. **The finding that shaped the item is that the gate needed NO CODE**: with both null, slotValidation refuses every service type and available-slots skips every slot, so the refusal falls out of arithmetic nobody wrote for the purpose. Proven on one throwaway tenant, one day, one column: **0 slots unanswered, 19 the moment one mode was answered, 0 again on revert** — and a security review then enumerated every write path that creates or moves a booking, including the dashboard modal, and found none bypassing the gate. **So the product owed an EXPLANATION rather than enforcement.** A third column (modes_answered) was refused: it would keep the booleans looking honest while putting the answer somewhere the two enforcement sites cannot see. **The booking page explains rather than 404s** — without it a customer walks four steps to an empty calendar and concludes the detailer is booked solid, which is a lost customer who thinks they were too late. **The warning lives in BookingLink and not on a screen**, because the question is a property of the link and the block is rendered in six places. **It broke three fixtures and that is the evidence it works** — the demo seed and two suites all relied on the default. **And three of my own mistakes were found by LOOKING**: a contact fallback reading column names the public profile does not carry, so it could never render; a hand-written list of call sites short by one; and a check that passed with the defect restored because  appears all over a form.
 
+- **Roadmap 8.5 — the founding spot moves to the moment of payment, and the review found two ways it could still go wrong** — *it should not be taken until they pay, obviously.* It was claimed at SIGNUP, so three people who made an account and never came back consumed the whole offer. **His own decision is what makes it one line wide: claim on INTENT TO PAY, immediately above planFor** — the price is snapshotted there and never re-read, so a claim at the WEBHOOK would quote and charge LIST prices and then stamp a founding flag on a standard-priced subscription. Proven against the deployed function: signing up while asking for it leaves 3 of 3, pressing subscribe charges 539 dollars — the founding price — and drops it to 2. **The security review then found two ways it could still go wrong, both mine and neither visible from any screen.** The BOOKING plan has no founding price (planFor hard-codes it), so a 35-dollar checkout took one of three spots, decremented the count the landing page prints, and wrote a subscription saying founding false at the list price — the claim and the price disagreeing, one line under the comment saying that cannot happen. And **claim_founding_spot conflated the offer is full with you already have one**, which was harmless while nothing ever asked twice and bit the moment the claim moved to a button two tabs can press: the second caller is told no and quotes LIST prices to a business that genuinely holds a spot. **The transferable half is the same in both — a value that was safe because nothing ever asked it twice stops being safe when the question moves to a button.** A give-back now releases a claim THIS call made on the three failure paths that matter, and refuses to touch a business that has actually paid. **What is NOT fixed is his decision rather than a defect**: one account can still hold all three by abandoning three checkouts, which is the cost of claiming at intent with no TTL. And two lessons from the checks: **a helper existing proves nothing** (the release check passed with the call removed from the path that needed it), and a check went red on the migration comment explaining the lock it was asserting about.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -14520,3 +14522,91 @@ component.
 whole of `SetupForm.jsx` passed with the fallback restored to `"mobile"`,
 because `: null,` appears all over a form. It is scoped to the `where:`
 expression now. Eleven breaks, every one caught.
+
+## Roadmap 8.5 — the founding spot moves to the moment of payment, and the review found two ways it could still go wrong
+
+**His instruction:** *"It should not be taken until they pay, obviously."* It was
+claimed by `create-business`, so three people who made an account and never came
+back consumed the whole offer while the platform earned nothing.
+
+**HIS OWN DECISION ON THE SHAPE IS WHAT MAKES THIS ONE LINE WIDE: claim on
+INTENT TO PAY, immediately above `planFor`.** The price is snapshotted there and
+stored on the subscription row, never re-read — so a claim made at the WEBHOOK,
+which is the obvious reading of *when they pay*, would quote and charge LIST
+prices and then stamp a founding flag on a standard-priced subscription. The row
+would say founding while the detailer pays $60 a month for ever. The claim and
+the price have to be decided in the same breath or they can disagree.
+
+**Deliberately not built, and he withdrew the earlier ask himself:** a
+reservation, a TTL, or a re-quote path. An abandoned `default_incomplete`
+checkout holds a spot until released, and `platform-admin`'s `tier` action
+already does that in one click.
+
+**Proven rather than reasoned about**, against the deployed function: signing up
+while asking for the offer as loudly as the old client did returns
+`founding: false` and leaves the count at 3 of 3; pressing subscribe returns
+**$539 — the founding price** — flips the tier and drops the count to 2.
+
+### The two things the security review found, both mine, neither visible from any screen
+
+**1. THE BOOKING PLAN HAS NO FOUNDING PRICE, AND THE CLAIM DID NOT KNOW.**
+`planFor` hard-codes `founding: false` for `plan === "booking"` — the founding
+ladder only ever discounted the website plan, and $35 is $35 either way. So a
+$35 booking checkout took one of three spots, decremented the count the landing
+page prints to every visitor, and wrote a subscription that says `founding:
+false` at the list price. **That is the claim and the price disagreeing — the
+exact failure the comment one line above it says cannot happen.** The first
+three detailers buying the cheap plan would have absorbed the entire offer
+while nobody received a discount. Fixed by gating the claim on the plan being
+charged; `21g-ii` pins the reason by asserting `planFor` still refuses founding
+for booking, so the gate cannot outlive its justification.
+
+**2. `claim_founding_spot` CONFLATED "THE OFFER IS FULL" WITH "YOU ALREADY HAVE
+ONE".** It ended `update … where plan_tier <> 'founding'; return found;`, so a
+business that already held a spot updated zero rows and got `false`. **Harmless
+for as long as the claim happened once, at signup, because nothing ever asked
+twice.** Moving it to a button somebody can press from two tabs made it bite:
+the lock serialises the two calls correctly, the second finds the row already
+`'founding'`, updates nothing, is told *no* — and snapshots **list prices over a
+business that genuinely holds a founding spot**, with no re-quote path and only
+the back office as a way back. `20260907000200` makes the function answer the
+question the caller is actually asking: *does this business hold a spot after
+this call?*
+
+**The transferable half is the same in both: a value that was safe because
+nothing ever asked it twice stops being safe the moment the question moves to a
+button.**
+
+### And a third, smaller, taken from the review's recommendation rather than its finding
+
+The 503 was moved above the claim while writing the item — claiming a spot and
+then answering *payments are not switched on yet* burns one on a payment that
+could never have happened. The review pointed out that is the only early exit
+that moved, and every failure BELOW the claim still leaves one taken.
+`release_founding_spot` and a `giveBack()` now cover the three that matter: a
+failed customer creation, a rethrown Stripe error, and the 502 where Stripe asks
+for no payment. **It undoes only a claim THIS call made** — a business that
+already held the tier keeps it — **and the function refuses outright to touch a
+business with a live subscription**, because that business has bought at that
+price and taking the tier away would silently reprice its renewal. A
+`ponytail:` comment names the two paths still uncovered (`productFor` throwing
+while `params` is built, and a failed final upsert) and what to do if they stop
+being rare.
+
+**What is NOT fixed, because it is his decision rather than a defect:** one
+account can still create three businesses, press subscribe on each, abandon all
+three and hold the whole offer until somebody releases it. That is the cost of
+*claim on intent to pay* with no TTL, which he chose knowing the alternative.
+It is written into the roadmap so it is a known price rather than a surprise.
+
+### What writing the checks taught, again
+
+**A helper existing proves nothing.** `21i` first tested that `giveBack` was
+defined and that it called the RPC — and passed with the call REMOVED from the
+502 path, because two other call sites kept both true. It is positional now.
+
+**And a check went red on the file's own prose.** `21h-ii` asserts the
+already-held question is asked before the `for update`, and the migration's
+header explains in a comment what that lock is for — so reading the raw file
+put the words before the code and failed a correct file. Strip comments; this
+file has now recorded that trap more times than any other.

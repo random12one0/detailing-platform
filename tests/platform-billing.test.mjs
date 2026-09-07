@@ -55,6 +55,9 @@ import {
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
+// Comments only. These are TS/JSX/SQL files and a quote-stripper pairs
+// apostrophes across hundreds of lines of prose.
+const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*(\/\/|--).*$/gm, "");
 
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
@@ -814,10 +817,17 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   // AND FROM THE SAME TABLE AS THE CHARGED ONE. Roadmap 4.4 stage 4 made the
   // price table overridable; a struck figure computed from the FILE beside a
   // charged figure from the ROW would print a discount nobody is getting.
+  // **THE THIRD CLAUSE NAMES THE TABLE, NOT THE FOUNDING EXPRESSION** —
+  // roadmap 8.5 moved the claim, so `subscribe` now snapshots with a
+  // `founding` it has just decided rather than re-reading `plan_tier`, and the
+  // old literal went stale on a change that does exactly what this check is
+  // for. What the check is NAMED for is the table: a struck figure computed
+  // from the FILE beside a charged figure from the ROW prints a discount
+  // nobody is getting.
   check("both figures come from one table",
     fn.includes("const table = await priceTable();")
       && fn.includes('planFor("website", term, founding, table)')
-      && fn.includes('planFor(plan, term, business?.plan_tier === "founding", await priceTable())'));
+      && /planFor\(plan, term, founding, await priceTable\(\)\)/.test(fn));
 
   const billing = read("app/src/screens/more/Billing.jsx");
   // THE TEST IS "DO THESE DIFFER", NOT "AM I FOUNDING". A standard account and
@@ -1311,6 +1321,157 @@ console.log("\n20. the plan chosen on /pricing is the plan charged for (roadmap 
   check("20g · the booking plan is drawn, and not as a fourth way to pay",
     /data-billing-rung="booking"/.test(billing)
       && /Or just the booking page/.test(billing));
+}
+
+// ─── 21. THE FOUNDING SPOT IS TAKEN AT PAYMENT, NOT AT SIGNUP ─────────────
+// ROADMAP 8.5 — the owner: *"it should not be taken until they pay,
+// obviously."* It was claimed by `create-business`, so three people who made
+// an account and never came back consumed the whole offer while the platform
+// earned nothing.
+//
+// **THE PLACEMENT IS THE WHOLE ITEM AND IT IS ONE LINE WIDE.** The price is
+// snapshotted by `planFor` and stored on the subscription row, never re-read.
+// A claim made LATER — at the webhook, when the money actually lands, which is
+// the obvious reading of "when they pay" — would quote and charge LIST prices
+// and then stamp a founding flag on a standard-priced subscription. The row
+// would say founding while the detailer pays $60 a month for ever. So the
+// claim and the price have to be decided in the same breath, and these checks
+// are about nothing else.
+console.log("\n21. the founding spot is taken at payment (roadmap 8.5)");
+{
+  const billing = read("supabase/functions/platform-billing/index.ts");
+  const createBiz = read("supabase/functions/create-business/index.ts");
+  const signup = read("app/src/screens/CreateBusiness.jsx");
+  const nb = strip(billing);
+
+  // ── IT IS GONE FROM SIGNUP ────────────────────────────────────────────
+  check("21a · create-business no longer claims a spot",
+    !/rpc\("claim_founding_spot"/.test(strip(createBiz)),
+    "signing up must not consume the offer");
+  check("21a-ii · and it does not read the browser's request either",
+    !/body\.claim_founding/.test(strip(createBiz)));
+  check("21a-iii · a brand-new business is never founding",
+    /const founding = false;/.test(strip(createBiz)));
+  check("21a-iv · the signup screen stops asking for one",
+    !/claim_founding/.test(strip(signup)));
+
+  // ── AND IT HAPPENS IN `subscribe`, ABOVE `planFor` ────────────────────
+  const subAt = nb.indexOf("async function subscribe(");
+  const sub = subAt < 0 ? "" : nb.slice(subAt, nb.indexOf("\nasync function", subAt + 10));
+  check("21b · the check has subjects — subscribe was found",
+    sub.length > 200 && /claim_founding_spot/.test(sub));
+  const claimAt = sub.indexOf('rpc("claim_founding_spot"');
+  const planAt = sub.indexOf("planFor(plan, term,");
+  check("21b-ii · the claim is decided BEFORE the price is snapshotted",
+    claimAt > 0 && planAt > 0 && claimAt < planAt,
+    "a claim after the snapshot stamps founding on a standard-priced subscription");
+  check("21b-iii · and the snapshot uses what was just claimed",
+    /planFor\(plan, term, founding, await priceTable\(\)\)/.test(sub),
+    "reading plan_tier again here would be a second answer to one question");
+
+  // ── IT IS NOT ATTEMPTED TWICE FOR ONE BUSINESS ────────────────────────
+  // `claim_founding_spot` counts every founding business against the cap
+  // INCLUDING this one, so calling it for a business that already holds a
+  // spot is how a retry after a declined card loses the price it was quoted.
+  check("21c · a business that already holds a spot does not re-claim",
+    /let founding = business\?\.plan_tier === "founding";/.test(sub)
+      && /if \(eligible && !founding\) \{/.test(sub),
+    "claim_founding_spot counts this business against its own cap on a retry");
+
+  // ── NOTHING CAN BE BURNED ON A PAYMENT THAT CANNOT HAPPEN ─────────────
+  // The 503 used to sit BELOW the snapshot. Harmless while nothing was taken
+  // there; the moment a spot is, it is a spot consumed by a deployment with
+  // no Stripe key, releasable only by hand from the back office.
+  const stripeAt = sub.indexOf("if (!stripeConfigured())");
+  check("21d · the payments-off refusal comes before the claim",
+    stripeAt > 0 && claimAt > 0 && stripeAt < claimAt);
+
+  // ── THE DATABASE IS STILL THE ONLY THING THAT DECIDES ─────────────────
+  // Whatever else changes, the count and the grant have to stay one atomic
+  // statement in one place. The RPC is `security definer`, serialises on the
+  // settings row, and is granted to `service_role` alone.
+  const claimSql = read("supabase/migrations/20260906004000_demo_businesses.sql");
+  check("21e · the claim is still atomic and serialised",
+    /for update/.test(claimSql) && /and plan_tier <> 'founding'/.test(claimSql),
+    "the FOR UPDATE is what stops two claimants reading the same count");
+  check("21e-ii · and demo businesses still do not consume the offer",
+    /and not is_demo/.test(claimSql),
+    "roadmap 6.2 — a demo in the count advertises a spot the claim then refuses");
+  // NOBODY WITH A USER TOKEN MAY CALL IT. If this ever became reachable from
+  // the browser, the offer is whatever a visitor decides it is.
+  const grants = read("supabase/migrations/20260828002000_claim_founding_spot.sql");
+  check("21e-iii · it is service-role only",
+    /revoke all on function public\.claim_founding_spot\(uuid\) from public, anon, authenticated;/.test(grants));
+
+  // ── AND THE SCREEN NO LONGER PROMISES THE OLD BEHAVIOUR ───────────────
+  // The strip printed "It locks to this account when you create it", which
+  // became false the moment the claim moved. A count running down beside a
+  // sentence about WHEN it is taken is the one place that sentence matters.
+  check("21f · signup does not promise the spot is held at signup",
+    !/locks to this account when you create it/.test(signup));
+  check("21f-ii · it says when it is really taken",
+    /Yours when you pay/.test(signup));
+
+  // ── THE TWO THINGS THE SECURITY REVIEW FOUND ─────────────────────────
+  // Both were introduced by moving the claim, and neither was visible from
+  // any screen. They are pinned separately from the item above because they
+  // are the failures a future edit is most likely to re-create.
+
+  // **THE BOOKING PLAN HAS NO FOUNDING PRICE.** `planFor` hard-codes
+  // `founding: false` for it, so claiming a spot there takes one of three,
+  // decrements the count the landing page prints, and snapshots a
+  // subscription that says `founding: false` at the list price — the claim
+  // and the price disagreeing, which is what this whole item exists to make
+  // impossible.
+  check("21g · the booking plan does not claim a spot",
+    /const eligible = plan !== "booking";/.test(sub)
+      && /if \(eligible && !founding\) \{/.test(sub),
+    "$35 is $35 either way, so a spot spent there buys nobody a discount");
+  const pb = read("supabase/functions/_shared/platformBilling.ts");
+  check("21g-ii · and the reason is still true of planFor",
+    /if \(plan === "booking"\)[\s\S]{0,220}founding: false/.test(pb),
+    "if booking ever gains a founding price, the gate above is wrong");
+
+  // **ALREADY HELD MUST NOT ANSWER 'FULL'.** The RPC ended with
+  // `update … where plan_tier <> 'founding'; return found;`, so a business
+  // that already holds a spot updated zero rows and got `false` — the same
+  // answer as "the offer is full". Two `subscribe` calls in flight for one
+  // business therefore had the second snapshot LIST prices over a business
+  // that genuinely holds a founding spot.
+  const claim2 = read("supabase/migrations/20260907000200_founding_claim_is_idempotent.sql");
+  check("21h · claiming is idempotent for a business that already holds one",
+    /if v_held then\s+return true;/.test(claim2),
+    "otherwise a concurrent second call is told no and quoted list prices");
+  // **COMMENTS OUT FIRST.** The header of that migration explains what the
+  // `for update` is for, in prose, above the function — so reading the raw
+  // file put "for update" before the declaration and failed a check about
+  // code on a sentence about code. The trap this repo keeps meeting, here
+  // making a correct file look wrong.
+  const claimCode = strip(claim2);
+  check("21h-ii · and the ask happens before the lock, since it consumes nothing",
+    claimCode.indexOf("v_held") < claimCode.indexOf("for update"));
+
+  // **A CLAIM THIS CALL MADE IS GIVEN BACK WHEN THE CHECKOUT DIES.**
+  // **POSITIONAL, because the helper existing proves nothing.** The first
+  // version tested that `giveBack` was defined and that it called the RPC —
+  // and passed with the call REMOVED from the 502 path, since two other call
+  // sites kept both true. A helper nobody calls on the path that needs it is
+  // the shape of half this file's history.
+  const fiveOhTwo = sub.indexOf("Stripe did not ask for a payment");
+  const backAt = sub.lastIndexOf("await giveBack();", fiveOhTwo);
+  check("21i · a failed checkout releases the spot it took",
+    /const giveBack = async \(\) => \{/.test(sub)
+      && /if \(!claimedNow\) return;/.test(sub)
+      && /release_founding_spot/.test(sub)
+      && fiveOhTwo > 0 && backAt > 0 && fiveOhTwo - backAt < 200,
+    "the 502 returns with a spot taken for a payment Stripe never asked for");
+  check("21i-ii · and only a claim made in THIS call",
+    /claimedNow = founding;/.test(sub),
+    "a business that already held the tier must keep it");
+  // THE RELEASE REFUSES A BUSINESS THAT HAS PAID. Taking the tier away from a
+  // live subscription silently reprices its renewal.
+  check("21i-iii · the release cannot touch a live subscription",
+    /not exists \([\s\S]{0,200}platform_subscriptions[\s\S]{0,200}status not in \('incomplete', 'canceled'\)/.test(claim2));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

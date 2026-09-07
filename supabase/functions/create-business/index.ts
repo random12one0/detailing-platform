@@ -6,9 +6,14 @@
 // on the wrong clock books every job at the wrong time.
 //
 // Input: { name, slug, timezone, contact_email?, contact_phone?,
-//          dropoff_address?, service_area?, claim_founding? }
+//          dropoff_address?, service_area? }
 //
-// claim_founding is a REQUEST, never a fact. The database decides (see
+// ROADMAP 8.5 — `claim_founding` IS GONE FROM THIS FUNCTION. It used to be a
+// request the database decided on, and the reasoning below is still exactly
+// right about WHO decides — it has simply moved to the moment somebody pays.
+// The paragraph is kept because it is the argument against ever believing the
+// query string, wherever the claim lives.
+// claim_founding WAS a REQUEST, never a fact. The database decides (see
 // claim_founding_spot), because otherwise anyone who noticed
 // ?offer=founding in a URL could grant themselves founding pricing for
 // the life of their account.
@@ -81,14 +86,20 @@ Deno.serve(async (req) => {
       return json({ error: "We could not finish setting up your business. Please try again." }, 500);
     }
 
-    // The offer is granted by the database or not at all.
-    let founding = false;
-    if (body.claim_founding) {
-      const { data: granted } = await supabase.rpc("claim_founding_spot", {
-        p_business_id: business.id,
-      });
-      founding = granted === true;
-    }
+    // **SIGNUP NO LONGER TAKES A FOUNDING SPOT — roadmap 8.5.** The owner:
+    // *"it should not be taken until they pay, obviously."* It was claimed
+    // here, so three people who made an account and never came back consumed
+    // the whole offer while the platform earned nothing.
+    //
+    // It now happens in `platform-billing`'s `subscribe`, ONE LINE ABOVE the
+    // `planFor` that snapshots the price — because the price is stored and
+    // never re-read, so a claim made anywhere else can end up stamping a
+    // founding flag on a standard-priced subscription.
+    //
+    // `founding` stays in this response, and stays FALSE: a brand-new business
+    // has no spot yet by definition, and the field is what `CreateBusiness`
+    // reads. Removing it would be a silent `undefined` at that call site.
+    const founding = false;
 
     return json({
       success: true,
