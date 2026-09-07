@@ -120,6 +120,38 @@ explaining it; if they still have to ask "so should I?", it failed.
   at. The reference rendering is `docs/design-directions/5-the-thread.html`,
   the page the owner approved; **where the document and that page disagree,
   the page is right.** See `DESIGN.md`.
+- **`docs/TASTE-NOTES.md` EXISTS NOW AND IT OUTRANKS EVERY DESIGN NOTE BELOW
+  THAT IS AN INFERENCE ABOUT WHAT HE LIKES — 2026-09-07, five sites he sent
+  unprompted.** This is the file the entry below has asked for since
+  2026-09-05, and it is the first EVIDENCE any session has had. **He said more
+  are coming and that he likes those better** (*"Now I'm gonna give more that I
+  like more, but just quickly, this is what I could find"*), so it is a first
+  reading rather than a brief: **add his next batch before building a sixth
+  page.**
+  **WHAT ALL FIVE SHARE, AND NONE OF THE REJECTED PAGES DID:** a real car
+  PHOTOGRAPH as the hero at scale (cut out, full-bleed, or inside a giant
+  rounded card); a headline set 100-200px in a heavy, usually CONDENSED
+  GROTESQUE — **there is no serif display face anywhere in the set**; ONE
+  saturated accent used loudly (blue, red, red, orange) and nothing muted; the
+  page SWITCHING GROUND between sections, black band to white band, **which not
+  one of my five pages did**; and numbers everywhere as decoration as much as
+  information (7K/3K/5K/8K, 24+/1.2K+/35/99%, 4.9, 12,025).
+  **THE UNCOMFORTABLE PART IS THE USEFUL ONE.** Several of them are close to
+  the 2026 slop recipe below — three-up cards, a stats strip, a pricing table,
+  an FAQ accordion. **He likes them anyway.** So the anti-slop research is a
+  guard against the GENERIC-AI version of a commercial page, **not an argument
+  for an unusual one**: what separates these five is real photography, type two
+  sizes bigger than feels safe, one committed colour and enough contrast for
+  the page to have a pulse. **Craft and confidence, not novelty.** A session
+  that reads "avoid the centred hero and the three cards" and builds a
+  catalogue on card stock has followed the letter and produced the exact thing
+  he has now rejected three times. The never-defaults are unaffected.
+  **And it re-ranks what is already in `docs/tenant-sites/`**: `f-sudsy`
+  (painted yellow, price as headline, Archivo at scale) is the closest thing in
+  the repo to what he sent, `e-kiln` second; **`g-estate` and `d-ridgeline` are
+  the furthest**, and both are serif-led editorial pages, which is the family
+  he has now rejected twice.
+
 - **THE THREE TENANT PAGES PASSED EVERY CHECK IN THIS REPO AND HE STILL SAID
   THEY LOOK AI — 2026-09-05: *"All 3 look very ai and not even like the vibe
   for detailing but it's fine for now."*** They clear every never-default,
