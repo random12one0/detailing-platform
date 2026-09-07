@@ -7,7 +7,9 @@
 // contact address, so replies reach the right detailer and never another
 // business.
 //
-// Input: { business_id, to, subject, body, text?, attachments? }
+// Input: { business_id, to, subject, body, text?, attachments?, sender_name? }
+// `business_id` is required for every tenant email and optional for the two
+// kinds the PLATFORM sends in its own name (roadmap 2.20 stage 2 and 8.12).
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
@@ -84,8 +86,22 @@ Deno.serve(async (req) => {
     // the detailer's contact address happens to match a customer of their own
     // would put "this address bounced" on somebody it says nothing about.
     const fromPlatform = typeof sender_name === "string" && sender_name.trim() !== "";
-    if (!business_id || !to || !subject || !body) {
-      return json({ error: "business_id, to, subject and body are required" }, 400);
+    if (!to || !subject || !body) {
+      return json({ error: "to, subject and body are required" }, 400);
+    }
+    // ROADMAP 8.12 — THE ONE EMAIL WITH NO TENANT BEHIND IT AT ALL.
+    //
+    // Billing mail is from us and ABOUT a detailer, so it still carries their
+    // business id. The dead man's switch is from us about OUR OWN plumbing:
+    // there is no business it is a fact about, and passing an arbitrary one
+    // would file the send against a tenant it has nothing to do with.
+    //
+    // **STILL REQUIRED FOR EVERYTHING ELSE, AND LOUDLY.** A tenant email that
+    // lost its business id would otherwise send with no name and no Reply-To
+    // and look approximately right, which is how a whole class of defect in
+    // this repo has survived. Only platform mail may omit it.
+    if (!business_id && !fromPlatform) {
+      return json({ error: "business_id is required" }, 400);
     }
 
     // Reserved and non-existent domains (RFC 2606 / 6761) can never receive
@@ -98,15 +114,21 @@ Deno.serve(async (req) => {
       return json({ success: true, skipped: "undeliverable_domain" });
     }
 
-    const { data: business } = await supabase
-      .from("businesses")
-      .select("name, contact_email")
-      .eq("id", business_id)
-      .maybeSingle();
-    if (!business) return json({ error: "unknown_business" }, 404);
+    // Skipped entirely for a platform email with no business: the only two
+    // things this row supplies are the `From:` display name, which
+    // `sender_name` has already replaced, and the tenant Reply-To, which
+    // platform mail deliberately does not set.
+    const { data: business } = business_id
+      ? await supabase
+        .from("businesses")
+        .select("name, contact_email")
+        .eq("id", business_id)
+        .maybeSingle()
+      : { data: null };
+    if (business_id && !business) return json({ error: "unknown_business" }, 404);
 
     const payload: Record<string, unknown> = {
-      from: `${String(fromPlatform ? sender_name : business.name).replace(/[<>]/g, "")} <${PLATFORM_FROM_ADDRESS}>`,
+      from: `${String(fromPlatform ? sender_name : business!.name).replace(/[<>]/g, "")} <${PLATFORM_FROM_ADDRESS}>`,
       to: [to],
       subject,
       html: body,
@@ -123,7 +145,7 @@ Deno.serve(async (req) => {
     // Reply-To is the TENANT's address so a customer's reply reaches the right
     // detailer — which is exactly wrong for a billing email, where a reply
     // would go from us to the detailer and straight back to themselves.
-    if (!fromPlatform && business.contact_email) payload.reply_to = business.contact_email;
+    if (!fromPlatform && business!.contact_email) payload.reply_to = business!.contact_email;
     if (Array.isArray(attachments) && attachments.length > 0) payload.attachments = attachments;
 
     if (!RESEND_API_KEY) {

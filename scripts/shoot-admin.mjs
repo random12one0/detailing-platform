@@ -198,11 +198,30 @@ try {
     // The console, at every width. A screen that draws correctly and warns on
     // every render is a screen that is about to break for a reason nobody
     // wrote down.
+    //
+    // **IT READS WHATEVER PAGE THE WALK LEFT, AND AT THE IMPERSONATION WIDTH
+    // THAT IS `/admin` SIGNED IN AS A DETAILER — where TWO 404s are the
+    // product working exactly as designed.** `platform-admin` answers 404 to
+    // everybody who is not an admin rather than 403 (roadmap 4.4: a 403 tells
+    // a curious detailer the endpoint exists), and this screen treats that as
+    // the ordinary case and draws *"You are signed in as…"*. So the URL is
+    // printed beside the count: without it the line reads as a defect in the
+    // screen that has just been photographed and measured clean, and somebody
+    // spends twenty minutes proving it is not.
     const errs = [];
     page.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); });
     await page.reload({ waitUntil: "domcontentloaded" });
     await page.waitForTimeout(1800);
-    console.log(`${String(w).padStart(4)}px  ${errs.length ? `${errs.length} console errors` : "console clean"}`);
+    // **THE DETECTOR IS THIS SCREEN'S OWN HEADING, NOT `.impbar`.** That strip
+    // is drawn on the DASHBOARD; `/admin` under an impersonated session draws
+    // the explainer instead, so the first version of this line never fired and
+    // the count went out unlabelled - the label written to stop somebody
+    // chasing a non-defect, doing nothing, silently.
+    const said = await page.locator(".pa-h1").first().textContent().catch(() => "");
+    const where = new URL(page.url()).pathname
+      + (/signed in as/i.test(said ?? "")
+        ? " (impersonating - a 404 from platform-admin is the designed non-admin answer)" : "");
+    console.log(`${String(w).padStart(4)}px  ${errs.length ? `${errs.length} console errors` : "console clean"}  on ${where}`);
     for (const e of errs.slice(0, 3)) console.log(`        ${e.slice(0, 140)}`);
     await ctx.close();
   }

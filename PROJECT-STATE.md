@@ -21,7 +21,8 @@ temporary — they reach the demo business only, and they must change before
 there is a real customer. See DECISIONS.md, "A guessable demo login".
 
 **WHERE THE WORK IS, 2026-09-07 (overnight, Phase 8).** Roadmap **8.2 through
-8.8 and 8.10 through 8.13 are done and committed**; 8.9 is blocked on two questions in
+8.8, 8.10, 8.11 and 8.13 are done and committed and 8.12's code half is
+built**; 8.9 is blocked on two questions in
 `docs/money-view-research-2026-09-07.md` § 6. **8.10 was the largest item in
 the phase** and it turned on being THREE facts rather than one feature: cars on
 one VISIT are one booking with `booking_vehicles` for 2..N, cars on two DAYS
@@ -47,6 +48,20 @@ column with two meanings would let a detailer reopen a page the platform had
 darkened for non-payment. A date rather than a flag, so it says when they are
 back AND reopens them by itself. Proven as behaviour — 16 open days, 10 while
 closed, 16 again once the date passes.
+**8.12's DEAD MAN'S SWITCH IS BUILT AND THE OTHER THREE HALVES ARE ACCOUNTS
+HE OPENS.** `job_heartbeats` has recorded when each scheduled job last finished
+since 7.3 and nothing ever told anybody; `watch-jobs` now emails him, ONCE per
+outage, enforced by `claim_job_alerts()` deciding and marking in one SQL
+statement. **The part that is parked on him is the part the switch cannot do
+for itself**: it runs on the same `pg_cron` it watches, so pg_cron stopping
+takes the alarm with it and the silence is identical to health — an outside
+ping (healthchecks.io, free, five minutes) is the only answer, and
+`platform_settings.healthcheck_url` is NULL, which the back office prints in as
+many words. `docs/ops/monitoring.md` is his fifteen minutes for that plus
+UptimeRobot plus 2.22's backup secrets. **Sentry stays 7.2's and stays his
+DSN.** `tests/dead-mans-switch.test.mjs`, 43 checks, eleven baselined —
+two of them applied to the live database, because the properties that matter
+live inside one statement.
 **AND THE ITEM TURNED UP A LIVE SECURITY HOLE, which has its own commit.**
 Every column-level `revoke update (col)` in this repo was a no-op, because a
 table-level `UPDATE` grant overrides it — so a detailer with the `settings`

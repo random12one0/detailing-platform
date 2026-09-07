@@ -787,6 +787,25 @@ explaining it; if they still have to ask "so should I?", it failed.
   guard matching on email OR phone, so one household address joined two
   different people. **It clears its own `rate_hits` first**, like every other
   suite here that books)
+  and **`dead-mans-switch`** (**43 checks with credentials, 26 without**, new
+  2026-09-07, roadmap 8.12 — WHETHER ANYBODY IS TOLD WHEN A SCHEDULED JOB
+  STOPS. `job_heartbeats` has recorded the answer since 7.3 and nothing ever
+  said it out loud, which is a monitor you have to remember to visit about the
+  one failure nobody knows to look for. **§ 1 and § 3 are credential-free; § 2
+  drives a throwaway job down and back up against the DEPLOYED function** and
+  prints SKIPPED without `.env`. What it holds that no source read can:
+  **the alarm rings once** — the second call about the same outage must say
+  nothing, and that property lives entirely inside `claim_job_alerts()`'s
+  single read-and-mark statement — **and it comes back**, because a switch that
+  latches on is a switch nobody trusts the second time. **It swaps
+  `platform_settings.owner_email` for Resend's simulator and asserts in its own
+  `finally` that his real address went back**: leaving the simulator there would
+  silence every real alert for ever and nothing on any screen would look
+  different. Eleven breaks all caught, **two of them applied to the live
+  database** because the two properties that matter are one SQL statement. And
+  **a `%` in a PostgREST filter returns a Cloudflare 500 HTML page**, which
+  arrives at `.json()` as `Unexpected token '<'` and reads as the whole API
+  being down — PostgREST spells the `like` wildcard `*`)
   from repo root — credential-free, all must pass. **`closed-until` (26 checks,
   new 2026-09-07, roadmap 8.13) is HALF credential-free** — its § 3 (the clock)
   and § 5 (the source) run anywhere, and § 1, 2 and 4 print SKIPPED without
@@ -2220,6 +2239,49 @@ explaining it; if they still have to ask "so should I?", it failed.
   whole rule silently. It was found by logging `.app-main`'s own width before
   and after a click, not by reading the file.
 - Report what was observed, never "this should work."
+
+- **IF A SCHEDULED JOB STOPS, HE IS EMAILED — roadmap 8.12, 2026-09-07 — AND
+  THE ONE THING TO UNDERSTAND IS WHAT THAT SWITCH CANNOT SEE ABOUT ITSELF.**
+  `watch-jobs` runs every fifteen minutes on `pg_cron`, asks
+  `claim_job_alerts()` what has CHANGED, and emails
+  `platform_settings.owner_email`.
+  **THE ALARM RINGS ONCE AND THAT IS ONE SQL STATEMENT.** The decision and the
+  "he has been told" mark are a single data-modifying CTE, so two overlapping
+  runs cannot both send and a job down for a week is not in the result. **Do
+  not split it into a read and a write** — an alert every quarter of an hour
+  for the length of an outage is one that gets routed to a folder, and then the
+  next real one goes there too. **And do not delete `release_job_alerts`**: a
+  claim written whose email then failed is an alarm that never rings again, and
+  that is the quieter, worse failure. It re-arms the STOPPAGES only.
+  **THE WATCHER RUNS ON THE SAME `pg_cron` IT WATCHES.** If pg_cron stops, or
+  the free plan pauses the project after seven quiet days, the alarm stops with
+  the jobs and **the silence is identical to health**. Nothing in that file can
+  notice it. It pings `platform_settings.healthcheck_url` on every healthy run
+  instead — **and that column is NULL**, which is why the back office prints
+  *"NOTHING outside is watching the scheduler itself"*. `docs/ops/monitoring.md`
+  is the five minutes that fixes it, and **it is parked on him, not on us.**
+  **IT STAMPS NO HEARTBEAT OF ITS OWN** (a watcher watching itself is a green
+  light it wrote for itself) and it is **its own cron job rather than a tail on
+  `send-owner-reminders`**, because that sweep is the job this product has
+  actually watched break and it must not be the only thing able to report its
+  own death.
+  **THE STALENESS WINDOWS ARE `job_heartbeats.stale_after_seconds` AND NOWHERE
+  ELSE.** `AdminPage.jsx` used to carry `45 minutes` and `36 hours` in a JS
+  constant; two copies of a threshold is how a screen says a job is fine while
+  the alarm is going off. **Seconds, not an `interval`** — PostgREST renders an
+  interval in whichever text shape Postgres picks. The health line is
+  DISCOVERED from the rows now, with the named list kept for the one case rows
+  cannot cover: **no row is also what a dropped table looks like.**
+  **`send-email` TAKES `business_id` AS OPTIONAL FOR PLATFORM MAIL ONLY** —
+  this is the first email in the product about our own plumbing rather than
+  about a tenant — **and still answers 400 to a tenant email without one**,
+  because such an email would send with no display name and no Reply-To and
+  look approximately right.
+  **AND `shoot-admin.mjs` PRINTS 2 CONSOLE ERRORS AT 392 THAT ARE THE PRODUCT
+  WORKING.** Its console check reads whatever page the walk left it on, which
+  at the impersonation width is `/admin` signed in as a detailer — where
+  `platform-admin` answers 404 rather than 403 by design (roadmap 4.4). The
+  line names the URL and says so; do not go looking for a defect.
 
 ## A SESSION IS NOT MEANT TO STOP — 2026-09-07, and `docs/standing-work.md` is the queue
 

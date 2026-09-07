@@ -108,7 +108,16 @@ export interface Attachment {
 
 // Best-effort by design: an email failure must never fail a booking.
 export async function sendTenantEmail(opts: {
-  businessId: string;
+  /**
+   * OPTIONAL ONLY FOR PLATFORM MAIL — roadmap 8.12.
+   *
+   * Every email a DETAILER sends is a fact about one business, and omitting
+   * this is a 400 from `send-email` rather than a quietly unbranded send. The
+   * one direction with no tenant at all is the platform talking about its own
+   * plumbing (the dead man's switch), and that is exactly the case
+   * `senderName` already marks.
+   */
+  businessId?: string;
   to: string;
   subject: string;
   html: string;

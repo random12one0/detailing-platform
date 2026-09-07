@@ -2553,6 +2553,60 @@ yellow one is the least wrong"?** One sentence. Everything about a client's
 site is unblocked by that and by nothing else. A sixth attempt without it is a
 sixth guess, and this repo has already recorded that guessing burned two.
 
+## If something stops running, you now get an email — and fifteen minutes of yours finishes it
+
+**What was wrong.** The product has scheduled jobs — the one that sends
+reminders every fifteen minutes, and the one that credits monthly-plan visits
+overnight. If one of them stops, **nothing happens**. No error, no red screen,
+no message. Reminders just quietly stop going out, and the first person to find
+out is a detailer who assumes the product does not send reminders. That has
+already happened to us twice, both times for weeks.
+
+**What is built.** Every fifteen minutes something now checks whether each job
+finished when it should have, and **emails you once** if one has stopped —
+saying which one and how long it has been down — and emails you again when it
+starts working. Once, not every fifteen minutes: an alarm that repeats is one
+you put in a folder, and then the next real one goes in there too. It is
+proven by actually stopping a job and watching the email go out.
+
+### THREE THINGS ARE YOURS AND THEY ARE ALL FREE ACCOUNTS
+
+Full instructions, in plain language: **`docs/ops/monitoring.md`**.
+
+**1 · The outside check — 5 minutes, and it is the one I would do first.**
+The thing that watches the jobs runs on the same timer as the jobs. So if that
+timer itself dies — or Supabase pauses the project, which the free plan does
+after a week of no traffic — **the alarm dies with it, and total silence looks
+exactly like everything being fine.** Nothing I can write inside the product
+can see that. The fix is a free account at healthchecks.io: it expects a
+"still alive" message from us every fifteen minutes and emails you when one
+does not turn up. It is one URL pasted into one setting. Until you do,
+the back office says *"NOTHING outside is watching the scheduler itself"* on
+its health line, which is true.
+
+**2 · Is the website up — 5 minutes.** A free UptimeRobot account watching
+`detailingplatform.com` and one real booking page. The booking page is the one
+that matters: the marketing page is a static file and will keep loading
+happily long after bookings have stopped working.
+
+**3 · Backups — 10 minutes.** Already written up in `docs/ops/backups.md` and
+still waiting on you. Monitoring tells you something broke; a backup is the
+only thing that undoes it. Supabase's free plan has none at all.
+
+**And Sentry (crash reports from people's browsers) is still just the DSN** —
+roadmap 7.2, deliberately not built until that value exists, because the whole
+value of it is stripping customers' details out of the crash report and a
+stripper nobody has watched work is not something to trust with addresses.
+
+### ONE THING I SAW WHILE LOOKING AT THE BACK OFFICE
+
+**The email counter reads 165 of 100 for today.** That is the warning from last
+night's work doing its job — it is almost entirely my own test runs, not real
+customers — but it does mean the platform has spent more than Resend's free
+daily allowance today. Nothing is broken and nothing needs doing tonight. It is
+the number to watch on a real busy day, and the way to answer it is to upgrade
+Resend and raise the cap, exactly as you said.
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

@@ -151,9 +151,20 @@ const since = (iso) => {
   return ago(iso);
 };
 
+// THE JOBS WE KNOW BY NAME, AND ONLY THEIR NAMES — roadmap 8.12 took the
+// windows out. `45 minutes` and `36 hours` lived here AND were needed by the
+// watcher that emails about them, and two copies of a threshold is how a
+// screen says a job is fine while the alarm is going off. The window is
+// `job_heartbeats.stale_after_seconds` now and both readers ask the row.
+//
+// This list survives because it does the one thing the rows cannot: a job
+// that has NEVER reported has no row, and no row is also what a dropped table
+// looks like. Anything stamping a heartbeat that is not named here is drawn
+// too, under its own key — discovered rather than listed, because a
+// hand-written caller list in this repo has already been short by one.
 const JOBS = [
-  ["send-owner-reminders", "Reminders", 45 * 60_000],
-  ["accrue-plan-visits", "Plan visits", 36 * 3_600_000],
+  ["send-owner-reminders", "Reminders"],
+  ["accrue-plan-visits", "Plan visits"],
 ];
 
 // THE GROUND — four fixed layers under everything, and the reason it exists at
@@ -336,10 +347,18 @@ export default function AdminPage() {
   // A JOB THAT HAS NEVER REPORTED IS TREATED AS STALE, not as fine. The row
   // is absent before a job has run once — which is also what it looks like
   // after somebody drops the table.
-  const stale = (key, windowMs) => {
-    const beat = (state.heartbeats ?? []).find((h) => h.job === key);
-    return !beat || Date.now() - Date.parse(beat.ran_at) > windowMs;
+  const beatFor = (key) => (state.heartbeats ?? []).find((h) => h.job === key);
+  const stale = (key) => {
+    const beat = beatFor(key);
+    if (!beat) return true;
+    // The row's own window. The fallback matches the column default rather
+    // than inventing a third number.
+    return Date.now() - Date.parse(beat.ran_at) > (beat.stale_after_seconds ?? 86_400) * 1000;
   };
+  // Every job we name, plus every job that has reported and nobody named.
+  const jobKeys = JOBS.map(([k]) => k)
+    .concat((state.heartbeats ?? []).map((h) => h.job).filter((j) => !JOBS.some(([k]) => k === j)));
+  const jobLabel = (key) => JOBS.find(([k]) => k === key)?.[1] ?? key;
 
   const rows = useMemo(() => {
     // THE SAME FUNCTION THE DETAILER'S OWN SCREEN RUNS. The server sends the
@@ -642,11 +661,25 @@ export default function AdminPage() {
             else in the product, and this line is the only place it surfaces.
             It goes `pa-bad` rather than quiet when one has. */}
         <div className="pa-health pa-in" style={{ "--i": 1 }}>
-        <p className={JOBS.some(([k, , win]) => stale(k, win)) ? "pa-bad" : "pa-quiet"}>
-          {JOBS.map(([key, label, win]) => {
-            const beat = (state.heartbeats ?? []).find((h) => h.job === key);
-            return `${label} ${beat ? (stale(key, win) ? `LAST RAN ${since(beat.ran_at)}` : `ran ${since(beat.ran_at)}`) : "have never reported"}`;
+        <p className={jobKeys.some((k) => stale(k)) ? "pa-bad" : "pa-quiet"}>
+          {jobKeys.map((key) => {
+            const beat = beatFor(key);
+            return `${jobLabel(key)} ${beat ? (stale(key) ? `LAST RAN ${since(beat.ran_at)}` : `ran ${since(beat.ran_at)}`) : "have never reported"}`;
           }).join(" · ")}
+          {/* ROADMAP 8.12 — THE HALF THIS LINE CANNOT SEE ABOUT ITSELF. The
+              watcher that emails about a stopped job runs on the same
+              scheduler it watches, so pg_cron stopping, or the project being
+              paused, takes the alarm down with the jobs and leaves this line
+              showing whatever it last showed. Only something outside can
+              notice that, and until a URL is set nothing is.
+
+              It rides this line rather than turning it red, on the same
+              reasoning as *NOBODY is being emailed about signups* below: it is
+              a true statement about a feature that is switched off, and a
+              permanently red line is one somebody stops reading by the end of
+              the week. */}
+          {state.watch && !state.watch.outside
+            && " · NOTHING outside is watching the scheduler itself"}
         </p>
 
         {/* THE PHOTO STORE, on its own line beside the jobs one. A

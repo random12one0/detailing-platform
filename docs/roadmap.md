@@ -7384,13 +7384,74 @@ works**, which is one line at the end rather than a pause in the middle.
       nothing returns an empty list and no error, so the old figure could not
       fail even when nothing was deleted.
 
-- [ ] 8.12 **Ops: Sentry, backups, uptime, and a dead-man's switch.**
+- [~] 8.12 **Ops: Sentry, backups, uptime, and a dead-man's switch.**
+      **THE DEAD MAN'S SWITCH IS BUILT AND PROVEN, 2026-09-07. The other three
+      are accounts he opens**, and `docs/ops/monitoring.md` is the fifteen
+      minutes that switches them on. *(Full reasoning: DECISIONS.md →
+      "Roadmap 8.12".)*
       **OWNER supplies:** the Sentry DSN (already 7.2), two GitHub secrets for
       backups (already 2.22). Free tiers for the other two — UptimeRobot (50
       monitors) on the landing page and one booking page, healthchecks.io (20
       checks) on the cron jobs, which he agreed to sight-unseen: *"I don't know
       what that means, but if you think it would be good, then sure."*
       8.1's guide is what tells him which values to fetch.
+
+      **THE HEARTBEATS HAVE EXISTED SINCE 7.3 AND NOTHING EVER TOLD ANYBODY** —
+      a monitor you have to remember to visit, about the one class of failure
+      whose whole character is that nobody knows to look. `watch-jobs` runs
+      every fifteen minutes, asks the database what has CHANGED, and emails
+      `platform_settings.owner_email` through 8.6's `platformAlertEmail`.
+      **A MONITOR NOBODY IS TOLD ABOUT IS A LOG.**
+      **THE ALARM RINGS ONCE, AND THAT IS ENFORCED BY ONE SQL STATEMENT.**
+      `claim_job_alerts()` decides what is stale and marks it as reported in
+      the SAME statement — a data-modifying CTE — so two overlapping runs
+      cannot both send, and a job down for a week is not in the result. An
+      email every quarter of an hour for the length of an outage is an email
+      that goes to a folder, and then the next real one goes there too.
+      **AND IT CANNOT BE LOST, WHICH IS THE QUIETER FAILURE.** A claim written
+      and an email that then failed is an alarm that never rings again;
+      `release_job_alerts` puts the stoppages back when `sendTenantEmail`
+      returns false. **Only the stoppages** — a lost "it is running again" is
+      good news he can also read on the screen.
+      **THE WATCHER IS ITS OWN JOB AND NOT A TAIL ON THE SWEEP.** Folding it
+      into `send-owner-reminders` would have cost no function and no cron
+      entry, and made the reminder sweep the only thing able to report that the
+      reminder sweep had stopped — the job this product has actually watched
+      break. **It stamps NO heartbeat of its own**: a watcher watching itself
+      is a green light it wrote for itself.
+      **THE ONE THING IT CANNOT SEE ABOUT ITSELF IS WHY THE OUTSIDE PING
+      EXISTS.** It runs on the same `pg_cron` it watches, so pg_cron stopping —
+      or the free plan pausing the project after seven quiet days — takes the
+      alarm down with the jobs, and the silence is identical to health. No code
+      in that file can notice it. It pings `platform_settings.healthcheck_url`
+      on every healthy run instead, **and that column is NULL**, so the back
+      office prints *"NOTHING outside is watching the scheduler itself"* rather
+      than printing nothing — a monitor that is switched off must never look
+      like a monitor with nothing to report.
+      **AND THE WINDOWS MOVED OUT OF THE SCREEN INTO THE ROW.** `AdminPage.jsx`
+      carried `45 minutes` and `36 hours`, and the watcher needed the same two
+      numbers; two copies of a threshold is how a screen says a job is fine
+      while the alarm is going off. `job_heartbeats.stale_after_seconds` is the
+      one copy and both readers ask it. **Seconds rather than an `interval`**
+      because PostgREST renders an interval in whichever of several text shapes
+      Postgres picks, and the screen would have to parse a format nobody
+      controls. The health line is also DISCOVERED now — any job stamping a
+      heartbeat is drawn, named or not — while the named list survives for the
+      one case rows cannot cover: **no row is also what a dropped table looks
+      like.**
+      `tests/dead-mans-switch.test.mjs` — 43 checks, **eleven baselined by
+      breaking what they guard, two of them in the live database.**
+      **PROVEN AS BEHAVIOUR against the deployed function**, on a throwaway job
+      driven down and back up: reported once, emailed, silent on the second
+      call about the same outage, reported again on recovery, then silent. The
+      test swaps `owner_email` for Resend's simulator first and asserts in its
+      own `finally` that his real address went back — leaving the simulator
+      there would silence every real alert for ever and nothing on any screen
+      would look different.
+      **`send-email` now accepts platform mail with NO `business_id`** — the
+      dead man's switch is the first email in the product that is about our own
+      plumbing rather than about a tenant — **and still refuses a tenant email
+      without one**, loudly.
 
 - [x] 8.13 **Closed until I say it's open.** A detailer-facing pause that keeps
       the site up and says when they are back. Today `businesses.status =

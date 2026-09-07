@@ -259,6 +259,8 @@ were made more than once.
 
 - **Roadmap 8.13 — closed until I say it's open, and why it is not `status`** — *"a detailer-facing pause that keeps the site up and says when they are back."* **The whole decision is the column it is NOT.** `stripe-webhook` uses `businesses.status` for SUSPENSION, so letting a detailer set it themselves means one who closed for a fortnight presses Reopen and **switches their own booking page back on with their subscription unpaid**; one column with two meanings, and the one that loses is the one the platform relies on to be paid. `closed_until` and `closed_note` are their own pair and the two states stack with no rule: closed is open-but-not-taking-bookings, suspended is dark, both is dark. **A DATE, NOT A FLAG**, because a flag reads as *gone* and is the state a detailer forgets to switch off — a date tells the customer when to come back AND reopens the business by itself once it passes. The day named is the day they are BACK, compared as two business-local date strings in all three places that ask, so there is no offset arithmetic to drift. **The page explains ABOVE the still-setting-up screen**, because somebody away and half configured should get the more useful answer; and the sentence under the heading was written and then CUT on looking at it — the first half repeated the heading and the second described our own plumbing. **Proven as behaviour: 16 open days → 10 while closed → 16 again once the date passes.** **Baselining found two vacuous checks in a file written to avoid them**: a return-day check whose escape hatch for a non-trading day passed for a return day the closure itself had shut, and a clock stub that replaced `Date.now` while the code reads `new Date()`, so two timezones agreed and it read as the zone being ignored.
 
+- **Roadmap 8.12 — the dead man's switch, and the one thing it cannot see about itself** — `job_heartbeats` has recorded when each scheduled job last finished since 7.3 and **nothing ever told anybody**: a monitor you have to remember to visit, about the one class of failure whose whole character is that nobody knows to look. `watch-jobs` emails the owner instead. **The alarm rings ONCE and that is one SQL statement**, not a read and a follow-up write — `claim_job_alerts()` decides and marks in a data-modifying CTE, so two overlapping runs cannot both send and a job down for a week is not in the result; an alert every quarter of an hour is one that goes to a folder, and then the next real one goes there too. **And it cannot be LOST**, which is quieter and worse: `release_job_alerts` puts the stoppages back when the send fails, and only the stoppages. **The watcher is its own cron job rather than a tail on the reminder sweep**, because folding it in would have made that sweep the only thing able to report that that sweep had stopped — the job this product has actually watched break — and **it stamps no heartbeat of its own**, because a watcher watching itself is a green light it wrote for itself. **Its liveness is an outside ping, and that is the bootstrap problem no code in the file can solve**: it runs on the same `pg_cron` it watches, so pg_cron stopping takes the alarm with it and the silence is identical to health. `healthcheck_url` is NULL, so the back office prints *"NOTHING outside is watching the scheduler itself"* — a monitor that is switched off must never look like a monitor with nothing to report. **The staleness windows moved out of the screen into the row** (two copies of a threshold is how a screen says a job is fine while the alarm is ringing), in SECONDS rather than as an `interval`, because PostgREST renders an interval in whichever text shape Postgres picks. **Proven by driving a throwaway job down and back up against the deployed function**, with `owner_email` swapped for Resend's simulator and asserted back in the test's own `finally` — leaving it would have silenced every real alert for ever with nothing on any screen looking different.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15209,3 +15211,141 @@ date with `new Date()`**, so the two timezones returned the same answer and it
 read as the timezone being ignored — when it was the STUB that was. The whole
 constructor is replaced instead. *A test that stubs a clock has to stub the
 clock the code actually reads.*
+
+
+## Roadmap 8.12 — the dead man's switch, and the one thing it cannot see about itself
+
+**The heartbeats had existed since roadmap 7.3 item D and nothing had ever
+told anybody.** `job_heartbeats` records when each scheduled job last finished
+and the back office draws a line about it — which is a place somebody has to
+remember to visit, about a class of failure whose entire character is that
+nobody knows to look. It is the same shape as the *failed emails SCREEN*
+roadmap 2.20 considered and refused for exactly this reason. **A monitor
+nobody is told about is a log.**
+
+The two failures this product has actually had are both this shape: the email
+relay was dead for the whole of roadmap 0.2 with a `console.error` as the only
+witness, and the VAPID keys were never set, so `sendOwnerPush` took its
+"not configured — skipping" branch for the entire life of the feature.
+
+### THE ALARM RINGS ONCE, AND THAT IS ONE SQL STATEMENT RATHER THAN A HABIT
+
+The obvious build reads the stale jobs, sends the email, then writes "told
+him". Three statements, and the thing calling them is a cron guaranteed to
+fire again while the last call is still in flight — so two runs both read
+"stale, not yet reported" and the owner gets two emails, or twenty over a long
+outage.
+
+`claim_job_alerts()` is a single statement. A data-modifying CTE runs to
+completion whether or not the outer query reads it, so the row is marked in
+the same statement that selects it, and the whole condition is one line:
+
+    where s.is_stale <> (s.alerted_at is not null)
+
+which reads both directions at once — newly stopped, and started again after
+being reported. **A job that has been down for a week is not in the result**,
+because he has already been told. That is not politeness: an alert every
+fifteen minutes for the length of an outage is an alert that gets routed to a
+folder, and then the next real one goes there too.
+
+### AND IT MUST NOT BE LOST, WHICH IS THE QUIETER AND WORSE HALF
+
+Claiming atomically buys the no-double-send property and costs the opposite
+one: if the claim is written and the email then fails, the alarm never rings
+again for the rest of the outage. `sendTenantEmail` is best-effort by design
+and returns `false` on a provider failure, so `release_job_alerts` puts the
+stoppages back and the next run tries again.
+
+**Only the stoppages.** Re-arming a recovery needs the value that was there
+before, and losing a *"it is running again"* notice costs him good news he can
+also read on the screen. Losing a *"it has stopped"* costs him the feature.
+
+### THE WATCHER IS ITS OWN JOB AND NOT A TAIL ON THE SWEEP
+
+Folding the check into `send-owner-reminders` would have cost no function, no
+cron entry and no public endpoint. It would also have made the reminder sweep
+the only thing able to report that the reminder sweep had stopped — **and that
+sweep is the job this product has watched break.**
+
+**It stamps no heartbeat of its own either.** A watcher watching itself is a
+green light it wrote for itself.
+
+### THE BOOTSTRAP PROBLEM, WHICH IS THE PART NO CODE IN THAT FILE CAN SOLVE
+
+The watcher runs on the same `pg_cron` it watches. If pg_cron stops, or the
+project is paused — which the free plan does after seven days with no traffic
+— or the database is unreachable, **the watcher stops with the jobs it watches
+and the silence is byte-identical to everything being fine.** Every dead man's
+switch has this problem and none of them solves it from inside.
+
+So it pings `platform_settings.healthcheck_url` on every healthy run, and
+something outside notices when the pings stop. healthchecks.io's free plan is
+twenty of those and the URL is the whole configuration.
+
+**IT IS NULL, AND THE BACK OFFICE SAYS SO IN AS MANY WORDS.** *"NOTHING
+outside is watching the scheduler itself"* rides the health line, quietly,
+beside *"NOBODY is being emailed about signups"* — the same rule and the same
+treatment. Not red: a permanently red line is one somebody stops reading by
+the end of the week, and this one is true every day until he spends five
+minutes on it. `docs/ops/monitoring.md` is those five minutes.
+
+**The boolean is sent to the screen and never the URL.** Anybody holding that
+address can keep our monitoring green from the outside, which makes it a
+write-only secret in effect; the screen only needs to know whether it exists.
+
+### THE STALENESS WINDOWS MOVED OUT OF THE SCREEN AND INTO THE ROW
+
+`AdminPage.jsx` carried `45 * 60_000` and `36 * 3_600_000`, and the watcher
+needed the same two numbers. **Two copies of a threshold is how a screen says
+a job is fine while the alarm is going off.**
+`job_heartbeats.stale_after_seconds` is the one copy and both readers ask it;
+the values written are the ones the screen was already using, so nothing about
+today's behaviour moved.
+
+**Seconds rather than an `interval`, and that is about the reader.** PostgREST
+renders an interval as text in whichever of several shapes Postgres picks —
+`00:45:00` for one of these and `1 day` for the default — so the back office
+would have had to parse a format nobody controls in order to draw the line it
+already draws. A number is the same fact with nothing to get wrong.
+
+The health line is **discovered** now: anything stamping a heartbeat is drawn,
+under its own key if nobody has named it. The named list survives for the one
+case the rows cannot cover — **no row is also what a dropped table looks
+like**, and that is the one gap the watcher itself has, stated in a `ponytail:`
+comment rather than fixed with a third copy of the expected-job list.
+
+### `send-email` TAKES ITS FIRST EMAIL WITH NO TENANT BEHIND IT
+
+Billing mail is from us and *about* a detailer, so it still carries their
+business id. This is from us about **our own plumbing**, and there is no
+business it is a fact about — passing an arbitrary one would file the send
+against a tenant it has nothing to do with. `business_id` is optional only
+when `sender_name` is set, which is the flag that already means "not a
+detailer speaking", and **a tenant email that lost its business id is still a
+400**: without that it would send with no display name and no Reply-To and
+look approximately right, which is how a whole family of defect in this repo
+has survived.
+
+### WHAT THE CHECKS FOUND, AND ONE THING THE HARNESS WAS WRONG ABOUT
+
+`tests/dead-mans-switch.test.mjs` is 43 checks, eleven baselined by breaking
+what they guard — **two of them in the live database**, because the two
+properties that matter most live inside one SQL statement and no source read
+can establish them. Removing the marking made the same stoppage report twice;
+alerting on every stale run rewrote the alert time and broke the recovery.
+
+**A `%` in a PostgREST filter comes back as a Cloudflare 500 HTML page.**
+PostgREST spells the `like` wildcard `*` and translates it; a literal `%`
+arrives at `.json()` as `Unexpected token '<'`, which reads as the entire API
+being down. The filter is a plain `neq` now.
+
+**And the back office's console check reads whatever page the walk left it
+on.** At the impersonation width that is `/admin` signed in as a detailer,
+where `platform-admin` correctly answers **404 rather than 403** — roadmap
+4.4's rule, because a 403 tells a curious detailer the endpoint exists. So the
+shooter printed *"2 console errors"* about the product working exactly as
+designed. It prints the URL and that explanation beside the count now.
+**The first version of that label keyed on `.impbar`, which is drawn on the
+DASHBOARD and not on `/admin`** — so the label written to stop somebody
+chasing a non-defect did nothing, silently, which is the failure it was
+written against.

@@ -448,11 +448,22 @@ console.log("\n10. the jobs that nobody watches");
     && /heartbeats: beats \?\? \[\]/.test(f));
   // SHOWN WHETHER OR NOT ANYTHING IS WRONG. A monitor that only appears when
   // it is unhappy cannot be told apart from one that is no longer wired up.
-  check("10g · and the screen prints it either way", /JOBS\.map\(/.test(p)
+  // **RE-POINTED BY ROADMAP 8.12, WHICH REWROTE BOTH LINES.** The list is
+  // `jobKeys` now — the named jobs plus anything else that has reported — and
+  // the window comes from the row rather than from a constant in this file's
+  // subject. The property is unchanged and the spelling is not; a check that
+  // pins an old spelling goes red on a correct change, and one that is left
+  // pointing at deleted code goes VACUOUS, which is worse.
+  check("10g · and the screen prints it either way", /jobKeys\.map\(/.test(p)
     && /pa-bad" : "pa-quiet"/.test(p));
   // A job that has never reported is what a dropped table looks like too.
   check("10h · a job that has never reported counts as stale",
-    /return !beat \|\| Date\.now\(\) - Date\.parse\(beat\.ran_at\) > windowMs;/.test(p));
+    /if \(!beat\) return true;/.test(p));
+  // AND THE WINDOW IS THE ROW'S. Roadmap 8.12 moved it out of this screen
+  // because the emailer needed the same number, and two copies of a threshold
+  // is how a screen says a job is fine while the alarm is going off.
+  check("10h-ii · and the staleness window comes from the row, not this file",
+    /beat\.stale_after_seconds/.test(p) && !/45 \* 60_?000/.test(p));
   // `ago()` bottoms out at "today", which says nothing about a job that runs
   // every fifteen minutes — "Reminders LAST RAN today" is what the first
   // version printed.

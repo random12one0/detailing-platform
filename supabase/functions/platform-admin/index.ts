@@ -313,7 +313,7 @@ Deno.serve(async (req) => {
       // whose origin is invisible — and so *back to the built-in prices* has
       // something to show before it is pressed.
       const { data: ps } = await supabase.from("platform_settings")
-        .select("prices, updated_at, email_daily_cap, owner_email").limit(1).maybeSingle();
+        .select("prices, updated_at, email_daily_cap, owner_email, healthcheck_url").limit(1).maybeSingle();
 
       // ITEM D — WHETHER THE SCHEDULED JOBS ARE STILL RUNNING. A failure of
       // either is completely silent: no screen changes and nobody is told,
@@ -321,8 +321,14 @@ Deno.serve(async (req) => {
       // stopped. This product has been bitten twice by exactly that shape
       // (a dead email relay, VAPID keys never set) and both times the
       // evidence was a console line inside a function.
+      //
+      // ROADMAP 8.12 — `stale_after_seconds` and `alerted_at` ride along, and
+      // the first of the two is the point: the screen used to carry its own
+      // copy of every window, so a threshold changed in one place left the
+      // line saying a job was fine while the alarm was going off. The row is
+      // the ONE copy now and the screen asks it.
       const { data: beats } = await supabase.from("job_heartbeats")
-        .select("job, ran_at, detail").order("job");
+        .select("job, ran_at, detail, stale_after_seconds, alerted_at").order("job");
 
       // THE PHOTO STORE — added 2026-09-06 with the share rule. A detailer's
       // allowance is the whole store divided by a hundred, so **the total is
@@ -370,6 +376,14 @@ Deno.serve(async (req) => {
           cap: ps?.email_daily_cap ?? 100,
           owner_email: ps?.owner_email ?? null,
         },
+        // ROADMAP 8.12 — WHETHER ANYTHING IS WATCHING FROM OUTSIDE. The
+        // watcher runs on the same `pg_cron` it watches, so pg_cron stopping
+        // takes the alarm with it and the silence is identical to health. The
+        // URL is the whole configuration, and **the boolean is sent rather
+        // than the address**: this is a write-only secret in effect — anybody
+        // holding it can keep our monitoring green from the outside — and the
+        // screen only needs to know whether it is there.
+        watch: { outside: Boolean(ps?.healthcheck_url) },
         rows,
         // EVERY TILE COUNTS REAL DETAILERS ONLY — testing loop F-014. The
         // rows still carry the demos and the fixtures, because he does open
