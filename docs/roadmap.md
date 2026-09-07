@@ -7097,7 +7097,7 @@ works**, which is one line at the end rather than a pause in the middle.
       spot in the back office.
       `platform-billing` § 21, nine breaks all caught.
 
-- [ ] 8.6 **The email safety net.** Two things, one subsystem.
+- [x] 8.6 **The email safety net.** **DONE 2026-09-07.** Two things, one subsystem.
       **R1, and it is his most specific new requirement:** *"a tracker inside
       my dashboard that shows me how many emails get sent a day, and gives me
       warnings when we're getting close to that hundred a day limit — and then
@@ -7122,7 +7122,35 @@ works**, which is one line at the end rather than a pause in the middle.
       sets. Both are dashboard settings, so both are his to approve:
       `docs/overnight-log.md` question 19, recommendation attached.
 
-- [ ] 8.7 **Small corrections.** Five unrelated things, none of which justifies
+      **BUILT 2026-09-07.** `platform_email_days` is ONE ROW A DAY — the
+      question is *how many today*, and the cap is platform-wide, so a
+      per-tenant breakdown answers a question the limit does not ask. The
+      increment is a single atomic upsert (a read-then-write drops one of any
+      concurrent pair, and the whole value of this number is being trusted
+      near a limit) and the day is **UTC, because that is the clock the
+      provider's cap runs on**. It is counted at the ONE choke point,
+      `send-email`, and it is best-effort: a booking must never fail because a
+      counter did. **The refusal is counted too and it is the half that
+      predicts the problem** — the 429 F-025 mis-read is a FAILED send.
+      **It warns at four fifths rather than at the limit**, and the way to
+      silence it is to RAISE THE CAP — his own sentence read literally. A
+      dismiss flag would silence a true statement.
+      **R2 sends to `platform_settings.owner_email`, never
+      `platform_admins.email`** — access and alerts are different questions,
+      and the admin login is deliberately a throwaway (8.2). `platformAlertEmail`
+      is ONE template the caller words, because a signup, a first payment and
+      8.12's dead-man's switch are the same shape; it is the 26th email in
+      `render-emails.mjs`. With no owner address the health line says **NOBODY
+      is being emailed about signups**.
+      **PROVEN LIVE:** a real signup through the deployed function sent the
+      alert and moved the count 0 → 1 in the same breath.
+      `platform-admin` § 14, eleven breaks all caught.
+      **The two auth settings above are still HIS** — `password_min_length` is
+      raised to 10, but the SMTP switch needs a Resend key, and the Management
+      API returns function secrets as HASHES so it cannot be read from here.
+      Parked in `docs/overnight-log.md` with the five fields.
+
+- [x] 8.7 **Small corrections.** **DONE 2026-09-07.** Five unrelated things, none of which justifies
       a session alone, each with its own check.
       F-009 the pricing page painting list prices for a second before the
       founding ones land — *"you said it's fixable, so just fix it."*
@@ -7135,6 +7163,44 @@ works**, which is one line at the end rather than a pause in the middle.
       correctly."*
       Idea 11's real gap: water and power on the **day-sheet row and in the
       owner's booking email**, not only on the job record.
+
+      **ALL FIVE, 2026-09-07.**
+      **F-009 — fixed.** `offer` is null until the founding lookup returns and
+      null is falsy, so every figure rendered at the LIST price and swapped
+      itself when the answer landed. **The fix WITHHOLDS the figure rather
+      than guessing it** — rendering the founding price optimistically would
+      advertise a spot that may be gone, which is what this page fails CLOSED
+      to avoid. The numbers hold a non-breaking space (written as an escape,
+      never as an invisible character) and the page carries `data-loading`
+      until priced, which both browser scripts already wait for.
+      **F-010 — MEASURED AND IT DOES NOT REPRODUCE.** Against the DEPLOYED
+      functions, as this entry says to: profile **100ms**, availability
+      **730ms**, quote **540ms** — the whole customer path about **2.1s**, with
+      nothing over 0.8. The five seconds was a dev-server figure. Recorded
+      rather than "fixed", so nobody measures it again.
+      **F-018 — both clocks, and they were three.** The platform month began at
+      midnight **UTC**, which is 5pm the previous day in Los Angeles, so a
+      detailer's jobs on the 1st fell into last month's takings; it is now
+      per-business, reusing `_shared/tz.ts` rather than a second copy of the
+      arithmetic. And the per-business chart ran on the **admin's browser**, so
+      the same detailer's months moved with whoever opened it. **Proven as
+      behaviour, not source: the same booking lands in August for a Los Angeles
+      detailer and September in UTC.**
+      **Idea 45 — the print stylesheet**, and the bug found by actually
+      printing it: the first version hid every `<button>`, and `JobRow` IS a
+      button, so the whole day's work vanished and "still to do" printed as an
+      empty heading. **A control is a CLASS here, never an element.** The
+      landing surface's chrome is handled in `landing.css`, because a bare
+      `.nav` in the global sheet is the collision `composition` 4b caught
+      within a minute.
+      **Idea 11 — water and power** now on the day-sheet row and in the owner's
+      booking email. It **leads** the row's sub-line, because that line is
+      `nowrap` with an ellipsis — the rule that silently deleted the
+      twelve-month commitment off a phone in 2.20 — so appended it would be the
+      first thing truncation ate. `undefined` stays a third state meaning
+      nobody was asked.
+      `composition` test 11 and `landing-pricing` § 9, twelve breaks all
+      caught.
 
       **A SIXTH ARRIVED AND WAS DONE EARLY, 2026-09-07 — it is here for the
       record rather than as work.** 8.2's verification found the width sweep
@@ -7163,7 +7229,7 @@ works**, which is one line at the end rather than a pause in the middle.
       is ever worth silencing, silence it in the SHOOTERS, not by removing the
       probe.
 
-- [ ] 8.8 **RESEARCH: the advanced money view.** **OWNER approval gate — no
+- [x] 8.8 **RESEARCH: the advanced money view.** **DONE 2026-09-07 — `docs/money-view-research-2026-09-07.md`. FOUR QUESTIONS STAND FOR HIM; 8.9 is blocked on two of them.** **OWNER approval gate — no
       code.** He asked for this twice, emphatically: an advanced money
       breakdown on the DETAILER's dashboard behind a button, showing
       *"all the stuff I am able to see"* on andrewsdetail.com, **"but not in
@@ -7184,6 +7250,25 @@ works**, which is one line at the end rather than a pause in the middle.
       month/trend, new vs returning, top spender, most popular days.
       The other half of the research is what an ACCOUNTANT would want, which
       he asked for by name.
+
+      **WHAT THE RESEARCH FOUND, and the single most useful line is the first:
+      NOTHING ON THE MISSING LIST NEEDS A MIGRATION.** Tips are already
+      `booking_line_items.category = 'tip'`, expenses already have a
+      `category` column, and `duration_minutes` is already on every booking —
+      so 8.9 is arithmetic over rows the product keeps, in the shape of
+      `lib/adminInsight.js`.
+      **THE ONE REAL PREREQUISITE IS THE CUSTOMER-ENTERED TIP**, and the figure
+      that misleads without it is **Tip rate**: `tippedJobs / jobs` reads as
+      *how many customers tip* when it currently means *how often the detailer
+      wrote one down*.
+      **AND THE PLATFORM ALREADY ANSWERS TWO OF HIS SIX** — *Quoted up front*
+      and *Added on site* are his base-vs-extra pair, and Money already leads
+      on Net rather than revenue, which is the better of the two choices.
+      **The accountant half comes down to five gaps**, of which the research
+      recommends doing exactly ONE in 8.9 (a suggested expense-category list);
+      mileage is already 8.19, and sales tax and 1099s are advice this product
+      should not be giving.
+      **The four questions are § 6 of that file.** A and B block 8.9.
 
 - [ ] 8.9 **BUILD the advanced money view.** A `lib/` module in the shape of
       `lib/adminInsight.js` — pure, testable, no React — plus a screen behind

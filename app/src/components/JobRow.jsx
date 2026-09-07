@@ -19,13 +19,33 @@ import { money, time12 } from "../lib/format.js";
 export default function JobRow({ booking, node = "", onClick }) {
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
   const where = booking.service_type === "mobile" ? "Mobile" : "Drop-off";
+  // IDEA 11 — WHAT TO LOAD IN THE VAN, on the row rather than only inside the
+  // record. The owner: *"Before I had it so they needed to click it, so
+  // there's no point showing me if they have water… but yeah, we should add
+  // that — even if someone sets it to the setting that makes it so water and
+  // power has to be on, you can still show it."*
+  //
+  // **IT PASSES HIS OWN COPY RULE.** *Mobile* already says the job is at their
+  // address; this says what is NOT there when you arrive, which is a fact the
+  // row does not otherwise carry and the one that costs a second trip.
+  //
+  // **IT LEADS THE SUB-LINE INSTEAD OF TRAILING IT**, because `.row-item .sub`
+  // is `nowrap` with an ellipsis — the rule that silently deleted the twelve-
+  // month commitment off a phone in roadmap 2.20. Appended, this is the first
+  // thing truncation eats; leading, it is the last.
+  const bring = booking.service_type === "mobile"
+    ? [booking.has_water === false ? "water" : null, booking.has_power === false ? "power" : null].filter(Boolean)
+    : [];
   return (
     <button className={`row-item${node ? ` ${node}` : ""}`} onClick={onClick}>
       <span className="txt">
         <span className="nm">
           <span className="t">{time12(booking.start_time)}</span>{booking.customer_name}
         </span>
-        <span className="sub">{[...services, where].join(" · ")}</span>
+        <span className="sub">
+          {[bring.length ? `Bring ${bring.join(" and ")}` : null, ...services, where]
+            .filter(Boolean).join(" · ")}
+        </span>
       </span>
       <span className="figure sm">{money(booking.final_amount ?? booking.total_price)}</span>
     </button>

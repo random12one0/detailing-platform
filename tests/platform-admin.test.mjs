@@ -23,6 +23,7 @@
 //   node tests/platform-admin.test.mjs
 
 import { readFileSync, readdirSync } from "node:fs";
+import { monthlySeries } from "../app/src/lib/adminInsight.js";
 
 let passed = 0, failed = 0;
 const check = (name, cond, detail = "") => {
@@ -507,9 +508,46 @@ console.log("\n11. demos are marked and never counted");
   // ─── the month has an end (F-018) ───────────────────────────────────────
   // `start_at >= monthStart` with nothing above it counted a completed job
   // dated NEXT month as this month's takings.
+  // **THE RULE, NOT THE VARIABLE.** This pinned `const monthTo =
+  // monthEnd.getTime();` and went red when roadmap 8.7 replaced that line
+  // with a per-business `monthWindow` that returns BOTH bounds — a check
+  // failing on a change that keeps the very thing it guards. What matters is
+  // that the filter is bounded at both ends.
   check("11h · this month has an upper bound as well as a lower one",
-    /const monthTo = monthEnd\.getTime\(\);/.test(f)
+    /const \[monthAgo, monthTo\] = monthWindow\(b\.timezone\);/.test(f)
       && /t >= monthAgo && t < monthTo/.test(f));
+  // AND THE MONTH IS THE DETAILER'S — F-018's other half, roadmap 8.7. An
+  // edge function's `new Date()` is UTC, so "this month" began at 5pm on the
+  // last day of the previous month in Los Angeles, and every job done on the
+  // 1st before their morning fell into last month's takings.
+  check("11h-ii · and it is computed in the business's own timezone",
+    /const monthWindow = \(tz: string\)/.test(f)
+      && /localToDate\(tz \|\| "UTC"/.test(f),
+    "fourteen detailers in four zones do not share a first-of-the-month");
+  check("11h-iii · reusing _shared/tz.ts rather than a second copy of the maths",
+    /import \{ dateStrIn, localToDate \} from "\.\.\/_shared\/tz\.ts";/.test(f));
+  // THE THIRD CLOCK, which nobody had noticed: the per-business chart ran on
+  // the ADMIN'S BROWSER, so the same detailer's months moved depending on
+  // where the person reading happened to be sitting.
+  const insight = strip(read("app/src/lib/adminInsight.js"));
+  check("11h-iv · the chart's months are the detailer's, not the reader's",
+    /const monthKey = \(iso, tz\)/.test(insight)
+      && /timeZone: tz \|\| undefined/.test(insight)
+      && /monthlySeries\(detail\.bookings, 6, new Date\(\), b\?\.timezone\)/.test(page));
+  // **AND IT IS ASSERTED AS BEHAVIOUR, not only as source.** Every check above
+  // reads the file; this one runs the function on the one instant where the
+  // two clocks must disagree — 20:00 on 31 August in Los Angeles is 03:00 on
+  // 1 September in UTC. If they ever agree here, the timezone is being
+  // ignored no matter what the source says.
+  {
+    const iso = "2026-09-01T03:00:00.000Z";
+    const rows = [{ status: "completed", start_at: iso, created_at: iso, final_amount: 100, total_price: 100, deleted_at: null }];
+    const at = new Date("2026-09-15T12:00:00Z");
+    const monthOf = (tz) => monthlySeries(rows, 6, at, tz).filter((m) => m.jobs > 0).map((m) => m.key).join(",");
+    check("11h-v · the same booking really does land in different months",
+      monthOf("America/Los_Angeles") === "2026-08" && monthOf("UTC") === "2026-09",
+      `LA ${monthOf("America/Los_Angeles")} vs UTC ${monthOf("UTC")}`);
+  }
 
   // ─── the tile says what it counts (F-016) ───────────────────────────────
   // "0 jobs this month" sat beside a row reading "30 bookings, last today".
@@ -862,6 +900,115 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
     /\.pa-who \{[\s\S]*?letter-spacing: 0;[\s\S]*?text-transform: none;/.test(css));
   check("13o-ii · and it can break rather than push the bar sideways",
     /\.pa-who \{[\s\S]*?overflow-wrap: anywhere;/.test(css));
+}
+
+// ─── 14. THE EMAIL SAFETY NET ─────────────────────────────────────────────
+// ROADMAP 8.6. Two asks, one subsystem.
+//
+// **R1:** *"a tracker inside my dashboard that shows me how many emails get
+// sent a day, and gives me warnings when we're getting close to that hundred
+// a day limit — and then I'll update and say okay, upgrade it, and then don't
+// give me this warning again."* **Nothing counted sends.**
+//
+// **R2, and he believed it already worked:** *"I'll get an email if someone
+// signs up and whatnot. I hope you set that all up."* **Nothing in this
+// product emailed him about anything.**
+//
+// **THE CAP HAS ALREADY BITTEN ONCE AND THAT IS WHY THIS IS NOT DECORATION.**
+// Resend's free plan is 100 emails a day ACROSS EVERY TENANT and the
+// transactional set spends about five a booking, so the platform's
+// twenty-first booking of the day is refused — testing-loop F-025, where the
+// 429 was read as *this address is wrong* and real customers were stamped
+// `email_failed_at` permanently, which `send-campaign` then enforces.
+console.log("\n14. the email safety net (roadmap 8.6)");
+{
+  const mig = read("supabase/migrations/20260907000300_email_safety_net.sql");
+  const send = strip(read("supabase/functions/send-email/index.ts"));
+  const admin = strip(read("supabase/functions/platform-admin/index.ts"));
+  const page = strip(read("app/src/admin/AdminPage.jsx"));
+  const cb = strip(read("supabase/functions/create-business/index.ts"));
+  const tpl = strip(read("supabase/functions/_shared/emailTemplates.ts"));
+
+  // ── THE COUNT IS ONE STATEMENT ────────────────────────────────────────
+  // A read-then-write from the edge function drops one of any two concurrent
+  // sends, and the entire value of this number is being trusted near a limit.
+  check("14a · the day's count is a single atomic upsert",
+    /insert into public\.platform_email_days[\s\S]{0,400}on conflict \(day\) do update/.test(mig)
+      && /sent\s+= platform_email_days\.sent\s+\+ excluded\.sent/.test(mig));
+  // UTC, because that is the clock the provider's cap runs on. Counting in
+  // the owner's timezone prints a number that disagrees with Resend's at the
+  // exact hours the warning matters.
+  check("14a-ii · and the day is UTC, like the provider's cap",
+    /\(now\(\) at time zone 'utc'\)::date/.test(mig)
+      && /new Date\(\)\.toISOString\(\)\.slice\(0, 10\)/.test(admin));
+  // Nothing with a user's token has any business reading how much mail the
+  // platform sends. Same posture as `platform_admins`: forced, no policies.
+  check("14a-iii · the table is forced RLS with no policies at all",
+    /alter table public\.platform_email_days force row level security/.test(mig)
+      && !/create policy[^;]*platform_email_days/i.test(mig));
+  check("14a-iv · and the counter is service-role only",
+    /revoke all on function public\.note_email_send\(boolean\) from public, anon, authenticated;/.test(mig));
+
+  // ── IT IS COUNTED AT THE ONE CHOKE POINT ──────────────────────────────
+  // `send-email` is the single door every email in the product goes through.
+  // Counting anywhere else is counting some of them.
+  check("14b · both outcomes are counted, at the send",
+    /await note\(true\)/.test(send) && /await note\(false\)/.test(send));
+  // **THE REFUSAL IS THE HALF THAT PREDICTS THE PROBLEM.** The 429 F-025
+  // mis-read is a FAILED send, and a day whose failures are climbing is a day
+  // already past the cap.
+  const okAt = send.indexOf("await note(true)");
+  const failAt = send.indexOf("await note(false)");
+  check("14b-ii · the refusal is counted before the error is returned",
+    failAt > 0 && failAt < send.indexOf("Failed to send email", failAt));
+  check("14b-iii · and the success after the address is cleared",
+    okAt > 0 && okAt > send.indexOf("markAddress(business_id, to, null)"));
+  // A COUNTER MUST NEVER FAIL A SEND. The whole product's rule about email is
+  // that a booking never fails because an email did; a counter is one step
+  // further from the booking than that.
+  check("14b-iv · counting can never fail a send",
+    /const note = async \(ok: boolean\) => \{[\s\S]{0,200}try \{[\s\S]{0,160}catch/.test(send));
+
+  // ── THE OWNER SEES IT, AND IT WARNS BEFORE THE LIMIT ──────────────────
+  check("14c · the back office is handed today's count and the cap",
+    /email: \{[\s\S]{0,200}cap: ps\?\.email_daily_cap \?\? 100/.test(admin));
+  check("14c-ii · and the screen prints it beside the other silent limits",
+    /Emails: \$\{state\.email\.sent\} of \$\{state\.email\.cap\} today/.test(page));
+  // **AT FOUR FIFTHS, NOT AT THE LIMIT.** A warning that arrives AT the cap is
+  // a warning about emails that have already failed.
+  check("14c-iii · it goes red before the cap, not at it",
+    /state\.email\.sent >= state\.email\.cap \* 0\.8 \? "pa-bad"/.test(page));
+  // **AND THE WAY TO SILENCE IT IS TO RAISE THE CAP** — his own sentence read
+  // literally. A dismiss flag silences a true statement and leaves the next
+  // busy Saturday exactly where F-025 found it.
+  check("14c-iv · the cap is a stored number, so raising it is the answer",
+    /email_daily_cap integer not null default 100/.test(mig)
+      && !/dismiss/i.test(page.slice(page.indexOf("state.email"), page.indexOf("state.email") + 900)));
+
+  // ── R2: SOMEBODY SIGNED UP ────────────────────────────────────────────
+  check("14d · a signup emails the owner",
+    /platformAlertEmail\(/.test(cb) && /kind: "New detailer"/.test(cb));
+  // **NOT `platform_admins.email`.** Who may open the back office and who
+  // wants to hear about a signup are different questions, and the admin login
+  // is deliberately a throwaway today.
+  check("14d-ii · to platform_settings.owner_email, not to an admin row",
+    /select\("owner_email"\)/.test(cb) && !/platform_admins/.test(cb));
+  // BEST-EFFORT AND LAST. A signup must never fail because a notification did.
+  check("14d-iii · and it can never fail the signup",
+    /try \{[\s\S]{0,1400}could not send the signup alert[\s\S]{0,40}\}/.test(cb));
+  // A GUARD THAT SKIPS MUST PRINT. A feature that is switched off looks
+  // exactly like a feature that is quiet.
+  check("14d-iv · and the screen says when nobody is being told",
+    /NOBODY is being emailed about signups/.test(page));
+
+  // ── ONE TEMPLATE, NOT ONE PER EVENT ───────────────────────────────────
+  // A signup, a first payment and 8.12's dead-man's switch are the same
+  // shape. Twelve near-identical templates is how the set drifts.
+  check("14e · the alert is one template the caller words",
+    /export function platformAlertEmail\(brand: TenantBrand, a: PlatformAlertData\)/.test(tpl));
+  check("14e-ii · and it is rendered with the other twenty-five",
+    /platform-new-detailer/.test(read("scripts/render-emails.mjs")),
+    "this script is the only thing in the repo that has ever LOOKED at an email");
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

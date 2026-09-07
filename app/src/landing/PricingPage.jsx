@@ -72,6 +72,31 @@ export default function PricingPage() {
     return () => { live = false; };
   }, []);
   const founding = offer && offer.left > 0;
+  // **F-009 — THE PAGE USED TO PAINT LIST PRICES FOR A SECOND, then swap them
+  // for the founding ones when the lookup answered. His words: *"you said
+  // it's fixable, so just fix it."***
+  //
+  // `offer` is null until the round trip returns, and null is falsy, so
+  // `founding` was false and every figure rendered at the HIGHER number
+  // before correcting itself. **A price that changes while somebody is
+  // reading it is the one thing a pricing page must never do**, even when it
+  // changes in their favour — it is the same family as the struck price
+  // rule, where a number must always be one the product really charges.
+  //
+  // **THE FIX IS TO WITHHOLD THE FIGURE, NOT TO GUESS IT.** Rendering the
+  // founding price optimistically would advertise a spot that may already be
+  // gone, which is the promise this page fails CLOSED to avoid. So the
+  // numbers hold a non-breaking space until the answer is in: the layout is
+  // identical, nothing moves, and no wrong number is ever shown.
+  const priced = offer !== null;
+  // A blank that keeps the line's height, so the ladder does not jump when
+  // the figures land.
+  //
+  // WRITTEN AS THE ESCAPE, NEVER AS A LITERAL non-breaking space. This repo
+  // has twice lost hours to an invisible byte in source - a raw backspace
+  // inside a regex, and CRLF in a byte-exact check - and a character no
+  // editor shows is that same trap a third time.
+  const fig = (v) => (priced ? v : "\u00A0");
   // ROADMAP 4.4 STAGE 4 — the prices come from the database when the owner has
   // overridden them, and from `pricing.js` otherwise, which is the ordinary
   // case and the fallback for anything malformed. **Every figure on this page
@@ -126,7 +151,12 @@ export default function PricingPage() {
     `/app?plan=website&term=${term}${founding ? "&offer=founding" : ""}`;
 
   return (
-    <div className="ld pricepage">
+    // `data-loading` WHILE THE PRICES ARE UNKNOWN — the convention CLAUDE.md
+    // records for exactly this: a screen waiting on an edge function is
+    // perfectly QUIET, so `settle()` returns on it and a shooter photographs
+    // the moment before the answer. Both browser scripts already watch for
+    // this attribute, so the fix costs one prop and no pixels.
+    <div className="ld pricepage" {...(priced ? {} : { "data-loading": "1" })}>
       <Ground />
 
       {/* The landing page's nav, minus its "Get started" pill: on the page
@@ -209,7 +239,7 @@ export default function PricingPage() {
               <span className="lab">To build it</span>
               <div className="amount">
                 {founding && <s className="was">${listP.setup}</s>}
-                <span key={p.setup} data-count={p.setup} data-prefix="$">${p.setup}</span>
+                <span key={p.setup} data-count={p.setup} data-prefix="$">{fig(`$${p.setup}`)}</span>
               </div>
               <p className="fine">
                 Once, at the start. It is not part of the monthly price and it
@@ -253,7 +283,7 @@ export default function PricingPage() {
                     element as the build fee above and the landing page's own
                     pair; `landing-pricing` 6b pins it on all four. */}
                 {founding && <s className="was">${listP.annual}</s>}
-                <span className="mono fig">${p.annual}</span>
+                <span className="mono fig">{fig(`$${p.annual}`)}</span>
                 <small>a year</small>
               </div>
               <a className="cta gh" href={buy("annual-upfront")} data-glow="">
@@ -278,7 +308,7 @@ export default function PricingPage() {
                     element as the build fee above and the landing page's own
                     pair; `landing-pricing` 6b pins it on all four. */}
                 {founding && <s className="was">${listP.monthly}</s>}
-                <span className="mono fig">${p.monthly}</span>
+                <span className="mono fig">{fig(`$${p.monthly}`)}</span>
                 <small>a month</small>
               </div>
               <a className="cta gh" href={buy("annual-monthly")} data-glow="">
@@ -302,7 +332,7 @@ export default function PricingPage() {
                     element as the build fee above and the landing page's own
                     pair; `landing-pricing` 6b pins it on all four. */}
                 {founding && <s className="was">${listP.monthToMonth}</s>}
-                <span className="mono fig">${p.monthToMonth}</span>
+                <span className="mono fig">{fig(`$${p.monthToMonth}`)}</span>
                 <small>a month</small>
               </div>
               <a className="cta gh" href={buy("monthly")} data-glow="">

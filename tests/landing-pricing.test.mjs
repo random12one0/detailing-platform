@@ -610,5 +610,50 @@ console.log("\ntest 11: a phone can reach the nav");
       && /max-width: 470px[\s\S]{0,900}\.burger \{[\s\S]{0,40}display: flex/.test(css));
 }
 
+// ─── 9. NO PRICE IS EVER SHOWN BEFORE IT IS KNOWN ─────────────────────────
+// ROADMAP 8.7 / F-009. *"you said it's fixable, so just fix it."*
+//
+// `offer` is null until the founding lookup returns, and null is falsy — so
+// `founding` was false, every figure rendered at the LIST number, and the
+// page then swapped them for the founding ones when the answer arrived.
+// **A price that changes while somebody is reading it is the one thing a
+// pricing page must never do**, even when it changes in their favour.
+//
+// **THE FIX WITHHOLDS THE FIGURE RATHER THAN GUESSING IT.** Rendering the
+// founding price optimistically would advertise a spot that may already be
+// gone, which is the thing this page fails CLOSED to avoid.
+console.log("\n9. no price is shown before it is known (roadmap 8.7, F-009)");
+{
+  check("9a · the page knows whether it has an answer yet",
+    /const priced = offer !== null;/.test(pjsx));
+  check("9a-ii · and a figure holds its space until it does",
+    /const fig = \(v\) => \(priced \? v : "\\u00A0"\);/.test(pjsx),
+    "an empty string would let the ladder jump when the numbers land");
+  // WRITTEN AS AN ESCAPE. This repo has twice lost hours to an invisible byte
+  // in source — a raw backspace inside a regex, CRLF in a byte-exact check —
+  // and a literal non-breaking space is that trap a third time.
+  check("9a-iii · written as an escape, not as an invisible character",
+    !/\u00A0/.test(pjsx), "a literal nbsp is a character no editor shows");
+
+  // EVERY FIGURE, NOT MOST OF THEM. One left behind is one number that still
+  // flashes, and it would be the one nobody is looking at.
+  const figures = [...pjsx.matchAll(/<span className="mono fig">([^<]*)</g)].map((m) => m[1]);
+  check("9b · the check has subjects — the ladder does print figures",
+    figures.length >= 3, `found ${figures.length}`);
+  check("9b-ii · and every one of them goes through fig()",
+    figures.every((f) => f.includes("fig(")), figures.join(" | "));
+  // The build fee is the fourth, and it is the one that already struck its
+  // list price — so it was the most visible flash on the page.
+  check("9b-iii · including the build fee",
+    /data-count=\{p\.setup\}[^>]*>\{fig\(/.test(pjsx));
+
+  // AND THE SCREEN SAYS IT IS WAITING, which is the convention CLAUDE.md
+  // records for exactly this: a screen waiting on an edge function is
+  // perfectly QUIET, so `settle()` returns on it and a shooter photographs
+  // the moment before the answer.
+  check("9c · it declares itself loading until the answer is in",
+    /priced \? \{\} : \{ "data-loading": "1" \}/.test(pjsx));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

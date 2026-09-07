@@ -104,6 +104,13 @@ export interface BookingEmailData {
   serviceType: string;   // mobile | dropoff
   vehicleSize: string;
   vehicleModel: string | null;
+  // IDEA 11 — what the customer said they can supply at their own address.
+  // OPTIONAL, and `undefined` is a third state that means NOBODY WAS ASKED:
+  // the detailer may have the question switched off. Only an explicit `false`
+  // is a fact worth printing, so an older caller that does not pass these
+  // draws nothing rather than claiming the customer has water.
+  hasWater?: boolean | null;
+  hasPower?: boolean | null;
   customerNotes: string | null;
   serviceNames: string[];
   addOnNames: string[];
@@ -398,7 +405,17 @@ export function ownerNewBookingEmail(
       ["Phone", `<a href="tel:${esc(b.customerPhone)}" class="c-accent" style="color:${brand.accent}; text-decoration:none;">${esc(b.customerPhone)}</a>`],
       ...(b.customerEmail ? [["Email", esc(b.customerEmail)] as [string, string]] : []),
       ["Where", esc(jobAddress(brand, b))],
+      // **IDEA 11 — WHAT TO LOAD IN THE VAN, in the email that wakes a
+      // detailer up.** The job record has printed this since W22; the OWNER'S
+      // OWN ALERT never did, which is the real gap — the record is read when
+      // you are already going, and the email is read when you are deciding
+      // what to put in the van. Only for a mobile job, and only when the
+      // answer is an explicit no.
       ["Type", b.serviceType === "mobile" ? "Mobile" : "Drop-off"],
+      ...(b.serviceType === "mobile" && (b.hasWater === false || b.hasPower === false)
+        ? [["Bring", [b.hasWater === false ? "water" : null, b.hasPower === false ? "power" : null]
+            .filter(Boolean).join(" and ")] as [string, string]]
+        : []),
       ["Vehicle", `${esc(sizeDisplay(b.vehicleSize))}${b.vehicleModel ? ` &middot; ${esc(b.vehicleModel)}` : ""}`],
     ]),
     ruleBlock(34),
@@ -929,6 +946,52 @@ export interface BillingEmailData {
   amount: number;
   /** The provider's own reason, when Stripe gave one. */
   reason?: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// THE PLATFORM TELLING ITS OWNER SOMETHING — roadmap 8.6.
+//
+// **R2, and he believed it already worked:** *"I'll get an email if someone
+// signs up and whatnot. I hope you set that all up."* **Nothing in this
+// product emailed him about anything** — not a signup, not a first payment,
+// not a churn. Every one of the twenty-five templates before this is a
+// DETAILER speaking to a customer, or us speaking to a detailer about their
+// card. This is the first that is the platform speaking to the person who
+// owns it.
+//
+// **ONE TEMPLATE, NOT ONE PER EVENT.** A signup, a first payment and — when
+// 8.12 lands — a job that has stopped reporting are the same shape: a
+// headline, a sentence, a short list of facts, and somewhere to go. Twelve
+// near-identical templates is how the set drifts; the events differ in their
+// WORDS, which is what the caller passes.
+//
+// It rides `platformBrand`, so it looks like the two billing emails and is
+// sent with `sender_name` — the flag that stops the send being recorded
+// against a customer and drops the tenant Reply-To.
+// ---------------------------------------------------------------------------
+
+export interface PlatformAlertData {
+  /** The small label above the headline — what KIND of thing happened. */
+  kind: string;
+  headline: string;
+  /** One or two sentences. Already escaped by the caller if it interpolates. */
+  intro: string;
+  /** Name/value rows. Empty is fine — a bare headline is a valid alert. */
+  facts?: [string, string][];
+  buttonLabel?: string;
+  buttonUrl?: string;
+}
+
+export function platformAlertEmail(brand: TenantBrand, a: PlatformAlertData): Mail {
+  const blocks = [
+    labBlock(a.kind),
+    headlineBlock(a.headline),
+    proseBlock(a.intro),
+    ...(a.facts && a.facts.length ? [factsBlock(a.facts)] : []),
+    ...(a.buttonLabel && a.buttonUrl ? [buttonBlock(brand, a.buttonLabel, a.buttonUrl)] : []),
+  ].filter(Boolean);
+  const html = shell(brand, blocks, a.headline);
+  return { subject: a.headline, html, text: htmlToText(html) };
 }
 
 export function billingEmail(brand: TenantBrand, b: BillingEmailData): Mail {

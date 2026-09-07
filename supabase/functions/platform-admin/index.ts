@@ -31,6 +31,7 @@ import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { PLATFORM_URL } from "../_shared/config.ts";
 import { createBusinessRow } from "../_shared/newBusiness.ts";
+import { dateStrIn, localToDate } from "../_shared/tz.ts";
 import { PRICES, pricesFrom, type PriceTable } from "../_shared/platformBilling.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
 import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
@@ -194,19 +195,32 @@ Deno.serve(async (req) => {
       // office is read beside an invoice and a bank statement, and both of
       // those are calendar months; a rolling window would quietly disagree
       // with every other number he compares it against.
-      const monthStart = new Date();
-      monthStart.setDate(1);
-      monthStart.setHours(0, 0, 0, 0);
-      const monthAgo = monthStart.getTime();
+      // **AND THE MONTH IS THE DETAILER'S, NOT THE SERVER'S — roadmap 8.7,
+      // testing-loop F-018.** `new Date()` in an edge function is UTC, so
+      // "this month" began at 00:00 UTC — which is 5pm on the last day of the
+      // previous month in Los Angeles. Every job a detailer did on the 1st
+      // before their own morning fell into last month's takings, on the tile
+      // the owner reads as *how much work the platform carried*. His words:
+      // *"it should just use whatever they set it to."*
+      //
+      // **THE WINDOW IS THEREFORE PER BUSINESS**, computed inside the row map
+      // below from `b.timezone`, because fourteen detailers in four zones do
+      // not share a first-of-the-month. `_shared/tz.ts` already owns this
+      // arithmetic — `localToDate` solves the DST offset — and a second
+      // implementation of it here is the thing that file exists to prevent.
+      const monthWindow = (tz: string) => {
+        const [y, mo] = dateStrIn(tz || "UTC", new Date()).split("-").map(Number);
+        return [
+          localToDate(tz || "UTC", y, mo, 1, 0, 0).getTime(),
+          localToDate(tz || "UTC", mo === 12 ? y + 1 : y, mo === 12 ? 1 : mo + 1, 1, 0, 0).getTime(),
+        ] as const;
+      };
       // AND IT HAS AN END — testing loop F-018, 2026-09-06. The filter was
       // `start_at >= monthAgo` with nothing above it, so a completed job
       // DATED next month counted as this month's takings. A detailer who
       // finalises early, or a job rescheduled forward and then marked done,
       // is enough — and the figure that goes wrong is the one on the tile
       // the owner reads as "how much work the platform carried".
-      const monthEnd = new Date(monthStart);
-      monthEnd.setMonth(monthEnd.getMonth() + 1);
-      const monthTo = monthEnd.getTime();
 
       const rows = (biz.data ?? []).map((b) => {
         const bs = bookings.get(b.id) ?? [];
@@ -221,6 +235,7 @@ Deno.serve(async (req) => {
         const paid = (r: { final_amount: number | null; total_price: number | null }) =>
           Number(r.final_amount ?? r.total_price ?? 0);
         const done = live.filter((r) => r.status === "completed");
+        const [monthAgo, monthTo] = monthWindow(b.timezone);
         const monthJobs = done.filter((r) => {
           if (!r.start_at) return false;
           const t = Date.parse(r.start_at);
@@ -298,7 +313,7 @@ Deno.serve(async (req) => {
       // whose origin is invisible — and so *back to the built-in prices* has
       // something to show before it is pressed.
       const { data: ps } = await supabase.from("platform_settings")
-        .select("prices, updated_at").limit(1).maybeSingle();
+        .select("prices, updated_at, email_daily_cap, owner_email").limit(1).maybeSingle();
 
       // ITEM D — WHETHER THE SCHEDULED JOBS ARE STILL RUNNING. A failure of
       // either is completely silent: no screen changes and nobody is told,
@@ -320,6 +335,21 @@ Deno.serve(async (req) => {
       // cannot upload. Past a hundred businesses the shares stop fitting.
       const { data: store } = await supabase.rpc("photo_store_state");
 
+      // ROADMAP 8.6 — TODAY'S EMAILS AGAINST THE CAP. *"a tracker inside my
+      // dashboard that shows me how many emails get sent a day, and gives me
+      // warnings when we're getting close to that hundred a day limit."*
+      //
+      // **UTC, because that is the clock the provider's cap runs on.**
+      // Counting in his own timezone would print a number that disagrees with
+      // Resend's at the exact hours the warning matters.
+      //
+      // The row is ABSENT until the first send of the day, and absent means
+      // zero rather than unknown — so the screen is handed a number either
+      // way and never has to decide what a missing row means.
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: mail } = await supabase.from("platform_email_days")
+        .select("sent, failed").eq("day", today).maybeSingle();
+
       // The detailers, as opposed to everything else in the table — testing
       // loop F-014. Seeded demos and the fixtures the database-backed suites
       // leave behind are all real rows with real bookings, and every tile on
@@ -330,6 +360,16 @@ Deno.serve(async (req) => {
         prices: { current: ps?.prices ?? null, built_in: PRICES, updated_at: ps?.updated_at ?? null },
         heartbeats: beats ?? [],
         photo_store: store?.[0] ?? null,
+        // The cap comes from the ROW so raising it is how the warning is
+        // answered — his own sentence, read literally. `owner_email` rides
+        // along because the screen has to be able to say when nobody is
+        // being told about a signup.
+        email: {
+          sent: mail?.sent ?? 0,
+          failed: mail?.failed ?? 0,
+          cap: ps?.email_daily_cap ?? 100,
+          owner_email: ps?.owner_email ?? null,
+        },
         rows,
         // EVERY TILE COUNTS REAL DETAILERS ONLY — testing loop F-014. The
         // rows still carry the demos and the fixtures, because he does open

@@ -41,9 +41,26 @@ const LIVE = (r) => r && r.status !== "cancelled";
 // the browser, so the two can disagree for part of a day at a month boundary
 // — that is `docs/testing/FINDINGS.md` F-018's parked half (P-11), recorded
 // here so the next person to find the discrepancy knows it is known.
-const monthKey = (iso) => {
+// **THE MONTH IS THE DETAILER'S, NOT THE READER'S — roadmap 8.7, and this is
+// testing-loop F-018's THIRD clock, the one nobody noticed.** `getFullYear()`
+// and `getMonth()` are the ADMIN'S BROWSER, so the same detailer's chart drew
+// differently depending on where the person looking at it happened to be —
+// and a booking at 8pm on the 31st in Los Angeles landed in the next month
+// for anybody reading from London. His rule: *"it should just use whatever
+// they set it to."*
+//
+// No offset arithmetic is needed for a KEY, unlike the server's month
+// boundary: asking `Intl` which year and month an instant falls in, in a
+// given zone, is the whole job. `en-CA` because it formats as `2026-09`
+// already.
+const monthKey = (iso, tz) => {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  if (Number.isNaN(d.getTime())) return null;
+  const p = new Intl.DateTimeFormat("en-CA", { timeZone: tz || undefined, year: "numeric", month: "2-digit" })
+    .formatToParts(d);
+  const y = p.find((x) => x.type === "year")?.value;
+  const m = p.find((x) => x.type === "month")?.value;
+  return y && m ? `${y}-${m}` : null;
 };
 
 const monthLabel = (key) => {
@@ -56,11 +73,15 @@ const monthLabel = (key) => {
 // draws as two bars with a gap if the gap is present and as two adjacent bars
 // if it is not, and those are opposite stories. Building the spine from the
 // CLOCK rather than from the data is what keeps a quiet month visible.
-export function monthlySeries(bookings, months = 6, now = new Date()) {
+export function monthlySeries(bookings, months = 6, now = new Date(), tz = undefined) {
   const spine = [];
+  // THE SPINE IS BUILT IN THE DETAILER'S ZONE TOO, or the last bar is the
+  // wrong month for half the year: "this month" for a Los Angeles business is
+  // still last month in UTC for the first seven hours of every first.
+  const [ty, tm] = (monthKey(now.toISOString(), tz) ?? "1970-01").split("-").map(Number);
   for (let i = months - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const d = new Date(Date.UTC(ty, tm - 1 - i, 1));
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
     spine.push({ key, label: monthLabel(key), jobs: 0, revenue: 0, booked: 0 });
   }
   const byKey = new Map(spine.map((m) => [m.key, m]));
@@ -70,10 +91,10 @@ export function monthlySeries(bookings, months = 6, now = new Date()) {
     // work came in" is about when it was CREATED; "how much work happened"
     // is about when it was SCHEDULED. Counting both on one date makes a
     // detailer with a full diary three weeks out look idle.
-    const made = r.created_at && byKey.get(monthKey(r.created_at));
+    const made = r.created_at && byKey.get(monthKey(r.created_at, tz));
     if (made) made.booked += 1;
     if (r.status !== "completed") continue;
-    const done = r.start_at && byKey.get(monthKey(r.start_at));
+    const done = r.start_at && byKey.get(monthKey(r.start_at, tz));
     if (done) { done.jobs += 1; done.revenue += paidFor(r); }
   }
   return spine;

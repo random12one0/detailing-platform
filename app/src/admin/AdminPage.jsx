@@ -529,7 +529,10 @@ export default function AdminPage() {
   // during the previous render"*, which is exactly what signing in did on the
   // first attempt at this block. They are also not worth memoising — one pass
   // over at most 200 rows, and only while a business is open.
-  const series = detail ? monthlySeries(detail.bookings) : [];
+  // THE DETAILER'S OWN CLOCK — roadmap 8.7, F-018's third one. Without the
+  // timezone this chart is drawn in whatever zone the person READING it is
+  // sitting in, so the same business's months move depending on who opens it.
+  const series = detail ? monthlySeries(detail.bookings, 6, new Date(), b?.timezone) : [];
   const move = trend(series);
   const work = detail ? workload(detail.bookings) : null;
   const bookable = detail && b ? bookability({ business: b, counts: detail.counts, settings: detail.settings }) : null;
@@ -670,6 +673,43 @@ export default function AdminPage() {
                 where the sentence says why it does not match. */}
             {state.photo_store.committed_bytes > state.photo_store.total_bytes
               && ` · PROMISED ${gb(state.photo_store.committed_bytes)} — more than exists`}
+          </p>
+        )}
+
+        {/* TODAY'S EMAILS — roadmap 8.6, and it goes here because this line is
+            already the one place a silent limit surfaces. His ask: *"a tracker
+            inside my dashboard that shows me how many emails get sent a day,
+            and gives me warnings when we're getting close to that hundred a
+            day limit."*
+
+            **NOTHING COUNTED SENDS UNTIL NOW AND THE CAP HAS ALREADY BITTEN.**
+            Resend's free plan is 100 a day ACROSS EVERY TENANT and the
+            transactional set spends about five a booking, so the platform's
+            twenty-first booking of the day is refused — and testing-loop F-025
+            is what that cost: the 429 was read as *this address is wrong* and
+            real customers were permanently marked unreachable.
+
+            **IT TURNS RED AT FOUR FIFTHS, NOT AT THE LIMIT.** A warning that
+            arrives AT the cap is a warning about emails that have already
+            failed. Four fifths of a hundred is twenty left, which is about
+            four more bookings — enough time to do something.
+
+            **AND THE WAY TO SILENCE IT IS TO RAISE THE CAP**, which is his own
+            sentence read literally: *"I'll update and say okay, upgrade it,
+            and then don't give me this warning again."* A dismiss button
+            would silence a true statement and leave the next busy Saturday
+            exactly where F-025 found it. */}
+        {state.email && (
+          <p className={state.email.sent >= state.email.cap * 0.8 ? "pa-bad" : "pa-quiet"}>
+            {`Emails: ${state.email.sent} of ${state.email.cap} today`}
+            {state.email.failed > 0 && ` · ${state.email.failed} refused`}
+            {state.email.sent >= state.email.cap * 0.8
+              && " — close to the daily limit. Upgrade the plan and raise the cap."}
+            {/* NOBODY IS BEING TOLD is a different failure and a louder one:
+                the alerts below are switched off rather than failing, and a
+                feature that is off looks exactly like a feature that is quiet.
+                A guard that skips must print. */}
+            {!state.email.owner_email && " · NOBODY is being emailed about signups"}
           </p>
         )}
         </div>

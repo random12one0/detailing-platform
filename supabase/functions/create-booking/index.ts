@@ -488,6 +488,9 @@ Deno.serve(async (req) => {
       serviceType,
       vehicleSize: booking.vehicle_size_label || vehicleSize,
       vehicleModel: booking.vehicle_model,
+      // Idea 11 — so the owner's alert can say what to load in the van.
+      hasWater: booking.has_water,
+      hasPower: booking.has_power,
       customerNotes: booking.customer_notes,
       serviceNames: services.map((s) => s.name),
       addOnNames: addOns.map((a) => a.name),

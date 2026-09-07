@@ -22,6 +22,10 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { createBusinessRow } from "../_shared/newBusiness.ts";
+import { sendTenantEmail } from "../_shared/email.ts";
+import { platformAlertEmail } from "../_shared/emailTemplates.ts";
+import { platformBrand, PLATFORM_NAME } from "../_shared/platformBrand.ts";
+import { siteFor } from "../_shared/tenantSite.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return preflight();
@@ -100,6 +104,52 @@ Deno.serve(async (req) => {
     // has no spot yet by definition, and the field is what `CreateBusiness`
     // reads. Removing it would be a silent `undefined` at that call site.
     const founding = false;
+
+    // ── TELL THE OWNER SOMEBODY SIGNED UP — roadmap 8.6, R2 ──────────────
+    // *"I'll get an email if someone signs up and whatnot. I hope you set
+    // that all up."* Nothing did.
+    //
+    // **BEST-EFFORT, AND LAST.** By the same rule the whole product follows
+    // for email: a signup must never fail because a notification did. It is
+    // awaited so a failure is logged rather than lost to a dangling promise,
+    // and everything above it has already committed.
+    //
+    // **IT GOES TO `platform_settings.owner_email`, NOT TO AN ADMIN ROW.**
+    // Who may open the back office and who wants to hear about a signup are
+    // different questions; the admin login is deliberately a throwaway today.
+    // If nobody has set an address the send is skipped, and the back office
+    // says so out loud on its health line — a feature that is off looks
+    // exactly like a feature that is quiet.
+    try {
+      const { data: ps } = await supabase.from("platform_settings")
+        .select("owner_email").limit(1).maybeSingle();
+      if (ps?.owner_email) {
+        const site = await siteFor(business.id);
+        const brand = platformBrand(site);
+        const mail = platformAlertEmail(brand, {
+          kind: "New detailer",
+          headline: `${business.name} just signed up`,
+          intro: "Somebody created an account and a business. Nothing has been paid yet — you will get a second email when they subscribe.",
+          facts: [
+            ["Business", business.name],
+            ["Booking page", `${site}/book/${business.slug}`],
+            ["Signed up by", user.email ?? "unknown"],
+          ],
+          buttonLabel: "Open the back office",
+          buttonUrl: `${site}/admin`,
+        });
+        await sendTenantEmail({
+          businessId: business.id,
+          to: ps.owner_email,
+          subject: mail.subject,
+          html: mail.html,
+          text: mail.text,
+          senderName: PLATFORM_NAME,
+        });
+      }
+    } catch (e) {
+      console.error("could not send the signup alert:", e);
+    }
 
     return json({
       success: true,

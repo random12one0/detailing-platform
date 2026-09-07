@@ -2365,6 +2365,62 @@ page. The push was refused by a permission prompt, not by anything in the
 repo. Nothing is broken until it lands; the live site is simply one item
 behind.
 
+## The advanced money view — four questions, 2026-09-07 (roadmap 8.8)
+
+**The research is `docs/money-view-research-2026-09-07.md`.** It reads your live
+dashboard line by line, lists what the platform already has, and works out what
+is genuinely missing. **The good news first: nothing on that list needs a
+database change** — tips, expense categories and job durations are all already
+stored. 8.9 is arithmetic over what the product already keeps.
+
+**8.9 is blocked on the first two of these.**
+
+### A. Tips — ship them now, or wait?
+
+Three of your six tip figures are tip figures, and **only the half you type in
+yourself exists**. There is no way for a customer to leave one.
+
+So *Total tips* and *Avg tip* would be honest — they are what you recorded. But
+**Tip rate is not**: it divides tipped jobs by all jobs, which reads as *how many
+of my customers tip* when it really means *how often I remembered to write one
+down*.
+
+**My recommendation: ship all three, and label the rate as "jobs where you
+recorded a tip".** It is true, it is useful to you, and it costs nothing. A
+customer-facing tip step changes the booking flow, the confirmation email and
+the money tie-out — that is its own item, not a corner of a reporting screen.
+Say **"tips now"** or **"tips later"**.
+
+### B. The shape — is this what you meant by "not just plain boxes"?
+
+Proposed: **one sentence at the top that answers the real question** — *"You made
+$4,170 and kept $3,240 of it"* — then **ruled rows in three groups**: what came
+in, what went out, what it was worth. No grid of coloured boxes, and **no
+charts**, because with a handful of jobs a month a trend line is decoration
+rather than information.
+
+Two things carried over from your own screen because they are right: **most
+popular days stays two answers** (busiest, and best-paying — a Saturday of
+express washes and a Tuesday with one coating are different facts), and **the
+hourly wage keeps its own month-by-month control**, because it is the figure you
+compare against last month rather than against a period.
+
+**Say "that shape" or tell me what you want instead.**
+
+### C. Expense categories — a list, or free text? (not blocking)
+
+The category is free text today, so an accountant re-sorts it by hand every
+year. A suggested list they recognise — supplies, vehicle, advertising,
+insurance, contract labour — would fix that, offered as suggestions you can
+ignore rather than a rule.
+
+**My recommendation: the suggested list.**
+
+### D. Anything on your old screen you do NOT want carried over? (not blocking)
+
+§ 1 of the research is the complete list of what your live dashboard prints. It
+is far cheaper to drop something now than to build it twice.
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

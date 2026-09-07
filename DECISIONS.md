@@ -249,6 +249,10 @@ were made more than once.
 
 - **Roadmap 2.25 — the way in, and the auth emails Supabase would not let us install** — *the sign in page needs a face lift with proper spacing, the nice background glow and proper spacing etc.* **The ground is SHARED BY SELECTOR rather than copied** — one rule serving two containers, because a second set of gradients is the two-grounds failure the design system exists to prevent; .ld was deliberately NOT put on it, which the roadmap entry warns against. **The complaint was rhythm more than decoration**: the form stacked label onto label with NO GAP while every other form in the product wraps them in .fields, the one class that owns that spacing. It also never named the product — the same defect the back office door had — on the first screen anybody meets. **The part that is not taste: FIVE browser scripts sign in through this form**, and form button.btn.primary is a DESCENDANT selector, so moving the button out of the form leaves the page looking perfect and times out every browser run in the repo. **And the page had never been measured at all**; fixing that took a throwaway signed-out context PER WIDTH, because the obvious place runs once — the first width signs in and every later one restores the session, and a layout measured at one width is what this script exists to disbelieve. **The two email asks turned out to be one**: Supabase refuses template changes outright while the default mailer is on, so the design is unreachable until custom SMTP exists. The four templates are rendered with the product own kit and install on one command; the placeholder surviving esc() is the thing worth asserting rather than eyeballing. **GoTrue sends HTML only** — the single email in this repo with no plain-text half, and that is the auth server rather than us. **And the Resend key could not be fetched because the Management API returns secrets as HASHES**, measured rather than assumed. Google stays parked: the button is written and self-enabling, and what is missing is an OAuth client under his own Google account.
 
+- **Roadmap 8.6 — the email safety net, and the limit that had already bitten** — two asks, one subsystem: a daily send tracker with a warning near the hundred-a-day cap, and an email to the owner when somebody signs up. **Nothing counted sends and nothing emailed him about anything.** Not decoration: the cap has already bitten once, as testing-loop F-025, where a 429 was read as *this address is wrong* and real customers were permanently marked unreachable — a flag send-campaign then ENFORCES. **A day is one row, not one row per email**: the question is how many today, and the cap is platform-wide so a per-tenant breakdown answers a question the limit does not ask. **One atomic upsert**, because a read-then-write drops one of any concurrent pair and the whole value of this number is being trusted near a limit. **UTC, because that is the clock the provider cap runs on.** **Counted at the ONE choke point** — send-email is the single door every email goes through — and best-effort, because a booking must never fail because a counter did. **The refusal is counted too and it is the half that predicts the problem.** **It warns at four fifths, not at the limit**, since a warning AT the cap is about emails that already failed. **And the way to silence it is to RAISE THE CAP** — his own sentence read literally; a dismiss flag would silence a true statement and leave the next busy Saturday where F-025 found it. **Alerts go to platform_settings.owner_email, never platform_admins.email**: access and alerts are different questions, and the admin login is deliberately a throwaway. **One alert template, not one per event** — a signup, a first payment and 8.12 dead-man switch are the same shape, and it is the twenty-sixth email in render-emails because that script is the only thing in this repo that has ever LOOKED at an email. **A guard that skips must print**: with no owner address the health line says NOBODY is being emailed about signups. Proven live — a real signup sent the alert and moved the count 0 to 1 in the same breath.
+
+- **Roadmap 8.7 — five small corrections, one of which turned out not to exist** — **F-010, the five-second quote, DOES NOT REPRODUCE**: against the deployed functions the whole customer path is about 2.1s with nothing over 0.8, and the five seconds was a dev server. Recorded rather than fixed, with the numbers, so nobody measures it a third time. **F-018 was THREE clocks, not two** — the platform month began at midnight UTC, which is 5pm the previous day in Los Angeles, so a detailer jobs on the 1st fell into last month takings; and the per-business chart ran on the ADMIN BROWSER, so the same detailer months moved with whoever opened it. Both now use the business own zone, reusing _shared/tz.ts rather than a second copy, and it is **proven as BEHAVIOUR**: the same booking lands in August for a Los Angeles detailer and September in UTC. **The print stylesheet found a bug only printing could find** — the first version hid every button element and the day work VANISHED, because JobRow is a button, so still-to-do printed as an empty heading. A control is a CLASS here, never an element. The landing chrome is handled in landing.css because a bare .nav in the global sheet is the collision composition 4b catches. **F-009 withholds the figure rather than guessing it**: rendering the founding price optimistically would advertise a spot that may be gone, which is what that page fails CLOSED to avoid — and the blank is written as an ESCAPE, never as a literal non-breaking space, which would be the invisible-byte trap a third time. **And idea 11 is one fact on three surfaces**, leading the row sub-line rather than trailing it because that line is nowrap with an ellipsis, with undefined kept as a third state meaning nobody was asked.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -14708,3 +14712,190 @@ that the endpoint still answers `google: false`. What is missing is a Google
 Cloud project, a consent screen and an OAuth client under HIS Google account.
 **Refusing to build it a second time is the point of the roadmap entry**, and
 § 4e pins that it stays self-enabling so nobody does.
+
+## Roadmap 8.6 — the email safety net, and the limit that had already bitten
+
+**Two asks, one subsystem.** R1: *"a tracker inside my dashboard that shows me
+how many emails get sent a day, and gives me warnings when we're getting close
+to that hundred a day limit — and then I'll update and say okay, upgrade it,
+and then don't give me this warning again."* R2, which he believed already
+worked: *"I'll get an email if someone signs up and whatnot. I hope you set
+that all up."* **Nothing counted sends and nothing emailed him about anything.**
+
+**THIS IS NOT DECORATION, AND THE PROOF IS ALREADY IN THE REPO.** Resend's free
+plan is 100 emails a day ACROSS EVERY TENANT and the transactional set spends
+about five a booking, so the platform's twenty-first booking of the day is
+refused. Testing-loop F-025 is what that cost: the 429 was read as *this
+address is wrong* and real customers were stamped `email_failed_at`
+permanently — a flag `send-campaign` then enforces, so a good day's customers
+quietly stopped being reachable.
+
+### The decisions
+
+**A DAY IS ONE ROW, NOT ONE ROW PER EMAIL.** The question he asked is *how many
+today*, and a rollup answers it in one read with no index, no retention policy
+and nothing to prune. A per-send log is the shape to reach for if anybody ever
+needs *which tenant*, and nobody does: **the cap is platform-wide, so the
+breakdown answers a question the limit does not ask.**
+
+**ONE ATOMIC STATEMENT.** The increment lives inside `on conflict … do update`,
+so two sends at once cannot lose a count. A read-then-write from the edge
+function would drop one of any concurrent pair, and the entire value of this
+number is being trusted near a limit.
+
+**UTC, BECAUSE THAT IS THE CLOCK THE PROVIDER'S CAP RUNS ON.** Counting in the
+owner's timezone would print a number that disagrees with Resend's at exactly
+the hours the warning matters.
+
+**COUNTED AT THE ONE CHOKE POINT.** `send-email` is the single door every email
+in the product goes through — confirmations, reminders, invoices, campaigns,
+the platform's own billing mail. Counting anywhere else is counting some of
+them. **And the counter is best-effort by the same rule the whole product
+follows about email:** a booking must never fail because an email did, and a
+counter is one step further from the booking than that.
+
+**THE REFUSAL IS COUNTED TOO, AND IT IS THE HALF THAT PREDICTS THE PROBLEM.**
+The 429 F-025 mis-read is a FAILED send; a day whose failures are climbing is a
+day already past the cap, which is precisely the morning he needs telling
+BEFORE rather than after.
+
+**IT WARNS AT FOUR FIFTHS, NOT AT THE LIMIT.** A warning that arrives AT the cap
+is a warning about emails that have already failed. Twenty left is about four
+more bookings — enough time to do something.
+
+**AND THE WAY TO SILENCE IT IS TO RAISE THE CAP.** That is his own sentence read
+literally: *"I'll update and say okay, upgrade it, and then don't give me this
+warning again."* A dismiss flag would silence a true statement and leave the
+next busy Saturday exactly where F-025 found it; changing the number means the
+warning stops because **the fact changed**. Same reasoning as
+`platform_settings.prices` — the row is the truth and the file is the fallback.
+
+**ALERTS GO TO `platform_settings.owner_email`, NEVER `platform_admins.email`.**
+Who may open the back office and who wants to hear about a signup are different
+questions, and the admin login is deliberately a throwaway address today
+(roadmap 8.2). Conflating them means adding a second admin silently starts
+mailing them.
+
+**ONE ALERT TEMPLATE, NOT ONE PER EVENT.** A signup, a first payment and 8.12's
+dead-man's switch are the same shape: a label, a headline, a sentence, a short
+list of facts, somewhere to go. Twelve near-identical templates is how a set
+drifts; the events differ in their WORDS, which the caller passes. It is the
+twenty-sixth email in `render-emails.mjs`, because that script is the only
+thing in this repo that has ever LOOKED at an email — and 2.12 shipped eleven
+under-floor headlines because nothing did.
+
+**AND A GUARD THAT SKIPS MUST PRINT.** With no `owner_email` the alert is
+skipped, and the health line says *NOBODY is being emailed about signups* — a
+feature that is switched off looks exactly like a feature that is quiet.
+
+### Proven rather than reasoned about
+
+A real signup through the deployed `create-business`, with the owner address
+pointed at Resend's simulator: the alert went, and today's count moved **0 → 1**
+in the same breath. The probe business, its auth user and the address were all
+put back. The warning state was then staged at **84 of 100** to photograph the
+red line, and cleared afterwards.
+
+`tests/platform-admin.test.mjs` § 14 is 18 checks, eleven breaks all caught.
+
+## Roadmap 8.7 — five small corrections, one of which turned out not to exist
+
+Five unrelated things, each with its own check. Two are worth more than their
+size, and one of them is the finding that there was nothing to fix.
+
+### F-010 — the five-second quote does not reproduce
+
+The roadmap entry said *"measure against the DEPLOYED function, not a dev
+server"*, and that instruction is the whole answer. Against production:
+**profile 100ms · availability 730ms · quote 540ms**, the whole customer-visible
+path about **2.1 seconds**, nothing over 0.8. **The five seconds was a dev
+server** — a cold Vite plus a local edge runtime — and no product change would
+have moved it.
+
+**Recorded rather than fixed, and the numbers are here so nobody measures it a
+third time.** This is the same family as the loop's own report naming four built
+things as missing: a complaint measured in the wrong place survives in a list
+until somebody re-measures it in the right one.
+
+### F-018 — there were three clocks, not two
+
+**The platform month began at midnight UTC**, which is 5pm on the last day of
+the previous month in Los Angeles, so every job a detailer finished on the 1st
+before their own morning landed in LAST month's takings — on the tile the owner
+reads as *how much work the platform carried*. It is computed per business now,
+inside the row map, from `b.timezone`.
+
+**And the per-business chart ran on the ADMIN'S BROWSER**, which is F-018's
+third clock and the one nobody had noticed: the same detailer's months moved
+depending on where the person reading happened to be sitting.
+
+**`_shared/tz.ts` already owned this arithmetic** — `localToDate` solves the DST
+offset — so the server half reuses it rather than growing a second copy. The
+browser half needs no offset maths at all: asking `Intl` which month an instant
+falls in, in a given zone, is the whole job.
+
+**PROVEN AS BEHAVIOUR RATHER THAN AS SOURCE.** Every other check here reads a
+file; this one runs the function on the single instant where the two clocks must
+disagree — 20:00 on 31 August in Los Angeles is 03:00 on 1 September in UTC —
+and asserts the booking lands in **August** for the detailer and **September**
+in UTC. If they ever agree there, the timezone is being ignored whatever the
+source says.
+
+### Idea 45 — the print stylesheet, and the bug that only printing could find
+
+There was no `@media print` rule anywhere, so every screen printed as a
+near-black rectangle: pages of ink for a page of words, with the navigation on
+it.
+
+**THE FIRST VERSION HID EVERY `<button>` AND THE DAY'S WORK VANISHED.**
+`JobRow` is a button — tapping a job is how you open it — so the whole *still to
+do* list printed as a heading with nothing under it, which is the one thing a
+job sheet exists to carry. **A control is a CLASS here, never an element.** It
+was found by emulating print and looking at the page; no check in this repo
+could have seen it, and the screen was perfect throughout.
+
+**The landing surface's chrome is handled in `landing.css`, not here.**
+`theme.css` is GLOBAL, so a bare `.nav` in its print block reaches into `.ld` —
+the collision that file's header exists to prevent, and `composition` 4b caught
+it within a minute of the rule being written.
+
+**`print-color-adjust` is deliberately absent.** Forcing the browser to print
+our dark grounds is exactly the ink-heavy page the rule exists to prevent.
+
+### F-009 — a price that changes while you are reading it
+
+`offer` is null until the founding lookup returns, and null is falsy, so every
+figure rendered at the LIST price and corrected itself a moment later. **A
+pricing page must never do that, even when the number changes in the reader's
+favour** — it is the same family as the struck-price rule, where a figure must
+always be one the product really charges.
+
+**THE FIX WITHHOLDS THE FIGURE RATHER THAN GUESSING IT.** Rendering the founding
+price optimistically would advertise a spot that may already be gone, which is
+the thing this page fails CLOSED to avoid. The numbers hold a non-breaking space
+so the ladder cannot jump, and the page carries `data-loading` until it knows —
+the convention both browser scripts already wait for.
+
+**Written as ` ` and never as the character.** This repo has twice lost
+hours to an invisible byte in source — a raw backspace inside a regex, CRLF in a
+byte-exact check — and a literal non-breaking space is that trap a third time. A
+check asserts the file contains no literal one.
+
+### Idea 11 — one fact, three surfaces
+
+*"even if someone sets it to the setting that makes it so water and power has to
+be on, you can still show it."* It was on the job record only. **The record is
+read when you are already going; the ROW and the EMAIL are read when you are
+deciding what to put in the van.**
+
+**IT LEADS THE ROW'S SUB-LINE RATHER THAN TRAILING IT.** `.row-item .sub` is
+`nowrap` with an ellipsis — the rule that silently deleted the twelve-month
+commitment off a phone in roadmap 2.20 — so appended, *Bring water* is the first
+thing truncation eats and leading, it is the last.
+
+**`undefined` IS A THIRD STATE and it means nobody was asked**: the detailer may
+have the question switched off entirely. Only an explicit `false` prints, so an
+older caller that passes neither draws nothing rather than claiming the customer
+has water. **And the render fixture answers NO to both**, because a fixture that
+says yes cannot reach the case the check is written for — this repo's most
+repeated failure.

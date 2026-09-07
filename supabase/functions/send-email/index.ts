@@ -133,6 +133,15 @@ Deno.serve(async (req) => {
       return json({ success: true, skipped: "no_provider_key" });
     }
 
+    // ROADMAP 8.6 — COUNT IT. Best-effort by the same rule the whole function
+    // follows: a booking must never fail because a COUNTER did, so this is
+    // awaited and its failure swallowed. It is a single atomic upsert in SQL,
+    // so two sends at once cannot lose a count.
+    const note = async (ok: boolean) => {
+      try { await supabase.rpc("note_email_send", { p_ok: ok }); }
+      catch (e) { console.error("could not count the send:", e); }
+    };
+
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
@@ -169,12 +178,19 @@ Deno.serve(async (req) => {
       // 408 for the same reason — a timeout is our side of the wire.
       const ourFault = res.status >= 500 || res.status === 429 || res.status === 408;
       if (!ourFault && !fromPlatform) await markAddress(business_id, to, data);
+      // **A REFUSAL IS COUNTED TOO, AND IT IS THE HALF THAT PREDICTS THE
+      // PROBLEM.** The 429 that F-025 mis-read as a bad address is a FAILED
+      // send, and a day whose failures are climbing is a day already past the
+      // cap — which is precisely the morning the owner needs to be told
+      // BEFORE, not after.
+      await note(false);
       return json({ error: "Failed to send email", details: data }, res.status);
     }
     // A BOUNCE MUST CLEAR ITSELF, unlike `unsubscribed_at`. Otherwise a
     // detailer who corrects a typo is told forever that the address they just
     // fixed is broken, and the flag becomes something to ignore.
     if (!fromPlatform) await markAddress(business_id, to, null);
+    await note(true);
     return json({ success: true, id: data.id });
   } catch (err) {
     return json({ error: (err as Error).message }, 500);

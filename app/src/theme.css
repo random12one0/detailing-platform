@@ -3369,3 +3369,78 @@ button.warn-box:hover { border-color: var(--fog-2); }
 /* The sentence is the only thing that changes between steps, so it is the
    only thing that moves. */
 .tourline { animation: step-fwd var(--t-exit) var(--e-out); }
+
+/* ═══════════════════════════════════════════════════════ PRINT (idea 45)
+   The owner: *"maybe just having it so if someone presses control-P it will
+   format correctly."* No `@media print` rule existed anywhere, so every
+   screen printed as a near-black rectangle — several pages of ink for a
+   page of words, with the navigation and the drifting ground on it.
+
+   **THE PRODUCT IS DARK AND PAPER IS NOT.** Every colour here comes from
+   tokens, so the whole of print is one override of the ground and the ink
+   plus the removal of what cannot be pressed. Nothing is restyled per screen:
+   a per-screen print sheet is a second design to keep in step, and this one
+   has to survive screens nobody thought about while writing it.
+
+   WHAT GOES: the rail, the header, the two drifting lights, the grain, the
+   dot lattice, and every button — a control on paper is furniture that reads
+   as an instruction. WHAT STAYS: the words, the figures and the rules
+   between them, which is what somebody is printing FOR.
+
+   `print-color-adjust` is deliberately NOT set. Forcing the browser to print
+   our backgrounds is exactly the ink-heavy page this rule exists to prevent. */
+@media print {
+  :root {
+    --bg: #ffffff;
+    --ink-0: #ffffff; --ink-1: #ffffff; --ink-2: #ffffff; --ink-3: #ffffff;
+    --surface: #ffffff; --surface-lit: #ffffff; --surface-sunken: #ffffff;
+    --text: #101010; --text-2: #101010; --text-muted: #4a4a4a;
+    --fog: #4a4a4a; --fog-2: #4a4a4a;
+    --hairline: #c9c9c9; --line: #c9c9c9; --line-2: #c9c9c9;
+    /* The accent survives as INK, never as a fill: a tenant's colour is their
+       identity and a page with their green on it is still theirs, but a solid
+       accent panel is a whole cartridge. */
+    --accent-quiet: transparent; --accent-line: #c9c9c9;
+  }
+  html, body, .app-shell, .authpage, .app-main {
+    background: #ffffff !important; color: #101010 !important;
+  }
+  /* The atmosphere, all three layers of it. */
+  .app-shell::before, .app-shell::after,
+  .authpage::before, .authpage::after,
+  .app-dots { display: none !important; }
+  /* Anything you press. On paper it is an instruction nobody can follow.
+     **THE LANDING PAGE'S OWN CHROME IS NOT LISTED HERE** — `.nav` and
+     `.ground` belong to `landing.css`, and theme.css is GLOBAL: a bare class
+     it declares reaches into `.ld`, which is the collision that sheet's
+     header exists to prevent and `composition` 4b caught within a minute of
+     this rule being written. Those two are handled in landing.css's own
+     print block. */
+  .tabbar, .topbar, .btn, .pa-bar, .pa-btn, .sheet-close,
+  .fab, [role="tablist"] { display: none !important; }
+  /* **NOT A BARE `button` — FOUND BY PRINTING IT.** The first version hid
+     every `<button>`, and the day's work VANISHED: `JobRow` is a button,
+     because tapping a job is how you open it. The whole "still to do" list
+     printed as a heading with nothing under it, which is the one thing a job
+     sheet exists to carry. A control is a CLASS here, never an element.
+     So a row prints as what it is on paper — a line of text. */
+  .row-item, .pa-rowbtn {
+    display: flex !important; background: #ffffff !important;
+    border: 0 !important; border-bottom: 1px solid #c9c9c9 !important;
+    color: #101010 !important;
+  }
+  /* A card is a container on screen and a paragraph on paper. */
+  .card, .row-item, .pa-panel, .pa-block {
+    background: #ffffff !important; border-color: #c9c9c9 !important;
+    box-shadow: none !important;
+  }
+  /* Never split a job, a row or a money block across two sheets. */
+  .card, .row-item, .facts, .pa-block, table { break-inside: avoid; }
+  /* Nothing animates on paper, and a mid-animation transform prints the
+     element in the wrong place — the arrival law's own failure mode, on a
+     medium with no frames. */
+  *, *::before, *::after {
+    animation: none !important; transition: none !important; transform: none !important;
+  }
+  @page { margin: 14mm; }
+}

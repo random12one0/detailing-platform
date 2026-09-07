@@ -782,5 +782,92 @@ console.log("\ntest 10: a layer that drifts is clipped, and overhangs by a lengt
     `overhang ${inset?.[1]}px against ${travel?.[1]}px of travel`);
 }
 
+// ─── 11. PAPER, AND THE ONE FACT THAT HAS TO REACH THREE SURFACES ─────────
+// ROADMAP 8.7 — idea 45 and idea 11. Both are about a thing being TRUE IN
+// MORE THAN ONE PLACE, which is why they share a section: the failure mode is
+// identical and it is silent.
+console.log("\ntest 11: paper, and water and power in all three places");
+{
+  const theme = await readFile("app/src/theme.css", "utf8");
+  const landing = await readFile("app/src/landing/landing.css", "utf8");
+  const row = await readFile("app/src/components/JobRow.jsx", "utf8");
+  const record = await readFile("app/src/components/BookingDetail.jsx", "utf8");
+  const tmpl = await readFile("supabase/functions/_shared/emailTemplates.ts", "utf8");
+  const render = await readFile("scripts/render-emails.mjs", "utf8");
+
+  // ── IDEA 45, THE PRINT STYLESHEET ─────────────────────────────────────
+  // *"maybe just having it so if someone presses control-P it will format
+  // correctly."* There was no `@media print` rule anywhere, so every screen
+  // printed as a near-black rectangle: several pages of ink for a page of
+  // words, with the navigation on it.
+  check("11a · there is a print stylesheet at all",
+    /@media print \{/.test(theme));
+  check("11a-ii · and paper is white with dark ink",
+    /@media print[\s\S]{0,900}--bg: #ffffff;/.test(theme)
+      && /@media print[\s\S]{0,900}--text: #101010;/.test(theme));
+
+  // **NOT A BARE `button`, AND THIS IS THE ONE FOUND BY PRINTING IT.** The
+  // first version hid every `<button>` and the day's work VANISHED: `JobRow`
+  // is a button, because tapping a job is how you open it, so the whole
+  // "still to do" list printed as a heading with nothing under it — the one
+  // thing a job sheet exists to carry. A control is a CLASS here, never an
+  // element.
+  const printBlock = theme.slice(theme.indexOf("@media print {"));
+  check("11b · it does not hide every button element",
+    !/^\s*\.tabbar[^{]*,\s*button\s*[,{]/m.test(printBlock)
+      && !/[,\s]button[,\s]*\{\s*display: none/.test(printBlock),
+    "JobRow is a button — hiding the element hides the day's work");
+  check("11b-ii · and a job row survives onto paper",
+    /\.row-item, \.pa-rowbtn \{[\s\S]{0,200}display: flex !important/.test(printBlock));
+
+  // THE LANDING SURFACE'S CHROME IS HANDLED IN ITS OWN SHEET. theme.css is
+  // GLOBAL, so a bare `.nav` or `.ground` here reaches into `.ld` — the
+  // collision `landing.css`'s header exists to prevent, and `composition` 4b
+  // caught it within a minute of the rule being written.
+  check("11c · theme.css does not reach into the landing page's chrome",
+    !/\.ld \.ground|[,\s]\.nav[,\s]/.test(printBlock));
+  check("11c-ii · landing.css carries its own print block instead",
+    /@media print \{[\s\S]{0,300}\.ld \.ground, \.ld \.nav/.test(landing));
+
+  // NOTHING ANIMATES ON PAPER. A mid-animation transform prints the element
+  // in the wrong place — the arrival law's own failure mode, on a medium with
+  // no frames.
+  check("11d · motion is off on paper",
+    /animation: none !important; transition: none !important; transform: none !important/.test(printBlock));
+  // AND THE BACKGROUNDS ARE NOT FORCED. `print-color-adjust: exact` would
+  // make the browser print our dark grounds, which is the ink-heavy page this
+  // whole rule exists to prevent.
+  check("11d-ii · and the dark ground is never forced onto the page",
+    !/print-color-adjust|-webkit-print-color-adjust/.test(printBlock));
+
+  // ── IDEA 11, WATER AND POWER ──────────────────────────────────────────
+  // *"even if someone sets it to the setting that makes it so water and power
+  // has to be on, you can still show it."* It was on the job record only —
+  // and the record is read when you are already going, while the ROW and the
+  // EMAIL are read when you are deciding what to put in the van.
+  check("11e · the job record still says it", /Bring your own/.test(record));
+  check("11e-ii · the day-sheet row says it too",
+    /const bring = booking\.service_type === "mobile"/.test(row)
+      && /has_water === false \? "water" : null/.test(row));
+  // **IT LEADS THE SUB-LINE.** `.row-item .sub` is `nowrap` with an ellipsis
+  // — the rule that silently deleted the twelve-month commitment off a phone
+  // in roadmap 2.20. Appended, this is the first thing truncation eats.
+  check("11e-iii · and it leads the line, so truncation cannot eat it",
+    /\[bring\.length \? `Bring \$\{bring\.join\(" and "\)\}` : null, \.\.\.services, where\]/.test(row));
+  check("11f · and the owner's booking email carries it",
+    /b\.serviceType === "mobile" && \(b\.hasWater === false \|\| b\.hasPower === false\)/.test(tmpl));
+  // UNDEFINED IS A THIRD STATE — the detailer may have the question switched
+  // off entirely. Only an explicit `false` is a fact worth printing, so an
+  // older caller that passes neither draws nothing rather than claiming the
+  // customer has water.
+  check("11f-ii · undefined means nobody was asked, and prints nothing",
+    /hasWater\?: boolean \| null;/.test(tmpl));
+  // A FIXTURE THAT CANNOT REACH THE CASE IS A CHECK THAT CANNOT FAIL — this
+  // repo's most repeated finding, and the reason the render fixture answers
+  // NO to both.
+  check("11f-iii · the render fixture reaches the case",
+    /hasWater: false,/.test(render) && /hasPower: false,/.test(render));
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

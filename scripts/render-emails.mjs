@@ -122,6 +122,12 @@ const booking = {
   startTime: "10:00",
   endTime: "13:30",
   serviceType: "mobile",
+  // IDEA 11 — the fixture answers NO to both, because the line only exists
+  // for a customer who cannot supply them and a fixture that says yes would
+  // render nothing. A check that cannot reach the case it is written for is
+  // this repo's most repeated failure.
+  hasWater: false,
+  hasPower: false,
   vehicleSize: "Mid-size SUV",
   vehicleModel: "2021 Subaru Outback",
   customerNotes: "Dog hair in the back seats — there's a tap on the side of the house.",
@@ -251,6 +257,26 @@ const EMAILS = [
   ["platform-suspended", "Detailer · the booking page is offline", () => T.billingEmail(
     platformBrand(PLATFORM),
     { kind: "suspended", businessName: "Ridgeline Auto Detail", billingUrl: `${PLATFORM}/app?settings=billing`, amount: 60, reason: null },
+  )],
+  // ROADMAP 8.6 — THE THIRD EMAIL THE PLATFORM SENDS IN ITS OWN NAME, and the
+  // first that goes to the OWNER rather than to a detailer. It is rendered
+  // here for the same reason as the other twenty-five: this script is the only
+  // thing in the repo that has ever LOOKED at an email, and 2.12 shipped
+  // eleven under-floor headlines because nothing did.
+  ["platform-new-detailer", "Owner · somebody signed up", () => T.platformAlertEmail(
+    platformBrand(PLATFORM),
+    {
+      kind: "New detailer",
+      headline: "Ridgeline Auto Detail just signed up",
+      intro: "Somebody created an account and a business. Nothing has been paid yet — you will get a second email when they subscribe.",
+      facts: [
+        ["Business", "Ridgeline Auto Detail"],
+        ["Booking page", `${PLATFORM}/book/ridgeline`],
+        ["Signed up by", "sam@ridgeline.example"],
+      ],
+      buttonLabel: "Open the back office",
+      buttonUrl: `${PLATFORM}/admin`,
+    },
   )],
 ];
 

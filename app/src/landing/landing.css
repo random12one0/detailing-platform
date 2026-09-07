@@ -1167,3 +1167,16 @@
    paragraph — `.lk` alone is the nav's treatment and disappears in body copy. */
 .ld .legalnote a { color: var(--fog); border-bottom: 1px solid var(--line-2); }
 .ld .legalnote a:hover { color: var(--bone-2); }
+
+/* ───────────────────────────────────────────────────────── PRINT (idea 45)
+   The marketing surface's half of the print sheet. `theme.css` deliberately
+   does NOT reach in here: it is global, and a bare `.nav` or `.ground` there
+   matches these elements — the collision this file's header is about, and the
+   one `composition` 4b caught the moment it was tried.
+   What goes is the same as everywhere: the ground, the glass nav, and the
+   things you press. What stays is the words. */
+@media print {
+  .ld .ground, .ld .nav, .ld .cta, .ld .lk { display: none !important; }
+  .ld, .ld .wrap { background: #ffffff !important; color: #101010 !important; }
+  .ld [data-rv] { opacity: 1 !important; transform: none !important; }
+}
