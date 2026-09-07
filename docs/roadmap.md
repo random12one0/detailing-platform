@@ -8540,6 +8540,33 @@ is still the question list rather than a thing to rewrite.
       is in the research file with what each one costs. The live-availability
       band is the one every site gets; the motion effect is the one the
       detailer picked in 9.3.
+      **AND HIS CORRECTION MAKES IT BIGGER THAN A BAND — 2026-09-07:** *"I think
+      the website should be filled with the live information and data… one
+      selling point to me is that your website is linked up to your admin
+      dashboard. So changing something in your dashboard also changes stuff on
+      your website. That was a big part of it."* **Every figure on a tenant
+      site is live** — prices, the vehicle ladder, hours, services, the FAQ,
+      reviews, the gallery, the next opening — which is already what
+      `docs/tenant-site-contract.md` § 2 requires. **The contract states it as
+      a rule; he has stated it as the reason, and the reason is what a detailer
+      is buying.**
+
+- [ ] 9.5 **Ten example sites on the live domain — HIS ask, for HIMSELF.**
+      *"I wanna have maybe ten example websites. Obviously they're not gonna be
+      choosing from — I just wanna have ten of different styles and kinda
+      different things just for myself, all on the website, detailingplatform.
+      com/example1, example2, example3 and so on."*
+      **ELEVEN ALREADY EXIST** in `docs/tenant-sites/` (`a-shop` through
+      `k-cedar`) and they are deliberately unalike — five different KINDS of
+      ground, no two the same family. They are static HTML with no build step,
+      so this is a routing job rather than a design one.
+      **THE NUMBERS ON THEM STAY PLACEHOLDERS AND THE MARKUP KEEPS SAYING SO.**
+      Every price already carries `data-from` naming the endpoint that owns it
+      on a real site; that is what stops an example being mistaken for a
+      promise. See the research file.
+      **AND IT NEEDS A MERGE TO `main`, WHICH IS A PUBLISH AND IS HIS CALL** —
+      not because of the pages, but because `main` is a long way behind this
+      branch and merging carries everything else with it.
 
 ## Which skills each phase uses
 

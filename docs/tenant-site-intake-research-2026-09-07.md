@@ -204,6 +204,50 @@ week”**, changing by itself, is:
 site gets the live band.** The motion is taste and the band is the reason the
 page exists.
 
+### HIS CORRECTION, AND IT IS BIGGER THAN THE BAND — 2026-09-07
+
+He agreed and then said what it is actually FOR, which reframes it from a
+feature into the sales pitch:
+
+> *"I think the website should be filled with the live information and data…
+> One of the biggest things — that was, like, one selling point to me — is that
+> your website is linked up to your admin dashboard. So changing something in
+> your dashboard also changes stuff on your website. That was a big part of
+> it."*
+
+**SO IT IS NOT ONE BAND. IT IS THE WHOLE PAGE.** Every figure a tenant site
+prints — the prices, the vehicle-size ladder, the hours, the service list, the
+FAQ, the reviews, the gallery, the next opening — comes out of the same
+dashboard the detailer already uses on their phone. **Change a price at a job
+and the website has changed by the time they get back in the van.** Nobody has
+to ring anybody, and nothing is ever typed twice.
+
+**That is already how `docs/tenant-site-contract.md` § 2 is written** — its
+twelve obligations exist precisely so a site cannot hard-code a number — but
+that file states it as a RULE, and he has just stated it as the REASON. Both
+belong: the rule stops a site drifting, and the reason is what a detailer is
+actually buying.
+
+**It also happens to be the one claim a template shop cannot make**, which is
+the same argument as the availability band, one level up.
+
+### AND THE EXAMPLE PAGES USE PLACEHOLDERS — his instruction
+
+> *"Obviously we can't show that in an example website. So those should be
+> placeholder text. But just make sure it knows that those numbers are gonna be
+> numbers actually linked to the booking website."*
+
+**Every worked page in `docs/tenant-sites/` already does this and must keep
+doing it.** Each price carries a `data-from` attribute naming the endpoint that
+owns it, and every one of those files says in its own header why: *a rate typed
+into a tenant's HTML is "a number PRINTED is not a number CHARGED" with the two
+numbers in two codebases.*
+
+**So the rule for an example page is: the number is a placeholder, and the
+markup says out loud where the real one comes from.** A reader of the file can
+never mistake one for the other, and neither can the next agent that builds a
+real site from it.
+
 ### The technical rules, which are not optional
 
 Researched rather than assumed, because a scroll effect that stutters is worse
