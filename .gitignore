@@ -153,3 +153,8 @@ shots-admin/
 shots-admin-lite/
 shots-d1/
 shots-d2/
+
+# One-off screenshot and probe scripts written into the repo root so they can
+# resolve app/node_modules/playwright. They are session scratch and two of them
+# reached a commit before this line existed (roadmap 8.10).
+*.tmp.mjs
