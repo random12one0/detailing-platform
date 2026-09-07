@@ -289,6 +289,12 @@ export async function validateSlot(opts: {
     .select("id, start_at, end_at")
     .eq("business_id", business.id)
     .neq("status", "cancelled")
+    // ROADMAP 8.10 — AND THE SAME EXEMPTION HERE, for the same reason and in
+    // the same breath. This query feeds the buffer rule AND the per-day cap,
+    // so without it a detailer who logs "ten cars for the dealership" on a day
+    // they are also taking bookings spends one of that day's job slots on a
+    // job that has already happened, and refuses a customer for it.
+    .is("bulk_vehicle_count", null)
     .is("deleted_at", null)
     .gte("start_at", windowStart)
     .lte("start_at", windowEnd);

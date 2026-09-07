@@ -394,6 +394,75 @@ for (const size of SIZES) {
     console.log("stop these emails    NOT MEASURED — no scripts/demo-refs.json; run node scripts/seed-demo.mjs");
   }
 
+  // ─── ROADMAP 8.10 — MORE THAN ONE CAR ───────────────────────────────────
+  //
+  // A STATE, NOT A PAGE, AND ON A DIFFERENT TENANT. `demo-detail` keeps its
+  // one-car limit on purpose: the spare-room figures this repo quotes for
+  // steps 1 and 3 were measured against it, and putting a count control on
+  // that page would move a W16 baseline that has nothing to do with this item.
+  // `demo-riverside` is seeded at three cars (`seed-two-tenants.mjs`).
+  //
+  // WHY IT IS MEASURED AT ALL: step 3 has 39px spare at 392 and 23px at
+  // 1440x900, so anything added to it is added to almost nothing. The way
+  // through is that the size CARDS and the per-car list are alternatives
+  // rather than additions — past one car the sizes become the drop-down this
+  // step already switches to past four sizes, which is ~260px shorter than the
+  // cards and pays for the rows the extra cars cost. This block is what says
+  // whether that is true rather than plausible.
+  {
+    const p = await ctx.newPage();
+    p.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+    await p.goto(`${BASE}/book/demo-riverside${LITE ? "?lite=1" : ""}`, { waitUntil: "domcontentloaded" });
+    const ok = await p.waitForSelector(".bk-card, .bk-note", { timeout: 30000 }).catch(() => null);
+    const chips = () => p.locator(".bk-field", { hasText: "How many vehicles?" }).locator("button");
+    if (!ok) {
+      console.log("more than one car    NOT MEASURED — /book/demo-riverside did not load");
+      failing++;
+    } else {
+      await settle(p, 1600);
+      // Walk by HEADING rather than by a step number: riverside's flow is a
+      // different length from the demo's, and a script that assumes six steps
+      // silently measures the wrong screen (the lesson this file already
+      // records for `demo-detail`).
+      for (let i = 0; i < 5; i++) {
+        if (/vehicle/i.test(await p.locator(".bk-step-head h2").innerText())) break;
+        if (await p.locator(".bk-card.selectable").count()
+            && !(await p.locator(".bk-card.selected").count())) {
+          await p.locator(".bk-card.selectable").first().click();
+          await settle(p, 1800);
+        }
+        await p.getByRole("button", { name: /continue/i }).first().click();
+        await settle(p, 1200);
+      }
+      const old = page;
+      page = p;
+      // A GUARD THAT SKIPS MUST PRINT. No count control means the limit never
+      // reached the page — which is exactly what the public profile's explicit
+      // key list produces when a column is not named in it, and it must never
+      // read as a clean run.
+      if (!(await chips().count())) {
+        console.log("more than one car    NOT MEASURED — no count control; "
+          + "re-seed with `node scripts/seed-two-tenants.mjs`");
+        failing++;
+      } else {
+        await say("3/N cars · 1");
+        await chips().nth(1).click();
+        await settle(p, 1800);
+        await say("3/N cars · 2");
+        await chips().nth(2).click();
+        await settle(p, 1800);
+        await say("3/N cars · 3");
+        // AND THE SPLIT, which is the taller answer: the same three rows plus
+        // a chip per car on the step where the days are picked.
+        await p.getByRole("button", { name: "Different days" }).click();
+        await settle(p, 1800);
+        await say("3/N cars · 3 split");
+      }
+      page = old;
+    }
+    await p.close();
+  }
+
   if (errors.length) { failing++; console.log(`  console: ${errors.length} error(s)\n  ${errors.join("\n  ")}`); }
   await ctx.close();
 }

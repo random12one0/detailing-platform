@@ -23,17 +23,49 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
     .find((s) => s.key === form.vehicleSize)?.label ?? "";
   const vehicleLine = [form.vehicleModel?.trim(), sizeLabel].filter(Boolean).join(" · ");
 
+  // ROADMAP 8.10 — CARS ON DIFFERENT DAYS ARE SEPARATE APPOINTMENTS, so the
+  // card at the top of this step becomes a list of them. The server sends one
+  // entry per car and each `total` is what THAT booking will be charged,
+  // because it is that booking's own quote — so the figures below are not a
+  // split of the total, they are the totals.
+  const legs = quote?.per_vehicle ?? null;
+  const legWhen = (i) => (i === 0
+    ? { date: form.bookingDate, time: form.startTime }
+    : (form.extraVehicles?.[i - 1] ?? { date: "", time: "" }));
+  const longDay = (d) => (d
+    ? new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric" })
+    : "");
+
   return (
     <>
       {/* The appointment is the one lit object on this screen — it is the
           thing being created. Everything else is paper. */}
       <div className="bk-card selected">
-        <div className="bk-step-label">When</div>
-        <h3>{dateLabel}</h3>
-        <p className="bk-muted">
-          {time12(form.startTime)}
-          {quote?.total_duration ? ` · about ${duration(quote.total_duration)}` : ""}
-        </p>
+        <div className="bk-step-label">{legs ? "Your appointments" : "When"}</div>
+        {legs ? (
+          // TWO LINES PER CAR, NOT ONE. Appended to the date with an em-dash,
+          // "Tue, September 8 · 8:00 AM — Ford F-150 · Small" wraps mid-name
+          // at 392 and leaves a dangling dash at the end of the first line —
+          // looked at, not reasoned about. The day is what the customer is
+          // checking; the car is which one it is for.
+          legs.map((v, i) => (
+            <div key={i} style={{ marginTop: i ? 10 : 0 }}>
+              <div className="bk-row between">
+                <span>{longDay(legWhen(i).date)} · {time12(legWhen(i).time)}</span>
+                <span className="bk-price">{money(v.total)}</span>
+              </div>
+              <p className="bk-muted">{[v.model, v.label].filter(Boolean).join(" · ")}</p>
+            </div>
+          ))
+        ) : (
+          <>
+            <h3>{dateLabel}</h3>
+            <p className="bk-muted">
+              {time12(form.startTime)}
+              {quote?.total_duration ? ` · about ${duration(quote.total_duration)}` : ""}
+            </p>
+          </>
+        )}
         <p className="bk-muted" style={{ marginTop: 6 }}>
           {form.serviceType === "mobile"
             ? `We come to you${form.customerAddress ? ` — ${form.customerAddress}` : ""}`
@@ -70,7 +102,14 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
       {/* The money is a receipt — ruled rows, mono figures, a dashed rule
           before the total — not another card. */}
       <div className="bk-receipt">
-        {services.map((s) => (
+        {/* ROADMAP 8.10 — A SPLIT BOOKING'S ITEMISATION BELONGS TO EACH
+            APPOINTMENT, NOT TO THE SET. Every figure below is a SUM across
+            two or three separate bookings, so "Full Detail $400" for two
+            cars is a line nobody can add up — the exact defect the invoice
+            tie-out exists to prevent. The list above already gives each car
+            its own total, and each car's own confirmation email itemises the
+            booking it belongs to. */}
+        {!legs && services.map((s) => (
           <div className="line" key={s.id}>
             <span>{s.name}</span>
             <span className="bk-price">
@@ -79,13 +118,13 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             </span>
           </div>
         ))}
-        {addOns.map((a) => (
+        {!legs && addOns.map((a) => (
           <div className="line" key={a.id}>
             <span>{a.name}</span>
             <span className="bk-price">{money(a.price)}</span>
           </div>
         ))}
-        {quote?.vehicle_size_fee > 0 && (
+        {!legs && quote?.vehicle_size_fee > 0 && (
           <div className="line dim">
             <span>Vehicle size</span>
             <span className="bk-price">{money(quote.vehicle_size_fee)}</span>
@@ -96,7 +135,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
             was shown a mobile surcharge their Estimated total did not contain.
             It is a real line on the receipt now, named after the area they
             picked where they picked one. */}
-        {quote?.travel_fee > 0 && (
+        {!legs && quote?.travel_fee > 0 && (
           <div className="line dim">
             <span>{quote.travel_zone ? `Travel — ${quote.travel_zone}` : "Travel"}</span>
             <span className="bk-price">{money(quote.travel_fee)}</span>
@@ -105,19 +144,19 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         {/* Each surcharge on its own line under the detailer’s own name for
             it. A total that moved when the customer picked a Saturday has to
             say WHY on the page that asks them to confirm it. */}
-        {(quote?.adjustments ?? []).map((a, i) => (
+        {!legs && (quote?.adjustments ?? []).map((a, i) => (
           <div className="line dim" key={i}>
             <span>{a.label}</span>
             <span className="bk-price">{money(a.amount)}</span>
           </div>
         ))}
-        {quote?.site_discount > 0 && (
+        {!legs && quote?.site_discount > 0 && (
           <div className="line dim">
             <span>{settings.site_discount_label || `${quote.site_discount_percent}% off`}</span>
             <span className="bk-price">-{money(quote.site_discount)}</span>
           </div>
         )}
-        {quote?.promo_discount > 0 && (
+        {!legs && quote?.promo_discount > 0 && (
           <div className="line dim">
             <span>Promo {quote.promo_code}</span>
             <span className="bk-price">-{money(quote.promo_discount)}</span>
@@ -125,7 +164,7 @@ export default function StepReview({ form, setForm, quote, services, addOns, pro
         )}
         {/* The engine rounds to the business's nearest-dollar setting. Without
             this line, a customer doing the arithmetic watches $1 vanish. */}
-        {quote && quote.total !== quote.subtotal - (quote.promo_discount || 0) && (
+        {!legs && quote && quote.total !== quote.subtotal - (quote.promo_discount || 0) && (
           <div className="line dim">
             <span>Rounding</span>
             <span className="bk-price">

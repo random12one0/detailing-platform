@@ -167,6 +167,16 @@ Deno.serve(async (req) => {
           .select("start_at, end_at")
           .eq("business_id", business.id)
           .neq("status", "cancelled")
+          // ROADMAP 8.10 — A LOGGED BULK JOB IS NOT BUSY TIME. The exclusion
+          // constraint already exempts those rows, and this query has to agree
+          // with it or the product holds two answers to one question: the
+          // database says the row is not competing for a slot while the
+          // availability engine blanks out the whole 08:00-17:00 day it was
+          // written across. Found by the security review of this item rather
+          // than by any check in this repo, which is the part worth
+          // remembering — the constraint and the engine are two enforcement
+          // sites for one rule, and changing one is changing half of it.
+          .is("bulk_vehicle_count", null)
           .is("deleted_at", null)
           .gte("start_at", rangeStartUtc.toISOString())
           .lte("start_at", rangeEndUtc.toISOString());

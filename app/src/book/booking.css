@@ -271,6 +271,15 @@
 .bk-row.top { align-items: flex-start; }
 .bk-row.between { justify-content: space-between; }
 .bk-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--bk-sp-3); }
+/* ROADMAP 8.10 — ONE CAR PER ROW: its size, and what it is, side by side.
+   DELIBERATELY NOT `.bk-grid2`, which stacks at 400px and therefore stacks on
+   a phone. Measured: stacked, each car costs 131px and three of them put step
+   3 158px past the bottom of a 392 screen — W16 broken by the feature that was
+   supposed to fit inside the room the drop-down freed. Side by side each car
+   is 75px and three fit. They stack below the 320 floor like every other pair
+   in the product, where two controls on one line is genuinely too narrow. */
+.bk-vehicle { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 8px; }
+@media (max-width: 360px) { .bk-vehicle { grid-template-columns: 1fr; } }
 @media (max-width: 400px) { .bk-grid2 { grid-template-columns: 1fr; } }
 
 /* THE MANAGE PAGE'S ACTIONS ARE ONE BLOCK, NOT FOUR PAGE SECTIONS.

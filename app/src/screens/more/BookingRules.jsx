@@ -32,6 +32,12 @@ const BUFFER = [[0, "None"], [15, "15 min"], [30, "30 min"], [45, "45 min"], [60
 const NOTICE = [[0, "Any time"], [120, "2 hours"], [240, "4 hours"], [1440, "1 day"], [2880, "2 days"]];
 const WINDOW = [[30, "1 month"], [60, "2 months"], [90, "3 months"], [180, "6 months"], [365, "1 year"]];
 const SLOT = [[15, "15 min"], [20, "20 min"], [30, "30 min"], [60, "1 hour"]];
+// ROADMAP 8.10 — the setup a detailer does once however many cars are in the
+// driveway. "None" is a real answer and it is the one that makes a second car
+// cost exactly as long as the first, which is what the owner said it should
+// NOT be — so it is offered rather than assumed, and 15 is where the column
+// starts everybody.
+const SETUP = [[0, "None"], [10, "10 min"], [15, "15 min"], [30, "30 min"], [45, "45 min"]];
 const CANCEL = [[0, "Any time"], [2, "2 hours"], [12, "12 hours"], [24, "1 day"], [48, "2 days"]];
 const REMIND = [[60, "1 hour"], [180, "3 hours"], [720, "12 hours"], [1440, "1 day"], [2880, "2 days"]];
 // Roadmap 2.12 follow-up. Hours, not minutes, because this one is measured
@@ -129,6 +135,11 @@ export default function BookingRules() {
     // been promising its customers.
     booking_mode: settings?.booking_mode === "request" ? "request" : "reserve",
     request_nudge_hours: settings?.request_nudge_hours ?? 12,
+    // ROADMAP 8.10. 1 is the schema default and the answer for every business
+    // that has never been asked, and at 1 the customer never sees a count
+    // control at all — the whole feature is off until this moves.
+    max_vehicles_per_booking: settings?.max_vehicles_per_booking ?? 1,
+    extra_vehicle_minutes_saved: settings?.extra_vehicle_minutes_saved ?? 15,
   }));
   const [editing, setEditing] = useState(null);   // {kind:"zone"|"rule", index?, form}
   const [dismissed, setDismissed] = useState(() => {
@@ -266,6 +277,8 @@ export default function BookingRules() {
       price_rules: form.price_rules,
       booking_mode: form.booking_mode,
       request_nudge_hours: Number(form.request_nudge_hours) || 0,
+      max_vehicles_per_booking: Number(form.max_vehicles_per_booking) || 1,
+      extra_vehicle_minutes_saved: Number(form.extra_vehicle_minutes_saved) || 0,
     }).eq("business_id", business.id);
     setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Saved." });
     if (!error) { reload(); refreshSlotCount(); }
@@ -387,6 +400,28 @@ export default function BookingRules() {
                 options={RESOURCE} />
             </Setting>
           </>
+        )}
+
+        {/* ROADMAP 8.10 — MORE THAN ONE CAR IN ONE BOOKING. The owner:
+            *"have that in a setting: how many cars can someone book in one
+            booking."* It sits in *What you offer* rather than in *When you
+            can be booked*, because it is a thing a customer is allowed to
+            buy — the time it takes is a consequence of it, which is exactly
+            why the second row only exists once the first is above one. */}
+        <Setting label="Cars in one booking"
+          help="Above ten is a phone call, not a booking form.">
+          <Stepper value={form.max_vehicles_per_booking} min={1} max={10} suffix="cars"
+            onChange={(v) => set("max_vehicles_per_booking", v)} />
+        </Setting>
+
+        {Number(form.max_vehicles_per_booking) > 1 && (
+          <Setting label="Setup you only do once"
+            help="Taken off every car after the first, because you unpack once. It never changes the price."
+            stacked>
+            <DurationChoice value={form.extra_vehicle_minutes_saved} presets={SETUP}
+              onChange={(v) => set("extra_vehicle_minutes_saved", v)} unit="minutes"
+              customMax={480} />
+          </Setting>
         )}
       </Group>
 

@@ -36,6 +36,15 @@ export default function JobRow({ booking, node = "", onClick }) {
   const bring = booking.service_type === "mobile"
     ? [booking.has_water === false ? "water" : null, booking.has_power === false ? "power" : null].filter(Boolean)
     : [];
+  // ROADMAP 8.10 — HOW MANY CARS, AND IT LEADS FOR THE SAME REASON `bring`
+  // DOES. `.row-item .sub` is nowrap with an ellipsis, so anything appended is
+  // the first thing truncation eats — and *3 cars* is the fact that decides
+  // how the day is planned. A single-car job says nothing, which is every job
+  // this product has ever had.
+  //
+  // A DEALERSHIP JOB SAYS IT TOO. `bulk_vehicle_count` is the logged bulk
+  // count and it reads exactly the same way to somebody scanning the day.
+  const cars = Number(booking.bulk_vehicle_count) || (1 + ((booking.vehicles ?? []).length));
   return (
     <button className={`row-item${node ? ` ${node}` : ""}`} onClick={onClick}>
       <span className="txt">
@@ -43,8 +52,12 @@ export default function JobRow({ booking, node = "", onClick }) {
           <span className="t">{time12(booking.start_time)}</span>{booking.customer_name}
         </span>
         <span className="sub">
-          {[bring.length ? `Bring ${bring.join(" and ")}` : null, ...services, where]
-            .filter(Boolean).join(" · ")}
+          {[
+            cars > 1 ? `${cars} cars` : null,
+            bring.length ? `Bring ${bring.join(" and ")}` : null,
+            ...services,
+            where,
+          ].filter(Boolean).join(" · ")}
         </span>
       </span>
       <span className="figure sm">{money(booking.final_amount ?? booking.total_price)}</span>

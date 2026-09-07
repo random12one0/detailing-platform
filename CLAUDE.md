@@ -174,6 +174,29 @@ explaining it; if they still have to ask "so should I?", it failed.
   `tests/design-contrast.test.mjs`. Don't contort work to
   pass them — if a test and a real design decision collide, the system file
   gets updated first, never silently.
+- **THE ANTI-SLOP LIST IS DATED AND THE 2026 RESEARCH IS IN
+  `docs/design-knowledge.md` § "The tells the list above is TOO OLD to catch"
+  — researched from the live web 2026-09-07, at the owner's ask.** Two things
+  in it change how work gets briefed rather than merely adding nevers.
+  **(1) THE SLOP IS A SEQUENCE, NOT A SET OF ELEMENTS.** Centred hero (eyebrow
+  + huge headline + subhead + two CTAs) → three-up cards → logo soup → pricing
+  toggle → FAQ accordion. Every one is defensible alone, which is exactly why a
+  page passes a per-element audit and is still that page. The never-defaults
+  below cannot see an ORDER.
+  **(2) NAME TWO AESTHETIC FAMILIES TO REMIX, NEVER ONE — and this is the
+  precise fix for this project's own recorded failure.** *Three agents given
+  one brief produced one family; varying the palette while fixing the skeleton
+  does not produce variety* (`docs/tenant-site-research-2026-09-05.md` § 7).
+  One family is a style to copy and every agent copies it the same way; a PAIR
+  is a constraint that has to be resolved, and different pairs resolve
+  differently. Six families with their reference sites are tabulated in
+  design-knowledge; **two of the three rejected tenant pages were squarely
+  "Warm Editorial"**, which is the diagnosis this repo already wrote, now with
+  a name. `docs/tenant-site-briefs-2026-09-07.md` is the five briefs built on
+  it — a different pair, skeleton and intent each.
+  **And the aggregate-preference numbers in the same section are a FLOOR, not
+  a brief**: clean, fast, responsive, real reviews, transparent pricing, images
+  first. A page built to satisfy only those is the centred-hero recipe again.
 - Never-defaults (in addition to the design system): Inter/Roboto/Arial/
   system-ui/Space Grotesk as design choices; purple-blue gradients on
   white; three evenly spaced cards; numbered markers on non-sequences;
@@ -723,7 +746,26 @@ explaining it; if they still have to ask "so should I?", it failed.
   and two were the comment-vacuity trap** — one failing on the page's own
   header saying "It sits OUTSIDE `BusinessProvider`", one on a SQL `comment on
   column` string that names both the column and the function it must never be
-  in. Strip comments AND string literals before reading a file as text)
+  in. Strip comments AND string literals before reading a file as text) and
+  **`multi-vehicle`** (**60 checks**, new 2026-09-07, roadmap 8.10 — MORE THAN
+  ONE CAR IN ONE BOOKING, which is three separate facts and stays three: one
+  visit is one booking with `booking_vehicles` for cars 2..N, two days is two
+  bookings sharing `booking_group_id`, and the dealership job is neither.
+  **§ 1–5 are credential-free; § 6 books against the live project and prints
+  SKIPPED rather than passing without one.** What it holds that no browser can
+  see: **the email senders are DISCOVERED, not listed** — every edge function
+  that assembles a `BookingEmailData` is found by its own `vehicleSize:` line
+  and must also pass `extraVehicles`, because one that forgets sends a
+  perfectly valid confirmation naming ONE car for a three-car job; and **the
+  bulk-job form must contain no arithmetic on the money at all**, which is his
+  instruction rather than a preference. Thirteen checks baselined by breaking
+  what they guard, **and § 6 earned its keep on the real thing rather than on a
+  synthetic break**: it caught `create-booking` handing the engine size STRINGS
+  after the engine's input became objects — every extra car priced at the base
+  size while the row, the label and the model were all correct — and a group
+  guard matching on email OR phone, so one household address joined two
+  different people. **It clears its own `rate_hits` first**, like every other
+  suite here that books)
   from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
   root `.env` — and one of them is new: **`request-mode`** (51 checks — 45 when written, roadmap 2.12,
@@ -1187,6 +1229,22 @@ explaining it; if they still have to ask "so should I?", it failed.
   a page, its length is the detailer's, and all ten plan pages in the research
   sample scroll. The number is still printed as `scrolls Npx`, because "it
   scrolls" and "it scrolls by 600px" are different facts.
+  **AND IT WALKS A SECOND TENANT SINCE ROADMAP 8.10, WHICH IS NEW FOR THIS
+  SCRIPT — `demo-riverside`, because it is the only seeded business that takes
+  MORE THAN ONE CAR.** `demo-detail` deliberately keeps its one-car limit: the
+  spare-room figures this file quotes for steps 1 and 3 were measured against
+  it, and putting a count control on that page would move a W16 baseline that
+  has nothing to do with the item. The block presses 1, 2, 3 cars and then
+  *Different days*, which is the tallest of the four.
+  **AND THE NUMBERS IT PRINTS ARE THE POINT: at 392, one car 24px spare, two
+  114px, three 16px.** The count control is free because past one car the size
+  CARDS become the drop-down this step already switched to past four sizes —
+  about 260px shorter — but **the per-car row needed its own two-column class
+  and that was found by MEASURING rather than by reasoning**: on `.bk-grid2`,
+  which stacks at 400px and therefore stacks on a phone, three cars put step 3
+  **158px past the bottom** of a 392 screen. `.bk-vehicle` stacks at 360
+  instead. **16px of spare room at three cars is thin and is printed on every
+  run**, so a regression shows up as a number rather than as a surprise.
   **AND `SLOTPROBE=1` PRINTS THE DAY WALK AND EVERY `available-slots` RESPONSE
   — new 2026-09-03, and it is the thing to reach for FIRST if this script ever
   fails on step 5.** It was added while fixing two races that had made the
@@ -1912,6 +1970,54 @@ explaining it; if they still have to ask "so should I?", it failed.
   2.14 said it was real for a week because the note cited only the creating
   migration. **A `create table` line is not evidence the table is there.**
 
+- **A BOOKING CAN HOLD MORE THAN ONE CAR — roadmap 8.10, 2026-09-07 — AND
+  THAT IS THREE DIFFERENT FACTS THAT MUST NOT BE MERGED.**
+  **(1) TWO CARS ON ONE VISIT IS ONE BOOKING.** `booking_vehicles` holds
+  vehicles 2..N; **vehicle 1 stays in the columns it has always lived in**
+  (`bookings.vehicle_size`, `vehicle_size_label`, `vehicle_size_fee`,
+  `vehicle_model`), so every render path, every email and the accountant export
+  keep working untouched. `position >= 2` is a CHECK CONSTRAINT rather than a
+  convention: a row for position 1 would be the same fact written twice, and
+  two copies of one fact is how a receipt and a job sheet start disagreeing.
+  **(2) TWO CARS ON TWO DAYS IS TWO BOOKINGS**, joined by
+  `bookings.booking_group_id`. One booking is ONE TIME RANGE — the exclusion
+  constraint, `available-slots`, the day panel and every screen rest on it —
+  so the page calls `create-booking` once per car and passes `group_with`.
+  **There is therefore no second pricing model in this feature**: each call is
+  an ordinary single-car booking, so travel is charged twice because the
+  detailer really drives out twice, the rounding happens per booking, and a
+  promo is spent per booking. **The split QUOTE is DEFINED as the sum of those
+  calls** — the only definition that cannot drift from what is charged.
+  **A LATER CALL FAILING IS NOT A ROLLBACK**: each one is a complete confirmed
+  appointment, so the page says what was booked and what was not.
+  **(3) `bulk_vehicle_count` IS THE DEALERSHIP JOB**, logged after the fact
+  from `BulkJobModal` with **no automatic pricing at all**, by his instruction:
+  *"there shouldn't be auto calculations, because obviously when they do this
+  there's discounts."* **Those rows are EXCLUDED from `bookings_no_overlap`** —
+  a job being logged already happened, and refusing to record last Tuesday
+  because last Tuesday has two bookings on it breaks the feature at the only
+  moment anybody uses it.
+  **THE MONEY FOR AN EXTRA CAR RIDES `price_adjustments`**, the same rail the
+  plan discount and every 2.8c surcharge use. Multiplying `basePrice` instead
+  prints two cars on the receipt as one line reading *"Full Detail $440"*, and
+  extra `booking_services` rows read as the same service sold three times.
+  **The extras are INSIDE `beforeAdjustments`** or a percentage surcharge
+  charges one car and does the rest free; **a plan settles ONE car**, or a
+  member gets three free details for one month's subscription; **an add-on is
+  per VISIT, not per car**, which is the one sentence that makes the same-day
+  and split-day halves agree with no rule of their own.
+  **`business_settings.max_vehicles_per_booking` DEFAULTS TO 1 AND THE WHOLE
+  FEATURE IS INVISIBLE UNTIL A DETAILER MOVES IT.**
+  `extra_vehicle_minutes_saved` is the setup that is not repeated — **duration
+  only, never price** — with a PROPORTIONAL floor, because a 40-minute saving
+  on a 20-minute express wash would otherwise make the second car take negative
+  time.
+  **AND THE PUBLIC PROFILE RPC PUBLISHES THE LIMIT BY NAME.**
+  `get_public_business_profile` is an explicit key list, so a settings column is
+  invisible to every booking form in the world until it is added there — the
+  dashboard setting saves, the screen works, and the feature reaches nobody.
+  `tests/multi-vehicle.test.mjs` pins it.
+
 - **A BOOKING CAN NOW BE A REQUEST, AND BOTH MODES HOLD THE SLOT — roadmap
   2.12, 2026-09-02.** `business_settings.booking_mode` is `reserve` (the
   default, and what every existing tenant has) or `request`. The owner's own
@@ -2065,6 +2171,64 @@ explaining it; if they still have to ask "so should I?", it failed.
   whole rule silently. It was found by logging `.app-main`'s own width before
   and after a click, not by reading the file.
 - Report what was observed, never "this should work."
+
+## A SESSION IS NOT MEANT TO STOP — 2026-09-07, and `docs/standing-work.md` is the queue
+
+**He asked for this twice in one night, and the second time widened it a long
+way.** *"I need your help on how to make it so you never stop even when you're
+quote unquote done… a plan for after you're done building everything to keep
+doing work infinitely that is actually beneficial."* Then: *"Do all the things
+you said and also make the docs better… automatically implementing features
+that you know like 90% will be better. Also doing lots of real-time
+research… Most important part is you never stop."*
+
+**THE MECHANISM IS ONE LINE AND IT IS IN THAT FILE'S HEADER:**
+`/loop Follow docs/standing-work.md. Never stop, never wait for me — park
+anything that needs me and keep going.` `/loop` with no interval is DYNAMIC
+mode — the session schedules its own next wake-up at the end of every turn, so
+finishing one piece of work starts the next. It does not survive closing the
+terminal; the line is what restarts it, and it points at a FILE rather than at
+anybody's memory.
+
+**THREE OF HIS RULES IN THIS FILE ARE NOW WEAKER, AND ONE READS AS ITS
+OPPOSITE. A session that finds the old wording and not this paragraph will do
+less than he asked for, or refuse something he has explicitly permitted.**
+
+**(1) "No unrequested features" is lifted to a CONFIDENCE BAR.** Build what you
+are ~90% sure is an improvement, without asking. The bar is real and it is
+testable: 90% means you can say in one sentence what is worse today and how you
+will know the change fixed it. Below that it is a line in
+`docs/overnight-log.md`, not a commit.
+
+**(2) "Stop for approval before anything large" becomes "park it and carry
+on".** *"Never wait for me."* An unanswered question stops that question, never
+the session.
+
+**(3) THE TENANT-SITE FREEZE IS REOPENED, AND ON HIS TERMS RATHER THAN AS A
+FOURTH GUESS.** The design section above says not to attempt those pages again
+because *"a fourth guess is how this item already burned two"*, and that the
+thing that unblocks them is HIS taste. He has now asked for **web research
+first** — what sites a majority actually likes the look of, and what people say
+makes Claude build better websites — **and then five sites built from what the
+research found.** That is precisely the missing input that entry named, so it
+is not a fourth guess; it is the first attempt with evidence. **Research, write
+it down in `docs/design-knowledge.md` with sources, THEN build.** The three
+pages in `docs/tenant-sites/` remain the structural range and NOT the taste
+reference — he said they look AI — so do not rebuild or copy them.
+
+**WHAT DOES NOT MOVE, and none of it is something he was asked to approve:**
+never re-open a decision he has made or redesign what he has approved
+(`demo@demo.com` is the standing example — "improving" it locks him out of his
+own back office); never write to the live business project
+`adtlnvihwrcqcasqcjwd` and never deploy to the `andrewsauto` Netlify site;
+a push to `main` IS a publish and the commit has to say why it was needed;
+migrations stay append-only and `reference/` stays read-only.
+
+**AND THE STOP RULE IS STILL A RULE.** `docs/standing-work.md` § 6: two
+self-chosen iterations in a row producing only documents means the work that
+fits has run out — say so and stop. A session that manufactures work to avoid
+saying that is worse than one that stops, because somebody then has to read and
+undo it.
 
 ## Process
 

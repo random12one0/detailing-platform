@@ -31,6 +31,93 @@ deliberately move off it.
 - Copy: "modern and clean," "seamless," "elevate," feature triplets, Lorem
   ipsum, "Feature One / Feature Two / Feature Three."
 
+### The tells the list above is TOO OLD to catch — researched 2026-09-07
+
+**This section exists because the owner rejected three pages that passed every
+check in this repo**: *"All 3 look very ai and not even like the vibe for
+detailing but it's fine for now."* The list above catches the tells of a few
+years ago. What follows is the CURRENT house style of AI design output,
+gathered from the live web on 2026-09-07 rather than from memory.
+
+**Typography:** Space Grotesk is now itself the "I tried" upgrade rather than
+the original choice, which the list above half-says and this makes explicit.
+
+**Colour:** pastel rainbow accents; **indigo-to-violet hero washes** — the
+purple gradient's 2026 form, and the one most likely to slip past a check
+written against "purple-to-blue on white".
+
+**Layout, and this is the one the old list misses entirely — it is a RECIPE,
+not an element:** a centred hero made of *eyebrow + 64pt headline + subhead +
+two CTAs*, then three-up feature cards, then logo soup, then a pricing toggle,
+then an FAQ accordion. **Every one of those is defensible alone; the SEQUENCE
+is the tell.** A page can pass a per-element audit and still be this page.
+
+**Effects:** generic glassmorphism; soft drop shadows everywhere; animated
+gradient blobs; Shadcn-default cards; Tailwind-default `rounded-xl` buttons.
+
+**THE REMEDY THAT MATTERS MOST HERE IS NOT ON THE OLD LIST EITHER, AND IT IS
+THE EXACT FIX FOR THIS PROJECT'S RECORDED FAILURE.**
+`docs/tenant-site-research-2026-09-05.md` § 7 concluded that *three agents
+given one brief produce one family — same section list, same seams, only the
+paint varied*, and that **varying the palette while fixing the skeleton does
+not produce variety.** The technique that answers it:
+
+> **Name TWO aesthetic families to REMIX, not one.** The worked example given
+> is *"Linear's typography discipline plus Pitchfork's editorial colour."*
+
+One family is a style to copy and every agent copies it the same way. A PAIR is
+a constraint that has to be resolved, and different pairs resolve differently —
+which is variety produced by the brief rather than hoped for from the agent.
+
+**Six families, with the reference sites each was named by** — this is a
+vocabulary this repo has never had:
+
+| Family | Named references |
+|---|---|
+| Editorial Minimalism | Linear, Stripe, Vercel |
+| Warm Editorial | Anthropic, Notion, Resend |
+| Terminal-Core | Ollama, Warp, Raycast |
+| Cinematic Dark | Runway, ElevenLabs, Midjourney |
+| Neon Brutalist | The Verge, Pitchfork, PlayStation |
+| Cult / Indie | A24, Criterion, Letterboxd |
+
+**Two of the three rejected tenant pages were squarely "Warm Editorial"** —
+editorial serif, ruled rows, wide letter-spaced small-caps labels, generous
+whitespace, a muted palette. That is the diagnosis this repo already wrote,
+now with a name for what it landed on and five other places it could land.
+
+### What a majority actually responds to — the same research, the other half
+
+The owner asked for *"websites majority of people like the look of"*. The
+honest finding is that the aggregate preference is much blunter than the
+aesthetics above, and the two must not be confused: **the family decides
+whether a site feels like anyone; these decide whether it works at all.**
+
+- **An opinion forms in about 0.05 seconds**, and design is reported to drive
+  it ~94% of the time. Whatever a page does, it does before anything is read.
+- **~84.6% prefer a clean layout to a crowded one**, and **59% (66% in the US)
+  say they would rather spend time on a well-designed site than a basic one.**
+  So "clean" is table stakes and is NOT the differentiator — which is exactly
+  how a page ends up looking like every other clean page.
+- **~60% name usability as the thing that matters most** when buying, and
+  **~40% look at images first.** For a detailer that is decisive: the trade's
+  own product is a photograph of a car, and stock rectangles are the giveaway.
+- The trust factors named repeatedly: **fast load, responsive layout, real
+  reviews, and transparent pricing.** Three of those four this platform already
+  supplies to a tenant site through the contract; the fourth is the site's own.
+
+**THE USE OF THESE NUMBERS IS AS A FLOOR, NOT A BRIEF.** A page built to
+satisfy the list above and nothing else is the centred-hero recipe again. The
+family pairing is what makes it somebody's.
+
+**Sources (fetched 2026-09-07):** theadpharm.com/insights/claude-design-without-the-ai-slop-look ·
+mindstudio.ai/blog/claude-design-avoid-ai-slop-design-system ·
+digitalsilk.com/web-design/web-trends/website-design-statistics ·
+diviflash.com/web-design-statistics · theedigital.com/blog/web-design-trends.
+**They are marketing blogs and the statistics are re-quoted rather than
+primary** — treat the ranking as sound and the decimal places as decoration.
+
+
 ### The named remedies
 
 - Typography: weight extremes (100/200 against 800/900, not 400 against

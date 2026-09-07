@@ -20,6 +20,24 @@ the dashboard can actually be looked at:
 temporary — they reach the demo business only, and they must change before
 there is a real customer. See DECISIONS.md, "A guessable demo login".
 
+**WHERE THE WORK IS, 2026-09-07 (overnight, Phase 8).** Roadmap **8.2 through
+8.8 and 8.10 are done and committed**; 8.9 is blocked on two questions in
+`docs/money-view-research-2026-09-07.md` § 6. **8.10 was the largest item in
+the phase** and it turned on being THREE facts rather than one feature: cars on
+one VISIT are one booking with `booking_vehicles` for 2..N, cars on two DAYS
+are two bookings sharing `booking_group_id`, and the dealership job is a logged
+booking row with `bulk_vehicle_count` and no automatic pricing at all. Two real
+defects were caught by probing the DEPLOYED functions and by nothing else — the
+pricing engine handed size STRINGS after its input became objects, so every
+extra car priced at the base size while the row, the label and the model were
+all correct; and a group guard matching on email OR phone put two different
+people at one household address into one group. `tests/multi-vehicle.test.mjs`
+is 63 checks, fifteen baselined by breaking what they guard.
+**AND THE SESSION IS NOT MEANT TO STOP ANY MORE** — see `docs/standing-work.md`
+and CLAUDE.md's "A SESSION IS NOT MEANT TO STOP". He has permitted building
+anything a session is ~90% sure improves the product, without asking, and asked
+for live web research plus five research-led tenant sites.
+
 **WHERE THE WORK IS, 2026-09-05 (end of the session that finished 2.20 stage 2).**
 **Done and pushed:** the checkout is OUR OWN Payment Element form, not Stripe's
 hosted page — the owner's pick of Stripe's three shapes — proven against real

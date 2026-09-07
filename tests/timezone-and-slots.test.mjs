@@ -111,7 +111,19 @@ const PHX = bizzes.find((b) => b.slug === "tz-phx");
 const DEN = bizzes.find((b) => b.slug === "tz-den");
 
 await svc.post("/rest/v1/business_users", bizzes.map((b) => ({ business_id: b.id, user_id: owner.id, role: "owner" })));
-await svc.post("/rest/v1/business_settings", bizzes.map((b) => ({ business_id: b.id, slot_interval_minutes: 60, buffer_minutes: 0 })));
+// ROADMAP 8.4 — THE MODES ARE AN ANSWER NOW, NOT A DEFAULT. Until
+// that item `mobile_enabled` was `not null default true`, so a
+// fixture that never mentioned it got a business that does mobile.
+// With no default, silence means NOBODY HAS BEEN ASKED and the
+// server correctly refuses every service type — which presents as
+// *Mobile service is not available* on the first booking this file
+// makes, i.e. as a broken engine rather than as an unanswered
+// fixture. Found 2026-09-07 while finishing 8.10: 8.4 fixed three
+// fixtures of exactly this shape and these two were not re-run.
+await svc.post("/rest/v1/business_settings", bizzes.map((b) => ({
+  business_id: b.id, slot_interval_minutes: 60, buffer_minutes: 0,
+  mobile_enabled: true, dropoff_enabled: true,
+})));
 await svc.post("/rest/v1/business_hours", bizzes.flatMap((b) =>
   [0, 1, 2, 3, 4, 5, 6].map((wd) => ({ business_id: b.id, weekday: wd, open_time: "08:00", close_time: "18:00" }))));
 const services = (await svc.post("/rest/v1/services", bizzes.map((b) =>

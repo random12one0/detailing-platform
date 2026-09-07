@@ -2421,6 +2421,48 @@ ignore rather than a rule.
 § 1 of the research is the complete list of what your live dashboard prints. It
 is far cheaper to drop something now than to build it twice.
 
+## Multiple cars is built (roadmap 8.10) — four calls I made alone
+
+None of these blocks anything. They are the four places your answer would have
+changed what I built, so they are written down rather than assumed silently.
+Say the word on any of them and it is a small change.
+
+**1. A second car costs a full second car. Only the TIME is reduced.**
+Your words were about the timing — *"it's not gonna be double the time of one
+car, because there's not gonna be the setup time"* — so that is the only thing
+that changes. Two cars is two cars' worth of money and roughly one and a half
+cars' worth of time. If you meant a two-car job should also be cheaper, that is
+what promo codes already do, and I did not want to invent a discount you had
+not agreed to.
+
+**2. "Setup you only do once" starts at 15 minutes.**
+It is a new setting that sits under the car limit, and it is the amount taken
+off every car after the first — park once, unpack once, run the hose out once.
+Fifteen is a deliberately small guess so nobody is ever left short of time. The
+detailer changes it in two taps and it never applies at all until they allow
+more than one car.
+
+**3. An add-on is charged once per VISIT, not once per car.**
+Three cars in one driveway is one visit, so a "pet hair removal" is charged
+once. The same three cars across three days is three visits, so it is charged
+three times. That falls out of the rest rather than being a rule of its own,
+and it is the reading I would want as a customer. Tell me if the trade does it
+the other way.
+
+**4. Two cars on two days sends two confirmation emails.**
+One form, one price bar, one press — but underneath it really is two
+appointments, each with its own day, its own reminder and its own link to
+change or cancel. Sending one email for both would leave the customer with no
+way to move just the second car. **The limit of that:** the second email does
+not mention the first. If you want it to, say so.
+
+**And the dealership job is on the Money screen, at the bottom: "Log a bulk
+job".** Who for, how many cars, what you were paid, which day, a note. It works
+out nothing at all — no per-car price, no automatic anything — because you said
+those deals carry discounts. It counts in Collected and it is on the accountant
+export the same day.
+
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

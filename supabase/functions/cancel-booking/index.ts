@@ -13,7 +13,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings } from "../_shared/tenant.ts";
-import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
 import { cancellationEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -85,6 +85,8 @@ Deno.serve(async (req) => {
       travelZone: booking.travel_zone,
       adjustments: booking.price_adjustments ?? [],
       vehicleSize: booking.vehicle_size_label || booking.vehicle_size,
+      // ROADMAP 8.10 — the other cars on this same visit, or an empty list.
+      extraVehicles: await extraVehiclesFor(booking.id),
       vehicleModel: booking.vehicle_model,
       customerNotes: booking.customer_notes,
       serviceNames: [],

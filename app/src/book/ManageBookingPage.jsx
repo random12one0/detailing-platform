@@ -20,15 +20,17 @@ import "./booking.css";
 
 export default function ManageBookingPage() {
   const { id } = useParams();
-  const [state, setState] = useState({ status: "loading", booking: null, business: null });
+  // ROADMAP 8.10 — `group` is the OTHER appointments this customer made in
+  // the same go, and it is empty for every booking that is not one of a pair.
+  const [state, setState] = useState({ status: "loading", booking: null, business: null, group: [] });
 
   const load = useCallback(async () => {
     try {
       const r = await api.bookingReceipt(id);
       if (!r?.booking) throw new Error("not_found");
-      setState({ status: "ready", booking: r.booking, business: r.business });
+      setState({ status: "ready", booking: r.booking, business: r.business, group: r.group ?? [] });
     } catch {
-      setState({ status: "not_found", booking: null, business: null });
+      setState({ status: "not_found", booking: null, business: null, group: [] });
     }
   }, [id]);
 
@@ -52,7 +54,8 @@ export default function ManageBookingPage() {
   // page carries the same branding as the booking page.
   return (
     <BookingBusinessProvider slug={state.business.slug}>
-      <ManageInner booking={state.booking} receiptBusiness={state.business} onChanged={load} />
+      <ManageInner booking={state.booking} receiptBusiness={state.business}
+        group={state.group} onChanged={load} />
     </BookingBusinessProvider>
   );
 }
@@ -62,7 +65,7 @@ export default function ManageBookingPage() {
 // service_area/dropoff_address, so cancellation_window_hours is not on it —
 // reading the window off the context business silently yielded 0, which made
 // the whole closed-window branch dead code. It is read from the receipt.
-function ManageInner({ booking, receiptBusiness, onChanged }) {
+function ManageInner({ booking, receiptBusiness, group = [], onChanged }) {
   const { business, branding, brandVars, slug, status } = useBookingBusiness();
   const [mode, setMode] = useState(null); // null | "reschedule" | "cancelled"
   const [busy, setBusy] = useState(false);
@@ -198,6 +201,21 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
           {services.length > 0 && (
             <p className="bk-body" style={{ marginTop: 8 }}>{services.join(" · ")}</p>
           )}
+          {/* ROADMAP 8.10 — the other cars on THIS visit. Their money is
+              already itemised below as its own line, so this is what they
+              ARE: the customer checking that the truck they typed in is on
+              the booking they are looking at. */}
+          {(booking.vehicles ?? []).length > 0 && (
+            <p className="bk-muted" style={{ marginTop: 6 }}>
+              {`${(booking.vehicles ?? []).length + 1} vehicles — `}
+              {[
+                [booking.vehicle_model, booking.vehicle_size_label].filter(Boolean).join(" "),
+                ...[...(booking.vehicles ?? [])]
+                  .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+                  .map((v) => [v.vehicle_model, v.vehicle_size_label].filter(Boolean).join(" ")),
+              ].filter(Boolean).join(", ")}
+            </p>
+          )}
           <p className="bk-muted" style={{ marginTop: 6 }}>
             {booking.service_type === "mobile"
               ? `We come to ${booking.customer_address || "you"}`
@@ -213,6 +231,40 @@ function ManageInner({ booking, receiptBusiness, onChanged }) {
             </p>
           )}
         </div>
+
+        {/* ROADMAP 8.10 — THE OTHER APPOINTMENTS, WHEN THE CARS WENT ON
+            DIFFERENT DAYS. One form made them and each one is a real
+            appointment with its own day, its own reminder and its own page —
+            so without this the customer is holding two links and neither one
+            mentions the other, which reads as a double booking rather than as
+            the thing they asked for.
+
+            EACH ROW IS A LINK to that booking's own page, because moving or
+            cancelling one car is the whole reason they are separate. */}
+        {group.length > 0 && (
+          <div className="bk-card" style={{ marginTop: 14 }}>
+            <div className="bk-step-label">
+              {`Also booked — ${group.length === 1 ? "1 more car" : `${group.length} more cars`}`}
+            </div>
+            {group.map((g) => (
+              <a className="bk-row between" key={g.id} href={`/booking/${g.id}`}
+                style={{ marginTop: 8, textDecoration: "none", color: "inherit" }}>
+                <span>
+                  {new Date(`${g.booking_date}T12:00:00`).toLocaleDateString("en-US", {
+                    weekday: "short", month: "long", day: "numeric",
+                  })} · {time12(g.start_time)}
+                  <span className="bk-muted">
+                    {` — ${[g.vehicle_model, g.vehicle_size_label].filter(Boolean).join(" ") || "Vehicle"}`}
+                  </span>
+                </span>
+                <span className="bk-price">{money(g.total_price)}</span>
+              </a>
+            ))}
+            <p className="bk-muted" style={{ marginTop: 10 }}>
+              Each one can be changed or cancelled on its own.
+            </p>
+          </div>
+        )}
 
         {/* THE QUOTE, AND IT IS ITS OWN CARD ON PURPOSE. It is a different
             number from the one above it, and the one above is still what the

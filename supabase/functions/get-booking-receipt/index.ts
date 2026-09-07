@@ -12,7 +12,8 @@ import { dateStrIn, timeStrIn } from "../_shared/tz.ts";
 const BOOKING_SELECT = `
   *,
   services:booking_services(service_id, name_at_booking, price_at_booking, duration_at_booking),
-  add_ons:booking_add_ons(add_on_id, add_on:add_ons(id, name, price))
+  add_ons:booking_add_ons(add_on_id, add_on:add_ons(id, name, price)),
+  vehicles:booking_vehicles(position, vehicle_size_label, vehicle_model)
 `;
 
 Deno.serve(async (req) => {
@@ -45,7 +46,39 @@ Deno.serve(async (req) => {
     // of business_settings stays private.
     const settings = business ? await getSettings(business.id) : null;
 
+    // ROADMAP 8.10 — THE OTHER APPOINTMENTS THIS CUSTOMER MADE IN THE SAME GO.
+    // Two cars on two days are two bookings, so they are two emails and two of
+    // these pages; without this the customer is holding two links and neither
+    // one mentions the other, which reads as a double booking.
+    //
+    // IT EXPOSES NOTHING NEW. A group only ever contains bookings this server
+    // itself grouped, and grouping required the same person's own identifiers
+    // to match — so every row here belongs to whoever is already holding this
+    // booking's id, which is the credential this whole endpoint runs on.
+    // Scoped to the business as well, because a group id is a plain uuid
+    // column with no foreign key behind it.
+    let group: unknown[] = [];
+    if (booking.booking_group_id) {
+      const { data: sibs } = await supabase
+        .from("bookings")
+        .select("id, start_at, end_at, status, vehicle_size_label, vehicle_model, total_price")
+        .eq("business_id", booking.business_id)
+        .eq("booking_group_id", booking.booking_group_id)
+        .neq("id", booking.id)
+        .is("deleted_at", null)
+        .order("start_at");
+      // deno-lint-ignore no-explicit-any
+      group = (sibs ?? []).map((b: any) => ({
+        ...b,
+        booking_date: dateStrIn(tz, new Date(b.start_at)),
+        start_time: timeStrIn(tz, new Date(b.start_at)),
+      }));
+    }
+
     return json({
+      // Empty for every booking that is not part of one, which is all of them
+      // until a customer books two cars on two days.
+      group,
       booking: {
         ...booking,
         booking_date: dateStrIn(tz, new Date(booking.start_at)),

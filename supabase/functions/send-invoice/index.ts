@@ -12,7 +12,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember } from "../_shared/tenant.ts";
-import { buildBrand, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, extraVehiclesFor, sendTenantEmail } from "../_shared/email.ts";
 import { followupEmail, invoiceEmail, type InvoiceRow } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { receiptUrl } from "../_shared/config.ts";
@@ -127,6 +127,8 @@ Deno.serve(async (req) => {
       endTime: timeStrIn(tz, new Date(booking.end_at)),
       serviceType: booking.service_type,
       vehicleSize: booking.vehicle_size_label || booking.vehicle_size,
+      // ROADMAP 8.10 — the other cars on this same visit, or an empty list.
+      extraVehicles: await extraVehiclesFor(booking.id),
       vehicleModel: booking.vehicle_model,
       customerNotes: booking.customer_notes,
       serviceNames: (booking.services ?? []).map((s: { name_at_booking: string }) => s.name_at_booking),

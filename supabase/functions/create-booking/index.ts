@@ -13,7 +13,11 @@
 //          service_ids[], add_ons[], booking_date, start_time,
 //          has_water_electric?, has_water?, has_power?, vehicle_condition?,
 //          customer_notes?, applied_promo_code?,
-//          visitor_id?, campaign_slug?, admin_notes? (members only) }
+//          visitor_id?, campaign_slug?, admin_notes? (members only),
+//          extra_vehicles? [{size, model}]  — roadmap 8.10, cars 2..N of THIS
+//              appointment, capped by business_settings.max_vehicles_per_booking
+//          group_with?  — roadmap 8.10, the id of the booking this one was
+//              made alongside when the cars are on different days }
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
@@ -21,7 +25,8 @@ import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings, requireMember } from "../_shared/tenant.ts";
 import {
   computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
-  resolvePromo, resolveServices, resolveTravel, sizeAdjustmentFor, whenContextFor,
+  resolvePromo, resolveServices, resolveTravel, resolveVehicles, sizeAdjustmentFor,
+  vehicleSizeFee, whenContextFor,
 } from "../_shared/pricing.ts";
 import { validateSlot } from "../_shared/slotValidation.ts";
 import { ipOf, LIMITS, looksAutomated, withinLimits } from "../_shared/rateLimit.ts";
@@ -158,12 +163,21 @@ Deno.serve(async (req) => {
     // longer checked against small/medium/large. It still has to BE one of
     // their sizes: an unknown key would price at zero adjustment and print a
     // label nobody recognises on the invoice.
-    const sizes = Array.isArray(settings.vehicle_sizes) && settings.vehicle_sizes.length
-      ? settings.vehicle_sizes
-      : [{ key: "small", label: "Small" }];
-    const requested = String(body.vehicle_size || "").toLowerCase();
-    const size = sizes.find((v) => String(v.key).toLowerCase() === requested) ?? sizes[0];
-    const vehicleSize = String(size.key);
+    //
+    // ROADMAP 8.10 — AND IT IS NOW HOW MANY CARS AS WELL AS WHICH SIZE.
+    // `resolveVehicles` applies the tenant's own cap, so a form that offers a
+    // third car to a two-car business books two. Vehicle 1 is the booking
+    // row's own columns exactly as before; the rest become `booking_vehicles`
+    // after the insert.
+    const vehicles = resolveVehicles(
+      Array.isArray(settings.vehicle_sizes) ? settings.vehicle_sizes : [],
+      body.vehicle_size,
+      body.extra_vehicles,
+      Number(settings.max_vehicles_per_booking) || 1,
+    );
+    const size = vehicles[0];
+    const vehicleSize = size.key;
+    const extraVehicles = vehicles.slice(1);
     // ROADMAP 2.8c — travel and the time-based surcharges, resolved through the
     // SAME shared helpers the quote endpoint uses. The customer's own
     // travel_zone is a key, never a price: the fee comes off the business's
@@ -184,6 +198,8 @@ Deno.serve(async (req) => {
       travelFee: travel.fee,
       adjustments,
       plan: planInputFor(plan),
+      extraVehicles,
+      extraVehicleMinutesSaved: Number(settings.extra_vehicle_minutes_saved) || 0,
     });
 
     // --- The authoritative slot gate ---------------------------------------
@@ -310,12 +326,72 @@ Deno.serve(async (req) => {
       return json({ error: "That is a lot of bookings at once. Give it a few minutes and try again." }, 429);
     }
 
+    // --- ROADMAP 8.10 — TWO CARS ON TWO DAYS ------------------------------
+    //
+    // *"They could set it for two different days without having to create two
+    // different bookings."* The FORM is one; underneath it is one booking per
+    // day, because ONE BOOKING IS ONE TIME RANGE — `bookings_no_overlap`,
+    // `available-slots`, the day panel and every screen in the product rest on
+    // that, and giving a booking two ranges would mean rewriting all of it.
+    //
+    // So the page books the first car normally and then calls this function
+    // again per car, naming the first booking. Each call is an ORDINARY
+    // single-car booking and is priced by the ordinary path, which is why
+    // there is no second pricing model anywhere in this item: travel is
+    // charged twice because the detailer really drives out twice, and a
+    // partial failure leaves one real confirmed appointment rather than a
+    // half-written group.
+    //
+    // THE SIBLING MUST BE THIS BUSINESS'S AND THE SAME PERSON'S. Without both
+    // checks a crafted id would staple somebody's booking onto a stranger's
+    // group — and a group is a set of appointments a customer is shown.
+    let groupId: string | null = null;
+    if (body.group_with) {
+      const { data: sib } = await supabase
+        .from("bookings")
+        .select("id, booking_group_id, customer_email, customer_phone")
+        .eq("business_id", business.id)
+        .eq("id", String(body.group_with))
+        .maybeSingle();
+      const email = String(body.customer_email ?? "").trim().toLowerCase();
+      const phone = String(body.customer_phone ?? "").trim();
+      // EVERY IDENTIFIER THEY BOTH CARRY HAS TO AGREE, not just one of them.
+      // The first version accepted a match on EITHER, and the probe caught it
+      // immediately: two bookings made from the same household email but
+      // different phone numbers were put in one group. A form filling this in
+      // legitimately sends the identical customer fields both times, so the
+      // stricter reading costs the real case nothing.
+      //
+      // AND AT LEAST ONE COMPARISON MUST ACTUALLY HAVE HAPPENED — two rows
+      // with no address and no number in common would otherwise satisfy
+      // "nothing disagrees", which is the vacuous-check family in live code.
+      const emailOk = !sib?.customer_email || !email
+        || String(sib.customer_email).toLowerCase() === email;
+      const phoneOk = !sib?.customer_phone || !phone
+        || String(sib.customer_phone) === phone;
+      const compared = (!!sib?.customer_email && !!email) || (!!sib?.customer_phone && !!phone);
+      const samePerson = !!sib && compared && emailOk && phoneOk;
+      if (samePerson) {
+        groupId = sib!.booking_group_id ?? crypto.randomUUID();
+        if (!sib!.booking_group_id) {
+          await supabase.from("bookings")
+            .update({ booking_group_id: groupId })
+            .eq("id", sib!.id).eq("business_id", business.id);
+        }
+      }
+      // A `group_with` that does not resolve books the car anyway, ungrouped.
+      // The customer asked for an appointment; refusing it over a grouping
+      // that only affects how two rows are shown together would lose them the
+      // booking to protect a display detail.
+    }
+
     // --- Insert. The exclusion constraint is the final, unbeatable guard. --
     const { data: booking, error: insertErr } = await supabase
       .from("bookings")
       .insert({
         business_id: business.id,
         customer_id: customerId,
+        booking_group_id: groupId,
         customer_name: String(body.customer_name).trim(),
         customer_phone: String(body.customer_phone).trim(),
         customer_email: body.customer_email?.trim() || null,
@@ -457,6 +533,33 @@ Deno.serve(async (req) => {
         svcErr,
       );
     }
+    // ROADMAP 8.10 — vehicles 2..N. Read for the same reason `booking_services`
+    // is: the MONEY for these cars is already on the booking row (each is a
+    // line in `price_adjustments`), so losing these rows leaves a booking
+    // charged for three cars with one car written down — a job sheet that
+    // sends the detailer out with the wrong number of cars to clean, and the
+    // first person to notice is whoever is standing in the driveway.
+    if (extraVehicles.length) {
+      const { error: vehErr } = await supabase.from("booking_vehicles").insert(
+        extraVehicles.map((v, i) => ({
+          business_id: business.id,
+          booking_id: booking.id,
+          position: i + 2,
+          vehicle_size: v.key,
+          // Snapshots, both — a renamed or deleted size must not rewrite what
+          // a past job was sold for.
+          vehicle_size_label: v.label,
+          vehicle_size_fee: vehicleSizeFee(services, v.key),
+          vehicle_model: v.model,
+        })),
+      );
+      if (vehErr) {
+        console.error(
+          `BOOKING ${booking.id} IS PRICED FOR ${vehicles.length} VEHICLES AND ONLY ONE IS RECORDED:`,
+          vehErr,
+        );
+      }
+    }
     if (addOns.length) {
       const { error: addErr } = await supabase.from("booking_add_ons").insert(
         addOns.map((a) => ({ business_id: business.id, booking_id: booking.id, add_on_id: a.id })),
@@ -488,6 +591,11 @@ Deno.serve(async (req) => {
       serviceType,
       vehicleSize: booking.vehicle_size_label || vehicleSize,
       vehicleModel: booking.vehicle_model,
+      // ROADMAP 8.10. Built from what was just resolved rather than read back,
+      // because this is the one sender that already holds the answer — and a
+      // read-back would report an empty list on the very failure the console
+      // line above exists to shout about.
+      extraVehicles: extraVehicles.map((v) => ({ size: v.label, model: v.model })),
       // Idea 11 — so the owner's alert can say what to load in the van.
       hasWater: booking.has_water,
       hasPower: booking.has_power,

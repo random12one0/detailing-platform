@@ -729,6 +729,33 @@ for (const p of PLAN) {
     if (addOn) {
       await post("/rest/v1/booking_add_ons", [{ business_id: business.id, booking_id: b.id, add_on_id: addOn.id }]);
     }
+    // ROADMAP 8.10 — ONE SEEDED BOOKING HOLDS THREE CARS, and it is on the
+    // DASHBOARD side only. `demo-detail` keeps `max_vehicles_per_booking` at
+    // 1 on purpose — the booking page's spare-room figures were measured
+    // against that, and the count control does not belong on the one page
+    // whose height budget this repo quotes. But the job record, the day-sheet
+    // row, the day panel, the calendar and a client's own history all draw
+    // whatever `booking_vehicles` rows exist, and **a shape nothing seeds is a
+    // shape nothing measures**: without this the width sweep walks the job
+    // record at five widths and never once sees a second car.
+    if (p.who === "Marcus Webb") {
+      await post("/rest/v1/booking_vehicles", [
+        {
+          business_id: business.id, booking_id: b.id, position: 2,
+          vehicle_size: "medium", vehicle_size_label: "Medium",
+          vehicle_size_fee: 20, vehicle_model: "Subaru Forester",
+        },
+        {
+          business_id: business.id, booking_id: b.id, position: 3,
+          vehicle_size: "small", vehicle_size_label: "Small",
+          vehicle_size_fee: 0,
+          // NO MODEL ON THE THIRD, because it is optional on the form and a
+          // fixture where every car is filled in cannot reach the branch that
+          // draws one without.
+          vehicle_model: null,
+        },
+      ]);
+    }
     made++;
   } catch (e) {
     console.warn(`  skipped ${p.who} ${p.day} ${p.time}: ${String(e.message).slice(0, 90)}`);

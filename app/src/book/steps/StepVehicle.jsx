@@ -19,9 +19,25 @@
 //        field the research found that we did not have. It is INFORMATION,
 //        never arithmetic — the trade prices condition after inspection — and
 //        it is what makes a "from" price honest rather than evasive.
+//
+// ROADMAP 8.10 — MORE THAN ONE CAR, AND IT COSTS THIS STEP NOTHING BECAUSE
+// THE SECOND CAR TAKES THE CARDS AWAY. This step has 39px of spare room at
+// 392 and 23px at 1440x900, so a control ADDED to it is a control measured
+// against almost nothing. The way through is that the card list and the
+// per-vehicle list are alternatives rather than additions: past one vehicle
+// the sizes become the same drop-down this step already switches to past four
+// sizes, which is roughly 260px shorter than the cards and pays for every
+// row the extra cars cost.
+//
+// A ONE-CAR BUSINESS SEES NONE OF IT. `max_vehicles_per_booking` is 1 for
+// every business until a detailer says otherwise, and at 1 this file renders
+// exactly what it rendered before the item.
 
 import { money } from "../../lib/format.js";
-import { VEHICLE_CONDITIONS, vehicleSizeExtra, vehicleSizesMatter } from "../core.js";
+import {
+  maxVehicles, setVehicleCount, VEHICLE_CONDITIONS, vehicleCount,
+  vehicleSizeExtra, vehicleSizesMatter,
+} from "../core.js";
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 // Past this many sizes the cards become a drop-down. MEASURED, not chosen,
@@ -41,74 +57,184 @@ import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 // at five or more.
 const SIZE_CARD_CEILING = 4;
 
+const ORDINALS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
+
 export default function StepVehicle({ form, setForm, selectedServices }) {
   const { settings } = useBookingBusiness();
   const sizes = settings.vehicle_sizes;
 
-  // The size arithmetic and the four-way condition scale are `core.js`'s —
-  // they decide what reaches `bookings`. The CEILING above stays here,
-  // because it is a height measurement taken against this page's own type.
+  // The size arithmetic, the four-way condition scale and the vehicle count
+  // are `core.js`'s — they decide what reaches `bookings`. The CEILING above
+  // stays here, because it is a height measurement taken against this page's
+  // own type.
   const sizeExtra = (key) => vehicleSizeExtra(selectedServices, key);
   const sizesMatter = vehicleSizesMatter(sizes, selectedServices);
-  const asList = sizes.length > SIZE_CARD_CEILING;
+  const cap = maxVehicles(settings);
+  const count = vehicleCount(form);
+  const multi = count > 1;
+  const asList = multi || sizes.length > SIZE_CARD_CEILING;
   const pick = (key) => setForm((f) => ({ ...f, vehicleSize: key }));
+
+  const setCount = (n) =>
+    setForm((f) => ({ ...f, extraVehicles: setVehicleCount(f, n, settings) }));
+
+  // The size and the model of one vehicle, whichever it is. Vehicle 1 lives
+  // in the two fields it has always lived in; the rest are entries in
+  // `form.extraVehicles`, which is the same split the database keeps.
+  const at = (i) => (i === 0
+    ? { size: form.vehicleSize, model: form.vehicleModel }
+    : (form.extraVehicles?.[i - 1] ?? { size: form.vehicleSize, model: "" }));
+
+  const edit = (i, patch) => setForm((f) => (i === 0
+    ? { ...f, ...("size" in patch ? { vehicleSize: patch.size } : {}), ...("model" in patch ? { vehicleModel: patch.model } : {}) }
+    : { ...f, extraVehicles: (f.extraVehicles ?? []).map((v, j) => (j === i - 1 ? { ...v, ...patch } : v)) }));
+
+  const sizeOptions = sizes.map((s) => {
+    const extra = sizeExtra(s.key);
+    return (
+      <option key={s.key} value={s.key}>
+        {s.label}{extra > 0 ? ` — +${money(extra)}` : ""}
+      </option>
+    );
+  });
 
   return (
     <>
-      {sizesMatter ? (
-        asList ? (
-          <label className="bk-field">
-            <span>Vehicle size</span>
-            <select value={form.vehicleSize} onChange={(e) => pick(e.target.value)}>
-              {sizes.map((s) => {
-                const extra = sizeExtra(s.key);
-                return (
-                  <option key={s.key} value={s.key}>
-                    {s.label}{extra > 0 ? ` — +${money(extra)}` : ""}
-                  </option>
-                );
-              })}
-            </select>
-          </label>
-        ) : (
-          <div className="bk-choices">
-            <p className="bk-muted">Bigger vehicles take longer, so pricing varies.</p>
-            {sizes.map((s) => {
-              const extra = sizeExtra(s.key);
-              return (
-                <div
-                  key={s.key}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={form.vehicleSize === s.key}
-                  className={`bk-card selectable ${form.vehicleSize === s.key ? "selected" : ""}`}
-                  onClick={() => pick(s.key)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(s.key); } }}
-                >
-                  <div className="bk-row between">
-                    <div>
-                      <h3>{s.label}</h3>
-                      {s.examples && <p className="bk-muted">{s.examples}</p>}
-                    </div>
-                    <span className="bk-price">{extra > 0 ? `+${money(extra)}` : "Included"}</span>
-                  </div>
-                </div>
-              );
-            })}
+      {cap > 1 && (
+        <div className="bk-field">
+          <span>How many vehicles?</span>
+          <div className="bk-chips">
+            {Array.from({ length: cap }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={`bk-chip word ${count === n ? "selected" : ""}`}
+                aria-pressed={count === n}
+                onClick={() => setCount(n)}
+              >
+                {n}
+              </button>
+            ))}
           </div>
-        )
-      ) : (
-        <p className="bk-muted">One price for every vehicle.</p>
+        </div>
       )}
 
-      <label className="bk-field">
-        <span>What are you bringing? (optional)</span>
-        <input
-          value={form.vehicleModel}
-          placeholder="e.g. 2019 Honda Civic"
-          onChange={(e) => setForm((f) => ({ ...f, vehicleModel: e.target.value }))}
-        />
-      </label>
+      {multi && (
+        // *"There should be options if someone wants to book two cars, they
+        // could set it for two different days without having to create two
+        // different bookings."* One question, two answers, and it changes
+        // both the price and the length of the appointment — so it is asked
+        // here, beside the count it depends on, rather than on the step where
+        // the days are picked.
+        <div className="bk-field">
+          <span>All on one day?</span>
+          <div className="bk-chips">
+            <button
+              type="button"
+              className={`bk-chip word ${form.splitDays ? "" : "selected"}`}
+              aria-pressed={!form.splitDays}
+              onClick={() => setForm((f) => ({ ...f, splitDays: false }))}
+            >
+              Same day
+            </button>
+            <button
+              type="button"
+              className={`bk-chip word ${form.splitDays ? "selected" : ""}`}
+              aria-pressed={!!form.splitDays}
+              onClick={() => setForm((f) => ({ ...f, splitDays: true }))}
+            >
+              Different days
+            </button>
+          </div>
+        </div>
+      )}
+
+      {multi ? (
+        // ONE ROW PER CAR. Each is priced in full — the review step lists
+        // them — and only the SETUP time is saved, which is the detailer's
+        // own setting and the owner's own sentence.
+        Array.from({ length: count }, (_, i) => (
+          <div className="bk-field" key={i}>
+            <span>{ORDINALS[i] ?? `#${i + 1}`} vehicle</span>
+            {/* Two fields where there are two. A business whose services
+                price every size the same asks no size question at all, and a
+                lone input in a two-column grid would sit at half width for
+                no reason. */}
+            <div className={sizesMatter ? "bk-vehicle" : ""}>
+              {sizesMatter && (
+                <select
+                  aria-label={`${ORDINALS[i] ?? `#${i + 1}`} vehicle size`}
+                  value={at(i).size}
+                  onChange={(e) => edit(i, { size: e.target.value })}
+                >
+                  {sizeOptions}
+                </select>
+              )}
+              {/* A SHORTER PLACEHOLDER THAN THE ONE-CAR FIELD, because this
+                  input is half a phone wide and "e.g. 2019 Honda Civic" is cut
+                  off mid-word in it — measured, not guessed. The one-car
+                  version below keeps the fuller example, which is what makes
+                  the field obviously optional. */}
+              <input
+                aria-label={`${ORDINALS[i] ?? `#${i + 1}`} vehicle, what it is`}
+                value={at(i).model ?? ""}
+                placeholder="Make and model"
+                onChange={(e) => edit(i, { model: e.target.value })}
+              />
+            </div>
+          </div>
+        ))
+      ) : (
+        <>
+          {sizesMatter ? (
+            asList ? (
+              <label className="bk-field">
+                <span>Vehicle size</span>
+                <select value={form.vehicleSize} onChange={(e) => pick(e.target.value)}>
+                  {sizeOptions}
+                </select>
+              </label>
+            ) : (
+              <div className="bk-choices">
+                <p className="bk-muted">Bigger vehicles take longer, so pricing varies.</p>
+                {sizes.map((s) => {
+                  const extra = sizeExtra(s.key);
+                  return (
+                    <div
+                      key={s.key}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={form.vehicleSize === s.key}
+                      className={`bk-card selectable ${form.vehicleSize === s.key ? "selected" : ""}`}
+                      onClick={() => pick(s.key)}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(s.key); } }}
+                    >
+                      <div className="bk-row between">
+                        <div>
+                          <h3>{s.label}</h3>
+                          {s.examples && <p className="bk-muted">{s.examples}</p>}
+                        </div>
+                        <span className="bk-price">{extra > 0 ? `+${money(extra)}` : "Included"}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          ) : (
+            <p className="bk-muted">One price for every vehicle.</p>
+          )}
+
+          <label className="bk-field">
+            <span>What are you bringing? (optional)</span>
+            <input
+              value={form.vehicleModel}
+              placeholder="e.g. 2019 Honda Civic"
+              onChange={(e) => setForm((f) => ({ ...f, vehicleModel: e.target.value }))}
+            />
+          </label>
+        </>
+      )}
 
       {/* W27. One row of four, which is the whole reason it is chips and not
           cards: it is a fact about the car, not a thing being bought, and this

@@ -16,7 +16,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { supabase } from "../_shared/db.ts";
 import { json, preflight } from "../_shared/http.ts";
 import { businessById, getSettings, requireMember, type Business } from "../_shared/tenant.ts";
-import { buildBrand, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
+import { buildBrand, extraVehiclesFor, ownerRecipients, sendTenantEmail } from "../_shared/email.ts";
 import { customerReminderEmail, formatDateLong, formatTime12hr, maintenanceDueEmail, ownerNewBookingEmail, staleRequestEmail } from "../_shared/emailTemplates.ts";
 import { sendOwnerPush } from "../_shared/ownerPush.ts";
 import { businessSiteUrl, receiptUrl } from "../_shared/config.ts";
@@ -53,6 +53,9 @@ async function emailDataFor(business: Business, b: BookingRow) {
     travelZone: b.travel_zone,
     adjustments: b.price_adjustments ?? [],
     vehicleSize: b.vehicle_size_label || b.vehicle_size,
+    // ROADMAP 8.10 — the other cars on this same visit, or an empty list. The
+    // owner reminder is the email a detailer reads while loading the van.
+    extraVehicles: await extraVehiclesFor(b.id),
     vehicleModel: b.vehicle_model,
     customerNotes: b.customer_notes,
     serviceNames: [],

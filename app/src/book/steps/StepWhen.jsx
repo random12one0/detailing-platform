@@ -4,6 +4,18 @@
 // applies this business's hours, buffer, blockouts, slot interval, minimum
 // notice and per-day cap. The page never computes availability itself, so
 // what's displayed and what's accepted can't drift.
+//
+// ROADMAP 8.10 — AND ON A SPLIT BOOKING IT IS ASKED ONCE PER CAR, THROUGH THE
+// SAME CALENDAR. A second calendar was the obvious build and does not fit: the
+// month grid, its header and the slot chips are most of this step's height, so
+// two of them is two screens. Instead the car being scheduled is a chip row
+// above the calendar, the ones already picked read back their day and time,
+// and the whole block below is unchanged.
+//
+// **THE LENGTH ASKED FOR IS THAT CAR'S OWN.** A truck takes longer than a
+// hatchback, so asking every day of the month with the first car's duration
+// would offer a slot too short for the second and lose the booking at the
+// submit — which is the one failure this page exists to prevent.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -16,8 +28,13 @@ import {
 import { useBookingBusiness } from "../BookingBusinessContext.jsx";
 
 const DOW = ["S", "M", "T", "W", "T", "F", "S"];
+const ORDINALS = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"];
+// Just enough of a date to recognise a day already chosen, on a chip that has
+// to stay one line at 320.
+const shortDay = (d) =>
+  new Date(`${d}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-export default function StepWhen({ form, setForm, durationMinutes }) {
+export default function StepWhen({ form, setForm, durationMinutes, durations }) {
   const { slug, business } = useBookingBusiness();
   // THE BUSINESS'S TODAY, never the customer's — somebody booking from
   // another state must not be shown yesterday.
@@ -27,6 +44,27 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
   // time the parent renders.
   const serviceIds = form.serviceIds;
   const serviceKey = serviceIds.join(",");
+  // ROADMAP 8.10 — WHICH CAR IS BEING SCHEDULED. Index 0 is the booking's own
+  // date and time; the rest live on `form.extraVehicles`, which is the same
+  // split the database keeps. On an ordinary booking there is one leg and this
+  // is always 0, so nothing below behaves differently.
+  const split = !!form.splitDays && (form.extraVehicles ?? []).length > 0;
+  const legCount = split ? 1 + form.extraVehicles.length : 1;
+  const [leg, setLeg] = useState(0);
+  const which = Math.min(leg, legCount - 1);
+  const legDate = which === 0 ? form.bookingDate : (form.extraVehicles[which - 1]?.date || "");
+  const legTime = which === 0 ? form.startTime : (form.extraVehicles[which - 1]?.time || "");
+  const setLegWhen = (date, time) => setForm((f) => (which === 0
+    ? { ...f, bookingDate: date, startTime: time }
+    : {
+      ...f,
+      extraVehicles: (f.extraVehicles ?? []).map((v, i) =>
+        (i === which - 1 ? { ...v, date, time } : v)),
+    }));
+  // That car's own length, falling back to the whole job's — which is what a
+  // one-car booking has always sent.
+  const askFor = (Array.isArray(durations) ? durations[which] : null) || durationMinutes;
+
   const [month, setMonth] = useState(today.slice(0, 7));
   const [days, setDays] = useState(null);   // { "YYYY-MM-DD": {slots: []} }
   const [loading, setLoading] = useState(true);
@@ -37,14 +75,14 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
   const { start: rangeStart, end: monthEnd } = monthRange(month, today);
 
   const load = useCallback(async () => {
-    if (!durationMinutes) return;
+    if (!askFor) return;
     setLoading(true);
     setError("");
     try {
       const r = await api.availableSlots(slug, {
         start_date: rangeStart,
         end_date: monthEnd,
-        duration_minutes: durationMinutes,
+        duration_minutes: askFor,
         // Roadmap 2.8c — two of the rules now live on the SERVICE (which
         // weekdays it is offered, whether it can be done at an address), so
         // the calendar has to say which services it is being asked about or it
@@ -57,7 +95,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
       setDays({});
     }
     setLoading(false);
-  }, [slug, rangeStart, monthEnd, durationMinutes, serviceKey]);
+  }, [slug, rangeStart, monthEnd, askFor, serviceKey]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -65,7 +103,7 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
 
   const moveMonth = (delta) => {
     setMonth(shiftMonth(month, delta));
-    setForm((f) => ({ ...f, bookingDate: "", startTime: "" }));
+    setLegWhen("", "");
   };
 
   // W4 — a day can now be restricted EITHER way (drop-offs only, or mobile
@@ -74,13 +112,40 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
   // the hole this closes: the page used to print "This day is drop-off only"
   // and then let a mobile booking through anyway.
   const allowed = (date) => slotsForType(days?.[date], form.serviceType);
-  const daySlots = form.bookingDate ? allowed(form.bookingDate) : [];
-  const day = form.bookingDate ? days?.[form.bookingDate] : null;
+  const daySlots = legDate ? allowed(legDate) : [];
+  const day = legDate ? days?.[legDate] : null;
   // Named for what it is: this day cannot take the service type they picked.
   const wrongMode = dayRefusesMode(day, form.serviceType);
 
   return (
     <>
+      {split && (
+        // WHICH CAR. Each chip reads back the day and time already chosen for
+        // it, because the one thing a customer needs on this step is to see
+        // that the second car is not on the same afternoon as the first.
+        <div className="bk-field">
+          <span>Pick a time for each car</span>
+          <div className="bk-chips">
+            {Array.from({ length: legCount }, (_, i) => {
+              const d = i === 0 ? form.bookingDate : (form.extraVehicles[i - 1]?.date || "");
+              const t = i === 0 ? form.startTime : (form.extraVehicles[i - 1]?.time || "");
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  className={`bk-chip word ${which === i ? "selected" : ""}`}
+                  aria-pressed={which === i}
+                  onClick={() => setLeg(i)}
+                >
+                  {`${ORDINALS[i] ?? `#${i + 1}`} car`}
+                  {d && t ? ` · ${shortDay(d)} ${time12(t)}` : ""}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* One calendar unit. Without the wrapper, bk-wrap's flex gap opens a
           26px void between the month header, the weekday row and the grid —
           the same reason .bk-step-head exists in BookingPage.jsx. */}
@@ -119,12 +184,12 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
                 key={date}
                 role={open ? "button" : undefined}
                 tabIndex={open ? 0 : undefined}
-                className={`cell ${open ? "" : "closed"} ${date === today ? "today" : ""} ${form.bookingDate === date ? "selected" : ""}`}
-                onClick={() => open && setForm((f) => ({ ...f, bookingDate: date, startTime: "" }))}
+                className={`cell ${open ? "" : "closed"} ${date === today ? "today" : ""} ${legDate === date ? "selected" : ""}`}
+                onClick={() => open && setLegWhen(date, "")}
                 onKeyDown={(e) => {
                   if (open && (e.key === "Enter" || e.key === " ")) {
                     e.preventDefault();
-                    setForm((f) => ({ ...f, bookingDate: date, startTime: "" }));
+                    setLegWhen(date, "");
                   }
                 }}
               >
@@ -145,10 +210,10 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
         </div>
       )}
 
-      {form.bookingDate && (
+      {legDate && (
         <>
           <div className="bk-step-label" style={{ marginTop: 18 }}>
-            Times on {new Date(`${form.bookingDate}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+            Times on {new Date(`${legDate}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
           </div>
           {wrongMode && (
             <div className="bk-note">
@@ -161,8 +226,8 @@ export default function StepWhen({ form, setForm, durationMinutes }) {
             {daySlots.map((t) => (
               <button
                 key={t}
-                className={`bk-chip ${form.startTime === t ? "selected" : ""}`}
-                onClick={() => setForm((f) => ({ ...f, startTime: t }))}
+                className={`bk-chip ${legTime === t ? "selected" : ""}`}
+                onClick={() => setLegWhen(legDate, t)}
               >
                 {time12(t)}
               </button>

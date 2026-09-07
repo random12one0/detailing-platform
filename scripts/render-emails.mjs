@@ -165,6 +165,29 @@ const planBooking = {
   total: 285,
 };
 
+// ROADMAP 8.10 — THREE CARS ON ONE VISIT. The owner's alert is the email a
+// detailer reads while deciding what to put in the van, and it carries no
+// money table at all — so if the fact row names one car, a three-car job looks
+// like a one-car job and the mistake is discovered in somebody's driveway.
+//
+// **THE MONEY LINES ARE HERE TOO, and they are what the tie-out is checked
+// against**: each extra car is a labelled `price_adjustments` amount, exactly
+// as `computeQuote` writes it, so `reconcile()` has to reach 480 from the
+// same lines the customer sees. 240 + 120 + 120 = 480.
+const carloadBooking = {
+  ...booking,
+  extraVehicles: [
+    { size: "Large", model: "2021 Ford F-150" },
+    { size: "Small", model: null },
+  ],
+  adjustments: [
+    { label: "2nd vehicle — Large · 2021 Ford F-150", amount: 120 },
+    { label: "3rd vehicle — Small", amount: 120 },
+  ],
+  subtotal: 480,
+  total: 480,
+};
+
 // BUILT THE WAY `send-invoice/index.ts` BUILDS IT — AND THAT IS NOW ONE LINE
 // PLUS THE FINALIZE EXTRAS, which is the point of roadmap 2.18's last change.
 // The invoice copies what was finalized instead of re-deriving it:
@@ -202,6 +225,13 @@ const EMAILS = [
   ["customer-followup", "Customer · thank-you and review request", () => T.followupEmail(brand, "Dana Ortiz")],
   ["owner-new-booking", "Owner · new booking", () => T.ownerNewBookingEmail(brand, booking, false)],
   ["owner-new-request", "Owner · new request waiting", () => T.ownerNewBookingEmail(brand, booking, true)],
+  // ROADMAP 8.10. Its own entry rather than a change to the one above,
+  // because the ONE-car alert is what nearly every detailer gets and a fixture
+  // that only shows three cars cannot reach the ordinary case. Both are drawn.
+  ["owner-new-booking-carload", "Owner · new booking, three cars",
+    () => T.ownerNewBookingEmail(brand, carloadBooking, false)],
+  ["customer-confirmation-carload", "Customer · confirmed, three cars",
+    () => T.customerConfirmationEmail(brand, carloadBooking)],
   ["owner-reschedule", "Owner · a booking moved", () => T.rescheduleEmail(brand, booking, "2026-09-12", "08:00", true)],
   ["owner-cancellation", "Owner · a booking cancelled", () => T.cancellationEmail(brand, booking, true)],
   ["owner-stale-request", "Owner · nobody answered a request", () => T.staleRequestEmail(brand, booking, 19)],

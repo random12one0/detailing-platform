@@ -50,6 +50,7 @@ import { PERIOD_KINDS, bucketsFor, inPeriod, periodAt } from "../lib/periods.js"
 import { accountantCsv, accountantFilename } from "../lib/accountant-export.js";
 import { api } from "../lib/api.js";
 import ExpenseModal from "../components/ExpenseModal.jsx";
+import BulkJobModal from "../components/BulkJobModal.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import { Segmented } from "../components/controls.jsx";
 import RecordHost from "../components/RecordHost.jsx";
@@ -142,6 +143,11 @@ export default function Money() {
   const [unpaid, setUnpaid] = useState([]);
   const [extrasError, setExtrasError] = useState("");
   const [adding, setAdding] = useState(false);
+  // ROADMAP 8.10 — the dealership job, logged after the fact with no
+  // automatic pricing. It lives on Money rather than on Today because what
+  // the detailer is recording is what they were PAID; the job itself is
+  // already done and nobody is being scheduled.
+  const [loggingBulk, setLoggingBulk] = useState(false);
   const [allExpenses, setAllExpenses] = useState(false);
   const [selected, setSelected] = useState(null);
   const [markingPaid, setMarkingPaid] = useState(null);
@@ -546,6 +552,20 @@ export default function Money() {
           </button>
         )}
       </div>
+
+      {/* ROADMAP 8.10 — THE DEALERSHIP JOB. His instruction was that above the
+          vehicle limit it is a phone call, so what the product owes him is a
+          way to WRITE DOWN what he did and what he got: *"log a ton of cars
+          down and how much they got from it."*
+
+          It is a plain row rather than a figure, and it sits at the bottom
+          because it is the rarest thing on this screen — a detailer does this
+          a few times a year, and putting it beside Collected would give it
+          the weight of something they read every day. */}
+      <button className="btn ghost" style={{ marginTop: 12 }}
+        onClick={() => setLoggingBulk(true)}>
+        <Plus strokeWidth={2} /> Log a bulk job
+      </button>
     </>
   );
 
@@ -554,6 +574,10 @@ export default function Money() {
       {adding && (
         <ExpenseModal onClose={() => setAdding(false)}
           onSaved={() => { setAdding(false); loadExtras(); }} />
+      )}
+      {loggingBulk && (
+        <BulkJobModal onClose={() => setLoggingBulk(false)}
+          onSaved={() => { setLoggingBulk(false); reload(); }} />
       )}
       {/* A job is a RECORD: beside its list at a desk, a sheet below --wrap
           (§1d). It was a <Sheet> at every width here, which made the same

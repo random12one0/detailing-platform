@@ -13,7 +13,13 @@ export const BOOKING_SELECT =
   // research called that out as load-bearing rather than nice to have. Every
   // member can SELECT plans (see the migration's RLS block), so this join
   // costs no permission.
-  + "plan:plans(id, name)";
+  + "plan:plans(id, name), "
+  // ROADMAP 8.10. The cars AFTER the first, on this same visit. Every screen
+  // that shows a booking reads through this ONE select, so a second car
+  // reaches the job record, the row, the day panel, the calendar and the
+  // client's own history in a single line — and none of them can be the one
+  // that forgot.
+  + "vehicles:booking_vehicles(position, vehicle_size_label, vehicle_model)";
 
 // Attach business-local date/time strings so screens never re-derive them.
 export function withLocal(b, tz) {

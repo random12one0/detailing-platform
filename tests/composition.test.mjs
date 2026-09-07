@@ -852,8 +852,21 @@ console.log("\ntest 11: paper, and water and power in all three places");
   // **IT LEADS THE SUB-LINE.** `.row-item .sub` is `nowrap` with an ellipsis
   // — the rule that silently deleted the twelve-month commitment off a phone
   // in roadmap 2.20. Appended, this is the first thing truncation eats.
-  check("11e-iii · and it leads the line, so truncation cannot eat it",
-    /\[bring\.length \? `Bring \$\{bring\.join\(" and "\)\}` : null, \.\.\.services, where\]/.test(row));
+  // REWRITTEN IN 8.10, AND THE REWRITE IS THE POINT. It was a byte-exact
+  // match of the whole array literal, so adding a THIRD leading fact (the car
+  // count, which leads for exactly the same reason) turned it red without the
+  // rule it guards having moved an inch — a check that fails on a correct
+  // change is a check somebody deletes. It asks about ORDER now, and it
+  // asserts PRESENCE first, because `indexOf(a) < indexOf(b)` is at its
+  // greenest when `a` has been deleted.
+  {
+    const bringAt = row.indexOf("`Bring ${bring.join(\" and \")}`");
+    const servicesAt = row.indexOf("...services");
+    const whereAt = row.indexOf("where,");
+    check("11e-iii · and it leads the line, so truncation cannot eat it",
+      bringAt > 0 && servicesAt > 0 && whereAt > 0
+        && bringAt < servicesAt && servicesAt < whereAt);
+  }
   check("11f · and the owner's booking email carries it",
     /b\.serviceType === "mobile" && \(b\.hasWater === false \|\| b\.hasPower === false\)/.test(tmpl));
   // UNDEFINED IS A THIRD STATE — the detailer may have the question switched

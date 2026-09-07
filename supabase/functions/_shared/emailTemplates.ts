@@ -104,6 +104,14 @@ export interface BookingEmailData {
   serviceType: string;   // mobile | dropoff
   vehicleSize: string;
   vehicleModel: string | null;
+  // ROADMAP 8.10 — the vehicles AFTER the first, on this same visit.
+  // OPTIONAL, and absent is the honest answer for every booking made before
+  // multi-vehicle existed. The MONEY for these cars is already itemised on
+  // the three money emails, because each one is a line in `price_adjustments`;
+  // what this adds is the FACT ROW, which is the half the owner's alert and
+  // the owner's reminder live on — a detailer loading the van needs the
+  // number of cars, and those two emails carry no money table at all.
+  extraVehicles?: { size: string; model?: string | null }[];
   // IDEA 11 — what the customer said they can supply at their own address.
   // OPTIONAL, and `undefined` is a third state that means NOBODY WAS ASKED:
   // the detailer may have the question switched off. Only an explicit `false`
@@ -175,6 +183,24 @@ const sizeDisplay = (s: string) =>
     small: "Small car", compact: "Compact", mid: "Mid-size", midsize: "Mid-size",
     large: "Large / SUV", suv: "SUV", truck: "Truck", xl: "Extra large",
   } as Record<string, string>)[String(s).toLowerCase()] ?? s;
+
+// ROADMAP 8.10 — THE ONE PLACE THREE FACT TABLES ASK "WHICH CAR". All three
+// used to name exactly one, which is right for every booking this product had
+// ever taken and silently wrong the day a customer books three: the detailer
+// reads "Large · F-150" and packs for one car.
+//
+// One vehicle renders byte-identically to what it always did, so nothing
+// about an ordinary booking's email moves.
+const vehicleFact = (b: BookingEmailData): [string, string] => {
+  const one = (size: string, model?: string | null) =>
+    `${esc(sizeDisplay(size))}${model ? ` &middot; ${esc(model)}` : ""}`;
+  const extras = b.extraVehicles ?? [];
+  if (!extras.length) return ["Vehicle", one(b.vehicleSize, b.vehicleModel)];
+  return [
+    `Vehicles (${extras.length + 1})`,
+    [one(b.vehicleSize, b.vehicleModel), ...extras.map((v) => one(v.size, v.model))].join("<br>"),
+  ];
+};
 
 const firstName = (full: string) => String(full || "").trim().split(" ")[0] || "there";
 
@@ -329,7 +355,7 @@ function quoteLines(b: BookingEmailData): MoneyLine[] {
 const jobFacts = (brand: TenantBrand, b: BookingEmailData): [string, string][] => [
   ["Where", esc(jobAddress(brand, b))],
   [b.serviceType === "mobile" ? "We come to you" : "Drop-off", b.serviceType === "mobile" ? "Yes" : "At our unit"],
-  ["Vehicle", `${esc(sizeDisplay(b.vehicleSize))}${b.vehicleModel ? ` &middot; ${esc(b.vehicleModel)}` : ""}`],
+  vehicleFact(b),
 ];
 
 // ---------------------------------------------------------------------------
@@ -416,7 +442,7 @@ export function ownerNewBookingEmail(
         ? [["Bring", [b.hasWater === false ? "water" : null, b.hasPower === false ? "power" : null]
             .filter(Boolean).join(" and ")] as [string, string]]
         : []),
-      ["Vehicle", `${esc(sizeDisplay(b.vehicleSize))}${b.vehicleModel ? ` &middot; ${esc(b.vehicleModel)}` : ""}`],
+      vehicleFact(b),
     ]),
     ruleBlock(34),
     labBlock("The work"),
@@ -550,7 +576,7 @@ export function invoiceEmail(
       : `Hi ${esc(firstName(b.customerName))}, here's the invoice for the work on ${esc(dateLong)}.`),
     factsBlock([
       ["Reference", `<span class="c-ink" style="font-family:'SF Mono',Menlo,Consolas,monospace;">${esc(ref)}</span>`],
-      ["Vehicle", `${esc(sizeDisplay(b.vehicleSize))}${b.vehicleModel ? ` &middot; ${esc(b.vehicleModel)}` : ""}`],
+      vehicleFact(b),
       ["Service", b.serviceType === "mobile" ? "Mobile" : "Drop-off"],
     ]),
     ruleBlock(34),

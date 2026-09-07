@@ -291,12 +291,32 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                 {(booking.booking_add_ons ?? []).length > 0 &&
                   ` + ${(booking.booking_add_ons ?? []).map((a) => a.add_on?.name).filter(Boolean).join(", ")}`}
               </p>
+              {/* ROADMAP 8.10 — THE COUNT LEADS, AND THE CARS FOLLOW IT.
+                  It read the other way round on the first look — the first
+                  car, then "3 vehicles", then the rest — and the heading
+                  landed in the middle of its own list, so it seemed to be
+                  about the two lines under it. The count is the fact that
+                  decides what leaves the yard and a detailer must never have
+                  to work it out off a price breakdown; their money is already
+                  itemised in `price_adjustments`, so these lines are what the
+                  cars ARE. */}
+              {(booking.vehicles ?? []).length > 0 && (
+                <p className="muted">{`${(booking.vehicles ?? []).length + 1} vehicles`}</p>
+              )}
               <p className="muted">
                 {sizeLabel(booking)}
                 {booking.vehicle_model ? ` · ${booking.vehicle_model}` : ""}
                 {CONDITION_LABELS[booking.vehicle_condition]
                   ? ` · ${CONDITION_LABELS[booking.vehicle_condition]}` : ""}
               </p>
+              {[...(booking.vehicles ?? [])]
+                .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+                .map((v) => (
+                  <p className="muted" key={v.position}>
+                    {v.vehicle_size_label}
+                    {v.vehicle_model ? ` · ${v.vehicle_model}` : ""}
+                  </p>
+                ))}
               {/* W22 — what they can supply at the address, and only for a
                   mobile job. Written as what you have to BRING, because that
                   is the decision this answer feeds. */}

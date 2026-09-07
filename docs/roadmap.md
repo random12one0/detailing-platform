@@ -7276,7 +7276,7 @@ works**, which is one line at the end rather than a pause in the middle.
       money figures are tip figures, and only the detailer-entered half exists
       (`booking_line_items.category='tip'`, `FinalizeModal.jsx:31`).
 
-- [ ] 8.10 **Multiple cars.** His longest single answer — see `docs/ideas.md`
+- [x] 8.10 **Multiple cars.** His longest single answer — see `docs/ideas.md`
       37/38 for it verbatim. A per-business setting for how many vehicles one
       booking may hold; duration that does not simply multiply, because the
       setup time is not repeated; two cars across two days inside one booking.
@@ -7285,9 +7285,55 @@ works**, which is one line at the end rather than a pause in the middle.
       a way to LOG a bulk job — *"I did ten cars for this company and made this
       much"* — **with no automatic pricing, because those deals carry
       discounts.**
-      **ABSENT structurally:** `bookings` carries singular `vehicle_size` and
-      `vehicle_model`, `booking_services` has no vehicle column, there is no
+      **ABSENT structurally:** `bookings` carried singular `vehicle_size` and
+      `vehicle_model`, `booking_services` has no vehicle column, there was no
       `vehicles` table. The largest item in this phase.
+      **DONE 2026-09-07, AND THE ITEM TURNED ON IT BEING THREE FACTS RATHER
+      THAN ONE FEATURE.** *(Full reasoning: DECISIONS.md → "Roadmap 8.10".)*
+      **(1) Two cars on ONE VISIT is one booking.** `booking_vehicles` holds
+      vehicles 2..N and `position >= 2` is a CHECK CONSTRAINT, so the first
+      car's facts have exactly one home. **The money for an extra car rides
+      `price_adjustments`** — the rail the plan discount and every 2.8c
+      surcharge already use, and the reason is visible: multiplying `basePrice`
+      would print two cars on the receipt as one line reading *"Full Detail
+      $440"*, a number the customer cannot add up.
+      **(2) Two cars on TWO DAYS is TWO BOOKINGS**, joined by
+      `booking_group_id`, because one booking is one time range and the
+      exclusion constraint, `available-slots` and every screen rest on that.
+      The page calls `create-booking` once per car, so **there is no second
+      pricing model in this item at all**: travel is charged twice because the
+      detailer really drives out twice, and the split QUOTE is defined as the
+      sum of those calls rather than as arithmetic of its own.
+      **(3) The dealership job computes nothing**, is a booking row rather than
+      a table of its own (so Money, the export and the job record work
+      untouched), and is EXCLUDED from the overlap constraint — a job being
+      logged already happened, and refusing to record last Tuesday because last
+      Tuesday has two bookings on it is the feature failing at the only moment
+      anybody uses it.
+      **THE TIMING IS THE PART HE ACTUALLY ASKED FOR**, and it is
+      `business_settings.extra_vehicle_minutes_saved` — a setting, because how
+      long setting up takes is the detailer's own trade knowledge — with a
+      PROPORTIONAL floor so a 40-minute saving on a 20-minute wash cannot make
+      the second car take negative time. **Price is untouched**; he said the
+      saving is in the timing.
+      **`max_vehicles_per_booking` DEFAULTS TO 1 AND THE WHOLE FEATURE IS
+      INVISIBLE UNTIL A DETAILER MOVES IT.**
+      **PROVEN AGAINST THE DEPLOYED FUNCTIONS, and that is where both real
+      defects were caught** — neither was visible from any screen: the engine
+      was handed size STRINGS after its input became objects, so every extra
+      car priced silently at the base size while the row, the label and the
+      model were all correct; and the group guard matched on email OR phone, so
+      one household address put two different people in one group.
+      **`tests/multi-vehicle.test.mjs` — 60 checks, thirteen baselined by
+      breaking what they guard.** § 1–5 are credential-free, § 6 books against
+      the live project and prints SKIPPED rather than passing without one.
+      **MEASURED, at 392: one car 24px spare, two 114px, three 16px.** The
+      count control is free because past one car the size CARDS become the
+      drop-down this step already used past four sizes — but the per-car row
+      had to be its own two-column class: on `.bk-grid2`, which stacks at
+      400px, three cars put step 3 **158px past the bottom of a phone**.
+      **`demo-riverside` is the seeded three-car business, deliberately not
+      `demo-detail`**, whose spare-room figures this repo quotes.
 
 - [ ] 8.11 **Delete a customer.** *"There should be an option where if you
       click on a customer, they just delete their info… is that not already an

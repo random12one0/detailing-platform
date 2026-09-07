@@ -187,8 +187,51 @@ export function normalizeSettings(raw) {
     pay_zelle: settings.pay_zelle ?? null,
     pay_paypal: settings.pay_paypal ?? null,
     pay_other: settings.pay_other ?? null,
+    // ROADMAP 8.10 — how many cars one booking may hold. 1 is the answer for
+    // every business that has not turned it on, and 1 makes the whole feature
+    // invisible: no count control, no extra vehicles, payloads identical to
+    // what they were. The SERVER caps it too — this is the courteous half.
+    max_vehicles_per_booking: Number(settings.max_vehicles_per_booking) || 1,
   };
 }
+
+// ---------------------------------------------------------------------------
+// ROADMAP 8.10 — MULTIPLE CARS ON ONE VISIT.
+//
+// The owner: *"have that in a setting: how many cars can someone book in one
+// booking."* Everything below is the rules half; how a form DRAWS the choice
+// is the site's, like every other step.
+//
+// TWO CARS ON TWO DAYS IS NOT THIS. That is two bookings sharing a group —
+// one booking is one time range, and the availability engine, the exclusion
+// constraint and every screen rest on that.
+// ---------------------------------------------------------------------------
+
+export const maxVehicles = (settings) =>
+  Math.max(1, Math.min(10, normalizeSettings(settings).max_vehicles_per_booking));
+
+export const vehicleCount = (form) => 1 + ((form?.extraVehicles?.length) ?? 0);
+
+// Growing and shrinking the list, capped by the tenant's own limit. A new car
+// starts at the SAME size as the first, which is the ordinary case (a
+// household's two cars are usually alike) and is never a price the customer
+// did not see — the review step lists every vehicle with its own figure.
+export function setVehicleCount(form, wanted, settings) {
+  const cap = maxVehicles(settings);
+  const n = Math.max(1, Math.min(cap, Number(wanted) || 1));
+  const have = form.extraVehicles ?? [];
+  const next = have.slice(0, n - 1);
+  while (next.length < n - 1) next.push({ size: form.vehicleSize, model: "" });
+  return next;
+}
+
+// What the two money calls carry. Undefined rather than an empty array when
+// there is one car, so a single-vehicle payload is byte-identical to every
+// one this product has ever sent.
+const extraVehiclePayload = (form) =>
+  (form.extraVehicles ?? []).length
+    ? form.extraVehicles.map((v) => ({ size: v.size, model: (v.model ?? "").trim() || null }))
+    : undefined;
 
 // Which ways to pay this detailer actually accepts, in the order the emails
 // print them — a site's "how to pay" section, from the same six columns
@@ -274,6 +317,14 @@ export function initialForm(settings, known) {
     addOns: [],
     vehicleSize: s.vehicle_sizes[0]?.key ?? "small",
     vehicleModel: "",
+    // ROADMAP 8.10 — the cars AFTER the first, each { size, model } and, when
+    // they are on different days, { date, time } as well. Empty is the
+    // ordinary booking and the only state a one-car business can reach.
+    extraVehicles: [],
+    // *"They could set it for two different days."* False is one appointment
+    // for the lot, which is the ordinary case and the one that saves setup
+    // time; true is one appointment per car, on days the customer picks.
+    splitDays: false,
     vehicleCondition: "",
     // If only one mode is offered it is chosen for the customer and the
     // question is never asked.
@@ -528,6 +579,14 @@ export function canAdvance(stepName, { form, settings, quote, quoting }) {
       }
       return true;
     case "When":
+      // ROADMAP 8.10 — on a split booking EVERY car needs its own day and
+      // time, not just the first. Without this the customer walks past step
+      // 5 having scheduled one car and the submit refuses the rest, which is
+      // the worst place in the flow to find out.
+      if (form.splitDays && (form.extraVehicles ?? []).length) {
+        return !!form.bookingDate && !!form.startTime
+          && form.extraVehicles.every((v) => !!v.date && !!v.time);
+      }
       return !!form.bookingDate && !!form.startTime;
     case "Details":
       return !!(form.customerName?.trim() && form.customerPhone?.trim() && form.customerEmail?.trim());
@@ -552,6 +611,7 @@ export function quoteRequest(form, { planId, promoApplied } = {}) {
     service_ids: form.serviceIds,
     add_ons: form.addOns,
     vehicle_size: form.vehicleSize,
+    extra_vehicles: extraVehiclePayload(form),
     applied_promo_code: promoApplied || undefined,
     service_type: form.serviceType || undefined,
     travel_zone: form.travelZone || undefined,
@@ -561,12 +621,25 @@ export function quoteRequest(form, { planId, promoApplied } = {}) {
     booking_date: form.bookingDate || undefined,
     start_time: form.startTime || undefined,
     plan_id: planId || undefined,
+    // ROADMAP 8.10. On a split booking the figure on the bar is the SUM of
+    // the separate bookings that will be made, so the server has to be told
+    // which shape it is pricing — travel is charged per trip and a promo is
+    // spent per booking, and both answers change with this one flag.
+    split_days: form.splitDays ? true : undefined,
   };
 }
 
 export const quoteKey = (form, { planId, promoApplied } = {}) => JSON.stringify([
   form.serviceIds, form.addOns, form.vehicleSize, promoApplied || null,
   form.serviceType, form.travelZone, form.bookingDate, form.startTime, planId || "",
+  // ROADMAP 8.10. A second car changes the price AND the duration, so leaving
+  // it out of this list is a stale price on the bar and a stale length handed
+  // to `available-slots` — the customer is offered a slot too short for the
+  // job and the server refuses the booking at the last step. Only the SIZES
+  // matter to a quote; a car's own day is what makes the split price differ,
+  // and that is the flag beside them.
+  (form.extraVehicles ?? []).map((v) => v.size),
+  !!form.splitDays,
 ]);
 
 // `plan_id` is an ID AND NOTHING ELSE. The name, the kind and the amount all
@@ -583,6 +656,7 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
     travel_zone: form.travelZone || null,
     vehicle_size: form.vehicleSize,
     vehicle_model: form.vehicleModel?.trim() || null,
+    extra_vehicles: extraVehiclePayload(form) ?? null,
     vehicle_condition: form.vehicleCondition || null,
     service_ids: form.serviceIds,
     add_ons: form.addOns,
@@ -614,6 +688,46 @@ export function bookingRequest(form, { planId, promoApplied, campaignSlug, visit
     website: form.website || "",
   };
 }
+
+// ROADMAP 8.10 — WHAT A FORM ACTUALLY POSTS, WHICH IS ONE CALL OR SEVERAL.
+//
+// The customer fills in one form; underneath, cars on different days are
+// separate appointments, because one booking is one time range. This is the
+// rule for turning the one into the other, and it is in the core rather than
+// in `BookingPage` for the usual reason: a tenant site that re-derives it
+// from a screenshot will get the grouping or the per-car date wrong and
+// nothing will report it.
+//
+// POST THEM IN ORDER. The first is an ordinary booking; every one after it
+// goes through `groupedWith(payload, firstBooking.id)`, which is what makes
+// the set one thing. **A failure part way through is not corruption** — each
+// call is a complete booking of its own — so a caller reports what was booked
+// and what was not, and never pretends to roll anything back.
+export function bookingRequests(form, opts = {}) {
+  const base = bookingRequest(form, opts);
+  const extras = form.extraVehicles ?? [];
+  if (!form.splitDays || !extras.length) return [base];
+  // On a split booking NO call carries extra vehicles: each is one car on one
+  // day. Leaving them on would price the first booking for the whole carload
+  // and then book the rest again.
+  const first = { ...base, extra_vehicles: null };
+  return [
+    first,
+    ...extras.map((v) => ({
+      ...first,
+      vehicle_size: v.size,
+      vehicle_model: (v.model ?? "").trim() || null,
+      booking_date: v.date,
+      start_time: v.time,
+    })),
+  ];
+}
+
+// The id of the booking this one belongs with. The SERVER decides whether to
+// honour it — it checks the sibling is this business's and the same person's
+// — so a site can only ask.
+export const groupedWith = (payload, firstBookingId) =>
+  ({ ...payload, group_with: firstBookingId || null });
 
 // ---------------------------------------------------------------------------
 // What this device remembers. Roadmap 2.14 step 3, in the owner's own words:

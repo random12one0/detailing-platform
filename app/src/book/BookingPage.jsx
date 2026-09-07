@@ -28,7 +28,7 @@ import { tenantHost } from "../lib/host.js";
 import { duration, money } from "../lib/format.js";
 import { BookingBusinessProvider, useBookingBusiness } from "./BookingBusinessContext.jsx";
 import {
-  bookable, bookingRequest, campaignFor, canAdvance as coreCanAdvance, initialForm,
+  bookable, bookingRequests, campaignFor, canAdvance as coreCanAdvance, groupedWith, initialForm,
   modeLimitFor, offersBothModes, quoteKey as coreQuoteKey, quoteRequest,
   recallCustomer, rememberCustomer, stepsFor, toggleService as coreToggleService,
   visitorIdFor,
@@ -42,6 +42,12 @@ import StepDetails from "./steps/StepDetails.jsx";
 import StepReview from "./steps/StepReview.jsx";
 import BookingConfirmed from "./BookingConfirmed.jsx";
 import "./booking.css";
+
+// ROADMAP 8.10 — how the message names a car whose slot went. Words, not
+// digits: this sentence is the only place a customer meets the split booking
+// going wrong, and "the 3th car" is how a form loses somebody's trust.
+const NTH = [null, "second car", "third car", "fourth car", "fifth car",
+  "sixth car", "seventh car", "eighth car", "ninth car", "tenth car"];
 
 // Roadmap 2.7, W19 (the step sequence), and roadmap 2.14 step 3 (what the
 // device remembers) both moved into ./core.js in roadmap 3.2, with their
@@ -241,14 +247,40 @@ function BookingFlow({ notFound = null }) {
     setSubmitting(true);
     setSubmitError("");
     try {
-      const r = await api.createBooking(slug, bookingRequest(form, {
+      // ROADMAP 8.10 — ONE CALL, OR ONE PER CAR. `bookingRequests` is the
+      // core's rule for which: cars on the same day are one booking, cars on
+      // different days are one booking each, joined by naming the first.
+      //
+      // A LATER CALL FAILING IS NOT A ROLLBACK. Each one is a complete,
+      // confirmed appointment the moment it returns — deleting it because the
+      // NEXT car's slot went would throw away a booking the customer has
+      // already been given. So the error names what happened and the first
+      // booking stands.
+      const payloads = bookingRequests(form, {
         planId, promoApplied: promoState.applied,
         // ROADMAP 4.2 — the attribution, resolved server-side against this
         // business's own campaigns. Sent on every booking; null on almost all
         // of them, which is what makes the ones that are not null worth
         // counting.
         campaignSlug, visitorId: visitor,
-      }));
+      });
+      let r = null;
+      for (let i = 0; i < payloads.length; i++) {
+        try {
+          const one = await api.createBooking(
+            slug, i === 0 ? payloads[0] : groupedWith(payloads[i], r?.booking?.id),
+          );
+          if (i === 0) r = one;
+        } catch (e) {
+          if (i === 0) throw e;
+          setSubmitError(
+            `Your first car is booked. The time for the ${NTH[i] ?? `car ${i + 1}`} `
+            + `was taken while you were filling this in — please book it separately. (${e.message})`,
+          );
+          setSubmitting(false);
+          return;
+        }
+      }
       // Remembered only once the booking actually landed: a device that
       // remembers an abandoned form is remembering somebody who left.
       // `quote.plan_id` rather than `planId` on purpose — it is the id the
@@ -434,7 +466,14 @@ function BookingFlow({ notFound = null }) {
           <StepLocation form={form} setForm={setForm} modeLimit={modeLimit} />
         )}
         {stepName === "When" && (
-          <StepWhen form={form} setForm={setForm} durationMinutes={quote?.total_duration} />
+          <StepWhen
+            form={form} setForm={setForm}
+            durationMinutes={quote?.total_duration}
+            // ROADMAP 8.10 — one length per car on a split booking, because a
+            // truck and a hatchback do not need the same window. Absent on an
+            // ordinary booking, and the step falls back to the whole job.
+            durations={(quote?.per_vehicle ?? []).map((v) => v.durationMinutes)}
+          />
         )}
         {stepName === "Details" && <StepDetails form={form} setForm={setForm} />}
         {stepName === "Review" && (

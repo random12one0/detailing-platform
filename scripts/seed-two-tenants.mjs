@@ -39,6 +39,14 @@ const TENANTS = [
       min_advance_minutes: 1440, max_advance_days: 30,
       cancellation_window_hours: 48,
       site_discount_active: true, site_discount_percent: 10, site_discount_label: "New customer 10% off",
+      // ROADMAP 8.10 — THE ONLY SEEDED BUSINESS THAT TAKES MORE THAN ONE CAR,
+      // and it is deliberately NOT the demo. *A configuration nothing seeds is
+      // a configuration nothing tests* — but seeding it on `demo-detail` would
+      // put the count control on the one booking page whose spare-room figures
+      // this repo quotes, and move a W16 baseline that has nothing to do with
+      // this item. `sweep-booking-steps.mjs` measures the multi-car layout
+      // here instead, at every width, in its own block.
+      max_vehicles_per_booking: 3, extra_vehicle_minutes_saved: 15,
     },
     // Two services. A small menu must look deliberate, not broken.
     services: [

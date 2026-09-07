@@ -64,6 +64,37 @@ export async function buildBrand(business: Business, settings: BusinessSettings)
 
 // Where owner alerts go: the configured list, or the business contact
 // address when the list is empty, so notifications never silently stop.
+/**
+ * ROADMAP 8.10 — THE VEHICLES AFTER THE FIRST, FOR AN EMAIL'S FACT ROW.
+ *
+ * Eight edge functions assemble a `BookingEmailData` and seven of them read a
+ * booking row that says nothing about a second car. **A sender that forgets
+ * this produces a perfectly valid email naming one car for a three-car job**,
+ * and nothing on any screen ever reports it — the same invisible shape as a
+ * `site` argument forgotten at one of thirteen call sites (roadmap 3.3).
+ *
+ * So it is ONE function, called by every sender, and
+ * `tests/multi-vehicle.test.mjs` discovers the senders by reading the source
+ * rather than trusting a list in a comment: a hand-written caller list in this
+ * repo has already been short by one.
+ *
+ * The LABEL is what an email prints, exactly as the primary vehicle prints
+ * `vehicle_size_label || vehicle_size`.
+ */
+// deno-lint-ignore no-explicit-any
+export async function extraVehiclesFor(bookingId: string): Promise<{ size: string; model: string | null }[]> {
+  const { data } = await supabase
+    .from("booking_vehicles")
+    .select("position, vehicle_size, vehicle_size_label, vehicle_model")
+    .eq("booking_id", bookingId)
+    .order("position");
+  // deno-lint-ignore no-explicit-any
+  return (data ?? []).map((v: any) => ({
+    size: v.vehicle_size_label || v.vehicle_size,
+    model: v.vehicle_model ?? null,
+  }));
+}
+
 export function ownerRecipients(business: Business, settings: BusinessSettings): string[] {
   const list = (settings.notification_emails ?? []).map((e) => String(e).trim()).filter(Boolean);
   if (list.length) return [...new Set(list)];

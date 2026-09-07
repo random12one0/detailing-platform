@@ -253,6 +253,8 @@ were made more than once.
 
 - **Roadmap 8.7 — five small corrections, one of which turned out not to exist** — **F-010, the five-second quote, DOES NOT REPRODUCE**: against the deployed functions the whole customer path is about 2.1s with nothing over 0.8, and the five seconds was a dev server. Recorded rather than fixed, with the numbers, so nobody measures it a third time. **F-018 was THREE clocks, not two** — the platform month began at midnight UTC, which is 5pm the previous day in Los Angeles, so a detailer jobs on the 1st fell into last month takings; and the per-business chart ran on the ADMIN BROWSER, so the same detailer months moved with whoever opened it. Both now use the business own zone, reusing _shared/tz.ts rather than a second copy, and it is **proven as BEHAVIOUR**: the same booking lands in August for a Los Angeles detailer and September in UTC. **The print stylesheet found a bug only printing could find** — the first version hid every button element and the day work VANISHED, because JobRow is a button, so still-to-do printed as an empty heading. A control is a CLASS here, never an element. The landing chrome is handled in landing.css because a bare .nav in the global sheet is the collision composition 4b catches. **F-009 withholds the figure rather than guessing it**: rendering the founding price optimistically would advertise a spot that may be gone, which is what that page fails CLOSED to avoid — and the blank is written as an ESCAPE, never as a literal non-breaking space, which would be the invisible-byte trap a third time. **And idea 11 is one fact on three surfaces**, leading the row sub-line rather than trailing it because that line is nowrap with an ellipsis, with undefined kept as a third state meaning nobody was asked.
 
+- **Roadmap 8.10 — multiple cars, and the three different facts inside one ask** — his longest single answer, and the item turns on it being THREE facts rather than one feature. **Two cars on one VISIT is one booking** (`booking_vehicles` for 2..N, `position >= 2` as a constraint so one fact has one home) and **the money for an extra car rides `price_adjustments`** — multiplying `basePrice` instead prints two cars as one receipt line reading *Full Detail $440*, a number nobody can add up, and extra `booking_services` rows read as the same service sold three times. The extras sit INSIDE the surcharge base or a percentage rule charges one car and does the rest free; **a plan settles ONE car**, or a member gets three free details for one month's subscription; **an add-on is per VISIT**, which is what makes the same-day and split-day halves agree with no rule of their own. **The timing is his actual ask** — a per-business setup allowance, price untouched, with a PROPORTIONAL floor so a 40-minute saving on a 20-minute wash cannot make the second car take negative time. **Two cars on two DAYS is two bookings**, because one booking is one time range and the whole availability engine rests on that: the page calls `create-booking` once per car, so there is no second pricing model and travel, rounding and promo all come out right for free; the split quote is DEFINED as the sum of those calls. **A later call failing is not a rollback** — each is a real appointment. **The dealership job computes nothing by his instruction**, is a booking row rather than a table so Money and the export work untouched, and is excluded from the overlap constraint because a job being LOGGED already happened. **Two real defects were found by the live probe and by nothing else**: the engine was handed size STRINGS where it now takes objects, so every extra car priced at the base size while the row, the label and the model were all correct; and the group guard matched on email OR phone, so one household address joined two different people.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -14899,3 +14901,140 @@ older caller that passes neither draws nothing rather than claiming the customer
 has water. **And the render fixture answers NO to both**, because a fixture that
 says yes cannot reach the case the check is written for — this repo's most
 repeated failure.
+
+## Roadmap 8.10 — multiple cars, and the three different facts inside one ask
+
+His longest single answer to anything (`docs/ideas.md` 37/38), and the whole
+item turns on noticing that it is **three separate facts** rather than one
+feature. Merging any two of them is how it goes wrong.
+
+### 1 · Two cars on ONE VISIT is one booking
+
+`booking_vehicles` holds vehicles 2..N; vehicle 1 stays in the columns it has
+always lived in. **`position >= 2` is a CHECK CONSTRAINT rather than a
+convention**, because the alternative design — a row per car including the
+first — writes the same fact twice, and two copies of one fact is how a
+receipt and a job sheet start disagreeing about what was booked. Every render
+path, every email and the accountant export keep working untouched.
+
+**THE MONEY FOR AN EXTRA CAR RIDES `price_adjustments`, AND THAT IS THE WHOLE
+INTEGRATION** — the same rail the plan discount, the quote difference and every
+2.8c surcharge already use. The obvious build multiplies `basePrice`, and it
+fails visibly: `quoteLines` reconstructs its service line as *everything not
+otherwise named*, so two cars would print on the receipt as one line reading
+**"Full Detail  $440"** — a number the customer cannot add up, which is the
+invoice defect this repo has already shipped once. Extra `booking_services`
+rows fail differently: that table has no vehicle column, so three cars would
+read as the same service sold three times.
+
+**The extras are INSIDE `beforeAdjustments`, not added after it.** A 10%
+Saturday surcharge is 10% of the day's work; folding the cars in afterwards
+would charge the surcharge on one car and do the rest for free.
+
+**A PLAN COVERS ONE CAR.** `planLineFor` is handed the first vehicle's services
+alone, so "included" and a per-visit rate settle one car and the second is paid
+for, while a percentage still comes off the whole job because *"10% off every
+visit"* says so. Passing the carload would give a member three free details for
+one month's subscription.
+
+**AN ADD-ON IS PER VISIT, NOT PER CAR**, and that one sentence is what makes
+the two halves of the item agree without a rule for either: three cars in one
+driveway is one visit and pays once; the same three across three days is three
+visits and pays three times, which falls out of the split arithmetic below.
+
+### 2 · The timing, which is what he actually asked for
+
+*"It auto-calculates the timing — obviously it's not gonna be double the time
+of one car, because there's not gonna be the setup time."*
+
+`business_settings.extra_vehicle_minutes_saved`, **a setting rather than a
+constant** — how long setting up takes is the detailer's own trade knowledge,
+and a mobile rig with a tank is not a drop-off bay. **PRICE IS NOT TOUCHED**:
+he said the saving is in the timing, and a detailer who wants a two-car
+discount already has promo codes.
+
+**The floor is PROPORTIONAL rather than absolute** and it is the only judgment
+in the arithmetic: a detailer who saves 40 minutes and then sells a 20-minute
+express wash would otherwise have the second car take a negative amount of
+time. Half of one car is the least a second car may ever take.
+
+**`max_vehicles_per_booking` defaults to 1 and the entire feature is invisible
+until a detailer moves it.** The setup default is 15 rather than 0, and that is
+the one guess in the migration: zero would ship the exact behaviour he said was
+wrong to anybody who raises the limit and does not notice a second field.
+
+### 3 · Two cars on TWO DAYS is TWO BOOKINGS
+
+*"They could set it for two different days without having to create two
+different bookings."* **The FORM is one; underneath it is one booking per day,
+because ONE BOOKING IS ONE TIME RANGE** — `bookings_no_overlap`,
+`available-slots`, the day panel and every screen rest on that, and giving a
+booking two ranges means rewriting all of it. `booking_group_id` is what makes
+them one thing to the customer.
+
+**The page books the first car and then calls `create-booking` again per car,
+naming the first — so there is no second pricing model anywhere in this item.**
+Each call is an ordinary single-car booking priced by the ordinary path, and
+that gets every awkward case right for free: travel is charged twice because
+the detailer really drives out twice, the rounding happens per booking because
+that is where it happens, and a promo is spent per booking exactly as it would
+be if the two cars were booked separately. **The split QUOTE is therefore
+defined as the sum of those calls rather than as arithmetic of its own** —
+the only definition that cannot drift from what is charged.
+
+**A LATER CALL FAILING IS NOT A ROLLBACK.** Each one is a complete confirmed
+appointment the moment it returns, so deleting it because the next car's slot
+went would throw away a booking the customer has already been given. The
+message names what was booked and what was not.
+
+**And the split review shows a LIST of appointments instead of an itemisation.**
+Every figure in that receipt would be a sum across two or three bookings, which
+is the un-addable-up line again; each car's own email itemises the booking it
+belongs to.
+
+### 4 · The dealership job, which is manual by his instruction
+
+*"There shouldn't be auto calculations, because obviously when they do this
+there's discounts."* **So `BulkJobModal` computes nothing** — no services, no
+sizes, no travel, no promo, no rounding, and deliberately no "$95 a car" line
+under the two fields. A check reads that file and fails on any arithmetic
+touching the amount.
+
+**It is a BOOKING ROW, not a table of its own**, which buys Money's totals, the
+accountant export, the day it happened on and the job record for free; a
+`bulk_jobs` table would need all four written again and one would be forgotten.
+**`bulk_vehicle_count` rows are excluded from the overlap constraint**, because
+a job being LOGGED already happened — refusing to record last Tuesday because
+last Tuesday already has two bookings on it is the feature failing at the only
+moment anybody uses it.
+
+**It writes straight from the browser, like `ExpenseModal` beside it.** The
+rule it looks like it breaks is about a CLIENT naming a price for something the
+SERVER sells; here there is no customer, no quote and no server arithmetic to
+protect. **It dates the job in the BUSINESS's timezone by importing
+`_shared/tz.ts` directly** — that module imports nothing, so Vite bundles it,
+and F-018 was three copies of this same question disagreeing.
+
+### What the checks caught, and what caught the checks
+
+**Two real defects were found by the live probe and neither was visible from
+any screen or any source read.** `create-booking` handed the pricing engine
+size STRINGS after the engine's input became objects, so **every extra car
+priced silently at the base size** — the booking was created, the extra vehicle
+row was written, the model and label were right, and only the money and the
+duration were wrong. And the group guard matched on email **OR** phone, so two
+bookings from one household address with different numbers landed in one group;
+it requires every identifier they both carry to agree now, **and at least one
+comparison to have actually happened**, because "nothing disagrees" is vacuous
+between two rows with nothing in common.
+
+**A `composition` check had to be rewritten rather than satisfied.** 11e-iii was
+a byte-exact match of `JobRow`'s whole sub-line array, so adding a third leading
+fact — the car count, which leads for exactly the same truncation reason —
+turned it red without the rule it guards having moved. It asks about ORDER now,
+and asserts PRESENCE first, because `indexOf(a) < indexOf(b)` is at its greenest
+when `a` has been deleted.
+
+**And 5l failed on the migration's own header** explaining why the setup minutes
+stay private — the comment-vacuity trap arriving for the fourth time in this
+repo, in a check written by somebody who had just read about it.

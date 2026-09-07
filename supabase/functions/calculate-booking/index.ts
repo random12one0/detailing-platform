@@ -19,7 +19,7 @@ import { json, preflight } from "../_shared/http.ts";
 import { businessBySlug, getSettings } from "../_shared/tenant.ts";
 import {
   computeQuote, matchPriceRules, planInputFor, resolveAddOns, resolvePlan,
-  resolvePromo, resolveServices, resolveTravel, whenContextFor,
+  resolvePromo, resolveServices, resolveTravel, resolveVehicles, whenContextFor,
 } from "../_shared/pricing.ts";
 import { localDateTimeToInstant, weekdayOf } from "../_shared/tz.ts";
 
@@ -59,10 +59,25 @@ Deno.serve(async (req) => {
       localDateTimeToInstant, weekdayOf,
     );
     const adjustments = matchPriceRules(settings.price_rules, when);
+    // ROADMAP 8.10 — how many cars, resolved against the tenant's own size
+    // list and capped by the tenant's own limit. The quote endpoint applies
+    // exactly the same cap as create-booking, so a form that offers a third
+    // car to a two-car business shows the price of two rather than quoting
+    // one figure and charging another.
+    const vehicles = resolveVehicles(
+      Array.isArray(settings.vehicle_sizes) ? settings.vehicle_sizes : [],
+      body.vehicle_size,
+      body.extra_vehicles,
+      Number(settings.max_vehicles_per_booking) || 1,
+    );
     const quote = computeQuote({
       services,
       addOns,
-      vehicleSize: String(body.vehicle_size || "small"),
+      vehicleSize: vehicles[0].key,
+      vehicleSizeLabel: vehicles[0].label,
+      extraVehicles: vehicles.slice(1),
+      extraVehicleMinutesSaved: Number(settings.extra_vehicle_minutes_saved) || 0,
+      splitDays: body.split_days === true,
       siteDiscountPercent: settings.site_discount_active ? Number(settings.site_discount_percent) : 0,
       promo: promo ? { type: promo.type, value: promo.value } : null,
       roundingNearest: Number(settings.price_rounding_nearest),
@@ -97,6 +112,20 @@ Deno.serve(async (req) => {
         plan_name: plan ? plan.name : null,
         total_duration: quote.totalDurationMinutes,
         buffer_minutes: settings.buffer_minutes,
+        // ROADMAP 8.10 — what the server actually priced. The page prints
+        // "2 cars" from THIS rather than from its own state, so a car the cap
+        // dropped is a car the customer stops seeing a price for.
+        vehicle_count: vehicles.length,
+        // ROADMAP 8.10 — one entry per car when they are on different days,
+        // absent otherwise. Each `total` is what that car's own booking will
+        // be charged, because it IS that booking's quote; the review step
+        // prints the list instead of one itemisation, since an itemisation
+        // belongs to one appointment and this is several.
+        per_vehicle: quote.legs ?? null,
+        // The length ONE appointment needs, which is what `available-slots`
+        // has to be asked for on a split booking. On a same-day booking it is
+        // the whole job and equals total_duration.
+        single_vehicle_duration: quote.legs ? quote.legs[0].durationMinutes : quote.totalDurationMinutes,
       },
     });
   } catch (err) {

@@ -220,7 +220,7 @@ the owner.
 
 ## Situations with no answer yet
 
-- `[~]` **37 · 38 · Multiple cars.** **He said yes, with the most detail of
+- `[x]` **37 · 38 · Multiple cars.** **BUILT, roadmap 8.10, 2026-09-07.** **He said yes, with the most detail of
   any item.** In his words:
   *"Maybe we can have options where someone could book multiple cars at once…
   if the day allows for it. And it auto-calculates the timing — obviously it's
@@ -234,9 +234,10 @@ the owner.
   dealership… we need a way that would be easy for the detailer to just log a
   ton of cars down and how much they got from it. And there shouldn't be auto
   calculations, because obviously when they do this there's discounts."*
-  **ABSENT structurally** — `bookings` carries singular `vehicle_size` and
-  `vehicle_model`, `booking_services` has no vehicle column, and there is no
-  `vehicles` table. This is a schema change.
+  **WAS ABSENT structurally** — `bookings` carried singular `vehicle_size` and
+  `vehicle_model`, `booking_services` has no vehicle column, and there was no
+  `vehicles` table. `booking_vehicles`, `bookings.booking_group_id` and
+  `bookings.bulk_vehicle_count` are what it became; three facts, kept apart.
 - `[ ]` **39 · A rain-day button.** **Deferred to SMS.** *"Usually I just text
   them — 'hey, I can't do that' — personally. That's better than an email. But
   if we implement the SMS, that'd be good."*
