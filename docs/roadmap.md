@@ -7541,18 +7541,60 @@ works**, which is one line at the end rather than a pause in the middle.
       price editor had existed since 4.4 stage 4 and nothing had ever
       photographed it either.**
 
-- [ ] 8.15 **Referral links and loyalty.** Ideas 17 and 47, both of which he
+- [~] 8.15 **Referral links and loyalty.** Ideas 17 and 47, both of which he
       wants **as opt-in settings with automatic emails**. Both were
       deliberately DROPPED in `20260827001000` for having zero rows, and
       re-adding them is already the substance of roadmap 4.2 — so this item
       and 4.2 should be reconciled rather than run twice.
+      **BLOCKED ON HIM, AND IT IS THE SAME BLOCK AS 4.2's ITEM P: what does a
+      referral EARN?** Inventing that is exactly what this repo forbids. What
+      was missing until 2026-09-07 was a RECOMMENDATION beside the question —
+      *"your call"* is an unfinished sentence — so the trade was researched and
+      one is now in `docs/overnight-log.md`, answerable in a word.
+      **The finding that shapes it: a service beats a percentage.** The trade's
+      own pattern is *a free wash and wax after five visits* rather than 10%
+      off, because a percentage trains a customer to wait for a sale while an
+      earned service is worth more than it costs. And a referral pays BOTH
+      sides — the introduction was going to happen anyway; what is being bought
+      is the new person's first visit.
+      **A FIXED AMOUNT RATHER THAN A PERCENTAGE, for a reason specific to this
+      trade:** a percentage off a $440 full detail and off a $120 wash are two
+      very different gifts out of one setting, and this product's own catalogue
+      spans exactly that range.
 
-- [ ] 8.16 **Google Business Profile.** The idea he was most enthusiastic
+- [~] 8.16 **Google Business Profile.** The idea he was most enthusiastic
       about, and he asked for more than the idea offered: **two-way sync**, so
       photos uploaded to the platform appear on GBP and hours changed here
       change there. Free API, needs an OAuth client. **Research whether the
       WRITE half is achievable before designing anything** — that is his
       question 16 in `docs/overnight-log.md`.
+      **RESEARCHED 2026-09-07 — `docs/google-business-profile-research-2026-09-07.md`.
+      THE WRITE HALF IS ACHIEVABLE AND ALMOST NONE OF THE COST IS CODE.** It is
+      TWO separate Google reviews in a fixed order, and both need
+      `detailingplatform.com` live with a mailbox on its own domain.
+      **(1) A new Google Cloud project has ZERO quota for these APIs** — not a
+      low one, none. **(2) An API access request reviewed by a human, "within
+      14 days"**, wanting a use case, a call volume and a business email on the
+      business's own domain. **(3) `business.manage` is a SENSITIVE scope, so
+      the OAuth app needs verification too** — a SECOND review the item's own
+      wording did not anticipate, 3–5 business days, including proving
+      ownership of the redirect URL's domain. **(4) Each detailer's own profile
+      must be verified and about 60 days old**, which is a fact about them and
+      belongs on the settings screen or the first one to try it meets a failure
+      that looks like our bug.
+      **AND THE FAILURE TO EXPECT LOOKS EXACTLY LIKE A BROKEN INTEGRATION:**
+      Google's console currently reports `business.manage` as NON-sensitive
+      while the backend hard-blocks every external user at consent with
+      `403 access_denied`. Scopes, redirect URIs and client id will all be
+      correct; the app is simply unverified and the console is wrong about
+      whether it needs to be.
+      **THE ARCHITECTURE IS THE ONE ROADMAP 4.2's ITEM O IS ALREADY BLOCKED
+      ON** — a per-tenant OAuth token store — **so Google Calendar gets cheaper
+      the moment this exists and the two should be decided together.**
+      **RECOMMENDATION: start both applications now and build nothing until the
+      API access one is answered.** They cost an hour of his time between them
+      and the waiting is the long pole; building first is a finished feature
+      nobody can switch on.
 
 - [ ] 8.17 **Spanish.** *"A lot of detailers speak Spanish… make sure you don't
       do bad translating."* And the limit he named himself: *"I can't check

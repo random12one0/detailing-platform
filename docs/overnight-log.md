@@ -613,6 +613,31 @@ recommendation each:
   If the answer is "not yet", say so and I will drop the dead column**, because
   a column nothing maintains is exactly what this repo flags everywhere else.
 
+  **A RECOMMENDATION, ADDED 2026-09-07, BECAUSE THE QUESTION HAD BEEN SITTING
+  HERE WITHOUT ONE.** I read what detailers and car washes actually run.
+  **Say yes to this and it is a normal build:**
+
+  **Referral — both sides get a fixed DOLLAR amount, not a percentage.** The
+  person referring gets a credit off their next job; the new customer gets the
+  same amount off their first. The trade's own numbers land around 10–20% of a
+  typical ticket, so **$25 each side** is the right shape for this catalogue.
+  **A fixed amount rather than a percentage matters here specifically**: your
+  own menu runs from a $120 wash to a $440 full detail, and "20% off" out of one
+  setting is two completely different gifts. An amount is also a number you can
+  say out loud on a card.
+
+  **Loyalty — an earned SERVICE, not a discount.** *"Every fifth detail, the
+  interior is on us"* rather than *"10% off your fifth"*. This is the one thing
+  the research is emphatic about: a percentage teaches people to wait for a
+  sale, while something earned is worth more to the customer than it costs the
+  detailer. It is also the version a detailer can explain in one sentence.
+
+  **Both OFF by default and per detailer**, the same shape as the multiple-car
+  limit — invisible until somebody turns it on.
+
+  **All you have to say is "yes" or a different number.** If it is "not yet",
+  say that instead and I will drop the dead column.
+
 ---
 
 ## Roadmap 4.4 stage 1 — your own dashboard for managing detailers
@@ -2670,6 +2695,41 @@ screen and the price on the card are computed in two different places — and
 that is exactly how a product ends up charging something different from what
 it showed. Ours computes it once and uses that one answer for the screen, the
 receipt, the agreement you tick and what it costs to leave early.
+
+## Google Business Profile: yes it can work, and the long pole is Google, not code
+
+You were most excited about this one and you asked for more than the idea
+offered — photos uploaded here appearing on your Google listing, hours changed
+here changing there. **I researched whether the writing half is actually
+possible before designing anything, which is what the roadmap told me to do.**
+
+**It is possible.** What surprised me is that almost none of the cost is
+building it. It is **two separate Google reviews**, and they both need
+detailingplatform.com to be a live site with a real mailbox on that domain.
+
+1. A brand new Google project has **zero** permission for these APIs — not a
+   small allowance, none at all.
+2. You apply for access and **a person at Google reads it**, within about two
+   weeks. They want to know what you are doing with it, roughly how much, and
+   they want the application to come from an email on your own domain.
+3. Separately, the permission our app asks each detailer for counts as
+   "sensitive", so **the app itself has to be reviewed too** — another few days,
+   and it includes proving we own the address the sign-in comes back to.
+4. And each detailer's own Google listing has to be verified and about two
+   months old. That is about them, not us, but the screen has to say so or the
+   first person to try it thinks we are broken.
+
+**My recommendation: start both applications now and build nothing until the
+first one comes back.** They cost you about an hour between them, they do not
+expire, and the waiting is the slow part. If I build it first I will hand you a
+finished feature nobody can switch on for three weeks.
+
+**One thing that makes it better value than it looks**: this needs exactly the
+same plumbing that Google Calendar sync is blocked on, so doing this makes that
+one a much smaller job afterwards. They are worth deciding together.
+
+Full detail, with Google's own pages linked:
+`docs/google-business-profile-research-2026-09-07.md`.
 
 ## Judgement calls made alone
 
