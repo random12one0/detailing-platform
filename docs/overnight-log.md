@@ -2600,12 +2600,42 @@ stripper nobody has watched work is not something to trust with addresses.
 
 ### ONE THING I SAW WHILE LOOKING AT THE BACK OFFICE
 
-**The email counter reads 165 of 100 for today.** That is the warning from last
-night's work doing its job — it is almost entirely my own test runs, not real
-customers — but it does mean the platform has spent more than Resend's free
-daily allowance today. Nothing is broken and nothing needs doing tonight. It is
-the number to watch on a real busy day, and the way to answer it is to upgrade
-Resend and raise the cap, exactly as you said.
+**The email counter read 165 of 100 for today, and by the end of the night it
+was 173 sent and 7 refused.** That is the warning you asked for doing exactly
+its job — it is my own test runs and not real customers — and then the thing it
+was warning about actually happened: Resend started answering *"you have
+reached your daily email sending quota"* and the last few test emails were
+turned away.
+
+**Nothing is broken and nothing needs doing tonight.** There are no detailers
+on the product, so nobody's confirmation went missing. But it is worth seeing
+what it looks like, because on a real busy Saturday it looks the same: the
+booking still works, the row is still right, the money is still right, and the
+customer simply never gets the email. **The answer is the one you already gave
+— upgrade Resend and raise the cap** — and it costs nothing until there is
+somebody to lose.
+
+## For about half an hour tonight, nothing in the back end could be published — fixed, nothing for you to do
+
+**No action needed. Writing it down because it is the kind of thing that will
+happen again and it is worth you knowing it can.**
+
+The thirty small server programs that run the booking engine all share one line
+of setup, and that line fetched the Supabase library from a free public
+mirror called esm.sh. Tonight that mirror stopped being able to serve one of
+the library's own sub-parts — nothing to do with us, nothing we changed — and
+**every one of the thirty stopped being publishable at once**, including ones
+nobody had touched in weeks.
+
+The part worth knowing: **we had pinned our version, and it made no
+difference.** The version we asked for was exact; the versions IT asked for
+were "anything recent", and the mirror decides what that means at the moment
+you publish. So somebody else's release, on a service we do not pay for, could
+stop us shipping.
+
+It now takes the library from the official npm registry instead, which is where
+the rest of the world gets it. The mirror is out of the path completely. All
+thirty are republished and every test in the repo passes against them.
 
 ## Judgement calls made alone
 

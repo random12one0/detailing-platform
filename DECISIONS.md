@@ -261,6 +261,8 @@ were made more than once.
 
 - **Roadmap 8.12 — the dead man's switch, and the one thing it cannot see about itself** — `job_heartbeats` has recorded when each scheduled job last finished since 7.3 and **nothing ever told anybody**: a monitor you have to remember to visit, about the one class of failure whose whole character is that nobody knows to look. `watch-jobs` emails the owner instead. **The alarm rings ONCE and that is one SQL statement**, not a read and a follow-up write — `claim_job_alerts()` decides and marks in a data-modifying CTE, so two overlapping runs cannot both send and a job down for a week is not in the result; an alert every quarter of an hour is one that goes to a folder, and then the next real one goes there too. **And it cannot be LOST**, which is quieter and worse: `release_job_alerts` puts the stoppages back when the send fails, and only the stoppages. **The watcher is its own cron job rather than a tail on the reminder sweep**, because folding it in would have made that sweep the only thing able to report that that sweep had stopped — the job this product has actually watched break — and **it stamps no heartbeat of its own**, because a watcher watching itself is a green light it wrote for itself. **Its liveness is an outside ping, and that is the bootstrap problem no code in the file can solve**: it runs on the same `pg_cron` it watches, so pg_cron stopping takes the alarm with it and the silence is identical to health. `healthcheck_url` is NULL, so the back office prints *"NOTHING outside is watching the scheduler itself"* — a monitor that is switched off must never look like a monitor with nothing to report. **The staleness windows moved out of the screen into the row** (two copies of a threshold is how a screen says a job is fine while the alarm is ringing), in SECONDS rather than as an `interval`, because PostgREST renders an interval in whichever text shape Postgres picks. **Proven by driving a throwaway job down and back up against the deployed function**, with `owner_email` swapped for Resend's simulator and asserted back in the test's own `finally` — leaving it would have silenced every real alert for ever with nothing on any screen looking different.
 
+- **esm.sh stopped this product shipping any backend change, and pinning our own version had not helped** — `_shared/db.ts` is imported by all thirty edge functions and read `https://esm.sh/@supabase/supabase-js@2.39.0`. **That release declares its own dependencies as RANGES**, which esm.sh resolves at DEPLOY time; it resolved `@supabase/functions-js@^2.1.5` to `2.116.0`, which esm.sh answers 404 for, so the bundler reported *Module not found* for every function at once — including ones untouched for weeks. **Pinning your own dependency does not pin its dependencies when a CDN resolves them on every build.** Moved to `npm:@supabase/supabase-js@2.58.0`: Supabase's edge runtime is Deno 2, so npm specifiers resolve from the registry and esm.sh is out of the deploy path entirely. Measured rather than guessed — `2.39.0` resolves ranges, `2.45.0` and later resolve to exact versions that exist. All thirty redeployed and the whole env-backed battery green against the new copies.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15349,3 +15351,57 @@ designed. It prints the URL and that explanation beside the count now.
 DASHBOARD and not on `/admin`** — so the label written to stop somebody
 chasing a non-defect did nothing, silently, which is the failure it was
 written against.
+
+
+## esm.sh stopped this product shipping any backend change, and pinning our own version had not helped
+
+**2026-09-07, found in the middle of roadmap 8.12 and unrelated to it.** Three
+functions had deployed cleanly twenty minutes earlier; then every deploy began
+failing with
+
+    Failed to bundle the function (reason: Module not found
+    "https://esm.sh/@supabase/functions-js@2.116.0?target=denonext")
+
+**It looks exactly like a change having broken the world, and nothing in this
+repo had changed.** `_shared/db.ts` is imported by all thirty edge functions,
+so one unresolvable module is every function in the product at once.
+
+### PINNING OUR OWN VERSION DID NOT PIN ITS DEPENDENCIES
+
+The import was `https://esm.sh/@supabase/supabase-js@2.39.0` — an exact
+version, which is what a careful pin looks like. But **that release declares
+its own dependencies as ranges** (`@supabase/functions-js@^2.1.5`), and esm.sh
+resolves a range at the moment somebody asks for the bundle. It resolved to
+`2.116.0`, which esm.sh itself then answers 404 for.
+
+Measured rather than reasoned about: `2.39.0` emits `^`-ranged imports;
+`2.45.0`, `2.49.0` and `2.58.0` each emit an exact version that resolves.
+
+**The transferable half is the general shape: with a CDN in the deploy path,
+somebody else's publish can stop this product shipping backend changes, with
+no warning and no diff to look at.** A version number in our file bought
+nothing, because it was never the version that broke.
+
+### `npm:` RATHER THAN A NEWER esm.sh PIN
+
+The one-character fix was to bump the esm.sh version to one whose dependencies
+happen to be exact today. That leaves the same failure available tomorrow, on
+whatever the next release ranges.
+
+Supabase's edge runtime is Deno 2 and supports `npm:` specifiers natively, so
+`npm:@supabase/supabase-js@2.58.0` resolves from the npm registry and **esm.sh
+is out of the deploy path entirely.** One line, thirty functions, one fewer
+third party able to stop a deploy.
+
+**Proven rather than assumed, because a bundle that builds is not a bundle that
+runs:** all thirty deployed, `check-deployed` reports all thirty current, and
+the whole env-backed battery — booking-engine, request-mode, staff-roles,
+job-photos, timezone-and-slots, ics-and-notifications, platform-billing,
+forget-customer, closed-until, multi-vehicle, platform-admin,
+dead-mans-switch — is green against the new copies.
+
+**One check had to be re-pointed and one is worth naming.** `platform-billing`
+pinned the exact text `!fromPlatform && business.contact_email`, and 8.12 put a
+`!` in it; the guard is unchanged. A check that pins a spelling goes red on a
+correct change, which is annoying, and a check left pointing at deleted code
+goes vacuous, which is worse.

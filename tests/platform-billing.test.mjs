@@ -689,8 +689,11 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
   check("nor does our own rate limit or a timeout",
     /const ourFault = res\.status >= 500 \|\| res\.status === 429 \|\| res\.status === 408;/.test(relay),
     "a 429 is our quota, not their address");
+  // The `!` arrived with roadmap 8.12: `business` is now looked up only when
+  // there IS one, so TypeScript needs the assertion — the guard in front of it
+  // is unchanged and is what this check is about.
   check("a platform send does not reply-to the tenant",
-    relay.includes("!fromPlatform && business.contact_email"));
+    /!fromPlatform && business!?\.contact_email/.test(relay));
   const hook = read("supabase/functions/stripe-webhook/index.ts");
   check("the webhook sends as the platform", hook.includes("senderName: PLATFORM_NAME"));
   check("the platform signs as itself", PLATFORM_NAME === "Detailing Platform");

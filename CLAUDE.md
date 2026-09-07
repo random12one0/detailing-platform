@@ -2240,6 +2240,49 @@ explaining it; if they still have to ask "so should I?", it failed.
   and after a click, not by reading the file.
 - Report what was observed, never "this should work."
 
+- **`e2e-booking` REPORTS 78/82 WITH FOUR EMAIL FAILURES ONCE THE DAY'S 100
+  SENDS ARE GONE, AND THAT IS NOT A REGRESSION — measured 2026-09-07, when a
+  night of building spent 173.** The two failing checks are *"and answered 200
+  every time"* and *"the provider took it"*, and the message says so in as many
+  words: `{"statusCode":429,"name":"daily_quota_exceeded"}`. **The booking
+  itself passes** — the row, the price, the slot, the reschedule, the cancel —
+  and it is only the email leg that goes red.
+  **THE TELL IS THE STATUS CODE IN THE FAILURE TEXT, and the back office says
+  it first**: its health line prints *"Emails: N of 100 today"* and turns red at
+  four fifths, which is roadmap 8.6 working rather than a defect. **Resend's
+  free plan is 100 a day ACROSS EVERY TENANT** and the transactional set spends
+  about five a booking, so a session that books repeatedly will exhaust it. The
+  spenders are the suites that BOOK — `e2e-booking`, `booking-engine`,
+  `request-mode`, `multi-vehicle` § 6; **`render-emails.mjs` costs nothing**,
+  because it renders to disk and sends none.
+  **Nothing to fix, and nothing to bisect.** The answer is the same one the
+  screen gives him: raise the cap by upgrading Resend. Until then a session that
+  needs the email leg green has to run it on a day with room in it.
+
+- **EVERY EDGE FUNCTION IN THIS REPO BECAME UNDEPLOYABLE ON 2026-09-07, BY
+  NOTHING ANYBODY HERE DID — AND THE FIX IS IN, SO DO NOT PUT THE OLD IMPORT
+  BACK.** `_shared/db.ts` is imported by all thirty functions and it read
+  `https://esm.sh/@supabase/supabase-js@2.39.0`. **That version's own
+  dependencies are RANGES** (`@supabase/functions-js@^2.1.5`), which esm.sh
+  resolves AT DEPLOY TIME to whatever is newest — and it resolved to
+  `2.116.0`, which esm.sh then answers **404** for. So the Supabase bundler
+  reported *"Module not found"* and **not one function in this repo could be
+  deployed**, including ones whose source had not changed in weeks.
+  **THE VERSION IN OUR FILE WAS PINNED AND IT MADE NO DIFFERENCE**, which is
+  the transferable part: pinning your own dependency does not pin its
+  dependencies when a CDN resolves them for you on every build. Measured
+  rather than guessed — `2.39.0` resolves the range, `2.45.0` and later
+  resolve to exact versions that exist.
+  **IT IS `npm:@supabase/supabase-js@2.58.0` NOW.** Supabase's edge runtime is
+  Deno 2 and supports `npm:` specifiers natively, so the bundle resolves from
+  the npm registry with a lockable version and **esm.sh is out of the deploy
+  path entirely.** Proven: all thirty deployed, `check-deployed` reports all
+  thirty current, and the env-backed battery is green against the new copies.
+  **A SESSION THAT SEES A BUNDLE ERROR NAMING esm.sh SHOULD SUSPECT esm.sh
+  BEFORE IT SUSPECTS THE DIFF.** This one arrived in the middle of an unrelated
+  item, twenty minutes after three functions had deployed cleanly, and it looks
+  exactly like a change having broken the world.
+
 - **IF A SCHEDULED JOB STOPS, HE IS EMAILED — roadmap 8.12, 2026-09-07 — AND
   THE ONE THING TO UNDERSTAND IS WHAT THAT SWITCH CANNOT SEE ABOUT ITSELF.**
   `watch-jobs` runs every fifteen minutes on `pg_cron`, asks
