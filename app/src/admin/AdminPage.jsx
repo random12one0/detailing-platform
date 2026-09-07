@@ -32,7 +32,8 @@ import {
   billingState, bookability, daysSince, monthlySeries, owedByUs, trend, workload,
 } from "../lib/adminInsight.js";
 import { useLeaving } from "../hooks/useLeaving.js";
-import { beginImpersonation, endImpersonation, impersonation } from "../lib/impersonation.js";
+import { beginImpersonation, impersonation } from "../lib/impersonation.js";
+import { signOutEverything } from "../lib/signout.js";
 import "./admin.css";
 
 const call = async (body) => {
@@ -529,9 +530,14 @@ export default function AdminPage() {
   // the sign-out throws, the note has to go anyway — a stale one would tell
   // the next person on this browser that they are impersonating somebody they
   // are not.
+  // **ONE DOOR — ROADMAP 8.18.** This was one of TWO sign-outs outside
+  // `BusinessContext`, both found by grepping for the call rather than by
+  // listing them, and all three now go through `lib/signout.js` so the parked
+  // accounts are ended at the server as well as forgotten here. That is why
+  // `tests/two-logins.test.mjs` § 5 DISCOVERS every `auth.signOut(` in
+  // `app/src` instead of naming them.
   async function signOutNow() {
-    endImpersonation();
-    await supabase.auth.signOut();
+    await signOutEverything();
     window.location.href = "/admin";
   }
   const progress = detail && b

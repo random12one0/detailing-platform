@@ -10,8 +10,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api.js";
-import { supabase } from "../lib/supabase.js";
 import { planChoice, planQuery } from "../lib/planChoice.js";
+import { signOutEverything } from "../lib/signout.js";
+import ParkedAccounts from "../components/ParkedAccounts.jsx";
 
 const slugify = (name) =>
   name.toLowerCase().trim()
@@ -165,11 +166,21 @@ export default function CreateBusiness({ onDone }) {
         </button>
         <button
           type="button" className="btn ghost" style={{ marginTop: 10 }}
-          onClick={() => supabase.auth.signOut()}
+          // ONE DOOR — roadmap 8.18; `lib/signout.js` has why. This is the way
+          // out for somebody who signed up and decided not to finish.
+          onClick={signOutEverything}
         >
           Sign out
         </button>
       </form>
+      {/* ROADMAP 8.18 — AND THIS ONE WAS FOUND BY DRIVING THE FEATURE. An
+          account with no membership lands here, this screen has no header and
+          therefore no gear, and its only exit is *Sign out* — which empties
+          the park by design. So adding a second account that turned out to
+          have no business left you with no way back to the first except its
+          password: a dead end nothing would have reported, because every
+          check passed and the screen looked right. */}
+      <ParkedAccounts label="Or go back to" />
     </div>
   );
 }

@@ -7654,11 +7654,87 @@ works**, which is one line at the end rather than a pause in the middle.
       carry no picker, so they promise nothing they cannot do — and § 4b fails
       if one ever appears there.
 
-- [ ] 8.18 **Two logins at once.** *"Maybe there's an account switcher — like
+- [x] 8.18 **Two logins at once.** *"Maybe there's an account switcher — like
       how on Chrome you could log into multiple Google accounts and switch
       between accounts."* **Different from what exists**: `SwitchBusiness.jsx`
       switches between memberships on ONE login; his ask is two separate
       accounts, both signed in.
+      **BUILT 2026-09-07.** `app/src/lib/accounts.js` is the PARK — the other
+      accounts' tokens, in this browser, beside the one Supabase already keeps
+      — plus `components/ParkedAccounts.jsx`, *Add another account* in the
+      gear's Account block, and `useAccount` / `addAccount` on the context.
+      `tests/two-logins.test.mjs`, 49 checks, twelve breaks all caught.
+      **ONE LIVE SESSION, THE REST PARKED, AND THAT IS THE WHOLE DESIGN.** A
+      Supabase client holds exactly one session and every call in this app is
+      bound to it; a second client means a second auth storage key, a second
+      `onAuthStateChange` and every call site knowing which it meant — a fork
+      of the data layer to buy a convenience. Switching is `parkCurrent()`
+      then `setSession()`. A parked session is never refreshed while parked,
+      which is what makes its token still good when it comes out.
+      **THE ONE THAT COST A REBUILD: NO SCOPE OF `signOut` DOES WHAT PARKING
+      NEEDS.** The obvious version signs out `{ scope: "local" }`, reading
+      "local" as *forget it here*. GoTrue's `local` means **revoke the CURRENT
+      session's refresh token** — the exact token parked a line earlier — so
+      adding a second account silently destroyed the first; `global` revokes
+      all of them and `others` revokes everything except the one being
+      abandoned, and `_signOut` POSTs `/logout` for every one. **Found by
+      driving it in a browser**: pressing the parked name landed on the
+      sign-in screen with `null` where the token should be. Reading the scope
+      documentation had produced the wrong answer twice. `endSessionLocally()`
+      drops the client's own storage entry and nothing else, matching the
+      chunked `…auth-token.0` shape too, and reports failure so the caller can
+      take the honest exit rather than leave a park nobody can see.
+      **AND WAITING WAS NOT AN OPTION EITHER** — leaving the first session live
+      while the second signs in fails differently: the client auto-refreshes,
+      refresh tokens rotate, and the parked snapshot is revoked by the very
+      session it is a snapshot of.
+      **THE SECURITY HALF: SIGNING OUT EMPTIES THE WHOLE PARK, FIRST.** A Sign
+      out that leaves a second account's refresh token in this browser is a
+      button that does not do what it says — the next person at the tablet
+      presses the other name and is in — and doing it after the network call
+      means a failed request leaves them there. **There were THREE
+      `auth.signOut(` call sites and the obvious one was the only one anybody
+      would have listed**; the back office's exit and the half-finished-signup
+      exit were found by grepping for the call, so § 5 of the suite DISCOVERS
+      every one of them and fails on a fourth door that forgets.
+      **AND THE DEAD END WAS FOUND BY DRIVING IT, NOT BY DESIGNING IT.** An
+      account with no membership lands on the create-a-business screen, which
+      has no header and therefore no gear, and its only exit is Sign out —
+      which empties the park by design. So adding a second account that turned
+      out to have no business left no way back to the first except its
+      password. `ParkedAccounts` is drawn there too, and it switches through
+      the ONE `useAccount` rather than a second copy: its first draft had one
+      and silently did not park the session it was leaving.
+      **`Switch business` IS UNTOUCHED AND MUST STAY THAT WAY.** It is the
+      memberships of one signed-in person, it touches no token at all, and
+      § 6 fails if it ever learns about sessions.
+      **AND THE SECURITY REVIEW FOUND THE ONE THAT MATTERED, WHICH IS WHY THAT
+      REVIEW IS NOT OPTIONAL ON AN AUTH ITEM.** The first version emptied the
+      park LOCALLY and revoked nothing — and the `signOut()` beside it runs as
+      the LIVE user, so it ended that user's token family and left every parked
+      one valid **for ever**, because a parked session is never refreshed and
+      Supabase refresh tokens do not expire on their own. On the shared van
+      tablet this feature is FOR, that is the owner pressing Sign out and
+      handing over a working key: a refresh token is bound to neither device
+      nor origin, so a copy taken out of `localStorage` still works from
+      anywhere. **Before this feature, sign-out really did end the one session
+      in this browser — keeping that true is the whole point.**
+      `endParkedSessions()` refreshes each parked token (a parked access token
+      is usually expired, and `logout` with a stale JWT answers 401 and revokes
+      nothing while looking like it worked) and then logs it out globally,
+      best-effort, AFTER the local clear — a failed round trip must never leave
+      another account reachable here.
+      **AND IT COLLAPSED THREE DOORS INTO ONE.** `app/src/lib/signout.js` is
+      now the only `auth.signOut(` in `app/src`; the gear, the back office and
+      the half-finished-signup exit all call it, because "the same three things
+      in three places" is how the third one quietly stops doing the third.
+      § 5 fails on a fourth door.
+      **TWO PROCESS NOTES.** A dangling `forgetAll` reference survived
+      `npm run build` — rollup does not error on an undefined identifier — and
+      took the whole dashboard down behind the error boundary; it was found by
+      OPENING the page. And baselining caught a check that read the file's own
+      IMPORT rather than the function body, on the very break it existed for,
+      which is this repo's most repeated test defect arriving again.
 
 - [x] 8.19 **Mileage per job, and "on my way" on the booking screen.** Two
       small detailer-facing additions. Idea 07 — *"they could have a way to log

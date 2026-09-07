@@ -21,6 +21,14 @@ if (!configured) {
 // So: build against an unreachable placeholder instead of throwing. The
 // marketing page renders, and anything that actually calls the API fails
 // with a clear error at the point of use.
+// ROADMAP 8.18 — exported because ending a PARKED session is a raw call to
+// GoTrue rather than something the client can do: the client holds one session
+// and the parked ones are not it. `lib/accounts.js` is deliberately free of
+// every import so it stays runnable in Node, so it is handed these instead of
+// reaching for them.
+export const supabaseUrl = url || "";
+export const supabaseAnonKey = anonKey || "";
+
 export const supabase = createClient(
   url || "https://unconfigured.invalid",
   anonKey || "unconfigured-anon-key",

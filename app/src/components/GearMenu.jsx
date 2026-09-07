@@ -30,7 +30,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
-  Bell, Building2, ChevronRight, Compass, CreditCard, KeyRound, LogOut, MessageSquare, Shield, Smartphone, Users, X,
+  Bell, Building2, ChevronRight, Compass, CreditCard, KeyRound, LogOut, MessageSquare, Shield, Smartphone, UserPlus, Users, X,
 } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
@@ -70,7 +70,14 @@ function billingNow(sub) {
 }
 
 export default function GearMenu({ onClose, onTour, initial = null }) {
-  const { business, settings, subscription, label, role, can, memberships, signOut } = useBusiness();
+  const {
+    business, settings, subscription, label, role, can, memberships, signOut,
+    accounts, addAccount, useAccount,
+  } = useBusiness();
+  // ROADMAP 8.18. `accounts` is read at render, so it is already right after a
+  // switch — the auth change re-renders the whole provider.
+  const [acctError, setAcctError] = useState("");
+  const [switching, setSwitching] = useState(false);
   const owner = role === "owner";
   // `initial` is how /pricing's choice survives the two screens between it and
   // a card — signup lands on /app?settings=billing&term=..., App.jsx opens the
@@ -204,6 +211,60 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
             {SUPPORT_SHORT}{" "}
             <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
           </p>
+          {/* ── ROADMAP 8.18 — TWO LOGINS AT ONCE ────────────────────────
+              *"Maybe there's an account switcher — like how on Chrome you
+              could log into multiple Google accounts and switch between
+              accounts."*
+
+              IT IS IN THE ACCOUNT BLOCK RATHER THAN A ROW OF ITS OWN, beside
+              Sign out, because those two are the same act — leaving this
+              person for another one — and a row that opens a screen to show
+              two names wastes the tap it cost. *Switch business* stays a row
+              upstairs and is a DIFFERENT thing: the memberships of the one
+              person who is signed in.
+
+              **NOTHING IS DRAWN UNTIL THERE IS SOMETHING TO PRESS.** A list
+              with one name on it is a picker that cannot change anything —
+              the same rule that keeps *Switch business* off a
+              one-membership account — so only the *Add* button is here until
+              a second person has actually signed in. */}
+          {accounts.length > 0 && (
+            <div style={{ marginBottom: "var(--sp-2)" }}>
+              <span className="label">Also signed in here</span>
+              {accounts.map((a) => (
+                <button
+                  key={a.userId}
+                  className="btn"
+                  data-use-account=""
+                  disabled={switching}
+                  style={{ width: "100%", marginTop: "var(--sp-1)" }}
+                  onClick={async () => {
+                    setSwitching(true); setAcctError("");
+                    const problem = await useAccount(a.userId);
+                    if (problem) { setAcctError(problem); setSwitching(false); }
+                    // On success the auth change re-renders everything under
+                    // this, so there is deliberately nothing to do here.
+                  }}
+                >
+                  <Users strokeWidth={2} /> {a.email || "Another account"}
+                </button>
+              ))}
+            </div>
+          )}
+          {acctError && <div className="error-box" role="alert">{acctError}</div>}
+          {/* IT SIGNS THIS PERSON OUT **LOCALLY** AND LANDS ON THE SIGN-IN
+              SCREEN, which lists whoever is parked — so the press is
+              reversible in one tap rather than being a trap that costs a
+              password. `lib/accounts.js` has why the scope matters. */}
+          <button
+            className="btn"
+            data-add-account=""
+            disabled={switching}
+            style={{ marginBottom: "var(--sp-1)" }}
+            onClick={async () => { setSwitching(true); await addAccount(); }}
+          >
+            <UserPlus strokeWidth={2} /> Add another account
+          </button>
           <button className="btn" onClick={signOut}>
             <LogOut strokeWidth={2} /> Sign out
           </button>

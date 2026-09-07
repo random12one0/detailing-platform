@@ -7,6 +7,10 @@ import { supabase } from "../lib/supabase.js";
 import { can as canDo } from "../lib/permissions.js";
 import { applyDashboardAccent } from "../lib/theme.js";
 import { endImpersonation } from "../lib/impersonation.js";
+import {
+  endParkedSessions, endSessionLocally, forget, listAccounts, parkCurrent, takeAccount,
+} from "../lib/accounts.js";
+import { signOutEverything } from "../lib/signout.js";
 
 // WHICH BUSINESS THIS BROWSER LAST CHOSE. localStorage rather than the
 // database: it is a fact about this DEVICE, not about the account — the same
@@ -46,8 +50,14 @@ export function BusinessProvider({ children }) {
   const [memberships, setMemberships] = useState([]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session ?? null));
-    const { data: sub } = supabase.auth.onAuthStateChange((_evt, s) => setSession(s ?? null));
+    // ROADMAP 8.18 — **THE LIVE ACCOUNT IS NEVER ALSO IN THE PARK.** No path
+    // here puts it there, but one can leave it: a tab closed between parking
+    // the session and signing the next person in. A live account on its own
+    // switcher is a row that switches to itself, so this heals it on sight
+    // rather than every reader having to filter.
+    const settle = (s) => { if (s?.user?.id) forget(s.user.id); setSession(s ?? null); };
+    supabase.auth.getSession().then(({ data }) => settle(data.session ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_evt, s) => settle(s ?? null));
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -204,6 +214,71 @@ export function BusinessProvider({ children }) {
       loadedFor.current = null;
       return reload();
     },
+    // ── ROADMAP 8.18 — TWO LOGINS AT ONCE ──────────────────────────────
+    //
+    // *"Maybe there's an account switcher — like how on Chrome you could log
+    // into multiple Google accounts and switch between accounts."* Two
+    // separate PEOPLE, both signed in. `switchBusiness` above is the other
+    // thing entirely: the memberships of ONE person.
+    //
+    // `lib/accounts.js` holds the reasoning and the two rules that are
+    // security rather than convenience. The short version is here because it
+    // is the call sites that get them wrong:
+    //   · adding an account NEVER calls `signOut` — no scope does what parking
+    //     needs, and every one of them POSTs `/logout`. The module says why,
+    //     and it cost a rebuild to find out;
+    //   · signing out empties the park FIRST, so a failed network call cannot
+    //     leave another account reachable from a button that says Sign out.
+    accounts: listAccounts(),
+    addAccount: async () => {
+      const { data } = await supabase.auth.getSession();
+      parkCurrent(data.session, readPreferred());
+      endImpersonation();
+      // A RELOAD RATHER THAN A STATE CHANGE, because the client holds the
+      // session in memory as well as in storage — dropping the entry under a
+      // live client leaves it signed in until something makes it read again.
+      // The reload is also what the honest fallback needs, so both paths end
+      // the same way.
+      if (endSessionLocally()) { window.location.assign("/app"); return; }
+      // COULD NOT FIND THE ENTRY — a supabase-js shape change, or a browser
+      // that will not let us read the keys. Take the exit that leaves nothing
+      // dangling: every session ended, everywhere. Somebody typing a password
+      // again is a worse morning than a hole.
+      await signOutEverything();
+    },
+    // Returns null on success, or a sentence to show. A parked session can be
+    // dead for reasons nothing here can see — the password was changed, the
+    // session was revoked from another device — and the honest answer is to
+    // drop it and ask for the password again, never to leave a name on the
+    // list that cannot be pressed.
+    useAccount: async (userId) => {
+      const parked = takeAccount(userId);
+      if (!parked) return "That account is no longer signed in on this device.";
+      const { data } = await supabase.auth.getSession();
+      parkCurrent(data.session, readPreferred());
+      endImpersonation();
+      const { error } = await supabase.auth.setSession({
+        access_token: parked.access_token,
+        refresh_token: parked.refresh_token,
+      });
+      if (error) {
+        return `${parked.email || "That account"} has to sign in again.`;
+      }
+      // THE ACCOUNT THAT IS NOW LIVE MUST NOT ALSO BE IN THE PARK. It cannot
+      // be by this path, but it can by others — a tab closed halfway through
+      // adding an account, for one — and a live account on its own switcher
+      // is a row that switches to itself.
+      forget(userId);
+      // The chosen business is a fact about this DEVICE, so it is parked with
+      // the account and put back with it; without this a switch lands on
+      // whichever membership the query happens to return first.
+      try {
+        if (parked.business) localStorage.setItem(PREFERRED_KEY, parked.business);
+        else localStorage.removeItem(PREFERRED_KEY);
+      } catch { /* private mode */ }
+      loadedFor.current = null;
+      return null;
+    },
     loading: session === undefined || loading,
     reload,
     // **EVERY SIGN-OUT DROPS THE IMPERSONATION NOTE, not just the two the
@@ -213,7 +288,11 @@ export function BusinessProvider({ children }) {
     // forgotten they are impersonating. Left behind, it is a note asserting
     // something that stopped being true, which is the one state
     // `lib/impersonation.js` is written to make impossible.
-    signOut: () => { endImpersonation(); return supabase.auth.signOut(); },
+    // **ONE DOOR, AND IT ENDS THE PARKED SESSIONS AT THE SERVER RATHER THAN
+    // JUST FORGETTING THEM.** `lib/signout.js` has why — the first version of
+    // roadmap 8.18 only emptied the park locally, which left every parked
+    // refresh token valid for ever behind a button that says Sign out.
+    signOut: signOutEverything,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

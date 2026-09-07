@@ -544,6 +544,38 @@ for (const w of SIZES) {
         console.log(`${"the way in · reset".padEnd(24)} NOT MEASURED — no "I forgot my password" button`);
         found++;
       }
+      // ── ROADMAP 8.18 — THE SIGN-IN SCREEN WITH SOMEBODY PARKED ────────
+      // A STATE, not a page: it only exists when another account is signed in
+      // on this browser, which no walk can reach. Written into the same
+      // change that built it, because this repo has now found the same gap a
+      // dozen times — *the script walks NAVIGATION, and a state you reach by
+      // pressing something INSIDE a screen is not navigation.*
+      //
+      // Two rows on purpose: one address long enough to be the real risk at
+      // 320, and one short, so the card is measured at both extremes.
+      await p2.evaluate(() => {
+        const row = (id, email) => ({
+          userId: id, email, access_token: "x", refresh_token: "y",
+          business: null, parked_at: Date.now(),
+        });
+        try {
+          localStorage.setItem("dp.accounts", JSON.stringify([
+            row("sweep-1", "a-very-long-address-for-the-320-floor@northsidedetailco.example"),
+            row("sweep-2", "ana@cedar.example"),
+          ]));
+        } catch { /* private mode */ }
+      });
+      await p2.reload({ waitUntil: "domcontentloaded" });
+      await p2.waitForSelector("input[type=email]", { timeout: 20000 });
+      await settle(p2);
+      if (await p2.locator("[data-parked-accounts]").count()) {
+        found += await say("the way in · parked", p2);
+      } else {
+        // A GUARD THAT SKIPS MUST PRINT. Six measurements vanishing is
+        // byte-identical to six measurements passing.
+        console.log(`${"the way in · parked".padEnd(24)} NOT MEASURED — no [data-parked-accounts] block`);
+        found++;
+      }
     } catch (e) {
       console.log(`${"the way in".padEnd(24)} NOT MEASURED — ${String(e.message).slice(0, 80)}`);
       found++;

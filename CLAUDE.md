@@ -892,6 +892,25 @@ explaining it; if they still have to ask "so should I?", it failed.
   vacuous, found by baselining**: it tested that `withinLimits` and the bucket
   name APPEARED, and `if (false && !await withinLimits(...))` keeps every one
   of those characters while gating nothing)
+  and **`two-logins`** (**56 checks**, new 2026-09-07, roadmap 8.18 — TWO
+  ACCOUNTS SIGNED IN AT ONCE, and every defect this feature can produce is
+  invisible from the screen. § 1 RUNS `app/src/lib/accounts.js` against a stub
+  `localStorage`, because the park's job is arithmetic on a list and no source
+  read tells you that `takeAccount` removes what it returns. **§ 2 is the one
+  that matters and it exists because the security review found the first
+  version wrong**: emptying the park removes the tokens from THIS BROWSER and
+  revokes nothing, while the `signOut()` beside it runs as the LIVE user — so
+  every parked refresh token stayed valid for ever behind a button that says
+  Sign out. It runs `endParkedSessions` with a stubbed `fetch` and asserts a
+  real `logout?scope=global` per parked account, that the refresh comes FIRST
+  (a parked access token is usually expired and a stale JWT gets a 401 that
+  looks like success), and that a thrown request still leaves the park empty
+  HERE. **§ 5 discovers its subjects**: it walks all of `app/src` and fails on
+  any `auth.signOut(` outside `lib/signout.js` — there were THREE exits when
+  this was built and the item's own note named one. Seventeen breaks all
+  caught, and **two of its own checks were vacuous, both found by
+  baselining**: one read the file's own IMPORT rather than the function body,
+  and one ordering check was greenest with the thing it guards deleted)
   and **`dead-mans-switch`** (**43 checks with credentials, 26 without**, new
   2026-09-07, roadmap 8.12 — WHETHER ANYBODY IS TOLD WHEN A SCHEDULED JOB
   STOPS. `job_heartbeats` has recorded the answer since 7.3 and nothing ever
@@ -2395,6 +2414,52 @@ explaining it; if they still have to ask "so should I?", it failed.
   BEFORE IT SUSPECTS THE DIFF.** This one arrived in the middle of an unrelated
   item, twenty minutes after three functions had deployed cleanly, and it looks
   exactly like a change having broken the world.
+
+- **TWO ACCOUNTS CAN BE SIGNED IN AT ONCE — roadmap 8.18, 2026-09-07 — AND
+  IT IS NOT `Switch business`.** That screen moves between the MEMBERSHIPS of
+  one signed-in person and touches no token; this is two separate PEOPLE, two
+  passwords, both signed in, one press apart. His ask: *"maybe there's an
+  account switcher — like how on Chrome you could log into multiple Google
+  accounts."*
+  **ONE LIVE SESSION, THE REST PARKED IN `app/src/lib/accounts.js`.** A
+  Supabase client holds exactly one session and every call in this app is bound
+  to it, so a second client is a fork of the data layer to buy a convenience.
+  Switching is `parkCurrent()` then `setSession()`. **A parked session is never
+  refreshed while parked**, which is the only reason its token is still good
+  when it comes out.
+  **NO SCOPE OF `signOut` DOES WHAT PARKING NEEDS, AND READING THE DOCS GAVE
+  THE WRONG ANSWER TWICE.** GoTrue's `local` means *revoke the CURRENT
+  session's refresh token* — the exact one just parked — `global` revokes all
+  of them, `others` revokes everything except the one being abandoned, and
+  `_signOut` POSTs `/logout` for every one. `endSessionLocally()` drops the
+  client's own `sb-…-auth-token` entry instead (the chunked `.0`/`.1` shape
+  too) and reports failure so the caller can take the honest exit. **Waiting
+  is not an alternative**: leaving the first session live while the second
+  signs in lets the client auto-refresh and rotate the parked snapshot out from
+  under itself.
+  **SIGNING OUT ENDS THE PARKED SESSIONS AT THE SERVER, AND THE FIRST VERSION
+  DID NOT — the security review caught it, which is why that review is not
+  optional on an auth item.** Forgetting the park revokes nothing and the
+  sign-out beside it runs as the LIVE user, so on the shared van tablet this
+  feature is FOR, the owner pressed Sign out and handed over a working key: a
+  refresh token is bound to neither device nor origin. `endParkedSessions()`
+  refreshes each parked token then logs it out globally, **after** an
+  unconditional local clear.
+  **`app/src/lib/signout.js` IS NOW THE ONLY `auth.signOut(` IN `app/src`.**
+  There were three doors — the gear, the back office, the half-finished-signup
+  exit — and each had to remember the same three things. `two-logins` § 5 fails
+  on a fourth.
+  **AND THE DEAD END WAS FOUND BY DRIVING IT.** An account with no membership
+  lands on the create-a-business screen, which has no header and so no gear,
+  and its only exit is Sign out — which empties the park by design. So adding
+  an account that turned out to have no business left no way back except its
+  password. `components/ParkedAccounts.jsx` is drawn there and on the sign-in
+  screen, **never inside a `<form>`** (five browser scripts sign in through
+  `form button.btn.primary`, a descendant selector) and always with
+  `type="button"`.
+  **AND `npm run build` DOES NOT CATCH AN UNDEFINED IDENTIFIER** — a dangling
+  `forgetAll` reference built cleanly and took the whole dashboard down behind
+  the error boundary. Found by opening the page.
 
 - **THE CUSTOMER-FACING BOOKING SURFACE SPEAKS SPANISH — roadmap 8.17 stage
   1, 2026-09-07 — AND HIS SECOND SENTENCE IS THE DESIGN BRIEF.** *"I can't

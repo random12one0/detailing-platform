@@ -759,13 +759,20 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
     /\{state\.me && \(/.test(p13) && /\{state\.me\}/.test(p13) && /className="pa-who"/.test(p13));
   check("13a-ii · and the address is the session's own, not a guess",
     /sess\.session\.user\?\.email/.test(p13));
+  // **RE-POINTED, NOT RELAXED — ROADMAP 8.18 GAVE THE PRODUCT ONE DOOR.**
+  // This used to read the back office's own `supabase.auth.signOut()`; there
+  // were three such exits and they each had to remember to drop the note, end
+  // the parked accounts and then sign out, which is how the third one quietly
+  // stops doing the third. `app/src/lib/signout.js` is the only
+  // `auth.signOut(` in `app/src` now, so the assertion follows it there.
   check("13b · there is a sign out",
-    /function signOutNow/.test(p13) && /supabase\.auth\.signOut\(\)/.test(p13));
+    /function signOutNow/.test(p13) && /signOutEverything\(\)/.test(p13));
   // THE NOTE GOES FIRST. If the sign-out throws, a surviving note tells the
   // next person on this browser they are impersonating somebody they are not.
-  const so = p13.indexOf("function signOutNow");
-  const endAt = p13.indexOf("endImpersonation()", so);
-  const outAt = p13.indexOf("supabase.auth.signOut()", so);
+  const door = strip(read("app/src/lib/signout.js"));
+  const so = door.indexOf("export async function signOutEverything");
+  const endAt = door.indexOf("endImpersonation()", so);
+  const outAt = door.indexOf("supabase.auth.signOut()", so);
   check("13b-ii · signing out drops the impersonation note before it signs out",
     so >= 0 && endAt > so && outAt > so && endAt < outAt,
     "the note has to be cleared even if the sign-out fails");
@@ -843,13 +850,15 @@ console.log("\n13. the back office's own door (roadmap 8.2)");
   // are impersonating, and a note that outlives its session asserts something
   // that stopped being true. One place, because all three exits route through
   // it. Raised by the item's own security review and fixed rather than filed.
+  // ONE PLACE SINCE ROADMAP 8.18: the gear's exit IS `signOutEverything`, so
+  // what 13b-ii asserts about that function covers this too. What is left to
+  // check here is that the gear still routes through it rather than growing a
+  // fourth copy — `tests/two-logins.test.mjs` § 5 fails on any other
+  // `auth.signOut(` in `app/src`.
   const ctx = strip(read("app/src/context/BusinessContext.jsx"));
-  const sOut = ctx.indexOf("signOut: () =>");
-  check("13h-iv · the app's own sign-out drops the note too",
-    sOut > 0
-      && ctx.indexOf("endImpersonation()", sOut) > sOut
-      && ctx.indexOf("endImpersonation()", sOut) < ctx.indexOf("supabase.auth.signOut()", sOut),
-    "and before the sign-out, so a throw cannot leave the note behind");
+  check("13h-iv · the app's own sign-out goes through that same door",
+    /signOut: signOutEverything/.test(ctx),
+    "so the note is dropped before the sign-out there too");
   // LAW 11b: the accent is the TENANT'S identity, and this strip exists to say
   // the identity around it is not yours — so it takes the fixed pair.
   const at = theme.indexOf(".impbar {");

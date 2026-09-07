@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase.js";
+import ParkedAccounts from "../components/ParkedAccounts.jsx";
 
 // Which third-party sign-ins this project actually has switched on.
 //
@@ -105,6 +106,10 @@ export default function Auth() {
           <span className="label">Detailing Platform</span>
           <b>{resetting ? "Reset your password" : creating ? "Create your account" : "Welcome back"}</b>
         </div>
+      {/* ROADMAP 8.18 — the way back after *Add another account*. The
+          component's header has why it exists and why it is OUTSIDE the
+          form; `tests/two-logins.test.mjs` § 4 pins both. */}
+      {!resetting && <ParkedAccounts />}
         <form onSubmit={submit} className="card">
           <p className="quiet lede">
             {resetting

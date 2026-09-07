@@ -2810,6 +2810,41 @@ few minutes.** If two taps is fine, nothing to do.
 
 ---
 
+## Two accounts can be signed in at once now
+
+You asked for the Chrome thing — *"log into multiple Google accounts and switch
+between accounts"* — and that is what this is. It is **not** the *Switch
+business* row you already have: that one moves between businesses that belong
+to the SAME login. This is two different people, two different passwords, both
+signed in, one press between them.
+
+**How it works for a detailer.** Behind the gear, under Account, there is *Add
+another account*. Press it and you land on the sign-in screen — with your own
+address already listed at the top, so if you pressed it by mistake you are one
+tap from being back. Sign the second person in, and from then on the gear shows
+*Also signed in here* with the other name on it. One press, no password.
+
+**And Sign out still means signed out.** It clears every account on the
+browser, not just the one you are looking at — otherwise the next person to
+pick up the tablet could press the other name and walk straight in. That was
+the one part of this worth being careful about, and it is checked three
+different ways.
+
+Two things I want to flag, because they are the sort of thing that is easy to
+get wrong and impossible to see:
+
+**It is per browser, not per person.** The second account is remembered on the
+tablet or laptop you added it on, and nowhere else. That is deliberate — it is
+the same thing Chrome does — but it means adding your partner's account on the
+van's tablet does not add it on your phone.
+
+**It is exactly as safe as staying signed in already is.** Somebody who can
+pick up your unlocked tablet could already open your dashboard; now they could
+open the second one too. If a device is shared with someone you would not hand
+the whole business to, sign out rather than leaving both parked.
+
+---
+
 ## Judgement calls made alone
 
 *(appended as they arise)*
