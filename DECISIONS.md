@@ -255,6 +255,8 @@ were made more than once.
 
 - **Roadmap 8.10 — multiple cars, and the three different facts inside one ask** — his longest single answer, and the item turns on it being THREE facts rather than one feature. **Two cars on one VISIT is one booking** (`booking_vehicles` for 2..N, `position >= 2` as a constraint so one fact has one home) and **the money for an extra car rides `price_adjustments`** — multiplying `basePrice` instead prints two cars as one receipt line reading *Full Detail $440*, a number nobody can add up, and extra `booking_services` rows read as the same service sold three times. The extras sit INSIDE the surcharge base or a percentage rule charges one car and does the rest free; **a plan settles ONE car**, or a member gets three free details for one month's subscription; **an add-on is per VISIT**, which is what makes the same-day and split-day halves agree with no rule of their own. **The timing is his actual ask** — a per-business setup allowance, price untouched, with a PROPORTIONAL floor so a 40-minute saving on a 20-minute wash cannot make the second car take negative time. **Two cars on two DAYS is two bookings**, because one booking is one time range and the whole availability engine rests on that: the page calls `create-booking` once per car, so there is no second pricing model and travel, rounding and promo all come out right for free; the split quote is DEFINED as the sum of those calls. **A later call failing is not a rollback** — each is a real appointment. **The dealership job computes nothing by his instruction**, is a booking row rather than a table so Money and the export work untouched, and is excluded from the overlap constraint because a job being LOGGED already happened. **Two real defects were found by the live probe and by nothing else**: the engine was handed size STRINGS where it now takes objects, so every extra car priced at the base size while the row, the label and the model were all correct; and the group guard matched on email OR phone, so one household address joined two different people.
 
+- **Roadmap 8.11 — delete a customer, which is forget the person and keep the money** — *"there should be an option where if you click on a customer, they just delete their info."* **The two obvious builds are both wrong in opposite directions.** Deleting the bookings destroys the detailer's own takings and `money-export`'s tie-out with them, and no law asks for that; deleting only the `customers` row forgets NOTHING, because `bookings` carries the name, number, address and notes **denormalised on every row** and the screen still prints them. **So the bookings stay and are ANONYMISED in place** — every money column identical to the cent, everything that says who it was cleared, including `admin_notes` (the likeliest home of *"gate code 4471"*) and not including `vehicle_model`, which detached from a person is just what the job WAS. **The photos are the half SQL cannot do**: the FILES are removed before the rows that name them, because the other order loses the paths for ever, and a failed removal aborts the whole deletion. **The count reported comes from STORAGE rather than SQL**, because a `remove` that matched nothing returns an empty list and no error. **Owner only, and that is not the usual permission question** — no tick means *may erase a person*, so it belongs to the owner the way the subscription row does, proven against a staff member holding EVERY tick; `forget_customer` is revoked from `authenticated`, so the edge function is the only door, proven by refusing the OWNER's direct RPC. **The ceiling is stated: deleting the row destroys the opt-out**, and keeping a suppression row means keeping the address for ever. **Four things the checks caught and reading could not:** `[].every()` is true, so three checks reported ok about a deletion that had failed; **an authenticated GET on a deleted storage object still answers 200 from cache**, so "the file is gone" has to ask the bucket what it holds; PostgREST drops a bulk-insert row whose keys differ, which presented as the OWNER being refused rather than as a broken fixture; and the bucket's mime allowlist made the test file never exist, which made its deletion trivially true.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15038,3 +15040,96 @@ when `a` has been deleted.
 **And 5l failed on the migration's own header** explaining why the setup minutes
 stay private — the comment-vacuity trap arriving for the fourth time in this
 repo, in a check written by somebody who had just read about it.
+
+## Roadmap 8.11 — delete a customer, which is forget the person and keep the money
+
+*"There should be an option where if you click on a customer, they just delete
+their info… is that not already an option? I have that on my business."* It was
+not. The EXPORT half shipped as item H, and that function's own header already
+called a deletion request *"the one legal ask that arrives without warning."*
+
+### The two obvious builds are both wrong, in opposite directions
+
+**Deleting the bookings destroys the detailer's own business records.** The
+money on those rows IS Money's Collected figure, the accountant export and last
+year's tax return; `tests/money-export.test.mjs` pins that the export's Amount
+column reaches the Net on the screen it came from. A customer asking to be
+forgotten is not asking their detailer to lose eight months of takings, and no
+jurisdiction requires it — a business may keep the transaction record it is
+obliged to keep.
+
+**Deleting only the `customers` row forgets nothing at all.** `bookings` carries
+`customer_name`, `customer_phone`, `customer_email`, `customer_address` and
+`customer_notes` **denormalised on every row**, snapshotted at booking time.
+That is correct for a receipt and it is exactly why the naive delete is a lie:
+the person's name, number and home address are still on twelve rows and the
+screen still prints them.
+
+**So the bookings STAY and are ANONYMISED IN PLACE.** Every money column is
+identical to the cent; everything that says who it was is cleared. The test
+asserts BOTH halves and either one alone passes for a broken build.
+
+**`admin_notes` is cleared too** — it is the detailer's own note and losing it
+costs them something, but it is the single likeliest place in this schema for
+*"gate code 4471, dog in the yard"*, and the person pressing the button wrote
+it. **`vehicle_model` survives**: detached from a name, a number and an
+address, "2019 Honda Civic" is not a person, and it is what the JOB was.
+
+### The photos are the half SQL cannot do, and the order is the half that fails silently
+
+`forget_customer()` deletes the `job_photos` ROWS. **A row is not a photo** —
+the images are in the private `job-photos` bucket, which is private precisely
+because a before-shot is a stranger's car outside their own house. So
+`delete-customer` removes the OBJECTS, **before** the rows that name them: the
+other order loses the paths and leaves the files unreachable and undeletable
+for ever. A failed removal aborts the whole deletion rather than carrying on.
+
+**And the count it reports comes from STORAGE, not from SQL.** A `remove` that
+matched nothing returns an empty list and no error, so reporting the SQL row
+count would be a figure that cannot fail even when nothing left the bucket.
+
+### Owner only, and that is not the usual permission question
+
+The four ticks are `money`, `marketing`, `settings` and `requests`, and none of
+them means *may erase a person* — the same reasoning 2.13 used to refuse a
+`team` tick and 2.20 used for the subscription row: where no tick means the
+thing and the thing cannot be undone, it belongs to the owner. **The server
+enforces it and the test proves it with a staff member holding EVERY tick**, so
+a pass cannot be an accident of which tick happens to gate it. `forget_customer`
+is revoked from `anon` and `authenticated`, so the edge function is the only
+door — proven by calling the RPC as the OWNER and being refused.
+
+### The ceiling, stated rather than discovered
+
+**Deleting the row destroys the OPT-OUT.** `customers.unsubscribed_at` is how
+`send-campaign` knows never to email them, so the same address booking again
+later arrives as somebody who has never opted out. Keeping a suppression row
+means keeping their email address for ever, which is the opposite of the
+request. **He asked for delete, so this deletes.**
+
+### Four things the checks caught that reading could not
+
+**`[].every()` IS TRUE.** On the first run the deletion failed (a fixture
+problem, below), `anon` came back empty, and three checks about what the
+anonymised rows contain reported **ok** — three green ticks describing a
+deletion that had not happened. This repo's most repeated failure, in a
+brand-new suite written by somebody who had just re-read the entry about it.
+Each of those now asserts its subjects first.
+
+**AN AUTHENTICATED GET ON A DELETED STORAGE OBJECT STILL ANSWERS 200.** The
+obvious way to check a file is gone is to ask for it, and that measures a
+cache: `storage.objects` confirmed the row was gone while the GET kept
+returning 200. It sent this session looking for a bug in an edge function that
+was working. **Ask the bucket what it HOLDS (`/object/list`), never ask for the
+object.**
+
+**PostgREST refuses a bulk insert whose rows have different key sets**
+(`PGRST102: All object keys must match`), and the row it dropped was the
+owner's membership — so the failure presented as **the owner being refused**,
+i.e. as a broken permission gate rather than as a broken fixture. The setup
+asserts its own success now.
+
+**And the bucket has an `allowed_mime_types` list**, so a `text/plain` upload is
+refused with a 415 — which made the file never exist, which made "the file is
+gone" trivially true. The `setup ·` check that asserts the file really is in
+the bucket is the only reason that was visible.

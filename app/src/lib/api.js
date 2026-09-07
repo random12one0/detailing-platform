@@ -95,6 +95,13 @@ export const api = {
   pushSubscribe: (businessId, subscription) => callFn("owner-push-subscribe", { business_id: businessId, subscription }),
   pushUnsubscribe: (businessId, endpoint) => callFn("owner-push-unsubscribe", { business_id: businessId, endpoint }),
 
+  // ROADMAP 8.11 — a customer asks to be forgotten. OWNER ONLY, and the server
+  // is what enforces that; the screen hides the control as a courtesy. It
+  // forgets the PERSON and keeps the MONEY: the bookings stay, anonymised in
+  // place, so every figure on every money screen is unchanged to the cent.
+  deleteCustomer: (businessId, customerId) =>
+    callFn("delete-customer", { business_id: businessId, customer_id: customerId }),
+
   // --- Public, customer-facing. No session; the unguessable booking UUID is
   // the credential, the same access model the receipt endpoint already used.
   validatePromo: (businessSlug, code, customerEmail, customerPhone) =>

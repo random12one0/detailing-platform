@@ -766,7 +766,23 @@ explaining it; if they still have to ask "so should I?", it failed.
   guard matching on email OR phone, so one household address joined two
   different people. **It clears its own `rate_hits` first**, like every other
   suite here that books)
-  from repo root — credential-free, all must pass. **Add `node scripts/decisions-index.mjs`
+  from repo root — credential-free, all must pass. **`forget-customer` (33
+  checks, new 2026-09-07, roadmap 8.11) is env-backed and belongs with the
+  suites below** — A CUSTOMER ASKING TO BE FORGOTTEN, whose whole design is
+  *forget the person, keep the money.* The two obvious builds are wrong in
+  opposite directions and **either half of this file passes for a broken
+  one**: § 2 asserts every money column is identical to the cent (deleting the
+  bookings destroys the detailer's own takings and `money-export`'s tie-out
+  with them) and § 3 asserts she cannot be found by name, phone or email
+  anywhere in `bookings` (deleting only the `customers` row forgets nothing,
+  because those columns are denormalised on every booking). It runs against
+  the DEPLOYED function on a throwaway business, because the permission gate
+  and the storage deletion are invisible from any source read. Eleven breaks,
+  all caught. **Three of its own checks were vacuous on the first run and one
+  measured a cache**: `[].every()` is true, so three ticks described a
+  deletion that had failed; and **an authenticated GET on a deleted storage
+  object still answers 200** — ask `/object/list` what the bucket HOLDS, never
+  ask for the object, or a correct deletion reads as a failed one. **Add `node scripts/decisions-index.mjs`
   to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
   root `.env` — and one of them is new: **`request-mode`** (51 checks — 45 when written, roadmap 2.12,
   2026-09-02). It pins the two facts about request mode that no reader of the code

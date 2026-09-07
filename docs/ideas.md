@@ -252,12 +252,16 @@ the owner.
   build out thoroughly."*
 - `[-]` **42 · A damage-claim photo set.** **Probably not.** *"I don't know if
   we need that. I think that'd be kinda hard."*
-- `[~]` **43 · A customer who asks to be forgotten.** **He said yes** and
+- `[x]` **43 · A customer who asks to be forgotten.** **BUILT, roadmap 8.11,
+  2026-09-07 — the person is forgotten and the money is kept.** **He said yes** and
   assumed it existed: *"There should be an option where if you click on a
   customer, they just delete their info. I'm pretty sure — is that not already
   an option? I have that on my business."*
-  **It is not.** No delete control in `Clients.jsx`, no endpoint. The export
-  half exists; the deletion half does not.
+  **It was not.** No delete control in `Clients.jsx`, no endpoint. Both halves
+  exist now: the bookings stay and are ANONYMISED in place, so every figure on
+  every money screen is unchanged, and the customer row, their plan
+  memberships, their maintenance deadlines and their job photos — files
+  included — are gone.
 - `[~]` **44 · Two logins at once.** **He said yes, but reshaped it:** *"Just
   keep it so it's under two different logins and they could switch between
   logins. Maybe there's an account switcher — like how on Chrome you could log

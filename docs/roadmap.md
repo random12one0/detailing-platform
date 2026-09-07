@@ -7335,12 +7335,54 @@ works**, which is one line at the end rather than a pause in the middle.
       **`demo-riverside` is the seeded three-car business, deliberately not
       `demo-detail`**, whose spare-room figures this repo quotes.
 
-- [ ] 8.11 **Delete a customer.** *"There should be an option where if you
+- [x] 8.11 **Delete a customer.** *"There should be an option where if you
       click on a customer, they just delete their info… is that not already an
-      option? I have that on my business."* **It is not** — no control in
+      option? I have that on my business."* **It was not** — no control in
       `Clients.jsx`, no endpoint. The export half exists
       (`20260906005000_export_business.sql`); this is the other half of the
       same request, and it is the one item in this phase with a legal edge.
+      **DONE 2026-09-07, AND THE WHOLE DESIGN IS ONE SENTENCE: FORGET THE
+      PERSON, KEEP THE MONEY.** *(Full reasoning: DECISIONS.md → "Roadmap
+      8.11".)* **The two obvious builds are both wrong, in opposite
+      directions.** Deleting the bookings destroys the detailer's own takings
+      and `money-export`'s tie-out with them — a customer asking to be
+      forgotten is not asking their detailer to lose eight months of income,
+      and no law requires it. Deleting only the `customers` row forgets
+      NOTHING: `bookings` carries the name, the number, the address and the
+      notes **denormalised on every row**, snapshotted at booking time, which
+      is right for a receipt and is exactly why the naive delete is a lie.
+      **So the bookings stay and are ANONYMISED IN PLACE.** Every money column
+      is identical to the cent; `customer_id`, name, phone, email, address,
+      customer notes and `admin_notes` are cleared. **`vehicle_model`
+      survives** — detached from a name, a number and an address a car is not
+      a person, and it is what the JOB was.
+      **THE PHOTOS ARE THE HALF SQL CANNOT DO.** `job_photos` rows go in the
+      function; the FILES live in the private bucket and are removed by
+      `delete-customer` **before** the rows that name them, because the other
+      order loses the paths and leaves the images unreachable for ever. A
+      failed removal ABORTS the whole deletion.
+      **OWNER ONLY, and that is not the usual permission question** — none of
+      the four ticks means *may erase a person*, which is the same reasoning
+      2.13 used to refuse a `team` tick. The server enforces it; hiding the
+      button is courtesy. `forget_customer()` is revoked from `anon` and
+      `authenticated`, so the edge function is the only door — proven by
+      calling the RPC as the owner and being refused.
+      **THE CEILING, STATED: deleting the row destroys the OPT-OUT.**
+      `customers.unsubscribed_at` is how `send-campaign` knows never to email
+      them, so the same address booking again arrives as somebody who has
+      never opted out. Keeping a suppression row means keeping their address
+      for ever, which is the opposite of the request. He asked for delete.
+      **`tests/forget-customer.test.mjs` — 33 checks, eleven baselined by
+      breaking what they guard**, against the deployed function on a throwaway
+      business it creates and removes. **Three of its own checks were vacuous
+      on the first run and one measured a cache**: `[].every()` is true, so
+      three green ticks described a deletion that had failed; and an
+      authenticated GET on a deleted storage object still answers **200 from
+      cache**, so "the file is gone" has to ask the bucket what it HOLDS
+      rather than ask for the object. **And the endpoint's own photo count now
+      comes from STORAGE rather than from SQL** — a `remove` that matched
+      nothing returns an empty list and no error, so the old figure could not
+      fail even when nothing was deleted.
 
 - [ ] 8.12 **Ops: Sentry, backups, uptime, and a dead-man's switch.**
       **OWNER supplies:** the Sentry DSN (already 7.2), two GitHub secrets for

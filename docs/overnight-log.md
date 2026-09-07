@@ -2463,6 +2463,28 @@ those deals carry discounts. It counts in Collected and it is on the accountant
 export the same day.
 
 
+## Deleting a customer is built (roadmap 8.11) — one thing to know
+
+You asked for this and assumed it already existed. It does now, on a client's
+own record, and it is **owner only** — there is no permission tick that means
+*may erase a person*, so a staff member with every other tick still cannot.
+
+**The design in one sentence: forget the person, keep the money.** Their name,
+number, address, your notes and their photos come off every job and out of the
+storage bucket. **The jobs themselves stay, as anonymous entries**, so your
+takings, your Money screen and your accountant export do not change by a cent.
+Deleting the jobs would have cost you eight months of income, and nothing
+requires that; deleting only the customer record would have forgotten nothing,
+because their details are copied onto every booking they ever made.
+
+**THE ONE THING WORTH KNOWING, because it is a real trade-off and I chose the
+side you asked for.** Deleting them also deletes the record that they had
+**opted out of your emails**. If the same person books again a year later they
+arrive as somebody new who has never opted out. The alternative is keeping
+their email address for ever in a suppression list — which is the opposite of
+"delete their info". You said delete, so it deletes. Say the word if you would
+rather keep a permanent do-not-email list instead.
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

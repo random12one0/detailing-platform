@@ -21,7 +21,7 @@ temporary — they reach the demo business only, and they must change before
 there is a real customer. See DECISIONS.md, "A guessable demo login".
 
 **WHERE THE WORK IS, 2026-09-07 (overnight, Phase 8).** Roadmap **8.2 through
-8.8 and 8.10 are done and committed**; 8.9 is blocked on two questions in
+8.8, 8.10 and 8.11 are done and committed**; 8.9 is blocked on two questions in
 `docs/money-view-research-2026-09-07.md` § 6. **8.10 was the largest item in
 the phase** and it turned on being THREE facts rather than one feature: cars on
 one VISIT are one booking with `booking_vehicles` for 2..N, cars on two DAYS
@@ -33,6 +33,14 @@ extra car priced at the base size while the row, the label and the model were
 all correct; and a group guard matching on email OR phone put two different
 people at one household address into one group. `tests/multi-vehicle.test.mjs`
 is 63 checks, fifteen baselined by breaking what they guard.
+**8.11 is a customer asking to be forgotten**, and its whole design is
+*forget the person, keep the money*: the bookings stay and are anonymised
+in place so no money figure moves, while the customer row, their plan
+memberships, their maintenance deadlines and their job photos — FILES
+included — are gone. Owner only, because no permission tick means *may
+erase a person*. `tests/forget-customer.test.mjs`, 33 checks, thirteen
+baselined; three of its own checks were vacuous on the first run and one
+measured an HTTP cache rather than the bucket.
 **AND THE SESSION IS NOT MEANT TO STOP ANY MORE** — see `docs/standing-work.md`
 and CLAUDE.md's "A SESSION IS NOT MEANT TO STOP". He has permitted building
 anything a session is ~90% sure improves the product, without asking, and asked

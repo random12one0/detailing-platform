@@ -44,6 +44,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronRight, ListChecks, Mail, Phone } from "lucide-react";
 import { supabase } from "../lib/supabase.js";
+import { api } from "../lib/api.js";
 import { useBusiness } from "../context/BusinessContext.jsx";
 import BookingLink from "../components/BookingLink.jsx";
 import { withLocal, BOOKING_SELECT } from "../hooks/useBookings.js";
@@ -83,7 +84,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // `businesses.last_campaign_at`, and that is what Today's nudge reads to
   // know it can stop asking. Without it the prompt is still there when the
   // detailer taps back, having just done the thing it asked for.
-  const { business, can, reload: reloadBusiness, siteOrigin } = useBusiness();
+  const { business, can, role, reload: reloadBusiness, siteOrigin } = useBusiness();
   // IS THERE ANYTHING TO SELL — a deliberate second copy of Today's read
   // (`Today.jsx`, `sellable`) and not a shared hook, because the whole of
   // it is one head-count against one table with one filter, and the two
@@ -123,6 +124,14 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
   // `rows` while somebody is typing would let a background refresh change who
   // they are writing to.
   const [writing, setWriting] = useState(null);
+  // ROADMAP 8.11 — a customer asking to be forgotten. Three states, because a
+  // permanent deletion gets ONE confirm and no more: null (the button), the
+  // customer (the confirm), or "going" (in flight). Never a second dialog and
+  // never a typed name — AB 2863's own reasoning about cancellation applies
+  // to any irreversible thing a person is entitled to: put the consequence in
+  // front of them once and then let them do it.
+  const [forgetting, setForgetting] = useState(null);
+  const [forgetError, setForgetError] = useState("");
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -193,6 +202,24 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     await supabase.from("customers").update({ notes: notes || null })
       .eq("id", open.id).eq("business_id", business.id);
     load();
+  };
+
+  // ROADMAP 8.11. The screen closes the record and reloads the list; the
+  // SERVER decides everything else, including whether this person may do it.
+  const forget = async (customer) => {
+    setForgetError("");
+    setForgetting("going");
+    try {
+      await api.deleteCustomer(business.id, customer.id);
+      setForgetting(null);
+      setOpen(null);
+      load();
+    } catch (e) {
+      // The record stays open on a failure, with the reason on it. Closing it
+      // would leave somebody unsure whether the deletion happened.
+      setForgetError(e.message || "We could not delete that. Please try again.");
+      setForgetting(customer);
+    }
   };
 
   // The action the filter earns (row 48). This product does not send texts
@@ -507,6 +534,59 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 <p className="quiet">{HISTORY_CAP} most recent.</p>
               )}
             </div>
+
+            {/* ROADMAP 8.11 — HIS ASK, AND IT IS LAST ON THE RECORD FOR THE
+                REASON EVERY DESTRUCTIVE CONTROL IS: nobody scrolls past their
+                own client's history to find it by accident.
+
+                OWNER ONLY. There is no permission tick that means "may erase a
+                person", and the server refuses staff whatever this renders —
+                the same rule the subscription row follows.
+
+                THE CONFIRM SAYS WHAT SURVIVES, not just what goes. A detailer
+                reading "delete this customer" reasonably fears losing the
+                money, and the answer is the whole design: the jobs stay as
+                anonymous entries, so Money and the accountant export do not
+                move by a cent. */}
+            {role === "owner" && (
+              <div className="tight">
+                <hr className="rule" />
+                {forgetError && <div className="error-box">{forgetError}</div>}
+                {!forgetting ? (
+                  <button className="btn sm" onClick={() => { setForgetError(""); setForgetting(open); }}>
+                    Delete {open.name.split(" ")[0]}’s information
+                  </button>
+                ) : (
+                  <div className="card tight">
+                    <p>
+                      Their name, number, address and any notes come off every
+                      job, and their photos are deleted. This cannot be undone.
+                    </p>
+                    <p className="muted">
+                      The {history?.length ?? 0} job{(history?.length ?? 0) === 1 ? "" : "s"} stay
+                      as anonymous entries, so your takings and your accountant
+                      export don’t change.
+                    </p>
+                    <div className="row" style={{ gap: 8, marginTop: 10 }}>
+                      <button className="btn danger" disabled={forgetting === "going"}
+                        onClick={() => forget(open)}>
+                        {/* "Delete for good" WRAPPED ONTO TWO LINES AT 392 —
+                            looked at, not reasoned about. It is one word now,
+                            and that is the better copy anyway: the sentence
+                            directly above already says the consequence and
+                            already says it cannot be undone, so the button
+                            repeating it is exactly the explaining-what-the-
+                            label-already-said the owner objected to. "Delete"
+                            beside "Keep them" is an unambiguous pair. */}
+                        {forgetting === "going" ? "Deleting…" : "Delete"}
+                      </button>
+                      <button className="btn ghost" disabled={forgetting === "going"}
+                        onClick={() => setForgetting(null)}>Keep them</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </RecordHost>
       )}
