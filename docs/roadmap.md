@@ -6835,6 +6835,25 @@ wasn't executed properly."* An item is done when it is built, its own check
 exists AND has been baselined by breaking what it guards, the standing gate is
 green, anything visual has been LOOKED at, and nothing is left hanging.
 
+**AND THE LOOP NEVER WAITS.** Two more of his instructions, and they are about
+the same thing from opposite ends:
+
+> *"There should be no waiting during the looping."*
+> *"It should be fully automatic, not needing me to complete everything."*
+
+So: **no idle delay between items** — an item finishing starts the next one,
+never a timer. And **nothing in the loop blocks on him.** Where an item needs
+something only he has (a key, an account, his taste), the session builds
+everything around it that can be built, **parks the one piece with the exact
+sentence that unblocks it**, and moves on. It does not stop, and it does not
+ask him to do a thing before continuing.
+
+The two places that genuinely need him are already known and are handled that
+way: **8.2 cannot choose his password for him** — the account and the link are
+made automatically, he clicks it whenever he likes, and the loop carries on
+without him — and **P-12's deletion waits on his confirmation that the login
+works**, which is one line at the end rather than a pause in the middle.
+
 - [ ] 8.1 **Record the review, and write his guide.** Two halves, both
       documents. First: his verdict on all fifty ideas into `docs/ideas.md`
       with a verified status on every line, the not-published status fact into
