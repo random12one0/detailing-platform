@@ -1174,6 +1174,47 @@ for (const w of SIZES) {
       await settle(page, 900);
       await grow();
       await say("gear · subscription, a plan chosen");
+
+      // ── A PROMO CODE APPLIED — roadmap 8.14, added in the change that
+      // built it, and it is the same gap this file has now recorded a dozen
+      // times: **the script walks NAVIGATION, and a state you reach by
+      // pressing something inside a screen is not navigation.**
+      //
+      // The applied state changes every figure in the breakdown, adds a
+      // saving line and rewrites the whole consent paragraph — the one that
+      // sits beside a 22px checkbox and is the riskiest geometry on this
+      // screen. `DEMO25` is seeded by `seed-demo.mjs` and STACKS WITH
+      // FOUNDING, because the demo is founding and a refused code would
+      // measure the screen it had just measured.
+      //
+      // **`settle()` IS A CAP ON A REPAINT AND IS NOT A WAIT FOR A NETWORK
+      // ROUND TRIP**, and this block is where that was walked into: with
+      // nothing animating the DOM goes quiet while the request is in flight,
+      // and the first shot of this state was the BUSY one — a screen that
+      // reads exactly like a button that does nothing. It waits for the
+      // outcome, which is either the button saying Remove or a sentence
+      // saying why not.
+      const promoField = page.locator("[data-billing-promo]");
+      if (await promoField.count()) {
+        await promoField.first().fill("demo25");
+        await page.locator("[data-billing-promo-apply]").first().click();
+        await page.locator('[data-billing-promo-apply]:has-text("Remove"), [data-billing-promo-said]')
+          .first().waitFor({ timeout: 15_000 }).catch(() => {});
+        await settle(page, 900);
+        // A GUARD THAT SKIPS MUST PRINT. If the code was refused the figures
+        // are unchanged and this block measures nothing — which is
+        // byte-identical to it passing.
+        const applied = await page.locator('[data-billing-promo-apply]:has-text("Remove")').count();
+        if (!applied) {
+          const why = await page.locator("[data-billing-promo-said]").textContent().catch(() => "");
+          console.log(`${"subscription · promo".padEnd(24)} NOT MEASURED — DEMO25 was refused ("${(why || "").trim()}"). node scripts/seed-demo.mjs`);
+        } else {
+          await grow();
+          await say("gear · subscription, a promo code applied");
+        }
+      } else {
+        console.log(`${"subscription · promo".padEnd(24)} NOT MEASURED — no promo field on the checkout`);
+      }
     } else {
       console.log(`${"subscription · the rungs".padEnd(24)} NOT MEASURED — this demo has a subscription. Re-seed without --subscription to see the ladder and the consent tick.`);
     }

@@ -238,6 +238,14 @@ export default function AdminPage() {
   const [note, setNote] = useState("");
   const [site, setSite] = useState("");
   const [pricing, setPricing] = useState(false);
+  // ROADMAP 8.14 — the new-code form. Dollars and whole percents in, because
+  // that is what he types; `platform-admin` converts to cents, and doing it
+  // there rather than here is the point — a screen that multiplies by 100 is a
+  // screen that can forget to.
+  const [pc, setPc] = useState({
+    code: "", kind: "amount", value: "", off_setup: true, off_recurring: false,
+    stacks_with_founding: false, max_redemptions: "", expires_at: "", note: "",
+  });
   const [pt, setPt] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState(null);
@@ -950,6 +958,117 @@ export default function AdminPage() {
                 </button>
               )}
             </div>
+
+            {/* ── PROMO CODES — roadmap 8.14 ─────────────────────────────
+                **IN THIS PANEL RATHER THAN BEHIND A BUTTON OF ITS OWN**, and
+                that is not tidiness: a code is money off what the block above
+                charges, and the two decisions are one decision. It also
+                costs no new toggle, no new resting-state condition and no
+                second place to remember.
+
+                **THERE IS NO EDIT.** A code's terms are what somebody was told
+                when it was handed to them; changing 25% into 10% afterwards
+                changes what a person mid-conversation is being offered, with
+                no record of what it used to say. Make another and switch this
+                one off — which is what the server allows and nothing more. */}
+            <h2 className="pa-h2" style={{ marginTop: 28 }}>Promo codes</h2>
+            <p className="pa-quiet">
+              Money off what a detailer pays us, redeemed at their checkout. It lasts
+              as long as they stay subscribed, so a code off the monthly is a
+              price, not an offer.
+            </p>
+
+            <div className="pa-grid">
+              <label className="pa-field"><span>Code</span>
+                <input className="pa-input" value={pc.code} placeholder="LAUNCH200"
+                  onChange={(e) => setPc({ ...pc, code: e.target.value.toUpperCase() })} /></label>
+              <label className="pa-field"><span>{pc.kind === "percent" ? "Percent off" : "Dollars off"}</span>
+                <input className="pa-input" inputMode="decimal" value={pc.value}
+                  placeholder={pc.kind === "percent" ? "25" : "200"}
+                  onChange={(e) => setPc({ ...pc, value: e.target.value })} /></label>
+            </div>
+            <div className="pa-grid">
+              <label className="pa-field"><span>How much</span>
+                <select className="pa-input" value={pc.kind}
+                  onChange={(e) => setPc({ ...pc, kind: e.target.value })}>
+                  <option value="amount">A flat amount</option>
+                  <option value="percent">A percentage</option>
+                </select></label>
+              <label className="pa-field"><span>Runs out after (blank = never)</span>
+                <input className="pa-input" inputMode="numeric" value={pc.max_redemptions}
+                  placeholder="e.g. 10 uses"
+                  onChange={(e) => setPc({ ...pc, max_redemptions: e.target.value })} /></label>
+            </div>
+            <div className="pa-grid">
+              <label className="pa-field"><span>Last day it works (blank = never expires)</span>
+                <input className="pa-input" type="date" value={pc.expires_at}
+                  onChange={(e) => setPc({ ...pc, expires_at: e.target.value })} /></label>
+              <label className="pa-field"><span>What it was for</span>
+                <input className="pa-input" value={pc.note} placeholder="Instagram, October"
+                  onChange={(e) => setPc({ ...pc, note: e.target.value })} /></label>
+            </div>
+
+            {/* WHAT IT COMES OFF, AS TWO TICKS RATHER THAN A PICKER, because
+                both at once is a real and ordinary code and a three-option
+                picker would have to spell it as a third option. */}
+            <div className="pa-checks">
+              <label><input type="checkbox" checked={pc.off_setup}
+                onChange={(e) => setPc({ ...pc, off_setup: e.target.checked })} />
+                <span>Off the one-time build fee</span></label>
+              <label><input type="checkbox" checked={pc.off_recurring}
+                onChange={(e) => setPc({ ...pc, off_recurring: e.target.checked })} />
+                <span>Off the monthly or yearly, for as long as they stay</span></label>
+              {/* THE ONE THAT COSTS REAL MONEY IF IT IS TICKED CARELESSLY, so
+                  it says what it does rather than naming a column. */}
+              <label><input type="checkbox" checked={pc.stacks_with_founding}
+                onChange={(e) => setPc({ ...pc, stacks_with_founding: e.target.checked })} />
+                <span>Allow it on top of a founding price — three spots exist and they are already discounted</span></label>
+            </div>
+
+            <div className="pa-btns">
+              <button className="pa-btn" disabled={busy || !pc.code.trim() || !pc.value}
+                onClick={() => act({ action: "promo_new", ...pc }, () => {
+                  setPc({
+                    code: "", kind: "amount", value: "", off_setup: true, off_recurring: false,
+                    stacks_with_founding: false, max_redemptions: "", expires_at: "", note: "",
+                  });
+                  return `${pc.code.trim().toUpperCase()} is live. Anybody who types it gets it.`;
+                })}>
+                Make this code
+              </button>
+            </div>
+
+            {/* THE LIST. `redeemed` is the column that decides anything: a
+                code nobody has used and one that has been used forty times are
+                different decisions, and neither is visible from the code. */}
+            {(state.promos ?? []).length === 0
+              ? <p className="pa-quiet">No codes yet.</p>
+              : (state.promos ?? []).map((c) => (
+                <div className="pa-row" key={c.code}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <strong className="pa-num">{c.code}</strong>
+                    {!c.active && <span className="pa-tag">off</span>}
+                    <p className="pa-quiet" style={{ marginTop: 2 }}>
+                      {c.kind === "percent" ? `${c.value}%` : money(c.value / 100)} off{" "}
+                      {c.off_setup && c.off_recurring
+                        ? "the build and the monthly"
+                        : c.off_setup ? "the build" : "the monthly"}
+                      {c.stacks_with_founding && " · stacks with founding"}
+                      {" · used "}{c.redeemed}
+                      {c.max_redemptions ? ` of ${c.max_redemptions}` : " times"}
+                      {c.expires_at && ` · until ${String(c.expires_at).slice(0, 10)}`}
+                      {c.note && ` · ${c.note}`}
+                    </p>
+                  </div>
+                  {c.active && (
+                    <button className="pa-btn" disabled={busy}
+                      onClick={() => act({ action: "promo_off", code: c.code },
+                        () => `${c.code} is switched off. Anybody already subscribed keeps their price.`)}>
+                      Switch off
+                    </button>
+                  )}
+                </div>
+              ))}
           </div>
         )}
 

@@ -91,6 +91,52 @@ try {
     shots.push(listShot);
     bad += await measure(page, "the list");
 
+    // ── WHAT WE CHARGE, WHICH IS A STATE BEHIND A BUTTON ─────────────────
+    // Added 2026-09-07 with roadmap 8.14's promo codes, and it is the same gap
+    // this repo has recorded a dozen times: **the script walks NAVIGATION, and
+    // a state you reach by pressing something INSIDE a screen is not
+    // navigation.** The price editor has existed since roadmap 4.4 stage 4 and
+    // NOTHING HAS EVER PHOTOGRAPHED OR MEASURED IT — a clean run of this file
+    // said nothing about the one panel in the back office that decides what
+    // the next detailer is charged.
+    //
+    // The promo-code form under it is the riskier geometry: three ticks whose
+    // third label is the longest sentence on the screen, above a list whose
+    // rows carry a code, a tag and a button.
+    // **BY POSITION, NOT BY NAME, BECAUSE THE BUTTON RENAMES ITSELF.** It says
+    // *What we charge* and then *Close*, so a locator built on the first name
+    // matches nothing after the press — which is not an error, it is a
+    // thirty-second timeout on the line that closes the panel again, and the
+    // run dies after the shots it wanted have already been taken.
+    const charge = page.locator(".pa-bar-r .pa-btn").first();
+    if (await charge.count()) {
+      await charge.first().click();
+      await page.locator(".pa-panel .pa-grid").first().waitFor({ timeout: 12_000 }).catch(() => {});
+      await settle(page);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      const priceShot = `${OUT}/${w}-prices${LITE ? "-lite" : ""}.png`;
+      await page.screenshot({ path: priceShot });
+      shots.push(priceShot);
+      bad += await measure(page, "what we charge");
+      // THE CODES ARE BELOW THE FOLD ON EVERY WIDTH, so the strip alone is not
+      // a picture of them.
+      const codes = page.locator(".pa-checks");
+      if (await codes.count()) {
+        await codes.first().scrollIntoViewIfNeeded();
+        await settle(page, 800);
+        const codeShot = `${OUT}/${w}-codes${LITE ? "-lite" : ""}.png`;
+        await page.screenshot({ path: codeShot });
+        shots.push(codeShot);
+        bad += await measure(page, "promo codes");
+      } else {
+        console.log(`  ${String(w).padStart(4)}px: NOT MEASURED — no promo-code form in the pricing panel`);
+      }
+      await charge.first().click();
+      await settle(page, 600);
+    } else {
+      console.log(`  ${String(w).padStart(4)}px: NOT MEASURED — no "What we charge" button`);
+    }
+
     // OPEN ONE, and wait for the panel rather than for a repaint: its content
     // comes from an edge function, and `settle` returns happily on a screen
     // that is perfectly quiet because it is still waiting for a fetch — the

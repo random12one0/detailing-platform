@@ -819,7 +819,8 @@ explaining it; if they still have to ask "so should I?", it failed.
   guard matching on email OR phone, so one household address joined two
   different people. **It clears its own `rate_hits` first**, like every other
   suite here that books)
-  **`promo-checkout`** (**81 checks with credentials, 40 without**, new
+  **`promo-checkout`** (**102 checks with credentials, 40 without** — the
+  script prints its own figure, new
   2026-09-07, roadmap 8.14 — A PROMO CODE ON *OUR* CHECKOUT, which is the third
   place in this product where *a number PRINTED is not a number CHARGED* is
   literally true and the first where the difference IS the feature. **§ 1 and
@@ -2339,6 +2340,46 @@ explaining it; if they still have to ask "so should I?", it failed.
   item, twenty minutes after three functions had deployed cleanly, and it looks
   exactly like a change having broken the world.
 
+- **A DETAILER CAN TYPE A PROMO CODE AT OUR CHECKOUT — roadmap 8.14,
+  2026-09-07 — AND THE ONE THING TO UNDERSTAND IS THAT THERE IS NO STRIPE
+  COUPON, ON PURPOSE.** He asked for one and was right that Stripe supports it;
+  a Stripe `coupon` computes the money INSIDE STRIPE, where nothing in this
+  repo can see it, which is the same reasoning that already refused Product IDs
+  for the amounts.
+  **A CODE PRODUCES A DIFFERENT `Snapshot` AND NOTHING ELSE CHANGES.** That
+  object already decides `linesFor`, `planLabel`, `consentSentence`,
+  `exitFeeCents`, `firstChargeCents` and the row — so the discount reaches the
+  invoice, the sentence beside the tick and the exit fee **by construction**.
+  **Do not add a `discount_cents` field and thread it through**: that is the
+  version where one of six call sites forgets, and it is always the receipt.
+  **THE CEILING IS REAL AND STATED: a discount lasts as long as the
+  subscription does.** An inline `price_data.unit_amount` recurs at that amount
+  for ever, so **"first month free" and "20% off for a year" are NOT
+  expressible** — they need a Stripe coupon with a `duration`, and then the
+  printed number and the charged number differ for the life of the account.
+  Money off the BUILD FEE is naturally one-off.
+  **A CODE IS REFUSED ON A FOUNDING ACCOUNT UNLESS `stacks_with_founding`.**
+  Three spots exist and are already the discounted ladder.
+  **THE REDEMPTION IS ONE SQL STATEMENT AND SITS ABOVE THE SNAPSHOT** — the
+  price is snapshotted once and never re-read (roadmap 8.5) — and
+  `release_promo_code` hands it back on every path `giveBack` covers.
+  **`subscribe` CLAIMS THE FOUNDING SPOT AT INTENT TO PAY, so the quote has to
+  PREDICT it**; without that a code is accepted by the quote and refused at the
+  till half a second later. It reads `founding_offer()`. **The first version
+  called `founding_spots_left()`, which has not existed since roadmap 6.2:
+  PostgREST answers PGRST202 and the prediction silently falls through to
+  false. A MISSING RPC IS A SILENT `false`** — found by the test comparing the
+  quote against the charge, not by reading.
+  **THE BACK OFFICE CREATES AND SWITCHES OFF, NEVER EDITS** (a code's terms are
+  what somebody was told when it was handed to them), and **he types DOLLARS
+  while the column stores CENTS, converted in `platform-admin`** — a screen
+  that multiplies by 100 is a screen that can forget to.
+  **`platform_promo_codes` IS NOT `promo_codes`.** The first is ours, for a
+  detailer buying a subscription; the second is a detailer's own code for their
+  own customers. One letter apart, and they must never learn about each other.
+  **`seed-demo.mjs` SEEDS `DEMO25`** so the applied state on the checkout is a
+  swept state — `sweep-widths.mjs` types it and presses Apply.
+
 - **IF A SCHEDULED JOB STOPS, HE IS EMAILED — roadmap 8.12, 2026-09-07 — AND
   THE ONE THING TO UNDERSTAND IS WHAT THAT SWITCH CANNOT SEE ABOUT ITSELF.**
   `watch-jobs` runs every fifteen minutes on `pg_cron`, asks
@@ -2376,6 +2417,13 @@ explaining it; if they still have to ask "so should I?", it failed.
   about a tenant — **and still answers 400 to a tenant email without one**,
   because such an email would send with no display name and no Reply-To and
   look approximately right.
+  **`shoot-admin.mjs` WALKS *WHAT WE CHARGE* SINCE 2026-09-07 (roadmap 8.14),
+  AND THAT PANEL HAD EXISTED SINCE 4.4 STAGE 4 WITH NOTHING EVER PHOTOGRAPHING
+  IT** — the same gap a dozen times: the script walks NAVIGATION, and a state
+  you reach by pressing something inside a screen is not navigation. **The
+  toggle RENAMES ITSELF** (*What we charge* → *Close*), so it is addressed by
+  position: a name-based locator times out for thirty seconds on the line that
+  CLOSES the panel, after every shot has already been taken.
   **AND `shoot-admin.mjs` PRINTS 2 CONSOLE ERRORS AT 392 THAT ARE THE PRODUCT
   WORKING.** Its console check reads whatever page the walk left it on, which
   at the impersonation width is `/admin` signed in as a detailer — where

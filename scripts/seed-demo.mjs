@@ -867,6 +867,36 @@ await post("/rest/v1/maintenance_deadlines", [
 // THE FIGURES ARE SNAPSHOTTED, exactly as a real checkout writes them: the
 // founding monthly ladder, twelve months, half the remainder. Nothing here
 // reads pricing.js, for the same reason the table does not.
+// ROADMAP 8.14 — A PLATFORM PROMO CODE, SEEDED, BECAUSE THE FIELD ON THE
+// CHECKOUT HAS NO APPLIED STATE WITHOUT ONE.
+//
+// `sweep-widths.mjs` types this and presses Apply, so the state where the
+// figures, the saving line and the consent sentence have all changed is
+// measured at every width. Without a seeded code that block would type into a
+// box, get *"we do not recognise that code"* and measure the SAME screen it
+// had just measured — a check that reads exactly like a passing one.
+//
+// **IT STACKS WITH FOUNDING BECAUSE THE DEMO IS FOUNDING** (seeded that way so
+// the struck prices are the default swept state). A non-stacking code here
+// would be refused and, again, measure nothing.
+//
+// `platform_promo_codes` is the PLATFORM's table. The detailer's own codes for
+// their own customers are `promo_codes` and are seeded far above this; the two
+// are one letter apart and must never learn about each other.
+// Replaced rather than upserted, and the failure is LOUD: `post` throws on a
+// duplicate key, and a `.catch(() => {})` here would leave a re-seed silently
+// running against whatever the last one wrote.
+await del("/rest/v1/platform_promo_codes?code=eq.DEMO25");
+await post("/rest/v1/platform_promo_codes", [{
+  code: "DEMO25",
+  kind: "percent",
+  value: 25,
+  off_setup: true,
+  off_recurring: true,
+  stacks_with_founding: true,
+  note: "Seeded for the width sweep. Not for a real detailer.",
+}]);
+
 const subArg = (process.argv.find((a) => a.startsWith("--subscription=")) || "").split("=")[1] || "none";
 if (subArg !== "none") {
   const now = new Date();

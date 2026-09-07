@@ -170,8 +170,22 @@ export const api = {
   // over their hosted page — *"so it can look like the rest of the website"* —
   // and the card fields are still Stripe's iframe, so nothing about where a
   // card number goes has changed.
-  billingSubscribe: (businessId, plan, term) =>
-    callFn("platform-billing", { business_id: businessId, action: "subscribe", plan, term, consented: true }),
+  // ROADMAP 8.14 — WHAT A TYPED CODE WOULD DO, ASKED BEFORE ANYBODY IS
+  // CHARGED. It redeems nothing: a code counted on every keystroke would be
+  // exhausted by three people thinking about it. Like `billingSummary`, it
+  // returns finished figures AND the finished consent sentence, because the
+  // screen does no arithmetic about money anywhere in this feature.
+  billingPromo: (businessId, code, plan, term) =>
+    callFn("platform-billing", { business_id: businessId, action: "promo", code, plan, term }),
+  billingSubscribe: (businessId, plan, term, promoCode = null) =>
+    callFn("platform-billing", {
+      business_id: businessId,
+      action: "subscribe",
+      plan,
+      term,
+      consented: true,
+      promo_code: promoCode || undefined,
+    }),
   billingPortal: (businessId) => callFn("platform-billing", { business_id: businessId, action: "portal" }),
   billingCancel: (businessId) => callFn("platform-billing", { business_id: businessId, action: "cancel" }),
   billingResume: (businessId) => callFn("platform-billing", { business_id: businessId, action: "resume" }),

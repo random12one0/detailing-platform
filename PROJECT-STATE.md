@@ -21,7 +21,7 @@ temporary — they reach the demo business only, and they must change before
 there is a real customer. See DECISIONS.md, "A guessable demo login".
 
 **WHERE THE WORK IS, 2026-09-07 (overnight, Phase 8).** Roadmap **8.2 through
-8.8, 8.10, 8.11 and 8.13 are done and committed and 8.12's code half is
+8.8, 8.10, 8.11, 8.13 and 8.14 are done and committed and 8.12's code half is
 built**; 8.9 is blocked on two questions in
 `docs/money-view-research-2026-09-07.md` § 6. **8.10 was the largest item in
 the phase** and it turned on being THREE facts rather than one feature: cars on
@@ -62,6 +62,20 @@ UptimeRobot plus 2.22's backup secrets. **Sentry stays 7.2's and stays his
 DSN.** `tests/dead-mans-switch.test.mjs`, 43 checks, eleven baselined —
 two of them applied to the live database, because the properties that matter
 live inside one statement.
+**8.14 IS A PROMO CODE ON OUR OWN CHECKOUT, AND ITS WHOLE DESIGN IS ONE
+SENTENCE: a code produces a different `Snapshot`.** He asked for Stripe's
+coupons; a Stripe coupon computes the money inside Stripe where nothing here
+can see it, and this repo's loudest rule is that the page prints and the server
+charges from one module. Because the snapshot is what decides the invoice
+lines, the label, the consent sentence, the exit fee and the row, a discounted
+snapshot makes all five right without any of them knowing a code exists. **The
+price of that, stated: a discount lasts as long as the subscription does** —
+"first month free" needs a Stripe coupon and is not built. The back office
+creates and switches off but never edits. `tests/promo-checkout.test.mjs`, 102
+checks, thirteen baselined; it found `subscribe` claiming the founding spot
+AFTER the quote was given (so a code could be accepted and then refused half a
+second later) and then found the fix for that calling an RPC renamed in 6.2,
+which PostgREST answers as a silent false.
 **AND THE ITEM TURNED UP A LIVE SECURITY HOLE, which has its own commit.**
 Every column-level `revoke update (col)` in this repo was a no-op, because a
 table-level `UPDATE` grant overrides it — so a detailer with the `settings`

@@ -341,6 +341,15 @@ Deno.serve(async (req) => {
       // cannot upload. Past a hundred businesses the shares stop fitting.
       const { data: store } = await supabase.rpc("photo_store_state");
 
+      // ROADMAP 8.14 — THE PLATFORM'S OWN PROMO CODES. Sent here rather than
+      // read by the screen for the reason every byte on this page is: no
+      // policy on any table has an "or a platform admin" clause, and this
+      // table has no policies at all. `redeemed` rides along because a code
+      // nobody has used and a code that has been used forty times are
+      // different decisions, and neither is visible from the code itself.
+      const { data: promos } = await supabase.from("platform_promo_codes")
+        .select("*").order("created_at", { ascending: false }).limit(100);
+
       // ROADMAP 8.6 — TODAY'S EMAILS AGAINST THE CAP. *"a tracker inside my
       // dashboard that shows me how many emails get sent a day, and gives me
       // warnings when we're getting close to that hundred a day limit."*
@@ -366,6 +375,7 @@ Deno.serve(async (req) => {
         prices: { current: ps?.prices ?? null, built_in: PRICES, updated_at: ps?.updated_at ?? null },
         heartbeats: beats ?? [],
         photo_store: store?.[0] ?? null,
+        promos: promos ?? [],
         // The cap comes from the ROW so raising it is how the warning is
         // answered — his own sentence, read literally. `owner_email` rides
         // along because the screen has to be able to say when nobody is
@@ -513,6 +523,86 @@ Deno.serve(async (req) => {
       // give anybody who asks which price they were shown.
       await logIt(admin, "prices", null, { to: value });
       return json({ success: true, prices: value, built_in: PRICES });
+    }
+
+    // ── ROADMAP 8.14 — MAKING A CODE, AND RETIRING ONE ─────────────────
+    //
+    // **THERE IS NO EDIT AND THAT IS DELIBERATE.** A code's terms are what
+    // somebody was told when it was handed to them; changing 25% into 10%
+    // afterwards changes what a person already in a conversation is being
+    // offered, and there is no record anywhere of what it used to say. Make
+    // another code and switch this one off.
+    if (action === "promo_new") {
+      const code = String(body.code ?? "").trim().toUpperCase();
+      // The same shape the column's own CHECK enforces, said here so the
+      // answer is a sentence rather than a Postgres constraint name.
+      if (!/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(code)) {
+        return json({
+          error: "A code is 3 to 32 characters: letters, numbers and dashes, no spaces.",
+        }, 400);
+      }
+      const kind = body.kind === "percent" ? "percent" : "amount";
+      // **DOLLARS IN, CENTS STORED.** He types 200 meaning $200, and every
+      // money column in this schema is cents. Doing that conversion on the
+      // SCREEN is how a code worth two dollars gets created and nobody
+      // notices until somebody redeems it.
+      const raw = Number(body.value);
+      const value = kind === "percent" ? Math.round(raw) : Math.round(raw * 100);
+      if (!Number.isFinite(value) || value <= 0 || (kind === "percent" && value > 100)) {
+        return json({
+          error: kind === "percent"
+            ? "A percentage has to be between 1 and 100."
+            : "An amount has to be more than zero.",
+        }, 400);
+      }
+      const offSetup = body.off_setup !== false;
+      const offRecurring = body.off_recurring === true;
+      if (!offSetup && !offRecurring) {
+        return json({ error: "Pick what it comes off — the build, the monthly, or both." }, 400);
+      }
+      const row = {
+        code,
+        kind,
+        value,
+        off_setup: offSetup,
+        off_recurring: offRecurring,
+        stacks_with_founding: body.stacks_with_founding === true,
+        max_redemptions: Number.isFinite(Number(body.max_redemptions))
+            && Number(body.max_redemptions) > 0
+          ? Math.round(Number(body.max_redemptions))
+          : null,
+        expires_at: typeof body.expires_at === "string" && body.expires_at
+          ? new Date(`${body.expires_at}T23:59:59Z`).toISOString()
+          : null,
+        note: typeof body.note === "string" ? body.note.slice(0, 300) : null,
+      };
+      const { error } = await supabase.from("platform_promo_codes").insert(row);
+      // 23505 is a duplicate key, and it is the one failure here somebody can
+      // actually act on — every other one is ours.
+      if (error) {
+        return json({
+          error: (error as { code?: string }).code === "23505"
+            ? `${code} already exists. Switch it off or pick another name.`
+            : error.message,
+        }, 400);
+      }
+      // A CODE IS MONEY OFF, so it is logged like the price table is: what was
+      // made, in full, because "he made a code in September" is not an answer
+      // to give anybody who asks why a detailer is paying what they pay.
+      await logIt(admin, "promo_new", null, row);
+      return json({ success: true });
+    }
+
+    if (action === "promo_off") {
+      const code = String(body.code ?? "").trim().toUpperCase();
+      // **SWITCHED OFF, NEVER DELETED.** `platform_subscriptions.promo_code`
+      // names it, and a row pointing at a code that no longer exists is a
+      // discount nobody can explain.
+      const { error } = await supabase.from("platform_promo_codes")
+        .update({ active: false }).eq("code", code);
+      if (error) throw error;
+      await logIt(admin, "promo_off", null, { code });
+      return json({ success: true });
     }
 
     if (action === "create") {

@@ -567,6 +567,21 @@ button.pa-link { background: none; border: 0; padding: 0; font: inherit; cursor:
    the five-instance trap `theme.css` records. */
 .pa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
 
+/* ROADMAP 8.14 — the three ticks under the promo-code form. A COLUMN, never a
+   row: the third one's sentence is the longest label on this screen, because
+   it is the tick that costs real money if it is set carelessly and it says so
+   rather than naming a column. Side by side, that sentence sets the width of
+   all three and the first two become two words each on a phone.
+   `align-items: flex-start` and the box's own `flex: none` are what stop a
+   22px checkbox stretching to the height of a three-line label — the same
+   shape the consent tick on the detailer's own billing screen needed. */
+.pa-checks { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.pa-checks label {
+  display: flex; gap: 10px; align-items: flex-start; cursor: pointer;
+  font-size: var(--t-meta, 13px); color: var(--text, #E8EDEF); line-height: 1.45;
+}
+.pa-checks input { flex: none; margin-top: 2px; }
+
 /* THE RESTING STATE. The right-hand column is never blank at a desk: an empty
    half-screen reads as a page that failed to load, which is the same defect
    the sign-in gate had. It says what the column is for. */

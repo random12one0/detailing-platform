@@ -270,7 +270,20 @@ console.log("\n7. and the things the spec refused");
   // around eight, and "show me everything" taken literally is the wall of
   // fields `docs/platform-admin-audit-2026-09-06.md` warns against in its
   // first paragraph. Eight is the ceiling; six is what is drawn.
-  const figures = (p.match(/pa-num"/g) ?? []).length;
+  // **COUNTED INSIDE THE STRIP, NOT IN THE WHOLE FILE — re-pointed 2026-09-14
+  // by roadmap 8.14, which put a promo code in the numeral face two hundred
+  // lines further down and turned this red about a figure that is not in the
+  // strip at all.** The claim is about what a reader meets across the top of
+  // the page; the file-wide count was a proxy for it that any later use of the
+  // same class breaks. `.pa-num` is the numeral face and other things are
+  // legitimately set in it.
+  // `stripBlock`, not `strip`: this file already has a `strip()` that removes
+  // comments, and a `const` of the same name put it in its own temporal dead
+  // zone two hundred lines EARLIER — the same shape as `appear()` in
+  // sweep-widths.mjs, which CLAUDE.md records twice.
+  const stripBlock = p.slice(p.indexOf('<header className="pa-strip'), p.indexOf("</header>"));
+  const figures = (stripBlock.match(/pa-num"/g) ?? []).length;
+  check("the check has a strip to count — the header was found", stripBlock.length > 200);
   // SEVEN SINCE 2026-09-06's REBUILD — one LEAD figure plus six — and the
   // ceiling is what this check is really for. A strip of figures stops being
   // read somewhere around eight, and "show me everything" taken literally is

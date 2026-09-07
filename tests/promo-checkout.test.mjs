@@ -612,5 +612,146 @@ if (!URL_ || !SERVICE || !ANON) {
   }
 }
 
+// ─── 5. Making one, which is the only way he ever will ────────────────────
+//
+// **A FEATURE HE CANNOT USE WITHOUT SQL IS NOT BUILT.** The engine and the
+// checkout were stage 1; this is the half that decides whether a code can
+// exist at all.
+//
+// The one thing worth more than the rest: **he types DOLLARS and the column
+// stores CENTS**, and the conversion is on the SERVER. A screen that
+// multiplies by 100 is a screen that can forget to, and the symptom would be
+// a code worth two dollars that nobody notices until somebody redeems it.
+console.log("5. making a code from the back office");
+if (!URL_ || !SERVICE || !ANON) {
+  console.log("  SKIPPED — needs SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SUPABASE_ANON_KEY");
+} else {
+  const H = { apikey: SERVICE, Authorization: `Bearer ${SERVICE}`, "Content-Type": "application/json" };
+  const rest = (p, init = {}) =>
+    fetch(`${URL_}/rest/v1/${p}`, { ...init, headers: { ...H, ...(init.headers || {}) } });
+  const { makeAdmin, dropAdmin } = await import("../scripts/admin-account.mjs");
+  const CODE = `M${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+  let acct = null;
+
+  try {
+    acct = await makeAdmin(URL_, SERVICE);
+    check("5a · a throwaway platform admin exists", !!acct?.id);
+    const signIn = await fetch(`${URL_}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { apikey: ANON, "Content-Type": "application/json" },
+      body: JSON.stringify({ email: acct.email, password: acct.password }),
+    }).then((r) => r.json());
+    const jwt = signIn.access_token;
+    check("5a-ii · and can sign in", !!jwt, JSON.stringify(signIn).slice(0, 120));
+
+    const admin = async (body) => {
+      const r = await fetch(`${URL_}/functions/v1/platform-admin`, {
+        method: "POST",
+        headers: { apikey: ANON, Authorization: `Bearer ${jwt}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const t = await r.text();
+      return { status: r.status, body: t ? JSON.parse(t) : null };
+    };
+    const rowFor = async () =>
+      (await rest(`platform_promo_codes?code=eq.${CODE}&select=*`).then((r) => r.json()))[0];
+
+    // **DOLLARS IN, CENTS STORED.** The whole reason the conversion is on the
+    // server rather than in the form.
+    const made = await admin({
+      action: "promo_new", code: CODE.toLowerCase(), kind: "amount", value: "200",
+      off_setup: true, off_recurring: false, max_redemptions: "5", note: "made by a test",
+    });
+    check("5b · a code can be made", made.status === 200 && made.body?.success === true,
+      JSON.stringify(made.body).slice(0, 160));
+    const row = await rowFor();
+    check("5b-ii · $200 typed is 20000 cents stored", row?.value === 20000,
+      `stored ${row?.value}`);
+    check("5b-iii · a lower-case code is stored upper-case, because the column is",
+      row?.code === CODE);
+    check("5b-iv · and the rest of the form arrived intact",
+      row?.kind === "amount" && row?.off_setup === true && row?.off_recurring === false
+      && row?.max_redemptions === 5 && row?.active === true);
+
+    // A PERCENTAGE IS NOT MULTIPLIED. The same field, a different meaning —
+    // the easiest thing in this endpoint to get wrong.
+    const PCT = `${CODE}P`;
+    await admin({
+      action: "promo_new", code: PCT, kind: "percent", value: "25",
+      off_setup: true, off_recurring: true,
+    });
+    const pctRow = (await rest(`platform_promo_codes?code=eq.${PCT}&select=value,kind`)
+      .then((r) => r.json()))[0];
+    check("5c · 25 percent typed is 25 stored, not 2500", pctRow?.value === 25);
+    await rest(`platform_promo_codes?code=eq.${PCT}`, { method: "DELETE" });
+
+    // THE REFUSALS, EACH ONE A SENTENCE RATHER THAN A CONSTRAINT NAME.
+    const bad = async (patch) =>
+      await admin({ action: "promo_new", code: "ZZTOP", kind: "amount", value: "10", ...patch });
+    check("5d · a code with a space in it is refused",
+      (await bad({ code: "A B C" })).status === 400);
+    check("5d-ii · a percentage over 100 is refused",
+      (await bad({ code: "ZZOVER", kind: "percent", value: "150" })).status === 400);
+    check("5d-iii · a code that comes off nothing is refused",
+      (await bad({ code: "ZZNONE", off_setup: false, off_recurring: false })).status === 400);
+    const dup = await admin({
+      action: "promo_new", code: CODE, kind: "amount", value: "50", off_setup: true,
+    });
+    check("5d-iv · a duplicate is refused by name, not by a database error",
+      dup.status === 400 && /already exists/.test(dup.body?.error ?? ""),
+      dup.body?.error);
+
+    // SWITCHED OFF, NEVER DELETED: a subscription row names the code, and a
+    // row pointing at a code that no longer exists is a discount nobody can
+    // explain.
+    const offRes = await admin({ action: "promo_off", code: CODE.toLowerCase() });
+    check("5e · a code can be switched off", offRes.status === 200);
+    const after = await rowFor();
+    check("5e-ii · and it is deactivated rather than deleted",
+      !!after && after.active === false);
+
+    // IT IS LOGGED, like the price table, because a code is money off.
+    const events = await rest(
+      "platform_admin_events?select=action,detail&order=created_at.desc&limit=10",
+    ).then((r) => r.json());
+    check("5f · making a code is written to the audit log",
+      events.some((e) => e.action === "promo_new" && e.detail?.code === CODE));
+    check("5f-ii · with the whole code in it, not a flag",
+      events.some((e) => e.action === "promo_new" && e.detail?.value === 20000));
+    check("5f-iii · and so is switching one off",
+      events.some((e) => e.action === "promo_off" && e.detail?.code === CODE));
+
+    // THE OVERVIEW SENDS THEM, so the screen never reads the table — the rule
+    // every byte of that page follows.
+    const overview = await admin({ action: "list" });
+    check("5g · the back office is sent the codes",
+      Array.isArray(overview.body?.promos)
+      && overview.body.promos.some((c) => c.code === CODE));
+    check("5g-ii · with the redemption count, which is what decides anything",
+      overview.body.promos.find((c) => c.code === CODE)?.redeemed === 0);
+
+    // AND NOBODY ELSE CAN MAKE ONE. The gate is the same 404 the whole
+    // function gives a non-admin, so this is really a check that the new
+    // actions did not somehow land outside it.
+    const asAnon = await fetch(`${URL_}/functions/v1/platform-admin`, {
+      method: "POST",
+      headers: { apikey: ANON, Authorization: `Bearer ${ANON}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "promo_new", code: "SNEAKY1", kind: "percent", value: 100 }),
+    });
+    check("5h · a stranger cannot make a code, and gets 404 rather than 403",
+      asAnon.status === 404, `status ${asAnon.status}`);
+    const sneaky = await rest("platform_promo_codes?code=eq.SNEAKY1&select=code")
+      .then((r) => r.json());
+    check("5h-ii · and none was made", Array.isArray(sneaky) && sneaky.length === 0);
+  } finally {
+    await rest(`platform_promo_codes?code=in.(${CODE},${CODE}P,ZZTOP,ZZOVER,ZZNONE,SNEAKY1)`,
+      { method: "DELETE" }).catch(() => {});
+    if (acct?.id) await dropAdmin(URL_, SERVICE, acct.id).catch(() => {});
+    const left = await rest(`platform_promo_codes?code=eq.${CODE}&select=code`)
+      .then((r) => r.json());
+    check("5i · the throwaway codes are gone", Array.isArray(left) && left.length === 0);
+  }
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

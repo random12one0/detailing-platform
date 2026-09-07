@@ -7492,11 +7492,54 @@ works**, which is one line at the end rather than a pause in the middle.
       answer and it read as the zone being ignored when it was the STUB that
       was.
 
-- [ ] 8.14 **Promo codes on our own checkout.** *"We should set up a promo code
-      system within the buying process. I'm sure Stripe supports that."* It
-      does; the product does not — no `coupon`, `promotion_code` or `discounts`
-      anywhere in `platform-billing`. The founding tier is a different price
-      table, not a redeemable code. `security-review` is not optional.
+- [x] 8.14 **Promo codes on our own checkout.** *"We should set up a promo code
+      system within the buying process. I'm sure Stripe supports that."*
+      **DONE 2026-09-07.** *(Full reasoning: DECISIONS.md → "Roadmap 8.14".)*
+      **HE IS RIGHT THAT STRIPE SUPPORTS IT AND THIS DELIBERATELY DOES NOT USE
+      IT.** A Stripe `coupon` computes the money INSIDE STRIPE, where nothing
+      in this repo can see it, and the loudest rule in
+      `_shared/platformBilling.ts` is that the page PRINTS and the server
+      CHARGES from one pure module — the same reasoning that already refused
+      Stripe Product IDs for the amounts.
+      **SO A CODE PRODUCES A DIFFERENT `Snapshot` AND NOTHING ELSE CHANGES.**
+      That object already decides `linesFor`, `planLabel`, `consentSentence`,
+      `exitFeeCents`, `firstChargeCents` and the row, so a discounted snapshot
+      makes all six right by construction — **including the sentence beside the
+      tick, which is the one quoted back in a card dispute.** A
+      `discount_cents` threaded through six call sites is the version where one
+      of them forgets, and the forgotten one is always the receipt.
+      **THE CEILING IS STATED RATHER THAN HIDDEN: a discount lasts as long as
+      the subscription does.** An inline `price_data.unit_amount` recurs at
+      that amount for ever, so *first month free* and *20% off for a year* are
+      not expressible — they need a Stripe coupon with a `duration`, and then
+      the number this repo prints and the number Stripe charges differ for the
+      life of the account. Money off the BUILD FEE is naturally one-off.
+      **A CODE IS REFUSED ON A FOUNDING ACCOUNT BY DEFAULT** —
+      `stacks_with_founding` opts in — because three spots exist, they are
+      already discounted, and refusing costs a support email where allowing
+      costs the price for the life of an account.
+      **THE REDEMPTION IS ONE SQL STATEMENT AND IT SITS ABOVE THE SNAPSHOT**,
+      which is roadmap 8.5's finding applied rather than re-learned; proven by
+      firing two redemptions at a one-use code at once, not by reading the SQL.
+      **AND THE TEST FOUND A REAL DEFECT AND THEN A SECOND ONE IN ITS OWN
+      FIX.** `subscribe` claims a founding spot at intent to pay, so a code
+      could be accepted by the quote and refused at the till half a second
+      later; `quotePromo` predicts what the till will do — and the first
+      version of that prediction called `founding_spots_left()`, which has not
+      existed since roadmap 6.2, so PostgREST answered PGRST202 and the
+      prediction silently fell through to *not founding*. **A missing RPC is a
+      silent `false`.**
+      `tests/promo-checkout.test.mjs` — **102 checks, thirteen baselined**, two
+      of them applied to the live database, and **one of its own checks was
+      vacuous**: it tested that `withinLimits` APPEARED, and `if (false && …)`
+      keeps every one of those characters while gating nothing.
+      **The back office makes them** (create and switch off; there is no edit,
+      because a code's terms are what somebody was told when it was handed to
+      them) **and he types DOLLARS while the column stores CENTS, converted on
+      the SERVER** — a screen that multiplies by 100 is a screen that can
+      forget to. Photographed and measured at 1920/1440/768/392/320: **the
+      price editor had existed since 4.4 stage 4 and nothing had ever
+      photographed it either.**
 
 - [ ] 8.15 **Referral links and loyalty.** Ideas 17 and 47, both of which he
       wants **as opt-in settings with automatic emails**. Both were

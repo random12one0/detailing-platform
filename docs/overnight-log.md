@@ -2637,6 +2637,40 @@ It now takes the library from the official npm registry instead, which is where
 the rest of the world gets it. The mirror is out of the path completely. All
 thirty are republished and every test in the repo passes against them.
 
+## Promo codes are built — you can make one yourself in the back office
+
+You asked for *"a promo code system within the buying process."* It is in.
+
+**Where:** `/admin` → **What we charge** → scroll down to **Promo codes**. Type
+a code, say how much it takes off and what it comes off, press *Make this
+code*. Anybody who types it at their checkout gets it. `DEMO25` is already
+there — that one is a test fixture, not for a real detailer.
+
+**Two things worth knowing before you hand one out.**
+
+**1 · A discount off the MONTHLY lasts as long as they stay.** Not a month, not
+a year — for good. That is a real limitation and it comes from how the payment
+works: the price we set is the price that repeats. A discount off the **build
+fee** is naturally one-off, because that only gets charged once, so *"$200 off
+to sign up"* works exactly as you would expect. **If you want "first month
+free" or "20% off for the first year", say so and I will build it** — it needs
+a different mechanism on Stripe's side, and I did not build it speculatively
+because it makes the number we print and the number Stripe charges two
+different numbers, which is the thing this whole codebase is most careful
+about.
+
+**2 · A code will not stack on a founding price unless you tick the box.**
+There are three founding spots, they are already the discounted ladder, and a
+half-price code on top of one is that price for the life of that account. The
+tick is there if you want it; it is just not the default.
+
+**You were right that Stripe supports this, and I did not use their version.**
+Their coupons do the arithmetic on their servers, which means the price on our
+screen and the price on the card are computed in two different places — and
+that is exactly how a product ends up charging something different from what
+it showed. Ours computes it once and uses that one answer for the screen, the
+receipt, the agreement you tick and what it costs to leave early.
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

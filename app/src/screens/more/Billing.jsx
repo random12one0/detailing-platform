@@ -133,6 +133,11 @@ export default function Billing() {
   // a press on a row all produce the same value.
   const [chosen, setChosen] = useState(() => planChoice(window.location.search));
   const [ticked, setTicked] = useState(false);
+  // ROADMAP 8.14. `typed` is what is in the box; `promo` is the server's
+  // answer to it, and only the server's answer is ever drawn.
+  const [typed, setTyped] = useState("");
+  const [promo, setPromo] = useState(null);
+  const [promoSaying, setPromoSaying] = useState("");
   const [confirming, setConfirming] = useState(false);
   // THE PAYMENT STEP. Null until they press the button; then it holds what
   // Stripe needs and the Payment Element is mounted into the card below.
@@ -193,6 +198,52 @@ export default function Billing() {
     return () => { dead = true; };
   }, [pay]);
 
+  // ROADMAP 8.14 — ASK WHAT THE CODE WOULD DO. It spends nothing; the
+  // redemption happens at `subscribe`, in the same breath as the price.
+  async function applyPromo() {
+    const code = typed.trim().toUpperCase();
+    if (!code) return;
+    setBusy(true);
+    setPromoSaying("");
+    try {
+      const { plan, term } = planAndTerm(chosen);
+      const r = await api.billingPromo(business.id, code, plan, term);
+      if (r?.ok) {
+        setPromo(r);
+        setTyped(r.code);
+        // **CONSENT TO ONE PRICE IS NOT CONSENT TO ANOTHER**, which is the
+        // rule the rung buttons already follow. A code changes every figure in
+        // the sentence beside the tick, so the tick comes off.
+        setTicked(false);
+      } else {
+        setPromo(null);
+        setPromoSaying(r?.problem || "We could not use that code.");
+      }
+    } catch (e) {
+      setPromoSaying(String(e.message || e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // **CHOOSING A DIFFERENT RUNG DROPS THE CODE, and it is one function so a
+  // third rung cannot forget.** A code is quoted against a plan and a term —
+  // a build-fee code means nothing on the booking plan, and the saving on a
+  // monthly is not the saving on a prepaid year. Carrying an answer across
+  // that change would print a discount computed for something else.
+  function pickRung(key) {
+    setChosen(key);
+    setTicked(false);
+    clearPromo();
+  }
+
+  function clearPromo() {
+    setPromo(null);
+    setTyped("");
+    setPromoSaying("");
+    setTicked(false);
+  }
+
   // STEP ONE: ask the server for a payment. It writes the consent and the
   // snapshot first, so this cannot happen without them.
   async function start() {
@@ -207,7 +258,12 @@ export default function Billing() {
       // wrong number was created in this one argument, three screens after the
       // page that printed the right one.
       const { plan, term } = planAndTerm(chosen);
-      const r = await api.billingSubscribe(business.id, plan, term);
+      // THE CODE GOES WITH IT, AND THE SERVER RESOLVES IT AGAIN. What this
+      // screen holds is an answer it was given, not a discount it may claim —
+      // `subscribe` reads the row, redeems it and recomputes the money in the
+      // same breath as the price, so a client that posted a friendlier code
+      // than it showed would still be charged what the table says.
+      const r = await api.billingSubscribe(business.id, plan, term, promo?.code ?? null);
       setPay({
         clientSecret: r.client_secret,
         publishableKey: r.publishable_key,
@@ -296,7 +352,22 @@ export default function Billing() {
   // -------------------------------------------------------------------------
 
   function ladder() {
-    const q = chosen ? data.quotes[chosen] : null;
+    const listQ = chosen ? data.quotes[chosen] : null;
+    // ROADMAP 8.14 — WITH A CODE APPLIED, EVERY ONE OF THESE FIGURES IS THE
+    // SERVER'S ANSWER TO THE CODE, INCLUDING THE CONSENT SENTENCE. The screen
+    // does no arithmetic about money anywhere in this feature, and the
+    // sentence beside the tick is the one that gets quoted back in a card
+    // dispute — a list price in it would be a document saying somebody agreed
+    // to something they did not.
+    const q = listQ && promo
+      ? {
+        ...listQ,
+        first_charge_cents: promo.amount_cents,
+        setup_cents: promo.setup_cents,
+        recurring_cents: promo.recurring_cents,
+        consent: promo.consent,
+      }
+      : listQ;
     // Identical on all three website rungs, so it is stated once above them
     // rather than three times inside them. Read from the server, so a founding
     // account sees its own figure.
@@ -359,7 +430,7 @@ export default function Billing() {
                 className="row-item"
                 data-billing-rung={key}
                 aria-pressed={chosen === key}
-                onClick={() => { setChosen(key); setTicked(false); }}
+                onClick={() => pickRung(key)}
               >
                 <span className="txt">
                   <span className="nm">{name}</span>
@@ -413,7 +484,7 @@ export default function Billing() {
                 className="row-item"
                 data-billing-rung="booking"
                 aria-pressed={chosen === "booking"}
-                onClick={() => { setChosen("booking"); setTicked(false); }}
+                onClick={() => pickRung("booking")}
               >
                 <span className="txt">
                   <span className="nm">Booking page only</span>
@@ -438,8 +509,15 @@ export default function Billing() {
             actual text inside of it changes"* — which is Money's period switch
             exactly. `.swap` + a key is the whole mechanism; no new keyframe, no
             new duration, and the parts stagger 20ms at `--t-exit` for free. */}
+        {/* THE KEY CARRIES THE CODE TOO — roadmap 8.14. Applying one replaces
+            every figure and the whole consent sentence while the frame stays
+            put, which is the owner's third kind of motion exactly, and it is
+            the same swap a rung press already does. Keyed on `chosen` alone,
+            a code would change the numbers with no motion at all — the "pops
+            into place" complaint, on the one screen where the number that
+            changed is the one somebody is about to be charged. */}
         {q && (
-          <div className="swap" key={chosen}>
+          <div className="swap" key={`${chosen}:${promo?.code ?? ""}`}>
             <div className="section-title">Before you pay</div>
             <div className="facts">
               <div>
@@ -472,6 +550,86 @@ export default function Billing() {
                 </div>
               )}
             </div>
+
+            {/* ROADMAP 8.14 — A PROMO CODE.
+                **THE FIELD IS BELOW THE FIGURES AND ABOVE THE TICK**, because
+                it changes the figures and the tick is consent to them. Putting
+                it under the tick would let somebody agree to one price and pay
+                another with no second tick, which is the whole thing AB 2863's
+                ordering is about.
+                **AND IT IS NOT DRAWN ONCE THE CARD FORM IS UP.** By then the
+                subscription exists in Stripe at a settled amount; a field that
+                looks live and cannot change anything is worse than no field.
+                It is not on the booking plan either — the codes he will hand
+                out are website ones, and a $35 plan with a build-fee code on
+                it is the "nothing to take off this plan" refusal by design. */}
+            {!pay && (
+              <div className="promo-line" style={{ marginTop: "var(--sp-3)" }}>
+                {promo
+                  ? (
+                    <div className="facts">
+                      <div>
+                        <span className="quiet">Code {promo.code}</span>
+                        <span className="v">
+                          <span className="strong num">{usd(promo.was_cents - promo.amount_cents)}</span>
+                          {" off today"}
+                          {promo.off_recurring_cents > 0 && (
+                            <>
+                              {", and "}
+                              <span className="strong num">{usd(promo.off_recurring_cents)}</span>
+                              {q.bill_interval === "year" ? " every year after" : " every month after"}
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                  : null}
+                {/* **THE FIELD TAKES THE ROW AND THE BUTTON TAKES THE ONE
+                    UNDER IT**, which is this product's own idiom — every form
+                    on every settings screen is a `.fields` column with a
+                    `.btnrow` at the bottom — rather than an inline flex row
+                    invented here.
+                    The first version WAS that inline row, with `flex: 1` on
+                    the label, and it was wrong at all three widths: the label
+                    collapsed, `PROMO CODE` wrapped onto two lines, the input
+                    rendered about 30px wide and 30px OUTSIDE its own parent,
+                    and the button took the rest of the card. **Found by
+                    looking at a screenshot, not by any check** — the geometry
+                    probe reported the 30px and the picture is what said the
+                    control was unusable. `input { width: 100% }` is global
+                    here, so a squeezed label is a squeezed input. */}
+                <label className="field">
+                  <span>Promo code</span>
+                  <input
+                    value={typed}
+                    data-billing-promo=""
+                    placeholder="If you were given one"
+                    autoCapitalize="characters"
+                    spellCheck={false}
+                    disabled={!!promo || busy}
+                    onChange={(e) => { setTyped(e.target.value); setPromoSaying(""); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyPromo(); } }}
+                  />
+                </label>
+                <div className="btnrow" style={{ marginTop: "var(--sp-2)" }}>
+                  <button
+                    type="button"
+                    className="btn"
+                    data-billing-promo-apply=""
+                    disabled={busy || (!promo && !typed.trim())}
+                    onClick={() => (promo ? clearPromo() : applyPromo())}
+                  >
+                    {promo ? "Remove" : "Apply"}
+                  </button>
+                </div>
+                {/* A REFUSAL IS A SENTENCE, NOT A SILENCE. The server writes
+                    it — "that code has expired", "that code cannot be used
+                    with the founding price" — because a checkout that just
+                    says no is a support call and an abandoned sale. */}
+                {promoSaying && <p className="quiet" data-billing-promo-said="">{promoSaying}</p>}
+              </div>
+            )}
 
             {/* THE TICK. Its own control, its own words, generated by the
                 server — see the header. It resets whenever the rung changes,

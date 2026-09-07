@@ -1225,9 +1225,14 @@ console.log("\n20. the plan chosen on /pricing is the plan charged for (roadmap 
   check("20a · the billing screen no longer hardcodes a plan",
     !/billingSubscribe\([^)]*["']website["']/.test(billing),
     "this is the whole defect: a literal plan name at the call site");
+  // **RE-POINTED BY ROADMAP 8.14, WHICH ADDED A FOURTH ARGUMENT.** The claim
+  // is that the plan and the term come from what was CHOSEN rather than from a
+  // literal, and it is unchanged; the call now carries the promo code as well.
+  // Pinned as a prefix so the next argument does not redden it either, while
+  // 20a above still fails on a literal plan name.
   check("20a-ii · it sends what was chosen",
     /const \{ plan, term \} = planAndTerm\(chosen\)/.test(billing)
-      && /billingSubscribe\(business\.id, plan, term\)/.test(billing));
+      && /billingSubscribe\(business\.id, plan, term[,)]/.test(billing));
 
   // ── EVERY BUTTON ON /pricing PRODUCES A KEY THE SERVER QUOTES ────────
   // The sharp one. `summary` keys its quotes by term plus "booking", and the

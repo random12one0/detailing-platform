@@ -263,6 +263,8 @@ were made more than once.
 
 - **esm.sh stopped this product shipping any backend change, and pinning our own version had not helped** — `_shared/db.ts` is imported by all thirty edge functions and read `https://esm.sh/@supabase/supabase-js@2.39.0`. **That release declares its own dependencies as RANGES**, which esm.sh resolves at DEPLOY time; it resolved `@supabase/functions-js@^2.1.5` to `2.116.0`, which esm.sh answers 404 for, so the bundler reported *Module not found* for every function at once — including ones untouched for weeks. **Pinning your own dependency does not pin its dependencies when a CDN resolves them on every build.** Moved to `npm:@supabase/supabase-js@2.58.0`: Supabase's edge runtime is Deno 2, so npm specifiers resolve from the registry and esm.sh is out of the deploy path entirely. Measured rather than guessed — `2.39.0` resolves ranges, `2.45.0` and later resolve to exact versions that exist. All thirty redeployed and the whole env-backed battery green against the new copies.
 
+- **Roadmap 8.14 — a promo code makes a different `Snapshot`, and there is no Stripe coupon** — *"we should set up a promo code system within the buying process. I'm sure Stripe supports that."* It does, and using it would put the money inside Stripe where nothing in this repo can see it — the same reasoning that already refused Product IDs for the amounts. **So a code produces a discounted `Snapshot`**, and the invoice lines, the label, the consent sentence, the exit fee, the first charge and the row are all right by construction rather than by six call sites remembering. **The price of that is stated: a discount lasts as long as the subscription does** — an inline `unit_amount` recurs for ever, so *first month free* needs a Stripe coupon and is not built; money off the build fee is naturally one-off. **Refused on a founding account by default**, because three spots exist and are already discounted. **The redemption is one SQL statement and sits above the snapshot** (roadmap 8.5's finding applied, not re-learned), proven by firing two at a one-use code at once. **The test found a real defect and then a second one in its own fix**: `subscribe` claims the founding spot at intent to pay, so a code could be quoted fine and refused at the till — and the prediction written to close that called `founding_spots_left()`, which has not existed since roadmap 6.2, so PostgREST answered PGRST202 and it silently fell through to *not founding*. A missing RPC is a silent `false`. **The back office creates and switches off, never edits, and he types DOLLARS while the column stores CENTS — converted on the SERVER**, because a screen that multiplies by 100 is a screen that can forget to.
+
 <!-- INDEX:END -->
 
 ## Phase 2
@@ -15405,3 +15407,134 @@ pinned the exact text `!fromPlatform && business.contact_email`, and 8.12 put a
 `!` in it; the guard is unchanged. A check that pins a spelling goes red on a
 correct change, which is annoying, and a check left pointing at deleted code
 goes vacuous, which is worse.
+
+
+## Roadmap 8.14 — a promo code makes a different `Snapshot`, and there is no Stripe coupon
+
+> *"We should set up a promo code system within the buying process. I'm sure
+> Stripe supports that."*
+
+**He is right, and this deliberately does not use it.** A Stripe `coupon`
+computes the discount inside Stripe, where nothing in this repo can see it —
+and the loudest rule in `_shared/platformBilling.ts` is that *the page PRINTS
+and the server CHARGES, and one pure module does both.* The same reasoning
+already refused Stripe Product IDs for the amounts: *"an id puts the amount in
+another company's admin panel where nothing in this repo can see it."*
+
+### THE WHOLE DESIGN IS ONE SENTENCE
+
+**A code produces a different `Snapshot`.** That one object already decides
+`linesFor`, `planLabel`, `consentSentence`, `exitFeeCents`, `firstChargeCents`
+and the row written to `platform_subscriptions`. A discounted snapshot makes
+every one of them correct without any of them knowing a code exists.
+
+The alternative — a `discount_cents` threaded through the endpoint — is the
+version where one of six call sites forgets, **and the one that forgets is
+always the receipt**, because it is the only one nobody looks at while
+building. `tests/promo-checkout.test.mjs` § 1 asserts all four of the places
+the discount has to reach rather than assuming the design delivers them.
+
+### THE PRICE OF THAT CHOICE, STATED RATHER THAN DISCOVERED
+
+An inline `price_data.unit_amount` recurs at that amount **for ever**. So:
+
+- *"$200 off the build"* — works, and is naturally one-off, because that line
+  only ever appears on the first invoice.
+- *"$10 a month off, for as long as you stay"* — works, and is honestly a
+  price rather than an offer. The screen says so in those words.
+- *"First month free"* / *"20% off for a year"* — **not expressible.** They
+  need a Stripe coupon with a `duration`, and then the number this repo prints
+  and the number Stripe charges are different numbers for the life of the
+  account.
+
+### FIVE REFUSALS, EACH ONE A REAL FAILURE
+
+**A code larger than the line takes the line and no more** — otherwise a $200
+code against a $35 plan is a negative invoice item.
+
+**A first charge under fifty cents is refused BEFORE Stripe sees it.**
+`default_incomplete` on a zero invoice hands back no client secret, the screen
+has no card to draw, and the subscription goes active with no payment method
+saved: a customer who can never be charged. `platform-billing` already
+answered 502 on that path with a comment saying nothing in this product's
+pricing could reach it — **a promo code is the first thing that could.**
+
+**A build-fee code against the booking plan** is a $0 discount presented as a
+discount.
+
+**A code on a founding account is refused by default.** `stacks_with_founding`
+opts in. Three spots exist, they are already the discounted ladder, and a 50%
+code on top is $20 a month for the life of an account decided by whoever
+forwarded a text message. Refusing costs one support email; the same shape as
+`?? "incomplete"` on an unknown Stripe status.
+
+**And `applyPromo` THROWS on a code that cannot be used**, because a version
+that quietly returned the undiscounted snapshot would charge full price
+against a screen that had just printed a saving.
+
+### THE REDEMPTION IS ONE STATEMENT AND IT SITS ABOVE THE SNAPSHOT
+
+Roadmap 8.5's finding applied rather than re-learned: the price is snapshotted
+once and never re-read, so a code resolved later would charge one number and
+record another. And reading `redeemed` then writing it lets two people take
+the last redemption of a one-use code — proven by firing two at once, not by
+reading the SQL. `release_promo_code` is the undo on every path `giveBack`
+already covered, because a redemption taken at intent-to-pay is spent by a
+declined card.
+
+### THE TEST FOUND A REAL DEFECT, AND THEN A SECOND ONE IN ITS OWN FIX
+
+`subscribe` **claims a founding spot at intent to pay**. So a business that is
+not founding when it asks for a quote is founding half a second later, and a
+non-stacking code could be accepted by the quote and refused at the till with
+*"that code cannot be used with the founding price"* — the code working, then
+not working, between two presses, with nothing on the screen having changed.
+
+`quotePromo` predicts what the till will do. **The first version of that
+prediction called `founding_spots_left()`, which has not existed since roadmap
+6.2 renamed it**: PostgREST answered PGRST202, the value came back undefined,
+and the prediction silently fell through to "not founding" — so the fix looked
+applied and changed nothing. **A missing RPC is a silent `false`**, and it was
+caught only because the test compares the quote against the charge rather than
+against a constant.
+
+### THE BACK OFFICE MAKES THEM, AND THE CONVERSION IS ON THE SERVER
+
+Create and switch off. **There is no edit**: a code's terms are what somebody
+was told when it was handed to them, and changing 25% into 10% afterwards
+changes what a person mid-conversation is being offered with no record of what
+it used to say. Switched off, never deleted, because
+`platform_subscriptions.promo_code` names it.
+
+**He types DOLLARS and the column stores CENTS, and `platform-admin` does that
+conversion.** A screen that multiplies by 100 is a screen that can forget to,
+and the symptom is a code worth two dollars that nobody notices until somebody
+redeems it. A percentage goes in unmultiplied through the same field, which is
+the easiest thing in that endpoint to get wrong — both are pinned.
+
+### AND THE PRICE EDITOR HAD NEVER BEEN PHOTOGRAPHED
+
+`shoot-admin.mjs` walks the list and opens a business; *What we charge* is a
+state behind a button, which is the same gap this repo has recorded a dozen
+times — **the script walks NAVIGATION, and a state you reach by pressing
+something inside a screen is not navigation.** It has existed since roadmap
+4.4 stage 4. It is measured and photographed at all five widths now, along
+with the codes form under it.
+
+**Two harness lessons from doing that.** The toggle button RENAMES ITSELF —
+*What we charge* becomes *Close* — so a locator built on the first name times
+out for thirty seconds on the line that closes the panel, after the shots have
+already been taken; it is addressed by position now. And the first shot of the
+applied promo state was the BUSY one, because **`settle()` is a cap on a
+repaint and is not a wait for a network round trip** — a screen that reads
+exactly like a button that does nothing.
+
+### ONE CHECK ELSEWHERE WAS RE-POINTED AND ONE WAS RE-SCOPED
+
+`platform-billing` 21i pinned `if (!claimedNow) return;` and `giveBack` is an
+`if` block now that it has two things to undo. And `platform-admin`'s *"seven
+figures across the top"* counted `pa-num"` **in the whole file**, so a promo
+code set in the numeral face two hundred lines below the strip turned it red
+about a figure that is not in the strip at all; it counts inside the header
+now. A check that pins a spelling goes red on a correct change; one left
+pointing at deleted code goes vacuous, which is worse.
