@@ -38,6 +38,11 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
   const [draft, setDraft] = useState({ category: "custom", label: "", amount: "" });
   const [paymentStatus, setPaymentStatus] = useState("paid");
   const [paymentNotes, setPaymentNotes] = useState("");
+  // ROADMAP 8.19 — the mileage log. A STRING, not a number, because the field
+  // has to be able to be EMPTY: null means "not logged" and 0 means "I drove
+  // nowhere", and a numeric state would collapse the two the first time
+  // somebody cleared the box.
+  const [miles, setMiles] = useState(booking.miles == null ? "" : String(booking.miles));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   // Finalizing is the one irreversible-feeling action in the app: it closes
@@ -81,6 +86,9 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
         final_amount: finalAmount,
         payment_status: paymentStatus,
         payment_notes: paymentNotes || null,
+        // `""` → null, and `"0"` → 0. See the state above: those are two
+        // different answers and the column is checked to keep them apart.
+        miles: miles.trim() === "" ? null : Math.round(Number(miles)),
         finalized_at: new Date().toISOString(),
       });
       onDone?.();
@@ -129,6 +137,31 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
                 placeholder="Optional — cheque number, split payment…" /></label>
           </>
         )}
+
+        {/* ROADMAP 8.19 — THE MILEAGE LOG, AND IT IS HERE RATHER THAN ON THE
+            RECORD BECAUSE OF WHEN A PERSON KNOWS THE ANSWER. The drive is
+            over at exactly this moment and not before it, and this sheet is
+            already the one place a detailer is asked to look at the job as a
+            whole.
+
+            **IT IS NOT MONEY AND IT IS DELIBERATELY NOT NEAR ANY.** It sits
+            below the payment block, in its own row, because a number typed
+            beside a total is a number somebody will eventually expect to be
+            IN the total — and this one never is. The export carries it in its
+            own column for the same reason.
+
+            OPTIONAL AND SILENT. A detailer who does not claim mileage should
+            not meet a required field on every job they finish; blank stays
+            blank all the way to the accountant. */}
+        <label className="field"><span>Miles driven (optional)</span>
+          <input
+            inputMode="numeric"
+            value={miles}
+            data-finalize-miles=""
+            onChange={(e) => setMiles(e.target.value.replace(/[^0-9]/g, ""))}
+            placeholder="Round trip, for your mileage deduction"
+          />
+        </label>
 
         {/* Extras are the minority of jobs, so they fold away. */}
         <details className="disclose" open={items.length > 0}>

@@ -2772,6 +2772,44 @@ put eight of the seven-step screens past the bottom of a phone — the exact rul
 you set about never scrolling inside a step. I only found it because I measured
 rather than looked. It costs one pixel now.
 
+## Mileage and a one-tap "On my way" are built — one small question
+
+**The mileage log.** When you finish a job and mark it paid, there is now an
+optional box at the bottom of that sheet: *Miles driven*. Type the round trip
+or leave it blank. It shows on the job afterwards, and it gets its own column
+in the accountant export with its own total at the bottom.
+
+Two things I was careful about, because both are the sort of thing that only
+goes wrong at tax time. **Blank and zero are different answers** — blank means
+you never logged it, zero means you genuinely drove nowhere (a drop-off at your
+own unit) — so the file never turns a year of blanks into a column of noughts
+that reads as *"I drove nowhere."* And **the miles are never turned into
+money.** Nothing multiplies them by the IRS rate, because that is this product
+deciding your tax position for you; the number sits in its own column and your
+accountant does the rest.
+
+**"On my way" is a button now**, next to Call and Text on the job. It opens
+your phone's messaging app with your own wording already typed — the one you
+edited under Notifications, not the shipped default — so it is one press
+instead of digging through the text list. It only appears on a mobile job with
+a phone number, because on a drop-off the customer is coming to you and *"I'm
+on my way"* is the wrong thing to send.
+
+### THE ONE SMALL QUESTION
+
+The note this came from says to put it **"on the booking screen"**, and I could
+not tell which of two things you meant. I built it **on the job itself** — open
+a job from Today, and the button is right there with Call and Text. The other
+reading is **on the row in the Today list**, so you could send it without
+opening the job at all: one tap instead of two.
+
+I did not do that second one because it would put a fourth control on a row
+that currently holds three, and squeezing a list row is a design change you did
+not ask for. **If you want it there too, say "put it on the row" and it is a
+few minutes.** If two taps is fine, nothing to do.
+
+---
+
 ## Judgement calls made alone
 
 *(appended as they arise)*

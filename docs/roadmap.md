@@ -7660,10 +7660,57 @@ works**, which is one line at the end rather than a pause in the middle.
       switches between memberships on ONE login; his ask is two separate
       accounts, both signed in.
 
-- [ ] 8.19 **Mileage per job, and "on my way" on the booking screen.** Two
+- [x] 8.19 **Mileage per job, and "on my way" on the booking screen.** Two
       small detailer-facing additions. Idea 07 — *"they could have a way to log
       mileage, I think that'd be cool"* — has no column anywhere. R7 puts the
       existing text preset on the booking screen as well as the job record.
+      **BUILT 2026-09-07.** `bookings.miles`, a field on the finalize sheet, a
+      **Miles** column on the accountant export with its own foot total, and
+      **On my way** as a real `<a href="sms:">` on the job record beside Call
+      and Text. `tests/mileage.test.mjs` — 31 checks with credentials, 24
+      without.
+      **NULL IS NOT ZERO AND THAT IS THE WHOLE FEATURE.** A detailer who never
+      logs a mile must not hand an accountant a column of noughts reading *"I
+      drove nowhere all year"*, and 0 is a real answer — a drop-off at their
+      own unit. Four places can collapse the two and every one is silent: the
+      column's check, the modal's state (a STRING, so clearing the box is not
+      0), what the modal SENDS, and the `!= null` guard on the record. The
+      column also has a **2000 ceiling**, because the realistic failure is an
+      odometer reading typed into a box asking for a trip, and that one row is
+      the whole year.
+      **AND MILES NEVER BECOME MONEY.** No screen multiplies by an IRS rate —
+      that is this product taking a tax position on somebody's behalf — and
+      the export carries its own column with its own total rather than
+      touching Amount. The record's line was moved OUT of *The money* and into
+      *The job* after looking at it: it printed one line under "Quoted
+      $65.00", inside a card headed with the word money, which is exactly the
+      thing the item's own rule forbids.
+      **THE BUTTON IS A REAL LINK AND THAT IS NOT A STYLE CHOICE.** A
+      programmatic jump to `sms:` from the async continuation of a tap is what
+      a mobile browser blocks, and it would fail on the platform the feature
+      is FOR. So the templates load with the RECORD rather than with the
+      picker, which makes the picker instant as a side effect, and the button
+      is drawn only once the detailer's OWN wording is in hand — falling back
+      to the shipped default would send a customer a sentence the detailer
+      thinks they replaced. It is not drawn on a drop-off job, where "I'm on
+      my way" is the wrong sentence.
+      **ONE CHECK OF ITS OWN WAS VACUOUS AND BASELINING FOUND IT.** *"Not on a
+      drop-off job"* read the WHOLE record file for `service_type ===
+      "mobile"`, which appears there three times for unrelated reasons, so it
+      passed with the button's entire guard deleted. It slices the guard's own
+      expression now.
+      **AND THE BUTTON MADE A FOURTH CONTROL IN A THREE-COLUMN GRID**, so a
+      mobile job's record showed three buttons and then Navigate alone on a
+      line of its own, at every width. `.actions-row` splits to two columns at
+      four children now. Found by LOOKING; every geometry check passed.
+      **ONE READING PARKED RATHER THAN GUESSED:** idea 06 says *"the booking
+      screen"* and R7 is referenced nowhere else, so it could also mean the
+      day-sheet ROW on Today — a tap without opening the record at all. The
+      record is where the text preset already lived and is the literal reading
+      of his *"a button for the booking"*, so that is what was built. **If he
+      wants it on the row as well it is one more line**, and it is a question
+      for him rather than a guess, because a fourth control on a compact list
+      row is a design change he did not ask for.
 
 - [ ] 8.20 **Answer his eleven questions.** `docs/overnight-log.md` questions 7
       to 17, recorded verbatim at his instruction: *"just save it for now,

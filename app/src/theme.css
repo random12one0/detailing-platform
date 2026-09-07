@@ -3049,6 +3049,12 @@ button.warn-box:hover { border-color: var(--fog-2); }
    two shorter cases are declared rather than left at a third of the width. */
 .actions-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .actions-row:has(> :last-child:nth-child(2)) { grid-template-columns: repeat(2, 1fr); }
+/* FOUR IN A THREE-COLUMN GRID IS 3 + AN ORPHAN, and roadmap 8.19's "On my
+   way" made that the ordinary shape of a mobile job's record — three buttons
+   and then Navigate alone on a line of its own, at every width. Two even rows
+   instead. Found by LOOKING at the record after adding the button; nothing
+   measures tidiness, and every geometry check in this repo passed. */
+.actions-row:has(> :last-child:nth-child(4)) { grid-template-columns: repeat(2, 1fr); }
 .actions-row:has(> :only-child) { grid-template-columns: 1fr; }
 .actions-row .btn.sm { width: 100%; }
 

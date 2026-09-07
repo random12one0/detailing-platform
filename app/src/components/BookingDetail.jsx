@@ -146,14 +146,39 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
       ? booking.customer_address
       : business.dropoff_address;
 
-  // Prefilled texts, loaded only when the owner opens the picker.
-  const openTextPicker = async () => {
-    const { data } = await supabase
-      .from("message_templates").select("*")
-      .eq("business_id", business.id).order("sort_order");
-    setTemplates(data ?? []);
-    setPickingText(true);
-  };
+  // ── ROADMAP 8.19 / IDEA 06 — "ON MY WAY" IS A BUTTON NOW ─────────────
+  //
+  // His words: *"I guess. But yeah, we could add that as a button for the
+  // booking."* It already existed as one preset among twelve, two taps deep
+  // behind **Text**, which is not what a person wants while they are getting
+  // into the van.
+  //
+  // **SO THE TEMPLATES LOAD WITH THE RECORD RATHER THAN WITH THE PICKER**,
+  // and that is what makes the button a real `<a href="sms:">` instead of a
+  // click handler that fetches and then tries to navigate. A programmatic
+  // jump to `sms:` from the async continuation of a tap is exactly the kind
+  // of thing a mobile browser blocks, and it would fail on the platform this
+  // feature is FOR. One small query per record open buys that, and it makes
+  // the picker instant as a side effect.
+  //
+  // **AND IT USES THE DETAILER'S OWN WORDING, NOT THE DEFAULT.** Falling back
+  // to `DEFAULT_TEMPLATES` when the row has not arrived would send a customer
+  // a sentence the detailer edited months ago and thinks they replaced — a
+  // silent wrong answer, which is worse than the button being absent for a
+  // beat. So the button is only drawn once the real row is in hand.
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      const { data } = await supabase
+        .from("message_templates").select("*")
+        .eq("business_id", business.id).order("sort_order");
+      if (!dead) setTemplates(data ?? []);
+    })();
+    return () => { dead = true; };
+  }, [business.id]);
+
+  const onMyWay = templates.find((t) => t.key === "on_my_way");
+  const openTextPicker = () => setPickingText(true);
   const smsHref = (body) =>
     `sms:${booking.customer_phone}${/iPhone|iPad|Mac/.test(navigator.userAgent) ? "&" : "?"}body=${encodeURIComponent(body)}`;
   const filled = (body) =>
@@ -230,6 +255,15 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
             <button className="btn sm" onClick={openTextPicker}>
               <MessageSquare size={18} strokeWidth={2} /> Text
             </button>
+            {/* ONE TAP, AND ONLY WHERE IT MEANS SOMETHING. A drop-off job is
+                the customer coming to the detailer, so "I'm on my way" is the
+                wrong sentence and the button is not drawn — the same test the
+                Navigate button beside it already makes about an address. */}
+            {onMyWay && booking.service_type === "mobile" && booking.customer_phone && (
+              <a className="btn sm" data-on-my-way="" href={smsHref(filled(onMyWay.body))}>
+                <Navigation size={18} strokeWidth={2} /> On my way
+              </a>
+            )}
             {address && (
               <a className="btn sm" href={mapsUrl(address)} target="_blank" rel="noreferrer">
                 <Navigation size={18} strokeWidth={2} /> Navigate
@@ -327,6 +361,25 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                     booking.has_power === false ? "power" : null,
                   ].filter(Boolean).join(" and ")}
                 </p>
+              )}
+              {/* ROADMAP 8.19 — THE MILEAGE, AND IT IS IN *THE JOB* RATHER THAN
+                  *THE MONEY*, WHICH IS WHERE THE FIRST VERSION PUT IT. Seen by
+                  looking at the record: it printed directly under "Quoted
+                  $65.00", one line below a figure, in a card headed with the
+                  word money. **The item's own rule says a number beside a
+                  total is a number somebody will eventually expect to be IN
+                  the total, and this one never is** — the modal already obeys
+                  it and the record did not. The drive is a fact about the job,
+                  beside the address it was made to.
+
+                  **`!= null` RATHER THAN TRUTHY, because 0 is a real answer** —
+                  a drop-off at the detailer's own unit — and
+                  `{booking.miles && …}` would silently hide exactly that row
+                  while printing every other one. The word "deduction" is not
+                  here: it is a fact this product records, not tax advice it
+                  gives. */}
+              {booking.miles != null && (
+                <p className="muted">Miles driven: <span className="num">{booking.miles}</span></p>
               )}
             </div>
 

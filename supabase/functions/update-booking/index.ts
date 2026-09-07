@@ -34,6 +34,11 @@ const EDITABLE_FIELDS = [
   "payment_status",
   "payment_notes",
   "finalized_at",
+  // ROADMAP 8.19 — the mileage log. It rides this list rather than getting an
+  // endpoint of its own because it is a field ON a booking, edited from the
+  // same modal that finalises one, and every booking write in the product
+  // already goes through here.
+  "miles",
 ] as const;
 
 Deno.serve(async (req) => {

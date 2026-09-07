@@ -11,7 +11,7 @@
 //   node tests/money-export.test.mjs
 
 import {
-  HEADER, accountantCsv, accountantNet, accountantRows, accountantFilename,
+  HEADER, accountantCsv, accountantMiles, accountantNet, accountantRows, accountantFilename,
 } from "../app/src/lib/accountant-export.js";
 
 let passed = 0, failed = 0;
@@ -48,7 +48,13 @@ const rows = accountantRows({ jobs, expenses });
 const csv = accountantCsv({ jobs, expenses });
 const lines = csv.trimEnd().split("\r\n");
 
-check("1 header is the six columns", lines[0] === HEADER.join(","), lines[0]);
+// SEVEN SINCE ROADMAP 8.19 ADDED Miles. **RE-POINTED, NOT RELAXED** — the
+// claim is that the header is exactly the columns the writer emits, and a
+// check that pins a COUNT goes stale the first time a column is added while a
+// check left pinning the old spelling goes red on a correct change.
+check("1 header is the seven columns", lines[0] === HEADER.join(","), lines[0]);
+check("1b · and Miles is the last of them, after Amount",
+  HEADER.at(-1) === "Miles" && HEADER.at(-2) === "Amount");
 
 check("2 one row per job and per expense, plus the Net row",
   lines.length === jobs.length + expenses.length + 2, `${lines.length} lines`);
@@ -65,7 +71,39 @@ const screenNet = jobs.reduce((s, b) => s + Number(b.final_amount ?? b.total_pri
 check("4 the Amount column sums to the screen's Net",
   Math.abs(accountantNet(rows) - screenNet) < 0.005, `${accountantNet(rows)} vs ${screenNet}`);
 check("5 the Net row prints that same figure",
-  lines.at(-1) === `,Net,,,,${screenNet.toFixed(2)}`, lines.at(-1));
+  lines.at(-1) === `,Net,,,,${screenNet.toFixed(2)},${accountantMiles(rows)}`,
+  lines.at(-1));
+
+// ── ROADMAP 8.19 — MILES ARE A RECORD, NEVER MONEY ───────────────────────
+//
+// **THE ONE WAY THIS COLUMN COULD DO REAL DAMAGE** is somebody deciding it
+// would be helpful to multiply it by the IRS rate and fold it into Amount.
+// That would be this product taking a tax position on a detailer's behalf,
+// inside the one file whose whole property is that its Amount column adds up
+// to the Net figure on the screen it came from — and the drift would be
+// invisible until an accountant asked why the two disagree.
+{
+  const withMiles = accountantRows({
+    jobs: [{ ...jobs[0], miles: 42 }, { ...jobs[1], miles: 0 }, jobs[2]],
+    expenses,
+  });
+  check("6-mi · the Amount column is unchanged by miles",
+    Math.abs(accountantNet(withMiles) - screenNet) < 0.005,
+    `${accountantNet(withMiles)} vs ${screenNet}`);
+  check("6-mi-ii · logged miles total on their own",
+    accountantMiles(withMiles) === 42, String(accountantMiles(withMiles)));
+  // NULL IS NOT ZERO. A detailer who never logs a mile must not hand their
+  // accountant a column of noughts, and a genuine zero — a drop-off at their
+  // own unit — has to stay tellable apart from it.
+  const unlogged = withMiles.find((r) => r.cells[1] === jobs[2].services?.[0]?.name_at_booking
+    || r.miles === "");
+  check("6-mi-iii · a job with no miles logged exports blank, not 0",
+    withMiles.some((r) => r.miles === "") && !!unlogged);
+  check("6-mi-iv · and a real zero survives as 0",
+    withMiles.some((r) => r.miles === 0));
+  check("6-mi-v · an expense never carries miles",
+    withMiles.filter((r) => r.cells[0] === "Expense").every((r) => r.miles === ""));
+}
 
 check("6 an expense is negative", rows.find((r) => r.cells[0] === "Expense").amount === -189,
   String(rows.find((r) => r.cells[0] === "Expense").amount));
@@ -96,8 +134,8 @@ const fields = (line) => {
   }
   return out;
 };
-check("10 every row has six fields once quoting is honoured",
-  lines.every((l) => fields(l).length === 6),
+check("10 every row has seven fields once quoting is honoured",
+  lines.every((l) => fields(l).length === 7),
   lines.filter((l) => fields(l).length !== 6).map((l) => `${fields(l).length}: ${l}`).join(" | "));
 check("10b the quoted fields read back whole",
   fields(comma)[2] === "Ceramic coating kit, 2L" && fields(quoted)[3] === 'Sam "Sammy" Doyle',
@@ -121,7 +159,7 @@ check("14 a business named in punctuation still gets a filename",
 // An empty period is a valid answer, not a crash: header, no rows, Net 0.00.
 const none = accountantCsv({ jobs: [], expenses: [] }).trimEnd().split("\r\n");
 check("15 an empty period exports a header and a zero Net",
-  none.length === 2 && none[1] === ",Net,,,,0.00", none.join(" | "));
+  none.length === 2 && none[1] === ",Net,,,,0.00,0", none.join(" | "));
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
