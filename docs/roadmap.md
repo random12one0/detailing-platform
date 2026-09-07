@@ -8551,7 +8551,35 @@ is still the question list rather than a thing to rewrite.
       a rule; he has stated it as the reason, and the reason is what a detailer
       is buying.**
 
-- [ ] 9.5 **Ten example sites on the live domain — HIS ask, for HIMSELF.**
+- [~] 9.5 **Ten example sites on the live domain — HIS ask, for HIMSELF.**
+      **BUILT 2026-09-07; ONE MERGE FROM BEING LIVE, WHICH IS HIS CALL.**
+      `scripts/build-examples.mjs` runs at the end of `npm run build` and writes
+      `/example1` … `/example10` plus an index at `/examples` into `dist/`.
+      **IT COPIES RATHER THAN DUPLICATES.** A second committed copy under
+      `app/public/` would be two versions of eleven files that have to agree for
+      ever, and the one nobody edits is the one that gets served. `dist/` is not
+      in git, so `docs/tenant-sites/` stays the only copy and editing a page is
+      the whole of updating an example.
+      **IT NEVER FAILS THE BUILD.** A missing page logs and carries on: these
+      are pages for the owner to look at, and taking the dashboard offline over
+      one of them would be an absurd trade.
+      **THE ORDER IS FIXED AND WRITTEN DOWN**, because `/example3` is a URL he
+      will send to somebody and a self-sorting list makes that link point
+      somewhere else the day a file is renamed. `a-shop` is the one of the
+      eleven left out — the oldest, and the least like the references he sent.
+      **AND EACH ONE CARRIES A STRIP SAYING WHAT IT IS**, injected at build
+      rather than written into the source, so the pages themselves stay exactly
+      what a client's site would be. It names the page, its ground, and the
+      sentence his instruction asked for: *prices and times are placeholders —
+      on a real site every one of them comes live from that detailer's own
+      dashboard.*
+      **The strip is `position: fixed`, so the page is given room for it** —
+      found at 392, where it wraps to two lines and covered the last paragraph.
+      Checked scrolled to the BOTTOM of all ten at 1440 and 392: nothing off the
+      edge, nothing behind the strip, no console errors.
+      **WHAT IS LEFT IS THE MERGE**, and it is his: `main` is a long way behind
+      this branch, so publishing these publishes everything else with them.
+
       *"I wanna have maybe ten example websites. Obviously they're not gonna be
       choosing from — I just wanna have ten of different styles and kinda
       different things just for myself, all on the website, detailingplatform.
