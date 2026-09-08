@@ -126,8 +126,8 @@ Recommendation is wait; nothing in the build needs it.
 **Resend:** cap is REAL, 100/day, was 117/100 on 8 Sep and still delivering.
 The counter is correct — do not touch it. Upgrade is his call, § 11.
 **Backups:** healthcheck created (6h grace), he is pasting the URL into GitHub.
-**The restore test is still the one that matters and has never been done.** **Google Branding is DONE — he had his cloud coworker paste
-both URLs on 2026-09-08.**
+**The restore test is still the one that matters and has never been done.**
+**Google Branding:** DONE — both URLs pasted 2026-09-08.
 **Privacy policy:** now covers Google sign-in AND Business Profile
 (`OUTSTANDING.md` § 9). **NONE of it is live** — the live page is still the
 6 Sep bundle. **Deploy before submitting Google application two**, or the
