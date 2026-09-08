@@ -184,14 +184,57 @@ then returned **`500 Internal Server Error`** from the build API. Retried once,
 same result. **Not something this session can fix from here** — it needs either
 the dashboard or a reconnected git integration.
 
-### What he has to do, and it is one of two things
+### THE ACTUAL CAUSE — found 2026-09-08, and it is NOT what the section above
+### first inferred
 
-1. **Reconnect the repo in Netlify** — *Site configuration → Build & deploy →
-   Continuous deployment* — so a push to `main` builds again. **This is the one
-   worth doing**, because it restores the rule the whole repo is written around.
-2. **Or deploy once by hand**, if he wants the examples up sooner:
-   `npx netlify deploy --prod --dir=app/dist` from the repo root, after
-   `npm run build --prefix app`.
+**Netlify is refusing to build because the account is out of build credits.**
+
+```
+  deploy 6aa06f7b…   state: error   skipped: true
+  error_message:     "Skipped due to account credit usage exceeded"
+```
+
+**That explains everything at once** — why a push to `main` produces no deploy,
+why the live site has been frozen on 6 September, and why the site's last
+successful deploy was a manual upload. Every triggered build since then has
+been silently SKIPPED, which from outside looks exactly like a disconnected
+git integration.
+
+**THE EARLIER INFERENCE IN THIS SECTION WAS WRONG AND IS LEFT STANDING ON
+PURPOSE.** `deploy_source: "api"` on the last good deploy is real, and reading
+it as "the repo is not connected" was reasonable — and it would have sent him
+to reconnect a repo that is connected fine. **The evidence that settled it was
+the error string on a deploy I triggered myself**, which no amount of looking
+at the last SUCCESSFUL deploy would ever have produced.
+
+**AND THE FIRST TWO ATTEMPTS FAILED FOR A DIFFERENT REASON, WHICH MASKED THIS
+ONE.** They returned `500 Internal Server Error` during upload, because the
+deploy tool zips the WORKING DIRECTORY and this one was **1.3 GB** — 99
+gitignored screenshot folders from past sessions (`screenshots/`, `shots/`,
+`shots-2.7/`, …) totalling about 700 MB. Moved to
+`../_repo-shots-archive/`; the tree is 238 MB and the upload then succeeded.
+**A 500 on upload and a skip on build are two different failures and the first
+hid the second.**
+
+### What he has to do — and there are three options now
+
+
+1. **Deploy the PRE-BUILT files, which needs no build credits at all.** This is
+   the one to try first — a direct upload skips Netlify's build system:
+   ```
+   npm run build --prefix app
+   npx netlify deploy --prod --dir=app/dist
+   ```
+   It will ask him to log in once. **This session could not do it**: there is
+   no Netlify token in `.env`, the CLI is not installed, and the only deploy
+   route available here is the MCP's zip-and-BUILD, which is the exact thing
+   the credit limit blocks.
+2. **Or top up / reset the Netlify build credits.** They reset monthly on a
+   free plan. Until they do, EVERY push is skipped silently — there is no
+   failed-build email to notice, which is why this went unremarked for two
+   days.
+3. **Keep the tree slim either way.** The 1.3 GB of scratch screenshots is why
+   the upload 500'd twice before it got as far as being skipped.
 
 **Until one of those happens, nothing this session built reaches the live site**
 — not the ten example pages, not the Spanish dashboard, not the booking-page
