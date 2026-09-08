@@ -110,7 +110,7 @@ export default function Auth() {
       <div className="authwrap">
         <div className="authmark">
           <span className="label">{t("Detailing Platform")}</span>
-          <b>{resetting ? "Reset your password" : creating ? "Create your account" : "Welcome back"}</b>
+          <b>{resetting ? t("Reset your password") : creating ? t("Create your account") : t("Welcome back")}</b>
         </div>
       {/* ROADMAP 8.18 — the way back after *Add another account*. The
           component's header has why it exists and why it is OUTSIDE the
@@ -119,10 +119,10 @@ export default function Auth() {
         <form onSubmit={submit} className="card">
           <p className="quiet lede">
             {resetting
-              ? "We'll email you a link. It works once and lasts an hour."
+              ? t("We'll email you a link. It works once and lasts an hour.")
               : creating
-                ? "Your business details come next."
-                : "Sign in to your dashboard."}
+                ? t("Your business details come next.")
+                : t("Sign in to your dashboard.")}
           </p>
 
         {providers.google && !resetting && (
@@ -163,9 +163,9 @@ export default function Auth() {
         )}
         <button className="btn primary" disabled={busy || (resetting && sent)}>
           {busy
-            ? (resetting ? "Sending…" : creating ? "Creating…" : "Signing in…")
-            : resetting ? (sent ? "Link sent" : "Email me a link")
-              : creating ? "Create account" : "Sign in"}
+            ? (resetting ? t("Sending…") : creating ? t("Creating…") : t("Signing in…"))
+            : resetting ? (sent ? t("Link sent") : t("Email me a link"))
+              : creating ? t("Create account") : t("Sign in")}
         </button>
         {/* A LADDER, NOT THREE EQUAL BUTTONS. Signing in is the primary,
             making an account is a real alternative and keeps its border, and
@@ -177,7 +177,7 @@ export default function Auth() {
             type="button" className="btn"
             onClick={() => { setMode(mode === "in" ? "up" : "in"); setError(""); setSent(false); }}
           >
-            {mode === "in" ? "Create an account" : "I already have an account"}
+            {mode === "in" ? t("Create an account") : t("I already have an account")}
           </button>
         {/* ITEM N, RANKED *BLOCKS LAUNCH* BY ROADMAP 7.3's FINAL PASS: until
             2026-09-06 a detailer who forgot their password could not get

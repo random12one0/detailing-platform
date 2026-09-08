@@ -23,10 +23,14 @@ import { useBusiness } from "../../context/BusinessContext.jsx";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../../lib/appI18n.js";
+import { appIntlLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+// ROADMAP 8.17 STAGE 2B — the FULL day names, derived from `Intl` like every
+// other weekday list in this product. 2026-01-04 is a Sunday, so index 0 is
+// Sunday in every language and the `weekday` column never moves.
+const DAYS = () => [0, 1, 2, 3, 4, 5, 6].map((n) => new Date(Date.UTC(2026, 0, 4 + n))
+  .toLocaleDateString(appIntlLocale(), { weekday: "long", timeZone: "UTC" }));
 const PRESETS = [
   ["All days", [0, 1, 2, 3, 4, 5, 6]],
   ["Weekdays", [1, 2, 3, 4, 5]],
@@ -107,13 +111,14 @@ export default function Hours() {
     }));
     const bad = rows.find((r) => (r.open_time && !r.close_time) || (!r.open_time && r.close_time));
     if (bad) {
-      setMsg({ ok: false, text: `${DAYS[bad.weekday]} needs both an open and a close time, or neither.` });
+      setMsg({ ok: false, text: t("{day} needs both an open and a close time, or neither.",
+        { day: DAYS()[bad.weekday] }) });
       setSaving(false);
       return;
     }
     const { error } = await supabase.from("business_hours")
       .upsert(rows, { onConflict: "business_id,weekday" });
-    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: "Hours saved." });
+    setMsg(error ? { ok: false, text: error.message } : { ok: true, text: t("Hours saved.") });
     if (!error) setDirty(false);
     setSaving(false);
   };
@@ -131,7 +136,7 @@ export default function Hours() {
         <div className="card">
           <div className="thoughts">
             <div className="row wrap" style={{ gap: 6 }}>
-              {DAYS.map((name, i) => (
+              {DAYS().map((name, i) => (
                 <button key={i} type="button" aria-pressed={picked.includes(i)}
                   className={`chip ${picked.includes(i) ? "active" : ""}`}
                   onClick={() => toggleDay(i)}>
@@ -174,7 +179,7 @@ export default function Hours() {
       <div className="tight">
         <span className="label">Your week · {openCount} day{openCount === 1 ? "" : "s"} open</span>
         <div className="card">
-          {DAYS.map((label, d) => (
+          {DAYS().map((label, d) => (
             <div key={d}>
               {d > 0 && <hr className="rule tight" />}
               {/* .day, not .row: the two time fields drop to their own line
@@ -221,7 +226,7 @@ export default function Hours() {
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
 
       <button className="btn primary" disabled={saving || !dirty} onClick={save}>
-        {saving ? "Saving…" : dirty ? "Save hours" : "Saved"}
+        {saving ? t("Saving…") : dirty ? t("Save hours") : t("Saved")}
       </button>
 
       <div className="row" style={{ gap: 8, alignItems: "flex-start" }}>

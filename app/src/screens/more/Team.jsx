@@ -118,14 +118,14 @@ export default function Team() {
   };
 
   const removeMember = async (m) => {
-    if (!confirm("Remove this person? They lose access to the dashboard immediately.")) return;
+    if (!confirm(t("Remove this person? They lose access to the dashboard immediately."))) return;
     setMsg(null);
     const { error } = await supabase
       .from("business_users")
       .delete()
       .eq("business_id", business.id)
       .eq("user_id", m.user_id);
-    if (error) setMsg({ ok: false, text: error.message.includes("last owner") ? "You can't remove the last owner." : error.message });
+    if (error) setMsg({ ok: false, text: error.message.includes("last owner") ? t("You can't remove the last owner.") : error.message });
     setEditing(null);
     load();
   };
@@ -143,7 +143,7 @@ export default function Team() {
       .eq("business_id", business.id)
       .eq("user_id", m.user_id);
     if (error) {
-      setMsg({ ok: false, text: error.message.includes("last owner") ? "You can't demote the last owner." : error.message });
+      setMsg({ ok: false, text: error.message.includes("last owner") ? t("You can't demote the last owner.") : error.message });
       load();
     }
   };
@@ -172,7 +172,7 @@ export default function Team() {
       <div className="section-title" style={{ marginTop: 0 }}>{t("Your name")}</div>
       <p className="muted" style={{ marginBottom: 8 }}>{t("Used to greet you on the Today screen.")}</p>
       <div className="row" style={{ gap: 8 }}>
-        <input placeholder={me?.first_name || "First name"} value={nameDraft}
+        <input placeholder={me?.first_name || t("First name")} value={nameDraft}
           onChange={(e) => setNameDraft(e.target.value)} />
         <button className="btn inline" onClick={saveMyName}>{t("Save")}</button>
       </div>
@@ -203,7 +203,7 @@ export default function Team() {
                         stopped being true the moment the list became the
                         detailer's to set. */}
                     {roleName(m.role, m.label)}. {permissionSummary(m.role, perms)}
-                    {m.user_id === session?.user?.id ? " This is you." : ""}
+                    {m.user_id === session?.user?.id ? ` ${t("This is you.")}` : ""}
                   </div>
                 </div>
                 {/* NO DOOR WHEN THE ROOM IS EMPTY. The last owner has nothing
@@ -217,7 +217,7 @@ export default function Team() {
                     everything there is to say. */}
                 {!lastOwner && (
                   <button className="btn sm inline ghost" onClick={() => setEditing(open ? null : m.user_id)}>
-                    {open ? "Done" : "Change"}
+                    {open ? t("Done") : t("Change")}
                   </button>
                 )}
               </div>
@@ -234,10 +234,10 @@ export default function Team() {
               )}
 
               {open && (
-                <Setting label={m.role === "owner" ? "Owner" : "Make them an owner"}
+                <Setting label={m.role === "owner" ? t("Owner") : t("Make them an owner")}
                   help={m.role === "owner"
-                    ? "Owners can do everything, including invite people and set what everyone else can do."
-                    : "Gives them everything, permanently, including this screen."}>
+                    ? t("Owners can do everything, including invite people and set what everyone else can do.")
+                    : t("Gives them everything, permanently, including this screen.")}>
                   <Switch bare label={t("Owner")} checked={m.role === "owner"} disabled={lastOwner}
                     onChange={(on) => patch(m, on
                       ? { role: "owner", label: null, permissions: [] }
@@ -274,7 +274,7 @@ export default function Team() {
       )}
       <button className="btn primary" style={{ marginTop: 10 }}
         disabled={busy || !form.email.trim()} onClick={invite}>
-        {busy ? "Sending" : "Send invite"}
+        {busy ? t("Sending") : t("Send invite")}
       </button>
 
       {lastLink && (
