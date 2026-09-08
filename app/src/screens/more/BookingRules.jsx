@@ -93,25 +93,25 @@ const ruleSentence = (r) => {
 // W22. Three states, phrased as the detailer would say them out loud.
 const RESOURCE = [["not_needed", "I bring it"], ["ask", "Just ask"], ["required", "Must have"]];
 const HELP = {
-  not_needed: (what) => `You carry your own — the customer is never asked about ${what}.`,
-  ask: (what) => `The booking page asks about ${what} and records the answer, so you know what to load.`,
-  required: (what) => `The booking page asks about ${what}, and a customer who can't provide it is blocked from booking.`,
+  not_needed: (what) => t("You carry your own — the customer is never asked about {what}.", { what: t(what) }),
+  ask: (what) => t("The booking page asks about {what} and records the answer, so you know what to load.", { what: t(what) }),
+  required: (what) => t("The booking page asks about {what}, and a customer who can't provide it is blocked from booking.", { what: t(what) }),
 };
 
 // Warnings live on the same values as before, but read as sentences.
 const WARN = {
   buffer_minutes: (v) => v > 120 &&
-    `A ${Math.round(v / 60 * 10) / 10}-hour gap between jobs means very few slots each day.`,
+    t("A {hours}-hour gap between jobs means very few slots each day.", { hours: Math.round(v / 60 * 10) / 10 }),
   min_advance_minutes: (v) => v > 2880 &&
-    `Nobody will be able to book sooner than ${Math.round(v / 1440 * 10) / 10} days out.`,
+    t("Nobody will be able to book sooner than {days} days out.", { days: Math.round(v / 1440 * 10) / 10 }),
   max_advance_days: (v) => v != null && v < 7 &&
-    "Customers can only book a few days ahead.",
-  slot_interval_minutes: (v) => (v < 15 && "Very fine slot grid — the time picker will be crowded.")
-    || (v > 120 && "Very coarse slot grid — few start times will be offered."),
+    t("Customers can only book a few days ahead."),
+  slot_interval_minutes: (v) => (v < 15 && t("Very fine slot grid — the time picker will be crowded."))
+    || (v > 120 && t("Very coarse slot grid — few start times will be offered.")),
   max_bookings_per_day: (v) => v != null && v > 20 &&
-    "That cap is unusual — double-check it's what you want.",
+    t("That cap is unusual — double-check it's what you want."),
   cancellation_window_hours: (v) => v > 168 &&
-    `Anything inside ${Math.round(v / 24)} days needs a phone call to change.`,
+    t("Anything inside {days} days needs a phone call to change.", { days: Math.round(v / 24) }),
 };
 
 export default function BookingRules() {
@@ -337,8 +337,8 @@ export default function BookingRules() {
       <Group title={t("When someone books")}>
         <Setting label={t("What a booking means")} stacked
           help={form.booking_mode === "request"
-            ? "The time is held for them and nobody else can take it, but they're told it's a request until you accept it. Requests wait on your Today screen."
-            : "The time is theirs the moment they book it. Nothing waits on you."}>
+            ? t("The time is held for them and nobody else can take it, but they're told it's a request until you accept it. Requests wait on your Today screen.")
+            : t("The time is theirs the moment they book it. Nothing waits on you.")}>
           <Segmented value={form.booking_mode} onChange={(v) => set("booking_mode", v)} options={[
             ["reserve", "They're booked"], ["request", "They've asked"],
           ]} />
@@ -372,7 +372,9 @@ export default function BookingRules() {
             {form.travel_zones.length ? (
               <Setting label={t("Travel fee")}
                 help={t("Each area below sets its own, so this one is not charged while you have areas.")}>
-                <span className="quiet">{Number(form.travel_fee) > 0 ? `${money(Number(form.travel_fee))}, not charged` : "Not set"}</span>
+                <span className="quiet">{Number(form.travel_fee) > 0
+                  ? t("{amount}, not charged", { amount: money(Number(form.travel_fee)) })
+                  : t("Not set")}</span>
               </Setting>
             ) : (
               <Setting label={t("Travel fee")}
@@ -401,9 +403,9 @@ export default function BookingRules() {
                     <button className="txt" style={{ background: "none", border: 0, color: "inherit", font: "inherit", textAlign: "left", cursor: "pointer" }}
                       onClick={() => setEditing({ kind: "zone", index: i, form: { name: z.name, fee: String(z.fee ?? 0) } })}>
                       <span className="nm">{z.name}</span>
-                      <span className="quiet">{Number(z.fee) > 0 ? `+${money(Number(z.fee))}` : "No extra charge"}</span>
+                      <span className="quiet">{Number(z.fee) > 0 ? `+${money(Number(z.fee))}` : t("No extra charge")}</span>
                     </button>
-                    <button className="btn sm inline icon" aria-label={`Remove ${z.name}`}
+                    <button className="btn sm inline icon" aria-label={t("Remove {name}", { name: z.name })}
                       onClick={() => set("travel_zones", form.travel_zones.filter((_, n) => n !== i))}>
                       <X strokeWidth={2} />
                     </button>
@@ -602,7 +604,7 @@ export default function BookingRules() {
           fee). They are worked out on the server and printed on the customer's
           receipt under the name written here — never a silent number. */}
       <Group title={t("Surcharges")}
-        blurb="Optional. Extra charged on top for jobs that cost you more to take.">
+        blurb={t("Optional. Extra charged on top for jobs that cost you more to take.")}>
         <div className="card">
           {form.price_rules.map((r, i) => (
             <div className="row-item" key={i} style={{ cursor: "default" }}>
@@ -641,12 +643,14 @@ export default function BookingRules() {
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       {/* Warnings never block: Save is always available. */}
       <button className="btn primary" disabled={busy} onClick={save}>
-        {busy ? "Saving…" : "Save booking rules"}
+        {busy ? t("Saving…") : t("Save booking rules")}
       </button>
 
       {editing && (
         <Sheet onClose={() => setEditing(null)}
-          title={`${editing.index != null ? "Edit" : "New"} ${editing.kind === "zone" ? "travel area" : "surcharge"}`}>
+          title={t(editing.kind === "zone"
+            ? (editing.index != null ? "Edit travel area" : "New travel area")
+            : (editing.index != null ? "Edit surcharge" : "New surcharge"))}>
           {editing.kind === "zone" ? (
             <>
               <label className="field"><span>{t("Area name")}</span>
@@ -665,8 +669,8 @@ export default function BookingRules() {
                   onChange={(e) => setEditing({ ...editing, form: { ...editing.form, label: e.target.value } })} /></label>
               <Setting label={t("When it applies")} stacked
                 help={editing.form.kind === "lead_time"
-                  ? "Charged when a job is booked with less notice than you set below."
-                  : "Charged on the days — and, if you set them, the hours — you choose below."}>
+                  ? t("Charged when a job is booked with less notice than you set below.")
+                  : t("Charged on the days — and, if you set them, the hours — you choose below.")}>
                 <Segmented value={editing.form.kind}
                   onChange={(v) => setEditing({ ...editing, form: { ...editing.form, kind: v } })}
                   options={[["time", "Certain days"], ["lead_time", "Short notice"]]} />
@@ -675,7 +679,7 @@ export default function BookingRules() {
               {editing.form.kind === "time" ? (
                 <>
                   <Setting label={t("Days")} stacked
-                    help={editing.form.weekdays.length ? "Only the days you pick." : "Every day."}>
+                    help={editing.form.weekdays.length ? t("Only the days you pick.") : t("Every day.")}>
                     <div className="row wrap" style={{ gap: 6 }}>
                       {RULE_DOW().map(([label, n], i) => {
                         const on = editing.form.weekdays.includes(n);
@@ -717,13 +721,13 @@ export default function BookingRules() {
 
               <Setting label={t("How much")} stacked
                 help={editing.form.is_percent
-                  ? "A percentage of the job's price before any discount."
-                  : "A flat amount added to the job."}>
+                  ? t("A percentage of the job's price before any discount.")
+                  : t("A flat amount added to the job.")}>
                 <Segmented value={editing.form.is_percent ? "pct" : "amt"}
                   onChange={(v) => setEditing({ ...editing, form: { ...editing.form, is_percent: v === "pct" } })}
                   options={[["amt", "Dollars"], ["pct", "Percent"]]} />
               </Setting>
-              <label className="field"><span>{editing.form.is_percent ? "Percent (%)" : "Amount ($)"}</span>
+              <label className="field"><span>{editing.form.is_percent ? t("Percent (%)") : t("Amount ($)")}</span>
                 <input type="number" inputMode="decimal" value={editing.form.amount}
                   onChange={(e) => setEditing({ ...editing, form: { ...editing.form, amount: e.target.value } })} /></label>
 

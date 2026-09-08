@@ -231,7 +231,13 @@ function candidates(raw) {
   // 1 · JSX TEXT NODES — between a tag close and the next tag open. Tightened
   // against the arrow-function bug: no `=`, `(`, `)`, `;`, `?` or `:` may
   // appear, which is what separates words from a ternary's fragments.
-  for (const m of src.matchAll(/>([^<>{}()=;?]+)</g)) {
+  // THE SAME OPERATOR SET THE CODEMOD LEARNED THE HARD WAY. Without `&` and
+  // `|` this matches from the `>` of a COMPARISON to the `<` of the next tag
+  // and reports `buildFee &&` as a string somebody forgot to translate —
+  // which is a false positive in the one tool whose whole job is to be
+  // believed about what is left.
+  for (const m of src.matchAll(/>([^<>{}]+)</g)) {
+    if (/[()=;?&|!*/%+`~^]/.test(m[1])) continue;
     const text = m[1].replace(/\s+/g, " ");
     if (!/[A-Za-z]{2}/.test(text)) continue;
     add(m.index + 1, "jsx", text);

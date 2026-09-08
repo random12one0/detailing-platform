@@ -56,11 +56,16 @@ import { planAndTerm, planChoice } from "../../lib/planChoice.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../../lib/appI18n.js";
+import { appIntlLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 const usd = (cents) =>
-  `$${(cents / 100).toLocaleString("en-US", {
+  // `es-US` groups digits exactly as `en-US` does — `1,234.50` either way —
+  // so following the display locale here changes nothing about the figure
+  // and removes a special case. The `$` stays hard-coded: this product
+  // charges dollars, and a currency symbol that follows a language setting
+  // would be claiming a price we do not take.
+  `$${(cents / 100).toLocaleString(appIntlLocale(), {
     minimumFractionDigits: cents % 100 ? 2 : 0,
     maximumFractionDigits: 2,
   })}`;
@@ -85,7 +90,7 @@ const INVOICE_WORDS = {
 
 const dateLong = (iso) =>
   iso
-    ? new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+    ? new Date(iso).toLocaleDateString(appIntlLocale(), { month: "long", day: "numeric", year: "numeric" })
     : "—";
 
 // THE RUNGS ARE IN THE SAME ORDER AS /pricing AND CARRY THE SAME WORDS. A
@@ -114,11 +119,12 @@ const dateLong = (iso) =>
 // on this screen does: they are the numbers that will be CHARGED.
 const RUNGS = [
   ["annual-upfront", "Pay for the year",
-    () => "Nothing to commit to — you choose again next year."],
+    () => t("Nothing to commit to — you choose again next year.")],
   ["annual-monthly", "Pay monthly, for a year",
-    (q) => `${q.term_months} months. Leaving early costs ${Math.round(q.exit_fee_share * 100)}% of what is left.`],
+    (q) => t("{months} months. Leaving early costs {percent}% of what is left.",
+      { months: q.term_months, percent: Math.round(q.exit_fee_share * 100) })],
   ["monthly", "Month to month",
-    () => "Nothing to pay to leave."],
+    () => t("Nothing to pay to leave.")],
 ];
 
 export default function Billing() {
@@ -223,7 +229,7 @@ export default function Billing() {
         setTicked(false);
       } else {
         setPromo(null);
-        setPromoSaying(r?.problem || "We could not use that code.");
+        setPromoSaying(r?.problem || t("We could not use that code."));
       }
     } catch (e) {
       setPromoSaying(String(e.message || e));
@@ -297,7 +303,7 @@ export default function Billing() {
     // ONLY REACHED WHEN THE PAYMENT DID NOT LEAVE THE PAGE — a card declined
     // outright, or details Stripe would not accept. Anything that succeeds or
     // needs authentication has already navigated away by now.
-    if (err) setError(err.message || "That card was refused.");
+    if (err) setError(err.message || t("That card was refused."));
     setPaying(false);
   }
 
@@ -426,7 +432,7 @@ export default function Billing() {
         <div className="rows">
           {RUNGS.map(([key, name, note]) => {
             const quote = data.quotes[key];
-            const per = quote.bill_interval === "year" ? "a year" : "a month";
+            const per = t(quote.bill_interval === "year" ? "a year" : "a month");
             return (
               <button
                 key={key}
@@ -436,7 +442,7 @@ export default function Billing() {
                 onClick={() => pickRung(key)}
               >
                 <span className="txt">
-                  <span className="nm">{name}</span>
+                  <span className="nm">{t(name)}</span>
                   <span className="sub full">{note(quote)}</span>
                 </span>
                 {/* WHAT LEAVES THE BANK, never an "effective monthly" — the
@@ -537,7 +543,7 @@ export default function Billing() {
                 <span className="quiet">{t("Then")}</span>
                 <span className="v">
                   <span className="strong num">{usd(q.recurring_cents)}</span>
-                  {" "}{q.bill_interval === "year" ? "every year" : "every month"}
+                  {" "}{t(q.bill_interval === "year" ? "every year" : "every month")}
                 </span>
               </div>
               {/* NOT ON THE BOOKING PLAN — roadmap 8.3. `data.founding` is a
@@ -575,12 +581,12 @@ export default function Billing() {
                         <span className="quiet">Code {promo.code}</span>
                         <span className="v">
                           <span className="strong num">{usd(promo.was_cents - promo.amount_cents)}</span>
-                          {" off today"}
+                          {" "}{t("off today")}
                           {promo.off_recurring_cents > 0 && (
                             <>
-                              {", and "}
+                              {t(", and ")}
                               <span className="strong num">{usd(promo.off_recurring_cents)}</span>
-                              {q.bill_interval === "year" ? " every year after" : " every month after"}
+                              {" "}{t(q.bill_interval === "year" ? "every year after" : "every month after")}
                             </>
                           )}
                         </span>
@@ -623,7 +629,7 @@ export default function Billing() {
                     disabled={busy || (!promo && !typed.trim())}
                     onClick={() => (promo ? clearPromo() : applyPromo())}
                   >
-                    {promo ? "Remove" : "Apply"}
+                    {promo ? t("Remove") : t("Apply")}
                   </button>
                 </div>
                 {/* A REFUSAL IS A SENTENCE, NOT A SILENCE. The server writes
@@ -692,12 +698,12 @@ export default function Billing() {
               onClick={pay ? confirm : start}
             >
               {busy || paying
-                ? "One moment"
+                ? t("One moment")
                 : !ticked
-                  ? "Tick the box to continue"
+                  ? t("Tick the box to continue")
                   : pay
-                    ? `Pay ${usd(pay.amountCents)}`
-                    : "Continue to payment"}
+                    ? t("Pay {amount}", { amount: usd(pay.amountCents) })
+                    : t("Continue to payment")}
             </button>
             {/* THE SENTENCE THAT MATTERS MOST NOW THAT THE FORM IS ON OUR OWN
                 PAGE: those fields are Stripe's iframe, so the number is typed
@@ -746,20 +752,20 @@ export default function Billing() {
           <div>
             <span className="quiet">{t("Plan")}</span>
             <span className="v">
-              {sub.plan === "booking" ? "Booking system" : "Website and booking system"}
-              {data.founding ? " · founding price" : ""}
+              {t(sub.plan === "booking" ? "Booking system" : "Website and booking system")}
+              {data.founding ? t(" · founding price") : ""}
             </span>
           </div>
           <div>
             <span className="quiet">{t("You pay")}</span>
             <span className="v">
               <span className="strong num">{usd(sub.recurring_cents)}</span>
-              {" "}{sub.bill_interval === "year" ? "a year" : "a month"}
+              {" "}{t(sub.bill_interval === "year" ? "a year" : "a month")}
             </span>
           </div>
           <div>
             <span className="quiet">
-              {ending ? "Ends" : paidThrough ? "Next charge" : "Unpaid since"}
+              {ending ? t("Ends") : paidThrough ? t("Next charge") : t("Unpaid since")}
             </span>
             <span className="v">{dateLong(sub.current_period_end)}</span>
           </div>
@@ -781,7 +787,7 @@ export default function Billing() {
                   proper noun everywhere a person has ever seen one. */}
               {sub.card_last4
                 ? `${titleCase(sub.card_brand)} ···· ${sub.card_last4} · ${String(sub.card_exp_month).padStart(2, "0")}/${String(sub.card_exp_year).slice(-2)}`
-                : "None on file"}
+                : t("None on file")}
             </span>
           </div>
         </div>
@@ -809,7 +815,7 @@ export default function Billing() {
                   >
                     <span className="txt">
                       <span className="nm">{dateLong(inv.paid_at || inv.created_at)}</span>
-                      <span className="sub">{INVOICE_WORDS[inv.status] ?? "Not paid"}</span>
+                      <span className="sub">{t(INVOICE_WORDS[inv.status] ?? "Not paid")}</span>
                     </span>
                     <span className="figure sm">{usd(inv.amount_cents)}</span>
                     {href && <ExternalLink size={16} strokeWidth={2} />}
@@ -822,7 +828,7 @@ export default function Billing() {
 
         {error && <div className="error-box">{error}</div>}
 
-        <div className="section-title">{ending ? "Cancelled" : "Cancelling"}</div>
+        <div className="section-title">{ending ? t("Cancelled") : t("Cancelling")}</div>
         {ending ? (
           <>
             <p className="quiet" style={{ marginTop: 0 }}>
@@ -848,7 +854,7 @@ export default function Billing() {
               <div>
                 <span className="quiet">{t("To pay now")}</span>
                 <span className="v strong num">
-                  {data.exit_fee_cents > 0 ? usd(data.exit_fee_cents) : "Nothing"}
+                  {data.exit_fee_cents > 0 ? usd(data.exit_fee_cents) : t("Nothing")}
                 </span>
               </div>
               {data.exit_fee_cents > 0 && (
@@ -860,8 +866,9 @@ export default function Billing() {
             </div>
             <p className="quiet" style={{ marginTop: "var(--sp-3)" }}>
               {paidThrough
-                ? `You keep everything until ${dateLong(sub.current_period_end)}, and this month is not refunded.`
-                : "The month you have not paid for is still owed. Cancelling stops us trying the card for anything after it."}
+                ? t("You keep everything until {date}, and this month is not refunded.",
+                  { date: dateLong(sub.current_period_end) })
+                : t("The month you have not paid for is still owed. Cancelling stops us trying the card for anything after it.")}
               {/* THE THING SOMEBODY CANCELLING ACTUALLY WANTS TO KNOW, and the
                   confirm was silent about it: what happens to their work. The
                   pricing page already promises it and both billing emails say
@@ -876,7 +883,7 @@ export default function Billing() {
               data-billing-cancel-confirm=""
               onClick={() => act(() => api.billingCancel(business.id), () => setConfirming(false))}
             >
-              {busy ? "One moment" : "Yes, cancel it"}
+              {busy ? t("One moment") : t("Yes, cancel it")}
             </button>
             <button className="btn ghost" style={{ marginTop: 10 }} onClick={() => setConfirming(false)}>
               {t("Never mind")}
