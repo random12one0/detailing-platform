@@ -120,8 +120,13 @@ reaches the internet until a direct upload or a top-up.
 dead — do not use it.
 **Waiting on Google:** GBP case 6-3052000042070, filed 8 Sep, 7–10 business
 days, watched at `andrewswashing@gmail.com`.
-**Waiting on him:** the six items in `OUTSTANDING.md` § 1 and the three
-one-word answers. **Google Branding is DONE — he had his cloud coworker paste
+**Waiting on him:** `OUTSTANDING.md` § 1 — and the live one is **§ 12: why open
+Stripe in a parent's name NOW rather than in December in his own name.**
+Recommendation is wait; nothing in the build needs it.
+**Resend:** cap is REAL, 100/day, was 117/100 on 8 Sep and still delivering.
+The counter is correct — do not touch it. Upgrade is his call, § 11.
+**Backups:** healthcheck created (6h grace), he is pasting the URL into GitHub.
+**The restore test is still the one that matters and has never been done.** **Google Branding is DONE — he had his cloud coworker paste
 both URLs on 2026-09-08.**
 **Privacy policy:** now covers Google sign-in AND Business Profile
 (`OUTSTANDING.md` § 9). **NONE of it is live** — the live page is still the
