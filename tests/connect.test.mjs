@@ -27,7 +27,7 @@
 // Node strips the types, so it imports the edge functions' own module rather
 // than a copy of it — the `plans` test 6 shape.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -564,6 +564,58 @@ console.log("\n§ 8 — the API version, and the two account events");
     fn.indexOf("account.application.deauthorized") < guard &&
     fn.indexOf('type === "account.updated"') < guard && guard > 0,
     "the guard returns first and both handlers become unreachable");
+}
+
+// ---------------------------------------------------------------------------
+console.log("\n§ 9 — an ownership change must be invisible to the app");
+{
+  // WHY THIS EXISTS, and it is a business fact rather than a technical one.
+  // Stripe's minimum age is 13 and an account holder under 18 needs a guardian
+  // as the legal owner, so this platform's Stripe account may be opened in a
+  // parent's name with the payout bank matching, and handed over later. The
+  // handover has a FIXED ORDER — Stripe Support updates the account holder
+  // FIRST, payouts are repointed SECOND — because the other order is a name
+  // mismatch and a payout hold.
+  //
+  // **NONE OF THAT MAY REACH THE CODE.** Anything here that names the account
+  // holder, the payout bank or a statement descriptor turns an ownership
+  // change into a deploy, and the one thing worse than a hard handover is a
+  // handover nobody remembers has a code half.
+  const walk = (dir, re, out = []) => {
+    for (const e of readdirSync(fileURLToPath(new URL(dir, root)), { withFileTypes: true })) {
+      const p = `${dir}/${e.name}`;
+      if (e.isDirectory()) walk(p, re, out);
+      else if (re.test(e.name)) out.push(p);
+    }
+    return out;
+  };
+  const surfaces = [
+    ...walk("app/src", /\.(js|jsx)$/),
+    ...walk("supabase/functions", /\.ts$/),
+  ];
+
+  // COMMENTS STRIPPED, for the reason `code()`'s own header gives — this very
+  // section's prose names every string it searches for, so without that it
+  // would report itself and be vacuous the other way round.
+  const banned = /statement_descriptor|account_holder|routing_number|payout_bank/;
+  const offenders = surfaces.filter((f) => banned.test(code(f)));
+  check("nothing names a statement descriptor, an account holder or a payout bank",
+    offenders.length === 0,
+    `an ownership change would need a code change: ${offenders.join(", ")}`);
+
+  // The check above is worthless if it has no subjects to walk.
+  check("and it actually walked the product",
+    surfaces.length > 100, `only ${surfaces.length} files — the walk is broken`);
+
+  // THE ONE EXCEPTION, AND IT IS DELIBERATE. `ENTITY` is the legal person
+  // printed at the top of /privacy and /terms. It cannot come from Stripe —
+  // it is who signs the terms of service, not who holds a merchant account —
+  // so it stays a constant. What matters is that it stays exactly ONE
+  // constant in ONE file, so correcting it is a line rather than a hunt.
+  const entityFiles = surfaces.filter((f) => /export const ENTITY/.test(read(f)));
+  check("the legal entity is exactly one constant, in one file",
+    entityFiles.length === 1 && entityFiles[0].endsWith("legal.js"),
+    `found in ${entityFiles.length} files — it must stay a one-line change`);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
