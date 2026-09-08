@@ -14,6 +14,10 @@ import SetupForm from "./components/SetupForm.jsx";
 import Walkthrough, { TOURS } from "./components/Walkthrough.jsx";
 import { impersonation } from "./lib/impersonation.js";
 import { planChoice } from "./lib/planChoice.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD scope (`dp.lang.app`), never the
+// booking page's. See `lib/appI18n.js` for why they are two keys.
+import { t } from "./lib/appI18n.js";
+import { useAppLocale } from "./hooks/useAppLocale.js";
 
 const TABS = [
   { key: "today", label: "Today", Icon: Sun, el: Today },
@@ -57,7 +61,11 @@ const markTourSeen = (name = "shell") => {
 const tourSeen = (name = "shell") => seenTours().includes(name);
 
 export default function App() {
-  const { session, business, settings, role, can, loading, signOut } = useBusiness();
+  const { session, business, settings, role, can, loading, signOut } = useBusiness();
+  // The whole shell repaints when the language changes. Every screen calls
+  // this for itself too — see the hook's header on why once at the root is
+  // the version that breaks silently.
+  useAppLocale();
   // NEW BOOKING HAS ONE DOORWAY AND IT IS THE HEADER. It used to be a
   // full-width button at the bottom of Today AND another on Calendar — two
   // doors to one modal, each costing its screen a row it did not have to
@@ -208,8 +216,8 @@ export default function App() {
   // what an unticked membership produces, and a detailer can hand back
   // either tab by ticking. What is left when both go is behind the gear.
   const TAB_NEEDS = { money: "money", business: "settings" };
-  const visibleTabs = TABS.filter((t) => !TAB_NEEDS[t.key] || can(TAB_NEEDS[t.key]));
-  const activeTab = visibleTabs.find((t) => t.key === tab) ?? visibleTabs[0];
+  const visibleTabs = TABS.filter((x) => !TAB_NEEDS[x.key] || can(TAB_NEEDS[x.key]));
+  const activeTab = visibleTabs.find((x) => x.key === tab) ?? visibleTabs[0];
   const Active = activeTab.el;
   // Null for every real detailer, on every render, at the cost of one
   // localStorage read — so there is no state, no effect and nothing to keep
@@ -240,7 +248,7 @@ export default function App() {
           their own screen say something untrue. */}
       {imp && (
         <div className="impbar" role="status">
-          <span>Platform view — signed in as <b>{imp.business || imp.as}</b>. Anything you change is theirs.</span>
+          <span>{t("Platform view — signed in as {who}. Anything you change is theirs.", { who: imp.business || imp.as })}</span>
           {/* `signOut` drops the note itself — every sign-out does, not just
               this one, because the ordinary gear sign-out is the exit
               somebody takes when they have forgotten they are impersonating.
@@ -248,7 +256,7 @@ export default function App() {
           <button type="button" onClick={async () => {
             await signOut();
             window.location.href = "/admin";
-          }}>Leave</button>
+          }}>{t("Leave")}</button>
         </div>
       )}
       <header className="topbar">
@@ -258,7 +266,7 @@ export default function App() {
             on one phone: the lit tab, this, and the screen's own masthead.
             docs/dashboard-phone-pass-2026-08-31.md §2d. */}
         <div className="row" style={{ gap: 4 }}>
-          <button className="btn icon ghost" aria-label="New booking" data-tour="new"
+          <button className="btn icon ghost" aria-label={t("New booking")} data-tour="new"
             onClick={() => setCreating(true)}>
             <Plus strokeWidth={2} />
           </button>
@@ -297,18 +305,18 @@ export default function App() {
             )
             : (
               <Active refreshKey={rev} onSetup={() => setFirstRun("setup")} intent={intent}
-                onGo={(t, why = null) => {
+                onGo={(dest, why = null) => {
                   // ROADMAP 2.20 STAGE 2 — "billing" is the one destination
                   // that is a SETTINGS SCREEN rather than a tab. Today's
                   // past-due box is what sends it, and a box that names the
                   // fix has to be able to reach it.
-                  if (t === "billing") { setGearScreen("billing"); setGear(true); return; }
-                  setTab(t); setIntent(why); setGear(false);
+                  if (dest === "billing") { setGearScreen("billing"); setGear(true); return; }
+                  setTab(dest); setIntent(why); setGear(false);
                 }} />
             )}
       </main>
       <nav className="tabbar">
-        {visibleTabs.map((t) => (
+        {visibleTabs.map((x) => (
           /* A TAB IS ONLY LIT WHEN IT IS WHAT YOU ARE LOOKING AT. With the
              gear open the main area is the gear, so no tab is current — a lit
              Today over a settings screen is the shell saying where you are
@@ -317,10 +325,10 @@ export default function App() {
              area, so the same two rules apply to it: nothing is lit while it
              is up, and a tab press leaves it. Skippable at any point (§13a)
              has to include the bar that is already on the screen. */
-          <button key={t.key} data-tour={t.key}
-            className={!gear && firstRun !== "setup" && activeTab.key === t.key ? "active" : ""}
+          <button key={x.key} data-tour={x.key}
+            className={!gear && firstRun !== "setup" && activeTab.key === x.key ? "active" : ""}
             onClick={() => {
-              setTab(t.key); setGear(false); setIntent(null);
+              setTab(x.key); setGear(false); setIntent(null);
               if (firstRun === "setup") setFirstRun(null);
               // ROADMAP 2.24 — the guide for a tab arrives the first time
               // this browser opens it, and only then.
@@ -348,12 +356,12 @@ export default function App() {
               // `firstRun` is the one that has to be checked from before,
               // because a guide arriving the instant the setup form is
               // dismissed is the two-overlays problem this guard exists for.
-              if (!firstRun && TOURS[t.key] && !tourSeen(t.key)) {
-                setTimeout(() => setTabTour((cur) => cur ?? t.key), 900);
+              if (!firstRun && TOURS[x.key] && !tourSeen(x.key)) {
+                setTimeout(() => setTabTour((cur) => cur ?? x.key), 900);
               }
             }}>
-            <t.Icon size={21} strokeWidth={1.75} />
-            {t.label}
+            <x.Icon size={21} strokeWidth={1.75} />
+            {t(x.label)}
           </button>
         ))}
       </nav>
@@ -367,7 +375,7 @@ export default function App() {
           shown, and the only other door is the gear. */}
       {firstRun === "tour" && (
         <Walkthrough
-          onGo={(t) => { setTab(t); setGear(false); }}
+          onGo={(dest) => { setTab(dest); setGear(false); }}
           onClose={() => { markTourSeen("shell"); setFirstRun(null); }} />
       )}
       {/* ROADMAP 2.24 — a tab's own guide. `key` so switching tabs while one

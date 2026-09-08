@@ -58,8 +58,14 @@ import NewBookingModal from "../components/NewBookingModal.jsx";
 import QuoteModal from "../components/QuoteModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
 import RequestCard from "../components/RequestCard.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), which is
+// not the booking page's. `useAppLocale()` is called per screen rather than
+// once at the root: at the root it works only while nothing is memoised.
+import { appIntlLocale, t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function Today({ refreshKey = 0, onGo, onSetup }) {
+  useAppLocale();
   const { business, firstName, can, subscription, siteOrigin } = useBusiness();
   const today = todayLocal(business.timezone);
   const tomorrow = addDays(today, 1);
@@ -228,13 +234,20 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
   };
 
   const partOfDay = (() => {
+    // **`"en-US"` HERE IS DELIBERATE AND MUST NOT BECOME `appIntlLocale()`.**
+    // This formatter is not printing anything — it extracts the HOUR as a
+    // number so the greeting can branch on it. Pointing it at the display
+    // locale makes a value nobody reads depend on a setting somebody can
+    // change, which is a bug that would only ever show up in one language.
     const hour = Number(
       new Intl.DateTimeFormat("en-US", { timeZone: business.timezone, hour12: false, hour: "2-digit" })
         .format(new Date()),
     );
+    // English is the key; `t()` is applied where it is DRAWN, not here.
     return hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Evening";
   })();
-  const longDate = new Date(`${today}T12:00:00`).toLocaleDateString("en-US", {
+  // This one IS read, so it follows the dashboard's language.
+  const longDate = new Date(`${today}T12:00:00`).toLocaleDateString(appIntlLocale(), {
     weekday: "long", month: "long", day: "numeric",
   });
 
@@ -279,9 +292,14 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       <div data-tour="day">
         <h1 className="title">{longDate}</h1>
         <p className="quiet" style={{ marginTop: 2 }}>
-          {partOfDay}{firstName ? `, ${firstName}` : ""} · {empty
-            ? "nothing booked"
-            : `${todays.length - done} of ${todays.length} still to do`}
+          {/* ONE KEY PER SENTENCE, NEVER ENGLISH GLUED AROUND A VALUE.
+              `"Morning" + ", " + name` puts the comma where English wants it;
+              a translation has to be free to put the name somewhere else. */}
+          {firstName ? t("{when}, {name}", { when: t(partOfDay), name: firstName }) : t(partOfDay)}
+          {" · "}
+          {empty
+            ? t("nothing booked")
+            : t("{left} of {total} still to do", { left: todays.length - done, total: todays.length })}
         </p>
       </div>
 
@@ -316,11 +334,11 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           <TriangleAlert strokeWidth={2} />
           <span>
             {subscription.status === "suspended"
-              ? "Your booking page is offline because a payment did not go through. Nothing has been deleted."
-              : "Your last payment did not go through. We will keep trying for two weeks."}
+              ? t("Your booking page is offline because a payment did not go through. Nothing has been deleted.")
+              : t("Your last payment did not go through. We will keep trying for two weeks.")}
           </span>
           <span className="actions">
-            <button onClick={() => onGo?.("billing")}>Fix this</button>
+            <button onClick={() => onGo?.("billing")}>{t("Fix this")}</button>
           </span>
         </div>
       )}
@@ -332,7 +350,9 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       {!wide && requests.length > 0 && (
         <div className="tight" data-tour="requests">
           <h2 className="label">
-            {requests.length === 1 ? "Waiting on you" : `Waiting on you · ${requests.length}`}
+            {requests.length === 1
+              ? t("Waiting on you")
+              : t("Waiting on you · {count}", { count: requests.length })}
           </h2>
           {requests.map((b, i) => (
             <RequestCard key={b.id} booking={b} lit={i === 0}
@@ -353,16 +373,18 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
              does not, which is the row below. */
           <div className="sunken" style={{ display: "grid", gridTemplateColumns: "1fr 1px 1fr", gap: "var(--sp-4)" }}>
             <div>
-              <span className="label">Jobs today</span>
+              <span className="label">{t("Jobs today")}</span>
               <div className="figure" style={{ marginTop: 8 }}>{todays.length}</div>
               <div className="quiet" style={{ marginTop: 4 }}>{done} done · {todays.length - done} to go</div>
             </div>
             <div style={{ background: "var(--line-2)" }} />
             <div>
-              <span className="label">Expected</span>
+              <span className="label">{t("Expected")}</span>
               <div className="figure" style={{ marginTop: 8 }}>{money(expected)}</div>
               <div className="quiet" style={{ marginTop: 4 }}>
-                {collected > 0 ? `${money(collected)} collected` : "Nothing collected yet"}
+                {collected > 0
+                  ? t("{amount} collected", { amount: money(collected) })
+                  : t("Nothing collected yet")}
               </div>
             </div>
           </div>
@@ -377,7 +399,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             </div>
             <div>
               <span className="figure">{done}</span>
-              <span className="lbl">done</span>
+              <span className="lbl">{t("done")}</span>
             </div>
             <div>
               <span className="figure">{money(collected > 0 ? collected : expected)}</span>
@@ -392,12 +414,12 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             <h2 className="label">Needs payment · {needsPay.length}</h2>
           )}
           {runRows(needsPay, "landed")}
-          {still.length > 0 && <h2 className="label">Still to do</h2>}
+          {still.length > 0 && <h2 className="label">{t("Still to do")}</h2>}
           {runRows(still, "")}
           {/* data-tour — roadmap 2.24. "wrapup" and not "done": every name in
               the tour is unique across the whole app, because two elements
               answering one selector is a silently wrong target. */}
-          {settled.length > 0 && <h2 className="label" data-tour="wrapup">Done</h2>}
+          {settled.length > 0 && <h2 className="label" data-tour="wrapup">{t("Done")}</h2>}
           {settled.map((b) => (
             <button className="settled-row paid" key={b.id} onClick={() => setSelected(b)}>
               <span className="nm">{b.customer_name}</span>
@@ -423,19 +445,19 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             // to happen first, and the link comes back by itself the moment
             // there is a service to sell.
             <>
-              <p className="body">Nobody can book yet — your page has no services on it.</p>
+              <p className="body">{t("Nobody can book yet — your page has no services on it.")}</p>
               <div className="card setting-card">
                 <button className="nav-row" onClick={() => onSetup?.()}>
                   <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
                   <span className="txt">
-                    <span className="name">Finish setting up</span>
+                    <span className="name">{t("Finish setting up")}</span>
                     {/* SHORT ENOUGH TO FIT AT 392, which the first version was
                         not — `.now` ellipsised it to "…your link start…", and a
                         sentence that ends in an ellipsis is a sentence nobody
                         finishes reading. It still adds a fact the heading does
                         not carry: WHICH part of setup is the one blocking the
                         link. */}
-                    <span className="now">Your services come first</span>
+                    <span className="now">{t("Your services come first")}</span>
                   </span>
                   <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
                 </button>
@@ -443,7 +465,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             </>
           ) : (
             <>
-              <p className="body">Your booking link is how a day gets filled.</p>
+              <p className="body">{t("Your booking link is how a day gets filled.")}</p>
               <BookingLink slug={business.slug} origin={siteOrigin} />
             </>
           )}
@@ -458,7 +480,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
       {!wide && tomorrows.length > 0 && (
         <button className="row-item" onClick={() => setDayOpen(tomorrow)}>
           <span className="txt">
-            <span className="nm">Tomorrow</span>
+            <span className="nm">{t("Tomorrow")}</span>
             <span className="sub">
               {tomorrows.length} job{tomorrows.length === 1 ? "" : "s"}, first at {time12(tomorrows[0].start_time)}
             </span>
@@ -479,7 +501,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
         <button className="row-item" onClick={() => onGo?.("clients", "lapsed")}>
           <span className="txt">
             <span className="nm">{lapsedCount} haven't been in for 3 months</span>
-            <span className="sub">Write to them</span>
+            <span className="sub">{t("Write to them")}</span>
           </span>
           <ChevronRight size={18} strokeWidth={2} />
         </button>
@@ -500,7 +522,9 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           {requests.length > 0 && (
             <div className="tight">
               <h2 className="label">
-                {requests.length === 1 ? "Waiting on you" : `Waiting on you · ${requests.length}`}
+                {requests.length === 1
+              ? t("Waiting on you")
+              : t("Waiting on you · {count}", { count: requests.length })}
               </h2>
               {requests.map((b, i) => (
                 <RequestCard key={b.id} booking={b} lit={i === 0}
@@ -512,7 +536,7 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           )}
           {tomorrows.length > 0 && (
             <div className="tight">
-              <h2 className="label">Tomorrow</h2>
+              <h2 className="label">{t("Tomorrow")}</h2>
               {tomorrows.map((b) => (
                 <button className="settled-row" key={b.id} onClick={() => setSelected(b)}>
                   <span className="nm">{time12(b.start_time)} · {b.customer_name}</span>
@@ -523,9 +547,9 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
           )}
           {slots !== null && (
             <div className="tight">
-              <h2 className="label">The next 7 days</h2>
+              <h2 className="label">{t("The next 7 days")}</h2>
               <div className="facts">
-                <div><span>Open slots</span><span className="v strong num">{slots}</span></div>
+                <div><span>{t("Open slots")}</span><span className="v strong num">{slots}</span></div>
               </div>
             </div>
           )}
