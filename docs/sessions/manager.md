@@ -114,8 +114,14 @@ B's, said to lane B. Routing it through the manager just adds a hop.
 
 *Last written 2026-09-08.*
 
-**Live site:** frozen on 6 Sep, Netlify build credits. Nothing built since
-reaches the internet until a direct upload or a top-up.
+**Live site:** frozen on 6 Sep. **1,965 credits burned over 131 production
+deploys against a 1,000/month plan — twice the sustainable rate, so it RECURS
+every cycle unless the cadence changes (§ 17).** Credits reset **13 Sep**, and
+**the git integration is CONNECTED** — the skipped builds are named
+`main@<sha>` — so **on 14 Sep every push to `main` publishes again and
+CLAUDE.md's "a push is not a publish" flips back with nobody editing it.**
+**Untried and probably free: `npx netlify deploy --prod --dir=app/dist`** runs
+no build, so it should not touch credits. Try it before buying a top-up.
 **Branch:** work is on `main`. `claude/superbase-access-anj1h7` is 94 behind and
 dead — do not use it.
 **Waiting on Google:** GBP case 6-3052000042070, filed 8 Sep, 7–10 business
@@ -135,7 +141,10 @@ spends its allowance — the fix is a second FREE account, § 16.
 (`OUTSTANDING.md` § 9). **NONE of it is live** — the live page is still the
 6 Sep bundle. **Deploy before submitting Google application two**, or the
 reviewer reads the stale page.
-**Stripe Connect:** client id set and correct. **The second endpoint EXISTS**
+**Stripe Connect:** client id set and correct. Both events subscribed
+(`account.updated` + `account.application.deauthorized`). **The only thing left
+is Andrew pasting `STRIPE_CONNECT_WEBHOOK_SECRET`** — deliveries are 0/0 so the
+3-day disable clock is not running. **The second endpoint EXISTS**
 (`we_1UDY3WJeoZO7o6EerVO73I3G`, connected accounts, API version `2024-06-20` —
 the trap was avoided). Two things left, § 13: the signing secret is not set
 yet (**and Stripe disables an endpoint that fails for ~3 days, so this is a

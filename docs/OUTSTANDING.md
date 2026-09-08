@@ -750,8 +750,13 @@ disabled endpoint looks exactly like one that was never created. It is
 harmless while deliveries read 0/0; **the clock starts with the first
 connected-account event.**
 
-**2. `account.application.deauthorized` is NOT subscribed — and the handler
-for it is already built.** He left it off deliberately, because the checks had
+**2. ~~`account.application.deauthorized` is NOT subscribed.~~ ADDED 2026-09-08 —
+the endpoint reads *"Listening to: 2 events"*.** His coworker had held it back
+until the handler existed and was checked; that condition was met, and he acted
+on it without being asked again. **Nothing is left on this row.** The paragraph
+below is kept because it is why the event matters.
+
+**~~2.~~ Why it matters — the handler for it is already built.** He left it off deliberately, because the checks had
 been verified against a specific event set. **That reasoning was right and the
 condition is now met:** the handler shipped on 2026-09-08 with `connect.test.mjs`
 § 8 covering it, including the trap that `data.object` on that event is the
@@ -805,6 +810,13 @@ rots).
 the pages are missing, and unknown routes show a login form."*
 
 **Three separate things were true, and only one of them was new.**
+
+> **HE WITHDREW THE "MISSING PAGES" HALF HIMSELF, 2026-09-08:** *"I reported
+> the example pages as missing. They are not… the evidence I had (an invented
+> route rendering the sign-in screen) proved a catch-all existed, not that the
+> pages were absent."* **That is the correct reading of his own evidence and it
+> is worth more than the report it corrects** — the same inference this repo
+> has made wrongly three times, caught by the person who made it.
 
 **(a) The unknown-route sign-in screen is REAL and already tracked** as roadmap
 item **P**, found independently on 2026-09-08 with the same diagnosis. Two
@@ -919,3 +931,76 @@ survived.** A dry run would have passed against a relay that was refusing
 everything.
 
 **The separate account gets the saving without the loss.**
+
+---
+
+## 17. WHY THE DEPLOY BROKE, WITH THE ARITHMETIC — and it recurs unless the cadence changes
+
+**Read from the Netlify dashboard, 2026-09-08.** § 6 inferred build credits
+from an error string; this is the account itself.
+
+| | |
+|---|---|
+| Plan | **Personal — 1,000 credits/month** |
+| Consumed | **1,965 credits across 131 PRODUCTION DEPLOYS** |
+| Remaining | **1.1** plan credits (98.3 "operational" credits exist and Netlify says they cannot be spent on production deploys) |
+| Auto recharge | **Disabled** |
+| Billing period | 14 Aug – 13 Sep · **RESETS 13 SEPTEMBER** |
+| Last published | `main@c47cfae`, 6 Sep 4:23 PM |
+| Since | `main@7cd5864`, `main@df0628c`, `main@HEAD` — all *"Skipped due to account credit usage exceeded"* |
+
+### THE FINDING THAT MATTERS MOST IS NOT THE OUTAGE
+
+**~15 credits a deploy × 131 deploys = 1,965 against a 1,000 allowance. The
+sustainable rate is about 66 production deploys a billing period, and the
+current cadence is twice that.** So this is not a one-off: **it recurs every
+cycle** unless the cadence changes. It is a real constraint on how the loop
+works, not a footnote.
+
+### AND IT CORRECTS `CLAUDE.md` — THE GIT INTEGRATION IS CONNECTED
+
+**Those skipped builds are named `main@<sha>`.** Netlify only names a deploy
+after a commit when it received the git event and created a deploy for it — a
+disconnected repo produces no record at all. **So *"a push is not a publish"*
+is a fact about the BILLING PERIOD, not about the wiring**, and it flips back
+on **14 September with nobody editing anything**. That is exactly the failure
+mode the rule it replaced was warning about, now on a schedule.
+
+### THE OPTIONS, AND WHAT I WOULD DO
+
+**The problem is that every commit to `main` publishes, and `main` is now the
+working branch.** It did not used to be — the original design had a work branch
+with `main` reserved for publishing, and that broke down when the branch went
+stale and work moved across.
+
+| | Option | Cost |
+|---|---|---|
+| **A** | **A work branch again**, merged to `main` only when a publish is wanted. Restores the original design, and the staleness that killed it last time is self-correcting: you merge in order to publish. | One merge per publish. **No config, no dashboard setting, and no failure mode.** |
+| B | A `[build] ignore` command in `netlify.toml` that skips unless the commit message carries a marker. In-repo and versioned. | **Its failure mode is "nothing ever deploys again"**, which is indistinguishable from today's outage, and it cannot be tested until credits reset. |
+| C | Turn off auto-publishing in the Netlify dashboard. | A setting in an admin panel nothing here can read — **the exact shape that has now bitten this project four times.** |
+
+**Recommendation: A.** It is the only one with no way to fail silently, and it
+is what this repo was designed around before the branch rotted. **It is his
+call because it changes how he publishes**, and it is not urgent until the 13th.
+
+### THE GOOGLE TIMING RISK — and a top-up is probably not needed
+
+Google's review is ~17–22 Sep and credits reset 13 Sep, so a prompt deploy on
+the 13th lands the corrected privacy policy first. **But Google may fetch at any
+point in the review, and today they would find the 6 September page — no Google
+section, no Limited Use disclosure.** That is the rejection § 9 exists to avoid.
+
+**He has been told he can buy a top-up. He probably does not need to.** A
+**direct upload of pre-built files runs no build**, so it should not touch build
+credits at all:
+
+```
+npm run build --prefix app
+npx netlify deploy --prod --dir=app/dist
+```
+
+**That is `OUTSTANDING.md` § 6 option 1 and it has never been tried.** It is
+free to attempt and it closes the Google gap today rather than on the 13th.
+**Try it before paying for anything** — and if it is refused for credits too,
+then the top-up is the answer and we will have learned something worth writing
+down.

@@ -79,6 +79,22 @@ explaining it; if they still have to ask "so should I?", it failed.
   It was true when it was written on 2026-08-30 and stopped being true quietly,
   which is exactly what this rule warned about happening to something else.
   **SO A PUSH IS NOT A PUBLISH AND THE TWO NUMBERS ARE DIFFERENT NUMBERS.**
+  **AND THAT IS TRUE ONLY UNTIL 2026-09-13 — READ THIS BEFORE ACTING ON THE
+  PARAGRAPH ABOVE.** Measured in the Netlify dashboard 2026-09-08: the git
+  integration is **connected and working.** The skipped builds are recorded
+  against `main@7cd5864`, `main@df0628c` and `main@HEAD` — **Netlify only names
+  a deploy after a commit if it received the git event and created a deploy for
+  it.** A disconnected repo produces no deploy record at all. So *"a push is
+  not a publish"* is not a fact about the wiring; it is a fact about the
+  **billing period**, which ends **13 September**.
+  **ON 14 SEPTEMBER EVERY PUSH TO `main` IS A PUBLISH AGAIN, and this rule will
+  flip back with nobody editing it** — the exact failure the sentence above
+  describes happening to its own predecessor, now scheduled.
+  **AND PUBLISHING FREELY IS WHAT CAUSED THIS: 1,965 credits burned across 131
+  production deploys against a 1,000/month plan, at ~15 credits each.** That is
+  twice the sustainable rate, so a fortnight of the current cadence exhausts
+  the next cycle too. **`docs/OUTSTANDING.md` § 17 is the arithmetic and the
+  options; do not resume deploy-on-every-commit without reading it.**
   `origin/main` and the LIVE SITE are separate facts, and
   `git rev-list --count origin/main..HEAD` answers only the first — a session
   that reads it and says "we are nearly up to date" is describing GitHub while
