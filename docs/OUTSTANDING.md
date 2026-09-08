@@ -702,3 +702,123 @@ asks whether *"Andrew Dietrich, doing business as Detailing Platform"* is right.
 the public terms is probably the parent too.** Answer them together, and answer
 them before anybody has agreed to those terms — after that it is a change of
 contract rather than a change of text.
+
+---
+
+## 13. THE SECOND WEBHOOK ENDPOINT IS CREATED — 2026-09-08
+
+**Done, and the version was set correctly.**
+
+| | |
+|---|---|
+| Destination | `we_1UDY3WJeoZO7o6EerVO73I3G` — *"detailing platform - connected accounts"* |
+| Account | `acct_1UCMm0JeoZO7o6Ee` (the sandbox — matches the key, § 10) |
+| Events from | **Connected accounts** |
+| API version | **`2024-06-20`** — matched to the existing endpoint, **not** the `2026-08-26.dahlia` default. **The trap was avoided.** |
+| Listening to | `account.updated` — **one event** |
+| URL | `https://kguqylyzgyzfktkfnhjb.supabase.co/functions/v1/stripe-webhook` |
+| Deliveries | Total 0 / Failed 0 |
+
+### TWO THINGS LEFT, AND THE FIRST IS A DEADLINE RATHER THAN A TASK
+
+**1. `STRIPE_CONNECT_WEBHOOK_SECRET` is not set yet.** Until it is, this
+endpoint delivers and the function rejects — correctly, and that is expected
+rather than a bug. **But it is not free to leave.** Stripe retries a failing
+delivery for about three days and then **disables the endpoint**, and a
+disabled endpoint looks exactly like one that was never created. It is
+harmless while deliveries read 0/0; **the clock starts with the first
+connected-account event.**
+
+**2. `account.application.deauthorized` is NOT subscribed — and the handler
+for it is already built.** He left it off deliberately, because the checks had
+been verified against a specific event set. **That reasoning was right and the
+condition is now met:** the handler shipped on 2026-09-08 with `connect.test.mjs`
+§ 8 covering it, including the trap that `data.object` on that event is the
+APPLICATION rather than the account.
+
+**So it is one checkbox on the endpoint, and it should be added.** Without it
+the platform never learns a detailer disconnected: the row keeps saying
+connected and `pay-booking` keeps offering a card button routing to an account
+that has revoked us. **We now have the exact inverse of the bug this whole
+thread started with** — then it was an event with no handler; now it is a
+handler with no event.
+
+**FIRST THING TO CHECK once the secret is in:** that endpoint's *Event
+deliveries* tab. Anything other than 0 failed means the secret is wrong or the
+function did not pick it up.
+
+---
+
+## 14. ITEM 3 OF HIS COWORKER'S LIST IS THE STALE PAGE AGAIN — no action
+
+**Reported:** *"Privacy policy has NO Google section and does not list Google
+among its four named companies."*
+
+**True of the live page, and it has been fixed in the source since 2026-09-07.
+This is the same observation § 9 already records, made again, for the same
+reason: the live site is the 6 September bundle.**
+
+That is not a criticism of the report — **reading the live page is the correct
+thing to do**, and a session that only reads source would have missed the
+Business Profile gap that § 9 found. It is a warning about a specific trap this
+project now has: **while the deploy is frozen, every observation of the live
+site is an observation of 6 September.** Check the bundle hash before filing
+anything as a defect:
+
+```
+curl -s https://detailingplatform.com/ | grep -oE 'assets/index-[A-Za-z0-9_-]+\.js'
+```
+
+**Everything in that item is already done** — the Google sign-in section, the
+Limited Use disclosure, the Business Profile paragraph, and the companies list
+(which carries no count at all now, deliberately, because a count in a heading
+rots).
+
+**The action is the deploy, and it is the same action as items 4, § 6 and § 9.**
+
+---
+
+## 15. THE EXAMPLE PAGES — one real bug, and it was not the reported one
+
+**Reported:** *"/example1../example10 and /examples do not resolve… two bugs:
+the pages are missing, and unknown routes show a login form."*
+
+**Three separate things were true, and only one of them was new.**
+
+**(a) The unknown-route sign-in screen is REAL and already tracked** as roadmap
+item **P**, found independently on 2026-09-08 with the same diagnosis. Two
+sessions reaching it separately is confirmation rather than duplication. It
+needs his yes on the wording of a not-found page, not on the work.
+
+**(b) The pages are not "missing".** They are built, real, 24 KB each, and land
+in `dist/example1/index.html`. They are absent from the live site because they
+were committed on **7 September** and the live bundle is **6 September** — the
+deploy again. *(A commit message on 7 Sep says roadmap 9.5 "is deployed". It
+was not: Netlify silently skipped the build. That line is itself an example of
+what this file keeps warning about.)*
+
+**(c) AND THERE IS A REAL BUG UNDER BOTH OF THEM — measured with `vite preview`
+against the actual build:**
+
+```
+  /example1/            Northlight Detail — mobile detailing, Portland OR
+  /example1             Detailing Platform          <- the app shell
+  /example1/index.html  Northlight Detail
+```
+
+**One slash.** Each page is a DIRECTORY, so `/example1` matches no file, falls
+through to `/* /index.html 200`, and serves the SPA — which, having no 404
+route, draws the sign-in form. **And `/example1` without the slash is the URL he
+asked for**, quoted in `build-examples.mjs`'s own header.
+
+**Fixed:** the build now prepends eleven 200-rewrites to `dist/_redirects`,
+above the catch-all, because that file is first-match-wins.
+`tests/route-contract.test.mjs` holds the ordering and prints **NOT MEASURED**
+rather than passing when `dist` is absent.
+
+**STILL OWED, AND NO CHECK HERE CAN DO IT:** `_redirects` is Netlify's file and
+`vite preview` does not read it. **Load `/example1` on the live site after the
+next deploy.** It would probably have worked anyway — Netlify's *Pretty URLs*
+setting does this redirect by default — but that is a setting in an admin panel
+nothing here can read, and this project has now been bitten three times by
+exactly that.

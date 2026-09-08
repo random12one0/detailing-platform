@@ -132,10 +132,18 @@ The counter is correct — do not touch it. Upgrade is his call, § 11.
 (`OUTSTANDING.md` § 9). **NONE of it is live** — the live page is still the
 6 Sep bundle. **Deploy before submitting Google application two**, or the
 reviewer reads the stale page.
-**Stripe Connect:** client id set and correct (the key is the sandbox's —
-established by evidence, `OUTSTANDING.md` § 10). `stripe-webhook` v27 accepts
-two signing secrets, checks its own API version, and handles both account
-events. **Waiting on him to create the second endpoint — and the API version
-on that form MUST be set to `2024-06-20`, not the default.** `OUTSTANDING.md`
-§ 10 is the exact settings.
+**Stripe Connect:** client id set and correct. **The second endpoint EXISTS**
+(`we_1UDY3WJeoZO7o6EerVO73I3G`, connected accounts, API version `2024-06-20` —
+the trap was avoided). Two things left, § 13: the signing secret is not set
+yet (**and Stripe disables an endpoint that fails for ~3 days, so this is a
+deadline once deliveries start**), and `account.application.deauthorized` is
+not subscribed **while its handler is already built and tested** — one
+checkbox.
+**Google:** Branding cleared the blocker, *Publish app* is now enabled. Test
+users still will not save — unexplained, and moot if he publishes, which needs
+no review on the three basic scopes.
+**Example pages:** a real bug found and fixed 2026-09-08 — `/example1` served
+the app shell and `/example1/` served the page. § 15. **Live verification is
+still owed after the deploy**, because `_redirects` is Netlify's file and
+nothing here can exercise it.
 **Lanes running:** websites (A), product (B). Build (C) not started.
