@@ -40,7 +40,7 @@ https://claude.ai/code/artifact/e7683fbc-9436-48cb-ae47-c1868167205b
 |---|---|---|---|
 | **1** | ~~**Turn on Google sign-in**~~ **SWITCHED ON — measured 2026-09-08, `/auth/v1/settings` answers `google: true`, so the button is LIVE on the sign-in screen.** What is left is not the toggle: Google's Audience page refuses *Publish app* AND saving a test user while Branding is incomplete, and **the only empty fields are the privacy policy and terms URLs**. Both pages are public and render on the live site. **He pastes `https://detailingplatform.com/privacy` and `https://detailingplatform.com/terms` into the Branding page.** Not a code task and not a bug — do not chase it as one. **~~2 min~~ DONE 2026-09-08 — he had his cloud coworker paste both.** What that session then reported is § 9 below, and reading it produced one real change and three false alarms. | done |
 | **2** | ~~**Does a mailbox exist on `detailingplatform.com`?**~~ **ANSWERED 2026-09-08: YES — `andrew@` and `support@`, on iCloud Mail, and they existed before anybody asked.** The DNS is on **NS1**, not Cloudflare and not Netlify. The GBP application was filed from `andrewswashing@gmail.com` anyway, because that account holds the verified listing and the form has no contact-email field. | done |
-| **2b** | **NEW — read Resend's actual billing plan** at `resend.com/settings/billing`. **The account sent 200 emails on 7 Sep and 110 on 6 Sep, all delivered** — both above the 100/day free cap this product's counter is built against. So either he is not on the free plan, or **the back office's *"Emails: N of 100 today"* is measuring against a limit that does not exist.** The coworker's API access shows domains and metrics but not the plan. | 1 min |
+| **2b** | ~~**Read Resend's actual billing plan** — the counter may be measuring against a limit that does not exist.~~ **ANSWERED 2026-09-08, AND THE DOUBT WAS WRONG. The plan is FREE, confirmed on the billing page** — Transactional, 3,000/month at $0, no payment method on file. **Monthly 570 / 3,000 (19%, fine). DAILY 117 / 100 — ALREADY OVER, right now, and still delivering.** So the cap is REAL, Resend displays it, and **the back office's *"Emails: N of 100 today"* is correct. Do not remove or change that counter.** What it is is a SOFT limit at this level, not a hard block. **The upgrade decision is now weaker than it looked — see § 11.** | done |
 | **2c** | ~~**Two things in the Stripe dashboard** — the `ca_…` client id, and the webhook endpoint told to listen to events on CONNECTED accounts, a separate setting.~~ **BOTH HALVES WERE WRONG — corrected 2026-09-08 from the dashboard.** The client id **is already set** (`STRIPE_CONNECT_CLIENT_ID`, verified in Supabase edge secrets, 8 Sep) — so that half is DONE. And **there is no such setting**: a Stripe endpoint's *"Events from"* is **CREATE-ONLY**, immutable beside the payload style and the API version, so the existing endpoint is permanently scoped to *"Your account"* and cannot be pointed at connected accounts. **It takes a SECOND endpoint, which issues a NEW signing secret** — see § 10. | see § 10 |
 | **3** | **The site gallery** (roadmap 9.1) — *mostly delivered 2026-09-08* | His taste, and nobody else's. **He sent 21 links with a verdict on each on 2026-09-08** — see `docs/TASTE-NOTES.md` batch 2. That is enough to start 9.2. | done for now |
 | **4** | **Two one-word answers** — a detailer's email on their site (switch? recommended), and whether the price editor should refuse an odd ladder (keep warning? recommended) | Both are business calls, not code ones. | 30 sec |
@@ -51,7 +51,7 @@ https://claude.ai/code/artifact/e7683fbc-9436-48cb-ae47-c1868167205b
 | Thing | Why it is closed |
 |---|---|
 | Stripe's business address | **He is not old enough to complete the form.** Blocked by a fact, not a preference. The no-tax fallback cannot under-collect. `overnight-log` Q19. |
-| Resend $20/month | **Decided:** upgrade when a real detailer nears the cap — *"when a real detailer gets close"*, re-confirmed 2026-09-08. A 429 in OUR OWN test runs is not the trigger. Q20. **But the CAP ITSELF is now in doubt — see row 2b above; the counter may be measuring against a limit that does not exist.** |
+| Resend $20/month | **Decided:** upgrade when a real detailer nears the cap — *"when a real detailer gets close"*, re-confirmed 2026-09-08. A 429 in OUR OWN test runs is not the trigger. Q20. ~~**But the CAP ITSELF is now in doubt.**~~ **THE CAP IS REAL — measured on the billing page 2026-09-08, and the daily figure was 117 of 100 at the time. This is BACK ON HIS LIST as § 11**, because the premise the deferral rested on has changed: the cap is being exceeded on internal traffic alone, with zero customers. |
 | Referral rewards | **Skipped entirely, 2026-09-08**, until there are detailers who could refer each other. That closes what § 4 lists against roadmap 8.15 — it is not waiting on him deciding what a referral earns; he has deferred the whole feature. |
 | Moving his own business onto the platform | **PARKED, and the INTENT is corrected: it is a COPY for DOGFOODING, not a cutover.** His live business keeps running and keeps taking real money throughout. **He has deliberately not shared the old project's `service_role` key — do not ask for it.** |
 | A postal address on the legal pages | **Dropped entirely, his call 2026-09-08** — email only, rather than publishing a home address. |
@@ -103,11 +103,18 @@ neither is guessable:**
 
 **STILL OPEN, AND THE SECOND ONE IS THE ACCEPTANCE TEST:**
 
-- **`HEALTHCHECK_URL` is not set**, so the "tell the outage watcher" step is a
-  no-op and a backup that stops will stop silently — the same argument roadmap
-  8.12 makes about the scheduler. Five minutes on healthchecks.io. (Not the
-  same URL as `platform_settings.healthcheck_url`, which watches a different
-  job.)
+- ~~**`HEALTHCHECK_URL` is not set.**~~ **THE CHECK EXISTS AS OF 2026-09-08** —
+  *"detailing platform - nightly backup"*, period 1 day, **grace 6 HOURS**,
+  email attached. **The wide grace is deliberate and is the interesting part:**
+  the scheduler's check runs a 30-minute grace, and copying that here would page
+  on a merely SLOW backup rather than a failed one, because **GitHub's cron
+  routinely runs late.** An alarm that cries wolf is one nobody reads — the same
+  argument this repo already makes about the dead man's switch ringing once.
+  **He is pasting the ping URL into GitHub as `HEALTHCHECK_URL`; the workflow
+  already reads that name, so there is no code change.** (Still not the same URL
+  as `platform_settings.healthcheck_url`, which watches a different job — and
+  **that one is confirmed GREEN**, last ping four minutes before it was looked
+  at, so job 0 is genuinely running.)
 - **Nothing has ever been restored**, so 2.22 stays `[~]`. Needs a scratch
   Supabase project and the age private key, which is in his password manager
   and deliberately nowhere else — not in CI, not in this repo, not here.
@@ -573,3 +580,125 @@ curl -s https://api.stripe.com/v1/account -u "$STRIPE_SECRET_KEY:" | grep -o '"i
 anything in `.env`, and reading it back was correctly refused. Worth running if
 the key is ever to hand; anything other than `acct_1UCMm0JeoZO7o6Ee` means the
 client id is wrong for the key in use.
+
+---
+
+## 11. RESEND'S CAP IS REAL — and that reopens a decision he had closed
+
+**Measured on the billing page, 2026-09-08.** The earlier doubt in row 2b is
+withdrawn; **the coworker corrected its own guess, which is the right instinct
+and is why this entry can be trusted.**
+
+| | |
+|---|---|
+| Plan | **Free**, confirmed — Transactional, 3,000/month at $0, **no payment method on file** |
+| Monthly | **570 / 3,000** — 19%, fine |
+| Daily | **117 / 100 — ALREADY OVER**, and still delivering |
+
+**So the 100/day cap exists, Resend displays it, and the product's own
+*"Emails: N of 100 today"* counter is measuring against a real limit. DO NOT
+remove or change that counter.** It is a **soft** limit at this level rather
+than a hard block — which is exactly why nobody noticed.
+
+### Why this is his decision again, and not a build task
+
+He closed this on 2026-09-08: upgrade *"when a real detailer gets close"*, and
+a 429 in our own test runs is not the trigger. **That reasoning rested on a
+premise that has now changed.** The cap is being exceeded **on internal traffic
+alone, with zero customers on the product.** Resend is choosing not to enforce
+today and is under no obligation to keep choosing that.
+
+**What it costs if they do start enforcing:** the transactional set spends about
+five emails a booking, so the first thing to stop is **booking confirmations** —
+and `docs/verification.md` already records what that looks like from outside.
+It does not present as an email problem. It presents as *"the booking page is
+broken."*
+
+**The recommendation: this is not urgent, and it stops being deferrable the day
+a real detailer signs up.** $20/month buys the daily cap going away. Nothing
+needs deciding this week; what changed is that *"our test runs don't count"* is
+no longer a complete answer, because the runs are already over the line.
+
+---
+
+## 12. STRIPE WILL BE OPENED IN A PARENT'S NAME — and this REVERSES `setup-steps` STEP 0
+
+**Reported 2026-09-08.** Stripe's minimum age is 13, and an account holder under
+18 **requires a guardian as the legal account owner** before the account can
+accept charges or pay out. So:
+
+- The Stripe account is opened with **a parent as the legal account owner**.
+- The **business bank account is opened in the parent's name to match**, because
+  Stripe requires the payout bank to match the account holder.
+- When ownership later transfers, **the order is fixed and is not negotiable**:
+  **(1)** Stripe Support updates the account holder, **(2)** THEN payouts are
+  repointed to the new bank account. The other order is a name mismatch and a
+  payout hold.
+
+### THIS CONTRADICTS A DECISION MADE FOUR DAYS AGO, AND BOTH HALVES MATTER
+
+`docs/setup-steps-2026-09-04.md` **STEP 0** says, in as many words:
+
+> *"**No dad on the Stripe account.** He opens it himself at 18. The support
+> question this file used to open with is now moot — there is no guardian, so
+> there is nothing to transfer and nothing to ask."*
+
+**And STEP 4 of that same file says the transfer is the expensive part**: that a
+Stripe account cannot move between legal entities, so a handover means *"new
+EIN, new bank account, NEW STRIPE ACCOUNT — every subscriber re-enters their
+card."* **That single sentence is why the LLC was considered at all.**
+
+**The new report says the handover is a support ticket.** Those two can both be
+true of DIFFERENT things — updating the *representative* on one legal entity is
+a support ticket; moving between two legal *persons* is a new account — and
+**which one this is depends on whether the parent's sole proprietorship becomes
+Andrew's, or stays and merely changes who signs.** Nobody here has established
+which.
+
+### THE QUESTION FOR HIM, AND THE RECOMMENDATION IS "WAIT"
+
+**Why open it now with a parent, rather than in December in his own name?**
+
+**Nothing in the build needs it.** Stripe **test mode** requires no activation,
+no identity check and no guardian — that is already established, is why the
+whole payments feature exists today, and is written into STEP 0. There are zero
+customers, and he has said twice he is not going public until the build is
+finished. **He turns 18 on 2 December: under three months.**
+
+**So opening it early buys nothing and adds an ownership transfer whose cost
+this repo and this report disagree about.** Waiting gives one account, one
+owner, no transfer, no ambiguity.
+
+**What would change the recommendation:** a reason to take real money before
+December that nobody here knows about. If there is one, opening in a parent's
+name is the correct way to do it and the ordering above is the thing to get
+right.
+
+**Until he answers, `setup-steps-2026-09-04.md` STEP 0 stays as written**, with
+a pointer here. **Do not edit that file to match this one** — it records a
+decision, and a decision that changed gets a second entry rather than a quiet
+rewrite.
+
+### WHAT IT MEANS FOR THE CODE — nothing, and that is now enforced
+
+The standing constraint is right: **nothing may hardcode or assume the account
+holder, the business name on receipts, or the payout bank.** Checked
+2026-09-08 across all of `app/src` and `supabase/functions`:
+
+- **Zero** references to a statement descriptor, an account holder, a routing
+  number or a payout bank, anywhere.
+- Emails carry `PLATFORM_NAME` — a **brand** string — never a legal person.
+- **The single hardcoded legal identity is `ENTITY`** in
+  `app/src/landing/legal.js`: one constant, one line, printed at the top of
+  `/privacy` and `/terms`. It **cannot** come from Stripe — it is who signs the
+  terms of service, not who holds a merchant account.
+
+**`tests/connect.test.mjs` § 9 now holds all three**, so an ownership change
+stays a settings change rather than becoming a deploy. Both breaks caught.
+
+**AND `ENTITY` AND THE STRIPE ACCOUNT HOLDER ARE THE SAME QUESTION.** § 1 row 5
+asks whether *"Andrew Dietrich, doing business as Detailing Platform"* is right.
+**If a parent is the legal owner of the account taking the money, the entity on
+the public terms is probably the parent too.** Answer them together, and answer
+them before anybody has agreed to those terms — after that it is a change of
+contract rather than a change of text.

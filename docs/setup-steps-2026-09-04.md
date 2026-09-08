@@ -23,6 +23,21 @@ give actual advice.
 
 ## STEP 0 — ANSWERED 2026-09-04: he turns 18 on 2 DECEMBER 2026
 
+> **CHALLENGED 2026-09-08 AND NOT YET RESOLVED — read `docs/OUTSTANDING.md`
+> § 12 before acting on anything below.** This section says *"no dad on the
+> Stripe account"* and treats the guardian question as moot. A later report
+> says **Stripe requires a guardian as the legal account owner while the
+> holder is under 18**, and that the account will be opened in a parent's name
+> with a matching bank account.
+>
+> **This file is deliberately NOT edited to match**, because it records a
+> decision he made and a decision that changed gets a second entry rather than
+> a quiet rewrite. **§ 12 carries the contradiction, what it turns on, and the
+> one question he has to answer** — which is simply *why open it now at all,
+> rather than in December in his own name.* The recommendation there is to
+> wait, because nothing in the build needs an activated account and test mode
+> needs no guardian, which is what STEP 0's last paragraph already says.
+
 **That is three months away, and it collapses most of this document.**
 
 **The whole plan is: build now, set everything up in the first week of December,
