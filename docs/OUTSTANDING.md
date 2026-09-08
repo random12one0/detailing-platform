@@ -600,7 +600,28 @@ and is why this entry can be trusted.**
 remove or change that counter.** It is a **soft** limit at this level rather
 than a hard block — which is exactly why nobody noticed.
 
-### Why this is his decision again, and not a build task
+> ### CORRECTED THE SAME DAY — THE DEFERRAL STANDS, AND THIS SECTION WAS WRONG
+>
+> **Measured by DOMAIN, which is the cut nobody had taken:**
+>
+> | | today (117) | 30 days (527) |
+> |---|---|---|
+> | `email.detailingplatform.com` | **117** | **470** — platform and test traffic |
+> | `andrewsdetail.com` | 0 | 57 — his real business, ~15 bookings |
+>
+> **So the daily figure is real, and it is entirely OUR OWN test traffic.**
+> Real customer email runs about **2 a day**. At ~4 emails a booking, reaching
+> 100/day organically means **~25 bookings a day across every tenant**, which
+> is a long way off.
+>
+> **The paragraphs below were written before that cut and are withdrawn. His
+> original decision — upgrade when a real detailer gets close — was right and
+> is unchanged. DO NOT push him to spend the $20.** What made the argument look
+> weak was counting a build session's traffic as if it were demand.
+>
+> **The real finding is § 16**, and $20 does not fix it.
+
+### ~~Why this is his decision again, and not a build task~~ — WITHDRAWN, see above
 
 He closed this on 2026-09-08: upgrade *"when a real detailer gets close"*, and
 a 429 in our own test runs is not the trigger. **That reasoning rested on a
@@ -822,3 +843,79 @@ next deploy.** It would probably have worked anyway — Netlify's *Pretty URLs*
 setting does this redirect by default — but that is a setting in an admin panel
 nothing here can read, and this project has now been bitten three times by
 exactly that.
+
+---
+
+## 16. THE RESEND ACCOUNT IS SHARED WITH HIS LIVE BUSINESS — and that is the real issue
+
+**Found 2026-09-08 by measuring sends per domain.** It is not the $20, and § 11
+is corrected: the deferral stands.
+
+**One free Resend account carries three things**: his live business
+(`andrewsdetail.com`, real customers, real money), the platform
+(`email.detailingplatform.com`), and every future tenant. **The 100/day
+allowance is ACCOUNT-WIDE.**
+
+### The consequence, and it is the only one that touches real money
+
+**A heavy build session here spends his LIVE BUSINESS's daily allowance.** On
+2026-09-08 the test traffic alone was 117 of 100. Resend did not enforce — it
+is a soft limit at this level — but it is their choice, not a guarantee, and
+**the blast radius is a real customer of Andrew's Auto Detail not getting their
+booking confirmation.**
+
+`docs/HANDOFF.md` has listed *"the platform shares the live business's Resend
+account"* as an open thread since 2026-08-29. This is what that thread costs.
+
+### THE FIX IS A SECOND FREE ACCOUNT, NOT A PAID PLAN
+
+**A separate Resend account for the platform costs nothing**, needs one signup
+and one domain verification, and solves all three problems at once:
+
+1. His live business stops sharing a ceiling with a build session.
+2. Test traffic stops consuming a production allowance.
+3. **The back-office counter's numerator and denominator become the same
+   population again** — see below.
+
+**That is on him** (an account, an API key, a DNS record for
+`email.detailingplatform.com` on the new account). Until then, a session that
+books repeatedly should know it is spending somebody else's headroom.
+
+### AND THE COUNTER WAS MEASURING TWO DIFFERENT POPULATIONS — fixed
+
+His coworker read this as *"the product shows each detailer N of 100"* and
+warned it would eventually tell a paying detailer their sending was nearly used
+up. **Checked: no detailer ever sees it.** The line lives only in
+`app/src/admin/AdminPage.jsx`, behind `/admin`, which answers **404** to
+everybody who is not a platform admin. That half is a false alarm.
+
+**But there IS a defect underneath, and it is the OPPOSITE of the one
+reported.** `sent` comes from `platform_email_days` — a table in THIS project —
+so it counts what the PLATFORM sent, while the cap is the ACCOUNT-WIDE
+allowance. Different populations. **So it UNDER-reports, which is the unsafe
+direction.** On 8 Sep the business sent 0 and the two agreed, which is why
+nobody could have noticed; over 30 days it was 470 against 57, so a busy
+Saturday can read comfortable while the account is at its limit.
+
+**Fixed by making the label true rather than by making the number
+account-wide** — the latter means the back office reaching into a different
+Supabase project for a status line. It now reads **"Platform emails: N of 100
+today"**, and the four-fifths warning says the allowance is shared with
+`andrewsdetail.com` so the account may be higher. `platform-admin` 14c-ii-b and
+14c-ii-c hold both; both breaks caught.
+
+**When the second account exists, the two populations are the same again and
+the word can come back out.**
+
+### On the "dry-run mode" suggestion — recommend against
+
+Making the suites assert on the payload without calling Resend would stop the
+spend, **and it would delete the one thing `e2e-booking`'s email leg exists to
+prove.** That leg reads the edge functions' own logs to confirm the provider
+really accepted the send, because `sendTenantEmail` is best-effort by design —
+a dead relay is a `console.error` inside a function, invisible from every
+screen and every other suite. **That is exactly how the roadmap 0.3 defect
+survived.** A dry run would have passed against a relay that was refusing
+everything.
+
+**The separate account gets the saving without the loss.**

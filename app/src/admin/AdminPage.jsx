@@ -746,12 +746,34 @@ export default function AdminPage() {
             and then don't give me this warning again."* A dismiss button
             would silence a true statement and leave the next busy Saturday
             exactly where F-025 found it. */}
+        {/* THE NUMERATOR AND THE DENOMINATOR ARE NOT THE SAME POPULATION, AND
+            THE LABEL SAID THEY WERE — corrected 2026-09-08, measured by domain.
+
+            `sent` comes from `platform_email_days`, a table in THIS project,
+            so it counts what the PLATFORM sent. The cap is Resend's daily
+            allowance, which is **ACCOUNT-WIDE** and shared with
+            `andrewsdetail.com` — his own live business, on the same Resend
+            account, sending for real customers.
+
+            **So this UNDER-reports, which is the unsafe direction.** On
+            2026-09-08 the account sent 117 and the business sent 0, so the two
+            agreed and nobody could have noticed; over the previous 30 days it
+            was 470 platform against 57 business, so on a busy Saturday this
+            line can read comfortable while the account is at its limit.
+
+            **NOT FIXED BY MAKING THE NUMBER ACCOUNT-WIDE**, which would mean
+            this screen reaching into a different Supabase project for a status
+            line. One word makes it true instead: it says what it counts. The
+            real fix is a SEPARATE RESEND ACCOUNT for the platform —
+            `docs/OUTSTANDING.md` § 16 — after which the two populations are
+            the same again and this comment can go. */}
         {state.email && (
           <p className={state.email.sent >= state.email.cap * 0.8 ? "pa-bad" : "pa-quiet"}>
-            {`Emails: ${state.email.sent} of ${state.email.cap} today`}
+            {`Platform emails: ${state.email.sent} of ${state.email.cap} today`}
             {state.email.failed > 0 && ` · ${state.email.failed} refused`}
             {state.email.sent >= state.email.cap * 0.8
-              && " — close to the daily limit. Upgrade the plan and raise the cap."}
+              && " — close to the daily limit, and it is shared with andrewsdetail.com,"
+                 + " so the account may be higher. Upgrade the plan and raise the cap."}
             {/* NOBODY IS BEING TOLD is a different failure and a louder one:
                 the alerts below are switched off rather than failing, and a
                 feature that is off looks exactly like a feature that is quiet.

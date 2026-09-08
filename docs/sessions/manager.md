@@ -123,8 +123,11 @@ days, watched at `andrewswashing@gmail.com`.
 **Waiting on him:** `OUTSTANDING.md` § 1 — and the live one is **§ 12: why open
 Stripe in a parent's name NOW rather than in December in his own name.**
 Recommendation is wait; nothing in the build needs it.
-**Resend:** cap is REAL, 100/day, was 117/100 on 8 Sep and still delivering.
-The counter is correct — do not touch it. Upgrade is his call, § 11.
+**Resend:** cap is REAL and account-wide, 100/day. The 117 on 8 Sep was
+**entirely our own test traffic** — real customer email is ~2/day, so the
+"upgrade when a detailer gets close" deferral STANDS. **Do not push the $20.**
+The real issue is that his LIVE BUSINESS shares the account, so a build session
+spends its allowance — the fix is a second FREE account, § 16.
 **Backups:** healthcheck created (6h grace), he is pasting the URL into GitHub.
 **The restore test is still the one that matters and has never been done.**
 **Google Branding:** DONE — both URLs pasted 2026-09-08.

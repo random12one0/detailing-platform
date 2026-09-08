@@ -1006,7 +1006,22 @@ console.log("\n14. the email safety net (roadmap 8.6)");
   check("14c · the back office is handed today's count and the cap",
     /email: \{[\s\S]{0,200}cap: ps\?\.email_daily_cap \?\? 100/.test(admin));
   check("14c-ii · and the screen prints it beside the other silent limits",
-    /Emails: \$\{state\.email\.sent\} of \$\{state\.email\.cap\} today/.test(page));
+    /Platform emails: \$\{state\.email\.sent\} of \$\{state\.email\.cap\} today/.test(page));
+  // **"PLATFORM" IS LOAD-BEARING AND IS NOT A TIDIER LABEL — 2026-09-08,
+  // measured by domain.** `sent` comes from `platform_email_days`, a table in
+  // THIS project, so it counts what the platform sent. The cap is Resend's
+  // daily allowance, which is ACCOUNT-WIDE and shared with andrewsdetail.com —
+  // his own live business, real customers, same Resend account. Numerator and
+  // denominator are different populations, so the line UNDER-reports, which is
+  // the unsafe direction: 470 platform against 57 business over 30 days means
+  // a busy Saturday can read comfortable while the account is at its limit.
+  // Dropping the word puts that claim back.
+  check("14c-ii-b · the label says WHICH emails, because the cap is shared",
+    /Platform emails/.test(page) && !/\{`Emails: /.test(page),
+    "the numerator is platform-only and the cap is account-wide");
+  check("14c-ii-c · and the warning says the account may be higher",
+    /shared with andrewsdetail\.com/.test(page),
+    "at four fifths of a SHARED cap, the real figure is the one that matters");
   // **AT FOUR FIFTHS, NOT AT THE LIMIT.** A warning that arrives AT the cap is
   // a warning about emails that have already failed.
   check("14c-iii · it goes red before the cap, not at it",
