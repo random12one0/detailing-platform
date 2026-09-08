@@ -219,7 +219,7 @@ export default function FinalizeModal({ booking, onClose, onDone }) {
             <p>
               {t("Mark this job complete and record")} <strong>{money(finalAmount)}</strong> as{" "}
               <strong>{t(PAYMENT_LABELS[paymentStatus])}</strong>
-              {items.length > 0 && <> , including {items.length} extra item{items.length > 1 ? "s" : ""}</>}?
+              {items.length > 0 && <>{" "}{items.length === 1 ? t(", including {n} extra item", { n: items.length }) : t(", including {n} extra items", { n: items.length })}</>}?
             </p>
             <div className="row" style={{ gap: 8, marginTop: 10 }}>
               <button className="btn ghost inline" disabled={busy} onClick={() => setConfirming(false)}>

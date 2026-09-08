@@ -375,7 +375,14 @@ export default function Today({ refreshKey = 0, onGo, onSetup }) {
             <div>
               <span className="label">{t("Jobs today")}</span>
               <div className="figure" style={{ marginTop: 8 }}>{todays.length}</div>
-              <div className="quiet" style={{ marginTop: 4 }}>{done} done · {todays.length - done} to go</div>
+              {/* ONE KEY, NOT THREE FRAGMENTS. Written as `{done} done · {left}
+                  to go` this was English on a Spanish dashboard and BOTH i18n
+                  checks reported clean on it — the survey looks for string
+                  literals and this was JSX text, and spanish-dom compares
+                  against catalogue KEYS, which this could never be. */}
+              <div className="quiet" style={{ marginTop: 4 }}>
+                {t("{done} done · {left} to go", { done, left: todays.length - done })}
+              </div>
             </div>
             <div style={{ background: "var(--line-2)" }} />
             <div>

@@ -201,7 +201,7 @@ export default function CampaignModal({ people, onClose, onSent }) {
         <button className="btn primary"
           disabled={!address || chosen.length === 0 || !subject.trim() || !message.trim()}
           onClick={() => setConfirming(true)}>
-          Send to {chosen.length}
+          {t("Send to {n}", { n: chosen.length })}
         </button>
       )}
     </Sheet>

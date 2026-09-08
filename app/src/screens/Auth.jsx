@@ -157,8 +157,7 @@ export default function Auth() {
         {error && <div className="error-box">{error}</div>}
         {sent && (
           <div className="ok-box">
-            If we have an account for {email}, the link is on its way. Check
-            spam if it is not there in a minute.
+            {t("If we have an account for {email}, the link is on its way. Check spam if it is not there in a minute.", { email })}
           </div>
         )}
         <button className="btn primary" disabled={busy || (resetting && sent)}>

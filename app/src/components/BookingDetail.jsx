@@ -362,10 +362,11 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
                   is the decision this answer feeds. */}
               {booking.service_type === "mobile" && (booking.has_water === false || booking.has_power === false) && (
                 <p className="muted">
-                  Bring your own {[
-                    booking.has_water === false ? "water" : null,
-                    booking.has_power === false ? "power" : null,
-                  ].filter(Boolean).join(" and ")}
+                  {booking.has_water === false && booking.has_power === false
+                    ? t("Bring your own water and power")
+                    : booking.has_water === false
+                      ? t("Bring your own water")
+                      : t("Bring your own power")}
                 </p>
               )}
               {/* ROADMAP 8.19 — THE MILEAGE, AND IT IS IN *THE JOB* RATHER THAN

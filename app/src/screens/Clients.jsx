@@ -332,10 +332,10 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
         <div className="row" style={{ justifyContent: "flex-end", gap: 8 }}>
           {can("marketing") && emailable > 0 && (
             <button className="btn sm inline" data-tour="compose" onClick={() => setWriting(rows.map((r) => r.c))}>
-              Email these {emailable}
+              {t("Email these {n}", { n: emailable })}
             </button>
           )}
-          <a className="btn sm inline" href={smsHref}>Text these {rows.length}</a>
+          <a className="btn sm inline" href={smsHref}>{t("Text these {n}", { n: rows.length })}</a>
         </div>
       )}
 
@@ -436,7 +436,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
       {/* A SILENT TRUNCATION READS AS A COMPLETE LIST, and the search is the
           way past it — which is a fact the list does not carry. */}
       {capped && (
-        <p className="quiet">Showing the {ROW_CAP} most recent — search for anyone older.</p>
+        <p className="quiet">{t("Showing the {n} most recent — search for anyone older.", { n: ROW_CAP })}</p>
       )}
     </>
   );

@@ -758,7 +758,15 @@ for (const w of SIZES) {
       // Back to Today, then the quote sheet from the card's own button.
       await page.locator(`.tabbar button[data-tour="today"]`).first().click();
       await settle(page, 1400);
-      await page.locator(".reqcard").first().getByRole("button", { name: NAMED("Quote"), exact: true }).click();
+      // ADDRESSED BY ATTRIBUTE, NOT BY NAME — 2026-09-08. Under `LANG_APP=es`
+      // this timed out at the FIRST width and took the whole sweep with it,
+      // which is why the Spanish run had never once completed. The button's
+      // words change twice over: "Quote" becomes "Re-quote" the moment a quote
+      // exists, and both translate. `data-quote` has none of those problems and
+      // is the same remedy the five rail buttons already use.
+      const quoteBtn = page.locator('.reqcard [data-quote]').first();
+      if (!(await appear(quoteBtn))) throw new Error("NO QUOTE BUTTON on any request card");
+      await quoteBtn.click();
       await settle(page, 1300);
       await grow();
       await say("send a quote");
@@ -850,10 +858,17 @@ for (const w of SIZES) {
   // which reads as three renamed controls rather than as one slow query.
   // Third instance of exactly this in this file (Monthly plans, Team, and now
   // Money) — `appear()` is the tool and it is at module scope for this reason.
-  await appear(page.getByRole("radio", { name: NAMED("Month"), exact: true }));
+  // A GUARD THAT SKIPS MUST PRINT. This was a bare `await appear(...)` whose
+  // result nothing read, so a period control that never arrived stayed silent
+  // here and surfaced fifteen seconds later as a click timeout on a DIFFERENT
+  // line — pointing the next session at the wrong place entirely.
+  if (!(await appear(page.getByRole("radio", { name: NAMED("Month"), exact: true })))) {
+    console.log("Money · the period control".padEnd(24)
+      + "NOT MEASURED — no Month radio; the money read may still be in flight");
+  }
   await settle(page, 1600);
   for (const k of ["Week", "6 months", "Lifetime"]) {
-    const chip = page.getByRole("radio", { name: k, exact: true });
+    const chip = page.getByRole("radio", { name: NAMED(k), exact: true });
     if (!(await chip.count())) { console.log(`Money · ${k}`.padEnd(24) + "NO SUCH PERIOD"); found++; continue; }
     await chip.first().click();
     await settle(page, 1500);
@@ -902,8 +917,14 @@ for (const w of SIZES) {
       // The three state cards are the day's own editors and each expands in
       // place (W1). An unopened editor is a check that never reached it.
       for (const label of ["Block this day", "Hours", "How this day works"]) {
-        const card = page.locator(".daypanel .card", { hasText: label });
-        if (!(await card.count())) continue;
+        // NAMED, because these are the day's own editors and every one of them
+        // translates — addressed in English they were skipped in Spanish, and
+        // the `continue` below made that look exactly like a clean run.
+        const card = page.locator(".daypanel .card", { hasText: NAMED(label) });
+        if (!(await card.count())) {
+          console.log(`Calendar · day, ${label}`.padEnd(24) + "NOT MEASURED — no such editor on this day");
+          found++; continue;
+        }
         await card.first().click();
         await settle(page, 900);
         await say(`Calendar · day, ${label}`);
@@ -976,8 +997,11 @@ for (const w of SIZES) {
   }
   await say("Clients · the list");
   for (const s of ["Most spent", "Longest away"]) {
-    const b = page.getByRole("radio", { name: s, exact: true });
-    if (!(await b.count())) continue;
+    const b = page.getByRole("radio", { name: NAMED(s), exact: true });
+    if (!(await b.count())) {
+      console.log(`Clients · sorted by ${s}`.padEnd(24) + "NOT MEASURED — no such sort control");
+      found++; continue;
+    }
     await b.first().click();
     await settle(page, 600);
     await say(`Clients · sorted by ${s}`);
@@ -1472,8 +1496,17 @@ for (const w of SIZES) {
     // fifty measurements above; this is where they are given back.
     await page.evaluate(() => { try { localStorage.removeItem("dp.tours"); } catch { /* private mode */ } });
     for (const [tab, name] of [["Today", "today"], ["Money", "money"], ["Clients", "clients"], ["Business", "business"]]) {
-      const btn = page.getByRole("button", { name: tab, exact: true }).first();
-      if (!(await btn.count())) continue;   // staff have three tabs
+      // BY ATTRIBUTE, NOT BY NAME. The pair already carries the `data-tour`
+      // value as its second element, so there was never a reason to look this
+      // button up by a word that translates. The five rail buttons above have
+      // been addressed this way since 8.17; this loop was missed.
+      const btn = page.locator(`.tabbar button[data-tour="${name}"]`).first();
+      if (!(await btn.count())) {
+        // This sweep signs in as the OWNER, who has all four, so a missing tab
+        // is a finding rather than the staff case the old comment assumed.
+        console.log(`guide · ${name}`.padEnd(24) + "NOT MEASURED — no such tab for this account");
+        found++; continue;
+      }
       await btn.click();
       // `settle()` IS THE WRONG INSTRUMENT AGAIN, and this is the fifth time
       // in this file. The guide is started on a 900ms timer — deliberately,

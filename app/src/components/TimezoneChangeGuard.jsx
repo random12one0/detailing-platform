@@ -20,9 +20,11 @@ export default function TimezoneChangeGuard({ from, to, sample, count, onCancel,
   return (
     <Sheet onClose={onCancel} title={t("Check your booked jobs")} peek={52}>
         <p className="muted" style={{ marginBottom: 12 }}>
-          You have {count} booked job{count === 1 ? "" : "s"} coming up. Moving from{" "}
-          {from.replace(/_/g, " ")} to {to.replace(/_/g, " ")} does not move any appointment —
-          each one still happens at the same moment — but the times shown will change.
+          {count === 1
+            ? t("You have {n} booked job coming up. Moving from {from} to {to} does not move any appointment — it still happens at the same moment — but the times shown will change.",
+                { n: count, from: from.replace(/_/g, " "), to: to.replace(/_/g, " ") })
+            : t("You have {n} booked jobs coming up. Moving from {from} to {to} does not move any appointment — each one still happens at the same moment — but the times shown will change.",
+                { n: count, from: from.replace(/_/g, " "), to: to.replace(/_/g, " ") })}
         </p>
 
         <div className="card">

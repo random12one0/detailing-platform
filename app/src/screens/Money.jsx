@@ -426,7 +426,9 @@ export default function Money() {
 
         {!anything ? (
           <p className="body" style={{ marginTop: 10 }}>
-            Nothing recorded {kind === "all" ? "yet" : `in ${period.label}`}.
+            {kind === "all"
+              ? t("Nothing recorded yet.")
+              : t("Nothing recorded in {period}.", { period: period.label })}
           </p>
         ) : (<>
           {/* A LOSS MUST NOT LOOK LIKE A WIN. The bar hangs below the rule

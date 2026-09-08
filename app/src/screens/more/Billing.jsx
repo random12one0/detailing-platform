@@ -832,10 +832,11 @@ export default function Billing() {
         {ending ? (
           <>
             <p className="quiet" style={{ marginTop: 0 }}>
-              Your subscription ends on {dateLong(sub.current_period_end)}. Until
-              then nothing changes.
+              {t("Your subscription ends on {date}. Until then nothing changes.",
+                { date: dateLong(sub.current_period_end) })}
               {sub.exit_fee_charged_cents
-                ? ` The ${usd(sub.exit_fee_charged_cents)} early-exit fee has already been charged and is not refunded if you restart.`
+                ? " " + t("The {amount} early-exit fee has already been charged and is not refunded if you restart.",
+                    { amount: usd(sub.exit_fee_charged_cents) })
                 : ""}
             </p>
             <button className="btn" disabled={busy} onClick={() => act(() => api.billingResume(business.id))}>

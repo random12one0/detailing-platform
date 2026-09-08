@@ -166,7 +166,9 @@ export default function Hours() {
                 {t("Mark closed")}
               </button>
               <button className="btn primary" disabled={picked.length === 0} onClick={applyTimes}>
-                Apply to {picked.length} day{picked.length === 1 ? "" : "s"}
+                {picked.length === 1
+                  ? t("Apply to {n} day", { n: picked.length })
+                  : t("Apply to {n} days", { n: picked.length })}
               </button>
             </div>
             <p className="quiet">

@@ -100,7 +100,12 @@ export default function RequestCard({
         <Check size={18} strokeWidth={2} /> {t("Accept")}
       </button>
       <div className="btnrow" style={{ marginTop: "var(--sp-2)" }}>
-        <button className="btn sm" disabled={busy} onClick={() => onQuote(booking)}>
+        {/* `data-quote` is for the width sweep, and it is here for the same
+            reason the rail buttons carry `data-tour`: this button's WORDS change
+            twice over — "Quote" becomes "Re-quote" once a quote exists, and both
+            become Spanish under `dp.lang.app`. A locator keyed on the name has
+            four things to be right about and fails silently when it is wrong. */}
+        <button className="btn sm" data-quote="" disabled={busy} onClick={() => onQuote(booking)}>
           <MessageSquareQuote size={18} strokeWidth={2} /> {quoted === null ? t("Quote") : t("Re-quote")}
         </button>
         <button className="btn sm ghost" disabled={busy} onClick={() => onDecline(booking)}>

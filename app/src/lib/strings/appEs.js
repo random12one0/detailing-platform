@@ -1626,4 +1626,32 @@ export const appEs = {
   "{count} visits": "{count} visitas",
   "{count} of {total} done": "{count} de {total} hechos",
   "Pending": "Pendiente",
+
+  // ── ENGLISH THAT LIVED BETWEEN JSX EXPRESSIONS ──────────────────────────
+  // Added 2026-09-08. Found by LOOKING at a Spanish dashboard, not by either
+  // instrument: Today printed "1 done · 4 to go" in English while
+  // `i18n-survey` (which reads string LITERALS) and `spanish-dom` (which
+  // compares visible text against catalogue KEYS) both reported clean.
+  // The shape is English broken into short fragments by `{...}` holes, and it
+  // is invisible in English by construction. `scripts/i18n-fragments.mjs`
+  // finds it now.
+  "{done} done · {left} to go": "{done} hechos · faltan {left}",
+  "Email these {n}": "Enviar correo a estos {n}",
+  "Text these {n}": "Enviar mensaje a estos {n}",
+  "Showing the {n} most recent — search for anyone older.": "Mostrando los {n} más recientes — busca a alguien de antes.",
+  "You have {n} booked job coming up. Moving from {from} to {to} does not move any appointment — it still happens at the same moment — but the times shown will change.": "Tienes {n} cita agendada. Cambiar de {from} a {to} no mueve ninguna cita — sigue ocurriendo en el mismo momento — pero las horas que se muestran cambiarán.",
+  "You have {n} booked jobs coming up. Moving from {from} to {to} does not move any appointment — each one still happens at the same moment — but the times shown will change.": "Tienes {n} citas agendadas. Cambiar de {from} a {to} no mueve ninguna cita — cada una sigue ocurriendo en el mismo momento — pero las horas que se muestran cambiarán.",
+  "Bring your own water and power": "Trae tu propia agua y electricidad",
+  "Bring your own water": "Trae tu propia agua",
+  "Bring your own power": "Trae tu propia electricidad",
+  "Send to {n}": "Enviar a {n}",
+  ", including {n} extra item": ", incluyendo {n} artículo extra",
+  ", including {n} extra items": ", incluyendo {n} artículos extra",
+  "If we have an account for {email}, the link is on its way. Check spam if it is not there in a minute.": "Si tenemos una cuenta para {email}, el enlace va en camino. Revisa el spam si no llega en un minuto.",
+  "Nothing recorded yet.": "Aún no hay nada registrado.",
+  "Nothing recorded in {period}.": "No hay nada registrado en {period}.",
+  "Apply to {n} day": "Aplicar a {n} día",
+  "Apply to {n} days": "Aplicar a {n} días",
+  "Your subscription ends on {date}. Until then nothing changes.": "Tu suscripción termina el {date}. Hasta entonces no cambia nada.",
+  "The {amount} early-exit fee has already been charged and is not refunded if you restart.": "El cargo de {amount} por salida anticipada ya se cobró y no se reembolsa si vuelves a empezar.",
 };
