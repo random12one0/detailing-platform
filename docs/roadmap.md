@@ -4676,8 +4676,19 @@ is kept; the entire visual design restarts from scratch.
       and server-side pricing are what cannot be bypassed, and none of them
       moved.
 
-- [~] 2.22 **BACK THE DATABASE UP FOR FREE — WRITTEN AND DOCUMENTED
-      2026-09-06, WAITING ON TWO SECRETS.** GitHub Actions, nightly, encrypted,
+- [~] 2.22 **BACK THE DATABASE UP FOR FREE — HE SAID YES ON 2026-09-08 AND
+      HANDED IT TO HIS CLOUD COWORKER, SO IT IS NO LONGER THIS SESSION'S.
+      WRITTEN AND DOCUMENTED 2026-09-06, WAITING ON TWO SECRETS.**
+      > *"Yeah. We'll do another gap repo. I'm having a a cloud... code...
+      > cloud coworker do all the stuff for me."*
+      **THE ONE THING HE WAS ASKED AND ANSWERED: a SEPARATE PRIVATE repo.**
+      He had said only "github", and this repo is PUBLIC — a dump is real
+      customers' names, phone numbers and home addresses, and git keeps a
+      committed file after it is deleted. The rule below already said so;
+      it was put to him before anything was built rather than assumed.
+      **Do not build this here.** `docs/ops/backups.md` and
+      `docs/ops/backup.workflow.yml` are the whole brief for whoever does.
+ GitHub Actions, nightly, encrypted,
       free; the workflow is `docs/ops/backup.workflow.yml` and the ten-minute
       switch-on is `docs/ops/backups.md`. **It is not ticked because it has
       never run** — a backup nobody has restored is a backup nobody should
