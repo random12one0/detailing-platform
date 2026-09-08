@@ -410,8 +410,13 @@ console.log("\n§ 6 — the webhook, where a connected event must not be read as
   check("a duplicate payment intent is not treated as a failure",
     /error\.code !== "23505"/.test(hook));
 
+  // ASSERTED ON THE GUARD LINE, NOT ON THE FILE. The first version asked
+  // whether the string appeared anywhere in the handler, and it passed with
+  // the guard narrowed to the session alone — because the name is also in the
+  // ternary that reads the intent id two lines below. A `includes` over a
+  // whole function is not a check about one branch of it.
   check("the late-payment event is handled too, not just the session",
-    hook.includes("payment_intent.succeeded"),
+    /type !== "checkout\.session\.completed" && type !== "payment_intent\.succeeded"/.test(hook),
     "a card that needed a bank challenge would stay unpaid on the screen");
 
   // Nothing about a connected account may move OUR billing state.

@@ -567,8 +567,18 @@ const usd = (c) => `$${(c / 100).toFixed(2)}`;
     hook.includes("await req.text()") && !hook.includes("await req.json()"));
   check("the webhook verifies before it does anything else",
     hook.indexOf("verifyWebhook") < hook.indexOf("stripe_events"), "order");
+  // ROADMAP 2.20 STAGE 3 MOVED THE DISPATCH AND THIS CHECK CAUGHT IT — in the
+  // loud direction, which is the good one. It read `indexOf("await handle(")`,
+  // and the connected-account branch replaced that call with a conditional, so
+  // the needle vanished and `indexOf` returned -1. **The rule is unchanged and
+  // still true**: the lock is taken before ANY handler runs. Both indexes are
+  // asserted present now, because -1 is less than every real index and this
+  // same expression passes loudest when its subject has been deleted.
+  const lock = hook.indexOf("stripe_events");
+  const dispatch = hook.indexOf("await (account ?");
   check("the webhook takes an idempotency lock before acting",
-    hook.indexOf("stripe_events") < hook.indexOf("await handle("), "order");
+    lock !== -1 && dispatch !== -1 && lock < dispatch,
+    `lock at ${lock}, dispatch at ${dispatch}`);
 }
 
 // ─── 12. THE SCHEMA CANNOT BE WRITTEN FROM A BROWSER ──────────────────────
