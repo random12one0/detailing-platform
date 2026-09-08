@@ -125,8 +125,14 @@ const STATUS_WORDS_ES = { active: "Activo", paused: "En pausa", ended: "Terminad
 
 // **A FUNCTION RATHER THAN A SECOND EXPORTED OBJECT**, so a call site cannot
 // index the English one by accident and get a correct-looking wrong answer.
-// `STATUS_WORDS` stays exported because the dashboard reads it directly and
-// this stage is not the dashboard's.
+//
+// **STAGE 2B IS THE DASHBOARD'S STAGE, so the two call sites that indexed
+// `STATUS_WORDS` directly now call this instead.** The note that used to sit
+// here said that object stayed exported *because the dashboard reads it
+// directly and this stage is not the dashboard's* — which is exactly the
+// hazard the paragraph above names, left open on purpose until now. It is
+// still exported for `tests/plans.test.mjs`, which asserts the three statuses
+// are named; nothing that DRAWS reads it any more.
 export function statusWords(status, lang = "en") {
   const table = lang === "es" ? STATUS_WORDS_ES : STATUS_WORDS;
   return table[status] ?? STATUS_WORDS[status] ?? status;

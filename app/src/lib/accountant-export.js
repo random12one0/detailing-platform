@@ -36,6 +36,27 @@ const amount = (n) => (Math.round(Number(n || 0) * 100) / 100).toFixed(2);
 // leaving it to be obvious. Multiplying miles by a rate and adding it to
 // Amount would be this product inventing a tax position for somebody, which
 // is not ours to take.
+// ROADMAP 8.17 STAGE 2B — **THIS FILE STAYS ENGLISH, AND THAT IS A DECISION
+// RATHER THAN A SCREEN NOBODY GOT TO.**
+//
+// Three reasons, and the first is the one that decides it. **The exact bytes
+// are a contract**: `tests/money-export.test.mjs` asserts this header and the
+// `Job` / `Expense` / `Net` cells, because they are how the tie-out finds the
+// column it is adding up. A tie-out that follows a display setting is not a
+// tie-out.
+//
+// **It is a document that LEAVES**, handed to an accountant and opened in a
+// spreadsheet months later, and what it says would otherwise depend on which
+// language the detailer happened to have their phone in when they pressed
+// Export. That is the `plan_visits.note` rule about a stored value, one level
+// up: anything that outlives the screen stays one language.
+//
+// **And the FILENAME and period already are English** (`accountantFilename`),
+// so translating the columns alone would produce a half-translated document,
+// which is the two-language product this whole item exists to avoid.
+//
+// If he ever asks for a Spanish export it is a real feature — a language
+// argument on `accountantCsv`, chosen at the press — and not a `t()` here.
 export const HEADER = ["Date", "Type", "Description", "Customer", "Status", "Amount", "Miles"];
 
 // The rows, before they are text — so the test can assert the arithmetic

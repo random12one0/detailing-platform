@@ -81,7 +81,20 @@ const SRC = path.join(ROOT, "app", "src");
 //     machine-translated by anybody**: it is a contract carrying the AB 2863
 //     disclosures, and a translation nobody qualified has read is a liability
 //     rather than a feature. The marketing copy around it is his decision.
-const OUT_OF_SCOPE = ["book", "admin", "landing", "lib/strings"];
+//   · `lib/accountant-export.js` is a DOCUMENT THAT LEAVES — its exact bytes
+//     are the tie-out contract `tests/money-export.test.mjs` asserts, and it
+//     is opened by somebody else months later. That file's own header has the
+//     three reasons in full.
+//   · `lib/adminInsight.js` is imported by `admin/AdminPage.jsx` and by
+//     nothing else — it is the back office wearing a `lib/` path, and the
+//     back office stays English.
+//   · `lib/plans.js` ALREADY SPEAKS BOTH, since stage 1b: its five sentence
+//     generators take a language and carry their Spanish beside their
+//     English. The survey would otherwise report both halves of every pair.
+//     What stage 2b owed there was the CALL SITES passing the dashboard's
+//     language, which they now do.
+const OUT_OF_SCOPE = ["book", "admin", "landing", "lib/strings",
+  "lib/accountant-export.js", "lib/adminInsight.js", "lib/plans.js"];
 
 /** Attributes whose value is machinery, not words. Everything else that takes
  *  a string is assumed to be read by somebody. */
@@ -120,20 +133,25 @@ const CLASS_LISTS = new Set([
   "dot confirmed", "dot completed", "dot no_show", "dot block",
 ]);
 
+/** VALUES THAT ARE WRITTEN DOWN, NOT DRAWN ON A SCREEN.
+ *
+ *  `plan_visits.note` records why a visit was added or skipped, and
+ *  `bookings.payment_notes` records how somebody paid. Translating either
+ *  would put two languages in ONE ledger — whichever the detailer was reading
+ *  the day they pressed the button — and a ledger is read back months later.
+ *  So the BUTTON is translated and the record it writes is not; every call
+ *  site says so as well.
+ *
+ *  The same argument, one level up, is why `lib/accountant-export.js` is out
+ *  of scope entirely: it is a document that leaves the building. */
+const STORED_VALUES = new Set(["Skipped", "Added by hand"]);
+
 /** PROPER NOUNS, WHICH ARE THE SAME WORD IN EVERY LANGUAGE.
  *
  *  Putting `"Venmo": "Venmo"` in the catalogue would silence these too, and
  *  it would be a lie about what the catalogue is for — that file is a record
  *  of translation DECISIONS, and there is no decision here. Naming them makes
  *  the reason readable instead. */
-/** VALUES THAT ARE WRITTEN TO THE DATABASE, NOT DRAWN ON A SCREEN.
- *
- *  `plan_visits.note` records why a visit was added or skipped. Translating
- *  it would put two languages in ONE ledger — whichever the detailer was
- *  reading the day they pressed the button — so the button is translated and
- *  the record it writes is not. The file says so at the call site too. */
-const STORED_VALUES = new Set(["Skipped", "Added by hand"]);
-
 const BRAND_NAMES = new Set([
   "Venmo", "Cash App", "PayPal", "Zelle", "Apple Pay", "Google", "Yelp",
   "Stripe", "Instagram", "Facebook", "TikTok", "Netlify", "Resend",

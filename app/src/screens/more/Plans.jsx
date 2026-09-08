@@ -30,7 +30,7 @@ import { supabase } from "../../lib/supabase.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
 import { dateLong, money, todayLocal } from "../../lib/format.js";
 import {
-  STATUS_WORDS, cadenceWords, ledgerFor, priceWords, termWords, visitWords, visitsOwed,
+  cadenceWords, ledgerFor, priceWords, statusWords, termWords, visitWords, visitsOwed,
 } from "../../lib/plans.js";
 import { MoneyField, Segmented, Setting, Stepper, Switch } from "../../components/controls.jsx";
 import BookingLink from "../../components/BookingLink.jsx";
@@ -75,7 +75,12 @@ const planToForm = (p) => ({
 });
 
 export default function Plans() {
-  useAppLocale();
+  // ROADMAP 8.17 STAGE 2B — `lib/plans.js`'s generators are SHARED with the
+  // customer's plan page and default to English on purpose, because
+  // `dp.lang` is a per-device choice a CUSTOMER makes. The dashboard has to
+  // hand them its OWN language; a call site that forgets renders correct
+  // English inside a Spanish screen, with no string for any check to find.
+  const lang = useAppLocale();
   const { business, can, siteOrigin } = useBusiness();
   // Logging a member records what somebody pays, so the database gates it on
   // the same tick that hides lifetime spend on Clients. A role that can read
@@ -441,10 +446,10 @@ export default function Plans() {
     return (
       <Tag key={p.id} className="row-item" style={{ opacity: p.is_active ? 1 : 0.5 }}
         onClick={maySetPlans ? () => { setPlanForm(planToForm(p)); setEditPlan(p.id); } : undefined}
-        aria-label={`${p.name}, ${cadenceWords(p)}, ${priceWords(p.price_kind, p.price_amount, money)}, ${memberCount(p.id)} members`}>
+        aria-label={`${p.name}, ${cadenceWords(p, lang)}, ${priceWords(p.price_kind, p.price_amount, money, lang)}, ${memberCount(p.id)} members`}>
         <span className="c-who nm">{p.name}</span>
         <span className="c-sub">
-          <span className="c-date">{cadenceWords(p)}</span>
+          <span className="c-date">{cadenceWords(p, lang)}</span>
           {/* A BARE NUMBER IN THE FIGURE COLUMN SAID NOTHING. It was the
               member count, sitting where the member rows below print money,
               so two lists on one screen used the same column for two things.
@@ -455,14 +460,15 @@ export default function Plans() {
               printing nowhere on the screen that lists what you offer. It is a
               property of the OFFER; the member count is usage. */}
           <span className="c-what">
-            {p.cadence_unit && p.visits_per_period > 1 ? `${visitWords(p)} each time · ` : ""}
-            {termWords(p) ? `${termWords(p)} · ` : ""}
+            {p.cadence_unit && p.visits_per_period > 1
+              ? `${t("{visits} each time", { visits: visitWords(p, lang) })} · ` : ""}
+            {termWords(p, lang) ? `${termWords(p, lang)} · ` : ""}
             {memberCount(p.id) === 0 ? t("nobody on it")
               : t(memberCount(p.id) === 1 ? "{count} member" : "{count} members", { count: memberCount(p.id) })}
             {p.is_active ? "" : t(" · hidden")}
           </span>
         </span>
-        <span className="c-total figure sm">{priceWords(p.price_kind, p.price_amount, money)}</span>
+        <span className="c-total figure sm">{priceWords(p.price_kind, p.price_amount, money, lang)}</span>
       </Tag>
     );
   };
@@ -473,7 +479,7 @@ export default function Plans() {
     const l = ledgerFor(m, pl, visits, bookings);
     // WHAT THE SECOND CELL SAYS IS THE WHOLE POINT OF THE SCREEN: a visit
     // owed and unbooked outranks a date, because it is the thing to act on.
-    const when = m.status !== "active" ? STATUS_WORDS[m.status]
+    const when = m.status !== "active" ? statusWords(m.status, lang)
       : l.owed > 0 ? t(l.owed === 1 ? "{count} visit owed" : "{count} visits owed", { count: l.owed })
         : l.nextDue ? t("Next due {date}", { date: dateLong(l.nextDue) })
           : t("No set schedule");
@@ -495,7 +501,7 @@ export default function Plans() {
           <span className="c-what">{when}</span>
         </span>
         <span className="c-total figure sm">
-          {priceWords(m.price_kind, m.price_amount, money)}
+          {priceWords(m.price_kind, m.price_amount, money, lang)}
         </span>
       </Tag>
     );

@@ -59,7 +59,7 @@ import { agoWords, arrange, summarise } from "../lib/client-list.js";
 // Roadmap 2.14. The plan's own words for its rhythm, from the one file that
 // knows them — the Plans screen and this record must not describe the same
 // cadence two different ways.
-import { STATUS_WORDS, cadenceWords } from "../lib/plans.js";
+import { cadenceWords, statusWords } from "../lib/plans.js";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import CampaignModal from "../components/CampaignModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
@@ -85,7 +85,12 @@ const shortDate = (d) => new Date(`${d}T12:00:00`)
 // "lapsed" when Today's re-book prompt sent them here (roadmap 2.19). It is
 // read once, on arrival: turning the chip off has to stick.
 export default function Clients({ intent = null, onSetup = null, refreshKey = 0 }) {
-  useAppLocale();
+  // ROADMAP 8.17 STAGE 2B — `lib/plans.js`'s generators are SHARED with the
+  // customer's plan page and default to English on purpose, because
+  // `dp.lang` is a per-device choice a CUSTOMER makes. The dashboard has to
+  // hand them its OWN language; a call site that forgets renders correct
+  // English inside a Spanish screen, with no string for any check to find.
+  const lang = useAppLocale();
   // `reloadBusiness` is here for one line: a send stamps
   // `businesses.last_campaign_at`, and that is what Today's nudge reads to
   // know it can stop asking. Without it the prompt is still there when the
@@ -476,8 +481,8 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                     {planBy.get(open.id).plans?.name ?? t("On a plan")}
                     {" · "}
                     {planBy.get(open.id).status === "active"
-                      ? cadenceWords(planBy.get(open.id).plans)
-                      : STATUS_WORDS[planBy.get(open.id).status]}
+                      ? cadenceWords(planBy.get(open.id).plans, lang)
+                      : statusWords(planBy.get(open.id).status, lang)}
                   </span>
                 </div>
               )}
