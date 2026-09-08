@@ -152,49 +152,77 @@ pin that no `**` reaches a reader and that nothing is dropped on the way** —
 a renderer that silently swallows a clause is worse than one that prints
 asterisks, because nobody can see what is missing.
 
-## 6. The backup repo — 4 of 5 files pushed, 1 blocked on a token scope
+## 6. The backup repo — DONE, and it has produced a real backup
 
-`https://github.com/random12one0/detailing-platform-backups` is **private**,
-and now holds:
+`https://github.com/random12one0/detailing-platform-backups` is **private** and
+holds exactly five files:
 
-    .gitignore
-    README.md
-    backup-key.pub
-    scripts/restore.sh        (mode 100755 — verified on the remote)
+    100644  .github/workflows/backup.yml
+    100644  .gitignore
+    100644  README.md
+    100644  backup-key.pub
+    100755  scripts/restore.sh
 
 Verified on the remote tree: no `.age`, `.pgc`, `.sql`, `.dump`, `.zip`, `.pem`
-or key file, and the repo is still private.
+or key file committed, and the repo is still private. `SUPABASE_DB_URL` was
+already set as a repository secret and was never read or printed.
 
-**`.github/workflows/backup.yml` could not be pushed.** The `gh` CLI token here
-has scopes `gist, read:org, repo` and **not `workflow`**, so GitHub rejects it:
+**A real run has completed and produced a real encrypted backup:**
 
-    refusing to allow an OAuth App to create or update workflow
-    `.github/workflows/backup.yml` without `workflow` scope
+- release `backup-2026-09-08`, asset `dump-2026-09-08.pgc.age`, **714,366 bytes**
+- raw dump before encryption: **714,006 bytes** (well clear of the 50 KB floor)
+- downloaded and checked by hand: the file begins `age-encryption.org/v1`
+  followed by an X25519 recipient stanza, and does **not** begin `PGDMP` — so
+  it is genuinely encrypted rather than a dump with a misleading extension.
 
-The REST contents API is blocked the same way (it answers 404 rather than 403).
-**Andrew runs this once, in a terminal, and the file goes up:**
+### The push was blocked once, and the fix is worth recording
 
-    gh auth refresh -h github.com -s workflow
+The `gh` token had scopes `gist, read:org, repo` and **not `workflow`**, so
+GitHub refused the workflow file — and the REST contents API refused it too,
+answering **404 rather than 403**, which reads as a missing repository.
 
-It opens a browser and needs a human, which is why this session could not do
-it. Until then `actions/workflows` reports **0 workflows**, so the nightly job
-does not exist yet and **there is no backup running.** The workflow file is
-written and ready at
-`scratchpad/backups/.github/workflows/backup.yml` in this session's temp dir,
-and is reproduced verbatim in the brief.
+`gh auth refresh -h github.com -s workflow` then failed with *"not logged in
+to any hosts"* **while `gh auth status` said he was logged in.** The cause:
+the credential lives in the Windows **keyring** and `hosts.yml` carries the
+host entry with no token in it, which gh 2.96's `refresh` does not cope with.
+**What worked was a fresh login carrying the scope:**
 
-**What could not be verified because of that**, and should be the first thing
-done once the file is up:
+    gh auth login --hostname github.com --scopes workflow --git-protocol https --web
 
-- run it manually (Actions → *Nightly encrypted backup* → Run workflow)
-- confirm a release tagged `backup-YYYY-MM-DD` with a `.pgc.age` asset
-- if the dump step fails, it is the connection string: either the
-  `[YOUR-PASSWORD]` placeholder brackets were left in, or the **direct**
-  connection string was used instead of the **session pooler**. GitHub runners
-  are IPv4-only and the direct connection is IPv6, so it can never work.
-  **Do not ask him to paste the connection string.**
+### The first run failed, and it was NEITHER cause the brief predicted
 
-`SUPABASE_DB_URL` is already set as a repository secret and was not touched.
+The brief said a dump-step failure would be the `[YOUR-PASSWORD]` placeholder
+brackets or the direct connection string instead of the session pooler. It was
+neither. Postgres answered:
+
+    FATAL:  database "postgres
+    " does not exist
+
+**The secret had been saved with a trailing newline**, so the newline landed on
+the last path segment and the database name became `postgres\n`. The connection
+itself was already correct — it resolved to an IPv4 address on port 5432, which
+is the session pooler.
+
+**The workflow now trims the value rather than the secret being re-entered**,
+so the value never has to be handled again and the next paste cannot break it
+the same way. It is `tr -d "[:space:]"` — a connection string carries no
+legitimate whitespace, a real space would be percent-encoded — and the trimmed
+value is `::add-mask::`ed first, because it differs from the secret GitHub
+knows about and is therefore **not covered by GitHub's own masking**.
+
+### Two things still open on the backups
+
+1. **`HEALTHCHECK_URL` is not set** as a repository secret, so the *"tell the
+   outage watcher we finished"* step is a no-op. Without it, **a backup that
+   silently stops failing loudly is a backup nobody notices has stopped** —
+   the same argument roadmap 8.12 already makes about the scheduler. A
+   healthchecks.io URL is five minutes. (`platform_settings.healthcheck_url`
+   in Supabase is set, but that is a different check watching a different job.)
+2. **Nothing has ever been restored.** README says it in as many words: until
+   a restore into a throwaway project has been done and the row counts
+   compared, this is an untested pipeline rather than a backup. That needs a
+   scratch Supabase project and the age private key, which is in Andrew's
+   password manager and deliberately nowhere else.
 
 ## 7. Two questions standing for Andrew (roadmap-adjacent, not started)
 
@@ -214,8 +242,8 @@ Both were recommendations in the brief that he has never actually answered, so
 
 1. Andrew pastes the two URLs into the Google Branding page → unblocks
    *Publish app* and test users.
-2. Andrew runs `gh auth refresh -h github.com -s workflow` → the workflow file
-   goes up and there is an actual backup.
+2. ~~The workflow file and an actual backup.~~ **DONE 2026-09-08** — see §6.
+   What is left there is a `HEALTHCHECK_URL` secret and one test restore.
 3. Andrew confirms or corrects `ENTITY` in `app/src/landing/legal.js` — it
    currently reads *"Andrew Dietrich, doing business as Detailing Platform"*
    and **is a guess at his paperwork**. Sole trader, a DBA and an LLC are three
