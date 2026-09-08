@@ -41,7 +41,7 @@ https://claude.ai/code/artifact/e7683fbc-9436-48cb-ae47-c1868167205b
 | **1** | ~~**Turn on Google sign-in**~~ **SWITCHED ON — measured 2026-09-08, `/auth/v1/settings` answers `google: true`, so the button is LIVE on the sign-in screen.** What is left is not the toggle: Google's Audience page refuses *Publish app* AND saving a test user while Branding is incomplete, and **the only empty fields are the privacy policy and terms URLs**. Both pages are public and render on the live site. **He pastes `https://detailingplatform.com/privacy` and `https://detailingplatform.com/terms` into the Branding page.** Not a code task and not a bug — do not chase it as one. **~~2 min~~ DONE 2026-09-08 — he had his cloud coworker paste both.** What that session then reported is § 9 below, and reading it produced one real change and three false alarms. | done |
 | **2** | ~~**Does a mailbox exist on `detailingplatform.com`?**~~ **ANSWERED 2026-09-08: YES — `andrew@` and `support@`, on iCloud Mail, and they existed before anybody asked.** The DNS is on **NS1**, not Cloudflare and not Netlify. The GBP application was filed from `andrewswashing@gmail.com` anyway, because that account holds the verified listing and the form has no contact-email field. | done |
 | **2b** | **NEW — read Resend's actual billing plan** at `resend.com/settings/billing`. **The account sent 200 emails on 7 Sep and 110 on 6 Sep, all delivered** — both above the 100/day free cap this product's counter is built against. So either he is not on the free plan, or **the back office's *"Emails: N of 100 today"* is measuring against a limit that does not exist.** The coworker's API access shows domains and metrics but not the plan. | 1 min |
-| **2c** | **NEW — two things in the Stripe dashboard that roadmap 2.20 stage 3 is waiting on**, now that its server half is deployed: the **`ca_…` Connect client id** set as `STRIPE_CONNECT_CLIENT_ID`, and **the webhook endpoint told to listen to events on CONNECTED accounts** — a separate setting, and without it `event.account` never arrives and every card payment a customer makes stays showing unpaid. | 5 min |
+| **2c** | ~~**Two things in the Stripe dashboard** — the `ca_…` client id, and the webhook endpoint told to listen to events on CONNECTED accounts, a separate setting.~~ **BOTH HALVES WERE WRONG — corrected 2026-09-08 from the dashboard.** The client id **is already set** (`STRIPE_CONNECT_CLIENT_ID`, verified in Supabase edge secrets, 8 Sep) — so that half is DONE. And **there is no such setting**: a Stripe endpoint's *"Events from"* is **CREATE-ONLY**, immutable beside the payload style and the API version, so the existing endpoint is permanently scoped to *"Your account"* and cannot be pointed at connected accounts. **It takes a SECOND endpoint, which issues a NEW signing secret** — see § 10. | see § 10 |
 | **3** | **The site gallery** (roadmap 9.1) — *mostly delivered 2026-09-08* | His taste, and nobody else's. **He sent 21 links with a verdict on each on 2026-09-08** — see `docs/TASTE-NOTES.md` batch 2. That is enough to start 9.2. | done for now |
 | **4** | **Two one-word answers** — a detailer's email on their site (switch? recommended), and whether the price editor should refuse an odd ladder (keep warning? recommended) | Both are business calls, not code ones. | 30 sec |
 | **5** | **Is `ENTITY` right?** `app/src/landing/legal.js` now prints *"Andrew Dietrich, doing business as Detailing Platform"* at the top of `/privacy` and `/terms`. **It is a GUESS at his paperwork** — sole trader, a DBA on his own name and an LLC are three different legal persons, and only he knows which one signs. One constant, one line to change, and free to change until somebody has actually agreed to those terms. | 30 sec |
@@ -440,3 +440,89 @@ read**, and every fix above reaches nobody until the deploy is unblocked.
 **Sequence this correctly:** deploy first, then submit application two. Filing
 the sensitive-scope verification against the stale page is the rejection this
 whole entry exists to avoid.
+
+---
+
+## 10. STRIPE CONNECT'S WEBHOOK — a setting that does not exist, and dead code nobody could see
+
+**Came from his cloud coworker, 2026-09-08, verified in the Stripe dashboard.**
+It corrects this file, `CLAUDE.md` and the roadmap at once, and it found a
+defect no check in this repo could ever have found.
+
+### The fact
+
+**A Stripe webhook endpoint's *"Events from"* is CREATE-ONLY.** It cannot be
+edited afterwards — not in the dashboard, not through the API. It sits with the
+payload style and the API version as immutable metadata on the endpoint.
+`we_1UCMpdJeoZO7o6Eenofj0orr` is permanently scoped to **"Your account"**.
+
+### What that means, and it is worse than a wrong instruction
+
+**Roadmap 2.20 stage 3's routing was DEAD CODE.** `stripe-webhook` branches on
+`event.account` — present on an event from a connected account, absent on one
+about our own — and that branch was written, reviewed, pinned by
+`tests/connect.test.mjs` § 6, deployed, and **could never once have run**,
+because the only registered endpoint by construction never sends that field.
+
+**Nothing in this repo could have caught it.** Every test that reads the source
+passes. The function is deployed and current. `check-deployed` is green. The
+defect is entirely in a dashboard this codebase cannot see — which is the same
+shape as the Netlify build credits in § 6 and the Google branding fields in § 1.
+**Three of this project's live blockers have now been facts about somebody
+else's admin panel.**
+
+### What was done here
+
+**The code change, because a second endpoint issues its OWN signing secret** —
+that is the half the correction did not reach. A connected event signed with
+the new secret fails verification against `STRIPE_WEBHOOK_SECRET` and comes
+back 400, and the symptom is the worst available: **card payments silently
+never recorded, beside a perfectly healthy billing endpoint.**
+
+- `_shared/stripe.ts` gains `connectWebhookSecret()`, reading
+  **`STRIPE_CONNECT_WEBHOOK_SECRET`** — the name is now fixed in code, so it is
+  no longer a decision anybody has to make.
+- `stripe-webhook` **tries both secrets in turn.** Deliberately *tried* rather
+  than *chosen*: picking the key from an unverified `event.account` is
+  arguably safe and is a sentence somebody has to reason about correctly every
+  time they read it. Two HMACs is nothing.
+- Kept **separate** from `STRIPE_WEBHOOK_SECRET`, which the live billing
+  endpoint uses and which is untouched.
+- Empty is not an error — it means Connect's webhook is not on yet.
+- `connect.test.mjs` § 7: eight checks, three of them behavioural, all four
+  breaks caught, restored run 91/0.
+- **Deployed.** Four functions went stale on the `_shared` change
+  (`connect-account`, `pay-booking`, `platform-billing`, `stripe-webhook`);
+  all four redeployed, all 32 current, suites re-run against the running
+  copies, and the live endpoint still answers **400** to an unsigned POST.
+
+### WHAT IS ON HIM — and it is two things now, not two settings
+
+| | |
+|---|---|
+| **1** | **Create a SECOND webhook endpoint in Stripe.** URL: the same function this repo already deploys — `<SUPABASE_URL>/functions/v1/stripe-webhook`. **Events from: Connected accounts.** Events: `account.updated` at minimum, plus the connected-account payment events the two screens need. |
+| **2** | **Copy the NEW signing secret it issues into Supabase edge secrets as `STRIPE_CONNECT_WEBHOOK_SECRET`.** That exact name — the code reads it. **Do not touch `STRIPE_WEBHOOK_SECRET`**; the billing endpoint is live and uses it. |
+
+**Already done, do not redo:** `STRIPE_CONNECT_CLIENT_ID` is set and verified.
+The sandbox account has OAuth enabled with
+`https://detailingplatform.com/settings/payments/connected` as the default
+redirect URI.
+
+### THE ONE THING STILL UNMEASURED, and it matters
+
+**Which Stripe account does the app's `STRIPE_SECRET_KEY` actually belong to?**
+There are two — the sandbox `acct_1UCMm0JeoZO7o6Ee` and the parent
+`acct_1UCMliQuTsaIN5HA` — **and they have different client ids.** The one set is
+the SANDBOX's. **If the key belongs to the parent, OAuth will fail**, and it
+will fail at the moment a real detailer tries to connect their account.
+
+This session could not answer it: the key is a Supabase edge secret, not in
+`.env`, and reading it back was correctly refused. **One line answers it, and
+only the account id should ever be reported:**
+
+```
+curl -s https://api.stripe.com/v1/account -u "$STRIPE_SECRET_KEY:" | grep -o '"id": *"[^"]*"'
+```
+
+**Expect `acct_1UCMm0JeoZO7o6Ee`.** Anything else means the client id set on
+2026-09-08 is the wrong one for the key in use.

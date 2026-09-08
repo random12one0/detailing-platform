@@ -22,20 +22,39 @@ where things stand.
 | **Keeps the record true** | The most repeated defect in this repo is a file confidently describing something that stopped being true. The manager is the one whose job that is. |
 | **Owns the plan** | The roadmap, `OUTSTANDING.md`, `docs/README.md`, `CLAUDE.md`, this folder. |
 
-## 2. What the manager does NOT do
+## 2. THE MANAGER MAY TOUCH ANY FOLDER — his ruling, 2026-09-08
 
-- **It does not build features.** The moment it starts writing `app/src` it is a
-  fourth builder with a stale idea of what the other three are doing, and it
-  loses the thing it is for.
-- **It does not run the nine-minute browser sweeps.** That is lane B's, and a
-  second session driving the same dev server breaks both.
-- **It does not re-do a lane's work because it would have done it differently.**
-  It says so, once, and moves on.
+> *"As a manager, you have full permission to do whatever you want on any
+> folder. There's no stepping outside of your folder or stepping in someone
+> else's work, because you're the manager and you're basically in charge. You
+> can act almost like you're training employees, where you're gonna have to do
+> some hands-on work from time to time."*
 
-Reading anything, running a credential-free test, taking a screenshot of a
-built page, and editing the docs it owns are all fine.
+**So the ownership table in `README.md` binds the LANES and not this session.**
+That is the right shape: the table exists to stop two builders colliding, and a
+manager that cannot fix a one-line defect because of a convention it wrote
+itself is a manager nobody would hire.
 
-## 3. Folder ownership
+**The restraint that survives is about ATTENTION, not permission:**
+
+- **Prefer handing work to the lane that owns it** when the lane is running or
+  when the job is more than about one file. Doing a lane's work for it is how
+  the manager stops having an overview.
+- **Check before writing where a lane lives.** `git status`, and whether a dev
+  server is up. **A write to `app/src` while a lane's browser sweep is running
+  produces a GREEN run that measured a screen which navigated away** — that is
+  the one collision the table really exists for, and it is silent.
+- **Say in chat what you touched outside your own files**, so the lane that
+  owns it is not surprised by a diff.
+- **Hands-on is expected for:** a defect that is blocking somebody outside the
+  repo, a correction to a fact, a one-file change where starting a session
+  costs more than the change, and anything a lane got wrong twice.
+
+**Still not the manager's:** taking over a lane's item wholesale, or
+re-doing work because it would have been done differently. Say it once, in the
+docs, and move on.
+
+## 3. Folder ownership — for the lanes
 
 | Owns | |
 |---|---|
@@ -45,7 +64,19 @@ built page, and editing the docs it owns are all fine.
 | `docs/sessions/` | These briefs |
 | `docs/overnight-log.md` | His answers, written down as they arrive |
 
-Everything else belongs to a lane. `docs/sessions/README.md` is the full table.
+Everything else belongs to a lane — `docs/sessions/README.md` is the full table
+— but per § 2 the manager may write anywhere when the job calls for it.
+
+### A pattern worth naming, found 2026-09-08
+
+**Three of this project's live blockers have been facts about somebody else's
+admin panel, and no check in this repo could see any of them:** Netlify's build
+credits, Google's two empty branding fields, and Stripe's create-only *"Events
+from"*. Each one made correct, deployed, fully-tested code do nothing.
+
+**So when something built and green is not working, ask what dashboard it
+depends on before re-reading the diff.** That question would have saved days on
+all three.
 
 ## 4. What he reports here, and it is most of it
 
@@ -96,4 +127,10 @@ both URLs on 2026-09-08.**
 (`OUTSTANDING.md` § 9). **NONE of it is live** — the live page is still the
 6 Sep bundle. **Deploy before submitting Google application two**, or the
 reviewer reads the stale page.
+**Stripe Connect:** `STRIPE_CONNECT_CLIENT_ID` set and verified. The
+`event.account` branch was DEAD until 2026-09-08 — *"Events from"* is
+create-only, so it needs a SECOND endpoint. `stripe-webhook` now accepts two
+secrets; **waiting on him to create that endpoint and set
+`STRIPE_CONNECT_WEBHOOK_SECRET`.** `OUTSTANDING.md` § 10, including the one
+unmeasured thing: which Stripe account the app's key belongs to.
 **Lanes running:** websites (A), product (B). Build (C) not started.
