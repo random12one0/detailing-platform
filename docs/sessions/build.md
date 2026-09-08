@@ -28,16 +28,19 @@ paragraph expires.** `OUTSTANDING.md` § 17 has the arithmetic and the cadence
 options — **131 production deploys is twice the sustainable rate, so it recurs
 every cycle.**
 
-**The route that needs no build credits** — it uploads files that are already
-built, skipping Netlify's build system entirely:
+**THERE IS NO FREE ROUTE, AND THE OBVIOUS WORKAROUND IS DEAD.** A direct
+`netlify deploy --prod --dir=app/dist` is still a PRODUCTION DEPLOY and is
+charged the same **15 credits** — build minutes are no longer the billed unit
+on credit-based plans, so *"it runs no build"* saves nothing. **131 × 15 =
+1,965, which is the billing page to the credit.** Do not spend time on it.
 
-```bash
-npm run build --prefix app
-npx netlify deploy --prod --dir=app/dist
-```
+**Two answers only: wait for the 13 September reset, or he buys credits.**
 
-It asks him to log in once. **Nothing in this repo holds a Netlify token**, so
-if it needs one, that is a question for him and not something to work around.
+**But BRANCH deploys and deploy previews cost ZERO**, and failed deploys and
+rollbacks bill nothing — only a successful production deploy is charged. So
+once work moves off `main` this stops recurring, **and a branch preview is a
+real URL that opens on his phone**, which beats a screenshot for anything he
+has to scroll or press. `OUTSTANDING.md` § 17.
 
 **Before any deploy attempt, check the tree size.** `du -sh .` — the tool zips
 the WORKING DIRECTORY, not the git tree, so `.gitignore` does not save you. It

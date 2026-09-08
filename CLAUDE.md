@@ -95,6 +95,24 @@ explaining it; if they still have to ask "so should I?", it failed.
   twice the sustainable rate, so a fortnight of the current cadence exhausts
   the next cycle too. **`docs/OUTSTANDING.md` § 17 is the arithmetic and the
   options; do not resume deploy-on-every-commit without reading it.**
+  **AND THE FIX IS FREE RATHER THAN RATIONED — measured 2026-09-08 in Netlify's
+  own credit doc: a PRODUCTION deploy costs 15 credits, and a BRANCH DEPLOY or
+  DEPLOY PREVIEW costs ZERO.** Failed deploys and rollbacks bill nothing either;
+  only a SUCCESSFUL PRODUCTION deploy is charged. **So working on a branch and
+  merging to `main` to publish takes this loop off the meter entirely** — 131
+  chargeable deploys become about one per publish — and it needs no discipline
+  anybody has to keep up, which is what killed the branch last time.
+  **AND A BRANCH DEPLOY IS A REAL URL THAT OPENS ON HIS PHONE, FOR FREE.**
+  Everything in this file's first section about screenshotting rather than
+  saying *"open localhost"* exists because he cannot reach a dev server from a
+  phone on remote desktop. **A free preview URL is strictly better than a
+  screenshot for anything he has to SCROLL or PRESS**, and nothing in this repo
+  has ever used one. Screenshots stay right for *"does this look correct"*; a
+  preview URL is the answer for *"try it"*.
+  **AND THE DIRECT-UPLOAD WORKAROUND IS DEAD**: `netlify deploy --prod --dir`
+  is a production deploy and is charged the same 15 credits — build minutes are
+  no longer the billed unit, so *"it runs no build"* saves nothing. 131 × 15 =
+  1,965, the billing page to the credit.
   `origin/main` and the LIVE SITE are separate facts, and
   `git rev-list --count origin/main..HEAD` answers only the first — a session
   that reads it and says "we are nearly up to date" is describing GitHub while
