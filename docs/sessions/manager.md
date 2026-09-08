@@ -126,8 +126,12 @@ or he buys credits. **But BRANCH deploys cost ZERO**, so a work branch takes
 the loop off the meter and gives him a free preview URL that opens on a phone.
 **Branch:** work is on `main`. `claude/superbase-access-anj1h7` is 94 behind and
 dead — do not use it.
-**Waiting on Google:** GBP case 6-3052000042070, filed 8 Sep, 7–10 business
-days, watched at `andrewswashing@gmail.com`.
+**Waiting on Google:** GBP case 6-3052000042070, filed 8 Sep, 7-10 business
+days, watched at `andrewswashing@gmail.com`. **Review ONE does not read the
+privacy policy** (four form fields, a legitimacy check); review TWO does, and
+cannot start until one returns. **Credits reset 13 Sep, before that. So the
+timing gap closes itself — DO NOT buy credits**, and nothing else user-facing
+needs to ship in five days (zero detailers, not going public yet).
 **Waiting on him:** `OUTSTANDING.md` § 1 — and the live one is **§ 12: why open
 Stripe in a parent's name NOW rather than in December in his own name.**
 Recommendation is wait; nothing in the build needs it.

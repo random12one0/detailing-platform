@@ -1049,7 +1049,45 @@ this look correct"; a preview URL is the answer for "try it".
 less about 36 credits drawn from the same pool this period by bandwidth (22.7),
 web requests (10.5) and compute (3).
 
-### THE GOOGLE TIMING RISK — and a top-up is probably not needed
+### THE GOOGLE TIMING RISK — DE-ESCALATED 2026-09-08. RECOMMENDATION: WAIT.
+
+> **His coworker withdrew its own framing, and the reasoning holds: the two
+> Google reviews inspect different things.**
+>
+> - **Review ONE** (Business Profile API access, case 6-3052000042070) asked
+>   for four things on the form — the verified Business Profile, the project
+>   number, the company website, the use case. **No privacy policy, no terms.**
+>   It is a legitimacy check on the applicant.
+> - **Review TWO** (OAuth verification for the sensitive `business.manage`
+>   scope) is the one that **reads the privacy policy** and wants the Limited
+>   Use disclosure and Search Console domain ownership.
+>
+> **Review two cannot start until the scope is added, which waits on review one
+> returning (~17–22 Sep). Credits reset 13 Sep.** So the corrected policy is
+> live several days before the review that actually reads it begins.
+>
+> **CONFIDENCE, as he stated it:** high on which review checks the policy,
+> lower on whether Google glances at the site during review one. **The
+> mitigating fact is real** — `/privacy` and `/terms` serve substantive working
+> pages today, just the 6 September versions without the Google section. A
+> reviewer who looks finds a real policy, not a dead link.
+>
+> **AND THE "what would change it" TEST WAS RUN, 2026-09-08: nothing
+> user-facing needs to ship in five days.** 104 commits are unpublished and the
+> surface is wide, but **there are zero detailers on the product**, he has said
+> twice he is not going public until the build is finished, and first sales
+> calls are ~8 December. **The only audience for the live site this week is him
+> and possibly a Google reviewer.**
+>
+> **And publishing early would actively cost something on one item:** the ten
+> example pages are the ones he rejected, and the websites lane is rebuilding
+> them. Shipping them now puts work he dislikes on a public URL days before it
+> is replaced.
+>
+> **So: wait for the 13th. Do not buy credits on Google grounds, and there is
+> no other ground.**
+
+### ~~THE GOOGLE TIMING RISK — and a top-up is probably not needed~~ — superseded above
 
 Google's review is ~17–22 Sep and credits reset 13 Sep, so a prompt deploy on
 the 13th lands the corrected privacy policy first. **But Google may fetch at any
