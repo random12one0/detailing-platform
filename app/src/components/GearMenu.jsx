@@ -41,7 +41,7 @@ import { SUPPORT_EMAIL, SUPPORT_SHORT } from "../lib/support.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../lib/appI18n.js";
+import { appIntlLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // The device row answers itself like every other row: what it will open.
@@ -49,9 +49,10 @@ const MAPS_NAME = { apple: "Apple Maps", google: "Google Maps", waze: "Waze" };
 const CAL_NAME = { ics: "calendar file", google: "Google Calendar" };
 function describeDevice() {
   const p = loadPrefs();
+  // `iPhone` and `Android` are product names; `this computer` is a phrase.
   const where = detectPlatform() === PLATFORMS.IOS ? "iPhone"
-    : detectPlatform() === PLATFORMS.ANDROID ? "Android" : "this computer";
-  return `${where} · ${MAPS_NAME[p.maps] ?? "Maps"} · ${CAL_NAME[p.calendar] ?? "Calendar"}`;
+    : detectPlatform() === PLATFORMS.ANDROID ? "Android" : t("this computer");
+  return `${where} · ${MAPS_NAME[p.maps] ?? t("Maps")} · ${CAL_NAME[p.calendar] ?? t("Calendar")}`;
 }
 
 // THE SUBSCRIPTION ROW ANSWERS ITSELF LIKE EVERY OTHER ROW: what it is set to,
@@ -62,16 +63,22 @@ const money0 = (c) => `$${Math.round(c / 100)}`;
 function billingNow(sub) {
   // Null for a staff member (who never sees this row) and for an owner with no
   // subscription (who is the whole product today).
-  if (!sub) return "Not set up yet";
-  if (sub.status === "suspended") return "Unpaid — your page is offline";
-  if (sub.status === "past_due") return "A payment did not go through";
-  if (sub.cancel_at_period_end) return "Ending — no further charges";
-  if (sub.status !== "active") return "Not set up yet";
-  const per = sub.bill_interval === "year" ? "a year" : "a month";
+  if (!sub) return t("Not set up yet");
+  if (sub.status === "suspended") return t("Unpaid — your page is offline");
+  if (sub.status === "past_due") return t("A payment did not go through");
+  if (sub.cancel_at_period_end) return t("Ending — no further charges");
+  if (sub.status !== "active") return t("Not set up yet");
   const next = sub.current_period_end
-    ? new Date(sub.current_period_end).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    ? new Date(sub.current_period_end).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })
     : null;
-  return `${money0(sub.recurring_cents)} ${per}${next ? ` · next ${next}` : ""}`;
+  // ONE KEY PER SENTENCE. "$40 a month · next Oct 3" glued from four pieces
+  // is four decisions English made about word order that Spanish does not
+  // share — including where "next" goes and whether it needs an article.
+  const amount = money0(sub.recurring_cents);
+  const yearly = sub.bill_interval === "year";
+  if (!next) return t(yearly ? "{amount} a year" : "{amount} a month", { amount });
+  return t(yearly ? "{amount} a year · next {date}" : "{amount} a month · next {date}",
+    { amount, date: next });
 }
 
 export default function GearMenu({ onClose, onTour, initial = null }) {
@@ -142,9 +149,10 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
   // themselves any of the others (the migration's header says why).
   const ROWS = [
     ["notifications", "Notifications", Bell,
-      emailsOn === null ? "…" : `${emailsOn} of 5 emails on`, "settings"],
+      emailsOn === null ? "…" : t("{count} of 5 emails on", { count: emailsOn }), "settings"],
     ["templates", "Message templates", MessageSquare, "Texts you send from a job", null],
-    ["team", "Team", Users, team === null ? "—" : `${team} ${team === 1 ? "person" : "people"}`, "owner"],
+    ["team", "Team", Users,
+      team === null ? "—" : t(team === 1 ? "1 person" : "{count} people", { count: team }), "owner"],
     // ROADMAP 2.20 STAGE 2. The row's summary is deliberately the one fact a
     // detailer opens this screen to check — what is going out and when — and
     // never "Manage your billing", which is the label saying itself twice
@@ -309,8 +317,10 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
             }}>
             <span className="ico"><Icon size={19} strokeWidth={2} /></span>
             <span className="txt">
-              <span className="name">{name}</span>
-              <span className="now">{now}</span>
+              <span className="name">{t(name)}</span>
+              {/* Either one of this file's own phrases or a live count.
+                  `t()` returns anything it has not seen unchanged. */}
+              <span className="now">{t(now)}</span>
             </span>
             <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
           </button>

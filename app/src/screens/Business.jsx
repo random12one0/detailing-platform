@@ -60,10 +60,14 @@ import { brandVarsFor } from "../lib/theme.js";
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../lib/appI18n.js";
+import { appIntlLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
 
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+// ROADMAP 8.17 STAGE 2B — derived, never typed. See BookingRules.jsx: a
+// hard-coded English list is English by construction, and Spanish's own
+// abbreviations are a different set in a different order.
+const DAYS = () => [0, 1, 2, 3, 4, 5, 6].map((n) => new Date(Date.UTC(2026, 0, 4 + n))
+  .toLocaleDateString(appIntlLocale(), { weekday: "short", timeZone: "UTC" }));
 const time12 = (hm) => {
   if (!hm) return "";
   const [h, m] = hm.slice(0, 5).split(":").map(Number);
@@ -75,13 +79,13 @@ const time12 = (hm) => {
 // weekdays become a range, and identical hours are stated once.
 function describeHours(rows) {
   const open = (rows ?? []).filter((r) => r.open_time).sort((a, b) => a.weekday - b.weekday);
-  if (open.length === 0) return "No days set — nobody can book";
+  if (open.length === 0) return t("No days set — nobody can book");
   const same = open.every((r) => r.open_time === open[0].open_time && r.close_time === open[0].close_time);
   const days = open.map((r) => r.weekday);
   const consecutive = days.every((d, i) => i === 0 || d === days[i - 1] + 1);
   const label = consecutive && days.length > 1
-    ? `${DAYS[days[0]]}–${DAYS[days[days.length - 1]]}`
-    : days.map((d) => DAYS[d]).join(", ");
+    ? `${DAYS()[days[0]]}–${DAYS()[days[days.length - 1]]}`
+    : days.map((d) => DAYS()[d]).join(", ");
   return same
     ? `${label} · ${time12(open[0].open_time)} – ${time12(open[0].close_time)}`
     : `${label} · hours vary`;
@@ -102,19 +106,20 @@ const describePayment = (s) => {
     s?.pay_cashapp && "Cash App",
     s?.pay_paypal && "PayPal",
     s?.pay_zelle && "Zelle",
-    s?.pay_other && "something else",
-    s?.pay_cash && "cash",
+    s?.pay_other && t("something else"),
+    s?.pay_cash && t("cash"),
   ].filter(Boolean);
   // NAMED IN THE DETAILER'S TERMS, never "0 configured" (the state rule).
   // And not a scold: a detailer who takes cash at the door and has not said
   // so yet is the ordinary starting state, not a misconfiguration.
-  if (on.length === 0) return "Nothing on your emails yet";
-  if (on.length <= 2) return on.join(" & ");
+  if (on.length === 0) return t("Nothing on your emails yet");
+  if (on.length === 1) return on[0];
+  if (on.length === 2) return t("{a} & {b}", { a: on[0], b: on[1] });
   // TWO NAMES AND A COUNT, because `.now` is ONE clamped line and the full
   // list of six ran off the end of it as "Venmo, Cash App, PayPal, Zelle,
   // something els…". A summary that has to be truncated is not a summary; the
   // two it names are the two the email prints first.
-  return `${on[0]}, ${on[1]} & ${on.length - 2} more`;
+  return t("{a}, {b} & {count} more", { a: on[0], b: on[1], count: on.length - 2 });
 };
 
 // ROADMAP 3.2(b). Two facts, not one: how many questions, AND whether the
@@ -124,16 +129,22 @@ const describePayment = (s) => {
 // switch off that nothing was wrong.
 const describeFaq = (s) => {
   const list = Array.isArray(s?.faqs) ? s.faqs.filter((f) => f?.q && f?.a) : [];
-  if (list.length === 0) return "Nothing on your website yet";
-  const many = `${list.length} question${list.length === 1 ? "" : "s"}`;
-  return s?.faq_enabled ? many : `${many} · hidden`;
+  if (list.length === 0) return t("Nothing on your website yet");
+  const many = t(list.length === 1 ? "{count} question" : "{count} questions", { count: list.length });
+  return s?.faq_enabled ? many : t("{summary} · hidden", { summary: many });
 };
 
 const humanNotice = (mins) => {
-  if (!mins) return "no notice needed";
-  if (mins % 1440 === 0) return `${mins / 1440} day${mins / 1440 > 1 ? "s" : ""} notice`;
-  if (mins % 60 === 0) return `${mins / 60} hour${mins / 60 > 1 ? "s" : ""} notice`;
-  return `${mins} min notice`;
+  if (!mins) return t("no notice needed");
+  if (mins % 1440 === 0) {
+    const d = mins / 1440;
+    return t(d === 1 ? "{count} day notice" : "{count} days notice", { count: d });
+  }
+  if (mins % 60 === 0) {
+    const h = mins / 60;
+    return t(h === 1 ? "{count} hour notice" : "{count} hours notice", { count: h });
+  }
+  return t("{count} min notice", { count: mins });
 };
 
 export default function Business({ onSetup }) {
@@ -206,11 +217,11 @@ export default function Business({ onSetup }) {
 
   useEffect(() => { load(); }, [load]);
 
-  const mode = settings?.mobile_enabled && settings?.dropoff_enabled ? "Mobile & drop-off"
-    : settings?.mobile_enabled ? "Mobile only"
-      : settings?.dropoff_enabled ? "Drop-off only" : "Nothing offered";
+  const mode = settings?.mobile_enabled && settings?.dropoff_enabled ? t("Mobile & drop-off")
+    : settings?.mobile_enabled ? t("Mobile only")
+      : settings?.dropoff_enabled ? t("Drop-off only") : t("Nothing offered");
 
-  const n = (v, one, many) => (v === null || v === undefined ? "—" : `${v} ${v === 1 ? one : many}`);
+  const n = (v, one, many) => (v === null || v === undefined ? "—" : t(v === 1 ? one : many, { count: v }));
 
   // AT MOST ONE ROW SHOUTS, AND ONLY IF IT BLOCKS A BOOKING (§1b item 4,
   // ordered hours → services → business info). Three red rows on one screen
@@ -262,9 +273,9 @@ export default function Business({ onSetup }) {
       // finish. The colour itself says it in one glance.
       ["appearance", "Your colour", Palette, "Used everywhere, including here",
         branding?.primary_color ?? null],
-      ["gallery", "Photo gallery", Images, counts ? n(counts.photos, "photo", "photos") : "…"],
+      ["gallery", "Photo gallery", Images, counts ? n(counts.photos, "{count} photo", "{count} photos") : "…"],
       ["reviews", "Reviews", MessageSquareQuote,
-        counts ? (counts.reviews ? n(counts.reviews, "review", "reviews") : "Nothing from a customer yet") : "…"],
+        counts ? (counts.reviews ? n(counts.reviews, "{count} review", "{count} reviews") : t("Nothing from a customer yet")) : "…"],
       // ROADMAP 3.2(b) — the NINTH row this screen's own header designed and
       // deliberately did not build, because its screen did not exist. It does
       // now. Under "Your page" and not the gear: an FAQ is read by a
@@ -291,13 +302,13 @@ export default function Business({ onSetup }) {
       // running.
       ["campaigns", "Campaign links", QrCode,
         counts ? (counts.campaigns
-          ? `${n(counts.campaigns, "link", "links")} · ${n(counts.campaignVisits, "open", "opens")}`
+          ? `${n(counts.campaigns, "{count} link", "{count} links")} · ${n(counts.campaignVisits, "{count} open", "{count} opens")}`
           : "Nothing tracked yet") : "…"],
     ]],
     ["What you sell", [
       ["catalog", "Services & add-ons", Wrench,
         blocked === "catalog" ? "Nothing to sell — your booking page is empty"
-          : counts ? `${n(counts.services, "service", "services")} · ${n(counts.addOns, "add-on", "add-ons")}` : "…"],
+          : counts ? `${n(counts.services, "{count} service", "{count} services")} · ${n(counts.addOns, "{count} add-on", "{count} add-ons")}` : "…"],
       // A PLAN IS AN OFFER WITH A PRICE, which is exactly the admission test
       // this screen applies to the catalog — and step 3 puts the plans on the
       // booking page, so a customer meets them. The owner named the location
@@ -305,7 +316,9 @@ export default function Business({ onSetup }) {
       // website, like in the More page or the business page".
       ["plans", "Monthly plans", Repeat,
         counts ? (counts.plans === 0 ? "Not offering one"
-          : `${n(counts.planMembers, "member", "members")} on ${n(counts.plans, "plan", "plans")}`) : "…"],
+          : t("{members} on {plans}", {
+            members: n(counts.planMembers, "{count} member", "{count} members"),
+            plans: n(counts.plans, "{count} plan", "{count} plans") })) : "…"],
       // ROADMAP 2.23. Under "What you sell" beside plans, because it is the
       // same kind of object from the customer's side — work that is owed —
       // and because the difference between them is exactly what the two rows
@@ -318,10 +331,12 @@ export default function Business({ onSetup }) {
       // and never the tenant's accent (law 11b).
       ["maintenance", "Maintenance deadlines", CalendarClock,
         counts ? (counts.deadlines === 0 ? "Nothing has a deadline"
-          : counts.deadlinesSoon === 0 ? `${n(counts.deadlines, "deadline", "deadlines")}, none due`
+          : counts.deadlinesSoon === 0 ? t("{deadlines}, none due", {
+            deadlines: n(counts.deadlines, "{count} deadline", "{count} deadlines") })
             : counts.deadlinesMissed
               ? `${counts.deadlinesMissed} missed`
-              : `${n(counts.deadlinesSoon, "deadline", "deadlines")} coming up`) : "…",
+              : t("{deadlines} coming up", {
+                deadlines: n(counts.deadlinesSoon, "{count} deadline", "{count} deadlines") })) : "…",
         counts ? counts.deadlinesMissed > 0 : false],
       // ROADMAP 2.20 STAGE 1. Under "What you sell" rather than "Your page"
       // because it is about the money on the job, and LAST in the group for
@@ -330,8 +345,8 @@ export default function Business({ onSetup }) {
       ["payments", "How you get paid", Wallet, settings ? describePayment(settings) : "…"],
       ["promos", "Promo codes & sale", Tag,
         counts ? (settings?.site_discount_active
-          ? `Site sale on · ${n(counts.promos, "code", "codes")}`
-          : n(counts.promos, "active code", "active codes")) : "…"],
+          ? t("Site sale on · {codes}", { codes: n(counts.promos, "{count} code", "{count} codes") })
+          : n(counts.promos, "{count} active code", "{count} active codes")) : "…"],
     ]],
     ["When you can be booked", [
       ["hours", "Hours & days off", CalendarClock, counts ? counts.hours : "…"],
@@ -369,7 +384,7 @@ export default function Business({ onSetup }) {
 
       {GROUPS.map(([title, rows]) => (
         <div className="tight" key={title}>
-          <span className="label">{title}</span>
+          <span className="label">{t(title)}</span>
           <div className="card setting-card">
             {rows.map(([key, name, Icon, now, swatch]) => (
               // ROADMAP 2.24 — one row on this screen is worth a tour step,
@@ -392,8 +407,12 @@ export default function Business({ onSetup }) {
                     : <Icon size={19} strokeWidth={2} />}
                 </span>
                 <span className="txt">
-                  <span className="name">{name}</span>
-                  <span className="now">{now}</span>
+                  <span className="name">{t(name)}</span>
+                  {/* A summary is EITHER one of this file's own phrases or a
+                      value out of the database — the detailer's business name,
+                      a colour, a count. `t()` returns anything it has never
+                      seen unchanged, so one call is right for both. */}
+                  <span className="now">{t(now)}</span>
                 </span>
                 <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
               </button>

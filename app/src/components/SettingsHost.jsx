@@ -107,7 +107,7 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
           <button ref={back} className="btn icon ghost" aria-label={t("Back")} onClick={close}>
             <ChevronLeft strokeWidth={2} />
           </button>
-          <h1 className="display">{title}</h1>
+          <h1 className="display">{t(title)}</h1>
         </div>
         <Active />
       </div>
@@ -137,9 +137,9 @@ export default function SettingsHost({ open, onClose, splitClass, empty, childre
            gear's own resting column, three lines up, animated correctly.
            Same shape as the `.card.attend` rename the sweep caught — the
            right element, silently meaning something else. */
-        <aside key={open} className={`col-2 settings-col${leaving ? " leaving" : ""}`} aria-label={title}>
+        <aside key={open} className={`col-2 settings-col${leaving ? " leaving" : ""}`} aria-label={t(title)}>
           <div className="row between" style={{ alignItems: "flex-start", gap: "var(--sp-3)" }}>
-            <h2>{title}</h2>
+            <h2>{t(title)}</h2>
             <button className="x" aria-label={t("Close")} onClick={close}><X size={18} strokeWidth={2} /></button>
           </div>
           <div className="settings-body"><Active /></div>

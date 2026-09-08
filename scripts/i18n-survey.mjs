@@ -120,6 +120,18 @@ const CLASS_LISTS = new Set([
   "dot confirmed", "dot completed", "dot no_show", "dot block",
 ]);
 
+/** PROPER NOUNS, WHICH ARE THE SAME WORD IN EVERY LANGUAGE.
+ *
+ *  Putting `"Venmo": "Venmo"` in the catalogue would silence these too, and
+ *  it would be a lie about what the catalogue is for — that file is a record
+ *  of translation DECISIONS, and there is no decision here. Naming them makes
+ *  the reason readable instead. */
+const BRAND_NAMES = new Set([
+  "Venmo", "Cash App", "PayPal", "Zelle", "Apple Pay", "Google", "Yelp",
+  "Stripe", "Instagram", "Facebook", "TikTok", "Netlify", "Resend",
+  "Android", "iPhone", "Waze", "Apple Maps", "Google Maps", "Google Calendar",
+]);
+
 /** Database enums, DOM values and CSS words — never a sentence. */
 const NOT_WORDS = new Set([
   "active", "paused", "pending", "cancelled", "confirmed", "completed", "done",
@@ -150,7 +162,7 @@ const looksLikeCode = (s) => (
  *  A bare lowercase word is a column name more often than a sentence. */
 const isPhrase = (s) => {
   const v = s.trim();
-  if (!v || looksLikeCode(v) || CLASS_LISTS.has(v)) return false;
+  if (!v || looksLikeCode(v) || CLASS_LISTS.has(v) || BRAND_NAMES.has(v)) return false;
   if (/\s/.test(v)) return /[A-Za-z]{2,}/.test(v);
   return /^[A-Z][a-z]{2,}$/.test(v);
 };
