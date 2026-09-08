@@ -1,0 +1,2296 @@
+# Verification — the whole battery, and every trap in it
+
+**Split out of CLAUDE.md on 2026-09-08.** It was 168 KB of that file's 232 KB —
+72% — and CLAUDE.md is loaded into EVERY session automatically, so this section
+alone cost roughly 42,000 tokens per session before a word of work was read.
+Nothing here is deleted, reworded or reordered; it is the same text at a new
+address. **CLAUDE.md § Verification is now a pointer at this file plus the
+short list of what to run.**
+
+**READ THIS FILE WHEN:** a check goes red and you do not know why · you are
+about to add a check · you are about to run a browser script · a suite's count
+disagrees with the prose · something passed that you do not believe.
+
+---
+
+## Verification
+
+- **THE CHECKS ARE 2.6x FASTER AS OF 2026-09-02, AND HOW YOU RUN THEM MATTERS
+  MORE THAN THAT.** The owner asked why a one-screen session takes an hour;
+  the answer, the fix and the rules that came out of it are
+  `docs/verification-speed-2026-09-02.md`. The short version, and it is not
+  optional:
+  **Iterate with `node scripts/sweep-widths.mjs 392 --only Clients` (38s) and
+  run the full sweep ONCE at the end. **IT COSTS MORE THAN THE 178s THIS FILE
+  USED TO QUOTE, and the figures are measured rather than estimated
+  (2026-09-02): 392 alone is 82s wall with 47s of that being `settle`, and the
+  full five-width run reports 218s of waiting normally and 94s through
+  `--lite`.** Stage 7 took it from 40 screens to 54, and roadmap 2.12 to 56 — the setup form's seven
+  steps and the walkthrough's seven — and the trade was taken deliberately,
+  because this script is the only thing in the repo that opens either and
+  neither is reachable by clicking a tab. **Iterate at one width; the full run
+  is a once-per-item cost, not a per-change one.**
+  **AND THE DEFAULT RUN IS TIERED AS OF 2026-09-03, at the owner's push: 203s
+  rather than 335s.** Every width walks the CORE — the booking page, the five
+  tabs, the job record, the request card, the calendar's day and history,
+  Money's periods and modals, Clients' six. **The long tail — the FOURTEEN
+  settings screens, the gear, setup x7, tour x7 — runs at 320 and 1920 only**,
+  the two extremes where every width-specific defect in this repo's history was
+  actually found. Measured: a deep width is ~67s, a core-only one ~24s, so the
+  tail is ~43s a width. **`--all` restores the exhaustive walk and is NOT
+  optional after a change to what those screens SHARE** — `theme.css`,
+  `SettingsHost`, `Sheet`, `controls.jsx` — because the tiering is a bet that
+  the long tail is uniform, and a change to the shared container is that bet
+  losing. The script prints its own per-width wall clock on every run now.
+  **AND THE ONE THAT COSTS THE MOST WHEN IT IS MISSED — ADDED 2026-09-05, THE
+  FOURTH TIME HE HAS ASKED WHY A SESSION IS SLOW, AND THE FIRST TIME THE ANSWER
+  WAS NOT IN THE SCRIPTS: SETTLE THE ITEM'S FULL SCOPE BEFORE WRITING A LINE OF
+  CODE, FROM THE ROADMAP'S OWN BULLETS RATHER THAN FROM ITS HEADLINE.** Roadmap
+  2.20 stage 1 took 90 minutes, **68 of them waiting**, and the single largest
+  slice was **one item verified TWICE** — its last bullet (*"build one small
+  thing beside it"*) was read as a follow-up, so the headline half was built,
+  fully verified and committed, and the rest then needed the entire battery
+  again. **THE BATTERY IS THE MOST EXPENSIVE THING IN A SESSION** — a full
+  sweep, a `--lite` sweep and `e2e-booking` are ~10 minutes together — so an
+  item whose scope grows after the first green run costs a second one.
+  **The scripts are not the problem any more and that is measured**:
+  `sweep-widths.mjs` has 77 `settle()` sites and zero real fixed sleeps, a core
+  width is 26–30s, and running the suite one extra time now costs more than
+  every optimisation in `docs/verification-speed-2026-09-02.md` returns. **The
+  remaining wins are all in the ORDER things are done, not in the code.** That
+  file's last section has the full accounting and a five-line checklist.
+  **AND THE RULE THAT IS WORTH MORE THAN EVERY OTHER LINE IN THIS SECTION, and
+  costs nothing: START THE LONG CHECK, WRITE WHILE IT RUNS, THEN READ THE
+  RESULT.** **WRITE PROSE — NOT SOURCE. Learned the expensive way 2026-09-04:
+  an edit to anything under `app/src` while `sweep-widths.mjs` is running makes
+  Vite reload the page** (`main.jsx` has a non-component export, so a cascading
+  HMR update there fails Fast Refresh and falls back to a full reload), **and
+  the sweep dies with "Execution context was destroyed, most likely because of
+  a navigation" at whatever screen it happened to be on.** It cost two full
+  `--lite` runs and landed in two unrelated places, which is exactly what a
+  source edit during a browser walk looks like from the outside — it reads as a
+  flaky script or a bad diff. **The dev server names the cause in one line:
+  `page reload src/main.jsx` in the Vite log.** Check that before blaming
+  anything else.
+  **IT IS EVERY BROWSER SCRIPT, NOT JUST THE SWEEP — AND `e2e-booking.mjs`'s
+  SYMPTOM READS AS A PRODUCT BUG RATHER THAN A HARNESS ONE (2026-09-04, roadmap
+  2.20).** Same cause, one edit to `app/src/lib/permissions.js` while a
+  backgrounded e2e run was on its second tenant. It did **not** print
+  "Execution context was destroyed". It printed a null receipt link and then
+  five failures in a row — *the booking is in the database — no id*, *stored as
+  confirmed*, *charged what the price bar printed — bar $150.00, row
+  undefined* — **while the same run's own email leg passed with the right
+  subject and the right amount**, which is a booking that plainly worked being
+  reported as a booking engine that does not store anything. A session reading
+  that output goes looking for a schema bug. **The tell is the contradiction
+  itself**: if the emails carry the right total, the row exists and the SCREEN
+  is what went missing. Confirmed in ten seconds by three timestamps — the file
+  write, the Vite `page reload`, and the log's own mtime. **`--slug=<one>`
+  re-runs a single tenant in ~90s and is the cheapest control**; the leg passed
+  39/39 alone and 82/82 on a clean full re-run.
+  **AND AS OF 2026-09-05 THE SCRIPTS SAY IT THEMSELVES — `scripts/source-guard.mjs`.**
+  All four browser scripts note the time before the browser opens and, at the
+  end, name any file under `app/src` saved since. **The paragraph you are
+  reading was already here when this happened for the second time in two days,
+  which is the evidence that a warning in a 1,200-line file is not a fix.** The
+  guard does not prevent the mistake; it removes the eight minutes of
+  diagnosing it.
+  **IT REPORTS ON A PASS TOO, AND THAT IS THE LOAD-BEARING HALF — LEARNED BY
+  BASELINING IT RATHER THAN BY DESIGNING IT.** The first version fired only on
+  a failure, reasoning that a clean run needs no excuse. Baselining it — an
+  edit dropped 25 seconds into a real run — killed that in one go: **the page
+  reloaded and the run still finished with zero geometry problems and printed
+  `clean`**, so the guard was silent on a run nobody should trust.
+  **A MID-RUN RELOAD DOES NOT RELIABLY FAIL A RUN**, which is the fact worth
+  carrying: every check this sweep owns asks whether something is off an edge,
+  and a screen that never opened has no edges to be off. The damage is not a
+  red run, it is a green one that measured less than it claims — this repo's
+  oldest failure mode wearing a green tick. A false clean is worse than a
+  failure, because a failure at least makes somebody look.
+  **It is a diagnosis and never a gate** — it cannot change an exit code. A
+  check that started failing for procedural reasons would be worse than the
+  problem it names. Plain Node, no hook, portable to another agent.
+  Same trap from the other side: a second agent or session working in this same
+  directory does it to you without your knowing, so a sweep that dies mid-run
+  is worth a `git status` before it is worth a bisect. The owner asked a second time during roadmap 2.12 why a session
+  takes as long as it does, and that session's own runs were counted rather
+  than estimated: **~33 minutes spent WAITING, all but two of them blocking**,
+  while the documentation it was always going to write — DECISIONS, PROJECT-
+  STATE, the roadmap — needs no I/O at all. **The two halves of a session do
+  not contend for anything and were being run one after the other.** Background
+  every full sweep and every env-backed test run, and write during them.
+  Two corollaries from the same count: **`--only <Screen>` is the iteration
+  tool and takes seconds** — a 56-screen run at one width is 82s and is not the
+  cheap option, and it was used ONCE all session; and **write all the edge-
+  function code, then deploy once** rather than deploying after each pass.
+  Full working: `docs/verification-speed-2026-09-02.md`, last section.
+  ~~**AND RUN IT IN THE FOREGROUND.**~~ **SUPERSEDED 2026-09-02.** Both full
+  passes finish inside the ten minutes a foreground command is allowed; the
+  same runs redirected to a file from a background job once sat at one width
+  for ten minutes twice and had to be killed. **That was the SCRIPT's own stall
+  — the setup-form race — and it is fixed, along with a 15s default timeout on
+  every page so nothing can hang for thirty seconds again.** A background
+  five-width run was taken at the end of roadmap 2.12 to prove it, because the
+  rule above is worthless if the longest check in the repo is exempt from it.
+  If a background run ever stalls again, count the orphaned
+  `chrome-headless-shell.exe` processes before blaming the harness. `--lite` is a
+  final-run flag, not an iteration one. Screenshot the ONE width that answers
+  the question. And when a layout question has a number in it, MEASURE FIRST
+  rather than building, looking, and then measuring** — the period control
+  was rebuilt twice before anyone measured that the answer was 2px of padding.
+  The scripts now `settle()` instead of sleeping: the old fixed timeout is a
+  CAP, and the wait ends when the DOM has been quiet for 130ms with no finite
+  animation running and no spinner on the page. **It was baselined against a
+  deliberate defect** — 96 reported, then clean again once removed — because
+  a check that measures the page too early looks exactly like a check that
+  passes.
+
+
+- **EVERY CHECK COUNT BELOW WAS RE-MEASURED ON 2026-09-08 BY RUNNING THE SUITE,
+  and fifteen of them were wrong** — the largest by a factor of two and a half
+  (`platform-admin` said 59 and is 157). **That is the eighth time stale counts
+  have been found in this file, so treat the number as a hint and the script's
+  own printed figure as the answer.** They rot because a suite grows in the item
+  that needs it and the prose is edited from memory. Re-measuring all of them
+  costs one battery run, which pass A is doing anyway:
+  `for f in tests/*.test.mjs; do echo "$f"; node "$f" | tail -1; done`
+  **Under `set -a; . ./.env; set +a`, or eleven of them print "Missing
+  SUPABASE_URL" and a session reads that as a broken environment rather than as
+  a suite that did not run.**
+- Finish every session: `node tests/composition.test.mjs`,
+  `design-contrast`, **`landing-pricing`** (**103 checks — 65 until roadmap 4.4 stage 4, 72 until 6.2, 80 until 7.1, 86 until 7.5, 88 with item G; measured 2026-09-06, this said 58 and was stale within a day of being written** — 21 until roadmap
+  2.20 stage 2 on 2026-09-05, and its FIRST check had been vacuous since the
+  day it was written: the pricing-section slice looked for
+  `aria-labelledby="price"` when the section is `"prh"`, so `indexOf` returned
+  −1, `slice(-1, <smaller>)` gave `""`, and *"no hardcoded prices in the
+  pricing section"* passed by having NO SUBJECTS — in the one test guarding the
+  numbers a customer is charged. Same shape as `email-brand` 7a-ii. It now
+  covers the pricing page too: the ladder's pricing RULES rather than its
+  figures, the AB 2863 disclosures, that nothing is pre-selected, and that the
+  landing page's plan buttons still point at `/pricing`. Thirteen of them were
+  baselined by breaking what they guard),
+  `route-contract`, **`money-export`**,
+  **`email-brand`** (**189** checks — 97 when it was written and grown in roadmap
+  2.12, which found what it could not see: it pinned the colour ENGINE and never
+  looked at what the templates DID with the answer, so **every email headline in
+  the product was 3.01–3.76:1 on a 4.5:1 floor, on all fourteen colours**, and
+  the invoice's own title was 1.20–1.57:1. **A test can verify the
+  arithmetic and still be blind to the drawing.**
+  **GROWN AGAIN IN 2.18 (138 → 186) AND ITS SOURCE CHECKS WERE RE-POINTED, which
+  is the part a cold session needs.** 7a, 7a-ii and 7b-ii described the old
+  white-card-under-a-coloured-band layout; the rebuild deleted it, **two of them
+  failed loudly and one went SILENTLY VACUOUS** — its regex matched nothing, so
+  it passed by having no subjects. They were rewritten stronger: **no literal
+  hex anywhere in the templates** (every colour comes from a token or the brand,
+  so a literal is by definition unmeasured), **the two accent values may not
+  swap jobs** (`accentFill` is corrected 3:1 as a background and `accent` 4.5:1
+  as words), and **7a-iii asserts the checks HAVE SUBJECTS** so the next layout
+  change fails loudly instead of going quiet. **Baselining found a raw backspace
+  (0x08) inside the new regex** — invisible in every editor and in `sed`, visible
+  only under `od -c` — so the check written to prevent silent vacuity was itself
+  vacuous on its first run. **Baseline any check you add to this file, both
+  ways.** It pins
+  `supabase/functions/_shared/brandColor.js`, the EMAIL’s copy of the colour
+  engine, against `app/src/lib/theme.js` on the twelve presets and the four
+  extremes. Email is the one place in this repo a second implementation of the
+  colour maths is allowed — an edge function is a separate Deno bundle and the
+  Supabase CLI will not follow an import out of `supabase/` — and this test is
+  the price of that permission),
+  **`qr-scans`** (**17** checks — this file said 14 until 2026-09-02 and it was
+  a guess at authoring time; the script prints its own figure, new 2026-09-02 — the ONE browser test in this
+  list, because the QR is drawn on a `<canvas>` and an encoder can be perfect
+  while the rendering is unscannable. It decodes the pixels back with a
+  DIFFERENT library than wrote them, and it needs the dev server but no login
+  and no seed. Baselined at 6 failures with the quiet zone removed),
+  **`client-list`** (31 checks, new 2026-09-02 — the Clients list's date
+  arithmetic and the lapsed filter, which decides who ends up on the end of a
+  group text; baselined both ways),
+  **`plans`** (**the script prints its own figure** — 51 at step 2 and 73
+  after step 3; new 2026-09-04, roadmap 2.14 — the visits a plan
+  member is OWED, which is the one number that feature exists to print, and
+  `addPeriod` against Postgres's own month-overflow clamp, because the
+  accrual writes the grants in SQL and this file predicts the next one.
+  **Test 6 is step 3's half and it imports `_shared/pricing.ts` DIRECTLY** —
+  Node 24 strips the types, so the credential-free suite can pin the money
+  path the edge functions actually run: what a plan takes off, that it can
+  never become a surcharge, and that the itemisation still reaches the
+  charged total. Baselined both ways),
+  **`setup-progress`** (**54 checks** — 24 until roadmap 7.3's final pass added § 4 (the first run when nobody follows the path) and 32 until 2.24 added § 5 (a guide on every tab, whose 5b is the guard that matters: **a step whose `data-tour` no screen carries is silently dropped from every plan and nothing anywhere says so**); new 2026-09-02 — how many of the seven
+  first-run steps are done. That number is printed in TWO places that must
+  never disagree, the setup form's progress rule and Business's *Finish
+  setting up* row, and five of the seven are DERIVED from the database rather
+  than stored. Baselined at 11 failures with the derivation removed, which is
+  the state that tells a fully configured business it has done nothing),
+  **`campaign`** (16 checks, new 2026-09-05, roadmap 2.19 — the ONE commercial
+  email this product sends. It pins the two things that make it legal to send
+  at all (a postal address and a working opt-out in the footer) AND that no
+  transactional template grew either, because an unsubscribe link on a booking
+  confirmation invites a customer to switch off the reminders for a job they
+  have already booked. Its other half is the injection boundary: this is the
+  only template whose body is TYPED BY A HUMAN and delivered to fifty, so the
+  escape order — escape first, THEN newlines to `<br>` — is what stops one
+  typed message becoming markup in every copy. Baselined both ways: dropping
+  the footer fails 4, dropping the escape fails 2),
+  **`platform-billing`** (**336 checks — 263 until roadmap 4.4 stage 4 added § 19; measured 2026-09-05, this said 168 and the file said 220 sixty lines further down, which is the same suite counted twice and wrong twice**, new 2026-09-05, roadmap 2.20 stage 2 —
+  what a DETAILER pays US, and the first suite in this repo where *a number
+  PRINTED is not a number CHARGED* is literally rather than metaphorically
+  true. It ties every rung on `/pricing`, founding and list, to the money
+  `lineItemsFor()` hands Stripe; it pins the SECOND copy of the price table
+  (`_shared/platformBilling.ts` against `app/src/landing/pricing.js`) value by
+  value; it pins the consent sentence's four statutory clauses AND that a plan
+  with no term never invents one; the exit-fee arithmetic including its cap and
+  its zero cases; the Stripe-status map, where an unknown status must produce
+  NULL rather than default either way; and **§ 8, the webhook signature — the
+  only authentication a public write endpoint has.** Seven checks were
+  baselined by breaking what they guard, and one of them was FOUND vacuous that
+  way: *"nothing has been deleted"* passed with the sentence removed from the
+  email, because the hidden preheader also says it),
+  **`payments`** (66 checks, new 2026-09-04, roadmap 2.20 stage 1 — the
+  detailer's own payment handles. It pins the two things no other check in this
+  repo can see. **WHICH EMAILS CARRY THE LIST**: `invoiceEmail` branches on
+  payment status, and both branches render a perfectly valid email, so handles
+  printed on a PAID RECEIPT would look like a working feature while being the
+  exact thing the owner complains about on his own old site. Five placements
+  and four refusals, including the one the roadmap's own wording would have
+  missed — in request mode the ACCEPTED-request email is the confirmation, so
+  "the confirmation and the reminder" leaves every request-mode tenant with
+  handles on no email at all. **AND WHAT REFUSES TO BECOME A LINK**: a wrong
+  payment link sends somebody's money to the wrong person and is invisible from
+  every screen, so only a plain username or a pasted `https:` URL is linked and
+  a phone number, an email address or `javascript:` is printed as typed.
+  Baselined three ways — handles on the receipt fails 1, the escape removed
+  fails 3, a link built from anything fails 7. **§ 6 is the OTHER half of 2.20
+  and is about email rather than money**: `customers.email_failed_at` is a
+  third way to be unreachable beside "no address" and "opted out", and the
+  three places that ask *can we email this person* — the Clients count, the
+  compose sheet's, and `send-campaign`'s filter, which is the enforcement —
+  have to agree, so the predicate is written out once here. Baselined by
+  ignoring the bounce, which fails 2),
+  **`booking-core`** (**205 checks — the script prints its own figure**, new
+  2026-09-05, roadmap 3.2(a) — `app/src/book/core.js`, the module every tenant
+  site's own booking form drives. Until that item the group rules were a
+  closure inside `BookingPage`'s `setForm`, the step gating was an IIFE and
+  both money payloads were object literals typed at their call sites, so **the
+  only way to exercise any of it was to click through `/book/:slug`** — which
+  means a client's bespoke form got to reimplement all of it from a
+  screenshot. Every check is a sentence the NEXT booking form still has to be
+  true of. Its § 1 is the unusual one: it reads the file as TEXT and fails on
+  any `import`, any JSX, any `import.meta.env`, any React hook and any
+  `localStorage` outside the two wrapped helpers — the properties that make it
+  droppable into a site built on Astro, Alpine or nothing. **Two of those
+  checks were vacuous on their first run in a new way worth knowing: they
+  matched the file's own header prose promising "no React, no
+  `import.meta.env`", so the check failed on the sentence advertising the
+  thing it checks for.** Strip comments before reading a file as text.
+  Baselined eight ways, each restored: the exclusive category, the
+  `booking_mode` fallback, the day in the quote key, `has_water_electric`,
+  the category cap's eviction order, `modeLimitFor` naming its service,
+  `offersBothModes` forgetting `modeLimit` — which is the roadmap 2.5
+  white-screen bug in test form — and the remembered customer's slug scope),
+  **`custom-domains`** (**60 checks — the script prints its own figure**, new
+  2026-09-05, roadmap 3.3 — a detailer's own web address. **Most of it reads
+  source as TEXT, and that is the point**: the defect this item can produce is
+  a `site` argument forgotten at one of thirteen call sites, which fails
+  nothing — that one email keeps working, on the wrong domain, and the only
+  person who ever sees it is a customer. Nothing but reading the source can see
+  an argument that was not passed. § 2 pins that the THREE normalisations of a
+  hostname — the browser's, the edge function's and SQL's — agree, because the
+  three disagreeing means a detailer is told a working address does not work;
+  § 5 pins that verification is a FETCH of a marker file and that `verified_at`
+  is revoked at column level; § 7 pins that the hostname changes EXACTLY ONE
+  route. Two of its checks exist only to prove the others have subjects — the
+  `email-brand` 7a-iii shape. Baselined four ways: a builder falling back to
+  `PLATFORM_URL`, one call site forgetting the tenant, the column revoke
+  dropped, and the by-host lookup no longer filtering on verified, each failing
+  exactly the check that names it),
+  **`vcard`** (34 checks, new 2026-09-05, roadmap 4.2 — the customer's contact
+  card, attached to the detailer's booking alert. It is the PRICE OF A SECOND
+  COPY: `_shared/vcard.ts` and `app/src/lib/platform.js` build the same card
+  for two audiences and neither can import the other, the same wall that
+  forced `_shared/brandColor.js`. This runs both on the same eight customers
+  and fails on one differing character. It also pins the FORMAT, because a
+  vCard a phone silently refuses is invisible from every screen — the escaping
+  especially: an unescaped comma inside `ADR` ends the field and the phone
+  drops the rest of the address with no error. Baselined by removing the
+  escaping, which fails 6 including the cross-copy check),
+  **`password-reset`** (29 checks, new 2026-09-06 — the way back in after a
+  forgotten password, which **did not exist at all** until roadmap 7.3's final
+  pass ranked its absence *blocks launch*. The flow itself was proved in a
+  browser against a real recovery link; **what this file holds is the three
+  things a browser cannot see.** The confirmation says the same thing whether
+  or not the address exists — reporting the error there is address enumeration
+  with a friendly face, the same reasoning that shaped `plan-link`. The reset
+  page **never reads the URL hash**, because `detectSessionInUrl` has already
+  consumed and cleared it before React mounts, so a page that looks finds an
+  empty hash and calls a working link bad. And the gear row is gated by
+  NOTHING: a password belongs to the person, not the business, and staff are
+  exactly who is handed one by somebody else. Baselined four ways),
+  **`maintenance`** (37 checks, new 2026-09-06, roadmap 2.23 — a coating
+  warranty that VOIDS. **It pins the two copies of the deadline arithmetic**:
+  `app/src/lib/maintenance.js` is what the screen runs and
+  `_shared/maintenance.ts` is what the sweep runs, and a drift means the
+  screen says *due in 3 days* about something the email has already called
+  missed — the customer believes whichever reached them first. Seventeen
+  deadlines through both. **The escalation is the part with teeth**: one
+  added INSIDE the window fires the stage the DATE has reached and never
+  catches up on the earlier ones (a first word about a warranty must not be
+  three emails at once), a stage already sent never fires again (the sweep
+  runs every fifteen minutes), and nothing fires once it is missed, met or
+  cancelled. Baselined three ways, and **three of its checks were vacuous on
+  the first run in one shape**: `indexOf` on a name that also appears in an
+  IMPORT compares against the import, so the check passed with the code moved
+  anywhere at all),
+  **`spam-filter`** (33 checks, new 2026-09-06, roadmap 2.21 — the throttle
+  and honeypot on the four public endpoints. **The behaviour was proven
+  against the deployed functions**; what this file holds is the half a live
+  probe cannot see. **The booking limits sit at the LAST MOMENT before the
+  insert, not at the top**, because the threat is holding SLOTS and only a
+  created booking holds one — counting refusals throttles a script that took
+  nothing AND made `booking-engine`, which deliberately exercises a dozen
+  refusals, report a 429 as a broken engine with 32 failures behind it. **A
+  member is exempt from both checks** and the check for that had to name both
+  separately, because "`!member` … later a `withinLimits`" passed with the
+  exemption stripped off the second one. **`stripe-webhook` gets the ceiling
+  and NOTHING keyed on anything Stripe controls** — a per-caller rule there
+  turns a normal burst of events into a payment never recorded, which
+  presents as a paying detailer going offline. **And the three suites that
+  book clear their own counters first**: they book more in two minutes than a
+  real customer does in a year, from one address, so an unexplained 429 in a
+  session is this and not a regression. Baselined four ways, and TWO of its
+  checks were vacuous on the first run — `indexOf("withinLimits")` finds the
+  IMPORT, at the top of the file, so both ordering checks passed with the
+  whole block moved to the end),
+  **`legacy-import`** (47 checks, new 2026-09-06, roadmap 5.1 — the old
+  site's rows becoming this platform's. **It exists because the import cannot
+  be RUN**: the access token in `.env` answers 403 for project
+  `adtlnvihwrcqcasqcjwd`, so `scripts/import-legacy.mjs`'s I/O half has never
+  executed, and the mapping was split into `scripts/legacy-map.mjs` — a pure
+  function over plain objects — precisely so the half that can be WRONG is
+  checkable without either database. **A plumbing failure is loud; a mapping
+  failure imports cleanly and is wrong.** § 1 is six checks about nothing but
+  the CLOCK: the old `bookings` table stores a date and a time with NO ZONE,
+  this platform stores an instant, and reading the pair as UTC moves eight
+  months of history by seven or eight hours. One check proves a January
+  booking is an hour further from UTC than a July one, which is what a fixed
+  offset gets wrong. Baselined four ways: the UTC read fails 5, the money
+  line's missing `kind` fails 1, the promo copied twice fails 2, the
+  vocabulary guard removed fails 1),
+  **`platform-admin`** (**157 checks** — 34 at stage 1, 40 at stage 3, 49 with item H's export, 59 with item D's heartbeats; new 2026-09-05, roadmap 4.4 — **the one
+  screen where a bug exposes every tenant at once**, and the file exists
+  because most of what it guards is the ABSENCE of something no behavioural
+  test can see. § 1 walks EVERY migration and fails if any `create policy`
+  mentions the admin check; § 5 fails on a single `supabase.from()` in the
+  back office; § 6 walks all of `app/src` for `admin_notes_platform`, which is
+  the platform's private note about a detailer and which `businesses`' own
+  `for all` policy WOULD return to that detailer's `select *`. Baselined three
+  ways: the cross-tenant policy, an optional audit row, and the screen reading
+  the database directly. **Four of its checks were TEST bugs on the first run
+  and two were the comment-vacuity trap** — one failing on the page's own
+  header saying "It sits OUTSIDE `BusinessProvider`", one on a SQL `comment on
+  column` string that names both the column and the function it must never be
+  in. Strip comments AND string literals before reading a file as text) and
+  **`multi-vehicle`** (**63 checks**, new 2026-09-07, roadmap 8.10 — MORE THAN
+  ONE CAR IN ONE BOOKING, which is three separate facts and stays three: one
+  visit is one booking with `booking_vehicles` for cars 2..N, two days is two
+  bookings sharing `booking_group_id`, and the dealership job is neither.
+  **§ 1–5 are credential-free; § 6 books against the live project and prints
+  SKIPPED rather than passing without one.** What it holds that no browser can
+  see: **the email senders are DISCOVERED, not listed** — every edge function
+  that assembles a `BookingEmailData` is found by its own `vehicleSize:` line
+  and must also pass `extraVehicles`, because one that forgets sends a
+  perfectly valid confirmation naming ONE car for a three-car job; and **the
+  bulk-job form must contain no arithmetic on the money at all**, which is his
+  instruction rather than a preference. Thirteen checks baselined by breaking
+  what they guard, **and § 6 earned its keep on the real thing rather than on a
+  synthetic break**: it caught `create-booking` handing the engine size STRINGS
+  after the engine's input became objects — every extra car priced at the base
+  size while the row, the label and the model were all correct — and a group
+  guard matching on email OR phone, so one household address joined two
+  different people. **It clears its own `rate_hits` first**, like every other
+  suite here that books)
+  **`spanish`** (**58 checks with credentials, 50 without**, new 2026-09-07, roadmap 8.17 — SPANISH ON THE
+  CUSTOMER-FACING BOOKING SURFACE, and every check in it is shaped by his own
+  limit: *"I can't check that sadly, because I don't speak Spanish."* Nobody
+  who can approve this can read the output, so it never asks whether the
+  Spanish is GOOD; it asks the five things that are answerable and that would
+  otherwise reach a customer with nobody in between. **§ 4 is the one that
+  matters — it reads the booking surface for hard-coded English**, because a
+  string somebody forgot to wrap is invisible in English, invisible to him, and
+  first met by a customer. **§ 5 is the same question for a FORMATTER**:
+  `duration(210)` is not prose, it returns "3 hr 30 min", and a booking call
+  site that forgets the language argument puts English inside a Spanish
+  sentence. Also pinned: no placeholder dropped or invented in translation, no
+  entry copied across untranslated, the register never drifting into `usted`,
+  and the English FALLBACK, which is one `||` away from rendering nothing. Ten
+  breaks all caught. **Its own extractor read a doc comment's `t("…")` EXAMPLE
+  as a real call site on the first run** — the comment-vacuity trap, arriving
+  in the one file that reads source as text for a living)
+  and **`promo-checkout`** (**102 checks with credentials, 41 without** — the
+  script prints its own figure, new
+  2026-09-07, roadmap 8.14 — A PROMO CODE ON *OUR* CHECKOUT, which is the third
+  place in this product where *a number PRINTED is not a number CHARGED* is
+  literally true and the first where the difference IS the feature. **§ 1 and
+  § 2 are credential-free; § 3 and § 4 ask the database and the deployed
+  endpoint** and print SKIPPED without `.env`. What it holds: **the discount
+  has to reach the invoice lines, the consent sentence, the exit fee and the
+  row** — it does, because a code produces a different `Snapshot` and all four
+  read one — and **a one-use code cannot be taken twice**, asked by firing two
+  redemptions at once rather than by reading the SQL. § 4 builds a throwaway
+  business with `is_demo: true` (which keeps it out of the founding COUNT) and
+  drives a real quote and a real `subscribe`. Ten breaks all caught, **two of
+  them applied to the live database** — and **one of its own checks was
+  vacuous, found by baselining**: it tested that `withinLimits` and the bucket
+  name APPEARED, and `if (false && !await withinLimits(...))` keeps every one
+  of those characters while gating nothing)
+  and **`two-logins`** (**56 checks**, new 2026-09-07, roadmap 8.18 — TWO
+  ACCOUNTS SIGNED IN AT ONCE, and every defect this feature can produce is
+  invisible from the screen. § 1 RUNS `app/src/lib/accounts.js` against a stub
+  `localStorage`, because the park's job is arithmetic on a list and no source
+  read tells you that `takeAccount` removes what it returns. **§ 2 is the one
+  that matters and it exists because the security review found the first
+  version wrong**: emptying the park removes the tokens from THIS BROWSER and
+  revokes nothing, while the `signOut()` beside it runs as the LIVE user — so
+  every parked refresh token stayed valid for ever behind a button that says
+  Sign out. It runs `endParkedSessions` with a stubbed `fetch` and asserts a
+  real `logout?scope=global` per parked account, that the refresh comes FIRST
+  (a parked access token is usually expired and a stale JWT gets a 401 that
+  looks like success), and that a thrown request still leaves the park empty
+  HERE. **§ 5 discovers its subjects**: it walks all of `app/src` and fails on
+  any `auth.signOut(` outside `lib/signout.js` — there were THREE exits when
+  this was built and the item's own note named one. Seventeen breaks all
+  caught, and **two of its own checks were vacuous, both found by
+  baselining**: one read the file's own IMPORT rather than the function body,
+  and one ordering check was greenest with the thing it guards deleted)
+  and **`dead-mans-switch`** (**44 checks with credentials, 26 without**, new
+  2026-09-07, roadmap 8.12 — WHETHER ANYBODY IS TOLD WHEN A SCHEDULED JOB
+  STOPS. `job_heartbeats` has recorded the answer since 7.3 and nothing ever
+  said it out loud, which is a monitor you have to remember to visit about the
+  one failure nobody knows to look for. **§ 1 and § 3 are credential-free; § 2
+  drives a throwaway job down and back up against the DEPLOYED function** and
+  prints SKIPPED without `.env`. What it holds that no source read can:
+  **the alarm rings once** — the second call about the same outage must say
+  nothing, and that property lives entirely inside `claim_job_alerts()`'s
+  single read-and-mark statement — **and it comes back**, because a switch that
+  latches on is a switch nobody trusts the second time. **It swaps
+  `platform_settings.owner_email` for Resend's simulator and asserts in its own
+  `finally` that his real address went back**: leaving the simulator there would
+  silence every real alert for ever and nothing on any screen would look
+  different. Eleven breaks all caught, **two of them applied to the live
+  database** because the two properties that matter are one SQL statement. And
+  **a `%` in a PostgREST filter returns a Cloudflare 500 HTML page**, which
+  arrives at `.json()` as `Unexpected token '<'` and reads as the whole API
+  being down — PostgREST spells the `like` wildcard `*`)
+  from repo root — credential-free, all must pass. **`closed-until` (26 checks,
+  new 2026-09-07, roadmap 8.13) is HALF credential-free** — its § 3 (the clock)
+  and § 5 (the source) run anywhere, and § 1, 2 and 4 print SKIPPED without
+  `.env` rather than passing. **The one thing it exists to protect is that the
+  detailer's pause is NOT `businesses.status`**: that column is billing's
+  suspension, so one column with two meanings would let a detailer reopen a
+  page the platform had darkened for non-payment, and § 4 asks the live
+  database whether the two states still stack. Eleven breaks, all caught — and
+  **two of its own checks were vacuous, both found by baselining**: a
+  return-day check whose escape hatch for a non-trading day passed for a return
+  day the closure itself had shut, and a clock stub that replaced `Date.now`
+  while `businessToday` reads `new Date()`, so two timezones agreed and it read
+  as the zone being ignored. **`forget-customer` (33
+  checks, new 2026-09-07, roadmap 8.11) is env-backed and belongs with the
+  suites below** — A CUSTOMER ASKING TO BE FORGOTTEN, whose whole design is
+  *forget the person, keep the money.* The two obvious builds are wrong in
+  opposite directions and **either half of this file passes for a broken
+  one**: § 2 asserts every money column is identical to the cent (deleting the
+  bookings destroys the detailer's own takings and `money-export`'s tie-out
+  with them) and § 3 asserts she cannot be found by name, phone or email
+  anywhere in `bookings` (deleting only the `customers` row forgets nothing,
+  because those columns are denormalised on every booking). It runs against
+  the DEPLOYED function on a throwaway business, because the permission gate
+  and the storage deletion are invisible from any source read. Eleven breaks,
+  all caught. **Three of its own checks were vacuous on the first run and one
+  measured a cache**: `[].every()` is true, so three ticks described a
+  deletion that had failed; and **an authenticated GET on a deleted storage
+  object still answers 200** — ask `/object/list` what the bucket HOLDS, never
+  ask for the object, or a correct deletion reads as a failed one. **Add `node scripts/decisions-index.mjs`
+  to that list if you touched `DECISIONS.md`.** The other 8 tests need env vars from
+  root `.env` — and one of them is new: **`request-mode`** (51 checks — 45 when written, roadmap 2.12,
+  2026-09-02). It pins the two facts about request mode that no reader of the code
+  can see: **a request HOLDS its slot**, which is true only because `pending` is
+  absent from the exclusion constraint's WHERE clause — a fact established by NOT
+  writing something — and **the quote tie-out**, that accepting a quote leaves the
+  receipt's itemisation still adding up to what is charged. Baselined by deleting
+  the `price_adjustments` line from `accept-quote`, which fails it by exactly the
+  quote.
+- **`settle()` IS A CAP ON A REPAINT AND IS NOT A WAIT FOR A NETWORK ROUND
+  TRIP — and `sweep-widths.mjs` had three places that forgot it until roadmap
+  2.19. A FOURTH SURFACED ON 2026-09-06: MONEY'S PERIOD CONTROL.** It is drawn
+  after the money read, the block was settle-then-count, and a full run lost
+  the race at 1440 and printed **`NO SUCH PERIOD` three times** — which reads
+  as three renamed controls rather than as one slow query, exactly as this
+  entry already warns. `appear()` again. **Anything a DATABASE READ draws is
+  `appear()`, and the list of places that forgot only ever grows by being
+  run.** Monthly plans and Team's member list draw their buttons only after
+  Supabase answers, and both were `settle(page, N)` then `.count()`. **`?lite=1`
+  makes that race WORSE, not better**: with nothing animating the DOM goes quiet
+  sooner, so settle returns earlier. `appear(locator)` in that script waits for
+  the control instead of counting it — **use it for anything a database read
+  draws.** The failure printed `NO SUCH BUTTON`, which reads as a renamed
+  control rather than as a race, and that is the same family as the crash that
+  printed `clean`.
+  **THE DEBUGGING IS THE TRANSFERABLE PART: run the control BEFORE the theory.**
+  Stashing the item's source and re-running the same sweep proved the failure
+  was ours in one run; a bisect then blamed one file; and the very next run,
+  with a `console.log` probe added, PASSED with that file still in place —
+  which is what a race looks like from the outside. Three plausible
+  explanations were written down first and all three were wrong.
+- **`git stash pop` ON WINDOWS REWRITES THE WORKING TREE TO CRLF, and that is
+  a second way into the invisible-byte trap already recorded below.**
+  `core.autocrlf` is `true` here, so a stash round-trip taken to run a control
+  turned `composition` 8e-iv red in a file the session had not touched — that
+  check is a byte-exact `includes()` containing `\n`. **Fix: `sed -i 's/\r$//'`
+  the files with real changes, and `git checkout --` the ones where only the
+  line endings moved** (`git diff --numstat` lists only the former, so
+  `comm -23` against `git status` names the latter).
+  **AND THE SECOND HALF OF THAT FIX IS IN THE CHECK, added 2026-09-06 after it
+  happened a second time.** A multi-line byte-exact needle written with `\n`
+  is a check whose colour depends on `core.autocrlf`, not on the rule it
+  guards — 8e-iv went red again, on untouched code, after a stash taken to
+  baseline something else. **A check a git command can redden is a check
+  nobody believes the next time it is red.** `composition` 8e-iv now reads
+  `.replace(/\r\n/g, "\n")` before matching, and was re-baselined by deleting
+  the nesting it guards. Every multi-line needle anywhere should do the same.
+- **AND `perl -pi -e` IS THE SAME TRAP — added 2026-09-05, roadmap 3.3.** It
+  rewrites the whole file as CRLF on Windows exactly as plain `open(p, "w")`
+  does, **and it does so even when the substitution matches nothing**, which is
+  the part that makes it worse: a no-op edit still converts the file. Three
+  files were converted in one session. `git diff --numstat` showed only the
+  real line changes, because `core.autocrlf` normalises on the way in, so
+  nothing was committed wrong — but a byte-exact check would have gone red in a
+  file the session had barely touched, which is precisely the diagnosis this
+  file already records twice. `sed -i 's/\r$//'` is the fix, and
+  `grep -qU $'\r' <file>` is how to find them.
+  **THE SECOND HALF IS WORSE AND IS WHAT COST THE TIME: a `python - <<'PY'`
+  heredoc through the Bash tool sometimes delivers a MANGLED script**, so a
+  multi-line `.replace()` silently finds nothing and the file is left
+  unchanged while the command reports success. It happened three times in one
+  session and twice the failure was invisible until a `grep` was run
+  afterwards. **Assert inside the script (`assert old in s`) or verify with
+  `grep` after every scripted edit** — and prefer the Edit tool, which is
+  byte-exact and fails loudly.
+- **AND THE DETECTOR MATTERS AS MUCH AS THE RULE — added 2026-09-06, roadmap
+  7.1, after the same scripted edit failed THREE TIMES on an anchor that
+  plainly matched.** `core.autocrlf` is `true`, so **every file git checked out
+  is CRLF in the working tree while every file this session WRITES is LF** —
+  they are mixed, permanently, and which one a given file is depends only on
+  whether anybody has rewritten it. A Python edit that reads with
+  `newline=""` gets `\r\n` from an untouched file, so a needle joined with
+  `\n` is not in it and the assert fires on text you can see with your own
+  eyes. **Build the needle with the file's own separator**
+  (`nl = "\r\n" if "\r\n" in s else "\n"`).
+  **`cat -A` THROUGH THIS BASH TOOL DOES NOT SHOW IT** — it printed `$` at the
+  end of every line of a file that was genuinely CRLF, which is what sent three
+  attempts looking at the wrong thing. **`grep -qU $'\r' <file>` is the one
+  that answers correctly**, and this file already recommended it; use nothing
+  else.
+  **AND THE EDIT TOOL WROTE CRLF INTO A FILE THAT WAS LF** (`LandingPage.jsx`,
+  measured before and after). Harmless where nothing byte-exact reads the file,
+  and it is precisely how `composition` 8e-iv has twice gone red somewhere
+  nobody had touched. **After an Edit-tool change to a source file, run
+  `grep -qU $'\r'` and `sed -i 's/\r$//'` if it fires.**
+- **PATCH SOURCE FILES WITH `sed`, OR WITH PYTHON OPENED `newline=""` — never
+  plain `open(p, "w")` on Windows.** Python reads LF and writes `os.linesep`,
+  so a scripted edit silently converts the WHOLE FILE to CRLF; git's autocrlf
+  hides it from `git status`, and the first symptom (2026-09-04) was
+  `composition` 8e-iv failing on **Clients.jsx, a file that item had barely
+  touched**, because that check is a literal `includes()` of a needle
+  containing `\n`. Same shape as the raw backspace this file already records
+  twice: an invisible byte change that turns a green check red somewhere
+  unrelated and points the next session at the wrong diff. **If a byte-exact
+  check fails in a file you did not mean to change, `cat -A` it before reading
+  the logic.**
+- **Also credential-free, and it must exit 0 after anything touching accent
+  colour or the ground tokens: `node scripts/accent-sweep.mjs`.** It measures
+  every tenant preset as a fill AND as words on all three grounds the
+  dashboard paints, plus the EXTREMES no preset list can cover (neon, pure
+  black, near-black, pure white), and it pins `hueFamily()` against sixteen
+  colours. It exists because correcting a colour against one ground buys a
+  floor on that ground and nowhere else — the bug it caught left six of eight
+  presets under the text floor on a panel (2026-08-30). **It grew again in 2.6:
+  it now also measures the four grounds that are TINTED WITH THE ACCENT ITSELF
+  — a selected chip, a selected choice, a completed pill/badge, the selected
+  tab — because a tint of the accent is a ground, and correcting against the
+  plain panel underneath it left nine of twelve presets under the text floor
+  on a selected chip (worst 3.92:1). The tint percentages in `theme.css` and
+  the 20% in `lib/theme.js` must move together or this exits 1.**
+- **THE CHECK AFTER ANY EDGE-FUNCTION CHANGE, AND BEFORE BELIEVING ANY
+  BROWSER RESULT: `node scripts/check-deployed.mjs`.** There is no CI here and
+  `deploy-functions.mjs` is run by hand, so **what is RUNNING drifts from the
+  repo silently** — and a function whose deploy never happened looks exactly
+  like one that deployed: the code is in git, every test that reads the SOURCE
+  passes, and only the copy at the gateway is wrong. **Found 28 of 28 stale on
+  2026-09-06, gaps up to 36 hours**, which is the whole argument for it.
+  **The reason they go stale in bulk:** a change to a widely-imported
+  `_shared` module changes the BUNDLE of every function importing it, while
+  only the function named on the deploy command is rebuilt — so `send-owner-
+  reminders` gets the new `emailTemplates.ts` and twenty-seven others keep the
+  old one. It compares GIT COMMIT times, not mtimes (a branch checkout moves
+  every mtime), follows `_shared` imports transitively, exits 1, and writes
+  nothing. **Deploy, then re-run the env-backed battery** — until you do,
+  every one of those green suites was green against the OLD copy.
+  **The database needs no equivalent**: `apply-migrations.mjs` has no tracking
+  table, but a missing table or function fails loudly at first use where a
+  stale edge function does not. Verified once by hand on 2026-09-06 (every
+  object of all 48 migrations against `information_schema`, all present; the
+  two apparent gaps are objects later migrations drop on purpose) and not kept
+  as a script.
+- **JOB PHOTOS ARE THE ONE PLACE WHERE ADDING AND DELETING NEED DIFFERENT
+  PERMISSIONS.** Any member of a business may add a photo to a job; only
+  `settings` may delete one. Taking the photo is DOING THE JOB and the person
+  holding the camera is usually staff — but a photo is evidence. Both the
+  storage policy and the row policy carry it, and `tests/job-photos.test.mjs`
+  § 4 pins both. **And the `job-photos` bucket is PRIVATE where
+  `business-media` is public**: a logo is on the booking page, a before-photo
+  is a stranger's car outside their own house. Publishing to the gallery
+  COPIES the file rather than making the private one public. If that bucket
+  ever flips public, every photo in the product becomes readable by URL and
+  nothing on any screen would change.
+- **THE RESIZE IS WHAT KEEPS THE STORAGE PROMISE, NOT THE CAP.** A phone photo
+  is 3-5 MB against a 1 GB free plan shared by every tenant — about 250 photos
+  before it is full. `photo-rules.js` resizes to 1600px / JPEG 0.8 in the
+  browser first: 200-400 KB, a 10x multiplier, invisible on a phone. **Never
+  upload a raw camera file**, and never record the ORIGINAL size against the
+  budget — either one makes the whole allowance a fiction.
+- **`indexOf(a) < indexOf(b)` PASSES LOUDEST WHEN `a` HAS BEEN DELETED.** -1 is
+  less than every real index, so an ordering check written that way is at its
+  greenest exactly when the thing it guards is gone. Found again 2026-09-06 in
+  `job-photos` 4j by baselining. **Every order check must assert PRESENCE
+  first** — `job-photos` has a `before()` helper for it. Fourth member of this
+  family after the three import-shadowing ones.
+- **The check for anything that changes a LAYOUT:
+  `node scripts/sweep-widths.mjs`.** No env vars, but unlike the tests above it
+  needs the dev server running and the demo business seeded — it drives a real
+  browser. It walks every dashboard screen, all
+  NINETEEN settings screens through TWO DOORS — THIRTEEN on Business (**this said TWELVE until *Maintenance deadlines* joined on 2026-09-06, roadmap 2.23 — a date with a consequence rather than a rhythm, beside Monthly plans so the difference is obvious**) (Monthly plans
+  joined in roadmap 2.14, "How you get paid" in roadmap 2.20, **"Common
+  questions" in roadmap 3.2(b)** — its own geometry risk is the row of THREE
+  icon buttons beside a two-line question, one more control on a `.row-item`
+  than anything else in the product, and the demo is seeded with a deliberately
+  long question so 320 has something to break — **and "Your web address" in
+  roadmap 3.3**, whose risk is the numbered three-step list that ONLY exists
+  while a domain is added and unverified, which is why `seed-demo.mjs` seeds
+  exactly that state) and FIVE behind
+  the header gear ("Your subscription" joined in roadmap 2.20 stage 2, and it
+  is walked as its own block rather than in `GEAR_ROWS`: it is owner-only and
+  its content comes from an edge function, so it waits for what the answer
+  draws rather than for a repaint) (it was eleven behind one until roadmap 2.11 step 6 stage 6,
+  and a script that opens one door reports clean on screens it never visits) —
+  **the booking link’s QR CODE, which is behind a button and so is a state the
+  script has to enter (added 2026-09-02 with it — measuring the Business index
+  says nothing about a plate that only exists after a click, which is stage
+  6’s own finding for the fifth time)**,
+  **MONTHLY PLANS AND BOTH OF ITS FORMS, WHICH ARE THE NINTH INSTANCE OF THE
+  SAME GAP — and the FIRST time it was added in the change that built the
+  screen rather than in the item that later finds it broken (roadmap 2.14,
+  2026-09-04).** The screen is two lists and two buttons; the plan form is
+  nine controls including a segmented control beside a number field, and that
+  row is what breaks at 320, not the lists above it,
+  the client sheet, **the job record in two states
+  (added 2026-09-01, roadmap 2.11 step 6 stage 2 — until then the object
+  carrying 26 of the product's 126 capabilities had never been swept, so a
+  clean run said nothing about it)**, **the calendar's OTHER TWO SCREENS —
+  the day panel with each of its three editors opened, the history, its
+  collapsed filter bar and a history job (added 2026-09-01, stage 3, and the
+  same gap: clicking the Calendar tab measured the month and nothing else,
+  so four capabilities and a whole second mode had never been opened at any
+  width)**, **MONEY'S three period kinds, its unpaid job and its expense form
+  (added 2026-09-01, stage 4 — the same gap a THIRD time, and the period
+  control is the one row in this product that has to hold one line at a desk
+  and five equal cells on a phone — it wrapped 3 + 2 until the owner rejected
+  that on 2026-09-02)**, **CLIENTS' OTHER FIVE — the list itself, each of its two other sorts, the
+  lapsed filter and a job opened from a client's own history (added
+  2026-09-02, stage 5, and the same gap a FOURTH time: it opened one client
+  sheet and measured nothing else, and this list is also the only one in the
+  product whose LAYOUT changes when a record opens, so its closed and open
+  states are two measurements rather than one)**,
+  **FIRST RUN'S FOURTEEN — the setup form's seven steps and the walkthrough's
+  seven (added 2026-09-02, stage 7, and it is the same gap a SIXTH time in its
+  sharpest form: NEITHER screen is reachable by clicking a tab. The form is
+  behind a row that only exists while setup is unfinished and the tour is
+  behind a row in the gear, so a script that walks tabs cannot see either. The
+  walk uses "I'll do this later" throughout and never presses Continue, which
+  is the one that writes; `seed-demo.mjs` pins the demo at 6 of 7 so the row
+  it opens the form from is always there)**,
+  **THE LANDING PAGE — added 2026-09-05, and until that day the page a
+  visitor meets FIRST had never been measured by anything in this repo.** It
+  was measured BEFORE being added rather than after: clean at all five widths,
+  so it changed no verdict on the day and catches the next change to it. The
+  gap existed because this script walks the DASHBOARD and the booking page, and
+  `/` is neither,
+  **`/terms` AND `/privacy` (added 2026-09-06, roadmap 7.1, in the change that
+  built them)** — public, prose in a two-column grid that collapses at 640,
+  which is a width this list does not visit, so what is watched is the 320
+  floor and the desk's term column. **Their rows reveal on SCROLL and an
+  unrevealed node still has a full box**, so the sweep asks whether the
+  sections EXIST rather than whether they are visible; whether they ever
+  reveal is the one thing it cannot see, and that was checked by hand at all
+  three widths when they were built,
+  **THE PRICING PAGE, `/pricing` (added 2026-09-05, roadmap 2.20 stage 2, in
+  the change that built it).** Public, so it is walked before the sign-in
+  beside the booking page. Its ladder changes shape twice between 1440 and 320,
+  and the founding strip is a SUPABASE READ — so the strip is waited for with
+  `appear()` and its absence PRINTS rather than skipping. It lost that race at
+  the first width of its very first full run and the `else` is the only reason
+  anybody knows,
+  **NOTIFICATIONS' "YOUR OWN WORDS" EDITOR, WHICH IS A STATE BEHIND A BUTTON
+  (added 2026-09-03, roadmap 2.18 — the SEVENTH time this same gap has been
+  found).** Twelve rows collapse to an "Add a line" button and the textarea,
+  the preset chips and the Done row only exist after a click, so a clean
+  measurement of the Notifications screen said nothing about them. **The
+  pattern, now that it has arrived seven times: the script walks NAVIGATION,
+  and a state you reach by pressing something INSIDE a screen is not
+  navigation.** When you add a control that reveals other controls, add its
+  opened state here in the same change,
+  **TEAM'S ROLE EDITOR, WHICH IS THE EIGHTH (added 2026-09-04, roadmap 2.13 —
+  a member row's name field and its four permission switches only exist after
+  pressing *Change*)**,
+  **THE REQUEST QUEUE, THE REQUEST RECORD AND THE QUOTE SHEET (added 2026-09-02,
+  roadmap 2.12), and adding them MOVED two selectors that had silently changed
+  meaning.** `.card.attend` used to mean "the lit job"; a waiting request now
+  takes the lit treatment (`dashboard-skeletons.md` §6), so on the seeded demo
+  that selector resolves to a REQUEST card — the run stays green while measuring
+  a different object under the same label, which is a rename with no error. Both
+  rail records are addressed through `.dayrail` and by rail NODE now, and
+  **tomorrow's first job is swept as its own state**, because which of the two
+  rail states exists depends on the hour the seed was run and the old pair papered
+  over that by measuring the same record twice.
+  **The demo takes REQUESTS as of 2026-09-02** (`seed-demo.mjs`,
+  `booking_mode: "request"`, two pending requests, one already quoted) — it is the
+  only business this script can log into, so a reserve-mode demo would mean the
+  request queue is never rendered at any width by anything.
+  **THE FOUR TAB GUIDES (added 2026-09-06 with roadmap 2.24, in the change
+  that built them)** — each arrives by itself the first time the browser opens
+  that tab, which is why the block presses the tab and waits rather than
+  asking for anything: the arrival IS the behaviour. **Calendar is
+  deliberately absent and a run reporting it missing would be reporting the
+  design as a defect.** The step COUNT is printed rather than asserted, because
+  how many steps a guide has depends on what the dashboard holds and pinning a
+  number would make a seed change look like a broken tour,
+  **and TWO KEYBOARD ASSERTIONS on the walkthrough at 392 — the only thing in
+  that script that is not about an edge.** They are there because the overlay
+  claims `aria-modal` and its own rule says the lit element is not clickable,
+  and both were false when it was built; they then caught the FIX being
+  broken too, in `?lite=1` only. **Run `--lite` before believing a timing
+  fix**: removing every animation changes when things settle, so it is a
+  second sample of any race for free.
+  And the booking page at
+  **1920, 1440, 392, 360 and 320** and reports anything past the right edge, anything
+  **outside its own
+  parent's box**, anything scrolling sideways with no scrollbar, and any two
+  boxes stacked with no gap. **320 joined the default in roadmap 2.9**, the item
+  that made it pass, and so did the parent-box check — until then a clean sweep
+  meant nothing was off the SCREEN, and two defects sat 19px and 11px outside
+  their card at 360 through two roadmap items because the card's padding hid
+  them. **1920 and 1440 joined in roadmap 2.11 step 3**, at the verification
+  HEIGHTS (1080 and 900), not the phone's 844.
+  **And they came with a fifth check, `dead-width`, because the other four
+  reported CLEAN on all 18 screens at 1920 with a 724px column** — "nothing is
+  off the edge" is trivially true when 62% of the screen is empty, and that is
+  the "a skipped check reads like a passing one" family again. It printed
+  *276px short* and did not gate while one constant at the top of the script,
+  `DESKTOP_SPEC_BUILT`, was `false`. **IT IS `true` AS OF 2026-09-01** —
+  roadmap 2.11 step 6 shipped the shell, `.app-main` takes `--wrap` at ≥1024,
+  and the content column measures **1,144px at both 1920 and 1440** against the
+  724px it was at every width before. **The check gates now**: a regression
+  back to a narrow column fails the sweep.
+  `--lite` runs the whole thing through `?lite=1`. It exits 0 at all five
+  widths in both paths today. Pass a width to ask a different question.
+  **PHONE LANDSCAPE IS NOT SWEPT, AND THAT IS THE OWNER'S RULING, NOT AN
+  OVERSIGHT.** Roadmap 2.11 step 4b measured 844x390 and it is genuinely
+  broken; he then said **portrait only** — *"when someone flips their phone
+  over sideways, I don't want it to completely readjust… it might get
+  annoying."* So `844` is not in the default list, there is no height special
+  case, and the `short-screen` check written for it was **removed rather than
+  left dormant** — a check nothing triggers is a check that rots. The
+  measurements are kept in `docs/dashboard-phone-pass-2026-08-31.md` §20 so
+  nobody takes them again and files them as new. **Do not re-add without
+  asking him.**
+  **AND IT REFUSES TO MEASURE A SCREEN THE ERROR BOUNDARY IS ON — new
+  2026-09-04, and it is the widest form yet of "a skipped check reads like a
+  passing one".** A one-word slip took the whole gear index down; `ErrorBoundary`
+  drew four short lines, and four short lines are not past the right edge, not
+  outside their parent, not scrolling sideways and not stacked without a gap —
+  so the run printed `the gear   clean` and then reported the twelve rows under
+  it as `NO SUCH ROW`, which reads like a renamed control rather than a crash.
+  `say()` looks for the boundary's own heading first now and prints
+  `CRASHED — <reason>`; the reason comes from `textContent`, because it lives
+  inside a CLOSED `<details>` that `innerText` correctly reports as invisible.
+  **The general form: every check this script owns is a question about
+  GEOMETRY, and geometry has nothing to say about whether the screen is the one
+  you asked for.**
+  **AND COMING BACK FROM A SETTINGS SCREEN IS `Escape`, NOT THE HEADER GEAR** —
+  the gear is `aria-pressed` and toggles you OUT of settings entirely, so a
+  block that ends with it leaves the next block looking for rows on a screen it
+  just closed. That, too, prints as `NO SUCH ROW`.
+  **What that leaves, and it was always true:** every check this script owns
+  asks about the RIGHT-HAND edge, so it cannot see a bottom-edge failure at any
+  size. `sweep-booking-steps.mjs` is the one that asks the bottom question, and
+  only of the booking page.
+  **AND IT IS BLIND TO TEXT PRINTED ON TOP OF A CONTROL — measured 2026-09-05,
+  after it called the same defect `clean` THREE TIMES IN ONE NIGHT**: a
+  hostname painted over its own *Check it* button, a question painted over
+  three icon buttons, and a sentence pulled by a negative margin straight
+  through a *Send me a sample* button. All three were found by LOOKING at a
+  screenshot.
+  **The reason is the shape of the gap rather than an oversight: every check
+  here asks about an EDGE** — the viewport's, a parent's, a scroller's, the
+  space between two boxes — **and overlapping text is inside every edge it is
+  supposed to be inside.** `.row-item .txt` even carries `min-width: 0`, so the
+  flex item genuinely shrinks; the TEXT paints outside the box it was given
+  because nothing clips it.
+  **AN INTERSECTION CHECK WAS BUILT AND THEN DELETED, AND THAT IS THE USEFUL
+  HALF.** Narrowed hard — controls only, no ancestor/descendant pairs, both
+  `position: static`, 4px of slack — it still reported **449 problems at 392px
+  alone**, almost all of them boxes that overlap while the words inside them do
+  not. That is the pricing-page lesson at ten times the volume: *a check that
+  cries wolf on every run is a check somebody starts passing over, and then it
+  stops being read at all.* **Do not re-add it without a way to compare
+  rendered GLYPHS rather than boxes.** Until then, overlap is a LOOKING check
+  — which is one more reason the screenshot pass is not optional.
+  **AND THE SUBSCRIPTION SCREEN IS TWO DIFFERENT SCREENS, ONLY ONE OF WHICH
+  EXISTS PER SEED — roadmap 2.20 stage 2.** With no subscription it is the
+  three rungs, the price breakdown and the consent tick (a four-clause
+  generated sentence beside a 22px checkbox — the riskiest geometry that item
+  added); with one it is the account, the invoice list, the cancel confirmation
+  and an error box carrying an action. **The DEFAULT seed has no subscription**,
+  which is both truthful and the harder half; `node scripts/seed-demo.mjs
+  --subscription=past_due|active|suspended` seeds the other. **The block PRINTS
+  `NOT MEASURED` for whichever state it did not find, naming that command** —
+  the rule stage 1 learned four days earlier. Both were measured on 2026-09-05
+  and both are clean; **`suspended` also sets `businesses.status = 'paused'`,
+  which darkens the booking page, so do not leave that seed behind.**
+  **The script needs the dev server and the demo login**, like
+  `shoot-dashboard.mjs`. **It stubs `navigator.share` in on purpose** — Chrome
+  on Windows has it and headless does not, and that one difference is the
+  whole of walkthrough W14.
+- **THE CHECK FOR ANYTHING ON THE PATH A CUSTOMER OR A BOOKING TAKES:
+  `node scripts/e2e-booking.mjs`** (roadmap 2.5, 2026-09-04 — 82 checks, ~3
+  minutes). Same dev server and seeds as the sweeps, plus the root `.env`,
+  which it loads itself. It is the only thing in this repo that **presses the
+  button**: `sweep-booking-steps.mjs` walks all seven steps and stops ON the
+  review step, so until this landed, the one action the product exists for was
+  exercised by no test at any level. It books in a real browser, checks the row
+  against what the price bar printed, reads the project's **edge-function
+  logs** for both sends, asks `available-slots` whether the slot is held,
+  accepts the request on the dashboard, then reschedules and cancels from the
+  receipt page and watches the slot come back.
+  **IT WALKS TWO TENANTS AND THAT IS THE POINT.** `demo-detail` is REQUEST mode
+  and the only business anything can sign into, so it gets the dashboard leg;
+  `demo-riverside` is RESERVE mode, which is the schema default and what every
+  real tenant has. **Running only the demo is what hid a white-screen crash on
+  `main` for four days** — `StepLocation.jsx` never destructured its
+  `modeLimit` prop, and the branch that reads it renders only for a business
+  offering ONE of mobile and drop-off, which the demo is not. Same finding as
+  always, in its widest form yet: **a configuration nothing seeds is a
+  configuration nothing tests.**
+  **THE EMAIL LEG IS THE PART NOTHING ELSE CAN DO.** `sendTenantEmail` is
+  best-effort by design — an email failure must never fail a booking — so a
+  dead relay is a `console.error` inside an edge function, invisible from every
+  screen and every other suite. That is exactly how the 0.2 defect survived.
+  This reads `function_edge_logs` and `function_logs` through the Management
+  API, which needs `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF`; without
+  them the leg prints **skip**, not pass. The customer address is Resend's
+  `delivered@resend.dev` simulator (roadmap 0.3's own choice), so the send
+  really reaches the provider at no cost to the sending reputation the live
+  business shares. **A tenant's owner alert falls back to
+  `businesses.contact_email` when `notification_emails` is empty** — keep every
+  seeded one on a reserved domain, or the demos hard-bounce against that same
+  reputation, which they did until this item.
+  `--slug=<one>` runs a single tenant, `--keep` leaves the booking behind,
+  `--headed` shows the browser.
+  **~~AND IT REPORTS ONE FAILURE THAT IS NOT A REGRESSION~~ — FIXED 2026-09-06,
+  AND THE SUITE IS 82/82 ON BOTH TENANTS AGAIN.** `available-slots` takes an
+  optional `exclude_booking_id` now (item F) and the reschedule picker passes
+  the booking's own id, so a booking no longer blocks its own move.
+  **FIXING IT BROKE THE ASSERTION THAT FOUND IT, and that is the transferable
+  half:** *"the old time is free again"* held only because the picker could
+  never offer a nearby slot — the booking blocked its own neighbourhood — so
+  the first different chip is now the ADJACENT half hour and a move 08:00 →
+  08:30 makes 08:00 genuinely unbookable. **The assumption broke, not the
+  product.** The check asks *free, or covered by where it went* now. The
+  original entry, because the diagnosis is still the shape to look for:
+  **IT REPORTED ONE FAILURE THAT WAS NOT A REGRESSION, AS OF 2026-09-05 —
+  READ THE MESSAGE BEFORE BISECTING.** *"the booked day is offered to move
+  within"* fails on whichever tenant's run picks a day the seed has already
+  half filled: `available-slots` has NO exclusion parameter, so it counts the
+  booking BEING MOVED as occupied, and a day whose only free room is that
+  booking's own slot drops out of its own reschedule picker. **Real, in code
+  roadmap 2.20 did not touch, date- and occupancy-dependent, and written up as
+  item F under "Not on the roadmap yet"** — the fix is one optional
+  `exclude_booking_id`, and it is a change to the customer booking path, so it
+  gets its own item.
+  **AND THE EMAIL LEG CAN SKIP FOR A SECOND REASON THAT ITS OWN MESSAGE USED
+  TO GET WRONG — fixed 2026-09-05.** `logs()` returns null both when the
+  Management API credentials are absent AND when the API refuses, and the skip
+  line named only the first. After a night of ~12 function deploys and two
+  migrations, a run hit a rate limit and printed *"needs SUPABASE_ACCESS_TOKEN
+  and SUPABASE_PROJECT_REF"* **on the SECOND tenant, in the same process where
+  the FIRST tenant's identical leg had just passed** — which sends a session to
+  look at its environment. The line says which reason now. **The tell that it
+  is a rate limit and not a regression: the run reports 77 rather than 82 with
+  ZERO failures**, and `--slug=demo-riverside` alone passes 39/39. Count the
+  checks, not just the failures.
+  **The reason it used to print TWICE is the transferable part:** the
+  assertions after it asked about the ORIGINAL date whatever day the script had
+  actually clicked, so one root cause produced a second failure — *"16:30 is
+  taken"* against a date the booking had just left — pointing at the slot
+  engine rather than at the one thing that went wrong. It follows the day it
+  clicked now. **A leg that reports the wrong half costs more than one that
+  reports nothing.**
+
+- **The check for anything that changes the BOOKING WIDGET:
+  `node scripts/sweep-booking-steps.mjs`.** Same dev server, no login (the page
+  is public). It walks every step at all four verification sizes, fills the form
+  in as a customer would, and reports how far each step runs past the bottom of
+  the screen AND how much room it has to spare. That is roadmap 2.7's W16 — the
+  owner's rule that a customer should never scroll inside a step — and the
+  script exits 1 while anything overflows, so it is the definition of done.
+  `--lite` runs the `?lite=1` path; `--shots=DIR` saves the PNGs.
+  **IT WALKS FIVE MORE THINGS SINCE ROADMAP 2.14 STEP 3, and three of them are
+  STATES rather than pages** — the flow with `?plan=`, step 1 for a customer
+  the DEVICE remembers, and BOTH AT ONCE, which is the returning member and
+  therefore the ordinary case for the whole feature. None is reachable by
+  walking, which is the
+  same gap this file records nine times: *the script walks NAVIGATION, and a
+  state you reach by pressing something INSIDE a screen is not navigation.*
+  They were added in the change that BUILT them.
+  **The fourth, `/plan/:memberId`, needs a membership UUID and this script is
+  the customer — no session, no service key.** So `seed-demo.mjs` writes
+  `scripts/demo-refs.json` (gitignored) and the sweep reads it; **missing or
+  stale, the run PRINTS that the page was not measured** rather than passing
+  quietly.
+  **AND TWO OF THEM ARE MEASURED BUT NOT GATED** — the plans page and the
+  member page. W16 is the owner's rule about STEPS, because scrolling inside a
+  form you are halfway through is what loses a booking; a catalogue of plans is
+  a page, its length is the detailer's, and all ten plan pages in the research
+  sample scroll. The number is still printed as `scrolls Npx`, because "it
+  scrolls" and "it scrolls by 600px" are different facts.
+  **AND IT WALKS A SECOND TENANT SINCE ROADMAP 8.10, WHICH IS NEW FOR THIS
+  SCRIPT — `demo-riverside`, because it is the only seeded business that takes
+  MORE THAN ONE CAR.** `demo-detail` deliberately keeps its one-car limit: the
+  spare-room figures this file quotes for steps 1 and 3 were measured against
+  it, and putting a count control on that page would move a W16 baseline that
+  has nothing to do with the item. The block presses 1, 2, 3 cars and then
+  *Different days*, which is the tallest of the four.
+  **AND THE NUMBERS IT PRINTS ARE THE POINT: at 392, one car 24px spare, two
+  114px, three 16px.** The count control is free because past one car the size
+  CARDS become the drop-down this step already switched to past four sizes —
+  about 260px shorter — but **the per-car row needed its own two-column class
+  and that was found by MEASURING rather than by reasoning**: on `.bk-grid2`,
+  which stacks at 400px and therefore stacks on a phone, three cars put step 3
+  **158px past the bottom** of a 392 screen. `.bk-vehicle` stacks at 360
+  instead. **16px of spare room at three cars is thin and is printed on every
+  run**, so a regression shows up as a number rather than as a surprise.
+  **AND `SLOTPROBE=1` PRINTS THE DAY WALK AND EVERY `available-slots` RESPONSE
+  — new 2026-09-03, and it is the thing to reach for FIRST if this script ever
+  fails on step 5.** It was added while fixing two races that had made the
+  script fail on about half its runs; the diagnosis cost most of a session and
+  none of it would have been needed with this switch.
+  **THE TWO RACES, because the shape of them is the reusable part.** The
+  script picked days by INDEX against a live locator, and choosing a day
+  re-renders the calendar — every day that cannot hold the chosen service greys
+  out, which is correct product behaviour — so `days.count()` fell to 0 and the
+  loop gave up after ONE day. **It had been passing by luck**: while today
+  still had a free slot it exited on the first iteration and never reached the
+  bug, and it began failing at ~22:00 local when the demo's own trading day
+  (08:00–18:00) closed. The second race was one level up: the month's open days
+  come from an availability call, so enumerating them straight after `settle()`
+  could read an EMPTY grid and conclude the business was shut. Both are fixed —
+  days are addressed by their date and re-queried after every render, and the
+  grid is waited for before it is read. **`settle()` is a CAP and a fine one on
+  a repaint; it is not a wait for a network round trip.**
+  **AND THE PROCESS LESSON, which cost more than the bug: RUN THE CONTROL
+  BEFORE BLAMING THE DIFF.** This failure appeared in the same minute as an
+  unrelated CSS change and looked exactly like its fault. Reverting that change
+  and watching the script fail identically is what proved it innocent, in one
+  run.
+  **Read the spare room, not just the pass.** Both step 1 and step 3 are the
+  TENANT’S budget, not ours, and both were re-measured in roadmap 2.8b against
+  the demo reshaped into the owner’s own menu — two categories of three.
+  **W21, W25, W9, W10, W22 and W27 are all BUILT as of 2026-08-31**; what
+  follows are the numbers that replaced the ones this file used to quote.
+  **STEP 1’S TIGHTEST SCREEN IS 1440x900, NOT THE PHONE**, and every older note
+  in this repo says otherwise. A service card is 84px there against 74px at
+  392, because `.bk-card`’s padding clamps up, and 900px is the shortest screen
+  we verify. Six services in two categories: **10px spare at 1440x900**, 47px
+  at 392x844. A seventh breaks the laptop first. **STEP 3’S VEHICLE-SIZE
+  CEILING IS FOUR, not the six roadmap 2.8 measured** — that figure was taken
+  before W27’s condition question landed on the same step, and it costs 120px.
+  Four sizes: 39px spare at 392, 23px at 1440. Five: over by 40px and 66px.
+  Past four, `StepVehicle` draws a drop-down instead of cards, so a longer list
+  is supported and simply stops being boxes.
+  **UPDATED AGAIN BY ROADMAP 2.8c.** Step 4 now carries the travel-area
+  picker and went 6px OVER on a phone when it landed; it is back to **52px
+  spare at 392 and 74px at 1440x900**, won by cutting a line that restated the
+  step’s own heading. Step 1 is unchanged. **Both times height was won back
+  from COPY, not layout — when a step overflows, look first for the sentence
+  that is already on the screen.**
+  **The lesson under all of it: a spare-room figure is only true of the screen
+  AND the feature set it was taken with.** Quote both, or the number rots.
+  **EVERY FIGURE ABOVE IS A PORTRAIT FIGURE, AND PORTRAIT IS THE ONLY SHAPE
+  THIS PRODUCT SUPPORTS.** Measured 2026-08-31: `sweep-booking-steps.mjs
+  844x390` reports **all eight steps over, the worst by 467px — 120% of the
+  screen, on step 1.** **The owner ruled the same day that phones are portrait
+  only and that rotating one must change nothing**, so W16 is a PORTRAIT rule
+  and those numbers are not a defect list. Roadmap 2.16 was opened for them and
+  **closed by him unstarted**; the figures live there so nobody re-measures
+  them and files them as new.
+
+- **THE EMAILS ARE LIGHT-FIRST WITH A DARK VARIANT, AND THAT IS MEASURED
+  RATHER THAN CHOSEN (roadmap 2.18, 2026-09-03).** They shipped dark-first; the
+  owner opened them on real devices and **Gmail's dark mode inverts an
+  already-dark email and cannot be told not to** — it ignores `color-scheme`
+  and `prefers-color-scheme` alike. Measured on our own palette by applying
+  Gmail's transform: the accent as words **10.07:1 → 1.99:1**, the button's ink
+  **10.88:1 → 1.77:1**, against a 4.5:1 floor. **Unfixable by palette** —
+  inversion barely moves a mid-lightness accent while swinging its near-black
+  ink to near-white, and all four accents tested fail.
+  So: **every colour is INLINE and LIGHT** (`--paper`, the design system's own
+  light band), and **one `<style>` block keyed on `prefers-color-scheme: dark`**
+  swaps in `--ink-0`. Apple Mail — ~60% of opens — still shows the dark design.
+  A client that strips `<style>` shows a complete light email, so nothing
+  depends on that block.
+  **THE FAILURE MODE THIS CREATES: the dark palette applies BY CLASS**, so an
+  element that sets a colour inline and forgets its class stays LIGHT inside a
+  dark email — and no contrast check can see it, because both values are
+  individually fine. `render-emails.mjs` walks the rendered output and fails on
+  any inline colour without a class. **Add the class when you add the colour.**
+  **And pure `#ffffff`/`#000000` are banned in BOTH palettes** — Apple Mail
+  treats either as permission to invert the whole email, which is the one way
+  to make Apple Mail behave like Gmail.
+- **AN ADJUSTMENT CAN BE NEGATIVE, AND `moneyBlock` DRAWS BY `kind` RATHER
+  THAN BY SIGN — fixed 2026-09-04, and it was older than the item that found
+  it.** A −$120 line with no `kind` printed as a $120 CHARGE while the total
+  was $120 lower, so the column silently stopped adding up. `accept-quote`
+  could already reach it: it pushes a *"Quoted discount"* line whenever a
+  detailer quotes UNDER the original estimate. Roadmap 2.14's plan line made
+  it the ordinary case. **Fixed in `quoteLines`, the one place every
+  adjustment reaches the page** — the same shape as the invoice that missed
+  its total by exactly the promo. **When you add a money line anywhere, set
+  its `kind`; a sign is not a kind.**
+- **THE EMAILS ARE REBUILT AND LIVE (roadmap 2.18, 2026-09-03).** The old
+  ~530-line `emailTemplates.ts` is gone. **`_shared/emailKit.ts` is the world** —
+  the ground, the design-system tokens, the blocks and the shell, with the
+  email-client constraints in its header. **`_shared/emailTemplates.ts` is the
+  twelve templates**, each one a LIST OF BLOCKS rather than an HTML literal.
+  **`emailDarkBrandColors` is a SECOND export beside `emailBrandColors`**, which
+  is untouched — the paper function is what 138 of the checks were written
+  against and editing it turns a green suite red for unrelated reasons.
+  **A template is a list of blocks and that survived the editor being
+  scrapped**: it buys twelve consistent templates, and — the better reason —
+  **the plain-text half of every email is ONE derived pass (`htmlToText`)
+  rather than twelve twins that drift.** HTML-only sending was a live
+  spam-filter defect until this item; `send-email` sets `text` now.
+  **`reconcile(lines, total)` is why the money adds up**, and it is structural
+  rather than a promise: both money templates pass their lines through it and
+  it draws any remainder as its own line. **`bookings` has no `site_discount`
+  column** — the amount is baked into `subtotal` at booking time — so the site
+  sale and the rounding are drawn by `reconcile`, and only the promo is
+  itemised by name.
+- **THERE IS EXACTLY ONE COMMERCIAL EMAIL AND IT OBEYS A DIFFERENT SET OF
+  RULES — roadmap 2.19, 2026-09-05.** Twelve of the thirteen templates are
+  TRANSACTIONAL: the customer asked for them by booking something. The
+  thirteenth, `campaignEmail`, is a detailer picking names off their own
+  Clients list and typing a sentence. **CAN-SPAM classifies a message by its
+  PRIMARY PURPOSE, never by what pressed send**, so it needs a postal address
+  and a working opt-out exactly as an automated blast would — the roadmap
+  entry's *"most of that machinery goes away"* is true of the SCHEDULING and
+  false of the statute. Both ride `shell`'s optional `legal` argument, which
+  is absent everywhere else; `tests/campaign.test.mjs` asserts the campaign has
+  them AND that a booking confirmation does not.
+  **NOTHING SENDS IT. That is the owner's line and it is the whole design** —
+  no cron, no segments, and the *"14 haven't been back"* nudge is a ROW ON
+  TODAY, never an email to the detailer. **If the nudge ever becomes an email,
+  re-read this paragraph.**
+  **THE OPT-OUT IS TWO STEPS ON PURPOSE.** A one-click GET link is followed by
+  Gmail's prefetcher and by every corporate link scanner — each would silently
+  opt a customer out of a business they still want. `/unsubscribe/:customerId`
+  READS; a human presses the button that WRITES.
+  **`businesses.mailing_address` IS NOT `dropoff_address`** — a mobile detailer
+  has no unit, which is exactly who this product is for — and `send-campaign`
+  refuses to send without it.
+  **THE 50-PER-PRESS CAP IS ABOUT BOOKINGS, NOT SPAM.** Resend's free plan is
+  **100 emails A DAY ACROSS EVERY TENANT** and the transactional set spends ~5
+  a booking, so an unbounded campaign could stop confirmations going out — and
+  it would present as *"the booking page is broken"*. The 550ms gap is Resend's
+  2-per-second rate limit; this is the only place in the repo that sends in a
+  loop. **Raise the cap when the platform has its own Resend account** (2.18's
+  open thread, priced in 2.20).
+  **AND THE DEMO HAD ZERO LAPSED CUSTOMERS UNTIL THIS ITEM**, so the
+  `Clients · not seen in 3 months` block the width sweep has walked since
+  2026-09-02 was measuring an empty screen and printing `clean`. Five are
+  seeded now — one with no email, one opted out, one with a long name for the
+  chip wall at 320. Same family as everything else in this section.
+- **A GUARD THAT SKIPS MUST PRINT, AND THE CLIENTS BLOCK IS WHAT PROVED IT —
+  2026-09-04, roadmap 2.20.** Every state in `sweep-widths.mjs`'s Clients block
+  is drawn from a Supabase read and the block opened with `settle()` then
+  `count()` — the race this file already records for Monthly plans and Team,
+  in the one block nobody re-checked when that lesson landed. **In `--lite` it
+  lost at THREE of five widths**, and because every state there is guarded by
+  `if (await ...count())`, the sorts, the lapsed filter, the compose sheet, the
+  client record and the job from its history simply **did not happen**: the run
+  printed `Clients · the list   clean` and moved on. **Six measurements
+  vanishing is byte-identical to six measurements passing.**
+  **IT WAS FOUND ONLY BECAUSE A NEW STATE PRINTED `NOT MEASURED` INSTEAD OF
+  SKIPPING.** That is the whole lesson and it is cheaper than any of the fixes
+  in this file: **when you add a state to a browser script, give its `if` an
+  `else` that says it did not run.** A skipped check reads exactly like a
+  passing one — this repo's most repeated finding — and one `console.log` is
+  the entire cure.
+  **The mechanical half is worth knowing too: `appear()` was declared
+  immediately before the settings walk**, so a `const`'s temporal dead zone put
+  it out of reach of the Clients block two hundred lines earlier — the helper
+  written to fix this exact race could not have been called at the site that
+  still had it.
+  **"HIGH UP" WAS NOT HIGH ENOUGH AND IT HAPPENED AGAIN — 2026-09-05.** It was
+  still inside the width LOOP, so the pricing block six hundred lines above it
+  could not call it either, and that block then lost the same race. **It is at
+  MODULE scope now**, beside `settle()`. It closes over nothing and never
+  needed to be in the loop. A helper that exists to fix a race is worthless at
+  every call site that lexically precedes it, and this is the second time that
+  sentence has had to be written.
+- **A REJECTED SEND IS A FACT ABOUT THE CUSTOMER, NOT AN ENTRY IN A LOG —
+  roadmap 2.20, 2026-09-04.** `sendTenantEmail` is best-effort by design (an
+  email failure must never fail a booking), so until this item a provider
+  rejection was a `console.error` inside an edge function and **the first
+  symptom was a customer saying they never got their confirmation.**
+  `customers.email_failed_at` / `email_failed_reason` are stamped by
+  `send-email` **on a 4xx only** (a 5xx is the provider having a bad day, not
+  this address being wrong — stamping it would put "this address bounced" on
+  every customer emailed during a Resend outage, which is the fastest way to
+  teach a detailer to ignore the flag) and **cleared by the next successful
+  send** — the asymmetry with
+  `unsubscribed_at` is deliberate and is the whole design: **an opt-out is
+  permanent until a human undoes it; a bounce must clear itself**, or a
+  detailer who fixes a typo is told forever that the address they just
+  corrected is broken and the flag becomes something to ignore.
+  **THERE ARE NOW THREE WAYS TO BE UNREACHABLE** — no address, opted out,
+  bounced — **and three places ask the question**: Clients' `emailable` count,
+  `CampaignModal`'s, and `send-campaign`'s `eligible` filter. **The last one is
+  the enforcement and the other two are courtesy**, because a caller can post
+  ids straight at the function. `tests/payments.test.mjs` § 6 holds the
+  predicate so they cannot drift, and **"nobody is quietly dropped" applies**:
+  a person who is both opted out and bounced is counted once.
+  **A "failed emails" SCREEN was the obvious build and was refused** — a place
+  you have to remember to visit, about a problem you only ever care about one
+  person at a time. It is drawn under the address on the client sheet, which is
+  the only place in the product that prints a customer's email. **The job
+  record does not print one at all**; if it ever does, the line belongs there
+  too. The QUOTA half needed nothing — Resend already emails at 80% and 100%.
+- **THE PRICING PAGE IS THE LEGALLY LOAD-BEARING HALF OF THE CHECKOUT, NOT
+  DECORATION IN FRONT OF IT — roadmap 2.20 stage 2, 2026-09-05.** `/pricing`
+  (`app/src/landing/PricingPage.jsx`) carries the two plans, the three ways to
+  pay and the founding price. **California's AB 2863 requires the
+  auto-renewal terms, the twelve-month commitment and the early-exit fee to be
+  clear and conspicuous BEFORE billing details are taken**, and there are no
+  billing details on this page — which is exactly why it is where "before"
+  happens. **A session that moves a disclosure onto the checkout breaks the
+  ordering the statute cares about.**
+  **NOTHING IS PRE-SELECTED AND THE LADDER'S SHAPE IS WHAT GUARANTEES IT.**
+  The FTC sued Adobe in June 2024 over the PRESENTATION of an exit fee, not the
+  fee: a pre-selected plan, the commitment in fine print, an obstructed
+  cancellation. Three cards side by side invites a highlighted middle, which is
+  a pre-selection in everything but name — so the three ways to pay are three
+  RULED RUNGS and **there is no selection state on the page at all**. Do not
+  "improve" it into a radio group with a sensible default, and never add
+  *"most popular"*: with no customers it is a claim we cannot substantiate as
+  well as a pre-selection in disguise. `landing-pricing` 7b fails on both.
+  **EVERY FIGURE, INCLUDING THE TERM AND THE FEE, COMES FROM `pricing.js`** —
+  `term: { months: 12, exitFeeShare: 0.5 }` — because the checkout will CHARGE
+  what this page PRINTS. **And each rung's headline figure is what leaves the
+  BANK**, never an "effective monthly": $600 a year, not $50 a month. The
+  saving is in MONTHS FREE, which is also the only framing that works for both
+  columns — as an effective monthly the founding annual is $33.33.
+  **THE FOUNDING LADDER IS DERIVED, NOT DECIDED**: $400 and $50 are the list
+  ladder's own two rules (2 months free, +25% for no commitment) applied to
+  $40, and the test pins the RULES so the owner is told whether a new number
+  still makes sense rather than that it changed.
+  **THE PAGE NOW PROMISES DUNNING BEHAVIOUR NOTHING IMPLEMENTS** — two weeks of
+  retries with an email each time, then the site goes offline until paid,
+  nothing deleted. That was research plus his ruling on non-payment; it is a
+  printed promise now and the checkout is bound by it.
+  **The tick is deliberately at the CHECKOUT and not here**: consent has to be
+  stored with the subscription at the moment of purchase, and consent gathered
+  on a marketing page and carried through a signup flow is consent that can be
+  lost.
+- **A DETAILER CAN NOW BUY, AND NOTHING HAS EVER TALKED TO STRIPE — roadmap
+  2.20 stage 2's second half, 2026-09-05.** `platform_subscriptions`,
+  `platform_invoices` and `stripe_events` exist and are applied;
+  `platform-billing` (owner-only) and `stripe-webhook` (public) are deployed;
+  `screens/more/Billing.jsx` is the FIFTEENTH settings screen, behind the gear.
+  ~~**`stripeConfigured()` is FALSE on every deployment today**~~ **IT IS TRUE
+  AS OF 2026-09-05 — the owner opened a Stripe TEST account and the whole thing
+  was exercised end to end**: a real Checkout session paid with `4242…`, four
+  webhook events, the row `active` with the price snapshotted and the consent
+  stored, and a test-clock run that took a second tenant from `past_due` to
+  `suspended` with its booking page genuinely offline. `STRIPE_SECRET_KEY` and
+  `STRIPE_WEBHOOK_SECRET` are **Supabase function secrets on the platform
+  project** (never in a file), and the webhook endpoint was registered through
+  the API rather than the dashboard. **The account is not ACTIVATED**, so no
+  real money can move; swapping the test keys for live ones in December is the
+  only change.
+  **FOUR THINGS THE LIVE RUN TAUGHT THAT NO AMOUNT OF READING WOULD HAVE:**
+  **(1) Stripe's default end-of-dunning is a CANCELLATION, not `unpaid`** — the
+  setup notes tell the owner to change that, and on a fresh account it is not
+  changed. The run survived only by event ordering, and the other order left a
+  row saying `canceled` while the page was dark and `dunningState()` said
+  nothing was wrong. **`suspended_at` outranks the status word now.**
+  **(2) `invoice.charge` IS AN ID, so the decline reason was ALWAYS null** —
+  `asObj(invoice.charge)` on an unexpanded invoice is `{}`. It looked correct
+  and the email simply never printed the line a detailer can act on. One extra
+  call fetches the charge, preferring `failure_message` over
+  `outcome.seller_message`, which is often *"the bank did not return any
+  further details"*.
+  **(3) THE PINNED API VERSION IS LOAD-BEARING AND IT IS NOW MEASURED: at
+  `2024-06-20` an invoice carries `charge` and `payment_intent`; at this
+  account's newer default it carries NEITHER.** The webhook endpoint is
+  registered at the same version, and the two must move together.
+  **(4) Stripe Tax refuses the WHOLE session without a head office address**,
+  in test mode too — a dashboard setting, which this item has now refused three
+  times to let be load-bearing. `subscribe` falls back without automatic tax and
+  returns the reason; the fallback cannot under-collect, because a registration
+  requires that address anyway. **The owner's 60 seconds:**
+  https://dashboard.stripe.com/test/settings/tax
+  Test § 16 pins all four.
+  **AND HIS ANSWER TO (1) CREATED A DEAD END, FIXED THE SAME DAY.** He left
+  Stripe's end-of-dunning default alone (*"ima have that the same for now"*), so
+  a subscription is CANCELLED when the retries run out — **and there is then no
+  invoice left to settle.** The suspended screen offered *"Update card"*, which
+  fixes nothing, and the suspended email promised the page comes back *"the
+  moment a payment goes through"*, which a card cannot deliver. **`summary`
+  returns `restartable` now**: the screen shows the ladder again with a line
+  saying the last subscription ended and nothing is owed from before,
+  `subscribe` allows that restart (**it answered 409 — a way back that does not
+  work is worse than no way back**), and the email says *"Put your page back
+  online"*. **A DELIBERATE cancellation is told apart by columns that already
+  existed** — our cancel button sets `cancel_at_period_end`, dunning never
+  does — so somebody who quit on purpose is not shouted at. **If the setting is
+  ever changed to "leave unpaid", none of this breaks**: the test is whether a
+  chargeable subscription still exists, so the card comes back by itself.
+  Test § 17.
+  **HIS OTHER TWO ANSWERS, so nobody re-asks:** no business address until
+  December (so Stripe Tax stays off and the NEXUS MONITOR is what is actually
+  deferred), and he DECIDED NOT to roll the test key that was pasted
+  into the chat — *"it's just a sandbox one, I'm fine with it being in the chat
+  history"* — **which is correct and is not to be re-raised.** A `sk_test_` key
+  reaches test mode only: no real card, no real customer, no real payout.
+  **The LIVE key is a different object and the rule is absolute**: it never
+  appears in a chat, a file, a commit or a log, and goes straight onto
+  Supabase's secrets page in December.
+  **THE CHECKOUT IS OURS AND THE CARD FIELDS ARE STRIPE'S — his choice between
+  Stripe's three shapes, 2026-09-05.** *"An option to just I make / we make the
+  like gui thing, so I chose that one so it can look like the rest of the
+  website."* The hosted page at `checkout.stripe.com` is gone: `subscribe`
+  (renamed from `checkout`) creates a Subscription with
+  `payment_behavior: "default_incomplete"`, hands back a client secret, and
+  `Billing.jsx` mounts Stripe's **Payment Element** inside our own card.
+  **THE CARD FIELDS ARE STILL AN IFRAME ON STRIPE'S ORIGIN, so the PCI position
+  is IDENTICAL** — no card number reaches this product, this server, this repo
+  or any log. Only the frame moved, and the sentence under the button says so.
+  - **`app/src/lib/stripejs.js` injects `js.stripe.com/v3` and there is no npm
+    package on purpose.** Stripe REQUIRES the script come from their origin and
+    forbids bundling a copy; `@stripe/stripe-js` is a ~2 KB wrapper around
+    exactly that injection, and this frontend is four dependencies.
+  - **`appearanceFromTokens()` READS THE LIVE PAGE.** Stripe's Appearance API
+    takes concrete values — it cannot resolve `var()` across origins — so the
+    obvious version is a second hand-written palette, which is the drift the
+    design system exists to prevent. Reading `getComputedStyle(<html>)` at
+    mount means the form follows a token rename and follows **the tenant's own
+    accent**, which `lib/theme.js` writes at runtime.
+  - **`product_data` is accepted by Checkout Sessions and REJECTED by the
+    Subscriptions API.** `productFor()` finds-or-creates a Product by
+    `metadata.tag === "dp-line"`. **The Product carries only the NAME;
+    `unit_amount` is still sent from this repo on every call.**
+  - **THE CARD DETAILS CAME BACK NULL, and it is the failure mode to expect
+    from every hosted page removed later**: they were filled from
+    `checkout.session.completed`, **and with our own form that event never
+    fires**. `subscriptionChanged` reads `default_payment_method` and fetches
+    the card itself. Nothing broke; an event simply stopped arriving.
+  - **STILL STRIPE'S, VISIBLY:** the payment-method tabs carry Stripe's own
+    promotions (a green *"$5 back"* on Bank, Klarna, Cash App). Dashboard
+    settings, not repo settings, **left alone deliberately** — restricting to
+    cards costs conversion and is his call with real numbers.
+  - **THE LIMIT OF THE PROOF:** the browser tool cannot type into a
+    cross-origin iframe, so **no session has typed a card number into this
+    form.** Proven: it mounts, is styled from live tokens, measures clean at
+    all five widths, and `subscribe` returns a real secret for a real $539 —
+    and that same PaymentIntent, confirmed server-side with `pm_card_visa`,
+    went `succeeded` → webhook → `active`, `$539 paid`, `visa ···· 4242`.
+    **Unproven: `stripe.confirmPayment` and 3-D Secure**, which need a human at
+    a real browser. Test § 18.
+  **THE ONE RULE THAT OUTRANKS EVERYTHING ELSE HERE: the page PRINTS and the
+  server CHARGES, and one pure module does both.**
+  `supabase/functions/_shared/platformBilling.ts` holds the price table,
+  `planFor`, `lineItemsFor`, `consentSentence`, `exitFeeCents`, the Stripe
+  status map and the dunning words. **It is the SECOND copy of
+  `app/src/landing/pricing.js`** — a Deno bundle will not follow an import out
+  of `supabase/`, the same wall that forced `_shared/brandColor.js` — and
+  `tests/platform-billing.test.mjs` (336 checks — measured, not estimated) pins the two tables value by
+  value AND ties every rung to the money on the wire. **This is the first place
+  in the product where "a number PRINTED is not a number CHARGED" is literally
+  true rather than a metaphor.**
+  **THE SCREEN DOES NO ARITHMETIC ABOUT MONEY.** Every figure, the consent
+  sentence and what cancelling costs today come from `platform-billing`'s
+  `summary` action, so the words a detailer reads and the words stored against
+  their subscription are produced by the same call to the same function. `summary`
+  needs no Stripe key, which is the whole reason the screen could be built and
+  looked at months before there is an account. **Do not "simplify" it into a
+  client-side calculation.**
+  **EVERY PRICE IS SNAPSHOTTED ON THE ROW AND NEVER RE-READ.** `pricing.js` is
+  what the page prints today and it will change; a subscriber's price is fixed
+  at the moment they agreed to it. The exit fee is the sharp case —
+  recomputing it from a later config turns a $240 fee into $360.
+  **`consent_text` STORES THE WORDS, NOT A BOOLEAN.** A `true` proves somebody
+  ticked something; the sentence they ticked is what answers a chargeback, and
+  a chargeback is the actual risk the whole AB 2863 / Adobe reading exists to
+  manage. The sentence is GENERATED from the snapshot, so a client cannot post
+  a friendlier one than it showed.
+  **SUSPENSION IS `businesses.status = 'paused'` AND NOTHING ELSE — it was
+  already built.** `businessBySlug` and `get_public_business_profile` filter on
+  `status = 'active'`, so one column darkens the PUBLIC booking page;
+  `businessById` does not, so a customer who already booked keeps the page they
+  cancel and reschedule from, and the dashboard is reached by membership so the
+  detailer keeps every row. **That is the pricing page's printed promise
+  exactly, and it is roadmap 4.4's suspend built once.** The webhook guards it
+  both ways — it only pauses an `active` business and only reactivates one it
+  paused.
+  **THE WEBHOOK IS DEPLOYED WITH `verify_jwt=false` AND THAT IS LOAD-BEARING.**
+  Stripe has no Supabase JWT; with verification on, the gateway rejects every
+  event before the function runs and **the whole dunning mechanism silently
+  does nothing** — unpaid for two weeks, no page ever offline, no error
+  anywhere. It is safe because **the signature IS the authentication**:
+  `verifyWebhook` runs first, over the RAW body (`req.text()`, never
+  `req.json()` — the MAC is over bytes), with a timestamp tolerance, and
+  `stripe_events` is an insert-first idempotency lock because Stripe
+  redelivers. Test § 8 and § 11 pin all of it. `stripe-webhook` is in
+  `deploy-functions.mjs`'s `PUBLIC_FUNCTIONS`; **`platform-billing` is not.**
+  **AN UNKNOWN STRIPE STATUS MAPS TO NULL AND THE CALLER KEEPS WHAT IT HAD.**
+  Defaulting to `active` gives the product away; defaulting to `suspended`
+  takes a paying detailer's site down because Stripe shipped a feature we do
+  not use.
+  **THE PORTAL IS PINNED TO THE CARD-UPDATE FLOW ON PURPOSE.** Stripe's own
+  portal would let somebody cancel from it, skipping the exit fee and our
+  `canceled_at`. **The cancel button stays ours and stays ONE PRESS behind ONE
+  confirm** — AB 2863 requires it and it is the fourth item on the FTC's Adobe
+  list — with the fee printed BEFORE the press. Never move it behind support,
+  a reason picker or a retention offer.
+  **INLINE `price_data`, NEVER STRIPE PRODUCT IDS.** An id puts the amount in
+  another company's admin panel where nothing in this repo can see it. It is
+  also zero Stripe dashboard setup for the owner to get wrong.
+  **AND `_shared/` MODULES A NODE SCRIPT IMPORTS MUST STAY NODE-LOADABLE.**
+  Two ways to break that were hit in one session: a TypeScript **parameter
+  property** (`constructor(msg, readonly status: number)`) cannot be
+  type-STRIPPED, only transformed, so `StripeError` made the signature check
+  unimportable; and importing `config.ts` reads `Deno.env` **at module scope**,
+  which made every email unrenderable from `render-emails.mjs` — hence
+  `platformBrand.ts` takes `siteUrl` as an argument.
+- **`shoot-dashboard.mjs --url pricing` SHOOTS A PUBLIC PAGE, and two things
+  about it are not obvious — added 2026-09-05 because the owner is reading
+  sessions on a phone and nothing in this repo could photograph `/` or
+  `/pricing` for him** (`sweep-widths.mjs` walks them and only MEASURES;
+  `sweep-booking-steps.mjs --shots` knows the booking flow alone).
+  **DROP THE LEADING SLASH.** Git Bash rewrites `--url /pricing` into
+  `C:/Program Files/Git/pricing` before node sees it — MSYS path conversion —
+  and the error names a path nobody typed. The script normalises both forms
+  now; `MSYS_NO_PATHCONV=1` is the other half.
+  **AND `fullPage: true` IS UNUSABLE ON THE LANDING SURFACE.** It stitches
+  viewport slices and `.ground` is a `position: fixed` layer, so every slice
+  after the first comes back EMPTY: the first shot of `/pricing` was 3,455px
+  tall with the bottom four fifths blank while a live browser at the same
+  moment showed three rungs at `opacity: 1` with real text. **A blank
+  screenshot of a working page is worse than no screenshot** — it is a bug
+  report about something that is not broken, and on this surface it also looks
+  exactly like the `data-rv` reveal defect this repo has already had. The
+  branch grows the viewport to the whole document and takes ONE frame, and
+  forces `.in` on every `[data-rv]` first because a `fullPage` capture never
+  scrolls and so never triggers a reveal.
+- **A STRUCK PRICE IS ONLY EVER A REAL LIST PRICE, ON EVERY SURFACE — the
+  owner, 2026-09-05: *"it should visually show like the discount price vs the
+  regular price for the founder spots."*** He was right about an inconsistency
+  INSIDE `/pricing` rather than a missing feature: the build fee already
+  printed `~~$999~~ $499` and the three rungs under it printed the founding
+  figure alone, so the page taught a reader what a discount looks like and then
+  stopped. **Both `/pricing` and the dashboard's own ladder strike now**, and
+  the dashboard needed a server change to do it — `summary` resolves `quotes`
+  to ONE column, so it returns `list_recurring_cents` / `list_setup_cents`
+  computed by the same `planFor` at `founding: false`.
+  **THE RULE, WHICH IS OLDER THAN THIS ITEM AND DOES NOT SOFTEN ANYWHERE:** a
+  strike is a REAL price the product charges somebody, never an anchor typed in
+  to make the other number look smaller (`LandingPage.jsx` has carried that
+  sentence since 2.2). **The screen's test is whether the two figures DIFFER**,
+  not whether the account is founding, so nothing is struck when there is no
+  saving. `landing-pricing` 6b pins all four figures and the guard;
+  `platform-billing` § 15 pins the server half and that every founding figure
+  really is lower.
+  **AND `theme.css`'s `.was` IS ANCHORED ON `.card`, AFTER TWO WRONG TRIES THE
+  TESTS CAUGHT.** `.figure .was` matched three of the four sites and the fourth
+  printed `$999$499` with no gap — a rule losing silently. Bare `.was` fixed
+  that and failed `composition` 4b, because theme.css is GLOBAL and
+  `landing.css` has its own `.was`.
+  **`seed-demo.mjs` SEEDS THE DEMO AS `plan_tier: 'founding'`** so the struck
+  prices are the DEFAULT swept state — a strike only exists on a founding
+  account, and seeded standard the whole treatment would be measured nowhere.
+  **IT USED TO COST ONE OF THE THREE SPOTS AND NO LONGER DOES — roadmap 6.2,
+  2026-09-06.** `businesses.is_demo` is excluded from the COUNT in
+  `founding_offer()` AND in `claim_founding_spot()` (they must move together,
+  or the page advertises a spot the claim then refuses). **PRECISION ADDED
+  2026-09-07, because this sentence read as more than it says and 8.14's test
+  proved it: a demo business is excluded from the COUNT, not from being
+  GRANTED the tier.** `claim_founding_spot` happily sets `plan_tier =
+  'founding'` on one — which is what `seed-demo.mjs` deliberately does so the
+  struck prices are the swept state — it simply does not count it against the
+  three. A fixture created with `is_demo: true` therefore comes back FOUNDING
+  from `subscribe`, and a test that assumed otherwise measures the wrong
+  ladder, so the demo still renders the
+  struck founding prices and `founding_offer()` reads **3 of 3**. The roadmap
+  had required this since it was written and the product had been quietly
+  breaking it: the public page prints that answer, so a demo in the count told
+  every visitor *"2 of 3 left"* when three were — harmless while nobody has
+  signed up, and **a false scarcity claim the day a real detailer takes the
+  second**. `seed-two-tenants.mjs` marks its two as well.
+- **A SCREEN WAITING ON AN EDGE FUNCTION IS PERFECTLY QUIET, AND BOTH
+  `settle()`s USED TO RETURN ON IT — fixed 2026-09-05, and it is the widest
+  form yet of "a skipped check reads like a passing one".** No spinner, no
+  animation, a still DOM: `sweep-widths.mjs` and `shoot-dashboard.mjs` both
+  settled on a card reading *"Checking your subscription…"* and the shooter
+  sent the owner a photograph of a loading line. **Both now also wait for
+  `[data-loading]`**, which `Billing.jsx` carries and which costs no pixels.
+  **When you build a screen whose content comes from an edge function rather
+  than from a table, put `data-loading` on its loading state** — the two
+  `settle()`s are the only readers and every browser script in the repo gets it
+  for free. `appear()` remains the right tool for one named control; this is
+  for the whole screen.
+- **AND THE MONEY ON A SCREEN IS A FIGURE — law 8, broken on the first screen
+  built after it was written (2026-09-05).** `docs/design-system.md` law 8:
+  *"A price set in the body face is a bug."* Billing's ladder obeyed it while
+  the `.facts` breakdown four rows below set `$1,059`, `$999` and `$60` in
+  Archivo — one card, two money faces. **`v strong num` is the house spelling**
+  (`SetupForm.jsx`, `Today.jsx`), and the sharpest instance was the early-exit
+  fee at 13px in `--fog` mid-paragraph above a red button: **the largest
+  unexpected number in the product, set as an aside.** A figure a person is
+  about to be charged gets its own row.
+- **AN EXIT-FEE INVOICE IS NOT A RENEWAL, AND UNTIL THE SECURITY REVIEW IT DROVE
+  THE DUNNING STATE MACHINE — 2026-09-05, roadmap 2.20 stage 2, and it is the
+  one exploitable defect that item produced.** `platform-billing`'s `cancel`
+  raises a ONE-OFF Stripe invoice for the early exit and it carries
+  `metadata.business_id`, so the webhook resolved it to a business exactly as it
+  would a monthly renewal. **PAYING it cleared the whole dunning state and
+  brought a SUSPENDED booking page back online with the subscription still
+  unpaid**; and because **a manual invoice has no retry schedule,
+  `next_payment_attempt` is null on its FIRST failure** — the one signal that
+  means "the two weeks are up" — **a declined exit fee took a fully paid
+  detailer offline immediately** and emailed them that their site was down. The
+  second needs no attacker.
+  **`isSubscriptionInvoice()` is the guard and it tests the invoice's own
+  `subscription` field, never the metadata**, so it covers the next one-off
+  somebody adds. **A one-off is still MIRRORED onto the receipts list — it is a
+  real charge — it simply cannot move the account's state.** Test § 14 pins
+  both handlers applying it, and that the guard sits AFTER the mirror.
+  **THE OTHER FINDING IS THE TRANSFERABLE ONE: the portal's lock lived in
+  STRIPE'S DASHBOARD while the file's comment claimed it did not.** `flow_data`
+  decides where a customer LANDS; the portal CONFIGURATION decides what they can
+  reach around it, and that is admin-panel state nothing here can read — **the
+  exact failure this same item had rejected one screen earlier** when it refused
+  to let Stripe's own emails be the only ones sent. `cardOnlyConfiguration()`
+  creates it from code now, with cancel, plan-change and customer-edit off.
+  A portal that offers cancellation is a twelve-month term left without the exit
+  fee ever being charged.
+  **And four smaller ones, all pinned:** `?? "active"` on an unknown Stripe
+  status at checkout (it is `?? "incomplete"` — the safe direction costs a
+  refresh and cannot give the product away); a late `invoice.paid` reviving a
+  CANCELLED subscription, because Stripe promises no event ordering;
+  re-subscribing leaving the previous cycle's `stripe_subscription_id` on the
+  row, which `cancel` and `resume` address Stripe by; and the exit fee recorded
+  AFTER the call that could throw.
+- **THE PLATFORM SENDS TWO EMAILS IN ITS OWN NAME NOW, AND THEY ARE THE ONLY
+  ONES — roadmap 2.20 stage 2.** Thirteen templates are a detailer speaking to
+  somebody; `billingEmail` (`failed` / `suspended`) is us telling a detailer
+  their card stopped working. `_shared/platformBrand.ts` builds a `TenantBrand`
+  for the platform so every block in `emailKit.ts` works unchanged, and
+  **`send-email` takes an optional `sender_name`** — an email from *"Ridgeline
+  Auto Detail"* telling Ridgeline their own card failed reads as phishing. That
+  same flag stops the send being recorded against a CUSTOMER and drops the
+  tenant Reply-To.
+  **WE SEND THEM EVEN THOUGH STRIPE CAN.** `/pricing` prints *"we email you
+  each time"* as a term of the contract, and Stripe's failed-payment emails are
+  a checkbox in another company's dashboard — a printed promise resting on a
+  setting nobody in this repo can read is resting on nothing. **The suspension
+  half Stripe cannot send at all.**
+  **THEY GO TO `businesses.contact_email`, NEVER `notification_emails`** —
+  that list is where BOOKING alerts go and may be a shared inbox or a staff
+  member; a declined card is not their team's business.
+  **AND THE SENTENCE THAT MATTERS MOST IS *"nothing has been deleted"*.** A
+  detailer whose page goes dark assumes their customer list went with it. The
+  check asserting it originally tested the HTML and **passed with the sentence
+  deleted from the body**, because the hidden preheader says it too; it is
+  pointed at the plain-text half now, which `htmlToText` strips the preheader
+  from. Baselining found that, not reading.
+- **A `data-rv` ON A CONDITIONALLY-RENDERED NODE CAN NEVER REVEAL, AND NO
+  CHECK IN THIS REPO CAN SEE IT — 2026-09-05.** `landing/thread.js` collects
+  its revealables with ONE `querySelectorAll` at mount and that returns a
+  **static** NodeList, so a node React adds later — when the founding lookup
+  answers — is in no list, is never given `.in`, and sits at **opacity 0 for
+  ever**. On the pricing page's first run that was the strip carrying the whole
+  scarcity claim.
+  **Why nothing caught it, which is the transferable part:** `?lite=1` reveals
+  everything, so the lite path looked right; **an opacity-0 element still has a
+  full box**, so `sweep-widths.mjs` measured it and printed `clean`; and no
+  contrast test can measure a colour nobody is shown. **PUT THE REVEAL ON A
+  WRAPPER THAT IS ALWAYS MOUNTED.** The landing page has never had this bug by
+  LUCK — its founding flag sits inside an unconditional `.plan` that carries
+  the `data-rv` — so `landing-pricing` 8e now holds the rule against both.
+  **And `initThread()` runs on EVERY `.ld` page now**, guarded rather than
+  copied: a second reveal system is the copy that rots. Its try/catch net puts
+  the WHOLE PAGE into `.lite` on any throw, so one unguarded `null` costs a new
+  page every animation it has and reports one line in the console.
+- **`sweep-widths.mjs` SKIPS ANYTHING AN ANCESTOR ALREADY CLIPS — 2026-09-05,
+  and it is a false-POSITIVE fix, which this file has not needed before.** The
+  pricing page is the first page carrying the landing surface's `.ground` that
+  the script has ever walked, and its two drifting lights (76vmax) and dot
+  lattice (inset −8%) each measured ~150px past the right edge at 320 — inside
+  a `position: fixed` layer with `overflow: hidden` over them. **This cannot
+  hide a real defect**: a defect is content sticking out where it can be SEEN,
+  and clipped is the definition of cannot be. It stops the check crying wolf on
+  every run, and a check nobody reads is the same as no check.
+- **GOOGLE SIGN-IN IS ALREADY BUILT AND IS NOW SWITCHED ON — do not build it
+  again (roadmap 2.25, measured 2026-09-05; re-measured 2026-09-07).**
+  `app/src/screens/Auth.jsx` has
+  `withGoogle()` calling `signInWithOAuth`, Google's marque as inline SVG, and
+  `useEnabledProviders()`, which reads GoTrue's `/auth/v1/settings` so **the
+  button appears the moment the provider is enabled and never before** — no
+  rebuild, and no button leading to "provider is not enabled". ~~That endpoint
+  answers `google: false` today~~ — **it answers `google: true` as of
+  2026-09-07**, so the button is LIVE on the sign-in screen and this file's
+  "switched off" reading is spent. **The owner did his ten minutes**: the
+  Cloud project is `detailing-platform` (number 37262651400), the client is
+  "Detailing Platform Web", and Supabase holds the id and secret.
+  **WHAT IS STILL BLOCKED IS PUBLISHING, NOT THE BUTTON.** The consent screen
+  is `Testing` / `External` with **0 test users**, and Google's Audience page
+  refuses both *Publish app* and saving a test user while it reads the OAuth
+  configuration incomplete — the two empty Branding fields are the **privacy
+  policy URL and the terms of service URL**. Both pages exist and are public
+  (`/privacy`, `/terms`, roadmap 7.1), so this is a paste rather than a build.
+  **Do not chase it as a code bug; nothing in the app is wrong.**
+  The one thing to CHECK now that it is on rather than
+  assume: a Google sign-up lands a session with no business, and nothing has
+  ever exercised that path. **The landing page already has both a Sign in and a
+  Get started button too**; what he is right about is the wording.
+- **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
+  (new 2026-09-03, roadmap 2.18). Credential-free, no browser, no dev server. It
+  writes all TWENTY-EIGHT emails — sixteen kinds plus the branches somebody
+  actually receives; it was seventeen until roadmap 2.14 step 3 added the plan
+  link, the plan-ended notice and a booking WITH A PLAN ON IT, twenty until
+  roadmap 2.19 added the re-book email, and twenty-one until roadmap 2.20 stage
+  2 added the two the PLATFORM sends in its own name — **the only two on that
+  page not built on a tenant's brand** — and the script prints its
+  own count — to
+  `email-preview/index.html`, **HTML and .txt side by side**, so a
+  human can look at them. **The first thing in this repo that ever has**, which
+  is why 2.12 shipped eleven under-floor headlines and why the invoice defect
+  survived eleven test suites. `--accent=#hex` re-renders for another tenant;
+  `--out=DIR` keeps two side by side. **No new dependency**: Node 24 strips the
+  types, so it imports `_shared/emailTemplates.ts` directly and reads the SAME
+  file the edge function runs — keep that module dependency-free or this stops
+  working.
+  **WHAT IT ASSERTS, and every one of these is a defect it has already caught:**
+  that **every money column reaches its own printed total** (the invoice missed
+  by exactly the promo for the whole life of the product); that every text
+  colour clears its floor on both grounds; that **no pure `#ffffff`/`#000000`
+  reaches a tenant's colour**, because those are Apple Mail's dark-mode
+  inversion trigger and Apple Mail is ~60% of opens; that every email carries a
+  plain-text alternative; and that no output contains `undefined` / `NaN` /
+  `[object Object]` / `href=""`, because 2.12's first render used made-up field
+  names and produced a convincing-looking wrong answer. **`--logo` draws the
+  worst logo a detailer can upload** (dark artwork on transparent) — it was
+  invisible on the ground until the masthead got its bone plate, and no test in
+  this repo can ever measure a PNG's contrast.
+  **AND ONE OF ITS FIXTURES EXISTS ONLY FOR A MINUS SIGN (roadmap 2.14 step
+  3).** Every figure in the original fixture is positive, so the money tie-out
+  could not reach the case where `moneyBlock` draws a negative adjustment as a
+  positive CHARGE — **the check read as passing because it could not reach the
+  defect**, which is this file's most repeated failure in a new place.
+  `customer-confirmation-plan` carries a −$60 plan line and is its own tie-out
+  case. Baselined by removing the sign handling in `quoteLines`: without that
+  row, nothing failed.
+  **The rule it is here to enforce, and it is the third rung of the same
+  ladder:** a number PRINTED is not a number CHARGED, a number EXPORTED is that
+  risk one step later, and **a number INVOICED is it one step further still** —
+  the invoice goes to the one party who will check it against their card
+  statement. **And a tie-out is only a tie-out for the document it names**:
+  `money-export` ties out the accountant export, `booking-engine` test 17 the
+  quote engine, and neither one has ever looked at this.
+
+- **THE FIFTH TAB IS `Business`, THE PLUMBING IS BEHIND A GEAR IN THE HEADER,
+  AND A SETTINGS SCREEN IS NOT A SHEET — all three since roadmap 2.11 step 6
+  stage 6 (2026-09-02).** `screens/More.jsx` is deleted. **THIRTEEN rows on
+  Business** (*Maintenance deadlines* joined 2026-09-06, roadmap 2.23) (what changes what a CUSTOMER meets — Monthly plans joined them in
+  roadmap 2.14, because a plan is an offer with a price, *How you get paid*
+  in 2.20 stage 1, and ***Common questions* in roadmap 3.2(b), which is the
+  ninth row `Business.jsx`'s own header designed in stage 6 and deliberately
+  did not build**, and ***Your web address* in roadmap 3.3** — the one that
+  decides which domain a CUSTOMER's confirmation email links to; **this said
+  NINE until 2026-09-05 and then TEN and ELEVEN within hours** — twelve plus
+  the five below is the seventeen the sweep walks),
+  SIX behind the gear
+  (what changes how the app behaves for the detailer — *Your password* joined
+  on 2026-09-06 with the item that built it, and it is the one row gated by
+  NOTHING, because a password belongs to the person rather than the business — *Your subscription*
+  joined them in roadmap 2.20 stage 2, and it passes the gear's half of the
+  admission test outright: a card on file changes nothing a customer ever
+  meets), and the test that decides
+  which is written into `screens/Business.jsx`’s own header.
+  **THE SUBSCRIPTION ROW IS THE ONE THAT IS `owner`-ONLY RATHER THAN
+  PERMISSION-GATED**, for the reason roadmap 2.13 refused a `team` tick:
+  whoever can change what the business PAYS can change everything, and there is
+  no tick that means "may cancel our subscription and nothing else". The server
+  enforces it; hiding the row is courtesy. **Staff get
+  THREE rail buttons** — Today, Calendar, Clients — plus the gear.
+  `components/SettingsHost.jsx` is the container: a PAGE with a back control
+  below `--wrap`, the second column at or above it. Anything that walks the
+  settings screens must go through both doors.
+- **FIRST RUN EXISTS, AND IT IS TWO SEPARATE THINGS — since roadmap 2.11 step
+  6 stage 7 (2026-09-02), which closed 2.11.** A **stepped setup form**
+  (`components/SetupForm.jsx`, seven steps, one question each, skippable and
+  resumable) and, separately, a **guided walkthrough** (`Walkthrough.jsx`, a
+  spotlight over the live dashboard, one sentence and one element a step). The
+  owner insisted they stay two; building them as one is how the form becomes a
+  wizard.
+  **The seven steps and the progress arithmetic live in `app/src/lib/setup.js`,
+  with no React in them**, because the same number is printed on the form and
+  on Business and the two must never disagree — `tests/setup-progress.test.mjs`
+  is what holds them together.
+  **COMPLETION IS DERIVED WHERE THE DATABASE CAN ANSWER IT, and a session that
+  changes this to a stored count will break every business that already
+  exists.** Five of the seven steps are facts the schema holds (services,
+  add-ons, promo codes, an open day, a phone or email, a colour), so a
+  detailer who set up through the settings screens is never told they have
+  done nothing. **`where you work` is the one that can never be derived** —
+  `mobile_enabled` and `dropoff_enabled` both default to true — which is why
+  the seeded demo reads *6 of 7 done* and its row stays until somebody answers
+  that question.
+  **AND THE TOUR IS SIX TOURS SINCE 2026-09-06 (roadmap 2.24).** `TOURS` in `Walkthrough.jsx`: a shortened SHELL tour (four steps, still ending on the link) plus one per tab for Today, Money, Clients and Business — **and none for Calendar**, because every candidate step there was a control reading its own label back. A tab's guide arrives the first time THIS BROWSER opens that tab (`dp.tours`, one key holding a list of names, and the old `dp.tour` still counts as having seen the shell), never while the first run is up, on a 900ms timer so it plans against a drawn screen, and **a guide whose plan comes out shorter than two steps does not run and does not mark itself seen** — so it arrives the first day there is something to point at. **`sweep-widths.mjs` seeds all five as SEEN at sign-in** and clears them for the block that walks them: every width is a fresh browser, so otherwise the guides fire in the middle of the other fifty measurements and swallow the clicks. **STAFF GET THE TOUR AND NOT THE FORM.** They are not setting up a business. **AND `final-pass.mjs` NEEDS THE OPPOSITE TREATMENT FROM THE SWEEP — it was BROKEN from the day the guides shipped until 2026-09-06 and nobody re-ran it.** It builds a business minutes old, so it meets every guide, and `.tourblock` swallows pointer events: the first tab press after the shell tour died on *"intercepts pointer events"* and the pass never reached three of the five screens. **The note written the night the guides shipped said to add them to every script that walks the product and then named only `sweep-widths.mjs`, so only that one was fixed** — the rule is the general one. The sweep SEEDS them as seen (it measures an experienced account); this script must MEET them (a guide arriving unasked on four of five tabs is what a final pass exists to see), so it photographs each one, notes its caption, skips it, and measures the screen only afterwards. **AND `shoot-dashboard.mjs` WAS THE THIRD, FOUND BY ACTING ON THIS RULE RATHER THAN BY ANOTHER ACCIDENT** — it died on the same press of Clients. It takes the SWEEP's treatment, because these are pictures of the product and an overlay across the middle of every one of them is not a picture of the product. **Three scripts broken by one feature, each found separately.** The two that walk the dashboard for MEASUREMENT seed `dp.tours` as seen; the one that walks it as a NEW DETAILER must meet the guides. `e2e-booking.mjs` and `sweep-booking-steps.mjs` drive the public booking page and have no guides to meet.
+  The tour re-runs from *Show me around* behind the gear, and it counts what
+  THIS dashboard has. **MEASURED 2026-09-06 BY `final-pass.mjs` ON A BUSINESS
+  MINUTES OLD, at 392 and 1440, both the same: 4 for an owner and 2 for a
+  staff member with one permission tick.** Every figure in this sentence has
+  now been wrong twice. It said *7 / 6 / 4* until 7.3 measured the staff
+  number at **3** (the count is per-dashboard, so 4 had been taken against a
+  differently-permissioned member) — and then **roadmap 2.24 cut the shell
+  tour from seven steps to four the same day and made all three wrong again**,
+  because the four tab guides took over what the long version was half-
+  explaining. The seventh stale figure found in this file, and the second
+  time this one line has gone stale in a day: **the tour's length is a
+  measurement, and nothing that changes `TOURS` should leave it unmeasured.**
+  **The empty dashboard is the state to verify against**, not the seeded demo —
+  the opposite of every other screen in this rebuild.
+- **A DETAILER NAMES THE ROLE AND TICKS WHAT IT CAN DO — roadmap 2.13,
+  2026-09-04, and `role` IS NO LONGER THE QUESTION TO ASK.** `role` is still
+  `owner` / `staff` and **`owner` still means everything**, because
+  `protect_last_owner()` is a TRIGGER and needs a last owner to protect — a
+  permission set has no last-anything. What is new is that a NON-owner
+  membership carries **`label`** (the business's own word for the role) and
+  **`permissions text[]`**.
+  **FOUR PERMISSIONS, AND EVERY ONE IS A GROUP OF POLICIES THAT WAS ALREADY
+  OWNER-ONLY**: `money` (expenses), `marketing` (promo codes, campaigns),
+  `settings` (business settings, branding, the business itself, domains,
+  message-template writes — **and prices, hours, the catalog, the gallery and
+  the storage bucket, which moved in a SECOND migration because the tick's own
+  words say "Prices, hours…" and `services.price` was `*_tenant_all`,
+  writable by any member**), and `requests` (answering a booking request).
+  **SELECT on the catalog stays open to every member** — a member must read
+  `services` to take a booking at all.
+  **`public.has_business_permission()` FOLDS THE OWNER IN**, so a policy asks
+  one question and no check can be written that forgets owners;
+  `business_ids_with_permission()` is its set form for the storage policies,
+  which compare a folder NAME and must not cast an arbitrary path to uuid.
+  **THERE IS NO `team` TICK AND THAT IS DELIBERATE** — whoever hands out
+  permissions can hand themselves every other one, and making that safe needs
+  a grant lattice nobody has asked for. Invites and membership stay
+  `is_business_owner()`.
+  **THE VOCABULARY IS CLOSED BY A CHECK CONSTRAINT** on both tables and
+  filtered again in `invite-user`: a typo'd permission grants nothing and
+  looks exactly like one that was never ticked.
+  **`requests` IS THE ONE THAT TAKES AWAY** (staff have had it since 2.12), so
+  the migration backfilled every existing staff row and live staff invite —
+  nobody's dashboard did less the day this shipped.
+  **IN THE APP, ASK `can(key)` FROM `useBusiness()`, NEVER `role === "owner"`.**
+  `app/src/lib/permissions.js` is the ONE list (names, sentences, `can`,
+  `roleName`, `permissionSummary`, no React in it, same reason as `setup.js`).
+  `App.jsx`'s rail is `TAB_NEEDS`, `GearMenu`'s rows carry a permission name,
+  Clients' lifetime spend is `can("money")`, DaySheet's `canEdit` is
+  `can("settings")`. `tests/staff-roles.test.mjs` is 64 checks and every new
+  one was baselined by breaking what it guards.
+  **AND `monthly_plans` DOES NOT EXIST** — created in `tenant_data.sql:51`,
+  dropped nine hours later in `phase2_cleanup_and_storage.sql:16`. Roadmap
+  2.14 said it was real for a week because the note cited only the creating
+  migration. **A `create table` line is not evidence the table is there.**
+
+- **A BOOKING CAN HOLD MORE THAN ONE CAR — roadmap 8.10, 2026-09-07 — AND
+  THAT IS THREE DIFFERENT FACTS THAT MUST NOT BE MERGED.**
+  **(1) TWO CARS ON ONE VISIT IS ONE BOOKING.** `booking_vehicles` holds
+  vehicles 2..N; **vehicle 1 stays in the columns it has always lived in**
+  (`bookings.vehicle_size`, `vehicle_size_label`, `vehicle_size_fee`,
+  `vehicle_model`), so every render path, every email and the accountant export
+  keep working untouched. `position >= 2` is a CHECK CONSTRAINT rather than a
+  convention: a row for position 1 would be the same fact written twice, and
+  two copies of one fact is how a receipt and a job sheet start disagreeing.
+  **(2) TWO CARS ON TWO DAYS IS TWO BOOKINGS**, joined by
+  `bookings.booking_group_id`. One booking is ONE TIME RANGE — the exclusion
+  constraint, `available-slots`, the day panel and every screen rest on it —
+  so the page calls `create-booking` once per car and passes `group_with`.
+  **There is therefore no second pricing model in this feature**: each call is
+  an ordinary single-car booking, so travel is charged twice because the
+  detailer really drives out twice, the rounding happens per booking, and a
+  promo is spent per booking. **The split QUOTE is DEFINED as the sum of those
+  calls** — the only definition that cannot drift from what is charged.
+  **A LATER CALL FAILING IS NOT A ROLLBACK**: each one is a complete confirmed
+  appointment, so the page says what was booked and what was not.
+  **(3) `bulk_vehicle_count` IS THE DEALERSHIP JOB**, logged after the fact
+  from `BulkJobModal` with **no automatic pricing at all**, by his instruction:
+  *"there shouldn't be auto calculations, because obviously when they do this
+  there's discounts."* **Those rows are EXCLUDED from `bookings_no_overlap`** —
+  a job being logged already happened, and refusing to record last Tuesday
+  because last Tuesday has two bookings on it breaks the feature at the only
+  moment anybody uses it.
+  **THE MONEY FOR AN EXTRA CAR RIDES `price_adjustments`**, the same rail the
+  plan discount and every 2.8c surcharge use. Multiplying `basePrice` instead
+  prints two cars on the receipt as one line reading *"Full Detail $440"*, and
+  extra `booking_services` rows read as the same service sold three times.
+  **The extras are INSIDE `beforeAdjustments`** or a percentage surcharge
+  charges one car and does the rest free; **a plan settles ONE car**, or a
+  member gets three free details for one month's subscription; **an add-on is
+  per VISIT, not per car**, which is the one sentence that makes the same-day
+  and split-day halves agree with no rule of their own.
+  **`business_settings.max_vehicles_per_booking` DEFAULTS TO 1 AND THE WHOLE
+  FEATURE IS INVISIBLE UNTIL A DETAILER MOVES IT.**
+  `extra_vehicle_minutes_saved` is the setup that is not repeated — **duration
+  only, never price** — with a PROPORTIONAL floor, because a 40-minute saving
+  on a 20-minute express wash would otherwise make the second car take negative
+  time.
+  **AND THE PUBLIC PROFILE RPC PUBLISHES THE LIMIT BY NAME.**
+  `get_public_business_profile` is an explicit key list, so a settings column is
+  invisible to every booking form in the world until it is added there — the
+  dashboard setting saves, the screen works, and the feature reaches nobody.
+  `tests/multi-vehicle.test.mjs` pins it.
+
+- **A BOOKING CAN NOW BE A REQUEST, AND BOTH MODES HOLD THE SLOT — roadmap
+  2.12, 2026-09-02.** `business_settings.booking_mode` is `reserve` (the
+  default, and what every existing tenant has) or `request`. The owner's own
+  clarification is the load-bearing sentence: *"someone sends a request, it will
+  take up that time slot… one is just a little bit more guaranteed than the
+  other."* **Availability behaves identically in both modes** — only the promise
+  made to the customer differs.
+  **The exclusion constraint was deliberately NOT touched**: `pending` is not
+  `cancelled`, so a request holds its time with no change at all. That is a
+  load-bearing fact established by NOT writing something, so it is invisible in
+  the migration and protected only by `tests/request-mode.test.mjs`. **A session
+  that "tidies" `pending` into `slotValidation.ts`, `available-slots` or the
+  constraint's WHERE clause makes requests double-bookable.**
+  **THERE IS NO `declined` STATUS AND THAT IS A DECISION.** A decline is
+  `status = 'cancelled'` plus `declined_at`, because twelve places in this
+  codebase already ask `status <> 'cancelled'` and every one of them is right
+  about a declined request. **A QUOTE IS OFFERED, NEVER CHARGED** —
+  `quoted_amount` is its own column and only `accept-quote` (the customer, from
+  their email) moves it to `total_price`, landing the difference as a
+  `price_adjustments` line so the receipt still reconciles. Saying no to a quote
+  is the ordinary `cancel-booking`. Full reasoning and **three questions standing
+  for the owner**: DECISIONS.md → "Roadmap 2.12".
+- **A PLAN IS LOGGED, NEVER SOLD, AND ITS LEDGER HAS TWO HALVES IN TWO
+  PLACES — roadmap 2.14 step 2, 2026-09-04.** `plans` (what a detailer
+  offers: a cadence, what is included, how it is priced, whether there is a
+  term), `plan_members` (who is on one, with the price SNAPSHOTTED) and
+  `plan_visits` (the ledger). We take no money, so there is no card, no
+  charge and no status implying one; three statuses, not seven.
+  **OWED IS ROWS IN `plan_visits`; USED IS `bookings.plan_member_id`, A
+  COLUMN — and that split is load-bearing.** Cancellation already works on
+  `bookings`: twelve places ask `status <> 'cancelled'` and every one is
+  already right about a plan visit that was called off. **A session that
+  "tidies" used into a second ledger row needs a thirteenth rule and a
+  compensating row nobody remembers to write.**
+  **`price_kind` HAS FOUR VALUES AND THAT IS THE CEILING** — `monthly`,
+  `per_visit`, `percent_off`, `total` (a prepaid block). The fourth arrived
+  hours after the first three, when the owner asked whether a detailer is
+  locked into a kind of plan and eleven real shapes were put on the screen to
+  answer him: *"$1,999 for the year"* had to be entered as a monthly price and
+  printed as **"$1999.00 a month"**. A fifth would have to stop being a
+  segmented control (`controls.jsx`: two to four options).
+  **`term_months` IS SEPARATE FROM `price_kind` AND MUST STAY SO** — a prepaid
+  year is usually twelve months, but a prepaid block of ten visits has no end
+  date; merging them makes one of the two unsayable.
+  **PAUSE IS A DATE (`plan_members.accrue_from`), NOT A FLAG.** Accruing from
+  `started_on` backfills every visit the pause was meant to skip the moment
+  the member comes back. **`accrue_plan_visits()` is the only writer of a
+  grant**, idempotent by a partial unique index, on `pg_cron` nightly —
+  `seed-demo.mjs` CALLS it rather than writing grants by hand, so a
+  regression in the accrual shows up as a demo with nobody owed anything.
+  **`on delete no action`, not `restrict`, on `plan_members.plan_id`**: both
+  refuse to delete a plan somebody is on, but deleting a BUSINESS cascades to
+  both tables in one statement in an order Postgres does not promise, and the
+  seed takes that path every run.
+  **The auto-link trigger's ceiling is real and stated**: a member booking
+  something their plan does not cover has it counted, because
+  `booking_services` rows are written AFTER the booking and a BEFORE INSERT
+  trigger cannot see what was bought.
+  **NO NEW PERMISSION KEY** — `plans` writes ride `settings`, `plan_members`
+  and `plan_visits` ride `money`. That pairing is the ONE open question with
+  the owner. **The arithmetic is `app/src/lib/plans.js`** and
+  `addPeriod` must keep matching Postgres's month-overflow clamp.
+  **STEP 3 — THE CUSTOMER'S HALF — SHIPPED 2026-09-04 AND 2.14 IS CLOSED.**
+  `/book/:slug/plans` (a ruled list, one row per plan, the row IS the button),
+  `/plan/:memberId` (what they are on, visits waiting, cancel, book — the
+  membership UUID is the credential, the third caller of the `/booking/:id`
+  pattern), `bookings.plan_id`, `plan-link` (three actions: get, cancel, and
+  **EMAIL IN / LINK OUT**, which is the safe twin of the lookup the owner
+  asked for — his version is address enumeration), the browser remembering
+  the last customer AND their plan, and the *"don't lose your link"* nudge on
+  three customer emails.
+  **THE PLAN'S EFFECT ON THE PRICE IS `planLineFor` IN `_shared/pricing.ts`
+  AND IT RIDES `price_adjustments`** — the labelled-amount array the review
+  step, every email, the invoice, the manage page and the booking row already
+  draw. A `plan_discount` column was the obvious build and would have been
+  nine render paths with one forgotten. **The rule: the plan governs the
+  SERVICES; add-ons and travel are always extra; a percentage comes off the
+  whole job.**
+  **AND NOTHING WAS ADDED TO A STEP, WHICH IS THE WHOLE SHAPE OF THE ITEM.**
+  Step 1's ten pixels are the detailer's, so the plans are a PAGE, the door to
+  them rides the row the rail and *"Step 1 of 7"* already share, and the
+  recognition he asked for is spent on step 1's HEADING and the price bar's
+  EYEBROW — two lines that were already drawn. **Every step's spare room is
+  identical to before the item.** The door still cost 3px on its first
+  measurement and needed its line box pinned: *a control that is free in
+  principle is not free until it is measured.*
+  **A PLAN SIGN-UP IS A REQUEST IN EITHER BOOKING MODE**, but an existing
+  member booking their own covered visit is not held up — `create-booking`
+  asks the database, never `booking_mode` alone.
+  **`BookingLink` TAKES AN OPTIONAL `path` NOW** and the Monthly plans screen
+  uses it, so a detailer can share the plans page the way they share the
+  booking link. **And `plan-link`'s `email` action wants roadmap 2.21's
+  throttle** — it is public and it SENDS, so an unthrottled loop is a
+  mail-bomb from the platform's shared sending reputation; it is written into
+  2.21.
+  Full reasoning: DECISIONS.md → "Roadmap 2.14, step 3".
+- **PUSH WORKS END TO END, CONFIRMED BY THE OWNER ON A REAL DEVICE
+  2026-09-02.** He was asked to tap the switch and let a booking through; his
+  answer was “works”. The browser half is `app/public/sw.js` +
+  `app/src/lib/push.js` + a `probe` branch on `owner-push-subscribe` that
+  serves the VAPID public key.
+  **The VAPID secrets had never been set on the platform project either**, so
+  `sendOwnerPush` had been taking its “VAPID keys not configured — skipping”
+  branch for the whole life of the feature. A keypair was generated and set
+  the same day. **If push ever goes quiet, check those three secrets FIRST**
+  — the failure is a `console.warn` inside an edge function and is completely
+  invisible from the dashboard, which is how it survived this long.
+  Two limits that are real and are NOT defects: an iPhone only allows this
+  from a dashboard added to the home screen, and the switch reads THIS
+  device’s registration, so turning it on is per-device by design.
+- **THE OWNER LIFTED THE "DON'T TOUCH THE BACK END" RULE ON 2026-08-31**, and
+  a session that inherits it from an older file will do less than he asked for.
+  His words, answering roadmap 2.11 step 6: *"I don't know why there was a rule
+  that did not edit the back end. You could 100% edit the back end however much
+  you want… We got tables if we need to."* **The schema, edge functions, emails
+  and pricing are open.** What he does NOT want is structural inheritance from
+  the OLD DASHBOARD — *"forget that the old dashboard even existed"* — while
+  the LOOK stays the landing page's. The append-only migration rule above is
+  unaffected; it is about how you change the schema, not whether you may.
+- **Before changing any colour, know law 11b (`docs/design-system.md`): the
+  accent is IDENTITY, never MEANING.** Paid / money-up / "it worked" are the
+  fixed green `--ac`; cancelled / no-show / error are the fixed red `--bad`.
+  Neither follows the tenant. `grep 'var(--ac)'` in `theme.css` finds every
+  fixed-meaning site. The owner's rule, 2026-08-30.
+- **A number PRINTED on a screen is not a number that is CHARGED, and this
+  product has already shipped one that was not.** **And a number EXPORTED is
+  the same risk one step later**, because the file goes to somebody who will
+  never check it against the screen: `lib/accountant-export.js` is a flat
+  ledger precisely so its Amount column adds up to Money's own Net figure, and
+  `tests/money-export.test.mjs` is that tie-out (2026-09-01, roadmap 2.11 step
+  6 stage 4).
+  The one this rule came from: `business_settings.travel_fee`
+  was drawn on the booking page as “+$25” and was never in `computeQuote` — for
+  the whole life of the quote engine, past eleven test suites, because every
+  test asserted that the engine did what the engine did. Fixed in roadmap 2.8c.
+  **When you add anything with a price, follow it all the way to
+  `bookings.total_price` and to the confirmation email**, and check that the
+  itemisation still adds up to the total — `tests/booking-engine.test.mjs`
+  test 17 is the shape of that check.
+- **THE INSTRUMENT FOR ANYTHING ABOUT MOTION IS `document.getAnimations()` ON
+  THE LIVE PAGE, 120ms AFTER THE CLICK — never the stylesheet.** Roadmap 2.17,
+  and it is the third time this has mattered: Today shipped its whole arrival
+  dead in step 6, stage 3 shipped another, and 2.17's own audit found the
+  roadmap wrong about one item (the gear animates) and short by two on the
+  rest. **A selector that matches nothing looks exactly like a finished
+  screen**, and an animation that is running on the WRONG element looks like an
+  animation that is working. Filter out `ground-drift` and the hover
+  transitions and read what is left.
+  **The same rule caught an invalid selector nothing else in this repo can
+  see:** a `:has()` may not contain another `:has()`, and the browser drops the
+  whole rule silently. It was found by logging `.app-main`'s own width before
+  and after a click, not by reading the file.
+- **THE DATABASE HAS ITS OWN HEALTH CHECK NOW: `node scripts/db-audit.mjs` —
+  new 2026-09-07, read-only, safe against any project.** Four lints:
+  a table with **RLS off**, **RLS on with no policies**, a **`security definer`
+  function with no pinned `search_path`**, and a **foreign key with no index**.
+  Supabase's own advisors cover this ground and are good; they are also behind
+  a login and a permission this session does not hold, which makes them a check
+  somebody has to remember to visit. **Both allowlists are NAMED rather than
+  guessed** — eight tables meant to have no policies, four keys meant to have
+  no index — so a NINTH or a FIFTH is a finding rather than noise. **Run it
+  after any migration.** Baselined against four planted defects, and section 1
+  was not exercised on the first attempt because Supabase enabled RLS on the
+  planted table by itself, so it landed in section 2: a check that looked
+  proven and had never run.
+  **Its first FK detector reported a COVERED key** — it demanded an index whose
+  leading columns equalled the key exactly, and `booking_vehicles(business_id,
+  booking_id)` is served by `booking_vehicles_booking_idx`. A composite key is
+  served by an index on its most selective part. **Reporting a covered key is
+  the same defect as missing an uncovered one**: both end with somebody
+  ignoring the output.
+  It found nine unindexed keys a real operation walks; `20260907008000_foreign_
+  key_indexes.sql` is those nine. **Five were left out on purpose** — all point
+  at `auth.users` and this product never deletes an auth user (forgetting a
+  customer deletes a `customers` row, removing a staff member deletes a
+  MEMBERSHIP). Both files carry the list and the reasoning, so they move
+  together.
+
+- **A REVIEW LINK IS A LINK, AND IT IS CONSTRAINED WHERE IT IS STORED —
+  2026-09-07, the one real risk the audit found.**
+  `business_settings.google_review_url` and `yelp_review_url` were plain `text`
+  written straight from a browser form, and `followupEmail` dropped them
+  **unescaped into an `href`**. A detailer could type
+  `"><a href="…">Confirm your card</a><a href="` into their own settings and
+  put an arbitrary link inside **every thank-you email their customers
+  receive** — an email those customers correctly trust, because it genuinely
+  came from their detailer. **And both columns reach
+  `get_public_business_profile`**, so they land on the tenant's own website,
+  where a `javascript:` href is not inert the way it is in mail.
+  **`emailKit.ts` escapes all four of its attribute URLs now, and that was not
+  accepted as the fix.** That closes the SINK and there are three sinks — the
+  email, the public profile, and whatever a tenant site does with the value.
+  Escaping each is a list to keep, and this repo has been short by one on
+  exactly that shape of list twice. **So it is an https-only CHECK CONSTRAINT
+  on both columns** (`20260907009000_review_links_are_links.sql`), which is
+  `payments.ts`'s existing position for payment handles one column over.
+  **`BusinessInfo.jsx`'s guard uses the constraint's character class CHARACTER
+  FOR CHARACTER**, and `tests/payments.test.mjs` § 7c runs a corpus through
+  both. **A looser guard is worse than none** — it waves a value through and
+  the constraint's own wording reaches the screen, which is the exact thing the
+  guard exists to prevent. Six breaks all caught.
+
+- **FINISH EVERY SOURCE EDIT BEFORE THE BROWSER OPENS — INCLUDING THE ONES A
+  BASELINE MAKES AND REVERTS. 2026-09-07, and this rule is already in this file
+  twice.** `sweep-widths.mjs` printed *clean at all five widths* on two
+  consecutive runs and **both were worthless**: one file under `app/src` was
+  saved mid-walk each time, Vite reloaded the page, and the script was driving
+  a page that navigated out from under it. **A mid-run reload does not fail a
+  run** — every check that script owns is about an EDGE, and a screen that
+  never opened has no edges to be wrong — so the damage is a GREEN run that
+  measured less than it claims. `source-guard.mjs` named the file both times
+  and is the only reason either was thrown away.
+  **The new half is what counted as an "edit".** Baselining a check means
+  writing a defect into a source file and taking it back out, six times here,
+  and those are not changes — they are proof. They reload the page exactly the
+  same way. **Order the work: all source editing, all baselining, THEN the
+  browser.**
+
+- **AND COMMIT BEFORE YOU BASELINE, BECAUSE BASELINING REVERTS WITH GIT AND
+  GIT REVERTS TO WHAT IS COMMITTED — 2026-09-08, roadmap 2.20 stage 3.** The
+  loop is: break the thing the check guards, run the check, `git checkout --`
+  the file. **On a file whose feature is not yet committed, that third step
+  deletes the feature**, and every later break in the same run then measures a
+  file that no longer contains the code. Here it silently removed a whole
+  webhook handler mid-run; the give-away was the FINAL "restored" run
+  reporting **75/8 when the same suite had opened at 82/1**.
+  **The tell is the restored run, so always take one** — a baseline session
+  that ends without re-running the green case cannot know what it left behind.
+  Same family as the source-guard entry above: the damage is not a red run, it
+  is a run that measured less than it claims.
+
+- **WHEN A THING HAS STOPPED HAPPENING, MAKE IT HAPPEN AND READ THE ERROR —
+  never infer the cause from the last time it worked. 2026-09-08, and it cost
+  a wrong answer that would have sent the owner to fix something that was not
+  broken.** The live site had not rebuilt since 2026-09-06. Netlify's API was
+  asked about the last SUCCESSFUL deploy, which said `deploy_source: "api"`,
+  and that was read as *the GitHub integration is disconnected* — plausible,
+  consistent with every symptom, and **wrong**. Triggering a deploy on purpose
+  returned the actual answer in one line: `state: error, skipped: true,
+  "Skipped due to account credit usage exceeded"`. **Netlify build credits.**
+  Every build since had been SILENTLY SKIPPED, which from outside is
+  indistinguishable from a repo that was never connected.
+  **No amount of inspecting a successful deploy could have produced that
+  answer.** And the first two attempts to trigger one failed for an unrelated
+  reason that MASKED it — a 500 on upload, because the deploy tool zips the
+  working directory and this one was 1.3 GB of gitignored screenshot folders.
+  **A failure during upload and a skip during build are two different
+  failures, and the first hid the second.**
+
+- **A `try/catch` THAT RETURNS AN EMPTY DEFAULT CAN HIDE A ReferenceError, AND
+  IT HID ONE FOR THE WHOLE LIFE OF A FEATURE — 2026-09-08.** `sweep-widths.mjs`
+  built its Spanish lookup as
+
+      const APP_ES = (() => {
+        try { const src = readFileSync(...); return new Map(...); }
+        catch { return new Map(); }        // <- silent
+      })();
+
+  **and `readFileSync` was never imported.** The catch swallowed
+  `ReferenceError: readFileSync is not defined`, handed back an empty Map, and
+  `NAMED()` — whose whole job is "match the English name OR the Spanish one" —
+  fell back to English for **every control, on every run, since the day 8.17
+  wrote it.** So `LANG_APP=es` looked supported, and the Spanish sweep had never
+  once completed.
+  **THE CODE READS CORRECTLY.** Nothing in it is wrong to the eye; the import
+  list four hundred lines above is where the defect lives. It survived a review,
+  a commit and three sessions.
+  **WHAT FOUND IT, after two nine-minute runs were spent on wrong theories:
+  printing the value.** `APP_ES entries: 0` ended it in one run. The two wrong
+  theories both came from reading Playwright's timeout message —
+  `name: 'Quote'` — and assuming it was a formatting quirk. **It is not: a regex
+  name prints as a regex, so a quoted string in that log always means a string
+  was passed.** Proven with a four-line script against `setContent` rather than
+  argued about.
+  **THE RULES.** A catch that returns a neutral default must SAY something —
+  this one now prints `SPANISH CATALOGUE DID NOT LOAD` and the sweep exits 1
+  when `LANG_APP=es` and the catalogue is empty, because an English sweep
+  wearing a Spanish label is worse than no sweep. And **when a helper "does
+  nothing", print what it is working from before theorising about what it does
+  with it.**
+- **AND THE i18n CHECKS HAVE A THIRD BLIND SPOT: ENGLISH BETWEEN JSX
+  EXPRESSIONS — `scripts/i18n-fragments.mjs`, new 2026-09-08.** Today printed
+  **"1 done · 4 to go"** on a Spanish dashboard, from
+  `<div>{done} done · {todays.length - done} to go</div>`. **Both existing
+  instruments reported clean**: `i18n-survey` hunts string LITERALS and this is
+  JSX text; `spanish-dom` compares visible text against catalogue KEYS, and
+  "1 done · 4 to go" could never be a key. The shape is **prose broken into
+  short fragments by `{...}` holes** — invisible in English by construction,
+  invisible to an owner who does not read Spanish, and first met by a detailer.
+  Thirteen across 95 files on the first run; all fixed. It ignores single words
+  on purpose, because one-word fragments are units and separators and a check
+  that cries wolf every run is one nobody reads.
+- Report what was observed, never "this should work."
+
+- **`e2e-booking` REPORTS 78/82 WITH FOUR EMAIL FAILURES ONCE THE DAY'S 100
+  SENDS ARE GONE, AND THAT IS NOT A REGRESSION — measured 2026-09-07, when a
+  night of building spent 173.** The two failing checks are *"and answered 200
+  every time"* and *"the provider took it"*, and the message says so in as many
+  words: `{"statusCode":429,"name":"daily_quota_exceeded"}`. **The booking
+  itself passes** — the row, the price, the slot, the reschedule, the cancel —
+  and it is only the email leg that goes red.
+  **THE TELL IS THE STATUS CODE IN THE FAILURE TEXT, and the back office says
+  it first**: its health line prints *"Emails: N of 100 today"* and turns red at
+  four fifths, which is roadmap 8.6 working rather than a defect. **Resend's
+  free plan is 100 a day ACROSS EVERY TENANT** and the transactional set spends
+  about five a booking, so a session that books repeatedly will exhaust it. The
+  spenders are the suites that BOOK — `e2e-booking`, `booking-engine`,
+  `request-mode`, `multi-vehicle` § 6; **`render-emails.mjs` costs nothing**,
+  because it renders to disk and sends none.
+  **Nothing to fix, and nothing to bisect.** The answer is the same one the
+  screen gives him: raise the cap by upgrading Resend. Until then a session that
+  needs the email leg green has to run it on a day with room in it.
+
+- **EVERY EDGE FUNCTION IN THIS REPO BECAME UNDEPLOYABLE ON 2026-09-07, BY
+  NOTHING ANYBODY HERE DID — AND THE FIX IS IN, SO DO NOT PUT THE OLD IMPORT
+  BACK.** `_shared/db.ts` is imported by all thirty functions and it read
+  `https://esm.sh/@supabase/supabase-js@2.39.0`. **That version's own
+  dependencies are RANGES** (`@supabase/functions-js@^2.1.5`), which esm.sh
+  resolves AT DEPLOY TIME to whatever is newest — and it resolved to
+  `2.116.0`, which esm.sh then answers **404** for. So the Supabase bundler
+  reported *"Module not found"* and **not one function in this repo could be
+  deployed**, including ones whose source had not changed in weeks.
+  **THE VERSION IN OUR FILE WAS PINNED AND IT MADE NO DIFFERENCE**, which is
+  the transferable part: pinning your own dependency does not pin its
+  dependencies when a CDN resolves them for you on every build. Measured
+  rather than guessed — `2.39.0` resolves the range, `2.45.0` and later
+  resolve to exact versions that exist.
+  **IT IS `npm:@supabase/supabase-js@2.58.0` NOW.** Supabase's edge runtime is
+  Deno 2 and supports `npm:` specifiers natively, so the bundle resolves from
+  the npm registry with a lockable version and **esm.sh is out of the deploy
+  path entirely.** Proven: all thirty deployed, `check-deployed` reports all
+  thirty current, and the env-backed battery is green against the new copies.
+  **A SESSION THAT SEES A BUNDLE ERROR NAMING esm.sh SHOULD SUSPECT esm.sh
+  BEFORE IT SUSPECTS THE DIFF.** This one arrived in the middle of an unrelated
+  item, twenty minutes after three functions had deployed cleanly, and it looks
+  exactly like a change having broken the world.
+
+- **TWO ACCOUNTS CAN BE SIGNED IN AT ONCE — roadmap 8.18, 2026-09-07 — AND
+  IT IS NOT `Switch business`.** That screen moves between the MEMBERSHIPS of
+  one signed-in person and touches no token; this is two separate PEOPLE, two
+  passwords, both signed in, one press apart. His ask: *"maybe there's an
+  account switcher — like how on Chrome you could log into multiple Google
+  accounts."*
+  **ONE LIVE SESSION, THE REST PARKED IN `app/src/lib/accounts.js`.** A
+  Supabase client holds exactly one session and every call in this app is bound
+  to it, so a second client is a fork of the data layer to buy a convenience.
+  Switching is `parkCurrent()` then `setSession()`. **A parked session is never
+  refreshed while parked**, which is the only reason its token is still good
+  when it comes out.
+  **NO SCOPE OF `signOut` DOES WHAT PARKING NEEDS, AND READING THE DOCS GAVE
+  THE WRONG ANSWER TWICE.** GoTrue's `local` means *revoke the CURRENT
+  session's refresh token* — the exact one just parked — `global` revokes all
+  of them, `others` revokes everything except the one being abandoned, and
+  `_signOut` POSTs `/logout` for every one. `endSessionLocally()` drops the
+  client's own `sb-…-auth-token` entry instead (the chunked `.0`/`.1` shape
+  too) and reports failure so the caller can take the honest exit. **Waiting
+  is not an alternative**: leaving the first session live while the second
+  signs in lets the client auto-refresh and rotate the parked snapshot out from
+  under itself.
+  **SIGNING OUT ENDS THE PARKED SESSIONS AT THE SERVER, AND THE FIRST VERSION
+  DID NOT — the security review caught it, which is why that review is not
+  optional on an auth item.** Forgetting the park revokes nothing and the
+  sign-out beside it runs as the LIVE user, so on the shared van tablet this
+  feature is FOR, the owner pressed Sign out and handed over a working key: a
+  refresh token is bound to neither device nor origin. `endParkedSessions()`
+  refreshes each parked token then logs it out globally, **after** an
+  unconditional local clear.
+  **`app/src/lib/signout.js` IS NOW THE ONLY `auth.signOut(` IN `app/src`.**
+  There were three doors — the gear, the back office, the half-finished-signup
+  exit — and each had to remember the same three things. `two-logins` § 5 fails
+  on a fourth.
+  **AND THE DEAD END WAS FOUND BY DRIVING IT.** An account with no membership
+  lands on the create-a-business screen, which has no header and so no gear,
+  and its only exit is Sign out — which empties the park by design. So adding
+  an account that turned out to have no business left no way back except its
+  password. `components/ParkedAccounts.jsx` is drawn there and on the sign-in
+  screen, **never inside a `<form>`** (five browser scripts sign in through
+  `form button.btn.primary`, a descendant selector) and always with
+  `type="button"`.
+  **AND `npm run build` DOES NOT CATCH AN UNDEFINED IDENTIFIER** — a dangling
+  `forgetAll` reference built cleanly and took the whole dashboard down behind
+  the error boundary. Found by opening the page.
+
+- **THE CUSTOMER-FACING BOOKING SURFACE SPEAKS SPANISH — roadmap 8.17 stage
+  1, 2026-09-07 — AND HIS SECOND SENTENCE IS THE DESIGN BRIEF.** *"I can't
+  check that sadly, because I don't speak Spanish."* Nobody who can approve
+  this can read the output, so the question is never *how do we translate well*
+  but **what makes a wrong translation cheap to find and cheap to fix.**
+  **THE ENGLISH IS THE KEY.** `t("Choose your services")`, never
+  `t("book.services.title")` — an untranslated key then renders correct English
+  instead of a debug identifier. **Do not "improve" it into namespaced keys.**
+  The cost is that a copy edit orphans its translation, and `spanish` § 1c
+  fails on exactly that.
+  **`es-US`, NEVER `es-ES`.** It keeps `$1,234.50`, the 12-hour clock and
+  month-before-day — three things a customer reads as WRONG rather than as
+  translated.
+  **NO LIBRARY** (`t()` is a lookup, an interpolation and a change event, and
+  this frontend has four dependencies), and **the calendar's month names, dates
+  and weekday initials come from `Intl`** — the initials DERIVED, because a
+  hard-coded `["S","M","T"…]` is English by construction and Spanish's are
+  L M M J V S D.
+  **ENGLISH IS NEVER TAKEN AWAY**: the picker is on the page, so a confusing
+  line is an annoyance somebody switches out of rather than a wall.
+  **STAGE 1 IS THE WHOLE BOOKING JOURNEY AND NOTHING ELSE, MEASURED:** ~2,600
+  candidate strings in the product, **148 of them the entire booking surface.**
+  The plan pages, the thirteen emails and the dashboard are stages 1b and 2 —
+  **and the plan pages carry NO PICKER on purpose**, so they promise nothing
+  they cannot do; § 4b fails if one appears there.
+  **AND THE PICKER COST 25px OF EVERY STEP UNTIL IT WAS MEASURED.** A chip's
+  `min-height: 44px` tap floor against a 19px masthead put EIGHT steps past the
+  bottom of a 392 screen — W16, whose spare room is the DETAILER's budget.
+  Negative block margins keep the tap area and give the row its height back;
+  the whole feature costs **1px**. **Do not shrink the chip instead** — that
+  pays for a layout with an accessibility floor.
+  **IT ALSO BROKE `sweep-booking-steps.mjs` IN A WAY THAT READ AS A PRODUCT
+  BUG**: the picker is the first `.bk-chip` on the page, so the script pressed
+  a language button and failed ONE STEP LATER on a Continue that would not
+  enable. Scoped to `.bk-slots .bk-chip`. Same family as the auth-form
+  selectors above — **a script reaching for "the first X on the page" breaks
+  the day a second X is drawn above it.**
+  **`duration()` TAKES A LANGUAGE ARGUMENT, ENGLISH BY DEFAULT, AND MUST NOT
+  READ THE LOCALE ITSELF** — it is shared with the dashboard, and `dp.lang` is
+  a per-DEVICE choice a CUSTOMER makes, so a detailer who previewed their own
+  page in Spanish would come back to `3 h 30 min` in an English back office.
+
+- **A DETAILER CAN TYPE A PROMO CODE AT OUR CHECKOUT — roadmap 8.14,
+  2026-09-07 — AND THE ONE THING TO UNDERSTAND IS THAT THERE IS NO STRIPE
+  COUPON, ON PURPOSE.** He asked for one and was right that Stripe supports it;
+  a Stripe `coupon` computes the money INSIDE STRIPE, where nothing in this
+  repo can see it, which is the same reasoning that already refused Product IDs
+  for the amounts.
+  **A CODE PRODUCES A DIFFERENT `Snapshot` AND NOTHING ELSE CHANGES.** That
+  object already decides `linesFor`, `planLabel`, `consentSentence`,
+  `exitFeeCents`, `firstChargeCents` and the row — so the discount reaches the
+  invoice, the sentence beside the tick and the exit fee **by construction**.
+  **Do not add a `discount_cents` field and thread it through**: that is the
+  version where one of six call sites forgets, and it is always the receipt.
+  **THE CEILING IS REAL AND STATED: a discount lasts as long as the
+  subscription does.** An inline `price_data.unit_amount` recurs at that amount
+  for ever, so **"first month free" and "20% off for a year" are NOT
+  expressible** — they need a Stripe coupon with a `duration`, and then the
+  printed number and the charged number differ for the life of the account.
+  Money off the BUILD FEE is naturally one-off.
+  **A CODE IS REFUSED ON A FOUNDING ACCOUNT UNLESS `stacks_with_founding`.**
+  Three spots exist and are already the discounted ladder.
+  **THE REDEMPTION IS ONE SQL STATEMENT AND SITS ABOVE THE SNAPSHOT** — the
+  price is snapshotted once and never re-read (roadmap 8.5) — and
+  `release_promo_code` hands it back on every path `giveBack` covers.
+  **`subscribe` CLAIMS THE FOUNDING SPOT AT INTENT TO PAY, so the quote has to
+  PREDICT it**; without that a code is accepted by the quote and refused at the
+  till half a second later. It reads `founding_offer()`. **The first version
+  called `founding_spots_left()`, which has not existed since roadmap 6.2:
+  PostgREST answers PGRST202 and the prediction silently falls through to
+  false. A MISSING RPC IS A SILENT `false`** — found by the test comparing the
+  quote against the charge, not by reading.
+  **THE BACK OFFICE CREATES AND SWITCHES OFF, NEVER EDITS** (a code's terms are
+  what somebody was told when it was handed to them), and **he types DOLLARS
+  while the column stores CENTS, converted in `platform-admin`** — a screen
+  that multiplies by 100 is a screen that can forget to.
+  **`platform_promo_codes` IS NOT `promo_codes`.** The first is ours, for a
+  detailer buying a subscription; the second is a detailer's own code for their
+  own customers. One letter apart, and they must never learn about each other.
+  **`seed-demo.mjs` SEEDS `DEMO25`** so the applied state on the checkout is a
+  swept state — `sweep-widths.mjs` types it and presses Apply.
+
+- **IF A SCHEDULED JOB STOPS, HE IS EMAILED — roadmap 8.12, 2026-09-07 — AND
+  THE ONE THING TO UNDERSTAND IS WHAT THAT SWITCH CANNOT SEE ABOUT ITSELF.**
+  `watch-jobs` runs every fifteen minutes on `pg_cron`, asks
+  `claim_job_alerts()` what has CHANGED, and emails
+  `platform_settings.owner_email`.
+  **THE ALARM RINGS ONCE AND THAT IS ONE SQL STATEMENT.** The decision and the
+  "he has been told" mark are a single data-modifying CTE, so two overlapping
+  runs cannot both send and a job down for a week is not in the result. **Do
+  not split it into a read and a write** — an alert every quarter of an hour
+  for the length of an outage is one that gets routed to a folder, and then the
+  next real one goes there too. **And do not delete `release_job_alerts`**: a
+  claim written whose email then failed is an alarm that never rings again, and
+  that is the quieter, worse failure. It re-arms the STOPPAGES only.
+  **THE WATCHER RUNS ON THE SAME `pg_cron` IT WATCHES.** If pg_cron stops, or
+  the free plan pauses the project after seven quiet days, the alarm stops with
+  the jobs and **the silence is identical to health**. Nothing in that file can
+  notice it. It pings `platform_settings.healthcheck_url` on every healthy run
+  instead — **and that column is NULL**, which is why the back office prints
+  *"NOTHING outside is watching the scheduler itself"*. `docs/ops/monitoring.md`
+  is the five minutes that fixes it, and **it is parked on him, not on us.**
+  **IT STAMPS NO HEARTBEAT OF ITS OWN** (a watcher watching itself is a green
+  light it wrote for itself) and it is **its own cron job rather than a tail on
+  `send-owner-reminders`**, because that sweep is the job this product has
+  actually watched break and it must not be the only thing able to report its
+  own death.
+  **THE STALENESS WINDOWS ARE `job_heartbeats.stale_after_seconds` AND NOWHERE
+  ELSE.** `AdminPage.jsx` used to carry `45 minutes` and `36 hours` in a JS
+  constant; two copies of a threshold is how a screen says a job is fine while
+  the alarm is going off. **Seconds, not an `interval`** — PostgREST renders an
+  interval in whichever text shape Postgres picks. The health line is
+  DISCOVERED from the rows now, with the named list kept for the one case rows
+  cannot cover: **no row is also what a dropped table looks like.**
+  **`send-email` TAKES `business_id` AS OPTIONAL FOR PLATFORM MAIL ONLY** —
+  this is the first email in the product about our own plumbing rather than
+  about a tenant — **and still answers 400 to a tenant email without one**,
+  because such an email would send with no display name and no Reply-To and
+  look approximately right.
+  **`shoot-admin.mjs` WALKS *WHAT WE CHARGE* SINCE 2026-09-07 (roadmap 8.14),
+  AND THAT PANEL HAD EXISTED SINCE 4.4 STAGE 4 WITH NOTHING EVER PHOTOGRAPHING
+  IT** — the same gap a dozen times: the script walks NAVIGATION, and a state
+  you reach by pressing something inside a screen is not navigation. **The
+  toggle RENAMES ITSELF** (*What we charge* → *Close*), so it is addressed by
+  position: a name-based locator times out for thirty seconds on the line that
+  CLOSES the panel, after every shot has already been taken.
+  **AND `shoot-admin.mjs` PRINTS 2 CONSOLE ERRORS AT 392 THAT ARE THE PRODUCT
+  WORKING.** Its console check reads whatever page the walk left it on, which
+  at the impersonation width is `/admin` signed in as a detailer — where
+  `platform-admin` answers 404 rather than 403 by design (roadmap 4.4). The
+  line names the URL and says so; do not go looking for a defect.
+
