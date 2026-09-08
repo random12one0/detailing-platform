@@ -849,3 +849,98 @@ either way, not as a horizontal row.
 - **Nothing here has been checked at 320px**, which PRODUCT.md promises and this
   repo sweeps by default. These are other people's sites so it is not a defect
   list — but if the bottom dock is copied, 320 is where it will fail first.
+
+---
+
+# THE INNER PAGES — 2026-09-08, and the first one corrects me
+
+**His instruction:** *"Go through all of the sites every single... and, like, try
+to go through all the different pages. And, also, like, next, you get
+screenshots of, like, almost the entire site, not just one screenshot per site
+back so you're looking through the whole thing. Now it's gonna take a while,
+but, you know, that's fine."*
+
+`taste-crawl.tmp.mjs` follows each site's own navigation, up to seven pages, and
+photographs every page **top to bottom in OVERLAPPING frames** (0.85 of a
+viewport per step, so nothing falls between two shots). Output in
+`shots-full/<site>/<page>-NN.png`, with `--phone` for the 392 pass.
+
+## K. I JUDGED A WHOLE SITE FROM ITS HOME PAGE, AND I WAS WRONG ABOUT IT
+
+§ 4 said `meli` is *"the same block six times with different words in it"* and
+used it as the worked example of a metronomic page. **That is true of its home
+page and false of the site.** Its portfolio page uses a completely different row
+shape, and it is the best thing in either batch.
+
+**A page is not a site.** Two batches of analysis had been built entirely on
+home pages, which is the one page every site tries hardest on and the one a
+returning customer sees least.
+
+## L. MELI'S PORTFOLIO ROW — the single most transferable thing found so far
+
+Each row is **one completed job**, and it carries four things at once:
+
+- **the photograph**, left, with a corner badge naming the package
+  (*MELI'S SIGNATURE DETAIL*, *FULL REFRESHMENT*);
+- **the car and the package** — *"Porsche 911 Turbo | Meli's Signature Detail"* —
+  then one line of what was actually done: *"interior deep clean, exterior wash,
+  1-step paint correction, sealant, and full trim restoration"*;
+- **a Book Now button, on the portfolio row itself**;
+- and under a hairline, **that customer's real Google review** in italic, their
+  name, their city, the Google mark and five stars.
+
+**It is a gallery, a service menu, a testimonial and a booking CTA collapsed
+into one object.** Every other site in the eighteen — ours included — spends
+four separate sections on those four jobs.
+
+**AND WE COULD GENERATE IT.** This product already holds every part: `job_photos`
+for the image, `booking_services` for the package, the vehicle for the title,
+the customer's first name and city, and the review links a detailer has filled
+in. **A completed job could become a portfolio row with no typing at all**,
+which is a thing no website builder can do because none of them knows what work
+was done.
+
+**This belongs in roadmap 9.2 and it changes what that item is.** 9.2 is
+currently *"a `site_examples` table, the screens to manage it, and the
+customer-facing browse-and-favourite"* — a gallery of OTHER PEOPLE'S sites, for
+choosing a look. This is a different object: **the detailer's own finished work,
+assembled automatically.** Both are worth having; they are not the same feature
+and should not be merged.
+
+## M. MELI'S QUOTE PAGE — worth comparing against our own booking step
+
+A single narrow card centred on the dark ground: heading *GET YOUR **FREE
+QUOTE*** with the accent word in cyan, then *"What service do you need? Select
+one below"*, then **five full-width rows** — title, one grey description line, a
+radio on the right — a cyan **Continue →**, and the Google rating strip **inside
+the card**.
+
+Four differences from `StepServices`, and only one of them is clearly ours to
+copy:
+
+1. **THE REVIEW PROOF IS INSIDE THE FORM**, at the bottom of the card, at the
+   moment of commitment. Ours puts trust signals on the page around the form.
+   **This is the one worth taking.**
+2. **A "POPULAR" badge on one option.** Legitimate here and **explicitly banned
+   on OUR pricing page** — `landing-pricing` 7b fails on it, for AB 2863 and the
+   FTC's Adobe reasoning. **That ban is about the platform selling
+   subscriptions, not about a detailer selling details**, and a future session
+   must not apply it to a tenant site. Worth stating, because the test failing
+   is the kind of thing that gets copied as a rule.
+3. **No prices on the selection step.** Ours shows them. Theirs lowers the cost
+   of deciding; ours is more honest earlier. Not obviously better either way,
+   and it is the detailer's call rather than ours.
+4. **The card is narrow and centred with a lot of dead dark space at 1440** —
+   the `dead-width` failure `sweep-widths.mjs` gates on for our own dashboard.
+
+## N. WHAT THIS CHANGES ABOUT THE REVIEW ITSELF
+
+**Every conclusion in the two passes above was drawn from home pages.** They are
+not withdrawn — the depth finding, the type finding and the flat-box finding all
+still hold on the evidence they were drawn from — **but their SCOPE was
+overstated, and § 4's "meli is metronomic" is the first one that turned out to
+be a claim about one page.**
+
+The remaining fifteen sites are being walked the same way. **Anything below this
+line that says "the site" and was written before the crawl means "the home
+page".**
