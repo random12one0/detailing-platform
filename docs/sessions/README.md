@@ -64,6 +64,29 @@ Read docs/sessions/build.md and do what it says.
 Read docs/sessions/manager.md. You are the manager for this project.
 ```
 
+## Every session ends its responses with a "Bottom line" paragraph
+
+**His ask, 2026-09-08:** *"one paragraph at the bottom that has all the
+information I need… so I don't have to read any of the rest of this stuff."*
+
+**It is enforced in three places on purpose, because a rule read once at
+session start is a rule that drifts by turn forty:**
+
+1. **The `Bottom Line` output style** (`~/.claude/output-styles/`) — in the
+   system prompt of every turn, so it survives a `/clear` and a summarization.
+2. **A `UserPromptSubmit` hook** in `~/.claude/settings.json` — re-injects the
+   rule on every message he sends. Belt and braces.
+3. **`~/.claude/CLAUDE.md`** — the portable copy. Works in any folder, on any
+   project, and for a coding agent that is not Claude Code.
+
+**All three are GLOBAL, not in this repo**, so a brand-new project in a
+different folder gets it with no setup.
+
+**What the paragraph must contain:** what happened · what HE must do (or the
+literal words *"Nothing for you to do."*) · what he must decide, with your
+recommendation · anything broken or risky · what is next. Plain English, one
+paragraph, 40–120 words, no jargon, self-contained.
+
 ## The five rules all three share
 
 1. **Commit often, and commit only your own folders.** `git add <your paths>`,
