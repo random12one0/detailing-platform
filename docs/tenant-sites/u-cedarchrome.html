@@ -86,8 +86,13 @@ nav a:hover{color:var(--ink)}
 @media(max-width:880px){ nav{display:none} }
 
 .open{padding:8vh 0 4vh}
+/* max-width:none because `.open p` sets 52ch for BODY copy and this eyebrow
+   is also a <p> — at 12px letter-spaced that clipped it to ~300px and
+   orphaned "2009" on a second line. Seen in the 1440 render, not in the
+   file: the rule that caused it is forty lines away from the one that
+   looks wrong. */
 .kick{font:500 12px/1 "Barlow Condensed",sans-serif; letter-spacing:.26em;
-  text-transform:uppercase; color:var(--rust); margin:0 0 16px}
+  text-transform:uppercase; color:var(--rust); margin:0 0 16px; max-width:none}
 h1{font:300 clamp(36px,5.6vw,64px)/1.1 Bitter,serif; letter-spacing:-.02em; margin:0 0 18px; max-width:19ch}
 h1 b{font-weight:600}
 .open p{max-width:52ch; color:var(--dim); font-size:18.5px; margin:0 0 26px}

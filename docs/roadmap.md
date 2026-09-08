@@ -8608,8 +8608,29 @@ is still the question list rather than a thing to rewrite.
       a rule; he has stated it as the reason, and the reason is what a detailer
       is buying.**
 
-- [~] 9.5 **Ten example sites on the live domain — HIS ask, for HIMSELF.**
-      **BUILT 2026-09-07; ONE MERGE FROM BEING LIVE, WHICH IS HIS CALL.**
+- [x] 9.5 **Ten example sites on the live domain — HIS ask, for HIMSELF.**
+      **DEPLOYED 2026-09-08, AT HIS ASK.** *"can u make it so u dont have to
+      sighn up to veiew rthe examples"* — and the reason nobody could was that
+      the pages had never been deployed at all. `/example1` returned the SPA
+      (verified with curl: 200, `<title>Detailing Platform</title>`), because
+      `_redirects` sends every unmatched path to `index.html` and the built
+      example directories only existed locally. **There was no gate to remove;
+      there was a deploy to do.**
+      **THE PUBLISH WAS 68 COMMITS AND THAT IS SAID OUT LOUD**, because he
+      asked for ten example pages and got the whole branch. It is his standing
+      permission (*"yes we can publish if we need to"*) and it was needed.
+      What went with it: the frontend catching up to a backend that was
+      ALREADY current — all 30 edge functions and every migration have been
+      deployed for days, so main's frontend was the stale half — plus the
+      `StepLocation` white-screen crash on the booking page, live since
+      2026-08-31, which this fixes.
+      **Verified before pushing:** 40 suites green, build green, accent-sweep
+      clean, and the width sweep clean at 1920/1440/392/360/320 in BOTH
+      languages.
+      **AND THE TEN ARE THE NEW TEN** — `l-` through `u-`, built on his own
+      taste evidence. The eleven older pages stay in the repo and are no
+      longer served.
+
       `scripts/build-examples.mjs` runs at the end of `npm run build` and writes
       `/example1` … `/example10` plus an index at `/examples` into `dist/`.
       **IT COPIES RATHER THAN DUPLICATES.** A second committed copy under

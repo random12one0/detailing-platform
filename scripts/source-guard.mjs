@@ -31,7 +31,8 @@
 // CLAUDE.md requires that nothing load-bearing live in a tool-specific place,
 // because the owner expects to move to a different coding agent.
 
-import { readdir, stat } from "node:fs/promises";
+import { readdir, readFile, stat } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -51,22 +52,55 @@ const SRC = fileURLToPath(new URL("../app/src/", import.meta.url));
  */
 export function watchSource() {
   const startedAt = Date.now();
+
+  // FINGERPRINT THE TREE AT THE START, not just the clock.
+  //
+  // **AN MTIME THAT MOVED WHILE THE BYTES DID NOT IS A TOUCH, AND A TOUCH IS A
+  // DIFFERENT FACT FROM AN EDIT** — it cannot change what the page renders.
+  // Added 2026-09-08 after two consecutive runs were condemned over
+  // `landing/LegalPage.jsx`, a file that session never opened and whose content
+  // matched HEAD both times. Something else on the machine had touched it.
+  //
+  // **A warning that says "this run is not trustworthy" about a file nobody
+  // changed is a warning people learn to scroll past** — which is precisely the
+  // fate this guard exists to save real findings from. So a touch is still
+  // reported, and no longer condemns the run.
+  const before = new Map();
+  const snapshot = (async () => {
+    try {
+      for (const name of await readdir(SRC, { recursive: true })) {
+        const p = path.join(SRC, name);
+        try {
+          const st = await stat(p);
+          if (st.isFile()) before.set(name, createHash("sha1").update(await readFile(p)).digest("hex"));
+        } catch { /* raced with a delete */ }
+      }
+    } catch { /* no app/src (a different checkout shape) */ }
+  })();
+
   return async function changedSince() {
-    const hits = [];
+    const edited = [];
+    const touched = [];
+    await snapshot;
     let names;
     try {
       names = await readdir(SRC, { recursive: true });
     } catch {
-      return hits; // no app/src (a different checkout shape) — say nothing
+      return edited; // no app/src — say nothing
     }
     for (const name of names) {
       const p = path.join(SRC, name);
       try {
-        const s = await stat(p);
-        if (s.isFile() && s.mtimeMs > startedAt) hits.push(name.replace(/\\/g, "/"));
+        const st = await stat(p);
+        if (!st.isFile() || st.mtimeMs <= startedAt) continue;
+        const now = createHash("sha1").update(await readFile(p)).digest("hex");
+        const was = before.get(name);
+        // A file that did not exist when the run started counts as an edit.
+        (was === undefined || was !== now ? edited : touched).push(name.replace(/\\/g, "/"));
       } catch { /* raced with a delete; not our problem to report */ }
     }
-    return hits;
+    edited.touchedOnly = touched;
+    return edited;
   };
 }
 
@@ -103,6 +137,20 @@ export function watchSource() {
  */
 export async function reportSourceMoved(changedSince, clean = false) {
   const hits = await changedSince();
+
+  // A TOUCH IS REPORTED AND DOES NOT CONDEMN THE RUN — see `watchSource`. The
+  // fact is not swallowed, because something moving files under a running
+  // browser walk is worth knowing about; it simply is not evidence the run
+  // measured the wrong thing, and saying so would spend the guard's credibility
+  // on a non-event.
+  const touched = hits.touchedOnly || [];
+  if (touched.length) {
+    console.error(`\n  · ${touched.length} file${touched.length === 1 ? "" : "s"} under app/src had `
+      + `its timestamp moved during this run with NO change to its bytes — `
+      + `${touched.slice(0, 4).join(", ")}${touched.length > 4 ? ` (+${touched.length - 4})` : ""}.\n`
+      + `    A touch cannot change what the page rendered, so this run stands.`);
+  }
+
   if (!hits.length) return false;
   const shown = hits.slice(0, 6).join(", ");
   console.error(

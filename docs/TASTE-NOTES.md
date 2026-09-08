@@ -1120,3 +1120,49 @@ screenshot hosted on a portfolio site: probing it measures Dribbble's chrome,
 not the design. **Still owed a human eye.**
 
 **`mobbin.com/mcp`** — a paid product, and he said so himself. Not pursued.
+
+---
+
+## P. TWO DEVICES FROM THE INNER-PAGE CRAWL, 2026-09-08
+
+**`auxia`'s footer is the whole brand name at ~200px, bleeding off the right
+edge, on flat electric blue, with the last two letters stepped down in tone so
+the word fades out of frame.** The actual footer links sit under it at ~10px in
+mono. It costs nothing, and it makes the page **end** rather than merely stop —
+which is a thing none of our ten mock-ups do and every one of them could.
+
+**Why it works and a logo lockup would not:** it is not a logo, it is the word
+used as a shape. The fade is what stops it reading as an accident of overflow.
+
+**And it re-reads the "one genuinely large object" finding (§ O, `fora`).** That
+was recorded as a hero device — a product window rising into frame. Auxia does
+the same move at the OTHER end of the page, so the rule generalises: **a page
+wants one object at a scale nothing else on it approaches, and where that object
+sits is free.**
+
+**The second device — `meli`'s heading pattern**, seen across its inner pages
+rather than on the home page: white text with the final word or two in the
+accent, every single time — *GET YOUR **FREE QUOTE***, *WHY LUXURY DETAILING
+**MATTERS***. It is the cheapest identity device in either batch: no new colour,
+no new face, no new layout, and it makes a heading recognisably theirs. **The
+discipline is that it is EVERY heading, not some.**
+
+**And a third, from `chicago`'s paint-protection page** — the page he called
+crowded, which is exactly why it is worth separating the device from the page:
+each package prints **"THIS PACKAGE INCLUDES:" followed by a two-column TICK
+LIST** — *Front bumper · Full hood · Full front fenders · Headlights · Mirror
+caps*. Ticks, not prose.
+
+**This maps straight onto `services.features`, which contract § 2b already
+requires a site to print, and which all ten of our mock-ups render as a prose
+`<small>` instead.** A tick list is scannable in a way a sentence is not, and
+"what do I actually get" is the second question after "how much".
+
+**Not a change to the ten** — a prose line suits a detail where a tick list
+suits a package with discrete parts, and the ten deliberately differ. It is
+recorded so the next page has both in hand.
+
+**What sinks that page is NOT the device**: two CTAs per package repeated down
+eleven screens, centred body copy in every right-hand panel, and a modal over
+the middle of the hero. The tick list is the good part of a bad page, which is
+the same finding as `agautospa`'s masonry.
