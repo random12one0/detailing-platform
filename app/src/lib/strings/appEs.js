@@ -591,4 +591,395 @@ export const appEs = {
     "Solo en el taller. Un cliente que escoja esto no puede escoger a domicilio.",
   "Mobile only. A customer who picks this can't choose drop-off.":
     "Solo a domicilio. Un cliente que escoja esto no puede escoger el taller.",
+  // The twelve colour presets. Named for what the colour IS, the way the trade
+  // names them, so each one is translated rather than transliterated.
+  "Crimson": "Carmesí",
+  "Rose": "Rosa",
+  "Ember": "Brasa",
+  "Sunflower": "Girasol",
+  "Gold": "Oro",
+  "Forest": "Bosque",
+  "Teal": "Verde azulado",
+  "Sky": "Cielo",
+  "Ocean": "Océano",
+  "Violet": "Violeta",
+  "Slate": "Pizarra",
+  "Silver": "Plata",
+  "a colour": "un color",
+  "a near-white": "un casi blanco",
+  "a near-black": "un casi negro",
+  "a grey": "un gris",
+
+  // The seven first-run questions, and the name each step goes by afterwards.
+  "What do you charge for?": "¿Por qué cobras?",
+  "Your services": "Tus servicios",
+  "Anything you can add to a job?": "¿Algo que puedas agregar a un trabajo?",
+  "Running a discount?": "¿Tienes un descuento?",
+  "Promo code": "Código promocional",
+  "When are you open?": "¿Cuándo estás abierto?",
+  "Your hours": "Tu horario",
+  "Where does the work happen?": "¿Dónde se hace el trabajo?",
+  "Where you work": "Dónde trabajas",
+  "How does a customer reach you?": "¿Cómo te contacta un cliente?",
+  "Your details": "Tus datos",
+  "What colour is yours?": "¿Cuál es tu color?",
+  "Step {n} of {total} · {name}": "Paso {n} de {total} · {name}",
+  "Full detail": "Detallado completo",
+  "Pet hair removal": "Quitar pelo de mascota",
+  "Minutes": "Minutos",
+  "Extra minutes": "Minutos extra",
+  "Finish": "Terminar",
+  "Continue": "Continuar",
+  "Setting up…": "Configurando…",
+  "Open my dashboard": "Abrir mi panel",
+  "Your business": "Tu negocio",
+  "What is the business called?": "¿Cómo se llama el negocio?",
+  "That name needs a couple of letters or numbers for the web address.":
+    "Ese nombre necesita un par de letras o números para la dirección web.",
+  "That web address is taken. Try another below.":
+    "Esa dirección web ya está ocupada. Prueba otra abajo.",
+
+  // The guided tour — one sentence a step.
+  "Every morning starts here.": "Cada mañana empieza aquí.",
+  "A job booked over the phone goes in here.":
+    "Un trabajo agendado por teléfono se mete aquí.",
+  "Everything a customer sees is set here.":
+    "Todo lo que ve un cliente se ajusta aquí.",
+  "Send this link to a customer.": "Manda este enlace a un cliente.",
+  "Open a job to see everything about it — the car, the price, the notes.":
+    "Abre un trabajo para ver todo — el carro, el precio, las notas.",
+  "Somebody asked for a time. Nothing is confirmed until you answer.":
+    "Alguien pidió una hora. Nada queda confirmado hasta que respondas.",
+  "When a job is done, this is where the money gets written down.":
+    "Cuando se termina un trabajo, aquí es donde se anota el dinero.",
+  "Week, month, year — every figure on this screen follows this.":
+    "Semana, mes, año — cada cifra de esta pantalla sigue esto.",
+  "What is left after expenses, not what came in.":
+    "Lo que queda después de gastos, no lo que entró.",
+  "One file for your accountant, for whatever period you are looking at.":
+    "Un archivo para tu contador, del periodo que estés viendo.",
+  "Open somebody to see everything they have ever booked.":
+    "Abre a alguien para ver todo lo que ha agendado.",
+  "Sort by who has not been back — that is the list worth a text message.":
+    "Ordena por quién no ha regresado — esa es la lista que vale un mensaje.",
+  "Write to everybody on the list you are looking at, in one go.":
+    "Escríbeles a todos los de la lista que estás viendo, de una vez.",
+  "Everything with a number beside it is something a customer can already see.":
+    "Todo lo que tiene un número al lado es algo que un cliente ya puede ver.",
+  "What you charge for, and what it costs. This is the one that decides whether the booking page works.":
+    "Por qué cobras, y cuánto cuesta. Este es el que decide si la página de citas sirve.",
+  "Next": "Siguiente",
+  "{n} of {total}": "{n} de {total}",
+
+  // The finalize sheet — how a job got paid, and what was added on site.
+  "Cash": "Efectivo",
+  "Card": "Tarjeta",
+  "Cheque": "Cheque",
+  "Upgrade": "Mejora",
+  "Add-on": "Extra",
+  "Custom charge": "Cargo personalizado",
+  "Travel fee": "Costo de viaje",
+  "Tip": "Propina",
+  "Discount": "Descuento",
+  "Paid": "Pagado",
+  "Part paid": "Pagado en parte",
+  "Not yet": "Todavía no",
+  "Waived": "Perdonado",
+  "paid": "pagado",
+  "partially paid": "pagado en parte",
+  "not paid yet": "sin pagar todavía",
+  "waived": "perdonado",
+  "Yes, finalize": "Sí, finalizar",
+
+  // The day sheet — blocking a day, changing its hours, limiting its mode.
+  "No jobs": "Sin trabajos",
+  "{count} job": "{count} trabajo",
+  "{count} jobs": "{count} trabajos",
+  "Bookings allowed as normal": "Se agenda con normalidad",
+  "Block this day": "Bloquear este día",
+  "Block these {count} days": "Bloquear estos {count} días",
+  "through {date}": "hasta {date}",
+  "Closed just for this day": "Cerrado solo por este día",
+  "{from}–{to} just for this day": "{from}–{to} solo por este día",
+  "Your normal hours for this weekday": "Tu horario normal para este día",
+  "Mobile and drop-off both bookable": "Se puede agendar a domicilio y en taller",
+  "Drop-offs only — no mobile jobs": "Solo en el taller — nada a domicilio",
+  "Mobile only — no drop-offs": "Solo a domicilio — nada en el taller",
+  "Drop-offs only": "Solo en el taller",
+  "Drop-offs": "En el taller",
+  "Mobile jobs": "Trabajos a domicilio",
+  "{mode} for this day": "{mode} por este día",
+  "{mode} for these {count} days": "{mode} por estos {count} días",
+  "Through (inclusive)": "Hasta (inclusive)",
+  "Change": "Cambiar",
+  "Set": "Poner",
+  "Remove": "Quitar",
+  "Closed": "Cerrado",
+
+  // The hours grid.
+  "All days": "Todos los días",
+  "Weekdays": "Entre semana",
+  "Weekends": "Fin de semana",
+  "Hours saved.": "Horario guardado.",
+  "Save hours": "Guardar horario",
+  "{day} needs both an open and a close time, or neither.":
+    "{day} necesita hora de apertura y de cierre, o ninguna de las dos.",
+  "Any day you're open.": "Cualquier día que estés abierto.",
+  "Only the days you've picked. Other days close on your booking page.":
+    "Solo los días que escogiste. Los demás se cierran en tu página de citas.",
+
+  // Signing in, the invite and the password screens.
+  "Welcome back": "Qué bueno verte",
+  "Create your account": "Crea tu cuenta",
+  "Reset your password": "Restablece tu contraseña",
+  "Sign in to your dashboard.": "Entra a tu panel.",
+  "Your business details come next.": "Los datos de tu negocio van después.",
+  "We'll email you a link. It works once and lasts an hour.":
+    "Te mandamos un enlace por correo. Sirve una vez y dura una hora.",
+  "Signing in…": "Entrando…",
+  "Creating…": "Creando…",
+  "Sending…": "Enviando…",
+  "Link sent": "Enlace enviado",
+  "Email me a link": "Mándame un enlace",
+  "Create account": "Crear cuenta",
+  "Sign in": "Entrar",
+  "Create an account": "Crear una cuenta",
+  "I already have an account": "Ya tengo una cuenta",
+  "Or go back to": "O regresa a",
+  "Already signed in here": "Ya hay sesión aquí",
+  "That account": "Esa cuenta",
+  "That account is no longer signed in on this device.":
+    "Esa cuenta ya no tiene sesión en este dispositivo.",
+  "This business": "Este negocio",
+  "Choose a new password": "Escoge una contraseña nueva",
+  "That link has expired": "Ese enlace ya venció",
+  "Those two do not match.": "Esas dos no coinciden.",
+  "Changed. This device stays signed in.":
+    "Cambiada. Este dispositivo sigue con la sesión abierta.",
+  "Save it and sign me in": "Guardarla y entrar",
+  "Set up my account": "Configurar mi cuenta",
+  "Could not accept the invite.": "No se pudo aceptar la invitación.",
+  "Could not check that invite link.": "No se pudo revisar ese enlace de invitación.",
+  "Your sign-in password.": "Tu contraseña de acceso.",
+
+  // The team screen.
+  "Remove this person? They lose access to the dashboard immediately.":
+    "¿Quitar a esta persona? Pierde el acceso al panel de inmediato.",
+  "You can't remove the last owner.": "No puedes quitar al último dueño.",
+  "You can't demote the last owner.": "No puedes bajarle el rango al último dueño.",
+  "Name saved.": "Nombre guardado.",
+  "First name": "Nombre",
+  "This is you.": "Este eres tú.",
+  "Owner": "Dueño",
+  "Make them an owner": "Hacerlo dueño",
+  "Owners can do everything, including invite people and set what everyone else can do.":
+    "Los dueños pueden hacer todo, incluyendo invitar gente y decidir qué puede hacer cada quien.",
+  "Gives them everything, permanently, including this screen.":
+    "Le da todo, permanentemente, incluyendo esta pantalla.",
+  "Custom role": "Rol personalizado",
+  "Sending": "Enviando",
+  "Send invite": "Mandar invitación",
+  // The four permission ticks.
+  "Answer requests": "Responder solicitudes",
+  "Accept, decline or quote a booking someone has asked for.":
+    "Aceptar, rechazar o cotizar una cita que alguien pidió.",
+  "Promotions": "Promociones",
+  "Promo codes and campaign links.": "Códigos promocionales y enlaces de campaña.",
+  "The Money tab, expenses, and what each customer has spent.":
+    "La pestaña de Dinero, los gastos, y lo que ha gastado cada cliente.",
+  "Prices, hours, booking rules, branding, how you get paid, and the business's own details.":
+    "Precios, horario, reglas de citas, marca, cómo te pagan, y los datos del negocio.",
+  // The five prewritten texts a detailer sends from a job, and the six values
+  // that get filled into them. **THE `{{token}}` MUST SURVIVE THE TRANSLATION**
+  // — it is what `findBadTokens` validates and what `fillTemplate` replaces, so
+  // a dropped or renamed one is a customer's name that never appears.
+  "On my way": "Voy en camino",
+  "Hi {{customer_name}}, this is {{business_name}} — I'm on my way and should be with you shortly.":
+    "Hola {{customer_name}}, habla {{business_name}} — voy en camino y llego contigo en un rato.",
+  "Running late": "Voy retrasado",
+  "Hi {{customer_name}}, running about 15 minutes behind on my way to you. Sorry for the wait — see you at {{address}} shortly.":
+    "Hola {{customer_name}}, voy unos 15 minutos retrasado camino a ti. Perdón por la espera — nos vemos en {{address}} en un rato.",
+  "Confirm tomorrow": "Confirmar mañana",
+  "Hi {{customer_name}}, confirming your detail on {{date}} at {{time}}. Reply here if anything's changed.":
+    "Hola {{customer_name}}, confirmo tu detallado el {{date}} a las {{time}}. Responde aquí si algo cambió.",
+  "Job finished": "Trabajo terminado",
+  "All finished, {{customer_name}} — thanks for choosing {{business_name}}. Total is {{total}}.":
+    "Todo listo, {{customer_name}} — gracias por elegir a {{business_name}}. El total es {{total}}.",
+  "Ask about access": "Preguntar por el acceso",
+  "Hi {{customer_name}}, quick check before {{date}} — will I have access to water and an outlet at {{address}}?":
+    "Hola {{customer_name}}, una pregunta antes del {{date}} — ¿voy a tener agua y un tomacorriente en {{address}}?",
+  "There is an empty {{ }} with nothing in it.": "Hay un {{ }} vacío, sin nada adentro.",
+  "“{token}” isn’t one of the details we can fill in.":
+    "“{token}” no es uno de los datos que podemos llenar.",
+  "“{name}” not saved. {problems}": "“{name}” no se guardó. {problems}",
+  "Inserts {meaning}": "Inserta {meaning}",
+  "the customer's first name": "el nombre del cliente",
+  "your business name": "el nombre de tu negocio",
+  "the job's date": "la fecha del trabajo",
+  "the job's start time": "la hora de inicio del trabajo",
+  "where the job happens": "dónde se hace el trabajo",
+  "the job's total": "el total del trabajo",
+  "Their name": "Su nombre",
+  "The date": "La fecha",
+  "The time": "La hora",
+  "The address": "La dirección",
+  "The total": "El total",
+
+  // The notification switches.
+  "Booking confirmation": "Confirmación de cita",
+  "Sent the moment they book, with their receipt and a link to change it.":
+    "Se manda en cuanto agendan, con su recibo y un enlace para cambiarla.",
+  "Timing, and whether there is a second one, are set in Booking rules.":
+    "El tiempo, y si hay un segundo, se ajustan en Reglas de citas.",
+  "Goes out after you record payment.": "Sale después de que registras el pago.",
+  "A new booking comes in": "Entra una cita nueva",
+  "A job is coming up": "Se acerca un trabajo",
+  "The day before.": "El día anterior.",
+  "Turning one off stops the email, not the booking.":
+    "Apagar uno detiene el correo, no la cita.",
+  "Email you when…": "Escribirte cuando…",
+  "Send me a sample": "Mándame una muestra",
+  "Only affects nudges to you, not your customers.":
+    "Solo afecta los avisos para ti, no para tus clientes.",
+  "Add a line to any email. Everything else stays as designed.":
+    "Agrega una línea a cualquier correo. Todo lo demás se queda como está.",
+  "Edit your line": "Editar tu línea",
+  "Add a line": "Agregar una línea",
+  "Save notifications": "Guardar avisos",
+  "Could not change that.": "No se pudo cambiar eso.",
+  "Blocked for this site. Turn notifications back on in your browser settings, then try again.":
+    "Bloqueado para este sitio. Vuelve a activar los avisos en la configuración de tu navegador e inténtalo otra vez.",
+  "Allowed once per device, on the phone or computer you want the alerts on.":
+    "Se permite una vez por dispositivo, en el teléfono o la computadora donde quieras los avisos.",
+  "This browser cannot show push notifications.":
+    "Este navegador no puede mostrar avisos push.",
+  "Your browser blocked notifications for this site.":
+    "Tu navegador bloqueó los avisos para este sitio.",
+  "Push isn't set up on this account yet — email still works.":
+    "Los avisos push aún no están configurados en esta cuenta — el correo sí funciona.",
+  "Turn on": "Activar",
+  "Turn off": "Desactivar",
+  "Notification": "Aviso",
+  "A line about it": "Una línea al respecto",
+
+  // This device — the three per-device choices.
+  "iPhone or iPad": "iPhone o iPad",
+  "Apple": "Apple",
+  "Apple / file": "Apple / archivo",
+  "Contact card": "Tarjeta de contacto",
+  "Don’t show": "No mostrar",
+  "Show": "Mostrar",
+  "Hide": "Ocultar",
+  "Used by every Navigate button.": "Lo usa cada botón de Navegar.",
+  "Used by “Add to calendar” on a booking.":
+    "Lo usa “Agregar al calendario” en una cita.",
+  "Used by “Add to contacts” on a job.":
+    "Lo usa “Agregar a contactos” en un trabajo.",
+  "Sample Customer": "Cliente de ejemplo",
+
+  // Promo codes and the site sale.
+  "Code added.": "Código agregado.",
+  "Sale settings saved.": "Ajustes del descuento guardados.",
+  "Comes off every booking automatically — no code for the customer to enter.":
+    "Se descuenta de cada cita automáticamente — el cliente no escribe ningún código.",
+  "Activate": "Activar",
+  "Deactivate": "Desactivar",
+  "· once per customer": "· una vez por cliente",
+
+  // The job record and the booking sheet.
+  "Create booking": "Crear cita",
+  "Save job": "Guardar trabajo",
+  "Save changes": "Guardar cambios",
+  "Save expense": "Guardar gasto",
+  "Saving": "Guardando",
+  "Setting up": "Configurando",
+  "Checking": "Revisando",
+  "Send a quote": "Mandar cotización",
+  "Send a new quote": "Mandar una cotización nueva",
+  "Yes, send it": "Sí, mándala",
+  "Accepted — they've been emailed.": "Aceptada — ya se les mandó correo.",
+  "Declined — they've been emailed.": "Rechazada — ya se les mandó correo.",
+  "Reminder sent to customer.": "Recordatorio enviado al cliente.",
+  "Invoice + thank-you sent.": "Factura y agradecimiento enviados.",
+  "They asked for": "Pidieron",
+  "Delete this booking? It is hidden, not destroyed, and can be restored by support.":
+    "¿Eliminar esta cita? Se oculta, no se destruye, y soporte la puede restaurar.",
+  "Could not load bookings.": "No se pudieron cargar las citas.",
+  "Could not load requests.": "No se pudieron cargar las solicitudes.",
+  "a customer": "un cliente",
+
+  // Job photos and the gallery.
+  "Damage": "Daño",
+  "What happened": "Qué pasó",
+  "Description": "Descripción",
+  "Delete this photo? A before-photo is what settles an argument about a scratch.":
+    "¿Eliminar esta foto? Una foto de antes es lo que resuelve un pleito por un rayón.",
+  "Remove this photo from the gallery?": "¿Quitar esta foto de la galería?",
+  "Photo uploaded — press Save to keep it.":
+    "Foto subida — presiona Guardar para conservarla.",
+  "Photo storage is full — remove some to add more.":
+    "El almacenamiento de fotos está lleno — quita algunas para agregar más.",
+  "Photo storage is full. Remove some photos to add more.":
+    "El almacenamiento de fotos está lleno. Quita algunas fotos para agregar más.",
+
+  // Reviews, questions and campaign links.
+  "Add review": "Agregar reseña",
+  "Add question": "Agregar pregunta",
+  "Your answer": "Tu respuesta",
+  "Could not load your reviews.": "No se pudieron cargar tus reseñas.",
+  "Could not save your questions.": "No se pudieron guardar tus preguntas.",
+  "Could not load your campaign links.": "No se pudieron cargar tus enlaces de campaña.",
+  "Nobody has opened it yet": "Nadie lo ha abierto todavía",
+  "Live": "Activo",
+  "Your booking page": "Tu página de citas",
+  "Put this in your bio, on your cards and in your texts. Customers book themselves from here.":
+    "Pon esto en tu bio, en tus tarjetas y en tus mensajes. Los clientes agendan solos desde aquí.",
+  "Book with us": "Agenda con nosotros",
+
+  // The web address screen.
+  "Check it": "Revisar",
+  "Change it": "Cambiarla",
+  "Not answering yet — the three steps below":
+    "Aún no responde — los tres pasos de abajo",
+  "That address isn't answering yet.": "Esa dirección aún no responde.",
+  "Could not load your addresses.": "No se pudieron cargar tus direcciones.",
+  "You are here": "Estás aquí",
+
+  // Maintenance deadlines.
+  "Due today": "Vence hoy",
+  "Due tomorrow": "Vence mañana",
+  "Missed yesterday": "Se pasó ayer",
+  "Yesterday": "Ayer",
+  "No longer applies": "Ya no aplica",
+  "Before": "Antes",
+  "After": "Después",
+  "this line": "esta línea",
+  "It's been a few months since we last took care of your car.":
+    "Ya pasaron unos meses desde la última vez que cuidamos tu carro.",
+  "Time to get it looking right again?": "¿Ya toca dejarlo bien otra vez?",
+  "If you'd like it back to how it looked when you drove it away, booking takes about a minute —":
+    "Si lo quieres como se veía cuando te lo llevaste, agendar toma como un minuto —",
+  "just use the button below and pick a time that suits you.":
+    "usa el botón de abajo y escoge la hora que te acomode.",
+  "— text those ones instead.": "— a esos mándales un mensaje.",
+
+  // Money's periods, the subscription rungs, and the rest.
+  "Week": "Semana",
+  "Year": "Año",
+  "All time": "Desde siempre",
+  "Booking": "Citas",
+  "Pay for the year": "Pagar el año",
+  "Pay monthly, for a year": "Pagar mensual, por un año",
+  "Month to month": "Mes a mes",
+  "Could not reach Stripe. Check the connection and try again.":
+    "No se pudo conectar con Stripe. Revisa la conexión e inténtalo otra vez.",
+  "Questions and problems go to one person, and you get an answer the same working day.":
+    "Las dudas y los problemas van a una sola persona, y tienes respuesta el mismo día hábil.",
+  "Stuck on something? One person answers, same working day.":
+    "¿Atorado en algo? Una persona responde, el mismo día hábil.",
+  "so every new booking is locked as soon as it's made.":
+    "así cada cita nueva queda apartada en cuanto se hace.",
+  "No phone or email — customers can't reach you":
+    "Sin teléfono ni correo — los clientes no te pueden contactar",
+  "What it is": "Qué es",
 };
