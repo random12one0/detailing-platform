@@ -38,7 +38,7 @@ https://claude.ai/code/artifact/e7683fbc-9436-48cb-ae47-c1868167205b
 
 | | What | Why only he can | Time |
 |---|---|---|---|
-| **1** | ~~**Turn on Google sign-in**~~ **SWITCHED ON — measured 2026-09-08, `/auth/v1/settings` answers `google: true`, so the button is LIVE on the sign-in screen.** What is left is not the toggle: Google's Audience page refuses *Publish app* AND saving a test user while Branding is incomplete, and **the only empty fields are the privacy policy and terms URLs**. Both pages are public and render on the live site. **He pastes `https://detailingplatform.com/privacy` and `https://detailingplatform.com/terms` into the Branding page.** Not a code task and not a bug — do not chase it as one. | 2 min |
+| **1** | ~~**Turn on Google sign-in**~~ **SWITCHED ON — measured 2026-09-08, `/auth/v1/settings` answers `google: true`, so the button is LIVE on the sign-in screen.** What is left is not the toggle: Google's Audience page refuses *Publish app* AND saving a test user while Branding is incomplete, and **the only empty fields are the privacy policy and terms URLs**. Both pages are public and render on the live site. **He pastes `https://detailingplatform.com/privacy` and `https://detailingplatform.com/terms` into the Branding page.** Not a code task and not a bug — do not chase it as one. **~~2 min~~ DONE 2026-09-08 — he had his cloud coworker paste both.** What that session then reported is § 9 below, and reading it produced one real change and three false alarms. | done |
 | **2** | ~~**Does a mailbox exist on `detailingplatform.com`?**~~ **ANSWERED 2026-09-08: YES — `andrew@` and `support@`, on iCloud Mail, and they existed before anybody asked.** The DNS is on **NS1**, not Cloudflare and not Netlify. The GBP application was filed from `andrewswashing@gmail.com` anyway, because that account holds the verified listing and the form has no contact-email field. | done |
 | **2b** | **NEW — read Resend's actual billing plan** at `resend.com/settings/billing`. **The account sent 200 emails on 7 Sep and 110 on 6 Sep, all delivered** — both above the 100/day free cap this product's counter is built against. So either he is not on the free plan, or **the back office's *"Emails: N of 100 today"* is measuring against a limit that does not exist.** The coworker's API access shows domains and metrics but not the plan. | 1 min |
 | **2c** | **NEW — two things in the Stripe dashboard that roadmap 2.20 stage 3 is waiting on**, now that its server half is deployed: the **`ca_…` Connect client id** set as `STRIPE_CONNECT_CLIENT_ID`, and **the webhook endpoint told to listen to events on CONNECTED accounts** — a separate setting, and without it `event.account` never arrives and every card payment a customer makes stays showing unpaid. | 5 min |
@@ -377,3 +377,66 @@ At 238 MB it went through (and was then skipped for build credits, § 6).
 session's own output — `shots-taste/`, `shots-full/`, `shots-mocks/` — is still
 in the repo and still gitignored, and should be moved or deleted before the next
 deploy attempt for the same reason.
+
+---
+
+## 9. THE PRIVACY POLICY AND GOOGLE — 2026-09-08, and three of the four asks were already done
+
+**Where this came from:** his cloud coworker pasted the two Branding URLs into
+Google, then read the resulting `/privacy` page and came back with four changes
+it said the policy needed before the sensitive-scope verification.
+
+**He flagged the catch himself, and he was right:** *"that was using the
+published version… and since I ran out of credits, if it's not updated."*
+
+**IT WAS NOT UPDATED, AND THAT IS THE WHOLE EXPLANATION FOR THREE OF THE FOUR.**
+Measured by downloading both bundles and grepping them rather than by opening
+the page:
+
+```
+                            LIVE (index-nOASGAhD.js)   LOCAL (index-DgMEktHO.js)
+  "four companies involved"          1                          0
+  "The companies involved"           0                          1
+  "Signing in with Google"           0                          1
+  "Limited Use"                      0                          1
+```
+
+| Its ask | Verdict |
+|---|---|
+| Add the three things Google sign-in gives us | **Already in the source since 2026-09-07.** |
+| Add the Limited Use disclosure | **Already there**, with the policy URL and the revoke link. |
+| Make the companies list read five, not four | **Already done, and done better** — the heading carries NO count at all now, because *a count in a heading is a fact that rots.* |
+| Add the Business Profile paragraph | **GENUINELY MISSING, and now added.** |
+
+### The one real change, and why the file's own rule had to bend
+
+`legal.js` carried a deliberate, reasoned comment refusing to describe the
+Business Profile sync: `business.manage` is not on the consent screen, the
+feature is not built, and *"describing it here would be describing something
+that does not exist, which is the one thing this file refuses to do."*
+
+**That rule is right and it was wrong here, for a reason that lives outside the
+codebase.** The API application filed on 2026-09-08 — case 6-3052000042070 —
+**describes the sync in its own use case, verbatim.** So a Google reviewer now
+reads that sentence and then opens this page, and a privacy policy that never
+mentions Business Profile data is a mismatch **with the application it is being
+read against.** That is a closed support case, and no amount of correctness
+inside this repo would have caught it.
+
+**The honesty rule is kept by saying so in the paragraph**: it opens by stating
+the feature is not switched on, and describes what WILL happen rather than what
+does — which is what a disclosure is for, and is why Google wants it before
+granting a scope rather than after.
+
+`EFFECTIVE` moved to 8 September 2026, because the words moved.
+
+### THE PART THAT IS NOT DONE
+
+**None of it is live.** The live `/privacy` still says *"The four companies
+involved"* and has no Google section at all — it is the 6 September bundle, and
+§ 6 is why. **So the policy Google would read TODAY is the one the coworker
+read**, and every fix above reaches nobody until the deploy is unblocked.
+
+**Sequence this correctly:** deploy first, then submit application two. Filing
+the sensitive-scope verification against the stale page is the rejection this
+whole entry exists to avoid.

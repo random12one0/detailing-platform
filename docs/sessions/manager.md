@@ -90,5 +90,10 @@ dead — do not use it.
 **Waiting on Google:** GBP case 6-3052000042070, filed 8 Sep, 7–10 business
 days, watched at `andrewswashing@gmail.com`.
 **Waiting on him:** the six items in `OUTSTANDING.md` § 1 and the three
-one-word answers.
+one-word answers. **Google Branding is DONE — he had his cloud coworker paste
+both URLs on 2026-09-08.**
+**Privacy policy:** now covers Google sign-in AND Business Profile
+(`OUTSTANDING.md` § 9). **NONE of it is live** — the live page is still the
+6 Sep bundle. **Deploy before submitting Google application two**, or the
+reviewer reads the stale page.
 **Lanes running:** websites (A), product (B). Build (C) not started.

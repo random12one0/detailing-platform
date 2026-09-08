@@ -37,7 +37,7 @@ export const ENTITY = "Andrew Dietrich, doing business as Detailing Platform";
 
 // Printed at the top of both pages. It is the date the WORDS last changed, so
 // move it when the words move and not when the file is touched.
-export const EFFECTIVE = "7 September 2026";
+export const EFFECTIVE = "8 September 2026";
 
 export const NOT_YET_LAWYERED =
   "Written in plain English by the person who built this, and not yet reviewed by a lawyer. "
@@ -112,14 +112,33 @@ export const PRIVACY = {
     // `screens/Auth.jsx` passes no `scopes` option, so Supabase asks for
     // GoTrue's default three — openid, email, profile — and nothing else.
     //
-    // **WHAT IS DELIBERATELY ABSENT: the Google Business Profile sync.**
-    // `business.manage` is not on the consent screen, the feature is not
-    // built, and the API application is still sitting with Google. Describing
-    // it here would be describing something that does not exist, which is the
-    // one thing this file refuses to do. It gets its own paragraph the day
-    // the sync ships and not a day before.
+    // ~~**WHAT IS DELIBERATELY ABSENT: the Google Business Profile sync.**
+    // It gets its own paragraph the day the sync ships and not a day
+    // before.~~ **REVERSED 2026-09-08, and the reasoning that reversed it is
+    // worth keeping because it is not obvious.**
+    //
+    // That rule — never describe what does not exist — is the right rule and
+    // it is still the rule everywhere else in this file. It was wrong HERE
+    // because of something outside the codebase: **the API application filed
+    // with Google on 2026-09-08 (case 6-3052000042070) describes the sync in
+    // its own use case**, verbatim — *"Each detailer connects their own Google
+    // Business Profile so that photos they upload and opening hours they
+    // change in our dashboard stay in sync with Google."*
+    //
+    // **So a Google reviewer now reads that sentence and then opens this
+    // page**, and a privacy policy that never mentions Business Profile data
+    // is a mismatch with the application it is being read against. That is a
+    // closed support case, not a code defect, and no amount of correctness
+    // inside this repo would have caught it.
+    //
+    // **The honesty rule is kept by SAYING SO IN THE PARAGRAPH.** It opens by
+    // stating the feature is not switched on. It describes what will happen,
+    // not what does — which is what a disclosure is for, and is why Google
+    // wants it BEFORE granting the scope rather than after.
     ["Signing in with Google",
      "The Google button asks Google for three things and nothing else: confirmation that it is really you, your email address, and your name and picture. We use them to make your account, to let you back in, and to put your name in the dashboard. **We never see your Google password.** What we do with anything Google hands us follows the Google API Services User Data Policy, including its Limited Use rules: none of it is used for advertising, none of it is sold, and no person here reads it except to fix something you have asked us to fix, or where the law leaves us no choice. That policy is at https://developers.google.com/terms/api-services-user-data-policy and you can take our access away whenever you like at https://myaccount.google.com/permissions"],
+    ["Your Google Business Profile",
+     "**This is not switched on yet. It is written here so you know what will happen when it is, and because Google asks to see it before they will allow it at all.** We have asked Google for permission to connect a detailer's own Business Profile to their dashboard, so that the opening hours and the photos you keep here stay the same as the ones people see on Google. If you choose to connect yours, we read and write **your hours and your photos and nothing else.** We do not touch your reviews, your messages, your posts, or anything else on the listing, and we do not touch any other Google service. Nothing is connected unless you connect it yourself from a button in your own dashboard, and you can disconnect it from that same button. The Limited Use rules above cover this too: none of it is used for advertising, none of it is sold, and no person here reads it unless you ask us to, unless security requires it, or unless the law does. You can also take our access away entirely at https://myaccount.google.com/permissions"],
     ["Marketing email",
      "The only email a customer can be sent that they did not ask for is one a detailer writes and sends from their own Clients list. Every one of those carries a postal address and a working opt-out, and the opt-out takes two steps — a page, then a button — so a link scanner cannot unsubscribe somebody who never meant to."],
     ["How long",
