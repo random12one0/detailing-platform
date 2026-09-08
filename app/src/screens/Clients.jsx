@@ -64,6 +64,11 @@ import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import CampaignModal from "../components/CampaignModal.jsx";
 import RecordHost from "../components/RecordHost.jsx";
 import { Segmented } from "../components/controls.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { appIntlLocale, t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 // Manual, and three of them (decision 3). Three choices is a segmented
 // control, never a <select> — design system § Composition.
@@ -74,12 +79,13 @@ const ROW_CAP = 200;
 const HISTORY_CAP = 50;
 
 const shortDate = (d) => new Date(`${d}T12:00:00`)
-  .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" });
 
 // `intent` is App's one-word answer to "what was this screen opened for" —
 // "lapsed" when Today's re-book prompt sent them here (roadmap 2.19). It is
 // read once, on arrival: turning the chip off has to stick.
 export default function Clients({ intent = null, onSetup = null, refreshKey = 0 }) {
+  useAppLocale();
   // `reloadBusiness` is here for one line: a send stamps
   // `businesses.last_campaign_at`, and that is what Today's nudge reads to
   // know it can stop asking. Without it the prompt is still there when the
@@ -166,7 +172,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     // this defect (useBookings, Money's loadExtras, here). The last good list
     // stays drawn and the message goes above it.
     const failed = cs.error || ts.error;
-    setError(failed ? (failed.message || "Could not load your customers.") : "");
+    setError(failed ? (failed.message || t("Could not load your customers.")) : "");
     if (cs.data) setCustomers(cs.data);
     if (ts.data) setTotals(summarise(ts.data, business.timezone));
     // NOT part of `failed` above: a business with no plans reads zero rows and
@@ -217,7 +223,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
     } catch (e) {
       // The record stays open on a failure, with the reason on it. Closing it
       // would leave somebody unsure whether the deletion happened.
-      setForgetError(e.message || "We could not delete that. Please try again.");
+      setForgetError(e.message || t("We could not delete that. Please try again."));
       setForgetting(customer);
     }
   };
@@ -255,20 +261,22 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           identity and no count — and the count is the thing an owner
           actually wants from this tab at a glance. */}
       <div>
-        <h1 className="display">Clients</h1>
+        <h1 className="display">{t("Clients")}</h1>
         <p className="quiet" style={{ marginTop: 4 }}>
           {search.trim()
             ? `${rows.length} match${rows.length === 1 ? "" : "es"}`
             : lapsed
-              ? `${rows.length} of ${customers.length}`
+              ? t("{shown} of {total}", { shown: rows.length, total: customers.length })
               : customers.length === 0
-                ? "Nobody yet"
-                : `${customers.length} ${customers.length === 1 ? "person" : "people"}`}
+                ? t("Nobody yet")
+                : customers.length === 1
+                  ? t("1 person")
+                  : t("{count} people", { count: customers.length })}
         </p>
       </div>
 
-      <input placeholder="Search name or phone…" value={search}
-        aria-label="Search customers"
+      <input placeholder={t("Search name or phone…")} value={search}
+        aria-label={t("Search customers")}
         onChange={(e) => setSearch(e.target.value)} />
 
       {error && <div className="error-box">{error}</div>}
@@ -286,7 +294,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               target is absent is dropped from the plan. */}
           {customers.length >= 3 && (
             <span data-tour="sort">
-              <Segmented label="Sort by" value={sort} options={SORTS} onChange={setSort} />
+              <Segmented label={t("Sort by")} value={sort} options={SORTS} onChange={setSort} />
             </span>
           )}
           {/* These words and LAPSED_DAYS in lib/client-list.js are two
@@ -295,7 +303,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               button is arithmetic nobody reading the screen asked for. */}
           <button className={`chip${lapsed ? " active" : ""}`} aria-pressed={lapsed}
             onClick={() => setLapsed((v) => !v)}>
-            Not seen in 3 months
+            {t("Not seen in 3 months")}
           </button>
         </div>
       )}
@@ -362,14 +370,14 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           tabs. */}
       {customers.length === 0 && !busy && !error && (
         <div className="tight emptyscreen">
-          <p className="body">No customers yet — they appear on their own when bookings come in.</p>
+          <p className="body">{t("No customers yet — they appear on their own when bookings come in.")}</p>
           {sellable === 0 && (
             <div className="card setting-card">
               <button className="nav-row" onClick={() => onSetup?.()}>
                 <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
                 <span className="txt">
-                  <span className="name">Finish setting up</span>
-                  <span className="now">Your services come first</span>
+                  <span className="name">{t("Finish setting up")}</span>
+                  <span className="now">{t("Your services come first")}</span>
                 </span>
                 <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
               </button>
@@ -377,14 +385,14 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           )}
           {sellable > 0 && (
             <>
-              <p className="body">Send this to the next person who asks.</p>
+              <p className="body">{t("Send this to the next person who asks.")}</p>
               <BookingLink slug={business.slug} origin={siteOrigin} />
             </>
           )}
         </div>
       )}
       {customers.length > 0 && rows.length === 0 && (
-        <p className="body">Everyone has been in within three months.</p>
+        <p className="body">{t("Everyone has been in within three months.")}</p>
       )}
 
       {/* A ruled list, not a stack of cards. Cards are for objects you pick
@@ -451,21 +459,21 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
               {owner && (
                 <div>
                   <span className="figure">{money(facts.spend)}</span>
-                  <span className="lbl">lifetime</span>
+                  <span className="lbl">{t("lifetime")}</span>
                 </div>
               )}
             </div>
 
             <div className="facts">
               <div>
-                <span className="quiet">Last visit</span>
-                <span className="v">{facts.last ? dateLong(facts.last) : "No completed visits yet"}</span>
+                <span className="quiet">{t("Last visit")}</span>
+                <span className="v">{facts.last ? dateLong(facts.last) : t("No completed visits yet")}</span>
               </div>
               {planBy.get(open.id) && (
                 <div>
-                  <span className="quiet">Plan</span>
+                  <span className="quiet">{t("Plan")}</span>
                   <span className="v">
-                    {planBy.get(open.id).plans?.name ?? "On a plan"}
+                    {planBy.get(open.id).plans?.name ?? t("On a plan")}
                     {" · "}
                     {planBy.get(open.id).status === "active"
                       ? cadenceWords(planBy.get(open.id).plans)
@@ -479,7 +487,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 subtitle; this is the action, and the email is the one thing
                 here the row above does not already carry. */}
             <div className="stack" style={{ gap: 8 }}>
-              <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={2} /> Call</a>
+              <a className="btn" href={`tel:${open.phone}`}><Phone size={18} strokeWidth={2} /> {t("Call")}</a>
               {open.email && (
                 <a className="btn" href={`mailto:${open.email}`}><Mail size={18} strokeWidth={2} /> {open.email}</a>
               )}
@@ -496,18 +504,17 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                   tenant (law 11b): this is meaning, not identity. */}
               {open.email && open.email_failed_at && (
                 <p className="muted" style={{ margin: 0, color: "var(--bad)" }}>
-                  This address bounced — the last email to it was refused. Check
-                  it with them, or call instead.
+                  {t("This address bounced — the last email to it was refused. Check it with them, or call instead.")}
                 </p>
               )}
             </div>
 
-            <label className="field"><span>Notes</span>
+            <label className="field"><span>{t("Notes")}</span>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} onBlur={saveNotes}
-                placeholder="Gate code, dog's name, preferences…" /></label>
+                placeholder={t("Gate code, dog's name, preferences…")} /></label>
 
             <div className="tight">
-              <span className="label">History</span>
+              <span className="label">{t("History")}</span>
               {/* DATE · WHAT · TOTAL. Every row used to repeat the client's
                   own name, on the one screen where it is the least useful
                   thing in the row (Part B row 18). */}
@@ -528,7 +535,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 })}
               </div>
               {history !== null && history.length === 0 && (
-                <p className="quiet">Nothing booked yet.</p>
+                <p className="quiet">{t("Nothing booked yet.")}</p>
               )}
               {history?.length >= HISTORY_CAP && (
                 <p className="quiet">{HISTORY_CAP} most recent.</p>
@@ -559,8 +566,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 ) : (
                   <div className="card tight">
                     <p>
-                      Their name, number, address and any notes come off every
-                      job, and their photos are deleted. This cannot be undone.
+                      {t("Their name, number, address and any notes come off every job, and their photos are deleted. This cannot be undone.")}
                     </p>
                     <p className="muted">
                       The {history?.length ?? 0} job{(history?.length ?? 0) === 1 ? "" : "s"} stay
@@ -578,10 +584,10 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                             repeating it is exactly the explaining-what-the-
                             label-already-said the owner objected to. "Delete"
                             beside "Keep them" is an unambiguous pair. */}
-                        {forgetting === "going" ? "Deleting…" : "Delete"}
+                        {forgetting === "going" ? t("Deleting…") : t("Delete")}
                       </button>
                       <button className="btn ghost" disabled={forgetting === "going"}
-                        onClick={() => setForgetting(null)}>Keep them</button>
+                        onClick={() => setForgetting(null)}>{t("Keep them")}</button>
                     </div>
                   </div>
                 )}

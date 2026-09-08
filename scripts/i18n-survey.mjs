@@ -108,6 +108,18 @@ const CODE_CALLS = new Set([
   "getPublicUrl", "listen", "emit", "track", "t", "tt", "supabase",
 ]);
 
+/** CLASS LISTS THAT READ AS SENTENCES, NAMED RATHER THAN PATTERN-MATCHED.
+ *
+ *  `["dot confirmed", "Booked", …]` is a pair of a class and a label, and
+ *  `"dot confirmed"` is structurally identical to `"nothing booked"` — both
+ *  are two lowercase words. No rule can separate them, so the four that exist
+ *  are listed. A FIFTH showing up is a finding, which is the same shape as
+ *  `db-audit`'s two allowlists and for the same reason: a check that cries
+ *  wolf on every run is a check nobody reads. */
+const CLASS_LISTS = new Set([
+  "dot confirmed", "dot completed", "dot no_show", "dot block",
+]);
+
 /** Database enums, DOM values and CSS words — never a sentence. */
 const NOT_WORDS = new Set([
   "active", "paused", "pending", "cancelled", "confirmed", "completed", "done",
@@ -138,7 +150,7 @@ const looksLikeCode = (s) => (
  *  A bare lowercase word is a column name more often than a sentence. */
 const isPhrase = (s) => {
   const v = s.trim();
-  if (!v || looksLikeCode(v)) return false;
+  if (!v || looksLikeCode(v) || CLASS_LISTS.has(v)) return false;
   if (/\s/.test(v)) return /[A-Za-z]{2,}/.test(v);
   return /^[A-Z][a-z]{2,}$/.test(v);
 };
@@ -229,6 +241,11 @@ function candidates(raw) {
     // An argument to a call that takes tables, columns, keys or selectors.
     const call = before.match(/\.?([A-Za-z_$][\w$]*)\s*\(\s*$/);
     if (call && CODE_CALLS.has(call[1])) continue;
+
+    // A KEYBOARD KEY. `e.key === "Enter"` is the DOM's word, not ours, and
+    // `"Enter"` is otherwise indistinguishable from a button label — which is
+    // exactly why the test is the comparison it sits in rather than the word.
+    if (/\bkey\s*[=!]==?\s*$/.test(before)) continue;
 
     // An object key — `{ status: "active" }` is a value, not a sentence,
     // unless the key is one that holds words.

@@ -51,6 +51,11 @@ import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import RecordHost from "../components/RecordHost.jsx";
 import NewBookingModal from "../components/NewBookingModal.jsx";
 import DaySheet from "../components/DaySheet.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { appIntlLocale, t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 const pad = (n) => String(n).padStart(2, "0");
 const STATUSES = [
@@ -79,16 +84,17 @@ const shortName = (n) => {
   return parts.length > 1 ? `${parts[0]} ${parts[1][0]}.` : (parts[0] ?? "");
 };
 const shortDate = (d) => new Date(`${d}T12:00:00`)
-  .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  .toLocaleDateString(appIntlLocale(), { weekday: "short", month: "short", day: "numeric" });
 const monthName = (ym) => {
   const [y, m] = ym.split("-").map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  return new Date(y, m - 1, 1).toLocaleDateString(appIntlLocale(), { month: "long", year: "numeric" });
 };
 const sum = (rows) => rows
   .filter((b) => b.status !== "cancelled")
   .reduce((s, b) => s + Number(b.final_amount ?? b.total_price ?? 0), 0);
 
 export default function Calendar({ refreshKey = 0 }) {
+  useAppLocale();
   const { business, settings } = useBusiness();
   const today = todayLocal(business.timezone);
   // The two widths this product asks about are the only two the desktop
@@ -178,6 +184,7 @@ export default function Calendar({ refreshKey = 0 }) {
     const label = {};
     for (const r of dp.data ?? []) {
       for (let d = r.start_date; d <= r.end_date && d <= monthEnd; d = addDays(d, 1)) {
+        // English keys — `t()` is applied where the label is DRAWN.
         if (d >= monthStart) label[d] = r.mode === "mobile" ? "Mobile only" : "Drop-off only";
       }
     }
@@ -293,9 +300,9 @@ export default function Calendar({ refreshKey = 0 }) {
   const modeSwitch = (
     <div className="row" style={{ gap: 6 }}>
       <button className={`chip ${mode === "month" ? "active" : ""}`}
-        onClick={() => setMode("month")}>Month</button>
+        onClick={() => setMode("month")}>{t("Month")}</button>
       <button className={`chip ${mode === "list" ? "active" : ""}`}
-        onClick={() => setMode("list")}>History</button>
+        onClick={() => setMode("list")}>{t("History")}</button>
     </div>
   );
 
@@ -311,7 +318,7 @@ export default function Calendar({ refreshKey = 0 }) {
     <div className="chiprow wrap">
       {opts.map(([k, label]) => (
         <button key={k} className={`chip ${value === k ? "active" : ""}`}
-          onClick={() => set(k)}>{label}</button>
+          onClick={() => set(k)}>{t(label)}</button>
       ))}
     </div>
   );
@@ -348,11 +355,11 @@ export default function Calendar({ refreshKey = 0 }) {
 
         <div className="tight">
           <div className="row between">
-            <button className="btn sm inline ghost" onClick={() => moveMonth(-1)} aria-label="Previous month">
+            <button className="btn sm inline ghost" onClick={() => moveMonth(-1)} aria-label={t("Previous month")}>
               <ChevronLeft strokeWidth={2} />
             </button>
             <h2>{monthName(cursor)}</h2>
-            <button className="btn sm inline ghost" onClick={() => moveMonth(1)} aria-label="Next month">
+            <button className="btn sm inline ghost" onClick={() => moveMonth(1)} aria-label={t("Next month")}>
               <ChevronRight strokeWidth={2} />
             </button>
           </div>
@@ -389,8 +396,8 @@ export default function Calendar({ refreshKey = 0 }) {
                       {!writes && jobs.slice(0, 3).map((b) => (
                         <span key={b.id} className={`dot ${b.status}`} />
                       ))}
-                      {blocked && <span className="dot block" title="Blocked out" />}
-                      {limited && <span className="ring" title={marks.dropoffLabel[date] ?? "One type only"} />}
+                      {blocked && <span className="dot block" title={t("Blocked out")} />}
+                      {limited && <span className="ring" title={t(marks.dropoffLabel[date] ?? "One type only")} />}
                     </span>
                     {/* THE DESK WRITES IT OUT. Three lines and an overflow
                         covers the busiest realistic cell — five, this
@@ -424,7 +431,7 @@ export default function Calendar({ refreshKey = 0 }) {
             <div className="cal-legend">
               {legend.map(([cls, label]) => (
                 <span className="row" key={label} style={{ gap: 5 }}>
-                  <span className={cls} /><span className="quiet">{label}</span>
+                  <span className={cls} /><span className="quiet">{t(label)}</span>
                 </span>
               ))}
             </div>
@@ -500,10 +507,10 @@ export default function Calendar({ refreshKey = 0 }) {
               color: "var(--text-muted)", pointerEvents: "none",
             }} />
             <input value={query} onChange={(e) => setQuery(e.target.value)}
-              aria-label="Search bookings"
-              placeholder="Search name, phone or service" style={{ paddingLeft: 38, paddingRight: 38 }} />
+              aria-label={t("Search bookings")}
+              placeholder={t("Search name, phone or service")} style={{ paddingLeft: 38, paddingRight: 38 }} />
             {query && (
-              <button onClick={() => setQuery("")} aria-label="Clear search" style={{
+              <button onClick={() => setQuery("")} aria-label={t("Clear search")} style={{
                 position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)",
                 background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer",
                 padding: 6, display: "flex",
@@ -522,12 +529,12 @@ export default function Calendar({ refreshKey = 0 }) {
               <button className={`chip ${filtersOpen ? "active" : ""}`}
                 aria-expanded={filtersOpen}
                 onClick={() => setFiltersOpen((v) => !v)}>
-                <SlidersHorizontal strokeWidth={2} /> Filter
+                <SlidersHorizontal strokeWidth={2} /> {t("Filter")}
               </button>
               {activeChips.map(([label, clear]) => (
                 <button key={label} className="chip active" onClick={clear}
-                  aria-label={`Remove filter: ${label}`}>
-                  {label} <X size={13} strokeWidth={2.4} />
+                  aria-label={t("Remove filter: {label}", { label: t(label) })}>
+                  {t(label)} <X size={13} strokeWidth={2.4} />
                 </button>
               ))}
             </div>
@@ -545,7 +552,9 @@ export default function Calendar({ refreshKey = 0 }) {
           {listRows.length === 0 && !busy && (
             <div className="tight">
               <p className="body">
-                {filtered ? "Nothing matches that." : `No bookings in ${RANGE_SAID[range]}.`}
+                {filtered
+                  ? t("Nothing matches that.")
+                  : t("No bookings in {range}.", { range: t(RANGE_SAID[range]) })}
               </p>
               {/* An empty result is a state of the FILTER, not of the
                   business, and with the chips collapsed this is the only way
@@ -601,11 +610,11 @@ export default function Calendar({ refreshKey = 0 }) {
         <aside className="col-2">
           {totals}
           <div className="tight">
-            <h2 className="label">Status</h2>
+            <h2 className="label">{t("Status")}</h2>
             {chipRow(statuses, statusFilter, setStatusFilter)}
           </div>
           <div className="tight">
-            <h2 className="label">When</h2>
+            <h2 className="label">{t("When")}</h2>
             {chipRow(RANGES, range, setRange)}
           </div>
         </aside>

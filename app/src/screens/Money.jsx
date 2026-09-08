@@ -54,9 +54,41 @@ import BulkJobModal from "../components/BulkJobModal.jsx";
 import BookingDetail, { jobRecordProps } from "../components/BookingDetail.jsx";
 import { Segmented } from "../components/controls.jsx";
 import RecordHost from "../components/RecordHost.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
+// the booking page's. `useAppLocale()` goes in every component that renders
+// translated text: once at the root works only until something is memoised.
+import { appIntlLocale, t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
-// What to call a period in a sentence: "Net this week", "vs last 6 months".
-const NOUN = { week: "week", month: "month", "6m": "6 months", year: "year", all: "all time" };
+// What to call a period in a sentence.
+//
+// **ROADMAP 8.17 STAGE 2B — THESE ARE FOUR WHOLE SENTENCES EACH, NOT ONE
+// SENTENCE AND A NOUN, AND THAT IS THE TRANSLATION FORCING IT.** English glues
+// `"Net this " + noun` and gets away with it because `this` never changes.
+// Spanish agrees the demonstrative with the noun's GENDER — *esta semana* but
+// *este mes* — so a `{period}` placeholder produces a sentence that is wrong
+// half the time, in a language nobody here can check. Four keys apiece is the
+// only shape that can be right.
+//
+// It is the same rule as everywhere else in this file, at the point where it
+// actually costs something: *a placeholder is a whole sentence's worth of
+// freedom, and a translation has to be free to change the words around it.*
+const NET_NOW = {
+  week: "Net this week", month: "Net this month",
+  "6m": "Net these 6 months", year: "Net this year",
+};
+const NET_THEN = {
+  week: "Net that week", month: "Net that month",
+  "6m": "Net those 6 months", year: "Net that year",
+};
+const SAME_AS_LAST = {
+  week: "Same as last week", month: "Same as last month",
+  "6m": "Same as the 6 months before", year: "Same as last year",
+};
+const VS_LAST = {
+  week: "vs {amount} last week", month: "vs {amount} last month",
+  "6m": "vs {amount} the 6 months before", year: "vs {amount} last year",
+};
 
 // Line-item categories that represent money sold at the job rather than
 // through the booking page. A discount is negative and belongs on the same
@@ -83,6 +115,7 @@ const UP = 60, DOWN = 40;
 const EXPENSE_CAP = 12;
 
 export default function Money() {
+  useAppLocale();
   const { business } = useBusiness();
   const today = todayLocal(business.timezone);
   // W6 — the screen was month-only. He asked for week / month / six months /
@@ -180,7 +213,7 @@ export default function Money() {
     // carried until stage 3, one file over. The last good figures stay drawn
     // and the message goes above them.
     const failed = [e.error, li.error, up.error].find(Boolean);
-    setExtrasError(failed ? (failed.message || "Could not load your expenses.") : "");
+    setExtrasError(failed ? (failed.message || t("Could not load your expenses.")) : "");
     if (e.data) setExpenses(e.data);
     if (li.data) setLineItems(li.data);
     if (up.data) setUnpaid(up.data.map((b) => withLocal(b, business.timezone)));
@@ -310,7 +343,7 @@ export default function Money() {
   // ─── WHAT DID I MAKE ────────────────────────────────────────────────────
   const left = (
     <>
-      <h1 className="display">Money</h1>
+      <h1 className="display">{t("Money")}</h1>
 
       {/* Above the figures, and the last good period stays drawn. */}
       {(error || extrasError) && <div className="error-box">{error || extrasError}</div>}
@@ -321,19 +354,19 @@ export default function Money() {
           you on the current one rather than trying to map "three months ago"
           onto weeks. */}
       <div className="moneyhead" data-tour="period">
-        <Segmented label="Time range" value={kind} options={PERIOD_KINDS}
+        <Segmented label={t("Time range")} value={kind} options={PERIOD_KINDS}
           onChange={(k) => { setKind(k); setOffset(0); }} />
         {/* Lifetime does not step: there is only one of it. */}
         <div className="moneyhead-when">
           {kind === "all" ? null : (
-            <button className="btn ghost icon" aria-label="Previous period"
+            <button className="btn ghost icon" aria-label={t("Previous period")}
               onClick={() => setOffset(offset - 1)}>
               <ChevronLeft size={18} strokeWidth={2} />
             </button>
           )}
           <span className="strong">{period.label}</span>
           {kind === "all" ? null : (
-            <button className="btn ghost icon" aria-label="Next period"
+            <button className="btn ghost icon" aria-label={t("Next period")}
               disabled={offset >= 0}
               onClick={() => setOffset(offset + 1)}>
               <ChevronRight size={18} strokeWidth={2} />
@@ -351,7 +384,7 @@ export default function Money() {
           {exportable && (
             <button className="btn sm inline export" data-tour="export" onClick={sendToAccountant}
               aria-label={`Export ${period.label}`}>
-              <Download strokeWidth={2} /> Export
+              <Download strokeWidth={2} /> {t("Export")}
             </button>
           )}
         </div>
@@ -382,10 +415,12 @@ export default function Money() {
       <div>
       <div className="swap" key={`${kind}|${offset}`} data-tour="net">
         <span className="label">
-          {kind === "all" ? "Net, all time" : offset === 0 ? `Net this ${NOUN[kind]}` : `Net that ${NOUN[kind]}`}
+          {kind === "all"
+            ? t("Net, all time")
+            : t(offset === 0 ? NET_NOW[kind] : NET_THEN[kind])}
         </span>
         <div className="figure lead" style={{ marginTop: 4 }}>{money(stats.netNow)}</div>
-        <Delta now={stats.netNow} prev={stats.netPrev} noun={NOUN[kind]} hide={kind === "all"} />
+        <Delta now={stats.netNow} prev={stats.netPrev} kind={kind} hide={kind === "all"} />
 
         {!anything ? (
           <p className="body" style={{ marginTop: 10 }}>
@@ -440,18 +475,18 @@ export default function Money() {
         <div>
         <div className="sunken swap" key={`ctx-${kind}|${offset}`}>
           <div className="paircells">
-            <Cell label="Collected" value={money(stats.inNow)} />
-            <Cell label="Expenses" value={money(stats.outNow)} />
-            <Cell label="Avg job" value={money(stats.avgJob)} />
-            <Cell label="Jobs done" value={String(stats.jobsNow)} />
+            <Cell label={t("Collected")} value={money(stats.inNow)} />
+            <Cell label={t("Expenses")} value={money(stats.outNow)} />
+            <Cell label={t("Avg job")} value={money(stats.avgJob)} />
+            <Cell label={t("Jobs done")} value={String(stats.jobsNow)} />
           </div>
 
           <hr className="rule" />
 
           {/* The split the old screen had and this one didn't. */}
           <div className="paircells tight-rows">
-            <Cell label="Quoted up front" value={money(stats.quoted)} />
-            <Cell label="Added on site"
+            <Cell label={t("Quoted up front")} value={money(stats.quoted)} />
+            <Cell label={t("Added on site")}
               value={`${stats.onSite >= 0 ? "+" : "−"}${money(Math.abs(stats.onSite))}`}
               tone={stats.onSite > 0 ? "good" : undefined} />
           </div>
@@ -465,9 +500,9 @@ export default function Money() {
             <>
               <hr className="rule" />
               <div className="paircells three tight-rows">
-                <Cell label="Tips" value={money(stats.tipTotal)} />
-                <Cell label="Avg tip" value={money(stats.avgTip)} />
-                <Cell label="Tipped"
+                <Cell label={t("Tips")} value={money(stats.tipTotal)} />
+                <Cell label={t("Avg tip")} value={money(stats.avgTip)} />
+                <Cell label={t("Tipped")}
                   value={stats.jobsNow ? `${Math.round((stats.tippedJobs / stats.jobsNow) * 100)}%` : "—"} />
               </div>
             </>
@@ -501,7 +536,7 @@ export default function Money() {
                   <div>
                     <div className="strong">{b.customer_name}</div>
                     <div className="quiet" style={{ marginTop: 2 }}>
-                      {new Date(`${b.booking_date}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {new Date(`${b.booking_date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })}
                       {(b.services ?? []).length ? ` · ${b.services.map((s) => s.name_at_booking).join(", ")}` : ""}
                     </div>
                   </div>
@@ -510,7 +545,7 @@ export default function Money() {
               </div>
               <hr className="rule" />
               <button className="btn primary" disabled={markingPaid === b.id} onClick={() => markPaid(b)}>
-                {markingPaid === b.id ? "Marking paid…" : "Mark paid"}
+                {markingPaid === b.id ? t("Marking paid…") : t("Mark paid")}
               </button>
             </div>
           ))}
@@ -521,7 +556,7 @@ export default function Money() {
         <div className="row between">
           <span className="label">Expenses · {period.label}</span>
           <button className="btn sm inline filled" onClick={() => setAdding(true)}>
-            <Plus strokeWidth={2} /> Add
+            <Plus strokeWidth={2} /> {t("Add")}
           </button>
         </div>
         {periodExpenses.length > 0 && (
@@ -533,7 +568,7 @@ export default function Money() {
                   <div>
                     <div className="body">{e.description}</div>
                     <div className="quiet" style={{ marginTop: 2 }}>
-                      {new Date(`${e.date}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" })} · {e.category}
+                      {new Date(`${e.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { month: "short", day: "numeric" })} · {e.category}
                     </div>
                   </div>
                   <div className="body num">{money(e.amount)}</div>
@@ -547,8 +582,9 @@ export default function Money() {
         {periodExpenses.length > EXPENSE_CAP && (
           <button className="btn sm" onClick={() => setAllExpenses((v) => !v)}>
             {allExpenses
-              ? "Show fewer"
-              : `+${periodExpenses.length - EXPENSE_CAP} more in ${period.label}`}
+              ? t("Show fewer")
+              : t("+{count} more in {period}", {
+                count: periodExpenses.length - EXPENSE_CAP, period: period.label })}
           </button>
         )}
       </div>
@@ -564,7 +600,7 @@ export default function Money() {
           the weight of something they read every day. */}
       <button className="btn ghost" style={{ marginTop: 12 }}
         onClick={() => setLoggingBulk(true)}>
-        <Plus strokeWidth={2} /> Log a bulk job
+        <Plus strokeWidth={2} /> {t("Log a bulk job")}
       </button>
     </>
   );
@@ -629,17 +665,19 @@ function Cell({ label, value, tone }) {
 //
 // Lifetime has nothing to compare against, so it says nothing rather than
 // inventing a previous lifetime.
-function Delta({ now, prev, noun, hide }) {
+function Delta({ now, prev, kind, hide }) {
   if (hide) return null;
-  if (!prev) return <p className="quiet" style={{ marginTop: 6 }}>No comparison yet</p>;
+  if (!prev) return <p className="quiet" style={{ marginTop: 6 }}>{t("No comparison yet")}</p>;
   const diff = now - prev;
-  if (Math.abs(diff) < 0.005) return <p className="quiet" style={{ marginTop: 6 }}>Same as last {noun}</p>;
+  if (Math.abs(diff) < 0.005) {
+    return <p className="quiet" style={{ marginTop: 6 }}>{t(SAME_AS_LAST[kind])}</p>;
+  }
   const up = diff > 0;
   const pct = Math.round(Math.abs(diff / prev) * 100);
   return (
     <div className="row" style={{ gap: 8, marginTop: 6 }}>
       <span className={`delta ${up ? "up" : "down"}`}>{up ? "▲" : "▼"} {pct}%</span>
-      <span className="quiet">vs {money(prev)} last {noun}</span>
+      <span className="quiet">{t(VS_LAST[kind], { amount: money(prev) })}</span>
     </div>
   );
 }
