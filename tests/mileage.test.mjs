@@ -27,6 +27,7 @@
 //
 //   node tests/mileage.test.mjs        (§ 1 and § 3 are credential-free)
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
 import { readFileSync } from "node:fs";
 import { accountantMiles, accountantRows } from "../app/src/lib/accountant-export.js";
 

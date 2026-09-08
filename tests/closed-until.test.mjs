@@ -20,6 +20,7 @@
 //
 //   node tests/closed-until.test.mjs   (§ 3 and § 5 are credential-free)
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
 import { readFileSync } from "node:fs";
 import { closedUntil } from "../app/src/book/core.js";
 

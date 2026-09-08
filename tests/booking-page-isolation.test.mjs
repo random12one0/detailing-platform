@@ -6,6 +6,8 @@
 // Seed both first:  node scripts/seed-two-tenants.mjs
 //                   node tests/booking-page-isolation.test.mjs
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
+
 const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let ANON = process.env.SUPABASE_ANON_KEY;

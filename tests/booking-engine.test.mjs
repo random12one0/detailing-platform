@@ -13,6 +13,8 @@
 //   * uploaded photos are scoped to the correct business
 // plus: pricing double-validation, promo scoping, cancel/reschedule windows.
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
+
 const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let ANON = process.env.SUPABASE_ANON_KEY;

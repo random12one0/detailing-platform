@@ -28,6 +28,7 @@
 //
 //   node tests/spanish.test.mjs        (credential-free)
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

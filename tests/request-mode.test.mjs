@@ -26,6 +26,8 @@
 //      quote has moved the price. Baselined by deleting the price_adjustments
 //      line from accept-quote/index.ts, which fails it by exactly the quote.
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
+
 const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let ANON = process.env.SUPABASE_ANON_KEY;

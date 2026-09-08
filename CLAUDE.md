@@ -192,7 +192,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   listed in the new file under "§11". Backend, content, copy facts and
   accessibility floors were always kept; only the visual world changed.
 - The design tests enforce the NEW rules: `tests/composition.test.mjs`
-  (**74 checks — this said 66 until 2026-09-04 and had been stale since the
+  (**94 checks — this said 74 until 2026-09-04 and had been stale since the
   last commits of 2.17, which is the fourth stale count found in this file;
   the script prints its own figure, so read that rather than this** —
   24 until 2026-08-30, 26 until roadmap 2.17 on 2026-09-03,
@@ -607,8 +607,19 @@ explaining it; if they still have to ask "so should I?", it failed.
   passes.
 
 
+- **EVERY CHECK COUNT BELOW WAS RE-MEASURED ON 2026-09-08 BY RUNNING THE SUITE,
+  and fifteen of them were wrong** — the largest by a factor of two and a half
+  (`platform-admin` said 59 and is 157). **That is the eighth time stale counts
+  have been found in this file, so treat the number as a hint and the script's
+  own printed figure as the answer.** They rot because a suite grows in the item
+  that needs it and the prose is edited from memory. Re-measuring all of them
+  costs one battery run, which pass A is doing anyway:
+  `for f in tests/*.test.mjs; do echo "$f"; node "$f" | tail -1; done`
+  **Under `set -a; . ./.env; set +a`, or eleven of them print "Missing
+  SUPABASE_URL" and a session reads that as a broken environment rather than as
+  a suite that did not run.**
 - Finish every session: `node tests/composition.test.mjs`,
-  `design-contrast`, **`landing-pricing`** (**88 checks — 65 until roadmap 4.4 stage 4, 72 until 6.2, 80 until 7.1, 86 until 7.5, 88 with item G; measured 2026-09-06, this said 58 and was stale within a day of being written** — 21 until roadmap
+  `design-contrast`, **`landing-pricing`** (**103 checks — 65 until roadmap 4.4 stage 4, 72 until 6.2, 80 until 7.1, 86 until 7.5, 88 with item G; measured 2026-09-06, this said 58 and was stale within a day of being written** — 21 until roadmap
   2.20 stage 2 on 2026-09-05, and its FIRST check had been vacuous since the
   day it was written: the pricing-section slice looked for
   `aria-labelledby="price"` when the section is `"prh"`, so `indexOf` returned
@@ -665,7 +676,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   path the edge functions actually run: what a plan takes off, that it can
   never become a surcharge, and that the itemisation still reaches the
   charged total. Baselined both ways),
-  **`setup-progress`** (**45 checks** — 24 until roadmap 7.3's final pass added § 4 (the first run when nobody follows the path) and 32 until 2.24 added § 5 (a guide on every tab, whose 5b is the guard that matters: **a step whose `data-tour` no screen carries is silently dropped from every plan and nothing anywhere says so**); new 2026-09-02 — how many of the seven
+  **`setup-progress`** (**54 checks** — 24 until roadmap 7.3's final pass added § 4 (the first run when nobody follows the path) and 32 until 2.24 added § 5 (a guide on every tab, whose 5b is the guard that matters: **a step whose `data-tour` no screen carries is silently dropped from every plan and nothing anywhere says so**); new 2026-09-02 — how many of the seven
   first-run steps are done. That number is printed in TWO places that must
   never disagree, the setup form's progress rule and Business's *Finish
   setting up* row, and five of the seven are DERIVED from the database rather
@@ -681,7 +692,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   escape order — escape first, THEN newlines to `<br>` — is what stops one
   typed message becoming markup in every copy. Baselined both ways: dropping
   the footer fails 4, dropping the escape fails 2),
-  **`platform-billing`** (**283 checks — 263 until roadmap 4.4 stage 4 added § 19; measured 2026-09-05, this said 168 and the file said 220 sixty lines further down, which is the same suite counted twice and wrong twice**, new 2026-09-05, roadmap 2.20 stage 2 —
+  **`platform-billing`** (**336 checks — 263 until roadmap 4.4 stage 4 added § 19; measured 2026-09-05, this said 168 and the file said 220 sixty lines further down, which is the same suite counted twice and wrong twice**, new 2026-09-05, roadmap 2.20 stage 2 —
   what a DETAILER pays US, and the first suite in this repo where *a number
   PRINTED is not a number CHARGED* is literally rather than metaphorically
   true. It ties every rung on `/pricing`, founding and list, to the money
@@ -695,7 +706,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   baselined by breaking what they guard, and one of them was FOUND vacuous that
   way: *"nothing has been deleted"* passed with the sentence removed from the
   email, because the hidden preheader also says it),
-  **`payments`** (45 checks, new 2026-09-04, roadmap 2.20 stage 1 — the
+  **`payments`** (66 checks, new 2026-09-04, roadmap 2.20 stage 1 — the
   detailer's own payment handles. It pins the two things no other check in this
   repo can see. **WHICH EMAILS CARRY THE LIST**: `invoiceEmail` branches on
   payment status, and both branches render a perfectly valid email, so handles
@@ -716,7 +727,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   compose sheet's, and `send-campaign`'s filter, which is the enforcement —
   have to agree, so the predicate is written out once here. Baselined by
   ignoring the bounce, which fails 2),
-  **`booking-core`** (**190 checks — the script prints its own figure**, new
+  **`booking-core`** (**205 checks — the script prints its own figure**, new
   2026-09-05, roadmap 3.2(a) — `app/src/book/core.js`, the module every tenant
   site's own booking form drives. Until that item the group rules were a
   closure inside `BookingPage`'s `setForm`, the step gating was an IIFE and
@@ -737,7 +748,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   the category cap's eviction order, `modeLimitFor` naming its service,
   `offersBothModes` forgetting `modeLimit` — which is the roadmap 2.5
   white-screen bug in test form — and the remembered customer's slug scope),
-  **`custom-domains`** (**59 checks — the script prints its own figure**, new
+  **`custom-domains`** (**60 checks — the script prints its own figure**, new
   2026-09-05, roadmap 3.3 — a detailer's own web address. **Most of it reads
   source as TEXT, and that is the point**: the defect this item can produce is
   a `site` argument forgotten at one of thirteen call sites, which fails
@@ -763,7 +774,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   especially: an unescaped comma inside `ADR` ends the field and the phone
   drops the rest of the address with no error. Baselined by removing the
   escaping, which fails 6 including the cross-copy check),
-  **`password-reset`** (18 checks, new 2026-09-06 — the way back in after a
+  **`password-reset`** (29 checks, new 2026-09-06 — the way back in after a
   forgotten password, which **did not exist at all** until roadmap 7.3's final
   pass ranked its absence *blocks launch*. The flow itself was proved in a
   browser against a real recovery link; **what this file holds is the three
@@ -825,7 +836,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   offset gets wrong. Baselined four ways: the UTC read fails 5, the money
   line's missing `kind` fails 1, the promo copied twice fails 2, the
   vocabulary guard removed fails 1),
-  **`platform-admin`** (**59 checks** — 34 at stage 1, 40 at stage 3, 49 with item H's export, 59 with item D's heartbeats; new 2026-09-05, roadmap 4.4 — **the one
+  **`platform-admin`** (**157 checks** — 34 at stage 1, 40 at stage 3, 49 with item H's export, 59 with item D's heartbeats; new 2026-09-05, roadmap 4.4 — **the one
   screen where a bug exposes every tenant at once**, and the file exists
   because most of what it guards is the ABSENCE of something no behavioural
   test can see. § 1 walks EVERY migration and fails if any `create policy`
@@ -839,7 +850,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   header saying "It sits OUTSIDE `BusinessProvider`", one on a SQL `comment on
   column` string that names both the column and the function it must never be
   in. Strip comments AND string literals before reading a file as text) and
-  **`multi-vehicle`** (**60 checks**, new 2026-09-07, roadmap 8.10 — MORE THAN
+  **`multi-vehicle`** (**63 checks**, new 2026-09-07, roadmap 8.10 — MORE THAN
   ONE CAR IN ONE BOOKING, which is three separate facts and stays three: one
   visit is one booking with `booking_vehicles` for cars 2..N, two days is two
   bookings sharing `booking_group_id`, and the dealership job is neither.
@@ -858,7 +869,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   guard matching on email OR phone, so one household address joined two
   different people. **It clears its own `rate_hits` first**, like every other
   suite here that books)
-  **`spanish`** (**23 checks**, new 2026-09-07, roadmap 8.17 — SPANISH ON THE
+  **`spanish`** (**58 checks with credentials, 50 without**, new 2026-09-07, roadmap 8.17 — SPANISH ON THE
   CUSTOMER-FACING BOOKING SURFACE, and every check in it is shaped by his own
   limit: *"I can't check that sadly, because I don't speak Spanish."* Nobody
   who can approve this can read the output, so it never asks whether the
@@ -875,7 +886,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   breaks all caught. **Its own extractor read a doc comment's `t("…")` EXAMPLE
   as a real call site on the first run** — the comment-vacuity trap, arriving
   in the one file that reads source as text for a living)
-  and **`promo-checkout`** (**102 checks with credentials, 40 without** — the
+  and **`promo-checkout`** (**102 checks with credentials, 41 without** — the
   script prints its own figure, new
   2026-09-07, roadmap 8.14 — A PROMO CODE ON *OUR* CHECKOUT, which is the third
   place in this product where *a number PRINTED is not a number CHARGED* is
@@ -911,7 +922,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   caught, and **two of its own checks were vacuous, both found by
   baselining**: one read the file's own IMPORT rather than the function body,
   and one ordering check was greenest with the thing it guards deleted)
-  and **`dead-mans-switch`** (**43 checks with credentials, 26 without**, new
+  and **`dead-mans-switch`** (**44 checks with credentials, 26 without**, new
   2026-09-07, roadmap 8.12 — WHETHER ANYBODY IS TOLD WHEN A SCHEDULED JOB
   STOPS. `job_heartbeats` has recorded the answer since 7.3 and nothing ever
   said it out loud, which is a monitor you have to remember to visit about the
@@ -1781,7 +1792,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   status map and the dunning words. **It is the SECOND copy of
   `app/src/landing/pricing.js`** — a Deno bundle will not follow an import out
   of `supabase/`, the same wall that forced `_shared/brandColor.js` — and
-  `tests/platform-billing.test.mjs` (263 checks — measured, not estimated) pins the two tables value by
+  `tests/platform-billing.test.mjs` (336 checks — measured, not estimated) pins the two tables value by
   value AND ties every rung to the money on the wire. **This is the first place
   in the product where "a number PRINTED is not a number CHARGED" is literally
   true rather than a metaphor.**
@@ -2022,7 +2033,7 @@ explaining it; if they still have to ask "so should I?", it failed.
   Get started button too**; what he is right about is the wording.
 - **The check for anything that touches an EMAIL: `node scripts/render-emails.mjs`**
   (new 2026-09-03, roadmap 2.18). Credential-free, no browser, no dev server. It
-  writes all TWENTY-THREE emails — sixteen kinds plus the branches somebody
+  writes all TWENTY-EIGHT emails — sixteen kinds plus the branches somebody
   actually receives; it was seventeen until roadmap 2.14 step 3 added the plan
   link, the plan-ended notice and a booking WITH A PLAN ON IT, twenty until
   roadmap 2.19 added the re-book email, and twenty-one until roadmap 2.20 stage

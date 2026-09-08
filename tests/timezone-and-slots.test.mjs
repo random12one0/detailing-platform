@@ -12,6 +12,8 @@
 //  * changing a business's timezone does not corrupt existing bookings
 //  * a staff session has everything its screens need to render
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
+
 const URL_ = process.env.SUPABASE_URL;
 const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 let ANON = process.env.SUPABASE_ANON_KEY;

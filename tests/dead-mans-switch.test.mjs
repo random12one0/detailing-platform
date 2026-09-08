@@ -34,6 +34,7 @@
 //
 //   node tests/dead-mans-switch.test.mjs      (§ 1 and § 3 are credential-free)
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
 import { readFileSync } from "node:fs";
 
 const URL_ = process.env.SUPABASE_URL;

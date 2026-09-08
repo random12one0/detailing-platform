@@ -29,6 +29,7 @@
 //
 //   node tests/promo-checkout.test.mjs        (§ 1 and § 2 are credential-free)
 
+import "./_env.mjs";           // root .env -> process.env, before anything reads it
 import { readFileSync } from "node:fs";
 import {
   applyPromo,
