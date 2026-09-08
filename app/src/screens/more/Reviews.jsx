@@ -134,7 +134,7 @@ export default function Reviews() {
             {/* Five options, and a segmented control is what the design
                 system asks for at that count. The number is what a website
                 draws stars from, so it is stored as one. */}
-          <Segmented label="Stars" value={Number(form.rating)} options={RATINGS}
+          <Segmented label={t("Stars")} value={Number(form.rating)} options={RATINGS}
             onChange={(v) => setForm({ ...form, rating: v })} /></label>
         <label className="field"><span>{t("Where it came from")}</span>
           <input value={form.source} placeholder={t("Google, in person, a text…")}

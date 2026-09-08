@@ -32,7 +32,7 @@ import JobRow from "./JobRow.jsx";
 import Sheet from "./Sheet.jsx";
 import { Segmented, Switch } from "./controls.jsx";
 
-const hhmm = (t) => (t ? t.slice(0, 5) : "");
+const hhmm = (v) => (v ? v.slice(0, 5) : "");
 // An end date typed backwards is a slip, not an instruction to write nothing.
 const laterOf = (a, b) => (!b || b < a ? a : b);
 const datesFrom = (start, end) => {

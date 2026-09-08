@@ -41,7 +41,7 @@ export default function MessageTemplates() {
       .eq("business_id", business.id).order("sort_order");
     if (!data || data.length === 0) {
       await supabase.from("message_templates").insert(
-        DEFAULT_TEMPLATES.map((t) => ({ ...t, business_id: business.id })),
+        DEFAULT_TEMPLATES.map((d) => ({ ...d, business_id: business.id })),
       );
       const { data: seeded } = await supabase
         .from("message_templates").select("*")
@@ -100,7 +100,7 @@ function TemplateCard({ row, business, onSave }) {
 
   useEffect(() => { setBody(row.body); }, [row.body]);
 
-  const original = DEFAULT_TEMPLATES.find((t) => t.key === row.key);
+  const original = DEFAULT_TEMPLATES.find((d) => d.key === row.key);
   const dirty = body !== row.body;
   const isDefault = original ? body.trim() === original.body.trim() : false;
 

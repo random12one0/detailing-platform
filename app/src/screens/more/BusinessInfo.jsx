@@ -82,8 +82,8 @@ export default function BusinessInfo() {
   // this guard exists to prevent. `tests/payments.test.mjs` § 7 runs a corpus
   // through both and fails on any value the two disagree about.
   const badLink = (v) => {
-    const t = String(v ?? "").trim();
-    return t !== "" && !/^https:\/\/[A-Za-z0-9._~:/?#@!$&*+,;=%()[\]-]{3,180}$/.test(t);
+    const url = String(v ?? "").trim();
+    return url !== "" && !/^https:\/\/[A-Za-z0-9._~:/?#@!$&*+,;=%()[\]-]{3,180}$/.test(url);
   };
 
   const save = async () => {

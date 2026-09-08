@@ -112,8 +112,8 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
   // still have to do something about, and it clears on the next action.
   useEffect(() => {
     if (!notice) return;
-    const t = setTimeout(() => setNotice(""), 6000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setNotice(""), 6000);
+    return () => clearTimeout(timer);
   }, [notice]);
 
   const setStatus = (status) =>
@@ -177,7 +177,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
     return () => { dead = true; };
   }, [business.id]);
 
-  const onMyWay = templates.find((t) => t.key === "on_my_way");
+  const onMyWay = templates.find((x) => x.key === "on_my_way");
   const openTextPicker = () => setPickingText(true);
   const smsHref = (body) =>
     `sms:${booking.customer_phone}${/iPhone|iPad|Mac/.test(navigator.userAgent) ? "&" : "?"}body=${encodeURIComponent(body)}`;
@@ -551,11 +551,12 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
               {templates.length === 0 && (
                 <p className="quiet">No templates yet — the gear, then Message templates.</p>
               )}
-              {templates.map((t) => (
-                <a key={t.id} className="card tappable" href={smsHref(filled(t.body))}
+              {templates.map((tpl) => (
+                <a key={tpl.id} className="card tappable" href={smsHref(filled(tpl.body))}
                    style={{ display: "block", color: "inherit" }}>
-                  <div className="strong">{t.label}</div>
-                  <div className="quiet" style={{ marginTop: "var(--sp-1)" }}>{filled(t.body)}</div>
+                  {/* The detailer's OWN words — never translated. */}
+                  <div className="strong">{tpl.label}</div>
+                  <div className="quiet" style={{ marginTop: "var(--sp-1)" }}>{filled(tpl.body)}</div>
                 </a>
               ))}
               <a className="btn" href={`sms:${booking.customer_phone}`}>Write my own</a>

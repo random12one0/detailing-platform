@@ -69,13 +69,14 @@ export function Switch({ checked, onChange, label, help, bare = false, disabled 
 // switch does not, and a radiogroup with no accessible name is a control
 // that announces five unrelated radios.
 export function Segmented({ value, onChange, options, disabled = false, label }) {
+  useAppLocale();
   return (
     <div className={`segmented${disabled ? " is-disabled" : ""}`} role="radiogroup" aria-label={label}>
       {options.map(([v, label]) => (
         <button key={v} type="button" role="radio" aria-checked={value === v}
           disabled={disabled}
           className={value === v ? "on" : ""} onClick={() => onChange(v)}>
-          {label}
+          {t(label)}
         </button>
       ))}
     </div>
@@ -100,7 +101,7 @@ export function DurationChoice({ value, onChange, presets, unit = "minutes", all
         {presets.map(([v, label]) => (
           <button key={String(v)} type="button" aria-pressed={num === v}
             className={`choice${num === v ? " on" : ""}`} onClick={() => onChange(v)}>
-            {label}
+            {t(label)}
           </button>
         ))}
         {allowCustom && (
@@ -115,8 +116,9 @@ export function DurationChoice({ value, onChange, presets, unit = "minutes", all
         <div className="row" style={{ gap: "var(--sp-2)", marginTop: "var(--sp-2)" }}>
           <input type="number" inputMode="numeric" min={0} max={customMax} value={num}
             onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
-            style={{ maxWidth: 120 }} aria-label={`Custom value in ${unit}`} />
-          <span className="quiet">{unit}</span>
+            style={{ maxWidth: 120 }}
+            aria-label={t("Custom value in {unit}", { unit: t(unit) })} />
+          <span className="quiet">{t(unit)}</span>
         </div>
       )}
     </div>
@@ -135,14 +137,14 @@ export function Stepper({ value, onChange, min = 1, max = 99, suffix, unlimitedL
       {unlimitedLabel && (
         <button type="button" className={`choice${unlimited ? " on" : ""}`}
           onClick={() => onChange(unlimited ? min : null)} aria-pressed={unlimited}>
-          {unlimited && <Check size={13} strokeWidth={2.5} />} {unlimitedLabel}
+          {unlimited && <Check size={13} strokeWidth={2.5} />} {t(unlimitedLabel)}
         </button>
       )}
       {!unlimited && (
         <div className="stepper">
           <button type="button" aria-label={t("Less")} disabled={n <= min}
             onClick={() => onChange(Math.max(min, n - 1))}><Minus size={16} strokeWidth={2.5} /></button>
-          <span className="num">{n}{suffix ? ` ${suffix}` : ""}</span>
+          <span className="num">{n}{suffix ? ` ${t(suffix)}` : ""}</span>
           <button type="button" aria-label={t("More")} disabled={n >= max}
             onClick={() => onChange(Math.min(max, n + 1))}><Plus size={16} strokeWidth={2.5} /></button>
         </div>

@@ -241,13 +241,13 @@ export default function Plans() {
           schedule (the research found two of them). It is a switch rather
           than a "none" option in the interval, because the two questions
           underneath it disappear with it. */}
-      <Switch label="Repeats on a schedule" checked={planForm.repeats}
+      <Switch label={t("Repeats on a schedule")} checked={planForm.repeats}
         help={planForm.repeats ? undefined : "A member rate with no set visits — they book when they like."}
         onChange={(v) => setPlanForm({ ...planForm, repeats: v })} />
       {planForm.repeats && (
         <>
-          <Setting stacked label="How often"
-            help="Counted from the day each member joined.">
+          <Setting stacked label={t("How often")}
+            help={t("Counted from the day each member joined.")}>
             {/* WRAPS, AND THE NUMBER KEEPS A FIXED WIDTH. At 320 the flex row
                 squeezed this box to about 40px and its own digit disappeared
                 behind the padding — a control that shows nothing at all, on
@@ -259,12 +259,12 @@ export default function Plans() {
                 style={{ flex: "0 0 76px", width: 76 }}
                 aria-label={t("How many")} value={planForm.cadence_count}
                 onChange={(e) => setPlanForm({ ...planForm, cadence_count: e.target.value })} />
-              <Segmented label="Weeks, months or years" value={planForm.cadence_unit} options={UNITS}
+              <Segmented label={t("Weeks, months or years")} value={planForm.cadence_unit} options={UNITS}
                 onChange={(v) => setPlanForm({ ...planForm, cadence_unit: v })} />
             </div>
           </Setting>
-          <Setting label="Visits each time"
-            help="More than one is a bundle — two washes a month, say.">
+          <Setting label={t("Visits each time")}
+            help={t("More than one is a bundle — two washes a month, say.")}>
             <Stepper value={planForm.visits_per_period} min={1} max={10}
               onChange={(v) => setPlanForm({ ...planForm, visits_per_period: v })} />
           </Setting>
@@ -274,15 +274,15 @@ export default function Plans() {
       {/* ALL THREE SHAPES ARE IN THE SAMPLE and forcing one would exclude real
           businesses — a monthly amount, a per-visit amount, and a member rate
           expressed as a percentage. */}
-      <Setting stacked label="How it's priced"
-        help="Up front is a prepaid block — a year, or a set number of visits, paid in one go.">
+      <Setting stacked label={t("How it's priced")}
+        help={t("Up front is a prepaid block — a year, or a set number of visits, paid in one go.")}>
         {/* `planprice` is a HOOK FOR ONE CSS RULE and carries no styling of
             its own: four labels beside a money field is the widest segmented
             control in the product and it ran 28px past this row at 392 —
             found 2026-09-05 by running the settings walk at a width the
             tiered sweep never walks deeply. theme.css, § the 700px block. */}
         <div className="row planprice" style={{ gap: 8, flexWrap: "wrap" }}>
-          <Segmented label="Price shape" value={planForm.price_kind} options={PRICE_KINDS}
+          <Segmented label={t("Price shape")} value={planForm.price_kind} options={PRICE_KINDS}
             onChange={(v) => setPlanForm({ ...planForm, price_kind: v })} />
           {/* Three of the four shapes are money and one is a percentage, so
               the field follows the shape rather than the shape following the
@@ -304,12 +304,12 @@ export default function Plans() {
           customer meets — and saying that is more use than "Hide", which does
           not say hidden from what. A plan somebody is on is never deleted;
           the schema refuses it (`on delete no action`). */}
-      <Switch label="Offered on your booking page" checked={planForm.is_active}
-        help="Turn it off to stop new sign-ups. Anyone already on it stays on it."
+      <Switch label={t("Offered on your booking page")} checked={planForm.is_active}
+        help={t("Turn it off to stop new sign-ups. Anyone already on it stays on it.")}
         onChange={(v) => setPlanForm({ ...planForm, is_active: v })} />
 
-      <Setting stacked label="Minimum term"
-        help="Leave blank for none. Most detailers advertise cancel-anytime as a selling point.">
+      <Setting stacked label={t("Minimum term")}
+        help={t("Leave blank for none. Most detailers advertise cancel-anytime as a selling point.")}>
         <input type="number" inputMode="numeric" min={1} style={{ maxWidth: 120 }}
           placeholder={t("No term")} value={planForm.term_months}
           onChange={(e) => setPlanForm({ ...planForm, term_months: e.target.value })} />
@@ -368,9 +368,9 @@ export default function Plans() {
           </select></label>
 
         {m && (
-          <Setting stacked label="Status"
-            help="Pausing stops the visits counting up. Coming back starts again from today — the paused ones are not owed.">
-            <Segmented label="Status" value={f.status} options={STATUSES}
+          <Setting stacked label={t("Status")}
+            help={t("Pausing stops the visits counting up. Coming back starts again from today — the paused ones are not owed.")}>
+            <Segmented label={t("Status")} value={f.status} options={STATUSES}
               onChange={(v) => setMemberForm({ ...f, status: v })} />
           </Setting>
         )}
@@ -551,7 +551,7 @@ export default function Plans() {
             slug={business.slug}
             origin={siteOrigin}
             path="/plans"
-            label="Your plans page"
+            label={t("Your plans page")}
             footnote="Put this in your bio and in your texts. It lists what you offer and lets people ask to join."
             shareTitle="Our plans"
           />

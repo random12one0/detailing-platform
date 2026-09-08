@@ -40,7 +40,7 @@ export default function Preferences() {
       </p>
 
       <Group title={t("Getting there")} blurb="Used by every Navigate button.">
-        <Setting label="Maps" stacked>
+        <Setting label={t("Maps")} stacked>
           <Segmented
             value={prefs.maps}
             onChange={set("maps")}
@@ -53,7 +53,7 @@ export default function Preferences() {
         title={t("Adding a job to your calendar")}
         blurb="Used by “Add to calendar” on a booking."
       >
-        <Setting label="Calendar" stacked>
+        <Setting label={t("Calendar")} stacked>
           <Segmented
             value={prefs.calendar}
             onChange={set("calendar")}
@@ -61,8 +61,8 @@ export default function Preferences() {
           />
         </Setting>
         <Setting
-          label="Try it"
-          help="Opens a sample."
+          label={t("Try it")}
+          help={t("Opens a sample.")}
         >
           <button
             type="button"
@@ -90,8 +90,8 @@ export default function Preferences() {
         blurb="Used by “Add to contacts” on a job."
       >
         <Setting
-          label="Contacts"
-          help="iPhone opens it in Contacts; Android saves the file first."
+          label={t("Contacts")}
+          help={t("iPhone opens it in Contacts; Android saves the file first.")}
           stacked
         >
           <Segmented
@@ -100,7 +100,7 @@ export default function Preferences() {
             options={[["vcf", "Contact card"], ["off", "Don’t show"]]}
           />
         </Setting>
-        <Setting label="Try it" help="Saves a sample card. Delete it after.">
+        <Setting label={t("Try it")} help={t("Saves a sample card. Delete it after.")}>
           <button
             type="button"
             className="btn inline"

@@ -40,6 +40,52 @@
 // `es-US` rather than from a string in this file.
 
 export const appEs = {
+  // ── SHARED VOCABULARY ────────────────────────────────────────────────────
+  // **THE DURATION PRESETS ARE HERE ONCE AND THEY REACH NINE SETTINGS SCREENS,
+  // because `controls.jsx` translates its own labels.** Every one of those
+  // screens holds its presets as English KEYS in a module constant —
+  // `[[30, "30 min"], [60, "1 hour"]]` — and `Segmented`, `DurationChoice` and
+  // `Stepper` call `t(label)` where they draw them. One place to translate a
+  // word that appears forty times, and no screen has to remember.
+  //
+  // `min` stays `min` and `hora` is not abbreviated: Spanish shortens minutes
+  // the same way and does not shorten hours the same way, so following the
+  // English abbreviation pattern exactly would produce something nobody says.
+  "None": "Ninguno",
+  "Never": "Nunca",
+  "Any time": "Cualquier momento",
+  "Custom": "Personalizado",
+  "Less": "Menos",
+  "More": "Más",
+  "Custom value in {unit}": "Valor personalizado en {unit}",
+  "minutes": "minutos",
+  "hours": "horas",
+  "days": "días",
+  "10 min": "10 min",
+  "15 min": "15 min",
+  "20 min": "20 min",
+  "30 min": "30 min",
+  "45 min": "45 min",
+  "1 hour": "1 hora",
+  "2 hours": "2 horas",
+  "3 hours": "3 horas",
+  "4 hours": "4 horas",
+  "6 hours": "6 horas",
+  "12 hours": "12 horas",
+  "1 day": "1 día",
+  "2 days": "2 días",
+  "1 month": "1 mes",
+  "2 months": "2 meses",
+  "3 months": "3 meses",
+  "6 months": "6 meses",
+  "1 year": "1 año",
+  "every day": "todos los días",
+  // The three words every settings screen ends with.
+  "Save": "Guardar",
+  "Saving…": "Guardando…",
+  "Saved": "Guardado",
+  "Cancel": "Cancelar",
+
   // ── THE SHELL: the five rail buttons and the header ──────────────────────
   // These five are the only words on screen at every moment of every day, so
   // they are the ones a wrong choice would grate against most. Each is the

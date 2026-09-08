@@ -28,7 +28,7 @@ import { DurationChoice, Group, MoneyField, Segmented, Setting, Stepper, Switch 
 // ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`), never
 // the booking page's. `useAppLocale()` goes in every component that renders
 // translated text: once at the root works only until something is memoised.
-import { t } from "../../lib/appI18n.js";
+import { appIntlLocale, t } from "../../lib/appI18n.js";
 import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 // Presets are phrased the way someone says them out loud. The stored value
@@ -50,7 +50,17 @@ const REMIND = [[60, "1 hour"], [180, "3 hours"], [720, "12 hours"], [1440, "1 d
 // a detailer thinks in there is "sometime today".
 const CHASE = [[0, "Never"], [2, "2 hours"], [6, "6 hours"], [12, "12 hours"], [24, "1 day"]];
 // Roadmap 2.8c — the surcharge editor's own shapes.
-const RULE_DOW = [["S", 0], ["M", 1], ["T", 2], ["W", 3], ["T", 4], ["F", 5], ["S", 6]];
+// ROADMAP 8.17 STAGE 2B — DERIVED FROM `Intl`, NEVER TYPED.
+// A hard-coded ["S","M","T","W","T","F","S"] is English BY CONSTRUCTION:
+// Spanish's own initials are L M M J V S D — a different set, in a different
+// order, starting on a different day. The booking calendar learned this in
+// stage 1 and it is the same rule one screen over.
+//
+// 2026-01-04 is a Sunday, so index 0 is Sunday in both languages and the
+// numbers the database stores never move.
+const dayName = (dow, style) => new Date(Date.UTC(2026, 0, 4 + dow))
+  .toLocaleDateString(appIntlLocale(), { weekday: style, timeZone: "UTC" });
+const RULE_DOW = () => [0, 1, 2, 3, 4, 5, 6].map((n) => [dayName(n, "narrow"), n]);
 const EMPTY_RULE = {
   label: "", kind: "time", weekdays: [], timed: false,
   start_time: "17:00", end_time: "20:00", within_hours: 24,
@@ -67,15 +77,15 @@ const ruleToForm = (r) => ({
   amount: String(r.amount ?? ""),
   is_percent: !!r.is_percent,
 });
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_NAMES = () => [0, 1, 2, 3, 4, 5, 6].map((n) => dayName(n, "short"));
 // The rule read back as a sentence, so the list says what it does rather than
 // what it is made of. Same principle as this screen's presets.
 const ruleSentence = (r) => {
   const amt = r.is_percent ? `+${r.amount}%` : `+$${Number(r.amount).toFixed(2)}`;
   if (r.kind === "lead_time") return `${amt} when booked within ${r.within_hours} hours`;
   const days = Array.isArray(r.weekdays) && r.weekdays.length
-    ? r.weekdays.map((d) => DAY_NAMES[d]).join(", ")
-    : "every day";
+    ? r.weekdays.map((d) => DAY_NAMES()[d]).join(", ")
+    : t("every day");
   const hours = r.start_time && r.end_time ? `, ${r.start_time}–${r.end_time}` : "";
   return `${amt} on ${days}${hours}`;
 };
@@ -325,7 +335,7 @@ export default function BookingRules() {
           Both keep the slot — see the help text, which is the one thing here
           a detailer cannot work out from the labels. */}
       <Group title={t("When someone books")}>
-        <Setting label="What a booking means" stacked
+        <Setting label={t("What a booking means")} stacked
           help={form.booking_mode === "request"
             ? "The time is held for them and nobody else can take it, but they're told it's a request until you accept it. Requests wait on your Today screen."
             : "The time is theirs the moment they book it. Nothing waits on you."}>
@@ -336,7 +346,7 @@ export default function BookingRules() {
       </Group>
 
       <Group title={t("What you offer")}>
-        <Setting label="Where you work"
+        <Setting label={t("Where you work")}
           stacked>
           <Segmented value={mode} onChange={setMode} options={[
             ["mobile", "I go to them"], ["dropoff", "They come to me"], ["both", "Both"],
@@ -360,13 +370,13 @@ export default function BookingRules() {
                 and it becomes a sentence; remove them all and it is a field
                 again, still holding the number it always held. */}
             {form.travel_zones.length ? (
-              <Setting label="Travel fee"
-                help="Each area below sets its own, so this one is not charged while you have areas.">
+              <Setting label={t("Travel fee")}
+                help={t("Each area below sets its own, so this one is not charged while you have areas.")}>
                 <span className="quiet">{Number(form.travel_fee) > 0 ? `${money(Number(form.travel_fee))}, not charged` : "Not set"}</span>
               </Setting>
             ) : (
-              <Setting label="Travel fee"
-                help="Added to every mobile booking, and included in the price the customer is quoted. Leave blank for none.">
+              <Setting label={t("Travel fee")}
+                help={t("Added to every mobile booking, and included in the price the customer is quoted. Leave blank for none.")}>
                 <MoneyField value={form.travel_fee} onChange={(v) => set("travel_fee", v)} />
               </Setting>
             )}
@@ -375,7 +385,7 @@ export default function BookingRules() {
                 detailer's own areas in their own words, which is how a small
                 mobile business quotes travel anyway. The customer picks theirs
                 on the booking page. */}
-            <Setting label="Travel areas"
+            <Setting label={t("Travel areas")}
               help={form.travel_zones.length
                 ? "The customer picks one on your booking page and its fee is added."
                 : "Optional. Add areas if you charge different amounts for different distances."}
@@ -411,13 +421,13 @@ export default function BookingRules() {
                 is the one the owner asked for by name — it blocks a booking
                 the detailer cannot service, and the block is on the server
                 (`_shared/slotValidation.ts`), not just on the page. */}
-            <Setting label="Water at the customer's address"
+            <Setting label={t("Water at the customer's address")}
               help={HELP[form.water_requirement]("water")} stacked>
               <Segmented value={form.water_requirement}
                 onChange={(v) => set("water_requirement", v)}
                 options={RESOURCE} />
             </Setting>
-            <Setting label="Power at the customer's address"
+            <Setting label={t("Power at the customer's address")}
               help={HELP[form.power_requirement]("a power outlet")} stacked>
               <Segmented value={form.power_requirement}
                 onChange={(v) => set("power_requirement", v)}
@@ -432,8 +442,8 @@ export default function BookingRules() {
             can be booked*, because it is a thing a customer is allowed to
             buy — the time it takes is a consequence of it, which is exactly
             why the second row only exists once the first is above one. */}
-        <Setting label="Cars in one booking"
-          help="Above ten is a phone call, not a booking form.">
+        <Setting label={t("Cars in one booking")}
+          help={t("Above ten is a phone call, not a booking form.")}>
           {/* "1 cars" — found by looking at the screen, not by a check. */}
           <Stepper value={form.max_vehicles_per_booking} min={1} max={10}
             suffix={Number(form.max_vehicles_per_booking) === 1 ? "car" : "cars"}
@@ -441,8 +451,8 @@ export default function BookingRules() {
         </Setting>
 
         {Number(form.max_vehicles_per_booking) > 1 && (
-          <Setting label="Setup you only do once"
-            help="Taken off every car after the first, because you unpack once. It never changes the price."
+          <Setting label={t("Setup you only do once")}
+            help={t("Taken off every car after the first, because you unpack once. It never changes the price.")}
             stacked>
             <DurationChoice value={form.extra_vehicle_minutes_saved} presets={SETUP}
               onChange={(v) => set("extra_vehicle_minutes_saved", v)} unit="minutes"
@@ -465,7 +475,7 @@ export default function BookingRules() {
             IT IS NOT `businesses.status`. That column is billing's
             suspension; one column with two meanings would let a detailer
             reopen a page the platform had darkened for non-payment. */}
-        <Setting label="Closed until"
+        <Setting label={t("Closed until")}
           help={form.closed_until
             ? "Your page stays up and tells customers when you're back. It reopens itself on the day."
             : "Going away? Pick the day you're back and the page says so instead of taking bookings."}
@@ -486,58 +496,58 @@ export default function BookingRules() {
         {/* Only once there is something to say it about. A note field on a
             business that is open is a question nobody has an answer to. */}
         {form.closed_until && (
-          <Setting label="Anything to tell them" stacked>
+          <Setting label={t("Anything to tell them")} stacked>
             <input value={form.closed_note} maxLength={200}
               placeholder={t("Back on the 14th — call for anything urgent")}
               onChange={(e) => set("closed_note", e.target.value)} />
           </Setting>
         )}
 
-        <Setting label="Gap between jobs"
-          help="Held after every booking, to pack up and drive."
+        <Setting label={t("Gap between jobs")}
+          help={t("Held after every booking, to pack up and drive.")}
           stacked>
           <DurationChoice value={form.buffer_minutes} presets={BUFFER}
             onChange={(v) => set("buffer_minutes", v)} unit="minutes" customMax={480} />
         </Setting>
 
-        <Setting label="How much notice you need"
-          help="The soonest a customer can book from right now."
+        <Setting label={t("How much notice you need")}
+          help={t("The soonest a customer can book from right now.")}
           stacked>
           <DurationChoice value={form.min_advance_minutes} presets={NOTICE}
             onChange={(v) => set("min_advance_minutes", v)} unit="minutes" customMax={20160} />
         </Setting>
 
-        <Setting label="How far ahead they can book"
+        <Setting label={t("How far ahead they can book")}
           stacked>
           <DurationChoice value={form.max_advance_days} presets={WINDOW}
             onChange={(v) => set("max_advance_days", v)} unit="days" customMax={1095} />
         </Setting>
 
-        <Setting label="Start times you offer"
-          help="On the hour only, or every fifteen minutes — how the time picker is spaced."
+        <Setting label={t("Start times you offer")}
+          help={t("On the hour only, or every fifteen minutes — how the time picker is spaced.")}
           stacked>
           <DurationChoice value={form.slot_interval_minutes} presets={SLOT}
             onChange={(v) => set("slot_interval_minutes", v)} unit="minutes"
             allowCustom={false} />
         </Setting>
 
-        <Setting label="Most jobs in a day"
-          help="Once you hit this, the rest of that day stops being offered.">
+        <Setting label={t("Most jobs in a day")}
+          help={t("Once you hit this, the rest of that day stops being offered.")}>
           <Stepper value={form.max_bookings_per_day} min={1} max={30} suffix="jobs"
             unlimitedLabel="No limit" onChange={(v) => set("max_bookings_per_day", v)} />
         </Setting>
       </Group>
 
       <Group title={t("Changes and reminders")}>
-        <Setting label="They can change or cancel until"
-          help="Closer than this and they have to call you."
+        <Setting label={t("They can change or cancel until")}
+          help={t("Closer than this and they have to call you.")}
           stacked>
           <DurationChoice value={form.cancellation_window_hours} presets={CANCEL}
             onChange={(v) => set("cancellation_window_hours", v)} unit="hours" customMax={720} />
         </Setting>
 
-        <Setting label="Remind them before the job"
-          help="This far ahead of the appointment."
+        <Setting label={t("Remind them before the job")}
+          help={t("This far ahead of the appointment.")}
           stacked>
           <DurationChoice value={form.customer_reminder_lead_minutes} presets={REMIND}
             onChange={(v) => set("customer_reminder_lead_minutes", v)} unit="minutes" customMax={10080} />
@@ -549,13 +559,13 @@ export default function BookingRules() {
             carries the fact the label cannot — the pair that actually works
             is one the day before and one a couple of hours out, and the
             second one only sends after the first has. */}
-        <Switch label="Send a second reminder"
-          help="For the pair that works: one the day before, one a couple of hours out."
+        <Switch label={t("Send a second reminder")}
+          help={t("For the pair that works: one the day before, one a couple of hours out.")}
           checked={form.customer_reminder_2_enabled}
           onChange={(v) => set("customer_reminder_2_enabled", v)} />
 
         {form.customer_reminder_2_enabled && (
-          <Setting label="Second reminder" help="Never sends before the first one." stacked>
+          <Setting label={t("Second reminder")} help={t("Never sends before the first one.")} stacked>
             <DurationChoice value={form.customer_reminder_2_lead_minutes} presets={REMIND}
               onChange={(v) => set("customer_reminder_2_lead_minutes", v)} unit="minutes" customMax={10080} />
           </Setting>
@@ -567,21 +577,21 @@ export default function BookingRules() {
             fact the label does not: the slot is held the whole time, so a
             forgotten request costs a bookable time as well as a customer. */}
         {form.booking_mode === "request" && (
-          <Setting label="Chase me about a request I haven't answered"
-            help="Their time stays held until you answer, so a forgotten request holds a slot too."
+          <Setting label={t("Chase me about a request I haven't answered")}
+            help={t("Their time stays held until you answer, so a forgotten request holds a slot too.")}
             stacked>
             <DurationChoice value={form.request_nudge_hours} presets={CHASE}
               onChange={(v) => set("request_nudge_hours", v)} unit="hours" customMax={168} />
           </Setting>
         )}
 
-        <Switch label="Ask how dirty the vehicle is"
-          help="Light, moderate, heavy or extreme. Never changes the price."
+        <Switch label={t("Ask how dirty the vehicle is")}
+          help={t("Light, moderate, heavy or extreme. Never changes the price.")}
           checked={form.ask_vehicle_condition}
           onChange={(v) => set("ask_vehicle_condition", v)} />
 
-        <Switch label="Remind the night before for early jobs"
-          help="Sent the evening before instead."
+        <Switch label={t("Remind the night before for early jobs")}
+          help={t("Sent the evening before instead.")}
           checked={form.evening_before_enabled}
           onChange={(v) => set("evening_before_enabled", v)} />
       </Group>
@@ -642,7 +652,7 @@ export default function BookingRules() {
               <label className="field"><span>{t("Area name")}</span>
                 <input value={editing.form.name} placeholder={t("e.g. Within 10 miles")}
                   onChange={(e) => setEditing({ ...editing, form: { ...editing.form, name: e.target.value } })} /></label>
-              <Setting label="Extra for this area" help="Added to the customer's total when they pick it.">
+              <Setting label={t("Extra for this area")} help={t("Added to the customer's total when they pick it.")}>
                 <MoneyField value={editing.form.fee}
                   onChange={(v) => setEditing({ ...editing, form: { ...editing.form, fee: v } })} />
               </Setting>
@@ -653,7 +663,7 @@ export default function BookingRules() {
               <label className="field"><span>{t("What the customer sees")}</span>
                 <input value={editing.form.label} placeholder={t("e.g. Weekend rate")}
                   onChange={(e) => setEditing({ ...editing, form: { ...editing.form, label: e.target.value } })} /></label>
-              <Setting label="When it applies" stacked
+              <Setting label={t("When it applies")} stacked
                 help={editing.form.kind === "lead_time"
                   ? "Charged when a job is booked with less notice than you set below."
                   : "Charged on the days — and, if you set them, the hours — you choose below."}>
@@ -664,10 +674,10 @@ export default function BookingRules() {
 
               {editing.form.kind === "time" ? (
                 <>
-                  <Setting label="Days" stacked
+                  <Setting label={t("Days")} stacked
                     help={editing.form.weekdays.length ? "Only the days you pick." : "Every day."}>
                     <div className="row wrap" style={{ gap: 6 }}>
-                      {RULE_DOW.map(([label, n], i) => {
+                      {RULE_DOW().map(([label, n], i) => {
                         const on = editing.form.weekdays.includes(n);
                         return (
                           <button key={i} className={`chip ${on ? "active" : ""}`} aria-pressed={on}
@@ -680,8 +690,8 @@ export default function BookingRules() {
                       })}
                     </div>
                   </Setting>
-                  <Switch label="Only between certain hours"
-                    help="Leave off to charge it all day on those days."
+                  <Switch label={t("Only between certain hours")}
+                    help={t("Leave off to charge it all day on those days.")}
                     checked={editing.form.timed}
                     onChange={(v) => setEditing({ ...editing, form: { ...editing.form, timed: v } })} />
                   {editing.form.timed && (
@@ -696,8 +706,8 @@ export default function BookingRules() {
                   )}
                 </>
               ) : (
-                <Setting label="Booked with less notice than" stacked
-                  help="A job booked closer than this gets the surcharge.">
+                <Setting label={t("Booked with less notice than")} stacked
+                  help={t("A job booked closer than this gets the surcharge.")}>
                   <DurationChoice value={Number(editing.form.within_hours) || 0}
                     presets={[[2, "2 hours"], [6, "6 hours"], [12, "12 hours"], [24, "1 day"], [48, "2 days"]]}
                     onChange={(v) => setEditing({ ...editing, form: { ...editing.form, within_hours: v } })}
@@ -705,7 +715,7 @@ export default function BookingRules() {
                 </Setting>
               )}
 
-              <Setting label="How much" stacked
+              <Setting label={t("How much")} stacked
                 help={editing.form.is_percent
                   ? "A percentage of the job's price before any discount."
                   : "A flat amount added to the job."}>

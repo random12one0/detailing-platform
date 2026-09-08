@@ -198,12 +198,12 @@ export default function Notifications() {
             identical on a switch and are three different problems — the last
             one especially, because tapping harder will never fix it. */}
         {device === "unsupported" ? (
-          <Setting label="Push notifications"
-            help="On an iPhone, add this dashboard to your home screen first — Safari only allows it there.">
+          <Setting label={t("Push notifications")}
+            help={t("On an iPhone, add this dashboard to your home screen first — Safari only allows it there.")}>
             <span className="quiet">{t("Not available in this browser")}</span>
           </Setting>
         ) : (
-          <Switch label="Push notifications on this device"
+          <Switch label={t("Push notifications on this device")}
             help={device === "blocked"
               ? "Blocked for this site. Turn notifications back on in your browser settings, then try again."
               : "Allowed once per device, on the phone or computer you want the alerts on."}
@@ -214,11 +214,11 @@ export default function Notifications() {
       </Group>
 
       <Group title={t("Where your alerts go")}>
-        <Setting label="Main address" help="From your business info. Always receives.">
+        <Setting label={t("Main address")} help={t("From your business info. Always receives.")}>
           <span className="quiet">{primary || "Not set"}</span>
         </Setting>
-        <Setting label="Also send to" stacked
-          help="A partner, a second inbox, whoever else needs to know.">
+        <Setting label={t("Also send to")} stacked
+          help={t("A partner, a second inbox, whoever else needs to know.")}>
           <div className="tight">
             {recipients.length === 0 && <p className="quiet">{t("Nobody else.")}</p>}
             {recipients.map((e) => (
@@ -244,16 +244,16 @@ export default function Notifications() {
       </Group>
 
       <Group title={t("Timing")} blurb="Only affects nudges to you, not your customers.">
-        <Setting label="Nudge you before a job starts" stacked>
+        <Setting label={t("Nudge you before a job starts")} stacked>
           <DurationChoice value={form.owner_nudge_lead_minutes} presets={OWNER_NUDGE}
             onChange={(v) => set("owner_nudge_lead_minutes", v)} unit="minutes" customMax={720} />
         </Setting>
-        <Setting label="Remind you to record payment" stacked
-          help="After a job is marked complete, if you haven't finalised it yet.">
+        <Setting label={t("Remind you to record payment")} stacked
+          help={t("After a job is marked complete, if you haven't finalised it yet.")}>
           <DurationChoice value={form.finalize_nudge_delay_minutes} presets={FINALIZE}
             onChange={(v) => set("finalize_nudge_delay_minutes", v)} unit="minutes" customMax={1440} />
         </Setting>
-        <Setting label="Morning summary" help="Your day's jobs, sent once each morning.">
+        <Setting label={t("Morning summary")} help={t("Your day's jobs, sent once each morning.")}>
           <HourChoice value={form.daily_digest_hour} onChange={(v) => set("daily_digest_hour", v)} />
         </Setting>
       </Group>

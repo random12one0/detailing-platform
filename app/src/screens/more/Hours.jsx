@@ -27,7 +27,7 @@ const PRESETS = [
   ["Weekdays", [1, 2, 3, 4, 5]],
   ["Weekends", [0, 6]],
 ];
-const hhmm = (t) => (t ? t.slice(0, 5) : "");
+const hhmm = (v) => (v ? v.slice(0, 5) : "");
 
 export default function Hours() {
   const { business } = useBusiness();

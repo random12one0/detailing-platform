@@ -41,8 +41,8 @@ function RoleFields({ label, permissions, onLabel, onToggle }) {
           at 392 "What you call this role" broke to five lines and its sentence
           to seven, against an input with room to spare. The 320 floor already
           stacks every non-switch setting; this one needed it 32px earlier. */}
-      <Setting stacked label="What you call this role"
-        help="Their own title in your business. Shown to them and in their invite.">
+      <Setting stacked label={t("What you call this role")}
+        help={t("Their own title in your business. Shown to them and in their invite.")}>
         <input value={label} placeholder={t("Staff")} maxLength={40}
           onChange={(e) => onLabel(e.target.value)} />
       </Setting>
@@ -238,7 +238,7 @@ export default function Team() {
                   help={m.role === "owner"
                     ? "Owners can do everything, including invite people and set what everyone else can do."
                     : "Gives them everything, permanently, including this screen."}>
-                  <Switch bare label="Owner" checked={m.role === "owner"} disabled={lastOwner}
+                  <Switch bare label={t("Owner")} checked={m.role === "owner"} disabled={lastOwner}
                     onChange={(on) => patch(m, on
                       ? { role: "owner", label: null, permissions: [] }
                       : { role: "staff" })} />
@@ -261,7 +261,7 @@ export default function Team() {
         <label className="field"><span>{t("Email")}</span>
           <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
         <label className="field"><span>{t("Access")}</span>
-          <Segmented value={form.role} label="Access"
+          <Segmented value={form.role} label={t("Access")}
             onChange={(v) => setForm({ ...form, role: v })}
             options={[["staff", "Custom role"], ["owner", "Owner"]]} /></label>
       </div>

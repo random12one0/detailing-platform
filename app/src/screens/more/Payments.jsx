@@ -82,8 +82,8 @@ export default function Payments() {
       </p>
 
       <Switch
-        label="Cash"
-        help="You take cash on the day."
+        label={t("Cash")}
+        help={t("You take cash on the day.")}
         checked={pay.pay_cash}
         onChange={(v) => setPay({ ...pay, pay_cash: v })}
       />

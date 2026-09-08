@@ -70,21 +70,21 @@ export default function Promos() {
     <>
       <Group title={t("Site-wide sale")}
         blurb="Comes off every booking automatically — no code for the customer to enter.">
-        <Switch label="Sale is running" checked={sale.active}
+        <Switch label={t("Sale is running")} checked={sale.active}
           help={sale.active
             ? `Every booking is ${sale.percent || 0}% cheaper right now.`
             : undefined}
           onChange={(v) => setSale({ ...sale, active: v })} />
         {sale.active && (
           <>
-            <Setting label="How much off" stacked
-              help="Applied before any promo code the customer enters.">
+            <Setting label={t("How much off")} stacked
+              help={t("Applied before any promo code the customer enters.")}>
               <DurationChoice value={Number(sale.percent) || 0} unit="percent" customMax={90}
                 presets={[[5, "5%"], [10, "10%"], [15, "15%"], [20, "20%"], [25, "25%"]]}
                 onChange={(v) => setSale({ ...sale, percent: v })} />
             </Setting>
-            <Setting label="What to call it" stacked
-              help="Shown on the booking page beside the discount. Leave blank for just the percentage.">
+            <Setting label={t("What to call it")} stacked
+              help={t("Shown on the booking page beside the discount. Leave blank for just the percentage.")}>
               <input value={sale.label} placeholder={t("e.g. Spring Sale")}
                 onChange={(e) => setSale({ ...sale, label: e.target.value })} />
             </Setting>

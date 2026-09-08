@@ -59,9 +59,9 @@ import { stateOf } from "../lib/maintenance.js";
 import { brandVarsFor } from "../lib/theme.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const time12 = (t) => {
-  if (!t) return "";
-  const [h, m] = t.slice(0, 5).split(":").map(Number);
+const time12 = (hm) => {
+  if (!hm) return "";
+  const [h, m] = hm.slice(0, 5).split(":").map(Number);
   const ampm = h < 12 ? "AM" : "PM";
   return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${ampm}`;
 };

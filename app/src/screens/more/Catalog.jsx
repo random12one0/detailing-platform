@@ -498,7 +498,7 @@ export default function Catalog() {
                 {t("One line under the heading on your booking page. Leave it blank unless it earns its space — that screen is tight on a phone.")}
               </p>
 
-              <Setting label="How many can they choose?"
+              <Setting label={t("How many can they choose?")}
                 help={editing.form.max_select === "any" ? undefined
                   : "Picking another swaps it."}
                 stacked>
@@ -512,7 +512,7 @@ export default function Catalog() {
                   exterior work, and no per-category rule can see that — it is a
                   relationship BETWEEN categories. Measured on a real shop's
                   menu: $1,645 booked for work a $625 package included. */}
-              <Switch label="Booked on its own"
+              <Switch label={t("Booked on its own")}
                 help={editing.form.is_exclusive
                   ? "Choosing anything in here clears everything else — for a complete package that already includes your other services."
                   : "Customers can combine these with services from your other categories."}
@@ -545,7 +545,7 @@ export default function Catalog() {
                   {/* W9's from-price. Off by default, so nothing changes for a
                       service the detailer is happy quoting blind. It changes
                       what the number CLAIMS TO BE and never the arithmetic. */}
-                  <Switch label="Show this as a starting price"
+                  <Switch label={t("Show this as a starting price")}
                     help={editing.form.price_is_from
                       ? `Customers see "from ${money(Number(editing.form.price) || 0)}".`
                       : "Customers read this as a firm quote."}
@@ -574,7 +574,7 @@ export default function Catalog() {
                       could only ever be said about a business or a date before.
                       A ceramic coating needs a garage; a maintenance wash may
                       only be offered midweek. */}
-                  <Setting label="Where this one can be done"
+                  <Setting label={t("Where this one can be done")}
                     help={editing.form.where === "either"
                       ? "Wherever you work — the customer chooses."
                       : editing.form.where === "dropoff"
@@ -585,7 +585,7 @@ export default function Catalog() {
                       options={[["either", "Either"], ["mobile", "Mobile only"], ["dropoff", "Drop-off only"]]} />
                   </Setting>
 
-                  <Setting label="Days you offer it"
+                  <Setting label={t("Days you offer it")}
                     help={editing.form.weekdays === null
                       ? "Any day you're open."
                       : "Only the days you've picked. Other days close on your booking page."}
@@ -628,7 +628,7 @@ export default function Catalog() {
                   belongs here on its own merits too: reordering is something
                   you do to the LIST, active is a property of the thing, and
                   this sheet is what edits properties. */}
-              <Switch label="Show on your booking page"
+              <Switch label={t("Show on your booking page")}
                 help={editing.form.is_active
                   ? undefined
                   : "Hidden from customers. Past bookings keep it."}

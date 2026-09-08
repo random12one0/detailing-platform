@@ -194,7 +194,7 @@ export default function SetupForm({ onClose }) {
   // thing the stored list exists to record.
   const [touched, setTouched] = useState(() => new Set());
   const put = (key) => (v) => {
-    setTouched((t) => (t.has(key) ? t : new Set([...t, key])));
+    setTouched((prev) => (prev.has(key) ? prev : new Set([...prev, key])));
     setDraft((d) => ({ ...d, [key]: v }));
   };
   const DERIVED = new Set(["services", "addons", "promos", "colour"]);
@@ -268,7 +268,7 @@ export default function SetupForm({ onClose }) {
       const open = data.filter((r) => r.open_time && r.close_time)
         .sort((a, b) => a.weekday - b.weekday);
       if (!open.length) return;
-      const hhmm = (t) => String(t).slice(0, 5);
+      const hhmm = (v) => String(v).slice(0, 5);
       setDraft((d) => ({
         ...d,
         hours: {

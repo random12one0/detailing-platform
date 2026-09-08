@@ -126,8 +126,8 @@ export default function Faq() {
             question the switch raises, which is what happens to the words you
             already typed when you turn it off. */}
         <Switch
-          label="Show this on your website"
-          help="Off keeps what you have written, and just hides the section."
+          label={t("Show this on your website")}
+          help={t("Off keeps what you have written, and just hides the section.")}
           checked={enabled}
           disabled={busy}
           onChange={(v) => { setEnabled(v); persist(rows, v); }}
