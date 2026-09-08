@@ -342,10 +342,57 @@ function walk(dir, acc = []) {
   return acc;
 }
 
+// ---------------------------------------------------------------------------
+// THE OTHER HALF: A KEY THAT IS WRAPPED AND HAS NO TRANSLATION
+// ---------------------------------------------------------------------------
+// **THE SWEEP ABOVE ONLY FINDS STRINGS NOBODY WRAPPED, AND THAT IS HALF THE
+// QUESTION.** `t("Settings")` is wrapped, passes every check in this file, and
+// renders the English word "Settings" in a Spanish dashboard — because English
+// is the key and a missing entry falls back to it. That fallback is the right
+// design (a missing translation shows correct English rather than a debug
+// identifier) and it is exactly what makes the gap invisible.
+//
+// It was found by PRESSING ES in a browser and reading the heading, which is
+// the only instrument that can see it: nothing in the source is wrong.
+//
+//   node scripts/i18n-survey.mjs --untranslated
+//
+// A key here means one screen is in two languages. There is no honest way to
+// have a "some of it" state, so this has to reach zero alongside the sweep.
+function untranslated() {
+  const missing = new Map();
+  for (const file of walk(SRC)) {
+    const rel = path.relative(SRC, file).split(path.sep).join("/");
+    if (only && !rel.includes(only)) continue;
+    const src = stripComments(readFileSync(file, "utf8"));
+    // Only a LITERAL first argument can be checked. `t(label)` is a variable
+    // and its value is somebody else's constant, which the sweep above covers.
+    for (const m of src.matchAll(/\bt\(\s*"((?:[^"\\]|\\.)*)"/g)) {
+      const key = m[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").replace(/\\\\/g, "\\");
+      if (CATALOGUE.has(key)) continue;
+      if (!missing.has(key)) missing.set(key, []);
+      missing.get(key).push(`${rel}:${lineOf(src, m.index)}`);
+    }
+  }
+  return missing;
+}
+
 const args = process.argv.slice(2);
 const showLeft = args.includes("--left");
+const showUntranslated = args.includes("--untranslated");
 const only = args.includes("--file") ? args[args.indexOf("--file") + 1] : null;
 
+const nlPad = (k) => " ".repeat(Math.max(1, 62 - JSON.stringify(k).length));
+
+if (showUntranslated) {
+  const missing = untranslated();
+  for (const [key, where] of [...missing].sort()) {
+    console.log(`  ${JSON.stringify(key)}${nlPad(key)}${where[0]}${where.length > 1 ? ` (+${where.length - 1})` : ""}`);
+  }
+  console.log(`
+${missing.size} wrapped keys with no Spanish — each one is a screen in two languages`);
+  process.exit(0);
+}
 const rows = [];
 for (const file of walk(SRC)) {
   const rel = path.relative(SRC, file).split(path.sep).join("/");

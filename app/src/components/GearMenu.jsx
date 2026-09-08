@@ -43,6 +43,7 @@ import { SUPPORT_EMAIL, SUPPORT_SHORT } from "../lib/support.js";
 // translated text: once at the root works only until something is memoised.
 import { appIntlLocale, t } from "../lib/appI18n.js";
 import { useAppLocale } from "../hooks/useAppLocale.js";
+import AppLanguagePicker from "./AppLanguagePicker.jsx";
 
 // The device row answers itself like every other row: what it will open.
 const MAPS_NAME = { apple: "Apple Maps", google: "Google Maps", waze: "Waze" };
@@ -300,6 +301,13 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
           <X size={18} strokeWidth={2} />
         </button>
       </div>
+
+      {/* ROADMAP 8.17 STAGE 2B — ON THE FIRST SCREEN, NOT BEHIND A ROW.
+          *This device* is where a per-device preference belongs and it is
+          the wrong home for this one: somebody who needs a language switch
+          cannot read the menu that leads to it. Two letters here need no
+          reading at all. The component's header has the rest. */}
+      <AppLanguagePicker />
 
       <div className="card setting-card">
         {ROWS.map(([key, name, Icon, now, , blocking]) => (
