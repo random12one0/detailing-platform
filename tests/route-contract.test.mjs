@@ -151,5 +151,43 @@ console.log("\ntest 4: the public routes sit outside the owner's session context
     !/Wrapped|BusinessProvider/.test(rootLine), rootLine.trim());
 }
 
+// ---------------------------------------------------------------------------
+// THE EXAMPLE PAGES NEED THEIR SLASH REWRITTEN, AND THE ORDER IS THE RULE.
+//
+// Each page is built as `example1/index.html`, a DIRECTORY — so `/example1/`
+// resolves and `/example1` does not: it matches no file, falls through to
+// `/* /index.html 200`, and serves the app shell, which (roadmap item P) draws
+// a SIGN-IN FORM. `/example1` without the slash is the URL he asked for and
+// the one he would send somebody.
+//
+// `_redirects` is FIRST-MATCH-WINS, so the generated rules are worthless
+// unless they sit ABOVE the catch-all. That ordering is the only thing a
+// check here can hold, and it is the thing that would silently break.
+// ---------------------------------------------------------------------------
+{
+  console.log("\nthe example-page rewrites");
+  const dist = new URL("../app/dist/_redirects", import.meta.url);
+  const red = await readFile(dist, "utf8").catch(() => null);
+
+  if (red === null) {
+    // A GUARD THAT SKIPS MUST SAY SO — this repo's most repeated finding is
+    // that a skipped check reads exactly like a passing one.
+    console.log("  NOT MEASURED — app/dist/_redirects is absent." +
+      " Run `npm run build --prefix app` first; these rules are generated at build time.");
+  } else {
+    const catchAll = red.indexOf("/*    /index.html");
+    check("the catch-all is still there", catchAll > -1,
+      "without it /book/:slug 404s, and a 404 there is a lost booking");
+    check("every example path is rewritten to its own index.html",
+      Array.from({ length: 10 }, (_, i) => `/example${i + 1}    /example${i + 1}/index.html`)
+        .every((r) => red.includes(r)) && red.includes("/examples    /examples/index.html"),
+      "a slashless /exampleN falls through and draws the sign-in screen");
+    check("and every one of them sits ABOVE the catch-all",
+      catchAll > -1 && red.indexOf("/example1    ") > -1 &&
+      red.lastIndexOf("/examples    /examples/index.html") < catchAll,
+      "_redirects is first-match-wins — below the catch-all they never fire");
+  }
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
