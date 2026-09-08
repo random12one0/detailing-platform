@@ -2019,15 +2019,26 @@ explaining it; if they still have to ask "so should I?", it failed.
   hide a real defect**: a defect is content sticking out where it can be SEEN,
   and clipped is the definition of cannot be. It stops the check crying wolf on
   every run, and a check nobody reads is the same as no check.
-- **GOOGLE SIGN-IN IS ALREADY BUILT AND IS SWITCHED OFF — do not build it
-  again (roadmap 2.25, measured 2026-09-05).** `app/src/screens/Auth.jsx` has
+- **GOOGLE SIGN-IN IS ALREADY BUILT AND IS NOW SWITCHED ON — do not build it
+  again (roadmap 2.25, measured 2026-09-05; re-measured 2026-09-07).**
+  `app/src/screens/Auth.jsx` has
   `withGoogle()` calling `signInWithOAuth`, Google's marque as inline SVG, and
   `useEnabledProviders()`, which reads GoTrue's `/auth/v1/settings` so **the
   button appears the moment the provider is enabled and never before** — no
-  rebuild, and no button leading to "provider is not enabled". That endpoint
-  answers `google: false` today, with `email` the only provider on, so this is
-  a Google Cloud OAuth client plus a Supabase toggle: **the owner's ten
-  minutes, not a code task.** The one thing to CHECK once it is on rather than
+  rebuild, and no button leading to "provider is not enabled". ~~That endpoint
+  answers `google: false` today~~ — **it answers `google: true` as of
+  2026-09-07**, so the button is LIVE on the sign-in screen and this file's
+  "switched off" reading is spent. **The owner did his ten minutes**: the
+  Cloud project is `detailing-platform` (number 37262651400), the client is
+  "Detailing Platform Web", and Supabase holds the id and secret.
+  **WHAT IS STILL BLOCKED IS PUBLISHING, NOT THE BUTTON.** The consent screen
+  is `Testing` / `External` with **0 test users**, and Google's Audience page
+  refuses both *Publish app* and saving a test user while it reads the OAuth
+  configuration incomplete — the two empty Branding fields are the **privacy
+  policy URL and the terms of service URL**. Both pages exist and are public
+  (`/privacy`, `/terms`, roadmap 7.1), so this is a paste rather than a build.
+  **Do not chase it as a code bug; nothing in the app is wrong.**
+  The one thing to CHECK now that it is on rather than
   assume: a Google sign-up lands a session with no business, and nothing has
   ever exercised that path. **The landing page already has both a Sign in and a
   Get started button too**; what he is right about is the wording.

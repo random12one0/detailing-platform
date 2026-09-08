@@ -16,8 +16,40 @@
 import { useEffect } from "react";
 import { Ground, Foot } from "./LandingPage.jsx";
 import { initThread } from "./thread.js";
-import { TERMS, PRIVACY, NOT_YET_LAWYERED, SUPPORT_EMAIL } from "./legal.js";
+import { TERMS, PRIVACY, NOT_YET_LAWYERED, SUPPORT_EMAIL, ENTITY, EFFECTIVE } from "./legal.js";
 import "./landing.css";
+
+// EMPHASIS AND LINKS INSIDE A SECTION'S PROSE.
+//
+// `legal.js` has always written emphasis as `**like this**`, and a `<dd>`
+// handed a plain string printed the asterisks — **live on /privacy, on the
+// one sentence the owner asked to have said out loud** ("nothing here is ever
+// sold, rented or handed to an advertiser"). The markup was in the content
+// from the day it was written; nothing had ever turned it into anything.
+//
+// ONE PASS FOR BOTH EMPHASIS AND LINKS, rather than a bold pass and then a
+// link pass. Two passes over the same string means the second one walks over
+// the first one's output, which is where this kind of helper usually starts
+// double-escaping or eating an address that happens to sit inside a bold run.
+//
+// It is deliberately NOT a markdown renderer. Three constructs, no nesting,
+// no headings, no lists — anything more and the content file has quietly
+// become a document format nobody chose.
+const INLINE = /\*\*(.+?)\*\*|(https?:\/\/[^\s]+?)(?=[.,)]?(?:\s|$))|([\w.+-]+@[\w-]+\.[\w.]+)/g;
+
+function inline(text) {
+  const out = [];
+  let last = 0;
+  for (const m of text.matchAll(INLINE)) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    if (m[1]) out.push(<strong key={m.index}>{m[1]}</strong>);
+    else if (m[2]) out.push(<a className="lk" key={m.index} href={m[2]} target="_blank" rel="noreferrer">{m[2]}</a>);
+    else out.push(<a className="lk" key={m.index} href={`mailto:${m[3]}`}>{m[3]}</a>);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
 
 export default function LegalPage({ which }) {
   const doc = which === "privacy" ? PRIVACY : TERMS;
@@ -50,6 +82,13 @@ export default function LegalPage({ which }) {
             ))}
           </h1>
           <p className="lede" data-rv="" style={{ "--i": 2 }}>{doc.lede}</p>
+          {/* WHO, AND SINCE WHEN. A policy carrying neither is not something a
+              reader can rely on, and Google's reviewer looks for both. The
+              legal person is ONE constant in `legal.js` — see its header, it
+              is still a guess at Andrew's paperwork. */}
+          <p className="legalnote" data-rv="" style={{ "--i": 3 }}>
+            {ENTITY} · Effective {EFFECTIVE}
+          </p>
         </section>
 
         <section className="wrap">
@@ -68,7 +107,7 @@ export default function LegalPage({ which }) {
               // rows are not conditional, which is what makes it safe.
               <div className="legalrow" data-rv="" style={{ "--i": Math.min(i, 4) }} key={what}>
                 <dt>{what}</dt>
-                <dd>{words}</dd>
+                <dd>{inline(words)}</dd>
               </div>
             ))}
           </dl>

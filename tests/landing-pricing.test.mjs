@@ -519,6 +519,68 @@ console.log("\ntest 10: the two documents and the support line");
     /two weeks/i.test(legal) && /Nothing is deleted/i.test(legal)
       && /two weeks/i.test(pcopy) && /nothing is deleted/i.test(pcopy),
     "the dunning promise is on the pricing page too, and the two must say the same thing");
+
+  // ── 2026-09-07: THE EMPHASIS WAS PRINTING AS ASTERISKS ───────────────
+  // `legal.js` has written `**like this**` since the day it was created and
+  // `<dd>{words}</dd>` handed React the raw string, so /privacy showed the
+  // literal markup **on the one sentence the owner asked to have said out
+  // loud**. It was live. Nothing rendered it because nothing ever had to —
+  // the markup arrived with the content and the renderer was written for
+  // plain prose. `inline()` in `LegalPage.jsx` turns it into <strong> and
+  // links now, and these pin that every body the file ships can be rendered
+  // by it rather than that the function merely exists.
+  const { pathToFileURL } = await import("node:url");
+  const content = await import(pathToFileURL("app/src/landing/legal.js").href);
+  const INLINE = eval("(" + (legalPage.match(/const INLINE = (\/.*\/g);/) ?? [])[1] + ")");
+  const bodies = [...content.TERMS.sections, ...content.PRIVACY.sections].map(([, w]) => w);
+
+  const render = (text) => {
+    const out = []; let last = 0;
+    for (const m of text.matchAll(INLINE)) {
+      if (m.index > last) out.push(text.slice(last, m.index));
+      out.push(m[1] ? `<b>${m[1]}</b>` : m[2] ?? m[3]);
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) out.push(text.slice(last));
+    return out.join("");
+  };
+
+  check("10k · no emphasis markup reaches the reader",
+    bodies.every((b) => !render(b).includes("**")),
+    bodies.filter((b) => render(b).includes("**")).map((b) => b.slice(0, 60)).join(" | "));
+
+  // A renderer that drops a clause is worse than one that prints asterisks,
+  // because nobody sees what is missing. Rebuilt text must equal the source.
+  const rebuild = (text) => {
+    let out = "", last = 0;
+    for (const m of text.matchAll(INLINE)) {
+      out += text.slice(last, m.index) + (m[1] ? `**${m[1]}**` : m[2] ?? m[3]);
+      last = m.index + m[0].length;
+    }
+    return out + text.slice(last);
+  };
+  check("10l · and nothing is dropped on the way",
+    bodies.every((b) => rebuild(b) === b),
+    bodies.filter((b) => rebuild(b) !== b).map((b) => b.slice(0, 60)).join(" | "));
+
+  // WHO SIGNS, AND SINCE WHEN. Google's reviewer looks for both, and a policy
+  // carrying neither is not a document a detailer can rely on. ENTITY is a
+  // GUESS at Andrew's paperwork until he confirms it — one constant, so
+  // correcting it is one line.
+  check("10m · both pages name a legal person and an effective date",
+    /ENTITY/.test(legalPage) && /EFFECTIVE/.test(legalPage)
+      && typeof content.ENTITY === "string" && content.ENTITY.length > 8
+      && typeof content.EFFECTIVE === "string" && /\d{4}/.test(content.EFFECTIVE),
+    `${content.ENTITY} / ${content.EFFECTIVE}`);
+
+  // GOOGLE WILL NOT LET ANYBODY OUTSIDE THE TEST LIST SIGN IN WITHOUT THIS.
+  // The Limited Use sentence is what its reviewer looks for by name, and the
+  // button is already on the sign-in screen — `screens/Auth.jsx` shows it the
+  // moment the provider is enabled, which it is.
+  check("10n · the privacy page covers Google sign-in and Limited Use",
+    /Limited Use/.test(priv) && /api-services-user-data-policy/.test(priv)
+      && /myaccount\.google\.com\/permissions/.test(priv),
+    "the scopes are openid, email and profile - the three GoTrue asks for by default");
 }
 
 

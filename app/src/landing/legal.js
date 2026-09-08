@@ -26,6 +26,19 @@
 // it from this file keep working.
 export { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_LINE } from "../lib/support.js";
 
+// WHO "WE" IS, IN ONE STRING. Both pages print it and nothing else hard-codes
+// it, so correcting the legal structure is a one-line change.
+//
+// **ANDREW HAS NOT CONFIRMED THIS AND IT IS A GUESS AT HIS PAPERWORK.** Sole
+// trader, a DBA on his own name, or an LLC are three different legal persons
+// and only he knows which one signs. Ask before the first real sign-up; until
+// somebody has actually agreed to these, changing it costs nothing.
+export const ENTITY = "Andrew Dietrich, doing business as Detailing Platform";
+
+// Printed at the top of both pages. It is the date the WORDS last changed, so
+// move it when the words move and not when the file is touched.
+export const EFFECTIVE = "7 September 2026";
+
 export const NOT_YET_LAWYERED =
   "Written in plain English by the person who built this, and not yet reviewed by a lawyer. "
   + "It says what the product actually does today. If anything here turns out to conflict with the "
@@ -83,8 +96,30 @@ export const PRIVACY = {
      "We can. Running the platform means we hold the keys to the database it lives in, so the person who runs this service can see what is in your account: your bookings, your figures, and your customers' details. We look when we are fixing something, when you ask us for help, and to keep an eye on whether your booking page is working. **Nothing here is ever sold, rented or handed to an advertiser, and no customer list is used to sell anything to anybody.** If that is not a trade you want, this is the paragraph to read twice before you sign up."],
     ["Card details",
      "We never see them. The card fields on the payment screen belong to Stripe and are served by Stripe; the number goes from the browser to them and never touches this product, this server or any log we keep."],
-    ["The four companies involved",
-     "Supabase stores the database and runs the code. Netlify serves the pages. Resend sends the email. Stripe takes the payments. Nobody else receives any of it, and none of them is paid to use it for anything of their own."],
+    // WAS "The four companies involved" UNTIL 2026-09-07, and it had become
+    // untrue without anybody editing it: the Google button on the sign-in
+    // screen appears by itself the moment the provider is switched on in
+    // Supabase (`screens/Auth.jsx` reads /auth/v1/settings), and it was
+    // switched on. **A count in a heading is a fact that rots** — so the
+    // heading no longer carries one.
+    ["The companies involved",
+     "Supabase stores the database and runs the code. Netlify serves the pages. Resend sends the email. Stripe takes the payments. Google confirms who you are, but only if you choose the Google button instead of a password. Nobody else receives any of it, and none of them is paid to use it for anything of their own."],
+    // ── GOOGLE SIGN-IN, 2026-09-07 ───────────────────────────────────────
+    // GOOGLE ASKS FOR THIS IN WRITING before it will let anybody outside the
+    // test list sign in, and the Limited Use sentence is the one its reviewer
+    // looks for by name. Every line is a fact about the provider AS
+    // CONFIGURED TODAY: `signInWithOAuth({ provider: "google" })` in
+    // `screens/Auth.jsx` passes no `scopes` option, so Supabase asks for
+    // GoTrue's default three — openid, email, profile — and nothing else.
+    //
+    // **WHAT IS DELIBERATELY ABSENT: the Google Business Profile sync.**
+    // `business.manage` is not on the consent screen, the feature is not
+    // built, and the API application is still sitting with Google. Describing
+    // it here would be describing something that does not exist, which is the
+    // one thing this file refuses to do. It gets its own paragraph the day
+    // the sync ships and not a day before.
+    ["Signing in with Google",
+     "The Google button asks Google for three things and nothing else: confirmation that it is really you, your email address, and your name and picture. We use them to make your account, to let you back in, and to put your name in the dashboard. **We never see your Google password.** What we do with anything Google hands us follows the Google API Services User Data Policy, including its Limited Use rules: none of it is used for advertising, none of it is sold, and no person here reads it except to fix something you have asked us to fix, or where the law leaves us no choice. That policy is at https://developers.google.com/terms/api-services-user-data-policy and you can take our access away whenever you like at https://myaccount.google.com/permissions"],
     ["Marketing email",
      "The only email a customer can be sent that they did not ask for is one a detailer writes and sends from their own Clients list. Every one of those carries a postal address and a working opt-out, and the opt-out takes two steps — a page, then a button — so a link scanner cannot unsubscribe somebody who never meant to."],
     ["How long",
