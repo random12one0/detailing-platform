@@ -944,3 +944,179 @@ be a claim about one page.**
 The remaining fifteen sites are being walked the same way. **Anything below this
 line that says "the site" and was written before the crawl means "the home
 page".**
+
+---
+
+# O. ALL EIGHTEEN, ONE READ EACH — 2026-09-08
+
+**Every home page has now been LOOKED AT**, not just measured. His verdict
+first, then what is actually on the screen, then the one thing worth taking or
+avoiding. The inner-page crawl is separate and is § K–N above.
+
+## The eleven detailer sites
+
+**`meli` — *"I liek this one"*, and *"still is lacking a bit"*.**
+Near-black `#0E1114`, one cyan `#06B6D4`, Inter throughout, real photography,
+Vite + React + Tailwind. Home page: hero video, then **five identical photo
+cards** — image on top, dark body under, title, one grey line, a 14px cyan
+*"Starting At $500"*. Flat dark cards on a flat dark ground; the photographs are
+honest but unstyled (a truck in a driveway, a car in a garage doorway); nothing
+on the page is larger than 48px. **His two sentences are both right and they are
+the same sentence: the palette and the photography are good, and the page has no
+light, no scale and no change of pace.** Its portfolio page is another matter
+entirely — § L.
+
+**`hughs` — *"this one alroghjt"*.**
+WordPress + Elementor, pure black, red `#EE0303`, `-apple-system` as the body
+face. Services are a 3-up grid of rounded photo cards with an outlined
+*VIEW SERVICE →* pill. **The one thing it does better than anything else here:
+its photographs show PEOPLE DOING THE WORK** — a hand on a polisher, someone
+taping a windscreen — where meli shows finished cars. That answers *who am I
+letting near my car*, which a finished-car photo cannot. **Take that.** The
+rest is a competent grid of flat cards on flat black, which is why it is
+"alright" and not more.
+
+**`mrgreen` — *"layout good no reall animations ;("*.**
+WordPress, black ground, green `#0E9C21`, Oswald condensed uppercase at
+**65–70px** — the only detailer site here that sets type at real scale. Two nice
+devices: **the service title sits half on the photograph and half on the card
+below it**, and the accent is a solid green square arrow button rather than a
+pill. Its services are a **carousel**, which is where its 28 running animations
+come from — **and a carousel is exactly the motion he does not count.** It does
+change ground, dark to white. **His verdict is precise: the layout is genuinely
+good and the motion is furniture.**
+
+**`chicago` — *"feels a little crowded buit still kinda good"*.**
+Jura + Bai Jamjuree, white and `#2958A7` blue, **252 boxed blocks**. The
+underlying design is better than the verdict — overlapping offset panels, a
+dotted pattern bleeding off the right edge — **but a modal popup ("NOW OPEN IN
+ST. CHARLES") sits over the middle of the screen and a periwinkle promo bar is
+stuck to the bottom.** So "crowded" is partly literal interruption, not layout.
+`docs/tenant-site-research-2026-09-05.md` § 5 already forbids the trade's popups
+on our sites; **this is the evidence for that rule.**
+
+**`carolina` — *"a little basic but sleek. And god animations just a little slow"*.**
+DM Sans + Barlow Condensed, 101 images, 11,838px, red CTAs, a *Chat with Us*
+pill. **His complaint is visible in the screenshots as blank space**: frames
+captured after a 900ms and an 1,100ms wait show two red buttons on empty black
+where content should be. Whether the cause is a slow reveal or lazy images, the
+effect on a reader is identical — **you arrive somewhere and there is nothing
+there.** **The transferable rule: a reveal slower than a scroll gesture is worse
+than no reveal.**
+
+**`luster` — BAD, *"Horrible font"*.**
+GoDaddy Website Builder. **Three type personalities in one hero**: a swash
+script wordmark, a letter-spaced serif headline, serif body — all set directly
+on the busiest part of a close-up soapy-mitt photograph with no scrim. 2,807px,
+four transitions on the entire page, a cyan cookie box in the corner. **The
+single clearest negative example in either batch.**
+
+**`sixspeed` — BAD, *"also not really good"*.**
+Hind + Teko, a clip-art circular badge logo, nav dropdowns for RV / Marine /
+Automotive / Aviation. **Its signature move is a hard 2px cyan RECTANGLE drawn
+on top of each photograph with the label centred inside it**, wrapping badly
+(*"RV Paint Protection / Film"*). **This is "a box with text in it" at its most
+literal — a box drawn over the picture.** Tile counts change row to row, 3-up
+then 4-up, at different heights.
+
+**`agautospa` — *"ehh"*.**
+Duda, `skrollr.min.js`, **0 keyframes and 0 running animations**. A script-serif
+wordmark; **nine nav items wrapping onto two lines**; a quote form with SMS
+consent copy crashing into the hero; and **three CTAs in three different colours
+in one viewport** (tan, blue, blue). **Its masonry photo grid — staggered tile
+heights, white label bottom-left with a small arrow — is genuinely good and is
+the only part worth keeping.**
+
+**`rcd` — *"layout is good very static page tho. And really like plain colors no cool backhgorund ro depth"*.**
+Squarespace, Oswald in navy on white, competent hierarchy, an eyebrow ruled
+either side, five alternating grounds. **And its service cards put a LINE ICON
+on a flat navy gradient panel where every other detailer puts a photograph of a
+car.** For a trade whose entire product is how a car looks, that removes the
+product from the page. **Plus 0 keyframes and 0 running animations.** His
+verdict is exactly right and this is the sharpest lesson of the eleven: **a
+detailing page without photographs of cars has deleted its own argument.**
+
+**`wisconsin` — BAD, *"another bad one"*.**
+Roboto + **Playfair Display** for the wordmark and *"We come to you!"* — a
+Didone doing automotive work. A snapshot of a classic car in a cluttered garage,
+only ~360px tall, ending in a hard cut to white. **A raster clip-art "BOOK AN
+APPOINTMENT" button.** A cyan Before/After label. A TrustedSite badge.
+
+**`atelier` — *"this ones good"*, and the best of the eleven by a distance.**
+Warm cream ground, the whole page inside a rounded container with the ground
+showing at its edges. A white Tesla at golden hour, gradient-blended into the
+cream rather than cut out. A huge black headline. **Floating pill chips** —
+*Available Today* with a live green dot, and a review pill carrying an avatar
+stack and *4.9 · 1,250+ reviews*. A frosted translucent trust bar sitting on the
+photograph. **And on a phone it re-lays out rather than re-flowing, with a
+bottom dock carrying Book Now** (§ G). Depth 27, the highest of any detailer.
+**It is nearer to the software sites than to the other ten detailers, and that
+is the whole finding.**
+
+## The seven he holds up as the bar
+
+**`auxia` — *"good animations and good use of liek not eveyhtin is just a box with text in it"*.**
+Webflow + GSAP + Lenis, 3 canvases, warm bone ground, **PP Neue Montreal at
+~90px left-aligned with 14px body tucked under its left edge** — a size contrast
+nothing in this repo has attempted. One electric blue `#0B4FFF`. **Its 5,362px
+section is a ROUTED DIAGRAM**: blue right-angled connectors with rounded corners
+running between floating pills and soft-shadowed cards, a monospace micro-label
+sitting on a connector, a dark product window as the anchor — drawing itself as
+you scroll, and **re-routing vertically on a phone** (§ I). **This is the literal
+answer to his sentence, and the mechanic most worth stealing.**
+
+**`pryzm` — *"Saem witht his ones"*.**
+Lenis, 2 canvases, pure black. The hero is **a scattered wall of gradient and
+grain texture tiles** — the product is backgrounds, so the page is made of its
+own product — each with a tiny monospace caption (*Pearl Grid, Iridescent /
+Halftone*). The headline sits bottom-left over the wall. **Depth 29 and almost
+all of it is the tiles themselves.**
+
+**`lightspark` — *"this one a little to white andtoo mahy straigh lines"*.**
+Suisse Intl Variable, near-white, **CSS scroll-driven timelines** (a paragraph
+whose words fill from grey to black as you scroll) and 88 will-change elements.
+**His complaint is a 4-up stats row divided by floor-to-ceiling hairlines** with
+tiny top labels and 01–04 at the bottom. **Worth noting against ourselves: "The
+Thread" is a hairline-led system**, so his objection is live for tenant sites
+even though the dashboard is not what he was looking at.
+
+**`vessa` — *"This ghas examople of hosu to use motion and other stuff"*.**
+General Sans, GSAP, a brand-guidelines document. **A persistent numbered
+left-hand contents (01–09) with an active dash**, a breadcrumb hairline above
+each section carrying *VANTA · Color* left and *03 / 09* right, and — the clever
+part — **words inside a sentence coloured to demonstrate what the sentence
+says** (*"ink, paper and the cool greys"*). A segmented Mosaic/Proportions
+toggle. **The numbered contents and the show-don't-tell sentence both transfer.**
+
+**`fora` — *"This ones cool"*.**
+104 will-change elements, 1 canvas. **An atmospheric gradient sky** — dark
+blue-grey melting into warm mauve over a soft hill silhouette — with a big
+product window rising into frame from the bottom edge. Centred, ~44px,
+**regular weight, not heavy**. **It is a centred hero, which our own
+never-defaults warn about, and it works** because the ground is atmospheric and
+one object is genuinely large. **Evidence that the never-defaults describe a
+failure mode and are not a ban.**
+
+**`authkit` — no comment given, and the highest depth score in the set (80).**
+Near-black navy with a faint starfield, **a soft radial glow behind the centre**,
+UI cards floating with blue-tinted glowing borders rather than drop shadows, a
+row of icon tiles joined by **dotted connectors**, a hairline with a small-caps
+label above the heading. 27 kinds of gradient, 16 kinds of shadow, 4 canvases,
+CSS scroll-driven animation. **Depth here is made of LIGHT, not shadow** — which
+is the *lit glass* world site `i` already has, and the two should be compared
+directly.
+
+**`landscape` — *"This is good"*.**
+Webflow, Manrope, 34 IX2-bound elements. **A full-bleed photograph as the hero**
+with a huge white centred headline and two pill buttons in the brand's deep teal
+and amber. **This is the site that corrected my depth score** (§ A): it scores 3
+on gradients and shadows and its ground is a photograph, which is depth by any
+honest definition.
+
+## The two that were not probed, and why
+
+**`dribbble.com/shots/27167430` — *"i like this main page kinda"*.** A
+screenshot hosted on a portfolio site: probing it measures Dribbble's chrome,
+not the design. **Still owed a human eye.**
+
+**`mobbin.com/mcp`** — a paid product, and he said so himself. Not pursued.
