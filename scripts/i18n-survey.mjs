@@ -126,6 +126,14 @@ const CLASS_LISTS = new Set([
  *  it would be a lie about what the catalogue is for — that file is a record
  *  of translation DECISIONS, and there is no decision here. Naming them makes
  *  the reason readable instead. */
+/** VALUES THAT ARE WRITTEN TO THE DATABASE, NOT DRAWN ON A SCREEN.
+ *
+ *  `plan_visits.note` records why a visit was added or skipped. Translating
+ *  it would put two languages in ONE ledger — whichever the detailer was
+ *  reading the day they pressed the button — so the button is translated and
+ *  the record it writes is not. The file says so at the call site too. */
+const STORED_VALUES = new Set(["Skipped", "Added by hand"]);
+
 const BRAND_NAMES = new Set([
   "Venmo", "Cash App", "PayPal", "Zelle", "Apple Pay", "Google", "Yelp",
   "Stripe", "Instagram", "Facebook", "TikTok", "Netlify", "Resend",
@@ -163,6 +171,7 @@ const looksLikeCode = (s) => (
 const isPhrase = (s) => {
   const v = s.trim();
   if (!v || looksLikeCode(v) || CLASS_LISTS.has(v) || BRAND_NAMES.has(v)) return false;
+  if (STORED_VALUES.has(v)) return false;
   if (/\s/.test(v)) return /[A-Za-z]{2,}/.test(v);
   return /^[A-Z][a-z]{2,}$/.test(v);
 };

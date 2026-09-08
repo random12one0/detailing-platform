@@ -121,7 +121,7 @@ export default function Plans() {
     // A FAILED READ MUST NOT LOOK LIKE A BUSINESS WITH NO PLANS — the fourth
     // site of this defect in the dashboard (useBookings, Money, Clients).
     const failed = p.error || m.error || c.error || v.error || b.error;
-    setError(failed ? (failed.message || "Could not load your plans.") : "");
+    setError(failed ? (failed.message || t("Could not load your plans.")) : "");
     if (p.data) setPlans(p.data);
     if (m.data) setMembers(m.data);
     if (c.data) setCustomers(c.data);
@@ -162,7 +162,7 @@ export default function Plans() {
     const { error: e } = editPlan === "new"
       ? await supabase.from("plans").insert({ ...row, sort_order: plans.length })
       : await supabase.from("plans").update(row).eq("id", editPlan).eq("business_id", business.id);
-    setMsg(e ? { ok: false, text: e.message } : { ok: true, text: "Plan saved." });
+    setMsg(e ? { ok: false, text: e.message } : { ok: true, text: t("Plan saved.") });
     if (!e) { setEditPlan(null); load(); }
   };
 
@@ -186,8 +186,8 @@ export default function Plans() {
       });
       setMsg(e
         ? { ok: false, text: /plan_members_one_live/.test(e.message)
-          ? "That customer is already on a plan. End the old one first." : e.message }
-        : { ok: true, text: "Member logged." });
+          ? t("That customer is already on a plan. End the old one first.") : e.message }
+        : { ok: true, text: t("Member logged.") });
       if (!e) { setEditMember(null); load(); }
       return;
     }
@@ -221,7 +221,7 @@ export default function Plans() {
       business_id: business.id, member_id: member.id, kind: "adjusted",
       delta, due_on: today, note,
     });
-    setMsg(e ? { ok: false, text: e.message } : { ok: true, text: delta < 0 ? "Visit skipped." : "Visit added." });
+    setMsg(e ? { ok: false, text: e.message } : { ok: true, text: delta < 0 ? t("Visit skipped.") : t("Visit added.") });
     if (!e) load();
   };
 
@@ -405,6 +405,12 @@ export default function Plans() {
                 pause while you travel. Six of ten sampled detailers advertise
                 against contracts. */}
             <div className="row" style={{ gap: 8 }}>
+              {/* ROADMAP 8.17 STAGE 2B — "Skipped" and "Added by hand" are
+                  NOT translated, and that is deliberate. They are written to
+                  `plan_visits.note` and stay there: translating them would
+                  put two languages in one ledger, depending on which one the
+                  detailer happened to be reading the day they pressed it.
+                  The BUTTON is translated; the record it writes is not. */}
               <button className="btn ghost inline" onClick={() => adjust(m, -1, "Skipped")}>{t("Skip a visit")}</button>
               <button className="btn ghost inline" onClick={() => adjust(m, 1, "Added by hand")}>{t("Add a visit")}</button>
             </div>
@@ -412,7 +418,7 @@ export default function Plans() {
         )}
 
         <div className="row" style={{ gap: 8 }}>
-          <button className="btn primary inline" onClick={saveMember}>{m ? "Save" : "Log this member"}</button>
+          <button className="btn primary inline" onClick={saveMember}>{m ? t("Save") : t("Log this member")}</button>
           <button className="btn ghost inline" onClick={() => setEditMember(null)}>{t("Cancel")}</button>
         </div>
       </div>
@@ -451,9 +457,9 @@ export default function Plans() {
           <span className="c-what">
             {p.cadence_unit && p.visits_per_period > 1 ? `${visitWords(p)} each time · ` : ""}
             {termWords(p) ? `${termWords(p)} · ` : ""}
-            {memberCount(p.id) === 0 ? "nobody on it"
-              : `${memberCount(p.id)} ${memberCount(p.id) === 1 ? "member" : "members"}`}
-            {p.is_active ? "" : " · hidden"}
+            {memberCount(p.id) === 0 ? t("nobody on it")
+              : t(memberCount(p.id) === 1 ? "{count} member" : "{count} members", { count: memberCount(p.id) })}
+            {p.is_active ? "" : t(" · hidden")}
           </span>
         </span>
         <span className="c-total figure sm">{priceWords(p.price_kind, p.price_amount, money)}</span>
@@ -468,9 +474,9 @@ export default function Plans() {
     // WHAT THE SECOND CELL SAYS IS THE WHOLE POINT OF THE SCREEN: a visit
     // owed and unbooked outranks a date, because it is the thing to act on.
     const when = m.status !== "active" ? STATUS_WORDS[m.status]
-      : l.owed > 0 ? `${l.owed} ${l.owed === 1 ? "visit" : "visits"} owed`
-        : l.nextDue ? `Next due ${dateLong(l.nextDue)}`
-          : "No set schedule";
+      : l.owed > 0 ? t(l.owed === 1 ? "{count} visit owed" : "{count} visits owed", { count: l.owed })
+        : l.nextDue ? t("Next due {date}", { date: dateLong(l.nextDue) })
+          : t("No set schedule");
     const Tag = mayWrite ? "button" : "div";
     return (
       <Tag key={m.id} className="row-item"
@@ -482,10 +488,10 @@ export default function Plans() {
           });
           setEditMember(m.id);
         } : undefined}
-        aria-label={`${c?.name ?? "Customer"}, ${pl?.name ?? "plan"}, ${when}`}>
-        <span className="c-who nm">{c?.name ?? "Customer"}</span>
+        aria-label={`${c?.name ?? t("Customer")}, ${pl?.name ?? t("Plan")}, ${when}`}>
+        <span className="c-who nm">{c?.name ?? t("Customer")}</span>
         <span className="c-sub">
-          <span className="c-date">{pl?.name ?? "Plan"}</span>
+          <span className="c-date">{pl?.name ?? t("Plan")}</span>
           <span className="c-what">{when}</span>
         </span>
         <span className="c-total figure sm">
@@ -552,8 +558,8 @@ export default function Plans() {
             origin={siteOrigin}
             path="/plans"
             label={t("Your plans page")}
-            footnote="Put this in your bio and in your texts. It lists what you offer and lets people ask to join."
-            shareTitle="Our plans"
+            footnote={t("Put this in your bio and in your texts. It lists what you offer and lets people ask to join.")}
+            shareTitle={t("Our plans")}
           />
         </div>
       )}
@@ -581,8 +587,8 @@ export default function Plans() {
             {loaded && members.length === 0 && (
               <p className="body">
                 {plans.length === 0
-                  ? "Add a plan first, then log the customers who are on it."
-                  : "Nobody logged yet."}
+                  ? t("Add a plan first, then log the customers who are on it.")
+                  : t("Nobody logged yet.")}
               </p>
             )}
             {shown.length > 0 && <div className="rows cols">{shown.map(memberRow)}</div>}
