@@ -27,16 +27,40 @@ export function daysBetween(a, b) {
 
 // "3 weeks ago" — the answer to the second job the Clients screen exists for,
 // in the words a person uses. A date would make you do the subtraction.
-export function agoWords(last, today) {
-  if (!last) return "Never";
+// ROADMAP 8.17 STAGE 2B — `t` IS AN ARGUMENT, DEFAULTING TO THE IDENTITY.
+// This module is pure arithmetic with its own suite (`client-list.test.mjs`),
+// so it must not import the locale: a shared formatter that reads the active
+// scope follows whichever one happens to be set. The default keeps every
+// existing caller and every test working unchanged, in English.
+//
+// Each plural is TWO keys, not one with an `s` glued on — the rule this item
+// has now applied about a dozen times.
+// **THE DEFAULT INTERPOLATES, AND THE FIRST VERSION DID NOT.** Written as
+// `(s) => s` it returned the literal `"{count} days ago"` — placeholder and
+// all — to every caller that did not pass a translator, which is every test
+// in `client-list.test.mjs` and the accessible label beside it. Eight checks
+// went red immediately, which is the only reason it was caught: an identity
+// default looks obviously correct and silently drops the value.
+const plain = (s, vars) => (vars
+  ? Object.entries(vars).reduce((out, [k, v]) => out.split(`{${k}}`).join(String(v)), s)
+  : s);
+
+export function agoWords(last, today, t = plain) {
+  if (!last) return t("Never");
   const d = daysBetween(last, today);
-  if (d <= 0) return "Today";
-  if (d === 1) return "Yesterday";
-  if (d < 7) return `${d} days ago`;
-  if (d < 28) { const w = Math.round(d / 7); return `${w} week${w === 1 ? "" : "s"} ago`; }
-  if (d < 365) { const m = Math.max(1, Math.round(d / 30)); return `${m} month${m === 1 ? "" : "s"} ago`; }
+  if (d <= 0) return t("Today");
+  if (d === 1) return t("Yesterday");
+  if (d < 7) return t("{count} days ago", { count: d });
+  if (d < 28) {
+    const w = Math.round(d / 7);
+    return t(w === 1 ? "{count} week ago" : "{count} weeks ago", { count: w });
+  }
+  if (d < 365) {
+    const m = Math.max(1, Math.round(d / 30));
+    return t(m === 1 ? "{count} month ago" : "{count} months ago", { count: m });
+  }
   const y = Math.round(d / 365);
-  return `${y} year${y === 1 ? "" : "s"} ago`;
+  return t(y === 1 ? "{count} year ago" : "{count} years ago", { count: y });
 }
 
 // Completed bookings -> { phone: { visits, spend, last } }.

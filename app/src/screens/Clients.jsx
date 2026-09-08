@@ -419,10 +419,10 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
           // `querySelector` takes whichever comes first in the document.
           <button key={c.id} className="row-item" data-tour={rowIndex === 0 ? "client" : undefined}
             onClick={() => openCustomer(c)}
-            aria-label={`${c.name}, last visit ${agoWords(last, today).toLowerCase()}, ${owner ? money(spend) : `${visits} visits`}, ${c.phone}`}>
+            aria-label={`${c.name}, ${t("last visit {when}", { when: agoWords(last, today, t).toLowerCase() })}, ${owner ? money(spend) : t("{count} visits", { count: visits })}, ${c.phone}`}>
             <span className="c-who nm">{c.name}</span>
             <span className="c-sub">
-              <span className="c-date">{agoWords(last, today)}</span>
+              <span className="c-date">{agoWords(last, today, t)}</span>
               <span className="c-what">{c.phone}</span>
             </span>
             {/* Lifetime spend is owner-only; staff get the count, which is
@@ -527,7 +527,7 @@ export default function Clients({ intent = null, onSetup = null, refreshKey = 0 
                 aria-busy={history === null || undefined}>
                 {(history ?? []).map((b) => {
                   const what = (b.services ?? []).map((s) => s.name_at_booking).filter(Boolean).join(" · ")
-                    || (b.service_type === "mobile" ? "Mobile" : "Drop-off");
+                    || t(b.service_type === "mobile" ? "Mobile" : "Drop-off");
                   return (
                     <button key={b.id} className="row-item" onClick={() => setSelected(b)}>
                       <span className="txt">

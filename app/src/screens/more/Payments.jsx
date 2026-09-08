@@ -106,13 +106,13 @@ export default function Payments() {
           character by character against another app. The row it saves is free
           on a page that already scrolls. Same finding as Reviews.jsx: a pair
           that does not survive 392 is not a pair. */}
-      <label className="field"><span>{t("Venmo")}</span>
+      <label className="field"><span>{"Venmo"}</span>
         <input value={pay.pay_venmo} onChange={set("pay_venmo")}
           placeholder="your-handle" maxLength={120} /></label>
-      <label className="field"><span>{t("Cash App")}</span>
+      <label className="field"><span>{"Cash App"}</span>
         <input value={pay.pay_cashapp} onChange={set("pay_cashapp")}
           placeholder={t("yourhandle")} maxLength={120} /></label>
-      <label className="field"><span>{t("PayPal")}</span>
+      <label className="field"><span>{"PayPal"}</span>
         <input value={pay.pay_paypal} onChange={set("pay_paypal")}
           placeholder={t("your-handle, or paste your PayPal.Me link")} maxLength={120} /></label>
 
@@ -121,7 +121,7 @@ export default function Payments() {
           is reached by phone number or email, so there is nothing to link to
           and the field asks for a different thing from the three above it.
           That is why it is under its own heading rather than in the pair. */}
-      <label className="field"><span>{t("Zelle")}</span>
+      <label className="field"><span>{"Zelle"}</span>
         <input value={pay.pay_zelle} onChange={set("pay_zelle")}
           placeholder={t("The phone number or email your Zelle is on")} maxLength={120} /></label>
       <label className="field"><span>{t("Anything else")}</span>

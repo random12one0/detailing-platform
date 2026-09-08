@@ -55,7 +55,7 @@ export default function Password() {
   return (
     <form className="group" onSubmit={save}>
       <p className="quiet">
-        {email ? <>{t("The password for")} <strong>{email}</strong>.</> : "Your sign-in password."}
+        {email ? <>{t("The password for")} <strong>{email}</strong>.</> : t("Your sign-in password.")}
         {" "}Eight characters or more.
       </p>
       <label className="field">
@@ -70,7 +70,7 @@ export default function Password() {
       </label>
       {msg && <div className={msg.ok ? "ok-box" : "error-box"}>{msg.text}</div>}
       <button className="btn primary" disabled={busy || !password}>
-        {busy ? "Saving…" : "Change it"}
+        {busy ? t("Saving…") : t("Change it")}
       </button>
     </form>
   );

@@ -25,7 +25,13 @@ const parse = (s) => {
   return new Date(y, m - 1, d);
 };
 const lastOfMonth = (y, m) => new Date(y, m + 1, 0).getDate();
-const shortMonth = (y, m) => new Date(y, m, 1).toLocaleDateString("en-US", { month: "short" });
+// ROADMAP 8.17 STAGE 2B — the locale is an ARGUMENT, never read here.
+// `format.js`'s `duration()` and `lib/plans.js` both carry this rule: a
+// shared formatter that reads the active locale is one that follows whichever
+// scope happens to be set, and this file is imported by Money and by the
+// accountant export. English by default, so a caller that forgets is visibly
+// English rather than subtly wrong.
+const shortMonth = (y, m, loc = "en-US") => new Date(y, m, 1).toLocaleDateString(loc, { month: "short" });
 
 // The five he named, in the order he named them. `key` is what gets stored.
 export const PERIOD_KINDS = [
@@ -44,7 +50,7 @@ export const CHART_BUCKETS = { week: 6, month: 6, "6m": 6, year: 5, all: 6 };
 
 // The period `offset` steps back from the one containing `today`.
 // offset 0 = the current one, -1 = the one before it.
-export function periodAt(kind, today, offset = 0) {
+export function periodAt(kind, today, offset = 0, loc = "en-US") {
   const t = parse(today);
   const y = t.getFullYear(), m = t.getMonth();
 
@@ -67,8 +73,8 @@ export function periodAt(kind, today, offset = 0) {
     return {
       start: ymd(d),
       end: ymd(new Date(d.getFullYear(), d.getMonth(), lastOfMonth(d.getFullYear(), d.getMonth()))),
-      label: d.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-      tick: shortMonth(d.getFullYear(), d.getMonth()),
+      label: d.toLocaleDateString(loc, { month: "long", year: "numeric" }),
+      tick: shortMonth(d.getFullYear(), d.getMonth(), loc),
     };
   }
 

@@ -35,11 +35,11 @@ export default function Preferences() {
   return (
     <>
       <p className="quiet" style={{ marginBottom: "var(--sp-4)" }}>
-        These apply to {PLATFORM_NAME[platform]} only. Sign in somewhere else
-        and you can pick differently there.
+        {t("These apply to {device} only. Sign in somewhere else and you can pick differently there.",
+          { device: t(PLATFORM_NAME[platform]) })}
       </p>
 
-      <Group title={t("Getting there")} blurb="Used by every Navigate button.">
+      <Group title={t("Getting there")} blurb={t("Used by every Navigate button.")}>
         <Setting label={t("Maps")} stacked>
           <Segmented
             value={prefs.maps}

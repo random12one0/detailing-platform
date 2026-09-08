@@ -15,10 +15,14 @@
 // lost, they are where they belong.
 
 import { money, time12 } from "../lib/format.js";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`).
+import { t } from "../lib/appI18n.js";
+import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function JobRow({ booking, node = "", onClick }) {
+  useAppLocale();
   const services = (booking.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
-  const where = booking.service_type === "mobile" ? "Mobile" : "Drop-off";
+  const where = t(booking.service_type === "mobile" ? "Mobile" : "Drop-off");
   // IDEA 11 — WHAT TO LOAD IN THE VAN, on the row rather than only inside the
   // record. The owner: *"Before I had it so they needed to click it, so
   // there's no point showing me if they have water… but yeah, we should add

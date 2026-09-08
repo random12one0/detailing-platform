@@ -370,7 +370,7 @@ export default function Business({ onSetup }) {
             <span className="ico"><ListChecks size={19} strokeWidth={2} /></span>
             <span className="txt">
               <span className="name">{t("Finish setting up")}</span>
-              <span className="now">{setup.count} of {setup.total} done</span>
+              <span className="now">{t("{count} of {total} done", { count: setup.count, total: setup.total })}</span>
             </span>
             <span className="chev"><ChevronRight size={18} strokeWidth={2} /></span>
           </button>

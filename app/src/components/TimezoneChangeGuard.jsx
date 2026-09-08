@@ -16,7 +16,7 @@ import { useAppLocale } from "../hooks/useAppLocale.js";
 
 export default function TimezoneChangeGuard({ from, to, sample, count, onCancel, onConfirm }) {
   useAppLocale();
-  const dayName = new Date(`${sample.date}T12:00:00`).toLocaleDateString("en-US", { weekday: "long" });
+  const dayName = new Date(`${sample.date}T12:00:00`).toLocaleDateString(appIntlLocale(), { weekday: "long" });
   return (
     <Sheet onClose={onCancel} title={t("Check your booked jobs")} peek={52}>
         <p className="muted" style={{ marginBottom: 12 }}>

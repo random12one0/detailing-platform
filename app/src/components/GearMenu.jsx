@@ -210,7 +210,7 @@ export default function GearMenu({ onClose, onTour, initial = null }) {
           {/* The detailer's own word for this role when they set one, spelled
               the way they typed it — the whole point of 2.13 is that "staff"
               is no longer the product's to decide. */}
-          <div className="body">Signed in as {roleName(role, label)}.</div>
+          <div className="body">{t("Signed in as {role}.", { role: roleName(role, label, t) })}</div>
           {/* ITEM G — until 2026-09-06 there was no help text, no address and
               no way to ask a question from anywhere inside the dashboard.
               Roadmap 7.1 put a support policy in the marketing page's FOOTER,

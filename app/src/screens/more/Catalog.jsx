@@ -95,7 +95,11 @@ export default function Catalog() {
 
   useEffect(() => {
     const v = settings?.vehicle_sizes;
-    setSizes(Array.isArray(v) && v.length ? v : DEFAULT_SIZES);
+    // A default is a starting point OFFERED to a human — so it arrives in
+    // their language. Anything already saved is their own words and is drawn
+    // untouched. Same rule as the seeded SMS templates.
+    setSizes(Array.isArray(v) && v.length ? v
+      : DEFAULT_SIZES.map((d) => ({ ...d, label: t(d.label), examples: t(d.examples) })));
   }, [settings]);
 
   const load = useCallback(async () => {
@@ -321,7 +325,8 @@ export default function Catalog() {
   };
   const removeSize = (i) => {
     if (sizes.length <= 1) return;
-    if (!confirm(`Remove "${sizes[i].label}"? Bookings already taken keep the size they were booked at.`)) return;
+    if (!confirm(t("Remove \"{name}\"? Bookings already taken keep the size they were booked at.",
+      { name: sizes[i].label }))) return;
     saveSizes(sizes.filter((_, n) => n !== i));
   };
   const moveSize = (i, d) => {
@@ -463,7 +468,7 @@ export default function Catalog() {
               onClick={() => moveSize(i, -1)}><ChevronUp strokeWidth={2} /></button>
             <button className="btn sm inline icon" aria-label={t("Move down")} disabled={i === sizes.length - 1}
               onClick={() => moveSize(i, 1)}><ChevronDown strokeWidth={2} /></button>
-            <button className="btn sm inline icon" aria-label={`Remove ${s.label}`} disabled={sizes.length <= 1}
+            <button className="btn sm inline icon" aria-label={t("Remove {name}", { name: s.label })} disabled={sizes.length <= 1}
               onClick={() => removeSize(i)}><X strokeWidth={2} /></button>
           </div>
         ))}

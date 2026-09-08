@@ -27,7 +27,8 @@ export default function NewBookingModal({ onClose, onCreated, initialDate }) {
   useAppLocale();
   const { business, settings } = useBusiness();
   const sizes = Array.isArray(settings?.vehicle_sizes) && settings.vehicle_sizes.length
-    ? settings.vehicle_sizes : FALLBACK_SIZES;
+    ? settings.vehicle_sizes
+    : FALLBACK_SIZES.map((d) => ({ ...d, label: t(d.label) }));
   const [catalog, setCatalog] = useState({ services: [], addOns: [] });
   const [form, setForm] = useState({
     customer_name: "",

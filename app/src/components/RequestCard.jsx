@@ -64,7 +64,7 @@ export default function RequestCard({
           </div>
 
           <div className="row wrap" style={{ gap: 6 }}>
-            <span className="tag">{booking.service_type === "mobile" ? "Mobile" : "Drop-off"}</span>
+            <span className="tag">{t(booking.service_type === "mobile" ? "Mobile" : "Drop-off")}</span>
             {/* ROADMAP 2.14 STEP 3 — AND IT IS LOAD-BEARING RATHER THAN
                 DECORATIVE. A plan booking priced at the member rate looks
                 exactly like an underpriced one-off from here, and the research
@@ -74,7 +74,7 @@ export default function RequestCard({
             {booking.plan?.name && <span className="tag">Plan · {booking.plan.name}</span>}
             {/* A quote already sent is a DIFFERENT wait — on them, not on you —
                 and it is the only fact on this card the controls do not say. */}
-            {quoted !== null && <span className="pill pending">Quoted {money(quoted)}</span>}
+            {quoted !== null && <span className="pill pending">{t("Quoted {amount}", { amount: money(quoted) })}</span>}
           </div>
 
           {services.length > 0 && <div className="body">{services.join(" · ")}</div>}
@@ -101,7 +101,7 @@ export default function RequestCard({
       </button>
       <div className="btnrow" style={{ marginTop: "var(--sp-2)" }}>
         <button className="btn sm" disabled={busy} onClick={() => onQuote(booking)}>
-          <MessageSquareQuote size={18} strokeWidth={2} /> {quoted === null ? "Quote" : "Re-quote"}
+          <MessageSquareQuote size={18} strokeWidth={2} /> {quoted === null ? t("Quote") : t("Re-quote")}
         </button>
         <button className="btn sm ghost" disabled={busy} onClick={() => onDecline(booking)}>
           <X size={18} strokeWidth={2} /> {t("Decline")}

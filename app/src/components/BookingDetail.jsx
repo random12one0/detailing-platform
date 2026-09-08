@@ -232,7 +232,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
         <div className="row wrap" style={{ gap: 6 }}>
           {/* These read as raw enum values — lowercase here, title case on
               the card for the same booking. One vocabulary, one casing. */}
-          <span className={`pill ${booking.status}`}>{STATUS_LABELS[booking.status] ?? booking.status}</span>
+          <span className={`pill ${booking.status}`}>{t(STATUS_LABELS[booking.status] ?? booking.status)}</span>
           <span className={`pill ${booking.payment_status}`}>
             {PAY_LABELS[booking.payment_status] ?? booking.payment_status}
           </span>
@@ -324,7 +324,7 @@ export default function BookingDetail({ booking, onClose, onChanged }) {
           <>
             <h3 className="section-title">{t("The job")}</h3>
             <div className="card tight">
-              <p>{booking.service_type === "mobile" ? "Mobile" : "Drop-off"}</p>
+              <p>{t(booking.service_type === "mobile" ? "Mobile" : "Drop-off")}</p>
               {address && <p className="quiet">{address}</p>}
               <p className="muted">
                 {(booking.services ?? []).map((s) => s.name_at_booking).join(", ")}

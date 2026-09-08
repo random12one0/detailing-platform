@@ -79,7 +79,7 @@ export default function AcceptInvite() {
       <form onSubmit={submit} className="card" style={{ width: "100%", maxWidth: 380 }}>
         <h1 style={{ marginBottom: 8 }}>Join {info.business_name}</h1>
         <p className="muted" style={{ marginBottom: 16 }}>
-          {info.email} · {roleName(info.role, info.label)}
+          {info.email} · {roleName(info.role, info.label, t)}
         </p>
         <label className="field">
           <span>{t("Choose a password")}</span>

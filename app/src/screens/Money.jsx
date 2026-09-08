@@ -158,8 +158,10 @@ export default function Money() {
     drawn.current = { key: periodKey, replacing: drawn.current.key !== null };
   }
   const replacing = drawn.current.replacing;
-  const period = periodAt(kind, today, offset);
-  const previous = periodAt(kind, today, offset - 1);
+  // The month and week LABELS come out of `periods.js`, which takes the
+  // locale rather than reading it — see that file's header.
+  const period = periodAt(kind, today, offset, appIntlLocale());
+  const previous = periodAt(kind, today, offset - 1, appIntlLocale());
   const buckets = useMemo(() => bucketsFor(kind, today, offset), [kind, today, offset]);
   // Enough range to cover the chart AND the comparison, which is one bucket
   // further back than the leftmost bar when the chart is only one wide.

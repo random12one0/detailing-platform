@@ -71,9 +71,14 @@ export function can(role, permissions, key) {
 
 // What to call this person. An owner is an owner; anyone else is whatever
 // their business decided to call them, and "Staff" only when nobody said.
-export function roleName(role, label) {
-  if (role === "owner") return "Owner";
-  return (label || "").trim() || "Staff";
+// ROADMAP 8.17 STAGE 2B — these two BUILD SENTENCES, so they take the
+// language rather than reading it: this module is imported by `App.jsx`'s
+// rail and by the back office, and a shared module that reads the active
+// locale follows whichever scope happens to be set. English by default, so a
+// caller that forgets is visibly English rather than subtly wrong.
+export function roleName(role, label, t = (s) => s) {
+  if (role === "owner") return t("Owner");
+  return (label || "").trim() || t("Staff");
 }
 
 // The one-line summary under a member's name. Listing the ticks is the only
@@ -85,10 +90,14 @@ export function roleName(role, label) {
 // the booking children are member-level, deliberately), so a sentence that
 // listed only the ticks would read "Detailer." and say nothing about the job
 // this person actually does.
-export function permissionSummary(role, permissions) {
-  if (role === "owner") return "Everything.";
-  const parts = ["bookings", "the calendar", "customers"]
-    .concat(PERMISSIONS.filter((p) => (permissions ?? []).includes(p.key)).map((p) => p.noun));
+export function permissionSummary(role, permissions, t = (s) => s) {
+  if (role === "owner") return t("Everything.");
+  const parts = ["bookings", "the calendar", "customers"].map((n) => t(n))
+    .concat(PERMISSIONS.filter((p) => (permissions ?? []).includes(p.key)).map((p) => t(p.noun)));
   const last = parts.pop();
-  return `${parts.join(", ")} and ${last}.`.replace(/^./, (c) => c.toUpperCase());
+  // **THE JOIN IS A KEY TOO.** English puts "and" before the last item and a
+  // comma before the rest; Spanish uses "y" and drops the Oxford comma. Gluing
+  // it here would be one more sentence English decided the shape of.
+  return t("{list} and {last}.", { list: parts.join(", "), last })
+    .replace(/^./, (c) => c.toUpperCase());
 }

@@ -73,6 +73,9 @@ export default function BookingLink({
   // places and a lookup in each of them is four round trips for one fact the
   // screen above already has.
   origin = "",
+  // An English KEY. `t()` at the draw, so a caller passing its own label —
+  // the plans page does — still gets translated if it is one of ours and
+  // passes through untouched if it is not.
   label = "Your booking page",
   footnote = "Put this in your bio, on your cards and in your texts. Customers book themselves from here.",
   shareTitle = "Book with us",
@@ -197,7 +200,7 @@ export default function BookingLink({
     /* data-tour — the walkthrough's LAST step (§13b), because the link is the
        thing they have to go and use. */
     <div className="tight" data-tour="link">
-      <span className="label">{label}</span>
+      <span className="label">{t(label)}</span>
       <div className="card">
         {/* **THE WARNING GOES HERE AND NOWHERE ELSE — roadmap 8.4, and this
             is the half he called load-bearing.** A detailer who has not

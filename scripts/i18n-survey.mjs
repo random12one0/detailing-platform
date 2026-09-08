@@ -201,7 +201,11 @@ const looksLikeCode = (s) => (
   || /^[a-z]+([A-Z][a-z0-9]*)+$/.test(s)           // camelCase
   || /^[A-Z0-9_]+$/.test(s)                        // CONSTANT_CASE
   || /^\d+(px|rem|em|vh|vw|fr|s|ms|%)$/.test(s)
-  || NOT_WORDS.has(s.toLowerCase())
+  // **CASE-SENSITIVE, AND THAT IS THE FIX FOR A REAL MISS.** `mobile` is the
+  // column value; `Mobile` is the word on a request card. Lower-casing before
+  // the lookup hid `"Mobile"` and `"Drop-off"` on the one screen a detailer
+  // sees every morning, and the survey reported the file clean.
+  || NOT_WORDS.has(s)
 );
 
 /** Words somebody reads: a phrase with a space, or one Capitalised word.
@@ -255,7 +259,10 @@ const CATALOGUE = (() => {
     const src = readFileSync(path.join(SRC, "lib", "strings", "appEs.js"), "utf8");
     return new Set(
       [...src.matchAll(/^\s*"((?:[^"\\]|\\.)*)"\s*:/gm)]
-        .map((m) => m[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\")),
+        // UNESCAPED EXACTLY AS `untranslated()` DOES IT. A key containing a
+        // newline is written `\n` in BOTH files; reading one raw and the other
+        // cooked makes a key that is plainly present read as missing.
+        .map((m) => m[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").replace(/\\\\/g, "\\")),
     );
   } catch { return new Set(); }
 })();
@@ -263,11 +270,26 @@ const CATALOGUE = (() => {
 function candidates(raw) {
   const src = stripComments(raw);
   const out = [];
+  const known = [];
   const seen = new Set();
   const add = (at, kind, text) => {
     if (!isPhrase(text)) return;
-    if (CATALOGUE.has(text.trim())) return;
+    // **ALREADY INSIDE `t(` IS THE FIRST QUESTION, AND ASKING IT SECOND MADE
+    // THE WHOLE DEMOTED LIST NOISE.** With the catalogue tested first, every
+    // properly wrapped string whose words happen to be in the catalogue — which
+    // is nearly all of them — was filed as "raw but known" and the list came
+    // out at 506 entries. A list that long is one nobody reads, which is the
+    // failure this file warns about in its own header.
     if (insideT(src, at)) return;
+    // **A CATALOGUE HIT DEMOTES, IT DOES NOT SILENCE — and the first version
+    // silenced.** The skip exists for a key held in a CONSTANT (`label:
+    // "Today"`, translated at the render site), which is correct and
+    // undetectable from here. It also hid `"Quote"` sitting raw in
+    // `RequestCard.jsx` beside two wrapped siblings, because the word was in
+    // the catalogue for a different screen. Found by reading the card in a
+    // browser with the language set to Spanish and seeing one English word
+    // between "Aceptar" and "Rechazar".
+    if (CATALOGUE.has(text.trim())) { known.push({ line: lineOf(src, at), text: text.trim() }); return; }
     const line = lineOf(src, at);
     const k = `${line}:${text.trim()}`;
     if (seen.has(k)) return;
@@ -328,6 +350,7 @@ function candidates(raw) {
     add(m.index, field ? "field" : attr ? "attr" : "lit", text);
   }
 
+  out.known = known;
   return out.sort((a, b) => a.line - b.line);
 }
 
@@ -394,11 +417,25 @@ ${missing.size} wrapped keys with no Spanish — each one is a screen in two lan
   process.exit(0);
 }
 const rows = [];
+const knownRows = [];
 for (const file of walk(SRC)) {
   const rel = path.relative(SRC, file).split(path.sep).join("/");
   if (only && !rel.includes(only)) continue;
   const found = candidates(readFileSync(file, "utf8"));
   if (found.length) rows.push({ rel, found });
+  // **THE DEMOTED LIST IS BEHIND `--left`, BECAUSE IT CANNOT BE SHORTENED
+  // HONESTLY.** A discriminator was tried — only print for a file that never
+  // calls `t(variable)` — and it changed nothing, because nearly every screen
+  // translates a variable somewhere AND holds raw catalogue words in a
+  // constant. The two are genuinely indistinguishable from here.
+  //
+  // So it is a REVIEW list rather than a check: 481 entries, most of them
+  // correct, worth reading once when a screen comes out half-English. What
+  // actually finds those is `scripts/spanish-dom.mjs`, which reads the live
+  // page with the language set to Spanish and reports English it can still
+  // see — the only instrument that can, because nothing in the source is
+  // wrong.
+  if (found.known?.length) knownRows.push({ rel, known: found.known });
 }
 rows.sort((a, b) => b.found.length - a.found.length);
 
@@ -436,6 +473,26 @@ if (showLeft) {
     console.log(`
 ${hits.length} hard-coded locales — a date in English inside a Spanish sentence:`);
     for (const h of hits) console.log(`  ${h}`);
+  }
+}
+
+// **IN THE CATALOGUE, BUT RAW AT THIS SITE.** These are demoted rather than
+// reported as candidates, because the same words legitimately sit in a
+// CONSTANT that is translated at its render site — which is undetectable
+// from here and is how half the dashboard is written.
+//
+// **THEY ARE PRINTED, THOUGH, AND THE FIRST VERSION DID NOT PRINT THEM.**
+// Silencing them hid `"Quote"` sitting raw in `RequestCard.jsx` between two
+// wrapped siblings — one English word between *Aceptar* and *Rechazar* —
+// found by reading the card in a browser rather than by any check here.
+// A demoted finding that nobody prints is a finding that was dropped.
+if (knownRows.length && showLeft) {
+  const n = knownRows.reduce((a, r) => a + r.known.length, 0);
+  console.log(`
+${n} raw literals that ARE in the catalogue — each is either a key held in a`);
+  console.log("constant (fine, translated where it is drawn) or a site somebody forgot to wrap:");
+  for (const { rel, known } of knownRows) {
+    for (const k of known) console.log(`  ${rel}:${k.line}  ${k.text}`);
   }
 }
 

@@ -17,8 +17,12 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { roleName } from "../../lib/permissions.js";
 import { useBusiness } from "../../context/BusinessContext.jsx";
+// ROADMAP 8.17 STAGE 2B — the DASHBOARD's language (`dp.lang.app`).
+import { t } from "../../lib/appI18n.js";
+import { useAppLocale } from "../../hooks/useAppLocale.js";
 
 export default function SwitchBusiness() {
+  useAppLocale();
   const { business, memberships, switchBusiness } = useBusiness();
   const [busy, setBusy] = useState(null);
 
@@ -45,7 +49,9 @@ export default function SwitchBusiness() {
                   different screens, so which hat you wear here is the fact that
                   changes what happens next. */}
               <span className="now">
-                {here ? "You are here" : busy === m.business_id ? "Switching…" : `Sign in as ${roleName(m.role, m.label)}`}
+                {here ? t("You are here")
+                  : busy === m.business_id ? t("Switching…")
+                    : t("Sign in as {role}", { role: roleName(m.role, m.label, t) })}
               </span>
             </span>
           </button>

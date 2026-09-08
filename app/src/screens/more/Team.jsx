@@ -47,7 +47,7 @@ function RoleFields({ label, permissions, onLabel, onToggle }) {
           onChange={(e) => onLabel(e.target.value)} />
       </Setting>
       {PERMISSIONS.map((p) => (
-        <Switch key={p.key} label={p.name} help={p.help}
+        <Switch key={p.key} label={t(p.name)} help={t(p.help)}
           checked={permissions.includes(p.key)}
           onChange={(on) => onToggle(p.key, on)} />
       ))}
@@ -202,7 +202,7 @@ export default function Team() {
                         actually opens. "Staff. Bookings and calendar only."
                         stopped being true the moment the list became the
                         detailer's to set. */}
-                    {roleName(m.role, m.label)}. {permissionSummary(m.role, perms)}
+                    {roleName(m.role, m.label, t)}. {permissionSummary(m.role, perms, t)}
                     {m.user_id === session?.user?.id ? ` ${t("This is you.")}` : ""}
                   </div>
                 </div>
@@ -293,7 +293,7 @@ export default function Team() {
           <div style={{ minWidth: 0 }}>
             <strong className="member-id">{inv.email}</strong>
             <div className="muted">
-              {roleName(inv.role, inv.label)} · expires {String(inv.expires_at).slice(0, 10)}
+              {roleName(inv.role, inv.label, t)} · {t("expires {date}", { date: String(inv.expires_at).slice(0, 10) })}
             </div>
           </div>
           <button className="btn ghost inline" onClick={() => revoke(inv)}>{t("Revoke")}</button>

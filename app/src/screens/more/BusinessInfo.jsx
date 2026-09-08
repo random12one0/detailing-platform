@@ -299,15 +299,15 @@ export default function BusinessInfo() {
           detailer whose customers are all on TikTok had nowhere to say so.
           Paired, because a phone stacks them at 320 anyway. */}
       <div className="grid2">
-        <label className="field"><span>{t("Instagram")}</span>
+        <label className="field"><span>{"Instagram"}</span>
           <input value={brand.social_instagram} onChange={(e) => setBrand({ ...brand, social_instagram: e.target.value })} /></label>
-        <label className="field"><span>{t("Facebook")}</span>
+        <label className="field"><span>{"Facebook"}</span>
           <input value={brand.social_facebook} onChange={(e) => setBrand({ ...brand, social_facebook: e.target.value })} /></label>
       </div>
       <div className="grid2">
-        <label className="field"><span>{t("TikTok")}</span>
+        <label className="field"><span>{"TikTok"}</span>
           <input value={brand.social_tiktok} onChange={(e) => setBrand({ ...brand, social_tiktok: e.target.value })} /></label>
-        <label className="field"><span>{t("YouTube")}</span>
+        <label className="field"><span>{"YouTube"}</span>
           <input value={brand.social_youtube} onChange={(e) => setBrand({ ...brand, social_youtube: e.target.value })} /></label>
       </div>
       <div className="grid2">

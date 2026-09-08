@@ -36,7 +36,7 @@ export default function BookingCard({
   const isMobile = booking.service_type === "mobile";
   const amount = booking.final_amount ?? booking.total_price;
   const dayLabel = showDate
-    ? new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString("en-US", {
+    ? new Date(`${booking.booking_date}T12:00:00`).toLocaleDateString(appIntlLocale(), {
       weekday: "short", month: "short", day: "numeric",
     })
     : null;
@@ -73,9 +73,9 @@ export default function BookingCard({
           </div>
 
           <div className="row wrap" style={{ gap: 6 }}>
-            <span className="tag">{isMobile ? "Mobile" : "Drop-off"}</span>
+            <span className="tag">{t(isMobile ? "Mobile" : "Drop-off")}</span>
             <span className={`pill ${booking.status}`}>
-              {STATUS_LABEL[booking.status] ?? booking.status}
+              {t(STATUS_LABEL[booking.status] ?? booking.status)}
             </span>
             {booking.payment_status === "paid" && <span className="pill paid">{t("Paid")}</span>}
           </div>

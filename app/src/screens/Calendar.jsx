@@ -585,7 +585,7 @@ export default function Calendar({ refreshKey = 0 }) {
               <div className="rows cols history">
                 {rows.map((b) => {
                   const services = (b.services ?? []).map((s) => s.name_at_booking).filter(Boolean);
-                  const what = services.join(" · ") || (b.service_type === "mobile" ? "Mobile" : "Drop-off");
+                  const what = services.join(" · ") || t(b.service_type === "mobile" ? "Mobile" : "Drop-off");
                   const amount = money(b.final_amount ?? b.total_price);
                   return (
                     <button key={b.id} className="row-item" onClick={() => setSelected(b)}
